@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // CLASSDOC OFF
-// $Id: SprMatrix.hh,v 1.3 2006/11/13 19:09:40 narsky Exp $
+// $Id: SprMatrix.hh,v 1.4 2007/11/07 00:56:14 narsky Exp $
 // ---------------------------------------------------------------------------
 // CLASSDOC ON
 //
@@ -318,6 +318,15 @@ public:
    double trace() const;
    // calculate the trace of the matrix (sum of diagonal elements).
 
+  // Householder operations
+  void row_house(const SprMatrix &v,
+		 int row,int col,int row_start,int col_start);
+  void row_house(const SprMatrix &v, double vnormsq,
+		 int row, int col, int row_start, int col_start);
+  static void givens(double a, double b, double *c, double *s);
+  void col_givens(double c,double s,
+		  int k1, int k2, int row_min, int row_max);
+
    class SprMatrix_row {
    public:
       inline SprMatrix_row(SprMatrix&,int);
@@ -342,6 +351,8 @@ public:
    // While it may not look like it, you simply do m[i][j] to get an
    // element. 
    // ** Note that the indexing starts from [0][0]. **
+
+  static inline int sign(double x) { return (x>0 ? 1: -1);}
 
 protected:
    virtual inline int num_size() const;
@@ -411,7 +422,7 @@ std::ostream& operator<<(std::ostream &s, const SprMatrix &q);
 // Read in, write out Matrix into a stream.
  
 // -*- C++ -*-
-// $Id: SprMatrix.hh,v 1.3 2006/11/13 19:09:40 narsky Exp $
+// $Id: SprMatrix.hh,v 1.4 2007/11/07 00:56:14 narsky Exp $
 // ---------------------------------------------------------------------------
 //
 

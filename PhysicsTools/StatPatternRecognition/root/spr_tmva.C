@@ -1,6 +1,6 @@
-// $Id: spr_tmva.C,v 1.2 2007/10/30 00:15:35 narsky Exp $
+// $Id: spr_tmva.C,v 1.3 2007/11/07 00:56:14 narsky Exp $
 //
-// Load spr_plot.C before running spr_tutorial():
+// Load spr_plot.C before running spr_tmva():
 //
 // .L spr_plot.C
 // .L spr_tmva.C
@@ -26,7 +26,7 @@ using namespace std;
 int spr_tmva()
 {
   // load lib
-  gSystem->Load("/afs/cern.ch/user/n/narsky/w0/CMSSW_1_8_X_2007-10-28-1600/lib/slc4_ia32_gcc345/libPhysicsToolsStatPatternRecognition.so");
+  gSystem->Load("/afs/cern.ch/user/n/narsky/w0/CMSSW_1_8_X_2007-11-09-0200/lib/slc4_ia32_gcc345/libPhysicsToolsStatPatternRecognition.so");
   
   // create main SPR object
   SprRootAdapter spr;

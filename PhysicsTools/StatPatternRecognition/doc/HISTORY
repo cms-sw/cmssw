@@ -1,4 +1,10 @@
-$Id: HISTORY,v 1.6 2007/10/15 17:52:09 narsky Exp $
+$Id: HISTORY,v 1.7 2007/10/30 18:56:10 narsky Exp $
+
+11.11.2007 narsky V00-03-00
+    Bringing up-to-date with Sourceforge SPR-07-06-01.
+    This tag introduces Principal Component Analysis.
+    See doc/README for instructions on use with executables
+    and root/spr_transform.C for examples of use with Root.
 
 30.10.2007 narsky V00-02-00
     Bringing up-to-date with Sourceforge SPR-07-05-01.

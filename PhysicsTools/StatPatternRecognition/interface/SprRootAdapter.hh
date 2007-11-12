@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprRootAdapter.hh,v 1.5 2007/10/29 22:10:40 narsky Exp $
+//      $Id: SprRootAdapter.hh,v 1.7 2007/11/12 04:41:16 narsky Exp $
 //
 // Description:
 //      Class SprRootAdapter :
@@ -32,6 +32,7 @@ class SprAbsTwoClassCriterion;
 class SprIntegerBootstrap;
 class SprAverageLoss;
 class SprCoordinateMapper;
+class SprAbsVarTransformer;
 
 
 class SprRootAdapter
@@ -52,11 +53,13 @@ public:
 
   // Load dataset.
   // Datatype must be either "train" or "test".
-  // When you load a dataset, all classifiers are cleared.
+  // If you load a training dataset, all classifiers are cleared
+  //   and you will need to train() again.
+  // If you load a test dataset, you will have to re-run test() method.
   // Both training and test datasets must be loaded
-  // before training begins.
+  //   before training begins.
   // Instead of loading a test dataset, the user
-  // might opt to split the training dataset using split().
+  //   might opt to split the training dataset using split().
   bool loadDataFromAscii(int mode, 
 			 const char* filename, 
 			 const char* datatype="train");
@@ -80,7 +83,7 @@ public:
   // Return variables used for this classifier
   bool classifierVars(const char* classifierName, char vars[][200]) const;
 
-  // This method has to be called after training 
+  // This method must be called after training 
   // and test data have been loaded.
   bool chooseClasses(const char* inputClassString);
 
@@ -228,6 +231,21 @@ public:
   // compute trained classifier responses for test data
   bool test();
 
+  // Choose variable transformer. Possible choices are:
+  /*
+    PCA
+  */
+  bool trainVarTransformer(const char* name, int verbose=0);
+
+  // save trained var transformer into a file
+  bool saveVarTransformer(const char* filename) const;
+
+  // load var transformer from a file
+  bool loadVarTransformer(const char* filename);
+
+  // transform training and test data using the supplied var transformer
+  bool transform();
+
   // save test data with computed classifier responses into a Root file
   bool saveTestData(const char* filename) const;
 
@@ -318,6 +336,10 @@ private:
   SprAbsFilter* testData_;
   bool needToTest_;
 
+  // garbage collection
+  SprAbsFilter* trainGarbage_;
+  SprAbsFilter* testGarbage_;
+
   // classifiers
   std::map<std::string,SprAbsClassifier*> trainable_;
   std::map<std::string,SprAbsTrainedClassifier*> trained_;
@@ -325,6 +347,9 @@ private:
   SprTrainedMultiClassLearner* mcTrained_;
   std::map<SprAbsTrainedClassifier*,SprCoordinateMapper*> mapper_;
   SprCoordinateMapper* mcMapper_;
+
+  // transformer
+  SprAbsVarTransformer* trans_;
 
   // plotter
   SprAbsTwoClassCriterion* showCrit_;

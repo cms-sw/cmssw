@@ -1,4 +1,4 @@
-//$Id: SprMultiClassApp.cc,v 1.10 2007/10/22 21:23:41 narsky Exp $
+//$Id: SprMultiClassApp.cc,v 1.11 2007/11/12 04:41:17 narsky Exp $
 /*
   Note: "-y" option has a different meaning for this executable than
   for other executables in the package. Instead of specifying what
@@ -34,6 +34,9 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierReader.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprMultiClassPlotter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsVarTransformer.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprVarTransformerReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTransformerFilter.hh"
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -59,6 +62,7 @@ void help(const char* prog)
   cout << "\t-y list of input classes                                " << endl;
   cout << "\t\t Classes must be listed in quotes and separated by commas." 
        << endl;
+  cout << "\t-Q apply variable transformation saved in file     " << endl;
   cout << "\t-e Multi class mode                                     " << endl;
   cout << "\t\t 1 - OneVsAll (default)                               " << endl;
   cout << "\t\t 2 - OneVsOne                                         " << endl;
@@ -126,12 +130,13 @@ int main(int argc, char ** argv)
   bool split = false;
   double splitFactor = 0;
   bool splitRandomize = false;
+  string transformerFile;
 
   // decode command line
   int c;
   extern char* optarg;
   //  extern int optind;
-  while( (c = getopt(argc,argv,"ho:a:Ay:e:i:c:g:m:v:f:r:K:Dt:V:z:Z:")) != EOF ) {
+  while( (c = getopt(argc,argv,"ho:a:Ay:Q:e:i:c:g:m:v:f:r:K:Dt:V:z:Z:")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -149,6 +154,9 @@ int main(int argc, char ** argv)
       case 'y' :
 	inputClassesString = optarg;
 	break;
+      case 'Q' :
+        transformerFile = optarg;
+        break;
       case 'e' :
         iMode = (optarg==0 ? 1 : atoi(optarg));
         break;
@@ -405,6 +413,38 @@ int main(int argc, char ** argv)
     else
       cout << "Values below " << lowCutoff << " in validation data"
 	   << " have been replaced with medians." << endl;
+  }
+
+  // apply transformation of variables to training and test data
+  auto_ptr<SprAbsFilter> garbage_train, garbage_valid;
+  if( !transformerFile.empty() ) {
+    SprVarTransformerReader transReader;
+    const SprAbsVarTransformer* t = transReader.read(transformerFile.c_str());
+    if( t == 0 ) {
+      cerr << "Unable to read VarTransformer from file "
+           << transformerFile.c_str() << endl;
+      return 2;
+    }
+    SprTransformerFilter* t_train = new SprTransformerFilter(filter.get());
+    SprTransformerFilter* t_valid = 0;
+    if( valFilter.get() != 0 )
+      t_valid = new SprTransformerFilter(valFilter.get());
+    bool replaceOriginalData = true;
+    if( !t_train->transform(t,replaceOriginalData) ) {
+      cerr << "Unable to apply VarTransformer to training data." << endl;
+      return 2;
+    }
+    if( t_valid!=0 && !t_valid->transform(t,replaceOriginalData) ) {
+      cerr << "Unable to apply VarTransformer to validation data." << endl;
+      return 2;
+    }
+    cout << "Variable transformation from file "
+         << transformerFile.c_str() << " has been applied to "
+         << "training and validation data." << endl;
+    garbage_train.reset(filter.release());
+    garbage_valid.reset(valFilter.release());
+    filter.reset(t_train);
+    valFilter.reset(t_valid);
   }
 
   // prepare trained classifier holder

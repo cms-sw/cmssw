@@ -1,4 +1,4 @@
-//$Id: SprAbsTrainedClassifier.cc,v 1.6 2007/07/11 19:52:10 narsky Exp $
+//$Id: SprAbsTrainedClassifier.cc,v 1.7 2007/11/07 00:56:14 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTrainedClassifier.hh"
@@ -10,28 +10,6 @@
 #include <fstream>
 
 using namespace std;
-
-
-/*
-  This is, of course, inefficient. I will deal with this later. -IN, Febr 2005
-*/
-double SprAbsTrainedClassifier::response(const SprVector& v) const
-{
-  vector<double> vv;
-  for( int i=0;i<v.num_row();i++ )
-    vv.push_back(v[i]);
-  return this->response(vv);
-}
-
-
-bool SprAbsTrainedClassifier::accept(const SprVector& v, double& response) 
-  const
-{
-  vector<double> vv;
-  for( int i=0;i<v.num_row();i++ )
-    vv.push_back(v[i]);
-  return this->accept(vv,response);
-}
 
 
 bool SprAbsTrainedClassifier::accept(const std::vector<double>& v, 

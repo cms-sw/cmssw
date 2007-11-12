@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: SprSymMatrix.cc,v 1.2 2006/10/19 21:27:52 narsky Exp $
+// $Id: SprSymMatrix.cc,v 1.3 2007/11/07 00:56:14 narsky Exp $
 // ---------------------------------------------------------------------------
 //
 // This file is a part of the CLHEP - a Class Library for High Energy Physics.
@@ -1204,3 +1204,199 @@ void SprSymMatrix::invertBunchKaufman(int &ifail) {
 
 }
 
+
+SprMatrix SprSymMatrix::diagonalize()
+{
+   const double tolerance = 1e-12;
+   SprMatrix u= this->tridiagonal();
+   int begin=1;
+   int end=this->num_row();
+   while(begin!=end)
+   {
+      SprMatrix::mIter sii = this->m.begin() + (begin+2)*(begin-1)/2;
+      SprMatrix::mIter sip1i = sii + begin;
+      for (int i=begin;i<=end-1;i++) {
+         if (fabs(*sip1i)<=
+            tolerance*(fabs(*sii)+fabs(*(sip1i+1)))) {
+            (*sip1i)=0;
+         }
+         sii += i+1;
+         sip1i += i+2;
+      }
+      while(begin<end && this->fast(begin+1,begin) ==0) begin++;
+      while(end>begin && this->fast(end,end-1) ==0) end--;
+      if (begin!=end)
+         this->diag_step(&u,begin,end);
+   }
+   return u;
+}
+
+
+SprMatrix SprSymMatrix::tridiagonal()
+{
+   SprMatrix U(this->num_row(),this->num_col(),1);
+   if (this->num_col()>2)
+   {
+      SprMatrix hsm(this->num_col(),this->num_col()-2,0);
+      this->tridiagonal(&hsm);
+      for (int j=hsm.num_col();j>=1;--j) {
+         U.row_house(hsm,j,j,j,j);
+      }
+   }
+   return U;
+}
+
+
+void SprSymMatrix::tridiagonal(SprMatrix *hsm)
+{
+   int nh = hsm->num_col();
+   for (int k=1;k<=this->num_col()-2;k++) {
+
+      // If this row is already in tridiagonal form, we can skip the
+      // transformation.
+
+      double scale=0;
+      SprMatrix::mIter ajk = this->m.begin() + k * (k+5) / 2;
+      int j;
+      for (j=k+2;j<=this->num_row();j++) {
+         scale+=fabs(*ajk);
+         ajk += j;
+      }
+      if (scale ==0) {
+         SprMatrix::mIter hsmjkp = hsm->m.begin() + k * (nh+1) - 1;
+         for (j=k+1;j<=hsm->num_row();j++) {
+            *hsmjkp = 0;
+            hsmjkp += nh;
+         }
+      } else {
+         this->house_with_update2(hsm,k+1,k);
+         double normsq=0;
+         SprMatrix::mIter hsmrptrkp = hsm->m.begin() + k * (nh+1) - 1;
+         int rptr;
+         for (rptr=k+1;rptr<=hsm->num_row();rptr++) {
+            normsq+=(*hsmrptrkp)*(*hsmrptrkp);
+            hsmrptrkp += nh;
+         }
+         SprVector p(this->num_row()-k,0);
+         rptr=k+1;
+         SprMatrix::mIter pr = p.m.begin();
+         int r;
+         for (r=1;r<=p.num_row();r++) {
+            SprMatrix::mIter hsmcptrkp = hsm->m.begin() + k * (nh+1) - 1;
+            int cptr;
+            for (cptr=k+1;cptr<=rptr;cptr++) {
+               (*pr)+=this->fast(rptr,cptr)*(*hsmcptrkp);
+               hsmcptrkp += nh;
+            }
+            for (;cptr<=this->num_col();cptr++) {
+               (*pr)+=this->fast(cptr,rptr)*(*hsmcptrkp);
+               hsmcptrkp += nh;
+            }
+            (*pr)*=2/normsq;
+            rptr++;
+            pr++;
+         }
+         double pdotv=0;
+         pr = p.m.begin();
+         hsmrptrkp = hsm->m.begin() + k * (nh+1) - 1;
+         for (r=1;r<=p.num_row();r++) {
+            pdotv+=(*(pr++))*(*hsmrptrkp);
+            hsmrptrkp += nh;
+         }
+         pr = p.m.begin();
+         hsmrptrkp = hsm->m.begin() + k * (nh+1) - 1;
+         for (r=1;r<=p.num_row();r++) {
+            (*(pr++))-=pdotv*(*hsmrptrkp)/normsq;
+            hsmrptrkp += nh;
+         }
+         rptr=k+1;
+         pr = p.m.begin();
+         hsmrptrkp = hsm->m.begin() + k * (nh+1) - 1;
+         for (r=1;r<=p.num_row();r++) {
+            int cptr=k+1;
+            SprMatrix::mIter pc = p.m.begin();
+            SprMatrix::mIter hsmcptrkp = hsm->m.begin() + k * (nh+1) - 1;
+            for (int c=1;c<=r;c++) {
+               this->fast(rptr,cptr)-= 
+		 (*hsmrptrkp)*(*(pc++))+(*pr)*(*hsmcptrkp);
+               cptr++;
+               hsmcptrkp += nh;
+            }
+            pr++;
+            rptr++;
+            hsmrptrkp += nh;
+         }
+      }
+   }
+}
+
+
+void SprSymMatrix::house_with_update2(SprMatrix *v,int row,int col)
+{
+   double normsq=0;
+   int nv = v->num_col();
+   SprMatrix::mIter vrc = v->m.begin() + (row-1) * nv + (col-1);
+   SprMatrix::mIter arc = this->m.begin() + (row-1) * row / 2 + (col-1);
+   int r;
+   for (r=row;r<=this->num_row();r++)
+   {
+      (*vrc)=(*arc);
+      normsq+=(*vrc)*(*vrc);
+      arc += r;
+      vrc += nv;
+   }
+   double norm=sqrt(normsq);
+   vrc = v->m.begin() + (row-1) * nv + (col-1);
+   arc = this->m.begin() + (row-1) * row / 2 + (col-1);
+   (*vrc)+=SprMatrix::sign(*arc)*norm;
+   (*arc)=-SprMatrix::sign(*arc)*norm;
+   arc += row;
+   for (r=row+1;r<=this->num_row();r++) {
+      (*arc)=0;
+      arc += r;
+   }
+}
+
+
+void SprSymMatrix::diag_step(SprMatrix *u,int begin,int end)
+{
+   double d=(this->fast(end-1,end-1)-this->fast(end,end))/2;
+   double mu=this->fast(end,end)-this->fast(end,end-1)*this->fast(end,end-1)/
+         (d+SprMatrix::sign(d)
+	  *sqrt(d*d+this->fast(end,end-1)*this->fast(end,end-1)));
+   double x=this->fast(begin,begin)-mu;
+   double z=this->fast(begin+1,begin);
+   SprMatrix::mIter tkk = this->m.begin() + (begin+2)*(begin-1)/2;
+   SprMatrix::mIter tkp1k = tkk + begin;
+   SprMatrix::mIter tkp2k = tkk + 2 * begin + 1;
+   for (int k=begin;k<=end-1;k++) {
+      double c,s;
+      SprMatrix::givens(x,z,&c,&s);
+      u->col_givens(c,s,k,k+1,1,0);
+
+      // This is the result of G.T*t*G, making use of the special structure
+      // of t and G. Note that since t is symmetric, only the lower half
+      // needs to be updated.  Equations were gotten from maple.
+
+      if (k!=begin) {
+         *(tkk-1)= (*(tkk-1))*c-(*(tkp1k-1))*s;
+         *(tkp1k-1)=0;
+      }
+      double ap=(*tkk);
+      double bp=(*tkp1k);
+      double aq=(*(tkp1k+1));
+      (*tkk)=ap*c*c-2*c*bp*s+aq*s*s;
+      (*tkp1k)=c*ap*s+bp*c*c-bp*s*s-s*aq*c;
+      (*(tkp1k+1))=ap*s*s+2*c*bp*s+aq*c*c;
+      if (k<end-1) {
+         double bq=(*(tkp2k+1));
+         (*tkp2k)=-bq*s;
+         (*(tkp2k+1))=bq*c;
+         x=(*tkp1k);
+         z=(*(tkp2k));
+      }
+      tkk += k+1;
+      tkp1k += k+2;
+      tkp2k += k+3;
+   }
+}

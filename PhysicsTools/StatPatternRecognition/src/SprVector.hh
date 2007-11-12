@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // CLASSDOC OFF
-// $Id: SprVector.hh,v 1.2 2006/10/19 21:27:52 narsky Exp $
+// $Id: SprVector.hh,v 1.3 2007/11/07 00:56:14 narsky Exp $
 // ---------------------------------------------------------------------------
 // CLASSDOC ON
 //
@@ -63,6 +63,9 @@ public:
    // Default constructor. Gives vector of length 0.
    // Another Vector can be assigned to it.
 
+  // Constructor from std::vector
+   inline SprVector(const std::vector<double>& v);
+
    explicit SprVector(int p);
    SprVector(int p, int);
    // Constructor. Gives vector of length p.
@@ -74,6 +77,9 @@ public:
 
    virtual ~SprVector();
    // Destructor.
+
+   // get std vector
+   inline std::vector<double> std() const;
 
    inline const double & operator()(int row) const;
    inline double & operator()(int row);
@@ -201,7 +207,7 @@ SprVector dsum(const SprVector &s1, const SprVector &s2);
 // Direct sum of two vectors;
 
 // -*- C++ -*-
-// $Id: SprVector.hh,v 1.2 2006/10/19 21:27:52 narsky Exp $
+// $Id: SprVector.hh,v 1.3 2007/11/07 00:56:14 narsky Exp $
 // ---------------------------------------------------------------------------
 //
 
@@ -218,11 +224,17 @@ inline SprVector::SprVector()
    : m(0), nrow(0)
 {}
 
+inline SprVector::SprVector(const std::vector<double>& v)
+   : m(v), nrow(v.size())
+{}
+
 inline double SprVector::normsq() const {return dot((*this),(*this));}
 inline double SprVector::norm() const {return sqrt(normsq());}
 inline int SprVector::num_row() const {return nrow;} 
 inline int SprVector::num_size() const {return nrow;} 
 inline int SprVector::num_col() const { return 1; }
+
+inline std::vector<double> SprVector::std() const { return m; }
 
 inline double & SprVector::operator()(int row)
 {

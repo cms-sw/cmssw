@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprEmptyFilter.hh,v 1.3 2007/05/17 23:31:37 narsky Exp $
+//      $Id: SprEmptyFilter.hh,v 1.4 2007/11/07 00:56:14 narsky Exp $
 //
 // Description:
 //      Class SprEmptyFilter :
@@ -21,12 +21,12 @@
 #define _SprEmptyFilter_HH
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 
 #include <vector>
 
 class SprPoint;
 class SprData;
-class SprClass;
 
 
 class SprEmptyFilter : public SprAbsFilter

@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprAbsTrainedClassifier.hh,v 1.6 2007/07/11 19:52:09 narsky Exp $
+//      $Id: SprAbsTrainedClassifier.hh,v 1.7 2007/11/07 00:56:14 narsky Exp $
 //
 // Description:
 //      Class SprAbsTrainedClassifier :
@@ -55,13 +55,11 @@ public:
   /*
     Classifier response for a data point. 
     Works only for problems with two categories, e.g., signal and background.
-
-    Note: the method with SprVector should be avoided because it converts
-    SprVector into an STL vector and therefore is quite slow. Use response()
-    with the STL vector!
   */
   virtual double response(const std::vector<double>& v) const = 0;
-  double response(const SprVector& v) const;
+  double response(const SprVector& v) const { 
+    return this->response(v.std()); 
+  }
   double response(const SprPoint* p) const {
     return this->response(p->x_);
   }
@@ -91,7 +89,9 @@ public:
     return this->accept(p->x_);
   }
   virtual bool accept(const std::vector<double>& v, double& response) const;
-  virtual bool accept(const SprVector& v, double& response) const;
+  bool accept(const SprVector& v, double& response) const {
+    return this->accept(v.std(),response);
+  }
   bool accept(const SprPoint* p, double& response) const {
     return this->accept(p->x_,response);
   }

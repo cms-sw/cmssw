@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: SprMatrix.cc,v 1.2 2006/10/19 21:27:52 narsky Exp $
+// $Id: SprMatrix.cc,v 1.3 2007/11/07 00:56:14 narsky Exp $
 // ---------------------------------------------------------------------------
 //
 // This file is a part of the CLHEP - a Class Library for High Energy Physics.
@@ -644,5 +644,90 @@ double SprMatrix::trace() const {
    for (mcIter d = m.begin(); d < m.end(); d += (ncol+1) )
       t += *d;
    return t;
+}
+
+
+void SprMatrix::row_house(const SprMatrix &v,
+			  int row,int col,int row_start,int col_start)
+{
+   double normsq=0;
+   int end = row_start+this->num_row()-row;
+   for (int i=row_start; i<=end; i++)
+     normsq += v(i,col)*v(i,col);
+   // If v is 0, then we can skip doing row_house.
+   if (normsq !=0)
+     this->row_house(v,normsq,row,col,row_start,col_start);
+}
+
+
+void SprMatrix::row_house(const SprMatrix &v,
+			  double vnormsq,
+			  int row, int col, int row_start, int col_start) {
+   double beta=-2/vnormsq;
+
+   // This is a fast way of calculating w=beta*A.sub(row,n,col,n).T()*v
+   SprVector w(this->num_col()-col+1,0);
+   int na = this->num_col();
+   int nv = v.num_col();
+   SprMatrix::mIter wptr = w.m.begin();
+   SprMatrix::mIter arcb = this->m.begin() + (row-1) * na + (col-1);
+   SprMatrix::mcIter vpcb = v.m.begin() + (row_start-1) * nv + (col_start-1);
+   int c;
+   for (c=col;c<=this->num_col();c++) {
+      SprMatrix::mIter arc = arcb;
+      SprMatrix::mcIter vpc = vpcb;
+      for (int r=row;r<=this->num_row();r++) {
+         (*wptr)+=(*arc)*(*vpc);
+         arc += na;
+         vpc += nv;
+      }
+      wptr++;
+      arcb++;
+   }
+   w*=beta;
+
+   arcb = this->m.begin() + (row-1) * na + (col-1);
+   SprMatrix::mcIter vpc = v.m.begin() + (row_start-1) * nv + (col_start-1);
+   for (int r=row; r<=this->num_row();r++) {
+      SprMatrix::mIter arc = arcb;
+      SprMatrix::mIter wptr = w.m.begin();
+      for (c=col;c<=this->num_col();c++) {
+         (*(arc++))+=(*vpc)*(*(wptr++));
+      }
+      arcb += na;
+      vpc += nv;
+   }
+}
+
+
+void SprMatrix::givens(double a, double b, double *c, double *s)
+{
+   if (b ==0) { *c=1; *s=0; }
+   else {
+      if (fabs(b)>fabs(a)) {
+         double tau=-a/b;
+         *s=1/sqrt(1+tau*tau);
+         *c=(*s)*tau;
+      } else {
+         double tau=-b/a;
+         *c=1/sqrt(1+tau*tau);
+         *s=(*c)*tau;
+      }
+   }
+}
+
+
+void SprMatrix::col_givens(double c,double s,
+			   int k1, int k2, int row_min, int row_max) {
+   if (row_max<=0) row_max = this->num_row();
+   int n = this->num_col();
+   SprMatrix::mIter Ajk1 = this->m.begin() + (row_min - 1) * n + k1 - 1;
+   SprMatrix::mIter Ajk2 = this->m.begin() + (row_min - 1) * n + k2 - 1;
+   for (int j=row_min;j<=row_max;j++) {
+      double tau1=(*Ajk1); double tau2=(*Ajk2);
+      (*Ajk1)=c*tau1-s*tau2;(*Ajk2)=s*tau1+c*tau2;
+      Ajk1 += n;
+      Ajk2 += n;
+   }
 }
 

@@ -1,4 +1,4 @@
-//$Id: SprDecisionTreeApp.cc,v 1.9 2007/10/05 20:03:09 narsky Exp $
+//$Id: SprDecisionTreeApp.cc,v 1.10 2007/11/12 04:41:17 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -26,6 +26,9 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprAverageLoss.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprLoss.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTransformation.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsVarTransformer.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprVarTransformerReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTransformerFilter.hh"
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -52,6 +55,7 @@ void help(const char* prog)
   cout << "\t-n minimal number of events per tree node (def=1)  " << endl;
   cout << "\t-m --- merge nodes after training (def = no merge) " << endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
+  cout << "\t-Q apply variable transformation saved in file     " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
   cout << "\t-T use Topdown tree with contonuous output         " << endl;
   cout << "\t-f store decision tree to file in human-readable format" << endl;
@@ -124,11 +128,12 @@ int main(int argc, char ** argv)
   bool split = false;
   double splitFactor = 0;
   bool splitRandomize = false;
+  string transformerFile;
 
   // decode command line
   int c;
   extern char* optarg;
-  while( (c = getopt(argc,argv,"ho:a:An:v:f:TF:c:P:g:iK:Dt:p:my:w:V:z:x:q:")) != EOF ) {
+  while( (c = getopt(argc,argv,"ho:a:An:v:f:TF:c:P:g:iK:Dt:p:my:Q:w:V:z:x:q:")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -189,6 +194,9 @@ int main(int argc, char ** argv)
       case 'y' :
 	inputClassesString = optarg;
 	break;
+      case 'Q' :
+        transformerFile = optarg;
+        break;
       case 'w' :
 	if( optarg != 0 ) {
 	  scaleWeights = true;
@@ -376,6 +384,38 @@ int main(int argc, char ** argv)
   // scale weights
   if( scaleWeights && valFilter.get()!=0 )
     valFilter->scaleWeights(inputClasses[1],sW);
+
+  // apply transformation of variables to training and test data
+  auto_ptr<SprAbsFilter> garbage_train, garbage_valid;
+  if( !transformerFile.empty() ) {
+    SprVarTransformerReader transReader;
+    const SprAbsVarTransformer* t = transReader.read(transformerFile.c_str());
+    if( t == 0 ) {
+      cerr << "Unable to read VarTransformer from file "
+           << transformerFile.c_str() << endl;
+      return 2;
+    }
+    SprTransformerFilter* t_train = new SprTransformerFilter(filter.get());
+    SprTransformerFilter* t_valid = 0;
+    if( valFilter.get() != 0 )
+      t_valid = new SprTransformerFilter(valFilter.get());
+    bool replaceOriginalData = true;
+    if( !t_train->transform(t,replaceOriginalData) ) {
+      cerr << "Unable to apply VarTransformer to training data." << endl;
+      return 2;
+    }
+    if( t_valid!=0 && !t_valid->transform(t,replaceOriginalData) ) {
+      cerr << "Unable to apply VarTransformer to validation data." << endl;
+      return 2;
+    }
+    cout << "Variable transformation from file "
+         << transformerFile.c_str() << " has been applied to "
+         << "training and validation data." << endl;
+    garbage_train.reset(filter.release());
+    garbage_valid.reset(valFilter.release());
+    filter.reset(t_train);
+    valFilter.reset(t_valid);
+  }
 
   // make optimization criterion
   auto_ptr<SprAbsTwoClassCriterion> crit;

@@ -1,4 +1,4 @@
-//$Id: SprExploratoryAnalysisApp.cc,v 1.6 2007/10/05 20:03:09 narsky Exp $
+//$Id: SprExploratoryAnalysisApp.cc,v 1.7 2007/11/12 04:41:17 narsky Exp $
 /*
   This executable is intended for exploratory analysis of data.
 
@@ -36,6 +36,9 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprDataMoments.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprStringParser.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsVarTransformer.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprVarTransformerReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTransformerFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/src/SprSymMatrix.hh"
 #include "PhysicsTools/StatPatternRecognition/src/SprVector.hh"
 
@@ -78,6 +81,7 @@ void help(const char* prog)
   cout << "\t-h --- help                                        " << endl;
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh)  " << endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
+  cout << "\t-Q apply variable transformation saved in file     " << endl;
   cout << "\t-c criterion for optimization                      " << endl;
   cout << "\t\t 1 = correctly classified fraction (default)     " << endl;
   cout << "\t\t 2 = signal significance s/sqrt(s+b)             " << endl;
@@ -116,12 +120,13 @@ int main(int argc, char ** argv)
   string includeList, excludeList;
   string inputClassesString;
   double bW = 1.;
+  string transformerFile;
 
   // decode command line
   int c;
   extern char* optarg;
   //  extern int optind;
-  while( (c = getopt(argc,argv,"ha:y:c:P:rw:V:z:")) != EOF ) {
+  while( (c = getopt(argc,argv,"ha:y:Q:c:P:rw:V:z:")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -133,6 +138,9 @@ int main(int argc, char ** argv)
       case 'y' :
 	inputClassesString = optarg;
 	break;
+      case 'Q' :
+        transformerFile = optarg;
+        break;
       case 'c' :
 	iCrit = (optarg==0 ? 1 : atoi(optarg));
 	break;
@@ -252,6 +260,28 @@ int main(int argc, char ** argv)
   // scale weights
   if( scaleWeights )
     filter->scaleWeights(inputClasses[1],sW);
+
+  // apply transformation of variables to data
+  auto_ptr<SprAbsFilter> garbage_train;
+  if( !transformerFile.empty() ) {
+    SprVarTransformerReader transReader;
+    const SprAbsVarTransformer* t = transReader.read(transformerFile.c_str());
+    if( t == 0 ) {
+      cerr << "Unable to read VarTransformer from file "
+           << transformerFile.c_str() << endl;
+      return 2;
+    }
+    SprTransformerFilter* t_train = new SprTransformerFilter(filter.get());
+    bool replaceOriginalData = true;
+    if( !t_train->transform(t,replaceOriginalData) ) {
+      cerr << "Unable to apply VarTransformer to training data." << endl;
+      return 2;
+    }
+    cout << "Variable transformation from file "
+         << transformerFile.c_str() << " has been applied to data." << endl;
+    garbage_train.reset(filter.release());
+    filter.reset(t_train);
+  }
 
   // make optimization criterion
   auto_ptr<SprAbsTwoClassCriterion> crit;

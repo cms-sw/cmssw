@@ -1,4 +1,4 @@
-//$Id: SprVariableImportanceApp.cc,v 1.3 2007/10/29 22:10:40 narsky Exp $
+//$Id: SprVariableImportanceApp.cc,v 1.4 2007/11/12 04:41:17 narsky Exp $
 //
 // An executable to estimate the relative importance of variables.
 // See notes in README (Variable Selection).
@@ -17,6 +17,9 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTrainedClassifier.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedMultiClassLearner.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierEvaluator.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsVarTransformer.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprVarTransformerReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTransformerFilter.hh"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -53,6 +56,7 @@ void help(const char* prog)
   cout << "\t Options: " << endl;
   cout << "\t-h --- help                                        " << endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
+  cout << "\t-Q apply variable transformation saved in file     " << endl;
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh)  " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
   cout << "\t-m use multiclass learner                          " << endl;
@@ -85,12 +89,13 @@ int main(int argc, char ** argv)
   bool mapTrainedVars = false;
   int nPerm = 1;
   bool useMCLearner = false;
+  string transformerFile;
 
   // decode command line
   int c;
   extern char* optarg;
   extern int optind;
-  while( (c = getopt(argc,argv,"hy:a:mn:v:w:V:z:M")) != EOF ) {
+  while( (c = getopt(argc,argv,"hy:Q:a:mn:v:w:V:z:M")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -99,6 +104,9 @@ int main(int argc, char ** argv)
       case 'y' :
 	inputClassesString = optarg;
 	break;
+      case 'Q' :
+        transformerFile = optarg;
+        break;
       case 'a' :
 	readMode = (optarg==0 ? 0 : atoi(optarg));
 	break;
@@ -221,6 +229,29 @@ int main(int argc, char ** argv)
   if( scaleWeights ) {
     cout << "Signal weights are multiplied by " << sW << endl;
     filter->scaleWeights(inputClasses[1],sW);
+  }
+
+  // apply transformation of variables to training and test data
+  auto_ptr<SprAbsFilter> garbage_train;
+  if( !transformerFile.empty() ) {
+    SprVarTransformerReader transReader;
+    const SprAbsVarTransformer* t = transReader.read(transformerFile.c_str());
+    if( t == 0 ) {
+      cerr << "Unable to read VarTransformer from file "
+           << transformerFile.c_str() << endl;
+      return 2;
+    }
+    SprTransformerFilter* t_train = new SprTransformerFilter(filter.get());
+    bool replaceOriginalData = true;
+    if( !t_train->transform(t,replaceOriginalData) ) {
+      cerr << "Unable to apply VarTransformer to training data." << endl;
+      return 2;
+    }
+    cout << "Variable transformation from file "
+         << transformerFile.c_str() << " has been applied to "
+         << "training data." << endl;
+    garbage_train.reset(filter.release());
+    filter.reset(t_train);
   }
 
   // read classifier configuration

@@ -1,4 +1,4 @@
-//$Id: SprRootAdapter.cc,v 1.5 2007/10/29 22:10:40 narsky Exp $
+//$Id: SprRootAdapter.cc,v 1.7 2007/11/12 04:41:17 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprRootAdapter.hh"
@@ -59,6 +59,11 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprRootWriter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDataFeeder.hh"
 
+#include "PhysicsTools/StatPatternRecognition/interface/SprTransformerFilter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsVarTransformer.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprVarTransformerReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprPCATransformer.hh"
+
 #include "PhysicsTools/StatPatternRecognition/src/SprSymMatrix.hh"
 #include "PhysicsTools/StatPatternRecognition/src/SprVector.hh"
 
@@ -76,6 +81,9 @@ SprRootAdapter::~SprRootAdapter()
 {
   delete trainData_;
   delete testData_;
+  delete trainGarbage_;
+  delete testGarbage_;
+  delete trans_;
   delete showCrit_;
   this->clearClassifiers();
 }
@@ -88,12 +96,15 @@ SprRootAdapter::SprRootAdapter()
   trainData_(0),
   testData_(0),
   needToTest_(true),
+  trainGarbage_(),
+  testGarbage_(),
   trainable_(),
   trained_(),
   mcTrainable_(0),
   mcTrained_(0),
   mapper_(),
   mcMapper_(),
+  trans_(0),
   plotter_(0),
   mcPlotter_(0),
   showCrit_(0),
@@ -142,8 +153,11 @@ bool SprRootAdapter::loadDataFromAscii(int mode,
   // get data type
   string sdatatype = datatype;
   if(      sdatatype == "train" ) {
+    cout << "Warning: training data will be reloaded." << endl;
     this->clearClassifiers();
     delete trainData_;
+    delete trainGarbage_;
+    trainGarbage_ = 0;
     trainData_ = reader.read(filename);
     if( trainData_ == 0 ) {
       cerr << "Failed to read training data from file " 
@@ -153,8 +167,11 @@ bool SprRootAdapter::loadDataFromAscii(int mode,
     return true;
   }
   else if( sdatatype == "test" ) {
+    cout << "Warning: test data will be reloaded." << endl;
     needToTest_ = true;
     delete testData_;
+    delete testGarbage_;
+    testGarbage_ = 0;
     testData_ = reader.read(filename);
     if( testData_ == 0 ) {
       cerr << "Failed to read test data from file " 
@@ -178,6 +195,8 @@ bool SprRootAdapter::loadDataFromRoot(const char* filename,
   if(      sdatatype == "train" ) {
     this->clearClassifiers();
     delete trainData_;
+    delete trainGarbage_;
+    trainGarbage_ = 0;
     trainData_ = reader.read(filename);
     if( trainData_ == 0 ) {
       cerr << "Failed to read training data from file " 
@@ -189,6 +208,8 @@ bool SprRootAdapter::loadDataFromRoot(const char* filename,
   else if( sdatatype == "test" ) {
     needToTest_ = true;
     delete testData_;
+    delete testGarbage_;
+    testGarbage_ = 0;
     testData_ = reader.read(filename);
     if( testData_ == 0 ) {
       cerr << "Failed to read test data from file " 
@@ -345,7 +366,9 @@ bool SprRootAdapter::split(double fractionForTraining, bool randomize)
   if( testData_ != 0 ) {
     cout << "Test data will be deleted." << endl;
     delete testData_;
+    delete testGarbage_;
     testData_ = 0;
+    testGarbage_ = 0;
   }
 
   // split training data
@@ -1793,6 +1816,114 @@ bool SprRootAdapter::saveTestData(const char* filename) const
     cerr << "Unable to feed data into writer." << endl;
     return false;
   }
+
+  // exit
+  return true;
+}
+
+
+bool SprRootAdapter::trainVarTransformer(const char* name, int verbose)
+{
+  // sanity check
+  if( trainData_ == 0 ) {
+    cerr << "Training data has not been loaded." << endl;
+    return false;
+  }
+
+  // make a transformer
+  if( trans_ != 0 ) delete trans_;
+  string sname = name;
+  if(      sname == "PCA" )
+    trans_ = new SprPCATransformer();
+  else {
+    cerr << "Unknown VarTransformer type requested: " << sname.c_str() << endl;
+    return false;
+  }
+
+  // train
+  if( !trans_->train(trainData_,verbose) ) {
+    cerr << "Unable to train VarTransformer." << endl;
+    return false;
+  }
+
+  // exit
+  return true;
+}
+
+
+bool SprRootAdapter::saveVarTransformer(const char* filename) const
+{
+  // sanity check
+  if( trans_ == 0 ) {
+    cerr << "No VarTransformer found. Unable to save." << endl;
+    return false;
+  }
+
+  // save
+  if( !trans_->store(filename) ) {
+    cerr << "Unable to save VarTransformer to file " << filename << endl;
+    return false;
+  }
+
+  // exit
+  return true;
+}
+
+
+bool SprRootAdapter::loadVarTransformer(const char* filename)
+{
+  if( trans_ != 0 ) delete trans_;
+  trans_ = SprVarTransformerReader::read(filename);
+  if( trans_ == 0 ) {
+    cerr << "Unable to load VarTransformer from file " << filename << endl;
+    return false;
+  }
+  return true;
+}
+
+
+bool SprRootAdapter::transform()
+{
+  // sanity check
+  if( trainData_ == 0 ) {
+    cerr << "Training data has not been loaded. Unable to transform." << endl;
+    return false;
+  }
+  if( testData_ == 0 ) {
+    cerr << "Test data has not been loaded. Unable to transform." << endl;
+    return false;
+  }
+  if( trans_ == 0 ) {
+    cerr << "No VarTransformer found. Unable to transform." << endl;
+    return false;
+  }
+
+  // make new data filters
+  SprTransformerFilter* trainData = new SprTransformerFilter(trainData_);
+  SprTransformerFilter* testData = new SprTransformerFilter(testData_);
+
+  // transform
+  bool replaceOriginalData = true;
+  if( !trainData->transform(trans_,replaceOriginalData) ) {
+    cerr << "Unable to transform training data." << endl;
+    return false;
+  }
+  if( !testData->transform(trans_,replaceOriginalData) ) {
+    cerr << "Unable to transform test data." << endl;
+    return false;
+  }
+
+  // get rid of old non-transformed data
+  if( trainGarbage_ == 0 )
+    trainGarbage_ = trainData_;
+  else
+    delete trainData_;
+  if( testGarbage_ == 0 )
+    testGarbage_ = testData_;
+  else
+    delete testData_;
+  trainData_ = trainData;
+  testData_ = testData;
 
   // exit
   return true;

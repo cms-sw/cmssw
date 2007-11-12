@@ -1,4 +1,4 @@
-//$Id: SprBaggerDecisionTreeApp.cc,v 1.12 2007/10/25 22:11:09 narsky Exp $
+//$Id: SprBaggerDecisionTreeApp.cc,v 1.13 2007/11/12 04:41:16 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -32,6 +32,9 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprLoss.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsVarTransformer.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprVarTransformerReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTransformerFilter.hh"
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -60,6 +63,7 @@ void help(const char* prog)
   cout << "\t-l minimal number of entries per tree leaf (def=1) " << endl;
   cout << "\t-s max number of sampled features (def=0 no sampling)"<< endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
+  cout << "\t-Q apply variable transformation saved in file     " << endl;
   cout << "\t-b use a version of Breiman's arc-x4 algorithm     " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
   cout << "\t-f store trained Bagger to file                    " << endl;
@@ -145,12 +149,13 @@ int main(int argc, char ** argv)
   double splitFactor = 0;
   bool splitRandomize = false;
   bool initBootstrapFromTimeOfDay = false;
+  string transformerFile;
 
   // decode command line
   int c;
   extern char* optarg;
   //  extern int optind;
-  while( (c = getopt(argc,argv,"hjko:a:An:l:s:y:bv:f:F:c:P:g:m:ir:K:DGt:d:w:V:z:Z:x:q:")) 
+  while( (c = getopt(argc,argv,"hjko:a:An:l:s:y:Q:bv:f:F:c:P:g:m:ir:K:DGt:d:w:V:z:Z:x:q:")) 
 	 != EOF ) {
     switch( c )
       {
@@ -184,6 +189,9 @@ int main(int argc, char ** argv)
       case 'y' :
 	inputClassesString = optarg;
 	break;
+      case 'Q' :
+        transformerFile = optarg;
+        break;
       case 'b' :
 	useArcE4 = true;
 	break;
@@ -441,6 +449,38 @@ int main(int argc, char ** argv)
     else
       cout << "Values below " << lowCutoff << " in validation data"
 	   << " have been replaced with medians." << endl;
+  }
+
+  // apply transformation of variables to training and test data
+  auto_ptr<SprAbsFilter> garbage_train, garbage_valid;
+  if( !transformerFile.empty() ) {
+    SprVarTransformerReader transReader;
+    const SprAbsVarTransformer* t = transReader.read(transformerFile.c_str());
+    if( t == 0 ) {
+      cerr << "Unable to read VarTransformer from file "
+           << transformerFile.c_str() << endl;
+      return 2;
+    }
+    SprTransformerFilter* t_train = new SprTransformerFilter(filter.get());
+    SprTransformerFilter* t_valid = 0;
+    if( valFilter.get() != 0 )
+      t_valid = new SprTransformerFilter(valFilter.get());
+    bool replaceOriginalData = true;
+    if( !t_train->transform(t,replaceOriginalData) ) {
+      cerr << "Unable to apply VarTransformer to training data." << endl;
+      return 2;
+    }
+    if( t_valid!=0 && !t_valid->transform(t,replaceOriginalData) ) {
+      cerr << "Unable to apply VarTransformer to validation data." << endl;
+      return 2;
+    }
+    cout << "Variable transformation from file "
+         << transformerFile.c_str() << " has been applied to "
+         << "training and validation data." << endl;
+    garbage_train.reset(filter.release());
+    garbage_valid.reset(valFilter.release());
+    filter.reset(t_train);
+    valFilter.reset(t_valid);
   }
 
   // make optimization criterion

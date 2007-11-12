@@ -1,4 +1,4 @@
-$Id: README,v 1.17 2007/11/01 00:08:27 narsky Exp $
+$Id: README,v 1.18 2007/11/12 04:41:16 narsky Exp $
  
 General description of the package:
 -----------------------------------
@@ -67,7 +67,7 @@ many dimensions, try SprInteractiveAnalysisApp first. It lets you
 quickly compare various classifiers.
 
 01.18.2006 Tag V03-00-00 introduces a more flexible treatment of input
-classes which allows arbitrary grouping. See Section 5 of this file
+classes which allows arbitrary grouping. See Section 6 of this file
 and SprAbsFilter.hh for details.
 
 11.12.2005 Starting with tag V01-18-00, the default options for the
@@ -104,16 +104,17 @@ Contents
 	2.12 Multi class learning
 3.  Data and filters
 4.  Imposing cuts
-5.  Treatment of input classes
-6.  Estimation of variable importance
-7.  Handling input variables
-8.  Formats for data input and output
-9.  Computing output for trained classifiers
-10. Installation instructions
-11. How to use trained classifiers in your C++ code
-12. Working in Root-free environment
-13. Working in Root environment
-14. Summary
+5.  Variable transformations and feature extraction
+6.  Treatment of input classes
+7.  Estimation of variable importance
+8.  Handling input variables
+9.  Formats for data input and output
+10. Computing output for trained classifiers
+11. Installation instructions
+12. How to use trained classifiers in your C++ code
+13. Working in Root-free environment
+14. Working in Root environment
+15. Summary
 
 
 1. Documentation 
@@ -185,7 +186,7 @@ categories. The exception is a multi-class learner (see section
 2.13). The default class assignment is 0 for background and 1 for
 signal. This choice, 0 and 1, is assumed throughout the package. The
 user can choose any other pair of classes or group classes in any two
-subsets using syntax described in Section 5 and SprAbsFilter.hh.
+subsets using syntax described in Section 6 and SprAbsFilter.hh.
 
 The output of all implemented classifiers also by default ranges from
 0 to 1. If you want to impose a naive cut that crudely chooses
@@ -1407,7 +1408,35 @@ one pair which has either the lower or upper bound equal to the
 numeric limit on double (see SprUtils).
 
 
-5. Treatment of input classes
+5. Variable transformation and feature extraction
+-------------------------------------------------
+
+There are two ways to apply variable transformation in the package:
+
+1) While input data is being read from disk to memory. This
+functionality is provided by SprPreFilter and discussed in Section 8.
+
+2) After input data has been read into memory. This functionality is
+provided by SprTransformerFiler ans SprAbsVarTransformer and discussed
+here.
+
+SprAbsVarTransformer provides interface for variable
+transformations. Conceptually, variable transformation and feature
+extraction are the same thing. This is why all transformers include
+the train() method used to find an optimal transformation.
+
+For now the only implemented transformer is Principal Component
+Analysis (PCA). It transforms data into a new coordinate system where
+correlations between input variables are minimal. After the
+transformation, it labels the new input variables as pc0, pc1 etc. To
+apply PCA to input data, you need to a) train PCA using SprPCAApp, and
+b) give the file with the stored PCA matrix to the classifier
+executable you wish to run using -Q option of the executable. If you
+wish to use PCA interactively from a Root session, see
+root/spr_transform.C for examples.
+
+
+6. Treatment of input classes
 -----------------------------
 
 Classes in data input must be coded as integers. For the purpose of
@@ -1455,7 +1484,7 @@ how the classes were split into signal and background for the purpose
 of this classification job. 
 
 
-6. Estimation of variable importance
+7. Estimation of variable importance
 ------------------------------------
 
 Tools for variable selection fall in two groups: 1)
@@ -1510,7 +1539,7 @@ classification power does not deteriorate past the level you can
 tolerate.
 
 
-7. Handling input variables
+8. Handling input variables
 ---------------------------
 
 If input data are read from a Root file, the user specifies explicitly what
@@ -1576,7 +1605,7 @@ cuts and transformations have permanent effect - for example, events
 that do not pass these cuts never get stored in memory.
 
 
-8. Formats for data input and output
+9. Formats for data input and output
 ------------------------------------
 
 Input is implemented from Ascii and Root files.
@@ -1611,7 +1640,7 @@ output data into Ascii files, the user must specify -A flag on the
 command line.
 
 
-9. Computing output for trained classifiers
+10. Computing output for trained classifiers
 -------------------------------------------
 
 Data, event weights and classifier outputs can be stored into tuples
@@ -1640,13 +1669,13 @@ corresponding AdaBoost executable. SprOutputWriterApp is a unified
 recommended replacement.
 
 
-10. Installation instructions
+11. Installation instructions
 -----------------------------
 
 See INSTALL.
 
 
-11. How to use trained classifiers in your C++ code
+12. How to use trained classifiers in your C++ code
 ---------------------------------------------------
 
 This syntax has changed in tag V05-00-00. Now all trained classifiers
@@ -1691,7 +1720,7 @@ For the multi-class learner, you need to use SprMultiClassReader:
   delete multiclass;// delete after you are done
 
 
-12. Working in Root-free environment
+13. Working in Root-free environment
 ------------------------------------
 
 SprInteractiveAnalysisApp and SprOutputAnalyzerApp are the two
@@ -1725,7 +1754,7 @@ SprInteractiveAnalysisApp:
 SprInteractiveAnalysisApp -a 1 train.pat test.pat
 
 
-13. Working in Root environment
+14. Working in Root environment
 -------------------------------
 
 Starting with SPR release 7, the user can run SPR interactively from
@@ -1744,7 +1773,7 @@ data and the saved classifier configuration from an interactive Root
 session using loadData..() and loadClassifier() methods.
 
 
-14. Summary
+15. Summary
 -----------
 
 Feedback on the package use is very much appreciated. Send email to

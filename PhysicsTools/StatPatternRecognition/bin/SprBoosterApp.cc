@@ -1,4 +1,4 @@
-//$Id: SprBoosterApp.cc,v 1.6 2007/10/29 22:10:40 narsky Exp $
+//$Id: SprBoosterApp.cc,v 1.7 2007/11/12 04:41:17 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -18,6 +18,9 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprTransformation.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsVarTransformer.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprVarTransformerReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTransformerFilter.hh"
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -49,6 +52,7 @@ void help(const char* prog)
   cout << "\t-A save output data in ascii instead of Root       " << endl;
   cout << "\t-n number of AdaBoost training cycles              " << endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
+  cout << "\t-Q apply variable transformation saved in file     " << endl;
   cout << "\t-g per-event loss for (cross-)validation           " << endl;
   cout << "\t\t 1 - quadratic loss (y-f(x))^2                   " << endl;
   cout << "\t\t 2 - exponential loss exp(-y*f(x))               " << endl;
@@ -116,12 +120,13 @@ int main(int argc, char ** argv)
   bool split = false;
   double splitFactor = 0;
   bool splitRandomize = false;
+  string transformerFile;
 
   // decode command line
   int c;
   extern char* optarg;
   //  extern int optind;
-  while((c = getopt(argc,argv,"hM:E:a:An:y:g:bm:eu:v:f:r:K:Dt:d:w:V:z:")) != EOF ) {
+  while((c = getopt(argc,argv,"hM:E:a:An:y:Q:g:bm:eu:v:f:r:K:Dt:d:w:V:z:")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -390,6 +395,38 @@ int main(int argc, char ** argv)
     else
       cout << "Values below " << lowCutoff << " in validation data"
 	   << " have been replaced with medians." << endl;
+  }
+
+  // apply transformation of variables to training and test data
+  auto_ptr<SprAbsFilter> garbage_train, garbage_valid;
+  if( !transformerFile.empty() ) {
+    SprVarTransformerReader transReader;
+    const SprAbsVarTransformer* t = transReader.read(transformerFile.c_str());
+    if( t == 0 ) {
+      cerr << "Unable to read VarTransformer from file "
+           << transformerFile.c_str() << endl;
+      return 2;
+    }
+    SprTransformerFilter* t_train = new SprTransformerFilter(filter.get());
+    SprTransformerFilter* t_valid = 0;
+    if( valFilter.get() != 0 )
+      t_valid = new SprTransformerFilter(valFilter.get());
+    bool replaceOriginalData = true;
+    if( !t_train->transform(t,replaceOriginalData) ) {
+      cerr << "Unable to apply VarTransformer to training data." << endl;
+      return 2;
+    }
+    if( t_valid!=0 && !t_valid->transform(t,replaceOriginalData) ) {
+      cerr << "Unable to apply VarTransformer to validation data." << endl;
+      return 2;
+    }
+    cout << "Variable transformation from file "
+         << transformerFile.c_str() << " has been applied to "
+         << "training and validation data." << endl;
+    garbage_train.reset(filter.release());
+    garbage_valid.reset(valFilter.release());
+    filter.reset(t_train);
+    valFilter.reset(t_valid);
   }
 
   // make per-event loss

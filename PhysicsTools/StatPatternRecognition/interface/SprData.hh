@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprData.hh,v 1.3 2006/11/13 19:09:39 narsky Exp $
+//      $Id: SprData.hh,v 1.4 2007/11/07 00:56:14 narsky Exp $
 //
 // Description:
 //      Class SprData :
@@ -62,7 +62,7 @@ public:
   unsigned dim() const { return dim_; }
   void vars(std::vector<std::string>& vars) const { vars = vars_; }
   unsigned size() const { return data_.size(); }
-  bool empty() const { return (data_.size() == 0); }
+  bool empty() const { return data_.empty(); }
   unsigned ptsInClass(const SprClass& cls) const;
   SprPoint* find(unsigned index) const;
   int dimIndex(const char* var) const;

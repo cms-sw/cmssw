@@ -1,4 +1,4 @@
-//$Id: SprOutputWriterApp.cc,v 1.8 2007/10/05 20:03:09 narsky Exp $
+//$Id: SprOutputWriterApp.cc,v 1.9 2007/11/12 04:41:17 narsky Exp $
 
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
@@ -16,6 +16,9 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedAdaBoost.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedFisher.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedLogitR.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprAbsVarTransformer.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprVarTransformerReader.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprTransformerFilter.hh"
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -38,6 +41,7 @@ void help(const char* prog)
   cout << "\t Options: " << endl;
   cout << "\t-h --- help                                        " << endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
+  cout << "\t-Q apply variable transformation saved in file     " << endl;
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh)  " << endl;
   cout << "\t-A save output data in ascii instead of Root       " << endl;
   cout << "\t-K use 1-fraction of input data                    " << endl;
@@ -89,12 +93,14 @@ int main(int argc, char ** argv)
   bool mapTrainedVars = false;
   bool split = false;
   double splitFactor = 0;
-  
+  string transformerFile;
+
+ 
   // decode command line
   int c;
   extern char* optarg;
   extern int optind;
-  while( (c = getopt(argc,argv,"hy:a:AK:v:w:t:C:p:sV:z:Z:M")) != EOF ) {
+  while( (c = getopt(argc,argv,"hy:Q:a:AK:v:w:t:C:p:sV:z:Z:M")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -103,6 +109,9 @@ int main(int argc, char ** argv)
       case 'y' :
 	inputClassesString = optarg;
 	break;
+      case 'Q' :
+        transformerFile = optarg;
+        break;
       case 'a' :
 	readMode = (optarg==0 ? 0 : atoi(optarg));
 	break;
@@ -264,6 +273,28 @@ int main(int argc, char ** argv)
   if( scaleWeights ) {
     cout << "Signal weights are multiplied by " << sW << endl;
     filter->scaleWeights(inputClasses[1],sW);
+  }
+
+  // apply transformation of variables to training and test data
+  auto_ptr<SprAbsFilter> garbage_train;
+  if( !transformerFile.empty() ) {
+    SprVarTransformerReader transReader;
+    const SprAbsVarTransformer* t = transReader.read(transformerFile.c_str());
+    if( t == 0 ) {
+      cerr << "Unable to read VarTransformer from file "
+           << transformerFile.c_str() << endl;
+      return 2;
+    }
+    SprTransformerFilter* t_train = new SprTransformerFilter(filter.get());
+    bool replaceOriginalData = true;
+    if( !t_train->transform(t,replaceOriginalData) ) {
+      cerr << "Unable to apply VarTransformer to training data." << endl;
+      return 2;
+    }
+    cout << "Variable transformation from file "
+         << transformerFile.c_str() << " has been applied to data." << endl;
+    garbage_train.reset(filter.release());
+    filter.reset(t_train);
   }
 
   // split data if desired

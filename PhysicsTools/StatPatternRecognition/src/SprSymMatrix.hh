@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // CLASSDOC OFF
-// $Id: SprSymMatrix.hh,v 1.3 2006/11/13 19:09:40 narsky Exp $
+// $Id: SprSymMatrix.hh,v 1.4 2007/11/07 00:56:14 narsky Exp $
 // ---------------------------------------------------------------------------
 // CLASSDOC ON
 // 
@@ -212,6 +212,10 @@ public:
    double trace() const;
    // calculate the trace of the matrix (sum of diagonal elements).
 
+  // methods related to diagonalization
+  SprMatrix diagonalize();
+  SprMatrix tridiagonal();
+
    class SprSymMatrix_row {
    public:
       inline SprSymMatrix_row(SprSymMatrix&,int);
@@ -254,6 +258,10 @@ protected:
    inline int num_size() const;
   
 private:
+  void tridiagonal(SprMatrix *hsm);
+  void house_with_update2(SprMatrix *v,int row,int col);
+  void diag_step(SprMatrix *u,int begin,int end);
+
    friend class SprSymMatrix_row;
    friend class SprSymMatrix_row_const;
    friend class SprMatrix;
@@ -324,7 +332,7 @@ SprSymMatrix dsum(const SprSymMatrix &s1, const SprSymMatrix &s2);
 // Direct sum of two symmetric matrices;
 
 // -*- C++ -*-
-// $Id: SprSymMatrix.hh,v 1.3 2006/11/13 19:09:40 narsky Exp $
+// $Id: SprSymMatrix.hh,v 1.4 2007/11/07 00:56:14 narsky Exp $
 // ---------------------------------------------------------------------------
 //
 
