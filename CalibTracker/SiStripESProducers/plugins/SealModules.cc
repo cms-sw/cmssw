@@ -16,8 +16,8 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(SiStripGainESProducer);
 #include "CalibTracker/SiStripESProducers/plugins/SiStripGainFakeESSource.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripGainFakeESSource);
 
-
-
+#include "CalibTracker/SiStripESProducers/plugins/SiStripFedCablingFakeESSource.h"
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripFedCablingFakeESSource);
 
 
 
