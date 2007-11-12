@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/08/17 16:12:36 $
-//   $Revision: 1.21 $
+//   $Date: 2007/10/08 14:23:41 $
+//   $Revision: 1.22 $
 //
 //   Modifications: 
 //
@@ -249,8 +249,8 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   // Not used yet.
   fifo_pretrig = conf.getParameter<unsigned int>("clctFifoPretrig");// def = 7
 
-  // New TMB-07 parameters.  isTMB should become real config. parameter.
-  isTMB07      = false;
+  // TMB07 firmware: switch and config. parameters.
+  isTMB07      = comm.getParameter<bool>("isTMB07");
   if (isTMB07) {
     hit_thresh = conf.getParameter<unsigned int>("clctHitThresh");  // def = 2
     pid_thresh = conf.getParameter<unsigned int>("clctPidThresh");  // def = 2
