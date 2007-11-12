@@ -8,8 +8,8 @@
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2007/06/15 15:58:28 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/08/27 21:24:03 $
+ *  $Revision: 1.8 $
  *  \author J. Mans - UMD
  */
 
@@ -134,6 +134,14 @@ class HcalHTRData {
   /** \brief Get the number of presamples in daq data */
   int getNPS() const;
 
+/** \brief Get DLLunlock bits */
+  inline unsigned int getDLLunlock() const { 
+    return (m_rawConst[5]>>1)&0x3; }
+
+ /** \brief Get TTCready bit */
+  inline unsigned int getTTCready() const { 
+    return m_rawConst[5]&0x1; }
+
  /** \brief Get the BCN of the Fiber Orbit Messages */
   inline unsigned int getFib1OrbMsgBCN() const {
   return (m_formatVersion==-1)?(0):(m_rawConst[m_rawLength-12]&0xFFF);
@@ -165,6 +173,25 @@ class HcalHTRData {
   inline unsigned int getFib8OrbMsgBCN() const {
   return (m_formatVersion==-1)?(0):(m_rawConst[m_rawLength-5]&0xFFF);
 }
+
+ /** \brief Get the HTR Ext Header words*/
+  inline unsigned int getExtHdr1() const { 
+    return (m_rawConst[0]);}
+  inline unsigned int getExtHdr2() const { 
+    return (m_rawConst[1]); }
+  inline unsigned int getExtHdr3() const { 
+    return (m_rawConst[2]);} 
+  inline unsigned int getExtHdr4() const { 
+    return (m_rawConst[3]); }
+  inline unsigned int getExtHdr5() const { 
+    return (m_rawConst[4]);} 
+  inline unsigned int getExtHdr6() const { 
+    return (m_rawConst[5]);} 
+  inline unsigned int getExtHdr7() const { 
+    return (m_rawConst[6]);} 
+  inline unsigned int getExtHdr8() const { 
+    return (m_rawConst[7]);}  
+
   /* unsigned int getFib1OrbMsgBCN() const;
   unsigned int getFib2OrbMsgBCN() const;
   unsigned int getFib3OrbMsgBCN() const;
