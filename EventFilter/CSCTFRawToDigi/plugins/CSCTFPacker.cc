@@ -18,10 +18,6 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 	nTBINs          = conf.getUntrackedParameter<int> ("nTBINs",7);
 	activeSectors   = conf.getUntrackedParameter<int> ("activeSectors",0x0FFF);
 
-	// Unpacking changes timing to be compatible with simulation code, here it is changed back
-	LCTtimeOffset = conf.getUntrackedParameter<int>("LCTtimeOffset",-3);
-	TRKtimeOffset = conf.getUntrackedParameter<int>("TRKtimeOffset",3);
-
 	// Configuration that controls CMSSW specific stuff
 	putBufferToEvent       = conf.getUntrackedParameter<bool>("putBufferToEvent");
 	std::string outputFile = conf.getUntrackedParameter<std::string>("outputFile","");
@@ -71,7 +67,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 			int tbin = lct->getBX() - (central_lct_bx-central_sp_bx); // Shift back to hardware BX window definition
 
 			int fpga    = ( subSector ? subSector-1 : station+1 );
-//std::cout<<"Front data station: "<<station<<"  sector: "<<sector<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<cscId<<"  fpga: "<<fpga<<endl;
+///std::cout<<"Front data station: "<<station<<"  sector: "<<sector<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<cscId<<"  fpga: "<<fpga<<" LCT_qual="<<lct->getQuality()<<" LCT_strip="<<lct->getStrip()<<" LCT_wire="<<lct->getKeyWG()<<std::endl;
 
 			// If Det Id is within range
 			if( sector<0 || sector>11 || station<0 || station>3 || cscId<0 || cscId>8 || lctId<0 || lctId>1){
@@ -130,41 +126,46 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 	CSCSP_SPblock spDataRecord[12][7][3]; // Up to 3 tracks in sector X and tbin Y
 	bzero(&spDataRecord,sizeof(spDataRecord));
-	int nTrk=0;
+	int nTrk[7]={0,0,0,0,0,0,0};
 
 	for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk<tracks->end(); trk++){
 		int sector = 6*(trk->first.endcap()-1)+trk->first.sector()-1;
 		int tbin   = trk->first.BX() + central_sp_bx; // Shift back to hardware BX window definition
-		spDataRecord[sector][tbin][nTrk].phi_       = trk->first.phi_packed();
-		spDataRecord[sector][tbin][nTrk].sign_      =(trk->first.ptLUTAddress()>>20)&0x1;
-		spDataRecord[sector][tbin][nTrk].front_rear = 0; // not necessary
-		spDataRecord[sector][tbin][nTrk].charge_    = trk->first.chargeValue(); //
-		spDataRecord[sector][tbin][nTrk].eta_       = trk->first.eta_packed();
+///std::cout<<"Track["<<nTrk[tbin]<<"]  sector: "<<sector<<" tbin: "<<tbin<<std::endl;
+		if( tbin>6 ){
+			edm::LogError("CSCTFPacker|analyze")<<" Track's BX="<<tbin<<" is out of 0-6 window";
+			continue;
+		}
+		spDataRecord[sector][tbin][nTrk[tbin]].phi_       = trk->first.phi_packed();
+		spDataRecord[sector][tbin][nTrk[tbin]].sign_      =(trk->first.ptLUTAddress()>>20)&0x1;
+		spDataRecord[sector][tbin][nTrk[tbin]].front_rear = 0; // not necessary
+		spDataRecord[sector][tbin][nTrk[tbin]].charge_    = trk->first.chargeValue(); //
+		spDataRecord[sector][tbin][nTrk[tbin]].eta_       = trk->first.eta_packed();
 
-		spDataRecord[sector][tbin][nTrk].halo_      = trk->first.finehalo_packed();
-		spDataRecord[sector][tbin][nTrk].se         = 0; // dummy
-		spDataRecord[sector][tbin][nTrk].deltaPhi12_= trk->first.ptLUTAddress()&0xFF;
-		spDataRecord[sector][tbin][nTrk].deltaPhi23_=(trk->first.ptLUTAddress()>>8)&0xF;
-		spDataRecord[sector][tbin][nTrk].bxn0_      = 0; //dummy
-		spDataRecord[sector][tbin][nTrk].bc0_       = 0; //dummy
+		spDataRecord[sector][tbin][nTrk[tbin]].halo_      = trk->first.finehalo_packed();
+		spDataRecord[sector][tbin][nTrk[tbin]].se         = 0; // dummy
+		spDataRecord[sector][tbin][nTrk[tbin]].deltaPhi12_= trk->first.ptLUTAddress()&0xFF;
+		spDataRecord[sector][tbin][nTrk[tbin]].deltaPhi23_=(trk->first.ptLUTAddress()>>8)&0xF;
+		spDataRecord[sector][tbin][nTrk[tbin]].bxn0_      = 0; //dummy
+		spDataRecord[sector][tbin][nTrk[tbin]].bc0_       = 0; //dummy
 
-		spDataRecord[sector][tbin][nTrk].me1_id     = trk->first.me1ID();
-		spDataRecord[sector][tbin][nTrk].me2_id     = trk->first.me2ID();
-		spDataRecord[sector][tbin][nTrk].me3_id     = trk->first.me3ID();
-		spDataRecord[sector][tbin][nTrk].me4_id     = trk->first.me4ID();
-		spDataRecord[sector][tbin][nTrk].mb_id      = trk->first.mb1ID();
-		spDataRecord[sector][tbin][nTrk].ms_id      = 0; // don't care
+		spDataRecord[sector][tbin][nTrk[tbin]].me1_id     = trk->first.me1ID();
+		spDataRecord[sector][tbin][nTrk[tbin]].me2_id     = trk->first.me2ID();
+		spDataRecord[sector][tbin][nTrk[tbin]].me3_id     = trk->first.me3ID();
+		spDataRecord[sector][tbin][nTrk[tbin]].me4_id     = trk->first.me4ID();
+		spDataRecord[sector][tbin][nTrk[tbin]].mb_id      = trk->first.mb1ID();
+		spDataRecord[sector][tbin][nTrk[tbin]].ms_id      = 0; // don't care
 
-		spDataRecord[sector][tbin][nTrk].me1_tbin   = 0; // Unknown !
-		spDataRecord[sector][tbin][nTrk].me2_tbin   = 0; // Unknown !
-		spDataRecord[sector][tbin][nTrk].me3_tbin   = 0; // Unknown !
-		spDataRecord[sector][tbin][nTrk].me4_tbin   = 0; // Unknown !
-		spDataRecord[sector][tbin][nTrk].mb_tbin    = 0; // Unknown !
+		spDataRecord[sector][tbin][nTrk[tbin]].me1_tbin   = 0; // Unknown !
+		spDataRecord[sector][tbin][nTrk[tbin]].me2_tbin   = 0; // Unknown !
+		spDataRecord[sector][tbin][nTrk[tbin]].me3_tbin   = 0; // Unknown !
+		spDataRecord[sector][tbin][nTrk[tbin]].me4_tbin   = 0; // Unknown !
+		spDataRecord[sector][tbin][nTrk[tbin]].mb_tbin    = 0; // Unknown !
 
-		spDataRecord[sector][tbin][nTrk].id_ = nTrk+1; // for later use
+		spDataRecord[sector][tbin][nTrk[tbin]].id_ = nTrk[tbin]+1; // for later use
 
-		nTrk++;
-		switch(nTrk){
+		nTrk[tbin]++;
+		switch(nTrk[tbin]){
 			case 1: meDataHeader[sector][tbin].mode1 = (trk->first.ptLUTAddress()>>16)&0xF; break;
 			case 2: meDataHeader[sector][tbin].mode2 = (trk->first.ptLUTAddress()>>16)&0xF; break;
 			case 3: meDataHeader[sector][tbin].mode3 = (trk->first.ptLUTAddress()>>16)&0xF; break;

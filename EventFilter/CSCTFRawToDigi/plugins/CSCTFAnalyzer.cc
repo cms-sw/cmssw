@@ -16,14 +16,14 @@ CSCTFAnalyzer::CSCTFAnalyzer(const edm::ParameterSet &conf):edm::EDAnalyzer(){
 }
 
 void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
-	edm::Handle<L1CSCStatusDigiCollection> status;
-    e.getByLabel(lctProducer.label(),lctProducer.instance(),status);
+//	edm::Handle<L1CSCStatusDigiCollection> status;
+//	e.getByLabel(lctProducer.label(),lctProducer.instance(),status);
 
-	edm::LogInfo("CSCTFAnalyzer|print") << "  Unpacking Errors: "<<status->first;
-	for(std::vector<L1CSCSPStatusDigi>::const_iterator stat=status->second.begin();
-		stat!=status->second.end(); stat++){
-		edm::LogInfo("CSCTFAnalyzer|print") << "   Status: SP in slot "<<stat->slot()<<"  FMM: "<<stat->FMM()<<" SE: 0x"<<std::hex<<stat->SEs()<<" VP: 0x"<<stat->VPs()<<std::dec;
-	}
+//	edm::LogInfo("CSCTFAnalyzer|print") << "  Unpacking Errors: "<<status->first;
+//	for(std::vector<L1CSCSPStatusDigi>::const_iterator stat=status->second.begin();
+//		stat!=status->second.end(); stat++){
+//		edm::LogInfo("CSCTFAnalyzer|print") << "   Status: SP in slot "<<stat->slot()<<"  FMM: "<<stat->FMM()<<" SE: 0x"<<std::hex<<stat->SEs()<<" VP: 0x"<<stat->VPs()<<std::dec;
+//	}
 
 	edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
 	e.getByLabel(lctProducer.label(),lctProducer.instance(),corrlcts);
