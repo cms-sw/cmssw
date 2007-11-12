@@ -37,6 +37,10 @@ class MonPedestalOffsetsDat : public IDataItem {
   void writeDB(const EcalLogicID* ecid, const MonPedestalOffsetsDat* item, MonRunIOV* iov )
     throw(std::runtime_error);
 
+  void writeArrayDB(const std::map< EcalLogicID, MonPedestalOffsetsDat >* data, MonRunIOV* iov)
+    throw(std::runtime_error);
+
+
   void fetchData(std::map< EcalLogicID, MonPedestalOffsetsDat >* fillMap, MonRunIOV* iov)
      throw(std::runtime_error);
 

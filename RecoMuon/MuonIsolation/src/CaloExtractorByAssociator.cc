@@ -140,20 +140,15 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 	  || ! (et > theThreshold_E && energy > 3*noiseRecHit(eHitCI->detid()))) continue;
 
       bool vetoHit = false;
-      double deltar = 0;
-      std::vector<EcalRecHit>::const_iterator vHitCI = mInfo.crossedEcalRecHits.begin();
-      for(; vHitCI != mInfo.crossedEcalRecHits.end(); ++vHitCI){
-	GlobalPoint vHitPos = caloGeom->getPosition(vHitCI->detid());
-	deltar = deltaR(eHitPos, vHitPos);
-	if (deltar < theDR_Veto_E ){
-	  LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-	    << " >>> Veto ECAL hit: Calo deltaR= " << deltar;
-	  LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-	    << " >>> Calo eta phi ethcal: " << eHitPos.eta() << " " << eHitPos.phi() << " " << et;
-	  vetoHit = true;
-	  break;	  
-	}
+      double deltar = deltaR(mInfo.trkGlobPosAtEcal, eHitPos);
+      if (deltar < theDR_Veto_E ){
+	LogDebug("RecoMuon|CaloExtractorByAssociator")
+	  << " >>> Veto ECAL hit: Calo deltaR= " << deltar;
+	LogDebug("RecoMuon|CaloExtractorByAssociator")
+	  << " >>> Calo eta phi ethcal: " << eHitPos.eta() << " " << eHitPos.phi() << " " << et;
+	vetoHit = true;
       }
+
       if (vetoHit ){
 	depEcal.addMuonEnergy(et);
       } else {
@@ -173,20 +168,15 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 	  || ! (et > theThreshold_H && energy > 3*noiseRecHit(hHitCI->detid()))) continue;
 
       bool vetoHit = false;
-      double deltar = 0;
-      std::vector<HBHERecHit>::const_iterator vHitCI = mInfo.crossedHcalRecHits.begin();
-      for(; vHitCI != mInfo.crossedHcalRecHits.end(); ++vHitCI){
-	GlobalPoint vHitPos = caloGeom->getPosition(vHitCI->detid());
-	deltar = deltaR(hHitPos, vHitPos);
-	if (deltar < theDR_Veto_H ){
-	  LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-	    << " >>> Veto HBHE hit: Calo deltaR= " << deltar;
-	  LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-	    << " >>> Calo eta phi ethcal: " << hHitPos.eta() << " " << hHitPos.phi() << " " << et;
-	  vetoHit = true;
-	  break;	  
-	}
+      double deltar = deltaR(mInfo.trkGlobPosAtHcal, hHitPos);
+      if (deltar < theDR_Veto_H ){
+	LogDebug("RecoMuon|CaloExtractorByAssociator")
+	  << " >>> Veto HBHE hit: Calo deltaR= " << deltar;
+	LogDebug("RecoMuon|CaloExtractorByAssociator")
+	  << " >>> Calo eta phi ethcal: " << hHitPos.eta() << " " << hHitPos.phi() << " " << et;
+	vetoHit = true;
       }
+
       if (vetoHit ){
 	depHcal.addMuonEnergy(et);
       } else {
@@ -206,20 +196,15 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 	  || ! (et > theThreshold_HO && energy > 3*noiseRecHit(hoHitCI->detid()))) continue;
 
       bool vetoHit = false;
-      double deltar = 0;
-      std::vector<HORecHit>::const_iterator vHitCI = mInfo.crossedHORecHits.begin();
-      for(; vHitCI != mInfo.crossedHORecHits.end(); ++vHitCI){
-	GlobalPoint vHitPos = caloGeom->getPosition(vHitCI->detid());
-	deltar = deltaR(hoHitPos, vHitPos);
-	if (deltar < theDR_Veto_HO ){
-	  LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-	    << " >>> Veto HO hit: Calo deltaR= " << deltar;
-	  LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-	    << " >>> Calo eta phi ethcal: " << hoHitPos.eta() << " " << hoHitPos.phi() << " " << et;
-	  vetoHit = true;
-	  break;	  
-	}
+      double deltar = deltaR(mInfo.trkGlobPosAtHO, hoHitPos);
+      if (deltar < theDR_Veto_HO ){
+	LogDebug("RecoMuon|CaloExtractorByAssociator")
+	  << " >>> Veto HO hit: Calo deltaR= " << deltar;
+	LogDebug("RecoMuon|CaloExtractorByAssociator")
+	  << " >>> Calo eta phi ethcal: " << hoHitPos.eta() << " " << hoHitPos.phi() << " " << et;
+	vetoHit = true;
       }
+
       if (vetoHit ){
 	depHOcal.addMuonEnergy(et);
       } else {
@@ -235,6 +220,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       double deltar0 = deltaR(muon,*calCI);
       if (deltar0>theDR_Max) continue;
     
+      //even more copy-pasting .. need to refactor
       double etecal = calCI->emEt();
       double eecal = calCI->emEnergy();
       bool doEcal = etecal>theThreshold_E && eecal>3*noiseEcal(*calCI);
@@ -246,36 +232,46 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       bool doHOcal = ethocal>theThreshold_HO && ehocal>3*noiseHOcal(*calCI);
       if ((!doEcal) && (!doHcal) && (!doHcal)) continue;
     
-      bool vetoTower = false;
-      double deltar = 0;
-      CaloTowerCollection::const_iterator calVetoCI = mInfo.crossedTowers.begin();
-      for(; calVetoCI != mInfo.crossedTowers.end(); ++calVetoCI){
-	deltar = deltaR(*calCI, *calVetoCI);
-	if (deltar<theDR_Veto_H || deltar < theDR_Veto_E || deltar < theDR_Veto_HO) {
-	  LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-	    << " >>> Veto tower: Calo deltaR= " << deltar;
-	  LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-	    << " >>> Calo eta phi ethcal: " << calCI->eta() << " " << calCI->phi() << " " << ethcal;
-	  vetoTower = true;
-	  break;
-	}
+      bool vetoTowerEcal = false;
+      double deltarEcal = deltaR(mInfo.trkGlobPosAtEcal, *calCI);
+      if (deltarEcal < theDR_Veto_E ){
+	LogDebug("RecoMuon|CaloExtractorByAssociator")
+	  << " >>> Veto ecal tower: Calo deltaR= " << deltarEcal;
+	LogDebug("RecoMuon|CaloExtractorByAssociator")
+	  << " >>> Calo eta phi ethcal: " << calCI->eta() << " " << calCI->phi() << " " << ethcal;
+	vetoTowerEcal = true;
+      }
+      bool vetoTowerHcal = false;
+      double deltarHcal = deltaR(mInfo.trkGlobPosAtHcal, *calCI);
+      if (deltarHcal < theDR_Veto_H ){
+	LogDebug("RecoMuon|CaloExtractorByAssociator")
+	  << " >>> Veto hcal tower: Calo deltaR= " << deltarHcal;
+	LogDebug("RecoMuon|CaloExtractorByAssociator")
+	  << " >>> Calo eta phi ethcal: " << calCI->eta() << " " << calCI->phi() << " " << ethcal;
+	vetoTowerHcal = true;
+      }
+      bool vetoTowerHOCal = false;
+      double deltarHOcal = deltaR(mInfo.trkGlobPosAtHO, *calCI);
+      if (deltarHOcal < theDR_Veto_HO ){
+	LogDebug("RecoMuon|CaloExtractorByAssociator")
+	  << " >>> Veto HO tower: Calo deltaR= " << deltarHOcal;
+	LogDebug("RecoMuon|CaloExtractorByAssociator")
+	  << " >>> Calo eta phi ethcal: " << calCI->eta() << " " << calCI->phi() << " " << ethcal;
+	vetoTowerHOCal = true;
       }
 
       Direction towerDir(calCI->eta(), calCI->phi());
-      if (vetoTower){
-	if (doEcal && deltar < theDR_Veto_E) depEcal.addMuonEnergy(etecal);
-	if (doHcal && deltar < theDR_Veto_H) depHcal.addMuonEnergy(ethcal);
-	if (doHOcal && deltar < theDR_Veto_HO) depHOcal.addMuonEnergy(ethocal);
-      } else {	
-	if (doEcal && deltar > theDR_Veto_E){
-	  depEcal.addDeposit(towerDir, etecal);
-	}
-	if (doHcal && deltar > theDR_Veto_H){
-	  depHcal.addDeposit(towerDir, ethcal);
-	}
-	if (doHOcal && deltar > theDR_Veto_HO){
-	  depHOcal.addDeposit(towerDir, ethocal);
-	}
+      if (doEcal){
+	if (vetoTowerEcal) depEcal.addMuonEnergy(etecal);
+	else depEcal.addDeposit(towerDir, etecal);
+      }
+      if (doHcal){
+	if (vetoTowerHcal) depHcal.addMuonEnergy(ethcal);
+	else depHcal.addDeposit(towerDir, ethcal);
+      }
+      if (doHOcal){
+	if (vetoTowerHOCal) depHOcal.addMuonEnergy(ethocal);
+	else depHOcal.addDeposit(towerDir, ethocal);
       }
     }
   }

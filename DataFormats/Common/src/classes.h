@@ -100,13 +100,18 @@ namespace {
   edm::Wrapper<edm::RefVector<std::vector<int> > > dummyx20;
 
   edm::RefItem<unsigned int> dummyRefItem1;
+  edm::RefItem<unsigned long> dummyRefItem1_1;
   edm::RefItem<int> dummyRefItem3;
   edm::RefItem<std::pair<unsigned int, unsigned int> > dummyRefItem2;
   edm::RefBase<std::vector<unsigned int>::size_type> dummRefBase1;
   edm::RefBase<std::pair<unsigned int, unsigned int> > dummRefBase2;
   edm::RefBase<int> dummyRefBase3;
+  edm::RefBase<unsigned int> dummyRefBase3_1;
+  edm::RefBase<unsigned long> dummyRefBase3_2;
   edm::RefVectorBase<std::vector<unsigned int>::size_type> dummyRefVectorBase;
   edm::RefVectorBase<int> dummyRefVectorBase2;
+  edm::RefVectorBase<unsigned int> dummyRefVectorBase2_1;
+  edm::RefVectorBase<unsigned long> dummyRefVectorBase2_2;
   edm::RefVectorBase<std::pair<unsigned int, unsigned int> > dummyRefVectorBase3;
 
   std::vector<char>::iterator itc;

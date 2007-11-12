@@ -5,6 +5,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtfeExtWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
@@ -19,6 +20,10 @@ namespace { namespace {
     // dictionary for L1GtfeWord
     L1GtfeWord dummy20;
     edm::Wrapper<L1GtfeWord> dummy21;
+
+    // dictionary for L1GtfeExtWord
+    L1GtfeExtWord dummy25;
+    edm::Wrapper<L1GtfeExtWord> dummy26;
 
     // dictionary for L1TcsWord
     L1TcsWord dummy30;

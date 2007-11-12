@@ -87,9 +87,6 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 {
   eventNo++;
 
-  // retrieve producer name of input SiPixelDigiCollection
-  std::string digiProducer = conf_.getUntrackedParameter<std::string>("DigiProducer","siPixelDigis");
-
   // get input data
   edm::Handle< edm::DetSetVector<PixelDigi> >  input;
   iEvent.getByLabel( src_, input );
@@ -160,7 +157,7 @@ void SiPixelDigiSource::bookMEs(){
     
     /// Create folder tree and book histograms 
     if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
-      (*struct_iter).second->book();
+      (*struct_iter).second->book( conf_ );
     } else {
       throw cms::Exception("LogicError")
 	<< "[SiPixelDigiSource::bookMEs] Creation of DQM folder failed";

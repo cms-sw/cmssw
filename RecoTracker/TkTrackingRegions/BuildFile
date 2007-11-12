@@ -1,8 +1,9 @@
 <flags SEAL_PLUGIN_NAME="RecoTrackerTkTrackingRegions">
    <use name=clhep>
    <use name=boost>
-   <use name=FWCore/ParameterSet>
    <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
+   <use name=FWCore/ParameterSet>
    <use name=Geometry/TrackerGeometryBuilder>
    <use name=RecoTracker/Record>
    <use name=RecoTracker/TkSeedingLayers>
@@ -13,12 +14,12 @@
    <use name=RecoTracker/CkfPattern>
    <use name=RecoTracker/GeometryESProducer>
    <use name=TrackingTools/MeasurementDet>
-   <use name=Foundation/PluginManager>
 <export>
    <lib name=RecoTrackerTkTrackingRegions>
    <use name=clhep>
    <use name=boost>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=Geometry/TrackerGeometryBuilder>
    <use name=RecoTracker/Record>

@@ -13,13 +13,14 @@
  * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT 
  * \author: Ivan Mikulec       - HEPHY Vienna - GMT
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
 // system include files
 #include <memory>
+#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -29,6 +30,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 // forward declarations
 class L1GtfeWord;
@@ -36,6 +38,10 @@ class L1GtFdlWord;
 class L1GtPsbWord;
 
 class L1MuGMTReadoutCollection;
+
+class FEDHeader;
+class FEDTrailer;
+
 
 // class declaration
 class L1GlobalTriggerRawToDigi : public edm::EDProducer
@@ -58,7 +64,7 @@ private:
     /// block unpackers
 
     /// unpack header
-    void unpackHeader(const unsigned char*);
+    void unpackHeader(const unsigned char*, FEDHeader&);
 
     /// unpack the GTFE block
     /// gives the number of bunch crosses in the event, as well as the active boards
@@ -78,7 +84,11 @@ private:
     void unpackGMT(const unsigned char*, std::auto_ptr<L1MuGMTReadoutCollection>&);
 
     /// unpack trailer word
-    void unpackTrailer(const unsigned char*);
+    void unpackTrailer(const unsigned char*, FEDTrailer&);
+
+
+    /// dump FED raw data
+    void dumpFedRawData(const unsigned char*, int, std::ostream&);
 
     ///
     virtual void endJob();
@@ -89,7 +99,24 @@ private:
     L1GtPsbWord* m_gtPsbWord;
     L1GtFdlWord* m_gtFdlWord;
 
-    /// total Bx's in the event, obtained from GTFE block    
+    /// input tags for GT DAQ record
+    edm::InputTag m_daqGtInputTag;
+
+    /// mask for active boards
+    boost::uint16_t m_activeBoardsMaskGt;
+
+    // number of bunch crossing to be unpacked
+    int m_unpackBxInEvent;
+
+    /// lowest bxInEvent to be unpacked in the event
+    /// assume symmetrical number of BX around L1Accept
+    int m_lowSkipBxInEvent;
+
+    /// upper bxInEvent to be unpacked in the event
+    /// assume symmetrical number of BX around L1Accept
+    int m_uppSkipBxInEvent;
+
+    /// total Bx's in the event, obtained from GTFE block
     int m_totalBxInEvent;
 
 };

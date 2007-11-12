@@ -6,7 +6,7 @@ eval `scramv1 ru -sh`
 COLLECTOR_NODE=$1
 echo $COLLECTOR_NODE
 
-HOSTNAME=$(echo `/bin/hostname` | sed 's/\//\\\//g')
+HOSTNAME=$(echo `/bin/hostname -f` | sed 's/\//\\\//g')
 echo "The hostname is = $HOSTNAME"
 
 TEST_PATH=$(echo "${PWD}" | sed 's/\//\\\//g')

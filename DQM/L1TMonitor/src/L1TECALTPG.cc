@@ -1,13 +1,19 @@
 /*
  * \file L1TECALTPG.cc
  *
- * $Date: 2007/02/20 22:49:00 $
- * $Revision: 1.3 $
+ * $Date: 2007/02/22 19:43:53 $
+ * $Revision: 1.4 $
  * \author J. Berryhill
  *
  * - initial version stolen from GCTMonnitor (thanks!) (wittich 02/07)
  *
  * $Log: L1TECALTPG.cc,v $
+ * Revision 1.4  2007/02/22 19:43:53  berryhil
+ *
+ *
+ *
+ * InputTag parameters added for all modules
+ *
  * Revision 1.3  2007/02/20 22:49:00  wittich
  * - change from getByType to getByLabel in ECAL TPG,
  *   and make it configurable.
@@ -145,7 +151,15 @@ void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
 
   // Get the ECAL TPGs
   edm::Handle < EcalTrigPrimDigiCollection > eTP;
-  e.getByLabel(ecaltpgSource_, eTP);
+
+  try {
+  e.getByLabel(ecaltpgSource_,eTP);
+  }
+  catch (...) {
+    edm::LogInfo("L1TECALTPG") << "can't find EcalTrigPrimCollection with label "
+			       << ecaltpgSource_.label() ;
+    return;
+  }
 
   // Fill the ECAL TPG histograms
   for (EcalTrigPrimDigiCollection::const_iterator ieTP = eTP->begin();

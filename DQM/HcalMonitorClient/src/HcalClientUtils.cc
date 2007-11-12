@@ -1,5 +1,50 @@
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
-#include <sys/time.h>
+
+
+void resetME(const char* name, MonitorUserInterface* mui){
+  if(!mui) return;
+  MonitorElement* me= mui->get(name);
+  if(me) mui->softReset(me);
+  return;
+}
+
+bool isValidGeom(int subdet, int iEta, int iPhi, int depth){
+  
+  if(subdet<0 || subdet>3) return false;
+  
+  int EtaMin[4]; int EtaMax[4];
+  int PhiMin[4]; int PhiMax[4];
+  int DepMin[4]; int DepMax[4];
+  
+  //HB ieta/iphi/depths
+  EtaMin[0]=1; EtaMax[0]=16;
+  PhiMin[0]=1; PhiMax[0]=71;
+  DepMin[0]=1; DepMax[0]=2;
+  
+  //HE ieta/iPhi/Depths
+  EtaMin[1]=16; EtaMax[1]=29;
+  PhiMin[1]=1; PhiMax[1]=71;
+  DepMin[1]=1; DepMax[1]=3;
+  
+  //HF ieta/iphi/depths
+  EtaMin[2]=29; EtaMax[2]=41;
+  PhiMin[2]=1; PhiMax[2]=71;
+  DepMin[2]=1; DepMax[2]=2;
+  
+  //HO ieta/iphi/depths
+  EtaMin[3]=1; EtaMax[3]=15;
+  PhiMin[3]=1; PhiMax[3]=71;
+  DepMin[3]=4; DepMax[3]=4;
+  
+  if(iEta!=0) if(abs(iEta)<EtaMin[subdet] || abs(iEta)>EtaMax[subdet]) return false;
+  if(iPhi!=0) if(abs(iPhi)<PhiMin[subdet] || abs(iPhi)>PhiMax[subdet]) return false;
+  if(depth!=0) if(abs(depth)<DepMin[subdet] || abs(depth)>DepMax[subdet]) return false;
+  
+  if(subdet==0 && abs(iEta)==16 && depth==3) return false;
+  if(subdet==1 && abs(iEta)==16 && (depth==1 || depth==2)) return false;
+
+  return true;
+}
 
 void dumpHisto(TH1F* hist, vector<string> &names, 
 	       vector<double> &meanX, vector<double> &meanY, 
@@ -23,15 +68,33 @@ void dumpHisto2(TH2F* hist, vector<string> &names,
   rmsY.push_back(hist->GetRMS(2));
   return;
 }
+
+void parseString(string& title){
+  
+  for ( unsigned int i = 0; i < title.size(); i++ ) {
+    if ( title.substr(i, 1) == " " )  {
+      title.replace(i, 1, "_");
+    }
+    if ( title.substr(i, 1) == "#" )  {
+      title.replace(i, 1, "N");
+    }
+    if ( title.substr(i, 1) == "(" 
+	 || title.substr(i, 1) == ")" 
+	 )  {
+      title.replace(i, 1, "-");
+    }
+  }
+  
+  return;
+}
+
 string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab,bool color){
-  //  timeval a,b;
-  //  gettimeofday(&a,NULL);
 
   if(hist==NULL) {
     printf("getIMG2:  This histo is NULL, %s, %s\n",xlab,ylab);
     return "";
   }
-  
+
   string title = hist->GetTitle();
   int xwid = 900; int ywid =540;
   if(size==1){
@@ -40,18 +103,8 @@ string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const cha
   }
   TCanvas* can = new TCanvas(title.c_str(), "tmp can2", xwid, ywid);
 
-  for ( unsigned int i = 0; i < title.size(); i++ ) {
-    if ( title.substr(i, 1) == " " )  {
-      title.replace(i, 1, "_");
-    }
-    if ( title.substr(i, 1) == "#" )  {
-      title.replace(i, 1, "N");
-    }
-  }
-
+  parseString(title);
   string outName = title + ".png";
-  //  if(!save) return outName;
-
   string saveName = htmlDir + outName;
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);
@@ -62,19 +115,11 @@ string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const cha
   }
   can->SaveAs(saveName.c_str());  
   delete can;
-  /*
-  gettimeofday(&b,NULL);
-  double t1=a.tv_sec+(a.tv_usec/1000000.0);
-  double t2=b.tv_sec+(b.tv_usec/1000000.0);
-  printf("\ngetIMG2:  %s\n",title.c_str());
-  printf("getIMG2:  %.6f seconds elapsed\n", t2-t1);
-  */
+
   return outName;
 }
 
 string getIMG(TH1F* hist, int size, string htmlDir, const char* xlab, const char* ylab){
-  //  timeval a,b;
-  //  gettimeofday(&a,NULL);
 
   if(hist==NULL) {
     printf("getIMG:  This histo is NULL, %s, %s\n",xlab,ylab);
@@ -88,45 +133,32 @@ string getIMG(TH1F* hist, int size, string htmlDir, const char* xlab, const char
     xwid = 600; ywid = 360;
   }
   TCanvas* can = new TCanvas(title.c_str(), "tmp can", xwid, ywid);
-  
-  for ( unsigned int i = 0; i < title.size(); i++ ) {
-    if ( title.substr(i, 1) == " " )  {
-      title.replace(i, 1, "_");
-    }
-    if ( title.substr(i, 1) == "#" )  {
-      title.replace(i, 1, "N");
-    }
-  }
-  
+
+  parseString(title);
   string outName = title + ".png";
-  //  if(!save) return outName;
-  
   string saveName = htmlDir + outName;
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);
   hist->Draw();
   can->SaveAs(saveName.c_str());  
   delete can;
-  /*
-  gettimeofday(&b,NULL);
-  double t1=a.tv_sec+(a.tv_usec/1000000.0);
-  double t2=b.tv_sec+(b.tv_usec/1000000.0);
-  printf("\ngetIMG:  %s\n",title.c_str());
-  printf("getIMG:  %.6f seconds elapsed\n", t2-t1);
-  */
+ 
   return outName;
 }
 
-TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone, TH2F* out){
+TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone){
 
+  if(!mui_) return NULL;
+
+  TH2F* out = NULL;
   char title[150];  
-  sprintf(title, "Collector/%s/HcalMonitor/%s",process.c_str(),name.c_str());
+  sprintf(title, "%sHcalMonitor/%s",process.c_str(),name.c_str());
 
-  const MonitorElement* me = mui_->get(title);
+  MonitorElement* me = mui_->get(title);
 
   if ( me ) {      
     if ( verb) cout << "Found '" << title << "'" << endl;
-    //    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+    // MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
     MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
 
     if ( ob ) {
@@ -142,10 +174,13 @@ TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool ve
   return out;
 }
 
-TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone, TH1F* out){
+TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone){
+
+  if(!mui_) return NULL;
 
   char title[150];  
-  sprintf(title, "Collector/%s/HcalMonitor/%s",process.c_str(),name.c_str());
+  sprintf(title, "%sHcalMonitor/%s",process.c_str(),name.c_str());
+  TH1F* out = NULL;
 
   const MonitorElement* me = mui_->get(title);
   if ( me ) {      
@@ -166,8 +201,10 @@ TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool ver
 }
 
 
-TH2F* getHisto2(const MonitorElement* me, bool verb,bool clone, TH2F* out){
+TH2F* getHisto2(const MonitorElement* me, bool verb,bool clone){
   
+  TH2F* out = NULL;
+
   if ( me ) {      
     if ( verb) cout << "Found '" << me->getName() << "'" << endl;
     //    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
@@ -185,8 +222,8 @@ TH2F* getHisto2(const MonitorElement* me, bool verb,bool clone, TH2F* out){
   return out;
 }
 
-TH1F* getHisto(const MonitorElement* me, bool verb,bool clone, TH1F* out){
-  //  TH1F* out = NULL;
+TH1F* getHisto(const MonitorElement* me, bool verb,bool clone){
+  TH1F* out = NULL;
 
   if ( me ) {      
     if ( verb ) cout << "Found '" << me->getName() << "'" << endl;
@@ -238,6 +275,7 @@ void histoHTML2(TH2F* hist, const char* xlab, const char* ylab, int width, ofstr
 
 void createXRangeTest(MonitorUserInterface* mui, vector<string>& params){
   if (params.size() < 6) return;
+  if(!mui) return;
 
   QCriterion* qc = mui->getQCriterion(params[1]);
   if(qc == NULL){
@@ -258,7 +296,8 @@ void createXRangeTest(MonitorUserInterface* mui, vector<string>& params){
 
 void createYRangeTest(MonitorUserInterface* mui, vector<string>& params){
   if (params.size() < 6) return;
-  
+  if(!mui) return;
+
   QCriterion* qc = mui->getQCriterion(params[1]);
   if(qc == NULL){
     qc = mui->createQTest(ContentsYRangeROOT::getAlgoName(),params[1]);
@@ -278,7 +317,8 @@ void createYRangeTest(MonitorUserInterface* mui, vector<string>& params){
 
 void createMeanValueTest(MonitorUserInterface* mui, vector<string>& params){
   if (params.size() < 7 ) return;
-  
+  if(!mui) return;
+
   QCriterion* qc = mui->getQCriterion(params[1]);
   if(qc == NULL){
     qc = mui->createQTest("MeanWithinExpected",params[1]);
@@ -301,6 +341,7 @@ void createMeanValueTest(MonitorUserInterface* mui, vector<string>& params){
 
 void createH2ContentTest(MonitorUserInterface* mui, vector<string>& params){
   if (params.size() < 2 ) return;
+  if(!mui) return;
 
   QCriterion* qc = mui->getQCriterion(params[1]);
   MonitorElement* me =  mui->get(params[0]);
@@ -320,7 +361,8 @@ void createH2ContentTest(MonitorUserInterface* mui, vector<string>& params){
 void createH2CompTest(MonitorUserInterface* mui, vector<string>& params, TH2F* ref){
   if (params.size() < 2 ) return;
   if(ref==NULL) return;
-  
+  if(!mui) return;
+
   QCriterion* qc = mui->getQCriterion(params[1]);
   MonitorElement* me =  mui->get(params[0]);
   if(me!=NULL && qc == NULL){
@@ -343,6 +385,7 @@ void createH2CompTest(MonitorUserInterface* mui, vector<string>& params, TH2F* r
 }
 
 void htmlErrors(string htmlDir, string client, string process, MonitorUserInterface* mui, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO){
+  if(!mui) return;
 
   map<string, vector<QReport*> >::iterator mapIter;
 
@@ -365,7 +408,7 @@ void htmlErrors(string htmlDir, string client, string process, MonitorUserInterf
     vector<QReport*> errors = mapIter->second;
     errorFile << "<br>" << endl;     
     errorFile << "<hr>" << endl;
-    errorFile << "Monitorable " << meName << " has the following errors: <br>" << endl;
+    errorFile << "Monitorable '" << meName << "' has the following errors: <br>" << endl;
     for(vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); report++){
       errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << endl;
     }
@@ -408,7 +451,7 @@ void htmlErrors(string htmlDir, string client, string process, MonitorUserInterf
     vector<QReport*> errors = mapIter->second;
     errorFile << "<br>" << endl;     
     errorFile << "<hr>" << endl;
-    errorFile << "Monitorable " << meName << " has the following warnings: <BR>" << endl;
+    errorFile << "Monitorable '" << meName << "' has the following warnings: <BR>" << endl;
     for(vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); report++){
       errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << endl;
     }
@@ -450,7 +493,7 @@ void htmlErrors(string htmlDir, string client, string process, MonitorUserInterf
     vector<QReport*> errors = mapIter->second;
     errorFile << "<br>" << endl;     
     errorFile << "<hr>" << endl;
-    errorFile << "Monitorable " << meName << " has the following messages: <br>" << endl;
+    errorFile << "Monitorable '" << meName << "' has the following messages: <br>" << endl;
     for(vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); report++){
       errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << endl;
     }

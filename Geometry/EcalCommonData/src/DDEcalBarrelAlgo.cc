@@ -1,3 +1,4 @@
+
 //////////////////////////////////////////////////////////////////////////////
 // File: DDEcalBarrelAlgo.cc
 // Description: Geometry factory class for Ecal Barrel
@@ -330,7 +331,7 @@ DDEcalBarrelAlgo::DDEcalBarrelAlgo() :
   m_PincerCutHeight    (0)
 
 {
-   edm::LogInfo("EcalGeom") << "DDEcalBarrelAlgo info: Creating an instance" ;
+   LogDebug("EcalGeom") << "DDEcalBarrelAlgo info: Creating an instance" ;
 }
 
 DDEcalBarrelAlgo::~DDEcalBarrelAlgo() {}
@@ -344,9 +345,10 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
 				  const DDStringArguments       & sArgs,
 				  const DDStringVectorArguments & vsArgs) {
 
-   edm::LogInfo("EcalGeom") << "DDEcalBarrelAlgo info: Initialize" ;
+   LogDebug("EcalGeom") << "DDEcalBarrelAlgo info: Initialize" ;
    m_idNameSpace = DDCurrentNamespace::ns();
-
+   // TRICK!
+   m_idNameSpace = parent().name().ns();
    // barrel parent volume
    m_BarName     = sArgs["BarName" ] ;
    m_BarMat      = sArgs["BarMat"  ] ;
@@ -377,7 +379,7 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_vecSpmHere  = vArgs["SpmHere"] ;
    m_SpmCutName  = sArgs["SpmCutName"] ;
    m_SpmCutThick = nArgs["SpmCutThick"] ;
-   m_SpmCutShow  = nArgs["SpmCutShow"] ;
+   m_SpmCutShow  = int(nArgs["SpmCutShow"]) ;
    m_vecSpmCutTM = vArgs["SpmCutTM"] ;
    m_vecSpmCutTP = vArgs["SpmCutTP"] ;
    m_SpmCutRM    = nArgs["SpmCutRM"] ;
@@ -669,7 +671,7 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_PincerCutHeight    = nArgs["PincerCutHeight"];
 
    
-   edm::LogInfo("EcalGeom") << "DDEcalBarrelAlgo info: end initialize" ;
+   LogDebug("EcalGeom") << "DDEcalBarrelAlgo info: end initialize" ;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -678,7 +680,7 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
 
 void DDEcalBarrelAlgo::execute() 
 {
-   edm::LogInfo("EcalGeom") << "******** DDEcalBarrelAlgo execute!" << std::endl ;
+   LogDebug("EcalGeom") << "******** DDEcalBarrelAlgo execute!" << std::endl ;
 
    if( barHere() != 0 )
    {
@@ -727,7 +729,7 @@ void DDEcalBarrelAlgo::execute()
 				   spmCutName(), 
 				   1.05*(vecSpmRMax()[indx] - vecSpmRMin()[indx])/2.,  
 				   spmCutThick()/2.,
-				   fabs( vecSpmZPts().back() - vecSpmZPts().front() )/2.) ) ;
+				   fabs( vecSpmZPts().back() - vecSpmZPts().front() )/2.+1*mm) ) ;
       const std::vector<double>& cutBoxParms ( spmCutBox.parameters() ) ;
       const DDLogicalPart spmCutLog ( spmCutName(), spmMat(), spmCutBox ) ;
 
@@ -782,7 +784,7 @@ void DDEcalBarrelAlgo::execute()
 	    RoZ3D( 1==icopy ? spmLowPhi() : spmLowPhi()+spmDelPhi() )*
 	    Tl3D( ( vecSpmRMax()[indx]+vecSpmRMin()[indx])/2.,
 		  0,
-		  vecSpmZPts().front()+cutBoxParms[2])*
+		  (vecSpmZPts().front()+ vecSpmZPts().back())/2.)*
 	    tr*ro) ;
 
 	 const DDRotation    ddrot ( myrot(spmCutName().name() + 
@@ -1471,7 +1473,7 @@ void DDEcalBarrelAlgo::execute()
 	    ( trapClr.h() + 2*sWrap - fWrap*sindelta )/2, // h2,  h/2
 	    ( trapClr.L() + fWrap + rWrap )/2., // dz,  L/2
 	    alfWrap,                       //double aAngleAD            , // alfa1
-	    aNom - ANom ,                  //double aCoord15X           , // x15
+	    aNom - ANom - (cryType>9 ? 0 : 0.020*mm) ,
 	    hNom - HNom                    //double aCoord15Y             // y15  
 	 ) ;
 
@@ -1492,7 +1494,7 @@ void DDEcalBarrelAlgo::execute()
 	    ( trapWrap.h() + 2*sWall - fWall*sindelta )/2,  // h/2
 	    ( trapWrap.L() + fWall + rWall )/2.,  // L/2
 	    alfWall,                             // alfa1
-	    aNom - ANom ,                        // x15
+	    aNom - ANom - (cryType<10? 0.150*mm : 0.100*mm ) ,       
 	    hNom - HNom                          // y15
 	 ) ;
 
@@ -1544,7 +1546,7 @@ void DDEcalBarrelAlgo::execute()
 		<< std::endl ;
 */
 	 // Now for placement of cry within clr
-	 const Vec3 cryToClr ( 0,0, ( rClr - fClr )/2 ) ;
+	 const Vec3 cryToClr ( 0, 0, ( rClr - fClr )/2 ) ;
 
 	 DDpos( cryLog,
 		clrLog, 
@@ -1580,7 +1582,8 @@ void DDEcalBarrelAlgo::execute()
 
 
 	 // Now for placement of clr within wall
-	 const Vec3 wrapToWall ( 0, 0, ( rWall - fWall )/2 ) ;
+	 const Vec3 wrapToWall1 ( 0, 0, ( rWall - fWall )/2 ) ;
+	 const Vec3 wrapToWall ( Vec3( (cryType>9?0:0.005*mm),0,0 )+wrapToWall1 ) ;
 
 	 DDpos( wrapLog,
 		wallLog, 
@@ -1615,11 +1618,11 @@ void DDEcalBarrelAlgo::execute()
 	 for( unsigned int etaAlv ( 1 ) ; etaAlv <= nCryPerAlvEta() ; ++etaAlv )
 	 {
 	    LogDebug("EcalGeom") << "theta=" << theta/deg
-				 << ", sidePrime=" << sidePrime << ", frontPrime=" << frontPrime
-				 << ",  zeta="<<zeta<<", delta="<<delta<<",  zee=" << zee ;
+		      << ", sidePrime=" << sidePrime << ", frontPrime=" << frontPrime
+		      << ",  zeta="<<zeta<<", delta="<<delta<<",  zee=" << zee;
 
-	    zee += side*cos(zeta)/sin(theta) + 
-	       ( trapWall.h() - sidePrime )/sin(theta) ;
+	    zee += 0.075*mm +
+	       ( side*cos(zeta) + trapWall.h() - sidePrime )/sin(theta) ;
 
 	    LogDebug("EcalGeom") << "New zee="<< zee ;
 
@@ -1644,9 +1647,12 @@ void DDEcalBarrelAlgo::execute()
 						0,
 						0            ) ) ;
 
-	    const Tf3D tForm ( trap1,  trap2,  trap3,
-			       wedge1, wedge2, wedge3    ) ;
+	    const Tf3D tForm1 ( trap1,  trap2,  trap3,
+				wedge1, wedge2, wedge3    ) ;
 
+	    const double xx ( 0.050*mm ) ;
+
+	    const Tf3D tForm ( HepTranslate3D(xx,0,0)*tForm1 ) ;
 
 	    DDpos( wallLog,
 		   hawRLog, 
@@ -1665,6 +1671,7 @@ void DDEcalBarrelAlgo::execute()
 	    17 == cryType    ) // web plates
 	 {
 	    const unsigned int webIndex ( cryType/4 ) ;
+	    zee += 0.5*vecGapAlvEta()[cryType]/sin(theta) ;
 	    web( webIndex,
 		 trapWall.a(),
 		 trapWall.A(),
@@ -1676,8 +1683,12 @@ void DDEcalBarrelAlgo::execute()
 		 sidePrime,
 		 frontPrime,
 		 delta ) ;
+	    zee += 0.5*vecGapAlvEta()[cryType]/sin(theta) ;
 	 }
-	 if( 17 != cryType ) zee += vecGapAlvEta()[cryType]/sin(theta) ;
+	 else
+	 {
+	    if( 17 != cryType ) zee += vecGapAlvEta()[cryType]/sin(theta) ;
+	 }
       }
       // END   filling Wedge with crystal plus supports --------------------------
 
@@ -1780,7 +1791,7 @@ void DDEcalBarrelAlgo::execute()
       
       const DDTranslation backSideTra1 ( 0*mm,
 					 backPlateWidth()/2 + backSideYOff1(),
-					 0*mm ) ;
+					 1*mm ) ;
       if( 0 != backSideHere() )
       {
 	 DDpos( backSideLog,
@@ -1792,7 +1803,7 @@ void DDEcalBarrelAlgo::execute()
 	     
 	 const DDTranslation backSideTra2( 0*mm,
 					   -backPlateWidth()/2 + backSideYOff2(),
-					   0*mm ) ;
+					   1*mm ) ;
 	 DDpos( backSideLog,
 		spmName(), 
 		copyTwo, 
@@ -1815,8 +1826,10 @@ void DDEcalBarrelAlgo::execute()
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+      const double manifCut ( 2*mm ) ;
+
       DDSolid mBManifSolid ( DDSolidFactory::tubs( mBManifName() ,
-						   backCoolWidth/2.,
+						   backCoolWidth/2. - manifCut,
 						   0, 
 						   mBManifOutDiam()/2,
 						   0*deg, 360*deg ) ) ;
@@ -1824,7 +1837,7 @@ void DDEcalBarrelAlgo::execute()
 
       const DDName mBManifWaName ( ddname( mBManifName().name() + "Wa" ) ) ;
       DDSolid mBManifWaSolid ( DDSolidFactory::tubs( mBManifWaName ,
-						     backCoolWidth/2.,
+						     backCoolWidth/2.-manifCut,
 						     0, 
 						     mBManifInnDiam()/2,
 						     0*deg, 360*deg ) ) ;
@@ -1850,6 +1863,8 @@ void DDEcalBarrelAlgo::execute()
 //!!!!!!!!!!!!!!     Begin Loop over Grilles & MB Cooling Manifold !!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      const double deltaY ( -5*mm ) ;
+
       DDSolid grEdgeSlotSolid ( DDSolidFactory::box( grEdgeSlotName(), 
 						     grEdgeSlotHeight()/2.,  
 						     grEdgeSlotWidth()/2.,
@@ -1874,7 +1889,7 @@ void DDEcalBarrelAlgo::execute()
 	 
 	 const DDTranslation grilleTra ( -realBPthick/2 -
 					 vecGrilleHeight()[iGr]/2,
-					 0*mm,
+					 deltaY,
 					 vecGrilleZOff()[iGr] +
 					 grilleThick()/2 - backSideLength()/2 ) ;
 	 const DDTranslation gTra ( outtra + backPlateTra + grilleTra ) ;
@@ -1936,7 +1951,7 @@ void DDEcalBarrelAlgo::execute()
 		   spmName(),
 		   iGr,
 		   gTra - DDTranslation( -mBManifOutDiam()/2. +
-					 vecGrilleHeight()[iGr]/2.,0, 
+					 vecGrilleHeight()[iGr]/2.,manifCut, 
 					 grilleThick()/2.+3*mBManifOutDiam()/2.) ,
 		   myrot( mBManifName().name()+"R1",
 			  HepRotationX(90*deg)             ) ) ;
@@ -1944,7 +1959,7 @@ void DDEcalBarrelAlgo::execute()
 		   spmName(),
 		   iGr-1,
 		   gTra - DDTranslation( -3*mBManifOutDiam()/2. +
-					 vecGrilleHeight()[iGr]/2.,0, 
+					 vecGrilleHeight()[iGr]/2.,manifCut, 
 					 grilleThick()/2+3*mBManifOutDiam()/2.) ,
 		   myrot( mBManifName().name()+"R2",
 			  HepRotationX(90*deg)             ) ) ;
@@ -2104,9 +2119,9 @@ void DDEcalBarrelAlgo::execute()
       {
 	 const double pipeLength ( vecGrilleZOff()[2*iMod+1] -
 				   vecGrilleZOff()[2*iMod  ] -
-				   grilleThick()               ) ;
+				   grilleThick()   - 3*mm            ) ;
 
-	 const double pipeZPos ( vecGrilleZOff()[2*iMod+1] - pipeLength/2  ) ;
+	 const double pipeZPos ( vecGrilleZOff()[2*iMod+1] - pipeLength/2 - 1.5*mm  ) ;
 
 
 
@@ -2137,7 +2152,7 @@ void DDEcalBarrelAlgo::execute()
 	 const DDTranslation bCoolTra ( -realBPthick/2 +
 					backCoolHeight/2    -
 					vecGrilleHeight()[2*iMod],
-					0*mm,
+					deltaY,
 					vecGrilleZOff()[2*iMod] +
 					grilleThick() + grilleZSpace() +
 					halfZBCool - 
@@ -2493,11 +2508,11 @@ void DDEcalBarrelAlgo::execute()
 
       const DDLogicalPart patchLog ( patchPanelName(), spmMat(), patchSolid ) ;
 	 
-      const DDTranslation patchTra ( backXOff() ,
+      const DDTranslation patchTra ( backXOff() + 4*mm ,
 				     0*mm,
 				     vecGrilleZOff().back() +
 				     grilleThick() +
-				     patchParms[2] ) ;
+				     patchParms[2]  ) ;
       if( 0 != patchPanelHere() )
 	 DDpos( patchLog,
 		spmName(), 
@@ -2677,8 +2692,12 @@ DDName
 DDEcalBarrelAlgo::ddname( const std::string& s ) const
 { 
    const pair<std::string,std::string> temp ( DDSplit(s) ) ;
-   return DDName( temp.first,
-		  temp.second ) ; 
+   if ( temp.second == "" ) {
+     return DDName( temp.first,
+		    m_idNameSpace ) ;
+   } else {
+     return DDName( temp.first, temp.second );
+   } 
 }  
 
 DDSolid    

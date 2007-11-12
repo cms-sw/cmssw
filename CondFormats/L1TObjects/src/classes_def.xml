@@ -8,4 +8,5 @@
   <class name="L1MuDTPtaLut"/>
   <class name="L1MuDTEtaPatternLut"/>
   <class name="L1MuDTQualPatternLut"/>
+  <class name="EcalTPParameters"/>
 </lcgdict>  

@@ -1,8 +1,3 @@
-
-
-
-
-
 #include "Geometry/CSCGeometry/interface/CSCWireGeometry.h"
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
@@ -37,7 +32,7 @@ std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
   // intercept of wire
   float cw = yOfWire( wire );
   
-  LogTrace("CSC") << "CSCWireGeometry: wire=" << wire <<
+  LogTrace("CSCWireGeometry|CSC") << "CSCWireGeometry: wire=" << wire <<
     ", wire angle = " << wangle <<
     ", intercept on y axis=" << cw;
   
@@ -71,7 +66,7 @@ std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
   float x2 = pw2.x();
   float y2 = pw2.y();
 
-  LogTrace("CSC") << "CSCWireGeometry: wire intersects edges of plane at " <<
+  LogTrace("CSCWireGeometry|CSC") << "CSCWireGeometry: wire intersects edges of plane at " <<
     "\n  x1=" << x1 << " y1=" << y1 <<
     " x2=" << x2 << " y2=" << y2;
   
@@ -83,7 +78,7 @@ std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
     buf[1] = cw;
     buf[2] = sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
   
-    LogTrace("CSC") << "CSCWireGeometry: wires are not tilted " <<
+    LogTrace("CSCWireGeometry|CSC") << "CSCWireGeometry: wires are not tilted " <<
       "\n  mid-point: x=0 y=" << cw << ", length=" << buf[2];
 
     return buf;
@@ -99,7 +94,7 @@ std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
   float cb = -len/2.; // intercept bottom edge of wire plane
   float ct =  len/2.; // intercept top edge of wire plane
   
-  LogTrace("CSC") <<  "CSCWireGeometry: slopes & intercepts " <<
+  LogTrace("CSCWireGeometry|CSC") <<  "CSCWireGeometry: slopes & intercepts " <<
     "\n  mt=" << mt << " ct=" << ct << " mb=" << mb << " cb=" << cb <<
     "\n  m1=" << m1 << " c1=" << c1 << " m2=" << m2 << " c2=" << c2 <<
     "\n  mw=" << mw << " cw=" << cw;
@@ -116,7 +111,7 @@ std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
   float xb = pwb.x();
   float yb = pwb.y();
   
-  LogTrace("CSC") << "CSCWireGeometry: wire intersects top & bottom of wire plane at " <<
+  LogTrace("CSCWireGeometry|CSC") << "CSCWireGeometry: wire intersects top & bottom of wire plane at " <<
     "\n  xt=" << xt << " yt=" << yt <<
     " xb=" << xb << " yb=" << yb ;
   
@@ -151,16 +146,16 @@ std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
   if ( i != 2 ) {
     // the wire does not intersect the wire plane (!)
 
-    LogTrace("CSC") << "CSCWireGeometry: wire does not intersect wire plane!!";
+    LogTrace("CSCWireGeometry|CSC") << "CSCWireGeometry: wire does not intersect wire plane!!";
     //     throw cms::Exception("BadCSCGeometry") << "the wire has " << i <<
     //       " ends!" << "\n";
 
     return buf; // each elem is zero
   }
   
-  LogTrace("CSC") << "CSCWireGeometry: ME11 wire ends ";
+  LogTrace("CSCWireGeometry|CSC") << "CSCWireGeometry: ME11 wire ends ";
   for ( int j = 0; j<i; j++ ) {
-    LogTrace("CSC") << "  x = " << xWireEnd[j] << " y = " << yWireEnd[j];
+    LogTrace("CSCWireGeometry|CSC") << "  x = " << xWireEnd[j] << " y = " << yWireEnd[j];
   }
   
   float d2 = (xWireEnd[0]-xWireEnd[1]) * (xWireEnd[0]-xWireEnd[1]) +

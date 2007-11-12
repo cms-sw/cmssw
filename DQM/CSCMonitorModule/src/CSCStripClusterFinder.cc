@@ -11,13 +11,13 @@
 
 CSCStripClusterFinder::CSCStripClusterFinder(int l, int s, int cf, int st)
 {
-//
-// Options
-//
-//	fOpt = new CalibOptions();
-	LayerNmb = l;
-	TimeSliceNmb = s;
-	StripNmb = cf*16;
+  //
+  // Options
+  //
+  //	fOpt = new CalibOptions();
+  LayerNmb = l;
+  TimeSliceNmb = s;
+  StripNmb = cf*16;
 }
 void CSCStripClusterFinder::DoAction(int LayerId,float *Cathodes)
 {
@@ -48,17 +48,17 @@ void CSCStripClusterFinder::DoAction(int LayerId,float *Cathodes)
   Match();
   RefindMax();
   /*
-  int val;
-  for(i=0;i<MEStripClusters.size();i++){
+    int val;
+    for(i=0;i<MEStripClusters.size();i++){
     val=MEStripClusters[i].LFTBNDStrip;
     MEStripClusters[i].LFTBNDStrip=thePulseHeightMap[val].channel_;
     val=MEStripClusters[i].IRTBNDStrip;
     MEStripClusters[i].IRTBNDStrip=thePulseHeightMap[val].channel_;
     for(j=0;j<MEStripClusters[i].localMax.size();j++){
-      val=MEStripClusters[i].localMax[j].Strip;
-      MEStripClusters[i].localMax[j].Strip=thePulseHeightMap[val].channel_;
+    val=MEStripClusters[i].localMax[j].Strip;
+    MEStripClusters[i].localMax[j].Strip=thePulseHeightMap[val].channel_;
     }
-  }
+    }
   */
 
   float sumstrip;
@@ -89,7 +89,7 @@ void CSCStripClusterFinder::DoAction(int LayerId,float *Cathodes)
     MEStripClusters[i].Mean[0]=sumstrip/sumheight;
     MEStripClusters[i].Mean[1]=sumtime/sumheight;
   }
-//  printClusters();
+  //  printClusters();
   return;
 }
 
@@ -279,7 +279,7 @@ void CSCStripClusterFinder::RefindMax(void)
     iRT=MEStripClusters[i].IRTBNDTime;
     
     /*
-    for(iS=iLS+1;iS<=iRS-1;iS++){ 
+      for(iS=iLS+1;iS<=iRS-1;iS++){ 
       for(jT=iLT+1;jT<=iRT-1;jT++){
     */
     for(iS=iLS;iS<=iRS;iS++){ 
@@ -338,13 +338,13 @@ void CSCStripClusterFinder::RefindMax(void)
       //edm::LogInfo ("CSC DQM:") << "Cluster: " << i << " Number of local maximums: " 
       //	<< MEStripClusters[i].localMax.size() ; 
       /*
-      for(j=0;j<MEStripClusters[i].localMax.size();j++){
+	for(j=0;j<MEStripClusters[i].localMax.size();j++){
 	iS=MEStripClusters[i].localMax[j].Strip;
 	jT=MEStripClusters[i].localMax[j].Time;
 	edm::LogInfo ("CSC DQM:") << "Local Max: " << j << " Strip: " << iS << " Time: " << jT 
-		  << " Height: " << thePulseHeightMap[iS].height_[jT] 
-		  << " Cut Value: " << GlobalMax ;
-      }
+	<< " Height: " << thePulseHeightMap[iS].height_[jT] 
+	<< " Cut Value: " << GlobalMax ;
+	}
       */
     }
   }
@@ -358,7 +358,7 @@ void CSCStripClusterFinder::printClusters(void)
   for(i=0;i<MEStripClusters.size();i++){
     if(!MEStripClusters[i].localMax.size()) continue;
     edm::LogInfo ("CSC DQM:") << " Cluster: " << i+1 
-	      << " Number of local Maximums " <<  MEStripClusters[i].localMax.size() ;
+			      << " Number of local Maximums " <<  MEStripClusters[i].localMax.size() ;
     for(j=0;j<MEStripClusters[i].localMax.size();j++){
       iS=MEStripClusters[i].localMax[j].Strip;
       jT=MEStripClusters[i].localMax[j].Time;
@@ -367,7 +367,7 @@ void CSCStripClusterFinder::printClusters(void)
       for(unsigned int k=0;k<MEStripClusters[i].ClusterPulseMapHeight.size();k++){
 	if(MEStripClusters[i].ClusterPulseMapHeight[k].channel_==iS)
 	  edm::LogInfo ("CSC DQM:") << "Local Max: " << j+1 << " Strip: " << iS+1 << " Time: " << jT+1 
-	       << " Height: " << MEStripClusters[i].ClusterPulseMapHeight[k].height_[jT] ;
+				    << " Height: " << MEStripClusters[i].ClusterPulseMapHeight[k].height_[jT] ;
       }
     }
     for(unsigned int k=0;k<MEStripClusters[i].ClusterPulseMapHeight.size();k++){
@@ -378,12 +378,12 @@ void CSCStripClusterFinder::printClusters(void)
     }
 
     edm::LogInfo ("CSC DQM:") << " Left  Top    corner strip: " << MEStripClusters[i].LFTBNDStrip+1 << " " 
-	 << " time: " << MEStripClusters[i].LFTBNDTime+1 ; 
+			      << " time: " << MEStripClusters[i].LFTBNDTime+1 ; 
     edm::LogInfo ("CSC DQM:") << " Right Bottom corner strip: " << MEStripClusters[i].IRTBNDStrip+1 << " " 
-	 << " time: " << MEStripClusters[i].IRTBNDTime+1 ; 
+			      << " time: " << MEStripClusters[i].IRTBNDTime+1 ; 
   }
- edm::LogInfo ("CSC DQM:") << "======================================================================" ;	
-   return;
+  edm::LogInfo ("CSC DQM:") << "======================================================================" ;	
+  return;
 }
 bool  CSCStripClusterFinder::Sort::operator()(CSCStripClusterFitData a , CSCStripClusterFitData b) const
 {return  a.channel_ < b.channel_;}

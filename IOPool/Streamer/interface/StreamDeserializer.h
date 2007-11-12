@@ -9,6 +9,7 @@
  */
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "TBuffer.h"
 #include "TClass.h"
 #include <vector>
@@ -36,6 +37,11 @@ namespace edm {
       processConfiguration_ = pc;
     }
 
+    void
+    setProcessHistoryID(ProcessHistoryID phid) {
+      processHistoryID_ = phid;
+    }
+
     /**
      * Uncompresses the data in the specified input buffer into the
      * specified output buffer.  The inputSize should be set to the size
@@ -51,6 +57,7 @@ namespace edm {
 
   private:
     ProcessConfiguration processConfiguration_;
+    ProcessHistoryID processHistoryID_;
     TClass* tc_;
     std::vector<unsigned char> dest_;
     TBuffer xbuf_;

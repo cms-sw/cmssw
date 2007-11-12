@@ -17,6 +17,10 @@
 #include "OnlineDB/EcalCondDB/interface/LMFPNIRedDat.h"
 #include "OnlineDB/EcalCondDB/interface/LMFPNTestPulseDat.h"
 #include "OnlineDB/EcalCondDB/interface/LMFPNConfigDat.h"
+#include "OnlineDB/EcalCondDB/interface/LMFMatacqBlueDat.h"
+#include "OnlineDB/EcalCondDB/interface/LMFMatacqIRedDat.h"
+#include "OnlineDB/EcalCondDB/interface/LMFMatacqGreenDat.h"
+#include "OnlineDB/EcalCondDB/interface/LMFMatacqRedDat.h"
 
 
 #endif

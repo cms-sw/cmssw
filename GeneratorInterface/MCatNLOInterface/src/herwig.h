@@ -284,6 +284,13 @@ extern struct {
 } params_;
 #define params params_
 
+
+//MC@NLO 331 block
+extern struct {
+  double mmgammay1, mmgammay2, mmym1low,mmym2low,mmym1upp, mmym2upp;
+} para331_;
+#define para331 para331_
+
 extern struct {
   int basesoutput;
   char stfilename[100];

@@ -46,7 +46,9 @@ namespace edm
 	// identify
 	rc = worker_->doWork(ep, es, bat, cpc);
 
-	if (filterAction_ == Veto) rc = !rc;
+        // Ignore return code for non-event (e.g. run, lumi) calls
+	if (!isEvent) rc = true;
+	else if (filterAction_ == Veto) rc = !rc;
         else if (filterAction_ == Ignore) rc = true;
 
 	if (isEvent) {

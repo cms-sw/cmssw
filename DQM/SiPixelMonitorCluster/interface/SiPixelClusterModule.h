@@ -1,46 +1,54 @@
 #ifndef SiPixelMonitorCluster_SiPixelClusterModule_h
 #define SiPixelMonitorCluster_SiPixelClusterModule_h
+// -*- C++ -*-
+//
+// Package:    SiPixelMonitorDigi
+// Class:      SiPixelClusterModule
+// 
+/*
 
+ Description: Cluster monitoring elements for a Pixel sensor
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Vincenzo Chiochia & Andrew York
+//         Created:  
+// $Id: SiPixelClusterModule.h,v 1.3 2007/04/16 21:35:43 andrewdc Exp $
+//
+//
 #include "DQMServices/Core/interface/MonitorElement.h"
-
-//#include "DataFormats/SiPixelCluster/interface/PixelClusterCollection.h"
-//#include "DataFormats/SiPixelCluster/interface/PixelCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include <boost/cstdint.hpp>
 
 class SiPixelClusterModule {        
 
  public:
-  
+
+  /// Default constructor
   SiPixelClusterModule();
-  
-  SiPixelClusterModule(uint32_t id);
-  
+  /// Constructor with raw DetId
+  SiPixelClusterModule(const uint32_t& id);
+  /// Constructor with raw DetId and sensor size
+  SiPixelClusterModule(const uint32_t& id, const int& ncols, const int& nrows);
+  /// Destructor
   ~SiPixelClusterModule();
 
   typedef edm::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
 
-  void book();
-
-  //void fill(const PixelClusterCollection* clusterCollection);
+  /// Book histograms
+  void book(const edm::ParameterSet& iConfig);
+  /// Fill histograms
   void fill(const edm::DetSetVector<SiPixelCluster> & input);
   
  private:
+
   uint32_t id_;
+  int ncols_;
+  int nrows_;
   MonitorElement* meNClusters_;
   MonitorElement* meY_;
   MonitorElement* meX_;
@@ -52,9 +60,9 @@ class SiPixelClusterModule {
   MonitorElement* meMaxRow_;
   MonitorElement* meMinCol_;
   MonitorElement* meMaxCol_;
+  MonitorElement* mePixClusters_;
   //  MonitorElement* meEdgeHitX_;
   //  MonitorElement* meEdgeHitY_;
-  //  MonitorElement* mePixClusters_;
   
 };
 #endif

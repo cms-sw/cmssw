@@ -11,6 +11,8 @@ require_once 'db_functions.php';
 require_once 'pager_functions.php';
 
 $conn = connect($_GET['location']);
+/* $compact = isset($_GET['compact']); */
+$compact = 1 - isset($_GET['expanded']);
 
 function input_errors() {
   $error = "";
@@ -45,6 +47,7 @@ function draw_data_table($datatype, $run, $run_iov_id, $runtype) {
   if     ($datatype == 'MON') { fill_monitoring_table($run, $run_iov_id, $runtype); }
   elseif ($datatype == 'DCU') { fill_dcu_table($run, $run_iov_id); }
   elseif ($datatype == 'BEAM') { fill_beam_table($run); }
+  elseif ($datatype == 'LMF') { fill_laser_table($run, $run_iov_id, $runtype); }
   else { 
     echo "<tr><td class='noresults'>Data type $datatype is not finished</td></tr>";
   }
@@ -64,8 +67,8 @@ function fill_monitoring_table($run, $run_iov_id, $runtype) {
     foreach($monselect_headers as $db_handle => $head) {
       echo "<th>$head</th>";
     }
-    echo "<th>Tasks</th>";
-    echo "<th>DQM Page</th>";
+    echo "<th><nobr>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tasks&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr></th>";
+    echo "<th>DQM Pages</th>";
     echo "<th>DB Plot</th>";
     echo "</tr>";
 
@@ -78,10 +81,11 @@ function fill_monitoring_table($run, $run_iov_id, $runtype) {
       $iov_id = $monresults['IOV_ID'][$i];
       $loc = $_GET['location']; // XXX function argument?
       $dqm_url = htmlentities(get_dqm_url($loc, $runtype, $run));
+      $dqm_url2 = htmlentities(get_dqm_url2($loc, $runtype, $run));
       $list_bits = $monresults['TASK_LIST'][$i];
       $outcome_bits = $monresults['TASK_OUTCOME'][$i];
       echo "<td>", draw_tasklist($list_bits, $outcome_bits, $run, $loc, $iov_id), "</td>";
-      echo "<td><a href='$dqm_url'>DQM</a></td>";
+      echo "<td><a href='$dqm_url'>DQM</a> - <a href='$dqm_url2'>log</a></td>";
       echo "<td class='dbplot'>",  draw_plotlink('MON', $exists_str, $run, $loc, $iov_id), "</td>";
       echo "</tr>\n";
     }
@@ -89,6 +93,39 @@ function fill_monitoring_table($run, $run_iov_id, $runtype) {
     echo "<tr>
           <th class='typehead'>MON</th>
           <td class='noresults'>No monitoring results</td></tr>";
+  }
+}
+function fill_laser_table($run, $run_iov_id, $runtype) {
+  $monresults = fetch_las_data($run_iov_id);
+  $nmonrows = count($monresults['SUBRUN_NUM']);
+  
+
+  if ($nmonrows > 0) {
+    
+    $monselect_headers = get_lmfselect_headers();
+    echo "<tr>";
+    echo "<th class='typehead' rowspan='", $nmonrows+1, "'>LMF</th>";
+    foreach($monselect_headers as $db_handle => $head) {
+      echo "<th>$head</th>";
+    }
+    echo "<th>DB Plot</th>";
+    echo "</tr>";
+
+    for ($i = 0; $i < $nmonrows; $i++) {
+      echo "<tr>\n";
+      foreach ($monselect_headers as $db_handle => $head) {
+	echo "<td>", $monresults[$db_handle][$i], "</td>\n";
+      }
+      $exists_str = $monresults['DAT_EXISTS'][$i];
+      $iov_id = $monresults['IOV_ID'][$i];
+      $loc = $_GET['location']; // XXX function argument?
+      echo "<td class='dbplot'>",  draw_plotlink('LMF', $exists_str, $run, $loc, $iov_id), "</td>";
+      echo "</tr>\n";
+    }
+  } else {
+    echo "<tr>
+          <th class='typehead'>LMF</th>
+          <td class='noresults'>No Laser results</td></tr>";
   }
 }
 
@@ -113,6 +150,7 @@ function fill_dcu_table($run, $run_iov_id) {
       }
       $exists_str = $dcuresults['DAT_EXISTS'][$i];
       $iov_id = $dcuresults['IOV_ID'][$i];
+      $loc = $_GET['location']; // XXX function argument?
       echo "<td class='dbplot'>",  draw_plotlink('DCU', $exists_str, $run, $loc, $iov_id), "</td>";
       echo "</tr>\n";
     }
@@ -206,6 +244,7 @@ if (isset($_GET['run_select']) && $_GET['run_select'] == 'last_100') {
 }
 
 function draw_tasklist($list_bits, $outcome_bits, $run, $loc, $iov_id) {
+
   $tasks = get_task_array();
   $outcome = get_task_outcome($list_bits, $outcome_bits);
   
@@ -229,7 +268,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <html>
 <head>
 <title>List Runs</title>
-<?php echo get_stylelinks(); ?>
+<?php echo get_stylelinks( $compact ); ?>
 <script type="text/javascript">
 <!--
 function popup(mylink, windowname, width)

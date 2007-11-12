@@ -2,10 +2,9 @@
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
 
 #include "SimG4Core/Application/interface/SimTrackManager.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
-
-//#define DEBUG
 
 
 MuonSlaveSD::MuonSlaveSD(MuonSubDetector* d,
@@ -21,17 +20,13 @@ MuonSlaveSD::~MuonSlaveSD() {
 
 void MuonSlaveSD::clearHits()
 {
-#ifdef DEBUG
-    std::cout << " MuonSlaveSD::clearHits "<< detector->name() << std::endl;
-#endif
-    hits_.clear();
+  LogDebug("MuonSimDebug") << " MuonSlaveSD::clearHits "<< detector->name() << std::endl;
+  hits_.clear();
 }
 
 bool MuonSlaveSD::format()
 {
-#ifdef DEBUG
-  std::cout << " MuonSlaveSD "<<detector->name()<<" formatting " << hits_.size() <<" hits."<< std::endl;
-#endif
+  LogDebug("MuonSimDebug") << " MuonSlaveSD "<<detector->name()<<" formatting " << hits_.size() <<" hits."<< std::endl;
   if (detector->isBarrel()) {
     sort(hits_.begin(),hits_.end(), FormatBarrelHits());
   } else if (detector->isEndcap()) {

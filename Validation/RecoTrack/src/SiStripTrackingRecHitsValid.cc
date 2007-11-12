@@ -48,7 +48,7 @@ using namespace std;
 #include "TH2.h"
 class TFile;
 
-SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const ParameterSet& ps):dbe_(0)
+SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet& ps):dbe_(0)
 {
 
   conf_ = ps;
@@ -136,7 +136,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const ParameterSet& ps)
   //builderName_ = ps.getParameter<std::string>("TTRHBuilder");   
 
   // Book histograms
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe_->showDirStructure();
 
   dbe_->setCurrentFolder("TrackingRecHits/Strip/ALL");
@@ -1313,7 +1313,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
   es.get<TrackerDigiGeometryRecord>().get(estracker);
   tracker2=&(* estracker);
 
-  ESHandle<MagneticField> magfield;
+  edm::ESHandle<MagneticField> magfield;
   //iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
   es.get<IdealMagneticFieldRecord>().get(magfield );
   //  magfield_  = magfield;
@@ -1326,7 +1326,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
   // Mangano's
 
-  Handle<vector<Trajectory> > trajCollectionHandle;
+  edm::Handle<vector<Trajectory> > trajCollectionHandle;
   e.getByLabel(conf_.getParameter<string>("trajectoryInput"),trajCollectionHandle);
 
   edm::LogVerbatim("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size() ;

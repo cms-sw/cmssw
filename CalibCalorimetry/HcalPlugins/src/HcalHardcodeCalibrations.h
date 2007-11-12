@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalHardcodeCalibrations.h,v 1.4 2005/12/15 23:37:58 fedor Exp $
+// $Id: HcalHardcodeCalibrations.h,v 1.5 2006/01/10 19:29:40 fedor Exp $
 //
 // ESSource to generate default HCAL calibration objects 
 //
@@ -50,6 +50,6 @@ protected:
   std::auto_ptr<HcalQIEData> produceQIEData (const HcalQIEDataRcd& rcd);
   std::auto_ptr<HcalChannelQuality> produceChannelQuality (const HcalChannelQualityRcd& rcd);
   std::auto_ptr<HcalElectronicsMap> produceElectronicsMap (const HcalElectronicsMapRcd& rcd);
-  
+  bool h2mode_;
 };
 

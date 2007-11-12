@@ -1,11 +1,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentDerivativesExtractor.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentParameters.h"
+#include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentDerivativesExtractor.h"
 
 
 //__________________________________________________________________________________________________

@@ -1,7 +1,5 @@
 #include "TableDataFormatter.h"
 
-using namespace edm;
-using namespace std;
 
 #include <iostream>
 
@@ -17,10 +15,10 @@ void TableDataFormatter::interpretRawData( const FEDRawData & fedData,
   // check ultimate fed size and strip off fed-header and -trailer
   if (fedLenght != (nWordsPerEvent *4) )
     {
-      LogError("TableDataFormatter") << "TableData has size "  <<  fedLenght
+      edm::LogError("TableDataFormatter") << "TableData has size "  <<  fedLenght
 				       <<" Bytes as opposed to expected " 
 				       << (nWordsPerEvent *4)
-				       << ". Returning."<< endl;
+				     << ". Returning.";
       return;
     }
 
@@ -33,25 +31,25 @@ void TableDataFormatter::interpretRawData( const FEDRawData & fedData,
   a = buffer[wordCounter];wordCounter++;
   b = (a& 0xffffffff);
   tbEventHeader.setThetaTableIndex(b);
-  LogDebug("TableDataFormatter") << "Table theta position:\t" << b << endl;
+  LogDebug("TableDataFormatter") << "Table theta position:\t" << b;
   a = buffer[wordCounter];wordCounter++;
   b = (a& 0xffffffff);
   tbEventHeader.setPhiTableIndex(b);
-  LogDebug("TableDataFormatter") << "Table phi position:\t" << b << endl;
+  LogDebug("TableDataFormatter") << "Table phi position:\t" << b;
   a = buffer[wordCounter];wordCounter++;
   b = (a& 0xffff);
   tbEventHeader.setCrystalInBeam(EBDetId(1,b,EBDetId::SMCRYSTALMODE));
-  LogDebug("TableDataFormatter") << "Actual Current crystal in beam:\t" << b << endl;
+  LogDebug("TableDataFormatter") << "Actual Current crystal in beam:\t" << b;
   b = (a& 0xffff0000);
   b = b >> 16;
   tbEventHeader.setNominalCrystalInBeam(EBDetId(1,b,EBDetId::SMCRYSTALMODE));
-  LogDebug("TableDataFormatter") << "Nominal Current crystal in beam:\t" << b << endl;
+  LogDebug("TableDataFormatter") << "Nominal Current crystal in beam:\t" << b;
   a = buffer[wordCounter];wordCounter++;
   b = (a& 0xffff);
   tbEventHeader.setNextCrystalInBeam(EBDetId(1,b,EBDetId::SMCRYSTALMODE));
-  LogDebug("TableDataFormatter") << "Next crystal in beam:\t" << b << endl;
+  LogDebug("TableDataFormatter") << "Next crystal in beam:\t" << b;
   b = (a& 0x00010000); //Table is moving at the begin of the spill
   b = b >> 16;
   tbEventHeader.setTableIsMovingAtBegSpill(b & 0x1);
-  LogDebug("TableDataFormatter") << "Table is moving at begin of the spill:\t" << b << endl;
+  LogDebug("TableDataFormatter") << "Table is moving at begin of the spill:\t" << b;
 }

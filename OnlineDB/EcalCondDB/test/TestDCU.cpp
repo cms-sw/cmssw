@@ -15,11 +15,11 @@ public:
   /**
    *   App constructor; Makes the database connection
    */
-  CondDBApp(string host, string sid, string user, string pass)
+  CondDBApp( string sid, string user, string pass)
   {
     try {
       cout << "Making connection..." << flush;
-      econn = new EcalCondDBInterface( host, sid, user, pass );
+      econn = new EcalCondDBInterface( sid, user, pass );
       cout << "Done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -93,24 +93,33 @@ public:
     DCUTag dcutag = dcuiov.getDCUTag();
 
     // Get channel ID for SM 10, crystal c      
-    int c = 1;
-    EcalLogicID ecid;
-    ecid = econn->getEcalLogicID("EB_crystal_number", 10, c);
+    // int c = 1;
+    //   EcalLogicID ecid;
+    vector<EcalLogicID> ecid_vec;
+    ecid_vec = econn->getEcalLogicIDSet("EB_crystal_number", 10, 10, 1, 1700);
+    //    ecid = econn->getEcalLogicID("EB_crystal_number", 10, c);
 
-    // Set the data
-    DCUCapsuleTempDat capTemp;
+
+
     map<EcalLogicID, DCUCapsuleTempDat> dataset;
-
-    int i = 1;
-    float val = 0.11111 + i;
-    capTemp.setCapsuleTemp(val);
-    
-    // Fill the dataset
-    dataset[ecid] = capTemp;
+    int count=0;
+    for (int c=1; c<1701; c++){
+      // the channels are turned in phi and eta 
+      DCUCapsuleTempDat capTemp;
+      
+      int i = 1;
+      float val = 0.11111 + i;
+      capTemp.setCapsuleTemp(val);
+      
+      // Fill the dataset
+      dataset[ecid_vec[count]] = capTemp;
+      
+      count++;
+    }
     
     // Insert the dataset, identifying by iov
     cout << "Inserting dataset..." << flush;
-    econn->insertDataSet(&dataset, &dcuiov);
+    econn->insertDataArraySet(&dataset, &dcuiov);
     cout << "Done." << endl;
 
     // Fetch it back
@@ -289,7 +298,7 @@ int main (int argc, char* argv[])
   pass = argv[4];
 
   try {
-    CondDBApp app(host, sid, user, pass);
+    CondDBApp app(sid, user, pass);
 
     app.testWrite();
     app.testAllTables();

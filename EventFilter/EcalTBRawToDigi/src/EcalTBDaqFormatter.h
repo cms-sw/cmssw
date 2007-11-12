@@ -2,8 +2,8 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2006/04/27 21:56:57 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/09/21 15:22:16 $
+ *  $Revision: 1.14 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -23,8 +23,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace edm;
-using namespace std;
 
 class FEDRawData;
 class DCCDataParser;
@@ -52,7 +50,7 @@ class EcalTBDaqFormatter   {
 		   EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
 		   EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection);
   
-  pair<int,int>  cellIndex(int tower_id, int strip, int xtal); 
+  std::pair<int,int>  cellIndex(int tower_id, int strip, int xtal); 
   int            cryIc(int tower_id, int strip, int xtal); 
   bool leftTower(int tower) const ;
   bool rightTower(int tower) const ;

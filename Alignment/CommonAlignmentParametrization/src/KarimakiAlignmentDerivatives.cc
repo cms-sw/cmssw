@@ -1,10 +1,8 @@
 /** \file KarimakiAlignmentDerivatives.cc
  *
- *  $Date: 2006/10/19 14:20:59 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/07/26 10:13:49 $
+ *  $Revision: 1.1 $
  */
-
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
 

@@ -1,6 +1,6 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
 /*
- * $Id$
+ * $Id: MatacqRawEvent.cc,v 1.2 2006/09/12 18:11:54 pgras Exp $
  * Original author: Ph. Gras CEA/Saclay 
  */
 
@@ -20,7 +20,6 @@
 #include <stdexcept>
 #include "EventFilter/EcalTBRawToDigi/src/MatacqRawEvent.h"
 
-using namespace std;
 
 const MatacqRawEvent::field32spec_t MatacqRawEvent::fov32             = {0, 0x000000F0};
 const MatacqRawEvent::field32spec_t MatacqRawEvent::fedId32           = {0, 0x000FFF00};
@@ -46,7 +45,7 @@ void MatacqRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
     tTrigPs = *((int32_t*) pData16);
     pData16 += 2;
   } else{
-    tTrigPs = numeric_limits<int>::max();    
+    tTrigPs = std::numeric_limits<int>::max();    
   }
   const int nCh = getChannelCount();
   channelData.resize(nCh);
@@ -93,7 +92,7 @@ void MatacqRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   }
 
   if((size_t)(pData16-begin16)>maxSize){
-    throw std::runtime_error(string("Corrupted or truncated data"));
+    throw std::runtime_error(std::string("Corrupted or truncated data"));
   }
 
   //some checks

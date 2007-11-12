@@ -5,8 +5,8 @@
  *   L1 Muon Track Candidate
  *
  *
- *   $Date: 2006/11/20 15:41:03 $
- *   $Revision: 1.3 $
+ *   $Date: 2007/02/27 11:43:59 $
+ *   $Revision: 1.4 $
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid
@@ -35,6 +35,8 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/EventSetup.h>
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackAssParam.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
@@ -162,7 +164,7 @@ class L1MuDTTrack : public L1MuRegionalCand {
     void setTSeta(const std::vector<const L1MuDTTrackSegEta*>& tsList);
  
     /// convert  pt value in GeV to pt code
-    unsigned int triggerScale(float value) const;
+    unsigned int triggerScale(float value, const edm::EventSetup& c) const;
 
     /// assignment operator
     L1MuDTTrack& operator=(const L1MuDTTrack&);

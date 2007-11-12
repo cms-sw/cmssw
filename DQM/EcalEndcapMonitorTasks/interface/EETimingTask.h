@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2007/03/21 16:10:39 $
- * $Revision: 1.4 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -46,9 +46,13 @@ private:
 
 int ievt_;
 
+DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
+
 edm::InputTag EcalUncalibratedRecHitCollection_;
 
-MonitorElement* meTimeMap_[36];
+MonitorElement* meTimeMap_[18];
 
 bool init_;
 

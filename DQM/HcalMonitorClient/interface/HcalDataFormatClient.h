@@ -3,9 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -77,7 +75,7 @@ void cleanup(void);
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
 
-  void resetME();
+  void resetAllME();
   void createTests();
 
 private:
@@ -93,16 +91,18 @@ private:
 
   MonitorUserInterface* mui_;
 
-  TH1F* spigotErrs;
-  TH1F* badDigis;
-  TH1F* unmappedDigis;
-  TH1F* unmappedTPDs;
-  TH1F* fedErrMap;
+  bool subDetsOn_[4];
 
-  TH1F* dferr[3];
-  TH2F* crateErrMap[3];
-  TH2F* fiberErrMap[3];
-  TH2F* spigotErrMap[3];
+  TH1F* spigotErrs_;
+  TH1F* badDigis_;
+  TH1F* unmappedDigis_;
+  TH1F* unmappedTPDs_;
+  TH1F* fedErrMap_;
+
+  TH1F* dferr_[4];
+  TH2F* crateErrMap_[4];
+  TH2F* fiberErrMap_[4];
+  TH2F* spigotErrMap_[4];
 
   // Quality criteria for data integrity
   float thresh_;

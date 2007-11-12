@@ -14,6 +14,7 @@ LMFLaserIRedCoeffDat::LMFLaserIRedCoeffDat()
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;
+  m_readStmt = NULL;
 
   m_xportCoeff = 0;
   m_xportCoeffRMS = 0;
@@ -86,14 +87,14 @@ void LMFLaserIRedCoeffDat::fetchData(std::map< EcalLogicID, LMFLaserIRedCoeffDat
   }
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
+
+    m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "d.xport_coeff, d.xport_coeff_rms "
 		 "FROM channelview cv JOIN lmf_laser_ired_coeff_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
-    stmt->setInt(1, iovID);
-    ResultSet* rset = stmt->executeQuery();
+    m_readStmt->setInt(1, iovID);
+    ResultSet* rset = m_readStmt->executeQuery();
     
     std::pair< EcalLogicID, LMFLaserIRedCoeffDat > p;
     LMFLaserIRedCoeffDat dat;
@@ -111,6 +112,7 @@ void LMFLaserIRedCoeffDat::fetchData(std::map< EcalLogicID, LMFLaserIRedCoeffDat
       p.second = dat;
       fillMap->insert(p);
     }
+
   } catch (SQLException &e) {
     throw(runtime_error("LMFLaserIRedCoeffDat::fetchData():  "+e.getMessage()));
   }

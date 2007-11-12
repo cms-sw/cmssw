@@ -4,4 +4,9 @@
    <class name="std::vector<EcalDCCHeaderBlock>"/>
    <class name="edm::SortedCollection<EcalDCCHeaderBlock,edm::StrictWeakOrdering<EcalDCCHeaderBlock> >"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalDCCHeaderBlock,edm::StrictWeakOrdering<EcalDCCHeaderBlock> > >" id="679B9EAA-1B71-051A-FFD7-79D324E1AAC3"/>
+   <class name="EcalListOfFEDS"/>
+   <class name="edm::Wrapper<EcalListOfFEDS>"/>
+   <class name="std::vector<EcalListOfFEDS>"/>
+   <class name="edm::Wrapper<std::vector<EcalListOfFEDS> >"/>
+
 </lcgdict>

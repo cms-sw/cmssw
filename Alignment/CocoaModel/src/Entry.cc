@@ -54,14 +54,12 @@ void Entry::fill( const std::vector<ALIstring>& wordlist )
   }
   if(ALIUtils::debug >= 5) std::cout << " entryData " << entryData << " " <<  OptOCurrent()->longName() << " " << name() << std::endl;
 
-  /*t
   if( name_ == "centre_R" || name_ == "centre_PHI" || name_ == "centre_THE" ){
     if( EntryMgr::getInstance()->numberOfEntries() > 0 ) {
       std::cerr << "!!!!FATAL ERROR:  Filling entry from 'report.out' while entry is in cylindrical or spherical coordinates is not supported yet. " << OptOCurrent()->name() << " " << name_ << std::endl;
       abort();
     }
   }
-  */
 
   ALIdouble fre;
   gomgr->getGlobalOptionValue("reportOutReadValue", fre );

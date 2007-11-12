@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseTask.h
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.22 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -46,28 +46,32 @@ private:
 
 int ievt_;
 
+DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
+
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EBDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
 
-MonitorElement* meShapeMapG01_[36];
-MonitorElement* meShapeMapG06_[36];
-MonitorElement* meShapeMapG12_[36];
+MonitorElement* meShapeMapG01_[18];
+MonitorElement* meShapeMapG06_[18];
+MonitorElement* meShapeMapG12_[18];
 
-MonitorElement* meAmplMapG01_[36];
-MonitorElement* meAmplMapG06_[36];
-MonitorElement* meAmplMapG12_[36];
+MonitorElement* meAmplMapG01_[18];
+MonitorElement* meAmplMapG06_[18];
+MonitorElement* meAmplMapG12_[18];
 
-MonitorElement* meAmplErrorMapG01_[36];
-MonitorElement* meAmplErrorMapG06_[36];
-MonitorElement* meAmplErrorMapG12_[36];
+MonitorElement* meAmplErrorMapG01_[18];
+MonitorElement* meAmplErrorMapG06_[18];
+MonitorElement* meAmplErrorMapG12_[18];
 
-MonitorElement* mePnAmplMapG01_[36];
-MonitorElement* mePnAmplMapG16_[36];
+MonitorElement* mePnAmplMapG01_[18];
+MonitorElement* mePnAmplMapG16_[18];
 
-MonitorElement* mePnPedMapG01_[36];
-MonitorElement* mePnPedMapG16_[36];
+MonitorElement* mePnPedMapG01_[18];
+MonitorElement* mePnPedMapG16_[18];
 
 // Quality check on crystals, one per each gain
 

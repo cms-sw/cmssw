@@ -64,8 +64,8 @@ void RPCPackingModule::produce( edm::Event& ev,
 
   auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
 
-
-  pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
+//  pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
+  pair<int,int> rpcFEDS(790,792);
   for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
 
     RPCRecordFormatter formatter(id, readoutMapping.product()) ;
@@ -138,7 +138,10 @@ FEDRawData * RPCPackingModule::rawData( int fedId, const RPCDigiCollection * dig
 }
 
 vector<EventRecords> RPCPackingModule::eventRecords(
-int fedId, int trigger_BX, const RPCDigiCollection* digis , const RPCRecordFormatter& formatter)
+    int fedId, 
+    int trigger_BX, 
+    const RPCDigiCollection* digis , 
+    const RPCRecordFormatter& formatter)
 {
   typedef  DigiContainerIterator<RPCDetId, RPCDigi> DigiRangeIterator;
   vector<EventRecords> dataRecords;

@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2007/03/13 10:14:25 $
- * $Revision: 1.26 $
+ * $Date: 2007/03/26 17:35:04 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -118,6 +118,8 @@ MonitorElement* mer03_[36];
 float expectedMean_;
 float discrepancyMean_;
 float RMSThreshold_;
+
+MEContentsTH2FWithinRangeROOT* qtg03_[36];
 
 };
 

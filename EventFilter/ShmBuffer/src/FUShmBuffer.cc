@@ -441,6 +441,7 @@ void FUShmBuffer::releaseRawCell(FUShmRawCell* cell)
   setEvtDiscard(cell->index(),0);
   setEvtNumber(cell->index(),0xffffffff);
   setRecoCellId(cell->index(),0xffffffff);
+  cell->clear();
   postRawIndexToWrite(cell->index());
   if (segmentationMode_) shmdt(cell);
   postRawWrite();

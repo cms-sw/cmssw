@@ -105,7 +105,7 @@ DDSolid::DDSolid(const DDName & n, DDSolidShape s, const std::vector<double> & p
        default:
         throw DDException("DDSolid::DDSolid(DDName,DDSolidShape,std::vector<double>: wrong shape");   
   }
-  solid->setParameters(p);
+  solid->p_ = p;
   prep_ = StoreT::instance().create(n,solid);
 }
 

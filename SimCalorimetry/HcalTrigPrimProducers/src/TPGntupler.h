@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-//#include "FWCore/Framework/interface/Handle.h"
+//#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -53,17 +53,15 @@
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 
-using namespace std;
-using namespace edm;
 
 class CaloGeometry;
 
 class TPGntupler : public edm::EDAnalyzer {
  public:
   explicit TPGntupler(const edm::ParameterSet&);
-  typedef multimap<HcalTrigTowerDetId, PCaloHit> IdtoHit;
-  typedef map<HcalDetId, double> Cell_Map;
-  typedef map<HcalTrigTowerDetId, double> IdtoEnergy;
+  typedef std::multimap<HcalTrigTowerDetId, PCaloHit> IdtoHit;
+  typedef std::map<HcalDetId, double> Cell_Map;
+  typedef std::map<HcalTrigTowerDetId, double> IdtoEnergy;
   ~TPGntupler();
 
 

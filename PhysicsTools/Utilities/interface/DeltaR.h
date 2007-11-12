@@ -9,9 +9,9 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include <Math/VectorUtil.h>
 
-template<typename T>
+template<typename T1, typename T2 = T1>
 struct DeltaR {
-  double operator()( const T & t1, const T & t2 ) const {
+  double operator()( const T1 & t1, const T2 & t2 ) const {
     return ROOT::Math::VectorUtil::DeltaR( t1.p4(), t2.p4() );
   }
 };

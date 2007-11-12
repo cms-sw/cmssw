@@ -53,6 +53,16 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 			  << useBirk << "  with the two constants C1 = "
 			  << birk1 << ", C2 = " << birk2;
   
+  suppress    = m_HC.getUntrackedParameter<bool>("SuppressHeavy", false);
+  pmaxIon     = m_HC.getUntrackedParameter<double>("IonThreshold", 50.0)*MeV;
+  pmaxProton  = m_HC.getUntrackedParameter<double>("ProtonThreshold", 50.0)*MeV;
+  pmaxNeutron = m_HC.getUntrackedParameter<double>("NeutronThreshold",50.0)*MeV;
+
+  edm::LogInfo("HcalSim") << "HCalSD:: Suppression Flag " << suppress
+			  << " protons below " << pmaxProton << " MeV/c,"
+			  << " neutrons below " << pmaxNeutron << " and ions"
+			  << " below " << pmaxIon << " MeV/c";
+
   numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
   HcalNumberingScheme* scheme;
   if (testNumber || forTBH2) 
@@ -64,7 +74,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   std::string attribute, value;
   if (useHF) {
     if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
-    else                  hfshower      = new HFShower(cpv,p);
+    hfshower = new HFShower(cpv,p);
 
     // HF volume names
     attribute = "Volume";
@@ -148,20 +158,25 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     G4String nameVolume = 
       aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
     if (isItHF(nameVolume) || isItFibre(nameVolume)) {
-      if (useShowerLibrary) {
+      G4String parType = aStep->GetTrack()->GetDefinition()->GetParticleName();
+      bool notaMuon = true;
+      if (parType == "mu+" || parType == "mu-") notaMuon = false;
+     if (useShowerLibrary && notaMuon) {
 	LogDebug("HcalSim") << "HCalSD: Starts shower library from " 
-			    << nameVolume << " for Track "
-			    << aStep->GetTrack()->GetTrackID() <<" ("
-			    << aStep->GetTrack()->GetDefinition()->GetParticleName()
-			    << ")";
+			    << nameVolume 
+			    << " for Track " << aStep->GetTrack()->GetTrackID()
+			    <<" (" << parType << ")";
 	getFromLibrary(aStep);
       } else if (isItFibre(nameVolume)) {
+	LogDebug("HcalSim") << "HCalSD: Hit at Fibre in " << nameVolume 
+			    << " for Track " << aStep->GetTrack()->GetTrackID()
+			    <<" ("  << parType << ")";
 	hitForFibre(aStep);
       }
     } else {
       getStepInfo(aStep);
       if (hitExists() == false && edepositEM+edepositHAD>0.) 
-	createNewHit();
+	currentHit = createNewHit();
     }
     return true;
   }
@@ -175,6 +190,28 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
   int depth = (touch->GetReplicaNumber(0))%10;
   int det   = ((touch->GetReplicaNumber(1))/1000)-3;
   if (depth==0 && (det==0 || det==1)) weight = layer0wt[det];
+
+  if (suppress) {
+    G4Track* theTrack = aStep->GetTrack();
+    TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
+    if (trkInfo) {
+      int pdg = theTrack->GetDefinition()->GetPDGEncoding();
+      if (!(trkInfo->isPrimary())) { // Only secondary particles
+	double pp = theTrack->GetMomentum().mag()/MeV;
+	if (((pdg/1000000000 == 1 && ((pdg/10000)%100) > 0 &&
+	      ((pdg/10)%100) > 0)) && (pp<pmaxIon)) weight = 0;
+	if ((pdg == 2212) && (pp < pmaxProton))     weight = 0;
+	if ((pdg == 2112) && (pp < pmaxNeutron))    weight = 0;
+	if (weight == 0) {
+	  LogDebug("HcalSim") << "Kill Track " << theTrack->GetTrackID()
+			      << " Type " << theTrack->GetDefinition()->GetParticleName()
+			      << " Momentum " << pp << " MeV/c";
+	  //	  std::cout << "ECalSD:: Kill Track " << theTrack->GetTrackID() << " Type " << theTrack->GetDefinition()->GetParticleName() << " Momentum " << pp << " MeV/c\n";
+	}
+      }
+    }
+  }
+
   double weight0 = weight;
   if (useBirk) {
     G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
@@ -328,9 +365,9 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
    
     // check if it is in the same unit and timeslice as the previosus one
     if (currentID == previousID) {
-      updateHit();
+      updateHit(currentHit);
     } else {
-      if (!checkHit()) createNewHit();
+      if (!checkHit()) currentHit = createNewHit();
     }
   }
 
@@ -385,10 +422,10 @@ void HCalSD::hitForFibre (G4Step* aStep) {
 
       // check if it is in the same unit and timeslice as the previosus one
       if (currentID == previousID) {
-        updateHit();
+        updateHit(currentHit);
       } else {
         posGlobal = preStepPoint->GetPosition();
-        if (!checkHit()) createNewHit();
+        if (!checkHit()) currentHit = createNewHit();
       }
     }
   }

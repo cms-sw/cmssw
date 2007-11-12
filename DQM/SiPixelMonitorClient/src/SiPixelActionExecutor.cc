@@ -1,7 +1,7 @@
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
-#include "DQM/SiPixelMonitorClient/interface/SiPixelQualityTester.h"
+//#include "DQM/SiPixelMonitorClient/interface/SiPixelQualityTester.h"
 #include "DQM/SiPixelMonitorClient/interface/TrackerMapCreator.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,6 +19,7 @@ SiPixelActionExecutor::SiPixelActionExecutor() {
     " Creating SiPixelActionExecutor " << "\n" ;
   configParser_ = 0;
   configWriter_ = 0;
+  qtHandler_ = 0;  
   collationDone = false;
 }
 //
@@ -29,6 +30,7 @@ SiPixelActionExecutor::~SiPixelActionExecutor() {
     " Deleting SiPixelActionExecutor " << "\n" ;
   if (configParser_) delete configParser_;
   if (configWriter_) delete configWriter_;  
+  if (qtHandler_) delete qtHandler_;
 }
 //
 // -- Read Configuration File
@@ -516,11 +518,19 @@ void SiPixelActionExecutor::drawMEs(int idet,
 // -- Setup Quality Tests 
 //
 void SiPixelActionExecutor::setupQTests(MonitorUserInterface * mui) {
-  SiPixelQualityTester qtester;
   mui->cd();
   if (collationDone) mui->cd("Collector/Collated/SiPixel");
-  qtester.setupQTests(mui);
-  mui->cd();
+  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
+  if(!qtHandler_){
+    qtHandler_ = new QTestHandle();
+  }
+  if(!qtHandler_->configureTests(edm::FileInPath(localPath).fullPath(),mui)){
+    cout << " Setting up quality tests " << endl;
+    qtHandler_->attachTests(mui);
+    mui->cd();
+  }else{
+    cout << " Problem setting up quality tests "<<endl;
+  }
 }
 //
 // -- Check Status of Quality Tests

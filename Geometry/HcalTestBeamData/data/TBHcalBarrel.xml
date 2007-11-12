@@ -259,7 +259,7 @@
       221.7*mm, 227.6*mm, 233.5*mm, 239.3*mm, 242.0*mm
     </Vector>
     <Vector name="DetWidth2" type="numeric" nEntries="17">
-      160.0*mm, 165.3*mm, 170.6*mm, 175.8*mm, 181.1*mm, 186.3*mm,
+      159.4*mm, 165.3*mm, 170.6*mm, 175.8*mm, 181.1*mm, 186.3*mm,
       191.6*mm, 196.8*mm, 202.1*mm, 207.3*mm, 213.1*mm, 218.9*mm,
       224.6*mm, 230.4*mm, 236.2*mm, 242.0*mm, 242.0*mm
     </Vector>

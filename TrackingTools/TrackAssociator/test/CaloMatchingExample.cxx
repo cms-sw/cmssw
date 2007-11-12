@@ -127,28 +127,28 @@ void makePlots(TString filename, bool fit = false)
    c->Clear();
    c->Divide(2,3);
    c->cd(1);
-   calomatch->Draw("hcal5x5Energy/scale(hcalTrueEnergy,trkPosAtHcal[0][0]):trkPosAtHcal[0][0]",
-		   "hcalTrueEnergy>0&&hcal5x5Energy/hcalTrueEnergy>0&&hcal5x5Energy/scale(hcalTrueEnergy,trkPosAtHcal[0][0])<5&&nTracks==1","colz");
+   calomatch->Draw("hcal5x5Energy/hcalTrueEnergyCorrected:trkPosAtHcal[0][0]",
+		   "hcalTrueEnergy>0&&hcal5x5Energy/hcalTrueEnergy>0&&hcal5x5Energy/hcalTrueEnergyCorrected<5&&nTracks==1","colz");
    std::cout << "NextCD" << std::endl;
    c->cd(2);
-   calomatch->Draw("hcal5x5Energy/scale(hcalTrueEnergy,trkPosAtHcal[0][0]):trkPosAtHcal[0][1]",
-		   "hcalTrueEnergy>0&&hcal5x5Energy/hcalTrueEnergy>0&&hcal5x5Energy/scale(hcalTrueEnergy,trkPosAtHcal[0][0])<5&&nTracks==1","colz");
+   calomatch->Draw("hcal5x5Energy/hcalTrueEnergyCorrected:trkPosAtHcal[0][1]",
+		   "hcalTrueEnergy>0&&hcal5x5Energy/hcalTrueEnergy>0&&hcal5x5Energy/hcalTrueEnergyCorrected<5&&nTracks==1","colz");
    std::cout << "NextCD" << std::endl;
    c->cd(3);
-   calomatch->Draw("hcal3x3Energy/scale(hcalTrueEnergy,trkPosAtHcal[0][0]):trkPosAtHcal[0][0]",
-		   "hcal3x3Energy>0&&hcalTrueEnergy>0&&hcal3x3Energy/hcalTrueEnergy>0&&hcal3x3Energy/scale(hcalTrueEnergy,trkPosAtHcal[0][0])<5&&nTracks==1","colz");
+   calomatch->Draw("hcal3x3Energy/hcalTrueEnergyCorrected:trkPosAtHcal[0][0]",
+		   "hcal3x3Energy>0&&hcalTrueEnergy>0&&hcal3x3Energy/hcalTrueEnergy>0&&hcal3x3Energy/hcalTrueEnergyCorrected<5&&nTracks==1","colz");
    std::cout << "NextCD" << std::endl;
    c->cd(4);
-   calomatch->Draw("hcal3x3Energy/scale(hcalTrueEnergy,trkPosAtHcal[0][0]):trkPosAtHcal[0][1]",
-		   "hcal3x3Energy>0&&hcalTrueEnergy>0&&hcal3x3Energy/hcalTrueEnergy>0&&hcal3x3Energy/scale(hcalTrueEnergy,trkPosAtHcal[0][0])<5&&nTracks==1","colz");
+   calomatch->Draw("hcal3x3Energy/hcalTrueEnergyCorrected:trkPosAtHcal[0][1]",
+		   "hcal3x3Energy>0&&hcalTrueEnergy>0&&hcal3x3Energy/hcalTrueEnergy>0&&hcal3x3Energy/hcalTrueEnergyCorrected<5&&nTracks==1","colz");
    std::cout << "NextCD" << std::endl;
    c->cd(5);
-   calomatch->Draw("hcalCrossedEnergy/scale(hcalTrueEnergy,trkPosAtHcal[0][0]):trkPosAtHcal[0][0]",
-		   "hcalCrossedEnergy>0&&hcalTrueEnergy>0&&hcalCrossedEnergy/hcalTrueEnergy>0&&hcalCrossedEnergy/scale(hcalTrueEnergy,trkPosAtHcal[0][0])<5&&nTracks==1","colz");
+   calomatch->Draw("hcalCrossedEnergy/hcalTrueEnergyCorrected:trkPosAtHcal[0][0]",
+		   "hcalCrossedEnergy>0&&hcalTrueEnergy>0&&hcalCrossedEnergy/hcalTrueEnergy>0&&hcalCrossedEnergy/hcalTrueEnergyCorrected<5&&nTracks==1","colz");
    std::cout << "NextCD" << std::endl;
    c->cd(6);
-   calomatch->Draw("hcalCrossedEnergy/scale(hcalTrueEnergy,trkPosAtHcal[0][0]):trkPosAtHcal[0][1]",
-		   "hcalCrossedEnergy>0&&hcalTrueEnergy>0&&hcalCrossedEnergy/hcalTrueEnergy>0&&hcalCrossedEnergy/scale(hcalTrueEnergy,trkPosAtHcal[0][0])<5&&nTracks==1","colz");
+   calomatch->Draw("hcalCrossedEnergy/hcalTrueEnergyCorrected:trkPosAtHcal[0][1]",
+		   "hcalCrossedEnergy>0&&hcalTrueEnergy>0&&hcalCrossedEnergy/hcalTrueEnergy>0&&hcalCrossedEnergy/hcalTrueEnergyCorrected<5&&nTracks==1","colz");
 
    c->Update();
    // ps->NewPage();
@@ -170,13 +170,13 @@ void makePlots(TString filename, bool fit = false)
    if (fit) cruijff_fit(h31,"ecalCrossedEnergy/ecalTrueEnergy Barrel",0.5,1.5,0.1,10,0.1,10);
 
    c->cd(2);
-   calomatch->Draw("hcal5x5Energy/scale(hcalTrueEnergy,trkPosAtHcal[0][0])>>h12(50,0.2,3.2)");
+   calomatch->Draw("hcal5x5Energy/hcalTrueEnergyCorrected>>h12(50,0.2,3.2)");
    if (fit) cruijff_fit(h12,"HCAL 5x5Energy/expectedEnergy",0.5,1.5,0.1,10,0.1,10);
    c->cd(4);
-   calomatch->Draw("hcal3x3Energy/scale(hcalTrueEnergy,trkPosAtHcal[0][0])>>h22(50,0.2,3.2)");
+   calomatch->Draw("hcal3x3Energy/hcalTrueEnergyCorrected>>h22(50,0.2,3.2)");
    if (fit) cruijff_fit(h22,"HCAL 3x3Energy/expectedEnergy",0.5,1.5,0.1,10,0.1,10);
    c->cd(6);
-   calomatch->Draw("hcalCrossedEnergy/scale(hcalTrueEnergy,trkPosAtHcal[0][0])>>h32(50,0.2,3.2)");
+   calomatch->Draw("hcalCrossedEnergy/hcalTrueEnergyCorrected>>h32(50,0.2,3.2)");
    if (fit) cruijff_fit(h32,"HCAL crossedEnergy/expectedEnergy",0.5,1.5,0.1,10,0.1,10);
    c->Print("calo_match.pdf)","pdf");
    // ps->Close();

@@ -80,17 +80,22 @@ void RunTag::setRunTypeDef(const RunTypeDef runTypeDef)
 int RunTag::fetchID()
   throw(runtime_error)
 {
+
+
+
   // Return tag from memory if available
   if (m_ID) {
     return m_ID;
   }
+
   
   this->checkConnection();
+
 
   // fetch the parent IDs
   int locID, runTypeID;
   this->fetchParentIDs(&locID, &runTypeID);
-
+  
   // fetch this ID
   try {
     Statement* stmt = m_conn->createStatement();
@@ -229,12 +234,14 @@ void RunTag::fetchParentIDs(int* locID, int* runTypeID)
   // get the run type
   m_runTypeDef.setConnection(m_env, m_conn);
   *runTypeID = m_runTypeDef.fetchID();
+  
+
 
   if (! *locID) { 
-    throw(runtime_error("RunTag::writeDB:  Given location does not exist in DB")); 
+    throw(runtime_error("RunTag::fetchparentids:  Given location does not exist in DB")); 
   }
 
   if (! *runTypeID) { 
-    throw(runtime_error("RunTag::writeDB:  Given run type does not exist in DB")); 
+    throw(runtime_error("RunTag::fetchParentIDs:  Given run type does not exist in DB")); 
   }
 }

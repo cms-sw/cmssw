@@ -1,6 +1,7 @@
 #include <vector>
 #include <DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h>
 #include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
+#include <DataFormats/EcalRawData/interface/EcalListOfFEDS.h>
 #include <DataFormats/Common/interface/Wrapper.h>
 
 namespace {
@@ -12,5 +13,10 @@ namespace {
     EcalRawDataCollection theERDC_;
     edm::Wrapper<EcalRawDataCollection> anotherERDCw_;
     edm::Wrapper< edm::SortedCollection<EcalDCCHeaderBlock> > theEDHBw_;
+
+    EcalListOfFEDSCollection Fedscol_ ;
+    edm::Wrapper<EcalListOfFEDSCollection> theFedscol_ ;
+    EcalListOfFEDS t_EcalListOfFEDS;
+    edm::Wrapper<EcalListOfFEDS> the_EcalListOfFEDS;
   }
 }

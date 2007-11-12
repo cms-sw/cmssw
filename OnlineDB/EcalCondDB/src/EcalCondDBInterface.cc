@@ -8,14 +8,20 @@
 #include <cstdlib>
 #include <time.h>
 #include <stdexcept>
-#include <OnlineDB/Oracle/interface/Oracle.h>
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
+#include "OnlineDB/EcalCondDB/interface/IDBObject.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/EcalDBConnection.h"
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
+#include "OnlineDB/EcalCondDB/interface/DCSPTMTempList.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/RunList.h"
+#include "OnlineDB/EcalCondDB/interface/LMFRunList.h"
+#include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
+#include "OnlineDB/EcalCondDB/interface/LMFMatacqBlueDat.h"
 
 using namespace std;
 using namespace oracle::occi;
@@ -186,6 +192,9 @@ vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSet( string name,
 
     stmt->setString(j, mapsTo);
 
+  
+    stmt->setPrefetchRowCount(IDBObject::ECALDB_NROWS);    
+
     ResultSet* rset = stmt->executeQuery();
 
     int id1, id2, id3, logicId;
@@ -204,6 +213,7 @@ vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSet( string name,
       EcalLogicID ecid = EcalLogicID( name, logicId, id1, id2, id3, mapsTo );
       result.push_back(ecid);
     }
+    stmt->setPrefetchRowCount(0);
 
   } catch (SQLException &e) {
     throw(runtime_error("ERROR:  Failure while getting EcalLogicID set:  " + e.getMessage() ));    
@@ -295,6 +305,69 @@ CaliIOV EcalCondDBInterface::fetchCaliIOV(CaliTag* tag, Tm eventTm)
   caliiov.setByTm(tag, eventTm);
   return caliiov;
 }
+
+DCSPTMTempList EcalCondDBInterface::fetchDCSPTMTempList(EcalLogicID ecid)
+  throw(runtime_error)
+{  
+  DCSPTMTempList r;
+  r.setConnection(env, conn);
+  r.fetchValuesForECID(ecid);
+  return r;
+}
+
+DCSPTMTempList EcalCondDBInterface::fetchDCSPTMTempList(EcalLogicID ecid, Tm start, Tm end)
+  throw(runtime_error)
+{  
+  DCSPTMTempList r;
+  r.setConnection(env, conn);
+  r.fetchValuesForECIDAndTime(ecid, start, end);
+  return r;
+}
+
+RunList EcalCondDBInterface::fetchRunList(RunTag tag)
+  throw(runtime_error)
+{  
+  RunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.fetchRuns();
+  return r;
+}
+
+LMFRunList EcalCondDBInterface::fetchLMFRunList(RunTag tag, LMFRunTag lmfrunTag)
+  throw(runtime_error)
+{  
+  LMFRunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.setLMFRunTag(lmfrunTag);
+  r.fetchRuns();
+  return r;
+}
+
+LMFRunList EcalCondDBInterface::fetchLMFRunList(RunTag tag, LMFRunTag lmfrunTag,int min_run, int max_run)
+  throw(runtime_error)
+{  
+  LMFRunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.setLMFRunTag(lmfrunTag);
+  r.fetchRuns(min_run, max_run);
+  return r;
+}
+
+LMFRunList EcalCondDBInterface::fetchLMFRunListLastNRuns(RunTag tag, LMFRunTag lmfrunTag,int max_run, int n_runs )
+  throw(runtime_error)
+{  
+  LMFRunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.setLMFRunTag(lmfrunTag);
+  r.fetchLastNRuns(max_run, n_runs );
+  return r;
+}
+
+
 
 
 

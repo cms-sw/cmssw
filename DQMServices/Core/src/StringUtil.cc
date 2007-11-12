@@ -69,7 +69,8 @@ string StringUtil::addDots2WildCards(const string & s)
 {
   string ret = replace_string(s, "*", ".*");
   string ret2 = replace_string(ret, "?", ".?");
-  return ret2;
+  string ret3 = replace_string(ret2, "+", "\\+");
+  return ret3;
 }
 
 // find all "<subs>" in string <s>, replace by "<repl>"

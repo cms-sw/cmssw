@@ -13,14 +13,21 @@ bool TrackingRecHitLessFromGlobalPosition::insideOutLess(  const TrackingRecHit&
   unsigned int idetB = static_cast<unsigned int>(idb.subdetId());
 
   //check for mixed case...
-  bool same_det =
-    (
-     (idetA == StripSubdetector::TIB         && idetB == StripSubdetector::TID) ||
-     (idetA == StripSubdetector::TID         && idetB == StripSubdetector::TIB) ||
-     (idetA == StripSubdetector::TOB         && idetB == StripSubdetector::TEC) ||
-     (idetA == StripSubdetector::TEC         && idetB == StripSubdetector::TOB) ||
-     (idetA == PixelSubdetector::PixelBarrel && idetB == PixelSubdetector::PixelEndcap) ||
-     (idetA == PixelSubdetector::PixelEndcap && idetB == PixelSubdetector::PixelBarrel));
+  bool same_det = ( 
+		   (idetA == StripSubdetector::TIB && idetB == StripSubdetector::TIB) ||
+		   (idetA == StripSubdetector::TID && idetB == StripSubdetector::TID) ||
+		   (idetA == StripSubdetector::TIB && idetB == StripSubdetector::TID) ||
+		   (idetA == StripSubdetector::TID && idetB == StripSubdetector::TIB) ||
+
+		   (idetA == StripSubdetector::TOB && idetB == StripSubdetector::TOB) ||
+		   (idetA == StripSubdetector::TEC && idetB == StripSubdetector::TEC) ||
+		   (idetA == StripSubdetector::TOB && idetB == StripSubdetector::TEC) ||
+		   (idetA == StripSubdetector::TEC && idetB == StripSubdetector::TOB) ||
+
+		   (idetA == PixelSubdetector::PixelBarrel && idetB == PixelSubdetector::PixelBarrel) ||
+		   (idetA == PixelSubdetector::PixelEndcap && idetB == PixelSubdetector::PixelEndcap) ||
+		   (idetA == PixelSubdetector::PixelBarrel && idetB == PixelSubdetector::PixelEndcap) ||
+		   (idetA == PixelSubdetector::PixelEndcap && idetB == PixelSubdetector::PixelBarrel) );
 
   if (!same_det) return (idetA < idetB);
 

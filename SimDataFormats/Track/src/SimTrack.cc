@@ -3,10 +3,10 @@
 SimTrack::SimTrack() {}
  
 SimTrack::SimTrack(int ipart, const HepLorentzVector & p) :
-    Core(ipart, p), ivert(-1), igenpart(-1),tkposition(0.),tkmomentum(0.) {}
+    Core(ipart, p), ivert(-1), igenpart(-1),tkposition(Hep3Vector(0.,0.,0.)),tkmomentum(HepLorentzVector(0.,0.,0.,0.)) {}
  
 SimTrack::SimTrack(int ipart, const HepLorentzVector & p, int iv, int ig) :
-    Core(ipart, p), ivert(iv), igenpart(ig),tkposition(0.),tkmomentum(0.)  {}
+    Core(ipart, p), ivert(iv), igenpart(ig),tkposition(Hep3Vector(0.,0.,0.)),tkmomentum(HepLorentzVector(0.,0.,0.,0.))  {}
 
 SimTrack::SimTrack(int ipart, const HepLorentzVector & p, int iv, int ig,
 		   const Hep3Vector &  tkp, const HepLorentzVector & tkm) :

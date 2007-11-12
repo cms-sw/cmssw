@@ -129,7 +129,9 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 
     if (genPart >= 0 && signalEvent) {
       gp = genEvent -> barcode_to_particle(genPart);  // Pointer to the generating particle.
-      pdgId = gp -> pdg_id();
+      if (gp != 0) {
+        pdgId = gp -> pdg_id();
+      }		
     }
 
     math::XYZPoint theVertex;
@@ -289,14 +291,15 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   } // Loop on MixCollection<SimVertex>
 
 // Find HepMC vertices, put them in a close TrackingVertex (this could conceivably add the same GenVertex to multiple TrackingVertices)
-/*
+
   for (HepMC::GenEvent::vertex_const_iterator genVIt = genEvent->vertices_begin(); genVIt != genEvent->vertices_end(); ++genVIt) {
-    HepMC::FourVector rawPos = (**genVIt).position();
+    HepMC::ThreeVector rawPos = (**genVIt).position();
     // Convert to cm
-    HepMC::FourVector genPos = HepMC::FourVector(rawPos.x()/10.0,rawPos.y()/10.0,rawPos.z()/10.0);
+    math::XYZPoint genPos = math::XYZPoint(rawPos.x()/10.0,rawPos.y()/10.0,rawPos.z()/10.0);
     for (TrackingVertexCollection::iterator iTrkVtx = tVC -> begin(); iTrkVtx != tVC ->end(); ++iTrkVtx) {
-      HepMC::FourVector simPos = iTrkVtx->position();
-      double distance = (simPos-genPos).v().mag();
+      rawPos = iTrkVtx->position();
+      math::XYZPoint simPos = math::XYZPoint(rawPos.x(),rawPos.y(),rawPos.z());
+      double distance = sqrt((simPos-genPos).mag2());
       if (distance <= distanceCut_) {
         TrackingVertex::genv_iterator tvGenVIt;
         for (tvGenVIt = iTrkVtx->genVertices_begin(); tvGenVIt != iTrkVtx->genVertices_end(); ++tvGenVIt) {
@@ -310,7 +313,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       }
     }
   }
-*/
+
   edm::LogInfo(MessageCategory) << "TrackingTruthProducer found "  << tVC -> size()
                                 << " unique vertices and " << tPC -> size() << " tracks.";
 

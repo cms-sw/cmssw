@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/03/25 07:57:49 $
- * $Revision: 1.129 $
+ * $Date: 2007/06/02 10:50:25 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -46,11 +46,20 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
   cout << " *** Ecal Endcap Generic Monitor ***" << endl;
   cout << endl;
 
-  // this should come from the EcalEndcap run header
+  // this should come from the event header
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 0);
+
+  fixedRunNumber_ = false;
+  if ( runNumber_ != 0 ) fixedRunNumber_ = true;
+
+  if ( fixedRunNumber_ ) {
+    LogInfo("EcalBarrelMonitor") << " using fixed Run Number = " << runNumber_ << endl;
+  }
+
+  // this should come from the event header
   evtNumber_ = 0;
 
-  // this should come from the EcalEndcap run header
+  // this should come from the EcalEndcap event header
   runType_ = ps.getUntrackedParameter<int>("runType", -1);
   evtType_ = runType_;
 
@@ -72,8 +81,6 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
     LogInfo("EcalEndcapMonitor") << " verbose switch is OFF";
   }
 
-  dbe_ = 0;
-
   // get hold of back-end interface
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
@@ -83,6 +90,14 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
     } else {
       dbe_->setVerbose(0);
     }
+  }
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
+  if ( enableCleanup_ ) {
+    LogInfo("EcalBarrelMonitor") << " enableCleanup switch is ON";
+  } else {
+    LogInfo("EcalBarrelMonitor") << " enableCleanup switch is OFF";
   }
 
   // MonitorDaemon switch
@@ -110,7 +125,7 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
   meEEdigi_ = 0;
   meEEhits_ = 0;
 
-  for (int i = 0; i < 36; i++) {
+  for (int i = 0; i < 18; i++) {
     meEvent_[i] = 0;
   }
 
@@ -169,14 +184,14 @@ void EcalEndcapMonitorModule::setup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EcalInfo");
 
-    meEEDCC_ = dbe_->book1D("EEMM SM", "EEMM SM", 36, 1, 37.);
+    meEEDCC_ = dbe_->book1D("EEMM SM", "EEMM SM", 18, 1, 19.);
 
     meEEdigi_ = dbe_->book1D("EEMM digi", "EEMM digi", 100, 0., 61201.);
     meEEhits_ = dbe_->book1D("EEMM hits", "EEMM hits", 100, 0., 61201.);
 
     if ( enableEventDisplay_ ) {
       dbe_->setCurrentFolder("EcalEndcap/EcalEvent");
-      for (int i = 0; i < 36; i++) {
+      for (int i = 0; i < 18; i++) {
         sprintf(histo, "EEMM event SM%02d", i+1);
         meEvent_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
         dbe_->tag(meEvent_[i], i+1);
@@ -189,6 +204,8 @@ void EcalEndcapMonitorModule::setup(void){
 }
 
 void EcalEndcapMonitorModule::cleanup(void){
+
+  if ( ! enableCleanup_ ) return;
 
   if ( dbe_ ) {
 
@@ -221,7 +238,7 @@ void EcalEndcapMonitorModule::cleanup(void){
     if ( enableEventDisplay_ ) {
 
       dbe_->setCurrentFolder("EcalEndcap/EcalEvent");
-      for (int i = 0; i < 36; i++) {
+      for (int i = 0; i < 18; i++) {
 
         if ( meEvent_[i] ) dbe_->removeElement( meEvent_[i]->getName() );
         meEvent_[i] = 0;
@@ -269,9 +286,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   LogInfo("EcalEndcapMonitor") << "processing event " << ievt_;
 
-  if ( runNumber_ == 0 ) {
-    if ( e.id().run() != 0 ) runNumber_ = e.id().run();
-  }
+  if ( ! fixedRunNumber_ ) runNumber_ = e.id().run();
 
   evtNumber_ = e.id().event();
 
@@ -296,15 +311,15 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEEDCC_->Fill((dcch.id()+1)+0.5);
 
-      if ( runNumber_ == 0 ) {
-        if ( dcch.getRunNumber() != 0 ) runNumber_ = dcch.getRunNumber();
-      }
+      if ( ! fixedRunNumber_ ) runNumber_ = dcch.getRunNumber();
+
+      evtNumber_ = dcch.getLV1();
 
       if ( dcch.getRunType() != -1 ) runType_ = dcch.getRunType();
 
       if ( dcch.getRunType() != -1 ) evtType_ = dcch.getRunType();
 
-      if ( evtType_ < 0 || evtType_ > 12 ) {
+      if ( evtType_ < 0 || evtType_ > 22 ) {
         LogWarning("EcalEndcapMonitor") << "Unknown event type = " << evtType_;
         evtType_ = -1;
       }
@@ -325,9 +340,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEEDCC_->Fill(1);
 
-      if ( runNumber_ == 0 ) {
-        if ( evtHeader->runNumber() != 0 ) runNumber_ = evtHeader->runNumber();
-      }
+      if ( ! fixedRunNumber_ ) runNumber_ = evtHeader->runNumber();
+
+      evtNumber_ = evtHeader->eventNumber();
 
       runType_ = EcalDCCHeaderBlock::BEAMH4;
 
@@ -384,7 +399,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = id.ism(); if ( ism > 9 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -434,7 +449,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
         int ie = (ic-1)/20 + 1;
         int ip = (ic-1)%20 + 1;
 
-        int ism = id.ism();
+        int ism = id.ism(); if ( ism > 9 ) continue;
 
         float xie = ie - 0.5;
         float xip = ip - 0.5;

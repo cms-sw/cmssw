@@ -26,6 +26,8 @@ public:
   /// Take a vector of digis and fill the FEDRawDataCollection
   FEDRawData* createFedBuffers(const DTDigiCollection& digis,
 			edm::ESHandle<DTReadOutMapping>& mapping);
+			
+  void SetdduID(int dduid);
 
 private:
    
@@ -33,6 +35,7 @@ private:
    typedef long long Word64;
    const edm::ParameterSet pset;
    
+   int dduID_;
    bool debug;
    
   

@@ -103,13 +103,14 @@ void TIBRing::computeHelicity() {
   const GeomDet& det = *theDets.front();
   GlobalVector radial = det.surface().position() - GlobalPoint(0,0,0);
   GlobalVector normal = det.surface().toGlobal( LocalVector(0,0,1));
+  if(normal.dot(radial)<=0)normal*=-1;
 //   edm::LogInfo(TkDetLayers) << "BarrelDetRing::computeHelicity: phi(normal) " << normal.phi()
 //        << " phi(radial) " << radial.phi() ;
   if (PhiLess()( normal.phi(), radial.phi())) {
-    theHelicity = 0;  // smaller phi angles mean "inner" group
+    theHelicity = 1;  // smaller phi angles mean "inner" group
   }
   else {
-    theHelicity = 1;  // smaller phi angles mean "outer" group
+    theHelicity = 0;  // smaller phi angles mean "outer" group
   }
 }
 

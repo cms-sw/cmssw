@@ -9,7 +9,8 @@
 bool CSCALCTHeader::debug=false;
 
 
-CSCALCTHeader::CSCALCTHeader(int chamberType) {
+CSCALCTHeader::CSCALCTHeader(int chamberType) 
+{
   // we count from 1 to 10, ME11, ME12, ME13, ME1A, ME21, ME22, ....
   //static int nAFEBsForChamberType[11] = {0,3,3,3,3,7,4,6,4,6,4};
   // same numbers as above, with one bit for every board
@@ -26,45 +27,63 @@ CSCALCTHeader::CSCALCTHeader(int chamberType) {
 				   << " " << activeFEBs << " " << nTBins;
 }
 
-CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
+CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) 
+{
   memcpy(this, buf, sizeInWords()*2);
   //printf("%04x %04x %04x %04x\n",buf[4],buf[5],buf[6],buf[7]);
-
 }
 
-void CSCALCTHeader::setEventInformation(const CSCDMBHeader & dmb) {
+CSCALCTHeader::CSCALCTHeader(const CSCALCTStatusDigi & digi)
+{
+  memcpy(this, digi.header(), sizeInWords()*2);
+}
+
+
+
+
+
+void CSCALCTHeader::setEventInformation(const CSCDMBHeader & dmb) 
+{
   l1Acc = dmb.l1a();
   cscID = dmb.dmbID();
   nTBins = 16;
   bxnCount = dmb.bxn();
 }
 
-unsigned short CSCALCTHeader::nLCTChipRead() const {
+unsigned short CSCALCTHeader::nLCTChipRead() const 
+{
   int count = 0;
-  for(int i=0; i<7; ++i) {
-    if( (lctChipRead>>i) & 1) ++count;
-  }
+  for(int i=0; i<7; ++i) 
+    {
+      if( (lctChipRead>>i) & 1) ++count;
+    }
   return count;
 }
 
-int CSCALCTHeader::ALCTCRCcalc() {
+int CSCALCTHeader::ALCTCRCcalc() 
+{
   std::vector< std::bitset<16> > theTotalALCTData;
   int nTotalLines = sizeInWords()+nLCTChipRead()*NTBins()*6*2;
   theTotalALCTData.reserve(nTotalLines);
-  for (int line=0; line<nTotalLines; line++) {
-    theTotalALCTData[line] = std::bitset<16>(theOriginalBuffer[line]);
-  }
+  for (int line=0; line<nTotalLines; ++line) 
+    {
+      theTotalALCTData[line] = std::bitset<16>(theOriginalBuffer[line]);
+    }
 
-  if ( theTotalALCTData.size() > 0 ) {
-    std::bitset<22> CRC=calCRC22(theTotalALCTData);
-    return CRC.to_ulong();
-  } else {
-    edm::LogWarning ("CSCALCTHeader") << "theTotalALCTData doesn't exist";
-    return 0;
-  }
+  if ( theTotalALCTData.size() > 0 ) 
+    {
+      std::bitset<22> CRC=calCRC22(theTotalALCTData);
+      return CRC.to_ulong();
+    } 
+  else 
+    {
+      edm::LogWarning ("CSCALCTHeader") << "theTotalALCTData doesn't exist";
+      return 0;
+    }
 }
 
-std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const { 
+std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const 
+{ 
 
   std::vector<CSCALCTDigi> result;
   
@@ -100,19 +119,22 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const {
 }
 
 
-std::bitset<22> CSCALCTHeader::calCRC22(const std::vector< std::bitset<16> >& datain){
+std::bitset<22> CSCALCTHeader::calCRC22(const std::vector< std::bitset<16> >& datain)
+{
   std::bitset<22> CRC;
   CRC.reset();
-  for(int i=0;i<(int) datain.size();i++){
-    if (debug) edm::LogInfo ("CSCALCTHeader") << std::ios::hex << datain[i].to_ulong();
-    CRC=nextCRC22_D16(datain[i],CRC);
-  }
+  for(int i=0;i<(int) datain.size();++i)
+    {
+      if (debug) edm::LogInfo ("CSCALCTHeader") << std::ios::hex << datain[i].to_ulong();
+      CRC=nextCRC22_D16(datain[i],CRC);
+    }
   return CRC;
 }
 
 
 std::bitset<22> CSCALCTHeader::nextCRC22_D16(const std::bitset<16>& D, 
-				       const std::bitset<22>& C){
+				       const std::bitset<22>& C)
+{
   std::bitset<22> NewCRC;
   
   NewCRC[ 0] = D[ 0] ^ C[ 6];
@@ -141,7 +163,8 @@ std::bitset<22> CSCALCTHeader::nextCRC22_D16(const std::bitset<16>& D,
   return NewCRC;
 }
 
-std::ostream & operator<<(std::ostream & os, const CSCALCTHeader & header) {
+std::ostream & operator<<(std::ostream & os, const CSCALCTHeader & header) 
+{
   os << "ALCT HEADER CSCID " << header.CSCID()
      << "  L1ACC " << header.L1Acc() << std::endl;
   os << "# ALCT chips read : "  << header.nLCTChipRead() 

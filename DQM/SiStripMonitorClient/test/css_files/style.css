@@ -7,3 +7,12 @@ table { color: yellow;
         border-style: groove;
         border-color: black; 
         padding: 10px; }
+input[type=image] {
+  background-image: url('/mon/ajax/images/lmarble.png');
+  padding: 0.5%;
+  border:1px outset;
+  color: #000;
+  padding-left:0.5%;
+  margin-top:1.0%;
+  margin-bottom:-1%;
+}

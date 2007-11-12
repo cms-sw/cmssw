@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: ConvertedPhoton.h,v 1.4 2007/01/26 16:24:39 nancy Exp $
+ * \version $Id: ConvertedPhoton.h,v 1.5 2007/03/16 13:59:37 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -20,7 +20,7 @@ namespace reco {
     /// default constructor
     ConvertedPhoton() : RecoCandidate() { }
 
-   ConvertedPhoton( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ), const Point & convVtx = Point( 0, 0, 0 ) ):  RecoCandidate( q, p4, vtx, -11 * q ), theConversionVertex_(convVtx) { }
+   ConvertedPhoton( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ), const Point & convVtx = Point( 0, 0, 0 ) ):  RecoCandidate( q, p4, vtx, 22 * q ), theConversionVertex_(convVtx) { }
 
     /// destructor
     virtual ~ConvertedPhoton();
@@ -33,17 +33,13 @@ namespace reco {
 
 
     // set reference to a pair of Tracks
-    //    void setTrackPairRef( const reco::TrackRefVector & pair ) { tracks_ = pair; }
-    void setTrackPairRef( const  std::vector<reco::TrackRef>  & pair ) { tracks_ = pair; }
+     void setTrackPairRef( const  std::vector<reco::TrackRef>  & pair ) { tracks_ = pair; }
     // reference to a vector of tracks
-    // reco::TrackRefVector tracks() const ;  
-    std::vector<reco::TrackRef> tracks() const ; 
+    const  std::vector<reco::TrackRef>& tracks() const ; 
+   /// reference to one of multiple Tracks: implements the method inherited from RecoCandidate
+     reco::TrackRef track( size_t ) const;
     // returns the position of the conversion vertex
-
-
-
-
-    const Point & convVertexPosition() const { return theConversionVertex_ ; }
+     const Point & convVertexPosition() const { return theConversionVertex_ ; }
 
   private:
     /// check overlap with another candidate

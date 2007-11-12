@@ -26,6 +26,10 @@ private:
   bool debug;
   bool digibyType;
   std::string digicoll;
+  
+  bool useStandardFEDid_;
+  int minFEDid_;
+  int maxFEDid_;
 
 };
 #endif

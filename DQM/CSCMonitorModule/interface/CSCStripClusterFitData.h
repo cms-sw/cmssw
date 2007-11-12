@@ -14,6 +14,6 @@ class CSCStripClusterFitData {
   float   bx_;
   CSCStripClusterFitData();
   virtual ~CSCStripClusterFitData();
-//  ClassDef(CSCStripClusterFitData,1) //CSCStripClusterFitData
+  //  ClassDef(CSCStripClusterFitData,1) //CSCStripClusterFitData
 };
 #endif

@@ -39,6 +39,8 @@ class FEDNumbering {
 
   static std::pair<int,int> getTriggerGTPFEDIds();
   static std::pair<int,int> getTriggerEGTPFEDIds();
+
+  static std::pair<int,int> getTriggerGCTFEDIds();
   
   static std::pair<int,int> getTriggerLTCmtccFEDIds();
   static std::pair<int,int> getTriggerLTCFEDIds();
@@ -108,6 +110,8 @@ class FEDNumbering {
   static const int MAXTriggerGTPFEDID;
   static const int MINTriggerEGTPFEDID;
   static const int MAXTriggerEGTPFEDID;
+  static const int MINTriggerGCTFEDID;
+  static const int MAXTriggerGCTFEDID;
   static const int MINTriggerLTCFEDID;
   static const int MAXTriggerLTCFEDID;
   static const int MINTriggerLTCmtccFEDID;

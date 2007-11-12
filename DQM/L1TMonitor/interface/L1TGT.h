@@ -4,8 +4,8 @@
 /*
  * \file L1TGT.h
  *
- * $Date: 2007/02/22 19:43:52 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/03 20:04:01 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
 */
@@ -66,10 +66,22 @@ private:
   // ----------member data ---------------------------
   DaqMonitorBEInterface * dbe;
 
-  MonitorElement* gttest;
+  MonitorElement* gttriggerdword;
   MonitorElement* gttriggerdbits;
   MonitorElement* gttriggerdbitscorr;
+  MonitorElement* gtfdlbx;
+  MonitorElement* gtfdlevent;
+  MonitorElement* gtfdllocalbx;
+  MonitorElement* gtfdlbxinevent;
+  MonitorElement* gtfdlsize;
 
+  MonitorElement* gtfeboardId;
+  MonitorElement* gtferecordlength;
+  MonitorElement* gtfebx;
+  MonitorElement* gtfesetupversion; 
+  MonitorElement* gtfeactiveboards; 
+  MonitorElement* gtfetotaltrigger;
+  MonitorElement* gtfesize;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput

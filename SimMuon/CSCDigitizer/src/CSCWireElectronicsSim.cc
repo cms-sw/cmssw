@@ -42,8 +42,6 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
     return;
   }
 
-  const float fiveElectronCharge = 5.*e_SI*1.e15*theSpecs->gasGain()*theSpecs->fractionQS();
-
   // Loop over analog signals, run the fractional discriminator on each one,
   // and save the DIGI in the layer.
   for(CSCSignalMap::iterator mapI = theSignalMap.begin(); 
@@ -67,17 +65,11 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
           }
         }
 
-      int bin_of_5e_arrival = 0;
       float qMax = 0.0;
       // in this loop, find the max charge and the 'fifth' electron arrival
       for ( i = ibin; i < lastbin; ++i)
       {
         float next_charge = signal.getBinValue(i);
-        if( bin_of_5e_arrival == 0 
-            && next_charge >= fiveElectronCharge)
-        {
-          bin_of_5e_arrival = i;
-        }
         if(next_charge > qMax) {
           qMax = next_charge;
         }
@@ -94,8 +86,6 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
       float tofOffset = timeOfFlightCalibration(wireGroup);
       int chamberType = theSpecs->chamberType();
       // fill in the rest of the information, for everything that survives the fraction discrim.
-      //int t_5thElectron = 
-      //   static_cast<int>(theSignalStartTime + theSamplingTime*bin_of_5e_arrival );
 
       // Shouldn't one measure from theTimeOffset of the CSCAnalogSignal?
       // Well, yes, but unfortunately it seems CSCAnalogSignal::superimpose
@@ -112,14 +102,10 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
 
       float fdTime = theSignalStartTime + theSamplingTime*bin_firing_FD
                    + RandGaussQ::shoot() * theTimingCalibrationError;
-      //int fractionalDiscriminatorTime = 
-      //   static_cast<int>(fdTime  - tofOffset);
+
       int beamCrossingTag = 
          static_cast<int>( (fdTime - tofOffset - theBunchTimingOffsets[chamberType])
                             / theBunchSpacing );
-      // no pedestal
-      //int adcCounts = 
-      //   static_cast<int>( qMax/theSpecs->chargePerCount() );
 
       // Wire digi as of Oct-2006 adapted to real data: time word has 16 bits with set bit
       // flagging appropriate bunch crossing, and bx 0 corresponding to 7th bit i.e.

@@ -1,24 +1,28 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBTrailer.h"
 
-CSCTMBTrailer::CSCTMBTrailer(int wordCount) {
+CSCTMBTrailer::CSCTMBTrailer(int wordCount) 
+{
   theData[0] = 0x6e0c;
   // see if we need thePadding to make a multiple of 4
   thePadding = 0;
-  if(wordCount%4==2) {
-    theData[1] = 0x2AAA;
-    theData[2] = 0x5555;
-     thePadding = 2;
-  }
+  if(wordCount%4==2) 
+    {
+      theData[1] = 0x2AAA;
+      theData[2] = 0x5555;
+      thePadding = 2;
+    }
   // the next four words start with 11011, or a D
-  for(int i = 1; i < 5; ++i) {
-    theData[i+thePadding] = (0x1B << 11);
-  }
+  for(int i = 1; i < 5; ++i) 
+    {
+      theData[i+thePadding] = (0x1B << 11);
+    }
   theData[3+thePadding] = 0xde0f;
   theData[4+thePadding] |= wordCount+ thePadding;
 }
 
 
-CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf) {
+CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf) 
+{
   // take a little too much, maybe
   memcpy(theData, buf, 14);
   // if there's padding, there'll be a de0f in the 6th word.

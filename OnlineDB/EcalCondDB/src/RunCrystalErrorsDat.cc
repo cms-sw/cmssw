@@ -107,6 +107,8 @@ void RunCrystalErrorsDat::fetchData(map< EcalLogicID, RunCrystalErrorsDat >* fil
       p.second = dat;
       fillMap->insert(p);
     }
+    m_conn->terminateStatement(stmt);
+
   } catch (SQLException &e) {
     throw(runtime_error("RunCrystalErrorsDat::fetchData():  "+e.getMessage()));
   }

@@ -11,9 +11,13 @@ using namespace edm;
 using namespace HepMC;
 
 class DummyHepMCAnalyzer : public EDAnalyzer {
+private: 
+  bool dumpHepMC_;
 public:
   explicit DummyHepMCAnalyzer( const ParameterSet & cfg ) : 
-    src_( cfg.getParameter<InputTag>( "src" ) ) {
+    dumpHepMC_( cfg.getUntrackedParameter<bool>( "dumpHepMC", false ) ),
+    src_( cfg.getParameter<InputTag>( "src" ) )
+  {
   }
 private:
   void analyze( const Event & evt, const EventSetup & ) {
@@ -25,6 +29,7 @@ private:
 	<< "HepMC has null pointer to GenEvent" << endl;
     const size_t size = mc->particles_size();
     cout << "particles: " << size << endl;
+    if ( dumpHepMC_ ) mc->print( std::cout );
   }
   InputTag src_;
 };

@@ -403,6 +403,9 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 	TrajectoryStateTransform tsTransform;
 	PTrajectoryStateOnDet* ptsod= tsTransform.persistentState(state2, meas2.recHit()->hit()->geographicalId().rawId()  );
 	theSeeds_.push_back(TrajectorySeed( *ptsod, myHits, oppositeToMomentum )); 
+        delete ptsod;  
+        
+
       }
     }
   }

@@ -11,7 +11,8 @@
 <use name=DataFormats/HcalDetId>
 <use name=CalibFormats/CaloTPG>
 <use name=CalibCalorimetry/CaloTPG>
-<use name=L1Trigger/L1Scales>
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
 <use name=clhep>
 
 <flags SEAL_PLUGIN_NAME="L1TriggerRegionalCaloTrigger">
@@ -30,6 +31,7 @@
 <use name=DataFormats/HcalDetId>
 <use name=CalibFormats/CaloTPG>
 <use name=CalibCalorimetry/CaloTPG>
-<use name=L1Trigger/L1Scales>
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
 <use name=clhep>
 </export>

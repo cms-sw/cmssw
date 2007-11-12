@@ -4,9 +4,9 @@
 // Description: Sensitive Detector class for FP420
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
- 
-//#include "Geometry/Vector/interface/LocalPoint.h"
-//#include "Geometry/Vector/interface/LocalVector.h"
+
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
@@ -151,7 +151,7 @@ bool FP420SD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   LogDebug("FP420Sim") << "FP420SD :  number of hits = " << theHC->entries() << std::endl;
 #endif
 
-    if (HitExists() == false && edeposit>0. &&  theHC->entries()< 100 ){ 
+    if (HitExists() == false && edeposit>0. ){ 
       CreateNewHit();
     return true;
     }
@@ -383,19 +383,19 @@ G4ThreeVector FP420SD::SetToLocalExit(G4ThreeVector globalPoint){
 void FP420SD::EndOfEvent(G4HCofThisEvent* ) {
 
   // here we loop over transient hits and make them persistent
-  if(theHC->entries() > 100){
-    LogDebug("FP420Sim") << "FP420SD: warning!!! Number of hits exceed 100 and =" << theHC->entries() << "\n";
+  if(theHC->entries() > 15000){
+    LogDebug("FP420Sim") << "FP420SD: warning!!! Number of hits exceed 15000 and =" << theHC->entries() << "\n";
   }
-  for (int j=0; j<theHC->entries() && j<100; j++) {
+  for (int j=0; j<theHC->entries() && j<15000; j++) {
     //AZ:
               FP420G4Hit* aHit = (*theHC)[j];
 #ifdef ddebug
     //    LogDebug("FP420SD") << " FP420Hit " << j << " " << *aHit << std::endl;
   //  slave->ProcessHits(aHit->getUnitID(), aHit->getEnergyDeposit()/GeV,
   //	       aHit->getTimeSlice(), aHit->getTrackID());
-    LogDebug("FP420Sim") << "hit number" << j << "unit ID = "<<aHit->getUnitID()<< "\n";
-    LogDebug("FP420Sim") << "entry z " << aHit->getEntry().z()<< "\n";
-    LogDebug("FP420Sim") << "entr theta " << aHit->getThetaAtEntry()<< "\n";
+    LogDebug("FP420Sim") << "number of hits" << j << "unit ID = "<<aHit->getUnitID()<< "\n";
+    LogDebug("FP420Sim") << "               " << "entry z " << aHit->getEntry().z()<< "\n";
+    LogDebug("FP420Sim") << "               " << "entr theta " << aHit->getThetaAtEntry()<< "\n";
 #endif
 
     Local3DPoint locExitPoint(0,0,0);

@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/CoreROOT>
 <use name=DataFormats/L1Trigger>
@@ -10,12 +10,21 @@
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/EcalDigi>
-<flags SEAL_PLUGIN_NAME="DQML1TMonitor">
+<use name=DQMServices/Core>
+<use name=DQMServices/NodeROOT>
+<use name=DQMServices/Daemon>
+<use name=DQMServices/UI>
+<use name=DQMServices/Components>
+<use name=DQMServices/WebComponents>
+<use name=DQMServices/ClientConfig>
+<use name=mimetic>
+<use name=xdaq>
+<flags SEALPLUGIN=1>
 <export>
    <lib name=DQML1TMonitor>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/L1Trigger>
    <use name=DataFormats/LTCDigi>
@@ -25,4 +34,14 @@
    <use name=DataFormats/L1GlobalMuonTrigger>
    <use name=DataFormats/L1GlobalTrigger>
    <use name=DataFormats/EcalDigi>
+ <use name=root>
+ <use name=boost>
+ <use name=DQMServices/Core>
+ <use name=DQMServices/NodeROOT>
+ <use name=DQMServices/Daemon>
+ <use name=DQMServices/UI>
+ <use name=DQMServices/Components>
+ <use name=DQMServices/WebComponents>
+ <use name=DQMServices/ClientConfig> 
+ <use name=xdaq>
 </export>

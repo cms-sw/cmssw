@@ -6,8 +6,8 @@
  * Prototype for ECAL data block unpacking
  * \file DCCDataBlockPrototype.h
  *
- * $Date: 2007/03/28 00:43:16 $
- * $Revision: 1.1.2.2 $
+ * $Date: 2007/04/02 11:09:45 $
+ * $Revision: 1.3 $
  * \author N. Almeida
  *
 */
@@ -25,10 +25,6 @@
 #include "ECALUnpackerException.h"
 #include <stdint.h>
 
-using namespace std;
-using namespace edm;
-
-
 class EcalElectronicsMapper;
 class DCCDataUnpacker;
 class DCCEventBlock;
@@ -45,7 +41,7 @@ class DCCDataBlockPrototype {
 
     virtual void updateCollectors(){};
 	
-    virtual void display(ostream & o){} 
+    virtual void display(std::ostream & o){} 
 
     void enableSyncChecks(){sync_=true;}
     

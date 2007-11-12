@@ -35,9 +35,9 @@ expectedXtalID_(expectedXtalID), expectedStripID_(expectedStripID){
 
 void DCCXtalBlock::dataCheck(){
 	
-	string checkErrors("");
+	std::string checkErrors("");
 		
-	pair <bool,string> res;
+	std::pair <bool,std::string> res;
 	
 	
 	if(expectedXtalID_ !=0){ 
@@ -50,7 +50,7 @@ void DCCXtalBlock::dataCheck(){
 	}
 	if(checkErrors!=""){
 		errorString_ +="\n ======================================================================\n"; 		
-		errorString_ += string(" ") + name_ + string(" data fields checks errors : ") ;
+		errorString_ += std::string(" ") + name_ + std::string(" data fields checks errors : ") ;
 		errorString_ += checkErrors ;
 		errorString_ += "\n ======================================================================";
 		blockError_ = true;	
@@ -66,8 +66,8 @@ void  DCCXtalBlock::increment(ulong numb){
 			ulong blockID = (*dataP_)>>BPOSITION_BLOCKID;
 			if( blockID != BLOCKID ){
 				(errors_["XTAL::BLOCKID"])++;
-				//errorString_ += string("\n") + parser_->index(nunb)+(" blockId has value ") + parser_->getDecString(blockID);
-				//errorString  += string(", while ")+parser_->getDecString(BLOCKID)+string(" is expected");
+				//errorString_ += std::string("\n") + parser_->index(nunb)+(" blockId has value ") + parser_->getDecString(blockID);
+				//errorString  += std::string(", while ")+parser_->getDecString(BLOCKID)+std::string(" is expected");
 			}
 		}
 	}
@@ -77,7 +77,7 @@ int DCCXtalBlock::xtalID() {
 
   int result=-1;
 
-  for(  set<DCCDataField *,DCCDataFieldComparator>::iterator 
+  for(  std::set<DCCDataField *,DCCDataFieldComparator>::iterator 
            it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
   
     if ( (*it)->name() == "XTAL ID" ) 
@@ -94,7 +94,7 @@ int DCCXtalBlock::xtalID() {
 int DCCXtalBlock::stripID() {
   int result=-1;
 
-  for(set<DCCDataField *,DCCDataFieldComparator>::iterator it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
+  for(std::set<DCCDataField *,DCCDataFieldComparator>::iterator it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
     if ( (*it)->name() == "STRIP ID" ) 
       result=getDataField( (*it)->name() )  ;
     
@@ -106,12 +106,12 @@ int DCCXtalBlock::stripID() {
 
 
 
-vector<int> DCCXtalBlock::xtalDataSamples() {
-  vector<int> data;
+std::vector<int> DCCXtalBlock::xtalDataSamples() {
+  std::vector<int> data;
 
 
   for(unsigned int i=1;i <= parser_->numbXtalSamples();i++){
-    string name = string("ADC#") + parser_->getDecString(i);
+    std::string name = std::string("ADC#") + parser_->getDecString(i);
     
     data.push_back ( getDataField( name )  );
      
