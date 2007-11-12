@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/11/12 19:50:21 $
- * $Revision: 1.23 $
+ * $Date: 2007/11/12 19:56:58 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -793,7 +793,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           else if(iemu==1) emustring = "Real Digis ";
           else if(iemu==2) emustring = "Emulated Digis ";
           if ( j < 7 ) {
-            title << "EETTT Flags " << emustring << " Bit " << bitset<3>(j-1) << Numbers::sEE(ism).c_str();
+            title << "EETTT Flags " << emustring << " Bit " << bitset<3>(j-1) << " " << Numbers::sEE(ism).c_str();
           } else {
             title << "EETTT Flags " << emustring << " Bits 110+111 " << Numbers::sEE(ism).c_str();
           }
