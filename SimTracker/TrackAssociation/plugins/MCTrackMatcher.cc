@@ -2,12 +2,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: MCTrackMatcher.cc,v 1.1 2007/06/12 11:53:57 llista Exp $
+ * \version $Id: MCTrackMatcher.cc,v 1.1 2007/10/24 13:52:10 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "DataFormats/RecoCandidate/interface/TrackCandidateAssociation.h"
+#include "DataFormats/Common/interface/Association.h"
 
 namespace edm { class ParameterSet; }
 
@@ -30,23 +30,27 @@ class MCTrackMatcher : public edm::EDProducer {
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+// the following should be replaced by GenParticle for 1.8.x
+#include "DataFormats/Candidate/interface/Candidate.h"
 using namespace edm;
 using namespace std;
 using namespace reco;
 
-MCTrackMatcher::MCTrackMatcher( const ParameterSet & p ) :
-  associator_( p.getParameter<string>( "associator" ) ),
-  tracks_( p.getParameter<InputTag>( "tracks" ) ),
-  genParticles_( p.getParameter<InputTag>( "genParticles" ) ) {
-  produces<TrackCandidateAssociation>();
+typedef edm::Association<reco::CandidateCollection> GenParticleMatch;
+
+MCTrackMatcher::MCTrackMatcher(const ParameterSet & p) :
+  associator_(p.getParameter<string>("associator")),
+  tracks_(p.getParameter<InputTag>("tracks")),
+  genParticles_( p.getParameter<InputTag>("genParticles")) {
+  produces<GenParticleMatch>();
 }
 
-void MCTrackMatcher::produce( Event& evt, const EventSetup& es ) {
+void MCTrackMatcher::produce(Event& evt, const EventSetup& es) {
   ESHandle<TrackAssociatorBase> assoc;  
   es.get<TrackAssociatorRecord>().get(associator_,assoc);
   const TrackAssociatorBase * associator = assoc.product();
   Handle<TrackCollection> tracks;
-  evt.getByLabel( tracks_, tracks );
+  evt.getByLabel(tracks_, tracks);
   Handle<TrackingParticleCollection> trackingParticles;
   evt.getByType(trackingParticles);
   Handle<vector<int> > barCodes;
@@ -54,9 +58,10 @@ void MCTrackMatcher::produce( Event& evt, const EventSetup& es ) {
   Handle<CandidateCollection> genParticles;
   evt.getByLabel(genParticles_, genParticles );
   RecoToSimCollection associations = associator->associateRecoToSim ( tracks, trackingParticles, & evt ); 
+  auto_ptr<GenParticleMatch> match(new GenParticleMatch(CandidateRefProd(genParticles)));
+  GenParticleMatch::Filler filler(*match);
   size_t n = tracks->size();
-  auto_ptr<TrackCandidateAssociation> 
-    match(new TrackCandidateAssociation(TrackCandidateAssociation::ref_type(TrackRefProd(tracks),CandidateRefProd(genParticles))));
+  vector<int> indices(n,-1);
   for (size_t i = 0; i < n; ++ i ) {
     TrackRef track(tracks, i);
     RecoToSimCollection::const_iterator f = associations.find(track);
@@ -77,10 +82,12 @@ void MCTrackMatcher::produce( Event& evt, const EventSetup& es ) {
 	if(f == e) throw edm::Exception(errors::InvalidReference)
 	  << "found matching particle with barcode" << *f
 	  << " which has not been found in " << genParticles_;
-	match->insert(track,CandidateRef(genParticles,*f));
+	indices[i] = *f;
       }
     }
   }
+  filler.insert(tracks, indices.begin(), indices.end());
+  filler.fill();
   evt.put(match);
 }
 
