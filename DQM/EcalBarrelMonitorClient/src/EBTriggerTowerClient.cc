@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/11/10 14:09:09 $
- * $Revision: 1.56 $
+ * $Date: 2007/11/12 19:50:20 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -824,7 +824,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           if (iemu==0) emustring = "Errors ";
           else if(iemu==1) emustring = "Real Digis ";
           else if(iemu==2) emustring = "Emulated Digis ";
-          title << "EBTTT FineGrainVeto " << emustring << Numbers::sEB(ism).c_str() << ", FineGrainVeto = " << j-1;
+          title << "EBTTT FineGrainVeto " << emustring << " FineGrainVeto " << j-1 << " " << Numbers::sEB(ism).c_str();
           obj2f->SetTitle( title.str().c_str() );
 
           obj2f->Draw("colz");
