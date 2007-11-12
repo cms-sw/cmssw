@@ -61,50 +61,21 @@ struct VectorMakeString
 bool DDLVector::parse_numbers(char const* str) const
 {
    static VectorMakeDouble makeDouble;
-   rule<> myrul = ((+(anychar_p - ','))[makeDouble]
-		   >> *(',' >> (+(anychar_p - ','))[makeDouble])), space_p
-     ;
-//    std::cout << "|" << str << "|" << std::endl;
-    parse_info<> result = parse(str, myrul); //, space_p);
-//    if (result.full) { 
-//      std::cout << " what is .full?" << std::endl;
-//      std::cout << " length = " << result.length << std::endl;
-//      std::cout << " stop = " << result.stop << std::endl;
-//    }else if ( result.hit ) {
-//      std::cout << "got a hit" << std::endl;
-//      std::cout << " length = " << result.length << std::endl;
-//      std::cout << " stop = " << result.stop << std::endl;
-//    } else {
-//      std::cout << "neither a hit nor full..." << std::endl;
-//    }
-   return result.full;
-//    return parse(str,
-// 	       ((+(anychar_p - ','))[makeDouble] 
-// 		>> *(',' >> (+(anychar_p - ','))[makeDouble]))
-// 	       , space_p).full;
+   return parse(str,
+	       ((+(anychar_p - ','))[makeDouble] 
+		>> *(',' >> (+(anychar_p - ','))[makeDouble]))
+		>> end_p
+	       , space_p).full;
 }
 
 bool DDLVector::parse_strings(char const* str) const
 {
    static VectorMakeString makeString;
-   rule<> myrul = ((+(anychar_p - ','))[makeString]
-		   >> *(',' >> (+(anychar_p - ','))[makeString])), space_p
-     ;
-//    std::cout << "|" << str << "|" << std::endl;
-   parse_info<> result = parse(str, myrul); //, space_p);
-//    if (result.full) { 
-//      std::cout << " what is .full?" << std::endl;
-//      std::cout << " length = " << result.length << std::endl;
-//      std::cout << " stop = " << result.stop << std::endl;
-//    }else if ( result.hit ) {
-//      std::cout << "got a hit" << std::endl;
-//      std::cout << " length = " << result.length << std::endl;
-//      std::cout << " stop = " << result.stop << std::endl;
-//    } else {
-//      std::cout << "neither a hit nor full..." << std::endl;
-//    }
-   return result.full;
-//   return parse(str, myrul, space_p).full;
+   return parse(str,
+	       ((+(anychar_p - ','))[makeString] 
+		>> *(',' >> (+(anychar_p - ','))[makeString])) 
+	       	>> end_p
+	       , space_p).full;
 }
 
 DDLVector::DDLVector()
