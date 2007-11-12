@@ -17,6 +17,9 @@ HcalDataFormatClient::HcalDataFormatClient(const ParameterSet& ps, DaqMonitorBEI
   unmappedTPDs_ = NULL;
   fedErrMap_ = NULL;
   BCN_ = NULL;
+  BCNCheck_ = NULL;
+  EvtNCheck_ = NULL;
+  FibOrbMsgBCN_ = NULL;
 
    BCNMap_ = NULL;
    EvtMap_ = NULL;
@@ -80,7 +83,11 @@ HcalDataFormatClient::HcalDataFormatClient(){
   unmappedTPDs_ = NULL;
   fedErrMap_ = NULL;
   BCN_ = NULL;
- 
+
+  BCNCheck_ = NULL;
+  EvtNCheck_ = NULL;
+  FibOrbMsgBCN_ = NULL; 
+
    BCNMap_ = NULL;
    EvtMap_ = NULL;
    ErrMapbyCrate_ = NULL;
@@ -168,6 +175,9 @@ void HcalDataFormatClient::cleanup(void) {
     if ( fedErrMap_) delete fedErrMap_;
 
     if( BCN_) delete BCN_;
+    if( BCNCheck_) delete BCNCheck_;
+    if( EvtNCheck_) delete EvtNCheck_;
+    if( FibOrbMsgBCN_) delete FibOrbMsgBCN_;
 
    if (BCNMap_) delete BCNMap_;
    if (EvtMap_) delete EvtMap_;
@@ -207,6 +217,10 @@ void HcalDataFormatClient::cleanup(void) {
 
 
   BCN_ = NULL;
+
+  BCNCheck_ = NULL;
+  EvtNCheck_ = NULL;
+  FibOrbMsgBCN_ = NULL; 
 
    BCNMap_ = NULL;
    EvtMap_ = NULL;
@@ -318,6 +332,15 @@ void HcalDataFormatClient::getHistograms(){
   sprintf(name,"DataFormatMonitor/BCN");
   BCN_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
+  sprintf(name,"DataFormatMonitor/BCN Check");
+  BCNCheck_ = getHisto(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/EvtN Check");
+  EvtNCheck_ = getHisto(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/BCN of Fiber Orbit Message");
+  FibOrbMsgBCN_ = getHisto(name, process_, dbe_, debug_,cloneME_);
+
   sprintf(name,"DataFormatMonitor/Evt Number Out-of-Synch");
   EvtMap_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
@@ -405,13 +428,15 @@ void HcalDataFormatClient::getHistograms(){
  
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
-    string type = "HB";
-    if(i==1) type = "HE";
+    string type = "HBHE";
+    if(i==1) type = "HBHE";
     else if(i==2) type = "HF";
     else if(i==3) type = "HO";
     sprintf(name,"DataFormatMonitor/%s Data Format Error Word", type.c_str());
-    dferr_[i] = getHisto(name, process_, dbe_, debug_,cloneME_);    
-    labelxBits(dferr_[i]);
+    int ind = i-1;
+    if (ind <0) ind = 0;
+    dferr_[ind] = getHisto(name, process_, dbe_, debug_,cloneME_);    
+    labelxBits(dferr_[ind]);
   }
   return;
 }
@@ -507,6 +532,15 @@ void HcalDataFormatClient::resetAllME(){
   sprintf(name,"%sHcalMonitor/DataFormatMonitor/BCN",process_.c_str());
   resetME(name,dbe_);
 
+  sprintf(name,"%sHcalMonitor/DataFormatMonitor/BCN Check",process_.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sHcalMonitor/DataFormatMonitor/EvtN Check",process_.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sHcalMonitor/DataFormatMonitor/FibOrbMsgBCN",process_.c_str());
+  resetME(name,dbe_);
+
   sprintf(name,"%sHcalMonitor/DataFormatMonitor/Evt Number Out-of-Synch",process_.c_str());
   resetME(name,dbe_);
 
@@ -575,8 +609,8 @@ void HcalDataFormatClient::resetAllME(){
 
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
-    string type = "HB";
-    if(i==1) type = "HE";
+    string type = "HBHE";
+    if(i==1) type = "HBHE";
     else if(i==2) type = "HF";
     else if(i==3) type = "HO";
 
@@ -635,8 +669,8 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   
   htmlFile << "<h2><strong>Hcal DCC Error Word</strong></h2>" << endl;  
   htmlFile << "<h3>" << endl;
-  if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;
-  if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
+  if(subDetsOn_[0]||subDetsOn_[1]) htmlFile << "<a href=\"#HBHE_Plots\">HBHE Plots </a></br>" << endl;
+  //if(subDetsOn_[1]) htmlFile << "<a href=\"#HBHE_Plots\">HBHE Plots </a></br>" << endl;
   if(subDetsOn_[2]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
   if(subDetsOn_[3]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
   htmlFile << "</h3>" << endl;
@@ -648,12 +682,22 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,ErrMapbyCrate_,"Crate #"," ", 92, htmlFile,htmlDir);
-  histoHTML(runNo,BCN_,"Bunch Counter Number","Events", 100, htmlFile,htmlDir);
+  //histoHTML(runNo,BCN_,"Bunch Counter Number","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,BCNMap_,"Slot #","Crate #", 92, htmlFile,htmlDir);
   histoHTML2(runNo,EvtMap_,"Slot #","Crate #", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML(runNo,BCNCheck_,"htr BCN - dcc BCN"," ", 92, htmlFile,htmlDir);
+  histoHTML(runNo,EvtNCheck_,"htr Evt # - dcc Evt #","Events", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+ 
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML(runNo,BCN_,"Bunch Counter Number","Events", 92, htmlFile,htmlDir);
+  histoHTML(runNo,FibOrbMsgBCN_,"Fiber Orbit Message BCN","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -717,18 +761,21 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "</tr>" << endl;
 
 
-
+  bool HBOn_ = subDetsOn_[0];
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     
-    string type = "HB";
-    if(i==1) type = "HE"; 
+    string type = "HBHE";
+    if(i==1) type = "HBHE"; 
     else if(i==2) type = "HF"; 
     else if(i==3) type = "HO"; 
-    
+    if (i==1 && HBOn_) continue;
     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
-    htmlFile << "<tr align=\"left\">" << endl;  
-    histoHTML(runNo,dferr_[i],"Error Bit","Frequency", 92, htmlFile,htmlDir);
+    htmlFile << "<tr align=\"left\">" << endl;
+    int ind = i-1;
+    if (ind<0) ind = 0;
+    histoHTML(runNo,dferr_[ind],"Error Bit","Frequency", 92, htmlFile,htmlDir);
+    htmlFile << "<tr align=\"left\">" << endl;
     /*
     histoHTML2(runNo,crateErrMap_[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;   
@@ -755,12 +802,12 @@ void HcalDataFormatClient::createTests(){
   char meTitle[250], name[250];    
   vector<string> params;
   
-  if(debug_) printf("Creating Data Format tests...\n"); 
-  
+  if(debug_) printf("Creating Data Format tests...\n");
+ 
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
-    string type = "HB";
-    if(i==1) type = "HE"; 
+    string type = "HBHE";
+    if(i==1) type = "HBHE"; 
     else if(i==2) type = "HF"; 
     else if(i==3) type = "HO"; 
     
@@ -769,6 +816,7 @@ void HcalDataFormatClient::createTests(){
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
       MonitorElement* me = dbe_->get(meTitle);
       if(me){
+	//cout << "Have Monitor Element in createTests"<<endl;
 	dqmQtests_[name]=meTitle;	  
 	params.clear();
 	params.push_back(meTitle); params.push_back(name);  //hist and test titles
@@ -811,6 +859,15 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
 
   sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/BCN");
   BCN_ = (TH1F*)infile->Get(name);
+
+  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/BCN Check");
+  BCNCheck_ = (TH1F*)infile->Get(name);
+
+  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/EvtN Check");
+  EvtNCheck_ = (TH1F*)infile->Get(name);
+
+sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/BCN of Fiber Orbit Message");
+  FibOrbMsgBCN_ = (TH1F*)infile->Get(name);
 
   sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/Evt Number Out-of-Synch");
   EvtMap_ = (TH2F*)infile->Get(name);
@@ -880,14 +937,16 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
 
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
-    string type = "HB";
-    if(i==1) type = "HE";
+    string type = "HBHE";
+    if(i==1) type = "HBHE";
     else if(i==2) type = "HF";
     else if(i==3) type = "HO";
 
     sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/%s Data Format Error Word", type.c_str());
-    dferr_[i] = (TH1F*)infile->Get(name);    
-    labelxBits(dferr_[i]);
+    int ind = i-1;
+    if (i<0) i=0;
+    dferr_[ind] = (TH1F*)infile->Get(name);    
+    labelxBits(dferr_[ind]);
     /*    
     sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/%s Data Format Crate Error Map", type.c_str());
     crateErrMap_[i] = (TH2F*)infile->Get(name);
