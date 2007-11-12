@@ -25,6 +25,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
   for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
     fedUnpackList_.push_back(i);
 
+  prtlvl_ = ps.getUntrackedParameter<int>("dfPrtLvl");
 
   if ( m_dbe ) {
     m_dbe->setCurrentFolder("HcalMonitor/DataFormatMonitor");
@@ -48,6 +49,14 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meBCNSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
     type = "BCN";
     meBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
+
+    type = "BCN Check";
+    meBCNCheck_ = m_dbe->book1D(type,type,501,-250.5,250.5);
+    type = "EvtN Check";
+    meEvtNCheck_ = m_dbe->book1D(type,type,601,-300.5,300.5);
+
+    type = "BCN of Fiber Orbit Message";
+    meFibBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
 
     // Firmware version
     type = "HTR Firmware Version";
@@ -94,11 +103,27 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     type = "HTR Error Word - Crate 17";
     meCrate17HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     
-    type = "HB Data Format Error Word";
-    DCC_ErrWd_HB =  m_dbe->book1D(type,type,16,-0.5,15.5);
+ /* Disable these histos for now
+     type = "Fiber 1 Orbit Message BCN";
+     meFib1OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+     type = "Fiber 2 Orbit Message BCN";
+     meFib2OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+     type = "Fiber 3 Orbit Message BCN";
+     meFib3OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+     type = "Fiber 4 Orbit Message BCN";
+     meFib4OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+     type = "Fiber 5 Orbit Message BCN";
+     meFib5OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+     type = "Fiber 6 Orbit Message BCN";
+     meFib6OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+     type = "Fiber 7 Orbit Message BCN";
+     meFib7OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+     type = "Fiber 8 Orbit Message BCN";
+     meFib8OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    */
 
-    type = "HE Data Format Error Word";
-    DCC_ErrWd_HE =  m_dbe->book1D(type,type,16,-0.5,15.5);
+    type = "HBHE Data Format Error Word";
+    DCC_ErrWd_HBHE =  m_dbe->book1D(type,type,16,-0.5,15.5);
 
     type = "HF Data Format Error Word";
     DCC_ErrWd_HF =  m_dbe->book1D(type,type,16,-0.5,15.5);
@@ -157,6 +182,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
   if(!dccHeader) return;
   int dccid=dccHeader->getSourceId();
+  unsigned long dccEvtNum = dccHeader->getDCCEventNumber();
+  int dccBCN = dccHeader->getBunchId();
 
   // walk through the HTR data...
   HcalHTRData htr;  
@@ -166,22 +193,85 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const
     
     // check
     if (!htr.check()) continue;
-    if (!htr.isHistogramEvent()) continue;
+    if (htr.isHistogramEvent()) continue;
     
     int cratenum = htr.readoutVMECrateId();
     float slotnum = htr.htrSlot() + 0.5*htr.htrTopBottom();
+
+    if (prtlvl_!=0) HTRPrint(htr,prtlvl_);
+
     unsigned int htrBCN = htr.getBunchNumber(); 
     meBCN_->Fill(htrBCN);
+    unsigned int htrEvtN = htr.getL1ANumber();
+    
+    unsigned int fib1BCN = htr.getFib1OrbMsgBCN();
+    unsigned int fib2BCN = htr.getFib2OrbMsgBCN();
+    unsigned int fib3BCN = htr.getFib3OrbMsgBCN();
+    unsigned int fib4BCN = htr.getFib4OrbMsgBCN();
+    unsigned int fib5BCN = htr.getFib5OrbMsgBCN();
+    unsigned int fib6BCN = htr.getFib6OrbMsgBCN();
+    unsigned int fib7BCN = htr.getFib7OrbMsgBCN();
+    unsigned int fib8BCN = htr.getFib8OrbMsgBCN();
+    
+    meFibBCN_->Fill(fib1BCN);
+    meFibBCN_->Fill(fib2BCN);
+    meFibBCN_->Fill(fib3BCN);
+    meFibBCN_->Fill(fib4BCN);
+    meFibBCN_->Fill(fib5BCN);
+    meFibBCN_->Fill(fib6BCN);
+    meFibBCN_->Fill(fib7BCN);
+    meFibBCN_->Fill(fib8BCN);
+    /* Disable for now
+    meFib1OrbMsgBCN_->Fill(slotnum, cratenum, fib1BCN);
+    meFib2OrbMsgBCN_->Fill(slotnum, cratenum, fib2BCN);
+    meFib3OrbMsgBCN_->Fill(slotnum, cratenum, fib3BCN);
+    meFib4OrbMsgBCN_->Fill(slotnum, cratenum, fib4BCN);
+    meFib5OrbMsgBCN_->Fill(slotnum, cratenum, fib5BCN);
+    meFib6OrbMsgBCN_->Fill(slotnum, cratenum, fib6BCN);
+    meFib7OrbMsgBCN_->Fill(slotnum, cratenum, fib7BCN);
+    meFib8OrbMsgBCN_->Fill(slotnum, cratenum, fib8BCN);
+    */  
+
     unsigned int htrFWVer = htr.getFirmwareRevision() & 0xFF;
     meFWVersion_->Fill(htrFWVer,cratenum);
 
     ///check that all HTRs have the same L1A number
-    if(lastEvtN_==-1) lastEvtN_ = htr.getL1ANumber();  ///the first one will be the reference
-    else if(htr.getL1ANumber()!=lastEvtN_) meEvtNumberSynch_->Fill(slotnum,cratenum);
+    unsigned int refEvtNum = dccEvtNum;
+    /*Could use Evt # from dcc as reference, but not now.
+    if(htr.getL1ANumber()!=refEvtNum) {meEvtNumberSynch_->Fill(slotnum,cratenum);
+      if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< refEvtNum << "  "<<htr.getL1ANumber() <<endl;
+}
+    */
+
+    if(lastEvtN_==-1) {lastEvtN_ = htrEvtN;  ///the first one will be the reference
+    refEvtNum = lastEvtN_;
+    int EvtNdiff = htrEvtN - dccEvtNum;
+    meEvtNCheck_->Fill(EvtNdiff);
+}
+    else {
+      if(htrEvtN!=refEvtNum) {meEvtNumberSynch_->Fill(slotnum,cratenum);
+      if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< refEvtNum << "  "<<htrEvtN <<endl;}
+}
 
     ///check that all HTRs have the same BCN
-    if(lastBCN_==-1) lastBCN_ = htr.getBunchNumber();  ///the first one will be the reference
-    else if(htr.getBunchNumber()!=lastBCN_) meBCNSynch_->Fill(slotnum,cratenum);
+
+    unsigned int refBCN = dccBCN;
+    /*Could use BCN from dcc as reference, but not now.
+    if(htr.getBunchNumber()!=refBCN) {meBCNSynch_->Fill(slotnum,cratenum);
+    if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< refBCN << "  "<<htrBCN <<endl;
+}
+    */
+ // Use 1st HTR as reference
+    if(lastBCN_==-1) {lastBCN_ = htrBCN;  ///the first one will be the reference
+    refBCN = lastBCN_;
+    int BCNdiff = htrBCN-dccBCN;
+    meBCNCheck_->Fill(BCNdiff);
+}
+
+    else {
+      if(htrBCN!=lastBCN_) {meBCNSynch_->Fill(slotnum,cratenum);
+      if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< refBCN << "  "<<htrBCN <<endl;}
+    }
  
     MonitorElement* tmpErr = 0;
 
@@ -194,11 +284,11 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const
 	if (!did.null()) {
 	  switch (((HcalSubdetector)did.subdetId())) {
 	  case (HcalBarrel): {
-	    tmpErr = DCC_ErrWd_HB;
+	    tmpErr = DCC_ErrWd_HBHE;
 	    valid = true;
 	  } break;
 	  case (HcalEndcap): {
-	    tmpErr = DCC_ErrWd_HE;
+	    tmpErr = DCC_ErrWd_HBHE;
 	    valid = true;
 	  } break;
 	  case (HcalOuter): {
@@ -249,6 +339,33 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const
 
    return;
 }
+
+void HcalDataFormatMonitor::HTRPrint(const HcalHTRData& htr,int prtlvl){
+
+
+  if (prtlvl == 1){ 
+    int cratenum = htr.readoutVMECrateId();
+    float slotnum = htr.htrSlot() + 0.5*htr.htrTopBottom();
+    printf("Crate,Slot,ErrWord,Evt#,BCN:  %3i %4.1f %6X %7i %4X", cratenum,slotnum,htr.getErrorsWord(),htr.getL1ANumber(),htr.getBunchNumber());
+    printf(" DLLunlk,TTCrdy:%2i %2i \n",htr.getDLLunlock(),htr.getTTCready());
+  }
+  else if (prtlvl == 2){
+    int cratenum = htr.readoutVMECrateId();
+    float slotnum = htr.htrSlot() + 0.5*htr.htrTopBottom();
+    printf("Crate, Slot:%3i %4.1f", cratenum,slotnum);
+    printf("  Ext Hdr: %4X %4X %4X %4X %4X %4X %4X %4X \n",htr.getExtHdr1(),htr.getExtHdr2(),htr.getExtHdr3(),htr.getExtHdr4(),htr.getExtHdr5(),htr.getExtHdr6(),htr.getExtHdr7(),htr.getExtHdr8());
+}
+
+  else if (prtlvl == 3){
+    int cratenum = htr.readoutVMECrateId();
+    float slotnum = htr.htrSlot() + 0.5*htr.htrTopBottom();
+    printf("Crate, Slot:%3i %4.1f", cratenum,slotnum);
+    printf(" FibOrbMsgBCNs: %4X %4X %4X %4X %4X %4X %4X %4X \n",htr.getFib1OrbMsgBCN(),htr.getFib2OrbMsgBCN(),htr.getFib3OrbMsgBCN(),htr.getFib4OrbMsgBCN(),htr.getFib5OrbMsgBCN(),htr.getFib6OrbMsgBCN(),htr.getFib7OrbMsgBCN(),htr.getFib8OrbMsgBCN());
+  }
+
+return;
+}
+
 
 
 
