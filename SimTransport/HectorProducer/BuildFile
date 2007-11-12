@@ -1,7 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=SimDataFormats/HepMCProduct>
-<use name=SimTransport/Hector>
+<use name=hector>
 <use name=root>
 <flags EDM_PLUGIN=1>
 <export>

@@ -9,9 +9,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //Hector headers
-#include "SimTransport/Hector/interface/H_BeamLine.h"
-#include "SimTransport/Hector/interface/H_RecRPObject.h"
-#include "SimTransport/Hector/interface/H_BeamParticle.h"
+#include "H_BeamLine.h"
+#include "H_RecRPObject.h"
+#include "H_BeamParticle.h"
 
 class Hector {
 
