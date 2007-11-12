@@ -118,11 +118,10 @@ float CSCStripElectronicsSim::comparatorReading(const CSCAnalogSignal & signal,
 }
 
 
-std::vector<CSCComparatorDigi> 
-CSCStripElectronicsSim::runComparator() {
+void
+CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> & result) {
   // first, make a list of all the comparators we actually
   // need to run
-  std::vector<CSCComparatorDigi> result;
   std::list<int> comparatorsWithSignal;
   CSCSignalMap::iterator signalMapItr;
   for(signalMapItr = theSignalMap.begin();
@@ -141,7 +140,9 @@ CSCStripElectronicsSim::runComparator() {
     // icomp =0->1,2,  =1->3,4,  =2->5,6, ...
     const CSCAnalogSignal & signal1 = find(readoutElement(iComparator*2 + 1));
     const CSCAnalogSignal & signal2 = find(readoutElement(iComparator*2 + 2));
-    for(float time = theSignalStartTime; time < theSignalStopTime-theComparatorWait; time += theSamplingTime) {
+    for(float time = theSignalStartTime; time < theSignalStopTime-theComparatorWait; 
+        time += theSamplingTime) 
+    {
       if(comparatorReading(signal1, time) > theComparatorThreshold
       || comparatorReading(signal2, time) > theComparatorThreshold) {
 	 // wait a bit, so we can run the comparator at the signal peak
@@ -185,8 +186,9 @@ CSCStripElectronicsSim::runComparator() {
          }
          if(strip != 0) {
 
-//           int timeBin = (int)((comparatorTime-theTimingOffset)/theBunchSpacing + theComparatorTimeBinOffset);
-           int timeBin = (int)((comparatorTime-theTimingOffset)/theBunchSpacing) + theComparatorTimeBinOffset;
+           int timeBin = (int)((comparatorTime-theTimingOffset)/theBunchSpacing + theComparatorTimeBinOffset);
+//           int timeBin = (int)((comparatorTime-theTimingOffset)/theBunchSpacing) 
+//                         + theComparatorTimeBinOffset;
 
       // Comparator digi as of Nov-2006 adapted to real data: time word has 16 bits with set bit
       // flagging appropriate bunch crossing, and bx 0 corresponding to 9th bit i.e.
@@ -224,7 +226,6 @@ CSCStripElectronicsSim::runComparator() {
   }  // loop over comparators  
   // sort by time
   sort(result.begin(), result.end());
-  return result;
 }
 
 
@@ -322,9 +323,11 @@ void CSCStripElectronicsSim::fillDigis(CSCStripDigiCollection & digis,
     addCrosstalk();
   } 
 
-  std::vector<CSCComparatorDigi> comparatorOutputs = runComparator();
+  std::vector<CSCComparatorDigi> comparatorOutputs;
+  runComparator(comparatorOutputs);
   // copy these to the result
-  CSCComparatorDigiCollection::Range range(comparatorOutputs.begin(), comparatorOutputs.end());
+  CSCComparatorDigiCollection::Range range(comparatorOutputs.begin(), 
+                                           comparatorOutputs.end());
   comparators.put(range, layerId());
 
   double startTime = theTimingOffset 
@@ -333,10 +336,11 @@ void CSCStripElectronicsSim::fillDigis(CSCStripDigiCollection & digis,
   std::list<int> keyStrips = getKeyStrips(comparatorOutputs);
   std::list<int> stripsToDo = channelsToRead(keyStrips);
   std::vector<CSCStripDigi> stripDigis;
+  stripDigis.reserve(stripsToDo.size());
   for(std::list<int>::const_iterator stripItr = stripsToDo.begin();
       stripItr != stripsToDo.end(); ++stripItr)
   {
-    stripDigis.push_back( createDigi(*stripItr, startTime) );
+    createDigi(*stripItr, startTime, stripDigis);
   }
 
   CSCStripDigiCollection::Range stripRange(stripDigis.begin(), stripDigis.end());
@@ -349,12 +353,15 @@ void CSCStripElectronicsSim::addCrosstalk() {
   // without messing up any iterators
   std::vector<CSCAnalogSignal> realSignals;
   realSignals.reserve(theSignalMap.size());
-  for(CSCSignalMap::iterator mapI = theSignalMap.begin(); mapI != theSignalMap.end(); ++mapI) {
+  CSCSignalMap::iterator mapI = theSignalMap.begin(), mapEnd = theSignalMap.end();
+  for( ; mapI != mapEnd; ++mapI) {
     realSignals.push_back((*mapI).second);
   }
   sort(realSignals.begin(), realSignals.end(), SortSignalsByTotal);
-  for(std::vector<CSCAnalogSignal>::iterator realSignalItr = realSignals.begin();
-      realSignalItr != realSignals.end(); ++realSignalItr) {
+  std::vector<CSCAnalogSignal>::iterator realSignalItr = realSignals.begin(),
+                                         realSignalsEnd = realSignals.end();
+  for( ; realSignalItr != realSignalsEnd;  ++realSignalItr)
+  {
     int thisStrip = (*realSignalItr).getElement();
     // add it to each neighbor
     if(thisStrip > 1) {
@@ -388,7 +395,7 @@ void CSCStripElectronicsSim::addCrosstalk(const CSCAnalogSignal & signal,
 }
 
 
-CSCStripDigi CSCStripElectronicsSim::createDigi(int channel, float startTime)
+void CSCStripElectronicsSim::createDigi(int channel, float startTime, std::vector<CSCStripDigi> & result)
 {
   const CSCAnalogSignal & signal = find(channel);
   // fill in the sca information
@@ -406,10 +413,9 @@ CSCStripDigi CSCStripElectronicsSim::createDigi(int channel, float startTime)
   // do saturation of 12-bit ADC
   doSaturation(newDigi);
 
+  result.push_back(newDigi);
   addLinks(channelIndex(channel));
   LogTrace("CSCStripElectronicsSim") << newDigi;
-
-  return newDigi;
 }
 
 
