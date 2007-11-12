@@ -1,7 +1,8 @@
 #ifndef SimTransport_HectorGenParticle
 #define SimTransport_HectorGenParticle
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "HepMC/GenParticle.h"
 
 class HectorGenParticle : public HepMC::GenParticle {
  public:
