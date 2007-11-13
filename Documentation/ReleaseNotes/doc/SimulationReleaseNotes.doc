@@ -3,14 +3,74 @@
 
 - General:
 
+-- Numerous changes in geometry and data formats; 
+   release is backward incompatible at the simulation level
+
+-- Simulated hits and digis fully validated, any found differences are
+   consistent with changes in geometry
+
+-- Existing interface between generator information and Geant4 is stable
+
+
 - Main changes and new features:
+
+-- Migration to LCG-HepMC 2.01.08 ensures reproducibility of simulated
+   events, as it resolves the issues of generator particles ordering and
+   of compatibility with Root I/O
+
+-- Migration to Geant4.8.3.p01, for improvements in physics modeling and
+   many bug fixes in geometry overlap cleanup tools
+
+-- Many updates and improvements in CMS geometry application, cleanup 
+   of large fraction of volume overlaps (see remarks below);
+   Tracker geometry modeled with 9% of the actual weight, no more changes 
+   in active material but only in the passive material in the future;
+   Ecal EE and ES geometry updated significantly and is close to final 
+   configuration;
+   Hcal HE - scintillator thinkness adjusted, HF - 1st implementation of
+   PMT description, practically clean of volume overlaps;
+   Muon CSC, DT and RPC geometry revised and is close to start-up configuration 
+
+-- Castor and ZDC Forward Detectors - simulation and digitization is available
+   in the standalone mode; 
+   both can be, in principal, included in the CMS mother volumes but need more
+   validation and timing tests
+   
+-- Factorized Crossing Frame implemented, related packages adapted accordingly;
+   implementation of play-back option for Mixing has started
+   
+-- Digitization sequences is fully reproducible for all CMS subsystems
+
+-- Partial migration (at the data formats level) from CLHEP to Root/Math vectors
+   
 
 - Major bug fixes:
 
+-- Tracker geometry is clean of volume overlaps
+
+-- Ecal EE and ES geometry is practically clean of overlaps (minor complains 
+   remain, probably due to imperfection in the Geant4 tools)
+
+-- Hcal geometry practically clean of overlaps;
+   HF shower library fixed; HF digitization bug fixed
+
+-- Muon CSC, DT and RPC geometry significantly cleaned of volume overlaps but 
+   some issues remain;
+   fix CSC sim-reco geometry interface;
+   fixes in RPC: bx assignment for Endcap stations, reading of external file
+   to set the expected time window, numbering strips for noise
+
+-- Vertex smearing - fixed old (since OSCAR) bug of improper vertex time record 
+
+
 - Known issues:
+
+-- CMS simulation is currently not reproducible in the sim hits part, presumably 
+   due to recently-found problems in Geant4.8.3-cycle (CHIPS model); 
+   it's under investigation and  will be hopefully solved in G4.9.0.p01
 
 
 <hr>
-Last updated: @DATE@ Your name
+Last updated: @DATE@ Julia Yarba
  
 */
