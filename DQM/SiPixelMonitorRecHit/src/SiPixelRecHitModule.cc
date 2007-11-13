@@ -47,6 +47,9 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig) {
   hid = theHistogramId->setHistoId("ClustY",id_);
   meClustY_ = theDMBE->book1D(hid, "Cluster Y size", 25, 0., 25.);
   meClustY_->setAxisTitle("Cluster size Y dimension", 1); 
+  hid = theHistogramId->setHistoId("nRecHits",id_);
+  menRecHits_ = theDMBE->book1D(hid, "# of rechits in this module", 50, 0, 50);
+  menRecHits_->setAxisTitle("number of rechits",1);  
   delete theHistogramId;
   
 }
@@ -83,4 +86,9 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y, con
   meClustY_->Fill(sizeY);
   //std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
   
+}
+
+void SiPixelRecHitModule::nfill(const int& nrec) {
+
+	menRecHits_->Fill(nrec);
 }

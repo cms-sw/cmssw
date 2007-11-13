@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.4 2007/04/03 15:35:58 chiochia Exp $
+// $Id: SiPixelRecHitSource.h,v 1.1 2007/10/10 03:37:27 krose Exp $
 //
 // Updated by: Keith Rose
 // for use in SiPixelMonitorRecHits
@@ -70,6 +70,7 @@
        int eventNo;
        DaqMonitorBEInterface* theDMBE;
        std::map<uint32_t,SiPixelRecHitModule*> thePixelStructure;
+       std::map<uint32_t,int> rechit_count;
  };
 
 #endif
