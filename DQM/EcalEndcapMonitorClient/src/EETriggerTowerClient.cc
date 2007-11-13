@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/11/12 20:07:44 $
- * $Revision: 1.25 $
+ * $Date: 2007/11/13 14:06:03 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -886,7 +886,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           if (iemu==0) emustring = "Errors ";
           else if(iemu==1) emustring = "Real Digis ";
           else if(iemu==2) emustring = "Emulated Digis ";
-          title << "EETTT FineGrainVeto " << emustring << " FineGrainVeto " << j-1 << " " << Numbers::sEE(ism).c_str();
+          title << "EETTT FineGrainVeto " << emustring << " Flag " << j-1 << " " << Numbers::sEE(ism).c_str();
           obj2f->SetTitle( title.str().c_str() );
 
           obj2f->Draw("colz");
