@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/10 14:09:12 $
- * $Revision: 1.34 $
+ * $Date: 2007/11/13 09:01:20 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -236,34 +236,34 @@ void EELedClient::setup(void) {
     mea05_[ism-1]->setAxisTitle("amplitude", 2);
 
     if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
-    sprintf(histo, "EELDT timing A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led timing A %s", Numbers::sEE(ism).c_str());
     met01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     met01_[ism-1]->setAxisTitle("channel", 1);
     met01_[ism-1]->setAxisTitle("jitter", 2);
 
     if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
-    sprintf(histo, "EELDT timing B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led timing B %s", Numbers::sEE(ism).c_str());
     met05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
     met05_[ism-1]->setAxisTitle("channel", 1);
     met05_[ism-1]->setAxisTitle("jitter", 2);
 
     if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
-    sprintf(histo, "EELDT timing mean A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led timing mean A %s", Numbers::sEE(ism).c_str());
     metav01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     metav01_[ism-1]->setAxisTitle("mean", 1);
 
     if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
-    sprintf(histo, "EELDT timing mean B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led timing mean B %s", Numbers::sEE(ism).c_str());
     metav05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     metav05_[ism-1]->setAxisTitle("mean", 1);
 
     if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
-    sprintf(histo, "EELDT timing rms A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led timing rms A %s", Numbers::sEE(ism).c_str());
     metrms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
     metrms01_[ism-1]->setAxisTitle("rms", 1);
 
     if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
-    sprintf(histo, "EELDT timing rms B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led timing rms B %s", Numbers::sEE(ism).c_str());
     metrms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
     metrms05_[ism-1]->setAxisTitle("rms", 1);
 

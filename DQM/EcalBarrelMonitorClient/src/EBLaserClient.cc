@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/11/10 14:09:08 $
- * $Revision: 1.196 $
+ * $Date: 2007/11/13 09:01:18 $
+ * $Revision: 1.197 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -391,109 +391,109 @@ void EBLaserClient::setup(void) {
     mea08_[ism-1]->setAxisTitle("amplitude", 2);
 
     if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L1A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L1A %s", Numbers::sEB(ism).c_str());
     met01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
     met01_[ism-1]->setAxisTitle("channel", 1);
     met01_[ism-1]->setAxisTitle("jitter", 2);
     if ( met02_[ism-1] ) dbe_->removeElement( met02_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L2A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L2A %s", Numbers::sEB(ism).c_str());
     met02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
     met02_[ism-1]->setAxisTitle("channel", 1);
     met02_[ism-1]->setAxisTitle("jitter", 2);
     if ( met03_[ism-1] ) dbe_->removeElement( met03_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L3A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L3A %s", Numbers::sEB(ism).c_str());
     met03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
     met03_[ism-1]->setAxisTitle("channel", 1);
     met03_[ism-1]->setAxisTitle("jitter", 2);
     if ( met04_[ism-1] ) dbe_->removeElement( met04_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L4A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L4A %s", Numbers::sEB(ism).c_str());
     met04_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
     met04_[ism-1]->setAxisTitle("channel", 1);
     met04_[ism-1]->setAxisTitle("jitter", 2);
     if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L1B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L1B %s", Numbers::sEB(ism).c_str());
     met05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
     met05_[ism-1]->setAxisTitle("channel", 1);
     met05_[ism-1]->setAxisTitle("jitter", 2);
     if ( met06_[ism-1] ) dbe_->removeElement( met06_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L2B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L2B %s", Numbers::sEB(ism).c_str());
     met06_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
     met06_[ism-1]->setAxisTitle("channel", 1);
     met06_[ism-1]->setAxisTitle("jitter", 2);
     if ( met07_[ism-1] ) dbe_->removeElement( met07_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L3B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L3B %s", Numbers::sEB(ism).c_str());
     met07_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
     met07_[ism-1]->setAxisTitle("channel", 1);
     met07_[ism-1]->setAxisTitle("jitter", 2);
     if ( met08_[ism-1] ) dbe_->removeElement( met08_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L4B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L4B %s", Numbers::sEB(ism).c_str());
     met08_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
     met08_[ism-1]->setAxisTitle("channel", 1);
     met08_[ism-1]->setAxisTitle("jitter", 2);
 
     if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L1A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L1A %s", Numbers::sEB(ism).c_str());
     metav01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     metav01_[ism-1]->setAxisTitle("mean", 1);
     if ( metav02_[ism-1] ) dbe_->removeElement( metav02_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L2A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L2A %s", Numbers::sEB(ism).c_str());
     metav02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     metav02_[ism-1]->setAxisTitle("mean", 1);
     if ( metav03_[ism-1] ) dbe_->removeElement( metav03_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L3A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L3A %s", Numbers::sEB(ism).c_str());
     metav03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     metav03_[ism-1]->setAxisTitle("mean", 1);
     if ( metav04_[ism-1] ) dbe_->removeElement( metav04_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L4A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L4A %s", Numbers::sEB(ism).c_str());
     metav04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     metav04_[ism-1]->setAxisTitle("mean", 1);
     if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L1B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L1B %s", Numbers::sEB(ism).c_str());
     metav05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     metav05_[ism-1]->setAxisTitle("mean", 1);
     if ( metav06_[ism-1] ) dbe_->removeElement( metav06_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L2B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L2B %s", Numbers::sEB(ism).c_str());
     metav06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     metav06_[ism-1]->setAxisTitle("mean", 1);
     if ( metav07_[ism-1] ) dbe_->removeElement( metav07_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L3B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L3B %s", Numbers::sEB(ism).c_str());
     metav07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     metav07_[ism-1]->setAxisTitle("mean", 1);
     if ( metav08_[ism-1] ) dbe_->removeElement( metav08_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L4B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L4B %s", Numbers::sEB(ism).c_str());
     metav08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     metav08_[ism-1]->setAxisTitle("mean", 1);
 
     if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L1A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L1A %s", Numbers::sEB(ism).c_str());
     metrms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
     metrms01_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms02_[ism-1] ) dbe_->removeElement( metrms02_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L2A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L2A %s", Numbers::sEB(ism).c_str());
     metrms02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
     metrms02_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms03_[ism-1] ) dbe_->removeElement( metrms03_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L3A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L3A %s", Numbers::sEB(ism).c_str());
     metrms03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
     metrms03_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms04_[ism-1] ) dbe_->removeElement( metrms04_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L4A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L4A %s", Numbers::sEB(ism).c_str());
     metrms04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
     metrms04_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L1B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L1B %s", Numbers::sEB(ism).c_str());
     metrms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
     metrms05_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms06_[ism-1] ) dbe_->removeElement( metrms06_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L2B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L2B %s", Numbers::sEB(ism).c_str());
     metrms06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
     metrms06_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms07_[ism-1] ) dbe_->removeElement( metrms07_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L3B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L3B %s", Numbers::sEB(ism).c_str());
     metrms07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
     metrms07_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms08_[ism-1] ) dbe_->removeElement( metrms08_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L4B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L4B %s", Numbers::sEB(ism).c_str());
     metrms08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
     metrms08_[ism-1]->setAxisTitle("rms", 1);
 
