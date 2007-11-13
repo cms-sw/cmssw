@@ -71,10 +71,6 @@
   <class name="std::pair<reco::PixelMatchGsfElectronRef,double>"/>
   <class name="std::vector<std::pair<reco::PixelMatchGsfElectronRef,double> >"/>
 
-  <class name="reco::PMGsfElectronIsoCollectionBase">
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
-  </class>
   <class name="reco::PMGsfElectronIsoCollection">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
@@ -87,10 +83,6 @@
   <class name="std::pair<reco::PixelMatchGsfElectronRef,int>"/>
   <class name="std::vector<std::pair<reco::PixelMatchGsfElectronRef,int> >"/>
 
-  <class name="reco::PMGsfElectronIsoNumCollectionBase">
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
-  </class>
   <class name="reco::PMGsfElectronIsoNumCollection">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>

@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.20 2007/10/20 14:52:44 llista Exp $
+// $Id: classes.h,v 1.21 2007/10/29 11:29:33 llista Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -87,7 +87,6 @@ namespace {
     reco::ElectronIsolationMap v7;
     edm::Wrapper<reco::ElectronIsolationMap> w7;
     edm::helpers::Key<edm::RefProd<reco::ElectronCollection > > h7;
-    reco::PMGsfElectronIsoCollectionBase b8;
     reco::PMGsfElectronIsoCollection v8;
     reco::PMGsfElectronIsoCollectionRef r8;
     reco::PMGsfElectronIsoCollectionRefProd rp8;
@@ -95,7 +94,6 @@ namespace {
 
     edm::Wrapper<reco::PMGsfElectronIsoCollection> w8;
 
-    reco::PMGsfElectronIsoNumCollectionBase b9;
     reco::PMGsfElectronIsoNumCollection v9;
     reco::PMGsfElectronIsoNumCollectionRef r9;
     reco::PMGsfElectronIsoNumCollectionRefProd rp9;
