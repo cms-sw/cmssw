@@ -275,28 +275,35 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		for (int st=0;st<NUMBERPLOTTED_sat;st++){
 		  myCharge[st]=0.0;
 		  mySatADC[st]=0.0;
+		  myCharge_for_plots[st]=0.0;
+		  mySatADC_for_plots[st]=0.0;
 		}
-		
+
 		for(int ii=10; ii<NUMBERPLOTTED_sat; ii++){//numbers    
-		  myCharge[ii] = 11.2 +(28.0*ii)-280.0;//224(3V) to 560(5V) fC
-		  mySatADC[ii] = maxmodten[ii][cham][j][k];
+		  myCharge[ii-10] = 11.2 +(28.0*ii);//224(3V) to 560(5V) fC
+		  mySatADC[ii-10] = maxmodten[ii][cham][j][k];
+		  myCharge_for_plots[ii] = 11.2 +(28.0*ii);
+		  mySatADC_for_plots[ii] = maxmodten[ii][cham][j][k];
+		  
+		  //std::cout<<"My values from analyzer: "<<myCharge[ii-10]<<"  "<<mySatADC[ii-10]<<std::endl;
+
 		  //newCharge[ii] = charge_event;
 		  //fill one histogram with all values for all chambers
-		  adc_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  adc_vs_charge.Fill(myCharge_for_plots[ii],maxmodten[ii][cham][j][k]);
 		  //for the rest look for one strip in the middle of each CFEBs
-		  if(cham==0)  adc00_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==1)  adc01_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==2)  adc02_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==3)  adc03_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==4)  adc04_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==5)  adc05_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==6)  adc06_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==7)  adc07_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==8)  adc08_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==9)  adc09_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==10) adc10_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==11) adc11_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==12) adc12_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==0)  adc00_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==1)  adc01_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==2)  adc02_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==3)  adc03_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==4)  adc04_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==5)  adc05_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==6)  adc06_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==7)  adc07_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==8)  adc08_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==9)  adc09_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==10) adc10_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==11) adc11_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==12) adc12_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
 
 		}//number_plotted
 

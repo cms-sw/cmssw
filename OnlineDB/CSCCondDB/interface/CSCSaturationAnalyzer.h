@@ -59,7 +59,7 @@ class CSCSaturationAnalyzer : public edm::EDAnalyzer {
   std::ifstream filein;
   std::string PSet,name,chamber_type;
   bool debug;
-  float myCharge[NUMBERPLOTTED_sat],mySatADC[NUMBERPLOTTED_sat],aVar,bVar;
+  float myCharge[NUMBERPLOTTED_sat],myCharge_for_plots[NUMBERPLOTTED_sat],mySatADC[NUMBERPLOTTED_sat],mySatADC_for_plots[NUMBERPLOTTED_sat],aVar,bVar;
   TH2F adc_vs_charge;
   TH2F adc00_vs_charge;
   TH2F adc01_vs_charge;
