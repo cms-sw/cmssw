@@ -130,89 +130,89 @@ void CSA07EventWeightProducer::produce( Event& evt, const EventSetup& es ) {
 // min bias (diffractive part)
   if ( (filter_eff == 1.) && ( processID == 92 || processID == 93 || processID == 94 || processID == 95 )) {
   
-    (*weight) = 25E+12 / 6.25E+06 ; // number = cross section of these processes (25mb), in fb-1, div by 0.31X20M = 6.25M events
+    (*weight) = 25E+9 / 6.25E+06 ; // number = cross section of these processes (25mb), in pb-1, div by 0.31X20M = 6.25M events
   
   }
    
 // qcd (including min bias HS)
   if ((filter_eff == 1. || filter_eff == 0.964) && (processID == 11 || processID == 12 || processID == 13 || processID == 28 || processID == 68 || processID == 53)) {
   
-    if (pthat > 0 && pthat < 15) { (*weight) = 53.0E+12 / (13.75E+06 * 53.0 / 55.0 + 0.75E+06); } //number = cross section in 1 fb-1 div by #events (MB HS+ QCD bin)
+    if (pthat > 0 && pthat < 15) { (*weight) = 53.0E+9 / (13.75E+06 * 53.0 / 55.0 + 0.75E+06); } //number = cross section in 1 pb-1 div by #events (MB HS+ QCD bin)
  
-    if (pthat > 15 && pthat < 20) { (*weight) =  1.46E+12 / (13.75E+06 * 1.46 / 55.0 + 1.25E+06); } //number = cross section in 1 fb-1 div by #events (MB HS + QCD bin)
+    if (pthat > 15 && pthat < 20) { (*weight) =  1.46E+9 / (13.75E+06 * 1.46 / 55.0 + 1.3E+06); } //number = cross section in 1 pb-1 div by #events (MB HS + QCD bin)
 
-    if (pthat > 20 && pthat < 30) { (*weight) =  0.63E+12 / (13.75E+06 * 0.63 / 55.0 + 2.5E+06); } //number = cross section in 1 fb-1 div by #events (MB HS + QCD bin)
+    if (pthat > 20 && pthat < 30) { (*weight) =  0.63E+9 / (13.75E+06 * 0.63 / 55.0 + 2.5E+06); } //number = cross section in 1 pb-1 div by #events (MB HS + QCD bin)
 
-    if (pthat > 30 && pthat < 50) { (*weight) =  0.163E+12 / (13.75E+06 * 0.163 / 55.0 + 2.5E+06); } //number = cross section in 1 fb-1 div by #events (MB HS + QCD bin)
+    if (pthat > 30 && pthat < 50) { (*weight) =  0.163E+9 / (13.75E+06 * 0.163 / 55.0 + 2.5E+06); } //number = cross section in 1 pb-1 div by #events (MB HS + QCD bin)
      
-    if (pthat > 50 && pthat < 80) { (*weight) =  21.6E+09 / (13.75E+06 * 0.0216 / 55.0 + 2.5E+06); } //number = cross section in 1 fb-1 div by #events (MB HS + QCD bin)
+    if (pthat > 50 && pthat < 80) { (*weight) =  21.6E+06 / (13.75E+06 * 0.0216 / 55.0 + 2.5E+06); } //number = cross section in 1 pb-1 div by #events (MB HS + QCD bin)
      
-    if (pthat > 80 && pthat < 120) { (*weight) =  3.08E+09 / (13.75E+06 * 0.00308 / 55.0 + 1.25E+06); } //number = cross section in 1 fb-1 div by #events (MB HS + QCD bin)
+    if (pthat > 80 && pthat < 120) { (*weight) =  3.08E+06 / (13.75E+06 * 0.00308 / 55.0 + 1.18E+06); } //number = cross section in 1 pb-1 div by #events (MB HS + QCD bin)
      
-    if (pthat > 120 && pthat < 170) { (*weight) =  0.494E+09 / (1.25E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 120 && pthat < 170) { (*weight) =  0.494E+06 / (1.25E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 170 && pthat < 230) { (*weight) =  0.101E+09 / (1.25E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 170 && pthat < 230) { (*weight) =  0.101E+06 / (1.16E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 230 && pthat < 300) { (*weight) =  24.5E+06 / (1.25E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 230 && pthat < 300) { (*weight) =  24.5E+03 / (1.20E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 300 && pthat < 380) { (*weight) =  6.24E+06 / (1.25E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 300 && pthat < 380) { (*weight) =  6.24E+03 / (1.18E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 380 && pthat < 470) { (*weight) =  1.78E+06 / (1.25E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 380 && pthat < 470) { (*weight) =  1.78E+03 / (1.19E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 470 && pthat < 600) { (*weight) =  0.683E+06 / (1.25E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 470 && pthat < 600) { (*weight) =  0.683E+03 / (1.23E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 600 && pthat < 800) { (*weight) =  0.204E+06 / (0.75E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 600 && pthat < 800) { (*weight) =  0.204E+03 / (0.73E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 800 && pthat < 1000) { (*weight) =  35.1E+03 / (0.75E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 800 && pthat < 1000) { (*weight) =  35.1E+00 / (0.76E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 1000 && pthat < 1400) { (*weight) =  10.9E+03 / (0.75E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 1000 && pthat < 1400) { (*weight) =  10.9E+00 / (0.75E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 1400 && pthat < 1800) { (*weight) =  1.6E+03 / (0.75E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 1400 && pthat < 1800) { (*weight) =  1.6E+00 / (0.75E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 1800 && pthat < 2200) { (*weight) =  0.145E+03 / (0.75E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 1800 && pthat < 2200) { (*weight) =  0.145E+00 / (0.75E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 2200 && pthat < 2600) { (*weight) =  23.8 / (0.75E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 2200 && pthat < 2600) { (*weight) =  23.8E-03 / (0.75E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 2600 && pthat < 3000) { (*weight) =  4.29 / (0.75E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 2600 && pthat < 3000) { (*weight) =  4.29E-03 / (0.75E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 3000 && pthat < 3500) { (*weight) =  0.844 / (0.75E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 3000 && pthat < 3500) { (*weight) =  0.844E-03 / (0.71E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
      
-    if (pthat > 3500) { (*weight) =  0.108 / (0.75E+06); } //number = cross section in 1 fb-1 div by #events (QCD bin). MB negligible
+    if (pthat > 3500) { (*weight) =  0.108E-03 / (0.75E+06); } //number = cross section in 1 pb-1 div by #events (QCD bin). MB negligible
     
   }
   
 // muon enriched
    if ( (filter_eff == 0.0008) && (processID == 11 || processID == 12 || processID == 13 || processID == 28 || processID == 68 || processID == 53 || processID == 95)) {
   
-   (*weight) = cross_section * 1000. * filter_eff / 20.E+06;  // number  = effective cross section for 1 fb-1 div by 20M 
+   (*weight) = cross_section * filter_eff / 20.E+06;  // number  = effective cross section for 1 pb-1 div by 20M 
   
   } 
  
 // electron enriched (weights calculated neglecting duplication from bbbar -> e, see below)
     if ( (filter_eff == 0.0097) && (processID == 11 || processID == 12 || processID == 13 || processID == 28 || processID == 68 || processID == 53 || processID == 95)) {
   
-   (*weight) = cross_section * 1000. * filter_eff / 10.E+06 ;  // number  = effective cross section in 1 fb-1 div by 10M 
+   (*weight) = cross_section * filter_eff / 8.7E+06 ;  // number  = effective cross section in 1 pb-1 div by 10M 
   
   } 
    
 // electron enriched from bbbar 5 < pt_hat < 50
   if ( (filter_eff == 0.00019) && (processID == 11 || processID == 12 || processID == 13 || processID == 28 || processID == 68 || processID == 53 || processID == 95)) {
   
-   (*weight) = cross_section * 1000. * filter_eff / 3.E+06 ;  // number  = effective cross section in 1 fb-1 div by 3M 
+   (*weight) = cross_section * filter_eff / 3.E+06 ;  // number  = effective cross section in 1 pb-1 div by 3M 
   
   } 
   
 // electron enriched from bbbar 50 < pt_hat < 170
   if ( (filter_eff == 0.0068) && (processID == 11 || processID == 12 || processID == 13 || processID == 28 || processID == 68 || processID == 53 || processID == 95)) {
   
-   (*weight) = cross_section * 1000. * filter_eff / 3.E+06 ;  // number  = effective cross section in 1 fb-1 div by 3M 
+   (*weight) = cross_section * filter_eff / 3.E+06 ;  // number  = effective cross section in 1 pb-1 div by 3M 
   
   } 
   
 // electron enriched from bbbar 170 < pt_hat
   if ( (filter_eff == 0.0195) && (processID == 11 || processID == 12 || processID == 13 || processID == 28 || processID == 68 || processID == 53 || processID == 95)) {
   
-   (*weight) = cross_section * 1000. * filter_eff / 3.E+06 ;  // number  = effective cross section in 1 fb-1 div by 3M 
+   (*weight) = cross_section * filter_eff / 2.6E+06 ;  // number  = effective cross section in 1 pb-1 div by 3M 
   
   } 
  
@@ -220,28 +220,28 @@ void CSA07EventWeightProducer::produce( Event& evt, const EventSetup& es ) {
 // photon + jets
   if ( processID == 14 || processID == 18 || processID == 29 ) {
   
-    if (pthat > 0) { (*weight) =  cross_section * 1000. / 0.5E+06;} // 500K events produced for all the jet+photon samples 
+    if (pthat > 0) { (*weight) =  cross_section / 0.5E+06;} // 500K events produced for all the jet+photon samples 
 
   }
   
 // Drell-Yan (Pythia branching ratio Z->leptons = 0.107)
   if ((filter_eff == 1.000) && (processID == 1 || processID == 15 || processID == 19 || processID == 30 || processID == 35 || processID == 141)) {
   
-   (*weight) = cross_section * 1000. * filter_eff * 0.107 / 3.E+06 ;  // number  = effective cross section in 1 fb-1 div by 3M 
+   (*weight) = cross_section * filter_eff * 0.107 / 3.E+06 ;  // number  = effective cross section in 1 pb-1 div by 3M 
   
   } 
 
 // CharmOnia (Pythia branching ratio J/Psi->2muons = 0.06)
   if ((processID > 420 && processID < 440)) {
   
-   (*weight) = cross_section * 1000. * filter_eff * 0.06 / 1.E+06 ;  // number  = effective cross section in 1 fb-1 div by 1M 
+   (*weight) = cross_section * filter_eff * 0.06 / 1.E+06 ;  // number  = effective cross section in 1 pb-1 div by 1M 
   
   } 
 
 // BottomOnia (Pythia branching ratio Y->2muons = 0.025)
   if ((processID > 460 && processID < 480)) {
   
-   (*weight) = cross_section * 1000. * filter_eff * 0.025 / 1.E+06 ;  // number  = effective cross section in 1 fb-1 div by 1M 
+   (*weight) = cross_section * filter_eff * 0.025 / 1.E+06 ;  // number  = effective cross section in 1 pb-1 div by 1M 
   
   } 
    
@@ -249,7 +249,7 @@ void CSA07EventWeightProducer::produce( Event& evt, const EventSetup& es ) {
 // average "weighted" branching ratio pp -> b_hadron -> J/Psi X = 0.1 (guess, to be x-checked)
   if ((filter_eff == 0.00013)) {
   
-   (*weight) = cross_section * 1000. * filter_eff * 0.06 * 0.1 / 0.5E+06 ;  // number  = effective cross section in 1 fb-1 div by 0.5M 
+   (*weight) = cross_section * filter_eff * 0.06 * 0.1 / 0.5E+06 ;  // number  = effective cross section in 1 pb-1 div by 0.5M 
   
   } 
   }  // ALPGEN
