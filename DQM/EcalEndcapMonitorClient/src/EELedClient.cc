@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/10 08:09:08 $
- * $Revision: 1.33 $
+ * $Date: 2007/11/10 14:09:12 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -124,6 +124,10 @@ EELedClient::EELedClient(const ParameterSet& ps){
     mepnprms01_[ism-1] = 0;
 
     mepnprms05_[ism-1] = 0;
+
+    mes01_[ism-1] = 0;
+
+    mes05_[ism-1] = 0;
 
   }
 
@@ -285,6 +289,18 @@ void EELedClient::setup(void) {
     mepnprms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     mepnprms05_[ism-1]->setAxisTitle("rms", 1);
 
+    if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
+    sprintf(histo, "EELDT led shape A %s", Numbers::sEB(ism).c_str());
+    mes01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    mes01_[ism-1]->setAxisTitle("sample", 1);
+    mes01_[ism-1]->setAxisTitle("amplitude", 2);
+
+    if ( mes05_[ism-1] ) dbe_->removeElement( mes05_[ism-1]->getName() );
+    sprintf(histo, "EELDT led shape B %s", Numbers::sEB(ism).c_str());
+    mes05_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    mes05_[ism-1]->setAxisTitle("sample", 1);
+    mes05_[ism-1]->setAxisTitle("amplitude", 2);
+
   }
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -345,6 +361,10 @@ void EELedClient::setup(void) {
     mepnprms01_[ism-1]->Reset();
 
     mepnprms05_[ism-1]->Reset();
+
+    mes01_[ism-1]->Reset();
+
+    mes05_[ism-1]->Reset();
 
   }
 
@@ -454,6 +474,12 @@ void EELedClient::cleanup(void) {
 
     if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
     mepnprms05_[ism-1] = 0;
+
+    if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
+    mes01_[ism-1] = 0;
+
+    if ( mes05_[ism-1] ) dbe_->removeElement( mes05_[ism-1]->getName() );
+    mes05_[ism-1] = 0;
 
   }
 
@@ -972,6 +998,10 @@ void EELedClient::analyze(void){
 
     mepnprms05_[ism-1]->Reset();
 
+    mes01_[ism-1]->Reset();
+
+    mes05_[ism-1]->Reset();
+
     float meanAmplA;
     float meanAmplB;
 
@@ -1315,6 +1345,20 @@ void EELedClient::analyze(void){
 
     }
 
+    for ( int i = 1; i <= 10; i++ ) {
+
+      if ( hs01_[ism-1] ) {
+        mes01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
+        mes01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs05_[ism-1] ) {
+        mes05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(1681, i) );
+        mes05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(1681, i) );
+      }
+
+    }
+
   }
 
 }
@@ -1416,7 +1460,6 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TH2F* obj2f;
   TH1F* obj1f;
-  TH1D* obj1d;
   TProfile* objp;
 
   // Loop on barrel supermodules
@@ -1709,30 +1752,30 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameShape[iCanvas-1] = "";
 
-      obj1d = 0;
+      obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( hs01_[ism-1] ) obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( mes01_[ism-1] );
           break;
         case 2:
         case 3:
         case 4:
-          obj1d = 0;
+          obj1f = 0;
           break;
         case 5:
-          if ( hs05_[ism-1] ) obj1d = hs05_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( mes05_[ism-1] );
           break;
         case 6:
         case 7:
         case 8:
-          obj1d = 0;
+          obj1f = 0;
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
-        meName = obj1d->GetName();
+      if ( obj1f ) {
+        meName = obj1f->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -1744,18 +1787,16 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cShape->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        obj1f->SetStats(kTRUE);
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->Draw();
+        obj1f->Draw();
         cShape->Update();
         cShape->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 

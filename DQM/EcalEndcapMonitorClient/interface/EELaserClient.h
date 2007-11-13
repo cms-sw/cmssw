@@ -4,8 +4,8 @@
 /*
  * \file EELaserClient.h
  *
- * $Date: 2007/11/08 15:43:52 $
- * $Revision: 1.7 $
+ * $Date: 2007/11/10 14:09:11 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -202,6 +202,15 @@ MonitorElement* mepnprms05_[18];
 MonitorElement* mepnprms06_[18];
 MonitorElement* mepnprms07_[18];
 MonitorElement* mepnprms08_[18];
+
+MonitorElement* mes01_[36];
+MonitorElement* mes02_[36];
+MonitorElement* mes03_[36];
+MonitorElement* mes04_[36];
+MonitorElement* mes05_[36];
+MonitorElement* mes06_[36];
+MonitorElement* mes07_[36];
+MonitorElement* mes08_[36];
 
 TProfile* i01_[18];
 TProfile* i02_[18];

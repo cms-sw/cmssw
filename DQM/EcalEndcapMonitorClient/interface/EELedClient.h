@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2007/11/08 15:43:52 $
- * $Revision: 1.5 $
+ * $Date: 2007/11/10 14:09:11 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -140,6 +140,10 @@ MonitorElement* meaopn05_[18];
 MonitorElement* mepnprms01_[18];
 
 MonitorElement* mepnprms05_[18];
+
+MonitorElement* mes01_[18];
+
+MonitorElement* mes05_[18];
 
 TProfile* i01_[18];
 

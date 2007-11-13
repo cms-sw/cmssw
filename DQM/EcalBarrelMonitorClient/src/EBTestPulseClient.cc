@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/11/09 19:51:43 $
- * $Revision: 1.166 $
+ * $Date: 2007/11/10 14:09:09 $
+ * $Revision: 1.167 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -97,6 +97,10 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
 
     mer04_[ism-1] = 0;
     mer05_[ism-1] = 0;
+
+    mes01_[ism-1] = 0;
+    mes02_[ism-1] = 0;
+    mes03_[ism-1] = 0;
 
   }
 
@@ -227,6 +231,22 @@ void EBTestPulseClient::setup(void) {
     mer05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     mer05_[ism-1]->setAxisTitle("rms", 1);
 
+    if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
+    sprintf(histo, "EBTPT test pulse shape G01 %s", Numbers::sEB(ism).c_str());
+    mes01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    mes01_[ism-1]->setAxisTitle("sample", 1);
+    mes01_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mes02_[ism-1] ) dbe_->removeElement( mes02_[ism-1]->getName() );
+    sprintf(histo, "EBTPT test pulse shape G06 %s", Numbers::sEB(ism).c_str());
+    mes02_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    mes02_[ism-1]->setAxisTitle("sample", 1);
+    mes02_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mes03_[ism-1] ) dbe_->removeElement( mes03_[ism-1]->getName() );
+    sprintf(histo, "EBTPT test pulse shape G12 %s", Numbers::sEB(ism).c_str());
+    mes03_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    mes03_[ism-1]->setAxisTitle("sample", 1);
+    mes03_[ism-1]->setAxisTitle("amplitude", 2);
+
   }
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -263,6 +283,10 @@ void EBTestPulseClient::setup(void) {
 
     mer04_[ism-1]->Reset();
     mer05_[ism-1]->Reset();
+
+    mes01_[ism-1]->Reset();
+    mes02_[ism-1]->Reset();
+    mes03_[ism-1]->Reset();
 
   }
 
@@ -333,6 +357,13 @@ void EBTestPulseClient::cleanup(void) {
     mer04_[ism-1] = 0;
     if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
     mer05_[ism-1] = 0;
+
+    if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
+    mes01_[ism-1] = 0;
+    if ( mes02_[ism-1] ) dbe_->removeElement( mes02_[ism-1]->getName() );
+    mes02_[ism-1] = 0;
+    if ( mes03_[ism-1] ) dbe_->removeElement( mes03_[ism-1]->getName() );
+    mes03_[ism-1] = 0;
 
   }
 
@@ -417,27 +448,25 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             sample02.clear();
             sample03.clear();
 
-            const float n_min_tot = 1000.;
-
-            if ( hs01_[ism-1] && hs01_[ism-1]->GetEntries() >= n_min_tot ) {
+            if ( mes01_[ism-1] ) {
               for ( int i = 1; i <= 10; i++ ) {
-                sample01.push_back(int(hs01_[ism-1]->GetBinContent(1, i)));
+                sample01.push_back(int(mes01_[ism-1]->getBinContent(i)));
               }
             } else {
               for ( int i = 1; i <= 10; i++ ) { sample01.push_back(-1.); }
             }
 
-            if ( hs02_[ism-1] && hs02_[ism-1]->GetEntries() >= n_min_tot ) {
+            if ( mes02_[ism-1] ) {
               for ( int i = 1; i <= 10; i++ ) {
-                sample02.push_back(int(hs02_[ism-1]->GetBinContent(1, i)));
+                sample02.push_back(int(mes02_[ism-1]->getBinContent(i)));
               }
             } else {
               for ( int i = 1; i <= 10; i++ ) { sample02.push_back(-1.); }
             }
 
-            if ( hs03_[ism-1] && hs03_[ism-1]->GetEntries() >= n_min_tot ) {
+            if ( mes03_[ism-1] ) {
               for ( int i = 1; i <= 10; i++ ) {
-                sample03.push_back(int(hs03_[ism-1]->GetBinContent(1, i)));
+                sample03.push_back(int(mes03_[ism-1]->getBinContent(i)));
               }
             } else {
               for ( int i = 1; i <= 10; i++ ) { sample03.push_back(-1.); }
@@ -812,6 +841,10 @@ void EBTestPulseClient::analyze(void){
     mer04_[ism-1]->Reset();
     mer05_[ism-1]->Reset();
 
+    mes01_[ism-1]->Reset();
+    mes02_[ism-1]->Reset();
+    mes03_[ism-1]->Reset();
+
     float meanAmpl01, meanAmpl02, meanAmpl03;
 
     int nCry01, nCry02, nCry03;
@@ -1073,6 +1106,25 @@ void EBTestPulseClient::analyze(void){
 
     }
 
+    for ( int i = 1; i <= 10; i++ ) {
+
+      if ( hs01_[ism-1] ) {
+        mes01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
+        mes01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs02_[ism-1] ) {
+        mes02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(1, i) );
+        mes02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs03_[ism-1] ) {
+        mes03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(1, i) );
+        mes03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(1, i) );
+      }
+
+    }
+
   }
 
 }
@@ -1150,7 +1202,6 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TH2F* obj2f;
   TH1F* obj1f;
-  TH1D* obj1d;
   TProfile* objp;
 
   // Loop on barrel supermodules
@@ -1262,24 +1313,24 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameShape[iCanvas-1] = "";
 
-      obj1d = 0;
+      obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( hs01_[ism-1] ) obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( mes01_[ism-1] );
           break;
         case 2:
-          if ( hs02_[ism-1] ) obj1d = hs02_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( mes02_[ism-1] );
           break;
         case 3:
-          if ( hs03_[ism-1] ) obj1d = hs03_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( mes03_[ism-1] );
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( obj1f ) {
 
-        meName = obj1d->GetName();
+        meName = obj1f->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -1291,18 +1342,16 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cShape->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        obj1f->SetStats(kTRUE);
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->Draw();
+        obj1f->Draw();
         cShape->Update();
         cShape->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 

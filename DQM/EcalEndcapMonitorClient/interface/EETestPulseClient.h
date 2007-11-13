@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseClient.h
  *
- * $Date: 2007/11/08 15:43:52 $
- * $Revision: 1.9 $
+ * $Date: 2007/11/10 14:09:11 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -121,6 +121,10 @@ MonitorElement* mea03_[18];
 
 MonitorElement* mer04_[18];
 MonitorElement* mer05_[18];
+
+MonitorElement* mes01_[18];
+MonitorElement* mes02_[18];
+MonitorElement* mes03_[18];
 
 TProfile* i01_[18];
 TProfile* i02_[18];

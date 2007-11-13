@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/11/10 08:09:08 $
- * $Revision: 1.51 $
+ * $Date: 2007/11/10 14:09:11 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -202,6 +202,15 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
     mepnprms06_[ism-1] = 0;
     mepnprms07_[ism-1] = 0;
     mepnprms08_[ism-1] = 0;
+
+    mes01_[ism-1] = 0;
+    mes02_[ism-1] = 0;
+    mes03_[ism-1] = 0;
+    mes04_[ism-1] = 0;
+    mes05_[ism-1] = 0;
+    mes06_[ism-1] = 0;
+    mes07_[ism-1] = 0;
+    mes08_[ism-1] = 0;
 
   }
 
@@ -563,6 +572,47 @@ void EELaserClient::setup(void) {
     mepnprms08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     mepnprms08_[ism-1]->setAxisTitle("rms", 1);
 
+    if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L1A %s", Numbers::sEE(ism).c_str());
+    mes01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    mes01_[ism-1]->setAxisTitle("sample", 1);
+    mes01_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mes02_[ism-1] ) dbe_->removeElement( mes02_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L2A %s", Numbers::sEE(ism).c_str());
+    mes02_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    mes02_[ism-1]->setAxisTitle("sample", 1);
+    mes02_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mes03_[ism-1] ) dbe_->removeElement( mes03_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L3A %s", Numbers::sEE(ism).c_str());
+    mes03_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    mes03_[ism-1]->setAxisTitle("sample", 1);
+    mes03_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mes04_[ism-1] ) dbe_->removeElement( mes04_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L4A %s", Numbers::sEE(ism).c_str());
+    mes04_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    mes04_[ism-1]->setAxisTitle("sample", 1);
+    mes04_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mes05_[ism-1] ) dbe_->removeElement( mes05_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L1B %s", Numbers::sEE(ism).c_str());
+    mes05_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    mes05_[ism-1]->setAxisTitle("sample", 1);
+    mes05_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mes06_[ism-1] ) dbe_->removeElement( mes06_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L2B %s", Numbers::sEE(ism).c_str());
+    mes06_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    mes06_[ism-1]->setAxisTitle("sample", 1);
+    mes06_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mes07_[ism-1] ) dbe_->removeElement( mes07_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L3B %s", Numbers::sEE(ism).c_str());
+    mes07_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    mes07_[ism-1]->setAxisTitle("sample", 1);
+    mes07_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mes08_[ism-1] ) dbe_->removeElement( mes08_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L4B %s", Numbers::sEE(ism).c_str());
+    mes08_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    mes08_[ism-1]->setAxisTitle("sample", 1);
+    mes08_[ism-1]->setAxisTitle("amplitude", 2);
+
   }
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -672,6 +722,15 @@ void EELaserClient::setup(void) {
     mepnprms06_[ism-1]->Reset();
     mepnprms07_[ism-1]->Reset();
     mepnprms08_[ism-1]->Reset();
+
+    mes01_[ism-1]->Reset();
+    mes02_[ism-1]->Reset();
+    mes03_[ism-1]->Reset();
+    mes04_[ism-1]->Reset();
+    mes05_[ism-1]->Reset();
+    mes06_[ism-1]->Reset();
+    mes07_[ism-1]->Reset();
+    mes08_[ism-1]->Reset();
 
   }
 
@@ -932,6 +991,23 @@ void EELaserClient::cleanup(void) {
     mepnprms07_[ism-1] = 0;
     if ( mepnprms08_[ism-1] ) dbe_->removeElement( mepnprms08_[ism-1]->getName() );
     mepnprms08_[ism-1] = 0;
+
+    if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
+    mes01_[ism-1] = 0;
+    if ( mes02_[ism-1] ) dbe_->removeElement( mes02_[ism-1]->getName() );
+    mes02_[ism-1] = 0;
+    if ( mes03_[ism-1] ) dbe_->removeElement( mes03_[ism-1]->getName() );
+    mes03_[ism-1] = 0;
+    if ( mes04_[ism-1] ) dbe_->removeElement( mes04_[ism-1]->getName() );
+    mes04_[ism-1] = 0;
+    if ( mes05_[ism-1] ) dbe_->removeElement( mes05_[ism-1]->getName() );
+    mes05_[ism-1] = 0;
+    if ( mes06_[ism-1] ) dbe_->removeElement( mes06_[ism-1]->getName() );
+    mes06_[ism-1] = 0;
+    if ( mes07_[ism-1] ) dbe_->removeElement( mes07_[ism-1]->getName() );
+    mes07_[ism-1] = 0;
+    if ( mes08_[ism-1] ) dbe_->removeElement( mes08_[ism-1]->getName() );
+    mes08_[ism-1] = 0;
 
   }
 
@@ -2299,6 +2375,15 @@ void EELaserClient::analyze(void){
     mepnprms07_[ism-1]->Reset();
     mepnprms08_[ism-1]->Reset();
 
+    mes01_[ism-1]->Reset();
+    mes02_[ism-1]->Reset();
+    mes03_[ism-1]->Reset();
+    mes04_[ism-1]->Reset();
+    mes05_[ism-1]->Reset();
+    mes06_[ism-1]->Reset();
+    mes07_[ism-1]->Reset();
+    mes08_[ism-1]->Reset();
+
     float meanAmplL1A, meanAmplL2A, meanAmplL3A, meanAmplL4A;
     float meanAmplL1B, meanAmplL2B, meanAmplL3B, meanAmplL4B;
 
@@ -3273,6 +3358,50 @@ void EELaserClient::analyze(void){
 
     }
 
+    for ( int i = 1; i <= 10; i++ ) {
+
+      if ( hs01_[ism-1] ) {
+        mes01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
+        mes01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs02_[ism-1] ) {
+        mes02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(1, i) );
+        mes02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs03_[ism-1] ) {
+        mes03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(1, i) );
+        mes03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs04_[ism-1] ) {
+        mes04_[ism-1]->setBinContent( i, hs04_[ism-1]->GetBinContent(1, i) );
+        mes04_[ism-1]->setBinError( i, hs04_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs05_[ism-1] ) {
+        mes05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(1681, i) );
+        mes05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(1681, i) );
+      }
+
+      if ( hs06_[ism-1] ) {
+        mes06_[ism-1]->setBinContent( i, hs06_[ism-1]->GetBinContent(1681, i) );
+        mes06_[ism-1]->setBinError( i, hs06_[ism-1]->GetBinError(1681, i) );
+      }
+
+      if ( hs07_[ism-1] ) {
+        mes07_[ism-1]->setBinContent( i, hs07_[ism-1]->GetBinContent(1681, i) );
+        mes07_[ism-1]->setBinError( i, hs07_[ism-1]->GetBinError(1681, i) );
+      }
+
+      if ( hs08_[ism-1] ) {
+        mes08_[ism-1]->setBinContent( i, hs08_[ism-1]->GetBinContent(1681, i) );
+        mes08_[ism-1]->setBinError( i, hs08_[ism-1]->GetBinError(1681, i) );
+      }
+
+    }
+
   }
 
 }
@@ -3391,7 +3520,6 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TH2F* obj2f;
   TH1F* obj1f;
-  TH1D* obj1d;
   TProfile* objp;
 
   // Loop on barrel supermodules
@@ -3726,38 +3854,38 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameShape[iCanvas-1] = "";
 
-      obj1d = 0;
+      obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( hs01_[ism-1] ) obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( mes01_[ism-1] );
           break;
         case 2:
-          if ( hs02_[ism-1] ) obj1d = hs02_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( mes02_[ism-1] );
           break;
         case 3:
-          if ( hs03_[ism-1] ) obj1d = hs03_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( mes03_[ism-1] );
           break;
         case 4:
-          if ( hs04_[ism-1] ) obj1d = hs04_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( mes04_[ism-1] );
           break;
         case 5:
-          if ( hs05_[ism-1] ) obj1d = hs05_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( mes05_[ism-1] );
           break;
         case 6:
-          if ( hs06_[ism-1] ) obj1d = hs06_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( mes06_[ism-1] );
           break;
         case 7:
-          if ( hs07_[ism-1] ) obj1d = hs07_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( mes07_[ism-1] );
           break;
         case 8:
-          if ( hs08_[ism-1] ) obj1d = hs08_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( mes08_[ism-1] );
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
-        meName = obj1d->GetName();
+      if ( obj1f ) {
+        meName = obj1f->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -3769,18 +3897,16 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cShape->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        obj1f->SetStats(kTRUE);
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->Draw();
+        obj1f->Draw();
         cShape->Update();
         cShape->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
