@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EmParticle.h,v 1.8 2007/10/01 19:34:55 wsun Exp $
+// $Id: L1EmParticle.h,v 1.9 2007/10/16 05:01:21 wsun Exp $
 //
 
 // system include files
@@ -64,6 +64,9 @@ namespace l1extra {
 
 	 const L1GctEmCand* gctEmCand() const
 	 { return ref_.get() ; }
+
+         virtual LeafCandidate* clone() const
+         { return new L1EmParticle( *this ) ; }
 
 	 // ---------- static member functions --------------------
 

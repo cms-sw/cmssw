@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1MuonParticle.h,v 1.10 2007/10/01 19:34:55 wsun Exp $
+// $Id: L1MuonParticle.h,v 1.11 2007/10/16 05:01:23 wsun Exp $
 //
 
 // system include files
@@ -77,6 +77,9 @@ namespace l1extra {
 
 	 const L1MuGMTExtendedCand& gmtMuonCand() const
 	 { return cand_ ; }
+
+	 virtual LeafCandidate* clone() const
+	 { return new L1MuonParticle( *this ) ; }
 
 	 // ---------- static member functions --------------------
 
