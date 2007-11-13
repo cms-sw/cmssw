@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/09/19 17:32:05 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/11/07 15:29:39 $
+ *  $Revision: 1.5 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -65,6 +65,9 @@ protected:
   /// book the new ME
   void bookHistos(const DTChamberId & ch);
 
+  /// book the summary histograms
+  void bookHistos(const DTChamberId & ch, int wh);
+
   /// Get the ME name
   std::string getMEName(const DTSuperLayerId & slID);
 
@@ -83,6 +86,7 @@ private:
   unsigned int nLumiSegs;
   int prescaleFactor;
   int run;
+  int percentual;
 
   DaqMonitorBEInterface* dbe;
 
@@ -94,6 +98,9 @@ private:
 
   // histograms: < detRawID, Histogram >
   std::map<  uint32_t , MonitorElement* > histos;
+
+  // wheel summary histograms  
+  std::map< int, MonitorElement* > wheelHistos;
 
 };
 
