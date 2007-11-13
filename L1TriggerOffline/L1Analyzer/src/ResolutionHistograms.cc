@@ -8,7 +8,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Tue Dec  5 14:02:34 CET 2006
-// $Id: ResolutionHistograms.cc,v 1.1 2007/07/06 19:52:57 tapper Exp $
+// $Id: ResolutionHistograms.cc,v 1.2 2007/07/08 08:14:05 elmer Exp $
 //
 
 #include "L1TriggerOffline/L1Analyzer/interface/ResolutionHistograms.h"
@@ -78,8 +78,10 @@ void ResolutionHistograms::Fill(const reco::CandidateRef &l1, const reco::Candid
 {
 
   float d_et =(l1->et()-ref->et())/ref->et();
-  float d_eta=(l1->eta()-ref->eta())/ref->eta();
-  float d_phi=(l1->phi()-ref->phi())/ref->phi();
+//   float d_eta=(l1->eta()-ref->eta())/ref->eta();
+//   float d_phi=(l1->phi()-ref->phi())/ref->phi();
+  float d_eta=l1->eta()-ref->eta();
+  float d_phi=l1->phi()-ref->phi();
   
   m_EtRes->Fill(d_et);
   m_EtaRes->Fill(d_eta);
