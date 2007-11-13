@@ -155,7 +155,11 @@ class _TypedParameterizable(_Parameterizable):
         config += options.indentation()+'}\n'
         return config
     def dumpPython(self, options=PrintOptions()):
-        return "cms."+str(type(self).__name__)+"(\""+self.type_()+"\",\n"+_Parameterizable.dumpPython(self,options)+options.indentation()+")\n"
+        result = "cms."+str(type(self).__name__)+"(\""+self.type_()+"\""
+        if len(self.parameters()) > 0:
+            result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation()
+        result += ")\n" 
+        return result
     def nameInProcessDesc_(self, myname):
         return myname;
     def moduleLabel_(self, myname):
