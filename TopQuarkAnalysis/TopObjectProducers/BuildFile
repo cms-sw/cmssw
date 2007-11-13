@@ -6,6 +6,7 @@
 <use name=DataFormats/Math>
 <use name=PhysicsTools/JetCharge>
 <use name=PhysicsTools/Utilities>
+<use name=PhysicsTools/Parser>
 <use name=RecoBTag/MCTools>
 <use name=RecoMuon/MuonIdentification>
 <use name=AnalysisDataFormats/Egamma>
@@ -17,6 +18,7 @@
   <use name=TopQuarkAnalysis/TopObjectResolutions>
   <use name=TopQuarkAnalysis/TopLeptonSelection>
   <use name=PhysicsTools/Utilities>
+  <use name=PhysicsTools/Parser>
   <use name=RecoBTag/MCTools>
   <use name=DataFormats/BTauReco>
   <use name=DataFormats/TrackReco>
