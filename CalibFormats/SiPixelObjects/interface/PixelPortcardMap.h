@@ -24,6 +24,8 @@ namespace pos{
 
     PixelPortcardMap(std::vector< std::vector < std::string> > &tableMat);
 
+    virtual ~PixelPortcardMap();
+
     // Get the port card and AOH associated with this module.  If the module has one(two) channels, this vector contains one(two) element(s).
     const std::set< std::pair< std::string, int > > PortCardAndAOHs(const PixelModuleName& aModule) const;
     //                            portcardname, aoh #
@@ -39,6 +41,8 @@ namespace pos{
 
     // all port cards in the map
     std::set< std::string > portcards();
+
+    virtual void writeASCII(std::string dir) const;
 
   private:
     //    (modulename, TBM channel A or B) <--> (portcardname, aoh #)

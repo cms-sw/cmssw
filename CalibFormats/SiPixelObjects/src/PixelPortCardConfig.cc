@@ -176,7 +176,7 @@ void PixelPortCardConfig::fillNameToAddress()
 	return;
 }
 
-void PixelPortCardConfig::writeASCII(std::string filename){
+void PixelPortCardConfig::writeASCII(std::string filename) const {
   
   std::ofstream out(filename.c_str());
   
@@ -212,7 +212,7 @@ void PixelPortCardConfig::writeASCII(std::string filename){
     
     // Check to see if there's a name corresponding to this address.
     std::string settingName = "";
-    for ( std::map<std::string, unsigned int>::iterator nameToAddress_itr = nameToAddress_.begin(); nameToAddress_itr != nameToAddress_.end(); ++nameToAddress_itr )
+    for ( std::map<std::string, unsigned int>::const_iterator nameToAddress_itr = nameToAddress_.begin(); nameToAddress_itr != nameToAddress_.end(); ++nameToAddress_itr )
     {
       if ( nameToAddress_itr->second == deviceAddress ) {settingName = nameToAddress_itr->first; break;}
     }

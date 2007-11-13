@@ -243,8 +243,11 @@ void PixelDACSettings::writeBinary(std::string filename) const {
 }
 
 
-void PixelDACSettings::writeASCII(std::string filename) const {
+void PixelDACSettings::writeASCII(std::string dir) const {
 
+  std::string filename=dir;
+  assert(0); //FIXME, need to get the right filename.
+  
     std::ofstream out(filename.c_str());
 
     for(unsigned int i=0;i<dacsettings_.size();i++){

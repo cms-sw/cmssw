@@ -217,8 +217,10 @@ void PixelMaskAllPixels::writeBinary(std::string filename) const{
 }
 
 
-void PixelMaskAllPixels::writeASCII(std::string filename) const{
+void PixelMaskAllPixels::writeASCII(std::string dir) const{
 
+  std::string filename=dir;
+  assert(0); //FIXME need to get right file name
   
     std::ofstream out(filename.c_str());
 

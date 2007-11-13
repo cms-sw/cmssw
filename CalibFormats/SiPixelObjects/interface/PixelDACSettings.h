@@ -37,7 +37,7 @@ namespace pos{
 
     void writeBinary(std::string filename) const;
 
-    void writeASCII(std::string filename) const;
+    void writeASCII(std::string dir) const;
 
     friend std::ostream& operator<<(std::ostream& s, const PixelDACSettings& mask);
 

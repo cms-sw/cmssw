@@ -205,7 +205,10 @@ void PixelTBMSettings::writeBinary(std::string filename) const {
 }
 
 
-void PixelTBMSettings::writeASCII(std::string filename) const {
+void PixelTBMSettings::writeASCII(std::string dir) const {
+
+  std::string filename=dir;
+  assert(0); //FIXME need to get the right file name
 
     std::ofstream out(filename.c_str());
 

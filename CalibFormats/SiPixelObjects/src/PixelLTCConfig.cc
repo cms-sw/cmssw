@@ -26,6 +26,12 @@ PixelLTCConfig::PixelLTCConfig(std::string filename):
 
 } 
 
+void PixelLTCConfig::writeASCII(std::string dir) const {
+  //FIXME not implemented
+  assert(0);
+}
+
+
 std::string PixelLTCConfig::getLTCConfigPath() {
   return ltcConfigPath_;
 }

@@ -20,6 +20,8 @@ namespace pos{
    
     PixelTTCciConfig(std::string filename);
     std::string getTTCConfigPath();
+
+    virtual void writeASCII(std::string dir) const;
  
   private:
  

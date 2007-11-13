@@ -154,6 +154,16 @@ PixelFEDConfig::PixelFEDConfig(std::string filename):
 
 //}
 
+PixelFEDConfig::~PixelFEDConfig() {}
+
+void PixelFEDConfig::writeASCII(std::string dir) const {
+
+  //FIXME not implemented
+  assert(0);
+
+}
+
+
 unsigned int PixelFEDConfig::getNFEDBoards() const{
 
   return fedconfig_.size();

@@ -19,7 +19,7 @@ using namespace pos;
 PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
   PixelCalibBase(), PixelConfigBase("","","") {
 
-  _bufferData=false;
+  _bufferData=false; 
   
     std::ifstream in(filename.c_str());
 
@@ -211,6 +211,9 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
     return;
 
 }
+
+
+PixelCalibConfiguration::~PixelCalibConfiguration(){}
 
 void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation* translation, const PixelDetectorConfig* detconfig)
 {
@@ -852,4 +855,11 @@ std::string PixelCalibConfiguration::parameterValue(std::string parameterName) c
 	{
 		return itr->second;
 	}
+}
+
+void PixelCalibConfiguration::writeASCII(std::string dir) const {
+
+  //FIXME not yet implemented...
+  assert(0);
+
 }

@@ -21,6 +21,9 @@ namespace pos{
    
     PixelLTCConfig(std::string filename);
     std::string getLTCConfigPath();
+
+    virtual void writeASCII(std::string dir) const;
+
  
   private:
  

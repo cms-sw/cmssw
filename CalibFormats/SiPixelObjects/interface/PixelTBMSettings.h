@@ -22,13 +22,15 @@ namespace pos{
     PixelTBMSettings(std::vector < std::vector< std::string> > &tableMat);
     PixelTBMSettings(std::string filename);
 
+    virtual ~PixelTBMSettings(){}
+
     //Generate the DAC settings
     void generateConfiguration(PixelFECConfigInterface* pixelFEC,
 	                       PixelNameTranslation* trans) const; 
 
     void writeBinary(std::string filename) const;
 
-    void writeASCII(std::string filename) const;
+    void writeASCII(std::string dir) const;
 
     friend std::ostream& operator<<(std::ostream& s, const PixelTBMSettings& mask);
 

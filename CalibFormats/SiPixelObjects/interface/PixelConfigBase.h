@@ -25,9 +25,13 @@ namespace pos{
 		    std::string creator,
                     std::string date);
 
+    virtual ~PixelConfigBase(){}
+
     std::string description();
     std::string creator();
     std::string date();
+
+    virtual void writeASCII(std::string dir="") const = 0;
 
   private:
 

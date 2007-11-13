@@ -29,6 +29,8 @@ namespace pos{
     PixelNameTranslation(std::vector< std::vector<std::string> > &tableMat);
     PixelNameTranslation(std::string filename);
 
+    virtual ~PixelNameTranslation(){}
+
     std::list<const PixelROCName*> getROCs() const;
     std::list<const PixelModuleName*> getModules() const;
 
@@ -47,9 +49,13 @@ namespace pos{
 					  unsigned int channel,
 					  unsigned int roc) const;
 					  
+    bool ROCNameFromFEDChannelROCExists(unsigned int fednumber, 
+					unsigned int channel,
+					unsigned int roc) const;
+					  
     std::vector<PixelROCName> getROCsFromModule(const PixelModuleName& aModule) const;
 
-    void writeASCII();
+    void writeASCII(std::string dir="") const;
     
   private:
         

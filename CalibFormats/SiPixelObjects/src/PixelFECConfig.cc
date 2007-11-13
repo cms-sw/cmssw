@@ -215,11 +215,12 @@ unsigned int PixelFECConfig::VMEBaseAddressFromFECNumber(unsigned int fecnumber)
 
 }
 
-void PixelFECConfig::writeASCII() {
+void PixelFECConfig::writeASCII(std::string dir) const {
+
+  std::string filename=dir+"fecconfig.dat";
+  std::ofstream out(filename.c_str());
 
   std::vector< PixelFECParameters >::const_iterator i=fecconfig_.begin();
-
-  std::ofstream out("fecconfig.dat");
 
   for(;i!=fecconfig_.end();++i){
     out << i->getFECNumber()<<" "

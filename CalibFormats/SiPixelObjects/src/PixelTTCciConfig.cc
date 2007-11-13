@@ -26,6 +26,12 @@ PixelTTCciConfig::PixelTTCciConfig(std::string filename):
 
 } 
 
+void PixelTTCciConfig::writeASCII(std::string dir) const {
+  //FIXME not implemented
+  assert(0);
+}
+
+
 std::string PixelTTCciConfig::getTTCConfigPath() {
   return ttcConfigPath_;
 }

@@ -24,6 +24,8 @@ namespace pos{
    
     PixelTKFECConfig(std::vector<std::vector<std::string> >& tableMat ); 
 
+    virtual ~PixelTKFECConfig(); 
+
     unsigned int getNTKFECBoards() const;
 
     std::string  getTKFECID(unsigned int i) const;
@@ -33,6 +35,8 @@ namespace pos{
     unsigned int crateFromTKFECID(std::string TKFECID) const;
     std::string  typeFromTKFECID(std::string TKFECID) const;
     unsigned int addressFromTKFECID(std::string TKFECID) const;
+
+    virtual void writeASCII(std::string dir) const;
     
   private:
     std::vector< PixelTKFECParameters > TKFECconfig_;

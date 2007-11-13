@@ -68,7 +68,7 @@ PixelModuleName module(modulename);
 
 }//end constructor
 //*****************************************************************************
-   
+
 PixelPortcardMap::PixelPortcardMap(std::string filename):
   PixelConfigBase(" "," "," "){
 
@@ -136,6 +136,18 @@ PixelPortcardMap::PixelPortcardMap(std::string filename):
   return theportcard->second;
 
 }*/
+
+PixelPortcardMap::~PixelPortcardMap(){}
+
+
+void PixelPortcardMap::writeASCII(std::string dir) const {
+
+  //FIXME not implemented
+  assert(0);
+
+}
+
+
 
 const std::set< std::pair< std::string, int > > PixelPortcardMap::PortCardAndAOHs(const PixelModuleName& aModule) const
 {

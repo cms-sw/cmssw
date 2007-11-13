@@ -149,7 +149,9 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
 	unsigned int fedchannel;
 	unsigned int fedrocnumber;
 
-	in >> rocname >> fecnumber >> mfec >> mfecchannel >> hubaddress >> portaddress >> rocid >> fednumber >> fedchannel >> fedrocnumber;
+	in >> rocname >> fecnumber >> mfec >> mfecchannel 
+           >> hubaddress >> portaddress >> rocid >> fednumber 
+           >> fedchannel >> fedrocnumber;
 
 	if (!in.eof() ){
 	    PixelROCName aROC(rocname);
@@ -158,6 +160,20 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
 	      std::cout << "Parsed to:"<<aROC.rocname()<<std::endl;
 	      assert(0);
 	    }
+
+
+            if (ROCNameFromFEDChannelROCExists(fednumber,fedchannel,
+                                               fedrocnumber)){
+              std::cout << "ROC with fednumber="<<fednumber
+                        << " fedchannel="<<fedchannel
+                        << " roc number="<<fedrocnumber
+                        << " already exists"<<std::endl;
+              std::cout << "Fix this inconsistency in the name translation"
+                        << std::endl;
+              assert(0);
+
+            }
+
 	    PixelHdwAddress hdwAdd(fecnumber,mfec,mfecchannel,
 				   hubaddress,portaddress,
 				   rocid,
@@ -283,6 +299,7 @@ std::vector<PixelROCName> PixelNameTranslation::getROCsFromFEDChannel(unsigned i
 	    it->second.fedchannel()==fedchannel){
 	  int index=it->second.fedrocnumber();
 	  if (index>maxindex) maxindex=index;
+          //std::cout << "Found one:"<<index<<" "<<it->first<<std::endl;
 	  tmp[index]=it->first;
 	  counter++;
 	}
@@ -296,6 +313,29 @@ std::vector<PixelROCName> PixelNameTranslation::getROCsFromFEDChannel(unsigned i
     return tmp;
 
 }
+
+
+bool PixelNameTranslation::ROCNameFromFEDChannelROCExists(unsigned int fednumber, 
+                                                          unsigned int channel, 
+                                                          unsigned int roc) const {
+
+  //FIXME this should have a proper map to directly look up things in!
+
+  std::map<PixelROCName,PixelHdwAddress>::const_iterator it=translationtable_.begin();
+    
+  for(;it!=translationtable_.end();it++){
+
+    if (it->second.fednumber()==fednumber&&
+        it->second.fedchannel()==channel&&
+        it->second.fedrocnumber()==roc){
+      return true;
+    }
+
+  }
+  
+  return false;
+}
+
 
 PixelROCName PixelNameTranslation::ROCNameFromFEDChannelROC(unsigned int fednumber, 
 							   unsigned int channel, 
@@ -326,9 +366,11 @@ PixelROCName PixelNameTranslation::ROCNameFromFEDChannelROC(unsigned int fednumb
 
 }
 
-void PixelNameTranslation::writeASCII(){
+void PixelNameTranslation::writeASCII(std::string dir) const {
 
-  std::ofstream out("nametranslation.dat");
+  std::string filename=dir+"translation.dat";
+
+  std::ofstream out(filename.c_str());
 
   std::map<PixelROCName,PixelHdwAddress>::const_iterator iroc=translationtable_.begin();
 

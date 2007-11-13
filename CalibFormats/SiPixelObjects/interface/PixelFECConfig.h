@@ -35,7 +35,7 @@ namespace pos{
     unsigned int getFECSlot(unsigned int i) {return FECSlotFromVMEBaseAddress(getVMEBaseAddress(i));}
     unsigned int FECSlotFromFECNumber(unsigned int fecnumber) {return FECSlotFromVMEBaseAddress(VMEBaseAddressFromFECNumber(fecnumber));}
 
-    void writeASCII();
+    void writeASCII(std::string dir="") const;
 
     //friend std::ostream& operator<<(std::ostream& s, const PixelDetectorconfig& config);
 

@@ -27,7 +27,7 @@ namespace pos{
 
     void writeBinary(std::string filename) const;
 
-    void writeASCII(std::string filename) const;
+    void writeASCII(std::string dir) const;
 
     const PixelROCMaskBits& getMaskBits(int ROCId) const;
 

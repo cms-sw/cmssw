@@ -319,6 +319,34 @@ namespace pos{
 
     }
 
+    template <class T>
+    static int put(const T* object, std::string path){
+
+      std::cout << "Inserting data on path:"<<path<<std::endl;
+      struct stat stbuf;
+      std::string directory=getenv("PIXELCONFIGURATIONBASE");
+      directory+=path;
+      if (stat(directory.c_str(),&stbuf)!=0){
+	std::cout << "The path:"<<path<<" does not exist."<<std::endl;
+	return -1;
+      }
+      directory+="/";
+      int version=-1;
+      std::string dir;
+      do{
+	version++;
+	std::strstream s1;
+	s1 << version <<(char)(0);
+	std::string strversion=s1.str();
+	dir=directory+strversion;
+	std::cout << "Will check for version:"<<dir<<std::endl;
+      }while(stat(dir.c_str(),&stbuf)==0);
+      std::cout << "The new version is:"<<version<<std::endl;
+      mkdir(dir.c_str(),0777);
+      object->writeASCII(dir);
+      return version;
+    }
+
   private:
 
 

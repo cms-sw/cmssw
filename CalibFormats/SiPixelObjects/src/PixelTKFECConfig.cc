@@ -153,6 +153,15 @@ PixelTKFECConfig::PixelTKFECConfig(std::string filename):
 
 }
  
+PixelTKFECConfig::~PixelTKFECConfig() {}
+
+void PixelTKFECConfig::writeASCII(std::string dir) const {
+
+  //FIXME not implemented
+  assert(0);
+
+}
+
 
 //std::ostream& operator<<(std::ostream& s, const PixelTKFECConfig& table){
 

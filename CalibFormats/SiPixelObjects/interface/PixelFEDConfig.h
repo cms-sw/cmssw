@@ -24,6 +24,8 @@ namespace pos{
    
     PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat ); 
 
+    virtual ~PixelFEDConfig();
+
     unsigned int getNFEDBoards() const;
 
     unsigned int getFEDNumber(unsigned int i) const;
@@ -33,6 +35,8 @@ namespace pos{
     unsigned int VMEBaseAddressFromFEDNumber(unsigned int fednumber) const;
     
     unsigned int FEDNumberFromCrateAndVMEBaseAddress(unsigned int crate, unsigned int vmebaseaddress) const;
+
+    virtual void writeASCII(std::string dir) const;
 
     //friend std::ostream& operator<<(std::ostream& s, const PixelDetectorconfig& config);
 

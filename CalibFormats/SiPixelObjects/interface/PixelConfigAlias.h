@@ -1,6 +1,8 @@
 #ifndef PixelConfigAlias_h
 #define PixelConfigAlias_h
 
+#include <string>
+#include <vector>
 
 namespace pos{
   class PixelConfigAlias {

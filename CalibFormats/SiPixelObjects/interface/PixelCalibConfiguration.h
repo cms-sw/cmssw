@@ -38,6 +38,8 @@ namespace pos{
 
     PixelCalibConfiguration(std::string filename="");
 
+    virtual ~PixelCalibConfiguration();
+
     // This must be run before using commands that require the ROC list.
     void buildROCAndModuleLists(const PixelNameTranslation* translation, const PixelDetectorConfig* detconfig);
 
@@ -104,6 +106,9 @@ namespace pos{
     std::string parameterValue(std::string parameterName) const;
 
     friend std::ostream& pos::operator<<(std::ostream& s, const PixelCalibConfiguration& calib);
+
+    virtual void writeASCII(std::string dir) const;
+
 
   private:
 

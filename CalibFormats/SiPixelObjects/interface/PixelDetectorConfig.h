@@ -33,9 +33,10 @@ namespace pos{
 
     const std::vector <PixelModuleName>& getModuleList() const { return modules_; }
 
-    bool containsModule(const PixelModuleName& moduleToFind) const;
 
-    void writeASCII();
+    void writeASCII(std::string dir="") const;
+
+    bool containsModule(const PixelModuleName& moduleToFind) const;
 
     std::set <unsigned int> getFEDs(PixelNameTranslation* translation) const;
     std::map <unsigned int, std::set<unsigned int> > getFEDsAndChannels(PixelNameTranslation* translation) const;

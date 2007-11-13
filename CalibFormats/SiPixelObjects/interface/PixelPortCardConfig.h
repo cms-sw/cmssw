@@ -23,7 +23,7 @@ namespace pos{
     PixelPortCardConfig(std::string);
 
     //the i is dummy variables right now
-    void writeASCII(std::string);
+    void writeASCII(std::string) const;
   
     unsigned int getdevicesize() const;
     std::string  getTKFECID() const;
