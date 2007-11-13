@@ -8,21 +8,8 @@
 
 namespace reco{
 
-  typedef edm::AssociationVector<reco::PixelMatchGsfElectronRefProd,std::vector<int> > PMGsfElectronIsoNumCollectionBase;
+  typedef edm::AssociationVector<reco::PixelMatchGsfElectronRefProd,std::vector<int> > PMGsfElectronIsoNumCollection;
   
-  class PMGsfElectronIsoNumCollection : public  PMGsfElectronIsoNumCollectionBase {
-  public:
-    PMGsfElectronIsoNumCollection() :
-      PMGsfElectronIsoNumCollectionBase()
-      { }
-   PMGsfElectronIsoNumCollection(const reco::PixelMatchGsfElectronRefProd & ref) :
-      PMGsfElectronIsoNumCollectionBase(ref)
-      { }
-   PMGsfElectronIsoNumCollection(const PMGsfElectronIsoNumCollectionBase &v) :
-      PMGsfElectronIsoNumCollectionBase(v)
-     { }
-  };
-
 
   typedef  PMGsfElectronIsoNumCollection::value_type     PMGsfElectronIsoNum;
   typedef  edm::Ref<PMGsfElectronIsoNumCollection>       PMGsfElectronIsoNumCollectionRef;
