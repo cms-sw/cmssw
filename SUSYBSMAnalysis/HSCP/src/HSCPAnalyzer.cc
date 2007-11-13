@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.9 2007/11/01 14:08:44 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.10 2007/11/12 11:15:18 arizzi Exp $
 //
 //
 
@@ -102,6 +102,7 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       TH1F * h_pSpectrumAfterSelection[6]; 
       TH1F * h_massAfterSelection[6];
       TH2F * h_massVsMass;
+      TH2F * h_massVsMassSel;
 //Counters
       double selected;
       double selectedTOF;
@@ -410,11 +411,20 @@ for(int i=0; i < candidates.size();i++)
  if((candidates[i].dt.invBeta >1.1  )|| ( candidates[i].tk.invBeta2 > 1.3 && candidates[i].hasDt ) )
  {
   h_massVsMass->Fill(candidates[i].massDt(),candidates[i].massTk(),w);
+ 
+ if(candidates[i].massDt() + candidates[i].massTk() >  280 && fabs(sqrt(1./candidates[i].tk.invBeta2Fit)- 1./candidates[i].dt.invBeta ) < 0.1 && candidates[i].massDt() > 100 
+    &&  candidates[i].massTk() > 100  && candidates[i].tk.invBeta2Fit > 1.4 &&  candidates[i].dt.invBeta  > 1.11 )
+     h_massVsMassSel->Fill(candidates[i].massDt(),candidates[i].massTk(),w);
+
+ 
+
   if(candidates[i].massDt() + candidates[i].massTk() > 150 || (candidates[i].massTk() > 150 && candidates[i].tk.invBeta2Fit > 1.57 ) || candidates[i].massDt() > 150 )
       cout << "CANDIDATE " <<  candidates[i].massDt() << " " << candidates[i].massTk() << " " << candidates[i].tk.track->momentum() << " " <<  candidates[i].dt.combinedTrack->momentum();
       cout <<" dt beta: " << 1./candidates[i].dt.invBeta << " tk beta : "<< sqrt(1./candidates[i].tk.invBeta2) << " tk beta fit: "<< sqrt(1./candidates[i].tk.invBeta2Fit) <<
       cout <<"chi &  # hits: " <<  candidates[i].tk.track->normalizedChi2() << " " << candidates[i].tk.track->numberOfValidHits() << endl;
  }
+
+ 
 
 }
 
@@ -490,6 +500,7 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   } 
   
   h_massVsMass =  subDirAn.make<TH2F>("tof_mass_vs_dedx_mass","Mass tof vs Mass dedx", 100,0,1200,100,0,1200);
+  h_massVsMassSel =  subDirAn.make<TH2F>("tof_mass_vs_dedx_mass_sel","Mass tof vs Mass dedx Sel", 100,0,1200,100,0,1200);
 
 
 //------------ SIM ----------------
