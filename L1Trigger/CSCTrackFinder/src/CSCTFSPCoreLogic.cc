@@ -306,8 +306,8 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 // ORCA settings:
 	 etawin1, etawin2, etawin3, etawin4, etawin5, etawin6,// eta windows
 	 0, 0, 0, 0, // eta offsets
-	 ((extend << 1) & 0xe)|bxa_on // {reserved[11:0], extend[2:0],BXA_enable}
-	 //0x144
+	 //((extend << 1) & 0xe)|bxa_on // {reserved[11:0], extend[2:0],BXA_enable}
+	 0x144
 	 );
       /* // Extremely verbose debug
       LogDebug("CSCTFSPCoreLogic:run()") << std::hex
@@ -394,7 +394,9 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
   int nmuons = 0;
   // start from where tracks could first possibly appear
   // read out tracks from io_
-  for(io = io_.begin() + latency + 1; io != io_.end(); io++)
+  // We add first +1 to the starting position because the CSC data started 1 BX after DT,
+  // and the other +1 because of the number of calls to the core (i.e. latency+1):
+  for(io = io_.begin() + latency + 1 + 1; io != io_.end(); io++)
     {
       csc::L1TrackId trkHid(endcap, sector), trkMid(endcap, sector), trkLid(endcap, sector);
       trkHid.setMode(io->modeMemHp);
