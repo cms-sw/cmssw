@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/11/08 15:43:50 $
- * $Revision: 1.170 $
+ * $Date: 2007/11/09 14:02:29 $
+ * $Revision: 1.171 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -34,12 +34,16 @@
 #include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 

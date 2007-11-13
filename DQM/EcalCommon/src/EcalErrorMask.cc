@@ -1,21 +1,35 @@
-// $Id: EcalErrorMask.cc,v 1.10 2007/10/23 07:09:48 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.11 2007/10/24 21:43:35 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.10 $
-  \date $Date: 2007/10/23 07:09:48 $
+  \version $Revision: 1.11 $
+  \date $Date: 2007/10/24 21:43:35 $
 */
 
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
+#include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
+
+#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+
+#include <CondTools/Ecal/interface/EcalErrorDictionary.h>
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-#include <cstdlib>
 #include <regex.h>
-#include <CondTools/Ecal/interface/EcalErrorDictionary.h>
 
 bool EcalErrorMask::done_ = false;
 int  EcalErrorMask::runNb_ = -1;
