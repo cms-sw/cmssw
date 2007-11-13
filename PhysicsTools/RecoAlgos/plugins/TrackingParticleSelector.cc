@@ -4,13 +4,13 @@
  *
  *  \author Giuseppe Cerati, INFN
  *
- *  $Date: 2007/06/09 10:45:12 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/09 13:52:55 $
+ *  $Revision: 1.1 $
  */
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
-#include "PhysicsTools/RecoAlgos/plugins/TrackingParticleSelector.h"
+#include "PhysicsTools/RecoAlgos/interface/TrackingParticleSelector.h"
 
 namespace reco {
   namespace modules {
