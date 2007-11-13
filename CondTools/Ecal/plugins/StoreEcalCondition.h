@@ -44,6 +44,7 @@ class  StoreEcalCondition : public edm::EDAnalyzer {
   EcalGainRatios* readEcalGainRatiosFromFile(const char *);
   void writeToLogFile(string , string, unsigned long long) ;
   void writeToLogFileResults(char* ) ;
+  int convertFromConstructionSMToSlot(int ,int );
 
   explicit  StoreEcalCondition(const edm::ParameterSet& iConfig );
   ~StoreEcalCondition();

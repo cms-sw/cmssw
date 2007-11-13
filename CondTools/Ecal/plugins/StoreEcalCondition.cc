@@ -504,8 +504,17 @@ StoreEcalCondition::readEcalIntercalibConstantsFromFile(const char* inputFile) {
     std::ostringstream str;
 
     fgets(line,255,inpFile);
-    int sm_number=atoi(line);
+    string sm_or_all=to_string(line);
+    int sm_number=0;
+    int nchan=1700;
+    sm_number=atoi(line);
     str << "sm= " << sm_number << endl ;  
+    if(sm_number!=-1){
+      nchan=1700;
+    } else {
+      nchan=61200;
+    }
+    
 
     fgets(line,255,inpFile);
     //int nevents=atoi(line); // not necessary here just for online conddb
@@ -528,48 +537,83 @@ StoreEcalCondition::readEcalIntercalibConstantsFromFile(const char* inputFile) {
 
     edm::LogInfo("StoreEcalCondition") << "Intercalibration file " << str.str() ;
 
-    int cry_num[1700]={0};
-    float calib[1700]={0};
-    float calib_rms[1700]={0};
-    int calib_nevents[1700]={0};
-    int calib_status[1700]={0};
+    int sm_num[61200]={0};
+    int cry_num[61200]={0};
+    float calib[61200]={0};
+    float calib_rms[61200]={0};
+    int calib_nevents[61200]={0};
+    int calib_status[61200]={0};
 
     int ii = 0;
-
-    while(fgets(line,255,inpFile)) {
-      sscanf(line, "%d %f %f %d %d", &cry_num[ii], &calib[ii], &calib_rms[ii], &calib_nevents[ii], &calib_status[ii] );
+    if(sm_number!=-1){
+      while(fgets(line,255,inpFile)) {
+	sscanf(line, "%d %f %f %d %d", &cry_num[ii], &calib[ii], &calib_rms[ii], &calib_nevents[ii], &calib_status[ii] );
 //       if(ii<10) { // print out only the first ten channels 
 // 	cout << "cry="<<cry_num[ii]<<" calib="<<calib[ii]<<endl;
 //       }
-      ii++ ;
+	sm_num[ii]=sm_number;
+	ii++ ;
+      }
+    } else {
+      // this is for the whole Barrel 
+      cout<<"mode ALL BARREL" <<endl; 
+      while(fgets(line,255,inpFile)) {
+	sscanf(line, "%d %d %f %f %d", &sm_num[ii], &cry_num[ii], &calib[ii], &calib_rms[ii], &calib_status[ii] );
+	if(ii==0) cout<<"crystal "<<cry_num[ii]<<" of sm "<<sm_num[ii]<<" cali= "<< calib[ii]<<endl;
+	ii++ ;
+      }
     }
-    
 
     //    inf.close();           // close inp. file
     fclose(inpFile);           // close inp. file
 
     edm::LogInfo("StoreEcalCondition") << "Read intercalibrations for " << ii << " xtals " ; 
 
-    //    cout << " I read the calibrations for "<< ii<< " crystals " << endl;
-    if(ii!=1700) edm::LogWarning("StoreEcalCondition") << "Some crystals missing. Missing channels will be set to 0" << endl;
+    cout << " I read the calibrations for "<< ii<< " crystals " << endl;
+    if(ii!=nchan) edm::LogWarning("StoreEcalCondition") << "Some crystals missing. Missing channels will be set to 0" << endl;
 
     // Get channel ID 
     
     sm_constr_ = sm_number;
 
+
     // Set the data
-    for(int i=0; i<1700; i++){
+    for(int i=0; i<nchan; i++){
     
     // EBDetId(int index1, int index2, int mode = ETAPHIMODE)
     // sm and crys index SMCRYSTALMODE index1 is SM index2 is crystal number a la H4
     
-      EBDetId ebid(sm_slot_,cry_num[i],EBDetId::SMCRYSTALMODE);
+      int slot_num=convertFromConstructionSMToSlot(sm_num[i],-1);
+      EBDetId ebid(slot_num,cry_num[i],EBDetId::SMCRYSTALMODE);
 
       ical->setValue( ebid.rawId(), calib[i]  );
-   
-  } // loop over channels 
 
+      if(i==0) cout<<"crystal "<<cry_num[i]<<" of sm "<<sm_num[i]<< " in slot " <<slot_num<<" calib= "<< calib[i]<<endl;
+
+    } // loop over channels 
+
+    cout<<"loop on channels done" << endl;
   return ical;
+}
+
+//-------------------------------------------------------------
+int StoreEcalCondition::convertFromConstructionSMToSlot(int sm_constr,int sm_slot){
+  // input either cosntruction number or slot number and returns the other
+  // the slots are numbered first EB+ slot 1 ...18 then EB- 1... 18 
+  // the slots start at 1 and the SM start at 0
+//-------------------------------------------------------------
+  int slot_to_constr[37]={-1,12,17,10,1,8,4,27,20,23,25,6,34,35,15,18,30,21,9 
+			  ,24,22,13,31,26,16,2,11,5,0,29,28,14,33,32,3,7,19};
+  int constr_to_slot[36]={28,4,25,34,6,27,11,35,5,18,3,26,1,21,31,14,24,2,15,
+			  36,8,17,20,9,19,10,23,7,30,29,16,22,33,32,12,13  };
+  
+  int result=0;
+  if(sm_constr!=-1) {
+    result=constr_to_slot[sm_constr];
+  } else if(sm_slot!=-1) {
+    result=slot_to_constr[sm_slot];
+  }
+  return result;
 }
 
 
