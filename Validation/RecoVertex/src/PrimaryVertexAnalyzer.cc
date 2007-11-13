@@ -59,13 +59,14 @@ PrimaryVertexAnalyzer::PrimaryVertexAnalyzer(const ParameterSet& iConfig)
 
   vtxSample_   = iConfig.getUntrackedParameter<std::vector< std::string > >("vtxSample");
   for(std::vector<std::string>::iterator isample = vtxSample_.begin(); isample!=vtxSample_.end(); ++isample) {
+    if ( *isample == "offlinePrimaryVerticesFromCTFTracks" ) suffixSample_.push_back("AVF");
     if ( *isample == "offlinePrimaryVerticesFromCTFTracksAVF" ) suffixSample_.push_back("AVF");
     if ( *isample == "offlinePrimaryVerticesFromCTFTracksKVF" ) suffixSample_.push_back("KVF");
     if ( *isample == "offlinePrimaryVerticesFromCTFTracksTKF" ) suffixSample_.push_back("TKF");
   }
   if ( suffixSample_.size() == 0 ) throw cms::Exception("NoVertexSamples") << " no known vertex samples given";
 
-  rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE");
+  rootFile_ = new TFile(outputFile_.c_str(),"RECREATE");
   verbose_= iConfig.getUntrackedParameter<bool>("verbose", false);
   simUnit_= 1.0;  // starting with CMSSW_1_2_x ??
   if ( (edm::getReleaseVersion()).find("CMSSW_1_1_",0)!=std::string::npos){
@@ -76,15 +77,13 @@ PrimaryVertexAnalyzer::PrimaryVertexAnalyzer(const ParameterSet& iConfig)
 
 PrimaryVertexAnalyzer::~PrimaryVertexAnalyzer()
 {
- 
-   // do anything here that needs to be done at desctruction time
+    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete rootFile_;
-  /*
-  for(std::map<std::string,TH1*>::const_iterator hist=h.begin(); hist!=h.end(); hist++){
+   delete rootFile_;
+   /*for(std::map<std::string,TH1*>::const_iterator hist=h.begin(); hist!=h.end(); hist++){
     delete hist->second;
-  }
-  */
+    }*/
+   
 }
 
 
@@ -100,8 +99,8 @@ void PrimaryVertexAnalyzer::beginJob(edm::EventSetup const& iSetup){
   // release validation histograms used in DoCompare.C
   for (std::vector<std::string>::iterator isuffix= suffixSample_.begin(); isuffix!=suffixSample_.end(); ++isuffix++) {
 
-	  hdir[*isuffix] = rootFile_->mkdir(TString(*isuffix));
-	  hdir[*isuffix]->cd();
+    hdir[*isuffix] = rootFile_->mkdir(TString(*isuffix));
+    hdir[*isuffix]->cd();
     h["nbvtx"+ *isuffix]        = new TH1F(TString("nbvtx"+ *isuffix),"Reconstructed Vertices in Event",20,-0.5,19.5);
     h["nbtksinvtx"+ *isuffix]   = new TH1F(TString("nbtksinvtx"+ *isuffix),"Reconstructed Tracks in Vertex",40,-0.5,39.5); 
     h["resx"+ *isuffix]         = new TH1F(TString("resx"+ *isuffix),"Residual X",100,-0.04,0.04);
@@ -148,16 +147,17 @@ void PrimaryVertexAnalyzer::beginJob(edm::EventSetup const& iSetup){
 
 
 void PrimaryVertexAnalyzer::endJob() {
+  
   rootFile_->cd();
   // save all histograms created in beginJob()
 
   for(std::map<std::string,TDirectory*>::const_iterator idir=hdir.begin(); idir!=hdir.end(); ++idir){
-	  idir->second->Write();
-  }
-  
+    idir->second->Write(); 
+    idir->second->Close();
+    }
   //for(std::map<std::string,TH1*>::const_iterator hist=h.begin(); hist!=h.end(); hist++){
-//	  hist->second->Write();
-//  }
+  //   hist->second->Write();
+  // }
   
 }
 
@@ -448,7 +448,8 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 
   bool MC=false;
   Handle<HepMCProduct> evtMC;
-  try{
+  /* 
+ try{
     iEvent.getByLabel("VtxSmeared",evtMC);
     MC=true;
     if(verbose_){
@@ -470,6 +471,19 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
       }
     }
   }
+ */
+      try{
+      iEvent.getByLabel("source",evtMC);
+      if(verbose_){
+        std::cout << "source HepMCProduct found"<< std::endl;
+      }
+      MC=true;
+    }catch(const Exception&) {
+      MC=false;
+      if(verbose_){
+        std::cout << "no HepMCProduct found"<< std::endl;
+      }
+    }
 
   /*
   if(evtMC->GetEvent()->signal_process_vertex()){
@@ -512,7 +526,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
    for(std::vector<simPrimaryVertex>::iterator vsim=simpv.begin();
        vsim!=simpv.end(); vsim++){
 
-	   hdir[isuffix]->cd();
+     hdir[isuffix]->cd();
 	   
      h["nbsimtksinvtx"+isuffix]->Fill(vsim->nGenTrk);
      h["xsim"+isuffix]->Fill(vsim->x*simUnit_);
