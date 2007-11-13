@@ -1,5 +1,6 @@
 <use name=rootmath>
 <use name=rootrflx>
+<use name=FWCore/Utilities>
 <export>
   <lib name=CondFormatsJetMETObjects>
 </export>
