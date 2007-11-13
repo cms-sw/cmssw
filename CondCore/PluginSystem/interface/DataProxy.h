@@ -9,7 +9,6 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "DataSvc/Ref.h"
-//#include <iostream>
 
 template< class RecordT, class DataT >
   class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT>{
@@ -20,7 +19,7 @@ template< class RecordT, class DataT >
   edm::eventsetup::DataKey::makeTypeTag<DataT>(); 
   }
   */
-  DataProxy( cond::Connection* connection, std::map<std::string,std::string>::iterator& pProxyToToken ): m_connection(connection), m_pProxyToToken(pProxyToToken) { 
+  DataProxy( cond::Connection* connection, std::map<std::string,std::string>::iterator& pDatumToToken ): m_connection(connection), m_pDatumToToken(pDatumToToken) { 
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     //std::cout<<"DataProxy constructor"<<std::endl;
@@ -42,7 +41,7 @@ template< class RecordT, class DataT >
       //std::cout<<"DataT make "<<std::endl;
       cond::PoolTransaction& pooldb=m_connection->poolTransaction(true);
       pooldb.start();      
-      pool::Ref<DataT> mydata(&(pooldb.poolDataSvc()),m_pProxyToToken->second);
+      pool::Ref<DataT> mydata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
       result=mydata.ptr();
       m_data.copyShallow(mydata);
       pooldb.commit();
@@ -64,7 +63,7 @@ template< class RecordT, class DataT >
   const DataProxy& operator=( const DataProxy& ); // stop default
   // ---------- member data --------------------------------
   cond::Connection* m_connection;
-  std::map<std::string,std::string>::iterator m_pProxyToToken;
+  std::map<std::string,std::string>::iterator m_pDatumToToken;
   pool::Ref<DataT> m_data;
 };
 #endif /* CONDCORE_PLUGINSYSTEM_DATAPROXY_H */
