@@ -171,6 +171,7 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   int fedCounter;
 
   std::vector<uint16_t> fedIds_;
+  vector<vector<MonitorElement*> > errors;
 
   bool useCabling_;
 

@@ -1,30 +1,31 @@
 #include "DQM/SiStripMonitorHardware/plugins/CnBAnalyzer.h"
 
 CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) :
-  ApveErr(500),          // initialze APVE Error Histogram vector (500 FEDS Max)
-  ApveErrCount(500),     // initialize the BinCounters vector (for flexibility of presentation, % failure, etc.)
-  FeMajApvErr(500),      // initialze APVE Error Histogram vector (500 FEDS Max)
-  FeWHApv(500),          // initialze APVE Error Histogram vector (500 FEDS Max)
-  FeLKErr(500),          // initialze APVE Error Histogram vector (500 FEDS Max)
-  FeSYErr(500),          // initialze APVE Error Histogram vector (500 FEDS Max)
-  FeRWHErr(500),         // initialze APVE Error Histogram vector (500 FEDS Max)
-  OosPerFed(500),        // sets the size of the oos per fer per event histogram
-  FeMajApvErrCount(500), // initialize the BinCounters vector (for flexibility of presentation, % failure, etc.)
+  ApveErr(2000),          // initialze APVE Error Histogram vector (2000 FEDS Max)
+  ApveErrCount(2000),     // initialize the BinCounters vector (for flexibility of presentation, % failure, etc.)
+  FeMajApvErr(2000),      // initialze APVE Error Histogram vector (2000 FEDS Max)
+  FeWHApv(2000),          // initialze APVE Error Histogram vector (2000 FEDS Max)
+  FeLKErr(2000),          // initialze APVE Error Histogram vector (2000 FEDS Max)
+  FeSYErr(2000),          // initialze APVE Error Histogram vector (2000 FEDS Max)
+  FeRWHErr(2000),         // initialze APVE Error Histogram vector (2000 FEDS Max)
+  OosPerFed(2000),        // sets the size of the oos per fer per event histogram
+  FeMajApvErrCount(2000), // initialize the BinCounters vector (for flexibility of presentation, % failure, etc.)
   FsopLong( 2,vector<unsigned long>(8) ),
   FsopShort(8),
-  feMajorAddress( 500,vector<uint16_t>(8) ), // a grand total of ~ 4000 front end units
-  WHError( 500,vector<int>(8) ),  // wrong header error
-  LKError( 500,vector<int>(8) ),  // lock error
-  SYError( 500,vector<int>(8) ),  // synch error
-  RWHError( 500,vector<int>(8) ), // RAW wrong header error
-  FiberStatusBits( 8, vector<vector<MonitorElement*> >(6,vector<MonitorElement*>(500)) ),//6 histograms per FED FEFPGA for 500 FED max.
-  FiberWHApv( 500, vector<MonitorElement*>(8) ),//8 FPGAS for 500 FEDS
-  FiberStatusBitCount( 8, vector<vector<BinCounters*> >(6,vector<BinCounters*>(500)) ),//counter variable for errors/event# precnt.
+  feMajorAddress( 2000,vector<uint16_t>(8) ), // a grand total of ~ 4000 front end units
+  WHError( 2000,vector<int>(8) ),  // wrong header error
+  LKError( 2000,vector<int>(8) ),  // lock error
+  SYError( 2000,vector<int>(8) ),  // synch error
+  RWHError( 2000,vector<int>(8) ), // RAW wrong header error
+  FiberStatusBits( 8, vector<vector<MonitorElement*> >(6,vector<MonitorElement*>(2000)) ),//6 histograms per FED FEFPGA for 2000 FED max.
+  FiberWHApv( 2000, vector<MonitorElement*>(8) ),//8 FPGAS for 2000 FEDS
+  FiberStatusBitCount( 8, vector<vector<BinCounters*> >(6,vector<BinCounters*>(2000)) ),//counter variable for errors/event# precnt.
   feMedianAddr(4000),
-  //fenumbers(500)
+  //fenumbers(2000)
   fedIds_(),
   firstEvent_(true),
-  bc(500)    //counts the bits baby
+  bc(2000),    //counts the bits baby
+  errors( 2000, vector<MonitorElement*>(8) )
   //useCabling_( iConfig.getUntrackedParameter<bool>("UseCabling",false) )
 {
   fedEvent_ = new Fed9U::Fed9UDebugEvent(); // new intialization - new = dynamic 
@@ -203,8 +204,12 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  }
 				
       }
-	
-      fedEvent_->Init( data_u32, 0, size_u32 ); // initialize the fedEvent with offset for slink
+      if (!data_u32 || !size_u32 )continue;
+      try{ 
+        fedEvent_->Init( data_u32, 0, size_u32 ); // initialize the fedEvent with offset for slink
+      } catch(...) {
+        continue;
+      }
       total_enabled_channels += fedEvent_->totalChannels(); 
 		
       /*	
@@ -238,7 +243,12 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
       }
 	
-      fedEvent_->Init( data_u32, 0, size_u32 );// init without the offset / byte swapping etc...
+      if (!data_u32 || !size_u32 )continue;
+      try{
+        fedEvent_->Init( data_u32, 0, size_u32 ); // initialize the fedEvent with offset for slink
+      } catch(...) {
+        continue;
+      }
     }
 
     /*
@@ -453,10 +463,11 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  bool APV1Bad = (APV1WrongAdd );
 	  bool APV2Bad = (APV2WrongAdd );
 	  bool fiberBad = (outOfSync || unlocked);
-	  if ( (!fiberBad) && (APV1Bad || APV2Bad) ) {
+          bool anyError = APV1Error || APV1WrongAdd || APV2Error || APV2WrongAdd || fiberBad;
+	  if (anyError) {
 	    problemsSeen++;
 	    feErr++;
-	    FiberWHApv[*ifed][fpga]->Fill(fi);
+	    errors[*ifed][fpga]->Fill(fi);
 	    std::cout << "EVT#" << iEvent.id().event() << " FED#" << *ifed << " FE#" << fpga << " Fiber#" << fi << " Status Word: ";
 	    std::cout << "\tAPV1 Error? " << (APV1Error?"Yes":"No");
 	    std::cout << "\tAPV1 Bad Address? " << (APV1WrongAdd?"Yes":"No");
@@ -466,6 +477,9 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    std::cout << "\tFiber Not Locked?\t" << (unlocked?"Yes":"No");
 	    std::cout << std::endl;
 	  }
+          if ( (!fiberBad) && (APV1Bad || APV2Bad) ) {
+            FiberWHApv[*ifed][fpga]->Fill(fi);
+          }
 	  nFi++;
 	  if ((!unlocked) && (!outOfSync)) {
 	    goodFibers++;
@@ -876,6 +890,11 @@ CnBAnalyzer::beginJob(const edm::EventSetup& iSetup)
 // ------------ method called once each job just before starting event loop  ------------
 void 
 CnBAnalyzer::histoNaming( const vector<uint16_t>& fed_ids, const int& runNumber ) {
+  std::cout << "fedIds: ";
+  for ( vector<uint16_t>::const_iterator i = fed_ids.begin(); i != fed_ids.end(); i++ ) {
+    std::cout << (*i) << ' ';
+  }
+  std::cout << std::endl;
 	
   int fedCounter2 = 0;
   int runNo = runNumber;
@@ -927,6 +946,7 @@ CnBAnalyzer::histoNaming( const vector<uint16_t>& fed_ids, const int& runNumber 
       dbe->setCurrentFolder( f+ss.str()+"/FPGA #"+ssi.str()+" WH Errors" );
       FiberWHApv[*ifed][i] = dbe->book1D( "WH GOOD APV" ," APV Wrong Header Errors per Fiber for FED #"+ss.str()
 					  +" FPGA #"+ssi.str() , 12, 0, 12 );
+      errors[*ifed][i] = dbe->book1D( "anyError","Any APV or sync error per fiber for FED #"+ss.str()+" FPGA #"+ssi.str() , 12, 0, 12 );
 
       dbe->setCurrentFolder( f+ss.str()+"/FPGA #"+ssi.str()+" Fiber Status Bits" );
       for(int j = 0; j < 6; j++){
@@ -936,6 +956,7 @@ CnBAnalyzer::histoNaming( const vector<uint16_t>& fed_ids, const int& runNumber 
 	for(int k = 0; k < 12; k++){
 	  ssii << k+1;
 	  FiberWHApv[*ifed][i]->setBinLabel( k+1, "Fiber #"+ssii.str() );
+          errors[*ifed][i]->setBinLabel( k+1, "Fiber #"+ssii.str() );
 	  FiberStatusBits[i][j][*ifed]->setBinLabel( k+1, "Fiber #"+ssii.str() );
 	  ssii.str(" ");
 	}
