@@ -171,7 +171,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			// select tracks for SV fit
 
 			trackData.back().second.svStatus =
-				trackSelector(*trackRef, ipData[i])
+				trackSelector(*trackRef, ipData[i], *jetRef)
 					? SecondaryVertexTagInfo::TrackData::trackUsedForVertexFit
 					: SecondaryVertexTagInfo::TrackData::trackSelected;
 		}
@@ -235,6 +235,8 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 			for(Vertex::trackRef_iterator iter = sv.tracks_begin();
 			    iter != sv.tracks_end(); iter++) {
+				
+
 				TrackRefVector::const_iterator pos =
 					std::find(trackRefs.begin(), trackRefs.end(),
 					          iter->castTo<TrackRef>());

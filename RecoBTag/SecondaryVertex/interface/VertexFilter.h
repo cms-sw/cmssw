@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
+#include "RecoBTag/SecondaryVertex/interface/V0Filter.h"
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
 
 namespace reco {
@@ -33,6 +34,7 @@ class VertexFilter {
 	double		distSig3dMax;
 
 	double		maxDeltaRToJetAxis;
+	V0Filter	v0Filter;
 };
 
 } // namespace reco

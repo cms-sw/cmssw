@@ -1,13 +1,18 @@
+#include <Math/GenVector/VectorUtil.h>
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 
 #include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
 
 using namespace reco; 
+using namespace ROOT::Math;
 
 TrackSelector::TrackSelector(const edm::ParameterSet &params) :
+	jetDeltaR(params.getParameter<double>("jetDeltaRMax")),
 	sip2dValMin(params.getParameter<double>("sip2dValMin")),
 	sip2dValMax(params.getParameter<double>("sip2dValMax")),
 	sip2dSigMin(params.getParameter<double>("sip2dSigMin")),
@@ -21,9 +26,12 @@ TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 
 bool
 TrackSelector::operator () (const Track &track,
-                            const TrackIPTagInfo::TrackIPData &ipData) const
+                            const TrackIPTagInfo::TrackIPData &ipData,
+                            const Jet &jet) const
 {
-	return ipData.ip2d.value()        >= sip2dValMin &&
+	return VectorUtil::DeltaR(jet.p4().Vect(),
+	                          track.momentum()) < jetDeltaR &&
+	       ipData.ip2d.value()        >= sip2dValMin &&
 	       ipData.ip2d.value()        <= sip2dValMax &&
 	       ipData.ip2d.significance() >= sip2dSigMin &&
 	       ipData.ip2d.significance() <= sip2dSigMax &&

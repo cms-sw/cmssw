@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 
@@ -14,9 +15,11 @@ class TrackSelector {
 	~TrackSelector() {}
 
 	bool operator() (const reco::Track &track,
-	                 const reco::TrackIPTagInfo::TrackIPData &ipData) const;
+	                 const reco::TrackIPTagInfo::TrackIPData &ipData,
+	                 const reco::Jet &jet) const;
 
     private:
+	double	jetDeltaR;
 	double	sip2dValMin;
 	double	sip2dValMax;
 	double	sip2dSigMin;
