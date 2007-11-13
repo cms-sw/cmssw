@@ -15,30 +15,33 @@ PFRootEventManagerColin::PFRootEventManagerColin(const char* file)
   neutralEvent_ = 0;
   outTreeMy_ = 0;   
   
-//   readOptions(file, false, false);
+  //   readOptions(file, false, false);
   
   // book histos here
-//   neutralEvent_ = new NeutralEvent();  
+  //   neutralEvent_ = new NeutralEvent();  
 
-//   tauEvent_ = new TauEvent();  
-//   outTreeMy_ = new TTree("Tau","");
-//   outTreeMy_->Branch("event","TauEvent", &tauEvent_,32000,2);
+
+  //   tauEvent_ = new TauEvent();  
+  //   outTree_ = new TTree("Tau","");
+  //   outTree_->Branch("event","TauEvent", &tauEvent_,32000,2);
 
   readSpecificOptions(file);
 
 }
 
 PFRootEventManagerColin::~PFRootEventManagerColin() {
-//   delete event_;
-//   delete outTreeMy_;
+
+  //   delete event_;
+  //   delete outTree_;
 }
 
 
 void PFRootEventManagerColin::readSpecificOptions(const char* file) {
 
 
-//   cout<<"calling PFRootEventManagerColin::readSpecificOptions"<<endl; 
-//   PFRootEventManager::readOptions(file, refresh, reconnect);
+
+  cout<<"calling PFRootEventManagerColin::readSpecificOptions"<<endl; 
+  //   PFRootEventManager::readOptions(file, refresh, reconnect);
 
   
   options_->GetOpt("colin", "mode", mode_);
@@ -111,9 +114,9 @@ bool PFRootEventManagerColin::processNeutral() {
   //   }
   
   //   if( ! ( (*clustersECAL_).size() <= 1 && 
-  // 	  (*clustersHCAL_).size() <= 1 ) ) {
+  //      (*clustersHCAL_).size() <= 1 ) ) {
   //     cerr<<"wrong number of ECAL or HCAL clusters :"
-  // 	<<(*clustersECAL_).size()<<","<<(*clustersHCAL_).size()<<endl;
+  //    <<(*clustersECAL_).size()<<","<<(*clustersHCAL_).size()<<endl;
   //     return false; 
   //   }
   // 1 HCAL cluster
@@ -129,7 +132,7 @@ bool PFRootEventManagerColin::processNeutral() {
 
   if( myGenEvent->particles_size() != 1 ) {
     cerr<<"wrong number of particles:"
-	<<myGenEvent->particles_size()<<endl;
+        <<myGenEvent->particles_size()<<endl;
     return 0;
   }
 
@@ -200,8 +203,8 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
     double charge = part.charge();
 
     if( abs(pdgCode) > 100 &&
-	charge !=0 && 
-	part.daughterIds().empty() ) {
+        charge !=0 && 
+        part.daughterIds().empty() ) {
       nStableChargedHadrons++;
       iHadron = i;
     }
@@ -225,15 +228,7 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
   }
   assert( nStableChargedHadrons==1 );
 
-//   if( nPi0!=1 ) {
-//     cout<<"nPi0 "<<nPi0<<endl;
-//     assert(0);
-//   }
-  
-//   cout<<"true particles : "<<endl;
-//   cout<<" hadron "<<iHadron
-//       <<" pi0 "<<iPi0<<endl;
-
+ 
 
   
   double pHadron = trueParticles_[iHadron].extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach ).momentum().P(); 
@@ -281,17 +276,6 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
   tauEvent_->ptTrack = recTracks_[0].extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach ).momentum().Pt();
   tauEvent_->etaTrack = recTracks_[0].extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach ).momentum().Eta();
 
-  //   tauEvent_->nECAL = (*clustersECAL_).size();
-  //   if( (*clustersECAL_).size() == 1 ) {
-  //     tauEvent_->eECAL = (*clustersECAL_)[0].energy();
-  //   }
-
-  //   tauEvent_->nHCAL = (*clustersHCAL_).size();
-  //   if( (*clustersHCAL_).size() == 1 ) {
-  //     tauEvent_->eHCAL = (*clustersHCAL_)[0].energy();
-  //   }
-
-
   // access blocks
 
   // take the track block
@@ -314,8 +298,8 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
     unsigned nTracks = 0;
     for(unsigned ie=0; ie<elements.size(); ie++) {
       if(elements[ie].type() == reco::PFBlockElement::TRACK  ) {
-	iTrack = ie;
-	nTracks++;
+        iTrack = ie;
+        nTracks++;
       }
     }
     
@@ -362,52 +346,7 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
   } // blocks
 
 
-//     // look for the ecal and hcal clusters
-
-//     // unsigned nEcal = 0;
-//     // unsigned nHcal = 0;
-//     int iEcal = -1;
-//     int iHcal = -1;
-//     double   chi2Ecal = 999999999;
-//     double   chi2Hcal = 999999999;
-//     for(int ie=0; ie<elements.size(); ie++) {
-//       if( ie == iTrack) continue;
-      
-//       double chi2 = block.chi2(ie, iTrack, 
-// 			       block.linkData() );
-
-//       if( chi2<0 ) continue;
-
-//       // element is connected to the track
-//       switch( elements[ie].type() ) {
-//       case reco::PFBlockElement::ECAL:
-// 	if(chi2<chi2Ecal) {
-// 	  chi2Ecal = chi2;
-// 	  iEcal = ie;
-// 	}
-// 	break;
-//       case reco::PFBlockElement::HCAL:
-// 	if(chi2<chi2Hcal) {
-// 	  chi2Hcal = chi2;
-// 	  iHcal = ie;
-// 	}	
-// 	break;
-//       default:
-// 	break;
-//       }
-//     }
-    
-// //     cout<<block<<endl;
-// //     cout<<iTrack<<" "<<iEcal<<" "<<iHcal<<endl;
-    
-//     // fill the tree and exit the function. 
-//     if(iEcal>-1)
-//       tauEvent_->chi2ECAL = chi2Ecal;
-//     return true;
-//   }
-  return false;
-    
-    
+  return false;    
 }
 
 

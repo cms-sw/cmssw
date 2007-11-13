@@ -35,8 +35,8 @@ TCanvas* Utils::DivideCanvas( TCanvas *cv, int nPads ) {
   int nL = sqnP;
   
   while( nC*nL < nPads ) 
-  if( nC < nL ) nC++;
-  else nL++;
+    if( nC < nL ) nC++;
+    else nL++;
   
   cv->Divide( nC, nL, 0.005, 0.005, 0 );
   return cv;

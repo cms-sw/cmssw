@@ -13,7 +13,7 @@
 
 
 DialogFrame::DialogFrame(PFRootEventManager *evman,DisplayManager *dm,const TGWindow *p,UInt_t w,UInt_t h)
-                         :TGMainFrame(p, w, h),evMan_(evman),display_(dm)
+  :TGMainFrame(p, w, h),evMan_(evman),display_(dm)
 {
   
   mainFrame_= new TGCompositeFrame(this,200,300);
@@ -36,7 +36,7 @@ DialogFrame::DialogFrame(PFRootEventManager *evman,DisplayManager *dm,const TGWi
 //__________________________________________________________________________________________________
 void DialogFrame::createCmdFrame() 
 {
- //create object selection buttons
+  //create object selection buttons
   TGGroupFrame *gr1= new TGGroupFrame(mainFrame_,"Draw Selection",kVerticalFrame); 
   gr1->SetLayoutManager(new TGMatrixLayout(gr1,6,3,5));
   
@@ -121,79 +121,79 @@ void DialogFrame::createCmdFrame()
 //________________________________________________________________________________
 void DialogFrame::CloseWindow()
 {
- //!!!WARNING keep the first letter of the method uppercase.It is an overriden ROOT method  
- gApplication->Terminate(0);
+  //!!!WARNING keep the first letter of the method uppercase.It is an overriden ROOT method  
+  gApplication->Terminate(0);
 }
 //_________________________________________________________________________________
 void DialogFrame::doModifyOptions(unsigned objNb)
 {
- // hits and clusters are always drawn !
- //int eventNb = evMan_->iEvent_;
-   //case 0: selectObject[0]->SetState(kButtonDown); break;
-   //case 1: selectObject[1]->SetState(kButtonDown); break;
- switch (objNb) {
-   case 0:
-     display_->drawHits_ = (selectObject[0]->IsDown()) ?true :false;
-     break;
-   case 1:
-     display_->drawClus_ = (selectObject[1]->IsDown()) ?true :false;
-     break; 
-   case 2:
-     display_->drawTracks_ = (selectObject[2]->IsDown()) ?true :false;
-     break;
-   case 3: 
-     display_->drawParticles_ = (selectObject[3]->IsDown()) ?true :false;
-     break;
-   case 4:
-     display_->drawClusterL_ = (selectObject[4]->IsDown()) ?true :false;
-     break;
- }
- display_->displayAll();    
+  // hits and clusters are always drawn !
+  //int eventNumber = evMan_->iEvent_;
+  //case 0: selectObject[0]->SetState(kButtonDown); break;
+  //case 1: selectObject[1]->SetState(kButtonDown); break;
+  switch (objNb) {
+  case 0:
+    display_->drawHits_ = (selectObject[0]->IsDown()) ?true :false;
+    break;
+  case 1:
+    display_->drawClus_ = (selectObject[1]->IsDown()) ?true :false;
+    break; 
+  case 2:
+    display_->drawTracks_ = (selectObject[2]->IsDown()) ?true :false;
+    break;
+  case 3: 
+    display_->drawParticles_ = (selectObject[3]->IsDown()) ?true :false;
+    break;
+  case 4:
+    display_->drawClusterL_ = (selectObject[4]->IsDown()) ?true :false;
+    break;
+  }
+  display_->displayAll();    
 }
 //_______________________________________________________________________________
 DialogFrame::~DialogFrame()
 {
- mainFrame_->Cleanup();
+  mainFrame_->Cleanup();
 }
 //________________________________________________________________________________
 void DialogFrame::doModifyPtThreshold(unsigned objNb,long pt)
 {
- switch(objNb) {
-   case 0: 
-     display_->hitEnMin_=(double)pt;break;
-     break;
-   case 1:
-     display_->clusEnMin_=(double)pt;break;
-     break;
-   case 2:
-     display_->trackPtMin_=(double)pt;break;
-     break;
-   case 3:
-     display_->particlePtMin_=(double)pt;break;
-   default:break;
- }  
- display_->displayAll();
+  switch(objNb) {
+  case 0: 
+    display_->hitEnMin_=(double)pt;break;
+    break;
+  case 1:
+    display_->clusEnMin_=(double)pt;break;
+    break;
+  case 2:
+    display_->trackPtMin_=(double)pt;break;
+    break;
+  case 3:
+    display_->particlePtMin_=(double)pt;break;
+  default:break;
+  }  
+  display_->displayAll();
 }
 //_________________________________________________________________________________
 void DialogFrame::doNextEvent()
 {
- display_->displayNext();
- int eventNb = evMan_->getEventIndex();
- //TODOLIST:display new value of eventNb in the futur reserve field
+  display_->displayNext();
+  int eventNumber = evMan_->eventNumber();
+  //TODOLIST:display new value of eventNumber in the futur reserve field
 } 
 //_________________________________________________________________________________
 void DialogFrame::doPreviousEvent()
 {
   display_->displayPrevious();
-  int eventNb = evMan_->getEventIndex();
-  //TODOLIST:display new value of eventNb in the futur reserve field
+  int eventNumber = evMan_->eventNumber();
+  //TODOLIST:display new value of eventNumber in the futur reserve field
 }
 //__________________________________________________________________________________
 void DialogFrame::doReProcessEvent()
 {
-// TODOLIST:evMan_->connect() + nouveau nom de fichier s'il y a lieu ??
- int eventNb = evMan_->getEventIndex();
- display_->display(eventNb);
+  // TODOLIST:evMan_->connect() + nouveau nom de fichier s'il y a lieu ??
+  int eventNumber = evMan_->eventNumber();
+  display_->display(eventNumber);
 }
 
 
@@ -211,54 +211,54 @@ void DialogFrame::unZoom()
 //_________________________________________________________________________________
 Bool_t DialogFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
 { 
- switch (GET_MSG(msg)) {
-   case kC_TEXTENTRY:
-     switch (GET_SUBMSG(msg)) {
-       case kTE_ENTER:
-         switch (parm1) {
-	   case EN :case EN+1: case EN+2: case EN+3:
-	      {
-	       //int eventNb=evMan_->iEvent_;
-	       long val=threshEntry[parm1-EN]->GetIntNumber();
-	       thresholdS[parm1-EN]->SetPosition(val);
-	       doModifyPtThreshold(parm1-EN,val);
-               break;
-	      }
-	   default:break;
-         }
-	 break;
-       default:break;
-     }
-     break;
-   case kC_HSLIDER:
-     switch (GET_SUBMSG(msg)) {
-       case kSL_POS:
-         switch (parm1) {
-	   case ENER: case ENER+1: case ENER+2: case ENER+3:
-	     {
-	      unsigned index=parm1-ENER;
-	      threshEntry[index]->SetIntNumber(parm2);
-	      fClient->NeedRedraw(threshEntry[index]);
-	      break;
-	     } 
-	   default:break;
-	 }
-	 break;  
-       case kSL_RELEASE:
-         switch (parm1) {
-	   case ENER: case ENER+1: case ENER+2: case ENER+3:
-	     {
-	      long val = thresholdS[parm1-ENER]->GetPosition();
-	      doModifyPtThreshold(parm1-ENER,val);
-	      break;
-             } 
-	   default:break;    
-	 }
-	 break;
-       default:break; 	 
-     }
-     break;
-   default:break;
- }
- return true;   
-}      	      
+  switch (GET_MSG(msg)) {
+  case kC_TEXTENTRY:
+    switch (GET_SUBMSG(msg)) {
+    case kTE_ENTER:
+      switch (parm1) {
+      case EN :case EN+1: case EN+2: case EN+3:
+        {
+          //int eventNumber=evMan_->iEvent_;
+          long val=threshEntry[parm1-EN]->GetIntNumber();
+          thresholdS[parm1-EN]->SetPosition(val);
+          doModifyPtThreshold(parm1-EN,val);
+          break;
+        }
+      default:break;
+      }
+      break;
+    default:break;
+    }
+    break;
+  case kC_HSLIDER:
+    switch (GET_SUBMSG(msg)) {
+    case kSL_POS:
+      switch (parm1) {
+      case ENER: case ENER+1: case ENER+2: case ENER+3:
+        {
+          unsigned index=parm1-ENER;
+          threshEntry[index]->SetIntNumber(parm2);
+          fClient->NeedRedraw(threshEntry[index]);
+          break;
+        } 
+      default:break;
+      }
+      break;  
+    case kSL_RELEASE:
+      switch (parm1) {
+      case ENER: case ENER+1: case ENER+2: case ENER+3:
+        {
+          long val = thresholdS[parm1-ENER]->GetPosition();
+          doModifyPtThreshold(parm1-ENER,val);
+          break;
+        } 
+      default:break;    
+      }
+      break;
+    default:break;       
+    }
+    break;
+  default:break;
+  }
+  return true;   
+}             

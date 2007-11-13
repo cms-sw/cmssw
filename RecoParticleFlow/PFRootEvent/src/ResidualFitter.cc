@@ -18,14 +18,14 @@ int ResidualFitter::yCanvas_ = 600;
 
 
 ResidualFitter::ResidualFitter(const char* name, 
-		     const char* title, 
-		     int nbinsx, double xlow, double xup, 
-		     int nbinsy, double ylow, double yup, 
-		     int nbinsz, double zlow, double zup) 
+                               const char* title, 
+                               int nbinsx, double xlow, double xup, 
+                               int nbinsy, double ylow, double yup, 
+                               int nbinsz, double zlow, double zup) 
   : TH3D( name, title, 
-	  nbinsx, xlow, xup, 
-	  nbinsy, ylow, yup, 
-	  nbinsz, zlow, zup ), 
+          nbinsx, xlow, xup, 
+          nbinsy, ylow, yup, 
+          nbinsz, zlow, zup ), 
     fitFunction_( new TF1("gaus", "gaus") ), 
     canvasFit_(0),
     curBin_(0), 
@@ -36,28 +36,28 @@ ResidualFitter::ResidualFitter(const char* name,
   
   string meanname = name; meanname += "_mean";
   mean_ = new TH2D(meanname.c_str(), meanname.c_str(),
-		   nbinsx, xlow, xup, 
-		   nbinsy, ylow, yup);
+                   nbinsx, xlow, xup, 
+                   nbinsy, ylow, yup);
   mean_->SetStats(0);
   
   string sigmaname = name; sigmaname += "_sigma";
   sigma_ = new TH2D(sigmaname.c_str(), sigmaname.c_str(),
-		   nbinsx, xlow, xup, 
-		   nbinsy, ylow, yup);
+                    nbinsx, xlow, xup, 
+                    nbinsy, ylow, yup);
 
   sigma_->SetStats(0);
 
   string chi2name = name; chi2name += "_chi2";
   chi2_ = new TH2D(chi2name.c_str(), chi2name.c_str(),
-		   nbinsx, xlow, xup, 
-		   nbinsy, ylow, yup);
+                   nbinsx, xlow, xup, 
+                   nbinsy, ylow, yup);
   chi2_->SetStats(0);
 
-//   string nseenname = name; nseenname += "_nseen";
-//   nseen_ = new TH2D(nseenname.c_str(), nseenname.c_str(),
-// 		   nbinsx, xlow, xup, 
-// 		   nbinsy, ylow, yup);
-//   nseen_->SetStats(0);
+  //   string nseenname = name; nseenname += "_nseen";
+  //   nseen_ = new TH2D(nseenname.c_str(), nseenname.c_str(),
+  //               nbinsx, xlow, xup, 
+  //               nbinsy, ylow, yup);
+  //   nseen_->SetStats(0);
 
   gDirectory->ls();
 
@@ -72,7 +72,7 @@ ResidualFitter::~ResidualFitter() {
   delete mean_;
   delete sigma_;
   delete chi2_;
-//   delete nseen_;
+  //   delete nseen_;
 }
 
 void ResidualFitter::CreateCanvas() {
@@ -80,8 +80,8 @@ void ResidualFitter::CreateCanvas() {
   canvas_ = new TCanvas(cname.c_str(), cname.c_str(),xCanvas_, yCanvas_);
   
   canvas_ ->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", 
-		    "ResidualFitter",
-		    this, "ExecuteEvent(Int_t,Int_t,Int_t,TObject*)");
+                    "ResidualFitter",
+                    this, "ExecuteEvent(Int_t,Int_t,Int_t,TObject*)");
 
   
 }
@@ -94,8 +94,8 @@ void ResidualFitter::Fill() {
   for(unsigned it = 0; it<true_.size(); it++) {
     for(unsigned im = 0; im<meas_.size(); im++) {
       TH3D::Fill(true_[it].x_, 
-		 true_[it].y_, 
-		 meas_[it].z_ - true_[it].z_ );
+                 true_[it].y_, 
+                 meas_[it].z_ - true_[it].z_ );
     }
   }
 }
@@ -105,7 +105,7 @@ void ResidualFitter::FitSlicesZ(TF1 *f1) {
   mean_->Reset();
   sigma_->Reset();
   chi2_->Reset();
-//   nseen_->Reset();
+  //   nseen_->Reset();
 
   cout<<"ResidualFitter::FitSlicesZ"<<endl;
   if(f1) SetFitFunction(f1);
@@ -198,10 +198,10 @@ void ResidualFitter::Fit(int binx, int biny, const char* opt) {
  
     chi2_->SetBinContent(binx,biny,chi2overndf);
   }
-//   nseen_->SetBinContent(binx, biny, 
-// 			fitFunction_->Integral( fitFunction_->GetXmin(), 
-// 						fitFunction_->GetXmax())
-// 			/curBin_->GetBinWidth(1) );
+  //   nseen_->SetBinContent(binx, biny, 
+  //                    fitFunction_->Integral( fitFunction_->GetXmin(), 
+  //                                            fitFunction_->GetXmax())
+  //                    /curBin_->GetBinWidth(1) );
 
   TH1::AddDirectory(1);
 }

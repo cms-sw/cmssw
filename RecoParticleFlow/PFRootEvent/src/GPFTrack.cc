@@ -5,15 +5,12 @@
 #include <string>
 
 
-//_______________________________________________________________________
-GPFTrack::GPFTrack() : GPFBase(0, 0, 0),track_(new reco::PFRecTrack())  {}
 //________________________________________________________________________
 GPFTrack::GPFTrack(DisplayManager * display,int view,int ident,
                    reco::PFRecTrack *tra, int size, double *x, double *y,
-                   double pt,int linestyle, std::string option)
-		 : GPFBase(display,view,ident),
-		   TGraph(size,x,y), track_(tra),pt_(pt), option_(option),
-		   color_(103)
+                   double pt,int linestyle, int linecolor, std::string option)
+  : GPFBase(display,view,ident, linecolor),
+    TGraph(size,x,y), track_(tra),pt_(pt), option_(option)
 {
   ResetBit(kCanDelete);
   
@@ -26,7 +23,7 @@ GPFTrack::GPFTrack(DisplayManager * display,int view,int ident,
   SetMarkerSize(markersize);
   SetMarkerColor(color_);
   
-}		     
+}                    
 //____________________________________________________________________________________________________________
 void GPFTrack::Print()
 {
@@ -35,24 +32,24 @@ void GPFTrack::Print()
 //_______________________________________________________________________________    
 void GPFTrack::ExecuteEvent(Int_t event, Int_t px, Int_t py)
 {
- // Execute action corresponding to a left mouse button click 
- //on a GPFTrack object in the window
+  // Execute action corresponding to a left mouse button click 
+  //on a GPFTrack object in the window
 
- gPad->SetCursor(kHand);
- switch (event) {
-   case kButton1Down:
-     Print();
-     display_->findBlock(origId_);
-     display_->findAndDraw(origId_);
-     break;
-   default:break;
- }    
+  gPad->SetCursor(kHand);
+  switch (event) {
+  case kButton1Down:
+    Print();
+    display_->findBlock(origId_);
+    display_->findAndDraw(origId_);
+    break;
+  default:break;
+  }    
      
 }
 //______________________________________________________________________________
 void GPFTrack::draw()
 {
- TGraph::Draw(option_.data());
+  TGraph::Draw(option_.data());
 }
 //______________________________________________________________________________
 void GPFTrack::setColor(int color)

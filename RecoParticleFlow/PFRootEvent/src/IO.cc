@@ -97,12 +97,12 @@ string IO::GetLineData(const char* tag, const char* key) const {
       string readkey; in>>readkey;
       
       if(readkey == key) {
-//  	data.erase();
-//  	string skey = key;
-//  	int start = pos+skey.size();
-//  	data.assign(fAllLines[i].second, start, data.size()-start);
-	found=true;
-	in.get(data,sLinesize);
+        //      data.erase();
+        //      string skey = key;
+        //      int start = pos+skey.size();
+        //      data.assign(fAllLines[i].second, start, data.size()-start);
+        found=true;
+        in.get(data,sLinesize);
       }
     }
   }
@@ -128,10 +128,10 @@ string IO::GetNextLineData(const char* tag, const char* key)  {
       string readkey; in>>readkey;
       
       if(readkey == key) {
-	found=true;
-	in.get(data,sLinesize);
-	fCurline=i+1;
-	break;
+        found=true;
+        in.get(data,sLinesize);
+        fCurline=i+1;
+        break;
       }
     }
   }

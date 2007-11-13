@@ -54,13 +54,13 @@ PFJetAlgorithm::FindJets( const vector<TLorentzVector>* vecs) {
       if( fAssignedVecs[i] > -1 ) continue;
 
       double dr = DeltaR(etaseed, phiseed, 
-			 (*fAllVecs)[i].Eta(), (*fAllVecs)[i].Phi());
+                         (*fAllVecs)[i].Eta(), (*fAllVecs)[i].Phi());
       // cout<<"\t\tparticle "<<i<<" "<<dr<<" "<<(*fAllVecs)[i].Et()<<endl; 
-			 
+                         
       if( dr < fConeAngle) {
-	// cout<<"\t\tadding"<<endl;
-	currentjet.Add(i);
-	fAssignedVecs[i] = iv->second;
+        // cout<<"\t\tadding"<<endl;
+        currentjet.Add(i);
+        fAssignedVecs[i] = iv->second;
       }
     }
     
@@ -76,15 +76,15 @@ PFJetAlgorithm::FindJets( const vector<TLorentzVector>* vecs) {
 
 
 double PFJetAlgorithm::DeltaR(double eta1, double phi1, double eta2, double phi2) {
-      double deta = eta1 - eta2;
-      double dphi = TVector2::Phi_mpi_pi(phi1 - phi2);
-      return sqrt(deta*deta + dphi*dphi);
+  double deta = eta1 - eta2;
+  double dphi = TVector2::Phi_mpi_pi(phi1 - phi2);
+  return sqrt(deta*deta + dphi*dphi);
 }
 
 
 void PFJetAlgorithm::Update() {
   // use existing jets as seeds 
-//   cout<<"clearing seeds"<<endl;
+  //   cout<<"clearing seeds"<<endl;
   fEtOrderedSeeds.clear();
   for(unsigned ij = 0; ij<fJets.size(); ij++ ) {
     double et = fJets[ij].GetMomentum().Et();
@@ -93,12 +93,12 @@ void PFJetAlgorithm::Update() {
   }
 
   // loop on seeds and add particles 
-//   cout<<"clearing assigned"<<endl;
+  //   cout<<"clearing assigned"<<endl;
   for(unsigned i = 0; i<fAssignedVecs.size(); i++) {
     fAssignedVecs[i] = -1;
   }
 
-//   cout<<"loop on seeds"<<endl;
+  //   cout<<"loop on seeds"<<endl;
   bool needupdate = false;
   for(IV iv = fEtOrderedSeeds.begin(); iv != fEtOrderedSeeds.end(); iv++ ) {
     
@@ -108,7 +108,7 @@ void PFJetAlgorithm::Update() {
 
     double etaseed = seedmom.Eta();
     double phiseed = seedmom.Phi();
-//     cout<<"SEED\t"<<etaseed<<" "<<phiseed<<endl;
+    //     cout<<"SEED\t"<<etaseed<<" "<<phiseed<<endl;
 
     currentjet.Clear();
 
@@ -118,13 +118,13 @@ void PFJetAlgorithm::Update() {
       if( fAssignedVecs[i] > -1 ) continue;
 
       double dr = DeltaR(etaseed, phiseed, 
-			 (*fAllVecs)[i].Eta(), (*fAllVecs)[i].Phi());
+                         (*fAllVecs)[i].Eta(), (*fAllVecs)[i].Phi());
       // cout<<"\t\tparticle "<<i<<" "<<dr<<" "<<(*fAllVecs)[i].Et()<<endl; 
-			 
+                         
       if( dr < fConeAngle) {
-	// cout<<"\t\tadding"<<endl;
-	currentjet.Add(i);
-	fAssignedVecs[i] = iv->second;
+        // cout<<"\t\tadding"<<endl;
+        currentjet.Add(i);
+        fAssignedVecs[i] = iv->second;
       }
     }
     
@@ -140,11 +140,11 @@ void PFJetAlgorithm::Update() {
 
 void PFJetAlgorithm::CleanUp() {
   
-//   cout<<"CleanUp : -----------------------------------------"<<endl;
+  //   cout<<"CleanUp : -----------------------------------------"<<endl;
   
-//   for(unsigned i=0; i<fJets.size(); i++) {
-//     cout<<fJets[i]<<endl;
-//   }
+  //   for(unsigned i=0; i<fJets.size(); i++) {
+  //     cout<<fJets[i]<<endl;
+  //   }
 
   vector< PFJetAlgorithm::Jet >  tmp = fJets;
 
@@ -160,97 +160,97 @@ void PFJetAlgorithm::CleanUp() {
       etjets.insert( make_pair(tmp[i].GetMomentum().Et(), tmp[i]) );
   }
 
-//   cout<<"et map : "<<endl;
-//   for(IJ ij = etjets.begin(); ij != etjets.end(); ij++) {
-//     cout<<ij->second<<endl;
-//   }  
+  //   cout<<"et map : "<<endl;
+  //   for(IJ ij = etjets.begin(); ij != etjets.end(); ij++) {
+  //     cout<<ij->second<<endl;
+  //   }  
 
   MergeJets( etjets );
 
-//   for(IJ ij = etjets.begin(); ij != etjets.end(); ij++) {
+  //   for(IJ ij = etjets.begin(); ij != etjets.end(); ij++) {
 
-//     const TLorentzVector& mom1 = ij->second.GetMomentum();
+  //     const TLorentzVector& mom1 = ij->second.GetMomentum();
 
-//     double eta1 = mom1.Eta();
-//     double phi1 = mom1.Phi();
+  //     double eta1 = mom1.Eta();
+  //     double phi1 = mom1.Phi();
 
-//     IJ closest = etjets.end();
-//     double drmin = 99999;
-//     for(IJ jj = etjets.begin(); jj != etjets.end(); jj++) {
+  //     IJ closest = etjets.end();
+  //     double drmin = 99999;
+  //     for(IJ jj = etjets.begin(); jj != etjets.end(); jj++) {
    
-//       if( jj == ij ) continue;  
+  //       if( jj == ij ) continue;  
    
-//       const TLorentzVector& mom2 = jj->second.GetMomentum();
+  //       const TLorentzVector& mom2 = jj->second.GetMomentum();
       
-//       double eta2 = mom2.Eta();
-//       double phi2 = mom2.Phi();
+  //       double eta2 = mom2.Eta();
+  //       double phi2 = mom2.Phi();
 
-//       double dr = DeltaR(eta1, phi1, eta2, phi2);
+  //       double dr = DeltaR(eta1, phi1, eta2, phi2);
 
-//       if(dr<drmin) {
-// 	drmin = dr; 
-// 	closest = jj;
-//       }
+  //       if(dr<drmin) {
+  //    drmin = dr; 
+  //    closest = jj;
+  //       }
 
-//       if(closest != etjets.end() ) {
-// 	if ( dr < fConeMerge ) {
-// 	  ij->second += jj->second;
-// 	}		
-//       } 
-//     }
-//   }
+  //       if(closest != etjets.end() ) {
+  //    if ( dr < fConeMerge ) {
+  //      ij->second += jj->second;
+  //    }               
+  //       } 
+  //     }
+  //   }
 
-//   cout<<"et map 2: "<<endl;
+  //   cout<<"et map 2: "<<endl;
   for(IJ ij = etjets.begin(); ij != etjets.end(); ij++) {
-//     cout<<ij->second<<endl;
+    //     cout<<ij->second<<endl;
     fJets.push_back(ij->second);
   }  
 
-//   set<int> used;
-//   for(unsigned i=0; i<tmp2.size(); i++) {
+  //   set<int> used;
+  //   for(unsigned i=0; i<tmp2.size(); i++) {
 
 
-//     set<int>::iterator isused = used.find(i);
-//     if( isused != used.end() ) continue;
+  //     set<int>::iterator isused = used.find(i);
+  //     if( isused != used.end() ) continue;
     
-//     Jet& jet1 = tmp2[i];
+  //     Jet& jet1 = tmp2[i];
     
-//     // cout<<"\t jet "<<jet1<<endl;
+  //     // cout<<"\t jet "<<jet1<<endl;
 
 
-//     TLorentzVector mom1 = jet1.GetMomentum();
+  //     TLorentzVector mom1 = jet1.GetMomentum();
 
-//     double eta1 = mom1.Eta();
-//     double phi1 = mom1.Phi();
+  //     double eta1 = mom1.Eta();
+  //     double phi1 = mom1.Phi();
     
-//     // merge close jets
-//     for(unsigned j=0; j<tmp2.size(); j++) {
-//       if(i==j) continue;
-//       Jet& jet2 = tmp2[j];
+  //     // merge close jets
+  //     for(unsigned j=0; j<tmp2.size(); j++) {
+  //       if(i==j) continue;
+  //       Jet& jet2 = tmp2[j];
 
       
-//       TLorentzVector mom2 = jet2.GetMomentum();
+  //       TLorentzVector mom2 = jet2.GetMomentum();
       
-//       double eta2 = mom2.Eta();
-//       double phi2 = mom2.Phi();
+  //       double eta2 = mom2.Eta();
+  //       double phi2 = mom2.Phi();
       
-//       double dr = DeltaR(eta1, phi1, eta2, phi2);
+  //       double dr = DeltaR(eta1, phi1, eta2, phi2);
 
-//       // cout<<"\t\t test merge with "<<jet2<<", dr = "<<dr<<endl;
+  //       // cout<<"\t\t test merge with "<<jet2<<", dr = "<<dr<<endl;
       
-//       if ( dr < fConeMerge ) {
-// 	jet1 += jet2;
-// 	used.insert( j );
-// 	// cout<<"\t\t  yes "<<endl;
-//       }	
-//       else {
-// 	// cout<<"\t\t  no "<<endl;
-//       }
-//     }
+  //       if ( dr < fConeMerge ) {
+  //    jet1 += jet2;
+  //    used.insert( j );
+  //    // cout<<"\t\t  yes "<<endl;
+  //       }    
+  //       else {
+  //    // cout<<"\t\t  no "<<endl;
+  //       }
+  //     }
     
-//     used.insert( i );
-//     fJets.push_back(jet1);
-//   }
+  //     used.insert( i );
+  //     fJets.push_back(jet1);
+  //   }
 }
 
 
@@ -281,16 +281,16 @@ void PFJetAlgorithm::MergeJets(map< double, PFJetAlgorithm::Jet, greater<double>
       double dr = DeltaR(eta1, phi1, eta2, phi2);
       
       if(dr<smallestdistance) {
-	smallestdistance = dr; 
-	j1 = ij;
-	j2 = jj;
+        smallestdistance = dr; 
+        j1 = ij;
+        j2 = jj;
       }
     }
   } 
 
-//   cout<<"smallest distance is between : "<<endl;
-//   cout<<j1->second<<endl;
-//   cout<<j2->second<<endl;
+  //   cout<<"smallest distance is between : "<<endl;
+  //   cout<<j1->second<<endl;
+  //   cout<<j2->second<<endl;
 
   if( smallestdistance < fConeMerge ) {
     j1->second += j2->second;

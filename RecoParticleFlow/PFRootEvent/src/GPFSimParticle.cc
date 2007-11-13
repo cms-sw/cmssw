@@ -5,14 +5,15 @@
 #include <string>
 
 
-//_______________________________________________________________________
-GPFSimParticle::GPFSimParticle() : GPFBase(0, 0, 0),part_(new reco::PFSimParticle())
-{}
+
 //________________________________________________________________________
-GPFSimParticle::GPFSimParticle(DisplayManager *display,int view, int ident, const reco::PFSimParticle *ptc, int size, double *x, double *y,
-                double pt,int markerstyle, std::string option)
-		: GPFBase(display,view,ident),
-		  TGraph(size,x,y), part_(ptc), pt_(pt), option_(option), color_(4) 
+GPFSimParticle::GPFSimParticle(DisplayManager *display,int view, int ident, 
+			       const reco::PFSimParticle *ptc, 
+			       int size, double *x, double *y,
+                               double pt,int markerstyle, int color,
+			       std::string option)
+  : GPFBase(display,view,ident, color),
+    TGraph(size,x,y), part_(ptc), pt_(pt), option_(option) 
 {
     
   ResetBit(kCanDelete);
@@ -26,7 +27,7 @@ GPFSimParticle::GPFSimParticle(DisplayManager *display,int view, int ident, cons
   SetMarkerSize(markersize);
   SetMarkerColor(color_);
   
-}		     
+}                    
 //____________________________________________________________________________________________________________
 void GPFSimParticle::Print()
 {
@@ -35,22 +36,22 @@ void GPFSimParticle::Print()
 //_______________________________________________________________________________    
 void GPFSimParticle::ExecuteEvent(Int_t event, Int_t px, Int_t py)
 {
- // Execute action corresponding to a left mouse button click 
- //on a GPFSimParticle object in the window
+  // Execute action corresponding to a left mouse button click 
+  //on a GPFSimParticle object in the window
 
- gPad->SetCursor(kHand);
- switch (event) {
-   case kButton1Down:
-     Print();
-     display_->findAndDraw(origId_);
-     break;
-   default:break;
- }    
+  gPad->SetCursor(kHand);
+  switch (event) {
+  case kButton1Down:
+    Print();
+    display_->findAndDraw(origId_);
+    break;
+  default:break;
+  }    
 }
 //______________________________________________________________________________
 void GPFSimParticle::draw()
 {
- TGraph::Draw(option_.data());
+  TGraph::Draw(option_.data());
 }
 //_______________________________________________________________________________
 void GPFSimParticle::setColor(int color)

@@ -37,13 +37,13 @@ bool MyPFRootEventManager::processEntry(int entry) {
   }
 
   
-//   cout<<"particle flow blocks : "<<endl;
+  //   cout<<"particle flow blocks : "<<endl;
 
-//   for(unsigned i=0; i<allPFBs_.size(); i++) {
-//     const PFBlock& block = allPFBs_[i];
+  //   for(unsigned i=0; i<allPFBs_.size(); i++) {
+  //     const PFBlock& block = allPFBs_[i];
       
-//     cout<<block<<endl;
-//   }
+  //     cout<<block<<endl;
+  //   }
 
   // clusters can be accessed here, or through the pflow blocks
   for(unsigned i=0; i<clustersECAL_->size(); i++) {

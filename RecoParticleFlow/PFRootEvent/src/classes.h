@@ -19,14 +19,14 @@
  
 namespace {
   namespace {
-     GPFRecHit dummy1;
-     std::vector<std::vector<GPFRecHit> > dummy2;
-     GPFCluster dummy3;
-     std::vector<std::vector<GPFCluster> > dummy4;
-     GPFTrack dummy5;
-     std::vector<std::vector<GPFTrack> > dummy6;
-     GPFSimParticle dummy7;
-     std::vector<std::vector<GPFSimParticle> > dummy8;
+/*      GPFRecHit dummy1; */
+/*      std::vector<std::vector<GPFRecHit> > dummy2; */
+/*      GPFCluster dummy3; */
+/*      std::vector<std::vector<GPFCluster> > dummy4; */
+/*      GPFTrack dummy5; */
+/*      std::vector<std::vector<GPFTrack> > dummy6; */
+/*      GPFSimParticle dummy7; */
+/*      std::vector<std::vector<GPFSimParticle> > dummy8; */
       
   }
 }

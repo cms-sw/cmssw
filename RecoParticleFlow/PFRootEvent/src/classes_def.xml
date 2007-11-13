@@ -21,13 +21,4 @@
   <class name="ResidualFitter"/>
   <class name="DialogFrame"/>
   <class name="DisplayManager"/>
-  <class name="GPFRecHit"/>
-  <class name="std::vector<GPFRecHit>"/>
-  <class name="GPFCluster"/>
-  <class name="std::vector<GPFCluster>"/>
-  <class name="GPFTrack"/>
-  <class name="std::vector<GPFTrack>"/>
-  <class name="GPFSimParticle"/>
-  <class name="std::vector<GPFSimParticle>"/>
-  <class name="GPFBase"/>
 </lcgdict>

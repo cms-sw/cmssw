@@ -45,8 +45,8 @@ using namespace std;
 
 
 PFRootEventManager::PFRootEventManager() {
-//   energyCalibration_ = new PFEnergyCalibration();
-//   energyResolution_ = new PFEnergyResolution();
+  //   energyCalibration_ = new PFEnergyCalibration();
+  //   energyResolution_ = new PFEnergyResolution();
 }
 
 
@@ -58,40 +58,40 @@ PFRootEventManager::PFRootEventManager(const char* file)
   tree_(0),
   outTree_(0),
   outEvent_(0),
-//   clusters_(new reco::PFClusterCollection),
+  //   clusters_(new reco::PFClusterCollection),
   clustersECAL_(new reco::PFClusterCollection),
   clustersHCAL_(new reco::PFClusterCollection),
   clustersPS_(new reco::PFClusterCollection),
   pfBlocks_(new reco::PFBlockCollection),
   pfCandidates_(new reco::PFCandidateCollection),
-//   pfCandidatesOther_(new reco::PFCandidateCollection),
+  //   pfCandidatesOther_(new reco::PFCandidateCollection),
   outFile_(0)
 {
   
-//   options_ = 0;
-//   tree_ = 0;
+  //   options_ = 0;
+  //   tree_ = 0;
 
-//   outEvent_ = 0;
-//   outTree_ = 0;
+  //   outEvent_ = 0;
+  //   outTree_ = 0;
 
-//   jetAlgo_ = 0;
+  //   jetAlgo_ = 0;
   
-//   iEvent_=0;
+  //   iEvent_=0;
   h_deltaETvisible_MCEHT_ 
     = new TH1F("h_deltaETvisible_MCEHT","Jet Et difference CaloTowers-MC"
-	       ,500,-50,50);
+               ,500,-50,50);
   h_deltaETvisible_MCPF_  
     = new TH1F("h_deltaETvisible_MCPF" ,"Jet Et difference ParticleFlow-MC"
-	       ,500,-50,50);
+               ,500,-50,50);
 
   readOptions(file, true, true);
  
        
-//   maxERecHitEcal_ = -1;
-//   maxERecHitHcal_ = -1;
+  //   maxERecHitEcal_ = -1;
+  //   maxERecHitHcal_ = -1;
 
-//   energyCalibration_ = new PFEnergyCalibration();
-//   energyResolution_ = new PFEnergyResolution();
+  //   energyCalibration_ = new PFEnergyCalibration();
+  //   energyResolution_ = new PFEnergyResolution();
 }
 
 void PFRootEventManager::reset() { 
@@ -106,9 +106,9 @@ void PFRootEventManager::reset() {
 }
 
 void PFRootEventManager::readOptions(const char* file, 
-				     bool refresh, 
-				     bool reconnect) {
-				     
+                                     bool refresh, 
+                                     bool reconnect) {
+                                     
   readSpecificOptions(file);
   
   cout<<"calling PFRootEventManager::readOptions"<<endl;
@@ -135,9 +135,6 @@ void PFRootEventManager::readOptions(const char* file,
 
   clusteringIsOn_ = true;
   options_->GetOpt("clustering", "on/off", clusteringIsOn_);
-
-//   clusteringMode_ = 0;
-//   options_->GetOpt("clustering", "mode", clusteringMode_);  
   
 
   bool clusteringDebug = false;
@@ -149,7 +146,7 @@ void PFRootEventManager::readOptions(const char* file,
 
   findRecHitNeighbours_ = true;
   options_->GetOpt("clustering", "findRecHitNeighbours", 
-		   findRecHitNeighbours_);
+                   findRecHitNeighbours_);
   
   
   // output root file   ------------------------------------------
@@ -164,11 +161,11 @@ void PFRootEventManager::readOptions(const char* file,
       bool doOutTree = false;
       options_->GetOpt("root","outtree", doOutTree);
       if(doOutTree) {
-	outFile_->cd();
-	// cout<<"do tree"<<endl;
-	outEvent_ = new EventColin();
-	outTree_ = new TTree("Eff","");
-	outTree_->Branch("event","EventColin", &outEvent_,32000,2);
+        outFile_->cd();
+        // cout<<"do tree"<<endl;
+        outEvent_ = new EventColin();
+        outTree_ = new TTree("Eff","");
+        outTree_->Branch("event","EventColin", &outEvent_,32000,2);
       }
       // cout<<"don't do tree"<<endl;
     }
@@ -181,87 +178,6 @@ void PFRootEventManager::readOptions(const char* file,
     connect( inFileName_.c_str() );
 
 
-  // various parameters ------------------------------------------
-
-  vector<int> algos;
-  options_->GetOpt("display", "cluster_algos", algos);
-  algosToDisplay_.clear();
-  for(unsigned i=0; i< algos.size(); i++) algosToDisplay_.insert( algos[i] );
-
-  displayClusterLines_ = false;
-  options_->GetOpt("display", "cluster_lines", displayClusterLines_);
-  
-//   if(displayClusterLines_) 
-//     cout<<"will display cluster lines "<<endl;
-
-  viewSizeEtaPhi_.clear();
-  options_->GetOpt("display", "viewsize_etaphi", viewSizeEtaPhi_);
-  if(viewSizeEtaPhi_.size() != 2) {
-    cerr<<"PFRootEventManager::ReadOptions, bad display/viewsize_etaphi tag...using 700/350"
-	<<endl;
-    viewSizeEtaPhi_.clear();
-    viewSizeEtaPhi_.push_back(700); 
-    viewSizeEtaPhi_.push_back(350); 
-  }
-
- viewSize_.clear();
-  options_->GetOpt("display", "viewsize_xy", viewSize_);
-  if(viewSize_.size() != 2) {
-    cerr<<"PFRootEventManager::ReadOptions, bad display/viewsize_xy tag...using 700/350"
-	<<endl;
-    viewSize_.clear();
-    viewSize_.push_back(600); 
-    viewSize_.push_back(600); 
-  }
-
-
-  // display parametes ------------------------------------
-
-  displayXY_ = true;
-  options_->GetOpt("display", "x/y", displayXY_);
-  
-  displayEtaPhi_ = true;
-  options_->GetOpt("display", "eta/phi", displayEtaPhi_);
-
-  displayRZ_ = true;
-  options_->GetOpt("display", "r/z", displayRZ_);
-
- 
-  displayColorClusters_ = false;
-  options_->GetOpt("display", "color_clusters", displayColorClusters_);
-  
-  displayRecHits_= true;
-  options_->GetOpt("display", "rechits",displayRecHits_);
-  
-  displayClusters_ = true;
-  options_->GetOpt("display", "clusters",displayClusters_);
- 
-  displayRecTracks_ = true;
-  options_->GetOpt("display", "rectracks", displayRecTracks_);
-
-  displayTrueParticles_ = true;
-  options_->GetOpt("display", "particles", displayTrueParticles_);
-
-  displayZoomFactor_ = 10;  
-  options_->GetOpt("display", "zoom_factor", displayZoomFactor_);
-
-  displayJetColors_ = false;
-  options_->GetOpt("display", "jet_colors", displayJetColors_);
-  
-
-  displayTrueParticlesPtMin_ = -1;
-  options_->GetOpt("display", "particles_ptmin", displayTrueParticlesPtMin_);
-  
-  displayRecTracksPtMin_ = -1;
-  options_->GetOpt("display", "rectracks_ptmin", displayRecTracksPtMin_);
-  
-  displayRecHitsEnMin_ = -1;
-  options_->GetOpt("display","rechits_enmin",displayRecHitsEnMin_);
-  
-  displayClustersEnMin_ = -1;
-  options_->GetOpt("display","clusters_enmin",displayClustersEnMin_);
-  
-
   // filter --------------------------------------------------------------
 
   filterNParticles_ = 0;
@@ -273,10 +189,10 @@ void PFRootEventManager::readOptions(const char* file,
   filterTaus_.clear();
   options_->GetOpt("filter", "taus", filterTaus_);
   if( !filterTaus_.empty() &&
-       filterTaus_.size() != 2 ) {
+      filterTaus_.size() != 2 ) {
     cerr<<"PFRootEventManager::ReadOptions, bad filter/taus option."<<endl
-	<<"please use : "<<endl
-	<<"\tfilter taus n_charged n_neutral"<<endl;
+        <<"please use : "<<endl
+        <<"\tfilter taus n_charged n_neutral"<<endl;
     filterTaus_.clear();
   }
   
@@ -288,29 +204,29 @@ void PFRootEventManager::readOptions(const char* file,
   
   double threshSeedEcalBarrel = 0.3;
   options_->GetOpt("clustering", "thresh_Seed_Ecal_Barrel", 
-		   threshSeedEcalBarrel);
+                   threshSeedEcalBarrel);
 
   double threshEcalEndcap = 0.2;
   options_->GetOpt("clustering", "thresh_Ecal_Endcap", threshEcalEndcap);
 
   double threshSeedEcalEndcap = 0.8;
   options_->GetOpt("clustering", "thresh_Seed_Ecal_Endcap",
-		   threshSeedEcalEndcap);
+                   threshSeedEcalEndcap);
 
   double showerSigmaEcal = 3;  
   options_->GetOpt("clustering", "shower_Sigma_Ecal",
-		   showerSigmaEcal);
+                   showerSigmaEcal);
 
   int nNeighboursEcal = 4;
   options_->GetOpt("clustering", "neighbours_Ecal", nNeighboursEcal);
   
   int posCalcNCrystalEcal = -1;
   options_->GetOpt("clustering", "posCalc_nCrystal_Ecal", 
-		   posCalcNCrystalEcal);
+                   posCalcNCrystalEcal);
 
   double posCalcP1Ecal = -1;
   options_->GetOpt("clustering", "posCalc_p1_Ecal", 
-		   posCalcP1Ecal);
+                   posCalcP1Ecal);
   
 
   clusterAlgoECAL_.setThreshBarrel( threshEcalBarrel );
@@ -340,23 +256,23 @@ void PFRootEventManager::readOptions(const char* file,
   double dcorbp = -1;
   options_->GetOpt("clustering", "depthCor_B_preshower", dcorbp);
 
-//   if( dcormode > 0 && 
-//       dcora > -0.5 && 
-//       dcorb > -0.5 && 
-//       dcorap > -0.5 && 
-//       dcorbp > -0.5 ) {
+  //   if( dcormode > 0 && 
+  //       dcora > -0.5 && 
+  //       dcorb > -0.5 && 
+  //       dcorap > -0.5 && 
+  //       dcorbp > -0.5 ) {
 
-//     cout<<"set depth correction "
-// 	<<dcormode<<" "<<dcora<<" "<<dcorb<<" "<<dcorap<<" "<<dcorbp<<endl;
+  //     cout<<"set depth correction "
+  //    <<dcormode<<" "<<dcora<<" "<<dcorb<<" "<<dcorap<<" "<<dcorbp<<endl;
   reco::PFCluster::setDepthCorParameters( dcormode, 
-					  dcora, dcorb, 
-					  dcorap, dcorbp);
-//   }
-//   else {
-//     reco::PFCluster::setDepthCorParameters( -1, 
-// 					    0,0 , 
-// 					    0,0 );
-//   }
+                                          dcora, dcorb, 
+                                          dcorap, dcorbp);
+  //   }
+  //   else {
+  //     reco::PFCluster::setDepthCorParameters( -1, 
+  //                                        0,0 , 
+  //                                        0,0 );
+  //   }
 
   
 
@@ -365,14 +281,14 @@ void PFRootEventManager::readOptions(const char* file,
   
   double threshSeedHcalBarrel = 1.4;
   options_->GetOpt("clustering", "thresh_Seed_Hcal_Barrel", 
-		   threshSeedHcalBarrel);
+                   threshSeedHcalBarrel);
 
   double threshHcalEndcap = 0.8;
   options_->GetOpt("clustering", "thresh_Hcal_Endcap", threshHcalEndcap);
 
   double threshSeedHcalEndcap = 1.4;
   options_->GetOpt("clustering", "thresh_Seed_Hcal_Endcap",
-		   threshSeedHcalEndcap);
+                   threshSeedHcalEndcap);
 
   double showerSigmaHcal    = 15;
   options_->GetOpt("clustering", "shower_Sigma_Hcal",
@@ -387,7 +303,7 @@ void PFRootEventManager::readOptions(const char* file,
 
   double posCalcP1Hcal = 1.0;
   options_->GetOpt("clustering", "posCalc_p1_Hcal", 
-		   posCalcP1Hcal);
+                   posCalcP1Hcal);
 
 
 
@@ -414,7 +330,7 @@ void PFRootEventManager::readOptions(const char* file,
   
   double threshSeedPS = 0.001;
   options_->GetOpt("clustering", "thresh_Seed_PS", 
-		   threshSeedPS);
+                   threshSeedPS);
   
   //Comment Michel: PSBarrel shall be removed?
   double threshPSBarrel     = threshPS;
@@ -436,7 +352,7 @@ void PFRootEventManager::readOptions(const char* file,
 
   double posCalcP1PS = 0.;
   options_->GetOpt("clustering", "posCalc_p1_PS", 
-		   posCalcP1PS);
+                   posCalcP1PS);
 
 
 
@@ -499,21 +415,21 @@ void PFRootEventManager::readOptions(const char* file,
 
   try {
     pfBlockAlgo_.setParameters( map_ECAL_eta.c_str(),
-				map_ECAL_phi.c_str(),
-				map_HCAL_eta.c_str(),
-				map_HCAL_phi.c_str(),
-				DPtovPtCut, 
-				chi2TrackECAL,
-				chi2TrackHCAL,
-				chi2ECALHCAL,
-				chi2PSECAL, 
-				chi2PSTrack,
-				chi2PSHV,
-				multiLink ); 
+                                map_ECAL_phi.c_str(),
+                                map_HCAL_eta.c_str(),
+                                map_HCAL_phi.c_str(),
+                                DPtovPtCut, 
+                                chi2TrackECAL,
+                                chi2TrackHCAL,
+                                chi2ECALHCAL,
+                                chi2PSECAL, 
+                                chi2PSTrack,
+                                chi2PSHV,
+                                multiLink ); 
   }  
   catch( std::exception& err ) {
     cerr<<"exception setting PFBlockAlgo parameters: "
-	<<err.what()<<". terminating."<<endl;
+        <<err.what()<<". terminating."<<endl;
     exit(1);
   }
   
@@ -536,7 +452,7 @@ void PFRootEventManager::readOptions(const char* file,
   }
   else {
     cerr<<"PFRootEventManager::readOptions : WARNING : "
-	<<"wrong calibration coefficients for ECAL"<<endl;
+        <<"wrong calibration coefficients for ECAL"<<endl;
   }
 
 
@@ -551,18 +467,21 @@ void PFRootEventManager::readOptions(const char* file,
   
   string mvaWeightFile = "";
   options_->GetOpt("particle_flow", "mergedPhotons_mvaWeightFile", 
-		   mvaWeightFile);  
+                   mvaWeightFile);  
   mvaWeightFile = expand( mvaWeightFile );
+  
+
+  // new for PS PFAlgo validation (MDN)
+  double PSCut = 999999;
+  options_->GetOpt("particle_flow", "mergedPhotons_PSCut", PSCut);
 
   try {
     pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL,
-			   mvaCut, mvaWeightFile.c_str() );
-//     pfAlgoOther_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL,
-// 			    mvaCut, mvaWeightFile.c_str() );
+                           PSCut, mvaCut, mvaWeightFile.c_str() );
   }
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo parameters: "
-	<<err.what()<<". terminating."<<endl;
+        <<err.what()<<". terminating."<<endl;
     exit(1);
   }
 
@@ -570,14 +489,14 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "algorithm", algo);
 
   pfAlgo_.setAlgo( algo );
-//   pfAlgoOther_.setAlgo( 1 );
+  //   pfAlgoOther_.setAlgo( 1 );
 
 
   bool pfAlgoDebug = false;
   options_->GetOpt("particle_flow", "debug", pfAlgoDebug );  
 
   pfAlgo_.setDebug( pfAlgoDebug );
-//   pfAlgoOther_.setDebug( pfAlgoDebug );
+  //   pfAlgoOther_.setDebug( pfAlgoDebug );
 
   // print flags -------------
 
@@ -626,7 +545,7 @@ void PFRootEventManager::readOptions(const char* file,
     if( jetsDebug_ ) {
       cout << "Jet Options : ";
       cout << "Angle=" << coneAngle << " seedEt=" << seedEt 
-	   << " Merge=" << coneMerge << endl;
+           << " Merge=" << coneMerge << endl;
     }
 
     jetAlgo_.SetConeAngle(coneAngle);
@@ -668,7 +587,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   }
   else 
     cout<<"rootfile "<<inFileName_
-	<<" opened"<<endl;
+        <<" opened"<<endl;
 
   
 
@@ -676,7 +595,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   if(!tree_) {
     cerr<<"PFRootEventManager::ReadOptions :";
     cerr<<"input TTree Events not found in file "
-	<<inFileName_<<endl;
+        <<inFileName_<<endl;
     return; 
   }
 
@@ -691,7 +610,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   rechitsECALBranch_ = tree_->GetBranch(rechitsECALbranchname.c_str());
   if(!rechitsECALBranch_) {
     cerr<<"PFRootEventManager::ReadOptions : rechits_ECAL_branch not found : "
-	<<rechitsECALbranchname<<endl;
+        <<rechitsECALbranchname<<endl;
   }
 
   string rechitsHCALbranchname;
@@ -700,7 +619,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   rechitsHCALBranch_ = tree_->GetBranch(rechitsHCALbranchname.c_str());
   if(!rechitsHCALBranch_) {
     cerr<<"PFRootEventManager::ReadOptions : rechits_HCAL_branch not found : "
-	<<rechitsHCALbranchname<<endl;
+        <<rechitsHCALbranchname<<endl;
   }
 
   string rechitsPSbranchname;
@@ -709,7 +628,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   rechitsPSBranch_ = tree_->GetBranch(rechitsPSbranchname.c_str());
   if(!rechitsPSBranch_) {
     cerr<<"PFRootEventManager::ReadOptions : rechits_PS_branch not found : "
-	<<rechitsPSbranchname<<endl;
+        <<rechitsPSbranchname<<endl;
   }
 
 
@@ -728,7 +647,7 @@ void PFRootEventManager::connect( const char* infilename ) {
     clustersECALBranch_ = tree_->GetBranch(clustersECALbranchname.c_str());
     if(!clustersECALBranch_) {
       cerr <<"PFRootEventManager::ReadOptions : clusters_ECAL_branch not found:"
-	   <<clustersECALbranchname<<endl;
+           <<clustersECALbranchname<<endl;
     }
   
 
@@ -738,7 +657,7 @@ void PFRootEventManager::connect( const char* infilename ) {
     clustersHCALBranch_ = tree_->GetBranch(clustersHCALbranchname.c_str());
     if(!clustersHCALBranch_) {
       cerr<<"PFRootEventManager::ReadOptions : clusters_HCAL_branch not found : "
-	  <<clustersHCALbranchname<<endl;
+          <<clustersHCALbranchname<<endl;
     }
   
     string clustersPSbranchname;
@@ -747,7 +666,7 @@ void PFRootEventManager::connect( const char* infilename ) {
     clustersPSBranch_ = tree_->GetBranch(clustersPSbranchname.c_str());
     if(!clustersPSBranch_) {
       cerr<<"PFRootEventManager::ReadOptions : clusters_PS_branch not found : "
-	  <<clustersPSbranchname<<endl;
+          <<clustersPSbranchname<<endl;
     }
   }
 
@@ -757,13 +676,13 @@ void PFRootEventManager::connect( const char* infilename ) {
   string clustersIslandBarrelbranchname;
   clustersIslandBarrelBranch_ = 0;
   options_->GetOpt("root","clusters_island_barrel_branch", 
-		   clustersIslandBarrelbranchname);
+                   clustersIslandBarrelbranchname);
   if(!clustersIslandBarrelbranchname.empty() ) {
     clustersIslandBarrelBranch_ 
       = tree_->GetBranch(clustersIslandBarrelbranchname.c_str());
     if(!clustersIslandBarrelBranch_) {
       cerr<<"PFRootEventManager::ReadOptions : clusters_island_barrel_branch not found : "
-	  <<clustersIslandBarrelbranchname<< endl;
+          <<clustersIslandBarrelbranchname<< endl;
     }
   }
   else {
@@ -776,7 +695,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   recTracksBranch_ = tree_->GetBranch(recTracksbranchname.c_str());
   if(!recTracksBranch_) {
     cerr<<"PFRootEventManager::ReadOptions : recTracks_branch not found : "
-	<<recTracksbranchname<< endl;
+        <<recTracksbranchname<< endl;
   }
 
   string stdTracksbranchname;
@@ -785,7 +704,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   stdTracksBranch_ = tree_->GetBranch(stdTracksbranchname.c_str());
   if(!stdTracksBranch_) {
     cerr<<"PFRootEventManager::ReadOptions : stdTracks_branch not found : "
-	<<stdTracksbranchname<< endl;
+        <<stdTracksbranchname<< endl;
   }
   
 
@@ -795,7 +714,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   trueParticlesBranch_ = tree_->GetBranch(trueParticlesbranchname.c_str());
   if(!trueParticlesBranch_) {
     cerr<<"PFRootEventManager::ReadOptions : trueParticles_branch not found : "
-	<<trueParticlesbranchname<< endl;
+        <<trueParticlesbranchname<< endl;
   }
 
   string MCTruthbranchname;
@@ -804,7 +723,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   MCTruthBranch_ = tree_->GetBranch(MCTruthbranchname.c_str());
   if(!MCTruthBranch_) {
     cerr<<"PFRootEventManager::ReadOptions : MCTruth_branch not found : "
-	<<MCTruthbranchname << endl;
+        <<MCTruthbranchname << endl;
   }
 
   string caloTowersBranchName;
@@ -814,7 +733,7 @@ void PFRootEventManager::connect( const char* infilename ) {
     caloTowersBranch_ = tree_->GetBranch(caloTowersBranchName.c_str()); 
     if(!caloTowersBranch_) {
       cerr<<"PFRootEventManager::ReadOptions : caloTowers_branch not found : "
-	  <<caloTowersBranchName<< endl;
+          <<caloTowersBranchName<< endl;
     }
   }    
 
@@ -853,10 +772,10 @@ PFRootEventManager::~PFRootEventManager() {
 
   delete options_;
   
-//   delete energyCalibration_;
-//   PFBlock::setEnergyCalibration(NULL);
-//   delete energyResolution_;
-//   PFBlock::setEnergyResolution(NULL);
+  //   delete energyCalibration_;
+  //   PFBlock::setEnergyCalibration(NULL);
+  //   delete energyResolution_;
+  //   PFBlock::setEnergyResolution(NULL);
 }
 
 
@@ -886,12 +805,12 @@ bool PFRootEventManager::processEntry(int entry) {
     cout<<"process entry "<< entry << endl;
   
 
-//   if(fromRealData_) {
-//     if( !readFromRealData(entry) ) return false;
-//   }
-//   else {
-//     if(! readFromSimulation(entry) ) return false;
-//   } 
+  //   if(fromRealData_) {
+  //     if( !readFromRealData(entry) ) return false;
+  //   }
+  //   else {
+  //     if(! readFromSimulation(entry) ) return false;
+  //   } 
 
   bool goodevent =  readFromSimulation(entry);
 
@@ -936,19 +855,19 @@ bool PFRootEventManager::processEntry(int entry) {
   
  
   if( verbosity_ == VERBOSE )
-     cout<<"delta E_t ="<<deltaEt<<endl;
-//      cout<<"delta E_t ="<<deltaEt<<" delta E_t Other ="<<deltaEt1<<endl;
+    cout<<"delta E_t ="<<deltaEt<<endl;
+  //      cout<<"delta E_t ="<<deltaEt<<" delta E_t Other ="<<deltaEt1<<endl;
 
   
   
-//   if( deltaEt>0.1 && deltaEt<0.2 ) {
-//     cout<<deltaEt<<endl;
-//     return true;
-//   }  
-//   else return false;
-//   //  if(trueParticles_.size() != 1 ) return false;
-//   else 
-//     return false;
+  //   if( deltaEt>0.1 && deltaEt<0.2 ) {
+  //     cout<<deltaEt<<endl;
+  //     return true;
+  //   }  
+  //   else return false;
+  //   //  if(trueParticles_.size() != 1 ) return false;
+  //   else 
+  //     return false;
   
   return goodevent;
 
@@ -1008,7 +927,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     if(filterNParticles_ && 
        trueParticles_.size() != filterNParticles_ ) {
       cout << "PFRootEventManager : event discarded Nparticles="
-	   <<filterNParticles_<< endl; 
+           <<filterNParticles_<< endl; 
       goodevent = false;
     }
     if(goodevent && filterHadronicTaus_ && !isHadronicTau() ) {
@@ -1016,11 +935,11 @@ bool PFRootEventManager::readFromSimulation(int entry) {
       goodevent =  false;
     }
     if( goodevent && !filterTaus_.empty() 
-	&& !countChargedAndPhotons() ) {
+        && !countChargedAndPhotons() ) {
       assert( filterTaus_.size() == 2 );
       cout <<"PFRootEventManager : tau discarded: "
-	   <<"number of charged and neutral particles different from "
-	   <<filterTaus_[0]<<","<<filterTaus_[1]<<endl;
+           <<"number of charged and neutral particles different from "
+           <<filterTaus_[0]<<","<<filterTaus_[1]<<endl;
       goodevent =  false;      
     } 
     
@@ -1029,10 +948,10 @@ bool PFRootEventManager::readFromSimulation(int entry) {
 
   }
   
-//   if(caloTowersBranch_) {
-//     if(goodevent)
-//       fillOutEventWithCaloTowers( caloTowers_ );
-//   } 
+  //   if(caloTowersBranch_) {
+  //     if(goodevent)
+  //       fillOutEventWithCaloTowers( caloTowers_ );
+  //   } 
 
   if(rechitsECALBranch_) {
     PreprocessRecHits( rechitsECAL_ , findRecHitNeighbours_);
@@ -1067,19 +986,19 @@ bool PFRootEventManager::isHadronicTau() const {
     const std::vector<int>& ptcdaughters = ptc.daughterIds();
     if (abs(ptc.pdgCode()) == 15) {
       for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
-	
-	const reco::PFSimParticle& daughter 
-	  = trueParticles_[ptcdaughters[dapt]];
-	
+        
+        const reco::PFSimParticle& daughter 
+          = trueParticles_[ptcdaughters[dapt]];
+        
 
-	int pdgdaugther = daughter.pdgCode();
-	int abspdgdaughter = abs(pdgdaugther);
+        int pdgdaugther = daughter.pdgCode();
+        int abspdgdaughter = abs(pdgdaugther);
 
 
-	if (abspdgdaughter == 11 || 
-	    abspdgdaughter == 13) { 
-	  return false; 
-	}//electron or muons?
+        if (abspdgdaughter == 11 || 
+            abspdgdaughter == 13) { 
+          return false; 
+        }//electron or muons?
       }//loop daughter
     }//tau
   }//loop particles
@@ -1113,32 +1032,32 @@ bool PFRootEventManager::countChargedAndPhotons() const {
       nPhoton++;
   }    
 
-//   const HepMC::GenEvent* myGenEvent = MCTruth_.GetEvent();
-//   if(!myGenEvent) {
-//     cerr<<"impossible to filter on the number of charged and "
-// 	<<"neutral particles without the HepMCProduct. "
-// 	<<"Please check that the branch edmHepMCProduct_*_*_* is found"<<endl;
-//     exit(1);
-//   }
+  //   const HepMC::GenEvent* myGenEvent = MCTruth_.GetEvent();
+  //   if(!myGenEvent) {
+  //     cerr<<"impossible to filter on the number of charged and "
+  //    <<"neutral particles without the HepMCProduct. "
+  //    <<"Please check that the branch edmHepMCProduct_*_*_* is found"<<endl;
+  //     exit(1);
+  //   }
   
-//   for ( HepMC::GenEvent::particle_const_iterator 
-// 	  piter  = myGenEvent->particles_begin();
-// 	piter != myGenEvent->particles_end(); 
-// 	++piter ) {
+  //   for ( HepMC::GenEvent::particle_const_iterator 
+  //      piter  = myGenEvent->particles_begin();
+  //    piter != myGenEvent->particles_end(); 
+  //    ++piter ) {
     
-//     const HepMC::GenParticle* p = *piter;
-//     int partId = p->pdg_id();
+  //     const HepMC::GenParticle* p = *piter;
+  //     int partId = p->pdg_id();
     
-// //     pdgTable_->GetParticle( partId )->Print();
+  // //     pdgTable_->GetParticle( partId )->Print();
        
-//     int charge = chargeValue(partId);
-//     cout<<partId <<" "<<charge/3.<<endl;
+  //     int charge = chargeValue(partId);
+  //     cout<<partId <<" "<<charge/3.<<endl;
 
-//     if(charge) 
-//       nCharged++;
-//     else 
-//       nNeutral++;
-//   }
+  //     if(charge) 
+  //       nCharged++;
+  //     else 
+  //       nNeutral++;
+  //   }
   
   if( nCharged == filterTaus_[0] && 
       nPhoton == filterTaus_[1]  )
@@ -1162,9 +1081,9 @@ int PFRootEventManager::chargeValue(const int& Id) const {
 
 
   int ichg[109]={-1,2,-1,2,-1,2,-1,2,0,0,-3,0,-3,0,-3,0,
--3,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,3,6,0,0,3,6,0,0,-1,2,-1,2,-1,2,0,0,0,0,
--3,0,-3,0,-3,0,0,0,0,0,-1,2,-1,2,-1,2,0,0,0,0,
--3,0,-3,0,-3,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+                 -3,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,3,6,0,0,3,6,0,0,-1,2,-1,2,-1,2,0,0,0,0,
+                 -3,0,-3,0,-3,0,0,0,0,0,-1,2,-1,2,-1,2,0,0,0,0,
+                 -3,0,-3,0,-3,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 
   //...Initial values. Simple case of direct readout.
@@ -1230,7 +1149,7 @@ int PFRootEventManager::chargeValue(const int& Id) const {
 
 void 
 PFRootEventManager::PreprocessRecHits(reco::PFRecHitCollection& rechits, 
-				      bool findNeighbours) {
+                                      bool findNeighbours) {
   
  
   map<unsigned, unsigned> detId2index;
@@ -1261,22 +1180,22 @@ void PFRootEventManager::setRecHitNeigbours
   
   for( unsigned i=0; i<neighbours4DetId.size(); i++) {
     unsigned detId = neighbours4DetId[i];
-//     cout<<"finding n for detId "<<detId<<endl;
+    //     cout<<"finding n for detId "<<detId<<endl;
     const map<unsigned, unsigned>::const_iterator& it = detId2index.find(detId);
     
     if(it != detId2index.end() ) {
-//       cout<<"found n index "<<it->second<<endl;
+      //       cout<<"found n index "<<it->second<<endl;
       rh.add4Neighbour( it->second );
     }
   }
 
   for( unsigned i=0; i<neighbours8DetId.size(); i++) {
     unsigned detId = neighbours8DetId[i];
-//     cout<<"finding n for detId "<<detId<<endl;
+    //     cout<<"finding n for detId "<<detId<<endl;
     const map<unsigned, unsigned>::const_iterator& it = detId2index.find(detId);
     
     if(it != detId2index.end() ) {
-//       cout<<"found n index "<<it->second<<endl;
+      //       cout<<"found n index "<<it->second<<endl;
       rh.add8Neighbour( it->second );
     }
   }
@@ -1329,7 +1248,7 @@ void PFRootEventManager::clustering() {
 
 void 
 PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection& 
-					     clusters) {
+                                             clusters) {
 
   if(!outEvent_) return;
   
@@ -1341,7 +1260,7 @@ PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection&
     cluster.layer = clusters[i].layer();
     cluster.type = 1;
 
-   reco::PFTrajectoryPoint::LayerType tpLayer = 
+    reco::PFTrajectoryPoint::LayerType tpLayer = 
       reco::PFTrajectoryPoint::NLayers;
     switch( clusters[i].layer() ) {
     case PFLayer::ECAL_BARREL:
@@ -1357,25 +1276,25 @@ PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection&
     }
     if(tpLayer < reco::PFTrajectoryPoint::NLayers) {
       try {
-	double peta = -10;
-	double phi = -10;
-	double pe = -10;
+        double peta = -10;
+        double phi = -10;
+        double pe = -10;
 
-	const reco::PFSimParticle& ptc 
-	  = closestParticle( tpLayer, 
-			     cluster.eta, cluster.phi, 
-			     peta, phi, pe );
+        const reco::PFSimParticle& ptc 
+          = closestParticle( tpLayer, 
+                             cluster.eta, cluster.phi, 
+                             peta, phi, pe );
 
-	
-	cluster.particle.eta = peta;
-	cluster.particle.phi = phi;
-	cluster.particle.e = pe;
-	cluster.particle.pdgCode = ptc.pdgCode();
-	
-	
+        
+        cluster.particle.eta = peta;
+        cluster.particle.phi = phi;
+        cluster.particle.e = pe;
+        cluster.particle.pdgCode = ptc.pdgCode();
+        
+        
       }
       catch( std::exception& err ) {
-	cerr<<err.what()<<endl;
+        cerr<<err.what()<<endl;
       } 
     }
 
@@ -1397,18 +1316,18 @@ PFRootEventManager::fillOutEventWithSimParticles(const reco::PFSimParticleCollec
     
     if(ptc.daughterIds().empty() ) { // stable
       reco::PFTrajectoryPoint::LayerType ecalEntrance 
-	= reco::PFTrajectoryPoint::ECALEntrance;
+        = reco::PFTrajectoryPoint::ECALEntrance;
 
       if(ntrajpoints == 3) { 
-	// old format for PFSimCandidates. 
-	// in this case, the PFSimCandidate which does not decay 
-	// before ECAL has 3 points: initial, ecal entrance, hcal entrance
-	ecalEntrance = static_cast<reco::PFTrajectoryPoint::LayerType>(1);
+        // old format for PFSimCandidates. 
+        // in this case, the PFSimCandidate which does not decay 
+        // before ECAL has 3 points: initial, ecal entrance, hcal entrance
+        ecalEntrance = static_cast<reco::PFTrajectoryPoint::LayerType>(1);
       }
       // else continue; // endcap case we do not care;
 
       const reco::PFTrajectoryPoint& tpatecal 
-	= ptc.extrapolatedPoint( ecalEntrance );
+        = ptc.extrapolatedPoint( ecalEntrance );
         
       EventColin::Particle outptc;
       outptc.eta = tpatecal.positionXYZ().Eta();
@@ -1464,7 +1383,7 @@ PFRootEventManager::fillOutEventWithCaloTowers( const CaloTowerCollection& cts )
 
 void 
 PFRootEventManager::fillOutEventWithBlocks( const reco::PFBlockCollection& 
-					    blocks ) {
+                                            blocks ) {
 
   if(!outEvent_) return;
   
@@ -1484,21 +1403,21 @@ void PFRootEventManager::particleFlow() {
   
   if( debug_) {
     cout<<"PFRootEventManager::particleFlow start"<<endl;
-//     cout<<"number of elements in memory: "
-// 	<<reco::PFBlockElement::instanceCounter()<<endl;
+    //     cout<<"number of elements in memory: "
+    //  <<reco::PFBlockElement::instanceCounter()<<endl;
   }
 
   edm::OrphanHandle< reco::PFRecTrackCollection > trackh( &recTracks_, 
-							  edm::ProductID(1) );  
+                                                          edm::ProductID(1) );  
   
   edm::OrphanHandle< reco::PFClusterCollection > ecalh( clustersECAL_.get(), 
-							edm::ProductID(2) );  
+                                                        edm::ProductID(2) );  
   
   edm::OrphanHandle< reco::PFClusterCollection > hcalh( clustersHCAL_.get(), 
-							edm::ProductID(3) );  
+                                                        edm::ProductID(3) );  
 
   edm::OrphanHandle< reco::PFClusterCollection > psh( clustersPS_.get(), 
-						      edm::ProductID(4) );   
+                                                      edm::ProductID(4) );   
 
 
   vector<bool> trackMask;
@@ -1511,7 +1430,7 @@ void PFRootEventManager::particleFlow() {
   fillClusterMask( psMask, *clustersPS_ );
   
   pfBlockAlgo_.setInput( trackh, ecalh, hcalh, psh,
-			 trackMask, ecalMask, hcalMask, psMask ); 
+                         trackMask, ecalMask, hcalMask, psMask ); 
   pfBlockAlgo_.findBlocks();
   
   if( debug_) cout<<pfBlockAlgo_<<endl;
@@ -1520,13 +1439,13 @@ void PFRootEventManager::particleFlow() {
 
 
   edm::OrphanHandle< reco::PFBlockCollection > blockh( pfBlocks_.get(), 
-						       edm::ProductID(5) );  
+                                                       edm::ProductID(5) );  
   
   pfAlgo_.reconstructParticles( blockh );
-//   pfAlgoOther_.reconstructParticles( blockh );
+  //   pfAlgoOther_.reconstructParticles( blockh );
   if( debug_) cout<< pfAlgo_<<endl;
   pfCandidates_ = pfAlgo_.transferCandidates();
-//   pfCandidatesOther_ = pfAlgoOther_.transferCandidates();
+  //   pfCandidatesOther_ = pfAlgoOther_.transferCandidates();
   
   fillOutEventWithPFCandidates( *pfCandidates_ );
 
@@ -1560,26 +1479,26 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
     if (abs(ptc.pdgCode()) == 15) {
       for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
 
-	const reco::PFTrajectoryPoint& tpatvtx 
-	  = vectPART[ptcdaughters[dapt]].trajectoryPoint(0);
-	TLorentzVector partMC;
-	partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
-			  tpatvtx.momentum().Py(),
-			  tpatvtx.momentum().Pz(),
-			  tpatvtx.momentum().E());
+        const reco::PFTrajectoryPoint& tpatvtx 
+          = vectPART[ptcdaughters[dapt]].trajectoryPoint(0);
+        TLorentzVector partMC;
+        partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
+                          tpatvtx.momentum().Py(),
+                          tpatvtx.momentum().Pz(),
+                          tpatvtx.momentum().E());
 
-	partTOTMC += partMC;
-	if (jetsDebug_) {
-	  //pdgcode
-	  int pdgcode = vectPART[ptcdaughters[dapt]].pdgCode();
-	  cout << pdgcode << endl;
-	  cout << tpatvtx << endl;
-	  cout << partMC.Px() << " " << partMC.Py() << " " 
-	       << partMC.Pz() << " " << partMC.E()
-	       << " PT=" 
-	       << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
-	       << endl;
-	}//debug
+        partTOTMC += partMC;
+        if (jetsDebug_) {
+          //pdgcode
+          int pdgcode = vectPART[ptcdaughters[dapt]].pdgCode();
+          cout << pdgcode << endl;
+          cout << tpatvtx << endl;
+          cout << partMC.Px() << " " << partMC.Py() << " " 
+               << partMC.Pz() << " " << partMC.E()
+               << " PT=" 
+               << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
+               << endl;
+        }//debug
       }//loop daughter
     }//tau?
   }//loop particles
@@ -1595,38 +1514,38 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
   /*
   //MC JETS RECONSTRUCTION (visible energy)
   for ( unsigned i=0;  i < trueParticles_.size(); i++) {
-    const reco::PFSimParticle& ptc = trueParticles_[i];
-    const std::vector<int>& ptcdaughters = ptc.daughterIds();
+  const reco::PFSimParticle& ptc = trueParticles_[i];
+  const std::vector<int>& ptcdaughters = ptc.daughterIds();
     
-    //PARTICULE NOT DISINTEGRATING BEFORE ECAL
-    if(ptcdaughters.size() != 0) continue;
+  //PARTICULE NOT DISINTEGRATING BEFORE ECAL
+  if(ptcdaughters.size() != 0) continue;
     
-    //TAKE INFO AT VERTEX //////////////////////////////////////////////////
-    const reco::PFTrajectoryPoint& tpatvtx = ptc.trajectoryPoint(0);
-    TLorentzVector partMC;
-    partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
-		      tpatvtx.momentum().Py(),
-		      tpatvtx.momentum().Pz(),
-		      tpatvtx.momentum().E());
+  //TAKE INFO AT VERTEX //////////////////////////////////////////////////
+  const reco::PFTrajectoryPoint& tpatvtx = ptc.trajectoryPoint(0);
+  TLorentzVector partMC;
+  partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
+  tpatvtx.momentum().Py(),
+  tpatvtx.momentum().Pz(),
+  tpatvtx.momentum().E());
     
-    partTOTMC += partMC;
-    if (jetsDebug_) {
-      //pdgcode
-      int pdgcode = ptc.pdgCode();
-      cout << pdgcode << endl;
-      cout << tpatvtx << endl;
-      cout << partMC.Px() << " " << partMC.Py() << " " 
-      << partMC.Pz() << " " << partMC.E() 
-	   << " PT=" 
-	   << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
-	   << endl;
-    }//debug?
+  partTOTMC += partMC;
+  if (jetsDebug_) {
+  //pdgcode
+  int pdgcode = ptc.pdgCode();
+  cout << pdgcode << endl;
+  cout << tpatvtx << endl;
+  cout << partMC.Px() << " " << partMC.Py() << " " 
+  << partMC.Pz() << " " << partMC.E() 
+  << " PT=" 
+  << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
+  << endl;
+  }//debug?
   }//loop true particles
   */
   if (jetsDebug_) {
     cout << " ET Vector=" << partTOTMC.Et() 
-	 << " " << partTOTMC.Eta() 
-	 << " " << partTOTMC.Phi() << endl; cout << endl;
+         << " " << partTOTMC.Eta() 
+         << " " << partTOTMC.Phi() << endl; cout << endl;
   }//debug
 
   //////////////////////////////////////////////////////////////////////////
@@ -1635,8 +1554,8 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
   //cout << "THERE ARE " << caloTowers_.size() << " CALO TOWERS" << endl;
 
   vector<TLorentzVector> allcalotowers;
-//   vector<double>         allemenergy;
-//   vector<double>         allhadenergy;
+  //   vector<double>         allemenergy;
+  //   vector<double>         allhadenergy;
   double threshCaloTowers = 0;
   for ( unsigned int i = 0; i < caloTowers_.size(); ++i) {
     
@@ -1647,17 +1566,17 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
 
     TLorentzVector caloT;
     TVector3 pepr( caloTowers_[i].eta(),
-		   caloTowers_[i].phi(),
-		   caloTowers_[i].energy());
+                   caloTowers_[i].phi(),
+                   caloTowers_[i].energy());
     TVector3 pxyz = Utils::VectorEPRtoXYZ( pepr );
     caloT.SetPxPyPzE(pxyz.X(),pxyz.Y(),pxyz.Z(),caloTowers_[i].energy());
     allcalotowers.push_back(caloT);
-//     allemenergy.push_back( caloTowers_[i].emEnergy() );
-//     allhadenergy.push_back( caloTowers_[i].hadEnergy() );
+    //     allemenergy.push_back( caloTowers_[i].emEnergy() );
+    //     allhadenergy.push_back( caloTowers_[i].hadEnergy() );
   }//loop calo towers
   if ( jetsDebug_)  
     cout << " RETRIEVED " << allcalotowers.size() 
-	 << " CALOTOWER 4-VECTORS " << endl;
+         << " CALOTOWER 4-VECTORS " << endl;
   
   //ECAL+HCAL tower jets computation
   jetAlgo_.Clear();
@@ -1692,8 +1611,8 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
     if ( jetsDebug_) {
       cout << " ECAL+HCAL jet : " << caloTjets[i] << endl;
       cout << jetmom.Px() << " " << jetmom.Py() << " " 
-	   << jetmom.Pz() << " " << jetmom.E() 
-	   << " PT=" << jetcalo_pt << endl;
+           << jetmom.Pz() << " " << jetmom.E() 
+           << " PT=" << jetcalo_pt << endl;
     }//debug
 
     if (jetcalo_et >= JetEHTETmax) 
@@ -1703,22 +1622,22 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
   //////////////////////////////////////////////////////////////////
   //PARTICLE FLOW JETS
   vector<TLorentzVector> allrecparticles;
-//   if ( jetsDebug_) {
-//     cout << endl;
-//     cout << " THERE ARE " << pfBlocks_.size() << " EFLOW BLOCKS" << endl;
-//   }//debug
+  //   if ( jetsDebug_) {
+  //     cout << endl;
+  //     cout << " THERE ARE " << pfBlocks_.size() << " EFLOW BLOCKS" << endl;
+  //   }//debug
 
-//   for ( unsigned iefb = 0; iefb < pfBlocks_.size(); iefb++) {
-//       const std::vector< PFBlockParticle >& recparticles 
-// 	= pfBlocks_[iefb].particles();
+  //   for ( unsigned iefb = 0; iefb < pfBlocks_.size(); iefb++) {
+  //       const std::vector< PFBlockParticle >& recparticles 
+  //    = pfBlocks_[iefb].particles();
 
   
   
   for(unsigned i=0; i<candidates.size(); i++) {
   
-//       if (jetsDebug_) 
-// 	cout << " there are " << recparticles.size() 
-// 	     << " particle in this block" << endl;
+    //       if (jetsDebug_) 
+    //  cout << " there are " << recparticles.size() 
+    //       << " particle in this block" << endl;
     
     const reco::PFCandidate& candidate = candidates[i];
 
@@ -1726,15 +1645,15 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
       cout << i << " " << candidate << endl;
       int type = candidate.particleId();
       cout << " type= " << type << " " << candidate.charge() 
-	   << endl;
+           << endl;
     }//debug
 
     const math::XYZTLorentzVector& PFpart = candidate.p4();
     
     TLorentzVector partRec(PFpart.Px(), 
-			   PFpart.Py(), 
-			   PFpart.Pz(),
-			   PFpart.E());
+                           PFpart.Py(), 
+                           PFpart.Pz(),
+                           PFpart.E());
     
     //loading 4-vectors of Rec particles
     allrecparticles.push_back( partRec );
@@ -1744,7 +1663,7 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
 
   if (jetsDebug_) 
     cout << " THERE ARE " << allrecparticles.size() 
-	 << " RECONSTRUCTED 4-VECTORS" << endl;
+         << " RECONSTRUCTED 4-VECTORS" << endl;
 
   jetAlgo_.Clear();
   const vector< PFJetAlgorithm::Jet >&  PFjets 
@@ -1769,9 +1688,9 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
     if (jetsDebug_) {
       cout <<" Rec jet : "<< PFjets[i] <<endl;
       cout << jetmom.Px() << " " << jetmom.Py() << " " 
-	   << jetmom.Pz() << " " << jetmom.E() 
-	   << " PT=" << jetpf_pt << " eta="<< jetmom.Eta() 
-	   << " Phi=" << jetmom.Phi() << endl;
+           << jetmom.Pz() << " " << jetmom.E() 
+           << " PT=" << jetpf_pt << " eta="<< jetmom.Eta() 
+           << " Phi=" << jetmom.Phi() << endl;
       cout << "------------------------------------------------" << endl;
     }//debug
     
@@ -1802,42 +1721,42 @@ double PFRootEventManager::makeJets( const reco::PFCandidateCollection& candidat
 
 void PFRootEventManager::lookForGenParticle(unsigned barcode) {
   
-  const HepMC::GenEvent* event = MCTruth_.GetEvent();
-  if(!event) {
-    cerr<<"no GenEvent"<<endl;
-    return;
-  }
+const HepMC::GenEvent* event = MCTruth_.GetEvent();
+if(!event) {
+cerr<<"no GenEvent"<<endl;
+return;
+}
   
-  const HepMC::GenParticle* particle = event->barcode_to_particle(barcode);
-  if(!particle) {
-    cerr<<"no particle with barcode "<<barcode<<endl;
-    return;
-  }
+const HepMC::GenParticle* particle = event->barcode_to_particle(barcode);
+if(!particle) {
+cerr<<"no particle with barcode "<<barcode<<endl;
+return;
+}
 
-  math::XYZTLorentzVector momentum(particle->momentum().px(),
-				   particle->momentum().py(),
-				   particle->momentum().pz(),
-				   particle->momentum().e());
+math::XYZTLorentzVector momentum(particle->momentum().px(),
+particle->momentum().py(),
+particle->momentum().pz(),
+particle->momentum().e());
 
-  double eta = momentum.Eta();
-  double phi = momentum.phi();
+double eta = momentum.Eta();
+double phi = momentum.phi();
 
-  double phisize = 0.05;
-  double etasize = 0.05;
+double phisize = 0.05;
+double etasize = 0.05;
   
-  double etagate = displayZoomFactor_ * etasize;
-  double phigate = displayZoomFactor_ * phisize;
+double etagate = displayZoomFactor_ * etasize;
+double phigate = displayZoomFactor_ * phisize;
   
-  if(displayHist_[EPE]) {
-    displayHist_[EPE]->GetXaxis()->SetRangeUser(eta-etagate, eta+etagate);
-    displayHist_[EPE]->GetYaxis()->SetRangeUser(phi-phigate, phi+phigate);
-  }
-  if(displayHist_[EPH]) {
-    displayHist_[EPH]->GetXaxis()->SetRangeUser(eta-etagate, eta+etagate);
-    displayHist_[EPH]->GetYaxis()->SetRangeUser(phi-phigate, phi+phigate);
-  }
+if(displayHist_[EPE]) {
+displayHist_[EPE]->GetXaxis()->SetRangeUser(eta-etagate, eta+etagate);
+displayHist_[EPE]->GetYaxis()->SetRangeUser(phi-phigate, phi+phigate);
+}
+if(displayHist_[EPH]) {
+displayHist_[EPH]->GetXaxis()->SetRangeUser(eta-etagate, eta+etagate);
+displayHist_[EPH]->GetYaxis()->SetRangeUser(phi-phigate, phi+phigate);
+}
   
-  updateDisplay();
+updateDisplay();
 
 }
 */
@@ -1897,7 +1816,7 @@ void  PFRootEventManager::print(ostream& out) const {
     for(unsigned i=0; i<rechitsECAL_.size(); i++) {
       string seedstatus = "    ";
       if(clusterAlgoECAL_.isSeed(i) ) 
-	seedstatus = "SEED";
+        seedstatus = "SEED";
       printRecHit(rechitsECAL_[i], seedstatus.c_str(), out );
     }
     out<<endl;
@@ -1905,7 +1824,7 @@ void  PFRootEventManager::print(ostream& out) const {
     for(unsigned i=0; i<rechitsHCAL_.size(); i++) {
       string seedstatus = "    ";
       if(clusterAlgoHCAL_.isSeed(i) ) 
-	seedstatus = "SEED";
+        seedstatus = "SEED";
       printRecHit(rechitsHCAL_[i], seedstatus.c_str(), out);
     }
     out<<endl;
@@ -1913,7 +1832,7 @@ void  PFRootEventManager::print(ostream& out) const {
     for(unsigned i=0; i<rechitsPS_.size(); i++) {
       string seedstatus = "    ";
       if(clusterAlgoPS_.isSeed(i) ) 
-	seedstatus = "SEED";
+        seedstatus = "SEED";
       printRecHit(rechitsPS_[i], seedstatus.c_str(), out);
     }
     out<<endl;
@@ -1942,7 +1861,7 @@ void  PFRootEventManager::print(ostream& out) const {
   if( printPFBlocks_ ) {
     out<<"Particle Flow Blocks ======================================"<<endl;
     for(unsigned i=0; i<pfBlocks_->size(); i++) {
-      out<<(*pfBlocks_)[i]<<endl;
+      out<<i<<" "<<(*pfBlocks_)[i]<<endl;
     }    
     out<<endl;
   }
@@ -1957,9 +1876,9 @@ void  PFRootEventManager::print(ostream& out) const {
   if( printTrueParticles_ ) {
     out<<"True Particles  ==========================================="<<endl;
     for(unsigned i=0; i<trueParticles_.size(); i++) {
-       if( trackInsideGCut( trueParticles_[i]) ) 
-	 out<<"\t"<<trueParticles_[i]<<endl;
-     }    
+      if( trackInsideGCut( trueParticles_[i]) ) 
+        out<<"\t"<<trueParticles_[i]<<endl;
+    }    
  
   }
 
@@ -1979,21 +1898,21 @@ PFRootEventManager::printMCTruth(std::ostream& out,
   if(!myGenEvent) return;
 
   std::cout << "Id  Gen Name       eta    phi     pT     E    Vtx1   " 
-	    << " x      y      z   " 
-	    << "Moth  Vtx2  eta   phi     R      Z   Da1  Da2 Ecal?" 
-	    << std::endl;
+            << " x      y      z   " 
+            << "Moth  Vtx2  eta   phi     R      Z   Da1  Da2 Ecal?" 
+            << std::endl;
 
   int nLines = 0;
   for ( HepMC::GenEvent::particle_const_iterator 
-	  piter  = myGenEvent->particles_begin();
-	piter != myGenEvent->particles_end(); 
-	++piter ) {
+          piter  = myGenEvent->particles_begin();
+        piter != myGenEvent->particles_end(); 
+        ++piter ) {
     
     if( nLines == maxNLines) break;
     nLines++;
     
     HepMC::GenParticle* p = *piter;
-     /* */
+    /* */
     int partId = p->pdg_id();
     std::string name;
 
@@ -2084,24 +2003,24 @@ PFRootEventManager::printMCTruth(std::ostream& out,
     }
 
     math::XYZTLorentzVector momentum1(p->momentum().px(),
-				      p->momentum().py(),
-				      p->momentum().pz(),
-				      p->momentum().e());
+                                      p->momentum().py(),
+                                      p->momentum().pz(),
+                                      p->momentum().e());
 
     int vertexId1 = 0;
 
     if ( !p->production_vertex() ) continue;
 
     math::XYZVector vertex1 (p->production_vertex()->position().x()/10.,
-			     p->production_vertex()->position().y()/10.,
-			     p->production_vertex()->position().z()/10.);
+                             p->production_vertex()->position().y()/10.,
+                             p->production_vertex()->position().z()/10.);
     vertexId1 = p->production_vertex()->barcode();
     
     std::cout.setf(std::ios::fixed, std::ios::floatfield);
     std::cout.setf(std::ios::right, std::ios::adjustfield);
     
     std::cout << std::setw(4) << p->barcode() << " " 
-	 << name;
+              << name;
     
     for(unsigned int k=0;k<11-name.length() && k<12; k++) std::cout << " ";  
     
@@ -2109,13 +2028,13 @@ PFRootEventManager::printMCTruth(std::ostream& out,
     if ( eta > +10. ) eta = +10.;
     if ( eta < -10. ) eta = -10.;
     std::cout << std::setw(6) << std::setprecision(2) << eta << " " 
-	      << std::setw(6) << std::setprecision(2) << momentum1.phi() << " " 
-	      << std::setw(7) << std::setprecision(2) << momentum1.pt() << " " 
-	      << std::setw(7) << std::setprecision(2) << momentum1.e() << " " 
-	      << std::setw(4) << vertexId1 << " " 
-	      << std::setw(6) << std::setprecision(1) << vertex1.x() << " " 
-	      << std::setw(6) << std::setprecision(1) << vertex1.y() << " " 
-	      << std::setw(6) << std::setprecision(1) << vertex1.z() << " ";
+              << std::setw(6) << std::setprecision(2) << momentum1.phi() << " " 
+              << std::setw(7) << std::setprecision(2) << momentum1.pt() << " " 
+              << std::setw(7) << std::setprecision(2) << momentum1.e() << " " 
+              << std::setw(4) << vertexId1 << " " 
+              << std::setw(6) << std::setprecision(1) << vertex1.x() << " " 
+              << std::setw(6) << std::setprecision(1) << vertex1.y() << " " 
+              << std::setw(6) << std::setprecision(1) << vertex1.z() << " ";
 
     const HepMC::GenParticle* mother = 
       *(p->production_vertex()->particles_in_const_begin());
@@ -2127,9 +2046,9 @@ PFRootEventManager::printMCTruth(std::ostream& out,
     
     if ( p->end_vertex() ) {  
       math::XYZTLorentzVector vertex2(p->end_vertex()->position().x()/10.,
-				      p->end_vertex()->position().y()/10.,
-				      p->end_vertex()->position().z()/10.,
-				      p->end_vertex()->position().t()/10.);
+                                      p->end_vertex()->position().y()/10.,
+                                      p->end_vertex()->position().z()/10.,
+                                      p->end_vertex()->position().t()/10.);
       int vertexId2 = p->end_vertex()->barcode();
 
       std::vector<const HepMC::GenParticle*> children;
@@ -2138,16 +2057,16 @@ PFRootEventManager::printMCTruth(std::ostream& out,
       HepMC::GenVertex::particles_out_const_iterator lastDaughterIt = 
         p->end_vertex()->particles_out_const_end();
       for ( ; firstDaughterIt != lastDaughterIt ; ++firstDaughterIt ) {
-	children.push_back(*firstDaughterIt);
+        children.push_back(*firstDaughterIt);
       }      
 
       std::cout << std::setw(4) << vertexId2 << " "
-		<< std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
-		<< std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
-		<< std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
-		<< std::setw(6) << std::setprecision(1) << vertex2.z() << " ";
+                << std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
+                << std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
+                << std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
+                << std::setw(6) << std::setprecision(1) << vertex2.z() << " ";
       for ( unsigned id=0; id<children.size(); ++id )
-	std::cout << std::setw(4) << children[id]->barcode() << " ";
+        std::cout << std::setw(4) << children[id]->barcode() << " ";
     }
     std::cout << std::endl;
 
@@ -2156,8 +2075,8 @@ PFRootEventManager::printMCTruth(std::ostream& out,
 
 
 void  PFRootEventManager::printRecHit(const reco::PFRecHit& rh, 
-				      const char* seedstatus,
-				      ostream& out) const {
+                                      const char* seedstatus,
+                                      ostream& out) const {
 
   if(!out) return;
   
@@ -2171,7 +2090,7 @@ void  PFRootEventManager::printRecHit(const reco::PFRecHit& rh,
 }
 
 void  PFRootEventManager::printCluster(const reco::PFCluster& cluster,
-				       ostream& out ) const {
+                                       ostream& out ) const {
   
   if(!out) return;
 
@@ -2208,7 +2127,7 @@ bool PFRootEventManager::trackInsideGCut( const reco::PFTrack& track ) const {
 
 void  
 PFRootEventManager::fillRecHitMask( vector<bool>& mask, 
-				    const reco::PFRecHitCollection& rechits ) 
+                                    const reco::PFRecHitCollection& rechits ) 
   const {
 
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
@@ -2230,7 +2149,7 @@ PFRootEventManager::fillRecHitMask( vector<bool>& mask,
 
 void  
 PFRootEventManager::fillClusterMask(vector<bool>& mask, 
-				    const reco::PFClusterCollection& clusters) 
+                                    const reco::PFClusterCollection& clusters) 
   const {
   
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
@@ -2252,7 +2171,7 @@ PFRootEventManager::fillClusterMask(vector<bool>& mask,
 
 void  
 PFRootEventManager::fillTrackMask(vector<bool>& mask, 
-				  const reco::PFRecTrackCollection& tracks) 
+                                  const reco::PFRecTrackCollection& tracks) 
   const {
   
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
@@ -2271,8 +2190,8 @@ PFRootEventManager::fillTrackMask(vector<bool>& mask,
 
 const reco::PFSimParticle&
 PFRootEventManager::closestParticle( reco::PFTrajectoryPoint::LayerType layer, 
-				     double eta, double phi,
-				     double& peta, double& pphi, double& pe) 
+                                     double eta, double phi,
+                                     double& peta, double& pphi, double& pe) 
   const {
   
 
@@ -2291,8 +2210,8 @@ PFRootEventManager::closestParticle( reco::PFTrajectoryPoint::LayerType layer,
     // protection for old version of the PFSimParticle 
     // dataformats. 
     if( layer >= reco::PFTrajectoryPoint::NLayers ||
-	ptc.nTrajectoryMeasurements() + layer >= 
-	ptc.nTrajectoryPoints() ) {
+        ptc.nTrajectoryMeasurements() + layer >= 
+        ptc.nTrajectoryPoints() ) {
       continue;
     }
 
