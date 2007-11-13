@@ -1,0 +1,19 @@
+<use name=DataFormats/Common>
+<use name=DataFormats/ParticleFlowCandidate>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/ParticleFlowReco>
+<use name=SimDataFormats/HepMCProduct>
+<use name=FWCore/PluginManager>
+<use name=root>
+<flags EDM_PLUGIN=1>
+<export>
+  <lib name=RecoParticleFlowPFBenchmark>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=RecoParticleFlow/PFAlgo>
+  <use name=FWCore/PluginManager>	
+</export>
+
+
