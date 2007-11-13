@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.10 2007/11/12 11:15:18 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.11 2007/11/13 11:00:46 arizzi Exp $
 //
 //
 
@@ -84,6 +84,7 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       TH1F * h_dedxMassSel;
       TH1F * h_dedxMassSelFit;
       TH1F * h_dedxMass;
+      TH1F * h_dedxMassMu;
       TH1F * h_dedxMassFit;
       TH1F * h_dedxMassProton;
       TH1F * h_dedxMassProtonFit;
@@ -102,6 +103,7 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       TH1F * h_pSpectrumAfterSelection[6]; 
       TH1F * h_massAfterSelection[6];
       TH2F * h_massVsMass;
+      TH2F * h_betaVsBeta;
       TH2F * h_massVsMassSel;
 //Counters
       double selected;
@@ -407,6 +409,8 @@ if(find_if(tofMass.begin(), tofMass.end(), bind2nd(greater<float>(), 100.))!= to
 
 for(int i=0; i < candidates.size();i++)
 {
+  h_betaVsBeta->Fill(candidates[i].dt.invBeta,sqrt(candidates[i].tk.invBeta2),w);
+
  // cout << candidates[i].massDt() << " " << candidates[i].massTk() << " " << candidates[i].tk.track->momentum() << " " <<  candidates[i].dt.combinedTrack->momentum() << endl;
  if((candidates[i].dt.invBeta >1.1  )|| ( candidates[i].tk.invBeta2 > 1.3 && candidates[i].hasDt ) )
  {
@@ -424,7 +428,8 @@ for(int i=0; i < candidates.size();i++)
       cout <<"chi &  # hits: " <<  candidates[i].tk.track->normalizedChi2() << " " << candidates[i].tk.track->numberOfValidHits() << endl;
  }
 
- 
+
+if(candidates[i].tk.invBeta2 > 1.3 && candidates[i].hasDt) h_dedxMassMu->Fill(candidates[i].massTk(),w); 
 
 }
 
@@ -480,6 +485,7 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   h_dedxMassProton =  subDir.make<TH1F>( "massProton"  , "Proton Mass (dedx)", 100,  0., 2.);
   h_dedxMassProtonFit =  subDir.make<TH1F>( "massProton_FIT"  , "Proton Mass (dedx)", 100,  0., 2.);
 
+  h_dedxMassMu =  subDir.make<TH1F>( "massMu"  , "Mass muons (dedx)", 100,  0., 1500.);
 //------------ RECO TOF ----------------
   TFileDirectory subDirTof = fs->mkdir( "RecoTOF" );
   h_tofBetap =  subDirTof.make<TH2F>("tof_beta_p","1/#beta vs p",100,0,1500,100,minBeta,maxBeta );
@@ -501,6 +507,7 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   
   h_massVsMass =  subDirAn.make<TH2F>("tof_mass_vs_dedx_mass","Mass tof vs Mass dedx", 100,0,1200,100,0,1200);
   h_massVsMassSel =  subDirAn.make<TH2F>("tof_mass_vs_dedx_mass_sel","Mass tof vs Mass dedx Sel", 100,0,1200,100,0,1200);
+  h_betaVsBeta =  subDirAn.make<TH2F>("tof_beta_vs_beta","INVBeta tof vs INVbeta dedx (Pt>30)", 100,0,3,100,0,3);
 
 
 //------------ SIM ----------------
