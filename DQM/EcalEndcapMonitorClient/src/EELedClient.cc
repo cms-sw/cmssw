@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/13 10:13:11 $
- * $Revision: 1.36 $
+ * $Date: 2007/11/13 14:05:57 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1357,8 +1357,8 @@ void EELedClient::analyze(void){
       }
 
       if ( hs05_[ism-1] ) {
-        mes05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(1681, i) );
-        mes05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(1681, i) );
+        mes05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(426, i) );
+        mes05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(426, i) );
       }
 
     }

@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/11/13 10:13:11 $
- * $Revision: 1.54 $
+ * $Date: 2007/11/13 14:05:36 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -3385,23 +3385,23 @@ void EELaserClient::analyze(void){
       }
 
       if ( hs05_[ism-1] ) {
-        mes05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(1681, i) );
-        mes05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(1681, i) );
+        mes05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(426, i) );
+        mes05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(426, i) );
       }
 
       if ( hs06_[ism-1] ) {
-        mes06_[ism-1]->setBinContent( i, hs06_[ism-1]->GetBinContent(1681, i) );
-        mes06_[ism-1]->setBinError( i, hs06_[ism-1]->GetBinError(1681, i) );
+        mes06_[ism-1]->setBinContent( i, hs06_[ism-1]->GetBinContent(426, i) );
+        mes06_[ism-1]->setBinError( i, hs06_[ism-1]->GetBinError(426, i) );
       }
 
       if ( hs07_[ism-1] ) {
-        mes07_[ism-1]->setBinContent( i, hs07_[ism-1]->GetBinContent(1681, i) );
-        mes07_[ism-1]->setBinError( i, hs07_[ism-1]->GetBinError(1681, i) );
+        mes07_[ism-1]->setBinContent( i, hs07_[ism-1]->GetBinContent(426, i) );
+        mes07_[ism-1]->setBinError( i, hs07_[ism-1]->GetBinError(426, i) );
       }
 
       if ( hs08_[ism-1] ) {
-        mes08_[ism-1]->setBinContent( i, hs08_[ism-1]->GetBinContent(1681, i) );
-        mes08_[ism-1]->setBinError( i, hs08_[ism-1]->GetBinError(1681, i) );
+        mes08_[ism-1]->setBinContent( i, hs08_[ism-1]->GetBinContent(426, i) );
+        mes08_[ism-1]->setBinError( i, hs08_[ism-1]->GetBinError(426, i) );
       }
 
     }
