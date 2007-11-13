@@ -1,6 +1,5 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/TestObjects>
-<use name=DataFormats/TrackReco>
 <use name=FWCore/Framework>
 <use name=FWCore/TFWLiteSelector>
 <use name=rootcore>
