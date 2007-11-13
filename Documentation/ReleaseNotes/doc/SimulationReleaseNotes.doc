@@ -18,8 +18,10 @@
    events, as it resolves the issues of generator particles ordering and
    of compatibility with Root I/O
 
+-- Migration to CLHEP 1.9.3.2, for improvements in random number generators
+
 -- Migration to Geant4.8.3.p01, for improvements in physics modeling and
-   many bug fixes in geometry overlap cleanup tools
+   many bug fixes in geometry overlap detecting tools
 
 -- Many updates and improvements in CMS geometry application, cleanup 
    of large fraction of volume overlaps (see remarks below);
@@ -62,6 +64,8 @@
 
 -- Vertex smearing - fixed old (since OSCAR) bug of improper vertex time record 
 
+-- Rand*Q engines used throughout digitization modules, for proper store/restore
+   of the random number sequences
 
 - Known issues:
 
