@@ -114,6 +114,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   sourceId_=class_.toString()+"_"+instance_.toString();
   LOG4CPLUS_INFO(getApplicationLogger(),sourceId_ <<" constructor");
   LOG4CPLUS_INFO(getApplicationLogger(),"plugin path:"<<getenv("SEAL_PLUGINS"));
+  LOG4CPLUS_INFO(getApplicationLogger(),"CMSSW_BASE:"<<getenv("CMSSW_BASE"));
   
   getApplicationDescriptor()->setAttribute("icon", "/rubuilder/fu/images/fu64x64.gif");
 
@@ -477,6 +478,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     if(hasShMem_) attachDqmToShm();
 
     int sc = 0;
+    evtProcessor_->clearCounters();
     evtProcessor_->setRunNumber(runNumber_.value_);
     try {
       evtProcessor_->runAsync();
@@ -606,6 +608,7 @@ void FUEventProcessor::initEventProcessor()
   }
   else {
     LOG4CPLUS_INFO(getApplicationLogger(),"plugin path: "<<getenv("SEAL_PLUGINS"));
+    LOG4CPLUS_INFO(getApplicationLogger(),"CMSSW_BASE:"<<getenv("CMSSW_BASE"));
   }
   
   
