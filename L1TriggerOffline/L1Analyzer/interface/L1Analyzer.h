@@ -16,7 +16,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Nov 30 21:42:36 CET 2006
-// $Id: L1Analyzer.h,v 1.1 2007/07/06 19:52:57 tapper Exp $
+// $Id: L1Analyzer.h,v 1.2 2007/07/08 08:14:03 elmer Exp $
 //
 
 // user include files                                                                                         
@@ -57,7 +57,8 @@ class L1Analyzer : public edm::EDAnalyzer {
 
   // Different sets of histograms to make
 
-  SimpleHistograms     *m_l1Simple, *m_refSimple;   // Simple kinematic distributions
+  SimpleHistograms     *m_l1Matched, *m_refMatched;   // Simple kinematic distributions
+  SimpleHistograms     *m_l1UnMatched, *m_refUnMatched;   // Simple kinematic distributions
   ResolutionHistograms *m_resolution; // Histograms for resolutions and biases
   EfficiencyHistograms *m_efficiency; // Histograms for efficiencies
 
