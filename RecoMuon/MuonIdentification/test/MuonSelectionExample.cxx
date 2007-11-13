@@ -4,8 +4,8 @@
    gStyle->SetOptStat(1111111);
    gSystem->Load("libRecoMuonMuonIdentification");
    
-   TFile f("/uscms/home/ibloch/PREP_1_6_0_pre9_prepGlID/CMSSW_1_6_0_pre9/src/RecoMuon/MuonIdentification/test/single_mu_pt_10_negative.root");
-   TTree* tree = (TTree*)f.Get("Events");
+   f = TFile::Open("dcap://cmsdca3.fnal.gov:24143/pnfs/fnal.gov/usr/cms/WAX/11/store/mc/2007/11/7/RelVal-RelValSingleMuMinusPt10-1194439351/0000/1ACAFBB9-4A8D-DC11-A8EE-001617C3B73A.root");
+   TTree* tree = (TTree*)f->Get("Events");
    TCanvas* c1 = new TCanvas("muons","muons",800,800);
    c1->Divide(3,3);
    TH1F* h1 = new TH1F("h1","global muon",100,0,100);
@@ -28,25 +28,25 @@
    int TM2DCompatibilityTight      = 3;
 
 
-   TString branchName1 = tree->GetAlias("muons");
-   tree->SetBranchAddress(branchName1,&muons);
-   TString branchName2 = tree->GetAlias("trackerMuons");
-   tree->SetBranchAddress(branchName2,&trackerMuons);
+   TString branchName = tree->GetAlias("muons");
+   tree->SetBranchAddress(branchName,&muons);
 
    for ( unsigned int index = 0; index < tree->GetEntries(); ++index ) {
       tree->GetEntry(index);
-      tree->SetBranchAddress(branchName1,&muons);
-      tree->SetBranchAddress(branchName2,&trackerMuons);
+      tree->SetBranchAddress(branchName,&muons);
       if (index%1000==0) std::cout << "Event " << index << std::endl;
-      for(unsigned int i=0; i<muons.size(); i++) h1->Fill(muons[i].pt());
-      for(unsigned int i=0; i<trackerMuons.size(); i++) {
-	 h2->Fill(trackerMuons[i].pt());
-	 if (muonid::isGoodMuon(trackerMuons[i],TMLastStationLoose)) h3->Fill(trackerMuons[i].pt());
-	 if (muonid::isGoodMuon(trackerMuons[i],TMLastStationTight)) h4->Fill(trackerMuons[i].pt());
-	 h5->Fill(muonid::getSegmentCompatibility(trackerMuons[i]),muonid::getCaloCompatibility(trackerMuons[i]));
-	 if (muonid::isGoodMuon(trackerMuons[i],TM2DCompatibilityLoose)) h6->Fill(trackerMuons[i].pt());
-	 if (muonid::isGoodMuon(trackerMuons[i],TM2DCompatibilityTight)) h7->Fill(trackerMuons[i].pt());
-      }
+      for(unsigned int i=0; i<muons.size(); i++) 
+	{
+	   if ( muons[i].isGlobalMuon() ) h1->Fill(muons[i].pt());
+	   if ( muons[i].isTrackerMuon() ) {
+	      h2->Fill(muons[i].pt());
+	      if (muonid::isGoodMuon(muons[i],TMLastStationLoose)) h3->Fill(muons[i].pt());
+	      if (muonid::isGoodMuon(muons[i],TMLastStationTight)) h4->Fill(muons[i].pt());
+	      h5->Fill(muonid::getSegmentCompatibility(muons[i]),muonid::getCaloCompatibility(muons[i]));
+	      if (muonid::isGoodMuon(muons[i],TM2DCompatibilityLoose)) h6->Fill(muons[i].pt());
+	      if (muonid::isGoodMuon(muons[i],TM2DCompatibilityTight)) h7->Fill(muons[i].pt());
+	   }
+	}
    }
    
    c1->cd(1);
