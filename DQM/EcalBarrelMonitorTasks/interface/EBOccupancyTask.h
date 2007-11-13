@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyTask.h
  *
- * $Date: 2007/04/05 14:53:59 $
- * $Revision: 1.7 $
+ * $Date: 2007/11/10 15:01:25 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -13,7 +13,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+class MonitorElement;
 class DaqMonitorBEInterface;
 
 class EBOccupancyTask: public edm::EDAnalyzer{

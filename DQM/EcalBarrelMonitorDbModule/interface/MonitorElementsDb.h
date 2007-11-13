@@ -1,4 +1,4 @@
-// $Id: MonitorElementsDb.h,v 1.1 2006/06/28 10:46:17 benigno Exp $
+// $Id: MonitorElementsDb.h,v 1.2 2007/10/24 06:22:03 dellaric Exp $
 
 #ifndef MonitorElementsDb_H
 #define MonitorElementsDb_H
@@ -7,8 +7,8 @@
   \file MonitorElementsDb.h
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.1 $
-  \date $Date: 2006/06/28 10:46:17 $
+  \version $Revision: 1.2 $
+  \date $Date: 2007/10/24 06:22:03 $
 */
 
 
@@ -20,16 +20,15 @@
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <DQM/EcalBarrelMonitorDbModule/interface/MonitorXMLParser.h>
 
 #include "RelationalAccess/ISessionProxy.h"
 
-//class MonitorElementsDb: public edm::EDAnalyzer{
+class MonitorElement;
+class DaqMonitorBEInterface;
+
 class MonitorElementsDb{
 
   friend class EcalBarrelMonitorDbModule;

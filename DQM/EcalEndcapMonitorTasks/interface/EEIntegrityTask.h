@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityTask.h
  *
- * $Date: 2007/10/15 16:26:42 $
- * $Revision: 1.6 $
+ * $Date: 2007/11/10 15:33:55 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
  */
@@ -14,7 +14,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+class MonitorElement;
 class DaqMonitorBEInterface;
 
 class EEIntegrityTask: public edm::EDAnalyzer{
