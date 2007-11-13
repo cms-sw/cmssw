@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri June  1 17:00:00 CET 2007
-// $Id: SiStripMonitorRawData.cc,v 1.2 2007/07/25 15:41:57 dutta Exp $
+// $Id: SiStripMonitorRawData.cc,v 1.3 2007/11/11 17:07:05 dutta Exp $
 //
 //
 
@@ -28,6 +28,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
+#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -42,7 +43,7 @@
 
 #include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorRawData.h"
 
-
+#include "TH1F.h"
 // std
 #include <cstdlib>
 #include <string>
@@ -50,37 +51,56 @@
 #include <numeric>
 #include <algorithm>
 
-SiStripMonitorRawData::SiStripMonitorRawData(const edm::ParameterSet& iConfig):
+SiStripMonitorRawData::SiStripMonitorRawData(edm::ParameterSet const& iConfig):
+  BadFedNumber(0),
   dbe_(edm::Service<DaqMonitorBEInterface>().operator->()),
-  conf_(iConfig)
-{
+  conf_(iConfig),
+  m_cacheID_(0)
 
+
+{
+  edm::LogInfo("SiStripMonitorRawData") <<"SiStripMonitorRawData  " 
+					  << " Constructing....... ";     
 }
 
 
 SiStripMonitorRawData::~SiStripMonitorRawData()
 {
+  edm::LogInfo("SiStripMonitorRawData") <<"SiStripMonitorRawData  " 
+					  << " Destructing....... ";     
 }
+//
+// -- Begin Job
+//
+void SiStripMonitorRawData::beginJob(edm::EventSetup const&) {
+}
+//
+// -- BeginRun
+//
+void SiStripMonitorRawData::beginRun(edm::Run const& run, edm::EventSetup const& eSetup){
+  unsigned long long cacheID = eSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
 
-
-void SiStripMonitorRawData::beginJob(const edm::EventSetup& es){
-   // retrieve parameters from configuration file
-
-  dbe_->setCurrentFolder("Track/GlobalParameters");
-  
-  BadFedNumber = dbe_->book1D("FaultyFedNumberAndChannel","Faulty Fed Id and Channel and Numbers", 60000, 0.5, 600.5);
-  BadFedNumber->setAxisTitle("Fed Id and Channel numbers",1);
-
-  
- //getting det id from the det cabling    
-  es.get<SiStripDetCablingRcd>().get( detcabling );
-
-  detcabling->addActiveDetectorsRawIds(SelectedDetIds);
+  TH1F* hist1 = ExtractTObject<TH1F>().extract(BadFedNumber);
+  hist1->Reset();
+  if (m_cacheID_ != cacheID) {
+    m_cacheID_ = cacheID;       
+    eSetup.get<SiStripDetCablingRcd>().get( detcabling );
+    SelectedDetIds.clear();
+    detcabling->addActiveDetectorsRawIds(SelectedDetIds);
+    
+    edm::LogInfo("SiStripMonitorRawData") <<"SiStripMonitorRawData::beginRun: " 
+					  << " Creating MEs for new Cabling ";     
+    dbe_->setCurrentFolder("Track/GlobalParameter");
+    if (!BadFedNumber) {
+      BadFedNumber = dbe_->book1D("FaultyFedNumberAndChannel","Faulty Fed Id and Channel and Numbers", 60000, 0.5, 600.5);
+      BadFedNumber->setAxisTitle("Fed Id and Channel numbers",1);
+    }
+  } 
 }
 
 
 // ------------ method called to produce the data  ------------
-void SiStripMonitorRawData::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void SiStripMonitorRawData::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 {
 
    edm::LogInfo("SiStripMonitorRawData") <<"SiStripMonitorRawData::analyze: Run "<< 
@@ -112,15 +132,24 @@ void SiStripMonitorRawData::analyze(const edm::Event& iEvent, const edm::EventSe
     }
   }
 }
-
-
-void SiStripMonitorRawData::endJob(void){
+//
+// -- End Run
+//    
+void SiStripMonitorRawData::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if (outputMEsInRootFile) {    
     dbe_->showDirStructure();
     dbe_->save(outputFileName);
   }
-
 }
+//
+// -- End Job
+//
+void SiStripMonitorRawData::endJob(void){
+  edm::LogInfo("SiStripMonitorRawData") <<"SiStripMonitorRawData::EndJob: " 
+					  << " Finishing!! ";        
+}
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripMonitorRawData);
 
