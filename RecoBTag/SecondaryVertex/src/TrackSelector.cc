@@ -29,7 +29,7 @@ TrackSelector::operator () (const Track &track,
                             const TrackIPTagInfo::TrackIPData &ipData,
                             const Jet &jet) const
 {
-	return VectorUtil::DeltaR(jet.p4().Vect(),
+	return VectorUtil::DeltaR(jet.momentum(),
 	                          track.momentum()) < jetDeltaR &&
 	       ipData.ip2d.value()        >= sip2dValMin &&
 	       ipData.ip2d.value()        <= sip2dValMax &&
