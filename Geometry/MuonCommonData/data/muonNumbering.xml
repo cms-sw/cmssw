@@ -258,10 +258,6 @@
    <Parameter name="CopyNoTag" value="[mr_eplane]"/>
    <Parameter name="CopyNoOffset" value="3*[super]"/>
  </SpecPar>  
- <SpecPar name="MuonRpcEndcap4">
-   <Parameter name="CopyNoTag" value="[mr_eplane]"/>
-   <Parameter name="CopyNoOffset" value="4*[super]"/>
- </SpecPar>  
 
  <SpecPar name="MuonRpcEndcapSector">
    <PartSelector path="//RT1B"/>

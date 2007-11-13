@@ -81,10 +81,5 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
       <Parameter name="nStrips" value="28"/>
     </SpecPar>
 
-    <SpecPar name="nStrips64" eval="true">
-      <Parameter name="nStrips" value="64"/>
-    </SpecPar>
-
-
   </SpecParSection>
 </DDDefinition>
