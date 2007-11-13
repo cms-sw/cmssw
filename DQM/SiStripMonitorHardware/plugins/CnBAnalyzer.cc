@@ -1,31 +1,38 @@
 #include "DQM/SiStripMonitorHardware/plugins/CnBAnalyzer.h"
 
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+
+// This is the maximum number of histogrammed FEDs
+// If the number of FEDs exceeds this limit we have a crash
+#define N_MAX_FEDS  1024
+#define N_MAX_FEDUS (N_MAX_FEDS * 8)
+
 CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) :
-  ApveErr(2000),          // initialze APVE Error Histogram vector (2000 FEDS Max)
-  ApveErrCount(2000),     // initialize the BinCounters vector (for flexibility of presentation, % failure, etc.)
-  FeMajApvErr(2000),      // initialze APVE Error Histogram vector (2000 FEDS Max)
-  FeWHApv(2000),          // initialze APVE Error Histogram vector (2000 FEDS Max)
-  FeLKErr(2000),          // initialze APVE Error Histogram vector (2000 FEDS Max)
-  FeSYErr(2000),          // initialze APVE Error Histogram vector (2000 FEDS Max)
-  FeRWHErr(2000),         // initialze APVE Error Histogram vector (2000 FEDS Max)
-  OosPerFed(2000),        // sets the size of the oos per fer per event histogram
-  FeMajApvErrCount(2000), // initialize the BinCounters vector (for flexibility of presentation, % failure, etc.)
+  ApveErr(N_MAX_FEDS),          // initialze APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
+  ApveErrCount(N_MAX_FEDS),     // initialize the BinCounters vector (for flexibility of presentation, % failure, etc.)
+  FeMajApvErr(N_MAX_FEDS),      // initialze APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
+  FeWHApv(N_MAX_FEDS),          // initialze APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
+  FeLKErr(N_MAX_FEDS),          // initialze APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
+  FeSYErr(N_MAX_FEDS),          // initialze APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
+  FeRWHErr(N_MAX_FEDS),         // initialze APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
+  OosPerFed(N_MAX_FEDS),        // sets the size of the oos per fer per event histogram
+  FeMajApvErrCount(N_MAX_FEDS), // initialize the BinCounters vector (for flexibility of presentation, % failure, etc.)
   FsopLong( 2,vector<unsigned long>(8) ),
   FsopShort(8),
-  feMajorAddress( 2000,vector<uint16_t>(8) ), // a grand total of ~ 4000 front end units
-  WHError( 2000,vector<int>(8) ),  // wrong header error
-  LKError( 2000,vector<int>(8) ),  // lock error
-  SYError( 2000,vector<int>(8) ),  // synch error
-  RWHError( 2000,vector<int>(8) ), // RAW wrong header error
-  FiberStatusBits( 8, vector<vector<MonitorElement*> >(6,vector<MonitorElement*>(2000)) ),//6 histograms per FED FEFPGA for 2000 FED max.
-  FiberWHApv( 2000, vector<MonitorElement*>(8) ),//8 FPGAS for 2000 FEDS
-  FiberStatusBitCount( 8, vector<vector<BinCounters*> >(6,vector<BinCounters*>(2000)) ),//counter variable for errors/event# precnt.
-  feMedianAddr(4000),
-  //fenumbers(2000)
+  feMajorAddress( N_MAX_FEDS,vector<uint16_t>(8) ), // a grand total of ~ 4000 front end units
+  WHError( N_MAX_FEDS,vector<int>(8) ),  // wrong header error
+  LKError( N_MAX_FEDS,vector<int>(8) ),  // lock error
+  SYError( N_MAX_FEDS,vector<int>(8) ),  // synch error
+  RWHError( N_MAX_FEDS,vector<int>(8) ), // RAW wrong header error
+  FiberStatusBits( 8, vector<vector<MonitorElement*> >(6,vector<MonitorElement*>(N_MAX_FEDS)) ),//6 histograms per FED FEFPGA for N_MAX_FEDS FED max.
+  FiberWHApv( N_MAX_FEDS, vector<MonitorElement*>(8) ),//8 FPGAS for N_MAX_FEDS FEDS
+  FiberStatusBitCount( 8, vector<vector<BinCounters*> >(6,vector<BinCounters*>(N_MAX_FEDS)) ),//counter variable for errors/event# precnt.
+  feMedianAddr(N_MAX_FEDUS),
+  //fenumbers(N_MAX_FEDS)
   fedIds_(),
   firstEvent_(true),
-  bc(2000),    //counts the bits baby
-  errors( 2000, vector<MonitorElement*>(8) )
+  bc(N_MAX_FEDS),    //counts the bits baby
+  errors( N_MAX_FEDS, vector<MonitorElement*>(8) )
   //useCabling_( iConfig.getUntrackedParameter<bool>("UseCabling",false) )
 {
   fedEvent_ = new Fed9U::Fed9UDebugEvent(); // new intialization - new = dynamic 
@@ -134,7 +141,7 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       vector<uint16_t>::const_iterator ifed = cabling->feds().begin();
       for ( ; ifed != cabling->feds().end(); ifed++ ) { fedIds_.push_back( *ifed ); }
     } else { 
-      for ( uint16_t ifed = 0; ifed < 1023; ifed++ ) {
+      for ( uint16_t ifed = 0; ifed < N_MAX_FEDS; ifed++ ) {
 	if ( buffers->FEDData( static_cast<int>(ifed) ).size() >= 152 ) {
 	
 	  fedIds_.push_back(ifed);
