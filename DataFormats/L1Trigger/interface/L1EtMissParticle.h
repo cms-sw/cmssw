@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EtMissParticle.h,v 1.10 2007/10/16 05:01:21 wsun Exp $
+// $Id: L1EtMissParticle.h,v 1.11 2007/11/13 03:07:45 wsun Exp $
 //
 
 // system include files
@@ -83,7 +83,7 @@ namespace l1extra {
 	 const L1GctEtHad* gctEtHad() const
 	 { return etHadRef_.get() ; }
 
-         virtual LeafCandidate* clone() const
+         virtual L1EtMissParticle* clone() const
          { return new L1EtMissParticle( *this ) ; }
 
 	 // ---------- static member functions --------------------

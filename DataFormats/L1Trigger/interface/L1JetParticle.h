@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1JetParticle.h,v 1.9 2007/10/16 05:01:22 wsun Exp $
+// $Id: L1JetParticle.h,v 1.10 2007/11/13 03:07:45 wsun Exp $
 //
 
 // system include files
@@ -66,7 +66,7 @@ namespace l1extra {
 	 const L1GctJetCand* gctJetCand() const
 	 { return ref_.get() ; }
 
-         virtual LeafCandidate* clone() const
+         virtual L1JetParticle* clone() const
          { return new L1JetParticle( *this ) ; }
 
 	 // ---------- static member functions --------------------
