@@ -41,9 +41,9 @@ private:
 
 template<typename C>
 HistoAnalyzer<C>::HistoAnalyzer( const edm::ParameterSet& par ) : 
-  src_( par.template getParameter<edm::InputTag>( "src" ) ),
-  usingWeights_( par.exists("weights") ),
-  weights_( par.template getUntrackedParameter<edm::InputTag>( "weights", "fake" ) )
+  src_(par.template getParameter<edm::InputTag>("src")),
+  usingWeights_(par.exists("weights")),
+  weights_(par.template getUntrackedParameter<edm::InputTag>("weights", edm::InputTag("fake")))
 {
    edm::Service<TFileService> fs;
    std::vector<edm::ParameterSet> histograms = 
