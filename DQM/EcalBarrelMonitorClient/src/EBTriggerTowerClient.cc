@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/11/14 11:49:39 $
- * $Revision: 1.67 $
+ * $Date: 2007/11/14 14:17:16 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -547,12 +547,10 @@ void EBTriggerTowerClient::analyze(const char* nameext,
     me = dbe_->get(histo);
     if(!emulated) {
       h01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, h01_[ism-1] );
-      if(h01_[ism-1]) h01_[ism-1]->SetEntries(1.+h01_[ism-1]->GetEntries());
       meh01_[ism-1] = me;
     }
     else {
       h02_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, h02_[ism-1] );
-      if(h02_[ism-1]) h02_[ism-1]->SetEntries(1.+h02_[ism-1]->GetEntries());
       meh02_[ism-1] = me;
     }
 
@@ -560,12 +558,10 @@ void EBTriggerTowerClient::analyze(const char* nameext,
     me = dbe_->get(histo);
     if(!emulated) {
       i01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
-      if(i01_[ism-1]) i01_[ism-1]->SetEntries(1.+i01_[ism-1]->GetEntries());
       mei01_[ism-1] = me;
     }
     else {
       i02_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i02_[ism-1] );
-      if(i02_[ism-1]) i02_[ism-1]->SetEntries(1.+i02_[ism-1]->GetEntries());
       mei02_[ism-1] = me;
     }
 
@@ -573,12 +569,10 @@ void EBTriggerTowerClient::analyze(const char* nameext,
     me = dbe_->get(histo);
     if(!emulated) {
       j01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
-      if(j01_[ism-1]) j01_[ism-1]->SetEntries(1.+j01_[ism-1]->GetEntries());
       mej01_[ism-1] = me;
     }
     else {
       j02_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j02_[ism-1] );
-      if(j02_[ism-1]) j02_[ism-1]->SetEntries(1.+j02_[ism-1]->GetEntries());
       mej02_[ism-1] = me;
     }
 
@@ -586,19 +580,16 @@ void EBTriggerTowerClient::analyze(const char* nameext,
       sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT EmulError %s").c_str(), folder, Numbers::sEB(ism).c_str());
       me = dbe_->get(histo);
       l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
-      if(l01_[ism-1]) l01_[ism-1]->SetEntries(1.+l01_[ism-1]->GetEntries());
       mel01_[ism-1] = me;
 
       sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT EmulFlagError %s").c_str(), folder, Numbers::sEB(ism).c_str());
       me = dbe_->get(histo);
       m01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, m01_[ism-1] );
-      if(m01_[ism-1]) m01_[ism-1]->SetEntries(1.+m01_[ism-1]->GetEntries());
       mem01_[ism-1] = me;
 
       sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT EmulFineGrainVetoError %s").c_str(), folder, Numbers::sEB(ism).c_str());
       me = dbe_->get(histo);
       n01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, n01_[ism-1] );
-      if(n01_[ism-1]) n01_[ism-1]->SetEntries(1.+n01_[ism-1]->GetEntries());
       men01_[ism-1] = me;
 
     }
@@ -634,8 +625,8 @@ void EBTriggerTowerClient::analyze(const char* nameext,
       for (int i2 = 1; i2 <= 4; i2++) {
 
         for (int i3 = 1; i3 <= 256; i3++) {
-          if ( h01_[ism-1] ) me_h01_[ism-1]->Fill(i1-0.5, i2-0.5, i3-0.5, h01_[ism-1]->GetBinContent(i1, i2));
-          if ( h02_[ism-1] ) me_h02_[ism-1]->Fill(i1-0.5, i2-0.5, i3-0.5, h02_[ism-1]->GetBinContent(i1, i2));
+          if ( h01_[ism-1] ) me_h01_[ism-1]->Fill(i1-0.5, i2-0.5, i3-0.5, h01_[ism-1]->GetBinContent(i1, i2, i3));
+          if ( h02_[ism-1] ) me_h02_[ism-1]->Fill(i1-0.5, i2-0.5, i3-0.5, h02_[ism-1]->GetBinContent(i1, i2, i3));
         }
         for (int j=0; j<2; j++) {
           if ( i01_[ism-1] ) me_i01_[ism-1][j]->Fill(i1-0.5, i2-0.5, i01_[ism-1]->GetBinContent(i1, i2, j+1));
