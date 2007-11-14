@@ -8,7 +8,10 @@
 #include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
+namespace reco {
+  class PFJet;
+  class GenJet;
+}
 
 class MonitorElement;
 
@@ -21,10 +24,12 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void endJob() ;
- 
  private:
-
-  edm::InputTag mInputCollection;
+  
+  void fillMatchHists (const reco::GenJet& fGenJet, const reco::PFJet& fFPJet) ;
+  
+    edm::InputTag mInputCollection; 
+  edm::InputTag mInputGenCollection;
   std::string mOutputFile;
 
   // Generic Jet Parameters
@@ -52,6 +57,36 @@ public:
   MonitorElement* mChargedMultiplicity;
   MonitorElement* mNeutralMultiplicity;
   MonitorElement* mMuonMultiplicity;
+
+  //new Plots with Res./ Eff. as function of neutral, charged &  em fraction
+
+  MonitorElement* mNeutralFraction;
+  MonitorElement* mNeutralFraction2;
+
+  MonitorElement* mEEffNeutralFraction;
+  MonitorElement* mEEffChargedFraction;
+  MonitorElement* mEResNeutralFraction;
+  MonitorElement* mEResChargedFraction;
+  MonitorElement* nEEff;
+
+  // CaloJet<->GenJet matching
+  MonitorElement* mAllGenJetsPt;
+  MonitorElement* mMatchedGenJetsPt;
+  MonitorElement* mAllGenJetsEta;
+  MonitorElement* mMatchedGenJetsEta;
+  MonitorElement* mGenJetMatchEnergyFraction;
+  MonitorElement* mReverseMatchEnergyFraction;
+  MonitorElement* mRMatch;
+  MonitorElement* mDeltaEta;
+  MonitorElement* mDeltaPhi;
+  MonitorElement* mEScale;
+  MonitorElement* mDeltaE;
+
+  // Matching parameters
+  double mMatchGenPtThreshold;
+  double mGenEnergyFractionThreshold;
+  double mReverseEnergyFractionThreshold;
+  double mRThreshold;
 };
 
 #endif
