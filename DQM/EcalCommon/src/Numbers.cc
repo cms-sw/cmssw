@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.32 2007/10/23 13:21:49 dellaric Exp $
+// $Id: Numbers.cc,v 1.33 2007/11/13 14:05:34 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.32 $
-  \date $Date: 2007/10/23 13:21:49 $
+  \version $Revision: 1.33 $
+  \date $Date: 2007/11/13 14:05:34 $
 */
 
 #include <sstream>
@@ -435,6 +435,38 @@ std::vector<DetId> Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std:
     s << "ECAL Geometry not available";
     throw( std::runtime_error( s.str() ) );
   }
+
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::RtHalf(const EBDetId& id) throw( std::runtime_error ) {
+
+  int ic = id.ic();
+  int ie = (ic-1)/20 + 1;
+  int ip = (ic-1)%20 + 1;
+
+  if( ie > 5 && ip < 11 ) return 2;
+
+  return 1;
+
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::RtHalf(const EEDetId& id) throw( std::runtime_error ) {
+
+  int ix = id.ix();
+
+  int ism = Numbers::iSM( id );
+
+//
+// to be confirmed !
+//
+  if ( ism == +5 && ix > 50 ) return 2;
+  if ( ism == -5 && ix > 50 ) return 2;
+
+  return 1;
 
 }
 
