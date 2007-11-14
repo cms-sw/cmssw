@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/11/14 10:53:57 $
- * $Revision: 1.63 $
+ * $Date: 2007/11/14 11:07:41 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -720,7 +720,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   TCanvas* cMe3 = new TCanvas("cMe3", "Temp", int(0.9*csize), int(0.9*csize));
 
   TH2F* obj2f;
-  TH3F* obj3f;
+//  TH3F* obj3f;
   TProfile2D* obj2p;
 
   // Loop on barrel supermodules
@@ -787,9 +787,21 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgName[iemu] = "";
 
-      obj3f = (iemu+1==1) ? h01_[ism-1] : h02_[ism-1];
+//      obj3f = (iemu+1==1) ? h01_[ism-1] : h02_[ism-1];
 
-      if ( obj3f ) {
+      obj2p = 0;
+      switch ( iemu ) {
+        case 0:
+          obj2p = UtilsClient::getHisto<TProfile2D*>( me_h01_[ism-1] );
+          break;
+        case 1:
+          obj2p = UtilsClient::getHisto<TProfile2D*>( me_h02_[ism-1] );
+          break;
+        default:
+          break;
+      }
+
+      if ( obj2p ) {
         meName[iemu] = obj3f->GetName();
 
         for ( unsigned int i = 0; i < meName[iemu].size(); i++ ) {
@@ -801,7 +813,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName[iemu] = meName[iemu] + ".png";
         imgMeName[iemu] = htmlDir + imgName[iemu];
 
-        obj2p = obj3f->Project3DProfile("yx");
+//        obj2p = obj3f->Project3DProfile("yx");
 
         cMe1->cd();
         gStyle->SetOptStat(" ");
@@ -809,10 +821,10 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2p->GetXaxis()->SetNdivisions(17);
         obj2p->GetYaxis()->SetNdivisions(4);
 
-        std::string projname(obj2p->GetName());
-        string::size_type loc = projname.find( "_pyx", 0 );
-        projname.replace( loc, projname.length(), "");
-        obj2p->SetTitle(projname.c_str());
+//        std::string projname(obj2p->GetName());
+//        string::size_type loc = projname.find( "_pyx", 0 );
+//        projname.replace( loc, projname.length(), "");
+//        obj2p->SetTitle(projname.c_str());
 
         cMe1->SetGridx();
         cMe1->SetGridy();
