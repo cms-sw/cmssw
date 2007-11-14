@@ -128,7 +128,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	bzero(&spDataRecord,sizeof(spDataRecord));
 	int nTrk[7]={0,0,0,0,0,0,0};
 
-	for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk<tracks->end(); trk++){
+	for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk!=tracks->end(); trk++){
 		int sector = 6*(trk->first.endcap()-1)+trk->first.sector()-1;
 		int tbin   = trk->first.BX() + central_sp_bx; // Shift back to hardware BX window definition
 ///std::cout<<"Track["<<nTrk[tbin]<<"]  sector: "<<sector<<" tbin: "<<tbin<<std::endl;
