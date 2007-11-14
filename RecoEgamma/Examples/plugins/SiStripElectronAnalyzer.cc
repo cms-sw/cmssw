@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: SiStripElectronAnalyzer.cc,v 1.1 2007/07/05 10:34:46 charlot Exp $
+// $Id: SiStripElectronAnalyzer.cc,v 1.2 2007/08/28 01:49:46 ratnik Exp $
 //
 
 // system include files
@@ -494,7 +494,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 		  << "fit results are phi(r) = " 
 		  << electronIter->phiAtOrigin() << " + " 
 		  << electronIter->phiVsRSlope() << "*r" << "\n"
-		  << " Momentum " << electronIter->momentum() << "\n"
+		  << " Momentum " << electronIter->momentum().mag() << "\n"
 		  << " chi2 " << electronIter->chi2() 
 		  << " ndof " << electronIter->ndof() << "\n"
 		  << " Pt " << electronIter->pt() << "\n"
