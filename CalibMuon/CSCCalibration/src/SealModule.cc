@@ -3,12 +3,15 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakeGainsConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakeDBGains.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFakeDBGainsPopCon.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakeCrosstalkConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakeDBCrosstalk.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFakeDBCrosstalkPopCon.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakePedestalsConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakeDBPedestals.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakeNoiseMatrixConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakeDBNoiseMatrix.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFakeDBNoiseMatrixPopCon.h"
 #include "CalibMuon/CSCCalibration/interface/WriteGainsToDB.h"
 #include "CalibMuon/CSCCalibration/interface/WriteDBGains.h"
 #include "CalibMuon/CSCCalibration/interface/WritePedestalsToDB.h"
@@ -33,12 +36,15 @@
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeGainsConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeDBGains);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeDBGainsPopCon);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeCrosstalkConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeDBCrosstalk);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeDBCrosstalkPopCon);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakePedestalsConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeDBPedestals);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeNoiseMatrixConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeDBNoiseMatrix);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeDBNoiseMatrixPopCon);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCCrosstalkConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCCrosstalkDBConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCGainsConditions);
@@ -56,3 +62,4 @@ DEFINE_ANOTHER_FWK_MODULE(WriteDBCrosstalk);
 DEFINE_ANOTHER_FWK_MODULE(CSCGainsPopConAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCCrosstalkPopConAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCNoiseMatrixPopConAnalyzer);
+
