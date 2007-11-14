@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/11/14 10:31:40 $
- * $Revision: 1.62 $
+ * $Date: 2007/11/14 10:53:57 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -623,30 +623,30 @@ void EBTriggerTowerClient::analyze(const char* nameext,
         }
         for (int j=0; j<6; j++) {
           if ( j == 0 ) {
-            if ( j01_[ism-1] ) me_i01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+1));
-            if ( j02_[ism-1] ) me_i02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+1));
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+1));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+1));
           }
           if ( j == 1 ) {
-            if ( j01_[ism-1] ) me_i01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+1));
-            if ( j02_[ism-1] ) me_i02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+1));
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+1));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+1));
           }
           if ( j == 2 ) {
-            if ( j01_[ism-1] ) me_i01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+2));
-            if ( j02_[ism-1] ) me_i02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+2));
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+2));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+2));
           }
           if ( j == 3 ) {
-            if ( j01_[ism-1] ) me_i01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+2));
-            if ( j02_[ism-1] ) me_i02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+2));
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+2));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+2));
           }
           if ( j == 4 ) {
-            if ( j01_[ism-1] ) me_i01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+2));
-            if ( j02_[ism-1] ) me_i02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+2));
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+2));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+2));
           }
           if ( j == 5 ) {
-            if ( j01_[ism-1] ) me_i01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+2));
-            if ( j01_[ism-1] ) me_i01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+3));
-            if ( j02_[ism-1] ) me_i02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+2));
-            if ( j02_[ism-1] ) me_i02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+3));
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+2));
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(i1, i2, j01_[ism-1]->GetBinContent(i1, i2, j+3));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+2));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(i1, i2, j02_[ism-1]->GetBinContent(i1, i2, j+3));
           }
         }
 
