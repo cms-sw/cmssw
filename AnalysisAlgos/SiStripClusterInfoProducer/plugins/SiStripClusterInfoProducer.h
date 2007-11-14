@@ -27,33 +27,30 @@ class SiStripDigi;
 class SiStripCluster;
 //class SiStripClusterInfo;
 
-namespace cms
+class SiStripClusterInfoProducer : public edm::EDProducer
 {
-  class SiStripClusterInfoProducer : public edm::EDProducer
-  {
-  public:
+ public:
 
-    explicit SiStripClusterInfoProducer(const edm::ParameterSet& conf);
+  explicit SiStripClusterInfoProducer(const edm::ParameterSet& conf);
 
-    virtual ~SiStripClusterInfoProducer();
+  virtual ~SiStripClusterInfoProducer();
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
-    void cluster_algorithm(const edm::DetSetVector<SiStripCluster>& input,std::vector< edm::DetSet<SiStripClusterInfo> >& output,
-			   edm::ESHandle<SiStripNoises> &);
-    void digi_algorithm(const edm::DetSetVector<SiStripDigi>& input,std::vector< edm::DetSet<SiStripClusterInfo> >& output);
-    void rawdigi_algorithm(const edm::DetSetVector<SiStripRawDigi>& input,std::vector< edm::DetSet<SiStripClusterInfo> >& output,
-			   std::string rawdigiLabel,edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripNoises> &);
-    void findNeigh(char* mode,std::vector< edm::DetSet<SiStripClusterInfo> >::iterator output_iter,std::vector<int16_t>& vadc,std::vector<int16_t>& vstrip);
+  void cluster_algorithm(const edm::DetSetVector<SiStripCluster>& input,std::vector< edm::DetSet<SiStripClusterInfo> >& output,
+			 edm::ESHandle<SiStripNoises> &);
+  void digi_algorithm(const edm::DetSetVector<SiStripDigi>& input,std::vector< edm::DetSet<SiStripClusterInfo> >& output);
+  void rawdigi_algorithm(const edm::DetSetVector<SiStripRawDigi>& input,std::vector< edm::DetSet<SiStripClusterInfo> >& output,
+			 std::string rawdigiLabel,edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripNoises> &);
+  void findNeigh(char* mode,std::vector< edm::DetSet<SiStripClusterInfo> >::iterator output_iter,std::vector<int16_t>& vadc,std::vector<int16_t>& vstrip);
   
-  private:
-    edm::ParameterSet conf_;
-    uint16_t _NEIGH_STRIP_;
+ private:
+  edm::ParameterSet conf_;
+  uint16_t _NEIGH_STRIP_;
 
-    SiStripCommonModeNoiseSubtractor* SiStripCommonModeNoiseSubtractor_;
-    std::string CMNSubtractionMode_;
-    bool validCMNSubtraction_;  
-    SiStripPedestalsSubtractor* SiStripPedestalsSubtractor_;
-  };
-}
+  SiStripCommonModeNoiseSubtractor* SiStripCommonModeNoiseSubtractor_;
+  std::string CMNSubtractionMode_;
+  bool validCMNSubtraction_;  
+  SiStripPedestalsSubtractor* SiStripPedestalsSubtractor_;
+};
 #endif
