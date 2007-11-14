@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/11/14 16:07:04 $
- * $Revision: 1.36 $
+ * $Date: 2007/11/14 16:29:17 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1015,7 +1015,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile[ism] << "<tr align=\"center\">" << std::endl;
 
 
-    for ( int j=0; j<2; j++ ) {
+    for (int j=0; j<2; j++) {
 
       for(int iemu=0; iemu<3; iemu++) {
 
