@@ -44,7 +44,7 @@ private:
   std::vector<std::string> sensitives, hfNames;
   std::vector<int>         hfLevels;
   int                      binEta, binPhi;
-  double                   maxEta;
+  double                   maxEta, etaLow, etaHigh;
   int                      id, layer, steps;
   double                   radLen, intLen, stepLen;
   double                   eta, phi;

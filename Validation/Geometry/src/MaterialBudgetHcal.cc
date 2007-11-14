@@ -22,6 +22,8 @@ MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p) {
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudgetHcal");
   rMax = m_p.getUntrackedParameter<double>("RMax", 4.5)*m;
   zMax = m_p.getUntrackedParameter<double>("ZMax", 13.0)*m;
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetHcal initialized with rMax "
+				 << rMax << " mm and zMax " << zMax << " mm";
   theHistoMgr = new TestHistoMgr();
   theHistos   = new MaterialBudgetHcalHistos(m_p, theHistoMgr);
 
@@ -51,10 +53,10 @@ void MaterialBudgetHcal::update(const BeginOfTrack* trk) {
 void MaterialBudgetHcal::update(const G4Step* aStep) {
 
   //---------- each step
-  theHistos->fillPerStep( aStep );
+  theHistos->fillPerStep(aStep);
 
   //----- Stop tracking after selected position
-  if ( stopAfter(aStep) ) {
+  if (stopAfter(aStep)) {
     G4Track* track = aStep->GetTrack();
     track->SetTrackStatus( fStopAndKill );
   }
@@ -66,13 +68,13 @@ void MaterialBudgetHcal::update(const EndOfTrack* trk) {
   theHistos->fillEndTrack();
 }
 
-bool MaterialBudgetHcal::stopAfter( const G4Step* aStep ) {
+bool MaterialBudgetHcal::stopAfter(const G4Step* aStep) {
 
   G4ThreeVector hitPoint    = aStep->GetPreStepPoint()->GetPosition();
   double        rr = hitPoint.perp();
   double        zz = std::abs(hitPoint.z());
 
-  if( rr > rMax || zz > zMax) {
+  if (rr > rMax || zz > zMax) {
     LogDebug("MaterialBudget") << " MaterialBudgetHcal::StopAfter R = " << rr
 			       << " and Z = " << zz;
     return true;

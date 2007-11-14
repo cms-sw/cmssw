@@ -16,8 +16,14 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet &p,
   binEta      = p.getUntrackedParameter<int>("NBinEta", 260);
   binPhi      = p.getUntrackedParameter<int>("NBinPhi", 180);
   maxEta      = p.getUntrackedParameter<double>("MaxEta", 5.2);
+  etaLow      = p.getUntrackedParameter<double>("EtaLow", -5.2);
+  etaHigh     = p.getUntrackedParameter<double>("EtaHigh", 5.2);
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Output file "
-				 << theFileName;
+				 << theFileName << "\n         Eta plot: NX "
+				 << binEta << " Range " << -maxEta << ":"
+				 << maxEta << " Phi plot: NX " << binPhi
+				 << " Range " << -pi << ":" << pi << "( Eta "
+				 << "limit " << etaLow << ":" << etaHigh <<")";
   book();
 
 }
@@ -84,7 +90,7 @@ void MaterialBudgetHcalHistos::fillStartTrack(const G4Track* aTrack) {
 			     << aTrack->GetTrackID() << " Code " << theID
 			     << " Energy " << theEnergy/GeV << " GeV; Eta "
 			     << eta << " Phi " << phi/deg << " PT "
-			     << dir.perp()/GeV << " GeV";
+			     << dir.perp()/GeV << " GeV *****";
 }
 
 
@@ -104,7 +110,11 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 			     << material->GetName() << " of density "
 			     << density << " g/cc; Radiation Length "
 			     << radl << " mm; Interaction Length " << intl
-			     << " mm";
+			     << " mm\n                          Position "
+			     << aStep->GetPreStepPoint()->GetPosition()
+			     << " Length (so far) " << stepLen << " L/X0 " 
+			     << step/radl << "/" << radLen << " L/Lambda "
+			     << step/intl << "/" << intLen;
 
   int det=0, lay=0;
   if (isSensitive(name)) {
@@ -140,6 +150,7 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 				 << aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName();
       fillHisto(id);
       id++;
+      layer = 0;
     }
   }
 }
@@ -218,21 +229,23 @@ void MaterialBudgetHcalHistos::fillHisto(int ii) {
 			     << intLen;
   
   if (ii >=0 && ii < maxSet) {
+    hmgr->getHistoProf1(100+ii)->Fill(eta, radLen);
+    hmgr->getHistoProf1(200+ii)->Fill(eta, intLen);
+    hmgr->getHistoProf1(300+ii)->Fill(eta, stepLen);
     hmgr->getHisto1(400+ii)->Fill(eta);
-    hmgr->getHisto1(800+ii)->Fill(phi);
+
+    if (eta >= etaLow && eta <= etaHigh) {
+      hmgr->getHistoProf1(500+ii)->Fill(phi, radLen);
+      hmgr->getHistoProf1(600+ii)->Fill(phi, intLen);
+      hmgr->getHistoProf1(700+ii)->Fill(phi, stepLen);
+      hmgr->getHisto1(800+ii)->Fill(phi);
+    }
+
+    hmgr->getHistoProf2(900+ii)->Fill(eta, phi, radLen);
+    hmgr->getHistoProf2(1000+ii)->Fill(eta, phi, intLen);
+    hmgr->getHistoProf2(1100+ii)->Fill(eta, phi, stepLen);
     hmgr->getHisto2(1200+ii)->Fill(eta, phi);
   
-    hmgr->getHistoProf1(100+ii)->Fill(eta, radLen);
-    hmgr->getHistoProf1(500+ii)->Fill(phi, radLen);
-    hmgr->getHistoProf2(900+ii)->Fill(eta, phi, radLen);
-  
-    hmgr->getHistoProf1(200+ii)->Fill(eta, intLen);
-    hmgr->getHistoProf1(600+ii)->Fill(phi, intLen);
-    hmgr->getHistoProf2(1000+ii)->Fill(eta, phi, intLen);
-  
-    hmgr->getHistoProf1(300+ii)->Fill(eta, stepLen);
-    hmgr->getHistoProf1(700+ii)->Fill(phi, stepLen);
-    hmgr->getHistoProf2(1100+ii)->Fill(eta, phi, stepLen);
   }
 }
 
