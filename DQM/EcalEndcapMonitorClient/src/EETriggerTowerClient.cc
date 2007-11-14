@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/11/14 11:49:40 $
- * $Revision: 1.31 $
+ * $Date: 2007/11/14 15:05:38 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -500,9 +500,9 @@ void EETriggerTowerClient::softReset(void){
     if ( meh02_[ism-1] ) dbe_->softReset(meh02_[ism-1]);
     if ( mei01_[ism-1] ) dbe_->softReset(mei01_[ism-1]);
     if ( mei02_[ism-1] ) dbe_->softReset(mei02_[ism-1]);
-
     if ( mej01_[ism-1] ) dbe_->softReset(mej01_[ism-1]);
     if ( mej02_[ism-1] ) dbe_->softReset(mej02_[ism-1]);
+
     if ( mel01_[ism-1] ) dbe_->softReset(mel01_[ism-1]);
     if ( mem01_[ism-1] ) dbe_->softReset(mem01_[ism-1]);
     if ( men01_[ism-1] ) dbe_->softReset(men01_[ism-1]);
