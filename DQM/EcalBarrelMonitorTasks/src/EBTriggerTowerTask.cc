@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/11/09 15:24:06 $
- * $Revision: 1.49 $
+ * $Date: 2007/11/10 14:09:10 $
+ * $Revision: 1.50 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -159,12 +159,9 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
   string fineGrainVetoName = histo;
   sprintf(histo, "EBTTT Flags %s", nameext);
   string flagsName = histo;
-  sprintf(histo, "EBTTT EmulError %s", nameext);
-  string emulErrorName = histo;
-  sprintf(histo, "EBTTT EmulFineGrainVetoError %s", nameext);
-  string emulFineGrainVetoErrorName = histo;
-  sprintf(histo, "EBTTT EmulFlagError %s", nameext);
-  string emulFlagErrorName = histo;
+  string emulErrorName = "EBTTT EmulError";
+  string emulFineGrainVetoErrorName = "EBTTT EmulFineGrainVetoError";
+  string emulFlagErrorName = "EBTTT EmulFlagError";
 
   for (int i = 0; i < 36 ; i++) {
 

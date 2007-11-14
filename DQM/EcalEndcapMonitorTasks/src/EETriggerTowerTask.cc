@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/11/09 15:24:10 $
- * $Revision: 1.14 $
+ * $Date: 2007/11/10 14:09:14 $
+ * $Revision: 1.15 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -159,12 +159,9 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
   string fineGrainVetoName = histo;
   sprintf(histo, "EETTT Flags %s", nameext);
   string flagsName = histo;
-  sprintf(histo, "EETTT EmulError %s", nameext);
-  string emulErrorName = histo;
-  sprintf(histo, "EETTT EmulFineGrainVetoError %s", nameext);
-  string emulFineGrainVetoErrorName = histo;
-  sprintf(histo, "EETTT EmulFlagError %s", nameext);
-  string emulFlagErrorName = histo;
+  string emulErrorName = "EETTT EmulError";
+  string emulFineGrainVetoErrorName = "EETTT EmulFineGrainVetoError";
+  string emulFlagErrorName = "EETTT EmulFlagError";
 
   for (int i = 0; i < 18 ; i++) {
 
