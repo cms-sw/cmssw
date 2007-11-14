@@ -1,8 +1,8 @@
 /*
  * \file DQMEventInfo.cc
  * 
- * $Date: 2007/11/07 13:15:53 $
- * $Revision: 1.1 $
+ * $Date: 2007/11/10 16:05:53 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -33,7 +33,14 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
 
   dbe_->setVerbose(1);
-  dbe_->setCurrentFolder(parameters_.getUntrackedParameter<string>("eventInfoFolder", "EventInfo/")) ;
+
+  string eventinfofolder = parameters_.getUntrackedParameter<string>("eventInfoFolder", "EventInfo") ;
+  string subsystemname = parameters_.getUntrackedParameter<string>("subSystemFolder", "YourSubsystem") ;
+  string currentfolder = subsystemname + "/" +  eventinfofolder ;
+  cout << "currentfolder " << currentfolder << endl;
+
+  dbe_->setCurrentFolder(currentfolder) ;
+
   runId_     = dbe_->bookInt("iRun");
   lumisecId_ = dbe_->bookInt("iLumiSection");
   eventId_   = dbe_->bookInt("iEvent");

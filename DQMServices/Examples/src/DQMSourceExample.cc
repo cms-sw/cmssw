@@ -32,14 +32,15 @@ counterEvt_(0)
 {
      dbe_ = Service<DaqMonitorBEInterface>().operator->();
      parameters_ = ps;
-     monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","");
+     monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
      cout << "Monitor name = " << monitorName_ << endl;
+     if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
      prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
      cout << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
  
 //// use this to read in reference histograms from file
-//  dbe_->readReferenceME("Ecal_000017220.root");
-//  dbe_->open("ref_test.root",false,"","prep");
+//   dbe_->readReferenceME("DQM_referenceME_R000000001.root");
+    dbe_->open("DQM_referenceME_R000000001.root",false,"","prep");
 
 //// use this to collate histograms from files
 //  dbe_->open("Ecal_000017220.root",true,"","Collate");
@@ -56,19 +57,21 @@ counterEvt_(0)
   const int NBINS = 50; XMIN = 0; XMAX = 50;
 
   // create and cd into new folder
-  dbe_->setCurrentFolder(monitorName_+"/C1");
+  dbe_->setCurrentFolder(monitorName_+"C1");
   h1 = dbe_->book1D("histo", "Example 1D histogram.", NBINS, XMIN, XMAX);
+  h1->setAxisTitle("x-axis title", 1);
+  h1->setAxisTitle("y-axis title", 2);
   h2 = dbe_->book2D("histo2", "Example 2 2D histogram.", NBINS, XMIN, XMAX, 
 		   NBINS, XMIN, XMAX);
   p1 = dbe_->bookProfile("prof1","my profile",NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
   // create and cd into new folder
-  dbe_->setCurrentFolder(monitorName_+"/C1/C2");
+  dbe_->setCurrentFolder(monitorName_+"C1/C2");
   h3 = dbe_->book1D("histo3", "Example 3 1D histogram.", NBINS, XMIN, XMAX);
   h4 = dbe_->book1D("histo4", "Example 4 1D histogram.", NBINS, XMIN, XMAX);
   h5 = dbe_->book1D("histo5", "Example 5 1D histogram.", NBINS, XMIN, XMAX);
   h6 = dbe_->book1D("histo6", "Example 6 1D histogram.", NBINS, XMIN, XMAX);
   // create and cd into new folder
-  dbe_->setCurrentFolder(monitorName_+"/C1/C3");
+  dbe_->setCurrentFolder(monitorName_+"C1/C3");
   const int NBINS2 = 10;
   h7 = dbe_->book1D("histo7", "Example 7 1D histogram.", NBINS2, XMIN, XMAX);
   char temp[1024];
@@ -90,7 +93,7 @@ counterEvt_(0)
   dbe_->tag(h2, detector_id);
   dbe_->tag(h7, detector_id);
   // tag full directory
-  dbe_->tagContents(monitorName_+"/C1/C3", detector_id);
+  dbe_->tagContents(monitorName_+"C1/C3", detector_id);
 
   // assign tag to MEs h4 and h6
   const unsigned int detector_id2 = 25;

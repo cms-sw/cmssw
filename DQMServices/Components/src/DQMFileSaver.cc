@@ -1,8 +1,8 @@
 /*
  * \file DQMFileSaver.cc
  * 
- * $Date: 2007/11/05 11:28:47 $
- * $Revision: 1.1 $
+ * $Date: 2007/11/07 13:15:53 $
+ * $Revision: 1.2 $
  * \author A. Meyer, DESY
  *
  */
@@ -65,7 +65,7 @@ void DQMFileSaver::initialize(){
                    edm::LogVerbatim ("DQMFileSaver") << "===> NO save at Job end " << endl ; 
   
   // Base folder for the contents of this job
-  fileName_ = "DQM_"+parameters_.getUntrackedParameter<string>("fileName","");
+  fileName_ = "DQM_"+parameters_.getUntrackedParameter<string>("fileName","YourSubsystemName");
   edm::LogVerbatim ("DQMFileSaver") << "===>DQM Output file name = " << fileName_ << endl;
     
   gettimeofday(&psTime_.startTV,NULL);
