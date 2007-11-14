@@ -11,13 +11,13 @@ namespace
 {
   namespace 
   {
-    L1TriggerScalers l1TriggerScalersRef;
-    LumiScalers lumiScalersRef;
+    L1TriggerScalers l1TriggerScalers;
+    LumiScalers lumiScalers;
 
     edm::Wrapper<L1TriggerScalers> w_l1TriggerScalers;
     edm::Wrapper<LumiScalers> w_lumiScalers;
 
     edm::RefProd<L1TriggerScalers> l1TriggerScalersRef ;
-    edm::RefProd<L1GctInternEmCandCollection> lumiScalersRef ;
+    edm::RefProd<LumiScalers> lumiScalersRef ;
   }
 }
