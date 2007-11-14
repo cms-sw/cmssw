@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.94 2007/11/04 02:45:09 wmtan Exp $
+$Id: RootFile.cc,v 1.95 2007/11/07 06:49:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -202,7 +202,7 @@ namespace edm {
 
   void
   RootFile::open() {
-    if (filePtr_ == 0) {
+    if (filePtr_ == 0 || filePtr_->IsZombie()) {
       throw cms::Exception("FileNotFound","RootFile::RootFile()")
         << "File " << file_ << " was not found or could not be opened.\n";
     }
