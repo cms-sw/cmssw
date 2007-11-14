@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/11/14 16:29:16 $
- * $Revision: 1.73 $
+ * $Date: 2007/11/14 20:54:30 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -176,29 +176,29 @@ void EBTriggerTowerClient::setup(void) {
     if ( me_h01_[ism-1] ) dbe_->removeElement( me_h01_[ism-1]->getName() );
     sprintf(histo, "EBTTT Et map Real Digis %s", Numbers::sEB(ism).c_str());
     me_h01_[ism-1] = dbe_->bookProfile2D(histo, histo, 17, 0., 17., 4, 0., 4., 256, 0., 256., "s");
-    me_h01_[ism-1]->setAxisTitle("jeta", 1);
-    me_h01_[ism-1]->setAxisTitle("jphi", 2);
+    me_h01_[ism-1]->setAxisTitle("ieta", 1);
+    me_h01_[ism-1]->setAxisTitle("iphi", 2);
     if ( me_h02_[ism-1] ) dbe_->removeElement( me_h02_[ism-1]->getName() );
     sprintf(histo, "EBTTT Et map Emulated Digis %s", Numbers::sEB(ism).c_str());
     me_h02_[ism-1] = dbe_->bookProfile2D(histo, histo, 17, 0., 17., 4, 0., 4., 256, 0., 256., "s");
-    me_h02_[ism-1]->setAxisTitle("jeta", 1);
-    me_h02_[ism-1]->setAxisTitle("jphi", 2);
+    me_h02_[ism-1]->setAxisTitle("ieta", 1);
+    me_h02_[ism-1]->setAxisTitle("iphi", 2);
     for (int j=0; j<2; j++) {
       if ( me_i01_[ism-1][j] ) dbe_->removeElement( me_i01_[ism-1][j]->getName() );
       sprintf(histo, "EBTTT FineGrainVeto Real Digis Flag %d %s", j, Numbers::sEB(ism).c_str());
       me_i01_[ism-1][j] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      me_i01_[ism-1][j]->setAxisTitle("jeta", 1);
-      me_i01_[ism-1][j]->setAxisTitle("jphi", 2);
+      me_i01_[ism-1][j]->setAxisTitle("ieta", 1);
+      me_i01_[ism-1][j]->setAxisTitle("iphi", 2);
       if ( me_i02_[ism-1][j] ) dbe_->removeElement( me_i02_[ism-1][j]->getName() );
       sprintf(histo, "EBTTT FineGrainVeto Emulated Digis Flag %d %s", j, Numbers::sEB(ism).c_str());
       me_i02_[ism-1][j] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      me_i02_[ism-1][j]->setAxisTitle("jeta", 1);
-      me_i02_[ism-1][j]->setAxisTitle("jphi", 2);
+      me_i02_[ism-1][j]->setAxisTitle("ieta", 1);
+      me_i02_[ism-1][j]->setAxisTitle("iphi", 2);
       if ( me_n01_[ism-1][j] ) dbe_->removeElement( me_n01_[ism-1][j]->getName() );
       sprintf(histo, "EBTTT EmulFineGrainVetoError Flag %d %s", j, Numbers::sEB(ism).c_str());
       me_n01_[ism-1][j] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      me_n01_[ism-1][j]->setAxisTitle("jeta", 1);
-      me_n01_[ism-1][j]->setAxisTitle("jphi", 2);
+      me_n01_[ism-1][j]->setAxisTitle("ieta", 1);
+      me_n01_[ism-1][j]->setAxisTitle("iphi", 2);
     }
     for (int j=0; j<6; j++) {
       string bits;
@@ -211,18 +211,18 @@ void EBTriggerTowerClient::setup(void) {
       if ( me_j01_[ism-1][j] ) dbe_->removeElement( me_j01_[ism-1][j]->getName() );
       sprintf(histo, "EBTTT Flags Real Digis %s %s", bits.c_str(), Numbers::sEB(ism).c_str());
       me_j01_[ism-1][j] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      me_j01_[ism-1][j]->setAxisTitle("jeta", 1);
-      me_j01_[ism-1][j]->setAxisTitle("jphi", 2);
+      me_j01_[ism-1][j]->setAxisTitle("ieta", 1);
+      me_j01_[ism-1][j]->setAxisTitle("iphi", 2);
       if ( me_j02_[ism-1][j] ) dbe_->removeElement( me_j02_[ism-1][j]->getName() );
       sprintf(histo, "EBTTT Flags Emulated Digis %s %s", bits.c_str(), Numbers::sEB(ism).c_str());
       me_j02_[ism-1][j] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      me_j02_[ism-1][j]->setAxisTitle("jeta", 1);
-      me_j02_[ism-1][j]->setAxisTitle("jphi", 2);
+      me_j02_[ism-1][j]->setAxisTitle("ieta", 1);
+      me_j02_[ism-1][j]->setAxisTitle("iphi", 2);
       if ( me_m01_[ism-1][j] ) dbe_->removeElement( me_m01_[ism-1][j]->getName() );
       sprintf(histo, "EBTTT EmulFlagError %s %s", bits.c_str(), Numbers::sEB(ism).c_str());
       me_m01_[ism-1][j] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      me_m01_[ism-1][j]->setAxisTitle("jeta", 1);
-      me_m01_[ism-1][j]->setAxisTitle("jphi", 2);
+      me_m01_[ism-1][j]->setAxisTitle("ieta", 1);
+      me_m01_[ism-1][j]->setAxisTitle("iphi", 2);
     }
 
   }
