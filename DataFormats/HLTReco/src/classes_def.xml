@@ -50,21 +50,9 @@
   <class name="std::vector<HLTPerformanceInfo::Path>::const_iterator"/>
 
   <class name="HLTPerformanceInfo::Path::Adapter"/>
+  <class pattern="std::unary_function<*HLTPerformanceInfo::Module*>"/>
   <class name="boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned int*,std::vector<unsigned int> >,boost::use_default,boost::use_default>" />
   <class name="boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned long*,std::vector<unsigned long> >,boost::use_default,boost::use_default>" />
 
-  <class name="reco::TriggerObject"/>
-  <class name="reco::TriggerCollection"/>
-  <class name="reco::TriggerGlobalCollection"/>
-  <class name="reco::TriggerPointer"/>
-  <class name="reco::TriggerPathCollection"/>
-  <class name="reco::TriggerTableCollection"/>
-
-  <class name="edm::Wrapper<reco::TriggerObject>"/>
-  <class name="edm::Wrapper<reco::TriggerCollection>"/>
-  <class name="edm::Wrapper<reco::TriggerGlobalCollection>"/>
-  <class name="edm::Wrapper<reco::TriggerPointer>"/>
-  <class name="edm::Wrapper<reco::TriggerPathCollection>"/>
-  <class name="edm::Wrapper<reco::TriggerTableCollection>"/>
 
 </lcgdict>
