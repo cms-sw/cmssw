@@ -3,6 +3,8 @@
 #include "IOPool/TFileAdaptor/interface/TStorageFactoryFile.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "SealBase/Storage.h"
 #include "SealBase/Error.h"
 #include "TFileCacheRead.h"
@@ -184,10 +186,8 @@ TStorageFactoryFile::FlushLazySeek (void)
         {
             m_offset = m_storage->position (m_lazySeekOffset, seal::Storage::SET);
         }
-        catch (seal::Error &e)
-        {
-	    gSystem->SetErrorStr (("TStorageFactoryFile::FlushLazySeek(): " + e.explain ()).c_str ());
-	    return kTRUE;
+        catch (seal::Error& e) {
+          throw cms::Exception("Adaptor Error") << "TStorageFactoryFile::FlushLazySeek(): " << e.explain();
         }
     }
 
@@ -356,18 +356,12 @@ TStorageFactoryFile::SysOpen (const char *pathname, Int_t flags, UInt_t mode)
 
     try
     {
-      if (! (m_storage = StorageFactory::get ()->open (pathname,openFlags)))
-	    throw std::string ("can't instantiate file");
+      if (! (m_storage = StorageFactory::get ()->open (pathname,openFlags))) {
+       throw edm::Exception(edm::errors::NotFound, "TStorageFactoryFile::SysOpen()");
+      }
     }
-    catch (seal::Error &e)
-    {
-	gSystem->SetErrorStr (("StorageFactory failed: " + e.explain ()).c_str ());
-	return -1;
-    }
-    catch (std::string &e)
-    {
-	gSystem->SetErrorStr (("StorageFactory failed: " + e).c_str ());
-	return -1;
+    catch (seal::Error& e) {
+      throw edm::Exception(edm::errors::NotFound, "TStorageFactoryFile::SysOpen()");
     }
 
     stats.tick ();
@@ -388,10 +382,8 @@ TStorageFactoryFile::SysClose (Int_t /* fd */)
 	    m_storage = 0;
 	}
     }
-    catch (seal::Error &e)
-    {
-	gSystem->SetErrorStr (("TStorageFactoryFile::SysClose(): " + e.explain ()).c_str ());
-	return -1;
+    catch (seal::Error& e) {
+      throw cms::Exception("Adaptor Error") << "TStorageFactoryFile::SysClose(): " << e.explain();
     }
 
     stats.tick ();
@@ -410,10 +402,8 @@ TStorageFactoryFile::SysRead (Int_t /* fd */, void *buf, Int_t len)
 	stats.tick (n);
 	return n;
     }
-    catch (seal::Error &e)
-    {
-	gSystem->SetErrorStr (("TStorageFactoryFile::SysRead(): " + e.explain ()).c_str ());
-	return -1;
+    catch (seal::Error& e) {
+      throw cms::Exception("Adaptor Error") << "TStorageFactoryFile::SysRead(): " << e.explain();
     }
 }
 
@@ -429,10 +419,8 @@ TStorageFactoryFile::SysWrite (Int_t /* fd */, const void *buf, Int_t len)
 	stats.tick (n);
 	return n;
     }
-    catch (seal::Error &e)
-    {
-	gSystem->SetErrorStr (("TStorageFactoryFile::SysWrite(): " + e.explain ()).c_str ());
-	return -1;
+    catch (seal::Error& e) {
+      throw cms::Exception("Adaptor Error") << "TStorageFactoryFile::SysWrite(): " << e.explain();
     }
 }
 
@@ -468,10 +456,8 @@ TStorageFactoryFile::SysSeek (Int_t /* fd */, Long64_t offset, Int_t whence)
 	stats.tick ();
 	return m_offset;
     }
-    catch (seal::Error &e)
-    {
-	gSystem->SetErrorStr (("TStorageFactoryFile::SysSeek(): " + e.explain ()).c_str ());
-	return -1;
+    catch (seal::Error& e) {
+      throw cms::Exception("Adaptor Error") << "TStorageFactoryFile::SysSeek(): " << e.explain();
     }
 }
 
@@ -499,10 +485,8 @@ TStorageFactoryFile::SysStat (Int_t /* fd */, Long_t *id, Long64_t *size,
 	stats.tick ();
 	return 0;
     }
-    catch (seal::Error &e)
-    {
-	gSystem->SetErrorStr (("TStorageFactoryFile::SysStat(): " + e.explain ()).c_str ());
-	return -1;
+    catch (seal::Error& e) {
+      throw cms::Exception("Adaptor Error") << "TStorageFactoryFile::SysStat(): " << e.explain();
     }
 }
 
