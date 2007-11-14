@@ -22,6 +22,15 @@ IsolatorByNominalEfficiency::IsolatorByNominalEfficiency(const string & thrFile,
     const vector<string> & ceff, const vector<double>& weights) : theWeights(weights){
   thresholds        = new NominalEfficiencyThresholds(findPath(thrFile));
   coneForEfficiency = cones(ceff);
+  theDepThresholds = std::vector<double>(weights.size(), -1e12);
+}
+
+IsolatorByNominalEfficiency::
+IsolatorByNominalEfficiency(const string & thrFile, const vector<string> & ceff, 
+			    const vector<double>& weights, const vector<double>& thresh
+			    ) : theWeights(weights), theDepThresholds(thresh){
+  thresholds        = new NominalEfficiencyThresholds(findPath(thrFile));
+  coneForEfficiency = cones(ceff);
 }
 
 IsolatorByNominalEfficiency::~IsolatorByNominalEfficiency()
@@ -49,12 +58,12 @@ string IsolatorByNominalEfficiency::findPath(const string&  fileName)
   return f.fullPath();
 }
 
-float
+MuIsoBaseIsolator::Result
 IsolatorByNominalEfficiency::result(DepositContainer deposits) const{
 
   if (deposits.size()==0) {
     cout << "IsolatorByNominalEfficiency: no deposit" << endl;
-    return -999.; //FIXME
+    return Result(resultType()); //FIXME
   }
 
   // To determine the threshold, the direction of the cone of the first
@@ -63,8 +72,7 @@ IsolatorByNominalEfficiency::result(DepositContainer deposits) const{
   // for different types deposits (eg. HCAL and ECAL deposits for
   // calorimeter isolation), the first one is used to determine the threshold
   // value!
-//  float theEta = deposits.front()->dirCone().eta();
-  float theEta = deposits.back()->eta();
+  float theEta = deposits.back().dep->eta();
 
   // Try descending efficiency values to find the point where the candidate
   // becomes non isolated
@@ -89,7 +97,9 @@ IsolatorByNominalEfficiency::result(DepositContainer deposits) const{
     if (sumDep > thres) break;
     nominalEfficiency = eff;
   }
-  return nominalEfficiency;
+  Result res(resultType());
+  res.valFloat = nominalEfficiency;
+  return res;
 }
 
 int IsolatorByNominalEfficiency::bestConeForEfficiencyIndex(float eff_thr) const
@@ -117,11 +127,17 @@ double IsolatorByNominalEfficiency::weightedSum(const DepositContainer& deposits
   assert(deposits.size()==theWeights.size());
 
   vector<double>::const_iterator w = theWeights.begin();
+  vector<double>::const_iterator dThresh = theDepThresholds.begin();
   for (DepositContainer::const_iterator dep = deposits.begin();
        dep != deposits.end(); dep++) {
-    sumDep += (*dep)->depositWithin(dRcone) * (*w);
+    if (dep->vetos != 0){
+      sumDep += dep->dep->depositAndCountWithin(dRcone, *dep->vetos, *dThresh).first * (*w);
+    } else {
+      sumDep += dep->dep->depositAndCountWithin(dRcone, Vetos(), *dThresh).first * (*w);
+    }
     if (sumDep <0.) sumDep = 0.;
     w++;
+    dThresh++;
   }
   return sumDep;
 }
