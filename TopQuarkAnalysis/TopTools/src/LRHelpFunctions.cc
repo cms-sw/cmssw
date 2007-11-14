@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id$
+// $Id: LRHelpFunctions.cc,v 1.12 2007/10/29 22:06:27 lowette Exp $
 //
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 #include "TopQuarkAnalysis/TopTools/test/tdrstyle.C"
@@ -354,14 +354,14 @@ void  LRHelpFunctions::makeAndFitPurityHists(){
       }
     }
   }
-  hLRtotSoverSplusB -> Fit(fLRtotSoverSplusB->GetName(),"RQ"); 
-  
+  hLRtotSoverSplusB -> Fit(fLRtotSoverSplusB->GetName(),"RQ");  
+  double totSignal = hLRtotS->Integral(0,hLRtotS->GetNbinsX()+1);
   double Eff[200], Pur[200], LRVal[200];
-  for(int cut=0; cut<=hLRtotS->GetNbinsX(); cut ++){
-        double LRcutVal = hLRtotS->GetBinCenter(cut+1);
-        Eff[cut]   = 1.- hLRtotS->Integral(0,cut+1)/hLRtotS->Integral(0,hLRtotS->GetNbinsX());
-        Pur[cut]   = fLRtotSoverSplusB->Eval(LRcutVal);
-        LRVal[cut] = hLRtotS->GetBinCenter(cut+1);
+  for(int cut=0; (cut<=hLRtotS->GetNbinsX())&&(cut<200) ; cut ++){
+ 	double LRcutVal = hLRtotS->GetBinLowEdge(cut),
+	Eff[cut]   = hLRtotS->Integral(cut,hLRtotS->GetNbinsX()+1)/totSignal;
+ 	Pur[cut]   = fLRtotSoverSplusB->Eval(LRcutVal);
+	LRVal[cut] = LRcutVal;
   }
   hEffvsPur = new TGraph(hLRtotS->GetNbinsX(),Eff,Pur);
   hEffvsPur -> SetName("hEffvsPur");
