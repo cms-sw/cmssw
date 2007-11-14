@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/11/14 16:06:03 $
- * $Revision: 1.35 $
+ * $Date: 2007/11/14 16:07:04 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -792,7 +792,6 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMe2->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
-      obj2f->SetMinimum(0);
       cMe2->SetGridx();
       cMe2->SetGridy();
       obj2f->GetXaxis()->SetLabelSize(0.02);
@@ -800,6 +799,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f->GetYaxis()->SetLabelSize(0.02);
       obj2f->GetYaxis()->SetTitleSize(0.02);
       obj2f->GetZaxis()->SetLabelSize(0.02);
+      obj2f->SetMinimum(0);
       obj2f->Draw("colz");
       int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
       int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
@@ -969,7 +969,6 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           cMe2->cd();
           gStyle->SetOptStat(" ");
           gStyle->SetPalette(10, pCol4);
-          obj2f->SetMinimum(0);
           cMe2->SetGridx();
           cMe2->SetGridy();
           obj2f->GetXaxis()->SetLabelSize(0.02);
@@ -977,6 +976,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           obj2f->GetYaxis()->SetLabelSize(0.02);
           obj2f->GetYaxis()->SetTitleSize(0.02);
           obj2f->GetZaxis()->SetLabelSize(0.02);
+          obj2f->SetMinimum(0);
           obj2f->Draw("colz");
           int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
           int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
@@ -998,6 +998,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
           htmlFile[ism] << "<td><img src=\"" << imgName[iemu] << "\"></td>" << std::endl;
           if ( counter%3 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl;
+
         }
       }
     }
@@ -1014,7 +1015,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile[ism] << "<tr align=\"center\">" << std::endl;
 
 
-    for ( int j=1; j<=2; j++ ) {
+    for ( int j=0; j<2; j++ ) {
 
       for(int iemu=0; iemu<3; iemu++) {
 
@@ -1051,7 +1052,6 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           cMe2->cd();
           gStyle->SetOptStat(" ");
           gStyle->SetPalette(10, pCol4);
-          obj2f->SetMinimum(0);
           cMe2->SetGridx();
           cMe2->SetGridy();
           obj2f->GetXaxis()->SetLabelSize(0.02);
@@ -1059,6 +1059,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           obj2f->GetYaxis()->SetLabelSize(0.02);
           obj2f->GetYaxis()->SetTitleSize(0.02);
           obj2f->GetZaxis()->SetLabelSize(0.02);
+          obj2f->SetMinimum(0);
           obj2f->Draw("colz");
           int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
           int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);

@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/11/14 15:57:39 $
- * $Revision: 1.71 $
+ * $Date: 2007/11/14 16:06:02 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -788,11 +788,11 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMe2->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
+      cMe2->SetGridx();
+      cMe2->SetGridy();
       obj2f->GetXaxis()->SetNdivisions(17);
       obj2f->GetYaxis()->SetNdivisions(4);
       obj2f->SetMinimum(0);
-      cMe2->SetGridx();
-      cMe2->SetGridy();
       obj2f->Draw("colz");
       dummy.Draw("text,same");
       cMe2->Update();
@@ -839,10 +839,10 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
         cMe1->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(10, pCol4);
-        obj2p->GetXaxis()->SetNdivisions(17);
-        obj2p->GetYaxis()->SetNdivisions(4);
         cMe1->SetGridx();
         cMe1->SetGridy();
+        obj2p->GetXaxis()->SetNdivisions(17);
+        obj2p->GetYaxis()->SetNdivisions(4);
         obj2p->Draw("colz");
         dummy.Draw("text,same");
         cMe1->Update();
@@ -931,11 +931,11 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           cMe2->cd();
           gStyle->SetOptStat(" ");
           gStyle->SetPalette(10, pCol4);
+          cMe2->SetGridx();
+          cMe2->SetGridy();
           obj2f->GetXaxis()->SetNdivisions(17);
           obj2f->GetYaxis()->SetNdivisions(4);
           obj2f->SetMinimum(0);
-          cMe2->SetGridx();
-          cMe2->SetGridy();
           obj2f->Draw("colz");
           dummy.Draw("text,same");
           cMe2->Update();
@@ -997,11 +997,11 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           cMe2->cd();
           gStyle->SetOptStat(" ");
           gStyle->SetPalette(10, pCol4);
+          cMe2->SetGridx();
+          cMe2->SetGridy();
           obj2f->GetXaxis()->SetNdivisions(17);
           obj2f->GetYaxis()->SetNdivisions(4);
           obj2f->SetMinimum(0);
-          cMe2->SetGridx();
-          cMe2->SetGridy();
           obj2f->Draw("colz");
           dummy.Draw("text,same");
           cMe2->Update();
