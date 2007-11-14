@@ -2,14 +2,35 @@
 \page ReconstructionReleaseNotes Reconstruction Release Notes
 
 - General:
+Development cycle open to all sort of backward incompatibilities WRT CSA07 and the 16X/15X releases.
+
+The 17X releases *are not compatible* with any of the previous releases.
+
+You must not process any 15X/16X/13X samples with 17X. If you are lucky the job will
+crash. If really unlucky the job will run but will produce nonsense results.
 
 - Main changes and new features:
+  - New detector geometry
+  - New tracker material budget in reconstruction with addition of almost 100 kg of cables
+    WRT to all previous releases. New parameterization and model of material now used
+    in tracking
+  - major cleanup in PixelMatchedGsfElectron objects
+  - further speedup and cleanup in road search tracking algorithm
 
 - Major bug fixes:
+  - the material budget used in reconstruction now compatible with that used in simulation
+    since 16X. 
 
 - Known issues:
+  - Due to ongoing development in this cycle, 170pre5 samples are incompatible with 170pre11 and
+    later, including final 170. 
+
+  - You can not run reco in 17X on digis made with 16X and earlier. You must run 
+    gen+sim+digi+reco in one go (a la` RelVal) or use digis made in 17X pre11 and later
+
+
 
 <hr>
-Last updated: @DATE@ Your name
+Last updated: @DATE@ Shahram Rahatlou
  
 */
