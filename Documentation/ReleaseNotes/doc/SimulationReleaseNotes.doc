@@ -2,32 +2,24 @@
 \page SimulationReleaseNotes Simulation Release Notes
 
 - General:
-
--- Numerous changes in geometry and data formats; 
+ - Numerous changes in geometry and data formats; 
    release is backward incompatible at the simulation level
-
--- Simulated hits and digis fully validated, any found differences are
+ - Simulated hits and digis fully validated, any found differences are
    consistent with changes in geometry
-
--- Existing interface between generator information and Geant4 is stable
+ - Existing interface between generator information and Geant4 is stable
 
 
 - Main changes and new features:
-
--- Migration to LCG-HepMC 2.01.08 ensures reproducibility of simulated
+ - Migration to LCG-HepMC 2.01.08 ensures reproducibility of simulated
    events, as it resolves the issues of generator particles ordering and
    of compatibility with Root I/O
-
--- Reproducibility of generator event retrieval, and of Geant4 primary particle
+ - Reproducibility of generator event retrieval, and of Geant4 primary particle
    and vertexes filling verified
-
--- Migration to CLHEP 1.9.3.2, for fixing in Poisson random number generator 
+ - Migration to CLHEP 1.9.3.2, for fixing in Poisson random number generator 
    (method fire(mean) uses the correct engine)
-
--- Migration to Geant4.8.3.p01, for improvements in physics modeling and
+ - Migration to Geant4.8.3.p01, for improvements in physics modeling and
    many bug fixes in geometry overlap detecting tools
-
--- Many updates and improvements in CMS geometry application, cleanup 
+ - Many updates and improvements in CMS geometry application, cleanup 
    of large fraction of volume overlaps (see remarks below);
    Tracker geometry modeled with 9% of the actual weight, no more changes 
    in active material but only in the passive material in the future;
@@ -39,44 +31,33 @@
    Muon CSC, DT and RPC geometry revised and is close to start-up configuration 
    (YB4 removed, RPC configuration adjusted accordingly, muon yoke description
    and material revised)
-
--- Castor and ZDC Forward Detectors - simulation and digitization is available
+ - Castor and ZDC Forward Detectors - simulation and digitization is available
    in the standalone mode; 
    both can be, in principal, included in the CMS mother volumes but need more
    validation and timing tests
-   
--- Factorized Crossing Frame implemented, related packages adapted accordingly
-   
--- Digitization sequence is fully reproducible for all CMS subsystems
-
--- Partial migration (at the data formats level) from CLHEP to Root/Math vectors,
+ - Factorized Crossing Frame implemented, related packages adapted accordingly
+ - Digitization sequence is fully reproducible for all CMS subsystems
+ - Partial migration (at the data formats level) from CLHEP to Root/Math vectors,
    CLHEP methods still available to facilitate the transition
    
 
 - Major bug fixes:
-
--- Tracker geometry is clean of volume overlaps
-
--- Ecal EE and ES geometry is practically clean of overlaps (minor complains 
+ - Tracker geometry is clean of volume overlaps
+ - Ecal EE and ES geometry is practically clean of overlaps (minor complains 
    remain, probably due to imperfection in the Geant4 tools)
-
--- Hcal geometry practically clean of overlaps;
+ - Hcal geometry practically clean of overlaps;
    HF shower library fixed; HF digitization bug fixed
-
--- Muon CSC, DT and RPC geometry significantly cleaned of volume overlaps but 
+ - Muon CSC, DT and RPC geometry significantly cleaned of volume overlaps but 
    some issues remain;
    fix CSC sim-reco geometry interface;
    fixes in RPC: bx assignment for Endcap stations, reading of external file
    to set the expected time window, numbering strips for noise
-
--- Vertex smearing - fixed old (since OSCAR) bug of improper vertex time record 
-
--- Rand*Q engines used throughout digitization modules, for proper store/restore
+ - Vertex smearing - fixed old (since OSCAR) bug of improper vertex time record 
+ - Rand*Q engines used throughout digitization modules, for proper store/restore
    of the random number sequences, shoot() method replaced by fire() everywhere
 
 - Known issues:
-
--- CMS simulation is currently not reproducible in the sim hits part, presumably 
+ - CMS simulation is currently not reproducible in the sim hits part, presumably 
    due to recently-found problems in Geant4.8.3-cycle (CHIPS model); 
    it's under investigation and  will be hopefully solved in G4.9.0.p01
 
