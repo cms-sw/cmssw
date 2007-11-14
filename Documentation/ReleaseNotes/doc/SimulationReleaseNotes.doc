@@ -18,7 +18,11 @@
    events, as it resolves the issues of generator particles ordering and
    of compatibility with Root I/O
 
--- Migration to CLHEP 1.9.3.2, for improvements in random number generators
+-- Reproducibility of generator event retrieval, and of Geant4 primary particle
+   and vertexes filling verified
+
+-- Migration to CLHEP 1.9.3.2, for fixing in Poisson random number generator 
+   (method fire(mean) uses the correct engine)
 
 -- Migration to Geant4.8.3.p01, for improvements in physics modeling and
    many bug fixes in geometry overlap detecting tools
@@ -27,23 +31,26 @@
    of large fraction of volume overlaps (see remarks below);
    Tracker geometry modeled with 9% of the actual weight, no more changes 
    in active material but only in the passive material in the future;
-   Ecal EE and ES geometry updated significantly and is close to final 
+   Ecal EE and ES geometry updated significantly (new algortihmic description 
+   according to latest engineering drawings) and is close to final 
    configuration;
    Hcal HE - scintillator thinkness adjusted, HF - 1st implementation of
    PMT description, practically clean of volume overlaps;
    Muon CSC, DT and RPC geometry revised and is close to start-up configuration 
+   (YB4 removed, RPC configuration adjusted accordingly, muon yoke description
+   and material revised)
 
 -- Castor and ZDC Forward Detectors - simulation and digitization is available
    in the standalone mode; 
    both can be, in principal, included in the CMS mother volumes but need more
    validation and timing tests
    
--- Factorized Crossing Frame implemented, related packages adapted accordingly;
-   implementation of play-back option for Mixing has started
+-- Factorized Crossing Frame implemented, related packages adapted accordingly
    
--- Digitization sequences is fully reproducible for all CMS subsystems
+-- Digitization sequence is fully reproducible for all CMS subsystems
 
--- Partial migration (at the data formats level) from CLHEP to Root/Math vectors
+-- Partial migration (at the data formats level) from CLHEP to Root/Math vectors,
+   CLHEP methods still available to facilitate the transition
    
 
 - Major bug fixes:
@@ -65,7 +72,7 @@
 -- Vertex smearing - fixed old (since OSCAR) bug of improper vertex time record 
 
 -- Rand*Q engines used throughout digitization modules, for proper store/restore
-   of the random number sequences
+   of the random number sequences, shoot() method replaced by fire() everywhere
 
 - Known issues:
 
