@@ -1,3 +1,18 @@
+
+this is an example of turning on selective G4 verbosity
+this particular configuration will set G4 tracking verbosity
+for every 2nd event (EventStep=2), for events from 0 to 6; 
+G4 tracking info printed for each 100th track (TrackStep=100),
+for track numbers from 0 to 10000; if you wish, for example,
+to print tracking info for every 10th track, set TrackStep=10,
+or for each track - TrackStep=1
+NOTE: don't forget to turn on VebosityLevel - otherwise only
+info on the particle ID and track ID will be printed but nothing
+on position, volume, etc.
+
+For example usage, see also 
+SimG4Core/Application/test/runP-WithPionAndQGSP.cfg
+
 TO USE:
 
 in .cfg file:
@@ -8,12 +23,14 @@ in .cfg file:
 	       untracked bool  DEBUG = false
 	       untracked bool  CheckForHighEtPhotons = false
 	       untracked int32 EventMin = 0
-	       untracked int32 EventMax = 0
-	       untracked int32 EventStep = 1
+	       untracked int32 EventMax = 6
+	       untracked int32 EventStep = 2
 	       untracked int32 TrackMin = 0
-	       untracked int32 TrackMax = 0
-	       untracked int32 TrackStep = 1
-	       untracked int32 VerboseLevel = 0 
+	       untracked int32 TrackMax = 10000
+	       untracked int32 TrackStep = 100
+	       untracked int32 VerboseLevel = 1 
       }	  }
 
-Note that EventStep and TrackStep must not be 0.
+
+
+
