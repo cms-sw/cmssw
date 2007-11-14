@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2007/11/13 09:01:17 $
- * $Revision: 1.57 $
+ * $Date: 2007/11/13 13:20:49 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -122,9 +122,9 @@ MonitorElement* mea03_[36];
 MonitorElement* mer04_[36];
 MonitorElement* mer05_[36];
 
-MonitorElement* mes01_[36];
-MonitorElement* mes02_[36];
-MonitorElement* mes03_[36];
+MonitorElement* me_hs01_[36];
+MonitorElement* me_hs02_[36];
+MonitorElement* me_hs03_[36];
 
 TProfile* i01_[36];
 TProfile* i02_[36];

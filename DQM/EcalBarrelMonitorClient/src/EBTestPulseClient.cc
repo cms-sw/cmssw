@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/11/13 09:01:18 $
- * $Revision: 1.168 $
+ * $Date: 2007/11/13 14:05:29 $
+ * $Revision: 1.169 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -102,9 +102,9 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
     mer04_[ism-1] = 0;
     mer05_[ism-1] = 0;
 
-    mes01_[ism-1] = 0;
-    mes02_[ism-1] = 0;
-    mes03_[ism-1] = 0;
+    me_hs01_[ism-1] = 0;
+    me_hs02_[ism-1] = 0;
+    me_hs03_[ism-1] = 0;
 
   }
 
@@ -235,21 +235,21 @@ void EBTestPulseClient::setup(void) {
     mer05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     mer05_[ism-1]->setAxisTitle("rms", 1);
 
-    if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
+    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse shape G01 %s", Numbers::sEB(ism).c_str());
-    mes01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
-    mes01_[ism-1]->setAxisTitle("sample", 1);
-    mes01_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( mes02_[ism-1] ) dbe_->removeElement( mes02_[ism-1]->getName() );
+    me_hs01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs01_[ism-1]->setAxisTitle("sample", 1);
+    me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse shape G06 %s", Numbers::sEB(ism).c_str());
-    mes02_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
-    mes02_[ism-1]->setAxisTitle("sample", 1);
-    mes02_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( mes03_[ism-1] ) dbe_->removeElement( mes03_[ism-1]->getName() );
+    me_hs02_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs02_[ism-1]->setAxisTitle("sample", 1);
+    me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs03_[ism-1] ) dbe_->removeElement( me_hs03_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse shape G12 %s", Numbers::sEB(ism).c_str());
-    mes03_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
-    mes03_[ism-1]->setAxisTitle("sample", 1);
-    mes03_[ism-1]->setAxisTitle("amplitude", 2);
+    me_hs03_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs03_[ism-1]->setAxisTitle("sample", 1);
+    me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
 
   }
 
@@ -288,9 +288,9 @@ void EBTestPulseClient::setup(void) {
     mer04_[ism-1]->Reset();
     mer05_[ism-1]->Reset();
 
-    mes01_[ism-1]->Reset();
-    mes02_[ism-1]->Reset();
-    mes03_[ism-1]->Reset();
+    me_hs01_[ism-1]->Reset();
+    me_hs02_[ism-1]->Reset();
+    me_hs03_[ism-1]->Reset();
 
   }
 
@@ -362,12 +362,12 @@ void EBTestPulseClient::cleanup(void) {
     if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
     mer05_[ism-1] = 0;
 
-    if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
-    mes01_[ism-1] = 0;
-    if ( mes02_[ism-1] ) dbe_->removeElement( mes02_[ism-1]->getName() );
-    mes02_[ism-1] = 0;
-    if ( mes03_[ism-1] ) dbe_->removeElement( mes03_[ism-1]->getName() );
-    mes03_[ism-1] = 0;
+    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    me_hs01_[ism-1] = 0;
+    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
+    me_hs02_[ism-1] = 0;
+    if ( me_hs03_[ism-1] ) dbe_->removeElement( me_hs03_[ism-1]->getName() );
+    me_hs03_[ism-1] = 0;
 
   }
 
@@ -452,25 +452,25 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             sample02.clear();
             sample03.clear();
 
-            if ( mes01_[ism-1] ) {
+            if ( me_hs01_[ism-1] ) {
               for ( int i = 1; i <= 10; i++ ) {
-                sample01.push_back(int(mes01_[ism-1]->getBinContent(i)));
+                sample01.push_back(int(me_hs01_[ism-1]->getBinContent(i)));
               }
             } else {
               for ( int i = 1; i <= 10; i++ ) { sample01.push_back(-1.); }
             }
 
-            if ( mes02_[ism-1] ) {
+            if ( me_hs02_[ism-1] ) {
               for ( int i = 1; i <= 10; i++ ) {
-                sample02.push_back(int(mes02_[ism-1]->getBinContent(i)));
+                sample02.push_back(int(me_hs02_[ism-1]->getBinContent(i)));
               }
             } else {
               for ( int i = 1; i <= 10; i++ ) { sample02.push_back(-1.); }
             }
 
-            if ( mes03_[ism-1] ) {
+            if ( me_hs03_[ism-1] ) {
               for ( int i = 1; i <= 10; i++ ) {
-                sample03.push_back(int(mes03_[ism-1]->getBinContent(i)));
+                sample03.push_back(int(me_hs03_[ism-1]->getBinContent(i)));
               }
             } else {
               for ( int i = 1; i <= 10; i++ ) { sample03.push_back(-1.); }
@@ -845,9 +845,9 @@ void EBTestPulseClient::analyze(void){
     mer04_[ism-1]->Reset();
     mer05_[ism-1]->Reset();
 
-    mes01_[ism-1]->Reset();
-    mes02_[ism-1]->Reset();
-    mes03_[ism-1]->Reset();
+    me_hs01_[ism-1]->Reset();
+    me_hs02_[ism-1]->Reset();
+    me_hs03_[ism-1]->Reset();
 
     float meanAmpl01, meanAmpl02, meanAmpl03;
 
@@ -1113,18 +1113,18 @@ void EBTestPulseClient::analyze(void){
     for ( int i = 1; i <= 10; i++ ) {
 
       if ( hs01_[ism-1] ) {
-        mes01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
-        mes01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
+        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
       }
 
       if ( hs02_[ism-1] ) {
-        mes02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(1, i) );
-        mes02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(1, i) );
+        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(1, i) );
+        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(1, i) );
       }
 
       if ( hs03_[ism-1] ) {
-        mes03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(1, i) );
-        mes03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(1, i) );
+        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(1, i) );
+        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(1, i) );
       }
 
     }
@@ -1320,13 +1320,13 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = UtilsClient::getHisto<TH1F*>( mes01_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs01_[ism-1] );
           break;
         case 2:
-          obj1f = UtilsClient::getHisto<TH1F*>( mes02_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs02_[ism-1] );
           break;
         case 3:
-          obj1f = UtilsClient::getHisto<TH1F*>( mes03_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs03_[ism-1] );
           break;
         default:
           break;

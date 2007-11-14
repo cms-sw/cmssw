@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/13 14:05:57 $
- * $Revision: 1.37 $
+ * $Date: 2007/11/13 15:50:55 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -129,9 +129,9 @@ EELedClient::EELedClient(const ParameterSet& ps){
 
     mepnprms05_[ism-1] = 0;
 
-    mes01_[ism-1] = 0;
+    me_hs01_[ism-1] = 0;
 
-    mes05_[ism-1] = 0;
+    me_hs05_[ism-1] = 0;
 
   }
 
@@ -293,17 +293,17 @@ void EELedClient::setup(void) {
     mepnprms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
     mepnprms05_[ism-1]->setAxisTitle("rms", 1);
 
-    if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
+    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
     sprintf(histo, "EELDT led shape A %s", Numbers::sEB(ism).c_str());
-    mes01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
-    mes01_[ism-1]->setAxisTitle("sample", 1);
-    mes01_[ism-1]->setAxisTitle("amplitude", 2);
+    me_hs01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs01_[ism-1]->setAxisTitle("sample", 1);
+    me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
 
-    if ( mes05_[ism-1] ) dbe_->removeElement( mes05_[ism-1]->getName() );
+    if ( me_hs05_[ism-1] ) dbe_->removeElement( me_hs05_[ism-1]->getName() );
     sprintf(histo, "EELDT led shape B %s", Numbers::sEB(ism).c_str());
-    mes05_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
-    mes05_[ism-1]->setAxisTitle("sample", 1);
-    mes05_[ism-1]->setAxisTitle("amplitude", 2);
+    me_hs05_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs05_[ism-1]->setAxisTitle("sample", 1);
+    me_hs05_[ism-1]->setAxisTitle("amplitude", 2);
 
   }
 
@@ -366,9 +366,9 @@ void EELedClient::setup(void) {
 
     mepnprms05_[ism-1]->Reset();
 
-    mes01_[ism-1]->Reset();
+    me_hs01_[ism-1]->Reset();
 
-    mes05_[ism-1]->Reset();
+    me_hs05_[ism-1]->Reset();
 
   }
 
@@ -479,11 +479,11 @@ void EELedClient::cleanup(void) {
     if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
     mepnprms05_[ism-1] = 0;
 
-    if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
-    mes01_[ism-1] = 0;
+    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    me_hs01_[ism-1] = 0;
 
-    if ( mes05_[ism-1] ) dbe_->removeElement( mes05_[ism-1]->getName() );
-    mes05_[ism-1] = 0;
+    if ( me_hs05_[ism-1] ) dbe_->removeElement( me_hs05_[ism-1]->getName() );
+    me_hs05_[ism-1] = 0;
 
   }
 
@@ -1002,9 +1002,9 @@ void EELedClient::analyze(void){
 
     mepnprms05_[ism-1]->Reset();
 
-    mes01_[ism-1]->Reset();
+    me_hs01_[ism-1]->Reset();
 
-    mes05_[ism-1]->Reset();
+    me_hs05_[ism-1]->Reset();
 
     float meanAmplA;
     float meanAmplB;
@@ -1352,13 +1352,13 @@ void EELedClient::analyze(void){
     for ( int i = 1; i <= 10; i++ ) {
 
       if ( hs01_[ism-1] ) {
-        mes01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
-        mes01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
+        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
       }
 
       if ( hs05_[ism-1] ) {
-        mes05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(426, i) );
-        mes05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(426, i) );
+        me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(426, i) );
+        me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(426, i) );
       }
 
     }
@@ -1759,7 +1759,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = UtilsClient::getHisto<TH1F*>( mes01_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs01_[ism-1] );
           break;
         case 2:
         case 3:
@@ -1767,7 +1767,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
           obj1f = 0;
           break;
         case 5:
-          obj1f = UtilsClient::getHisto<TH1F*>( mes05_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs05_[ism-1] );
           break;
         case 6:
         case 7:

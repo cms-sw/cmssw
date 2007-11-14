@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/11/13 09:01:17 $
- * $Revision: 1.64 $
+ * $Date: 2007/11/13 13:20:49 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  *
 */
@@ -203,14 +203,14 @@ MonitorElement* mepnprms06_[36];
 MonitorElement* mepnprms07_[36];
 MonitorElement* mepnprms08_[36];
 
-MonitorElement* mes01_[36];
-MonitorElement* mes02_[36];
-MonitorElement* mes03_[36];
-MonitorElement* mes04_[36];
-MonitorElement* mes05_[36];
-MonitorElement* mes06_[36];
-MonitorElement* mes07_[36];
-MonitorElement* mes08_[36];
+MonitorElement* me_hs01_[36];
+MonitorElement* me_hs02_[36];
+MonitorElement* me_hs03_[36];
+MonitorElement* me_hs04_[36];
+MonitorElement* me_hs05_[36];
+MonitorElement* me_hs06_[36];
+MonitorElement* me_hs07_[36];
+MonitorElement* me_hs08_[36];
 
 TProfile* i01_[36];
 TProfile* i02_[36];
