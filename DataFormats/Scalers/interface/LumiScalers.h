@@ -9,7 +9,7 @@
 #define LUMISCALERS_H
 
 #include <ostream>
-
+#include <vector>
 
 /*! \file LumiScalers.h
  * \Header file for HF Lumi Scalers
@@ -27,7 +27,7 @@ class LumiScalers
  public:
 
   LumiScalers();
-  LumiScalers(uint16_t rawData);
+  LumiScalers(const unsigned char * rawData);
   virtual ~LumiScalers();
 
   enum
@@ -41,54 +41,51 @@ class LumiScalers
   /// empty method (= false)
   bool empty() const { return false; }
 
-  /// get the data
-  uint16_t raw() const { return m_data; }
-
-  int getVersion()                      { return(version);}
-  double getNormalization()             { return(normalization);}
-  double getInstantLumi()               { return(instantLumi);}
-  double getInstantLumiErr()            { return(instantLumiErr);}
-  double getInstantLumiQlty()           { return(instantLumiQlty);}
-  double getInstantETLumi()             { return(instantETLumi);}
-  double getInstantETLumiErr()          { return(instantETLumiErr);}
-  double getInstantETLumiQlty()         { return(instantETLumiQlty);}
-  double * getInstantOccLumi()          { return(instantOccLumi);}
-  double * getInstantOccLumiErr()       { return(instantOccLumiErr);}
-  double * getInstantOccLumiQlty()      { return(instantOccLumiQlty);}
-  double * getLumiNoise()               { return(lumiNoise);}
-  unsigned int getSectionNumber()       { return(sectionNumber);}
-  unsigned int getStartOrbit()          { return(startOrbit);}
-  unsigned int getNumOrbits()           { return(numOrbits);}
+  int version()                      { return(version_);}
+  double normalization()             { return(normalization_);}
+  double instantLumi()               { return(instantLumi_);}
+  double instantLumiErr()            { return(instantLumiErr_);}
+  double instantLumiQlty()           { return(instantLumiQlty_);}
+  double instantETLumi()             { return(instantETLumi_);}
+  double instantETLumiErr()          { return(instantETLumiErr_);}
+  double instantETLumiQlty()         { return(instantETLumiQlty_);}
+  std::vector<double> instantOccLumi()      { return(instantOccLumi_);}
+  std::vector<double> instantOccLumiErr()   { return(instantOccLumiErr_);}
+  std::vector<double> instantOccLumiQlty()  { return(instantOccLumiQlty_);}
+  std::vector<double> lumiNoise()           { return(lumiNoise_);}
+  unsigned int sectionNumber()       { return(sectionNumber_);}
+  unsigned int startOrbit()          { return(startOrbit_);}
+  unsigned int numOrbits()           { return(numOrbits_);}
 
   /// equality operator
-  int operator==(const LumiScalers& e) const { return m_data==e.raw(); }
+  int operator==(const LumiScalers& e) const { return false; }
 
   /// inequality operator
-  int operator!=(const LumiScalers& e) const { return m_data!=e.raw(); }
+  int operator!=(const LumiScalers& e) const { return false; }
 
 protected:
 
-  uint16_t m_data;
-  int version;
-  double normalization;
-  double instantLumi;
-  double instantLumiErr;
-  double instantLumiQlty;
-  double instantETLumi;
-  double instantETLumiErr;
-  double instantETLumiQlty;
-  double instantOccLumi[nOcc];
-  double instantOccLumiErr[nOcc];
-  double instantOccLumiQlty[nOcc];
-  double lumiNoise[nOcc];
-  unsigned int sectionNumber;
-  unsigned int startOrbit;
-  unsigned int numOrbits;
+  int version_;
+  double normalization_;
+  double instantLumi_;
+  double instantLumiErr_;
+  double instantLumiQlty_;
+  double instantETLumi_;
+  double instantETLumiErr_;
+  double instantETLumiQlty_;
+  std::vector<double> instantOccLumi_;
+  std::vector<double> instantOccLumiErr_;
+  std::vector<double> instantOccLumiQlty_;
+  std::vector<double> lumiNoise_;
+  unsigned int sectionNumber_;
+  unsigned int startOrbit_;
+  unsigned int numOrbits_;
 };
 
 
 /// Pretty-print operator for LumiScalers
 std::ostream& operator<<(std::ostream& s, const LumiScalers& c);
 
+typedef std::vector<LumiScalers> LumiScalersCollection;
 
 #endif

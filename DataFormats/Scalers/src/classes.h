@@ -19,5 +19,11 @@ namespace
 
     edm::RefProd<L1TriggerScalers> l1TriggerScalersRef ;
     edm::RefProd<LumiScalers> lumiScalersRef ;
+
+    L1TriggerScalersCollection l1TriggerScalersCollection;
+    edm::Wrapper<L1TriggerScalersCollection> w_l1TriggerScalersCollection;
+
+    LumiScalersCollection lumiScalersCollection;
+    edm::Wrapper<LumiScalersCollection> w_lumiScalersCollection;
   }
 }
