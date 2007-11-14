@@ -44,7 +44,6 @@ class LumiScalers
   /// get the data
   uint16_t raw() const { return m_data; }
 
-  double getNormalization()             { return(normalization);}
   int getVersion()                      { return(version);}
   double getNormalization()             { return(normalization);}
   double getInstantLumi()               { return(instantLumi);}
@@ -53,10 +52,10 @@ class LumiScalers
   double getInstantETLumi()             { return(instantETLumi);}
   double getInstantETLumiErr()          { return(instantETLumiErr);}
   double getInstantETLumiQlty()         { return(instantETLumiQlty);}
-  double [nOcc] getInstantOccLumi()     { return(instantOccLumi);}
-  double [nOcc] getInstantOccLumiErr()  { return(instantOccLumiErr);}
-  double [nOcc] getInstantOccLumiQlty() { return(instantOccLumiQlty);}
-  double [nOcc] getLumiNoise()          { return(lumiNoise);}
+  double * getInstantOccLumi()          { return(instantOccLumi);}
+  double * getInstantOccLumiErr()       { return(instantOccLumiErr);}
+  double * getInstantOccLumiQlty()      { return(instantOccLumiQlty);}
+  double * getLumiNoise()               { return(lumiNoise);}
   unsigned int getSectionNumber()       { return(sectionNumber);}
   unsigned int getStartOrbit()          { return(startOrbit);}
   unsigned int getNumOrbits()           { return(numOrbits);}

@@ -44,25 +44,25 @@ class L1TriggerScalers
   /// get the data
   uint16_t raw() const { return m_data; }
 
-  struct timespec getCollectionTimeSummary() { return(collectionTimeSummary;)}
-  unsigned long getTriggerNumber() { return(triggerNumber;)}
-  unsigned long getEventNumber() { return(eventNumber;)}
-  unsigned long getPhysicsL1Accepts() { return(physicsL1Accepts;)}
-  unsigned long getPhysicsL1AcceptsRaw() { return(physicsL1AcceptsRaw;)}
-  unsigned long getRandomL1Accepts() { return(randomL1Accepts;)}
-  unsigned long getCalibrationL1Accepts() { return(calibrationL1Accepts;)}
-  unsigned long getTechTrig() { return(techTrig;)}
-  unsigned long getOrbitNumber() { return(orbitNumber;)}
-  unsigned long getNumberResets() { return(numberResets;)}
-  unsigned long getDeadTime() { return(deadTime;)}
-  unsigned long getDeadTimeActive() { return(deadTimeActive;)}
-  unsigned long getDeadTimeActiveCalibration() { return(deadTimeActiveCalibration;)}
-  unsigned long getDeadTimeActivePrivate() { return(deadTimeActivePrivate;)}
-  unsigned long getDeadTimeActivePartition() { return(deadTimeActivePartition;)}
-  unsigned long getDeadTimeActiveThrottle() { return(deadTimeActiveThrottle;)}
+  struct timespec getCollectionTimeSummary() { return(collectionTimeSummary);}
+  unsigned long getTriggerNumber() { return(triggerNumber);}
+  unsigned long getEventNumber() { return(eventNumber);}
+  unsigned long getPhysicsL1Accepts() { return(physicsL1Accepts);}
+  unsigned long getPhysicsL1AcceptsRaw() { return(physicsL1AcceptsRaw);}
+  unsigned long getRandomL1Accepts() { return(randomL1Accepts);}
+  unsigned long getCalibrationL1Accepts() { return(calibrationL1Accepts);}
+  unsigned long getTechTrig() { return(techTrig);}
+  unsigned long getOrbitNumber() { return(orbitNumber);}
+  unsigned long getNumberResets() { return(numberResets);}
+  unsigned long getDeadTime() { return(deadTime);}
+  unsigned long getDeadTimeActive() { return(deadTimeActive);}
+  unsigned long getDeadTimeActiveCalibration() { return(deadTimeActiveCalibration);}
+  unsigned long getDeadTimeActivePrivate() { return(deadTimeActivePrivate);}
+  unsigned long getDeadTimeActivePartition() { return(deadTimeActivePartition);}
+  unsigned long getDeadTimeActiveThrottle() { return(deadTimeActiveThrottle);}
 
-  struct timespec getCollectionTimeDetails() { return(collectionTimeDetails;)}
-  unsigned long getTriggers[nL1Triggers]() { return(triggers[nL1Triggers];)}
+  struct timespec getCollectionTimeDetails() { return(collectionTimeDetails);}
+  unsigned long * getTriggers() { return(triggers);}
 
   /// equality operator
   int operator==(const L1TriggerScalers& e) const { return m_data==e.raw(); }
