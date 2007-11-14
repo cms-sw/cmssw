@@ -2,7 +2,8 @@
 	
 	* tag V01-01-03
 	* use clearCounters in enabling to reset all schedule counters via EP
-
+	* addded boolean flag to use/not use PrescaleService 
+	
 2007-10-09  Emilio Meschi  <emilio.meschi@cern.ch>
 	
 	* tag V01-01-02

@@ -96,6 +96,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , outputPrescale_(1)
   , timeoutOnStop_(10)
   , hasShMem_(true)
+  , hasPrescaleService_(true)
   , outprev_(true)
   , monSleepSec_(1)
   , wlMonitoring_(0)
@@ -139,6 +140,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("globalOutputPrescale", &outputPrescale_);
   ispace->fireItemAvailable("timeoutOnStop",        &timeoutOnStop_);
   ispace->fireItemAvailable("hasSharedMemory",      &hasShMem_);
+  ispace->fireItemAvailable("hasPrescaleService",   &hasPrescaleService_);
   ispace->fireItemAvailable("monSleepSec",          &monSleepSec_);
 
   ispace->fireItemAvailable("foundRcmsStateListener",fsm_.foundRcmsStateListener());
@@ -633,7 +635,7 @@ void FUEventProcessor::initEventProcessor()
     //    internal::addServiceMaybe(*pServiceSets,"MonitorDaemon");
     internal::addServiceMaybe(*pServiceSets,"MLlog4cplus");
     internal::addServiceMaybe(*pServiceSets,"MicroStateService");
-    internal::addServiceMaybe(*pServiceSets,"PrescaleService");
+    if(hasPrescaleService_) internal::addServiceMaybe(*pServiceSets,"PrescaleService");
     
     try{
       serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets);
