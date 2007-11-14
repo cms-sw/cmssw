@@ -1,0 +1,10 @@
+<use name=DataFormats/Common>
+<use name=DataFormats/Scalers>
+<use name=boost>
+<use name=rootrflx>
+<export>
+  <use name=DataFormats/Scalers>
+  <use name=boost>
+  <lib name=DataFormatsScalers>
+</export>
+
