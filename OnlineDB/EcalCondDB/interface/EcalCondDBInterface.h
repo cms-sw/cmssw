@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.8 2007/05/10 16:24:14 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.9 2007/06/14 11:17:40 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -32,6 +32,8 @@
 #include "OnlineDB/EcalCondDB/interface/LMFRunList.h"
 #include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
 #include "OnlineDB/EcalCondDB/interface/DCSPTMTempList.h"
+#include "OnlineDB/EcalCondDB/interface/all_fe_config_types.h"
+
 
 class EcalCondDBInterface : public EcalDBConnection {
  public:
@@ -254,6 +256,11 @@ class EcalCondDBInterface : public EcalDBConnection {
   MonRunList fetchMonRunList(RunTag tag, MonRunTag monruntag,int min_run, int max_run) throw(std::runtime_error);
   MonRunList fetchMonRunListLastNRuns(RunTag tag, MonRunTag monruntag, int max_run, int n_runs) throw(std::runtime_error);
 
+  // methods for the config FE API
+  FEConfigPedInfo fetchFEConfigPedInfo(int mon_iov_id)  throw(runtime_error);
+  void insertFEConfigPedInfo(FEConfigPedInfo iconf) throw(runtime_error);
+
+
 
 
 
@@ -445,6 +452,7 @@ class EcalCondDBInterface : public EcalDBConnection {
 
   EcalCondDBInterface();
   EcalCondDBInterface(const EcalCondDBInterface& copy);
+
 
 };
 

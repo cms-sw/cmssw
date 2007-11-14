@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.5 2007/05/10 16:24:15 fra Exp $
+// $Id: EcalCondDBInterface.cc,v 1.6 2007/06/14 11:17:41 fra Exp $
 
 #include <iostream>
 #include <string>
@@ -404,6 +404,31 @@ MonRunList EcalCondDBInterface::fetchMonRunListLastNRuns(RunTag tag, MonRunTag m
   return r;
 }
 
+
+
+FEConfigPedInfo EcalCondDBInterface::fetchFEConfigPedInfo(int mon_iov_id)
+  throw(runtime_error)
+{  
+  FEConfigPedInfo iconf;
+  iconf.setConnection(env, conn);
+  iconf.setIOVId(mon_iov_id);
+  iconf.fetchID();
+  return iconf;
+}
+
+
+void EcalCondDBInterface::insertFEConfigPedInfo(FEConfigPedInfo iconf)
+  throw(runtime_error)
+{
+  try {
+    iconf.setConnection(env, conn);
+    iconf.writeDB();
+  } catch(runtime_error &e) {
+    conn->rollback();
+    throw(e);
+  }
+  conn->commit();
+}
 
 
 
