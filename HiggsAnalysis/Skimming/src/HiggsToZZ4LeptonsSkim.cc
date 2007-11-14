@@ -110,7 +110,7 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
     // Loop over electron collections and count how many muons there are, 
     // and how many are above threshold
     for ( electrons = eTracks->begin(); electrons != eTracks->end(); ++electrons ) {
-      float et_e = electrons->et(); 
+      float et_e = electrons->pt(); 
       if ( et_e > elecMinEt) nLeptons++; 
     }
   }

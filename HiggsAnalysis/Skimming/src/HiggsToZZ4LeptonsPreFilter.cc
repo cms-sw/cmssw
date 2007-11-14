@@ -83,6 +83,7 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
       // Mother is a Z
       if ( mcIter->mother()->pdgId() == 23 ) {
        // In fiducial volume:
+        if ( mcIter->pt() < 3 ) continue;
         if ( mcIter->eta() > -2.4 && mcIter->eta() < 2.4 ) nMuon++;
       }
     }
@@ -91,7 +92,8 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
       // Mother is a Z
       if ( mcIter->mother()->pdgId() == 23 ) {
         // In fiducial volume:
-        if ( mcIter->eta() > -2.4 && mcIter->eta() < 2.4 ) nElec++;
+        if ( mcIter->pt() < 3 ) continue;
+        if ( mcIter->eta() > -2.5 && mcIter->eta() < 2.5 ) nElec++;
       }
     }
 
