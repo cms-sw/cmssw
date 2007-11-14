@@ -4,6 +4,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <export>
+  <lib name=PhysicsToolsCandAlgos>
   <use name=PhysicsTools/CandUtils>
   <use name=PhysicsTools/UtilAlgos>
   <use name=PhysicsTools/Utilities>
