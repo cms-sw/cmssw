@@ -12,10 +12,10 @@
 #include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
 //ES Data
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
@@ -27,8 +27,7 @@ class SiStripDigi;
 class SiStripCluster;
 //class SiStripClusterInfo;
 
-class SiStripClusterInfoProducer : public edm::EDProducer
-{
+class SiStripClusterInfoProducer : public edm::EDProducer{
  public:
 
   explicit SiStripClusterInfoProducer(const edm::ParameterSet& conf);
@@ -37,11 +36,9 @@ class SiStripClusterInfoProducer : public edm::EDProducer
 
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
-  void cluster_algorithm(const edm::DetSetVector<SiStripCluster>& input,std::vector< edm::DetSet<SiStripClusterInfo> >& output,
-			 edm::ESHandle<SiStripNoises> &);
+  void cluster_algorithm(const edm::DetSetVector<SiStripCluster>& input,std::vector< edm::DetSet<SiStripClusterInfo> >& output);
   void digi_algorithm(const edm::DetSetVector<SiStripDigi>& input,std::vector< edm::DetSet<SiStripClusterInfo> >& output);
-  void rawdigi_algorithm(const edm::DetSetVector<SiStripRawDigi>& input,std::vector< edm::DetSet<SiStripClusterInfo> >& output,
-			 std::string rawdigiLabel,edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripNoises> &);
+  void rawdigi_algorithm(const edm::DetSetVector<SiStripRawDigi>& input,std::vector< edm::DetSet<SiStripClusterInfo> >& output,std::string rawdigiLabel);
   void findNeigh(char* mode,std::vector< edm::DetSet<SiStripClusterInfo> >::iterator output_iter,std::vector<int16_t>& vadc,std::vector<int16_t>& vstrip);
   
  private:
@@ -52,5 +49,9 @@ class SiStripClusterInfoProducer : public edm::EDProducer
   std::string CMNSubtractionMode_;
   bool validCMNSubtraction_;  
   SiStripPedestalsSubtractor* SiStripPedestalsSubtractor_;
+
+  edm::ESHandle<SiStripNoises> noiseHandle;
+  edm::ESHandle<SiStripPedestals> pedestalsHandle;
+  edm::ESHandle<SiStripGain> gainHandle;
 };
 #endif
