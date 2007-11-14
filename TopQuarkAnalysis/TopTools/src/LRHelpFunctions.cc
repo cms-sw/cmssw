@@ -358,7 +358,7 @@ void  LRHelpFunctions::makeAndFitPurityHists(){
   double totSignal = hLRtotS->Integral(0,hLRtotS->GetNbinsX()+1);
   double Eff[200], Pur[200], LRVal[200];
   for(int cut=0; (cut<=hLRtotS->GetNbinsX())&&(cut<200) ; cut ++){
- 	double LRcutVal = hLRtotS->GetBinLowEdge(cut),
+ 	double LRcutVal = hLRtotS->GetBinLowEdge(cut);
 	Eff[cut]   = hLRtotS->Integral(cut,hLRtotS->GetNbinsX()+1)/totSignal;
  	Pur[cut]   = fLRtotSoverSplusB->Eval(LRcutVal);
 	LRVal[cut] = LRcutVal;
