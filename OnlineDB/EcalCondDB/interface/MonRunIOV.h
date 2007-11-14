@@ -19,7 +19,7 @@ class MonRunIOV : public IIOV {
   ~MonRunIOV();
 
   void setID(int id);
-
+  int getID(){ return m_ID;} ;
 
   // Methods for user data
   void setMonRunTag(MonRunTag tag);
