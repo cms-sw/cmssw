@@ -9,7 +9,7 @@
 #define L1TRIGGERSCALERS_H
 
 #include <ostream>
-
+#include <vector>
 
 /*! \file L1TriggerScalers.h
  * \Header file for Level 1 Global Trigger Scalers
@@ -45,24 +45,24 @@ class L1TriggerScalers
   uint16_t raw() const { return m_data; }
 
   struct timespec getCollectionTimeSummary() { return(collectionTimeSummary);}
-  unsigned long getTriggerNumber() { return(triggerNumber);}
-  unsigned long getEventNumber() { return(eventNumber);}
-  unsigned long getPhysicsL1Accepts() { return(physicsL1Accepts);}
-  unsigned long getPhysicsL1AcceptsRaw() { return(physicsL1AcceptsRaw);}
-  unsigned long getRandomL1Accepts() { return(randomL1Accepts);}
-  unsigned long getCalibrationL1Accepts() { return(calibrationL1Accepts);}
-  unsigned long getTechTrig() { return(techTrig);}
-  unsigned long getOrbitNumber() { return(orbitNumber);}
-  unsigned long getNumberResets() { return(numberResets);}
-  unsigned long getDeadTime() { return(deadTime);}
-  unsigned long getDeadTimeActive() { return(deadTimeActive);}
-  unsigned long getDeadTimeActiveCalibration() { return(deadTimeActiveCalibration);}
-  unsigned long getDeadTimeActivePrivate() { return(deadTimeActivePrivate);}
-  unsigned long getDeadTimeActivePartition() { return(deadTimeActivePartition);}
-  unsigned long getDeadTimeActiveThrottle() { return(deadTimeActiveThrottle);}
+  unsigned long long getTriggerNumber() { return(triggerNumber);}
+  unsigned long long getEventNumber() { return(eventNumber);}
+  unsigned long long getPhysicsL1Accepts() { return(physicsL1Accepts);}
+  unsigned long long getPhysicsL1AcceptsRaw() { return(physicsL1AcceptsRaw);}
+  unsigned long long getRandomL1Accepts() { return(randomL1Accepts);}
+  unsigned long long getCalibrationL1Accepts() { return(calibrationL1Accepts);}
+  unsigned long long getTechTrig() { return(techTrig);}
+  unsigned long long getOrbitNumber() { return(orbitNumber);}
+  unsigned long long getNumberResets() { return(numberResets);}
+  unsigned long long getDeadTime() { return(deadTime);}
+  unsigned long long getDeadTimeActive() { return(deadTimeActive);}
+  unsigned long long getDeadTimeActiveCalibration() { return(deadTimeActiveCalibration);}
+  unsigned long long getDeadTimeActivePrivate() { return(deadTimeActivePrivate);}
+  unsigned long long getDeadTimeActivePartition() { return(deadTimeActivePartition);}
+  unsigned long long getDeadTimeActiveThrottle() { return(deadTimeActiveThrottle);}
 
   struct timespec getCollectionTimeDetails() { return(collectionTimeDetails);}
-  unsigned long * getTriggers() { return(triggers);}
+  std::vector<unsigned long long> getTriggers() { return(triggers);}
 
   /// equality operator
   int operator==(const L1TriggerScalers& e) const { return m_data==e.raw(); }
@@ -76,24 +76,24 @@ protected:
   int version;
 
   struct timespec collectionTimeSummary;
-  unsigned long triggerNumber;
-  unsigned long eventNumber;
-  unsigned long physicsL1Accepts;
-  unsigned long physicsL1AcceptsRaw;
-  unsigned long randomL1Accepts;
-  unsigned long calibrationL1Accepts;
-  unsigned long techTrig;
-  unsigned long orbitNumber;
-  unsigned long numberResets;
-  unsigned long deadTime;
-  unsigned long deadTimeActive;
-  unsigned long deadTimeActiveCalibration;
-  unsigned long deadTimeActivePrivate;
-  unsigned long deadTimeActivePartition;
-  unsigned long deadTimeActiveThrottle;
+  unsigned long long triggerNumber;
+  unsigned long long eventNumber;
+  unsigned long long physicsL1Accepts;
+  unsigned long long physicsL1AcceptsRaw;
+  unsigned long long randomL1Accepts;
+  unsigned long long calibrationL1Accepts;
+  unsigned long long techTrig;
+  unsigned long long orbitNumber;
+  unsigned long long numberResets;
+  unsigned long long deadTime;
+  unsigned long long deadTimeActive;
+  unsigned long long deadTimeActiveCalibration;
+  unsigned long long deadTimeActivePrivate;
+  unsigned long long deadTimeActivePartition;
+  unsigned long long deadTimeActiveThrottle;
 
   struct timespec collectionTimeDetails;
-  unsigned long triggers[nL1Triggers];
+  std::vector<unsigned long long> triggers;
 };
 
 
