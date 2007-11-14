@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/11/14 15:57:39 $
- * $Revision: 1.34 $
+ * $Date: 2007/11/14 16:06:03 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -832,6 +832,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgName[iemu] = "";
 
+      obj2p = 0;
       switch ( iemu ) {
         case 0:
           obj2p = UtilsClient::getHisto<TProfile2D*>( me_h01_[ism-1] );
