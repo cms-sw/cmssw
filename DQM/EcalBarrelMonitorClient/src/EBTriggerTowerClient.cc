@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/11/14 14:17:16 $
- * $Revision: 1.68 $
+ * $Date: 2007/11/14 14:35:04 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -660,10 +660,14 @@ void EBTriggerTowerClient::analyze(const char* nameext,
             if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(i1-0.5, i2-0.5, m01_[ism-1]->GetBinContent(i1, i2, j+2));
           }
           if ( j == 5 ) {
-            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(i1-0.5, i2-0.5, j01_[ism-1]->GetBinContent(i1, i2, j+2));
-            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(i1-0.5, i2-0.5, j01_[ism-1]->GetBinContent(i1, i2, j+3));
-            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(i1-0.5, i2-0.5, j02_[ism-1]->GetBinContent(i1, i2, j+2));
-            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(i1-0.5, i2-0.5, j02_[ism-1]->GetBinContent(i1, i2, j+3));
+            if ( j01_[ism-1] ) {
+              me_j01_[ism-1][j]->Fill(i1-0.5, i2-0.5, j01_[ism-1]->GetBinContent(i1, i2, j+2));
+              me_j01_[ism-1][j]->Fill(i1-0.5, i2-0.5, j01_[ism-1]->GetBinContent(i1, i2, j+3));
+            }
+            if ( j02_[ism-1] ) {
+              me_j02_[ism-1][j]->Fill(i1-0.5, i2-0.5, j02_[ism-1]->GetBinContent(i1, i2, j+2));
+              me_j02_[ism-1][j]->Fill(i1-0.5, i2-0.5, j02_[ism-1]->GetBinContent(i1, i2, j+3));
+            }
             if ( m01_[ism-1] ) {
               me_m01_[ism-1][j]->Fill(i1-0.5, i2-0.5, m01_[ism-1]->GetBinContent(i1, i2, j+2));
               me_m01_[ism-1][j]->Fill(i1-0.5, i2-0.5, m01_[ism-1]->GetBinContent(i1, i2, j+3));
@@ -820,6 +824,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
       }
 
       if ( obj2p ) {
+
         meName[iemu] = obj2p->GetName();
 
         for ( unsigned int i = 0; i < meName[iemu].size(); i++ ) {
