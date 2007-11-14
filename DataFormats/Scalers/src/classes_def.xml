@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="L1TriggerScalers"/>
+  <class name="LumiScalers"/>
+  <class name="edm::RefProd<L1TriggerScalers>"/>
+  <class name="edm::Wrapper<LumiScalers>"/>
+</lcgdict>
