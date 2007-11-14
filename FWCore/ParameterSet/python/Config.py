@@ -289,7 +289,10 @@ class Process(object):
             if name == item.type_():
                 name = ''
             else:
-                name = ' '+name
+                # python sometimes gives '@'-suffixes, to allow
+                # multiple names.  Remove these for .cfg  
+                name = ' '+name.split('@')[0]
+                #name = ' '+name
             returnValue +=options.indentation()+typeName+name+' = '+item.dumpConfig(options)
         return returnValue
     def dumpConfig(self, options=PrintOptions()):
