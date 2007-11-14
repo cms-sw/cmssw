@@ -1,10 +1,12 @@
 
 /*
  * \file DQMClientExample.cc
- * 
- * $Date: 2007/11/05 11:30:19 $
- * $Revision: 1.3 $
  * \author M. Zanetti - CERN
+ *
+ * Last Update:
+ * $Date: 2007/11/14 12:00:21 $
+ * $Revision: 1.3 $
+ * $Author: 1.3 $
  *
  */
 

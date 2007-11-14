@@ -1,9 +1,10 @@
 /*
  * \file DQMEventInfo.cc
- * 
- * $Date: 2007/11/10 16:05:53 $
- * $Revision: 1.2 $
  * \author M. Zanetti - CERN PH
+ * Last Update:
+ * $Date: 2007/11/14 12:00:21 $
+ * $Revision: 1.3 $
+ * $Author: 1.3 $
  *
  */
 

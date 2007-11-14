@@ -1,19 +1,15 @@
-// -*- C++ -*-
-//
-// Package:    DQMServices/Examples
-// Class:      DQMSourceExample
-// 
-/**\class DQMSourceExample
-
-Description: Simple example showing how to create a DQM Source creating & shipping
-monitoring elements
-
-Implementation:
-<Notes on implementation>
+/*
+ * \file DQMSourceExample.cc
+ * \author C.Leonidopoulos
+ * Last Update:
+ * $Date: 2007/11/14 12:00:21 $
+ * $Revision: 1.3 $
+ * $Author: 1.3 $
+ *
+ * Description: Simple example showing how to create a DQM Source creating and filling
+ * monitoring elements
 */
-//
-//
-//
+
 #include "DQMServices/Examples/interface/DQMSourceExample.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -40,7 +36,7 @@ counterEvt_(0)
  
 //// use this to read in reference histograms from file
 //   dbe_->readReferenceME("DQM_referenceME_R000000001.root");
-    dbe_->open("DQM_referenceME_R000000001.root",false,"","prep");
+//    dbe_->open("DQM_referenceME_R000000001.root",false,"","prep");
 
 //// use this to collate histograms from files
 //  dbe_->open("Ecal_000017220.root",true,"","Collate");
