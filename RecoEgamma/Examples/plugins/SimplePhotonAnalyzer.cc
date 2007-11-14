@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2007/09/11 21:53:18 $ 
- ** $Revision: 1.3 $
+ ** $Date: 2007/11/11 16:08:46 $ 
+ ** $Revision: 1.4 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -120,14 +120,6 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   evt.getByLabel( mcProducer_.c_str(),  hepProd ) ;
   const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
  
-
-  /// Match reconstructed photon candidates with the nearest generated photon
-  float minDelta=10000.;
-  float delta=0.;
- 
-  reco::Photon mcMatchedPhoton;
-
-
   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
     if ( !( (*p)->pdg_id() == 22 && (*p)->status()==1 )  )  continue;
       
@@ -141,74 +133,97 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
     if ( ((mother == 0) || ((mother != 0) && (mother->pdg_id() == 25))
 	  || ((mother != 0) && (mother->pdg_id() == 22)))) { 
 
+      float minDelta=10000.;
+      std::vector<reco::Photon> localPhotons;
+      int index=0;
+      int iMatch=-1;
+
       // loop over uncorrected  Photon candidates 
       for( reco::PhotonCollection::const_iterator  iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
 
 	/////  Set event vertex
-	reco::Photon localPho(*iPho);
+	reco::Photon localPho = reco::Photon(*iPho);
 	localPho.setVertex(vtx);
+	localPhotons.push_back(localPho);
 
+	/// Match reconstructed photon candidates with the nearest generated photonPho;
 	float phiClu=localPho.phi();
 	float etaClu=localPho.eta();
 	float phiPho=(*p)->momentum().phi();
 	float etaPho=(*p)->momentum().eta();
 	float deltaPhi = phiClu-phiPho;
 	float deltaEta = etaClu-etaPho;
-      
+
 	if ( deltaPhi > pi )  deltaPhi -= twopi;
 	if ( deltaPhi < -pi) deltaPhi += twopi;
 	deltaPhi=pow(deltaPhi,2);
 	deltaEta=pow(deltaEta,2);
-	delta = sqrt( deltaPhi+deltaEta); 
+	float delta = sqrt( deltaPhi+deltaEta); 
 	if ( delta<0.1 && delta < minDelta ) {
 	  minDelta=delta;
-	  mcMatchedPhoton=localPho;
+	  iMatch=index;
 	}
+	index++;
       } // End loop over uncorrected photons
 
-      h1_scE_->Fill( mcMatchedPhoton.superCluster()->energy() );
-      h1_scEta_->Fill( mcMatchedPhoton.superCluster()->position().eta() );
-      h1_scPhi_->Fill( mcMatchedPhoton.superCluster()->position().phi() );
+      /// Plot kinematic disctributions for matched photons
+      if (iMatch>-1) {
+	std::cout << "h1" << std::endl;
+	h1_scE_->Fill( localPhotons[iMatch].superCluster()->energy() );
+	h1_scEta_->Fill( localPhotons[iMatch].superCluster()->position().eta() );
+	h1_scPhi_->Fill( localPhotons[iMatch].superCluster()->position().phi() );
+	std::cout << "h2" << std::endl;
 	
-      h1_phoE_->Fill( mcMatchedPhoton.energy() );
-      h1_phoEta_->Fill( mcMatchedPhoton.eta() );
-      h1_phoPhi_->Fill( mcMatchedPhoton.phi() );
-    
+	h1_phoE_->Fill( localPhotons[iMatch].energy() );
+	h1_phoEta_->Fill( localPhotons[iMatch].eta() );
+	h1_phoPhi_->Fill( localPhotons[iMatch].phi() );
+      }    
+
+      minDelta=10000.;
+      localPhotons.clear();
+      index=0;
+      iMatch=-1;
+
       // loop over corrected  Photon candidates 
       for( reco::PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
 
 	/////  Set event vertex
-	reco::Photon localPho(*iPho);
+	reco::Photon localPho = reco::Photon(*iPho);
 	localPho.setVertex(vtx);
+	localPhotons.push_back(localPho);
 
+	/// Match reconstructed photon candidates with the nearest generated photonPho;
 	float phiClu=localPho.phi();
 	float etaClu=localPho.eta();
 	float phiPho=(*p)->momentum().phi();
 	float etaPho=(*p)->momentum().eta();
 	float deltaPhi = phiClu-phiPho;
 	float deltaEta = etaClu-etaPho;
-      
-      
+
 	if ( deltaPhi > pi )  deltaPhi -= twopi;
 	if ( deltaPhi < -pi) deltaPhi += twopi;
 	deltaPhi=pow(deltaPhi,2);
 	deltaEta=pow(deltaEta,2);
-	delta = sqrt( deltaPhi+deltaEta); 
+	float delta = sqrt( deltaPhi+deltaEta); 
 	if ( delta<0.1 && delta < minDelta ) {
 	  minDelta=delta;
-	  mcMatchedPhoton=localPho;
+	  iMatch=index;
 	}
+	index++;
       } // End loop over corrected photons
     
-      h1_corrPho_E_->Fill( mcMatchedPhoton.energy() );
-      h1_corrPho_Eta_->Fill( mcMatchedPhoton.eta() );
-      h1_corrPho_Phi_->Fill( mcMatchedPhoton.phi() );
-      h1_corrPho_R9_->Fill( mcMatchedPhoton.r9() );
+      /// Plot kinematic disctributions for matched photons
+      if (iMatch>-1) {
+	h1_corrPho_E_->Fill( localPhotons[iMatch].energy() );
+	h1_corrPho_Eta_->Fill( localPhotons[iMatch].eta() );
+	h1_corrPho_Phi_->Fill( localPhotons[iMatch].phi() );
+	h1_corrPho_R9_->Fill( localPhotons[iMatch].r9() );
 
-      h1_recEoverTrueE_ -> Fill( mcMatchedPhoton.energy()/ (*p)->momentum().e() );
-      h1_deltaEta_ -> Fill(  mcMatchedPhoton.eta()- (*p)->momentum().eta()  );
-      h1_deltaPhi_ -> Fill(  mcMatchedPhoton.phi()- (*p)->momentum().phi()  );
-    
+	h1_recEoverTrueE_ -> Fill( localPhotons[iMatch].energy()/ (*p)->momentum().e() );
+	h1_deltaEta_ -> Fill(  localPhotons[iMatch].eta()- (*p)->momentum().eta()  );
+	h1_deltaPhi_ -> Fill(  localPhotons[iMatch].phi()- (*p)->momentum().phi()  );
+      }
+
     } // End loop over MC particles
 
   }
