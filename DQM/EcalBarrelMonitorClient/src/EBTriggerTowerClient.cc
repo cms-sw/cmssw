@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/11/14 20:54:30 $
- * $Revision: 1.74 $
+ * $Date: 2007/11/14 21:40:59 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -11,9 +11,7 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <iomanip>
-#include <bitset>
 
 #include "TStyle.h"
 
