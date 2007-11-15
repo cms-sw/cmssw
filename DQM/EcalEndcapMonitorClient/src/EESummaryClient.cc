@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/15 10:23:38 $
- * $Revision: 1.55 $
+ * $Date: 2007/11/15 14:02:21 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -313,13 +313,13 @@ void EESummaryClient::setup(void) {
   meTiming_[1]->setAxisTitle("iy", 2);
 
   if( meTriggerTowerEt_[0] ) dbe_->removeElement( meTriggerTowerEt_[0]->getName() );
-  sprintf(histo, "EETTT EE - Et trigger tower quality summary");
+  sprintf(histo, "EETTT EE - Et trigger tower summary");
   meTriggerTowerEt_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTriggerTowerEt_[0]->setAxisTitle("ix", 1);
   meTriggerTowerEt_[0]->setAxisTitle("iy", 2);
 
   if( meTriggerTowerEt_[1] ) dbe_->removeElement( meTriggerTowerEt_[1]->getName() );
-  sprintf(histo, "EETTT EE + Et trigger tower quality summary");
+  sprintf(histo, "EETTT EE + Et trigger tower summary");
   meTriggerTowerEt_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTriggerTowerEt_[1]->setAxisTitle("ix", 1);
   meTriggerTowerEt_[1]->setAxisTitle("iy", 2);

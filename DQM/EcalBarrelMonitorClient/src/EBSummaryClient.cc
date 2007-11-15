@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/11/15 10:23:38 $
- * $Revision: 1.86 $
+ * $Date: 2007/11/15 14:02:20 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  *
 */
@@ -202,7 +202,7 @@ void EBSummaryClient::setup(void) {
   meTiming_->setAxisTitle("jeta", 2);
 
   if( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
-  sprintf(histo, "EBTTT Et trigger tower quality summary");
+  sprintf(histo, "EBTTT Et trigger tower summary");
   meTriggerTowerEt_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
   meTriggerTowerEt_->setAxisTitle("jphi", 1);
   meTriggerTowerEt_->setAxisTitle("jeta", 2);
