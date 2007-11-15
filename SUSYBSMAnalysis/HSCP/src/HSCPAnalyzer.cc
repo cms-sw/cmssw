@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.11 2007/11/13 11:00:46 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.12 2007/11/13 12:55:30 arizzi Exp $
 //
 //
 
@@ -221,7 +221,7 @@ Handle< double > genFilterEff;
    vector<float> dedxMass,dedxP,dedxMPV,dedxChi,dedxNHits,dedxMPV2;
    vector<float> tofMass,tofP,tofValue;
 
- 
+   bool highptmu =false; 
    vector<DTInfo> dtInfos;
    vector<TKInfo> tkInfos;
 
@@ -262,11 +262,17 @@ Handle< double > genFilterEff;
       TrackRef combMuon = muonIt->combinedMuon();
       double p=0;
       if(tkMuon.isNonnull())
-       {
+        {
+           double pt=tkMuon->pt();
            h_pt->Fill(tkMuon->pt(),w); 
-        p= tkMuon->p();
-	}
+           if(combMuon.isNonnull()) pt=combMuon->pt();
+           if(pt>100) highptmu=true;
+            p= tkMuon->p();
+     	}
      if(staMuon.isNonnull())        p= staMuon->p();
+     //FIXME: tobeused as default
+//     if(combMuon.isNonnull()) p=combMuon->p();
+
       double invbeta = betaReco.at(i);
       double mass = p*sqrt(invbeta*invbeta-1);
       double mass2 = p*p*(invbeta*invbeta-1);
@@ -288,6 +294,7 @@ Handle< double > genFilterEff;
       dt.standaloneTrack=staMuon;
       dt.invBeta = invbeta;
       dtInfos.push_back(dt);
+
     }
 
 
@@ -429,7 +436,7 @@ for(int i=0; i < candidates.size();i++)
  }
 
 
-if(candidates[i].tk.invBeta2 > 1.3 && candidates[i].hasDt) h_dedxMassMu->Fill(candidates[i].massTk(),w); 
+if(candidates[i].tk.invBeta2 > 1.3 && candidates[i].hasDt && highptmu ) h_dedxMassMu->Fill(candidates[i].massTk(),w); 
 
 }
 
@@ -485,7 +492,7 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   h_dedxMassProton =  subDir.make<TH1F>( "massProton"  , "Proton Mass (dedx)", 100,  0., 2.);
   h_dedxMassProtonFit =  subDir.make<TH1F>( "massProton_FIT"  , "Proton Mass (dedx)", 100,  0., 2.);
 
-  h_dedxMassMu =  subDir.make<TH1F>( "massMu"  , "Mass muons (dedx)", 100,  0., 1500.);
+  h_dedxMassMu =  subDir.make<TH1F>( "massMu"  , "Mass muons (dedx, 1 mu with pt>100 in the event)", 100,  0., 1500.);
 //------------ RECO TOF ----------------
   TFileDirectory subDirTof = fs->mkdir( "RecoTOF" );
   h_tofBetap =  subDirTof.make<TH2F>("tof_beta_p","1/#beta vs p",100,0,1500,100,minBeta,maxBeta );
