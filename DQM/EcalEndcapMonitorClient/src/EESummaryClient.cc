@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/15 14:02:21 $
- * $Revision: 1.56 $
+ * $Date: 2007/11/15 14:32:18 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  *
 */
@@ -1989,12 +1989,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
-
-    std::string projname(obj2f->GetName());
-    string::size_type loc = projname.find( "_pyx", 0 );
-    projname.replace( loc, projname.length(), "");
-    obj2f->SetTitle(projname.c_str());
-
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(0.0);
