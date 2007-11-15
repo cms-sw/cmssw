@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2007/11/10 10:03:54 $
- * $Revision: 1.25 $
+ * $Date: 2007/11/10 14:09:13 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -683,6 +683,9 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
+      if ( dccMap[ism].getRtHalf() != 3 &&
+           dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
+
       LogDebug("EELaserTask") << " det id = " << id;
       LogDebug("EELaserTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
@@ -874,6 +877,9 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
+
+      if ( dccMap[ism].getRtHalf() != 3 &&
+           dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EELaserTask") << " det id = " << id;
       LogDebug("EELaserTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;

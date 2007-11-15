@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/11/10 10:03:52 $
- * $Revision: 1.94 $
+ * $Date: 2007/11/10 14:09:10 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  *
 */
@@ -682,6 +682,9 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
+      if ( dccMap[ism].getRtHalf() != 3 &&
+           dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
+
       LogDebug("EBLaserTask") << " det id = " << id;
       LogDebug("EBLaserTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
@@ -870,6 +873,9 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
+
+      if ( dccMap[ism].getRtHalf() != 3 &&
+           dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EBLaserTask") << " det id = " << id;
       LogDebug("EBLaserTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
