@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.26 2007/11/11 17:07:05 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.27 2007/11/13 20:17:33 dutta Exp $
 //
 //
 
@@ -134,8 +134,11 @@ void SiStripMonitorPedestals::createMEs() {
   for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){
     
     uint32_t detid = *idetid;
-    if ((detid) == 0){
-      //FIXME insert a comment 
+
+    // Check consistency in DetId
+    if (detid == 0 || detid == 0xFFFFFFFF){
+      edm::LogError("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::createMEs: " 
+        << "Wrong DetId !!!!!! " <<  detid << " Neglecting !!!!!! ";
       continue;
     }
 
@@ -144,7 +147,7 @@ void SiStripMonitorPedestals::createMEs() {
     
     // Check consistency in Apv numbers
     if (napvs < 2 || napvs > 6) {
-      edm::LogError("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::createMEs: STRANGE !!!!!!  detId "
+      edm::LogError("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::createMEs: Wrong #of APVs => detId "
                 << detid  << " napvs " << napvs <<  " Neglecting !!!!!! ";
       continue;
     }
