@@ -9,8 +9,20 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 
   hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
 
+  etaMin = 0.;
   etaMax = 2.95;
-  if(hcalselector_ == "HF" || hcalselector_ == "all") etaMax = 5.2;
+  if(hcalselector_ == "HF" || hcalselector_ == "all") {
+    etaMin = 2.93;
+    etaMax = 5.2;
+  } 
+  if(hcalselector_ == "HB") {
+    etaMin = 0.;
+    etaMax = 1.3;
+  }
+  if(hcalselector_ == "HE") {
+    etaMin = 1.48;
+    etaMax = 2.93;
+  }
   
   if ( outputFile_.size() != 0 ) {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
@@ -68,6 +80,11 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     
     sprintf  (histo, "CaloTowersTask_phi_MET" ) ;
     phiMET = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
+    /*
+    sprintf (histo, "CaloTowersTask_profile_HCAL_cone_energy_vs eta");
+    meRecHitSimHitProfileHF  = dbe_->bookProfile(histo, histo, 60, 0., 60., 250, 0., 500.);  
+    
+    */
 
   }
 }
@@ -136,7 +153,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     
     //  simple sums
 
-    if(fabs(etaT) < etaMax) {
+    if(fabs(etaT) < etaMax && fabs(etaT) >= etaMin ) {
     
       sumEnergyHcal += eH;
       sumEnergyEcal += eE;

@@ -46,8 +46,9 @@ class CaloTowersValidation : public edm::EDAnalyzer {
 
   std::string theCaloTowerCollectionLabel;
 
-  // eta limit to calcualte MET, SET (not to include HF if not needed)
+  // eta limits to calcualte MET, SET (not to include HF if not needed)
   double etaMax;
+  double etaMin;
 
   MonitorElement* meEnergyHcalvsEcal;
   MonitorElement* meEnergyHO; 
