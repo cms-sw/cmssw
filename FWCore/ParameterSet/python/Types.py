@@ -100,7 +100,7 @@ class double(_SimpleParameterTypeBase):
         """only used for cfg-parsing"""
         return double(float(value))
     def insertInto(self, parameterSet, myname):
-        parameterSet.addDouble(self.isTracked(), myname, self.value())
+        parameterSet.addDouble(self.isTracked(), myname, double(float(self.value())))
 
 
 import __builtin__
