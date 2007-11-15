@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/09/04 21:06:09 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/10/22 18:05:13 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -125,7 +125,7 @@ for(int i = 0; i<19; ++i)
 dbe->setCurrentFolder("SiStrip");
 for(int amend = 0; amend < 19; ++amend)
 { 
-  hcharname = "hSiStripn_"+SiStripString[amend];
+  hcharname = "hSiStripRecn_"+SiStripString[amend];
   hchartitle= SiStripString[amend]+"  rechits";
   sprintf(hname, hcharname.c_str());
   sprintf(htitle, hchartitle.c_str());
@@ -162,7 +162,7 @@ for(int j =0; j <4; ++j)
 dbe->setCurrentFolder("HCal");
 for(int amend = 0; amend < 4; ++amend)
 {
-  hcharname = "hHcaln_"+HCalString[amend];
+  hcharname = "hHcalRecn_"+HCalString[amend];
   hchartitle= HCalString[amend]+"  rechits";
   sprintf(hname, hcharname.c_str());
   sprintf(htitle, hchartitle.c_str());
@@ -196,7 +196,7 @@ dbe->setCurrentFolder("ECal");
  
 for(int amend = 0; amend < 3; ++amend)
 {
-  hcharname = "hEcaln_"+ECalString[amend];
+  hcharname = "hEcalRecn_"+ECalString[amend];
   hchartitle= ECalString[amend]+"  rechits";
   sprintf(hname, hcharname.c_str());
   sprintf(htitle, hchartitle.c_str());
@@ -225,7 +225,7 @@ for(int j =0; j<7; ++j)
 dbe->setCurrentFolder("SiPixels");
 for(int amend = 0; amend < 7; ++amend)
 {
-  hcharname = "hSiPixeln_"+SiPixelString[amend];
+  hcharname = "hSiPixelRecn_"+SiPixelString[amend];
   hchartitle= SiPixelString[amend]+" rechits";
   sprintf(hname, hcharname.c_str());
   sprintf(htitle, hchartitle.c_str());

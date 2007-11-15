@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/04/30 19:52:19 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/09/04 21:06:09 $
+ *  $Revision: 1.11 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -2259,4 +2259,4 @@ GlobalRecHitsProducer::plotResolution(const PSimHit & simHit,
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(GlobalRecHitsProducer);
+//DEFINE_FWK_MODULE(GlobalRecHitsProducer);
