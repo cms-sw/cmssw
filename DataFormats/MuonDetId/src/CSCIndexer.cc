@@ -3,8 +3,10 @@
 
 void CSCIndexer::fillChamberLabel() const {
   // Fill the member vector which permits decoding of the linear chamber index
-  // Logically const since initializes cache only
-  chamberLabel.resize( 235 ); // one more than #chambers per endcap
+  // Logically const since initializes cache only,
+  // Beware that the ME42 indices 235-270 within this vector do NOT correspond to
+  // their 'real' linear indices (which are 469-504 for +z)
+   chamberLabel.resize( 271 ); // one more than #chambers per endcap. Includes ME42.
    IndexType count = 0;
    chamberLabel[count] = 0;
 
@@ -20,6 +22,10 @@ void CSCIndexer::fillChamberLabel() const {
 }
 
 CSCDetId CSCIndexer::detIdFromChamberIndex_OLD( IndexType ici ) const {
+
+  // Will not work as is for ME42
+  // ============================
+
   IndexType ie = 1;
   if (ici > 234 ) {
      ie = 2;
@@ -41,25 +47,37 @@ CSCDetId CSCIndexer::detIdFromChamberIndex_OLD( IndexType ici ) const {
     IndexType js = station[i];
     IndexType jr = ring[i];
     // if it's before start of MEjs/jr then it's in the previous MEis/ir
-      if ( ici < startChamberIndexInEndcap(js,jr) ) {
+      if ( ici < startChamberIndexInEndcap(ie,js,jr) ) {
 	is = prevs[i];
 	ir = prevr[i];
 	break;
       }
       // otherwise it's in ME41
   }
-  IndexType ic = ici - startChamberIndexInEndcap(is,ir) + 1;
+  IndexType ic = ici - startChamberIndexInEndcap(ie,is,ir) + 1;
 
   return CSCDetId( ie, is, ir, ic );
 }
  
 CSCDetId CSCIndexer::detIdFromChamberIndex( IndexType ici ) const {
-  IndexType ie = 1;
-  if ( ici > 234 ) {
-	  ie = 2;
-	  ici -= 234;
-  }
+  // Expected range of input range argument is 1-540.
+  // 1-468 for CSCs installed at 2008 start-up. 469-540 for ME42.
 
+  IndexType ie = 1;
+  if ( ici > 468 ) {
+    // ME42
+    ici -= 234; // now in range 235-306
+    if ( ici > 270 ) { // -z
+      ie = 2;
+      ici -= 36; // now in range 235-270
+    }
+  }
+  else { // in range 1-468
+    if ( ici > 234 ) { // -z
+      ie = 2;
+      ici -= 234; // now in range 1-234
+    }
+  }
   if (chamberLabel.empty()) fillChamberLabel();
   IndexType label = chamberLabel[ici];  
   return detIdFromChamberLabel( ie, label );
@@ -77,56 +95,65 @@ CSCDetId CSCIndexer::detIdFromChamberLabel( IndexType ie, IndexType label ) cons
 }
 
 CSCDetId CSCIndexer::detIdFromLayerIndex( IndexType ili ) const {
-  IndexType ie = 1;
-  if ( ili > 1404 ) {
-     ie = 2;
-     ili -= 1404;
-  }
+
   IndexType il = (ili-1)%6 + 1;
   IndexType ici = (ili-1)/6 + 1;
-  if (chamberLabel.empty()) fillChamberLabel();
-  IndexType label = chamberLabel[ici];
-  CSCDetId id = detIdFromChamberLabel(ie, label);
-	
-  return CSCDetId(ie, id.station(), id.ring(), id.chamber(), il);
+  CSCDetId id = detIdFromChamberIndex( ici ); 
+
+  return CSCDetId(id.endcap(), id.station(), id.ring(), id.chamber(), il);
 }
 
 std::pair<CSCDetId, CSCIndexer::IndexType>  CSCIndexer::detIdFromStripChannelIndex( LongIndexType isi ) const {
 
-   const LongIndexType lastPlusEndcap = 108864; // = 217728/2
-   const LongIndexType firstme13  = 34561; // First channel of ME13
-   const LongIndexType lastme13   = 48384; // Last channel of ME13
+  const LongIndexType lastnonme42 = 217728; // channels in 2008 installed chambers
+  const LongIndexType lastplusznonme42 = 108864; // = 217728/2
+  const LongIndexType firstme13  = 34561; // First channel of ME13
+  const LongIndexType lastme13   = 48384; // Last channel of ME13
 
-   const IndexType lastPlusEndcapLayer = 1404; // = 2808/2
-   const IndexType firstme13layer  = 433; // = 72*6 + 1 (ME13 chambers are 72-108 in range 1-234)
-   const IndexType lastme13layer   = 648; // = 108*6
-	
-   IndexType ie = 1;
-   if ( isi > lastPlusEndcap ) {
+  const IndexType lastnonme42layer = 2808;
+  const IndexType lastplusznonme42layer = 1404; // = 2808/2
+  const IndexType firstme13layer  = 433; // = 72*6 + 1 (ME13 chambers are 72-108 in range 1-234)
+  const IndexType lastme13layer   = 648; // = 108*6
+
+  // All chambers but ME13 have 80 channels
+  IndexType nchan = 80;
+
+  // Set endcap to +z. This should work for ME42 channels too, since we don't need to calculate its endcap explicitly.
+  IndexType ie = 1;
+
+  LongIndexType istart = 0;
+  IndexType layerOffset = 0;
+
+  if ( isi <= lastnonme42 ) {	
+    // Chambers as of 2008 Installation
+
+    if ( isi > lastplusznonme42 ) {
       ie = 2;
-      isi -= lastPlusEndcap;
-   }
+      isi -= lastplusznonme42;
+    }
 	
-   // Defaults: before ME13
-   LongIndexType istart = 0;
-   IndexType nchan = 80;
-   IndexType layerOffset = 0;
-	
-   if ( isi > lastme13 ) { // after ME13
+    if ( isi > lastme13 ) { // after ME13
       istart = lastme13;
       layerOffset = lastme13layer;
-   }
-   else if ( isi >= firstme13 ) { // ME13
+    }
+    else if ( isi >= firstme13 ) { // ME13
       istart = firstme13 - 1;
       layerOffset = firstme13layer - 1;
       nchan = 64;
-   }
+    }
+  }
+  else {
+     // ME42 chambers
+
+    istart = lastnonme42;
+    layerOffset = lastnonme42layer;
+  }
 
    isi -= istart; // remove earlier group(s)
    IndexType ichan = (isi-1)%nchan + 1;
    IndexType ili = (isi-1)/nchan + 1;
    ili += layerOffset; // add appropriate offset for earlier group(s)
-   if ( ie != 1 ) ili+= lastPlusEndcapLayer; // add offset to -z endcap
+   if ( ie != 1 ) ili+= lastplusznonme42layer; // add offset to -z endcap; ME42 doesn't need this.
 	
    return std::pair<CSCDetId, IndexType>(detIdFromLayerIndex(ili), ichan);
 }
