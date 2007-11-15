@@ -16,7 +16,8 @@ endif
 
 echo "Run: $Run"
 
-set files = `ls LS_"$Run"_??????.root`
+set InputDir = "."
+set files = `ls $InputDir/LS_"$Run"_??????.root`
 
 if( `echo $files` != '' ) then
 
