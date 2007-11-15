@@ -221,7 +221,7 @@ void HLTMuonRateAnalyzerWithWeight::analyze(const Event & event, const EventSetu
   unsigned int modules_in_this_event = 0;
   for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
     event.getByLabel(theHLTCollectionLabels[i], hltcands[i]);
-    if (hltcands[i]s.failedToGet()){
+    if (hltcands[i].failedToGet()){
       LogInfo("HLTMuonRateAnalyzerWithWeight") << " No "<<theHLTCollectionLabels[i];
       break;
     }
