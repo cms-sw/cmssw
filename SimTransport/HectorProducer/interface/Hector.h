@@ -13,6 +13,8 @@
 #include "H_RecRPObject.h"
 #include "H_BeamParticle.h"
 
+#include <string>
+
 class Hector {
 
 public:
@@ -161,5 +163,8 @@ private:
   std::map<unsigned int, double> m_TxAtRP420;
   std::map<unsigned int, double> m_TyAtRP420;
   std::map<unsigned int, double> m_eAtRP420;
+
+  string beam1filename;
+  string beam2filename;
 };
 #endif
