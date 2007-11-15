@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/11 18:28:19 $
- * $Revision: 1.54 $
+ * $Date: 2007/11/15 10:23:38 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */
@@ -314,13 +314,13 @@ void EESummaryClient::setup(void) {
 
   if( meTriggerTowerEt_[0] ) dbe_->removeElement( meTriggerTowerEt_[0]->getName() );
   sprintf(histo, "EETTT EE - Et trigger tower quality summary");
-  meTriggerTowerEt_[0] = dbe_->bookProfile2D(histo, histo, 100, 0., 100., 100, 0., 100., 256, 0., 256., "s");
+  meTriggerTowerEt_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTriggerTowerEt_[0]->setAxisTitle("ix", 1);
   meTriggerTowerEt_[0]->setAxisTitle("iy", 2);
 
   if( meTriggerTowerEt_[1] ) dbe_->removeElement( meTriggerTowerEt_[1]->getName() );
   sprintf(histo, "EETTT EE + Et trigger tower quality summary");
-  meTriggerTowerEt_[1] = dbe_->bookProfile2D(histo, histo, 100, 0., 100., 100, 0., 100., 256, 0., 256., "s");
+  meTriggerTowerEt_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTriggerTowerEt_[1]->setAxisTitle("ix", 1);
   meTriggerTowerEt_[1]->setAxisTitle("iy", 2);
 
@@ -593,6 +593,7 @@ void EESummaryClient::analyze(void){
     MonitorElement* me;
     MonitorElement *me_01, *me_02, *me_03;
 //    MonitorElement *me_04, *me_05;
+
     TH2F* h2;
     TProfile2D* h2d;
 
@@ -1125,7 +1126,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   gStyle->SetTitleFontSize(14);
 
   TH2F* obj2f;
-  TProfile2D* obj2p;
 
   gStyle->SetPaintTextFormat("+g");
 
@@ -1971,12 +1971,12 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   imgNameMapTTEt[0] = "";
 
-  obj2p = 0;
-  obj2p = UtilsClient::getHisto<TProfile2D*>( meTriggerTowerEt_[0] );
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTriggerTowerEt_[0] );
 
-  if ( obj2p && obj2p->GetEntries() != 0 ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
-    meName = obj2p->GetName();
+    meName = obj2f->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
@@ -1990,18 +1990,18 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
 
-    std::string projname(obj2p->GetName());
+    std::string projname(obj2f->GetName());
     string::size_type loc = projname.find( "_pyx", 0 );
     projname.replace( loc, projname.length(), "");
-    obj2p->SetTitle(projname.c_str());
+    obj2f->SetTitle(projname.c_str());
 
     cMap->SetGridx();
     cMap->SetGridy();
-    obj2p->SetMinimum(0.0);
-    obj2p->GetXaxis()->SetLabelSize(0.03);
-    obj2p->GetYaxis()->SetLabelSize(0.03);
-    obj2p->GetZaxis()->SetLabelSize(0.03);
-    obj2p->Draw("colz");
+    obj2f->SetMinimum(0.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->GetZaxis()->SetLabelSize(0.03);
+    obj2f->Draw("colz");
     labelGrid1.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
@@ -2018,12 +2018,12 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   imgNameMapTTEt[1] = "";
 
-  obj2p = 0;
-  obj2p = UtilsClient::getHisto<TProfile2D*>( meTriggerTowerEt_[1] );
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTriggerTowerEt_[1] );
 
-  if ( obj2p && obj2p->GetEntries() != 0 ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
-    meName = obj2p->GetName();
+    meName = obj2f->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
@@ -2038,11 +2038,11 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetPalette(10, pCol4);
     cMap->SetGridx();
     cMap->SetGridy();
-    obj2p->SetMinimum(0.0);
-    obj2p->GetXaxis()->SetLabelSize(0.03);
-    obj2p->GetYaxis()->SetLabelSize(0.03);
-    obj2p->GetZaxis()->SetLabelSize(0.03);
-    obj2p->Draw("colz");
+    obj2f->SetMinimum(0.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->GetZaxis()->SetLabelSize(0.03);
+    obj2f->Draw("colz");
     labelGrid1.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;

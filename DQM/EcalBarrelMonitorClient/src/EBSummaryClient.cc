@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/11/10 14:09:09 $
- * $Revision: 1.85 $
+ * $Date: 2007/11/15 10:23:38 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  *
 */
@@ -203,7 +203,7 @@ void EBSummaryClient::setup(void) {
 
   if( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
   sprintf(histo, "EBTTT Et trigger tower quality summary");
-  meTriggerTowerEt_ = dbe_->bookProfile2D(histo, histo, 72, 0., 72., 34, -17., 17., 256, 0., 256., "s");
+  meTriggerTowerEt_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
   meTriggerTowerEt_->setAxisTitle("jphi", 1);
   meTriggerTowerEt_->setAxisTitle("jeta", 2);
 
@@ -980,7 +980,6 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   float saveTitleOffset = gStyle->GetTitleX();
 
   TH2F* obj2f;
-  TProfile2D* obj2p;
 
   imgNameMapI = "";
 
@@ -1410,12 +1409,12 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   imgNameMapTTEt = "";
 
-  obj2p = 0;
-  obj2p = UtilsClient::getHisto<TProfile2D*>( meTriggerTowerEt_ );
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTriggerTowerEt_ );
 
-  if ( obj2p && obj2p->GetEntries() != 0 ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
-    meName = obj2p->GetName();
+    meName = obj2f->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
@@ -1428,15 +1427,15 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
-    obj2p->GetXaxis()->SetNdivisions(18, kFALSE);
-    obj2p->GetYaxis()->SetNdivisions(2);
+    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(2);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(0.0);
-    obj2p->GetXaxis()->SetLabelSize(0.03);
-    obj2p->GetYaxis()->SetLabelSize(0.03);
-    obj2p->GetZaxis()->SetLabelSize(0.03);
-    obj2p->Draw("colz");
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->GetZaxis()->SetLabelSize(0.03);
+    obj2f->Draw("colz");
     labelGridTT.Draw("text,same");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
