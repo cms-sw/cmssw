@@ -51,7 +51,7 @@ HcalLEDClient::HcalLEDClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe)
 
 
   // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor/");
+  process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
 
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
@@ -253,7 +253,7 @@ void HcalLEDClient::report(){
   if ( debug_ ) cout << "HcalLEDClient: report" << endl;
 
   char name[256];
-  sprintf(name, "%sHcalMonitor/LEDMonitor/LED Task Event Number",process_.c_str());
+  sprintf(name, "%sHcal/LEDMonitor/LED Task Event Number",process_.c_str());
   MonitorElement* me = dbe_->get(name);
   if ( me ) {
     string s = me->valueString();
@@ -278,17 +278,17 @@ void HcalLEDClient::getHistograms(){
   MonitorElement* meDepEnergyRMS[4];
 
   for(int i=0; i<4; i++){
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Time Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/LEDMonitor/LED Mean Time Depth %d",process_.c_str(),i+1);
     meDepTimeMean[i] = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Time Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/LEDMonitor/LED RMS Time Depth %d",process_.c_str(),i+1);
     meDepTimeRMS[i] = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Shape Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/LEDMonitor/LED Mean Shape Depth %d",process_.c_str(),i+1);
     meDepShapeMean[i] = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Shape Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/LEDMonitor/LED RMS Shape Depth %d",process_.c_str(),i+1);
     meDepShapeRMS[i] = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Energy Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/LEDMonitor/LED Mean Energy Depth %d",process_.c_str(),i+1);
     meDepEnergyMean[i] = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Energy Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/LEDMonitor/LED RMS Energy Depth %d",process_.c_str(),i+1);
     meDepEnergyRMS[i] = dbe_->get(name);
 
     if(meDepTimeMean[i]) dbe_->softReset(meDepTimeMean[i]);
@@ -308,46 +308,46 @@ void HcalLEDClient::getHistograms(){
   map<unsigned int,MonitorElement*> meRMSshapeElec;
   map<unsigned int,MonitorElement*> meMEANshapeElec;
 
-  sprintf(name,"%sHcalMonitor/FEDs Unpacked",process_.c_str());
+  sprintf(name,"%sHcal/FEDs Unpacked",process_.c_str());
   meFEDunpacked = dbe_->get(name);
   if(meFEDunpacked){
     for(int b=1; b<=meFEDunpacked->getNbinsX(); b++){
       if(meFEDunpacked->getBinContent(b)!=0){
 	
 	int fedNum = b-1+700;
-	sprintf(name,"%sHcalMonitor/LEDMonitor/DCC %d Mean Shape Map",process_.c_str(),fedNum);
+	sprintf(name,"%sHcal/LEDMonitor/DCC %d Mean Shape Map",process_.c_str(),fedNum);
 	MonitorElement* me1 = dbe_->get(name);
 	if(me1!=NULL){
 	  dbe_->softReset(me1);
 	  meMEANshapeElec[fedNum] = me1;	
 	}
-	sprintf(name,"%sHcalMonitor/LEDMonitor/DCC %d RMS Shape Map",process_.c_str(),fedNum);
+	sprintf(name,"%sHcal/LEDMonitor/DCC %d RMS Shape Map",process_.c_str(),fedNum);
 	MonitorElement* me2 = dbe_->get(name);
 	if(me2!=NULL){
 	  dbe_->softReset(me2);
 	  meRMSshapeElec[fedNum] = me2;
 	}
 	
-	sprintf(name,"%sHcalMonitor/LEDMonitor/DCC %d Mean Energy Map",process_.c_str(),fedNum);
+	sprintf(name,"%sHcal/LEDMonitor/DCC %d Mean Energy Map",process_.c_str(),fedNum);
 	MonitorElement* me3 = dbe_->get(name);
 	if(me3!=NULL){
 	  dbe_->softReset(me3);
 	  meMEANenergyElec[fedNum] = me3;
 	}
-	sprintf(name,"%sHcalMonitor/LEDMonitor/DCC %d RMS Energy Map",process_.c_str(),fedNum);
+	sprintf(name,"%sHcal/LEDMonitor/DCC %d RMS Energy Map",process_.c_str(),fedNum);
 	MonitorElement* me4 = dbe_->get(name);
 	if(me4!=NULL){
 	  dbe_->softReset(me4);
 	  meRMSenergyElec[fedNum] = me4;
 	}
 	
-	sprintf(name,"%sHcalMonitor/LEDMonitor/DCC %d Mean Time Map",process_.c_str(),fedNum);
+	sprintf(name,"%sHcal/LEDMonitor/DCC %d Mean Time Map",process_.c_str(),fedNum);
 	MonitorElement* me5 = dbe_->get(name);
 	if(me5!=NULL){
 	  dbe_->softReset(me5);
 	  meMEANtimeElec[fedNum] = me5;	  
 	}
-	sprintf(name,"%sHcalMonitor/LEDMonitor/DCC %d RMS Time Map",process_.c_str(),fedNum);
+	sprintf(name,"%sHcal/LEDMonitor/DCC %d RMS Time Map",process_.c_str(),fedNum);
 	MonitorElement* me6 = dbe_->get(name);
 	if(me6!=NULL){
 	  dbe_->softReset(me6);
@@ -371,23 +371,23 @@ void HcalLEDClient::getHistograms(){
     sprintf(name,"LEDMonitor/%s/%s Average Pulse Energy",type.c_str(),type.c_str());      
     avg_energy_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
     
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape RMS Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Shape RMS Values",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meShapeRMS  = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape Mean Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Shape Mean Values",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meShapeMean  = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Time RMS Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Time RMS Values",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meTimeRMS  = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Time Mean Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Time Mean Values",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meTimeMean  = dbe_->get(name);
 
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Energy RMS Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Energy RMS Values",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meEnergyRMS  = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Energy Mean Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Energy Mean Values",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meEnergyMean  = dbe_->get(name);
 
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meGeoErr  = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Elec Error Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Elec Error Map",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meElecErr  = dbe_->get(name);
 
 
@@ -411,7 +411,7 @@ void HcalLEDClient::getHistograms(){
 	  HcalDetId id(subdet,ieta,iphi,depth);
 	  HcalElectronicsId eid = readoutMap_->lookup(id);
 	  
-	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape ieta=%d iphi=%d depth=%d",
+	  sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Shape ieta=%d iphi=%d depth=%d",
 		  process_.c_str(), type.c_str(),type.c_str(),ieta,iphi,depth);  
 	  MonitorElement* me = dbe_->get(name);
 	  if(me){
@@ -436,7 +436,7 @@ void HcalLEDClient::getHistograms(){
 
 	  float timeMeanVal = -1; float enMeanVal = -1;
 	  float timeRMSVal = -1; float enRMSVal = -1;
-	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Time ieta=%d iphi=%d depth=%d",process_.c_str(),
+	  sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Time ieta=%d iphi=%d depth=%d",process_.c_str(),
 		  type.c_str(),type.c_str(),ieta,iphi,depth);  
 	  me = dbe_->get(name);
 	  if(me){
@@ -455,7 +455,7 @@ void HcalLEDClient::getHistograms(){
 	    }
 	  }
 
-	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Energy ieta=%d iphi=%d depth=%d",process_.c_str(),
+	  sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Energy ieta=%d iphi=%d depth=%d",process_.c_str(),
 		  type.c_str(),type.c_str(),ieta,iphi,depth);  
 	  me = dbe_->get(name);
 	  if(me){
@@ -546,7 +546,7 @@ void HcalLEDClient::createTests(){
     if(i==2) type = "HF";
     if(i==3) type = "HO";
 
-    sprintf(meTitle,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape RMS Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(meTitle,"%sHcal/LEDMonitor/%s/%s LED Shape RMS Values",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s LED Shape RMS Values: X-Range",type.c_str());
     if( dqmQtests_.find(name) == dqmQtests_.end() ){	
       MonitorElement* me = dbe_->get(meTitle);
@@ -562,7 +562,7 @@ void HcalLEDClient::createTests(){
       }
     }
     
-    sprintf(meTitle,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape Mean Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(meTitle,"%sHcal/LEDMonitor/%s/%s LED Shape Mean Values",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s LED Shape RMS Values: X-Range",type.c_str());
     if( dqmQtests_.find(name) == dqmQtests_.end() ){	
       MonitorElement* me = dbe_->get(meTitle);
@@ -587,17 +587,17 @@ void HcalLEDClient::resetAllME(){
   Char_t name[150];    
 
   for(int i=1; i<5; i++){
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Time Depth %d",process_.c_str(),i);
+    sprintf(name,"%sHcal/LEDMonitor/LED Mean Time Depth %d",process_.c_str(),i);
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Time Depth %d",process_.c_str(),i);
+    sprintf(name,"%sHcal/LEDMonitor/LED RMS Time Depth %d",process_.c_str(),i);
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Shape Depth %d",process_.c_str(),i);
+    sprintf(name,"%sHcal/LEDMonitor/LED Mean Shape Depth %d",process_.c_str(),i);
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Shape Depth %d",process_.c_str(),i);
+    sprintf(name,"%sHcal/LEDMonitor/LED RMS Shape Depth %d",process_.c_str(),i);
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Energy Depth %d",process_.c_str(),i);
+    sprintf(name,"%sHcal/LEDMonitor/LED Mean Energy Depth %d",process_.c_str(),i);
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Energy Depth %d",process_.c_str(),i);
+    sprintf(name,"%sHcal/LEDMonitor/LED RMS Energy Depth %d",process_.c_str(),i);
     resetME(name,dbe_);
   }
 
@@ -609,29 +609,29 @@ void HcalLEDClient::resetAllME(){
     else if(i==2) type = "HF"; 
     else if(i==3) type = "HO"; 
 
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s Ped Subtracted Pulse Shape",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s Ped Subtracted Pulse Shape",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s Average Pulse Shape",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s Average Pulse Shape",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape RMS Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Shape RMS Values",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape Mean Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Shape Mean Values",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s Average Pulse Time",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s Average Pulse Time",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Time RMS Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Time RMS Values",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Time Mean Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Time Mean Values",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s Average Pulse Energy",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s Average Pulse Energy",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Energy RMS Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Energy RMS Values",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Energy Mean Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Energy Mean Values",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Elec Error Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Elec Error Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
     
     for(int ieta=-42; ieta<42; ieta++){
@@ -639,13 +639,13 @@ void HcalLEDClient::resetAllME(){
       for(int iphi=0; iphi<73; iphi++){
 	for(int depth=1; depth<4; depth++){
 	  if(!isValidGeom(i, ieta, iphi,depth)) continue;
-	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape ieta=%d iphi=%d depth=%d",
+	  sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Shape ieta=%d iphi=%d depth=%d",
 		  process_.c_str(), type.c_str(),type.c_str(),ieta,iphi,depth);  
 	  resetME(name,dbe_);
-	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Time ieta=%d iphi=%d depth=%d",
+	  sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Time ieta=%d iphi=%d depth=%d",
 		  process_.c_str(),type.c_str(),type.c_str(),ieta,iphi,depth);  
 	  resetME(name,dbe_);
-	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Energy ieta=%d iphi=%d depth=%d",
+	  sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Energy ieta=%d iphi=%d depth=%d",
 		  process_.c_str(),type.c_str(),type.c_str(),ieta,iphi,depth);  
 	  resetME(name,dbe_);
 	}
@@ -841,7 +841,7 @@ void HcalLEDClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
 void HcalLEDClient::loadHistograms(TFile* infile){
 
-  TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/LEDMonitor/LED Task Event Number");
+  TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/LEDMonitor/LED Task Event Number");
   if(tnd){
     string s =tnd->GetTitle();
     ievt_ = -1;
@@ -849,17 +849,17 @@ void HcalLEDClient::loadHistograms(TFile* infile){
   }
   char name[256];
   for(int i=0; i<4; i++){
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Time Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/LEDMonitor/LED Mean Time Depth %d",process_.c_str(),i+1);
     mean_timeDep_[i]=(TH2F*)infile->Get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Time Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/LEDMonitor/LED RMS Time Depth %d",process_.c_str(),i+1);
     rms_timeDep_[i]=(TH2F*)infile->Get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Shape Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/LEDMonitor/LED Mean Shape Depth %d",process_.c_str(),i+1);
     mean_shapeDep_[i]=(TH2F*)infile->Get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Shape Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/LEDMonitor/LED RMS Shape Depth %d",process_.c_str(),i+1);
     rms_shapeDep_[i]=(TH2F*)infile->Get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED Mean Energy Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/LEDMonitor/LED Mean Energy Depth %d",process_.c_str(),i+1);
     mean_energyDep_[i]=(TH2F*)infile->Get(name);
-    sprintf(name,"%sHcalMonitor/LEDMonitor/LED RMS Energy Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/LEDMonitor/LED RMS Energy Depth %d",process_.c_str(),i+1);
     rms_energyDep_[i]=(TH2F*)infile->Get(name);
   }
 
@@ -872,32 +872,32 @@ void HcalLEDClient::loadHistograms(TFile* infile){
     else if(i==3) type = "HO";
 
 
-    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s Average Pulse Shape",type.c_str(),type.c_str());      
+    sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s Average Pulse Shape",type.c_str(),type.c_str());      
     avg_shape_[i] = (TH1F*)infile->Get(name);
-    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s Average Pulse Time",type.c_str(),type.c_str());      
+    sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s Average Pulse Time",type.c_str(),type.c_str());      
     avg_time_[i] = (TH1F*)infile->Get(name);
-    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s Average Pulse Energy",type.c_str(),type.c_str());      
+    sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s Average Pulse Energy",type.c_str(),type.c_str());      
     avg_energy_[i] = (TH1F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Shape RMS Values",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s LED Shape RMS Values",type.c_str(),type.c_str());
     rms_shape_[i]=(TH1F*)infile->Get(name);
-    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Shape Mean Values",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s LED Shape Mean Values",type.c_str(),type.c_str());
     mean_shape_[i]=(TH1F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Time RMS Values",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s LED Time RMS Values",type.c_str(),type.c_str());
     rms_time_[i]=(TH1F*)infile->Get(name);
-    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Time Mean Values",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s LED Time Mean Values",type.c_str(),type.c_str());
     mean_time_[i]=(TH1F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Energy RMS Values",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s LED Energy RMS Values",type.c_str(),type.c_str());
     rms_energy_[i]=(TH1F*)infile->Get(name);
-    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Energy Mean Values",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s LED Energy Mean Values",type.c_str(),type.c_str());
     mean_energy_[i]=(TH1F*)infile->Get(name);
 
 
-    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Geo Error Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s LED Geo Error Map",type.c_str(),type.c_str());
     err_map_geo_[i]=(TH2F*)infile->Get(name);
-    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Elec Error Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s LED Elec Error Map",type.c_str(),type.c_str());
     err_map_elec_[i]=(TH2F*)infile->Get(name);
 
 
@@ -906,7 +906,7 @@ void HcalLEDClient::loadHistograms(TFile* infile){
       for(int iphi=1; iphi<=73; iphi++){
 	for(int depth=1; depth<=4; depth++){
 	  if(!isValidGeom(i, ieta, iphi,depth)) continue;
-	  sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Shape ieta=%d iphi=%d depth=%d",
+	  sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s LED Shape ieta=%d iphi=%d depth=%d",
 		  type.c_str(),type.c_str(),ieta,iphi,depth);  
 	  TH1F* h = (TH1F*)infile->Get(name);
 	  if(h){
@@ -914,7 +914,7 @@ void HcalLEDClient::loadHistograms(TFile* infile){
 	    mean_shape_[i]->Fill(h->GetMean());
 	  }
 	  
-	  sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Time ieta=%d iphi=%d depth=%d",
+	  sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s LED Time ieta=%d iphi=%d depth=%d",
 		  type.c_str(),type.c_str(),ieta,iphi,depth);  
 	  h = (TH1F*)infile->Get(name);
 	  if(h){
@@ -922,7 +922,7 @@ void HcalLEDClient::loadHistograms(TFile* infile){
 	    mean_time_[i]->Fill(h->GetMean());
 	  }	  
 
-	  sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Energy ieta=%d iphi=%d depth=%d",
+	  sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s LED Energy ieta=%d iphi=%d depth=%d",
 		  type.c_str(),type.c_str(),ieta,iphi,depth);  
 	  h = (TH1F*)infile->Get(name);
 	  if(h){

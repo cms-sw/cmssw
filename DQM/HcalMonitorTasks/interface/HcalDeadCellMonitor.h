@@ -6,8 +6,8 @@
 
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2007/10/04 21:03:13 $
-  * $Revision: 1.14 $
+  * $Date: 2007/11/03 22:58:23 $
+  * $Revision: 1.1 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -55,7 +55,6 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 			 const HFRecHitCollection& hfHits);
 
   void reset_Nevents(DeadCellHists& h);
-  void clearME();
   void reset();
 
 

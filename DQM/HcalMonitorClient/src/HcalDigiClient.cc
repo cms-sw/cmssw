@@ -37,7 +37,7 @@ HcalDigiClient::HcalDigiClient(const ParameterSet& ps, DaqMonitorBEInterface* db
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor/"); 
+  process_ = ps.getUntrackedParameter<string>("processName", "Hcal/"); 
 
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
@@ -257,7 +257,7 @@ void HcalDigiClient::report(){
   if ( debug_ ) cout << "HcalDigiClient: report" << endl;
   
   char name[256];
-  sprintf(name, "%sHcalMonitor/DigiMonitor/Digi Task Event Number",process_.c_str());
+  sprintf(name, "%sHcal/DigiMonitor/Digi Task Event Number",process_.c_str());
   MonitorElement* me = 0;
   if(dbe_) me = dbe_->get(name);
   if ( me ) {
@@ -397,26 +397,26 @@ void HcalDigiClient::resetAllME(){
   Char_t name[150];    
   
   for(int i=1; i<5; i++){
-    sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Depth %d Occupancy Map",process_.c_str(),i);
+    sprintf(name,"%sHcal/DigiMonitor/Digi Depth %d Occupancy Map",process_.c_str(),i);
     resetME(name,dbe_);
   }
-  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Eta Occupancy Map",process_.c_str());
+  sprintf(name,"%sHcal/DigiMonitor/Digi Eta Occupancy Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Phi Occupancy Map",process_.c_str());
+  sprintf(name,"%sHcal/DigiMonitor/Digi Phi Occupancy Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi VME Occupancy Map",process_.c_str());
+  sprintf(name,"%sHcal/DigiMonitor/Digi VME Occupancy Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Fiber Occupancy Map",process_.c_str());
+  sprintf(name,"%sHcal/DigiMonitor/Digi Fiber Occupancy Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Spigot Occupancy Map",process_.c_str());
+  sprintf(name,"%sHcal/DigiMonitor/Digi Spigot Occupancy Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Geo Error Map",process_.c_str());
+  sprintf(name,"%sHcal/DigiMonitor/Digi Geo Error Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi VME Error Map",process_.c_str());
+  sprintf(name,"%sHcal/DigiMonitor/Digi VME Error Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Fiber Error Map",process_.c_str());
+  sprintf(name,"%sHcal/DigiMonitor/Digi Fiber Error Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Spigot Error Map",process_.c_str());
+  sprintf(name,"%sHcal/DigiMonitor/Digi Spigot Error Map",process_.c_str());
   resetME(name,dbe_);
   
   for(int i=0; i<4; i++){
@@ -426,43 +426,43 @@ void HcalDigiClient::resetAllME(){
     if(i==2) type = "HF"; 
     if(i==3) type = "HO"; 
 
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Shape",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi Shape",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Shape - over thresh",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi Shape - over thresh",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s # of Digis",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s # of Digis",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Size",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi Size",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Presamples",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi Presamples",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s QIE Cap-ID",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s QIE Cap-ID",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s QIE ADC Value",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s QIE ADC Value",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s QIE Data Valid Err Bits",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s QIE Data Valid Err Bits",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi VME Error Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi VME Error Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Fiber Error Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi Fiber Error Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Spigot Error Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi Spigot Error Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
     for(int j=1; j<5; j++){
-      sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Depth %d Occupancy Map",process_.c_str(),type.c_str(),type.c_str(),j);
+      sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi Depth %d Occupancy Map",process_.c_str(),type.c_str(),type.c_str(),j);
       resetME(name,dbe_);
     }
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Eta Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi Eta Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Phi Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi Phi Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi VME Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi VME Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Fiber Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi Fiber Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Spigot Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi Spigot Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
 
   }
@@ -639,7 +639,7 @@ void HcalDigiClient::createTests(){
     if(i==2) type = "HF"; 
     if(i==3) type = "HO";
     
-    sprintf(meTitle,"%sHcalMonitor/DigiMonitor/%s/%s Digi Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(meTitle,"%sHcal/DigiMonitor/%s/%s Digi Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s Digi Errors by Geo_metry",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
       MonitorElement* me = dbe_->get(meTitle);
@@ -653,7 +653,7 @@ void HcalDigiClient::createTests(){
       }
     }
 
-    sprintf(meTitle,"%sHcalMonitor/DigiMonitor/%s/%s # of Digis",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(meTitle,"%sHcal/DigiMonitor/%s/%s # of Digis",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s # of Digis",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
       MonitorElement* me = dbe_->get(meTitle);
@@ -673,7 +673,7 @@ void HcalDigiClient::createTests(){
       }
     }
 
-    sprintf(meTitle,"%sHcalMonitor/DigiMonitor/%s/%s QIE Cap-ID",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(meTitle,"%sHcal/DigiMonitor/%s/%s QIE Cap-ID",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s QIE CapID",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
       MonitorElement* me = dbe_->get(meTitle);
@@ -687,7 +687,7 @@ void HcalDigiClient::createTests(){
       }
     }
 
-    sprintf(meTitle,"%sHcalMonitor/DigiMonitor/%s/%s QIE Data Valid Err Bits",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(meTitle,"%sHcal/DigiMonitor/%s/%s QIE Data Valid Err Bits",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s DVErr",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
       MonitorElement* me = dbe_->get(meTitle);
@@ -709,50 +709,50 @@ void HcalDigiClient::createTests(){
 void HcalDigiClient::loadHistograms(TFile* infile){
   char name[150];    
 
-  TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/DigiMonitor/Digi Task Event Number");
+  TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/DigiMonitor/Digi Task Event Number");
   if(tnd){
     string s =tnd->GetTitle();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
   }
 
-  sprintf(name,"DQMData/HcalMonitor/DigiMonitor/Digi Geo Error Map");
+  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Geo Error Map");
   gl_err_geo_ = (TH2F*)infile->Get(name);
   
-  sprintf(name,"DQMData/HcalMonitor/DigiMonitor/Digi VME Error Map");
+  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi VME Error Map");
   gl_err_elec_[0] = (TH2F*)infile->Get(name);
   
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/Digi Fiber Error Map");
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Fiber Error Map");
     gl_err_elec_[1] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/Digi Spigot Error Map");
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Spigot Error Map");
     gl_err_elec_[2] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/Digi Depth 1 Occupancy Map");
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 1 Occupancy Map");
     gl_occ_geo_[0] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/Digi Depth 2 Occupancy Map");
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 2 Occupancy Map");
     gl_occ_geo_[1] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/Digi Depth 3 Occupancy Map");
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 3 Occupancy Map");
     gl_occ_geo_[2] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/Digi Depth 4 Occupancy Map");
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 4 Occupancy Map");
     gl_occ_geo_[3] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/Digi Eta Occupancy Map");
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Eta Occupancy Map");
     gl_occ_eta_ = (TH1F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/Digi Phi Occupancy Map");
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Phi Occupancy Map");
     gl_occ_phi_ = (TH1F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/Digi VME Occupancy Map");
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi VME Occupancy Map");
     gl_occ_elec_[0] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/Digi Fiber Occupancy Map");
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Fiber Occupancy Map");
     gl_occ_elec_[1] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/Digi Spigot Occupancy Map");
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Spigot Occupancy Map");
     gl_occ_elec_[2] = (TH2F*)infile->Get(name);
 
 
@@ -764,55 +764,55 @@ void HcalDigiClient::loadHistograms(TFile* infile){
     if(i==3) type = "HO"; 
 
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Geo Error Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Geo Error Map",type.c_str(),type.c_str());
     sub_err_geo_[i] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi VME Error Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi VME Error Map",type.c_str(),type.c_str());
     sub_err_elec_[i][0] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Fiber Error Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Fiber Error Map",type.c_str(),type.c_str());
     sub_err_elec_[i][1] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Spigot Error Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Spigot Error Map",type.c_str(),type.c_str());
     sub_err_elec_[i][2] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Depth 1 Occupancy Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Depth 1 Occupancy Map",type.c_str(),type.c_str());
     sub_occ_geo_[i][0] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Depth 2 Occupancy Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Depth 2 Occupancy Map",type.c_str(),type.c_str());
     sub_occ_geo_[i][1] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Depth 3 Occupancy Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Depth 3 Occupancy Map",type.c_str(),type.c_str());
     sub_occ_geo_[i][2] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Depth 4 Occupancy Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Depth 4 Occupancy Map",type.c_str(),type.c_str());
     sub_occ_geo_[i][3] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Eta Occupancy Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Eta Occupancy Map",type.c_str(),type.c_str());
     sub_occ_eta_[i] = (TH1F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Phi Occupancy Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Phi Occupancy Map",type.c_str(),type.c_str());
     sub_occ_phi_[i] = (TH1F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi VME Occupancy Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi VME Occupancy Map",type.c_str(),type.c_str());
     sub_occ_elec_[i][0] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Fiber Occupancy Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Fiber Occupancy Map",type.c_str(),type.c_str());
     sub_occ_elec_[i][1] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Spigot Occupancy Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Spigot Occupancy Map",type.c_str(),type.c_str());
     sub_occ_elec_[i][2] = (TH2F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s QIE ADC Value",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s QIE ADC Value",type.c_str(),type.c_str());
     qie_adc_[i] = (TH1F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s # of Digis",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s # of Digis",type.c_str(),type.c_str());
     num_digi_[i] = (TH1F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s QIE Cap-ID",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s QIE Cap-ID",type.c_str(),type.c_str());
     qie_capid_[i] = (TH1F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s QIE Data Valid Err Bits",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s QIE Data Valid Err Bits",type.c_str(),type.c_str());
     qie_dverr_[i] = (TH1F*)infile->Get(name);
   }
   return;

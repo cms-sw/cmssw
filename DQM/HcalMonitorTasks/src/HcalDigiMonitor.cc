@@ -10,23 +10,16 @@ HcalDigiMonitor::~HcalDigiMonitor() {}
 
 namespace HcalDigiPerChan{
   template<class Digi>
-  inline void perChanHists(int id, const Digi& digi, float* ampl,std::map<HcalDetId, MonitorElement*> &tool, DaqMonitorBEInterface* dbe) {
+  inline void perChanHists(int id, const Digi& digi, float* ampl,std::map<HcalDetId, MonitorElement*> &tool, DaqMonitorBEInterface* dbe, string baseFolder) {
     
     std::map<HcalDetId,MonitorElement*>::iterator _mei;
+
     string type = "HB";
-    if(dbe) dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HB");
-    if(id==1) { 
-      type = "HE"; 
-      if(dbe) dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HE");
-    }
-    else if(id==2) { 
-      type = "HO"; 
-      if(dbe) dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HO");
-    }
-    else if(id==3) { 
-      type = "HF"; 
-      if(dbe) dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HF");
-    }
+    if(id==1) type = "HE"; 
+    else if(id==2) type = "HO"; 
+    else if(id==3) type = "HF"; 
+    
+    if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
     
     ///shapes by channel
     _mei=tool.find(digi.id()); // look for a histogram with this hit's id
@@ -48,23 +41,6 @@ namespace HcalDigiPerChan{
 }
 
 void HcalDigiMonitor::reset(){}
-
-void HcalDigiMonitor::clearME(){
-
-  if(m_dbe){
-    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HB");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HE");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HF");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HO");
-    m_dbe->removeContents();
-  }
-  return;
-}
 
 static bool bitUpset(int last, int now){
   if(last ==-1) return false;
@@ -131,7 +107,8 @@ namespace HcalDigiMap{
 void HcalDigiMonitor::setup(const edm::ParameterSet& ps, 
 			    DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
-  
+  baseFolder_ = rootFolder_+"DigiMonitor";
+
   occThresh_ = ps.getUntrackedParameter<int>("DigiOccThresh", 10);
   cout << "Digi occupancy threshold set to " << occThresh_ << endl;
 
@@ -151,7 +128,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   
   if ( m_dbe ) {
 
-    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor");        
+    m_dbe->setCurrentFolder(baseFolder_);
     meEVT_ = m_dbe->bookInt("Digi Task Event Number");    
     meEVT_->Fill(ievt_);
     
@@ -175,7 +152,9 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 					36,-0.5,35.5);
 
 
-    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HB");
+
+
+    m_dbe->setCurrentFolder(baseFolder_+"/HB");
     hbHists.SHAPE_tot =  m_dbe->book1D("HB Digi Shape","HB Digi Shape",11,-0.5,10.5);
     hbHists.SHAPE_THR_tot =  m_dbe->book1D("HB Digi Shape - over thresh","HB Digi Shape - over thresh",11,-0.5,10.5);
     hbHists.DIGI_NUM =  m_dbe->book1D("HB # of Digis","HB # of Digis",200,0,1000);
@@ -204,8 +183,10 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hbHists.OCC_MAP_DCC = m_dbe->book2D("HB Digi Spigot Occupancy Map","HB Digi Spigot Occupancy Map",
 					HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
 					36,-0.5,35.5);
-    
-    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HE");
+
+
+
+    m_dbe->setCurrentFolder(baseFolder_+"/HE");
     heHists.SHAPE_tot =  m_dbe->book1D("HE Digi Shape","HE Digi Shape",11,-0.5,10.5);
     heHists.SHAPE_THR_tot =  m_dbe->book1D("HE Digi Shape - over thresh","HE Digi Shape - over thresh",11,-0.5,10.5);
     heHists.DIGI_NUM =  m_dbe->book1D("HE # of Digis","HE # of Digis",200,0,1000);
@@ -235,7 +216,9 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 					HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
 					36,-0.5,35.5);
 
-    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HF");
+
+
+    m_dbe->setCurrentFolder(baseFolder_+"/HF");
     hfHists.SHAPE_tot =  m_dbe->book1D("HF Digi Shape","HF Digi Shape",11,-0.5,10.5);
     hfHists.SHAPE_THR_tot =  m_dbe->book1D("HF Digi Shape - over thresh","HF Digi Shape - over thresh",11,-0.5,10.5);
     hfHists.DIGI_NUM =  m_dbe->book1D("HF # of Digis","HF # of Digis",200,0,1000);
@@ -265,7 +248,9 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 					HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
 					36,-0.5,35.5);
 
-    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HO");
+
+
+    m_dbe->setCurrentFolder(baseFolder_+"/HO");
     hoHists.SHAPE_tot =  m_dbe->book1D("HO Digi Shape","HO Digi Shape",11,-0.5,10.5);
     hoHists.SHAPE_THR_tot =  m_dbe->book1D("HO Digi Shape - over thresh","HO Digi Shape - over thresh",11,-0.5,10.5);
     hoHists.DIGI_NUM =  m_dbe->book1D("HO # of Digis","HO # of Digis",200,0,1000);
@@ -365,7 +350,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	}    
 	
 	if(doPerChannel_)	  
-	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(0,digi,normVals,hbHists.SHAPE,m_dbe);
+	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(0,digi,normVals,hbHists.SHAPE,m_dbe,baseFolder_);
 
       }
       else if((HcalSubdetector)(digi.id().subdet())==HcalEndcap){	
@@ -410,7 +395,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	}    
 	
 	if(doPerChannel_)
-	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(1,digi,normVals,heHists.SHAPE,m_dbe);
+	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(1,digi,normVals,heHists.SHAPE,m_dbe,baseFolder_);
 
       }
     }
@@ -467,7 +452,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       }    
       
       if(doPerChannel_)	  
-	HcalDigiPerChan::perChanHists<HODataFrame>(2,digi,normVals,hoHists.SHAPE,m_dbe);
+	HcalDigiPerChan::perChanHists<HODataFrame>(2,digi,normVals,hoHists.SHAPE,m_dbe, baseFolder_);
     }
   }
   catch (...) {
@@ -519,7 +504,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       }    
       
       if(doPerChannel_)	  
-	HcalDigiPerChan::perChanHists<HFDataFrame>(3,digi,normVals,hfHists.SHAPE,m_dbe);
+	HcalDigiPerChan::perChanHists<HFDataFrame>(3,digi,normVals,hfHists.SHAPE,m_dbe, baseFolder_);
 
     }
   } catch (...) {

@@ -30,13 +30,18 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   cout << " *** Hcal Monitor Client ***" << endl;
   cout << endl;
 
-  debug_ = ps.getUntrackedParameter<bool>("debug", false);
-  if(debug_) cout << "HcalMonitorClient: constructor...." << endl;
+  irun_=0; ilumisec_=0; ievent_=0; itime_=0;
+  actonLS_=false;
 
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
   led_client_ = 0; hot_client_ = 0; dead_client_=0;
   lastResetTime_=0;
+
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+  if(debug_) cout << "HcalMonitorClient: constructor...." << endl;
+
+
 
   // MonitorDaemon switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
@@ -140,14 +145,10 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   
   
   // Base folder for the contents of this job
-  monitorName_ = ps.getUntrackedParameter<string>("monitorName","");
-  cout << "===>DQM monitor name = " << monitorName_ << endl;
-    
-  rootFolder_ = "DQMAnalyzer";
-  if (monitorName_.size() != 0){
-    rootFolder_ = monitorName_ + "Monitor/";
-    cout << "===>DQM rootFolder  = " << rootFolder_ << endl;
-  }
+  string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
+  cout << "===>HcalMonitor name = " << subsystemname << endl;
+  rootFolder_ = subsystemname + "/";
+
   
   gettimeofday(&psTime_.startTV,NULL);
   /// get time in milliseconds, convert to minutes
@@ -191,8 +192,6 @@ void HcalMonitorClient::resetAllME() {
 
 //--------------------------------------------------------
 void HcalMonitorClient::beginJob(const EventSetup& c){
-  // call DQMAnalyzer in the beginning 
-  //  DQMAnalyzer::beginJob(c);
 
   if( debug_ ) cout << "HcalMonitorClient: beginJob" << endl;
   
@@ -211,8 +210,6 @@ void HcalMonitorClient::beginJob(const EventSetup& c){
 
 //--------------------------------------------------------
 void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
-  // call DQMAnalyzer in the beginning 
-  //  DQMAnalyzer::beginRun(r, c);
 
   cout << endl;
   cout << "HcalMonitorClient: Standard beginRun() for run " << r.id().run() << endl;
@@ -299,7 +296,6 @@ void HcalMonitorClient::endJob(void) {
   XMLPlatformUtils::Terminate();
   */
 
-  //  DQMAnalyzer::endJob();
   return;
 }
 
@@ -326,8 +322,6 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
   if( pedestal_client_ )    pedestal_client_->endRun();
   if( led_client_ )         led_client_->endRun();
 
-  // call DQMAnalyzer at the end
-  //  DQMAnalyzer::endRun(r,c); 
   // this is an effective way to avoid ROOT memory leaks ...
   if( enableExit_ ) {
     cout << endl;
@@ -342,9 +336,6 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
 //--------------------------------------------------------
 void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
-  // call DQMAnalyzer in the beginning 
-  //  DQMAnalyzer::beginLuminosityBlock(l,c);
-  // then do your thing
   if(actonLS_ && !prescale()){
     // do scheduled tasks...
   }
@@ -357,14 +348,12 @@ void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const Event
     // do scheduled tasks...
     analyze();
   }
-  // call DQMAnalyzer at the end 
-  //  DQMAnalyzer::endLuminosityBlock(l,c);
+
   return;
 }
 
 //--------------------------------------------------------
 void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetup){
-  //  DQMAnalyzer::analyze(e,eventSetup);
 
   if(resetEvents_>0 && (ievent_%resetEvents_)==0) resetAllME();
   if(resetLS_>0 && (ilumisec_%resetLS_)==0) resetAllME();
@@ -381,7 +370,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   ievent_   = e.id().event();
   itime_    = e.time().value();
 
-  if (debug_) cout << "DQMAnalyzer: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
+  if (debug_) cout << "HcalMonitorClient: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
 
   if ( runningStandalone_ || prescale()) return;
   else analyze();
@@ -452,7 +441,6 @@ void HcalMonitorClient::report(bool doUpdate) {
   if( dataformat_client_ ) dataformat_client_->getErrors(errE,errW,errO);
 
 
-  save();
   if( baseHtmlDir_.size() != 0 ) htmlOutput();
 
   return;
@@ -685,7 +673,7 @@ void HcalMonitorClient::dumpHistograms(int& runNum, vector<TH1F*> &hist1d,vector
 bool HcalMonitorClient::prescale(){
   ///Return true if this event should be skipped according to the prescale condition...
   ///    Accommodate a logical "OR" of the possible tests
-  if (debug_) cout <<"DQMAnalyzer::prescale"<<endl;
+  if (debug_) cout <<"HcalMonitorClient::prescale"<<endl;
   
   //First determine if we care...
   bool evtPS =    prescaleEvt_>0;
@@ -708,7 +696,7 @@ bool HcalMonitorClient::prescale(){
   }
   //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)==0) updatePS=false; ///need to define what "updates" means
   
-  if (debug_) printf("DQMAnalyzer::prescale  evt: %d/%d, ls: %d/%d, time: %f/%d\n",
+  if (debug_) printf("HcalMonitorClient::prescale  evt: %d/%d, ls: %d/%d, time: %f/%d\n",
 		     ievent_,evtPS,
 		     ilumisec_,lsPS,
 		     psTime_.elapsedTime - psTime_.updateTime,timePS);
@@ -716,45 +704,6 @@ bool HcalMonitorClient::prescale(){
   // if any criteria wants to keep the event, do so
   if(evtPS || lsPS || timePS) return false; //FIXME updatePS left out for now
   return true;
-}
-
-//--------------------------------------------------------
-void HcalMonitorClient::save(std::string flag){
-  
-  if (debug_) cout <<"DQMAnalyzer::save"<<endl;
-
-  //  bool disable = parameters_.getUntrackedParameter<bool>("disableROOToutput", false);
-  //  if(disable){
-  //    cout <<"DQMAnalyzer:  ROOT output disabled"<<endl;
-  //    return;
-  //  }
-
-  if (saved_) return; // save only once per event
-  if (debug_) cout <<"DQMAnalyzer::save: saving"<<endl;
-  
-  std::string name = "DQM_"+monitorName_;
- 
-  // add runnumber  
-  char run[10];
-  if(irun_>0) sprintf(run,"%09d", irun_);
-  else sprintf(run,"%09d", 0);
-
-  if (flag=="endRun") {
-    string outFile = name+"_"+run+".root";
-    dbe_->save(outFile);
-    saved_=true; // save only once per event
-    return;
-  }
-  
-  // add lumisection number  
-  char lumisec[10];
-  if(ilumisec_>0) sprintf(lumisec,"%06d", ilumisec_);
-  else sprintf(lumisec,"%06d", 0);
-  
-  string outFile = name+"_"+run+"_"+lumisec+".root";
-  dbe_->save(outFile);
-  saved_=true; // save only once per event
-  return;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

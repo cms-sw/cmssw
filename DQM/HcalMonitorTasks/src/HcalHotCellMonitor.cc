@@ -13,124 +13,10 @@ HcalHotCellMonitor::~HcalHotCellMonitor() {
 }
 void HcalHotCellMonitor::reset(){}
 
-void HcalHotCellMonitor::clearME(){
-
-  if(m_dbe){
-    m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HB");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HE");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HF");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HO");
-    m_dbe->removeContents();
-    
-
-    // Clear HB histograms
-    hbHists.meOCC_MAP_GEO_Max = 0;
-    hbHists.meEN_MAP_GEO_Max = 0;
-    hbHists.meMAX_E = 0;
-    hbHists.meMAX_T = 0;
-    for (unsigned int i=0;i<hbHists.OCCmap.size();i++)
-      hbHists.OCCmap[i]=0;
-    for (unsigned int i=0;i<hbHists.ENERGYmap.size();i++)
-      hbHists.ENERGYmap[i]=0;
-
-    // Clear HE histograms
-    heHists.meOCC_MAP_GEO_Max = 0;
-    heHists.meEN_MAP_GEO_Max = 0;
-    heHists.meMAX_E = 0;
-    heHists.meMAX_T = 0;
-    for (unsigned int i=0;i<heHists.OCCmap.size();i++)
-      heHists.OCCmap[i]=0;
-    for (unsigned int i=0;i<heHists.ENERGYmap.size();i++)
-      heHists.ENERGYmap[i]=0;
-
-    // Clear HF histograms
-    hfHists.meOCC_MAP_GEO_Max = 0;
-    hfHists.meEN_MAP_GEO_Max = 0;
-    hfHists.meMAX_E = 0;
-    hfHists.meMAX_T = 0;
-    for (unsigned int i=0;i<hfHists.OCCmap.size();i++)
-      hfHists.OCCmap[i]=0;
-    for (unsigned int i=0;i<hfHists.ENERGYmap.size();i++)
-      hfHists.ENERGYmap[i]=0;
-
-    // Clear HO histograms
-    hoHists.meOCC_MAP_GEO_Max = 0;
-    hoHists.meEN_MAP_GEO_Max = 0;
-    hoHists.meMAX_E = 0;
-    hoHists.meMAX_T = 0;
-    for (unsigned int i=0;i<hoHists.OCCmap.size();i++)
-      hoHists.OCCmap[i]=0;
-    for (unsigned int i=0;i<hoHists.ENERGYmap.size();i++)
-      hoHists.ENERGYmap[i]=0;
-
-    // Clear remaining histograms
-    
-    meOCC_MAP_L1 = 0;
-    meEN_MAP_L1 = 0;
-    meOCC_MAP_L2 = 0;
-    meEN_MAP_L2 = 0;
-    meOCC_MAP_L3 = 0;
-    meEN_MAP_L3 = 0;
-    meOCC_MAP_L4 = 0;
-    meEN_MAP_L4 = 0;
-    
-    meOCC_MAP_all = 0;
-    meEN_MAP_all = 0;
-    meMAX_E_all= 0;
-    meMAX_T_all= 0;
-    meEVT_= 0;
-
-    // Clear NADA Histograms
-    NADA_hbHists.NADA_OCC_MAP=0;
-    NADA_hbHists.NADA_EN_MAP=0;
-    NADA_hbHists.NADA_NumHotCells=0;
-    NADA_hbHists.NADA_testcell=0;
-    NADA_hbHists.NADA_Energy=0;
-    NADA_hbHists.NADA_NumNegCells=0;
-    NADA_hbHists.NADA_NEG_OCC_MAP=0;
-    NADA_hbHists.NADA_NEG_EN_MAP=0;
-    
-    NADA_heHists.NADA_OCC_MAP=0;
-    NADA_heHists.NADA_EN_MAP=0;
-    NADA_heHists.NADA_NumHotCells=0;
-    NADA_heHists.NADA_testcell=0;
-    NADA_heHists.NADA_Energy=0;
-    NADA_heHists.NADA_NumNegCells=0;
-    NADA_heHists.NADA_NEG_OCC_MAP=0;
-    NADA_heHists.NADA_NEG_EN_MAP=0;
-    
-    NADA_hoHists.NADA_OCC_MAP=0;
-    NADA_hoHists.NADA_EN_MAP=0;
-    NADA_hoHists.NADA_NumHotCells=0;
-    NADA_hoHists.NADA_testcell=0;
-    NADA_hoHists.NADA_Energy=0;
-    NADA_hoHists.NADA_NumNegCells=0;
-    NADA_hoHists.NADA_NEG_OCC_MAP=0;
-    NADA_hoHists.NADA_NEG_EN_MAP=0;
-
-    NADA_hfHists.NADA_OCC_MAP=0;
-    NADA_hfHists.NADA_EN_MAP=0;
-    NADA_hfHists.NADA_NumHotCells=0;
-    NADA_hfHists.NADA_testcell=0;
-    NADA_hfHists.NADA_Energy=0;
-    NADA_hfHists.NADA_NumNegCells=0;
-    NADA_hfHists.NADA_NEG_OCC_MAP=0;
-    NADA_hfHists.NADA_NEG_EN_MAP=0;
-
-    NADA_NumHotCells=0;
-    NADA_NumNegCells=0;
-
-  }
-}
-
-
 void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
+
+  baseFolder_ = rootFolder_+"HotCellMonitor";
 
   // Set input parameters from .cfi file
   debug_ = ps.getUntrackedParameter<bool>("debug","false");
@@ -207,7 +93,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
   
   if ( m_dbe !=NULL ) {    
 
-    m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor");
+    m_dbe->setCurrentFolder(baseFolder_);
 
     meEVT_ = m_dbe->bookInt("HotCell Task Event Number");    
     meEVT_->Fill(ievt_);
@@ -236,7 +122,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
 
 
     // Book HB histograms
-    m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HB");
+    m_dbe->setCurrentFolder(baseFolder_+"/HB");
     hbHists.meMAX_E =  m_dbe->book1D("HBHotCellEnergy","HB HotCell Energy",2000,0,20);
     hbHists.meMAX_T =  m_dbe->book1D("HBHotCellTime","HB HotCell Time",200,-50,300);
     hbHists.meMAX_ID =  m_dbe->book1D("HBHotCellID","HB HotCell ID",36000,-18000,18000);
@@ -281,7 +167,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
 
 
     // Book HE histograms
-    m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HE");
+    m_dbe->setCurrentFolder(baseFolder_+"/HE");
     heHists.meMAX_E =  m_dbe->book1D("HEHotCellEnergy","HE HotCell Energy",2000,0,20);
     heHists.meMAX_T =  m_dbe->book1D("HEHotCellTime","HE HotCell Time",200,-50,300);
     heHists.meMAX_ID =  m_dbe->book1D("HEHotCellID","HE HotCell ID",36000,-18000,18000);
@@ -326,7 +212,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
 
 
     // Book HF histograms
-    m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HF");
+    m_dbe->setCurrentFolder(baseFolder_+"/HF");
     hfHists.meMAX_E =  m_dbe->book1D("HFHotCellEnergy","HF HotCell Energy",2000,0,20);
     hfHists.meMAX_T =  m_dbe->book1D("HFHotCellTime","HF HotCell Time",200,-50,300);
     hfHists.meMAX_ID =  m_dbe->book1D("HFHotCellID","HF HotCell ID",36000,-18000,18000);
@@ -371,7 +257,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     NADA_hfHists.NADA_NEG_EN_MAP = m_dbe->book2D("NADA_HF_NEG_EN_MAP","NADA HF Negative Cell Energy",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
     // Book HO histograms
-    m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HO");
+    m_dbe->setCurrentFolder(baseFolder_+"/HO");
     hoHists.meMAX_E =  m_dbe->book1D("HOHotCellEnergy","HO HotCell Energy",2000,0,20);
     hoHists.meMAX_T =  m_dbe->book1D("HOHotCellTime","HO HotCell Time",200,-50,300);
     hoHists.meMAX_ID =  m_dbe->book1D("HOHotCellID","HO HotCell ID",36000,-18000,18000);

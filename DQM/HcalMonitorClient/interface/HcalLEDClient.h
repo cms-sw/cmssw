@@ -97,6 +97,8 @@ private:
   bool cloneME_;
   bool debug_;
   string process_;
+  string baseFolder_;
+
   string m_outputFileName;
   ofstream m_outTextFile;
 

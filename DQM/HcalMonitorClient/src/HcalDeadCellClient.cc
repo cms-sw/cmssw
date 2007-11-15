@@ -24,7 +24,7 @@ HcalDeadCellClient::HcalDeadCellClient(const ParameterSet& ps, DaqMonitorBEInter
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor/");
+  process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
   
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
@@ -191,7 +191,7 @@ void HcalDeadCellClient::report(){
   //  this->setup();  
   
   char name[256];
-  sprintf(name, "%sHcalMonitor/DeadCellMonitor/DeadCell Task Event Number",process_.c_str());
+  sprintf(name, "%sHcal/DeadCellMonitor/DeadCell Task Event Number",process_.c_str());
   MonitorElement* me = 0;
   if(dbe_) me = dbe_->get(name);
   if ( me ) {
@@ -259,19 +259,19 @@ void HcalDeadCellClient::resetAllME(){
 
   Char_t name[150];    
 
-  sprintf(name,"%sHcalMonitor/DeadCellMonitor/DeadCell Energy",process_.c_str());
+  sprintf(name,"%sHcal/DeadCellMonitor/DeadCell Energy",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcalMonitor/DeadCellMonitor/DeadCell Time",process_.c_str());
+  sprintf(name,"%sHcal/DeadCellMonitor/DeadCell Time",process_.c_str());
   resetME(name,dbe_);
   for(int i=1; i<5; i++){
-    sprintf(name,"%sHcalMonitor/DeadCellMonitor/DeadCell Depth %d Occupancy Map",process_.c_str(),i);
+    sprintf(name,"%sHcal/DeadCellMonitor/DeadCell Depth %d Occupancy Map",process_.c_str(),i);
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DeadCellMonitor/DeadCell Depth %d Energy Map",process_.c_str(),i);
+    sprintf(name,"%sHcal/DeadCellMonitor/DeadCell Depth %d Energy Map",process_.c_str(),i);
     resetME(name,dbe_);
   }
-  sprintf(name,"%sHcalMonitor/DeadCellMonitor/DeadCell Occupancy Map",process_.c_str());
+  sprintf(name,"%sHcal/DeadCellMonitor/DeadCell Occupancy Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcalMonitor/DeadCellMonitor/DeadCell Energy Map",process_.c_str());
+  sprintf(name,"%sHcal/DeadCellMonitor/DeadCell Energy Map",process_.c_str());
   resetME(name,dbe_);
 
 
@@ -282,23 +282,23 @@ void HcalDeadCellClient::resetAllME(){
     if(i==2) type = "HF"; 
     if(i==3) type = "HO"; 
     
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s DeadCell Energy",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Energy",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s DeadCell Time",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Time",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s DeadCell ID",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell ID",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s DeadCell Geo Occupancy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Geo Occupancy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s DeadCell Geo Energy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Geo Energy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s DeadCell Geo Occupancy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Geo Occupancy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s DeadCell Geo Energy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Geo Energy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s DeadCell Geo Occupancy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Geo Occupancy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s DeadCell Geo Energy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Geo Energy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
   }
 
@@ -427,7 +427,7 @@ void HcalDeadCellClient::createTests(){
 
 void HcalDeadCellClient::loadHistograms(TFile* infile){
 
-  TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/DeadCellMonitor/DeadCell Task Event Number");
+  TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/DeadCellMonitor/DeadCell Task Event Number");
   if(tnd){
     string s =tnd->GetTitle();
     ievt_ = -1;
@@ -442,28 +442,28 @@ void HcalDeadCellClient::loadHistograms(TFile* infile){
     if(i==2) type = "HF"; 
     if(i==3) type = "HO"; 
 
-    sprintf(name,"DQMData/HcalMonitor/DeadCellMonitor/DeadCell Depth %d Occupancy Map",i+1);
+    sprintf(name,"DQMData/Hcal/DeadCellMonitor/DeadCell Depth %d Occupancy Map",i+1);
     gl_geo_[i] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DeadCellMonitor/DeadCell Depth %d Energy Map",i+1);
+    sprintf(name,"DQMData/Hcal/DeadCellMonitor/DeadCell Depth %d Energy Map",i+1);
     gl_en_[i] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DeadCellMonitor/%s/%s DeadCell Geo Occupancy Map, Threshold 0",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DeadCellMonitor/%s/%s DeadCell Geo Occupancy Map, Threshold 0",type.c_str(),type.c_str());
     occ_geo_[i][0] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DeadCellMonitor/%s/%s DeadCell Geo Energy Map, Threshold 0",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DeadCellMonitor/%s/%s DeadCell Geo Energy Map, Threshold 0",type.c_str(),type.c_str());
     occ_en_[i][0] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DeadCellMonitor/%s/%s DeadCell Geo Occupancy Map, Threshold 1",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DeadCellMonitor/%s/%s DeadCell Geo Occupancy Map, Threshold 1",type.c_str(),type.c_str());
     occ_geo_[i][1] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DeadCellMonitor/%s/%s DeadCell Geo Energy Map, Threshold 1",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DeadCellMonitor/%s/%s DeadCell Geo Energy Map, Threshold 1",type.c_str(),type.c_str());
     occ_en_[i][1] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DeadCellMonitor/%s/%s DeadCell Energy",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DeadCellMonitor/%s/%s DeadCell Energy",type.c_str(),type.c_str());
     max_en_[i] = (TH1F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DeadCellMonitor/%s/%s DeadCell Time",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DeadCellMonitor/%s/%s DeadCell Time",type.c_str(),type.c_str());
     max_t_[i] = (TH1F*)infile->Get(name);
 
   }

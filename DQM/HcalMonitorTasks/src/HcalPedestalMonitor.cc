@@ -10,24 +10,9 @@ HcalPedestalMonitor::~HcalPedestalMonitor() {
 
 void HcalPedestalMonitor::reset(){}
 
-void HcalPedestalMonitor::clearME(){
-  
-  if ( m_dbe ) {
-    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HB");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HE");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HF");
-    m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HO");
-    m_dbe->removeContents();
-  }
-
-}
 void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
+  baseFolder_ = rootFolder_+"PedestalMonitor";
 
   doPerChannel_ = ps.getUntrackedParameter<bool>("PedestalsPerChannel", false);
   doFCpeds_ = ps.getUntrackedParameter<bool>("PedestalsInFC", false);
@@ -43,7 +28,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
   ievt_=0;
 
   if ( m_dbe ) {
-    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor");
+    m_dbe->setCurrentFolder(baseFolder_);
     meEVT_ = m_dbe->bookInt("Pedestal Task Event Number");
     meEVT_->Fill(ievt_);
 
@@ -82,7 +67,8 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     type = "Pedestal RMS Reference Values";
     WIDTH_REFS = m_dbe->book1D(type,type,100,0,3);
 
-    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HB");
+    
+    m_dbe->setCurrentFolder(baseFolder_+"/HB");
     hbHists.ALLPEDS =  m_dbe->book1D("HB All Pedestal Values","HB All Pedestal Values",50,0,50);
     hbHists.PEDRMS  =  m_dbe->book1D("HB Pedestal RMS Values","HB Pedestal RMS Values",100,0,3);
     hbHists.PEDMEAN =  m_dbe->book1D("HB Pedestal Mean Values","HB Pedestal Mean Values",100,0,9);
@@ -99,7 +85,9 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     type = "HB Pedestal RMS Reference Values";
     hbHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,3);
 
-    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HE");
+
+
+    m_dbe->setCurrentFolder(baseFolder_+"/HE");
     heHists.ALLPEDS =  m_dbe->book1D("HE All Pedestal Values","HE All Pedestal Values",50,0,50);
     heHists.PEDRMS  =  m_dbe->book1D("HE Pedestal RMS Values","HE Pedestal RMS Values",100,0,3);
     heHists.PEDMEAN =  m_dbe->book1D("HE Pedestal Mean Values","HE Pedestal Mean Values",100,0,9);
@@ -116,7 +104,8 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     type = "HE Pedestal RMS Reference Values";
     heHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,3);
 
-    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HF");
+    
+    m_dbe->setCurrentFolder(baseFolder_+"/HF");
     hfHists.ALLPEDS =  m_dbe->book1D("HF All Pedestal Values","HF All Pedestal Values",50,0,50);
     hfHists.PEDRMS  =  m_dbe->book1D("HF Pedestal RMS Values","HF Pedestal RMS Values",100,0,3);
     hfHists.NSIGMA  =  m_dbe->book1D("HF Normalized RMS Values","HF Normalized RMS Values",100,0,5);
@@ -133,7 +122,9 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     type = "HF Pedestal RMS Reference Values";
     hfHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,3);
 
-    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HO");
+    
+
+    m_dbe->setCurrentFolder(baseFolder_+"/HO");
     hoHists.ALLPEDS =  m_dbe->book1D("HO All Pedestal Values","HO All Pedestal Values",50,0,50);
     hoHists.PEDRMS  =  m_dbe->book1D("HO Pedestal RMS Values","HO Pedestal RMS Values",100,0,3);
     hoHists.PEDMEAN =  m_dbe->book1D("HO Pedestal Mean Values","HO Pedestal Mean Values",100,0,9);
@@ -206,7 +197,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  capID_.push_back(digi.sample(i).capid());
 	}
 	if(doPerChannel_) perChanHists(0,detID_,capID_,pedVals_,
-				       hbHists.PEDVALS,hbHists.SUBVALS);
+				       hbHists.PEDVALS,hbHists.SUBVALS, baseFolder_);
 	
       }   
       else if((HcalSubdetector)(digi.id().subdet())==HcalEndcap){
@@ -227,34 +218,39 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  heHists.ALLPEDS->Fill(pedVals_[i]);
 	}
 	if(doPerChannel_) perChanHists(1,detID_,capID_,pedVals_,
-				       heHists.PEDVALS,heHists.SUBVALS);
+				       heHists.PEDVALS,heHists.SUBVALS, baseFolder_);
       }
     }
   } catch (...) {
     printf("HcalPedestalMonitor::processEvent  No HBHE Digis.\n");
   }
-  /*
+  
   try{
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
       const HODataFrame digi = (const HODataFrame)(*j);	
-      
       const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
       cond.makeHcalCalibration(digi.id(), &calibs_);
-      for(int capID=0; capID<4; capID++){
-	float width=0;
-	if(pedw) width = pedw->getWidth(capID);
-	hoHists.PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
-	hoHists.WIDTH_REFS->Fill(width);
-	PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
-	WIDTH_REFS->Fill(width);
-      }
 
-      for (int i=0; i<digi.size(); i++) {
-	hoHists.ALLPEDS->Fill(digi.sample(i).adc());
-	if(doPerChannel_) perChanHists(1,digi.id(),digi.sample(i),
-					hoHists.PEDVALS,hoHists.SUBVALS);
-      }
-    }        
+      for(int capID=0; capID<4; capID++){
+	  float width=0;
+	  if(pedw) width = pedw->getWidth(capID);
+	  hoHists.PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
+	  hoHists.WIDTH_REFS->Fill(width);
+	  PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
+	  WIDTH_REFS->Fill(width);
+	}
+
+	for (int i=0; i<digi.size(); i++) {
+	  if(doFCpeds_) pedVals_.push_back(tool[i]);
+	  else pedVals_.push_back(digi.sample(i).adc());
+	  detID_.push_back(digi.id());
+	  capID_.push_back(digi.sample(i).capid());
+	  hoHists.ALLPEDS->Fill(pedVals_[i]);
+	}
+	if(doPerChannel_) perChanHists(2,detID_,capID_,pedVals_,
+				       hoHists.PEDVALS,hoHists.SUBVALS, baseFolder_);
+	
+    }
   } catch (...) {
     cout << "HcalPedestalMonitor::processEvent  No HO Digis." << endl;
   }
@@ -265,25 +261,29 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
       const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
       cond.makeHcalCalibration(digi.id(), &calibs_);
       for(int capID=0; capID<4; capID++){
-	float width=0;
-	if(pedw) width = pedw->getWidth(capID);
-	hfHists.PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
-	hfHists.WIDTH_REFS->Fill(width);
-	PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
-	WIDTH_REFS->Fill(width);
-      }
+	  float width=0;
+	  if(pedw) width = pedw->getWidth(capID);
+	  hfHists.PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
+	  hfHists.WIDTH_REFS->Fill(width);
+	  PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
+	  WIDTH_REFS->Fill(width);
+	}
 
-      for (int i=0; i<digi.size(); i++) {
-	hfHists.ALLPEDS->Fill(digi.sample(i).adc());
-	if(doPerChannel_) perChanHists(2,digi.id(),digi.sample(i),
-					hfHists.PEDVALS,hfHists.SUBVALS);
-      }
-      
+	for (int i=0; i<digi.size(); i++) {
+	  if(doFCpeds_) pedVals_.push_back(tool[i]);
+	  else pedVals_.push_back(digi.sample(i).adc());
+	  detID_.push_back(digi.id());
+	  capID_.push_back(digi.sample(i).capid());
+	  hfHists.ALLPEDS->Fill(pedVals_[i]);
+	}
+	if(doPerChannel_) perChanHists(3,detID_,capID_,pedVals_,
+				       hfHists.PEDVALS,hfHists.SUBVALS, baseFolder_);
+	
     }
   } catch (...) {
     cout << "HcalPedestalMonitor::processEvent  No HF Digis." << endl;
   }
-  */
+  
 
   return;
 }
@@ -298,26 +298,18 @@ void HcalPedestalMonitor::perChanHists(int id,
 				       vector<int> capID, 
 				       vector<float> peds,
 				       map<HcalDetId, map<int, MonitorElement*> > &toolP, 
-				       map<HcalDetId, map<int, MonitorElement*> > &toolS) {
+				       map<HcalDetId, map<int, MonitorElement*> > &toolS, string baseFolder) {
   
+
   string type = "HB";
-  if(m_dbe) m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HB");
-
-  if(id==1) { 
-    type = "HE"; 
-    if(m_dbe) m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HE");
-  }
-  else if(id==2) { 
-    type = "HF"; 
-    if(m_dbe) m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HF");
-  }
-  else if(id==3) { 
-    type = "HO"; 
-    if(m_dbe) m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HO");
-  }  
+  if(id==1) type = "HE"; 
+  else if(id==2) type = "HF"; 
+  else if(id==3) type = "HO"; 
   
+  if(m_dbe) m_dbe->setCurrentFolder(baseFolder+"/"+type);
 
-  for(int d=0; d<detID.size(); d++){
+
+  for(unsigned int d=0; d<detID.size(); d++){
     HcalDetId detid = detID[d];
     int capid = capID[d];
     float pedVal = peds[d];

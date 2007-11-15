@@ -84,6 +84,7 @@ private:
   bool cloneME_;
   bool verbose_;
   string process_;
+  string baseFolder_;
 
   //  MonitorUserInterface* mui_;
   DaqMonitorBEInterface* dbe_;

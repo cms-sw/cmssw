@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/11/03 22:59:56 $
- * $Revision: 1.40 $
+ * $Date: 2007/11/12 19:11:56 $
+ * $Revision: 1.41 $
  * \author W Fisher
  *
 */
@@ -15,29 +15,31 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   cout << " *** Hcal Monitor Module ***" << endl;
   cout << endl;
   
-  debug_ = ps.getUntrackedParameter<bool>("debug", false);
-  if(debug_) cout << "HcalMonitorModule: constructor...." << endl;
-
+  irun_=0; ilumisec_=0; ievent_=0; itime_=0;
+  actonLS_=false;
+  meStatus_=0;  meRunType_=0;
+  meEvtMask_=0; meFEDS_=0;
+  fedsListed_ = false;
+  digiMon_ = NULL;   dfMon_ = NULL; 
+  rhMon_ = NULL;     pedMon_ = NULL; 
+  ledMon_ = NULL;    mtccMon_ = NULL;
+  hotMon_ = NULL;    tempAnalysis_ = NULL;
+  deadMon_ = NULL;
 
   inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
   inputLabelRecHitHBHE_  = ps.getParameter<edm::InputTag>("hbheRecHitLabel");
   inputLabelRecHitHF_    = ps.getParameter<edm::InputTag>("hfRecHitLabel");
   inputLabelRecHitHO_    = ps.getParameter<edm::InputTag>("hoRecHitLabel");
 
-  meStatus_=0;  meRunType_=0;
-  meEvtMask_=0; meFEDS_=0;
-  fedsListed_ = false;
-
   evtSel_ = new HcalMonitorSelector(ps);
-  digiMon_ = NULL;   dfMon_ = NULL; 
-  rhMon_ = NULL;     pedMon_ = NULL; 
-  ledMon_ = NULL;    mtccMon_ = NULL;
-  hotMon_ = NULL;    tempAnalysis_ = NULL;
-  deadMon_ = NULL;
-  commisMon_ = NULL; tpMon_ = NULL;
 
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
+
+
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+  if(debug_) cout << "HcalMonitorModule: constructor...." << endl;
+  
   if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false) ) {
     if(debug_) cout << "HcalMonitorModule: DataFormat monitor flag is on...." << endl;
     dfMon_ = new HcalDataFormatMonitor();
@@ -54,12 +56,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     if(debug_) cout << "HcalMonitorModule: RecHit monitor flag is on...." << endl;
     rhMon_ = new HcalRecHitMonitor();
     rhMon_->setup(ps, dbe_);
-  }
-  
-  if ( ps.getUntrackedParameter<bool>("TrigPrimMonitor", false) ) {
-    if(debug_) cout << "HcalMonitorModule: TrigPrim monitor flag is on...." << endl;
-    tpMon_ = new HcalTrigPrimMonitor();
-    tpMon_->setup(ps, dbe_);
   }
   
   if ( ps.getUntrackedParameter<bool>("PedestalMonitor", false) ) {
@@ -93,12 +89,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   }
   
 
-  if ( ps.getUntrackedParameter<bool>("CommissioningMonitor", false) ) {
-    if(debug_) cout << "HcalMonitorModule: Commissioning monitor flag is on...." << endl;
-    commisMon_ = new HcalCommissioningMonitor();
-    commisMon_->setup(ps, dbe_);
-  }
-  
   if ( ps.getUntrackedParameter<bool>("HcalAnalysis", false) ) {
     if(debug_) cout << "HcalMonitorModule: Hcal Analysis flag is on...." << endl;
     tempAnalysis_ = new HcalTemplateAnalysis();
@@ -108,28 +98,22 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 
   // set parameters   
   prescaleEvt_ = ps.getUntrackedParameter<int>("diagnosticPrescaleEvt", -1);
-  cout << "===>DQM event prescale = " << prescaleEvt_ << " event(s)"<< endl;
+  cout << "===>HcalMonitor event prescale = " << prescaleEvt_ << " event(s)"<< endl;
 
   prescaleLS_ = ps.getUntrackedParameter<int>("diagnosticPrescaleLS", -1);
-  cout << "===>DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
+  cout << "===>HcalMonitor lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
   if (prescaleLS_>0) actonLS_=true;
 
   prescaleUpdate_ = ps.getUntrackedParameter<int>("diagnosticPrescaleUpdate", -1);
-  cout << "===>DQM update prescale = " << prescaleUpdate_ << " update(s)"<< endl;
+  cout << "===>HcalMonitor update prescale = " << prescaleUpdate_ << " update(s)"<< endl;
 
   prescaleTime_ = ps.getUntrackedParameter<int>("diagnosticPrescaleTime", -1);
-  cout << "===>DQM time prescale = " << prescaleTime_ << " minute(s)"<< endl;
-  
+  cout << "===>HcalMonitor time prescale = " << prescaleTime_ << " minute(s)"<< endl;
   
   // Base folder for the contents of this job
-  monitorName_ = ps.getUntrackedParameter<string>("monitorName","");
-  cout << "===>DQM monitor name = " << monitorName_ << endl;
-    
-  rootFolder_ = "DQMAnalyzer";
-  if (monitorName_.size() != 0){
-    rootFolder_ = monitorName_ + "Monitor/";
-    cout << "===>DQM rootFolder  = " << rootFolder_ << endl;
-  }
+  string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
+  cout << "===>HcalMonitor name = " << subsystemname << endl;
+  rootFolder_ = subsystemname + "/";
   
   gettimeofday(&psTime_.startTV,NULL);
   /// get time in milliseconds, convert to minutes
@@ -152,10 +136,8 @@ HcalMonitorModule::~HcalMonitorModule(){
     if(ledMon_!=NULL)  {  ledMon_->clearME();}
     if(hotMon_!=NULL)  {  hotMon_->clearME();}
     if(deadMon_!=NULL) {  deadMon_->clearME();}
-    if(commisMon_!=NULL) {  commisMon_->clearME();}
     if(mtccMon_!=NULL) {  mtccMon_->clearME();}
     if(rhMon_!=NULL)   {  rhMon_->clearME();}
-    if(tpMon_!=NULL)   {  tpMon_->clearME();}
     
     dbe_->setCurrentFolder(rootFolder_);
     dbe_->removeContents();
@@ -167,10 +149,8 @@ HcalMonitorModule::~HcalMonitorModule(){
   if(ledMon_!=NULL) { delete ledMon_; ledMon_=NULL; }
   if(hotMon_!=NULL) { delete hotMon_; hotMon_=NULL; }
   if(deadMon_!=NULL) { delete deadMon_; deadMon_=NULL; }
-  if(commisMon_!=NULL) { delete commisMon_; commisMon_=NULL; }
   if(mtccMon_!=NULL) { delete mtccMon_; mtccMon_=NULL; }
   if(rhMon_!=NULL) { delete rhMon_; rhMon_=NULL; }
-  if(tpMon_!=NULL) { delete tpMon_; tpMon_=NULL; }
   if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
   delete evtSel_; evtSel_ = NULL;
 
@@ -178,9 +158,6 @@ HcalMonitorModule::~HcalMonitorModule(){
 
 //--------------------------------------------------------
 void HcalMonitorModule::beginJob(const edm::EventSetup& c){
-  // call DQMAnalyzer in the beginning 
-  //  DQMAnalyzer::beginJob(c);
-  
   ievt_ = 0;
   
   if(debug_) cout << "HcalMonitorModule: begin job...." << endl;
@@ -211,9 +188,7 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
 
 //--------------------------------------------------------
 void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) {
-  // call DQMAnalyzer in the beginning 
   cout <<"HcalMonitorModule::beginRun"<<endl;
-  //  DQMAnalyzer::beginRun(run, c);
 
   fedsListed_ = false;
   reset();
@@ -224,9 +199,6 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
 void HcalMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
      const edm::EventSetup& context) {
   
-  // call DQMAnalyzer in the beginning 
-  //  DQMAnalyzer::beginLuminosityBlock(lumiSeg,context);
-  // then do your thing
   if(actonLS_ && !prescale()){
     // do scheduled tasks...
   }
@@ -236,22 +208,15 @@ void HcalMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg
 //--------------------------------------------------------
 void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 					   const edm::EventSetup& context) {
-  // do your thing here
   if(actonLS_ && !prescale()){
     // do scheduled tasks...
   }
-  // call DQMAnalyzer at the end 
-  //  DQMAnalyzer::endLuminosityBlock(lumiSeg,context);
 }
 
 //--------------------------------------------------------
 void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context){
-  // do your thing here
-  
   cout <<"HcalMonitorModule::endRun"<<endl;
-  // call DQMAnalyzer at the end
-  //  DQMAnalyzer::endRun(r,context); 
-  cout <<"Finished DQMAnalyzer::endRun"<<endl;
+
 }
 
 
@@ -264,44 +229,36 @@ void HcalMonitorModule::endJob(void) {
   if ( meStatus_ ) meStatus_->Fill(2);
 
   if(rhMon_!=NULL) rhMon_->done();
-  if(tpMon_!=NULL) tpMon_->done();
   if(digiMon_!=NULL) digiMon_->done();
   if(dfMon_!=NULL) dfMon_->done();
   if(pedMon_!=NULL) pedMon_->done();
   if(ledMon_!=NULL) ledMon_->done();
   if(hotMon_!=NULL) hotMon_->done();
   if(deadMon_!=NULL) deadMon_->done();
-  if(commisMon_!=NULL) commisMon_->done();
   if(mtccMon_!=NULL) mtccMon_->done();
   if(tempAnalysis_!=NULL) tempAnalysis_->done();
   
-  //  DQMAnalyzer::endJob();
-
   return;
 }
 
 //--------------------------------------------------------
 void HcalMonitorModule::reset(){
-  //  DQMAnalyzer::reset();
 
   if(debug_) cout << "HcalMonitorModule: reset...." << endl;
 
   if(rhMon_!=NULL)   rhMon_->reset();
-  if(tpMon_!=NULL)   tpMon_->reset();
   if(digiMon_!=NULL) digiMon_->reset();
   if(dfMon_!=NULL)   dfMon_->reset();
   if(pedMon_!=NULL)  pedMon_->reset();
   if(ledMon_!=NULL)  ledMon_->reset();
   if(hotMon_!=NULL)  hotMon_->reset();
   if(deadMon_!=NULL)  deadMon_->reset();
-  if(commisMon_!=NULL) commisMon_->reset();
   if(mtccMon_!=NULL)   mtccMon_->reset();
   if(tempAnalysis_!=NULL) tempAnalysis_->reset();
 }
 
 //--------------------------------------------------------
 void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
-  //  DQMAnalyzer::analyze(e,eventSetup);
 
   if(debug_) cout << "HcalMonitorModule: analyze...." << endl;
 
@@ -311,7 +268,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   ievent_   = e.id().event();
   itime_    = e.time().value();
 
-  if (debug_) cout << "DQMAnalyzer: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
+  if (debug_) cout << "HcalMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
 
   // skip this event if we're prescaling...
   if(prescale()) return;
@@ -358,11 +315,11 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
   edm::Handle<HFDigiCollection> hf_digi;
-  edm::Handle<HcalTrigPrimDigiCollection> tp_digi;
+  //  edm::Handle<HcalTrigPrimDigiCollection> tp_digi;
   try{e.getByLabel(inputLabelDigi_,hbhe_digi);} catch(exception& ex){digiOK_=false;};
   try{e.getByLabel(inputLabelDigi_,hf_digi);} catch(exception& ex){digiOK_=false;};
   try{e.getByLabel(inputLabelDigi_,ho_digi);} catch(exception& ex){digiOK_=false;};
-  try{e.getByLabel(inputLabelDigi_,tp_digi);} catch(exception& ex){tpdOK_=false;};
+  //  try{e.getByLabel(inputLabelDigi_,tp_digi);} catch(exception& ex){tpdOK_=false;};
 
 
 
@@ -401,10 +358,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if((rhMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
     rhMon_->processEvent(*hb_hits,*ho_hits,*hf_hits);
 
-  // Rec Hit monitor task
-  if((tpMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_ && digiOK_) 
-    tpMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,*tp_digi);
-
   // Hot Cell monitor task
   if((hotMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
     hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits);
@@ -424,11 +377,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
 
   // Temporary or development tasks...
-  if(commisMon_ != NULL && digiOK_ && ltcOK_ && rechitOK_) 
-    commisMon_->processEvent(*hbhe_digi,*ho_digi, *hf_digi,
-			      *hb_hits,*ho_hits,*hf_hits,
-			      *ltc,*conditions_);
-  
   if(tempAnalysis_ != NULL && digiOK_ && ltcOK_ && rechitOK_) 
     tempAnalysis_->processEvent(*hbhe_digi,*ho_digi, *hf_digi,
 				 *hb_hits,*ho_hits,*hf_hits,
@@ -455,7 +403,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 bool HcalMonitorModule::prescale(){
   ///Return true if this event should be skipped according to the prescale condition...
   ///    Accommodate a logical "OR" of the possible tests
-  if (debug_) cout <<"DQMAnalyzer::prescale"<<endl;
+  if (debug_) cout <<"HcalMonitorModule::prescale"<<endl;
   
   //First determine if we care...
   bool evtPS =    prescaleEvt_>0;
@@ -478,7 +426,7 @@ bool HcalMonitorModule::prescale(){
   }
   //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)==0) updatePS=false; ///need to define what "updates" means
   
-  if (debug_) printf("DQMAnalyzer::prescale  evt: %d/%d, ls: %d/%d, time: %f/%d\n",
+  if (debug_) printf("HcalMonitorModule::prescale  evt: %d/%d, ls: %d/%d, time: %f/%d\n",
 		     ievent_,evtPS,
 		     ilumisec_,lsPS,
 		     psTime_.elapsedTime - psTime_.updateTime,timePS);
@@ -488,46 +436,7 @@ bool HcalMonitorModule::prescale(){
   return true;
 }
 
-//--------------------------------------------------------
-void HcalMonitorModule::save(std::string flag){
-  
-  if (debug_) cout <<"DQMAnalyzer::save"<<endl;
-
-  //  bool disable = parameters_.getUntrackedParameter<bool>("disableROOToutput", false);
-  //  if(disable){
-  //    cout <<"DQMAnalyzer:  ROOT output disabled"<<endl;
-  //    return;
-  //  }
-
-  if (saved_) return; // save only once per event
-  if (debug_) cout <<"DQMAnalyzer::save: saving"<<endl;
-  
-  std::string name = "DQM_"+monitorName_;
- 
-  // add runnumber  
-  char run[10];
-  if(irun_>0) sprintf(run,"%09d", irun_);
-  else sprintf(run,"%09d", 0);
-
-  if (flag=="endRun") {
-    string outFile = name+"_"+run+".root";
-    dbe_->save(outFile);
-    saved_=true; // save only once per event
-    return;
-  }
-  
-  // add lumisection number  
-  char lumisec[10];
-  if(ilumisec_>0) sprintf(lumisec,"%06d", ilumisec_);
-  else sprintf(lumisec,"%06d", 0);
-  
-  string outFile = name+"_"+run+"_"+lumisec+".root";
-  dbe_->save(outFile);
-  saved_=true; // save only once per event
-  return;
-}
-
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include <DQM/HcalMonitorModule/interface/HcalMonitorModule.h>
+#include <DQM/HcalMonitorModule/src/HcalMonitorModule.h>
 
 DEFINE_FWK_MODULE(HcalMonitorModule);

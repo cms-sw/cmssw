@@ -7,8 +7,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2007/10/11 22:35:53 $
-  * $Revision: 1.6 $
+  * $Date: 2007/10/26 16:58:17 $
+  * $Revision: 1.7 $
   * \author W. Fisher - FNAL
   */
 
@@ -40,7 +40,6 @@ public:
 
   void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
   void processEvent(const HBHERecHitCollection& hbHits, const HORecHitCollection& hoHits, const HFRecHitCollection& hfHits);
-  void clearME();
   void reset();
   void FindHBHEHotCells(const HBHERecHitCollection& hbHits, HistList& hist, bool HB);
   void FindHOHotCells(const HORecHitCollection& hoHits, HistList& hist);

@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2007/11/03 22:59:56 $
- * $Revision: 1.19 $
+ * $Date: 2007/11/12 19:11:56 $
+ * $Revision: 1.20 $
  * \author W. Fisher
  *
 */
@@ -34,13 +34,11 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
-#include "DQM/HcalMonitorTasks/interface/HcalTrigPrimMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalPedestalMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalMTCCMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalHotCellMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
-#include "DQM/HcalMonitorTasks/interface/HcalCommissioningMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalTemplateAnalysis.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
 
@@ -93,9 +91,6 @@ public:
 
   /// Boolean prescale test for this event
   bool prescale();
-
-  /// Save DQM output file
-  void save(std::string flag="");
 
  private:
   /********************************************************/
@@ -156,13 +151,11 @@ public:
   HcalDigiMonitor*        digiMon_;
   HcalDataFormatMonitor*  dfMon_;
   HcalRecHitMonitor*      rhMon_;
-  HcalTrigPrimMonitor*    tpMon_;
   HcalPedestalMonitor*    pedMon_;
   HcalLEDMonitor*         ledMon_;
   HcalMTCCMonitor*        mtccMon_;
   HcalHotCellMonitor*     hotMon_;
   HcalDeadCellMonitor*    deadMon_;
-  HcalCommissioningMonitor* commisMon_;
   HcalTemplateAnalysis*   tempAnalysis_;
   
   edm::ESHandle<HcalDbService> conditions_;

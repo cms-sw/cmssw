@@ -5,21 +5,22 @@ HcalDataFormatMonitor::HcalDataFormatMonitor() {}
 
 HcalDataFormatMonitor::~HcalDataFormatMonitor() {}
 
+void HcalDataFormatMonitor::reset(){}
+
 void HcalDataFormatMonitor::clearME(){
   if(m_dbe){
-    m_dbe->setCurrentFolder("HcalMonitor/DataFormatMonitor");
-    m_dbe->removeContents();
+    m_dbe->setCurrentFolder(baseFolder_);
+    m_dbe->removeContents();    
   }
-  return;
 }
 
-void HcalDataFormatMonitor::reset(){}
 
 void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 				  DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   
   ievt_=0;
+  baseFolder_ = rootFolder_+"DataFormatMonitor";
 
   firstFED_ = FEDNumbering::getHcalFEDIds().first;
   for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
@@ -28,7 +29,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
   prtlvl_ = ps.getUntrackedParameter<int>("dfPrtLvl");
 
   if ( m_dbe ) {
-    m_dbe->setCurrentFolder("HcalMonitor/DataFormatMonitor");
+    m_dbe->setCurrentFolder(baseFolder_);
     
     meEVT_ = m_dbe->bookInt("Data Format Task Event Number");
     meEVT_->Fill(ievt_);

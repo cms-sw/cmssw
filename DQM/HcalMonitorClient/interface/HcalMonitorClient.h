@@ -100,9 +100,6 @@ public:
   /// Boolean prescale test for this event
   bool prescale();
   
-  /// Save DQM output file
-  void save(std::string flag="");
-
 private:
   void removeAllME(void);
   /********************************************************/

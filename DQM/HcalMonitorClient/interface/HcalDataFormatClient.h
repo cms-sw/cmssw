@@ -84,10 +84,11 @@ private:
   bool cloneME_;
   bool debug_;
   string process_;
+  string baseFolder_;
 
   //  MonitorUserInterface* mui_;
   DaqMonitorBEInterface* dbe_;
-
+  
   bool subDetsOn_[4];
 
   TH1F* spigotErrs_;
