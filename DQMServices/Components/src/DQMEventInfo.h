@@ -4,23 +4,24 @@
 /*
  * \file DQMEventInfo.h
  *
- * $Date: 2007/11/05 16:42:13 $
- * $Revision: 1.4 $
+ * $Date: 2007/11/07 13:15:53 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - INFN Padova
  *
 */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/Utilities/interface/CPUTimer.h>
+#include <FWCore/ServiceRegistry/interface/Service.h>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include <DQMServices/Core/interface/DaqMonitorBEInterface.h>
+#include <DQMServices/Core/interface/MonitorElementBaseT.h>
+#include <DQMServices/Daemon/interface/MonitorDaemon.h>
 
 #include <memory>
 #include <iostream>
@@ -50,11 +51,24 @@ private:
   DaqMonitorBEInterface* dbe_;
 
   edm::ParameterSet parameters_;
+  edm::CPUTimer timer_;
+
+  int pEvent_;
 
   MonitorElement * runId_;
   MonitorElement * eventId_;
   MonitorElement * lumisecId_;
-  MonitorElement * timeStamp_;
+  MonitorElement * eventTimeStamp_;
+  
+  MonitorElement * nUpdates_;
+  MonitorElement * processId_;
+  MonitorElement * processTimeStamp_;
+  MonitorElement * processEvents_;
+  MonitorElement * hostName_;
+  MonitorElement * processName_;
+  MonitorElement * workingDir_;
+  MonitorElement * cmsswVer_;
+  MonitorElement * dqmPatch_;
 
 };
 
