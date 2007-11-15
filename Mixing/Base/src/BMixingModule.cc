@@ -16,26 +16,27 @@
 using namespace std;
 
 int edm::BMixingModule::vertexoffset = 0;
+const unsigned int edm::BMixingModule::maxNbSources =3;
 
 namespace
 {
   boost::shared_ptr<edm::PileUp>
-  maybeMakePileUp(edm::ParameterSet const& ps)
+  maybeMakePileUp(edm::ParameterSet const& ps,std::string sourceName)
   {
     boost::shared_ptr<edm::PileUp> pileup; // value to be returned
-    // Make sure we have a parameter named 'input'.
+    // Make sure we have a parameter named 'sourceName'
     vector<string> names = ps.getParameterNames();
-    if (find(names.begin(), names.end(), std::string("input"))
+    if (find(names.begin(), names.end(), sourceName)
 	!= names.end())
       {
 	// We have the parameter
 	// and if we have either averageNumber or cfg by luminosity... make the PileUp
         double averageNumber;
-        edm::ParameterSet psin=ps.getParameter<edm::ParameterSet>("input");
-        int minb=psin.getParameter<int>("minBunch");
+        int minb=ps.getParameter<int>("minBunch");
 	minb=(minb*25)/ps.getParameter<int>("bunchspace");
-        int maxb=psin.getParameter<int>("maxBunch");
+        int maxb=ps.getParameter<int>("maxBunch");
 	maxb=(maxb*25)/ps.getParameter<int>("bunchspace");
+        edm::ParameterSet psin=ps.getParameter<edm::ParameterSet>(sourceName);
         vector<string> namesIn = psin.getParameterNames();
         if (find(namesIn.begin(), namesIn.end(), std::string("nbPileupEvents"))
 	    != namesIn.end()) {
@@ -45,16 +46,18 @@ namespace
 	      != namesAverage.end()) 
 	    {
               averageNumber=psin_average.getParameter<double>("averageNumber");
-              edm::LogInfo("MixingModule")<<" Average number used is "<<averageNumber<<", minBunch "<<minb<<", maxBunch "<<maxb;
-	      pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>("input"),averageNumber,minb,maxb));
+	      pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber));
+	      edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb<<" and averageNumber "<<averageNumber;
 	    }
 	
-	  else if (find(namesAverage.begin(), namesAverage.end(), std::string("Lumi")) 
+	  //special for pileup input
+	  else if (sourceName=="input" && find(namesAverage.begin(), namesAverage.end(), std::string("Lumi")) 
 		   != namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("sigmaTot"))
 		   != namesAverage.end()) {
 	    averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaTot")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;
-	    edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber<<", minBunch "<<minb<<", maxBunch "<<maxb;
-	    pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>("input"),averageNumber,minb,maxb));
+	    pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber));
+	    edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb;
+	    edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber;
 	  }
 	}
       }
@@ -69,7 +72,11 @@ namespace edm {
   BMixingModule::BMixingModule(const edm::ParameterSet& pset) :
     bunchSpace_(pset.getParameter<int>("bunchspace")),
     checktof_(pset.getUntrackedParameter<bool>("checktof",true)),
-    input_(maybeMakePileUp(pset)),
+    minBunch_(pset.getParameter<int>("minBunch")),
+    maxBunch_(pset.getParameter<int>("maxBunch")),
+    input_(maybeMakePileUp(pset,"input")),
+    beamHalo_(maybeMakePileUp(pset,"beamhalo")),
+    cosmics_(maybeMakePileUp(pset,"cosmics")),
     md_()
   {
     md_.parameterSetID_ = pset.id();
@@ -78,6 +85,7 @@ namespace edm {
     //#warning process name is hard coded, for now.  Fix this.
     //#warning the parameter set ID passed should be the one for the full process.  Fix this.
     md_.processConfiguration_ = ProcessConfiguration("PILEUP", pset.id(), getReleaseVersion(), getPassID());
+
   }
 
   // Virtual destructor needed.
@@ -91,29 +99,45 @@ namespace edm {
 
     // Add signals 
     addSignals(e);
-    // Read the PileUp
-    std::vector<EventPrincipalVector> pileup;
-    if ( input_ )
-      {
-	input_->readPileUp(pileup);
-      }
 
-    // Do the merging
-    if ( input_ )
-      {
-	if (input_->doPileup()) LogDebug("MixingModule") <<"Adding pileup for event "<<e.id();
-	int bunchCrossing = input_->minBunch();
-	for (std::vector<EventPrincipalVector>::const_iterator it = pileup.begin();
-	     it != pileup.end(); ++it, ++bunchCrossing) {
-	  setBcrOffset();
-          merge(bunchCrossing, *it);
-	}
+    // Read the PileUp 
+    std::vector<EventPrincipalVector> pileup[maxNbSources];
+    bool doit[]={false,false,false};
+
+    if ( input_)  {
+      LogDebug("MixingModule") <<"\n\n==============================>Adding pileup to signal event "<<e.id(); 
+      input_->readPileUp(pileup[0]); 
+      if ( input_->doPileup()) doit[0]=true;
+    }
+    if (beamHalo_) {
+      beamHalo_->readPileUp(pileup[1]);
+      LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo to signal event "<<e.id();
+      if (beamHalo_->doPileup()) doit[1]=true;
+    }
+    if (cosmics_) {
+      cosmics_->readPileUp(pileup[2]);
+      LogDebug("MixingModule") <<"\n\n==============================>Adding cosmics to signal event "<<e.id(); 
+      if (cosmics_->doPileup()) doit[2]=true;
+    }
+
+    // and merge it
+    // we have to loop over bunchcrossings first since added objects are all stored in one vector, 
+    // ordered by bunchcrossing
+    for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
+      setBcrOffset();
+      for (unsigned int isource=0;isource<maxNbSources;++isource) {
+	if (doit[isource])   {
+          setSourceOffset(isource);
+	  merge(bunchCrossing, (pileup[isource])[bunchCrossing-minBunch_]);
+	}	
       }
+    }
+
     // Put output into event
     put(e);
-
   }
 
+ 
   void BMixingModule::merge(const int bcr, const EventPrincipalVector& vec) {
     //
     // main loop: loop over events and merge 

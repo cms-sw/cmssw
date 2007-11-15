@@ -37,11 +37,6 @@ namespace edm {
       /**Cumulates the pileup events onto this event*/
       virtual void produce(edm::Event& e1, const edm::EventSetup& c);
 
-      //int minBunch() const {return input_.minBunch();}
-      int minBunch() const {return input_ ? input_->minBunch() : 0 ;}
-      //int maxBunch() const {return input_.maxBunch();}
-      int maxBunch() const {return input_ ? input_->maxBunch() : 0 ;}
-      //double averageNumber() const {return input_.averageNumber();}
       // Should 'averageNumber' return 0 or 1 if there is no mixing? It is the average number of
       // *crossings*, including the hard scatter, or the average number of overlapping events?
       // We have guessed 'overlapping events'.
@@ -54,18 +49,25 @@ namespace edm {
       void merge(const int bcr, const EventPrincipalVector& vec);
       virtual void addSignals(const edm::Event &e) {;}
       virtual void addPileups(const int bcr, edm::Event*, unsigned int eventId) {;}
-      virtual void setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;}
+      virtual void setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;} //FIXME: LogWarning
+      virtual void setSourceOffset (const unsigned int s) {std::cout << "BMixingModule::setSourceOffset must be overwritten!" << std::endl;}
       virtual void put(edm::Event &e) {;}
 
     protected:
       int bunchSpace_;
       static int vertexoffset;
       bool checktof_;
+      int const minBunch_;
+      int const maxBunch_;
 
     private:
       boost::shared_ptr<PileUp> input_;
+      boost::shared_ptr<PileUp> beamHalo_;
+      boost::shared_ptr<PileUp> cosmics_;
       ModuleDescription md_;
       unsigned int eventId_;
+
+      const static unsigned int maxNbSources;
     };
 }//edm
 

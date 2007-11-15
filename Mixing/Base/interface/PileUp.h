@@ -14,13 +14,13 @@ namespace edm {
   class PileUp {
   public:
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
-    explicit PileUp(ParameterSet const& pset, double const averageNumber, int const minb, int const maxb);
+    explicit PileUp(ParameterSet const& pset, int const minb, int const maxb, double const averageNumber);
     ~PileUp();
 
     void readPileUp(std::vector<EventPrincipalVector> & result);
 
-    int minBunch() const {return minBunch_;}
-    int maxBunch() const {return maxBunch_;}
+    //    int minBunch() const {return minBunch_;}
+    //    int maxBunch() const {return maxBunch_;}
     double averageNumber() const {return averageNumber_;}
     bool poisson() const {return poisson_;}
     bool doPileup() {return none_ ? false :  averageNumber_>0.;}

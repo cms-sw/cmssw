@@ -14,7 +14,7 @@
 #include <algorithm>
 
 namespace edm {
-  PileUp::PileUp(ParameterSet const& pset,double const averageNumber, int const minb,int const maxb) :
+  PileUp::PileUp(ParameterSet const& pset,const int minb, const int maxb, double const averageNumber) :
       type_(pset.getParameter<std::string>("type")),
       minBunch_(minb),
       maxBunch_(maxb),
