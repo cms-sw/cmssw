@@ -153,24 +153,16 @@ void HLTMuonRateAnalyzer::analyze(const Event & event, const EventSetup& eventSe
 
   // Get the L1 collection
   Handle<HLTFilterObjectWithRefs> l1cands;
-  try {
-      event.getByLabel(theL1CollectionLabel, l1cands);
-  } catch (...) {
-      // Do nothing
-      return;
-  }
+  event.getByLabel(theL1CollectionLabel, l1cands);
+  if (l1cands.failedToGet()) return;
 
   // Get the HLT collections
-  std::vector<Handle<HLTFilterObjectWithRefs> > hltcands;
-  hltcands.reserve(theHLTCollectionLabels.size());
+  std::vector<Handle<HLTFilterObjectWithRefs> > hltcands(theHLTCollectionLabels.size());
   unsigned int modules_in_this_event = 0;
   for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-      try {
-            event.getByLabel(theHLTCollectionLabels[i], hltcands[i]);
-      } catch (...) {
-            break;
-      }
-      modules_in_this_event++;
+    event.getByLabel(theHLTCollectionLabels[i], hltcands[i]);
+    if (hltcands[i].failedToGet())break;
+    modules_in_this_event++;
   }
 
   // Fix L1 thresholds to obtain HLT plots

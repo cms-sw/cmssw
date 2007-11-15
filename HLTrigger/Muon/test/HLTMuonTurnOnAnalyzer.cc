@@ -121,12 +121,12 @@ void HLTMuonTurnOnAnalyzer::analyze(const Event & event, const EventSetup& event
   event.getByLabel(theL1CollectionLabel, l1cands);
 
   // Get the HLT collections
-  std::vector<Handle<HLTFilterObjectWithRefs> > hltcands;
-  hltcands.reserve(theHLTCollectionLabels.size());
+  std::vector<Handle<HLTFilterObjectWithRefs> > hltcands(theHLTCollectionLabels.size());
 
   unsigned int modules_in_this_event = 0;
   for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
       event.getByLabel(theHLTCollectionLabels[i], hltcands[i]);
+      if (hltcands[i].failedToGet()) break;
       modules_in_this_event++;
   }
 
