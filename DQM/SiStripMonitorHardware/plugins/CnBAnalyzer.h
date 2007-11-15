@@ -179,5 +179,8 @@ class CnBAnalyzer : public edm::EDAnalyzer {
 
   void histoNaming( const std::vector<uint16_t>& fed_ids, const int& runNumber );
 
+  // The first and last valid FedID for the Tracker
+  std::pair<int,int> fedIdBoundaries_;
+
 };
 

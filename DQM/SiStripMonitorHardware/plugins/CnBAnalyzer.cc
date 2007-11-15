@@ -1,10 +1,11 @@
 #include "DQM/SiStripMonitorHardware/plugins/CnBAnalyzer.h"
 
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 // This is the maximum number of histogrammed FEDs
 // If the number of FEDs exceeds this limit we have a crash
-#define N_MAX_FEDS  1024
+#define N_MAX_FEDS  (1024)
 #define N_MAX_FEDUS (N_MAX_FEDS * 8)
 
 CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) :
@@ -87,6 +88,12 @@ CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) :
   //evt counter
   eventCounter = 0;
 
+  // use and throw FEDNumberting object...
+  FEDNumbering fedNum;
+
+  // valid FedIds for the tracker
+  fedIdBoundaries_ = fedNum.getSiStripFEDIds();
+
 }
 
 CnBAnalyzer::~CnBAnalyzer(){
@@ -142,8 +149,8 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       for ( ; ifed != cabling->feds().end(); ifed++ ) { fedIds_.push_back( *ifed ); }
     } else { 
       for ( uint16_t ifed = 0; ifed < N_MAX_FEDS; ifed++ ) {
+	// TODO: remove this 152. Use at least a define!
 	if ( buffers->FEDData( static_cast<int>(ifed) ).size() >= 152 ) {
-	
 	  fedIds_.push_back(ifed);
 	}
       }
@@ -164,19 +171,41 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   //XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   for ( ; ifed != fedIds_.end(); ifed++ ) {
-
+    
     // Retrieve FED raw data for given FED ..there is is :)      
     const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
     Fed9U::u32* data_u32 = 0;
     Fed9U::u32  size_u32 = 0;
-
+    
     data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( input.data() ) );
     size_u32 = static_cast<Fed9U::u32>( input.size() / 4 ); 
-	
+    
     if(data_u32 == NULL){ std::cerr<<"data_u32 is NULL !!"<<std::endl; continue; }
 	
     //ignores buffers of zero size (container (fed ID) is present but contains nothing) 
     if(!size_u32) { /*ifed++;*/ continue;} // loops back if non zero, increments ifed iterator to next container 
+
+
+    // SM
+    FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(data_u32));
+
+    // Let's check that the header is not malformed
+    //       if ( ! fedHeader.check() ) {
+    // 	std::cerr << "ERROR: The FED header is corrupt" << std::endl;
+    // 	continue; // TODO: how an exception here?
+    //       }
+
+    // Here we also check that the FEDid corresponds to a tracker one
+    int thisFedId=fedHeader.sourceID();
+    int myId= (int(data_u32[0])>>8)&0xFFF;
+    std::cerr << "myfedid (swapon) " << myId << std::endl;
+    std::cerr << "FEDIDFEDIDFEDID " << thisFedId << " *************** " << std::endl;
+
+    if ( (thisFedId<fedIdBoundaries_.first) || (thisFedId>fedIdBoundaries_.second) ) {
+      std::cerr << "WARNING: This is not a Tracker FED" << std::endl;
+      continue; // TODO: This is not a Tracker FED
+    }
+
 
     //adjusts the buffer pointers for the DAQ header and trailer present when FRLs are running
     //additonally preforms "flipping" of the bytes in the buffer
@@ -193,71 +222,35 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	*(data_u32+i+1) = temp1;
 		
       }
-	
-      //dumps a specified number of 32 bit words to the screen prior ot initalization
-      if(dump_){
-			
-	std::cerr<<"BUFFERD FED NUMBER "<<dec<<*ifed<<"For EVT "<<iEvent.id().event()<<std::endl;
-	
-	for(int i = 0; i<wordNumber_; i++) // prints out the specified number of 32 bit words
-	  {
-	    setiosflags(ios::left);
-	    std::cerr<<setw(2);
-	    std::cerr<<"64 Bit Word # "<<" "<<dec<<i<<" "
-		<<hex<<(data_u32[2*i] & 0xFFFFFFFF)<<" "
-		<<(data_u32[(2*i + 1)] & 0xFFFFFFFF)<<" "
-		<<std::endl;
-	    //std::cerr<<"data_u32 word # "<<" "<<i<<" "<<hex<<data_u32[i]<<std::endl;
-	  }
-				
-      }
-      if (!data_u32 || !size_u32 )continue;
-      try{ 
-        fedEvent_->Init( data_u32, 0, size_u32 ); // initialize the fedEvent with offset for slink
-      } catch(...) {
-        continue;
-      }
-      total_enabled_channels += fedEvent_->totalChannels(); 
-		
-      /*	
-      //Double Checksss......
-      //dumps a specified number of 32 bit words to the screen prior ot initalization
+    }
+    
+    //dumps a specified number of 32 bit words to the screen prior ot initalization
+    if(dump_){
+      std::cerr<<"BUFFERD FED NUMBER "<<dec<<*ifed<<"For EVT "<<iEvent.id().event()<<std::endl;
       for(int i = 0; i<wordNumber_; i++) // prints out the specified number of 32 bit words
-      {
-      setiosflags(ios::left);
-      std::cerr<<setw(2);
-      std::cerr<<"data_u32 word # "<<" "<<i<<" "<<hex<<data_u32[i]<<std::endl;
-      }
-      */
-		
-    } else {
-
-      //dumps a specified number of 32 bit words to the screen prior ot initalization
-      if(dump_){
-
-	std::cerr<<dec<<"BUFFER DUMP FOR FED NUMBER "<<*ifed<<std::endl;
-
-	for(int i = 0; i<wordNumber_; i++) // prints out the specified number of 32 bit words
-	  {
-	    setiosflags(ios::left);
-	    std::cerr<<setw(2);
-	    std::cerr<<"64 Bit Word # "<<" "<<dec<<i<<" "
-		<<hex<<(data_u32[2*i] & 0xFFFFFFFF)<<" "
-		<<(data_u32[(2*i + 1)] & 0xFFFFFFFF)<<" "
-		<<std::endl;
-	    //std::cerr<<"data_u32 word # "<<" "<<i<<" "<<hex<<data_u32[i]<<std::endl;
-	  }
-
-      }
-	
-      if (!data_u32 || !size_u32 )continue;
-      try{
-        fedEvent_->Init( data_u32, 0, size_u32 ); // initialize the fedEvent with offset for slink
-      } catch(...) {
-        continue;
-      }
+	{
+	  setiosflags(ios::left);
+	  std::cerr<<setw(2);
+	  std::cerr<<"64 Bit Word # "<<" "<<dec<<i<<" "
+		   <<hex<<(data_u32[2*i] & 0xFFFFFFFF)<<" "
+		   <<(data_u32[(2*i + 1)] & 0xFFFFFFFF)<<" "
+		   <<std::endl;
+	  //std::cerr<<"data_u32 word # "<<" "<<i<<" "<<hex<<data_u32[i]<<std::endl;
+	}
+      
     }
 
+
+    try{
+      fedEvent_->Init( data_u32, 0, size_u32 ); // initialize the fedEvent with offset for slink
+    } catch(...) {
+      // TODO: catch only our exceptions here.
+      std::cerr << "AAAAAAARRRRRRRRRRGGGGGGGGGHHHHHHHHHH: this should not happen!" << std::endl;
+      continue;
+    }
+    total_enabled_channels += fedEvent_->totalChannels(); 
+    
+    
     /*
     //listed in order of appearance in event formats paper : reads out the entire first line on pg. 6
     edm::LogInfo("FedId ") << *ifed;
@@ -689,7 +682,7 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   sort(feMedianAddr.begin(), feMedianAddr.end());
 	
   std::cout << "MIDLOC" << (feCtr / 2) << " " << " feCtr: " << feCtr << " vector.size "
-       << feMedianAddr.size() <<" evtnumber : " << iEvent.id().event() << std::endl;	
+	    << feMedianAddr.size() <<" evtnumber : " << iEvent.id().event() << std::endl;	
 	
   std::cout<<"ENUM"<<iEvent.id().event()<<std::endl;
   medianAddr = feMedianAddr[(feCtr / 2)];
