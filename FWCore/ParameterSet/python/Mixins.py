@@ -200,7 +200,7 @@ class _Labelable(object):
             knownDeps[self.label()]=myDeps
         presentDeps.add(self.label())
     def fillNamesList(self, l):
-        l.append(self.label())
+        l.append(self.__label)
 
 
 class _Unlabelable(object):
