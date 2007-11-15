@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.h,v 1.1 2005/12/01 16:29:24 mansj Exp $
+// $Id: CaloGeometryBuilder.h,v 1.1 2007/04/15 23:16:28 wmtan Exp $
 //
 //
 
@@ -44,5 +44,7 @@ class CaloGeometryBuilder : public edm::ESProducer {
   ReturnType produce(const IdealGeometryRecord&);
 private:
       // ----------member data ---------------------------
+
+  std::vector<std::string> theCaloList;
 };
 

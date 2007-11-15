@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.cc,v 1.3 2007/08/28 18:13:41 sunanda Exp $
+// $Id: CaloGeometryBuilder.cc,v 1.4 2007/10/03 13:44:45 fabiocos Exp $
 //
 //
 
@@ -37,6 +37,10 @@ CaloGeometryBuilder::CaloGeometryBuilder(const edm::ParameterSet& iConfig)
    setWhatProduced(this);
 
    //now do what ever other initialization is needed
+   
+   theCaloList = iConfig.getParameter< std::vector<std::string> >("SelectedCalos");
+   if ( theCaloList.size() == 0 ) throw cms::Exception("Configuration") << "No calorimeter specified for geometry, aborting";
+
 }
 
 
@@ -58,54 +62,62 @@ CaloGeometryBuilder::produce(const IdealGeometryRecord& iRecord)
 
    std::auto_ptr<CaloGeometry> pCaloGeom(new CaloGeometry());
 
-   // look for HCAL parts
+   // loop on selected calorimeters
 
-   // assume 'HCAL' for all of HCAL.  
-   // TODO: Eventually change to looking for "HO" and "HF" separately and fallback to HCAL
-//   try {
-     iRecord.get("HCAL", pG); 
-     pCaloGeom->setSubdetGeometry(DetId::Hcal,HcalBarrel,pG.product());
-     pCaloGeom->setSubdetGeometry(DetId::Hcal,HcalEndcap,pG.product());
-     pCaloGeom->setSubdetGeometry(DetId::Hcal,HcalOuter,pG.product());
-     pCaloGeom->setSubdetGeometry(DetId::Hcal,HcalForward,pG.product());
-//   } catch (...) {
-//     edm::LogWarning("MissingInput") << "No HCAL Geometry found";
-//   }
-   // look for zdc parts
-//   try {
-     iRecord.get("ZDC", pG);
-     pCaloGeom->setSubdetGeometry(DetId::Calo, HcalZDCDetId::SubdetectorId,pG.product());
-//   } catch(...) {
-//     edm::LogWarning("MissingInput") << "No ZDC Geometry found";
-//   }
+   for ( std::vector<std::string>::const_iterator ite = theCaloList.begin(); ite != theCaloList.end(); ite++ ) {
+
+     // look for HCAL parts
+     // assume 'HCAL' for all of HCAL.  
+     if ( (*ite) == "HCAL" ) {  
+       edm::LogInfo("CaloGeometryBuilder") << "Building HCAL reconstruction geometry";
+       iRecord.get("HCAL", pG); 
+       pCaloGeom->setSubdetGeometry(DetId::Hcal,HcalBarrel,pG.product());
+       pCaloGeom->setSubdetGeometry(DetId::Hcal,HcalEndcap,pG.product());
+       pCaloGeom->setSubdetGeometry(DetId::Hcal,HcalOuter,pG.product());
+       pCaloGeom->setSubdetGeometry(DetId::Hcal,HcalForward,pG.product());
+     } 
      
-   // TODO: Look for ECAL parts
-//   try {
-     iRecord.get("EcalBarrel", pG); 
-     pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalBarrel,pG.product());
-//   } catch (...) {
-//     edm::LogWarning("MissingInput") << "No Ecal Barrel Geometry found";     
-//   }
-//   try {
-     iRecord.get("EcalEndcap", pG); 
-     pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalEndcap,pG.product());
-//   } catch (...) {
-//     edm::LogWarning("MissingInput") << "No Ecal Endcap Geometry found";     
-//   }
-//   try {
-     iRecord.get("EcalPreshower", pG); 
-     pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalPreshower,pG.product());
-//   } catch (...) {
-//     edm::LogWarning("MissingInput") << "No Ecal Preshower Geometry found";     
-//   }
+     // look for zdc parts
+     else if ( (*ite) == "ZDC" ) {
+       edm::LogInfo("CaloGeometryBuilder") << "Building ZDC reconstruction geometry";
+       iRecord.get("ZDC", pG);
+       pCaloGeom->setSubdetGeometry(DetId::Calo, HcalZDCDetId::SubdetectorId,pG.product());
+     }
+     
+     // look for Ecal Barrel
+     else if ( (*ite) == "EcalBarrel" ) {
+       edm::LogInfo("CaloGeometryBuilder") << "Building EcalBarrel reconstruction geometry";
+       iRecord.get("EcalBarrel", pG); 
+       pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalBarrel,pG.product());
+     }
 
-   // look for TOWER parts
-//   try {
-     iRecord.get("TOWER",pG);
-     pCaloGeom->setSubdetGeometry(DetId::Calo,1,pG.product());
-//   } catch (...) {
-//     edm::LogWarning("MissingInput") << "No CaloTowers Geometry found";         
-//   }   
+     // look for Ecal Endcap
+     else if ( (*ite) == "EcalEndcap" ) {
+       edm::LogInfo("CaloGeometryBuilder") << "Building EcalEndcap reconstruction geometry";
+       iRecord.get("EcalEndcap", pG); 
+       pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalEndcap,pG.product());
+     }
+
+     // look for Ecal Preshower
+     else if ( (*ite) == "EcalPreshower" ) {
+       edm::LogInfo("CaloGeometryBuilder") << "Building EcalPreshower reconstruction geometry";
+       iRecord.get("EcalPreshower", pG); 
+       pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalPreshower,pG.product());
+     }
+
+     // look for TOWER parts
+
+     else if ( (*ite) == "TOWER" ) {
+       edm::LogInfo("CaloGeometryBuilder") << "Building TOWER reconstruction geometry";
+       iRecord.get("TOWER",pG);
+       pCaloGeom->setSubdetGeometry(DetId::Calo,1,pG.product());
+     }
+
+     else { 
+       edm::LogWarning("CaloGeometryBuilder") << "Reconstrcution geometry requested for a not implemented sub-detector: " << (*ite); 
+     }
+
+   }
 
    return pCaloGeom;
 }
