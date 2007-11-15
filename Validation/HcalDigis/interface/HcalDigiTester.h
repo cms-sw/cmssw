@@ -20,11 +20,14 @@ public:
   ~HcalDigiTester();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob(const edm::EventSetup&) ;
- template<class Digi>  void reco(const edm::Event&, const edm::EventSetup&);
+  template<class Digi>  void reco(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
- 
+    
 
  private:
+
+  double dR(double eta1, double phi1, double eta2, double phi2);
+
   // choose the correct subdet
   HcalSubdetDigiMonitor * monitor();
 
@@ -33,12 +36,17 @@ public:
   edm::InputTag inputTag_;
   std::string outputFile_;
   std::string hcalselector_;
-  bool subpedvalue_;
+  std::string zside_;
+  int noise_;             // flag to distinguish between 
+                          // particular subdet only case and "global" noise one
 
   edm::ESHandle<CaloGeometry> geometry ;
   edm::ESHandle<HcalDbService> conditions;
   float pedvalue;
-  int ievent;
+  int nevent1;
+  int nevent2;
+  int nevent3;
+  int nevent4;
   std::map<std::string, HcalSubdetDigiMonitor*> monitors_;
 
 };
