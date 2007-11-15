@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.5 2007/11/10 20:11:07 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.6 2007/11/10 20:46:14 mulders Exp $
 //
 //
 
@@ -26,6 +26,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 
 // Fast Simulation headers
@@ -41,49 +43,41 @@
 #include <vector>
 #include <iostream>
 
-// CLHEP headers
-#include "DataFormats/Math/interface/LorentzVector.h"
-
-// Data Formats
-
+// RecoMuon headers
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+// Tracking Tools
+#include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
+
+// Data Formats
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 ////////////////////////////////////////////////////////////////////////////
-
+// Geometry, Magnetic Field
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/VolumeGeometry/interface/MagVolumeOutsideValidity.h"
-#include "TrackPropagation/NavPropagator/interface/NavPropagator.h"
-#include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-#include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+
+// Root
+#include <TRandom3.h>
 
 ////////////////////// Now find detector IDs:
 
 // #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
-
-// constants, enums and typedefs
-typedef std::vector<L1MuGMTCand> L1MuonCollection;
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -95,12 +89,6 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig) {
 
 //
 //  register your products ... need to declare at least one possible product...
-//
-  if (doL1_) produces<std::vector<L1MuGMTCand> >("HitL1Muons");
-  if (doL3_) produces<reco::MuonCollection>("HitL3Muons");
-  if (doGL_) produces<reco::MuonCollection>("HitGlobalMuons");
-//
-//  Produce SimHits in muon layers...
 //
   produces<edm::PSimHitContainer>("MuonCSCHits");
   produces<edm::PSimHitContainer>("MuonDTHits");
@@ -119,21 +107,58 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig) {
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
     throw cms::Exception("Configuration") <<
-      "ParamMuonProducer requires the RandomGeneratorService \n"
+      "MuonSimHitProducer requires the RandomGeneratorService \n"
       "which is not present in the configuration file. \n"
       "You must add the service in the configuration file\n"
       "or remove the module that requires it.";
   }
+
+  bool useTRandom = iConfig.getParameter<bool>("UseTRandomEngine");
+  if ( !useTRandom ) { 
+    random = new RandomEngine(&(*rng));
+  } else {
+    TRandom3* anEngine = new TRandom3();
+    anEngine->SetSeed(rng->mySeed());
+    random = new RandomEngine(anEngine);
+  }
+
   random = new RandomEngine(&(*rng));
 }
 
+// ---- method called once each job just before starting event loop ----
+void 
+MuonSimHitProducer::beginJob (edm::EventSetup const & es) {
 
+  //services
+
+  edm::ESHandle<MagneticField>          magField;
+  edm::ESHandle<DTGeometry>             dtGeometry;
+  edm::ESHandle<CSCGeometry>            cscGeometry;
+  edm::ESHandle<RPCGeometry>            rpcGeometry;
+
+  es.get<IdealMagneticFieldRecord>().get(magField);
+  es.get<MuonGeometryRecord>().get(dtGeometry);
+  es.get<MuonGeometryRecord>().get(cscGeometry);
+  es.get<MuonGeometryRecord>().get(rpcGeometry);
+
+  magfield = &(*magField);
+  dtGeom = &(*dtGeometry);
+  cscGeom = &(*cscGeometry);
+  rpcGeom = &(*rpcGeometry);
+
+  theService->update(es);
+
+}
+  
 MuonSimHitProducer::~MuonSimHitProducer()
 {
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
   
-  if ( random ) delete random;
+  if ( random ) { 
+    if ( random->theRootEngine() ) delete random->theRootEngine();
+    delete random;
+  }
 }
 
 
@@ -148,43 +173,6 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
   using namespace edm;
   using namespace std;
 
-  theService->update(iSetup);
-  DirectMuonNavigation navigation(theService->detLayerGeometry());
-
-  ESHandle<DTGeometry> dtGeom;
-  try {
-    iSetup.get<MuonGeometryRecord>().get(dtGeom);
-  }
-  catch ( ... ) {
-    cout << "FAILED: to get the DT MuonGeometryRecord!" << endl;
-  }
-  ESHandle<CSCGeometry> cscGeom;
-  try {
-    iSetup.get<MuonGeometryRecord>().get(cscGeom);
-  }
-  catch ( ... ) {
-    cout << "FAILED: to get the CSC MuonGeometryRecord!" << endl;
-  }
-  ESHandle<RPCGeometry> rpcGeom;
-  try {
-    iSetup.get<MuonGeometryRecord>().get(rpcGeom);
-  }
-  catch ( ... ) {
-    cout << "FAILED: to get the RPC MuonGeometryRecord!" << endl;
-  }
-
-
-//
-//  Get access to the magnetic field
-//
-  ESHandle<MagneticField> magfield;
-  try {
-    iSetup.get<IdealMagneticFieldRecord>().get(magfield);
-  }
-  catch (...) {
-    cout << "FAILED: to get the IdealMagneticFieldRecord!" << endl;
-  }
-
   MuonPatternRecoDumper dumper;
 
   Handle<vector<SimTrack> > simMuons;
@@ -193,6 +181,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
   vector<PSimHit> theDTHits;
   vector<PSimHit> theRPCHits;
 
+  DirectMuonNavigation navigation(theService->detLayerGeometry());
   iEvent.getByLabel(theSimModuleLabel_,theSimModuleProcess_,simMuons);
   iEvent.getByLabel(theSimModuleLabel_,simVertices);
 
@@ -220,7 +209,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
     double tof = t0/29.98;
 
     if ( debug_ ) {
-      cout << " ===> ParamMuonProducer::reconstruct() found SIMTRACK - pid = "
+      cout << " ===> MuonSimHitProducer::reconstruct() found SIMTRACK - pid = "
            << mySimTrack.type() ;
       cout << " : pT = " << mySimP4.Pt()
            << ", eta = " << mySimP4.Eta()
@@ -228,7 +217,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
     }
 
 //
-//  Reconstruct parameterized muons starting from undecayed simulated muons
+//  Produce muons sim hits starting from undecayed simulated muons
 //
 
     GlobalPoint startingPosition(mySimTrack.trackerSurfacePosition().x(),
@@ -262,7 +251,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
     GlobalTrajectoryParameters gtp(startingPosition,
                                    startingMomentum,
                                    (int)mySimTrack.charge(),
-                                   magfield.product());
+                                   magfield);
     TrajectoryStateOnSurface startingState(gtp,*startingPlane);
 
     vector<const DetLayer *> navLayers;
@@ -494,22 +483,10 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
 
 }
 
-// ---- method called once each job just before starting event loop ----
-void MuonSimHitProducer::beginJob(const edm::EventSetup& es)
-{
-
-  // Initialize
-  nMuonTot = 0;
-
-}
-
 
 // ------------ method called once each job just after ending the event loop  ------------
-void MuonSimHitProducer::endJob() {
-
-  //  std::cout << " ===> MuonSimHitProducer , final report." << std::endl;
-  // std::cout << " ===> Number of succesfully propagated muons in the whole run : "
-  //  <<   nMuonTot << " -> " << std::endl;
+void MuonSimHitProducer::endJob() 
+{
 }
 
 
@@ -517,9 +494,6 @@ void MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
                                         const edm::ParameterSet& fastTracks) {
   // Muons
   debug_ = fastMuons.getUntrackedParameter<bool>("Debug");
-  doL1_ = fastMuons.getUntrackedParameter<bool>("ProduceL1Muons");
-  doL3_ = fastMuons.getUntrackedParameter<bool>("ProduceL3Muons");
-  doGL_ = fastMuons.getUntrackedParameter<bool>("ProduceGlobalMuons");
   theSimModuleLabel_ = fastMuons.getParameter<std::string>("simModuleLabel");
   theSimModuleProcess_ = fastMuons.getParameter<std::string>("simModuleProcess");
   theTrkModuleLabel_ = fastMuons.getParameter<std::string>("trackModuleLabel");
