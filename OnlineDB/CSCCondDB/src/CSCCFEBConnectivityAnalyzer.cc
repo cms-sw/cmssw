@@ -33,8 +33,8 @@
 CSCCFEBConnectivityAnalyzer::CSCCFEBConnectivityAnalyzer(edm::ParameterSet const& conf) {
 
   debug = conf.getUntrackedParameter<bool>("debug",false);
-  eventNumber = 0,strip=0;
-  evt = 0,Nddu=0,misMatch=0;
+  eventNumber = 0,strip=0,flagConnect=-9;
+  evt = 0,Nddu=0,misMatch=0,myIndex=0,myNcham=-999;
   chamber=0,layer=0,reportedChambers =0;
   length = 1, NChambers=0;
    
@@ -78,7 +78,7 @@ void CSCCFEBConnectivityAnalyzer::analyze(edm::Event const& e, edm::EventSetup c
       CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
       
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
-      evt++;
+      //evt++;
       
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
 	///get a reference to chamber data
@@ -89,7 +89,14 @@ void CSCCFEBConnectivityAnalyzer::analyze(edm::Event const& e, edm::EventSetup c
 	int repChambers = dduData[iDDU].header().ncsc();
 	std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
 	if (NChambers!=repChambers) {std::cout<< "misMatched size!!!" << std::endl; misMatch++;continue;}
+	if(NChambers > myNcham){
+	  myNcham=NChambers;
+	}
 	
+	if (NChambers !=0){
+	  evt++;  
+	}
+
 	for (chamber=0; chamber<NChambers; chamber++) {//loop over all DMBs  
 	  
 	  for(layer = 1; layer <= 6; ++layer) {//loop over all layers in chambers
@@ -120,15 +127,15 @@ void CSCCFEBConnectivityAnalyzer::analyze(edm::Event const& e, edm::EventSetup c
 		  
 		}//end timebins loop
 
-		adcMean_max[iDDU][chamber][layer-1][strip-1] += adcMax[iDDU][chamber][layer-1][strip-1]/20.;
-		adcMean_min[iDDU][chamber][layer-1][strip-1] += adcMin[iDDU][chamber][layer-1][strip-1]/20.;
+		adcMean_max[iDDU][chamber][layer-1][strip-1] += adcMax[iDDU][chamber][layer-1][strip-1]/25.;
+		adcMean_min[iDDU][chamber][layer-1][strip-1] += adcMin[iDDU][chamber][layer-1][strip-1]/25.;
 	      
 	      }//end digis size
 	    }//end if cfeb.available 
 	  }//end loop over layers
         }//end loop over chambers
 	
-	if((evt-1)%20==0){
+	if((evt-1)%25==0){
 	  for(int iii=0;iii<DDU_con;iii++){
 	    for(int ii=0; ii<CHAMBERS_con; ii++){
 	      for(int jj=0; jj<LAYERS_con; jj++){
@@ -167,54 +174,84 @@ CSCCFEBConnectivityAnalyzer::~CSCCFEBConnectivityAnalyzer(){
   //get name of run file from .cfg and name root output after that
   std::string::size_type runNameStart = name.find("\"",0);
   std::string::size_type runNameEnd   = name.find("raw",0);
-  std::string::size_type rootStart    = name.find("Crosstalk",0);
+  std::string::size_type rootStart    = name.find("Cross",0);
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
   std::string myname= name.substr(runNameStart+1,nameSize);
   std::string myRootName= name.substr(runNameStart+1,myRootSize);
-  std::string myRootEnd = "_conn.root";
+  std::string myRootEnd = "Connectivity.root";
+  std::string myASCIIFileEnd = "Connectivity.dat";
   std::string runFile= myRootName;
   std::string myRootFileName = runFile+myRootEnd;
+  std::string myASCIIFileName= runFile+myASCIIFileEnd;
   const char *myNewName=myRootFileName.c_str();
-  
+  const char *myFileName=myASCIIFileName.c_str();
+
   struct tm* clock;			    
   struct stat attrib;			    
   stat(myname.c_str(), &attrib);          
   clock = localtime(&(attrib.st_mtime));  
   std::string myTime=asctime(clock);
-  
-  //DB object and map
-  //CSCobject *cn = new CSCobject();
-  cscmap *map = new cscmap();
+  std::ofstream myConnectFile(myFileName,std::ios::out);
+
+  //old DB map
+  //cscmap *map = new cscmap();
   //condbon *dbon = new condbon();
-  
+  CSCMapItem::MapItem mapitem;
+  cscmap1 *map = new cscmap1(); 
+  CSCobject *cn = new CSCobject();
   
   //root ntuple
   TCalibCFEBConnectEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","Connectivity");
-  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:adcMax/F:adcMin/F:diff/F:RMS/F:id");
+  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:adcMax/F:adcMin/F:diff/F:RMS/F:id:flagConnect/I");
   
   for (int iii=0; iii<Nddu; iii++){
-    for (int i=0; i<NChambers; i++){
+    for (int i=0; i<myNcham; i++){
       theRMS      =0.0;
       my_diffSquare=0.0;
       
       //get chamber ID from DB mapping        
       int new_crateID = crateID[i];
       int new_dmbID   = dmbID[i];
+      int counter=0;
       std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-      map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
-      std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+      //old map call
+      // map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
+      ///new mapping
+	map->cratedmb(new_crateID,new_dmbID,&mapitem);
+	chamber_num=mapitem.chamberId;
+	sector= mapitem.sector;
+	first_strip_index=mapitem.stripIndex;
+	strips_per_layer=mapitem.strips;
+	chamber_index=mapitem.chamberId;
+	chamber_type = mapitem.chamberLabel;
+
+	std::cout<<"Data is for chamber:: "<< chamber_type<<"  "<<chamber_id<<" in sector:  "<<" index "<<first_strip_index<<sector<<std::endl;
       
       calib_evt.id = chamber_num;
 
       for (int j=0; j<LAYERS_con; j++){
+	int layer_id=chamber_num+j+1;
+	if(sector==-100)continue;
+	cn->obj[layer_id].resize(size[i]);
 	for (int k=0; k<size[i]; k++){
 	  
 	  my_diff =  adcMean_max[iii][i][j][k]- adcMean_min[iii][i][j][k];
 	  my_diffSquare = my_diff*my_diff;
-	  std::cout<<"Chamber "<<i<<" Layer "<<j<<" Strip "<<k<<" diff "<<my_diff<<" RMS "<<theRMS<<std::endl;
+	  //std::cout<<"Chamber "<<i<<" Layer "<<j<<" Strip "<<k<<" diff "<<my_diff<<" RMS "<<theRMS<<std::endl;
+	  
+	  counter++; 
+	  myIndex = first_strip_index+counter-1;
+	  if (counter>size[i]*LAYERS_con) counter=0;
+	  myConnectFile <<"  "<<myIndex-1<<"  "<<my_diff<<"  "<<theRMS<<std::endl;
+	  //flags for RMS and baseline
+	  if (my_diff > 100.0)      flagConnect = 1; // ok
+	  if (my_diff > 0.0 && my_diff<100.0) flagConnect = 2; //intermidiate state...
+	  if (my_diff == 0.0 )      flagConnect = 3; //strip dead
+	  if (my_diff > 1500.0)     flagConnect = 4; //strip noisy
+	  
 	  theRMS       = sqrt(fabs(my_diffSquare - my_diff*my_diff));
 	  calib_evt.strip=k;
 	  calib_evt.layer=j;
@@ -224,8 +261,15 @@ CSCCFEBConnectivityAnalyzer::~CSCCFEBConnectivityAnalyzer(){
 	  calib_evt.adcMax = adcMean_max[iii][i][j][k];
 	  calib_evt.diff=my_diff;
 	  calib_evt.RMS=theRMS;
-	  
+	  calib_evt.flagConnect = flagConnect;
 	  calibtree.Fill();
+	  
+	  //send constants to DB
+	  /*
+	    cn->obj[layer_id][k].resize(2);
+	    cn->obj[layer_id][k][0] = my_diff;
+	    cn->obj[layer_id][k][1] = theRMS;
+	  */
 	}
       }
     }

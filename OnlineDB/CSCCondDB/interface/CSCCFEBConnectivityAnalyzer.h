@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <fstream>
 
-#include "OnlineDB/CSCCondDB/interface/CSCMap.h"
+#include "OnlineDB/CSCCondDB/interface/CSCMap1.h"
 #include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "TFile.h"
@@ -32,6 +32,7 @@ class TCalibCFEBConnectEvt {
   Float_t diff;
   Float_t RMS;
   Int_t id;
+  Int_t flagConnect;
 };
 
 class CSCCFEBConnectivityAnalyzer : public edm::EDAnalyzer {
@@ -45,12 +46,12 @@ class CSCCFEBConnectivityAnalyzer : public edm::EDAnalyzer {
 #define TIMEBINS_con 8
 #define DDU_con 2
 #define TOTALSTRIPS_con 480
-#define TOTALEVENTS_con 320
+#define TOTALEVENTS_con 400
 
   ~CSCCFEBConnectivityAnalyzer();
 
  private:
-  int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt;
+  int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt,myNcham;
   int chamber,layer,reportedChambers,chamber_num,sector,record,NChambers,first_strip_index,strips_per_layer, chamber_index;
   int dmbID[CHAMBERS_con],crateID[CHAMBERS_con],size[CHAMBERS_con];
   float adcMin[DDU_con][CHAMBERS_con][LAYERS_con][STRIPS_con];
@@ -60,10 +61,10 @@ class CSCCFEBConnectivityAnalyzer : public edm::EDAnalyzer {
   float diff[DDU_con][CHAMBERS_con][LAYERS_con][STRIPS_con];
   std::vector<int> adc;
   std::string chamber_id;
-  int lines;
+  int lines,myIndex,flagConnect;
   float my_diff,my_diffSquare,theRMS;
   std::ifstream filein;
-  std::string PSet,name;
+  std::string PSet,name,chamber_type;
   bool debug;
   int flag;
 
