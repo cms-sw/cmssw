@@ -1,5 +1,5 @@
 #include "PhysicsTools/RecoAlgos/plugins/CandCommonVertexFitter.h"
-#include "PhysicsTools/CandCombiners/interface/CandCombiner.h"
+#include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
 #include "PhysicsTools/UtilAlgos/interface/AndSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/MassRangeSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/ChargeSelector.h"
