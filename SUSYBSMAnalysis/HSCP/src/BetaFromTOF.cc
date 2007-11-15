@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.3 2007/10/25 12:33:31 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.4 2007/11/06 16:36:22 ptraczyk Exp $
 //
 //
 
@@ -110,7 +110,8 @@ class BetaFromTOF : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       double fitT0(double &a, double &b, vector<double> xl, vector<double> yl, vector<double> xr, vector<double> yr );
-      void rawFit(double &a, double &b, const vector<double> hitsx, const vector<double> hitsy);
+      void rawFit(double &a, double &da, double &b, double &db, const vector<double> hitsx, const vector<double> hitsy);
+      void textplot(vector<double> x, vector <double> y, vector <double> side);
 
       edm::InputTag TKtrackTags_; 
       edm::InputTag STAtrackTags_; 
@@ -223,7 +224,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if ((staMuon->momentum().unit()-candTrack->momentum().unit()).Mag2()>0.01) continue;
 //    const Track* candTrack = staMuon.get();
 
-    vector <double> dstnc, dsegm, dtraj, hitWeight;
+    vector <double> dstnc, dsegm, dtraj, hitWeight, left;
     int totalWeight=0;
 
     if (debug) 
@@ -284,7 +285,8 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	          }    
   	        }
   	        
-  	        fitT0(a,b,hitxl,hityl,hitxr,hityr);  
+  	        if (debug)
+  	          cout << "             t0 from fit: " << fitT0(a,b,hitxl,hityl,hitxr,hityr) << endl;  
   	        
   	        for (vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
   	          const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti->geographicalId());
@@ -300,6 +302,8 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                   
                   dstnc.push_back(dist);
                   dsegm.push_back(t0_segm);
+                  left.push_back(hitSide);
+                  
                   hitWeight.push_back(((double)hits1d.size()-2.)/(double)hits1d.size());
 
                   if (debug) cout << "             dist: " << dist << " pos: " << hitLocalPos
@@ -356,6 +360,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                   
                   dstnc.push_back(dist);
                   dsegm.push_back(t0_segm);
+                  left.push_back(hitSide);
                   hitWeight.push_back(((double)hits1d.size()-2.)/(double)hits1d.size());
 
                   if (debug) cout << "             dist: " << dist << " pos: " << hitLocalPos
@@ -381,12 +386,15 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // calculate the value and error of 1/beta from the complete set of 1D hits
     if (debug)
       cout << " Points for global fit: " << endl;
+
+    // inverse beta - weighted average of the contributions from individual hits
     for (int i=0;i<dstnc.size();i++) {
 //      cout << "    Dstnc: " << dstnc.at(i) << "   delta t0(hit-segment): " << dsegm.at(i) << "   weight: " << hitWeight.at(i); 
 //      cout << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
       invbeta+=(1.+dsegm.at(i)/dstnc.at(i)*30.)*hitWeight.at(i)/totalWeight;
     }
-
+    
+    // the dispersion of inverse beta
     double invbetaerr=0,diff;
     for (int i=0;i<dstnc.size();i++) {
       diff=(1.+dsegm.at(i)/dstnc.at(i)*30.)-invbeta;
@@ -397,7 +405,24 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if (debug)
       cout << " Measured 1/beta: " << invbeta << " +/- " << invbetaerr << endl;
+      
+    // unconstrained fit to the full set of points
+    vector <double> x,y;
+    for (int i=0;i<dstnc.size();i++) {
+//      cout << "    Dstnc: " << dstnc.at(i) << "   delta t0(hit-segment): " << dsegm.at(i) << "   weight: " << hitWeight.at(i); 
+//      cout << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
+      x.push_back(dstnc.at(i)/30.);
+      y.push_back(dsegm.at(i)+dstnc.at(i)/30.);
+//      cout << "    x: " << x.at(i) << "   y: " << y.at(i) << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
+    }
 
+    double freeBeta, freeBetaErr, freeTime, freeTimeErr;    
+    
+    rawFit(freeBeta, freeBetaErr, freeTime, freeTimeErr, x, y);
+//    textplot(x,y,left);
+    
+    cout << " Free 1/beta: " << freeBeta << " +/- " << freeBetaErr << endl;   
+    cout << "   Free time: " << freeTime << " +/- " << freeTimeErr << endl;   
     
     // End the loop over STA muons - since we already found the matching one
     break;
@@ -430,12 +455,12 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 double
 BetaFromTOF::fitT0(double &a, double &b, vector<double> xl, vector<double> yl, vector<double> xr, vector<double> yr ) {
 
-  double ar=0,br=0,al=0,bl=0;
+  double ar=0,br=0,al=0,bl=0,da,db;
   
   // Do the fit separately for left and right hits
-  if (xl.size()>1) rawFit(al,bl,xl,yl); 
+  if (xl.size()>1) rawFit(al,da,bl,db,xl,yl); 
     else if (xl.size()==1) bl=yl[0];
-  if (xr.size()>1) rawFit(ar,br,xr,yr);
+  if (xr.size()>1) rawFit(ar,da,br,db,xr,yr);
     else if (xr.size()==1) br=yr[0];
 
   // If there's only 1 hit on one side, take the slope from the other side and adjust the constant
@@ -478,7 +503,7 @@ BetaFromTOF::fitT0(double &a, double &b, vector<double> xl, vector<double> yl, v
 
 
 void 
-BetaFromTOF::rawFit(double &a, double &b, const vector<double> hitsx, const vector<double> hitsy) {
+BetaFromTOF::rawFit(double &a, double &da, double &b, double &db, const vector<double> hitsx, const vector<double> hitsy) {
 
   double s=0,sx=0,sy=0,x,y;
   double sxx=0,sxy=0;
@@ -503,10 +528,55 @@ BetaFromTOF::rawFit(double &a, double &b, const vector<double> hitsx, const vect
     double d = s*sxx - sx*sx;
     b = (sxx*sy- sx*sxy)/ d;
     a = (s*sxy - sx*sy) / d;
+    da = sqrt(sxx/d);
+    db = sqrt(s/d);
   }
 }
 
+void 
+BetaFromTOF::textplot(vector<double> x, vector <double> y, vector <double> side)
+{
 
+  int data[82][42];
+  int xmax=0,ymax=0,xmin=999,ymin=999;
+  
+  for (unsigned int i=0;i<x.size(); i++) {
+    if (x.at(i)<xmin) xmin=x.at(i);    
+    if (y.at(i)<ymin) ymin=y.at(i);    
+    if (x.at(i)>xmax) xmax=x.at(i);    
+    if (y.at(i)>ymax) ymax=y.at(i);    
+  }
+  
+  double xfact=(xmax-xmin+1)/80.;
+  double yfact=(ymax-ymin+1)/30.;
+
+  for (int ix=0;ix<82;ix++)
+    for (int iy=0;iy<32;iy++)
+      data[ix][iy]=0;
+
+  cout << xmin << " " << xmax << " " << ymin << " " << ymax << endl;
+
+  for (unsigned int i=0;i<x.size(); i++) {
+    int xloc = (int)((x.at(i)-xmin)/xfact);
+    int yloc = (int)((y.at(i)-ymin)/yfact);
+    if ((xloc>=0) && (xloc<82) && (yloc>=0) && (yloc<32)) data[xloc][yloc]=side.at(i); 
+      else cout << "ERROR! " << x.at(i) << " " << xloc << " " << yloc << endl;
+  }
+
+  for (int iy=31;iy!=0;iy--) {
+    cout << setw(4) << (iy*yfact+ymin) << " ";
+    for (int ix=0;ix<82;ix++) {
+      if (data[ix][iy]) {
+        if (data[ix][iy]==1) cout << "P"; 
+        if (data[ix][iy]==-1) cout << "L"; 
+      } else {
+       if (fabs((iy*yfact+ymin)-(ix*xfact+xmin))<.5) cout << "*"; 
+        else cout << " ";
+      }
+    }
+    cout << endl;
+  }
+}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
