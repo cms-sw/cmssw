@@ -90,8 +90,8 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
   
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByType(rawdata);
-  counterzero=counterzero+1;
-  evt=(counterzero+1)/2;
+  //counterzero=counterzero+1;
+  //evt=(counterzero+1)/2;
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs    
@@ -117,11 +117,16 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	reportedChambers += dduData[iDDU].header().ncsc();
 	NChambers = cscData.size();
 	int repChambers = dduData[iDDU].header().ncsc();
-	//std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
+	std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
 	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++;}
 	if(NChambers > myNcham){
 	  myNcham=NChambers;
 	}
+	
+	if (NChambers !=0){
+	  evt++;  
+	}
+	
 	
 	for (int i_chamber=0; i_chamber<NChambers; i_chamber++) {   
 	  
@@ -175,7 +180,7 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	}
 	
       	eventNumber++;
-	edm::LogInfo ("CSCSaturationAnalyzer")  << "end of event number " << eventNumber;
+	edm::LogInfo ("CSCSaturationAnalyzer")  << "end of event number " << eventNumber<<" and non-zero event "<<evt ;
       }
     }
   }
@@ -223,8 +228,7 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
   //cscmap *map = new cscmap();
   ///new DB mapping
   CSCMapItem::MapItem mapitem;
-  cscmap1 *map = new cscmap1();
- 
+  cscmap1 *map = new cscmap1(); 
   CSCobject *cn = new CSCobject();
   //condbon *dbon = new condbon();
 
@@ -279,18 +283,15 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		  mySatADC_for_plots[st]=0.0;
 		}
 
-		for(int ii=10; ii<NUMBERPLOTTED_sat; ii++){//numbers    
-		  myCharge[ii-10] = 11.2 +(28.0*ii);//224(3V) to 560(5V) fC
-		  mySatADC[ii-10] = maxmodten[ii][cham][j][k];
+    		for(int ii=0; ii<NUMBERPLOTTED_sat; ii++){//numbers    
+		  myCharge[ii] = 11.2 +(28.0*ii);//all 20 values (was earlier 224(3V) to 560(5V) fC)
+		  mySatADC[ii] = maxmodten[ii][cham][j][k];
 		  myCharge_for_plots[ii] = 11.2 +(28.0*ii);
 		  mySatADC_for_plots[ii] = maxmodten[ii][cham][j][k];
 		  
-		  //std::cout<<"My values from analyzer: "<<myCharge[ii-10]<<"  "<<mySatADC[ii-10]<<std::endl;
-
-		  //newCharge[ii] = charge_event;
 		  //fill one histogram with all values for all chambers
 		  adc_vs_charge.Fill(myCharge_for_plots[ii],maxmodten[ii][cham][j][k]);
-		  //for the rest look for one strip in the middle of each CFEBs
+		  //for the rest plot one chamber at a time
 		  if(cham==0)  adc00_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
 		  if(cham==1)  adc01_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
 		  if(cham==2)  adc02_vs_charge.Fill(myCharge_for_plots[ii] ,maxmodten[ii][cham][j][k]);
@@ -311,7 +312,7 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		float u0_ptr=0.0, u1_ptr=0.0, u2_ptr=0.0,u3_ptr=0.0;
 		SaturationFit s(NUMBERPLOTTED_sat,myCharge,mySatADC,&u0_ptr, &u1_ptr, &u2_ptr, &u3_ptr);
 		//u0_ptr=N,u1_ptr=a,u2_ptr=b,u3_ptr=c
-		//std::cout<<"Fitresults: " <<cham<<" lay "<<j<<" strip " <<k<<" param0-3  "<< u0_ptr<<" "<<u1_ptr<<" "<<u2_ptr<<" "<<u3_ptr<<std::endl;
+	
 		counter++; 
 		myIndex = first_strip_index+counter-1;
 		if (counter>size[cham]*LAYERS_sat) counter=0;

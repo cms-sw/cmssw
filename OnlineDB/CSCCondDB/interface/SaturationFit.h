@@ -31,7 +31,7 @@ class SaturationFit{
    err[3]=20.0;
    FunctionMinimum fmin = pMinimizer->Minimize(*pFcn, par, err, 1, 5000, 0.01);
    if( !fmin.IsValid()){
-     //printf(" minuit did not converge \n");
+     printf(" minuit did not converge \n");
    } else {
      std::cout<<"fit succeeded... results: "<<fmin<<std::endl;
     chisq = fmin.Fval();
