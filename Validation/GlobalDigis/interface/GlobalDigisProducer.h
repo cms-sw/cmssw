@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/10/04 19:31:00 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/10/23 23:16:31 $
+ *  $Revision: 1.12 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -186,6 +186,7 @@ class GlobalDigisProducer : public edm::EDProducer
   FloatVector HFCalSHE;
 
   edm::InputTag HCalSrc_;
+  edm::InputTag HCalDigi_;
 
   // Tracker info
   // SiStrip

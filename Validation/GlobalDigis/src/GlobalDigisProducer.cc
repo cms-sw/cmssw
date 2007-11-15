@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/09/04 20:00:21 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/10/23 23:16:32 $
+ *  $Revision: 1.11 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -33,6 +33,7 @@ GlobalDigisProducer::GlobalDigisProducer(const edm::ParameterSet& iPSet) :
   ECalEESrc_ = iPSet.getParameter<edm::InputTag>("ECalEESrc");
   ECalESSrc_ = iPSet.getParameter<edm::InputTag>("ECalESSrc");
   HCalSrc_ = iPSet.getParameter<edm::InputTag>("HCalSrc");
+  HCalDigi_ = iPSet.getParameter<edm::InputTag>("HCalDigi");
   SiStripSrc_ = iPSet.getParameter<edm::InputTag>("SiStripSrc"); 
   SiPxlSrc_ = iPSet.getParameter<edm::InputTag>("SiPxlSrc");
   MuDTSrc_ = iPSet.getParameter<edm::InputTag>("MuDTSrc");
@@ -65,6 +66,8 @@ GlobalDigisProducer::GlobalDigisProducer(const edm::ParameterSet& iPSet) :
       << ":" << ECalESSrc_.instance() << "\n"
       << "    HCalSrc       = " << HCalSrc_.label() 
       << ":" << HCalSrc_.instance() << "\n"
+      << "    HCalDigi       = " << HCalDigi_.label() 
+      << ":" << HCalDigi_.instance() << "\n"
       << "    SiStripSrc    = " << SiStripSrc_.label() 
       << ":" << SiStripSrc_.instance() << "\n" 
       << "    SiPixelSrc    = " << SiPxlSrc_.label()
@@ -714,7 +717,7 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
   // get HBHE information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HBHEDataFrame> > hbhe;
-  iEvent.getByType(hbhe);
+  iEvent.getByLabel(HCalDigi_,hbhe);
   if (!hbhe.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find HBHEDataFrame in event!";
@@ -779,7 +782,7 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
   // get HO information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HODataFrame> > ho;
-  iEvent.getByType(ho);
+  iEvent.getByLabel(HCalDigi_,ho);
   if (!ho.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find HODataFrame in event!";
@@ -820,7 +823,7 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
   // get HF information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HFDataFrame> > hf;
-  iEvent.getByType(hf);
+  iEvent.getByLabel(HCalDigi_,hf);
   if (!hf.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find HFDataFrame in event!";

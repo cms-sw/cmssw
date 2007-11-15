@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/10/04 19:31:00 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/10/23 23:16:30 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -182,6 +182,7 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
   MonitorElement *mehHcalSHEvAEE[4];
 
   edm::InputTag HCalSrc_;
+  edm::InputTag HCalDigi_;
 
   // Tracker info
   // SiStrip
