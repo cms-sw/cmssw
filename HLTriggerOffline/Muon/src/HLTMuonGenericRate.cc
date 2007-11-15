@@ -116,8 +116,8 @@ void HLTMuonGenericRate::analyze(const Event & event ){
   if (useMuonFromGenerator) {
     Handle<HepMCProduct> genProduct;
     event.getByLabel(theGenLabel,genProduct);
+    if (genProduct.failedToGet())return;
     evt= genProduct->GetEvent();
-    if ( evt == NULL ) return;
     HepMC::GenEvent::particle_const_iterator part;
     for (part = evt->particles_begin(); part != evt->particles_end(); ++part ) {
       int id1 = (*part)->pdg_id();
@@ -138,6 +138,7 @@ void HLTMuonGenericRate::analyze(const Event & event ){
       // Get the muon track collection from the event
       reco::TrackCollection::const_iterator muon;
       event.getByLabel(theRecoLabel.label(), muTracks);    
+      if  ( muTracks.failedToGet() )return;
       for ( muon = muTracks->begin(); muon != muTracks->end(); ++muon ) {
 	float pt1 = muon->pt();
 	hRECOetanor->Fill(muon->eta());
@@ -160,25 +161,23 @@ void HLTMuonGenericRate::analyze(const Event & event ){
 
   // Get the L1 collection
   Handle<HLTFilterObjectWithRefs> l1cands;
-  try {
-      event.getByLabel(theL1CollectionLabel, l1cands);
-  } catch (...) {
+  event.getByLabel(theL1CollectionLabel, l1cands);
+  if (l1cands.failedToGet()){
     LogDebug("HLTMuonVal")<<"No L1 Collection with label "<<theL1CollectionLabel;
-   // Do nothing
-      return;
-  }
-  // Get the HLT collections
-  std::vector<Handle<HLTFilterObjectWithRefs> > hltcands;
-  hltcands.reserve(theHLTCollectionLabels.size());
+    return; 
+  } 
+
+ // Get the HLT collections
+  std::vector<Handle<HLTFilterObjectWithRefs> > hltcands(theHLTCollectionLabels.size());
+
   unsigned int modules_in_this_event = 0;
   for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-      try {
-            event.getByLabel(theHLTCollectionLabels[i], hltcands[i]);
-      } catch (...) {
-	LogDebug("HLTMuonVal")<<"No HLT Collection with label "<<theHLTCollectionLabels[i];
-            break;
-      }
-      modules_in_this_event++;
+    event.getByLabel(theHLTCollectionLabels[i], hltcands[i]);
+    if (hltcands[i].failedToGet()){
+      LogDebug("HLTMuonVal")<<"No HLT Collection with label "<<theHLTCollectionLabels[i];
+      break;
+    }
+    modules_in_this_event++;
   }
 
 
