@@ -1,10 +1,11 @@
-#include <memory>
+// Test CSCDetId & CSCIndexer 13.11.2007 ptc
 
+//#include <memory>
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
@@ -15,9 +16,9 @@
 #include <DataFormats/GeometryVector/interface/Pi.h>
 #include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 
-#include <string>
 #include <cmath>
 #include <iomanip> // for setw() etc.
+#include <string>
 #include <vector>
 
 class CSCDetIdAnalyzer : public edm::EDAnalyzer {
@@ -126,7 +127,7 @@ void CSCDetIdAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
            "   E" << ie << " S" << is << " R" << ir << " C" << std::setw( 2 ) << ic << std::setw( iw ) << " L" << il;
 
 	   unsigned lind = theIndexer->layerIndex( ie, is, ir, ic, il );
-	   unsigned cind = theIndexer->startChamberIndexInEndcap( is, ir ) + ic - 1; // want value 1-234 indep. of endcap
+	   unsigned cind = theIndexer->startChamberIndexInEndcap( ie, is, ir ) + ic - 1; 
 	   unsigned lind2 = theIndexer->layerIndex( cscDetId );
 
 	   //	   std::cout << std::setw(12) << std::setw(12) << lind << std::setw(12) << lind2 << "     " << std::endl;
