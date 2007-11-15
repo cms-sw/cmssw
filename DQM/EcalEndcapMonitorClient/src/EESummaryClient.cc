@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/10 14:09:12 $
- * $Revision: 1.53 $
+ * $Date: 2007/11/11 18:28:19 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -314,13 +314,13 @@ void EESummaryClient::setup(void) {
 
   if( meTriggerTowerEt_[0] ) dbe_->removeElement( meTriggerTowerEt_[0]->getName() );
   sprintf(histo, "EETTT EE - Et trigger tower quality summary");
-  meTriggerTowerEt_[0] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 256, 0., 256.);
+  meTriggerTowerEt_[0] = dbe_->bookProfile2D(histo, histo, 100, 0., 100., 100, 0., 100., 256, 0., 256., "s");
   meTriggerTowerEt_[0]->setAxisTitle("ix", 1);
   meTriggerTowerEt_[0]->setAxisTitle("iy", 2);
 
   if( meTriggerTowerEt_[1] ) dbe_->removeElement( meTriggerTowerEt_[1]->getName() );
   sprintf(histo, "EETTT EE + Et trigger tower quality summary");
-  meTriggerTowerEt_[1] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 256, 0., 256.);
+  meTriggerTowerEt_[1] = dbe_->bookProfile2D(histo, histo, 100, 0., 100., 100, 0., 100., 256, 0., 256., "s");
   meTriggerTowerEt_[1]->setAxisTitle("ix", 1);
   meTriggerTowerEt_[1]->setAxisTitle("iy", 2);
 
@@ -533,10 +533,8 @@ void EESummaryClient::analyze(void){
 
   for ( int ix = 1; ix <= 100; ix++ ) {
     for ( int iy = 1; iy <= 100; iy++ ) {
-      for ( int en = 1; en <= 256; en++ ) {
-        meTriggerTowerEt_[0]->setBinContent( ix, iy, en, 0. );
-        meTriggerTowerEt_[1]->setBinContent( ix, iy, en, 0. );
-      }
+      meTriggerTowerEt_[0]->setBinContent( ix, iy, 0. );
+      meTriggerTowerEt_[1]->setBinContent( ix, iy, 0. );
       meTriggerTowerEmulError_[0]->setBinContent( ix, iy, -1. );
       meTriggerTowerEmulError_[1]->setBinContent( ix, iy, -1. );
     }
@@ -597,7 +595,6 @@ void EESummaryClient::analyze(void){
 //    MonitorElement *me_04, *me_05;
     TH2F* h2;
     TProfile2D* h2d;
-    TH3F* h3;
 
     // fill the gain value priority map<id,priority>
     std::map<float,float> priority;
@@ -855,25 +852,22 @@ void EESummaryClient::analyze(void){
 
           if ( eetttc ) {
 
-            h3 = eetttc->h01_[ism-1];
+            me = eetttc->me_h01_[ism-1];
 
             bool hasRealDigi = false;
 
-            if ( h3 ) {
+            if ( me ) {
 
-              for( int en = 1; en <= 256; en++ ) {
+              float xval = me->getBinContent( ix, iy );
 
-                float xval = h3->GetBinContent( ix, iy, en );
+              if(xval!=0) hasRealDigi = true;
 
-                if(xval!=0) hasRealDigi = true;
-
-                if ( ism >= 1 && ism <= 9 ) {
-                  if ( xval != 0 ) meTriggerTowerEt_[0]->setBinContent( jx, jy, en, xval );
-                } else {
-                  if ( xval != 0 ) meTriggerTowerEt_[1]->setBinContent( jx, jy, en, xval );
-                }
-
+              if ( ism >= 1 && ism <= 9 ) {
+                if ( xval != 0 ) meTriggerTowerEt_[0]->setBinContent( jx, jy, xval );
+              } else {
+                if ( xval != 0 ) meTriggerTowerEt_[1]->setBinContent( jx, jy, xval );
               }
+
             }
 
             h2 = eetttc->l01_[ism-1];
@@ -1131,7 +1125,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   gStyle->SetTitleFontSize(14);
 
   TH2F* obj2f;
-  TH3F* obj3f;
   TProfile2D* obj2p;
 
   gStyle->SetPaintTextFormat("+g");
@@ -1978,12 +1971,12 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   imgNameMapTTEt[0] = "";
 
-  obj3f = 0;
-  obj3f = UtilsClient::getHisto<TH3F*>( meTriggerTowerEt_[0] );
+  obj2p = 0;
+  obj2p = UtilsClient::getHisto<TProfile2D*>( meTriggerTowerEt_[0] );
 
-  if ( obj3f && obj3f->GetEntries() != 0 ) {
+  if ( obj2p && obj2p->GetEntries() != 0 ) {
 
-    meName = obj3f->GetName();
+    meName = obj2p->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
@@ -1993,8 +1986,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameMapTTEt[0] = meName + ".png";
     imgName = htmlDir + imgNameMapTTEt[0];
 
-    obj2p = obj3f->Project3DProfile("yx");
-
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
@@ -2022,17 +2013,17 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
-    delete obj2p;
+
   }
 
   imgNameMapTTEt[1] = "";
 
-  obj3f = 0;
-  obj3f = UtilsClient::getHisto<TH3F*>( meTriggerTowerEt_[1] );
+  obj2p = 0;
+  obj2p = UtilsClient::getHisto<TProfile2D*>( meTriggerTowerEt_[1] );
 
-  if ( obj3f && obj3f->GetEntries() != 0 ) {
+  if ( obj2p && obj2p->GetEntries() != 0 ) {
 
-    meName = obj3f->GetName();
+    meName = obj2p->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
@@ -2042,17 +2033,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameMapTTEt[1] = meName + ".png";
     imgName = htmlDir + imgNameMapTTEt[1];
 
-    obj2p = obj3f->Project3DProfile("yx");
-
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
-
-    std::string projname(obj2p->GetName());
-    string::size_type loc = projname.find( "_pyx", 0 );
-    projname.replace( loc, projname.length(), "");
-    obj2p->SetTitle(projname.c_str());
-
     cMap->SetGridx();
     cMap->SetGridy();
     obj2p->SetMinimum(0.0);
@@ -2071,7 +2054,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
-    delete obj2p;
+
   }
 
   imgNameMapGS[0] = "";

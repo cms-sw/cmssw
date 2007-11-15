@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/11/09 09:34:04 $
- * $Revision: 1.84 $
+ * $Date: 2007/11/10 14:09:09 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  *
 */
@@ -203,7 +203,7 @@ void EBSummaryClient::setup(void) {
 
   if( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
   sprintf(histo, "EBTTT Et trigger tower quality summary");
-  meTriggerTowerEt_ = dbe_->book3D(histo, histo, 72, 0., 72., 34, -17., 17., 256, 0., 256.);
+  meTriggerTowerEt_ = dbe_->bookProfile2D(histo, histo, 72, 0., 72., 34, -17., 17., 256, 0., 256., "s");
   meTriggerTowerEt_->setAxisTitle("jphi", 1);
   meTriggerTowerEt_->setAxisTitle("jeta", 2);
 
@@ -336,9 +336,7 @@ void EBSummaryClient::analyze(void){
 
   for ( int iex = 1; iex <= 34; iex++ ) {
     for ( int ipx = 1; ipx <= 72; ipx++ ) {
-      for ( int en = 1; en <= 256; en++ ) {
-        meTriggerTowerEt_->setBinContent( ipx, iex, en, 0. );
-      }
+      meTriggerTowerEt_->setBinContent( ipx, iex, 0. );
       meTriggerTowerEmulError_->setBinContent( ipx, iex, -1. );
     }
   }
@@ -379,7 +377,6 @@ void EBSummaryClient::analyze(void){
     MonitorElement *me_04, *me_05;
     TH2F* h2;
     TProfile2D* h2d;
-    TH3F* h3;
 
     // fill the gain value priority map<id,priority>
     std::map<float,float> priority;
@@ -659,32 +656,29 @@ void EBSummaryClient::analyze(void){
 
           if ( ebtttc ) {
 
-            h3 = ebtttc->h01_[ism-1];
+            me = ebtttc->me_h01_[ism-1];
 
             bool hasRealDigi = false;
 
-            if ( h3 ) {
+            if ( me ) {
 
-              for ( int en = 1; en <= 256; en++ ) {
+              float xval = me->getBinContent( ie, ip );
 
-                float xval = h3->GetBinContent( ie, ip, en );
+              if(xval!=0) hasRealDigi = true;
 
-                if(xval!=0) hasRealDigi = true;
+              int iex;
+              int ipx;
 
-                int iex;
-                int ipx;
-
-                if ( ism <= 18 ) {
-                  iex = 1+(17-ie);
-                  ipx = ip+4*(ism-1);
-                } else {
-                  iex = 17+ie;
-                  ipx = 1+(4-ip)+4*(ism-19);
-                }
-
-                meTriggerTowerEt_->setBinContent( ipx, iex, en, xval );
-
+              if ( ism <= 18 ) {
+                iex = 1+(17-ie);
+                ipx = ip+4*(ism-1);
+              } else {
+                iex = 17+ie;
+                ipx = 1+(4-ip)+4*(ism-19);
               }
+
+              meTriggerTowerEt_->setBinContent( ipx, iex, xval );
+
             }
 
             h2 = ebtttc->l01_[ism-1];
@@ -986,7 +980,6 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   float saveTitleOffset = gStyle->GetTitleX();
 
   TH2F* obj2f;
-  TH3F* obj3f;
   TProfile2D* obj2p;
 
   imgNameMapI = "";
@@ -1417,12 +1410,12 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   imgNameMapTTEt = "";
 
-  obj3f = 0;
-  obj3f = UtilsClient::getHisto<TH3F*>( meTriggerTowerEt_ );
+  obj2p = 0;
+  obj2p = UtilsClient::getHisto<TProfile2D*>( meTriggerTowerEt_ );
 
-  if ( obj3f && obj3f->GetEntries() != 0 ) {
+  if ( obj2p && obj2p->GetEntries() != 0 ) {
 
-    meName = obj3f->GetName();
+    meName = obj2p->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
@@ -1432,19 +1425,11 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameMapTTEt = meName + ".png";
     imgName = htmlDir + imgNameMapTTEt;
 
-    obj2p = obj3f->Project3DProfile("yx");
-
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
     obj2p->GetXaxis()->SetNdivisions(18, kFALSE);
     obj2p->GetYaxis()->SetNdivisions(2);
-
-    std::string projname(obj2p->GetName());
-    string::size_type loc = projname.find( "_pyx", 0 );
-    projname.replace( loc, projname.length(), "");
-    obj2p->SetTitle(projname.c_str());
-
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(0.0);
@@ -1455,7 +1440,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     labelGridTT.Draw("text,same");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
-    delete obj2p;
+
   }
 
   imgNameMapGS = "";
