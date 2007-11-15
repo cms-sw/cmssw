@@ -16,7 +16,7 @@ class CompositeTrajectoryFilter : public TrajectoryFilter {
 public:
 
   explicit CompositeTrajectoryFilter(){filters.clear();}
-
+  explicit CompositeTrajectoryFilter(std::vector< const TrajectoryFilter *> & f){filters=f;}
   explicit CompositeTrajectoryFilter( const edm::ParameterSet & pset)
   {
     //look for VPSet of filters
