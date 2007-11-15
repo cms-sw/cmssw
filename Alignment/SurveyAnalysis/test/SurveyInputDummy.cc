@@ -1,8 +1,7 @@
 #include "TRandom3.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
@@ -11,7 +10,8 @@
 
 #include "Alignment/SurveyAnalysis/test/SurveyInputDummy.h"
 
-SurveyInputDummy::SurveyInputDummy(const edm::ParameterSet& cfg)
+SurveyInputDummy::SurveyInputDummy(const edm::ParameterSet& cfg):
+  theRandomizeValue( cfg.getParameter<bool>("randomizeValue") )
 {
   typedef std::vector<edm::ParameterSet> ParameterSets;
  
@@ -32,10 +32,10 @@ SurveyInputDummy::SurveyInputDummy(const edm::ParameterSet& cfg)
 
 void SurveyInputDummy::beginJob(const edm::EventSetup& setup)
 {
-  edm::ESHandle<GeometricDet>  geom;
-  setup.get<IdealGeometryRecord>().get(geom);	 
-  TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom);
-  Alignable* ali = new AlignableTracker( tracker );
+  edm::ESHandle<TrackerGeometry> tracker;
+  setup.get<TrackerDigiGeometryRecord>().get( tracker );
+
+  Alignable* ali = new AlignableTracker( &*tracker );
 
   addSurveyInfo(ali);
   addComponent(ali);
@@ -57,21 +57,24 @@ void SurveyInputDummy::addSurveyInfo(Alignable* ali)
 
   if (theErrors.end() != e)
   {
-    double error =  e->second;
+    double error = e->second;
 
-    double x = rand.Gaus(0., error);
-    double y = rand.Gaus(0., error);
-    double z = rand.Gaus(0., error);
-    double a = rand.Gaus(0., error);
-    double b = rand.Gaus(0., error);
-    double g = rand.Gaus(0., error);
+    if (theRandomizeValue)
+    {
+      double x = rand.Gaus(0., error);
+      double y = rand.Gaus(0., error);
+      double z = rand.Gaus(0., error);
+      double a = rand.Gaus(0., error);
+      double b = rand.Gaus(0., error);
+      double g = rand.Gaus(0., error);
 
-    align::EulerAngles angles(3);
+      align::EulerAngles angles(3);
 
-    angles(1) = a; angles(2) = b; angles(3) = g;
+      angles(1) = a; angles(2) = b; angles(3) = g;
 
-    ali->move( ali->surface().toGlobal( align::LocalVector(x, y, z) ) );
-    ali->rotateInLocalFrame( align::toMatrix(angles) );
+      ali->move( ali->surface().toGlobal( align::LocalVector(x, y, z) ) );
+      ali->rotateInLocalFrame( align::toMatrix(angles) );
+    }
 
     cov = ROOT::Math::SMatrixIdentity();
     cov *= error * error;

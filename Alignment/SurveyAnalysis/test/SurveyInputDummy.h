@@ -8,6 +8,8 @@
  *  Usage:
  *    module FPix = SurveyInputDummy
  *    {
+ *      bool randomizeValue = true
+ *
  *      VPSet errors =
  *      {
  *        { string level = "DetUnit" double value = 5e-4 },
@@ -15,15 +17,15 @@
  *      }
  *    }
  *
- *  The survey value of a structure in a level is randomly selected from a
- *  Gaussian distribution of mean given by the ideal geometry and width =
- *  "value" (e.g. width = 5e-4 for a Panel).
+ *  If randomizeValue is true, the survey value of a structure in a level
+ *  is randomly selected from a Gaussian distribution of mean given by the
+ *  ideal geometry and width = "value" (e.g. width = 5e-4 for a Panel).
  *  
  *  The covariance matrix for all structures of a level will be diagonal
  *  given by value^2 * identity.
  *
- *  $Date: 2007/09/23 14:42:55 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/10 20:54:07 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 
@@ -50,6 +52,8 @@ class SurveyInputDummy:
   void addSurveyInfo(
 		     Alignable*
 		     );
+
+  bool theRandomizeValue; // randomize survey values if true
 
   std::map<align::StructureType, double> theErrors;
 };
