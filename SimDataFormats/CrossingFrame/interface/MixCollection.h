@@ -57,6 +57,7 @@ class MixCollection {
       return bcr;
     }
     bool getTrigger() const {return trigger_;}
+    int getSourceType() const {return (getTrigger() ? -1 : myCF_->getSourceType(internalCtr_));}
 
   private:
 

@@ -41,20 +41,17 @@ class CrossingFrame
   void setBcrOffset() {
     pileupOffsetsBcr_.push_back(pileups_.size());
   }
+  void setSourceOffset(const unsigned int s) {
+    pileupOffsetsSource_[s].push_back(pileups_.size());
+  }
 
   //getters
   edm::EventID getEventID() const {return id_;}
   std::pair<int,int> getBunchRange() const {return std::pair<int,int>(firstCrossing_,lastCrossing_);}
   int getBunchSpace() const {return bunchSpace_;}
-  int getBunchCrossing(unsigned int ip) const {
-    for (unsigned int ii=1;ii<pileupOffsetsBcr_.size();ii++){
-      if (ip>=pileupOffsetsBcr_[ii-1] && ip<pileupOffsetsBcr_[ii]) return ii+firstCrossing_-1;
-    }
-    if (ip<pileups_.size()) return lastCrossing_;
-    else return 999;
-  }
+  int getBunchCrossing(unsigned int ip) const;
+  int getSourceType(unsigned int ip) const;
   void getSignal(typename std::vector<T>::const_iterator &first,typename std::vector<T>::const_iterator &last) const {
-
     first=signals_.begin();
     last=signals_.end();
   }
@@ -88,6 +85,7 @@ class CrossingFrame
   //pileup
   std::vector<T>  pileups_;  
   std::vector<unsigned int> pileupOffsetsBcr_;
+  std::vector<unsigned int> pileupOffsetsSource_[3]; //one per source
 };
 
 //==============================================================================
@@ -113,6 +111,36 @@ void  CrossingFrame<T>::getPileups(typename std::vector<T>::const_iterator &firs
 
 template <class T> 
 void CrossingFrame<T>::print(int level) const {
+}
+
+template <class T> 
+int  CrossingFrame<T>::getSourceType(unsigned int ip) const {
+  // decide to which source belongs object with index ip in the pileup vector
+  // pileup=0, beam halo=1, cosmics =2
+  int ipos= getBunchCrossing(ip)-firstCrossing_; //starts at 0
+  // case pileup
+  if (pileupOffsetsSource_[0].size()>0 ) {
+    if (pileupOffsetsSource_[1].size()>0) {
+      if (ip<(pileupOffsetsSource_[1])[ipos]) return 0;
+    }
+    else if (pileupOffsetsSource_[2].size()>0 ) {
+      if ( ip<(pileupOffsetsSource_[2])[ipos]) return 0;
+    } else return 0;
+  }
+  if (pileupOffsetsSource_[1].size()>0 ) {
+    if (pileupOffsetsSource_[2].size()>0 && ip<(pileupOffsetsSource_[2])[ipos]) return 1;
+  }
+  return 2;
+}
+
+template <class T>   
+int CrossingFrame<T>::getBunchCrossing(unsigned int ip) const {
+  // return the bcr for a certain position in the pileup vector
+    for (unsigned int ii=1;ii<pileupOffsetsBcr_.size();ii++){
+      if (ip>=pileupOffsetsBcr_[ii-1] && ip<pileupOffsetsBcr_[ii]) return ii+firstCrossing_-1;
+    }
+    if (ip<pileups_.size()) return lastCrossing_;
+    else return 999;
 }
 
 #include<iosfwd>

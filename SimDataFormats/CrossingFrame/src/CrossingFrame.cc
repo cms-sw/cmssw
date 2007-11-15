@@ -93,4 +93,3 @@ void CrossingFrame<edm::HepMCProduct>::addPileups(const int bcr, const std::vect
     pileups_.push_back((*mcps)[i]);
   }
 }
-
