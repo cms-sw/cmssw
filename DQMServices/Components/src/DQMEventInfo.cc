@@ -2,13 +2,14 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2007/11/14 12:00:21 $
- * $Revision: 1.3 $
- * $Author: 1.3 $
+ * $Date: 2007/11/14 12:17:14 $
+ * $Revision: 1.4 $
+ * $Author: ameyer $
  *
  */
 
 #include "DQMEventInfo.h"
+#include <TSystem.h>
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>
@@ -30,9 +31,10 @@ using namespace std;
 DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   
   parameters_ = ps;
-  
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  pEvent_ = 0;
+  timer_.start();
 
+  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe_->setVerbose(1);
 
   string eventinfofolder = parameters_.getUntrackedParameter<string>("eventInfoFolder", "EventInfo") ;
@@ -42,11 +44,31 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
 
   dbe_->setCurrentFolder(currentfolder) ;
 
+  //Event specific contents
   runId_     = dbe_->bookInt("iRun");
   lumisecId_ = dbe_->bookInt("iLumiSection");
   eventId_   = dbe_->bookInt("iEvent");
-  timeStamp_ = dbe_->bookFloat("timeStamp");
+  eventTimeStamp_ = dbe_->bookFloat("eventTimeStamp");
 
+
+  //Process specific contents
+  processTimeStamp_ = dbe_->bookFloat("processTimeStamp");
+  processTimeStamp_->Fill(timer_.realTime());
+  processEvents_ = dbe_->bookInt("processedEvents");
+  processEvents_->Fill(pEvent_);
+  nUpdates_= dbe_->bookInt("processUpdates");
+  nUpdates_->Fill(0);
+  
+
+  //Static Contents
+  processId_= dbe_->bookInt("processID"); 
+  processId_->Fill(gSystem->GetPid());
+  hostName_= dbe_->bookString("hostName",gSystem->HostName());
+  processName_= dbe_->bookString("processName",subsystemname);
+  workingDir_= dbe_->bookString("workingDir",gSystem->pwd());
+  cmsswVer_= dbe_->bookString("CMSSW_Version",edm::getReleaseVersion());
+  dqmPatch_= dbe_->bookString("DQM_Patch","v_0");
+    
 }
 
 DQMEventInfo::~DQMEventInfo(){
@@ -60,6 +82,12 @@ void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
   runId_->Fill(e.id().run());
   lumisecId_->Fill(e.luminosityBlock());
   eventId_->Fill(e.id().event());
-  timeStamp_->Fill(e.time().value());
+  eventTimeStamp_->Fill(e.time().value());
+
+
+  pEvent_++;
+  processEvents_->Fill(pEvent_);
+  processTimeStamp_->Fill(timer_.realTime());
+  //alternatively can use timer_.cpuTime() for system clock timestamp
 
 }
