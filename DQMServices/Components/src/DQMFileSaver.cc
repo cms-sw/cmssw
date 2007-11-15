@@ -1,8 +1,8 @@
 /*
  * \file DQMFileSaver.cc
  * 
- * $Date: 2007/11/14 12:00:22 $
- * $Revision: 1.3 $
+ * $Date: 2007/11/14 12:17:14 $
+ * $Revision: 1.4 $
  * $Author: ameyer $
  * \author A. Meyer, DESY
  *
@@ -65,9 +65,13 @@ void DQMFileSaver::initialize(){
   (saveAtJobEnd_)? edm::LogVerbatim ("DQMFileSaver") << "===> save at Job end " << endl :
                    edm::LogVerbatim ("DQMFileSaver") << "===> NO save at Job end " << endl ; 
   
-  // Base folder for the contents of this job
+  // Base filename for the contents of this job
   fileName_ = "DQM_"+parameters_.getUntrackedParameter<string>("fileName","YourSubsystemName");
   edm::LogVerbatim ("DQMFileSaver") << "===>DQM Output file name = " << fileName_ << endl;
+  // Base filename for the contents of this job
+  dirName_ = parameters_.getUntrackedParameter<string>("dirName",".");
+  if (dirName_ == "" ) dirName_ == "." ;
+  edm::LogVerbatim ("DQMFileSaver") << "===>DQM Output dir name = " << dirName_ << endl;
     
   gettimeofday(&psTime_.startTV,NULL);
   /// get time in milliseconds, convert to minutes
@@ -114,7 +118,7 @@ void DQMFileSaver::analyze(const Event& e, const EventSetup& c){
     // take event and run number from Event setup
     char run[10]; sprintf(run,"%09d", irun_);
     char evt[10]; sprintf(evt,"%08d", ievent_);
-    string outFile = fileName_+"_R"+run+"_E"+evt+".root";
+    string outFile = dirName_+"/"+fileName_+"_R"+run+"_E"+evt+".root";
     dbe_->save(outFile);
   }
 
@@ -136,7 +140,7 @@ void DQMFileSaver::analyze(const Event& e, const EventSetup& c){
        
        char run[10]; sprintf(run,"%09d", irun_);
        char time[10]; sprintf(time,"%08d", (int)psTime_.elapsedTime);
-       string outFile = fileName_+"_R"+run+"_T"+time+".root";
+       string outFile = dirName_ +"/"+fileName_+"_R"+run+"_T"+time+".root";
        dbe_->save(outFile);
      }
   }
@@ -162,7 +166,7 @@ void DQMFileSaver::endLuminosityBlock(const LuminosityBlock& lumiSeg, const Even
    // add lumisection number (get from event)
    char run[10]; sprintf(run,"%09d", irun_);
    char lumisec[10]; sprintf(lumisec,"%06d", ilumisec_);
-   string outFile = fileName_+"_R"+run+"_L"+lumisec+".root";
+   string outFile = dirName_+"/"+fileName_+"_R"+run+"_L"+lumisec+".root";
    dbe_->save(outFile);
 
 }
@@ -173,7 +177,7 @@ void DQMFileSaver::endRun(const Run& r, const EventSetup& c){
      char run[10];
      if(irun_>0) sprintf(run,"%09d", irun_);
      else sprintf(run,"%09d", 0);
-     string outFile = fileName_+"_R"+run+".root";
+     string outFile = dirName_+"/"+fileName_+"_R"+run+".root";
      dbe_->save(outFile);
    }
 }
@@ -181,7 +185,7 @@ void DQMFileSaver::endRun(const Run& r, const EventSetup& c){
 //--------------------------------------------------------
 void DQMFileSaver::endJob() { 
    if (saveAtJobEnd_) {
-     string outFile = fileName_+".root";
+     string outFile = dirName_+"/"+fileName_+".root";
      dbe_->save(outFile);
    }   
 }
