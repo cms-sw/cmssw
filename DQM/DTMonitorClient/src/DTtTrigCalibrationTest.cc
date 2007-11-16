@@ -1,9 +1,10 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2007/11/07 15:29:35 $
- * $Revision: 1.10 $
+ * $Date: 2007/11/13 17:15:28 $
+ * $Revision: 1.11 $
  * \author M. Zanetti - CERN
+ * Modified by G. Mila - INFN Torino
  *
  */
 
@@ -56,7 +57,7 @@ DTtTrigCalibrationTest::DTtTrigCalibrationTest(const edm::ParameterSet& ps){
 
   theFitter = new DTTimeBoxFitter();
 
-  prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
+  prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 3);
 
   percentual = parameters.getUntrackedParameter<int>("BadSLpercentual", 10);
 
@@ -122,6 +123,12 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
   // prescale factor
   if ( nLumiSegs%prescaleFactor != 0 ) return;
 
+  for(map<int, MonitorElement*> ::const_iterator histo = wheelHistos.begin();
+      histo != wheelHistos.end();
+      histo++) {
+    (*histo).second->Reset();
+  }
+  
   edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: "<<nLumiSegs<<" updates";
 
   context.get<DTTtrigRcd>().get(tTrigMap);
@@ -178,7 +185,10 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 	  edm::LogError ("tTrigCalibration") <<"Chamber ID : "<<(*ch_it)->id()<<" Bad channels: "<<(*channel).getBin()<<" "<<(*channel).getContents();
 	  if(wheelHistos.find((*ch_it)->id().wheel()) == wheelHistos.end()) bookHistos((*ch_it)->id(), (*ch_it)->id().wheel());
 	  // fill the wheel summary histos if the SL has not passed the test
-	  wheelHistos[(*ch_it)->id().wheel()]->Fill((*ch_it)->id().sector(),(*channel).getBin()+3*((*ch_it)->id().station()-1));
+	  if(!((*ch_it)->id().station() == 4 && (*channel).getBin() == 3))
+	    wheelHistos[(*ch_it)->id().wheel()]->Fill((*ch_it)->id().sector()-1,((*channel).getBin()-1)+3*((*ch_it)->id().station()-1));
+	  else 
+	    wheelHistos[(*ch_it)->id().wheel()]->Fill((*ch_it)->id().sector()-1,10);
 	  // fill the cms summary histo if the percentual of SL which have not passed the test 
 	  // is more than a predefined treshold
 	  cmsHistos[make_pair((*ch_it)->id().wheel(),(*ch_it)->id().sector())]++;
@@ -189,7 +199,7 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 	      double(cmsHistos[make_pair((*ch_it)->id().wheel(),(*ch_it)->id().sector())])/2>double(percentual)/100 &&
 	      filled[make_pair((*ch_it)->id().wheel(),(*ch_it)->id().sector())]==false)){
 	    filled[make_pair((*ch_it)->id().wheel(),(*ch_it)->id().sector())]=true;
-	    wheelHistos[3]->Fill((*ch_it)->id().sector(),(*ch_it)->id().wheel());
+	    wheelHistos[3]->Fill((*ch_it)->id().sector()-1,(*ch_it)->id().wheel());
 	  }
 	}
 	edm::LogWarning ("tTrigCalibration") <<"-------- "<<theQReport->getMessage()<<" ------- "<<theQReport->getStatus();
@@ -258,12 +268,57 @@ void DTtTrigCalibrationTest::bookHistos(const DTChamberId & ch, int wh) {
 
   if(wheelHistos.find(3) == wheelHistos.end()){
     string histoName =  "t_TrigSummary_testFailedByAtLeast%BadSL";
-    wheelHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),15,0.5,14.5,6,-2.5,2.5);
+    wheelHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
+    wheelHistos[3]->setBinLabel(1,"Sector1",1);
+    wheelHistos[3]->setBinLabel(1,"Sector1",1);
+    wheelHistos[3]->setBinLabel(2,"Sector2",1);
+    wheelHistos[3]->setBinLabel(3,"Sector3",1);
+    wheelHistos[3]->setBinLabel(4,"Sector4",1);
+    wheelHistos[3]->setBinLabel(5,"Sector5",1);
+    wheelHistos[3]->setBinLabel(6,"Sector6",1);
+    wheelHistos[3]->setBinLabel(7,"Sector7",1);
+    wheelHistos[3]->setBinLabel(8,"Sector8",1);
+    wheelHistos[3]->setBinLabel(9,"Sector9",1);
+    wheelHistos[3]->setBinLabel(10,"Sector10",1);
+    wheelHistos[3]->setBinLabel(11,"Sector11",1);
+    wheelHistos[3]->setBinLabel(12,"Sector12",1);
+    wheelHistos[3]->setBinLabel(13,"Sector13",1);
+    wheelHistos[3]->setBinLabel(14,"Sector14",1);
+    wheelHistos[3]->setBinLabel(1,"Wheel-2",2);
+    wheelHistos[3]->setBinLabel(2,"Wheel-1",2);
+    wheelHistos[3]->setBinLabel(3,"Wheel0",2);
+    wheelHistos[3]->setBinLabel(4,"Wheel+1",2);
+    wheelHistos[3]->setBinLabel(5,"Wheel+2",2);
   }
 
   stringstream wheel; wheel <<wh;
   string histoName =  "t_TrigSummary_testFailed_W" + wheel.str();
-  wheelHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),15,0.5,14.5,13,0.5,12.5);
+  wheelHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
+  wheelHistos[wh]->setBinLabel(1,"Sector1",1);
+  wheelHistos[wh]->setBinLabel(2,"Sector2",1);
+  wheelHistos[wh]->setBinLabel(3,"Sector3",1);
+  wheelHistos[wh]->setBinLabel(4,"Sector4",1);
+  wheelHistos[wh]->setBinLabel(5,"Sector5",1);
+  wheelHistos[wh]->setBinLabel(6,"Sector6",1);
+  wheelHistos[wh]->setBinLabel(7,"Sector7",1);
+  wheelHistos[wh]->setBinLabel(8,"Sector8",1);
+  wheelHistos[wh]->setBinLabel(9,"Sector9",1);
+  wheelHistos[wh]->setBinLabel(10,"Sector10",1);
+  wheelHistos[wh]->setBinLabel(11,"Sector11",1);
+  wheelHistos[wh]->setBinLabel(12,"Sector12",1);
+  wheelHistos[wh]->setBinLabel(13,"Sector13",1);
+  wheelHistos[wh]->setBinLabel(14,"Sector14",1);
+  wheelHistos[wh]->setBinLabel(1,"MB1_SL1",2);
+  wheelHistos[wh]->setBinLabel(2,"MB1_SL2",2);
+  wheelHistos[wh]->setBinLabel(3,"MB1_SL3",2);
+  wheelHistos[wh]->setBinLabel(4,"MB2_SL1",2);
+  wheelHistos[wh]->setBinLabel(5,"MB2_SL2",2);
+  wheelHistos[wh]->setBinLabel(6,"MB2_SL3",2);
+  wheelHistos[wh]->setBinLabel(7,"MB3_SL1",2);
+  wheelHistos[wh]->setBinLabel(8,"MB3_SL2",2);
+  wheelHistos[wh]->setBinLabel(9,"MB3_SL3",2);
+  wheelHistos[wh]->setBinLabel(10,"MB4_SL1",2);
+  wheelHistos[wh]->setBinLabel(11,"MB4_SL3",2);
 
 }
   
