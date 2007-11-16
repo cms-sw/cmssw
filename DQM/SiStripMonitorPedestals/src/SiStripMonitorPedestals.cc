@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.27 2007/11/13 20:17:33 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.28 2007/11/15 09:17:24 dutta Exp $
 //
 //
 
@@ -110,6 +110,7 @@ void SiStripMonitorPedestals::beginRun(edm::Run const& run, edm::EventSetup cons
       resetMEs(idet->first);
     }
   }
+  if (runTypeFlag_ == RunMode1 || runTypeFlag_ == RunMode3 ) fillCondDBMEs(eSetup);
 }
 //
 // -- Create Monitor Elements
@@ -142,15 +143,16 @@ void SiStripMonitorPedestals::createMEs() {
       continue;
     }
 
-    int napvs = detcabling->nApvPairs(detid) * 2;
-    int nStrip  = napvs*128;
+    unsigned int apv_pairs = detcabling->nApvPairs(detid);
     
     // Check consistency in Apv numbers
-    if (napvs < 2 || napvs > 6) {
-      edm::LogError("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::createMEs: Wrong #of APVs => detId "
-                << detid  << " napvs " << napvs <<  " Neglecting !!!!!! ";
+    if (apv_pairs < 1 || apv_pairs > 3) {
+      edm::LogError("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::createMEs: Wrong APV Pairs  => detId "
+                << detid  << " APV pairs " << apv_pairs <<  " Neglecting !!!!!! ";
       continue;
     }
+    unsigned int napvs = apv_pairs * 2;
+    unsigned int nStrip  = napvs * 128;
 
     bool newDetId =   apvFactory_->instantiateApvs(detid,napvs);  
   
