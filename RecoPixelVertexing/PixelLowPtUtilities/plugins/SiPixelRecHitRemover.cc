@@ -1,6 +1,7 @@
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/SiPixelRecHitRemover.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/plugins/SiPixelRecHitRemover.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 /*****************************************************************************/
 class HitComparator
@@ -68,6 +69,7 @@ void SiPixelRecHitRemover::produce
     for(reco::TrackCollection::const_iterator recTrack = recTracks->begin();
                                               recTrack!= recTracks->end();
                                               recTrack++)
+    {
       for(trackingRecHit_iterator recHit = recTrack->recHitsBegin();
                                   recHit!= recTrack->recHitsEnd();
                                   recHit++)
@@ -78,6 +80,7 @@ void SiPixelRecHitRemover::produce
 
           usedHits.insert(pixelHit);
         }
+    }
   }
 
   // Difference: free = all - used
@@ -111,7 +114,7 @@ void SiPixelRecHitRemover::produce
   if(recHitsOnDetUnit.size() > 0)
     output->put(detId, recHitsOnDetUnit.begin(), recHitsOnDetUnit.end());
   
-  cerr << " [RecHitRemover] all/used/free hits:"
+  cerr << "[RecHitRemover] all/used/free hits:"
             << " " <<  allHits.size()
             << "/" << usedHits.size()
             << "/" << output->size()
