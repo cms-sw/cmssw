@@ -174,11 +174,11 @@ CSCCFEBConnectivityAnalyzer::~CSCCFEBConnectivityAnalyzer(){
   //get name of run file from .cfg and name root output after that
   std::string::size_type runNameStart = name.find("\"",0);
   std::string::size_type runNameEnd   = name.find("raw",0);
-  std::string::size_type rootStart    = name.find("Cross",0);
+  std::string::size_type rootStart    = name.find("Calib",0);
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
   std::string myname= name.substr(runNameStart+1,nameSize);
-  std::string myRootName= name.substr(runNameStart+1,myRootSize);
+  std::string myRootName= name.substr(runNameStart+1,myRootSize+1);
   std::string myRootEnd = "Connectivity.root";
   std::string myASCIIFileEnd = "Connectivity.dat";
   std::string runFile= myRootName;
