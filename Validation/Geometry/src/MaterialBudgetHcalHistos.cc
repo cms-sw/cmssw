@@ -200,20 +200,20 @@ void MaterialBudgetHcalHistos::book() {
     hmgr->addHisto1( new TH1F(name, title, binPhi, -maxPhi, maxPhi) );
     sprintf(name, "%d", i+900);
     sprintf(title, "MB(X0) prof Eta Phi in region %d", i);
-    hmgr->addHistoProf2( new TProfile2D(name, title, binEta, -maxEta, maxEta, 
-					binPhi, -maxPhi, maxPhi) );
+    hmgr->addHistoProf2( new TProfile2D(name, title, binEta/2, -maxEta, maxEta,
+					binPhi/2, -maxPhi, maxPhi) );
     sprintf(name, "%d", i+1000);
     sprintf(title, "MB(L0) prof Eta Phi in region %d", i);
-    hmgr->addHistoProf2( new TProfile2D(name, title, binEta, -maxEta, maxEta, 
-					binPhi, -maxPhi, maxPhi) );
+    hmgr->addHistoProf2( new TProfile2D(name, title, binEta/2, -maxEta, maxEta,
+					binPhi/2, -maxPhi, maxPhi) );
     sprintf(name, "%d", i+1100);
     sprintf(title, "MB(Step) prof Eta Phi in region %d", i);
-    hmgr->addHistoProf2( new TProfile2D(name, title, binEta, -maxEta, maxEta, 
-					binPhi, -maxPhi, maxPhi) );
+    hmgr->addHistoProf2( new TProfile2D(name, title, binEta/2, -maxEta, maxEta,
+					binPhi/2, -maxPhi, maxPhi) );
     sprintf(name, "%d", i+1200);
     sprintf(title, "Eta vs Phi in region %d", i);
-    hmgr->addHisto2( new TH2F(name, title, binEta, -maxEta, maxEta, 
-			      binPhi, -maxPhi, maxPhi) );
+    hmgr->addHisto2( new TH2F(name, title, binEta/2, -maxEta, maxEta, 
+			      binPhi/2, -maxPhi, maxPhi) );
   }
 
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Booking user "

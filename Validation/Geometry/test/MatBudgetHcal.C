@@ -44,6 +44,8 @@ void standardPlot (TString fileName="matbdg_HCAL.root",
   plotDiff   (fileName, "IntLen");
   plotDiff   (fileName, "RadLen");
   printTable (fileName, outputFileName);
+  etaPhi2DPlot(fileName, "IntLen", 0, 19, 1)
+  etaPhi2DPlot(fileName, "RadLen", 0, 19, 1)
 }
 
 void etaPhiPlot(TString fileName="matbdg_HCAL.root", TString plot="IntLen", 
@@ -144,9 +146,9 @@ void etaPhi2DPlot(TString fileName="matbdg_HCAL.root", TString plot="IntLen",
   TString cname = "c_" + plot + xtit + ytit;
   TCanvas *cc1 = new TCanvas(cname, cname, 700, 400);
 
-  prof[0]->Draw("lego");
+  prof[0]->Draw("lego fb bb");
   for(int i=1; i<nplots; i++)
-    prof[i]->Draw("lego sames");
+    prof[i]->Draw("lego fb bb sames");
   if (drawLeg > 0) leg->Draw("sames");
 }
 
@@ -210,10 +212,11 @@ void printTable (TString fileName="matbdg_HCAL.root",
 	double dd  = (den == 0.? 0. : 2.0*num/den);
 	if (dd > 0.01) {
 	  nbadI++;
-	  cout << "Tower " << setw(3) << itow << " Layer " << setw(3) << ilay 
-	       << " Old" << setw(8) << setprecision(4) << intl[ilay][itow] 
-	       << " New" << setw(8) << setprecision(4) << diff[ilay][itow]
-	       << " Diff"<< setw(8) << setprecision(4) << dd << "\n";
+	  cout << "Lambda::Tower " << setw(3) << itow << " Layer " << setw(3) 
+	       << ilay << " Old" << setw(8) << setprecision(4) 
+	       << intl[ilay][itow] << " New" << setw(8) << setprecision(4) 
+	       << diff[ilay][itow] << " Diff"<< setw(8) << setprecision(4) 
+	       << dd << "\n";
 	}
       }
     }
@@ -240,10 +243,11 @@ void printTable (TString fileName="matbdg_HCAL.root",
 	double dd  = (den == 0.? 0. : 2.0*num/den);
 	if (dd > 0.01) {
 	  nbadR++;
-	  cout << "Tower " << setw(3) << itow << " Layer " << setw(3) << ilay 
-	       << " Old" << setw(8) << setprecision(4) << radl[ilay][itow] 
-	       << " New" << setw(8) << setprecision(4) << diff[ilay][itow]
-	       << " Diff"<< setw(8) << setprecision(4) << dd << "\n";
+	  cout << "X0::Tower " << setw(3) << itow << " Layer " << setw(3) 
+	       << ilay << " Old" << setw(8) << setprecision(4) 
+	       << radl[ilay][itow] << " New" << setw(8) << setprecision(4) 
+	       << diff[ilay][itow] << " Diff"<< setw(8) << setprecision(4)
+	       << dd << "\n";
 	}
       }
     }
