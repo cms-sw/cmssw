@@ -25,8 +25,7 @@ public:
 
 private:
 
-  edm::ParameterSet theConfig;
-
+  float zSep;
 };
 
 #endif

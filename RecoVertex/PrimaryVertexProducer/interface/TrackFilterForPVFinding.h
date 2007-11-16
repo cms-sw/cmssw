@@ -24,7 +24,8 @@ public:
 
 private:
 
-  edm::ParameterSet theConfig;
+//  edm::ParameterSet theConfig;
+  float maxD0Sig_, minPt_;
 
 };
 

@@ -14,7 +14,9 @@ namespace {
 
 
 TrackClusterizerInZ::TrackClusterizerInZ(const edm::ParameterSet& conf) 
-  : theConfig(conf) {}
+{
+  zSep = conf.getParameter<double>("zSeparation");
+}
 
 
 vector< vector<reco::TransientTrack> > 
@@ -62,5 +64,5 @@ TrackClusterizerInZ::clusterize(const vector<reco::TransientTrack> & tracks)
 
 float TrackClusterizerInZ::zSeparation() const 
 {
-  return theConfig.getParameter<double>("zSeparation");
+  return zSep;
 }
