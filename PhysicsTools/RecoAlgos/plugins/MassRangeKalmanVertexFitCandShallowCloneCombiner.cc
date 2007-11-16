@@ -1,22 +1,17 @@
 #include "PhysicsTools/RecoAlgos/plugins/CandCommonVertexFitter.h"
 #include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
-#include "PhysicsTools/UtilAlgos/interface/AndSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/MassRangeSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/ChargeSelector.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
 typedef reco::modules::CandCombiner<
           reco::CandidateCollection,
-          AndSelector<
-            ChargeSelector,
-            MassRangeSelector
-          >,
+          MassRangeSelector,
           reco::CandidateCollection,
           AnyPairSelector,
           combiner::helpers::ShallowClone,
           CandCommonVertexFitter<KalmanVertexFitter>
-        > MassRangeAndChargeKalmanVertexFitCandShallowCloneCombiner;
+        > MassRangeKalmanVertexFitCandShallowCloneCombiner;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( MassRangeAndChargeKalmanVertexFitCandShallowCloneCombiner );
+DEFINE_FWK_MODULE( MassRangeKalmanVertexFitCandShallowCloneCombiner );
