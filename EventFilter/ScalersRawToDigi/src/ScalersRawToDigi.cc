@@ -6,7 +6,7 @@
 /**\class ScalersRawToDigi ScalersRawToDigi.cc EventFilter/ScalersRawToDigi/src/ScalersRawToDigi.cc
 
  Description: Unpack FED data to Trigger and Lumi Scalers bank. 
- These Scalers are in FED id xxx
+ These Scalers are in FED id ScalersRaw::SCALERS_FED_ID
 
  Implementation:
      No comments
