@@ -39,6 +39,7 @@
 // Scalers classes
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/Scalers/interface/ScalersRaw.h"
 
 //
 // class declaration
@@ -89,7 +90,6 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
 			       const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  const int ScalersFedID = 999;
 
   // Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
@@ -100,7 +100,7 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
     pTrigger(new L1TriggerScalersCollection(1));
 
   /// Take a reference to this FED's data
-  const FEDRawData & fedData = rawdata->FEDData(ScalersFedID);
+  const FEDRawData & fedData = rawdata->FEDData(ScalersRaw::SCALERS_FED_ID);
   unsigned short int length =  fedData.size();
   if ( length > 0 ) 
   {

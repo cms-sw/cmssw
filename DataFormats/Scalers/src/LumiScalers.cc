@@ -4,6 +4,7 @@
  */
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/Scalers/interface/ScalersRaw.h"
 
 LumiScalers::LumiScalers() : 
    version_(0),
@@ -25,7 +26,32 @@ LumiScalers::LumiScalers() :
 }
 
 LumiScalers::LumiScalers(const unsigned char * rawData)
-{ }
+{ 
+  LumiScalers();
+  version_ = ((int *)rawData)[0];
+  if ( version_ == 1 )
+  {
+    ScalersEventRecordRaw_v1 * raw 
+      = (struct ScalersEventRecordRaw_v1 *)rawData;
+    normalization_     = raw->lumi.Normalization;
+    instantLumi_       = raw->lumi.InstantLumi;
+    instantLumiErr_    = raw->lumi.InstantLumiErr;
+    instantLumiQlty_   = raw->lumi.InstantLumiQlty;
+    instantETLumi_     = raw->lumi.InstantETLumi;
+    instantETLumiErr_  = raw->lumi.InstantETLumiErr;
+    instantETLumiQlty_ = raw->lumi.InstantETLumiQlty;
+    for ( int i=0; i<ScalersRaw::N_LUMI_OCC_v1; i++)
+    {
+      instantOccLumi_[i]     = raw->lumi.InstantOccLumi[i];
+      instantOccLumiErr_[i]  = raw->lumi.InstantOccLumiErr[i];
+      instantOccLumiQlty_[i] = raw->lumi.InstantOccLumiQlty[i];
+      lumiNoise_[i]          = raw->lumi.lumiNoise[i];
+    }
+    sectionNumber_ = raw->lumi.sectionNumber;
+    startOrbit_    = raw->lumi.startOrbit;
+    numOrbits_     = raw->lumi.numOrbits;
+  }
+}
 
 LumiScalers::~LumiScalers() { } 
 

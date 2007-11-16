@@ -44,24 +44,28 @@ class L1TriggerScalers
   /// get the data
 
   struct timespec collectionTimeSummary() { return(collectionTimeSummary_);}
-  unsigned long long triggerNumber() { return(triggerNumber_);}
-  unsigned long long eventNumber() { return(eventNumber_);}
-  unsigned long long physicsL1Accepts() { return(physicsL1Accepts_);}
-  unsigned long long physicsL1AcceptsRaw() { return(physicsL1AcceptsRaw_);}
-  unsigned long long randomL1Accepts() { return(randomL1Accepts_);}
-  unsigned long long calibrationL1Accepts() { return(calibrationL1Accepts_);}
-  unsigned long long techTrig() { return(techTrig_);}
-  unsigned long long orbitNumber() { return(orbitNumber_);}
-  unsigned long long numberResets() { return(numberResets_);}
-  unsigned long long deadTime() { return(deadTime_);}
-  unsigned long long deadTimeActive() { return(deadTimeActive_);}
-  unsigned long long deadTimeActiveCalibration() { return(deadTimeActiveCalibration_);}
-  unsigned long long deadTimeActivePrivate() { return(deadTimeActivePrivate_);}
-  unsigned long long deadTimeActivePartition() { return(deadTimeActivePartition_);}
-  unsigned long long deadTimeActiveThrottle() { return(deadTimeActiveThrottle_);}
+  unsigned int triggerNumber()            { return(triggerNumber_);}
+  unsigned int eventNumber()              { return(eventNumber_);}
+  unsigned int physicsL1Accepts()         { return(physicsL1Accepts_);}
+  unsigned int physicsL1AcceptsRaw()      { return(physicsL1AcceptsRaw_);}
+  unsigned int randomL1Accepts()          { return(randomL1Accepts_);}
+  unsigned int calibrationL1Accepts()     { return(calibrationL1Accepts_);}
+  unsigned int techTrig()                 { return(techTrig_);}
+  unsigned int orbitNumber()              { return(orbitNumber_);}
+  unsigned int numberResets()             { return(numberResets_);}
+  unsigned int deadTime()                 { return(deadTime_);}
+  unsigned int deadTimeActive()           { return(deadTimeActive_);}
+  unsigned int deadTimeActiveCalibration()
+  { return(deadTimeActiveCalibration_);}
+  unsigned int deadTimeActivePrivate()    { return(deadTimeActivePrivate_);}
+  unsigned int deadTimeActivePartition()  { return(deadTimeActivePartition_);}
+  unsigned int deadTimeActiveThrottle()   { return(deadTimeActiveThrottle_);}
+  unsigned int lostBunchCrossings()       { return(lostBunchCrossings_);}
+  unsigned int lostTriggers()             { return(lostTriggers_);}
+  unsigned int lostTriggersActive()       { return(lostTriggersActive_);}
 
   struct timespec CollectionTimeDetails() { return(collectionTimeDetails_);}
-  std::vector<unsigned long long> Triggers() { return(triggers_);}
+  std::vector<unsigned int> Triggers()    { return(triggers_);}
 
   /// equality operator
   int operator==(const L1TriggerScalers& e) const { return false; }
@@ -73,24 +77,27 @@ protected:
 
   int version_;
   struct timespec collectionTimeSummary_;
-  unsigned long long triggerNumber_;
-  unsigned long long eventNumber_;
-  unsigned long long physicsL1Accepts_;
-  unsigned long long physicsL1AcceptsRaw_;
-  unsigned long long randomL1Accepts_;
-  unsigned long long calibrationL1Accepts_;
-  unsigned long long techTrig_;
-  unsigned long long orbitNumber_;
-  unsigned long long numberResets_;
-  unsigned long long deadTime_;
-  unsigned long long deadTimeActive_;
-  unsigned long long deadTimeActiveCalibration_;
-  unsigned long long deadTimeActivePrivate_;
-  unsigned long long deadTimeActivePartition_;
-  unsigned long long deadTimeActiveThrottle_;
+  unsigned int triggerNumber_;
+  unsigned int eventNumber_;
+  unsigned int physicsL1Accepts_;
+  unsigned int physicsL1AcceptsRaw_;
+  unsigned int randomL1Accepts_;
+  unsigned int calibrationL1Accepts_;
+  unsigned int techTrig_;
+  unsigned int orbitNumber_;
+  unsigned int numberResets_;
+  unsigned int deadTime_;
+  unsigned int deadTimeActive_;
+  unsigned int deadTimeActiveCalibration_;
+  unsigned int deadTimeActivePrivate_;
+  unsigned int deadTimeActivePartition_;
+  unsigned int deadTimeActiveThrottle_;
+  unsigned int lostBunchCrossings_;
+  unsigned int lostTriggers_;
+  unsigned int lostTriggersActive_;
 
   struct timespec collectionTimeDetails_;
-  std::vector<unsigned long long> triggers_;
+  std::vector<unsigned int> triggers_;
 };
 
 
