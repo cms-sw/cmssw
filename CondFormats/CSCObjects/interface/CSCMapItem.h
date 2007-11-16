@@ -30,6 +30,12 @@ class CSCMapItem{
     int ddu;
     int ddu_input;
     int slink;
+    int fed_crate;
+    int ddu_slot;
+    std::string dcc_fifo;
+    int fiber_crate;
+    int fiber_pos;
+    std::string fiber_socket;
   };
 };
 
