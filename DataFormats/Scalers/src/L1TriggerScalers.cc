@@ -6,6 +6,8 @@
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
+#include <iostream>
+
 L1TriggerScalers::L1TriggerScalers():
   version_(0),
   triggerNumber_(0),
@@ -37,10 +39,9 @@ L1TriggerScalers::L1TriggerScalers():
 L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
 { 
   L1TriggerScalers();
-  int version = ((int *)rawData)[0];
-  if ( version == 1 )
+  version_ = ((int *)rawData)[0];
+  if ( version_ == 1 )
   {
-    version_ = version;
     ScalersEventRecordRaw_v1 * raw 
       = (struct ScalersEventRecordRaw_v1 *)rawData;
 
@@ -48,6 +49,7 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
       = raw->trig.collectionTimeSummary.tv_sec;
     collectionTimeSummary_.tv_nsec 
       = raw->trig.collectionTimeSummary.tv_nsec;
+
     triggerNumber_             = raw->trig.TRIGNR_;
     eventNumber_               = raw->trig.EVNR;
     physicsL1Accepts_          = raw->trig.PHYS_L1A;
@@ -73,7 +75,7 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
       = raw->trig.collectionTimeDetails.tv_nsec;
 
     for ( int i=0; i<ScalersRaw::N_L1_TRIGGERS_v1; i++)
-    { triggers_[i] = raw->trig.RATE_ALGO[i];  }
+    { triggers_.push_back( raw->trig.RATE_ALGO[i]);}
   }
 }
 

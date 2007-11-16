@@ -42,10 +42,10 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
     instantETLumiQlty_ = raw->lumi.InstantETLumiQlty;
     for ( int i=0; i<ScalersRaw::N_LUMI_OCC_v1; i++)
     {
-      instantOccLumi_[i]     = raw->lumi.InstantOccLumi[i];
-      instantOccLumiErr_[i]  = raw->lumi.InstantOccLumiErr[i];
-      instantOccLumiQlty_[i] = raw->lumi.InstantOccLumiQlty[i];
-      lumiNoise_[i]          = raw->lumi.lumiNoise[i];
+      instantOccLumi_.push_back(raw->lumi.InstantOccLumi[i]);
+      instantOccLumiErr_.push_back(raw->lumi.InstantOccLumiErr[i]);
+      instantOccLumiQlty_.push_back(raw->lumi.InstantOccLumiQlty[i]);
+      lumiNoise_.push_back(raw->lumi.lumiNoise[i]);
     }
     sectionNumber_ = raw->lumi.sectionNumber;
     startOrbit_    = raw->lumi.startOrbit;

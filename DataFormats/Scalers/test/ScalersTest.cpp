@@ -19,11 +19,12 @@ char * fileName = "scalers.dat";
 int main(int argc, char** argv)
 {
   struct ScalersEventRecordRaw_v1 record;
+  unsigned char buffer [1024];
 
   int fd = open(fileName, O_RDONLY);
   if ( fd > 0 )
   {
-    int bytes = read(fd,&record,sizeof(record));
+    int bytes = read(fd,buffer,sizeof(struct ScalersEventRecordRaw_v1));
     if ( bytes <= 0 )
     {
       printf("Error %s reading file %s\n", fileName,
@@ -32,6 +33,8 @@ int main(int argc, char** argv)
     else
     {
       printf("Read %d bytes from %s\n", bytes, fileName);
+      L1TriggerScalers trig(buffer);
+      LumiScalers lumi(buffer);
     }
     close(fd);
   }
