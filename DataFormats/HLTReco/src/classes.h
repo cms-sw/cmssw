@@ -72,6 +72,8 @@ namespace {
     reco::TriggerPointer tp;
     reco::TriggerFilterCollection tfc;
     reco::TriggerTableCollection ttc;
+    reco::TriggerFilter tf;
+    reco::TriggerEvent te;
 
     edm::Wrapper<reco::TriggerObject> wto;
     edm::Wrapper<reco::TriggerCollection> wtc;
@@ -80,6 +82,8 @@ namespace {
     edm::Wrapper<reco::TriggerPointer> wtp;
     edm::Wrapper<reco::TriggerFilterCollection> wtfc;
     edm::Wrapper<reco::TriggerTableCollection> wttc;
+    edm::Wrapper<reco::TriggerFilter> wtf;
+    edm::Wrapper<reco::TriggerEvent> wte;
 
   }
 }

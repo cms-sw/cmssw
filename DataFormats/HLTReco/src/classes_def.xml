@@ -60,6 +60,8 @@
   <class name="reco::TriggerPointer"/>
   <class name="reco::TriggerFilterCollection"/>
   <class name="reco::TriggerTableCollection"/>
+  <class name="reco::TriggerFilter"/>
+  <class name="reco::TriggerEvent"/>
 
   <class name="edm::Wrapper<reco::TriggerObject>"/>
   <class name="edm::Wrapper<reco::TriggerCollection>"/>
@@ -67,5 +69,7 @@
   <class name="edm::Wrapper<reco::TriggerPointer>"/>
   <class name="edm::Wrapper<reco::TriggerFilterCollection>"/>
   <class name="edm::Wrapper<reco::TriggerTableCollection>"/>
+  <class name="edm::Wrapper<reco::TriggerFilter>"/>
+  <class name="edm::Wrapper<reco::TriggerEvent>"/>
 
 </lcgdict>

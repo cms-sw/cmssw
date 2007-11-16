@@ -5,8 +5,8 @@
  *
  *  Classes for new HLT data model (to be split into separate header files)
  *
- *  $Date: 2007/11/09 16:12:13 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/11/16 09:20:06 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -69,10 +69,12 @@ namespace reco
     /// setters
     void setCollection(const std::vector<TriggerObject>& triggerObjects) {triggerObjects_=triggerObjects;}
     void setId(int Id) {collectionId_=Id;}
+    void addObject(const TriggerObject& triggerObject) {triggerObjects_.push_back(triggerObject);}
 
     /// getters
     const std::vector<TriggerObject>& getCollection() const {return triggerObjects_;}
     int getId() const {return collectionId_;}
+    const TriggerObject& getObject(int index) {return triggerObjects_.at(index);}
 
   };
 
@@ -91,9 +93,10 @@ namespace reco
     TriggerGlobalCollection(): triggerCollections_() { }
     TriggerGlobalCollection(const std::vector<TriggerCollection>& triggerCollections):
       triggerCollections_(triggerCollections) { }
-    ///
+    /// setters
     void addCollection(const TriggerCollection& triggerCollection) {
       triggerCollections_.push_back(triggerCollection);}
+    /// getters
     const TriggerCollection& getCollection(int i) const {
       return triggerCollections_.at(i);
     }
@@ -102,7 +105,7 @@ namespace reco
 
 
   /// Non-templated pointer class, pointing to an object within a collection
-  class TriggerPointer { // should be edm::Ptr<T> ??
+  class TriggerPointer { // should be edm::Ref<C> or edm::Ptr<T> ??
 
   private:
     /// id of product pointed to
@@ -182,25 +185,27 @@ namespace reco
     /// filter module label
     std::string filterLabel_;
     /// non-owning pointers into collections
-    std::vector<TriggerPointer> triggerObjects_;
+    std::vector<TriggerPointer> triggerPointers_;
     /// id or type - of collection
     int collectionId_;
     
   public:
     /// constructors
-    TriggerFilterCollection(): filterLabel_(), triggerObjects_(), collectionId_() { }
-    TriggerFilterCollection(const std::string& filterLabel, const std::vector<TriggerPointer>& triggerObjects, int Id=0):
-      filterLabel_(filterLabel), triggerObjects_(triggerObjects), collectionId_(Id) { }
+    TriggerFilterCollection(): filterLabel_(), triggerPointers_(), collectionId_() { }
+    TriggerFilterCollection(const std::string& filterLabel, const std::vector<TriggerPointer>& triggerPointers, int Id=0):
+      filterLabel_(filterLabel), triggerPointers_(triggerPointers), collectionId_(Id) { }
 
     /// setters
     void setLabel(const std::string& filterLabel) {filterLabel_=filterLabel;}
-    void setCollection(const std::vector<TriggerPointer>& triggerObjects) {triggerObjects_=triggerObjects;}
+    void setCollection(const std::vector<TriggerPointer>& triggerPointers) {triggerPointers_=triggerPointers;}
     void setId(int Id) {collectionId_=Id;}
+    void addObject(const TriggerPointer& triggerPointer) {triggerPointers_.push_back(triggerPointer);}
 
     /// getters
     const std::string& getLabel() const {return filterLabel_;}
-    const std::vector<TriggerPointer>& getCollection() const {return triggerObjects_;}
+    const std::vector<TriggerPointer>& getPointers() const {return triggerPointers_;}
     int getId() const {return collectionId_;}
+    const TriggerPointer& getPointer(int index) const {return triggerPointers_.at(index);}
 
   };
 
@@ -218,15 +223,72 @@ namespace reco
     TriggerTableCollection(): triggerFilterCollections_() { }
     TriggerTableCollection(const std::vector<TriggerFilterCollection>& triggerFilterCollections):
       triggerFilterCollections_(triggerFilterCollections) { }
-    ///
+    /// setters
     void addFilterCollection(const TriggerFilterCollection& triggerFilterCollection) {
       triggerFilterCollections_.push_back(triggerFilterCollection);}
+    /// getters
     const TriggerFilterCollection& getFilterCollection(int i) const {
       return triggerFilterCollections_.at(i);
     }
 
   };
 
+
+  /// Classes to allow one single combined EDProduct containing all
+  /// objects and pointers, such that pointers are just indices.
+
+  class TriggerFilter {
+    
+  private:
+    /// filter module label
+    std::string filterLabel_;
+    /// indices into linearised trigger objects vector of TriggerEvent
+    std::vector<int> filterKeys_;
+    
+  public:
+    /// constructors
+    TriggerFilter(): filterLabel_(), filterKeys_() { }
+    TriggerFilter(const std::string& filterLabel): filterLabel_(filterLabel), filterKeys_() { }
+    TriggerFilter(const std::string& filterLabel, const std::vector<int>& filterKeys): filterLabel_(filterLabel), filterKeys_(filterKeys) { }
+
+    /// setters
+    void setLabel(const std::string& filterLabel) {filterLabel_=filterLabel;}
+    void setKeys(const std::vector<int>& filterKeys) {filterKeys_=filterKeys;}
+    void addKey(int key) {filterKeys_.push_back(key);} 
+
+    /// getters
+    const std::string& getLabel() const {return filterLabel_;}
+    const std::vector<int>& getKeys() const {return filterKeys_;}
+    int getKey(int index) const {return filterKeys_.at(index);}
+  };
+  
+  class TriggerEvent {
+    
+  private:
+    /// the trigger objects
+    std::vector<TriggerObject> triggerObjects_;
+    /// the relevant filters with their indices
+    std::vector<TriggerFilter> triggerFilters_;
+
+  public:
+    /// constructors
+    TriggerEvent(): triggerObjects_(), triggerFilters_() { }
+    TriggerEvent(const std::vector<TriggerObject>& triggerObjects, const std::vector<TriggerFilter>& triggerFilters) : triggerObjects_(triggerObjects), triggerFilters_(triggerFilters) { }
+
+    /// setters
+    void setObjects(const std::vector<TriggerObject>& triggerObjects) {triggerObjects_=triggerObjects;}
+    void addObject(const TriggerObject& triggerObject) {triggerObjects_.push_back(triggerObject);}
+    void setFilters(const std::vector<TriggerFilter>& triggerFilters) {triggerFilters_=triggerFilters;}
+    void addFilter(const TriggerFilter& triggerFilter) {triggerFilters_.push_back(triggerFilter);}
+
+    /// getters
+    const std::vector<TriggerObject>& getObjects() const {return triggerObjects_;}
+    const std::vector<TriggerFilter>& getFilters() const {return triggerFilters_;}
+    const TriggerObject& getObject(int index) const {return triggerObjects_.at(index);}
+    const TriggerFilter& getFilter(int index) const {return triggerFilters_.at(index);}
+   
+  };
+  
 }
 
 #endif
