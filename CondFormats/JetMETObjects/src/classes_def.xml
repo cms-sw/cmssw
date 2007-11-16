@@ -4,5 +4,6 @@
   <class name="SimpleZSPJetCorrector"/>
   <class name="Simple3DMCJetCorrector"/>
   <class name="SimpleL4EMFCorrector"/>
+  <class name="SimpleL5FlavorCorrector"/>
 </selection>
 </lcgdict>

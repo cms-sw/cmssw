@@ -2,3 +2,4 @@
 #include "CondFormats/JetMETObjects/interface/SimpleZSPJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/Simple3DMCJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleL4EMFCorrector.h"
+#include "CondFormats/JetMETObjects/interface/SimpleL5FlavorCorrector.h"
