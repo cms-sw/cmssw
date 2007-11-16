@@ -56,8 +56,7 @@ namespace {
     edm::reftobase::Holder<CaloRecHit, EcalRecHitRef> rb8;
     edm::RefToBase<CaloRecHit> rbh3;
 
-    reco::FitResultCollection fr1;
-
+    edm::Wrapper<reco::FitResultCollection> wfr1;
     edm::Wrapper<reco::TrackCandidateAssociation> tca1;
 
     reco::SimToRecoCollection ii1;
