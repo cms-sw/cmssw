@@ -20,6 +20,9 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
   ecalselector_ = conf.getUntrackedParameter<std::string>("ecalselector", "yes");
   eventype_     = conf.getUntrackedParameter<std::string>("eventype", "single");
+  sign_         = conf.getUntrackedParameter<std::string>("sign", "*");
+
+  mc_           = conf.getUntrackedParameter<std::string>("mc", "yes");
 
   subdet_ = 0;
   if (hcalselector_ == "HB"  ) subdet_ = 1;
@@ -27,8 +30,16 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   if (hcalselector_ == "HO"  ) subdet_ = 3;
   if (hcalselector_ == "HF"  ) subdet_ = 4;
   if (hcalselector_ == "all" ) subdet_ = 5;
+
   etype_ = 1;
   if (eventype_ == "multi") etype_ = 2;
+
+  iz = 1;
+  if(sign_ == "-") iz = -1;
+  if(sign_ == "*") iz = 0;
+
+  imc = 1;
+  if(mc_ == "no") imc = 0;
 
   if ( dbe_ ) {
     std::cout << " dbe_->setCurrentFolder" << std::endl; 
@@ -60,6 +71,17 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
     sprintf  (histo, "map_depth4_cuts" );
     map_depth4_cuts = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
 
+
+    sprintf  (histo, "profile_z1" );
+    profile_z1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2000, -2000., 2000.);
+    sprintf  (histo, "profile_z2" );
+    profile_z2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2000, -2000., 2000.);
+    sprintf  (histo, "profile_z3" );
+    profile_z3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2000, -2000., 2000.);
+    sprintf  (histo, "profile_z4" );
+    profile_z4 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2000, -2000., 2000.);
+
+
     sprintf  (histo, "map_econe_around_MC_depth1" );
     map_econe_depth1 =
       dbe_->book2D(histo, histo, 520, -5.2, 5.2, 72, -3.1415926536, 3.1415926536);
@@ -76,6 +98,25 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
     map_econe_depth4 =
       dbe_->book2D(histo, histo, 520, -5.2, 5.2, 72, -3.1415926536, 3.1415926536);
 
+
+    if(subdet_ != 0) { // just not for noise  
+
+      //    meEnConeEtaProfiel_depth1->Fill(eta_RecHit, HcalCone_d1);
+      
+      sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth1");
+      meEnConeEtaProfile_depth1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 200, 0., 200.);   
+      
+      sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth2");
+      meEnConeEtaProfile_depth2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 200, 0., 200.);  
+      
+      sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth3");
+      meEnConeEtaProfile_depth3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 200, 0., 200.);  
+      
+      sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth4");
+      meEnConeEtaProfile_depth4 = dbe_->bookProfile(histo, histo, 82, -41., 41., 200, 0., 200.);  
+      
+    }
+
     if(etype_ == 1 && subdet_ != 0) { // single part., not for noise
 
       sprintf  (histo, "Delta_phi_cluster-MC");
@@ -90,7 +131,6 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf  (histo, "Delta_eta_simcluster-MC");
       meDeltaEtaS =  dbe_->book2D(histo, histo, 520, -5.2, 5.2, 60, -0.6, 0.6);
       
-
 
     }
     // NOISE-specific
@@ -274,6 +314,10 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 	
 	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HF" ) ;
 	meSumRecHitsEnergyConeHF = dbe_->book1D(histo,histo, 60 , -20., 280.);   
+	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HFL" ) ;
+	meSumRecHitsEnergyConeHFL = dbe_->book1D(histo,histo, 60 , -20., 280.);   
+	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HFS" ) ;
+	meSumRecHitsEnergyConeHFS = dbe_->book1D(histo,histo, 60 , -20., 280.);   
 
       }
 
@@ -372,6 +416,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
   // Cone size for serach of the hottest HCAL cell around MC
   double searchR = 1.0; 
+  double eps     = 0.001;
 
   // Single particle samples: actual eta-phi position of cluster around
   // hottest cell
@@ -381,6 +426,12 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   int    iphihot = 1000;
 
   // MC information
+
+  //  std::cout << "*** 1" << std::endl; 
+
+
+  if(imc != 0) { 
+
   edm::Handle<edm::HepMCProduct> evtMC;
   try{
     //  ev.getByLabel("VtxSmeared",evtMC);
@@ -407,11 +458,18 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   }
   //  std::cout << "*** Max pT = " << maxPt <<  std::endl;  
 
+  }
+
+  //   std::cout << "*** 2" << std::endl; 
 
   c.get<IdealGeometryRecord>().get (geometry);
 
+
   // Fill working vectors of HCAL RecHits quantities 
   fillRecHitsTmp(subdet_, ev); 
+
+  //   std::cout << "*** 3" << std::endl; 
+
 
   //===========================================================================
   // IN ALL THE CASES : ieta-iphi maps 
@@ -470,6 +528,9 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   }     // end of ECAL selection 
 
 
+  //   std::cout << "*** 4" << std::endl; 
+
+
   // Filling HCAL maps  -------------------------------------------------------
   double maxE = -99999.;
   for (unsigned int i = 0; i < cen.size(); i++) {
@@ -481,6 +542,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     double en  = cen[i]; 
     double eta = ceta[i]; 
     double phi = cphi[i]; 
+    double z   = cz[i];
 
     double emin = 1.;
     if(fabs(eta) > 3.) emin = 5.; 
@@ -496,15 +558,22 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       }
     }
       
-    if (depth == 1)
+    if (depth == 1) {
       map_depth1->Fill(double(ieta), double(iphi), en);
-    if (depth == 2)
+      profile_z1->Fill(double(ieta), z); 
+    }
+    if (depth == 2) {
       map_depth2->Fill(double(ieta), double(iphi), en);
-    if (depth == 3)
+      profile_z2->Fill(double(ieta), z); 
+    }
+    if (depth == 3) {
       map_depth3->Fill(double(ieta), double(iphi), en);
-    if (depth == 4)
+      profile_z3->Fill(double(ieta), z); 
+    }
+    if (depth == 4) {
       map_depth4->Fill(double(ieta), double(iphi), en);
-    
+      profile_z4->Fill(double(ieta), z); 
+    }
     
     double cut = cutHB;  
     if (sub == 2) cut = cutHE;
@@ -533,6 +602,8 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     }
   }
 
+  //    std::cout << "*** 5" << std::endl; 
+
   
   // IN ALL THE CASES : sum of rechits around MC particle = f(eta,phi) 
   
@@ -541,7 +612,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   map_econe_depth3->Fill(eta_MC, phi_MC, ehcal_coneMC_3);
   map_econe_depth4->Fill(eta_MC, phi_MC, ehcal_coneMC_4);
 
-  
+
   //  NOISE ================================================================= 
   
   if (hcalselector_ == "noise") {
@@ -569,9 +640,26 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   
   else {
 
+    //    std::cout << "*** 6" << std::endl; 
+    
+    
     double clusEta = 999.;
     double clusPhi = 999.; 
     double clusEn  = 0.;
+    
+    double HcalCone_d1 = 0.;
+    double HcalCone_d2 = 0.;
+    double HcalCone_d3 = 0.;
+    double HcalCone_d4 = 0.;
+
+    int ietaMax1  =  9999;
+    int ietaMax2  =  9999;
+    int ietaMax3  =  9999;
+    int ietaMax4  =  9999;
+    double enMax1 = -9999.;
+    double enMax2 = -9999.;
+    double enMax3 = -9999.;
+    double enMax4 = -9999.;
 
     /*
     std::cout << "*** point 5-1" << "  eta_MC, phi_MC    etaHot,  phiHot = "
@@ -580,6 +668,8 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	      << std::endl;
     */
 
+    //   CYCLE over cells ====================================================
+
     for (unsigned int i = 0; i < cen.size(); i++) {
       int sub    = csub[i];
       int depth  = cdepth[i];
@@ -587,6 +677,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       double phi = cphi[i]; 
       double en  = cen[i]; 
       double t   = ctime[i];
+      int   ieta = cieta[i];
 
       double rhot = dR(etaHot, phiHot, eta, phi); 
       if(rhot < partR && en > 1.) { 
@@ -611,6 +702,38 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	}
 	eHcalCone += en;
 	nrechitsCone++;
+
+	// search for most energetic cell at the given depth in the cone
+        if(depth == 1) {
+	  HcalCone_d1 += en;
+	  if(enMax1 < en) {
+	    enMax1   = en;
+	    ietaMax1 = ieta;
+	  }
+	}
+        if(depth == 2) {
+	  HcalCone_d2 += en;
+	  if(enMax2 < en) {
+	    enMax2   = en;
+	    ietaMax2 = ieta;
+	  }
+	}
+        if(depth == 3) {
+	  HcalCone_d3 += en;
+	  if(enMax3 < en) {
+	    enMax3   = en;
+	    ietaMax3 = ieta;
+	  }
+	}
+        if(depth == 4) {
+	  HcalCone_d4 += en;
+	  if(enMax4 < en) {
+	    enMax4   = en;
+	    ietaMax4 = ieta;
+	  }
+	}
+
+
       }
       
       if(sub == 1 && (subdet_ == 1 || subdet_ == 5)) {  
@@ -648,6 +771,14 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       }
     }
 
+    meEnConeEtaProfile_depth1->Fill(double(ietaMax1), HcalCone_d1);
+    meEnConeEtaProfile_depth2->Fill(double(ietaMax2), HcalCone_d2);
+    meEnConeEtaProfile_depth3->Fill(double(ietaMax3), HcalCone_d3);
+    meEnConeEtaProfile_depth4->Fill(double(ietaMax4), HcalCone_d4);
+
+
+    //   std::cout << "*** 7" << std::endl; 
+
     
     // Single particle samples ONLY !  ======================================
     // Fill up some histos for "integrated" subsustems. 
@@ -655,11 +786,11 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     if(etype_ == 1) {
 
       /*
-      std::cout << "*** point 6-1" << "  eta_MC, phi_MC   clusEta, clusPhi = "
+      std::cout << "*** point 7-1" << "  eta_MC, phi_MC   clusEta, clusPhi = "
                 << eta_MC  << ", " << phi_MC << "   "
 		<< clusEta << ", " << clusPhi 
 		<< std::endl;
-      */      
+      */    
 
       double phidev = dPhiWsign(clusPhi, phi_MC);
       meDeltaPhi->Fill(eta_MC, phidev);
@@ -688,23 +819,41 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       }
 
       if(subdet_ == 4) {
+        if(eHcalConeHF > eps ) {
 	meSumRecHitsEnergyHF ->Fill(eHcal);
 	meSumRecHitsEnergyConeHF ->Fill(eHcalConeHF);    
+	meSumRecHitsEnergyConeHFL ->Fill(eHcalConeHFL);    
+	meSumRecHitsEnergyConeHFS ->Fill(eHcalConeHFS);    
 	meNumRecHitsConeHF->Fill(double(nrechitsCone));
+	}
       }
+
+      //     std::cout << "*** 8" << std::endl; 
 
 
       // Also combine with ECAL if needed 
-      if((subdet_ == 1 || subdet_ == 5) && ecalselector_ == "yes") {
-	meEcalHcalEnergyHB->Fill(eEcalB+eHcal);
-	meEcalHcalEnergyConeHB->Fill(eEcalCone+eHcalCone);
-	meNumEcalRecHitsConeHB->Fill(double(numrechitsEcal));
+      if(subdet_ == 1  && ecalselector_ == "yes") {
+		
+	/*
+	std::cout << "*** point 8-1" 
+		  << "  eEcalB " << eEcalB << "  eHcal " << eHcal
+		  << "  eEcalCone " <<  eEcalCone << "  eHcalCone " 
+		  << eHcalCone
+		  << "  numrechitsEcal " <<  numrechitsEcal
+		  << std::endl;
+	
+	*/
+
+       	meEcalHcalEnergyHB->Fill(eEcalB+eHcal);
+      	meEcalHcalEnergyConeHB->Fill(eEcalCone+eHcalCone);
+      	meNumEcalRecHitsConeHB->Fill(double(numrechitsEcal));
+
       }
 
-      if((subdet_ == 2 || subdet_ == 5) && ecalselector_ == "yes"){
+      if(subdet_ == 2  && ecalselector_ == "yes"){
 	
-	/*	
-	std::cout << "*** point 8-1" 
+	/*
+	std::cout << "*** point 8-2a" 
 		  << "  eEcalE " << eEcalE << "  eHcal " << eHcal
 		  << "  eEcalCone " <<  eEcalCone << "  eHcalCone " 
 		  << eHcalCone
@@ -715,6 +864,8 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	meEcalHcalEnergyHE->Fill(eEcalE+eHcal);
 	meEcalHcalEnergyConeHE->Fill(eEcalCone+eHcalCone);
 	meNumEcalRecHitsConeHE->Fill(double(numrechitsEcal));
+
+
       } 
 
       // Banana plots finally
@@ -725,12 +876,14 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     }
   }
 
+  //   std::cout << "*** 9" << std::endl; 
+
 
   //===========================================================================
   // Getting SimHits
   //===========================================================================
 
-  if(subdet_ != 0) {  // not noise 
+  if(subdet_ != 0 && imc !=0 ) {  // not noise 
 
     double maxES = -9999.;
     double etaHotS = 1000.;
@@ -823,6 +976,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     // Now some histos with SimHits
     
     if(subdet_ == 4 || subdet_ == 5) {
+      if(eHcalConeHF > eps) {
       meRecHitSimHitHF->Fill( enSimHitsHF, eHcalConeHF );
       meRecHitSimHitProfileHF->Fill( enSimHitsHF, eHcalConeHF);
       
@@ -830,6 +984,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       meRecHitSimHitProfileHFL->Fill( enSimHitsHFL, eHcalConeHFL);
       meRecHitSimHitHFS->Fill( enSimHitsHFS, eHcalConeHFS );
       meRecHitSimHitProfileHFS->Fill( enSimHitsHFS, eHcalConeHFS);       
+      }
     }
     if(subdet_ == 1  || subdet_ == 5) { 
       meRecHitSimHitHB->Fill( enSimHitsHB,eHcalConeHB );
@@ -879,6 +1034,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double eta  = cellGeometry->getPosition().eta () ;
 	double phi  = cellGeometry->getPosition().phi () ;
+        double zc   = cellGeometry->getPosition().z ();
 	int sub     = cell.subdet();
 	int depth   = cell.depth();
 	int inteta  = cell.ieta();
@@ -887,15 +1043,18 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	double en   = j->energy();
 	double t    = j->time();
 
-        csub.push_back(sub);
-	cen.push_back(en);
-	ceta.push_back(eta);
-	cphi.push_back(phi);
-	ctime.push_back(t);
-	cieta.push_back(inteta);
-	ciphi.push_back(intphi);
-	cdepth.push_back(depth);
-       
+	if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+	
+	  csub.push_back(sub);
+	  cen.push_back(en);
+	  ceta.push_back(eta);
+	  cphi.push_back(phi);
+	  ctime.push_back(t);
+	  cieta.push_back(inteta);
+	  ciphi.push_back(intphi);
+	  cdepth.push_back(depth);
+	  cz.push_back(zc);
+	}
       }
     }
   }
@@ -913,6 +1072,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double eta   = cellGeometry->getPosition().eta () ;
 	double phi   = cellGeometry->getPosition().phi () ;
+        double zc     = cellGeometry->getPosition().z ();
 	int sub      = cell.subdet();
 	int depth    = cell.depth();
 	int inteta   = cell.ieta();
@@ -921,15 +1081,19 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	double en    = j->energy();
 	double t     = j->time();
 
-        csub.push_back(sub);
-	cen.push_back(en);
-	ceta.push_back(eta);
-	cphi.push_back(phi);
-	ctime.push_back(t);
-	cieta.push_back(inteta);
-	ciphi.push_back(intphi);
-	cdepth.push_back(depth);
-
+	if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+	
+	  csub.push_back(sub);
+	  cen.push_back(en);
+	  ceta.push_back(eta);
+	  cphi.push_back(phi);
+	  ctime.push_back(t);
+	  cieta.push_back(inteta);
+	  ciphi.push_back(intphi);
+	  cdepth.push_back(depth);
+	  cz.push_back(zc);
+       
+	}
       }
     }
   }
@@ -949,6 +1113,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double eta   = cellGeometry->getPosition().eta () ;
 	double phi   = cellGeometry->getPosition().phi () ;
+        double zc    = cellGeometry->getPosition().z ();
 	int sub      = cell.subdet();
 	int depth    = cell.depth();
 	int inteta   = cell.ieta();
@@ -957,15 +1122,17 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	double t     = j->time();
 	double en    = j->energy();
 	
-        csub.push_back(sub);
-	cen.push_back(en);
-	ceta.push_back(eta);
-	cphi.push_back(phi);
-	ctime.push_back(t);
-	cieta.push_back(inteta);
-	ciphi.push_back(intphi);
-	cdepth.push_back(depth);
-
+	if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
+	  csub.push_back(sub);
+	  cen.push_back(en);
+	  ceta.push_back(eta);
+	  cphi.push_back(phi);
+	  ctime.push_back(t);
+	  cieta.push_back(inteta);
+	  ciphi.push_back(intphi);
+	  cdepth.push_back(depth);
+	  cz.push_back(zc);
+	}
       }
     }
   }      

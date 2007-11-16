@@ -61,11 +61,17 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   std::string hcalselector_;
   std::string ecalselector_;
   std::string eventype_;
+  std::string sign_;
+  std::string mc_;
 
   // choice of subdetector in config : noise/HB/HE/HO/HF/ALL (0/1/2/3/4/5)
   int subdet_;
+
   // single/multi-particle sample (1/2)
   int etype_;
+  int iz;
+  int imc;
+
 
   // In ALL the cases : 2D ieta-iphi maps 
   // without and with cuts (a la "Scheme B") on energy
@@ -80,6 +86,16 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   MonitorElement* map_depth2_cuts;
   MonitorElement* map_depth3_cuts;
   MonitorElement* map_depth4_cuts;
+
+  MonitorElement* profile_z1;
+  MonitorElement* profile_z2;
+  MonitorElement* profile_z3;
+  MonitorElement* profile_z4;
+
+  MonitorElement* meEnConeEtaProfile_depth1;
+  MonitorElement* meEnConeEtaProfile_depth2;
+  MonitorElement* meEnConeEtaProfile_depth3;
+  MonitorElement* meEnConeEtaProfile_depth4;
 
   // also - energy in the cone around MC particle
   MonitorElement* map_econe_depth1;
@@ -149,6 +165,9 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   MonitorElement* meSumRecHitsEnergyConeHE;
   MonitorElement* meSumRecHitsEnergyConeHO;
   MonitorElement* meSumRecHitsEnergyConeHF;
+  MonitorElement* meSumRecHitsEnergyConeHFL;
+  MonitorElement* meSumRecHitsEnergyConeHFS;
+
 
   MonitorElement* meEcalHcalEnergyHB;
   MonitorElement* meEcalHcalEnergyHE;
@@ -192,6 +211,7 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   std::vector<double> ceta;
   std::vector<double> cphi;
   std::vector<double> ctime;
+  std::vector<double> cz;
 
 };
 
