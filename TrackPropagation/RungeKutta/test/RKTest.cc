@@ -69,8 +69,10 @@ void RKTest::propagateInCentralVolume( const MagneticField* field) const
   
   RKTestField TestField; // Not needed if you want to use field instead of &TestField
 
-  RKTestPropagator RKprop ( &TestField, alongMomentum );
-  AnalyticalPropagator ANprop  ( &TestField, alongMomentum);
+  //  RKTestPropagator RKprop ( &TestField, alongMomentum );
+  //AnalyticalPropagator ANprop  ( &TestField, alongMomentum);
+  RKTestPropagator RKprop ( field, alongMomentum );
+  AnalyticalPropagator ANprop  ( field, alongMomentum);
 
 
   for (float phi = -3.14; phi<3.14 ; phi+=0.5) {
@@ -79,7 +81,7 @@ void RKTest::propagateInCentralVolume( const MagneticField* field) const
       
       //Define starting position and momentum
       float sinth = sqrt(1-costh*costh);
-      GlobalVector startingMomentum(5*sin(phi)*sinth,5*cos(phi)*sinth,5*costh);
+      GlobalVector startingMomentum(3*sin(phi)*sinth,3*cos(phi)*sinth,3*costh);
       GlobalPoint startingPosition(0,0,0);
       //Define starting plane
       PlaneBuilder pb;
