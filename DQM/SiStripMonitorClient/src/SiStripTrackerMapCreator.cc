@@ -29,7 +29,7 @@ SiStripTrackerMapCreator::~SiStripTrackerMapCreator() {
 //
 bool SiStripTrackerMapCreator::readConfiguration() {
   SiStripConfigParser config_parser;
-  string localPath = string("DQM/SiStripMonitorClient/test/sistrip_monitorelement_config.xml");
+  string localPath = string("DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml");
   config_parser.getDocument(edm::FileInPath(localPath).fullPath());
   if (!config_parser.getFrequencyForTrackerMap(tkMapFrequency_)){
     cout << "SiStripActionExecutor::readConfiguration: Failed to read TrackerMap configuration parameters!! ";

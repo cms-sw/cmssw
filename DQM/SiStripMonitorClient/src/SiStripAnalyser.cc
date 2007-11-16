@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/11/05 15:48:30 $
- * $Revision: 1.17 $
+ * $Date: 2007/11/11 19:52:38 $
+ * $Revision: 1.18 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
@@ -42,14 +43,32 @@
 #include <sstream>
 #include <math.h>
 
+#define BUF_SIZE 256
+
 using namespace edm;
 using namespace std;
 //
 // -- Constructor
 //
-SiStripAnalyser::SiStripAnalyser(const edm::ParameterSet& ps) :
+SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   ModuleWeb("SiStripAnalyser"){
   
+  string localPath = string("DQM/SiStripMonitorClient/test/loader.html");
+  ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), ios::in);
+  char buf[BUF_SIZE];
+  
+  if (!fin) {
+    cerr << "Input File: loader.html"<< " could not be opened!" << endl;
+    return;
+  }
+
+  while (fin.getline(buf, BUF_SIZE, '\n')) { // pops off the newline character 
+    html_out_ << buf ;
+  }
+  fin.close();
+
+
+
   edm::LogInfo("SiStripAnalyser") << " SiStripAnalyser::Creating SiStripAnalyser ";
   summaryFrequency_      = ps.getUntrackedParameter<int>("SummaryCreationFrequency",20);
   tkMapFrequency_        = ps.getUntrackedParameter<int>("TkMapCreationFrequency",50); 
@@ -65,7 +84,6 @@ SiStripAnalyser::SiStripAnalyser(const edm::ParameterSet& ps) :
 
   // instantiate web interface
   sistripWebInterface_ = new SiStripWebInterface("dummy", "dummy", &mui_);
-  defaultPageCreated_ = false;
 }
 //
 // -- Destructor
@@ -86,7 +104,7 @@ SiStripAnalyser::~SiStripAnalyser(){
 //
 // -- Begin Job
 //
-void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
+void SiStripAnalyser::beginJob(edm::EventSetup const& eSetup){
 
   // Read the summary configuration file
   if (!sistripWebInterface_->readConfiguration()) {
@@ -106,19 +124,19 @@ void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
 //
 // -- Begin Run
 //
-void SiStripAnalyser::beginRun(const Run& run, const edm::EventSetup& eSetup) {
+void SiStripAnalyser::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Begining of Run";
 }
 //
 // -- Begin Luminosity Block
 //
-void SiStripAnalyser::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& eSetup) {
+void SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
   edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser:: Begin of LS transition";
 }
 //
 //  -- Analyze 
 //
-void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
+void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
 }
 //
 // -- End Luminosity Block
@@ -136,20 +154,20 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
                                << lumiSeg.luminosityBlock() << endl;
   cout << "====================================================== " << endl;
   // -- Create summary monitor elements according to the frequency
-  if (summaryFrequency_ != -1 && nLumiSecs_ > 1 && nLumiSecs_%summaryFrequency_ == 0) {
+  if (summaryFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%summaryFrequency_ == 0) {
     cout << " Creating Summary " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::Summary);
     sistripWebInterface_->performAction();
   }
   // -- Create TrackerMap  according to the frequency
-  if (tkMapFrequency_ != -1 && nLumiSecs_ > 1 && nLumiSecs_%tkMapFrequency_ == 0) {
+  if (tkMapFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%tkMapFrequency_ == 0) {
     cout << " Creating Tracker Map " << endl;
     //    trackerMapCreator_->create(dbe_);
     trackerMapCreator_->create(fedCabling_, dbe_);
     sistripWebInterface_->setTkMapFlag(true);
   }
   // Create predefined plots
-  if (nLumiSecs_ > 1 && nLumiSecs_%staticUpdateFrequency_  == 0) {
+  if (nLumiSecs_ > 0 && nLumiSecs_%staticUpdateFrequency_  == 0) {
     cout << " Creating predefined plots " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
@@ -175,28 +193,20 @@ void SiStripAnalyser::endJob(){
 //
 void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
 {
-      
-  if (!defaultPageCreated_) {
-    static const int BUF_SIZE = 256;
-    ifstream fin("loader.html", ios::in);
-    if (!fin) {
-      cerr << "Input File: loader.html"<< " could not be opened!" << endl;
-      return;
-    }
-    char buf[BUF_SIZE];
-    ostringstream html_dump;
-    while (fin.getline(buf, BUF_SIZE, '\n')) { // pops off the newline character 
-      html_dump << buf << std::endl;
-    }
-    fin.close();
-    
-    *out << html_dump.str() << std::endl;
-    defaultPageCreated_ = true;
+  bool isRequest = false;
+  cgicc::Cgicc cgi(in);
+  cgicc::CgiEnvironment cgie(in);
+  //  edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser:: defaultWebPage "
+  //             << " query string : " << cgie.getQueryString();
+  //  if ( xgi::Utils::hasFormElement(cgi,"ClientRequest") ) isRequest = true;
+  string q_string = cgie.getQueryString();
+  if (q_string.find("RequestID") != string::npos) isRequest = true;
+  if (!isRequest) {    
+    *out << html_out_.str() << std::endl;
+  }  else {
+    // Handles all HTTP requests of the form
+    sistripWebInterface_->handleAnalyserRequest(in, out, nLumiSecs_);
   }
-  
-  // Handles all HTTP requests of the form
-  sistripWebInterface_->handleAnalyserRequest(in, out, nLumiSecs_);
-
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripAnalyser);

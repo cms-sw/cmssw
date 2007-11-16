@@ -6,6 +6,7 @@
 #include "DQMServices/WebComponents/interface/CgiReader.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 
 #include "TText.h"
@@ -53,7 +54,7 @@ SiStripInformationExtractor::~SiStripInformationExtractor() {
 // -- Read Configurationn File
 //
 void SiStripInformationExtractor::readConfiguration() {
-  string localPath = string("DQM/SiStripMonitorClient/test/sistrip_plot_layout.xml");
+  string localPath = string("DQM/SiStripMonitorClient/data/sistrip_plot_layout.xml");
   if (layoutParser_ == 0) {
     layoutParser_ = new SiStripLayoutParser();
     layoutParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -382,8 +383,8 @@ void SiStripInformationExtractor::plotHistosFromPath(DaqMonitorBEInterface * bei
 void SiStripInformationExtractor::plotHistosFromLayout(DaqMonitorBEInterface * bei){
   if (layoutMap.size() == 0) return;
   if (!readReference_) {
-    //    DaqMonitorBEInterface * bei = bei->getBEInterface();
-    bei->open("Reference.root", false);
+    string localPath = string("DQM/SiStripMonitorClient/test/Reference.root");
+    bei->open(edm::FileInPath(localPath).fullPath(), false, "", "SiStrip/Reference");
     readReference_ = true;
   }
 
@@ -434,7 +435,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(DaqMonitorBEInterface * b
           setDrawingOption(hist1);
 	  hist1->DrawCopy();
 	  
-	  string ref_path = it->first + "/" + path_name.substr(path_name.rfind("/")+1);
+	  string ref_path = "SiStrip/Reference/" + it->first + "/" + path_name.substr(path_name.rfind("/")+1);
           string hname = hist1->GetTitle();
 	  
           tTitle.DrawTextNDC(0.1, 0.92, hname.c_str());
@@ -476,7 +477,7 @@ void SiStripInformationExtractor::plotTrackerMapHistos(DaqMonitorBEInterface* be
   vector<string> me_names;
   string tkmap_name;
   SiStripConfigParser config_parser;
-  string localPath = string("DQM/SiStripMonitorClient/test/sistrip_monitorelement_config.xml");
+  string localPath = string("DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml");
   config_parser.getDocument(edm::FileInPath(localPath).fullPath());
   if (!config_parser.getMENamesForTrackerMap(tkmap_name, me_names));
   if (me_names.size() == 0) return;
@@ -509,10 +510,6 @@ void SiStripInformationExtractor::createDummiesFromLayout(){
 const ostringstream& SiStripInformationExtractor::getIMGCImage(DaqMonitorBEInterface * bei, std::multimap<std::string, std::string>& req_map){
   
   string path = getItemValue(req_map,"Path");
-  cout << "SiStripInformationExtractor::getIMGCImage" 
-       << " Entered with ==> " 
-       << path 
-       << " " << getItemValue(req_map,"Date") <<endl;
   string meName;
   if (hasNamedImage(path)) return getNamedImage(path);
   else {
@@ -973,13 +970,10 @@ void SiStripInformationExtractor::readStatusMessage(DaqMonitorBEInterface* bei, 
       string name = me->getName();  
       dqm::qtests::QR_map test_map = me->getQReports();
       if (test_map.size() == 0 ) continue;
-      cout << "============> " << name << " " << test_map.size() << endl;
 
-      cout <<  endl;
       canvas_->Clear();
       plotHisto(req_map, me, false);
       fillNamedImageBuffer(me->getFullname());
-      cout <<  endl;
 
       test_status << " QTest Status for " << name << " : " << endl;
       test_status << " ======================================================== " << endl; 
@@ -1000,7 +994,6 @@ void SiStripInformationExtractor::readStatusMessage(DaqMonitorBEInterface* bei, 
       test_status << " ======================================================== " << endl;
       *out << "<HPath>" << name << "</HPath>" << endl;         
     }
-    cout << test_status.str() << endl;
   }
   *out << "</PathList>" << endl;
   *out << "<StatusList>" << endl;
@@ -1096,7 +1089,6 @@ void SiStripInformationExtractor::fillNamedImageBuffer(std::string name) {
   // 114 - stands for "no write on Close"
   TImageDump imgdump("tmp.png", 114);
   canvas_->Paint();
-  cout << " SiStripInformationExtractor::fillNamedImageBuffer " << name << endl;
 
  // get an internal image which will be automatically deleted
  // in the imgdump destructor

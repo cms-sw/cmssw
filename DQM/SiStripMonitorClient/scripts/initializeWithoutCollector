@@ -54,20 +54,19 @@ print "make directories ...\n";
 `mkdir -p log`;
 `mkdir -p soap`;
 `mkdir -p xml`;
-`mkdir -p cfg`;
 
 #
 # make cfg files
 #
 print "copy cfg files ...\n";
 
-copy("$ENV{PWD}/../test/source_client.cfg", "$ENV{PWD}/cfg/source_client.cfg");
+copy("$ENV{PWD}/../test/source_client.cfg", "$ENV{PWD}/source_client.cfg");
 
 
 
 # make source xml input
 
-copy("$ENV{PWD}/../test/sistrip_qualitytest_config.xml", "$ENV{PWD}/cfg/.");
+copy("$ENV{PWD}/../data/sistrip_qualitytest_config.xml", "$ENV{PWD}/.");
 
 
 #
@@ -77,6 +76,8 @@ print "make xdaq profile ...\n";
 
 my @EXproperties = ("logUrl",  "string","console",
 		    "logLevel","string","INFO");
+
+
 my @Pathproperties = ("documentRoot", "string",$ENV{"XDAQ_DOCUMENT_ROOT"},
                      "aliasName",  "string","temporary",
 		    "aliasPath","string",$ENV{"PWD"});
@@ -105,8 +106,9 @@ print XML makeXmlProfileTrailer();
 #
 print "make xdaq  configuration ...\n";
 
-my @properties = ("parameterSet", "string","file:$pwd/cfg/source_client.cfg",
+my @properties = ("parameterSet", "string","file:$pwd/source_client.cfg",
 		    "collReconnSec","integer","-1",
+		    "hasPrescaleService","boolean","false",
 		    "hasSharedMemory","boolean","false");
 
 open (XML,">./xml/evf.xml") or die ("Can't open file: $!\n");
@@ -186,14 +188,11 @@ close (CTL);
 #
 # copy scripts and other auxiliary files
 #
-copy("$ENV{PWD}/../test/Reference.root", "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/.trackermap.txt", "$ENV{PWD}/trackermap.txt");
 copy("$ENV{PWD}/../test/.WebLib.js", "$ENV{PWD}/WebLib.js");
 copy("$ENV{PWD}/../test/Online.html", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/loader.html", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/TrackerMapFrame.html", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/TrackerMapSelection.html", "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/TrackerMapPlot.html", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/TrackerMapPlot.html", "$ENV{PWD}/.");
 
 $SERVED_DIR="http://$hostname:40000/temporary";
@@ -460,14 +459,14 @@ sub makeCtlDestroy
     $result = $result . "print \"$cmd ...\\n\";\n\n";
     $result = $result . "`$cmd`;\n\n";
     $result = $result . "print \"remove files and dirs ...\n\";\n\n";
-    $result = $result . "`rm -rf cfg/ soap/ xml/ log/ /tmp/sm "
+    $result = $result . "`rm -rf  soap/ xml/ log/ /tmp/sm "
           . "start configure enable halt stop gennums.txt"
           . " summaryCatalog.txt test.root`;\n\n";
+    $result = $result . "`rm -rf  \*.cfg sistrip_qualitytest_config.xml`;\n\n"; 
     $result = $result . "`rm -rf Online.html loader.html \*.root "
           . " TrackerMapFrame.html TrackerMapPlot.html TrackerMapSelection.html "
-          . "\*.png css_files js_files images WebLib.js `;\n\n";
-    $result = $result . "`rm -rf trackermap.txt "
-          . "svgmap.xml svgmap_fed.xml Layer\*.xml `;\n\n";
+          . " css_files js_files images WebLib.js `;\n\n";
+    $result = $result . "`rm -rf svgmap.xml svgmap_fed.xml Layer\*.xml \*.png`;\n\n";
     $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
     $result = $result . "`FUShmCleanUp_t`;\n\n";
     $result = $result . "print \"XDAQ session destroyed!\\n\";\n\n";
