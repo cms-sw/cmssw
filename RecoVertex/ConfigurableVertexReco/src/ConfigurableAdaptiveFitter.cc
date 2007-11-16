@@ -10,6 +10,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableAnnealing.h"
 #include "RecoVertex/VertexTools/interface/DummyVertexSmoother.h"
+#include "RecoVertex/AdaptiveVertexFit/interface/KalmanVertexSmoother.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
