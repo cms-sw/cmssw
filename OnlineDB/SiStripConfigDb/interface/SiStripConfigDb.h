@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.22 2007/07/04 08:34:10 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.23 2007/11/07 15:55:32 bainbrid Exp $
 
 #ifndef SiStripConfigDb_H
 #define SiStripConfigDb_H
@@ -21,6 +21,9 @@
 #include <vector>
 #include <string>
 #include <map>
+
+// Friend class
+namespace cms { class SiStripO2O; }
 
 /**	
    \class SiStripConfigDb
@@ -142,6 +145,41 @@ class SiStripConfigDb {
     uint16_t ccuChan_;
     uint16_t i2cAddr_;
   };
+
+  // -------------------- PRIVATE INTERFACE --------------------
+  
+  /*
+    Access to the configuration database is reserved solely for the
+    commissioning (database) client and the online-to-offline transfer
+    tool. If you wish to use this interface to the configuration
+    database, then please contact one of the package administrators.
+  */
+
+  // ESSources and O2O
+  friend class SiStripFedCablingBuilderFromDb;
+  friend class SiStripPedestalsBuilderFromDb;
+  friend class SiStripNoiseBuilderFromDb;
+  friend class cms::SiStripO2O;
+  
+  // Commissioning clients
+  friend class SiStripCommissioningDbClient;
+  friend class SiStripCommissioningOfflineDbClient;
+  friend class CommissioningHistosUsingDb;
+  friend class FastFedCablingHistosUsingDb;
+  friend class FedCablingHistosUsingDb;
+  friend class ApvTimingHistosUsingDb;
+  friend class OptoScanHistosUsingDb;
+  friend class PedestalsHistosUsingDb;
+  friend class VpspScanHistosUsingDb;
+
+  // Utility and tests
+  friend class PopulateConfigDb;
+  friend class test_DatabaseService;
+
+  //@@ TEMPORARY!!!
+  friend class SiStripHistoricInfoClient;
+
+ protected:
   
   // -------------------- Connection and local cache --------------------
   
