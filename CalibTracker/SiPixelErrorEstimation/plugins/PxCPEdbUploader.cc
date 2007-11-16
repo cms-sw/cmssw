@@ -19,8 +19,8 @@
 
 #include "CalibTracker/SiPixelErrorEstimation/interface/PxCPEdbUploader.h"
 
-#include "CondFormats/SiPixelObjects/interface/PixelCPEParmErrors.h"
-#include "CondFormats/DataRecord/interface/PixelCPEParmErrorsRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCPEParmErrors.h"
+#include "CondFormats/DataRecord/interface/SiPixelCPEParmErrorsRcd.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -49,31 +49,40 @@ PxCPEdbUploader::beginJob(const edm::EventSetup&)
 void 
 PxCPEdbUploader::endJob()
 {
-	PixelCPEParmErrors* pPixelCPEParmErrors = new PixelCPEParmErrors();
-	pPixelCPEParmErrors->pixelCPEParmErrors.reserve(2000);
+  SiPixelCPEParmErrors* pSiPixelCPEParmErrors = new SiPixelCPEParmErrors();
+	pSiPixelCPEParmErrors->siPixelCPEParmErrors_By.reserve(300);
+	pSiPixelCPEParmErrors->siPixelCPEParmErrors_Bx.reserve(300);
+	pSiPixelCPEParmErrors->siPixelCPEParmErrors_Fy.reserve(300);
+	pSiPixelCPEParmErrors->siPixelCPEParmErrors_Fx.reserve(300);
+
 	std::ifstream in;
 		
 	in.open(theFileName.c_str());
 	
-	PixelCPEParmErrors::pixelCPEParmErrorsEntry Entry;
-	in >> Entry.part >> Entry.size >> Entry.alpha >> Entry.beta >> Entry.sigma;
+	SiPixelCPEParmErrors::siPixelCPEParmErrorsEntry Entry;
+	in >> Entry.bias >> Entry.pix_height >> Entry.ave_qclu >> Entry.sigma >> Entry.sigma >> Entry.rms;
+
 	while(!in.eof()) {
-		pPixelCPEParmErrors->pixelCPEParmErrors.push_back(Entry);
-		in >> Entry.part >> Entry.size >> Entry.alpha >> Entry.beta >> Entry.sigma;
+	  if (Entry.bias == 1) pSiPixelCPEParmErrors->siPixelCPEParmErrors_By.push_back(Entry);
+	  else if (Entry.bias == 2) pSiPixelCPEParmErrors->siPixelCPEParmErrors_Bx.push_back(Entry);
+	  else if (Entry.bias == 3) pSiPixelCPEParmErrors->siPixelCPEParmErrors_Fy.push_back(Entry);
+	  else if (Entry.bias == 4) pSiPixelCPEParmErrors->siPixelCPEParmErrors_Fx.push_back(Entry);
+	  
+	  in >> Entry.bias >> Entry.pix_height >> Entry.ave_qclu >> Entry.sigma >> Entry.sigma >> Entry.rms;
 	}
 	
 	in.close();
-	
+
 	edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if( poolDbService.isAvailable() )
-	{
-    if ( poolDbService->isNewTagRequest("PixelCPEParmErrorsRcd") )
-			poolDbService->createNewIOV<PixelCPEParmErrors>( pPixelCPEParmErrors, poolDbService->endOfTime(),"PixelCPEParmErrorsRcd"  );
-    else
-			poolDbService->appendSinceTime<PixelCPEParmErrors>( pPixelCPEParmErrors, poolDbService->currentTime(),"PixelCPEParmErrorsRcd" );
-	}
+	if( poolDbService.isAvailable() )
+	  {
+	    if ( poolDbService->isNewTagRequest("SiPixelCPEParmErrorsRcd") )
+	      poolDbService->createNewIOV<SiPixelCPEParmErrors>( pSiPixelCPEParmErrors, poolDbService->endOfTime(),"SiPixelCPEParmErrorsRcd"  );
+	    else
+	      poolDbService->appendSinceTime<SiPixelCPEParmErrors>( pSiPixelCPEParmErrors, poolDbService->currentTime(),"SiPixelCPEParmErrorsRcd" );
+	  }
 	else
-		std::cout << "Pool Service Unavailable" << std::endl;
+	  std::cout << "Pool Service Unavailable" << std::endl;
 	
 }
 
