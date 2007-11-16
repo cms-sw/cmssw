@@ -3,7 +3,7 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.10 2007/10/25 15:00:56 bainbrid Exp $
+// $Id: SiStripDetCabling.cc,v 1.11 2007/10/25 16:24:29 bainbrid Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,6 +31,15 @@ SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : full
       if(have_fed_id){ // these apvpairs are seen from the readout
 	// there can be at most 6 APVs on one DetId: 0,1,2,3,4,5
         int which_apv_pair = iconn->apvPairNumber(); // APVPair (0,1) for 512 strips and (0,1,2) for 768 strips
+	
+	// patch needed to take into account invalid detids or apvPairs
+	if( iconn->detId()==0 ||  
+	    iconn->detId() == sistrip::invalid32_ ||  
+	    iconn->apvPairNumber() == sistrip::invalid_  ||
+	    iconn->nApvPairs() == sistrip::invalid_ ) {
+	  continue;
+	}
+
 	if(iconn->i2cAddr(0)) vector_of_connected_apvs.push_back(2*which_apv_pair + 0); // first apv of the pair
 	if(iconn->i2cAddr(1)) vector_of_connected_apvs.push_back(2*which_apv_pair + 1); // second apv of the pair
       }
@@ -143,7 +152,10 @@ const FedChannelConnection& SiStripDetCabling::getConnection( uint32_t det_id, u
 const unsigned int SiStripDetCabling::getDcuId( uint32_t det_id ) const{
   const vector<FedChannelConnection>& fcconns = getConnections( det_id );
   if(fcconns.size()!=0) {
-     return ( fcconns.at(0) ).dcuId(); // get dcuId of first element - when you build check this consistency
+    // patch needed to take into account the possibility that the first component of fcconns is invalid
+    for(size_t i=0;i<fcconns.size();++i)       
+      if (fcconns.at(i).detId() != sistrip::invalid32_ && fcconns.at(i).detId() != 0 )
+	return ( fcconns.at(i) ).dcuId(); // get dcuId of first element - when you build check this consistency
   }
   // default if none of the above is fulfilled
   unsigned int default_zero_value = 0;
@@ -154,7 +166,10 @@ const unsigned int SiStripDetCabling::getDcuId( uint32_t det_id ) const{
 const uint16_t SiStripDetCabling::nApvPairs(uint32_t det_id) const{
  const vector<FedChannelConnection>& fcconns = getConnections( det_id );
  if(fcconns.size()!=0) {
-  return( fcconns.at(0).nApvPairs()); // nr of apvpairs for associated module
+   // patch needed to take into account the possibility that the first component of fcconns is invalid
+   for(size_t i=0;i<fcconns.size();++i)       
+     if (fcconns.at(i).nApvPairs() != sistrip::invalid_)
+       return fcconns.at(i).nApvPairs(); // nr of apvpairs for associated module
  }else{
    return 0;
  }
