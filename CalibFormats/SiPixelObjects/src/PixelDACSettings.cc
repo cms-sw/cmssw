@@ -6,6 +6,7 @@
 //
 //
 
+
 #include "CalibFormats/SiPixelObjects/interface/PixelDACSettings.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCDACSettings.h"
 #include <fstream>
@@ -245,14 +246,15 @@ void PixelDACSettings::writeBinary(std::string filename) const {
 
 void PixelDACSettings::writeASCII(std::string dir) const {
 
-  std::string filename=dir;
-  assert(0); //FIXME, need to get the right filename.
-  
-    std::ofstream out(filename.c_str());
+  PixelModuleName module(dacsettings_[0].getROCName().rocname());
 
-    for(unsigned int i=0;i<dacsettings_.size();i++){
-	dacsettings_[i].writeASCII(out);
-    }
+  std::string filename=dir+"/ROC_DAC_module_"+module.modulename()+".dat";
+   
+  std::ofstream out(filename.c_str());
+  
+  for(unsigned int i=0;i<dacsettings_.size();i++){
+    dacsettings_[i].writeASCII(out);
+  }
 
 }
 
