@@ -2,7 +2,6 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -14,22 +13,16 @@
 
 #include <fstream>
 
-//bool   ClusterShapeTrackFilter::isFirst = true;
-//double ClusterShapeTrackFilter::limits[2][MaxSize + 1][MaxSize + 1][2][2][2];
-
 /*****************************************************************************/
 ClusterShapeTrackFilter::ClusterShapeTrackFilter
-  (const edm::ParameterSet& ps)
-//  (const edm::EventSetup& es)
+  (const edm::ParameterSet& ps, const edm::EventSetup& es)
 {
   loadClusterLimits();
 
   // Get tracker geometry
-/*
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
   theTracker = tracker.product();
-*/
 }
 
 /*****************************************************************************/
@@ -41,7 +34,7 @@ ClusterShapeTrackFilter::~ClusterShapeTrackFilter()
 void ClusterShapeTrackFilter::loadClusterLimits()
 {
   edm::FileInPath
-    fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/clusterShape.par");
+    fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par");
   ifstream inFile(fileInPath.fullPath().c_str());
 
   while(inFile.eof() == false)
@@ -93,9 +86,8 @@ bool ClusterShapeTrackFilter::isCompatible
   ClusterShape theClusterShape;
 
   DetId id = recHit->geographicalId();
-// FIXME
-  const PixelGeomDetUnit* pixelDet = 0; // =
-//    dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet(id));
+  const PixelGeomDetUnit* pixelDet = 
+    dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet(id));
   theClusterShape.getExtra(*pixelDet, *recHit, data);
   
   int dx = data.size.first;
@@ -125,16 +117,20 @@ bool ClusterShapeTrackFilter::isCompatible
 
 /*****************************************************************************/
 bool ClusterShapeTrackFilter::operator()
-  (const reco::Track* track, std::vector<const TrackingRecHit *> hits) const
+  (const reco::Track* track, std::vector<const TrackingRecHit *> recHits) const
 {
-  // DEACTIVATED
+  // !!!!!
   return true;
 
-  bool ok = true;
-  vector<const TrackingRecHit*> recHits;
-  vector<LocalVector> localDirs;
 
-  vector<LocalVector>::const_iterator localDir = localDirs.begin();
+  bool ok = true;
+//  vector<const TrackingRecHit*> recHits;
+//  vector<LocalVector> localDirs;
+
+//  cerr << " !! " << track->recHitsSize() << endl;
+//  cerr << " rr " << recHits.size() << endl;
+
+//  vector<LocalVector>::const_iterator localDir = localDirs.begin();
   for(vector<const TrackingRecHit*>::const_iterator recHit = recHits.begin();
                                                     recHit!= recHits.end();
                                                     recHit++)
@@ -142,18 +138,14 @@ bool ClusterShapeTrackFilter::operator()
     const SiPixelRecHit* pixelRecHit =
       dynamic_cast<const SiPixelRecHit *>(*recHit);
 
-    if(pixelRecHit->isValid())
-    {
-      if(isCompatible(pixelRecHit, *localDir) == false)
-      { ok = false; break; }
-    }
-    else
-    { ok = false; break; }
+    LocalVector localDir;
 
-    localDir++;
+    if(!pixelRecHit->isValid())                      { ok = false; break; }
+    if(isCompatible(pixelRecHit, localDir) == false) { ok = false; break; }
+//    localDir++;
   }
 
-//  cerr << " [TrackFilter$$] ok = " << (ok == true ? 1 : 0) << endl;
+cerr << " [TrackFilter$$] ok = " << (ok == true ? 1 : 0) << endl;
 
   return ok;
 }

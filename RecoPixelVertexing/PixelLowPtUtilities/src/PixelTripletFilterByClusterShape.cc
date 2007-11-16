@@ -39,7 +39,7 @@ PixelTripletFilterByClusterShape::~PixelTripletFilterByClusterShape()
 void PixelTripletFilterByClusterShape::loadClusterLimits()
 {
   edm::FileInPath
-    fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/clusterShape.par");
+    fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par");
   ifstream inFile(fileInPath.fullPath().c_str());
 
   while(inFile.eof() == false)
@@ -108,7 +108,7 @@ bool PixelTripletFilterByClusterShape::isCompatible
     
     if(dy < 0)
     { dy = abs(dy); movement.second = - movement.second; }
-    
+
     return (isInside(limits[part][dx][dy][0], movement) ||
             isInside(limits[part][dx][dy][1], movement));
   }

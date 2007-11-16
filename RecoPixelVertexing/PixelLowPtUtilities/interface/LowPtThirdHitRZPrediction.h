@@ -41,7 +41,7 @@ public:
   void getRanges(float rORz           , float phi[],float rz[]);
 
   bool isCompatibleWithMultipleScattering
-    (GlobalPoint g3, const TrackingRecHit* h3,
+    (GlobalPoint g3, vector<const TrackingRecHit*> h,
      vector<GlobalVector>& localDirs, const edm::EventSetup& es);
 
 private:

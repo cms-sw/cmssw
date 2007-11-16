@@ -117,11 +117,49 @@ void PixelTripletLowPtGenerator::hitTriplets(
         recHits[2] = *th;
         points[2]  = getGlobalPosition(recHits[2]);
 
+/*
+cerr << " !!CHECK " << endl;
+     cerr << ", Point["
+     <<"{"<<
+points[0].x()<<","<<points[0].y()<<","<<points[0].z()/2<<"}]"<<endl;
+     cerr << ", Point["
+     <<"{"<<
+points[1].x()<<","<<points[1].y()<<","<<points[1].z()/2<<"}]"<<endl;
+     cerr << ", Point["
+     <<"{"<<
+points[2].x()<<","<<points[2].y()<<","<<points[2].z()/2<<"}]"<<endl;
+     cerr << ", Line[{"
+     <<"{"<< points[0].x()<<","<<points[0].y()<<","<<points[0].z()/2<<"},"
+     <<"{"<<
+points[1].x()<<","<<points[1].y()<<","<<points[1].z()/2<<"}}]"<<endl;
+     cerr << ", Line[{"
+     <<"{"<< points[1].x()<<","<<points[1].y()<<","<<points[1].z()/2<<"},"
+     <<"{"<<
+points[2].x()<<","<<points[2].y()<<","<<points[2].z()/2<<"}}]"<<endl;
+*/
+
         // Check if third hit is compatible with multiple scattering
         vector<GlobalVector> globalDirs;
         if(thePrediction.isCompatibleWithMultipleScattering
-             (points[2], recHits[2], globalDirs, es) == false)
-           continue;
+             (points[2], recHits, globalDirs, es) == false)
+        {
+//          cerr << " [MultScatt] not compatible " << endl;
+/*
+     cerr << ", Point["
+     <<"{"<< points[0].x()<<","<<points[0].y()<<","<<points[0].z()/2<<"}]"<<endl; 
+     cerr << ", Point["
+     <<"{"<< points[1].x()<<","<<points[1].y()<<","<<points[1].z()/2<<"}]"<<endl; 
+     cerr << ", Point["
+     <<"{"<< points[2].x()<<","<<points[2].y()<<","<<points[2].z()/2<<"}]"<<endl;    
+     cerr << ", Line[{"
+     <<"{"<< points[0].x()<<","<<points[0].y()<<","<<points[0].z()/2<<"},"
+     <<"{"<< points[1].x()<<","<<points[1].y()<<","<<points[1].z()/2<<"}}]"<<endl;
+     cerr << ", Line[{"
+     <<"{"<< points[1].x()<<","<<points[1].y()<<","<<points[1].z()/2<<"},"
+     <<"{"<< points[2].x()<<","<<points[2].y()<<","<<points[2].z()/2<<"}}]"<<endl;
+*/
+          continue;
+        }
 
         // Convert to localDirs
         vector<LocalVector> localDirs;
@@ -139,7 +177,24 @@ void PixelTripletLowPtGenerator::hitTriplets(
         if(useClusterShape)
         {
           if(theFilter.checkTrack(recHits,localDirs) == false)
-           continue;
+          {
+//            cerr << " [ClusterShape] not compatible " << endl;
+/*
+     cerr << ", Point["
+     <<"{"<< points[0].x()<<","<<points[0].y()<<","<<points[0].z()/2<<"}]"<<endl; 
+     cerr << ", Point["
+     <<"{"<< points[1].x()<<","<<points[1].y()<<","<<points[1].z()/2<<"}]"<<endl; 
+     cerr << ", Point["
+     <<"{"<< points[2].x()<<","<<points[2].y()<<","<<points[2].z()/2<<"}]"<<endl; 
+     cerr << ", Line[{"
+     <<"{"<< points[0].x()<<","<<points[0].y()<<","<<points[0].z()/2<<"},"
+     <<"{"<< points[1].x()<<","<<points[1].y()<<","<<points[1].z()/2<<"}}]"<<endl;
+     cerr << ", Line[{"
+     <<"{"<< points[1].x()<<","<<points[1].y()<<","<<points[1].z()/2<<"},"
+     <<"{"<< points[2].x()<<","<<points[2].y()<<","<<points[2].z()/2<<"}}]"<<endl;
+*/
+            continue;
+          }
         }
 
         // All checks passed, put triplet back

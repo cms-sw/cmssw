@@ -24,8 +24,8 @@ class ClusterShapeTrackFilter : public TrackHitsFilter
 {
   public:
     ClusterShapeTrackFilter
-      (const edm::ParameterSet& ps);
-//      (const edm::EventSetup& es);
+      (const edm::ParameterSet& ps,
+       const edm::EventSetup& es);
     virtual ~ClusterShapeTrackFilter();
     virtual bool operator()(const reco::Track*, vector<const TrackingRecHit *> hits) const;
 

@@ -50,6 +50,7 @@ class PixelTrackProducerWithZPos :  public edm::EDProducer
 
     const TransientTrackBuilder * theTTBuilder;
     bool theUseFoundVertices;
+    bool theUseChi2Cut;
 
    double thePtMin, theOriginRadius;
 };

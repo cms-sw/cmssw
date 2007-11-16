@@ -69,7 +69,7 @@ using edm::ParameterSet;
 /*****************************************************************************/
 PixelTrackProducerWithZPos::PixelTrackProducerWithZPos
   (const edm::ParameterSet& conf)
-  : theConfig(conf), theFitter(0), theFilter(0), theCleaner(0), theGenerator(0)
+  : theConfig(conf), theFitter(0), theFilter(0), theCleaner(0), theGenerator(0), theRegionProducer(0)
 {
   edm::LogInfo("PixelTrackProducerWithZPos")<<" construction...";
   produces<reco::TrackCollection>();
@@ -105,7 +105,8 @@ void PixelTrackProducerWithZPos::beginJob(const edm::EventSetup& es)
 
   ParameterSet filterPSet = theConfig.getParameter<ParameterSet>("FilterPSet");
   std::string  filterName = filterPSet.getParameter<std::string>("ComponentName");
-  theFilter = TrackHitsFilterFactory::get()->create( filterName, filterPSet);
+  theFilter = TrackHitsFilterFactory::get()->create( filterName, filterPSet,
+es);
 
   ParameterSet cleanerPSet = theConfig.getParameter<ParameterSet>("CleanerPSet");
   std::string  cleanerName = cleanerPSet.getParameter<std::string>("ComponentName");
@@ -114,6 +115,7 @@ void PixelTrackProducerWithZPos::beginJob(const edm::EventSetup& es)
   // Get transient track builder
   edm::ParameterSet regionPSet = regfactoryPSet.getParameter<edm::ParameterSet>("RegionPSet");
   theUseFoundVertices = regionPSet.getParameter<bool>("useFoundVertices");
+  theUseChi2Cut       = regionPSet.getParameter<bool>("useChi2Cut");
   thePtMin            = regionPSet.getParameter<double>("ptMin");
   theOriginRadius     = regionPSet.getParameter<double>("originRadius");
 
@@ -181,7 +183,7 @@ void PixelTrackProducerWithZPos::produce
   TracksWithRecHits tracks;
 
   // Get vertices
-  const reco::VertexCollection* vertices;
+  const reco::VertexCollection* vertices = 0;
 
   if(theUseFoundVertices)
   {
@@ -213,12 +215,13 @@ void PixelTrackProducerWithZPos::produce
       for (unsigned int iHit = 0, nHits = triplet.size(); iHit < nHits; ++iHit)
         hits.push_back( triplet[iHit] );
   
-      // fitting
+      // Fitter
       reco::Track* track = theFitter->run(es, hits, region);
   
-      // decide if track should be skipped according to filter 
+      // Filter
       if ( ! (*theFilter)(track,hits) )
       { 
+//        cerr << " [TrackProducer] track did not pass cluster shape filter" << endl;
         delete track; 
         continue; 
       }
@@ -226,17 +229,20 @@ void PixelTrackProducerWithZPos::produce
       if(track->pt() < thePtMin ||
          track->d0() > theOriginRadius)
       {
+//        cerr << " [TrackProducer] track did not pass pt and d0 filter (" << track->pt() << " " << track->d0() << ")" << endl;
         delete track; 
         continue; 
       }
 
       if (theUseFoundVertices)
+      if (theUseChi2Cut)
       {
-        float ptv  = refitWithVertex(*track,vertices).first;
+//        float ptv  = refitWithVertex(*track,vertices).first;
         float chi2 = refitWithVertex(*track,vertices).second;
 
         if(chi2/3 > 10.)
         {
+//          cerr << " [TrackProducer] track did not pass chi2 filter (" << chi2 << ")" << endl;
           delete track; 
           continue; 
         }
@@ -247,7 +253,7 @@ void PixelTrackProducerWithZPos::produce
     }
   }
 
-  // skip overlapped tracks
+  // Cleaner
   if(theCleaner) tracks = theCleaner->cleanTracks(tracks);
 
   // store tracks

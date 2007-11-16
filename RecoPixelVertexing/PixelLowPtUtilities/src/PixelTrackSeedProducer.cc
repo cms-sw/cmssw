@@ -10,7 +10,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /*****************************************************************************/
-PixelTrackSeedProducer::PixelTrackSeedProducer(const edm::ParameterSet& ps)
+PixelTrackSeedProducer::PixelTrackSeedProducer(const edm::ParameterSet& ps_) :
+ps(ps_)
 {
   tripletList = ps.getParameter<vector<string> >("tripletList");
 
@@ -28,19 +29,16 @@ PixelTrackSeedProducer::~PixelTrackSeedProducer()
 void PixelTrackSeedProducer::produce
   (edm::Event& ev, const edm::EventSetup& es)
 {
-  std::cerr << "[Triplet seeder]" << std::endl;
+  std::cerr << "[Pixel tracks seeds]" << std::endl;
 
   PixelTrackSeedGenerator thePixelTrackSeedGenerator(es);
 
   std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection);
 
-//  edm::LogVerbatim("PixelLowPtUtilities")
-//    << "======== PixelTrackSeedProducer Info ========";
-
   for(vector<string>::const_iterator label = tripletList.begin();
                                      label!= tripletList.end(); label++)
   {
-//    std::cerr << " [TripletSeeder] label: " << *label << std::endl;
+    std::cerr << " [PixelSeeder] " << *label << std::endl;
     edm::Handle<reco::TrackCollection> recCollection;
     ev.getByLabel(*label,recCollection);
     const reco::TrackCollection* recTracks = recCollection.product();
@@ -49,24 +47,14 @@ void PixelTrackSeedProducer::produce
                                               track!= recTracks->end();
                                               track++)
     {
-      TrajectorySeed theSeed = thePixelTrackSeedGenerator.seed(*track);
+      TrajectorySeed theSeed = thePixelTrackSeedGenerator.seed(*track,es,ps);
   
-/*
-      edm::LogVerbatim("PixelLowPtUtilities")
-        << "n pixel and seed hits : " 
-        << track->recHitsSize() << " , " << theSeed.nHits()
-        << "  pt = " << track->pt(); 
-*/
-
       if(theSeed.nHits() >= 2)
         result->push_back(theSeed);
     } 
   }
 
-  std::cerr << " [TripletSeeder] number of seeds        : " << result->size() << std::endl;
-
-//  edm::LogVerbatim("PixelLowPtUtilities")
-//    << "=============================================";
+  std::cerr << " [PixelSeeder] number of seeds : " << result->size() << std::endl;
 
   // Put result back to the event
   ev.put(result);

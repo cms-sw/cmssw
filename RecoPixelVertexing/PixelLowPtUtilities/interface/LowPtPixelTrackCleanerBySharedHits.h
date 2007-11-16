@@ -22,6 +22,13 @@ class LowPtPixelTrackCleanerBySharedHits : public PixelTrackCleaner
 
   private:
     int getLayer(const DetId & id);
+    bool hasCommonDetUnit (vector<const TrackingRecHit *> recHitsA,
+                           vector<const TrackingRecHit *> recHitsB,
+                           vector<DetId> detIds);
+    bool hasCommonLayer (vector<const TrackingRecHit *> recHitsA,
+                         vector<const TrackingRecHit *> recHitsB,
+                         vector<int> detLayers);
+
 };
 
 #endif

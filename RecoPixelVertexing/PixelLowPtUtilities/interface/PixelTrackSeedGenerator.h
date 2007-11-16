@@ -28,16 +28,10 @@ class PixelTrackSeedGenerator
   public:
     PixelTrackSeedGenerator(const edm::EventSetup& es);
     ~PixelTrackSeedGenerator();
-    TrajectorySeed seed(const reco::Track& recTrack);
+    TrajectorySeed seed(const reco::Track& recTrack, const edm::EventSetup& es, const edm::ParameterSet& ps);
 
   private:
-    double getRadius(const TrackingRecHit& recHit);
-    void sortRecHits(vector<pair<double,int> >& recHits);
-
-    const MagneticField* theMagField;
-    const Propagator* thePropagator;
     const TrackerGeometry* theTracker;
-    const TransientTrackingRecHitBuilder* theTTRecHitBuilder;
 };
 
 #endif

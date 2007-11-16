@@ -364,7 +364,7 @@ void LowPtThirdHitRZPrediction::getRanges
 
 /*****************************************************************************/
 bool LowPtThirdHitRZPrediction::isCompatibleWithMultipleScattering
-  (GlobalPoint g3, const TrackingRecHit* h3,
+  (GlobalPoint g3, vector<const TrackingRecHit*> h,
    vector<GlobalVector>& globalDirs, const edm::EventSetup& es)
 {
   Global2DVector p1(g1.x(),g1.y());
@@ -385,6 +385,13 @@ bool LowPtThirdHitRZPrediction::isCompatibleWithMultipleScattering
 
   float rz3 = g2.z() + slope * a23;
   float delta_z = g3.z() - rz3;
+
+  float sigma1_le2 = max(h[0]->localPositionError().xx(),
+                         h[0]->localPositionError().yy());
+  float sigma2_le2 = max(h[1]->localPositionError().xx(),
+                         h[1]->localPositionError().yy());
+  float sigma_z2 = (1 + a23/a12)*(1 + a23/a12) * sigma2_le2 +
+                   (    a23/a12)*(    a23/a12) * sigma1_le2;
 
   float cotTheta = slope * circle.curvature(); // == sinhEta
   float coshEta  = sqrt(1 + sqr(cotTheta));    // == 1/sinTheta
@@ -428,10 +435,18 @@ bool LowPtThirdHitRZPrediction::isCompatibleWithMultipleScattering
   float sigma_ms  = sigma_z * coshEta;
 
   // Local error squared
-  float sigma_le2 = max(h3->localPositionError().xx(),
-                        h3->localPositionError().yy());
+//!!!!
+  float sigma_le2 = max(h[2]->localPositionError().xx(),
+                        h[2]->localPositionError().yy());
 
-  return (delta_z*delta_z / (sigma_ms*sigma_ms + sigma_le2 ) < 4*4);
+if(0)
+  cerr << " isCompat " 
+   << (delta_z*delta_z / (sigma_ms*sigma_ms + sigma_le2 + sigma_z2) < 4*4)
+   << " " << delta_z*delta_z / (sigma_ms*sigma_ms + sigma_le2 + sigma_z2)
+   << " " << g3.x() << " " << g3.y() << " " << g3.z()
+   << " " << delta_z << " " << sigma_ms << " " << sqrt(sigma_le2) << " " << sqrt(sigma_z2) << endl;
+
+  return (delta_z*delta_z / (sigma_ms*sigma_ms + sigma_le2 + sigma_z2) < 4*4);
   }
 
   return false;
