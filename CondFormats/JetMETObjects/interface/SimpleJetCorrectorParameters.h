@@ -20,6 +20,7 @@ class SimpleJetCorrectorParameters {
     Record (const std::string& fLine);
     float etaMin() const {return mEtaMin;}
     float etaMax() const {return mEtaMax;}
+    float etaMiddle() const {return 0.5*(etaMin()+etaMax());}
     unsigned nParameters() const {return mParameters.size();}
     float parameter (unsigned fIndex) const {return mParameters [fIndex];}
     std::vector<float> parameters () const {return mParameters;}
@@ -39,6 +40,8 @@ class SimpleJetCorrectorParameters {
   int bandIndex (float fEta) const;
   /// get record for the band
   const Record& record (unsigned fBand) const {return mRecords[fBand];}
+  /// get vector of centers of bands
+  std::vector<float> bandCenters () const;
  private:
   std::vector <Record> mRecords;
 };

@@ -30,13 +30,11 @@ namespace {
     }
     return result;
   }
-  bool verbose = true;
 }
 
 SimpleJetCorrectorParameters::Record::Record (const std::string& fLine) 
   : mEtaMin (0), mEtaMax (0)
 {
-  if (verbose) std::cout << "SimpleJetCorrectorParameters::Record::Record-> parsing line: '" << fLine << "'" << std::endl;
   // quckly parse the line
   std::vector<std::string> tokens;
   std::string currentToken;
@@ -64,21 +62,17 @@ SimpleJetCorrectorParameters::Record::Record (const std::string& fLine)
     mEtaMin = getFloat (tokens[0]);
     mEtaMax = getFloat (tokens[1]);
     unsigned nParam = getUnsigned (tokens[2]);
-    if (verbose) std::cout << "SimpleJetCorrectorParameters::Record::Record-> eta min/max: " 
-			   << mEtaMin << '/' << mEtaMax << ", " << nParam << " parameters" << std::endl;
     if (nParam != tokens.size() - 3) {
       throw cms::Exception ("SimpleJetCorrectorParameters") << "Actual # of parameters " << tokens.size() - 3 << " doesn't correspond to requested #: " << nParam << "\n"
 							    << "Line ->>" << fLine << "<<-";  
     }
     for (unsigned i = 3; i < tokens.size(); ++i) {
       mParameters.push_back (getFloat (tokens[i]));
-      if (verbose) std::cout << "parameter[" << mParameters.size()-1 << "] = " << mParameters.back() << std::endl;
     }
   }
 }
 
 SimpleJetCorrectorParameters::SimpleJetCorrectorParameters (const std::string& fFile) {
-  if (verbose) std::cout << "SimpleJetCorrectorParameters::SimpleJetCorrectorParameters-> processing file " << fFile << std::endl;
   std::ifstream input (fFile.c_str());
   std::string line;
   while (std::getline (input, line)) {
@@ -103,3 +97,11 @@ int SimpleJetCorrectorParameters::bandIndex (float fEta) const {
   return result;
 }
 
+  /// get vector of centers of bands
+std::vector<float> SimpleJetCorrectorParameters::bandCenters () const {
+  std::vector<float> result;
+  for (unsigned i = 0; i < size(); ++i) {
+    result.push_back (record(i).etaMiddle());
+  }
+  return result;
+}
