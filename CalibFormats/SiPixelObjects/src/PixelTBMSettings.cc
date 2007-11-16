@@ -207,7 +207,9 @@ void PixelTBMSettings::writeBinary(std::string filename) const {
 
 void PixelTBMSettings::writeASCII(std::string dir) const {
 
-  std::string filename=dir+"TBM_module_"+rocid_.rocname()+".dat";
+  PixelModuleName module(rocid_.rocname());
+
+  std::string filename=dir+"TBM_module_"+module.modulename()+".dat";
 
     std::ofstream out(filename.c_str());
 
