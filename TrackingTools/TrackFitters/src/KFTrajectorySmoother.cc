@@ -102,9 +102,6 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	LogTrace("TrackFitters") << "UNKNOWN HIT TYPE";
       }
     
-      //update
-      currTsos = updator()->update(predTsos, (*hit));
-
       TSOS combTsos,smooTsos;
       //3 different possibilities to calculate smoothed state:
       //1: update combined predictions with hit
@@ -133,42 +130,56 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	}
       }
 
-      //smooTsos updates the N-1 hits prediction with the hit
-      if (hitcounter == avtm.size()) smooTsos = itm->updatedState();
-      else if (hitcounter == 1) smooTsos = currTsos;
-      else smooTsos = combiner(itm->updatedState(), predTsos);
+      TransientTrackingRecHit::RecHitPointer preciseHit = hit->clone(combTsos);
 
-      if(!smooTsos.isValid()) {
-	LogDebug("TrackFitters") << "KFTrajectorySmoother: smoothed tsos not valid!";
-	if( myTraj.foundHits() >= minHits_ ) {
-	  LogDebug("TrackFitters") << " breaking trajectory" << "\n";
-	  break;      
-	} else {        
-	  LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-	  return std::vector<Trajectory>();
-	}
-      }
+      if (preciseHit->isValid() == false){
+	LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
+	currTsos = predTsos;
+	myTraj.push(TM(predTsos, hit ));//why no estimate? if the hit is valid it should contribute to chi2...
 
-      double estimate;
-      if (hitcounter != avtm.size()) estimate = estimator()->estimate(combTsos, *hit ).second;
-      else estimate = itm->estimate();
-
-      LogTrace("TrackFitters")
-	<< "predTsos !" << "\n"
-	<< predTsos << "\n"
-	<< "currTsos !" << "\n"
-	<< currTsos << "\n"
-	<< "smooTsos !" << "\n"
-	<< smooTsos << "\n"
-	<< "smoothing estimate (with combTSOS)=" << estimate << "\n"
-	<< "filtering estimate=" << itm->estimate() << "\n";
+      }else{
+	LogTrace("TrackFitters") << "THE Precise HIT IS VALID: updating currTsos" << "\n";
 	
-      myTraj.push(TM(itm->forwardPredictedState(),
-		     predTsos,
-		     smooTsos,
-		     hit,
-		     estimate),
-		  itm->estimate());
+	//update backward predicted tsos with the hit
+	currTsos = updator()->update(predTsos, *preciseHit);
+	
+	//smooTsos updates the N-1 hits prediction with the hit
+	if (hitcounter == avtm.size()) smooTsos = itm->updatedState();
+	else if (hitcounter == 1) smooTsos = currTsos;
+	else smooTsos = combiner(itm->updatedState(), predTsos);
+	
+	if(!smooTsos.isValid()) {
+	  LogDebug("TrackFitters") << "KFTrajectorySmoother: smoothed tsos not valid!";
+	  if( myTraj.foundHits() >= minHits_ ) {
+	    LogDebug("TrackFitters") << " breaking trajectory" << "\n";
+	    break;      
+	  } else {        
+	    LogDebug("TrackFitters") << " killing trajectory" << "\n";       
+	    return std::vector<Trajectory>();
+	  }
+	}
+	
+	double estimate;
+	if (hitcounter != avtm.size()) estimate = estimator()->estimate(combTsos, *preciseHit ).second;//correct?
+	else estimate = itm->estimate();
+	
+	LogTrace("TrackFitters")
+	  << "predTsos !" << "\n"
+	  << predTsos << "\n"
+	  << "currTsos !" << "\n"
+	  << currTsos << "\n"
+	  << "smooTsos !" << "\n"
+	  << smooTsos << "\n"
+	  << "smoothing estimate (with combTSOS)=" << estimate << "\n"
+	  << "filtering estimate=" << itm->estimate() << "\n";
+	
+	myTraj.push(TM(itm->forwardPredictedState(),
+		       predTsos,
+		       smooTsos,
+		       preciseHit,
+		       estimate),
+		    itm->estimate());
+      }
     } else {
       LogDebug("TrackFitters") 
 	<< "----------------- HIT #" << hitcounter << " (INVALID)-----------------------";      
