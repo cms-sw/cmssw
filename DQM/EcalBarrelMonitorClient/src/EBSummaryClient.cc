@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/11/15 14:02:20 $
- * $Revision: 1.87 $
+ * $Date: 2007/11/15 14:32:17 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  *
 */
@@ -190,7 +190,7 @@ void EBSummaryClient::setup(void) {
   meTestPulsePN_->setAxisTitle("jeta", 2);
 
   if( meCosmic_ ) dbe_->removeElement( meCosmic_->getName() );
-  sprintf(histo, "EBCT cosmic quality summary");
+  sprintf(histo, "EBCT cosmic summary");
   meCosmic_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   meCosmic_->setAxisTitle("jphi", 1);
   meCosmic_->setAxisTitle("jeta", 2);
