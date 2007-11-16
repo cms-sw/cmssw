@@ -53,8 +53,8 @@ KalmanVertexTrackUpdator::trackRefit(const VertexState & vertex,
   AlgebraicMatrix a = linTrackState->positionJacobian();
   AlgebraicMatrix b = linTrackState->momentumJacobian();
 
-  AlgebraicVector trackParameters = 
-  	linTrackState->predictedStateParameters();
+//   AlgebraicVector trackParameters = 
+//   	linTrackState->predictedStateParameters();
 
   AlgebraicSymMatrix trackParametersWeight = 
   	linTrackState->predictedStateWeight();
@@ -67,7 +67,7 @@ KalmanVertexTrackUpdator::trackRefit(const VertexState & vertex,
   	("KalmanVertexTrackUpdator::S matrix inversion failed");
    
   AlgebraicVector newTrackMomentumP =  s * b.T() * trackParametersWeight * 
-    (trackParameters - linTrackState->constantTerm() - a*vertexCoord);
+    (linTrackState->predictedStateParameters() - linTrackState->constantTerm() - a*vertexCoord);
 
   AlgebraicMatrix refittedPositionMomentumConvariance = 
     -vertexErrorMatrix * a.T() * trackParametersWeight * b * s;

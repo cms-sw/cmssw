@@ -90,21 +90,21 @@ KalmanVertexUpdator::positionUpdate (const VertexState & oldVertex,
   int ifail;
   // Jacobians
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
-  //    << "Now updating position" << "\n";
+  //   << "Now updating position" << "\n";
   AlgebraicMatrix a = linearizedTrack->positionJacobian();
   AlgebraicMatrix b = linearizedTrack->momentumJacobian();
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
-  //    << "got jacobians" << "\n";
+  //  << "got jacobians" << "\n";
   
   //track information
-  AlgebraicVector trackParameters =
-        linearizedTrack->predictedStateParameters();
+//   AlgebraicVector trackParameters =
+//         linearizedTrack->predictedStateParameters();
 
   AlgebraicSymMatrix trackParametersWeight =
         linearizedTrack->predictedStateWeight();
 
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
-  //    << "got track parameters" << "\n";
+  //   << "got track parameters" << "\n";
 
   //vertex information
   AlgebraicSymMatrix oldVertexWeight = oldVertex.weight().matrix();
@@ -120,19 +120,19 @@ KalmanVertexUpdator::positionUpdate (const VertexState & oldVertex,
 
   AlgebraicSymMatrix newVertexWeight =  oldVertexWeight + weight * sign * gB.similarityT(a);
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
-  //    << "weight matrix" << newVertexWeight << "\n";
+  //   << "weight matrix" << newVertexWeight << "\n";
 
 
   AlgebraicVector newSwr =
                 oldVertex.weightTimesPosition() + weight * sign * a.T() * gB *
-                ( trackParameters - linearizedTrack->constantTerm());
+                ( linearizedTrack->predictedStateParameters() - linearizedTrack->constantTerm());
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
-  //    << "weighttimespos" << newSwr << "\n";
+  //   << "weighttimespos" << newSwr << "\n";
 
   VertexState newpos (newSwr, GlobalWeight(newVertexWeight), 1.0);
 
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
-  //    << "pos" << newpos.position() << "\n";
+  //   << "pos" << newpos.position() << "\n";
 
   return newpos;
 }
@@ -150,11 +150,11 @@ double KalmanVertexUpdator::chi2Increment(const VertexState & oldVertex,
   newVertexPositionV[1] = newVertexPosition.y();
   newVertexPositionV[2] = newVertexPosition.z();
 
-  AlgebraicMatrix a = linearizedTrack->positionJacobian();
-  AlgebraicMatrix b = linearizedTrack->momentumJacobian();
+  AlgebraicMatrix  a = linearizedTrack->positionJacobian();
+  AlgebraicMatrix  b = linearizedTrack->momentumJacobian();
 
 //track information
-  AlgebraicVector trackParameters =
+  AlgebraicVector  trackParameters =
   	linearizedTrack->predictedStateParameters();
 
   AlgebraicSymMatrix trackParametersWeight =
