@@ -1,4 +1,4 @@
-#include "CondFormats/SiPixelObjects/interface/PixelCPEParmErrors.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCPEParmErrors.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelPedestals.h"
 namespace{
