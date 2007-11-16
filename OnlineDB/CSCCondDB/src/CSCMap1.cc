@@ -106,6 +106,13 @@
     item->ddu_input = stmt->getInt(5);
     item->slink = stmt->getInt(7);
 
+    item->fed_crate = stmt->getInt(3);
+    item->ddu_slot = stmt->getInt(4);
+    item->dcc_fifo = stmt->getString(6);
+    item->fiber_crate = stmt->getInt(8);
+    item->fiber_pos = stmt->getInt(9);
+    item->fiber_socket = stmt->getString(10);
+
     con->terminateStatement (stmt);
   } //end of chamber
 
@@ -186,6 +193,13 @@
     item->ddu = stmt->getInt(2);
     item->ddu_input = stmt->getInt(5);
     item->slink = stmt->getInt(7);
+
+    item->fed_crate = stmt->getInt(3);
+    item->ddu_slot = stmt->getInt(4);
+    item->dcc_fifo = stmt->getString(6);
+    item->fiber_crate = stmt->getInt(8);
+    item->fiber_pos = stmt->getInt(9);
+    item->fiber_socket = stmt->getString(10);
 
     con->terminateStatement (stmt);
   } //end of cratedmb
