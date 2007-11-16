@@ -267,7 +267,14 @@ PixelFEDCard::PixelFEDCard(string fileName) {
 }
 
 
-void PixelFEDCard::writeASCII(std::string filename){
+void PixelFEDCard::writeASCII(std::string dir){
+
+  char buffer[50];
+  sprintf(buffer,"%d",fedNumber);
+  std::string fedNum(buffer);
+
+
+  std::string filename=dir+"/params_fed_"+fedNum+".dat";
 
   FILE *outfile = fopen((filename.c_str()),"w");
   if (outfile == NULL) {

@@ -28,6 +28,21 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 PixelPortCardConfig::PixelPortCardConfig(std::string filename):
   PixelConfigBase(" "," "," "){
 
+  //std::cout << "filename:"<<filename<<std::endl;
+
+  unsigned int portcardpos=filename.find(std::string("portcard_"));
+  //std::cout << "portcardpos:"<<portcardpos<<std::endl;
+  assert(portcardpos!=std::string::npos);
+  unsigned int datpos=filename.find(std::string(".dat"));
+  //std::cout << "datpos:"<<datpos<<std::endl;
+  assert(datpos!=std::string::npos);
+  assert(datpos>portcardpos);
+  
+  portcardname_=filename.substr(portcardpos+9,datpos-portcardpos-9);
+
+  std::cout << "Portcard name extracted from file name:"<<portcardname_<<std::endl;
+
+
   fillNameToAddress();
 
   std::ifstream in(filename.c_str());
@@ -176,10 +191,17 @@ void PixelPortCardConfig::fillNameToAddress()
 	return;
 }
 
-void PixelPortCardConfig::writeASCII(std::string filename) const {
-  
+void PixelPortCardConfig::writeASCII(std::string dir) const {
+
+  if (dir!="") dir+="/";
+  std::string filename=dir+"portcard_"+portcardname_+".dat";
+
   std::ofstream out(filename.c_str());
-  
+  if (!out.good()){
+    std::cout << "Could not open file:"<<filename.c_str()<<std::endl;
+    assert(0);
+  }
+
   out << "TKFECID: " << TKFECID_ << std::endl;
   out << "ringAddress: 0x" <<std::hex<< ringAddress_ <<std::dec<< std::endl;
   out << "ccuAddress: 0x" <<std::hex<< ccuAddress_ <<std::dec<< std::endl;

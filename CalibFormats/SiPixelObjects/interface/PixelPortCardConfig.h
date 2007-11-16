@@ -22,8 +22,7 @@ namespace pos{
     PixelPortCardConfig(std::vector < std::vector< std::string> >  &tableMat);
     PixelPortCardConfig(std::string);
 
-    //the i is dummy variables right now
-    void writeASCII(std::string) const;
+    void writeASCII(std::string dir="") const;
   
     unsigned int getdevicesize() const;
     std::string  getTKFECID() const;
@@ -40,6 +39,8 @@ namespace pos{
   
   private:
     void fillNameToAddress();
+
+    std::string portcardname_;
  
     std::string  TKFECID_;//FEC ID string, as defined in tkfecconfig.dat
     unsigned int ringAddress_;//ring #

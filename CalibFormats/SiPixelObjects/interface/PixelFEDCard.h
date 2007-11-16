@@ -15,7 +15,7 @@ namespace pos{
     PixelFEDCard(std::string filename); // create from files
     ~PixelFEDCard() {};
 
-    void writeASCII(std::string filename); // write to files
+    void writeASCII(std::string dir=""); // write to files
     unsigned long long enabledChannels();  // returns 64-bit integer mask 35..0
 
     //Settable optical input parameters (one for each 12-receiver)
