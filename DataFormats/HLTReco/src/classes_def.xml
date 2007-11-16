@@ -58,14 +58,14 @@
   <class name="reco::TriggerCollection"/>
   <class name="reco::TriggerGlobalCollection"/>
   <class name="reco::TriggerPointer"/>
-  <class name="reco::TriggerPathCollection"/>
+  <class name="reco::TriggerFilterCollection"/>
   <class name="reco::TriggerTableCollection"/>
 
   <class name="edm::Wrapper<reco::TriggerObject>"/>
   <class name="edm::Wrapper<reco::TriggerCollection>"/>
   <class name="edm::Wrapper<reco::TriggerGlobalCollection>"/>
   <class name="edm::Wrapper<reco::TriggerPointer>"/>
-  <class name="edm::Wrapper<reco::TriggerPathCollection>"/>
+  <class name="edm::Wrapper<reco::TriggerFilterCollection>"/>
   <class name="edm::Wrapper<reco::TriggerTableCollection>"/>
 
 </lcgdict>

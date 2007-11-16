@@ -5,8 +5,8 @@
  *
  *  Classes for new HLT data model (to be split into separate header files)
  *
- *  $Date: 2007/11/02 07:06:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/11/09 16:12:13 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include <cassert>
+#include <string>
 #include <vector>
 
 namespace reco
@@ -77,7 +78,8 @@ namespace reco
 
 
   /// collection of physics object collections (all electrons and muons and...)
-  /// only needed if we want _one_ EDProduct containing _all_ collections!
+  /// only needed if we want _one_ EDProduct containing _all_
+  /// TriggerCollections!
   class TriggerGlobalCollection {
 
   private:
@@ -173,10 +175,12 @@ namespace reco
   };
 
 
-  /// Collection of pointers to physics objects belonging to a trigger path
-  class TriggerPathCollection {
+  /// Collection of pointers to physics objects belonging to a filter on a trigger path
+  class TriggerFilterCollection {
 
   private:
+    /// filter module label
+    std::string filterLabel_;
     /// non-owning pointers into collections
     std::vector<TriggerPointer> triggerObjects_;
     /// id or type - of collection
@@ -184,15 +188,17 @@ namespace reco
     
   public:
     /// constructors
-    TriggerPathCollection(): triggerObjects_(), collectionId_() { }
-    TriggerPathCollection(const std::vector<TriggerPointer>& triggerObjects, int Id=0):
-      triggerObjects_(triggerObjects), collectionId_(Id) { }
+    TriggerFilterCollection(): filterLabel_(), triggerObjects_(), collectionId_() { }
+    TriggerFilterCollection(const std::string& filterLabel, const std::vector<TriggerPointer>& triggerObjects, int Id=0):
+      filterLabel_(filterLabel), triggerObjects_(triggerObjects), collectionId_(Id) { }
 
     /// setters
+    void setLabel(const std::string& filterLabel) {filterLabel_=filterLabel;}
     void setCollection(const std::vector<TriggerPointer>& triggerObjects) {triggerObjects_=triggerObjects;}
     void setId(int Id) {collectionId_=Id;}
 
     /// getters
+    const std::string& getLabel() const {return filterLabel_;}
     const std::vector<TriggerPointer>& getCollection() const {return triggerObjects_;}
     int getId() const {return collectionId_;}
 
@@ -200,22 +206,23 @@ namespace reco
 
 
   /// Collection of pointer collections describing the trigger table
-  /// only needed if we want _one_ EDProduct containing _all_ collections!
+  /// only needed if we want _one_ EDProduct containing _all_ 
+  /// TriggerFilter collections!
   class TriggerTableCollection {
 
   private:
-    std::vector<TriggerPathCollection> triggerPathCollections_;
+    std::vector<TriggerFilterCollection> triggerFilterCollections_;
 
   public:
     /// constructors
-    TriggerTableCollection(): triggerPathCollections_() { }
-    TriggerTableCollection(const std::vector<TriggerPathCollection>& triggerPathCollections):
-      triggerPathCollections_(triggerPathCollections) { }
+    TriggerTableCollection(): triggerFilterCollections_() { }
+    TriggerTableCollection(const std::vector<TriggerFilterCollection>& triggerFilterCollections):
+      triggerFilterCollections_(triggerFilterCollections) { }
     ///
-    void addPathCollection(const TriggerPathCollection& triggerPathCollection) {
-      triggerPathCollections_.push_back(triggerPathCollection);}
-    const TriggerPathCollection& getPathCollection(int i) const {
-      return triggerPathCollections_.at(i);
+    void addFilterCollection(const TriggerFilterCollection& triggerFilterCollection) {
+      triggerFilterCollections_.push_back(triggerFilterCollection);}
+    const TriggerFilterCollection& getFilterCollection(int i) const {
+      return triggerFilterCollections_.at(i);
     }
 
   };

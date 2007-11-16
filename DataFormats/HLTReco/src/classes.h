@@ -70,7 +70,7 @@ namespace {
     reco::TriggerGlobalCollection tg;
 
     reco::TriggerPointer tp;
-    reco::TriggerPathCollection tpc;
+    reco::TriggerFilterCollection tfc;
     reco::TriggerTableCollection ttc;
 
     edm::Wrapper<reco::TriggerObject> wto;
@@ -78,7 +78,7 @@ namespace {
     edm::Wrapper<reco::TriggerGlobalCollection> wtg;
 
     edm::Wrapper<reco::TriggerPointer> wtp;
-    edm::Wrapper<reco::TriggerPathCollection> wtpc;
+    edm::Wrapper<reco::TriggerFilterCollection> wtfc;
     edm::Wrapper<reco::TriggerTableCollection> wttc;
 
   }
