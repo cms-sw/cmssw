@@ -264,13 +264,13 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
     validVertex = true;
     // check tracker bounds and NaN in position
     if (!insideTrackerBounds(fVertex.position())) {
-      edm::LogError("RecoVertex/SequentialVertexFitter") 
+      LogDebug("RecoVertex/SequentialVertexFitter") 
 	 << "Fitted position is out of tracker bounds.\n";
       validVertex = false;
     }
     
     if (hasNan(fVertex.position())) {
-      edm::LogError("RecoVertex/SequentialVertexFitter") 
+      LogDebug("RecoVertex/SequentialVertexFitter") 
 	 << "Fitted position is NaN.\n";
       validVertex = false;
     }
@@ -293,13 +293,13 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
 		(!validVertex) ) );
 
   if (!validVertex) {
-    edm::LogError("RecoVertex/SequentialVertexFitter") 
+    LogDebug("RecoVertex/SequentialVertexFitter") 
        << "Fitted position is invalid (out of tracker bounds or has NaN). Returned vertex is invalid\n";
     return CachingVertex(); // return invalid vertex
   }
 
   if (step >= theMaxStep) {
-    edm::LogError("RecoVertex/SequentialVertexFitter") 
+    LogDebug("RecoVertex/SequentialVertexFitter") 
        << "The maximum number of steps has been exceeded. Returned vertex is invalid\n";
     return CachingVertex(); // return invalid vertex
   }
