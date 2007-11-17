@@ -66,7 +66,8 @@ void SiStripInformationExtractor::readConfiguration() {
           " Problem in reading Layout " << "\n" ;
   if (layoutParser_) delete layoutParser_;
 
-  createDummiesFromLayout();
+  // No need of dummies as Emppty plots are alrady there
+  //      createDummiesFromLayout();
 }
 //
 // --  Fill Histo and Module List
