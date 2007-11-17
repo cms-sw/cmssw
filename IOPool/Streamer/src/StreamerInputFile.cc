@@ -4,7 +4,7 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "SealBase/IOError.h"
+#include "Utilities/StorageFactory/interface/IOFlags.h"
 
 #include <iostream>
 
@@ -97,16 +97,16 @@ StreamerInputFile::openStreamerFile(const std::string& name) {
 
   if (storage_) storage_->close();
 
-  seal::IOOffset size = -1;
+  IOOffset size = -1;
   if (StorageFactory::get()->check(name.c_str(), &size)) {
     try {
       storage_.reset(StorageFactory::get()->open(name.c_str(),
-                                                 seal::IOFlags::OpenRead));
+                                                 IOFlags::OpenRead));
     }
-    catch (seal::Error& se ) {
+    catch (cms::Exception& e) {
       throw cms::Exception("StreamerInputFile","StreamerInputFile")
         << "Error Opening Streamer Input File: " << name << "\n"
-        << se.explain() << "\n";
+        << e.explainSelf() << "\n";
     }
   }
   else {
@@ -120,24 +120,24 @@ const StreamerInputIndexFile* StreamerInputFile::index() {
   return index_;
 }
 
-seal::IOSize StreamerInputFile::readBytes(char *buf, seal::IOSize nBytes)
+IOSize StreamerInputFile::readBytes(char *buf, IOSize nBytes)
 {
-  seal::IOSize n;
+  IOSize n;
   try {
     n = storage_->read(buf, nBytes);
   }
-  catch (seal::Error& ce) {
+  catch (cms::Exception& ce) {
     throw cms::Exception("StreamerInputFile","StreamerInputFile")
       << "Failed reading streamer file in function readBytes\n"
-      << ce.explain() << "\n";
+      << ce.explainSelf() << "\n";
   }
   return n;
 }
 
 void StreamerInputFile::readStartMessage() 
 {
-  seal::IOSize nWant = sizeof(HeaderView);
-  seal::IOSize nGot = readBytes(&headerBuf_[0], nWant);
+  IOSize nWant = sizeof(HeaderView);
+  IOSize nGot = readBytes(&headerBuf_[0], nWant);
   if (nGot != nWant) {
     throw cms::Exception("readStartMessage", "StreamerInputFile")
       << "Failed reading streamer file, first read in readStartMessage\n";
@@ -184,10 +184,10 @@ bool StreamerInputFile::next()
         try {
           storage_->position((iview->getOffset()) - 1);
         }
-        catch (seal::Error& ce) {
+        catch (cms::Exception& ce) {
           throw cms::Exception("StreamerInputFile","StreamerInputFile")
             << "Failed reading streamer file in function next\n"
-            << ce.explain() << "\n";
+            << ce.explainSelf() << "\n";
         }
 
         ++indexIter_b;
@@ -259,8 +259,8 @@ int StreamerInputFile::readEventMessage()
 {
   if (endOfFile_) return 0;
 
-  seal::IOSize nWant = sizeof(HeaderView);
-  seal::IOSize nGot = readBytes(&eventBuf_[0], nWant);
+  IOSize nWant = sizeof(HeaderView);
+  IOSize nGot = readBytes(&eventBuf_[0], nWant);
   if (nGot != nWant) {
     throw cms::Exception("readEventMessage", "StreamerInputFile")
       << "Failed reading streamer file, first read in readEventMessage\n"

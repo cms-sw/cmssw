@@ -5,8 +5,9 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/IndexRecords.h"
+#include "Utilities/StorageFactory/interface/IOTypes.h"
+#include "Utilities/StorageFactory/interface/Storage.h"
 
-#include "SealBase/Storage.h"
 #include <boost/shared_ptr.hpp>
 
 #include<string>
@@ -49,7 +50,7 @@ class StreamerInputIndexFile;
   private:
 
     void openStreamerFile(const std::string& name);
-    seal::IOSize readBytes(char *buf, seal::IOSize nBytes);
+    IOSize readBytes(char *buf, IOSize nBytes);
 
     void readStartMessage();
     int  readEventMessage();
@@ -79,7 +80,7 @@ class StreamerInputIndexFile;
 
     bool newHeader_;
 
-    boost::shared_ptr<seal::Storage> storage_;
+    boost::shared_ptr<Storage> storage_;
 
     bool endOfFile_;
   };
