@@ -14,7 +14,7 @@ C...Sets values of commonblock variables.
 ***
       integer IER
       character *(*) chin
-      character *40 inam 
+      character *60 inam 
       character *512 STRIN
 ****
 
