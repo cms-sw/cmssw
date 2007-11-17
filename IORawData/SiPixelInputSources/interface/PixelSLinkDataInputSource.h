@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id: PixelSLinkDataInputSource.h,v 1.5 2007/09/07 14:41:33 fblekman Exp $
+// $Id: PixelSLinkDataInputSource.h,v 1.6 2007/10/19 20:54:55 fblekman Exp $
 //
 //
 
@@ -28,12 +28,9 @@
 #include <iomanip>
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
+#include "Utilities/StorageFactory/interface/Storage.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "SealIOTools/StorageStreamBuf.h"
-#include "SealBase/Storage.h"
-#include "SealBase/DebugAids.h"
-#include "SealBase/Signal.h"
 
 class PixelSLinkDataInputSource : public edm::ExternalInputSource {
 
@@ -51,7 +48,7 @@ private:
 
   int m_fedid;
   uint32_t m_fileindex;
-  std::auto_ptr<seal::Storage> storage;
+  std::auto_ptr<Storage> storage;
   int m_runnumber;
 };
 #endif

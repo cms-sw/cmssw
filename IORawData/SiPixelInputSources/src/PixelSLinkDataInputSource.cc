@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id: PixelSLinkDataInputSource.cc,v 1.11 2007/09/12 12:30:28 fblekman Exp $
+// $Id: PixelSLinkDataInputSource.cc,v 1.12 2007/10/19 20:51:53 fblekman Exp $
 //
 //
 
@@ -25,9 +25,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
+#include "Utilities/StorageFactory/interface/IOTypes.h"
 #include <iostream>
 
-using namespace seal;
 using namespace edm;
 PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& pset, 
 							      const edm::InputSourceDescription& desc) :
@@ -63,7 +63,7 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& ps
 
   // check run number by opening up data file...
   
-  seal::Storage & temp_file = *storage;
+  Storage & temp_file = *storage;
   unsigned long long data;
   IOSize n = temp_file.read((char*)&data,8);
   //  setRunNumber(m_runnumber);
@@ -85,7 +85,7 @@ PixelSLinkDataInputSource::~PixelSLinkDataInputSource() {
 
 bool PixelSLinkDataInputSource::produce(edm::Event& event) {
  
-  seal::Storage & m_file = *storage;
+  Storage & m_file = *storage;
 
   // create product (raw data)
   std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
