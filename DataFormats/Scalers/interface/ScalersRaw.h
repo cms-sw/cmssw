@@ -80,9 +80,11 @@ struct LumiScalersRaw_v1
 
 struct ScalersEventRecordRaw_v1
 {
+  unsigned long long header;
   int version;
   struct TriggerScalersRaw_v1 trig;
   struct LumiScalersRaw_v1    lumi;
+  unsigned long long trailer;
 };
 
 #endif

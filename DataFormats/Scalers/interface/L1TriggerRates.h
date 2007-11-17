@@ -26,6 +26,14 @@ class L1TriggerRates
 {
  public:
 
+  enum
+  {
+    N_BX = 3654,
+    N_BX_ACTIVE = 2808
+  };
+
+#define BX_SPACING (double)25E-9
+
   L1TriggerRates();
   L1TriggerRates(const L1TriggerScalers s);
   L1TriggerRates(const L1TriggerScalers s1, const L1TriggerScalers s2);
@@ -45,7 +53,10 @@ class L1TriggerRates
 
   struct timespec collectionTimeSummary() { return(collectionTimeSummary_);}
 
-  double deltaT() const { return(deltaT_);}
+  double deltaT()       const { return(deltaT_);}
+  double deltaTActive() const { return(deltaTActive_);}
+  double deltaTRun()       const { return(deltaTRun_);}
+  double deltaTRunActive() const { return(deltaTRunActive_);}
 
   // Instantaneous Rate accessors
   double triggerNumberRate() const            
@@ -66,8 +77,8 @@ class L1TriggerRates
   double calibrationL1AcceptsRate() const     
   { return(calibrationL1AcceptsRate_);}
 
-  double techTrigRate() const                 
-  { return(techTrigRate_);}
+  double technicalTriggersRate() const                 
+  { return(technicalTriggersRate_);}
 
   double orbitNumberRate() const              
   { return(orbitNumberRate_);}
@@ -75,33 +86,32 @@ class L1TriggerRates
   double numberResetsRate() const             
   { return(numberResetsRate_);}
 
-  double deadTimeRate() const                 
-  { return(deadTimeRate_);}
+  double deadTimePercent() const                 
+  { return(deadTimePercent_);}
 
-  double deadTimeActiveRate() const           
-  { return(deadTimeActiveRate_);}
+  double deadTimeActivePercent() const           
+  { return(deadTimeActivePercent_);}
 
-  double deadTimeActiveCalibrationRate() const
-  
-  { return(deadTimeActiveCalibrationRate_);}
+  double deadTimeActiveCalibrationPercent() const
+  { return(deadTimeActiveCalibrationPercent_);}
 
-  double deadTimeActivePrivateRate() const    
-  { return(deadTimeActivePrivateRate_);}
+  double deadTimeActivePrivatePercent() const    
+  { return(deadTimeActivePrivatePercent_);}
 
-  double deadTimeActivePartitionRate() const  
-  { return(deadTimeActivePartitionRate_);}
+  double deadTimeActivePartitionPercent() const  
+  { return(deadTimeActivePartitionPercent_);}
 
-  double deadTimeActiveThrottleRate() const   
-  { return(deadTimeActiveThrottleRate_);}
+  double deadTimeActiveThrottlePercent() const   
+  { return(deadTimeActiveThrottlePercent_);}
 
-  double lostBunchCrossingsRate() const       
-  { return(lostBunchCrossingsRate_);}
+  double lostBunchCrossingsPercent() const       
+  { return(lostBunchCrossingsPercent_);}
 
-  double lostTriggersRate() const             
-  { return(lostTriggersRate_);}
+  double lostTriggersPercent() const             
+  { return(lostTriggersPercent_);}
 
-  double lostTriggersActiveRate() const       
-  { return(lostTriggersActiveRate_);}
+  double lostTriggersActivePercent() const       
+  { return(lostTriggersActivePercent_);}
 
   struct timespec collectionTimeDetails() const 
   { return(collectionTimeDetails_);}
@@ -127,8 +137,8 @@ class L1TriggerRates
   double calibrationL1AcceptsRunRate() const     
   { return(calibrationL1AcceptsRunRate_);}
 
-  double techTrigRunRate() const                 
-  { return(techTrigRunRate_);}
+  double technicalTriggersRunRate() const                 
+  { return(technicalTriggersRunRate_);}
 
   double orbitNumberRunRate() const              
   { return(orbitNumberRunRate_);}
@@ -136,35 +146,34 @@ class L1TriggerRates
   double numberResetsRunRate() const             
   { return(numberResetsRunRate_);}
 
-  double deadTimeRunRate() const                 
-  { return(deadTimeRunRate_);}
+  double deadTimeRunPercent() const                 
+  { return(deadTimeRunPercent_);}
 
-  double deadTimeActiveRunRate() const           
-  { return(deadTimeActiveRunRate_);}
+  double deadTimeActiveRunPercent() const           
+  { return(deadTimeActiveRunPercent_);}
 
-  double deadTimeActiveCalibrationRunRate() const
-  
-  { return(deadTimeActiveCalibrationRunRate_);}
+  double deadTimeActiveCalibrationRunPercent() const
+  { return(deadTimeActiveCalibrationRunPercent_);}
 
-  double deadTimeActivePrivateRunRate() const    
-  { return(deadTimeActivePrivateRunRate_);}
+  double deadTimeActivePrivateRunPercent() const    
+  { return(deadTimeActivePrivateRunPercent_);}
 
-  double deadTimeActivePartitionRunRate() const  
-  { return(deadTimeActivePartitionRunRate_);}
+  double deadTimeActivePartitionRunPercent() const  
+  { return(deadTimeActivePartitionRunPercent_);}
 
-  double deadTimeActiveThrottleRunRate() const   
-  { return(deadTimeActiveThrottleRunRate_);}
+  double deadTimeActiveThrottleRunPercent() const   
+  { return(deadTimeActiveThrottleRunPercent_);}
 
-  double lostBunchCrossingsRunRate() const       
-  { return(lostBunchCrossingsRunRate_);}
+  double lostBunchCrossingsRunPercent() const       
+  { return(lostBunchCrossingsRunPercent_);}
 
-  double lostTriggersRunRate() const             
-  { return(lostTriggersRunRate_);}
+  double lostTriggersRunPercent() const             
+  { return(lostTriggersRunPercent_);}
 
-  double lostTriggersActiveRunRate() const       
-  { return(lostTriggersActiveRunRate_);}
+  double lostTriggersActiveRunPercent() const       
+  { return(lostTriggersActiveRunPercent_);}
 
-  std::vector<double> triggersRunRate() const    
+  std::vector<double> triggersRunPercent() const    
   { return(triggersRunRate_);}
 
   /// equality operator
@@ -179,6 +188,7 @@ protected:
   struct timespec collectionTimeSummary_;
 
   double deltaT_;
+  double deltaTActive_;
 
   double triggerNumberRate_;
   double eventNumberRate_;
@@ -186,20 +196,23 @@ protected:
   double physicsL1AcceptsRawRate_;
   double randomL1AcceptsRate_;
   double calibrationL1AcceptsRate_;
-  double techTrigRate_;
+  double technicalTriggersRate_;
   double orbitNumberRate_;
   double numberResetsRate_;
-  double deadTimeRate_;
-  double deadTimeActiveRate_;
-  double deadTimeActiveCalibrationRate_;
-  double deadTimeActivePrivateRate_;
-  double deadTimeActivePartitionRate_;
-  double deadTimeActiveThrottleRate_;
-  double lostBunchCrossingsRate_;
-  double lostTriggersRate_;
-  double lostTriggersActiveRate_;
+  double deadTimePercent_;
+  double deadTimeActivePercent_;
+  double deadTimeActiveCalibrationPercent_;
+  double deadTimeActivePrivatePercent_;
+  double deadTimeActivePartitionPercent_;
+  double deadTimeActiveThrottlePercent_;
+  double lostBunchCrossingsPercent_;
+  double lostTriggersPercent_;
+  double lostTriggersActivePercent_;
 
   std::vector<double> triggersRate_;
+
+  double deltaTRun_;
+  double deltaTRunActive_;
 
   double triggerNumberRunRate_;
   double eventNumberRunRate_;
@@ -207,18 +220,18 @@ protected:
   double physicsL1AcceptsRawRunRate_;
   double randomL1AcceptsRunRate_;
   double calibrationL1AcceptsRunRate_;
-  double techTrigRunRate_;
+  double technicalTriggersRunRate_;
   double orbitNumberRunRate_;
   double numberResetsRunRate_;
-  double deadTimeRunRate_;
-  double deadTimeActiveRunRate_;
-  double deadTimeActiveCalibrationRunRate_;
-  double deadTimeActivePrivateRunRate_;
-  double deadTimeActivePartitionRunRate_;
-  double deadTimeActiveThrottleRunRate_;
-  double lostBunchCrossingsRunRate_;
-  double lostTriggersRunRate_;
-  double lostTriggersActiveRunRate_;
+  double deadTimeRunPercent_;
+  double deadTimeActiveRunPercent_;
+  double deadTimeActiveCalibrationRunPercent_;
+  double deadTimeActivePrivateRunPercent_;
+  double deadTimeActivePartitionRunPercent_;
+  double deadTimeActiveThrottleRunPercent_;
+  double lostBunchCrossingsRunPercent_;
+  double lostTriggersRunPercent_;
+  double lostTriggersActiveRunPercent_;
 
   struct timespec collectionTimeDetails_;
   std::vector<double> triggersRunRate_;

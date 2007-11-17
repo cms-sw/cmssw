@@ -42,6 +42,10 @@ class L1TriggerScalers
   bool empty() const { return false; }
 
   /// get the data
+  unsigned int trigType() const            { return(trigType_);}
+  unsigned int eventID() const             { return(eventID_);}
+  unsigned int sourceID() const            { return(sourceID_);}
+  unsigned int bunchNumber() const         { return(bunchNumber_);}
 
   int version() const { return(version_);}
 
@@ -109,6 +113,10 @@ class L1TriggerScalers
   int operator!=(const L1TriggerScalers& e) const { return false; }
 
 protected:
+  unsigned int trigType_;
+  unsigned int eventID_;
+  unsigned int sourceID_;
+  unsigned int bunchNumber_;
 
   int version_;
   struct timespec collectionTimeSummary_;

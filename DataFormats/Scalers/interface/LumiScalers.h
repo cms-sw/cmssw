@@ -41,6 +41,11 @@ class LumiScalers
   /// empty method (= false)
   bool empty() const { return false; }
 
+  unsigned int trigType() const            { return(trigType_);}
+  unsigned int eventID() const             { return(eventID_);}
+  unsigned int sourceID() const            { return(sourceID_);}
+  unsigned int bunchNumber() const         { return(bunchNumber_);}
+
   int version() const                      { return(version_);}
   double normalization() const             { return(normalization_);}
   double instantLumi() const               { return(instantLumi_);}
@@ -67,6 +72,11 @@ class LumiScalers
   int operator!=(const LumiScalers& e) const { return false; }
 
 protected:
+
+  unsigned int trigType_;
+  unsigned int eventID_;
+  unsigned int sourceID_;
+  unsigned int bunchNumber_;
 
   int version_;
   double normalization_;

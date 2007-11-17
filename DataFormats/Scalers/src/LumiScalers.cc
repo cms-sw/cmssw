@@ -28,11 +28,17 @@ LumiScalers::LumiScalers() :
 LumiScalers::LumiScalers(const unsigned char * rawData)
 { 
   LumiScalers();
-  version_ = ((int *)rawData)[0];
+
+  ScalersEventRecordRaw_v1 * raw 
+    = (struct ScalersEventRecordRaw_v1 *)rawData;
+  trigType_     = ( raw->header >> 56 ) &        0xFULL;
+  eventID_      = ( raw->header >> 32 ) & 0x00FFFFFFULL;
+  sourceID_     = ( raw->header >>  8 ) & 0x00000FFFULL;
+  bunchNumber_  = ( raw->header >> 20 ) &      0xFFFULL;
+
+  version_ = raw->version;
   if ( version_ == 1 )
   {
-    ScalersEventRecordRaw_v1 * raw 
-      = (struct ScalersEventRecordRaw_v1 *)rawData;
     normalization_     = raw->lumi.Normalization;
     instantLumi_       = raw->lumi.InstantLumi;
     instantLumiErr_    = raw->lumi.InstantLumiErr;
@@ -59,8 +65,13 @@ LumiScalers::~LumiScalers() { }
 /// Pretty-print operator for LumiScalers
 std::ostream& operator<<(std::ostream& s, const LumiScalers& c) 
 {
-  s << "LumiScalers    version: " << c.version() << std::endl;
+  s << "LumiScalers    Version: " << c.version() << 
+    "   SourceID: "<< c.sourceID() << std::endl;
   char line[128];
+
+  sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 
+	  c.trigType(), c.eventID(), c.bunchNumber());
+  s << line << std::endl;
 
   sprintf(line," SectionNumber: %10d   StartOrbit: %10d  NumOrbits: %10d",
 	  c.sectionNumber(), c.startOrbit(), c.numOrbits());
@@ -84,8 +95,7 @@ std::ostream& operator<<(std::ostream& s, const LumiScalers& c)
 	    i, c.instantOccLumi()[i], c.instantOccLumiErr()[i], 
 	    c.instantOccLumiQlty()[i]);
     s << line << std::endl;
-    sprintf(line,"      LumiNoise[%d]: %e",
-	    i, c.instantOccLumi()[i],  c.lumiNoise()[i]);
+    sprintf(line,"      LumiNoise[%d]: %e", i, c.lumiNoise()[i]);
     s << line << std::endl;
   }
 

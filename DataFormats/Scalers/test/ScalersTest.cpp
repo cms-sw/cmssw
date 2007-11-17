@@ -18,7 +18,6 @@ char * fileName = "scalers.dat";
 
 int main(int argc, char** argv)
 {
-  struct ScalersEventRecordRaw_v1 record;
   unsigned char buffer [1024];
 
   int fd = open(fileName, O_RDONLY);

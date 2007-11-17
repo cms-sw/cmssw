@@ -39,12 +39,18 @@ L1TriggerScalers::L1TriggerScalers():
 L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
 { 
   L1TriggerScalers();
-  version_ = ((int *)rawData)[0];
+
+  ScalersEventRecordRaw_v1 * raw 
+    = (struct ScalersEventRecordRaw_v1 *)rawData;
+
+  trigType_     = ( raw->header >> 56 ) &        0xFULL;
+  eventID_      = ( raw->header >> 32 ) & 0x00FFFFFFULL;
+  sourceID_     = ( raw->header >>  8 ) & 0x00000FFFULL;
+  bunchNumber_  = ( raw->header >> 20 ) &      0xFFFULL;
+
+  version_ = raw->version;
   if ( version_ == 1 )
   {
-    ScalersEventRecordRaw_v1 * raw 
-      = (struct ScalersEventRecordRaw_v1 *)rawData;
-
     collectionTimeSummary_.tv_sec 
       = raw->trig.collectionTimeSummary.tv_sec;
     collectionTimeSummary_.tv_nsec 
@@ -85,8 +91,13 @@ L1TriggerScalers::~L1TriggerScalers() { }
 /// Pretty-print operator for L1TriggerScalers
 std::ostream& operator<<(std::ostream& s,L1TriggerScalers const &c) 
 {
-  s << "L1TriggerScalers    version:" << c.version() << std::endl;
+  s << "L1TriggerScalers    Version:" << c.version() <<
+    "   SourceID: " << c.sourceID() << std::endl;
   char line[128];
+
+  sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 
+	  c.trigType(), c.eventID(), c.bunchNumber());
+  s << line << std::endl;
 
   sprintf(line,
 	  " TriggerNumber:     %15ld  EventNumber:              %15ld",
@@ -126,13 +137,13 @@ std::ostream& operator<<(std::ostream& s,L1TriggerScalers const &c)
   s << line << std::endl;
 
   sprintf(line,
-	  "LostTriggersActive:%15ld DeadTimeActiveThrottle:   %15ld",
+	  " LostTriggersActive:%15ld  DeadTimeActiveThrottle:   %15ld",
 	  (long int)c.lostTriggersActive(),
 	  (long int)c.deadTimeActiveThrottle());
   s << line << std::endl;
 
   sprintf(line,
-	  "LostBunchCrossings:%15ld DeadTimeActivePrivate:    %15ld",
+	  " LostBunchCrossings:%15ld  DeadTimeActivePrivate:    %15ld",
 	  (long int)c.lostBunchCrossings(), 
 	  (long int)c.deadTimeActivePrivate());
   s << line << std::endl;
