@@ -102,6 +102,7 @@ class DaqMonitorBEInterface: public StringUtil
   static const std::string monitorDirName;
   static const std::string referenceDirName;
   static const std::string collateDirName;
+  static const std::string dqmPatchVersion;
   // ---------------- Miscellaneous -----------------------------
   
   /// true if directory exists
@@ -131,7 +132,14 @@ class DaqMonitorBEInterface: public StringUtil
   virtual MonitorElement* getReferenceME(MonitorElement* me) const = 0 ;
   virtual void deleteME(MonitorElement* me) = 0 ;
 
+  // ------------------- File Versioning ---------------------------
+
   virtual std::string getFileReleaseVersion(std::string filename) = 0 ;
+  virtual std::string getFileDQMPatchVersion(std::string filename) = 0 ;
+  std::string getDQMPatchVersion() { return "DQMPATCH:"+dqmPatchVersion; } 
+
+  // ---------------------------------------------------------------
+  
   /// cycle through all monitoring objects, draw one at time
   virtual void drawAll(void) = 0;
   

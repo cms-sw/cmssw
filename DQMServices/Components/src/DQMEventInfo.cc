@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2007/11/14 12:17:14 $
- * $Revision: 1.4 $
- * $Author: ameyer $
+ * $Date: 2007/11/15 23:09:28 $
+ * $Revision: 1.5 $
+ * $Author: wfisher $
  *
  */
 
@@ -67,7 +67,7 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   processName_= dbe_->bookString("processName",subsystemname);
   workingDir_= dbe_->bookString("workingDir",gSystem->pwd());
   cmsswVer_= dbe_->bookString("CMSSW_Version",edm::getReleaseVersion());
-  dqmPatch_= dbe_->bookString("DQM_Patch","v_0");
+  dqmPatch_= dbe_->bookString("DQM_Patch",dbe_->getDQMPatchVersion());
     
 }
 

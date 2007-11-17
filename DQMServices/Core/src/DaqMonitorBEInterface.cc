@@ -1,5 +1,6 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
+#include "DQMServices/Core/interface/DQMPatchVersion.h"
 
 #include <iostream>
 
@@ -716,3 +717,4 @@ bool DaqMonitorBEInterface::hasOtherReport(const vector<MonitorElement *> &
 const string DaqMonitorBEInterface::monitorDirName = "DQMData";
 const string DaqMonitorBEInterface::referenceDirName = "Reference";
 const string DaqMonitorBEInterface::collateDirName = "Collate";
+const string DaqMonitorBEInterface::dqmPatchVersion = dqm::DQMPatchVersion ;
