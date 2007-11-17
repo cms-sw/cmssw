@@ -36,24 +36,24 @@ class ScalersRaw
 struct TriggerScalersRaw_v1
 {
   struct timespec collectionTimeSummary;
-  unsigned int CAL_L1A_;
-  unsigned int DEADT_;
-  unsigned int DEADT_A;
-  unsigned int DEADT_CALIBR_A;
-  unsigned int DEADT_PRIV_A;
-  unsigned int DEADT_PSTATUS_A;
-  unsigned int DEADT_THROTTLE_A;
-  unsigned int EVNR;
-  unsigned int FINOR_;
-  unsigned int LOST_BC_;
-  unsigned int LOST_TRIG_;
-  unsigned int LOST_TRIG_A;
-  unsigned int NR_RESETS_;
-  unsigned int ORBITNR;
-  unsigned int PHYS_L1A;
-  unsigned int RNDM_L1A_;
-  unsigned int TECHTRIG_;
-  unsigned int TRIGNR_;
+  unsigned long long CAL_L1A_;
+  unsigned long long DEADT_;
+  unsigned long long DEADT_A;
+  unsigned long long DEADT_CALIBR_A;
+  unsigned long long DEADT_PRIV_A;
+  unsigned long long DEADT_PSTATUS_A;
+  unsigned long long DEADT_THROTTLE_A;
+  unsigned long long EVNR;
+  unsigned long long FINOR_;
+  unsigned long long LOST_BC_;
+  unsigned long long LOST_TRIG_;
+  unsigned long long LOST_TRIG_A;
+  unsigned long long NR_RESETS_;
+  unsigned long long ORBITNR;
+  unsigned long long PHYS_L1A;
+  unsigned long long RNDM_L1A_;
+  unsigned long long TECHTRIG_;
+  unsigned long long TRIGNR_;
 
   struct timespec collectionTimeDetails;
   unsigned int RATE_ALGO[ScalersRaw::N_L1_TRIGGERS_v1];

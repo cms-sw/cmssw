@@ -59,6 +59,35 @@ LumiScalers::~LumiScalers() { }
 /// Pretty-print operator for LumiScalers
 std::ostream& operator<<(std::ostream& s, const LumiScalers& c) 
 {
-  s << " LumiScalers: ";
+  s << "LumiScalers    version: " << c.version() << std::endl;
+  char line[128];
+
+  sprintf(line," SectionNumber: %10d   StartOrbit: %10d  NumOrbits: %10d",
+	  c.sectionNumber(), c.startOrbit(), c.numOrbits());
+  s << line << std::endl;
+
+  sprintf(line," Normalization: %e", c.normalization());
+  s << line << std::endl;
+
+  sprintf(line," InstantLumi:   %e   Err: %e    Qlty: %e",
+	  c.instantLumi(), c.instantLumiErr(), c.instantLumiQlty());
+  s << line << std::endl;
+
+  sprintf(line," InstantETLumi: %e   Err: %e    Qlty: %e",
+	  c.instantETLumi(), c.instantETLumiErr(), c.instantETLumiQlty());
+  s << line << std::endl;
+
+  int length = c.instantOccLumi().size();
+  for (int i=0; i<length; i++)
+  {
+    sprintf(line," InstantOccLumi[%d]: %e  Err: %e  Qlty: %e",
+	    i, c.instantOccLumi()[i], c.instantOccLumiErr()[i], 
+	    c.instantOccLumiQlty()[i]);
+    s << line << std::endl;
+    sprintf(line,"      LumiNoise[%d]: %e",
+	    i, c.instantOccLumi()[i],  c.lumiNoise()[i]);
+    s << line << std::endl;
+  }
+
   return s;
 }

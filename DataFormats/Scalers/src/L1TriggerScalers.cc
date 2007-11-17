@@ -16,7 +16,7 @@ L1TriggerScalers::L1TriggerScalers():
   physicsL1AcceptsRaw_(0),
   randomL1Accepts_(0),
   calibrationL1Accepts_(0),
-  techTrig_(0),
+  technicalTriggers_(0),
   orbitNumber_(0),
   numberResets_(0),
   deadTime_(0),
@@ -56,7 +56,7 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
     physicsL1AcceptsRaw_       = raw->trig.FINOR_;
     randomL1Accepts_           = raw->trig.RNDM_L1A_;
     calibrationL1Accepts_      = raw->trig.CAL_L1A_;
-    techTrig_                  = raw->trig.TECHTRIG_;
+    technicalTriggers_         = raw->trig.TECHTRIG_;
     orbitNumber_               = raw->trig.ORBITNR;
     numberResets_              = raw->trig.NR_RESETS_;
     deadTime_                  = raw->trig.DEADT_;
@@ -83,8 +83,70 @@ L1TriggerScalers::~L1TriggerScalers() { }
 
 
 /// Pretty-print operator for L1TriggerScalers
-std::ostream& operator<<(std::ostream& s, const L1TriggerScalers& c) 
+std::ostream& operator<<(std::ostream& s,L1TriggerScalers const &c) 
 {
-  s << " L1TriggerScalers: ";
+  s << "L1TriggerScalers    version:" << c.version() << std::endl;
+  char line[128];
+
+  sprintf(line,
+	  " TriggerNumber:     %15ld  EventNumber:              %15ld",
+	  (long int)c.triggerNumber(), (long int)c.eventNumber());
+  s << line << std::endl;
+
+  sprintf(line,
+	  " PhysicsL1Accepts:  %15ld  PhysicsL1AcceptsRaw:      %15ld",
+	  (long int)c.physicsL1Accepts(), (long int)c.physicsL1AcceptsRaw());
+  s << line << std::endl;
+
+  sprintf(line,
+	  " RandomL1Accepts:   %15ld  CalibrationL1Accepts:     %15ld",
+	  (long int)c.randomL1Accepts(), (long int)c.calibrationL1Accepts());
+  s << line << std::endl;
+
+  sprintf(line,
+	  " TechnicalTriggers: %15ld  OrbitNumber:              %15ld",
+	  (long int)c.technicalTriggers(), (long int)c.orbitNumber());
+  s << line << std::endl;
+
+  sprintf(line,
+	  " NumberResets:      %15ld  DeadTime:                 %15ld",
+	  (long int)c.numberResets(), (long int)c.deadTime());
+  s << line << std::endl;
+
+  sprintf(line,
+	  " DeadTimeActive:    %15ld  DeadTimeActiveCalibration:%15ld",
+	  (long int)c.deadTimeActive(), 
+	  (long int)c.deadTimeActiveCalibration());
+  s << line << std::endl;
+
+  sprintf(line,
+	  " LostTriggers:      %15ld  DeadTimeActivePartition:  %15ld",
+	  (long int)c.lostTriggers(), 
+	  (long int)c.deadTimeActivePartition());
+  s << line << std::endl;
+
+  sprintf(line,
+	  "LostTriggersActive:%15ld DeadTimeActiveThrottle:   %15ld",
+	  (long int)c.lostTriggersActive(),
+	  (long int)c.deadTimeActiveThrottle());
+  s << line << std::endl;
+
+  sprintf(line,
+	  "LostBunchCrossings:%15ld DeadTimeActivePrivate:    %15ld",
+	  (long int)c.lostBunchCrossings(), 
+	  (long int)c.deadTimeActivePrivate());
+  s << line << std::endl;
+
+  std::vector<unsigned int> triggers = c.triggers();
+  int length = triggers.size() / 4;
+  for ( int i=0; i<length; i++)
+  {
+    sprintf(line," %3.3d: %10d    %3.3d: %10d    %3.3d: %10d    %3.3d: %10d",
+	    i,              triggers[i], 
+	    (i+length),     triggers[i+length], 
+	    (i+(length*2)), triggers[i+(length*2)], 
+	    (i+(length*3)), triggers[i+(length*3)]);
+    s << line << std::endl;
+  }
   return s;
 }

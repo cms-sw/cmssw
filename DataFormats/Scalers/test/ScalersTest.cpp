@@ -25,6 +25,7 @@ int main(int argc, char** argv)
   if ( fd > 0 )
   {
     int bytes = read(fd,buffer,sizeof(struct ScalersEventRecordRaw_v1));
+    close(fd);
     if ( bytes <= 0 )
     {
       printf("Error %s reading file %s\n", fileName,
@@ -34,9 +35,10 @@ int main(int argc, char** argv)
     {
       printf("Read %d bytes from %s\n", bytes, fileName);
       L1TriggerScalers trig(buffer);
+      std::cout << trig;
       LumiScalers lumi(buffer);
+      std::cout << lumi;
     }
-    close(fd);
   }
   else
   {

@@ -41,21 +41,24 @@ class LumiScalers
   /// empty method (= false)
   bool empty() const { return false; }
 
-  int version()                      { return(version_);}
-  double normalization()             { return(normalization_);}
-  double instantLumi()               { return(instantLumi_);}
-  double instantLumiErr()            { return(instantLumiErr_);}
-  double instantLumiQlty()           { return(instantLumiQlty_);}
-  double instantETLumi()             { return(instantETLumi_);}
-  double instantETLumiErr()          { return(instantETLumiErr_);}
-  double instantETLumiQlty()         { return(instantETLumiQlty_);}
-  std::vector<double> instantOccLumi()      { return(instantOccLumi_);}
-  std::vector<double> instantOccLumiErr()   { return(instantOccLumiErr_);}
-  std::vector<double> instantOccLumiQlty()  { return(instantOccLumiQlty_);}
-  std::vector<double> lumiNoise()           { return(lumiNoise_);}
-  unsigned int sectionNumber()       { return(sectionNumber_);}
-  unsigned int startOrbit()          { return(startOrbit_);}
-  unsigned int numOrbits()           { return(numOrbits_);}
+  int version() const                      { return(version_);}
+  double normalization() const             { return(normalization_);}
+  double instantLumi() const               { return(instantLumi_);}
+  double instantLumiErr() const            { return(instantLumiErr_);}
+  double instantLumiQlty() const           { return(instantLumiQlty_);}
+  double instantETLumi() const             { return(instantETLumi_);}
+  double instantETLumiErr() const          { return(instantETLumiErr_);}
+  double instantETLumiQlty() const         { return(instantETLumiQlty_);}
+  std::vector<double> instantOccLumi() const      
+  { return(instantOccLumi_);}
+  std::vector<double> instantOccLumiErr() const   
+  { return(instantOccLumiErr_);}
+  std::vector<double> instantOccLumiQlty() const  
+  { return(instantOccLumiQlty_);}
+  std::vector<double> lumiNoise() const    { return(lumiNoise_);}
+  unsigned int sectionNumber() const       { return(sectionNumber_);}
+  unsigned int startOrbit() const          { return(startOrbit_);}
+  unsigned int numOrbits() const           { return(numOrbits_);}
 
   /// equality operator
   int operator==(const LumiScalers& e) const { return false; }
