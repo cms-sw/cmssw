@@ -1,23 +1,18 @@
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "SealBase/TimeInfo.h"
-#include <sstream>
 #include <boost/thread/mutex.hpp>
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
+#include <sstream>
+#include <unistd.h>
 
 boost::mutex			s_mutex;
 StorageAccount::StorageStats	s_stats;
 
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
+static double timeRealNanoSecs (void)
+{
+  struct timespec tm;
+  if (clock_gettime(CLOCK_REALTIME, &tm) == 0)
+    return tm.tv_sec * 1e9 + tm.tv_nsec;
+  return 0;
+}
 
 std::string
 StorageAccount::summaryText (bool banner /*=false*/)
@@ -41,6 +36,26 @@ StorageAccount::summaryText (bool banner /*=false*/)
   return os.str ();
 }
 
+std::string
+StorageAccount::summaryXML (void)
+{
+  bool first = true;
+  std::ostringstream os;
+  os << "<storage-timing-summary>\n";
+  for (StorageStats::iterator i = s_stats.begin (); i != s_stats.end(); ++i)
+    for (OperationStats::iterator j = i->second->begin (); j != i->second->end (); ++j, first = false)
+      os << " <counter-value subsystem='" << i->first
+         << "' counter-name='" << j->first
+         << "' num-operations='" << j->second.attempts
+         << "' num-successful-operations='" << j->second.successes
+         << "' total-megabytes='" << (j->second.amount / 1024 / 1024)
+         << "' total-msecs='" << (j->second.timeTotal / 1000 / 1000)
+         << "' min-msecs='" << (j->second.timeMin / 1000 / 1000)
+         << "' max-msecs='" << (j->second.timeMax / 1000 / 1000) << "'/>\n";
+  os << "</storage-timing-summary>";
+  return os.str ();
+}
+
 const StorageAccount::StorageStats &
 StorageAccount::summary (void)
 { return s_stats; }
@@ -54,17 +69,17 @@ StorageAccount::counter (const std::string &storageClass, const std::string &ope
   
   OperationStats::iterator pos = opstats->find (operation);
   if (pos == opstats->end ())
-    {
-      Counter x = { 0, 0, 0, 0, 0 };
-      pos = opstats->insert (OperationStats::value_type (operation, x)).first;
-    }
+  {
+    Counter x = { 0, 0, 0, 0, 0 };
+    pos = opstats->insert (OperationStats::value_type (operation, x)).first;
+  }
   
   return pos->second;
 }
 
 StorageAccount::Stamp::Stamp (Counter &counter)
   : m_counter (counter),
-    m_start (seal::TimeInfo::realNsecs ())
+    m_start (timeRealNanoSecs ())
 {
   boost::mutex::scoped_lock lock (s_mutex);
   m_counter.attempts++;
@@ -74,7 +89,7 @@ void
 StorageAccount::Stamp::tick (double amount) const
 {
   boost::mutex::scoped_lock lock (s_mutex);
-  double elapsed = seal::TimeInfo::realNsecs () - m_start;
+  double elapsed = timeRealNanoSecs () - m_start;
   m_counter.successes++;
   m_counter.amount += amount;
   m_counter.timeTotal += elapsed;

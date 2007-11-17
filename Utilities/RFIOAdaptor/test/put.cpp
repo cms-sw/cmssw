@@ -1,55 +1,43 @@
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
-#include "SealBase/File.h"
-#include "SealBase/Error.h"
-#include "SealBase/Signal.h"
+#include "Utilities/StorageFactory/interface/File.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include <sys/types.h>
+#include <unistd.h>
+#include <pwd.h>
 #include <iostream>
 #include <iomanip>
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
-using namespace seal;
 int main (int, char **argv)
 {
-    Signal::handleFatal (argv [0]);
+  try
+  {
+    struct passwd *info = getpwuid (getuid());
+    std::string	user (info && info->pw_name ? info->pw_name : "unknown");
+    std::string	path (std::string ("/castor/cern.ch/user/")
+    	       	      + user[0] + "/" + user + "/rfiotest");
+    std::cout << "copying /etc/motd to " << path << "\n";
 
-    try
-    {
-	std::string	user (UserInfo::self ()->id ());
-	std::string	path (std::string ("/castor/cern.ch/user/")
-		       	      + user[0] + "/" + user + "/rfiotest");
-	std::cout << "copying /etc/motd to " << path << "\n";
+    File	input ("/etc/profile");
+    RFIOFile	output (path.c_str (),
+    		        IOFlags::OpenRead
+    		        | IOFlags::OpenWrite
+    		        | IOFlags::OpenCreate
+    		        | IOFlags::OpenTruncate);
 
-	File		input ("/etc/profile");
-	RFIOFile	output (path.c_str (),
-			        IOFlags::OpenRead
-			        | IOFlags::OpenWrite
-			        | IOFlags::OpenCreate
-			        | IOFlags::OpenTruncate);
+    unsigned char buf [4096];
+    IOSize	bytes;
 
-	unsigned char	buf [4096];
-	IOSize		bytes;
+    while ((bytes = input.read (buf, sizeof (buf))))
+        output.write (buf, bytes);
 
-	while ((bytes = input.read (buf, sizeof (buf))))
-	    output.write (buf, bytes);
+    input.close ();
+    output.close ();
+  }
+  catch (cms::Exception &e)
+  {
+    std::cerr << e.explainSelf () << std::endl;
+    return EXIT_FAILURE;
+  }
 
-	input.close ();
-	output.close ();
-    }
-    catch (Error &e)
-    {
-	std::cerr << e.explain () << std::endl;
-	return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }

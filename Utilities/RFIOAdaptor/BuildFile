@@ -1,12 +1,13 @@
 <export>
  <lib name=UtilitiesRFIOAdaptor>
- <use name=Foundation/SealBase>
- <use name=Utilities/StorageTypes>
+ <use name=Utilities/StorageFactory>
+ <use name=FWCore/MessageLogger>
+ <use name=FWCore/Utilities>
  <use name=FWCore/PluginManager>
 </export>
 <flags NO_LIB_CHECKING=yes>
-<use name=Foundation/SealBase>
+<flags cppflags="-D_FILE_OFFSET_BITS=64">
+<use name=Utilities/StorageFactory>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
-<use name=Utilities/StorageTypes>
 <use name=FWCore/PluginManager>

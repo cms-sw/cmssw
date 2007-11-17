@@ -1,53 +1,41 @@
-//<<<<<< INCLUDES                                                       >>>>>>
+#include "Utilities/StorageFactory/interface/StorageMaker.h"
+#include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
+#include "Utilities/StorageFactory/interface/File.h"
+#include <unistd.h>
+#include <sys/stat.h>
 
-#include "Utilities/StorageFactory/plugins/LocalStorageMaker.h"
-#include "SealBase/IOStatus.h"
-#include "SealBase/Filename.h"
-#include "SealBase/File.h"
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
-seal::Storage *
-LocalStorageMaker::doOpen (const std::string & /* proto */,
+class LocalStorageMaker : public StorageMaker
+{
+public:
+  virtual Storage *open (const std::string &proto,
 			 const std::string &path,
 			 int mode,
-			 const std::string & /* tmpdir */)
-{ 
-  // FIXME
-  // Force unbuffered mode (bypassing page cache) off.  We
-  // currently make so small reads that unbuffered access
-  // will cause significant system load.  The unbuffered
-  // hint is really for networked files (rfio, dcap, etc.),
-  // where we don't want extra caching on client side due
-  // non-sequential access patterns.
-  mode &= ~seal::IOFlags::OpenUnbuffered;
+			 const std::string &tmpdir)
+  {
+    // Force unbuffered mode (bypassing page cache) off.  We
+    // currently make so small reads that unbuffered access
+    // will cause significant system load.  The unbuffered
+    // hint is really for networked files (rfio, dcap, etc.),
+    // where we don't want extra caching on client side due
+    // non-sequential access patterns.
+    mode &= ~IOFlags::OpenUnbuffered;
   
-  return new seal::File (path, mode); 
-}
+    return new File (path, mode); 
+  }
 
-bool
-LocalStorageMaker::doCheck (const std::string &proto,
-		          const std::string &path,
-		          seal::IOOffset *size /* = 0 */)
-{
-    seal::Filename name (path);
-    if (! name.exists ())
-	return false;
+  virtual bool check (const std::string &proto,
+		      const std::string &path,
+		      IOOffset *size = 0)
+  {
+    struct stat st;
+    if (stat (path.c_str(), &st) != 0)
+      return false;
 
     if (size)
-    {
-	seal::IOStatus stat;
-	name.status (stat);
-	*size = stat.m_size;
-    }
+      *size = st.st_size;
 
     return true;
-}
+  }
+};
+
+DEFINE_EDM_PLUGIN (StorageMakerFactory, LocalStorageMaker, "file");

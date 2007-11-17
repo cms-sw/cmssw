@@ -1,12 +1,13 @@
 <use name=FWCore/PluginManager>
+<use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
-<use name=Foundation/SealBase>
-<use name=Utilities/StorageTypes>
 <use name=boost>
+<flags cppflags="-D_FILE_OFFSET_BITS=64">
 <export>
-  <use name=FWCore/PluginManager>
-  <use name=Foundation/SealBase>
-  <use name=boost>
   <lib name=UtilitiesStorageFactory>
+  <use name=FWCore/PluginManager>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/Utilities>
+  <use name=boost>
 </export>
 

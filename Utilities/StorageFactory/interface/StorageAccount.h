@@ -1,27 +1,18 @@
 #ifndef STORAGE_FACTORY_STORAGE_ACCOUNT_H
 # define STORAGE_FACTORY_STORAGE_ACCOUNT_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
-# include "SealBase/LongLong.h"
 # include <boost/shared_ptr.hpp>
+# include <stdint.h>
 # include <string>
 # include <map>
-
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class StorageAccount
 {
 public:
   struct Counter
   {
-    seal::ULongLong	attempts;
-    seal::ULongLong	successes;
+    uint64_t		attempts;
+    uint64_t		successes;
     double		amount;
     double		timeTotal;
     double              timeMin;
@@ -43,12 +34,10 @@ public:
   typedef std::map<std::string, boost::shared_ptr<OperationStats> > StorageStats;
   
   static const StorageStats &	summary (void);
+  static std::string		summaryXML (void);
   static std::string		summaryText (bool banner=false);
   static Counter &		counter (const std::string &storageClass,
 					 const std::string &operation);
 };
-
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // STORAGE_FACTORY_STORAGE_ACCOUNT_H
