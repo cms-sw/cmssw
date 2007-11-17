@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.36 2007/10/22 14:01:00 llista Exp $
+ * \version $Id: Candidate.h,v 1.31.2.1 2007/10/22 17:08:10 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -14,7 +14,7 @@
 #include "DataFormats/Candidate/interface/const_iterator.h"
 #include "DataFormats/Candidate/interface/iterator.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "boost/iterator/filter_iterator.hpp"
+class OverlapChecker;
 
 namespace reco {
   
@@ -31,10 +31,6 @@ namespace reco {
     explicit Candidate( const Particle & p ) : Particle( p ) { }
     /// constructor from values
     Candidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-	       int pdgId = 0, int status = 0, bool integerCharge = true ) : 
-      Particle( q, p4, vtx, pdgId, status, integerCharge ) { }
-    /// constructor from values
-    Candidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 	       int pdgId = 0, int status = 0, bool integerCharge = true ) : 
       Particle( q, p4, vtx, pdgId, status, integerCharge ) { }
     /// destructor
@@ -65,9 +61,6 @@ namespace reco {
     /// returns reference to master clone, if existing.
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate
     virtual const CandidateBaseRef & masterClone() const;
-    /// cast master clone reference to a concrete type
-    template<typename Ref>
-    Ref masterRef() const { return masterClone().template castTo<Ref>(); }
     /// get a component
     template<typename T> T get() const { 
       if ( hasMasterClone() ) return masterClone()->get<T>();
@@ -99,24 +92,11 @@ namespace reco {
       else return reco::numberOf<T, Tag>( * this ); 
     }
 
-    template<typename S> 
-    struct daughter_iterator {
-      typedef boost::filter_iterator<S, const_iterator> type;
-    };
-
-    template<typename S>
-    typename daughter_iterator<S>::type beginFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, begin(), end());
-    }
-    template<typename S>
-    typename daughter_iterator<S>::type endFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, end(), end());
-    }
   private:
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & ) const = 0;
-    template<typename, typename> friend struct component; 
-    friend class OverlapChecker;
+    template<typename, typename, typename> friend struct component; 
+    friend class ::OverlapChecker;
     friend class ShallowCloneCandidate;
   };
 

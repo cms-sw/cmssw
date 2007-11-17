@@ -38,7 +38,7 @@ namespace cms
   protected:
     edm::ParameterSet conf_;
     const TrajectoryBuilder*  theTrajectoryBuilder;
-    const TrajectoryCleaner*               theTrajectoryCleaner;
+    TrajectoryCleaner*               theTrajectoryCleaner;
     TransientInitialStateEstimator*  theInitialState;
     
     edm::ESHandle<MagneticField>                theMagField;

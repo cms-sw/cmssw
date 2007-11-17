@@ -13,8 +13,10 @@
  *
  ************************************************************/
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"  
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
@@ -22,6 +24,10 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ValidityInterval.h"
 
 class PropagatorWithMaterial;
 class KFUpdator;
@@ -29,7 +35,7 @@ class PixelHitMatcher;
 class MeasurementTracker;
 class NavigationSchool;
 
-class ElectronPixelSeedGenerator: public ElectronSeedGenerator
+class ElectronPixelSeedGenerator
 {
 public:
 
@@ -39,6 +45,9 @@ public:
   typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
   
+
+  enum mode{HLT, offline, unknown};  //to be used later
+
   ElectronPixelSeedGenerator(
                           float iephimin1,
 			  float iephimax1,
@@ -55,8 +64,9 @@ public:
 
   ~ElectronPixelSeedGenerator();
 
-  void setupES(const edm::EventSetup& setup);
-  void run(edm::Event&, const edm::EventSetup& setup, const edm::Handle<reco::SuperClusterCollection>&, reco::ElectronPixelSeedCollection&);
+  void setup(bool);
+  void setupES(const edm::EventSetup& setup, const edm::ParameterSet& conf);
+  void run(edm::Event&, const edm::Handle<reco::SuperClusterCollection>&, reco::ElectronPixelSeedCollection&);
 
  private:
 
@@ -73,6 +83,7 @@ public:
   
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;
+  mode theMode_;
 
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
@@ -84,9 +95,14 @@ public:
 
   const edm::EventSetup *theSetup; 
   TrajectoryStateTransform transformer_; 
-
+  //RC recHitContainer recHits_; 
   PRecHitContainer recHits_; 
   PTrajectoryStateOnDet* pts_; 
+
+  /*   edm::ValidityInterval vMag; */
+  /*   edm::ValidityInterval vTrackerDigi; */
+  /*   edm::ValidityInterval vTrackerReco; */
+
 };
 
 #endif // ElectronPixelSeedGenerator_H

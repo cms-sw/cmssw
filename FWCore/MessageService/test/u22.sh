@@ -4,7 +4,7 @@ pushd $LOCAL_TMP_DIR
 
 status=0
   
-rm -f  u22_warnings.log 2
+rm -f  u22_warnings.log
 
 cmsRun -p $LOCAL_TEST_DIR/u22.cfg 
  

@@ -17,7 +17,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "RecoMuon/TrackingTools/interface/MuonErrorMatrix.h"
 
 class TrackingRegion;
 class MuonServiceProxy;
@@ -67,7 +66,6 @@ private:
   Chi2MeasurementEstimator * theChi2Estimator;
   std::string theCategory;
 
-  MuonErrorMatrix * theErrorMatrixAdjuster;
 };
 
 

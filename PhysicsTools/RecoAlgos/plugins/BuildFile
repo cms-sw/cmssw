@@ -1,9 +1,13 @@
-<export></export>
-<library name=PhysicsToolsRecoAlgos_plugins file=*.cc>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=PhysicsTools/UtilAlgos>
-<use name=DataFormats/TrackReco>
-<use name=DataFormats/EgammaReco>
-<use name=DataFormats/EgammaReco>
+
+<library file=TrackMerger.cc>
+  <use name=DataFormats/TrackReco>
+</library>
+<library file=BasicClusterMerger.cc>
+  <use name=DataFormats/EgammaReco>
+</library>
+<library file=SuperClusterMerger.cc>
+  <use name=DataFormats/EgammaReco>
 </library>

@@ -30,11 +30,16 @@ class HcalDataFormatClient{
 public:
 
 /// Constructor
-HcalDataFormatClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
+HcalDataFormatClient(const ParameterSet& ps, MonitorUserInterface* mui);
 HcalDataFormatClient();
 
 /// Destructor
 virtual ~HcalDataFormatClient();
+
+/// Subscribe/Unsubscribe to Monitoring Elements
+void subscribe(void);
+void subscribeNew(void);
+void unsubscribe(void);
 
 /// Analyze
 void analyze(void);
@@ -82,11 +87,10 @@ private:
   int jevt_;
   
   bool cloneME_;
-  bool debug_;
+  bool verbose_;
   string process_;
 
-  //  MonitorUserInterface* mui_;
-  DaqMonitorBEInterface* dbe_;
+  MonitorUserInterface* mui_;
 
   bool subDetsOn_[3];
 

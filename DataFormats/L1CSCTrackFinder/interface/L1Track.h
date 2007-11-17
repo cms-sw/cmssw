@@ -73,8 +73,8 @@ namespace csc{
       /// This prevents people from adding too many track stubs.
 
       friend class CSCTFSectorProcessor; // for track stubs
-      friend class CSCTFUnpacker; // for track id bits and track stubs
-      friend class CSCTFSPCoreLogic; // for track id bits
+      friend class ::CSCTFUnpacker; // for track id bits and track stubs
+      friend class ::CSCTFSPCoreLogic; // for track id bits
 
       void Print() const;
 

@@ -6,8 +6,8 @@
 
 /** \class HcalRecHitMonitor
   *  
-  * $Date: 2007/10/04 21:03:13 $
-  * $Revision: 1.12 $
+  * $Date: 2006/12/12 19:10:27 $
+  * $Revision: 1.10 $
   * \author W. Fisher - FNAL
   */
 class HcalRecHitMonitor: public HcalBaseMonitor {
@@ -18,7 +18,6 @@ public:
   void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
   void processEvent(const HBHERecHitCollection& hbHits, const HORecHitCollection& hoHits, const HFRecHitCollection& hfHits);
   void clearME();
-  void reset();
 
 private:  ///Monitoring elements
 
@@ -28,6 +27,8 @@ private:  ///Monitoring elements
 
   double etaMax_, etaMin_, phiMax_, phiMin_;
   int etaBins_, phiBins_;
+
+  
 
   struct{
     MonitorElement* meOCC_MAP_GEO;

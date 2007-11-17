@@ -51,6 +51,8 @@
 
 using namespace std;
 
+#define STAY_PACKED
+
 OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet&              conf,
 						       const PixelClusterParameterEstimator* pixelCPE,
 						       const StripClusterParameterEstimator* stripCPE,
@@ -63,7 +65,7 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
 						       bool isRegional):
   MeasurementTracker(conf,pixelCPE,stripCPE,hitMatcher,trackerGeom,geometricSearchTracker,stripCabling,stripNoises,isRegional)
   , category_("OnDemandMeasurementTracker")
-  , StayPacked_(true)
+  , StayUnpacked_(true)
   , StripOnDemand_(true)
   , PixelOnDemand_(false)
   , theStripRegionCabling(stripRegionCabling)
@@ -156,7 +158,7 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & theLaz
     region_range.second = theGetter->size();
 
     LogDebug(category_)<<"between index: "<<region_range.first<<" "<<region_range.second
-		       <<"\n"<<dumpRegion(region_range,*theGetter,StayPacked_);
+		       <<"\n"<<dumpRegion(region_range,*theGetterH,StayUnpacked_);
     
     //now assign to each measurement det for that element index
     for (std::vector<DetODContainer::iterator>::iterator dIt=eIt->second.begin();
@@ -217,7 +219,7 @@ std::string OnDemandMeasurementTracker::dumpCluster(const std::vector<SiStripClu
 
 std::string OnDemandMeasurementTracker::dumpRegion(std::pair<uint,uint> indexes,
 					     const RefGetter & theGetter,
-					     bool stayPacked)const
+					     bool stayUnpacked)const
 {
   //  dumpRegion is a printout of all the clusters in a region defined on the RefGetter. returns a string
   std::stringstream ss;
@@ -232,7 +234,7 @@ std::string OnDemandMeasurementTracker::dumpRegion(std::pair<uint,uint> indexes,
       <<"\n region absolute index: "<<reg
       <<"\n region position index: "<<posI.first<<" "<<posI.second
       <<"\n region position: "<<pos.first<<" "<<pos.second
-      <<"\n"<< (stayPacked? " hidden to avoid unpacking." : dumpCluster((theGetter)[iRegion].begin(),(theGetter)[iRegion].end()));
+      <<"\n"<< (stayUnpacked? dumpCluster((theGetter)[iRegion].begin(),(theGetter)[iRegion].end()) : " hidden to avoid unpacking.");
   }
   return ss.str();
 }

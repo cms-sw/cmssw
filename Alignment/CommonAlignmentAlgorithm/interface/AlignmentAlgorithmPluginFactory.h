@@ -10,6 +10,12 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
-typedef edmplugin::PluginFactory<AlignmentAlgorithmBase* (const edm::ParameterSet&)> AlignmentAlgorithmPluginFactory;
 
+// Forward declaration
+namespace edm { class ParameterSet; }
+
+typedef edmplugin::PluginFactory<AlignmentAlgorithmBase* (const edm::ParameterSet&) > 
+                    AlignmentAlgorithmPluginFactory;
+  
 #endif
+

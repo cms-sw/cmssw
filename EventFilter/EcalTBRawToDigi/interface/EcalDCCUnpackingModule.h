@@ -1,11 +1,11 @@
-#ifndef EcalDCCTBUnpackingModule_H
-#define EcalDCCTBUnpackingModule_H
+#ifndef EcalDCCUnpackingModule_H
+#define EcalDCCUnpackingModule_H
 
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: 2007/07/04 14:05:12 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/04/12 08:36:46 $
+ *  $Revision: 1.9 $
  * \author N. Marinelli 
  * \author G. Della Ricca
  */
@@ -18,18 +18,18 @@
 
 
 class EcalTBDaqFormatter;
-class EcalSupervisorTBDataFormatter;
+class EcalSupervisorDataFormatter;
 class CamacTBDataFormatter;
 class TableDataFormatter;
-class MatacqTBDataFormatter;
+class MatacqDataFormatter;
 
-  class EcalDCCTBUnpackingModule: public edm::EDProducer {
+  class EcalDCCUnpackingModule: public edm::EDProducer {
   public:
     /// Constructor
-    EcalDCCTBUnpackingModule(const edm::ParameterSet& pset);
+    EcalDCCUnpackingModule(const edm::ParameterSet& pset);
 
     /// Destructor
-    virtual ~EcalDCCTBUnpackingModule();
+    virtual ~EcalDCCUnpackingModule();
     
     /// Produce digis out of raw data
     void produce(edm::Event & e, const edm::EventSetup& c);
@@ -43,10 +43,10 @@ class MatacqTBDataFormatter;
   private:
 
     EcalTBDaqFormatter* formatter_;
-    EcalSupervisorTBDataFormatter* ecalSupervisorFormatter_;
+    EcalSupervisorDataFormatter* ecalSupervisorFormatter_;
     CamacTBDataFormatter* camacTBformatter_;
     TableDataFormatter* tableFormatter_;
-    MatacqTBDataFormatter* matacqFormatter_;
+    MatacqDataFormatter* matacqFormatter_;
 
   };
 

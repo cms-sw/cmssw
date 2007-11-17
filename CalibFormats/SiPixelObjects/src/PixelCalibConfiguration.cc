@@ -19,8 +19,7 @@ using namespace pos;
 PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
   PixelCalibBase(), PixelConfigBase("","","") {
 
-  _bufferData=false;
-  
+
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
@@ -200,7 +199,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 
 }
 
-void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation* translation)
+void PixelCalibConfiguration::buildROCAndModuleLists(PixelNameTranslation* translation)
 {
 	assert( translation != 0 );
 	
@@ -398,12 +397,6 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 			     PixelNameTranslation* trans,
 			     unsigned int state) const {
 
-    pixelFEC->fecDebug(1);
-
-    //unsigned long version=0;
-    //pixelFEC->getversion(&version);
-    //std::cout<<"mfec firmware version:"<<version<<std::endl;
-
     assert(rocAndModuleListsBuilt_);
     
     assert(state<nConfigurations());
@@ -494,7 +487,7 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
                             theROC.portaddress(),
                             theROC.rocid(),
                             dacs_[i].dacchannel(),
-                            dacvalues[i],_bufferData);
+                            dacvalues[i]);
           //          std::cout << "Will set dac "<<dacchannel_[i]
           //          <<" to "<<dacvalues[i]<<std::endl;
         }
@@ -525,21 +518,20 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 	    if (highVCalRange_) range|=0x4;  //turn range bit on
 	    else range&=0x3;                 //turn range bit off
 
-
 	    pixelFEC->progdac(theROC.mfec(),
 			      theROC.mfecchannel(),
 			      theROC.hubaddress(),
 			      theROC.portaddress(),
 			      theROC.rocid(),
 			      0xfd,
-			      range,_bufferData);
+			      range);
+
 
 	    pixelFEC->clrcal(theROC.mfec(),
 			     theROC.mfecchannel(),
 			     theROC.hubaddress(),
 			     theROC.portaddress(),
-			     theROC.rocid(),_bufferData);
-            
+			     theROC.rocid());
 	    unsigned int nrow=rows_[i_row].size();
 	    unsigned int ncol=cols_[i_col].size();
 	    unsigned int nmax=std::max(nrow,ncol);
@@ -554,7 +546,6 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 		/*		std::cout << "Will do a calpix on roc, col, row:"
 			  <<theROC.rocid()<<" "<<col<<" "<<row<<std::endl;
 		*/
-
 		pixelFEC->calpix(theROC.mfec(),
 				 theROC.mfecchannel(),
 				 theROC.hubaddress(),
@@ -562,13 +553,9 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 				 theROC.rocid(),
 				 col,
 				 row,
-				 1,_bufferData);
+				 1);
 	    }
 	}
-    }
-
-    if (_bufferData) {
-      pixelFEC->qbufsend();
     }
     
     return;
@@ -778,7 +765,8 @@ void PixelCalibConfiguration::enablePixels(PixelFECConfigInterface* pixelFEC,
 			      theROC.rocid(),
 			      cols_[icols][icol],
 			      rows_[irows][irow],
-			      0x80,_bufferData);
+			      0x80);
+		
 	}
     }
 
@@ -805,7 +793,8 @@ void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
 				  theROC.rocid(),
 				  cols_[icols][icol],
 				  rows_[irows][irow],
-				  0x0,_bufferData);
+				  0x0);
+		
 	    }
 	}
 }

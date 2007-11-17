@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2007/04/05 14:53:59 $
- * $Revision: 1.24 $
+ * $Date: 2007/07/21 00:29:06 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+class DaqMonitorBEInterface;
 
 class EBTestPulseTask: public edm::EDAnalyzer{
 

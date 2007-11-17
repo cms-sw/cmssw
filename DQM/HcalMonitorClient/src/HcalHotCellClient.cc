@@ -1,11 +1,11 @@
 #include <DQM/HcalMonitorClient/interface/HcalHotCellClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 
-HcalHotCellClient::HcalHotCellClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
+HcalHotCellClient::HcalHotCellClient(const ParameterSet& ps, MonitorUserInterface* mui){
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
 
-  dbe_ = dbe;
+  mui_ = mui;
   for(int i=0; i<4; i++){
     occ_geo_[i][0]=0;
     occ_en_[i][0]=0;
@@ -24,7 +24,7 @@ HcalHotCellClient::HcalHotCellClient(const ParameterSet& ps, DaqMonitorBEInterfa
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor/");
+  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
   
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
@@ -41,7 +41,7 @@ HcalHotCellClient::HcalHotCellClient(){
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
 
-  dbe_ = 0;
+  mui_ = 0;
   for(int i=0; i<4; i++){
     occ_geo_[i][0]=0;
     occ_en_[i][0]=0;
@@ -72,6 +72,7 @@ void HcalHotCellClient::beginJob(void){
   jevt_ = 0;
 
   this->setup();
+  this->subscribe();
   this->resetAllME();
   return;
 }
@@ -82,6 +83,7 @@ void HcalHotCellClient::beginRun(void){
 
   jevt_ = 0;
   this->setup();
+  this->subscribe();
   this->resetAllME();
   return;
 }
@@ -139,14 +141,51 @@ void HcalHotCellClient::cleanup(void) {
   return;
 }
 
+void HcalHotCellClient::subscribe(void){
+
+  if ( verbose_ ) cout << "HcalHotCellClient: subscribe" << endl;
+  if(mui_){
+    mui_->subscribe("*/HcalMonitor/HotCellMonitor/*");
+    mui_->subscribe("*/HcalMonitor/HotCellMonitor/HB/*");
+    mui_->subscribe("*/HcalMonitor/HotCellMonitor/HE/*");
+    mui_->subscribe("*/HcalMonitor/HotCellMonitor/HF/*");
+    mui_->subscribe("*/HcalMonitor/HotCellMonitor/HO/*");
+  }
+  return;
+}
+
+void HcalHotCellClient::subscribeNew(void){
+  if(mui_){
+    mui_->subscribeNew("*/HcalMonitor/HotCellMonitor/*");
+    mui_->subscribeNew("*/HcalMonitor/HotCellMonitor/HB/*");
+    mui_->subscribeNew("*/HcalMonitor/HotCellMonitor/HE/*");
+    mui_->subscribeNew("*/HcalMonitor/HotCellMonitor/HF/*");
+    mui_->subscribeNew("*/HcalMonitor/HotCellMonitor/HO/*");
+  }
+  return;
+}
+
+void HcalHotCellClient::unsubscribe(void){
+
+  if ( verbose_ ) cout << "HcalHotCellClient: unsubscribe" << endl;
+  if(mui_){
+    mui_->unsubscribe("*/HcalMonitor/HotCellMonitor/*");
+    mui_->unsubscribe("*/HcalMonitor/HotCellMonitor/HB/*");
+    mui_->unsubscribe("*/HcalMonitor/HotCellMonitor/HE/*");
+    mui_->unsubscribe("*/HcalMonitor/HotCellMonitor/HF/*");
+    mui_->unsubscribe("*/HcalMonitor/HotCellMonitor/HO/*");
+  }
+  return;
+}
+
 void HcalHotCellClient::errorOutput(){
-  if(!dbe_) return;
+  if(!mui_) return;
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   
   for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
     string testName = testsMap->first;
     string meName = testsMap->second;
-    MonitorElement* me = dbe_->get(meName);
+    MonitorElement* me = mui_->getBEInterface()->get(meName);
     if(me){
       if (me->hasError()){
 	vector<QReport*> report =  me->getQErrors();
@@ -193,7 +232,7 @@ void HcalHotCellClient::report(){
   char name[256];
   sprintf(name, "%sHcalMonitor/HotCellMonitor/HotCell Task Event Number",process_.c_str());
   MonitorElement* me = 0;
-  if(dbe_) me = dbe_->get(name);
+  if(mui_) me = mui_->getBEInterface()->get(name);
   if ( me ) {
     string s = me->valueString();
     ievt_ = -1;
@@ -210,7 +249,7 @@ void HcalHotCellClient::analyze(void){
 
   jevt_++;
   int updates = 0;
-  //  if(dbe_) dbe_->getNumUpdates();
+  if(mui_) mui_->getNumUpdates();
   if ( updates % 10 == 0 ) {
     if ( verbose_ ) cout << "HcalHotCellClient: " << updates << " updates" << endl;
   }
@@ -219,15 +258,15 @@ void HcalHotCellClient::analyze(void){
 }
 
 void HcalHotCellClient::getHistograms(){
-  if(!dbe_) return;
+  if(!mui_) return;
   char name[150];    
   
   for(int i=0; i<4; i++){
     sprintf(name,"HotCellMonitor/HotCell Depth %d Occupancy Map",i+1);
-    gl_geo_[i] = getHisto2(name, process_, dbe_,verbose_,cloneME_);
+    gl_geo_[i] = getHisto2(name, process_, mui_,verbose_,cloneME_);
     
     sprintf(name,"HotCellMonitor/HotCell Depth %d Energy Map",i+1);
-    gl_en_[i] = getHisto2(name, process_, dbe_,verbose_,cloneME_);    
+    gl_en_[i] = getHisto2(name, process_, mui_,verbose_,cloneME_);    
   }
     
   for(int i=0; i<4; i++){
@@ -237,42 +276,42 @@ void HcalHotCellClient::getHistograms(){
     if(i==2) type = "HF"; 
     if(i==3) type = "HO"; 
     sprintf(name,"HotCellMonitor/%s/%s HotCell Geo Occupancy Map, Threshold 0",type.c_str(),type.c_str());
-    occ_geo_[i][0] = getHisto2(name, process_, dbe_,verbose_,cloneME_);      
+    occ_geo_[i][0] = getHisto2(name, process_, mui_,verbose_,cloneME_);      
     sprintf(name,"HotCellMonitor/%s/%s HotCell Geo Energy Map, Threshold 0",type.c_str(),type.c_str());
-    occ_en_[i][0] = getHisto2(name, process_, dbe_,verbose_,cloneME_);
+    occ_en_[i][0] = getHisto2(name, process_, mui_,verbose_,cloneME_);
 
     sprintf(name,"HotCellMonitor/%s/%s HotCell Geo Occupancy Map, Threshold 1",type.c_str(),type.c_str());
-    occ_geo_[i][1] = getHisto2(name, process_, dbe_,verbose_,cloneME_);      
+    occ_geo_[i][1] = getHisto2(name, process_, mui_,verbose_,cloneME_);      
     sprintf(name,"HotCellMonitor/%s/%s HotCell Geo Energy Map, Threshold 1",type.c_str(),type.c_str());
-    occ_en_[i][1] = getHisto2(name, process_, dbe_,verbose_,cloneME_);
+    occ_en_[i][1] = getHisto2(name, process_, mui_,verbose_,cloneME_);
 
     sprintf(name,"HotCellMonitor/%s/%s HotCell Energy",type.c_str(),type.c_str());
-    max_en_[i] = getHisto(name, process_, dbe_,verbose_,cloneME_);
+    max_en_[i] = getHisto(name, process_, mui_,verbose_,cloneME_);
     sprintf(name,"HotCellMonitor/%s/%s HotCell Time",type.c_str(),type.c_str());
-    max_t_[i] = getHisto(name, process_, dbe_,verbose_,cloneME_);    
+    max_t_[i] = getHisto(name, process_, mui_,verbose_,cloneME_);    
   }
   return;
 }
 
 void HcalHotCellClient::resetAllME(){
-  if(!dbe_) return;
+  if(!mui_) return;
 
   Char_t name[150];    
 
   sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Energy",process_.c_str());
-  resetME(name,dbe_);
+  resetME(name,mui_);
   sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Time",process_.c_str());
-  resetME(name,dbe_);
+  resetME(name,mui_);
   for(int i=1; i<5; i++){
     sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Depth %d Occupancy Map",process_.c_str(),i);
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Depth %d Energy Map",process_.c_str(),i);
-    resetME(name,dbe_);
+    resetME(name,mui_);
   }
   sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Occupancy Map",process_.c_str());
-  resetME(name,dbe_);
+  resetME(name,mui_);
   sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Energy Map",process_.c_str());
-  resetME(name,dbe_);
+  resetME(name,mui_);
 
 
   for(int i=0; i<4; i++){
@@ -283,23 +322,23 @@ void HcalHotCellClient::resetAllME(){
     if(i==3) type = "HO"; 
     
     sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Energy",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Time",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell ID",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Occupancy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Energy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Occupancy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Energy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Occupancy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Energy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,dbe_);
+    resetME(name,mui_);
   }
 
   return;
@@ -309,7 +348,7 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   cout << "Preparing HcalHotCellClient html output ..." << endl;
   string client = "HotCellMonitor";
-  htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+  htmlErrors(runNo,htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());

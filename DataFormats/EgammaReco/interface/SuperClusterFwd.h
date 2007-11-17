@@ -4,6 +4,9 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
+#include "DataFormats/EgammaReco/interface/ClusterPi0DiscriminatorFwd.h"
+#include "DataFormats/EgammaReco/interface/EgammaTriggerFwd.h"
 
 namespace reco {
   class SuperCluster;

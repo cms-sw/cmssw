@@ -4,7 +4,7 @@
 */
 
 // Prototype class definition
-#include "SourceCardRouting.h"			//hh"
+#include "L1Trigger/TextToDigi/src/SourceCardRouting.h"	//hh"
 
 // File streams
 #include <iomanip>
@@ -38,7 +38,7 @@ void SourceCardRouting::EMUtoSFP(	unsigned short (&eIsoRank)[4],
 			unsigned short (&SFP)[2][4] ){
 
 SFP[0][0]=0;
-SFP[1][0]=0x8000;
+SFP[1][0]=0;
 
 for (int i=0;i<7;i++){
 	for (int j=0;j<2;j++){
@@ -48,11 +48,11 @@ for (int i=0;i<7;i++){
 }
 
       	SFP[0][1] = (eIsoRank[0]&0x3f)|((eIsoRegionId[0]&0x01)<<6)|((eIsoCardId[0]&0x07)<<7)|((eIsoRank[1]&0x7)<<10);
-      	SFP[1][1] = 0x8000|(eIsoRank[2]&0x3f)|((eIsoRegionId[2]&0x01)<<6)|((eIsoCardId[2]&0x07)<<7)|((eIsoRank[3]&0x7)<<10);
+      	SFP[1][1] = (eIsoRank[2]&0x3f)|((eIsoRegionId[2]&0x01)<<6)|((eIsoCardId[2]&0x07)<<7)|((eIsoRank[3]&0x7)<<10);
       	SFP[0][2] = (eNonIsoRank[0]&0x3f)|((eNonIsoRegionId[0]&0x01)<<6)|((eNonIsoCardId[0]&0x07)<<7)|((eIsoRank[1]&0x38)<<7)|((eIsoRegionId[1]&0x01)<<13);
-      	SFP[1][2] = 0x8000|(eNonIsoRank[2]&0x3f)|((eNonIsoRegionId[2]&0x01)<<6)|((eNonIsoCardId[2]&0x07)<<7)|((eIsoRank[3]&0x38)<<7)|((eIsoRegionId[3]&0x01)<<13);
+      	SFP[1][2] = (eNonIsoRank[2]&0x3f)|((eNonIsoRegionId[2]&0x01)<<6)|((eNonIsoCardId[2]&0x07)<<7)|((eIsoRank[3]&0x38)<<7)|((eIsoRegionId[3]&0x01)<<13);
       	SFP[0][3] = (eNonIsoRank[1]&0x3f)|((eNonIsoRegionId[1]&0x01)<<6)|((eNonIsoCardId[1]&0x07)<<7)|((eIsoCardId[1]&0x07)<<10);
-      	SFP[1][3] = 0x8000|(eNonIsoRank[3]&0x3f)|((eNonIsoRegionId[3]&0x01)<<6)|((eNonIsoCardId[3]&0x07)<<7)|((eIsoCardId[3]&0x07)<<10);
+      	SFP[1][3] = (eNonIsoRank[3]&0x3f)|((eNonIsoRegionId[3]&0x01)<<6)|((eNonIsoCardId[3]&0x07)<<7)|((eIsoCardId[3]&0x07)<<10);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,13 +123,13 @@ void SourceCardRouting::RC56HFtoSFP(	unsigned short (&RC)[7][2],
 			unsigned short (&SFP)[2][4]){
 
 	SFP[0][0] = (RC[5][0]&0x3ff)|((RCof[5][0]&0x1)<<10)|((RCtau[5][0]&0x1)<<11)|((HFQ[0][0]&0x1)<<12)|((HFQ[1][0]&0x01)<<13)|((HF[0][0]&0x01)<<14);
-	SFP[1][0] = 0x8000|(RC[5][1]&0x3ff)|((RCof[5][1]&0x1)<<10)|((RCtau[5][1]&0x1)<<11)|((HFQ[2][0]&0x1)<<12)|((HFQ[3][0]&0x01)<<13)|((HF[2][0]&0x01)<<14);
+	SFP[1][0] = (RC[5][1]&0x3ff)|((RCof[5][1]&0x1)<<10)|((RCtau[5][1]&0x1)<<11)|((HFQ[2][0]&0x1)<<12)|((HFQ[3][0]&0x01)<<13)|((HF[2][0]&0x01)<<14);
       	SFP[0][1] = (RC[6][0]&0x3ff)|((RCof[6][0]&0x1)<<10)|((RCtau[6][0]&0x1)<<11)|((HFQ[0][1]&0x1)<<12)|((HFQ[1][1]&0x01)<<13)|((HF[0][1]&0x01)<<14);
-      	SFP[1][1] = 0x8000|(RC[6][1]&0x3ff)|((RCof[6][1]&0x1)<<10)|((RCtau[6][1]&0x1)<<11)|((HFQ[2][1]&0x1)<<12)|((HFQ[3][1]&0x01)<<13)|((HF[2][1]&0x01)<<14);
+      	SFP[1][1] = (RC[6][1]&0x3ff)|((RCof[6][1]&0x1)<<10)|((RCtau[6][1]&0x1)<<11)|((HFQ[2][1]&0x1)<<12)|((HFQ[3][1]&0x01)<<13)|((HF[2][1]&0x01)<<14);
       	SFP[0][2] = ((HF[0][0]>>1)&0x7f)|((HF[1][0]&0xff)<<7);
-      	SFP[1][2] = 0x8000|((HF[2][0]>>1)&0x7f)|((HF[3][0]&0xff)<<7);
+      	SFP[1][2] = ((HF[2][0]>>1)&0x7f)|((HF[3][0]&0xff)<<7);
       	SFP[0][3] = ((HF[0][1]>>1)&0x7f)|((HF[1][1]&0xff)<<7);
-      	SFP[1][3] = 0x8000|((HF[2][1]>>1)&0x7f)|((HF[3][1]&0xff)<<7);
+      	SFP[1][3] = ((HF[2][1]>>1)&0x7f)|((HF[3][1]&0xff)<<7);
 
 
 }
@@ -193,16 +193,16 @@ void SourceCardRouting::RC56HFtoSFP(	unsigned short (&RC)[7][2],
 			unsigned short (&SFP)[2][4]){
 
 	SFP[0][0] = (RC[0][0]&0x3ff)|((RCof[0][0]&0x1)<<10)|((RCtau[0][0]&0x1)<<11)|((RC[2][0]&0x7)<<12);
-	SFP[1][0] = 0x8000|(RC[0][1]&0x3ff)|((RCof[0][1]&0x1)<<10)|((RCtau[0][1]&0x1)<<11)|((RC[2][1]&0x7)<<12);
+	SFP[1][0] = (RC[0][1]&0x3ff)|((RCof[0][1]&0x1)<<10)|((RCtau[0][1]&0x1)<<11)|((RC[2][1]&0x7)<<12);
 
       	SFP[0][1] = (RC[1][0]&0x3ff)|((RCof[1][0]&0x1)<<10)|((RCtau[1][0]&0x1)<<11)|((RC[2][0]&0x38)<<9);
-      	SFP[1][1] = 0x8000|(RC[1][1]&0x3ff)|((RCof[1][1]&0x1)<<10)|((RCtau[1][1]&0x1)<<11)|((RC[2][1]&0x38)<<9);
+      	SFP[1][1] = (RC[1][1]&0x3ff)|((RCof[1][1]&0x1)<<10)|((RCtau[1][1]&0x1)<<11)|((RC[2][1]&0x38)<<9);
 
 	SFP[0][2] = (RC[0][0]&0x3ff)|((RCof[0][0]&0x1)<<10)|((RCtau[0][0]&0x1)<<11);
-	SFP[1][2] = 0x8000|(RC[0][1]&0x3ff)|((RCof[0][1]&0x1)<<10)|((RCtau[0][1]&0x1)<<11);
+	SFP[1][2] = (RC[0][1]&0x3ff)|((RCof[0][1]&0x1)<<10)|((RCtau[0][1]&0x1)<<11);
 
       	SFP[0][3] = (RC[1][0]&0x3ff)|((RCof[1][0]&0x1)<<10)|((RCtau[1][0]&0x1)<<11);
-      	SFP[1][3] = 0x8000|(RC[1][1]&0x3ff)|((RCof[1][1]&0x1)<<10)|((RCtau[1][1]&0x1)<<11);
+      	SFP[1][3] = (RC[1][1]&0x3ff)|((RCof[1][1]&0x1)<<10)|((RCtau[1][1]&0x1)<<11);
 
 }
 
@@ -248,16 +248,16 @@ void SourceCardRouting::RC56HFtoSFP(	unsigned short (&RC)[7][2],
 			unsigned short (&SFP)[2][4]){
 
 	SFP[0][0] = (RC[3][0]&0x3ff)|((RCof[3][0]&0x1)<<10)|((RCtau[3][0]&0x1)<<11)|((RC[2][0]&0x1c0)<<6);
-	SFP[1][0] = 0x8000|(RC[3][1]&0x3ff)|((RCof[3][1]&0x1)<<10)|((RCtau[3][1]&0x1)<<11)|((RC[2][1]&0x1c0)<<6);
+	SFP[1][0] = (RC[3][1]&0x3ff)|((RCof[3][1]&0x1)<<10)|((RCtau[3][1]&0x1)<<11)|((RC[2][1]&0x1c0)<<6);
 
       	SFP[0][1] = (RC[4][0]&0x3ff)|((RCof[4][0]&0x1)<<10)|((RCtau[4][0]&0x1)<<11)|((RC[2][0]&0x200)<<3)|((RCof[2][0]&0x1)<<13)|((RCtau[2][0]&0x1)<<14);
-      	SFP[1][1] = 0x8000|(RC[4][1]&0x3ff)|((RCof[4][1]&0x1)<<10)|((RCtau[4][1]&0x1)<<11)|((RC[2][1]&0x200)<<3)|((RCof[2][1]&0x1)<<13)|((RCtau[2][1]&0x1)<<14);
+      	SFP[1][1] = (RC[4][1]&0x3ff)|((RCof[4][1]&0x1)<<10)|((RCtau[4][1]&0x1)<<11)|((RC[2][1]&0x200)<<3)|((RCof[2][1]&0x1)<<13)|((RCtau[2][1]&0x1)<<14);
 
 	SFP[0][2] = (sisterRC[3][0]&0x3ff)|((sisterRCof[3][0]&0x1)<<10)|((sisterRCtau[3][0]&0x1)<<11)|((sisterRC[2][0]&0x1c0)<<6);
-	SFP[1][2] = 0x8000|(sisterRC[3][1]&0x3ff)|((sisterRCof[3][1]&0x1)<<10)|((sisterRCtau[3][1]&0x1)<<11)|((sisterRC[2][1]&0x1c0)<<6);
+	SFP[1][2] = (sisterRC[3][1]&0x3ff)|((sisterRCof[3][1]&0x1)<<10)|((sisterRCtau[3][1]&0x1)<<11)|((sisterRC[2][1]&0x1c0)<<6);
 
       	SFP[0][3] = (sisterRC[4][0]&0x3ff)|((sisterRCof[4][0]&0x1)<<10)|((sisterRCtau[4][0]&0x1)<<11)|((sisterRC[2][0]&0x200)<<3)|((sisterRCof[2][0]&0x1)<<13)|((sisterRCtau[2][0]&0x1)<<14);
-      	SFP[1][3] = 0x8000|(sisterRC[4][1]&0x3ff)|((sisterRCof[4][1]&0x1)<<10)|((sisterRCtau[4][1]&0x1)<<11)|((sisterRC[2][1]&0x200)<<3)|((sisterRCof[2][1]&0x1)<<13)|((sisterRCtau[2][1]&0x1)<<14);
+      	SFP[1][3] = (sisterRC[4][1]&0x3ff)|((sisterRCof[4][1]&0x1)<<10)|((sisterRCtau[4][1]&0x1)<<11)|((sisterRC[2][1]&0x200)<<3)|((sisterRCof[2][1]&0x1)<<13)|((sisterRCtau[2][1]&0x1)<<14);
 
 }
 
@@ -399,24 +399,24 @@ for (int i=0; i<2;i++){
 	switch (RoutingMode){
 		case 0:
 			SFP[0][0]=((VHDCI[0][0]>>22)&0xff)|((VHDCI[1][0]>>14)&0x3f00);
-			SFP[1][0]=0x8000|((VHDCI[0][1]>>22)&0xff)|((VHDCI[1][1]>>14)&0x3f00);
+			SFP[1][0]=((VHDCI[0][1]>>22)&0xff)|((VHDCI[1][1]>>14)&0x3f00);
 			SFP[0][1]=(VHDCI[0][0]&0x3ff)|((VHDCI[0][0]>>1)&0x1c00);
-			SFP[1][1]=0x8000|(VHDCI[0][1]&0x3ff)|((VHDCI[0][1]>>1)&0x1c00);
+			SFP[1][1]=(VHDCI[0][1]&0x3ff)|((VHDCI[0][1]>>1)&0x1c00);
 			SFP[0][2]=(VHDCI[1][0]&0x3ff)|((VHDCI[0][0]>>4)&0x3c00);
-			SFP[1][2]=0x8000|(VHDCI[1][1]&0x3ff)|((VHDCI[0][1]>>4)&0x3c00);
+			SFP[1][2]=(VHDCI[1][1]&0x3ff)|((VHDCI[0][1]>>4)&0x3c00);
 			SFP[0][3]=((VHDCI[1][0]>>11)&0x3ff)|((VHDCI[0][0]>>8)&0x1c00);
-			SFP[1][3]=0x8000|((VHDCI[1][1]>>11)&0x3ff)|((VHDCI[0][1]>>8)&0x1c00);
+			SFP[1][3]=((VHDCI[1][1]>>11)&0x3ff)|((VHDCI[0][1]>>8)&0x1c00);
 		break;
 		case 1:
 			SFP[0][0]=(VHDCI[0][0]&0xfff)|((VHDCI_reverse[0][0]&0x600)<<3)|((VHDCI_reverse[0][0]&0x2000)<<1);
-			SFP[1][0]=0x8000|(VHDCI[0][1]&0xfff)|((VHDCI_reverse[0][1]&0x600)<<3)|((VHDCI_reverse[0][1]&0x2000)<<1);
+			SFP[1][0]=(VHDCI[0][1]&0xfff)|((VHDCI_reverse[0][1]&0x600)<<3)|((VHDCI_reverse[0][1]&0x2000)<<1);
 			SFP[0][1]=((VHDCI[0][0]&0x7000)>>12)|((VHDCI_reverse[0][0]&0x1ff)<<3)|((VHDCI_reverse[0][0]&0x1800)<<1)|(VHDCI[1][0]&0x4000);
-			SFP[1][1]=0x8000|((VHDCI[0][1]&0x7000)>>12)|((VHDCI_reverse[0][1]&0x1ff)<<3)|((VHDCI_reverse[0][1]&0x1800)<<1)|(VHDCI[1][1]&0x4000);
+			SFP[1][1]=((VHDCI[0][1]&0x7000)>>12)|((VHDCI_reverse[0][1]&0x1ff)<<3)|((VHDCI_reverse[0][1]&0x1800)<<1)|(VHDCI[1][1]&0x4000);
 
 			SFP[0][2]=((VHDCI[0][0]&0x20000)>>10);
-			SFP[1][2]=0x8000|((VHDCI[0][1]&0x20000)>>10);
+			SFP[1][2]=((VHDCI[0][1]&0x20000)>>10);
 			SFP[0][3]=((VHDCI[1][0]&0x20000)>>3);
-			SFP[1][3]=0x8000|((VHDCI[1][1]&0x20000)>>3);
+			SFP[1][3]=((VHDCI[1][1]&0x20000)>>3);
 			for (int i=0; i<7;i++){
 				SFP[0][2]=SFP[0][2]|(((VHDCI[1][0]>>(2*i))&0x1)<<i)|(((VHDCI[1][0]>>((2*i)+1))&0x1)<<(i+8));
 				SFP[1][2]=SFP[1][2]|(((VHDCI[1][1]>>(2*i))&0x1)<<i)|(((VHDCI[1][1]>>((2*i)+1))&0x1)<<(i+8));
@@ -426,33 +426,33 @@ for (int i=0; i<2;i++){
 		break;
 		case 2:
 			SFP[0][0]=(VHDCI[0][0]&0xfff)|((VHDCI_reverse[0][0]&0xe00)<<3);
-			SFP[1][0]=0x8000|(VHDCI[0][1]&0xfff)|((VHDCI_reverse[0][1]&0xe00)<<3);
+			SFP[1][0]=(VHDCI[0][1]&0xfff)|((VHDCI_reverse[0][1]&0xe00)<<3);
 			SFP[0][1]=((VHDCI[0][0]&0x7000)>>12)|((VHDCI_reverse[0][0]&0x1ff)<<3)|(VHDCI_reverse[0][0]&0x7000);
-			SFP[1][1]=0x8000|((VHDCI[0][1]&0x7000)>>12)|((VHDCI_reverse[0][1]&0x1ff)<<3)|(VHDCI_reverse[0][1]&0x7000);
+			SFP[1][1]=((VHDCI[0][1]&0x7000)>>12)|((VHDCI_reverse[0][1]&0x1ff)<<3)|(VHDCI_reverse[0][1]&0x7000);
 			SFP[0][2]=(VHDCI[0][0]&0xfff);
-			SFP[1][2]=0x8000|(VHDCI[0][1]&0xfff);
+			SFP[1][2]=(VHDCI[0][1]&0xfff);
 			SFP[0][3]=((VHDCI[0][0]&0x7000)>>12)|((VHDCI_reverse[0][0]&0x1ff)<<3);
-			SFP[1][3]=0x8000|((VHDCI[0][1]&0x7000)>>12)|((VHDCI_reverse[0][1]&0x1ff)<<3);
+			SFP[1][3]=((VHDCI[0][1]&0x7000)>>12)|((VHDCI_reverse[0][1]&0x1ff)<<3);
 		break;
 		case 3:
 			SFP[0][0]=((VHDCI[0][0]&0x7fc0)>>6)|((VHDCI_reverse[0][0]&0x7)<<9)|((VHDCI[0][0]&0x7)<<12);
-			SFP[1][0]=0x8000|((VHDCI[0][1]&0x7fc0)>>6)|((VHDCI_reverse[0][1]&0x7)<<9)|((VHDCI[0][1]&0x7)<<12);
+			SFP[1][0]=((VHDCI[0][1]&0x7fc0)>>6)|((VHDCI_reverse[0][1]&0x7)<<9)|((VHDCI[0][1]&0x7)<<12);
 			SFP[0][1]=((VHDCI_reverse[0][0]&0x7ff8)>>3)|((VHDCI[0][0]&0x38)<<9);
-			SFP[1][1]=0x8000|((VHDCI_reverse[0][1]&0x7ff8)>>3)|((VHDCI[0][1]&0x38)<<9);
+			SFP[1][1]=((VHDCI_reverse[0][1]&0x7ff8)>>3)|((VHDCI[0][1]&0x38)<<9);
 			SFP[0][2]=((VHDCI[1][0]&0x7fc0)>>6)|((VHDCI_reverse[1][0]&0x7)<<9)|((VHDCI[1][0]&0x7)<<12);
-			SFP[1][2]=0x8000|((VHDCI[1][1]&0x7fc0)>>6)|((VHDCI_reverse[1][1]&0x7)<<9)|((VHDCI[1][1]&0x7)<<12);
+			SFP[1][2]=((VHDCI[1][1]&0x7fc0)>>6)|((VHDCI_reverse[1][1]&0x7)<<9)|((VHDCI[1][1]&0x7)<<12);
 			SFP[0][3]=((VHDCI_reverse[1][0]&0x7ff8)>>3)|((VHDCI[1][0]&0x38)<<9);
-			SFP[1][3]=0x8000|((VHDCI_reverse[1][1]&0x7ff8)>>3)|((VHDCI[1][1]&0x38)<<9);
+			SFP[1][3]=((VHDCI_reverse[1][1]&0x7ff8)>>3)|((VHDCI[1][1]&0x38)<<9);
 		break;
 		default:
 			SFP[0][0]=0;
-			SFP[1][0]=0x8000;
+			SFP[1][0]=0;
 			SFP[0][1]=0;
-			SFP[1][1]=0x8000;
+			SFP[1][1]=0;
 			SFP[0][2]=0;
-			SFP[1][2]=0x8000;
+			SFP[1][2]=0;
 			SFP[0][3]=0;
-			SFP[1][3]=0x8000;
+			SFP[1][3]=0;
 		}
 }
   

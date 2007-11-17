@@ -15,8 +15,10 @@ KineParticleFilter::KineParticleFilter(const edm::ParameterSet& kine)
   etaMax = kine.getParameter<double>("etaMax"); 
   // Lower pT  bound (charged, in GeV/c)
   pTMin  = kine.getParameter<double>("pTMin");
-  // Lower E  bound (all, in GeV)
+  // Lower E  bound - reject (all, in GeV)
   EMin   = kine.getParameter<double>("EMin");
+  // Lower E  bound - accept (all, in GeV)
+  EMax   = kine.getParameter<double>("EProton");
 
   // pdg codes of the particles to be removed from the events
   // ParameterSet cannot handle sets, only vectors
@@ -73,13 +75,17 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
 
     if ( !particleCut ) return false;
 
+    // Keep protons with energy in excess of 5 TeV
+    bool protonTaggers =  (pId == 2212 && p->E() >= EMax) ;
+    if ( protonTaggers ) return true;
+
     std::set<int>::iterator is = forbiddenPdgCodes.find(pId);
     if( is != forbiddenPdgCodes.end() ) return false;
 
   //  bool kineCut = pId == 0;
   // Cut on kinematic properties
     // Cut on the energy of all particles
-    bool eneCut = p->e() >= EMin;
+    bool eneCut = p->E() >= EMin;
     if (!eneCut) return false;
 
     // Cut on the transverse momentum of charged particles

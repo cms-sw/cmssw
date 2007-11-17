@@ -1,9 +1,9 @@
 <lcgdict>
 <selection>
   <class name="reco::Particle">
+    <field name="p4_" iotype="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<Double32_t> >" /> 
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
-    <field name="p4Polar_" transient="true" />
-    <field name="p4Cartesian_" transient="true" />
+    <field name="p4Cache_" transient="true" />
   </class>
   <class name="reco::Candidate">
     <field name="mothers_" transient="true"/>
@@ -79,13 +79,7 @@
   <class name="edm::Wrapper<reco::CandMatchMapMany>" /> 
   <class pattern="edm::AssociationMap<*>::const_iterator" />
   <class pattern="edm::Wrapper<edm::AssociationVector<*>"/>
-
-  <class name="reco::CompositeCandidateCollection" />
-  <class name="edm::Wrapper<reco::CompositeCandidateCollection>" />
-  <class name="edm::reftobase::Holder<reco::Candidate, reco::CompositeCandidateRef>" />
-  <class name="edm::reftobase::RefHolder<reco::CompositeCandidateRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::CompositeCandidateRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<reco::CompositeCandidateRefVector>" />
+  <class pattern="std::iterator<std::random_access_iterator_tag,edm::RefToBase<reco::Candidate>*>" /> 
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >">

@@ -8,8 +8,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2007/10/04 21:03:13 $
- * $Revision: 1.16 $
+ * $Date: 2007/06/09 21:12:35 $
+ * $Revision: 1.13 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -23,8 +23,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 		    HcalUnpackerReport& report, const HcalElectronicsMap& emap);
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
   void clearME();
-  void reset();
-
+  
  private: // Data accessors
    vector<int> fedUnpackList_;
    vector<int> dccCrate_;
@@ -75,11 +74,11 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
      MonitorElement* meCrate16HTRErr_;   //Map of HTR errors into Crate 16
      MonitorElement* meCrate17HTRErr_;   //Map of HTR errors into Crate 17
 
-     MonitorElement* DCC_ErrWd_HB;
-     MonitorElement* DCC_ErrWd_HE;
-     MonitorElement* DCC_ErrWd_HF;
-     MonitorElement* DCC_ErrWd_HO;
-
+   struct{
+     MonitorElement* DCC_ErrWd;  //16 bit HTR error word, Ext. Header 3
+ 
+   } hbheHists,hfHists,hoHists;
+   
 };
 
 #endif

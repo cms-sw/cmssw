@@ -4,6 +4,9 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <algorithm>
+#include "boost/bind.hpp"
+
 namespace edm {
   Path::Path(int bitpos, std::string const& path_name,
 	     WorkersInPath const& workers,
@@ -89,6 +92,12 @@ namespace edm {
       if(isEvent) ++timesFailed_;
       state_ = edm::hlt::Fail;
     }
+  }
+
+  void
+  Path::clearCounters() {
+    timesRun_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
+    std::for_each(workers_.begin(), workers_.end(), boost::bind(&WorkerInPath::clearCounters, _1));
   }
 
 }

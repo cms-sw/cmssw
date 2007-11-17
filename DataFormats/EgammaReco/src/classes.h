@@ -2,10 +2,9 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "Math/Cartesian3D.h" 
 #include "DataFormats/Common/interface/RefProd.h" 
-#include "DataFormats/Common/interface/RefToBase.h"
-
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/PreshowerClusterShape.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h" 
+#include "DataFormats/EgammaReco/interface/ClusterPi0Discriminator.h"
+#include "DataFormats/EgammaReco/interface/ClusterPi0DiscriminatorFwd.h" 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "Rtypes.h" 
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
@@ -17,6 +16,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h" 
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h" 
+#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"
 
@@ -56,21 +56,24 @@ namespace {
     edm::RefProd<reco::HFEMClusterShapeCollection> rp8;
     edm::Wrapper<edm::RefVector<reco::HFEMClusterShapeCollection> > wrv8;
 
-    reco::PreshowerClusterShapeCollection v6;
-    edm::Wrapper<reco::PreshowerClusterShapeCollection> w6;
-    edm::Ref<reco::PreshowerClusterShapeCollection> r6;
-    edm::RefProd<reco::PreshowerClusterShapeCollection> rp6;
-    edm::Wrapper<edm::RefVector<reco::PreshowerClusterShapeCollection> > wrv6;
+    reco::ClusterPi0DiscriminatorCollection v6;
+    edm::Wrapper<reco::ClusterPi0DiscriminatorCollection> w6;
+    edm::Ref<reco::ClusterPi0DiscriminatorCollection> r6;
+    edm::RefProd<reco::ClusterPi0DiscriminatorCollection> rp6;
+    edm::Wrapper<edm::RefVector<reco::ClusterPi0DiscriminatorCollection> > wrv6;
 
     reco::ElectronPixelSeedCollection v111;
     edm::Wrapper<reco::ElectronPixelSeedCollection> w111;
     edm::Ref<reco::ElectronPixelSeedCollection> r111;
     edm::RefProd<reco::ElectronPixelSeedCollection> rp111;
     edm::Wrapper<edm::RefVector<reco::ElectronPixelSeedCollection> > wrv111;
-    edm::RefToBase<reco::ElectronPixelSeed> rtb11;  
-    edm::reftobase::IndirectHolder<reco::ElectronPixelSeed> ih11;
-    edm::reftobase::Holder< reco::ElectronPixelSeed, edm::Ref<reco::ElectronPixelSeedCollection> > rbh11;
-    edm::reftobase::RefHolder< edm::Ref<reco::ElectronPixelSeedCollection> > rbrh11;
+    
+    reco::SeedSuperClusterAssociationCollection v112;
+    edm::Wrapper<reco::SeedSuperClusterAssociationCollection> w112;
+    reco::SeedSuperClusterAssociation ra112;
+    reco::SeedSuperClusterAssociationRef r112;
+    reco::SeedSuperClusterAssociationRefProd rp112;
+    edm::Wrapper<reco::SeedSuperClusterAssociationRefVector> wrv112;
     
     reco::PreshowerClusterCollection ps5;
     edm::Wrapper<reco::PreshowerClusterCollection> psw5;

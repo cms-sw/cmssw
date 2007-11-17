@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 16:45:23 CEST 2006
-// $Id: DumpGctDigis.h,v 1.2 2007/07/18 21:58:12 jbrooke Exp $
+// $Id: DumpGctDigis.h,v 1.1 2007/07/18 13:14:06 tapper Exp $
 //
 //
 
@@ -40,13 +40,12 @@ public:
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
-  void doRctEM(const edm::Event&, const edm::InputTag& label);
-  void doEM(const edm::Event&, const edm::InputTag& label);
-  void doRegions(const edm::Event&, const edm::InputTag& label);
-  void doJets(const edm::Event&, const edm::InputTag& label);
-  void doInternEM(const edm::Event&, const edm::InputTag& label);
-  void doFibres(const edm::Event&, const edm::InputTag& label);
-  void doEnergySums(const edm::Event&, const edm::InputTag& label);
+  void doRctEM(const edm::Event&, edm::InputTag label);
+  void doEM(const edm::Event&, edm::InputTag label);
+  void doRegions(const edm::Event&, edm::InputTag label);
+  void doJets(const edm::Event&, edm::InputTag label);
+  void doInternEM(const edm::Event&, edm::InputTag label);
+  void doFibres(const edm::Event&, edm::InputTag label);
   
 private:
   // ----------member data ---------------------------
@@ -55,6 +54,7 @@ private:
   edm::InputTag emuRctLabel_;
   edm::InputTag emuGctLabel_;
   std::string outFilename_;
+  std::ofstream outFile_;
 
   bool doHW_;
   bool doEmu_;
@@ -64,11 +64,8 @@ private:
   bool doJets_;
   bool doInternEM_;
   bool doFibres_;
-  bool doEnergySums_;
 
   unsigned rctEmMinRank_;
-
-  std::ofstream outFile_;
   
 };
 

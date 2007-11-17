@@ -219,7 +219,7 @@ FEDRawData * ESDataFormatter::DigiToRaw(int fedId, const Digis & digis) {
 
   // trailer
   FEDTrailer::set( reinterpret_cast<unsigned char*>(w), dataSize/sizeof(Word64), 
-		   evf::compute_crc(reinterpret_cast<unsigned char*>(w), dataSize),
+		   evf::compute_crc(rawData->data(), dataSize),
 		   0, 0);
   w++;
   
@@ -432,7 +432,7 @@ FEDRawData * ESDataFormatter::DigiToRawTB(int fedId, const Digis & digis) {
 
   // trailer
   FEDTrailer::set( reinterpret_cast<unsigned char*>(w), dataSize/sizeof(Word64), 
-		   evf::compute_crc(reinterpret_cast<unsigned char*>(w), dataSize),
+		   evf::compute_crc(rawData->data(), dataSize),
 		   0, 0);
   w++;
 

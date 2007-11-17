@@ -1,3 +1,4 @@
+//#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <EventFilter/EcalTBRawToDigi/interface/EcalDCCHeaderRuntypeDecoder.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -5,12 +6,12 @@
 #include <string>
 #include <iostream>
 
-EcalDCCTBHeaderRuntypeDecoder::EcalDCCTBHeaderRuntypeDecoder(){;}
-EcalDCCTBHeaderRuntypeDecoder::~EcalDCCTBHeaderRuntypeDecoder(){;}
+EcalDCCHeaderRuntypeDecoder::EcalDCCHeaderRuntypeDecoder(){;}
+EcalDCCHeaderRuntypeDecoder::~EcalDCCHeaderRuntypeDecoder(){;}
 
-bool EcalDCCTBHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* EcalDCCHeaderInfos){
+bool EcalDCCHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* EcalDCCHeaderInfos){
   
-  //  ulong DCCNumberMask      = 63;//2^6-1
+  ulong DCCNumberMask      = 63;//2^6-1
 
   ulong WhichHalfOffSet   = 64;//2^6 
   ulong TypeOffSet        = 256;//2^8
@@ -22,7 +23,7 @@ bool EcalDCCTBHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock*
   ulong ThreeBitsMask = 7;
   ulong ThirdBitMask = 4;
   
-  //  EcalDCCTBHeaderInfos->setId( int ( headerWord & DCCNumberMask) );
+  //  EcalDCCHeaderInfos->setId( int ( headerWord & DCCNumberMask) );
   EcalDCCHeaderInfos-> setRtHalf( int ((headerWord / WhichHalfOffSet) & TwoBitsMask) );
   int type = int ((headerWord / TypeOffSet)      & ThreeBitsMask);
   int sequence  = int ((headerWord / SubTypeOffSet)   & ThreeBitsMask);
@@ -61,7 +62,7 @@ bool EcalDCCTBHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock*
   return WasDecodingOk_;
 }
 
-void  EcalDCCTBHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBlock* theHeader )
+void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBlock* theHeader )
 {
   EcalDCCHeaderBlock::EcalDCCEventSettings theSettings;// = new EcalDCCEventSettings;
   CleanEcalDCCSettingsInfo(&theSettings);
@@ -104,14 +105,14 @@ void  EcalDCCTBHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeader
     theSettings.wavelength = Setting & 7;
   }
   else {
-    edm::LogWarning("EcalTBRawToDigi") <<"@SUB=EcalDCCTBHeaderRuntypeDecoder::DecodeSettings unrecognized run type: "<<theHeader->getRunType();
+    edm::LogWarning("EcalTBRawToDigi") <<"@SUB=EcalDCCHeaderRuntypeDecoder::DecodeSettings unrecognized run type: "<<theHeader->getRunType();
     WasDecodingOk_ = false;
   }
   theHeader->setEventSettings(theSettings);
   
 }
 
-void EcalDCCTBHeaderRuntypeDecoder::CleanEcalDCCSettingsInfo( EcalDCCHeaderBlock::EcalDCCEventSettings * dummySettings){
+void EcalDCCHeaderRuntypeDecoder::CleanEcalDCCSettingsInfo( EcalDCCHeaderBlock::EcalDCCEventSettings * dummySettings){
   dummySettings->LaserPower =-1;
   dummySettings->LaserFilter =-1;
   dummySettings->wavelength =-1;

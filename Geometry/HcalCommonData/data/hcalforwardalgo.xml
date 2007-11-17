@@ -4,8 +4,8 @@
 <ConstantsSection label="hcalforwardalgo.xml" eval="true">
  <Constant name="shiftSF"     value="11.0*cm"/>
  <Constant name="dzHF"        value="82.5*cm"/>
- <Constant name="dzHFx"       value="([dzHF])"/>
  <Constant name="dzVCal"      value="([cms:ForwdVcalZ2]-[cms:ForwdVcalZ1])/2"/>
+ <Constant name="dzHFx"       value="([dzVCal])"/>
  <Constant name="halfAngHF"   value="10*deg"/>
  <Constant name="rMinHF"      value="12.5*cm"/>
  <Constant name="rMaxHF"      value="1.570*m"/>

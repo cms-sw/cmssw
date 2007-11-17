@@ -12,12 +12,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Components/interface/DQMAnalyzer.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
           
@@ -41,18 +39,25 @@
 #include <string>
 #include <sys/time.h>
 
+using namespace cms;
 using namespace std;
 
-class HcalMonitorClient: public DQMAnalyzer{
+class HcalMonitorClient: public EDAnalyzer{
   
 public:
   
-  /// Constructors
+  /// Constructor
   HcalMonitorClient();
   HcalMonitorClient(const ParameterSet& ps);
+  HcalMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui);
   
   /// Destructor
   ~HcalMonitorClient();
+  
+  /// Subscribe/Unsubscribe to Monitoring Elements
+  void subscribe(void);
+  void subscribeNew(void);
+  void unsubscribe(void);
   
   // Initialize
   void initialize(const ParameterSet& ps);
@@ -64,19 +69,27 @@ public:
   
   /// BeginJob
   void beginJob(const EventSetup& c);
-  /// BeginRun
-  void beginRun(const Run& r, const edm::EventSetup & c);
-  /// BeginLumiBlock
-  void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
-
-
   /// EndJob
   void endJob(void);
+  
+  /// BeginRun
+  void beginRun(void);
+  void beginRun(const edm::Run & r, const edm::EventSetup & c);
   /// EndRun
+  void endRun(void);
   void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+  /// BeginLumiBlock
+  void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
   /// EndLumiBlock
   void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
 
+  
+  /// Setup
+  void setup(void);
+  
+  /// Cleanup
+  void cleanup(void);
   
   /// HtmlOutput
   void htmlOutput(void);
@@ -94,29 +107,70 @@ public:
   void loadHistograms(TFile* infile, const char* fname);
   void dumpHistograms(int& runNum, vector<TH1F*> &hist1d, vector<TH2F*> &hist2d);
   
+  void labelBins(TH1F* hist);
+
+
 private:
-  void removeAllME(void);
+  void removeAll();
+  
+  MonitorUserInterface* mui_;
+  DaqMonitorBEInterface* dbe_;
 
   int ievt_;
+  int evt_;
+  int mon_evt_;
+  int last_mon_evt_;
+  int hostPort_;  
+  int run_;
+  int nTimeouts_;
+  int last_update_;
+  int last_reset_Evts_;
   int resetUpdate_;
   int resetEvents_;
   int resetTime_;
-  int lastResetTime_;
-  int resetLS_;
+  int nUpdateEvents_;
+  int timeoutThresh_;
+  int serverPort_;
+  int last_run_;
   
   bool runningStandalone_;
+  int diagnosticPrescale_;
+
+  bool collateSources_;
+  bool cloneME_;
+  bool offline_;
+  bool subscribed_;
+  bool verbose_;
+  bool begin_run_;
+  bool end_run_;
+  bool forced_status_;
+  bool forced_update_;
+  bool mergeRuns_;
   bool enableExit_;
   bool enableMonitorDaemon_;
+  bool enableServer_;
 
+  string clientName_;
+  string hostName_;  
+  string outputFile_;
   string inputFile_;
   string baseHtmlDir_;
+  string process_;
+  string location_;
+  string runtype_;
+  string status_;
 
-  MonitorUserInterface* mui_;
+  TH1F* trigger_;
+
+  timeval startTime_,updateTime_;
+
+
   HcalDataFormatClient* dataformat_client_;
   HcalDigiClient* digi_client_;
   HcalRecHitClient* rechit_client_;
   HcalPedestalClient* pedestal_client_;
   HcalLEDClient* led_client_;
+  //  HcalTBClient* tb_client_;
   HcalHotCellClient* hot_client_;
 
 };

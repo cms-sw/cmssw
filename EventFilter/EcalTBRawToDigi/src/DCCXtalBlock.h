@@ -1,18 +1,18 @@
 // Date   : 30/05/2005
 // Author : N.Almeida (LIP)
 
-#ifndef DCCTBXTALBLOCK_HH
-#define DCCTBXTALBLOCK_HH
+#ifndef DCCXTALBLOCK_HH
+#define DCCXTALBLOCK_HH
 
 #include "DCCBlockPrototype.h"
-class DCCTBDataParser;
+class DCCDataParser;
 
-class DCCTBXtalBlock : public DCCTBBlockPrototype {
+class DCCXtalBlock : public DCCBlockPrototype {
 
 	public :
 		
-		DCCTBXtalBlock(
-			DCCTBDataParser * parser, 
+		DCCXtalBlock(
+			DCCDataParser * parser, 
 			ulong * buffer,
 			ulong numbBytes,
 			ulong wordsToEnd,  

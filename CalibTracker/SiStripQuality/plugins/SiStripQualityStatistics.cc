@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityStatistics.cc,v 1.3 2007/10/24 15:31:58 giordano Exp $
+// $Id: SiStripQualityStatistics.cc,v 1.5 2007/10/29 12:26:55 giordano Exp $
 //
 //
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -34,8 +34,11 @@ SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iCo
   printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false)),
   m_cacheID_(0), 
   dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel","")),
-  TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName","TkMapBadComponents.svg"))
-{}
+  TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName","TkMapBadComponents.svg")),
+  fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")))
+{  
+  reader = new SiStripDetInfoFileReader(fp_.fullPath());
+}
 
 void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSetup& iSetup){
 
@@ -92,7 +95,6 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
       //&&&&&&&&&&&&&&&&&
       
       component=TIBDetId(BC[i].detid).layer();
-
       SetBadComponents(0, component, BC[i]);         
 
     } else if ( a.subdetId() == SiStripDetId::TID ) {
@@ -100,8 +102,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
       //TID
       //&&&&&&&&&&&&&&&&&
 
-      component=TIDDetId(BC[i].detid).side()==2?TIDDetId(BC[i].detid).wheel()+1:TIDDetId(BC[i].detid).wheel()+4;
-
+      component=TIDDetId(BC[i].detid).side()==2?TIDDetId(BC[i].detid).wheel():TIDDetId(BC[i].detid).wheel()+3;
       SetBadComponents(1, component, BC[i]);         
 
     } else if ( a.subdetId() == SiStripDetId::TOB ) {
@@ -110,7 +111,6 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
       //&&&&&&&&&&&&&&&&&
 
       component=TOBDetId(BC[i].detid).layer();
-  
       SetBadComponents(2, component, BC[i]);         
 
     } else if ( a.subdetId() == SiStripDetId::TEC ) {
@@ -118,8 +118,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
       //TEC
       //&&&&&&&&&&&&&&&&&
 
-      component=TECDetId(BC[i].detid).side()==2?TECDetId(BC[i].detid).wheel()+1:TECDetId(BC[i].detid).wheel()+10;
-      
+      component=TECDetId(BC[i].detid).side()==2?TECDetId(BC[i].detid).wheel():TECDetId(BC[i].detid).wheel()+9;
       SetBadComponents(3, component, BC[i]);         
 
     }    
@@ -142,13 +141,13 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
       component=TIBDetId(detid).layer();
     } else if ( a.subdetId() == 4 ) {
       subdet=1;
-      component=TIDDetId(detid).side()==2?TIDDetId(detid).wheel()+1:TIDDetId(detid).wheel()+4;
+      component=TIDDetId(detid).side()==2?TIDDetId(detid).wheel():TIDDetId(detid).wheel()+3;
     } else if ( a.subdetId() == 5 ) {
       subdet=2;
       component=TOBDetId(detid).layer();
     } else if ( a.subdetId() == 6 ) {
       subdet=3;
-      component=TECDetId(detid).side()==2?TECDetId(detid).wheel()+1:TECDetId(detid).wheel()+10;
+      component=TECDetId(detid).side()==2?TECDetId(detid).wheel():TECDetId(detid).wheel()+9;
     } 
 
     SiStripQuality::Range sqrange = SiStripQuality::Range( SiStripQuality_->getDataVectorBegin()+rp->ibegin , SiStripQuality_->getDataVectorBegin()+rp->iend );
@@ -167,6 +166,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
   //&&&&&&&&&&&&&&&&&&
 
   ss.str("");
+  ss << "\n-----------------\nNew IOV starting from run " <<   e.id().run() << "\n-----------------\n";
   ss << "\n-----------------\nGlobal Info\n-----------------";
   ss << "\nBadComponent \t   Modules \tFibers \tApvs\tStrips\n----------------------------------------------------------------";
   ss << "\nTracker:\t\t"<<NTkBadComponent[0]<<"\t"<<NTkBadComponent[1]<<"\t"<<NTkBadComponent[2]<<"\t"<<NTkBadComponent[3];
@@ -224,21 +224,30 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
 
 
 void SiStripQualityStatistics::SetBadComponents(int i, int component,SiStripQuality::BadComponent& BC){
- 
+
+  int napv=reader->getNumberOfApvsAndStripLength(BC.detid).first;
+
   ssV[i][component] << "\n\t\t " 
 		    << BC.detid 
 		    << " \t " << BC.BadModule << " \t " 
-		    << ( (BC.BadFibers)&0x1 ) << " " 
-		    << ( (BC.BadFibers>>1)&0x1 ) << " " 
-		    << ( (BC.BadFibers>>2)&0x1 )
-		    << " \t " 
+		    << ( (BC.BadFibers)&0x1 ) << " ";
+  if (napv==4)
+    ssV[i][component] << "x " <<( (BC.BadFibers>>1)&0x1 );
+  
+  if (napv==6)
+    ssV[i][component] << ( (BC.BadFibers>>1)&0x1 ) << " "
+		      << ( (BC.BadFibers>>2)&0x1 );
+  ssV[i][component] << " \t " 
 		    << ( (BC.BadApvs)&0x1 ) << " " 
-		    << ( (BC.BadApvs>>1)&0x1 ) << " " 
-		    << ( (BC.BadApvs>>2)&0x1 ) << " " 
-		    << ( (BC.BadApvs>>3)&0x1 ) << " " 
-		    << ( (BC.BadApvs>>4)&0x1 ) << " " 
-		    << ( (BC.BadApvs>>5)&0x1 ) << " " 
-    ;
+		    << ( (BC.BadApvs>>1)&0x1 ) << " ";
+  if (napv==4) 
+    ssV[i][component] << "x x " << ( (BC.BadApvs>>2)&0x1 ) << " " 
+		      << ( (BC.BadApvs>>3)&0x1 );
+  if (napv==6) 
+    ssV[i][component] << ( (BC.BadApvs>>2)&0x1 ) << " " 
+		      << ( (BC.BadApvs>>3)&0x1 ) << " " 
+		      << ( (BC.BadApvs>>4)&0x1 ) << " " 
+		      << ( (BC.BadApvs>>5)&0x1 ) << " "; 
 
   if (BC.BadApvs){
     NBadComponent[i][0][2]+= ( (BC.BadApvs>>5)&0x1 )+ ( (BC.BadApvs>>4)&0x1 ) + ( (BC.BadApvs>>3)&0x1 ) + 

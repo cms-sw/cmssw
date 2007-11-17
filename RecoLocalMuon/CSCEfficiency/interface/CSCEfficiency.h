@@ -24,7 +24,9 @@
 #include "RecoLocalMuon/CSCRecHit/src/CSCWireCluster.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
-#include "SimMuon/MCTruth/interface/PSimHitMap.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+//IBL - test to read simhits a la digi/rechit validation
+//#include "Validation/MuonCSCDigis/interface/PSimHitMap.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
@@ -83,56 +85,38 @@
 #define LastCh 36
 #define FirstCh  1
 #define NumCh (LastCh-FirstCh+1)
-//---- Useful structures 
-struct ChamberRecHits{
-  std::map<int,  std::vector <double> > RecHitsPosXlocal; // layers vs number of hits
-  std::map<int,  std::vector <double> > RecHitsPosYlocal;
-  std::map<int,  std::vector <double> > RecHitsPosX; 
-  std::map<int,  std::vector <double> > RecHitsPosY;
-  std::map<int,  std::vector <double> > RecHitsPosZ;
-  std::map<int,  int > NRecHits;
-  std::map<int,  int > TheRightRecHit;
-  int nSegments;
-  ChamberRecHits(){
-    std::vector <double> Zero;
-    nSegments = 0;
-    for (int iLayer=0;iLayer<6;iLayer++){
-      RecHitsPosXlocal[iLayer] = Zero;
-      RecHitsPosYlocal[iLayer] = Zero;
-      RecHitsPosX[iLayer] = Zero;
-      RecHitsPosY[iLayer] = Zero;
-      RecHitsPosZ[iLayer] = Zero;
-      TheRightRecHit[iLayer] = -1;
-      NRecHits[iLayer] = 0;
+//---- Useful structure 
+   struct ChamberRecHits{
+    std::map<int,  std::vector <double> > RecHitsPosXlocal; // layers vs number of hits
+    std::map<int,  std::vector <double> > RecHitsPosYlocal;
+    std::map<int,  std::vector <double> > RecHitsPosX; 
+    std::map<int,  std::vector <double> > RecHitsPosY;
+    std::map<int,  std::vector <double> > RecHitsPosZ;
+    std::map<int,  int > NRecHits;
+    std::map<int,  int > TheRightRecHit;
+    int nSegments;
+    ChamberRecHits(){
+      std::vector <double> Zero;
+      nSegments = 0;
+      for (int iLayer=0;iLayer<6;iLayer++){
+	RecHitsPosXlocal[iLayer] = Zero;
+	RecHitsPosYlocal[iLayer] = Zero;
+	RecHitsPosX[iLayer] = Zero;
+	RecHitsPosY[iLayer] = Zero;
+	RecHitsPosZ[iLayer] = Zero;
+	TheRightRecHit[iLayer] = -1;
+	NRecHits[iLayer] = 0;
+      }
     }
-  }
-} ; 
-struct SetOfRecHits{
-  ChamberRecHits sChamber;
-} ;
+  } ; 
+  struct SetOfRecHits{
+    int nEndcap ;
+    int nStation;
+    int nRing ;
+    int Nchamber;
+    ChamberRecHits sChamber;
+  } ;
 //
-struct ChamberSimHits{
-  std::map<int,  std::vector <double> > SimHitsPosXlocal; // layers vs number of hits
-  std::map<int,  std::vector <double> > SimHitsPosYlocal;
-  std::map<int,  std::vector <double> > SimHitsEnergy; 
-  std::map<int,  std::vector <int> > SimHitsPID;
-  std::vector <int > NSimHits;
-  ChamberSimHits(){
-    std::vector <double> Zero;
-    std::vector <int> iZero;
-    for (int iLayer=0;iLayer<6;iLayer++){
-      SimHitsPosXlocal[iLayer] = Zero;
-      SimHitsPosYlocal[iLayer] = Zero;
-      SimHitsEnergy[iLayer] = Zero;
-      SimHitsPID[iLayer] = iZero;
-      NSimHits.push_back(0);
-    }
-  }
-};
-struct SetOfSimHits{
-  ChamberSimHits sChamber;
-} ;
-
 
 namespace edm {
   class ParameterSet;
@@ -163,52 +147,36 @@ protected:
 private:
   //---- Variables
 
-  SetOfRecHits  (*all_RecHits)[2][4][4][ NumCh];
-  SetOfSimHits  (*all_SimHits)[2][4][4][ NumCh];
+  SetOfRecHits  (*all_RecHits)[2][4][3][ NumCh];
 
   //---- Strip number and ADCPeak
-  std::vector <std::pair <int, float> > AllStrips[2][4][4][NumCh][6];//endcap/station/ring/chamber/layer
+  std::vector <std::pair <int, float> > AllStrips[2][4][3][NumCh][6];//endcap/station/ring/chamber/layer
 
   //---- WG number and Y-position, time bin
-  std::vector <std::pair <std::pair <int, float>, int> > AllWG[2][4][4][NumCh][6];//endcap/station/ring/chamber/layer
+  std::vector <std::pair <std::pair <int, float>, int> > AllWG[2][4][3][NumCh][6];//endcap/station/ring/chamber/layer
 
   //---- Functions
   void CalculateEfficiencies(const edm::Event & event, const edm::EventSetup& eventSetup,
-			  std::vector<double> &Pos , std::vector<double> &Dir, int NSegFound, double theta);
+			  std::vector<double> &Pos , std::vector<double> &Dir, int NSegFound);
   void RecHitEfficiency(double Yprime, double Yright, int iCh);
   bool LCT_Efficiencies(edm::Handle<CSCALCTDigiCollection> alcts,     
                                   edm::Handle<CSCCLCTDigiCollection> clcts,
                                   edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts, int iCh, int cond);
   void StripWire_Efficiencies (int iCh);
-  void Segment_Efficiency (int iCh, int NSegmentsFound, double theta);
-  void RecSimHitEfficiency(void);
-
+  void Segment_Efficiency (int iCh, int NSegmentsFound);
   //---- counter
   int nEventsAnalyzed;
 
   //---- Histograms 
     TH1F * DataFlow;
-    //
-    TH1F * Chi2;
-    TH1F * Chi2_ME1_a;
-    TH1F * Chi2_ME1_b;
-    TH1F * Chi2_ME1_2;
-    TH1F * Chi2_ME1_3;
-    TH1F * Chi2_ME2_1;
-    TH1F * Chi2_ME2_2;
-    TH1F * Chi2_ME3_1;
-    TH1F * Chi2_ME3_2;
-    TH1F * Chi2_ME4_1;
-    //
     TH2F * XY_ALCTmissing;
+    //
     TH1F * dydz_Eff_ALCT;
     TH1F * dydz_All_ALCT;
     TH1F * FINAL_dydz_Efficiency_ALCT;
     //
     TH1F * EfficientSegments;
     TH1F * AllSegments;
-    TH1F * EfficientSegments_theta;
-    TH1F * AllSegments_theta;
     TH1F * EfficientRechits_inSegment;
     TH1F * InefficientSingleHits;
     TH1F * AllSingleHits;
@@ -225,14 +193,8 @@ private:
     std::vector<TH2F *> XvsY_InefficientRecHits_inSegment;
     std::vector<TH1F *> Y_InefficientRecHits_inSegment;
     std::vector<TH1F *> Y_AllRecHits_inSegment; 
-    //
-    TH1F * SimRechits;
-    TH1F * SimSimhits;
-    TH1F * SimRechits_each;
-    TH1F * SimSimhits_each;
 //---- Efficiencies
     TH1F * FINAL_Segment_Efficiency;
-    TH1F * FINAL_Segment_Efficiency_theta;
     TH1F * FINAL_Rechit_inSegment_Efficiency;
     TH1F * FINAL_Attachment_Efficiency;
     TH1F * FINAL_Rechit_Efficiency;
@@ -241,8 +203,6 @@ private:
     TH1F * FINAL_Strip_Efficiency;
     TH1F * FINAL_WireGroup_Efficiency;
     std::vector<TH1F *> FINAL_Y_RecHit_InSegment_Efficiency;
-    TH1F * FINAL_SimRechit_Efficiency;
-    TH1F * FINAL_SimRechit_each_Efficiency;
 //---- Histograms set (chambers)...
   struct ChamberHistos{
     TH1F * EfficientRechits_inSegment;
@@ -260,10 +220,6 @@ private:
     std::vector<TH2F *> XvsY_InefficientRecHits_inSegment;
     std::vector<TH1F *> Y_InefficientRecHits_inSegment;
     std::vector<TH1F *> Y_AllRecHits_inSegment;
-    TH1F * SimRechits;
-    TH1F * SimSimhits;
-    TH1F * SimRechits_each;
-    TH1F * SimSimhits_each;
 //---- Efficiencies
     TH1F * FINAL_Rechit_inSegment_Efficiency;
     TH1F * FINAL_Attachment_Efficiency;
@@ -273,8 +229,6 @@ private:
     TH1F * FINAL_Strip_Efficiency;
     TH1F * FINAL_WireGroup_Efficiency;
     std::vector<TH1F *> FINAL_Y_RecHit_InSegment_Efficiency;
-    TH1F * FINAL_SimRechit_Efficiency;
-    TH1F * FINAL_SimRechit_each_Efficiency;
     //Auto_ptr...
     //std::auto_ptr<TH1F> perLayerIneffRecHit;
     
@@ -311,8 +265,8 @@ private:
   const char*  ChangeTitle(const char * name);
   double Extrapolate1D(double initPosition, double initDirection, double ParameterOfTheLine);
   double LineParam(double z1Position, double z2Position, double z1Direction);
-
-  PSimHitMap theSimHitMap;
+  //IBL - test to read simhits a la digi/rechit validation
+  //PSimHitMap theSimHitMap;
 };
 
 #endif

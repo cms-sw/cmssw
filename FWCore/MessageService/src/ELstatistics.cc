@@ -263,8 +263,7 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
   using std::left;
 
   std::ostringstream          s;
-  ELmap_stats::const_iterator i;  // traverse messages
-  int                         n;
+  int                         n = 0;
 
   // -----  Summary part I:
   //
@@ -278,7 +277,7 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
 
   std::set<std::string>::iterator gcEnd = groupedCategories.end(); 
   std::set<std::string> gCats = groupedCategories;  // TEMP FOR DEBUGGING SANITY
-  for ( i = stats.begin(), n = 0;  i != stats.end();  ++i )  {
+  for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
 
      // If this is a grouped category, wait till later to output its stats
     std::string cat = (*i).first.id; 
@@ -322,13 +321,12 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
   }  // for i
 
   // ----- Part Ia:  The grouped categories
-  std::set<std::string>::iterator g;
-  for ( g = groupedCategories.begin(); g != gcEnd; ++g ) {
+  for ( std::set<std::string>::iterator g = groupedCategories.begin(); g != gcEnd; ++g ) {
     int groupTotal = 0;
     int groupAggregateN = 0;
     ELseverityLevel severityLevel;
     bool groupIgnored = true;
-    for ( i = stats.begin();  i != stats.end();  ++i )  {
+    for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
       if ( (*i).first.id == *g ) {
         if (groupTotal==0) severityLevel = (*i).first.severity;
 	groupIgnored &= (*i).second.ignoredFlag;
@@ -348,7 +346,7 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
 	<< left  << setw( 1) << ( groupIgnored ? '*' : ' ' )
 	<< right << setw( 8) << groupAggregateN                  << '\n'
 	;
-      ftnote = ftnote || (*i).second.ignoredFlag;
+      ftnote = ftnote || groupIgnored;
 
       // -----  Obtain information for Part III, below:
       //
@@ -367,7 +365,8 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
 
   // -----  Summary part II:
   //
-  for ( i = stats.begin(), n = 0;  i != stats.end();  ++i )  {
+  n = 0;
+  for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
     std::string cat = (*i).first.id; 
     if ( groupedCategories.find(cat) != gcEnd )
     {								// 8/16/07 mf

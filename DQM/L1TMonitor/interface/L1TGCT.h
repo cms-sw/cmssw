@@ -5,23 +5,11 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2007/08/31 18:14:20 $
- * $Revision: 1.6 $
+ * $Date: 2007/02/19 22:49:53 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.6 2007/08/31 18:14:20 wittich Exp $
+ * $Id: L1TGCT.h,v 1.3 2007/02/19 22:49:53 wittich Exp $
  * $Log: L1TGCT.h,v $
- * Revision 1.6  2007/08/31 18:14:20  wittich
- * update GCT packages to reflect GctRawToDigi, and move to raw plots
- *
- * Revision 1.5  2007/08/31 11:02:55  wittich
- * cerr -> LogInfo
- *
- * Revision 1.4  2007/02/22 19:43:52  berryhil
- *
- *
- *
- * InputTag parameters added for all modules
- *
  * Revision 1.3  2007/02/19 22:49:53  wittich
  * - Add RCT monitor
  *
@@ -53,6 +41,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -91,30 +80,28 @@ private:
   DaqMonitorBEInterface * dbe;
 
   // L1Extra stuff
-  MonitorElement* l1GctCenJetsEtEtaPhi_; 
-  MonitorElement* l1GctForJetsEtEtaPhi_;
-  MonitorElement* l1GctTauJetsEtEtaPhi_;
-  MonitorElement* l1GctIsoEmEtEtaPhi_;
-  MonitorElement* l1GctNonIsoEmEtEtaPhi_;
+  MonitorElement* l1ExtraCenJetsEtEtaPhi_; 
+  MonitorElement* l1ExtraForJetsEtEtaPhi_;
+  MonitorElement* l1ExtraTauJetsEtEtaPhi_;
+  MonitorElement* l1ExtraIsoEmEtEtaPhi_;
+  MonitorElement* l1ExtraNonIsoEmEtEtaPhi_;
 
-  MonitorElement* l1GctCenJetsOccEtaPhi_;
-  MonitorElement* l1GctForJetsOccEtaPhi_;  
-  MonitorElement* l1GctTauJetsOccEtaPhi_;  
-  MonitorElement* l1GctIsoEmOccEtaPhi_;    
-  MonitorElement* l1GctNonIsoEmOccEtaPhi_; 
+  MonitorElement* l1ExtraCenJetsOccEtaPhi_;
+  MonitorElement* l1ExtraForJetsOccEtaPhi_;  
+  MonitorElement* l1ExtraTauJetsOccEtaPhi_;  
+  MonitorElement* l1ExtraIsoEmOccEtaPhi_;    
+  MonitorElement* l1ExtraNonIsoEmOccEtaPhi_; 
 
-  MonitorElement* l1GctCenJetsRank_;
-  MonitorElement* l1GctForJetsRank_;
-  MonitorElement* l1GctTauJetsRank_;
-  MonitorElement* l1GctIsoEmRank_;
-  MonitorElement* l1GctNonIsoEmRank_;
+  MonitorElement* l1ExtraCenJetsRank_;
+  MonitorElement* l1ExtraForJetsRank_;
+  MonitorElement* l1ExtraTauJetsRank_;
+  MonitorElement* l1ExtraIsoEmRank_;
+  MonitorElement* l1ExtraNonIsoEmRank_;
 
-  MonitorElement* l1GctEtMiss_;
-  MonitorElement* l1GctEtMissPhi_;
-
-  // AFAIK, these don't have phi values
-  MonitorElement* l1GctEtTotal_;
-  MonitorElement* l1GctEtHad_;
+  MonitorElement* l1ExtraEtMiss_;
+  MonitorElement* l1ExtraEtMissPhi_;
+  MonitorElement* l1ExtraEtTotal_;
+  MonitorElement* l1ExtraEtHad_;
 
 
   int nev_; // Number of events processed
@@ -124,6 +111,7 @@ private:
   ofstream logFile_;
 
   edm::InputTag gctSource_;
+
 
 };
 

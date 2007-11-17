@@ -1,10 +1,10 @@
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
 
 
-void resetME(const char* name, DaqMonitorBEInterface* dbe){
-  if(!dbe) return;
-  MonitorElement* me= dbe->get(name);
-  if(me) dbe->softReset(me);
+void resetME(const char* name, MonitorUserInterface* mui){
+  if(!mui) return;
+  MonitorElement* me= mui->getBEInterface()->get(name);
+  if(me) mui->getBEInterface()->softReset(me);
   return;
 }
 
@@ -69,34 +69,19 @@ void dumpHisto2(TH2F* hist, vector<string> &names,
   return;
 }
 
-void cleanString(string& title){
-
-  for ( unsigned int i = 0; i < title.size(); i++ ) {
-    if ( title.substr(i, 6) == " - Run" ){
-      title.replace(i, title.size()-i, "");
-    }
-  }
-}
-
 void parseString(string& title){
   
   for ( unsigned int i = 0; i < title.size(); i++ ) {
-    if ( title.substr(i, 1) == " " ){
+    if ( title.substr(i, 1) == " " )  {
       title.replace(i, 1, "_");
     }
-    if ( title.substr(i, 1) == "#" ){
+    if ( title.substr(i, 1) == "#" )  {
       title.replace(i, 1, "N");
-    }
-    if ( title.substr(i, 1) == "-" ){
-      title.replace(i, 1, "_");
-    }    
-    if ( title.substr(i, 1) == "&" ){
-      title.replace(i, 1, "_and_");
     }
     if ( title.substr(i, 1) == "(" 
 	 || title.substr(i, 1) == ")" 
 	 )  {
-      title.replace(i, 1, "_");
+      title.replace(i, 1, "-");
     }
   }
   
@@ -110,8 +95,7 @@ string getIMG2(int runNo,TH2F* hist, int size, string htmlDir, const char* xlab,
     return "";
   }
 
-  string name = hist->GetTitle();
-  cleanString(name);
+  string name = hist->GetName();
   char dest[512];
   if(runNo>-1) sprintf(dest,"%s - Run %d",name.c_str(),runNo);
   else sprintf(dest,"%s",name.c_str());
@@ -147,9 +131,8 @@ string getIMG(int runNo,TH1F* hist, int size, string htmlDir, const char* xlab, 
     printf("getIMG:  This histo is NULL, %s, %s\n",xlab,ylab);
     return "";
   }
-
-  string name = hist->GetTitle();
-  cleanString(name);
+  
+  string name = hist->GetName();
   char dest[512];
   if(runNo>-1) sprintf(dest,"%s - Run %d",name.c_str(),runNo);
   else sprintf(dest,"%s",name.c_str());
@@ -172,19 +155,19 @@ string getIMG(int runNo,TH1F* hist, int size, string htmlDir, const char* xlab, 
 
   can->SaveAs(saveName.c_str());  
   delete can;
-
+ 
   return outName;
 }
 
-TH2F* getHisto2(string name, string process, DaqMonitorBEInterface* dbe_, bool verb, bool clone){
+TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone){
 
-  if(!dbe_) return NULL;
+  if(!mui_) return NULL;
 
   TH2F* out = NULL;
   char title[150];  
   sprintf(title, "%sHcalMonitor/%s",process.c_str(),name.c_str());
 
-  MonitorElement* me = dbe_->get(title);
+  MonitorElement* me = mui_->getBEInterface()->get(title);
 
   if ( me ) {      
     if ( verb) cout << "Found '" << title << "'" << endl;
@@ -204,15 +187,16 @@ TH2F* getHisto2(string name, string process, DaqMonitorBEInterface* dbe_, bool v
   return out;
 }
 
-TH1F* getHisto(string name, string process, DaqMonitorBEInterface* dbe_, bool verb, bool clone){
-  if(!dbe_) return NULL;
+TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone){
+
+  if(!mui_) return NULL;
 
   char title[150];  
   sprintf(title, "%sHcalMonitor/%s",process.c_str(),name.c_str());
   TH1F* out = NULL;
 
-  const MonitorElement* me = dbe_->get(title);
-  if (me){      
+  const MonitorElement* me = mui_->getBEInterface()->get(title);
+  if ( me ) {      
     if ( verb ) cout << "Found '" << title << "'" << endl;
     //    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
     MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
@@ -226,7 +210,6 @@ TH1F* getHisto(string name, string process, DaqMonitorBEInterface* dbe_, bool ve
       }
     }
   }
-
   return out;
 }
 
@@ -280,7 +263,6 @@ void histoHTML(int runNo, TH1F* hist, const char* xlab, const char* ylab, int wi
     imgNameTMB = getIMG(runNo,hist,1,htmlDir,xlab,ylab); 
     string imgName = "";   
     imgName = getIMG(runNo,hist,2,htmlDir,xlab,ylab);  
-
     if (imgName.size() != 0 )
       htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
     else
@@ -305,13 +287,13 @@ void histoHTML2(int runNo, TH2F* hist, const char* xlab, const char* ylab, int w
   return;
 }
 
-void createXRangeTest(DaqMonitorBEInterface* dbe, vector<string>& params){
+void createXRangeTest(MonitorUserInterface* mui, vector<string>& params){
   if (params.size() < 6) return;
-  if(!dbe) return;
+  if(!mui) return;
 
-  QCriterion* qc = dbe->getQCriterion(params[1]);
+  QCriterion* qc = mui->getBEInterface()->getQCriterion(params[1]);
   if(qc == NULL){
-    qc = dbe->createQTest(ContentsXRangeROOT::getAlgoName(),params[1]);
+    qc = mui->getBEInterface()->createQTest(ContentsXRangeROOT::getAlgoName(),params[1]);
     // Contents within [Xmin, Xmax]
     MEContentsXRangeROOT* me_qc = (MEContentsXRangeROOT*) qc;
     //set probability limit for test warning 
@@ -322,17 +304,17 @@ void createXRangeTest(DaqMonitorBEInterface* dbe, vector<string>& params){
     me_qc->setAllowedXRange(atof(params[4].c_str()), atof(params[5].c_str()));
   }
   // link it to the monitor element
-  dbe->useQTest(params[0], params[1]);
+  mui->getBEInterface()->useQTest(params[0], params[1]);
   return;
 }
 
-void createYRangeTest(DaqMonitorBEInterface* dbe, vector<string>& params){
+void createYRangeTest(MonitorUserInterface* mui, vector<string>& params){
   if (params.size() < 6) return;
-  if(!dbe) return;
+  if(!mui) return;
 
-  QCriterion* qc = dbe->getQCriterion(params[1]);
+  QCriterion* qc = mui->getBEInterface()->getQCriterion(params[1]);
   if(qc == NULL){
-    qc = dbe->createQTest(ContentsYRangeROOT::getAlgoName(),params[1]);
+    qc = mui->getBEInterface()->createQTest(ContentsYRangeROOT::getAlgoName(),params[1]);
     // Contents within [Xmin, Xmax]
     MEContentsYRangeROOT* me_qc = (MEContentsYRangeROOT*) qc;
     //set probability limit for test warning 
@@ -343,17 +325,17 @@ void createYRangeTest(DaqMonitorBEInterface* dbe, vector<string>& params){
     me_qc->setAllowedYRange(atof(params[4].c_str()), atof(params[5].c_str()));
   }
   // link it to the monitor element
-  dbe->useQTest(params[0], params[1]);
+  mui->getBEInterface()->useQTest(params[0], params[1]);
   return;
 }
 
-void createMeanValueTest(DaqMonitorBEInterface* dbe, vector<string>& params){
+void createMeanValueTest(MonitorUserInterface* mui, vector<string>& params){
   if (params.size() < 7 ) return;
-  if(!dbe) return;
+  if(!mui) return;
 
-  QCriterion* qc = dbe->getQCriterion(params[1]);
+  QCriterion* qc = mui->getBEInterface()->getQCriterion(params[1]);
   if(qc == NULL){
-    qc = dbe->createQTest("MeanWithinExpected",params[1]);
+    qc = mui->getBEInterface()->createQTest("MeanWithinExpected",params[1]);
     // Contents within a mean value
     MEMeanWithinExpectedROOT* me_qc = (MEMeanWithinExpectedROOT*) qc;
     //set probability limit for test warning
@@ -367,57 +349,57 @@ void createMeanValueTest(DaqMonitorBEInterface* dbe, vector<string>& params){
     else if (params[6] == "useSigma") me_qc->useSigma(atof(params[5].c_str()));
   }
   // link it to the monitor element
-  dbe->useQTest(params[0], params[1]);
+  mui->getBEInterface()->useQTest(params[0], params[1]);
   return;
 }
 
-void createH2ContentTest(DaqMonitorBEInterface* dbe, vector<string>& params){
+void createH2ContentTest(MonitorUserInterface* mui, vector<string>& params){
   if (params.size() < 2 ) return;
-  if(!dbe) return;
+  if(!mui) return;
 
-  QCriterion* qc = dbe->getQCriterion(params[1]);
-  MonitorElement* me =  dbe->get(params[0]);
+  QCriterion* qc = mui->getBEInterface()->getQCriterion(params[1]);
+  MonitorElement* me =  mui->getBEInterface()->get(params[0]);
   if(me!=NULL && qc == NULL){
-    qc = dbe->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(),params[1]);
+    qc = mui->getBEInterface()->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(),params[1]);
     // Contents within a mean value     
     ContentsTH2FWithinRangeROOT* me_qc = dynamic_cast<ContentsTH2FWithinRangeROOT*> (qc);
     me_qc->setMeanRange(0,1e-10);//(atof(params[2].c_str())
     me_qc->setRMSRange(0,1e-10);
     // link it to the monitor element
-    dbe->useQTest(params[0], params[1]);
+    mui->getBEInterface()->useQTest(params[0], params[1]);
   }
   
   return;
 }
 
-void createH2CompTest(DaqMonitorBEInterface* dbe, vector<string>& params, TH2F* ref){
+void createH2CompTest(MonitorUserInterface* mui, vector<string>& params, TH2F* ref){
   if (params.size() < 2 ) return;
   if(ref==NULL) return;
-  if(!dbe) return;
+  if(!mui) return;
 
-  QCriterion* qc = dbe->getQCriterion(params[1]);
-  MonitorElement* me =  dbe->get(params[0]);
+  QCriterion* qc = mui->getBEInterface()->getQCriterion(params[1]);
+  MonitorElement* me =  mui->getBEInterface()->get(params[0]);
   if(me!=NULL && qc == NULL){
     printf("\n\nDon't have this QC, but have the me!\n\n");
     const QReport* qr = me->getQReport(params[1]);
     if(qr) return;
     printf("\n\nThe ME doesn't have the QC!!\n\n");
-    qc = dbe->createQTest("Comp2RefEqualH2",params[1]);
+    qc = mui->getBEInterface()->createQTest("Comp2RefEqualH2",params[1]);
     // Contents within a mean value     
     Comp2RefEqualH2ROOT* me_qc = dynamic_cast<Comp2RefEqualH2ROOT*> (qc);
     //set reference histogram
     me_qc->setReference(ref);
     // link it to the monitor element
     printf("\n\nGonna run it...\n\n");
-    dbe->useQTest(params[0], params[1]);
+    mui->getBEInterface()->useQTest(params[0], params[1]);
   }
   else printf("\n\nAlready had the QC or didn't have the ME!\n\n");
 
   return;
 }
 
-void htmlErrors(int runNo, string htmlDir, string client, string process, DaqMonitorBEInterface* dbe, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO){
-  if(!dbe) return;
+void htmlErrors(int runNo, string htmlDir, string client, string process, MonitorUserInterface* mui, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO){
+  if(!mui) return;
 
   map<string, vector<QReport*> >::iterator mapIter;
 
@@ -444,17 +426,17 @@ void htmlErrors(int runNo, string htmlDir, string client, string process, DaqMon
     for(vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); report++){
       errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << endl;
     }
-    MonitorElement* me = dbe->get(meName);
+    MonitorElement* me = mui->getBEInterface()->get(meName);
     errorFile << "<br>" << endl;
     errorFile << "<br>" << endl;
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
-      TH1F* obj1f = getHisto(substr, process.c_str(), dbe);
+      TH1F* obj1f = getHisto(substr, process.c_str(), mui);
       string save = getIMG(runNo,obj1f,1,htmlDir,"X1a","Y1a");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     else{
-      TH2F* obj2f = getHisto2(substr, process.c_str(), dbe);
+      TH2F* obj2f = getHisto2(substr, process.c_str(), mui);
       string save = getIMG2(runNo,obj2f,1,htmlDir,"X2a","Y2a");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
@@ -487,17 +469,17 @@ void htmlErrors(int runNo, string htmlDir, string client, string process, DaqMon
     for(vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); report++){
       errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << endl;
     }
-    MonitorElement* me = dbe->get(meName);
+    MonitorElement* me = mui->getBEInterface()->get(meName);
     errorFile << "<br>" << endl;
     errorFile << "<br>" << endl;
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
-      TH1F* obj1f = getHisto(substr, process.c_str(), dbe);
+      TH1F* obj1f = getHisto(substr, process.c_str(), mui);
       string save = getIMG(runNo,obj1f,1,htmlDir,"X1b","Y1b");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     else{
-      TH2F* obj2f = getHisto2(substr, process.c_str(), dbe);
+      TH2F* obj2f = getHisto2(substr, process.c_str(), mui);
       string save = getIMG2(runNo,obj2f,1,htmlDir,"X2b","Y2b");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
@@ -531,15 +513,15 @@ void htmlErrors(int runNo, string htmlDir, string client, string process, DaqMon
     }
     errorFile << "<br>" << endl;
     errorFile << "<br>" << endl;
-    MonitorElement* me = dbe->get(meName);
+    MonitorElement* me = mui->getBEInterface()->get(meName);
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
-      TH1F* obj1f = getHisto(substr, process.c_str(), dbe);
+      TH1F* obj1f = getHisto(substr, process.c_str(), mui);
       string save = getIMG(runNo,obj1f,1,htmlDir,"X1c","Y1c");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     else{
-      TH2F* obj2f = getHisto2(substr, process.c_str(), dbe);
+      TH2F* obj2f = getHisto2(substr, process.c_str(), mui);
       string save = getIMG2(runNo,obj2f,1,htmlDir,"X2c","Y2c");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }

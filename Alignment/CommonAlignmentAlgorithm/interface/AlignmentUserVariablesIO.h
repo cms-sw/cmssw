@@ -1,17 +1,18 @@
 #ifndef AlignmentUserVariablesIO_H
 #define AlignmentUserVariablesIO_H
 
-#include "Alignment/CommonAlignment/interface/Utilities.h"
+#include <vector>
 
 /// \class AlignmentUserVariablesIO
 ///
 /// Abstract base class for I/O of AlignmentUserVariables.
 /// Note that it is the caller's responsibility to delete objects created during reading.
 ///
-///  $Date: 2007/01/23 16:07:08 $
-///  $Revision: 1.4 $
-///  $Author: fronga $ (at least last update...)
+///  $Date: 2006/12/12 08:55:44 $
+///  $Revision: 1.3 $
+///  $Author: flucke $ (at least last update...)
 
+class Alignable;
 class AlignmentUserVariables;
 
 class AlignmentUserVariablesIO 
@@ -35,10 +36,10 @@ class AlignmentUserVariablesIO
   virtual AlignmentUserVariables* readOne(Alignable* ali, int& ierr) =0;
 
   /** write AlignmentUserVariables of many Alignables */
-  int write(const align::Alignables& alivec, bool validCheck);
+  int write(const std::vector<Alignable*>& alivec, bool validCheck);
 
   /** read AlignmentUserVariables of many Alignables (using readOne, so take care of memory!) */
-  std::vector<AlignmentUserVariables*> read(const align::Alignables& alivec, int& ierr);
+  std::vector<AlignmentUserVariables*> read(const std::vector<Alignable*>& alivec, int& ierr);
 
 };
 

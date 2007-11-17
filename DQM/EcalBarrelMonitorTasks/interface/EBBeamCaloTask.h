@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2007/04/05 13:56:46 $
- * $Revision: 1.21 $
+ * $Date: 2007/04/05 14:53:58 $
+ * $Revision: 1.22 $
  * \author A. Ghezzi
  *
 */
@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
+class DaqMonitorBEInterface;
 
 class EBBeamCaloTask: public edm::EDAnalyzer{
 

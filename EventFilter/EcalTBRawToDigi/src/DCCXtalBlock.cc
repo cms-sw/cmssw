@@ -3,15 +3,15 @@
 #include "DCCDataMapper.h"
 
 
-DCCTBXtalBlock::DCCTBXtalBlock(
-	DCCTBDataParser * parser, 
+DCCXtalBlock::DCCXtalBlock(
+	DCCDataParser * parser, 
 	ulong * buffer, 
 	ulong numbBytes,  
 	ulong wordsToEnd,
 	ulong wordEventOffset,
 	ulong expectedXtalID,
 	ulong expectedStripID
-) : DCCTBBlockPrototype(parser,"XTAL", buffer, numbBytes, wordsToEnd, wordEventOffset),
+) : DCCBlockPrototype(parser,"XTAL", buffer, numbBytes, wordsToEnd, wordEventOffset),
 expectedXtalID_(expectedXtalID), expectedStripID_(expectedStripID){
 	
 	
@@ -33,7 +33,7 @@ expectedXtalID_(expectedXtalID), expectedStripID_(expectedStripID){
 
 
 
-void DCCTBXtalBlock::dataCheck(){
+void DCCXtalBlock::dataCheck(){
 	
 	std::string checkErrors("");
 		
@@ -59,8 +59,8 @@ void DCCTBXtalBlock::dataCheck(){
 }
 
 
-void  DCCTBXtalBlock::increment(ulong numb){
-	if(!parser_->debug()){ DCCTBBlockPrototype::increment(numb); }
+void  DCCXtalBlock::increment(ulong numb){
+	if(!parser_->debug()){ DCCBlockPrototype::increment(numb); }
 	else {
 		for(ulong counter=0; counter<numb; counter++, dataP_++,wordCounter_++){
 			ulong blockID = (*dataP_)>>BPOSITION_BLOCKID;
@@ -73,11 +73,11 @@ void  DCCTBXtalBlock::increment(ulong numb){
 	}
 }
 
-int DCCTBXtalBlock::xtalID() {
+int DCCXtalBlock::xtalID() {
 
   int result=-1;
 
-  for(  std::set<DCCTBDataField *,DCCTBDataFieldComparator>::iterator 
+  for(  std::set<DCCDataField *,DCCDataFieldComparator>::iterator 
            it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
   
     if ( (*it)->name() == "XTAL ID" ) 
@@ -91,10 +91,10 @@ int DCCTBXtalBlock::xtalID() {
 
 }
 
-int DCCTBXtalBlock::stripID() {
+int DCCXtalBlock::stripID() {
   int result=-1;
 
-  for(std::set<DCCTBDataField *,DCCTBDataFieldComparator>::iterator it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
+  for(std::set<DCCDataField *,DCCDataFieldComparator>::iterator it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
     if ( (*it)->name() == "STRIP ID" ) 
       result=getDataField( (*it)->name() )  ;
     
@@ -106,7 +106,7 @@ int DCCTBXtalBlock::stripID() {
 
 
 
-std::vector<int> DCCTBXtalBlock::xtalDataSamples() {
+std::vector<int> DCCXtalBlock::xtalDataSamples() {
   std::vector<int> data;
 
 

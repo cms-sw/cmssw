@@ -2,6 +2,8 @@
 
 eval `scramv1 runtime -sh`
 
+mkdir TkMap
+
 rm -f dbfile.db
 
 echo -e "\n&&&&&&&&&&&&&&&&&&&&&&&\n Create DB \n&&&&&&&&&&&&&&&&&&&&&&&\n"

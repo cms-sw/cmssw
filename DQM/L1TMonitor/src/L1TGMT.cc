@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2007/08/27 16:39:19 $
- * $Revision: 1.7 $
+ * $Date: 2007/07/26 08:56:53 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  */
@@ -184,8 +184,6 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
     {
 
       int bxindex = ECItr->bx() + 1;
-      if (ECItr->quality() > 0 ) 
-      {
       ngmttrack++;
 
       if (verbose_)
@@ -235,7 +233,7 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
      cout << "\tGMTCand charge " << ECItr->charge()
    	    << endl;
 	}
-      }
+
     }
 
 
@@ -255,8 +253,6 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
     {
       
       int bxindex = ECItr->bx() + 1;
-      if (ECItr->quality() > 0 )
-      {
       ngmttrack++;
 
       if (verbose_)
@@ -307,7 +303,7 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
      cout << "\tGMTCand charge " << ECItr->charge()
    	    << endl;
 	}
-      }
+
     }
   }
 

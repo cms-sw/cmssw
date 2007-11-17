@@ -1,9 +1,9 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 HcalDataFormatMonitor::HcalDataFormatMonitor() {}
 
-HcalDataFormatMonitor::~HcalDataFormatMonitor() {}
+HcalDataFormatMonitor::~HcalDataFormatMonitor() {
+}
 
 void HcalDataFormatMonitor::clearME(){
   if(m_dbe){
@@ -13,19 +13,18 @@ void HcalDataFormatMonitor::clearME(){
   return;
 }
 
-void HcalDataFormatMonitor::reset(){}
-
 void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 				  DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   
   ievt_=0;
-
-  firstFED_ = FEDNumbering::getHcalFEDIds().first;
-  for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
-    fedUnpackList_.push_back(i);
-
-
+  fedUnpackList_ = ps.getParameter<vector<int> >("FEDs");
+  firstFED_ = ps.getParameter<int>("HcalFirstFED");
+  cout << "HcalDataFormatMonitor::setup  Will unpack FED Crates  ";
+  for (unsigned int i=0; i<fedUnpackList_.size(); i++)
+    cout << fedUnpackList_[i] << " ";
+  cout << endl;
+  
   if ( m_dbe ) {
     m_dbe->setCurrentFolder("HcalMonitor/DataFormatMonitor");
     
@@ -94,25 +93,22 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     type = "HTR Error Word - Crate 17";
     meCrate17HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     
-    type = "HB Data Format Error Word";
-    DCC_ErrWd_HB =  m_dbe->book1D(type,type,16,-0.5,15.5);
-
-    type = "HE Data Format Error Word";
-    DCC_ErrWd_HE =  m_dbe->book1D(type,type,16,-0.5,15.5);
+    type = "HBHE Data Format Error Word";
+    hbheHists.DCC_ErrWd =  m_dbe->book1D(type,type,16,-0.5,15.5);
 
     type = "HF Data Format Error Word";
-    DCC_ErrWd_HF =  m_dbe->book1D(type,type,16,-0.5,15.5);
+    hfHists.DCC_ErrWd =  m_dbe->book1D(type,type,16,-0.5,15.5);
 
     type = "HO Data Format Error Word";
-    DCC_ErrWd_HO = m_dbe->book1D(type,type,16,-0.5,15.5);
+    hoHists.DCC_ErrWd = m_dbe->book1D(type,type,16,-0.5,15.5);
 
    }
 
    return;
 }
 
-void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw, 
-					 const HcalUnpackerReport& report, 
+void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection&
+					 rawraw, const HcalUnpackerReport& report, 
 					 const HcalElectronicsMap& emap){
   
   if(!m_dbe) { 
@@ -128,8 +124,6 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   for (vector<int>::const_iterator i=fedUnpackList_.begin();
        i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw.FEDData(*i);
-    if (fed.size()==0) continue;
-    if (fed.size()<8*3) continue;
     unpack(fed,emap);
   }
   
@@ -155,33 +149,37 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const
   
   // get the DataFormat header
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
+  // check the summary status
   if(!dccHeader) return;
   int dccid=dccHeader->getSourceId();
 
   // walk through the HTR data...
-  HcalHTRData htr;  
-  for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
+  HcalHTRData htr;
+  
+  for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {
+    
     if (!dccHeader->getSpigotPresent(spigot)) continue;
     dccHeader->getSpigotData(spigot,htr);
-    
-    // check
-    if (!htr.check()) continue;
-    if (!htr.isHistogramEvent()) continue;
-    
+
     int cratenum = htr.readoutVMECrateId();
     float slotnum = htr.htrSlot() + 0.5*htr.htrTopBottom();
+
+    // check
+    if (!htr.check() || htr.isHistogramEvent()) continue;
     unsigned int htrBCN = htr.getBunchNumber(); 
     meBCN_->Fill(htrBCN);
     unsigned int htrFWVer = htr.getFirmwareRevision() & 0xFF;
     meFWVersion_->Fill(htrFWVer,cratenum);
-
     ///check that all HTRs have the same L1A number
     if(lastEvtN_==-1) lastEvtN_ = htr.getL1ANumber();  ///the first one will be the reference
-    else if(htr.getL1ANumber()!=lastEvtN_) meEvtNumberSynch_->Fill(slotnum,cratenum);
-
+    else{
+      if(htr.getL1ANumber()!=lastEvtN_) meEvtNumberSynch_->Fill(slotnum,cratenum);
+    }
     ///check that all HTRs have the same BCN
     if(lastBCN_==-1) lastBCN_ = htr.getBunchNumber();  ///the first one will be the reference
-    else if(htr.getBunchNumber()!=lastBCN_) meBCNSynch_->Fill(slotnum,cratenum);
+    else{
+      if(htr.getBunchNumber()!=lastBCN_) meBCNSynch_->Fill(slotnum,cratenum);
+    }
  
     MonitorElement* tmpErr = 0;
 
@@ -194,19 +192,19 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const
 	if (!did.null()) {
 	  switch (((HcalSubdetector)did.subdetId())) {
 	  case (HcalBarrel): {
-	    tmpErr = DCC_ErrWd_HB;
+	    tmpErr = hbheHists.DCC_ErrWd;
 	    valid = true;
 	  } break;
 	  case (HcalEndcap): {
-	    tmpErr = DCC_ErrWd_HE;
+	    tmpErr = hbheHists.DCC_ErrWd;
 	    valid = true;
 	  } break;
 	  case (HcalOuter): {
-	    tmpErr = DCC_ErrWd_HO;
+	    tmpErr = hoHists.DCC_ErrWd;
 	    valid = true;
 	  } break;
 	  case (HcalForward): {
-	    tmpErr = DCC_ErrWd_HF; 
+	    tmpErr = hfHists.DCC_ErrWd; 
 	    valid = true;
 	  } break;
 	  default: break;
@@ -219,32 +217,34 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const
      if(tmpErr!=NULL){
        for(int i=0; i<16; i++){
 	 int errbit = errWord&(0x01<<i);
-	 // Bit 15 should always be 1; consider it an error if it isn't.
+   // Bit 15 should always be 1; consider it an error if it isn't.
 	 if (i==15) errbit = errbit - 0x8000;
 	 if (errbit !=0){
 	   tmpErr->Fill(i);
 	   meErrWdCrate_->Fill(cratenum,i);
 	   if (cratenum ==0)meCrate0HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==1)meCrate1HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==2)meCrate2HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==3)meCrate3HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==4)meCrate4HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==5)meCrate5HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==6)meCrate6HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==7)meCrate7HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==8)meCrate8HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==9)meCrate9HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==10)meCrate10HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==11)meCrate11HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==12)meCrate12HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==13)meCrate13HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==14)meCrate14HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==15)meCrate15HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==16)meCrate16HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==17)meCrate17HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==1)meCrate1HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==2)meCrate2HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==3)meCrate3HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==4)meCrate4HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==5)meCrate5HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==6)meCrate6HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==7)meCrate7HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==8)meCrate8HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==9)meCrate9HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==10)meCrate10HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==11)meCrate11HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==12)meCrate12HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==13)meCrate13HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==14)meCrate14HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==15)meCrate15HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==16)meCrate16HTRErr_ -> Fill(slotnum,i);
+	   if (cratenum ==17)meCrate17HTRErr_ -> Fill(slotnum,i);
 	 } 
        }
-     }    
+     }
+
+
    }
 
    return;

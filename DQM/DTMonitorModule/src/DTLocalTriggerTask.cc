@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2007/09/21 11:05:24 $
- * $Revision: 1.14 $
+ * $Date: 2007/09/19 13:36:08 $
+ * $Revision: 1.12 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -88,17 +88,17 @@ void DTLocalTriggerTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Ev
   if(debug)
     cout<<"[DTLocalTriggerTask]: Begin of LS transition"<<endl;
   
-  if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
-    for(map<string, map<uint32_t, MonitorElement*> > ::const_iterator histo = digiHistos.begin();
-	histo != digiHistos.end();
-	histo++) {
-      for(map<uint32_t, MonitorElement*> ::const_iterator ht = (*histo).second.begin();
-	  ht != (*histo).second.end();
-	  ht++) {
-	(*ht).second->Reset();
-      }
+
+  /*for(map<string, map<uint32_t, MonitorElement*> > ::const_iterator histo = digiHistos.begin();
+      histo != digiHistos.end();
+      histo++) {
+    for(map<uint32_t, MonitorElement*> ::const_iterator ht = (*histo).second.begin();
+      ht != (*histo).second.end();
+      ht++) {
+      (*ht).second->Reset();
     }
-  }
+    }*/
+
   
 }
 
@@ -377,7 +377,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     e.getByLabel(seg_label, all4DSegments);  
     DTRecSegment4DCollection::const_iterator track;
     // it tells whether there is a track in a station.
-    Bool_t track_flag[6][5][15]; 
+    Bool_t track_flag[6][5][13]; 
     memset(track_flag,false,450*sizeof(bool));
 
     // First loop useful to compute trigger efficiency
@@ -604,7 +604,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	  }
 
 	  // compute plots to calculate theta efficiency using segments 
-	  if ((*track).hasZed() && trig_flag && fabs(y_angle)< Geom::pi()/4.5 && (*track).zSegment()->degreesOfFreedom()>1){
+	  if (trig_flag && fabs(y_angle)< Geom::pi()/4.5 && (*track).zSegment()->degreesOfFreedom()>1){
 	    
 	    // position of track for reconstruced tracks (denom. for trigger efficiency) along theta direction
 	    histoTag = "SEG_TrackThetaPos" + trigsrc;

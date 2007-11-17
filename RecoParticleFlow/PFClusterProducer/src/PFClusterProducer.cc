@@ -694,7 +694,6 @@ void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
 	
 	reco::PFRecHit* pfrh = 0;
 	  
-
 	const HcalDetId& detid = hit.detid();
 	switch( detid.subdet() ) {
 	case HcalBarrel:
@@ -710,7 +709,7 @@ void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
 	    pfrh = createHcalRecHit( detid, 
 				     energy, 
 				     PFLayer::HCAL_ENDCAP, 
-				     hcalEndcapGeometry );	  
+				     hcalEndcapGeometry );
 	  }
 	  break;
 	default:
@@ -823,17 +822,8 @@ void PFClusterProducer::createPSRecHits(vector<reco::PFRecHit>& rechits,
 	= new reco::PFRecHit( detid.rawId(), layer, energy, 
 			      position.x(), position.y(), position.z(), 
 			      0,0,0 );
-      
-      const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
-      assert( corners.size() == 8 );
-      
-      pfrh->setNECorner( corners[0].x(), corners[0].y(),  corners[0].z() );
-      pfrh->setSECorner( corners[1].x(), corners[1].y(),  corners[1].z() );
-      pfrh->setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z() );
-      pfrh->setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z() );
-
-      
-      // if( !pfrh ) continue; // problem with this rechit. skip it
+	
+      if( !pfrh ) continue; // problem with this rechit. skip it
 
       rechits.push_back( *pfrh );
       delete pfrh;
@@ -869,63 +859,23 @@ PFClusterProducer::createEcalRecHit( const DetId& detid,
 
   math::XYZVector position;
   math::XYZVector axis;
-
-  const CaloCellGeometry *thisCell 
-    = geom->getGeometry(detid);
+  bool geomfound = findEcalRecHitGeometry( detid, geom,
+					   position, axis ); 
   
-  // find rechit geometry
-  if(!thisCell) {
-    LogError("PFClusterProducer")
-      <<"warning detid "<<detid.rawId()
-      <<" not found in geometry"<<endl;
-    return 0;
+  if( !geomfound ) {
+    LogError("PFClusterProducer")<<"cannor find geometry for detid "
+				 <<detid.rawId()<<" in layer "<<layer<<endl;
+    return 0; // geometry not found, skip rechit
   }
   
-  position.SetCoordinates ( thisCell->getPosition().x(),
-			    thisCell->getPosition().y(),
-			    thisCell->getPosition().z() );
-
   
-  
-  // the axis vector is the difference 
-  const TruncatedPyramid* pyr 
-    = dynamic_cast< const TruncatedPyramid* > (thisCell);    
-  if( pyr ) {
-    axis.SetCoordinates( pyr->getPosition(1).x(), 
-			 pyr->getPosition(1).y(), 
-			 pyr->getPosition(1).z() ); 
-    
-    math::XYZVector axis0( pyr->getPosition(0).x(), 
-			   pyr->getPosition(0).y(), 
-			   pyr->getPosition(0).z() );
-    
-    axis -= axis0;    
-  }
-  else return 0;
-
-//   if( !geomfound ) {
-//     LogError("PFClusterProducer")<<"cannor find geometry for detid "
-// 				 <<detid.rawId()<<" in layer "<<layer<<endl;
-//     return 0; // geometry not found, skip rechit
-//   }
-  
-  
-  reco::PFRecHit *rh 
+  reco::PFRecHit *pfrh 
     = new reco::PFRecHit( detid.rawId(), layer, 
 			  energy, 
 			  position.x(), position.y(), position.z(), 
 			  axis.x(), axis.y(), axis.z() ); 
 
-
-  const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
-  assert( corners.size() == 8 );
-
-  rh->setNECorner( corners[0].x(), corners[0].y(),  corners[0].z() );
-  rh->setSECorner( corners[1].x(), corners[1].y(),  corners[1].z() );
-  rh->setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z() );
-  rh->setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z() );
-
-  return rh;
+  return pfrh;
 }
 
 
@@ -984,7 +934,17 @@ PFClusterProducer::createHcalRecHit( const DetId& detid,
  
   // set the corners
   const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
-
+//   cout<<"number of corners "<<corners.size()<<endl;
+//   for(unsigned i=0; i<corners.size(); i++) {
+//     cout<<" "<<i<<"\t"
+// 	<<corners[i].x()<<" "
+// 	<<corners[i].y()<<" "
+// 	<<corners[i].z()<<" "
+// 	<<corners[i].mag2()<<" "
+// 	<<corners[i].eta()<<" "
+// 	<<corners[i].phi()<<" "
+// 	<<endl;
+//   }
   assert( corners.size() == 8 );
 
   rh->setNECorner( corners[0].x(), corners[0].y(),  corners[0].z() );
@@ -992,6 +952,7 @@ PFClusterProducer::createHcalRecHit( const DetId& detid,
   rh->setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z() );
   rh->setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z() );
  
+
   return rh;
 }
 
@@ -1051,6 +1012,11 @@ PFClusterProducer::findRecHitNeighbours
   const CaloSubdetectorTopology& endcapTopology, 
   const CaloSubdetectorGeometry& endcapGeometry ) {
   
+  const math::XYZPoint& cpos = rh.positionXYZ();
+  double posx = cpos.X();
+  double posy = cpos.Y();
+  double posz = cpos.Z();
+
   DetId detid( rh.detId() );
 
   const CaloSubdetectorTopology* topology = 0;
@@ -1095,6 +1061,28 @@ PFClusterProducer::findRecHitNeighbours
   DetId northeast(0);
   if( north != DetId(0) ) {
     northeast = navigator.east();  
+    if( northeast != DetId(0) ) {
+
+
+      const CaloCellGeometry * nbcell = geometry->getGeometry(northeast);
+      if(!nbcell)
+	nbcell = othergeometry->getGeometry(northeast);
+
+      if(nbcell) {
+	const GlobalPoint& nbpos = nbcell->getPosition();
+	double cposx = nbpos.x();
+	cposx += posx; 
+	cposx /= 2.;
+	double cposy = nbpos.y();
+	cposy += posy; 
+	cposy /= 2.;
+	double cposz = nbpos.z();
+	cposz += posz; 
+	cposz /= 2.;
+	
+	rh.setNECorner( cposx, cposy, cposz );
+      }
+    }
   }
   navigator.home();
 
@@ -1105,7 +1093,33 @@ PFClusterProducer::findRecHitNeighbours
 
   DetId southwest(0); 
   if( south != DetId(0) ) {
+  
     southwest = navigator.west();
+    if( southwest != DetId(0) ) {
+      const CaloCellGeometry * nbcell = geometry->getGeometry(southwest);
+
+      // now that we have moved, it could be that the neighbour is not in 
+      // the same subdetector. 
+      // the other geometry is hence used
+      if(!nbcell)
+	nbcell = othergeometry->getGeometry(southwest);
+
+      if(nbcell) {
+	
+	const GlobalPoint& nbpos = nbcell->getPosition();
+	double cposx = nbpos.x();
+	cposx += posx; 
+	cposx /= 2.;
+	double cposy = nbpos.y();
+	cposy += posy; 
+	cposy /= 2.;
+	double cposz = nbpos.z();
+	cposz += posz; 
+	cposz /= 2.;
+	
+	rh.setSWCorner( cposx, cposy, cposz );
+      }
+    }
   }
   navigator.home();
 
@@ -1114,12 +1128,52 @@ PFClusterProducer::findRecHitNeighbours
   DetId southeast;
   if( east != DetId(0) ) {
     southeast = navigator.south(); 
+    if( southeast != DetId(0) ) {
+      const CaloCellGeometry * nbcell = geometry->getGeometry(southeast);
+      if(!nbcell) 
+	nbcell = othergeometry->getGeometry(southeast);
+
+      if(nbcell) {
+	const GlobalPoint& nbpos = nbcell->getPosition();
+	double cposx = nbpos.x();
+	cposx += posx; 
+	cposx /= 2.;
+	double cposy = nbpos.y();
+	cposy += posy; 
+	cposy /= 2.;
+	double cposz = nbpos.z();
+	cposz += posz; 
+	cposz /= 2.;
+      
+	rh.setSECorner( cposx, cposy, cposz );
+      }
+    }
   }
   navigator.home();
   DetId west = navigator.west();
   DetId northwest;
   if( west != DetId(0) ) {   
     northwest = navigator.north();  
+    if( northwest != DetId(0) ) {
+      const CaloCellGeometry * nbcell = geometry->getGeometry(northwest);
+      if(!nbcell) 
+	nbcell = othergeometry->getGeometry(northwest);
+
+      if(nbcell) {
+	const GlobalPoint& nbpos = nbcell->getPosition();
+	double cposx = nbpos.x();
+	cposx += posx; 
+	cposx /= 2.;
+	double cposy = nbpos.y();
+	cposy += posy; 
+	cposy /= 2.;
+	double cposz = nbpos.z();
+	cposz += posz; 
+	cposz /= 2.;
+      
+	rh.setNWCorner( cposx, cposy, cposz );
+      }
+    }
   }
   navigator.home();
     

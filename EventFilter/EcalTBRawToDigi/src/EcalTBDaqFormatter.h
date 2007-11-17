@@ -2,8 +2,8 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2007/10/20 10:58:01 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/09/21 15:22:16 $
+ *  $Revision: 1.14 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -25,7 +25,7 @@
 
 
 class FEDRawData;
-class DCCTBDataParser;
+class DCCDataParser;
 class EcalTBDaqFormatter   {
 
  public:
@@ -35,8 +35,8 @@ class EcalTBDaqFormatter   {
 
   void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EcalPnDiodeDigiCollection & pndigicollection ,
 			  EcalRawDataCollection& DCCheaderCollection,
-			  EBDetIdCollection & dccsizecollection,
-			  EcalElectronicsIdCollection & ttidcollection , EcalElectronicsIdCollection & blocksizecollection,
+			  EBDetIdCollection & dccsizecollection ,
+			  EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection,
 			  EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection ,
 			  EBDetIdCollection & gainswitchcollection , EBDetIdCollection & gainswitchstaycollection,
 			  EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
@@ -46,7 +46,7 @@ class EcalTBDaqFormatter   {
 
  private:
   
-  void  DecodeMEM( DCCTBTowerBlock *  towerblock, EcalPnDiodeDigiCollection & pndigicollection ,
+  void  DecodeMEM( DCCTowerBlock *  towerblock, EcalPnDiodeDigiCollection & pndigicollection ,
 		   EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
 		   EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection);
   
@@ -56,7 +56,7 @@ class EcalTBDaqFormatter   {
   bool rightTower(int tower) const ;
 
  private:
-  DCCTBDataParser* theParser_;
+  DCCDataParser* theParser_;
 
   enum SMGeom_t {
      kModules = 4,           // Number of modules per supermodule

@@ -4,7 +4,6 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "DataFormats/CLHEP/interface/Migration.h" 
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 
 #include <cmath>

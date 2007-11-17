@@ -11,9 +11,10 @@ class EcalCondObjectContainer {
                 typedef T Item;
                 typedef Item value_type;
                 typedef EcalCondObjectContainer<T> self;
-                typedef typename EcalContainer<DetId, Item>::Items Items;
-                typedef typename EcalContainer<DetId, Item>::const_iterator const_iterator;
-                typedef typename EcalContainer<DetId, Item>::iterator iterator;
+                typedef typename std::vector<Item> Items;
+                typedef typename std::vector<Item>::const_iterator const_iterator; 
+                typedef typename std::vector<Item>::iterator iterator;
+
                 EcalCondObjectContainer() {};
                 ~EcalCondObjectContainer() {};
 
@@ -151,4 +152,5 @@ class EcalCondObjectContainer {
                 EcalContainer< EEDetId, Item > ee_;
 };
 
+typedef EcalCondObjectContainer<float> EcalFloatCondObjectContainer;
 #endif

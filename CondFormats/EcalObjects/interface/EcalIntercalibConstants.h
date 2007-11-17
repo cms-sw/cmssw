@@ -3,12 +3,13 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: EcalIntercalibConstants.h,v 1.2 2006/02/23 16:56:34 rahatlou Exp $
+ * $Id: EcalIntercalibConstants.h,v 1.3 2007/09/27 09:42:55 ferriff Exp $
  **/
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 
 typedef float EcalIntercalibConstant;
-typedef EcalCondObjectContainer<EcalIntercalibConstant> EcalIntercalibConstantMap;
+typedef EcalFloatCondObjectContainer EcalIntercalibConstantMap;
 typedef EcalIntercalibConstantMap EcalIntercalibConstants;
+
 
 #endif

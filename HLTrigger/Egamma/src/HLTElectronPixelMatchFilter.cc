@@ -1,6 +1,6 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.6 2007/10/16 14:37:37 ghezzi Exp $
+ * $Id: HLTElectronPixelMatchFilter.cc,v 1.4 2007/05/08 13:22:44 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -17,11 +17,9 @@
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 
-
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
@@ -36,11 +34,11 @@ HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet
 {
   candTag_            = iConfig.getParameter< edm::InputTag > ("candTag");
 
-  L1IsoPixelSeedsTag_  = iConfig.getParameter< edm::InputTag > ("L1IsoPixelSeedsTag");
-  //L1IsoPixelmapendcapTag_  = iConfig.getParameter< edm::InputTag > ("L1IsoPixelmapendcapTag");
+  L1IsoPixelmapbarrelTag_  = iConfig.getParameter< edm::InputTag > ("L1IsoPixelmapbarrelTag");
+  L1IsoPixelmapendcapTag_  = iConfig.getParameter< edm::InputTag > ("L1IsoPixelmapendcapTag");
 
-  L1NonIsoPixelSeedsTag_  = iConfig.getParameter< edm::InputTag > ("L1NonIsoPixelSeedsTag");
-  // L1NonIsoPixelmapendcapTag_  = iConfig.getParameter< edm::InputTag > ("L1NonIsoPixelmapendcapTag");
+  L1NonIsoPixelmapbarrelTag_  = iConfig.getParameter< edm::InputTag > ("L1NonIsoPixelmapbarrelTag");
+  L1NonIsoPixelmapendcapTag_  = iConfig.getParameter< edm::InputTag > ("L1NonIsoPixelmapendcapTag");
 
   npixelmatchcut_     = iConfig.getParameter<double> ("npixelmatchcut");
   ncandcut_           = iConfig.getParameter<int> ("ncandcut");
@@ -68,18 +66,18 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel (candTag_,recoecalcands);
   
   //get hold of the pixel seed - supercluster association map
-  edm::Handle<reco::ElectronPixelSeedCollection> L1IsoSeeds;
-  iEvent.getByLabel (L1IsoPixelSeedsTag_,L1IsoSeeds);
+  edm::Handle<reco::SeedSuperClusterAssociationCollection> L1IsoBarrelMap;
+  iEvent.getByLabel (L1IsoPixelmapbarrelTag_,L1IsoBarrelMap);
   
   //get hold of the pixel seed - supercluster association map
-  //  edm::Handle<reco::ElectronPixelSeedCollection> L1IsoEndcapSeeds;
-  //iEvent.getByLabel (L1IsoPixelmapendcapTag_,L1IsoEndcapSeeds);
+  edm::Handle<reco::SeedSuperClusterAssociationCollection> L1IsoEndcapMap;
+  iEvent.getByLabel (L1IsoPixelmapendcapTag_,L1IsoEndcapMap);
 
-  edm::Handle<reco::ElectronPixelSeedCollection> L1NonIsoSeeds;
-  //edm::Handle<reco::ElectronPixelSeedCollection> L1NonIsoEndcapSeeds;
+  edm::Handle<reco::SeedSuperClusterAssociationCollection> L1NonIsoBarrelMap;
+  edm::Handle<reco::SeedSuperClusterAssociationCollection> L1NonIsoEndcapMap;
   if(!doIsolated_){
-    iEvent.getByLabel (L1NonIsoPixelSeedsTag_,L1NonIsoSeeds);
-    // iEvent.getByLabel (L1NonIsoPixelmapendcapTag_,L1NonIsoEndcapSeeds);
+    iEvent.getByLabel (L1NonIsoPixelmapbarrelTag_,L1NonIsoBarrelMap);
+    iEvent.getByLabel (L1NonIsoPixelmapendcapTag_,L1NonIsoEndcapMap);
   }
   
   // look at all egammas,  check cuts and add to filter object
@@ -89,45 +87,50 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
     candref = recoecalcands->getParticleRef(i);
     reco::RecoEcalCandidateRef recr = candref.castTo<reco::RecoEcalCandidateRef>();
     reco::SuperClusterRef recr2 = recr->superCluster();
+
     int nmatch = 0;
 
-    for(reco::ElectronPixelSeedCollection::const_iterator it = L1IsoSeeds->begin(); 
-	it != L1IsoSeeds->end(); it++){
-      const reco::SuperClusterRef & scRef=it->superCluster();
-
-      if(&(*recr2) ==  &(*scRef)) {
+    for(reco::SeedSuperClusterAssociationCollection::const_iterator itb = L1IsoBarrelMap->begin(); 
+	itb != L1IsoBarrelMap->end(); itb++){
+      
+      edm::Ref<reco::SuperClusterCollection> theClusBarrel = itb->val;
+      
+      if(&(*recr2) ==  &(*theClusBarrel)) {
 	nmatch++;
       }
     }
-    
-//     for(reco::ElectronPixelSeedCollection::const_iterator ite = L1IsoEndcapSeeds->begin(); 
-// 	ite != L1IsoEndcapSeeds->end(); ite++){
-//        const reco::SuperClusterRef & scRef=ite->superCluster();
-//       if(&(*recr2) ==  &(*scRef)) {
-// 	nmatch++;
-//       }
-//     }
+
+    for(reco::SeedSuperClusterAssociationCollection::const_iterator ite = L1IsoEndcapMap->begin(); 
+	ite != L1IsoEndcapMap->end(); ite++){
+      
+      edm::Ref<reco::SuperClusterCollection> theClusEndcap = ite->val;
+      
+      if(&(*recr2) ==  &(*theClusEndcap)) {
+	nmatch++;
+      }
+    }
 
     if(!doIsolated_){
 
-      for(reco::ElectronPixelSeedCollection::const_iterator it = L1NonIsoSeeds->begin(); 
-	  it != L1NonIsoSeeds->end(); it++){
-	const reco::SuperClusterRef & scRef=it->superCluster();
+      for(reco::SeedSuperClusterAssociationCollection::const_iterator itb = L1NonIsoBarrelMap->begin(); 
+	  itb != L1NonIsoBarrelMap->end(); itb++){
       
-	if(&(*recr2) ==  &(*scRef)) {
+	edm::Ref<reco::SuperClusterCollection> theClusBarrel = itb->val;
+      
+	if(&(*recr2) ==  &(*theClusBarrel)) {
 	  nmatch++;
 	}
       }
 
-//       for(reco::ElectronPixelSeedCollection::const_iterator ite = L1NonIsoEndcapSeeds->begin(); 
-// 	  ite != L1NonIsoEndcapSeeds->end(); ite++){
+      for(reco::SeedSuperClusterAssociationCollection::const_iterator ite = L1NonIsoEndcapMap->begin(); 
+	  ite != L1NonIsoEndcapMap->end(); ite++){
       
-// 	const reco::SuperClusterRef & scRef=ite->superCluster();
+	edm::Ref<reco::SuperClusterCollection> theClusEndcap = ite->val;
       
-// 	if(&(*recr2) ==  &(*scRef)) {
-// 	  nmatch++;
-// 	}
-//       } 
+	if(&(*recr2) ==  &(*theClusEndcap)) {
+	  nmatch++;
+	}
+      } 
 
     }
 
@@ -135,9 +138,9 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
       n++;
       filterproduct->putParticle(candref);
     }
-    
+
   }
-   
+
   // filter decision
   bool accept(n>=ncandcut_);
   

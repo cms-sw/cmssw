@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2007/10/20 10:58:01 $
- *  $Revision: 1.39 $
+ *  $Date: 2007/06/28 13:08:10 $
+ *  $Revision: 1.37 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -41,13 +41,13 @@
 #define TABLE_FED_ID 42
 #define MATACQ_FED_ID 43
 
-EcalDCCTBUnpackingModule::EcalDCCTBUnpackingModule(const edm::ParameterSet& pset){
+EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
 
   formatter_ = new EcalTBDaqFormatter();
-  ecalSupervisorFormatter_ = new EcalSupervisorTBDataFormatter();
+  ecalSupervisorFormatter_ = new EcalSupervisorDataFormatter();
   camacTBformatter_ = new CamacTBDataFormatter();
   tableFormatter_ = new TableDataFormatter();
-  matacqFormatter_ = new MatacqTBDataFormatter();
+  matacqFormatter_ = new MatacqDataFormatter();
 
   // digis
   produces<EBDigiCollection>("ebDigis");
@@ -63,8 +63,8 @@ EcalDCCTBUnpackingModule::EcalDCCTBUnpackingModule(const edm::ParameterSet& pset
 
   // crystals' integrity
   produces<EBDetIdCollection>("EcalIntegrityDCCSizeErrors");
-  produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors");
-  produces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors");
+  produces<EcalTrigTowerDetIdCollection>("EcalIntegrityTTIdErrors");
+  produces<EcalTrigTowerDetIdCollection>("EcalIntegrityBlockSizeErrors");
   produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
@@ -79,21 +79,21 @@ EcalDCCTBUnpackingModule::EcalDCCTBUnpackingModule(const edm::ParameterSet& pset
 }
 
 
-EcalDCCTBUnpackingModule::~EcalDCCTBUnpackingModule(){
+EcalDCCUnpackingModule::~EcalDCCUnpackingModule(){
 
   delete formatter_;
 
 }
 
-void EcalDCCTBUnpackingModule::beginJob(const edm::EventSetup& c){
+void EcalDCCUnpackingModule::beginJob(const edm::EventSetup& c){
 
 }
 
-void EcalDCCTBUnpackingModule::endJob(){
+void EcalDCCUnpackingModule::endJob(){
 
 }
 
-void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
+void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByType(rawdata);
@@ -118,10 +118,10 @@ void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
   std::auto_ptr<EBDetIdCollection> productDCCSize(new EBDetIdCollection);
 
   // create the collection of Ecal Integrity TT Id
-  std::auto_ptr<EcalElectronicsIdCollection> productTTId(new EcalElectronicsIdCollection);
+  std::auto_ptr<EcalTrigTowerDetIdCollection> productTTId(new EcalTrigTowerDetIdCollection);
 
   // create the collection of Ecal Integrity TT Block Size
-  std::auto_ptr<EcalElectronicsIdCollection> productBlockSize(new EcalElectronicsIdCollection);
+  std::auto_ptr<EcalTrigTowerDetIdCollection> productBlockSize(new EcalTrigTowerDetIdCollection);
 
   // create the collection of Ecal Integrity Ch Id
   std::auto_ptr<EBDetIdCollection> productChId(new EBDetIdCollection);
@@ -157,9 +157,9 @@ void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
 
   for (int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
 
-    //    edm::LogInfo("EcalDCCTBUnpackingModule") << "EcalDCCTBUnpackingModule::Got FED ID "<< id <<" ";
+    //    edm::LogInfo("EcalDCCUnpackingModule") << "EcalDCCUnpackingModule::Got FED ID "<< id <<" ";
     const FEDRawData& data = rawdata->FEDData(id);
-    //    edm::LogInfo("EcalDCCTBUnpackingModule") << " Fed data size " << data.size() ;
+    //    edm::LogInfo("EcalDCCUnpackingModule") << " Fed data size " << data.size() ;
    
     //std::cout <<"1 Fed id: "<<dec<<id<< " Fed data size: " <<data.size() << std::endl;
 //    const unsigned char * pData = data.data();
@@ -196,7 +196,7 @@ void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
 	    (*productHeader).setTriggerMask(0x2000);
 	  else if ( runType == 9 || runType == 10 || runType == 11 ) //pedestal runs
 	    (*productHeader).setTriggerMask(0x800);
-	  LogDebug("EcalDCCTBUnpackingModule") << "Event type is " << (*productHeader).eventType() << " dbEventType " << (*productHeader).dbEventType();
+	  LogDebug("EcalDCCUnpackingModule") << "Event type is " << (*productHeader).eventType() << " dbEventType " << (*productHeader).dbEventType();
 	} 
       else if ( id == ECAL_SUPERVISOR_FED_ID )
 	ecalSupervisorFormatter_->interpretRawData(data, *productHeader);
@@ -234,14 +234,14 @@ void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
   e.put(productTdc);
   e.put(productHeader);
 
-  } catch (ECALTBParserException &e) {
-    std::cout << "[EcalDCCTBUnpackingModule] " << e.what() << std::endl;
-  } catch (ECALTBParserBlockException &e) {
-    std::cout << "[EcalDCCTBUnpackingModule] " << e.what() << std::endl;
+  } catch (ECALParserException &e) {
+    std::cout << "[EcalDCCUnpackingModule] " << e.what() << std::endl;
+  } catch (ECALParserBlockException &e) {
+    std::cout << "[EcalDCCUnpackingModule] " << e.what() << std::endl;
   } catch (cms::Exception &e) {
-    std::cout << "[EcalDCCTBUnpackingModule] " << e.what() << std::endl;
+    std::cout << "[EcalDCCUnpackingModule] " << e.what() << std::endl;
   } catch (...) {
-    std::cout << "[EcalDCCTBUnpackingModule] Unknown exception ..." << std::endl;
+    std::cout << "[EcalDCCUnpackingModule] Unknown exception ..." << std::endl;
   }
 
 }

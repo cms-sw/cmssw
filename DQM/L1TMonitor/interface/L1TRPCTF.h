@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2007/08/27 16:39:18 $
- * $Revision: 1.4 $
+ * $Date: 2007/02/20 21:42:10 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
 */
@@ -29,9 +29,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 #include <iostream>
 #include <fstream>
@@ -65,20 +62,29 @@ private:
   // ----------member data ---------------------------
   DaqMonitorBEInterface * dbe;
 
-  MonitorElement* rpctfetavalue[3];
-  MonitorElement* rpctfphivalue[3];
-  MonitorElement* rpctfptvalue[3];
-  MonitorElement* rpctfchargevalue[3];
-  MonitorElement* rpctfquality[3];
-  MonitorElement* rpctfntrack;
-  MonitorElement* rpctfbx;
+  MonitorElement* rpctfbetavalue;
+  MonitorElement* rpctfbphivalue;
+  MonitorElement* rpctfbptvalue;
+  MonitorElement* rpctfbptpacked;
+  MonitorElement* rpctfbquality;
+  MonitorElement* rpctfbchargevalue;
+  MonitorElement* rpctfbntrack;
+
+  MonitorElement* rpctffetavalue;
+  MonitorElement* rpctffphivalue;
+  MonitorElement* rpctffptvalue;
+  MonitorElement* rpctffptpacked;
+  MonitorElement* rpctffquality;
+  MonitorElement* rpctffchargevalue;
+  MonitorElement* rpctffntrack;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
   ofstream logFile_;
-  edm::InputTag rpctfSource_ ;
+  edm::InputTag rpctfbSource_;
+  edm::InputTag rpctffSource_;
 };
 
 #endif

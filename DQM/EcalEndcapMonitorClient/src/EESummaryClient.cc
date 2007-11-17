@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/10/25 22:40:00 $
- * $Revision: 1.43 $
+ * $Date: 2007/11/02 12:36:25 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  *
 */
@@ -794,6 +794,13 @@ void EESummaryClient::analyze(void){
     }
   }
 
+  meIntegrity_[0]->setEntries( 0 );
+  meIntegrity_[1]->setEntries( 0 );
+  meOccupancy_[0]->setEntries( 0 );
+  meOccupancy_[1]->setEntries( 0 );
+  mePedestalOnline_[0]->setEntries( 0 );
+  mePedestalOnline_[1]->setEntries( 0 );
+
   meLaserL1_[0]->setEntries( 0 );
   meLaserL1_[1]->setEntries( 0 );
   meLaserL1PN_[0]->setEntries( 0 );
@@ -819,6 +826,9 @@ void EESummaryClient::analyze(void){
   meTriggerTowerEt_[1]->setEntries( 0 );
   meTriggerTowerEmulError_[0]->setEntries( 0 );
   meTriggerTowerEmulError_[1]->setEntries( 0 );
+
+  meGlobalSummary_[0]->setEntries( 0 );
+  meGlobalSummary_[1]->setEntries( 0 );
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
@@ -1211,17 +1221,25 @@ void EESummaryClient::analyze(void){
 
       if(meIntegrity_[0] && mePedestalOnline_[0]) {
 
-        float xval = 2;
+        float xval = -1;
         float val_in = meIntegrity_[0]->getBinContent(jx,jy); 
         float val_po = mePedestalOnline_[0]->getBinContent(jx,jy);
 
-        // turn each dark color to bright green
+        // turn each dark color (masked channel) to bright green
         if(val_in>2) val_in=1;
         if(val_po>2) val_po=1;
 
-        if(val_in==0) xval=0;
+        // -1 = unknown
+        //  0 = red
+        //  1 = green
+        //  2 = yellow 
+
+        if(val_in==-1) xval=-1;
+        else if(val_in==0) xval=0;
+        else if(val_po==0) xval=0;
         else if(val_in==2) xval=2;
-        else xval=val_po;
+        else if(val_po==2) xval=2;
+        else xval=1;
 
         meGlobalSummary_[0]->setBinContent( jx, jy, xval );
 
@@ -1229,7 +1247,7 @@ void EESummaryClient::analyze(void){
 
       if(meIntegrity_[1] && mePedestalOnline_[1]) {
 
-        float xval = 2;
+        float xval = -1;
         float val_in = meIntegrity_[1]->getBinContent(jx,jy);  
         float val_po = mePedestalOnline_[1]->getBinContent(jx,jy);
 
@@ -1237,9 +1255,17 @@ void EESummaryClient::analyze(void){
         if(val_in>2) val_in=1;
         if(val_po>2) val_po=1;
 
-        if(val_in==0) xval=0;
+        // -1 = unknown
+        //  0 = red
+        //  1 = green
+        //  2 = yellow
+
+        if(val_in==-1) xval=-1;
+        else if(val_in==0) xval=0;
+        else if(val_po==0) xval=0;
         else if(val_in==2) xval=2;
-        else xval=val_po;
+        else if(val_po==2) xval=2;
+        else xval=1;
 
         meGlobalSummary_[1]->setBinContent( jx, jy, xval );
 
@@ -1531,7 +1557,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( mePedestalOnline_[0] );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
@@ -1572,7 +1598,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( mePedestalOnline_[1] );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 

@@ -9,8 +9,9 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "RecoTracker/CkfPattern/interface/GroupedTrajCandLess.h"
-#include "TrackingTools/TrajectoryFiltering/interface/RegionalTrajectoryFilter.h"
-#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
+#include "RecoTracker/CkfPattern/interface/TrajectoryFilter.h"
+#include "RecoTracker/CkfPattern/interface/RegionalTrajectoryFilter.h"
+#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -64,12 +65,11 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
 			    const Propagator*                     propagatorOpposite,
 			    const Chi2MeasurementEstimatorBase*   estimator,
 			    const TransientTrackingRecHitBuilder* recHitBuilder,
-			    const MeasurementTracker*             measurementTracker,
-			    const TrajectoryFilter*               filter):
+			    const MeasurementTracker*             measurementTracker):
 
   BaseCkfTrajectoryBuilder(conf,
 			   updator, propagatorAlong,propagatorOpposite,
-			   estimator, recHitBuilder, measurementTracker,filter)
+			   estimator, recHitBuilder, measurementTracker)
 {
   // fill data members from parameters (eventually data members could be dropped)
   //

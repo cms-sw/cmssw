@@ -1,12 +1,12 @@
 #include <DQM/HcalMonitorClient/interface/HcalRecHitClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 
-HcalRecHitClient::HcalRecHitClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
+HcalRecHitClient::HcalRecHitClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
 
-  dbe_ = dbe;
+  mui_ = mui;
   for(int i=0; i<4; i++){
     occ_[i]=0;
     energy_[i]=0;
@@ -29,7 +29,7 @@ HcalRecHitClient::HcalRecHitClient(const ParameterSet& ps, DaqMonitorBEInterface
   cout << "Beam energy reco width set to " << beamE_thresh_ << endl;
 
   // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor/");
+  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
 
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
@@ -47,7 +47,7 @@ HcalRecHitClient::HcalRecHitClient(){
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
 
-  dbe_ = 0;
+  mui_ = 0;
   for(int i=0; i<4; i++){
     occ_[i]=0;
     energy_[i]=0;
@@ -76,6 +76,7 @@ void HcalRecHitClient::beginJob(void){
   jevt_ = 0;
 
   this->setup();
+  this->subscribe();
   this->resetAllME();
   return;
 }
@@ -86,6 +87,7 @@ void HcalRecHitClient::beginRun(void){
 
   jevt_ = 0;
   this->setup();
+  this->subscribe();
   this->resetAllME();
   return;
 }
@@ -137,15 +139,52 @@ void HcalRecHitClient::cleanup(void) {
   return;
 }
 
+void HcalRecHitClient::subscribe(void){
+
+  if ( verbose_ ) cout << "HcalRecHitClient: subscribe" << endl;
+  if(mui_){
+    mui_->subscribe("*/HcalMonitor/RecHitMonitor/*");
+    mui_->subscribe("*/HcalMonitor/RecHitMonitor/HB/*");
+    mui_->subscribe("*/HcalMonitor/RecHitMonitor/HE/*");
+    mui_->subscribe("*/HcalMonitor/RecHitMonitor/HF/*");
+    mui_->subscribe("*/HcalMonitor/RecHitMonitor/HO/*");
+  }
+  return;
+}
+
+void HcalRecHitClient::subscribeNew(void){
+  if(mui_){
+    mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/*");
+    mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HB/*");
+    mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HE/*");
+    mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HF/*");
+    mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HO/*");
+  }
+  return;
+}
+
+void HcalRecHitClient::unsubscribe(void){
+
+  if ( verbose_ ) cout << "HcalRecHitClient: unsubscribe" << endl;
+  if(mui_){
+    mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/*");
+    mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HB/*");
+    mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HE/*");
+    mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HF/*");
+    mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HO/*");
+  }
+  return;
+}
+
 void HcalRecHitClient::errorOutput(){
-  if(!dbe_) return;
+  if(!mui_) return;
 
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   
   for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
     string testName = testsMap->first;
     string meName = testsMap->second;
-    MonitorElement* me = dbe_->get(meName);
+    MonitorElement* me = mui_->getBEInterface()->get(meName);
     if(me){
       if (me->hasError()){
 	vector<QReport*> report =  me->getQErrors();
@@ -185,13 +224,13 @@ void HcalRecHitClient::getErrors(map<string, vector<QReport*> > outE, map<string
 }
 
 void HcalRecHitClient::report(){
-  if(!dbe_) return;
+  if(!mui_) return;
   if ( verbose_ ) cout << "HcalRecHitClient: report" << endl;
   this->setup();
 
   char name[256];
   sprintf(name, "%sHcalMonitor/RecHitMonitor/RecHit Event Number",process_.c_str());
-  MonitorElement* me = dbe_->get(name); 
+  MonitorElement* me = mui_->getBEInterface()->get(name); 
   if ( me ) {
     string s = me->valueString();
     ievt_ = -1;
@@ -208,7 +247,7 @@ void HcalRecHitClient::analyze(void){
 
   jevt_++;
   int updates = 0;
-  //  if(dbe_) dbe_->getNumUpdates();
+  if(mui_) mui_->getNumUpdates();
   if ( updates % 10 == 0 ) {
     if ( verbose_ ) cout << "HcalRecHitClient: " << updates << " updates" << endl;
   }
@@ -217,11 +256,11 @@ void HcalRecHitClient::analyze(void){
 }
 
 void HcalRecHitClient::getHistograms(){
-  if(!dbe_) return;
+  if(!mui_) return;
   char name[150];    
   for(int i=0; i<4; i++){
     sprintf(name,"RecHitMonitor/RecHit Depth %d Occupancy Map",i+1);
-    tot_occ_[i] = getHisto2(name, process_, dbe_, verbose_,cloneME_);
+    tot_occ_[i] = getHisto2(name, process_, mui_, verbose_,cloneME_);
   }
 
   for(int i=0; i<4; i++){
@@ -232,45 +271,45 @@ void HcalRecHitClient::getHistograms(){
     if(i==3) type = "HO"; 
     
     sprintf(name,"RecHitMonitor/%s/%s RecHit Energies",type.c_str(),type.c_str());      
-    energy_[i] = getHisto(name, process_,dbe_,verbose_,cloneME_);
+    energy_[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
     
     sprintf(name,"RecHitMonitor/%s/%s RecHit Total Energy",type.c_str(),type.c_str());      
-    energyT_[i] = getHisto(name, process_,dbe_,verbose_,cloneME_);
+    energyT_[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
 
     sprintf(name,"RecHitMonitor/%s/%s RecHit Times",type.c_str(),type.c_str());      
-    time_[i] = getHisto(name, process_,dbe_,verbose_,cloneME_);
+    time_[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
 
     sprintf(name,"RecHitMonitor/%s/%s RecHit Geo Occupancy Map",type.c_str(),type.c_str());
-    occ_[i] = getHisto2(name, process_,dbe_,verbose_,cloneME_);
+    occ_[i] = getHisto2(name, process_,mui_,verbose_,cloneME_);
   }
 
   
   sprintf(name,"RecHitMonitor/RecHit Total Energy");   
-  tot_energy_ = getHisto(name, process_,dbe_, verbose_,cloneME_);
+  tot_energy_ = getHisto(name, process_,mui_, verbose_,cloneME_);
 
   return;
 }
 
 void HcalRecHitClient::resetAllME(){
-  if(!dbe_) return;
+  if(!mui_) return;
   Char_t name[150];
   
   sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Total Energy",process_.c_str());
-  resetME(name,dbe_);
+  resetME(name,mui_);
   for(int i=1; i<5; i++){
     sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Depth %d Occupancy Map",process_.c_str(),i);
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Depth %d Energy Map",process_.c_str(),i);
-    resetME(name,dbe_);
+    resetME(name,mui_);
   }
   sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Eta Occupancy Map",process_.c_str());
-  resetME(name,dbe_);
+  resetME(name,mui_);
   sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Phi Occupancy Map",process_.c_str());
-  resetME(name,dbe_);
+  resetME(name,mui_);
   sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Eta Energy Map",process_.c_str());
-  resetME(name,dbe_);
+  resetME(name,mui_);
   sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Phi Energy Map",process_.c_str());
-  resetME(name,dbe_);
+  resetME(name,mui_);
 
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
@@ -281,15 +320,15 @@ void HcalRecHitClient::resetAllME(){
 
 
     sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Geo Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Energies",process_.c_str(),type.c_str(),type.c_str());      
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Energies - Low Region",process_.c_str(),type.c_str(),type.c_str());      
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Total Energy",process_.c_str(),type.c_str(),type.c_str());      
-    resetME(name,dbe_);
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Times",process_.c_str(),type.c_str(),type.c_str()); 
-    resetME(name,dbe_);     
+    resetME(name,mui_);     
   }
 
 
@@ -301,7 +340,7 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   cout << "Preparing HcalRecHitClient html output ..." << endl;
   string client = "RecHitMonitor";
-  htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+  htmlErrors(runNo,htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
@@ -398,7 +437,7 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 }
 
 void HcalRecHitClient::createTests(){
-  if(!dbe_) return;
+  if(!mui_) return;
   //  char meTitle[250], name[250];    
   //  vector<string> params;
   

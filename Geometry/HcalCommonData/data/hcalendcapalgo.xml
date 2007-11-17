@@ -40,7 +40,7 @@
     <Numeric name="ZiL0Nose"    value="3919.5*mm"/>
     <Numeric name="ZiBody"      value="4062.0*mm"/>
     <Numeric name="ZiL0Body"    value="4006.5*mm"/>
-    <Numeric name="Z0Beam"      value="2298.0*mm"/>
+    <Numeric name="Z0Beam"      value="2300.0*mm"/>
     <Numeric name="ZiDip"       value="5193.0*mm"/>
     <Numeric name="DzStep"      value="87.0*mm"/>
     <Numeric name="Gap"         value="140.0*mm"/>

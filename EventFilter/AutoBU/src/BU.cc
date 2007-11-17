@@ -787,7 +787,11 @@ toolbox::mem::Reference *BU::createMsgChain(BUEvent* evt,
     nFedPerSuperFrag=1;
     nBigSuperFrags=0;
   }
-  
+  else
+    {
+      nFedPerSuperFrag=evt->nFed()/nSuperFrag;
+      nBigSuperFrags  =evt->nFed()%nSuperFrag;
+    }
   // loop over all super fragments
   for (unsigned int iSuperFrag=0;iSuperFrag<nSuperFrag;iSuperFrag++) {
     

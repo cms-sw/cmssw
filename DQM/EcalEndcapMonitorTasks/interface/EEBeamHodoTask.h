@@ -4,8 +4,8 @@
 /*
  * \file EEBeamHodoTask.h
  *
- * $Date: 2007/04/05 13:56:48 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
+class DaqMonitorBEInterface;
 
 class EEBeamHodoTask: public edm::EDAnalyzer{
 

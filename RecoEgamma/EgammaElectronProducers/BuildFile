@@ -10,6 +10,7 @@
 <use name=DataFormats/SiPixelCluster>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/TrackingRecHit>
+<use name=DataFormats/PixelMatchTrackReco>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=DataFormats/EgammaCandidates>
@@ -17,6 +18,7 @@
 <use name=RecoTracker/CkfPattern>
 <use name=RecoTracker/TrackProducer>
 <export>
+   <lib name=RecoEgammaEgammaElectronProducers>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
    <use name=MagneticField/Engine>
@@ -25,6 +27,7 @@
    <use name=DataFormats/SiPixelCluster>
    <use name=DataFormats/TrackerRecHit2D>
    <use name=DataFormats/TrackingRecHit>
+   <use name=DataFormats/PixelMatchTrackReco>
    <use name=Geometry/CommonDetUnit>
    <use name=Geometry/TrackerGeometryBuilder>
    <use name=DataFormats/EgammaCandidates>

@@ -3,14 +3,18 @@
 
 /// \class TrackerScenarioBuilder
 ///
-/// $Date: 2007/01/12 09:47:43 $
-/// $Revision: 1.1 $
+/// $Date$
+/// $Revision$
 ///
-/// $Author: fronga $
+/// $Author$
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <vector>
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableModifier.h"
 #include "Alignment/CommonAlignment/interface/MisalignmentScenarioBuilder.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 

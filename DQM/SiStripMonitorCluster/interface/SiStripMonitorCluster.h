@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.10 2006/11/10 17:35:03 dkcira Exp $
+// $Id: SiStripMonitorCluster.h,v 1.11 2007/05/08 21:37:15 dkcira Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+class DaqMonitorBEInterface;
 
 class SiStripMonitorCluster : public edm::EDAnalyzer {
   public:

@@ -30,11 +30,16 @@ class HcalDigiClient{
 public:
 
 /// Constructor
-HcalDigiClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
+HcalDigiClient(const ParameterSet& ps, MonitorUserInterface* mui);
 HcalDigiClient();
 
 /// Destructor
 virtual ~HcalDigiClient();
+
+/// Subscribe/Unsubscribe to Monitoring Elements
+void subscribe(void);
+void subscribeNew(void);
+void unsubscribe(void);
 
 /// Analyze
 void analyze(void);
@@ -82,12 +87,10 @@ private:
   
   bool collateSources_;
   bool cloneME_;
-  bool debug_;
+  bool verbose_;
   string process_;
 
-  //  MonitorUserInterface* mui_;
-  DaqMonitorBEInterface* dbe_;
-
+  MonitorUserInterface* mui_;
   bool subDetsOn_[4];
 
   TH2F* gl_occ_geo_[4];
@@ -110,7 +113,6 @@ private:
   TH1F* qie_adc_[4];
   TH1F* num_digi_[4];
   TH1F* qie_capid_[4];
-  TH1F* qie_dverr_[4];
 
   // Quality criteria for data integrity
   map<string, vector<QReport*> > dqmReportMapErr_;

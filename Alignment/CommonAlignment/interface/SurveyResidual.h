@@ -1,5 +1,5 @@
-#ifndef Alignment_CommonAlignment_SurveyResidual_h
-#define Alignment_CommonAlignment_SurveyResidual_h
+#ifndef Alignment_SurveyAnalysis_SurveyResidual_h
+#define Alignment_SurveyAnalysis_SurveyResidual_h
 
 /** \class SurveyResidual
  *
@@ -8,12 +8,12 @@
  *  For more info, please refer to
  *    http://www.pha.jhu.edu/~gritsan/cms/cms-note-survey.pdf
  *
- *  $Date: 2007/06/24 01:08:20 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/23 14:45:36 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
-#include "Alignment/CommonAlignment/interface/StructureType.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 
 class Alignable;
@@ -21,16 +21,18 @@ class AlignableSurface;
 
 class SurveyResidual
 {
+  typedef AlignableObjectId::AlignableObjectIdType ObjectId;
+
   public:
 
   /// Constructor from an alignable whose residuals are to be found.
-  /// The type of residuals (panel, disc etc.) is given by StructureType.
+  /// The type of residuals (panel, disc etc.) is given by AlignableType.
   /// Set bias to true for biased residuals.
   /// Default is to find unbiased residuals.
   SurveyResidual(
 		 const Alignable&,
-		 align::StructureType, // level at which residuals are found 
-		 bool bias = false     // true for biased residuals
+		 ObjectId,         // level at which residuals are found 
+		 bool bias = false // true for biased residuals
 		 );
 
   /// Find residual for the alignable in local frame.
@@ -41,7 +43,7 @@ class SurveyResidual
   /// (current - nominal vectors).
   align::LocalVectors pointsResidual() const;
 
-  /// Get inverse of survey covariance wrt given structure type in constructor.
+  /// Get inverse of survey covariance wrt given ObjectId in constructor.
   AlgebraicSymMatrix inverseCovariance() const;
 
   private:
@@ -62,7 +64,7 @@ class SurveyResidual
 
   const AlignableSurface& theSurface; // current surface
 
-  const Alignable* theMother; // mother that matches the structure type
+  const Alignable* theMother; // mother that matches the type (ObjectId)
                               // given in constructor
 
   std::vector<const Alignable*> theSisters; // list of final daughters for
@@ -70,8 +72,6 @@ class SurveyResidual
 
   align::GlobalVectors theNominalVs; // nominal points from mother's pos
   align::GlobalVectors theCurrentVs; // current points rotated to nominal surf
-
-  align::ErrorMatrix theInverseCovariance;
 };
 
 #endif

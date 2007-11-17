@@ -52,9 +52,9 @@ unsigned L1GctJetCounts::count(unsigned i) const
 
 // pretty print
 ostream& operator<<(ostream& s, const L1GctJetCounts& c) {
-  s << "L1GctJetCounts : ";
+  s << "L1GctJetCounts : " << endl;
   for (unsigned int i=0 ; i<12 ; ++i) {
-    s << "\n     count " << i<< "=" << c.count(i);
+    s << "     count " << i<< "=" << c.count(i) << endl;
   }
   return s;
 }

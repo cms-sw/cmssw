@@ -5,8 +5,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2007/10/02 22:16:03 $
-  * $Revision: 1.13 $
+  * $Date: 2006/12/12 19:10:27 $
+  * $Revision: 1.11 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -21,7 +21,6 @@ public:
 		    const HFDigiCollection& hf,
 		    const HcalDbService& cond);
   void clearME();
-  void reset();
 
 private:  ///Methods
 
@@ -30,6 +29,8 @@ private:  ///Methods
   void fillErrors(const HFDataFrame& hf);
 
   int ievt_;
+  vector<int> fedUnpackList_;
+  int firstFED_;
   double etaMax_, etaMin_, phiMax_, phiMin_;
   int etaBins_, phiBins_;
   bool doPerChannel_;

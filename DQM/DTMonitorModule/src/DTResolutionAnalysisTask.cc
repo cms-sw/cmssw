@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/09/20 07:20:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/13 18:59:53 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -76,16 +76,14 @@ void DTResolutionAnalysisTask::beginLuminosityBlock(LuminosityBlock const& lumiS
   if(debug)
     cout<<"[DTResolutionTask]: Begin of LS transition"<<endl;
   
-  if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
-    for(map<DTSuperLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerSL.begin();
-	histo != histosPerSL.end();
-	histo++) {
-      int size = (*histo).second.size();
-      for(int i=0; i<size; i++){
-	(*histo).second[i]->Reset();
-      }
+  /*for(map<DTSuperLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerSL.begin();
+      histo != histosPerSL.end();
+      histo++) {
+    int size = (*histo).second.size();
+    for(int i=0; i<size; i++){
+      (*histo).second[i]->Reset();
     }
-  }
+    }*/
   
 }
 

@@ -1,10 +1,9 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/PoolStorageManager.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
-#include "CondCore/DBCommon/interface/TypedRef.h"
+#include "CondCore/DBCommon/interface/Ref.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "testPayloadObj.h"
@@ -12,41 +11,42 @@
 int main(){
   std::string sourceConnect("sqlite_file:source.db");
   std::string destConnect("sqlite_file:dest.db");
+  std::string catalog("file:mycatalog.xml");
   try{
-    cond::DBSession* session=new cond::DBSession;
-    session->configuration().setMessageLevel(cond::Error);
-    session->configuration().setAuthenticationMethod(cond::XML);
-    static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-    conHandler.registerConnection("mysource","sqlite_file:source.db",0);
-    conHandler.registerConnection("mydest","sqlite_file:dest.db",0);
+    cond::DBSession* session=new cond::DBSession(true);
+    session->sessionConfiguration().setMessageLevel(cond::Error);
     session->open();
-    
-    cond::PoolTransaction& sourcedb=conHandler.getConnection("mysource")->poolTransaction(false);
-    cond::PoolTransaction& destdb=conHandler.getConnection("mydest")->poolTransaction(false);
-    
+    cond::PoolStorageManager sourcedb(sourceConnect,catalog,session);
+    sourcedb.connect();
     cond::IOVService iovmanager(sourcedb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    sourcedb.start();
+    sourcedb.startTransaction(false);
     for(int i=0; i<5; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
       testPayloadObj* myobj=new testPayloadObj;
       for(int j=0; j<10; ++j){
 	myobj->data.push_back(i+j);
       }
-      cond::TypedRef<testPayloadObj> myobjRef(sourcedb,myobj);
+      cond::Ref<testPayloadObj> myobjRef(sourcedb,myobj);
       myobjRef.markWrite("testPayloadObjRcd");
       editor->insert(i+10, myobjRef.token());
     }
     std::string iovtoken=editor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
     sourcedb.commit();
-    sourcedb.start();
-    destdb.start();
+    
+    cond::PoolStorageManager destdb(destConnect,catalog,session);
+    destdb.connect();
+    sourcedb.startTransaction(true);
+    destdb.startTransaction(false);
     iovmanager.exportIOVWithPayload( destdb,
 				     iovtoken,
 				     "testPayloadObj" );
     sourcedb.commit();
     destdb.commit();
+    sourcedb.disconnect();
+    destdb.disconnect();
+    session->close();
     delete editor;
     delete session;
   }catch(const cond::Exception& er){

@@ -15,8 +15,7 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
-//#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
+#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -33,12 +32,12 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
-//#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-//#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
-//#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
+#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
@@ -60,8 +59,6 @@
 
 
 //class TransientInitialStateEstimator;
-class NavigationSchool;
-
 
 using namespace std;
 using namespace edm;
@@ -85,21 +82,21 @@ public:
  private:
 
   // create electrons from tracks
-  void process(edm::Handle<TrackCollection> tracksH, ElectronCollection & outEle);
+  void process(edm::Handle<TrackCollection> tracksH, const SeedSuperClusterAssociationCollection *sclAss, ElectronCollection & outEle);
   
   // temporary to get seed corresponding to track
-  // bool equal(edm::Ref<TrajectorySeedCollection> ts, const Track& t);
-  //bool compareHits(const TrackingRecHit& rh1, const TrackingRecHit & rh2) const ;
+  bool equal(edm::Ref<TrajectorySeedCollection> ts, const Track& t);
+  bool compareHits(const TrackingRecHit& rh1, const TrackingRecHit & rh2) const ;
 
   // input configuration
-  std::string trackLabel_;
-  //std::string trackEndcapLabel_;
-  std::string trackInstanceName_;
-  //std::string trackEndcapInstanceName_;
-  // std::string assBarrelLabel_;
-  // std::string assBarrelInstanceName_;
-  //std::string assEndcapLabel_;
-  //std::string assEndcapInstanceName_;
+  std::string trackBarrelLabel_;
+  std::string trackEndcapLabel_;
+  std::string trackBarrelInstanceName_;
+  std::string trackEndcapInstanceName_;
+  std::string assBarrelLabel_;
+  std::string assBarrelInstanceName_;
+  std::string assEndcapLabel_;
+  std::string assEndcapInstanceName_;
 
   const TrajectoryBuilder*  theCkfTrajectoryBuilder;
   TrajectoryCleaner*               theTrajectoryCleaner;

@@ -62,12 +62,5 @@ namespace {
     reco::CandMatchMapMany::const_iterator cmm3it;
     edm::Wrapper<reco::CandMatchMapMany> wcmm3;
     edm::Wrapper<std::vector<reco::CandidateBaseRef> > wvrb1;
-
-    edm::Wrapper<reco::CompositeCandidateCollection> wcc1;
-    edm::reftobase::Holder<reco::Candidate, reco::CompositeCandidateRef> hcc1;
-    edm::reftobase::RefHolder<reco::CompositeCandidateRef> hcc2;
-    edm::reftobase::VectorHolder<reco::Candidate, reco::CompositeCandidateRefVector> hcc3;
-    edm::reftobase::RefVectorHolder<reco::CompositeCandidateRefVector> hcc4;
-    
   }
 }

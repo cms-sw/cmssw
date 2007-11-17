@@ -6,8 +6,6 @@ HcalTemplateAnalysis::HcalTemplateAnalysis() {
 HcalTemplateAnalysis::~HcalTemplateAnalysis() {
 }
 
-void HcalTemplateAnalysis::reset(){}
-
 void HcalTemplateAnalysis::setup(const edm::ParameterSet& ps){
   
   outputFile_ = ps.getUntrackedParameter<string>("analysisFile", "");

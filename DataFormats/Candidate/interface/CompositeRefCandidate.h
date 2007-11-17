@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.20 2007/10/15 12:44:33 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.17 2007/09/21 14:12:58 llista Exp $
  *
  */
 
@@ -29,10 +29,6 @@ namespace reco {
     CompositeRefCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			   int pdgId = 0, int status = 0, bool integerCharge = true ) :
       Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
-    /// constructor from values
-    CompositeRefCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-			   int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
     /// constructor from a particle
     CompositeRefCandidate( const Particle & p ) : Candidate( p ) { }
     /// destructor
@@ -48,7 +44,7 @@ namespace reco {
     /// last daughter iterator
     virtual iterator end();
     /// number of daughters
-    virtual size_t numberOfDaughters() const;
+    virtual size_type numberOfDaughters() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
     virtual const Candidate * daughter( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
@@ -66,9 +62,9 @@ namespace reco {
     /// set daughters product ID
     void resetDaughters( const edm::ProductID & id ) { dau = daughters( id ); }
     /// number of mothers (zero or one in most of but not all the cases)
-    virtual size_t numberOfMothers() const;
+    virtual size_type numberOfMothers() const;
     /// return pointer to mother
-    virtual const Candidate * mother( size_t i = 0 ) const;
+    virtual const Candidate * mother( size_type i = 0 ) const;
 
   private:
     /// const iterator implementation

@@ -7,8 +7,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2007/10/04 21:03:13 $
-  * $Revision: 1.11 $
+  * $Date: 2007/04/14 20:20:25 $
+  * $Revision: 1.9 $
   * \author W. Fisher - FNAL
   */
 class HcalPedestalMonitor: public HcalBaseMonitor {
@@ -23,23 +23,16 @@ public:
 		    const HcalDbService& cond);
   void done();
   void clearME();
-  void reset();
 
 private: 
-  void perChanHists(int id, vector<HcalDetId> detID, vector<int> capID, vector<float> peds,
-		    map<HcalDetId, map<int, MonitorElement*> > &toolP, 
-		    map<HcalDetId, map<int, MonitorElement*> > &toolS);
+  void perChanHists(int id, const HcalDetId detid, const HcalQIESample& qie, map<HcalDetId, map<int, MonitorElement*> > &toolP, map<HcalDetId, map<int, MonitorElement*> > &toolS);
 
-  bool doPerChannel_;
-  bool doFCpeds_;
-  map<HcalDetId, map<int,MonitorElement*> >::iterator meo_;
-  vector<HcalDetId> detID_;
-  vector<int> capID_;
-  vector<float> pedVals_;
+  bool m_doPerChannel;
+  map<HcalDetId, map<int,MonitorElement*> >::iterator _meo;
 
-  string outputFile_;
-  const HcalQIEShape* shape_;
-  const HcalQIECoder* channelCoder_;
+  string m_outputFile;
+  const HcalQIEShape* m_shape;
+  const HcalQIECoder* m_coder;
   HcalCalibrations calibs_;
 
   MonitorElement* meEVT_;

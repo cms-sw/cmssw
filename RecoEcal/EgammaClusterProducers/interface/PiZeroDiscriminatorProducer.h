@@ -41,9 +41,9 @@ class PiZeroDiscriminatorProducer : public edm::EDProducer {
   int nEvt_;         // internal counter of events
 
   //clustering parameters:
-  std::string preshClusterShapeCollectionX_;  // secondary name to be given to collection of cluster produced in this module
-  std::string preshClusterShapeCollectionY_;
-  std::string preshClusterShapeProducer_;
+
+  std::string preshHitProducer_;   // name of module/plugin/producer producing hits
+  std::string preshHitCollection_; // secondary name given to collection of hits by hitProducer
 
   std::string barrelClusterShapeMapProducer_;
   std::string barrelClusterShapeMapCollection_;

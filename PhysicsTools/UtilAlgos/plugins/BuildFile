@@ -1,8 +1,15 @@
-<export></export>
-<library name=PhysucsToolsUtilAlgos_plugins file=*.cc>
-  <use name=FWCore/Framework>
+<use name=FWCore/Framework>
+
+<library file=StopAfterNEvents.cc>
   <use name=FWCore/ParameterSet>
+</library>
+
+<library file=TFileService.cc>
   <use name=PhysicsTools/UtilAlgos>
   <use name=FWCore/ServiceRegistry>
+</library>
+
+<library file=DoubleProducer.cc>
+  <use name=FWCore/ParameterSet>
 </library>
 

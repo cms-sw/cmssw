@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/10/25 22:39:59 $
- * $Revision: 1.75 $
+ * $Date: 2007/11/02 12:36:27 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  *
 */
@@ -468,6 +468,10 @@ void EBSummaryClient::analyze(void){
     }
   }
 
+  meIntegrity_->setEntries( 0 );
+  meOccupancy_->setEntries( 0 );
+  mePedestalOnline_->setEntries( 0 );
+
   meLaserL1_->setEntries( 0 );
   meLaserL1PN_->setEntries( 0 );
   mePedestal_->setEntries( 0 );
@@ -479,6 +483,8 @@ void EBSummaryClient::analyze(void){
   meTiming_->setEntries( 0 );
   meTriggerTowerEt_->setEntries( 0 );
   meTriggerTowerEmulError_->setEntries( 0 );
+
+  meGlobalSummary_->setEntries( 0 );
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
@@ -985,17 +991,25 @@ void EBSummaryClient::analyze(void){
 
       if(meIntegrity_ && mePedestalOnline_) {
 
-        float xval = 2;
+        float xval = -1;
         float val_in = meIntegrity_->getBinContent(ipx,iex);
         float val_po = mePedestalOnline_->getBinContent(ipx,iex);
-        
-        // turn each dark color to bright green
+
+        // turn each dark color (masked channel) to bright green
         if(val_in>2) val_in=1;
         if(val_po>2) val_po=1;
 
-        if(val_in==0) xval=0;
+        // -1 = unknown
+        //  0 = red
+        //  1 = green
+        //  2 = yellow
+
+        if(val_in==-1) xval=-1;
+        else if(val_in==0) xval=0;
+        else if(val_po==0) xval=0;
         else if(val_in==2) xval=2;
-        else xval=val_po;
+        else if(val_po==2) xval=2;
+        else xval=1;
 
         meGlobalSummary_->setBinContent( ipx, iex, xval );
 
@@ -1177,7 +1191,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( mePedestalOnline_ );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
