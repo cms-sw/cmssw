@@ -20,13 +20,13 @@ LibraryDirs = \
         -L$(XDAQ_ROOT)/lib 
 
 
-Libraries= -l xcept -l xerces-c -l SiPixelObjects
+Libraries= -l SiPixelObjects
 
 
-HAL = -L$(XDAQ_ROOT)/daq/hal/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)  -lGenericHAL -lHALUtilities -lPixelFECInterface -lCAENVME -lconfig
+HAL = -L$(XDAQ_ROOT)/daq/hal/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)  -lGenericHAL -lHALUtilities -lCAENVME -lconfig
 
 
-LIBS = $(HAL) $(LibraryDirs) $(Libraries)  
+LIBS = $(LibraryDirs) $(Libraries)  
 
 PIXEL_INCLUDE = $(XDAQ_ROOT)/pixel/ 
 INC = -I.  $(IncludeDirs) -I$(PIXEL_INCLUDE) 

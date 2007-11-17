@@ -33,8 +33,8 @@ int main(){
   
   
   
-  for(unsigned int fednumber=0; fednumber<32; fednumber++){
-    for (unsigned int channel=1; channel<32; ++channel) {
+  for(unsigned int fednumber=1; fednumber<2; fednumber++){
+    for (unsigned int channel=1; channel<7; ++channel) {
       std::cout << "Will check fednumber="<<fednumber<<" and channel="<<channel<<std::endl;
       std::vector<PixelROCName> rocs=nametranslation.getROCsFromFEDChannel(fednumber, channel);
       for (unsigned int iroc=0; iroc<rocs.size(); ++iroc) {
