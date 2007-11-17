@@ -14,7 +14,7 @@ namespace pos{
 
       std::string directory=getenv("PIXELCONFIGURATIONBASE");
     
-      std::string filename=directory+"aliases.txt";
+      std::string filename=directory+"/aliases.txt";
 
       std::ofstream out(filename.c_str());
 
@@ -48,6 +48,9 @@ namespace pos{
     void readfile(std::string filename){
 
       std::ifstream in(filename.c_str());
+      if (!in.good()) {
+	std::cout << "Could not open file:"<<filename<<std::endl;
+      }
       assert(in.good());
 
       std::string tag;

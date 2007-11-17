@@ -36,10 +36,13 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelLTCConfig.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDTestDAC.h"
 #include <string>
+#include <vector>
+#include <map>
 #include <iostream>
 #include <strstream>
 #include <typeinfo>
-
+#include <sys/stat.h>
+#include <sys/types.h>
 
 
 
@@ -128,7 +131,7 @@ namespace pos{
 	first=0;
 	directory=getenv("PIXELCONFIGURATIONBASE");
       
-	std::string filename=directory+"configurations.txt";
+	std::string filename=directory+"/configurations.txt";
 
 	configs.readfile(filename);
                       
@@ -149,7 +152,7 @@ namespace pos{
 	first=0;
 	directory=getenv("PIXELCONFIGURATIONBASE");
       
-	std::string filename=directory+"aliases.txt";
+	std::string filename=directory+"/aliases.txt";
 
 	aliases.readfile(filename);
                       
@@ -203,7 +206,7 @@ namespace pos{
       static std::string directory;
       directory=getenv("PIXELCONFIGURATIONBASE");
     
-      std::string fullpath=directory+dir+"/"+strversion+"/";
+      std::string fullpath=directory+"/"+dir+"/"+strversion+"/";
     
       //std::cout << "Directory for configuration data:"<<fullpath<<std::endl;
     
@@ -320,11 +323,22 @@ namespace pos{
     }
 
     template <class T>
-    static int put(const T* object, std::string path){
+      static void get(std::map<std::string, T*> &pixelObjects, PixelConfigKey key){
 
+      typename std::map<std::string, T* >::iterator iObject=pixelObjects.begin();
+
+      for(;iObject!=pixelObjects.end();++iObject){
+	get(iObject->second,iObject->first,key);
+      }
+
+    }
+
+
+    static int makeNewVersion(std::string path, std::string &dir){
       std::cout << "Inserting data on path:"<<path<<std::endl;
       struct stat stbuf;
       std::string directory=getenv("PIXELCONFIGURATIONBASE");
+      directory+="/";
       directory+=path;
       if (stat(directory.c_str(),&stbuf)!=0){
 	std::cout << "The path:"<<path<<" does not exist."<<std::endl;
@@ -332,7 +346,6 @@ namespace pos{
       }
       directory+="/";
       int version=-1;
-      std::string dir;
       do{
 	version++;
 	std::strstream s1;
@@ -343,7 +356,25 @@ namespace pos{
       }while(stat(dir.c_str(),&stbuf)==0);
       std::cout << "The new version is:"<<version<<std::endl;
       mkdir(dir.c_str(),0777);
+      return version;
+    }
+
+
+    template <class T>
+    static int put(const T* object, std::string path){
+      std::string dir;
+      int version=makeNewVersion(path,dir);				 
       object->writeASCII(dir);
+      return version;
+    }
+
+    template <class T>
+    static int put(std::vector<T*> objects, std::string path){
+      std::string dir;
+      int version=makeNewVersion(path,dir);
+      for(unsigned int i=0;i<objects.size();i++){
+	objects[i]->writeASCII(dir);
+      }
       return version;
     }
 
