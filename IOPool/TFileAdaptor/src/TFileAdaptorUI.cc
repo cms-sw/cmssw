@@ -1,35 +1,23 @@
-#include "IOPool/TFileAdaptor/interface/TFileAdaptor.h"
+#include "IOPool/TFileAdaptor/src/TFileAdaptorUI.h"
 #include <iostream>
-#include <boost/shared_ptr.hpp>
 
-
-/* 
- * wrapper to bind TFileAdaptor to root, python etc
- * loading IOPoolTFileAdaptor library and instantiating
- * TFileAdaptorUI will make root to use StorageAdaptor for I/O instead
- * of its own plugins
- */
-class TFileAdaptorUI {
-public:
-  
-  TFileAdaptorUI();
-  ~TFileAdaptorUI();
-
-  // print current Storage statistics on cout
-  void stats() const;
-  
-private:
-  boost::shared_ptr<TFileAdaptor> me;
-};
-
-TFileAdaptorUI::TFileAdaptorUI() {
+TFileAdaptorUI::TFileAdaptorUI (void)
+{ 
   TFileAdaptorParams param;
   param.mode = "default";
   me.reset(new TFileAdaptor(param));
 }
 
-TFileAdaptorUI::~TFileAdaptorUI() {}
+void
+TFileAdaptorUI::stats (void) const
+{
+  me->stats(std::cout);
+  std::cout << std::endl;
+}
 
-void TFileAdaptorUI::stats() const {
-  me->stats(std::cout); std::cout << std::endl;
+void
+TFileAdaptorUI::statsXML (void) const
+{
+  me->statsXML(std::cout);
+  std::cout << std::endl;
 }

@@ -1,28 +1,6 @@
 #include "IOPool/TFileAdaptor/interface/TStorageFactoryFile.h"
 #include "IOPool/TFileAdaptor/interface/TStorageFactorySystem.h"
-
-
-#ifndef __MAKECINT__
-#include <boost/shared_ptr.hpp>
-#else
-namespace boost {
-template <typename T> class shared_ptr;
-}
-#endif
-
-class TFileAdaptor;
-
-class TFileAdaptorUI {
-public:
-  
-  TFileAdaptorUI();
-  ~TFileAdaptorUI();
-  void stats() const;
-  
-private:
-  boost::shared_ptr<TFileAdaptor> me;
-};
-
+#include "IOPool/TFileAdaptor/src/TFileAdaptorUI.h"
 
 #ifdef __CINT__
 
@@ -36,4 +14,3 @@ private:
 #pragma link C++ class TStorageFactorySystem;
 
 #endif // __CINT__
-
