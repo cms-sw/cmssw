@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleL4EMFCorrector.cc,v 1.1 2007/11/01 21:50:30 fedor Exp $
+// $Id: SimpleL5FlavorCorrector.cc,v 1.1 2007/11/16 00:09:58 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -83,7 +83,8 @@ double SimpleL5FlavorCorrector::correctionBandPtEta (unsigned fBand, double fPt,
       << "wrong # of parameters: " << nParameters << " expected, " << p.size() << " got";
   }
   double pt = (fPt < p[0]) ? p[0] : (fPt > p[1]) ? p[1] : fPt;
-  double result = p[2] + p[3]*pt + p[4]*pt*pt;
+  double logPt = log10(pt);
+  double result = p[2]+logPt*(p[3]+logPt*p[4]);
   return result;
 }
 

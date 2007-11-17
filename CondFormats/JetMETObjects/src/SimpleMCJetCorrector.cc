@@ -12,6 +12,7 @@
 #include <sstream>
 
 #include "Math/PtEtaPhiE4D.h"
+#include "Math/PxPyPzE4D.h"
 #include "Math/LorentzVector.h"
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PtEtaPhiELorentzVectorD;
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > XYZTLorentzVectorD;
