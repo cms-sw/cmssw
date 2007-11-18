@@ -1,8 +1,12 @@
 //
-// File: ScalersTest.cpp
+// File: ScalersTest.cpp         (W.Badgett)
+//
+// Program to test Scalers RawToDigi conversion from binary raw 
+// data file
 //
 
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
+#include "DataFormats/Scalers/interface/L1TriggerRates.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
@@ -19,25 +23,61 @@ char * fileName = "scalers.dat";
 int main(int argc, char** argv)
 {
   unsigned char buffer [1024];
-
+  int ctr = 0;
+  int retcod;
+  int bytes = 1;
   int fd = open(fileName, O_RDONLY);
+  const L1TriggerScalers *previousTrig = NULL;
+
   if ( fd > 0 )
   {
-    int bytes = read(fd,buffer,sizeof(struct ScalersEventRecordRaw_v1));
+    while ( bytes > 0 )
+    {
+      bytes = read(fd,buffer,sizeof(struct ScalersEventRecordRaw_v1));
+      if ( bytes <= 0 )
+      {
+	retcod = errno;
+	if ( retcod == 0 )
+	{
+	  printf("Finished reading file %s with %d events\n", fileName,
+		 ctr);
+	}
+	else
+	{
+	  printf("Error %s reading file %s\n", fileName,
+		 strerror(errno));
+	}
+      }
+      else
+      {
+	ctr++;
+	printf("\n******* Event %d Read %d bytes from %s *******\n", 
+	       ctr, bytes, fileName);
+	const L1TriggerScalers *trig = new L1TriggerScalers(buffer);
+	std::cout << *trig;
+
+	if ( ctr > 1 )
+	{
+	  if ( previousTrig->orbitNumber() <
+	       trig->orbitNumber() )
+	  {
+	    L1TriggerRates rates(*previousTrig,*trig);
+	    std::cout << std::endl;
+	    std::cout << rates;
+	    delete(previousTrig);
+	    previousTrig = trig;
+	  }
+	}
+	else
+	{
+	  previousTrig = trig;
+	}
+	std::cout << std::endl;
+	LumiScalers lumi(buffer);
+	std::cout << lumi;
+      }
+    }
     close(fd);
-    if ( bytes <= 0 )
-    {
-      printf("Error %s reading file %s\n", fileName,
-	     strerror(errno));
-    }
-    else
-    {
-      printf("Read %d bytes from %s\n", bytes, fileName);
-      L1TriggerScalers trig(buffer);
-      std::cout << trig;
-      LumiScalers lumi(buffer);
-      std::cout << lumi;
-    }
   }
   else
   {

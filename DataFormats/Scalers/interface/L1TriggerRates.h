@@ -51,6 +51,7 @@ class L1TriggerRates
 
   /// get the data
 
+  int version() const { return(version_);}
   struct timespec collectionTimeSummary() { return(collectionTimeSummary_);}
 
   double deltaT()       const { return(deltaT_);}
@@ -173,7 +174,7 @@ class L1TriggerRates
   double lostTriggersActiveRunPercent() const       
   { return(lostTriggersActiveRunPercent_);}
 
-  std::vector<double> triggersRunPercent() const    
+  std::vector<double> triggersRunRate() const    
   { return(triggersRunRate_);}
 
   /// equality operator
