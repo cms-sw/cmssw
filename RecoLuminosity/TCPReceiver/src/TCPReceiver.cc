@@ -102,7 +102,7 @@ namespace HCAL_HLX{
       lumiSection.hdr.sectionNumber = 120;
        
       lumiSection.lumiSummary.DeadtimeNormalization = 7;
-      lumiSection.lumiSummary.Normalization = 8;
+      lumiSection.lumiSummary.LHCNormalization = 8;
       lumiSection.lumiSummary.InstantLumi = 9;
       lumiSection.lumiSummary.InstantLumiErr = 10;
       lumiSection.lumiSummary.InstantLumiQlty = 11;
@@ -119,16 +119,16 @@ namespace HCAL_HLX{
       lumiSection.lumiSummary.lumiNoise[1] = 22;
 
       for(j=0; j < 3564; j++){
-	lumiSection.lumiBunchCrossing.LHCLumi[j] = 1*j;
-	lumiSection.lumiBunchCrossing.ETLumi[j] = 2*j;
-	lumiSection.lumiBunchCrossing.ETLumiErr[j] = 3*j;
-	lumiSection.lumiBunchCrossing.ETLumiQlty[j] = 4*j;
-	lumiSection.lumiBunchCrossing.OccLumi[0][j] = 5*j;
-	lumiSection.lumiBunchCrossing.OccLumiErr[0][j] = 6*j;
-	lumiSection.lumiBunchCrossing.OccLumiQlty[0][j] = 7*j;
-	lumiSection.lumiBunchCrossing.OccLumi[1][j] = 8*j;
-	lumiSection.lumiBunchCrossing.OccLumiErr[1][j] = 9*j;
-	lumiSection.lumiBunchCrossing.OccLumiQlty[1][j] = 10*j;
+	//lumiSection.lumiDetail.LHCLumi[j] = 1*j;
+	lumiSection.lumiDetail.ETLumi[j] = 2*j;
+	lumiSection.lumiDetail.ETLumiErr[j] = 3*j;
+	lumiSection.lumiDetail.ETLumiQlty[j] = 4*j;
+	lumiSection.lumiDetail.OccLumi[0][j] = 5*j;
+	lumiSection.lumiDetail.OccLumiErr[0][j] = 6*j;
+	lumiSection.lumiDetail.OccLumiQlty[0][j] = 7*j;
+	lumiSection.lumiDetail.OccLumi[1][j] = 8*j;
+	lumiSection.lumiDetail.OccLumiErr[1][j] = 9*j;
+	lumiSection.lumiDetail.OccLumiQlty[1][j] = 10*j;
       }
 
       for(i=0; i<36; i ++){
@@ -162,7 +162,7 @@ namespace HCAL_HLX{
       lumiSection.hdr.sectionNumber = (rand() %100);
 
       lumiSection.lumiSummary.DeadtimeNormalization = (rand() % 100);
-      lumiSection.lumiSummary.Normalization = (rand() % 100);
+      lumiSection.lumiSummary.LHCNormalization = (rand() % 100);
       lumiSection.lumiSummary.InstantLumi = (rand() % 100);
       lumiSection.lumiSummary.InstantLumiErr = (rand() % 100);
       lumiSection.lumiSummary.InstantLumiQlty = (rand() % 100);
@@ -179,16 +179,16 @@ namespace HCAL_HLX{
       lumiSection.lumiSummary.lumiNoise[1] = (rand() % 100);
       
       for(j=0; j < 3564; j++){
-	lumiSection.lumiBunchCrossing.LHCLumi[j] = (rand() % 100);
-	lumiSection.lumiBunchCrossing.ETLumi[j] = (rand() % 100);
-	lumiSection.lumiBunchCrossing.ETLumiErr[j] = (rand() % 100);
-	lumiSection.lumiBunchCrossing.ETLumiQlty[j] = (rand() % 100);
-	lumiSection.lumiBunchCrossing.OccLumi[0][j] = (rand() % 100);
-	lumiSection.lumiBunchCrossing.OccLumiErr[0][j] = (rand() % 100);
-	lumiSection.lumiBunchCrossing.OccLumiQlty[0][j] = (rand() % 100);
-	lumiSection.lumiBunchCrossing.OccLumi[1][j] = (rand() % 100);
-	lumiSection.lumiBunchCrossing.OccLumiErr[1][j] = (rand() % 100);
-	lumiSection.lumiBunchCrossing.OccLumiQlty[1][j] = (rand() % 100);
+	//lumiSection.lumiDetail.LHCLumi[j] = (rand() % 100);
+	lumiSection.lumiDetail.ETLumi[j] = (rand() % 100);
+	lumiSection.lumiDetail.ETLumiErr[j] = (rand() % 100);
+	lumiSection.lumiDetail.ETLumiQlty[j] = (rand() % 100);
+	lumiSection.lumiDetail.OccLumi[0][j] = (rand() % 100);
+	lumiSection.lumiDetail.OccLumiErr[0][j] = (rand() % 100);
+	lumiSection.lumiDetail.OccLumiQlty[0][j] = (rand() % 100);
+	lumiSection.lumiDetail.OccLumi[1][j] = (rand() % 100);
+	lumiSection.lumiDetail.OccLumiErr[1][j] = (rand() % 100);
+	lumiSection.lumiDetail.OccLumiQlty[1][j] = (rand() % 100);
       }
 
       for(i=0; i<36; i ++){
