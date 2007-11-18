@@ -39,8 +39,7 @@ void HcalAmplifier::amplify(CaloSamples & frame) const {
 
   double gauss [32]; //big enough
   double noise [32]; //big enough
-  HcalDetId hcalDetId(frame.id());
-  double fCperPE = parameters.photoelectronsToAnalog(hcalDetId);
+  double fCperPE = parameters.photoelectronsToAnalog(frame.id());
 
   for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
   pwidths->makeNoise (frame.size(), gauss, noise);
