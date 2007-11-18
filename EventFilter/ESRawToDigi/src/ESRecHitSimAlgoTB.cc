@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
+#include "math.h"
 
 ESRecHitSimAlgoTB::ESRecHitSimAlgoTB(int gain, double MIPADC, double MIPkeV) :
   gain_(gain), MIPADC_(MIPADC), MIPkeV_(MIPkeV)
