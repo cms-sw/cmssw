@@ -38,10 +38,6 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps)
   theHODigitizer(0),
   theHFDigitizer(0),
   theZDCDigitizer(0),
-  theHBHEHits(),
-  theHOHits(),
-  theHFHits(),
-  theZDCHits(),
   doZDC(true)
 {
   
@@ -122,11 +118,6 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   // get the correct geometry
   checkGeometry(eventSetup);
   
-  theHBHEHits.clear();
-  theHOHits.clear();
-  theHFHits.clear();
-  theZDCHits.clear();
-
   // Step A: Get Inputs
   edm::Handle<CrossingFrame<PCaloHit> > cf, zdccf;
   e.getByLabel("mix", "HcalHits",cf);
@@ -135,8 +126,6 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   // test access to SimHits for HcalHits and ZDC hits
   std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product()));
   std::auto_ptr<MixCollection<PCaloHit> > colzdc(new MixCollection<PCaloHit>(zdccf.product()));
-
-  //fillFakeHits();
 
   if(theHitCorrection != 0)
   {
@@ -156,7 +145,7 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   theHODigitizer->run(*col, *hoResult);
   theHFDigitizer->run(*col, *hfResult);
   if(doZDC) {
-    //theZDCDigitizer->run(*colzdc, *zdcResult);
+    theZDCDigitizer->run(*colzdc, *zdcResult);
   }
 
   edm::LogInfo("HcalDigiProducer") << "HCAL HBHE digis : " << hbheResult->size();
@@ -169,59 +158,6 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   e.put(hoResult);
   e.put(hfResult);
   e.put(zdcResult);
-}
-
-
-void HcalDigiProducer::sortHits(const edm::PCaloHitContainer & hits){
-  for(edm::PCaloHitContainer::const_iterator hitItr = hits.begin();
-      hitItr != hits.end(); ++hitItr){
-    DetId detId = hitItr->id();
-    if(detId.det()==DetId::Calo && detId.subdetId()==HcalZDCDetId::SubdetectorId){
-      theZDCHits.push_back(*hitItr);
-    }
-    else{
-      HcalSubdetector subdet = HcalDetId(hitItr->id()).subdet();
-      if(subdet == HcalBarrel || subdet == HcalEndcap) {
-	theHBHEHits.push_back(*hitItr);
-      }
-      else if(subdet == HcalForward) {
-	theHFHits.push_back(*hitItr);
-      }
-      else if(subdet == HcalOuter) {
-	  theHOHits.push_back(*hitItr);
-      }
-      else {
-	edm::LogError("HcalDigiProducer") << "Bad HcalHit subdetector " << subdet;
-      }
-    }
-  }
-}
-
-void HcalDigiProducer::fillFakeHits() {
-  HcalDetId barrelDetId(HcalBarrel, 1, 1, 1);
-  PCaloHit barrelHit(barrelDetId.rawId(), 0.855, 0., 0., 0);
-
-  HcalDetId endcapDetId(HcalEndcap, 17, 1, 1);
-  PCaloHit endcapHit(endcapDetId.rawId(), 0.9, 0., 0., 0);
-
-  HcalDetId outerDetId(HcalOuter, 1, 1, 4);
-  PCaloHit outerHit(outerDetId.rawId(), 0.45, 0., 0., 0);
-
-  HcalDetId forwardDetId1(HcalForward, 30, 1, 1);
-  PCaloHit forwardHit1(forwardDetId1.rawId(), 35., 0., 0., 0);
-
-  HcalDetId forwardDetId2(HcalForward, 30, 1, 2);
-  PCaloHit forwardHit2(forwardDetId2.rawId(), 48., 0., 0., 0);
-
-  HcalZDCDetId zdcDetId(HcalZDCDetId::Section(2),true,1);
-  PCaloHit zdcHit(zdcDetId.rawId(), 50.0, 0.);
-
-  theHBHEHits.push_back(barrelHit);
-  theHBHEHits.push_back(endcapHit);
-  theHOHits.push_back(outerHit);
-  theHFHits.push_back(forwardHit1);
-  theHFHits.push_back(forwardHit2);
-  theZDCHits.push_back(zdcHit);
 }
 
 

@@ -35,8 +35,6 @@ public:
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
 private:
-  /// fills the vectors for each subdetector
-  void sortHits(const edm::PCaloHitContainer & hits);
   /// some hits in each subdetector, just for testing purposes
   void fillFakeHits();
   /// make sure the digitizer has the correct list of all cells that
@@ -77,8 +75,6 @@ private:
   HODigitizer* theHODigitizer;
   HFDigitizer* theHFDigitizer;
   ZDCDigitizer* theZDCDigitizer;
-
-  std::vector<PCaloHit> theHBHEHits, theHOHits, theHFHits, theZDCHits;
 
   bool doZDC;
 
