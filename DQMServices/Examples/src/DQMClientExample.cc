@@ -4,9 +4,9 @@
  * \author M. Zanetti - CERN
  *
  * Last Update:
- * $Date: 2007/11/14 12:00:21 $
- * $Revision: 1.3 $
- * $Author: 1.3 $
+ * $Date: 2007/11/14 12:17:16 $
+ * $Revision: 1.5 $
+ * $Author: ameyer $
  *
  */
 
@@ -50,8 +50,9 @@ void DQMClientExample::initialize(){
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
   
   // base folder for the contents of this job
-  monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","");
+  monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
   cout << "Monitor name = " << monitorName_ << endl;
+  if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
 
   prescaleLS_ = parameters_.getUntrackedParameter<int>("prescaleLS", -1);
   cout << "DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
@@ -69,7 +70,7 @@ void DQMClientExample::beginJob(const EventSetup& context){
 
   // do your thing
   dbe_->setVerbose(1);
-  dbe_->setCurrentFolder(monitorName_+"/C1/Tests");
+  dbe_->setCurrentFolder(monitorName_+"C1/Tests");
   clientHisto = dbe_->book1D("clientHisto", "Guassian fit results.", 2, 0, 1);
 }
 
@@ -104,7 +105,7 @@ void DQMClientExample::analyze(const Event& e, const EventSetup& context){
 //   // do your thing here
 //   
   
-  string histoName = monitorName_ + "/C1/C2/histo4";
+  string histoName = monitorName_ + "C1/C2/histo4";
 
   float mean =0;
   float rms = 0;
