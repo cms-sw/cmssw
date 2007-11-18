@@ -1,37 +1,29 @@
 // -*- C++ -*-
 //
-// Package:    ScalersRawToDigi
+// Package:    EventFilter/ScalersRawToDigi
 // Class:      ScalersRawToDigi
 // 
 /**\class ScalersRawToDigi ScalersRawToDigi.cc EventFilter/ScalersRawToDigi/src/ScalersRawToDigi.cc
 
- Description: Unpack FED data to Trigger and Lumi Scalers bank. 
+ Description: Unpack FED data to Trigger and Lumi Scalers "bank"
  These Scalers are in FED id ScalersRaw::SCALERS_FED_ID
 
- Implementation:
-     No comments
 */
 //
 // Original Author:  William Badgett
 //         Created:  Wed Nov 14 07:47:59 CDT 2006
 //
 
-
-// system include files
 #include <memory>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//FEDRawData 
+// FEDRawData 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -41,10 +33,6 @@
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
-//
-// class declaration
-//
-
 class ScalersRawToDigi : public edm::EDProducer 
 {
   public:
@@ -52,40 +40,19 @@ class ScalersRawToDigi : public edm::EDProducer
     ~ScalersRawToDigi();
 
     virtual void produce(edm::Event&, const edm::EventSetup&);
-  private:
-    // ----------member data ---------------------------
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
+// Constructor
 ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig)
 {
-  //register your products
   produces<L1TriggerScalers>();
   produces<LumiScalers>();
 }
 
+// Destructor
+ScalersRawToDigi::~ScalersRawToDigi() {}
 
-ScalersRawToDigi::~ScalersRawToDigi()
-{
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
+// Method called to produce the data 
 void ScalersRawToDigi::produce(edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup)
 {
@@ -113,5 +80,5 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   }
 }
 
-//define this as a plug-in
+// Define this as a plug-in
 DEFINE_FWK_MODULE(ScalersRawToDigi);
