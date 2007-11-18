@@ -25,7 +25,7 @@ public:
   const HcalSimParameters & hoParameters() const  {return theHOParameters;}
   const HFSimParameters & hfParameters1() const  {return theHFParameters1;}
   const HFSimParameters & hfParameters2() const  {return theHFParameters2;}
-  CaloSimParameters zdcParameters() const  {return theZDCParameters;}
+  const HFSimParameters & zdcParameters() const  {return theZDCParameters;}
 
   void setDbService(const HcalDbService * service);
 
@@ -35,7 +35,7 @@ private:
   HcalSimParameters theHOParameters;
   HFSimParameters theHFParameters1;
   HFSimParameters theHFParameters2;
-  CaloSimParameters theZDCParameters;
+  HFSimParameters theZDCParameters;
 };
 
 #endif
