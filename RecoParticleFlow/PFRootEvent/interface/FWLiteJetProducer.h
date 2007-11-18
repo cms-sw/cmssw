@@ -25,7 +25,7 @@ class FWLiteJetProducer{
   /*!
     \author Joanna Weng
     \date July 2006
-  */	
+  */    
  public:
   /// default constructor
   FWLiteJetProducer();  
@@ -33,17 +33,17 @@ class FWLiteJetProducer{
   ~FWLiteJetProducer();
   /// Apply Et and E cuts on input object to jet algorihms, prepare 
   /// InputCollection to Jet Algo
-  void applyCuts(const CandidateCollection& Candidates, InputCollection* input);	 
-  /// Produce jet collection using CMS Iterative Cone Algorithm	
+  void applyCuts(const CandidateCollection& Candidates, InputCollection* input);         
+  /// Produce jet collection using CMS Iterative Cone Algorithm 
   void makeIterativeConeJets(const InputCollection& fInput, OutputCollection* fOutput);
-  /// Produce jet collection using CMS Fast Jet Algorithm	
+  /// Produce jet collection using CMS Fast Jet Algorithm       
   void makeFastJets(const InputCollection& fInput, OutputCollection* fOutput);
-  /// Produce jet collection using CMS Midpoint Jet Algorithm	
+  /// Produce jet collection using CMS Midpoint Jet Algorithm   
   void makeMidpointJets(const InputCollection& fInput, OutputCollection* fOutput);
   void print();
   void updateParameter();
   /// Jet Algos --------------------------------------------
-  CMSIterativeConeAlgorithm* algoIC_;	
+  CMSIterativeConeAlgorithm* algoIC_;   
   FastJetFWLiteWrapper algoF_;
   CMSMidpointAlgorithm* algoMC_;
 
@@ -69,7 +69,7 @@ class FWLiteJetProducer{
   ///
   double getRParam(){return  rparam_;} 
 
-  // Set methods --------------------------------------------	
+  // Set methods --------------------------------------------   
   /// Minimum ET for jet constituents
   void setmEtInputCut (double amEtInputCut){mEtInputCut_=amEtInputCut;}
   /// Minimum E for jet constituents
@@ -90,7 +90,7 @@ class FWLiteJetProducer{
   void setRParam (double aRparam){rparam_=aRparam;}  
 
   // jets parameters ----------------------------------------
- private:	
+ private:       
   /// Minimum ET for jet constituents
   double mEtInputCut_;
   /// Minimum energy for jet constituents

@@ -80,7 +80,7 @@ class PFEnergyResolution;
 
   PFRootEventManager em("pfRootEvent.opt");
   int i=0;
-  em.display(i++);
+  em.processEntry( i++ )
   \endcode
   
   pfRootEvent.opt is an option file (see IO class):
@@ -95,17 +95,17 @@ class PFEnergyResolution;
   display  viewsize_etaphi 600 400
   display  viewsize_xy     400 400
 
-  display  color_clusters		1
+  display  color_clusters               1
 
   clustering thresh_Ecal_Barrel           0.2
   clustering thresh_Seed_Ecal_Barrel      0.3
   clustering thresh_Ecal_Endcap           0.2
   clustering thresh_Seed_Ecal_Endcap      0.9
-  clustering neighbours_Ecal		4
+  clustering neighbours_Ecal            4
 
   clustering depthCor_Mode          1
-  clustering depthCor_A 		  0.89
-  clustering depthCor_B 		  7.3
+  clustering depthCor_A                   0.89
+  clustering depthCor_B                   7.3
   clustering depthCor_A_preshower   0.89
   clustering depthCor_B_preshower   4.0
 
@@ -113,7 +113,7 @@ class PFEnergyResolution;
   clustering thresh_Seed_Hcal_Barrel      1.4
   clustering thresh_Hcal_Endcap           1.0
   clustering thresh_Seed_Hcal_Endcap      1.4
-  clustering neighbours_Hcal		4
+  clustering neighbours_Hcal            4
   \endverbatim
   
   \author Colin Bernet, Renaud Bruneliere
@@ -147,8 +147,8 @@ class PFRootEventManager {
   /// parse option file
   /// if(reconnect), the rootfile will be reopened, and the tree reconnected
   void readOptions(const char* file, 
-		   bool refresh=true,
-		   bool reconnect=false);
+                   bool refresh=true,
+                   bool reconnect=false);
 
 
   virtual void readSpecificOptions(const char* file) {}
@@ -181,13 +181,13 @@ class PFRootEventManager {
   
   /// preprocess a rechit vector from a given rechit branch
   void PreprocessRecHits( reco::PFRecHitCollection& rechits, 
-			  bool findNeighbours);
+                          bool findNeighbours);
   
   /// for a given rechit, find the indices of the rechit neighbours, 
   /// and store these indices in the rechit. The search is done in a
   /// detid to index map
   void setRecHitNeigbours( reco::PFRecHit& rh, 
-			   const std::map<unsigned, unsigned>& detId2index );
+                           const std::map<unsigned, unsigned>& detId2index );
 
   /// read data from testbeam tree
   //  bool readFromRealData(int entry);
@@ -204,7 +204,7 @@ class PFRootEventManager {
   /// fills OutEvent with sim particles
   void fillOutEventWithSimParticles(const reco::PFSimParticleCollection& ptcs);
 
- /// fills outEvent with calo towers
+  /// fills outEvent with calo towers
   void fillOutEventWithCaloTowers(const CaloTowerCollection& cts);
 
   /// fills outEvent with blocks
@@ -217,17 +217,6 @@ class PFRootEventManager {
   double makeJets( const reco::PFCandidateCollection& candidates);
 
 
-  // display functions ------------------------------------------------
-
-  /// process and display one entry 
-  //void display(int ientry);
-  
-  /// display next selected entry. if init, restart from i=0
-  //void displayNext(bool init);
-
-  /// look for particle with index i in MC truth.
-  ///void lookForGenParticle(unsigned barcode);
-  
 
   /// print information
   void   print(  std::ostream& out = std::cout ) const;
@@ -243,59 +232,51 @@ class PFRootEventManager {
 
   /// print a rechit
   void   printRecHit(const reco::PFRecHit& rh, 
-		     const char* seed="    ",
-		     std::ostream& out = std::cout) const;
+                     const char* seed="    ",
+                     std::ostream& out = std::cout) const;
   
   /// print a cluster
   void   printCluster(const reco::PFCluster& cluster,
-		      std::ostream& out = std::cout) const;
+                      std::ostream& out = std::cout) const;
+
+  
 
   /// print the HepMC truth
   void printMCTruth(std::ostream& out = std::cout,
-		      int maxNLines = -1) const;
+                    int maxNLines = -1) const;
   
-/*   /// is inside cut G?  */
-/*   bool   insideGCut(double eta, double phi) const; */
+  /*   /// is inside cut G?  */
+  /*   bool   insideGCut(double eta, double phi) const; */
   
   /// is PFTrack inside cut G ? yes if at least one trajectory point is inside.
   bool trackInsideGCut( const reco::PFTrack& track ) const;
   
   /// rechit mask set to true for rechits inside TCutG
   void fillRecHitMask( vector<bool>& mask, 
-		       const reco::PFRecHitCollection& rechits ) const;
-		       
- /// cluster mask set to true for rechits inside TCutG
+                       const reco::PFRecHitCollection& rechits ) const;
+                       
+  /// cluster mask set to true for rechits inside TCutG
   void fillClusterMask( vector<bool>& mask, 
-			const reco::PFClusterCollection& clusters ) const;
+                        const reco::PFClusterCollection& clusters ) const;
 
   /// track mask set to true for rechits inside TCutG
   void fillTrackMask( vector<bool>& mask, 
-		      const reco::PFRecTrackCollection& tracks ) const;
-		       
- /// find the closest PFSimParticle to a point (eta,phi) in a given detector
+                      const reco::PFRecTrackCollection& tracks ) const;
+                       
+  /// find the closest PFSimParticle to a point (eta,phi) in a given detector
   const reco::PFSimParticle& 
     closestParticle( reco::PFTrajectoryPoint::LayerType  layer, 
-		     double eta, double phi, 
-		     double& peta, double& pphi, double& pe) const;
-		     
-  /// display options getters
+                     double eta, double phi, 
+                     double& peta, double& pphi, double& pe) const;
+                     
   
-  		       
-  bool        getDisplayRecHits()         {return displayRecHits_;}
-  bool        getDisplayClusters()        {return displayClusters_;}
-  bool        getDisplayRecTracks()       {return displayRecTracks_;}
-  bool        getDisplayTrueParticles()   {return displayTrueParticles_;}
-  bool        getDisplayClusterLines()    {return displayClusterLines_;}
-  bool        getDisplayColorClusters()   {return displayColorClusters_;}
-  double      getDisplayRecHitsEnMin()    {return displayRecHitsEnMin_;}
-  double      getDisplayClustersEnMin()   {return displayClustersEnMin_;}
-  double      getDisplayRecTracksPtMin()  {return displayRecTracksPtMin_ ;}
-  double      getDisplayTrueParticlesPtMin() {return displayTrueParticlesPtMin_;}
-  double      getDisplayZoomFactor()      {return displayZoomFactor_;}
+  const  reco::PFBlockCollection& blocks() const { return *pfBlocks_; }
+
   
-  int         getEventIndex()             {return iEvent_;}
-  std::vector<int> getViewSizeEtaPhi()    {return viewSizeEtaPhi_;}
-  std::vector<int> getViewSize()          {return viewSize_;}
+  int         eventNumber()             {return iEvent_;}
+
+  /*   std::vector<int> getViewSizeEtaPhi() {return viewSizeEtaPhi_;} */
+  /*   std::vector<int> getViewSize()       {return viewSize_;} */
   
   
   
@@ -408,8 +389,6 @@ class PFRootEventManager {
   /// reconstructed pfCandidates 
   std::auto_ptr< reco::PFCandidateCollection > pfCandidates_;
 
-/*   std::auto_ptr< reco::PFCandidateCollection > pfCandidatesOther_; */
-
   /// input file
   TFile*     file_; 
 
@@ -442,73 +421,12 @@ class PFRootEventManager {
   PFAlgo          pfAlgo_;
 
   /// other particle flow algorithm, for comparisons
-/*   PFAlgo          pfAlgoOther_; */
+  /*   PFAlgo          pfAlgoOther_; */
 
   /// jet algorithm 
   /// \todo make concrete
   PFJetAlgorithm  jetAlgo_;
   
-  // display ------------------------------------------------------
-
-  /// canvases for eta/phi display, one per algo
-  /// each is split in 2 : HCAL, ECAL
-  // std::map<int, TCanvas* > displayEtaPhi_;        
-
-  /// algos to display
-  std::set<int>            algosToDisplay_;  
-
-  /// display cluster-to-rechits lines ? 
-  bool                     displayClusterLines_;
-
-  /// display pad xy size for eta/phi view
-  std::vector<int>         viewSizeEtaPhi_; 
-  
-  /// display pad xy size for (x,y) or (r,z) display
-  std::vector<int>         viewSize_;     
-
-  
-
-  //------------ display settings -----------------------------
-
-  /// display x/y ?
-  bool displayXY_;
-
-  /// display eta/phi ?
-  bool displayEtaPhi_;
-
-  /// display r/z ?
-  bool displayRZ_;  
-  
-  /// display cluster color ? (then color = cluster type )
-  bool displayColorClusters_;
-
-  /// display rectracks ? 
-  bool displayRecTracks_;
-
-  /// display true particles ? 
-  bool displayTrueParticles_;
-  
-  /// display rechits ?
-  bool displayRecHits_;
-  
-  /// display clusters ?
-  bool displayClusters_;
-
-  /// size of view in number of cells when centering on a rechit
-  double displayZoomFactor_;
-  
-  /// pt threshold to display rec hits
-  double displayRecHitsEnMin_;
-  
-  /// pt threshold to display clusters
-  double displayClustersEnMin_;
-  
-  /// pt threshold to display rec tracks
-  double displayRecTracksPtMin_;
-
-  /// pt threshold to display true particles
-  double displayTrueParticlesPtMin_;
-
 
 
   //----------------- print flags --------------------------------
@@ -522,7 +440,7 @@ class PFRootEventManager {
   /// print PFBlocks yes/no
   bool                     printPFBlocks_;
 
-   /// print PFCandidates yes/no
+  /// print PFCandidates yes/no
   bool                     printPFCandidates_; 
 
   /// print true particles yes/no
@@ -558,8 +476,6 @@ class PFRootEventManager {
   /// find rechit neighbours ? 
   bool   findRecHitNeighbours_;
 
-  /// not yet used ?
-  bool   displayJetColors_;
 
   // jets parameters             ----------------------------------------
 
@@ -575,7 +491,7 @@ class PFRootEventManager {
   /// particle data table.
   /// \todo this could be concrete, but reflex generate code to copy the table,
   /// and the copy constructor is protected...
-/*   TDatabasePDG*   pdgTable_; */
+  /*   TDatabasePDG*   pdgTable_; */
 
 };
 #endif

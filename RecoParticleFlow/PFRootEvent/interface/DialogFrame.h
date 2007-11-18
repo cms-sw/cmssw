@@ -19,62 +19,62 @@
 class DialogFrame  : public TGMainFrame {
   RQ_OBJECT("DialogFrame")
   
-  private:
+    private:
   
-    static const int EN=1;     // id threshold energy field
-    static const int ENER=10;  // id threshold energy slider
+  static const int EN=1;     // id threshold energy field
+  static const int ENER=10;  // id threshold energy slider
     
-    PFRootEventManager  *evMan_;
+  PFRootEventManager  *evMan_;
     
-    DisplayManager      *display_;
-    TGCompositeFrame    *mainFrame_;
-    TGCompositeFrame    *cmdFrame_;
+  DisplayManager      *display_;
+  TGCompositeFrame    *mainFrame_;
+  TGCompositeFrame    *cmdFrame_;
     
 
-    TGCheckButton       *selectObject[5];
-    TGHSlider           *thresholdS[5];
-    TGNumberEntryField  *threshEntry[5];
+  TGCheckButton       *selectObject[5];
+  TGHSlider           *thresholdS[5];
+  TGNumberEntryField  *threshEntry[5];
     
-    TGTextButton        *exitButton,*nextButton,*previousButton;
-    TGTextButton        *reProcessButton;
-    //int                  eventNr_;
-    //int                  maxEvents_;
+  TGTextButton        *exitButton,*nextButton,*previousButton;
+  TGTextButton        *reProcessButton;
+  //int                  eventNr_;
+  //int                  maxEvents_;
     
     
   
-   public:
-     DialogFrame(PFRootEventManager *evman, DisplayManager *dm,const TGWindow *p,UInt_t w,UInt_t h);
-     virtual ~DialogFrame(); 
+ public:
+  DialogFrame(PFRootEventManager *evman, DisplayManager *dm,const TGWindow *p,UInt_t w,UInt_t h);
+  virtual ~DialogFrame(); 
      
-     void doNextEvent();
-     void doPreviousEvent();
-     void doModifyOptions(unsigned obj);
-     void doModifyPtThreshold(unsigned obj,long val);
-     void doReProcessEvent();
-     //void createCanvas();
-     void createCmdFrame();
-     //void displayAll();
-     //void displayCanvas();
-     //void getDisplayOptions();
-     //void loadGraphicObjects();
-     /// print event display 
-     //void printDisplay( const char* directory="" ) const;
-     void updateDisplay();
-     void unZoom();
+  void doNextEvent();
+  void doPreviousEvent();
+  void doModifyOptions(unsigned obj);
+  void doModifyPtThreshold(unsigned obj,long val);
+  void doReProcessEvent();
+  //void createCanvas();
+  void createCmdFrame();
+  //void displayAll();
+  //void displayCanvas();
+  //void getDisplayOptions();
+  //void loadGraphicObjects();
+  /// print event display 
+  //void printDisplay( const char* directory="" ) const;
+  void updateDisplay();
+  void unZoom();
 
-     virtual bool ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
-     virtual void CloseWindow();
+  virtual bool ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
+  virtual void CloseWindow();
      
-     //-------------------------------graphic options variable ---------------------
-     //double trackPtMin_;
-     //double hitPtMin_;
-     //double particlePtMin_;
-     //double clusPtMin_;
+  //-------------------------------graphic options variable ---------------------
+  //double trackPtMin_;
+  //double hitPtMin_;
+  //double particlePtMin_;
+  //double clusPtMin_;
      
-     //bool drawHits_;
-     //bool drawTracks_;
-     //bool drawClus_;
-     //bool drawClusterL_;
-    // bool drawParticles_;
+  //bool drawHits_;
+  //bool drawTracks_;
+  //bool drawClus_;
+  //bool drawClusterL_;
+  // bool drawParticles_;
 };
 #endif 

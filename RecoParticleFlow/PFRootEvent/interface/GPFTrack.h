@@ -2,8 +2,8 @@
 #define Graphic_PFTrack_h
 
 /*! \file interface/GPFRecTrack.h
-    class to create graphic  object
-    from physical object of class PFRecTrack
+  class to create graphic  object
+  from physical object of class PFRecTrack
 */  
  
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
@@ -14,34 +14,34 @@
 
 
 class GPFTrack : public GPFBase, public TGraph {
-  public:
-    GPFTrack() ;
-    GPFTrack(DisplayManager *dm,int view, int ident,reco::PFRecTrack *tra, int size, double *x, double *y,
-             double pt,int linestyle,std::string option);	     
-    virtual ~GPFTrack() {;}
+ public:
+  GPFTrack(DisplayManager *dm,int view, int ident, 
+	   reco::PFRecTrack *tra, int size, double *x, double *y,
+           double pt,int linestyle, int linecolor, std::string option);      
+
+  virtual ~GPFTrack() {;}
     
-    virtual void     draw();
-    double           getPt() { return pt_;}
-    void             setColor(int newcolor);
-    void             setInitialColor();
+  virtual void     draw();
+  double           getPt() { return pt_;}
+  void             setColor(int newcolor );
+  void             setInitialColor();
     
-    //overridden ROOT method
-    virtual void     Print();     // *MENU*
-    virtual void     ExecuteEvent(Int_t event, Int_t px, Int_t py);
-    //
+  //overridden ROOT method
+  virtual void     Print();     // *MENU*
+  virtual void     ExecuteEvent(Int_t event, Int_t px, Int_t py);
+  //
     
-    const GPFTrack& operator=( const GPFTrack& other ) {
-      track_ = other.track_;
-      return *this;
-    }
+  const GPFTrack& operator=( const GPFTrack& other ) {
+    track_ = other.track_;
+    return *this;
+  }
     
-  private:
-    //draw option
-    reco::PFRecTrack*  track_;
-    double             pt_;
-    std::string        option_;
-    //initial Color 
-    int                color_;
+ private:
+  //draw option
+  reco::PFRecTrack*  track_;
+  double             pt_;
+  std::string        option_;
+
     
       
 };  

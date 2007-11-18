@@ -63,11 +63,11 @@ class IO {
 #ifndef __CINT__
   /// reads a vector of T
   template <class T>
-  bool GetOpt(const char* tag, const char* key, std::vector< T >& values) const; 
+    bool GetOpt(const char* tag, const char* key, std::vector< T >& values) const; 
   
   /// reads a T
   template <class T>
-  bool GetOpt(const char* tag, const char* key, T& value) const; 
+    bool GetOpt(const char* tag, const char* key, T& value) const; 
 
   /// reads a string
   bool GetOpt(const char* tag, const char* key, std::string& value) const;
@@ -80,7 +80,7 @@ class IO {
   /// //    do something...
   /// \endcode
   template <class T>  
-  bool GetAllOpt(const char* tag, const char* key, std::vector< T >& values);       
+    bool GetAllOpt(const char* tag, const char* key, std::vector< T >& values);       
 
   /// \brief reads a T
   ///
@@ -91,7 +91,7 @@ class IO {
   /// //    do something...
   /// \endcode
   template <class T>
-  bool GetAllOpt(const char* tag, const char* key, T& value); 
+    bool GetAllOpt(const char* tag, const char* key, T& value); 
 
   std::string GetLineData(const char* tag, const char* key) const;
   std::string GetNextLineData(const char* tag, const char* key);

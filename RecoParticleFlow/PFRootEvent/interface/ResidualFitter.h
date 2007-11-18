@@ -14,10 +14,10 @@ class ResidualFitter : public TH3D, public TQObject {
 
  public:
   ResidualFitter(const char* name, 
-	    const char* title, 
-	    int nbinsx, double xlow, double xup, 
-	    int nbinsy, double ylow, double yup, 
-	    int nbinsz, double zlow, double zup);
+                 const char* title, 
+                 int nbinsx, double xlow, double xup, 
+                 int nbinsy, double ylow, double yup, 
+                 int nbinsz, double zlow, double zup);
 
   ~ResidualFitter();
 
@@ -86,7 +86,7 @@ class ResidualFitter : public TH3D, public TQObject {
   TH2D*     mean_;
   TH2D*     sigma_; 
   TH2D*     chi2_;
-/*   TH2D*     nseen_; */
+  /*   TH2D*     nseen_; */
 
   int       oldBinx_;
   int       oldBiny_;
