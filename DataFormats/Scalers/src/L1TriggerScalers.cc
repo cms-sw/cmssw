@@ -7,6 +7,7 @@
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
 #include <iostream>
+#include <time.h>
 
 L1TriggerScalers::L1TriggerScalers():
   version_(0),
@@ -30,9 +31,9 @@ L1TriggerScalers::L1TriggerScalers():
   lostTriggersActive_(0),
   triggers_(nL1Triggers)
 { 
-  collectionTimeSummary_.tv_sec = 0;
+  collectionTimeSummary_.tv_sec  = 0;
   collectionTimeSummary_.tv_nsec = 0;
-  collectionTimeDetails_.tv_sec = 0;
+  collectionTimeDetails_.tv_sec  = 0;
   collectionTimeDetails_.tv_nsec = 0;
 }
 
@@ -94,9 +95,27 @@ std::ostream& operator<<(std::ostream& s,L1TriggerScalers const &c)
   s << "L1TriggerScalers    Version:" << c.version() <<
     "   SourceID: " << c.sourceID() << std::endl;
   char line[128];
+  char zeitHeaven[128];
+  char zeitHell[128];
+  struct tm * horaHeaven;
+  struct tm * horaHell;
 
   sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 
 	  c.trigType(), c.eventID(), c.bunchNumber());
+  s << line << std::endl;
+
+  struct timespec secondsToHeaven = c.collectionTimeSummary();
+  horaHeaven = gmtime(&secondsToHeaven.tv_sec);
+  strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
+  sprintf(line, " CollectionTimeSummary: %s.%9.9d" , 
+	  zeitHeaven, (long int)secondsToHeaven.tv_nsec);
+  s << line << std::endl;
+
+  struct timespec secondsToHell= c.collectionTimeDetails();
+  horaHell = gmtime(&secondsToHell.tv_sec);
+  strftime(zeitHell, sizeof(zeitHell), "%Y.%m.%d %H:%M:%S", horaHell);
+  sprintf(line, " CollectionTimeDetails: %s.%9.9d" , 
+	  zeitHell, (long int)secondsToHell.tv_nsec);
   s << line << std::endl;
 
   sprintf(line,
