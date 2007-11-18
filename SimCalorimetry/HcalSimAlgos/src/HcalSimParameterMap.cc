@@ -3,7 +3,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"  
-
+#include <iostream>
 HcalSimParameterMap::HcalSimParameterMap() :
   theHBParameters(2000., 0.3305,
 		  117, 5, 
@@ -25,7 +25,7 @@ HcalSimParameterMap::HcalSimParameterMap() :
 		   true),
   theZDCParameters(1., 4.3333,
 		   2.09 , -4,
-		   6, 4, false)
+		   false)
 {
 }
 /*
@@ -47,7 +47,8 @@ HcalSimParameterMap::HcalSimParameterMap(const edm::ParameterSet & p)
 }
 
 const CaloSimParameters & HcalSimParameterMap::simParameters(const DetId & detId) const {
-  if(detId.det()==DetId::Calo && detId.subdetId()==HcalZDCDetId::SubdetectorId)
+  HcalGenericDetId genericId(detId);
+  if(genericId.isHcalZDCDetId())
     return theZDCParameters;
   HcalDetId hcalDetId(detId);
   if(hcalDetId.subdet() == HcalBarrel) {
@@ -72,4 +73,5 @@ void HcalSimParameterMap::setDbService(const HcalDbService * dbService)
   theHOParameters.setDbService(dbService);
   theHFParameters1.setDbService(dbService);
   theHFParameters2.setDbService(dbService);
+  theZDCParameters.setDbService(dbService);
 }
