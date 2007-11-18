@@ -6,6 +6,8 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ClusterShapeTrajectoryFilterESProducer::ClusterShapeTrajectoryFilterESProducer(const edm::ParameterSet& iConfig)
