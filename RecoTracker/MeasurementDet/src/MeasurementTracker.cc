@@ -370,7 +370,7 @@ void MeasurementTracker::initializeStripStatus(const SiStripQuality *quality, in
 	 i!=theStripDets.end(); i++) {
       uint32_t detid = ((**i).geomDet().geographicalId()).rawId();
       if (qualityFlags & BadModules) {
-          bool isOn = ! quality->IsModuleBad(detid);
+          bool isOn = quality->IsModuleUsable(detid);
           (*i)->setActive(isOn);
           tot++; on += (unsigned int) isOn;
        } else {
