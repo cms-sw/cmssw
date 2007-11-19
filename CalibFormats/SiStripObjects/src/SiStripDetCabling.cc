@@ -3,7 +3,7 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.11 2007/10/25 16:24:29 bainbrid Exp $
+// $Id: SiStripDetCabling.cc,v 1.12 2007/11/16 10:45:44 giordano Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -250,5 +250,19 @@ void SiStripDetCabling::getActiveDetectorsContiguousIds(std::map<uint32_t, unsig
   }
 }
 
+bool SiStripDetCabling::IsConnected(const uint32_t& det_id) const {
+  return IsInMap(det_id,connected_);
+}
+
+bool SiStripDetCabling::IsDetected(const uint32_t& det_id) const {
+  return IsInMap(det_id,detected_);
+}
+bool SiStripDetCabling::IsUndetected(const uint32_t& det_id) const{
+  return IsInMap(det_id,undetected_);
+}
+bool SiStripDetCabling::IsInMap(const uint32_t& det_id, const std::map<uint32_t, std::vector<int> > & map) const{
+  std::map< uint32_t, std::vector<int> >::const_iterator it=map.find(det_id);
+  return (it!=map.end());
+}
 
 EVENTSETUP_DATA_REG(SiStripDetCabling);
