@@ -64,9 +64,6 @@ private:
     /// unpack header
     void unpackHeader(const unsigned char*, FEDHeader&);
 
-    /// unpack TCS block
-    void unpackTCS(const edm::EventSetup&, const unsigned char*, L1TcsWord&);
-
     /// unpack trailer word
     void unpackTrailer(const unsigned char*, FEDTrailer&);
 
@@ -85,11 +82,11 @@ private:
 
     /// input tags for GT EVM record
     edm::InputTag m_evmGtInputTag;
-    
+
     /// FED Id for GT EVM record
     /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    int m_evmGtFedId;  
-    
+    int m_evmGtFedId;
+
     /// mask for active boards
     boost::uint16_t m_activeBoardsMaskGt;
 

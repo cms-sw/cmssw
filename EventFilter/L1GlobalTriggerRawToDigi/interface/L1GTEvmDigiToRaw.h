@@ -63,7 +63,7 @@ private:
     /// block packers -------------
 
     /// pack header
-    void packHeader(unsigned char*);
+    void packHeader(unsigned char*, edm::Event&);
 
     /// pack the GTFE block
     /// gives the number of bunch crosses in the event, as well as the active boards
@@ -79,7 +79,7 @@ private:
     void packFDL(const edm::EventSetup&, unsigned char*, L1GtFdlWord&);
 
     /// pack trailer word
-    void packTrailer(unsigned char*, int);
+    void packTrailer(unsigned char*, unsigned char*, int);
 
     /// end of job stuff
     virtual void endJob();
@@ -88,7 +88,7 @@ private:
 
     /// FED Id for GT EVM record
     /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    int m_evmGtFedId;  
+    int m_evmGtFedId;
 
     /// input tag for GT EVM record
     edm::InputTag m_evmGtInputTag;

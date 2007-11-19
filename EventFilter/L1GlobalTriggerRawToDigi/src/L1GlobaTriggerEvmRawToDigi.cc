@@ -473,9 +473,8 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
                     // unpack only if requested, otherwise skip it
                     if (activeBoardToUnpack) {
 
-                        // unpack only bxInEvent requested, otherwise skip it
 
-                        unpackTCS(evSetup, ptrGt, *m_tcsWord);
+                        m_tcsWord->unpack(ptrGt);
 
 
                         // add TCS block to GT EVM readout record
@@ -494,9 +493,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
                         m_tcsWord->reset();
                     }
 
-                    // FIXME TODO put it back
-                    ptrGt += 2*64/8; // advance with TCS block size
-                    //                    ptrGt += m_tcsWord->getSize(); // advance with TCS block size
+                    ptrGt += m_tcsWord->getSize(); // advance with TCS block size
 
                 }
                 break;
@@ -657,52 +654,6 @@ void L1GlobalTriggerEvmRawToDigi::unpackHeader(
 }
 
 
-// unpack the TCS record
-// tcsPtr pointer to the beginning of the TCS block, obtained from gtPtr
-void L1GlobalTriggerEvmRawToDigi::unpackTCS(
-    const edm::EventSetup& evSetup,
-    const unsigned char* tcsPtr,
-    L1TcsWord& tcsWord)
-{
-
-    LogDebug("L1GlobalTriggerEvmRawToDigi")
-    << "\nUnpacking TCS block.\n"
-    << std::endl;
-
-    int uLength = L1GlobalTriggerReadoutSetup::UnitLength;
-
-    int tcsSize = tcsWord.getSize();
-    int tcsWords = tcsSize/uLength;
-
-    const boost::uint64_t* payload =
-        reinterpret_cast<boost::uint64_t*>(const_cast<unsigned char*>(tcsPtr));
-
-    for (int iWord = 0; iWord < tcsWords; ++iWord) {
-
-        // fill TCS
-        // the second argument must match the word index defined in L1TcsWord class
-
-        tcsWord.setDaqNr(payload[iWord], iWord);
-        tcsWord.setTriggerType(payload[iWord], iWord);
-        tcsWord.setStatus(payload[iWord], iWord);
-        tcsWord.setBxNr(payload[iWord], iWord);
-        tcsWord.setPartTrigNr(payload[iWord], iWord);
-        tcsWord.setEventNr(payload[iWord], iWord);
-        tcsWord.setAssignedPartitions(payload[iWord], iWord);
-        tcsWord.setPartRunNr(payload[iWord], iWord);
-        tcsWord.setOrbitNr(payload[iWord], iWord);
-
-        LogTrace("L1GlobalTriggerEvmRawToDigi")
-        << std::setw(4) << iWord << "  "
-        << std::hex << std::setfill('0')
-        << std::setw(16) << payload[iWord]
-        << std::dec << std::setfill(' ')
-        << std::endl;
-
-    }
-
-
-}
 
 // unpack trailer word
 // trPtr pointer to the beginning of trailer obtained from gtPtr
