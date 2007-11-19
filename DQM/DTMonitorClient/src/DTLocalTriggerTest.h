@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/09/20 07:46:30 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/11/12 17:59:01 $
+ *  $Revision: 1.7 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -60,6 +60,9 @@ protected:
   /// Book the new MEs (for each sector)
   void bookSectorHistos(int wheel, int sector, std::string folder, std::string htype );
 
+  /// Book the new MEs (for each wheel)
+  void bookWheelHistos(int wheel, std::string folder, std::string htype );
+
   /// Book the new MEs (for each chamber)
   void bookChambHistos(DTChamberId chambId, std::string htype );
 
@@ -74,6 +77,12 @@ protected:
 
   /// Convert ME to Histogram fo type T
   template <class T>  T* getHisto(MonitorElement* me);
+
+  /// Set labels to wheel plots (Phi)
+  void setLabelPh(MonitorElement* me);
+
+  /// Set labels to theta plots (Theta)
+  void setLabelTh(MonitorElement* me); 
 
   /// Get the ME name
   std::string getMEName(std::string histoTag, std::string subfolder, const DTChamberId & chambid);
@@ -98,6 +107,7 @@ protected:
   std::string hwSource;
   edm::ESHandle<DTGeometry> muonGeom;
   std::map<int,std::map<std::string,MonitorElement*> >      secME;
+  std::map<int,std::map<std::string,MonitorElement*> >      whME;
   std::map<uint32_t,std::map<std::string,MonitorElement*> > chambME;
 
 

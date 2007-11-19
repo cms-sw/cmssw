@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/09/20 07:46:22 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/11/12 17:59:00 $
+ *  $Revision: 1.12 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -115,7 +115,7 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	      
 	  TH1D* BXHH    = BXvsQual->ProjectionY("",7,7,"");
 	  TH1D* Flag1st = Flag1stvsBX->ProjectionY();
-	  int BXOK_bin = BXHH->GetMaximumBin();
+	  int BXOK_bin = BXHH->GetEntries()>=1 ? BXHH->GetMaximumBin() : 51;
 	  double BX_OK =  BXvsQual->GetYaxis()->GetBinCenter(BXOK_bin);
 	  double trigsFlag2nd = Flag1st->GetBinContent(2);
 	  double trigs = Flag1st->GetEntries();
@@ -124,15 +124,26 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	  for (int i=5;i<=7;++i)
 	    besttrigsCorr+=BestQual->GetBinContent(i);
 	      
-	  if( secME[sector_id].find("CorrectBX_Phi") == secME[sector_id].end() ){
-	    bookSectorHistos(wh,sect,"LocalTriggerPhi","CorrectBX_Phi");
-	    bookSectorHistos(wh,sect,"LocalTriggerPhi","CorrFraction_Phi");
-	    bookSectorHistos(wh,sect,"LocalTriggerPhi","2ndFraction_Phi");
+	  if( secME[sector_id].find("CorrectBXSec_Phi") == secME[sector_id].end() ){
+	    bookSectorHistos(wh,sect,"LocalTriggerPhi","CorrectBXSec_Phi");
+	    bookSectorHistos(wh,sect,"LocalTriggerPhi","CorrFractionSec_Phi");
+	    bookSectorHistos(wh,sect,"LocalTriggerPhi","2ndFractionSec_Phi");
+	  }
+	  if( whME[wh].find("CorrectBX_Phi") == whME[wh].end() ){
+	    bookWheelHistos(wh,"LocalTriggerPhi","CorrectBX_Phi");
+	    bookWheelHistos(wh,"LocalTriggerPhi","CorrFraction_Phi");
+	    bookWheelHistos(wh,"LocalTriggerPhi","2ndFraction_Phi");
 	  }
 	  std::map<std::string,MonitorElement*> innerME = secME[sector_id];
-	  innerME.find("CorrectBX_Phi")->second->setBinContent(stat,BX_OK);
-	  innerME.find("CorrFraction_Phi")->second->setBinContent(stat,besttrigsCorr/besttrigs);
-	  innerME.find("2ndFraction_Phi")->second->setBinContent(stat,trigsFlag2nd/trigs);
+	  innerME.find("CorrectBXSec_Phi")->second->setBinContent(stat,BX_OK);
+	  innerME.find("CorrFractionSec_Phi")->second->setBinContent(stat,besttrigsCorr/besttrigs);
+	  innerME.find("2ndFractionSec_Phi")->second->setBinContent(stat,trigsFlag2nd/trigs);
+	   
+	  innerME = whME[wh];
+	  int pos = stat+4*(sect-1);
+	  innerME.find("CorrectBX_Phi")->second->setBinContent(pos,BX_OK);
+	  innerME.find("CorrFraction_Phi")->second->setBinContent(pos,besttrigsCorr/besttrigs);
+	  innerME.find("2ndFraction_Phi")->second->setBinContent(pos,trigsFlag2nd/trigs);
 	    
 	}
 
@@ -160,21 +171,30 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	TH2F * ThetaBXvsQual = getHisto<TH2F>(dbe->get(getMEName("ThetaBXvsQual","LocalTriggerTheta", chId)));
 	TH1F * ThetaBestQual = getHisto<TH1F>(dbe->get(getMEName("ThetaBestQual","LocalTriggerTheta", chId)));
 	
-	if (ThetaBXvsQual && ThetaBestQual) {
-	      
-	  TH1D* projBXH   = ThetaBXvsQual->ProjectionY("",4,4,"");
-	  int    BXOK_bin = projBXH->GetMaximumBin();
+	// no theta triggers in stat 4!
+	if (ThetaBXvsQual && ThetaBestQual && stat<4) {
+	  TH1D* BXH       = ThetaBXvsQual->ProjectionY("",4,4,"");
+	  int    BXOK_bin = BXH->GetEffectiveEntries()>=1 ? BXH->GetMaximumBin(): 10;
 	  double BX_OK    = ThetaBXvsQual->GetYaxis()->GetBinCenter(BXOK_bin);
 	  double trigs    = ThetaBestQual->GetEntries(); 
 	  double trigsH   = ThetaBestQual->GetBinContent(4);
 	      
-	  if( secME[sector_id].find("HFraction_Theta") == secME[sector_id].end() ){
-	    bookSectorHistos(wh,sect,"LocalTriggerTheta","CorrectBX_Theta");
-	    bookSectorHistos(wh,sect,"LocalTriggerTheta","HFraction_Theta");
+	  if( secME[sector_id].find("HFractionSec_Theta") == secME[sector_id].end() ){
+	    bookSectorHistos(wh,sect,"LocalTriggerTheta","CorrectBXSec_Theta");
+	    bookSectorHistos(wh,sect,"LocalTriggerTheta","HFractionSec_Theta");
 	  }
 	  std::map<std::string,MonitorElement*> innerME = secME.find(sector_id)->second;
-	  innerME.find("CorrectBX_Theta")->second->setBinContent(stat,BX_OK);
-	  innerME.find("HFraction_Theta")->second->setBinContent(stat,trigsH/trigs);
+	  innerME.find("CorrectBXSec_Theta")->second->setBinContent(stat,BX_OK);
+	  innerME.find("HFractionSec_Theta")->second->setBinContent(stat,trigsH/trigs);
+
+	  if( whME[wh].find("HFraction_Theta") == whME[wh].end() ){
+	    bookWheelHistos(wh,"LocalTriggerTheta","CorrectBX_Theta");
+	    bookWheelHistos(wh,"LocalTriggerTheta","HFraction_Theta");
+	  }
+	  int pos = stat+3*(sect-1);
+	  innerME = whME.find(wh)->second;
+	  innerME.find("CorrectBX_Theta")->second->setBinContent(pos,BX_OK);
+	  innerME.find("HFraction_Theta")->second->setBinContent(pos,trigsH/trigs);
 	    
 	}
 
@@ -194,8 +214,12 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	    bookChambHistos(chId,"TrigEffAngle_Phi");
 	    bookChambHistos(chId,"TrigEffAngleHHHL_Phi");
 	  }
-	  if( secME[sector_id].find("TrigEff_Phi") == secME[sector_id].end() ){
-	    bookSectorHistos(wh,sect,"TriggerAndSeg","TrigEff_Phi");  
+	  if( secME[sector_id].find("TrigEffSec_Phi") == secME[sector_id].end() ){
+	    bookSectorHistos(wh,sect,"TriggerAndSeg","TrigEffSec_Phi");  
+	  }
+	  if( whME[wh].find("TrigEff_Phi") == whME[wh].end() ){
+	    bookWheelHistos(wh,"TriggerAndSeg","TrigEff_Phi");  
+	    bookWheelHistos(wh,"TriggerAndSeg","TrigEffHHHL_Phi");  
 	  }
 
 	  std::map<std::string,MonitorElement*> innerME = secME[sector_id];
@@ -205,13 +229,25 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	  TH1D* TrackAngleandTrig      = TrackPosvsAngleandTrig->ProjectionX();
 	  TH1D* TrackPosandTrigHHHL    = TrackPosvsAngleandTrigHHHL->ProjectionY();
 	  TH1D* TrackAngleandTrigHHHL  = TrackPosvsAngleandTrigHHHL->ProjectionX();
+ 	  float binEff     = float(TrackPosandTrig->GetEntries())/TrackPos->GetEntries();
+ 	  float binEffHHHL = float(TrackPosandTrigHHHL->GetEntries())/TrackPos->GetEntries();
+ 	  float binErr     = sqrt(binEff*(1-binEff)/TrackPos->GetEntries());
+	  float binErrHHHL = sqrt(binEffHHHL*(1-binEffHHHL)/TrackPos->GetEntries());
 	  
- 	  MonitorElement* globalEff = innerME.find("TrigEff_Phi")->second;
- 	  float binEff = float(TrackPosandTrig->GetEntries())/TrackPos->GetEntries();
- 	  float binErr = sqrt(binEff*(1-binEff)/TrackPos->GetEntries());
+ 	  MonitorElement* globalEff = innerME.find("TrigEffSec_Phi")->second;
  	  globalEff->setBinContent(stat,binEff);
  	  globalEff->setBinError(stat,binErr);
 
+	  innerME = whME[wh];
+	  int pos = stat+4*(sect-1);
+	  globalEff = innerME.find("TrigEff_Phi")->second;
+ 	  globalEff->setBinContent(pos,binEff);
+ 	  globalEff->setBinError(pos,binErr);
+	  globalEff = innerME.find("TrigEffHHHL_Phi")->second;
+ 	  globalEff->setBinContent(pos,binEffHHHL);
+ 	  globalEff->setBinError(pos,binErrHHHL);
+	  
+	  
 	  innerME = chambME[indexCh];
 	  makeEfficiencyME(TrackPosandTrig,TrackPos,innerME.find("TrigEffPos_Phi")->second);
 	  makeEfficiencyME(TrackPosandTrigHHHL,TrackPos,innerME.find("TrigEffPosHHHL_Phi")->second);
@@ -240,8 +276,12 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	    bookChambHistos(chId,"TrigEffAngle_Theta");
 	    bookChambHistos(chId,"TrigEffAngleH_Theta");
 	  }
-	  if( secME[sector_id].find("TrigEff_Theta") == secME[sector_id].end() ){
-	    bookSectorHistos(wh,sect,"TriggerAndSeg","TrigEff_Theta");  
+	  if( secME[sector_id].find("TrigEffSec_Theta") == secME[sector_id].end() ){
+	    bookSectorHistos(wh,sect,"TriggerAndSeg","TrigEffSec_Theta");  
+	  }
+	  if( whME[wh].find("TrigEff_Theta") == whME[wh].end() ){
+	    bookWheelHistos(wh,"TriggerAndSeg","TrigEff_Theta");  
+	    bookWheelHistos(wh,"TriggerAndSeg","TrigEffH_Theta");  
 	  }
 
 	  std::map<std::string,MonitorElement*> innerME = secME[sector_id];
@@ -251,13 +291,24 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	  TH1D* TrackThetaAngleandTrig      = TrackThetaPosvsAngleandTrig->ProjectionX();
 	  TH1D* TrackThetaPosandTrigH       = TrackThetaPosvsAngleandTrigH->ProjectionY();
 	  TH1D* TrackThetaAngleandTrigH     = TrackThetaPosvsAngleandTrigH->ProjectionX();
-	  
- 	  MonitorElement* globalEff = innerME.find("TrigEff_Theta")->second;
- 	  float binEff = float(TrackThetaPosandTrig->GetEntries())/TrackThetaPos->GetEntries();
- 	  float binErr = sqrt(binEff*(1-binEff)/TrackThetaPos->GetEntries());
+	  float binEff  = float(TrackThetaPosandTrig->GetEntries())/TrackThetaPos->GetEntries();
+ 	  float binErr  = sqrt(binEff*(1-binEff)/TrackThetaPos->GetEntries());
+ 	  float binEffH = float(TrackThetaPosandTrigH->GetEntries())/TrackThetaPos->GetEntries();
+ 	  float binErrH = sqrt(binEffH*(1-binEffH)/TrackThetaPos->GetEntries());
+ 	  
+ 	  MonitorElement* globalEff = innerME.find("TrigEffSec_Theta")->second;
  	  globalEff->setBinContent(stat,binEff);
  	  globalEff->setBinError(stat,binErr);
 
+	  innerME = whME[wh];
+	  int pos = stat+3*(sect-1);
+ 	  globalEff = innerME.find("TrigEff_Theta")->second;
+ 	  globalEff->setBinContent(pos,binEff);
+ 	  globalEff->setBinError(pos,binErr);
+	  globalEff = innerME.find("TrigEffH_Theta")->second;
+ 	  globalEff->setBinContent(pos,binEffH);
+ 	  globalEff->setBinError(pos,binErrH);
+	  
 	  innerME = chambME[indexCh];
 	  makeEfficiencyME(TrackThetaPosandTrig,TrackThetaPos,innerME.find("TrigEffPos_Theta")->second);
 	  makeEfficiencyME(TrackThetaPosandTrigH,TrackThetaPos,innerME.find("TrigEffPosH_Theta")->second);
@@ -272,30 +323,30 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
   }	
   
   // Efficiency test (performed on chamber plots)
-  for(map<uint32_t,map<string,MonitorElement*> >::const_iterator imapIt = chambME.begin();
-      imapIt != chambME.end();
-      ++imapIt){
-    for (map<string,MonitorElement*>::const_iterator effME = (*imapIt).second.begin();
-	 effME!=(*imapIt).second.end();
-	 ++effME){
-      if ((*effME).second->getName().find("TrigEffPos_Phi") == 0) {
-	const QReport *effQReport = (*effME).second->getQReport("ChambTrigEffInRangePhi");
-	if (effQReport) {
-	  if (effQReport->getBadChannels().size())
-	    edm::LogError ("localTrigger") << (*effME).second->getName() <<" has " << effQReport->getBadChannels().size() << " channels out of expected efficiency range";
-	  edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
-	}
-      }
-      if ((*effME).second->getName().find("TrigEffPos_Theta") == 0) {
-	const QReport *effQReport = (*effME).second->getQReport("ChambTrigEffInRangeTheta");
-	if (effQReport) {
-	  if (effQReport->getBadChannels().size())
-	    edm::LogError ("localTrigger") << (*effME).second->getName() <<" has " << effQReport->getBadChannels().size() << " channels out of expected efficiency range";
-	  edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
-	}
-      }
-    }
-  }
+//   for(map<uint32_t,map<string,MonitorElement*> >::const_iterator imapIt = chambME.begin();
+//       imapIt != chambME.end();
+//       ++imapIt){
+//     for (map<string,MonitorElement*>::const_iterator effME = (*imapIt).second.begin();
+// 	 effME!=(*imapIt).second.end();
+// 	 ++effME){
+//       if ((*effME).second->getName().find("TrigEffPos_Phi") == 0) {
+// 	const QReport *effQReport = (*effME).second->getQReport("ChambTrigEffInRangePhi");
+// 	if (effQReport) {
+// 	  if (effQReport->getBadChannels().size())
+// 	    edm::LogError ("localTrigger") << (*effME).second->getName() <<" has " << effQReport->getBadChannels().size() << " channels out of expected efficiency range";
+// 	  edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
+// 	}
+//       }
+//       if ((*effME).second->getName().find("TrigEffPos_Theta") == 0) {
+// 	const QReport *effQReport = (*effME).second->getQReport("ChambTrigEffInRangeTheta");
+// 	if (effQReport) {
+// 	  if (effQReport->getBadChannels().size())
+// 	    edm::LogError ("localTrigger") << (*effME).second->getName() <<" has " << effQReport->getBadChannels().size() << " channels out of expected efficiency range";
+// 	  edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
+// 	}
+//       }
+//     }
+//   }
 
   // Efficiency test (performed on wheel plots)
   for(map<int,map<string,MonitorElement*> >::const_iterator imapIt = secME.begin();
@@ -304,13 +355,13 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
     for (map<string,MonitorElement*>::const_iterator effME = (*imapIt).second.begin();
 	 effME!=(*imapIt).second.end();
 	 ++effME){
-      if ((*effME).second->getName().find("TrigEff_Phi") == 0) {
+      if ((*effME).second->getName().find("TrigEffSec_Phi") == 0) {
 	const QReport *effQReport = (*effME).second->getQReport("SectorTrigEffInRangePhi");
 	if (effQReport) {
 	  edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
 	}
       }
-      if ((*effME).second->getName().find("TrigEff_Theta") == 0) {
+      if ((*effME).second->getName().find("TrigEffSec_Theta") == 0) {
 	const QReport *effQReport = (*effME).second->getQReport("SectorTrigEffInRangeTheta");
 	if (effQReport) {
 	  edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
@@ -389,10 +440,10 @@ string DTLocalTriggerTest::getMEName(string histoTag, string subfolder, const DT
   stringstream station; station << chambid.station();
   stringstream sector; sector << chambid.sector();
 
-  if (subfolder == "Segment" && histoTag.find("Trig") == string::npos) 
-    histoTag = "SEG_" + histoTag;
-  else
-    histoTag = hwSource + "_" + histoTag;
+//   if (subfolder == "Segment" && histoTag.find("Trig") == string::npos) 
+//     histoTag = "SEG_" + histoTag;
+//   else
+  histoTag = hwSource + "_" + histoTag;
 
   string folderName = 
     "DT/DTLocalTriggerTask/Wheel" +  wheel.str() +
@@ -417,6 +468,28 @@ T* DTLocalTriggerTest::getHisto(MonitorElement* me) {
   if (!meT)
     return 0;
   return dynamic_cast<T*> (meT->operator->());
+
+}
+
+void DTLocalTriggerTest::setLabelPh(MonitorElement* me){
+
+  for (int i=0; i<48; ++i){
+    stringstream label;
+    int stat = (i%4) +1;
+    if (stat==1) label << "Sec " << i/4 +1 << " ";
+    me->setBinLabel(i+1,label.str().c_str());
+  }
+
+}
+
+void DTLocalTriggerTest::setLabelTh(MonitorElement* me){
+
+  for (int i=0; i<36; ++i){
+    stringstream label;
+    int stat = (i%3) +1;
+    if (stat==1) label << "Sec " << i/3 +1 << " ";
+    me->setBinLabel(i+1,label.str().c_str());
+  }
 
 }
 
@@ -455,7 +528,7 @@ void DTLocalTriggerTest::bookChambHistos(DTChamberId chambId, string htype) {
     return;
   }
   if (htype.find("TrigDirection_Phi") == 0){
-    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),200,-2.,2.);
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),200,-40.,40.);
     return;
   }
   if (htype.find("TrigEffPos_Phi") == 0 ){
@@ -527,6 +600,28 @@ void DTLocalTriggerTest::bookSectorHistos(int wheel,int sector,string folder, st
   
 }
 
+void DTLocalTriggerTest::bookWheelHistos(int wheel, string folder, string htype) {
+  
+  stringstream wh; wh << wheel;
+  dbe->setCurrentFolder("DT/Tests/DTLocalTrigger/Wheel"+ wh.str()+"/"+folder);
+
+  if (htype.find("Phi") != string::npos){    
+    string hname = htype + "_W" + wh.str();
+    MonitorElement* me = dbe->book1D(hname.c_str(),hname.c_str(),48,1,49);
+    setLabelPh(me);
+    whME[wheel][htype] = me;
+    return;
+  }
+  
+  if (htype.find("Theta") != string::npos){
+    string hname = htype + "_W" + wh.str();
+    MonitorElement* me =dbe->book1D(hname.c_str(),hname.c_str(),36,1,37);
+    setLabelTh(me);
+    whME[wheel][htype] = me;
+    return;
+  }
+  
+}
 
 pair<float,float> DTLocalTriggerTest::phiRange(const DTChamberId& id){
 
