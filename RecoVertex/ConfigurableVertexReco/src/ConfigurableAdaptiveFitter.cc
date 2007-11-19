@@ -20,7 +20,7 @@ namespace {
   {
     edm::ParameterSet ret;
     ret.addParameter<string>("annealing", "geom" );
-    ret.addParameter<string>("smoother", "kalman" );
+    ret.addParameter<bool>("smoothing", true );
     ret.addParameter<double>("sigmacut",3.0);
     ret.addParameter<double>("Tini",256.0);
     ret.addParameter<double>("ratio",0.25);
@@ -48,16 +48,13 @@ void ConfigurableAdaptiveFitter::configure(
   // KalmanVertexFitter kvf;
   // GenericLinearizationPointFinder linpt ( kvf );
   KalmanVertexUpdator updator;
-  string s=m.getParameter<string>("smoother");
+  bool s=m.getParameter< bool >("smoothing");
   VertexSmoother * smoother=0;
-  if ( s=="none" )
+  if ( s )
   {
-    smoother = new DummyVertexSmoother ();
-  } else if ( s=="kalman" ) {
     smoother = new KalmanVertexSmoother ();
   } else {
-    edm::LogError("") << "no smoother \"" << s << "\" defined." << endl;
-    exit(0);
+    smoother = new DummyVertexSmoother ();
   }
   KalmanVertexTrackCompatibilityEstimator estimator;
 
