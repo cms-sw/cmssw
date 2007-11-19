@@ -142,9 +142,9 @@ void L1GlobalTriggerSetup::setInputMask()
     if ( m_gtConfig->getInputMask()[1] ) {
 
         edm::LogVerbatim("L1GlobalTriggerSetup")
-        << "\n**** Global Muon input disabled! \n  inputMask[1] = "
-        << m_gtConfig->getInputMask()[1]
-        << "     All candidates empty." << "\n**** \n"
+        << "\n**** Global Muon Trigger inputMask not used anymore." 
+        << " Please use ActiveBoards instead!"
+        << "\n**** \n"
         << std::endl;
     }
 
