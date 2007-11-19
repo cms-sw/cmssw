@@ -13,10 +13,10 @@ popcon::LogReader::LogReader (std::string pop_connect) : m_connect(pop_connect) 
 
 
 	//connects to pop_con (metadata)schema 
-	session=new cond::DBSession(false);
-	session->sessionConfiguration().setAuthenticationMethod( cond::XML );
-	session->sessionConfiguration().setMessageLevel( cond::Error );
-	session->connectionConfiguration().setConnectionRetrialTimeOut(60);
+	session=new cond::DBSession;
+	session->configuration().setAuthenticationMethod( cond::XML );
+	session->configuration().setMessageLevel( cond::Error );
+	session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut(60);
 	initialize();
 }
 

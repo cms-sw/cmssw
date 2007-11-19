@@ -34,14 +34,14 @@ popcon::StateCreator::StateCreator(std::string connectionString, std::string off
 
 		session=new cond::DBSession();
 
-		session->sessionConfiguration().setAuthenticationMethod( cond::XML );
+		session->configuration().setAuthenticationMethod( cond::XML );
 		if (m_debug)
-			session->sessionConfiguration().setMessageLevel( cond::Debug );
+		  session->configuration().setMessageLevel( cond::Debug );
 		else
-			session->sessionConfiguration().setMessageLevel( cond::Error );
+		  session->configuration().setMessageLevel( cond::Error );
 		
-		session->connectionConfiguration().setConnectionRetrialTimeOut(60);
-		session->connectionConfiguration().enableConnectionSharing();
+		session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut(60);
+		session->configuration().connectionConfiguration()->enableConnectionSharing();
 		//session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections();
 		initialize();
 	}

@@ -2,8 +2,8 @@
 #define OFFLINE_DB_INTERFACE_H
 
 
-#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"

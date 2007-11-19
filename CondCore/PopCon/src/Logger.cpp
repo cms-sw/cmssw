@@ -27,15 +27,17 @@ m_offline(offlineString), m_debug(dbg), m_established(false)  {
 	std::string::size_type loc = m_offline.find( "sqlite_file", 0 );
 	if( loc == std::string::npos ) {
 		m_sqlite = false;
-		session=new cond::DBSession(false);
-		session->sessionConfiguration().setAuthenticationMethod( cond::XML );
-		if (m_debug)
-			session->sessionConfiguration().setMessageLevel( cond::Debug );
-		else	
-			session->sessionConfiguration().setMessageLevel( cond::Error );
-		session->connectionConfiguration().setConnectionRetrialTimeOut(60);
-		session->connectionConfiguration().enableConnectionSharing();
-		session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections();
+		session=new cond::DBSession;
+		session->configuration().setAuthenticationMethod( cond::XML );
+		if (m_debug){
+		  session->configuration().setMessageLevel( cond::Debug );
+		}else{	
+		  session->configuration().setMessageLevel( cond::Error );
+		}
+		/*session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut(60);
+		session->configuration().connectionConfiguration()->enableConnectionSharing();
+		session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
+		*/
 		initialize();
 	}
 	else{ 
