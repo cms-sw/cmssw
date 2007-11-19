@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.9 2007/08/26 04:21:25 dlange Exp $
+ * $Id: HydjetSource.cc,v 1.8 2007/08/15 14:50:29 mironov Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -28,6 +28,8 @@
 #include "HepMC/SimpleVector.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
+
 
 using namespace edm;
 using namespace std;
@@ -47,11 +49,12 @@ HydjetSource::HydjetSource(const ParameterSet &pset, InputSourceDescription cons
     maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint", 1)),
     maxlongy_(pset.getParameter<double>("maxLongitudinalRapidity")),
     maxtrany_(pset.getParameter<double>("maxTransverseRapidity")),
+    nsub_(0),
     nhard_(0),
+    nparton_(0),
     nmultiplicity_(pset.getParameter<int>("nMultiplicity")),
     nsoft_(0),
-    nquarkflavor_(pset.getParameter<int>("numQuarkFlavor")),
-    ptmin_(pset.getParameter<double>("ptMin")),
+    nquarkflavor_(pset.getParameter<int>("qgpNumQuarkFlavor")),
     pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity", 0)),
     qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
     qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
@@ -81,13 +84,11 @@ HydjetSource::HydjetSource(const ParameterSet &pset, InputSourceDescription cons
   hyjhydro_init(pset);
 
   if( hymode_ != "kHydroOnly" ) { 
-    call_pyinit("CMS", "p", "p", comenergy);
+     call_hyinit(comenergy);
   }
     
-  cout<<endl;
-
   produces<HepMCProduct>();
-
+  produces<GenHIEvent>();
 }
 
 
@@ -104,32 +105,45 @@ HydjetSource::~HydjetSource()
 //_____________________________________________________________________
 void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
 {
-  HepMC::HeavyIon *hi = new HepMC::HeavyIon(
-    hyfpar.nbcol,                       // Ncoll_hard
+  HepMC::HeavyIon hi(
+    nsub_,                               // Ncoll_hard/N of SubEvents
     hyfpar.npart / 2,                   // Npart_proj
     hyfpar.npart / 2,                   // Npart_targ
     hyfpar.nbcol,                       // Ncoll
-    -1,                                 // spectator_neutrons
-    -1,                                 // spectator_protons
-    -1,                                 // N_Nwounded_collisions
-    -1,                                 // Nwounded_N_collisions
-    -1,                                 // Nwounded_Nwounded_collisions
+    0,                                 // spectator_neutrons
+    0,                                 // spectator_protons
+    0,                                 // N_Nwounded_collisions
+    0,                                 // Nwounded_N_collisions
+    0,                                 // Nwounded_Nwounded_collisions
     hyfpar.bgen * nuclear_radius(),     // impact_parameter in [fm]
     0,                                  // event_plane_angle
     0,                                  // eccentricity
     hyjpar.sigin                        // sigma_inel_NN
   );
 
-  evt->set_heavy_ion(*hi);
+  evt->set_heavy_ion(hi);
 }
 
+//________________________________________________________________
+HepMC::GenParticle* HydjetSource::build_hyjet(int index, int barcode)
+{
+   // Build particle object corresponding to index in hyjets.
+   HepMC::GenParticle* p = new HepMC::GenParticle(
+						  HepMC::FourVector(hyjets.pl[0][index],  // px
+								    hyjets.pl[1][index],  // py
+								    hyjets.pl[2][index],  // pz
+								    hyjets.pl[3][index]), // E
+						  hyjets.kl[1][index],// id
+						  hyjets.kl[0][index] // status
+						  );
+   p->suggest_barcode(barcode);
+   return p;
+}
 
 //________________________________________________________________
-HepMC::GenParticle* HydjetSource::build_particle(int index)                             
+HepMC::GenParticle* HydjetSource::build_lujet(int index, int barcode)                             
 {
   // Build particle object corresponding to index in lujets.
-
-
   HepMC::GenParticle* p = new HepMC::GenParticle(
                             HepMC::FourVector(lujets.p[0][index],  // px
                                               lujets.p[1][index],  // py
@@ -138,69 +152,33 @@ HepMC::GenParticle* HydjetSource::build_particle(int index)
                             lujets.k[1][index],// id
                             lujets.k[0][index] // status
                             );
-  p->suggest_barcode(index);
-
+  p->suggest_barcode(barcode);
   return p;
 }
-
-
-//____________________________________________________________________
-bool HydjetSource::build_vertices(int i, vector<HepMC::GenParticle*>& luj_entries,
-                                  HepMC::GenEvent* evt)
+//___________________________________________________________________
+HepMC::GenVertex* HydjetSource::build_lujet_vertex(int i,int id)
 {
-  // Build a production vertex for a particle with index i in lujets
-  // and add the vertex to the event.
+   //Build production vertex of the ith lujet.
+   double x=lujets.v[0][i];
+   double y=lujets.v[1][i];
+   double z=lujets.v[2][i];
+   double t=lujets.v[4][i];
 
-
-  // fix: need to fix to look for the second mothers in case of flavor 
-  // K(I,2)=91-94; cluster, string, indep, CMshower
-
-  HepMC::GenParticle* pi       = luj_entries[i]; 
-  HepMC::GenVertex* prod_vtx_i = pi->production_vertex();
-  int mother_i                 = lujets.k[2][i];    
-    
-  if ( !prod_vtx_i && mother_i > 0 ) {
-    prod_vtx_i = luj_entries[mother_i]->end_vertex(); //decay vertex of the mother
-    if (prod_vtx_i) {
-          // if the decay vertex of its mother exists
-          // assign it to the particle, as the production vertex
-          prod_vtx_i->add_particle_out( pi );
-    } 
-  }
-         
-  HepMC::FourVector prod_pos( lujets.v[0][mother_i],
-                             lujets.v[1][mother_i],
-                             lujets.v[2][mother_i],
-                             lujets.v[4][mother_i]
-                             ); 
-  if (!prod_vtx_i && (mother_i > 0 || prod_pos != HepMC::FourVector(0,0,0,0))) {
-    prod_vtx_i = new HepMC::GenVertex();
-    prod_vtx_i->add_particle_out( pi );       
-    evt->add_vertex( prod_vtx_i );
-  }
-           
-  if (prod_vtx_i && prod_vtx_i->position()==HepMC::FourVector(0,0,0,0)) {
-      prod_vtx_i->set_position( prod_pos );
-  }
-            
-  //  check the consistency of the end_vertices
-  if ( prod_vtx_i && mother_i > 0 ) {
-    if ( !luj_entries[mother_i]->end_vertex() ) {
-      // if end vtx of the  mother isn't specified, do it now
-      prod_vtx_i->add_particle_in( luj_entries[mother_i] );
-    } else if ( luj_entries[mother_i]->end_vertex() != prod_vtx_i ) {
-      //error. the decay vtx of the mother is different from the daughter production vtx
-      cerr << "HydjetSource::build_production_vertex: "<<
-              "inconsistent mother/daughter produced vtx in event!" << endl;
-      luj_entries[mother_i]->end_vertex()->print(cerr);
-      prod_vtx_i->print(cerr);
-
-    }
-  }
-  return true;
+   HepMC::GenVertex* vertex = new HepMC::GenVertex(HepMC::FourVector(x,y,z,t),id);
+   return vertex; 
 }
 
+//___________________________________________________________________
+HepMC::GenVertex* HydjetSource::build_hyjet_vertex(int i,int id)
+{
+   double x=hyjets.vl[0][i];
+   double y=hyjets.vl[1][i];
+   double z=hyjets.vl[2][i];
+   double t=hyjets.vl[4][i];
 
+   HepMC::GenVertex* vertex = new HepMC::GenVertex(HepMC::FourVector(x,y,z,t),id);
+   return vertex;
+}
 //______________________________________________________________________
 bool HydjetSource::call_pygive(const std::string& iParm ) 
 {
@@ -224,46 +202,116 @@ void HydjetSource::clear()
 
 
 //_____________________________________________________________________
-bool HydjetSource::get_hydjet_particles(HepMC::GenEvent *evt)
+bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& subs )
 {
-  // Hard particles. The first nhard_ lines form lujets array.
-  // It corresponds to hard multijet part of the event: hard 
-  // pythia/pyquen sub-events (sub-collisions) for a given event
-  // PYTHIA/PYQUEN-induced, initial protons and partons, final partons, 
-  // strings, unstable and stable hadrons - full multijet story a la pythia-pyjets
+   // Hard particles. The first nhard_ lines form lujets array.
+   // Pythia/Pyquen sub-events (sub-collisions) for a given event
+   // Return T/F if success/failure
+   // Create particles from hyjet&lujet entries, assign them into vertices and 
+   // put the vertices in the GenEvent, for each SubEvent
+   // The SubEvent information is kept by storing indeces of main vertices 
+   // of subevents as a vector in GenHIEvent.
+ 
+ 
+   int nhard = nparton_ + nhard_;
+   
+   vector<HepMC::GenVertex*>  sub_vertices(nsub_); 
+   vector<HepMC::GenVertex*>  prods(nhard);
+   vector<int>                mother_ids(nhard);
+   vector<int>                type(nhard);
 
-  // Soft particles. The last nsoft_ lines of lujets
-  // It corresponds to HYDRO-induced, hadrons only
+   int ilu = 0;
+   int ihy = 0;
+   
+   for(int isub=0;isub<nsub_;isub++){
+     
+      int sub_up = (isub+1)*10000; // Upper limit in mother index, determining the range of Sub-Event
+      int ipar = 0;
+      vector<HepMC::GenParticle*> particles;
 
-  // return T/F if succes/failure
+      sub_vertices[isub] = new HepMC::GenVertex(HepMC::FourVector(0,0,0,0),isub);
+      evt->add_vertex(sub_vertices[isub]);
+      subs.push_back(SubEvent(isub));
 
-  int lujetsEntries= nhard_+nsoft_;
+      while(ihy<nparton_ && hyjets.kl[2][ihy] < sub_up){
+	
+	 particles.push_back(build_hyjet(ihy,ipar+1));
+	 prods[ipar]=build_hyjet_vertex(ihy,isub);
+	 mother_ids[ipar]=hyjets.kl[2][ihy];
 
-  // create a particle instance for each lujets entry and fill a map
-  // create a vector which maps from the lujets particle index to the 
-  // GenParticle address
+	 ipar++;
+	 ihy++;
+      } 
+      
+      while(ilu<nhard_ && lujets.k[2][ilu] < sub_up){
+	 
+	 particles.push_back(build_lujet(ilu,ipar+1));
+	 prods[ipar]=build_lujet_vertex(ilu,isub);
+         mother_ids[ipar]=lujets.k[2][ilu];
 
-  vector<HepMC::GenParticle*> luj_entries(lujetsEntries);
-  for (int i1 = 0; i1<lujetsEntries; i1++) {     
-    luj_entries[i1] = build_particle(i1);
-  }
+	 ipar++;
+	 ilu++;
+      }
 
-  // loop over particles again to create vertices
-  for (int i2 = 0; i2<lujetsEntries; i2++) {
-      build_vertices( i2,luj_entries,evt );
-  } 
+      //Produce Vertices and add them to the GenEvent. Remember that GenParticles are adopted by
+      //GenVertex and GenVertex is adopted by GenEvent.
 
-  // handle the case with particles comming from nowhere 
-  // no mothers, no daughters
-  for ( int i3 = 0; i3<lujetsEntries; i3++ ) {
-    if ( !luj_entries[i3]->end_vertex() && !luj_entries[i3]->production_vertex() ) {
-      HepMC::GenVertex* prod_vtx_i3 = new  HepMC::GenVertex();
-      prod_vtx_i3->add_particle_out( luj_entries[i3] ) ;
-      evt->add_vertex( prod_vtx_i3 );
-    } 
-  }
+      for (int i = 0; i<particles.size(); i++) {
 
+	 HepMC::GenParticle* part = particles[i];
+
+	 //The Fortran code is modified to preserve mother id info, by seperating the beginning 
+         //mother indices of successive subevents by 10000.
+
+	 int mid = mother_ids[i]-isub*10000-1;
+	 if(mid <= 0){
+	    sub_vertices[isub]->add_particle_out(part);
+	    continue;
+	 }
+
+	 if(mid > 0){
+	    HepMC::GenParticle* mother = particles[mid];
+	    HepMC::GenVertex* prod_vertex = mother->end_vertex();
+	    if(!prod_vertex){
+	       prod_vertex = prods[i];
+	       prod_vertex->add_particle_in(mother);
+	       evt->add_vertex(prod_vertex);
+	    }
+	    prod_vertex->add_particle_out(part);
+	 }
+      }
+   }
   return true;
+}
+
+//___________________________________________________________
+bool HydjetSource::get_soft_particles(HepMC::GenEvent *evt, vector<SubEvent>& subs)
+{
+   // Soft particles. The last nsoft_ lines of lujets
+   // It corresponds to HYDRO-induced, hadrons only
+   // As they have no mothers and no daughters, all are assigned to a single background vertex
+
+   vector<HepMC::GenParticle*> luj_entries(nsoft_);
+   for (int i1 = 0; i1<nsoft_; i1++) {
+      luj_entries[i1] = build_lujet(nhard_+i1, nhard_+nparton_+i1+1);
+   }
+   HepMC::GenVertex* soft_vertex = new HepMC::GenVertex(HepMC::FourVector(0,0,0,0),nsub_);
+   subs.push_back(SubEvent(nsub_));
+   
+   for ( int i2 = 0; i2<nsoft_; i2++ ) {
+      soft_vertex->add_particle_out( luj_entries[i2] ) ;
+   } 
+   evt->add_vertex( soft_vertex );
+   
+   return true;
+}
+//______________________________________________________________
+bool HydjetSource::call_hyinit(float energy){
+
+   pydatr.mrpy[2]=1;
+   HYINIT(energy);
+
+   return true;
 }
 
 
@@ -302,9 +350,6 @@ bool HydjetSource::hyjhydro_init(const ParameterSet &pset)
   // maximum transverse collective rapidity
   hyflow.ytfl = maxtrany_;  
 
-  // minimum pT hard
-  hyjpar.ptmin = ptmin_;
-
   // set inelastic nucleon-nucleon cross section
   hyjpar.sigin  = signn_;
 
@@ -324,7 +369,7 @@ bool HydjetSource::hyjhydro_init(const ParameterSet &pset)
 //____________________________________________________________________
 bool HydjetSource::hyjpythia_init(const ParameterSet &pset)
 {
-  //initialize PYTHIA
+  //Set PYTHIA parameters
 
   //random number seed
   edm::Service<RandomNumberGenerator> rng;
@@ -373,12 +418,11 @@ bool HydjetSource::produce(Event & e)
   // generate single event
   nsoft_    = 0;
   nhard_    = 0;
+  nparton_  = 0; 
 
   edm::LogInfo("HYDJETmode") << "##### HYDJET  nhsel = " << hyjpar.nhsel;
   edm::LogInfo("HYDJETfpart") << "##### HYDJET fpart = " << hyflow.fpart;
   edm::LogInfo("HYDJETtf") << "##### HYDJET hadron freez-out temp, Tf = " << hyflow.Tf;
-  edm::LogInfo("HYDJETmode") << "##### HYDJET  ptmin = " << hyjpar.ptmin;
-
   edm::LogInfo("HYDJETinTemp") << "##### HYDJET: QGP init temperature, T0 ="<<pyqpar.T0u;
   edm::LogInfo("HYDJETinTau") << "##### HYDJET: QGP formation time,tau0 ="<<pyqpar.tau0u;
 
@@ -387,27 +431,43 @@ bool HydjetSource::produce(Event & e)
   HYDRO(abeamtarget_,cflag_,bmin_,bmax_,bfixed_,nmultiplicity_);
 
   nsoft_    = hyfpar.nhyd;
+  nsub_     = hyjpar.njet;
   nhard_    = hyfpar.npyt;
+  nparton_  = hyjets.nl;
+
+  std::vector<SubEvent> subvector;
 
   // event information
   HepMC::GenEvent *evt = new HepMC::GenEvent();
-  get_hydjet_particles(evt); 
+
+  if(nhard_>0) get_hard_particles(evt,subvector); 
+  if(nsoft_>0) get_soft_particles(evt,subvector);
 
   evt->set_signal_process_id(pypars.msti[0]);      // type of the process
   evt->set_event_scale(pypars.pari[16]);           // Q^2
   evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
 
   add_heavy_ion_rec(evt);
- 
-  if (evt) {
-    auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
-    bare_product->addHepMCData(evt );
-    e.put(bare_product);
 
-    // print PYLIST info
-    if (event() <= maxEventsToPrint_ && pythiaPylistVerbosity_)     
-      call_pylist(pythiaPylistVerbosity_);      
-    }
+  cout<<"Number of particles = "<<evt->particles_size()<<endl;
+  cout<<"Number of Vertices = "<<evt->vertices_size()<<endl;
+  cout<<"Number of SubEvents = "<<subvector.size()<<endl;
+
+  cout<<"nsoft = "<<nsoft_<<endl;
+  cout<<"nsub = "<<nsub_<<endl;
+  cout<<"nhard = "<<nhard_<<endl;
+  cout<<"npartons = "<<nparton_<<endl;
+
+
+  auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
+  bare_product->addHepMCData(evt );
+  auto_ptr<GenHIEvent> genhi(new GenHIEvent(subvector,hyjpar.nhsel));
+  e.put(bare_product);
+  e.put(genhi);
+  // print PYLIST info
+  if (event() <= maxEventsToPrint_ && pythiaPylistVerbosity_)     
+     call_pylist(pythiaPylistVerbosity_);      
+  
 
   return true;
 }

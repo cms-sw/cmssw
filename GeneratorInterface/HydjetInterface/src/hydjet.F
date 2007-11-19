@@ -170,6 +170,7 @@ C      nbco0=int(factor*hftaa(1.e-10))         ! Nsub(Pb,b=0)
 * generate total multiplicity in event, np,  
 * fpart - fraction of soft multiplicity proportional to # of participants, 
 * fbcol=1-fpart - fraction of multiplicity proportional to # of NN subcollisions 
+      if(nhsel.lt.3.and.nhsel.ge.0)then
       if(fpart.le.0.or.fpart.gt.1.) fpart=1. 
       fbcol=1.-fpart 
       rnp=nh*(fpart*npart+fbcol*nbcol)/(fpart*npar0+fbcol*nbco0)
@@ -180,7 +181,7 @@ C      nbco0=int(factor*hftaa(1.e-10))         ! Nsub(Pb,b=0)
        write(6,*) 'Warning, soft multiplicity too large!'   
        goto 1 
       end if 
-    
+      end if    
 * generate hard parton-parton scattering (Q>ptmin) 'njet' times with PYTHIA       
       if(nhsel.ne.1.and.nhsel.ne.2.and.nhsel.ne.3.and.nhsel.ne.4) 
      > nhsel=0 

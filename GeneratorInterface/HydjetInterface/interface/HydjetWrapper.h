@@ -2,7 +2,7 @@
 #define GeneratorInterface_HydjetInterface_HydjetWrapper
 
 //
-// $Id: HydjetWrapper.h,v 1.3 2007/08/08 14:46:54 loizides Exp $
+// $Id: HydjetWrapper.h,v 1.4 2007/08/15 14:50:29 mironov Exp $
 //
 
 /*
@@ -12,6 +12,19 @@
  * Camelia Mironov
  *
  */
+/*
+extern "C" {
+   extern struct {
+      int mrpy[6];
+   }pydatr_;
+}
+#define pydatr pydatr_
+*/
+
+extern "C" {
+   void hyinit_(float& energy);
+}
+#define HYINIT hyinit_
 
 
 #define _MAXMULsize_ 150000
