@@ -439,8 +439,7 @@ void HcalHotCellClient::createTests()
   createSubDetTests(hehists);
   createSubDetTests(hohists);
   createSubDetTests(hfhists);
-  
-  
+    
   return;
 }
 
