@@ -18,7 +18,7 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=CalibFormats/SiPixelObjects>
-
+<use name=CalibTracker/SiPixelTools>
 <export>
 <!-----   <lib name=CalibTrackerSiPixelGainCalibration>  --->
    <use name=FWCore/Framework>
@@ -38,5 +38,5 @@
    <use name=Geometry/Records>
    <use name=Geometry/CommonDetUnit>
    <use name=Geometry/TrackerGeometryBuilder>
-
+  <use name=CalibTracker/SiPixelTools>
 </export>

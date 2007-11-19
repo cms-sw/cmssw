@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Nov  5 16:56:35 CET 2007
-// $Id$
+// $Id: SimpleTestPrintOutPixelCalibAnalyzer.cc,v 1.1 2007/11/09 17:25:56 fblekman Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiPixelCalibDigi/interface/SiPixelCalibDigi.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
 
 //
 // class decleration

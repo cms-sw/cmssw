@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id$
+// $Id: SiPixelCalibDigiProducer.cc,v 1.1 2007/11/09 17:27:20 fblekman Exp $
 //
 //
 
@@ -36,8 +36,8 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "DataFormats/SiPixelCalibDigi/interface/SiPixelCalibDigifwd.h"
-#include "DataFormats/SiPixelCalibDigi/interface/SiPixelCalibDigi.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigifwd.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
@@ -69,6 +69,7 @@
 SiPixelCalibDigiProducer::SiPixelCalibDigiProducer(const edm::ParameterSet& iConfig):
   src_(iConfig.getParameter<edm::InputTag>("src")),
   iEventCounter_(0),
+  ignore_non_pattern_(iConfig.getParameter<bool>("ignoreNonPattern")),
   conf_(iConfig)
 {
    //register your products
@@ -311,6 +312,9 @@ SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 //-----------------------------------------------
 //  method to check that the pixels are actually valid...
 bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
+  
+  if( ignore_non_pattern_)
+    return true;
   
   const TrackerGeometry& theTracker(*geom_);
   DetId detId(detid);

@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id$
+// $Id: SiPixelCalibDigiProducer.h,v 1.1 2007/11/09 17:27:20 fblekman Exp $
 //
 //
 
@@ -36,10 +36,8 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "DataFormats/SiPixelCalibDigi/interface/SiPixelCalibDigiCollectionfwd.h"
-#include "DataFormats/SiPixelCalibDigi/interface/SiPixelCalibDigiCollection.h"
-#include "DataFormats/SiPixelCalibDigi/interface/SiPixelCalibDigifwd.h"
-#include "DataFormats/SiPixelCalibDigi/interface/SiPixelCalibDigi.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigifwd.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -78,6 +76,7 @@ class SiPixelCalibDigiProducer : public edm::EDProducer {
       edm::ParameterSet conf_;
       std::string label_;
       std::string instance_;
+      bool ignore_non_pattern_;
       
       edm::ESHandle<SiPixelCalibConfiguration> calib_; // keeps track of the calibration constants
       edm::ESHandle<TrackerGeometry> geom_; // the tracker geometry
