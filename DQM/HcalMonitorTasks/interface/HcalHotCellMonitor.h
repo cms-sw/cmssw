@@ -7,8 +7,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2007/10/26 16:58:17 $
-  * $Revision: 1.7 $
+  * $Date: 2007/11/15 23:13:46 $
+  * $Revision: 1.8 $
   * \author W. Fisher - FNAL
   */
 
@@ -68,6 +68,7 @@ private:  ///Monitoring elements
   double NADA_Ecand_cut0_,NADA_Ecand_cut1_, NADA_Ecand_cut2_;
   double NADA_Ecube_cut_,NADA_Ecell_cut_,NADA_NegCand_cut_;
   double NADA_Ecube_frac_, NADA_Ecell_frac_;
+  int NADA_maxdepth_, NADA_maxeta_, NADA_maxphi_;
 
   double HB_NADA_Ecand_cut0_,HB_NADA_Ecand_cut1_, HB_NADA_Ecand_cut2_;
   double HB_NADA_Ecube_cut_,HB_NADA_Ecell_cut_,HB_NADA_NegCand_cut_;
@@ -81,7 +82,11 @@ private:  ///Monitoring elements
   double HF_NADA_Ecand_cut0_,HF_NADA_Ecand_cut1_, HF_NADA_Ecand_cut2_;
   double HF_NADA_Ecube_cut_,HF_NADA_Ecell_cut_,HF_NADA_NegCand_cut_;
   double HF_NADA_Ecube_frac_, HF_NADA_Ecell_frac_;
-  
+  int HB_NADA_maxdepth_, HB_NADA_maxeta_, HB_NADA_maxphi_;
+  int HE_NADA_maxdepth_, HE_NADA_maxeta_, HE_NADA_maxphi_;
+  int HO_NADA_maxdepth_, HO_NADA_maxeta_, HO_NADA_maxphi_;
+  int HF_NADA_maxdepth_, HF_NADA_maxeta_, HF_NADA_maxphi_;
+
 
 
   float enS, tS, etaS, phiS, idS;

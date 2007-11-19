@@ -51,6 +51,10 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
   NADA_NegCand_cut_ = ps.getUntrackedParameter<double>("NADA_NegCand_cut",-1.5);
   NADA_Ecube_frac_ = ps.getUntrackedParameter<double>("NADA_Ecube_frac",0.02);
   NADA_Ecell_frac_ = ps.getUntrackedParameter<double>("NADA_Ecell_frac",0.02);
+  NADA_maxdepth_ = ps.getUntrackedParameter<int>("NADA_maxdepth",1);
+  NADA_maxeta_ = ps.getUntrackedParameter<int>("NADA_maxeta",1);
+  NADA_maxphi_ = ps.getUntrackedParameter<int>("NADA_maxphi",1);
+
 
   HB_NADA_Ecand_cut0_ = ps.getUntrackedParameter<double>("HB_NADA_Ecand_cut0",NADA_Ecand_cut0_);
   HB_NADA_Ecand_cut1_ = ps.getUntrackedParameter<double>("HB_NADA_Ecand_cut1",NADA_Ecand_cut1_);
@@ -60,6 +64,10 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
   HB_NADA_NegCand_cut_ = ps.getUntrackedParameter<double>("HB_NADA_NegCand_cut",NADA_NegCand_cut_);
   HB_NADA_Ecube_frac_ = ps.getUntrackedParameter<double>("HB_NADA_Ecube_frac",NADA_Ecube_frac_);
   HB_NADA_Ecell_frac_ = ps.getUntrackedParameter<double>("HB_NADA_Ecell_frac",NADA_Ecell_frac_);
+  HB_NADA_maxdepth_ = ps.getUntrackedParameter<int>("HB_NADA_maxdepth",NADA_maxdepth_);
+  HB_NADA_maxeta_ = ps.getUntrackedParameter<int>("HB_NADA_maxeta",NADA_maxeta_);
+  HB_NADA_maxphi_ = ps.getUntrackedParameter<int>("HB_NADA_maxphi",NADA_maxeta_);
+
 
   HE_NADA_Ecand_cut0_ = ps.getUntrackedParameter<double>("HE_NADA_Ecand_cut0",NADA_Ecand_cut0_);
   HE_NADA_Ecand_cut1_ = ps.getUntrackedParameter<double>("HE_NADA_Ecand_cut1",NADA_Ecand_cut1_);
@@ -69,6 +77,9 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
   HE_NADA_NegCand_cut_ = ps.getUntrackedParameter<double>("HE_NADA_NegCand_cut",NADA_NegCand_cut_);
   HE_NADA_Ecube_frac_ = ps.getUntrackedParameter<double>("HE_NADA_Ecube_frac",NADA_Ecube_frac_);
   HE_NADA_Ecell_frac_ = ps.getUntrackedParameter<double>("HE_NADA_Ecell_frac",NADA_Ecell_frac_);
+  HE_NADA_maxdepth_ = ps.getUntrackedParameter<int>("HE_NADA_maxdepth",NADA_maxdepth_);
+  HE_NADA_maxeta_ = ps.getUntrackedParameter<int>("HE_NADA_maxeta",NADA_maxeta_);
+  HE_NADA_maxphi_ = ps.getUntrackedParameter<int>("HE_NADA_maxphi",NADA_maxeta_);
 
   HO_NADA_Ecand_cut0_ = ps.getUntrackedParameter<double>("HO_NADA_Ecand_cut0",NADA_Ecand_cut0_);
   HO_NADA_Ecand_cut1_ = ps.getUntrackedParameter<double>("HO_NADA_Ecand_cut1",NADA_Ecand_cut1_);
@@ -78,6 +89,9 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
   HO_NADA_NegCand_cut_ = ps.getUntrackedParameter<double>("HO_NADA_NegCand_cut",NADA_NegCand_cut_);
   HO_NADA_Ecube_frac_ = ps.getUntrackedParameter<double>("HO_NADA_Ecube_frac",NADA_Ecube_frac_);
   HO_NADA_Ecell_frac_ = ps.getUntrackedParameter<double>("HO_NADA_Ecell_frac",NADA_Ecell_frac_);
+  HO_NADA_maxdepth_ = ps.getUntrackedParameter<int>("HO_NADA_maxdepth",NADA_maxdepth_);
+  HO_NADA_maxeta_ = ps.getUntrackedParameter<int>("HO_NADA_maxeta",NADA_maxeta_);
+  HO_NADA_maxphi_ = ps.getUntrackedParameter<int>("HO_NADA_maxphi",NADA_maxeta_);
 
   HF_NADA_Ecand_cut0_ = ps.getUntrackedParameter<double>("HF_NADA_Ecand_cut0",NADA_Ecand_cut0_);
   HF_NADA_Ecand_cut1_ = ps.getUntrackedParameter<double>("HF_NADA_Ecand_cut1",NADA_Ecand_cut1_);
@@ -85,9 +99,11 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
   HF_NADA_Ecube_cut_ = ps.getUntrackedParameter<double>("HF_NADA_Ecube_cut",NADA_Ecube_cut_);
   HF_NADA_Ecell_cut_ = ps.getUntrackedParameter<double>("HF_NADA_Ecell_cut",NADA_Ecell_cut_);
   HF_NADA_NegCand_cut_ = ps.getUntrackedParameter<double>("HF_NADA_NegCand_cut",NADA_NegCand_cut_);
-  HO_NADA_Ecube_frac_ = ps.getUntrackedParameter<double>("HO_NADA_Ecube_frac",NADA_Ecube_frac_);
-  HO_NADA_Ecell_frac_ = ps.getUntrackedParameter<double>("HO_NADA_Ecell_frac",NADA_Ecell_frac_);
-
+  HF_NADA_Ecube_frac_ = ps.getUntrackedParameter<double>("HF_NADA_Ecube_frac",NADA_Ecube_frac_);
+  HF_NADA_Ecell_frac_ = ps.getUntrackedParameter<double>("HF_NADA_Ecell_frac",NADA_Ecell_frac_);
+  HF_NADA_maxdepth_ = ps.getUntrackedParameter<int>("HF_NADA_maxdepth",NADA_maxdepth_);
+  HF_NADA_maxeta_ = ps.getUntrackedParameter<int>("HF_NADA_maxeta",NADA_maxeta_);
+  HF_NADA_maxphi_ = ps.getUntrackedParameter<int>("HF_NADA_maxphi",NADA_maxeta_);
 
   ievt_=0;
   
@@ -687,6 +703,8 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
       float NADA_cube_cut, NADA_cell_cut;
       float NADA_cand_cut0, NADA_cand_cut1, NADA_cand_cut2; 
       
+      int NADA_maxdepth, NADA_maxeta, NADA_maxphi;
+
       if (HB==true)
 	{
 	  NADA_neg_cut = HB_NADA_NegCand_cut_;
@@ -697,6 +715,9 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
 	  NADA_cell_cut = HB_NADA_Ecell_cut_;
 	  NADA_Ecell_frac = HB_NADA_Ecell_frac_;
 	  NADA_Ecube_frac = HB_NADA_Ecube_frac_;
+	  NADA_maxdepth = HB_NADA_maxdepth_;
+	  NADA_maxeta = HB_NADA_maxeta_;
+	  NADA_maxphi = HB_NADA_maxphi_;
 	}
       else
 	{
@@ -708,6 +729,9 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
 	  NADA_cell_cut = HE_NADA_Ecell_cut_;
 	  NADA_Ecell_frac = HE_NADA_Ecell_frac_;
 	  NADA_Ecube_frac = HE_NADA_Ecube_frac_;
+	  NADA_maxdepth = HE_NADA_maxdepth_;
+	  NADA_maxeta = HE_NADA_maxeta_;
+	  NADA_maxphi = HE_NADA_maxphi_;
 	}
       
       
@@ -786,17 +810,19 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
 	      // An HE cell can be a neighbor of an HB cell, right?
 	      // Do we want to include both?  Probably not; different subsystems
 	      
+	      if (vetoCell(_neighbor->id())) continue; // unnecessary?  Vetoed earlier?
+	      // Get only cells in cube around candiate cell
 	      if  ((HcalSubdetector)(_neighbor->id().subdet())!=(HcalSubdetector)(_cell->id().subdet())) continue;
-	      if (abs(_neighbor->id().iphi()-CellPhi)<2 && (abs(_neighbor->id().ieta()-CellEta))%72<2 && abs(_neighbor->id().depth()-CellDepth)<2)
-		{
-		  if (vetoCell(_cell->id())) continue;
+	      if (abs(_neighbor->id().depth()-CellDepth)>NADA_maxdepth) continue;
+	      if (abs(_neighbor->id().ieta()-CellEta)>NADA_maxeta) continue;
+	      if ((abs(_neighbor->id().iphi()-CellPhi)%72)>NADA_maxphi) continue;
+
 		  
-		  if (_neighbor->energy()>HBHE_Ecell_cut)
-		    {
-		      if (debug_) cout <<"\t Neighbor energy = "<<_neighbor->energy()<<endl;
-		      Ecube+=_neighbor->energy();
-		      if (debug_) cout <<"\t\t Cube energy = "<<Ecube<<endl;
-		    }
+	      if (_neighbor->energy()>HBHE_Ecell_cut)
+		{
+		  if (debug_) cout <<"\t Neighbor energy = "<<_neighbor->energy()<<endl;
+		  Ecube+=_neighbor->energy();
+		  if (debug_) cout <<"\t\t Cube energy = "<<Ecube<<endl;
 		}
 	    } // for (cell_iter _neighbor = c.begin()...)
 	  
@@ -851,7 +877,11 @@ void HcalHotCellMonitor::HO_NADAFinder(const HORecHitCollection& c, NADAHistList
       float HO_Ecell_cut=0.;
       
       float cellenergy=0.;
-      
+      int NADA_maxdepth, NADA_maxeta, NADA_maxphi;
+      NADA_maxdepth = HO_NADA_maxdepth_;
+      NADA_maxeta = HO_NADA_maxeta_;
+      NADA_maxphi = HO_NADA_maxphi_;
+
       for (_cell=c.begin(); _cell!=c.end(); _cell++)
 	{
 	  if (vetoCell(_cell->id()))continue; // veto cell before or after filling energy histogram?  Make separate vetocell histos?
@@ -903,18 +933,21 @@ void HcalHotCellMonitor::HO_NADAFinder(const HORecHitCollection& c, NADAHistList
 	  CellPhi = _cell->id().iphi();
 	  CellEta = _cell->id().ieta();
 	  CellDepth = _cell->id().depth();
-	    
+
 	  // Form cube of nearest neighbor cells around _cell
 	    
 	  for (HORecHitCollection::const_iterator _neighbor = c.begin();_neighbor!=c.end();_neighbor++)
 	    // Form cube centered on _cell.  This needs to be looked at more carefully to deal with boundary conditions.  Should Ecube constraints change at the boundaries?
 	    {
-	      if (abs(_neighbor->id().iphi()-CellPhi)<2 && (abs(_neighbor->id().ieta()-CellEta))%72<2 && abs(_neighbor->id().depth()-CellDepth)<2)
-		{
-		  if (vetoCell(_neighbor->id())) continue; // don't count vetoed cells in cube
-		  if (_neighbor->energy()>HO_Ecell_cut) // energy must be above minimum
-		    Ecube+=_neighbor->energy();
-		}
+
+	      if (vetoCell(_neighbor->id())) continue; // don't count vetoed cells in cube
+	      // Ignore cells outside user-defined cube
+	      if (abs(_neighbor->id().depth()-CellDepth)>NADA_maxdepth) continue;
+	      if (abs(_neighbor->id().ieta()-CellEta)>NADA_maxeta) continue;
+	      if ((abs(_neighbor->id().iphi()-CellPhi)%72)>NADA_maxphi) continue;
+	      if (_neighbor->energy()>HO_Ecell_cut) // energy must be above minimum
+		Ecube+=_neighbor->energy();
+	    
 	    } // for (cell_iter _neighbor = c.begin()...)
 		
 	  //Remove energy due to _cell
@@ -956,6 +989,10 @@ void HcalHotCellMonitor::HF_NADAFinder(const HFRecHitCollection& c, NADAHistList
       float HF_Ecell_cut=0.;
 
       float cellenergy=0.;
+      int NADA_maxdepth, NADA_maxeta, NADA_maxphi;
+      NADA_maxdepth = HF_NADA_maxdepth_;
+      NADA_maxeta = HF_NADA_maxeta_;
+      NADA_maxphi = HF_NADA_maxphi_;
 
       for (_cell=c.begin(); _cell!=c.end(); _cell++)
 	{
@@ -1014,12 +1051,14 @@ void HcalHotCellMonitor::HF_NADAFinder(const HFRecHitCollection& c, NADAHistList
 	  for (HFRecHitCollection::const_iterator _neighbor = c.begin();_neighbor!=c.end();_neighbor++)
 	    // Form cube centered on _cell.  This needs to be looked at more carefully to deal with boundary conditions.  Should Ecube constraints change at the boundaries?
 	    {
-	      if (abs(_neighbor->id().iphi()-CellPhi)<2 && (abs(_neighbor->id().ieta()-CellEta))%72<2 && abs(_neighbor->id().depth()-CellDepth)<2)
-		{
-		  if (vetoCell(_neighbor->id())) continue; // don't count vetoed cells in cube
-		  if (_neighbor->energy()>HF_Ecell_cut) // energy must be above minimum
-		    Ecube+=_neighbor->energy();
-		}
+	      if (vetoCell(_neighbor->id())) continue; // don't count vetoed cells in cube
+	      // Ignore cells outside user-defined cube
+	      if (abs(_neighbor->id().depth()-CellDepth)>NADA_maxdepth) continue;
+	      if (abs(_neighbor->id().ieta()-CellEta)>NADA_maxeta) continue;
+	      if ((abs(_neighbor->id().iphi()-CellPhi)%72)>NADA_maxphi) continue;
+	      if (_neighbor->energy()>HF_Ecell_cut) // energy must be above minimum
+		Ecube+=_neighbor->energy();
+
 	    } // for (cell_iter _neighbor = c.begin()...)
 		
 	  //Remove energy due to _cell
