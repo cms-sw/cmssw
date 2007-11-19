@@ -25,6 +25,27 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
+struct HotCellHists{
+  int type;
+  int thresholds;
+  TH2F* OCC_MAP_GEO_Max;
+  TH2F* EN_MAP_GEO_Max;
+  TH1F* MAX_E;
+  TH1F* MAX_T;
+  TH1F* MAX_ID;
+  std::vector<TH2F*> OCCmap;
+  std::vector<TH2F*> ENERGYmap;
+  // NADA histograms
+  TH2F* NADA_OCC_MAP;
+  TH2F* NADA_EN_MAP;
+  TH1F* NADA_NumHotCells;
+  TH1F* NADA_testcell;
+  TH1F* NADA_Energy;
+  TH1F* NADA_NumNegCells;
+  TH2F* NADA_NEG_OCC_MAP;
+  TH2F* NADA_NEG_EN_MAP;
+};
+
 class HcalHotCellClient{
 
 public:
@@ -63,6 +84,7 @@ void cleanup(void);
   
   /// WriteDB
   void htmlOutput(int run, string htmlDir, string htmlName);
+  void htmlSubDetOutput(HotCellHists& hist, int run, string htmlDir, string htmlName);
   void getHistograms();
   void loadHistograms(TFile* f);
 
@@ -73,7 +95,17 @@ void cleanup(void);
   bool hasOther() const { return dqmReportMapOther_.size(); }
 
   void resetAllME();
+
   void createTests();
+  void createSubDetTests(HotCellHists& hist);
+
+  // Clear histograms
+  void clearHists(HotCellHists& hist);
+  void deleteHists(HotCellHists& hist);
+
+  void getSubDetHistograms(HotCellHists& hist);
+  void resetSubDetHistograms(HotCellHists& hist);
+  void getSubDetHistogramsFromFile(HotCellHists& hist, TFile* infile);
 
 private:
 
@@ -85,6 +117,12 @@ private:
   bool verbose_;
   string process_;
   string baseFolder_;
+
+  // Can we get threshold information from same .cfi file that HotCellMonitor uses?
+  
+  int thresholds_;
+
+
 
   //  MonitorUserInterface* mui_;
   DaqMonitorBEInterface* dbe_;
@@ -105,6 +143,14 @@ private:
   map<string, vector<QReport*> > dqmReportMapOther_;
   map<string, string> dqmQtests_;
 
+
+  HotCellHists hbhists;
+  HotCellHists hehists;
+  HotCellHists hohists;
+  HotCellHists hfhists;
+
+
+  ofstream htmlFile;
 };
 
 #endif
