@@ -19,7 +19,9 @@
 #include <iostream>
 #include <string>
 #include <map>
-
+namespace cond{
+  class CoralTransaction;
+}
 namespace popcon
 {
 
@@ -36,7 +38,7 @@ namespace popcon
 			
 			std::string m_connect;
 			cond::DBSession* session;
-			cond::RelationalStorageManager* m_coraldb;
+			cond::CoralTransaction* m_coraldb;
 	};
 }
 #endif
