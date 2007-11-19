@@ -32,7 +32,7 @@ namespace edm {
 //  Break association of the tree with its clone
     tree->GetListOfClones()->Remove(newTree);
     newTree->ResetBranchAddresses();
-    return newTree;
+    return assignTTree(filePtr, newTree);
   }
 
   void
