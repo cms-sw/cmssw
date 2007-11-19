@@ -33,7 +33,16 @@
 #include <sstream>
 #include <time.h>
 
-//#define FU_INSTANCE
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <iomanip>
+
+#include <arpa/inet.h>
+#include <sys/unistd.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <stdio.h>
 
 using namespace sistrip;
 
@@ -107,34 +116,9 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
   // ---------- Base directory ----------
 
   std::stringstream dir;
-  
-#ifdef FU_INSTANCE
-  
-  LogTrace(mlDqmSource_) 
-    << "[SiStripCommissioningSource::" << __func__ << "]"
-    << " FU instance number identified to be " 
-    << dqm()->fuInstance();
-
-  //@@ temp!!!
-  if ( dqm()->fuInstance() < 0 ) { dqm()->fuInstance(0); }
-
-  if ( dqm()->fuInstance() >= 0 ) { 
-    dir << "FU" 
-	<< std::setw(3) 
-	<< std::setfill('0') 
-	<< dqm()->fuInstance() 
-	<< "/";
-  }
-  
-#else
-  
-  LogTrace(mlDqmSource_) 
-    << "[SiStripCommissioningSource::" << __func__ << "]"
-    << " FU instance number is not available from DaqMonitorBEInterface!" 
-    << " Setting to 0...";
-  dir << "FU000/"; 
-  
-#endif
+  dir << "FU_";
+  directory(dir);
+  dir << "/";
   
   base_ = dir.str();
 
@@ -216,26 +200,11 @@ void SiStripCommissioningSource::endJob() {
   if ( !dir.empty() ) { ss << dir << "/"; }
   else { ss << "/tmp/"; }
 
-  // Add filename with run number
-  ss << name << "_" << std::setfill('0') << std::setw(8) << run_;
-  
-  // Add FU instance number
-
-#ifdef FU_INSTANCE
-
-  if ( dqm()->fuInstance() >= 0 ) {
-    ss << "_" << std::setfill('0') << std::setw(3) << dqm()->fuInstance();
-  } else { ss << "_000"; }
-
-#else 
-  
-  ss << "_000";  
-  
-#endif
-  
-  // Append ".root" extension
+  // Add filename with run number, host ip, pid and .root extension
+  ss << name << "_";
+  directory(ss,run_);
   ss << ".root";
-
+  
   // Save file with appropriate filename (if run number is known)
   if ( !filename_.empty() ) { 
     if ( run_ != 0 ) { dqm()->save( ss.str() ); }
@@ -992,3 +961,64 @@ void SiStripCommissioningSource::remove() {
     dqm()->rmdir(sistrip::root_);
   }
 }
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripCommissioningSource::directory( std::stringstream& dir,
+					    uint32_t run_number ) {
+
+  // Get details about host
+  char hn[256];
+  gethostname( hn, sizeof(hn) );
+  struct hostent* he;
+  he = gethostbyname(hn);
+
+  // Extract host name and ip
+  std::string host_name;
+  std::string host_ip;
+  if ( he ) { 
+    host_name = std::string(he->h_name);
+    host_ip = std::string( inet_ntoa( *(struct in_addr*)(he->h_addr) ) );
+  } else {
+    host_name = "unknown.cern.ch";
+    host_ip = "255.255.255.255";
+  }
+
+  // Reformat IP address
+  std::string::size_type pos = 0;
+  std::stringstream ip;
+  //for ( uint16_t ii = 0; ii < 4; ++ii ) {
+  while ( pos != std::string::npos ) {
+    std::string::size_type tmp = host_ip.find(".",pos);
+    if ( tmp != std::string::npos ) {
+      ip << std::setw(3)
+	 << std::setfill('0')
+	 << host_ip.substr( pos, tmp-pos ) 
+	 << ".";
+      pos = tmp+1; // skip the delimiter "."
+    } else {
+      ip << std::setw(3)
+	 << std::setfill('0')
+	 << host_ip.substr( pos );
+      pos = std::string::npos;
+    }
+  }
+  
+  // Get pid
+  pid_t pid = getpid();
+
+  // Construct string
+  dir << std::setw(8) 
+      << std::setfill('0') 
+      << run_number
+      << "_" 
+      << ip.str()
+      << "_"
+      << std::setw(5) 
+      << std::setfill('0') 
+      << pid;
+
+}
+
+
+
