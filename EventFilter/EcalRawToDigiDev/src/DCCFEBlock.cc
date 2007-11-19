@@ -29,9 +29,9 @@ void DCCFEBlock::updateCollectors(){
 
 int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedTowerID){
   
-  zs_             = zs;  
-  datap_        = data;
-  data_          = *data;
+  zs_      = zs;  
+  datap_   = data;
+  data_    = *data;
   dwToEnd_ = dwToEnd;
   
  
@@ -51,10 +51,10 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   //Point to begin of block
   data_++;
   
-  towerId_               = ( *data_ )                                          & TOWER_ID_MASK;
-  nTSamples_         = ( *data_>>TOWER_NSAMP_B  )    & TOWER_NSAMP_MASK; 
-  bx_                       = ( *data_>>TOWER_BX_B     )         & TOWER_BX_MASK;
-  l1_                         = ( *data_>>TOWER_L1_B     )          & TOWER_L1_MASK;
+  towerId_           = ( *data_ )                   & TOWER_ID_MASK;
+  nTSamples_         = ( *data_>>TOWER_NSAMP_B  )   & TOWER_NSAMP_MASK; 
+  bx_                = ( *data_>>TOWER_BX_B     )   & TOWER_BX_MASK;
+  l1_                = ( *data_>>TOWER_L1_B     )   & TOWER_L1_MASK;
   blockLength_       = ( *data_>>TOWER_LENGTH_B )   & TOWER_LENGTH_MASK;
 
   //debugging

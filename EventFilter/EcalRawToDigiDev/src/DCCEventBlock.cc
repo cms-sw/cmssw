@@ -18,7 +18,7 @@ DCCEventBlock::DCCEventBlock( DCCDataUnpacker * u , EcalElectronicsMapper * m , 
   // Build a Mem Unpacker Block
   memBlock_   = new DCCMemBlock(u,m,this);
  
-  // setup and initialized ch status vectors
+  // setup and initialize ch status vectors
   for( int feChannel=1;  feChannel <= 70;  feChannel++) { feChStatus_.push_back(0);}
   for( int tccChannel=1; tccChannel <= 4 ; tccChannel++){ tccChStatus_.push_back(0);}
   
@@ -28,9 +28,9 @@ DCCEventBlock::DCCEventBlock( DCCDataUnpacker * u , EcalElectronicsMapper * m , 
 
 void DCCEventBlock::enableSyncChecks(){
    towerBlock_   ->enableSyncChecks();
-   tccBlock_       ->enableSyncChecks();
+   tccBlock_     ->enableSyncChecks();
    memBlock_     ->enableSyncChecks();
-   srpBlock_       ->enableSyncChecks();
+   srpBlock_     ->enableSyncChecks();
 }
 
 
@@ -40,9 +40,9 @@ void DCCEventBlock::updateCollectors(){
   dccHeaders_  = unpacker_->dccHeadersCollection();
 
   memBlock_    ->updateCollectors(); 
-  tccBlock_       ->updateCollectors();
-  srpBlock_       ->updateCollectors();
-  towerBlock_   ->updateCollectors();
+  tccBlock_    ->updateCollectors();
+  srpBlock_    ->updateCollectors();
+  towerBlock_  ->updateCollectors();
   
 }
 
@@ -54,9 +54,9 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   
   // First Header Word of fed block
   fedId_             = ((*data_)>>H_FEDID_B)   & H_FEDID_MASK;
-  bx_                  = ((*data_)>>H_BX_B   )     & H_BX_MASK;
-  l1_                   = ((*data_)>>H_L1_B   )       & H_L1_MASK;
-  triggerType_  = ((*data_)>>H_TTYPE_B)  & H_TTYPE_MASK;
+  bx_                = ((*data_)>>H_BX_B   )   & H_BX_MASK;
+  l1_                = ((*data_)>>H_L1_B   )   & H_L1_MASK;
+  triggerType_       = ((*data_)>>H_TTYPE_B)   & H_TTYPE_MASK;
   
   // Check if fed id is the same as expected...
   if( fedId_ != expFedId  ){ 
@@ -101,8 +101,8 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   //Second Header Word of fed block
   data_++;
   
-  blockLength_   =  (*data_ )                                 & H_EVLENGTH_MASK;
-  dccErrors_       =  ((*data_)>>H_ERRORS_B)    & H_ERRORS_MASK;
+  blockLength_   =   (*data_ )                 & H_EVLENGTH_MASK;
+  dccErrors_     =   ((*data_)>>H_ERRORS_B)    & H_ERRORS_MASK;
   runNumber_     =   ((*data_)>>H_RNUMB_B )    & H_RNUMB_MASK;
   
   
@@ -121,17 +121,17 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   data_++;
 
   // bits 0.. 31 of the 3rd DCC header word
-  runType_                    = (*data_) & H_RTYPE_MASK;
+  runType_              = (*data_) & H_RTYPE_MASK;
 
   // bits 32.. 47 of the 3rd DCC header word
   detailedTriggerType_ = ((*data_) >> H_DET_TTYPE_B) & H_DET_TTYPE_MASK;
 
   //Forth Header Word
   data_++;
-  sr_                   = ((*data_)>>H_SR_B)                            & B_MASK;
-  zs_                  = ((*data_)>>H_ZS_B)                            & B_MASK;
-  tzs_                 = ((*data_)>>H_TZS_B)                         & B_MASK;
-  srChStatus_   = ((*data_)>>H_SRCHSTATUS_B)       & H_CHSTATUS_MASK;
+  sr_                  = ((*data_)>>H_SR_B)            & B_MASK;
+  zs_                  = ((*data_)>>H_ZS_B)            & B_MASK;
+  tzs_                 = ((*data_)>>H_TZS_B)           & B_MASK;
+  srChStatus_          = ((*data_)>>H_SRCHSTATUS_B)    & H_CHSTATUS_MASK;
   
   // getting TCC channel status bits
   tccChStatus_[0] = ((*data_)>>H_TCC1CHSTATUS_B)   & H_CHSTATUS_MASK; 
@@ -200,12 +200,12 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       //for( uint i=1; chNumber<= numbChannels; chNumber++, it++ ){			
 
       short  chStatus(*it);
-      
-
 
       // Unpack Tower (Xtal Block) in case of SR (data are 0 suppressed)
       if(feUnpacking_ && sr_
-	 && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS
+	 && chStatus != CH_TIMEOUT && chStatus != CH_HEADERERR && chStatus != CH_LINKERR
+	 && chStatus != CH_DISABLED
+	 && chStatus != CH_SUPPRESS
 	 && chNumber<=68){
 	
         if ( srpBlock_->srFlag(chNumber) != SRP_NREAD ){
@@ -217,7 +217,9 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       
       // Unpack Tower (Xtal Block) for no SR (possibly 0 suppression flags)
       else if (feUnpacking_ 
-	       && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS
+	       && chStatus != CH_TIMEOUT && chStatus != CH_HEADERERR && chStatus != CH_LINKERR
+	       && chStatus != CH_DISABLED
+	       && chStatus != CH_SUPPRESS
 	       && chNumber<=68){
 	
 	// if tzs_ data are not really suppressed, even though zs flags are calculated
