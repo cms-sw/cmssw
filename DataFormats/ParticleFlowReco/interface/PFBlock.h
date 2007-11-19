@@ -37,14 +37,13 @@ namespace reco {
     
     typedef std::vector< std::vector<double> > LinkData;
     
-    enum LinkType {
-      CHI2=0,
-      RECHIT,
-      TANGENT,
-      NLINKTYPES
+    enum LinkTest {
+      LINKTEST_CHI2=0,
+      LINKTEST_RECHIT,
+      LINKTEST_TANGENT,
+      LINKTEST_NLINKTEST,
+      LINKTEST_ALL
     };
-    
-    
 
     PFBlock() {}
     // PFBlock(const PFBlock& other);
@@ -64,8 +63,7 @@ namespace reco {
     /// As indicated by the 'const' statement, 'this' is not modified.
     void setLink(unsigned i1, unsigned i2, double chi2, 
                  LinkData& linkData, 
-		 LinkType  type=CHI2 ) const;
-
+		 LinkTest  test=LINKTEST_CHI2 ) const;
 
     /// lock an element ( unlink it from the others )
     /// Colin: this function is misleading
@@ -75,16 +73,19 @@ namespace reco {
     /// fills a map with the elements associated to element i.
     /// elements are sorted by increasing chi2.
     /// if specified, only the elements of type "type" will be considered
+    /// if specified, only the link calculated from a certain "test" will 
+    /// be considered: chi2 test, rechit test, tangent test etc..
     void associatedElements( unsigned i,
                              const LinkData& linkData, 
                              std::map<double, unsigned>& sortedAssociates,
-                             reco::PFBlockElement::Type type = PFBlockElement::NONE) const;  
+                             reco::PFBlockElement::Type type = PFBlockElement::NONE,
+			     LinkTest test=LINKTEST_CHI2 ) const; 
       
 
     /// \return chi2 of link
     double chi2( unsigned ie1, unsigned ie2, 
                  const LinkData& linkData, 
-		 LinkType  type=CHI2 ) const;
+		 LinkTest  test=LINKTEST_CHI2 ) const;
 
     /// \return elements
     const edm::OwnVector< reco::PFBlockElement >& elements() const 

@@ -26,7 +26,7 @@ void PFBlock::bookLinkData() {
 
   // initialize linkData_ to -1 (no link)
   vector<double> chi2Data;
-  chi2Data.insert( chi2Data.begin(), NLINKTYPES, -1 );
+  chi2Data.insert( chi2Data.begin(), LINKTEST_ALL, -1 ); 
   linkData_.insert( linkData_.begin(), dataSize, chi2Data );
 }
 
@@ -34,15 +34,15 @@ void PFBlock::bookLinkData() {
 
 void PFBlock::setLink(unsigned i1, unsigned i2, double chi2,
                       LinkData& linkData, 
-		      LinkType type) const {
+		      LinkTest test) const {
   
   assert( linkData.size() == linkDataSize() );
-  assert( type<NLINKTYPES );
+  assert( test<LINKTEST_ALL );
   
   unsigned index = 0;
   bool ok =  matrix2vector(i1,i2, index);
   if(ok)
-    linkData[index][type] = chi2;
+    linkData[index][test] = chi2;
   else 
     assert(0);
   
@@ -71,7 +71,8 @@ void PFBlock::setLink(unsigned i1, unsigned i2, double chi2,
 void PFBlock::associatedElements( unsigned i, 
                                   const LinkData& linkData, 
                                   map<double, unsigned>& sortedAssociates,
-                                  PFBlockElement::Type type ) 
+                                  PFBlockElement::Type type,
+				  LinkTest test ) 
   const {
   
 
@@ -95,6 +96,39 @@ void PFBlock::associatedElements( unsigned i,
     }
 
     double c2 = chi2(i, ie,  linkData );
+
+    //Note Alex: By default, the chi2 obtained from the CHI2
+    //test is used unless the result of a specific test 
+    //is chosen:
+    
+    if( test !=  LINKTEST_CHI2 && 
+	test !=  LINKTEST_ALL ) {
+      c2 = chi2(i, ie,  linkData, test );
+//       cout << "Test chosen " //modif-debug
+//  	   << test << " chi2=" << c2 << endl; 
+    }
+     
+    if( test == LINKTEST_ALL ){
+      
+      //Note Alex: When LINKTEST_ALL is selected then all possible 
+      //tests are considered. It means that a loop should
+      //be implemented on all possible tests and retrieve the 
+      //chi2 from the first test that has not fail
+      //14/11/2007: maybe the test that gives the minimum chi2 should 
+      //be taken? to be studied when more tests are available.
+      
+//       cout << "Working with element " << i << " "  //modif-debug
+// 	   << LINKTEST_ALL << endl; 
+      for( unsigned linktest = 0; linktest < LINKTEST_ALL; 
+	   ++linktest ){
+	c2 = chi2(i, ie,  linkData, LinkTest(linktest) );
+//  	cout << ie << " linktest " << LinkTest(linktest)  //modif-debug
+//  	     << " " << c2 << endl; 
+	//found a link
+	if( c2>0 ) break;
+      }//loop tests
+
+    }//all tests 
     
     // not associated
     if( c2 < 0 ) { 
@@ -132,16 +166,16 @@ bool PFBlock::matrix2vector( unsigned iindex, unsigned jindex,
 
 double PFBlock::chi2( unsigned ie1, unsigned ie2,
                       const LinkData& linkData, 
-		      LinkType  type ) const {
+		      LinkTest  test ) const {
   
-  assert( type<NLINKTYPES );
-  
+  assert( test<LINKTEST_ALL );
+ 
   double chi2 = -1;
 
   unsigned index = 0;
   if( matrix2vector(ie1, ie2, index) ) {
     assert( index<linkData.size() );
-    chi2 = linkData[index][type]; 
+    chi2 = linkData[index][test]; 
   }
   return chi2;
 }
@@ -252,7 +286,15 @@ ostream& reco::operator<<(  ostream& out,
       out <<setw(width) << elid[i];
       for(unsigned j=0; j<block.elements_.size(); j++) {
         double chi2 = block.chi2(i,j, block.linkData() );
-        if (chi2 > -0.5) out<<setw(width)<<block.chi2(i,j, block.linkData() );
+
+	//Note Alex: we might want to print out all the
+	//linkdata matrix obtained from chi2, rechit, tangent tests?
+	
+	//if not linked, try to see if linked by rechit
+	if( chi2<0 ) chi2 = block.chi2(i,j, block.linkData(),
+				       PFBlock::LINKTEST_RECHIT );
+
+	if (chi2 > -0.5) out<<setw(width)<< chi2; 
         else  out <<setw(width)<< " ";
       }
       out<<endl;
