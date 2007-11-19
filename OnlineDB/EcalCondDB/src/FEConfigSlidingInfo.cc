@@ -47,6 +47,8 @@ std::string FEConfigSlidingInfo::getTag() const{  return m_tag;}
 int FEConfigSlidingInfo::fetchID()
   throw(runtime_error)
 {
+
+
   // Return from memory if available
   if (m_ID) {
     return m_ID;
@@ -60,8 +62,9 @@ int FEConfigSlidingInfo::fetchID()
   try {
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT sli_conf_id FROM fe_config_sliding_info "
-		 "WHERE iov_id = :iov_id  ");
-    stmt->setInt(1, m_iov_id);
+		 "WHERE DB_TIMESTAMP = :db_time) " );
+    stmt->setDate(1, dh.tmToDate(m_db_time));
+		 
     ResultSet* rset = stmt->executeQuery();
 
     if (rset->next()) {
@@ -116,21 +119,34 @@ int FEConfigSlidingInfo::writeDB()
 {
   this->checkConnection();
 
-  // Check if this IOV has already been written
-  if (this->fetchID()) {
-    return m_ID;
-  }
-  
   // Validate the data, use infinity-till convention
   DateHandler dh(m_env, m_conn);
 
   try {
+
+    // first reserve an id
+    Statement* stmtq = m_conn->createStatement();
+    stmtq->setSQL("SELECT FE_CONFIG_SLI_SQ.NextVal FROM dual "  );
+    ResultSet* rsetq = stmtq->executeQuery();
+    if (rsetq->next()) {
+      m_ID = rsetq->getInt(1);
+    } else {
+      m_ID = 0;
+    }
+    m_conn->terminateStatement(stmtq);
+
+    cout<< "going to use id "<<m_ID<<endl;
+
+
+    // now insert 
+
     Statement* stmt = m_conn->createStatement();
     
-    stmt->setSQL("INSERT INTO FE_CONFIG_SLIDING_INFO (sli_conf_id, iov_id, tag ) "
-		 "VALUES (FE_CONFIG_SLIDING_SQ.NextVal, :1, :2 )");
-    stmt->setInt(1, m_iov_id);
-    stmt->setString(2, m_tag );
+    stmt->setSQL("INSERT INTO FE_CONFIG_SLIDING_INFO ( wei_conf_id, number_of_groups, tag ) "
+		 "VALUES (:1, :2 , :3 )");
+    stmt->setInt(1, m_ID);
+    stmt->setInt(2, m_iov_id);
+    stmt->setString(3, m_tag );
 
     stmt->executeUpdate();
 
@@ -139,14 +155,11 @@ int FEConfigSlidingInfo::writeDB()
     throw(runtime_error("FEConfigSlidingInfo::writeDB:  "+e.getMessage()));
   }
 
-  // Now get the ID
-  if (!this->fetchID()) {
-    throw(runtime_error("FEConfigSlidingInfo::writeDB:  Failed to write"));
-  }
-  
+
+    int ii=m_ID;
+    setByID(ii);
+    // this is to recover also the time info
+
   return m_ID;
 }
-
-
-
 

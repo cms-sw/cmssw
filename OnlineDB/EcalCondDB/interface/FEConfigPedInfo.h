@@ -31,6 +31,8 @@ class FEConfigPedInfo : public IIOV {
 
   // Methods from IUniqueDBObject
   int fetchID() throw(std::runtime_error);
+  int fetchIDFromTag() throw(std::runtime_error);
+  int fetchIDLast() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
   // operators

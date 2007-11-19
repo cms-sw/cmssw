@@ -1,4 +1,4 @@
-// $Id: EcalLogicID.h,v 1.2 2005/10/07 20:48:06 egeland Exp $
+// $Id: EcalLogicID.h,v 1.1 2006/03/01 23:39:50 egeland Exp $
 
 #ifndef ECALLOGICID_HH
 #define ECALLOGICID_HH
@@ -37,7 +37,7 @@ class EcalLogicID {
   std::string getMapsTo() const;
 
   // Constants
-  static const int NULLID = -1;
+  static const int NULLID = -100;
 
   // Operators
   friend inline bool operator<(EcalLogicID lhs, EcalLogicID rhs) { return (lhs.logicID < rhs.logicID); }

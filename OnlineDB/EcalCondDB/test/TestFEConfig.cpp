@@ -69,10 +69,19 @@ public:
   }
   
 
-  void test(int runa, int runb ) {
+  int test(int runa, int runb ) {
+
+
+    cout << "*****************************************" << endl;
+    cout << "************Inserting Peds from OMDS*****" << endl;
+    cout << "*****************************************" << endl;
+    
+    int result=0;
 
     cout << "Retrieving run list from DB ... " << endl;
-    RunList my_runlist ;
+   
+
+
     RunTag  my_runtag;
     LocationDef my_locdef;
     RunTypeDef my_rundef;
@@ -82,24 +91,6 @@ public:
     my_runtag.setLocationDef(my_locdef);
     my_runtag.setRunTypeDef(my_rundef);
     my_runtag.setGeneralTag("LOCAL");
-
-    my_runlist=econn->fetchRunList(my_runtag);
-
-    std::vector<RunIOV> run_vec=  my_runlist.getRuns();
-
-    float day_to_sec=24.*60.*60.;
-    float two_hours=2.*60.*60.;
-    
-    
-    cout <<"number of runs is : "<< run_vec.size()<< endl;
-    int nruns=run_vec.size();
-    if(nruns>0){
-      
-      cout << "here is first run : "<< run_vec[0].getRunNumber() << endl;
-      // cout << "here is the run Start for first run ="<< run_vec[0].getRunStart()<< endl;
-      // cout << "here is the run End for first run =" <<run_vec[0].getRunEnd()<< endl;
-
-    }
 
     // here we retrieve the Monitoring results
 
@@ -115,35 +106,33 @@ public:
     mon_list.setRunTag(my_runtag);
     int min_run=runa;
     int max_run=runb;
-    mon_list=econn->fetchMonRunList(my_runtag, montag,min_run,max_run );
+    cout<< "max run is:"<<max_run<<endl;
+    mon_list=econn->fetchMonRunListLastNRuns(my_runtag, montag, max_run , 10 );
+
     std::vector<MonRunIOV> mon_run_vec=  mon_list.getRuns();
 
-    cout <<"number of mon runs is : "<< mon_run_vec.size()<< endl;
+    cout <<"number of ped runs is : "<< mon_run_vec.size()<< endl;
     int mon_runs=mon_run_vec.size();
     if(mon_runs>0){
-      cout << "here is first sub run : "<< mon_run_vec[0].getSubRunNumber() << endl;
-      cout << "here is the run number: "<< mon_run_vec[0].getRunIOV().getRunNumber() << endl;
+      for(int ii=0; ii<mon_run_vec.size(); ii++){
+	cout << "here is the run number: "<< mon_run_vec[ii].getRunIOV().getRunNumber() << endl;
+      }
     }
 
     int sm_num=0;  
 
     if(mon_runs>0){
 
-      // for run number runa we do something 
-
+      // for the first run of the list we retrieve the pedestals
       int run=0;
-
       cout <<" retrieve the data for a given run"<< endl;
-      // retrieve the data for a given run
       cout << "here is the run number: "<< mon_run_vec[run].getRunIOV().getRunNumber() << endl;
-      cout << "intrinsic counter: " << run << endl;
       
       RunIOV runiov_prime = mon_run_vec[run].getRunIOV();
-      
 
       map<EcalLogicID, MonPedestalsDat> dataset_ped;
       econn->fetchDataSet(&dataset_ped, &mon_run_vec[run]);
-      cout << "just retrieved data " <<endl;
+
 
 
       typedef map<EcalLogicID, MonPedestalsDat>::const_iterator CImped;
@@ -160,49 +149,40 @@ public:
 	ped_m1[i]=0;
       }
 
-      cout << "before unpacking " <<endl;
 
       for (CImped p = dataset_ped.begin(); p != dataset_ped.end(); p++) {
 	ecid_xt = p->first;
 	rd_ped  = p->second;
 	sm_num=ecid_xt.getID1();
+	int xt_id=ecid_xt.getID2();
 	int xt_num=ecid_xt.getID2()+(sm_num-1)*1700-1;
 	ped_m12[xt_num]=rd_ped.getPedMeanG12();
 	ped_m6[xt_num]=rd_ped.getPedMeanG6();
 	ped_m1[xt_num]=rd_ped.getPedMeanG1();
-       if(xt_num==123&&sm_num==10) cout <<"here is one value for XT: "<< xt_num<<" " << ped_m12[xt_num] << endl;
+	if(xt_id==123) cout <<"here is one value for XT: "<< xt_id<<" SM: " << sm_num<< " "<< ped_m12[xt_num] << endl;
       }
       //  here we can do something to the pedestals like checking
       //  that they are correct and that there are no missing channels
 
+      // .....
+
 
       // then we ship them to the config DB
 
-      cout << "after unpacking " <<endl;
-
-
       int mon_iov_id=mon_run_vec[run].getID();
 
-
       cout << "now create fe record " <<endl;
-
       FEConfigPedInfo fe_ped_info ;
       fe_ped_info.setIOVId(mon_iov_id);
       fe_ped_info.setTag("from_CondDB");
-      econn->insertFEConfigPedInfo(fe_ped_info);
-
-      cout << "just created record1 " <<endl;
-      cout << "just created record2 " <<endl;
-      cout << "just created record3 " <<endl;
-      cout << "just created record4 " <<endl;
-      cout << "just created record5 " <<endl;
-
+      econn->insertFEConfigPedInfo(&fe_ped_info);
+      result =fe_ped_info.getID();
 
       // this is to insert in FE Config DB      
       vector<EcalLogicID> ecid_vec;
       ecid_vec = econn->getEcalLogicIDSet("EB_crystal_number", 1,36,1,1700);
+      cout << "*********got channel numbers   *********" << endl;
 
-      cout << "just retrieved logic id " <<endl;
 
       map<EcalLogicID, FEConfigPedDat> dataset;
       for (int ich=0; ich<61200; ich++){
@@ -214,12 +194,13 @@ public:
 	dataset[ecid_vec[ich]] = ped;
       }
     // Insert the dataset, identifying by iov
-      cout << "Inserting dataset..." << flush;
+      cout << "*********about to insert peds *********" << endl;
       econn->insertDataArraySet(&dataset, &fe_ped_info);
-      cout << "Done." << endl;
+      cout << "*********Done peds            *********" << endl;
     
     }
     
+    return result;
   }
 
 
@@ -231,6 +212,9 @@ public:
     // this is an example for reading the pedestals 
     // for a given config iconf_req 
  
+    cout << "*****************************************" << endl;
+    cout << "test readinf fe_ped with id="<<iconf_req  << endl;
+    cout << "*****************************************" << endl;
  
     FEConfigPedInfo fe_ped_info = econn->fetchFEConfigPedInfo(iconf_req);
     map<EcalLogicID, FEConfigPedDat> dataset_ped;
@@ -257,9 +241,134 @@ public:
 	ped_m12[xt_num]=rd_ped.getPedMeanG12();
 	ped_m6[xt_num]=rd_ped.getPedMeanG6();
 	ped_m1[xt_num]=rd_ped.getPedMeanG1();
-       if(xt_num==123&&sm_num==10) cout <<"here is one value for XT: "<< xt_num<<" " << ped_m12[xt_num] << endl;
+	if(xt_num==123&&sm_num==10) cout <<"here is one value for XT: "<< xt_num<<" " << ped_m12[xt_num] << endl;
 
       }
+
+    cout << "*****************************************" << endl;
+    cout << "test read done"<<iconf_req  << endl;
+    cout << "*****************************************" << endl;
+
+  }
+
+
+
+  void testWriteLUT() {
+    // now we do something else 
+    // this is an example for writing the lut
+ 
+
+      cout << "*****************************************" << endl;
+      cout << "************Inserting LUT************" << endl;
+      cout << "*****************************************" << endl;
+
+      FEConfigLUTInfo fe_lut_info ;
+      fe_lut_info.setIOVId(0); // this eventually refers to some other table 
+      fe_lut_info.setTag("test");
+      econn->insertFEConfigLUTInfo(&fe_lut_info);
+            
+      Tm tdb = fe_lut_info.getDBTime();
+      //tdb.dumpTm();
+
+      vector<EcalLogicID> ecid_vec;
+      ecid_vec = econn->getEcalLogicIDSet("EB_crystal_number", 1,36,1,1700);
+     
+      map<EcalLogicID, FEConfigLUTGroupDat> dataset;
+      // we create 5 LUT groups 
+      for (int ich=0; ich<5; ich++){
+	FEConfigLUTGroupDat lut;
+	lut.setLUTGroupId(ich);
+	for (int i=0; i<1024; i++){
+	  lut.setLUTValue(i, (i*2) );
+	}
+	// Fill the dataset
+	dataset[ecid_vec[ich]] = lut; // we use any logic id, because it is in any case ignored... 
+       }
+
+      // Insert the dataset
+      econn->insertDataArraySet(&dataset, &fe_lut_info);
+
+
+
+      // now we store in the DB the correspondence btw channels and LUT groups 
+      map<EcalLogicID, FEConfigLUTDat> dataset2;
+      // in this case I decide in a stupid way which channel belongs to which group 
+      for (int ich=0; ich<ecid_vec.size() ; ich++){
+	FEConfigLUTDat lut;
+	int igroup=ich/(ecid_vec.size()/5);
+	lut.setLUTGroupId(igroup);
+	// Fill the dataset
+	dataset2[ecid_vec[ich]] = lut;
+      }
+
+      // Insert the dataset
+
+      econn->insertDataArraySet(&dataset2, &fe_lut_info);
+      cout << "*****************************************" << endl;
+      cout << "************LUT done*********************" << endl;
+      cout << "*****************************************" << endl;
+
+    
+
+  }
+
+  void testWriteWeights() {
+    // now we do something else 
+    // this is an example for writing the weights
+ 
+      cout << "*****************************************" << endl;
+      cout << "************Inserting weights************" << endl;
+      cout << "*****************************************" << endl;
+
+      FEConfigWeightInfo fe_wei_info ;
+      fe_wei_info.setNumberOfGroups(5); // this eventually refers to some other table 
+      fe_wei_info.setTag("my preferred weights");
+      econn->insertFEConfigWeightInfo(&fe_wei_info);
+      
+      Tm tdb = fe_wei_info.getDBTime();
+      //      tdb.dumpTm();
+
+      vector<EcalLogicID> ecid_vec;
+      ecid_vec = econn->getEcalLogicIDSet("EB_crystal_number", 1,36,1,1700);
+
+      map<EcalLogicID, FEConfigWeightGroupDat> dataset;
+      // we create 5 groups 
+      for (int ich=0; ich<5; ich++){
+	FEConfigWeightGroupDat wei;
+	wei.setWeightGroupId(ich);
+	wei.setWeight0(0);
+	wei.setWeight1(1);
+	wei.setWeight2(3);
+	wei.setWeight3(3);
+	wei.setWeight4(3);
+	// Fill the dataset
+	dataset[ecid_vec[ich]] = wei; // we use any logic id, because it is in any case ignored... 
+       }
+
+      // Insert the dataset
+      econn->insertDataArraySet(&dataset, &fe_wei_info);
+
+
+
+      // now we store in the DB the correspondence btw channels and LUT groups 
+      map<EcalLogicID, FEConfigWeightDat> dataset2;
+      // in this case I decide in a stupid way which channel belongs to which group 
+      for (int ich=0; ich<ecid_vec.size() ; ich++){
+	FEConfigWeightDat weid;
+	int igroup=ich/(ecid_vec.size()/5);
+	weid.setWeightGroupId(igroup);
+	// Fill the dataset
+	dataset2[ecid_vec[ich]] = weid;
+      }
+
+      // Insert the dataset
+
+      econn->insertDataArraySet(&dataset2, &fe_wei_info);
+      cout << "*****************************************" << endl;
+      cout << "************weights done*****************" << endl;
+      cout << "*****************************************" << endl;
+
+    
 
   }
 
@@ -327,15 +436,18 @@ int main (int argc, char* argv[])
   smin_run = argv[6];
   int min_run=atoi(smin_run.c_str());
   sn_run = argv[7];
-  int n_run=atoi(sn_run.c_str())+min_run;
+  int n_run=atoi(sn_run.c_str());
 
 
   try {
     CondDBApp app( sid, user, pass);
 
-    app.test(min_run, n_run);
-    int i=1;
+    int i= app.test(min_run, n_run);
+    
     app.testRead(i);
+
+    app.testWriteLUT();
+    app.testWriteWeights();
   } catch (exception &e) {
     cout << "ERROR:  " << e.what() << endl;
   } catch (...) {

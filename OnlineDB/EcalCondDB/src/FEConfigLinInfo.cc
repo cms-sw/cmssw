@@ -78,6 +78,64 @@ int FEConfigLinInfo::fetchID()
 }
 
 
+//
+int FEConfigLinInfo::fetchIDLast()
+  throw(runtime_error)
+{
+
+  this->checkConnection();
+
+
+  DateHandler dh(m_env, m_conn);
+
+  try {
+    Statement* stmt = m_conn->createStatement();
+    stmt->setSQL("SELECT max( lin_conf_id) FROM fe_config_lin_info "    );
+    ResultSet* rset = stmt->executeQuery();
+
+    if (rset->next()) {
+      m_ID = rset->getInt(1);
+    } else {
+      m_ID = 0;
+    }
+    m_conn->terminateStatement(stmt);
+  } catch (SQLException &e) {
+    throw(runtime_error("FEConfigLinInfo::fetchIDLast:  "+e.getMessage()));
+  }
+
+  return m_ID;
+}
+
+//
+int FEConfigLinInfo::fetchIDFromTag()
+  throw(runtime_error)
+{
+  // selects tha most recent config id with a given tag
+
+  this->checkConnection();
+
+  DateHandler dh(m_env, m_conn);
+
+  try {
+    Statement* stmt = m_conn->createStatement();
+    stmt->setSQL("SELECT max(lin_conf_id) FROM fe_config_lin_info "
+                 "WHERE tag = :tag  ");
+    stmt->setString(1, m_tag);
+    ResultSet* rset = stmt->executeQuery();
+
+    if (rset->next()) {
+      m_ID = rset->getInt(1);
+    } else {
+      m_ID = 0;
+    }
+    m_conn->terminateStatement(stmt);
+  } catch (SQLException &e) {
+    throw(runtime_error("FEConfigLinInfo::fetchIDFromTag:  "+e.getMessage()));
+  }
+  return m_ID;
+}
+
+
 void FEConfigLinInfo::setByID(int id) 
   throw(std::runtime_error)
 {

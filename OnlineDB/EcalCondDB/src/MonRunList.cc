@@ -289,7 +289,7 @@ void MonRunList::fetchLastNRuns( int max_run, int n_runs  )
 		 "WHERE mon_run_iov.run_iov_id=run_iov.iov_id and run_iov.tag_id = :tag_id "
 		 " and mon_run_iov.tag_id=:montag_id "
 		 " and run_iov.run_num< :max_run "
-		 " order by run_iov.run_num, mon_run_iov.subrun_num DESC ) where rownum< :n_runs" );
+		 " order by run_iov.run_num DESC ) where rownum< :n_runs order by run_num DESC " );
     stmt->setInt(1, tagID);
     stmt->setInt(2, montagID);
     stmt->setInt(3, my_max_run);
@@ -343,7 +343,7 @@ void MonRunList::fetchLastNRuns( int max_run, int n_runs  )
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(runtime_error("MonRunList::fetchLastNRuns:  "+e.getMessage()));
   }
 
 
