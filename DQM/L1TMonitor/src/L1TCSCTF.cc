@@ -89,7 +89,7 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
 ///
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1T/L1TCSCTF");
+    dbe->setCurrentFolder("L1TMonitor/L1TCSCTF");
   }
 
 }
@@ -108,14 +108,14 @@ void L1TCSCTF::beginJob(const EventSetup& c)
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("L1T/L1TCSCTF");
-    dbe->rmdir("L1T/L1TCSCTF");
+    dbe->setCurrentFolder("L1TMonitor/L1TCSCTF");
+    dbe->rmdir("L1TMonitor/L1TCSCTF");
   }
 
 
   if ( dbe )
   {
-    dbe->setCurrentFolder("L1T/L1TCSCTF");
+    dbe->setCurrentFolder("L1TMonitor/L1TCSCTF");
 
     csctfetavalue = dbe->book1D("CSC TF eta value",
        "CSC TF eta value", 100, -2.5, 2.5 ) ;
