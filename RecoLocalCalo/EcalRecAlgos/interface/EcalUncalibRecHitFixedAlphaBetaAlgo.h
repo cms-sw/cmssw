@@ -185,17 +185,24 @@ template<class C> double EcalUncalibRecHitFixedAlphaBetaAlgo<C>::pulseShapeFunct
 }
 
 template<class C> void  EcalUncalibRecHitFixedAlphaBetaAlgo<C>::InitFitParameters(double* samples, int max_sample){
+
   // in a first attempt just use the value of the maximum sample 
   fAmp_max_ = samples[max_sample];
   fTim_max_ = max_sample;
   fPed_max_ = 0;
-  if(max_sample <1 || max_sample > 7 || fAmp_max_ <  MinAmpl_){
-    fAmp_max_ = samples[5];
-    double sumA = samples[5]+samples[4]+samples[6];
+
+  // amplitude too low for fit to converge
+  // timing set correctly is assumed
+  if(fAmp_max_ <  MinAmpl_){
+    fAmp_max_      = samples[5];
+    double sumA    = samples[5]+samples[4]+samples[6];
     if(sumA != 0) { fTim_max_ = 6+(samples[6]-samples[4])/sumA; }
     else{ fTim_max_ = -993; }//-999+6
     doFit_ = false;
   }
+  // if timing very badly off, that just use max sample
+  else if(max_sample <1 || max_sample > 7)
+    {    doFit_ = false;}
   else{
     //y=a*(x-xM)^2+b*(x-xM)+c
     doFit_ = true;
