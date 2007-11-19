@@ -26,28 +26,26 @@ class SiPixelCalibConfiguration
 
  //-- Setter/Getter
   
-  short  NTriggers() const { return fNTriggers;}
+  short  getNTriggers() const { return fNTriggers;}
   void  setNTriggers(const  short & in) { fNTriggers = in; }
 
-  std::vector<std::string> ROCIds() const { return fROCIds;}
+  std::vector<std::string> getROCIds() const { return fROCIds;}
   void  setROCIds(const std::vector<std::string> & in) { fROCIds = in; }
 
-  std::vector<short> RowPattern() const { return fRowPattern;}
+  std::vector<short> getRowPattern() const { return fRowPattern;}
   void  setRowPattern(const std::vector<short> & in) { fRowPattern = in; }
 
-  std::vector<short> ColumnPattern() const { return fColumnPattern;}
+  std::vector<short> getColumnPattern() const { return fColumnPattern;}
   void  setColumnPattern(const std::vector<short> & in) { fColumnPattern = in; }
 
-  const std::vector<short> VCalValues() const { return fVCalValues;}
+  void setCalibrationMode(const std::string & in) { fMode_ = in; }
+  std::string getCalibrationMode() const {return fMode_;}
+
+  const std::vector<short> getVCalValues() const { return fVCalValues;}
   void  setVCalValues(const std::vector< short> & in) { fVCalValues = in; }
   
   // interface with calibration analyzers:
   // old access methods
-  uint32_t nVcal() const {return fVCalValues.size();}
-  uint32_t vcal_first() const {return (uint32_t) fVCalValues[0];}
-  uint32_t vcal_last() const {return (uint32_t) fVCalValues[fVCalValues.size()-1];}
-  uint32_t vcal_step() const {return (uint32_t) (1+vcal_last()- vcal_first())/nVcal();}
-  uint32_t nTriggers() const {return (uint32_t) NTriggers();}
   // new access methods
   short vcalForEvent(const uint32_t & eventnumber) const;
   short vcalIndexForEvent(const uint32_t & eventnumber) const;
@@ -59,7 +57,8 @@ class SiPixelCalibConfiguration
   uint32_t nPatterns() const {return nRowPatterns()*nColumnPatterns();}
   uint32_t nColumnPatterns() const ;
   uint32_t nRowPatterns() const ;
-
+  uint32_t nVCal() const { return fVCalValues.size();}
+    
  private :
 
   short                             fNTriggers;//
@@ -67,6 +66,7 @@ class SiPixelCalibConfiguration
   std::vector<short>        fRowPattern;//
   std::vector<short>        fColumnPattern;//
   std::vector<short>                fVCalValues;//
+  std::string               fMode_;
 };
 
 #endif

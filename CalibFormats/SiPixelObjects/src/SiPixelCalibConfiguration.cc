@@ -5,7 +5,7 @@
 
 short SiPixelCalibConfiguration::vcalIndexForEvent(const uint32_t & eventnumber) const{
   uint32_t relative_event = eventnumber%patternSize();
-  short relative_pattern = relative_event/NTriggers();
+  short relative_pattern = relative_event/getNTriggers();
   return relative_pattern; 
 }
 short SiPixelCalibConfiguration::vcalForEvent(const uint32_t & eventnumber) const{
@@ -13,11 +13,12 @@ short SiPixelCalibConfiguration::vcalForEvent(const uint32_t & eventnumber) cons
   return result;
 }
 std::vector<short> SiPixelCalibConfiguration::columnPatternForEvent(const uint32_t & eventnumber) const{
-  uint32_t relative_event = eventnumber%patternSize(); //  ASSUMES LOOP OF ROWS OUTSIDE LOOP OF COLUMNS
-  relative_event/=nRowPatterns();
+  uint32_t relative_event = eventnumber/patternSize(); //  ASSUMES LOOP OF ROWS OUTSIDE LOOP OF COLUMNS
+
+  std::cout <<"columnPatternForEvent relative event is: " << relative_event << std::endl;
   uint32_t patterncounter=0;
   std::vector<short> result(0);
-  for(uint32_t i=0; i< fColumnPattern.size(); ++i){
+  for(uint32_t i=0; i<fColumnPattern.size()-1; ++i){
     short val = fColumnPattern[i];
     if(val==-1){
       patterncounter++;
@@ -31,10 +32,12 @@ std::vector<short> SiPixelCalibConfiguration::columnPatternForEvent(const uint32
 }
 
 std::vector<short> SiPixelCalibConfiguration::rowPatternForEvent(const uint32_t & eventnumber) const {
-  uint32_t relative_event = eventnumber/patternSize();// ASSUMES LOOP OF ROWS OUTSIDE LOOP OF COLUMNS 
+  uint32_t relative_event = eventnumber%patternSize();// ASSUMES LOOP OF ROWS OUTSIDE LOOP OF COLUMNS  
+  relative_event/=nColumnPatterns();
   uint32_t patterncounter=0;
+  std::cout <<"rowPatternForEvent relative event is: " << relative_event << std::endl;
   std::vector<short> result(0);
-  for(uint32_t i=0; i< fRowPattern.size(); ++i){
+  for(uint32_t i=0;i<fRowPattern.size();++i){
     short val = fRowPattern[i];
     if(val==-1){
       patterncounter++;
