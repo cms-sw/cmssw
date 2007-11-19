@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2007/11/15 23:09:28 $
- * $Revision: 1.5 $
- * $Author: wfisher $
+ * $Date: 2007/11/17 13:44:39 $
+ * $Revision: 1.6 $
+ * $Author: ameyer $
  *
  */
 
@@ -33,6 +33,7 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   parameters_ = ps;
   pEvent_ = 0;
   timer_.start();
+  lastUpdateTime_=timer_.realTime();
 
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe_->setVerbose(1);
@@ -49,7 +50,8 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   lumisecId_ = dbe_->bookInt("iLumiSection");
   eventId_   = dbe_->bookInt("iEvent");
   eventTimeStamp_ = dbe_->bookFloat("eventTimeStamp");
-
+  errSummary_ = dbe_->bookFloat("errorSummary");
+  errSummary_->Fill(-1);
 
   //Process specific contents
   processTimeStamp_ = dbe_->bookFloat("processTimeStamp");
@@ -87,7 +89,9 @@ void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
 
   pEvent_++;
   processEvents_->Fill(pEvent_);
-  processTimeStamp_->Fill(timer_.realTime());
-  //alternatively can use timer_.cpuTime() for system clock timestamp
+  
+  processTimeStamp_->Fill(timer_.realTime()-lastUpdateTime_);
+  lastUpdateTime_=timer_.realTime();
+ //alternatively can use timer_.cpuTime() for system clock timestamp
 
 }

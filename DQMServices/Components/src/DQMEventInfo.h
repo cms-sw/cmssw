@@ -4,8 +4,8 @@
 /*
  * \file DQMEventInfo.h
  *
- * $Date: 2007/11/07 13:15:53 $
- * $Revision: 1.1 $
+ * $Date: 2007/11/15 23:09:41 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -52,7 +52,7 @@ private:
 
   edm::ParameterSet parameters_;
   edm::CPUTimer timer_;
-
+  float lastUpdateTime_;
   int pEvent_;
 
   MonitorElement * runId_;
@@ -69,6 +69,7 @@ private:
   MonitorElement * workingDir_;
   MonitorElement * cmsswVer_;
   MonitorElement * dqmPatch_;
+  MonitorElement * errSummary_;
 
 };
 
