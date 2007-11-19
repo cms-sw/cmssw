@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2007/08/27 16:39:19 $
- * $Revision: 1.7 $
+ * $Date: 2007/11/05 09:13:33 $
+ * $Revision: 1.9 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -52,7 +52,7 @@ L1TGMT::L1TGMT(const ParameterSet& ps)
 
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TGMT");
+    dbe->setCurrentFolder("L1T/L1TGMT");
   }
 
 
@@ -74,14 +74,14 @@ void L1TGMT::beginJob(const EventSetup& c)
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TGMT");
-    dbe->rmdir("L1TMonitor/L1TGMT");
+    dbe->setCurrentFolder("L1T/L1TGMT");
+    dbe->rmdir("L1T/L1TGMT");
   }
 
 
   if ( dbe ) 
   {
-    dbe->setCurrentFolder("L1TMonitor/L1TGMT");
+    dbe->setCurrentFolder("L1T/L1TGMT");
     
     int neta=100; double etamin=-2.5; double etamax=2.5;
     int nphi=144; double phimin=  0.; double phimax=6.2832;

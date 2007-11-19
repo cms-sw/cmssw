@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTPG.cc
  *
- * $Date: 2007/02/19 19:24:09 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/22 19:43:53 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
  */
@@ -52,7 +52,7 @@ L1TRPCTPG::L1TRPCTPG(const ParameterSet& ps)
 
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TRPCTPG");
+    dbe->setCurrentFolder("L1T/L1TRPCTPG");
   }
 
 
@@ -72,14 +72,14 @@ void L1TRPCTPG::beginJob(const EventSetup& c)
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TRPCTPG");
-    dbe->rmdir("L1TMonitor/L1TRPCTPG");
+    dbe->setCurrentFolder("L1T/L1TRPCTPG");
+    dbe->rmdir("L1T/L1TRPCTPG");
   }
 
 
   if ( dbe ) 
   {
-    dbe->setCurrentFolder("L1TMonitor/L1TRPCTPG");
+    dbe->setCurrentFolder("L1T/L1TRPCTPG");
     
     rpctpgtest = dbe->book1D("RPCTPG test", 
        "RPCTPG test", 128, -0.5, 127.5 ) ;
