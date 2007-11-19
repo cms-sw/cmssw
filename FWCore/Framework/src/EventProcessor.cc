@@ -1081,7 +1081,7 @@ namespace edm {
       lbp = input_->readLuminosityBlock(rp);
     }
     if(lbp) {
-      IOVSyncValue ts(EventID(lbp->runNumber(),0), lbp->beginTime());
+      IOVSyncValue ts(EventID(lbp->run(),0), lbp->beginTime());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
       schedule_->runOneEvent(*lbp, es, BranchActionBegin);
     }
@@ -1155,7 +1155,7 @@ namespace edm {
       // CallPrePost holder(*actReg_);
       input_->doFinishLumi(*lbp);
     }
-    IOVSyncValue ts(EventID(lbp->runNumber(),EventID::maxEventNumber()), lbp->endTime());
+    IOVSyncValue ts(EventID(lbp->run(),EventID::maxEventNumber()), lbp->endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(*lbp, es, BranchActionEnd);
 
@@ -1395,7 +1395,7 @@ namespace edm {
   void
   EventProcessor::clearCounters()
   {
-    return schedule_->clearCounters();
+    schedule_->clearCounters();
   }
 
 

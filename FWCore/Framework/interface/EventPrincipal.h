@@ -10,7 +10,7 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.64 2007/08/02 23:14:10 wmtan Exp $
+$Id: EventPrincipal.h,v 1.65 2007/08/08 21:51:26 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -90,7 +90,7 @@ namespace edm {
       return aux().luminosityBlock();
     }
 
-    RunNumber_t runNumber() const {
+    RunNumber_t run() const {
       return id().run();
     }
 
@@ -138,7 +138,7 @@ namespace edm {
   inline
   bool
   isSameRun(EventPrincipal const* a, EventPrincipal const* b) {
-    return(a != 0 && b != 0 && a->runNumber() == b->runNumber());
+    return(a != 0 && b != 0 && a->run() == b->run());
   }
 
   inline

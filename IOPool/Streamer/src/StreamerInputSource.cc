@@ -190,7 +190,7 @@ namespace edm {
   StreamerInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
     readAhead();
     if (holder_.get() == 0 ||
-	lbp->runNumber() != rp_->run() ||
+	lbp->run() != rp_->run() ||
         lbp->luminosityBlock() != lbp_->luminosityBlock()) {
       return std::auto_ptr<EventPrincipal>(0);
     }

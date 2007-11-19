@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.95 2007/11/07 06:49:31 wmtan Exp $
+$Id: RootFile.cc,v 1.96 2007/11/14 00:28:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -277,7 +277,7 @@ namespace edm {
 				       processConfiguration_));
     }
 
-    if (eventAux_.run() != lbp->runNumber() ||
+    if (eventAux_.run() != lbp->run() ||
 	eventAux_.luminosityBlock() != lbp->luminosityBlock()) {
       // The event is in a different run or lumi block.  Back up, and return a null pointer.
       eventTree().previous();
