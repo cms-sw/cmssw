@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id$
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.1 2007/11/19 11:38:23 fblekman Exp $
 //
 //
 
@@ -37,10 +37,8 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "DataFormats/SiPixelCalibDigi/interface/SiPixelCalibDigiCollectionfwd.h"
-#include "DataFormats/SiPixelCalibDigi/interface/SiPixelCalibDigiCollection.h"
-#include "DataFormats/SiPixelCalibDigi/interface/SiPixelCalibDigifwd.h"
-#include "DataFormats/SiPixelCalibDigi/interface/SiPixelCalibDigi.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigifwd.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
 
 #include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"

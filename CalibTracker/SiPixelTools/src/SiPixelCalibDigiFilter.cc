@@ -13,7 +13,7 @@
 //
 // Original Author:  Evan Klose Friis
 //         Created:  Tue Nov  6 16:59:50 CET 2007
-// $Id$
+// $Id: SiPixelCalibDigiFilter.cc,v 1.1 2007/11/19 11:38:25 fblekman Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiPixelCalibDigi/interface/SiPixelCalibDigi.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
 #include "CalibTracker/SiPixelTools/interface/SiPixelCalibDigiFilter.h"
 
 //
