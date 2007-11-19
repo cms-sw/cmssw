@@ -176,7 +176,7 @@ void SiPixelInformationExtractor::fillBarrelList(DaqMonitorBEInterface* bei,
     vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
-      if((*it).find("PixelEndcap")!=string::npos) continue;
+      if((*it).find("Endcap")!=string::npos) continue;
       bei->cd(*it);
       fillBarrelList(bei, dir_name, me_names);
       bei->goUp();
@@ -216,9 +216,9 @@ void SiPixelInformationExtractor::fillEndcapList(DaqMonitorBEInterface* bei,
     vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
-      if((bei->pwd()).find("PixelBarrel")!=string::npos) bei->goUp();
+      if((bei->pwd()).find("Barrel")!=string::npos) bei->goUp();
       bei->cd((*it));
-      if((*it).find("PixelBarrel")!=string::npos) continue;
+      if((*it).find("Barrel")!=string::npos) continue;
       fillEndcapList(bei, dir_name, me_names);
       bei->goUp();
     }

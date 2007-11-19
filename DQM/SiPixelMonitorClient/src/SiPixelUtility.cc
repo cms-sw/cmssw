@@ -213,9 +213,9 @@ int SiPixelUtility::computeHistoBin(string & module_path){
     if((*it).find("Collector") != string::npos ||
        (*it).find("Collated") != string::npos ||
        (*it).find("FU") != string::npos ||
-       (*it).find("Tracker") != string::npos ||
-       (*it).find("PixelBarrel") != string::npos ||
-       (*it).find("PixelEndcap") != string::npos) continue;
+       (*it).find("Pixel") != string::npos ||
+       (*it).find("Barrel") != string::npos ||
+       (*it).find("Endcap") != string::npos) continue;
     
     if((*it).find("Module") != string::npos){
       module = atoi((*it).substr((*it).find("_")+1).c_str());
@@ -260,13 +260,13 @@ int SiPixelUtility::computeHistoBin(string & module_path){
       if(panel==2) nbinPanel = 4;
     }
   }
-  if(module_path.find("PixelBarrel") != string::npos){
+  if(module_path.find("Barrel") != string::npos){
     module_bin =  module + 
       (ladder-1)*nbinLadder +
       nbinLayer +
       (shell -1)*nbinShell;
   }
-  if(module_path.find("PixelEndcap") != string::npos){
+  if(module_path.find("Endcap") != string::npos){
     module_bin =  module +
       (panel       -1)*nbinPanel +
       (blade       -1)*nbinBlade +

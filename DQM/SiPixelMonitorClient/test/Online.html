@@ -262,21 +262,21 @@
           	 id	 = "pixel_summary_overview_show"
           	 class   = "controlButton"
           	 value   = "SiPixel" 
-          	 onClick = "IMGC.updateIMGC('Tracker')"
+          	 onClick = "IMGC.updateIMGC('Pixel')"
           	 type	 = "submit">
           </input>
           <input name	 = "BarrelSummaryOverviewShow" 
           	 id	 = "barrel_summary_overview_show"
           	 class   = "controlButton"
           	 value   = "Barrel" 
-          	 onClick = "IMGC.updateIMGC('Tracker/PixelBarrel')"
+          	 onClick = "IMGC.updateIMGC('Pixel/Barrel')"
           	 type	 = "submit">
           </input>
           <input name	 = "EndcapSummaryOverviewShow" 
           	 id	 = "endcap_summary_overview_show"
           	 class   = "controlButton"
           	 value   = "Endcap" 
-          	 onClick = "IMGC.updateIMGC('Tracker/PixelEndcap')"
+          	 onClick = "IMGC.updateIMGC('Pixel/Endcap')"
           	 type	 = "submit">
           </input>
          </div>
@@ -371,13 +371,13 @@
            	 onClick = "ClientActions.CheckQualityTestResults()"
            	 type	 = "submit">
           </input>
-          <input name	 = "save"
+          <!-- <input name	 = "save"
            	 id	 = "save_to_file"
            	 class   = "controlButton"
            	 value   = "Save All"
            	 onClick = "ClientActions.SaveToFile()"
            	 type	 = "submit">
-          </input>
+          </input> -->
          </div>
         </div>
      </fieldset>
@@ -402,19 +402,19 @@
           <select name  = "struc_name"
           	  id	= "structure_for_module"
           	  class = "selector">
-             <option value = "Tracker" 							  > ALL PIXELS	               </option>
-             <option value = "Tracker/PixelBarrel"					  > BPIX        	       </option>
-             <option value = "Tracker/PixelEndcap"					  > FPIX        	       </option>
-             <option value = "Tracker/PixelBarrel/Shell_mI" 		SELECTED	  > BPIX/Shell_mI	       </option>
-             <option value = "Tracker/PixelBarrel/Shell_mO"				  > BPIX/Shell_mO              </option>
-             <option value = "Tracker/PixelBarrel/Shell_pI"				  > BPIX/Shell_pI              </option>
-             <option value = "Tracker/PixelBarrel/Shell_pO"				  > BPIX/Shell_pO              </option>
-             <option value = "Tracker/PixelEndcap/HalfCylinder_mI"			  > FPIX/HalfCylinder_mI       </option>
-             <option value = "Tracker/PixelEndcap/HalfCylinder_mO"			  > FPIX/HalfCylinder_mO       </option>
-             <option value = "Tracker/PixelEndcap/HalfCylinder_pI"			  > FPIX/HalfCylinder_pI       </option>
-             <option value = "Tracker/PixelEndcap/HalfCylinder_pO"			  > FPIX/HalfCylinder_pO       </option>
-             <option value = "Tracker/PixelEndcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> FPIX/HalfCylinder_pO/Disk_1</option>
-             <option value = "Tracker/PixelEndcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> FPIX/HalfCylinder_pO/Disk_2</option>
+             <option value = "Pixel" 							  > ALL PIXELS	               </option>
+             <option value = "Pixel/Barrel"					  > Barrel        	       </option>
+             <option value = "Pixel/Endcap"					  > Endcap        	       </option>
+             <option value = "Pixel/Barrel/Shell_mI" 		SELECTED	  > Barrel/Shell_mI		   </option>
+             <option value = "Pixel/Barrel/Shell_mO"				  > Barrel/Shell_mO		   </option>
+             <option value = "Pixel/Barrel/Shell_pI"				  > Barrel/Shell_pI		   </option>
+             <option value = "Pixel/Barrel/Shell_pO"				  > Barrel/Shell_pO		   </option>
+             <option value = "Pixel/Endcap/HalfCylinder_mI"			  > Endcap/HalfCylinder_mI	   </option>
+             <option value = "Pixel/Endcap/HalfCylinder_mO"			  > Endcap/HalfCylinder_mO	   </option>
+             <option value = "Pixel/Endcap/HalfCylinder_pI"			  > Endcap/HalfCylinder_pI	   </option>
+             <option value = "Pixel/Endcap/HalfCylinder_pO"			  > Endcap/HalfCylinder_pO	   </option>
+             <option value = "Pixel/Endcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> Endcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1</option>
+             <option value = "Pixel/Endcap/HalfCylinder_pO/Disk_2/Blade_01/Panel_1"> Endcap/HalfCylinder_pO/Disk_2/Blade_01/Panel_1</option>
           </select>
           <p />
           <input name	 = "listmodule"
@@ -452,18 +452,18 @@
            <select name  = "struc_name"
            	   id	 = "structure_name"
            	   class = "selector">
-              <option value = "Tracker"		            				   > ALL PIXELS 		</option>
-              <option value = "Tracker/PixelBarrel" SELECTED				   > BPIX			</option>
-              <option value = "Tracker/PixelEndcap"         				   > FPIX			</option>
-              <option value = "Tracker/PixelBarrel/Shell_mI"> BPIX/Shell_mI</option>
-              <option value = "Tracker/PixelBarrel/Shell_mO"> BPIX/Shell_mO</option>
-              <option value = "Tracker/PixelBarrel/Shell_pI"> BPIX/Shell_pI</option>
-              <option value = "Tracker/PixelBarrel/Shell_pO"> BPIX/Shell_pO</option>
-              <option value = "Tracker/PixelEndcap/HalfCylinder_mI"> FPIX/HalfCylinder_mI</option>
-              <option value = "Tracker/PixelEndcap/HalfCylinder_mO"> FPIX/HalfCylinder_mO</option>
-              <option value = "Tracker/PixelEndcap/HalfCylinder_pI"> FPIX/HalfCylinder_pI</option>
-              <option value = "Tracker/PixelEndcap/HalfCylinder_pO"> FPIX/HalfCylinder_pO</option>
-              <option value = "Tracker/PixelEndcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> FPIX/HalfCylinder_pO/Disk_2</option>
+              <option value = "Pixel"	            				   > ALL PIXELS 		</option>
+              <option value = "Pixel/Barrel" SELECTED				   > Barrel			</option>
+              <option value = "Pixel/Endcap"         				   > Endcap			</option>
+              <option value = "Pixel/Barrel/Shell_mI"> Barrel/Shell_mI</option>
+              <option value = "Pixel/Barrel/Shell_mO"> Barrel/Shell_mO</option>
+              <option value = "Pixel/Barrel/Shell_pI"> Barrel/Shell_pI</option>
+              <option value = "Pixel/Barrel/Shell_pO"> Barrel/Shell_pO</option>
+              <option value = "Pixel/Endcap/HalfCylinder_mI"> Endcap/HalfCylinder_mI</option>
+              <option value = "Pixel/Endcap/HalfCylinder_mO"> Endcap/HalfCylinder_mO</option>
+              <option value = "Pixel/Endcap/HalfCylinder_pI"> Endcap/HalfCylinder_pI</option>
+              <option value = "Pixel/Endcap/HalfCylinder_pO"> Endcap/HalfCylinder_pO</option>
+              <option value = "Pixel/Endcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> Endcap/HalfCylinder_pO/Disk_2</option>
            </select>
            <p />
            <input name    = "listsummary"
@@ -501,9 +501,9 @@
           <select name  = "struc_alarm"
           	  id	= "structure_for_alarm"
           	  class = "selector">
-             <option value = "Tracker"> ALL PIXELS		  </option>
-             <option value = "Tracker/PixelBarrel" SELECTED> BPIX </option>
-             <option value = "Tracker/PixelEndcap"> FPIX	  </option>
+             <option value = "Pixel"> ALL PIXELS		  </option>
+             <option value = "Pixel/Barrel" SELECTED> Barrel </option>
+             <option value = "Pixel/Endcap"> Endcap	  </option>
           </select> 
           <p />
           <input name	 = "listalarm"
