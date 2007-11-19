@@ -46,6 +46,11 @@ namespace dedefs {
     "CTP", "CTF", "RPC", "LTC", "GMT", "GLT"
   };
 
+  const std::string SystLabelExt[DEnsys] = {
+    "ECAL", "HCAL", "RCT", "GCT", "DTTPG", "DTTF", 
+    "CSCTPG", "CSCTF", "RPC", "LTC", "GMT", "GT"
+  };
+
   enum ColList {
     ECALtp, HCALtp, RCTem, RCTrgn, GCTem, GCTjet, 
     DTtpPh, DTtpTh, CSCtpa, CSCtpc, CSCtpl, CSCsta, 
