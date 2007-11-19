@@ -9,6 +9,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <boost/cstdint.hpp>
 #include <string>
 #include <vector>
 #include <map>
@@ -73,7 +74,10 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   
   /** */
   void remove();
-
+  
+  void directory( std::stringstream&, 
+		  uint32_t run_number = 0 );
+  
   // ---------- DQM fwk and cabling ----------
 
   /** Interface to Data Quality Monitoring framework. */
