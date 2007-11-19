@@ -69,6 +69,10 @@ sub new {
 		   => \&define_EB_crystal_number_to_EB_fe_crystal_number,
 		   'EB_elec_crystal_number_to_EB_crystal_number',
 		   => \&define_EB_elec_crystal_number_to_EB_crystal_number,
+		   'EB_constr_crystal_number_to_EB_crystal_number'
+		   => \&define_EB_constr_crystal_number_to_EB_crystal_number,
+		   'EB_constr_supermodule_to_EB_supermodule'
+		   => \&define_EB_constr_supermodule_to_EB_supermodule,
 		   'EB_fe_crystal_number_to_EB_crystal_number',
 		   => \&define_EB_fe_crystal_number_to_EB_crystal_number
 		  };
@@ -775,6 +779,53 @@ sub define_EB_crystal_number_to_EB_module {
     }
   }
 
+  return { 
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
+sub define_EB_constr_supermodule_to_EB_supermodule {
+  my $name = "EB_constr_supermodule";
+  my $maps_to = "EB_supermodule";
+
+  my @logic_ids;
+  my @channel_ids;
+  my @slot_to_constr={-1,12,17,10,1,8,4,27,20,23,25,6,34,35,15,18,30,21,9
+			      ,24,22,13,31,26,16,2,11,5,0,29,28,14,33,32,3,7,19};
+  foreach my $SM (1..36) {
+      my $constSM=$slot_to_constr[$SM];
+    my $logic_id = sprintf "1041%02d00%02d", $SM, $SM;
+    push @logic_ids, $logic_id;
+    push @channel_ids, [ $constSM ];
+  }
+
+  return {
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
+sub define_EB_constr_crystal_number_to_EB_crystal_number {
+  my $name = "EB_constr_crystal_number";
+  my $maps_to = "EB_crystal_number";
+
+  my @logic_ids;
+  my @channel_ids;
+  my @slot_to_constr={-1,12,17,10,1,8,4,27,20,23,25,6,34,35,15,18,30,21,9
+			      ,24,22,13,31,26,16,2,11,5,0,29,28,14,33,32,3,7,19};
+
+  foreach my $SM (1..36) {
+    foreach my $cn (1..1700) {
+      my $constSM=$slot_to_constr[$SM];
+      my $logic_id = sprintf "1011%02d%04d", $SM, $cn;
+
+      # set the mapping
+      push @logic_ids, $logic_id;
+      push @channel_ids, [$constSM, $cn];          
+    }
+  }
+  
   return { 
 	  name => $name, maps_to => $maps_to,
 	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
