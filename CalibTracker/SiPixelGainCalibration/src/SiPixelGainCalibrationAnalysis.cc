@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id$
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.18 2007/11/19 12:17:47 fblekman Exp $
 //
 //
 
@@ -36,7 +36,7 @@
 
 class SiPixelGainCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
    public:
-      explicit SiPixelGainCalibrationAnalysis(const edm::ParameterSet&);
+      explicit SiPixelGainCalibrationAnalysis(const edm::ParameterSet& iConfig);
       ~SiPixelGainCalibrationAnalysis();
 
       virtual bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix);
@@ -74,9 +74,11 @@ class SiPixelGainCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
 //
 // constructors and destructor
 //
-SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::ParameterSet& iConfig):
+SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::ParameterSet& iConfig):SiPixelOfflineCalibAnalysisBase(iConfig),
   reject_badpoints_(iConfig.getUntrackedParameter<bool>("suppressZeroAndPlateausInFit",true))
 {
+  
+
 }
 
 SiPixelGainCalibrationAnalysis::~SiPixelGainCalibrationAnalysis()
