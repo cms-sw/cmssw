@@ -103,6 +103,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       }
     
       TSOS combTsos,smooTsos;
+
       //3 different possibilities to calculate smoothed state:
       //1: update combined predictions with hit
       //2: combine fwd-prediction with bwd-filter
@@ -136,17 +137,16 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
 	currTsos = predTsos;
 	myTraj.push(TM(predTsos, hit ));//why no estimate? if the hit is valid it should contribute to chi2...
-
       }else{
 	LogTrace("TrackFitters") << "THE Precise HIT IS VALID: updating currTsos" << "\n";
 	
 	//update backward predicted tsos with the hit
 	currTsos = updator()->update(predTsos, *preciseHit);
-	
+
 	//smooTsos updates the N-1 hits prediction with the hit
 	if (hitcounter == avtm.size()) smooTsos = itm->updatedState();
 	else if (hitcounter == 1) smooTsos = currTsos;
-	else smooTsos = combiner(itm->updatedState(), predTsos);
+	else smooTsos = combiner(itm->forwardPredictedState(), currTsos); 
 	
 	if(!smooTsos.isValid()) {
 	  LogDebug("TrackFitters") << "KFTrajectorySmoother: smoothed tsos not valid!";
@@ -178,7 +178,8 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 		       smooTsos,
 		       preciseHit,
 		       estimate),
-		    itm->estimate());
+		    estimator()->estimate(itm->forwardPredictedState(),*preciseHit).second);
+	            //itm->estimate());
       }
     } else {
       LogDebug("TrackFitters") 
