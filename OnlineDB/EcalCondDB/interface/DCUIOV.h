@@ -26,6 +26,7 @@ class DCUIOV : public IIOV {
   DCUTag getDCUTag() const;
 
   // Methods from IUniqueDBObject
+  int getID(){ return m_ID;} ;
   int fetchID() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
