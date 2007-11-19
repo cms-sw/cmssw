@@ -8,7 +8,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Tue Dec  5 14:02:46 CET 2006
-// $Id: EfficiencyHistograms.cc,v 1.2 2007/07/08 08:14:05 elmer Exp $
+// $Id: EfficiencyHistograms.cc,v 1.3 2007/11/13 16:29:01 tapper Exp $
 //
 
 #include "L1TriggerOffline/L1Analyzer/interface/EfficiencyHistograms.h"
@@ -30,6 +30,10 @@ EfficiencyHistograms::EfficiencyHistograms(const std::string name, const edm::Pa
 
   TFileDirectory dir = fs->mkdir(m_dirName);
 
+  m_EtEff  = dir.make<TH1F>("EtEff", "E_{T} Efficiency",m_etNBins,m_etMin,m_etMax); 
+  m_EtaEff = dir.make<TH1F>("EtaEff","#eta Efficiency", m_etaNBins,m_etaMin,m_etaMax);
+  m_PhiEff = dir.make<TH1F>("PhiEff","#phi Efficiency", m_phiNBins,m_phiMin,m_phiMax);
+
   m_L1EtEff  = dir.make<TH1F>("L1EtEff", "E_{T}",m_etNBins,m_etMin,m_etMax);    m_L1EtEff->Sumw2();
   m_L1EtaEff = dir.make<TH1F>("L1EtaEff","#eta", m_etaNBins,m_etaMin,m_etaMax); m_L1EtaEff->Sumw2();
   m_L1PhiEff = dir.make<TH1F>("L1PhiEff","#phi", m_phiNBins,m_phiMin,m_phiMax); m_L1PhiEff->Sumw2();
@@ -40,7 +44,15 @@ EfficiencyHistograms::EfficiencyHistograms(const std::string name, const edm::Pa
 
 }
 
-EfficiencyHistograms::~EfficiencyHistograms(){}
+EfficiencyHistograms::~EfficiencyHistograms()
+{
+  // Divide histograms to get efficiencies 
+  // When supported will use Bayes method.
+
+  m_EtEff->Divide(m_L1EtEff,m_RefEtEff,1.,1.,"B");
+  m_EtaEff->Divide(m_L1EtaEff,m_RefEtaEff,1.,1.,"B");
+  m_PhiEff->Divide(m_L1PhiEff,m_RefPhiEff,1.,1.,"B");
+}
 
 void EfficiencyHistograms::FillL1(const reco::CandidateRef &ref)
 {

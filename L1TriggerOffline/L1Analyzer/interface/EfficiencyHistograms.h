@@ -16,7 +16,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Tue Dec  5 14:02:48 CET 2006
-// $Id: EfficiencyHistograms.h,v 1.2 2007/07/08 08:14:03 elmer Exp $
+// $Id: EfficiencyHistograms.h,v 1.3 2007/11/13 16:29:00 tapper Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h" // Paramters
@@ -44,6 +44,7 @@ class EfficiencyHistograms
       double m_etMin, m_etaMin, m_phiMin; 
       double m_etMax, m_etaMax, m_phiMax; 
 
+      TH1F *m_EtEff, *m_EtaEff, *m_PhiEff; // Histograms for efficiencies
       TH1F *m_L1EtEff,  *m_L1EtaEff,  *m_L1PhiEff; // Histograms for L1
       TH1F *m_RefEtEff, *m_RefEtaEff, *m_RefPhiEff; // Histograms for reference
  
