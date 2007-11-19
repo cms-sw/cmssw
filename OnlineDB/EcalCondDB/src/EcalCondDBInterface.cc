@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.6 2007/06/14 11:17:41 fra Exp $
+// $Id: EcalCondDBInterface.cc,v 1.7 2007/11/14 16:38:47 fra Exp $
 
 #include <iostream>
 #include <string>
@@ -404,7 +404,7 @@ MonRunList EcalCondDBInterface::fetchMonRunListLastNRuns(RunTag tag, MonRunTag m
   return r;
 }
 
-
+// FE Peds
 
 FEConfigPedInfo EcalCondDBInterface::fetchFEConfigPedInfo(int mon_iov_id)
   throw(runtime_error)
@@ -416,13 +416,31 @@ FEConfigPedInfo EcalCondDBInterface::fetchFEConfigPedInfo(int mon_iov_id)
   return iconf;
 }
 
+FEConfigPedInfo EcalCondDBInterface::fetchFEConfigPedInfo(std::string tag )
+  throw(runtime_error)
+{  
+  FEConfigPedInfo iconf;
+  iconf.setConnection(env, conn);
+  iconf.setTag(tag);
+  iconf.fetchIDFromTag();
+  return iconf;
+}
 
-void EcalCondDBInterface::insertFEConfigPedInfo(FEConfigPedInfo iconf)
+FEConfigPedInfo EcalCondDBInterface::fetchFEConfigPedInfoLast()
+  throw(runtime_error)
+{  
+  FEConfigPedInfo iconf;
+  iconf.setConnection(env, conn);
+  iconf.fetchIDLast();
+  return iconf;
+}
+
+void EcalCondDBInterface::insertFEConfigPedInfo(FEConfigPedInfo* iconf)
   throw(runtime_error)
 {
   try {
-    iconf.setConnection(env, conn);
-    iconf.writeDB();
+    iconf->setConnection(env, conn);
+    iconf->writeDB();
   } catch(runtime_error &e) {
     conn->rollback();
     throw(e);
@@ -430,6 +448,98 @@ void EcalCondDBInterface::insertFEConfigPedInfo(FEConfigPedInfo iconf)
   conn->commit();
 }
 
+
+// LUT
+
+FEConfigLUTInfo EcalCondDBInterface::fetchFEConfigLUTInfoByID(int id)
+  throw(runtime_error)
+{  
+  FEConfigLUTInfo iconf;
+  iconf.setConnection(env, conn);
+  iconf.setByID(id);
+  return iconf;
+}
+
+FEConfigLUTInfo EcalCondDBInterface::fetchFEConfigLUTInfo(int mon_iov_id)
+  throw(runtime_error)
+{  
+  FEConfigLUTInfo iconf;
+  iconf.setConnection(env, conn);
+  iconf.setIOVId(mon_iov_id);
+  iconf.fetchID();
+  return iconf;
+}
+
+FEConfigLUTInfo EcalCondDBInterface::fetchFEConfigLUTInfo(std::string tag )
+  throw(runtime_error)
+{  
+  FEConfigLUTInfo iconf;
+  iconf.setConnection(env, conn);
+  iconf.setTag(tag);
+  iconf.fetchIDFromTag();
+  return iconf;
+}
+
+FEConfigLUTInfo EcalCondDBInterface::fetchFEConfigLUTInfoLast()
+  throw(runtime_error)
+{  
+  FEConfigLUTInfo iconf;
+  iconf.setConnection(env, conn);
+  iconf.fetchIDLast();
+  return iconf;
+}
+
+
+int EcalCondDBInterface::insertFEConfigLUTInfo(FEConfigLUTInfo* iconf)
+  throw(runtime_error)
+{
+  int result=0;
+  try {
+    iconf->setConnection(env, conn);
+    result=iconf->writeDB();
+  } catch(runtime_error &e) {
+    conn->rollback();
+    throw(e);
+  }
+  conn->commit();
+  return result;
+}
+
+// weight
+
+FEConfigWeightInfo EcalCondDBInterface::fetchFEConfigWeightInfo(std::string tag )
+  throw(runtime_error)
+{  
+  FEConfigWeightInfo iconf;
+  iconf.setConnection(env, conn);
+  iconf.setTag(tag);
+  iconf.fetchIDFromTag();
+  return iconf;
+}
+
+FEConfigWeightInfo EcalCondDBInterface::fetchFEConfigWeightInfoLast()
+  throw(runtime_error)
+{  
+  FEConfigWeightInfo iconf;
+  iconf.setConnection(env, conn);
+  iconf.fetchIDLast();
+  return iconf;
+}
+
+
+
+void EcalCondDBInterface::insertFEConfigWeightInfo(FEConfigWeightInfo* iconf)
+  throw(runtime_error)
+{
+  try {
+    iconf->setConnection(env, conn);
+    iconf->writeDB();
+  } catch(runtime_error &e) {
+    conn->rollback();
+    throw(e);
+  }
+  conn->commit();
+}
 
 
 

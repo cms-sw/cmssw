@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.9 2007/06/14 11:17:40 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.10 2007/11/14 16:38:48 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -257,10 +257,21 @@ class EcalCondDBInterface : public EcalDBConnection {
   MonRunList fetchMonRunListLastNRuns(RunTag tag, MonRunTag monruntag, int max_run, int n_runs) throw(std::runtime_error);
 
   // methods for the config FE API
-  FEConfigPedInfo fetchFEConfigPedInfo(int mon_iov_id)  throw(runtime_error);
-  void insertFEConfigPedInfo(FEConfigPedInfo iconf) throw(runtime_error);
+  FEConfigPedInfo fetchFEConfigPedInfo(int id)  throw(runtime_error);
+  FEConfigPedInfo fetchFEConfigPedInfo(std::string tag ) throw(runtime_error);
+  FEConfigPedInfo fetchFEConfigPedInfoLast()  throw(runtime_error);
+  void insertFEConfigPedInfo(FEConfigPedInfo* iconf) throw(runtime_error);
+
+  FEConfigLUTInfo fetchFEConfigLUTInfoByID(int id)  throw(runtime_error);
+  FEConfigLUTInfo fetchFEConfigLUTInfo(int id)  throw(runtime_error);
+  FEConfigLUTInfo fetchFEConfigLUTInfo(std::string tag ) throw(runtime_error);
+  FEConfigLUTInfo fetchFEConfigLUTInfoLast()  throw(runtime_error);
+  int insertFEConfigLUTInfo(FEConfigLUTInfo* iconf) throw(runtime_error);
 
 
+  FEConfigWeightInfo fetchFEConfigWeightInfo(std::string tag ) throw(runtime_error);
+  FEConfigWeightInfo fetchFEConfigWeightInfoLast()  throw(runtime_error);
+  void insertFEConfigWeightInfo(FEConfigWeightInfo* iconf) throw(runtime_error);
 
 
 
@@ -279,7 +290,15 @@ class EcalCondDBInterface : public EcalDBConnection {
   {
     try {
       iov->setConnection(env, conn);
-      iov->writeDB();
+      // if it has not yet been written then write 
+      if(iov->getID()==0){
+	cout<<"IOV was not set we retrieve it from DB"<<endl;
+	iov->fetchID();
+      } 
+      if(iov->getID()==0){
+	cout<<"IOV was not written we write it"<<endl;
+	iov->writeDB();
+      } 
       
       DATT dataIface;
       dataIface.setConnection(env, conn);
@@ -311,7 +330,15 @@ class EcalCondDBInterface : public EcalDBConnection {
   {
     try {
       iov->setConnection(env, conn);
-      iov->writeDB();
+      if(iov->getID()==0){
+	cout<<"IOV was not set we retrieve it from DB"<<endl;
+	iov->fetchID();
+      } 
+      if(iov->getID()==0){
+	cout<<"IOV was not written we write it"<<endl;
+	iov->writeDB();
+      } 
+
       
       DATT dataIface;
       dataIface.setConnection(env, conn);
