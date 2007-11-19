@@ -10,8 +10,8 @@ package ConnectionFile;
 # connection information
 our $host = "__CHANGE_ME__";
 our $db = "__CHANGE_ME__";
-our $user = "__CHANGE_ME_";
-our $pass = "__CHANGE_ME_";
+our $user = "__CHANGE_ME__";
+our $pass = "__CHANGE_ME__";
 our $port = 1521;
 our $db_opts = {RaiseError=>1};
 
