@@ -53,6 +53,7 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
   }
 
   if(dbe) {
+
     dbe->setCurrentFolder("L1DEMon");
     
     for(int j=0; j<2; j++) {
@@ -96,6 +97,8 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
     */
 
     for(int j=0; j<DEnsys; j++) {
+
+      dbe->setCurrentFolder(std::string("L1DEMon/"+SystLabelExt[j]));
 
       std::string lbl("");
       lbl.clear();
@@ -155,8 +158,9 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
     }
 
     ///correlation
+    dbe->setCurrentFolder("L1DEMon/CORR");
     const int ncorr = 3;
-    TString corrl[ncorr] = {"phi","eta","rank"};
+    std::string corrl[ncorr] = {"phi","eta","rank"};
     for(int i=0; i<DEnsys; i++) {
       for(int j=0; j<DEnsys; j++) {
 	if(i>j) continue;
@@ -181,6 +185,49 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
     
   }
   
+  /// labeling (temporary cosmetics added here)
+  for(int i=0; i<DEnsys; i++) {
+    sysrates   ->setBinLabel(i+1,SystLabel[i]);
+    sysncand[0]->setBinLabel(i+1,SystLabel[i]);
+    sysncand[1]->setBinLabel(i+1,SystLabel[i]);
+  }
+  const int nerr=5;
+  std::string errLabel[nerr]= {
+    "Agree", "Loc. Agree", "L.Disagree", "Data only", "Emul only"
+  };
+  for(int j=0; j<nerr; j++) {
+    errordist->setBinLabel(j+1,errLabel[j]);
+  }
+  for(int i=0; i<DEnsys; i++) {
+    for(int j=0; j<nerr; j++) {
+      errortype[i]->setBinLabel(j+1,errLabel[j]);
+    }
+  }
+  for(int i=0; i<DEnsys; i++) {
+    etaphi [i]->setAxisTitle("eta",1);
+    etaphi [i]->setAxisTitle("phi",2);
+    eta    [i]->setAxisTitle("eta");
+    phi    [i]->setAxisTitle("phi");
+    x3     [i]->setAxisTitle("x3");
+    etaData[i]->setAxisTitle("eta");
+    phiData[i]->setAxisTitle("phi");
+    x3Data [i]->setAxisTitle("x3");
+    rnkData[i]->setAxisTitle("rank");
+    dword  [i]->setAxisTitle("trigger data word bit");
+    eword  [i]->setAxisTitle("trigger data word bit");
+    deword [i]->setAxisTitle("trigger data word bit");
+    masked [i]->setAxisTitle("trigger data word bit");
+  }
+  for(int i=0; i<DEnsys; i++) {
+    for(int j=0; j<DEnsys; j++) {
+      if(i>j) continue;
+      for(int k=0; k<3; k++) {
+	CORR[i][j][k]->setAxisTitle(SystLabel[i],1);
+	CORR[i][j][k]->setAxisTitle(SystLabel[j],2);
+      }
+    }
+  }
+
   ///assertions/temporary
   assert(ETP==0); assert(HTP==1); assert(RCT== 2); assert(GCT== 3);
   assert(DTP==4); assert(DTF==5); assert(CTP== 6); assert(CTF== 7);

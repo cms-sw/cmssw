@@ -84,9 +84,6 @@ class L1TDEMON : public edm::EDAnalyzer {
   MonitorElement* masked[DEnsys];
 
   // subsytem correlations
-  MonitorElement* EtpRct[3];
-  MonitorElement* RctGct[3];
-  MonitorElement* DtpDtf[3];
   MonitorElement* CORR[DEnsys][DEnsys][3];
 };
 
