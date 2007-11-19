@@ -143,7 +143,7 @@ void TransientVertex::refittedTracks(
 void TransientVertex::tkToTkCovariance(const TTtoTTmap covMap)
 {
   theCovMap = covMap;
-  withPrior = true;
+  theCovMapAvailable = true;
 }
 
 float TransientVertex::trackWeight(const TransientTrack & track) const {
