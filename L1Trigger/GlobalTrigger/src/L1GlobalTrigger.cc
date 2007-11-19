@@ -245,10 +245,13 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     iBoard = 0;    
     L1GtBoard tcsBoard = L1GtBoard(TCS, iBoard);    
-    // TODO FIXME add boardId to TCS
-    // tcsWordValue.setBoardId( l1GtBM->boardId(tcsBoard) ); 
+    tcsWordValue.setBoardId( l1GtBM->boardId(tcsBoard) ); 
 
-    tcsWordValue.setTriggerType(0x5); // 0101 simulated event
+    boost::uint16_t trigType = 0x5; // 0101 simulated event
+    tcsWordValue.setTriggerType(trigType);
+
+    // set the Event_Nr as read from iEvent
+    tcsWordValue.setEventNr(static_cast<boost::uint32_t>(iEvent.id().event()));
 
     // ** fill L1TcsWord in the EVM record
 
