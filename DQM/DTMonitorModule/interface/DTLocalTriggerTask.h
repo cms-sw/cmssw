@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2007/09/20 08:04:28 $
- * $Revision: 1.11 $
+ * $Date: 2007/11/12 18:00:30 $
+ * $Revision: 1.13 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -79,6 +79,12 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
 
   /// Run analysis using DT 4D segments
   void runSegmentAnalysis(const edm::Event& e, std::string& trigsrc);
+
+  /// Load DTTF map correction
+  void loadDTTFMap();
+
+  /// Correct DTTF mapping
+  void correctMapping(int& wh, int& sector);
   
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -105,6 +111,7 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   int dduphcode_best[6][5][13];
   int thcode_best[6][5][13];  
   int dduthcode_best[6][5][13];
+  int mapDTTF[6][13][2];
   const L1MuDTChambPhDigi* iphbest[6][5][13];
   const L1MuDTChambThDigi* ithbest[6][5][13];
   bool track_flag[6][5][15];
