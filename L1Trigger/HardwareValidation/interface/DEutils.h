@@ -795,7 +795,7 @@ template <>
 inline std::string DEutils<L1GctJetCandCollection>::print(col_cit it) const {
   std::stringstream ss;
   ss << "0x" << std::setw(4) << std::setfill('0') << std::hex << it->raw() 
-     << *it << std::dec; 
+     << *it << std::dec << std::endl; 
   return ss.str();
 }
 
