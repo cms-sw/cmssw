@@ -40,7 +40,7 @@ protected:
 		    const string& numeHistName, const string& denoHistName);
   bool saveResolution(const string& histName, const string& histTitle, 
 		      const string& srcHistName, const char sliceDirection = 'Y');
-  bool saveHistogram(const string& histName, const string& histTitle, const string& srcHistName);
+  bool dumpObject(const string& objName, const string& objTitle, const string& srcObjName);
 
 protected:
   bool setSrcFile(const string& fileName);
@@ -106,43 +106,43 @@ void PlotManager::processCommand(istream& in)
       args.push_back(*tok_iter);
     }
 
-    if ( cmd == "EFFI" && args.size() >= 4 ) {
+    if ( cmd == "EFFICIENCY" && args.size() >= 4 ) {
       if ( !saveEfficiency(args[0], args[1], args[2], args[3]) ) {
 	cerr << "Error : cannot make efficiency plot" << endl;
       }
       continue;
     }
 
-    if ( cmd == "EFFB" && args.size() >= 4 ) {
+    if ( cmd == "BAYESIANEFFICIENCY" && args.size() >= 4 ) {
       if ( !saveBayesEfficiency(args[0], args[1], args[2], args[3]) ) {
 	cerr << "Error : cannot make bayesian efficiency plot" << endl;
       }
       continue;
     }
     
-    if ( cmd == "FAKE" && args.size() == 4 ) {
+    if ( cmd == "FAKERATE" && args.size() == 4 ) {
       if ( !saveFakeRate(args[0], args[1], args[2], args[3]) ) {
 	cerr << "Error : cannot make fakerate plot" << endl;
       }
       continue;
     }
     
-    if ( cmd == "RESX" && args.size() == 3 ) {
+    if ( cmd == "RESOLUTIONX" && args.size() == 3 ) {
       if ( !saveResolution(args[0], args[1], args[2], 'X') ) {
 	cerr << "Error : cannot make resolution-X plot" << endl;
       }
       continue;
     }
     
-    if ( cmd == "RESY" && args.size() == 3 ) {
+    if ( cmd == "RESOLUTIONY" && args.size() == 3 ) {
       if ( !saveResolution(args[0], args[1], args[2], 'Y') ) {
 	cerr << "Error : cannot make resolution-Y plot" << endl;
       }
       continue;
     }
     
-    if ( cmd == "HIST" && args.size() == 3 ) {
-      if ( !saveHistogram(args[0], args[1], args[2]) ) {
+    if ( cmd == "DUMP" && args.size() == 3 ) {
+      if ( !dumpObject(args[0], args[1], args[2]) ) {
 	cerr << "Error : cannot copy histogram" << endl;
       }
       continue;
@@ -479,39 +479,39 @@ bool PlotManager::saveResolution(const string& histName, const string& histTitle
   return true;
 }
 
-bool PlotManager::saveHistogram(const string& histName,
-				const string& histTitle,
-				const string& srcHistName)
+bool PlotManager::dumpObject(const string& objName,
+			     const string& objTitle,
+			     const string& srcObjName)
 {
   if ( ! isSetup_ ) return false;
   
   // Push to base directory
   string pwd(gDirectory->GetPath());
   
-  string newHistPath = dirname(histName);
-  string newHistName = basename(histName);
+  string newObjPath = dirname(objName);
+  string newObjName = basename(objName);
   
-  if ( newHistPath.empty() ) {
+  if ( newObjPath.empty() ) {
     theOutFile_->cd();
   }
-  else if ( theOutFile_->cd(newHistPath.c_str()) == kFALSE ) {
+  else if ( theOutFile_->cd(newObjPath.c_str()) == kFALSE ) {
     cout << "Cannot find dir, do mkdirs" << endl;
-    mkdirs(theOutFile_, newHistPath)->cd();
+    mkdirs(theOutFile_, newObjPath)->cd();
   }
 
-  TNamed* srcHist = dynamic_cast<TNamed*>(theSrcFile_->Get(srcHistName.c_str()));
+  TNamed* srcObj = dynamic_cast<TNamed*>(theSrcFile_->Get(srcObjName.c_str()));
 
-  if ( srcHist == NULL ) {
-    cerr << "Cannot get object : " << srcHistName << endl;
+  if ( srcObj == NULL ) {
+    cerr << "Cannot get object : " << srcObjName << endl;
     return false;
   }
 
-  TNamed* saveHist = dynamic_cast<TNamed*>(srcHist->Clone(newHistName.c_str()));
-//  saveHist->SetName(newHistName.c_str());
-  saveHist->SetTitle(histTitle.c_str());
+  TNamed* saveObj = dynamic_cast<TNamed*>(srcObj->Clone(newObjName.c_str()));
+//  saveObj->SetName(newObjName.c_str());
+  saveObj->SetTitle(objTitle.c_str());
   
   // Save histogram
-  saveHist->Write();
+  saveObj->Write();
   
   // Pop directory
   gDirectory->cd(pwd.c_str());
