@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.24 2007/11/16 13:21:42 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.25 2007/11/20 22:39:26 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -22,7 +22,7 @@
 #include <string>
 #include <map>
 
-#define USING_NEW_DATABASE_MODEL
+//#define USING_NEW_DATABASE_MODEL
 
 // Friend class
 namespace cms { class SiStripO2O; }
