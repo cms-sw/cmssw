@@ -282,23 +282,23 @@ void HcalDeadCellClient::resetAllME(){
     if(i==2) type = "HF"; 
     if(i==3) type = "HO"; 
     
-    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Energy",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DeadCellMonitor/%s/%s DeadCell Energy",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Time",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DeadCellMonitor/%s/%s DeadCell Time",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell ID",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DeadCellMonitor/%s/%s DeadCell ID",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Geo Occupancy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DeadCellMonitor/%s/%s DeadCell Geo Occupancy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Geo Energy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DeadCellMonitor/%s/%s DeadCell Geo Energy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Geo Occupancy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DeadCellMonitor/%s/%s DeadCell Geo Occupancy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Geo Energy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DeadCellMonitor/%s/%s DeadCell Geo Energy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Geo Occupancy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DeadCellMonitor/%s/%s DeadCell Geo Occupancy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcal/DigiMonitor/%s/%s DeadCell Geo Energy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/DeadCellMonitor/%s/%s DeadCell Geo Energy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
   }
 

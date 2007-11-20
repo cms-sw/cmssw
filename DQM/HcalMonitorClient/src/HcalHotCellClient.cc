@@ -33,39 +33,33 @@ HcalHotCellClient::HcalHotCellClient(const ParameterSet& ps, DaqMonitorBEInterfa
   // DQM default process name
   process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
   
-  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
-  
   // Set # of histogram hot cell thresholds to 0 at start
 
   int dummy = 0;
-
   thresholds_=ps.getUntrackedParameter<int>("HotCellThresholds",dummy);
 
 
-  for(unsigned int i=0; i<subdets.size(); i++)
-    {
-      if(subdets[i]=="HB")
-	{
-	  subDetsOn_[0] = true;
-	  hbhists.thresholds=ps.getUntrackedParameter<int>("HBHotCellThresholds",thresholds_);
-	}
-      else if(subdets[1]=="HE") 
-	{
-	  subDetsOn_[1] = true;
-	  hehists.thresholds=ps.getUntrackedParameter<int>("HEHotCellThresholds",thresholds_);
-	}
-      else if(subdets[i]=="HO") 
-	{
-	  subDetsOn_[2] = true;
-	  hohists.thresholds=ps.getUntrackedParameter<int>("HOHotCellThresholds",thresholds_);
-	}
-      else if(subdets[i]=="HF")
-	{
-	  subDetsOn_[3] = true;
-	  hfhists.thresholds=ps.getUntrackedParameter<int>("HFHotCellThresholds",thresholds_);
-	}
+  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
+  for(int i=0; i<4; i++) subDetsOn_[i] = false;
+  
+  for(unsigned int i=0; i<subdets.size(); i++){
+    if(subdets[i]=="HB"){
+      subDetsOn_[0] = true;
+      hbhists.thresholds=ps.getUntrackedParameter<int>("HBHotCellThresholds",thresholds_);
     }
+    else if(subdets[1]=="HE") {
+      subDetsOn_[1] = true;
+      hehists.thresholds=ps.getUntrackedParameter<int>("HEHotCellThresholds",thresholds_);
+    }
+    else if(subdets[i]=="HO") {
+      subDetsOn_[2] = true;
+      hohists.thresholds=ps.getUntrackedParameter<int>("HOHotCellThresholds",thresholds_);
+    }
+    else if(subdets[i]=="HF"){
+      subDetsOn_[3] = true;
+      hfhists.thresholds=ps.getUntrackedParameter<int>("HFHotCellThresholds",thresholds_);
+    }
+  }
 }
 
 HcalHotCellClient::HcalHotCellClient(){
@@ -254,18 +248,19 @@ void HcalHotCellClient::getHistograms(){
   if (verbose_)
     cout <<"HcalHotCellClient::getHistograms()"<<endl;
   for(int i=0; i<4; i++){
+
     sprintf(name,"HotCellMonitor/HotCellDepth%dOccupancyMap",i+1);
     gl_geo_[i] = getHisto2(name, process_, dbe_,verbose_,cloneME_);
-    
+
     sprintf(name,"HotCellMonitor/HotCellDepth%dEnergyMap",i+1);
     gl_en_[i] = getHisto2(name, process_, dbe_,verbose_,cloneME_);    
   }
     
   
-  if (subDetsOn_[0]) getSubDetHistograms(hbhists);
-  if (subDetsOn_[1]) getSubDetHistograms(hehists);
-  if (subDetsOn_[2]) getSubDetHistograms(hohists);
-  if (subDetsOn_[3]) getSubDetHistograms(hfhists);
+  if(subDetsOn_[0]) getSubDetHistograms(hbhists);
+  if(subDetsOn_[1]) getSubDetHistograms(hehists);
+  if(subDetsOn_[2]) getSubDetHistograms(hohists);
+  if(subDetsOn_[3]) getSubDetHistograms(hfhists);
 
   return;
 }
@@ -410,13 +405,12 @@ void HcalHotCellClient::htmlSubDetOutput(HotCellHists& hist, int runNo,
   histoHTML2(runNo,hist.NADA_NEG_EN_MAP,"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
-  for (int i=0;i<hist.thresholds;i++)
-    {
-      htmlFile << "<tr align=\"left\">" << endl;	
-      histoHTML2(runNo,hist.OCCmap[i],"iEta","iPhi", 92, htmlFile,htmlDir);
-      histoHTML2(runNo,hist.ENERGYmap[i],"iEta","iPhi", 100, htmlFile,htmlDir);
-      htmlFile << "</tr>" << endl;
-    }
+  for (int i=0;i<hist.thresholds;i++){
+    htmlFile << "<tr align=\"left\">" << endl;	
+    histoHTML2(runNo,hist.OCCmap[i],"iEta","iPhi", 92, htmlFile,htmlDir);
+    histoHTML2(runNo,hist.ENERGYmap[i],"iEta","iPhi", 100, htmlFile,htmlDir);
+    htmlFile << "</tr>" << endl;
+  }
 
   htmlFile << "<tr align=\"left\">" << endl;	
   histoHTML(runNo,hist.MAX_E,"GeV","Evts", 92, htmlFile,htmlDir);
@@ -630,7 +624,7 @@ void HcalHotCellClient::getSubDetHistograms(HotCellHists& hist)
 
   for (int i=0;i<hist.thresholds;i++)
     {
-      sprintf(name,"HotCellMonitor/%s/%sHotCellOCCUPANCYmap_Thresh%i",type.c_str(),type.c_str(),i);
+      sprintf(name,"HotCellMonitor/%s/%sHotCellOCCmap_Thresh%i",type.c_str(),type.c_str(),i);
       //cout <<name<<endl;
       hist.OCCmap.push_back(getHisto2(name,process_,dbe_,verbose_,cloneME_));
       sprintf(name,"HotCellMonitor/%s/%sHotCellENERGYmap_Thresh%i",type.c_str(),type.c_str(),i);
@@ -751,8 +745,7 @@ void HcalHotCellClient::resetSubDetHistograms(HotCellHists& hist)
   else if(hist.type==2) type = "HO"; 
   else if(hist.type==3) type = "HF"; 
   
-  for (int i=0;i<hist.thresholds;i++)
-    {
+  for (int i=0;i<hist.thresholds;i++){
       sprintf(name,"HotCellMonitor/%s/%sHotCellENERGYmap_Thresh%i",type.c_str(),type.c_str(),i);
       //cout <<"NAME = "<<name<<endl;
       resetME(name,dbe_);

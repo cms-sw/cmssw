@@ -28,6 +28,13 @@ HcalLEDClient::HcalLEDClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe)
     avg_time_[i] = 0;
     avg_energy_[i] = 0;
   }
+  HFlumi_etsum = 0;
+  HFlumi_occabthr1 = 0;
+  HFlumi_occbetthr1 = 0;
+  HFlumi_occbelthr1 = 0;
+  HFlumi_occabthr2 = 0;
+  HFlumi_occbetthr2 = 0;
+  HFlumi_occbelthr2 = 0;
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -92,6 +99,13 @@ HcalLEDClient::HcalLEDClient(){
     avg_time_[i] = 0;
     avg_energy_[i] = 0;
   }
+  HFlumi_etsum = 0;
+  HFlumi_occabthr1 = 0;
+  HFlumi_occbetthr1 = 0;
+  HFlumi_occbelthr1 = 0;
+  HFlumi_occabthr2 = 0;
+  HFlumi_occbetthr2 = 0;
+  HFlumi_occbelthr2 = 0;
 
   // verbosity switch
   debug_ = false;
@@ -171,6 +185,13 @@ void HcalLEDClient::cleanup(void) {
       if(avg_time_[i]) delete avg_time_[i];
       if(avg_energy_[i]) delete avg_energy_[i];
     }
+      if(HFlumi_etsum) delete HFlumi_etsum;
+      if(HFlumi_occabthr1) delete HFlumi_occabthr1;
+      if(HFlumi_occbetthr1) delete HFlumi_occbetthr1;
+      if(HFlumi_occbelthr1) delete HFlumi_occbelthr1;
+      if(HFlumi_occabthr2) delete HFlumi_occabthr2;
+      if(HFlumi_occbetthr2) delete HFlumi_occbetthr2;
+      if(HFlumi_occbelthr2) delete HFlumi_occbelthr2;
   }
 
   for(int i=0; i<4; i++){    
@@ -194,6 +215,13 @@ void HcalLEDClient::cleanup(void) {
     avg_time_[i] = 0;
     avg_energy_[i] = 0;
   }
+  HFlumi_etsum = 0;
+  HFlumi_occabthr1 = 0;
+  HFlumi_occbetthr1 = 0;
+  HFlumi_occbelthr1 = 0;
+  HFlumi_occabthr2 = 0;
+  HFlumi_occbetthr2 = 0;
+  HFlumi_occbelthr2 = 0;
 
 
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
@@ -390,6 +418,24 @@ void HcalLEDClient::getHistograms(){
     sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Elec Error Map",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meElecErr  = dbe_->get(name);
 
+    if(i==2){ 
+      sprintf(name,"LEDMonitor/%s/%s lumi ET-sum per wedge",type.c_str(),type.c_str());      
+      HFlumi_etsum = getHisto(name, process_,dbe_,debug_,cloneME_);
+
+      sprintf(name,"LEDMonitor/%s/%s lumi Occupancy above threshold ring1",type.c_str(),type.c_str());      
+      HFlumi_occabthr1 = getHisto(name, process_,dbe_,debug_,cloneME_);
+      sprintf(name,"LEDMonitor/%s/%s lumi Occupancy between thresholds ring1",type.c_str(),type.c_str());      
+      HFlumi_occbetthr1 = getHisto(name, process_,dbe_,debug_,cloneME_);
+      sprintf(name,"LEDMonitor/%s/%s lumi Occupancy below threshold ring1",type.c_str(),type.c_str());      
+      HFlumi_occbelthr1 = getHisto(name, process_,dbe_,debug_,cloneME_);
+
+      sprintf(name,"LEDMonitor/%s/%s lumi Occupancy above threshold ring2",type.c_str(),type.c_str());      
+      HFlumi_occabthr2 = getHisto(name, process_,dbe_,debug_,cloneME_);
+      sprintf(name,"LEDMonitor/%s/%s lumi Occupancy between thresholds ring2",type.c_str(),type.c_str());      
+      HFlumi_occbetthr2 = getHisto(name, process_,dbe_,debug_,cloneME_);
+      sprintf(name,"LEDMonitor/%s/%s lumi Occupancy below threshold ring2",type.c_str(),type.c_str());      
+      HFlumi_occbelthr2 = getHisto(name, process_,dbe_,debug_,cloneME_);
+    }
 
     if(!meShapeRMS || !meShapeMean) continue;
     if(!meTimeRMS || !meTimeMean) continue;
@@ -824,6 +870,28 @@ void HcalLEDClient::htmlOutput(int runNo, string htmlDir, string htmlName){
      histoHTML(runNo,rms_energy_[i],"ADC Sum RMS Value","Events", 92, htmlFile,htmlDir);
      histoHTML(runNo,mean_energy_[i],"ADC Sum Mean Value","Events", 100, htmlFile,htmlDir);
      htmlFile << "</tr>" << endl;
+
+     if(i==2){
+      htmlFile << "<tr align=\"left\">" << endl;
+      histoHTML(runNo,HFlumi_etsum,"Wedge number","ET Sum times events", 92, htmlFile,htmlDir);
+      htmlFile << "</tr>" << endl;
+
+      htmlFile << "<tr align=\"left\">" << endl;
+      histoHTML(runNo,HFlumi_occabthr1,"Wedge number","Occupancy times events", 100, htmlFile,htmlDir);
+      histoHTML(runNo,HFlumi_occabthr2,"Wedge number","Occupancy times events", 100, htmlFile,htmlDir);
+      htmlFile << "</tr>" << endl;
+
+      htmlFile << "<tr align=\"left\">" << endl;
+      histoHTML(runNo,HFlumi_occbetthr1,"Wedge number","Occupancy times events", 100, htmlFile,htmlDir);
+      histoHTML(runNo,HFlumi_occbetthr2,"Wedge number","Occupancy times events", 100, htmlFile,htmlDir);
+      htmlFile << "</tr>" << endl;
+
+      htmlFile << "<tr align=\"left\">" << endl;
+      histoHTML(runNo,HFlumi_occbelthr1,"Wedge number","Occupancy times events", 100, htmlFile,htmlDir);
+      histoHTML(runNo,HFlumi_occbelthr2,"Wedge number","Occupancy times events", 100, htmlFile,htmlDir);
+      htmlFile << "</tr>" << endl;
+     }
+
    }
 
   htmlFile << "</table>" << endl;
@@ -900,6 +968,25 @@ void HcalLEDClient::loadHistograms(TFile* infile){
     sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s LED Elec Error Map",type.c_str(),type.c_str());
     err_map_elec_[i]=(TH2F*)infile->Get(name);
 
+    if(i==2){
+     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi ET-sum per wedge",type.c_str(),type.c_str());      
+     HFlumi_etsum = (TH1F*)infile->Get(name);
+
+     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi Occupancy above threshold ring1",type.c_str(),type.c_str()); 
+     HFlumi_occabthr1 = (TH1F*)infile->Get(name);
+     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi Occupancy between thresholds ring1",type.c_str(),type.c_str()); 
+     HFlumi_occbetthr1 = (TH1F*)infile->Get(name);
+     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi Occupancy below threshold ring1",type.c_str(),type.c_str()); 
+     HFlumi_occbelthr1 = (TH1F*)infile->Get(name);
+
+
+     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi Occupancy above threshold ring2",type.c_str(),type.c_str()); 
+     HFlumi_occabthr2 = (TH1F*)infile->Get(name);
+     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi Occupancy between thresholds ring2",type.c_str(),type.c_str()); 
+     HFlumi_occbetthr2 = (TH1F*)infile->Get(name);
+     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi Occupancy below threshold ring2",type.c_str(),type.c_str()); 
+     HFlumi_occbelthr2 = (TH1F*)infile->Get(name);
+    }
 
     for(int ieta=-42; ieta<=42; ieta++){
       if(ieta==0) continue;

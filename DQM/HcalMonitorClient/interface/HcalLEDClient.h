@@ -137,6 +137,17 @@ private:
   map<unsigned int, TH2F*> rms_shapeElec_;
   map<unsigned int, TH2F*> mean_shapeElec_;
 
+
+  TH1F* HFlumi_etsum;
+  TH1F* HFlumi_occabthr1;
+  TH1F* HFlumi_occbetthr1;
+  TH1F* HFlumi_occbelthr1;
+  TH1F* HFlumi_occabthr2;
+  TH1F* HFlumi_occbetthr2;
+  TH1F* HFlumi_occbelthr2;
+
+
+
   // Quality criteria for data integrity
   float rms_thresh_;
   float mean_thresh_;
