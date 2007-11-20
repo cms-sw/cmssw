@@ -19,10 +19,11 @@ void CSCCrateMapValues::fillCrateMap()
   int chamberid;
   int crate_cscid;
 
+  /* This is version for 540 chambers. */
   for(i=1;i<=2;++i){
     for(j=1;j<=4;++j){
       if(j==1) r=3;
-      else if(j==4) r=1;
+      //else if(j==4) r=1;
       else r=2;
       for(k=1;k<=r;++k){
        if(j>1 && k==1) c=18;
