@@ -178,7 +178,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 		       smooTsos,
 		       preciseHit,
 		       estimate),
-		    estimator()->estimate(itm->forwardPredictedState(),*preciseHit).second);
+		    estimator()->estimate(predTsos,*preciseHit).second);
 	            //itm->estimate());
       }
     } else {
