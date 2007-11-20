@@ -11,8 +11,11 @@ commands_file.close()
 commands=[]
 
 for line in lines:
-    if line[0]=='$':
-        commands.append(line[:-1])
+    if line[0]!='#' and\
+       line.replace(' ','')!='\n':
+        linecomponents=line.split('@@@')
+        command=linecomponents[1][:-1]
+        commands.append(command)
         
 nfail=0
 npass=0
