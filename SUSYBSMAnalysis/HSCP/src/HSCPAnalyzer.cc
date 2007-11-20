@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.12 2007/11/13 12:55:30 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.13 2007/11/15 10:23:53 arizzi Exp $
 //
 //
 
@@ -227,11 +227,17 @@ Handle< double > genFilterEff;
 
    if(m_useWeights)
    {
+	Handle<double> xsHandle;
+	iEvent.getByLabel ("genEventRunInfo","PreCalculatedCrossSection", xsHandle);
+	Handle<double> effHandle;
+	iEvent.getByLabel ("genEventRunInfo","FilterEfficiency", effHandle);
 	Handle<double> weightHandle;
 	iEvent.getByLabel ("weight", weightHandle);
+        Handle<int> procIdHandle;
+        iEvent.getByLabel("genEventProcID",procIdHandle);
 	w = * weightHandle;
   if(w>10)
-       cout << "HIGH Weight: " << w << endl;
+       cout << "HIGH Weight: " << w << " Proc id = " << *procIdHandle << " eff " << *effHandle << "   Xsec "<< *xsHandle << endl;
 
    /*    Handle<double>  weightH;
        Handle<double>  scaleH;
@@ -436,7 +442,7 @@ for(int i=0; i < candidates.size();i++)
  }
 
 
-if(candidates[i].tk.invBeta2 > 1.3 && candidates[i].hasDt && highptmu ) h_dedxMassMu->Fill(candidates[i].massTk(),w); 
+if(candidates[i].tk.invBeta2 > 1.5 && candidates[i].hasDt && highptmu ) h_dedxMassMu->Fill(candidates[i].massTk(),w); 
 
 }
 
