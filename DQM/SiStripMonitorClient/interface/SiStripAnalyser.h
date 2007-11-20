@@ -4,13 +4,18 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/09/19 14:25:52 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/11/11 19:52:35 $
+ *  $Revision: 1.13 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
 
-#include "DQMServices/Components/interface/DQMAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
+
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
 
 #include <iostream>
@@ -23,9 +28,9 @@ class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class SiStripWebInterface;
 class SiStripFedCabling;
-class TrackerMapCreator;
+class SiStripTrackerMapCreator;
  
-class SiStripAnalyser: public DQMAnalyzer, public evf::ModuleWeb{
+class SiStripAnalyser: public edm::EDAnalyzer, public evf::ModuleWeb{
 
 public:
 
@@ -42,13 +47,13 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& eSetup);
+  void beginJob(edm::EventSetup const& eSetup);
 
   /// BeginRun
-  void beginRun(const edm::EventSetup& eSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
 
   /// Begin Luminosity Block
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
@@ -64,29 +69,31 @@ protected:
   void endJob();
 
 
-  /// Save histograms to a root file
-
-  void saveAll(int irun, int ilumi);
 
 private:
 
   void createFedTrackerMap();
 
+  DaqMonitorBEInterface* dbe_;
   MonitorUserInterface* mui_;
 
   SiStripWebInterface* sistripWebInterface_;
 
-  int tkMapFrequency_;
-  int summaryFrequency_;
   int fileSaveFrequency_;
-  unsigned int collationFlag_;
-  unsigned int staticUpdateFrequency_;
+  int summaryFrequency_;
+  int tkMapFrequency_;
+  int staticUpdateFrequency_;
 
   std::string outputFilePath_;
+  std::string outputFileName_;
 
   edm::ESHandle< SiStripFedCabling > fedCabling_;
-  TrackerMapCreator* trackerMapCreator_;
-  bool defaultPageCreated_;
+  SiStripTrackerMapCreator* trackerMapCreator_;
+
+  int nLumiSecs_;
+
+  std::ostringstream html_out_;
+
 };
 
 

@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2007/08/14 17:44:47 $
- * $Revision: 1.10 $
+ * $Date: 2007/08/21 11:31:49 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -79,6 +79,8 @@ void EEPedestalOnlineTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPOT pedestal %s G12", Numbers::sEE(i+1).c_str());
       mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      mePedMapG12_[i]->setAxisTitle("ix", 1);
+      mePedMapG12_[i]->setAxisTitle("iy", 2);
       dbe_->tag(mePedMapG12_[i], i+1);
     }
 

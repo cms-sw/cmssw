@@ -2,45 +2,45 @@
 
 PFRecoTauAlgorithm::PFRecoTauAlgorithm() : TransientTrackBuilder_(0){}  
 PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0){
-  LeadChargedHadrCand_minPt_             = iConfig.getParameter<double>("LeadChargedHadrCand_minPt"); 
-  ChargedHadrCand_minPt_                 = iConfig.getParameter<double>("ChargedHadrCand_minPt");
+  LeadChargedHadrCand_minPt_          = iConfig.getParameter<double>("LeadChargedHadrCand_minPt"); 
+  ChargedHadrCand_minPt_              = iConfig.getParameter<double>("ChargedHadrCand_minPt");
   UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ = iConfig.getParameter<bool>("UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint");
   ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_ = iConfig.getParameter<double>("ChargedHadrCandLeadChargedHadrCand_tksmaxDZ");
-  NeutrHadrCand_minPt_                   = iConfig.getParameter<double>("NeutrHadrCand_minPt");
-  GammaCand_minPt_                       = iConfig.getParameter<double>("GammaCand_minPt");       
-  LeadTrack_minPt_                       = iConfig.getParameter<double>("LeadTrack_minPt");
-  Track_minPt_                           = iConfig.getParameter<double>("Track_minPt");
-  UseTrackLeadTrackDZconstraint_         = iConfig.getParameter<bool>("UseTrackLeadTrackDZconstraint");
-  TrackLeadTrack_maxDZ_                  = iConfig.getParameter<double>("TrackLeadTrack_maxDZ");
+  NeutrHadrCand_minPt_                = iConfig.getParameter<double>("NeutrHadrCand_minPt");
+  GammaCand_minPt_                    = iConfig.getParameter<double>("GammaCand_minPt");       
+  LeadTrack_minPt_                    = iConfig.getParameter<double>("LeadTrack_minPt");
+  Track_minPt_                        = iConfig.getParameter<double>("Track_minPt");
+  UseTrackLeadTrackDZconstraint_      = iConfig.getParameter<bool>("UseTrackLeadTrackDZconstraint");
+  TrackLeadTrack_maxDZ_               = iConfig.getParameter<double>("TrackLeadTrack_maxDZ");
   
-  MatchingConeMetric_                    = iConfig.getParameter<string>("MatchingConeMetric");
-  MatchingConeSizeFormula_               = iConfig.getParameter<string>("MatchingConeSizeFormula");
-  MatchingConeVariableSize_min_          = iConfig.getParameter<double>("MatchingConeVariableSize_min");
-  MatchingConeVariableSize_max_          = iConfig.getParameter<double>("MatchingConeVariableSize_max");
-  TrackerSignalConeMetric_               = iConfig.getParameter<string>("TrackerSignalConeMetric");
-  TrackerSignalConeSizeFormula_          = iConfig.getParameter<string>("TrackerSignalConeSizeFormula");
-  TrackerSignalConeVariableSize_min_     = iConfig.getParameter<double>("TrackerSignalConeVariableSize_min");
-  TrackerSignalConeVariableSize_max_     = iConfig.getParameter<double>("TrackerSignalConeVariableSize_max");
-  TrackerIsolConeMetric_                 = iConfig.getParameter<string>("TrackerIsolConeMetric"); 
-  TrackerIsolConeSizeFormula_            = iConfig.getParameter<string>("TrackerIsolConeSizeFormula"); 
-  TrackerIsolConeVariableSize_min_       = iConfig.getParameter<double>("TrackerIsolConeVariableSize_min");
-  TrackerIsolConeVariableSize_max_       = iConfig.getParameter<double>("TrackerIsolConeVariableSize_max");
+  MatchingConeMetric_                 = iConfig.getParameter<string>("MatchingConeMetric");
+  MatchingConeSizeFormula_            = iConfig.getParameter<string>("MatchingConeSizeFormula");
+  MatchingConeSize_min_               = iConfig.getParameter<double>("MatchingConeSize_min");
+  MatchingConeSize_max_               = iConfig.getParameter<double>("MatchingConeSize_max");
+  TrackerSignalConeMetric_            = iConfig.getParameter<string>("TrackerSignalConeMetric");
+  TrackerSignalConeSizeFormula_       = iConfig.getParameter<string>("TrackerSignalConeSizeFormula");
+  TrackerSignalConeSize_min_          = iConfig.getParameter<double>("TrackerSignalConeSize_min");
+  TrackerSignalConeSize_max_          = iConfig.getParameter<double>("TrackerSignalConeSize_max");
+  TrackerIsolConeMetric_              = iConfig.getParameter<string>("TrackerIsolConeMetric"); 
+  TrackerIsolConeSizeFormula_         = iConfig.getParameter<string>("TrackerIsolConeSizeFormula"); 
+  TrackerIsolConeSize_min_            = iConfig.getParameter<double>("TrackerIsolConeSize_min");
+  TrackerIsolConeSize_max_            = iConfig.getParameter<double>("TrackerIsolConeSize_max");
   ECALSignalConeMetric_               = iConfig.getParameter<string>("ECALSignalConeMetric");
   ECALSignalConeSizeFormula_          = iConfig.getParameter<string>("ECALSignalConeSizeFormula");    
-  ECALSignalConeVariableSize_min_     = iConfig.getParameter<double>("ECALSignalConeVariableSize_min");
-  ECALSignalConeVariableSize_max_     = iConfig.getParameter<double>("ECALSignalConeVariableSize_max");
+  ECALSignalConeSize_min_             = iConfig.getParameter<double>("ECALSignalConeSize_min");
+  ECALSignalConeSize_max_             = iConfig.getParameter<double>("ECALSignalConeSize_max");
   ECALIsolConeMetric_                 = iConfig.getParameter<string>("ECALIsolConeMetric");
   ECALIsolConeSizeFormula_            = iConfig.getParameter<string>("ECALIsolConeSizeFormula");      
-  ECALIsolConeVariableSize_min_       = iConfig.getParameter<double>("ECALIsolConeVariableSize_min");
-  ECALIsolConeVariableSize_max_       = iConfig.getParameter<double>("ECALIsolConeVariableSize_max");
+  ECALIsolConeSize_min_               = iConfig.getParameter<double>("ECALIsolConeSize_min");
+  ECALIsolConeSize_max_               = iConfig.getParameter<double>("ECALIsolConeSize_max");
   HCALSignalConeMetric_               = iConfig.getParameter<string>("HCALSignalConeMetric");
   HCALSignalConeSizeFormula_          = iConfig.getParameter<string>("HCALSignalConeSizeFormula");    
-  HCALSignalConeVariableSize_min_     = iConfig.getParameter<double>("HCALSignalConeVariableSize_min");
-  HCALSignalConeVariableSize_max_     = iConfig.getParameter<double>("HCALSignalConeVariableSize_max");
+  HCALSignalConeSize_min_             = iConfig.getParameter<double>("HCALSignalConeSize_min");
+  HCALSignalConeSize_max_             = iConfig.getParameter<double>("HCALSignalConeSize_max");
   HCALIsolConeMetric_                 = iConfig.getParameter<string>("HCALIsolConeMetric");
   HCALIsolConeSizeFormula_            = iConfig.getParameter<string>("HCALIsolConeSizeFormula");      
-  HCALIsolConeVariableSize_min_       = iConfig.getParameter<double>("HCALIsolConeVariableSize_min");
-  HCALIsolConeVariableSize_max_       = iConfig.getParameter<double>("HCALIsolConeVariableSize_max");
+  HCALIsolConeSize_min_               = iConfig.getParameter<double>("HCALIsolConeSize_min");
+  HCALIsolConeSize_max_               = iConfig.getParameter<double>("HCALIsolConeSize_max");
   
   AreaMetric_recoElements_maxabsEta_  = iConfig.getParameter<double>("AreaMetric_recoElements_maxabsEta");
 }
@@ -59,7 +59,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   
   PFTauElementsOperators myPFTauElementsOperators(myPFTau);
   TFormula myMatchingConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
-  double myMatchingConeSize=myPFTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeVariableSize_min_,MatchingConeVariableSize_max_);
+  double myMatchingConeSize=myPFTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeSize_min_,MatchingConeSize_max_);
   PFCandidateRef myleadPFCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,LeadChargedHadrCand_minPt_);
   bool myleadPFCand_rectkavailable=false;
   double myleadPFCand_rectkDZ=0.;
@@ -107,17 +107,17 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     }
 
     TFormula myTrackerSignalConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
-    double myTrackerSignalConeSize=myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeVariableSize_min_,TrackerSignalConeVariableSize_max_);
+    double myTrackerSignalConeSize=myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeSize_min_,TrackerSignalConeSize_max_);
     TFormula myTrackerIsolConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
-    double myTrackerIsolConeSize=myPFTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeVariableSize_min_,TrackerIsolConeVariableSize_max_);     	
+    double myTrackerIsolConeSize=myPFTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_);     	
     TFormula myECALSignalConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
-    double myECALSignalConeSize=myPFTauElementsOperators.computeConeSize(myECALSignalConeSizeTFormula,ECALSignalConeVariableSize_min_,ECALSignalConeVariableSize_max_);
+    double myECALSignalConeSize=myPFTauElementsOperators.computeConeSize(myECALSignalConeSizeTFormula,ECALSignalConeSize_min_,ECALSignalConeSize_max_);
     TFormula myECALIsolConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
-    double myECALIsolConeSize=myPFTauElementsOperators.computeConeSize(myECALIsolConeSizeTFormula,ECALIsolConeVariableSize_min_,ECALIsolConeVariableSize_max_);     	
+    double myECALIsolConeSize=myPFTauElementsOperators.computeConeSize(myECALIsolConeSizeTFormula,ECALIsolConeSize_min_,ECALIsolConeSize_max_);     	
     TFormula myHCALSignalConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(HCALSignalConeSizeFormula_,"HCAL signal cone size");
-    double myHCALSignalConeSize=myPFTauElementsOperators.computeConeSize(myHCALSignalConeSizeTFormula,HCALSignalConeVariableSize_min_,HCALSignalConeVariableSize_max_);
+    double myHCALSignalConeSize=myPFTauElementsOperators.computeConeSize(myHCALSignalConeSizeTFormula,HCALSignalConeSize_min_,HCALSignalConeSize_max_);
     TFormula myHCALIsolConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(HCALIsolConeSizeFormula_,"HCAL isolation cone size");
-    double myHCALIsolConeSize=myPFTauElementsOperators.computeConeSize(myHCALIsolConeSizeTFormula,HCALIsolConeVariableSize_min_,HCALIsolConeVariableSize_max_);     	
+    double myHCALIsolConeSize=myPFTauElementsOperators.computeConeSize(myHCALIsolConeSizeTFormula,HCALIsolConeSize_min_,HCALIsolConeSize_max_);     	
     
     PFCandidateRefVector mySignalPFChargedHadrCands,mySignalPFNeutrHadrCands,mySignalPFGammaCands,mySignalPFCands;
     if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
@@ -188,9 +188,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   if(myleadTk.isNonnull()){
     double myleadTkDZ=(*myleadTk).dz();
     TFormula myTrackerSignalConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
-    double myTrackerSignalConeSize=myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeVariableSize_min_,TrackerSignalConeVariableSize_max_);
+    double myTrackerSignalConeSize=myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeSize_min_,TrackerSignalConeSize_max_);
     TFormula myTrackerIsolConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
-    double myTrackerIsolConeSize=myPFTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeVariableSize_min_,TrackerIsolConeVariableSize_max_);     
+    double myTrackerIsolConeSize=myPFTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_);     
     if (UseTrackLeadTrackDZconstraint_){
       myPFTau.setsignalTracks(myPFTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ));
       myPFTau.setisolationTracks(myPFTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ));

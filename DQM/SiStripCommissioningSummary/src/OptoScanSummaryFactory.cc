@@ -27,8 +27,8 @@ uint32_t SummaryPlotFactory<OptoScanAnalysis*>::init( const sistrip::Monitorable
   for ( ; iter != data.end(); iter++ ) {
     if ( !iter->second ) { continue; }
     uint16_t igain = iter->second->gain();
+    if ( igain > sistrip::valid_ ) { continue; }
     float value = 1. * sistrip::invalid_;
-    //float error = 1. * sistrip::invalid_;
     if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { value = igain; }
     else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) { value = iter->second->bias()[igain]; } 
     else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_MEASURED_GAIN ) { value = iter->second->measGain()[igain]; } 

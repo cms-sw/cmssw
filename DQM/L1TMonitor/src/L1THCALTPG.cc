@@ -1,11 +1,20 @@
 /*
  * \file L1THCALTPG.cc
  *
- * $Date: 2007/06/12 19:32:53 $
- * $Revision: 1.4 $
+ * $Date: 2007/07/19 16:48:23 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPG.cc,v $
+ * Revision 1.5  2007/07/19 16:48:23  berryhil
+ *
+ *
+ *
+ * seal plugin re-migration
+ * add status digis to L1TCSCTF
+ * HCALTPG data format migration (fiberChan)
+ * GT data format migration (PSB)
+ *
  * Revision 1.4  2007/06/12 19:32:53  berryhil
  *
  *
@@ -77,7 +86,7 @@ L1THCALTPG::L1THCALTPG(const ParameterSet& ps)
 
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1TMonitor/L1THCALTPG");
+    dbe->setCurrentFolder("L1T/L1THCALTPG");
   }
 
 
@@ -97,14 +106,14 @@ void L1THCALTPG::beginJob(const EventSetup& c)
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("L1TMonitor/L1THCALTPG");
-    dbe->rmdir("L1TMonitor/L1THCALTPG");
+    dbe->setCurrentFolder("L1T/L1THCALTPG");
+    dbe->rmdir("L1T/L1THCALTPG");
   }
 
 
   if ( dbe ) 
   {
-    dbe->setCurrentFolder("L1TMonitor/L1THCALTPG");
+    dbe->setCurrentFolder("L1T/L1THCALTPG");
     hcalTpEtEtaPhi_ = 
       dbe->book2D("HcalTpEtEtaPhi", "HCAL TP E_{T}", TPPHIBINS, TPPHIMIN,
 		  TPPHIMAX, TPETABINS, TPETAMIN, TPETAMAX);

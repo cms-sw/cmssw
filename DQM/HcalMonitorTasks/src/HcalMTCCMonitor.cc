@@ -11,21 +11,28 @@ HcalMTCCMonitor::~HcalMTCCMonitor() {}
 void HcalMTCCMonitor::reset(){}
 
 void HcalMTCCMonitor::clearME(){
-   if(m_dbe){
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor");
+
+  if(m_dbe){
+    m_dbe->setCurrentFolder(baseFolder_);
+    m_dbe->removeContents();    
+
+    m_dbe->setCurrentFolder(baseFolder_+"/HB");
     m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HB");
+    
+    m_dbe->setCurrentFolder(baseFolder_+"/HE");
     m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HE");
+
+    m_dbe->setCurrentFolder(baseFolder_+"/HO");
     m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HO");
-    m_dbe->removeContents(); 
-    meEVT_= 0;
+
   }
+  return;
 }
+
 void HcalMTCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
-  
+  baseFolder_ = rootFolder_+"MTCCMonitor";
+
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 29.5);
   etaMin_ = ps.getUntrackedParameter<double>("MinEta", -29.5);
   etaBins_ = (int)(etaMax_ - etaMin_);
@@ -48,24 +55,24 @@ void HcalMTCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
   ievt_=0;
   
   if ( m_dbe !=NULL ) {    
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor");
+    m_dbe->setCurrentFolder(baseFolder_);
     meTrig_  = m_dbe->book1D("LTC Trigger","LTC Trigger",6,0,5);
 
     meEVT_ = m_dbe->bookInt("MTCC Event Number");    
     meEVT_->Fill(ievt_);
  
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HB");
+    m_dbe->setCurrentFolder(baseFolder_+"/HB");
     hbC.OCC = m_dbe->book2D("HB Geo Occupancy Map","HB Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hbC.E = m_dbe->book1D("HB Hit Energy","HB Hit Energy",100,0,50);
     hbC.DT = m_dbe->book1D("HB DT Trigger Time","HB DT Trigger Time",100,0,9);
 
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HE");
+    m_dbe->setCurrentFolder(baseFolder_+"/HE");
     heC.CSC = m_dbe->book1D("HE Bottom CSC Trigger Time","HE Bottom CSC Trigger Time",100,0,9);
     heC.E = m_dbe->book1D("HE Bottom Hit Energy","HE Bottom Hit Energy",100,0,50);
     heC.OCC = m_dbe->book2D("HE Bottom Geo Occupancy Map","HE Bottom Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     
 
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HO");
+    m_dbe->setCurrentFolder(baseFolder_+"/HO");
     hoP1.DT = m_dbe->book1D("HO YB2 Top DT Trigger Time","HO YB2 Top DT Trigger Time",100,0,9);
     hoM1.DT = m_dbe->book1D("HO YB2 Bottom DT Trigger Time","HO YB2 Bottom DT Trigger Time",100,0,9);
     hoP2.DT = m_dbe->book1D("HO YB1/0 Top DT Trigger Time","HO YB1/0 Top DT Trigger Time",100,0,9);

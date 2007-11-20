@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.4 $
+ * $Date: 2007/11/08 15:43:52 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -20,14 +20,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
+
+class MonitorElement;
+class MonitorUserInterface;
+class DaqMonitorBEInterface;
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
 
 class EEIntegrityClient : public EEClient {
 
@@ -86,7 +86,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -112,17 +111,6 @@ TH2F* h08_[18];
 TH2F* h09_[18];
 TH2F* h10_[18];
 
-MEContentsTH2FWithinRangeROOT* qth01_[18];
-MEContentsTH2FWithinRangeROOT* qth02_[18];
-MEContentsTH2FWithinRangeROOT* qth03_[18];
-MEContentsTH2FWithinRangeROOT* qth04_[18];
-MEContentsTH2FWithinRangeROOT* qth05_[18];
-MEContentsTH2FWithinRangeROOT* qth06_[18];
-MEContentsTH2FWithinRangeROOT* qth07_[18];
-MEContentsTH2FWithinRangeROOT* qth08_[18];
-MEContentsTH2FWithinRangeROOT* qth09_[18];
-MEContentsTH2FWithinRangeROOT* qth10_[18];
-
 MonitorElement* meg01_[18];
 MonitorElement* meg02_[18];
 
@@ -134,9 +122,6 @@ TH2F* hmem_[18];
 float threshCry_;
 
 const static int chNum [5][5];
-
-MEContentsTH2FWithinRangeROOT* qtg01_[36];
-MEContentsTH2FWithinRangeROOT* qtg02_[36];
 
 };
 

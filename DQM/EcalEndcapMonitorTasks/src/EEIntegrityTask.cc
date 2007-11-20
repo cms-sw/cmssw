@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/10/04 10:37:50 $
- * $Revision: 1.13 $
+ * $Date: 2007/10/15 16:26:43 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
  */
@@ -46,12 +46,12 @@ EEIntegrityTask::EEIntegrityTask(const ParameterSet& ps){
   EEDetIdCollection2_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection2");
   EEDetIdCollection3_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection3");
   EEDetIdCollection4_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection4");
-  EcalTrigTowerDetIdCollection1_ = ps.getParameter<edm::InputTag>("EcalTrigTowerDetIdCollection1");
-  EcalTrigTowerDetIdCollection2_ = ps.getParameter<edm::InputTag>("EcalTrigTowerDetIdCollection2");
   EcalElectronicsIdCollection1_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1");
   EcalElectronicsIdCollection2_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2");
   EcalElectronicsIdCollection3_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection3");
   EcalElectronicsIdCollection4_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection4");
+  EcalElectronicsIdCollection5_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection5");
+  EcalElectronicsIdCollection6_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection6");
 
   meIntegrityDCCSize = 0;
   for (int i = 0; i < 18 ; i++) {
@@ -97,12 +97,15 @@ void EEIntegrityTask::setup(void){
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EEIT DCC size error");
     meIntegrityDCCSize = dbe_->book1D(histo, histo, 18, 1, 19.);
+    meIntegrityDCCSize->setAxisTitle("DCC module", 1);
 
     // checking when the gain is 0
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT gain %s", Numbers::sEE(i+1).c_str());
       meIntegrityGain[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityGain[i]->setAxisTitle("ix", 1);
+      meIntegrityGain[i]->setAxisTitle("iy", 2);
       dbe_->tag(meIntegrityGain[i], i+1);
     }
 
@@ -111,6 +114,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT ChId %s", Numbers::sEE(i+1).c_str());
       meIntegrityChId[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityChId[i]->setAxisTitle("ix", 1);
+      meIntegrityChId[i]->setAxisTitle("iy", 2);
       dbe_->tag(meIntegrityChId[i], i+1);
     }
 
@@ -119,6 +124,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT gain switch %s", Numbers::sEE(i+1).c_str());
       meIntegrityGainSwitch[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityGainSwitch[i]->setAxisTitle("ix", 1);
+      meIntegrityGainSwitch[i]->setAxisTitle("iy", 2);
       dbe_->tag(meIntegrityGainSwitch[i], i+1);
     }
 
@@ -127,6 +134,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT gain switch stay %s", Numbers::sEE(i+1).c_str());
       meIntegrityGainSwitchStay[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityGainSwitchStay[i]->setAxisTitle("ix", 1);
+      meIntegrityGainSwitchStay[i]->setAxisTitle("iy", 2);
       dbe_->tag(meIntegrityGainSwitchStay[i], i+1);
     }
 
@@ -135,6 +144,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT TTId %s", Numbers::sEE(i+1).c_str());
       meIntegrityTTId[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityTTId[i]->setAxisTitle("ix", 1);
+      meIntegrityTTId[i]->setAxisTitle("iy", 2);
       dbe_->tag(meIntegrityTTId[i], i+1);
     }
 
@@ -143,6 +154,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT TTBlockSize %s", Numbers::sEE(i+1).c_str());
       meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityTTBlockSize[i]->setAxisTitle("ix", 1);
+      meIntegrityTTBlockSize[i]->setAxisTitle("iy", 2);
       dbe_->tag(meIntegrityTTBlockSize[i], i+1);
     }
 
@@ -151,6 +164,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT MemChId %s", Numbers::sEE(i+1).c_str());
       meIntegrityMemChId[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      meIntegrityMemChId[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemChId[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemChId[i], i+1);
     }
 
@@ -161,6 +176,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT MemGain %s", Numbers::sEE(i+1).c_str());
       meIntegrityMemGain[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      meIntegrityMemGain[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemGain[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemGain[i], i+1);
     }
 
@@ -169,6 +186,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT MemTTId %s", Numbers::sEE(i+1).c_str());
       meIntegrityMemTTId[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemTTId[i], i+1);
     }
 
@@ -177,6 +196,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT MemSize %s", Numbers::sEE(i+1).c_str());
       meIntegrityMemTTBlockSize[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemTTBlockSize[i], i+1);
     }
 
@@ -417,18 +438,18 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   try {
 
-    Handle<EcalTrigTowerDetIdCollection> ids5;
-    e.getByLabel(EcalTrigTowerDetIdCollection1_, ids5);
+    Handle<EcalElectronicsIdCollection> ids5;
+    e.getByLabel(EcalElectronicsIdCollection1_, ids5);
 
-    for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
 
-      EcalTrigTowerDetId idt = (*idItr);
+      EcalElectronicsId id = (*idItr);
 
-      if ( idt.subDet() != EcalEndcap ) continue;
+      if ( id.subdet() != EcalEndcap ) continue;
 
-      int ismt = Numbers::iSM( idt );
+      int ism = Numbers::iSM( id );
 
-      vector<DetId> crystals = Numbers::ttCrystals( idt );
+      vector<DetId> crystals = Numbers::crystals( id );
 
       for ( unsigned int i=0; i<crystals.size(); i++ ) {
 
@@ -437,12 +458,12 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ix = id.ix();
       int iy = id.iy();
 
-      if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      float xix = ix+0.5;
-      float xiy = iy+0.5;
+      float xix = ix + 0.5;
+      float xiy = iy + 0.5;
 
-      if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xix, xiy);
+      if ( meIntegrityTTId[ism-1] ) meIntegrityTTId[ism-1]->Fill(xix, xiy);
 
       }
 
@@ -450,24 +471,24 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EEIntegrityTask") << EcalTrigTowerDetIdCollection1_ << " not available";
+    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
 
   }
 
   try {
 
-    Handle<EcalTrigTowerDetIdCollection> ids6;
-    e.getByLabel(EcalTrigTowerDetIdCollection2_, ids6);
+    Handle<EcalElectronicsIdCollection> ids6;
+    e.getByLabel(EcalElectronicsIdCollection2_, ids6);
 
-    for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
 
-      EcalTrigTowerDetId idt = (*idItr);
+      EcalElectronicsId id = (*idItr);
 
-      if ( idt.subDet() != EcalEndcap ) continue;
+      if ( id.subdet() != EcalEndcap ) continue;
 
-      int ismt = Numbers::iSM( idt );
+      int ism = Numbers::iSM( id );
 
-      vector<DetId> crystals = Numbers::ttCrystals( idt );
+      vector<DetId> crystals = Numbers::crystals( id );
 
       for ( unsigned int i=0; i<crystals.size(); i++ ) {
 
@@ -476,12 +497,12 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ix = id.ix();
       int iy = id.iy();
 
-      if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      float xix = ix+0.5;
-      float xiy = iy+0.5;
+      float xix = ix + 0.5;
+      float xiy = iy + 0.5;
 
-      if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xix, xiy);
+      if ( meIntegrityTTBlockSize[ism-1] ) meIntegrityTTBlockSize[ism-1]->Fill(xix, xiy);
 
       }
 
@@ -489,18 +510,20 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EEIntegrityTask") << EcalTrigTowerDetIdCollection2_ << " not available";
+    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
 
   }
 
   try {
 
     Handle<EcalElectronicsIdCollection> ids7;
-    e.getByLabel(EcalElectronicsIdCollection1_, ids7);
+    e.getByLabel(EcalElectronicsIdCollection3_, ids7);
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
+
+      if ( id.subdet() != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -513,18 +536,20 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
+    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
 
   }
 
   try {
 
     Handle<EcalElectronicsIdCollection> ids8;
-    e.getByLabel(EcalElectronicsIdCollection2_, ids8);
+    e.getByLabel(EcalElectronicsIdCollection4_, ids8);
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
+
+      if ( id.subdet() != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -537,18 +562,20 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
+    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
 
   }
 
   try {
 
     Handle<EcalElectronicsIdCollection> ids9;
-    e.getByLabel(EcalElectronicsIdCollection3_, ids9);
+    e.getByLabel(EcalElectronicsIdCollection5_, ids9);
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
+
+      if ( id.subdet() != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -556,8 +583,8 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = EEIntegrityTask::chMemAbscissa[chid-1];
       int ip = EEIntegrityTask::chMemOrdinate[chid-1];
 
-      int iTt = id.towerId();
-      ie += (iTt-69)*5;
+      int itt = id.towerId();
+      ie += (itt-69)*5;
 
       float xix = ie - 0.5;
       float xiy = ip - 0.5;
@@ -568,18 +595,20 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
+    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection5_ << " not available";
 
   }
 
   try {
 
     Handle<EcalElectronicsIdCollection> ids10;
-    e.getByLabel(EcalElectronicsIdCollection4_, ids10);
+    e.getByLabel(EcalElectronicsIdCollection6_, ids10);
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids10->begin(); idItr != ids10->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
+
+      if ( id.subdet() != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -587,8 +616,8 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = EEIntegrityTask::chMemAbscissa[chid-1];
       int ip = EEIntegrityTask::chMemOrdinate[chid-1];
 
-      int iTt = id.towerId();
-      ie += (iTt-69)*5;
+      int itt = id.towerId();
+      ie += (itt-69)*5;
 
       float xix = ie - 0.5;
       float xiy = ip - 0.5;
@@ -599,7 +628,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
+    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection6_ << " not available";
 
   }
 

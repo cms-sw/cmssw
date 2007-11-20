@@ -21,7 +21,6 @@ class LowPtPixelTrackCleanerBySharedHits : public PixelTrackCleaner
      (const TracksWithRecHits & tracksWithRecHits);
 
   private:
-    int getLayer(const DetId & id);
 };
 
 #endif

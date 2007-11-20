@@ -332,12 +332,15 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (const L1GctGlobalEnergyAlgos::etCo
     if         ((Dx>=My) || (Dy>=Mx))         {midphi=false; break;}
     if ((Mx+Dx)>=(My-Dy) && (My+Dy)>=(Mx-Dx)) {midphi=true;  break;}
   }
-  eneCorect = (eneCoarse*(128+eFact))>>7;
+  //eneCorect = (eneCoarse*(128+eFact))>>7;
+  eneCorect = (eneCoarse*(128+eFact))>>8;
   if (midphi ^ (b==1)) {
     phiCorect = phiCoarse + 8 - corrDphi[eFact];
   } else {
     phiCorect = phiCoarse + corrDphi[eFact];
   }
+  // Compensate for offset introduced in jetLeafCard
+  //phiCorect = (phiCorect+1)%72;
 
   // Store the result of the calculation
   //

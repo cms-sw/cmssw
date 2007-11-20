@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2007/07/25 15:05:21 $
- * $Revision: 1.9 $
+ * $Date: 2007/08/31 06:31:45 $
+ * $Revision: 1.10 $
  * \author J. Berryhill
  *
  */
@@ -52,7 +52,7 @@ L1TGT::L1TGT(const ParameterSet& ps)
 
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TGT");
+    dbe->setCurrentFolder("L1T/L1TGT");
   }
 
 
@@ -72,14 +72,14 @@ void L1TGT::beginJob(const EventSetup& c)
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TGT");
-    dbe->rmdir("L1TMonitor/L1TGT");
+    dbe->setCurrentFolder("L1T/L1TGT");
+    dbe->rmdir("L1T/L1TGT");
   }
 
 
   if ( dbe ) 
   {
-    dbe->setCurrentFolder("L1TMonitor/L1TGT");
+    dbe->setCurrentFolder("L1T/L1TGT");
     
     gttriggerdword = dbe->book1D("GT decision word", 
        "GT decision word", 128, -0.5, 3.5E+38 ) ;

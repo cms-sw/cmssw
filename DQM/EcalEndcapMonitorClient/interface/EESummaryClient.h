@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2007/09/07 22:30:06 $
- * $Revision: 1.5 $
+ * $Date: 2007/11/08 15:43:52 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -20,14 +20,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
+
+class MonitorElement;
+class MonitorUserInterface;
+class DaqMonitorBEInterface;
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
 
 class EESummaryClient : public EEClient {
 
@@ -89,7 +89,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -117,24 +116,11 @@ MonitorElement* meTestPulse_[2];
 MonitorElement* meTestPulsePN_[2];
 
 MonitorElement* meCosmic_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg01_[2];
-MEContentsTH2FWithinRangeROOT* qtg02_[2];
-MEContentsTH2FWithinRangeROOT* qtg03_[2];
-MEContentsTH2FWithinRangeROOT* qtg04_[2];
-MEContentsTH2FWithinRangeROOT* qtg04PN_[2];
-MEContentsTH2FWithinRangeROOT* qtg05_[2];
-MEContentsTH2FWithinRangeROOT* qtg05PN_[2];
-MEContentsTH2FWithinRangeROOT* qtg06_[2];
-MEContentsTH2FWithinRangeROOT* qtg06PN_[2];
-MEContentsTH2FWithinRangeROOT* qtg07_[2];
-MEContentsTH2FWithinRangeROOT* qtg07PN_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg08_[2];
+MonitorElement* meTiming_[2];
+MonitorElement* meTriggerTowerEt_[2];
+MonitorElement* meTriggerTowerEmulError_[2];
 
 MonitorElement* meGlobalSummary_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg99_[2];
 
 };
 

@@ -4,8 +4,8 @@
 /*
  * \file DTTestPulsesTask.h
  *
- * $Date: 2006/10/18 18:06:16 $
- * $Revision: 1.4 $
+ * $Date: 2007/03/13 18:59:53 $
+ * $Revision: 1.5 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -67,8 +67,6 @@ private:
   edm::ESHandle<DTGeometry> muonGeom;
 
   edm::ESHandle<DTRangeT0> t0RangeMap;
-
-  std::string outputFile;
 
   std::pair <int, int> t0sPeakRange;
   

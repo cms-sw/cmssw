@@ -1,4 +1,5 @@
 #include "QGSPCMS_G4v52.hh"
+#ifndef G4V9
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4Core/PhysicsLists/interface/EmStandardPhysics52.hh"
 
@@ -52,3 +53,4 @@ QGSPCMS_G4v52::QGSPCMS_G4v52(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
   }
 }
+#endif

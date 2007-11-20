@@ -56,6 +56,18 @@ RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
   filename=fp.fullPath();
 
   _bxmap.clear();
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file or remove the modules that require it.";
+  }
+  
+  rndEngine = &(rng->getEngine());
+  flatDistribution_ = new CLHEP::RandFlat(rndEngine);
+
 }
 
 void RPCSynchronizer::setReadOutTime(const RPCGeometry* geo){
@@ -98,6 +110,11 @@ void RPCSynchronizer::setReadOutTime(const RPCGeometry* geo){
 	  
 	  _bxmap[(*r)->id()] = time*1e+9;
 	  
+	  RPCDetId rollId = (*r)->id();
+
+// 	  if(rollId.region() == 0 && rollId.ring() == 2 && rollId.station() == 1 && rollId.layer() == 1 && rollId.subsector() == 1 && rollId.roll() == 1)
+// 	    std::cout<<"SETREADOUT"<<"  "<<"Region: "<<rollId.region()<<"  "<<"Ring: "<<rollId.ring()<<"  "<<"Station: "<<rollId.station()<<"  "<<"Layer: "<<rollId.layer()<<"  "<<"SubSector: "<<rollId.subsector()<<"  "<<"Roll: "<<rollId.roll()<<"  "<<"BunchCr: "<<time*1e+9<<std::endl;
+
 	}
       }
     }
@@ -116,7 +133,8 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
   int bx = -999;
   LocalPoint simHitPos = simhit->localPosition();
   float tof = simhit->timeOfFlight();
-  float rr_el = RandGaussQ::shoot(0.,resEle);
+  gaussian_ = new CLHEP::RandGaussQ(rndEngine,0.,resEle);
+  float rr_el = gaussian_->fire();
 
   RPCDetId SimDetId(simhit->detUnitId());
 
@@ -159,7 +177,8 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
     }
 
     float prop_time =  distanceFromEdge/(sspeed*3e+10);
-    double rr_tim1 = RandGaussQ::shoot(0.,resRPC);
+    gaussian_ = new CLHEP::RandGaussQ(rndEngine,0.,resRPC);
+    double rr_tim1 = gaussian_->fire();
     double total_time = tof + prop_time + timOff + rr_tim1 + rr_el;
 
     // Bunch crossing assignment
@@ -171,10 +190,12 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
     else if(!cosmics){
       time_differ = total_time - ( this->getReadOutTime(RPCDetId(simhit->detUnitId())) + ( stripL/(2*sspeed*3e+10) ) + timOff);
     }
+      
+    double inf_time = 0;
+    double sup_time = 0;
 
     for(int n = -5; n <= 5; ++n){
-      double inf_time = 0;
-      double sup_time = 0;
+
 
       if(cosmics){
 	inf_time = -lbGate/(2*37.62) + n*lbGate/37.62;
@@ -190,87 +211,18 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 	break;
       }
     }
+    RPCDetId rollId = SimRoll->id();
+//     if(rollId.region() == 0 && rollId.ring() == 2 && rollId.station() == 1 && rollId.layer() == 1 && rollId.subsector() == 1 && rollId.roll() == 1)
+ //      std::cout<<"GETTIME"<<"  "<<"Region: "<<rollId.region()<<"  "<<"Ring: "<<rollId.ring()<<"  "<<"Station: "<<rollId.station()<<"  "<<"Layer: "<<rollId.layer()<<"  "<<"SubSector: "<<rollId.subsector()<<"  "<<"Roll: "<< rollId.roll()<<"  "<<"BunchCr: "<<bx<<"  "<<"InfTime: "<<inf_time<<"  "<<"SupTime: "<<sup_time<<"  "<<"TimeDiffer: "<<time_differ<<"  "<<"TOF: "<<tof<<std::endl;
+
   }
-
-  return bx;
-}
-
-int RPCSynchronizer::getDigiBx(const PSimHit* simhit, int centralstrip, int strip)
-{
-
-  unsigned int diffstrip = abs(strip - centralstrip);
-
-  float csdt_tot = 0.;
-  if(diffstrip > 0){
-    for(unsigned int n = 0; n < diffstrip; ++n){
-      float rr_dt = RandFlat::shoot();
-      if (rr_dt <= 1.e-10) rr_dt = 1.e-10 ;
-      float dif_time = -(dtimCs)*log(rr_dt);
-      csdt_tot += dif_time;
-    }
-  }
-
-  float rr_el = RandGaussQ::shoot(0.,resEle);
-
-  int bx = -999;
-  LocalPoint simHitPos = simhit->localPosition();
-  float tof = simhit->timeOfFlight();
-
-  RPCDetId SimDetId(simhit->detUnitId());
-  const RPCRoll* SimRoll = 0;
-
-  for(TrackingGeometry::DetContainer::const_iterator it = theGeometry->dets().begin(); it != theGeometry->dets().end(); it++){
-    
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
-      
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-      RPCDetId detId=ch->id();
-      
-      std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
-      for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();
-	  r != rollsRaf.end(); ++r){
-	
-	  if((*r)->id() == SimDetId) {
-	    SimRoll = &(*(*r));
-	  
-	    const BoundPlane & RPCSurface = (*r)->surface(); 
-	    GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
-	    break;
-	  }	  
-      }
-    }
-  }
-
-  if(SimRoll != 0){
-    
-    const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(SimRoll->topology()));
-    float distanceFromEdge = top_->stripLength() - simHitPos.y();
-
-    float prop_time =  distanceFromEdge/(sspeed*3e+10);
-    double rr_tim1 = RandGaussQ::shoot(0.,resRPC);
-    double total_time = tof + prop_time + timOff + rr_tim1 + rr_el + csdt_tot;
-
-    // Bunch crossing assignment
-
-    double time_differ = total_time - ( this->getReadOutTime(RPCDetId(simhit->detUnitId())) + ( top_->stripLength()/(2*sspeed*3e+10) ) + timOff);
-
-    for(int n = -5; n <= 5; n++){
-
-      float inf_time = -lbGate/2 + n*lbGate;
-      float sup_time = lbGate/2 + n*lbGate;
-
-      if(inf_time < time_differ && time_differ < sup_time) {
-	bx = n;
-	break;
-      }
-    }
-  }
-
   return bx;
 }
 
 RPCSynchronizer::~RPCSynchronizer(){
  if(infile != 0) delete infile;
+ if(gaussian_ != 0)  delete gaussian_; 
+ if(poissonDistribution_ != 0) delete poissonDistribution_;
 }
 
 

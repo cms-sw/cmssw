@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2007/05/14 11:46:44 $
- * $Revision: 1.39 $
+ * $Date: 2007/11/05 19:23:37 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -31,7 +31,6 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
-#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBBeamHodoTask.h>
 
@@ -129,45 +128,63 @@ void EBBeamHodoTask::setup(void){
     for (int i=0; i<4; i++) {
       sprintf(histo, "EBBHT occup %s %02d", Numbers::sEB(smId).c_str(), i+1);
       meHodoOcc_[i] = dbe_->book1D(histo, histo, 30, 0., 30.);
+      meHodoOcc_[i]->setAxisTitle("hits per event", 1);
       sprintf(histo, "EBBHT raw %s %02d", Numbers::sEB(smId).c_str(), i+1);
       meHodoRaw_[i] = dbe_->book1D(histo, histo, 64, 0., 64.);
+      meHodoRaw_[i]->setAxisTitle("hodo fiber number", 1);
     }
 
     sprintf(histo, "EBBHT PosX rec %s", Numbers::sEB(smId).c_str());
     meHodoPosRecX_ = dbe_->book1D(histo, histo, 100, -20, 20);
+    meHodoPosRecX_->setAxisTitle("reconstructed position    (mm)", 1);
 
     sprintf(histo, "EBBHT PosY rec %s", Numbers::sEB(smId).c_str());
     meHodoPosRecY_ = dbe_->book1D(histo, histo, 100, -20, 20);
+    meHodoPosRecY_->setAxisTitle("reconstructed position    (mm)", 1);
 
     sprintf(histo, "EBBHT PosYX rec %s", Numbers::sEB(smId).c_str());
     meHodoPosRecXY_ = dbe_->book2D(histo, histo, 100, -20, 20,100, -20, 20);
+    meHodoPosRecXY_->setAxisTitle("reconstructed X position    (mm)", 1);
+    meHodoPosRecXY_->setAxisTitle("reconstructed Y position    (mm)", 2);
 
     sprintf(histo, "EBBHT SloX %s", Numbers::sEB(smId).c_str());
     meHodoSloXRec_ = dbe_->book1D(histo, histo, 50, -0.005, 0.005);
+    meHodoSloXRec_->setAxisTitle("reconstructed track slope", 1);
 
     sprintf(histo, "EBBHT SloY %s", Numbers::sEB(smId).c_str());
     meHodoSloYRec_ = dbe_->book1D(histo, histo, 50, -0.005, 0.005);
+    meHodoSloYRec_->setAxisTitle("reconstructed track slope", 1);
 
     sprintf(histo, "EBBHT QualX %s", Numbers::sEB(smId).c_str());
     meHodoQuaXRec_ = dbe_->book1D(histo, histo, 50, 0, 5);
+    meHodoQuaXRec_->setAxisTitle("track fit quality", 1);
 
     sprintf(histo, "EBBHT QualY %s", Numbers::sEB(smId).c_str());
     meHodoQuaYRec_ = dbe_->book1D(histo, histo, 50, 0, 5);
+    meHodoQuaYRec_->setAxisTitle("track fit quality", 1);
 
     sprintf(histo, "EBBHT TDC rec %s", Numbers::sEB(smId).c_str());
     meTDCRec_  = dbe_->book1D(histo, histo, 25, 0, 1);
+    meTDCRec_->setAxisTitle("offset", 1);
 
     sprintf(histo, "EBBHT Hodo-Calo X vs Cry %s", Numbers::sEB(smId).c_str());
     meHodoPosXMinusCaloPosXVsCry_  = dbe_->book1D(histo, histo, 50, 0, 50);
+    meHodoPosXMinusCaloPosXVsCry_->setAxisTitle("scan step number", 1);
+    meHodoPosXMinusCaloPosXVsCry_->setAxisTitle("PosX_{hodo} - PosX_{calo}    (mm)", 2);
 
     sprintf(histo, "EBBHT Hodo-Calo Y vs Cry %s", Numbers::sEB(smId).c_str());
     meHodoPosYMinusCaloPosYVsCry_  = dbe_->book1D(histo, histo, 50, 0, 50);
+    meHodoPosYMinusCaloPosYVsCry_->setAxisTitle("scan step number", 1);
+    meHodoPosYMinusCaloPosYVsCry_->setAxisTitle("PosY_{hodo} - PosY_{calo}    (mm)", 2);
 
     sprintf(histo, "EBBHT TDC-Calo vs Cry %s", Numbers::sEB(smId).c_str());
     meTDCTimeMinusCaloTimeVsCry_  = dbe_->book1D(histo, histo, 50, 0, 50);
+    meTDCTimeMinusCaloTimeVsCry_->setAxisTitle("scan step number", 1);
+    meTDCTimeMinusCaloTimeVsCry_->setAxisTitle("Time_{TDC} - Time_{calo}    (sample)", 2);
 
     sprintf(histo, "EBBHT Missing Collections %s", Numbers::sEB(smId).c_str());
     meMissingCollections_ = dbe_->book1D(histo, histo, 7, 0, 7);
+    meMissingCollections_->setAxisTitle("missing collection", 1);
 
     // following ME (type II):
     //  *** can be filled only when table is **not** moving
@@ -175,24 +192,35 @@ void EBBeamHodoTask::setup(void){
 
     sprintf(histo, "EBBHT prof E1 vs X %s", Numbers::sEB(smId).c_str());
     meEvsXRecProf_    = dbe_-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000, "s");
+    meEvsXRecProf_->setAxisTitle("PosX    (mm)", 1);
+    meEvsXRecProf_->setAxisTitle("E1 (ADC)", 2);
 
     sprintf(histo, "EBBHT prof E1 vs Y %s", Numbers::sEB(smId).c_str());
     meEvsYRecProf_    = dbe_-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000, "s");
+    meEvsYRecProf_->setAxisTitle("PosY    (mm)", 1);
+    meEvsYRecProf_->setAxisTitle("E1 (ADC)", 2);
 
     sprintf(histo, "EBBHT his E1 vs X %s", Numbers::sEB(smId).c_str());
     meEvsXRecHis_    = dbe_-> book2D(histo, histo, 100, -20, 20, 500, 0, 5000);
+    meEvsXRecHis_->setAxisTitle("PosX    (mm)", 1);
+    meEvsXRecHis_->setAxisTitle("E1 (ADC)", 2);
 
     sprintf(histo, "EBBHT his E1 vs Y %s", Numbers::sEB(smId).c_str());
     meEvsYRecHis_    = dbe_-> book2D(histo, histo, 100, -20, 20, 500, 0, 5000);
+    meEvsYRecHis_->setAxisTitle("PosY    (mm)", 1);
+    meEvsYRecHis_->setAxisTitle("E1 (ADC)", 2);
 
     sprintf(histo, "EBBHT PosX Hodo-Calo %s", Numbers::sEB(smId).c_str());
     meCaloVsHodoXPos_   = dbe_->book1D(histo, histo, 40, -20, 20);
+    meCaloVsHodoXPos_->setAxisTitle("PosX_{hodo} - PosX_{calo}     (mm)", 1);
 
     sprintf(histo, "EBBHT PosY Hodo-Calo %s", Numbers::sEB(smId).c_str());
     meCaloVsHodoYPos_   = dbe_->book1D(histo, histo, 40, -20, 20);
+    meCaloVsHodoYPos_->setAxisTitle("PosY_{hodo} - PosY_{calo}     (mm)", 1);
 
     sprintf(histo, "EBBHT TimeMax TDC-Calo %s", Numbers::sEB(smId).c_str());
     meCaloVsTDCTime_  = dbe_->book1D(histo, histo, 100, -1, 1);//tentative
+    meCaloVsTDCTime_->setAxisTitle("Time_{TDC} - Time_{calo} (samples)", 1);
 
   }
 
@@ -447,13 +475,13 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   // if table has come to rest (from movement), reset concerned ME's
   if (resetNow_)
     {
-      UtilsClient::resetHisto(    meEvsXRecProf_ );
-      UtilsClient::resetHisto(    meEvsYRecProf_);
-      UtilsClient::resetHisto(    meEvsXRecHis_ );
-      UtilsClient::resetHisto(    meEvsYRecHis_ );
-      UtilsClient::resetHisto(    meCaloVsHodoXPos_  );
-      UtilsClient::resetHisto(    meCaloVsHodoYPos_  );
-      UtilsClient::resetHisto(    meCaloVsTDCTime_  );
+      meEvsXRecProf_->Reset();
+      meEvsYRecProf_->Reset();
+      meEvsXRecHis_->Reset();
+      meEvsYRecHis_->Reset();
+      meCaloVsHodoXPos_->Reset();
+      meCaloVsHodoYPos_->Reset();
+      meCaloVsTDCTime_->Reset();
 
       resetNow_ = false;
     }

@@ -6,6 +6,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 
+namespace reco {
+
 class TrackSelector {
     public:
 	TrackSelector(const edm::ParameterSet &params);
@@ -24,5 +26,7 @@ class TrackSelector {
 	double	sip3dSigMin;
 	double	sip3dSigMax;
 };
+
+} // namespace reco
 
 #endif // RecoBTag_SecondaryVertex_TrackSelector_h

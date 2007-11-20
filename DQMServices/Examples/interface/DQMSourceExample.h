@@ -5,20 +5,22 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/09/06 19:00:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/11 22:41:13 $
+ *  $Revision: 1.4 $
  *  \author  M. Zanetti CERN
  *   
  */
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-#include "DQMServices/Components/interface/DQMAnalyzer.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //
 // class declaration
 //
 
-class DQMSourceExample : public DQMAnalyzer {
+class DQMSourceExample : public edm::EDAnalyzer {
 public:
   DQMSourceExample( const edm::ParameterSet& );
   ~DQMSourceExample();
@@ -29,7 +31,7 @@ protected:
   void beginJob(const edm::EventSetup& c);
 
   /// BeginRun
-  void beginRun(const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// Fake Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) ;
@@ -48,7 +50,16 @@ protected:
   void endJob();
 
 private:
-      // ----------member data ---------------------------
+ 
+  edm::ParameterSet parameters_;
+
+  DaqMonitorBEInterface* dbe_;  
+  std::string monitorName_;
+  int counterEvt_;      ///counter
+  int prescaleEvt_;     ///every n events
+                        /// FIXME, make prescale module?
+
+  // ----------member data ---------------------------
 
   MonitorElement * h1;
   MonitorElement * h2;

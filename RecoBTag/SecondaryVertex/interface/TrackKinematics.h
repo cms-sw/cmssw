@@ -8,6 +8,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+namespace reco {
+
 class TrackKinematics {
     public:
 	TrackKinematics();
@@ -32,5 +34,7 @@ class TrackKinematics {
 	math::XYZTLorentzVector	sum;
 	math::XYZTLorentzVector	weightedSum;
 };
+
+} // namespace reco
 
 #endif // RecoBTag_SecondaryVertex_TrackKinematics_h

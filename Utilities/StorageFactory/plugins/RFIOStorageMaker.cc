@@ -32,21 +32,25 @@ namespace {
     size_t p = path.find("?");
     if (p==std::string::npos) {
       // old syntax
-      p=0;       
+      p=0;
       // special treatment for /dpm: use old syntax
-      size_t e = path.find_first_not_of ("/");
-      size_t c = path.find("/castor/");
-      if (c==e-1) {
-	p = c;
-	ret = "rfio:///?path=";
-      }
-      else {
-        // special treatment for /castor
-        c = path.find("/dpm/");
-        if (c==e-1) {
-	  p = c;
-	  ret = "rfio://";
-        }
+      if (path.find (":")==std::string::npos) {
+        size_t e = path.find_first_not_of ("/");
+        if (e!=std::string::npos) {
+          size_t c = path.find("/castor/");
+          if ((c!=std::string::npos) && (c==e-1)) {
+	    p = c;
+	    ret = "rfio:///?path=";
+          }
+          else {
+            // special treatment for /castor
+            c = path.find("/dpm/");
+            if ((c!=std::string::npos) && (c==e-1)) {
+	      p = c;
+	      ret = "rfio://";
+            }
+	  }
+	}
       }
     }
     else {

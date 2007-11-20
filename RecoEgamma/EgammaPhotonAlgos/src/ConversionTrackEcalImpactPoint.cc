@@ -45,6 +45,7 @@ std::vector<math::XYZPoint> ConversionTrackEcalImpactPoint::find( const std::vec
 
   
   std::vector<math::XYZPoint> result;
+  matchingBC_.clear();
    
   for (    std::vector<reco::TransientTrack>::const_iterator iTk=tracks.begin(); iTk!=tracks.end(); ++iTk) {
 
@@ -74,21 +75,23 @@ std::vector<math::XYZPoint> ConversionTrackEcalImpactPoint::find( const std::vec
 
     result.push_back(ecalImpactPosition  );
 
-    float bcDistanceToTrack=9999;
-    reco::BasicClusterCollection::const_iterator matchedBCItr;
-    
-    reco::BasicClusterCollection bcBarrel = *(bcHandle.product());
-    for( reco::BasicClusterCollection::const_iterator bcItr = bcBarrel.begin(); bcItr != bcBarrel.end(); bcItr++) {
-      float dEta= bcItr->eta() - ecalImpactPosition.eta()  ;
-      float dPhi= bcItr->phi() - ecalImpactPosition.phi()  ;
-      if ( sqrt(dEta*dEta + dPhi*dPhi)  <  bcDistanceToTrack ) {
-	matchedBCItr= bcItr;
-	bcDistanceToTrack=sqrt(dEta*dEta + dPhi*dPhi);
-      } 
-      
+
+    if ( stateAtECAL_.isValid() ) { 
+      float bcDistanceToTrack=9999;
+      reco::BasicClusterCollection::const_iterator matchedBCItr;
+      reco::BasicClusterCollection bcBarrel = *(bcHandle.product());
+      for( reco::BasicClusterCollection::const_iterator bcItr = bcBarrel.begin(); bcItr != bcBarrel.end(); bcItr++) {
+	float dEta= bcItr->eta() - ecalImpactPosition.eta()  ;
+	float dPhi= bcItr->phi() - ecalImpactPosition.phi()  ;
+	if ( sqrt(dEta*dEta + dPhi*dPhi)  <  bcDistanceToTrack ) {
+	  matchedBCItr= bcItr;
+	  bcDistanceToTrack=sqrt(dEta*dEta + dPhi*dPhi);
+	} 
+	
+      }
+      matchingBC_.push_back( *matchedBCItr );
     }
-     
-    matchingBC_.push_back( *matchedBCItr );
+
 
   }
 

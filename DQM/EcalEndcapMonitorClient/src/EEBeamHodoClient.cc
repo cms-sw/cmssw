@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2007/08/17 18:25:28 $
- * $Revision: 1.8 $
+ * $Date: 2007/11/09 17:36:45 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -19,18 +19,23 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h>
-
 
 using namespace cms;
 using namespace edm;
@@ -40,9 +45,6 @@ EEBeamHodoClient::EEBeamHodoClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -55,7 +57,7 @@ EEBeamHodoClient::EEBeamHodoClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
-  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for (int i=0; i<4; i++) {
@@ -109,10 +111,6 @@ void EEBeamHodoClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-  }
 
 }
 
@@ -679,7 +677,6 @@ void EEBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       gPad->SetLogy(0);
-      obj1f->GetXaxis()->SetTitle("hits per event");
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
@@ -711,7 +708,6 @@ void EEBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       } else {
         gPad->SetLogy(0);
       }
-      obj1f->GetXaxis()->SetTitle("hodo fiber number");
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
@@ -775,7 +771,6 @@ void EEBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       } else {
         gPad->SetLogy(0);
       }
-      obj1f->GetXaxis()->SetTitle("reconstructed position    (mm)");
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
@@ -809,8 +804,6 @@ void EEBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     cP->cd();
 //    gStyle->SetOptStat("euomr");
 //    obj2f->SetStats(kTRUE);
-    obj2f->GetXaxis()->SetTitle("reconstructed X position    (mm)");
-    obj2f->GetYaxis()->SetTitle("reconstructed Y position    (mm)");
     obj2f->Draw("");
     cP->Update();
     cP->SaveAs(imgName.c_str());
@@ -839,19 +832,15 @@ void EEBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     switch ( i ) {
     case 0:
       obj1f = hs01_[0];
-      if ( obj1f ) obj1f->GetXaxis()->SetTitle("reconstructed track slope");
       break;
     case 1:
       obj1f = hs01_[1];
-      if ( obj1f ) obj1f->GetXaxis()->SetTitle("reconstructed track slope");
       break;
     case 2:
       obj1f = hq01_[0];
-      if ( obj1f ) obj1f->GetXaxis()->SetTitle("track fit quality");
       break;
     case 3:
       obj1f = hq01_[1];
-      if ( obj1f ) obj1f->GetXaxis()->SetTitle("track fit quality");
       break;
     default:
       break;
@@ -914,15 +903,12 @@ void EEBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     switch ( i ) {
     case 0:
       obj1f = hc01_[0];
-      if ( obj1f ) obj1f->GetYaxis()->SetTitle("PosX_{hodo} - PosX_{calo}    (mm)");
       break;
     case 1:
       obj1f = hc01_[1];
-      if ( obj1f ) obj1f->GetYaxis()->SetTitle("PosY_{hodo} - PosY_{calo}    (mm)");
       break;
     case 2:
       obj1f = hc01_[2];
-      if ( obj1f ) obj1f->GetYaxis()->SetTitle("Time_{TDC} - Time_{calo}    (sample)");
       break;
     default:
       break;
@@ -944,7 +930,6 @@ void EEBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       gPad->SetLogy(0);
-      obj1f->GetXaxis()->SetTitle("scan step number");
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
@@ -977,15 +962,12 @@ void EEBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     switch ( i ) {
     case 0:
       obj1f = he03_[0];
-      if ( obj1f ) obj1f->GetXaxis()->SetTitle("PosX_{hodo} - PosX_{calo}     (mm)");
       break;
     case 1:
       obj1f = he03_[1];
-      if ( obj1f ) obj1f->GetXaxis()->SetTitle("PosY_{hodo} - PosY_{calo}     (mm)");
       break;
     case 2:
       obj1f = he03_[2];
-      if ( obj1f ) obj1f->GetXaxis()->SetTitle("Time_{TDC} - Time_{calo} (samples)");
       break;
     default:
       break;
@@ -1050,13 +1032,9 @@ void EEBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     switch ( i ) {
     case 0:
       objp = he01_[0];
-      if ( objp ) objp->GetXaxis()->SetTitle("PosX    (mm)");
-      if ( objp ) objp->GetYaxis()->SetTitle("E1 (ADC)");
       break;
     case 1:
       objp = he01_[1];
-      if ( objp ) objp->GetXaxis()->SetTitle("PosY    (mm)");
-      if ( objp ) objp->GetYaxis()->SetTitle("E1 (ADC)");
       break;
     default:
       break;
@@ -1091,13 +1069,9 @@ void EEBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     switch ( i ) {
     case 0:
       obj2f = he02_[0];
-      if ( obj2f ) obj2f->GetXaxis()->SetTitle("PosX    (mm)");
-      if ( obj2f ) obj2f->GetYaxis()->SetTitle("E1 (ADC)");
     break;
     case 1:
       obj2f = he02_[1];
-      if ( obj2f ) obj2f->GetXaxis()->SetTitle("PosY    (mm)");
-      if ( obj2f ) obj2f->GetYaxis()->SetTitle("E1 (ADC)");
       break;
     default:
       break;
@@ -1168,7 +1142,6 @@ void EEBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     cP->cd();
     gStyle->SetOptStat("euomr");
     obj1f->SetStats(kTRUE);
-    obj1f->GetXaxis()->SetTitle("missing collection");
     obj1f->Draw();
     cP->Update();
     cP->SaveAs(imgName.c_str());

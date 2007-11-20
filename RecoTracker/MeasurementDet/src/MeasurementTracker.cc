@@ -48,24 +48,22 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
 				       const SiStripRecHitMatcher*  hitMatcher,
 				       const TrackerGeometry*  trackerGeom,
 				       const GeometricSearchTracker* geometricSearchTracker,
-				       const SiStripDetCabling *stripCabling,
-				       const SiStripNoises *stripNoises,
+				       const SiStripQuality *stripQuality,
+                                       int qualityFlags, 
+                                       int qualityDebugFlags,
 				       bool isRegional) :
   pset_(conf),lastEventNumberPixels(0),lastEventNumberStrips(0),
   lastRunNumberPixels(0),lastRunNumberStrips(0),
   thePixelCPE(pixelCPE),theStripCPE(stripCPE),theHitMatcher(hitMatcher),
   theTrackerGeom(trackerGeom),theGeometricSearchTracker(geometricSearchTracker)
-  ,dummyStripNoises(0), isRegional_(isRegional)
+  ,isRegional_(isRegional)
 {
   this->initialize();
-  this->initializeStripStatus(stripCabling);
-  this->initializeStripNoises(stripNoises);
+  this->initializeStripStatus(stripQuality, qualityFlags, qualityDebugFlags);
 }
 
 MeasurementTracker::~MeasurementTracker()
 {
-  if (dummyStripNoises) delete dummyStripNoises;
-
   for(vector<TkPixelMeasurementDet*>::const_iterator it=thePixelDets.begin(); it!=thePixelDets.end(); ++it){
     delete *it;
   }
@@ -363,49 +361,66 @@ MeasurementTracker::idToDet(const DetId& id) const
   return 0; //to avoid compile warning
 }
 
-void MeasurementTracker::initializeStripNoises(const SiStripNoises *noises) const {
-    if (noises) {
-        for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-                i!=theStripDets.end(); i++) {
-            uint32_t detid = ((**i).geomDet().geographicalId()).rawId();
-            (**i).setNoises(noises->getRange(detid));
-        } 
-    } else {
-        dummyStripNoises = new SiStripNoises();
-        for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-                i!=theStripDets.end(); i++) {
-            (**i).setNoises(dummyStripNoises->getRange(0));
-        } 
-    }                                                                                         
-}                                       
-
-void MeasurementTracker::initializeStripStatus(const SiStripDetCabling *cabling) const {
-  if (cabling)  {
-    //std::pair<double,double> t1,t2,t3; 
-    //TimeMe timer("[*GIO*] MTuSS TimeMe",false); t1 = timer.lap();
-
-    const std::map< uint32_t, std::vector<FedChannelConnection> > & activeModules = cabling->getDetCabling ();
-    
-    //t3 = timer.lap();
-    //unsigned int on = 0, tot = 0; 
+void MeasurementTracker::initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags) const {
+  if ((quality != 0) && (qualityFlags != 0))  {
+    edm::LogWarning("MeasurementTracker") << "qualityFlags = " << qualityFlags;
+    unsigned int on = 0, tot = 0; 
+    unsigned int foff = 0, ftot = 0, aoff = 0, atot = 0; 
     for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
 	 i!=theStripDets.end(); i++) {
       uint32_t detid = ((**i).geomDet().geographicalId()).rawId();
-      std::map< uint32_t, std::vector<FedChannelConnection> >::const_iterator it =  activeModules.find(detid);
-      bool isOn = (it!=activeModules.end());
-      (*i)->setActive(isOn);
-      //tot++; on += (unsigned int) isOn;
+      if (qualityFlags & BadModules) {
+          bool isOn = quality->IsModuleUsable(detid);
+          (*i)->setActive(isOn);
+          tot++; on += (unsigned int) isOn;
+       } else {
+          (*i)->setActive(true);
+       }
+       // first turn all APVs and fibers ON
+       (*i)->set128StripStatus(true); 
+       if (qualityFlags & BadAPVFibers) {
+          short badApvs   = quality->getBadApvs(detid);
+          short badFibers = quality->getBadFibers(detid);
+          for (int j = 0; j < 6; j++) {
+             atot++;
+             if (badApvs & (1 << j)) {
+                (*i)->set128StripStatus(false, j);
+                aoff++;
+             }
+          }
+          for (int j = 0; j < 3; j++) {
+             ftot++;
+             if (badFibers & (1 << j)) {
+                (*i)->set128StripStatus(false, 2*j);
+                (*i)->set128StripStatus(false, 2*j+1);
+                foff++;
+             }
+          }
+       } 
+       std::vector<TkStripMeasurementDet::BadStripBlock> &badStrips = (*i)->getBadStripBlocks();
+       badStrips.clear();
+       if (qualityFlags & BadStrips) {
+            SiStripBadStrip::Range range = quality->getRange(detid);
+            for (SiStripBadStrip::ContainerIterator bit = range.first; bit != range.second; ++bit) {
+                badStrips.push_back(quality->decode(*bit));
+            }
+       }
     }
-    
-    //t2 = timer.lap();
-    //edm::LogInfo("[*GIO*] MTuSS") << "It took " << (t2.first - t1.first) << " s (total) to dispatch " << activeModules.size() << " modules (" 
-    //          << (t3.first - t1.first) << " in getActiveDetectorRawIds and " << (t2.first - t3.first) << " in searching";
-    //edm::LogInfo("[*GIO*] MTuSS") << " Total modules: " << tot << ", active " << on <<", inactive " << (tot -on);
-    
+    if (qualityDebugFlags & BadModules) {
+        edm::LogWarning("MeasurementTracker StripModuleStatus") << 
+            " Total modules: " << tot << ", active " << on <<", inactive " << (tot - on);
+    }
+    if (qualityDebugFlags & BadAPVFibers) {
+        edm::LogWarning("MeasurementTracker StripAPVStatus") << 
+            " Total APVs: " << atot << ", active " << (atot-aoff) <<", inactive " << (aoff);
+        edm::LogWarning("MeasurementTracker StripFiberStatus") << 
+            " Total Fibers: " << ftot << ", active " << (ftot-foff) <<", inactive " << (foff);
+    }
   } else {
     for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
 	 i!=theStripDets.end(); i++) {
-      (*i)->setActive(true);
+      (*i)->setActive(true);          // module ON
+      (*i)->set128StripStatus(true);  // all APVs and fibers ON
     }
   }
 }

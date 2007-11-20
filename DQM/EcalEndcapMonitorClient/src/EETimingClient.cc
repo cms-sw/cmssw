@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/09/10 06:43:46 $
- * $Revision: 1.24 $
+ * $Date: 2007/11/10 14:09:12 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -21,19 +21,23 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingCrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingTTDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
 
@@ -46,9 +50,6 @@ EETimingClient::EETimingClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
-
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
@@ -60,7 +61,7 @@ EETimingClient::EETimingClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
-  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -85,15 +86,11 @@ EETimingClient::EETimingClient(const ParameterSet& ps){
 
     mer01_[ism-1] = 0;
 
-    qth01_[ism-1] = 0;
-
-    qtg01_[ism-1] = 0;
-
   }
 
   expectedMean_ = 6.0;
-  discrepancyMean_ = 0.5;
-  RMSThreshold_ = 0.5;
+  discrepancyMean_ = 3.0;
+  RMSThreshold_ = 5.5;
 
 }
 
@@ -110,36 +107,6 @@ void EETimingClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EETMT quality %s", Numbers::sEE(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qth01_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
-
-      qth01_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-
-      qth01_[ism-1]->setMinimumEntries(10*1700);
-
-      qth01_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EETMT quality test %s", Numbers::sEE(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg01_[ism-1]->setMeanRange(1., 6.);
-
-      qtg01_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -188,18 +155,24 @@ void EETimingClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing quality %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg01_[ism-1]->setAxisTitle("ix", 1);
+    meg01_[ism-1]->setAxisTitle("iy", 2);
 
     if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());
-    mea01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea01_[ism-1]->setAxisTitle("channel", 1);
+    mea01_[ism-1]->setAxisTitle("jitter", 2);
 
     if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing mean %s", Numbers::sEE(ism).c_str());
     mep01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0, 10.0);
+    mep01_[ism-1]->setAxisTitle("mean", 1);
 
     if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing rms %s", Numbers::sEE(ism).c_str());
     mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0, 6.0);
+    mer01_[ism-1]->setAxisTitle("rms", 1);
 
   }
 
@@ -207,7 +180,7 @@ void EETimingClient::setup(void) {
 
     int ism = superModules_[i];
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
+    meg01_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -226,9 +199,9 @@ void EETimingClient::setup(void) {
       }
     }
 
-    UtilsClient::resetHisto( mea01_[ism-1] );
-    UtilsClient::resetHisto( mep01_[ism-1] );
-    UtilsClient::resetHisto( mer01_[ism-1] );
+    mea01_[ism-1]->Reset();
+    mep01_[ism-1]->Reset();
+    mer01_[ism-1]->Reset();
 
   }
 
@@ -276,16 +249,83 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   bool status = true;
 
+  EcalLogicID ecid;
+
+  MonTimingCrystalDat t;
+  map<EcalLogicID, MonTimingCrystalDat> dataset;
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
     cout << " SM=" << ism << endl;
+    cout << endl;
 
-    UtilsClient::printBadChannels(qth01_[ism-1]);
+    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
 
-//    UtilsClient::printBadChannels(qtg01_[ism-1]);
+    float num01;
+    float mean01;
+    float rms01;
 
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( ! Numbers::validEE(ism, jx, jy) ) continue;
+
+        bool update01;
+
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ix, iy, num01, mean01, rms01);
+
+        if ( update01 ) {
+
+          if ( ix == 1 && iy == 1 ) {
+
+            cout << "Preparing dataset for SM=" << ism << endl;
+
+            cout << "crystal (" << ix << "," << iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+
+            cout << endl;
+
+          }
+
+          t.setTimingMean(mean01);
+          t.setTimingRMS(rms01);
+
+          status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
+
+          int ic = Numbers::indexEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              dataset[ecid] = t;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+        }
+
+      }
+    }
+
+  }
+
+  if ( econn ) {
+    try {
+      cout << "Inserting MonTimingCrystalDat ... " << flush;
+      if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
+      cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
   }
 
   return status;
@@ -304,23 +344,6 @@ void EETimingClient::subscribe(void){
 
     sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalEndcap/EETimingClient/EETMT timing quality %s", Numbers::sEE(ism).c_str());
-    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
 
   }
 
@@ -401,10 +424,10 @@ void EETimingClient::analyze(void){
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( mea01_[ism-1] );
-    UtilsClient::resetHisto( mep01_[ism-1] );
-    UtilsClient::resetHisto( mer01_[ism-1] );
+    meg01_[ism-1]->Reset();
+    mea01_[ism-1]->Reset();
+    mep01_[ism-1]->Reset();
+    mer01_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -439,16 +462,21 @@ void EETimingClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, val);
 
-          if ( mea01_[ism-1] ) {
-            if ( mean01 > 0. ) {
-              mea01_[ism-1]->setBinContent(iy+20*(ix-1), mean01);
-              mea01_[ism-1]->setBinError(iy+20*(ix-1), rms01);
-            } else {
-              mea01_[ism-1]->setEntries(1.+mea01_[ism-1]->getEntries());
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( mea01_[ism-1] ) {
+              if ( mean01 > 0. ) {
+                mea01_[ism-1]->setBinContent(ic, mean01);
+                mea01_[ism-1]->setBinError(ic, rms01);
+              } else {
+                mea01_[ism-1]->setEntries(1.+mea01_[ism-1]->getEntries());
+              }
             }
+
+            if ( mep01_[ism-1] ) mep01_[ism-1]->Fill(mean01);
+            if ( mer01_[ism-1] ) mer01_[ism-1]->Fill(rms01);
           }
-          if ( mep01_[ism-1] ) mep01_[ism-1]->Fill(mean01);
-          if ( mer01_[ism-1] ) mer01_[ism-1]->Fill(rms01);
 
         }
 
@@ -464,10 +492,10 @@ void EETimingClient::analyze(void){
             int jy = iy + Numbers::iy0EE(ism);
 
             if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
- 
+
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
-            int ic = Numbers::icEE(ism, ix, iy);
+            int ic = Numbers::indexEE(ism, ix, iy);
 
             if ( ic == -1 ) continue;
 
@@ -485,16 +513,6 @@ void EETimingClient::analyze(void){
 
       }
     }
-
-    vector<dqm::me_util::Channel> badChannels;
-
-    if ( qth01_[ism-1] ) badChannels = qth01_[ism-1]->getBadChannels();
-
-//    if ( ! badChannels.empty() ) {
-//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-//        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-//      }
-//    }
 
   }
 
@@ -533,8 +551,8 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-	     << Numbers::sEE(superModules_[i]).c_str() << ">"
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+             << Numbers::sEE(superModules_[i]).c_str() << ">"
+             << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
 
@@ -598,7 +616,9 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f->SetMinimum(-0.00000001);
       obj2f->SetMaximum(6.0);
       obj2f->GetXaxis()->SetLabelSize(0.02);
+      obj2f->GetXaxis()->SetTitleSize(0.02);
       obj2f->GetYaxis()->SetLabelSize(0.02);
+      obj2f->GetYaxis()->SetTitleSize(0.02);
       obj2f->Draw("col");
       int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
       int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
@@ -727,8 +747,8 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-	     << Numbers::sEE(ism).c_str() << """></a><strong>"
-	     << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
+             << Numbers::sEE(ism).c_str() << """></a><strong>"
+             << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

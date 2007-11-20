@@ -9,8 +9,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/06/29 23:52:16 $
-// $Revision: 1.17 $
+// $Date: 2007/07/08 20:27:09 $
+// $Revision: 1.18 $
 //
 
 #include <memory>
@@ -67,40 +67,27 @@ void RoadSearchCloudMaker::produce(edm::Event& e, const edm::EventSetup& es)
   // special treatment for getting matched RecHit collection
   // if collection exists in file, use collection from file
   // if collection does not exist in file, create empty collection
-  const SiStripMatchedRecHit2DCollection *matchedRecHitCollection = 0;
-  try {
-    edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHitHandle;
-    e.getByLabel(matchedStripRecHitsInputTag_, matchedrecHitHandle);
-    matchedRecHitCollection = matchedrecHitHandle.product();
+  static const SiStripMatchedRecHit2DCollection s_empty0;
+  const SiStripMatchedRecHit2DCollection *matchedRecHitCollection = &s_empty0;
+  edm::Handle<SiStripMatchedRecHit2DCollection> matchedRecHits;
+  if( e.getByLabel(matchedStripRecHitsInputTag_, matchedRecHits)) {
+    matchedRecHitCollection = matchedRecHits.product();
+  } else {
+    edm::LogWarning("RoadSearch") << "Collection SiStripMatchedRecHit2DCollection with InputTag " << matchedStripRecHitsInputTag_ << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without matched RecHits.";
   }
-  catch (edm::Exception const& x) {
-    if ( x.categoryCode() == edm::errors::ProductNotFound ) {
-      if ( x.history().size() == 1 ) {
-	static const SiStripMatchedRecHit2DCollection s_empty;
-	matchedRecHitCollection = &s_empty;
-	edm::LogWarning("RoadSearch") << "Collection SiStripMatchedRecHit2DCollection with InputTag " << matchedStripRecHitsInputTag_ << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without matched RecHits.";
-      }
-    }
-  }
-      
+  
   // special treatment for getting pixel collection
   // if collection exists in file, use collection from file
   // if collection does not exist in file, create empty collection
-  const SiPixelRecHitCollection *pixelRecHitCollection = 0;
-  try {
-    edm::Handle<SiPixelRecHitCollection> pixelrecHitHandle;
-    e.getByLabel(pixelRecHitsInputTag_, pixelrecHitHandle);
-    pixelRecHitCollection = pixelrecHitHandle.product();
+  static const SiPixelRecHitCollection s_empty1;
+  const SiPixelRecHitCollection *pixelRecHitCollection = &s_empty1;
+  edm::Handle<SiPixelRecHitCollection> pixelRecHits;
+  if( e.getByLabel(pixelRecHitsInputTag_, pixelRecHits)) {
+    pixelRecHitCollection = pixelRecHits.product();
+  } else {
+    edm::LogWarning("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag_ << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
   }
-  catch (edm::Exception const& x) {
-    if ( x.categoryCode() == edm::errors::ProductNotFound ) {
-      if ( x.history().size() == 1 ) {
-	static const SiPixelRecHitCollection s_empty;
-	pixelRecHitCollection = &s_empty;
-	edm::LogWarning("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag_ << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
-      }
-    }
-  }
+  
 
   // Step B: create empty output collection
   std::auto_ptr<RoadSearchCloudCollection> output(new RoadSearchCloudCollection);

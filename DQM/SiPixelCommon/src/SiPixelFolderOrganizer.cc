@@ -11,7 +11,7 @@
 
 /// Constructor
 SiPixelFolderOrganizer::SiPixelFolderOrganizer() :
-  rootFolder("Tracker"),
+  rootFolder("Pixel"),
   slash("/"),
   dbe_(edm::Service<DaqMonitorBEInterface>().operator->())
 {  
@@ -32,7 +32,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid) {
    ///
    else if(DetId::DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
      
-     std::string subDetectorFolder = "PixelBarrel";
+     std::string subDetectorFolder = "Barrel";
      PixelBarrelName::Shell DBshell = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).shell();
      int DBlayer  = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).layerName();
      int DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).ladderName();
@@ -57,7 +57,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid) {
    ///
    else if(DetId::DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
 
-     std::string subDetectorFolder = "PixelEndcap";
+     std::string subDetectorFolder = "Endcap";
      PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).halfCylinder();
       int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).diskName();
       int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).bladeName();

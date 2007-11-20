@@ -9,7 +9,7 @@ class FastL1BitInfo
 
 public:
 
-FastL1BitInfo(): eta(0), phi(0), energy(0), et(0), TauVeto(false), EmTauVeto(false), HadTauVeto(false), IsolationVeto(false), SumEtBelowThres(false), maxEt(false), soft(false)
+FastL1BitInfo(): m_eta(0), m_phi(0), m_energy(0), m_et(0), m_TauVeto(false), m_EmTauVeto(false), m_HadTauVeto(false), m_IsolationVeto(false), m_SumEtBelowThres(false), m_maxEt(false), m_soft(false), m_hard(false)
 {
 }
 
@@ -17,55 +17,46 @@ FastL1BitInfo(): eta(0), phi(0), energy(0), et(0), TauVeto(false), EmTauVeto(fal
 {
 }
 
-void setEta(double Eta){eta = Eta;}
-void setPhi(double Phi){phi = Phi;}
-void setEnergy(double Energy){energy = Energy;}
-void setEt(double Et){et = Et;}
-void setTauVeto(bool tauVeto){TauVeto = tauVeto;}
-void setEmTauVeto(bool emTauVeto){EmTauVeto = emTauVeto;}
-void setHadTauVeto(bool hadTauVeto){HadTauVeto = hadTauVeto;}
-void setIsolationVeto(bool isolationVeto){IsolationVeto = isolationVeto;}
-void setSumEtBelowThres(bool sumEtBelowThres){SumEtBelowThres = sumEtBelowThres;}
-void setMaxEt(bool MaxEt){maxEt = MaxEt;}
-void setSoft(bool Soft){soft = Soft;}
+void setEta(double Eta){m_eta = Eta;}
+void setPhi(double Phi){m_phi = Phi;}
+void setEnergy(double Energy){m_energy = Energy;}
+void setEt(double Et){m_et = Et;}
+void setTauVeto(bool tauVeto){m_TauVeto = tauVeto;}
+void setEmTauVeto(bool emTauVeto){m_EmTauVeto = emTauVeto;}
+void setHadTauVeto(bool hadTauVeto){m_HadTauVeto = hadTauVeto;}
+void setIsolationVeto(bool isolationVeto){m_IsolationVeto = isolationVeto;}
+void setSumEtBelowThres(bool sumEtBelowThres){m_SumEtBelowThres = sumEtBelowThres;}
+void setMaxEt(bool MaxEt){m_maxEt = MaxEt;}
+void setSoft(bool Soft){m_soft = Soft;}
+void setHard(bool Hard){m_hard = Hard;}
 
-double getEta() const {return eta;}
-double getPhi() const {return phi;}
-double getEnergy() const {return energy;}
-double getEt() const {return et;}
-bool getTauVeto() const {return TauVeto;}
-bool getEmTauVeto() const {return EmTauVeto;}
-bool getHadTauVeto() const {return HadTauVeto;}
-bool getIsolationVeto() const {return IsolationVeto;}
-bool getSumEtBelowThres() const {return SumEtBelowThres;}
-bool getMaxEt() const {return maxEt;}
-bool getSoft() const {return soft;}
-
-//  bool softVeto;
-//  int  emEtaPattern;
-//  int  hadEtaPattern;
-//  int  emPhiPattern;
-//  int  hadPhiPattern;
-//  int  Window[8];
-//std::vector< double> ecal;
-//std::vector< double> hcal;
-//double ecal[16];
-//double hcal[16];
+double getEta() const {return m_eta;}
+double getPhi() const {return m_phi;}
+double getEnergy() const {return m_energy;}
+double getEt() const {return m_et;}
+bool getTauVeto() const {return m_TauVeto;}
+bool getEmTauVeto() const {return m_EmTauVeto;}
+bool getHadTauVeto() const {return m_HadTauVeto;}
+bool getIsolationVeto() const {return m_IsolationVeto;}
+bool getSumEtBelowThres() const {return m_SumEtBelowThres;}
+bool getMaxEt() const {return m_maxEt;}
+bool getSoft() const {return m_soft;}
+bool getHard() const {return m_hard;}
 
 private:
-  double eta;
-  double phi;
-  double energy;
-  double et;
+  double m_eta;
+  double m_phi;
+  double m_energy;
+  double m_et;
 
-  bool TauVeto;
-  bool EmTauVeto;
-  bool HadTauVeto;
-  bool IsolationVeto;
-  bool SumEtBelowThres;
-  bool maxEt;
-  bool soft;
-
+  bool m_TauVeto;
+  bool m_EmTauVeto;
+  bool m_HadTauVeto;
+  bool m_IsolationVeto;
+  bool m_SumEtBelowThres;
+  bool m_maxEt;
+  bool m_soft;
+  bool m_hard;
 };
 
 // Defining vector of my classs

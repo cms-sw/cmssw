@@ -175,7 +175,7 @@ namespace edm {
      else if(type()=="vuint32")
        {
          vector<unsigned int> d ;
-         for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,10));
+         for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,0));
          return Entry(name(), d, tracked_);
        }
      else if(type()=="vint64")
@@ -187,7 +187,7 @@ namespace edm {
      else if(type()=="vuint64")
        {
          vector<boost::uint64_t> d ;
-         for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,10));
+         for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,0));
          return Entry(name(), d, tracked_);
        }
      else if(type()=="VInputTag")

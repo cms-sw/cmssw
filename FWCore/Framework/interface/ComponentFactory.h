@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.21 2007/04/13 10:39:41 wmtan Exp $
+// $Id: ComponentFactory.h,v 1.22 2007/05/08 03:18:38 wmtan Exp $
 //
 
 // system include files
@@ -110,7 +110,13 @@ template<typename T>
 
    }
 }
-#define COMPONENTFACTORY_GET(_type_) EDM_REGISTER_PLUGINFACTORY(edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<_type_>* ()>,_type_::name()); \
-static edm::eventsetup::ComponentFactory<_type_> s_dummyfactory; template<> edm::eventsetup::ComponentFactory<_type_>* edm::eventsetup::ComponentFactory<_type_>::get() { return &s_dummyfactory; } enum {dummy_componentfactory_get_}
+#define COMPONENTFACTORY_GET(_type_) \
+EDM_REGISTER_PLUGINFACTORY(edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<_type_>* ()>,_type_::name()); \
+static edm::eventsetup::ComponentFactory<_type_> s_dummyfactory; \
+namespace edm { namespace eventsetup { \
+template<> edm::eventsetup::ComponentFactory<_type_>* edm::eventsetup::ComponentFactory<_type_>::get() \
+{ return &s_dummyfactory; } \
+  } } \
+typedef int componentfactory_get_needs_semicolon
 
 #endif

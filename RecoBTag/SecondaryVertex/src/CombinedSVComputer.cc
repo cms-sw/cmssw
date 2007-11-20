@@ -102,9 +102,10 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 		// vars.insert(svInfo.taggingVariables());
 		for(unsigned int i = 0; i < svInfo.nVertices(); i++) {
 			TrackRefVector tracks = svInfo.vertexTracks(i);
-			for(unsigned int j = 0; j < tracks.size(); j++)
-				vertexKinematics.add(*tracks[j],
-						svInfo.trackWeight(i, j));
+			for(TrackRefVector::const_iterator track = tracks.begin();
+			    track != tracks.end(); track++)
+				vertexKinematics.add(**track,
+						svInfo.trackWeight(i, *track));
 		}
 
 		vars.insert(btau::flightDistance2dVal,
@@ -130,7 +131,7 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 	for(std::vector<size_t>::const_iterator iter = indices.begin();
 	    iter != indices.end(); ++iter) {
 		const TrackIPTagInfo::TrackIPData &data = ipData[*iter];
-		const Track &track = *tracks[*iter];;
+		const Track &track = *tracks[*iter];
 		math::XYZVector trackMom = track.momentum();
 		double trackMag = std::sqrt(trackMom.Mag2());
 

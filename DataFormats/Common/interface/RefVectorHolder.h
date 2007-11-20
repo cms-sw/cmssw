@@ -2,6 +2,7 @@
 #define Common_RefVectorHolder_h
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 namespace edm {
   namespace reftobase {

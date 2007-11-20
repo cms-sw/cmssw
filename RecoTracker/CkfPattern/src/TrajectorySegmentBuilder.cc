@@ -58,7 +58,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
       const vector<TM>& measurements = ig->measurements();
       for ( vector<TM>::const_iterator im=measurements.begin();
 	    im!=measurements.end(); im++ ) {
-	if ( im->recHit()->isValid() )  ngrp++;
+	if ( im->recHit()->getType() != TrackingRecHit::missing )  ngrp++;
       }
       cout << " " << ngrp;
       if ( ngrp>0 )  ntot *= ngrp;
@@ -201,7 +201,9 @@ TrajectorySegmentBuilder::updateCandidates (TempTrajectory& traj,
   //
   for ( vector<TM>::const_iterator im=measurements.begin();
 	im!=measurements.end(); im++ ) {
-    if ( im->recHit()->isValid() ) {
+    // if ( im->recHit()->isValid() ) {      // << not bad module aware?
+    if ( im->recHit()->getType()      // let's try this way
+            != TrackingRecHit::missing ) {   //     (gpetrucc, 02/11/07)
       TempTrajectory newTraj(traj);
       updateTrajectory(newTraj,*im);
       if ( theLockHits )  lockMeasurement(*im);
@@ -220,20 +222,32 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory& traj,
 						       TempTrajectoryContainer& candidates)
 {
   vector<TM>::const_iterator ibest = measurements.end();
+  bool bestIsValid = false;
   for ( vector<TM>::const_iterator im=measurements.begin();
 	im!=measurements.end(); im++ ) {
-    if ( im->recHit()->isValid() && (ibest==measurements.end() || 
-				    im->estimate()<ibest->estimate()) )  ibest = im;
+    if ( im->recHit()->isValid() ) {
+        if (!bestIsValid || (ibest==measurements.end()) || (im->estimate()<ibest->estimate()) )  {
+            ibest = im;
+            bestIsValid = true;
+        }
+    } else if (!bestIsValid && (im->recHit()->getType() != TrackingRecHit::missing)) {
+        if (ibest==measurements.end()) ibest = im;
+    }
   }
   if ( ibest!=measurements.end() ) {
     TempTrajectory newTraj(traj);
     updateTrajectory(newTraj,*ibest);
     if ( theLockHits )  lockMeasurement(*ibest);
     candidates.push_back(newTraj);
-    if ( theDbgFlg )
-      cout << "TSB: found best measurement at " 
-	   << ibest->recHit()->globalPosition().perp() << " "
-	   << ibest->recHit()->globalPosition().z() << endl;
+    if ( theDbgFlg ) {
+      if (bestIsValid) {
+          cout << "TSB: found best measurement at " 
+               << ibest->recHit()->globalPosition().perp() << " "
+               << ibest->recHit()->globalPosition().z() << endl;
+      } else {
+          cout << "TSB: found best measurement at invalid hit on det " << ibest->recHit()->geographicalId().rawId();
+      }
+    }
   }
   //
   // keep old trajectorTempy
@@ -280,7 +294,7 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
     //
     // only collect valid RecHits
     //
-    vector<TM>::iterator end = (tmp.back().recHit()->isValid() ? tmp.end() : tmp.end()-1);
+    vector<TM>::iterator end = (tmp.back().recHit()->getType() != TrackingRecHit::missing ? tmp.end() : tmp.end()-1);
     if (theDbgFlg) cout << " " << tmp.size();
     tmpResult.insert(tmpResult.end(),tmp.begin(),end);
   }
@@ -314,7 +328,8 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	// only use invalid hits
 	//
 	ConstRecHitPointer hit = im->recHit();
-	if ( hit->isValid() )  break;
+	//if ( hit->isValid() )  break;                          // gpetrucc: not bad module aware
+	if ( hit->getType() == TrackingRecHit::missing )  break; // let's try this
 
 	//
 	// check, if the extrapolation traverses the Det
@@ -369,7 +384,7 @@ TrajectorySegmentBuilder::unlockedMeasurements (const vector<TM>& measurements) 
   for ( vector<TM>::const_iterator im=measurements.begin();
 	im!=measurements.end(); im++ ) {
     ConstRecHitPointer testHit = im->recHit();
-    if ( !testHit->isValid() )  continue;
+    if ( testHit->getType() ==  TrackingRecHit::missing )  continue;
     bool found(false);
     for ( ConstRecHitContainer::const_iterator ih=theLockedHits.begin();
 	  ih!=theLockedHits.end(); ih++ ) {

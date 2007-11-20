@@ -1,3 +1,9 @@
+2007-10-11  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-02-00
+	* reorganize to single class plugin
+	* added method setFreeToEof to support stopping playback
+
 2007-04-19  Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-01-00

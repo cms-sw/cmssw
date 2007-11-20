@@ -22,7 +22,11 @@ from Mixins import PrintOptions
 #  1) check for multiple inclusion of the same block can be done once the block is 'closed'
 #     the check must be done recursively
 #     NOTE: circular inclusions of a file are an error
-#  2) 
+#  2)
+
+#keeps track of which files we are parsing
+_fileStack = ["{config}"]
+
 def _validateLabelledList(params):
     """enforces the rule that no label can be used more than once
     and if an include is done more than once we remove the duplicates
@@ -110,6 +114,7 @@ def _handleInclude(fileName,otherFiles,recurseFiles,parser,validator,recursor):
     """reads in the file with name 'fileName' making sure it does not recursively include itself
     by looking in 'otherFiles' then applies the 'parser' to the contents of the file,
     runs the validator and then applies the recursor to see if other files must now be included"""
+    global _fileStack
     if fileName in recurseFiles:
         raise RuntimeError('the file '+fileName+' eventually includes itself')
     if fileName in otherFiles:
@@ -117,33 +122,43 @@ def _handleInclude(fileName,otherFiles,recurseFiles,parser,validator,recursor):
     newRecurseFiles = recurseFiles.copy()
     newRecurseFiles.add(fileName)
     otherFiles.add(fileName)
-    factory = _fileFactory
-    f = factory(fileName)
+    _fileStack.append(fileName)
     try:
-        values = parser(f)
-        values = validator(values)
-        values =recursor(values,otherFiles,newRecurseFiles)
-    except pp.ParseException, e:
-        raise RuntimeError('include file '+fileName+' had the parsing error \n'+str(e))
-    except Exception, e:
-        raise RuntimeError('include file '+fileName+' had the error \n'+str(e))
-    try:
-        values = validator(values)
-    except pp.ParseException, e:
-        raise RuntimeError('after including all other files,include file '+fileName+' had the parsing error \n'+str(e))
-    except Exception, e:
-        raise RuntimeError('after including all other files, include file '+fileName+' had the error \n'+str(e))
-    return values
-
+        factory = _fileFactory
+        f = factory(fileName)
+        try:
+            values = parser(f)
+            values = validator(values)
+            values =recursor(values,otherFiles,newRecurseFiles)
+        except pp.ParseException, e:
+            raise RuntimeError('include file '+fileName+' had the parsing error \n'+str(e))
+        except Exception, e:
+            raise RuntimeError('include file '+fileName+' had the error \n'+str(e))
+        try:
+            values = validator(values)
+        except pp.ParseException, e:
+            raise RuntimeError('after including all other files,include file '+fileName+' had the parsing error \n'+str(e))
+        except Exception, e:
+            raise RuntimeError('after including all other files, include file '+fileName+' had the error \n'+str(e))
+        return values
+    finally:
+        _fileStack.pop()
+        
 def _handleUsing(using,otherUsings,process,allUsingLabels):
     """recursively go through the using blocks and return all the contained valued"""
     if using.label in otherUsings:
-        raise RuntimeError("the using labelled '"+using.label+"' recursively uses itself")
+        raise pp.ParseFatalException(using.s,using.loc,
+    "the using labelled '"+using.label+"' recursively uses itself"+
+    "\n from file "+using.file)
     allUsingLabels.add(using.label)
     values = []
     valuesFromOtherUsings=[]
     otherUsings = otherUsings.copy()
     otherUsings.add(using.label)
+    if using.label not in process:
+        raise pp.ParseFatalException(using.s,using.loc,
+                "the using labelled '"+using.label+"' does not correspond to a known block or PSet"
+                +"\n from file "+using.file)
     d = process[using.label].__dict__
     usingLabels=[]
     for label,param in (x for x in d.iteritems() if isinstance(x[1],cms._ParameterTypeBase)):
@@ -160,8 +175,10 @@ def _handleUsing(using,otherUsings,process,allUsingLabels):
     for plabel,param in valuesFromOtherUsings:
         item = process[using.label]
         if hasattr(item,plabel):
-            raise RuntimeError("the using labelled '"+using.label+"' tried to add the label '"+
-                               plabel+"' which already exists in this block")
+            raise pp.ParseFatalException(using.s,using.loc,
+                "the using labelled '"+using.label+"' tried to add the label '"+
+                plabel+"' which already exists in this block"
+                +"\n from file "+using.file)
         setattr(item,plabel,param)
     return values
 
@@ -169,10 +186,13 @@ def _findAndHandleUsingBlocksRecursive(label,item,process,allUsingLabels):
     otherUsings = set( (label,))
     values = []
     usingLabels = []
+    usingForValues = []
     for tempLabel,param in item.__dict__.iteritems():
         if isinstance(param,_UsingNode):
+            oldSize = len(values)
             values.extend(_handleUsing(param,otherUsings,process,allUsingLabels))
             usingLabels.append(tempLabel)
+            usingForValues.extend([param]*(len(values)-oldSize))
         elif isinstance(param,cms._Parameterizable):
             _findAndHandleUsingBlocksRecursive(tempLabel,param,process,allUsingLabels)
         elif isinstance(param,cms.VPSet):
@@ -180,10 +200,13 @@ def _findAndHandleUsingBlocksRecursive(label,item,process,allUsingLabels):
                 _findAndHandleUsingBlocksRecursive(tempLabel,pset,process,allUsingLabels)
     for tempLabel in usingLabels:
         delattr(item,tempLabel)
-    for plabel,param in values:
+    for index,(plabel,param) in enumerate(values):
         if hasattr(item,plabel):
-            raise RuntimeError("the using labelled '"+using.label+"' tried to add the label '"+
-                               plabel+"' which already exists in this block")
+            using = usingForValues[index]
+            raise pp.ParseFatalException(using.s,using.loc,
+                "the using labelled '"+using.label+"' tried to add the label '"+
+                plabel+"' which already exists in this block"
+                +"\n from file "+using.file)
         setattr(item,plabel,param)
 
 def _findAndHandleProcessUsingBlock(values):
@@ -320,8 +343,12 @@ class _UsingNode(cms._ParameterTypeBase):
     """For injection purposes, pretend this is a new parameter type
        then have a post process step which strips these out
     """
-    def __init__(self,label):
+    def __init__(self,label,s,loc):
+        global _fileStack
         self.label = label
+        self.s = s
+        self.loc = loc
+        self.file = _fileStack[-1]
     def dumpPython(self, options=PrintOptions()):
         if options.isCfg:
             return "process."+self.label
@@ -338,7 +365,7 @@ def _makeUsing(s,loc,toks):
     _allUsingLabels.add(toks[0][1])
     #TEMP:usings are hard, lets wait
     #raise pp.ParseFatalException(s,loc,"using not yet implemented")
-    return ('using_'+toks[0][1],_UsingNode(toks[0][1]))
+    return ('using_'+toks[0][1],_UsingNode(toks[0][1],s,loc))
 
 
 class _IncludeNode(cms._ParameterTypeBase):
@@ -478,6 +505,7 @@ class _MakePlugin(object):
     def __init__(self,plugin):
         self.__plugin = plugin
     def __call__(self,s,loc,toks):
+        global _fileStack
         type = toks[0][0]
         values = list(iter(toks[0][1]))
         try:
@@ -485,22 +513,32 @@ class _MakePlugin(object):
             values = _findAndHandleParameterIncludes(values)
             values = _validateLabelledList(values)
         except Exception, e:
-            raise pp.ParseFatalException(s,loc,type+" contains the error "+str(e))
+            raise pp.ParseFatalException(s,loc,type+" contains the error "+str(e)
+                                         +"\n from file "+_fileStack[-1])
         d = dict(values)
         return self.__plugin(*[type],**d)
 class _MakeFrom(object):
     def __init__(self,plugin):
         self.__plugin = plugin
     def __call__(self,s,loc,toks):
+        global _fileStack
         label = toks[0][0]
         inc = toks[0][1]
         try:
             values = _findAndHandleProcessBlockIncludes((inc,))
         except Exception, e:
-            raise pp.ParseFatalException(s,loc,label+" contains the error "+str(e))
+            raise pp.ParseFatalException(s,loc,label+" contains the error "+str(e)
+                                         +"\n from file "+_fileStack[-1])
+        #try to resolve any usings, but don't get upset if you can't.
+        try:
+            _findAndHandleProcessUsingBlock(values)
+        except Exception, e:
+            pass
+
         d = dict(values)
         if label not in d:
-            raise pp.ParseFatalException(s,loc,"the file "+inc.fileName+" does not contain a "+label)
+            raise pp.ParseFatalException(s,loc,"the file "+inc.fileName+" does not contain a "+label
+                                         +"\n from file "+_fileStack[-1])
         return d[label]
 
 def _replaceKeywordWithType(s,loc,toks):
@@ -646,9 +684,10 @@ def _parsePathInReverse(s,loc,toks):
 
 class _ModuleSeries(object):
     def __init__(self,topNode,s,loc,toks):
+        global _fileStack
         #NOTE: nee to record what file we are from as well
         self.topNode = topNode
-        self.forErrorMessage = (s,loc,toks)
+        self.forErrorMessage = (s,loc,toks,_fileStack[-1])
     def make(self,process):
         try:
             nodes = self.topNode.make(process)
@@ -659,13 +698,15 @@ class _ModuleSeries(object):
                                          self.type()+" '"
                                          +self.forErrorMessage[2][0][0]+
                                          "' contains the error: "
-                                         +str(e))
+                                         +str(e)
+                                         +"\n from file "+self.forErrorMessage[3])
         except Exception, e:
             raise pp.ParseFatalException(self.forErrorMessage[0],
                                          self.forErrorMessage[1],
                                          self.type()
                                          +" '"+self.forErrorMessage[2][0][0]
-                                         +"' contains the error: "+str(e))
+                                         +"' contains the error: "+str(e)
+                                         +"\n from file "+self.forErrorMessage[3])
     def __str__(self):
         return str(self.topNode)
     def __repr__(self):
@@ -748,9 +789,10 @@ block = pp.Group(untracked+pp.Keyword("block")+label+_equalTo+scopedParameters
 class _ReplaceNode(object):
     """Handles the 'replace' command"""
     def __init__(self,path,setter,s,loc):
+        global _fileStack
         self.path = path
         self.setter = setter
-        self.forErrorMessage =(s,loc)
+        self.forErrorMessage =(s,loc,_fileStack[-1])
         self.multiplesAllowed = setter.multiplesAllowed
     def setPrefix(self, prefix):
         """Used to add the word 'process' to included nodes"""
@@ -770,7 +812,9 @@ class _ReplaceNode(object):
             raise pp.ParseException(self.forErrorMessage[0],
                                     self.forErrorMessage[1],
                                     "The replace statement '"+'.'.join(self.path)
-                                    +"' had the error \n"+str(e))
+                                    +"' had the error \n"+str(e)
+                                    +"\n from file "+self.forErrorMessage[2]
+                                    )
     def _setValue(self,obj,attr):
         self.setter.setValue(obj,attr)
     def _recurse(self,path,obj):
@@ -966,10 +1010,12 @@ def _makeReplace(s,loc,toks):
         setter = toks[0][1]
         return ('.'.join(path),_ReplaceNode(list(path),setter,s,loc))
     except Exception, e:
+        global _fileStack
         raise pp.ParseException(s,loc,"replace statement '"
                                 +'.'.join(list(path))
                                 +"' had the error \n"
-                                +str(e))
+                                +str(e)
+                                +"\n from file "+_fileStack[-1])
 
 _replaceValue = (pp.Group(_scopeBegin+_scopeEnd
                          ).setParseAction(_MakeSetter(_ReplaceSetter))|
@@ -1148,7 +1194,8 @@ def _makeProcess(s,loc,toks):
         values = _findAndHandleProcessBlockIncludes(values)
         values = _validateLabelledList(values)
     except Exception, e:
-        raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))
+        raise RuntimeError("the process contains the error \n"+str(e)
+                          )
 
 
     #now deal with series
@@ -1236,7 +1283,7 @@ def _makeProcess(s,loc,toks):
                pathlist.append( getattr(p,label))
             p.schedule = cms.Schedule(*pathlist)
     except Exception, e:
-        raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))    
+        raise RuntimeError("the process contains the error \n"+str(e))    
 #    p = cms.PSet(*[],**d)
     return p
 
@@ -1322,22 +1369,32 @@ def parseCfgFile(fileName):
     # and then using FileInPath
 
     global _allUsingLabels
+    global _fileStack
     _allUsingLabels = set()
+    oldFileStack = _fileStack
+    _fileStack = [fileName]
     import os.path
-    if os.path.exists(fileName):
-        f=open(fileName)
-    else:
-        f=_fileFactory(fileName)
-    return process.parseFile(f)[0]
-
+    try:
+        if os.path.exists(fileName):
+            f=open(fileName)
+        else:
+            f=_fileFactory(fileName)
+        return process.parseFile(f)[0]
+    finally:
+        _fileStack = oldFileStack
 
 def parseCffFile(fileName):
     """Read a .cff file and return a dictionary"""
-    t=onlyFragment.parseFile(_fileFactory(fileName))
-    global _allUsingLabels
-    #_allUsingLabels = set() # do I need to reset here?
-    d=_finalizeProcessFragment(t,_allUsingLabels)
-    return _ConfigReturn(d)
+    global _fileStack
+    _fileStack.append(fileName)
+    try:
+        t=onlyFragment.parseFile(_fileFactory(fileName))
+        global _allUsingLabels
+        #_allUsingLabels = set() # do I need to reset here?
+        d=_finalizeProcessFragment(t,_allUsingLabels)
+        return _ConfigReturn(d)
+    finally:
+        _fileStack.pop()
 
 def dumpCfg(fileName):
     cfgDumper.parseFile(_fileFactory(fileName))
@@ -1359,8 +1416,14 @@ def processFromString(configString):
     """Reads a string containing the equivalent content of a .cfg file and
     creates a Process object"""
     global _allUsingLabels
+    global _fileStack
     _allUsingLabels = set()
-    return process.parseString(configString)[0]
+    oldFileStack = _fileStack
+    _fileStack = ["{string}"]
+    try:
+        return process.parseString(configString)[0]
+    finally:
+        _fileStack = oldFileStack
 
 def importConfig(fileName):
     """Use the file extension to decide how to parse the file"""
@@ -1625,6 +1688,18 @@ PSet blah = {
                 d=dict(iter(t))
                 self.assertEqual(d['Sub/Pack/data/foo.cff'].filename, 'Sub/Pack/data/foo.cff')
                 t = _findAndHandleProcessBlockIncludes(t)
+                
+                _fileFactory = TestFactory('Sub/Pack/data/foo.cff',
+                                           """path p = {doesNotExist}""")
+                try:
+                    process.parseString("""process T = { include 'Sub/Pack/data/foo.cff' }""")
+                except Exception,e:
+                    self.assertEqual(str(e),
+"""the process contains the error 
+path 'p' contains the error: 'Process' object has no attribute 'doesNotExist'
+ from file Sub/Pack/data/foo.cff (at char 4), (line:1, col:5)""")
+                else:
+                    self.fail("failed to throw exception")
             finally:
                 _fileFactory = oldFactory
         def testParseCffFile(self):
@@ -1717,6 +1792,12 @@ PSet blah = {
             finally:
                 _fileFactory = oldFactory
 
+            self.assertRaises(pp.ParseFatalException,
+                              plugin.parseString,
+                              ("""es_module foo = WithLabel {
+                                 uint32 a = 1
+                                 int32 a = 1
+                                 }"""))
         def testProcess(self):
             global _allUsingLabels
             _allUsingLabels = set()
@@ -1804,11 +1885,11 @@ process RECO = {
     path p = {fo}
 }
 """
-            self.assertRaises(pp.ParseFatalException,process.parseString,(s),**dict())
+            self.assertRaises(RuntimeError,process.parseString,(s),**dict())
             try:
                 _allUsingLabels = set()
                 t=process.parseString(s)
-            except pp.ParseFatalException, e:
+            except Exception, e:
                 print e
 
             _allUsingLabels = set()
@@ -2009,7 +2090,7 @@ process RECO = {
    replace outputStuff.outputCommands += toKeep.outputCommands
 }
 """
-            self.assertRaises(pp.ParseFatalException,process.parseString,(s),**dict())
+            self.assertRaises(RuntimeError,process.parseString,(s),**dict())
             #self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
             
             _allUsingLabels = set()
@@ -2143,6 +2224,8 @@ process RECO = {
             self.assertEqual(t[0].m1.x.value(),2)
             self.assertEqual(t[0].m2.x.value(),2)
             #print t[0].dumpConfig()
+
+            _allUsingLabels = set()
             s="""
 process RECO = {
     module foo = FooProd {using b}
@@ -2150,7 +2233,18 @@ process RECO = {
     PSet c = {using b}
 }
 """
-            self.assertRaises(pp.ParseFatalException,process.parseString,(s),**dict())
+            self.assertRaises(RuntimeError,process.parseString,(s),**dict())
+
+            _allUsingLabels = set()
+            s="""
+process RECO = {
+    module foo = FooProd {using b
+        uint32 alreadyHere = 1
+    }
+    PSet b = {uint32 alreadyHere = 2}
+}
+"""
+            self.assertRaises(RuntimeError,process.parseString,(s),**dict())
             #this was failing because of order in which the using was applied
 
             _allUsingLabels = set()
@@ -2614,6 +2708,9 @@ process RECO = {
             #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
             self.assertEqual(list(process.a.b),[cms.InputTag("bar"),cms.InputTag('foobar')])                        
 
+            process.a = cms.EDProducer("FooProd", b = cms.uint32(1))
+            t = replace.parseString('replace a.c = 2')
+            self.assertRaises(pp.ParseBaseException,t[0][1].do,(process))
 
     unittest.main()
 #try:

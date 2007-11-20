@@ -51,6 +51,9 @@ class OptoScanAnalysis : public CommissioningAnalysis {
   /** Tick mark heights [ADC] */
   inline const VFloat& tickHeight() const;
 
+  /** Baseline slope [ADC/I2C] */
+  inline const VFloat& baseSlope() const;
+
   /** Histogram pointer and title. */
   Histo histo( const uint16_t& gain, 
 	       const uint16_t& digital_level ) const;
@@ -102,6 +105,9 @@ class OptoScanAnalysis : public CommissioningAnalysis {
   /** Tick mark heights [ADC] */
   VFloat tickHeight_;
 
+  /** Slope of baseline [ADC/I2C] */
+  VFloat baseSlope_;
+
   /** Default LLD gain setting if analysis fails. */
   static const uint16_t defaultGainSetting_;
 
@@ -135,6 +141,7 @@ const OptoScanAnalysis::VFloat& OptoScanAnalysis::linkNoise() const { return lin
 const OptoScanAnalysis::VFloat& OptoScanAnalysis::liftOff() const { return liftOff_; }
 const OptoScanAnalysis::VFloat& OptoScanAnalysis::threshold() const { return threshold_; }
 const OptoScanAnalysis::VFloat& OptoScanAnalysis::tickHeight() const { return tickHeight_; }
+const OptoScanAnalysis::VFloat& OptoScanAnalysis::baseSlope() const { return baseSlope_; }
 
 #endif // DQM_SiStripCommissioningAnalysis_OptoScanAnalysis_H
 

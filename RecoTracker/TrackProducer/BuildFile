@@ -13,6 +13,7 @@
 <use name=RecoTracker/TransientTrackingRecHit> 
 <use name=TrackingTools/TransientTrack> 
 <use name=DataFormats/Common>
+<use name=Utilities/General> 
 <use name=rootrflx>
 
 <export>
@@ -29,4 +30,5 @@
    <use name=MagneticField/Records>
    <use name=DataFormats/Common>
    <use name=rootrflx>
+   <use name=Utilities/General> 
 </export>

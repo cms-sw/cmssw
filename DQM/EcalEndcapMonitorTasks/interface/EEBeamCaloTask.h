@@ -4,8 +4,8 @@
 /*
  * \file EEBeamCaloTask.h
  *
- * $Date: 2007/04/05 13:56:48 $
- * $Revision: 1.2 $
+ * $Date: 2007/11/10 15:33:55 $
+ * $Revision: 1.4 $
  * \author A. Ghezzi
  *
 */
@@ -16,7 +16,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+class MonitorElement;
+class DaqMonitorBEInterface;
 
 class EEBeamCaloTask: public edm::EDAnalyzer{
 

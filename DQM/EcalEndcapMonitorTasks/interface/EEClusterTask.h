@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2007/05/22 15:08:12 $
- * $Revision: 1.4 $
+ * $Date: 2007/10/23 09:47:37 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
  */
@@ -13,7 +13,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+class MonitorElement;
+class DaqMonitorBEInterface;
 
 class EEClusterTask: public edm::EDAnalyzer{
 
@@ -50,23 +52,23 @@ DaqMonitorBEInterface* dbe_;
 
 bool enableCleanup_;
 
-edm::InputTag islandEndcapSuperClusterCollection_;
-edm::InputTag islandEndcapBasicClusterCollection_;
+edm::InputTag BasicClusterCollection_;
+edm::InputTag SuperClusterCollection_;
+ edm::InputTag ClusterShapeAssociation_;
 
-MonitorElement* meEne_, *meEneBasic_;
-MonitorElement* meNum_, *meNumBasic_;
-MonitorElement* meSiz_, *meSizBasic_;
+MonitorElement* meBCEne_, *meBCNum_, *meBCSiz_;
 
-MonitorElement* meEneFwdMap_, *meEneFwdMapBasic_;
-MonitorElement* meNumFwdMap_, *meNumFwdMapBasic_;
-MonitorElement* meEneFwdPolarMap_, *meEneFwdPolarMapBasic_;
-MonitorElement* meNumFwdPolarMap_, *meNumFwdPolarMapBasic_;
-MonitorElement* meEneBwdMap_, *meEneBwdMapBasic_;
-MonitorElement* meNumBwdMap_, *meNumBwdMapBasic_;
-MonitorElement* meEneBwdPolarMap_, *meEneBwdPolarMapBasic_;
-MonitorElement* meNumBwdPolarMap_, *meNumBwdPolarMapBasic_;
+MonitorElement* meBCEneFwdMap_, *meBCNumFwdMap_, *meBCETFwdMap_, *meBCSizFwdMap_;
+MonitorElement* meBCEneFwdMapProjR_, *meBCNumFwdMapProjR_, *meBCETFwdMapProjR_, *meBCSizFwdMapProjR_;
+MonitorElement* meBCEneFwdMapProjPhi_, *meBCNumFwdMapProjPhi_, *meBCETFwdMapProjPhi_, *meBCSizFwdMapProjPhi_;
 
-MonitorElement* meInvMass_;
+MonitorElement* meBCEneBwdMap_, *meBCNumBwdMap_, *meBCETBwdMap_, *meBCSizBwdMap_;
+MonitorElement* meBCEneBwdMapProjR_, *meBCNumBwdMapProjR_, *meBCETBwdMapProjR_, *meBCSizBwdMapProjR_;
+MonitorElement* meBCEneBwdMapProjPhi_, *meBCNumBwdMapProjPhi_, *meBCETBwdMapProjPhi_, *meBCSizBwdMapProjPhi_;
+
+MonitorElement* meSCEne_, *meSCNum_, *meSCSiz_;  
+
+MonitorElement* mes1s9_, *mes9s25_, *meInvMass_;
 
 bool init_;
 

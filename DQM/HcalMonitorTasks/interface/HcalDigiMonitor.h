@@ -5,8 +5,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2007/10/02 22:16:03 $
-  * $Revision: 1.13 $
+  * $Date: 2007/10/04 21:03:13 $
+  * $Revision: 1.14 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -20,7 +20,7 @@ public:
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
 		    const HcalDbService& cond);
-  void clearME();
+
   void reset();
 
 private:  ///Methods

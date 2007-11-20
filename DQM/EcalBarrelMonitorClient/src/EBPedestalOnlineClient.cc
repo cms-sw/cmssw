@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/09/06 18:59:05 $
- * $Revision: 1.97 $
+ * $Date: 2007/11/09 19:51:43 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,20 +20,22 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 
@@ -46,9 +48,6 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
-
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
@@ -60,7 +59,7 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -83,10 +82,6 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
 
     mer03_[ism-1] = 0;
 
-    qth03_[ism-1] = 0;
-
-    qtg03_[ism-1] = 0;
-
   }
 
   expectedMean_ = 200.0;
@@ -108,36 +103,6 @@ void EBPedestalOnlineClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EBPOT quality %s G12", Numbers::sEB(ism).c_str());
-      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qth03_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
-
-      qth03_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-
-      qth03_[ism-1]->setMinimumEntries(10*1700);
-
-      qth03_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EBPOT quality test %s G12", Numbers::sEB(ism).c_str());
-      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg03_[ism-1]->setMeanRange(1., 6.);
-
-      qtg03_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -186,14 +151,18 @@ void EBPedestalOnlineClient::setup(void) {
     if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal quality G12 %s", Numbers::sEB(ism).c_str());
     meg03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1]->setAxisTitle("ieta", 1);
+    meg03_[ism-1]->setAxisTitle("iphi", 2);
 
     if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal mean G12 %s", Numbers::sEB(ism).c_str());
     mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep03_[ism-1]->setAxisTitle("mean", 1);
 
     if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal rms G12 %s", Numbers::sEB(ism).c_str());
     mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0.,  10.);
+    mer03_[ism-1]->setAxisTitle("rms", 1);
 
   }
 
@@ -201,7 +170,7 @@ void EBPedestalOnlineClient::setup(void) {
 
     int ism = superModules_[i];
 
-    UtilsClient::resetHisto( meg03_[ism-1] );
+    meg03_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -211,8 +180,8 @@ void EBPedestalOnlineClient::setup(void) {
       }
     }
 
-    UtilsClient::resetHisto( mep03_[ism-1] );
-    UtilsClient::resetHisto( mer03_[ism-1] );
+    mep03_[ism-1]->Reset();
+    mer03_[ism-1]->Reset();
 
   }
 
@@ -267,10 +236,9 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
     int ism = superModules_[i];
 
     cout << " SM=" << ism << endl;
+    cout << endl;
 
-    UtilsClient::printBadChannels(qth03_[ism-1]);
-
-//    UtilsClient::printBadChannels(qtg03_[ism-1]);
+    UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
 
     float num03;
     float mean03;
@@ -306,7 +274,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
           status = status && UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             try {
@@ -350,23 +318,6 @@ void EBPedestalOnlineClient::subscribe(void){
 
     sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalBarrel/EBPedestalOnlineClient/EBPOT pedestal quality G12 %s", Numbers::sEB(ism).c_str());
-    if ( qtg03_[ism-1] ) dbe_->useQTest(histo, qtg03_[ism-1]->getName());
 
   }
 
@@ -447,9 +398,9 @@ void EBPedestalOnlineClient::analyze(void){
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
-    UtilsClient::resetHisto( meg03_[ism-1] );
-    UtilsClient::resetHisto( mep03_[ism-1] );
-    UtilsClient::resetHisto( mer03_[ism-1] );
+    meg03_[ism-1]->Reset();
+    mep03_[ism-1]->Reset();
+    mer03_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -488,7 +439,7 @@ void EBPedestalOnlineClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int ic = (ip-1) + 20*(ie-1) + 1;
+            int ic = Numbers::indexEB(ism, ie, ip);
 
             if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits03 ) {
@@ -504,16 +455,6 @@ void EBPedestalOnlineClient::analyze(void){
 
       }
     }
-
-    vector<dqm::me_util::Channel> badChannels;
-
-    if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
-
-//    if ( ! badChannels.empty() ) {
-//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-//        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-//      }
-//    }
 
   }
 
@@ -552,8 +493,8 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-	     << Numbers::sEB(superModules_[i]).c_str() << ">"
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+             << Numbers::sEB(superModules_[i]).c_str() << ">"
+             << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
 
@@ -695,8 +636,8 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-	     << Numbers::sEB(ism).c_str() << """></a><strong>"
-	     << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
+             << Numbers::sEB(ism).c_str() << """></a><strong>"
+             << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

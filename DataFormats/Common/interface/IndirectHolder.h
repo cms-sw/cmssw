@@ -2,6 +2,7 @@
 #define Common_IndirectHolder_h
 #include "DataFormats/Common/interface/BaseHolder.h"
 #include "DataFormats/Common/interface/RefHolderBase.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 namespace edm {
   template<typename T> class RefToBase;

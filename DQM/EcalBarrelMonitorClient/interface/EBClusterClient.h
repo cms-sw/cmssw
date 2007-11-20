@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2007/08/17 09:05:06 $
- * $Revision: 1.12 $
+ * $Date: 2007/11/08 15:43:50 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -21,14 +21,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
+
+class MonitorElement;
+class MonitorUserInterface;
+class DaqMonitorBEInterface;
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
 
 class EBClusterClient : public EBClient {
 
@@ -87,7 +87,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -102,15 +101,14 @@ DaqMonitorBEInterface* dbe_;
 
 TH1F* h01_[3];
 TProfile2D* h02_[2];
+TProfile* h02ProjEta_[2], *h02ProjPhi_[2]; 
 TH2F* h03_;
+TH1F* h03ProjEta_, *h03ProjPhi_;
 TProfile2D* h04_;
-
+TProfile* h04ProjEta_, *h04ProjPhi_;
 TH1F* i01_[3];
-TProfile2D* i02_[2];
-TH2F* i03_;
-TProfile2D* i04_;
 
-TH1F* s01_[2];
+TH1F* s01_[3];
 
 };
 

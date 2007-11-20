@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/06/21 13:40:06 $
- * $Revision: 1.137 $
+ * $Date: 2007/11/07 19:03:28 $
+ * $Revision: 1.144 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -20,6 +20,8 @@
 
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -63,15 +65,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   // this should come from the EcalBarrel event header
   runType_ = ps.getUntrackedParameter<int>("runType", -1);
   evtType_ = runType_;
-
-  // DQM ROOT output
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-
-  if ( outputFile_.size() != 0 ) {
-    LogInfo("EcalBarrelMonitor") << " Ecal Barrel Monitoring histograms will be saved to '" << outputFile_.c_str() << "'";
-  } else {
-    LogInfo("EcalBarrelMonitor") << " Ecal Barrel Monitoring histograms will NOT be saved";
-  }
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -186,15 +179,23 @@ void EcalBarrelMonitorModule::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
 
     meEBDCC_ = dbe_->book1D("EBMM SM", "EBMM SM", 36, 1, 37.);
+    meEBDCC_->setAxisTitle("DCC module", 1);
 
     meEBdigi_ = dbe_->book1D("EBMM digi", "EBMM digi", 100, 0., 61201.);
+    meEBdigi_->setAxisTitle("ieta", 1);
+    meEBdigi_->setAxisTitle("iphi", 2);
+
     meEBhits_ = dbe_->book1D("EBMM hits", "EBMM hits", 100, 0., 61201.);
+    meEBhits_->setAxisTitle("ieta", 1);
+    meEBhits_->setAxisTitle("iphi", 2);
 
     if ( enableEventDisplay_ ) {
       dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
       for (int i = 0; i < 36; i++) {
         sprintf(histo, "EBMM event SM%02d", i+1);
         meEvent_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+        meEvent_[i]->setAxisTitle("ieta", 1);
+        meEvent_[i]->setAxisTitle("iphi", 2);
         dbe_->tag(meEvent_[i], i+1);
         if ( meEvent_[i] ) meEvent_[i]->setResetMe(true);
       }
@@ -266,8 +267,6 @@ void EcalBarrelMonitorModule::endJob(void) {
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-
   // this should give enough time to meStatus_ to reach the Collector,
   // and then hopefully the Client, and to allow the Client to complete
 
@@ -280,6 +279,8 @@ void EcalBarrelMonitorModule::endJob(void) {
 }
 
 void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
+
+  Numbers::initGeometry(c);
 
   if ( ! init_ ) this->setup();
 
@@ -379,6 +380,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( enableMonitorDaemon_ ) sleep(5);
   }
 
+  // pause the shipping of monitoring elements
+  dbe_->lock();
+
   try {
 
     Handle<EBDigiCollection> digis;
@@ -389,9 +393,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     if ( meEBdigi_ ) meEBdigi_->Fill(float(nebd));
 
-    // pause the shipping of monitoring elements
-    dbe_->lock();
-
     for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
       EBDataFrame dataframe = (*digiItr);
@@ -401,25 +402,12 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
-
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      int ism = Numbers::iSM( id );
 
       LogDebug("EcalBarrelMonitor") << " det id = " << id;
-      LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-
-      if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-        LogWarning("EcalBarrelMonitor") << " det id = " << id;
-        LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-        LogWarning("EcalBarrelMonitor") << " xie, xip " << xie << " " << xip;
-        return;
-      }
+      LogDebug("EcalBarrelMonitor") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
     }
-
-    // resume the shipping of monitoring elements
-    dbe_->unlock();
 
   } catch ( exception& ex) {
 
@@ -439,9 +427,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     if ( enableEventDisplay_ ) {
 
-      // pause the shipping of monitoring elements
-      dbe_->lock();
-
       for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
         EcalUncalibratedRecHit hit = (*hitItr);
@@ -451,19 +436,13 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
         int ie = (ic-1)/20 + 1;
         int ip = (ic-1)%20 + 1;
 
-        int ism = id.ism();
+        int ism = Numbers::iSM( id );
 
         float xie = ie - 0.5;
         float xip = ip - 0.5;
 
         LogDebug("EcalBarrelMonitor") << " det id = " << id;
-        LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-
-        if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-          LogWarning("EcalBarrelMonitor") << " det id = " << id;
-          LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-          LogWarning("EcalBarrelMonitor") << " xie, xip " << xie << " " << xip;
-        }
+        LogDebug("EcalBarrelMonitor") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
         float xval = hit.amplitude();
 
@@ -475,9 +454,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       }
 
-      // resume the shipping of monitoring elements
-      dbe_->unlock();
-
     }
 
   } catch ( exception& ex) {
@@ -485,6 +461,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     LogWarning("EcalBarrelMonitorModule") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
+
+  // resume the shipping of monitoring elements
+  dbe_->unlock();
 
 }
 

@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.20 2007/09/09 12:54:02 torimoto Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.21 2007/09/27 10:00:26 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -454,9 +454,8 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
       try
 	{
 	  EBDetId ebid(ieta,iphi);
-	  int hi = ebid.hashedIndex();
 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-	  ical->setValue( hi, laserAlphaMean_ + r*laserAlphaSigma_ );
+	  ical->setValue( ebid, laserAlphaMean_ + r*laserAlphaSigma_ );
 	}
       catch (...)
 	{
@@ -471,13 +470,11 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
  	{
  	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  EEDetId eedetidpos(iX,iY,1);
-	  int hipos = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
-	  ical->setValue( hipos, laserAlphaMean_ + r*laserAlphaSigma_ );
+	  ical->setValue( eedetidpos, laserAlphaMean_ + r*laserAlphaSigma_ );
 
  	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  EEDetId eedetidneg(iX,iY,-1);
-	  int hineg = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
- 	  ical->setValue( hineg, laserAlphaMean_ + r1*laserAlphaSigma_ );
+ 	  ical->setValue( eedetidneg, laserAlphaMean_ + r1*laserAlphaSigma_ );
  	}
        catch (...)
  	{
@@ -499,9 +496,8 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef( const EcalLaserAP
       try
  	{
  	  EBDetId ebid(ieta,iphi);
-	  int hi = ebid.hashedIndex();	 
 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
- 	  ical->setValue( hi, laserAPDPNRefMean_ + r*laserAPDPNRefSigma_ );
+ 	  ical->setValue( ebid, laserAPDPNRefMean_ + r*laserAPDPNRefSigma_ );
  	}
       catch (...)
  	{
@@ -516,13 +512,11 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef( const EcalLaserAP
  	{
  	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  EEDetId eedetidpos(iX,iY,1);
-	  int hipos = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
-	  ical->setValue( hipos, laserAPDPNRefMean_ + r*laserAPDPNRefSigma_ );
+	  ical->setValue( eedetidpos, laserAPDPNRefMean_ + r*laserAPDPNRefSigma_ );
 
  	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  EEDetId eedetidneg(iX,iY,-1);
-	  int hineg = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
- 	  ical->setValue( hineg, laserAPDPNRefMean_ + r1*laserAPDPNRefSigma_ );
+ 	  ical->setValue( eedetidneg, laserAPDPNRefMean_ + r1*laserAPDPNRefSigma_ );
  	}
       catch (...)
  	{
@@ -545,13 +539,12 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
       try
    	{
   	  EBDetId ebid(ieta,iphi);
-	  int hi = ebid.hashedIndex();
 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
 
 	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair pairAPDPN;
 	  pairAPDPN.p1 = laserAPDPNMean_ + r*laserAPDPNSigma_;
 	  pairAPDPN.p2 = laserAPDPNMean_ + r*laserAPDPNSigma_;
-	  ical->setValue( hi, pairAPDPN );
+	  ical->setValue( ebid, pairAPDPN );
   	}
       catch (...)
   	{
@@ -566,20 +559,18 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
  	{
  	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  EEDetId eedetidpos(iX,iY,1);
-	  int hipos = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
 
  	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair pairAPDPN;
  	  pairAPDPN.p1 = laserAPDPNMean_ + r*laserAPDPNSigma_;
  	  pairAPDPN.p2 = laserAPDPNMean_ + r*laserAPDPNSigma_;
- 	  ical->setValue( hipos, pairAPDPN );
+ 	  ical->setValue( eedetidpos, pairAPDPN );
 
  	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  EEDetId eedetidneg(iX,iY,-1);
-	  int hineg = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
 
  	  pairAPDPN.p1 = laserAPDPNMean_ + r1*laserAPDPNSigma_;
  	  pairAPDPN.p2 = laserAPDPNMean_ + r1*laserAPDPNSigma_;
- 	  ical->setValue( hineg, pairAPDPN );
+ 	  ical->setValue( eedetidneg, pairAPDPN );
 
  	}
        catch (...)

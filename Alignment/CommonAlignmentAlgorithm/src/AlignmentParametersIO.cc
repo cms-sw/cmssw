@@ -26,11 +26,11 @@ int AlignmentParametersIO::writeOneOrigRigidBody(Alignable *ali)
 //-----------------------------------------------------------------------------
 // write many parameters
 int 
-AlignmentParametersIO::write(const align::Alignables& alivec, 
+AlignmentParametersIO::write(const std::vector<Alignable*>& alivec, 
                              bool validCheck) 
 {
   int icount=0;
-  for(align::Alignables::const_iterator it=alivec.begin();
+  for(std::vector<Alignable*>::const_iterator it=alivec.begin();
 	  it!=alivec.end(); it++) {
     if ((*it)->alignmentParameters()->isValid() || !(validCheck)) {
       icount++;
@@ -47,10 +47,10 @@ AlignmentParametersIO::write(const align::Alignables& alivec,
 //-----------------------------------------------------------------------------
 // write many original parameters
 int 
-AlignmentParametersIO::writeOrigRigidBody(const align::Alignables& alivec, bool validCheck)
+AlignmentParametersIO::writeOrigRigidBody(const std::vector<Alignable*>& alivec, bool validCheck)
 {
   int icount = 0;
-  for(align::Alignables::const_iterator it = alivec.begin(); it != alivec.end(); ++it) {
+  for(std::vector<Alignable*>::const_iterator it = alivec.begin(); it != alivec.end(); ++it) {
     if (!validCheck || (*it)->alignmentParameters()->isValid()) {
       ++icount;
       int iret = this->writeOneOrigRigidBody(*it);
@@ -66,13 +66,13 @@ AlignmentParametersIO::writeOrigRigidBody(const align::Alignables& alivec, bool 
 //-----------------------------------------------------------------------------
 // read many parameters
 
-align::Parameters 
-AlignmentParametersIO::read(const align::Alignables& alivec, int& ierr) 
+std::vector<AlignmentParameters*> 
+AlignmentParametersIO::read(const std::vector<Alignable*>& alivec, int& ierr) 
 {
-  align::Parameters retvec;
+  std::vector<AlignmentParameters*> retvec;
   int ierr2;
   int icount=0;
-  for(align::Alignables::const_iterator it=alivec.begin();
+  for(std::vector<Alignable*>::const_iterator it=alivec.begin();
     it!=alivec.end(); it++) {
     AlignmentParameters* ad=readOne(*it, ierr2);
     if (ad!=0 && ierr2==0) { retvec.push_back(ad); icount++; }

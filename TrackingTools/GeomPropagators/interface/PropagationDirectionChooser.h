@@ -2,7 +2,6 @@
 #define _COMMONRECO_PropagationDirectionChooser_H_
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 
 class FreeTrajectoryState;
 class Surface;

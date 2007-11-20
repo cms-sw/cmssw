@@ -1,5 +1,6 @@
 #include "CommonTools/Statistics/interface/AutocorrelationAnalyzer.h"
 #include <iostream>
+#include <cassert>
 
 AutocorrelationAnalyzer::AutocorrelationAnalyzer(int size)
 : theSize(size),

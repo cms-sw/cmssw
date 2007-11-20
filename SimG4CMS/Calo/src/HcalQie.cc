@@ -5,7 +5,11 @@
 
 #include "SimG4CMS/Calo/interface/HcalQie.h"
 
-#include "G4Poisson.hh"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/RandPoissonQ.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include <iostream>
@@ -291,9 +295,21 @@ std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
   int nmax = (bmax_ > numOfBuckets ? bmax_ : numOfBuckets);
   std::vector<double> work(nmax);
 
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "HcalQIE requires the RandomNumberGeneratorService\n"
+      << "which is not present in the configuration file. "
+      << "You must add the service\n in the configuration file or "
+      << "remove the modules that require it.";
+  }
+  CLHEP::RandGaussQ  randGauss(rng->getEngine(), baseline,sigma);
+  CLHEP::RandPoissonQ randPoisson(rng->getEngine());
+
+
   // Noise in the channel
   for (int i=0; i<numOfBuckets; i++) 
-    work[i] = G4RandGauss::shoot(baseline,sigma);
+    work[i] = randGauss.fire();
 
   LogDebug("HcalSim") << "HcalQie::getCode: Noise with baseline " << baseline 
 		      << " width " << sigma << " and " << nht << " hits";
@@ -324,7 +340,7 @@ std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
       }
 
       double avpe  = ehit/eDepPerPE;
-      double photo = G4Poisson(avpe);
+      double photo = randPoisson.fire(avpe);
       etot   += ehit;
       photons+= photo; 
       LogDebug("HcalSim") << "HcalQie::getCode: Hit " << kk << ":" << kk+jump 

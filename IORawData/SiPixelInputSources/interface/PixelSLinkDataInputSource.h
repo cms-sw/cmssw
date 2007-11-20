@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id$
+// $Id: PixelSLinkDataInputSource.h,v 1.5 2007/09/07 14:41:33 fblekman Exp $
 //
 //
 
@@ -52,5 +52,6 @@ private:
   int m_fedid;
   uint32_t m_fileindex;
   std::auto_ptr<seal::Storage> storage;
+  int m_runnumber;
 };
 #endif

@@ -1,7 +1,8 @@
-// $Id: EOFRecordBuilder.cc,v 1.7 2007/01/22 22:12:04 wmtan Exp $
+// $Id: EOFRecordBuilder.cc,v 1.8 2007/06/29 16:41:23 wmtan Exp $
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 #include "IOPool/Streamer/interface/EOFRecord.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
+#include <cassert>
 
 EOFRecordBuilder::EOFRecordBuilder(uint32 run, uint32 events,
                    uint32 statusCode,

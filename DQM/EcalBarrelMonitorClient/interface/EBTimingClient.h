@@ -4,8 +4,8 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2007/08/17 09:05:07 $
- * $Revision: 1.8 $
+ * $Date: 2007/11/08 15:43:50 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -19,14 +19,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
+
+class MonitorElement;
+class MonitorUserInterface;
+class DaqMonitorBEInterface;
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
 
 class EBTimingClient : public EBClient {
 
@@ -85,7 +85,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -97,8 +96,6 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
-
-MEContentsProf2DWithinRangeROOT* qth01_[36];
 
 MonitorElement* meh01_[36];
 
@@ -117,8 +114,6 @@ MonitorElement* mer01_[36];
 float expectedMean_;
 float discrepancyMean_;
 float RMSThreshold_;
-
-MEContentsTH2FWithinRangeROOT* qtg01_[36];
 
 };
 

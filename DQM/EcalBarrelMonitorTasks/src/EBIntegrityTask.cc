@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/10/04 09:12:22 $
- * $Revision: 1.45 $
+ * $Date: 2007/10/24 06:09:52 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
  */
@@ -46,12 +46,12 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
   EBDetIdCollection2_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection2");
   EBDetIdCollection3_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection3");
   EBDetIdCollection4_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection4");
-  EcalTrigTowerDetIdCollection1_ = ps.getParameter<edm::InputTag>("EcalTrigTowerDetIdCollection1");
-  EcalTrigTowerDetIdCollection2_ = ps.getParameter<edm::InputTag>("EcalTrigTowerDetIdCollection2");
   EcalElectronicsIdCollection1_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1");
   EcalElectronicsIdCollection2_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2");
   EcalElectronicsIdCollection3_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection3");
   EcalElectronicsIdCollection4_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection4");
+  EcalElectronicsIdCollection5_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection5");
+  EcalElectronicsIdCollection6_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection6");
 
   meIntegrityDCCSize = 0;
   for (int i = 0; i < 36 ; i++) {
@@ -97,12 +97,15 @@ void EBIntegrityTask::setup(void){
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EBIT DCC size error");
     meIntegrityDCCSize = dbe_->book1D(histo, histo, 36, 1, 37.);
+    meIntegrityDCCSize->setAxisTitle("DCC module", 1);
 
     // checking when the gain is 0
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/Gain");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT gain %s", Numbers::sEB(i+1).c_str());
       meIntegrityGain[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityGain[i]->setAxisTitle("ieta", 1);
+      meIntegrityGain[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meIntegrityGain[i], i+1);
     }
 
@@ -111,6 +114,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT ChId %s", Numbers::sEB(i+1).c_str());
       meIntegrityChId[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityChId[i]->setAxisTitle("ieta", 1);
+      meIntegrityChId[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meIntegrityChId[i], i+1);
     }
 
@@ -119,6 +124,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT gain switch %s", Numbers::sEB(i+1).c_str());
       meIntegrityGainSwitch[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityGainSwitch[i]->setAxisTitle("ieta", 1);
+      meIntegrityGainSwitch[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meIntegrityGainSwitch[i], i+1);
     }
 
@@ -127,6 +134,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT gain switch stay %s", Numbers::sEB(i+1).c_str());
       meIntegrityGainSwitchStay[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityGainSwitchStay[i]->setAxisTitle("ieta", 1);
+      meIntegrityGainSwitchStay[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meIntegrityGainSwitchStay[i], i+1);
     }
 
@@ -135,6 +144,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT TTId %s", Numbers::sEB(i+1).c_str());
       meIntegrityTTId[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      meIntegrityTTId[i]->setAxisTitle("ieta", 1);
+      meIntegrityTTId[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meIntegrityTTId[i], i+1);
     }
 
@@ -143,6 +154,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT TTBlockSize %s", Numbers::sEB(i+1).c_str());
       meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      meIntegrityTTBlockSize[i]->setAxisTitle("ieta", 1);
+      meIntegrityTTBlockSize[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meIntegrityTTBlockSize[i], i+1);
     }
 
@@ -151,6 +164,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT MemChId %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemChId[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      meIntegrityMemChId[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemChId[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemChId[i], i+1);
     }
 
@@ -161,6 +176,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT MemGain %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemGain[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      meIntegrityMemGain[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemGain[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemGain[i], i+1);
     }
 
@@ -169,6 +186,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT MemTTId %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemTTId[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemTTId[i], i+1);
     }
 
@@ -177,6 +196,9 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT MemSize %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemTTBlockSize[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      meIntegrityMemTTBlockSize[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemTTBlockSize[i], i+1);
     }
 
@@ -413,26 +435,19 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   try {
 
-    Handle<EcalTrigTowerDetIdCollection> ids5;
-    e.getByLabel(EcalTrigTowerDetIdCollection1_, ids5);
+    Handle<EcalElectronicsIdCollection> ids5;
+    e.getByLabel(EcalElectronicsIdCollection1_, ids5);
 
-    for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
 
-      EcalTrigTowerDetId id = (*idItr);
+      EcalElectronicsId id = (*idItr);
 
-      if ( id.subDet() != EcalBarrel ) continue;
+      if ( id.subdet() != EcalBarrel ) continue;
 
-      int iet = abs(id.ieta());
-      int ipt = id.iphi();
+      int itt = id.towerId();
 
-      // phi_tower: change the range from global to SM-local
-      // phi==0 is in the middle of a SM
-      ipt = ipt + 2;
-      if ( ipt > 72 ) ipt = ipt - 72;
-      ipt = (ipt-1)%4 + 1;
-
-      // phi_tower: SM-local phi runs opposite to global in EB+
-      if ( id.zside() > 0 ) ipt = 5 - ipt;
+      int iet = (itt-1)/4 + 1;
+      int ipt = (itt-1)%4 + 1;
 
       int ismt = Numbers::iSM( id );
 
@@ -445,32 +460,25 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EBIntegrityTask") << EcalTrigTowerDetIdCollection1_ << " not available";
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
 
   }
 
   try {
 
-    Handle<EcalTrigTowerDetIdCollection> ids6;
-    e.getByLabel(EcalTrigTowerDetIdCollection2_, ids6);
+    Handle<EcalElectronicsIdCollection> ids6;
+    e.getByLabel(EcalElectronicsIdCollection2_, ids6);
 
-    for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
 
-      EcalTrigTowerDetId id = (*idItr);
+      EcalElectronicsId id = (*idItr);
 
-      if ( id.subDet() != EcalBarrel ) continue;
+      if ( id.subdet() != EcalBarrel ) continue;
 
-      int iet = abs(id.ieta());
-      int ipt = id.iphi();
+      int itt = id.towerId();
 
-      // phi_tower: change the range from global to SM-local
-      // phi==0 is in the middle of a SM
-      ipt = ipt + 2;
-      if ( ipt > 72 ) ipt  = ipt - 72;
-      ipt = (ipt-1)%4 + 1;
-
-      // phi_tower: SM-local phi runs opposite to global in EB+
-      if ( id.zside() > 0 ) ipt = 5 - ipt;
+      int iet = (itt-1)/4 + 1;
+      int ipt = (itt-1)%4 + 1;
 
       int ismt = Numbers::iSM( id );
 
@@ -483,18 +491,20 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EBIntegrityTask") << EcalTrigTowerDetIdCollection2_ << " not available";
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
 
   }
 
   try {
 
     Handle<EcalElectronicsIdCollection> ids7;
-    e.getByLabel(EcalElectronicsIdCollection1_, ids7);
+    e.getByLabel(EcalElectronicsIdCollection3_, ids7);
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
+
+      if ( id.subdet() != EcalBarrel ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -507,18 +517,20 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
 
   }
 
   try {
 
     Handle<EcalElectronicsIdCollection> ids8;
-    e.getByLabel(EcalElectronicsIdCollection2_, ids8);
+    e.getByLabel(EcalElectronicsIdCollection4_, ids8);
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
+
+      if ( id.subdet() != EcalBarrel ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -531,18 +543,20 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
 
   }
 
   try {
 
     Handle<EcalElectronicsIdCollection> ids9;
-    e.getByLabel(EcalElectronicsIdCollection3_, ids9);
+    e.getByLabel(EcalElectronicsIdCollection5_, ids9);
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
+
+      if ( id.subdet() != EcalBarrel ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -550,8 +564,8 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = EBIntegrityTask::chMemAbscissa[chid-1];
       int ip = EBIntegrityTask::chMemOrdinate[chid-1];
 
-      int iTt = id.towerId();
-      ie += (iTt-69)*5;
+      int itt = id.towerId();
+      ie += (itt-69)*5;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -562,18 +576,20 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection5_ << " not available";
 
   }
 
   try {
 
     Handle<EcalElectronicsIdCollection> ids10;
-    e.getByLabel(EcalElectronicsIdCollection4_, ids10);
+    e.getByLabel(EcalElectronicsIdCollection6_, ids10);
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids10->begin(); idItr != ids10->end(); ++ idItr ) {
 
       EcalElectronicsId id = (*idItr);
+
+      if ( id.subdet() != EcalBarrel ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -581,8 +597,8 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = EBIntegrityTask::chMemAbscissa[chid-1];
       int ip = EBIntegrityTask::chMemOrdinate[chid-1];
 
-      int iTt = id.towerId();
-      ie += (iTt-69)*5;
+      int itt = id.towerId();
+      ie += (itt-69)*5;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -593,7 +609,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection6_ << " not available";
 
   }
 

@@ -21,6 +21,7 @@
 // system include files
 #include <map>
 #include <vector>
+#include <cassert>
 #include "boost/type_traits/is_base_and_derived.hpp"
 // user include files
 #include "FWCore/Framework/interface/IOVSyncValue.h"

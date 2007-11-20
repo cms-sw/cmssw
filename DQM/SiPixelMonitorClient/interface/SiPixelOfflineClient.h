@@ -49,7 +49,7 @@
 class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class SiPixelWebInterface;
-class TrackerMapCreator;
+class SiPixelTrackerMapCreator;
 
 class SiPixelOfflineClient: public edm::EDAnalyzer, public evf::ModuleWeb{
   public:
@@ -79,7 +79,7 @@ class SiPixelOfflineClient: public edm::EDAnalyzer, public evf::ModuleWeb{
     MonitorUserInterface* mui_;
     SiPixelActionExecutorQTest ae_;
     SiPixelWebInterface* sipixelWebInterface_;
-    TrackerMapCreator* tkMapCreator_;
+    SiPixelTrackerMapCreator* tkMapCreator_;
     
     int tkMapFreq_;
     int barrelSumFreq_;

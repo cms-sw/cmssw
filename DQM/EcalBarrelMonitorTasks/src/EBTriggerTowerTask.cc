@@ -1,12 +1,13 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/10/04 11:24:16 $
- * $Revision: 1.42 $
+ * $Date: 2007/11/10 14:09:10 $
+ * $Revision: 1.50 $
+ * \author C. Bernet
  * \author G. Della Ricca
+ * \author E. Di Marco
  *
 */
-
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -158,12 +159,9 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
   string fineGrainVetoName = histo;
   sprintf(histo, "EBTTT Flags %s", nameext);
   string flagsName = histo;
-  sprintf(histo, "EBTTT EmulError %s", nameext);
-  string emulErrorName = histo;
-  sprintf(histo, "EBTTT EmulFineGrainVetoError %s", nameext);
-  string emulFineGrainVetoErrorName = histo;
-  sprintf(histo, "EBTTT EmulFlagError %s", nameext);
-  string emulFlagErrorName = histo;
+  string emulErrorName = "EBTTT EmulError";
+  string emulFineGrainVetoErrorName = "EBTTT EmulFineGrainVetoError";
+  string emulFlagErrorName = "EBTTT EmulFlagError";
 
   for (int i = 0; i < 36 ; i++) {
 
@@ -173,7 +171,9 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
     (*meEtMap)[i] = dbe->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
 				nTTEta, 0, nTTEta,
 				nTTPhi, 0, nTTPhi,
-				128, 0, 512.);
+				256, 0, 256.);
+    (*meEtMap)[i]->setAxisTitle("ieta", 1);
+    (*meEtMap)[i]->setAxisTitle("iphi", 2);
     dbe->tag((*meEtMap)[i], i+1);
 
     string  fineGrainVetoNameSM = fineGrainVetoName;
@@ -184,6 +184,8 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 			       nTTEta, 0, nTTEta,
 			       nTTPhi, 0, nTTPhi,
 			       2, 0., 2.);
+    (*meVeto)[i]->setAxisTitle("ieta", 1);
+    (*meVeto)[i]->setAxisTitle("iphi", 2);
     dbe->tag((*meVeto)[i], i+1);
 
     string  flagsNameSM = flagsName;
@@ -193,6 +195,8 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 				nTTEta, 0, nTTEta,
 				nTTPhi, 0, nTTPhi,
 				8, 0., 8.);
+    (*meFlags)[i]->setAxisTitle("ieta", 1);
+    (*meFlags)[i]->setAxisTitle("iphi", 2);
     dbe->tag((*meFlags)[i], i+1);
 
 
@@ -205,6 +209,8 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 				    emulErrorNameSM.c_str(),
 				    nTTEta, 0., nTTEta,
 				    nTTPhi, 0., nTTPhi );
+      meEmulError_[i]->setAxisTitle("ieta", 1);
+      meEmulError_[i]->setAxisTitle("iphi", 2);
       dbe->tag(meEmulError_[i], i+1);
 
       string  emulFineGrainVetoErrorNameSM = emulFineGrainVetoErrorName;
@@ -215,6 +221,8 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 					  nTTEta, 0., nTTEta,
 					  nTTPhi, 0., nTTPhi,
 					  8, 0., 8.);
+      meVetoEmulError_[i]->setAxisTitle("ieta", 1);
+      meVetoEmulError_[i]->setAxisTitle("iphi", 2);
       dbe->tag(meVetoEmulError_[i], i+1);
 
       string  emulFlagErrorNameSM = emulFlagErrorName;
@@ -225,6 +233,8 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 					  nTTEta, 0., nTTEta,
 					  nTTPhi, 0., nTTPhi,
 					  8, 0., 8.);
+      meFlagEmulError_[i]->setAxisTitle("ieta", 1);
+      meFlagEmulError_[i]->setAxisTitle("iphi", 2);
       dbe->tag(meFlagEmulError_[i], i+1);
 
     }
@@ -350,10 +360,8 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
     float xiet = iet+0.5;
     float xipt = ipt+0.5;
 
-//cout << " sm, tt, eta, phi "<<ismt<<" "<<itt<<" "<<iet<<" "<<ipt<<endl;
-
     str<<"det id = "<<idt.rawId()<<" "
-       <<idt<<" sm, tt, eta, phi "<<ismt<<" "<<itt<<" "<<iet<<" "<<ipt<<endl;
+       <<idt<<" sm, tt, ieta, iphi "<<ismt<<" "<<itt<<" "<<iet<<" "<<ipt<<endl;
 
     float xval;
 

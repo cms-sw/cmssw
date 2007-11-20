@@ -1,5 +1,6 @@
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
+#include <cassert>
 
 InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
                                uint32 run, const Version& v,

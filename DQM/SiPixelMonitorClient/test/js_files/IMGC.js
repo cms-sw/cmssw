@@ -739,10 +739,10 @@ IMGC.paintImages = function ()
     plotFolder    = temp[1] ;
     temp          = plotFolder.split("Folder=" );
     plotFolder    = temp[1] ;
-    plotFolder.replace(/Collector\/(FU\d+)\/Tracker/,"$1/") ;
+    plotFolder.replace(/Collector\/(FU\d+)\/Pixel/,"$1/") ;
     plotFolder.replace(/Collector/,"") ;
     plotFolder.replace(/Collated/,"") ;
-    plotFolder.replace(/Tracker/,"") ;
+    plotFolder.replace(/Pixel/,"") ;
    } catch(e) {}
    
    element.opacity_fx.clearTimer();

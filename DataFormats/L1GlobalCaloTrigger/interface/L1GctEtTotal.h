@@ -21,11 +21,12 @@ class L1GctEtTotal {
   enum numberOfBits {
     kEtTotalNBits    = 12,
     kEtTotalOFlowBit = 1 << kEtTotalNBits,
-    kEtTotalMaxValue = kEtTotalOFlowBit - 1
+    kEtTotalMaxValue = kEtTotalOFlowBit - 1,
+    kRawCtorMask     = kEtTotalOFlowBit | kEtTotalMaxValue
   };
 
   L1GctEtTotal();
-  L1GctEtTotal(uint16_t data);
+  L1GctEtTotal(uint16_t rawData);
   L1GctEtTotal(unsigned et, bool oflow);
   virtual ~L1GctEtTotal();
 

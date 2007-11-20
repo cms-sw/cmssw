@@ -23,12 +23,12 @@
 
 using namespace std;
 
-void resetME(const char* name, MonitorUserInterface* mui);
+void resetME(const char* name, DaqMonitorBEInterface* dbe);
 
 bool isValidGeom(int subdet, int iEta, int iPhi, int depth);
 
-TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool verb=false, bool clone=false);
-TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool verb=false, bool clone=false);
+TH2F* getHisto2(string name, string process, DaqMonitorBEInterface* dbe_, bool verb=false, bool clone=false);
+TH1F* getHisto(string name, string process, DaqMonitorBEInterface* dbe_, bool verb=false, bool clone=false);
 
 TH2F* getHisto2(const MonitorElement* me, bool verb=false, bool clone=false);
 TH1F* getHisto(const MonitorElement* me, bool verb=false, bool clone=false);
@@ -39,13 +39,13 @@ string getIMG2(int runNo,TH2F* hist, int size, string htmlDir, const char* xlab,
 void histoHTML(int runNo,TH1F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir);
 void histoHTML2(int runNo,TH2F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir, bool color=false);
 
-void htmlErrors(int runNo,string htmlDir, string client, string process, MonitorUserInterface* mui, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO);
+void htmlErrors(int runNo,string htmlDir, string client, string process, DaqMonitorBEInterface* dbe, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO);
 
-void createXRangeTest(MonitorUserInterface* mui, vector<string>& params);
-void createYRangeTest(MonitorUserInterface* mui, vector<string>& params);
-void createMeanValueTest(MonitorUserInterface* mui, vector<string>& params);
-void createH2CompTest(MonitorUserInterface* mui, vector<string>& params, TH2F* ref);
-void createH2ContentTest(MonitorUserInterface* mui, vector<string>& params);
+void createXRangeTest(DaqMonitorBEInterface* dbe, vector<string>& params);
+void createYRangeTest(DaqMonitorBEInterface* dbe, vector<string>& params);
+void createMeanValueTest(DaqMonitorBEInterface* dbe, vector<string>& params);
+void createH2CompTest(DaqMonitorBEInterface* dbe, vector<string>& params, TH2F* ref);
+void createH2ContentTest(DaqMonitorBEInterface* dbe, vector<string>& params);
 
 void dumpHisto(TH1F* hist, vector<string> &names, 
 	       vector<double> &meanX, vector<double> &meanY, 

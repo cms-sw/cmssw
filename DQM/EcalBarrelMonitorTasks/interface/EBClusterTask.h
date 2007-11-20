@@ -4,8 +4,8 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2007/04/05 13:56:46 $
- * $Revision: 1.9 $
+ * $Date: 2007/10/23 07:11:58 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
  */
@@ -13,7 +13,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+class MonitorElement;
+class DaqMonitorBEInterface;
 
 class EBClusterTask: public edm::EDAnalyzer{
 
@@ -50,32 +52,25 @@ DaqMonitorBEInterface* dbe_;
 
 bool enableCleanup_;
 
-edm::InputTag islandBarrelBasicClusterCollection_;
-edm::InputTag islandBarrelSuperClusterCollection_;
+edm::InputTag BasicClusterCollection_;
+edm::InputTag SuperClusterCollection_;
+edm::InputTag ClusterShapeAssociation_;
 
-edm::InputTag hybridSuperClusterCollection_;
+MonitorElement* meBCEne_;
+MonitorElement* meBCNum_;
+MonitorElement* meBCSiz_;
 
-edm::InputTag hybridBarrelClusterShapeAssociation_;
+MonitorElement* meBCEneMap_, *meBCEneMapProjEta_, *meBCEneMapProjPhi_;
+MonitorElement* meBCNumMap_, *meBCNumMapProjEta_, *meBCNumMapProjPhi_;
+MonitorElement* meBCETMap_, *meBCETMapProjEta_, *meBCETMapProjPhi_;
+MonitorElement* meBCSizMap_, *meBCSizMapProjEta_, *meBCSizMapProjPhi_;
 
-MonitorElement* meIslBEne_;
-MonitorElement* meIslBNum_;
-MonitorElement* meIslBCry_;
+MonitorElement* meSCEne_;
+MonitorElement* meSCNum_;
+MonitorElement* meSCSiz_;
 
-MonitorElement* meIslBEneMap_;
-MonitorElement* meIslBNumMap_;
-MonitorElement* meIslBETMap_;
-MonitorElement* meIslBCryMap_;
-
-MonitorElement* meIslSEne_;
-MonitorElement* meIslSNum_;
-MonitorElement* meIslSSiz_;
-
-MonitorElement* meIslSEneMap_;
-MonitorElement* meIslSNumMap_;
-MonitorElement* meIslSETMap_;
-MonitorElement* meIslSSizMap_;
-
-MonitorElement* meHybS1toE_;
+MonitorElement* mes1s9_;
+MonitorElement* mes9s25_;
 MonitorElement* meInvMass_;
 
 bool init_;

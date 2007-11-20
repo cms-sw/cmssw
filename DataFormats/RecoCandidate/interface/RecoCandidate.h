@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.19 2007/02/26 13:06:35 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.20 2007/04/02 13:35:15 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -60,7 +60,7 @@ namespace reco {
     }
 
   private:
-    template<typename T> friend struct component; 
+    template<typename T, typename, typename> friend struct component; 
   };
 
   /// stand alone muon component tag

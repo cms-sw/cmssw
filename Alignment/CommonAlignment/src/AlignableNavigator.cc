@@ -1,11 +1,10 @@
 //  \file AlignableNavigator.cc
 //
-//   $Revision: 1.19 $
-//   $Date: 2007/06/21 16:18:28 $
+//   $Revision: 1.16.2.3 $
+//   $Date: 2007/06/21 12:11:50 $
 //   (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
-#include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -141,7 +140,7 @@ unsigned int AlignableNavigator::recursiveGetId( Alignable* alignable )
     }
   }
   std::vector<Alignable*> comp = alignable->components();
-  if ( alignable->alignableObjectId() != align::AlignableDet
+  if ( alignable->alignableObjectId() != AlignableObjectId::AlignableDet
        || comp.size() > 1 ) { // Non-glued AlignableDets contain themselves
     for ( std::vector<Alignable*>::iterator it = comp.begin(); it != comp.end(); ++it ) {
       nProblem += this->recursiveGetId(*it);

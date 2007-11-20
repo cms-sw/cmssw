@@ -43,6 +43,11 @@ std::auto_ptr<CaloSubdetectorGeometry> HcalHardcodeGeometryLoader::load(DetId::D
 
   HcalSubdetector hsub=static_cast<HcalSubdetector>(subdet);
   std::auto_ptr<CaloSubdetectorGeometry> hg(new HcalGeometry(&theTopology));
+
+  CaloSubdetectorGeometry* geom ( hg.get() ) ;
+  if( geom->cornersMgr() == 0 ) geom->allocateCorners( 9072 ) ;
+  if( geom->parMgr()     == 0 ) geom->allocatePar( 75, 3 ) ;
+
   switch (hsub) {
   case (HcalBarrel) : fill(hsub, theTopology.firstHBRing(), theTopology.lastHBRing(), hg.get()); break;
   case (HcalEndcap) : fill(hsub, theTopology.firstHERing(), theTopology.lastHERing(), hg.get()); break;
@@ -55,10 +60,15 @@ std::auto_ptr<CaloSubdetectorGeometry> HcalHardcodeGeometryLoader::load(DetId::D
 
 std::auto_ptr<CaloSubdetectorGeometry> HcalHardcodeGeometryLoader::load() {
   std::auto_ptr<CaloSubdetectorGeometry> hg(new HcalGeometry(&theTopology));
-  fill(HcalBarrel, theTopology.firstHBRing(), theTopology.lastHBRing(), hg.get()); 
-  fill(HcalEndcap, theTopology.firstHERing(), theTopology.lastHERing(), hg.get()); 
-  fill(HcalForward, theTopology.firstHFRing(), theTopology.lastHFRing(), hg.get()); 
-  fill(HcalOuter, theTopology.firstHORing(), theTopology.lastHORing(), hg.get());
+
+  CaloSubdetectorGeometry* geom ( hg.get() ) ;
+  if( geom->cornersMgr() == 0 ) geom->allocateCorners( 9072 ) ;
+  if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
+
+  fill(HcalBarrel, theTopology.firstHBRing(), theTopology.lastHBRing(), geom); 
+  fill(HcalEndcap, theTopology.firstHERing(), theTopology.lastHERing(), geom); 
+  fill(HcalForward, theTopology.firstHFRing(), theTopology.lastHFRing(), geom); 
+  fill(HcalOuter, theTopology.firstHORing(), theTopology.lastHORing(), geom);
   return hg;
 }
 
@@ -83,8 +93,6 @@ void HcalHardcodeGeometryLoader::fill(HcalSubdetector subdet, int firstEtaRing, 
       } 
     }
   }
-  if( geom->cornersMgr() == 0 ) geom->allocateCorners( 10000 ) ;
-  if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
 
   edm::LogInfo("HcalHardcodeGeometry") << "Number of HCAL DetIds made: " << subdet << " " << hcalIds.size();
   // for each new HcalDetId, make a CaloCellGeometry
@@ -200,9 +208,9 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
   {
      std::vector<float> hf ;
      hf.reserve(3) ;
-     hf.push_back( deta*2 ) ;
-     hf.push_back( dphi_half*2 ) ;
-     hf.push_back( thickness ) ;
+     hf.push_back( deta ) ;
+     hf.push_back( dphi_half ) ;
+     hf.push_back( thickness/2 ) ;
      return new calogeom::IdealZPrism( 
 	point, 
 	geom->cornersMgr(),
@@ -215,9 +223,9 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
      const double mysign ( isBarrel ? 1 : -1 ) ;
      std::vector<float> hh ;
      hh.reserve(3) ;
-     hh.push_back( deta*2 ) ;
-     hh.push_back( dphi_half*2 ) ;
-     hh.push_back( mysign*thickness ) ;
+     hh.push_back( deta ) ;
+     hh.push_back( dphi_half ) ;
+     hh.push_back( mysign*thickness/2. ) ;
      return new calogeom::IdealObliquePrism(
 	point,
 	geom->cornersMgr(),

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2007/06/13 18:01:30 $
- * $Revision: 1.49 $
+ * $Date: 2007/11/07 07:07:59 $
+ * $Revision: 1.53 $
  * \author A. Ghezzi
  *
  */
@@ -28,7 +28,6 @@
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
-#include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBBeamCaloTask.h>
@@ -145,13 +144,17 @@ void EBBeamCaloTask::setup(void){
 
       sprintf(histo, "EBBCT pulse profile in G12 cry %01d", i+1);
       meBBCaloPulseProfG12_[i] = dbe_->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.,"s");
+      meBBCaloPulseProfG12_[i]->setAxisTitle("#sample", 1);
+      meBBCaloPulseProfG12_[i]->setAxisTitle("ADC", 2);
 
       sprintf(histo, "EBBCT found gains cry %01d", i+1);
       meBBCaloGains_[i] =  dbe_->book1D(histo,histo,14,0.,14.);
+      meBBCaloGains_[i]->setAxisTitle("gain", 1);
       // g1-> bin 2, g6-> bin 7, g12-> bin 13
 
       sprintf(histo, "EBBCT rec energy cry %01d", i+1);
       meBBCaloEne_[i] =  dbe_->book1D(histo,histo,500,0.,9000.);
+      meBBCaloEne_[i]->setAxisTitle("rec ene (ADC)", 1);
       //9000 ADC in G12 equivalent is about 330 GeV
 
       //////////////////////////////// me for the moving table////////////////////////////////////////////
@@ -197,9 +200,11 @@ void EBBeamCaloTask::setup(void){
 
     sprintf(histo, "EBBCT readout crystals number");
     meBBNumCaloCryRead_ = dbe_->book1D(histo,histo,1701,0.,1701.);
+    meBBNumCaloCryRead_->setAxisTitle("number of read crystals", 1);
 
     sprintf(histo, "EBBCT rec Ene sum 3x3");
     meBBCaloE3x3_ = dbe_->book1D(histo,histo,500,0.,9000.);
+    meBBCaloE3x3_->setAxisTitle("rec ene (ADC)", 1);
     //9000 ADC in G12 equivalent is about 330 GeV
 
     sprintf(histo, "EBBCT rec Ene sum 3x3 table moving");
@@ -214,41 +219,59 @@ void EBBeamCaloTask::setup(void){
 
     sprintf(histo, "EBBCT table is moving");
     TableMoving_ = dbe_->book1D(histo,histo,2,0.,1.1);
+    TableMoving_->setAxisTitle("table status (0=stable, 1=moving)", 1);
     //table is moving-> bin 2, table is not moving-> bin 1
 
     sprintf(histo, "EBBCT crystals done");
     CrystalsDone_ = dbe_->book1D(histo,histo,1700,1.,1701.);
+    CrystalsDone_->setAxisTitle("crystal", 1);
+    CrystalsDone_->setAxisTitle("step in the scan", 2);
     //for a crystal done the corresponing bin is filled with the step in the
     //autoscan pertainig to the given crystales
 
     sprintf(histo, "EBBCT crystal in beam vs event");
     CrystalInBeam_vs_Event_ = dbe_->bookProfile(histo, histo, 20000,0.,400000.,1802,-101.,1701.,"s");
+    CrystalInBeam_vs_Event_->setAxisTitle("event", 1);
+    CrystalInBeam_vs_Event_->setAxisTitle("crystal in beam", 2);
     // 1 bin each 20 events
     // when table is moving for just one events fill with -100
 
 
     sprintf(histo, "EBBCT readout crystals errors");
     meEBBCaloReadCryErrors_ = dbe_->book1D(histo, histo, 425,1.,86.);
+    meEBBCaloReadCryErrors_->setAxisTitle("step in the scan", 1);
 
     sprintf(histo, "EBBCT average rec energy in the single crystal");
     //meEBBCaloE1vsCry_ = dbe_->book1D(histo, histo, 85,1.,86.);
     meEBBCaloE1vsCry_ = dbe_->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
+    meEBBCaloE1vsCry_->setAxisTitle("crystal", 1);
+    meEBBCaloE1vsCry_->setAxisTitle("rec energy (ADC)", 2);
 
     sprintf(histo, "EBBCT average rec energy in the 3x3 array");
     //meEBBCaloE3x3vsCry_= dbe_->book1D(histo, histo,85,1.,86.);
     meEBBCaloE3x3vsCry_ = dbe_->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
+    meEBBCaloE3x3vsCry_->setAxisTitle("crystal", 1);
+    meEBBCaloE3x3vsCry_->setAxisTitle("rec energy (ADC)", 2);
 
     sprintf(histo, "EBBCT number of entries");
     meEBBCaloEntriesVsCry_ = dbe_->book1D(histo, histo,1700,1.,1701.);
+    meEBBCaloEntriesVsCry_->setAxisTitle("crystal", 1);
+    meEBBCaloEntriesVsCry_->setAxisTitle("number of events (prescaled)", 2);
 
     sprintf(histo, "EBBCT energy deposition in the 3x3");
     meEBBCaloBeamCentered_ = dbe_->book2D(histo, histo,3,-1.5,1.5,3,-1.5,1.5);
+    meEBBCaloBeamCentered_->setAxisTitle("\\Delta \\eta", 1);
+    meEBBCaloBeamCentered_->setAxisTitle("\\Delta \\phi", 2);
 
     sprintf(histo, "EBBCT E1 in the max cry");
     meEBBCaloE1MaxCry_= dbe_->book1D(histo,histo,500,0.,9000.);
+    meEBBCaloE1MaxCry_->setAxisTitle("rec Ene (ADC)", 1);
 
     sprintf(histo, "EBBCT Desynchronization vs step");
     meEBBCaloDesync_= dbe_->book1D(histo, histo, 85 ,1.,86.);
+    meEBBCaloDesync_->setAxisTitle("step", 1);
+    meEBBCaloDesync_->setAxisTitle("Desynchronized events", 2);
+
   }
 
 }
@@ -550,14 +573,14 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
 
     //here the follwowing histos should be reset
-    //   for (int u=0;u<cryInArray_;u++){
-    //  UtilsClient::resetHisto( meBBCaloPulseProfMoving_[u] );
-    //  UtilsClient::resetHisto( meBBCaloPulseProfG12Moving_[u] );
-    //  UtilsClient::resetHisto( meBBCaloGainsMoving_[u] );
-    //  UtilsClient::resetHisto( meBBCaloEneMoving_[u] );
+    // for (int u=0;u<cryInArray_;u++){
+    //  meBBCaloPulseProfMoving_[u]->Reset();
+    //  meBBCaloPulseProfG12Moving_[u]->Reset();
+    //  meBBCaloGainsMoving_[u]->Reset();
+    //  meBBCaloEneMoving_[u]->Reset();
     // }
-    //UtilsClient::resetHisto( meBBCaloCryReadMoving_ );
-    UtilsClient::resetHisto( meBBCaloE3x3Moving_ );
+    // meBBCaloCryReadMoving_->Reset();
+    meBBCaloE3x3Moving_->Reset();
 
   }
 
@@ -587,14 +610,14 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
       //here the follwowing histos should be reset
       for (int u=0;u<cryInArray_;u++){
-	UtilsClient::resetHisto( meBBCaloPulseProf_[u] );
-	UtilsClient::resetHisto( meBBCaloPulseProfG12_[u] );
-	UtilsClient::resetHisto( meBBCaloGains_[u] );
-	UtilsClient::resetHisto( meBBCaloEne_[u] );
+	meBBCaloPulseProf_[u]->Reset();
+	meBBCaloPulseProfG12_[u]->Reset();
+	meBBCaloGains_[u]->Reset();
+	meBBCaloEne_[u]->Reset();
       }
-      UtilsClient::resetHisto( meBBCaloCryRead_ );
-      UtilsClient::resetHisto( meBBCaloE3x3_ );
-      UtilsClient::resetHisto( meEBBCaloBeamCentered_ );
+      meBBCaloCryRead_->Reset();
+      meBBCaloE3x3_->Reset();
+      meEBBCaloBeamCentered_->Reset();
     }
   }
 
@@ -668,7 +691,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
 
     //LogDebug("EBBeamCaloTask") << " det id = " << id;
-    //LogDebug("EBBeamCaloTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+    //LogDebug("EBBeamCaloTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
     //LogDebug("EBBeamCaloTask") << " deta, dphi, i_in_array, i_toBeRead " << deta_c  << " " <<  dphi_c << " " <<i_in_array<<" "<<i_toBeRead;
 
     if( i_in_array < 0 || i_in_array > 8 ){continue;}
@@ -761,7 +784,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     int i_in_array = deta_c -3*dphi_c + 4;
     //LogDebug("EBBeamCaloTask") << " rechits det id = " << id;
-    //LogDebug("EBBeamCaloTask") << " rechits sm, eta, phi " << ism << " " << ie << " " << ip;
+    //LogDebug("EBBeamCaloTask") << " rechits sm, ieta, iphi " << ism << " " << ie << " " << ip;
     //LogDebug("EBBeamCaloTask") << " rechits deta, dphi, i_in_array" << deta_c  << " " <<  dphi_c << " " <<i_in_array;
 
     float R_ene = hit.amplitude();

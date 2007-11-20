@@ -16,8 +16,9 @@ public:
 			     const SiStripRecHitMatcher*  hitMatcher,
 			     const TrackerGeometry*  trackerGeom,
 			     const GeometricSearchTracker* geometricSearchTracker,
-			     const SiStripDetCabling *stripCabling,
-			     const SiStripNoises *stripNoises,
+    			     const SiStripQuality *stripQuality,
+                             int   qualityFlags,
+                             int   qualityDebugFlags,
 			     const SiStripRegionCabling * stripRegionCabling,
 			     bool  isRegional=false);
   /// destructor

@@ -37,7 +37,7 @@ sub show_help {
 ################################################################################
 
 # log the 
-open LOG, ">> /nfshome0/klute/globalRun-06-2007/log/closeFile.log";
+open LOG, ">> /nfshome0/klute/globalRun-09-2007/log/closeFile.log";
 print LOG scalar localtime(time),' ',join(' ',@ARGV),"\n";
 
 my ($runnumber,$lumisection,$instance,$count,$stoptime,$filename,$pathname);
@@ -74,14 +74,22 @@ GetOptions(
 
 
 # checksum
-my $FULLFILENAME = "$pathname$filename";
-($MYCHECKSUM, $MYFILESIZE, $FULLFILENAME) = split(" ",qx(cksum $FULLFILENAME));
+my $FULLFILENAME = "chmod a+r $pathname$filename";
+#($MYCHECKSUM, $MYFILESIZE, $FULLFILENAME) = split(" ",qx(cksum $FULLFILENAME));
+system($FULLFILENAME);
+
+# copy first file of a run to look area 
+if ( $lumisection == 1 )
+{
+   my $COPYCOMMAND = "cp $pathname$filename /data1/lookarea; chmod a+r /data1/lookarea/$filename;";
+   system($COPYCOMMAND);
+}
 
 print LOG scalar localtime(time),"  CHECKSUM=",$MYCHECKSUM, " FILESIZE=", $MYFILESIZE, "\n";
 close LOG;
 
 # do all this in the notification script since we have to give the checksum anyway
-exit 0;
+#exit 0;
 
 # connect to DB
 my $dbi    = "DBI:Oracle:omds";
@@ -90,7 +98,7 @@ my $dbh    = DBI->connect($dbi,$reader,"qwerty");
  
 
 # do the update 
-my $SQL = "UPDATE CMS_STO_MGR_ADMIN.RUN_FILES SET FILESIZE=$filesize, STATUS='$status', STOP_TIME=$stoptime, NEVENTS=$nevents, CHECKSUM=$MYCHECKSUM, PATHNAME='$pathname' WHERE FILENAME = '$filename'";
+my $SQL = "UPDATE CMS_STO_MGR_ADMIN.TIER0_INJECTION SET FILESIZE=$filesize, STATUS='$status', STOP_TIME=$stoptime, NEVENTS=$nevents, CHECKSUM=$MYCHECKSUM, PATHNAME='$pathname' WHERE FILENAME = '$filename'";
 my $sth = $dbh->do($SQL);
 
 # disconnect from DB

@@ -16,11 +16,6 @@
   <use name=DataFormats/EgammaCandidates>
 </library>
 
-<library file=PtMinPixelMatchGsfElectronCountFilter.cc>
-  <use name=PhysicsTools/UtilAlgos>
-  <use name=DataFormats/EgammaCandidates>
-</library>
-
 <library file=JetTagCountFilter.cc name=JetTagCountFilter>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>

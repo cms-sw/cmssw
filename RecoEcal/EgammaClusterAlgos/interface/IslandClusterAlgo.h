@@ -59,10 +59,10 @@ class IslandClusterAlgo
     }
 
   // this is the method that will start the clusterisation
-  std::vector<reco::BasicCluster> makeClusters(const EcalRecHitCollection * hits,
-                                               const CaloSubdetectorGeometry * geometry,
-                                               const CaloSubdetectorTopology * topology_p,
-                                               const CaloSubdetectorGeometry * geometryES_p,
+  std::vector<reco::BasicCluster> makeClusters(const EcalRecHitCollection* hits,
+                                               const CaloSubdetectorGeometry *geometry,
+                                               const CaloSubdetectorTopology *topology_p,
+                                               const CaloSubdetectorGeometry *geometryES_p,
                                                EcalPart ecalPart,
 					       bool regional = false,
 					       const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>());
@@ -81,7 +81,7 @@ class IslandClusterAlgo
   double ecalEndcapSeedThreshold;
   
   // collection of all rechits
-  const EcalRecHitCollection * recHits_;
+  const EcalRecHitCollection *recHits_;
 
   // The vector of seeds:
   std::vector<EcalRecHit> seeds;
@@ -98,22 +98,20 @@ class IslandClusterAlgo
   // The verbosity level
   VerbosityLevel verbosity;
 
-  void mainSearch(const EcalRecHitCollection * hits,
-                  const CaloSubdetectorGeometry * geometry_p,
-                  const CaloSubdetectorTopology * topology_p,
-		  const CaloSubdetectorGeometry * geometryES_p,
+  void mainSearch(const EcalRecHitCollection* hits,
+                  const CaloSubdetectorGeometry *geometry_p,
+                  const CaloSubdetectorTopology *topology_p,
+		  const CaloSubdetectorGeometry *geometryES_p,
                   EcalPart ecalPart);
  
-  void searchNorth(const CaloNavigator<DetId> & navigator, const EcalRecHitCollection::const_iterator & previous_it);
-  void searchSouth(const CaloNavigator<DetId> & navigator, const EcalRecHitCollection::const_iterator & previous_it);
-  void searchWest (const CaloNavigator<DetId> & navigator, const EcalRecHitCollection::const_iterator & previous_it);
-  void searchEast (const CaloNavigator<DetId> & navigator, const EcalRecHitCollection::const_iterator & previous_it);
+  void searchNorth(const CaloNavigator<DetId> &navigator);
+  void searchSouth(const CaloNavigator<DetId> &navigator);
+  void searchWest (const CaloNavigator<DetId> &navigator, const CaloSubdetectorTopology* topology);
+  void searchEast (const CaloNavigator<DetId> &navigator, const CaloSubdetectorTopology* topology);
 
-  EcalRecHitCollection::const_iterator iteratorToRecHit(const DetId & candidateId);
+  bool shouldBeAdded(EcalRecHitCollection::const_iterator candidate_it, EcalRecHitCollection::const_iterator previous_it);
 
-  bool shouldBeAdded(const EcalRecHitCollection::const_iterator & candidate_it, const EcalRecHitCollection::const_iterator & previous_it);
-
-  void makeCluster(const EcalRecHitCollection* hits, const CaloSubdetectorGeometry * geometry_p, const CaloSubdetectorGeometry * geometryES_p);
+  void makeCluster(const EcalRecHitCollection* hits,const CaloSubdetectorGeometry *geometry_p,const CaloSubdetectorGeometry *geometryES_p);
 
  };
 

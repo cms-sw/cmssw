@@ -34,47 +34,36 @@ class SiPixelInformationExtractor {
   SiPixelInformationExtractor();
  ~SiPixelInformationExtractor();
 
-  //void readModuleAndHistoList(	MonitorUserInterface			* mui,
   void readModuleAndHistoList(	DaqMonitorBEInterface			* bei,
                               	xgi::Output				* out,
 			      	bool					  coll_flag);
-  //void plotSingleModuleHistos(	MonitorUserInterface			* mui,
   void plotSingleModuleHistos(	DaqMonitorBEInterface			* bei,
                               	std::multimap<std::string, std::string> & req_map);
-  //void plotHistosFromPath(      MonitorUserInterface                    * mui,
   void plotHistosFromPath(      DaqMonitorBEInterface                   * bei,
                                 std::multimap<std::string, std::string> & req_map);  
-  //void plotTkMapHistos(       	MonitorUserInterface			* mui,
   void plotTkMapHistos(       	DaqMonitorBEInterface			* bei,
                               	std::multimap<std::string, std::string> & req_map, 
 			      	std::string				  sName);
-  //void plotTkMapHisto(       	MonitorUserInterface			* mui,
   void plotTkMapHisto(       	DaqMonitorBEInterface			* bei,
                               	std::string                               theModI, 
 			      	std::string				  theMEName);
-  //void readModuleHistoTree(   	MonitorUserInterface			* mui, 
   void readModuleHistoTree(   	DaqMonitorBEInterface			* bei, 
                               	std::string				& str_name, 
 			      	xgi::Output				* out, 
 			      	bool					  coll_flag);
-  //void readSummaryHistoTree(  	MonitorUserInterface			* mui, 
   void readSummaryHistoTree(  	DaqMonitorBEInterface			* bei, 
                               	std::string				& str_name, 
 			      	xgi::Output				* out, 
 			      	bool					  coll_flag);
-  //void readAlarmTree(         	MonitorUserInterface			* mui, 
   void readAlarmTree(         	DaqMonitorBEInterface			* bei, 
                               	std::string				& str_name, 
                               	xgi::Output				* out, 
 			      	bool					coll_flag);
-  //void plotSingleHistogram(   	MonitorUserInterface			* mui,
   void plotSingleHistogram(   	DaqMonitorBEInterface			* bei,
                               	std::multimap<std::string, std::string> & req_map);
-  //void readStatusMessage(     	MonitorUserInterface			* mui, 
   void readStatusMessage(     	DaqMonitorBEInterface			* bei, 
                               	std::string				& path,
 			      	xgi::Output				* out);
-  //void createModuleTree(      	MonitorUserInterface			* mui);
   void createModuleTree(      	DaqMonitorBEInterface			* bei);
   void computeStatus(           MonitorElement                          * mE,
                                 double                                  & colorValue,
@@ -86,21 +75,17 @@ class SiPixelInformationExtractor {
                                 std::pair<double,double>                & normX,
                                 std::pair<double,double>                & normY,
 				QString                                   theMEType) ;
-  //void sendTkUpdatedStatus(     MonitorUserInterface			* mui,
   void sendTkUpdatedStatus(     DaqMonitorBEInterface			* bei,
                               	xgi::Output                             * out,
 				std::string                             & meName,
 				std::string                             & theTKType) ;
-  //void selectMEList(            MonitorUserInterface                    * mui,  
   void selectMEList(            DaqMonitorBEInterface                   * bei,  
                                 std::string                             & name, 
 				std::vector<MonitorElement*>            & mes);
-  //void getMEList(               MonitorUserInterface                    * mui,  
   void getMEList(               DaqMonitorBEInterface                   * bei,  
 				std::map<std::string, int>              & mEHash);
   int getDetId(                 MonitorElement                          * mE) ;				
   const std::ostringstream& getImage(                                     void)        const;
-  //const std::ostringstream& getIMGCImage(MonitorUserInterface		* mui,
   const std::ostringstream& getIMGCImage(DaqMonitorBEInterface		* bei,
   				std::string				  theFullPath,
 				std::string				  canvasW,
@@ -109,27 +94,26 @@ class SiPixelInformationExtractor {
   std::string getMEType(        MonitorElement                          * mE) ;
   
   void   readLayoutNames(       xgi::Output                             * out);
-  void   plotHistosFromLayoutForSlideShow(    DaqMonitorBEInterface     * bei);
   void   plotErrorOverviewHistos(DaqMonitorBEInterface                  * bei);
   
+  void readConfiguration();
+  bool readConfiguration(        std::map<std::string,std::vector< std::string> >   & layoutMap,
+				 std::map<std::string,std::map<std::string,std::string> >                & qtestsMap,
+				 std::map<std::string,std::vector<std::string> >    & meQTestsMap);
+
+
 
  private:
 
-  void readConfiguration();
-
-  //void fillBarrelList(        	MonitorUserInterface			* mui, 
   void fillBarrelList(        	DaqMonitorBEInterface			* bei, 
                               	std::string				  dir_name,
                               	std::vector<std::string>		& me_names);
-  //void fillEndcapList(        	MonitorUserInterface			* mui, 
   void fillEndcapList(        	DaqMonitorBEInterface			* bei, 
                               	std::string				  dir_name,
                               	std::vector<std::string>		& me_names);
-  //void fillModuleAndHistoList(	MonitorUserInterface			* mui,
   void fillModuleAndHistoList(	DaqMonitorBEInterface			* bei,
                               	std::vector<std::string>		& modules, 
 			      	std::map<std::string,std::string>	& histos);
-  //void selectSingleModuleHistos(MonitorUserInterface                    * mui,  
   void selectSingleModuleHistos(DaqMonitorBEInterface                   * bei,  
                                 std::string                               mid, 
                                 std::vector<std::string>                & names, 
@@ -147,20 +131,16 @@ class SiPixelInformationExtractor {
                                 std::string                               theName,
 				std::string 				  canvasW,
 				std::string 				  canvasH);
-  //void printModuleHistoList(    MonitorUserInterface 			* mui, 
   void printModuleHistoList(    DaqMonitorBEInterface 			* bei, 
                                 std::ostringstream                      & str_val);
-  //void printSummaryHistoList(   MonitorUserInterface 			* mui, 
   void printSummaryHistoList(   DaqMonitorBEInterface 			* bei, 
                                 std::ostringstream                      & str_val);
-  //void printAlarmList(          MonitorUserInterface 			* mui, 
   void printAlarmList(          DaqMonitorBEInterface 			* bei, 
                                 std::ostringstream                      & str_val);
   void selectImage(		std::string				& name, 
                                 int                                      status);
   void selectImage(		std::string				& name, 
                                 dqm::qtests::QR_map                     & test_map);
-  //bool goToDir(                 MonitorUserInterface                    * mui, 
   bool goToDir(                 DaqMonitorBEInterface                   * bei, 
                                 std::string                             & sname, 
 				bool                                      flg);
@@ -168,35 +148,31 @@ class SiPixelInformationExtractor {
 	                        std::string                               item_name);
   std::string getItemValue(     std::multimap<std::string, std::string> & req_map,
 	                        std::string                               item_name);
-  //MonitorElement* getModuleME(  MonitorUserInterface                    * mui, 
   MonitorElement* getModuleME(  DaqMonitorBEInterface                   * bei, 
                                 std::string                               me_name);
   void setCanvasMessage(        const std::string                       & error_string);
-  void setDrawingOption(        TH1                                     * hist, 
-				float                                     xlow  =-1.0, 
-				float                                     xhigh =-1.0);
-  void setSubDetAxisDrawing(    TH1                                     * hist, 
-				std::string                             & detector);
   void createDummiesFromLayout();  
-  
   void   fillErrorOverviewHistos(DaqMonitorBEInterface                  * bei,
 				 TH1F                                   * errorHisto,
 				 string                                 & subDet,
 				 vector<int>                            & hotModuleList);
   int    computeCode(            DaqMonitorBEInterface                  * bei,
 				 string                                 & path);
-  int    computeErrorCode(       DaqMonitorBEInterface                  * bei,
-				 string                                 & module_path);
   int    computeSourceCode(      string                                 & source);
-  int    computeHistoBin(        string                                 & module_path);
   void   fillPaveTextForErrorCode(TPaveText                             * pave);
   void   coloredHotModules(      TH1F                                   * histo,
 				 vector<int>                            & binList,
 				 int                                      range,
 				 int                                      color);
-  
-  
-  
+  void setSubDetAxisDrawing(   std::string                                detector, 
+                               TH1F                                     * histo);
+  void setLines(               MonitorElement                           * me, 
+                               std::string                              & meName, 
+			       double                                   & ymin, 
+			       double                                   & ymax, 
+			       double                                   & warning, 
+			       double                                   & error, 
+			       double                                   & channelFraction);
   
   
   
@@ -222,14 +198,12 @@ class SiPixelInformationExtractor {
   
   TCanvas                              * theCanvas ;
   TCanvas                              * canvas_ ;
+  TCanvas                              * canvasSlide_ ;
   TPaveText                            * paveOnCanvas;
 
   bool  readReference_;
   bool  readQTestMap_;
   bool  readMeMap_;
-  
- private:
-
   bool  flagHotModule_;
 };
 #endif

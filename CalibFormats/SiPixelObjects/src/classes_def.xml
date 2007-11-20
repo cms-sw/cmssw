@@ -1,9 +1,5 @@
 <lcgdict>
   <class name="SiPixelCalibConfiguration"/>
-  <class name="SiPixelCalibConfiguration::ColPatternStruct"/>
-  <class name="SiPixelCalibConfiguration::RowPatternStruct"/>
-  <class name="std::vector<SiPixelCalibConfiguration::ColPatternStruct>"/>
-  <class name="std::vector<SiPixelCalibConfiguration::RowPatternStruct>"/>
   <class name="std::vector<short>"/>
   <class name="std::vector<std::string>"/>
 </lcgdict>

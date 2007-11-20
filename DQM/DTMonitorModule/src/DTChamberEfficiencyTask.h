@@ -10,8 +10,8 @@
  *  Class based on the code written by S. Lacaprara :
  *  RecoLocalMuon / DTSegment / test / DTEffAnalyzer.h
  *
- *  $Date: 2007/04/20 15:15:54 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/09/20 07:18:13 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -75,8 +75,6 @@ private:
   
   // Switch for verbosity
   bool debug;
-  std::string theRootFileName;
-  bool writeHisto;
   
   // Lable of 4D segments in the event
   std::string theRecHits4DLabel;

@@ -172,12 +172,18 @@ namespace popcon
 					catch(popcon::Exception & er)
 					{
 						std::cerr << "Begin Job PopCon exception\n";
+						logMsg = "Begin Job exception";
 						greenLight = false;
+					}
+					catch(cond::Exception& er){
+						std::cerr<< "Begin Job cond exception " << er.what()<<std::endl;
+						logMsg = "Begin Job exception";
 					}
 					catch(std::exception& e)
 					{
 						greenLight = false;
 						std::cerr << "Begin Job std-based exception\n";
+						logMsg = "Begin Job exception";
 					}
 
 				}

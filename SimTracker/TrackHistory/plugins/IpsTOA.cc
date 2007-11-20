@@ -15,7 +15,7 @@
 //
 // Original Author:  Victor Bazterra
 //         Created:  Tue Mar 13 14:15:40 CDT 2007
-// $Id: IpsTOA.h,v 1.2 2007/05/21 18:06:15 bazterra Exp $
+// $Id: IpsTOA.cc,v 1.2 2007/10/10 19:02:53 bazterra Exp $
 //
 //
 
@@ -36,11 +36,12 @@
 #include "SimTracker/TrackHistory/interface/TrackOrigin.h"
 
 // user include files
-#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include <DataFormats/Common/interface/View.h>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -60,7 +61,6 @@
 
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 
-#include "SimTracker/TrackAssociation/test/testTrackAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -103,7 +103,7 @@ private:
   typedef std::vector<edm::ParameterSet> vParameterSet;
 
   std::string trackCollection_;
-  std::string jetTagCollection_;
+  std::string tagInfoCollection_;
   
   std::string rootFile_;
   bool antiparticles_;
@@ -152,9 +152,8 @@ private:
   void LoopOverTrackCountingInfo(
     std::size_t,
     reco::RecoToSimCollection &,
-    reco::JetTagCollection::const_iterator,
-    reco::TrackCountingTagInfoCollection::const_iterator,
-    reco::TrackCountingTagInfoCollection::const_iterator
+    reco::TrackIPTagInfoCollection::const_iterator,
+    reco::TrackIPTagInfoCollection::const_iterator
   );
   
   // Track origin
@@ -214,8 +213,8 @@ private:
 
 IpsTOA::IpsTOA(const edm::ParameterSet& iConfig)
 {
-  trackCollection_            = iConfig.getParameter<std::string>( "trackCollection" );
-  jetTagCollection_           = iConfig.getParameter<std::string> ( "jetTagCollection" ); 
+  trackCollection_   = iConfig.getParameter<std::string>( "trackCollection" );
+  tagInfoCollection_ = iConfig.getParameter<std::string> ( "tagInfoCollection" ); 
 
   rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
   
@@ -261,18 +260,15 @@ IpsTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Tracking particle information
   edm::Handle<TrackingParticleCollection> TPCollection;  
-  // Track collection
-  edm::Handle<reco::TrackCollection> trackCollection;
-  // Track signed impact parameter
-  edm::Handle<reco::JetTagCollection> baseCollection;
-  // Tracking signed impact parameter
-  edm::Handle<reco::TrackCountingTagInfoCollection> extCollection;
-
   iEvent.getByType(TPCollection);
 
+  // Track collection
+  edm::Handle<reco::TrackCollection> trackCollection;
   iEvent.getByLabel(trackCollection_,trackCollection);
-  iEvent.getByLabel(jetTagCollection_, baseCollection);	
-  iEvent.getByLabel(jetTagCollection_, extCollection);
+
+  // Track impact parameters tag info
+  edm::Handle<reco::TrackIPTagInfoCollection> tagInfoCollection;
+  iEvent.getByLabel(tagInfoCollection_, tagInfoCollection);	
  
   reco::RecoToSimCollection association = associator_->associateRecoToSim ( trackCollection, TPCollection, &iEvent ); 
 
@@ -285,9 +281,8 @@ IpsTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     LoopOverTrackCountingInfo(
       cid,
       association,
-      baseCollection->begin(),
-      extCollection->begin(),
-      extCollection->end()
+      tagInfoCollection->begin(),
+      tagInfoCollection->end()
     );
   }
 }    
@@ -381,7 +376,7 @@ IpsTOA::endJob()
       hTitle << "Track origins for the whole TrackingParticle collection";
       hName  << "TrackingParticleCollection";
     }
-    else if( jetTagCollection_.empty() )
+    else if( tagInfoCollection_.empty() )
     {
       hTitle << "Track origins for the whole track collection";
       hName  << "recoTrackCollection";
@@ -434,15 +429,13 @@ void
 IpsTOA::LoopOverTrackCountingInfo(
   std::size_t cid,
   reco::RecoToSimCollection & association,
-  reco::JetTagCollection::const_iterator bc,
-  reco::TrackCountingTagInfoCollection::const_iterator ec,
-  reco::TrackCountingTagInfoCollection::const_iterator ec_end
+  reco::TrackIPTagInfoCollection::const_iterator tagInfo,
+  reco::TrackIPTagInfoCollection::const_iterator tagInfoEnd
 )
 {
   bool init;
   float ips;
   std::size_t i, j; 
-  reco::TrackRefVector tracks;
 
   // Initialive the TrackOrigin object.
   int status;
@@ -455,10 +448,19 @@ IpsTOA::LoopOverTrackCountingInfo(
 
   if(!insideJet_) InitCounter();
 
-  for(; ec != ec_end; ec++, bc++)
+  for(; tagInfo != tagInfoEnd; tagInfo++)
   {
     j = 0; init = true; 
-    tracks = bc->tracks();
+
+    reco::TrackRefVector tracks = tagInfo->selectedTracks();
+    const std::vector<reco::TrackIPTagInfo::TrackIPData> & ipData = tagInfo->impactParameterData();
+
+    std::vector<std::size_t> indexes;
+    
+    if(ranges_[cid].ips2d)
+      indexes = tagInfo->sortedIndexes(reco::TrackIPTagInfo::IP2DSig);
+    else
+      indexes = tagInfo->sortedIndexes();
 
     std::cout << std::endl;
     std::cout << "New Jet" << std::endl;
@@ -466,16 +468,20 @@ IpsTOA::LoopOverTrackCountingInfo(
     // counter initialization
     if (insideJet_) InitCounter();
 
-    for(i=0;;i++)
+    for(i=0; i < tracks.size(); i++)
     {
-      ips = ec->significance(i,ranges_[cid].ips2d);
+      if(ranges_[cid].ips2d)
+        ips = ipData[indexes[i]].ip2d.value();
+      else
+	ips = ipData[indexes[i]].ip3d.value();
+
       std::cout << "TMP IPS " << ips << std::endl;
       if( init && ips < ranges_[cid].maxIps )
       {
         j = i;
         init = false;
       }      
-      if ( ips == -10.0 || ips < ranges_[cid].minIps )
+      if ( ips == -100.0 || ips < ranges_[cid].minIps )
         break;
     }
 
@@ -483,10 +489,10 @@ IpsTOA::LoopOverTrackCountingInfo(
 
     // there is at least one track with IPS in the range
     if(i > j)
-      for(std::size_t index=j; index<i; index++)
+      for(std::size_t k=j; k<i; k++)
       {        
         // If the track is not fake then get the orginal particles
-        if (tracer.evaluate(tracks[index], association, associationByHits_))
+        if (tracer.evaluate(tracks[indexes[k]], association, associationByHits_))
         {
           const HepMC::GenParticle * particle = tracer.particle();
           // If the origin can be determined then take the first particle as the original

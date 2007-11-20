@@ -8,6 +8,7 @@
  <Constant name="HallR"        value="13.0*m"/>
  <Constant name="CMSR1"        value="8.30*m"/>
  <Constant name="CMSR2"        value="1.00*m"/>
+ <Constant name="CMSZ1"        value="27.1*m"/>
  <Constant name="CMSZ2"        value="26.0*m"/>
 </ConstantsSection>
 

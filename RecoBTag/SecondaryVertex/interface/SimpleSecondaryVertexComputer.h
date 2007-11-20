@@ -32,7 +32,8 @@ class SimpleSecondaryVertexComputer : public JetTagComputer {
 
 		double gamma;
 		if (unBoost) {
-			TrackKinematics kinematics(info->secondaryVertex(0));
+			reco::TrackKinematics kinematics(
+						info->secondaryVertex(0));
 			gamma = kinematics.vectorSum().Gamma();
 		} else
 			gamma = 1.0;

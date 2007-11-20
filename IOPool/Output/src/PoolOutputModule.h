@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.33 2007/09/12 22:39:05 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.34 2007/10/03 22:26:42 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -19,6 +19,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
+#include "IOPool/Output/src/RootOutputFile.h"
 
 namespace edm {
   class ParameterSet;

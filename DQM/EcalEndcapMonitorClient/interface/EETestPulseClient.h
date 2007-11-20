@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.7 $
+ * $Date: 2007/11/13 13:20:51 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,14 +20,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
+
+class MonitorElement;
+class MonitorUserInterface;
+class DaqMonitorBEInterface;
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
 
 class EETestPulseClient : public EEClient {
 
@@ -86,7 +86,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -104,15 +103,6 @@ DaqMonitorBEInterface* dbe_;
 TProfile2D* ha01_[18];
 TProfile2D* ha02_[18];
 TProfile2D* ha03_[18];
-
-MEContentsProf2DWithinRangeROOT* qtha01_[18];
-MEContentsProf2DWithinRangeROOT* qtha02_[18];
-MEContentsProf2DWithinRangeROOT* qtha03_[18];
-
-MEContentsProf2DWithinRangeROOT* qtha04_[18];
-MEContentsProf2DWithinRangeROOT* qtha05_[18];
-MEContentsProf2DWithinRangeROOT* qtha06_[18];
-MEContentsProf2DWithinRangeROOT* qtha07_[18];
 
 TProfile2D* hs01_[18];
 TProfile2D* hs02_[18];
@@ -132,10 +122,14 @@ MonitorElement* mea03_[18];
 MonitorElement* mer04_[18];
 MonitorElement* mer05_[18];
 
-TProfile2D* i01_[18];
-TProfile2D* i02_[18];
-TProfile2D* i03_[18];
-TProfile2D* i04_[18];
+MonitorElement* me_hs01_[18];
+MonitorElement* me_hs02_[18];
+MonitorElement* me_hs03_[18];
+
+TProfile* i01_[18];
+TProfile* i02_[18];
+TProfile* i03_[18];
+TProfile* i04_[18];
 
 // Quality check on crystals
 
@@ -149,13 +143,6 @@ float amplitudeThresholdPnG16_;
 float pedPnExpectedMean_[2];
 float pedPnDiscrepancyMean_[2];
 float pedPnRMSThreshold_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg01_[36];
-MEContentsTH2FWithinRangeROOT* qtg02_[36];
-MEContentsTH2FWithinRangeROOT* qtg03_[36];
-
-MEContentsTH2FWithinRangeROOT* qtg04_[36];
-MEContentsTH2FWithinRangeROOT* qtg05_[36];
 
 };
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.14 2007/04/04 13:57:05 chiochia Exp $
+// $Id: SiPixelDigiSource.cc,v 1.15 2007/09/04 18:21:30 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -46,7 +46,8 @@ using namespace edm;
 
 SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
-  src_( conf_.getParameter<edm::InputTag>( "src" ) )
+  src_( conf_.getParameter<edm::InputTag>( "src" ) ),
+  saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) )
 {
    theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
    LogInfo ("PixelDQM") << "SiPixelDigiSource::SiPixelDigiSource: Got DQM BackEnd interface"<<endl;
@@ -74,9 +75,13 @@ void SiPixelDigiSource::beginJob(const edm::EventSetup& iSetup){
 
 
 void SiPixelDigiSource::endJob(void){
-  LogInfo ("PixelDQM") << " SiPixelDigiSource::endJob - Saving Root File " << std::endl;
-  std::string outputFile = conf_.getParameter<std::string>("outputFile");
-  theDMBE->save( outputFile.c_str() );
+
+  if(saveFile) {
+    LogInfo ("PixelDQM") << " SiPixelDigiSource::endJob - Saving Root File " << std::endl;
+    std::string outputFile = conf_.getParameter<std::string>("outputFile");
+    theDMBE->save( outputFile.c_str() );
+  }
+
 }
 
 //------------------------------------------------------------------

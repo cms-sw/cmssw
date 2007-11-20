@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.3 $
+ * $Date: 2007/11/13 13:20:51 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -19,14 +19,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
+
+class MonitorElement;
+class MonitorUserInterface;
+class DaqMonitorBEInterface;
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
 
 class EELedClient : public EEClient {
 
@@ -85,7 +85,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -107,18 +106,6 @@ TProfile2D* h13_[18];
 TProfile2D* h14_[18];
 
 TProfile2D* h21_[18];
-
-MEContentsProf2DWithinRangeROOT* qth01_[18];
-
-MEContentsProf2DWithinRangeROOT* qth05_[18];
-
-MEContentsProf2DWithinRangeROOT* qth09_[18];
-
-MEContentsProf2DWithinRangeROOT* qth13_[18];
-
-MEContentsProf2DWithinRangeROOT* qth17_[18];
-
-MEContentsProf2DWithinRangeROOT* qth21_[18];
 
 TProfile2D* hs01_[18];
 
@@ -154,13 +141,17 @@ MonitorElement* mepnprms01_[18];
 
 MonitorElement* mepnprms05_[18];
 
-TProfile2D* i01_[18];
+MonitorElement* me_hs01_[18];
 
-TProfile2D* i05_[18];
+MonitorElement* me_hs05_[18];
 
-TProfile2D* i09_[18];
+TProfile* i01_[18];
 
-TProfile2D* i13_[18];
+TProfile* i05_[18];
+
+TProfile* i09_[18];
+
+TProfile* i13_[18];
 
 // Quality check on crystals
 
@@ -173,12 +164,6 @@ float amplitudeThresholdPnG16_;
 float pedPnExpectedMean_[2];
 float pedPnDiscrepancyMean_[2];
 float pedPnRMSThreshold_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg01_[36];
-
-MEContentsTH2FWithinRangeROOT* qtg05_[36];
-
-MEContentsTH2FWithinRangeROOT* qtg09_[36];
 
 };
 

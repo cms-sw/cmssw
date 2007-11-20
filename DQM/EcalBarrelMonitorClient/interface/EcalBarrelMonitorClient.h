@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/08/17 09:05:07 $
- * $Revision: 1.84 $
+ * $Date: 2007/11/06 10:29:36 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -27,9 +27,6 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBClient.h>
-
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
 
@@ -126,7 +123,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -143,7 +139,6 @@ bool enableServer_;
 int  serverPort_;
  
 string inputFile_;
-string outputFile_;
  
 string dbName_;
 string dbHostName_;

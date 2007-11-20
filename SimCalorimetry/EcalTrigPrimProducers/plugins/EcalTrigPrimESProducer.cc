@@ -100,7 +100,7 @@ std::auto_ptr<EcalTPGFineGrainEBIdMap> EcalTrigPrimESProducer::produceFineGrainE
   EcalTPGFineGrainConstEB fg ;
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
   for (it = mapFg_[0].begin() ; it != mapFg_[0].end() ; it++) {
-    fg.setValues((it->second)[2], (it->second)[3], (it->second)[0], (it->second)[1], (it->second)[4]) ;
+    fg.setValues((it->second)[0], (it->second)[1], (it->second)[2], (it->second)[3], (it->second)[4]) ;
     prod->setValue(it->first,fg) ;
   }
   return prod;

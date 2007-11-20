@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2007/05/24 12:24:23 $
- * $Revision: 1.24 $
+ * $Date: 2007/10/14 16:02:58 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -152,11 +152,11 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       float xip = ip - 0.5;
 
       LogDebug("EBOccupancyTask") << " det id = " << id;
-      LogDebug("EBOccupancyTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EBOccupancyTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
         LogWarning("EBOccupancyTask") << " det id = " << id;
-        LogWarning("EBOccupancyTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+        LogWarning("EBOccupancyTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
         LogWarning("EBOccupancyTask") << " xie, xip " << xie << " " << xip;
       }
 
@@ -182,6 +182,8 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
+
+      if ( id.iEcalSubDetectorId() != EcalBarrel ) continue;
 
       int   ism   = Numbers::iSM( id );
 

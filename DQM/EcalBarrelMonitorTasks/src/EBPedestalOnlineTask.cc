@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2007/05/21 09:57:44 $
- * $Revision: 1.24 $
+ * $Date: 2007/11/07 07:07:59 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -79,6 +79,8 @@ void EBPedestalOnlineTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPOT pedestal %s G12", Numbers::sEB(i+1).c_str());
       mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      mePedMapG12_[i]->setAxisTitle("ieta", 1);
+      mePedMapG12_[i]->setAxisTitle("iphi", 2);
       dbe_->tag(mePedMapG12_[i], i+1);
     }
 
@@ -144,7 +146,7 @@ void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
       float xip = ip - 0.5;
 
       LogDebug("EBPedestalOnlineTask") << " det id = " << id;
-      LogDebug("EBPedestalOnlineTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EBPedestalOnlineTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       for (int i = 0; i < 3; i++) {
 

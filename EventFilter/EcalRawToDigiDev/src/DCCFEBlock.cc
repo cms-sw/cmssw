@@ -68,8 +68,9 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
       <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
       <<"\n Expected trigger tower is "<<expTowerID_<<" while "<<towerId_<<" was found "
       <<"\n => Skipping to next tower block...";
-    EcalTrigTowerDetId * tp = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
-    (*invalidTTIds_)->push_back(*tp);
+
+    EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
+    (*invalidTTIds_)->push_back(*eleTp);
 
     updateEventPointers();
     return SKIP_BLOCK_UNPACKING;     
@@ -132,10 +133,10 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
         <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
         <<"\n Expected block size is "<<(unfilteredDataBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found"
         <<"\n => Skipping to next fed block...";
-      
-      EcalTrigTowerDetId *  tp = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
-      (*invalidBlockLengths_)->push_back(*tp);
-      
+
+      EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
+      (*invalidBlockLengths_)->push_back(*eleTp);
+
       //Safer approach...  - why pointers do not navigate in this case?
       return STOP_EVENT_UNPACKING;	  
     }
@@ -147,10 +148,10 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
       <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
       <<"\n The tower "<<towerId_<<" has a wrong number of bytes : "<<(blockLength_*8)	   
       <<"\n => Skipping to next fed block...";
-    
-    EcalTrigTowerDetId *  tp = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
-    (*invalidBlockLengths_)->push_back(*tp);
-    
+
+    EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
+    (*invalidBlockLengths_)->push_back(*eleTp);
+
     //Safer approach... - why pointers do not navigate in this case?
     return STOP_EVENT_UNPACKING;
   }

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 13 11:43:40 EST 2005
-// $Id: SimActivityRegistry.h,v 1.4 2005/11/21 22:01:21 chrjones Exp $
+// $Id: SimActivityRegistry.h,v 1.5 2006/06/23 23:55:24 valya Exp $
 //
 
 // system include files
@@ -65,7 +65,6 @@ class SimActivityRegistry
       SAR_CONNECT_METHOD(DDDWorld)
 
       typedef sigc::signal< void, const BeginOfRun*> BeginOfRunSignal;
-      typedef sigc::signal< void, const EndOfRun*> EndOfRunSignal;
       BeginOfRunSignal beginOfRunSignal_;
       void watchBeginOfRun(const BeginOfRunSignal::slot_type& iSlot){
          beginOfRunSignal_.connect(iSlot);

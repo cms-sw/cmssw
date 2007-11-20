@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2007/08/27 14:17:26 $
- * $Revision: 1.13 $
+ * $Date: 2007/10/30 10:15:55 $
+ * $Revision: 1.15 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -72,8 +72,6 @@ protected:
   /// get the L1A source
   std::string triggerSource();
 
-  bool layerExist(DTLayerId lId);
-
 private:
 
   bool debug;
@@ -105,9 +103,6 @@ private:
 
   edm::ESHandle<DTTtrig> tTrigMap;
   edm::ESHandle<DTT0> t0Map;
-
-
-  std::string outputFile;
 
   std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
 

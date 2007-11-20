@@ -32,16 +32,11 @@ class HcalRecHitClient{
 public:
 
 /// Constructor
-HcalRecHitClient(const ParameterSet& ps, MonitorUserInterface* mui);
+HcalRecHitClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
 HcalRecHitClient();
 
 /// Destructor
 virtual ~HcalRecHitClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// Analyze
 void analyze(void);
@@ -89,8 +84,10 @@ private:
   double beamE_thresh_;
   double beamE_width_;
   string process_;
+  string baseFolder_;
 
-  MonitorUserInterface* mui_;
+  //  MonitorUserInterface* mui_;
+  DaqMonitorBEInterface* dbe_;
 
   TH2F* tot_occ_[4];
   TH1F* tot_energy_;

@@ -24,7 +24,7 @@ class CombinedSVComputer {
 
 	double					charmCut;
 	reco::TrackIPTagInfo::SortCriteria	sortCriterium;
-	TrackSelector				trackPseudoSelector;
+	reco::TrackSelector			trackPseudoSelector;
 	unsigned int				pseudoMultiplicityMin;
 	bool					useTrackWeights;
 };

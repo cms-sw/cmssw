@@ -21,8 +21,8 @@ namespace popcon
 	{
 		public:
 			DBState(){};
-			DBState(coral::AttributeList);
-			DBState(std::string,int);
+			DBState(coral::AttributeList, std::string);
+			DBState(std::string,int, std::string);
 			~DBState(){}
 			void set_state(coral::AttributeList);
 			coral::AttributeList update_helper(std::string& updateAction, std::string& updateCondition);
@@ -31,6 +31,7 @@ namespace popcon
 			int payload_size;
 			std::string except_description;
 			std::string manual_override;
+			std::string connect_string;
 	};
 
 	bool operator==(const DBState& a, const DBState& b);

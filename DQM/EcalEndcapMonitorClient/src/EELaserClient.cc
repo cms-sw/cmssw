@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/09/07 22:30:06 $
- * $Revision: 1.31 $
+ * $Date: 2007/11/13 15:50:55 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -23,8 +23,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -39,12 +37,16 @@
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
 
@@ -57,9 +59,6 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
-
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
@@ -71,7 +70,7 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
-  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -198,7 +197,7 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
     meaopn06_[ism-1] = 0;
     meaopn07_[ism-1] = 0;
     meaopn08_[ism-1] = 0;
-    
+
     mepnprms01_[ism-1] = 0;
     mepnprms02_[ism-1] = 0;
     mepnprms03_[ism-1] = 0;
@@ -207,46 +206,15 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
     mepnprms06_[ism-1] = 0;
     mepnprms07_[ism-1] = 0;
     mepnprms08_[ism-1] = 0;
-    
-    qth01_[ism-1] = 0;
-    qth02_[ism-1] = 0;
-    qth03_[ism-1] = 0;
-    qth04_[ism-1] = 0;
-    qth05_[ism-1] = 0;
-    qth06_[ism-1] = 0;
-    qth07_[ism-1] = 0;
-    qth08_[ism-1] = 0;
 
-    qth09_[ism-1] = 0;
-    qth10_[ism-1] = 0;
-    qth11_[ism-1] = 0;
-    qth12_[ism-1] = 0;
-    qth13_[ism-1] = 0;
-    qth14_[ism-1] = 0;
-    qth15_[ism-1] = 0;
-    qth16_[ism-1] = 0;
-    qth17_[ism-1] = 0;
-    qth18_[ism-1] = 0;
-    qth19_[ism-1] = 0;
-    qth20_[ism-1] = 0;
-    qth21_[ism-1] = 0;
-    qth22_[ism-1] = 0;
-    qth23_[ism-1] = 0;
-    qth24_[ism-1] = 0;
-
-    qtg01_[ism-1] = 0;
-    qtg02_[ism-1] = 0;
-    qtg03_[ism-1] = 0;
-    qtg04_[ism-1] = 0;
-
-    qtg05_[ism-1] = 0;
-    qtg06_[ism-1] = 0;
-    qtg07_[ism-1] = 0;
-    qtg08_[ism-1] = 0;
-    qtg09_[ism-1] = 0;
-    qtg10_[ism-1] = 0;
-    qtg11_[ism-1] = 0;
-    qtg12_[ism-1] = 0;
+    me_hs01_[ism-1] = 0;
+    me_hs02_[ism-1] = 0;
+    me_hs03_[ism-1] = 0;
+    me_hs04_[ism-1] = 0;
+    me_hs05_[ism-1] = 0;
+    me_hs06_[ism-1] = 0;
+    me_hs07_[ism-1] = 0;
+    me_hs08_[ism-1] = 0;
 
   }
 
@@ -254,16 +222,16 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
 
   amplitudeThresholdPnG01_ = 50.;
   amplitudeThresholdPnG16_ = 50.;
-  
+
   pedPnExpectedMean_[0] = 750.0;
   pedPnExpectedMean_[1] = 750.0;
-  
+
   pedPnDiscrepancyMean_[0] = 100.0;
   pedPnDiscrepancyMean_[1] = 100.0;
-  
+
   pedPnRMSThreshold_[0] = 1.0; // value at h4; expected nominal: 0.5
   pedPnRMSThreshold_[1] = 3.0; // value at h4; expected nominal: 1.6
-  
+
 }
 
 EELaserClient::~EELaserClient(){
@@ -279,264 +247,6 @@ void EELaserClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EELT laser quality %s L1A", Numbers::sEE(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L2A", Numbers::sEE(ism).c_str());
-      qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L3A", Numbers::sEE(ism).c_str());
-      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L4A", Numbers::sEE(ism).c_str());
-      qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L1B", Numbers::sEE(ism).c_str());
-      qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L2B", Numbers::sEE(ism).c_str());
-      qth06_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L3B", Numbers::sEE(ism).c_str());
-      qth07_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser quality %s L4B", Numbers::sEE(ism).c_str());
-      qth08_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L1 G01", Numbers::sEE(ism).c_str());
-      qth09_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L2 G01", Numbers::sEE(ism).c_str());
-      qth10_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L3 G01", Numbers::sEE(ism).c_str());
-      qth11_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L4 G01", Numbers::sEE(ism).c_str());
-      qth12_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L1 G01", Numbers::sEE(ism).c_str());
-      qth13_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L2 G01", Numbers::sEE(ism).c_str());
-      qth14_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L3 G01", Numbers::sEE(ism).c_str());
-      qth15_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L4 G01", Numbers::sEE(ism).c_str());
-      qth16_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L1 G16", Numbers::sEE(ism).c_str());
-      qth17_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L2 G16", Numbers::sEE(ism).c_str());
-      qth18_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L3 G16", Numbers::sEE(ism).c_str());
-      qth19_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser amplitude quality PNs %s L4 G16", Numbers::sEE(ism).c_str());
-      qth20_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L1 G16", Numbers::sEE(ism).c_str());
-      qth21_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L2 G16", Numbers::sEE(ism).c_str());
-      qth22_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L3 G16", Numbers::sEE(ism).c_str());
-      qth23_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT laser pedestal quality PNs %s L4 G16", Numbers::sEE(ism).c_str());
-      qth24_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qth01_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth02_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth03_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth04_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth05_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth06_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth07_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth08_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-
-      qth09_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth10_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth11_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth12_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth13_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qth14_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qth15_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qth16_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qth17_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth18_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth19_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth20_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth21_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-      qth22_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-      qth23_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-      qth24_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-      qth01_[ism-1]->setMeanTolerance(percentVariation_);
-      qth02_[ism-1]->setMeanTolerance(percentVariation_);
-      qth03_[ism-1]->setMeanTolerance(percentVariation_);
-      qth04_[ism-1]->setMeanTolerance(percentVariation_);
-      qth05_[ism-1]->setMeanTolerance(percentVariation_);
-      qth06_[ism-1]->setMeanTolerance(percentVariation_);
-      qth07_[ism-1]->setMeanTolerance(percentVariation_);
-      qth08_[ism-1]->setMeanTolerance(percentVariation_);
-
-      qth09_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth10_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth11_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth12_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth13_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qth14_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qth15_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qth16_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qth17_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth18_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth19_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth20_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth21_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-      qth22_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-      qth23_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-      qth24_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-      qth01_[ism-1]->setMinimumEntries(10*1700);
-      qth02_[ism-1]->setMinimumEntries(10*1700);
-      qth03_[ism-1]->setMinimumEntries(10*1700);
-      qth04_[ism-1]->setMinimumEntries(10*1700);
-      qth05_[ism-1]->setMinimumEntries(10*1700);
-      qth06_[ism-1]->setMinimumEntries(10*1700);
-      qth07_[ism-1]->setMinimumEntries(10*1700);
-      qth08_[ism-1]->setMinimumEntries(10*1700);
-
-      qth09_[ism-1]->setMinimumEntries(10*10);
-      qth10_[ism-1]->setMinimumEntries(10*10);
-      qth11_[ism-1]->setMinimumEntries(10*10);
-      qth12_[ism-1]->setMinimumEntries(10*10);
-      qth13_[ism-1]->setMinimumEntries(10*10);
-      qth14_[ism-1]->setMinimumEntries(10*10);
-      qth15_[ism-1]->setMinimumEntries(10*10);
-      qth16_[ism-1]->setMinimumEntries(10*10);
-      qth17_[ism-1]->setMinimumEntries(10*10);
-      qth18_[ism-1]->setMinimumEntries(10*10);
-      qth19_[ism-1]->setMinimumEntries(10*10);
-      qth20_[ism-1]->setMinimumEntries(10*10);
-      qth21_[ism-1]->setMinimumEntries(10*10);
-      qth22_[ism-1]->setMinimumEntries(10*10);
-      qth23_[ism-1]->setMinimumEntries(10*10);
-      qth24_[ism-1]->setMinimumEntries(10*10);
-
-      qth01_[ism-1]->setErrorProb(1.00);
-      qth02_[ism-1]->setErrorProb(1.00);
-      qth03_[ism-1]->setErrorProb(1.00);
-      qth04_[ism-1]->setErrorProb(1.00);
-      qth05_[ism-1]->setErrorProb(1.00);
-      qth06_[ism-1]->setErrorProb(1.00);
-      qth07_[ism-1]->setErrorProb(1.00);
-      qth08_[ism-1]->setErrorProb(1.00);
-
-      qth09_[ism-1]->setErrorProb(1.00);
-      qth10_[ism-1]->setErrorProb(1.00);
-      qth11_[ism-1]->setErrorProb(1.00);
-      qth12_[ism-1]->setErrorProb(1.00);
-      qth13_[ism-1]->setErrorProb(1.00);
-      qth14_[ism-1]->setErrorProb(1.00);
-      qth15_[ism-1]->setErrorProb(1.00);
-      qth16_[ism-1]->setErrorProb(1.00);
-      qth17_[ism-1]->setErrorProb(1.00);
-      qth18_[ism-1]->setErrorProb(1.00);
-      qth19_[ism-1]->setErrorProb(1.00);
-      qth20_[ism-1]->setErrorProb(1.00);
-      qth21_[ism-1]->setErrorProb(1.00);
-      qth22_[ism-1]->setErrorProb(1.00);
-      qth23_[ism-1]->setErrorProb(1.00);
-      qth24_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EELT quality test %s L1", Numbers::sEE(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test %s L2", Numbers::sEE(ism).c_str());
-      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test %s L3", Numbers::sEE(ism).c_str());
-      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test %s L4", Numbers::sEE(ism).c_str());
-      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg01_[ism-1]->setMeanRange(1., 6.);
-      qtg02_[ism-1]->setMeanRange(1., 6.);
-      qtg03_[ism-1]->setMeanRange(1., 6.);
-      qtg04_[ism-1]->setMeanRange(1., 6.);
-
-      qtg01_[ism-1]->setErrorProb(1.00);
-      qtg02_[ism-1]->setErrorProb(1.00);
-      qtg03_[ism-1]->setErrorProb(1.00);
-      qtg04_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EELT quality test PNs %s L1 G01", Numbers::sEE(ism).c_str());
-      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L2 G01", Numbers::sEE(ism).c_str());
-      qtg06_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L3 G01", Numbers::sEE(ism).c_str());
-      qtg07_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L4 G01", Numbers::sEE(ism).c_str());
-      qtg08_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L1 G16", Numbers::sEE(ism).c_str());
-      qtg09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L2 G16", Numbers::sEE(ism).c_str());
-      qtg10_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L3 G16", Numbers::sEE(ism).c_str());
-      qtg11_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELT quality test PNs %s L4 G16", Numbers::sEE(ism).c_str());
-      qtg12_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg05_[ism-1]->setMeanRange(1., 6.);
-      qtg06_[ism-1]->setMeanRange(1., 6.);
-      qtg07_[ism-1]->setMeanRange(1., 6.);
-      qtg08_[ism-1]->setMeanRange(1., 6.);
-      qtg09_[ism-1]->setMeanRange(1., 6.);
-      qtg10_[ism-1]->setMeanRange(1., 6.);
-      qtg11_[ism-1]->setMeanRange(1., 6.);
-      qtg12_[ism-1]->setMeanRange(1., 6.);
-
-      qtg05_[ism-1]->setErrorProb(1.00);
-      qtg06_[ism-1]->setErrorProb(1.00);
-      qtg07_[ism-1]->setErrorProb(1.00);
-      qtg08_[ism-1]->setErrorProb(1.00);
-      qtg09_[ism-1]->setErrorProb(1.00);
-      qtg10_[ism-1]->setErrorProb(1.00);
-      qtg11_[ism-1]->setErrorProb(1.00);
-      qtg12_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -585,190 +295,327 @@ void EELaserClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L1 %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg01_[ism-1]->setAxisTitle("ix", 1);
+    meg01_[ism-1]->setAxisTitle("iy", 2);
     if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L2 %s", Numbers::sEE(ism).c_str());
     meg02_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg02_[ism-1]->setAxisTitle("ix", 1);
+    meg02_[ism-1]->setAxisTitle("iy", 2);
     if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L3 %s", Numbers::sEE(ism).c_str());
     meg03_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg03_[ism-1]->setAxisTitle("ix", 1);
+    meg03_[ism-1]->setAxisTitle("iy", 2);
     if ( meg04_[ism-1] ) dbe_->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L4 %s", Numbers::sEE(ism).c_str());
     meg04_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg04_[ism-1]->setAxisTitle("ix", 1);
+    meg04_[ism-1]->setAxisTitle("iy", 2);
 
     if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L1 PNs %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L1 PNs G01 %s", Numbers::sEE(ism).c_str());
     meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg05_[ism-1]->setAxisTitle("channel", 2);
     if ( meg06_[ism-1] ) dbe_->removeElement( meg06_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L2 PNs %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L2 PNs G01 %s", Numbers::sEE(ism).c_str());
     meg06_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg06_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg06_[ism-1]->setAxisTitle("channel", 2);
     if ( meg07_[ism-1] ) dbe_->removeElement( meg07_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L3 PNs %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L3 PNs G01 %s", Numbers::sEE(ism).c_str());
     meg07_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg07_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg07_[ism-1]->setAxisTitle("channel", 2);
     if ( meg08_[ism-1] ) dbe_->removeElement( meg08_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L4 PNs %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L4 PNs G01 %s", Numbers::sEE(ism).c_str());
     meg08_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg08_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg08_[ism-1]->setAxisTitle("channel", 2);
     if ( meg09_[ism-1] ) dbe_->removeElement( meg09_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L1 PNs %s G16", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L1 PNs G16 %s", Numbers::sEE(ism).c_str());
     meg09_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg09_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg09_[ism-1]->setAxisTitle("channel", 2);
     if ( meg10_[ism-1] ) dbe_->removeElement( meg10_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L2 PNs %s G16", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L2 PNs G16 %s", Numbers::sEE(ism).c_str());
     meg10_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg10_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg10_[ism-1]->setAxisTitle("channel", 2);
     if ( meg11_[ism-1] ) dbe_->removeElement( meg11_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L3 PNs %s G16", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L3 PNs G16 %s", Numbers::sEE(ism).c_str());
     meg11_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg11_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg11_[ism-1]->setAxisTitle("channel", 2);
     if ( meg12_[ism-1] ) dbe_->removeElement( meg12_[ism-1]->getName() );
-    sprintf(histo, "EELT laser quality L4 PNs %s G16", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser quality L4 PNs G16 %s", Numbers::sEE(ism).c_str());
     meg12_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg12_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg12_[ism-1]->setAxisTitle("channel", 2);
 
     if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );;
     sprintf(histo, "EELT amplitude L1A %s", Numbers::sEE(ism).c_str());
-    mea01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea01_[ism-1]->setAxisTitle("channel", 1);
+    mea01_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea02_[ism-1] ) dbe_->removeElement( mea02_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude L2A %s", Numbers::sEE(ism).c_str());
-    mea02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea02_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea02_[ism-1]->setAxisTitle("channel", 1);
+    mea02_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea03_[ism-1] ) dbe_->removeElement( mea03_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude L3A %s", Numbers::sEE(ism).c_str());
-    mea03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea03_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea03_[ism-1]->setAxisTitle("channel", 1);
+    mea03_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea04_[ism-1] ) dbe_->removeElement( mea04_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude L4A %s", Numbers::sEE(ism).c_str());
-    mea04_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea04_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea04_[ism-1]->setAxisTitle("channel", 1);
+    mea04_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea05_[ism-1] ) dbe_->removeElement( mea05_[ism-1]->getName() );;
     sprintf(histo, "EELT amplitude L1B %s", Numbers::sEE(ism).c_str());
-    mea05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea05_[ism-1]->setAxisTitle("channel", 1);
+    mea05_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea06_[ism-1] ) dbe_->removeElement( mea06_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude L2B %s", Numbers::sEE(ism).c_str());
-    mea06_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea06_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea06_[ism-1]->setAxisTitle("channel", 1);
+    mea06_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea07_[ism-1] ) dbe_->removeElement( mea07_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude L3B %s", Numbers::sEE(ism).c_str());
-    mea07_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea07_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea07_[ism-1]->setAxisTitle("channel", 1);
+    mea07_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea08_[ism-1] ) dbe_->removeElement( mea08_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude L4B %s", Numbers::sEE(ism).c_str());
-    mea08_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea08_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea08_[ism-1]->setAxisTitle("channel", 1);
+    mea08_[ism-1]->setAxisTitle("amplitude", 2);
 
     if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L1A %s", Numbers::sEE(ism).c_str());
-    met01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    sprintf(histo, "EELT laser timing L1A %s", Numbers::sEE(ism).c_str());
+    met01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met01_[ism-1]->setAxisTitle("channel", 1);
+    met01_[ism-1]->setAxisTitle("jitter", 2);
     if ( met02_[ism-1] ) dbe_->removeElement( met02_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L2A %s", Numbers::sEE(ism).c_str());
-    met02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    sprintf(histo, "EELT laser timing L2A %s", Numbers::sEE(ism).c_str());
+    met02_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met02_[ism-1]->setAxisTitle("channel", 1);
+    met02_[ism-1]->setAxisTitle("jitter", 2);
     if ( met03_[ism-1] ) dbe_->removeElement( met03_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L3A %s", Numbers::sEE(ism).c_str());
-    met03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    sprintf(histo, "EELT laser timing L3A %s", Numbers::sEE(ism).c_str());
+    met03_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met03_[ism-1]->setAxisTitle("channel", 1);
+    met03_[ism-1]->setAxisTitle("jitter", 2);
     if ( met04_[ism-1] ) dbe_->removeElement( met04_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L4A %s", Numbers::sEE(ism).c_str());
-    met04_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    sprintf(histo, "EELT laser timing L4A %s", Numbers::sEE(ism).c_str());
+    met04_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met04_[ism-1]->setAxisTitle("channel", 1);
+    met04_[ism-1]->setAxisTitle("jitter", 2);
     if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L1B %s", Numbers::sEE(ism).c_str());
-    met05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    sprintf(histo, "EELT laser timing L1B %s", Numbers::sEE(ism).c_str());
+    met05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met05_[ism-1]->setAxisTitle("channel", 1);
+    met05_[ism-1]->setAxisTitle("jitter", 2);
     if ( met06_[ism-1] ) dbe_->removeElement( met06_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L2B %s", Numbers::sEE(ism).c_str());
-    met06_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    sprintf(histo, "EELT laser timing L2B %s", Numbers::sEE(ism).c_str());
+    met06_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met06_[ism-1]->setAxisTitle("channel", 1);
+    met06_[ism-1]->setAxisTitle("jitter", 2);
     if ( met07_[ism-1] ) dbe_->removeElement( met07_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L3B %s", Numbers::sEE(ism).c_str());
-    met07_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    sprintf(histo, "EELT laser timing L3B %s", Numbers::sEE(ism).c_str());
+    met07_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met07_[ism-1]->setAxisTitle("channel", 1);
+    met07_[ism-1]->setAxisTitle("jitter", 2);
     if ( met08_[ism-1] ) dbe_->removeElement( met08_[ism-1]->getName() );
-    sprintf(histo, "EELT timing L4B %s", Numbers::sEE(ism).c_str());
-    met08_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    sprintf(histo, "EELT laser timing L4B %s", Numbers::sEE(ism).c_str());
+    met08_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met08_[ism-1]->setAxisTitle("channel", 1);
+    met08_[ism-1]->setAxisTitle("jitter", 2);
 
     if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L1A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing mean L1A %s", Numbers::sEE(ism).c_str());
     metav01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav01_[ism-1]->setAxisTitle("mean", 1);
     if ( metav02_[ism-1] ) dbe_->removeElement( metav02_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L2A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing mean L2A %s", Numbers::sEE(ism).c_str());
     metav02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav02_[ism-1]->setAxisTitle("mean", 1);
     if ( metav03_[ism-1] ) dbe_->removeElement( metav03_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L3A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing mean L3A %s", Numbers::sEE(ism).c_str());
     metav03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav03_[ism-1]->setAxisTitle("mean", 1);
     if ( metav04_[ism-1] ) dbe_->removeElement( metav04_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L4A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing mean L4A %s", Numbers::sEE(ism).c_str());
     metav04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav04_[ism-1]->setAxisTitle("mean", 1);
     if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L1B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing mean L1B %s", Numbers::sEE(ism).c_str());
     metav05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav05_[ism-1]->setAxisTitle("mean", 1);
     if ( metav06_[ism-1] ) dbe_->removeElement( metav06_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L2B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing mean L2B %s", Numbers::sEE(ism).c_str());
     metav06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav06_[ism-1]->setAxisTitle("mean", 1);
     if ( metav07_[ism-1] ) dbe_->removeElement( metav07_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L3B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing mean L3B %s", Numbers::sEE(ism).c_str());
     metav07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav07_[ism-1]->setAxisTitle("mean", 1);
     if ( metav08_[ism-1] ) dbe_->removeElement( metav08_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean L4B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing mean L4B %s", Numbers::sEE(ism).c_str());
     metav08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav08_[ism-1]->setAxisTitle("mean", 1);
 
     if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L1A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing rms L1A %s", Numbers::sEE(ism).c_str());
     metrms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms01_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms02_[ism-1] ) dbe_->removeElement( metrms02_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L2A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing rms L2A %s", Numbers::sEE(ism).c_str());
     metrms02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms02_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms03_[ism-1] ) dbe_->removeElement( metrms03_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L3A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing rms L3A %s", Numbers::sEE(ism).c_str());
     metrms03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms03_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms04_[ism-1] ) dbe_->removeElement( metrms04_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L4A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing rms L4A %s", Numbers::sEE(ism).c_str());
     metrms04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms04_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L1B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing rms L1B %s", Numbers::sEE(ism).c_str());
     metrms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms05_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms06_[ism-1] ) dbe_->removeElement( metrms06_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L2B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing rms L2B %s", Numbers::sEE(ism).c_str());
     metrms06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms06_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms07_[ism-1] ) dbe_->removeElement( metrms07_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L3B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing rms L3B %s", Numbers::sEE(ism).c_str());
     metrms07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms07_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms08_[ism-1] ) dbe_->removeElement( metrms08_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms L4B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELT laser timing rms L4B %s", Numbers::sEE(ism).c_str());
     metrms08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms08_[ism-1]->setAxisTitle("rms", 1);
 
     if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L1A %s", Numbers::sEE(ism).c_str());
-    meaopn01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn01_[ism-1]->setAxisTitle("channel", 1);
+    meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn02_[ism-1] ) dbe_->removeElement( meaopn02_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L2A %s", Numbers::sEE(ism).c_str());
-    meaopn02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn02_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn02_[ism-1]->setAxisTitle("channel", 1);
+    meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn03_[ism-1] ) dbe_->removeElement( meaopn03_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L3A %s", Numbers::sEE(ism).c_str());
-    meaopn03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn03_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn03_[ism-1]->setAxisTitle("channel", 1);
+    meaopn03_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn04_[ism-1] ) dbe_->removeElement( meaopn04_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L4A %s", Numbers::sEE(ism).c_str());
-    meaopn04_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn04_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn04_[ism-1]->setAxisTitle("channel", 1);
+    meaopn04_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn05_[ism-1] ) dbe_->removeElement( meaopn05_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L1B %s", Numbers::sEE(ism).c_str());
-    meaopn05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn05_[ism-1]->setAxisTitle("channel", 1);
+    meaopn05_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn06_[ism-1] ) dbe_->removeElement( meaopn06_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L2B %s", Numbers::sEE(ism).c_str());
-    meaopn06_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn06_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn06_[ism-1]->setAxisTitle("channel", 1);
+    meaopn06_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn07_[ism-1] ) dbe_->removeElement( meaopn07_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L3B %s", Numbers::sEE(ism).c_str());
-    meaopn07_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn07_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn07_[ism-1]->setAxisTitle("channel", 1);
+    meaopn07_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn08_[ism-1] ) dbe_->removeElement( meaopn08_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L4B %s", Numbers::sEE(ism).c_str());
-    meaopn08_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
-    
+    meaopn08_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn08_[ism-1]->setAxisTitle("channel", 1);
+    meaopn08_[ism-1]->setAxisTitle("amplitude/PN", 2);
+
     if ( mepnprms01_[ism-1] ) dbe_->removeElement( mepnprms01_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
     mepnprms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms01_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms02_[ism-1] ) dbe_->removeElement( mepnprms02_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01 L2", Numbers::sEE(ism).c_str());
     mepnprms02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms02_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms03_[ism-1] ) dbe_->removeElement( mepnprms03_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01 L3", Numbers::sEE(ism).c_str());
     mepnprms03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms03_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms04_[ism-1] ) dbe_->removeElement( mepnprms04_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01 L4", Numbers::sEE(ism).c_str());
     mepnprms04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms04_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16 L1", Numbers::sEE(ism).c_str());
     mepnprms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms05_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms06_[ism-1] ) dbe_->removeElement( mepnprms06_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16 L2", Numbers::sEE(ism).c_str());
     mepnprms06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms06_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms07_[ism-1] ) dbe_->removeElement( mepnprms07_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16 L3", Numbers::sEE(ism).c_str());
     mepnprms07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms07_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms08_[ism-1] ) dbe_->removeElement( mepnprms08_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16 L4", Numbers::sEE(ism).c_str());
     mepnprms08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms08_[ism-1]->setAxisTitle("rms", 1);
+
+    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L1A %s", Numbers::sEE(ism).c_str());
+    me_hs01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs01_[ism-1]->setAxisTitle("sample", 1);
+    me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L2A %s", Numbers::sEE(ism).c_str());
+    me_hs02_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs02_[ism-1]->setAxisTitle("sample", 1);
+    me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs03_[ism-1] ) dbe_->removeElement( me_hs03_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L3A %s", Numbers::sEE(ism).c_str());
+    me_hs03_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs03_[ism-1]->setAxisTitle("sample", 1);
+    me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs04_[ism-1] ) dbe_->removeElement( me_hs04_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L4A %s", Numbers::sEE(ism).c_str());
+    me_hs04_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs04_[ism-1]->setAxisTitle("sample", 1);
+    me_hs04_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs05_[ism-1] ) dbe_->removeElement( me_hs05_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L1B %s", Numbers::sEE(ism).c_str());
+    me_hs05_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs05_[ism-1]->setAxisTitle("sample", 1);
+    me_hs05_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs06_[ism-1] ) dbe_->removeElement( me_hs06_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L2B %s", Numbers::sEE(ism).c_str());
+    me_hs06_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs06_[ism-1]->setAxisTitle("sample", 1);
+    me_hs06_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs07_[ism-1] ) dbe_->removeElement( me_hs07_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L3B %s", Numbers::sEE(ism).c_str());
+    me_hs07_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs07_[ism-1]->setAxisTitle("sample", 1);
+    me_hs07_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs08_[ism-1] ) dbe_->removeElement( me_hs08_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L4B %s", Numbers::sEE(ism).c_str());
+    me_hs08_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs08_[ism-1]->setAxisTitle("sample", 1);
+    me_hs08_[ism-1]->setAxisTitle("amplitude", 2);
 
   }
 
@@ -776,19 +623,19 @@ void EELaserClient::setup(void) {
 
     int ism = superModules_[i];
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
-    UtilsClient::resetHisto( meg03_[ism-1] );
-    UtilsClient::resetHisto( meg04_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
+    meg03_[ism-1]->Reset();
+    meg04_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( meg05_[ism-1] );
-    UtilsClient::resetHisto( meg06_[ism-1] );
-    UtilsClient::resetHisto( meg07_[ism-1] );
-    UtilsClient::resetHisto( meg08_[ism-1] );
-    UtilsClient::resetHisto( meg09_[ism-1] );
-    UtilsClient::resetHisto( meg10_[ism-1] );
-    UtilsClient::resetHisto( meg11_[ism-1] );
-    UtilsClient::resetHisto( meg12_[ism-1] );
+    meg05_[ism-1]->Reset();
+    meg06_[ism-1]->Reset();
+    meg07_[ism-1]->Reset();
+    meg08_[ism-1]->Reset();
+    meg09_[ism-1]->Reset();
+    meg10_[ism-1]->Reset();
+    meg11_[ism-1]->Reset();
+    meg12_[ism-1]->Reset();
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -826,60 +673,69 @@ void EELaserClient::setup(void) {
 
     }
 
-    UtilsClient::resetHisto( mea01_[ism-1] );
-    UtilsClient::resetHisto( mea02_[ism-1] );
-    UtilsClient::resetHisto( mea03_[ism-1] );
-    UtilsClient::resetHisto( mea04_[ism-1] );
-    UtilsClient::resetHisto( mea05_[ism-1] );
-    UtilsClient::resetHisto( mea06_[ism-1] );
-    UtilsClient::resetHisto( mea07_[ism-1] );
-    UtilsClient::resetHisto( mea08_[ism-1] );
+    mea01_[ism-1]->Reset();
+    mea02_[ism-1]->Reset();
+    mea03_[ism-1]->Reset();
+    mea04_[ism-1]->Reset();
+    mea05_[ism-1]->Reset();
+    mea06_[ism-1]->Reset();
+    mea07_[ism-1]->Reset();
+    mea08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( met01_[ism-1] );
-    UtilsClient::resetHisto( met02_[ism-1] );
-    UtilsClient::resetHisto( met03_[ism-1] );
-    UtilsClient::resetHisto( met04_[ism-1] );
-    UtilsClient::resetHisto( met05_[ism-1] );
-    UtilsClient::resetHisto( met06_[ism-1] );
-    UtilsClient::resetHisto( met07_[ism-1] );
-    UtilsClient::resetHisto( met08_[ism-1] );
+    met01_[ism-1]->Reset();
+    met02_[ism-1]->Reset();
+    met03_[ism-1]->Reset();
+    met04_[ism-1]->Reset();
+    met05_[ism-1]->Reset();
+    met06_[ism-1]->Reset();
+    met07_[ism-1]->Reset();
+    met08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( metav01_[ism-1] );
-    UtilsClient::resetHisto( metav02_[ism-1] );
-    UtilsClient::resetHisto( metav03_[ism-1] );
-    UtilsClient::resetHisto( metav04_[ism-1] );
-    UtilsClient::resetHisto( metav05_[ism-1] );
-    UtilsClient::resetHisto( metav06_[ism-1] );
-    UtilsClient::resetHisto( metav07_[ism-1] );
-    UtilsClient::resetHisto( metav08_[ism-1] );
+    metav01_[ism-1]->Reset();
+    metav02_[ism-1]->Reset();
+    metav03_[ism-1]->Reset();
+    metav04_[ism-1]->Reset();
+    metav05_[ism-1]->Reset();
+    metav06_[ism-1]->Reset();
+    metav07_[ism-1]->Reset();
+    metav08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( metrms01_[ism-1] );
-    UtilsClient::resetHisto( metrms02_[ism-1] );
-    UtilsClient::resetHisto( metrms03_[ism-1] );
-    UtilsClient::resetHisto( metrms04_[ism-1] );
-    UtilsClient::resetHisto( metrms05_[ism-1] );
-    UtilsClient::resetHisto( metrms06_[ism-1] );
-    UtilsClient::resetHisto( metrms07_[ism-1] );
-    UtilsClient::resetHisto( metrms08_[ism-1] );
+    metrms01_[ism-1]->Reset();
+    metrms02_[ism-1]->Reset();
+    metrms03_[ism-1]->Reset();
+    metrms04_[ism-1]->Reset();
+    metrms05_[ism-1]->Reset();
+    metrms06_[ism-1]->Reset();
+    metrms07_[ism-1]->Reset();
+    metrms08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( meaopn01_[ism-1] );
-    UtilsClient::resetHisto( meaopn02_[ism-1] );
-    UtilsClient::resetHisto( meaopn03_[ism-1] );
-    UtilsClient::resetHisto( meaopn04_[ism-1] );
-    UtilsClient::resetHisto( meaopn05_[ism-1] );
-    UtilsClient::resetHisto( meaopn06_[ism-1] );
-    UtilsClient::resetHisto( meaopn07_[ism-1] );
-    UtilsClient::resetHisto( meaopn08_[ism-1] );
-    
-    UtilsClient::resetHisto( mepnprms01_[ism-1] );
-    UtilsClient::resetHisto( mepnprms02_[ism-1] );
-    UtilsClient::resetHisto( mepnprms03_[ism-1] );
-    UtilsClient::resetHisto( mepnprms04_[ism-1] );
-    UtilsClient::resetHisto( mepnprms05_[ism-1] );
-    UtilsClient::resetHisto( mepnprms06_[ism-1] );
-    UtilsClient::resetHisto( mepnprms07_[ism-1] );
-    UtilsClient::resetHisto( mepnprms08_[ism-1] );
-    
+    meaopn01_[ism-1]->Reset();
+    meaopn02_[ism-1]->Reset();
+    meaopn03_[ism-1]->Reset();
+    meaopn04_[ism-1]->Reset();
+    meaopn05_[ism-1]->Reset();
+    meaopn06_[ism-1]->Reset();
+    meaopn07_[ism-1]->Reset();
+    meaopn08_[ism-1]->Reset();
+
+    mepnprms01_[ism-1]->Reset();
+    mepnprms02_[ism-1]->Reset();
+    mepnprms03_[ism-1]->Reset();
+    mepnprms04_[ism-1]->Reset();
+    mepnprms05_[ism-1]->Reset();
+    mepnprms06_[ism-1]->Reset();
+    mepnprms07_[ism-1]->Reset();
+    mepnprms08_[ism-1]->Reset();
+
+    me_hs01_[ism-1]->Reset();
+    me_hs02_[ism-1]->Reset();
+    me_hs03_[ism-1]->Reset();
+    me_hs04_[ism-1]->Reset();
+    me_hs05_[ism-1]->Reset();
+    me_hs06_[ism-1]->Reset();
+    me_hs07_[ism-1]->Reset();
+    me_hs08_[ism-1]->Reset();
+
   }
 
 }
@@ -1140,6 +996,23 @@ void EELaserClient::cleanup(void) {
     if ( mepnprms08_[ism-1] ) dbe_->removeElement( mepnprms08_[ism-1]->getName() );
     mepnprms08_[ism-1] = 0;
 
+    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    me_hs01_[ism-1] = 0;
+    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
+    me_hs02_[ism-1] = 0;
+    if ( me_hs03_[ism-1] ) dbe_->removeElement( me_hs03_[ism-1]->getName() );
+    me_hs03_[ism-1] = 0;
+    if ( me_hs04_[ism-1] ) dbe_->removeElement( me_hs04_[ism-1]->getName() );
+    me_hs04_[ism-1] = 0;
+    if ( me_hs05_[ism-1] ) dbe_->removeElement( me_hs05_[ism-1]->getName() );
+    me_hs05_[ism-1] = 0;
+    if ( me_hs06_[ism-1] ) dbe_->removeElement( me_hs06_[ism-1]->getName() );
+    me_hs06_[ism-1] = 0;
+    if ( me_hs07_[ism-1] ) dbe_->removeElement( me_hs07_[ism-1]->getName() );
+    me_hs07_[ism-1] = 0;
+    if ( me_hs08_[ism-1] ) dbe_->removeElement( me_hs08_[ism-1]->getName() );
+    me_hs08_[ism-1] = 0;
+
   }
 
 }
@@ -1164,20 +1037,16 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     int ism = superModules_[i];
 
     cout << " SM=" << ism << endl;
+    cout << endl;
 
-    UtilsClient::printBadChannels(qth01_[ism-1]);
-    UtilsClient::printBadChannels(qth05_[ism-1]);
-    UtilsClient::printBadChannels(qth02_[ism-1]);
-    UtilsClient::printBadChannels(qth06_[ism-1]);
-    UtilsClient::printBadChannels(qth03_[ism-1]);
-    UtilsClient::printBadChannels(qth07_[ism-1]);
-    UtilsClient::printBadChannels(qth04_[ism-1]);
-    UtilsClient::printBadChannels(qth08_[ism-1]);
-
-//    UtilsClient::printBadChannels(qtg01_[ism-1]);
-//    UtilsClient::printBadChannels(qtg02_[ism-1]);
-//    UtilsClient::printBadChannels(qtg03_[ism-1]);
-//    UtilsClient::printBadChannels(qtg04_[ism-1]);
+    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
+    UtilsClient::printBadChannels(meg01_[ism-1], h13_[ism-1]);
+    UtilsClient::printBadChannels(meg02_[ism-1], h03_[ism-1]);
+    UtilsClient::printBadChannels(meg02_[ism-1], h15_[ism-1]);
+    UtilsClient::printBadChannels(meg03_[ism-1], h05_[ism-1]);
+    UtilsClient::printBadChannels(meg03_[ism-1], h17_[ism-1]);
+    UtilsClient::printBadChannels(meg04_[ism-1], h07_[ism-1]);
+    UtilsClient::printBadChannels(meg04_[ism-1], h19_[ism-1]);
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -1198,9 +1067,22 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         bool update07;
         bool update08;
 
+        bool update09;
+        bool update10;
+        bool update11;
+        bool update12;
+        bool update13;
+        bool update14;
+        bool update15;
+        bool update16;
+
         float num01, num02, num03, num04, num05, num06, num07, num08;
         float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
         float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
+
+        float num09, num10, num11, num12, num13, num14, num15, num16;
+        float mean09, mean10, mean11, mean12, mean13, mean14, mean15, mean16;
+        float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
 
         update01 = UtilsClient::getBinStats(h01_[ism-1], ix, iy, num01, mean01, rms01);
         update02 = UtilsClient::getBinStats(h02_[ism-1], ix, iy, num02, mean02, rms02);
@@ -1211,22 +1093,14 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         update07 = UtilsClient::getBinStats(h07_[ism-1], ix, iy, num07, mean07, rms07);
         update08 = UtilsClient::getBinStats(h08_[ism-1], ix, iy, num08, mean08, rms08);
 
-        if ( ! update01 )
-          update01 = UtilsClient::getBinStats(h13_[ism-1], ix, iy, num01, mean01, rms01);
-        if ( ! update02 )
-          update02 = UtilsClient::getBinStats(h14_[ism-1], ix, iy, num02, mean02, rms02);
-        if ( ! update03 )
-          update03 = UtilsClient::getBinStats(h15_[ism-1], ix, iy, num03, mean03, rms03);
-        if ( ! update04 )
-          update04 = UtilsClient::getBinStats(h16_[ism-1], ix, iy, num04, mean04, rms04);
-        if ( ! update05 )
-          update05 = UtilsClient::getBinStats(h17_[ism-1], ix, iy, num05, mean05, rms05);
-        if ( ! update06 )
-          update06 = UtilsClient::getBinStats(h18_[ism-1], ix, iy, num06, mean06, rms06);
-        if ( ! update07 )
-          update07 = UtilsClient::getBinStats(h19_[ism-1], ix, iy, num07, mean07, rms07);
-        if ( ! update08 )
-          update08 = UtilsClient::getBinStats(h20_[ism-1], ix, iy, num08, mean08, rms08);
+        update09 = UtilsClient::getBinStats(h13_[ism-1], ix, iy, num09, mean09, rms09);
+        update10 = UtilsClient::getBinStats(h14_[ism-1], ix, iy, num10, mean10, rms10);
+        update11 = UtilsClient::getBinStats(h15_[ism-1], ix, iy, num11, mean11, rms11);
+        update12 = UtilsClient::getBinStats(h16_[ism-1], ix, iy, num12, mean12, rms12);
+        update13 = UtilsClient::getBinStats(h17_[ism-1], ix, iy, num13, mean13, rms13);
+        update14 = UtilsClient::getBinStats(h18_[ism-1], ix, iy, num14, mean14, rms14);
+        update15 = UtilsClient::getBinStats(h19_[ism-1], ix, iy, num15, mean15, rms15);
+        update16 = UtilsClient::getBinStats(h20_[ism-1], ix, iy, num16, mean16, rms16);
 
         if ( update01 || update02 ) {
 
@@ -1234,7 +1108,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
             cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "L1 (" << ix << "," << iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+            cout << "L1A (" << ix << "," << iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
 
             cout << endl;
 
@@ -1254,13 +1128,52 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              dataset1_bl[ecid] = apd_bl;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+        }
+
+        if ( update09 || update10 ) {
+
+          if ( ix == 1 && iy == 1 ) {
+
+            cout << "Preparing dataset for SM=" << ism << endl;
+
+            cout << "L1B (" << ix << "," << iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
+
+            cout << endl;
+
+          }
+
+          apd_bl.setAPDMean(mean09);
+          apd_bl.setAPDRMS(rms09);
+
+          apd_bl.setAPDOverPNMean(mean10);
+          apd_bl.setAPDOverPNRMS(rms10);
+
+          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ix, iy )) % 3 == 1. ) {
+            apd_bl.setTaskStatus(true);
+          } else {
+            apd_bl.setTaskStatus(false);
+          }
+
+          status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
+
+          int ic = Numbers::indexEE(ism, ix, iy);
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset1_bl[ecid] = apd_bl;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -1275,7 +1188,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
             cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "L2 (" << ix << "," << iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+            cout << "L2A (" << ix << "," << iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
 
             cout << endl;
 
@@ -1295,13 +1208,52 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg02_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              dataset1_ir[ecid] = apd_ir;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+        }
+
+        if ( update11 || update12 ) {
+
+          if ( ix == 1 && iy == 1 ) {
+
+            cout << "Preparing dataset for SM=" << ism << endl;
+
+            cout << "L2B (" << ix << "," << iy << ") " << num11 << " " << mean11 << " " << rms11 << endl;
+
+            cout << endl;
+
+          }
+
+          apd_ir.setAPDMean(mean11);
+          apd_ir.setAPDRMS(rms11);
+
+          apd_ir.setAPDOverPNMean(mean12);
+          apd_ir.setAPDOverPNRMS(rms12);
+
+          if ( meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ix, iy )) % 3 == 1. ) {
+            apd_ir.setTaskStatus(true);
+          } else {
+            apd_ir.setTaskStatus(false);
+          }
+
+          status = status && UtilsClient::getBinQual(meg02_[ism-1], ix, iy);
+
+          int ic = Numbers::indexEE(ism, ix, iy);
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset1_ir[ecid] = apd_ir;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -1316,7 +1268,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
             cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "L3 (" << ix << "," << iy << ") " << num05 << " " << mean05 << " " << rms05 << endl;
+            cout << "L3A (" << ix << "," << iy << ") " << num05 << " " << mean05 << " " << rms05 << endl;
 
             cout << endl;
 
@@ -1336,13 +1288,52 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              dataset1_gr[ecid] = apd_gr;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+        }
+
+        if ( update13 || update14 ) {
+
+          if ( ix == 1 && iy == 1 ) {
+
+            cout << "Preparing dataset for SM=" << ism << endl;
+
+            cout << "L3B (" << ix << "," << iy << ") " << num13 << " " << mean13 << " " << rms13 << endl;
+
+            cout << endl;
+
+          }
+
+          apd_gr.setAPDMean(mean13);
+          apd_gr.setAPDRMS(rms13);
+
+          apd_gr.setAPDOverPNMean(mean14);
+          apd_gr.setAPDOverPNRMS(rms14);
+
+          if ( meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ix, iy )) % 3 == 1. ) {
+            apd_gr.setTaskStatus(true);
+          } else {
+            apd_gr.setTaskStatus(false);
+          }
+
+          status = status && UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
+
+          int ic = Numbers::indexEE(ism, ix, iy);
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset1_gr[ecid] = apd_gr;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -1357,7 +1348,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
             cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "L4 (" << ix << "," << iy << ") " << num07 << " " << mean07 << " " << rms07 << endl;
+            cout << "L4A (" << ix << "," << iy << ") " << num07 << " " << mean07 << " " << rms07 << endl;
 
             cout << endl;
 
@@ -1377,13 +1368,52 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQual(meg04_[ism-1], ix, iy);
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, ix, iy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              dataset1_rd[ecid] = apd_rd;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+        }
+
+        if ( update15 || update16 ) {
+
+          if ( ix == 1 && iy == 1 ) {
+
+            cout << "Preparing dataset for SM=" << ism << endl;
+
+            cout << "L4B (" << ix << "," << iy << ") " << num15 << " " << mean15 << " " << rms15 << endl;
+
+            cout << endl;
+
+          }
+
+          apd_rd.setAPDMean(mean15);
+          apd_rd.setAPDRMS(rms15);
+
+          apd_rd.setAPDOverPNMean(mean16);
+          apd_rd.setAPDOverPNRMS(rms16);
+
+          if ( meg04_[ism-1] && int(meg04_[ism-1]->getBinContent( ix, iy )) % 3 == 1. ) {
+            apd_rd.setTaskStatus(true);
+          } else {
+            apd_rd.setTaskStatus(false);
+          }
+
+          status = status && UtilsClient::getBinQual(meg04_[ism-1], ix, iy);
+
+          int ic = Numbers::indexEE(ism, ix, iy);
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset1_rd[ecid] = apd_rd;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -1426,32 +1456,24 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     int ism = superModules_[i];
 
     cout << " SM=" << ism << endl;
+    cout << endl;
 
-    UtilsClient::printBadChannels(qth09_[ism-1]);
-    UtilsClient::printBadChannels(qth10_[ism-1]);
-    UtilsClient::printBadChannels(qth11_[ism-1]);
-    UtilsClient::printBadChannels(qth12_[ism-1]);
-    UtilsClient::printBadChannels(qth13_[ism-1]);
-    UtilsClient::printBadChannels(qth14_[ism-1]);
-    UtilsClient::printBadChannels(qth15_[ism-1]);
-    UtilsClient::printBadChannels(qth16_[ism-1]);
-    UtilsClient::printBadChannels(qth17_[ism-1]);
-    UtilsClient::printBadChannels(qth18_[ism-1]);
-    UtilsClient::printBadChannels(qth19_[ism-1]);
-    UtilsClient::printBadChannels(qth20_[ism-1]);
-    UtilsClient::printBadChannels(qth21_[ism-1]);
-    UtilsClient::printBadChannels(qth22_[ism-1]);
-    UtilsClient::printBadChannels(qth23_[ism-1]);
-    UtilsClient::printBadChannels(qth24_[ism-1]);
-
-//    UtilsClient::printBadChannels(qtg05_[ism-1]);
-//    UtilsClient::printBadChannels(qtg06_[ism-1]);
-//    UtilsClient::printBadChannels(qtg07_[ism-1]);
-//    UtilsClient::printBadChannels(qtg08_[ism-1]);
-//    UtilsClient::printBadChannels(qtg09_[ism-1]);
-//    UtilsClient::printBadChannels(qtg10_[ism-1]);
-//    UtilsClient::printBadChannels(qtg11_[ism-1]);
-//    UtilsClient::printBadChannels(qtg12_[ism-1]);
+    UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
+    UtilsClient::printBadChannels(meg05_[ism-1], i05_[ism-1]);
+    UtilsClient::printBadChannels(meg06_[ism-1], i02_[ism-1]);
+    UtilsClient::printBadChannels(meg06_[ism-1], i06_[ism-1]);
+    UtilsClient::printBadChannels(meg07_[ism-1], i03_[ism-1]);
+    UtilsClient::printBadChannels(meg07_[ism-1], i07_[ism-1]);
+    UtilsClient::printBadChannels(meg08_[ism-1], i04_[ism-1]);
+    UtilsClient::printBadChannels(meg08_[ism-1], i08_[ism-1]);
+    UtilsClient::printBadChannels(meg09_[ism-1], i09_[ism-1]);
+    UtilsClient::printBadChannels(meg09_[ism-1], i13_[ism-1]);
+    UtilsClient::printBadChannels(meg10_[ism-1], i10_[ism-1]);
+    UtilsClient::printBadChannels(meg10_[ism-1], i14_[ism-1]);
+    UtilsClient::printBadChannels(meg11_[ism-1], i11_[ism-1]);
+    UtilsClient::printBadChannels(meg11_[ism-1], i15_[ism-1]);
+    UtilsClient::printBadChannels(meg12_[ism-1], i12_[ism-1]);
+    UtilsClient::printBadChannels(meg12_[ism-1], i16_[ism-1]);
 
     for ( int i = 1; i <= 10; i++ ) {
 
@@ -1479,22 +1501,22 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
       float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
-      update05 = UtilsClient::getBinStats(i05_[ism-1], 1, i, num05, mean05, rms05);
-      update06 = UtilsClient::getBinStats(i06_[ism-1], 1, i, num06, mean06, rms06);
-      update07 = UtilsClient::getBinStats(i07_[ism-1], 1, i, num07, mean07, rms07);
-      update08 = UtilsClient::getBinStats(i08_[ism-1], 1, i, num08, mean08, rms08);
-      update09 = UtilsClient::getBinStats(i09_[ism-1], 1, i, num09, mean09, rms09);
-      update10 = UtilsClient::getBinStats(i10_[ism-1], 1, i, num10, mean10, rms10);
-      update11 = UtilsClient::getBinStats(i11_[ism-1], 1, i, num11, mean11, rms11);
-      update12 = UtilsClient::getBinStats(i12_[ism-1], 1, i, num12, mean12, rms12);
-      update13 = UtilsClient::getBinStats(i13_[ism-1], 1, i, num13, mean13, rms13);
-      update14 = UtilsClient::getBinStats(i14_[ism-1], 1, i, num14, mean14, rms14);
-      update15 = UtilsClient::getBinStats(i15_[ism-1], 1, i, num15, mean15, rms15);
-      update16 = UtilsClient::getBinStats(i16_[ism-1], 1, i, num16, mean16, rms16);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 0, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 0, num04, mean04, rms04);
+      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 0, num05, mean05, rms05);
+      update06 = UtilsClient::getBinStats(i06_[ism-1], i, 0, num06, mean06, rms06);
+      update07 = UtilsClient::getBinStats(i07_[ism-1], i, 0, num07, mean07, rms07);
+      update08 = UtilsClient::getBinStats(i08_[ism-1], i, 0, num08, mean08, rms08);
+      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 0, num09, mean09, rms09);
+      update10 = UtilsClient::getBinStats(i10_[ism-1], i, 0, num10, mean10, rms10);
+      update11 = UtilsClient::getBinStats(i11_[ism-1], i, 0, num11, mean11, rms11);
+      update12 = UtilsClient::getBinStats(i12_[ism-1], i, 0, num12, mean12, rms12);
+      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 0, num13, mean13, rms13);
+      update14 = UtilsClient::getBinStats(i14_[ism-1], i, 0, num14, mean14, rms14);
+      update15 = UtilsClient::getBinStats(i15_[ism-1], i, 0, num15, mean15, rms15);
+      update16 = UtilsClient::getBinStats(i16_[ism-1], i, 0, num16, mean16, rms16);
 
       if ( update01 || update05 || update09 || update13 ) {
 
@@ -1533,7 +1555,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
+            ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
             dataset2_bl[ecid] = pn_bl;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1579,7 +1601,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
+            ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
             dataset2_ir[ecid] = pn_ir;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1625,7 +1647,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
+            ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
             dataset2_gr[ecid] = pn_gr;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1671,7 +1693,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
+            ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
             dataset2_rd[ecid] = pn_rd;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1812,139 +1834,6 @@ void EELaserClient::subscribe(void){
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
-      if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
-      if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
-      if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
-      if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
-      if ( qth11_[ism-1] ) dbe_->useQTest(histo, qth11_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
-      if ( qth12_[ism-1] ) dbe_->useQTest(histo, qth12_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
-      if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
-      if ( qth14_[ism-1] ) dbe_->useQTest(histo, qth14_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
-      if ( qth15_[ism-1] ) dbe_->useQTest(histo, qth15_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
-      if ( qth16_[ism-1] ) dbe_->useQTest(histo, qth16_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
-      if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
-      if ( qth18_[ism-1] ) dbe_->useQTest(histo, qth18_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
-      if ( qth19_[ism-1] ) dbe_->useQTest(histo, qth19_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
-      if ( qth20_[ism-1] ) dbe_->useQTest(histo, qth20_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
-      if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
-      if ( qth22_[ism-1] ) dbe_->useQTest(histo, qth22_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
-      if ( qth23_[ism-1] ) dbe_->useQTest(histo, qth23_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
-      if ( qth24_[ism-1] ) dbe_->useQTest(histo, qth24_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
-      if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
-      if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
-      if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
-      if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
-      if ( qth11_[ism-1] ) dbe_->useQTest(histo, qth11_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
-      if ( qth12_[ism-1] ) dbe_->useQTest(histo, qth12_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
-      if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
-      if ( qth14_[ism-1] ) dbe_->useQTest(histo, qth14_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
-      if ( qth15_[ism-1] ) dbe_->useQTest(histo, qth15_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
-      if ( qth16_[ism-1] ) dbe_->useQTest(histo, qth16_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
-      if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
-      if ( qth18_[ism-1] ) dbe_->useQTest(histo, qth18_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
-      if ( qth19_[ism-1] ) dbe_->useQTest(histo, qth19_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
-      if ( qth20_[ism-1] ) dbe_->useQTest(histo, qth20_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
-      if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
-      if ( qth22_[ism-1] ) dbe_->useQTest(histo, qth22_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
-      if ( qth23_[ism-1] ) dbe_->useQTest(histo, qth23_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
-      if ( qth24_[ism-1] ) dbe_->useQTest(histo, qth24_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L1 %s", Numbers::sEE(ism).c_str());
-    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L2 %s", Numbers::sEE(ism).c_str());
-    if ( qtg02_[ism-1] ) dbe_->useQTest(histo, qtg02_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L3 %s", Numbers::sEE(ism).c_str());
-    if ( qtg03_[ism-1] ) dbe_->useQTest(histo, qtg03_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L4 %s", Numbers::sEE(ism).c_str());
-    if ( qtg04_[ism-1] ) dbe_->useQTest(histo, qtg04_[ism-1]->getName());
-
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L1 PNs %s G01", Numbers::sEE(ism).c_str());
-    if ( qtg05_[ism-1] ) dbe_->useQTest(histo, qtg05_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L2 PNs %s G01", Numbers::sEE(ism).c_str());
-    if ( qtg06_[ism-1] ) dbe_->useQTest(histo, qtg06_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L3 PNs %s G01", Numbers::sEE(ism).c_str());
-    if ( qtg07_[ism-1] ) dbe_->useQTest(histo, qtg07_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L4 PNs %s G01", Numbers::sEE(ism).c_str());
-    if ( qtg08_[ism-1] ) dbe_->useQTest(histo, qtg08_[ism-1]->getName());
-
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L1 PNs %s G16", Numbers::sEE(ism).c_str());
-    if ( qtg09_[ism-1] ) dbe_->useQTest(histo, qtg09_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L2 PNs %s G16", Numbers::sEE(ism).c_str());
-    if ( qtg10_[ism-1] ) dbe_->useQTest(histo, qtg10_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L3 PNs %s G16", Numbers::sEE(ism).c_str());
-    if ( qtg11_[ism-1] ) dbe_->useQTest(histo, qtg11_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L4 PNs %s G16", Numbers::sEE(ism).c_str());
-    if ( qtg12_[ism-1] ) dbe_->useQTest(histo, qtg12_[ism-1]->getName());
 
   }
 
@@ -2360,136 +2249,145 @@ void EELaserClient::analyze(void){
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
+    i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i03_[ism-1] );
+    i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
+    i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i05_[ism-1] );
+    i05_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i05_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i06_[ism-1] );
+    i06_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i06_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i07_[ism-1] );
+    i07_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i07_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i08_[ism-1] );
+    i08_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i08_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i09_[ism-1] );
+    i09_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i09_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i10_[ism-1] );
+    i10_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i10_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i11_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i11_[ism-1] );
+    i11_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i11_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i12_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i12_[ism-1] );
+    i12_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i12_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i13_[ism-1] );
+    i13_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i13_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i14_[ism-1] );
+    i14_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i14_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i15_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i15_[ism-1] );
+    i15_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i15_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i16_[ism-1] );
+    i16_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i16_[ism-1] );
 
-    UtilsClient::resetHisto( meg01_[ism-1] );
-    UtilsClient::resetHisto( meg02_[ism-1] );
-    UtilsClient::resetHisto( meg03_[ism-1] );
-    UtilsClient::resetHisto( meg04_[ism-1] );
+    meg01_[ism-1]->Reset();
+    meg02_[ism-1]->Reset();
+    meg03_[ism-1]->Reset();
+    meg04_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( meg05_[ism-1] );
-    UtilsClient::resetHisto( meg06_[ism-1] );
-    UtilsClient::resetHisto( meg07_[ism-1] );
-    UtilsClient::resetHisto( meg08_[ism-1] );
-    UtilsClient::resetHisto( meg09_[ism-1] );
-    UtilsClient::resetHisto( meg10_[ism-1] );
-    UtilsClient::resetHisto( meg11_[ism-1] );
-    UtilsClient::resetHisto( meg12_[ism-1] );
+    meg05_[ism-1]->Reset();
+    meg06_[ism-1]->Reset();
+    meg07_[ism-1]->Reset();
+    meg08_[ism-1]->Reset();
+    meg09_[ism-1]->Reset();
+    meg10_[ism-1]->Reset();
+    meg11_[ism-1]->Reset();
+    meg12_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( mea01_[ism-1] );
-    UtilsClient::resetHisto( mea02_[ism-1] );
-    UtilsClient::resetHisto( mea03_[ism-1] );
-    UtilsClient::resetHisto( mea04_[ism-1] );
-    UtilsClient::resetHisto( mea05_[ism-1] );
-    UtilsClient::resetHisto( mea06_[ism-1] );
-    UtilsClient::resetHisto( mea07_[ism-1] );
-    UtilsClient::resetHisto( mea08_[ism-1] );
+    mea01_[ism-1]->Reset();
+    mea02_[ism-1]->Reset();
+    mea03_[ism-1]->Reset();
+    mea04_[ism-1]->Reset();
+    mea05_[ism-1]->Reset();
+    mea06_[ism-1]->Reset();
+    mea07_[ism-1]->Reset();
+    mea08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( met01_[ism-1] );
-    UtilsClient::resetHisto( met02_[ism-1] );
-    UtilsClient::resetHisto( met03_[ism-1] );
-    UtilsClient::resetHisto( met04_[ism-1] );
-    UtilsClient::resetHisto( met05_[ism-1] );
-    UtilsClient::resetHisto( met06_[ism-1] );
-    UtilsClient::resetHisto( met07_[ism-1] );
-    UtilsClient::resetHisto( met08_[ism-1] );
+    met01_[ism-1]->Reset();
+    met02_[ism-1]->Reset();
+    met03_[ism-1]->Reset();
+    met04_[ism-1]->Reset();
+    met05_[ism-1]->Reset();
+    met06_[ism-1]->Reset();
+    met07_[ism-1]->Reset();
+    met08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( metav01_[ism-1] );
-    UtilsClient::resetHisto( metav02_[ism-1] );
-    UtilsClient::resetHisto( metav03_[ism-1] );
-    UtilsClient::resetHisto( metav04_[ism-1] );
-    UtilsClient::resetHisto( metav05_[ism-1] );
-    UtilsClient::resetHisto( metav06_[ism-1] );
-    UtilsClient::resetHisto( metav07_[ism-1] );
-    UtilsClient::resetHisto( metav08_[ism-1] );
+    metav01_[ism-1]->Reset();
+    metav02_[ism-1]->Reset();
+    metav03_[ism-1]->Reset();
+    metav04_[ism-1]->Reset();
+    metav05_[ism-1]->Reset();
+    metav06_[ism-1]->Reset();
+    metav07_[ism-1]->Reset();
+    metav08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( metrms01_[ism-1] );
-    UtilsClient::resetHisto( metrms02_[ism-1] );
-    UtilsClient::resetHisto( metrms03_[ism-1] );
-    UtilsClient::resetHisto( metrms04_[ism-1] );
-    UtilsClient::resetHisto( metrms05_[ism-1] );
-    UtilsClient::resetHisto( metrms06_[ism-1] );
-    UtilsClient::resetHisto( metrms07_[ism-1] );
-    UtilsClient::resetHisto( metrms08_[ism-1] );
+    metrms01_[ism-1]->Reset();
+    metrms02_[ism-1]->Reset();
+    metrms03_[ism-1]->Reset();
+    metrms04_[ism-1]->Reset();
+    metrms05_[ism-1]->Reset();
+    metrms06_[ism-1]->Reset();
+    metrms07_[ism-1]->Reset();
+    metrms08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( meaopn01_[ism-1] );
-    UtilsClient::resetHisto( meaopn02_[ism-1] );
-    UtilsClient::resetHisto( meaopn03_[ism-1] );
-    UtilsClient::resetHisto( meaopn04_[ism-1] );
-    UtilsClient::resetHisto( meaopn05_[ism-1] );
-    UtilsClient::resetHisto( meaopn06_[ism-1] );
-    UtilsClient::resetHisto( meaopn07_[ism-1] );
-    UtilsClient::resetHisto( meaopn08_[ism-1] );
+    meaopn01_[ism-1]->Reset();
+    meaopn02_[ism-1]->Reset();
+    meaopn03_[ism-1]->Reset();
+    meaopn04_[ism-1]->Reset();
+    meaopn05_[ism-1]->Reset();
+    meaopn06_[ism-1]->Reset();
+    meaopn07_[ism-1]->Reset();
+    meaopn08_[ism-1]->Reset();
 
-    UtilsClient::resetHisto( mepnprms01_[ism-1] );
-    UtilsClient::resetHisto( mepnprms02_[ism-1] );
-    UtilsClient::resetHisto( mepnprms03_[ism-1] );
-    UtilsClient::resetHisto( mepnprms04_[ism-1] );
-    UtilsClient::resetHisto( mepnprms05_[ism-1] );
-    UtilsClient::resetHisto( mepnprms06_[ism-1] );
-    UtilsClient::resetHisto( mepnprms07_[ism-1] );
-    UtilsClient::resetHisto( mepnprms08_[ism-1] );
-    
+    mepnprms01_[ism-1]->Reset();
+    mepnprms02_[ism-1]->Reset();
+    mepnprms03_[ism-1]->Reset();
+    mepnprms04_[ism-1]->Reset();
+    mepnprms05_[ism-1]->Reset();
+    mepnprms06_[ism-1]->Reset();
+    mepnprms07_[ism-1]->Reset();
+    mepnprms08_[ism-1]->Reset();
+
+    me_hs01_[ism-1]->Reset();
+    me_hs02_[ism-1]->Reset();
+    me_hs03_[ism-1]->Reset();
+    me_hs04_[ism-1]->Reset();
+    me_hs05_[ism-1]->Reset();
+    me_hs06_[ism-1]->Reset();
+    me_hs07_[ism-1]->Reset();
+    me_hs08_[ism-1]->Reset();
+
     float meanAmplL1A, meanAmplL2A, meanAmplL3A, meanAmplL4A;
     float meanAmplL1B, meanAmplL2B, meanAmplL3B, meanAmplL4B;
 
@@ -2588,7 +2486,7 @@ void EELaserClient::analyze(void){
         if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, -1.);
 
         int jx = ix + Numbers::ix0EE(ism);
-        int jy = iy + Numbers::iy0EE(ism); 
+        int jy = iy + Numbers::iy0EE(ism);
 
         if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
 
@@ -2612,12 +2510,32 @@ void EELaserClient::analyze(void){
         bool update11;
         bool update12;
 
+        bool update13;
+        bool update14;
+        bool update15;
+        bool update16;
+        bool update17;
+        bool update18;
+        bool update19;
+        bool update20;
+        bool update21;
+        bool update22;
+        bool update23;
+        bool update24;
+
         float num01, num02, num03, num04, num05, num06, num07, num08;
         float num09, num10, num11, num12;
         float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
         float mean09, mean10, mean11, mean12;
         float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
         float rms09, rms10, rms11, rms12;
+
+        float num13, num14, num15, num16, num17, num18, num19, num20;
+        float num21, num22, num23, num24;
+        float mean13, mean14, mean15, mean16, mean17, mean18, mean19, mean20;
+        float mean21, mean22, mean23, mean24;
+        float rms13, rms14, rms15, rms16, rms17, rms18, rms19, rms20;
+        float rms21, rms22, rms23, rms24;
 
         update01 = UtilsClient::getBinStats(h01_[ism-1], ix, iy, num01, mean01, rms01);
         update02 = UtilsClient::getBinStats(h02_[ism-1], ix, iy, num02, mean02, rms02);
@@ -2631,78 +2549,66 @@ void EELaserClient::analyze(void){
         update10 = UtilsClient::getBinStats(h10_[ism-1], ix, iy, num10, mean10, rms10);
         update11 = UtilsClient::getBinStats(h11_[ism-1], ix, iy, num11, mean11, rms11);
         update12 = UtilsClient::getBinStats(h12_[ism-1], ix, iy, num12, mean12, rms12);
-	
-         // other SM half
-	
-        if ( ! update01 )
-          update01 = UtilsClient::getBinStats(h13_[ism-1], ix, iy, num01, mean01, rms01);
-        if ( ! update02 )
-          update02 = UtilsClient::getBinStats(h14_[ism-1], ix, iy, num02, mean02, rms02);
-        if ( ! update03 )
-          update03 = UtilsClient::getBinStats(h15_[ism-1], ix, iy, num03, mean03, rms03);
-        if ( ! update04 )
-          update04 = UtilsClient::getBinStats(h16_[ism-1], ix, iy, num04, mean04, rms04);
-        if ( ! update05 )
-          update05 = UtilsClient::getBinStats(h17_[ism-1], ix, iy, num05, mean05, rms05);
-        if ( ! update06 )
-          update06 = UtilsClient::getBinStats(h18_[ism-1], ix, iy, num06, mean06, rms06);
-        if ( ! update07 )
-          update07 = UtilsClient::getBinStats(h19_[ism-1], ix, iy, num07, mean07, rms07);
-        if ( ! update08 )
-          update08 = UtilsClient::getBinStats(h20_[ism-1], ix, iy, num08, mean08, rms08);
-        if ( ! update09 )
-          update09 = UtilsClient::getBinStats(h21_[ism-1], ix, iy, num09, mean09, rms09);
-        if ( ! update10 )
-          update10 = UtilsClient::getBinStats(h22_[ism-1], ix, iy, num10, mean10, rms10);
-        if ( ! update11 )
-          update11 = UtilsClient::getBinStats(h23_[ism-1], ix, iy, num11, mean11, rms11);
-        if ( ! update12 )
-          update12 = UtilsClient::getBinStats(h24_[ism-1], ix, iy, num12, mean12, rms12);
+
+        // other SM half
+
+        update13 = UtilsClient::getBinStats(h13_[ism-1], ix, iy, num13, mean13, rms13);
+        update14 = UtilsClient::getBinStats(h14_[ism-1], ix, iy, num14, mean14, rms14);
+        update15 = UtilsClient::getBinStats(h15_[ism-1], ix, iy, num15, mean15, rms15);
+        update16 = UtilsClient::getBinStats(h16_[ism-1], ix, iy, num16, mean16, rms16);
+        update17 = UtilsClient::getBinStats(h17_[ism-1], ix, iy, num17, mean17, rms17);
+        update18 = UtilsClient::getBinStats(h18_[ism-1], ix, iy, num18, mean18, rms18);
+        update19 = UtilsClient::getBinStats(h19_[ism-1], ix, iy, num19, mean19, rms19);
+        update20 = UtilsClient::getBinStats(h20_[ism-1], ix, iy, num20, mean20, rms20);
+        update21 = UtilsClient::getBinStats(h21_[ism-1], ix, iy, num21, mean21, rms21);
+        update22 = UtilsClient::getBinStats(h22_[ism-1], ix, iy, num22, mean22, rms22);
+        update23 = UtilsClient::getBinStats(h23_[ism-1], ix, iy, num23, mean23, rms23);
+        update24 = UtilsClient::getBinStats(h24_[ism-1], ix, iy, num24, mean24, rms24);
 
         if ( update01 ) {
 
           float val;
 
-          if ( ix < 6 || iy > 10 ) {
+          val = 1.;
+          if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) )
+            val = 0.;
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
-            val = 1.;
-            if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) )
-              val = 0.;
-            if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
+          int ic = Numbers::icEE(ism, ix, iy);
 
-            int ic = Numbers::icEE(ism, ix, iy);
-
-            if ( ic != -1 ) {
-              if ( mea01_[ism-1] ) {
-                if ( mean01 > 0. ) {
-                  mea01_[ism-1]->setBinContent( ic, mean01 );
-                  mea01_[ism-1]->setBinError( ic, rms01 );
-                } else {
-                  mea01_[ism-1]->setEntries( 1.+mea01_[ism-1]->getEntries() );
-                }
+          if ( ic != -1 ) {
+            if ( mea01_[ism-1] ) {
+              if ( mean01 > 0. ) {
+                mea01_[ism-1]->setBinContent( ic, mean01 );
+                mea01_[ism-1]->setBinError( ic, rms01 );
+              } else {
+                mea01_[ism-1]->setEntries( 1.+mea01_[ism-1]->getEntries() );
               }
             }
+          }
 
-          } else {
+        }
 
-            val = 1.;
-            if ( fabs(mean01 - meanAmplL1B) > fabs(percentVariation_ * meanAmplL1B) )
-              val = 0.;
-            if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
+        if ( update13 ) {
 
-            int ic = Numbers::icEE(ism, ix, iy);
+          float val;
 
-            if ( ic != -1 ) {
-              if ( mea05_[ism-1] ) {
-                if ( mean01 > 0. ) {
-                  mea05_[ism-1]->setBinContent( ic, mean01 );
-                  mea05_[ism-1]->setBinError( ic, rms01 );
-                } else {
-                  mea05_[ism-1]->setEntries( 1.+mea05_[ism-1]->getEntries() );
-                }
+          val = 1.;
+          if ( fabs(mean13 - meanAmplL1B) > fabs(percentVariation_ * meanAmplL1B) )
+           val = 0.;
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
+
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( mea05_[ism-1] ) {
+              if ( mean13 > 0. ) {
+                mea05_[ism-1]->setBinContent( ic, mean13 );
+                mea05_[ism-1]->setBinError( ic, rms13 );
+            } else {
+                mea05_[ism-1]->setEntries( 1.+mea05_[ism-1]->getEntries() );
               }
             }
-
           }
 
         }
@@ -2711,46 +2617,46 @@ void EELaserClient::analyze(void){
 
           float val;
 
-          if ( ix < 6 || iy > 10 ) {
+          val = 1.;
+          if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) )
+            val = 0.;
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
-            val = 1.;
-            if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) )
-              val = 0.;
-            if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
+          int ic = Numbers::icEE(ism, ix, iy);
 
-            int ic = Numbers::icEE(ism, ix, iy);
-
-            if ( ic != -1 ) {
-              if ( mea02_[ism-1] ) {
-                if ( mean03 > 0. ) {
-                  mea02_[ism-1]->setBinContent( ic, mean03 );
-                  mea02_[ism-1]->setBinError( ic, rms03 );
-                } else {
-                  mea02_[ism-1]->setEntries( 1.+mea02_[ism-1]->getEntries() );
-                }
+          if ( ic != -1 ) {
+            if ( mea02_[ism-1] ) {
+              if ( mean03 > 0. ) {
+                mea02_[ism-1]->setBinContent( ic, mean03 );
+                mea02_[ism-1]->setBinError( ic, rms03 );
+              } else {
+                mea02_[ism-1]->setEntries( 1.+mea02_[ism-1]->getEntries() );
               }
             }
+          }
 
-          } else {
+        }
 
-            val = 1.;
-            if ( fabs(mean03 - meanAmplL2B) > fabs(percentVariation_ * meanAmplL2B) )
-              val = 0.;
-            if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
+        if ( update15 ) {
 
-            int ic = Numbers::icEE(ism, ix, iy);
+          float val;
 
-            if ( ic != -1 ) {
-              if ( mea06_[ism-1] ) {
-                if ( mean03 > 0. ) {
-                  mea06_[ism-1]->setBinContent( ic, mean03 );
-                  mea06_[ism-1]->setBinError( ic, rms03 );
-                } else {
-                  mea06_[ism-1]->setEntries( 1.+mea06_[ism-1]->getEntries() );
-                }
+          val = 1.;
+          if ( fabs(mean15 - meanAmplL2B) > fabs(percentVariation_ * meanAmplL2B) )
+            val = 0.;
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
+
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( mea06_[ism-1] ) {
+              if ( mean15 > 0. ) {
+                mea06_[ism-1]->setBinContent( ic, mean15 );
+                mea06_[ism-1]->setBinError( ic, rms15 );
+              } else {
+                mea06_[ism-1]->setEntries( 1.+mea06_[ism-1]->getEntries() );
               }
             }
-
           }
 
         }
@@ -2759,46 +2665,46 @@ void EELaserClient::analyze(void){
 
           float val;
 
-          if ( ix < 6 || iy > 10 ) {
+          val = 1.;
+          if ( fabs(mean05 - meanAmplL3A) > fabs(percentVariation_ * meanAmplL3A) )
+            val = 0.;
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
 
-            val = 1.;
-            if ( fabs(mean05 - meanAmplL3A) > fabs(percentVariation_ * meanAmplL3A) )
-              val = 0.;
-            if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
+          int ic = Numbers::icEE(ism, ix, iy);
 
-            int ic = Numbers::icEE(ism, ix, iy);
-
-            if ( ic != -1 ) {
-              if ( mea03_[ism-1] ) {
-                if ( mean05 > 0. ) {
-                  mea03_[ism-1]->setBinContent( ic, mean05 );
-                  mea03_[ism-1]->setBinError( ic, rms05 );
-                } else {
-                  mea03_[ism-1]->setEntries( 1.+mea03_[ism-1]->getEntries() );
-                }
+          if ( ic != -1 ) {
+            if ( mea03_[ism-1] ) {
+              if ( mean05 > 0. ) {
+                mea03_[ism-1]->setBinContent( ic, mean05 );
+                mea03_[ism-1]->setBinError( ic, rms05 );
+              } else {
+                mea03_[ism-1]->setEntries( 1.+mea03_[ism-1]->getEntries() );
               }
             }
+          }
 
-          } else {
+        }
 
-            val = 1.;
-            if ( fabs(mean05 - meanAmplL3B) > fabs(percentVariation_ * meanAmplL3B) )
-              val = 0.;
-            if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
+        if ( update17 ) {
 
-            int ic = Numbers::icEE(ism, ix, iy);
+          float val;
 
-            if ( ic != -1 ) {
-              if ( mea07_[ism-1] ) {
-                if ( mean05 > 0. ) {
-                  mea07_[ism-1]->setBinContent( ic, mean05 );
-                  mea07_[ism-1]->setBinError( ic, rms05 );
-                } else {
-                  mea07_[ism-1]->setEntries( 1.+mea07_[ism-1]->getEntries() );
-                }
+          val = 1.;
+          if ( fabs(mean17 - meanAmplL3B) > fabs(percentVariation_ * meanAmplL3B) )
+            val = 0.;
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
+
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( mea07_[ism-1] ) {
+              if ( mean17 > 0. ) {
+                mea07_[ism-1]->setBinContent( ic, mean17 );
+                mea07_[ism-1]->setBinError( ic, rms17 );
+              } else {
+                mea07_[ism-1]->setEntries( 1.+mea07_[ism-1]->getEntries() );
               }
             }
-
           }
 
         }
@@ -2807,374 +2713,342 @@ void EELaserClient::analyze(void){
 
           float val;
 
-          if ( ix < 6 || iy > 10 ) {
+          val = 1.;
+          if ( fabs(mean07 - meanAmplL4A) > fabs(percentVariation_ * meanAmplL4A) )
+            val = 0.;
+          if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, val );
 
-            val = 1.;
-            if ( fabs(mean07 - meanAmplL4A) > fabs(percentVariation_ * meanAmplL4A) )
-              val = 0.;
-            if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, val );
+          int ic = Numbers::icEE(ism, ix, iy);
 
-            int ic = Numbers::icEE(ism, ix, iy);
-
-            if ( ic != -1 ) {
-              if ( mea04_[ism-1] ) {
-                if ( mean07 > 0. ) {
-                  mea04_[ism-1]->setBinContent( ic, mean07 );
-                  mea04_[ism-1]->setBinError( ic, rms07 );
-                } else {
-                  mea04_[ism-1]->setEntries( 1.+mea04_[ism-1]->getEntries() );
-                }
+          if ( ic != -1 ) {
+            if ( mea04_[ism-1] ) {
+              if ( mean07 > 0. ) {
+                mea04_[ism-1]->setBinContent( ic, mean07 );
+                mea04_[ism-1]->setBinError( ic, rms07 );
+              } else {
+                mea04_[ism-1]->setEntries( 1.+mea04_[ism-1]->getEntries() );
               }
             }
+          }
 
-          } else {
+        }
 
-            val = 1.;
-            if ( fabs(mean07 - meanAmplL4B) > fabs(percentVariation_ * meanAmplL4B) )
-              val = 0.;
-            if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, val );
+        if ( update19 ) {
 
-            int ic = Numbers::icEE(ism, ix, iy);
+          float val;
 
-            if ( ic != -1 ) {
-              if ( mea08_[ism-1] ) {
-                if ( mean07 > 0. ) {
-                  mea08_[ism-1]->setBinContent( ic, mean07 );
-                  mea08_[ism-1]->setBinError( ic, rms07 );
-                } else {
-                  mea08_[ism-1]->setEntries( 1.+mea08_[ism-1]->getEntries() );
-                }
+          val = 1.;
+          if ( fabs(mean19 - meanAmplL4B) > fabs(percentVariation_ * meanAmplL4B) )
+            val = 0.;
+          if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, val );
+
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( mea08_[ism-1] ) {
+              if ( mean19 > 0. ) {
+                mea08_[ism-1]->setBinContent( ic, mean19 );
+                mea08_[ism-1]->setBinError( ic, rms19 );
+              } else {
+                mea08_[ism-1]->setEntries( 1.+mea08_[ism-1]->getEntries() );
               }
             }
-
           }
 
         }
 
         if ( update02 ) {
 
-          if ( ix < 6 || iy > 10 ) {
+          int ic = Numbers::icEE(ism, ix, iy);
 
-            int ic = Numbers::icEE(ism, ix, iy);
-
-            if ( ic != -1 ) {
-              if ( meaopn01_[ism-1] ) {
-                if ( mean02 > 0. ) {
-                  meaopn01_[ism-1]->setBinContent( ic, mean02 );
-                  meaopn01_[ism-1]->setBinError( ic, rms02 );
-                } else {
-                  meaopn01_[ism-1]->setEntries( 1.+meaopn01_[ism-1]->getEntries() );
-                }
+          if ( ic != -1 ) {
+            if ( meaopn01_[ism-1] ) {
+              if ( mean02 > 0. ) {
+                meaopn01_[ism-1]->setBinContent( ic, mean02 );
+                meaopn01_[ism-1]->setBinError( ic, rms02 );
+              } else {
+                meaopn01_[ism-1]->setEntries( 1.+meaopn01_[ism-1]->getEntries() );
               }
             }
+          }
 
-          } else {
+        }
 
-            int ic = Numbers::icEE(ism, ix, iy);
+        if ( update14 ) {
 
-            if ( ic != -1 ) {
-              if ( meaopn05_[ism-1] ) {
-                if ( mean02 > 0. ) {
-                  meaopn05_[ism-1]->setBinContent( ic, mean02 );
-                  meaopn05_[ism-1]->setBinError( ic, rms02 );
-                } else {
-                  meaopn05_[ism-1]->setEntries( 1.+meaopn05_[ism-1]->getEntries() );
-                }
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( meaopn05_[ism-1] ) {
+              if ( mean14 > 0. ) {
+                meaopn05_[ism-1]->setBinContent( ic, mean14 );
+                meaopn05_[ism-1]->setBinError( ic, rms14 );
+              } else {
+                meaopn05_[ism-1]->setEntries( 1.+meaopn05_[ism-1]->getEntries() );
               }
             }
-
           }
 
         }
 
         if ( update04 ) {
 
-          if ( ix < 6 || iy > 10 ) {
+          int ic = Numbers::icEE(ism, ix, iy);
 
-            int ic = Numbers::icEE(ism, ix, iy);
-
-            if ( ic != -1 ) {
-              if ( meaopn02_[ism-1] ) {
-                if ( mean04 > 0. ) {
-                  meaopn02_[ism-1]->setBinContent( ic, mean04 );
-                  meaopn02_[ism-1]->setBinError( ic, rms04 );
-                } else {
-                  meaopn02_[ism-1]->setEntries( 1.+meaopn02_[ism-1]->getEntries() );
-                }
+          if ( ic != -1 ) {
+            if ( meaopn02_[ism-1] ) {
+              if ( mean04 > 0. ) {
+                meaopn02_[ism-1]->setBinContent( ic, mean04 );
+                meaopn02_[ism-1]->setBinError( ic, rms04 );
+              } else {
+                meaopn02_[ism-1]->setEntries( 1.+meaopn02_[ism-1]->getEntries() );
               }
             }
+          }
 
-          } else {
+        }
 
-            int ic = Numbers::icEE(ism, ix, iy);
+        if ( update16 ) {
 
-            if ( ic != -1 ) {
-              if ( meaopn06_[ism-1] ) {
-                if ( mean04 > 0. ) {
-                  meaopn06_[ism-1]->setBinContent( ic, mean04 );
-                  meaopn06_[ism-1]->setBinError( ic, rms04 );
-                } else {
-                  meaopn06_[ism-1]->setEntries( 1.+meaopn06_[ism-1]->getEntries() );
-                }
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( meaopn06_[ism-1] ) {
+              if ( mean16 > 0. ) {
+                meaopn06_[ism-1]->setBinContent( ic, mean16 );
+                meaopn06_[ism-1]->setBinError( ic, rms16 );
+              } else {
+                meaopn06_[ism-1]->setEntries( 1.+meaopn06_[ism-1]->getEntries() );
               }
             }
-
           }
 
         }
 
         if ( update06 ) {
 
-          if ( ix < 6 || iy > 10 ) {
+          int ic = Numbers::icEE(ism, ix, iy);
 
-            int ic = Numbers::icEE(ism, ix, iy);
-
-            if ( ic != -1 ) {
-              if ( meaopn03_[ism-1] ) {
-                if ( mean06 > 0. ) {
-                  meaopn03_[ism-1]->setBinContent( ic, mean06 );
-                  meaopn03_[ism-1]->setBinError( ic, rms06 );
-                } else {
-                  meaopn03_[ism-1]->setEntries( 1.+meaopn03_[ism-1]->getEntries() );
-                }
+          if ( ic != -1 ) {
+            if ( meaopn03_[ism-1] ) {
+              if ( mean06 > 0. ) {
+                meaopn03_[ism-1]->setBinContent( ic, mean06 );
+                meaopn03_[ism-1]->setBinError( ic, rms06 );
+              } else {
+                meaopn03_[ism-1]->setEntries( 1.+meaopn03_[ism-1]->getEntries() );
               }
             }
+          }
 
-          } else {
+        }
 
-            int ic = Numbers::icEE(ism, ix, iy);
+        if ( update18 ) {
 
-            if ( ic != -1 ) {
-              if ( meaopn07_[ism-1] ) {
-                if ( mean06 > 0. ) {
-                  meaopn07_[ism-1]->setBinContent( ic, mean06 );
-                  meaopn07_[ism-1]->setBinError( ic, rms06 );
-                } else {
-                  meaopn07_[ism-1]->setEntries( 1.+meaopn07_[ism-1]->getEntries() );
-                }
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( meaopn07_[ism-1] ) {
+              if ( mean18 > 0. ) {
+                meaopn07_[ism-1]->setBinContent( ic, mean18 );
+                meaopn07_[ism-1]->setBinError( ic, rms18 );
+              } else {
+                meaopn07_[ism-1]->setEntries( 1.+meaopn07_[ism-1]->getEntries() );
               }
             }
-
           }
 
         }
 
         if ( update08 ) {
 
-          if ( ix < 6 || iy > 10 ) {
+          int ic = Numbers::icEE(ism, ix, iy);
 
-            int ic = Numbers::icEE(ism, ix, iy);
-
-            if ( ic != -1 ) {
-              if ( meaopn04_[ism-1] ) {
-                if ( mean08 > 0. ) {
-                  meaopn04_[ism-1]->setBinContent( ic, mean08 );
-                  meaopn04_[ism-1]->setBinError( ic, rms08 );
-                } else {
-                  meaopn04_[ism-1]->setEntries( 1.+meaopn04_[ism-1]->getEntries() );
-                }
+          if ( ic != -1 ) {
+            if ( meaopn04_[ism-1] ) {
+              if ( mean08 > 0. ) {
+                meaopn04_[ism-1]->setBinContent( ic, mean08 );
+                meaopn04_[ism-1]->setBinError( ic, rms08 );
+              } else {
+                meaopn04_[ism-1]->setEntries( 1.+meaopn04_[ism-1]->getEntries() );
               }
             }
+          }
 
-          } else {
+        }
 
-            int ic = Numbers::icEE(ism, ix, iy);
+        if ( update20 ) {
 
-            if ( ic != -1 ) {
-              if ( meaopn08_[ism-1] ) {
-                if ( mean08 > 0. ) {
-                  meaopn08_[ism-1]->setBinContent( ic, mean08 );
-                  meaopn08_[ism-1]->setBinError( ic, rms08 );
-                } else {
-                  meaopn08_[ism-1]->setEntries( 1.+meaopn08_[ism-1]->getEntries() );
-                }
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( meaopn08_[ism-1] ) {
+              if ( mean20 > 0. ) {
+                meaopn08_[ism-1]->setBinContent( ic, mean20 );
+                meaopn08_[ism-1]->setBinError( ic, rms20 );
+              } else {
+                meaopn08_[ism-1]->setEntries( 1.+meaopn08_[ism-1]->getEntries() );
               }
             }
-
           }
 
         }
 
         if ( update09 ) {
 
-          if ( ix < 6 || iy > 10 ) {
+          int ic = Numbers::icEE(ism, ix, iy);
 
-            int ic = Numbers::icEE(ism, ix, iy);
-
-            if ( ic != -1 ) {
-              if ( met01_[ism-1] ) {
-                if ( mean09 > 0. ) {
-                  met01_[ism-1]->setBinContent( ic, mean09 );
-                  met01_[ism-1]->setBinError( ic, rms09 );
-                } else {
-                  met01_[ism-1]->setEntries(1.+met01_[ism-1]->getEntries());
-                }
+          if ( ic != -1 ) {
+            if ( met01_[ism-1] ) {
+              if ( mean09 > 0. ) {
+                met01_[ism-1]->setBinContent( ic, mean09 );
+                met01_[ism-1]->setBinError( ic, rms09 );
+              } else {
+                met01_[ism-1]->setEntries(1.+met01_[ism-1]->getEntries());
               }
-
-              if ( metav01_[ism-1] )
-                metav01_[ism-1] ->Fill(mean09);
-              if ( metrms01_[ism-1] )
-                metrms01_[ism-1]->Fill(rms09);
             }
 
-          } else {
+            if ( metav01_[ism-1] ) metav01_[ism-1] ->Fill(mean09);
+            if ( metrms01_[ism-1] ) metrms01_[ism-1]->Fill(rms09);
+          }
 
-            int ic = Numbers::icEE(ism, ix, iy);
+        }
 
-            if ( ic != -1 ) {
-              if ( met05_[ism-1] ) {
-                if ( mean09 > 0. ) {
-                  met05_[ism-1]->setBinContent( ic, mean09 );
-                  met05_[ism-1]->setBinError( ic, rms09 );
-                } else {
-                  met05_[ism-1]->setEntries(1.+met05_[ism-1]->getEntries());
-                }
+        if ( update21 ) {
+
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( met05_[ism-1] ) {
+              if ( mean21 > 0. ) {
+                met05_[ism-1]->setBinContent( ic, mean21 );
+                met05_[ism-1]->setBinError( ic, rms21 );
+              } else {
+                met05_[ism-1]->setEntries(1.+met05_[ism-1]->getEntries());
               }
-
-              if ( metav05_[ism-1] )
-                metav05_[ism-1] ->Fill(mean09);
-              if ( metrms05_[ism-1] )
-                metrms05_[ism-1]->Fill(rms09);
             }
 
+            if ( metav05_[ism-1] ) metav05_[ism-1] ->Fill(mean21);
+            if ( metrms05_[ism-1] ) metrms05_[ism-1]->Fill(rms21);
           }
 
         }
 
         if ( update10 ) {
 
-          if ( ix < 6 || iy > 10 ) {
+          int ic = Numbers::icEE(ism, ix, iy);
 
-            int ic = Numbers::icEE(ism, ix, iy);
-
-            if ( ic != -1 ) {
-              if ( met02_[ism-1] ) {
-                if ( mean10 > 0. ) {
-                  met02_[ism-1]->setBinContent( ic, mean10 );
-                  met02_[ism-1]->setBinError( ic, rms10 );
-                } else {
-                  met02_[ism-1]->setEntries(1.+met02_[ism-1]->getEntries());
-                }
+          if ( ic != -1 ) {
+            if ( met02_[ism-1] ) {
+              if ( mean10 > 0. ) {
+                met02_[ism-1]->setBinContent( ic, mean10 );
+                met02_[ism-1]->setBinError( ic, rms10 );
+              } else {
+                met02_[ism-1]->setEntries(1.+met02_[ism-1]->getEntries());
               }
-
-              if ( metav02_[ism-1] )
-                metav02_[ism-1] ->Fill(mean10);
-              if ( metrms02_[ism-1] )
-                metrms02_[ism-1]->Fill(rms10);
             }
 
-          } else {
+            if ( metav02_[ism-1] ) metav02_[ism-1] ->Fill(mean10);
+            if ( metrms02_[ism-1] ) metrms02_[ism-1]->Fill(rms10);
+          }
 
-            int ic = Numbers::icEE(ism, ix, iy);
+        }
 
-            if ( ic != -1 ) {
-              if ( met06_[ism-1] ) {
-                if ( mean10 > 0. ) {
-                  met06_[ism-1]->setBinContent( ic, mean10 );
-                  met06_[ism-1]->setBinError( ic, rms10 );
-                } else {
-                  met06_[ism-1]->setEntries(1.+met06_[ism-1]->getEntries());
-                }
+        if ( update22 ) {
+
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( met06_[ism-1] ) {
+              if ( mean22 > 0. ) {
+                met06_[ism-1]->setBinContent( ic, mean22 );
+                met06_[ism-1]->setBinError( ic, rms22 );
+              } else {
+                met06_[ism-1]->setEntries(1.+met06_[ism-1]->getEntries());
               }
-
-              if ( metav06_[ism-1] )
-                metav06_[ism-1] ->Fill(mean10);
-              if ( metrms06_[ism-1] )
-                metrms06_[ism-1]->Fill(rms10);
             }
 
+            if ( metav06_[ism-1] ) metav06_[ism-1] ->Fill(mean22);
+            if ( metrms06_[ism-1] ) metrms06_[ism-1]->Fill(rms22);
           }
 
         }
 
         if ( update11 ) {
 
-          if ( ix < 6 || iy > 10 ) {
+          int ic = Numbers::icEE(ism, ix, iy);
 
-            int ic = Numbers::icEE(ism, ix, iy);
-
-            if ( ic != -1 ) {
-              if ( met03_[ism-1] ) {
-                if ( mean11 > 0. ) {
-                  met03_[ism-1]->setBinContent( ic, mean11 );
-                  met03_[ism-1]->setBinError( ic, rms11 );
-                } else {
-                  met03_[ism-1]->setEntries(1.+met03_[ism-1]->getEntries());
-                }
+          if ( ic != -1 ) {
+            if ( met03_[ism-1] ) {
+              if ( mean11 > 0. ) {
+                met03_[ism-1]->setBinContent( ic, mean11 );
+                met03_[ism-1]->setBinError( ic, rms11 );
+              } else {
+                met03_[ism-1]->setEntries(1.+met03_[ism-1]->getEntries());
               }
-
-              if ( metav03_[ism-1] )
-                metav03_[ism-1] ->Fill(mean11);
-              if ( metrms03_[ism-1] )
-                metrms03_[ism-1]->Fill(rms11);
             }
 
-          } else {
+            if ( metav03_[ism-1] ) metav03_[ism-1] ->Fill(mean11);
+            if ( metrms03_[ism-1] ) metrms03_[ism-1]->Fill(rms11);
+          }
 
-            int ic = Numbers::icEE(ism, ix, iy);
+        }
 
-            if ( ic != -1 ) {
-              if ( met07_[ism-1] ) {
-                if ( mean11 > 0. ) {
-                  met07_[ism-1]->setBinContent( ic, mean11 );
-                  met07_[ism-1]->setBinError( ic, rms11 );
-                } else {
-                  met07_[ism-1]->setEntries(1.+met07_[ism-1]->getEntries());
-                }
+        if ( update23 ) {
+
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( met07_[ism-1] ) {
+              if ( mean23 > 0. ) {
+                met07_[ism-1]->setBinContent( ic, mean23 );
+                met07_[ism-1]->setBinError( ic, rms23 );
+              } else {
+                met07_[ism-1]->setEntries(1.+met07_[ism-1]->getEntries());
               }
-
-              if ( metav07_[ism-1] )
-                metav07_[ism-1] ->Fill(mean11);
-              if ( metrms07_[ism-1] )
-                metrms07_[ism-1]->Fill(rms11);
             }
 
+            if ( metav07_[ism-1] ) metav07_[ism-1] ->Fill(mean23);
+            if ( metrms07_[ism-1] ) metrms07_[ism-1]->Fill(rms23);
           }
 
         }
 
         if ( update12 ) {
 
-          if ( ix < 6 || iy > 10 ) {
+          int ic = Numbers::icEE(ism, ix, iy);
 
-            int ic = Numbers::icEE(ism, ix, iy);
-
-            if ( ic != -1 ) {
-              if ( met04_[ism-1] ) {
-                if ( mean12 > 0. ) {
-                  met04_[ism-1]->setBinContent( ic, mean12 );
-                  met04_[ism-1]->setBinError( ic, rms12 );
-                } else {
-                  met04_[ism-1]->setEntries(1.+met04_[ism-1]->getEntries());
-                }
+          if ( ic != -1 ) {
+            if ( met04_[ism-1] ) {
+              if ( mean12 > 0. ) {
+                met04_[ism-1]->setBinContent( ic, mean12 );
+                met04_[ism-1]->setBinError( ic, rms12 );
+              } else {
+                met04_[ism-1]->setEntries(1.+met04_[ism-1]->getEntries());
               }
-
-              if ( metav04_[ism-1] )
-                metav04_[ism-1] ->Fill(mean12);
-              if ( metrms04_[ism-1] )
-                metrms04_[ism-1]->Fill(rms12);
             }
 
-          } else {
+            if ( metav04_[ism-1] ) metav04_[ism-1] ->Fill(mean12);
+            if ( metrms04_[ism-1] ) metrms04_[ism-1]->Fill(rms12);
+          }
 
-            int ic = Numbers::icEE(ism, ix, iy);
+        }
 
-            if ( ic != -1 ) {
-              if ( met08_[ism-1] ) {
-                if ( mean12 > 0. ) {
-                  met08_[ism-1]->setBinContent( ic, mean12 );
-                  met08_[ism-1]->setBinError( ic, rms12 );
-                } else {
-                  met08_[ism-1]->setEntries(1.+met08_[ism-1]->getEntries());
-                }
+        if ( update24 ) {
+
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( met08_[ism-1] ) {
+              if ( mean24 > 0. ) {
+                met08_[ism-1]->setBinContent( ic, mean24 );
+                met08_[ism-1]->setBinError( ic, rms24 );
+              } else {
+                met08_[ism-1]->setEntries(1.+met08_[ism-1]->getEntries());
               }
-
-              if ( metav08_[ism-1] )
-                metav08_[ism-1] ->Fill(mean12);
-              if ( metrms08_[ism-1] )
-                metrms08_[ism-1]->Fill(rms12);
             }
 
+            if ( metav08_[ism-1] ) metav08_[ism-1] ->Fill(mean24);
+            if ( metrms08_[ism-1] ) metrms08_[ism-1]->Fill(rms24);
           }
 
         }
@@ -3189,10 +3063,10 @@ void EELaserClient::analyze(void){
             int jy = iy + Numbers::iy0EE(ism);
 
             if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
- 
+
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
-            int ic = Numbers::icEE(ism, ix, iy);
+            int ic = Numbers::indexEE(ism, ix, iy);
 
             if ( ic == -1 ) continue;
 
@@ -3260,22 +3134,22 @@ void EELaserClient::analyze(void){
       float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
       float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
-      update05 = UtilsClient::getBinStats(i05_[ism-1], 1, i, num05, mean05, rms05);
-      update06 = UtilsClient::getBinStats(i06_[ism-1], 1, i, num06, mean06, rms06);
-      update07 = UtilsClient::getBinStats(i07_[ism-1], 1, i, num07, mean07, rms07);
-      update08 = UtilsClient::getBinStats(i08_[ism-1], 1, i, num08, mean08, rms08);
-      update09 = UtilsClient::getBinStats(i09_[ism-1], 1, i, num09, mean09, rms09);
-      update10 = UtilsClient::getBinStats(i10_[ism-1], 1, i, num10, mean10, rms10);
-      update11 = UtilsClient::getBinStats(i11_[ism-1], 1, i, num11, mean11, rms11);
-      update12 = UtilsClient::getBinStats(i12_[ism-1], 1, i, num12, mean12, rms12);
-      update13 = UtilsClient::getBinStats(i13_[ism-1], 1, i, num13, mean13, rms13);
-      update14 = UtilsClient::getBinStats(i14_[ism-1], 1, i, num14, mean14, rms14);
-      update15 = UtilsClient::getBinStats(i15_[ism-1], 1, i, num15, mean15, rms15);
-      update16 = UtilsClient::getBinStats(i16_[ism-1], 1, i, num16, mean16, rms16);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 0, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 0, num04, mean04, rms04);
+      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 0, num05, mean05, rms05);
+      update06 = UtilsClient::getBinStats(i06_[ism-1], i, 0, num06, mean06, rms06);
+      update07 = UtilsClient::getBinStats(i07_[ism-1], i, 0, num07, mean07, rms07);
+      update08 = UtilsClient::getBinStats(i08_[ism-1], i, 0, num08, mean08, rms08);
+      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 0, num09, mean09, rms09);
+      update10 = UtilsClient::getBinStats(i10_[ism-1], i, 0, num10, mean10, rms10);
+      update11 = UtilsClient::getBinStats(i11_[ism-1], i, 0, num11, mean11, rms11);
+      update12 = UtilsClient::getBinStats(i12_[ism-1], i, 0, num12, mean12, rms12);
+      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 0, num13, mean13, rms13);
+      update14 = UtilsClient::getBinStats(i14_[ism-1], i, 0, num14, mean14, rms14);
+      update15 = UtilsClient::getBinStats(i15_[ism-1], i, 0, num15, mean15, rms15);
+      update16 = UtilsClient::getBinStats(i16_[ism-1], i, 0, num16, mean16, rms16);
 
       if ( update01 && update05 ) {
 
@@ -3285,7 +3159,7 @@ void EELaserClient::analyze(void){
         if ( mean01 < amplitudeThresholdPnG01_ )
           val = 0.;
         if ( mean05 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean05)
+             pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean05)
           val = 0.;
         if ( rms05 > pedPnRMSThreshold_[0] )
           val = 0.;
@@ -3303,7 +3177,7 @@ void EELaserClient::analyze(void){
         if ( mean02 < amplitudeThresholdPnG01_ )
           val = 0.;
         if ( mean06 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean06)
+             pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean06)
           val = 0.;
         if ( rms06 > pedPnRMSThreshold_[0] )
           val = 0.;
@@ -3321,7 +3195,7 @@ void EELaserClient::analyze(void){
         if ( mean03 < amplitudeThresholdPnG01_ )
           val = 0.;
       if ( mean07 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	   pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean07)
+           pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean07)
           val = 0.;
       if ( rms07 > pedPnRMSThreshold_[0] )
           val = 0.;
@@ -3339,16 +3213,16 @@ void EELaserClient::analyze(void){
         if ( mean04 < amplitudeThresholdPnG01_ )
           val = 0.;
        if ( mean08 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
-	    pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean08)
+            pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean08)
            val = 0.;
        if ( rms08 > pedPnRMSThreshold_[0] )
            val = 0.;
-       
+
        if ( meg08_[ism-1] )           meg08_[ism-1]->setBinContent(i, 1, val);
        if ( mepnprms04_[ism-1] ) mepnprms04_[ism-1]->Fill(rms08);
-       
+
       }
-      
+
       if ( update09 && update13 ) {
 
         float val;
@@ -3357,11 +3231,11 @@ void EELaserClient::analyze(void){
         if ( mean09 < amplitudeThresholdPnG16_ )
           val = 0.;
         if ( mean13 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean13)
+             pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean13)
           val = 0.;
         if ( rms13 > pedPnRMSThreshold_[1] )
           val = 0.;
-	
+
         if ( meg09_[ism-1] )           meg09_[ism-1]->setBinContent(i, 1, val);
         if ( mepnprms05_[ism-1] ) mepnprms05_[ism-1]->Fill(rms13);
 
@@ -3374,16 +3248,16 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean10 < amplitudeThresholdPnG16_ )
           val = 0.;
-	//        if ( mean14 < pedestalThresholdPn_ )
+        //        if ( mean14 < pedestalThresholdPn_ )
        if ( mean14 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-	    pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean14)
+            pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean14)
            val = 0.;
        if ( rms14 > pedPnRMSThreshold_[1] )
           val = 0.;
-       
+
        if ( meg10_[ism-1] )           meg10_[ism-1]->setBinContent(i, 1, val);
        if ( mepnprms06_[ism-1] ) mepnprms06_[ism-1]->Fill(rms14);
-       
+
       }
 
       if ( update11 && update15 ) {
@@ -3393,9 +3267,9 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean11 < amplitudeThresholdPnG16_ )
           val = 0.;
-	//        if ( mean15 < pedestalThresholdPn_ )
+        //        if ( mean15 < pedestalThresholdPn_ )
         if ( mean15 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean15)
+             pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean15)
           val = 0.;
         if ( rms15 > pedPnRMSThreshold_[1] )
           val = 0.;
@@ -3412,9 +3286,9 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean12 < amplitudeThresholdPnG16_ )
           val = 0.;
-	//        if ( mean16 < pedestalThresholdPn_ )
+        //        if ( mean16 < pedestalThresholdPn_ )
         if ( mean16 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
-  	              pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean16)
+                        pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean16)
           val = 0.;
         if ( rms16 > pedPnRMSThreshold_[1] )
           val = 0.;
@@ -3488,57 +3362,49 @@ void EELaserClient::analyze(void){
 
     }
 
-    vector<dqm::me_util::Channel> badChannels01;
-    vector<dqm::me_util::Channel> badChannels02;
-    vector<dqm::me_util::Channel> badChannels03;
-    vector<dqm::me_util::Channel> badChannels04;
-    vector<dqm::me_util::Channel> badChannels05;
-    vector<dqm::me_util::Channel> badChannels06;
-    vector<dqm::me_util::Channel> badChannels07;
-    vector<dqm::me_util::Channel> badChannels08;
+    for ( int i = 1; i <= 10; i++ ) {
 
-    if ( qth01_[ism-1] ) badChannels01 = qth01_[ism-1]->getBadChannels();
-    if ( qth02_[ism-1] ) badChannels02 = qth02_[ism-1]->getBadChannels();
-    if ( qth03_[ism-1] ) badChannels03 = qth03_[ism-1]->getBadChannels();
-    if ( qth04_[ism-1] ) badChannels04 = qth04_[ism-1]->getBadChannels();
-    if ( qth05_[ism-1] ) badChannels05 = qth05_[ism-1]->getBadChannels();
-    if ( qth06_[ism-1] ) badChannels06 = qth06_[ism-1]->getBadChannels();
-    if ( qth07_[ism-1] ) badChannels07 = qth07_[ism-1]->getBadChannels();
-    if ( qth08_[ism-1] ) badChannels08 = qth08_[ism-1]->getBadChannels();
+      if ( hs01_[ism-1] ) {
+        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
+        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+      }
 
-    vector<dqm::me_util::Channel> badChannels09;
-    vector<dqm::me_util::Channel> badChannels10;
-    vector<dqm::me_util::Channel> badChannels11;
-    vector<dqm::me_util::Channel> badChannels12;
-    vector<dqm::me_util::Channel> badChannels13;
-    vector<dqm::me_util::Channel> badChannels14;
-    vector<dqm::me_util::Channel> badChannels15;
-    vector<dqm::me_util::Channel> badChannels16;
-    vector<dqm::me_util::Channel> badChannels17;
-    vector<dqm::me_util::Channel> badChannels18;
-    vector<dqm::me_util::Channel> badChannels19;
-    vector<dqm::me_util::Channel> badChannels20;
-    vector<dqm::me_util::Channel> badChannels21;
-    vector<dqm::me_util::Channel> badChannels22;
-    vector<dqm::me_util::Channel> badChannels23;
-    vector<dqm::me_util::Channel> badChannels24;
+      if ( hs02_[ism-1] ) {
+        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(1, i) );
+        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(1, i) );
+      }
 
-    if ( qth09_[ism-1] ) badChannels09 = qth09_[ism-1]->getBadChannels();
-    if ( qth10_[ism-1] ) badChannels10 = qth10_[ism-1]->getBadChannels();
-    if ( qth11_[ism-1] ) badChannels11 = qth11_[ism-1]->getBadChannels();
-    if ( qth12_[ism-1] ) badChannels12 = qth12_[ism-1]->getBadChannels();
-    if ( qth13_[ism-1] ) badChannels13 = qth13_[ism-1]->getBadChannels();
-    if ( qth14_[ism-1] ) badChannels14 = qth14_[ism-1]->getBadChannels();
-    if ( qth15_[ism-1] ) badChannels15 = qth15_[ism-1]->getBadChannels();
-    if ( qth16_[ism-1] ) badChannels16 = qth16_[ism-1]->getBadChannels();
-    if ( qth17_[ism-1] ) badChannels09 = qth17_[ism-1]->getBadChannels();
-    if ( qth18_[ism-1] ) badChannels10 = qth18_[ism-1]->getBadChannels();
-    if ( qth19_[ism-1] ) badChannels11 = qth19_[ism-1]->getBadChannels();
-    if ( qth20_[ism-1] ) badChannels12 = qth20_[ism-1]->getBadChannels();
-    if ( qth21_[ism-1] ) badChannels13 = qth21_[ism-1]->getBadChannels();
-    if ( qth22_[ism-1] ) badChannels14 = qth22_[ism-1]->getBadChannels();
-    if ( qth23_[ism-1] ) badChannels15 = qth23_[ism-1]->getBadChannels();
-    if ( qth24_[ism-1] ) badChannels16 = qth24_[ism-1]->getBadChannels();
+      if ( hs03_[ism-1] ) {
+        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(1, i) );
+        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs04_[ism-1] ) {
+        me_hs04_[ism-1]->setBinContent( i, hs04_[ism-1]->GetBinContent(1, i) );
+        me_hs04_[ism-1]->setBinError( i, hs04_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs05_[ism-1] ) {
+        me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(426, i) );
+        me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(426, i) );
+      }
+
+      if ( hs06_[ism-1] ) {
+        me_hs06_[ism-1]->setBinContent( i, hs06_[ism-1]->GetBinContent(426, i) );
+        me_hs06_[ism-1]->setBinError( i, hs06_[ism-1]->GetBinError(426, i) );
+      }
+
+      if ( hs07_[ism-1] ) {
+        me_hs07_[ism-1]->setBinContent( i, hs07_[ism-1]->GetBinContent(426, i) );
+        me_hs07_[ism-1]->setBinError( i, hs07_[ism-1]->GetBinError(426, i) );
+      }
+
+      if ( hs08_[ism-1] ) {
+        me_hs08_[ism-1]->setBinContent( i, hs08_[ism-1]->GetBinContent(426, i) );
+        me_hs08_[ism-1]->setBinError( i, hs08_[ism-1]->GetBinError(426, i) );
+      }
+
+    }
 
   }
 
@@ -3613,7 +3479,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-	     << Numbers::sEE(superModules_[i]).c_str() << ">"
+             << Numbers::sEE(superModules_[i]).c_str() << ">"
              << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
@@ -3643,7 +3509,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   dummy1.SetMarkerSize(2);
   dummy1.SetMinimum(0.1);
-  
+
   string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameTimav[8], imgNameTimrms[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQualG01[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnRmsPedG01[8], imgNameMEPnQualG16[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgNameMEPnRmsPedG16[8], imgName, meName;
 
   TCanvas* cQual   = new TCanvas("cQual", "Temp", 2*csize, 2*csize);
@@ -3658,7 +3524,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TH2F* obj2f;
   TH1F* obj1f;
-  TH1D* obj1d;
+  TProfile* objp;
 
   // Loop on barrel supermodules
 
@@ -3720,7 +3586,9 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cQual->SetGridx();
         cQual->SetGridy();
         obj2f->GetXaxis()->SetLabelSize(0.02);
+        obj2f->GetXaxis()->SetTitleSize(0.02);
         obj2f->GetYaxis()->SetLabelSize(0.02);
+        obj2f->GetYaxis()->SetTitleSize(0.02);
         obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum(6.0);
         obj2f->Draw("col");
@@ -3990,38 +3858,38 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameShape[iCanvas-1] = "";
 
-      obj1d = 0;
+      obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( hs01_[ism-1] ) obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs01_[ism-1] );
           break;
         case 2:
-          if ( hs02_[ism-1] ) obj1d = hs02_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs02_[ism-1] );
           break;
         case 3:
-          if ( hs03_[ism-1] ) obj1d = hs03_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs03_[ism-1] );
           break;
         case 4:
-          if ( hs04_[ism-1] ) obj1d = hs04_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs04_[ism-1] );
           break;
         case 5:
-          if ( hs05_[ism-1] ) obj1d = hs05_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs05_[ism-1] );
           break;
         case 6:
-          if ( hs06_[ism-1] ) obj1d = hs06_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs06_[ism-1] );
           break;
         case 7:
-          if ( hs07_[ism-1] ) obj1d = hs07_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs07_[ism-1] );
           break;
         case 8:
-          if ( hs08_[ism-1] ) obj1d = hs08_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs08_[ism-1] );
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
-        meName = obj1d->GetName();
+      if ( obj1f ) {
+        meName = obj1f->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -4033,18 +3901,16 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cShape->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        obj1f->SetStats(kTRUE);
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->Draw();
+        obj1f->Draw();
         cShape->Update();
         cShape->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
@@ -4223,33 +4089,33 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPnG01[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          objp = i01_[ism-1];
           break;
         case 2:
-          if ( i02_[ism-1] ) obj1d = i02_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          objp = i02_[ism-1];
           break;
         case 3:
-          if ( i03_[ism-1] ) obj1d = i03_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          objp = i03_[ism-1];
           break;
         case 4:
-          if ( i04_[ism-1] ) obj1d = i04_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          objp = i04_[ism-1];
           break;
         case 5:
         case 6:
         case 7:
         case 8:
-          obj2f = 0;
+          objp = 0;
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -4261,51 +4127,49 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cAmp->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
       imgNameMEPnG16[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i09_[ism-1] ) obj1d = i09_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          objp = i09_[ism-1];
           break;
         case 2:
-          if ( i10_[ism-1] ) obj1d = i10_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          objp = i10_[ism-1];
           break;
         case 3:
-          if ( i11_[ism-1] ) obj1d = i11_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          objp = i11_[ism-1];
           break;
         case 4:
-          if ( i12_[ism-1] ) obj1d = i12_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          objp = i12_[ism-1];
           break;
         case 5:
         case 6:
         case 7:
         case 8:
-          obj2f = 0;
+          objp = 0;
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -4317,19 +4181,17 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cAmp->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
@@ -4337,33 +4199,33 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPnPedG01[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i05_[ism-1] ) obj1d = i05_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          objp = i05_[ism-1];
           break;
         case 2:
-          if ( i06_[ism-1] ) obj1d = i06_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          objp = i06_[ism-1];
           break;
         case 3:
-          if ( i07_[ism-1] ) obj1d = i07_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          objp = i07_[ism-1];
           break;
         case 4:
-          if ( i08_[ism-1] ) obj1d = i08_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          objp = i08_[ism-1];
           break;
         case 5:
         case 6:
         case 7:
         case 8:
-          obj2f = 0;
+          objp = 0;
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -4375,162 +4237,50 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cPed->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
-        delete obj1d;
+      }
 
-      }
-      
-      
-      imgNameMEPnRmsPedG01[iCanvas-1] = "";
-      
-      obj1f = 0;
-      switch ( iCanvas ) {
-      case 1:
-	if ( mepnprms01_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms01_[ism-1]);
-	break;
-      case 2:
-	if ( mepnprms02_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms02_[ism-1]);
-	break;
-      case 3:
-	if ( mepnprms03_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms03_[ism-1]);
-	break;
-      case 4:
-	if ( mepnprms04_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms04_[ism-1]);
-	break;
-      case 5:
-      case 6:
-      case 7:
-      case 8:
-	obj2f = 0;
-	break;
-      default:
-	break;
-      }
-      
-      if ( obj1f ) {
-  	
-	meName = obj1f->GetName();
-  	
-	for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	  if ( meName.substr(i, 1) == " " )  {
-	    meName.replace(i, 1 ,"_" );
-	  }
-	}
-	imgNameMEPnRmsPedG01[iCanvas-1] = meName + ".png";
-	imgName = htmlDir + imgNameMEPnRmsPedG01[iCanvas-1];
-  	
-	cPed->cd();
-	gStyle->SetOptStat("euomr");
-	obj1f->SetStats(kTRUE);
-//        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
-//        } else {
-//          gPad->SetLogy(0);
-//        }
-	obj1f->SetMinimum(0.0);
-	obj1f->Draw();
-	cPed->Update();
-	cPed->SaveAs(imgName.c_str());
-	gPad->SetLogy(0);
-
-      }
-      
-      
-      imgNameMEPnRmsPedG16[iCanvas-1] = "";
-      
-      obj1f = 0;
-      switch ( iCanvas ) {
-      case 1:
-	if ( mepnprms05_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms05_[ism-1]);
-	break;
-      case 2:
-	if ( mepnprms06_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms06_[ism-1]);
-	break;
-      case 3:
-	if ( mepnprms07_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms07_[ism-1]);
-	break;
-      case 4:
-	if ( mepnprms08_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms08_[ism-1]);
-	break;
-      case 5:
-      case 6:
-      case 7:
-      case 8:
-	obj2f = 0;
-	break;
-      default:
-	break;
-      }
-      
-      if ( obj1f ) {
-  	
-	meName = obj1f->GetName();
-  	
-	for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	  if ( meName.substr(i, 1) == " " )  {
-	    meName.replace(i, 1 ,"_" );
-	  }
-	}
-	imgNameMEPnRmsPedG16[iCanvas-1] = meName + ".png";
-	imgName = htmlDir + imgNameMEPnRmsPedG16[iCanvas-1];
-  	
-	cPed->cd();
-	gStyle->SetOptStat("euomr");
-	obj1f->SetStats(kTRUE);
-//        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
-//        } else {
-//          gPad->SetLogy(0);
-//        }
-	obj1f->SetMinimum(0.0);
-	obj1f->Draw();
-	cPed->Update();
-	cPed->SaveAs(imgName.c_str());
-	gPad->SetLogy(0);
-  	
-      }
-      
       imgNameMEPnPedG16[iCanvas-1] = "";
-      
-      obj1d = 0;
+
+      objp = 0;
       switch ( iCanvas ) {
       case 1:
-	if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionY("_py", 1, 1, "e");
-	break;
+        objp = i13_[ism-1];
+        break;
       case 2:
-	if ( i14_[ism-1] ) obj1d = i14_[ism-1]->ProjectionY("_py", 1, 1, "e");
-	break;
+        objp = i14_[ism-1];
+        break;
       case 3:
-	if ( i15_[ism-1] ) obj1d = i15_[ism-1]->ProjectionY("_py", 1, 1, "e");
-	break;
+        objp = i15_[ism-1];
+        break;
       case 4:
-	if ( i16_[ism-1] ) obj1d = i16_[ism-1]->ProjectionY("_py", 1, 1, "e");
-	break;
+        objp = i16_[ism-1];
+        break;
       case 5:
       case 6:
       case 7:
       case 8:
-	obj2f = 0;
-	break;
+        objp = 0;
+        break;
       default:
-	break;
+        break;
       }
-      
-      if ( obj1d ) {
-	
-        meName = obj1d->GetName();
-	
+
+      if ( objp ) {
+
+        meName = objp->GetName();
+
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
             meName.replace(i, 1 ,"_" );
@@ -4538,31 +4288,137 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         imgNameMEPnPedG16[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnPedG16[iCanvas-1];
-	
+
         cPed->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-	
-        delete obj1d;
-	
+
       }
-      
+
+      imgNameMEPnRmsPedG01[iCanvas-1] = "";
+
+      obj1f = 0;
+      switch ( iCanvas ) {
+      case 1:
+        if ( mepnprms01_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms01_[ism-1]);
+        break;
+      case 2:
+        if ( mepnprms02_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms02_[ism-1]);
+        break;
+      case 3:
+        if ( mepnprms03_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms03_[ism-1]);
+        break;
+      case 4:
+        if ( mepnprms04_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms04_[ism-1]);
+        break;
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+        obj1f = 0;
+        break;
+      default:
+        break;
+      }
+
+      if ( obj1f ) {
+
+        meName = obj1f->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnRmsPedG01[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnRmsPedG01[iCanvas-1];
+
+        cPed->cd();
+        gStyle->SetOptStat("euomr");
+        obj1f->SetStats(kTRUE);
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
+        obj1f->SetMinimum(0.0);
+        obj1f->Draw();
+        cPed->Update();
+        cPed->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+
+      }
+
+      imgNameMEPnRmsPedG16[iCanvas-1] = "";
+
+      obj1f = 0;
+      switch ( iCanvas ) {
+      case 1:
+        if ( mepnprms05_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms05_[ism-1]);
+        break;
+      case 2:
+        if ( mepnprms06_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms06_[ism-1]);
+        break;
+      case 3:
+        if ( mepnprms07_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms07_[ism-1]);
+        break;
+      case 4:
+        if ( mepnprms08_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms08_[ism-1]);
+        break;
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+        obj1f = 0;
+        break;
+      default:
+        break;
+      }
+
+      if ( obj1f ) {
+
+        meName = obj1f->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnRmsPedG16[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnRmsPedG16[iCanvas-1];
+
+        cPed->cd();
+        gStyle->SetOptStat("euomr");
+        obj1f->SetStats(kTRUE);
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
+        obj1f->SetMinimum(0.0);
+        obj1f->Draw();
+        cPed->Update();
+        cPed->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+
+      }
+
     }
-    
+
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-	     << Numbers::sEE(ism).c_str() << """></a><strong>"
+             << Numbers::sEE(ism).c_str() << """></a><strong>"
              << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -4624,7 +4480,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
@@ -4645,7 +4501,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
@@ -4666,7 +4522,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
@@ -4687,7 +4543,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
@@ -4741,7 +4597,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
@@ -4796,7 +4652,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 

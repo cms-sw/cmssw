@@ -4,8 +4,8 @@
 /** \class AlignableCSCChamber
  *  The alignable muon CSC chamber.
  *
- *  $Date: 2006/08/04 20:18:50 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/8/4 10:00:01 $
+ *  $Revision: 1.0 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -65,7 +65,7 @@ class AlignableCSCChamber: public AlignableComposite
   virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
 
   /// Alignable object identifier
-  virtual StructureType alignableObjectId () const { return align::AlignableCSCChamber; }
+  virtual int alignableObjectId () const { return AlignableObjectId::AlignableCSCChamber; }
 
   /// Return vector of alignment data
   virtual Alignments* alignments() const;
