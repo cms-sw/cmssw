@@ -5,6 +5,8 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
+#include <vector>
+
 /** A class that gives some properties of the Tracker Layers in FAMOS
  */
 
@@ -25,7 +27,8 @@ public:
     theResolutionAlongX(theResolutionAlongX),
     theResolutionAlongY(theResolutionAlongY),
     theHitEfficiency(theHitEfficiency),
-    theModuleThickness(theModuleThickness)
+    theModuleThickness(theModuleThickness),
+    theNumberOfFudgeFactors(0)
    { 
      isSensitive = (theLayerNumber<100);
      theFirstRing = 0;
@@ -53,7 +56,8 @@ public:
     theLayerNumber(theLayerNumber),
     theFirstRing(theFirstRing),
     theLastRing(theLastRing),
-    theModuleThickness(theModuleThickness)
+    theModuleThickness(theModuleThickness),
+    theNumberOfFudgeFactors(0)
    { 
      isSensitive = true;
      isForward = true;
@@ -107,6 +111,26 @@ public:
   /// Returns the outer radius of a disk
   inline double diskOuterRadius() const { return theDiskOuterRadius; }
 
+  /// Set a fudge factor for material inhomogeneities in this layer
+  void setFudgeFactor(double min, double max, double f) { 
+    ++theNumberOfFudgeFactors;
+    theDimensionMinValues.push_back(min);
+    theDimensionMaxValues.push_back(max);
+    theFudgeFactors.push_back(f);
+  }
+
+  /// Get the fudge factors back
+  inline unsigned int fudgeNumber() const { return  theNumberOfFudgeFactors; }
+  inline double fudgeMin(unsigned iFudge) const { 
+    return (iFudge < theNumberOfFudgeFactors) ? theDimensionMinValues[iFudge] : 999.;
+  }
+  inline double fudgeMax(unsigned iFudge) const { 
+    return (iFudge < theNumberOfFudgeFactors) ? theDimensionMaxValues[iFudge] : -999.;
+  }
+  inline double fudgeFactor(unsigned iFudge) const { 
+    return (iFudge < theNumberOfFudgeFactors) ? theFudgeFactors[iFudge] : 0.;
+  }
+
 private:
 
   BoundSurface* theSurface;
@@ -123,6 +147,13 @@ private:
   bool isSensitive;
   double theDiskInnerRadius;
   double theDiskOuterRadius;
+
+  /// These are fudges factors to account for the inhomogeneities of the material
+  unsigned int  theNumberOfFudgeFactors;
+  std::vector<double> theDimensionMinValues;
+  std::vector<double> theDimensionMaxValues;
+  std::vector<double> theFudgeFactors;
+  
 
 };
 #endif
