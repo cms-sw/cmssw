@@ -1,9 +1,20 @@
+#include <iostream>
 #include "CondCore/PopCon/interface/OfflineDBInterface.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/Connection.h"
-
-popcon::OfflineDBInterface::OfflineDBInterface (std::string cstring, std::string catalog) : m_connect(cstring), m_catalog(catalog) {
-
+#include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/IOVService/interface/IOVService.h"
+#include "CondCore/IOVService/interface/IOVIterator.h"
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/AuthenticationMethod.h"
+#include "CondCore/DBCommon/interface/SessionConfiguration.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+#include "CondCore/DBCommon/interface/MessageLevel.h"
+#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/MetaDataService/interface/MetaData.h"
+static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+popcon::OfflineDBInterface::OfflineDBInterface (const std::string& connect ) : m_connect(connect) {
 	session=new cond::DBSession;
 	session->configuration().setAuthenticationMethod( cond::XML );
 	//session->sessionConfiguration().setMessageLevel( cond::Debug );
@@ -11,6 +22,7 @@ popcon::OfflineDBInterface::OfflineDBInterface (std::string cstring, std::string
 	session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut(10);
 	session->configuration().connectionConfiguration()->enableConnectionSharing();
 	session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
+	conHandler.registerConnection(m_connect,m_connect,0);
 }
 
 popcon::OfflineDBInterface::~OfflineDBInterface ()
@@ -30,17 +42,17 @@ std::map<std::string, popcon::PayloadIOV> popcon::OfflineDBInterface::getStatusM
 	return m_status_map;
 }
 
-popcon::PayloadIOV popcon::OfflineDBInterface::getSpecificTagInfo(std::string tag)
+popcon::PayloadIOV popcon::OfflineDBInterface::getSpecificTagInfo(const std::string& tag)
 {
-	PayloadIOV dummy = {0,0,0xffffffff,"noTag"};
-	getAllTagsInfo();
-	if(m_status_map.find(tag) == m_status_map.end())	
-		return dummy;
-	return m_status_map[tag];
+  PayloadIOV dummy = {0,0,0xffffffff,"noTag"};
+  getAllTagsInfo();
+  if(m_status_map.find(tag) == m_status_map.end())	
+    return dummy;
+  return m_status_map[tag];
 }
 
 
-void popcon::OfflineDBInterface::getSpecificPayloadMap(std::string){
+void popcon::OfflineDBInterface::getSpecificPayloadMap(const std::string&){
 	//FIXME Implement 
 }
 
@@ -48,12 +60,9 @@ void popcon::OfflineDBInterface::getSpecificPayloadMap(std::string){
 void  popcon::OfflineDBInterface::getAllTagsInfo()
 {		
   //m_status_map.clear();
-  static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-  conHandler.registerConnection(m_connect,m_connect,0);
   if ( !m_status_map.empty() )  return;
   popcon::PayloadIOV piov;
   try{
-    
     session->open();
     conHandler.connect(session);
     cond::Connection* myconnection=conHandler.getConnection(m_connect);
@@ -69,8 +78,9 @@ void  popcon::OfflineDBInterface::getAllTagsInfo()
     //	  );
     
     //get the pool tokens
-    for(std::vector<std::string>::iterator it = alltags.begin(); it != alltags.end(); it++)
+    for(std::vector<std::string>::iterator it = alltags.begin(); it != alltags.end(); it++){
       alltokens.push_back( metadata_svc.getToken(*it));
+    }
     coraldb.commit();	
     //std::copy (alltokens.begin(),
     //		alltokens.end(),
