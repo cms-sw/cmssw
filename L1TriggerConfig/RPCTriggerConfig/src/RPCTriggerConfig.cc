@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Tue Mar 20 12:30:19 CET 2007
-// $Id: RPCTriggerConfig.cc,v 1.1 2007/03/26 09:13:49 fruboes Exp $
+// $Id: RPCTriggerConfig.cc,v 1.2 2007/04/02 10:45:40 fruboes Exp $
 //
 //
 
@@ -148,23 +148,23 @@ RPCTriggerConfig::produce(const L1RPCConfigRcd& iRecord)
 	    parser.parse(fname.str());
 
 	    RPCPattern::RPCPatVec npats = parser.getPatternsVec(tower, logSector, logSegment);
-            
-	    pL1RPCConfig->m_pats.push_back(std::vector< std::vector< RPCPattern::RPCPatVec > >());
-	    pL1RPCConfig->m_pats[tower].push_back(std::vector< RPCPattern::RPCPatVec >());
-	    pL1RPCConfig->m_pats[tower][logSector].push_back(npats); 
+            for (int ip=0; ip<npats.size(); ip++) {
+              npats[ip].setCoords(tower,logSector,logSegment);
+              pL1RPCConfig->m_pats.push_back(npats[ip]);
+            }
 
             RPCPattern::TQualityVec nquals = parser.getQualityVec(); 
-	    pL1RPCConfig->m_quals.push_back(std::vector< std::vector< RPCPattern::TQualityVec > >());
-	    pL1RPCConfig->m_quals[tower].push_back(std::vector< RPCPattern::TQualityVec >());
-	    pL1RPCConfig->m_quals[tower][logSector].push_back(nquals); 
+            for (int iq=0; iq<nquals.size(); iq++) {
+              nquals[iq].m_tower=tower;
+              nquals[iq].m_logsector=logSector;
+              nquals[iq].m_logsegment=logSegment;
+              pL1RPCConfig->m_quals.push_back(nquals[iq]);
+            }
 	    
 	    LogDebug("RPCTriggerConfig") 
 	              << "  RPCPatterns: " << npats.size() 
-	              << "/" << pL1RPCConfig->m_pats[tower][logSector][logSegment].size()
 		      << " qualities: "<<  nquals.size()
-		      << "/" << pL1RPCConfig->m_quals[tower][logSector][logSegment].size()
 		      << std::endl;
-		      
 	    
 	 
          } // segments
