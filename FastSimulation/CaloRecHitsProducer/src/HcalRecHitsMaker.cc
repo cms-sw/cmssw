@@ -139,10 +139,16 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis)
   nhocells_ = hocells_.size();
   nhfcells_ = hfcells_.size(); 
 
+  if(!doDigis_)
+    {
+      initialized_=true;
+      return;
+    }
    // Get the gain and peds
+  std::cout << " Getting the HcalTPG coder " << std::endl;
   edm::ESHandle<HcalTPGCoder> inputCoder;
   es.get<HcalTPGRecord>().get(inputCoder);  
-
+  std::cout << " Getting the HcalTPG coder -done " << std::endl;
   myCoder_ = &(*inputCoder);
 
   //HB
