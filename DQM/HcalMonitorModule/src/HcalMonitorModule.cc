@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/11/12 19:11:56 $
- * $Revision: 1.41 $
+ * $Date: 2007/11/15 23:13:46 $
+ * $Revision: 1.42 $
  * \author W Fisher
  *
 */
@@ -275,7 +275,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // Do default setup...
   ievt_++;
-  printf("Module Analyzing...\n");
+
   int evtMask=DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON;
 
   //  int trigMask=0;
