@@ -52,9 +52,9 @@ void MakePlots(TString filename="GlobalRecHitsHistograms")
   ecalhistname.push_back("hEcalRes_EB");
   ecalhistname.push_back("hEcalRes_EE");
   ecalhistname.push_back("hEcalRes_ES");
-  ecalhistname.push_back("hEcaln_EB");
-  ecalhistname.push_back("hEcaln_EE");
-  ecalhistname.push_back("hEcaln_ES");
+  ecalhistname.push_back("hEcalRecn_EB");
+  ecalhistname.push_back("hEcalRecn_EE");
+  ecalhistname.push_back("hEcalRecn_ES");
   histnames.push_back(0);
 
 
@@ -63,10 +63,10 @@ void MakePlots(TString filename="GlobalRecHitsHistograms")
   hcalhistname.push_back("hHcalRes_HE");
   hcalhistname.push_back("hHcalRes_HF");
   hcalhistname.push_back("hHcalRes_HO");
-  hcalhistname.push_back("hHcaln_HB");
-  hcalhistname.push_back("hHcaln_HE");
-  hcalhistname.push_back("hHcaln_HF");
-  hcalhistname.push_back("hHcaln_HO");
+  hcalhistname.push_back("hHcalRecn_HB");
+  hcalhistname.push_back("hHcalRecn_HE");
+  hcalhistname.push_back("hHcalRecn_HF");
+  hcalhistname.push_back("hHcalRecn_HO");
   histnames.push_back(1);
 
   vector<string> pxlhistname;
@@ -77,7 +77,7 @@ void MakePlots(TString filename="GlobalRecHitsHistograms")
       ResX[j] = "hSiPixelResX_"+PxlString[j];
       pxlhistname.push_back(ResX[j]);
       pxlhistname.push_back("hSiPixelResY_"+PxlString[j]);
-      pxlhistname.push_back("hSiPixeln_"+PxlString[j]);
+      pxlhistname.push_back("hSiPixelRecn_"+PxlString[j]);
     }
 
   histnames.push_back(2);
@@ -87,7 +87,7 @@ void MakePlots(TString filename="GlobalRecHitsHistograms")
     {
       sihistname.push_back("hSiStripResX_"+SiString[i]);
       sihistname.push_back("hSiStripResY_"+SiString[i]);
-      sihistname.push_back("hSiStripn_"+SiString[i]);
+      sihistname.push_back("hSiStripRecn_"+SiString[i]);
     }
   histnames.push_back(3);
 

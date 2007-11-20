@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/10/22 18:05:10 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/11/09 20:44:41 $
+ *  $Revision: 1.13 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -142,8 +142,8 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
 
 // helper files
-#include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Units/SystemOfUnits.h>
+//#include <CLHEP/Vector/LorentzVector.h>
+//#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 #include <stdlib.h>

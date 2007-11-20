@@ -35,7 +35,6 @@
 <use name=SimDataFormats/ValidationFormats>
 <use name=Validation/DTRecHits>
 <use name=root>
-<use name=clhep>
 
 <flags EDM_PLUGIN=1>
 
@@ -76,7 +75,6 @@
  <use name=SimDataFormats/CaloHit>
  <use name=SimDataFormats/ValidationFormats>
  <use name=root>
- <use name=clhep>
  <use name=DQMServices/CoreROOT>
  <use name=Validation/DTRecHits>
 </export>
