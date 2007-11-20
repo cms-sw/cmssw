@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/08/16 15:29:50 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/10/05 20:38:02 $
+ *  $Revision: 1.10 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -56,12 +56,19 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
   if ( theUseMuonStateFlag ) {
     TrajectoryStateOnSurface staState = outerTkState(staMuon);
 
-    if ( !staState.isValid() ) staState = innerState(staMuon);
+    if ( !staState.isValid() ) { 
+       LogTrace(category) << " outerTkState failed ";
+       staState = innerState(staMuon);
+    }
   } else {
+    LogTrace(category) << " use inner state ";
     staState = innerState(staMuon);
   }
 
-  if ( !staState.isValid() ) return ;
+  if ( !staState.isValid() ) { 
+    LogTrace(category) << " initial state invalid, fail";
+    return;
+  }
 
   LogTrace(category) << " staState pos: "<<staState.globalPosition()
                      << " mom: "<<staState.globalMomentum() <<"eta: "<<staState.globalPosition().eta();
@@ -131,50 +138,30 @@ for (std::vector<TkStripMeasurementDet*>::const_iterator isd = stripdets.begin()
 */
 ///// ======
 
-  float staeta = fabs(staState.globalPosition().eta());
-
-  if ( theSkipFirstLayerFlag && nls.size() > 5 && staeta > 1.0 && staeta < 1.5  ) {
-     nls.erase(nls.begin());
-     if (staeta > 1.2 ) nls.erase(nls.begin());
-  }
-
-
   std::vector<TrajectoryMeasurement> alltm = findMeasurements(nls.front(), staState);
-
-  err *= 10;
-
-  if ( alltm.empty() ) {
-     staState.rescaleError(err);
-     alltm = findMeasurements(nls.front(), staState);
-     LogTrace(category) << " allmeas first rescale: "<<alltm.size();
-  }
 
   std::vector<const DetLayer*>::iterator inl;
   std::vector<const DetLayer*>::iterator usednl;
 
   int iUsedLayer = 0; 
 
-  while ( ( iUsedLayer < 2 ) && ( inl != nls.end() - 1) )  { 
+  while ( inl != nls.end() - 2 )  { 
 
      usednl = nls.begin();
      nls.erase(usednl);
 
      inl = nls.begin();
 
-     if (nls.size() < 10 ) break;
-     if ( inl == nls.end() - 1 ) break;
+     if ( !alltm.empty() && iUsedLayer > 2 ) break;
      if ( *inl == 0 ) break;
 
      std::vector<TrajectoryMeasurement> tmptm = findMeasurements(*inl, staState);
-//     LogTrace(category) << " Number of measurements in used layer: "<<iUsedLayer<<" is" <<alltm.size();
+     LogTrace(category) << " Number of measurements in used layer: "<<iUsedLayer<<" is" <<alltm.size();
      iUsedLayer++;
 
      if ( !tmptm.empty() ) { 
        iUsedLayer++;
        alltm.insert(alltm.end(),tmptm.begin(), tmptm.end());
-     } else  {
-        err *= 10; 
-        staState.rescaleError(err);
      }
 
   }
@@ -299,11 +286,11 @@ TrajectoryStateOnSurface TSGFromPropagation::outerTkState(const TrackCand& staMu
   const string category = "Muon|RecoMuon|TSGFromPropagation";
 
   TrajectoryStateOnSurface result;
+  MuonPatternRecoDumper debug;
+
 
   if ( theVtxFlag ) {
 
-    MuonPatternRecoDumper debug;
- 
     // build the transient track
     reco::TransientTrack transientTrack(staMuon.second,
   				      &*theService->magneticField(),
@@ -325,12 +312,15 @@ TrajectoryStateOnSurface TSGFromPropagation::outerTkState(const TrackCand& staMu
     StateOnTrackerBound fromInside(&*theService->propagator("PropagatorWithMaterial"));
 
     result = fromInside(ftsAtVtx);
+    LogTrace(category) << "fromInside"<< debug.dumpTSOS(result);
+
   } else {
 
     LogTrace(category) << "propagate from muon state directly";
 
     StateOnTrackerBound fromOutside(&*theService->propagator("SteppingHelixPropagatorAny"));
     result = fromOutside(innerState(staMuon));
+    LogTrace(category) << "fromOutside"<< debug.dumpTSOS(result);
 
   }
 
