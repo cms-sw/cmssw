@@ -452,9 +452,9 @@ void L1TcsWord::print(std::ostream& myCout) const
     myCout << "\n Word " << iWord << std::endl;
 
     myCout << "  PartRunNr:           "
-    << std::hex << " hex: " << "    " << std::setw(8) << std::setfill('0') << m_partTrigNr
+    << std::hex << " hex: " << "    " << std::setw(8) << std::setfill('0') << m_partRunNr
     << std::setfill(' ')
-    << std::dec << " dec: " << m_partTrigNr
+    << std::dec << " dec: " << m_partRunNr
     << std::endl;
 
     myCout << "  AssignedPartitions:  "
