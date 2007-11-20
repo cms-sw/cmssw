@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/09/19 16:59:03 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/11/07 15:24:47 $
+ *  $Revision: 1.5 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -63,6 +63,9 @@ protected:
   /// book the new ME
   void bookHistos(const DTLayerId & ch, int firstWire, int lastWire);
 
+  /// book the summary histograms
+  void bookHistos(int wh);
+
   /// Get the ME name
   std::string getMEName(std::string histoTag, const DTLayerId & lID);
 
@@ -80,14 +83,19 @@ private:
   unsigned int nLumiSegs;
   int prescaleFactor;
   int run;
+  int percentual;
 
   DaqMonitorBEInterface* dbe;
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
 
-  std::map< std::string , MonitorElement* > EfficiencyHistos;
-  std::map< std::string , MonitorElement* > UnassEfficiencyHistos;
+  std::map< DTLayerId , MonitorElement* > EfficiencyHistos;
+  std::map< DTLayerId , MonitorElement* > UnassEfficiencyHistos;
+
+  // wheel summary histograms  
+  std::map< int, MonitorElement* > wheelHistos;  
+  std::map< int, MonitorElement* > wheelUnassHistos;
   
 };
 

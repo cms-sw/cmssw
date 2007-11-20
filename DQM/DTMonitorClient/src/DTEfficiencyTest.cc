@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/09/19 16:58:48 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/11/07 15:24:42 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -52,6 +52,8 @@ DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps){
   
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
+  percentual = parameters.getUntrackedParameter<int>("BadSLpercentual", 10);
+
 }
 
 DTEfficiencyTest::~DTEfficiencyTest(){
@@ -87,7 +89,6 @@ void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& conte
 
   nevents++;
   edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: "<<nevents<<" events";
-
 }
 
 
@@ -98,6 +99,19 @@ void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
   // if running in standalone perform diagnostic only after a reasonalbe amount of events
   //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
   //     nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+
+
+  for(map<int, MonitorElement*> ::const_iterator histo = wheelHistos.begin();
+      histo != wheelHistos.end();
+      histo++) {
+    (*histo).second->Reset();
+  }
+
+  for(map<int, MonitorElement*> ::const_iterator histo = wheelUnassHistos.begin();
+      histo != wheelUnassHistos.end();
+      histo++) {
+    (*histo).second->Reset();
+  }
 
   edm::LogVerbatim ("efficiency") <<"[DTEfficiencyTest]: End of LS transition, performing the DQM client operation"; 
 
@@ -113,7 +127,35 @@ void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
   edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: Efficiency tests results";
+
   
+  map <DTLayerId, vector<double> > LayerBadCells;
+  LayerBadCells.clear();
+  map <DTLayerId, vector<double> > LayerUnassBadCells;
+  LayerUnassBadCells.clear();
+  map <DTSuperLayerId, vector<double> > SuperLayerBadCells;
+  SuperLayerBadCells.clear();
+  map <DTSuperLayerId,vector<double> > SuperLayerUnassBadCells;
+  SuperLayerUnassBadCells.clear();
+  map <pair<int,int>, int> cmsHistos;
+  cmsHistos.clear();
+  map <pair<int,int>, bool> filled;
+  for(int i=-2; i<3; i++){
+    for(int j=1; j<15; j++){
+      filled[make_pair(i,j)]=false;
+    }
+  }
+  map <pair<int,int>, int> cmsUnassHistos;
+  cmsUnassHistos.clear();
+  map <pair<int,int>, bool> UnassFilled;
+  for(int i=-2; i<3; i++){
+    for(int j=1; j<15; j++){
+      UnassFilled[make_pair(i,j)]=false;
+    }
+  }
+  
+  
+
   // Loop over the chambers
   for (; ch_it != ch_end; ++ch_it) {
     DTChamberId chID = (*ch_it)->id();
@@ -162,17 +204,17 @@ void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	      for(int bin=firstWire; bin <= lastWire; bin++) {
 		if((recSegmOccupancy_histo_root->GetBinContent(bin))!=0) {
 		  //cout<<"book histos"<<endl;
-		  if (EfficiencyHistos.find(HistoName) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
+		  if (EfficiencyHistos.find(lID) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
 		  float efficiency = occupancy_histo_root->GetBinContent(bin) / recSegmOccupancy_histo_root->GetBinContent(bin);
 		  float errorEff = sqrt(efficiency*(1-efficiency) / recSegmOccupancy_histo_root->GetBinContent(bin));
-		  EfficiencyHistos.find(HistoName)->second->setBinContent(bin, efficiency);
-		  EfficiencyHistos.find(HistoName)->second->setBinError(bin, errorEff);
+		  EfficiencyHistos.find(lID)->second->setBinContent(bin, efficiency);
+		  EfficiencyHistos.find(lID)->second->setBinError(bin, errorEff);
 		  
-		  if (UnassEfficiencyHistos.find(HistoName) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
+		  if (UnassEfficiencyHistos.find(lID) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
 		  float unassEfficiency = unassOccupancy_histo_root->GetBinContent(bin) / recSegmOccupancy_histo_root->GetBinContent(bin);
 		  float errorUnassEff = sqrt(unassEfficiency*(1-unassEfficiency) / recSegmOccupancy_histo_root->GetBinContent(bin));
-		  UnassEfficiencyHistos.find(HistoName)->second->setBinContent(bin, unassEfficiency);	
-		  UnassEfficiencyHistos.find(HistoName)->second->setBinError(bin, errorUnassEff);
+		  UnassEfficiencyHistos.find(lID)->second->setBinContent(bin, unassEfficiency);	
+		  UnassEfficiencyHistos.find(lID)->second->setBinError(bin, errorUnassEff);
 		}
 	      }
 	      
@@ -183,39 +225,140 @@ void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
     } // loop on superlayers
   } //loop on chambers
   
+
+
   // Efficiency test 
   //cout<<"[DTEfficiencyTest]: Efficiency Tests results"<<endl;
   string EfficiencyCriterionName = parameters.getUntrackedParameter<string>("EfficiencyTestName","EfficiencyInRange"); 
-  for(map<string, MonitorElement*>::const_iterator hEff = EfficiencyHistos.begin();
+  for(map<DTLayerId, MonitorElement*>::const_iterator hEff = EfficiencyHistos.begin();
       hEff != EfficiencyHistos.end();
       hEff++) {
     const QReport * theEfficiencyQReport = (*hEff).second->getQReport(EfficiencyCriterionName);
+    double counter=0;
     if(theEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theEfficiencyQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	edm::LogError ("efficiency") <<"LayerID : "<<(*hEff).first<< " Bad efficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
+	edm::LogError ("efficiency") <<"LayerID : "<<getMEName("hEffOccupancy",(*hEff).first)<< " Bad efficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
+	counter++;
       }
+      LayerBadCells[(*hEff).first].push_back(counter);
+      LayerBadCells[(*hEff).first].push_back(muonGeom->layer((*hEff).first)->specificTopology().channels());
       edm::LogWarning ("efficiency") << "-------- "<<theEfficiencyQReport->getMessage()<<" ------- "<<theEfficiencyQReport->getStatus();
     }
   }
+
+
 	
   // UnassEfficiency test 
   //cout<<"[DTEfficiencyTest]: UnassEfficiency Tests results"<<endl;
   string UnassEfficiencyCriterionName = parameters.getUntrackedParameter<string>("UnassEfficiencyTestName","UnassEfficiencyInRange"); 
-  for(map<string, MonitorElement*>::const_iterator hUnassEff = UnassEfficiencyHistos.begin();
+  for(map<DTLayerId, MonitorElement*>::const_iterator hUnassEff = UnassEfficiencyHistos.begin();
       hUnassEff != UnassEfficiencyHistos.end();
       hUnassEff++) {
     const QReport * theUnassEfficiencyQReport = (*hUnassEff).second->getQReport(UnassEfficiencyCriterionName);
+    double counter=0;
     if(theUnassEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theUnassEfficiencyQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
 	edm::LogError ("efficiency") << "Bad unassEfficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents();
+	counter++;
       }
+      LayerUnassBadCells[(*hUnassEff).first].push_back(counter);
+      LayerUnassBadCells[(*hUnassEff).first].push_back(double(muonGeom->layer((*hUnassEff).first)->specificTopology().channels()));
       edm::LogWarning ("efficiency") << theUnassEfficiencyQReport->getMessage()<<" ------- "<<theUnassEfficiencyQReport->getStatus();
     }
   }
+
+  
+  vector<DTChamber*>::const_iterator ch2_it = muonGeom->chambers().begin();
+  vector<DTChamber*>::const_iterator ch2_end = muonGeom->chambers().end();
+  for (; ch2_it != ch2_end; ++ch2_it) {
+    DTChamberId ch = (*ch2_it)->id();
+    vector<const DTSuperLayer*>::const_iterator sl2_it = (*ch2_it)->superLayers().begin(); 
+    vector<const DTSuperLayer*>::const_iterator sl2_end = (*ch2_it)->superLayers().end();
+    // Loop over the SLs
+    for(; sl2_it != sl2_end; ++sl2_it) {
+      DTSuperLayerId sl = (*sl2_it)->id();
+      double superLayerBadC=0;
+      double superLayerTotC=0;
+      double superLayerUnassBadC=0;
+      double superLayerUnassTotC=0;
+      bool fill=false;
+      vector<const DTLayer*>::const_iterator l2_it = (*sl2_it)->layers().begin(); 
+      vector<const DTLayer*>::const_iterator l2_end = (*sl2_it)->layers().end();
+      // Loop over the Ls
+      for(; l2_it != l2_end; ++l2_it) {
+	DTLayerId layerId = (*l2_it)->id();
+	if(LayerBadCells.find(layerId) != LayerBadCells.end() &&
+	   LayerUnassBadCells.find(layerId) != LayerUnassBadCells.end()){
+	  fill=true;
+	  superLayerBadC+=LayerBadCells[layerId][0];
+	  superLayerTotC+=LayerBadCells[layerId][1];
+	  superLayerUnassBadC+=LayerUnassBadCells[layerId][0];
+	  superLayerUnassTotC+=LayerUnassBadCells[layerId][1];
+	}
+      }
+      if(fill){
+	SuperLayerBadCells[sl].push_back(superLayerBadC);
+	SuperLayerBadCells[sl].push_back(superLayerTotC);
+	SuperLayerUnassBadCells[sl].push_back(superLayerUnassBadC);
+	SuperLayerUnassBadCells[sl].push_back(superLayerUnassTotC);
+      }
+    }
+  }
+
+
+  for(map<DTSuperLayerId, vector<double> >::const_iterator SLBCells = SuperLayerBadCells.begin();
+      SLBCells != SuperLayerBadCells.end();
+      SLBCells++) {
+    if((*SLBCells).second[0]/(*SLBCells).second[1] > double(percentual/100)){
+      if(wheelHistos.find((*SLBCells).first.wheel()) == wheelHistos.end()) bookHistos((*SLBCells).first.wheel());
+      if(!((*SLBCells).first.station() == 4 && (*SLBCells).first.superlayer() == 3))
+	wheelHistos[(*SLBCells).first.wheel()]->Fill((*SLBCells).first.sector()-1,((*SLBCells).first.superlayer()-1)+3*((*SLBCells).first.station()-1));
+      else
+	wheelHistos[(*SLBCells).first.wheel()]->Fill((*SLBCells).first.sector()-1,10);
+      // fill the cms summary histo if the percentual of SL which have not passed the test 
+      // is more than a predefined treshold
+      cmsHistos[make_pair((*SLBCells).first.wheel(),(*SLBCells).first.sector())]++;
+      if(((*SLBCells).first.sector()<13 &&
+	  double(cmsHistos[make_pair((*SLBCells).first.wheel(),(*SLBCells).first.sector())])/11>double(percentual)/100 &&
+	  filled[make_pair((*SLBCells).first.wheel(),(*SLBCells).first.sector())]==false) ||
+	 ((*SLBCells).first.sector()>=13 && 
+	  double(cmsHistos[make_pair((*SLBCells).first.wheel(),(*SLBCells).first.sector())])/2>double(percentual)/100 &&
+	  filled[make_pair((*SLBCells).first.wheel(),(*SLBCells).first.sector())]==false)){
+	filled[make_pair((*SLBCells).first.wheel(),(*SLBCells).first.sector())]=true;
+	wheelHistos[3]->Fill((*SLBCells).first.sector()-1,(*SLBCells).first.wheel());
+      }
+    }
+  }
+
+
+  for(map<DTSuperLayerId, vector<double> >::const_iterator SLUBCells = SuperLayerUnassBadCells.begin();
+      SLUBCells != SuperLayerUnassBadCells.end();
+      SLUBCells++) {
+    if((*SLUBCells).second[0]/(*SLUBCells).second[1] > double(percentual/100)){
+      if(wheelUnassHistos.find((*SLUBCells).first.wheel()) == wheelUnassHistos.end()) bookHistos((*SLUBCells).first.wheel());
+      if(!((*SLUBCells).first.station() == 4 && (*SLUBCells).first.superlayer() == 3))
+	wheelUnassHistos[(*SLUBCells).first.wheel()]->Fill((*SLUBCells).first.sector()-1,((*SLUBCells).first.superlayer()-1)+3*((*SLUBCells).first.station()-1));
+      else
+	wheelUnassHistos[(*SLUBCells).first.wheel()]->Fill((*SLUBCells).first.sector()-1,10);
+      // fill the cms summary histo if the percentual of SL which have not passed the test 
+      // is more than a predefined treshold
+      cmsUnassHistos[make_pair((*SLUBCells).first.wheel(),(*SLUBCells).first.sector())]++;
+      if(((*SLUBCells).first.sector()<13 &&
+	  double(cmsUnassHistos[make_pair((*SLUBCells).first.wheel(),(*SLUBCells).first.sector())])/11>double(percentual)/100 &&
+	  UnassFilled[make_pair((*SLUBCells).first.wheel(),(*SLUBCells).first.sector())]==false) ||
+	 ((*SLUBCells).first.sector()>=13 && 
+	  double(cmsUnassHistos[make_pair((*SLUBCells).first.wheel(),(*SLUBCells).first.sector())])/2>double(percentual)/100 &&
+	  UnassFilled[make_pair((*SLUBCells).first.wheel(),(*SLUBCells).first.sector())]==false)){
+	UnassFilled[make_pair((*SLUBCells).first.wheel(),(*SLUBCells).first.sector())]=true;
+	wheelUnassHistos[3]->Fill((*SLUBCells).first.sector()-1,(*SLUBCells).first.wheel());
+      }
+    }
+  }
+
 
   
 }
@@ -273,7 +416,126 @@ void DTEfficiencyTest::bookHistos(const DTLayerId & lId, int firstWire, int last
 			   "/Station" + station.str() +
 			   "/Sector" + sector.str());
 
-  EfficiencyHistos[HistoName] = dbe->book1D(EfficiencyHistoName.c_str(),EfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
-  UnassEfficiencyHistos[HistoName] = dbe->book1D(UnassEfficiencyHistoName.c_str(),UnassEfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
+  EfficiencyHistos[lId] = dbe->book1D(EfficiencyHistoName.c_str(),EfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
+  UnassEfficiencyHistos[lId] = dbe->book1D(UnassEfficiencyHistoName.c_str(),UnassEfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
 
 }
+
+
+void DTEfficiencyTest::bookHistos(int wh) {
+  
+  dbe->setCurrentFolder("DT/Tests/DTEfficiency/SummaryPlot");
+
+  if(wheelHistos.find(3) == wheelHistos.end()){
+    string histoName =  "ESummary_testFailedByAtLeast%BadSL";
+    wheelHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
+    wheelHistos[3]->setBinLabel(1,"Sector1",1);
+    wheelHistos[3]->setBinLabel(1,"Sector1",1);
+    wheelHistos[3]->setBinLabel(2,"Sector2",1);
+    wheelHistos[3]->setBinLabel(3,"Sector3",1);
+    wheelHistos[3]->setBinLabel(4,"Sector4",1);
+    wheelHistos[3]->setBinLabel(5,"Sector5",1);
+    wheelHistos[3]->setBinLabel(6,"Sector6",1);
+    wheelHistos[3]->setBinLabel(7,"Sector7",1);
+    wheelHistos[3]->setBinLabel(8,"Sector8",1);
+    wheelHistos[3]->setBinLabel(9,"Sector9",1);
+    wheelHistos[3]->setBinLabel(10,"Sector10",1);
+    wheelHistos[3]->setBinLabel(11,"Sector11",1);
+    wheelHistos[3]->setBinLabel(12,"Sector12",1);
+    wheelHistos[3]->setBinLabel(13,"Sector13",1);
+    wheelHistos[3]->setBinLabel(14,"Sector14",1);
+    wheelHistos[3]->setBinLabel(1,"Wheel-2",2);
+    wheelHistos[3]->setBinLabel(2,"Wheel-1",2);
+    wheelHistos[3]->setBinLabel(3,"Wheel0",2);
+    wheelHistos[3]->setBinLabel(4,"Wheel+1",2);
+    wheelHistos[3]->setBinLabel(5,"Wheel+2",2);
+  }
+  if(wheelUnassHistos.find(3) == wheelUnassHistos.end()){
+    string histoName =  "UESummary_testFailedByAtLeast%BadSL";
+    wheelUnassHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
+    wheelUnassHistos[3]->setBinLabel(1,"Sector1",1);
+    wheelUnassHistos[3]->setBinLabel(1,"Sector1",1);
+    wheelUnassHistos[3]->setBinLabel(2,"Sector2",1);
+    wheelUnassHistos[3]->setBinLabel(3,"Sector3",1);
+    wheelUnassHistos[3]->setBinLabel(4,"Sector4",1);
+    wheelUnassHistos[3]->setBinLabel(5,"Sector5",1);
+    wheelUnassHistos[3]->setBinLabel(6,"Sector6",1);
+    wheelUnassHistos[3]->setBinLabel(7,"Sector7",1);
+    wheelUnassHistos[3]->setBinLabel(8,"Sector8",1);
+    wheelUnassHistos[3]->setBinLabel(9,"Sector9",1);
+    wheelUnassHistos[3]->setBinLabel(10,"Sector10",1);
+    wheelUnassHistos[3]->setBinLabel(11,"Sector11",1);
+    wheelUnassHistos[3]->setBinLabel(12,"Sector12",1);
+    wheelUnassHistos[3]->setBinLabel(13,"Sector13",1);
+    wheelUnassHistos[3]->setBinLabel(14,"Sector14",1);
+    wheelUnassHistos[3]->setBinLabel(1,"Wheel-2",2);
+    wheelUnassHistos[3]->setBinLabel(2,"Wheel-1",2);
+    wheelUnassHistos[3]->setBinLabel(3,"Wheel0",2);
+    wheelUnassHistos[3]->setBinLabel(4,"Wheel+1",2);
+    wheelUnassHistos[3]->setBinLabel(5,"Wheel+2",2);
+  }
+
+
+  stringstream wheel; wheel <<wh;
+
+  if(wheelHistos.find(wh) == wheelHistos.end()){
+    string histoName =  "ESummary_testFailed_W" + wheel.str();
+    wheelHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
+    wheelHistos[wh]->setBinLabel(1,"Sector1",1);
+    wheelHistos[wh]->setBinLabel(2,"Sector2",1);
+    wheelHistos[wh]->setBinLabel(3,"Sector3",1);
+    wheelHistos[wh]->setBinLabel(4,"Sector4",1);
+    wheelHistos[wh]->setBinLabel(5,"Sector5",1);
+    wheelHistos[wh]->setBinLabel(6,"Sector6",1);
+    wheelHistos[wh]->setBinLabel(7,"Sector7",1);
+    wheelHistos[wh]->setBinLabel(8,"Sector8",1);
+    wheelHistos[wh]->setBinLabel(9,"Sector9",1);
+    wheelHistos[wh]->setBinLabel(10,"Sector10",1);
+    wheelHistos[wh]->setBinLabel(11,"Sector11",1);
+    wheelHistos[wh]->setBinLabel(12,"Sector12",1);
+    wheelHistos[wh]->setBinLabel(13,"Sector13",1);
+    wheelHistos[wh]->setBinLabel(14,"Sector14",1);
+    wheelHistos[wh]->setBinLabel(1,"MB1_SL1",2);
+    wheelHistos[wh]->setBinLabel(2,"MB1_SL2",2);
+    wheelHistos[wh]->setBinLabel(3,"MB1_SL3",2);
+    wheelHistos[wh]->setBinLabel(4,"MB2_SL1",2);
+    wheelHistos[wh]->setBinLabel(5,"MB2_SL2",2);
+    wheelHistos[wh]->setBinLabel(6,"MB2_SL3",2);
+    wheelHistos[wh]->setBinLabel(7,"MB3_SL1",2);
+    wheelHistos[wh]->setBinLabel(8,"MB3_SL2",2);
+    wheelHistos[wh]->setBinLabel(9,"MB3_SL3",2);
+    wheelHistos[wh]->setBinLabel(10,"MB4_SL1",2);
+    wheelHistos[wh]->setBinLabel(11,"MB4_SL3",2);
+  }  
+  if(wheelUnassHistos.find(wh) == wheelUnassHistos.end()){  
+    string histoName =  "UESummary_testFailed_W" + wheel.str();
+    wheelUnassHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
+    wheelUnassHistos[wh]->setBinLabel(1,"Sector1",1);
+    wheelUnassHistos[wh]->setBinLabel(2,"Sector2",1);
+    wheelUnassHistos[wh]->setBinLabel(3,"Sector3",1);
+    wheelUnassHistos[wh]->setBinLabel(4,"Sector4",1);
+    wheelUnassHistos[wh]->setBinLabel(5,"Sector5",1);
+    wheelUnassHistos[wh]->setBinLabel(6,"Sector6",1);
+    wheelUnassHistos[wh]->setBinLabel(7,"Sector7",1);
+    wheelUnassHistos[wh]->setBinLabel(8,"Sector8",1);
+    wheelUnassHistos[wh]->setBinLabel(9,"Sector9",1);
+    wheelUnassHistos[wh]->setBinLabel(10,"Sector10",1);
+    wheelUnassHistos[wh]->setBinLabel(11,"Sector11",1);
+    wheelUnassHistos[wh]->setBinLabel(12,"Sector12",1);
+    wheelUnassHistos[wh]->setBinLabel(13,"Sector13",1);
+    wheelUnassHistos[wh]->setBinLabel(14,"Sector14",1);
+    wheelUnassHistos[wh]->setBinLabel(1,"MB1_SL1",2);
+    wheelUnassHistos[wh]->setBinLabel(2,"MB1_SL2",2);
+    wheelUnassHistos[wh]->setBinLabel(3,"MB1_SL3",2);
+    wheelUnassHistos[wh]->setBinLabel(4,"MB2_SL1",2);
+    wheelUnassHistos[wh]->setBinLabel(5,"MB2_SL2",2);
+    wheelUnassHistos[wh]->setBinLabel(6,"MB2_SL3",2);
+    wheelUnassHistos[wh]->setBinLabel(7,"MB3_SL1",2);
+    wheelUnassHistos[wh]->setBinLabel(8,"MB3_SL2",2);
+    wheelUnassHistos[wh]->setBinLabel(9,"MB3_SL3",2);
+    wheelUnassHistos[wh]->setBinLabel(10,"MB4_SL1",2);
+    wheelUnassHistos[wh]->setBinLabel(11,"MB4_SL3",2);
+  }
+
+}
+  
