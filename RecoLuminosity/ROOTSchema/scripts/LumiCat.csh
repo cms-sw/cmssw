@@ -1,5 +1,6 @@
 #!/bin/tcsh
 
+# 9 digit run, 6 digit LS
 if ( $1 < 10 ) then 
     set Run = "00000000$1"
 else if ( $1 <        100 ) then
@@ -22,8 +23,8 @@ endif
 
 echo "Run: $Run"
 
-set InputDir = "."
-set OutputDir = "."
+set InputDir = "/cms/mon/dqm/lumi/root/ls"
+set OutputDir = "/cms/mon/dqm/lumi/root/run"
 
 set files = `ls $InputDir/LS_"$Run"_??????.root`
 
@@ -32,7 +33,7 @@ if( `echo $files` != '' ) then
 set TreeName = "LumiTree"
 set ChainName = "LumiChain"
 set ScriptName = "LumiCat.C"
-set DictName = "/uscms/home/ahunt/CMSSW_1_6_6/lib/slc4_ia32_gcc345/libRecoLuminosityROOTSchema.so"
+set DictName = "$CMSSW_BASE/uscms/home/ahunt/CMSSW_1_6_6/lib/slc4_ia32_gcc345/libRecoLuminosityROOTSchema.so"
 set OutputFile = "$OutputDir/Lumi_$Run.root"
 set FileTitle = "Luminosity - Run Number $Run"
 

@@ -17,7 +17,7 @@ ROOTFileBase::ROOTFileBase(){
   L1HLTrigger     = new HCAL_HLX::LEVEL1_HLT_TRIGGER;
   TriggerDeadtime = new HCAL_HLX::TRIGGER_DEADTIME;
 
-  outputDir = ".";
+  outputDir = "/cms/mon/dqm/lumi/root/ls";
 
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
