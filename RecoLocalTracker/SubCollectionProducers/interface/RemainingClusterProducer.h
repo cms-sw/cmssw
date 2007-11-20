@@ -1,3 +1,5 @@
+#ifndef RecoLocalTracker_SubCollectionProducers_RemainingClusterProducer_h
+#define RecoLocalTracker_SubCollectionProducers_RemainingClusterProducer_h
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -27,23 +29,21 @@
 //
 // class decleration
 //
-using namespace std;
-using namespace edm;
-
-class RemainingClusterProducer : public EDProducer {
+class RemainingClusterProducer : public edm::EDProducer {
    public:
-      explicit RemainingClusterProducer(const ParameterSet&);
+      explicit RemainingClusterProducer(const edm::ParameterSet&);
       ~RemainingClusterProducer();
 
    private:
-      virtual void beginJob(const EventSetup&) ;
-      virtual void produce(Event&, const EventSetup&);
+      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
  private:
-  ParameterSet conf_;
-  ESHandle<TrackerGeometry> pDD;
-  vector<DetSet<SiPixelCluster> > thePixelClusterVector;
-  vector<DetSet<SiStripCluster> > theStripClusterVector;
+  edm::ParameterSet conf_;
+  edm::ESHandle<TrackerGeometry> pDD;
+  std::vector<edm::DetSet<SiPixelCluster> > thePixelClusterVector;
+  std::vector<edm::DetSet<SiStripCluster> > theStripClusterVector;
       // ----------member data ---------------------------
 };
 
+#endif

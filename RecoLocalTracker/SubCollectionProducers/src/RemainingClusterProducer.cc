@@ -88,8 +88,10 @@ RemainingClusterProducer::produce(Event& iEvent, const EventSetup& iSetup)
  	DetSet<const SiPixelRecHit *> Pix_tk(detid.rawId());
  	pixelInTrack.insert(Pix_tk);
       }
+      continue; // se e' pixel non e' tracker, no?
     }
 
+    //std::cout << "detOD: " << detid.rawId() << std::endl;
     //STRIP 
     if ((uint(detid.subdetId())==StripSubdetector::TIB) ||
 	(uint(detid.subdetId())==StripSubdetector::TOB) ||
@@ -98,12 +100,14 @@ RemainingClusterProducer::produce(Event& iEvent, const EventSetup& iSetup)
       //rphi
       SiStripRecHit2DCollection::range monorechitRange = (rphirecHits.product())->get((detid));
       if (monorechitRange.second-monorechitRange.first!=0){
+        //std::cout << "++ IN MONO:   " << detid.rawId() << std::endl;
  	DetSet<const  SiStripRecHit2D*> Mono_tk(detid.rawId());
  	monoInTrack.insert(Mono_tk);
       }
       //stereo
       SiStripRecHit2DCollection::range stereorechitRange = (stereorecHits.product())->get((detid));
       if (stereorechitRange.second-stereorechitRange.first!=0){
+        //std::cout << "++ IN STEREO: " << detid.rawId() << std::endl;
  	DetSet<const  SiStripRecHit2D*> Stereo_tk(detid.rawId());
  	stereoInTrack.insert(Stereo_tk);
       }
@@ -129,8 +133,22 @@ RemainingClusterProducer::produce(Event& iEvent, const EventSetup& iSetup)
       }
 
       const SiStripRecHit2D* monohit=dynamic_cast<const SiStripRecHit2D*>(&(*hit)); 
-      if (monohit!=0)
-	(*monoInTrack.find(monohit->geographicalId().rawId())).push_back(monohit);
+      if (monohit!=0) {
+        //std::cout << "-- MONO HIT IN: " << monohit->geographicalId().rawId() << std::endl;
+        uint32_t detid = (monohit->geographicalId().rawId());
+        DetSetVector<const SiStripRecHit2D*>::iterator point = monoInTrack.find(detid);
+        if (point != monoInTrack.end()) {
+            point->push_back(monohit);
+        } else {
+            point = stereoInTrack.find(detid);
+            if (point == stereoInTrack.end()) {
+                edm::LogError("RemainingClusterProducer") << "Don't know how to handle detid " << detid;
+                continue;
+            } else {
+                point->push_back(monohit);
+            }
+        }
+      }
     }
   }
   vector<const SiPixelRecHit*>::const_iterator ipix;
