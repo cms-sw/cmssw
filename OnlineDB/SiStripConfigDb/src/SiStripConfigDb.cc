@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.33 2007/11/07 15:55:33 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.34 2007/11/20 22:39:27 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -877,11 +877,19 @@ void SiStripConfigDb::createPartition( const string& partition_name,
       ss << "/tmp/fec_" << dbParams_.partition_ << ".xml";
       FecDeviceFactory* factory = deviceFactory(__func__);
       factory->setOutputFileName( ss.str() );
+#ifdef USING_NEW_DATABASE_MODEL
       deviceFactory(__func__)->createPartition( devices_,
 						&dbParams_.fecMajor_, 
 						&dbParams_.fecMinor_, 
 						dbParams_.partition_,
 						true ); //@@ partition flag?
+#else
+      deviceFactory(__func__)->createPartition( devices_,
+						&dbParams_.fecMajor_, 
+						&dbParams_.fecMinor_, 
+						dbParams_.partition_,
+						dbParams_.partition_ ); 
+#endif
     } catch (...) { 
       stringstream ss; 
       ss << "Failed to create new partition with name "
