@@ -1,0 +1,2 @@
+#include "RecoVertex/NuclearInteractionProducer/interface/NuclearInteractionEDProducer.h"
+DEFINE_FWK_MODULE(NuclearInteractionEDProducer);

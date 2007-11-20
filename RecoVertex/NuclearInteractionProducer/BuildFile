@@ -1,0 +1,19 @@
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/VertexReco>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/TrajectoryState>
+<export>
+  <use name=DataFormats/TrackReco>
+  <use name=DataFormats/VertexReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=MagneticField/Engine>
+  <use name=MagneticField/Records>
+  <lib name=RecoVertexNuclearInteractionProducer>
+</export>
+
