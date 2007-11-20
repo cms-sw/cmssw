@@ -30,6 +30,7 @@
 // Geometry Headers
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
+#include <vector>
 class FSimEvent;
 class TrackerLayer;
 class ParticlePropagator;
@@ -91,6 +92,7 @@ class MaterialEffects
   EnergyLossSimulator* EnergyLoss;
   NuclearInteractionSimulator* NuclearInteraction;
 
+  // Cuts for material effects
   double pTmin;
   GlobalVector theNormalVector;
   double theThickness;

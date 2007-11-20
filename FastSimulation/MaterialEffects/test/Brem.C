@@ -62,7 +62,8 @@ void Brem() {
 
   gDirectory->cd("DQMData");
   BremComparison = new TCanvas("Brem","BremComparison",150,150,800,600);
-  TrackerFast->SetMaximum(4500);
+  TrackerFast->SetMaximum(24000);
+  TrackerFast->SetMinimum(0);
   TLegend* pixel = new TLegend(0.6,0.17,0.67,0.20);
   pixel->AddEntry("Pixels ","Pixels ","");
   TLegend* inner = new TLegend(0.24,0.21,0.38,0.24);

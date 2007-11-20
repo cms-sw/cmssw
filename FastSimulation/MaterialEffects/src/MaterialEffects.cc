@@ -97,6 +97,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
     //    std::map<int,double> lengthRatio;
     //    for ( unsigned i=0; i<theLengthRatio.size(); ++i )
     //      lengthRatio[ pionTypes[i] ] = theLengthRatio[i];
+    double fudgeFactor = matEff.getParameter<double>("fudgeFactor");
 
     // The evolution of the interaction lengths with energy
     std::vector<double> theRatios  
@@ -176,7 +177,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
     NuclearInteraction = 
       new NuclearInteractionSimulator(pionEnergies, pionTypes, pionNames, 
 				      pionMasses, pionPMin, pionEnergy, 
-				      lengthRatio, ratios, idMap, 
+				      lengthRatio, fudgeFactor, ratios, idMap, 
 				      inputFile, random);
   }
 
@@ -239,23 +240,8 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
   if ( NuclearInteraction && abs(myTrack.pid()) > 100 
                           && abs(myTrack.pid()) < 1000000) { 
 
-    // A few fudge factors ...
-    double factor = 1.;
-
-    if ( !layer.sensitive() ) { 
-      if ( layer.layerNumber() == 107 ) { 
-	double eta = myTrack.vertex().Eta();
-	factor = eta > 2.2 ? 1.0 +(eta-2.2)*3.0 : 1.0;
-      }	else if ( layer.layerNumber() == 113 ) { 
-	double zed = fabs(myTrack.Z());
-	factor = zed > 116. ? 0.6 : 1.4;
-      } else if ( layer.layerNumber() == 115 ) {
-	factor = 0.0;
-      }
-    }
-    
     // Simulate a nuclear interaction
-    NuclearInteraction->updateState(myTrack,radlen*factor);
+    NuclearInteraction->updateState(myTrack,radlen);
 
     if ( NuclearInteraction->nDaughters() ) { 
 
@@ -343,39 +329,26 @@ MaterialEffects::radLengths(const TrackerLayer& layer,
   //  double radlen = theThickness / fabs(P.dot(theNormalVector)/(P.mag()*theNormalVector.mag()));
   double radlen = theThickness / fabs(P.dot(theNormalVector)) * P.mag();
 
-  // This is disgusting. It should be in the geometry description, by there
-  // is no way to define a cylinder with a hole in the middle...
+  // This is a series of fudge factors (from the geometry description), 
+  // to describe the layer inhomogeneities (services, cables, supports...)
   double rad = myTrack.R();
   double zed = fabs(myTrack.Z());
 
   double factor = 1;
 
-  if ( rad > 16. && zed < 299. ) {
+  // Are there fudge factors for this layer
+  if ( layer.fudgeNumber() ) 
 
-    // Simulate cables out the TEC's
-    if ( zed > 122. && layer.sensitive() ) { 
+    // If yes, loop on them
+    for ( unsigned int iLayer=0; iLayer < layer.fudgeNumber(); ++iLayer ) { 
 
-      if ( zed < 165. ) { 
-	if ( rad < 24. ) factor = 3.0;
-      } else {
-	if ( rad < 32.5 )  factor = 3.0;
-	else if ( (zed > 220. && rad < 45.0) || 
-		  (zed > 250. && rad < 54.) ) factor = 0.3;
+      // Apply to R if forward layer, to Z if barrel layer
+      if ( (  layer.forward() && layer.fudgeMin(iLayer) < rad && rad < layer.fudgeMax(iLayer) )  ||
+	   ( !layer.forward() && layer.fudgeMin(iLayer) < zed && zed < layer.fudgeMax(iLayer) ) ) {
+	factor = layer.fudgeFactor(iLayer);
+	break;
       }
-    }
-
-    // Less material on all sensitive layers of the Silicon Tracker
-    else if ( zed < 20. && layer.sensitive() ) { 
-      if ( rad > 55. ) factor = 0.50;
-      else if ( zed < 10 ) factor = 0.77;
-    }
-    // Much less cables outside the Si Tracker barrel
-    else if ( rad > 118. && zed < 250. ) { 
-      if ( zed < 116 ) factor = 0.225 * .75 ;
-      else factor = .75;
-    }
-    // No cable whatsoever in the Pixel Barrel.
-    else if ( rad < 18. && zed < 26. ) factor = 0.08;
+    
   }
 
   theThickness *= factor;

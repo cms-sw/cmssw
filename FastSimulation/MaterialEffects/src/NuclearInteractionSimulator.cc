@@ -25,6 +25,7 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   std::vector<double>& pionPMin,
   double pionEnergy,
   std::vector<double>& lengthRatio,
+  double fudgeFactor,
   std::vector< std::vector<double> >& ratios,
   std::map<int,int >& idMap,
   std::string inputFile,
@@ -84,6 +85,10 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
 
   // Read the information from a previous run (to keep reproducibility)
   bool input = this->read(inputFile);
+  if ( input ) 
+    std::cout << "***WARNING*** You are reading nuclear-interaction information from the file "
+	      << inputFile << " created in an earlier run."
+	      << std::endl;
 
   // Open the file for saving the information of the current run
   myOutputFile.open ("NuclearInteractionOutputFile.txt");
@@ -93,6 +98,7 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   // Open the root files
   //  for ( unsigned file=0; file<theFileNames.size(); ++file ) {
   std::cout << "Opening nuclear-interaction files ..." << std::endl;
+  unsigned fileNb = 0;
   for ( unsigned iname=0; iname<thePionNA.size(); ++iname ) {
     for ( unsigned iene=0; iene<thePionEN.size(); ++iene ) {
       //std::cout << "iname/iene " << iname << " " << iene << std::endl; 
@@ -108,6 +114,7 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
       theFiles[iname][iene] = TFile::Open(fullPath.c_str());
       if ( !theFiles[iname][iene] ) throw cms::Exception("FastSimulation/MaterialEffects") 
 	<< "File " << theFileNames[iname][iene] << " " << fullPath <<  " not found ";
+      ++fileNb;
       //
       theTrees[iname][iene] = (TTree*) theFiles[iname][iene]->Get("NuclearInteractions"); 
       if ( !theTrees[iname][iene] ) throw cms::Exception("FastSimulation/MaterialEffects") 
@@ -162,8 +169,17 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   ien4 = 0;
   while ( thePionEN[ien4] < 4.0 ) ++ien4;
 
+  // Rescale the ratio "Interaction length/Radiation length" by a fudge factor
+  for ( unsigned il=0; il < theLengthRatio.size(); ++il ) { 
+    theLengthRatio[il] *= fudgeFactor;
+  }
+
   // Return Loot in the same state as it was when entering. 
   gROOT->cd();
+
+  // Information
+  std::cout << " ---> A total of " << fileNb 
+	    << " nuclear-interaction files was sucessfully open" << std::endl;
 
   //  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   //  htot = dbe->book1D("Total", "All particles",150,0.,150.);
