@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.36 2007/06/04 12:56:44 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.37 2007/06/19 12:25:04 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -257,6 +257,22 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
 
   SiStripConfigDb::FedConnections::const_iterator ifed = conns.begin();
   for ( ; ifed != conns.end(); ifed++ ) {
+#ifdef USING_NEW_DATABASE_MODEL
+    //uint16_t fec_id    = static_cast<uint16_t>( (*ifed)->getFecHardwareId() );
+    uint16_t fec_crate = static_cast<uint16_t>( (*ifed)->getCrateSlot() + sistrip::FEC_CRATE_OFFSET ); //@@ temporary offset!
+    uint16_t fec_slot  = static_cast<uint16_t>( (*ifed)->getFecSlot() );
+    uint16_t fec_ring  = static_cast<uint16_t>( (*ifed)->getRingSlot() + sistrip::FEC_RING_OFFSET ); //@@ temporary offset!
+    uint16_t ccu_addr  = static_cast<uint16_t>( (*ifed)->getCcuAddress() );
+    uint16_t ccu_chan  = static_cast<uint16_t>( (*ifed)->getI2cChannel() );
+    uint16_t apv0      = static_cast<uint16_t>( (*ifed)->getApvAddress() );
+    uint16_t apv1      = apv0 + 1; //@@ needs implementing!
+    uint32_t dcu_id    = static_cast<uint32_t>( (*ifed)->getDcuHardId() );
+    uint32_t det_id    = 0; //@@ static_cast<uint32_t>( (*ifed)->getDetId() );
+    uint16_t npairs    = 0; //@@ static_cast<uint16_t>( (*ifed)->getApvPairs() ); 
+    uint16_t fed_id    = static_cast<uint16_t>( (*ifed)->getFedId() );
+    uint16_t fed_ch    = static_cast<uint16_t>( (*ifed)->getFedChannel() );
+    uint16_t length    = 0; //@@ static_cast<uint16_t>( (*ifed)->getFiberLength() );
+#else
     uint16_t fec_crate = static_cast<uint16_t>( (*ifed)->getFecInstance() + sistrip::FEC_CRATE_OFFSET ); //@@ temporary offset!
     uint16_t fec_slot  = static_cast<uint16_t>( (*ifed)->getSlot() );
     uint16_t fec_ring  = static_cast<uint16_t>( (*ifed)->getRing() + sistrip::FEC_RING_OFFSET ); //@@ temporary offset!
@@ -269,10 +285,13 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
     uint16_t npairs    = static_cast<uint16_t>( (*ifed)->getApvPairs() );
     uint16_t fed_id    = static_cast<uint16_t>( (*ifed)->getFedId() );
     uint16_t fed_ch    = static_cast<uint16_t>( (*ifed)->getFedChannel() ); // "internal" numbering scheme
+    uint16_t length    = static_cast<uint16_t>( (*ifed)->getFiberLength() );
+#endif
     FedChannelConnection conn( fec_crate, fec_slot, fec_ring, ccu_addr, ccu_chan,
 			       apv0, apv1,
 			       dcu_id, det_id, npairs,
-			       fed_id, fed_ch );
+			       fed_id, fed_ch,
+			       length );
     fec_cabling.addDevices( conn );
   }
   
@@ -343,8 +362,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
   edm::LogVerbatim(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Retrieving APV descriptions from database...";
-  SiStripConfigDb::DeviceDescriptions apv_desc;
-  db->getDeviceDescriptions( apv_desc, APV25 );
+  SiStripConfigDb::DeviceDescriptions apv_desc = db->getDeviceDescriptions( APV25 );
   if ( !apv_desc.empty() ) { 
     edm::LogVerbatim(mlCabling_) 
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
@@ -368,8 +386,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
   edm::LogVerbatim(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Retrieving DCU descriptions from database...";
-  SiStripConfigDb::DeviceDescriptions dcu_desc;
-  db->getDeviceDescriptions( dcu_desc, DCU );
+  SiStripConfigDb::DeviceDescriptions dcu_desc = db->getDeviceDescriptions( DCU );
   if ( !dcu_desc.empty() ) { 
     uint16_t feh = 0;
     uint16_t ccu = 0;
@@ -448,7 +465,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
   
   SiStripConfigDb::DeviceDescriptions::const_iterator iapv;
   for ( iapv = apv_desc.begin(); iapv != apv_desc.end(); iapv++ ) {
-    const SiStripConfigDb::DeviceAddress& addr = db->deviceAddress(**iapv);
+    SiStripConfigDb::DeviceAddress addr = db->deviceAddress(**iapv);
     FedChannelConnection conn( addr.fecCrate_ + sistrip::FEC_CRATE_OFFSET, //@@ temp
 			       addr.fecSlot_, 
 			       addr.fecRing_ + sistrip::FEC_RING_OFFSET, //@@ temp
@@ -861,6 +878,12 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 		  module.nApvPairs( iter->second->getApvNumber()/2 ); 
 		}
 		
+		// --- Check for null fibre length ---
+		
+		if ( !module.length() ) { 
+		  module.length( static_cast<uint16_t>( iter->second->getFibreLength() ) );
+		}
+
 		// --- Add TkDcuInfo object to "used" map and remove from cached map ---
 
 		out[module.dcuId()] = iter->second;

@@ -1,4 +1,4 @@
-// Last commit: $Id: FedCablingHistosUsingDb.cc,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
+// Last commit: $Id: FedCablingHistosUsingDb.cc,v 1.4 2007/05/24 15:59:49 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FedCablingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -64,13 +64,10 @@ void FedCablingHistosUsingDb::uploadToConfigDb() {
   }
 
   // Retrieve descriptions for DCU id and DetId 
-  SiStripConfigDb::DeviceDescriptions dcus; 
-  db_->getDeviceDescriptions( dcus, DCU ); 
-  SiStripConfigDb::DcuDetIdMap detids;
-  detids = db_->getDcuDetIdMap(); 
+  SiStripConfigDb::DeviceDescriptions dcus = db_->getDeviceDescriptions( DCU ); 
+  SiStripConfigDb::DcuDetIdMap detids = db_->getDcuDetIdMap(); 
   
   // Update FED connection descriptions
-  db_->resetFedConnections();
   const SiStripConfigDb::FedConnections& conns = db_->getFedConnections(); 
   update( const_cast<SiStripConfigDb::FedConnections&>(conns), dcus, detids );
   if ( !test_ ) { 
@@ -89,7 +86,6 @@ void FedCablingHistosUsingDb::uploadToConfigDb() {
   }
   
   // Update FED descriptions with enabled/disabled channels
-  db_->resetFedDescriptions();
   const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
   if ( !test_ ) { 
@@ -166,26 +162,43 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
     fed_map[fed_key] = ianal->first;
     
     // Create connection object and set member data 
+#ifdef USING_NEW_DATABASE_MODEL	
+    ConnectionDescription* conn = new ConnectionDescription();
+    conn->setFedId( ianal->second->fedId() );
+    conn->setFedChannel( ianal->second->fedCh() );
+    conn->setFecHardwareId( "" ); //@@
+    conn->setCrateSlot( fec_path.fecCrate() - sistrip::FEC_CRATE_OFFSET ); //@@ correct?
+    conn->setFecSlot( fec_path.fecSlot() );
+    conn->setRingSlot( fec_path.fecRing() - sistrip::FEC_RING_OFFSET ); //@@ correct?
+    conn->setCcuAddress( fec_path.ccuAddr() );
+    conn->setI2cChannel( fec_path.ccuChan() );
+    conn->setApvAddress( SiStripFecKey::i2cAddr(fec_path.channel(),true)  );
+    conn->setDcuHardId( sistrip::invalid32_ );
+    //conn->setDetId( sistrip::invalid32_ );
+    //conn->setApvPairs( sistrip::invalid_ );
+    //conn->setFiberLength( sistrip::invalid_ );
+#else
     FedChannelConnectionDescription* conn = new FedChannelConnectionDescription(); 
     conn->setFedId( ianal->second->fedId() );
     conn->setFedChannel( ianal->second->fedCh() );
-    conn->setFecSupervisor("");
-    conn->setFecSupervisorIP("");
-    conn->setFecInstance( fec_path.fecCrate() );
+    conn->setFecSupervisor( "" );
+    conn->setFecSupervisorIP( "" );
+    conn->setFecInstance( fec_path.fecCrate() - sistrip::FEC_CRATE_OFFSET ); //@@ correct?
     conn->setSlot( fec_path.fecSlot() );
-    conn->setRing( fec_path.fecRing() );
+    conn->setRing( fec_path.fecRing() - sistrip::FEC_RING_OFFSET ); //@@ correct?
     conn->setCcu( fec_path.ccuAddr() );
     conn->setI2c( fec_path.ccuChan() );
     conn->setApv( SiStripFecKey::i2cAddr(fec_path.channel(),true) );
-    conn->setDcuHardId( sistrip::invalid_ );
-    conn->setDetId( sistrip::invalid_ );
+    conn->setDcuHardId( sistrip::invalid32_ );
+    conn->setDetId( sistrip::invalid32_ );
+    conn->setApvPairs( sistrip::invalid_ ); 
     conn->setFiberLength( sistrip::invalid_ );
-    conn->setApvPairs( sistrip::invalid_ );
+#endif
     
     // Retrieve DCU id from DB and set member data 
     SiStripConfigDb::DeviceDescriptions::const_iterator idcu;
     for ( idcu = dcus.begin(); idcu != dcus.end(); idcu++ ) {
-
+      
       // Check if DCU on Front-End Hybrid
       dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
       if ( !dcu ) { continue; }
@@ -211,9 +224,11 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
     // Retrieve DetId from DB and set member data 
     SiStripConfigDb::DcuDetIdMap::const_iterator idet = detids.find( conn->getDcuHardId() );
     if ( idet != detids.end() ) { 
+#ifndef USING_NEW_DATABASE_MODEL
       conn->setDetId( idet->second->getDetId() );
       conn->setApvPairs( idet->second->getApvNumber()/2 );
       conn->setFiberLength( static_cast<uint32_t>( idet->second->getFibreLength() ) );
+#endif
     }
       
     // Add FedChannelConnectionDescription to vector
@@ -235,6 +250,7 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
     << 100 * conns.size() / ( conns.size() + unconnected ) 
     << "% of total)";
   
+#ifndef USING_NEW_DATABASE_MODEL	
   // Some debug
   std::stringstream ss; 
   ss << "[FedCablingHistosUsingDb::" << __func__ << "]"
@@ -244,6 +260,7 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
   SiStripConfigDb::FedConnections::iterator ifed = conns.begin();
   for ( ; ifed != conns.end(); ifed++ ) { (*ifed)->toXML(ss); }
   LogTrace(mlTest_) << ss.str();
+#endif 
   
 }
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.7 2007/07/04 08:39:13 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.8 2007/07/13 14:18:26 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -73,7 +73,6 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
   if ( uploadFecSettings_ ) {
 
     // Update PLL device descriptions
-    db_->resetDeviceDescriptions();
     const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions(); 
     bool upload = update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
     
@@ -110,7 +109,6 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
   if ( uploadFedSettings_ ) {
 
     // Update FED descriptions with new ticker thresholds
-    db_->resetFedDescriptions();
     const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
     update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
 

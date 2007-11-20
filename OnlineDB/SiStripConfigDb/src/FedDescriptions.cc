@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.12 2007/11/07 15:55:33 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.14 2007/11/09 13:52:57 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
@@ -13,77 +13,68 @@ using namespace sistrip;
 // 
 const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
 
+  feds_.clear(); 
+
   if ( !deviceFactory(__func__) ) { return feds_; }
-  if ( !resetFeds_ ) { return feds_; }
 
   try {
     deviceFactory(__func__)->setUsingStrips( usingStrips_ );
-    
-    //@@ handle fact that "latest" version for FED is signified by "-1", not "0"!
     int16_t major = dbParams_.fedMajor_; 
     int16_t minor = dbParams_.fedMinor_; 
     if ( dbParams_.fedMajor_ == 0 && 
 	 dbParams_.fedMinor_ == 0 ) {
-      major = -1;
-      minor = -1;
+      major = -1; //@@ "current state" for fed factory!
+      minor = -1; //@@ "current state" for fed factory!
     }
     feds_ = *( deviceFactory(__func__)->getFed9UDescriptions( dbParams_.partition_, 
 							      major, 
 							      minor ) );
-    resetFeds_ = false;
-  }
-  catch (... ) {
-    handleException( __func__ );
-  }
+  } catch (... ) { handleException( __func__ ); }
   
   // Debug 
   stringstream ss; 
-  ss << "[SiStripConfigDb::" << __func__ << "]";
-  if ( feds_.empty() ) { ss << " Found no FED descriptions"; }
-  else { ss << " Found " << feds_.size() << " FED descriptions"; }
+  ss << "[SiStripConfigDb::" << __func__ << "]" 
+     << " Found " << feds_.size() 
+     << " FED descriptions"; 
   if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFedXml_.size() << " 'fed.xml' file(s)"; }
   else { ss << " in database partition '" << dbParams_.partition_ << "'"; }
-  if ( feds_.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
-  else { LogTrace(mlConfigDb_) << ss; }
+  if ( feds_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
+  else { LogTrace(mlConfigDb_) << ss.str(); }
   
   return feds_;
+
 }
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::resetFedDescriptions() {
-  feds_.clear();
-  resetFeds_ = true;
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) { //@@ this ok???
+void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) { 
 
   if ( !deviceFactory(__func__) ) { return; }
   
+  if ( feds_.empty() ) { 
+    stringstream ss; 
+    ss << "[SiStripConfigDb::" << __func__ << "]" 
+       << " Found no cached FED descriptions, therefore no upload!"; 
+    edm::LogWarning(mlConfigDb_) << ss.str(); 
+    return; 
+  }
+  
   try { 
-    SiStripConfigDb::FedDescriptions::iterator ifed = feds_.begin();
-    for ( ; ifed != feds_.end(); ifed++ ) {
-      deviceFactory(__func__)->setFed9UDescription( **ifed, 
- 						    (uint16_t*)(&dbParams_.fedMajor_), 
- 						    (uint16_t*)(&dbParams_.fedMinor_),
- 						    false ); // (new_major_version?1:0) ); //@@ should be true???
-    }
-  }
-  catch (...) { 
-    handleException( __func__ ); 
-  }
+    deviceFactory(__func__)->setFed9UDescriptions( feds_,
+						   dbParams_.partition_,
+						   (uint16_t*)(&dbParams_.fedMajor_), 
+						   (uint16_t*)(&dbParams_.fedMinor_),
+						   (new_major_version?1:0) ); 
+  } catch (...) { handleException( __func__ ); }
   
 }
 
 // -----------------------------------------------------------------------------
 // 
-const SiStripConfigDb::FedDescriptions& SiStripConfigDb::createFedDescriptions( const SiStripFecCabling& fec_cabling ) {
+void SiStripConfigDb::createFedDescriptions( const SiStripFecCabling& fec_cabling ) {
   
-  // Static container
-  static FedDescriptions static_fed_descriptions;
-  static_fed_descriptions.clear();
+  // Clear cache
+  feds_.clear();
   
   // Create FED cabling from FEC cabling
   vector<FedChannelConnection> conns;
@@ -114,7 +105,7 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::createFedDescriptions( 
 	}
 	f->getFedStrips().setApvStrips (addr, apvStripDescription);
       }
-      static_fed_descriptions.push_back( f );
+      feds_.push_back( f );
     } catch(...) {
       stringstream ss; 
       ss << "Problems creating description for FED id " << *ifed;
@@ -122,35 +113,39 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::createFedDescriptions( 
     }
   } 
   
-  if ( static_fed_descriptions.empty() ) {
+  if ( feds_.empty() ) {
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " No FED connections created!";
   }
   
-  return static_fed_descriptions;
-
 }
 
 // -----------------------------------------------------------------------------
 /** */ 
 const vector<uint16_t>& SiStripConfigDb::getFedIds() {
   
-  static vector<uint16_t> fed_ids;
-  fed_ids.clear();
+  fedIds_.clear();
+
+  if ( feds_.empty() ) {
+    bool using_strips = usingStrips_;
+    deviceFactory(__func__)->setUsingStrips( false );
+    getFedDescriptions();
+    deviceFactory(__func__)->setUsingStrips( using_strips );
+  }
   
-  bool using_strips = usingStrips_;
-  deviceFactory(__func__)->setUsingStrips( false );
-  getFedDescriptions();
-  deviceFactory(__func__)->setUsingStrips( using_strips );
   FedDescriptions::iterator ifed = feds_.begin();
   for ( ; ifed != feds_.end(); ifed++ ) { 
-    fed_ids.push_back( (*ifed)->getFedId() );
+    fedIds_.push_back( (*ifed)->getFedId() );
   }
-  if ( fed_ids.empty() ) {
+  
+  if ( fedIds_.empty() ) {
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " No FED ids found!"; 
   }
-  return fed_ids;
+  
+  return fedIds_;
+
 }
+

@@ -1,5 +1,5 @@
-// Last commit: $Id: FedConnections.cc,v 1.7 2006/11/24 11:41:58 bainbrid Exp $
-// Latest tag:  $Name: HEAD $
+// Last commit: $Id: FedConnections.cc,v 1.8 2007/11/07 15:55:33 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedConnections.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -12,37 +12,34 @@ using namespace sistrip;
 // 
 const SiStripConfigDb::FedConnections& SiStripConfigDb::getFedConnections() {
 
+  connections_.clear();
+
   if ( !deviceFactory(__func__) ) { return connections_; }
-  if ( !resetConnections_ ) { return connections_; }
   
   try {
-    for ( int iconn = 0; iconn < deviceFactory(__func__)->getNumberOfFedChannel(); iconn++ ) {
+#ifdef USING_NEW_DATABASE_MODEL
+    deviceFactory(__func__)->getConnectionDescriptions( dbParams_.partition_, 
+							connections_,
+							dbParams_.cablingMajor_,
+							dbParams_.cablingMinor_,
+							false ); //@@ do not get DISABLED connections
+#else
+    for ( uint16_t iconn = 0; iconn < deviceFactory(__func__)->getNumberOfFedChannel(); iconn++ ) {
       connections_.push_back( deviceFactory(__func__)->getFedChannelConnection( iconn ) ); 
     }
-    resetConnections_ = false;
-  }
-  catch (...) { 
-    handleException( __func__, "Problems retrieving connection descriptions!" ); 
-  }
+#endif
+  } catch (...) { handleException( __func__ ); }
   
-  // Debug 
   stringstream ss; 
-  ss << "[SiStripConfigDb::" << __func__ << "]";
-  if ( connections_.empty() ) { ss << " Found no FED connections"; }
-  else { ss << " Found " << connections_.size() << " FED connections"; }
+  ss << "[SiStripConfigDb::" << __func__ << "]"
+     << " Found " << connections_.size() << " FED connections"; 
   if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputModuleXml_ << " 'module.xml' file"; }
   else { ss << " in database partition '" << dbParams_.partition_ << "'"; }
   if ( connections_.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
   else { LogTrace(mlConfigDb_) << ss; }
   
   return connections_;
-}
 
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::resetFedConnections() {
-  connections_.clear(); 
-  resetConnections_ = true;
 }
 
 // -----------------------------------------------------------------------------
@@ -51,23 +48,37 @@ void SiStripConfigDb::uploadFedConnections( bool new_major_version ) {
 
   if ( !deviceFactory(__func__) ) { return; }
   
+  if ( connections_.empty() ) { 
+    stringstream ss; 
+    ss << "[SiStripConfigDb::" << __func__ << "]" 
+       << " Found no cached FED connections, therefore no upload!"; 
+    edm::LogWarning(mlConfigDb_) << ss.str(); 
+    return; 
+  }
+
   if ( dbParams_.usingDb_ ) {
     
     try { 
       
+#ifdef USING_NEW_DATABASE_MODEL
+      deviceFactory(__func__)->setConnectionDescriptions( connections_,
+							  dbParams_.partition_, 
+							  &(dbParams_.cablingMajor_),
+							  &(dbParams_.cablingMinor_),
+							  new_major_version );
+#else 
       SiStripConfigDb::FedConnections::iterator ifed = connections_.begin();
       for ( ; ifed != connections_.end(); ifed++ ) {
 	deviceFactory(__func__)->addFedChannelConnection( *ifed );
       }
       deviceFactory(__func__)->upload();
+#endif
       
-    }
-    catch (...) {
-      handleException( __func__ );
-    }
+    } catch (...) { handleException( __func__ ); }
     
   } else {
     
+#ifndef USING_NEW_DATABASE_MODEL
     ofstream out( dbParams_.outputModuleXml_.c_str() );
     out << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>" << endl
 	<< "<!DOCTYPE TrackerDescription SYSTEM \"http://cmsdoc.cern.ch/cms/cmt/System_aspects/Daq/dtd/trackerdescription.dtd\">" << endl
@@ -78,6 +89,7 @@ void SiStripConfigDb::uploadFedConnections( bool new_major_version ) {
     out << "</FedChannelList>" << endl
 	<< "</TrackerDescription>" << endl;
     out.close();
+#endif
 
   }
   
@@ -85,11 +97,10 @@ void SiStripConfigDb::uploadFedConnections( bool new_major_version ) {
 
 // -----------------------------------------------------------------------------
 // 
-const SiStripConfigDb::FedConnections& SiStripConfigDb::createFedConnections( const SiStripFecCabling& fec_cabling ) {
+void SiStripConfigDb::createFedConnections( const SiStripFecCabling& fec_cabling ) {
   
-  // Static container
-  static FedConnections static_fed_connections;
-  static_fed_connections.clear();
+  // Clear cache 
+  connections_.clear();
   
   // Create FED cabling from FEC cabling
   vector<FedChannelConnection> connections;
@@ -99,6 +110,22 @@ const SiStripConfigDb::FedConnections& SiStripConfigDb::createFedConnections( co
   // Iterate through connection descriptions
   vector<FedChannelConnection>::iterator iconn = connections.begin();
   for ( ; iconn != connections.end(); iconn++ ) { 
+#ifdef USING_NEW_DATABASE_MODEL
+    ConnectionDescription* desc = new ConnectionDescription();
+    desc->setFedId( iconn->fedId() );
+    desc->setFedChannel( iconn->fedCh() );
+    desc->setFecHardwareId( "" ); //@@
+    desc->setCrateSlot( iconn->fecCrate() );
+    desc->setFecSlot( iconn->fecSlot() );
+    desc->setRingSlot( iconn->fecRing() );
+    desc->setCcuAddress( iconn->ccuAddr() );
+    desc->setI2cChannel( iconn->ccuChan() );
+    desc->setApvAddress( iconn->i2cAddr(0) );
+    desc->setDcuHardId( iconn->dcuId() );
+    //@@ desc->setDetId( iconn->detId() );
+    //@@ desc->setApvPairs( iconn->nApvPairs() );
+    //@@ desc->setFiberLength( 0 ); //@@
+#else
     FedChannelConnectionDescription* desc = new FedChannelConnectionDescription();
     desc->setFedId( iconn->fedId() );
     desc->setFedChannel( iconn->fedCh() );
@@ -112,18 +139,17 @@ const SiStripConfigDb::FedConnections& SiStripConfigDb::createFedConnections( co
     desc->setApv( iconn->i2cAddr(0) );
     desc->setDcuHardId( iconn->dcuId() );
     desc->setDetId( iconn->detId() );
-    desc->setFiberLength( 0 ); //@@
     desc->setApvPairs( iconn->nApvPairs() );
-    static_fed_connections.push_back( desc );
+    desc->setFiberLength( 0 ); //@@
+#endif
+    connections_.push_back( desc );
   }
   
-  if ( static_fed_connections.empty() ) {
+  if ( connections_.empty() ) {
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " No FED connections created!";
   }
   
-  return static_fed_connections;
-
 }
 
