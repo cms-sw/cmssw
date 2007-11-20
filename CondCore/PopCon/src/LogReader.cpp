@@ -8,12 +8,25 @@
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ITableDataEditor.h"
+#include "CoralBase/Exception.h"
+#include "CoralBase/AttributeList.h"
+#include "CoralBase/AttributeSpecification.h"
+#include "CoralBase/Attribute.h"
 
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
-popcon::LogReader::LogReader (std::string pop_connect) : m_connect(pop_connect) {
+#include "CondCore/DBCommon/interface/AuthenticationMethod.h"
+#include "CondCore/DBCommon/interface/SessionConfiguration.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+#include "CondCore/DBCommon/interface/MessageLevel.h"
+#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/Exception.h"
+
+static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+popcon::LogReader::LogReader (const std::string& pop_connect) : m_connect(pop_connect) {
   //connects to pop_con (metadata)schema 
+  conHandler.registerConnection(m_connect,m_connect,0);
   session=new cond::DBSession;
   session->configuration().setAuthenticationMethod( cond::XML );
   session->configuration().setMessageLevel( cond::Error );
@@ -23,19 +36,13 @@ popcon::LogReader::LogReader (std::string pop_connect) : m_connect(pop_connect) 
 
 popcon::LogReader::~LogReader ()
 {
-  m_coraldb->commit();
-  delete m_coraldb;
   delete session;
 }
 
 void  popcon::LogReader::initialize()
 {		
   try{
-    static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-    conHandler.registerConnection(m_connect,m_connect,0);
     session->open();
-    m_coraldb=&(conHandler.getConnection(m_connect)->coralTransaction(true));
-    m_coraldb->start();
   }catch(cond::Exception& er){
     std::cerr<< "LogReader::initialize cond " << er.what()<<std::endl;
     throw;
@@ -51,7 +58,9 @@ coral::TimeStamp  popcon::LogReader::lastRun(std::string& name, std::string& cs)
 {
   coral::TimeStamp ts;
   try{
-    coral::IQuery* query = m_coraldb->coralSessionProxy().nominalSchema().newQuery();
+    cond::CoralTransaction& coraldb=conHandler.getConnection(m_connect)->coralTransaction(true);
+    coraldb.start();
+    coral::IQuery* query = coraldb.coralSessionProxy().nominalSchema().newQuery();
     query->addToOutputList("max(P_CON_EXECUTION.EXEC_START)","mes");
     query->addToTableList("P_CON_EXECUTION");
     query->addToTableList("P_CON_PAYLOAD_STATE");
@@ -74,8 +83,8 @@ coral::TimeStamp  popcon::LogReader::lastRun(std::string& name, std::string& cs)
       //std::cout << " " << as << " " << id << std::endl;
     }
     cursor.close();
-  }
-  catch(std::exception& er){
+    coraldb.commit();
+  }catch(std::exception& er){
     std::cerr << er.what();
   }
   return ts;

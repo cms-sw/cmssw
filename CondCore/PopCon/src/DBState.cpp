@@ -5,10 +5,12 @@ bool popcon::operator==(const DBState& a, const DBState& b)
 	return a.payload_size == b.payload_size ? true : false;
 }
 
-popcon::DBState::DBState (std::string oname, int ps, std::string cs ) : name(oname),  payload_size(ps), connect_string(cs) {}
+popcon::DBState::DBState (const std::string& oname, 
+			  int ps, 
+			  const std::string& cs ) : name(oname),  payload_size(ps), connect_string(cs) {}
 
 
-popcon::DBState::DBState (coral::AttributeList lst, std::string cs) {
+popcon::DBState::DBState (coral::AttributeList& lst, const std::string& cs) {
 	name = lst[0].data<std::string>();
 	payload_size = lst[1].data<int>();
 	except_description = lst[2].data<std::string>();
@@ -16,7 +18,7 @@ popcon::DBState::DBState (coral::AttributeList lst, std::string cs) {
 	connect_string = cs;
 }
 
-void popcon::DBState::set_state (coral::AttributeList lst){
+void popcon::DBState::set_state (const coral::AttributeList& lst){
 	name = lst[0].data<std::string>();
 	payload_size = lst[1].data<int>();
 	except_description = lst[2].data<std::string>();

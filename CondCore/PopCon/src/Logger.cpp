@@ -15,21 +15,26 @@
 #include "CoralBase/TimeStamp.h"
 
 #include "CondCore/PopCon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/SessionConfiguration.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
-#include <string>
-
-
-popcon::Logger::Logger (std::string connectionString, std::string offlineString,std::string name, bool dbg) : m_obj_name(name), m_connect(connectionString), 
-m_offline(offlineString), m_debug(dbg), m_established(false)  {
+#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/MessageLevel.h"
+#include "CondCore/DBCommon/interface/Exception.h"
+static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+popcon::Logger::Logger (const std::string& connectionString, 
+			const std::string& offlineString,
+			const std::string& payloadName, 
+			bool dbg) : m_obj_name(payloadName), m_connect(connectionString), m_debug(dbg), m_established(false)  {
 
   //W A R N I N G - session has to be alive throughout object lifetime
   //otherwise there will be problems with currvals of the sequences
-  
-  std::string::size_type loc = m_offline.find( "sqlite_file", 0 );
+  std::string::size_type loc = offlineString.find( "sqlite_", 0 );
   if( loc == std::string::npos ) {
     m_sqlite = false;
+    conHandler.registerConnection(m_connect,m_connect,0);
     session=new cond::DBSession;
     session->configuration().setAuthenticationMethod( cond::XML );
     if (m_debug){
@@ -41,8 +46,7 @@ m_offline(offlineString), m_debug(dbg), m_established(false)  {
     session->configuration().connectionConfiguration()->enableConnectionSharing();
     session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
     initialize();
-  }
-  else{ 
+  }else{ 
     m_sqlite=true;
   }
 }
@@ -52,16 +56,13 @@ popcon::Logger::~Logger ()
   if (!m_sqlite)
     {
       disconnect();
-      delete m_coraldb;
       delete session;
     }
 }
 
 void  popcon::Logger::initialize()
 {		
-  try{
-    static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-    conHandler.registerConnection(m_connect,m_connect,0);
+  try{   
     if (m_debug) std::cerr << "Logger::initialize - session.open\n";
     session->open();
     conHandler.connect(session);
@@ -79,19 +80,15 @@ void  popcon::Logger::initialize()
   }
 }
 
-
-
 void popcon::Logger::disconnect()
 {
-	if (m_sqlite)
-		return;
-	if (!m_established)
-	{
-		std::cerr << " Logger::disconnect - connection has not been established, skipping\n";
-		return;
+	if (m_sqlite) return;
+	if (!m_established){
+	  std::cerr << " Logger::disconnect - connection has not been established, skipping\n";
+	  return;
 	}
-	if (m_debug)
-	  std::cerr << "Disconnected\n";
+	if (m_debug) std::cerr << "Disconnected\n";
+	m_coraldb->commit();
 }
 
 void popcon::Logger::payloadIDMap()
@@ -99,7 +96,8 @@ void popcon::Logger::payloadIDMap()
   if (m_debug)
     std::cerr << "PayloadIDMap\n";
   try{
-    coral::ITable& mytable=m_coraldb->coralSessionProxy().nominalSchema().tableHandle("P_CON_PAYLOAD_STATE");
+    cond::CoralTransaction& statdb=conHandler.getConnection(m_connect)->coralTransaction(true);
+    coral::ITable& mytable=statdb.coralSessionProxy().nominalSchema().tableHandle("P_CON_PAYLOAD_STATE");
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
     query->addToOutputList("NAME");
     query->addToOutputList("OBJ_ID");
@@ -110,16 +108,15 @@ void popcon::Logger::payloadIDMap()
       m_id_map.insert(std::make_pair(row["NAME"].data<std::string>(), row["OBJ_ID"].data<int>()));
     }
     cursor.close();
-  }
-  catch(std::exception& er){
+    statdb.commit();
+  }catch(std::exception& er){
     std::cerr << er.what();
   }
 }
 
 void popcon::Logger::lock()
 {
-  if (m_sqlite)
-    return;
+  if (m_sqlite)  return;
   std::cerr<< " Locking\n";
   if (!m_established)
     throw popcon::Exception("Logger::lock exception ");
@@ -135,8 +132,7 @@ void popcon::Logger::lock()
     std::string condition("OBJECT_NAME = :name");
     dataEditor.updateRows( setClause, condition, inputData );
     //DO NOT COMMIT - DBMS holds the row exclusive lock till commit
-  }
-  catch(std::exception& er){
+  }catch(std::exception& er){
     std::cerr << "Logger::lock " << er.what();
     throw popcon::Exception("Logger::lock exception ");
   }
@@ -154,9 +150,9 @@ void popcon::Logger::unlock()
 
 void popcon::Logger::updateExecID()
 {
-
   try{
-    coral::ITable& mytable=m_coraldb->coralSessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION");
+    cond::CoralTransaction& statdb=conHandler.getConnection(m_connect)->coralTransaction(true);
+    coral::ITable& mytable=statdb.coralSessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION");
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
     query->addToOutputList("max(EXEC_ID)");
     query->setMemoryCacheSize( 100 );
@@ -166,8 +162,8 @@ void popcon::Logger::updateExecID()
       m_exec_id = (int) row[0].data<double>();
     }
     cursor.close();
-  }
-  catch(std::exception& er){
+    statdb.commit();
+  }catch(std::exception& er){
     std::cerr << er.what();
   }
 }
@@ -177,7 +173,8 @@ void popcon::Logger::updatePayloadID()
   if (m_debug)
     std::cerr << "Logger::updatePayloadID\n";
   try{
-    coral::ITable& mytable=m_coraldb->coralSessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION_PAYLOAD");
+    cond::CoralTransaction& statdb=conHandler.getConnection(m_connect)->coralTransaction(true);
+    coral::ITable& mytable=statdb.coralSessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION_PAYLOAD");
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
     query->addToOutputList("max(PL_ID)");
     query->setMemoryCacheSize( 100 );
@@ -187,18 +184,15 @@ void popcon::Logger::updatePayloadID()
       m_payload_id = (int) row[0].data<double>();
     }
     cursor.close();
-  }
-  catch(std::exception& er){
+    statdb.commit();
+  }catch(std::exception& er){
     std::cerr << er.what();
   }
 }
 void popcon::Logger::newExecution()
 {
-  if (m_sqlite)
-    return;
-  if (m_debug)
-    std::cerr << "Logger::newExecution\n";
-  
+  if (m_sqlite) return;
+  if (m_debug) std::cerr << "Logger::newExecution\n";
   if (!m_established)
     throw popcon::Exception("Logger::newExecution log exception ");
   try{
@@ -210,8 +204,7 @@ void popcon::Logger::newExecution()
     rowBuffer["EXEC_ID"].data<int>()= -1;
     rowBuffer["EXEC_START"].data<coral::TimeStamp>() = coral::TimeStamp::now();
     dataEditor.insertRow( rowBuffer );
-  }
-  catch(coral::Exception& er)
+  }catch(coral::Exception& er)
     {
       std::cerr << " Probably there's no entry related to " << m_obj_name << " " << er.what() << std::endl;
       throw popcon::Exception("Logger::newExecution log exception ");
@@ -289,8 +282,7 @@ void popcon::Logger::finalizePayload(std::string ok)
     std::string setClause("WRITTEN = :newEnd, EXCEPT_DESCRIPTION = :newStatus" );
     std::string condition("PL_ID = :last_id" );
     dataEditor.updateRows( setClause, condition, inputData );
-  }
-  catch(std::exception& er){
+  }catch(std::exception& er){
     std::cerr << er.what();
   }
 }

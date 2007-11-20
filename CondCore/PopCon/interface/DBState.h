@@ -21,10 +21,10 @@ namespace popcon
 	{
 		public:
 			DBState(){};
-			DBState(coral::AttributeList, std::string);
-			DBState(std::string,int, std::string);
+			DBState(coral::AttributeList&, const std::string&);
+			DBState(const std::string&,int, const std::string&);
 			~DBState(){}
-			void set_state(coral::AttributeList);
+			void set_state(const coral::AttributeList&);
 			coral::AttributeList update_helper(std::string& updateAction, std::string& updateCondition);
 		public:
 			std::string name;

@@ -17,22 +17,29 @@
 #include <iostream>
 #include <vector>
 #include <stdexcept>
-#include <string>
 
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/AuthenticationMethod.h"
+#include "CondCore/DBCommon/interface/SessionConfiguration.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+#include "CondCore/DBCommon/interface/MessageLevel.h"
+#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-popcon::StateCreator::StateCreator(std::string connectionString, std::string offlineString, std::string oname, bool dbg ):m_connect(connectionString), m_offline(offlineString), m_debug(dbg)
-{
+popcon::StateCreator::StateCreator(const std::string& connectionString, 
+				   const std::string& offlineString, 
+				   const std::string& oname, 
+				   bool dbg ):m_connect(connectionString),m_offline(offlineString), m_debug(dbg){
   if (m_debug)
     std::cerr<< "State creator: " << " Constructor\n";	
   nfo.object_name = oname;
   //do not check the state for sqlite DBs
-  std::string::size_type loc = m_offline.find( "sqlite_file", 0 );
+  std::string::size_type loc = offlineString.find( "sqlite_", 0 );
   if( loc == std::string::npos ) {
     m_sqlite = false;
-    
+    conHandler.registerConnection(m_connect,m_connect,0);
     session=new cond::DBSession;
     
     session->configuration().setAuthenticationMethod( cond::XML );
@@ -65,8 +72,6 @@ void  popcon::StateCreator::initialize()
   if (m_sqlite)
     return;
   try{
-    conHandler.registerConnection(m_connect,m_connect,0);
-    conHandler.registerConnection(m_offline,m_offline,0);
     session->open();
   }catch(std::exception& er){
     //std::cerr<< " INITIALIZE EXCEPTION " <<er.what()<<std::endl;
@@ -96,8 +101,8 @@ void popcon::StateCreator::storeStatusData()
     std::cerr<< "State creator: " << " store status data\n";	
   if (m_sqlite)
     return;
+  cond::CoralTransaction& coraldb=conHandler.getConnection(m_connect)->coralTransaction(false);
   try{	
-    cond::CoralTransaction& coraldb=conHandler.getConnection(m_connect)->coralTransaction(false);
     coraldb.start();
     coral::ITable& mytable=coraldb.coralSessionProxy().nominalSchema().tableHandle("P_CON_PAYLOAD_STATE");
     coral::ITableDataEditor& editor = mytable.dataEditor();
@@ -116,7 +121,7 @@ void popcon::StateCreator::storeStatusData()
     coraldb.commit();
   }catch(coral::Exception& er){
     //std::cerr <<"StateCreator::storeStatusData Coral exception: " << er.what();
-    this->disconnect();
+    coraldb.rollback();
     throw popcon::Exception("caught Coral exception in StateCreator::generateStatusData exception: "+ (std::string)er.what());
   }
 }
@@ -127,9 +132,9 @@ void popcon::StateCreator::generateStatusData()
     std::cerr<< "State creator: " << " generate status data\n";	
   if (m_sqlite)
     return;
+  cond::CoralTransaction& status_db=conHandler.getConnection(m_offline)->coralTransaction(true);
   try{
     if (nfo.top_level_table == "") getPoolTableName();
-    cond::CoralTransaction& status_db=conHandler.getConnection(m_offline)->coralTransaction(false);
     status_db.start();    
     coral::AttributeList rowBuffer;
     coral::ICursor* cursor; 
@@ -150,13 +155,10 @@ void popcon::StateCreator::generateStatusData()
     status_db.commit();
     //status_db.disconnect();
     //delete query;
-  }
-  catch(popcon::Exception& e)
-    {
-      throw popcon::Exception("caught previously thrown popcon exception in StateCreator::generateStatusData: "+(std::string)e.what());
-    }
-  catch(coral::Exception& er){
-    this->disconnect();
+  }catch(popcon::Exception& e){
+    throw popcon::Exception("caught previously thrown popcon exception in StateCreator::generateStatusData: "+(std::string)e.what());
+  }catch(coral::Exception& er){
+    status_db.rollback();
     //std::cerr <<"StateCreator::generateStatusData Coral exception: " << er.what();
     throw popcon::Exception("caught Coral exception in StateCreator::generateStatusData: "+(std::string)er.what());
   }
@@ -166,8 +168,8 @@ void popcon::StateCreator::getPoolTableName()
 {
   if (m_debug)
     std::cerr<< "State creator: " << " get pool data\n";	
+  cond::CoralTransaction& status_db=conHandler.getConnection(m_offline)->coralTransaction(true);
   try{
-    cond::CoralTransaction& status_db=conHandler.getConnection(m_offline)->coralTransaction(true);
     status_db.start();
     coral::AttributeList rowBuffer;
     rowBuffer.extend<std::string>( "TLT" );
@@ -192,16 +194,14 @@ void popcon::StateCreator::getPoolTableName()
     status_db.commit();
     //status_db.disconnect();
     //delete query;
-  }
-  catch(coral::Exception& er){
-    this->disconnect();
+  }catch(coral::Exception& er){
+    status_db.rollback();
     //std::cerr << "StateCreator::getPoolTableName Coral exception: " << er.what();
     throw popcon::Exception("caught Coral exception in StateCreator::getPoolTableName : "+(std::string)er.what());
   }
 }
 
-bool popcon::StateCreator::previousExceptions(bool& fix)
-{
+bool popcon::StateCreator::previousExceptions(bool& fix){
   if (m_debug)
     std::cerr<< "State creator: " << " previous exceptions\n";	
   if (m_sqlite)
@@ -241,8 +241,8 @@ void popcon::StateCreator::getStoredStatusData()
     std::cerr<< "State creator: " << "getStoredStatusData\n";	
   if (m_sqlite)
     return;
+  cond::CoralTransaction& coraldb=conHandler.getConnection(m_connect)->coralTransaction(true);
   try{
-    cond::CoralTransaction& coraldb=conHandler.getConnection(m_connect)->coralTransaction(false);
     coral::ISchema& schema = coraldb.coralSessionProxy().nominalSchema();
     coral::AttributeList rowBuffer;
     rowBuffer.extend<std::string>( "N" );
@@ -273,9 +273,8 @@ void popcon::StateCreator::getStoredStatusData()
     if (count != 1){
       throw std::runtime_error("cannot find ObjectName in the database");
     }
-  }
-  catch(coral::Exception& er){
-    this->disconnect();
+  }catch(coral::Exception& er){
+    coraldb.rollback();;
     //std::cerr << "StateCreator::getStoredStatusData Coral exception: " << er.what() << std::endl;
     throw popcon::Exception("caught Coral exception in StateCreator::getStoredStatusData:  "+(std::string)er.what());
   }
