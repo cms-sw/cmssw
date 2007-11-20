@@ -5,7 +5,7 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2007/10/10 21:23:50 $
+ *  $Date: 2007/11/06 22:21:44 $
  *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
@@ -30,7 +30,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // helper files
-#include <CLHEP/Vector/LorentzVector.h>
+//#include <CLHEP/Vector/LorentzVector.h>
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>

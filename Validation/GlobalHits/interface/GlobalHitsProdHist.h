@@ -5,7 +5,7 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2007/09/26 22:22:21 $
+ *  $Date: 2007/10/18 23:07:31 $
  *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
@@ -61,7 +61,8 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 // helper files
-#include <CLHEP/Vector/LorentzVector.h>
+//#include <CLHEP/Vector/LorentzVector.h>
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>

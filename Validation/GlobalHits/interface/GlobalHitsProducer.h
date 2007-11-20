@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/09/26 22:22:29 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/10/04 19:32:53 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -60,7 +60,8 @@
 //#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 // helper files
-#include <CLHEP/Vector/LorentzVector.h>
+//#include <CLHEP/Vector/LorentzVector.h>
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>

@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/10/18 23:07:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/11/06 22:21:45 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -803,8 +803,13 @@ void GlobalHitsProdHist::fillG4MC(edm::Event& iEvent)
     
     ++i;
 
-    const HepLorentzVector G4Vtx(itVtx->position().x(),itVtx->position().y(),
-				 itVtx->position().z(),itVtx->position().e());
+    const math::XYZTLorentzVector G4Vtx1(itVtx->position().x(),
+					 itVtx->position().y(),
+					 itVtx->position().z(),
+					 itVtx->position().e());
+
+    double G4Vtx[4];
+    G4Vtx1.GetCoordinates(G4Vtx);
 
     if (hGeantVtxX[0]) hGeantVtxX[0]->Fill((G4Vtx[0]*unit)/micrometer);
     if (hGeantVtxX[1]) hGeantVtxX[1]->Fill((G4Vtx[0]*unit)/micrometer);
@@ -842,8 +847,12 @@ void GlobalHitsProdHist::fillG4MC(edm::Event& iEvent)
 
     ++i;
 
-    const HepLorentzVector G4Trk(itTrk->momentum().x(),itTrk->momentum().y(),
-				 itTrk->momentum().z(),itTrk->momentum().e());
+    const math::XYZTLorentzVector G4Trk1(itTrk->momentum().x(),
+					 itTrk->momentum().y(),
+					 itTrk->momentum().z(),
+					 itTrk->momentum().e());
+    double G4Trk[4];
+    G4Trk1.GetCoordinates(G4Trk);
 
     if (hGeantTrkPt) hGeantTrkPt->
 			Fill(sqrt(G4Trk[0]*G4Trk[0]+G4Trk[1]*G4Trk[1]));
