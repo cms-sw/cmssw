@@ -36,6 +36,9 @@ public:
         int m_QualityTabNumber;
         std::string m_FiredPlanes;
         short m_QualityValue;
+        int m_tower;
+        int m_logsector;
+        int m_logsegment;
     };
     
     typedef std::vector<TQuality> TQualityVec;
@@ -55,6 +58,7 @@ public:
   
   ///Default Constructor. Empty pattern, no muon, all planes m_NOT_CONECTED
     RPCPattern();
+    RPCPattern(int tower, int sector, int segment);
 
     void setStripFrom(int logPlane, int stripFrom);
   
@@ -65,6 +69,10 @@ public:
 
   ///Next-to-last strip in range.
     int getStripTo(int logPlane) const;
+
+    int getTower() const;
+    int getLogSector() const;
+    int getLogSegment() const;
 
     int getCode() const;
 
@@ -77,6 +85,8 @@ public:
     int getRefGroup() const;
 
     int getQualityTabNumber() const;
+
+    void setCoords(int tower, int sector, int segment);
 
     void setCode(int a);
   
@@ -93,6 +103,11 @@ public:
 private:
   ///LogicalStrip for every LogPlane. 
   RPCLogicalStrip m_Strips[m_LOGPLANES_COUNT];
+
+// coordinates
+  char m_Tower;
+  char m_LogSector;
+  char m_LogSegment;
 
   ///Muon's sign.
   char m_Sign;

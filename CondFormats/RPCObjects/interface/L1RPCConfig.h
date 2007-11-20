@@ -38,14 +38,8 @@ class L1RPCConfig
      // std::string getDataDir()const {return m_dataDir;};
 
 
-      RPCPattern::RPCPatVec m_pat;
-      std::vector<RPCPattern::RPCPatVec> m_pat1;
-      std::vector<std::vector<RPCPattern::RPCPatVec> > m_pat2;
-      std::vector< std::vector< std::vector< RPCPattern::RPCPatVec > > >  m_pats;
-      RPCPattern::TQualityVec m_qual;
-      std::vector<RPCPattern::TQualityVec> m_qual1;
-      std::vector<std::vector<RPCPattern::TQualityVec> > m_qual2;
-      std::vector< std::vector< std::vector< RPCPattern::TQualityVec > > >  m_quals;
+      RPCPattern::RPCPatVec m_pats;
+      RPCPattern::TQualityVec m_quals;
 
    private:
       int m_ppt;

@@ -42,8 +42,8 @@
   <class name="RPCPattern"/>
   <class name="RPCPattern::RPCLogicalStrip"/>
   <class name="RPCPattern::TQuality"/>
-  <class name="std::vector<std::vector<std::vector<std::vector<RPCPattern::TQuality> > > >"/>
-  <class name="std::vector<std::vector<std::vector<std::vector<RPCPattern> > > >"/>
+  <class name="std::vector<RPCPattern::TQuality>"/>
+  <class name="std::vector<RPCPattern>"/>
 
   <class name="RPCdbData"/>
   <class name="RPCdbData::Item"/>
@@ -51,6 +51,5 @@
 
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
-
 
 </lcgdict>
