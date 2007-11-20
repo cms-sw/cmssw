@@ -320,7 +320,9 @@ void MuonErrorMatrix::multiply(CurvilinearTrajectoryError & initial_error, const
   //scale term by term the matrix
   const AlgebraicSymMatrix55 & scale_matrix=scale_error.matrix();
   AlgebraicSymMatrix55 revised_matrix = initial_error.matrix();
-  for(int i = 0;i!=5;i++){for(int j = 0;j!=5;j++){
+  // the true type of the matrix is such that [i][j] is the same memory object as [j][i]: looping i:0-5, j:0-5 double multiply the terms
+  // need to loop only on i:0-5, j:i-5
+  for(int i = 0;i!=5;i++){for(int j = i;j!=5;j++){
       revised_matrix(i,j)*=scale_matrix(i,j);
     }}
   initial_error = CurvilinearTrajectoryError(revised_matrix);
@@ -329,7 +331,9 @@ bool MuonErrorMatrix::divide(CurvilinearTrajectoryError & num_error, const Curvi
   //divide term by term the matrix
   const AlgebraicSymMatrix55 & denom_matrix=denom_error.matrix();
   AlgebraicSymMatrix55 num_matrix = num_error.matrix();
-  for(int i = 0;i!=5;i++){for(int j = 0;j!=5;j++){
+  // the true type of the matrix is such that [i][j] is the same memory object as [j][i]: looping i:0-5, j:0-5 double multiply the terms
+  // need to loop only on i:0-5, j:i-5
+  for(int i = 0;i!=5;i++){for(int j = i;j!=5;j++){
       if (denom_matrix(i,j)==0) return false;
       num_matrix(i,j)/=denom_matrix(i,j);
     }}
