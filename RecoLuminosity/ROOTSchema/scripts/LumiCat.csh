@@ -33,7 +33,7 @@ if( `echo $files` != '' ) then
 set TreeName = "LumiTree"
 set ChainName = "LumiChain"
 set ScriptName = "LumiCat.C"
-set DictName = "$CMSSW_BASE/uscms/home/ahunt/CMSSW_1_6_6/lib/slc4_ia32_gcc345/libRecoLuminosityROOTSchema.so"
+set DictName = "$CMSSW_BASE/lib/slc4_ia32_gcc345/libRecoLuminosityROOTSchema.so"
 set OutputFile = "$OutputDir/Lumi_$Run.root"
 set FileTitle = "Luminosity - Run Number $Run"
 
@@ -64,7 +64,7 @@ end
 
 cat >> $ScriptName <<EOF
 
-    OutputFile = new TFile("Temp.root","RECREATE","$FileTitle",1);
+    OutputFile = new TFile("/tmp/Temp.root","RECREATE","$FileTitle",1);
     OutputTree = $TreeName->CloneTree();
 
     OutputFile->Write();
@@ -76,13 +76,13 @@ EOF
 root -b -q .x $ScriptName
 rm $ScriptName
 
-mkdir -p $Run
+mkdir -p $InputDir/$Run
 
 foreach file ($files)
-  mv $file $Run/
+  mv $file $InputDir/$Run/
 end
 
-mv Temp.root $OutputFile
+mv /tmp/Temp.root $OutputFile
 
 else
 
