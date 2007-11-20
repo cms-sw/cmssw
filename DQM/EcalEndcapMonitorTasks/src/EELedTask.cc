@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2007/11/10 14:09:13 $
- * $Revision: 1.16 $
+ * $Date: 2007/11/15 07:14:29 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -310,11 +310,11 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
         if ( sample.gainId() == 2 ) gain = 1./ 6.;
         if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
-        if ( dccMap[ism].getRtHalf() == 1 || dccMap[ism].getRtHalf() == 3 ) {
+        if ( dccMap[ism].getRtHalf() == 1 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 1 ) ) {
 
           meShapeMap = meShapeMapA_[ism-1];
 
-        } else if ( dccMap[ism].getRtHalf() == 2 ) {
+        } else if ( dccMap[ism].getRtHalf() == 2 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 2 ) ) {
 
           meShapeMap = meShapeMapB_[ism-1];
 
@@ -477,13 +477,13 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
 
-      if ( dccMap[ism].getRtHalf() == 1 || dccMap[ism].getRtHalf() == 3 ) {
+      if ( dccMap[ism].getRtHalf() == 1 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 1 ) ) {
 
         meAmplMap = meAmplMapA_[ism-1];
         meTimeMap = meTimeMapA_[ism-1];
         meAmplPNMap = meAmplPNMapA_[ism-1];
 
-      } else if ( dccMap[ism].getRtHalf() == 2 ) {
+      } else if ( dccMap[ism].getRtHalf() == 2 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 2 ) ) {
 
         meAmplMap = meAmplMapB_[ism-1];
         meTimeMap = meTimeMapB_[ism-1];
@@ -512,11 +512,11 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       float wval = 0.;
 
-      if ( dccMap[ism].getRtHalf() == 1 || dccMap[ism].getRtHalf() == 3 ) {
+      if ( dccMap[ism].getRtHalf() == 1 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 1 ) ) {
 
         if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
 
-      } else if ( dccMap[ism].getRtHalf() == 2 ) {
+      } else if ( dccMap[ism].getRtHalf() == 2 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 2 ) ) {
 
         if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
 
