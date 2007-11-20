@@ -64,7 +64,7 @@ class AlignableDTBarrel : public AlignableComposite
   AlignableDTWheel &wheel(int i);  
   
   /// Return alignable object identifier
-  virtual StructureType alignableObjectId() const { return align::AlignableDTBarrel; }
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTBarrel; }
 
   /// Printout muon Barrel information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableDTBarrel& );

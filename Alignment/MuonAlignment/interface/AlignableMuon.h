@@ -110,7 +110,7 @@ private:
   AlignableSurface computeSurface();
 
   // Return alignable object identifier
-  virtual StructureType alignableObjectId() const { return align::AlignableMuon; }
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableMuon; }
 
   // Get alignments sorted by DetId
   Alignments* alignments() const;

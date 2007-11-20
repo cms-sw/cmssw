@@ -63,7 +63,7 @@ class AlignableCSCStation : public AlignableComposite
   //virtual void twist(float);
 
   /// Return alignable object identifier
-  virtual StructureType alignableObjectId() const { return align::AlignableCSCStation; }
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableCSCStation; }
 
   /// Printout muon CSC Station information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCStation& ); 

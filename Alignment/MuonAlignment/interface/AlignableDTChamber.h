@@ -66,7 +66,7 @@ class AlignableDTChamber: public AlignableComposite
   virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
 
   /// Alignable object identifier
-  virtual StructureType alignableObjectId () const { return align::AlignableDTChamber; }
+  virtual int alignableObjectId () const { return AlignableObjectId::AlignableDTChamber; }
 
   //virtual void twist(float);
 

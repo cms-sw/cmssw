@@ -65,7 +65,7 @@ class AlignableCSCChamber: public AlignableComposite
   virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
 
   /// Alignable object identifier
-  virtual StructureType alignableObjectId () const { return align::AlignableCSCChamber; }
+  virtual int alignableObjectId () const { return AlignableObjectId::AlignableCSCChamber; }
 
   /// Return vector of alignment data
   virtual Alignments* alignments() const;

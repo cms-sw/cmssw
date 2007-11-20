@@ -60,7 +60,7 @@ class AlignableDTWheel : public AlignableComposite
   AlignableDTStation &station(int i);  
   
   /// Return alignable object identifier
-  virtual StructureType alignableObjectId() const { return align::AlignableDTWheel; }
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTWheel; }
 
   /// Printout muon DT wheel information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableDTWheel& );

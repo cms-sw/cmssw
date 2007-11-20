@@ -64,7 +64,7 @@ class AlignableCSCEndcap : public AlignableComposite
   AlignableCSCStation &station(int i);  
   
   /// Return alignable object identifier
-  virtual StructureType alignableObjectId() const { return align::AlignableCSCEndcap; }
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableCSCEndcap; }
 
   /// Printout muon End Cap information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCEndcap& );

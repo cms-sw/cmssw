@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/01/12 09:47:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/07 08:42:10 $
+ *  $Revision: 1.2 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -66,7 +66,7 @@ void MuonScenarioBuilder::applyScenario( const edm::ParameterSet& scenario )
 
 std::vector<float> MuonScenarioBuilder::extractParameters(const edm::ParameterSet& pSet, char *blockId) {
   
-  double scale_ = 0, scaleError_ = 0, phiX_ = 0, phiY_ = 0, phiZ_ = 0;
+  double scale_ = 1, scaleError_ = 1, phiX_ = 0, phiY_ = 0, phiZ_ = 0;
   double dX_ = 0, dY_ = 0, dZ_ = 0;
   
   std::ostringstream error;

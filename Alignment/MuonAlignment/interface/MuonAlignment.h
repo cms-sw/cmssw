@@ -12,25 +12,21 @@
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 
 class MuonAlignment{
-
+  typedef std::map<DetId, Alignable*> MapType;
+  typedef std::pair<DetId, Alignable*> PairType;
   public:
 
       MuonAlignment( const edm::EventSetup& setup );
 
-     ~MuonAlignment() { delete theAlignableMuon; delete theAlignableNavigator; }
+     ~MuonAlignment() { delete theAlignableMuon;  }
       
       AlignableMuon* getAlignableMuon() { return theAlignableMuon; }
-
-      AlignableNavigator* getAlignableNavigator() { return theAlignableNavigator; }
-
 
       void moveAlignableLocalCoord( DetId& , std::vector<float>& , std::vector<float>& );
 
       void moveAlignableGlobalCoord( DetId& , std::vector<float>& , std::vector<float>& );
 
 
-      void saveDTtoDB();
-      void saveCSCtoDB();
       void saveToDB();
 
 
@@ -43,9 +39,11 @@ class MuonAlignment{
 
       std::vector<float> rotations;
 
+    void recursiveGetId( Alignable* alignable );
+
       AlignableMuon* theAlignableMuon;
 
-      AlignableNavigator* theAlignableNavigator;
+  MapType theAlignableMap;
 
 
 };

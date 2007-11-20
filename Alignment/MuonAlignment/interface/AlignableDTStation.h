@@ -60,7 +60,7 @@ class AlignableDTStation : public AlignableComposite
   AlignableDTChamber &chamber(int i);  
   
   /// Return alignable object identifier
-  virtual StructureType alignableObjectId() const { return align::AlignableDTStation; }
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTStation; }
 
   /// Printout muon DT Station information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableDTStation& );
