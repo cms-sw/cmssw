@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Fri Aug 10 12:05:36 CET 2007
-// $Id: NuclearInteractionEDProducer.h,v 1.1 2007/11/20 11:20:48 roberfro Exp $
+// $Id: NuclearInteractionEDProducer.h,v 1.2 2007/11/20 11:35:53 roberfro Exp $
 //
 //
 
@@ -38,7 +38,7 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
+#include "RecoTracker/NuclearSeedGenerator/interface/TrajectoryToSeedMap.h"
 
 class NuclearInteractionEDProducer : public edm::EDProducer {
 
