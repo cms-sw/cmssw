@@ -238,7 +238,6 @@ bool PlotManager::saveEfficiency(const string& histName, const string& histTitle
   else if ( theOutFile_->cd(newHistPath.c_str()) == kFALSE ) {
     cout << "Cannot find directory, do mkdirs : " << newHistPath << endl;
     mkdirs(theOutFile_, newHistPath)->cd();
-    cout << gDirectory->GetPath() << endl; //FIXME//
   }
 
   // Create new histogram
@@ -495,7 +494,7 @@ bool PlotManager::dumpObject(const string& objName,
     theOutFile_->cd();
   }
   else if ( theOutFile_->cd(newObjPath.c_str()) == kFALSE ) {
-    cout << "Cannot find dir, do mkdirs" << endl;
+    cout << "Cannot find dir, do mkdirs : " << newObjPath << endl;
     mkdirs(theOutFile_, newObjPath)->cd();
   }
 
@@ -524,23 +523,26 @@ TDirectory* mkdirs(TDirectory* dir, string path)
   // Push to directory passed into argument
   string pwd(gDirectory->GetPath());
 
-  TDirectory* newDir = dir;
-
   while(true) {
     if ( path.empty() ) break;
     
     string::size_type slashPos = path.find_first_of('/');
     if ( slashPos != string::npos ) {
-      newDir = newDir->mkdir(path.substr(0, slashPos).c_str());
-      path.erase(0, slashPos);
+      string newDirName = path.substr(0, slashPos);
+      TDirectory* tmpDir = dir->GetDirectory(newDirName.c_str());
+      dir = (tmpDir == NULL) ? dir->mkdir(newDirName.c_str()) : tmpDir;
+
+      path.erase(0, slashPos+1);
     }
     else {
-      newDir = newDir->mkdir(path.c_str());
+      TDirectory* tmpDir = dir->GetDirectory(path.c_str());
+      dir = (tmpDir == NULL) ? dir->mkdir(path.c_str()) : tmpDir;
+      
       break;
     }
   }
 
-  return newDir;
+  return dir;
 }
 
 string dirname(const string& path)
