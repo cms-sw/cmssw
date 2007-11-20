@@ -5,7 +5,7 @@
 // Package:    NuclearAssociatonMapEDProducer
 // Class:      NuclearInteractionEDProducer
 //
-/**\class NuclearInteractionEDProducer NuclearInteractionEDProducer.h RecoTracker/NuclearSeedGenerator/interface/NuclearInteractionEDProducer.h
+/**\class NuclearInteractionEDProducer NuclearInteractionEDProducer.h RecoVertex/NuclearInteractionProducer/interface/NuclearInteractionEDProducer.h
 
  Description: Associate nuclear seeds to primary tracks and associate secondary tracks to primary tracks
 
@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Fri Aug 10 12:05:36 CET 2007
-// $Id: NuclearInteractionEDProducer.h,v 1.2 2007/09/05 15:15:28 roberfro Exp $
+// $Id: NuclearInteractionEDProducer.h,v 1.1 2007/11/20 11:20:48 roberfro Exp $
 //
 //
 
