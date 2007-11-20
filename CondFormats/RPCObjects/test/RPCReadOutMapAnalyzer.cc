@@ -13,6 +13,8 @@
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 #include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
@@ -26,10 +28,12 @@ class RPCReadOutMapAnalyzer : public edm::EDAnalyzer {
       ~RPCReadOutMapAnalyzer();
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
    private:
+   bool m_flag;
 };
 
 
 RPCReadOutMapAnalyzer::RPCReadOutMapAnalyzer( const edm::ParameterSet& iConfig )
+: m_flag(iConfig.getUntrackedParameter<bool>("useNewEMap",false))
 {
   ::putenv("CORAL_AUTH_USER konec");
   ::putenv("CORAL_AUTH_PASSWORD konecPass");
@@ -42,8 +46,18 @@ void RPCReadOutMapAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
 
    std::cout << "====== RPCReadOutMapAnalyzer" << std::endl;
 
-   edm::ESHandle<RPCReadOutMapping> map;
-   iSetup.get<RPCReadOutMappingRcd>().get(map);
+   const RPCReadOutMapping* map;
+   if (m_flag) {
+     edm::ESHandle<RPCEMap> readoutMapping;
+     iSetup.get<RPCEMapRcd>().get(readoutMapping);
+     const RPCEMap* eMap=readoutMapping.product();
+//     RPCReadOutMapping* map = eMap->convert();
+     map = eMap->convert();
+   } else {
+     edm::ESHandle<RPCReadOutMapping> map0;
+     iSetup.get<RPCReadOutMappingRcd>().get(map0);
+     map=map0.product();
+   }
    cout << "version: " << map->version() << endl;
 
    pair<int,int> dccRange = map->dccNumberRange();
