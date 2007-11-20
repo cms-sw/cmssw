@@ -8,8 +8,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2007/10/11 22:35:53 $
- * $Revision: 1.17 $
+ * $Date: 2007/11/12 17:14:07 $
+ * $Revision: 1.18 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -62,6 +62,16 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
    MonitorElement* meFWVersion_;
    MonitorElement* meErrWdCrate_;  //HTR error bits by crate
 
+   // The following MEs map specific conditons from the EventFragment headers as specified in
+   //   http://cmsdoc.cern.ch/cms/HCAL/document/CountingHouse/DCC/DCC_1Jul06.pdf
+
+   MonitorElement* meFEDId_;               //All of them, no matter how crazy.
+   MonitorElement* meCDFErrorFound_;       //Summary histo of Common Data Format violations by FED ID
+   MonitorElement* meDCCEventFormatError_; //Summary histo of DCC Event Format violations by FED ID 
+   //Summary histo for HTR Status bits, DCC Error&Warn Counters Flagged Nonzero
+   MonitorElement* meDCCErrorAndWarnConditions_;  
+   MonitorElement* meDCCSummariesOfHTRs_;  //Summary histo of HTR Summaries from DCC
+
    // The following MEs map specific conditons from the HTR/DCC headers as specified in
    //   http://cmsdoc.cern.ch/cms/HCAL/document/CountingHouse/HTR/design/Rev4MainFPGA.pdf
 
@@ -97,6 +107,18 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
      MonitorElement* DCC_ErrWd_HF;
      MonitorElement* DCC_ErrWd_HO;
 
+     //Member variables for reference values to be used in consistency checks.
+     std::map<int, short> CDFversionNumber_list;
+     std::map<int, short>::iterator CDFvers_it;
+     std::map<int, short> CDFEventType_list;
+     std::map<int, short>::iterator CDFEvT_it;
+     std::map<int, short> CDFReservedBits_list;
+     std::map<int, short>::iterator CDFReservedBits_it;
+     std::map<int, short> DCCEvtFormat_list;
+     std::map<int, short>::iterator DCCEvtFormat_it;
+     std::map<int, short> DCCRsvdBits_list;
+     std::map<int, short>::iterator DCCRsvdBits_it;
+     
 };
 
 #endif

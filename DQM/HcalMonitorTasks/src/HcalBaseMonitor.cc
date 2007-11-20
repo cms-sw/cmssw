@@ -19,6 +19,8 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
   // Base folder for the contents of this job
   string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
   rootFolder_ = subsystemname + "/";
+  
+  fVerbosity = ps.getUntrackedParameter<bool>("debug","false");
 
   return;
 }

@@ -119,10 +119,10 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     meMAX_T_all =  m_dbe->book1D("HotCellTime","HotCell Time",200,-50,300);
     
     meOCC_MAP_L1= m_dbe->book2D("HotCellDepth1OccupancyMap","HotCell Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    meEN_MAP_L1= m_dbe->book2D("HotCell Depth 1 Energy Map","HotCell Depth 1 Energy Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    meEN_MAP_L1= m_dbe->book2D("HotCellDepth1EnergyMap","HotCell Depth 1 Energy Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     
     meOCC_MAP_L2= m_dbe->book2D("HotCellDepth2OccupancyMap","HotCell Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    meEN_MAP_L2= m_dbe->book2D("HotCell Depth 2 Energy Map","HotCell Depth 2 Energy Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    meEN_MAP_L2= m_dbe->book2D("HotCellDepth2EnergyMap","HotCell Depth 2 Energy Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     
     meOCC_MAP_L3= m_dbe->book2D("HotCellDepth3OccupancyMap","HotCell Depth 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     meEN_MAP_L3= m_dbe->book2D("HotCellDepth3EnergyMap","HotCell Depth 3 Energy Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -131,7 +131,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     meEN_MAP_L4= m_dbe->book2D("HotCellDepth4EnergyMap","HotCell Depth 4 Energy Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     
     meOCC_MAP_all = m_dbe->book2D("HotCellOccupancyMap","HotCell Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    meEN_MAP_all  = m_dbe->book2D("HotCell Energy Map","HotCell Energy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    meEN_MAP_all  = m_dbe->book2D("HotCellEnergyMap","HotCell Energy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
     NADA_NumHotCells= m_dbe->book1D("NADA_NumHotCells","# of NADA Hot Cells/Event",1000,0,1000);
     NADA_NumNegCells= m_dbe->book1D("NADA_NumNegCells","# of NADA Negative-Energy Cells/Event",1000,0,1000);
@@ -150,6 +150,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     hbHists.meOCC_MAP_GEO_Max->SetOption("box");
     hbHists.meEN_MAP_GEO_Max->SetOption("box");
     */
+
     
     for (int k=0;k<int(HBthresholds_.size());k++)
       {
