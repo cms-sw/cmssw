@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB04Analysis.cc,v 1.6 2007/03/08 00:19:50 sunanda Exp $
+// $Id: HcalTB04Analysis.cc,v 1.7 2007/10/22 14:44:50 sunanda Exp $
 //
   
 // system include files
@@ -32,6 +32,7 @@
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTBNumberingScheme.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB04XtalNumberingScheme.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -417,7 +418,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
       CaloG4Hit* aHit = (*theHC)[j]; 
       double e        = aHit->getEnergyDeposit()/GeV;
       double time     = aHit->getTimeSlice();
-      Hep3Vector pos  = aHit->getEntry();
+      math::XYZPoint pos  = aHit->getEntry();
       unsigned int id = aHit->getUnitID();
       double theta    = pos.theta();
       double eta      = -log(tan(theta * 0.5));
@@ -540,7 +541,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
       CaloG4Hit* aHit = (*theHC)[j]; 
       double e        = aHit->getEnergyDeposit()/GeV;
       double time     = aHit->getTimeSlice();
-      Hep3Vector pos  = aHit->getEntry();
+      math::XYZPoint pos  = aHit->getEntry();
       unsigned int id = aHit->getUnitID();
       double theta    = pos.theta();
       double eta      = -log(tan(theta * 0.5));

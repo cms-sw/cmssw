@@ -8,7 +8,7 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: TotemSD.cc,v 1.2 2007/03/08 00:09:09 sunanda Exp $
+// $Id: TotemSD.cc,v 1.3 2007/05/08 21:27:30 sunanda Exp $
 //
 
 // system include files
@@ -323,7 +323,7 @@ void TotemSD::CreateNewHit() {
   currentHit->setThetaAtEntry(ThetaAtEntry);
   currentHit->setPhiAtEntry(PhiAtEntry);
 
-  currentHit->setEntry(Posizio);
+  currentHit->setEntry(Posizio.x(),Posizio.y(),Posizio.z());
 
   currentHit->setParentId(ParentId);
   currentHit->setVx(Vx);
@@ -364,7 +364,7 @@ void TotemSD::CreateNewHitEvo() {
   _PosizioEvo=PosizioEvo(Posizio,Vx,Vy,Vz,Pabs,flagAcc);
 
   if(flagAcc==1){
-    currentHit->setEntry(_PosizioEvo);
+    currentHit->setEntry(_PosizioEvo.x(),_PosizioEvo.y(),_PosizioEvo.z());
 
     // if(flagAcc==1)
     UpdateHit();

@@ -14,6 +14,7 @@
 #include "SimG4CMS/Calo/interface/HCalSD.h"
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -304,7 +305,7 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
       double e        = aHit->getEnergyDeposit()/GeV;
       double time     = aHit->getTimeSlice();
       
-      Hep3Vector pos  = aHit->getPosition();
+      math::XYZPoint pos  = aHit->getPosition();
       double theta    = pos.theta();
       double   eta    = -log(tan(theta * 0.5));
       double   phi    = pos.phi();
@@ -375,7 +376,7 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
 	  double e        = aHit->getEnergyDeposit()/GeV;
 	  double time     = aHit->getTimeSlice();
       
-	  Hep3Vector pos  = aHit->getPosition();
+	  math::XYZPoint pos  = aHit->getPosition();
 	  double theta    = pos.theta();
 	  double   eta    = -log(tan(theta/2.));
 	  double   phi    = pos.phi();

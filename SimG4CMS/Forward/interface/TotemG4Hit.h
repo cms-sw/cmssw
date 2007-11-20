@@ -25,7 +25,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id$
+// $Id: TotemG4Hit.h,v 1.1 2006/05/17 16:18:57 sunanda Exp $
 //
  
 // system include files
@@ -33,7 +33,7 @@
 // user include files
 
 #include "G4VHit.hh"
-#include <CLHEP/Vector/ThreeVector.h>
+#include "DataFormats/Math/interface/Point3D.h"
 #include <boost/cstdint.hpp>
 #include <iostream>
 
@@ -54,8 +54,8 @@ public:
   void         Draw(){}
   void         Print();
 
-  Hep3Vector   getEntry() const;
-  void         setEntry(Hep3Vector xyz);
+  math::XYZPoint   getEntry() const;
+  void         setEntry(double x, double y, double z)      {entry.SetCoordinates(x,y,z);}
   
   double       getEM() const;
   void         setEM (double e);
@@ -116,7 +116,7 @@ public:
 
 private:
   
-  Hep3Vector   entry;             //Entry point
+  math::XYZPoint   entry;             //Entry point
   double       elem;              //EnergyDeposit of EM particles
   double       hadr;              //EnergyDeposit of HD particles
   double       theIncidentEnergy; //Energy of the primary particle
@@ -136,8 +136,8 @@ private:
 
   float        theThetaAtEntry;
   float        thePhiAtEntry;
-  Hep3Vector   theEntryPoint;
-  Hep3Vector   theExitPoint;
+  math::XYZPoint   theEntryPoint;
+  math::XYZPoint   theExitPoint;
 
   int          theParentId;
   float        theVx;

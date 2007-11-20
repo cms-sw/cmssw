@@ -11,6 +11,7 @@
 //
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "SimG4CMS/Forward/interface/CastorTestAnalysis.h"
 #include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
@@ -208,7 +209,7 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
 	en_in_fi += aHit->getEnergyDeposit();
 //	double enEm = aHit->getEM();
 //	double enHad = aHit->getHadr();
-	Hep3Vector hitPoint = aHit->getEntry();
+	math::XYZPoint hitPoint = aHit->getEntry();
 
 	themap[volumeID] += aHit->getEnergyDeposit();
     int det, zside, sector, zmodule;

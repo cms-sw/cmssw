@@ -24,5 +24,7 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=SimDataFormats/ValidationFormats>
 <use name=DQMServices/CoreROOT>
+<use name=rootmath>
+<use name=DataFormats/Math>
 
 <Flags EDM_PLUGIN=1>

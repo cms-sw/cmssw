@@ -11,8 +11,8 @@
  *  
  *  DataFormat class to hold the information for the Global Hit Validation
  *
- *  $Date: 2007/10/04 19:26:40 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/09 20:56:22 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -963,7 +963,7 @@ Date:  Dec, 2005
 
 #include <string>
 #include <vector>
-#include <CLHEP/Vector/LorentzVector.h>
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 class EcalTestAnalysis; 
 
@@ -1059,8 +1059,8 @@ public:
    FloatVector  tOfESHits()   const { return tOfESCaloG4Hit;   }
    FloatVector  eOfESHits()   const { return eOfESCaloG4Hit;   }
 
-   HepLorentzVector  momentum() const { return theMomentum; }
-   HepLorentzVector  vertex() const  { return theVertex; }
+   math::XYZTLorentzVector momentum() const { return theMomentum; }
+   math::XYZTLorentzVector vertex() const  { return theVertex; }
    
    int pId()  const { return thePID; }   
 
@@ -1141,8 +1141,8 @@ private:
 
 
    int thePID;                      // add more ??
-   HepLorentzVector theMomentum;  
-   HepLorentzVector theVertex;
+   math::XYZTLorentzVector theMomentum;  
+   math::XYZTLorentzVector theVertex;
 };
 
 

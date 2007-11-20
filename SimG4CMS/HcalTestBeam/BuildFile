@@ -4,6 +4,7 @@
 <use name=Geometry/EcalCommonData>
 <use name=Geometry/HcalCommonData>
 <use name=DataFormats/HcalDetId>
+<use name=DataFormats/Math>
 <use name=SimDataFormats/HcalTestBeam>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
@@ -13,6 +14,7 @@
 <use name=boost>
 <use name=root>
 <use name=hepmc>
+<use name=rootmath>
 
 <export>
  <lib name=SimG4CMSHcalTestBeam>

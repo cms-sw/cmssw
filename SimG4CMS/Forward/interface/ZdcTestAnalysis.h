@@ -37,7 +37,6 @@
 #include <memory>
 #include <vector>
 
-#include <CLHEP/Vector/LorentzVector.h>
 #include <CLHEP/Random/Randomize.h> 
 
 #include "TROOT.h"

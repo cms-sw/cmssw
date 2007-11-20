@@ -7,6 +7,7 @@
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "G4Step.hh"
 #include "G4SDManager.hh"
@@ -224,10 +225,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
              float y0 = avertex->GetY0();
              float z0 = avertex->GetZ0();
              float t0 = avertex->GetT0();
-             theVertex[0] = x0;
-             theVertex[0] = y0;
-             theVertex[0] = z0;
-             theVertex[0] = t0; 
+             theVertex.SetCoordinates(x0,y0,z0,t0);
     
              int npart = avertex->GetNumberOfParticle();
              if ( npart == 0)
@@ -246,17 +244,14 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
           double  px = thePrim -> GetPx();
           double  py = thePrim -> GetPy();
           double  pz = thePrim -> GetPz();
-          theMomentum[0] = px;
-          theMomentum[1] = py;
-          theMomentum[2] = pz;
-          theMomentum[3] = 0.0;
+          theMomentum.SetCoordinates(px,py,pz,0.);
 
           pInit =sqrt( pow(px,2.) + pow(py,2.) + pow(pz,2.));
           if ( pInit == 0)
                   edm::LogWarning("EcalSimHitsValidProducer") 
                   <<" Primary has p = 0 ; ";
           else {
-                  theMomentum[3]= pInit;
+                  theMomentum.SetE(pInit);
                   double costheta  = pz/pInit;
                   double theta = acos(std::min(std::max(costheta, -1.),1.));
                   etaInit = -log(tan(theta/2));
@@ -295,7 +290,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
     float he     = aHit->getEnergyDeposit();
     float htime  = aHit->getTimeSlice();
                                                                                                                              
-    Hep3Vector hpos = aHit->getEntry();
+    math::XYZPoint hpos = aHit->getEntry();
     float htheta    = hpos.theta();
     float heta    = -log(tan(htheta * 0.5));
     float hphi    = hpos.phi();
@@ -319,7 +314,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
     float he     = aHit->getEnergyDeposit();
     float htime  = aHit->getTimeSlice();
 
-    Hep3Vector hpos = aHit->getEntry();
+    math::XYZPoint hpos = aHit->getEntry();
     float htheta    = hpos.theta();
     float heta    = -log(tan(htheta * 0.5));
     float hphi    = hpos.phi();

@@ -8,7 +8,7 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: TotemG4Hit.cc,v 1.1 2006/05/17 16:18:58 sunanda Exp $
+// $Id: TotemG4Hit.cc,v 1.2 2007/03/08 00:09:09 sunanda Exp $
 //
 
 // system include files
@@ -20,7 +20,11 @@
 // constructors and destructor
 //
 
-TotemG4Hit::TotemG4Hit(): entry(0), theEntryPoint(0), theExitPoint(0) {
+TotemG4Hit::TotemG4Hit(){
+
+  setEntry(0.,0.,0.);
+  theEntryPoint.SetCoordinates(0.,0.,0.);
+  theExitPoint.SetCoordinates(0.,0.,0.);
 
   elem              = 0.;
   hadr              = 0.;
@@ -117,8 +121,7 @@ void TotemG4Hit::Print() {
 }
 
 
-Hep3Vector TotemG4Hit::getEntry() const           {return entry;}
-void       TotemG4Hit::setEntry(Hep3Vector xyz)   { entry    = xyz; }
+math::XYZPoint TotemG4Hit::getEntry() const           {return entry;}
 
 double     TotemG4Hit::getEM() const              {return elem; }
 void       TotemG4Hit::setEM (double e)           { elem     = e; }

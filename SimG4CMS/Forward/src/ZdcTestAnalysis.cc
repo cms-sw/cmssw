@@ -1,6 +1,7 @@
 
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "SimG4CMS/Forward/interface/ZdcTestAnalysis.h"
 #include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
@@ -281,8 +282,7 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
 	    unsignedfiberID = aHit->getUnitID();
 	    double enEm = aHit->getEM();
 	    double enHad = aHit->getHadr();
-	    //Hep3Vector hitPoint = aHit->getEntry();
-	    Hep3Vector hitPoint = aHit->getPosition();
+	    math::XYZPoint hitPoint = aHit->getPosition();
 	    double hitEnergy = aHit->getEnergyDeposit();
 	    if (verbosity >= 1)
 	      std::cout << " entry #" << ihit << ": fiberID=0x" << std::hex 

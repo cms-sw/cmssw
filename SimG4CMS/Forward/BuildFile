@@ -3,6 +3,7 @@
 <use name=SimG4Core/Notification> 
 <use name=SimG4Core/Application>
 <use name=SimG4CMS/Calo>
+<use name=DataFormats/Math>
 <use name=SimDataFormats/SimHitMaker>
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/Forward>
@@ -13,6 +14,7 @@
 <use name=boost>
 <use name=geant4>
 <use name=root>
+<use name=rootmath>
 
 <export>
  <lib name=SimG4CMSForward>
