@@ -249,6 +249,7 @@ int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet ) {
     if( initialPartonFlavour == 4 ) {  
       if( contaminatingFlavour == 4 ) continue; // keep association --> the initialParton is a c --> the contaminated parton is a c
       tempParticle = -1; // all the other cases reject!
+      return tempParticle;
     }
   } 
 
