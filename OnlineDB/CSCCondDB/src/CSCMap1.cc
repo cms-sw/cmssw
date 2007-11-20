@@ -85,7 +85,7 @@
     stmt->registerOutParam (3, oracle::occi::OCCIINT);
     stmt->registerOutParam (4, oracle::occi::OCCIINT);
     stmt->registerOutParam (5, oracle::occi::OCCIINT);
-    stmt->registerOutParam (6, oracle::occi::OCCIINT);
+    stmt->registerOutParam (6, oracle::occi::OCCISTRING, 10);
     stmt->registerOutParam (7, oracle::occi::OCCIINT);
     stmt->registerOutParam (8, oracle::occi::OCCIINT);
     stmt->registerOutParam (9, oracle::occi::OCCIINT);
@@ -173,7 +173,7 @@
     stmt->registerOutParam (3, oracle::occi::OCCIINT);
     stmt->registerOutParam (4, oracle::occi::OCCIINT);
     stmt->registerOutParam (5, oracle::occi::OCCIINT);
-    stmt->registerOutParam (6, oracle::occi::OCCIINT);
+    stmt->registerOutParam (6, oracle::occi::OCCISTRING, 10);
     stmt->registerOutParam (7, oracle::occi::OCCIINT);
     stmt->registerOutParam (8, oracle::occi::OCCIINT);
     stmt->registerOutParam (9, oracle::occi::OCCIINT);
