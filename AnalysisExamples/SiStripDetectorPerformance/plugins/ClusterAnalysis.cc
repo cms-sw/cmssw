@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/05/19 20:20:07 $
- * $Revision: 1.27 $
+ * $Date: 2007/11/19 15:36:52 $
+ * $Revision: 1.1 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -838,11 +838,11 @@ void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV
 	Ql=cluster->chargeL();
 	Qr=cluster->chargeR();
       
-  	for (std::vector<int16_t>::const_iterator it=cluster->rawdigiAmplitudesL().begin(); it !=cluster->rawdigiAmplitudesL().end() && it-cluster->rawdigiAmplitudesL().begin()<NeighStrips_; it ++)
+  	for (std::vector<float>::const_iterator it=cluster->rawdigiAmplitudesL().begin(); it !=cluster->rawdigiAmplitudesL().end() && it-cluster->rawdigiAmplitudesL().begin()<NeighStrips_; it ++)
   	  { Ql += (*it);}
 
 	
-  	for (std::vector<int16_t>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().end() && it-cluster->rawdigiAmplitudesR().begin()<NeighStrips_; it ++)
+  	for (std::vector<float>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().end() && it-cluster->rawdigiAmplitudesR().begin()<NeighStrips_; it ++)
   	  { Qr += (*it);}
 	
 	Qt=Ql+Qr+cluster->maxCharge();
@@ -856,10 +856,10 @@ void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV
 	
 	Qr=cluster->charge()-Ql;
 
-  	for (std::vector<int16_t>::const_iterator it=cluster->rawdigiAmplitudesL().begin(); it !=cluster->rawdigiAmplitudesL().end() && it-cluster->rawdigiAmplitudesL().begin()<NeighStrips_; it ++)
+  	for (std::vector<float>::const_iterator it=cluster->rawdigiAmplitudesL().begin(); it !=cluster->rawdigiAmplitudesL().end() && it-cluster->rawdigiAmplitudesL().begin()<NeighStrips_; it ++)
   	  { Ql += (*it);}
 	
-  	for (std::vector<int16_t>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().end() && it-cluster->rawdigiAmplitudesR().begin()<NeighStrips_; it ++)
+  	for (std::vector<float>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().end() && it-cluster->rawdigiAmplitudesR().begin()<NeighStrips_; it ++)
   	  { Qr += (*it);}
 
 	
