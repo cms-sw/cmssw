@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/10/04 19:34:25 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/10/23 23:16:31 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -37,8 +37,8 @@
 #include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 
 // helper files
-#include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Units/SystemOfUnits.h>
+//#include <CLHEP/Vector/LorentzVector.h>
+//#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 #include <stdlib.h>

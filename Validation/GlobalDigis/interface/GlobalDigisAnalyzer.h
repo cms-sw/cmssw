@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/10/23 23:16:30 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/11/15 23:22:50 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -95,8 +95,8 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 // helper files
-#include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Units/SystemOfUnits.h>
+//#include <CLHEP/Vector/LorentzVector.h>
+//#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 #include <stdlib.h>

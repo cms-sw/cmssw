@@ -21,7 +21,6 @@
 <use name=SimDataFormats/CaloHit>
 <use name=DQMServices/CoreROOT>
 <use name=root>
-<use name=clhep>
 
 <flags EDM_PLUGIN=1>
 
@@ -49,6 +48,5 @@
  <use name=SimDataFormats/CrossingFrame>
  <use name=SimDataFormats/CaloHit>
  <use name=root>
- <use name=clhep>
  <use name=DQMServices/CoreROOT>
 </export>
