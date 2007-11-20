@@ -57,6 +57,8 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
       m_pVerbose(p.getUntrackedParameter<int>("Verbosity",1))
 {
 
+  std::cout << " FamosManager initializing " << std::endl;
+
   // Initialize the random number generator service
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
@@ -87,6 +89,7 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 			  p.getParameter<edm::ParameterSet>("MaterialEffects"),
 			  p.getParameter<edm::ParameterSet>("TrackerSimHits"),
 			  p.getParameter<edm::ParameterSet>("ActivateDecays"),
+			  p.getParameter<edm::ParameterSet>("TrackerMaterial"),
 			  random);
 
   // Initialize PileUp Producer (if requested)
@@ -113,6 +116,8 @@ FamosManager::~FamosManager()
 
 void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
 {
+  std::cout << "FamosManager : setup geometry and field" << std::endl;
+
   // Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);

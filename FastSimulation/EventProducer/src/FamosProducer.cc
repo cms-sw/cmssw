@@ -53,9 +53,7 @@ FamosProducer::~FamosProducer()
 
 void FamosProducer::beginJob(const edm::EventSetup & es)
 {
-    std::cout << " FamosManager initializing " << std::endl;
     famosManager_->setupGeometryAndField(es);
-    //    famosManager_->initEventReader();
 }
  
 void FamosProducer::endJob()
@@ -122,12 +120,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    // Get the pile-up events from the pile-up producer
    // There might be no pile-up events, by the way, in that case, just continue
    Handle<HepMCProduct> thePileUpEvents;
-   bool isPileUp = true;
-   try { 
-     iEvent.getByLabel("famosPileUp","PileUpEvents",thePileUpEvents);
-   } catch ( cms::Exception& e ) { 
-     isPileUp = false;
-   }
+   bool isPileUp = iEvent.getByLabel("famosPileUp","PileUpEvents",thePileUpEvents);
    const HepMC::GenEvent* thePUEvents = isPileUp ? thePileUpEvents->GetEvent() : 0;
 
    // .and pass the event to the Famos Manager

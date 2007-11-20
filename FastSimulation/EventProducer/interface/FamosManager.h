@@ -35,7 +35,7 @@ class FamosManager
   ~FamosManager();
 
   /// Get information from the Event Setup
-  void setupGeometryAndField(const edm::EventSetup & es);    
+  void setupGeometryAndField(const edm::EventSetup & es);
 
   /// The generated event
   //  const HepMC::GenEvent* genEvent() const { return myGenEvent; };
