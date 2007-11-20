@@ -5,6 +5,7 @@
 <use name=SimG4Core/Application>
 <use name=DataFormats/EcalDetId> 
 <use name=DataFormats/HcalDetId> 
+<use name=DataFormats/Math>
 <use name=SimDataFormats/SimHitMaker>
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/CaloTest>
@@ -18,6 +19,7 @@
 <use name=root>
 <use name=DataSvc>
 <use name=rootrflx>
+<use name=rootmath>
 
 <export>
  <lib name=SimG4CMSCalo>

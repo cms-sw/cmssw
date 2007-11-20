@@ -9,6 +9,7 @@
 #include "SimG4CMS/Calo/interface/HCalSD.h"
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -289,12 +290,14 @@ void HcalTestAnalysis::update(const G4Step * aStep) {
       // Calculate the distance if it is a muon
       G4String part = aStep->GetTrack()->GetDefinition()->GetParticleName();
       if ((part == "mu-" || part == "mu+") && mudist[layer] < 0) {
-	Hep3Vector pos = aStep->GetPreStepPoint()->GetPosition();
-	double theta   = pos.theta();
-	double   eta   = -log(tan(theta * 0.5));
-	double   phi   = pos.phi();
-	double  dist   = sqrt ((eta-eta0)*(eta-eta0) + (phi-phi0)*(phi-phi0));
-	mudist[layer]  = dist*pos.perp();
+        math::XYZPoint pos(aStep->GetPreStepPoint()->GetPosition().x(),
+                           aStep->GetPreStepPoint()->GetPosition().y(),
+                           aStep->GetPreStepPoint()->GetPosition().z());
+        double theta   = pos.theta();
+        double   eta   = -log(tan(theta * 0.5));
+        double   phi   = pos.phi();
+        double  dist   = sqrt ((eta-eta0)*(eta-eta0) + (phi-phi0)*(phi-phi0));
+        mudist[layer]  = dist*std::sqrt(pos.perp2());
       }
     }
 
@@ -356,7 +359,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
       double e        = aHit->getEnergyDeposit()/GeV;
       double time     = aHit->getTimeSlice();
       
-      Hep3Vector pos  = aHit->getPosition();
+      math::XYZPoint pos   = aHit->getPosition();
       double theta    = pos.theta();
       double   eta    = -log(tan(theta * 0.5));
       double   phi    = pos.phi();
@@ -404,7 +407,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
       double time     = aHit->getTimeSlice();
       std::string det =  "EB";
       
-      Hep3Vector pos  = aHit->getPosition();
+      math::XYZPoint pos  = aHit->getPosition();
       double theta    = pos.theta();
       double   eta    = -log(tan(theta/2.));
       double   phi    = pos.phi();
@@ -442,7 +445,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
       double time     = aHit->getTimeSlice();
       std::string det = "EE";
       
-      Hep3Vector pos  = aHit->getPosition();
+      math::XYZPoint pos  = aHit->getPosition();
       double theta    = pos.theta();
       double   eta    = -log(tan(theta/2.));
       double   phi    = pos.phi();

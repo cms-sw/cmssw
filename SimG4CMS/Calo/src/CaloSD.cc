@@ -378,9 +378,9 @@ CaloG4Hit* CaloSD::createNewHit() {
   
   CaloG4Hit* aHit = new CaloG4Hit;
   aHit->setID(currentID);
-  aHit->setEntry(entrancePoint);
-  aHit->setEntryLocal(entranceLocal);
-  aHit->setPosition(posGlobal);
+  aHit->setEntry(entrancePoint.x(),entrancePoint.y(),entrancePoint.z());
+  aHit->setEntryLocal(entranceLocal.x(),entranceLocal.y(),entranceLocal.z());
+  aHit->setPosition(posGlobal.x(),posGlobal.y(),posGlobal.z());
   aHit->setIncidentEnergy(incidentEnergy);
   updateHit(aHit);
   

@@ -19,7 +19,6 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include <CLHEP/Vector/LorentzVector.h>
 
 
 class G4Step;

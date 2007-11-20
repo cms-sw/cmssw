@@ -25,7 +25,7 @@
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "G4VHit.hh"
-#include <CLHEP/Vector/ThreeVector.h>
+#include "DataFormats/Math/interface/Point3D.h"
 #include <iostream>
 
 class CaloG4Hit : public G4VHit {
@@ -43,14 +43,14 @@ public:
   
 public:
   
-  Hep3Vector   getEntry() const              {return entry;}
-  void         setEntry(Hep3Vector xyz)      {entry = xyz;}
+  math::XYZPoint   getEntry() const              {return entry;}
+  void         setEntry(double x, double y, double z)      {entry.SetCoordinates(x,y,z);}
   
-  Hep3Vector   getEntryLocal() const         {return entryLocal;}
-  void         setEntryLocal(Hep3Vector xyz) {entryLocal = xyz;}
+  math::XYZPoint   getEntryLocal() const         {return entryLocal;}
+  void         setEntryLocal(double x, double y, double z) {entryLocal.SetCoordinates(x,y,z);}
   
-  Hep3Vector   getPosition() const           {return pos;}
-  void         setPosition(Hep3Vector xyz)   {pos = xyz;}
+  math::XYZPoint   getPosition() const           {return pos;}
+  void         setPosition(double x, double y, double z)   {pos.SetCoordinates(x,y,z);}
   
   double       getEM() const                 {return elem;}
   void         setEM (double e)              {elem = e;}
@@ -77,9 +77,9 @@ public:
   
 private:
   
-  Hep3Vector   entry;             //Entry point (Global coordinate)
-  Hep3Vector   entryLocal;        //Entry point (Local  coordinate)
-  Hep3Vector   pos;               //Position    (Global coordinate)
+  math::XYZPoint   entry;             //Entry point (Global coordinate)
+  math::XYZPoint   entryLocal;        //Entry point (Local  coordinate)
+  math::XYZPoint   pos;               //Position    (Global coordinate)
   double       elem;              //EnergyDeposit of EM particles
   double       hadr;              //EnergyDeposit of HD particles
   double       theIncidentEnergy; //Energy of the primary particle
