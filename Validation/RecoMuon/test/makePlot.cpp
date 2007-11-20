@@ -11,142 +11,149 @@
 #include "TGraphAsymmErrors.h"
 
 #include <iostream>
-//#include <fstream>
+#include <fstream>
 #include <string>
 #include <cmath>
+#include <sstream>
 #include <algorithm>
-#include <boost/program_options.hpp>
+#include <map>
 #include <boost/tokenizer.hpp>
+
+using namespace std;
+using namespace boost;
 
 class PlotManager
 {
 public:
-  PlotManager(std::string inFileName, std::string outFileName);
+  PlotManager(const string& inFileName, const string& outFileName);
   //  PlotManager(std::vector<std::string> inFileNames, std::string outFileName);
   ~PlotManager();
   
-  void processCommand(std::istream& in);
+  void processCommand(istream& in);
+
+protected:
+  bool saveEfficiency(const string& histName, const string& histTitle, 
+		      const string& numeHistName, const string& denoHistName);
+  bool saveBayesEfficiency(const string& graphName, const string& graphTitle,
+			   const string& numeHistName, const string& denoHistName);
+  bool saveFakeRate(const string& histName, const string& histTitle,
+		    const string& numeHistName, const string& denoHistName);
+  bool saveResolution(const string& histName, const string& histTitle, 
+		      const string& srcHistName, const char sliceDirection = 'Y');
+  bool saveHistogram(const string& histName, const string& histTitle, const string& srcHistName);
+
+protected:
+  bool setSrcFile(const string& fileName);
+  bool setOutFile(const string& fileName);
   
 protected:
-  bool saveEfficiency(std::string histName, std::string histTitle, 
-		      std::string numeHistName, std::string denoHistName);
-  bool saveBayesEfficiency(std::string graphName, std::string graphTitle,
-			   std::string numeHistName, std::string denoHistName);
-  bool saveFakeRate(std::string histName, std::string histTitle,
-		    std::string numeHistName, std::string denoHistName);
-  bool saveResolution(std::string histName, std::string histTitle, 
-		      std::string srcHistName, const char sliceDirection = 'Y');
-  bool saveHistogram(std::string histName, std::string histTitle, std::string srcHistName);
-
-protected:
-  bool setSrcFile(std::string fileName);
-  bool setOutFile(std::string fileName);
-
-protected:
   bool isSetup_;
-
+  
   TFile* theSrcFile_;
   TFile* theOutFile_;
   
 };
 
 // super-mkdir : recursively run mkdir in root file
-TDirectory* mkdirs(TDirectory* dir, std::string path);
+TDirectory* mkdirs(TDirectory* dir, string path);
+string dirname(const string& path);
+string basename(const string& path);
 
 int main(int argc, const char* argv[])
 {
-  if ( argc != 4 ) return 1;
+  string srcFileName, outFileName;
+  if ( argc > 2 ) {
+    srcFileName = argv[1];
+    outFileName = argv[2];
+  }
+  else {
+    cout << "Running makePlot under interactive mode" << endl;
 
-  std::string srcFileName = argv[1];
-  std::string outFileName = argv[2];
-  //  string cmdFileName = argv[3];
+    cout << "Type your source root file name" << endl;
+    cin >> srcFileName;
+    
+    cout << "Type your output root file name" << endl;
+    cin >> outFileName;
+  }
 
   PlotManager plotMan(srcFileName, outFileName);
-  plotMan.processCommand(std::cin);
+  plotMan.processCommand(cin);
   
 }
 
-void PlotManager::processCommand(std::istream& in)
+void PlotManager::processCommand(istream& in)
 {
-  typedef boost::tokenizer< boost::char_separator<char> > Tokenizer;
-  boost::char_separator<char> sep(",");
-  
-  std::string buffer;
+  string buffer, cmd;
   while ( ! in.eof() ) {
     buffer.clear();
-    in >> buffer;
-    
-    //transform(buffer.begin(), buffer.end(), _tolower);
-    Tokenizer tokens(buffer, sep);
-    
-    Tokenizer::const_iterator itk = tokens.begin();
-    std::string cmd = *(itk);
-    std::vector<std::string> args;
-    for(++itk; itk != tokens.end(); ++itk ) { 
-      args.push_back(*itk); 
+    cmd.clear();
+    getline(in, buffer);
+
+    // Extract command from buffer
+    stringstream ss(buffer); ss >> cmd;
+    if ( cmd.empty() || cmd[0] == '#' ) continue;
+    transform(cmd.begin(), cmd.end(), cmd.begin(), _toupper);
+
+    buffer.erase(0, cmd.size()+1);
+
+    typedef escaped_list_separator<char> elsc;
+    tokenizer<elsc> tokens(buffer, elsc("\\", " \t", "\""));
+
+    vector<tokenizer<elsc>::value_type> args;
+
+    for(tokenizer<elsc>::const_iterator tok_iter = tokens.begin();
+	tok_iter != tokens.end(); ++tok_iter) {
+      args.push_back(*tok_iter);
+    }
+
+    if ( cmd == "EFFI" && args.size() >= 4 ) {
+      if ( !saveEfficiency(args[0], args[1], args[2], args[3]) ) {
+	cerr << "Error : cannot make efficiency plot" << endl;
+      }
+      continue;
+    }
+
+    if ( cmd == "EFFB" && args.size() >= 4 ) {
+      if ( !saveBayesEfficiency(args[0], args[1], args[2], args[3]) ) {
+	cerr << "Error : cannot make bayesian efficiency plot" << endl;
+      }
+      continue;
     }
     
-    if ( cmd == "eff" ) {
-      if ( args.size() != 4 ) {
-	std::cerr << "Error : eff,name,title,numeratorName,denominatorName\n";
-	continue;
+    if ( cmd == "FAKE" && args.size() == 4 ) {
+      if ( !saveFakeRate(args[0], args[1], args[2], args[3]) ) {
+	cerr << "Error : cannot make fakerate plot" << endl;
       }
-      if ( ! saveEfficiency(args[0], args[1], args[2], args[3]) ) {
-	std::cerr << "Error : cannot save efficiency plot (" << args[0] << ")\n";
-      }
+      continue;
     }
-    else if ( cmd == "effb" ) {
-      if ( args.size() != 4 ) {
-	std::cerr << "Error : effb,name,title,numeratorName,denominatorName\n";
-	continue;
+    
+    if ( cmd == "RESX" && args.size() == 3 ) {
+      if ( !saveResolution(args[0], args[1], args[2], 'X') ) {
+	cerr << "Error : cannot make resolution-X plot" << endl;
       }
-      if ( ! saveBayesEfficiency(args[0], args[1], args[2], args[3]) ) {
-	std::cerr << "Error : cannot save bayesian efficiency plot (" << args[0] << ")\n";
-      }
+      continue;
     }
-    else if ( cmd == "fake" ) {
-      if ( args.size() != 4 ) {
-	std::cerr << "Error : fake,name,title,numeratorName,denominatorName\n";
-	continue;
+    
+    if ( cmd == "RESY" && args.size() == 3 ) {
+      if ( !saveResolution(args[0], args[1], args[2], 'Y') ) {
+	cerr << "Error : cannot make resolution-Y plot" << endl;
       }
-      if ( ! saveFakeRate(args[0], args[1], args[2], args[3]) ) {
-	std::cerr << "Error : cannot save fake rate plot (" << args[0] << ")\n";
-      }
+      continue;
     }
-    else if ( cmd == "resolx" ) {
-      if ( args.size() != 3 ) {
-	std::cerr << "Error : resolx,name,title,sourceHistName\n";
-	continue;
+    
+    if ( cmd == "HIST" && args.size() == 3 ) {
+      if ( !saveHistogram(args[0], args[1], args[2]) ) {
+	cerr << "Error : cannot copy histogram" << endl;
       }
-      if ( ! saveResolution(args[0], args[1], args[2], 'X') ) {
-	std::cerr << "Error : cannot save resolution plot (" << args[0] << ")\n";
-      }
+      continue;
     }
-    else if ( cmd == "resoly" ) {
-      if ( args.size() != 3 ) {
-	std::cerr << "Error : resoly,name,title,sourceHistName\n";
-	continue;
-      }
-      if ( ! saveResolution(args[0], args[1], args[2], 'Y') ) {
-	std::cerr << "Error : cannot save resolution plot (" << args[0] << ")\n";
-      }
-    }
-    else if ( cmd == "hist" ) {
-      if ( args.size() != 3 ) {
-	std::cerr << "Error : hist,name,title,sourceHistName\n";
-	continue;
-      }
-      if ( ! saveHistogram(args[0], args[1], args[2]) ) {
-	std::cerr << "Error : cannot save histogra (" << args[0] << ")\n";
-      }
-    }
-    else {
-      std::cerr << "Unknown command\n";
-    }
-  }
+
+    cerr << "Unknown command <" << cmd << ">" << endl;
+
+  } 
 }
 
-PlotManager::PlotManager(std::string srcFileName, std::string outFileName)
+PlotManager::PlotManager(const string& srcFileName, const string& outFileName)
 {
   // Set default values
   theSrcFile_ = 0;
@@ -166,11 +173,11 @@ PlotManager::~PlotManager()
   }
 }
 
-bool PlotManager::setSrcFile(std::string fileName)
+bool PlotManager::setSrcFile(const string& fileName)
 {
   if ( theSrcFile_ ) theSrcFile_->Close();
 
-  std::string pwd(gDirectory->GetPath());
+  string pwd(gDirectory->GetPath());
 
   theSrcFile_ = new TFile(fileName.c_str());
   if ( ! theSrcFile_ || theSrcFile_->IsZombie() ) return false;
@@ -179,15 +186,11 @@ bool PlotManager::setSrcFile(std::string fileName)
   return true;
 }
 
-bool PlotManager::setOutFile(std::string fileName)
+bool PlotManager::setOutFile(const string& fileName)
 {
   if ( theOutFile_ ) theOutFile_->Close();
 
-  if ( (fileName.size()-fileName.rfind(".root")) != 5 ) {
-    fileName += ".root";
-  }
-
-  std::string pwd(gDirectory->GetPath());
+  string pwd(gDirectory->GetPath());
   
   theOutFile_ = new TFile(fileName.c_str(), "RECREATE");
   if ( !theOutFile_ || theOutFile_->IsZombie() ) return false;
@@ -196,16 +199,20 @@ bool PlotManager::setOutFile(std::string fileName)
   return true;
 }
 
-bool PlotManager::saveEfficiency(std::string histName, std::string histTitle, 
-				 std::string numeHistName, std::string denoHistName)
+bool PlotManager::saveEfficiency(const string& histName, const string& histTitle, 
+				 const string& numeHistName, const string& denoHistName)
 {
   if ( ! isSetup_ ) return false;
 
-  TH1F* numeHist = (TH1F*)(theSrcFile_->Get(numeHistName.c_str()));
-  TH1F* denoHist = (TH1F*)(theSrcFile_->Get(denoHistName.c_str()));
+  TH1F* numeHist = dynamic_cast<TH1F*>(theSrcFile_->Get(numeHistName.c_str()));
+  TH1F* denoHist = dynamic_cast<TH1F*>(theSrcFile_->Get(denoHistName.c_str()));
   
   // Check validity of objects
-  if ( numeHist == 0 || denoHist == 0 ) return false;
+  if ( numeHist == 0 || denoHist == 0 ) {
+    cerr << "Cannot get object" << endl;
+    return false;
+  }
+
   if ( ! numeHist->IsA()->InheritsFrom("TH1") || 
        ! denoHist->IsA()->InheritsFrom("TH1") ||
        numeHist->IsA()->InheritsFrom("TH2") ||
@@ -215,13 +222,24 @@ bool PlotManager::saveEfficiency(std::string histName, std::string histTitle,
 
   // Check bin size
   if ( numeHist->GetNbinsX() != denoHist->GetNbinsX() ) {
+    cerr << "Bin size of two histograms are not same" << endl;
     return false;
   }
 
   // Push to base directory
-  std::string pwd(gDirectory->GetPath());
+  string pwd(gDirectory->GetPath());
 
-  theOutFile_->cd();
+  string newHistPath = dirname(histName);
+  string newHistName = basename(histName);
+
+  if ( newHistPath.empty() ) {
+    theOutFile_->cd();
+  }
+  else if ( theOutFile_->cd(newHistPath.c_str()) == kFALSE ) {
+    cout << "Cannot find directory, do mkdirs : " << newHistPath << endl;
+    mkdirs(theOutFile_, newHistPath)->cd();
+    cout << gDirectory->GetPath() << endl; //FIXME//
+  }
 
   // Create new histogram
   TH1F* effHist = dynamic_cast<TH1F*>(numeHist->Clone());
@@ -242,7 +260,7 @@ bool PlotManager::saveEfficiency(std::string histName, std::string histTitle,
   }
 
   // Cosmetics
-  effHist->SetName(histName.c_str());
+  effHist->SetName(newHistName.c_str());
   effHist->SetTitle(histTitle.c_str());
   effHist->SetMinimum(0.8);
   effHist->SetMaximum(1.0);
@@ -258,8 +276,8 @@ bool PlotManager::saveEfficiency(std::string histName, std::string histTitle,
   return true;
 }
 
-bool PlotManager::saveBayesEfficiency(std::string graphName, std::string graphTitle,
-				 std::string numeHistName, std::string denoHistName)
+bool PlotManager::saveBayesEfficiency(const string& graphName, const string& graphTitle,
+				      const string& numeHistName, const string& denoHistName)
 {
   if ( ! isSetup_ ) return false;
   
@@ -267,6 +285,11 @@ bool PlotManager::saveBayesEfficiency(std::string graphName, std::string graphTi
   TH1F* denoHist = (TH1F*)(theSrcFile_->Get(denoHistName.c_str()));
   
   // Check validity of objects
+  if ( numeHist == 0 || denoHist == 0 ) {
+    cerr << "Cannot get object" << endl;
+    return false;
+  }
+
   if ( ! numeHist->IsA()->InheritsFrom("TH1") || 
        ! denoHist->IsA()->InheritsFrom("TH1") ||
        numeHist->IsA()->InheritsFrom("TH2") ||
@@ -276,19 +299,29 @@ bool PlotManager::saveBayesEfficiency(std::string graphName, std::string graphTi
 
   // Check bin size
   if ( numeHist->GetNbinsX() != denoHist->GetNbinsX() ) {
+    cerr << "Bin size of two histograms are not same" << endl;
     return false;
   }
 
   // Push to base directory
-  std::string pwd(gDirectory->GetPath());
+  string pwd(gDirectory->GetPath());
 
-  theOutFile_->cd();
+  string newGraphPath = dirname(graphName);
+  string newGraphName = basename(graphName);
+
+  if ( newGraphPath.empty() ) {
+    theOutFile_->cd();
+  }
+  else if ( theOutFile_->cd(newGraphPath.c_str()) == kFALSE ) {
+    cout << "Cannot find directory, do mkdirs" << endl;
+    mkdirs(theOutFile_, newGraphPath)->cd();
+  }
 
   // Create new TGraphAsymmErrors
   TGraphAsymmErrors* effGraph = new TGraphAsymmErrors(numeHist, denoHist);
   
   // Cosmetics
-  effGraph->SetName(graphName.c_str());
+  effGraph->SetName(newGraphName.c_str());
   effGraph->SetTitle(graphTitle.c_str());
   effGraph->SetMinimum(0.8);
   effGraph->SetMaximum(1.0);
@@ -304,8 +337,8 @@ bool PlotManager::saveBayesEfficiency(std::string graphName, std::string graphTi
   return true;
 }
 
-bool PlotManager::saveFakeRate(std::string histName, std::string histTitle,
-			       std::string numeHistName, std::string denoHistName)
+bool PlotManager::saveFakeRate(const string& histName, const string& histTitle,
+			       const string& numeHistName, const string& denoHistName)
 {
   if ( ! isSetup_ ) return false;
   
@@ -313,6 +346,11 @@ bool PlotManager::saveFakeRate(std::string histName, std::string histTitle,
   TH1F* denoHist = (TH1F*)(theSrcFile_->Get(denoHistName.c_str()));
   
   // Check validity of objects
+  if ( numeHist == 0 || denoHist == 0 ) {
+    cerr << "Cannot get object" << endl;
+    return false;
+  }
+
   if ( ! numeHist->IsA()->InheritsFrom("TH1") || 
        ! denoHist->IsA()->InheritsFrom("TH1") ||
        numeHist->IsA()->InheritsFrom("TH2") ||
@@ -322,13 +360,23 @@ bool PlotManager::saveFakeRate(std::string histName, std::string histTitle,
   
   // Check bin size
   if ( numeHist->GetNbinsX() != denoHist->GetNbinsX() ) {
+    cerr << "Bin size of two histograms are not same" << endl;
     return false;
   }
   
   // Push to base directory
-  std::string pwd(gDirectory->GetPath());
+  string pwd(gDirectory->GetPath());
   
-  theOutFile_->cd();
+  string newHistPath = dirname(histName);
+  string newHistName = basename(histName);
+
+  if ( newHistPath.empty() ) {
+    theOutFile_->cd();
+  }
+  else if ( theOutFile_->cd(newHistPath.c_str()) == kFALSE ) {
+    cout << "Cannot find directory, do mkdirs" << endl;
+    mkdirs(theOutFile_, newHistPath)->cd();
+  }
 
   // Create new histogram
   TH1F* fakeHist = dynamic_cast<TH1F*>(numeHist->Clone());
@@ -349,7 +397,7 @@ bool PlotManager::saveFakeRate(std::string histName, std::string histTitle,
   }
 
   // Cosmetics
-  fakeHist->SetName(histName.c_str());
+  fakeHist->SetName(newHistName.c_str());
   fakeHist->SetTitle(histTitle.c_str());
   fakeHist->SetMinimum(0.8);
   fakeHist->SetMaximum(1.0);
@@ -365,19 +413,34 @@ bool PlotManager::saveFakeRate(std::string histName, std::string histTitle,
   return true;
 }
 
-bool PlotManager::saveResolution(std::string histName, std::string histTitle, 
-  			         std::string srcHistName, const char sliceDirection)
+bool PlotManager::saveResolution(const string& histName, const string& histTitle, 
+  			         const string& srcHistName, const char sliceDirection)
 {
   if ( ! isSetup_ ) return false;
   
-  TH2F* srcHist = (TH2F*)(theSrcFile_->Get(srcHistName.c_str()));
+  TH2F* srcHist = dynamic_cast<TH2F*>(theSrcFile_->Get(srcHistName.c_str()));
+
+  // Check validity of objects
+  if ( srcHist == NULL ) {
+    cerr << "Cannot get object" << endl;
+    return false;
+  }
   
-  // Check validity
   if ( srcHist->IsA()->InheritsFrom("TH2") ) return false;
 
   // Push to base directory
-  std::string pwd(gDirectory->GetPath());
-  theOutFile_->cd();
+  string pwd(gDirectory->GetPath());
+
+  string newHistPath = dirname(histName);
+  string newHistName = basename(histName);
+
+  if ( newHistPath.empty() ) {
+    theOutFile_->cd();
+  }
+  else if ( theOutFile_->cd(newHistPath.c_str()) == kFALSE ) {
+    cout << "Cannot find directory, do mkdirs" << endl;
+    mkdirs(theOutFile_, newHistPath)->cd();
+  }
 
   // Create a function for resolution model
   TF1 gaus("gaus", "gaus");
@@ -388,14 +451,14 @@ bool PlotManager::saveResolution(std::string histName, std::string histTitle,
   if ( sliceDirection == 'X' ) srcHist->FitSlicesX(&gaus);
   else srcHist->FitSlicesY(&gaus);
 
-  TH1F* meanHist  = (TH1F*)theOutFile_->Get((srcHistName+"_1").c_str());
-  TH1F* widthHist = (TH1F*)theOutFile_->Get((srcHistName+"_2").c_str());
-  TH1F* chi2Hist  = (TH1F*)theOutFile_->Get((srcHistName+"_chi2").c_str());
+  TH1F* meanHist  = dynamic_cast<TH1F*>(theOutFile_->Get((srcHistName+"_1").c_str()));
+  TH1F* widthHist = dynamic_cast<TH1F*>(theOutFile_->Get((srcHistName+"_2").c_str()));
+  TH1F* chi2Hist  = dynamic_cast<TH1F*>(theOutFile_->Get((srcHistName+"_chi2").c_str()));
 
   // Cosmetics
-  meanHist ->SetName((histName+"_Mean" ).c_str());
-  widthHist->SetName((histName+"_Width").c_str());
-  chi2Hist ->SetName((histName+"_Chi2" ).c_str());
+  meanHist ->SetName((newHistName+"_Mean" ).c_str());
+  widthHist->SetName((newHistName+"_Width").c_str());
+  chi2Hist ->SetName((newHistName+"_Chi2" ).c_str());
 
   meanHist ->SetTitle((histTitle+" Mean" ).c_str());
   widthHist->SetTitle((histTitle+" Width").c_str());
@@ -416,54 +479,87 @@ bool PlotManager::saveResolution(std::string histName, std::string histTitle,
   return true;
 }
 
-bool PlotManager::saveHistogram(std::string histName, std::string histTitle,
-				std::string srcHistName)
+bool PlotManager::saveHistogram(const string& histName,
+				const string& histTitle,
+				const string& srcHistName)
 {
   if ( ! isSetup_ ) return false;
-
-  TH1* srcHist = (TH1*)theSrcFile_->Get(srcHistName.c_str());
-
+  
   // Push to base directory
-  std::string pwd(gDirectory->GetPath());
-  theOutFile_->cd();
+  string pwd(gDirectory->GetPath());
+  
+  string newHistPath = dirname(histName);
+  string newHistName = basename(histName);
+  
+  if ( newHistPath.empty() ) {
+    theOutFile_->cd();
+  }
+  else if ( theOutFile_->cd(newHistPath.c_str()) == kFALSE ) {
+    cout << "Cannot find dir, do mkdirs" << endl;
+    mkdirs(theOutFile_, newHistPath)->cd();
+  }
 
-  TH1* saveHist = dynamic_cast<TH1*>(srcHist->Clone());
-  saveHist->SetName(histName.c_str());
-  saveHist->SetTitle(histName.c_str());
+  TNamed* srcHist = dynamic_cast<TNamed*>(theSrcFile_->Get(srcHistName.c_str()));
 
+  if ( srcHist == NULL ) {
+    cerr << "Cannot get object : " << srcHistName << endl;
+    return false;
+  }
+
+  TNamed* saveHist = dynamic_cast<TNamed*>(srcHist->Clone(newHistName.c_str()));
+//  saveHist->SetName(newHistName.c_str());
+  saveHist->SetTitle(histTitle.c_str());
+  
   // Save histogram
   saveHist->Write();
-
+  
   // Pop directory
   gDirectory->cd(pwd.c_str());
-
+  
   return true;
 }
 
-TDirectory* mkdirs(TDirectory* dir, std::string path)
+TDirectory* mkdirs(TDirectory* dir, string path)
 {
   // Push to directory passed into argument
-  std::string pwd(gDirectory->GetPath());
+  string pwd(gDirectory->GetPath());
 
-  std::string::size_type slashPos = path.find_first_of('/');
-  if ( slashPos != std::string::npos ) {
-    TDirectory * newDir = 0;
-    std::string newPath = path.substr(0, slashPos);
+  TDirectory* newDir = dir;
 
-    newDir = dir->mkdir(newPath.c_str());
-    // Pop directory
-    gDirectory->cd(pwd.c_str());
-    if ( newDir == 0 ) return dir;
-    // Go to next subdirectory
-    return mkdirs(newDir, path.substr(slashPos+1));
-  }
-  else {
-    // finish recursive-mkdir if there are no remaining subdirectories
-    // Pop directory
-    gDirectory->cd(pwd.c_str());
-    return dir;
+  while(true) {
+    if ( path.empty() ) break;
+    
+    string::size_type slashPos = path.find_first_of('/');
+    if ( slashPos != string::npos ) {
+      newDir = newDir->mkdir(path.substr(0, slashPos).c_str());
+      path.erase(0, slashPos);
+    }
+    else {
+      newDir = newDir->mkdir(path.c_str());
+      break;
+    }
   }
 
-  // Nothing. just to hide warning message.
-  return NULL;
+  return newDir;
 }
+
+string dirname(const string& path)
+{
+  string::size_type slashPos = path.find_last_of('/');
+  if ( slashPos == string::npos ) {
+    return "";
+  }
+  
+  return path.substr(0, slashPos);
+}
+
+string basename(const string& path)
+{
+  string::size_type slashPos = path.find_last_of('/');
+  if ( slashPos == string::npos ) {
+    return path;
+  }
+  
+  return path.substr(slashPos+1, path.size());
+}
+ 
