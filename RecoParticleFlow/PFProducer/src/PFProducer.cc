@@ -44,6 +44,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   // energyResolution_ = new PFEnergyResolution();
   // PFBlock::setEnergyResolution(energyResolution_);
 
+  bool   clusterRecovery 
+    = iConfig.getUntrackedParameter<bool>("pf_clusterRecovery",false);
+  
   double mvaCut = iConfig.getParameter<double>("pf_mergedPhotons_mvaCut");
   string mvaWeightFile 
     = iConfig.getParameter<string>("pf_mergedPhotons_mvaWeightFile");
@@ -54,6 +57,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			 calibParamECAL_slope, 
 			 nSigmaECAL, 
 			 nSigmaHCAL,
+			 clusterRecovery,
 			 PSCut, 
 			 mvaCut, 
 			 path_mvaWeightFile.fullPath().c_str() );
