@@ -40,6 +40,7 @@ popcon::StateCreator::StateCreator(const std::string& connectionString,
   if( loc == std::string::npos ) {
     m_sqlite = false;
     conHandler.registerConnection(m_connect,m_connect,0);
+    conHandler.registerConnection(m_offline,m_offline,0);
     session=new cond::DBSession;
     
     session->configuration().setAuthenticationMethod( cond::XML );
