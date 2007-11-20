@@ -23,7 +23,7 @@
 */
 
 #define nMaxIterations 50
-#define nMaxChannels 200
+#define nMaxChannels 250
 
 
 

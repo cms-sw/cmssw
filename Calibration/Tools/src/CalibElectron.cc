@@ -1,6 +1,7 @@
 #include "Calibration/Tools/interface/CalibElectron.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
@@ -11,7 +12,7 @@ using namespace calib;
 using namespace std;
 
 
-CalibElectron::CalibElectron() : theElectron_(0), theHits_(0)
+CalibElectron::CalibElectron() : theElectron_(0), theHits_(0), theEEHits_(0)
 {
 }
 
@@ -39,9 +40,13 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
 // 	  etaIndex = EBDetId(*idIt).ieta() + 85; 
 // 	else 
 // 	  etaIndex = EBDetId(*idIt).ieta() + 84; 
-	
-	const EcalRecHit* rh = &*(theHits_->find(*idIt));
-	
+	const EcalRecHit* rh=0;
+	if ( (*idIt).subdetId() == EcalBarrel) 
+	  rh = &*(theHits_->find(*idIt));
+	else if ( (*idIt).subdetId() == EcalEndcap) 
+	  rh = &*(theEEHits_->find(*idIt));
+	if (!rh)
+	  std::cout << "CalibElectron::BIG ERROR::RecHit NOT FOUND" << std::endl;  
 	w_ring[EcalRingCalibrationTools::getRingIndex(*idIt)]+=rh->energy();
 	
       }

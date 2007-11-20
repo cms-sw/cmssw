@@ -61,7 +61,7 @@ ZIterativeAlgorithmWithFit::ZIterativeAlgorithmWithFit()
 ZIterativeAlgorithmWithFit::ZIterativeAlgorithmWithFit(const edm::ParameterSet&  ps)
   //k, unsigned int events) 
 {
-  // std::cout<< "ZIterativeAlgorithmWithFit::Called Construnctor" << std::endl;
+  //std::cout<< "ZIterativeAlgorithmWithFit::Called Constructor" << std::endl;
   numberOfIterations_=ps.getUntrackedParameter<unsigned int>("maxLoops",0);
   massMethod = ps.getUntrackedParameter<std::string>("ZCalib_InvMass","SCMass");
   calibType_= ps.getUntrackedParameter<std::string>("ZCalib_CalibType","RING"); 
@@ -150,7 +150,7 @@ void ZIterativeAlgorithmWithFit::getStatWeights(char* file) {
   for(unsigned int i=0;i<channels_;i++) {
     int imod;
     statfile >> imod >> StatWeights_[i];
-    std::cout << "Read Stat Weight for module " << imod << ": " <<  StatWeights_[i] << std::endl;
+    //std::cout << "Read Stat Weight for module " << imod << ": " <<  StatWeights_[i] << std::endl;
   }
 }
 
@@ -426,17 +426,17 @@ void ZIterativeAlgorithmWithFit::getWeight(unsigned int event_id, calib::CalibEl
 
 ZIterativeAlgorithmWithFit::~ZIterativeAlgorithmWithFit()
 {
-  std::cout << "ZIterativeAlgorithmWithFit::Called Destructor" << std::endl;
-  for (unsigned int i2 = 0; i2 < numberOfIterations_; i2++) 
-    for (unsigned int i1 = 0; i1 < channels_; i1++)
-      { 
-	if (thePlots_->weightedRescaleFactor[i1][i2])  
-	  delete thePlots_->weightedRescaleFactor[i1][i2];
-	if (thePlots_->unweightedRescaleFactor[i1][i2])  
-	  delete thePlots_->unweightedRescaleFactor[i1][i2];
-	if (thePlots_->weight[i1][i2])  
-	  delete thePlots_->weight[i1][i2];
-      }
+//   std::cout << "ZIterativeAlgorithmWithFit::Called Destructor" << std::endl;
+//   for (unsigned int i2 = 0; i2 < numberOfIterations_; i2++) 
+//     for (unsigned int i1 = 0; i1 < channels_; i1++)
+//       { 
+// 	if (thePlots_->weightedRescaleFactor[i1][i2])  
+// 	  delete thePlots_->weightedRescaleFactor[i1][i2];
+// 	if (thePlots_->unweightedRescaleFactor[i1][i2])  
+// 	  delete thePlots_->unweightedRescaleFactor[i1][i2];
+// 	if (thePlots_->weight[i1][i2])  
+// 	  delete thePlots_->weight[i1][i2];
+//       }
   
   //  if (eventData_) delete eventData_; //It seems that calling destructors for
   //if (massReco_) delete massReco_;  // HepMatrix(Vector) is not implemented and
