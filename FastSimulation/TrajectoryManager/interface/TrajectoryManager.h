@@ -66,6 +66,7 @@ class TrajectoryManager
 		    const edm::ParameterSet& matEff,
 		    const edm::ParameterSet& simHits,
 		    const edm::ParameterSet& decays,
+		    const edm::ParameterSet& trackerMaterial,
 		    const RandomEngine* engine);
 
   /// Default Destructor

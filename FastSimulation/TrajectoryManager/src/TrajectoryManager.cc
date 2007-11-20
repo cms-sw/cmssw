@@ -52,9 +52,9 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
 				     const edm::ParameterSet& matEff,
 				     const edm::ParameterSet& simHits,
 				     const edm::ParameterSet& decays,
+				     const edm::ParameterSet& trackerMaterial,
 				     const RandomEngine* engine) : 
   mySimEvent(aSimEvent), 
-  _theGeometry(0), 
   theMaterialEffects(0), 
   myDecayEngine(0), 
   theGeomTracker(0),
@@ -96,15 +96,19 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   myHistos->book("h300",1210,-121.,121.,1210,-121.,121.);
   myHistos->book("h301",1200,-300.,300.,1210,-121.,121.);
   */
+
+  _theGeometry = new TrackerInteractionGeometry(trackerMaterial);
+  
 }
 
 void 
-TrajectoryManager::initializeRecoGeometry(const GeometricSearchTracker* geomSearchTracker) { 
+TrajectoryManager::initializeRecoGeometry(const GeometricSearchTracker* geomSearchTracker)
+{ 
   
   theGeomSearchTracker = geomSearchTracker;
-
+  
   // Initialize the simplified tracker geometry
-  _theGeometry = new TrackerInteractionGeometry(theGeomSearchTracker);
+  _theGeometry->initialize(theGeomSearchTracker);
 
   initializeLayerMap();
 
