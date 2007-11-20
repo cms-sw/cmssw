@@ -1,8 +1,10 @@
 #include <DQM/HcalMonitorClient/interface/HcalHotCellClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 
-using std::cout;
-using std::endl;
+using namespace cms;
+using namespace edm;
+using namespace std;
+
 
 HcalHotCellClient::HcalHotCellClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
@@ -185,7 +187,7 @@ void HcalHotCellClient::errorOutput(){
       }
     }
   }
-  printf("HotCell Task: %d errors, %d warnings, %d others\n",dqmReportMapErr_.size(),dqmReportMapWarn_.size(),dqmReportMapOther_.size());
+  cout <<"HotCell Task: "<<dqmReportMapErr_.size()<<" errors, "<<dqmReportMapWarn_.size()<<" warnings, "<<dqmReportMapOther_.size()<<" others"<<endl;
 
   return;
 }

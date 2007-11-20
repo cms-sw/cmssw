@@ -21,16 +21,33 @@
 #include <vector>
 #include <string>
 
+/*
 using namespace cms;
 using namespace edm;
 using namespace std;
+*/
+
+struct DeadCellHists{
+  int type;
+  TH2F* deadADC_OccMap;
+  TH1F* deadADC_Eta;
+  TH2F* badCAPID_OccMap;
+  TH1F* badCAPID_Eta;
+  TH1F* ADCdist;
+  TH2F* NADACoolCellMap;
+  TH2F* digiCheck;
+  TH2F* cellCheck;
+  TH2F* AbovePed;
+  TH2F* CoolCellBelowPed;
+  std::vector<TH2F*> DeadCap;
+};
 
 class HcalDeadCellClient{
 
 public:
 
 /// Constructor
-HcalDeadCellClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
+  HcalDeadCellClient(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe_);
 HcalDeadCellClient();
 
 /// Destructor
@@ -62,18 +79,30 @@ void cleanup(void);
   void report();
   
   /// WriteDB
-  void htmlOutput(int run, string htmlDir, string htmlName);
+  void htmlOutput(int run, std::string htmlDir, std::string htmlName);
   void getHistograms();
   void loadHistograms(TFile* f);
 
   void errorOutput();
-  void getErrors(map<string, vector<QReport*> > out1, map<string, vector<QReport*> > out2, map<string, vector<QReport*> > out3);
+  void getErrors(std::map<std::string, std::vector<QReport*> > out1, std::map<std::string, std::vector<QReport*> > out2, std::map<std::string, std::vector<QReport*> > out3);
   bool hasErrors() const { return dqmReportMapErr_.size(); }
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
 
   void resetAllME();
   void createTests();
+  void createSubDetTests(DeadCellHists& hist);
+
+  // Clear histograms
+  void clearHists(DeadCellHists& hist);
+  void deleteHists(DeadCellHists& hist);
+
+  void getSubDetHistograms(DeadCellHists& hist);
+  void resetSubDetHistograms(DeadCellHists& hist);
+  void getSubDetHistogramsFromFile(DeadCellHists& hist, TFile* infile);
+  void htmlSubDetOutput(DeadCellHists& hist, int runNo, 
+			std::string htmlDir, 
+			std::string htmlName);
 
 private:
 
@@ -83,27 +112,22 @@ private:
   bool collateSources_;
   bool cloneME_;
   bool verbose_;
-  string process_;
-  string baseFolder_;
+  std::string process_;
+  std::string baseFolder_;
 
-  //  MonitorUserInterface* mui_;
   DaqMonitorBEInterface* dbe_;
 
   bool subDetsOn_[4];
 
-  TH2F* gl_geo_[4];
-  TH2F* gl_en_[4];
+  ofstream htmlFile;
 
-  TH2F* occ_geo_[4][2];
-  TH2F* occ_en_[4][2];
-  TH1F* max_en_[4];
-  TH1F* max_t_[4];
+  DeadCellHists hbhists, hehists, hohists, hfhists;
   
   // Quality criteria for data integrity
-  map<string, vector<QReport*> > dqmReportMapErr_;
-  map<string, vector<QReport*> > dqmReportMapWarn_;
-  map<string, vector<QReport*> > dqmReportMapOther_;
-  map<string, string> dqmQtests_;
+  std::map<std::string, std::vector<QReport*> > dqmReportMapErr_;
+  std::map<std::string, std::vector<QReport*> > dqmReportMapWarn_;
+  std::map<std::string, std::vector<QReport*> > dqmReportMapOther_;
+  std::map<std::string, std::string> dqmQtests_;
 
 };
 

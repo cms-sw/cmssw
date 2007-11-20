@@ -21,9 +21,11 @@
 #include <vector>
 #include <string>
 
+/*
 using namespace cms;
 using namespace edm;
 using namespace std;
+*/
 
 struct HotCellHists{
   int type;
@@ -51,7 +53,7 @@ class HcalHotCellClient{
 public:
 
 /// Constructor
-HcalHotCellClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
+  HcalHotCellClient(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe_);
 HcalHotCellClient();
 
 /// Destructor
@@ -83,13 +85,13 @@ void cleanup(void);
   void report();
   
   /// WriteDB
-  void htmlOutput(int run, string htmlDir, string htmlName);
-  void htmlSubDetOutput(HotCellHists& hist, int run, string htmlDir, string htmlName);
+  void htmlOutput(int run, std::string htmlDir, std::string htmlName);
+  void htmlSubDetOutput(HotCellHists& hist, int run, std::string htmlDir, std::string htmlName);
   void getHistograms();
   void loadHistograms(TFile* f);
 
   void errorOutput();
-  void getErrors(map<string, vector<QReport*> > out1, map<string, vector<QReport*> > out2, map<string, vector<QReport*> > out3);
+  void getErrors(std::map<std::string, std::vector<QReport*> > out1, std::map<std::string, std::vector<QReport*> > out2, std::map<std::string, std::vector<QReport*> > out3);
   bool hasErrors() const { return dqmReportMapErr_.size(); }
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
@@ -115,16 +117,12 @@ private:
   bool collateSources_;
   bool cloneME_;
   bool verbose_;
-  string process_;
-  string baseFolder_;
+  std::string process_;
+  std::string baseFolder_;
 
-  // Can we get threshold information from same .cfi file that HotCellMonitor uses?
-  
+  // Can we get threshold information from same .cfi file that HotCellMonitor uses?  
   int thresholds_;
 
-
-
-  //  MonitorUserInterface* mui_;
   DaqMonitorBEInterface* dbe_;
 
   bool subDetsOn_[4];
@@ -138,10 +136,10 @@ private:
   TH1F* max_t_[4];
   
   // Quality criteria for data integrity
-  map<string, vector<QReport*> > dqmReportMapErr_;
-  map<string, vector<QReport*> > dqmReportMapWarn_;
-  map<string, vector<QReport*> > dqmReportMapOther_;
-  map<string, string> dqmQtests_;
+  std::map<std::string, std::vector<QReport*> > dqmReportMapErr_;
+  std::map<std::string, std::vector<QReport*> > dqmReportMapWarn_;
+  std::map<std::string, std::vector<QReport*> > dqmReportMapOther_;
+  std::map<std::string, std::string> dqmQtests_;
 
 
   HotCellHists hbhists;
