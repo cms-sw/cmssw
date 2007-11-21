@@ -1,5 +1,8 @@
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "Math/GenVector/Rotation3D.h"
+#include "Math/GenVector/RotationX.h"
+#include "Math/GenVector/RotationY.h"
+#include "Math/GenVector/RotationZ.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Units/SystemOfUnits.h"
  
@@ -9,22 +12,22 @@
 
 using namespace std;
 
-void computeRotation(double & myTheta, double & myPhi, HepRotation & CMStoTB, HepRotation & TBtoCMS) {
+void computeRotation(double & myTheta, double & myPhi, ROOT::Math::Rotation3D & CMStoTB, ROOT::Math::Rotation3D & TBtoCMS) {
 
   // rotation matrix to move from the CMS reference frame to the test beam one
   
-  HepRotation * fromCMStoTB = new HepRotation();
+  ROOT::Math::Rotation3D * fromCMStoTB = new ROOT::Math::Rotation3D();
 
   // rotation matrix to move from the test beam reference frame to the CMS one
 
-  HepRotation * fromTBtoCMS = new HepRotation();
+  ROOT::Math::Rotation3D * fromTBtoCMS = new ROOT::Math::Rotation3D();
 
   double angle1 = 90.*deg - myPhi;
-  HepRotationZ * r1 = new HepRotationZ(angle1);
+  ROOT::Math::RotationZ * r1 = new ROOT::Math::RotationZ(angle1);
   double angle2 = myTheta;
-  HepRotationX * r2 = new HepRotationX(angle2);
+  ROOT::Math::RotationX * r2 = new ROOT::Math::RotationX(angle2);
   double angle3 = 90.*deg;
-  HepRotationZ * r3 = new HepRotationZ(angle3);
+  ROOT::Math::RotationZ * r3 = new ROOT::Math::RotationZ(angle3);
   (*fromCMStoTB) *= (*r3);
   (*fromCMStoTB) *= (*r2);
   (*fromCMStoTB) *= (*r1);
@@ -37,11 +40,11 @@ void computeRotation(double & myTheta, double & myPhi, HepRotation & CMStoTB, He
     << " the rotation of " << angle3 << " around Z " << (*r3) << std::endl;
 
   double angle11 = - 90.*deg + myPhi;
-  HepRotationZ * r11 = new HepRotationZ(angle11);
+  ROOT::Math::RotationZ * r11 = new ROOT::Math::RotationZ(angle11);
   double angle12 = -myTheta;
-  HepRotationX * r12 = new HepRotationX(angle12);
+  ROOT::Math::RotationX * r12 = new ROOT::Math::RotationX(angle12);
   double angle13 = -90.*deg;
-  HepRotationZ * r13 = new HepRotationZ(angle13);
+  ROOT::Math::RotationZ * r13 = new ROOT::Math::RotationZ(angle13);
 
   (*fromTBtoCMS) *= (*r11);
   (*fromTBtoCMS) *= (*r12);
@@ -54,7 +57,7 @@ void computeRotation(double & myTheta, double & myPhi, HepRotation & CMStoTB, He
     << " the rotation of " << angle12 << " around X " << (*r12) << "\n"
     << " the rotation of " << angle11 << " around Z " << (*r11) << std::endl;
 
-  HepRotation test = (*fromCMStoTB)*(*fromTBtoCMS);
+  ROOT::Math::Rotation3D test = (*fromCMStoTB)*(*fromTBtoCMS);
   
   cout 
     << "Product of the two rotations: " << test << endl;
@@ -75,12 +78,6 @@ void checkTotalRotation(double & myTheta, double & myPhi) {
 
   // rotation matrix to move from the CMS reference frame to the test beam one
   
-  HepRotation * fromCMStoTB = new HepRotation();
-
-  // rotation matrix to move from the test beam reference frame to the CMS one
-
-  HepRotation * fromTBtoCMS = new HepRotation();
-  
   double xx = -cos(myTheta)*cos(myPhi);
   double xy = -cos(myTheta)*sin(myPhi);
   double xz = sin(myTheta);
@@ -93,12 +90,12 @@ void checkTotalRotation(double & myTheta, double & myPhi) {
   double zy = sin(myTheta)*sin(myPhi);
   double zz = cos(myTheta);
 
-  const HepRep3x3 mCMStoTB(xx, xy, xz, yx, yy, yz, zx, zy, zz);
+  ROOT::Math::Rotation3D * fromCMStoTB = new ROOT::Math::Rotation3D(xx, xy, xz, yx, yy, yz, zx, zy, zz);
 
-  fromCMStoTB->set(mCMStoTB);
-  
   cout << "Total rotation matrix from CMS to test beam frame = " << (*fromCMStoTB) << endl;
-  
+
+  // rotation matrix to move from the test beam reference frame to the CMS one
+
   xx = -cos(myTheta)*cos(myPhi);
   xy = sin(myPhi);
   xz = sin(myTheta)*cos(myPhi);
@@ -111,13 +108,11 @@ void checkTotalRotation(double & myTheta, double & myPhi) {
   zy = 0.;
   zz = cos(myTheta);
 
-  const HepRep3x3 mTBtoCMS(xx, xy, xz, yx, yy, yz, zx, zy, zz);
+  ROOT::Math::Rotation3D * fromTBtoCMS = new ROOT::Math::Rotation3D(xx, xy, xz, yx, yy, yz, zx, zy, zz);
 
-  fromTBtoCMS->set(mTBtoCMS);
-  
   cout << "Total rotation matrix from test beam to CMS frame = " << (*fromTBtoCMS) << endl;
 
-  HepRotation test = (*fromCMStoTB)*(*fromTBtoCMS);
+  ROOT::Math::Rotation3D test = (*fromCMStoTB)*(*fromTBtoCMS);
   
   cout 
     << "Product of the two rotations: " << test << endl;
@@ -137,8 +132,8 @@ int main() {
   cout << "Input theta = " << myTheta << " phi = " << myPhi << endl;
   cout << "\n===========================================\n" << endl;
   
-  HepRotation * CMStoTB = new HepRotation();
-  HepRotation * TBtoCMS = new HepRotation();
+  ROOT::Math::Rotation3D * CMStoTB = new ROOT::Math::Rotation3D();
+  ROOT::Math::Rotation3D * TBtoCMS = new ROOT::Math::Rotation3D();
 
   checkTotalRotation(myTheta, myPhi);
 
@@ -146,7 +141,7 @@ int main() {
   cout << "\n===========================================\n" << endl;
 
   double xx = 0.; double yy = 0. ; double zz = 0.;
-  Hep3Vector test(xx, yy, zz);
+  math::XYZPoint test(xx, yy, zz);
   double newTheta = myTheta;
   double newPhi = myPhi;
 
@@ -160,7 +155,7 @@ int main() {
       xx = myMod*sin(newTheta)*cos(newPhi);
       yy = myMod*sin(newTheta)*sin(newPhi);
       zz = myMod*cos(newTheta);
-      test.set(xx,yy,zz);
+      test.SetCoordinates(xx,yy,zz);
   
       cout << "\n ieta = " << ieta << " iphi = " << iphi << endl;
       cout << "\n From CMS to TB \n" << endl;
@@ -168,7 +163,7 @@ int main() {
            << " corresponding to theta = " 
            << newTheta << " phi = " << newPhi << endl;
       
-      Hep3Vector testrot = (*CMStoTB)*test;
+      math::XYZPoint testrot = (*CMStoTB)*test;
   
       cout << "Output vector = " << testrot 
            << " corresponding to theta = " 
@@ -176,7 +171,7 @@ int main() {
       
       cout << "\n From TB to CMS \n" << endl;
       
-      Hep3Vector thistest = (*TBtoCMS)*testrot;
+      math::XYZPoint thistest = (*TBtoCMS)*testrot;
       
       cout << "Output vector = " << thistest 
            << " corresponding to theta = " 
@@ -194,13 +189,13 @@ int main() {
       xx = (double)ix * 0.01;
       yy = (double)iy * 0.01;
       zz = 1.;
-      test.set(xx,yy,zz);
+      test.SetCoordinates(xx,yy,zz);
 
       cout << "\n ix = " << ix << " iy = " << iy << endl;
       cout << "\n From TB to CMS \n" << endl;
       cout << "Input vector  = " << test << endl;
       
-      Hep3Vector testrot = (*TBtoCMS)*test;
+      math::XYZPoint testrot = (*TBtoCMS)*test;
   
       cout << "Output vector = " << testrot 
            << " corresponding to theta = " 
@@ -208,7 +203,7 @@ int main() {
       
       cout << "\n From CMS to TB \n" << endl;
       
-      Hep3Vector thistest = (*CMStoTB)*testrot;
+      math::XYZPoint thistest = (*CMStoTB)*testrot;
       
       cout << "Output vector = " << thistest << endl;
       cout << "\n===========================================\n" << endl;

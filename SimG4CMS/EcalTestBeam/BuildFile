@@ -1,5 +1,6 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/EcalDetId>
+<use name=DataFormats/Math>
 <use name=DetectorDescription/Core>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
@@ -13,6 +14,7 @@
 <use name=SimG4CMS/Calo>
 <use name=TBDataFormats/EcalTBObjects>
 <use name=clhep>
+<use name=rootmath>
 <use name=geant4>
 
 <export>

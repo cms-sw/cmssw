@@ -1,7 +1,7 @@
 /*
  * \file EcalTBMCInfoProducer.cc
  *
- * $Id: EcalTBMCInfoProducer.cc,v 1.9 2007/03/26 11:28:25 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.cc,v 1.10 2007/05/10 20:01:34 crovelli Exp $
  *
 */
 
@@ -10,6 +10,8 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "DataFormats/Math/interface/Point3D.h"
 
 using namespace std;
 using namespace cms;
@@ -71,8 +73,6 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) : flatDi
 
   // rotation matrix to move from the CMS reference frame to the test beam one
 
-  fromCMStoTB = new HepRotation();
-
   double xx = -cos(beamTheta)*cos(beamPhi);
   double xy = -cos(beamTheta)*sin(beamPhi);
   double xz = sin(beamTheta);
@@ -85,10 +85,7 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) : flatDi
   double zy = sin(beamTheta)*sin(beamPhi);
   double zz = cos(beamTheta);
 
-  const HepRep3x3 mCMStoTB(xx, xy, xz, yx, yy, yz, zx, zy, zz);
-
-  fromCMStoTB->set(mCMStoTB);
-
+  fromCMStoTB = new ROOT::Math::Rotation3D(xx, xy, xz, yx, yy, yz, zx, zy, zz);
 
   // random number
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -132,16 +129,16 @@ EcalTBMCInfoProducer::~EcalTBMCInfoProducer() {
   const HepMC::GenEvent* Evt = GenEvt->GetEvent() ;
   HepMC::GenEvent::vertex_const_iterator Vtx = Evt->vertices_begin();
 
-  Hep3Vector eventCMSVertex = Hep3Vector((*Vtx)->position().x(),
-                                         (*Vtx)->position().y(),
-                                         (*Vtx)->position().z());
+  math::XYZPoint eventCMSVertex((*Vtx)->position().x(),
+                                (*Vtx)->position().y(),
+                                (*Vtx)->position().z());
   
   LogDebug("EcalTBInfo") << "Generated vertex position = " 
                          << eventCMSVertex.x() << " " 
                          << eventCMSVertex.y() << " " 
                          << eventCMSVertex.z();
 
-  Hep3Vector & eventTBVertex = eventCMSVertex.transform((*fromCMStoTB));
+  math::XYZPoint eventTBVertex = (*fromCMStoTB)*eventCMSVertex;
 
   LogDebug("EcalTBInfo") << "Rotated vertex position   = "
                          << eventTBVertex.x() << " " 

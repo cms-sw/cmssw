@@ -3,7 +3,7 @@
 /*
  * \file EcalTBMCInfoProducer.h
  *
- * $Id: EcalTBMCInfoProducer.h,v 1.4 2007/03/07 10:48:54 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.h,v 1.5 2007/05/10 20:01:33 crovelli Exp $
  *
 */
 
@@ -22,8 +22,7 @@
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 #include "Geometry/EcalTestBeam/interface/EcalTBCrystalMap.h"
 
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "Math/GenVector/Rotation3D.h"
 
 #include <iostream>
 #include <fstream>
@@ -69,7 +68,7 @@ private:
 
   EcalTBCrystalMap * theTestMap;
 
-  HepRotation * fromCMStoTB;
+  ROOT::Math::Rotation3D * fromCMStoTB;
 
   std::string GenVtxLabel;
 
