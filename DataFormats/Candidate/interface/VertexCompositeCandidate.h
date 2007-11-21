@@ -7,25 +7,15 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.16 2007/06/12 21:27:21 llista Exp $
+ * \version $Id: VertexCompositeCandidate.h,v 1.1 2007/11/21 10:59:38 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/VertexCompositeCandidateFwd.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "DataFormats/Math/interface/Error.h"
 
 namespace reco {
 
   class VertexCompositeCandidate : public CompositeCandidate {
-    /// error matrix dimension
-    enum { dimension = 3 };
-    /// covariance error matrix (3x3)
-    typedef math::Error<dimension>::type CovarianceMatrix;
-    /// matix size
-    enum { size = dimension * (dimension + 1)/2 };
-    /// index type
-    typedef unsigned int index;
-
   public:
     VertexCompositeCandidate() : CompositeCandidate() { }
     /// constructor from values
@@ -48,30 +38,29 @@ namespace reco {
     /// returns a clone of the candidate
     virtual VertexCompositeCandidate * clone() const;
     /// chi-squares
-    double chi2() const { return chi2_; }
+    virtual double vertexChi2() const { return chi2_; }
     /** Number of degrees of freedom
      *  Meant to be Double32_t for soft-assignment fitters: 
      *  tracks may contribute to the vertex with fractional weights.
      *  The ndof is then = to the sum of the track weights.
      *  see e.g. CMS NOTE-2006/032, CMS NOTE-2004/002
      */
-    double ndof() const { return ndof_; }
+    virtual double vertexNdof() const { return ndof_; }
     /// chi-squared divided by n.d.o.f.
-    double normalizedChi2() const { return chi2_ / ndof_; }
+    virtual double vertexNormalizedChi2() const { return chi2_ / ndof_; }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double covariance(int i, int j) const { 
+    virtual double vertexCovariance(int i, int j) const { 
       return covariance_[idx(i, j)]; 
     }
-    /// return SMatrix
-    CovarianceMatrix covariance() const { CovarianceMatrix m; fill(m); return m; }
     /// fill SMatrix
-    void fill(CovarianceMatrix & v) const;
+    virtual void fillVertexCovariance(CovarianceMatrix & v) const;
     /// set chi2 and ndof
     void setChi2AndNdof(double chi2, double ndof) {
       chi2_ = chi2; ndof_ = ndof;
     }
     /// set covariance matrix
     void setCovariance(const CovarianceMatrix &m);
+
   private:
     /// chi-sqared
     Double32_t chi2_;

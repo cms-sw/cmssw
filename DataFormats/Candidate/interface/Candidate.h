@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.39 2007/10/29 08:29:02 llista Exp $
+ * \version $Id: Candidate.h,v 1.40 2007/10/29 10:22:10 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -14,6 +14,7 @@
 #include "DataFormats/Candidate/interface/const_iterator.h"
 #include "DataFormats/Candidate/interface/iterator.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Math/interface/Error.h"
 #include "boost/iterator/filter_iterator.hpp"
 
 class OverlapChecker;
@@ -26,7 +27,14 @@ namespace reco {
     typedef size_t size_type;
     typedef candidate::const_iterator const_iterator;
     typedef candidate::iterator iterator;
-
+    /// error matrix dimension
+    enum { dimension = 3 };
+    /// covariance error matrix (3x3)
+    typedef math::Error<dimension>::type CovarianceMatrix;
+    /// matix size
+    enum { size = dimension * (dimension + 1)/2 };
+    /// index type
+    typedef unsigned int index;
     /// default constructor
     Candidate() : Particle() { }
     /// constructor from a Particle
@@ -61,6 +69,23 @@ namespace reco {
     virtual size_type numberOfMothers() const = 0;
     /// return pointer to mother
     virtual const Candidate * mother( size_type i = 0 ) const = 0;
+    /// chi-squares
+    virtual double vertexChi2() const;
+    /** Number of degrees of freedom
+     *  Meant to be Double32_t for soft-assignment fitters: 
+     *  tracks may contribute to the vertex with fractional weights.
+     *  The ndof is then = to the sum of the track weights.
+     *  see e.g. CMS NOTE-2006/032, CMS NOTE-2004/002
+     */
+    virtual double vertexNdof() const;
+    /// chi-squared divided by n.d.o.f.
+    virtual double vertexNormalizedChi2() const;
+    /// (i, j)-th element of error matrix, i, j = 0, ... 2
+    virtual double vertexCovariance(int i, int j) const;
+    /// return SMatrix
+    CovarianceMatrix vertexCovariance() const { CovarianceMatrix m; fillVertexCovariance(m); return m; }
+    /// fill SMatrix
+    virtual void fillVertexCovariance(CovarianceMatrix & v) const;
     /// returns true if this candidate has a reference to a master clone.
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate
     virtual bool hasMasterClone() const;
@@ -114,6 +139,7 @@ namespace reco {
     typename daughter_iterator<S>::type endFilter( const S & s ) const {
       return boost::make_filter_iterator(s, end(), end());
     }
+
   private:
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & ) const = 0;

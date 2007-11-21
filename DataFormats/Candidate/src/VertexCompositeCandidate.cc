@@ -1,4 +1,4 @@
-// $Id: CompositeCandidate.cc,v 1.5 2007/05/08 13:11:17 llista Exp $
+// $Id: VertexCompositeCandidate.cc,v 1.1 2007/11/21 10:59:42 llista Exp $
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
 using namespace reco;
@@ -16,7 +16,7 @@ VertexCompositeCandidate * VertexCompositeCandidate::clone() const {
   return new VertexCompositeCandidate(*this); 
 }
 
-void VertexCompositeCandidate::fill(CovarianceMatrix& err) const {
+void VertexCompositeCandidate::fillVertexCovariance(CovarianceMatrix& err) const {
   index idx = 0;
   for(index i = 0; i < dimension; ++i) 
     for(index j = 0; j <= i; ++ j)
