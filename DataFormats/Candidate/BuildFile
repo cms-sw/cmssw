@@ -2,12 +2,13 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/Math>
 <use name=FWCore/Utilities>
-<use name=rootrflx>
+<use name=rootmath>
 <export>
+  <lib name=DataFormatsCandidate>
   <use name=DataFormats/CaloRecHit>
   <use name=DataFormats/Common>
   <use name=DataFormats/Math>
   <use name=FWCore/Utilities>
-  <lib name=DataFormatsCandidate>
+  <use name=rootmath>
 </export>
 
