@@ -791,6 +791,9 @@ void L1GlobalTriggerRawToDigi::unpackGMT(
     << "\nUnpacking GMT collection.\n"
     << std::endl;
 
+    // 17*64/2 TODO FIXME ask Ivan for a getSize() function for GMT record
+    const unsigned int gmtRecordSize32 = 34;
+
     std::auto_ptr<std::vector<L1MuRegionalCand> > DTCands( new std::vector<L1MuRegionalCand> );
     std::auto_ptr<std::vector<L1MuRegionalCand> > CSCCands( new std::vector<L1MuRegionalCand> );
     std::auto_ptr<std::vector<L1MuRegionalCand> > RPCbCands( new std::vector<L1MuRegionalCand> );
@@ -881,6 +884,9 @@ void L1GlobalTriggerRawToDigi::unpackGMT(
 
             gmtrc->addRecord(gmtrr);
 
+        } else {
+            // increase the pointer with the GMT record size
+            p += gmtRecordSize32;
         }
 
         // increase the BxInEvent number
