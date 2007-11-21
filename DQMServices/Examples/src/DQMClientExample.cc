@@ -4,8 +4,8 @@
  * \author M. Zanetti - CERN
  *
  * Last Update:
- * $Date: 2007/11/14 12:17:16 $
- * $Revision: 1.5 $
+ * $Date: 2007/11/18 10:52:14 $
+ * $Revision: 1.6 $
  * $Author: ameyer $
  *
  */
@@ -69,7 +69,6 @@ void DQMClientExample::beginJob(const EventSetup& context){
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
   // do your thing
-  dbe_->setVerbose(1);
   dbe_->setCurrentFolder(monitorName_+"C1/Tests");
   clientHisto = dbe_->book1D("clientHisto", "Guassian fit results.", 2, 0, 1);
 }
