@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.14 2007/11/20 15:44:22 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.15 2007/11/21 13:18:06 arizzi Exp $
 //
 //
 
@@ -257,9 +257,9 @@ Handle< double > genFilterEff;
    iEvent.getByLabel("muons",pIn);
    const reco::MuonCollection & muons = * pIn.product();
 
-   Handle<vector<float> >  betaRecoH;
+   Handle< MuonTOFCollection >  betaRecoH;
    iEvent.getByLabel("betaFromTOF",betaRecoH);
-   const vector<float> & betaReco = *betaRecoH.product();
+   const MuonTOFCollection & betaReco = *betaRecoH.product();
  
    int i=0;
    reco::MuonCollection::const_iterator muonIt = muons.begin();
@@ -281,7 +281,7 @@ Handle< double > genFilterEff;
      //FIXME: tobeused as default
 //     if(combMuon.isNonnull()) p=combMuon->p();
 
-      double invbeta = betaReco.at(i);
+      double invbeta = betaReco[i].second.invBeta;
       double mass = p*sqrt(invbeta*invbeta-1);
       double mass2 = p*p*(invbeta*invbeta-1);
            
