@@ -2,11 +2,12 @@
 #include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
 #include "PhysicsTools/UtilAlgos/interface/MassRangeSelector.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
 typedef reco::modules::CandCombiner<
           reco::CandidateCollection,
           MassRangeSelector,
-          reco::CandidateCollection,
+          reco::VertexCompositeCandidateCollection,
           AnyPairSelector,
           combiner::helpers::ShallowClone,
           CandCommonVertexFitter<KalmanVertexFitter>

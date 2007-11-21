@@ -7,9 +7,9 @@
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "DataFormats/RecoCandidate/interface/FitResult.h"
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include <vector>
 
 template<typename Fitter,
@@ -22,7 +22,6 @@ public:
 
 private:
   edm::InputTag src_;
-  bool saveFitResults_;
   Fitter fitter_;
   void produce(edm::Event &, const edm::EventSetup &);
 };
@@ -32,33 +31,33 @@ private:
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "PhysicsTools/UtilAlgos/interface/MasterCollectionHelper.h"
 
 template<typename Fitter, typename InputCollection, typename OutputCollection, typename Init>
 ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::ConstrainedFitCandProducer(const edm::ParameterSet & cfg) :
   src_(cfg.template getParameter<edm::InputTag>("src")),
-  saveFitResults_(cfg.template getParameter<bool>("saveFitResults")),
   fitter_(reco::modules::make<Fitter>(cfg)) {
   produces<OutputCollection>();
   std::string alias( cfg.getParameter<std::string>("@module_label"));
-  if (saveFitResults_)
-    produces<reco::FitResultCollection>().setBranchAlias(alias + "FitResults");
 }
 
 namespace reco {
-  namespace helper {
+  namespace fitHelper {
     template<typename C>
-    struct ValueGetter {
-      typedef typename C::value_type value_type;
-      static const value_type & get(std::auto_ptr<value_type> t) { return *t; }
+    struct Adder {
+      static void add(std::auto_ptr<C> c, std::auto_ptr<reco::VertexCompositeCandidate> t) { c->push_back(*t); }
     };
 
     template<typename T>
-    struct ValueGetter<edm::OwnVector<T> > {
-      static std::auto_ptr<T> get(std::auto_ptr<T> t) { return t; }
+    struct Adder<edm::OwnVector<T> > {
+      static void add(std::auto_ptr<edm::OwnVector<T> > c, std::auto_ptr<reco::VertexCompositeCandidate> t) { c->push_back(t); }
     };
+
+    template<typename C>
+      inline void add(std::auto_ptr<C> c, std::auto_ptr<reco::VertexCompositeCandidate> t) {
+      Adder<C>::add(c, t);
+    }
   }
 }
 
@@ -70,25 +69,13 @@ void ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>
   Init::init(fitter_, es);
   Handle<InputCollection> cands;
   evt.getByLabel(src_, cands);
-  FitQuality fq;
-  auto_ptr<OutputCollection> refitted(new OutputCollection);
-  auto_ptr<FitResultCollection> fitResults(new FitResultCollection);
-  FitResultCollection::Filler filler(*fitResults);
-  size_t i = 0;
-  ::helper::MasterCollection<InputCollection> master(cands);
-  vector<FitQuality> q(master.size(), FitQuality());
+  auto_ptr<OutputCollection> fitted(new OutputCollection);
   for(typename InputCollection::const_iterator c = cands->begin(); c != cands->end(); ++ c) {
-    std::auto_ptr<typename InputCollection::value_type> clone(c->clone());
-    fq = fitter_.set(*clone);
-    refitted->push_back(reco::helper::ValueGetter<InputCollection>::get(clone));
-    if (saveFitResults_) q[master.index(i++)];
+    std::auto_ptr<VertexCompositeCandidate> clone(new VertexCompositeCandidate(*c));
+    fitter_.set(*clone);
+    fitHelper::add(fitted, clone);
   }
-  evt.put(refitted);
-  if (saveFitResults_) { 
-    filler.insert(master.get(), q.begin(), q.end());
-    filler.fill();
-    evt.put(fitResults); 
-  }
+  evt.put(fitted);
 }
 
 #endif

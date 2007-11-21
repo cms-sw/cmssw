@@ -1,10 +1,10 @@
 #include "PhysicsTools/RecoAlgos/plugins/ConstrainedFitCandProducer.h"
 #include "PhysicsTools/RecoAlgos/plugins/CandCommonVertexFitter.h"
 #include "PhysicsTools/RecoAlgos/plugins/KalmanVertexFitter.h"
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
 typedef ConstrainedFitCandProducer<CandCommonVertexFitter<KalmanVertexFitter>,
-                                   std::vector<reco::CompositeCandidate> > KalmanVertexFitCompositeCandProducer;
+                                   std::vector<reco::VertexCompositeCandidate> > KalmanVertexFitCompositeCandProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

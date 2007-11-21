@@ -12,10 +12,9 @@
   <use name=DataFormats/METReco>
   <use name=DataFormats/HcalRecHit>
   <use name=SimDataFormats/TrackingAnalysis>
+  <use name=PhysicsTools/RecoCandUtils>
   <use name=PhysicsTools/CandAlgos>
   <use name=PhysicsTools/RecoAlgos>
-  <use name=PhysicsTools/RecoCandUtils>
-  <use name=PhysicsTools/CandCombiners>
   <use name=PhysicsTools/UtilAlgos>
   <use name=MagneticField/Records>
   <use name=RecoVertex/KalmanVertexFit>
