@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.34 2007/11/20 22:39:27 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.35 2007/11/20 23:07:30 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -881,8 +881,7 @@ void SiStripConfigDb::createPartition( const string& partition_name,
       deviceFactory(__func__)->createPartition( devices_,
 						&dbParams_.fecMajor_, 
 						&dbParams_.fecMinor_, 
-						dbParams_.partition_,
-						true ); //@@ partition flag?
+						dbParams_.partition_ );
 #else
       deviceFactory(__func__)->createPartition( devices_,
 						&dbParams_.fecMajor_, 
@@ -938,11 +937,11 @@ void SiStripConfigDb::createPartition( const string& partition_name,
 #endif
       factory->setOutputFileName( ss.str() );
 #ifndef USING_NEW_DATABASE_MODEL
-      deviceFactory(__func__)->write();
+      deviceFactory(__func__)->write(); //@@ corresponding method in new model???
 #endif
     } catch(...) {
       stringstream ss; 
-      ss << "Failed to create and upload FedChannelConnectionDescriptions"
+      ss << "Failed to create and upload ConnectionDescriptions"
 	 << " to partition with name "
 	 << dbParams_.partition_ << " and version " 
 	 << dbParams_.cablingMajor_ << "." << dbParams_.cablingMinor_;
