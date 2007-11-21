@@ -8,6 +8,7 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
 #include <sstream>
 
@@ -18,8 +19,9 @@ MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet&     
 						   const Propagator*                     propagatorProximity,
 						   const Chi2MeasurementEstimatorBase*   estimator,
 						   const TransientTrackingRecHitBuilder* RecHitBuilder,
-						   const MeasurementTracker*             measurementTracker): 
-  CkfTrajectoryBuilder(conf,updator,propagatorAlong,propagatorOpposite,estimator,RecHitBuilder,measurementTracker),
+						   const MeasurementTracker*             measurementTracker,
+						   const TrajectoryFilter*               filter): 
+  CkfTrajectoryBuilder(conf,updator,propagatorAlong,propagatorOpposite,estimator,RecHitBuilder,measurementTracker,filter),
   theProximityPropagator(propagatorProximity)
 {
   //and something specific to me ?

@@ -12,7 +12,8 @@ class MuonCkfTrajectoryBuilder : public CkfTrajectoryBuilder {
 			   const Propagator*                     propagatorProximity,
 			   const Chi2MeasurementEstimatorBase*   estimator,
 			   const TransientTrackingRecHitBuilder* RecHitBuilder,
-			   const MeasurementTracker*             measurementTracker);
+			   const MeasurementTracker*             measurementTracker,
+			   const TrajectoryFilter*               filter);
   virtual ~MuonCkfTrajectoryBuilder();
   
  protected:
