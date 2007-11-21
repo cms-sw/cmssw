@@ -66,42 +66,6 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset, int Index)
 
 /// Destructor
 HLTMuonGenericRate::~HLTMuonGenericRate(){
-  delete hL1eff;
-  delete hL1MCeff;
-  delete hL1RECOeff;
-  delete hMCptnor;
-  delete hMCphinor;
-  delete hMCetanor;
-  delete hRECOptnor;
-  delete hRECOphinor;
-  delete hRECOetanor;
-  delete hL1rate;
-  delete hL1pt;
-  delete hL1etaMC;
-  delete hL1phiMC;
-  delete hL1etaRECO;
-  delete hL1phiRECO;
-  delete hSteps;
-  for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-    delete hHLTeff[i];
-    delete hHLTMCeff[i];
-    delete hHLTRECOeff[i];
-    delete hHLTrate[i];
-    delete hHLTpt[i];
-    delete hHLTetaMC[i];
-    delete hHLTphiMC[i];
-    delete hHLTetaRECO[i];
-    delete hHLTphiRECO[i];
-  }
-  hHLTeff.clear();
-  hHLTMCeff.clear();
-  hHLTRECOeff.clear();
-  hHLTrate.clear();
-  hHLTpt.clear();
-  hHLTetaMC.clear();
-  hHLTphiMC.clear();
-  hHLTetaRECO.clear();
-  hHLTphiRECO.clear();
 }
 
 void HLTMuonGenericRate::analyze(const Event & event ){
