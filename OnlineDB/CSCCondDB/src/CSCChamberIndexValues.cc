@@ -18,7 +18,7 @@ void CSCChamberIndexValues::fillChamberIndex()
   int r,c;     //r - number of rings, c - number of chambers.
   int count=0;
 
-  mapobj->ch_index.resize(468);
+  mapobj->ch_index.resize(540);
   /* This is version for 540 chambers. */
   for(i=1;i<=2;++i){
     for(j=1;j<=4;++j){
