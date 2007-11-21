@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.3 2007/10/15 09:32:52 arizzi Exp $
+// $Id: HSCParticleProducer.cc,v 1.1 2007/11/20 15:44:22 arizzi Exp $
 //
 //
 
@@ -71,7 +71,7 @@ class HSCParticleProducer : public edm::EDProducer {
       TF1 * f1;
       // ----------member data ---------------------------
       typedef std::vector<DeDxBeta> DeDxBetaCollection; 
-      std::vector<HSCParticle> associate( DeDxBetaCollection & tk ,MuonTOFCollection & dts );
+      std::vector<HSCParticle> associate( DeDxBetaCollection & tk ,const MuonTOFCollection & dts );
 
 
 };
@@ -119,7 +119,7 @@ using namespace susybsm;
 
 
 
-   Handle<vector<float> >  betaRecoH;
+/*   Handle<vector<float> >  betaRecoH;
    iEvent.getByLabel(m_muonsTOFTag,betaRecoH); // "betaFromTOF"
    const vector<float> & betaReco = *betaRecoH.product();
    Handle<reco::MuonCollection> muonsH;
@@ -137,6 +137,10 @@ using namespace susybsm;
       dtInfos.setValue(i,dt);
       i++;
     }
+*/
+  Handle<MuonTOFCollection> betaRecoH;
+  iEvent.getByLabel(m_muonsTOFTag,betaRecoH);
+  const MuonTOFCollection & dtInfos  =  *betaRecoH.product();
 
 
 
@@ -193,7 +197,7 @@ HSCParticleProducer::endJob() {
 
 
 
-std::vector<HSCParticle> HSCParticleProducer::associate( DeDxBetaCollection & tks , MuonTOFCollection & dts )
+std::vector<HSCParticle> HSCParticleProducer::associate( DeDxBetaCollection & tks ,const MuonTOFCollection & dtsInput )
 {
  float minTkP=30;
  float maxTkBeta=0.9;
@@ -204,6 +208,9 @@ std::vector<HSCParticle> HSCParticleProducer::associate( DeDxBetaCollection & tk
  float maxInvPtDiff=0.005;
 
  float minTkInvBeta2=1./(maxTkBeta*maxTkBeta);
+ std::vector<MuonTOF> dts;
+ std::copy (dtsInput.begin(),dtsInput.end(), std::back_inserter (dts));
+
  std::vector<HSCParticle> result;
  for(size_t i=0;i<tks.size();i++)
  {
@@ -231,7 +238,7 @@ std::vector<HSCParticle> HSCParticleProducer::associate( DeDxBetaCollection & tk
        {
         candidate.hasDt=true;
         candidate.dt=dts[found];
-      //  dts.erase(dts.begin()+found);
+        dts.erase(dts.begin()+found);
        }
       else
         {

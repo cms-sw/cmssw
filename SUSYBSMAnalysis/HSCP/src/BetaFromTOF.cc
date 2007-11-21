@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.4 2007/11/06 16:36:22 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.5 2007/11/15 10:12:18 ptraczyk Exp $
 //
 //
 
@@ -63,6 +63,10 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
+                   
 
 #include <TROOT.h>
 #include <TSystem.h>
@@ -151,7 +155,8 @@ BetaFromTOF::BetaFromTOF(const edm::ParameterSet& iConfig)
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
   // the services
   theService = new MuonServiceProxy(serviceParameters);
-  produces<std::vector<float> >();
+//  produces<std::vector<float> >();
+  produces<susybsm::MuonTOFCollection>();
 }
 
 
@@ -184,7 +189,6 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   ESHandle<DTGeometry> theDTGeometry;
   iSetup.get<MuonGeometryRecord>().get(theDTGeometry);
 
-  vector<float> *outputCollection = new vector<float>;
 
 //  iEvent.getByLabel( TKtrackTags_, TKTrackCollection);
 //  const reco::TrackCollection tkTC = *(TKTrackCollection.product());
@@ -201,18 +205,22 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (debug) 
     cout << "     Muon collection size: " << muons.size() << endl;
 
+  MuonRefProd muRP(allMuons); 
+  using namespace susybsm;
+  MuonTOFCollection *outputCollection = new MuonTOFCollection(muRP);
+
   // Get the DT-Segment collection from the Event
   edm::Handle<DTRecSegment4DCollection> dtRecHits;
   iEvent.getByLabel(DTSegmentTags_, dtRecHits);  
   if (debug) 
     cout << "DT Segment collection size: " << dtRecHits->size() << endl;
-
-  for(reco::MuonCollection::const_iterator mi = muons.begin(); mi != muons.end() ; mi++) {
+  size_t muId=0;
+  for(reco::MuonCollection::const_iterator mi = muons.begin(); mi != muons.end() ; mi++,muId++) {
     TrackRef staMuon = mi->standAloneMuon();
 
     double betaMeasurements[4]={0,0,0,0};
     double invbeta=0;
-
+    DriftTubeTOF tof;
   for (reco::TrackCollection::const_iterator candTrack = staMuons.begin(); candTrack != staMuons.end(); ++candTrack) {
     
     
@@ -405,6 +413,9 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if (debug)
       cout << " Measured 1/beta: " << invbeta << " +/- " << invbetaerr << endl;
+
+    tof.invBeta=invbeta;
+    tof.invBetaErr=invbetaerr;
       
     // unconstrained fit to the full set of points
     vector <double> x,y;
@@ -416,9 +427,13 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //      cout << "    x: " << x.at(i) << "   y: " << y.at(i) << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
     }
 
-    double freeBeta, freeBetaErr, freeTime, freeTimeErr;    
     
+    double freeBeta, freeBetaErr, freeTime, freeTimeErr;    
     rawFit(freeBeta, freeBetaErr, freeTime, freeTimeErr, x, y);
+    tof.invBetaFree=freeBeta;
+    tof.invBetaFreeErr=freeBetaErr;
+    tof.vertexTimeFree=freeTime;
+    tof.vertexTimeFreeErr=freeTimeErr;
 //    textplot(x,y,left);
     
     cout << " Free 1/beta: " << freeBeta << " +/- " << freeBetaErr << endl;   
@@ -428,7 +443,11 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     break;
   }  //candTrack
 
-    outputCollection->push_back(invbeta);
+//FIXME: Fill those two
+//    tof.nStations=;
+//    tof.nHits=;
+
+    outputCollection->setValue(muId,tof); //invbeta);
  
     invbeta=0;    
     int mcount=0;
@@ -447,8 +466,8 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   } // mi
 
-  std::auto_ptr<vector<float> > estimator(outputCollection);
-  iEvent.put(estimator);
+  std::auto_ptr<MuonTOFCollection> res(outputCollection);
+  iEvent.put(res);
 
 }
 
