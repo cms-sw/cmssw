@@ -1,5 +1,3 @@
-<flags SEAL_PLUGIN_NAME="EventFilterESRawToDigi">
-
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalRecHit>
@@ -11,6 +9,7 @@
 <use name=rootrflx>
 <use name=rootcore>
 <use name=TBDataFormats/HcalTBObjects>
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=EventFilterESRawToDigi>
    <use name=DataFormats/EcalDigi>
