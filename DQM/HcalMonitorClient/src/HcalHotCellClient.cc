@@ -408,7 +408,7 @@ void HcalHotCellClient::htmlSubDetOutput(HotCellHists& hist, int runNo,
   else if(hist.type==10) type = "HCAL";
   else
     {
-      cout <<"<HcalHotCellClient::htmlSubDetOutput> Unrecognized detector type: "<<hist.type<<endl;
+      if (verbose_)cout <<"<HcalHotCellClient::htmlSubDetOutput> Unrecognized detector type: "<<hist.type<<endl;
       return;
     }
 
@@ -661,7 +661,7 @@ void HcalHotCellClient::getSubDetHistograms(HotCellHists& hist)
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    cout <<"<HcalHotCellClient::getSubDetHistograms> Unrecognized subdetector type:  "<<hist.type<<endl;
+    if (verbose_)cout <<"<HcalHotCellClient::getSubDetHistograms> Unrecognized subdetector type:  "<<hist.type<<endl;
     return;
   }
   // Why are these 2 lines here?
@@ -669,7 +669,7 @@ void HcalHotCellClient::getSubDetHistograms(HotCellHists& hist)
   //hist.ENERGYmap.clear();
   
   if (verbose_)
-  cout <<"Getting HcalHotCell Subdetector Histograms for Subdetector:  "<<type<<endl;
+    cout <<"Getting HcalHotCell Subdetector Histograms for Subdetector:  "<<type<<endl;
 
   for (int i=0;i<hist.thresholds;i++)
     {
@@ -743,7 +743,7 @@ void HcalHotCellClient::getSubDetHistogramsFromFile(HotCellHists& hist, TFile* i
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    cout <<"<HcalHotCellClient::getSubDetHistogramsFromFile> Unrecognized subdetector type:  "<<hist.type<<endl;
+    if (verbose_)cout <<"<HcalHotCellClient::getSubDetHistogramsFromFile> Unrecognized subdetector type:  "<<hist.type<<endl;
     return;
   }
 
@@ -804,7 +804,7 @@ void HcalHotCellClient::resetSubDetHistograms(HotCellHists& hist)
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    cout <<"<HcalHotCellClient::resetSubDetHistograms> Unrecognized subdetector type:  "<<hist.type<<endl;
+    if (verbose_)cout <<"<HcalHotCellClient::resetSubDetHistograms> Unrecognized subdetector type:  "<<hist.type<<endl;
     return;
   }
   

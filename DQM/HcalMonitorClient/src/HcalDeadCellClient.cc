@@ -285,7 +285,7 @@ void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    cout <<"<HcalDeadCellClient::getSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    if (verbose_)cout <<"<HcalDeadCellClient::getSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
     return;
   }
 
@@ -349,7 +349,7 @@ void HcalDeadCellClient::getSubDetHistogramsFromFile(DeadCellHists& hist, TFile*
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    cout <<"<HcalDeadCellClient::getSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    if (verbose_)cout <<"<HcalDeadCellClient::getSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
     return;
   }
   
@@ -413,7 +413,7 @@ void HcalDeadCellClient::resetSubDetHistograms(DeadCellHists& hist)
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    cout <<"<HcalDeadCellClient::resetSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    if (verbose_)cout <<"<HcalDeadCellClient::resetSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
     return;
   }
   
@@ -468,7 +468,7 @@ void HcalDeadCellClient::resetAllME(){
 
 void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
-  cout <<"HI THERE!"<<endl;
+  if (verbose_)cout <<"HI THERE!"<<endl;
   if (verbose_)
     cout << "Preparing HcalDeadCellClient html output ..." << endl;
   string client = "DeadCellMonitor";
@@ -554,7 +554,7 @@ void HcalDeadCellClient::htmlSubDetOutput(DeadCellHists& hist, int runNo,
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    cout <<"<HcalDeadCellClient::htmlSubDetOutput> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    if (verbose_)cout <<"<HcalDeadCellClient::htmlSubDetOutput> Error:  unrecognized histogram type: "<<hist.type<<endl;
     return;
   }
 
@@ -616,7 +616,7 @@ void HcalDeadCellClient::createSubDetTests(DeadCellHists& hist)
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    cout <<"<HcalDeadCellClient::createSubDetTests> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    if (verbose_)cout <<"<HcalDeadCellClient::createSubDetTests> Error:  unrecognized histogram type: "<<hist.type<<endl;
     return;
   }
 

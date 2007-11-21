@@ -291,7 +291,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				   const HcalDbService& cond){
   
   if(!m_dbe) { 
-    printf("HcalDigiMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  
+    if(fVerbosity) printf("HcalDigiMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  
     return; 
   }
   
@@ -404,7 +404,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     heHists.DIGI_NUM->Fill(nhedigi);
     
   } catch (...) {    
-    printf("HcalDigiMonitor::processEvent  No HBHE Digis.\n");
+    if(fVerbosity) printf("HcalDigiMonitor::processEvent  No HBHE Digis.\n");
   }
   
   try{
@@ -456,7 +456,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     }
   }
   catch (...) {
-    cout << "HcalDigiMonitor::processEvent  No HO Digis." << endl;
+    if(fVerbosity) cout << "HcalDigiMonitor::processEvent  No HO Digis." << endl;
   }
   
   try{
@@ -508,7 +508,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
     }
   } catch (...) {
-    cout << "HcalDigiMonitor::processEvent  No HF Digis." << endl;
+    if(fVerbosity) cout << "HcalDigiMonitor::processEvent  No HF Digis." << endl;
   }
 
   return;

@@ -145,7 +145,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
   
   outputFile_ = ps.getUntrackedParameter<string>("PedestalFile", "");
   if ( outputFile_.size() != 0 ) {
-    cout << "Hcal Pedestal Calibrations will be saved to " << outputFile_.c_str() << endl;
+    if(fVerbosity) cout << "Hcal Pedestal Calibrations will be saved to " << outputFile_.c_str() << endl;
   }
 
   return;
@@ -162,7 +162,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
   if(!shape_) shape_ = cond.getHcalShape(); // this one is generic
 
   if(!m_dbe) { 
-    printf("HcalPedestalMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  
+    if(fVerbosity) printf("HcalPedestalMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  
     return; 
   }
 
@@ -252,7 +252,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	
     }
   } catch (...) {
-    cout << "HcalPedestalMonitor::processEvent  No HO Digis." << endl;
+    if(fVerbosity) cout << "HcalPedestalMonitor::processEvent  No HO Digis." << endl;
   }
   
   try{
@@ -281,7 +281,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	
     }
   } catch (...) {
-    cout << "HcalPedestalMonitor::processEvent  No HF Digis." << endl;
+    if(fVerbosity) cout << "HcalPedestalMonitor::processEvent  No HF Digis." << endl;
   }
   
 
@@ -321,15 +321,13 @@ void HcalPedestalMonitor::perChanHists(int id,
       //inner iteration
       map<int, MonitorElement*> _mei = toolP[detid];
       if(_mei[capid]==NULL){
-	printf("HcalPedestalAnalysis::perChanHists  This histo is NULL!!??\n");
-	assert(false);
+	if(fVerbosity) printf("HcalPedestalAnalysis::perChanHists  This histo is NULL!!??\n");
       }
       else _mei[capid]->Fill(pedVal);
       
       _mei = toolS[detid];
       if(_mei[capid]==NULL){
-	printf("HcalPedestalAnalysis::perChanHists  This histo is NULL!!??\n");
-	assert(false);
+	if(fVerbosity) printf("HcalPedestalAnalysis::perChanHists  This histo is NULL!!??\n");
       }
       else _mei[capid]->Fill(pedVal-calibs_.pedestal(capid));
     }

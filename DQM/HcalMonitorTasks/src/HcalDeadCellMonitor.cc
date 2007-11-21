@@ -125,11 +125,10 @@ namespace HcalDeadCellDigiCheck
     else if(hist.type==2) type = "HE"; 
     else if(hist.type==3) type = "HO"; 
     else if(hist.type==4) type = "HF"; 
-    else 
-      {
-	cout <<"<HcalDeadCellMonitor:  CheckHits Error> Hit collection type not specified!"<<endl;
-	return;
-      }
+    else {
+      //cout <<"<HcalDeadCellMonitor:  CheckHits Error> Hit collection type not specified!"<<endl;
+      return;
+    }
 	
     if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
 
@@ -198,22 +197,21 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   // Get ps parameters here
 
   // Set input parameters from .cfi file
-  debug_ = ps.getUntrackedParameter<bool>("debug","false");
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 29.5);
   etaMin_ = ps.getUntrackedParameter<double>("MinEta", -29.5);
   etaBins_ = (int)(etaMax_ - etaMin_);
-  if (debug_) cout << "DeadCell eta min/max set to " << etaMin_ << "/" << etaMax_ << endl;
+  if (fVerbosity) cout << "DeadCell eta min/max set to " << etaMin_ << "/" << etaMax_ << endl;
   
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", 0);
   phiBins_ = (int)(phiMax_ - phiMin_);
-  if (debug_) cout << "DeadCell phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
+  if (fVerbosity) cout << "DeadCell phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
 
   coolcellfrac_ = ps.getUntrackedParameter<double>("coolcellfrac",0.25);
   checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",1000);
   Nsigma_ = ps.getUntrackedParameter<double>("ped_Nsigma",2.);
   minADCcount_ = ps.getUntrackedParameter<double>("minADCcount",0.);
-  if (debug_)
+  if (fVerbosity)
     {
       cout <<"DeadCell NADA coolcells must have energy fraction of <"<<coolcellfrac_<<"* (neighbors' average energy)"<<endl;
       cout <<"DeadCell cool digis are checked every "<<checkNevents_<<" events"<<endl;
@@ -342,12 +340,12 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 {
   if(!m_dbe) 
     {
-      cout <<"HcalDeadCellMonitor::processEvent    DaqMonitorBEInterface not instantiated!!!\n";
+      if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent    DaqMonitorBEInterface not instantiated!!!\n";
       return;
     }
   ievt_++;
   meEVT_->Fill(ievt_);
-  if (debug_) cout <<"HcalDeadCellMonitor::processEvent     Starting process"<<endl;
+  if (fVerbosity) cout <<"HcalDeadCellMonitor::processEvent     Starting process"<<endl;
   
   processEvent_digi(hbhedigi,hodigi,hfdigi,cond); // check for dead digis
   processEvent_hits(hbHits,hoHits,hfHits); // check for dead cell hits
@@ -372,7 +370,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
 					    const HcalDbService& cond)
 {
 
-  if (debug_) cout <<"HcalDeadCellMonitor::processEvent_digi     Starting process"<<endl;
+  if (fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_digi     Starting process"<<endl;
 
   HcalCalibrationWidths widths;
  
@@ -394,7 +392,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
     }
   catch(...)
     {
-      cout <<"HcalDeadCellMonitor::processEvent_digi   No HBHE Digis."<<endl;
+      if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_digi   No HBHE Digis."<<endl;
     }
 
   try
@@ -410,7 +408,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
     }
   catch(...)
     {
-      cout <<"HcalDeadCellMonitor::processEvent_digi   No HO Digis."<<endl;
+      if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_digi   No HO Digis."<<endl;
     }
 
   try
@@ -426,7 +424,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
     }
   catch(...)
     {
-      cout <<"HcalDeadCellMonitor::processEvent_digi   No HF Digis."<<endl;
+      if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_digi   No HF Digis."<<endl;
     }
 
 
@@ -441,10 +439,10 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
 {
   if(!m_dbe) 
     {
-      cout <<"HcalDeadCellMonitor::processEvent_hits    DaqMonitorBEInterface not instantiated!!!\n";
+      if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits    DaqMonitorBEInterface not instantiated!!!\n";
       return;
     }
-  if (debug_) cout <<"HcalDeadCellMonitor::processEvent_hits     Starting process"<<endl;
+  if (fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits     Starting process"<<endl;
   try
     {
       HcalDeadCellDigiCheck::CheckHits(coolcellfrac_,hbHits,hbHists,hcalHists,
@@ -452,7 +450,7 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
     }
   catch(...)
     {
-      cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HB Hits"<<endl;
+      if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HB Hits"<<endl;
     }
   try
     {
@@ -461,7 +459,7 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
     }
   catch(...)
     {
-      cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HE Hits"<<endl;
+      if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HE Hits"<<endl;
     }
   try
     {
@@ -470,7 +468,7 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
     }
   catch(...)
     {
-      cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HO Hits"<<endl;
+      if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HO Hits"<<endl;
     }
   try
     {
@@ -479,7 +477,7 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
     }
   catch(...)
     {
-      cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HF Hits"<<endl;
+      if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HF Hits"<<endl;
     }
 
   return;

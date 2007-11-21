@@ -245,7 +245,9 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
   ievt_++;
   meEVT_->Fill(ievt_);
 
-  if(!m_dbe) { printf("HcalLEDMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return; }
+  if(!m_dbe) { 
+    if(fVerbosity) printf("HcalLEDMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  
+    return; }
   float vals[10];
 
   try{
@@ -298,7 +300,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
       }
     }
   } catch (...) {
-    printf("HcalLEDMonitor::processEvent  No HBHE Digis.\n");
+    if(fVerbosity) printf("HcalLEDMonitor::processEvent  No HBHE Digis.\n");
   }
   
   try{
@@ -335,7 +337,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
       if(doPerChannel_) perChanHists(2,digi.id(),vals,hoHists.shape, hoHists.time, hoHists.energy, baseFolder_);
     }        
   } catch (...) {
-    cout << "HcalLEDMonitor::processEvent  No HO Digis." << endl;
+    if(fVerbosity) cout << "HcalLEDMonitor::processEvent  No HO Digis." << endl;
   }
   
   try{
@@ -461,7 +463,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
       if(doPerChannel_) perChanHists(3,digi.id(),vals,hfHists.shape, hfHists.time, hfHists.energy, baseFolder_);
     }
   } catch (...) {
-    cout << "HcalLEDMonitor::processEvent  No HF Digis." << endl;
+    if(fVerbosity) cout << "HcalLEDMonitor::processEvent  No HF Digis." << endl;
   }
 
   return;
@@ -493,7 +495,7 @@ void HcalLEDMonitor::perChanHists(int id, const HcalDetId detid, float* vals,
   _meIter = tShape.find(detid);
   if (_meIter!=tShape.end()){
     _me= _meIter->second;
-    if(_me==NULL) printf("HcalLEDAnalysis::perChanHists  This histo is NULL!!??\n");
+    if(_me==NULL && fVerbosity) printf("HcalLEDAnalysis::perChanHists  This histo is NULL!!??\n");
     else{
       float en=0;
       float ts =0; float bs=0;

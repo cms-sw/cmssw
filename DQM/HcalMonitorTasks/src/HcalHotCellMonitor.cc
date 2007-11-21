@@ -19,16 +19,15 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
   baseFolder_ = rootFolder_+"HotCellMonitor";
 
   // Set input parameters from .cfi file
-  debug_ = ps.getUntrackedParameter<bool>("debug","false");
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 29.5);
   etaMin_ = ps.getUntrackedParameter<double>("MinEta", -29.5);
   etaBins_ = (int)(etaMax_ - etaMin_);
-  if (debug_) cout << "HotCell eta min/max set to " << etaMin_ << "/" << etaMax_ << endl;
+  if (fVerbosity) cout << "HotCell eta min/max set to " << etaMin_ << "/" << etaMax_ << endl;
   
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", 0);
   phiBins_ = (int)(phiMax_ - phiMin_);
-  if (debug_) cout << "HotCell phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
+  if (fVerbosity) cout << "HotCell phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
 
   checkHB_=ps.getUntrackedParameter<bool>("checkHB","true");
   checkHE_=ps.getUntrackedParameter<bool>("checkHE","true");
@@ -115,8 +114,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     meEVT_->Fill(ievt_);
 
 
-    meMAX_E_all =  m_dbe->book1D("HotCellEnergy","HotCell Energy",2000,0,20);
-    meMAX_T_all =  m_dbe->book1D("HotCellTime","HotCell Time",200,-50,300);
+    meMAX_E_all =  m_dbe->book1D("HotCellEnergy","HotCell Energy",2000,0,200);
+    meMAX_T_all =  m_dbe->book1D("HotCellTime","HotCell Time",175,-50,300);
     
     meOCC_MAP_L1= m_dbe->book2D("HotCellDepth1OccupancyMap","HotCell Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     meEN_MAP_L1= m_dbe->book2D("HotCellDepth1EnergyMap","HotCell Depth 1 Energy Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -365,7 +364,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
   // At this point (23 Oct 2007), the code could be removed
   // Keep it around, though, just in case it's needed in the future.
   /*
-  if (debug_) cout <<"INITIALIZING OFFSETS"<<endl;
+  if (fVerbosity) cout <<"INITIALIZING OFFSETS"<<endl;
   for (int i=0;i<13;i++)
     {
       for (int j =0;j<36;j++)
@@ -391,7 +390,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 
  // Fill HF thresholds on first event
 
-  if (debug_) cout <<"HcalHotCellMonitor::processEvent   Starting process"<<endl;
+  if (fVerbosity) cout <<"HcalHotCellMonitor::processEvent   Starting process"<<endl;
   /*
     // Unnecessary code, now that offset problem has been corrected
   if (ievt_==1)
@@ -448,48 +447,47 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 
   // ///////////////////////////////////////////////////////
 
-  if (debug_) cout <<"Checking enA > threshold"<<endl;
+  if (fVerbosity) cout <<"Checking enA > threshold"<<endl;
 
-  if(enA>thresholds_[0])
-    {
-      if (debug_) cout <<"Filling MAX histograms"<<endl;
-      meMAX_E_all->Fill(enA);
-      meMAX_T_all->Fill(tA);
-      meOCC_MAP_all->Fill(etaA,phiA);
-      meEN_MAP_all->Fill(etaA,phiA,enA);
-      // hcalHists now contains duplicates of meMAX histograms
-      // remove meMAX histos in the future?
-      hcalHists.meMAX_E->Fill(enA);
-      hcalHists.meMAX_T->Fill(enA);
-      hcalHists.meOCC_MAP_GEO_Max->Fill(etaA,phiA);
-      hcalHists.meEN_MAP_GEO_Max->Fill(etaA,phiA,enA);
-
-      if(depth==1)
-	{
-	  if (debug_) cout <<"\tFilling Depth1 histos"<<endl;
-	  meOCC_MAP_L1->Fill(etaA,phiA);
-	  meEN_MAP_L1->Fill(etaA,phiA,enA);
-	}
-      else if(depth==2)
-	{
-	  if (debug_) cout <<"\tFilling Depth2 histos"<<endl;
-	  meOCC_MAP_L2->Fill(etaA,phiA);
-	  meEN_MAP_L2->Fill(etaA,phiA,enA);
-	}
-      else if(depth==3)
-	{
-	  if (debug_) cout <<"\tFilling Depth3 histos"<<endl;
-	  meOCC_MAP_L3->Fill(etaA,phiA);
-	  meEN_MAP_L3->Fill(etaA,phiA,enA);
-	}
-      else if(depth==4)
-	{
-	  if (debug_) cout <<"\tFilling Depth4 histos"<<endl;
- 
-	  meOCC_MAP_L4->Fill(etaA,phiA);
-	  meEN_MAP_L4->Fill(etaA,phiA,enA);
-	}
-    }
+  if(enA>thresholds_[0]){
+    if (fVerbosity) cout <<"Filling MAX histograms"<<endl;
+    meMAX_E_all->Fill(enA);
+    meMAX_T_all->Fill(tA);
+    meOCC_MAP_all->Fill(etaA,phiA);
+    meEN_MAP_all->Fill(etaA,phiA,enA);
+    // hcalHists now contains duplicates of meMAX histograms
+    // remove meMAX histos in the future?
+    hcalHists.meMAX_E->Fill(enA);
+    hcalHists.meMAX_T->Fill(enA);
+    hcalHists.meOCC_MAP_GEO_Max->Fill(etaA,phiA);
+    hcalHists.meEN_MAP_GEO_Max->Fill(etaA,phiA,enA);
+    
+    if(depth==1)
+      {
+	if (fVerbosity) cout <<"\tFilling Depth1 histos"<<endl;
+	meOCC_MAP_L1->Fill(etaA,phiA);
+	meEN_MAP_L1->Fill(etaA,phiA,enA);
+      }
+    else if(depth==2)
+      {
+	if (fVerbosity) cout <<"\tFilling Depth2 histos"<<endl;
+	meOCC_MAP_L2->Fill(etaA,phiA);
+	meEN_MAP_L2->Fill(etaA,phiA,enA);
+      }
+    else if(depth==3)
+      {
+	if (fVerbosity) cout <<"\tFilling Depth3 histos"<<endl;
+	meOCC_MAP_L3->Fill(etaA,phiA);
+	meEN_MAP_L3->Fill(etaA,phiA,enA);
+      }
+    else if(depth==4)
+      {
+	if (fVerbosity) cout <<"\tFilling Depth4 histos"<<endl;
+	
+	meOCC_MAP_L4->Fill(etaA,phiA);
+	meEN_MAP_L4->Fill(etaA,phiA,enA);
+      }
+  }
 
   // These histograms are now duplicates of NADA_hcalHists -- remove in future
   NADA_NumHotCells->Fill(hotcells);
@@ -509,7 +507,7 @@ void HcalHotCellMonitor::FindHBHEHotCells(const HBHERecHitCollection& hbHits, Hi
   int depthS=0;
 
   HBHERecHitCollection::const_iterator _ib;
-  if (debug_)
+  if (fVerbosity)
     {
       if (HB) cout << "looping over HB"<<endl;
       else cout <<"looping over HE"<<endl;
@@ -526,7 +524,7 @@ void HcalHotCellMonitor::FindHBHEHotCells(const HBHERecHitCollection& hbHits, Hi
 	
 	  if(vetoCell(_ib->id()))
 	    {
-	      if (debug_) cout <<"Vetoed cell with id = "<<_ib->id()<<endl;
+	      if (fVerbosity) cout <<"Vetoed cell with id = "<<_ib->id()<<endl;
 	      continue;
 	    }
 
@@ -631,7 +629,7 @@ void HcalHotCellMonitor::FindHOHotCells(const HORecHitCollection& hoHits, HistLi
 	{ // loop over all hits
 	  if (vetoCell(_io->id()))
 	    {
-	      if (debug_) cout <<"Vetoing HO cell with ID = "<<_io->id()<<endl;
+	      if (fVerbosity) cout <<"Vetoing HO cell with ID = "<<_io->id()<<endl;
 	      continue;
 	    }
 
@@ -702,7 +700,7 @@ void HcalHotCellMonitor::FindHFHotCells(const HFRecHitCollection& hfHits, HistLi
 	{ // loop over all HF hits
 	  if (vetoCell(_if->id()))
 	    {
-	      if (debug_) cout <<"Vetoing HF cell with ID = "<<_if->id()<<endl;
+	      if (fVerbosity) cout <<"Vetoing HF cell with ID = "<<_if->id()<<endl;
 	      continue;
 	    }
 
@@ -829,7 +827,7 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
 	  h.NADA_Energy->Fill(cellenergy);
 	  NADA_hcalHists.NADA_Energy->Fill(cellenergy);
 
-	  if (debug_ && cellenergy<0) cout <<"WARNING:  NEGATIVE CELL ENERGY FOUND IN HBHE NADA:  "<<cellenergy<<endl;
+	  if (fVerbosity && cellenergy<0) cout <<"WARNING:  NEGATIVE CELL ENERGY FOUND IN HBHE NADA:  "<<cellenergy<<endl;
 	  
 	  // _cell points to the current hot cell candidate
 	  Ecube=0; // reset Ecube energy counter
@@ -840,7 +838,7 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
 	      // Case 1a:  E< negative cutoff
 	      if (cellenergy<NADA_neg_cut) 
 		{ 
-		  if (debug_) cout <<"<NEGATIVE HBHE CELL ENERGY>  Energy = "<<cellenergy<<" at position ("<<_cell->id().ieta()<<", "<<_cell->id().iphi()<<")  HB = "<<HB<<endl;
+		  if (fVerbosity) cout <<"<NEGATIVE HBHE CELL ENERGY>  Energy = "<<cellenergy<<" at position ("<<_cell->id().ieta()<<", "<<_cell->id().iphi()<<")  HB = "<<HB<<endl;
 		  numnegcells++;
 		  h.NADA_NEG_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
 		  NADA_hcalHists.NADA_NEG_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
@@ -888,7 +886,7 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
 	  
 	  // Form cube of nearest neighbor cells around _cell
 
-	  if (debug_) cout <<"****** Candidate Cell Energy: "<<cellenergy<<endl;
+	  if (fVerbosity) cout <<"****** Candidate Cell Energy: "<<cellenergy<<endl;
 	  for (HBHERecHitCollection::const_iterator _neighbor = c.begin();_neighbor!=c.end();_neighbor++)
 	    // Form cube centered on _cell.  This needs to be looked at more carefully to deal with boundary conditions.  Should Ecube constraints change at the boundaries?
 	    {
@@ -905,17 +903,17 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
 		  
 	      if (_neighbor->energy()>HBHE_Ecell_cut)
 		{
-		  if (debug_) cout <<"\t Neighbor energy = "<<_neighbor->energy()<<endl;
+		  if (fVerbosity) cout <<"\t Neighbor energy = "<<_neighbor->energy()<<endl;
 		  Ecube+=_neighbor->energy();
-		  if (debug_) cout <<"\t\t Cube energy = "<<Ecube<<endl;
+		  if (fVerbosity) cout <<"\t\t Cube energy = "<<Ecube<<endl;
 		}
 	    } // for (cell_iter _neighbor = c.begin()...)
 	  
 	  //Remove energy due to _cell
 	  Ecube -=cellenergy;
-	  if (debug_) cout <<"\t\t\t\t Final Cube energy = "<<Ecube<<endl;
+	  if (fVerbosity) cout <<"\t\t\t\t Final Cube energy = "<<Ecube<<endl;
 
-	  if (debug_ && Ecube <=HBHE_Ecube_cut)
+	  if (fVerbosity && Ecube <=HBHE_Ecube_cut)
 	    {
 	      cout <<"NADA Hot Cell found!"<<endl;
 	      cout <<"\t NADA Ecube energy: "<<Ecube<<endl;
@@ -926,7 +924,7 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
 	  // Identify hot cells by value of Ecube
 	  if (Ecube <= HBHE_Ecube_cut)
 	    {   
-	      if (debug_) cout <<"Found NADA hot cell in HBHE:  Ecube energy = "<<Ecube<<endl;
+	      if (fVerbosity) cout <<"Found NADA hot cell in HBHE:  Ecube energy = "<<Ecube<<endl;
 	      numhotcells++;
 	      h.NADA_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
 	      
@@ -936,7 +934,7 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
 	      NADA_hcalHists.NADA_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),cellenergy);
 	    }
 	} //for (_cell=c.begin(); _cell!=c.end(); _cell++)
-      if (debug_) cout <<"Filling HBHE NADA NumHotCell histo"<<endl;
+      if (fVerbosity) cout <<"Filling HBHE NADA NumHotCell histo"<<endl;
       h.NADA_NumHotCells->Fill(numhotcells);
       h.NADA_NumNegCells->Fill(numnegcells);
       hotcells+=numhotcells;
@@ -986,7 +984,7 @@ void HcalHotCellMonitor::HO_NADAFinder(const HORecHitCollection& c, NADAHistList
 	      // Case 1a:   E< negative threshold
 	      if (cellenergy<HO_NADA_NegCand_cut_)
 		{
-		  if (debug_) cout <<"<NEGATIVE HO CELL ENERGY>  Energy = "<<cellenergy<<endl;
+		  if (fVerbosity) cout <<"<NEGATIVE HO CELL ENERGY>  Energy = "<<cellenergy<<endl;
 		  numnegcells++;
 		  h.NADA_NEG_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
 		  h.NADA_NEG_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),-1*cellenergy);
@@ -1104,7 +1102,7 @@ void HcalHotCellMonitor::HF_NADAFinder(const HFRecHitCollection& c, NADAHistList
 	      // Case 1a:   E< negative threshold
 	      if (cellenergy<HF_NADA_NegCand_cut_)
 		{
-		  if (debug_) cout <<"<NEGATIVE HF CELL ENERGY>  Energy = "<<cellenergy<<endl;
+		  if (fVerbosity) cout <<"<NEGATIVE HF CELL ENERGY>  Energy = "<<cellenergy<<endl;
 		  numnegcells++;
 		  h.NADA_NEG_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
 		  h.NADA_NEG_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),-1*cellenergy);

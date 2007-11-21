@@ -266,7 +266,7 @@ void HcalPedestalClient::report(){
 
   return;
 }
-  
+
 void HcalPedestalClient::getHistograms(){
    if(!dbe_) return;
 
@@ -483,7 +483,7 @@ void HcalPedestalClient::analyze(void){
   if ( updates % 10 == 0 ) {
     if ( debug_ ) cout << "HcalPedestalClient: " << updates << " updates" << endl;
   }
-  
+  getHistograms();
   return;
 }
 

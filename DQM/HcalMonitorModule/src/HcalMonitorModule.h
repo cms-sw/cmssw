@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2007/11/12 19:11:56 $
- * $Revision: 1.20 $
+ * $Date: 2007/11/15 23:13:46 $
+ * $Revision: 1.21 $
  * \author W. Fisher
  *
 */
@@ -26,9 +26,12 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
 #include "DataFormats/Provenance/interface/EventID.h"  
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
-
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 #include "DQM/HcalMonitorModule/interface/HcalMonitorSelector.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
@@ -47,6 +50,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <sys/time.h>
 
 using namespace std;
 using namespace edm;
@@ -120,8 +124,8 @@ public:
 
   struct{
     timeval startTV,updateTV;
-    double startTime;
     double elapsedTime; 
+    double vetoTime; 
     double updateTime;
   } psTime_;    
 
@@ -136,6 +140,7 @@ public:
   int ievt_;
   bool fedsListed_;
   
+  edm::InputTag inputLabelGT_;
   edm::InputTag inputLabelDigi_;
   edm::InputTag inputLabelRecHitHBHE_;
   edm::InputTag inputLabelRecHitHF_;
@@ -146,7 +151,10 @@ public:
   MonitorElement* meRunType_;
   MonitorElement* meEvtMask_;
   MonitorElement* meTrigger_;
+  MonitorElement* meLatency_;
+  MonitorElement* meQuality_;
   
+
   HcalMonitorSelector*    evtSel_;
   HcalDigiMonitor*        digiMon_;
   HcalDataFormatMonitor*  dfMon_;

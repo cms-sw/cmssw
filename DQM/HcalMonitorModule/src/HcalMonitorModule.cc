@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/11/15 23:13:46 $
- * $Revision: 1.42 $
+ * $Date: 2007/11/20 00:33:16 $
+ * $Revision: 1.43 $
  * \author W Fisher
  *
 */
@@ -19,6 +19,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   actonLS_=false;
   meStatus_=0;  meRunType_=0;
   meEvtMask_=0; meFEDS_=0;
+  meLatency_=0; meQuality_=0;
   fedsListed_ = false;
   digiMon_ = NULL;   dfMon_ = NULL; 
   rhMon_ = NULL;     pedMon_ = NULL; 
@@ -30,12 +31,10 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   inputLabelRecHitHBHE_  = ps.getParameter<edm::InputTag>("hbheRecHitLabel");
   inputLabelRecHitHF_    = ps.getParameter<edm::InputTag>("hfRecHitLabel");
   inputLabelRecHitHO_    = ps.getParameter<edm::InputTag>("hoRecHitLabel");
-
+  
   evtSel_ = new HcalMonitorSelector(ps);
-
+  
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
-
-
 
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
   if(debug_) cout << "HcalMonitorModule: constructor...." << endl;
@@ -115,12 +114,12 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   cout << "===>HcalMonitor name = " << subsystemname << endl;
   rootFolder_ = subsystemname + "/";
   
-  gettimeofday(&psTime_.startTV,NULL);
+  gettimeofday(&psTime_.updateTV,NULL);
   /// get time in milliseconds, convert to minutes
-  psTime_.startTime = (psTime_.startTV.tv_sec*1000.0+psTime_.startTV.tv_usec/1000.0);
-  psTime_.startTime /= (60.0*1000.0);
+  psTime_.updateTime = (psTime_.updateTV.tv_sec*1000.0+psTime_.updateTV.tv_usec/1000.0);
+  psTime_.updateTime /= 1000.0;
   psTime_.elapsedTime=0;
-  psTime_.updateTime=0;
+  psTime_.vetoTime=psTime_.updateTime;
 
 }
 
@@ -168,7 +167,8 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
     meRunType_ = dbe_->bookInt("RUN TYPE");
     meEvtMask_ = dbe_->bookInt("EVT MASK");
     meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",100,700,799);
-
+    meLatency_ = dbe_->book1D("Process Latency","Process Latency",200,0,1);
+    meQuality_ = dbe_->book1D("Quality Status","Quality Status",100,0,1);
     meStatus_->Fill(0);
     meRunType_->Fill(-1);
     meEvtMask_->Fill(-1);
@@ -273,6 +273,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // skip this event if we're prescaling...
   if(prescale()) return;
 
+  meLatency_->Fill(psTime_.elapsedTime);
+
   // Do default setup...
   ievt_++;
 
@@ -293,7 +295,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   bool rawOK_    = true;
   bool digiOK_   = true;
   bool rechitOK_ = true;
-  bool ltcOK_    = true;
+  bool trigOK_   = false;
   bool tpdOK_    = true;
 
   // try to get raw data and unpacker report
@@ -331,10 +333,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   try{e.getByLabel(inputLabelRecHitHO_,ho_hits);} catch(exception& ex){rechitOK_ = false;}; 
   try{e.getByLabel(inputLabelRecHitHF_,hf_hits);} catch(exception& ex){rechitOK_ = false;}; 
 
-  // try to get trigger info
-  edm::Handle<LTCDigiCollection> ltc;
-  try{ e.getByType(ltc); } catch(exception& ex){ltcOK_=false;};         
-
 
   /// Run the configured tasks, protect against missing products
 
@@ -366,21 +364,14 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if((deadMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_ && digiOK_) 
     {
       deadMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
-			     *hbhe_digi,*ho_digi,*hf_digi,*conditions_);
-			     
-      //deadMon_->processEvent_digi(*hbhe_digi,*ho_digi,*hf_digi,*conditions_);
-      //deadMon_->processEvent_hits(*hb_hits,*ho_hits,*hf_hits);
+			     *hbhe_digi,*ho_digi,*hf_digi,*conditions_);			     
     }
 
-  // Old MTCC monitor task
-  if(mtccMon_ != NULL && digiOK_ && ltcOK_) mtccMon_->processEvent(*hbhe_digi,*ho_digi, *ltc,*conditions_);
-
-
   // Temporary or development tasks...
-  if(tempAnalysis_ != NULL && digiOK_ && ltcOK_ && rechitOK_) 
-    tempAnalysis_->processEvent(*hbhe_digi,*ho_digi, *hf_digi,
-				 *hb_hits,*ho_hits,*hf_hits,
-				 *ltc,*conditions_);
+  //  if(tempAnalysis_ != NULL && digiOK_ && trigOK_ && rechitOK_) 
+  //    tempAnalysis_->processEvent(*hbhe_digi,*ho_digi, *hf_digi,
+  //				 *hb_hits,*ho_hits,*hf_hits,
+  //				 *ltc,*conditions_);
 
 
 
@@ -392,7 +383,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     cout << "    RAW Data==> " << rawOK_<< endl;
     cout << "    Digis   ==> " << digiOK_<< endl;
     cout << "    RecHits ==> " << rechitOK_<< endl;
-    cout << "    LTCdigi ==> " << ltcOK_<< endl;
+    cout << "    TrigRec ==> " << trigOK_<< endl;
     cout << "    TPdigis ==> " << tpdOK_<< endl;    
   }
 
@@ -405,6 +396,11 @@ bool HcalMonitorModule::prescale(){
   ///    Accommodate a logical "OR" of the possible tests
   if (debug_) cout <<"HcalMonitorModule::prescale"<<endl;
   
+  gettimeofday(&psTime_.updateTV,NULL);
+  double time = (psTime_.updateTV.tv_sec*1000.0+psTime_.updateTV.tv_usec/1000.0);
+  time/= (1000.0); ///in seconds
+  psTime_.elapsedTime = time - psTime_.updateTime;
+  psTime_.updateTime = time;
   //First determine if we care...
   bool evtPS =    prescaleEvt_>0;
   bool lsPS =     prescaleLS_>0;
@@ -418,10 +414,10 @@ bool HcalMonitorModule::prescale(){
   if(lsPS && (ilumisec_%prescaleLS_)!=0) lsPS = false; //LS veto
   if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
   if(timePS){
-    float time = psTime_.elapsedTime - psTime_.updateTime;
-    if(time<prescaleTime_){
+    double elapsed = (psTime_.updateTime - psTime_.vetoTime)/60.0;
+    if(elapsed<prescaleTime_){
       timePS = false;  //timestamp veto
-      psTime_.updateTime = psTime_.elapsedTime;
+      psTime_.vetoTime = psTime_.updateTime;
     }
   }
   //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)==0) updatePS=false; ///need to define what "updates" means
@@ -429,7 +425,7 @@ bool HcalMonitorModule::prescale(){
   if (debug_) printf("HcalMonitorModule::prescale  evt: %d/%d, ls: %d/%d, time: %f/%d\n",
 		     ievent_,evtPS,
 		     ilumisec_,lsPS,
-		     psTime_.elapsedTime - psTime_.updateTime,timePS);
+		     psTime_.updateTime - psTime_.vetoTime,timePS);
 
   // if any criteria wants to keep the event, do so
   if(evtPS || lsPS || timePS) return false; //FIXME updatePS left out for now

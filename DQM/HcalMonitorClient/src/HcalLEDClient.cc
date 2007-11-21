@@ -573,7 +573,7 @@ void HcalLEDClient::analyze(void){
   if ( (updates % 10) == 0 ) {
     if ( debug_ ) cout << "HcalLEDClient: " << updates << " updates" << endl;
   }
-  
+  getHistograms();
   return;
 }
 
