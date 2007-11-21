@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.27 2007/11/20 23:07:11 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.28 2007/11/20 23:09:26 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -22,7 +22,27 @@
 #include <string>
 #include <map>
 
+/*
+  - Remaining work:
+  - run number, o2o
+  - multi-partitions (multi-download, inhibit upload?)
+  - calibrations data-handling
+  - psu mapping
+*/
+
 //#define USING_NEW_DATABASE_MODEL
+
+#ifdef USING_NEW_DATABASE_MODEL
+namespace sistrip {
+  static const uint16_t FEC_CRATE_OFFSET =  0; //@@ temporary
+  static const uint16_t FEC_RING_OFFSET  =  0; //@@ temporary
+}
+#else
+namespace sistrip {
+  static const uint16_t FEC_CRATE_OFFSET =  1; //@@ temporary
+  static const uint16_t FEC_RING_OFFSET  =  1; //@@ temporary
+}
+#endif
 
 // Friend class
 namespace cms { class SiStripO2O; }
@@ -187,7 +207,7 @@ class SiStripConfigDb {
 
   // Utility and tests
   friend class PopulateConfigDb;
-  friend class test_DatabaseService;
+  friend class testDatabaseService;
 
   //@@ TEMPORARY!!!
   friend class SiStripHistoricInfoClient;
