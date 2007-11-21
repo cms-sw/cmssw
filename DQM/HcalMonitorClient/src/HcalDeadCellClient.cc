@@ -268,7 +268,7 @@ void HcalDeadCellClient::getHistograms(){
 void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
 {
   if (verbose_)
-    cout <<"Getting subdetector histograms for subdetector "<<hist.type<<endl;
+    cout <<"HcalDeadCellClient:: Getting subdetector histograms for subdetector "<<hist.type<<endl;
   
   char name[150];
   string type = "HB";
@@ -277,46 +277,46 @@ void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
   else if(hist.type==3) type = "HF"; 
   
   sprintf(name,"DeadCellMonitor/%s/%s_deadADCOccupancyMap",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  if (verbose_) cout <<"Histogram name = "<<name<<endl;
   hist.deadADC_OccMap = getHisto2(name, process_, dbe_,verbose_,cloneME_); 
   sprintf(name,"DeadCellMonitor/%s/%s_deadADCEta",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  if (verbose_) cout <<"Histogram name = "<<name<<endl;
   hist.deadADC_Eta = getHisto(name, process_, dbe_,verbose_,cloneME_);      
   sprintf(name,"DeadCellMonitor/%s/%s_noADCIDOccupancyMap",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  if (verbose_) cout <<"Histogram name = "<<name<<endl;
   hist.badCAPID_OccMap = getHisto2(name, process_, dbe_,verbose_,cloneME_); 
   sprintf(name,"DeadCellMonitor/%s/%s_noADCIDEta",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  if (verbose_) cout <<"Histogram name = "<<name<<endl;
   hist.badCAPID_Eta = getHisto(name, process_, dbe_,verbose_,cloneME_);      
  
   sprintf(name,"DeadCellMonitor/%s/%s_ADCdist",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  if (verbose_) cout <<"Histogram name = "<<name<<endl;
   hist.ADCdist = getHisto(name, process_, dbe_,verbose_,cloneME_);  
   
   sprintf(name,"DeadCellMonitor/%s/%s_NADA_CoolCellMap",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  if (verbose_) cout <<"Histogram name = "<<name<<endl;
   hist.NADACoolCellMap=getHisto2(name, process_, dbe_,verbose_,cloneME_);
 
   sprintf(name,"DeadCellMonitor/%s/%s_digiCheck",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  if (verbose_) cout <<"Histogram name = "<<name<<endl;
   hist.digiCheck=getHisto2(name, process_, dbe_,verbose_,cloneME_);
 
   sprintf(name,"DeadCellMonitor/%s/%s_cellCheck",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  if (verbose_) cout <<"Histogram name = "<<name<<endl;
   hist.cellCheck=getHisto2(name, process_, dbe_,verbose_,cloneME_);
   
   sprintf(name,"DeadCellMonitor/%s/%s_abovePed",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  if (verbose_) cout <<"Histogram name = "<<name<<endl;
   hist.AbovePed=getHisto2(name, process_, dbe_,verbose_,cloneME_);
   
   sprintf(name,"DeadCellMonitor/%s/%s_CoolCell_belowPed",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  if (verbose_) cout <<"Histogram name = "<<name<<endl;
   hist.CoolCellBelowPed=getHisto2(name, process_, dbe_,verbose_,cloneME_);
   
   for (int i=0;i<4;i++)
     {
       sprintf(name,"DeadCellMonitor/%s/%s_DeadCap%i",type.c_str(),type.c_str(),i);
-      //cout <<name<<endl;
+      if (verbose_) cout <<"Histogram name = "<<name<<endl;
       hist.DeadCap.push_back(getHisto2(name, process_, dbe_,verbose_,cloneME_));
     }
   return;
@@ -326,7 +326,7 @@ void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
 void HcalDeadCellClient::getSubDetHistogramsFromFile(DeadCellHists& hist, TFile* infile)
 {
   if (verbose_)
-    cout <<"Getting subdetector histograms from file for subdetector "<<hist.type<<endl;
+    cout <<"HcalDeadCellClient:: Getting subdetector histograms from file for subdetector "<<hist.type<<endl;
   
   char name[150];
   string type = "HB";
@@ -384,7 +384,7 @@ void HcalDeadCellClient::getSubDetHistogramsFromFile(DeadCellHists& hist, TFile*
 void HcalDeadCellClient::resetSubDetHistograms(DeadCellHists& hist)
 {
   if (verbose_)
-    cout <<"Resetting subdetector histograms for subdetector "<<hist.type<<endl;
+    cout <<"HcalDeadCellClient::Resetting subdetector histograms for subdetector "<<hist.type<<endl;
   
   char name[150];
   string type = "HB";
@@ -447,7 +447,7 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   string client = "DeadCellMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
-  ofstream htmlFile;
+  //ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
 
   // html page header
@@ -485,8 +485,8 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "<h3>" << endl;
   if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;  
   if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
-  if(subDetsOn_[2]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
-  if(subDetsOn_[3]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
+  if(subDetsOn_[2]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
+  if(subDetsOn_[3]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
   htmlFile << "</h3>" << endl;
   htmlFile << "<hr>" << endl;
 
@@ -514,41 +514,45 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 void HcalDeadCellClient::htmlSubDetOutput(DeadCellHists& hist, int runNo,
 					  string htmlDir,
 					  string htmlName)
- {
-   if(!subDetsOn_[hist.type]) return;
-    
-    string type = "HB";
-    if(hist.type==1) type = "HE"; 
-    if(hist.type==2) type = "HF"; 
-    if(hist.type==3) type = "HO"; 
+{
+  if (verbose_) cout <<"HcalDeadCellClient::Creating html output for subdetector "<<hist.type<<endl;
+  if(!subDetsOn_[hist.type]) cout <<"HCALDEADCELLCLIENT: SUBDETS OFF FOR "<<hist.type<<endl;
+  if(!subDetsOn_[hist.type]) return;
+  
+  string type = "HB";
+  if(hist.type==1) type = "HE"; 
+  if(hist.type==2) type = "HF"; 
+  if(hist.type==3) type = "HO"; 
+  
 
-    htmlFile << "<tr align=\"left\">" << endl;
-    htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
+  htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
 
-    htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,hist.deadADC_OccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML(runNo,hist.deadADC_Eta,"iEta","Evts", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
-
-    htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,hist.digiCheck,"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(runNo,hist.cellCheck,"iEta","iPhi", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
-
-    htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,hist.NADACoolCellMap,"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(runNo,hist.CoolCellBelowPed,"iEta","iPhi", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
-
-    htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,hist.DeadCap[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(runNo,hist.DeadCap[1],"iEta","iPhi", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
-
-    htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,hist.DeadCap[2],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(runNo,hist.DeadCap[3],"iEta","iPhi", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(runNo,hist.deadADC_OccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML(runNo,hist.deadADC_Eta,"iEta","Evts", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  
+  htmlFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(runNo,hist.digiCheck,"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,hist.cellCheck,"iEta","iPhi", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  
+  htmlFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(runNo,hist.NADACoolCellMap,"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,hist.CoolCellBelowPed,"iEta","iPhi", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  
+  htmlFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(runNo,hist.DeadCap[0],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,hist.DeadCap[1],"iEta","iPhi", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  
+  htmlFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(runNo,hist.DeadCap[2],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,hist.DeadCap[3],"iEta","iPhi", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  
+  return;
 }
 
 void HcalDeadCellClient::createTests(){
@@ -579,7 +583,6 @@ void HcalDeadCellClient::createSubDetTests(DeadCellHists& hist)
     type="HO";
   else if (hist.type==3)
     type="HF";
-
 
   // Check for dead ADCs
   sprintf(meTitle,"%sHcal/DeadCellMonitor/%s/%s_deadADCOccupancyMap",process_.c_str(),type.c_str(), type.c_str());

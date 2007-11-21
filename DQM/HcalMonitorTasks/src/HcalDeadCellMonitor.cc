@@ -1,5 +1,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
 
+using namespace std;
+
 HcalDeadCellMonitor::HcalDeadCellMonitor(){
   ievt_=0;
 }
@@ -27,11 +29,12 @@ namespace HcalDeadCellDigiCheck
 			 HcalCalibrationWidths widths, 
 			 DaqMonitorBEInterface* dbe, string baseFolder)
   {
-    string type = "HB";
-    if(hist.type==1) type = "HE"; 
-    else if(hist.type==2) type = "HF"; 
+    string type;
+    if(hist.type==1) type = "HB";
+    else if(hist.type==2) type = "HE"; 
     else if(hist.type==3) type = "HO"; 
-    
+    else if(hist.type==4) type = "HF"; 
+    else return;
     if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
 
 
@@ -103,13 +106,20 @@ namespace HcalDeadCellDigiCheck
   void CheckHits(double coolcellfrac, const Hits& hits, DeadCellHists& hist, DaqMonitorBEInterface* dbe, string baseFolder)
   { 
     
-    string type = "HB";
-    if(hist.type==1) type = "HE"; 
-    else if(hist.type==2) type = "HF"; 
+    string type;
+    if(hist.type==1) type = "HB";
+    else if(hist.type==2) type = "HE"; 
     else if(hist.type==3) type = "HO"; 
-    
+    else if(hist.type==4) type = "HF"; 
+    else 
+      {
+	cout <<"<HcalDeadCellMonitor:  CheckHits Error> Hit collection type not specified!"<<endl;
+	return;
+      }
+	
     if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
 
+    
     typename Hits::const_iterator _cell;
     for (_cell=hits.begin();
 	 _cell!=hits.end(); 
@@ -120,14 +130,13 @@ namespace HcalDeadCellDigiCheck
 	//offset= (_cell->id().depth()-1)*abs(_cell->id().ieta())/_cell->id().ieta()*2;
 	offset=0;
 
-
 	// Fill histogram if cell found in hist region
-	if (hist.type==_cell->id().subdet())
-	    hist.cellCheck->Fill(_cell->id().ieta()+offset,_cell->id().iphi());
+	if ((_cell->id().subdet())!=hist.type) continue;
+
+	hist.cellCheck->Fill(_cell->id().ieta()+offset,_cell->id().iphi());
 
 	if (_cell->id().depth()==2) continue; // skip depth=2 for now
 	//if (vetoCell(_cell->id())) continue;
-
 
 	// Sum energies of neighbors around cell
 	double neighborE=0.;
@@ -442,11 +451,11 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
     {
       // FIXME -- Work on better implementation of boundary conditions
       // (Something like GetBinContent for MonitorElements?)
-      if ((h.type==1 ||h.type==3) && fabs(eta+etaMin_-1)>16) 
+      if ((h.type==0 ||h.type==2) && fabs(eta+etaMin_-1)>16) 
 	continue;
-      else if (h.type==2 && (fabs(eta+etaMin_-1)<15||fabs(eta+etaMin_-1)>30)) 
+      else if (h.type==1 && (fabs(eta+etaMin_-1)<15||fabs(eta+etaMin_-1)>30)) 
 	continue;
-      else if (h.type==4 && fabs(eta+etaMin_-1)<28) 
+      else if (h.type==3 && fabs(eta+etaMin_-1)<28) 
 	continue;
       for (int phi=0;phi<phiBins_;phi++)
 	{
