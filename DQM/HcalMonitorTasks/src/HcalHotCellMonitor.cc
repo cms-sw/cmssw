@@ -316,6 +316,49 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     NADA_hoHists.NADA_NEG_EN_MAP = m_dbe->book2D("NADA_HO_NEG_EN_MAP","NADA HO Negative Cell Energy",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
 
+    // Book global histograms
+    m_dbe->setCurrentFolder(baseFolder_+"/HCAL");
+    hcalHists.meMAX_E =  m_dbe->book1D("HCALHotCellEnergy","HCAL HotCell Energy",2000,0,20);
+    hcalHists.meMAX_T =  m_dbe->book1D("HCALHotCellTime","HCAL HotCell Time",200,-50,300);
+    hcalHists.meMAX_ID =  m_dbe->book1D("HCALHotCellID","HCAL HotCell ID",36000,-18000,18000);
+    
+    hcalHists.meOCC_MAP_GEO_Max  = m_dbe->book2D("HCALHotCellGeoOccupancyMap_MaxCell","HCAL HotCell Geo Occupancy Map, Max Cell",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    hcalHists.meEN_MAP_GEO_Max  = m_dbe->book2D("HCALHotCellGeoEnergyMap_MaxCell","HCAL HotCell Geo Energy Map, Max Cell",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    /*
+    hoHists.meOCC_MAP_GEO_Max->SetOption("box");
+    hoHists.meEN_MAP_GEO_Max->SetOption("box");
+    */
+
+    for (int k=0;k<int(thresholds_.size());k++)
+      {
+	std::stringstream myoccname;
+	myoccname<<"HCALHotCellOCCmap_Thresh"<<k;
+	const char *occname=myoccname.str().c_str();
+	std::stringstream myocctitle;
+	myocctitle<<"HCAL Hot Cell Occupancy, Cells > "<<thresholds_[k]<<" GeV";
+	const char *occtitle=myocctitle.str().c_str();
+	hcalHists.OCCmap.push_back(m_dbe->book2D(occname,occtitle,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
+
+	std::stringstream myenergyname;
+	myenergyname<<"HCALHotCellENERGYmap_Thresh"<<k;
+	const char *energyname=myenergyname.str().c_str();
+	std::stringstream myenergytitle;
+	myenergytitle<<"HCAL Hot Cell Energy, Cells > "<<thresholds_[k]<<" GeV";
+	const char *energytitle=myenergytitle.str().c_str();
+	hcalHists.ENERGYmap.push_back(m_dbe->book2D(energyname,energytitle,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
+      }
+
+
+    NADA_hcalHists.NADA_OCC_MAP = m_dbe->book2D("NADA_HCAL_OCC_MAP","NADA HCAL Occupancy",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    NADA_hcalHists.NADA_EN_MAP = m_dbe->book2D("NADA_HCAL_EN_MAP","NADA HCAL Energy",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    NADA_hcalHists.NADA_NumHotCells = m_dbe->book1D("NADA_HCAL_NumHotCells","# of NADA HCAL Hot Cells/Event",1000,0,1000);
+    NADA_hcalHists.NADA_testcell = m_dbe->book1D("NADA_HCAL_testcell","Energy for test cell",1000,-10,90);
+    NADA_hcalHists.NADA_Energy = m_dbe->book1D("NADA_HCAL_Energy","Energy for all cells",1000,-10,90);
+    NADA_hcalHists.NADA_NumNegCells = m_dbe->book1D("NADA_HCAL_NumNegCells","# of NADA HCAL Negative-Energy Cells/Event",1000,0,1000);
+    NADA_hcalHists.NADA_NEG_OCC_MAP = m_dbe->book2D("NADA_HCAL_NEG_OCC_MAP","NADA HCAL Negative Energy Cell Occupancy",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    NADA_hcalHists.NADA_NEG_EN_MAP = m_dbe->book2D("NADA_HCAL_NEG_EN_MAP","NADA HCAL Negative Cell Energy",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+
+
   } // if (m_dbe !=NULL)
 
   // Code to correct for wrong pedestal offset in early data
@@ -414,7 +457,13 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
       meMAX_T_all->Fill(tA);
       meOCC_MAP_all->Fill(etaA,phiA);
       meEN_MAP_all->Fill(etaA,phiA,enA);
-      
+      // hcalHists now contains duplicates of meMAX histograms
+      // remove meMAX histos in the future?
+      hcalHists.meMAX_E->Fill(enA);
+      hcalHists.meMAX_T->Fill(enA);
+      hcalHists.meOCC_MAP_GEO_Max->Fill(etaA,phiA);
+      hcalHists.meEN_MAP_GEO_Max->Fill(etaA,phiA,enA);
+
       if(depth==1)
 	{
 	  if (debug_) cout <<"\tFilling Depth1 histos"<<endl;
@@ -442,8 +491,12 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 	}
     }
 
+  // These histograms are now duplicates of NADA_hcalHists -- remove in future
   NADA_NumHotCells->Fill(hotcells);
   NADA_NumNegCells->Fill(negcells);
+
+  NADA_hcalHists.NADA_NumHotCells->Fill(hotcells);
+  NADA_hcalHists.NADA_NumNegCells->Fill(negcells);
 
   return;
 }
@@ -486,9 +539,15 @@ void HcalHotCellMonitor::FindHBHEHotCells(const HBHERecHitCollection& hbHits, Hi
 		  if (cellenergy>HBthresholds_[k])
 		    {
 		      if (hbHists.OCCmap[k]!=NULL)
-			hbHists.OCCmap[k]->Fill(_ib->id().ieta(),_ib->id().iphi());
+			{
+			  hbHists.OCCmap[k]->Fill(_ib->id().ieta(),_ib->id().iphi());
+			  hcalHists.OCCmap[k]->Fill(_ib->id().ieta(),_ib->id().iphi());
+			}
 		      if (hbHists.ENERGYmap[k]!=NULL)
-			hbHists.ENERGYmap[k]->Fill(_ib->id().ieta(),_ib->id().iphi(),cellenergy);
+			{
+			  hbHists.ENERGYmap[k]->Fill(_ib->id().ieta(),_ib->id().iphi(),cellenergy);
+			  hcalHists.ENERGYmap[k]->Fill(_ib->id().ieta(),_ib->id().iphi(),cellenergy);
+			}
 		    }
 		}
 	    }
@@ -499,9 +558,15 @@ void HcalHotCellMonitor::FindHBHEHotCells(const HBHERecHitCollection& hbHits, Hi
 		  if (cellenergy>HEthresholds_[k])
 		    {
 		      if (heHists.OCCmap[k]!=NULL)
-			heHists.OCCmap[k]->Fill(_ib->id().ieta(),_ib->id().iphi());
+			{
+			  heHists.OCCmap[k]->Fill(_ib->id().ieta(),_ib->id().iphi());
+			  hcalHists.OCCmap[k]->Fill(_ib->id().ieta(),_ib->id().iphi());
+			}
 		      if (heHists.ENERGYmap[k]!=NULL)
-			heHists.ENERGYmap[k]->Fill(_ib->id().ieta(),_ib->id().iphi(),cellenergy);
+			{
+			  heHists.ENERGYmap[k]->Fill(_ib->id().ieta(),_ib->id().iphi(),cellenergy);
+			  hcalHists.ENERGYmap[k]->Fill(_ib->id().ieta(),_ib->id().iphi(),cellenergy);
+			}
 		    }
 		}
 	    }
@@ -576,9 +641,15 @@ void HcalHotCellMonitor::FindHOHotCells(const HORecHitCollection& hoHits, HistLi
 	      if (cellenergy>HOthresholds_[k])
 		{
 		  if (hoHists.OCCmap[k]!=NULL)
-		    hoHists.OCCmap[k]->Fill(_io->id().ieta(),_io->id().iphi());
+		    {
+		      hoHists.OCCmap[k]->Fill(_io->id().ieta(),_io->id().iphi());
+		      hcalHists.OCCmap[k]->Fill(_io->id().ieta(),_io->id().iphi());
+		    }
 		  if (hoHists.ENERGYmap[k]!=NULL)
-		    hoHists.ENERGYmap[k]->Fill(_io->id().ieta(),_io->id().iphi(),cellenergy);
+		    {
+		      hoHists.ENERGYmap[k]->Fill(_io->id().ieta(),_io->id().iphi(),cellenergy);
+		      hcalHists.ENERGYmap[k]->Fill(_io->id().ieta(),_io->id().iphi(),cellenergy);
+		    }
 		}
 	    }
 	  
@@ -641,9 +712,15 @@ void HcalHotCellMonitor::FindHFHotCells(const HFRecHitCollection& hfHits, HistLi
 	      if (cellenergy>HFthresholds_[k])
 		{
 		  if (hfHists.OCCmap[k]!=NULL)
-		    hfHists.OCCmap[k]->Fill(_if->id().ieta(),_if->id().iphi());
+		    {
+		      hfHists.OCCmap[k]->Fill(_if->id().ieta(),_if->id().iphi());
+		      hcalHists.OCCmap[k]->Fill(_if->id().ieta(),_if->id().iphi());
+		    }
 		  if (hfHists.ENERGYmap[k]!=NULL)
-		    hfHists.ENERGYmap[k]->Fill(_if->id().ieta(),_if->id().iphi(),cellenergy);
+		    {
+		      hfHists.ENERGYmap[k]->Fill(_if->id().ieta(),_if->id().iphi(),cellenergy);
+		      hcalHists.ENERGYmap[k]->Fill(_if->id().ieta(),_if->id().iphi(),cellenergy);
+		    }
 		}
 	    }
 	  
@@ -750,6 +827,8 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
 	  cellenergy=_cell->energy();
 	  
 	  h.NADA_Energy->Fill(cellenergy);
+	  NADA_hcalHists.NADA_Energy->Fill(cellenergy);
+
 	  if (debug_ && cellenergy<0) cout <<"WARNING:  NEGATIVE CELL ENERGY FOUND IN HBHE NADA:  "<<cellenergy<<endl;
 	  
 	  // _cell points to the current hot cell candidate
@@ -764,8 +843,10 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
 		  if (debug_) cout <<"<NEGATIVE HBHE CELL ENERGY>  Energy = "<<cellenergy<<" at position ("<<_cell->id().ieta()<<", "<<_cell->id().iphi()<<")  HB = "<<HB<<endl;
 		  numnegcells++;
 		  h.NADA_NEG_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
+		  NADA_hcalHists.NADA_NEG_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
 		  // Fill with -1*E to make plotting easier (large negative values appear as peaks rather than troughs, etc.)
 		  h.NADA_NEG_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),-1*cellenergy);
+		  NADA_hcalHists.NADA_NEG_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),-1*cellenergy);
 		}
 	      // Case 1b:  E>maximum
 	      else
@@ -774,6 +855,9 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
 		  h.NADA_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
 		  
 		  h.NADA_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),cellenergy);
+		  NADA_hcalHists.NADA_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
+		  
+		  NADA_hcalHists.NADA_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),cellenergy);
 		}
 	      // Cells marked as hot; no need to complete remaining code
 	      continue;
@@ -847,6 +931,9 @@ void HcalHotCellMonitor::HBHE_NADAFinder(const HBHERecHitCollection& c, NADAHist
 	      h.NADA_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
 	      
 	      h.NADA_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),cellenergy);
+	      NADA_hcalHists.NADA_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
+	      
+	      NADA_hcalHists.NADA_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),cellenergy);
 	    }
 	} //for (_cell=c.begin(); _cell!=c.end(); _cell++)
       if (debug_) cout <<"Filling HBHE NADA NumHotCell histo"<<endl;
@@ -888,7 +975,8 @@ void HcalHotCellMonitor::HO_NADAFinder(const HORecHitCollection& c, NADAHistList
 	  if (vetoCell(_cell->id()))continue; // veto cell before or after filling energy histogram?  Make separate vetocell histos?
 	  cellenergy=_cell->energy();
 	  h.NADA_Energy->Fill(cellenergy);
-	    		
+	  NADA_hcalHists.NADA_Energy->Fill(cellenergy);
+	   		
 	  // _cell points to the current hot cell candidate
 	  Ecube=0; // reset Ecube energy counter
 	    
@@ -902,12 +990,16 @@ void HcalHotCellMonitor::HO_NADAFinder(const HORecHitCollection& c, NADAHistList
 		  numnegcells++;
 		  h.NADA_NEG_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
 		  h.NADA_NEG_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),-1*cellenergy);
+		  NADA_hcalHists.NADA_NEG_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
+		  NADA_hcalHists.NADA_NEG_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),-1*cellenergy);
 		}
 	      else
 		{
 		  numhotcells++;
 		  h.NADA_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
 		  h.NADA_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),cellenergy);
+		  NADA_hcalHists.NADA_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
+		  NADA_hcalHists.NADA_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),cellenergy);
 		}
 	      continue;
 	    } // end of Case 1
@@ -959,6 +1051,8 @@ void HcalHotCellMonitor::HO_NADAFinder(const HORecHitCollection& c, NADAHistList
 	      numhotcells++;
 	      h.NADA_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
 	      h.NADA_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),cellenergy);
+	      NADA_hcalHists.NADA_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
+	      NADA_hcalHists.NADA_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),cellenergy);
 	    }
 
 	} //for (_cell=c.begin(); _cell!=c.end(); _cell++)
@@ -1014,13 +1108,17 @@ void HcalHotCellMonitor::HF_NADAFinder(const HFRecHitCollection& c, NADAHistList
 		  numnegcells++;
 		  h.NADA_NEG_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
 		  h.NADA_NEG_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),-1*cellenergy);
+		  NADA_hcalHists.NADA_NEG_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
+		  NADA_hcalHists.NADA_NEG_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),-1*cellenergy);
+		  
 		}
 	      else
 		{
 		  numhotcells++;
 		  h.NADA_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
 		  h.NADA_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),cellenergy);
-		}
+		  NADA_hcalHists.NADA_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
+		  NADA_hcalHists.NADA_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),cellenergy);	}
 	      continue;
 	    } // end of Case 1
 
@@ -1070,6 +1168,8 @@ void HcalHotCellMonitor::HF_NADAFinder(const HFRecHitCollection& c, NADAHistList
 	      numhotcells++;
 	      h.NADA_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
 	      h.NADA_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),cellenergy);
+	      NADA_hcalHists.NADA_OCC_MAP->Fill(_cell->id().ieta(),_cell->id().iphi());
+	      NADA_hcalHists.NADA_EN_MAP->Fill(_cell->id().ieta(),_cell->id().iphi(),cellenergy);
 	    }
 
 	} //for (_cell=c.begin(); _cell!=c.end(); _cell++)

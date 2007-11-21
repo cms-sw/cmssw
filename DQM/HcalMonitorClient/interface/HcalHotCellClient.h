@@ -146,7 +146,7 @@ private:
   HotCellHists hehists;
   HotCellHists hohists;
   HotCellHists hfhists;
-
+  HotCellHists hcalhists;
 
   ofstream htmlFile;
 };

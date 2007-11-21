@@ -121,7 +121,7 @@ private:
 
   ofstream htmlFile;
 
-  DeadCellHists hbhists, hehists, hohists, hfhists;
+  DeadCellHists hbhists, hehists, hohists, hfhists, hcalhists;
   
   // Quality criteria for data integrity
   std::map<std::string, std::vector<QReport*> > dqmReportMapErr_;

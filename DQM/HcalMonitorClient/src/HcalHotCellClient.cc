@@ -15,16 +15,17 @@ HcalHotCellClient::HcalHotCellClient(const ParameterSet& ps, DaqMonitorBEInterfa
   if (verbose_)
     cout <<"Initializing HcalHotCellClient from ParameterSet"<<endl;
 
-  hbhists.type=0;
-  hehists.type=1;
-  hohists.type=2;
-  hfhists.type=3;
- 
+  hbhists.type=1;
+  hehists.type=2;
+  hohists.type=3;
+  hfhists.type=4;
+  hcalhists.type=10; // sums over subdetector histograms
+
   clearHists(hbhists);
   clearHists(hehists);
   clearHists(hohists);
   clearHists(hfhists);
-
+  clearHists(hcalhists);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -39,7 +40,7 @@ HcalHotCellClient::HcalHotCellClient(const ParameterSet& ps, DaqMonitorBEInterfa
 
   int dummy = 0;
   thresholds_=ps.getUntrackedParameter<int>("HotCellThresholds",dummy);
-
+  hcalhists.thresholds=thresholds_;
 
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
@@ -76,16 +77,19 @@ HcalHotCellClient::HcalHotCellClient(){
   clearHists(hehists);
   clearHists(hohists);
   clearHists(hfhists);
+  clearHists(hfhists);
 
-  hbhists.type=0;
-  hehists.type=1;
-  hohists.type=2;
-  hfhists.type=3;
-  
+  hbhists.type=1;
+  hehists.type=2;
+  hohists.type=3;
+  hfhists.type=4;
+  hcalhists.type=10;
+
   hbhists.thresholds=1;
   hehists.thresholds=1;
   hohists.thresholds=1;
   hfhists.thresholds=1;
+  hcalhists.thresholds=1;
 
   // verbosity switch
   verbose_ = false;
@@ -151,12 +155,14 @@ void HcalHotCellClient::cleanup(void) {
       deleteHists(hehists);
       deleteHists(hohists);
       deleteHists(hfhists);
+      deleteHists(hcalhists);
     }    
     
   clearHists(hbhists);
   clearHists(hehists);
   clearHists(hohists);
   clearHists(hfhists);
+  clearHists(hcalhists);
 
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
@@ -263,6 +269,7 @@ void HcalHotCellClient::getHistograms(){
   if(subDetsOn_[1]) getSubDetHistograms(hehists);
   if(subDetsOn_[2]) getSubDetHistograms(hohists);
   if(subDetsOn_[3]) getSubDetHistograms(hfhists);
+  getSubDetHistograms(hcalhists);
 
   return;
 }
@@ -291,6 +298,7 @@ void HcalHotCellClient::resetAllME(){
   if (subDetsOn_[1]) resetSubDetHistograms(hehists);
   if (subDetsOn_[2]) resetSubDetHistograms(hohists);
   if (subDetsOn_[3]) resetSubDetHistograms(hfhists);
+  resetSubDetHistograms(hcalhists);
   return;
 }
 
@@ -336,6 +344,7 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   htmlFile << "<h2><strong>Hcal Hot Cell Histograms</strong></h2>" << endl;
   htmlFile << "<h3>" << endl;
+  htmlFile << "<a href=\"#HCAL_Plots\">Combined HCAL Plots </a></br>" << endl;  
   if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;  
   if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
   if(subDetsOn_[2]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
@@ -367,6 +376,7 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   histoHTML2(runNo,gl_en_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
+  htmlSubDetOutput(hcalhists,runNo,htmlDir,htmlName);
   htmlSubDetOutput(hbhists,runNo,htmlDir,htmlName);
   htmlSubDetOutput(hehists,runNo,htmlDir,htmlName);
   htmlSubDetOutput(hohists,runNo,htmlDir,htmlName);
@@ -388,12 +398,20 @@ void HcalHotCellClient::htmlSubDetOutput(HotCellHists& hist, int runNo,
 					 string htmlDir, 
 					 string htmlName)
 {
-  if(!subDetsOn_[hist.type]) return;
+  if((hist.type<5) &&!subDetsOn_[hist.type-1]) return;
   
-  string type = "HB";
-  if(hist.type==1) type = "HE"; 
-  if(hist.type==2) type = "HO"; 
-  if(hist.type==3) type = "HF"; 
+  string type;
+  if(hist.type==1) type = "HB";
+  else if(hist.type==2) type = "HE"; 
+  else if(hist.type==3) type = "HO"; 
+  else if(hist.type==4) type = "HF";
+  else if(hist.type==10) type = "HCAL";
+  else
+    {
+      cout <<"<HcalHotCellClient::htmlSubDetOutput> Unrecognized detector type: "<<hist.type<<endl;
+      return;
+    }
+
   htmlFile << "<tr align=\"left\">" << endl;
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
   
@@ -407,18 +425,36 @@ void HcalHotCellClient::htmlSubDetOutput(HotCellHists& hist, int runNo,
   histoHTML2(runNo,hist.NADA_NEG_EN_MAP,"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
-  for (int i=0;i<hist.thresholds;i++){
-    htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,hist.OCCmap[i],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(runNo,hist.ENERGYmap[i],"iEta","iPhi", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
-  }
-
-  htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML(runNo,hist.MAX_E,"GeV","Evts", 92, htmlFile,htmlDir);
-  histoHTML(runNo,hist.MAX_T,"nS","Evts", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-
+  if (hist.type!=10)
+    {
+      for (int i=0;i<hist.thresholds;i++){
+	htmlFile << "<tr align=\"left\">" << endl;	
+	histoHTML2(runNo,hist.OCCmap[i],"iEta","iPhi", 92, htmlFile,htmlDir);
+	histoHTML2(runNo,hist.ENERGYmap[i],"iEta","iPhi", 100, htmlFile,htmlDir);
+	htmlFile << "</tr>" << endl;
+      }
+      
+      htmlFile << "<tr align=\"left\">" << endl;	
+      histoHTML(runNo,hist.MAX_E,"GeV","Evts", 92, htmlFile,htmlDir);
+      histoHTML(runNo,hist.MAX_T,"nS","Evts", 100, htmlFile,htmlDir);
+      htmlFile << "</tr>" << endl;
+    }
+  else
+    {
+      for (int i=0;i<hist.thresholds;i=i+2)
+	// FIXME:  Max_E, Max_T histograms not needed (already displayed) --
+	// restructure the code so that they're only displaye here? 
+	// HCAL Energy histograms are showing up empty for some reason
+	// (name error?  Check!)
+	{	
+	  htmlFile << "<tr align=\"left\">" << endl;	
+	  histoHTML2(runNo,hist.OCCmap[i],"iEta","iPhi", 92, htmlFile,htmlDir);
+	  
+	  if ((i+1)<hist.thresholds)
+	    histoHTML2(runNo,hist.OCCmap[i+1],"iEta","iPhi", 100, htmlFile,htmlDir);
+	  htmlFile << "</tr>" << endl;
+	}
+    }
   return;
 }
 
@@ -435,7 +471,7 @@ void HcalHotCellClient::createTests()
   createSubDetTests(hehists);
   createSubDetTests(hohists);
   createSubDetTests(hfhists);
-    
+  createSubDetTests(hcalhists); // unnecessary?  Or only use this test?
   return;
 }
 
@@ -448,14 +484,17 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
   char meTitle[250], name[250];
   vector<string> params;
 
-  string type="HB";
+  string type;
   if(hist.type==1)
+    type="HB";
+  else if(hist.type==2)
     type="HE";
-  else if (hist.type==2)
-    type="HO";
   else if (hist.type==3)
+    type="HO";
+  else if (hist.type==4)
     type="HF";
-
+  else if (hist.type==10)
+    type="HCAL";
 
   // Check NADA Hot Cell
   sprintf(meTitle,"%sHcal/HotCellMonitor/%s/NADA_%s_OCC_MAP",process_.c_str(),type.c_str(), type.c_str());
@@ -524,7 +563,7 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
   for (int i=0;i<hist.thresholds;i++)
     {
       sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%sHotCellOCCmap_Thresh%i",process_.c_str(),type.c_str(), type.c_str(),i);
-      sprintf(name,"%s Hot Cells Above Thresold %i",type.c_str(),i); 
+      sprintf(name,"%s Hot Cells Above Threshold %i",type.c_str(),i); 
       if (verbose_) cout <<"Checking for histogram named: "<<name<<endl;
       if(dqmQtests_.find(name)==dqmQtests_.end())
 	{
@@ -555,6 +594,7 @@ void HcalHotCellClient::loadHistograms(TFile* infile){
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
   }
+  getSubDetHistogramsFromFile(hcalhists,infile);
   getSubDetHistogramsFromFile(hbhists,infile);
   getSubDetHistogramsFromFile(hehists,infile);
   getSubDetHistogramsFromFile(hohists,infile);
@@ -614,14 +654,21 @@ void HcalHotCellClient::deleteHists(HotCellHists& hist)
 void HcalHotCellClient::getSubDetHistograms(HotCellHists& hist)
 {
   char name[150];
-  string type = "HB";
-  if(hist.type==1) type = "HE"; 
-  else if(hist.type==2) type = "HO"; 
-  else if(hist.type==3) type = "HF"; 
+  string type;
+  if(hist.type==1) type= "HB";
+  else if(hist.type==2) type = "HE"; 
+  else if(hist.type==3) type = "HO"; 
+  else if(hist.type==4) type = "HF"; 
+  else if(hist.type==10) type = "HCAL";
+  else {
+    cout <<"<HcalHotCellClient::getSubDetHistograms> Unrecognized subdetector type:  "<<hist.type<<endl;
+    return;
+  }
   // Why are these 2 lines here?
   //hist.OCCmap.clear();
   //hist.ENERGYmap.clear();
   
+  if (verbose_)
   cout <<"Getting HcalHotCell Subdetector Histograms for Subdetector:  "<<type<<endl;
 
   for (int i=0;i<hist.thresholds;i++)
@@ -654,7 +701,7 @@ void HcalHotCellClient::getSubDetHistograms(HotCellHists& hist)
   // NADA histograms
   sprintf(name,"HotCellMonitor/%s/NADA_%s_OCC_MAP",type.c_str(),type.c_str());
   hist.NADA_OCC_MAP=getHisto2(name, process_, dbe_,verbose_,cloneME_);
-  //cout <<name<<endl;
+  //cout <<"NAME = "<<name<<endl;
   sprintf(name,"HotCellMonitor/%s/NADA_%s_EN_MAP",type.c_str(),type.c_str());
   hist.NADA_EN_MAP=getHisto2(name, process_, dbe_,verbose_,cloneME_);
   //cout <<name<<endl;
@@ -688,10 +735,18 @@ void HcalHotCellClient::getSubDetHistograms(HotCellHists& hist)
 void HcalHotCellClient::getSubDetHistogramsFromFile(HotCellHists& hist, TFile* infile)
 {
   char name[150];
-  string type = "HB";
-  if(hist.type==1) type = "HE"; 
-  else if(hist.type==2) type = "HO"; 
-  else if(hist.type==3) type = "HF"; 
+
+  string type;
+  if(hist.type==1) type= "HB";
+  else if(hist.type==2) type = "HE"; 
+  else if(hist.type==3) type = "HO"; 
+  else if(hist.type==4) type = "HF"; 
+  else if(hist.type==10) type = "HCAL";
+  else {
+    cout <<"<HcalHotCellClient::getSubDetHistogramsFromFile> Unrecognized subdetector type:  "<<hist.type<<endl;
+    return;
+  }
+
   hist.OCCmap.clear();
   hist.ENERGYmap.clear();
 
@@ -741,11 +796,17 @@ void HcalHotCellClient::getSubDetHistogramsFromFile(HotCellHists& hist, TFile* i
 void HcalHotCellClient::resetSubDetHistograms(HotCellHists& hist)
 {
 
- char name[150];
-  string type = "HB";
-  if(hist.type==1) type = "HE"; 
-  else if(hist.type==2) type = "HO"; 
-  else if(hist.type==3) type = "HF"; 
+  char name[150];
+  string type;
+  if(hist.type==1) type= "HB";
+  else if(hist.type==2) type = "HE"; 
+  else if(hist.type==3) type = "HO"; 
+  else if(hist.type==4) type = "HF"; 
+  else if(hist.type==10) type = "HCAL";
+  else {
+    cout <<"<HcalHotCellClient::resetSubDetHistograms> Unrecognized subdetector type:  "<<hist.type<<endl;
+    return;
+  }
   
   for (int i=0;i<hist.thresholds;i++){
       sprintf(name,"HotCellMonitor/%s/%sHotCellENERGYmap_Thresh%i",type.c_str(),type.c_str(),i);

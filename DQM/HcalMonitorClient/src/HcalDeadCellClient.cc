@@ -14,15 +14,17 @@ HcalDeadCellClient::HcalDeadCellClient(const ParameterSet& ps, DaqMonitorBEInter
   if (verbose_)
     cout <<"Initializing HcalDeadCellClient from ParameterSet"<<endl;
 
-  hbhists.type=0;
-  hehists.type=1;
-  hohists.type=2;
-  hfhists.type=3;
- 
+  hbhists.type=1;
+  hehists.type=2;
+  hohists.type=3;
+  hfhists.type=4;
+  hcalhists.type=10; // sum of other histograms
+
   clearHists(hbhists);
   clearHists(hehists);
   clearHists(hohists);
   clearHists(hfhists);
+  clearHists(hcalhists);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -56,11 +58,14 @@ HcalDeadCellClient::HcalDeadCellClient(){
   clearHists(hehists);
   clearHists(hohists);
   clearHists(hfhists);
+  clearHists(hcalhists);
 
-  hbhists.type=0;
-  hehists.type=1;
-  hohists.type=2;
-  hfhists.type=3;
+  hbhists.type=1;
+  hehists.type=2;
+  hohists.type=3;
+  hfhists.type=4;
+  hcalhists.type=10;
+
   // verbosity switch
   verbose_ = false;
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
@@ -125,12 +130,14 @@ void HcalDeadCellClient::cleanup(void) {
       deleteHists(hehists);
       deleteHists(hohists);
       deleteHists(hfhists);
+      deleteHists(hcalhists);
     }    
 
   clearHists(hbhists);
   clearHists(hehists);
   clearHists(hohists);
   clearHists(hfhists);
+  clearHists(hcalhists);
 
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
@@ -261,7 +268,7 @@ void HcalDeadCellClient::getHistograms(){
   if(subDetsOn_[1]) getSubDetHistograms(hehists);
   if(subDetsOn_[2]) getSubDetHistograms(hohists);
   if(subDetsOn_[3]) getSubDetHistograms(hfhists);
-  
+  getSubDetHistograms(hcalhists);
   return;
 }
 
@@ -271,11 +278,17 @@ void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
     cout <<"HcalDeadCellClient:: Getting subdetector histograms for subdetector "<<hist.type<<endl;
   
   char name[150];
-  string type = "HB";
-  if(hist.type==1) type = "HE"; 
-  else if(hist.type==2) type = "HO"; 
-  else if(hist.type==3) type = "HF"; 
-  
+  string type;
+  if(hist.type==1) type= "HB";
+  else if(hist.type==2) type = "HE"; 
+  else if(hist.type==3) type = "HO"; 
+  else if(hist.type==4) type = "HF"; 
+  else if(hist.type==10) type = "HCAL";
+  else {
+    cout <<"<HcalDeadCellClient::getSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    return;
+  }
+
   sprintf(name,"DeadCellMonitor/%s/%s_deadADCOccupancyMap",type.c_str(),type.c_str());
   if (verbose_) cout <<"Histogram name = "<<name<<endl;
   hist.deadADC_OccMap = getHisto2(name, process_, dbe_,verbose_,cloneME_); 
@@ -329,10 +342,16 @@ void HcalDeadCellClient::getSubDetHistogramsFromFile(DeadCellHists& hist, TFile*
     cout <<"HcalDeadCellClient:: Getting subdetector histograms from file for subdetector "<<hist.type<<endl;
   
   char name[150];
-  string type = "HB";
-  if(hist.type==1) type = "HE"; 
-  else if(hist.type==2) type = "HO"; 
-  else if(hist.type==3) type = "HF"; 
+  string type;
+  if(hist.type==1) type= "HB";
+  else if(hist.type==2) type = "HE"; 
+  else if(hist.type==3) type = "HO"; 
+  else if(hist.type==4) type = "HF"; 
+  else if(hist.type==10) type = "HCAL";
+  else {
+    cout <<"<HcalDeadCellClient::getSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    return;
+  }
   
   sprintf(name,"DeadCellMonitor/%s/%s_deadADCOccupancyMap",type.c_str(),type.c_str());
   //cout <<name<<endl;
@@ -387,10 +406,16 @@ void HcalDeadCellClient::resetSubDetHistograms(DeadCellHists& hist)
     cout <<"HcalDeadCellClient::Resetting subdetector histograms for subdetector "<<hist.type<<endl;
   
   char name[150];
-  string type = "HB";
-  if(hist.type==1) type = "HE"; 
-  else if(hist.type==2) type = "HO"; 
-  else if(hist.type==3) type = "HF"; 
+  string type;
+  if(hist.type==1) type= "HB";
+  else if(hist.type==2) type = "HE"; 
+  else if(hist.type==3) type = "HO"; 
+  else if(hist.type==4) type = "HF"; 
+  else if(hist.type==10) type = "HCAL";
+  else {
+    cout <<"<HcalDeadCellClient::resetSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    return;
+  }
   
   sprintf(name,"DeadCellMonitor/%s/%s_deadADCOccupancyMap",type.c_str(),type.c_str());
   resetME(name,dbe_);
@@ -437,13 +462,15 @@ void HcalDeadCellClient::resetAllME(){
   if (subDetsOn_[1]) resetSubDetHistograms(hehists);
   if (subDetsOn_[2]) resetSubDetHistograms(hohists);
   if (subDetsOn_[3]) resetSubDetHistograms(hfhists);
-
+  resetSubDetHistograms(hcalhists);
   return;
 }
 
 void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
-  cout << "Preparing HcalDeadCellClient html output ..." << endl;
+  cout <<"HI THERE!"<<endl;
+  if (verbose_)
+    cout << "Preparing HcalDeadCellClient html output ..." << endl;
   string client = "DeadCellMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
@@ -483,6 +510,7 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   htmlFile << "<h2><strong>Hcal Dead Cell Histograms</strong></h2>" << endl;
   htmlFile << "<h3>" << endl;
+  htmlFile << "<a href=\"#HCAL_Plots\">Combined HCAL Plots </a></br>" << endl;
   if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;  
   if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
   if(subDetsOn_[2]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
@@ -494,6 +522,7 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "cellpadding=\"10\"> " << endl;
   //htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
 
+  htmlSubDetOutput(hcalhists,runNo,htmlDir,htmlName);
   htmlSubDetOutput(hbhists,runNo,htmlDir,htmlName);
   htmlSubDetOutput(hehists,runNo,htmlDir,htmlName);
   htmlSubDetOutput(hohists,runNo,htmlDir,htmlName);
@@ -516,14 +545,18 @@ void HcalDeadCellClient::htmlSubDetOutput(DeadCellHists& hist, int runNo,
 					  string htmlName)
 {
   if (verbose_) cout <<"HcalDeadCellClient::Creating html output for subdetector "<<hist.type<<endl;
-  if(!subDetsOn_[hist.type]) cout <<"HCALDEADCELLCLIENT: SUBDETS OFF FOR "<<hist.type<<endl;
-  if(!subDetsOn_[hist.type]) return;
+  if(hist.type<5 && !subDetsOn_[hist.type-1]) return;
   
-  string type = "HB";
-  if(hist.type==1) type = "HE"; 
-  if(hist.type==2) type = "HF"; 
-  if(hist.type==3) type = "HO"; 
-  
+  string type;
+  if(hist.type==1) type= "HB";
+  else if(hist.type==2) type = "HE"; 
+  else if(hist.type==3) type = "HO"; 
+  else if(hist.type==4) type = "HF"; 
+  else if(hist.type==10) type = "HCAL";
+  else {
+    cout <<"<HcalDeadCellClient::htmlSubDetOutput> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    return;
+  }
 
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
 
@@ -564,7 +597,7 @@ void HcalDeadCellClient::createTests(){
   createSubDetTests(hehists);
   createSubDetTests(hohists);
   createSubDetTests(hfhists);
-    
+  createSubDetTests(hcalhists); // redundant?  Or replaces individual subdetector tests?
   return;
 }
 
@@ -576,13 +609,16 @@ void HcalDeadCellClient::createSubDetTests(DeadCellHists& hist)
   char meTitle[250], name[250];
   vector<string> params;
 
-  string type="HB";
-  if(hist.type==1)
-    type="HE";
-  else if (hist.type==2)
-    type="HO";
-  else if (hist.type==3)
-    type="HF";
+  string type;
+  if(hist.type==1) type= "HB";
+  else if(hist.type==2) type = "HE"; 
+  else if(hist.type==3) type = "HO"; 
+  else if(hist.type==4) type = "HF"; 
+  else if(hist.type==10) type = "HCAL";
+  else {
+    cout <<"<HcalDeadCellClient::createSubDetTests> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    return;
+  }
 
   // Check for dead ADCs
   sprintf(meTitle,"%sHcal/DeadCellMonitor/%s/%s_deadADCOccupancyMap",process_.c_str(),type.c_str(), type.c_str());
@@ -662,7 +698,7 @@ void HcalDeadCellClient::loadHistograms(TFile* infile){
   getSubDetHistogramsFromFile(hehists,infile);
   getSubDetHistogramsFromFile(hohists,infile);
   getSubDetHistogramsFromFile(hfhists,infile);
-
+  getSubDetHistogramsFromFile(hcalhists,infile);
   return;
 }
 

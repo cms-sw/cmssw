@@ -24,6 +24,7 @@ namespace HcalDeadCellDigiCheck
   */ 
   template<class Digi>
   void CheckForDeadDigis(const Digi& digi, DeadCellHists& hist, 
+			 DeadCellHists& all,
 			 float Nsigma, float mincount,
 			 HcalCalibrations calibs, 
 			 HcalCalibrationWidths widths, 
@@ -53,6 +54,7 @@ namespace HcalDeadCellDigiCheck
 
     // Fill (eta,phi) map if digi is found for that cell
     hist.digiCheck->Fill(digi.id().ieta()+offset,digi.id().iphi());
+    all.digiCheck->Fill(digi.id().ieta()+offset,digi.id().iphi());
 
     // Loop over the 10 time slices of the digi
     for (int i=0;i<digi.size();i++)
@@ -69,6 +71,7 @@ namespace HcalDeadCellDigiCheck
 	if (digi.sample(i).adc()>calibs.pedestal(thisCapid)+Nsigma*widths.pedestal(thisCapid))
 	{
 	    hist.above_pedestal_temp->Fill(digi.id().ieta()+offset,digi.id().iphi());
+	    all.above_pedestal_temp->Fill(digi.id().ieta()+offset,digi.id().iphi());
 	  }
 	capADC[thisCapid]+=digi.sample(i).adc();
 
@@ -77,9 +80,13 @@ namespace HcalDeadCellDigiCheck
 	  {
 	    hist.noADC_ID_map->Fill(digi.id().ieta(),digi.id().iphi());
 	    hist.noADC_ID_eta->Fill(digi.id().ieta());
+	    all.noADC_ID_map->Fill(digi.id().ieta(),digi.id().iphi());
+	    all.noADC_ID_eta->Fill(digi.id().ieta());
+	    
 	  }
 	// Not yet sure if this histogram is useful, but it gives an idea of the ADC distributions
 	hist.ADCdist->Fill(digi.sample(i).adc());
+	all.ADCdist->Fill(digi.sample(i).adc());
 	
       }
 
@@ -88,13 +95,18 @@ namespace HcalDeadCellDigiCheck
       {
 	hist.deadADC_map->Fill(digi.id().ieta(),digi.id().iphi());
 	hist.deadADC_eta->Fill(digi.id().ieta());
+	all.deadADC_map->Fill(digi.id().ieta(),digi.id().iphi());
+	all.deadADC_eta->Fill(digi.id().ieta());
       }
 
     // look for 
     for (int zz=0;zz<4;zz++)
       {
 	if (capADC[zz]<=mincount)
-	  hist.deadcapADC_map[zz]->Fill(digi.id().ieta(),digi.id().iphi());
+	  {
+	    hist.deadcapADC_map[zz]->Fill(digi.id().ieta(),digi.id().iphi());
+	    all.deadcapADC_map[zz]->Fill(digi.id().ieta(),digi.id().iphi());
+	  }
       }
     return;
   }
@@ -103,7 +115,9 @@ namespace HcalDeadCellDigiCheck
     neighbors'
   */
   template<class Hits>
-  void CheckHits(double coolcellfrac, const Hits& hits, DeadCellHists& hist, DaqMonitorBEInterface* dbe, string baseFolder)
+  void CheckHits(double coolcellfrac, const Hits& hits, 
+		 DeadCellHists& hist, DeadCellHists& all, 
+		 DaqMonitorBEInterface* dbe, string baseFolder)
   { 
     
     string type;
@@ -134,6 +148,7 @@ namespace HcalDeadCellDigiCheck
 	if ((_cell->id().subdet())!=hist.type) continue;
 
 	hist.cellCheck->Fill(_cell->id().ieta()+offset,_cell->id().iphi());
+	all.cellCheck->Fill(_cell->id().ieta()+offset,_cell->id().iphi());
 
 	if (_cell->id().depth()==2) continue; // skip depth=2 for now
 	//if (vetoCell(_cell->id())) continue;
@@ -161,6 +176,7 @@ namespace HcalDeadCellDigiCheck
 	if (_cell->energy()<coolcellfrac*(1.0*neighborE/neighbors))
 	  {
 	    hist.NADA_cool_cell_map->Fill(_cell->id().ieta(),_cell->id().iphi());
+	    all.NADA_cool_cell_map->Fill(_cell->id().ieta(),_cell->id().iphi());
 	  }
       } // for (_cell=hits.begin()...)
 
@@ -275,7 +291,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
     // HF
     m_dbe->setCurrentFolder(baseFolder_+"/HF");
-    hfHists.type=4;
+    hfHists.type=10; //1+2+3+4
     hfHists.deadADC_map = m_dbe->book2D("HF_deadADCOccupancyMap","HF No ADC Count Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.noADC_ID_map = m_dbe->book2D("HF_noADCIDOccupancyMap","HF No ADC ID Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.deadADC_eta = m_dbe->book1D("HF_deadADCEta","HF No ADC Count Eta ",etaBins_,etaMin_,etaMax_);
@@ -292,6 +308,24 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
     hfHists.coolcell_below_pedestal = m_dbe->book2D("HF_CoolCell_belowPed","HF cells below (pedestal+Nsigma)",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.above_pedestal_temp = new TH2F("HF_abovePedTemp","Don't look at this!",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
+ // HF
+    m_dbe->setCurrentFolder(baseFolder_+"/HCAL");
+    hcalHists.type=4;
+    hcalHists.deadADC_map = m_dbe->book2D("HCAL_deadADCOccupancyMap","HCAL No ADC Count Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    hcalHists.noADC_ID_map = m_dbe->book2D("HCAL_noADCIDOccupancyMap","HCAL No ADC ID Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    hcalHists.deadADC_eta = m_dbe->book1D("HCAL_deadADCEta","HCAL No ADC Count Eta ",etaBins_,etaMin_,etaMax_);
+    hcalHists.noADC_ID_eta = m_dbe->book1D("HCAL_noADCIDEta","HCAL No ADC ID Eta ",etaBins_,etaMin_,etaMax_);
+    hcalHists.ADCdist = m_dbe->book1D("HCAL_ADCdist","HCAL ADC count distribution",128,0,128);
+    hcalHists.NADA_cool_cell_map = m_dbe->book2D("HCAL_NADA_CoolCellMap","HCAL Cool Cells",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    hcalHists.digiCheck = m_dbe->book2D("HCAL_digiCheck","HCAL Check that digi was found",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    hcalHists.cellCheck = m_dbe->book2D("HCAL_cellCheck","HCAL Check that cell hit was found",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    hcalHists.deadcapADC_map.push_back(m_dbe->book2D("HCAL_DeadCap0","Map of HCAL Events with no ADC hits for capid=0",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
+    hcalHists.deadcapADC_map.push_back(m_dbe->book2D("HCAL_DeadCap1","Map of HCAL Events with no ADC hits for capid=1",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
+    hcalHists.deadcapADC_map.push_back(m_dbe->book2D("HCAL_DeadCap2","Map of HCAL Events with no ADC hits for capid=2",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
+    hcalHists.deadcapADC_map.push_back(m_dbe->book2D("HCAL_DeadCap3","Map of HCAL Events with no ADC hits for capid=3",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_)); 
+    hcalHists.above_pedestal = m_dbe->book2D("HCAL_abovePed","HCAL cells above pedestal+Nsigma",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    hcalHists.coolcell_below_pedestal = m_dbe->book2D("HCAL_CoolCell_belowPed","HCAL cells below (pedestal+Nsigma)",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    hcalHists.above_pedestal_temp = new TH2F("HCAL_abovePedTemp","Don't look at this!",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
   } // if (m_dbe!=NULL)
 
   return;
@@ -317,6 +351,7 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
   
   processEvent_digi(hbhedigi,hodigi,hfdigi,cond); // check for dead digis
   processEvent_hits(hbHits,hoHits,hfHits); // check for dead cell hits
+
 
 
   // Look for cells that have been "cool" for (checkNevents_) consecutive events
@@ -350,9 +385,11 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
 	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
 
 	  if ((HcalSubdetector)(digi.id().subdet())==HcalBarrel)
-	    HcalDeadCellDigiCheck::CheckForDeadDigis(digi,hbHists,Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);
+	    HcalDeadCellDigiCheck::CheckForDeadDigis(digi,hbHists,hcalHists,
+						     Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);
 	  else if ((HcalSubdetector)(digi.id().subdet())==HcalEndcap)
-	    HcalDeadCellDigiCheck::CheckForDeadDigis(digi,heHists,Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);
+	    HcalDeadCellDigiCheck::CheckForDeadDigis(digi,heHists,hcalHists,
+						     Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);
 	}
     }
   catch(...)
@@ -367,7 +404,8 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
 	  const HODataFrame digi = (const HODataFrame)(*j);
 	  cond.makeHcalCalibration(digi.id(), &calibs_);
 	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
-	  HcalDeadCellDigiCheck::CheckForDeadDigis(digi,hoHists,Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);
+	  HcalDeadCellDigiCheck::CheckForDeadDigis(digi,hoHists,hcalHists,
+						   Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);
 	}
     }
   catch(...)
@@ -382,7 +420,8 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
 	  const HODataFrame digi = (const HODataFrame)(*j);
 	  cond.makeHcalCalibration(digi.id(), &calibs_);
 	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
-	  HcalDeadCellDigiCheck::CheckForDeadDigis(digi,hfHists,Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);
+	  HcalDeadCellDigiCheck::CheckForDeadDigis(digi,hfHists,hcalHists,
+						   Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);
 	}
     }
   catch(...)
@@ -408,7 +447,8 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
   if (debug_) cout <<"HcalDeadCellMonitor::processEvent_hits     Starting process"<<endl;
   try
     {
-      HcalDeadCellDigiCheck::CheckHits(coolcellfrac_,hbHits,hbHists,m_dbe, baseFolder_);
+      HcalDeadCellDigiCheck::CheckHits(coolcellfrac_,hbHits,hbHists,hcalHists,
+				       m_dbe, baseFolder_);
     }
   catch(...)
     {
@@ -416,7 +456,8 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
     }
   try
     {
-      HcalDeadCellDigiCheck::CheckHits(coolcellfrac_,hbHits,heHists,m_dbe, baseFolder_);
+      HcalDeadCellDigiCheck::CheckHits(coolcellfrac_,hbHits,heHists,hcalHists,
+				       m_dbe, baseFolder_);
     }
   catch(...)
     {
@@ -424,7 +465,8 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
     }
   try
     {
-      HcalDeadCellDigiCheck::CheckHits(coolcellfrac_,hoHits,hoHists,m_dbe, baseFolder_);
+      HcalDeadCellDigiCheck::CheckHits(coolcellfrac_,hoHits,hoHists,hcalHists,
+				       m_dbe, baseFolder_);
     }
   catch(...)
     {
@@ -432,7 +474,8 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
     }
   try
     {
-      HcalDeadCellDigiCheck::CheckHits(coolcellfrac_,hfHits,hfHists,m_dbe, baseFolder_);
+      HcalDeadCellDigiCheck::CheckHits(coolcellfrac_,hfHits,hfHists,hcalHists,
+				       m_dbe, baseFolder_);
     }
   catch(...)
     {
@@ -444,6 +487,7 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
 } // void HcalDeadCellMonitor::processEvent_hits
 
 void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
+
 {
 
 
@@ -461,12 +505,19 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
 	{
 	  double temp=h.above_pedestal_temp->GetBinContent(eta,phi);
 	  if (temp==0)
-	    h.coolcell_below_pedestal->Fill(eta+etaMin_-1,phi+phiMin_-1);
+	    {
+	      h.coolcell_below_pedestal->Fill(eta+etaMin_-1,phi+phiMin_-1);
+	      hcalHists.coolcell_below_pedestal->Fill(eta+etaMin_-1,phi+phiMin_-1);
+	    }
 	  else
-	    h.above_pedestal->Fill(eta+etaMin_-1,phi+phiMin_-1,temp);
+	    {
+	      h.above_pedestal->Fill(eta+etaMin_-1,phi+phiMin_-1,temp);
+	      hcalHists.above_pedestal->Fill(eta+etaMin_-1,phi+phiMin_-1,temp);
+	    }
 	}
     }
   h.above_pedestal_temp->Reset();
+  hcalHists.above_pedestal_temp->Reset();
 
   return;
 }

@@ -7,8 +7,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2007/11/15 23:13:46 $
-  * $Revision: 1.8 $
+  * $Date: 2007/11/19 18:20:54 $
+  * $Revision: 1.9 $
   * \author W. Fisher - FNAL
   */
 
@@ -117,8 +117,8 @@ private:  ///Monitoring elements
   MonitorElement* NADA_NumHotCells;
   MonitorElement* NADA_NumNegCells;
 
-  HistList hbHists,heHists,hfHists,hoHists;
-  NADAHistList NADA_hbHists, NADA_heHists, NADA_hfHists, NADA_hoHists;
+  HistList hbHists,heHists,hfHists,hoHists,hcalHists;
+  NADAHistList NADA_hbHists, NADA_heHists, NADA_hfHists, NADA_hoHists, NADA_hcalHists;
   
   // To do:  Add in NADA histogram for hot NADA cells in each layer
 
