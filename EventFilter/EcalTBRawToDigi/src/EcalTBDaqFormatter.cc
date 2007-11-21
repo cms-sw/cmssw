@@ -1,7 +1,7 @@
 /*
  *
- *  $Date: 2007/10/23 15:30:05 $
- *  $Revision: 1.61 $
+ *  $Date: 2007/10/24 09:15:10 $
+ *  $Revision: 1.62 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -233,9 +233,6 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     _expTowersIndex=0;
       
       
-    // FIXME: dccID hard coded, for now
-    unsigned dccID = 1-1;// at the moment SM is 1 by default (in DetID)
-
     // if number of dccEventBlocks NOT same as expected stop
     if (!      (dccTowerBlocks.size() == _numExpectedTowers)      )
       {
