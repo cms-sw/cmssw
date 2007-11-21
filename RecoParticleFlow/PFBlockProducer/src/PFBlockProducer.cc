@@ -97,8 +97,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
     = iConfig.getParameter<double>("pf_chi2_PSH_PSV");  
   
   bool multiLink = 
-    iConfig.getUntrackedParameter<bool>("pf_multilink",false);
-
+    iConfig.getParameter<bool>("pf_multilink");
+  
   //energyCalibration_ = new PFEnergyCalibration(iConfig);
 
   
