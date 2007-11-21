@@ -5,6 +5,7 @@
 #include "Math/CylindricalEta3D.h" 
 #include "Math/PxPyPzE4D.h" 
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
@@ -71,6 +72,11 @@ namespace {
     edm::reftobase::RefHolder<reco::CompositeCandidateRef> hcc2;
     edm::reftobase::VectorHolder<reco::Candidate, reco::CompositeCandidateRefVector> hcc3;
     edm::reftobase::RefVectorHolder<reco::CompositeCandidateRefVector> hcc4;
+    edm::Wrapper<reco::VertexCompositeCandidateCollection> wcc2;
+    edm::reftobase::Holder<reco::Candidate, reco::VertexCompositeCandidateRef> hcc5;
+    edm::reftobase::RefHolder<reco::VertexCompositeCandidateRef> hcc6;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::VertexCompositeCandidateRefVector> hcc7;
+    edm::reftobase::RefVectorHolder<reco::VertexCompositeCandidateRefVector> hcc8;
     
   }
 }
