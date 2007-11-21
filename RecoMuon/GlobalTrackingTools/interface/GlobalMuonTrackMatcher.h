@@ -15,8 +15,8 @@
  * tracker track that is closest in eta-phi space.
  *
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/08/15 15:14:21 $
+ *  $Revision: 1.1 $
  *
  *  \author Chang Liu           Purdue University
  *  \author Adam Everett        Purdue University
@@ -58,34 +58,17 @@ class GlobalMuonTrackMatcher {
     std::vector<TrackCand> match(const TrackCand&, 
 				 const std::vector<TrackCand>&) const;
     
-    /// check if two TrackRefs have matching local parameters on tracker surface
-    std::pair<bool,double> matchChi(const TrackCand&,
-                                    const TrackCand&) const;
-
-    /// check position of two tracks
-    bool matchPos(const TrackCand&,
-		  const TrackCand&) const;
-
-    /// compare global directions of track candidates
-    TrackCand matchMomAtIP(const TrackCand&, 
-                           const std::vector<TrackCand>&) const;
-    
-    /// check if two TSOS match at same surface
-    double matchChiAtSurface(const TrajectoryStateOnSurface&, 
-			     const TrajectoryStateOnSurface&) const;
-
  private:
-    /// propagate two tracks to a common surface - the tracker outer bound
-    std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> convertToTSOS(const TrackCand&, const TrackCand&) const;
-    
-    /// compare global positions of track candidates
-    bool matchPosAtSurface(const TrajectoryStateOnSurface&, 
-                           const TrajectoryStateOnSurface&) const;
 
-
-    /// check that two TSOSs are on the same plane
-    bool samePlane(const TrajectoryStateOnSurface& tsos1,
-		   const TrajectoryStateOnSurface& tsos2) const;
+  double match_R_IP(const reco::Track&, const reco::Track&) const;
+  double match_D(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
+  double match_Rmom(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
+  double match_Rpos(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
+  std::pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface> convertToTSOSTk(const TrackCand&,const TrackCand& ) const;
+  //  std::pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface> convertToTSOSMu(const TrackCand&,const TrackCand& ) const;
+  std::pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface> convertToTSOSMuHit(const TrackCand&,const TrackCand& ) const;
+  bool samePlane(const TrajectoryStateOnSurface&,const TrajectoryStateOnSurface&) const;
+  double matchChiAtSurface(const TrajectoryStateOnSurface& , const TrajectoryStateOnSurface& ) const;
 
   private:
     
