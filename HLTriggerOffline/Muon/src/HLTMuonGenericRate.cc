@@ -62,6 +62,7 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset, int Index)
   thePtMax = pset.getUntrackedParameter<double>("PtMax",40.);
   theNbins = pset.getUntrackedParameter<unsigned int>("Nbins",40);
   theNumberOfEvents = 0.;
+  theNumberOfL1Events = 0.;
 }
 
 /// Destructor
@@ -130,7 +131,7 @@ void HLTMuonGenericRate::analyze(const Event & event ){
     LogDebug("HLTMuonVal")<<"No L1 Collection with label "<<theL1CollectionLabel;
     return; 
   } 
-
+  ++theNumberOfL1Events;
  // Get the HLT collections
   std::vector<Handle<HLTFilterObjectWithRefs> > hltcands(theHLTCollectionLabels.size());
 
@@ -555,6 +556,38 @@ void HLTMuonGenericRate::FillHistograms(){
   }
   hL1eff->Scale(100.);
   hSteps->Scale(1./theNumberOfEvents);
+  
+  // HLT operations
+  for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
+      for (unsigned int k=0; k<=theNbins+1; k++) {
+            double this_eff = hHLTeff[i]->GetBinContent(k)/theNumberOfL1Events;
+            double this_eff_error = hHLTeff[i]->GetBinError(k)/theNumberOfL1Events;
+            double this_rate = theLuminosity*theCrossSection*this_eff;
+            double this_rate_error = theLuminosity*theCrossSection*this_eff_error;
+            hHLTeff[i]->SetBinContent(k,this_eff);
+            hHLTeff[i]->SetBinError(k,this_eff_error);
+            hHLTrate[i]->SetBinContent(k,this_rate);
+            hHLTrate[i]->SetBinError(k,this_rate_error);
+      }
+      hHLTeff[i]->Scale(100.);
+      if (useMuonFromGenerator){
+	hHLTMCeff[i]->Divide(hL1MCeff);
+	hHLTMCeff[i]->Scale(100.);
+	hHLTetaMC[i]->Divide(hL1etaMC);
+	hHLTetaMC[i]->Scale(100.);
+	hHLTphiMC[i]->Divide(hL1phiMC);
+	hHLTphiMC[i]->Scale(100.);
+      }
+      if (useMuonFromReco){
+	hHLTRECOeff[i]->Divide(hL1RECOeff);
+	hHLTRECOeff[i]->Scale(100.);
+	hHLTetaRECO[i]->Divide(hL1etaRECO);
+	hHLTetaRECO[i]->Scale(100.);
+	hHLTphiRECO[i]->Divide(hL1phiRECO);
+	hHLTphiRECO[i]->Scale(100.);
+      }
+
+  }
   if (useMuonFromGenerator){
     hL1MCeff->Divide(hMCptnor);
     hL1MCeff->Scale(100.);
@@ -570,38 +603,6 @@ void HLTMuonGenericRate::FillHistograms(){
     hL1etaRECO->Scale(100.);
     hL1phiRECO->Divide(hRECOphinor);
     hL1phiRECO->Scale(100.);
-  }
-  
-  // HLT operations
-  for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-      for (unsigned int k=0; k<=theNbins+1; k++) {
-            double this_eff = hHLTeff[i]->GetBinContent(k)/theNumberOfEvents;
-            double this_eff_error = hHLTeff[i]->GetBinError(k)/theNumberOfEvents;
-            double this_rate = theLuminosity*theCrossSection*this_eff;
-            double this_rate_error = theLuminosity*theCrossSection*this_eff_error;
-            hHLTeff[i]->SetBinContent(k,this_eff);
-            hHLTeff[i]->SetBinError(k,this_eff_error);
-            hHLTrate[i]->SetBinContent(k,this_rate);
-            hHLTrate[i]->SetBinError(k,this_rate_error);
-      }
-      hHLTeff[i]->Scale(100.);
-      if (useMuonFromGenerator){
-	hHLTMCeff[i]->Divide(hMCptnor);
-	hHLTMCeff[i]->Scale(100.);
-	hHLTetaMC[i]->Divide(hMCetanor);
-	hHLTetaMC[i]->Scale(100.);
-	hHLTphiMC[i]->Divide(hMCphinor);
-	hHLTphiMC[i]->Scale(100.);
-      }
-      if (useMuonFromReco){
-	hHLTRECOeff[i]->Divide(hRECOptnor);
-	hHLTRECOeff[i]->Scale(100.);
-	hHLTetaRECO[i]->Divide(hRECOetanor);
-	hHLTetaRECO[i]->Scale(100.);
-	hHLTphiRECO[i]->Divide(hRECOphinor);
-	hHLTphiRECO[i]->Scale(100.);
-      }
-
   }
 
 }

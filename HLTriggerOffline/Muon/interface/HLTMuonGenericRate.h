@@ -86,7 +86,7 @@ private:
   const HepMC::GenEvent* evt;
   std::pair<double,double> getGenAngle(edm::RefToBase<reco::Candidate> candref, HepMC::GenEvent evt );
   std::pair<double,double> getRecoAngle(edm::RefToBase<reco::Candidate> candref,reco::TrackCollection tracks );
-  double theNumberOfEvents;
+  double theNumberOfEvents,theNumberOfL1Events;
   TDirectory *ratedir;  
   TDirectory *distribdir;
   TDirectory *top;
