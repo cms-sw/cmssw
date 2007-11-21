@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.5 2007/11/15 10:12:18 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.6 2007/11/21 13:18:06 arizzi Exp $
 //
 //
 
@@ -222,11 +222,6 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double invbeta=0;
     DriftTubeTOF tof;
   for (reco::TrackCollection::const_iterator candTrack = staMuons.begin(); candTrack != staMuons.end(); ++candTrack) {
-    
-    
-//    cout << " Old STA: eta=" << staMuon->momentum().eta() << "  phi=" << staMuon->momentum().phi() << endl;
-//    cout << " New STA: eta=" << candTrack->momentum().eta() << "  phi=" << candTrack->momentum().phi() << endl;
-//    cout << " Diff: " << (staMuon->momentum().unit()-candTrack->momentum().unit()) << endl;
 
     // find the standalone muon matching the global muon
     if ((staMuon->momentum().unit()-candTrack->momentum().unit()).Mag2()>0.01) continue;
@@ -430,22 +425,26 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     double freeBeta, freeBetaErr, freeTime, freeTimeErr;    
     rawFit(freeBeta, freeBetaErr, freeTime, freeTimeErr, x, y);
+//    textplot(x,y,left);
+    
     tof.invBetaFree=freeBeta;
     tof.invBetaFreeErr=freeBetaErr;
     tof.vertexTimeFree=freeTime;
     tof.vertexTimeFreeErr=freeTimeErr;
-//    textplot(x,y,left);
     
+    int nStations=0;
+    for (int s=0;s<4;s++) 
+      if (betaMeasurements[s]) nStations++;
+
+    tof.nHits = dstnc.size();
+    tof.nStations=nStations;
+
     cout << " Free 1/beta: " << freeBeta << " +/- " << freeBetaErr << endl;   
     cout << "   Free time: " << freeTime << " +/- " << freeTimeErr << endl;   
     
     // End the loop over STA muons - since we already found the matching one
     break;
   }  //candTrack
-
-//FIXME: Fill those two
-//    tof.nStations=;
-//    tof.nHits=;
 
     outputCollection->setValue(muId,tof); //invbeta);
  
@@ -529,7 +528,6 @@ BetaFromTOF::rawFit(double &a, double &da, double &b, double &db, const vector<d
 
   a=b=0;
   if (hitsx.size()==0) return;
-    
   if (hitsx.size()==1) {
     b=hitsy[0];
   } else {
@@ -573,7 +571,7 @@ BetaFromTOF::textplot(vector<double> x, vector <double> y, vector <double> side)
     for (int iy=0;iy<32;iy++)
       data[ix][iy]=0;
 
-  cout << xmin << " " << xmax << " " << ymin << " " << ymax << endl;
+//  cout << xmin << " " << xmax << " " << ymin << " " << ymax << endl;
 
   for (unsigned int i=0;i<x.size(); i++) {
     int xloc = (int)((x.at(i)-xmin)/xfact);
