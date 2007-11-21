@@ -40,13 +40,13 @@ void CrossingFrame<SimVertex>::addPileups(const int bcr, const std::vector<SimVe
 
   EncodedEventId id(bcr,evtNr);
   for (unsigned int i=0;i<simvertices->size();++i) {
-    //clhep->root version     SimVertex vertex(math::XYZVectorD( (*simvertices)[i].position().x(),
-    //clhep->root version                                       (*simvertices)[i].position().y(),
-    //clhep->root version				       (*simvertices)[i].position().z() ),
-    //clhep->root version                     ((*simvertices)[i].position()).t()+bcr*bunchSpace_,
-    //clhep->root version		     (*simvertices)[i].parentIndex());
-    //back to ClHep version
-    SimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex());
+    SimVertex vertex(math::XYZVectorD( (*simvertices)[i].position().x(),
+				       (*simvertices)[i].position().y(),
+   				       (*simvertices)[i].position().z() ),
+		     ((*simvertices)[i].position()).t()+bcr*bunchSpace_,
+    		     (*simvertices)[i].parentIndex());
+    
+    //    SimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex());
     vertex.setEventId(EncodedEventId(bcr,evtNr));
     pileups_.push_back(vertex);
   }
