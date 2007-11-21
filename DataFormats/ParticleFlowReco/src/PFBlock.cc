@@ -26,7 +26,7 @@ void PFBlock::bookLinkData() {
 
   // initialize linkData_ to -1 (no link)
   vector<double> chi2Data;
-  chi2Data.insert( chi2Data.begin(), LINKTEST_ALL, -1 ); 
+  chi2Data.insert( chi2Data.begin(), LINKTEST_NLINKTEST, -1 ); 
   linkData_.insert( linkData_.begin(), dataSize, chi2Data );
 }
 
@@ -104,8 +104,6 @@ void PFBlock::associatedElements( unsigned i,
     if( test !=  LINKTEST_CHI2 && 
 	test !=  LINKTEST_ALL ) {
       c2 = chi2(i, ie,  linkData, test );
-//       cout << "Test chosen " //modif-debug
-//  	   << test << " chi2=" << c2 << endl; 
     }
      
     if( test == LINKTEST_ALL ){
@@ -117,13 +115,9 @@ void PFBlock::associatedElements( unsigned i,
       //14/11/2007: maybe the test that gives the minimum chi2 should 
       //be taken? to be studied when more tests are available.
       
-//       cout << "Working with element " << i << " "  //modif-debug
-// 	   << LINKTEST_ALL << endl; 
-      for( unsigned linktest = 0; linktest < LINKTEST_ALL; 
+      for( unsigned linktest = 0; linktest < LINKTEST_NLINKTEST; 
 	   ++linktest ){
 	c2 = chi2(i, ie,  linkData, LinkTest(linktest) );
-//  	cout << ie << " linktest " << LinkTest(linktest)  //modif-debug
-//  	     << " " << c2 << endl; 
 	//found a link
 	if( c2>0 ) break;
       }//loop tests
