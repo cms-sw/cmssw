@@ -292,7 +292,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
  ///// Find the +/- pairs
   std::map<std::vector<reco::TransientTrack>, reco::SuperCluster> allPairs;
   allPairs = theTrackPairFinder_->run(t_outInTrkBarrel, outInTrkBarrelHandle, outInTrkSCBarrelAssocHandle, t_inOutTrkBarrel, inOutTrkBarrelHandle, inOutTrkSCBarrelAssocHandle  );
-  std::cout  << "ConvertedPhotonProducer Barrel  allPairs.size " << allPairs.size() << "\n";      
+  LogDebug("ConvertedPhotonProducer")  << "ConvertedPhotonProducer Barrel  allPairs.size " << allPairs.size() << "\n";      
  
 
   
