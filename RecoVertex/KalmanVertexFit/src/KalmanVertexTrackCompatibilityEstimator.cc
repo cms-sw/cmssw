@@ -85,9 +85,11 @@ KalmanVertexTrackCompatibilityEstimator::estimateFittedTrack
   //remove track from the vertex using the vertex updator
   // Using the update instead of the remove methode, we can specify a weight which
   // is different than then one which the vertex track has been defined with.
-  CachingVertex rVert = updator.remove(v, track);
+  //CachingVertex rVert = updator.remove(v, track);
   RefCountedVertexTrack newSmoothedTrack = trackUpdator.update(v, track);
-  return estimateDifference(v,rVert,newSmoothedTrack);
+//   cout << newSmoothedTrack->smoothedChi2()<<" "<<estimateDifference(v,rVert,newSmoothedTrack)<<endl;
+//   return estimateDifference(v,rVert,newSmoothedTrack);
+  return newSmoothedTrack->smoothedChi2();
 }
 
 // method calculating track<-->vertex compatibility
