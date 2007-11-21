@@ -14,8 +14,6 @@
 <use name=boost>
 <use name=geant4>
 <use name=root>
-<use name=clhep>
-
 
 <export>
  <lib name=SimG4CMSFP420>

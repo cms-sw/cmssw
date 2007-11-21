@@ -29,7 +29,6 @@
 #include "G4Track.hh"
 #include "G4VPhysicalVolume.hh"
 
-//#include <CLHEP/Vector/ThreeVector.h>
 //#include <iostream>
 //#include <fstream>
 //#include <vector>
