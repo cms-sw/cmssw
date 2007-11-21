@@ -27,7 +27,6 @@
 #include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/PFCombinedTauTagInfo.h"
-#include "DataFormats/BTauReco/interface/CombinedSVTagInfo.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
@@ -60,13 +59,6 @@ namespace {
     reco::SecondaryVertexTagInfoRefProd                                 sv_rp;
     reco::SecondaryVertexTagInfoRefVector                               sv_rv;
     edm::Wrapper<reco::SecondaryVertexTagInfoCollection>                sv_wc;
-
-    reco::CombinedSVTagInfo                                             csv;
-    reco::CombinedSVTagInfoCollection                                   csv_c;
-    reco::CombinedSVTagInfoRef                                          csv_r;
-    reco::CombinedSVTagInfoRefProd                                      csv_rp;
-    reco::CombinedSVTagInfoRefVector                                    csv_rv;
-    edm::Wrapper<reco::CombinedSVTagInfoCollection>                     csv_wc;
 
     reco::CombinedTauTagInfo                                            ct;
     reco::CombinedTauTagInfoCollection                                  ct_c;
@@ -226,8 +218,6 @@ namespace {
     edm::reftobase::RefHolder<reco::TrackIPTagInfoRef>                          rbh_tcip;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::SecondaryVertexTagInfoRef>  rb_sv;
     edm::reftobase::RefHolder<reco::SecondaryVertexTagInfoRef>                  rbh_sv;
-    edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedSVTagInfoRef>       rb_csv;
-    edm::reftobase::RefHolder<reco::CombinedSVTagInfoRef>                       rbh_csv;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef>      rb_ct;
     edm::reftobase::RefHolder<reco::CombinedTauTagInfoRef>                      rbh_ct;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::PFCombinedTauTagInfoRef>    rb_pfct;

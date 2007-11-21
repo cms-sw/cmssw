@@ -33,13 +33,6 @@
   <class name="reco::SecondaryVertexTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::SecondaryVertexTagInfoCollection>"/>
 
-  <class name="reco::CombinedSVTagInfo"/>
-  <class name="reco::CombinedSVTagInfoCollection"/>
-  <class name="reco::CombinedSVTagInfoRef"/>
-  <class name="reco::CombinedSVTagInfoRefProd"/>
-  <class name="reco::CombinedSVTagInfoRefVector"/>
-  <class name="edm::Wrapper<reco::CombinedSVTagInfoCollection>"/>
-
   <class name="reco::CombinedTauTagInfo"/>
   <class name="reco::CombinedTauTagInfoCollection"/>
   <class name="reco::CombinedTauTagInfoRef"/>
@@ -180,8 +173,6 @@
   <class name="edm::reftobase::RefHolder<reco::TrackIPTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::SecondaryVertexTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::SecondaryVertexTagInfoRef>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedSVTagInfoRef>" />
-  <class name="edm::reftobase::RefHolder<reco::CombinedSVTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::CombinedTauTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::PFCombinedTauTagInfoRef>" />
