@@ -5,6 +5,11 @@
 #include "SimTransport/HectorProducer/interface/HectorGenParticle.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/PhysicalConstants.h"
+#include "HepMC/SimpleVector.h"
+
+
 
 #include <math.h>
 
@@ -51,7 +56,7 @@ Hector::Hector(const edm::ParameterSet & param) :
   m_rpp220_b     = (float) hector_par.getParameter<double>("RP220b");
   m_sig_e        = hector_par.getParameter<double>("SigmaE");
   beam1filename  = hector_par.getParameter<string>("Beam1");
-  beam2filename  = hector_par.getParameter<string>("Beam2");
+  beam2filename  = hector_par.getParameter<string>("Beam2");  
   
 
   edm::LogInfo ("Hector") << "Hector parameters: \n" 
@@ -66,8 +71,10 @@ Hector::Hector(const edm::ParameterSet & param) :
 			  << "   RP220b:    " << m_rpp220_b << "\n"
 			  << "   SigmaE:    " << m_sig_e << "\n";
 
-  edm::FileInPath b1(beam1filename.c_str());
-  edm::FileInPath b2(beam2filename.c_str());
+  //edm::FileInPath b1("SimTransport/HectorData/twiss_ip5_b1_v6.5.txt");
+  //edm::FileInPath b2("SimTransport/HectorData/twiss_ip5_b2_v6.5.txt");
+edm::FileInPath b1(beam1filename.c_str());
+edm::FileInPath b2(beam2filename.c_str());
 
   m_beamline1 = new H_BeamLine(  1, length + 0.1 ); // (direction, length)
   m_beamline2 = new H_BeamLine( -1, length + 0.1 ); //
@@ -83,8 +90,8 @@ Hector::Hector(const edm::ParameterSet & param) :
   }
 
   
-  m_rp420_f = new H_RecRPObject( m_rpp420_f, m_rpp420_f + 8., *m_beamline1 );
-  m_rp420_b = new H_RecRPObject( m_rpp420_b, m_rpp420_b + 8., *m_beamline2 );
+  //  m_rp420_f = new H_RecRPObject( m_rpp420_f, m_rpp420_f + 8., *m_beamline1 );
+  //  m_rp420_b = new H_RecRPObject( m_rpp420_b, m_rpp420_b + 8., *m_beamline2 );
   
   /*
   m_rp220_f = new H_RecRPObject( m_rpp220_f, m_rpp220_f + 8., *m_beamline1 );
@@ -143,17 +150,20 @@ void Hector::clear(){
   m_beamPart.clear();
   m_direct.clear();
   m_isStopped.clear();
+  /*
   m_gen_x.clear();
   m_gen_y.clear();
   m_gen_tx.clear();
   m_gen_ty.clear();
   m_gen_e.clear();
+*/
+  /*
   m_tx0.clear();
   m_ty0.clear();
   m_x0.clear();
   m_y0.clear();
   m_sim_e.clear();
-
+*/
   m_shiftX = 0;
   m_shiftY = 0;
   m_shiftZ = 0;
@@ -187,6 +197,7 @@ unsigned int Hector::add( const HepMC::GenParticle * eventParticle ) {
 
       //      pt = sqrt( (px*px) + (py*py) );
       pt = part->pt();
+      /// Clears H_BeamParticle::positions and sets the initial one
       h_p->setPosition( m_IPx + part->x(), m_IPy + part->y(), std::atan2( px, pt ), std::atan2( py, pt ), m_IPz + part->z() );
 
       m_beamPart[line] = h_p;
@@ -232,6 +243,7 @@ void Hector::add( const HepMC::GenEvent * evt ) {
 
 	//	pt = sqrt( (px*px) + (py*py) );
 	  pt = part->pt();
+	  /// Clears H_BeamParticle::positions and sets the initial one
 	  h_p->setPosition( m_IPx + part->x(), m_IPy + part->y(), std::atan2( px, pt ), std::atan2( py, pt ), m_IPz + part->z() );
 
 	  m_beamPart[line] = h_p;
@@ -260,8 +272,8 @@ void Hector::reconstruct(){
 
   float x1_420;
   float y1_420;
-  float x2_420;
-  float y2_420;
+  //  float x2_420;
+  //  float y2_420;
 
   if ( m_beamPart.size() ) {
     it = m_beamPart.begin();
@@ -285,6 +297,8 @@ void Hector::reconstruct(){
 	part->smearS();
 	m_shiftZ = part_z - part->getS();
       }
+
+      /// Clears H_BeamParticle::positions and sets the initial one
 
       part->setPosition( part_x, part_y, tx, ty, part_z );
     }
@@ -311,17 +325,18 @@ void Hector::reconstruct(){
 	if (m_smearS) {
 	  part_z = part_z + m_shiftZ;
 	}
+	/// Clears H_BeamParticle::positions and sets the initial one
 	part->setPosition( part_x, part_y, tx, ty, part_z );
       }
-      m_gen_x[line] = part->getX();
-      m_gen_y[line] = part->getY();
+      //m_gen_x[line] = part->getX();
+      //m_gen_y[line] = part->getY();
 
       if (m_smearAng) {   
 	part->smearAng();
       }
 
-      m_gen_tx[line] = part->getTX();
-      m_gen_ty[line] = part->getTY();
+      //_gen_tx[line] = part->getTX();
+      //_gen_ty[line] = part->getTY();
 
       if (m_smearE) {
 	if ( m_sig_e ) {
@@ -331,7 +346,7 @@ void Hector::reconstruct(){
 	  part->smearE(); 
 	}
       }
-      m_gen_e[line] = part->getE();
+      //   m_gen_e[line] = part->getE();
 
       //propagating
       direction = (*(m_direct.find( line ))).second;
@@ -350,19 +365,28 @@ void Hector::reconstruct(){
 	  m_TyAtRP420[line] = part->getTY();
 	  m_eAtRP420[line]  = part->getE();
 
-	  part->propagate( m_rpp420_f + 8.);
+/*	  part->propagate( m_rpp420_f + 8.);
 	  x2_420 = part->getX();
 	  y2_420 = part->getY();
 
-	  if ( m_rp420_f ) {
+	    	  if ( m_rp420_f ) {
+		    //	std::cout << "  Hector: input coord. in um   " << std::endl;
+		    //	std::cout << "   x1_420:    " << x1_420 << "   y1_420:    " << y1_420 << std::endl;
+		    //	std::cout << "   x2_420:    " << x2_420 << "   y2_420:    " << y2_420 << std::endl;
+		    
 	    m_rp420_f->setPositions( x1_420, y1_420, x2_420 ,y2_420 );
 	    m_sim_e[line] = m_rp420_f->getE( AM );
-
 	    m_tx0[line] = m_rp420_f->getTXIP();
 	    m_ty0[line] = m_rp420_f->getTYIP();
 	    m_x0[line] = m_rp420_f->getX0();
 	    m_y0[line] = m_rp420_f->getY0();
-	  }
+	    //  std::cout << "  Hector:     " << std::endl;
+	    // std::cout << "   m_e:    " << m_sim_e[line] << std::endl;
+	    // std::cout << "   m_x0:    " << m_x0[line] << std::endl;
+	    // std::cout << "   m_y0:    " << m_y0[line] << std::endl;
+	    // std::cout << "   m_tx0:    " << m_tx0[line]  << std::endl;
+	    // std::cout << "   m_ty0:    " << m_ty0[line]  << std::endl;
+	  }*/
 	}
       }
       else {
@@ -379,20 +403,19 @@ void Hector::reconstruct(){
 	  m_TxAtRP420[line] = part->getTX();
 	  m_TyAtRP420[line] = part->getTY();
 	  m_eAtRP420[line]  = part->getE();
-
+/*
 	  part->propagate( m_rpp420_b + 8.);
 	  x2_420 = part->getX();
 	  y2_420 = part->getY();
 
-	  if ( m_rp420_b ) {
+	  	  if ( m_rp420_b ) {
 	    m_rp420_b->setPositions( x1_420, y1_420, x2_420 ,y2_420 );
 	    m_sim_e[line] = m_rp420_b->getE( AM );
-
 	    m_tx0[line] = m_rp420_b->getTXIP();
 	    m_ty0[line] = m_rp420_b->getTYIP();
 	    m_x0[line] = m_rp420_b->getX0();
 	    m_y0[line] = m_rp420_b->getY0();
-	  }
+	  } */
 	}
       }
     } // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ ) 
@@ -400,6 +423,7 @@ void Hector::reconstruct(){
 
 }
 
+/*
 double Hector::getX ( double z_position, unsigned int part_n ) const {
   std::map<unsigned int, H_BeamParticle*>::const_iterator it = m_beamPart.find( part_n );
   if ( it != m_beamPart.end() ) {
@@ -427,7 +451,6 @@ bool Hector::isStopped( unsigned int part_n ) const {
   }
   return true;
 }
-
 float Hector::getSimIPX( unsigned int part_n ) const {
   std::map<unsigned int, float>::const_iterator it = m_x0.find( part_n );
   if ( it != m_x0.end() ){
@@ -507,7 +530,7 @@ float Hector::getGenIPE( unsigned int part_n ) const {
   }
   return -100000000.;
 }
-
+*/
 int  Hector::getDirect( unsigned int part_n ) const {
   std::map<unsigned int, int>::const_iterator it = m_direct.find( part_n );
   if ( it != m_direct.end() ){
@@ -549,6 +572,15 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
 	tx     = (*m_TxAtRP420.find(line)).second / 1000000.;
 	ty     = (*m_TyAtRP420.find(line)).second / 1000000.;
 	theta  = sqrt((tx*tx) + (ty*ty));
+	double ddd = 0.;
+	if( (*(m_direct.find( line ))).second >0 ) {
+	  ddd = m_rpp420_f;
+	}
+	else if((*(m_direct.find( line ))).second <0 ) {
+	  ddd = m_rpp420_b;
+	  theta= pi-theta;
+	}
+
 	fi     = std::atan2(tx,ty); // tx, ty never == 0?
 	energy = (*(m_eAtRP420.find(line))).second;
 
@@ -566,24 +598,30 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
 	//	HepMC::GenVertex * vert = new HepMC::GenVertex( HepMC::FourVector( (*(m_xAtRP420.find(line))).second,
 	//									   (*(m_yAtRP420.find(line))).second,
 	//									   420* (*(m_direct.find( line ))).second ) );
-
-	HepMC::GenVertex * vert = new HepMC::GenVertex( CLHEP::HepLorentzVector( (*(m_xAtRP420.find(line))).second*0.001,
-										 (*(m_yAtRP420.find(line))).second*0.001,
-										 m_rpp420_f * (*(m_direct.find( line ))).second*1000.,
-										 time + .1*time ) );
-	evt->add_vertex( vert );
-	vert->add_particle_in( gpart );
-	gpart->set_status( 2 );
-	vert->add_particle_out( new HepMC::GenParticle( CLHEP::HepLorentzVector(energy*std::sin(theta)*std::sin(fi), 
-										energy*std::sin(theta)*std::cos(fi), 
-										energy*std::cos(theta),
-										energy ),
-							gpart->pdg_id(), 1, gpart->flow() ) );
+	/*
+	if(abs(energy)>6000){
+	  std::cout << " energy= " <<energy  << " theta= " << theta << " fi= " << fi << std::endl;
+	  std::cout << " dir= " <<(*(m_direct.find( line ))).second  << " m_rpp420_f= " << m_rpp420_f << " cos(theta)= " << cos(theta) << std::endl;
+	} 
+*/
+	if(ddd != 0.) {
+	  HepMC::GenVertex * vert = new HepMC::GenVertex( HepMC::FourVector( (*(m_xAtRP420.find(line))).second*0.001,
+										   (*(m_yAtRP420.find(line))).second*0.001,
+										   ddd * (*(m_direct.find( line ))).second*1000.,
+										   time + .1*time ) );
+	  evt->add_vertex( vert );
+	  vert->add_particle_in( gpart );
+	  gpart->set_status( 2 );
+	  vert->add_particle_out( new HepMC::GenParticle( HepMC::FourVector(energy*std::sin(theta)*std::sin(fi), 
+										  energy*std::sin(theta)*std::cos(fi), 
+										  energy*std::cos(theta),
+										  energy ),
+							  gpart->pdg_id(), 1, gpart->flow() ) );
+	}// ddd
       }
     }
   }
-
-
+  
   // Just chesk
   /*
   for (HepMC::GenEvent::vertex_iterator  vitr = evt->vertices_begin(); vitr != evt->vertices_end(); vitr++) {
