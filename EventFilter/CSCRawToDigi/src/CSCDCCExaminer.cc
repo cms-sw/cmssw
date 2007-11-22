@@ -162,6 +162,7 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(27),nWARNINGS(5),sERROR(nERRORS),sW
   checkCrcCFEB = false; CFEB_CRC=0;
 
   modeDDUonly = false;
+  sourceID    = 0xFFF;
 
   //headerDAV_Active = -1; // Trailer vs. Header check // Obsolete since 16.09.05
 
@@ -220,6 +221,10 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     // increment counter of 16-bit words since last of DMB Header, ALCT Trailer, TMB Trailer,
     // CFEB Sample Trailer, CFEB B-word; this counter is reset by all these conditions
     if ( fDMB_Header ) { CFEB_SampleWordCount = CFEB_SampleWordCount + 4; }
+
+    // If DDU header is missing we set unphysical 0xFFF value for DDU id 
+    if( !fDDU_Header ){ sourceID=0xFFF; }
+
 
     if (!modeDDUonly) {
       // DCC Header 1 && DCC Header 2
@@ -341,6 +346,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	cerr<<"  WARNING 0 "<<sWARNING[0]<<" "<<DDU_WordsSinceLastTrailer<<" extra 64-bit words"<<endl;
       }
 
+      sourceID      = ((buf_1[1]&0xF)<<8) | ((buf_1[0]&0xFF00)>>8);
       fDDU_Header   = true;
       fDDU_Trailer  = false;
       DDU_WordCount = 0;

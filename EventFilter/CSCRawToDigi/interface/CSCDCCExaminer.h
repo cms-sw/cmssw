@@ -106,7 +106,8 @@ private:
 	bool checkCrcCFEB;
 	unsigned long CFEB_CRC;
 
-        bool modeDDUonly;
+        bool  modeDDUonly;
+	short sourceID;
 
 	//int headerDAV_Active; // Obsolete since 16.09.05
 
@@ -149,6 +150,8 @@ public:
 	void crcCFEB(bool enable);
 
         void modeDDU(bool enable);
+
+	short dduSourceID(void){ return sourceID; }
 
 	CSCDCCExaminer(void);
 	~CSCDCCExaminer(void){}
