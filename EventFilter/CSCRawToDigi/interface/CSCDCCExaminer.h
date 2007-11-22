@@ -20,6 +20,8 @@ private:
 	std::set<int>      fCHAMB_WRN[5];  // Set of chambers which contain particular warning
 	std::map<int,long> bCHAMB_ERR;     // chamber <=> errors in bits
 	std::map<int,long> bCHAMB_WRN;     // chamber <=> errors in bits
+	std::map<int,long> bDDU_ERR;       // ddu     <-> errors in bits
+	std::map<int,long> bDDU_WRN;       // ddu     <-> errors in bits
 
 	class OStream : public std::ostream {
 	private:
@@ -140,6 +142,21 @@ public:
 	long warningsForChamber(int chamber) const {
 		std::map<int,long>::const_iterator item = bCHAMB_WRN.find(chamber);
 		if( item != bCHAMB_WRN.end() ) return item->second; else return 0;
+	}
+
+	long errorsForDDU(int dduSourceID) const {
+		std::map<int,long>::const_iterator item = bDDU_ERR.find(dduSourceID);
+		if( item != bDDU_ERR.end() ) return item->second; else return 0;
+	}
+	long warningsForDDU(int dduSourceID) const {
+		std::map<int,long>::const_iterator item = bDDU_WRN.find(dduSourceID);
+		if( item != bDDU_WRN.end() ) return item->second; else return 0;
+	}
+	std::vector<int> listOfDDUs(void) const {
+		std::vector<int> DDUs;
+		std::map<int,long>::const_iterator item = bDDU_ERR.begin();
+		while( item != bDDU_ERR.end() ){ DDUs.push_back(item->first); item++; }
+		return DDUs;
 	}
 
 	std::map<int,long> errorsDetailed  (void) const { return bCHAMB_ERR; }

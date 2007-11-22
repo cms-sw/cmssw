@@ -177,6 +177,9 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(27),nWARNINGS(5),sERROR(nERRORS),sW
   for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
   for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
 
+  bDDU_ERR.clear();
+  bDDU_WRN.clear();
+
   buf_1 = &(tmpbuf[0]);
   buf0  = &(tmpbuf[4]);
   buf1  = &(tmpbuf[8]);
@@ -259,6 +262,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
     bCHAMB_ERR.clear();
     bCHAMB_WRN.clear();
+    bDDU_ERR.clear();
+    bDDU_WRN.clear();
 	  }
 	}
     // == Check for Format Control Words, set proper flags, perform self-consistency checks
@@ -318,6 +323,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	    bCHAMB_ERR[-2] |= 0x1;
 	  }
 
+        bDDU_ERR[sourceID] |= bERROR;
+        bDDU_WRN[sourceID] |= bWARNING;
+
 	// go backward for 3 DDU words ( buf2, buf1, and buf0 )
 	buffer-=12;
 	buf_1 = &(tmpbuf[0]);  // Just for safety
@@ -370,6 +378,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       CFEB_BSampleCount         = 0;
 
       DAV_DMB = buf1[0]&0xF;
+
+      bDDU_ERR[sourceID] = 0;
+      bDDU_WRN[sourceID] = 0;
 
       ++cntDDU_Headers;
       DDU_WordsSinceLastHeader=0; // Reset counter of DDU Words since last DDU Header
@@ -1064,6 +1075,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	  cout<<"  WARNING "<<wrn<<"  "<<sWARNING[wrn]<<endl;
 	}
       }
+
+      bDDU_ERR[sourceID] |= bERROR;
+      bDDU_WRN[sourceID] |= bWARNING;
 
       DDU_WordsSinceLastHeader=0;
       DDU_WordsSinceLastTrailer=0;
