@@ -133,7 +133,8 @@ void popcon::StateCreator::generateStatusData()
     std::cerr<< "State creator: " << " generate status data\n";	
   if (m_sqlite)
     return;
-  cond::CoralTransaction& status_db=conHandler.getConnection(m_offline)->coralTransaction(true);
+  std::cout<<"StateCreator::generateStatusData"<<std::endl;
+  cond::CoralTransaction& status_db=conHandler.getConnection(m_connect)->coralTransaction(true);
   try{
     if (nfo.top_level_table == "") getPoolTableName();
     status_db.start();    
@@ -169,12 +170,12 @@ void popcon::StateCreator::getPoolTableName()
 {
   if (m_debug)
     std::cerr<< "State creator: " << " get pool data\n";	
-  cond::CoralTransaction& status_db=conHandler.getConnection(m_offline)->coralTransaction(true);
+  cond::CoralTransaction& offline_db=conHandler.getConnection(m_offline)->coralTransaction(true);
   try{
-    status_db.start();
+    offline_db.start();
     coral::AttributeList rowBuffer;
     rowBuffer.extend<std::string>( "TLT" );
-    coral::ISchema& schema = status_db.coralSessionProxy().nominalSchema();
+    coral::ISchema& schema = offline_db.coralSessionProxy().nominalSchema();
     //std::auto_ptr< coral::IQuery > query(schema.newQuery()); 
     coral::IQuery* query(schema.newQuery()); 
     query->addToOutputList( "P.TABLE_NAME","TLT");
@@ -192,11 +193,11 @@ void popcon::StateCreator::getPoolTableName()
       if (m_debug)
 	std::cerr << "Top level table is " << nfo.top_level_table << std::endl;
     }
-    status_db.commit();
+    offline_db.commit();
     //status_db.disconnect();
     //delete query;
   }catch(coral::Exception& er){
-    status_db.rollback();
+    offline_db.rollback();
     //std::cerr << "StateCreator::getPoolTableName Coral exception: " << er.what();
     throw popcon::Exception("caught Coral exception in StateCreator::getPoolTableName : "+(std::string)er.what());
   }
@@ -244,6 +245,7 @@ void popcon::StateCreator::getStoredStatusData()
     return;
   cond::CoralTransaction& coraldb=conHandler.getConnection(m_connect)->coralTransaction(true);
   try{
+    coraldb.start();
     coral::ISchema& schema = coraldb.coralSessionProxy().nominalSchema();
     coral::AttributeList rowBuffer;
     rowBuffer.extend<std::string>( "N" );

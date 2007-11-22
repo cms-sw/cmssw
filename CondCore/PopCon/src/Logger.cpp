@@ -1,5 +1,5 @@
 #include "CondCore/PopCon/interface/Logger.h"
-
+#include <memory>
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
@@ -70,7 +70,6 @@ void  popcon::Logger::initialize()
     m_established = true;
     //FIXME - subquery instead
     payloadIDMap();
-    
   }catch(cond::Exception& er){
     std::cerr<< "Logger::initialize cond " << er.what()<<std::endl;
   }catch(std::exception& er){
@@ -88,15 +87,16 @@ void popcon::Logger::disconnect()
 	  return;
 	}
 	if (m_debug) std::cerr << "Disconnected\n";
-	m_coraldb->commit();
+	//m_coraldb->commit();
 }
 
 void popcon::Logger::payloadIDMap()
 {
   if (m_debug)
     std::cerr << "PayloadIDMap\n";
+  cond::CoralTransaction& statdb=conHandler.getConnection(m_connect)->coralTransaction(true);
   try{
-    cond::CoralTransaction& statdb=conHandler.getConnection(m_connect)->coralTransaction(true);
+    statdb.start();
     coral::ITable& mytable=statdb.coralSessionProxy().nominalSchema().tableHandle("P_CON_PAYLOAD_STATE");
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
     query->addToOutputList("NAME");
@@ -110,7 +110,9 @@ void popcon::Logger::payloadIDMap()
     cursor.close();
     statdb.commit();
   }catch(std::exception& er){
+    statdb.rollback();
     std::cerr << er.what();
+    throw cms::Exception(er.what());
   }
 }
 
@@ -121,6 +123,7 @@ void popcon::Logger::lock()
   if (!m_established)
     throw popcon::Exception("Logger::lock exception ");
   try{
+    m_coraldb->start();
     coral::ITable& mytable=m_coraldb->coralSessionProxy().nominalSchema().tableHandle("P_CON_LOCK");
     coral::AttributeList inputData;
     coral::ITableDataEditor& dataEditor = mytable.dataEditor();
@@ -152,6 +155,7 @@ void popcon::Logger::updateExecID()
 {
   try{
     cond::CoralTransaction& statdb=conHandler.getConnection(m_connect)->coralTransaction(true);
+    statdb.start();
     coral::ITable& mytable=statdb.coralSessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION");
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
     query->addToOutputList("max(EXEC_ID)");
@@ -174,6 +178,7 @@ void popcon::Logger::updatePayloadID()
     std::cerr << "Logger::updatePayloadID\n";
   try{
     cond::CoralTransaction& statdb=conHandler.getConnection(m_connect)->coralTransaction(true);
+    statdb.start();
     coral::ITable& mytable=statdb.coralSessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION_PAYLOAD");
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
     query->addToOutputList("max(PL_ID)");
@@ -196,6 +201,7 @@ void popcon::Logger::newExecution()
   if (!m_established)
     throw popcon::Exception("Logger::newExecution log exception ");
   try{
+    //m_coraldb->start();
     coral::ITable& mytable=m_coraldb->coralSessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION");
     coral::AttributeList rowBuffer;
     coral::ITableDataEditor& dataEditor = mytable.dataEditor();
@@ -204,12 +210,10 @@ void popcon::Logger::newExecution()
     rowBuffer["EXEC_ID"].data<int>()= -1;
     rowBuffer["EXEC_START"].data<coral::TimeStamp>() = coral::TimeStamp::now();
     dataEditor.insertRow( rowBuffer );
-  }catch(coral::Exception& er)
-    {
-      std::cerr << " Probably there's no entry related to " << m_obj_name << " " << er.what() << std::endl;
-      throw popcon::Exception("Logger::newExecution log exception ");
-    }
-  catch(std::exception& er){
+  }catch(coral::Exception& er){
+    std::cerr << " Probably there's no entry related to " << m_obj_name << " " << er.what() << std::endl;
+    throw popcon::Exception("Logger::newExecution log exception ");
+  }catch(std::exception& er){
     std::cerr << er.what();
     throw popcon::Exception("Logger::newExecution log exception ");
   }
@@ -220,6 +224,7 @@ void popcon::Logger::newPayload()
     return;
   if (m_debug)
     std::cerr << "Logger::newPayload\n";
+  //m_coraldb->start();
   coral::ITable& mytable=m_coraldb->coralSessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION_PAYLOAD");
   coral::AttributeList rowBuffer;
   coral::ITableDataEditor& dataEditor = mytable.dataEditor();
@@ -228,6 +233,7 @@ void popcon::Logger::newPayload()
   rowBuffer["PL_ID"].data<int>()= -1; 
   rowBuffer["EXEC_ID"].data<int>()= -1;
   dataEditor.insertRow( rowBuffer );
+  //m_coraldb->commit();
 }
 
 void popcon::Logger::finalizeExecution(std::string ok)
@@ -255,8 +261,7 @@ void popcon::Logger::finalizeExecution(std::string ok)
     std::string setClause("EXEC_END = :newEnd ,status = :newStatus" );
     std::string condition("EXEC_ID = :last_id" );
     dataEditor.updateRows( setClause, condition, inputData );
-  }
-  catch(std::exception& er){
+  }catch(std::exception& er){
     std::cerr << er.what();
   }
 }

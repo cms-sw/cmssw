@@ -118,8 +118,6 @@ void  popcon::OfflineDBInterface::getAllTagsInfo()
     std::cerr<< "Problem accessing the DB, Offline information not available" <<std::endl;
   }catch(std::exception& er){
     std::cerr<< "Offline information not available" <<std::endl;
-  }catch(...){
-    std::cout<<"Unknown error"<<std::endl;
-  } 
+  }
 }
 

@@ -5,7 +5,7 @@
 //         Created:  Tue Jul  3 10:48:22 CEST 2007
 
 // system include files
-#include <memory>
+//#include <memory>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+//#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondCore/PopCon/interface/StateCreator.h"
@@ -26,52 +26,46 @@
 // class decleration
 //
 
-namespace popcon
-{
+namespace popcon{
   template <typename T>
     class PopConAnalyzer : public edm::EDAnalyzer {
     public:
     
     //One needs to inherit this class and implement the constructor to 
     // instantiate handler object
-    explicit PopConAnalyzer(const edm::ParameterSet& pset, 
-			    const std::string& objetct_name):tryToValidate(false),corrupted(true), greenLight (false), fixed(true), m_payload_name(objetct_name) {
+    PopConAnalyzer(const edm::ParameterSet& pset, 
+		   const std::string& objetct_name):tryToValidate(false),corrupted(true), greenLight (false), fixed(true), m_payload_name(objetct_name) {
       //TODO set the policy (cfg or global configuration?)
       //Policy if corrupted data found
       m_debug = pset.getParameter< bool > ("debug");
+      //optional
       m_popcon_db = pset.getParameter<std::string> ("popConDBSchema");
       //MANDATORY 
       m_offline_connection = pset.getParameter<std::string> ("connect");
-      
-      //m_catalog = "pfncatalog_memory://POOL_RDBMS?";
-      //m_catalog.append(m_offline_connection);
-					
       sinceAppend = pset.getParameter<bool> ("SinceAppendMode");
       m_handler_object = 0;
     }
-    ~PopConAnalyzer()
-      {
-	//moved the code from endJob, as DBOutput service doesn't commit after the end of analyze !!!!!
-	if(m_debug)
-	  std::cerr << "Destructor begins\n";	
+    ~PopConAnalyzer(){
+      //moved the code from endJob, as DBOutput service doesn't commit after the end of analyze !!!!!
+      if(m_debug) std::cerr << "Destructor begins\n";	
 	
-	try{
-	  if (!fixed || corrupted){	
-	    if(m_debug)
-	      std::cerr << "Corrupted | unfixed state | problem with PopCon DB\n";
-	    lgr->finalizeExecution(logMsg);
-	  }else{ //ok 
-	    if(m_debug)
-	      std::cerr << "OK, finalizing the log\n";
-	    lgr->finalizeExecution(logMsg);
-	    stc->generateStatusData();
-	    stc->storeStatusData();
-	    if(m_debug)
-	      std::cerr << "Deleting stc\n";	
-	    delete stc;
-	  }	  
-	  lgr->unlock();
-	  
+      try{
+	if (!fixed || corrupted){	
+	  if(m_debug)
+	    std::cerr << "Corrupted | unfixed state | problem with PopCon DB\n";
+	  lgr->finalizeExecution(logMsg);
+	}else{ //ok 
+	  if(m_debug)
+	    std::cerr << "OK, finalizing the log\n";
+	  lgr->finalizeExecution(logMsg);
+	  stc->generateStatusData();
+	  stc->storeStatusData();
+	  if(m_debug)
+	    std::cerr << "Deleting stc\n";	
+	  delete stc;
+	}	  
+	lgr->unlock();
+	
 	}catch(std::exception& e){
 	  std::cerr << "Exception caught in destructor: "<< e.what();
 	}
@@ -107,9 +101,11 @@ namespace popcon
     std::string logMsg;
     
     virtual void beginJob(const edm::EventSetup& es){	
-      if(m_debug)
-	std::cerr << "Begin Job\n"; 
+      if(m_debug) std::cerr << "Begin Job\n"; 
       try{
+	std::cout<<"popcon_db "<<m_popcon_db<<std::endl;
+	std::cout<<"offline_connection "<<m_offline_connection<<std::endl;
+	std::cout<<"payload name "<<m_payload_name<<std::endl;
 	lgr = new Logger(m_popcon_db, m_offline_connection, m_payload_name,m_debug);
 	//lock the run (other instances of analyzer of the same typename will be blocked till the end of execution)
 	lgr->lock();
@@ -120,15 +116,15 @@ namespace popcon
 	
 	//checks the exceptions, validates new data if necessary
 	if (stc->previousExceptions(fixed)){
-	    std::cerr << "There's been a problem with a previous run" << std::endl;
-	    if (!fixed){	
-	      //TODO - set the flag
-	      logMsg="Running with unfixed state, EXITING";
-	      return;
-	    }else{
-	      std::cerr << "Handled exception, attempting to validate" << std::endl;
-	      //TODO - implement ?
-	    }
+	  std::cerr << "There's been a problem with a previous run" << std::endl;
+	  if (!fixed){	
+	    //TODO - set the flag
+	    logMsg="Running with unfixed state, EXITING";
+	    return;
+	  }else{
+	    std::cerr << "Handled exception, attempting to validate" << std::endl;
+	    //TODO - implement ?
+	  }
 	}
 	
 	if (stc->checkAndCompareState()){
@@ -139,18 +135,15 @@ namespace popcon
 	  //	safe to run;
 	}else{
 	  //	data is corrupted;
-	  if (tryToValidate)
-	    {
-	      std::cerr << "attempting to validate" << std::endl;
-	      corrupted = false;
-	    }
-	  else 
-	    {
-	      //Report an error 	
-	      std::cerr << "State Corruption, EXITING!!!\n";
-	      logMsg="State corruption";
-	      return;
-	    }
+	  if (tryToValidate){
+	    std::cerr << "attempting to validate" << std::endl;
+	    corrupted = false;
+	  }else {
+	    //Report an error 	
+	    std::cerr << "State Corruption, EXITING!!!\n";
+	    logMsg="State corruption";
+	    return;
+	  }
 	}
       }catch(popcon::Exception & er){
 	std::cerr << "Begin Job PopCon exception\n";
@@ -164,15 +157,13 @@ namespace popcon
 	std::cerr << "Begin Job std-based exception\n";
 	logMsg = "Begin Job exception";
       }
-      
     }
     
     //this method handles the transformation algorithm, 
     //Subdetector responsibility ends with returning the payload vector.
     //Therefore this code is stripped of DBOutput service, state management etc.	
     virtual void analyze(const edm::Event& evt, const edm::EventSetup& est){
-      if(m_debug)
-	std::cerr << "Analyze Begins\n"; 
+      if(m_debug) std::cerr << "Analyze Begins\n"; 
       try{
 	if(greenLight){
 	  //create source handling object, pass the eventsetup reference
