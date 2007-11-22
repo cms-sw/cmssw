@@ -1,4 +1,4 @@
-//#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 
