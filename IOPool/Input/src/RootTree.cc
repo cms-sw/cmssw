@@ -31,7 +31,6 @@ namespace edm {
     auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
-    origEntryNumber_(),
     branchNames_(),
     branches_(new BranchMap)
   { }
@@ -85,49 +84,5 @@ namespace edm {
   RootTree::makeDelayedReader() const {
     boost::shared_ptr<DelayedReader> store(new RootDelayedReader(entryNumber_, branches_, filePtr_));
     return store;
-  }
-
-  RootTree::EntryNumber
-  RootTree::getBestEntryNumber(unsigned int major, unsigned int minor) const {
-    EntryNumber index = getExactEntryNumber(major, minor);
-    if (index < 0) index = tree_->GetEntryNumberWithBestIndex(major, minor) + 1;
-    if (index >= entries_) index = -1;
-    return index;
-  }
-
-  RootTree::EntryNumber
-  RootTree::getExactEntryNumber(unsigned int major, unsigned int minor) const {
-    EntryNumber index = tree_->GetEntryNumberWithIndex(major, minor);
-    if (index < 0) index = -1;
-    return index;
-  }
-
-  bool
-  RootTree::isIndexValid() const {
-    // If the ROOT index on the tree is trashed, one of these tests will probably fail.
-    if (tree_ == 0 || tree_->GetEntryNumberWithBestIndex(0, 0) != -1) {
-      return false;
-    }
-    TTreeIndex *ip = dynamic_cast<TTreeIndex *>(tree_->GetTreeIndex());
-    if (ip == 0) {
-      return false;
-    }
-    Long64_t indexForEntryZero = ip->GetIndexValues()[0];
-    unsigned int major = static_cast<unsigned int>(indexForEntryZero >> 31);
-    unsigned int minor = static_cast<unsigned int>(indexForEntryZero & 0x7fffffff);
-    EntryNumber index = tree_->GetEntryNumberWithIndex(major, minor);
-    return (index == 0);
-  }
-
-  void
-  RootTree::checkAndFixIndex() {
-    if (!isIndexValid()) {
-      if (BranchTypeToMinorIndexName(branchType_).empty()) {
-        tree_->BuildIndex(BranchTypeToMajorIndexName(branchType_).c_str());
-      } else {
-        tree_->BuildIndex(BranchTypeToMajorIndexName(branchType_).c_str(),
-                         BranchTypeToMinorIndexName(branchType_).c_str());
-      }
-    }
   }
 }

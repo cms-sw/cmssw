@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.39 2007/11/03 06:53:02 wmtan Exp $
+$Id: RootFile.h,v 1.40 2007/11/04 02:45:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,6 +23,7 @@ $Id: RootFile.h,v 1.39 2007/11/03 06:53:02 wmtan Exp $
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/FileID.h"
+#include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 class TFile;
@@ -38,10 +39,19 @@ namespace edm {
     explicit RootFile(std::string const& fileName,
 		      std::string const& catalogName,
 		      ProcessConfiguration const& processConfiguration,
-		      std::string const& logicalFileName = std::string());
+		      std::string const& logicalFileName,
+		      RunNumber_t const& startAtRun,
+		      LuminosityBlockNumber_t const& startAtLumi,
+		      EventNumber_t const& startAtEvent,
+		      unsigned int eventsToSkip,
+		      int remainingEvents,
+		      int forcedRunOffset);
     ~RootFile();
     void open();
     void close(bool reallyClose);
+    void setAtEventEntry(FileIndex::EntryNumber_t entry);
+    std::auto_ptr<EventPrincipal> readAnEvent(
+	boost::shared_ptr<ProductRegistry const> pReg);
     std::auto_ptr<EventPrincipal> readEvent(
 	boost::shared_ptr<ProductRegistry const> pReg,
 	boost::shared_ptr<LuminosityBlockPrincipal> lbp);
@@ -55,20 +65,36 @@ namespace edm {
     RunAuxiliary const& runAux() const {return runAux_;}
     EventID const& eventID() const {return eventAux().id();}
     RootTreePtrArray & treePointers() {return treePointers_;}
-    RootTree & eventTree() {return eventTree_;}
     RootTree const& eventTree() const {return eventTree_;}
-    RootTree & lumiTree() {return lumiTree_;}
     RootTree const& lumiTree() const {return lumiTree_;}
-    RootTree & runTree() {return runTree_;}
     RootTree const & runTree() const {return runTree_;}
-    void forceRunNumber(RunNumber_t const& run) {forcedRunNumber_ = run;}
     FileFormatVersion fileFormatVersion() const {return fileFormatVersion_;}
-    bool fastClonable() const {return fileFormatVersion().value_ >= 3;}
-    boost::shared_ptr<FileBlock> createFileBlock(bool isFastClonable) const;
+    bool fastClonable() const {return fastClonable_;}
+    boost::shared_ptr<FileBlock> createFileBlock() const;
+    FileIndex const& fileIndex() const {return fileIndex_;}
+    void setCurrentPosition(RunNumber_t const& run,
+			    LuminosityBlockNumber_t const& lumi,
+			    EventNumber_t const& event) {
+      fileIndexIter_ = fileIndex_.findPosition(run, lumi, event);
+    }
+    void rewind() {
+      fileIndexIter_ = fileIndexBegin_;
+    }
+    void setToLastEntry() {
+      fileIndexIter_ = fileIndexEnd_;
+    }
+
+    unsigned int eventsToSkip() const {return eventsToSkip_;}
+    int skipEvents(int offset);
+    int setForcedRunOffset(RunNumber_t const& forcedRunNumber);
 
   private:
+    bool setIfFastClonable(int remainingEvents) const;
     void validateFile();
+    void fillFileIndex();
     void fillEventAuxiliary();
+    void fillLumiAuxiliary();
+    void fillRunAuxiliary();
     void overrideRunNumber(RunID & id);
     void overrideRunNumber(LuminosityBlockID & id);
     void overrideRunNumber(EventID & id, bool isRealData);
@@ -82,6 +108,15 @@ namespace edm {
     boost::shared_ptr<TFile> filePtr_;
     FileFormatVersion fileFormatVersion_;
     FileID fid_;
+    FileIndex fileIndex_;
+    FileIndex::const_iterator fileIndexBegin_;
+    FileIndex::const_iterator fileIndexEnd_;
+    FileIndex::const_iterator fileIndexIter_;
+    RunNumber_t startAtRun_;
+    LuminosityBlockNumber_t startAtLumi_;
+    EventNumber_t startAtEvent_;
+    unsigned int eventsToSkip_;
+    bool fastClonable_; 
     JobReport::Token reportToken_;
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;
@@ -91,8 +126,7 @@ namespace edm {
     RootTree runTree_;
     RootTreePtrArray treePointers_;
     boost::shared_ptr<ProductRegistry const> productRegistry_;
-    RunNumber_t forcedRunNumber_;
-    int forcedRunNumberOffset_;
+    int forcedRunOffset_;
     std::map<std::string, std::string> newBranchToOldBranch_;
     std::vector<std::string> sortedNewBranchNames_;
     std::vector<std::string> oldBranchNames_;

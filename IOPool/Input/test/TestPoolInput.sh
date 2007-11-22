@@ -37,7 +37,7 @@ process TESTRECO = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
 	module Analysis = OtherThingAnalyzer {untracked int32 debugLevel = 1}
 	source = PoolSource {
-		untracked uint32 setRunNumber = 121
+		untracked uint32 setRunNumber = 621
 		untracked vstring fileNames = {
 			'file:${LOCAL_TMP_DIR}/PoolInputTest.root',
 			'file:${LOCAL_TMP_DIR}/PoolInputOther.root'
@@ -93,7 +93,7 @@ process TESTRECO = {
 	path p = {Analysis}
 	module Analysis = OtherThingAnalyzer {untracked int32 debugLevel = 1}
 	source = PoolSource {
-		untracked uint32 setRunNumber = 121
+		untracked uint32 setRunNumber = 621
 		untracked vstring fileNames = {
 			'file:${LOCAL_TMP_DIR}/PoolInputTest.root',
 			'file:${LOCAL_TMP_DIR}/PoolInputOther.root'
@@ -114,7 +114,7 @@ process TESTRECO = {
 		untracked bool thingWasDropped = true
 	}
 	source = PoolSource {
-		untracked uint32 setRunNumber = 121
+		untracked uint32 setRunNumber = 621
 		untracked vstring fileNames = {
 			'file:${LOCAL_TMP_DIR}/PoolInputDropTest.root'
 		}

@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.41 2007/10/31 22:56:30 wmtan Exp $
+$Id: PoolSource.h,v 1.42 2007/11/03 06:53:02 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,6 +18,9 @@ $Id: PoolSource.h,v 1.41 2007/10/31 22:56:30 wmtan Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -43,7 +46,7 @@ namespace edm {
     typedef input::EntryNumber EntryNumber;
     PoolSource(PoolSource const&); // disable copy construction
     PoolSource & operator=(PoolSource const&); // disable assignment
-    std::auto_ptr<EventPrincipal> readNextEvent();
+    virtual std::auto_ptr<EventPrincipal> readAnEvent();
     virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp);
     virtual boost::shared_ptr<RunPrincipal> readRun_();
@@ -54,10 +57,8 @@ namespace edm {
     virtual void readMany_(int number, EventPrincipalVector& result);
     void init(FileCatalogItem const& file);
     void updateProductRegistry() const;
-    void setInitialPosition(ParameterSet const& pset);
     bool nextFile();
-    bool next();
-    bool previous();
+    bool previousFile();
     void rewindFile();
     void readRandom(int number, EventPrincipalVector& result);
     void randomize();
@@ -68,7 +69,11 @@ namespace edm {
 
     CLHEP::RandFlat * flatDistribution_;
     int eventsRemainingInFile_;
-    bool startAtBeginning_;
+    RunNumber_t startAtRun_;
+    LuminosityBlockNumber_t startAtLumi_;
+    EventNumber_t startAtEvent_;
+    unsigned int eventsToSkip_;
+    int forcedRunOffset_;
   }; // class PoolSource
   typedef PoolSource PoolRASource;
 }

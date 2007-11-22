@@ -5,7 +5,7 @@
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.17 2007/10/09 17:46:36 wmtan Exp $
+$Id: RootTree.h,v 1.18 2007/11/03 06:53:02 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,8 +31,6 @@ namespace edm {
     ~RootTree() {}
     
     bool isValid() const;
-    bool isIndexValid() const;
-    void checkAndFixIndex();
     void addBranch(BranchKey const& key,
 		   BranchDescription const& prod,
 		   std::string const& oldBranchName);
@@ -40,11 +38,7 @@ namespace edm {
     bool previous() {return --entryNumber_ >= 0;} 
     EntryNumber const& entryNumber() const {return entryNumber_;}
     EntryNumber const& entries() const {return entries_;}
-    EntryNumber getBestEntryNumber(unsigned int major, unsigned int minor) const;
-    EntryNumber getExactEntryNumber(unsigned int major, unsigned int minor) const;
     void setEntryNumber(EntryNumber theEntryNumber) {entryNumber_ = theEntryNumber;}
-    void resetEntryNumber() {entryNumber_ = origEntryNumber_;}
-    void setOrigEntryNumber() {origEntryNumber_ = entryNumber_;}
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     void fillGroups(Principal& item);
     boost::shared_ptr<DelayedReader> makeDelayedReader() const;
@@ -67,7 +61,6 @@ namespace edm {
     TBranch *const auxBranch_;
     EntryNumber entries_;
     EntryNumber entryNumber_;
-    EntryNumber origEntryNumber_;
     std::vector<std::string> branchNames_;
     boost::shared_ptr<BranchMap> branches_;
   };
