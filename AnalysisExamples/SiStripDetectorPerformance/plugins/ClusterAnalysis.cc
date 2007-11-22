@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/11/19 15:36:52 $
- * $Revision: 1.1 $
+ * $Date: 2007/11/20 08:20:40 $
+ * $Revision: 1.2 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -42,8 +42,6 @@ namespace cms{
     psfilename_(conf.getParameter<std::string>("psfileName")), 
     psfiletype_(conf.getParameter<int32_t>("psfiletype")),
     psfilemode_(conf.getUntrackedParameter<int32_t>("psfilemode",1)),
-    SiStripNoiseService_(conf),
-    SiStripPedestalsService_(conf),
     Filter_src_( conf.getParameter<edm::InputTag>( "Filter_src" ) ),
     Track_src_( conf.getParameter<edm::InputTag>( "Track_src" ) ),
     ClusterInfo_src_( conf.getParameter<edm::InputTag>( "ClusterInfo_src" ) ),
@@ -62,7 +60,7 @@ namespace cms{
     //    delete Hlist;
   }
   
-  void ClusterAnalysis::beginJob( const edm::EventSetup& es ) {
+  void ClusterAnalysis::beginRun(const edm::Run& run, const edm::EventSetup& es ) {
 
     //get geom    
     es.get<TrackerDigiGeometryRecord>().get( tkgeom );
@@ -452,8 +450,9 @@ namespace cms{
 
     es.get<SiStripDetCablingRcd>().get( SiStripDetCabling_ );
 
-    SiStripNoiseService_.setESObjects(es);
-    SiStripPedestalsService_.setESObjects(es);
+    //get Pedestal and Noise  ES handle
+    es.get<SiStripPedestalsRcd>().get(pedestalHandle);
+    es.get<SiStripNoisesRcd>().get(noiseHandle);
 
     if (!not_the_first_event){
       fillPedNoiseFromDB();
@@ -1186,17 +1185,20 @@ void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV
       name="DBBadStrips"+appString;
       TH1F* pBad = new TH1F(name,name,nstrips,-0.5,nstrips-0.5);
       Hlist->Add(pBad);
+
+      SiStripNoises::Range noiseRange = noiseHandle->getRange(detid);
+      SiStripPedestals::Range pedRange = pedestalHandle->getRange(detid);
 	
       for(size_t istrip=0;istrip<nstrips;istrip++){
 	try{
 	  //Fill Pedestals
-	  pPed->Fill(istrip,SiStripPedestalsService_.getPedestal(detid,istrip));
+	  pPed->Fill(istrip,pedestalHandle->getPed(istrip,pedRange));
 	  
 	  //Fill Noises
-	  pNoi->Fill(istrip,SiStripNoiseService_.getNoise(detid,istrip));
+	  pNoi->Fill(istrip,noiseHandle->getNoise(istrip,noiseRange));
 	  
 	  //Fill BadStripsNoise
-	  pBad->Fill(istrip,SiStripNoiseService_.getDisable(detid,istrip)?1.:0.);
+	  pBad->Fill(istrip,noiseHandle->getDisable(istrip,noiseRange)?1.:0.);
 	}catch(cms::Exception& e){
 	  edm::LogError("SiStripCondObjDisplay") << "[SiStripCondObjDisplay::endJob]  cms::Exception:  DetName " << name << " " << e.what() ;
 	}

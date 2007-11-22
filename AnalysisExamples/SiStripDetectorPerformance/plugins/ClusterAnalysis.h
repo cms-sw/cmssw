@@ -43,9 +43,10 @@
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
 //Services
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
-
+#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
@@ -85,7 +86,7 @@ namespace cms{
   
       ~ClusterAnalysis();
       
-      void beginJob( const edm::EventSetup& es );
+      void beginRun(const edm::Run& run,  const edm::EventSetup& es );
       
       void endJob();
       
@@ -143,8 +144,9 @@ namespace cms{
       int runNb;
       int eventNb;
 
-      SiStripNoiseService SiStripNoiseService_;  
-      SiStripPedestalsService SiStripPedestalsService_;  
+      edm::ESHandle<SiStripPedestals> pedestalHandle;
+      edm::ESHandle<SiStripNoises> noiseHandle;
+
       edm::InputTag Filter_src_;
       edm::InputTag Track_src_;
       edm::InputTag ClusterInfo_src_;
