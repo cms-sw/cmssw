@@ -60,15 +60,18 @@ void MaterialAccountingLayer::endOfTrack(void) {
     m_accounting += m_buffer;
     m_errors     += m_buffer * m_buffer;
     ++m_tracks;
- 
+
+    GlobalPoint average( (m_buffer.in().x() + m_buffer.out().x()) / 2.,
+                         (m_buffer.in().y() + m_buffer.out().y()) / 2., 
+                         (m_buffer.in().z() + m_buffer.out().z()) / 2. );
     m_dedx_spectrum->Fill(   m_buffer.energyLoss() );
-    m_dedx_vs_eta->Fill(     m_buffer.in().eta() );
-    m_dedx_vs_z->Fill(       m_buffer.in().z() );
-    m_dedx_vs_r->Fill(       m_buffer.in().perp() );
+    m_dedx_vs_eta->Fill(     average.eta(),  m_buffer.energyLoss() );
+    m_dedx_vs_z->Fill(       average.z(),    m_buffer.energyLoss() );
+    m_dedx_vs_r->Fill(       average.perp(), m_buffer.energyLoss() );
     m_radlen_spectrum->Fill( m_buffer.radiationLengths() );
-    m_radlen_vs_eta->Fill(   m_buffer.in().eta() );
-    m_radlen_vs_z->Fill(     m_buffer.in().z() );
-    m_radlen_vs_r->Fill(     m_buffer.in().perp() );
+    m_radlen_vs_eta->Fill(   average.eta(),  m_buffer.radiationLengths() );
+    m_radlen_vs_z->Fill(     average.z(),    m_buffer.radiationLengths() );
+    m_radlen_vs_r->Fill(     average.perp(), m_buffer.radiationLengths() );
   }
   m_counted = false;
   m_buffer  = MaterialAccountingStep();
@@ -92,22 +95,22 @@ void MaterialAccountingLayer::savePlots(const std::string & name) const
   delete canvas;
   
   canvas = new TCanvas ("canvas", "Energy loss vs. eta", 800, 600);
-  if (double integral = m_dedx_vs_eta->Integral())
-    m_dedx_vs_eta->Scale( 1. / integral );
+  //if (double integral = m_dedx_vs_eta->Integral())
+  //  m_dedx_vs_eta->Scale( 1. / integral );
   m_dedx_vs_eta->Draw("");
   canvas->SaveAs((name + "_dedx_vs_eta.png").c_str(),  "");
   delete canvas;
   
   canvas = new TCanvas ("canvas", "Energy loss vs. Z", 800, 600);
-  if (double integral = m_dedx_vs_z->Integral())
-    m_dedx_vs_z->Scale( 1. / integral );
+  //if (double integral = m_dedx_vs_z->Integral())
+  //  m_dedx_vs_z->Scale( 1. / integral );
   m_dedx_vs_z->Draw("");
   canvas->SaveAs((name + "_dedx_vs_z.png").c_str(),  "");
   delete canvas;
   
   canvas = new TCanvas ("canvas", "Energy loss vs. R", 800, 600);
-  if (double integral = m_dedx_vs_r->Integral())
-    m_dedx_vs_r->Scale( 1. / integral );
+  //if (double integral = m_dedx_vs_r->Integral())
+  //  m_dedx_vs_r->Scale( 1. / integral );
   m_dedx_vs_r->Draw("");
   canvas->SaveAs((name + "_dedx_vs_r.png").c_str(),  "");
   delete canvas;
@@ -118,22 +121,22 @@ void MaterialAccountingLayer::savePlots(const std::string & name) const
   delete canvas;
   
   canvas = new TCanvas ("canvas", "Radiation lenghts vs. eta", 800, 600);
-  if (double integral = m_radlen_vs_eta->Integral())
-    m_radlen_vs_eta->Scale( 1. / integral );
+  //if (double integral = m_radlen_vs_eta->Integral())
+  //  m_radlen_vs_eta->Scale( 1. / integral );
   m_radlen_vs_eta->Draw("");
   canvas->SaveAs((name + "_radlen_vs_eta.png").c_str(),  "");
   delete canvas;
   
   canvas = new TCanvas ("canvas", "Radiation lenghts vs. Z", 800, 600);
-  if (double integral = m_radlen_vs_z->Integral())
-    m_radlen_vs_z->Scale( 1. / integral );
+  //if (double integral = m_radlen_vs_z->Integral())
+  //  m_radlen_vs_z->Scale( 1. / integral );
   m_radlen_vs_z->Draw("");
   canvas->SaveAs((name + "_radlen_vs_z.png").c_str(),  "");
   delete canvas;
   
   canvas = new TCanvas ("canvas", "Radiation lenghts vs. R", 800, 600);
-  if (double integral = m_radlen_vs_r->Integral())
-    m_radlen_vs_r->Scale( 1. / integral );
+  //if (double integral = m_radlen_vs_r->Integral())
+  //  m_radlen_vs_r->Scale( 1. / integral );
   m_radlen_vs_r->Draw("");
   canvas->SaveAs((name + "_radlen_vs_r.png").c_str(),  "");
   delete canvas;
