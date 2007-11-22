@@ -196,25 +196,8 @@ void ZeeCalibration::beginOfJob( const edm::EventSetup& iSetup )
 	  initCalibCoeff[k]=0.;	      
 	  for (unsigned int iid=0; iid<ringIds.size();++iid)
 	    {
-<<<<<<< ZeeCalibration.cc
 	      float miscalib=miscalibMap->get().getMap().find(ringIds[iid])->second;
 	      initCalibCoeff[k]+=miscalib;
-=======
-	      try
-		{
-		  EBDetId ebid(etaIndex,iphi);
-                  EcalIntercalibConstantMap::const_iterator itcalib = miscalibMap->get().getMap().find(ebid.rawId());
-                  if ( itcalib == miscalibMap->get().getMap().end() ) {
-                          // FIXME -- miscalib not found, add error
-                  }
-		  float miscalib = (*itcalib);
-		  initCalibCoeff[k]+=miscalib;
-		  xtalsInPhi++;
-		}
-	      catch(...)
-		{
-		}
->>>>>>> 1.2
 	    }
 	  initCalibCoeff[k]/=(float)ringIds.size();
 	  std::cout << k << " " << initCalibCoeff[k] << " " << ringIds.size() << std::endl;
@@ -512,23 +495,6 @@ ZeeCalibration::endOfJob() {
 	  std::cout<<"Writing weighted integral for channel "<<ringNumberCorrector(iChannel)<<" ,value "<<algoHistos->weightedRescaleFactor[iIteration][iChannel]->Integral()<<std::endl;
 #endif
 
-<<<<<<< ZeeCalibration.cc
-=======
-  //Writing out calibration coefficients
-  calibXMLwriter barrelWriter(EcalBarrel);
-  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
-    if(ieta==0) continue;
-    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
-      try
-	{
-	  EBDetId ebid(ieta,iphi);
-          EcalIntercalibConstantMap::const_iterator itcalib = ical->getMap().find(ebid.rawId());
-          if ( itcalib == ical->getMap().end() ) {
-                  // FIXME -- coefficient not found, throw error
-          }
-	  barrelWriter.writeLine(ebid,*itcalib);
->>>>>>> 1.2
 	}
 	
       }
@@ -1239,36 +1205,10 @@ ZeeCalibration::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop)
 	h1_mcEBParz_[iLoop]->Fill( initCalibCoeff[k]*calibCoeff[k] -1. );
       }
       
-<<<<<<< ZeeCalibration.cc
       if(k>=170){
 	h2_miscalRecalEEParz_[iLoop]->Fill( initCalibCoeff[k], 1./calibCoeff[k] );
 	h1_mcEEParz_[iLoop]->Fill( initCalibCoeff[k]*calibCoeff[k] -1. );
-=======
-      for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) 
-	{
-	  // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
-	  try
-	    {
-	      EBDetId ebid(etaIndex,iphi);
-              EcalIntercalibConstantMap::const_iterator itcalib = ical->getMap().find(ebid.rawId());
-              if ( itcalib == ical->getMap().end() ) {
-                      // FIXME -- coefficient not found, throw error
-              }
-#ifdef DEBUG
-	      std::cout << "Before " << (*itcalib) << " " ;
-#endif
-	      ical->setValue( ebid.rawId(), (*itcalib) * optimizedCoefficients[ieta] );
-#ifdef DEBUG
-	      std::cout << "After " << (*itcalib) << std::endl;
-#endif
-	    }
-	  catch (...)
-	    {
-	    }  
-	}    
->>>>>>> 1.2
       }
-      
     }
 
 
