@@ -26,26 +26,34 @@ class TrackerInteractionGeometry
  public:
 
   /// Constructor : get the configurable parameters
-  TrackerInteractionGeometry(const edm::ParameterSet& trackerMaterial);
+  TrackerInteractionGeometry(const edm::ParameterSet& trackerMaterial,
+			     const GeometricSearchTracker* geomSearchTracker);
 
   /// Destructor
   ~TrackerInteractionGeometry();
 
   /// Initialize the interaction geometry
-  void initialize(const GeometricSearchTracker* geomSearchTracker);
+  /// void initialize(const GeometricSearchTracker* geomSearchTracker);
 
   /// Returns the first pointer in the cylinder list
-  inline std::list<TrackerLayer>::iterator cylinderBegin() 
+  inline std::list<TrackerLayer>::const_iterator cylinderBegin() const
     { return _theCylinders.begin(); }
 
   /// Returns the last pointer in the cylinder list
-  inline std::list<TrackerLayer>::iterator cylinderEnd() 
+  inline std::list<TrackerLayer>::const_iterator cylinderEnd() const
     { return _theCylinders.end(); }
 
   /// Returns the number of cylinders in the Tracker
   inline const int nCylinders() const 
     { return static_cast<const int>(_theCylinders.size()); }
 
+ private:
+
+  // Fudge factors to apply to each layer material (private use only)
+  std::vector<double> fudgeFactors(unsigned layerNr); 
+  std::vector<double> minDim(unsigned layerNr);
+  std::vector<double> maxDim(unsigned layerNr);
+ 
  private:
 
   /// The list of tracker (sensistive or not) layers

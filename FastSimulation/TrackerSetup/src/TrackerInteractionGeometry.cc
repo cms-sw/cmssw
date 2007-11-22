@@ -21,7 +21,8 @@
 
 #include<iostream>
 
-TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& trackerMaterial)
+TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& trackerMaterial,
+						       const GeometricSearchTracker* theGeomSearchTracker)
 {
  
   // Fraction of radiation length : had oc values to account 
@@ -201,11 +202,6 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
   // TEC outside wall (endcap)
   _theMPEndcapOutside = new MediumProperties(endcapCables1Thickness[version],0.0001);  
   _theMPEndcapOutside2 = new MediumProperties(endcapCables2Thickness[version],0.0001);  
-
-}
-
-void 
-TrackerInteractionGeometry::initialize(const GeometricSearchTracker* theGeomSearchTracker) { 
 
   // Check that the Reco Tracker Geometry has been loaded
   if ( !theGeomSearchTracker ) 
@@ -464,318 +460,448 @@ TrackerInteractionGeometry::initialize(const GeometricSearchTracker* theGeomSear
 
   // Beam Pipe
 
+  unsigned layerNr = 100;
   theCylinder = new BoundCylinder(thePosition,theRotation,PIPE);
   theCylinder->setMediumProperties(_theMPBeamPipe);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,100));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
   
   // Pixels 
 
+  layerNr = 1;
   theCylinder = new BoundCylinder(thePosition,theRotation,PIXB1);
   theCylinder->setMediumProperties(_theMPPixelBarrel);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,1,0.03));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,1,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 101;
   theDisk = new BoundDisk(PPIXBOut1,theRotation2,PIXBOut1);
   theDisk->setMediumProperties(_theMPPixelOutside1);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,101));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 2;
   theCylinder = new BoundCylinder(thePosition,theRotation,PIXB2);
   theCylinder->setMediumProperties(_theMPPixelBarrel);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,2,0.03));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 102;
   theDisk = new BoundDisk(PPIXBOut2,theRotation2,PIXBOut2);
   theDisk->setMediumProperties(_theMPPixelOutside2);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,102));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 103;
   theDisk = new BoundDisk(PPIXBOut3,theRotation2,PIXBOut3);
   theDisk->setMediumProperties(_theMPPixelOutside3);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,103));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 3;
   theCylinder = new BoundCylinder(thePosition,theRotation,PIXB3);
   theCylinder->setMediumProperties(_theMPPixelBarrel);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,3,0.03));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 104;
   theDisk = new BoundDisk(PPIXBOut4,theRotation2,PIXBOut4);
   theDisk->setMediumProperties(_theMPPixelOutside4);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,104));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 105;
   theDisk = new BoundDisk(PPIXBOut,theRotation2,PIXBOut);
   theDisk->setMediumProperties(_theMPPixelOutside);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,105));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 4;
   theDisk = new BoundDisk(PPIXD1,theRotation2,PIXD1);
   theDisk->setMediumProperties(_theMPPixelEndcap);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,4,0.03));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 5;
   theDisk = new BoundDisk(PPIXD2,theRotation2,PIXD2);
   theDisk->setMediumProperties(_theMPPixelEndcap);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,5,0.03));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 106;
   theCylinder = new BoundCylinder(thePosition,theRotation,PIXBOut5);
   theCylinder->setMediumProperties(_theMPPixelOutside5);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,106));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 107;
   theDisk = new BoundDisk(PPIXBOut6,theRotation2,PIXBOut6);
   theDisk->setMediumProperties(_theMPPixelOutside6);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,107));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
   // Inner Barrel 
 
+  layerNr = 6;
   theCylinder = new BoundCylinder(thePosition,theRotation,TIB1);
   theCylinder->setMediumProperties(_theMPTIB1);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,6,0.032));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 7;
   theCylinder = new BoundCylinder(thePosition,theRotation,TIB2);
   theCylinder->setMediumProperties(_theMPTIB2);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,7,0.032));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 8;
   theCylinder = new BoundCylinder(thePosition,theRotation,TIB3);
   theCylinder->setMediumProperties(_theMPTIB3);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,8,0.032));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 9;
   theCylinder = new BoundCylinder(thePosition,theRotation,TIB4);
   theCylinder->setMediumProperties(_theMPTIB4);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,9,0.032));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 108;
   theDisk = new BoundDisk(PTIBEOut,theRotation2,TIBEOut);
   theDisk->setMediumProperties(_theMPTIBEOutside1);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,108));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 109;
   theDisk = new BoundDisk(PTIBEOut2,theRotation2,TIBEOut2);
   theDisk->setMediumProperties(_theMPTIBEOutside2);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,109));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
   
   // Inner Endcaps
 
+  layerNr = 10;
   theDisk = new BoundDisk(PTID1,theRotation2,TID1);
   theDisk->setMediumProperties(_theMPInner1);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,10,0.032,1,3));
+    _theCylinders.push_back(TrackerLayer(theDisk,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 11;
   theDisk = new BoundDisk(PTID2,theRotation2,TID2);
   theDisk->setMediumProperties(_theMPInner2);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,11,0.032,1,3));
+    _theCylinders.push_back(TrackerLayer(theDisk,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
+
   else
     delete theDisk;
 
+  layerNr = 12;
   theDisk = new BoundDisk(PTID3,theRotation2,TID3);
   theDisk->setMediumProperties(_theMPInner3);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,12,0.032,1,3));
+    _theCylinders.push_back(TrackerLayer(theDisk,12,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 110;
   theDisk = new BoundDisk(PTIDEOut,theRotation2,TIDEOut);
   theDisk->setMediumProperties(_theMPTIDEOutside);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,110));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
 
   // Outer Barrel 
 
+  layerNr = 111;
   theCylinder = new BoundCylinder(thePosition,theRotation,TOBCIn);
   theCylinder->setMediumProperties(_theMPTOBBInside);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,111));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 13;
   theCylinder = new BoundCylinder(thePosition,theRotation,TOB1);
   theCylinder->setMediumProperties(_theMPTOB1);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,13,0.05));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 14;
   theCylinder = new BoundCylinder(thePosition,theRotation,TOB2);
   theCylinder->setMediumProperties(_theMPTOB2);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,14,0.05));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 15;
   theCylinder = new BoundCylinder(thePosition,theRotation,TOB3);
   theCylinder->setMediumProperties(_theMPTOB3);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,15,0.05));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 16;
   theCylinder = new BoundCylinder(thePosition,theRotation,TOB4);
   theCylinder->setMediumProperties(_theMPTOB4);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,16,0.05));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 17;
   theCylinder = new BoundCylinder(thePosition,theRotation,TOB5);
   theCylinder->setMediumProperties(_theMPTOB5);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,17,0.05));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 18;
   theCylinder = new BoundCylinder(thePosition,theRotation,TOB6);
   theCylinder->setMediumProperties(_theMPTOB6);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,18,0.05));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 112;
   theDisk = new BoundDisk(PTOBEOut,theRotation2,TOBEOut);
   theDisk->setMediumProperties(_theMPTOBEOutside);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,112));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
   // Outer Endcaps
  
+  layerNr = 19;
   theDisk = new BoundDisk(PTEC1,theRotation2,TEC1);
   theDisk->setMediumProperties(_theMPEndcap);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,19,0.032,1,7));
+    _theCylinders.push_back(TrackerLayer(theDisk,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 20;
   theDisk = new BoundDisk(PTEC2,theRotation2,TEC2);
   theDisk->setMediumProperties(_theMPEndcap);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,20,0.032,1,7));
+    _theCylinders.push_back(TrackerLayer(theDisk,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 21;
   theDisk = new BoundDisk(PTEC3,theRotation2,TEC3);
   theDisk->setMediumProperties(_theMPEndcap);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,21,0.032,1,7));
+    _theCylinders.push_back(TrackerLayer(theDisk,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 22;
   theDisk = new BoundDisk(PTEC4,theRotation2,TEC4);
   theDisk->setMediumProperties(_theMPEndcap);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,22,0.032,2,7));
+    _theCylinders.push_back(TrackerLayer(theDisk,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 23;
   theDisk = new BoundDisk(PTEC5,theRotation2,TEC5);
   theDisk->setMediumProperties(_theMPEndcap);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,23,0.032,2,7));
+    _theCylinders.push_back(TrackerLayer(theDisk,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 24;
   theDisk = new BoundDisk(PTEC6,theRotation2,TEC6);
   theDisk->setMediumProperties(_theMPEndcap);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,24,0.032,2,7));
+    _theCylinders.push_back(TrackerLayer(theDisk,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 25;
   theDisk = new BoundDisk(PTEC7,theRotation2,TEC7);
   theDisk->setMediumProperties(_theMPEndcap);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,25,0.032,3,7));
+    _theCylinders.push_back(TrackerLayer(theDisk,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 26;
   theDisk = new BoundDisk(PTEC8,theRotation2,TEC8);
   theDisk->setMediumProperties(_theMPEndcap);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,26,0.032,3,7));
+    _theCylinders.push_back(TrackerLayer(theDisk,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 27;
   theDisk = new BoundDisk(PTEC9,theRotation2,TEC9);
   theDisk->setMediumProperties(_theMPEndcap);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,27,0.032,4,7));
+    _theCylinders.push_back(TrackerLayer(theDisk,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
 
   // Tracker Outside
 
+  layerNr = 113;
   theCylinder = new BoundCylinder(thePosition,theRotation,TBOut);
   theCylinder->setMediumProperties(_theMPBarrelOutside);
   if ( theCylinder->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theCylinder,false,113));
+    _theCylinders.push_back(TrackerLayer(theCylinder,false,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theCylinder;
 
+  layerNr = 114;
   theDisk = new BoundDisk(PTEOut,theRotation2,TEOut);
   theDisk->setMediumProperties(_theMPEndcapOutside);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,114));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
+  layerNr = 115;
   theDisk = new BoundDisk(PTEOut2,theRotation2,TEOut2);
   theDisk->setMediumProperties(_theMPEndcapOutside2);
   if ( theDisk->mediumProperties()->radLen() > 0. ) 
-    _theCylinders.push_back(TrackerLayer(theDisk,true,115));
+    _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
+					 minDim(layerNr),maxDim(layerNr),
+					 fudgeFactors(layerNr)));
   else
     delete theDisk;
 
@@ -785,7 +911,7 @@ TrackerInteractionGeometry::initialize(const GeometricSearchTracker* theGeomSear
   double zin, rin;
   double zout, rout;
   unsigned nCyl=0;
-  std::list<TrackerLayer>::iterator cyliterOut=cylinderBegin();
+  std::list<TrackerLayer>::const_iterator cyliterOut=cylinderBegin();
   // Inner cylinder dimensions
   if ( cyliterOut->forward() ) {
     zin = cyliterOut->disk()->position().z();
@@ -834,18 +960,36 @@ TrackerInteractionGeometry::initialize(const GeometricSearchTracker* theGeomSear
     // End test
   } 
     
-  // Enter the inhomogeneities
-  for ( std::list<TrackerLayer>::iterator layer = cylinderBegin(); 
-	layer != cylinderEnd(); 
-	++layer ) {
+}
 
-    for ( unsigned iLayer=0; iLayer<fudgeFactor.size(); ++iLayer ) { 
-
-      if ( layer->layerNumber() != fudgeLayer[iLayer] ) continue;
-      layer->setFudgeFactor(fudgeMin[iLayer], fudgeMax[iLayer], fudgeFactor[iLayer]);
-    }
+std::vector<double>
+TrackerInteractionGeometry::minDim(unsigned layerNr) { 
+  std::vector<double> min;
+  for ( unsigned iLayer=0; iLayer<fudgeFactor.size(); ++iLayer ) {   
+    if ( layerNr != fudgeLayer[iLayer] ) continue;
+    min.push_back(fudgeMin[iLayer]);
   }
+  return min;
+}
 
+std::vector<double>
+TrackerInteractionGeometry::maxDim(unsigned layerNr) { 
+  std::vector<double> max;
+  for ( unsigned iLayer=0; iLayer<fudgeFactor.size(); ++iLayer ) {   
+    if ( layerNr != fudgeLayer[iLayer] ) continue;
+    max.push_back(fudgeMax[iLayer]);
+  }
+  return max;
+}
+
+std::vector<double>
+TrackerInteractionGeometry::fudgeFactors(unsigned layerNr) { 
+  std::vector<double> fudge;
+  for ( unsigned iLayer=0; iLayer<fudgeFactor.size(); ++iLayer ) {   
+    if ( layerNr != fudgeLayer[iLayer] ) continue;
+    fudge.push_back(fudgeFactor[iLayer]);
+  }
+  return fudge;
 }
 
 TrackerInteractionGeometry::~TrackerInteractionGeometry()
