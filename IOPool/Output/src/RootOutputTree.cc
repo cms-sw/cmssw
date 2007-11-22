@@ -67,60 +67,73 @@ namespace edm {
 
   void
   RootOutputTree::fastCloneTree(TTree *tree, TTree *metaTree) {
-    if (fastCloning_) {
-      fastCloneTTree(metaTree, metaTree_);
-      fastCloneTTree(tree, tree_);
-    }
+    fastCloneTTree(metaTree, metaTree_);
+    fastCloneTTree(tree, tree_);
   }
 
   void
   RootOutputTree::fillTree() const {
     fillTTree(metaTree_, metaBranches_);
     fillTTree(tree_, branches_);
+    if (!currentlyFastCloning_) {
+      fillTTree(metaTree_, clonedMetaBranches_);
+      fillTTree(tree_, clonedBranches_);
+    }
   }
 
   void
   RootOutputTree::pruneTTree(TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList) {
-  // Since we don't know the history, make sure all branches are activated.
+    // Since we don't know the history, make sure all branches are activated.
     tree->SetBranchStatus("*", 1);
   
-  // Iterate over the list of branch names to keep
-  
-   for(Selections::const_iterator it = dropList.begin(), itEnd = dropList.end(); it != itEnd; ++it) {
-     std::string branchName = (*it)->branchName();
-     char lastchar = branchName.at(branchName.size()-1);
-     if(lastchar == '.') {
-       branchName += "*";
-     } else {
-       branchName += ".*";
-     }
-     tree->SetBranchStatus(branchName.c_str(), 0);
+    // Iterate over the list of branch names to drop
+    for(Selections::const_iterator it = dropList.begin(), itEnd = dropList.end(); it != itEnd; ++it) {
+      std::string branchName = (*it)->branchName();
+      char lastchar = branchName.at(branchName.size()-1);
+      if(lastchar == '.') {
+        branchName += "*";
+      } else {
+        branchName += ".*";
+      }
+      tree->SetBranchStatus(branchName.c_str(), 0);
     }
 
-   for(std::vector<std::string>::const_iterator it = renamedList.begin(), itEnd = renamedList.end(); it != itEnd; ++it) {
-     std::string branchName = *it;
-     char lastchar = branchName.at(branchName.size()-1);
-     if(lastchar == '.') {
-       branchName += "*";
-     } else {
-       branchName += ".*";
-     }
-     tree->SetBranchStatus(branchName.c_str(), 0);
-   }
+    for(std::vector<std::string>::const_iterator it = renamedList.begin(), itEnd = renamedList.end(); it != itEnd; ++it) {
+      std::string branchName = *it;
+      char lastchar = branchName.at(branchName.size()-1);
+      if(lastchar == '.') {
+        branchName += "*";
+      } else {
+        branchName += ".*";
+      }
+      tree->SetBranchStatus(branchName.c_str(), 0);
+    }
   }
 
   void
   RootOutputTree::addBranch(BranchDescription const& prod, bool selected, BranchEntryDescription const*& pProv, void const*& pProd) {
       prod.init();
-      TBranch * meta = metaTree_->Branch(prod.branchName().c_str(), &pProv, basketSize_, 0);
-      metaBranches_.push_back(meta);
+      TBranch * meta = metaTree_->GetBranch(prod.branchName().c_str());
+      if (meta != 0) {
+	meta->SetAddress(&pProv);
+        clonedMetaBranches_.push_back(meta);
+      } else {
+        meta = metaTree_->Branch(prod.branchName().c_str(), &pProv, basketSize_, 0);
+        metaBranches_.push_back(meta);
+      }
       if (selected) {
-	TBranch * branch = tree_->Branch(prod.branchName().c_str(),
-		       prod.wrappedName().c_str(),
-		       &pProd,
-		       (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
-		       (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel()));
-        branches_.push_back(branch);
+        TBranch * branch = tree_->GetBranch(prod.branchName().c_str());
+        if (branch != 0) {
+	  branch->SetAddress(&pProd);
+          clonedBranches_.push_back(branch);
+	} else {
+	  branch = tree_->Branch(prod.branchName().c_str(),
+		   prod.wrappedName().c_str(),
+		   &pProd,
+		   (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
+		   (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel()));
+          branches_.push_back(branch);
+        }
 	// we want the new branch name for the JobReport
 	branchNames_.push_back(prod.branchName());
       }

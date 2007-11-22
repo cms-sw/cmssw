@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.28 2007/11/04 02:45:09 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.29 2007/11/07 06:49:53 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -7,6 +7,7 @@
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
+#include "DataFormats/Provenance/interface/FileIndex.h"
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -14,7 +15,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -38,14 +38,20 @@
 namespace edm {
   RootOutputFile::RootOutputFile(PoolOutputModule *om, std::string const& fileName, std::string const& logicalFileName) :
       outputItemList_(), 
+      producedItemList_(), 
       file_(fileName),
       logicalFile_(logicalFileName),
       reportToken_(0),
       eventCount_(0),
       fileSizeCheckEvent_(100),
       om_(om),
+      currentlyFastCloning_(),
       filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
       fid_(),
+      fileIndex_(),
+      eventEntryNumber_(0LL),
+      lumiEntryNumber_(0LL),
+      runEntryNumber_(0LL),
       metaDataTree_(0),
       eventAux_(),
       lumiAux_(),
@@ -68,43 +74,32 @@ namespace edm {
 
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
-      OutputItemList & outputItemList = outputItemList_[branchType];
-
+      fillItemList(om_->keptProducts()[branchType], om_->droppedProducts()[branchType], outputItemList_[branchType]);
+      for (OutputItemList::const_iterator it = outputItemList_[branchType].begin(),
+	  itEnd = outputItemList_[branchType].end();
+	  it != itEnd; ++it) {
+	treePointers_[branchType]->addBranch(*it->branchDescription_, it->selected_, it->branchEntryDescription_, it->product_);
+      }
       bool fastCloning = (branchType == InEvent && om_->fastCloning());
-      Selections const& descVector =
-	 (fastCloning ? om_->keptProducedProducts()[branchType] : om_->keptProducts()[branchType]);
-      Selections const& droppedVector =
-	 (fastCloning ? om_->droppedProducedProducts()[branchType] : om_->droppedProducts()[branchType]);
-      
-      for (Selections::const_iterator it = descVector.begin(), itEnd = descVector.end(); it != itEnd; ++it) {
-        BranchDescription const& prod = **it;
-        outputItemList.push_back(OutputItem(&prod, true));
-      }
-      for (Selections::const_iterator it = droppedVector.begin(), itEnd = droppedVector.end(); it != itEnd; ++it) {
-        BranchDescription const& prod = **it;
-        outputItemList.push_back(OutputItem(&prod, false));
-      }
       if (fastCloning) {
+        fillItemList(om_->keptProducedProducts()[branchType], om_->droppedProducedProducts()[branchType], producedItemList_);
 	std::vector<std::string> const& renamed = om_->fileBlock_->sortedNewBranchNames();
 	if (!renamed.empty()) {
           Selections const& kV = om_->keptPriorProducts()[branchType];
           for (Selections::const_iterator it = kV.begin(), itEnd = kV.end(); it != itEnd; ++it) {
             BranchDescription const& prod = **it;
 	    if(binary_search_all(renamed, prod.branchName())) {
-              outputItemList.push_back(OutputItem(&prod, true));
+              producedItemList_.push_back(OutputItem(&prod, true));
 	    }
           }
           Selections const& dV = om_->droppedPriorProducts()[branchType];
           for (Selections::const_iterator it = dV.begin(), itEnd = dV.end(); it != itEnd; ++it) {
             BranchDescription const& prod = **it;
 	    if(binary_search_all(renamed, prod.branchName())) {
-              outputItemList.push_back(OutputItem(&prod, false));
+              producedItemList_.push_back(OutputItem(&prod, false));
 	    }
           }
 	}
-      }
-      for (OutputItemList::iterator it = outputItemList.begin(), itEnd = outputItemList.end(); it != itEnd; ++it) {
-	treePointers_[branchType]->addBranch(*it->branchDescription_, it->selected_, it->branchEntryDescription_, it->product_);
       }
     }
 
@@ -126,15 +121,44 @@ namespace edm {
 		      eventTree_.branchNames()); // branch names being written
   }
 
+  void RootOutputFile::fillItemList(Selections const& keptVector,
+				    Selections const& droppedVector,
+				    OutputItemList & outputItemList) {
+      for (Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
+        BranchDescription const& prod = **it;
+        outputItemList.push_back(OutputItem(&prod, true));
+      }
+      for (Selections::const_iterator it = droppedVector.begin(), itEnd = droppedVector.end(); it != itEnd; ++it) {
+        BranchDescription const& prod = **it;
+        outputItemList.push_back(OutputItem(&prod, false));
+      }
+      sort_all(outputItemList);
+    }
+
+
   void RootOutputFile::beginInputFile(FileBlock const& fb) {
+    currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable();
+    eventTree_.beginInputFile(currentlyFastCloning_);
+    if (currentlyFastCloning_) {
       eventTree_.fastCloneTree(fb.tree(), fb.metaTree());
+    }
+  }
+
+  void RootOutputFile::endInputFile(FileBlock const&) {
+    eventTree_.setEntries();
+    lumiTree_.setEntries();
+    runTree_.setEntries();
   }
 
   void RootOutputFile::writeOne(EventPrincipal const& e) {
     ++eventCount_;
-    // Write auxiliary branch
 
+    // Auxiliary branch
     pEventAux_ = &e.aux();
+
+    // Add event to index
+    fileIndex_.addEntry(pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
+    ++eventEntryNumber_;
 
     fillBranches(InEvent, e.groupGetter());
 
@@ -157,14 +181,20 @@ namespace edm {
   }
 
   void RootOutputFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
-    // Write auxiliary branch
+    // Auxiliary branch
     pLumiAux_ = &lb.aux();
+    // Add lumi to index.
+    fileIndex_.addEntry(pLumiAux_->run(), pLumiAux_->luminosityBlock(), 0U, lumiEntryNumber_);
+    ++lumiEntryNumber_;
     fillBranches(InLumi, lb.groupGetter());
   }
 
   bool RootOutputFile::writeRun(RunPrincipal const& r) {
-    // Write auxiliary branch
+    // Auxiliary branch
     pRunAux_ = &r.aux();
+    // Add run to index.
+    fileIndex_.addEntry(pRunAux_->run(), 0U, 0U, runEntryNumber_);
+    ++runEntryNumber_;
     fillBranches(InRun, r.groupGetter());
     return newFileAtEndOfRun_;
   }
@@ -180,6 +210,14 @@ namespace edm {
   void RootOutputFile::writeFileIdentifier() {
     FileID *fidPtr = &fid_;
     TBranch* b = metaDataTree_->Branch(poolNames::fileIdentifierBranchName().c_str(), &fidPtr, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeFileIndex() {
+    fileIndex_.sort();
+    FileIndex *findexPtr = &fileIndex_;
+    TBranch* b = metaDataTree_->Branch(poolNames::fileIndexBranchName().c_str(), &findexPtr, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
@@ -249,7 +287,8 @@ namespace edm {
     // Clear the provenance cache for the previous event/lumi/run
     provenances_.clear();
 
-    OutputItemList const& items = outputItemList_[branchType];
+    OutputItemList const& items =
+	(((branchType == InEvent) && currentlyFastCloning_) ? producedItemList_ : outputItemList_[branchType]);
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end();
 	 i != iEnd; ++i) {

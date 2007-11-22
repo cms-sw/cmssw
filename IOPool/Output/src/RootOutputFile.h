@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.11 2007/10/03 22:26:42 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.12 2007/11/03 06:53:02 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -21,9 +21,11 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileID.h"
+#include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Selections.h"
@@ -48,6 +50,7 @@ namespace edm {
 
     void writeFileFormatVersion();
     void writeFileIdentifier();
+    void writeFileIndex();
     void writeProcessConfigurationRegistry();
     void writeProcessHistoryRegistry();
     void writeModuleDescriptionRegistry();
@@ -55,6 +58,7 @@ namespace edm {
     void writeProductDescriptionRegistry();
     void finishEndFile();
     void beginInputFile(FileBlock const& fb);
+    void endInputFile(FileBlock const& fb);
 
     bool isFileFull() const {return newFileAtEndOfRun_;}
 
@@ -72,21 +76,33 @@ namespace edm {
       bool selected_;
       mutable BranchEntryDescription const* branchEntryDescription_;
       mutable void const* product_;
+      bool operator <(OutputItem const& rh) const {
+        return *branchDescription_ < *rh.branchDescription_;
+      }
     };
     typedef std::vector<OutputItem> OutputItemList;
     typedef boost::array<OutputItemList, NumBranchTypes> OutputItemListArray;
+    void fillItemList(Selections const& keptVector,
+		      Selections const& droppedVector,
+		      OutputItemList & outputItemList);
 
     void fillBranches(BranchType const& branchType, Principal const& principal) const;
 
     OutputItemListArray outputItemList_;
+    OutputItemList producedItemList_;
     std::string file_;
     std::string logicalFile_;
     JobReport::Token reportToken_;
     unsigned int eventCount_;
     unsigned int fileSizeCheckEvent_;
     PoolOutputModule const* om_;
+    bool currentlyFastCloning_;
     boost::shared_ptr<TFile> filePtr_;
     FileID fid_;
+    FileIndex fileIndex_;
+    FileIndex::EntryNumber_t eventEntryNumber_;
+    FileIndex::EntryNumber_t lumiEntryNumber_;
+    FileIndex::EntryNumber_t runEntryNumber_;
     TTree * metaDataTree_;
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;

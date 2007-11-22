@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.90 2007/11/03 06:53:02 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.91 2007/11/05 22:44:44 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -47,14 +47,16 @@ namespace edm {
   void PoolOutputModule::beginInputFile(FileBlock const& fb) {
     fileBlock_ = const_cast<FileBlock *>(&fb);
     if (!isFileOpen()) {
-      // Since we currently merge files, if the first input file is not fast clonable,
-      // we cannot do fast cloning at all.
-      if (!fb.fastClonable()) {
+      if (fb.tree() == 0) {
         fastCloning_ = false;
       }
       doOpenFile();
     }
     rootFile_->beginInputFile(fb);
+  }
+
+  void PoolOutputModule::endInputFile(FileBlock const& fb) {
+    rootFile_->endInputFile(fb);
   }
 
   void PoolOutputModule::beginJob(EventSetup const&) {
@@ -97,6 +99,7 @@ namespace edm {
 
   void PoolOutputModule::writeFileFormatVersion() { rootFile_->writeFileFormatVersion(); }
   void PoolOutputModule::writeFileIdentifier() { rootFile_->writeFileIdentifier(); }
+  void PoolOutputModule::writeFileIndex() { rootFile_->writeFileIndex(); }
   void PoolOutputModule::writeProcessConfigurationRegistry() { rootFile_->writeProcessConfigurationRegistry(); }
   void PoolOutputModule::writeProcessHistoryRegistry() { rootFile_->writeProcessHistoryRegistry(); }
   void PoolOutputModule::writeModuleDescriptionRegistry() { rootFile_->writeModuleDescriptionRegistry(); }
