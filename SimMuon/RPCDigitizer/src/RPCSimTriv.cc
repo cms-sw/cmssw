@@ -4,6 +4,7 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -42,11 +43,10 @@ RPCSimTriv::~RPCSimTriv(){}
 
 void
 RPCSimTriv::simulate(const RPCRoll* roll,
-		       const edm::PSimHitContainer& rpcHits,const RPCGeometry* geo )
+		       const edm::PSimHitContainer& rpcHits)
 {
 
-  _rpcSync->setGeometry(geo);
-  _rpcSync->setReadOutTime(geo);
+  _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
 
   const Topology& topology=roll->specs()->topology();
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
@@ -56,11 +56,8 @@ RPCSimTriv::simulate(const RPCRoll* roll,
     if (type == 13 || type == -13){
       // Here I hould check if the RPC are up side down;
       const LocalPoint& entr=_hit->entryPoint();
-      //    const LocalPoint& exit=_hit->exitPoint();
-
       std::pair<int, int> digi(topology.channel(entr)+1,
 			       _rpcSync->getSimHitBx(&(*_hit)));
-      //	std::cout<<"STRIP: "<<*i<<"  "<<"BX: "<<bx<<std::endl;
       strips.insert(digi);
     }
   }

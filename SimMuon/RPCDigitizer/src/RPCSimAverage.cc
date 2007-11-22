@@ -27,6 +27,7 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 
 #include<cstring>
 #include<iostream>
@@ -74,30 +75,6 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) :
     std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
   }
 
-  edm::FileInPath fp = config.getParameter<edm::FileInPath>("clsmapfile");
-  infile = new ifstream(fp.fullPath().c_str(), ios::in);
-
-  string buffer;
-  double sum = 0;
-  unsigned int counter = 1;
-  unsigned int row = 1;
-  std::vector<double> sum_clsize;
-
-  while ( *infile >> buffer ) {
-    const char *buffer1 = buffer.c_str();
-    double dato = atof(buffer1);
-    sum += dato;
-    sum_clsize.push_back(sum);
-
-    if(counter == row*20) {
-      clsMap[row] = sum_clsize;
-      row++;
-      sum = 0;
-      sum_clsize.clear();
-    }
-    counter++;
-  }
-
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -110,12 +87,12 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) :
   flatDistribution = new CLHEP::RandFlat(rndEngine);
 }
 
-RPCSimAverage::~RPCSimAverage(){
-  delete infile;
-}
+RPCSimAverage::~RPCSimAverage(){}
 
 int RPCSimAverage::getClSize(float posX)
 {
+
+  std::map< int, std::vector<double> > clsMap = getRPCSimSetUp()->getClsMap();
 
   int cnt = 1;
   int min = 1;
@@ -123,7 +100,7 @@ int RPCSimAverage::getClSize(float posX)
   double func=0.0;
   std::vector<double> sum_clsize;
 
-  double rr_cl = flatDistribution->fire();
+  double rr_cl = flatDistribution->fire(1);
   if(0.0 <= posX && posX < 0.2)  {
     func = (clsMap[1])[(clsMap[1]).size()-1]*(rr_cl);
     sum_clsize = clsMap[1];
@@ -162,10 +139,9 @@ int RPCSimAverage::getClSize(float posX)
 
 void
 RPCSimAverage::simulate(const RPCRoll* roll,
-			const edm::PSimHitContainer& rpcHits,const RPCGeometry* geo)
+			const edm::PSimHitContainer& rpcHits)
 {
-  _rpcSync->setGeometry(geo);
-  _rpcSync->setReadOutTime(geo);
+  _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
 
   const Topology& topology=roll->specs()->topology();
 
@@ -181,13 +157,13 @@ RPCSimAverage::simulate(const RPCRoll* roll,
 
     // Effinciecy
 
-    if (flatDistribution->fire() < aveEff) {
+    if (flatDistribution->fire(1) < aveEff) {
 
       int centralStrip = topology.channel(entr)+1;  
       int fstrip=centralStrip;
       int lstrip=centralStrip;
       // Compute the cluster size
-      double w = flatDistribution->fire();
+      double w = flatDistribution->fire(1);
       if (w < 1.e-10) w=1.e-10;
       int clsize = this->getClSize(posX);
 

@@ -4,8 +4,8 @@
 /** \class RPCDigiReader
  *  Analyse the RPC digitizer (derived from R. Bellan DTDigiReader. 
  *  
- *  $Date: 2006/08/01 15:27:46 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/10/26 12:50:41 $
+ *  $Revision: 1.6 $
  *  \authors: M. Maggi -- INFN Bari
  */
 
@@ -55,11 +55,13 @@ public:
      const RPCDetId& id = (*detUnitIt).first;
      const RPCRoll* roll = dynamic_cast<const RPCRoll* >( pDD->roll(id));
      const RPCDigiCollection::Range& range = (*detUnitIt).second;
-     
+
+     //     if(id.rawId() != 637567293) continue;
+
       // RPCDetId print-out
       std::cout<<"--------------"<<std::endl;
-      std::cout<<"id: "<<id<<" number of strip "<<roll->nstrips()<<std::endl;
-      
+      std::cout<<"id: "<<id.rawId()<<" number of strip "<<roll->nstrips()<<std::endl;
+
       // Loop over the digis of this DetUnit
       for (RPCDigiCollection::const_iterator digiIt = range.first;
 	   digiIt!=range.second;

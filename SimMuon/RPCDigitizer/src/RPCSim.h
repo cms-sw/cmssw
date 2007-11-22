@@ -10,10 +10,12 @@
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EventSetup.h>
+//#include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include <set>
 
 class RPCRoll;
 class RPCGeometry;
+class RPCSimSetUp;
 
 class RPCSim
 {
@@ -21,18 +23,24 @@ class RPCSim
   virtual ~RPCSim(){};
 
   virtual void simulate(const RPCRoll* roll,
-			const edm::PSimHitContainer& rpcHits, 
-			const RPCGeometry*)=0;
+			const edm::PSimHitContainer& rpcHits)=0;
 
   virtual void simulateNoise(const RPCRoll* roll)=0;
 
   virtual void fillDigis(int rollDetId, RPCDigiCollection& digis);
+
+  void setRPCSimSetUp(RPCSimSetUp* setup){theSimSetUp = setup;}
+
+  RPCSimSetUp* getRPCSimSetUp(){ return theSimSetUp; }
+
  protected:
   RPCSim(const edm::ParameterSet& config);
   virtual void init()=0;
+
  protected:
   std::set< std::pair<int,int> > strips;
-  //  int _bx;
 
+ protected:
+  RPCSimSetUp* theSimSetUp;
 };
 #endif

@@ -6,11 +6,13 @@
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 
 // default constructor allocates default wire and strip digitizers
+
 RPCDigitizer::RPCDigitizer(const edm::ParameterSet& config) {
-  std::string name = config.getParameter<std::string>("digiModel");
-  theRPCSim = RPCSimFactory::get()->create(name,config.getParameter<edm::ParameterSet>("digiModelConfig"));
+  theName = config.getParameter<std::string>("digiModel");
+  theRPCSim = RPCSimFactory::get()->create(theName,config.getParameter<edm::ParameterSet>("digiModelConfig"));
 }
 
 RPCDigitizer::~RPCDigitizer() {
@@ -19,11 +21,11 @@ RPCDigitizer::~RPCDigitizer() {
   theRPCSim = 0;
 }
 
-
-
 void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits, 
                             RPCDigiCollection & rpcDigis)
 {
+  theRPCSim->setRPCSimSetUp(theSimSetUp);
+
   // arrange the hits by roll
   std::map<int, edm::PSimHitContainer> hitMap;
   for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
@@ -43,13 +45,13 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
     LogDebug("RPCDigitizer") << "RPCDigitizer: found " << rollSimHits.size() <<" hit(s) in the rpc roll";
     TimeMe t2("RPCSim");
 
-    theRPCSim->simulate(roll,rollSimHits,theGeometry);
+    theRPCSim->simulate(roll,rollSimHits);
     theRPCSim->fillDigis(rollDetId,rpcDigis);
+
     theRPCSim->simulateNoise(roll);
     theRPCSim->fillDigis(rollDetId,rpcDigis);
   }
 }
-
 
 const RPCRoll * RPCDigitizer::findDet(int detId) const {
   assert(theGeometry != 0);

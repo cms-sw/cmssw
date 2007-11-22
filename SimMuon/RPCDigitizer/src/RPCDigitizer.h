@@ -14,6 +14,7 @@
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include <string>
 
 namespace edm{
   class ParameterSet;
@@ -21,10 +22,14 @@ namespace edm{
 
 class RPCRoll;
 class RPCSim;
+class RPCSimSetUp;
+
 class RPCDigitizer
 {
 public:
+
   RPCDigitizer(const edm::ParameterSet& config);
+
   ~RPCDigitizer();
 
   /**  digitize
@@ -36,15 +41,19 @@ public:
   /// sets geometry
   void setGeometry(const RPCGeometry * geom) {theGeometry = geom;}
 
-  /// sets the magnetic field
-  // void setMagneticField(const MagneticField * field);
+  void setRPCSimSetUp(RPCSimSetUp *simsetup){theSimSetUp = simsetup;}
 
+  RPCSimSetUp* getRPCSimSetUp(){ return theSimSetUp; }
+  
   /// finds the rpc det unit in the geometry associated with this det ID
   const RPCRoll * findDet(int detId) const;
 
 private:
   const RPCGeometry * theGeometry;
   RPCSim* theRPCSim;
+  RPCSimSetUp * theSimSetUp;
+  std::string theName;
+
 };
 
 #endif

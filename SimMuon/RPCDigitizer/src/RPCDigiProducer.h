@@ -9,6 +9,8 @@
 
 class RPCDigitizer;
 class RPCGeometry;
+class RPCSimSetUp;
+class RPCSynchronizer;
 
 class RPCDigiProducer : public edm::EDProducer
 {
@@ -23,6 +25,7 @@ public:
 private:
 
   RPCDigitizer* theDigitizer;
+  RPCSimSetUp* theRPCSimSetUp;
 
 };
 

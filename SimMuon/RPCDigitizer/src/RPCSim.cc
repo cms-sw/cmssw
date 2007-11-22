@@ -1,10 +1,9 @@
 #include "RPCSim.h"
-
+#include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 
 RPCSim::RPCSim(const edm::ParameterSet& config)
 {
 }
-
 
 void
 RPCSim::fillDigis(int rollDetId, RPCDigiCollection& digis)
@@ -16,7 +15,6 @@ RPCSim::fillDigis(int rollDetId, RPCDigiCollection& digis)
       RPCDigi rpcDigi(i->first,i->second);
       //NCA
       digis.insertDigi(RPCDetId(rollDetId),rpcDigi);
-      //    std::cout<<"DIGI:"<<rpcDigi<<std::endl;
     }
   }
   strips.clear();

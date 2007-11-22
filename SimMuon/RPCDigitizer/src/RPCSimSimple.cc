@@ -48,12 +48,9 @@ RPCSimSimple::RPCSimSimple(const edm::ParameterSet& config) : RPCSim(config){
 
 void
 RPCSimSimple::simulate(const RPCRoll* roll,
-		       const edm::PSimHitContainer& rpcHits,
-		       const RPCGeometry* geo )
+		       const edm::PSimHitContainer& rpcHits)
 {
-
-  _rpcSync->setGeometry(geo);
-  _rpcSync->setReadOutTime(geo);
+  _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
 
   const Topology& topology=roll->specs()->topology();
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
@@ -66,9 +63,7 @@ RPCSimSimple::simulate(const RPCRoll* roll,
 	
     std::pair<int, int> digi(topology.channel(entr)+1,
 			     _rpcSync->getSimHitBx(&(*_hit)));
-    //	std::cout<<"STRIP: "<<*i<<"  "<<"BX: "<<bx<<std::endl;
     strips.insert(digi);
-
   }
 }
 

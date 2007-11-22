@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigiProducer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -17,17 +18,22 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
+#include <sstream>
+#include <string>
 
 RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
+
+  theRPCSimSetUp =  new RPCSimSetUp(ps);
   theDigitizer = new RPCDigitizer(ps);
+
   produces<RPCDigiCollection>();
 }
 
-
 RPCDigiProducer::~RPCDigiProducer() {
   delete theDigitizer;
+  delete theRPCSimSetUp;
 }
-
 
 void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
@@ -46,19 +52,16 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   // find the geometry & conditions for this event
   edm::ESHandle<RPCGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get( hGeom );
+
   const RPCGeometry *pGeom = &*hGeom;
+
   theDigitizer->setGeometry( pGeom );
-
-
-  // find the magnetic field
-  //edm::ESHandle<MagneticField> magfield;
-  ///eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
-  //theDigitizer->setMagneticField(&*magfield);
+  theRPCSimSetUp->setGeometry( pGeom );
+  theDigitizer->setRPCSimSetUp( theRPCSimSetUp );
 
   // run the digitizer
-
   theDigitizer->doAction(*hits, *pDigis);
-
+  
   // store them in the event
   e.put(pDigis);
 }

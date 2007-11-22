@@ -16,7 +16,7 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
+#include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h" 
@@ -39,23 +39,14 @@ using namespace std;
 
 RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
 
-  resRPC = config.getParameter<double>("timeResolution");  //intrinsic RPC time resolution - units: ns             ---> rtim_res1
-  timOff = config.getParameter<double>("timingRPCOffset");  /* RPC time off-set.It takes into                      ---> rpc_time_offset
-							     account the average time for the
-							     detector to respond and possible
-							     delay time due to cables */
-  dtimCs = config.getParameter<double>("deltatimeAdjacentStrip");  // parameter for delay of the strips of cluster ---> rpc_csdt
-  resEle = config.getParameter<double>("timeJitter");  //jitter of the RPC electronics - units: ns                 ---> rtim_res2
-  sspeed = config.getParameter<double>("signalPropagationSpeed");   //units cm/ns                                  ---> prop_speed
-  lbGate = config.getParameter<double>("linkGateWidth");  //time gate width for the RPC signals                    ---> rpc_gate
+  resRPC = config.getParameter<double>("timeResolution");
+  timOff = config.getParameter<double>("timingRPCOffset");
+  dtimCs = config.getParameter<double>("deltatimeAdjacentStrip");
+  resEle = config.getParameter<double>("timeJitter");
+  sspeed = config.getParameter<double>("signalPropagationSpeed");
+  lbGate = config.getParameter<double>("linkGateWidth");
 
-  file = config.getParameter<bool>("file");
   cosmics = config.getParameter<bool>("cosmics");
-
-  edm::FileInPath fp = config.getParameter<edm::FileInPath>("timingMap");
-  filename=fp.fullPath();
-
-  _bxmap.clear();
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -70,62 +61,11 @@ RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
 
 }
 
-void RPCSynchronizer::setReadOutTime(const RPCGeometry* geo){
-  
-  theGeometry = geo;
-
-  if(file){
-    int detUnit = 0;
-    float timing = 0.;
-
-    infile = new fstream(filename.c_str(),std::ios::in);
-    
-    int i = 0;
-    while(!infile->eof()){
-      i++;
-      *infile>>detUnit>>timing;
-
-      _bxmap[RPCDetId(static_cast<uint32_t>(detUnit))] = timing;
-    }
-    infile->close();
-  }
-  else{
-
-    for(TrackingGeometry::DetContainer::const_iterator it = theGeometry->dets().begin(); it != theGeometry->dets().end(); it++){
-    
-      if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
-	
-	RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-	RPCDetId detId=ch->id();
-	
-	std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
-	for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();
-	    r != rollsRaf.end(); ++r){
-	  
-	  const BoundPlane & RPCSurface = (*r)->surface(); 
-	  GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
-	  float space = CenterPointRollGlobal.mag();
-
-	  float time = space/(3e+10);
-	  
-	  _bxmap[(*r)->id()] = time*1e+9;
-	  
-	  RPCDetId rollId = (*r)->id();
-
-	}
-      }
-    }
-  }
-}
-
-float RPCSynchronizer::getReadOutTime(const RPCDetId& rpcDetId)
-{
-  std::map<RPCDetId, float >::iterator it = _bxmap.find(rpcDetId);
-  return it->second;
-}
-
 int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 {
+  RPCSimSetUp* simsetup = this->getRPCSimSetUp();
+  const RPCGeometry * geometry = simsetup->getGeometry();
+  float timeref = simsetup->getTime(simhit->detUnitId());
 
   int bx = -999;
   LocalPoint simHitPos = simhit->localPosition();
@@ -137,7 +77,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 
   const RPCRoll* SimRoll = 0;
 
-  for(TrackingGeometry::DetContainer::const_iterator it = theGeometry->dets().begin(); it != theGeometry->dets().end(); it++){
+  for(TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end(); it++){
     
     if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
       
@@ -150,8 +90,6 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 
 	  if((*r)->id() == SimDetId) {
 	    SimRoll = &(*(*r));
-	    const BoundPlane & RPCSurface = (*r)->surface(); 
-	    GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
 	    break;
 	  }
       }
@@ -182,10 +120,10 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
     double time_differ = 0.;
 
     if(cosmics){
-      time_differ = total_time/37.62 - ( this->getReadOutTime(RPCDetId(simhit->detUnitId())) + ((stripL/(2*sspeed*3e+10) ) + timOff)/37.62);
+      time_differ = total_time/37.62 - (timeref + ((stripL/(2*sspeed*3e+10) ) + timOff))/37.62;
     }
     else if(!cosmics){
-      time_differ = total_time - ( this->getReadOutTime(RPCDetId(simhit->detUnitId())) + ( stripL/(2*sspeed*3e+10) ) + timOff);
+      time_differ = total_time - (timeref + ( stripL/(2*sspeed*3e+10) ) + timOff);
     }
       
     double inf_time = 0;
@@ -207,17 +145,13 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 	break;
       }
     }
-    RPCDetId rollId = SimRoll->id();
   }
   return bx;
 }
 
 RPCSynchronizer::~RPCSynchronizer(){
- if(infile != 0) delete infile;
  if(gaussian_ != 0)  delete gaussian_; 
  if(poissonDistribution_ != 0) delete poissonDistribution_;
-
- delete theGeometry;
 }
 
 
