@@ -7,9 +7,6 @@
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Transform3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/GenVector/RotationZ.h"

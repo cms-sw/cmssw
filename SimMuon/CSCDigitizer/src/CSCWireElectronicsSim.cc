@@ -123,7 +123,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
       //     16th             15  <-> bx +9
 
       // Parameter theOffsetOfBxZero = 6 @@WARNING! This offset may be changed (hardware)!
-
+std::cout << "FDTIME " << chamberType << " " <<  wireGroup << " " << fdTime << " " << fdTime-tofOffset << " " << qMax << std::endl;
       int nBitsToOffset = beamCrossingTag + theOffsetOfBxZero;
       if ( (nBitsToOffset>= 0) && (nBitsToOffset<16) ) 
  	 timeWord |= (1 << nBitsToOffset ); // set appropriate bit
