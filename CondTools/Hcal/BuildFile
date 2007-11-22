@@ -1,3 +1,5 @@
+<flags EDM_PLUGIN=1>
+
 <use name=boost>
 <use name=oracle>
 <use name=FWCore/Framework>
@@ -8,6 +10,7 @@
 <use name=CondCore/DBCommon>
 <use name=RelationalAccess>
 <use name=CondCore/MetaDataService>
+<use name=CondCore/PopCon>
 <use name=DataSvc> 
 <use name=xerces-c> 
 <export>
@@ -21,6 +24,7 @@
   <use name=CondCore/IOVService>
   <use name=CondCore/DBCommon>
   <use name=CondCore/MetaDataService>
+  <use name=CondCore/PopCon>
   <use name=RelationalAccess>
   <use name=DataSvc> 
   <use name=xerces-c> 
