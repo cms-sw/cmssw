@@ -48,19 +48,20 @@ GSPixelHitMatcher::GSPixelHitMatcher(float ephi1min, float ephi1max,
 GSPixelHitMatcher::~GSPixelHitMatcher() { }
 
 void 
-GSPixelHitMatcher::setES(const MagneticField* aMagField, 
+GSPixelHitMatcher::setES(const MagneticFieldMap* aFieldMap, 
 			 const TrackerGeometry* aTrackerGeometry, 
 			 const GeometricSearchTracker* geomSearchTracker,
 			 const TrackerInteractionGeometry* interactionGeometry) {
 
   // initialize the tracker geometry and the magnetic field map
   theTrackerGeometry = aTrackerGeometry; 
-  theMagneticField = aMagField;
+  //theMagneticField = aMagField;
   theGeomSearchTracker = geomSearchTracker;
   _theGeometry = interactionGeometry;
-  
+  theFieldMap = aFieldMap;
+
   // Initialize (if not already done) the simplified magnetic field geometry
-  MagneticFieldMap::instance( theMagneticField, _theGeometry );
+  // MagneticFieldMap::instance( theMagneticField, _theGeometry );
  
   // The pixel layers in the simplified geometry 
   unsigned layer = 1;
@@ -96,8 +97,8 @@ GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
   XYZTLorentzVector theNominalVertex(theVertex.x(), theVertex.y(), theVertex.z(), 0.);
   
   // The corresponding RawParticles (to be propagated for e- and e+
-  ParticlePropagator myElec(theMom,theVert,-1.);
-  ParticlePropagator myPosi(theMom,theVert,+1.);
+  ParticlePropagator myElec(theMom,theVert,-1.,theFieldMap);
+  ParticlePropagator myPosi(theMom,theVert,+1.,theFieldMap);
   
   // Propagate the e- and the e+ hypothesis to the nominal vertex
   // by modifying the pT direction in an appropriate manner.

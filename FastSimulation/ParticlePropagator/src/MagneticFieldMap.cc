@@ -1,28 +1,9 @@
-#include "MagneticField/Engine/interface/MagneticField.h"
+//#include "MagneticField/Engine/interface/MagneticField.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 
 #include <iostream>
 #include <string>
-
-MagneticFieldMap*
-MagneticFieldMap::myself=0; 
-
-MagneticFieldMap* 
-MagneticFieldMap::instance(const MagneticField* pMF,
-			   const TrackerInteractionGeometry* myGeo)
-{
-  if (!myself) { 
-    myself = new MagneticFieldMap(pMF,myGeo);
-    myself->initialize();
-  }
-  return myself;
-}
-
-MagneticFieldMap* 
-MagneticFieldMap::instance() {
-  return myself;
-}
 
 MagneticFieldMap::MagneticFieldMap(const MagneticField* pMF,
 				   const TrackerInteractionGeometry* myGeo) : 
@@ -37,10 +18,7 @@ MagneticFieldMap::MagneticFieldMap(const MagneticField* pMF,
   fieldBarrelZMin(200,static_cast<double>(0.)),
   fieldEndcapBinWidth(200,static_cast<double>(0.)),
   fieldEndcapRMin(200,static_cast<double>(0.))
-{;}
 
-void
-MagneticFieldMap::initialize()
 {
   
   std::list<TrackerLayer>::const_iterator cyliter;
@@ -48,7 +26,7 @@ MagneticFieldMap::initialize()
   std::list<TrackerLayer>::const_iterator cylitEnd=geometry_->cylinderEnd();
   
   // Prepare the histograms
-  std::cout << "Prepare magnetic field local database for FAMOS speed-up" << std::endl;
+  // std::cout << "Prepare magnetic field local database for FAMOS speed-up" << std::endl;
   for ( cyliter=cylitBeg; cyliter != cylitEnd; ++cyliter ) {
     int layer = cyliter->layerNumber();
     //    cout << " Fill Histogram " << hist << endl;
@@ -100,7 +78,7 @@ MagneticFieldMap::initialize()
 const GlobalVector
 MagneticFieldMap::inTesla( const GlobalPoint& gp) const {
 
-  if (!instance()) {
+  if (!pMF_) {
     return GlobalVector( 0., 0., 4.);
   } else {
     return pMF_->inTesla(gp);
@@ -111,7 +89,7 @@ MagneticFieldMap::inTesla( const GlobalPoint& gp) const {
 const GlobalVector
 MagneticFieldMap::inTesla(const TrackerLayer& aLayer, double coord, int success) const {
 
-  if (!instance()) {
+  if (!pMF_) {
     return GlobalVector( 0., 0., 4.);
   } else {
     return GlobalVector(0.,0.,inTeslaZ(aLayer,coord,success));
@@ -136,7 +114,7 @@ MagneticFieldMap::inInverseGeV( const GlobalPoint& gp) const {
 double 
 MagneticFieldMap::inTeslaZ(const GlobalPoint& gp) const {
 
-    return instance() ? pMF_->inTesla(gp).z() : 4.0;
+    return pMF_ ? pMF_->inTesla(gp).z() : 4.0;
 
 }
 
@@ -144,7 +122,7 @@ double
 MagneticFieldMap::inTeslaZ(const TrackerLayer& aLayer, double coord, int success) const 
 {
 
-  if (!myself) {
+  if (!pMF_) {
     return 4.;
   } else {
     // Find the relevant histo

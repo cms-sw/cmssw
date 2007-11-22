@@ -27,6 +27,7 @@ namespace edm {
 
 class TrackerGeometry;
 class MagneticField;
+class MagneticFieldMap;
 class GeometricSearchTracker;
 class TrackerInteractionGeometry;
 
@@ -93,6 +94,7 @@ public:
   mode theMode_;
 
   const MagneticField* theMagField;
+  const MagneticFieldMap* theMagneticFieldMap;
   const TrackerGeometry*  theTrackerGeometry;
   const GeometricSearchTracker* theGeomSearchTracker;
   const TrackerInteractionGeometry* theTrackerInteractionGeometry;

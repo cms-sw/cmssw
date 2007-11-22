@@ -150,9 +150,10 @@ testCaloGeometryTools::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
 
    // Setup the tools
+   double bField000 = 4.;
    myGeometry.setupGeometry(*pG);
    myGeometry.setupTopology(*theCaloTopology);
-   myGeometry.initialize();
+   myGeometry.initialize(bField000);
    
    // Take a point in the barrel
    XYZPoint p1(129,0.,-50);

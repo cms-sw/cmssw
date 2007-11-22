@@ -42,7 +42,7 @@ class CaloGeometryHelper:public Calorimeter
   // the Crystal constructor
   void buildCrystal(const DetId& id,Crystal&) const;
 
-  void initialize();  
+  void initialize(double bField);  
 
   // get the <=8 neighbours
   const std::vector<DetId> & getNeighbours(const DetId& det) const ;

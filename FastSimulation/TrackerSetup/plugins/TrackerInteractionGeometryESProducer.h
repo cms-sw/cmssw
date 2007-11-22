@@ -1,5 +1,5 @@
-#ifndef FastSimulation_TrackerSetup_TrackerIntreactionGeometryESProducer_H
-#define FastSimulation_TrackerSetup__TrackerInteractionGeometryESProducer_H
+#ifndef FastSimulation_TrackerSetup_TrackerInteractionGeometryESProducer_H
+#define FastSimulation_TrackerSetup_TrackerInteractionGeometryESProducer_H
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

@@ -22,6 +22,7 @@
 class TrackerLayer;
 class FSimTrack;
 class RandomEngine;
+class MagneticFieldMap;
 
 class ParticlePropagator : public BaseParticlePropagator {
   
@@ -33,32 +34,39 @@ public:
       half-height and magnetic field defining the cylinder for which 
       propagation is to be performed */
   ParticlePropagator(const RawParticle& myPart, 
-		     double R, double Z, double B,
+		     double R, double Z,
+		     const MagneticFieldMap* aFieldMap,
 		     const RandomEngine* engine);
   
   /** Constructor with only a RawParticle as argument for subsequent 
       propagation to known surfaces (ECAL, HCAL ...) */
   ParticlePropagator(const RawParticle& myPart,
+		     const MagneticFieldMap* aFieldMap,
 		     const RandomEngine* engine);
 
   /** Constructor with two LorentzVector (momentum and vertex (in cm)) and 
       an electric charge propagation to known surfaces (ECAL, HCAL ...) */
   ParticlePropagator(const XYZTLorentzVector& p, 
-		     const XYZTLorentzVector& v, float q);
+		     const XYZTLorentzVector& v, 
+		     float q,
+		     const MagneticFieldMap* aFieldMap);
 
   /** Constructor with a LorentzVector (momentum), a Hep3Vector (vertex in cm)
       and an electric charge propagation to known surfaces (ECAL, HCAL ...) */
   ParticlePropagator(const XYZTLorentzVector& p, 
-		     const XYZVector& v, float q);
+		     const XYZVector& v, float q,
+		     const MagneticFieldMap* aFieldMap);
 
   /** Constructor with a FSimTrack from the FSimEvent*/
   ParticlePropagator(const FSimTrack& simTrack,
+		     const MagneticFieldMap* aFieldMap,
 		     const RandomEngine* engine);
 
   /** Constructor with a (Base)ParticlePropagator*/
   ParticlePropagator(const ParticlePropagator& myPropPart);
   //  ParticlePropagator(BaseParticlePropagator myPropPart);
-  ParticlePropagator(const BaseParticlePropagator &myPropPart);
+  ParticlePropagator(const BaseParticlePropagator &myPropPart,
+		     const MagneticFieldMap* aFieldMap);
 
   /**Initialize the proper decay time of the particle*/
   void initProperDecayTime();
@@ -85,6 +93,7 @@ public:
 
 private:
 
+  const MagneticFieldMap* theFieldMap;
   const RandomEngine* random;
 
 };

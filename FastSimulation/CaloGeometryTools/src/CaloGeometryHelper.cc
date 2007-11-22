@@ -16,7 +16,6 @@
 
 #include "FastSimulation/CaloGeometryTools/interface/DistanceToCell.h"
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
-#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -35,11 +34,11 @@ CaloGeometryHelper::CaloGeometryHelper(const edm::ParameterSet& fastCalo):Calori
   psLayer2Z_ = 307;
 }
 
-void CaloGeometryHelper::initialize()
+void CaloGeometryHelper::initialize(double bField)
 {
   buildCrystalArray();
   buildNeighbourArray();
-  bfield_ = MagneticFieldMap::instance()->inTesla(GlobalPoint(0.,0.,0.)).z();
+  bfield_ = bField;
   ESDetId cps1(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,303.),1));
   psLayer1Z_ = getEcalPreshowerGeometry()->getGeometry(cps1)->getPosition().z();
   ESDetId cps2(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,307.),2));
@@ -114,7 +113,6 @@ void CaloGeometryHelper::getWindow(const DetId& pivot,int s1,int s2,std::vector<
   // currently the getWindow method is the same for EcalBarrelTopology and EndcapTopology
   // (implemented in CaloSubDetectorTopology)
   // optimized versions are foreseen 
-
   vec=getEcalTopology(pivot.subdetId())->getWindow(pivot,s1,s2);
   DistanceToCell distance(getEcalGeometry(pivot.subdetId()),pivot);
   sort(vec.begin(),vec.end(),distance);

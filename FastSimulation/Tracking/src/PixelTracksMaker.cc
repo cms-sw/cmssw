@@ -13,6 +13,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -105,13 +106,15 @@ void PixelTracksMaker::beginJob(const edm::EventSetup& es)
   
   edm::ESHandle<MagneticField>          magField;
   edm::ESHandle<TrackerGeometry>        geometry;
+  edm::ESHandle<MagneticFieldMap>       magFieldMap;
   
   es.get<IdealMagneticFieldRecord>().get(magField);
   es.get<TrackerDigiGeometryRecord>().get(geometry);
+  es.get<MagneticFieldMapRecord>().get(magFieldMap);
   
   theMagField = &(*magField);
   theGeometry = &(*geometry);
-  
+  theFieldMap = &(*magFieldMap);  
   
 }
 
@@ -423,8 +426,8 @@ PixelTracksMaker::compatibleWithVertex(GlobalPoint& gpos1, GlobalPoint& gpos2) {
   theMom2.SetE(sqrt(theMom2.Vect().Mag2()));
 
   // The corresponding RawParticles (to be propagated) for e- and e+
-  ParticlePropagator myElecL(theMom2,thePos2,-1.);
-  ParticlePropagator myPosiL(theMom2,thePos2,+1.);
+  ParticlePropagator myElecL(theMom2,thePos2,-1.,theFieldMap);
+  ParticlePropagator myPosiL(theMom2,thePos2,+1.,theFieldMap);
 
   // Propagate to the closest approach point, with the constraint that 
   // the particles should pass through the  first hit
@@ -433,8 +436,8 @@ PixelTracksMaker::compatibleWithVertex(GlobalPoint& gpos1, GlobalPoint& gpos2) {
 
   theMom2 *= 1000.0;//ptmax
   // The corresponding RawParticles (to be propagated) for e- and e+
-  ParticlePropagator myElecH(theMom2,thePos2,-1.);
-  ParticlePropagator myPosiH(theMom2,thePos2,+1.);
+  ParticlePropagator myElecH(theMom2,thePos2,-1.,theFieldMap);
+  ParticlePropagator myPosiH(theMom2,thePos2,+1.,theFieldMap);
 
   // Propagate to the closest approach point, with the constraint that 
   // the particles should pass through the  first hit

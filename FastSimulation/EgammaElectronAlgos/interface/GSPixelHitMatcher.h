@@ -26,13 +26,13 @@
  *  Two compatible hits in the pixel layers are required.
  */
 
-class MagneticField;
 class TrackerGeometry;
 class GeometricSearchTracker;
 class TrackerInteractionGeometry;
 class TrackerLayer;
 class TrackingRecHit;
 class ParticlePropagator;
+class MagneticFieldMap;
 
 class GSPixelHitMatcher{  
 
@@ -47,7 +47,7 @@ class GSPixelHitMatcher{
 
   virtual ~GSPixelHitMatcher();
 
-  void setES(const MagneticField* aMagField, 
+  void setES(const MagneticFieldMap* aFieldMap, 
 	     const TrackerGeometry* aTrackerGeometry, 
 	     const GeometricSearchTracker* geomSearchTracker,
 	     const TrackerInteractionGeometry* interactionGeometry);
@@ -109,6 +109,7 @@ class GSPixelHitMatcher{
   const MagneticField* theMagneticField;
   const GeometricSearchTracker* theGeomSearchTracker;
   const TrackerInteractionGeometry* _theGeometry; 
+  const MagneticFieldMap* theFieldMap;
   std::vector<const TrackerLayer*> thePixelLayers;
   float vertex;
 

@@ -52,9 +52,10 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
 				     const edm::ParameterSet& matEff,
 				     const edm::ParameterSet& simHits,
 				     const edm::ParameterSet& decays,
-				     const edm::ParameterSet& trackerMaterial,
 				     const RandomEngine* engine) : 
   mySimEvent(aSimEvent), 
+  _theGeometry(0),
+  _theFieldMap(0),
   theMaterialEffects(0), 
   myDecayEngine(0), 
   theGeomTracker(0),
@@ -85,9 +86,6 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   // Only if pT>pTmin are the hits saved
   pTmin = simHits.getUntrackedParameter<double>("pTmin",0.5);
 
-  //  thePSimHits = new vector<PSimHit>();
-  //  thePSimHits->reserve(200000);
-
   // Get the Famos Histos pointer
   //  myHistos = Histos::instance();
 
@@ -97,21 +95,25 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   myHistos->book("h301",1200,-300.,300.,1210,-121.,121.);
   */
 
-  //  _theGeometry = new TrackerInteractionGeometry(trackerMaterial);
   
 }
 
 void 
 TrajectoryManager::initializeRecoGeometry(const GeometricSearchTracker* geomSearchTracker,
-					  const TrackerInteractionGeometry* interactionGeometry)
+					  const TrackerInteractionGeometry* interactionGeometry,
+					  const MagneticFieldMap* aFieldMap)
 {
   
+  // Initialize the reco tracker geometry
   theGeomSearchTracker = geomSearchTracker;
   
   // Initialize the simplified tracker geometry
   _theGeometry = interactionGeometry;
 
   initializeLayerMap();
+
+  // Initialize the magnetic field
+  _theFieldMap = aFieldMap;
 
 }
 
@@ -167,7 +169,7 @@ TrajectoryManager::reconstruct()
     // Get the geometry elements 
     cyliter = _theGeometry->cylinderBegin();
     // Prepare the propagation  
-    ParticlePropagator PP(mySimEvent->track(fsimi),random);
+    ParticlePropagator PP(mySimEvent->track(fsimi),_theFieldMap,random);
 
     //The real work starts here
     int success = 1;

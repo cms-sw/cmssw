@@ -8,6 +8,7 @@
 
 class TransientInitialStateEstimator;
 class MagneticField;
+class MagneticFieldMap;
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class PTrajectoryStateOnDet;
@@ -42,6 +43,7 @@ class GSTrackCandidateMaker : public edm::EDProducer
  private:
 
   const MagneticField*  theMagField;
+  const MagneticFieldMap*  theFieldMap;
   const TrackerGeometry*  theGeometry;
 
   double pTMin;

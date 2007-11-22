@@ -46,6 +46,7 @@ class DetLayer;
 class GeomDet;
 class GeomDetUnit;
 class MagneticField;
+class MagneticFieldMap;
 class GeometricSearchTracker;
 class TrackerGeometry;
 
@@ -66,7 +67,6 @@ class TrajectoryManager
 		    const edm::ParameterSet& matEff,
 		    const edm::ParameterSet& simHits,
 		    const edm::ParameterSet& decays,
-		    const edm::ParameterSet& trackerMaterial,
 		    const RandomEngine* engine);
 
   /// Default Destructor
@@ -95,7 +95,8 @@ class TrajectoryManager
 
   /// Initialize the Reconstruction Geometry
   void initializeRecoGeometry(const GeometricSearchTracker* geomSearchTracker,
-			      const TrackerInteractionGeometry* interactionGeometry);
+			      const TrackerInteractionGeometry* interactionGeometry,
+			      const MagneticFieldMap* aFieldMap);
 
   /// Initialize the full Tracker Geometry
   void initializeTrackerGeometry(const TrackerGeometry* geomTracker);
@@ -120,7 +121,6 @@ class TrajectoryManager
   void makePSimHits( const GeomDet* det, const TrajectoryStateOnSurface& ts,
 		     std::map<double,PSimHit>& theHitMap,
 		     int tkID, float el, float thick, int pID);
-
   /// and there
   std::pair<double,PSimHit> makeSinglePSimHit( const GeomDetUnit& det,
 					       const TrajectoryStateOnSurface& ts, 
@@ -134,6 +134,7 @@ class TrajectoryManager
   FSimEvent* mySimEvent;
 
   const TrackerInteractionGeometry* _theGeometry;
+  const MagneticFieldMap* _theFieldMap;
   
   MaterialEffects* theMaterialEffects;
 

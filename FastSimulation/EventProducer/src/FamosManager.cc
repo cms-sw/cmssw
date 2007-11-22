@@ -18,6 +18,7 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
+#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -90,7 +91,6 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 			  p.getParameter<edm::ParameterSet>("MaterialEffects"),
 			  p.getParameter<edm::ParameterSet>("TrackerSimHits"),
 			  p.getParameter<edm::ParameterSet>("ActivateDecays"),
-			  p.getParameter<edm::ParameterSet>("TrackerMaterial"),
 			  random);
 
   // Initialize PileUp Producer (if requested)
@@ -139,20 +139,25 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
   // Initialize the misaligned tracker interaction geometry 
   edm::ESHandle<TrackerInteractionGeometry>  theTrackerInteractionGeometry;
   es.get<TrackerInteractionGeometryRecord>().get("MisAligned", theTrackerInteractionGeometry );
-  myTrajectoryManager->initializeRecoGeometry(&(*theGeomSearchTracker),
-					      &(*theTrackerInteractionGeometry));
 
-
-  // magnetic field
+  // Initialize the magnetic field
+  double bField000 = 0.;
   if (m_pUseMagneticField) {
-    edm::ESHandle<MagneticField> pMF;
-    es.get<IdealMagneticFieldRecord>().get(pMF);
+    edm::ESHandle<MagneticFieldMap> theMagneticFieldMap;
+    es.get<MagneticFieldMapRecord>().get("MisAligned", theMagneticFieldMap);
     const GlobalPoint g(0.,0.,0.);
-    std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;      
-    MagneticFieldMap::instance( &(*pMF), myTrajectoryManager->theGeometry() ); 
- }    
-  
-
+    bField000 = theMagneticFieldMap->inTeslaZ(g);
+    myTrajectoryManager->initializeRecoGeometry(&(*theGeomSearchTracker),
+						&(*theTrackerInteractionGeometry),
+						&(*theMagneticFieldMap));
+  } else { 
+    myTrajectoryManager->initializeRecoGeometry(&(*theGeomSearchTracker),
+						&(*theTrackerInteractionGeometry),
+						0);
+    bField000 = 4.0;
+  }
+  std::cout << "B-field(T) at (0,0,0)(cm): " << bField000 << std::endl;      
+    
   //  Initialize the calorimeter geometry
   if ( myCalorimetry ) {
     edm::ESHandle<CaloGeometry> pG;
@@ -162,7 +167,7 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
     edm::ESHandle<CaloTopology> theCaloTopology;
     es.get<CaloTopologyRecord>().get(theCaloTopology);     
     myCalorimetry->getCalorimeter()->setupTopology(*theCaloTopology);
-    myCalorimetry->getCalorimeter()->initialize();
+    myCalorimetry->getCalorimeter()->initialize(bField000);
   }
 
 }

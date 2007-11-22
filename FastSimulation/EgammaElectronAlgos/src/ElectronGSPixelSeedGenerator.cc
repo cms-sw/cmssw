@@ -41,6 +41,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
+#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
@@ -100,6 +101,10 @@ void ElectronGSPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
   setup.get<TrackerInteractionGeometryRecord>().get( interGeom );
   theTrackerInteractionGeometry = &(*interGeom);
 
+  edm::ESHandle<MagneticFieldMap> fieldMap;
+  setup.get<MagneticFieldMapRecord>().get(fieldMap);
+  theMagneticFieldMap = &(*fieldMap);
+
   theUpdator = new KFUpdator();
   thePropagator = new PropagatorWithMaterial(alongMomentum,.1057,&(*theMagField)); 
   //  theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
@@ -111,7 +116,10 @@ void ElectronGSPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
   //  myMatchEle->setES(&(*theMagField),theMeasurementTracker);
   //  myMatchPos->setES(&(*theMagField),theMeasurementTracker);
 
-  myGSPixelMatcher->setES(theMagField,theTrackerGeometry,theGeomSearchTracker,theTrackerInteractionGeometry);
+  myGSPixelMatcher->setES(theMagneticFieldMap,
+			  theTrackerGeometry,
+			  theGeomSearchTracker,
+			  theTrackerInteractionGeometry);
 
 }
 

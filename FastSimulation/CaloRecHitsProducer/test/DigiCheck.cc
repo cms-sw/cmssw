@@ -40,9 +40,10 @@ void  DigiCheck::beginJob(const edm::EventSetup & c){
   edm::ESHandle<CaloGeometry> pG;
   c.get<IdealGeometryRecord>().get(pG);     
   // Setup the tools
+  double bField000 = 4.;
   myGeometry.setupGeometry(*pG);
   myGeometry.setupTopology(*theCaloTopology);
-  myGeometry.initialize();
+  myGeometry.initialize(bField000);
     
   edm::ESHandle<EcalTrigTowerConstituentsMap> hetm;
   c.get<IdealGeometryRecord>().get(hetm);

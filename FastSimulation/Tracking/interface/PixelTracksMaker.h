@@ -12,6 +12,7 @@ class PixelFitter;
 class PixelTrackFilter;
 class TrackingRegionProducer;
 class MagneticField;
+class MagneticFieldMap;
 class TrackerGeometry;
 class ParticlePropagator; 
 
@@ -39,6 +40,7 @@ private:
 
   edm::ParameterSet theConfig;
   const MagneticField*  theMagField;
+  const MagneticFieldMap*  theFieldMap;
   const TrackerGeometry*  theGeometry;
 
   double pTMin;

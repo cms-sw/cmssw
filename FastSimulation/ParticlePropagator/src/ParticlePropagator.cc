@@ -14,9 +14,11 @@ ParticlePropagator::ParticlePropagator() :
   BaseParticlePropagator(), random(0) {;}
 
 ParticlePropagator::ParticlePropagator(const RawParticle& myPart,
-				       double RCyl, double ZCyl, double B,
+				       double RCyl, double ZCyl, 
+				       const MagneticFieldMap* aFieldMap,
 				       const RandomEngine* engine) :
-  BaseParticlePropagator(myPart,RCyl,ZCyl,B),
+  BaseParticlePropagator(myPart,RCyl,ZCyl,0.),
+  theFieldMap(aFieldMap),
   random(engine)
 {
   setMagneticField(fieldMap(X(),Y(),Z()));
@@ -24,8 +26,10 @@ ParticlePropagator::ParticlePropagator(const RawParticle& myPart,
 }
 
 ParticlePropagator::ParticlePropagator( const RawParticle& myPart,
+					const MagneticFieldMap* aFieldMap,
 					const RandomEngine* engine) : 
   BaseParticlePropagator(myPart,0.,0.,0.),
+  theFieldMap(aFieldMap),
   random(engine)
  
 {
@@ -34,8 +38,10 @@ ParticlePropagator::ParticlePropagator( const RawParticle& myPart,
 }
 
 ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom, 
-				       const XYZTLorentzVector& vert, float q) :
+				       const XYZTLorentzVector& vert, float q,
+				       const MagneticFieldMap* aFieldMap) :
   BaseParticlePropagator(RawParticle(mom,vert),0.,0.,0.),
+  theFieldMap(aFieldMap),
   random(0)
 {
   setCharge(q);
@@ -43,9 +49,11 @@ ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom,
 }
 
 ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom, 
-				       const XYZVector& vert, float q) :
+				       const XYZVector& vert, float q,
+				       const MagneticFieldMap* aFieldMap) :
   BaseParticlePropagator(
     RawParticle(mom,XYZTLorentzVector(vert.X(),vert.Y(),vert.Z(),0.0)),0.,0.,0.),
+  theFieldMap(aFieldMap),
   random(0)
 {
   setCharge(q);
@@ -53,9 +61,11 @@ ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom,
 }
 
 ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack,
+				       const MagneticFieldMap* aFieldMap,
 				       const RandomEngine* engine) : 
   BaseParticlePropagator(RawParticle(simTrack.type(),simTrack.momentum()),
 			 0.,0.,0.),
+  theFieldMap(aFieldMap),
   random(engine)
 {
   setVertex(simTrack.vertex().position());
@@ -64,15 +74,18 @@ ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack,
 }
 
 ParticlePropagator::ParticlePropagator(const ParticlePropagator& myPropPart) :
-  BaseParticlePropagator(myPropPart)
+  BaseParticlePropagator(myPropPart),
+  theFieldMap(myPropPart.theFieldMap)
 {  
   //  setMagneticField(fieldMap(x(),y(),z()));
 }
 
-ParticlePropagator::ParticlePropagator(const BaseParticlePropagator& myPropPart) :
-  BaseParticlePropagator(myPropPart)
+ParticlePropagator::ParticlePropagator(const BaseParticlePropagator& myPropPart,
+				       const MagneticFieldMap* aFieldMap) :
+  BaseParticlePropagator(myPropPart),
+  theFieldMap(aFieldMap)
 {  
-  //  setMagneticField(fieldMap(x(),y(),z()));
+  setMagneticField(fieldMap(X(),Y(),Z()));
 }
 
 
@@ -104,7 +117,7 @@ ParticlePropagator::propagateToNominalVertex(const XYZTLorentzVector& v) {
 
 ParticlePropagator
 ParticlePropagator::propagated() const {
-  return ParticlePropagator(BaseParticlePropagator::propagated());
+  return ParticlePropagator(BaseParticlePropagator::propagated(),theFieldMap);
 }
 
 double
@@ -112,8 +125,8 @@ ParticlePropagator::fieldMap(double xx,double yy, double zz) {
   // Arguments now passed in cm.
   //  return MagneticFieldMap::instance()->inTesla(GlobalPoint(xx/10.,yy/10.,zz/10.)).z();
   // Return a dummy value for neutral particles!
-  return charge() == 0.0 ? 
-    4. : MagneticFieldMap::instance()->inTeslaZ(GlobalPoint(xx,yy,zz));
+  return charge() == 0.0 || theFieldMap == 0 ? 
+    4. : theFieldMap->inTeslaZ(GlobalPoint(xx,yy,zz));
 }
 
 double
@@ -121,8 +134,8 @@ ParticlePropagator::fieldMap(const TrackerLayer& layer, double coord, int succes
   // Arguments now passed in cm.
   //  return MagneticFieldMap::instance()->inTesla(GlobalPoint(xx/10.,yy/10.,zz/10.)).z();
   // Return a dummy value for neutral particles!
-  return charge() == 0.0 ? 
-    4. : MagneticFieldMap::instance()->inTeslaZ(layer,coord,success);
+  return charge() == 0.0 || theFieldMap == 0 ? 
+    4. : theFieldMap->inTeslaZ(layer,coord,success);
 }
 
 bool
