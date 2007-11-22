@@ -46,10 +46,7 @@ void TrackingMaterialAnalyser::endJob(void)
   for (unsigned int i = 0; i < m_layers.size(); ++i) {
     MaterialAccountingLayer & layer = *(m_layers[i]);
     std::cout << std::setprecision(3);
-    std::cout << std::setw(20) << std::left << layer.getName()
-              << "z: [" << std::setw(8) << std::right << layer.getRangeZ().first << "," << std::setw(8) << std::right << layer.getRangeZ().second << "] "
-              << "r: [" << std::setw(7) << std::right << layer.getRangeR().first << "," << std::setw(7) << std::right << layer.getRangeR().second << "] "
-              << std::endl;
+    std::cout << std::setw(20) << std::left << layer.getName() << std::endl;
     std::cout << std::setprecision(6);
     std::cout << "\tnumber of hits:        "        << std::setw(9) << layer.tracks()                  << std::endl;
     std::cout << "\tnormalized segment length:    " << std::setw(9) << layer.averageLength()           << " ± " << std::setw(9) << layer.sigmaLength()           << " cm" << std::endl;

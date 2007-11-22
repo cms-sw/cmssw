@@ -13,9 +13,7 @@
 #include "MaterialAccountingLayer.h"
 
 MaterialAccountingLayer::MaterialAccountingLayer( const DetLayer & layer ) :
-  m_layer( & layer ),
-  m_z( layer.surface().zSpan() ),
-  m_r( layer.surface().rSpan() ),
+  m_layers( 1, & layer ),
   m_accounting(),
   m_errors(),
   m_tracks( 0 ),
@@ -30,6 +28,25 @@ MaterialAccountingLayer::MaterialAccountingLayer( const DetLayer & layer ) :
   m_radlen_vs_z     = new TH1F(0, "Radiation lengths vs. Z", 6000, -300, 300);
   m_radlen_vs_r     = new TH1F(0, "Radiation lengths vs. R", 1200, 0, 120);
 }
+
+MaterialAccountingLayer::MaterialAccountingLayer( std::vector<const DetLayer *> layers ) :
+  m_layers( layers ),
+  m_accounting(),
+  m_errors(),
+  m_tracks( 0 ),
+  m_counted( false )
+{
+  m_dedx_spectrum   = new TH1F(0, "Energy loss spectrum", 1000,  0, 1);
+  m_dedx_vs_eta     = new TH1F(0, "Energy loss vs. eta", 1000, -5, 5);
+  m_dedx_vs_z       = new TH1F(0, "Energy loss vs. Z", 6000, -300, 300);
+  m_dedx_vs_r       = new TH1F(0, "Energy loss vs. R", 1200, 0, 120);
+  m_radlen_spectrum = new TH1F(0, "Radiation lengths spectrum", 1000,  0, 1);
+  m_radlen_vs_eta   = new TH1F(0, "Radiation lengths vs. eta", 1000, -5, 5);
+  m_radlen_vs_z     = new TH1F(0, "Radiation lengths vs. Z", 6000, -300, 300);
+  m_radlen_vs_r     = new TH1F(0, "Radiation lengths vs. R", 1200, 0, 120);
+}
+
+
 
 MaterialAccountingLayer::~MaterialAccountingLayer(void)
 {
@@ -79,8 +96,9 @@ void MaterialAccountingLayer::endOfTrack(void) {
 
 std::string MaterialAccountingLayer::getName(void) const {
   // extract the subdetector name using the overloaded operator<<
+  // use the first layer only (for simplicity and backward compatibility)
   std::stringstream name;
-  name << m_layer->subDetector();
+  name << m_layers[0]->subDetector();
   return name.str();
 }
 

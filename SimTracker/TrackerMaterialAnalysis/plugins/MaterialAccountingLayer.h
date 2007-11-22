@@ -37,10 +37,13 @@ public:
   /// commit the buffer and reset the "already hit by this track" flag
   void endOfTrack( void );
   
-  /// check if detector is inside this layer 
+  /// check if detector is inside any part of this layer 
   bool inside( const MaterialAccountingDetector& detector ) const 
   {
-    return m_layer->surface().bounds().inside( m_layer->surface().toLocal( detector.position() ) );
+    for (unsigned int i = 0; i < m_layers.size(); ++i)
+      if (m_layers[i]->surface().bounds().inside( m_layers[i]->surface().toLocal( detector.position() ) ))
+        return true;
+    return false;
   }
 
   /// return the average normalized material accounting informations
@@ -91,38 +94,25 @@ public:
     return m_tracks;
   }
  
-  /// ( r_min, r_max ) 
-  const std::pair<float, float> & getRangeR(void) const 
-  {
-    return m_r;
-  }
-
-  /// ( z_min, z_max ) 
-  const std::pair<float, float> & getRangeZ(void) const {
-    return m_z;
-  }
- 
   /// get the layer subdetector name (PixelBarrel, TOB, ...) 
   std::string getName(void) const;
 
   /// access the DetLayer
-  const DetLayer * layer(void) const 
+  const DetLayer * layer(unsigned int i) const 
   {
-    return m_layer;
+    return i < m_layers.size() ? m_layers[i] : 0;
   }
 
-  const MediumProperties * material(void) const
+  const MediumProperties * material(unsigned int i) const
   {
-    return m_layer->surface().mediumProperties();
+    return i < m_layers.size() ? m_layers[i]->surface().mediumProperties() : 0;
   }
   
   void savePlots(const std::string & name) const;
   
 private:
-  // m_layer is used access subdetector, R & Z ranges, and to check for inside-ness
-  const DetLayer *                  m_layer;
-  std::pair<float, float>           m_z;
-  std::pair<float, float>           m_r;
+  // m_layers are used to access subdetector, R & Z ranges, and to check for inside-ness
+  std::vector<const DetLayer *>     m_layers;
   MaterialAccountingStep            m_accounting;
   MaterialAccountingStep            m_errors;
   unsigned int                      m_tracks;
