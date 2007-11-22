@@ -10,6 +10,9 @@
 
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Transform3D.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "Math/GenVector/RotationZ.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <cmath>
 #include <iostream>
@@ -69,15 +72,15 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
 
   const CSCChamberSpecs * specs = layer->chamber()->specs();
   const CSCLayerGeometry * geom = layer->geometry();
-  HepPoint3D clusterPos(pos.x(), pos.y(), pos.z());
+  math::LocalPoint clusterPos(pos.x(), pos.y(), pos.z());
   LogTrace("CSCDriftSim") << "CSCDriftSim: ionization cluster at: " <<  pos; 
   // set the coordinate system with the x-axis along the nearest wire,
   // with the origin in the center of the chamber, on that wire.
-  HepTranslateY3D yShift(-1.*geom->yOfWire(nearestWire));
-  HepRotateZ3D rotation(-1.*geom->wireAngle());
-  clusterPos = yShift * clusterPos;
+  math::LocalVector yShift(0, -1.*geom->yOfWire(nearestWire), 0.);
+  ROOT::Math::RotationZ rotation(-1.*geom->wireAngle());
+
+  clusterPos = yShift + clusterPos;
   clusterPos = rotation * clusterPos;
-  
   GlobalPoint globalPosition = layer->surface().toGlobal(pos);
   assert(theMagneticField != 0);
  
