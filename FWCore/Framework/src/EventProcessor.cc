@@ -1110,9 +1110,6 @@ namespace edm {
       fb = input_->readFile();
     }
     if(fb) {
-      if (maxEventsInput_ >= 0) {
-        fb->setNonClonable();
-      }
       schedule_->beginInputFile(*fb);
     }
     return fb;
