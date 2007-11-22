@@ -30,8 +30,7 @@ private:
   edm::InputTag                             m_material;
   bool                                      m_skipAfterLastDetector;
   bool                                      m_skipBeforeFirstDetector;
-  bool                                      m_identicalForwardLayers;
-  bool                                      m_identicalBarrelLayers;
+  bool                                      m_symmetricForwardLayers;
   std::vector<MaterialAccountingLayer *>    m_layers;
   TrackingMaterialPlotter *                 m_plotter;
 };

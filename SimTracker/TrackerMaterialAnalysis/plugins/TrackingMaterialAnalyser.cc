@@ -27,8 +27,7 @@ TrackingMaterialAnalyser::TrackingMaterialAnalyser(const edm::ParameterSet& iPSe
   m_material                = iPSet.getParameter<edm::InputTag>("MaterialAccounting");
   m_skipAfterLastDetector   = iPSet.getParameter<bool>("SkipAfterLastDetector");
   m_skipBeforeFirstDetector = iPSet.getParameter<bool>("SkipBeforeFirstDetector");
-  m_identicalForwardLayers  = iPSet.getParameter<bool>("ForceIdenticalForwardLayers");
-  m_identicalBarrelLayers   = iPSet.getParameter<bool>("ForceIdenticalBarrelLayers");
+  m_symmetricForwardLayers  = iPSet.getParameter<bool>("ForceSymmetricForwardLayers");
   m_plotter                 = new TrackingMaterialPlotter( 300., 120., 10 );      // 10x10 points per cm2
 }    
 
@@ -71,7 +70,7 @@ void TrackingMaterialAnalyser::endJob(void)
                << std::endl;
 
     std::stringstream s;
-    s << "layer_" << std::setw(2) << std::setfill('0') << i;
+    s << "layer_" << std::setw(2) << std::setfill('0') << (i+1);
     layer.savePlots( s.str() );
   }
 
@@ -116,6 +115,10 @@ void TrackingMaterialAnalyser::analyze(const edm::Event& iEvent, const edm::Even
 //-------------------------------------------------------------------------
 // split a track in segments, each associated to a sensitive detector in a DetLayer;
 // then, associate each step to one segment, splitting the steps across the segment boundaries
+//
+// Nota Bene: this implementation assumes that the steps stored along each track are consecutive and adjacent, 
+// and that no step can span across 3 layers, since all steps should split at layer
+
 void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
 {
   // group sensitive detectors by their DetLayer
@@ -124,81 +127,140 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
     group[i] = findLayer( track.m_detectors[i] );
 
   unsigned int detectors = track.m_detectors.size();
-  std::vector<double> limits(detectors + 2);
-  limits[0] = -0.0001;                                                              // 1 um tolerance 
-  for (unsigned int i = 1; i < detectors; ++i)
-    limits[i] = (track.m_detectors[i-1].m_curvilinearOut + track.m_detectors[i].m_curvilinearIn) / 2.;
-  if (detectors) {
+  if (detectors == 0) {
+    // the track doesn't cross any active detector:
+    // keep al material as unassigned
+    if (m_plotter)
+      for (unsigned int i = 1; i < track.m_steps.size(); ++i)
+        m_plotter->plotSegmentUnassigned( track.m_steps[i] );
+  } else {
+    
+    std::vector<double> limits(detectors + 2);
+    if (not m_skipBeforeFirstDetector)
+      limits[0] = track.m_detectors[0].m_curvilinearIn - 0.0001;                    // 1 um tolerance
+    else
+      limits[0] = -0.0001;                                                          // 1 um tolerance
+  
+    for (unsigned int i = 1; i < detectors; ++i)
+      limits[i] = (track.m_detectors[i-1].m_curvilinearOut + track.m_detectors[i].m_curvilinearIn) / 2.;
+  
     if (m_skipAfterLastDetector)
       limits[detectors] = track.m_detectors[detectors-1].m_curvilinearOut + 0.001;  // 1 um tolerance
     else
       limits[detectors] = track.m_total.length() + 0.001;                           // 1 um tolerance
-  }
-  limits[detectors+1] = INFINITY;
-  //for (unsigned int i = 0; i < detectors; ++i)
-  //  std::cout << "MaterialAccountingTrack::split(): detector region boundaries: [" << limits[i] << ", " << limits[i+1] << "] along track" << std::endl;
- 
-  unsigned int index = 0;     // which detector 
-  double begin = 0.;          // begginning of step, along the track
-  double end   = 0.;          // end of step, along the track
-  for (unsigned int i = 1; i < track.m_steps.size(); ++i) {
-    if (index >= detectors) {
-      // track outside acceptance, keep as unassocated
+
+    // FIXME: is this still needed ?    
+    limits[detectors+1] = INFINITY;
+
+    //for (unsigned int i = 0; i < detectors; ++i)
+    //  std::cout << "MaterialAccountingTrack::split(): detector region boundaries: [" << limits[i] << ", " << limits[i+1] << "] along track" << std::endl;
+
+    double begin = 0.;          // begginning of step, along the track
+    double end   = 0.;          // end of step, along the track
+    unsigned int i = 1;         // step conter
+
+    // skip the material before the first layer
+    while (end < limits[0]) {
+      const MaterialAccountingStep & step = track.m_steps[i++];
+      end = begin + step.length();
+
+      // do not account material before the first layer
       if (m_plotter)
-        m_plotter->plotSegmentUnassigned( track.m_steps[i] );
-      continue;
+        m_plotter->plotSegmentUnassigned( step );
+
+      begin = end;
     }
-    if (begin <= limits[index]) {
-      std::cerr << "MaterialAccountingTrack::split(): ERROR: internal logic error, expected " << limits[index] << " < " << begin << " < " << limits[index+1] << "]" << std::endl;
-      break;
-    }
-    end = begin + track.m_steps[i].length();
-    
-    if (end <= limits[index+1]) {
-      // step inside detector range
-      //std::cout << "MaterialAccountingTrack::split(): step[" << i << "] at [" << begin << ", " << end << "] inside [" << limits[index] << ", " << limits[index+1] << "]" << std::endl;
-      track.m_detectors[index].account( track.m_steps[i], begin, end );
-      if (m_plotter)
-        m_plotter->plotSegmentInLayer( track.m_steps[i], group[index] );
-    } else {
-      // step shared beteewn two detectors, transition at limits[index+1]
-      //std::cout << "MaterialAccountingTrack::split(): step[" << i << "] at [" << begin << ", " << end << "] going from [" << limits[index] << ", " << limits[index+1] << "] into [" << limits[index+1] << ", " << limits[index+2] << "]" << std::endl;
-      double fraction = (limits[index+1] - begin) / (end - begin);
-      GlobalPoint limit(
-          track.m_steps[i].in().x() + (track.m_steps[i].out().x() - track.m_steps[i].in().x()) * fraction,
-          track.m_steps[i].in().y() + (track.m_steps[i].out().y() - track.m_steps[i].in().y()) * fraction,
-          track.m_steps[i].in().z() + (track.m_steps[i].out().z() - track.m_steps[i].in().z()) * fraction
-      );
-     
-      track.m_detectors[index].account( fraction * track.m_steps[i], begin, limits[index+1] );
-      if (m_plotter) {
-        MaterialAccountingStep step( fraction * track.m_steps[i].length(),
-                                     fraction * track.m_steps[i].radiationLengths(),
-                                     fraction * track.m_steps[i].energyLoss(),
-                                     track.m_steps[i].in(), 
-                                     limit );
-        m_plotter->plotSegmentInLayer( step, group[index] );
-      }
-      ++index;          // next layer
-      if (index < detectors)
-        track.m_detectors[index].account( (1 - fraction) * track.m_steps[i], limits[index+1], end );
+
+    // optionally split a step across the first layer boundary
+    if (begin < limits[0] and end > limits[0]) {
+      const MaterialAccountingStep & step = track.m_steps[i++];
+      end = begin + step.length();
+
+      std::cerr << "first layer:      " << limits[0] << ".." << limits[1] << std::endl;
+      double fraction = (limits[0] - begin) / (end - begin);
+      std::pair<MaterialAccountingStep, MaterialAccountingStep> parts = step.split(fraction);
+      
+      track.m_detectors[0].account( parts.second, limits[1], end );
 
       if (m_plotter) {
-        MaterialAccountingStep step( (1 - fraction) * track.m_steps[i].length(),
-                                     (1 - fraction) * track.m_steps[i].radiationLengths(),
-                                     (1 - fraction) * track.m_steps[i].energyLoss(),
-                                     limit,
-                                     track.m_steps[i].out() );
-        if (index < detectors)
-          m_plotter->plotSegmentInLayer( step,  group[index] );
-        else
-          // track outside acceptance, keep as unassocated
-          m_plotter->plotSegmentUnassigned( step );
+        // step partially before first layer, keep first part as unassocated
+        m_plotter->plotSegmentUnassigned( parts.first );
+
+        // associate second part to first layer
+        m_plotter->plotSegmentInLayer( parts.second,  group[0] );
       }
+      begin = end;
     }
-    begin = end;
-  }
     
+    unsigned int index = 0;     // which detector 
+    while (i < track.m_steps.size()) {
+      const MaterialAccountingStep & step = track.m_steps[i++];
+
+      /*
+      // FIXME: is this still needed ? or is this implied by the following check ?
+      if (index >= detectors) {
+        // track outside acceptance, keep as unassociated
+        if (m_plotter)
+          m_plotter->plotSegmentUnassigned( step );
+        continue;
+      }
+      */
+      
+      end = begin + step.length();
+
+      if (begin > limits[detectors]) {
+        // segment after last layer and skipping requested in configuation
+        if (m_plotter)
+          m_plotter->plotSegmentUnassigned( step );
+        begin = end;
+        continue;
+      }
+
+      // from here onwards we should be in the accountable region, either completely in a single layer:
+      //   limits[index] <= begin < end <= limits[index+1]
+      // or possibly split between 2 layers 
+      //   limits[index] < begin < limits[index+1] < end <  limits[index+2]
+      if (begin < limits[index] or end > limits[index+2]) {
+        // sanity check
+        std::cerr << "MaterialAccountingTrack::split(): ERROR: internal logic error, expected " << limits[index] << " < " << begin << " < " << limits[index+1] << std::endl;
+        break;
+      }
+      
+      if (limits[index] <= begin and end <= limits[index+1]) {
+        // step completely inside current detector range
+        track.m_detectors[index].account( step, begin, end );
+        if (m_plotter)
+          m_plotter->plotSegmentInLayer( step, group[index] );
+      } else {
+        // step shared beteewn two detectors, transition at limits[index+1]
+        double fraction = (limits[index+1] - begin) / (end - begin);
+        std::pair<MaterialAccountingStep, MaterialAccountingStep> parts = step.split(fraction);
+      
+        if (m_plotter) {
+          if (index > 0)
+            m_plotter->plotSegmentInLayer( parts.first, group[index] );
+          else
+            // track outside acceptance, keep as unassocated
+            m_plotter->plotSegmentUnassigned( parts.first );
+
+          if (index+1 < detectors)
+            m_plotter->plotSegmentInLayer( parts.second,  group[index+1] );
+          else
+            // track outside acceptance, keep as unassocated
+            m_plotter->plotSegmentUnassigned( parts.second );
+        }
+
+        track.m_detectors[index].account( parts.first, begin, limits[index+1] );
+        ++index;          // next layer
+        std::cerr << "next layer (" << index << "): " << limits[index] << ".." << limits[index+1] << std::endl;
+        if (index < detectors)
+          track.m_detectors[index].account( parts.second, limits[index+1], end );
+      }
+      begin = end;
+    }
+    
+  }
+
   // add the material from each detector to its layer (if there is one and only one)
   for (unsigned int i = 0; i < track.m_detectors.size(); ++i)
     if (group[i] != 0)
