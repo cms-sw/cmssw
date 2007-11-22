@@ -129,11 +129,15 @@ private:
   bool                              m_counted;
   mutable MaterialAccountingStep    m_buffer;
 
-  // plots of material distribution, and material vs. R/eta
+  // plots of material distribution, and material vs. eta/Z/R
   TH1F * m_dedx_spectrum;
   TH1F * m_dedx_vs_eta;
+  TH1F * m_dedx_vs_z;
+  TH1F * m_dedx_vs_r;
   TH1F * m_radlen_spectrum;
   TH1F * m_radlen_vs_eta;
+  TH1F * m_radlen_vs_z;
+  TH1F * m_radlen_vs_r;
 };
 
 #endif // MaterialAccountingLayer_h

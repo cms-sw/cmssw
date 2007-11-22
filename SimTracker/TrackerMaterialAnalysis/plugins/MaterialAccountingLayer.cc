@@ -23,16 +23,24 @@ MaterialAccountingLayer::MaterialAccountingLayer( const DetLayer & layer ) :
 {
   m_dedx_spectrum   = new TH1F(0, "Energy loss spectrum", 1000,  0, 1);
   m_dedx_vs_eta     = new TH1F(0, "Energy loss vs. eta", 1000, -5, 5);
+  m_dedx_vs_z       = new TH1F(0, "Energy loss vs. Z", 6000, -300, 300);
+  m_dedx_vs_r       = new TH1F(0, "Energy loss vs. R", 1200, 0, 120);
   m_radlen_spectrum = new TH1F(0, "Radiation lengths spectrum", 1000,  0, 1);
   m_radlen_vs_eta   = new TH1F(0, "Radiation lengths vs. eta", 1000, -5, 5);
+  m_radlen_vs_z     = new TH1F(0, "Radiation lengths vs. Z", 6000, -300, 300);
+  m_radlen_vs_r     = new TH1F(0, "Radiation lengths vs. R", 1200, 0, 120);
 }
 
 MaterialAccountingLayer::~MaterialAccountingLayer(void)
 {
   delete m_dedx_spectrum;
   delete m_dedx_vs_eta;
+  delete m_dedx_vs_z;
+  delete m_dedx_vs_r;
   delete m_radlen_spectrum;
   delete m_radlen_vs_eta;
+  delete m_radlen_vs_z;
+  delete m_radlen_vs_r;
 }
 
 bool MaterialAccountingLayer::addDetector( const MaterialAccountingDetector& detector ) {
@@ -55,8 +63,12 @@ void MaterialAccountingLayer::endOfTrack(void) {
  
     m_dedx_spectrum->Fill(   m_buffer.energyLoss() );
     m_dedx_vs_eta->Fill(     m_buffer.in().eta() );
+    m_dedx_vs_z->Fill(       m_buffer.in().z() );
+    m_dedx_vs_r->Fill(       m_buffer.in().perp() );
     m_radlen_spectrum->Fill( m_buffer.radiationLengths() );
     m_radlen_vs_eta->Fill(   m_buffer.in().eta() );
+    m_radlen_vs_z->Fill(     m_buffer.in().z() );
+    m_radlen_vs_r->Fill(     m_buffer.in().perp() );
   }
   m_counted = false;
   m_buffer  = MaterialAccountingStep();
@@ -73,40 +85,57 @@ std::string MaterialAccountingLayer::getName(void) const {
 void MaterialAccountingLayer::savePlots(const std::string & name) const
 {
   TCanvas * canvas;
-  double integral;
 
   canvas = new TCanvas ("cavas", "Energy loss", 800, 600);
   m_dedx_spectrum->Draw("");
   canvas->SaveAs((name + "_dedx_spectrum.png").c_str(),  "");
-  canvas->SaveAs((name + "_dedx_spectrum.root").c_str(), "");
   delete canvas;
   
   canvas = new TCanvas ("canvas", "Energy loss vs. eta", 800, 600);
-  integral = m_dedx_vs_eta->Integral();
-  if (integral != 0) {
-    for (int i = 0 ; i < m_dedx_vs_eta->GetSize(); ++i)
-      (*m_dedx_vs_eta)[i] /= integral;
-  }
+  if (double integral = m_dedx_vs_eta->Integral())
+    m_dedx_vs_eta->Scale( 1. / integral );
   m_dedx_vs_eta->Draw("");
   canvas->SaveAs((name + "_dedx_vs_eta.png").c_str(),  "");
-  canvas->SaveAs((name + "_dedx_vs_eta.root").c_str(), "");
+  delete canvas;
+  
+  canvas = new TCanvas ("canvas", "Energy loss vs. Z", 800, 600);
+  if (double integral = m_dedx_vs_z->Integral())
+    m_dedx_vs_z->Scale( 1. / integral );
+  m_dedx_vs_z->Draw("");
+  canvas->SaveAs((name + "_dedx_vs_z.png").c_str(),  "");
+  delete canvas;
+  
+  canvas = new TCanvas ("canvas", "Energy loss vs. R", 800, 600);
+  if (double integral = m_dedx_vs_r->Integral())
+    m_dedx_vs_r->Scale( 1. / integral );
+  m_dedx_vs_r->Draw("");
+  canvas->SaveAs((name + "_dedx_vs_r.png").c_str(),  "");
   delete canvas;
   
   canvas = new TCanvas ("canvas", "Radiation lenghts", 800, 600);
   m_radlen_spectrum->Draw("");
   canvas->SaveAs((name + "_radlen_spectrum.png").c_str(),  "");
-  canvas->SaveAs((name + "_radlen_spectrum.root").c_str(), "");
   delete canvas;
   
   canvas = new TCanvas ("canvas", "Radiation lenghts vs. eta", 800, 600);
-  integral = m_radlen_vs_eta->Integral();
-  if (integral != 0) {
-    for (int i = 0 ; i < m_radlen_vs_eta->GetSize(); ++i)
-      (*m_radlen_vs_eta)[i] /= integral;
-  }
+  if (double integral = m_radlen_vs_eta->Integral())
+    m_radlen_vs_eta->Scale( 1. / integral );
   m_radlen_vs_eta->Draw("");
   canvas->SaveAs((name + "_radlen_vs_eta.png").c_str(),  "");
-  canvas->SaveAs((name + "_radlen_vs_eta.root").c_str(), "");
+  delete canvas;
+  
+  canvas = new TCanvas ("canvas", "Radiation lenghts vs. Z", 800, 600);
+  if (double integral = m_radlen_vs_z->Integral())
+    m_radlen_vs_z->Scale( 1. / integral );
+  m_radlen_vs_z->Draw("");
+  canvas->SaveAs((name + "_radlen_vs_z.png").c_str(),  "");
+  delete canvas;
+  
+  canvas = new TCanvas ("canvas", "Radiation lenghts vs. R", 800, 600);
+  if (double integral = m_radlen_vs_r->Integral())
+    m_radlen_vs_r->Scale( 1. / integral );
+  m_radlen_vs_r->Draw("");
+  canvas->SaveAs((name + "_radlen_vs_r.png").c_str(),  "");
   delete canvas;
 }
 
