@@ -134,9 +134,17 @@ void popcon::StateCreator::generateStatusData()
   if (m_sqlite)
     return;
   std::cout<<"StateCreator::generateStatusData"<<std::endl;
+
+  if (nfo.top_level_table == "")
+    getPoolTableName();
+
+  if (nfo.top_level_table == "") {
+    m_current_state = DBState(nfo.object_name, 0, m_offline);
+    return;
+  }
+  
   cond::CoralTransaction& status_db=conHandler.getConnection(m_connect)->coralTransaction(true);
   try{
-    if (nfo.top_level_table == "") getPoolTableName();
     status_db.start();    
     coral::AttributeList rowBuffer;
     coral::ICursor* cursor; 
@@ -173,9 +181,16 @@ void popcon::StateCreator::getPoolTableName()
   cond::CoralTransaction& offline_db=conHandler.getConnection(m_offline)->coralTransaction(true);
   try{
     offline_db.start();
+    coral::ISchema& schema = offline_db.coralSessionProxy().nominalSchema();
+
+    if ( ! schema.existsTable("POOL_RSS_CONTAINERS")){
+      nfo.top_level_table = "";
+      status_db.disconnect();
+      return;
+    }
+
     coral::AttributeList rowBuffer;
     rowBuffer.extend<std::string>( "TLT" );
-    coral::ISchema& schema = offline_db.coralSessionProxy().nominalSchema();
     //std::auto_ptr< coral::IQuery > query(schema.newQuery()); 
     coral::IQuery* query(schema.newQuery()); 
     query->addToOutputList( "P.TABLE_NAME","TLT");
@@ -260,8 +275,11 @@ void popcon::StateCreator::getStoredStatusData()
     query->addToTableList("P_CON_PAYLOAD_STATE","");
     coral::AttributeList conditionData;
     conditionData.extend<std::string>( "oname" );
-    conditionData[0].data<std::string>() = nfo.object_name;
-    std::string condition = "P_CON_PAYLOAD_STATE.NAME = :oname";
+    conditionData[ "oname" ].data<std::string>() = nfo.object_name;
+    conditionData.extend<std::string>( "connStr" );
+    conditionData[ "connStr" ].data<std::string>() = m_offline;
+    std::string condition = "cps.NAME = :oname and cps.CONNECT_STRING = :connStr";
+    
     query->setCondition(condition, conditionData);
     query->setMemoryCacheSize( 100 );
     query->defineOutput( rowBuffer );
@@ -273,9 +291,9 @@ void popcon::StateCreator::getStoredStatusData()
     }
     coraldb.commit();	
     delete query;
-    if (count != 1){
-      throw std::runtime_error("cannot find ObjectName in the database");
-    }
+	if (count != 1){
+	  throw popcon::Exception("cannot find ObjectName in the database");
+	}
   }catch(coral::Exception& er){
     coraldb.rollback();;
     //std::cerr << "StateCreator::getStoredStatusData Coral exception: " << er.what() << std::endl;
