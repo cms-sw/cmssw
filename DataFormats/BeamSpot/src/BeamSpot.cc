@@ -7,7 +7,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpot.cc,v 1.3 2007/06/27 12:25:48 speer Exp $
+ version $Id: BeamSpot.cc,v 1.4 2007/08/21 20:45:37 ratnik Exp $
 
  ________________________________________________________________**/
 
@@ -39,9 +39,9 @@ namespace reco {
     dxdz_ = 0.;
     dydz_ = 0.;
     BeamWidth_ = 0.0015; //cm
-    error_(0,0) = BeamWidth_*BeamWidth_;
-    error_(1,1) = error_(0,0);
-    error_(2,2) = sigmaZ_*sigmaZ_;
+//     error_(0,0) = BeamWidth_*BeamWidth_;
+//     error_(1,1) = error_(0,0);
+//     error_(2,2) = sigmaZ_*sigmaZ_;
 
   }
 
@@ -88,13 +88,13 @@ namespace reco {
       rotationMatrix(2,1) = rotation.zy();
       rotationMatrix(2,2) = rotation.zz();
 
-      AlgebraicSymMatrix33 diagError = covariance3D();
-      diagError(0,0) += pow(BeamWidth(),2);
-      diagError(1,1) += pow(BeamWidth(),2);
-      diagError(2,2) += pow(sigmaZ(),2);
+      AlgebraicSymMatrix33 diagError ;
+      diagError(0,0) = pow(BeamWidth(),2);
+      diagError(1,1) = pow(BeamWidth(),2);
+      diagError(2,2) = pow(sigmaZ(),2);
 
       Covariance3DMatrix matrix;
-      matrix = ROOT::Math::Similarity(rotationMatrix, diagError);
+      matrix = ROOT::Math::Similarity(rotationMatrix, diagError) + covariance3D();
       return matrix;
   }
 
