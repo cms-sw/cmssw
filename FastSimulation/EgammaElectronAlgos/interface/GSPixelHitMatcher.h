@@ -49,7 +49,8 @@ class GSPixelHitMatcher{
 
   void setES(const MagneticField* aMagField, 
 	     const TrackerGeometry* aTrackerGeometry, 
-	     const GeometricSearchTracker* geomSearchTracker );
+	     const GeometricSearchTracker* geomSearchTracker,
+	     const TrackerInteractionGeometry* interactionGeometry);
 
   std::vector< std::pair<ConstRecHitPointer,ConstRecHitPointer> > 
     compatibleHits(const GlobalPoint& xmeas,
@@ -107,8 +108,8 @@ class GSPixelHitMatcher{
   const TrackerGeometry* theTrackerGeometry;
   const MagneticField* theMagneticField;
   const GeometricSearchTracker* theGeomSearchTracker;
-  TrackerInteractionGeometry* _theGeometry; 
-  std::vector<TrackerLayer*> thePixelLayers;
+  const TrackerInteractionGeometry* _theGeometry; 
+  std::vector<const TrackerLayer*> thePixelLayers;
   float vertex;
 
 

@@ -91,10 +91,11 @@ class TrajectoryManager
   bool propagateToLayer(ParticlePropagator& PP,unsigned layer);
 
   /// Returns the pointer to geometry
-  TrackerInteractionGeometry* theGeometry();
+  const TrackerInteractionGeometry* theGeometry();
 
   /// Initialize the Reconstruction Geometry
-  void initializeRecoGeometry(const GeometricSearchTracker* geomSearchTracker);
+  void initializeRecoGeometry(const GeometricSearchTracker* geomSearchTracker,
+			      const TrackerInteractionGeometry* interactionGeometry);
 
   /// Initialize the full Tracker Geometry
   void initializeTrackerGeometry(const TrackerGeometry* geomTracker);
@@ -132,7 +133,7 @@ class TrajectoryManager
 
   FSimEvent* mySimEvent;
 
-  TrackerInteractionGeometry* _theGeometry;
+  const TrackerInteractionGeometry* _theGeometry;
   
   MaterialEffects* theMaterialEffects;
 

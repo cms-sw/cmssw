@@ -50,22 +50,21 @@ GSPixelHitMatcher::~GSPixelHitMatcher() { }
 void 
 GSPixelHitMatcher::setES(const MagneticField* aMagField, 
 			 const TrackerGeometry* aTrackerGeometry, 
-			 const GeometricSearchTracker* geomSearchTracker ) {
+			 const GeometricSearchTracker* geomSearchTracker,
+			 const TrackerInteractionGeometry* interactionGeometry) {
 
   // initialize the tracker geometry and the magnetic field map
   theTrackerGeometry = aTrackerGeometry; 
   theMagneticField = aMagField;
   theGeomSearchTracker = geomSearchTracker;
-
-  // Initialize the simplified tracker geometry
-  _theGeometry = new TrackerInteractionGeometry(theGeomSearchTracker);
+  _theGeometry = interactionGeometry;
   
   // Initialize (if not already done) the simplified magnetic field geometry
   MagneticFieldMap::instance( theMagneticField, _theGeometry );
  
   // The pixel layers in the simplified geometry 
   unsigned layer = 1;
-  std::list<TrackerLayer>::iterator cyliter = _theGeometry->cylinderBegin();
+  std::list<TrackerLayer>::const_iterator cyliter = _theGeometry->cylinderBegin();
   for ( ; cyliter != _theGeometry->cylinderEnd() ; ++cyliter ) {
     if ( layer != cyliter->layerNumber() ) continue;
     thePixelLayers.push_back(&(*cyliter));

@@ -97,18 +97,19 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   myHistos->book("h301",1200,-300.,300.,1210,-121.,121.);
   */
 
-  _theGeometry = new TrackerInteractionGeometry(trackerMaterial);
+  //  _theGeometry = new TrackerInteractionGeometry(trackerMaterial);
   
 }
 
 void 
-TrajectoryManager::initializeRecoGeometry(const GeometricSearchTracker* geomSearchTracker)
-{ 
+TrajectoryManager::initializeRecoGeometry(const GeometricSearchTracker* geomSearchTracker,
+					  const TrackerInteractionGeometry* interactionGeometry)
+{
   
   theGeomSearchTracker = geomSearchTracker;
   
   // Initialize the simplified tracker geometry
-  _theGeometry->initialize(theGeomSearchTracker);
+  _theGeometry = interactionGeometry;
 
   initializeLayerMap();
 
@@ -121,16 +122,16 @@ TrajectoryManager::initializeTrackerGeometry(const TrackerGeometry* geomTracker)
 
 }
 
-TrackerInteractionGeometry*
+const TrackerInteractionGeometry*
 TrajectoryManager::theGeometry() {
   return _theGeometry;
 }
 
 TrajectoryManager::~TrajectoryManager() {
-  if ( _theGeometry ) delete _theGeometry;
+
   if ( myDecayEngine ) delete myDecayEngine;
   if ( theMaterialEffects ) delete theMaterialEffects;
-  //  if ( thePSimHits ) delete thePSimHits;
+
   //Write the histograms
   //myHistos->put("histos.root");
   //  if ( myHistos ) delete myHistos;
@@ -151,7 +152,7 @@ TrajectoryManager::reconstruct()
   // The new event
   XYZTLorentzVector myBeamPipe = XYZTLorentzVector(0.,25., 9999999.,0.);
 
-  std::list<TrackerLayer>::iterator cyliter;
+  std::list<TrackerLayer>::const_iterator cyliter;
 
   //  bool debug = mySimEvent->id().event() == 3;
 
@@ -396,7 +397,7 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi) {
 bool
 TrajectoryManager::propagateToLayer(ParticlePropagator& PP, unsigned layer) {
 
-  std::list<TrackerLayer>::iterator cyliter;
+  std::list<TrackerLayer>::const_iterator cyliter;
   bool done = false;
 
   // Get the geometry elements 
@@ -736,7 +737,7 @@ TrajectoryManager::initializeLayerMap()
   const float zTolerance = 3.;
 
   LogDebug("FastTracker")<< "Dump of TrackerInteractionGeometry cylinders:";
-  for( std::list<TrackerLayer>::iterator i=_theGeometry->cylinderBegin();
+  for( std::list<TrackerLayer>::const_iterator i=_theGeometry->cylinderBegin();
        i!=_theGeometry->cylinderEnd(); ++i) {
     const BoundCylinder* cyl = i->cylinder();
     const BoundDisk* disk = i->disk();

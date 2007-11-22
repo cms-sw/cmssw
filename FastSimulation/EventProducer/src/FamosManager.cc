@@ -17,6 +17,7 @@
 //#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -124,21 +125,23 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
   mySimEvent->initializePdt(&(*pdt));
   ParticleTable::instance(&(*pdt));
 
+  // Initialize the full (misaligned) tracker geometry (only if tracking is requested)
+  // By default, the misaligned geometry is aligned
+  edm::ESHandle<TrackerGeometry> tracker;
+  es.get<TrackerDigiGeometryRecord>().get("MisAligned",tracker);
+  if (m_Tracking)  myTrajectoryManager->initializeTrackerGeometry(&(*tracker)); 
+
   // Initialize the tracker misaligned reco geometry (always needed)
   // By default, the misaligned geometry is aligned
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
   es.get<TrackerRecoGeometryRecord>().get("MisAligned", theGeomSearchTracker );
-  myTrajectoryManager->initializeRecoGeometry(&(*theGeomSearchTracker));
 
-  // Initialize the full (misaligned) tracker geometry (only if tracking is requested)
-  // By default, the misaligned geometry is aligned
-  if ( m_Tracking ) {
-    edm::ESHandle<TrackerGeometry> tracker;
-    es.get<TrackerDigiGeometryRecord>().get("MisAligned",tracker);
+  // Initialize the misaligned tracker interaction geometry 
+  edm::ESHandle<TrackerInteractionGeometry>  theTrackerInteractionGeometry;
+  es.get<TrackerInteractionGeometryRecord>().get("MisAligned", theTrackerInteractionGeometry );
+  myTrajectoryManager->initializeRecoGeometry(&(*theGeomSearchTracker),
+					      &(*theTrackerInteractionGeometry));
 
-    myTrajectoryManager->initializeTrackerGeometry(&(*tracker)); 
-
-  }
 
   // magnetic field
   if (m_pUseMagneticField) {

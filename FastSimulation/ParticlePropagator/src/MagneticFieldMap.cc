@@ -10,7 +10,7 @@ MagneticFieldMap::myself=0;
 
 MagneticFieldMap* 
 MagneticFieldMap::instance(const MagneticField* pMF,
-			   TrackerInteractionGeometry* myGeo)
+			   const TrackerInteractionGeometry* myGeo)
 {
   if (!myself) { 
     myself = new MagneticFieldMap(pMF,myGeo);
@@ -25,7 +25,7 @@ MagneticFieldMap::instance() {
 }
 
 MagneticFieldMap::MagneticFieldMap(const MagneticField* pMF,
-				   TrackerInteractionGeometry* myGeo) : 
+				   const TrackerInteractionGeometry* myGeo) : 
   pMF_(pMF), 
   geometry_(myGeo),
   bins(101), 
@@ -43,9 +43,9 @@ void
 MagneticFieldMap::initialize()
 {
   
-  std::list<TrackerLayer>::iterator cyliter;
-  std::list<TrackerLayer>::iterator cylitBeg=geometry_->cylinderBegin();
-  std::list<TrackerLayer>::iterator cylitEnd=geometry_->cylinderEnd();
+  std::list<TrackerLayer>::const_iterator cyliter;
+  std::list<TrackerLayer>::const_iterator cylitBeg=geometry_->cylinderBegin();
+  std::list<TrackerLayer>::const_iterator cylitEnd=geometry_->cylinderEnd();
   
   // Prepare the histograms
   std::cout << "Prepare magnetic field local database for FAMOS speed-up" << std::endl;

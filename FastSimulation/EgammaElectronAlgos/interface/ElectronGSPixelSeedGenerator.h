@@ -28,6 +28,7 @@ namespace edm {
 class TrackerGeometry;
 class MagneticField;
 class GeometricSearchTracker;
+class TrackerInteractionGeometry;
 
 class PropagatorWithMaterial;
 class KFUpdator;
@@ -94,6 +95,7 @@ public:
   const MagneticField* theMagField;
   const TrackerGeometry*  theTrackerGeometry;
   const GeometricSearchTracker* theGeomSearchTracker;
+  const TrackerInteractionGeometry* theTrackerInteractionGeometry;
 
   KFUpdator * theUpdator;
   PropagatorWithMaterial * thePropagator;

@@ -31,14 +31,14 @@ public:
   const MagneticField& magneticField() const {return *pMF_;}
 
   static MagneticFieldMap* instance(const MagneticField* pMF,
-				    TrackerInteractionGeometry* myGeo);
+				    const TrackerInteractionGeometry* myGeo);
 
   static MagneticFieldMap* instance() ;
 
 private:
 
   MagneticFieldMap(const MagneticField* pMF,
-		   TrackerInteractionGeometry* myGeo);
+		   const TrackerInteractionGeometry* myGeo);
 
   void initialize();
 
@@ -50,7 +50,7 @@ private:
 
   static MagneticFieldMap* myself;
   const MagneticField* pMF_;
-  TrackerInteractionGeometry* geometry_;
+  const TrackerInteractionGeometry* geometry_;
   int bins;
   std::vector<std::vector<double> > fieldBarrelHistos;
   std::vector<std::vector<double> > fieldEndcapHistos;
