@@ -16,8 +16,12 @@ class CVRTest : public edm::EDAnalyzer {
       virtual void analyze( const edm::Event &, const edm::EventSetup &);
 
    private:
+      void discussPrimary( const edm::Event & ) const;
+
+   private:
       ConfigurableVertexReconstructor * vrec_;
       std::string trackcoll_;
+      std::string vertexcoll_;
 
 };
 
