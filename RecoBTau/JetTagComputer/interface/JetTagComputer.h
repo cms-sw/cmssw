@@ -71,6 +71,9 @@ class JetTagComputer {
 	inline float operator () (const TagInfoHelper &helper) const
 	{ return discriminator(helper); }
 
+	inline const std::vector<std::string> &getInputLabels() const
+	{ return m_inputLabels; }
+
     protected:
 	void uses(unsigned int id, const std::string &label);
 
