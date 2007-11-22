@@ -100,6 +100,7 @@ AdaptiveVertexReconstructor::~AdaptiveVertexReconstructor()
 
 void AdaptiveVertexReconstructor::setupFitters ( float primcut, float seccut, bool smoothing )
 {
+  cout << "[AVR] setupFitters primcut=" << primcut << " smoothing=" << smoothing << endl;
   VertexSmoother * smoother ;
   if ( smoothing )
   {
@@ -127,6 +128,7 @@ void AdaptiveVertexReconstructor::setupFitters ( float primcut, float seccut, bo
 AdaptiveVertexReconstructor::AdaptiveVertexReconstructor( const edm::ParameterSet & m )
   : thePrimaryFitter(0), theSecondaryFitter(0), theMinWeight(0.5), theWeightThreshold ( 0.001 )
 {
+  cout << "[AVR] configuring " << m.getParameter<bool>("smoothing") << endl;
   float primcut = 2.0;
   float seccut = 6.0;
   bool smoothing=false;
@@ -205,17 +207,17 @@ vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
         {
           // try once more without beamspot constraint!
           usespot=false;
-          edm::LogWarning("AdaptiveVertexReconstructor") 
+          LogDebug("AdaptiveVertexReconstructor") 
             << "no tracks in vertex. trying again without beamspot constraint!";
           continue;
         }
-        edm::LogWarning("AdaptiveVertexReconstructor") << "all tracks (" << n_tracks
+        LogDebug("AdaptiveVertexReconstructor") << "all tracks (" << n_tracks
              << ") would be recycled for next fit. Trying with low threshold!";
         erase ( newvtx, remainingtrks, 1.e-5 );
         if ( n_tracks == remainingtrks.size() )
         {
-          edm::LogWarning("AdaptiveVertexReconstructor") << "low threshold didnt help! "
-                                                         << "Discontinue procedure!";
+          LogDebug("AdaptiveVertexReconstructor") << "low threshold didnt help! "
+                                                  << "Discontinue procedure!";
           break;
         }
       };
