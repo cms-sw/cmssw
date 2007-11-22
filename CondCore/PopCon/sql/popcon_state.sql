@@ -8,3 +8,5 @@ CREATE TABLE p_con_payload_state (
 );
 
 ALTER TABLE p_con_payload_state ADD constraint p_con_payload_state_pk primary key (obj_id);
+
+ALTER TABLE p_con_payload_state ADD CONSTRAINT p_con_payload_state_uniq UNIQUE (name, connect_string);
