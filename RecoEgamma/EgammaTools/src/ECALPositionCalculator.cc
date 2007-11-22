@@ -9,7 +9,7 @@ static const float R_ECAL           = 136.5;
 static const float Z_Endcap         = 328.0;
 static const float etaBarrelEndcap  = 1.479;
 
-double ECALPositionCalculator::ecalPhi(math::XYZVector &momentum, math::XYZVector &vertex, int charge)
+double ECALPositionCalculator::ecalPhi(const math::XYZVector &momentum, const math::XYZPoint &vertex, int charge)
 {
 
    // Get kinematic variables
@@ -64,7 +64,7 @@ double ECALPositionCalculator::ecalPhi(math::XYZVector &momentum, math::XYZVecto
 
 }
 
-double ECALPositionCalculator::ecalEta(math::XYZVector &momentum, math::XYZVector &vertex)
+double ECALPositionCalculator::ecalEta(const math::XYZVector &momentum, const math::XYZPoint &vertex)
 {
 
    // Get kinematic variables
