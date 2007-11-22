@@ -11,8 +11,6 @@
 
 // Tracker/Tracking Headers
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "TrackingTools/PatternTools/interface/MediumProperties.h"
-//#include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 
