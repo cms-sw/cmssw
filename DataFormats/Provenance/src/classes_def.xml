@@ -48,6 +48,12 @@
    <field name="id_" transient="true"/>
  </class>
  <class name="edm::FileFormatVersion"/>
+ <class name="edm::FileIndex::Element"/>
+ <class name="std::vector<edm::FileIndex::Element>"/>
+ <class name="edm::FileIndex">
+   <field name="eventsSorted_" transient="true"/>
+   <field name="sortedCached_" transient="true"/>
+ </class>
  <class name="edm::Hash<0>"/>
  <class name="std::map<edm::Hash<0>,edm::ModuleDescription>"/>
  <class name="std::pair<edm::Hash<0>,edm::ModuleDescription>"/>

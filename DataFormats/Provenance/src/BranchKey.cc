@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: BranchKey.cc,v 1.1 2007/03/04 04:48:09 wmtan Exp $
+$Id: BranchKey.cc,v 1.2 2007/05/10 22:46:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -25,7 +25,7 @@ namespace edm
     processName_(desc.processName()) {}
 
   std::ostream&
-  operator<<(std::ostream& os, const BranchKey& bk) {
+  operator<<(std::ostream& os, BranchKey const& bk) {
     os << "BranchKey("
        << bk.friendlyClassName_ << ", "
        << bk.moduleLabel_ << ", "
