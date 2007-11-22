@@ -128,6 +128,7 @@ void TrackingMaterialPlotter::draw( void )
   radlen->Draw("colz");
   radlen->Draw("same axis y+");
   canvas->SaveAs("radlen.png");
+  delete canvas;
 
   XHistogram::Histogram* dedx = m_tracker.get(1);
   canvas = new TCanvas("dedx_rz", "-dE/dx term - RZ view", (int) (600 * scale * 1.25),  (int) (120 * scale * 1.50));
@@ -138,6 +139,7 @@ void TrackingMaterialPlotter::draw( void )
   dedx->Draw("colz");
   dedx->Draw("same axis y+");
   canvas->SaveAs("dedx.png");
+  delete canvas;
 
   XHistogram::ColorMap* colormap = m_tracker.colormap();
   canvas = new TCanvas("layer_rz", "Layers - RZ view", (int) (600 * scale * 1.25),  (int) (120 * scale * 1.50));
@@ -150,5 +152,6 @@ void TrackingMaterialPlotter::draw( void )
   colormap->Draw("col");
   colormap->Draw("same axis y+");
   canvas->SaveAs("layers.png");
+  delete canvas;
 }
 
