@@ -100,7 +100,6 @@ AdaptiveVertexReconstructor::~AdaptiveVertexReconstructor()
 
 void AdaptiveVertexReconstructor::setupFitters ( float primcut, float seccut, bool smoothing )
 {
-  cout << "[AVR] setupFitters primcut=" << primcut << " smoothing=" << smoothing << endl;
   VertexSmoother * smoother ;
   if ( smoothing )
   {
@@ -128,7 +127,6 @@ void AdaptiveVertexReconstructor::setupFitters ( float primcut, float seccut, bo
 AdaptiveVertexReconstructor::AdaptiveVertexReconstructor( const edm::ParameterSet & m )
   : thePrimaryFitter(0), theSecondaryFitter(0), theMinWeight(0.5), theWeightThreshold ( 0.001 )
 {
-  cout << "[AVR] configuring " << m.getParameter<bool>("smoothing") << endl;
   float primcut = 2.0;
   float seccut = 6.0;
   bool smoothing=false;
