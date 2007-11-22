@@ -1,9 +1,11 @@
 
 #include "RecoTracker/CkfPattern/interface/TrajectorySegmentBuilder.h"
 
+//B.M. #include "CommonDet/BasicDet/interface/RecHitEqualByChannels.h"
+//B.M. #include "RecoTracker/CkfPattern/interface/TrajectoryMeasurementEqualByHit.h"
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
-#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
-
+#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
+//B.M. #include "Utilities/Notification/interface/TimingReport.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
@@ -12,6 +14,7 @@
 #include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+//B.M.#include "CommonDet/PatternPrimitives/interface/PropagationDirection.h"
 #include "RecoTracker/CkfPattern/src/TrajectoryLessByFoundHits.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
@@ -326,7 +329,7 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	//
 	ConstRecHitPointer hit = im->recHit();
 	//if ( hit->isValid() )  break;                          // gpetrucc: not bad module aware
-	if ( hit->getType() == TrackingRecHit::missing )  break; // let's try this
+	if ( hit->getType() != TrackingRecHit::missing )  break; // let's try this
 
 	//
 	// check, if the extrapolation traverses the Det
