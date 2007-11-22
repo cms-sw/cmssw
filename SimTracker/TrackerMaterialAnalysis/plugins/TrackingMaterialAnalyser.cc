@@ -136,7 +136,7 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
   } else {
     
     std::vector<double> limits(detectors + 2);
-    if (not m_skipBeforeFirstDetector)
+    if (m_skipBeforeFirstDetector)
       limits[0] = track.m_detectors[0].m_curvilinearIn - 0.0001;                    // 1 um tolerance
     else
       limits[0] = -0.0001;                                                          // 1 um tolerance
@@ -149,7 +149,7 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
     else
       limits[detectors] = track.m_total.length() + 0.001;                           // 1 um tolerance
 
-    // FIXME: is this still needed ?    
+    // this is probably no more needed, but doesn't harm...
     limits[detectors+1] = INFINITY;
 
     //for (unsigned int i = 0; i < detectors; ++i)
@@ -160,6 +160,7 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
     unsigned int i = 1;         // step conter
 
     // skip the material before the first layer
+    //std::cout << "before first layer, skipping" << std::endl;
     while (end < limits[0]) {
       const MaterialAccountingStep & step = track.m_steps[i++];
       end = begin + step.length();
@@ -169,17 +170,20 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
         m_plotter->plotSegmentUnassigned( step );
 
       begin = end;
+      //std::cout << '.';
     }
+    //std::cout << std::endl;
 
     // optionally split a step across the first layer boundary
+    //std::cout << "first layer (0): " << limits[0] << ".." << limits[1] << std::endl;
     if (begin < limits[0] and end > limits[0]) {
       const MaterialAccountingStep & step = track.m_steps[i++];
       end = begin + step.length();
 
-      std::cerr << "first layer:      " << limits[0] << ".." << limits[1] << std::endl;
       double fraction = (limits[0] - begin) / (end - begin);
       std::pair<MaterialAccountingStep, MaterialAccountingStep> parts = step.split(fraction);
       
+      //std::cout << '!' << std::endl;
       track.m_detectors[0].account( parts.second, limits[1], end );
 
       if (m_plotter) {
@@ -196,16 +200,6 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
     while (i < track.m_steps.size()) {
       const MaterialAccountingStep & step = track.m_steps[i++];
 
-      /*
-      // FIXME: is this still needed ? or is this implied by the following check ?
-      if (index >= detectors) {
-        // track outside acceptance, keep as unassociated
-        if (m_plotter)
-          m_plotter->plotSegmentUnassigned( step );
-        continue;
-      }
-      */
-      
       end = begin + step.length();
 
       if (begin > limits[detectors]) {
@@ -226,6 +220,7 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
         break;
       }
       
+      //std::cout << '.';
       if (limits[index] <= begin and end <= limits[index+1]) {
         // step completely inside current detector range
         track.m_detectors[index].account( step, begin, end );
@@ -252,7 +247,8 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
 
         track.m_detectors[index].account( parts.first, begin, limits[index+1] );
         ++index;          // next layer
-        std::cerr << "next layer (" << index << "): " << limits[index] << ".." << limits[index+1] << std::endl;
+        //std::cout << '!' << std::endl;
+        //std::cout << "next layer (" << index << "): " << limits[index] << ".." << limits[index+1] << std::endl;
         if (index < detectors)
           track.m_detectors[index].account( parts.second, limits[index+1], end );
       }
@@ -260,6 +256,7 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
     }
     
   }
+  //std::cout << std::endl;
 
   // add the material from each detector to its layer (if there is one and only one)
   for (unsigned int i = 0; i < track.m_detectors.size(); ++i)
