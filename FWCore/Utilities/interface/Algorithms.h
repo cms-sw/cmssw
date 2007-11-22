@@ -69,5 +69,20 @@ namespace edm {
   sort_all(RandomAccessSequence & s, Predicate p) {
     std::sort(s.begin(), s.end(), p);
   }
+
+  /// wrappers for std::stable_sort
+  template <typename RandomAccessSequence>
+  inline
+  void
+  stable_sort_all(RandomAccessSequence & s) {
+    std::stable_sort(s.begin(), s.end());
+  }
+
+  template <typename RandomAccessSequence, typename Predicate>
+  inline
+  void
+  stable_sort_all(RandomAccessSequence & s, Predicate p) {
+    std::stable_sort(s.begin(), s.end(), p);
+  }
 }
 #endif
