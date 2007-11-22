@@ -3,7 +3,7 @@
 
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 #include "RecoTracker/DebugTools/interface/CkfDebugger.h"
-#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
+#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
 
 class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
@@ -16,7 +16,7 @@ class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
                        const Chi2MeasurementEstimatorBase*   estimator,
                        const TransientTrackingRecHitBuilder* RecHitBuilder,
                        const MeasurementTracker*             measurementTracker) : 
-    CkfTrajectoryBuilder( conf,updator,propagatorAlong,propagatorOpposite,estimator,RecHitBuilder,measurementTracker) 
+    CkfTrajectoryBuilder( conf,updator,propagatorAlong,propagatorOpposite,estimator,RecHitBuilder,measurementTracker,0) 
     {    
       //edm::LogVerbatim("CkfDebugger") <<"CkfDebugTrajectoryBuilder::CkfDebugTrajectoryBuilder";
     }
