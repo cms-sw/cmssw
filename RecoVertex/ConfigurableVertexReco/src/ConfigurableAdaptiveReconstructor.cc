@@ -48,11 +48,15 @@ ConfigurableAdaptiveReconstructor * ConfigurableAdaptiveReconstructor::clone() c
 vector < TransientVertex > ConfigurableAdaptiveReconstructor::vertices ( 
     const std::vector < reco::TransientTrack > & t ) const
 {
-  if (!theRector)
-  {
-  }
   return theRector->vertices ( t );
 }
+
+vector < TransientVertex > ConfigurableAdaptiveReconstructor::vertices ( 
+    const std::vector < reco::TransientTrack > & t, const reco::BeamSpot & s ) const
+{
+  return theRector->vertices ( t, s );
+}
+
 
 edm::ParameterSet ConfigurableAdaptiveReconstructor::defaults() const
 {

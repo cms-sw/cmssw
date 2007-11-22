@@ -73,6 +73,7 @@ ConfigurableMultiVertexFitter * ConfigurableMultiVertexFitter::clone() const
 vector < TransientVertex > ConfigurableMultiVertexFitter::vertices ( 
     const std::vector < reco::TransientTrack > & t ) const
 {
+  /*
   if ( theCheater==1 && t.size()>3 )
   {
     std::vector < reco::TransientTrack > primaries;
@@ -84,20 +85,15 @@ vector < TransientVertex > ConfigurableMultiVertexFitter::vertices (
     primaries.push_back ( p2 );
     primaries.push_back ( p3 );
     primaries.push_back ( p4 );
-    /*
-    cout << "[ConfigurableMultiVertexFitter] primaries: ";
-    for ( vector< reco::TransientTrack >::const_iterator i=primaries.begin(); 
-          i!=primaries.end() ; ++i )
-    {
-      cout << i->id() << "  ";
-    }
-    cout << endl;
-    */
     return theRector->vertices ( t, primaries );
   }
+    */
+  return theRector->vertices ( t );
+}
 
-  // test code ends
-  // 
+vector < TransientVertex > ConfigurableMultiVertexFitter::vertices (
+  const std::vector < reco::TransientTrack > & t, const reco::BeamSpot & s ) const
+{
   return theRector->vertices ( t );
 }
 

@@ -26,6 +26,9 @@ class ConfigurableMultiVertexFitter : public AbstractConfReconstructor
     ConfigurableMultiVertexFitter * clone () const;
     std::vector < TransientVertex > vertices ( 
         const std::vector < reco::TransientTrack > & t ) const;
+    std::vector < TransientVertex > vertices ( 
+        const std::vector < reco::TransientTrack > & t,
+        const reco::BeamSpot & s ) const;
     void configure ( const edm::ParameterSet & );
     edm::ParameterSet defaults() const;
   private:

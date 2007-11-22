@@ -17,6 +17,9 @@ class ConfigurableTrimmedKalmanFinder : public AbstractConfReconstructor
     ConfigurableTrimmedKalmanFinder * clone () const;
     std::vector < TransientVertex > vertices ( 
         const std::vector < reco::TransientTrack > & t ) const;
+    std::vector < TransientVertex > vertices ( 
+        const std::vector < reco::TransientTrack > & t,
+        const reco::BeamSpot & s ) const;
     edm::ParameterSet defaults() const;
   private:
     const VertexReconstructor * theRector;

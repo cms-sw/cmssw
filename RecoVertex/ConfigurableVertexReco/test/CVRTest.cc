@@ -52,7 +52,15 @@ namespace {
           i!=vtces.end() ; ++i )
     {
       printVertex ( *i );
+      cout << endl;
     }
+  }
+
+  void discussBeamSpot ( const reco::BeamSpot & bs )
+  {
+    cout << "[CVRTest] beamspot at " << bs.position() << endl;
+    reco::BeamSpot::Covariance3DMatrix cov = bs.rotatedCovariance3D();
+    cout << "[CVRTest] cov=" <<  cov << endl;
   }
 }
 
@@ -82,8 +90,8 @@ void CVRTest::discussPrimary( const edm::Event& iEvent ) const
   }
 }
 
-void CVRTest::analyze( const edm::Event& iEvent,
-                       const edm::EventSetup& iSetup)
+void CVRTest::analyze( const edm::Event & iEvent,
+                       const edm::EventSetup & iSetup )
 {
   int evt=iEvent.id().event();
   cout << "[CVRTest] next event: " << evt << endl;
@@ -98,7 +106,7 @@ void CVRTest::analyze( const edm::Event& iEvent,
 
   edm::Handle<reco::BeamSpot > bs;
   iEvent.getByLabel ( beamspot_, bs );
-  cout << "[CVRTest] beamspot at " << bs->position() << endl;
+  discussBeamSpot ( *bs );
 
   vector<reco::TransientTrack> ttks;
   ttks = builder->build(tks);

@@ -53,6 +53,14 @@ vector < TransientVertex > ConfigurableTrimmedKalmanFinder::vertices (
   return theRector->vertices ( t );
 }
 
+vector < TransientVertex > ConfigurableTrimmedKalmanFinder::vertices ( 
+    const std::vector < reco::TransientTrack > & t,
+    const reco::BeamSpot & s ) const
+{
+  return theRector->vertices ( t, s );
+}
+
+
 edm::ParameterSet ConfigurableTrimmedKalmanFinder::defaults() const
 {
   return mydefaults();
