@@ -209,6 +209,8 @@ int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet ) {
   theContaminations.clear();
 
   for( size_t m = 0; m != particles->size(); ++ m ) {
+    //skip first 6 particles (2 protons + 4 initial state partons)
+    if(m<6) continue;
     const Candidate & aParticle = *(particles->at(m).get());
     // skipping all particle but udscbg (is this correct/enough?!?!)
     bool isAParton = false;
