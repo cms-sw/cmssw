@@ -175,6 +175,8 @@ int CandJetFlavourIdentifier::fillPhysicsDefinition( const Candidate& theJet ) c
   theContaminations.clear();
 
   for( size_t m = 0; m != particles->size(); ++ m ) {
+    //skip first 6 particles (2 protons + 4 initial state partons)
+    if(m<6) continue;
     const Candidate & aParticle = (*particles)[ m ];
     // skipping all particle but udscbg (is this correct/enough?!?!)
     bool isAParton = false;
@@ -213,6 +215,7 @@ int CandJetFlavourIdentifier::fillPhysicsDefinition( const Candidate& theJet ) c
     if( initialPartonFlavour == 4 ) {  
       if( contaminatingFlavour == 4 ) continue; // keep association --> the initialParton is a c --> the contaminated parton is a c
       tempParticle = -1; // all the other cases reject!
+      return tempParticle;
     }
   } 
 
