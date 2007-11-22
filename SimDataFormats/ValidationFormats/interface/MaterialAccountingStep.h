@@ -1,6 +1,7 @@
 #ifndef MaterialAccountingStep_h
 #define MaterialAccountingStep_h
 
+#include <utility>
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 // struct to keep material accounting informations on a per-step basis
@@ -59,6 +60,29 @@ public:
     return m_out;
   }
   
+  /// split the step (0..1) in (0..f) + (f..1) using linear interpolation
+  std::pair<MaterialAccountingStep, MaterialAccountingStep> split( double fraction ) const {
+    // no check is done to ensure that 0 <= f <= 1 !
+    GlobalPoint limit(
+        m_in.x() * fraction + m_out.x()  * (1. - fraction),
+        m_in.y() * fraction + m_out.y()  * (1. - fraction),
+        m_in.z() * fraction + m_out.z()  * (1. - fraction)
+    );
+
+    MaterialAccountingStep part1( fraction * m_length,
+                                  fraction * m_radiationLengths,
+                                  fraction * m_energyLoss,
+                                  m_in,
+                                  limit );
+
+    MaterialAccountingStep part2( (1 - fraction) * m_length,
+                                  (1 - fraction) * m_radiationLengths,
+                                  (1 - fraction) * m_energyLoss,
+                                  limit,
+                                  m_out );
+    return std::make_pair( part1, part2 );
+  }
+    
   /// assignement operator
   MaterialAccountingStep & operator=( const MaterialAccountingStep & step ) {
     m_length           = step.m_length;
