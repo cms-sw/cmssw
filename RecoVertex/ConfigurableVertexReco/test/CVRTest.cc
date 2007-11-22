@@ -17,12 +17,32 @@ using namespace edm;
 
 
 namespace {
+  void printTSOS ( const TrajectoryStateOnSurface & tsos )
+  {
+    cout << tsos.globalPosition() << " , " 
+         << tsos.globalMomentum() << endl;
+  }
 
   void printVertex ( const TransientVertex & vtx )
   {
     cout << " `- pos=(" << vtx.position().x() << ", "
          << vtx.position().y() << ", " << vtx.position().z()
-         << ") chi2=" << vtx.totalChiSquared() << endl;
+         << ") chi2=" << vtx.totalChiSquared()
+         << " ndf=" << vtx.degreesOfFreedom() << " hr="
+         << vtx.hasRefittedTracks() << endl;
+    if ( vtx.originalTracks().size() && vtx.hasRefittedTracks() )
+    {
+      cout << "    `- 1st trk: ";
+      reco::TransientTrack t = vtx.originalTracks()[0];
+      TrajectoryStateOnSurface tsos = t.impactPointState();
+      printTSOS ( tsos );
+      if ( vtx.refittedTracks().size() )
+      {
+        cout << "     `- 1st refttd: ";
+        reco::TransientTrack t2 = vtx.refittedTracks()[0];
+        printTSOS ( t2.impactPointState() );
+      }
+    }
   }
 
   void printVertices ( const vector < TransientVertex > & vtces )
@@ -38,11 +58,12 @@ namespace {
 
 CVRTest::CVRTest(const edm::ParameterSet& iconfig) :
   trackcoll_( iconfig.getParameter<string>("trackcoll") ),
-  vertexcoll_( iconfig.getParameter<string>("vertexcoll") )
+  vertexcoll_( iconfig.getParameter<string>("vertexcoll") ),
+  beamspot_( iconfig.getParameter<string>("beamspot") )
 {
   edm::ParameterSet vtxconfig = iconfig.getParameter<edm::ParameterSet>("vertexreco");
   vrec_ = new ConfigurableVertexReconstructor ( vtxconfig );
-  cout << "[CVRTest] will use " << vtxconfig.getParameter<string>("finder") << endl;
+  cout << "[CVRTest] vtxconfig=" << vtxconfig << endl;
 }
 
 CVRTest::~CVRTest() {
@@ -75,14 +96,21 @@ void CVRTest::analyze( const edm::Event& iEvent,
   iEvent.getByLabel( trackcoll_, tks );
   discussPrimary( iEvent );
 
+  edm::Handle<reco::BeamSpot > bs;
+  iEvent.getByLabel ( beamspot_, bs );
+  cout << "[CVRTest] beamspot at " << bs->position() << endl;
+
   vector<reco::TransientTrack> ttks;
   ttks = builder->build(tks);
   cout << "[CVRTest] got " << ttks.size() << " tracks." << endl;
 
+  cout << "[CVRTest] fit w/o beamspot constraint" << endl;
   vector < TransientVertex > vtces = vrec_->vertices ( ttks );
-
   printVertices ( vtces );
 
+  cout << "[CVRTest] fit w beamspot constraint" << endl;
+  vector < TransientVertex > bvtces = vrec_->vertices ( ttks, *bs );
+  printVertices ( bvtces );
 }
 
 //define this as a plug-in

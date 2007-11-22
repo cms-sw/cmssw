@@ -18,6 +18,8 @@ class ConfigurableVertexReconstructor : public VertexReconstructor
     ~ConfigurableVertexReconstructor();
 
     std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > & ) const;
+    std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > &,
+        const reco::BeamSpot & ) const;
 
     ConfigurableVertexReconstructor * clone () const;
 

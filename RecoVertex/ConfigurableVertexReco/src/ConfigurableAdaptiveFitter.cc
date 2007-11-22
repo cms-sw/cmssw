@@ -40,8 +40,8 @@ ConfigurableAdaptiveFitter::ConfigurableAdaptiveFitter() :
 void ConfigurableAdaptiveFitter::configure(
     const edm::ParameterSet & n )
 {
-  edm::ParameterSet m = mydefaults();
-  m.augment ( n );
+  edm::ParameterSet m=n;
+  m.augment ( mydefaults() );
   ConfigurableAnnealing ann ( m );
   DefaultLinearizationPointFinder linpt;
   // ZeroLinearizationPointFinder linpt;

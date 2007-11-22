@@ -21,8 +21,8 @@ void ConfigurableTrimmedKalmanFinder::configure(
     const edm::ParameterSet & n )
 {
   if ( theRector ) delete theRector;
-  edm::ParameterSet m = mydefaults();
-  m.augment ( n );
+  edm::ParameterSet m=n;
+  m.augment ( mydefaults() );
   KalmanTrimmedVertexFinder * tmp = new KalmanTrimmedVertexFinder();
   tmp->setPtCut ( m.getParameter<double>("ptcut") );
   tmp->setTrackCompatibilityCut ( m.getParameter<double>("trkcutpv") );

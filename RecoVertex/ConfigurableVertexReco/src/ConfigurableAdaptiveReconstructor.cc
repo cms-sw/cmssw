@@ -23,8 +23,8 @@ ConfigurableAdaptiveReconstructor::ConfigurableAdaptiveReconstructor() :
 void ConfigurableAdaptiveReconstructor::configure(
     const edm::ParameterSet & n )
 {
-  edm::ParameterSet m = mydefaults();
-  m.augment ( n );
+  edm::ParameterSet m=n;
+  m.augment ( mydefaults() );
   if ( theRector ) delete theRector;
   theRector = new AdaptiveVertexReconstructor( m );
 }

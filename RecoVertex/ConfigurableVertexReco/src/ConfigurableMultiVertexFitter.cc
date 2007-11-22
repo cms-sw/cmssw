@@ -41,8 +41,8 @@ ConfigurableMultiVertexFitter::ConfigurableMultiVertexFitter() :
 void ConfigurableMultiVertexFitter::configure(
     const edm::ParameterSet & n )
 {
-  edm::ParameterSet m = mydefaults();
-  m.augment ( n );
+  edm::ParameterSet m=n;
+  m.augment ( mydefaults() );
   // print ( m );
   const AnnealingSchedule * ann = schedule ( m );
   const VertexReconstructor * ini = initialiser ( m.getParameter<edm::ParameterSet>("ini") );

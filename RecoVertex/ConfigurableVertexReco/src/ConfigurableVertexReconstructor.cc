@@ -17,7 +17,7 @@ namespace {
       if ( i->second ) cout << "  " << i->first;
     }
     cout << endl;
-    throw std::string ( finder + " not available!" );
+    throw string ( finder + " not available!" );
   }
 }
 
@@ -53,7 +53,13 @@ ConfigurableVertexReconstructor * ConfigurableVertexReconstructor::clone() const
 
 
 vector < TransientVertex > ConfigurableVertexReconstructor::vertices ( 
-    const std::vector < reco::TransientTrack > & t ) const
+    const vector < reco::TransientTrack > & t ) const
 {
   return theRector->vertices ( t );
+}
+
+vector < TransientVertex > ConfigurableVertexReconstructor::vertices ( 
+    const vector < reco::TransientTrack > & t, const reco::BeamSpot & b ) const
+{
+  return theRector->vertices ( t, b );
 }

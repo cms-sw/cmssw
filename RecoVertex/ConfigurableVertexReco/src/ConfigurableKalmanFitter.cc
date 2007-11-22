@@ -18,8 +18,8 @@ ConfigurableKalmanFitter::ConfigurableKalmanFitter() :
 void ConfigurableKalmanFitter::configure(
     const edm::ParameterSet & n )
 {
-  edm::ParameterSet m = mydefaults();
-  m.augment ( n );
+  edm::ParameterSet m=n;
+  m.augment ( mydefaults() );
   if (theFitter ) delete theFitter;
   theFitter = new KalmanVertexFitter( m ) ;
 }

@@ -22,6 +22,7 @@ class CVRTest : public edm::EDAnalyzer {
       ConfigurableVertexReconstructor * vrec_;
       std::string trackcoll_;
       std::string vertexcoll_;
+      std::string beamspot_;
 
 };
 
