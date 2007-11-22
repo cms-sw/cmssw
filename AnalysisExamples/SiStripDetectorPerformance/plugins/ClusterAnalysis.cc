@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/11/20 08:20:40 $
- * $Revision: 1.2 $
+ * $Date: 2007/11/22 15:29:20 $
+ * $Revision: 1.3 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -67,6 +67,8 @@ namespace cms{
     edm::LogInfo("ClusterAnalysis") << "[ClusterAnalysis::beginJob] There are "<<tkgeom->detUnits().size() <<" detectors instantiated in the geometry" << std::endl;  
 
     es.get<SiStripDetCablingRcd>().get( SiStripDetCabling_ );
+
+    es.get<SiStripQualityRcd>().get(SiStripQuality_);
 
     book();
   }
@@ -431,9 +433,10 @@ namespace cms{
       th = (TObject*)lIter.Next(); 
       }      
       ps.Close();      
-      fFile->ls();
     }    
+    //Hlist->Write();
     fFile->Write();
+    fFile->ls();
     fFile->Close();
   }  
   //------------------------------------------------------------------------------------------
@@ -675,8 +678,6 @@ void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV
   //------------------------------------------------------------------------
   
   void ClusterAnalysis::AllClusters(){
-    LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
-    
     //Loop on Dets
     edm::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin();
     for (; DSViter!=dsv_SiStripCluster->end();DSViter++){
@@ -747,6 +748,17 @@ void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV
 	   )
 	  )
       return false;
+
+    LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
+    //susy modifying
+    std::vector<SiStripQuality::BadComponent> BC = SiStripQuality_->getBadComponentList();     
+    uint32_t BadDet;
+    for (size_t i=0;i<BC.size();++i){
+      if (BC[i].BadModule) {
+	BadDet = BC[i].detid;
+	edm::LogInfo("ClusterAnalysis") << "\n Working... excluding module " << BadDet << std::endl;
+      }
+    }
     
     const StripGeomDetUnit*_StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
     //GeomDetEnumerators::SubDetector SubDet_enum=_StripGeomDetUnit->specificType().subDetector();

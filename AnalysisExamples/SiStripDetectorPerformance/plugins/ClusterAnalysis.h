@@ -48,7 +48,10 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
@@ -118,6 +121,7 @@ namespace cms{
       const StripTopology* topol;
       edm::ESHandle<TrackerGeometry> tkgeom;
       edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
+      edm::ESHandle<SiStripQuality> SiStripQuality_;
 
       edm::Handle< edm::DetSetVector<SiStripClusterInfo> >  dsv_SiStripClusterInfo;
       edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
