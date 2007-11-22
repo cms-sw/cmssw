@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.46 2007/10/31 22:56:29 wmtan Exp $
+$Id: OutputModule.cc,v 1.47 2007/11/07 08:04:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -373,6 +373,7 @@ namespace edm {
     startEndFile();
     writeFileFormatVersion();
     writeFileIdentifier();
+    writeFileIndex();
     writeProcessConfigurationRegistry();
     writeProcessHistoryRegistry();
     writeModuleDescriptionRegistry();
