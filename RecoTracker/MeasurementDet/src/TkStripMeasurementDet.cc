@@ -225,7 +225,6 @@ TkStripMeasurementDet::set128StripStatus(bool good, int idx) {
 
 bool
 TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
-    if (hasAllGoodChannels()) return true;
     int start = (int) (utraj - 3*uerr); if (start < 0) start = 0;
     int end   = (int) (utraj + 3*uerr); if (end > totalStrips_) end = totalStrips_;
 
