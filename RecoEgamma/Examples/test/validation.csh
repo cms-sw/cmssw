@@ -18,36 +18,40 @@
 #=============BEGIN CONFIGURATION=================
 
 #Input root trees for the two cases to be compared 
-setenv NEWFILE ~/scratch0/CMSSW_1_6_0/src/RecoEgamma/Examples/test/gsfElectronHistos_Zee_pre14A.root
-setenv OLDFILE ~/scratch0/CMSSW_1_5_4/src/RecoEgamma/Examples/test/gsfElectronHistos_zee.root
+setenv NEWFILE ~/scratch0/CMSSW_1_7_0/src/RecoEgamma/Examples/test/photonAnalyzer.root
+setenv OLDFILE ~/scratch0/CMSSW_1_6_7/src/RecoEgamma/Examples/test/photonAnalyzer.root
 
 #Release versions to be compared (affects output directory name and html description only)
-setenv NEWRELEASE 160pre14A
-setenv OLDRELEASE 154
+setenv NEWRELEASE 170
+setenv OLDRELEASE 167
 #Name of sample (affects output directory name and html description only)
-setenv SAMPLE Zee
+setenv SAMPLE RelValSingleGammaPt35
 #TYPE must be one of PixelMatchGsfElectron, Photon or ConvertedPhoton
-setenv TYPE PixelMatchGsfElectron
-
-#Location of output
-setenv OUTPATH ~/www/egammaValidation
-if (! -d $OUTPATH) then
-  if (! -d ~www) then
-    cd ~/; mkdir www
-  endif
-  cd ~/www; mkdir egammaValidation
-endif
+setenv TYPE Photon
 
 #==============END BASIC CONFIGURATION==================
 
-#The list of histograms to be compared for each TYPE can be configured below:
+#Location of output.  The default will put your output in:
+#http://cmsdoc.cern.ch/Physics/egamma/www/validation/
 
-setenv OUTDIR $OUTPATH/${NEWRELEASE}_${OLDRELEASE}_$SAMPLE
+setenv CURRENTDIR $PWD
+setenv OUTPATH /afs/cern.ch/cms/Physics/egamma/www/validation
+cd $OUTPATH
+if (! -d $NEWRELEASE) then
+  mkdir $NEWRELEASE
+endif
+setenv OUTPATH $OUTPATH/$NEWRELEASE
+
+setenv OUTDIR $OUTPATH/${SAMPLE}_${NEWRELEASE}_${OLDRELEASE}
 if (! -d $OUTDIR) then
   cd $OUTPATH
   mkdir $OUTDIR
+  cd $OUTDIR
+  mkdir gifs
 endif
 cd $OUTDIR
+
+#The list of histograms to be compared for each TYPE can be configured below:
 
 if ( $TYPE == PixelMatchGsfElectron ) then
 
@@ -157,7 +161,7 @@ Double_t nnew=$i->GetEntries();
 $i->SetLineColor(2);
 $i->Scale(nold/nnew);
 $i->Draw("same");
-c$i->SaveAs("$i.gif");
+c$i->SaveAs("gifs/$i.gif");
 
 EOF
   setenv N `expr $N + 1`
@@ -173,7 +177,7 @@ $i->Draw();
 file_new->cd();
 $i->SetLineColor(2);
 $i->Draw("same");
-c$i->SaveAs("$i.gif");
+c$i->SaveAs("gifs/$i.gif");
 
 EOF
   setenv N `expr $N + 1`
@@ -217,7 +221,7 @@ cat > begin.html <<EOF
 
 <h1>$NEWRELEASE vs $OLDRELEASE $TYPE validation</h1>
 
-<p>The following plots were made using <a href="http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/plugins/$ANALYZER.cc">RecoEgamma/Examples/plugins/$ANALYZER</a>, using <a href="http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/test/$CFG.cfg">RecoEgamma/Examples/test/$CFG.cfg</a>, using $SAMPLE RelVal samples as input.
+<p>The following plots were made using <a href="http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/plugins/$ANALYZER.cc">RecoEgamma/Examples/plugins/$ANALYZER</a>, using <a href="http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/test/$CFG.cfg">RecoEgamma/Examples/test/$CFG.cfg</a>, using $SAMPLE as input.
 <p>The script used to make the plots is <a href="validation.C">here</a>.
 
 <p>In all plots below, $OLDRELEASE is in blue, $NEWRELEASE in red.
@@ -230,7 +234,7 @@ setenv N 1
 foreach i (`cat scaledhistos unscaledhistos`)
   cat > temp$N.html <<EOF
 <br>
-<p><img class="image" width="500" src="$i.gif">
+<p><img class="image" width="500" src="gifs/$i.gif">
 EOF
   setenv N `expr $N + 1`
 end
@@ -252,6 +256,13 @@ rm end.html
 rm scaledhistos
 rm unscaledhistos
 
-echo "Valdation plots can be viewed here:"
-echo "$OUTDIR/validation.html"
-echo "after running the root script validation.C from directory $OUTDIR"
+echo "Now paste the following into your terminal window:"
+echo ""
+echo "cd $OUTDIR"
+echo "root -b"
+echo ".x validation.C"
+echo ".q"
+echo "cd $CURRENTDIR"
+echo ""
+echo "Then you can view your valdation plots here:"
+echo "http://cmsdoc.cern.ch/Physics/egamma/www/validation/${NEWRELEASE}/${SAMPLE}_${NEWRELEASE}_${OLDRELEASE}/validation.html"
