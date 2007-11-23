@@ -15,7 +15,7 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
   const unsigned long int B=500;
   const unsigned long int offset=0;
   vector <unsigned int> pulseTrain(256), pixelDCol(1), pixelPxl(2), pixelTBMHeader(3), pixelTBMTrailer(3);
-  unsigned int DCol, LorR, start=10;
+  unsigned int DCol, LorR, start=15;
   std::string line;
   std::string::size_type loc1, loc2, loc3, loc4;
   unsigned long int npos=std::string::npos;
@@ -36,9 +36,6 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
   assert(mode_=="EmulatedPhysics"||
          mode_=="FEDBaselineWithTestDACs"||
          mode_=="FEDAddressLevelWithTestDACs");
-
-    std::cout<<"fed test dac 2"<<std::endl;
-
 
   while (!fin.eof())
     {
@@ -67,6 +64,8 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
 	  loc1=line.find("("); if (loc1==npos) {cout<<"'(' not found after ROCHeader.\n"; break;}
 	  loc2=line.find(")", loc1+1); if (loc2==npos) {cout<<"')' not found after ROCHeader.\n"; break;}
 	  int LastDAC=atoi(line.substr(loc1+1,loc2-loc1-1).c_str());
+
+          std::cout<<"--------------"<<std::endl;
 	  
 	  pulseTrain[i]=UB;++i;
 	  pulseTrain[i]=B;++i;
@@ -86,12 +85,14 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
 	LorR=int(column-DCol*2);
 	pixelDCol=decimalToBaseX(DCol, 6, 2);
 	pixelPxl=decimalToBaseX((80-row)*2+LorR, 6, 3);
+
+        std::cout<<"Pxl = "<<pixelPxl[2]<<pixelPxl[1]<<pixelPxl[0]<<", DCol= "<<pixelDCol[1]<<pixelDCol[0]<<std::endl;
 	
-	pulseTrain[i]=levelEncoder(pixelDCol[0]);++i;
 	pulseTrain[i]=levelEncoder(pixelDCol[1]);++i;
-	pulseTrain[i]=levelEncoder(pixelPxl[0]);++i;
-	pulseTrain[i]=levelEncoder(pixelPxl[1]);++i;
+	pulseTrain[i]=levelEncoder(pixelDCol[0]);++i;
 	pulseTrain[i]=levelEncoder(pixelPxl[2]);++i;
+	pulseTrain[i]=levelEncoder(pixelPxl[1]);++i;
+	pulseTrain[i]=levelEncoder(pixelPxl[0]);++i;
 	pulseTrain[i]=charge;++i;
 			
       }
@@ -106,7 +107,7 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
 	  pulseTrain[i]=B; ++i;
 	  pulseTrain[i]=B; ++i;
 	  
-	  pixelTBMTrailer=decimalToBaseX(TBMTrailer, 6, 4);
+	  pixelTBMTrailer=decimalToBaseX(TBMTrailer, 4, 4);
 	  pulseTrain[i]=levelEncoder(pixelTBMTrailer[3]);++i;
 	  pulseTrain[i]=levelEncoder(pixelTBMTrailer[2]);++i;
 	  pulseTrain[i]=levelEncoder(pixelTBMTrailer[1]);++i;
