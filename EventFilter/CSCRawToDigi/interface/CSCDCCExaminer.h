@@ -13,10 +13,10 @@ public:
 private:
 	std::vector<char*> sERROR,  sWARNING, sERROR_,  sWARNING_;
 	long               bERROR,  bWARNING;
-	bool               fERROR  [25];//[nERRORS];
+	bool               fERROR  [27];//[nERRORS];
 	bool               fWARNING[5]; //[nWARNINGS];
 
-	std::set<int>      fCHAMB_ERR[25]; // Set of chambers which contain particular error
+	std::set<int>      fCHAMB_ERR[27]; // Set of chambers which contain particular error
 	std::set<int>      fCHAMB_WRN[5];  // Set of chambers which contain particular warning
 	std::map<int,long> bCHAMB_ERR;     // chamber <=> errors in bits
 	std::map<int,long> bCHAMB_WRN;     // chamber <=> errors in bits

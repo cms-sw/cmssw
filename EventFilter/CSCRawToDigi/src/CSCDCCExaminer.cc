@@ -379,6 +379,18 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
       DAV_DMB = buf1[0]&0xF;
 
+      if (modeDDUonly) {
+         fDCC_Header  = true;
+         bzero(fERROR,   sizeof(bool)*nERRORS);
+         bzero(fWARNING, sizeof(bool)*nWARNINGS);
+         bERROR = 0; bWARNING = 0;
+         for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
+         for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
+         bCHAMB_ERR.clear();
+         bCHAMB_WRN.clear();
+         bDDU_ERR.clear();
+         bDDU_WRN.clear();
+      }
       bDDU_ERR[sourceID] = 0;
       bDDU_WRN[sourceID] = 0;
 

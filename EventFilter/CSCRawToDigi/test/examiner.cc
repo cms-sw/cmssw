@@ -5,7 +5,7 @@
 
 int main(int argc, char* argv[]){
 	CSCDCCExaminer examiner;
-	examiner.modeDDU(false);
+	examiner.modeDDU(true);
 	examiner.crcCFEB(0);
 	examiner.crcTMB (0);
 	examiner.crcALCT(0);
@@ -24,7 +24,7 @@ int main(int argc, char* argv[]){
 
 	const    int   bufferSize = 116384;
 	unsigned short buffer[bufferSize];
-	unsigned int   length = 0;
+	int length = 0;
 	bzero(buffer,sizeof(buffer));
 
 	while( !feof(input) && (length=fread((char *)(buffer),sizeof(short),bufferSize,input))!=0 ){
@@ -32,6 +32,7 @@ int main(int argc, char* argv[]){
 		const unsigned short *buf = buffer;
 
 		while( (length = examiner.check(buf,length)) >= 0 ){
+			std::cout<<"Length="<<length<<std::endl;
 			std::vector<int> sourceIDs = examiner.listOfDDUs();
 			for(int ddu=0; ddu<sourceIDs.size(); ddu++)
 				if(examiner.errorsForDDU(sourceIDs[ddu]))
