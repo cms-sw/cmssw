@@ -5,7 +5,7 @@
 // 
 /**\class JetTagProducer JetTagProducer.cc RecoBTag/JetTagProducer/src/JetTagProducer.cc
 
- Description: <one line class summary>
+ Description: Uses a JetTagComputer to produce JetTags from TagInfos
 
  Implementation:
      <Notes on implementation>
@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: JetTagProducer.cc,v 1.5 2007/10/08 16:21:06 saout Exp $
+// $Id: JetTagProducer.cc,v 1.6 2007/10/24 15:50:43 fwyzard Exp $
 //
 //
 
@@ -82,7 +82,7 @@ JetTagProducer::beginJob(const edm::EventSetup& iSetup) {
   m_computer->setEventSetup(iSetup);
 
   // finalize the JetTagProducer <-> JetTagComputer glue setup
-  vector<string> inputLabels(m_computer->m_inputLabels);
+  vector<string> inputLabels(m_computer->getInputLabels());
 
   // backward compatible case, use default tagInfo
   if (inputLabels.empty())
@@ -94,21 +94,19 @@ JetTagProducer::beginJob(const edm::EventSetup& iSetup) {
     map<string, InputTag>::const_iterator pos = m_tagInfoLabels.find(*iter);
     if (pos == m_tagInfoLabels.end())
       throw cms::Exception("InputTagMissing") << "JetTagProducer is missing "
-      			"a TagInfo InputTag \"" << *iter << "\"" << std::endl;
+      			"a TagInfo InputTag \"" << *iter << "\"" << endl;
 
     m_tagInfos.push_back(pos->second);
   }
-
-  m_computer->m_setupDone = true;
 }
 
-// map helper
+// map helper - for some reason RefToBase lacks operator < (...)
 namespace {
   struct JetRefCompare :
-       public std::binary_function<RefToBase<Jet>, RefToBase<Jet>, bool> {
+       public binary_function<RefToBase<Jet>, RefToBase<Jet>, bool> {
     inline bool operator () (const RefToBase<Jet> &j1,
                              const RefToBase<Jet> &j2) const
-    { return j1.key() < j2.key(); }
+    { return j1.id() < j2.id() || (j1.id() == j2.id() && j1.key() < j2.key()); }
   };
 }
 
@@ -121,7 +119,7 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
   // now comes the tricky part:
   // we need to collect all requested TagInfos belonging to the same jet
 
-  typedef std::vector<const BaseTagInfo*> TagInfoPtrs;
+  typedef vector<const BaseTagInfo*> TagInfoPtrs;
   typedef RefToBase<Jet> JetRef;
   typedef map<JetRef, TagInfoPtrs, JetRefCompare> JetToTagInfoMap;
 
@@ -146,13 +144,12 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   // take first tagInfo
   Handle< View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[0];
-  JetTagCollection * jtc;
+  auto_ptr<JetTagCollection> jetTagCollection;
   if (tagInfoHandle.product()->size() > 0) {
     RefToBase<Jet> jj = tagInfoHandle->begin()->jet();
-    jtc = new JetTagCollection(RefToBaseProd<Jet>(jj));
+    jetTagCollection.reset(new JetTagCollection(RefToBaseProd<Jet>(jj)));
   } else
-    jtc = new JetTagCollection();
-  std::auto_ptr<JetTagCollection> jetTagCollection(jtc);
+    jetTagCollection.reset(new JetTagCollection());
 
   // now loop over the map and compute all JetTags
   for(JetToTagInfoMap::const_iterator iter = jetToTagInfos.begin();
@@ -161,10 +158,6 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     JetTagComputer::TagInfoHelper helper(tagInfoPtrs);
     float discriminator = (*m_computer)(helper);
-
-//    JetTag jetTag(discriminator);
-//    jetTag.setTagInfo(tagInfoRef);
-//    jetTagCollection->push_back(jetTag);
 
     (*jetTagCollection)[iter->first] = discriminator;
   }

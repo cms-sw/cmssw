@@ -9,10 +9,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 
-// forward for friend declaration
-class JetTagProducer;
-class JetTagMVATrainer;
-
 class JetTagComputer {
     public:
 	class TagInfoHelper {
@@ -72,7 +68,7 @@ class JetTagComputer {
 	{ return discriminator(helper); }
 
 	inline const std::vector<std::string> &getInputLabels() const
-	{ return m_inputLabels; }
+	{ m_setupDone = true; return m_inputLabels; }
 
     protected:
 	void uses(unsigned int id, const std::string &label);
@@ -81,9 +77,6 @@ class JetTagComputer {
 	virtual float discriminator(const TagInfoHelper&) const;
 
     private:
-	friend class JetTagProducer;
-	friend class JetTagMVATrainer;
-
 	std::vector<std::string>	m_inputLabels;
 	mutable bool			m_setupDone;
 };
