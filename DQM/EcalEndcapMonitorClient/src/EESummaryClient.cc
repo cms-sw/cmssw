@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/15 14:59:48 $
- * $Revision: 1.58 $
+ * $Date: 2007/11/16 11:05:49 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  *
 */
@@ -2139,8 +2139,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapI[0] << "\" usemap=\"#Integrity_0\" border=0></td>" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapI[1] << "\" usemap=\"#Integrity_1\" border=0></td>" << endl;
+    if ( imgNameMapI[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapI[0] << "\" usemap=\"#Integrity_0\" border=0></td>" << endl;
+    if ( imgNameMapI[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapI[1] << "\" usemap=\"#Integrity_1\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -2150,8 +2150,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapO[0] << "\" usemap=\"#Occupancy_0\" border=0></td>" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapO[1] << "\" usemap=\"#Occupancy_1\" border=0></td>" << endl;
+    if ( imgNameMapO[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapO[0] << "\" usemap=\"#Occupancy_0\" border=0></td>" << endl;
+    if ( imgNameMapO[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapO[1] << "\" usemap=\"#Occupancy_1\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -2161,8 +2161,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapPO[0] << "\" usemap=\"#PedestalOnline_0\" border=0></td>" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapPO[1] << "\" usemap=\"#PedestalOnline_1\" border=0></td>" << endl;
+    if ( imgNameMapPO[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapPO[0] << "\" usemap=\"#PedestalOnline_0\" border=0></td>" << endl;
+    if ( imgNameMapPO[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapPO[1] << "\" usemap=\"#PedestalOnline_1\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -2172,8 +2172,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapLL1[0] << "\" usemap=\"#LaserL1_0\" border=0></td>" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapLL1[1] << "\" usemap=\"#LaserL1_1\" border=0></td>" << endl;
+    if ( imgNameMapLL1[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapLL1[0] << "\" usemap=\"#LaserL1_0\" border=0></td>" << endl;
+    if ( imgNameMapLL1[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapLL1[1] << "\" usemap=\"#LaserL1_1\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -2183,8 +2183,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapLD[0] << "\" usemap=\"#Led_0\" border=0></td>" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapLD[1] << "\" usemap=\"#Led_1\" border=0></td>" << endl;
+    if ( imgNameMapLD[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapLD[0] << "\" usemap=\"#Led_0\" border=0></td>" << endl;
+    if ( imgNameMapLD[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapLD[1] << "\" usemap=\"#Led_1\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -2194,8 +2194,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapP[0] << "\" usemap=\"#Pedestal_0\" border=0></td>" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapP[1] << "\" usemap=\"#Pedestal_1\" border=0></td>" << endl;
+    if ( imgNameMapP[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapP[0] << "\" usemap=\"#Pedestal_0\" border=0></td>" << endl;
+    if ( imgNameMapP[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapP[1] << "\" usemap=\"#Pedestal_1\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -2205,30 +2205,30 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapTP[0] << "\" usemap=\"#TestPulse_0\" border=0></td>" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapTP[1] << "\" usemap=\"#TestPulse_1\" border=0></td>" << endl;
+    if ( imgNameMapTP[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapTP[0] << "\" usemap=\"#TestPulse_0\" border=0></td>" << endl;
+    if ( imgNameMapTP[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapTP[1] << "\" usemap=\"#TestPulse_1\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
   }
 
-  if ( imgNameMapC[0].size() != 0  || imgNameMapC[1].size() != 0 ) {
+  if ( imgNameMapC[0].size() != 0 || imgNameMapC[1].size() != 0 ) {
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapC[0] << "\" usemap=\"#Cosmic_0\" border=0></td>" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapC[1] << "\" usemap=\"#Cosmic_1\" border=0></td>" << endl;
+    if ( imgNameMapC[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapC[0] << "\" usemap=\"#Cosmic_0\" border=0></td>" << endl;
+    if ( imgNameMapC[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapC[1] << "\" usemap=\"#Cosmic_1\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
   }
 
-  if ( imgNameMapTM[0].size() != 0  || imgNameMapTM[1].size() != 0 ) {
+  if ( imgNameMapTM[0].size() != 0 || imgNameMapTM[1].size() != 0 ) {
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapTM[0] << "\" usemap=\"#Timing_0\" border=0></td>" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapTM[1] << "\" usemap=\"#Timing_1\" border=0></td>" << endl;
+    if ( imgNameMapTM[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapTM[0] << "\" usemap=\"#Timing_0\" border=0></td>" << endl;
+    if ( imgNameMapTM[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapTM[1] << "\" usemap=\"#Timing_1\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -2238,8 +2238,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapTTEmulError[0] << "\" usemap=\"#TriggerTower_0\" border=0></td>" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapTTEmulError[1] << "\" usemap=\"#TriggerTower_1\" border=0></td>" << endl;
+    if ( imgNameMapTTEmulError[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapTTEmulError[0] << "\" usemap=\"#TriggerTower_0\" border=0></td>" << endl;
+    if ( imgNameMapTTEmulError[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapTTEmulError[1] << "\" usemap=\"#TriggerTower_1\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -2249,8 +2249,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapTTEt[0] << "\" usemap=\"#TriggerTower_0\" border=0></td>" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapTTEt[1] << "\" usemap=\"#TriggerTower_1\" border=0></td>" << endl;
+    if ( imgNameMapTTEt[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapTTEt[0] << "\" usemap=\"#TriggerTower_0\" border=0></td>" << endl;
+    if ( imgNameMapTTEt[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapTTEt[1] << "\" usemap=\"#TriggerTower_1\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
