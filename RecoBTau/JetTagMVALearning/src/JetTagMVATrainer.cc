@@ -43,6 +43,7 @@ JetTagMVATrainer::JetTagMVATrainer(const edm::ParameterSet &params) :
 	minPt(params.getParameter<double>("minimumTransverseMomentum")),
 	minEta(params.getParameter<double>("minimumPseudoRapidity")),
 	maxEta(params.getParameter<double>("maximumPseudoRapidity")),
+	setupDone(false),
 	jetTagComputer(params.getParameter<std::string>("jetTagComputer")),
 	signalFlavours(params.getParameter<std::vector<int> >("signalFlavours")),
 	ignoreFlavours(params.getParameter<std::vector<int> >("ignoreFlavours"))
@@ -81,7 +82,7 @@ JetTagMVATrainer::~JetTagMVATrainer()
 
 void JetTagMVATrainer::setup(const JetTagComputer &computer)
 {
-	std::vector<std::string> inputLabels(computer.m_inputLabels);
+	std::vector<std::string> inputLabels(computer.getInputLabels());
 
 	if (inputLabels.empty())
 		inputLabels.push_back("tagInfo");
@@ -98,7 +99,7 @@ void JetTagMVATrainer::setup(const JetTagComputer &computer)
 		tagInfos.push_back(pos->second);
 	}
 
-	computer.m_setupDone = true;
+	setupDone = true;
 }
 
 bool JetTagMVATrainer::isSignalFlavour(int flavour) const
@@ -160,7 +161,7 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 			   "in JetTagMVATrainer" << std::endl;
 
 	// finalize the JetTagMVALearning <-> JetTagComputer glue setup
-	if (!computer->m_setupDone)
+	if (!setupDone)
 		setup(*computer);
 
 	// retrieve TagInfos

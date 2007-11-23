@@ -43,6 +43,7 @@ class JetTagMVATrainer : public edm::EDAnalyzer {
     private:
 	void setup(const JetTagComputer &computer);
 
+	bool						setupDone;
 	std::string					jetTagComputer;
 
 	std::map<std::string, edm::InputTag>		tagInfoLabels;
