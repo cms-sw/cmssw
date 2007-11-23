@@ -16,11 +16,14 @@
   <field name="sortedByPId" transient="true"/>
   <field name="mTItemsByTrigId" transient="true"/>
   <field name="sortedByTId" transient="true"/>
-</class>
+ </class>
  <class name="HcalElectronicsMap::PrecisionItem"/>
  <class name="HcalElectronicsMap::TriggerItem"/>
  <class name="HcalChannelQuality" id="6AD128B1-6893-20A1-F739-079F9223BF21"/>
  <class name="HcalChannelQuality::Item"/>
+
+ <class name="HcalZSThreshold"/>
+ <class name="HcalZSThresholds"/>
 
  <class pattern="*vector*"/>
 </lcgdict>   
