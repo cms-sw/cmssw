@@ -21,7 +21,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 
@@ -124,21 +123,13 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 	std::auto_ptr<SecondaryVertexTagInfoCollection>
 			tagInfos(new SecondaryVertexTagInfoCollection);
 
-	// use beamspot as fallback (FIXME: use same as TrackIPTagInfos)
-
-	BeamSpot beamSpot;
-	Vertex beamSpotPV(beamSpot.position(), beamSpot.covariance3D(),
-	                  -1, -1, 0);
-
 	for(TrackIPTagInfoCollection::const_iterator iterJets =
 		trackIPTagInfos->begin(); iterJets != trackIPTagInfos->end();
 		++iterJets) {
 
 		std::vector<SecondaryVertexTagInfo::IndexedTrackData> trackData;
 
-		const Vertex &pv = iterJets->primaryVertex().isNonnull()
-					? *iterJets->primaryVertex()
-					: beamSpotPV;
+		const Vertex &pv = *iterJets->primaryVertex();
 
 		edm::RefToBase<Jet> jetRef = iterJets->jet();
 

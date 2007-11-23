@@ -9,7 +9,6 @@
 <use name=RecoBTag/SecondaryVertex>
 <use name=boost>
 <library file="SecondaryVertexProducer.cc" name="RecoBTagSecondaryVertexProducer">
-  <use name=DataFormats/BeamSpot>
   <use name=TrackingTools/Records>
   <use name=TrackingTools/TransientTrack>
   <use name=RecoVertex/ConfigurableVertexReco>
