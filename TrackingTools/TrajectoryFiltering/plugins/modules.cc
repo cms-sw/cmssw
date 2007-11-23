@@ -14,7 +14,6 @@ DEFINE_SEAL_MODULE();
 #include "TrackingTools/TrajectoryFiltering/interface/MinPtTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/ThresholdPtTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/CompositeTrajectoryFilter.h"
-#include "TrackingTools/TrajectoryFiltering/interface/BaseCkfTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/CkfBaseTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/ChargeSignificanceTrajectoryFilter.h"
 
@@ -25,7 +24,6 @@ DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, MaxConsecLostHitsTrajectoryFilter, "M
 DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, MinPtTrajectoryFilter, "MinPtTrajectoryFilter");
 DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, ThresholdPtTrajectoryFilter, "ThresholdPtTrajectoryFilter");
 DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, CompositeTrajectoryFilter, "CompositeTrajectoryFilter");
-DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, BaseCkfTrajectoryFilter, "BaseCkfTrajectoryFilter");
 DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, CkfBaseTrajectoryFilter, "CkfBaseTrajectoryFilter");
 DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, ChargeSignificanceTrajectoryFilter, "ChargeSignificanceTrajectoryFilter");
 		  
