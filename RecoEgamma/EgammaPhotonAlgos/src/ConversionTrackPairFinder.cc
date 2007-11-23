@@ -72,7 +72,7 @@ std::map<std::vector<reco::TransientTrack>, reco::SuperCluster>  ConversionTrack
     reco::TrackSuperClusterAssociationCollection outInTrackSCAss = *outInTrackSCAssH;
     const reco::SuperCluster aClus= *outInTrackSCAss[trackRef];
     
-    std::cout << "ConversionTrackPairFinder  Out In track belonging to SC with energy " << aClus.energy() << "\n"; 
+    //std::cout << "ConversionTrackPairFinder  Out In track belonging to SC with energy " << aClus.energy() << "\n"; 
 
     scTrkAssocMap[*iTk]= aClus;
     selectedOutInTk.push_back(*iTk);
