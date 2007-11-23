@@ -233,7 +233,9 @@ TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
             " U = " << utraj << " +/- " << uerr << 
             "; Range [" << (utraj - 3*uerr) << ", " << (utraj + 3*uerr) << "] " << 
             ": YOU'RE COMPLETELY OFF THE MODULE."; */
-        return false;
+        //return false; 
+        return true;  // Wolfgang thinks this way is better
+                      // and solves some problems with grouped ckf
     } 
 
     typedef std::vector<BadStripBlock>::const_iterator BSBIT;
