@@ -63,6 +63,7 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       std::string EffRootFileName;
       std::string TjInput;
       std::string RPCDataLabel;
+      std::string GlobalRootLabel;
       std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
 
       DaqMonitorBEInterface * dbe;
