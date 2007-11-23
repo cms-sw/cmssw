@@ -46,7 +46,10 @@ FUShmReader::FUShmReader()
 //______________________________________________________________________________
 FUShmReader::~FUShmReader()
 {
-  
+  if (0!=shmBuffer_) {
+    edm::LogInfo("FUShmReader")<<"detach from shared memory segment."<<endl;
+    shmdt(shmBuffer_);
+  }
 }
 
 
