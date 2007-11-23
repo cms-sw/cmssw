@@ -19,14 +19,19 @@ double TrackAssociatorByChi2::compareTracksParam ( TrackCollection::const_iterat
   
   Basic3DVector<double> momAtVtx(st->momentum().x(),st->momentum().y(),st->momentum().z());
   Basic3DVector<double> vert = (Basic3DVector<double>) vertexPosition;
-      
-  TrackBase::ParameterVector sParameters=parametersAtClosestApproach(vert, momAtVtx, st->charge());
-  TrackBase::ParameterVector rParameters = rt->parameters();
-  
-  TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-  double chi2 = ROOT::Math::Dot(diffParameters * invertedCovariance, diffParameters);
-  
-  return chi2;
+
+  std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, st->charge());
+  if (params.first){
+    TrackBase::ParameterVector sParameters =params.second;
+    TrackBase::ParameterVector rParameters = rt->parameters();
+    
+    TrackBase::ParameterVector diffParameters = rParameters - sParameters;
+    double chi2 = ROOT::Math::Dot(diffParameters * invertedCovariance, diffParameters);
+    
+    return chi2;
+  } else {
+    return 10000000000.;
+  }
 }
 
 
@@ -56,12 +61,15 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
       Basic3DVector<double> momAtVtx(st->momentum().x(),st->momentum().y(),st->momentum().z());
       Basic3DVector<double> vert = (Basic3DVector<double>)  svColl[st->vertIndex()].position();
 
-      TrackBase::ParameterVector sParameters=parametersAtClosestApproach(vert, momAtVtx, st->charge());
+      std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, st->charge());
+      if (params.first){
+	TrackBase::ParameterVector sParameters = params.second;
       
-      TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-      double chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
-      chi2/=5;
-      if (chi2<chi2cut) outMap[chi2]=*st;
+	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
+	double chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
+	chi2/=5;
+	if (chi2<chi2cut) outMap[chi2]=*st;
+      }
     }
     outputVec.push_back(RecoToSimPair(*track,outMap));
   }
@@ -107,32 +115,35 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
       Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
       Basic3DVector<double> vert=(Basic3DVector<double>) tp->vertex();
 
-      TrackBase::ParameterVector sParameters=parametersAtClosestApproach(vert, momAtVtx, tp->charge());
-
-      TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-
-      chi2 = ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix);
-      chi2 /= 5;
-
-      LogDebug("TrackAssociator") << "====RECO TRACK WITH PT=" << rt->pt() << "====\n" 
-				  << "qoverp simG: " << sParameters[0] << "\n" 
-				  << "lambda simG: " << sParameters[1] << "\n" 
-				  << "phi    simG: " << sParameters[2] << "\n" 
-				  << "dxy    simG: " << sParameters[3] << "\n" 
-				  << "dsz    simG: " << sParameters[4] << "\n" 
-				  << ": " /*<< */ << "\n" 
-				  << "qoverp rec: " << rt->qoverp()/*rParameters[0]*/ << "\n" 
-				  << "lambda rec: " << rt->lambda()/*rParameters[1]*/ << "\n" 
-				  << "phi    rec: " << rt->phi()/*rParameters[2]*/ << "\n" 
-				  << "dxy    rec: " << rt->dxy()/*rParameters[3]*/ << "\n" 
-				  << "dsz    rec: " << rt->dsz()/*rParameters[4]*/ << "\n" 
-				  << ": " /*<< */ << "\n" 
-				  << "chi2: " << chi2 << "\n";
-
-      if (chi2<chi2cut) {
-	outputCollection.insert(reco::TrackRef(tCH,tindex), 
-				std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
-					       -chi2));//-chi2 because the Association Map is ordered using std::greater
+      std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, tp->charge());
+      if (params.first){
+	TrackBase::ParameterVector sParameters=params.second;
+	
+	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
+	
+	chi2 = ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix);
+	chi2 /= 5;
+	
+	LogDebug("TrackAssociator") << "====RECO TRACK WITH PT=" << rt->pt() << "====\n" 
+				    << "qoverp simG: " << sParameters[0] << "\n" 
+				    << "lambda simG: " << sParameters[1] << "\n" 
+				    << "phi    simG: " << sParameters[2] << "\n" 
+				    << "dxy    simG: " << sParameters[3] << "\n" 
+				    << "dsz    simG: " << sParameters[4] << "\n" 
+				    << ": " /*<< */ << "\n" 
+				    << "qoverp rec: " << rt->qoverp()/*rParameters[0]*/ << "\n" 
+				    << "lambda rec: " << rt->lambda()/*rParameters[1]*/ << "\n" 
+				    << "phi    rec: " << rt->phi()/*rParameters[2]*/ << "\n" 
+				    << "dxy    rec: " << rt->dxy()/*rParameters[3]*/ << "\n" 
+				    << "dsz    rec: " << rt->dsz()/*rParameters[4]*/ << "\n" 
+				    << ": " /*<< */ << "\n" 
+				    << "chi2: " << chi2 << "\n";
+	
+	if (chi2<chi2cut) {
+	  outputCollection.insert(reco::TrackRef(tCH,tindex), 
+				  std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
+						 -chi2));//-chi2 because the Association Map is ordered using std::greater
+	}
       }
     }
   }
@@ -164,47 +175,50 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
     Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
     Basic3DVector<double> vert(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
     
-    TrackBase::ParameterVector sParameters=parametersAtClosestApproach(vert, momAtVtx, tp->charge());
-    
-    int tindex=0;
-    for (TrackCollection::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
+    std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, tp->charge());
+    if (params.first){
+      TrackBase::ParameterVector sParameters=params.second;
       
-      TrackBase::ParameterVector rParameters = rt->parameters();
-      TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
-      if (onlyDiagonal) {
-	for (unsigned int i=0;i<5;i++){
-	  for (unsigned int j=0;j<5;j++){
-	    if (i!=j) recoTrackCovMatrix(i,j)=0;
+      int tindex=0;
+      for (TrackCollection::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
+	
+	TrackBase::ParameterVector rParameters = rt->parameters();
+	TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
+	if (onlyDiagonal) {
+	  for (unsigned int i=0;i<5;i++){
+	    for (unsigned int j=0;j<5;j++){
+	      if (i!=j) recoTrackCovMatrix(i,j)=0;
+	    }
 	  }
 	}
-      }
-      
-      recoTrackCovMatrix.Invert();
-      
-      TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-      
-      chi2 = ROOT::Math::Similarity(recoTrackCovMatrix, diffParameters);
-      chi2 /= 5;
-
-      LogDebug("TrackAssociator") << "====RECO TRACK WITH PT=" << rt->pt() << "====\n" 
-				  << "qoverp simG: " << sParameters[0] << "\n" 
-				  << "lambda simG: " << sParameters[1] << "\n" 
-				  << "phi    simG: " << sParameters[2] << "\n" 
-				  << "dxy    simG: " << sParameters[3] << "\n" 
-				  << "dsz    simG: " << sParameters[4] << "\n" 
-				  << ": " /*<< */ << "\n" 
-				  << "qoverp rec: " << rt->qoverp()/*rParameters[0]*/ << "\n" 
-				  << "lambda rec: " << rt->lambda()/*rParameters[1]*/ << "\n" 
-				  << "phi    rec: " << rt->phi()/*rParameters[2]*/ << "\n" 
-				  << "dxy    rec: " << rt->dxy()/*rParameters[3]*/ << "\n" 
-				  << "dsz    rec: " << rt->dsz()/*rParameters[4]*/ << "\n" 
-				  << ": " /*<< */ << "\n" 
-				  << "chi2: " << chi2 << "\n";
-      
-      if (chi2<chi2cut) {
-	outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
-				std::make_pair(reco::TrackRef(tCH,tindex),
-					       -chi2));//-chi2 because the Association Map is ordered using std::greater
+	
+	recoTrackCovMatrix.Invert();
+	
+	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
+	
+	chi2 = ROOT::Math::Similarity(recoTrackCovMatrix, diffParameters);
+	chi2 /= 5;
+	
+	LogDebug("TrackAssociator") << "====RECO TRACK WITH PT=" << rt->pt() << "====\n" 
+				    << "qoverp simG: " << sParameters[0] << "\n" 
+				    << "lambda simG: " << sParameters[1] << "\n" 
+				    << "phi    simG: " << sParameters[2] << "\n" 
+				    << "dxy    simG: " << sParameters[3] << "\n" 
+				    << "dsz    simG: " << sParameters[4] << "\n" 
+				    << ": " /*<< */ << "\n" 
+				    << "qoverp rec: " << rt->qoverp()/*rParameters[0]*/ << "\n" 
+				    << "lambda rec: " << rt->lambda()/*rParameters[1]*/ << "\n" 
+				    << "phi    rec: " << rt->phi()/*rParameters[2]*/ << "\n" 
+				    << "dxy    rec: " << rt->dxy()/*rParameters[3]*/ << "\n" 
+				    << "dsz    rec: " << rt->dsz()/*rParameters[4]*/ << "\n" 
+				    << ": " /*<< */ << "\n" 
+				    << "chi2: " << chi2 << "\n";
+	
+	if (chi2<chi2cut) {
+	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
+				  std::make_pair(reco::TrackRef(tCH,tindex),
+						 -chi2));//-chi2 because the Association Map is ordered using std::greater
+	}
       }
     }
   }
@@ -230,50 +244,62 @@ double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterato
   
   Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
   Basic3DVector<double> vert(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
-  TrackBase::ParameterVector sParameters=parametersAtClosestApproach(vert, momAtVtx, tp->charge());
+
+  std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, tp->charge());
+  if (params.first){
+    TrackBase::ParameterVector sParameters=params.second;
     
-  TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-  chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
-  chi2 /= 5;
+    TrackBase::ParameterVector diffParameters = rParameters - sParameters;
+    chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
+    chi2 /= 5;
+    
+    LogDebug("TrackAssociator") << "====NEW RECO TRACK WITH PT=" << rt->pt() << "====\n" 
+				<< "qoverp simG: " << sParameters[0] << "\n" 
+				<< "lambda simG: " << sParameters[1] << "\n" 
+				<< "phi    simG: " << sParameters[2] << "\n" 
+				<< "dxy    simG: " << sParameters[3] << "\n" 
+				<< "dsz    simG: " << sParameters[4] << "\n" 
+				<< ": " /*<< */ << "\n" 
+				<< "qoverp rec: " << rt->qoverp()/*rParameters[0]*/ << "\n" 
+				<< "lambda rec: " << rt->lambda()/*rParameters[1]*/ << "\n" 
+				<< "phi    rec: " << rt->phi()/*rParameters[2]*/ << "\n" 
+				<< "dxy    rec: " << rt->dxy()/*rParameters[3]*/ << "\n" 
+				<< "dsz    rec: " << rt->dsz()/*rParameters[4]*/ << "\n" 
+				<< ": " /*<< */ << "\n" 
+				<< "chi2: " << chi2 << "\n";
+    
+    return chi2;  
+  } else {
+    return 10000000000.;
+  }
+}
 
-  LogDebug("TrackAssociator") << "====NEW RECO TRACK WITH PT=" << rt->pt() << "====\n" 
-			      << "qoverp simG: " << sParameters[0] << "\n" 
-			      << "lambda simG: " << sParameters[1] << "\n" 
-			      << "phi    simG: " << sParameters[2] << "\n" 
-			      << "dxy    simG: " << sParameters[3] << "\n" 
-			      << "dsz    simG: " << sParameters[4] << "\n" 
-			      << ": " /*<< */ << "\n" 
-			      << "qoverp rec: " << rt->qoverp()/*rParameters[0]*/ << "\n" 
-			      << "lambda rec: " << rt->lambda()/*rParameters[1]*/ << "\n" 
-			      << "phi    rec: " << rt->phi()/*rParameters[2]*/ << "\n" 
-			      << "dxy    rec: " << rt->dxy()/*rParameters[3]*/ << "\n" 
-			      << "dsz    rec: " << rt->dsz()/*rParameters[4]*/ << "\n" 
-			      << ": " /*<< */ << "\n" 
-			      << "chi2: " << chi2 << "\n";
+pair<bool,TrackBase::ParameterVector> 
+TrackAssociatorByChi2::parametersAtClosestApproach(Basic3DVector<double> vertex,
+						   Basic3DVector<double> momAtVtx,
+						   float charge) const{
   
-  return chi2;
+  TrackBase::ParameterVector sParameters;
+  try {
+    FreeTrajectoryState ftsAtProduction(GlobalPoint(vertex.x(),vertex.y(),vertex.z()),
+					GlobalVector(momAtVtx.x(),momAtVtx.y(),momAtVtx.z()),
+					TrackCharge(charge),
+					theMF.product());
+    TSCPBuilderNoMaterial tscpBuilder;
+    TrajectoryStateClosestToPoint tsAtClosestApproach 
+      = tscpBuilder(ftsAtProduction,GlobalPoint(0,0,0));//as in TrackProducerAlgorithm
+    GlobalPoint v = tsAtClosestApproach.theState().position();
+    GlobalVector p = tsAtClosestApproach.theState().momentum();
+    
+    sParameters[0] = tsAtClosestApproach.charge()/p.mag();
+    sParameters[1] = Geom::halfPi() - p.theta();
+    sParameters[2] = p.phi();
+    sParameters[3] = (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
+    sParameters[4] = v.z()*p.perp()/p.mag() - (v.x()*p.x()+v.y()*p.y())/p.perp() * p.z()/p.mag();
+    
+    return make_pair<bool,TrackBase::ParameterVector>(true,sParameters);
+  } catch ( ... ) {
+    return make_pair<bool,TrackBase::ParameterVector>(true,sParameters);
+  }
 }
 
-TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproach(Basic3DVector<double> vertex,
-									      Basic3DVector<double> momAtVtx,
-									      float charge) const{
-  TrackBase::ParameterVector sParameters;
-  FreeTrajectoryState ftsAtProduction(GlobalPoint(vertex.x(),vertex.y(),vertex.z()),
-				      GlobalVector(momAtVtx.x(),momAtVtx.y(),momAtVtx.z()),
-				      TrackCharge(charge),
-				      theMF.product());
- TSCPBuilderNoMaterial tscpBuilder;
- TrajectoryStateClosestToPoint tsAtClosestApproach 
-   = tscpBuilder(ftsAtProduction,GlobalPoint(0,0,0));//as in TrackProducerAlgorithm
- GlobalPoint v = tsAtClosestApproach.theState().position();
- GlobalVector p = tsAtClosestApproach.theState().momentum();
- 
- sParameters[0] = tsAtClosestApproach.charge()/p.mag();
- sParameters[1] = Geom::halfPi() - p.theta();
- sParameters[2] = p.phi();
- sParameters[3] = (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
- sParameters[4] = v.z()*p.perp()/p.mag() - (v.x()*p.x()+v.y()*p.y())/p.perp() * p.z()/p.mag();
- 
- return sParameters;
-}
-	
