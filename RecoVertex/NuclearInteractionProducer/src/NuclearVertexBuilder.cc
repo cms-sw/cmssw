@@ -5,7 +5,6 @@
 
 NuclearVertexBuilder::NuclearVertexBuilder( const reco::TrackRef& primTrack, const reco::TrackRefVector& secTracks, const MagneticField * field) : theMagField(field) {
 
-
        if( secTracks.size() != 0) {
 
          FreeTrajectoryState primTraj = getTrajectory(primTrack);
@@ -31,6 +30,14 @@ NuclearVertexBuilder::NuclearVertexBuilder( const reco::TrackRef& primTrack, con
                                    reco::Vertex::Error(), 0.,0.,0);
  
      }
+     else {
+       // if no secondary tracks : vertex position = position of last rechit    
+       the_vertex = reco::Vertex(reco::Vertex::Point(primTrack->outerPosition().x(),
+                                         primTrack->outerPosition().y(),
+                                         primTrack->outerPosition().z()),
+                                         reco::Vertex::Error(), 0.,0.,0);
+     }
+
 
      // Add all the tracks to the vertex
      the_vertex.add(reco::TrackBaseRef( primTrack ));
