@@ -75,7 +75,7 @@ RPCEfficiencyFromTrack::RPCEfficiencyFromTrack(const edm::ParameterSet& iConfig)
   TjInput  = iConfig.getUntrackedParameter<std::string>("trajectoryInput");
   RPCDataLabel = iConfig.getUntrackedParameter<std::string>("rpcRecHitLabel");
   GlobalRootLabel= iConfig.getUntrackedParameter<std::string>("GlobalRootFileName","GlobalEfficiencyFromTrack.root");
-  fOutputFile  = new TFile(label.c_str(), "RECREATE" );
+  fOutputFile  = new TFile(GlobalRootLabel.c_str(), "RECREATE" );
   hRecPt = new TH1F("RecPt","ReconstructedPt",100,0.5,100.5);
   hGlobalRes = new TH1F("GlobalResiduals","GlobalRPCResiduals",50,-15.,15.);
   hGlobalPull = new TH1F("GlobalPull","GlobalRPCPull",50,-15.,15.);
