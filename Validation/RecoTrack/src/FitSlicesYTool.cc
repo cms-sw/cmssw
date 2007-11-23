@@ -5,6 +5,9 @@ using namespace std;
 
 FitSlicesYTool::FitSlicesYTool(MonitorElement* me)
 { 
+  const bool oldAddDir = TH1::AddDirectoryStatus();
+  TH1::AddDirectory(true);
+  // ... create your hists
   TH2F * h =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)me)));
   h->FitSlicesY();
   string name(h->GetName());
@@ -12,6 +15,7 @@ FitSlicesYTool::FitSlicesYTool(MonitorElement* me)
   h1 = (TH1*)gDirectory->Get((name+"_1").c_str());
   h2 = (TH1*)gDirectory->Get((name+"_2").c_str());
   h3 = (TH1*)gDirectory->Get((name+"_chi2").c_str());
+  TH1::AddDirectory(oldAddDir);
 }
 
 // FitSlicesYTool::FitSlicesYTool(TH2F* h){

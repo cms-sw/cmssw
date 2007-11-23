@@ -159,19 +159,19 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_ptrmsh.push_back( dbe_->book1D("sigmapt","#sigma(#deltap_{t}/p_{t}) vs #eta",nint,min,max) );
 
       ptres_vs_pt.push_back(dbe_->book2D("ptres_vs_pt","ptres_vs_pt",nintpT,minpT,maxpT, 100, -0.1, 0.1));
-      h_ptrmshPt.push_back( dbe_->book1D("sigmaptPt","#sigma(#deltap_{t}/p_{t}) vs #pt",nintpT,minpT,maxpT) );
+      h_ptrmshPt.push_back( dbe_->book1D("sigmaptPt","#sigma(#deltap_{t}/p_{t}) vs pT",nintpT,minpT,maxpT) );
 
       cotThetares_vs_eta.push_back(dbe_->book2D("cotThetares_vs_eta","cotThetares_vs_eta",nint,min,max, 120, -0.01, 0.01));
       h_cotThetarmsh.push_back( dbe_->book1D("sigmacotTheta","#sigma(#deltacot(#theta)) vs #eta",nint,min,max) );
 
       cotThetares_vs_pt.push_back(dbe_->book2D("cotThetares_vs_pt","cotThetares_vs_pt",nintpT,minpT,maxpT, 120, -0.01, 0.01));
-      h_cotThetarmshPt.push_back( dbe_->book1D("sigmacotThetaPt","#sigma(#deltacot(#theta)) vs #pt",nintpT,minpT,maxpT) );
+      h_cotThetarmshPt.push_back( dbe_->book1D("sigmacotThetaPt","#sigma(#deltacot(#theta)) vs pT",nintpT,minpT,maxpT) );
 
       phires_vs_eta.push_back(dbe_->book2D("phires_vs_eta","phires_vs_eta",nint,min,max, 100, -0.003, 0.003));
       h_phirmsh.push_back( dbe_->book1D("sigmaphi","#sigma(#delta#phi) vs #eta",nint,min,max) );
 
       phires_vs_pt.push_back(dbe_->book2D("phires_vs_pt","phires_vs_pt",nintpT,minpT,maxpT, 100, -0.003, 0.003));
-      h_phirmshPt.push_back( dbe_->book1D("sigmaphiPt","#sigma(#delta#phi) vs #pt",nintpT,minpT,maxpT) );
+      h_phirmshPt.push_back( dbe_->book1D("sigmaphiPt","#sigma(#delta#phi) vs pT",nintpT,minpT,maxpT) );
 
       d0res_vs_eta.push_back(dbe_->book2D("d0res_vs_eta","d0res_vs_eta",nint,min,max, 100, -0.01, 0.01));
       h_d0rmsh.push_back( dbe_->book1D("sigmad0","#sigma(#deltad_{0}) vs #eta",nint,min,max) );
@@ -183,7 +183,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_z0rmsh.push_back( dbe_->book1D("sigmaz0","#sigma(#deltaz_{0}) vs #eta",nint,min,max) );
 
       z0res_vs_pt.push_back(dbe_->book2D("z0res_vs_pt","z0res_vs_pt",nintpT,minpT,maxpT, 150, -0.05, 0.05));
-      h_z0rmshPt.push_back( dbe_->book1D("sigmaz0Pt","#sigma(#deltaz_{0}) vs #pt",nintpT,minpT,maxpT) );
+      h_z0rmshPt.push_back( dbe_->book1D("sigmaz0Pt","#sigma(#deltaz_{0}) vs pT",nintpT,minpT,maxpT) );
 
       //pulls of track params vs eta: to be used with fitslicesytool
       d0pull_vs_eta.push_back(dbe_->book2D("d0pull_vs_eta","d0pull_vs_eta",nint,min,max,100,-10,10));
@@ -196,7 +196,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_z0pulleta.push_back( dbe_->book1D("h_z0pulleta","#sigma of z0 pull vs #eta",nint,min,max) ); 
       h_phipulleta.push_back( dbe_->book1D("h_phipulleta","#sigma of #phi pull vs #eta",nint,min,max) ); 
       h_thetapulleta.push_back( dbe_->book1D("h_thetapulleta","#sigma of #theta pull vs #eta",nint,min,max) );
-      h_ptshifteta.push_back( dbe_->book1D("h_ptshifteta","mean of p_{t} pull vs #eta",nint,min,max) ); 
+      h_ptshifteta.push_back( dbe_->book1D("h_ptshifteta","<#deltapT/pT>[%] vs #eta",nint,min,max) ); 
 
       j++;
     }
@@ -290,7 +290,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
           if (sqrt(tp->momentum().perp2())>pTintervals[w][f]&&
               sqrt(tp->momentum().perp2())<pTintervals[w][f+1]) {
             totSIMpT[w][f]++;
-	    rt = simRecColl[tp];
 	    if (rt.size()!=0) {
 	      totASSpT[w][f]++;
 	    }
