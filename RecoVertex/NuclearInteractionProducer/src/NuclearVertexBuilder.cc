@@ -3,7 +3,7 @@
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-NuclearVertexBuilder::NuclearVertexBuilder( const reco::TrackRef& primTrack, const reco::TrackRefVector& secTracks, const MagneticField * field) : theMagField(field) {
+void NuclearVertexBuilder::build( const reco::TrackRef& primTrack, const reco::TrackRefVector& secTracks) {
 
        if( secTracks.size() != 0) {
 

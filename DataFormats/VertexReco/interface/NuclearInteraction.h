@@ -19,9 +19,10 @@ namespace reco {
 
        NuclearInteraction() {}
 
-       NuclearInteraction( const TrajectorySeedRefVector& tseeds, const reco::Vertex& vtx) { 
+       NuclearInteraction( const TrajectorySeedRefVector& tseeds, const reco::Vertex& vtx, double lkh) { 
                          seeds_ = tseeds;
                          vertex_ = vtx;
+                         likelihood_ = lkh;
        }
  
        /// return the base reference to the primary track
@@ -48,10 +49,13 @@ namespace reco {
        /// return the vertex
        const reco::Vertex& vertex() const { return vertex_; }
 
+       /// return the likelihood ~ probability that the vertex is a real nuclear interaction
+       double likelihood() const { return likelihood_; }
+
      private :
 
         /// The refitted primary track after removing eventually some outer rechits
-        reco::Track                 refittedPrimaryTrack_;
+        //reco::Track                 refittedPrimaryTrack_; // to be included in a futur version
 
         /// Reference to the TrajectorySeeds produced by NuclearSeedGenerator
         TrajectorySeedRefVector     seeds_;

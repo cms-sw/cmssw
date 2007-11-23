@@ -12,8 +12,9 @@ class FreeTrajectoryState;
 class NuclearVertexBuilder {
 
   public :
-       NuclearVertexBuilder( const reco::TrackRef& primaryTrack, const reco::TrackRefVector& secondaryTrack , const MagneticField * theMagField);
-       reco::Vertex  getVertex() { return the_vertex; } 
+       NuclearVertexBuilder( const MagneticField * mag ) : theMagField(mag) {}
+       void build( const reco::TrackRef& primaryTrack, const reco::TrackRefVector& secondaryTrack );
+       reco::Vertex  getVertex() const { return the_vertex; } 
 
   private :
        FreeTrajectoryState getTrajectory(const reco::TrackRef& track);

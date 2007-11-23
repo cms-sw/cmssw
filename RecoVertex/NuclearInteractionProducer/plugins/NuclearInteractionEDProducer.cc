@@ -7,6 +7,7 @@
 #include "DataFormats/VertexReco/interface/NuclearInteractionFwd.h"
 
 #include "RecoVertex/NuclearInteractionProducer/interface/NuclearVertexBuilder.h"
+#include "RecoVertex/NuclearInteractionProducer/interface/NuclearLikelihood.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 
@@ -15,6 +16,7 @@ conf_(iConfig),
 primaryProducer_(iConfig.getParameter<std::string>("primaryProducer")),
 seedsProducer_(iConfig.getParameter<std::string>("seedsProducer")),
 secondaryProducer_(iConfig.getParameter<std::string>("secondaryProducer")) {
+
   produces<reco::NuclearInteractionCollection>();
 }
 
@@ -51,11 +53,6 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
    /// Get the secondary tracks
    edm::Handle<reco::TrackCollection>  secondaryTrackCollection;
    iEvent.getByLabel( secondaryProducer_, secondaryTrackCollection );
-
-   /// Get magnetic field
-   edm::ESHandle<MagneticField> magField;
-   iSetup.get<IdealMagneticFieldRecord>().get(magField);
-   theMagField = magField.product();
 
    /// Definition of the output
    std::auto_ptr<reco::NuclearInteractionCollection> theNuclearInteractions(new reco::NuclearInteractionCollection);
@@ -94,18 +91,17 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
                      if( isInside( currentTrk, seeds ) ) secondary_tracks.push_back(currentTrk);
          }
               
-         /// 4. Get the vertex
-         NuclearVertexBuilder *builder = new NuclearVertexBuilder(primary_track, secondary_tracks, theMagField);
-         reco::Vertex vtx = builder->getVertex();
-         delete builder;
+         /// 4. Get the vertex and the likelihood
+         vertexBuilder->build(primary_track, secondary_tracks);
+         likelihoodCalculator->calculate( vertexBuilder->getVertex() );
 
-         theNuclearInteractions->push_back( reco::NuclearInteraction( seeds, vtx ) );
+         theNuclearInteractions->push_back( reco::NuclearInteraction( seeds, vertexBuilder->getVertex(), likelihoodCalculator->result() ) );
 
          LogDebug("NuclearInteractionMaker") << 
                   "New nuclear interaction found : primary track with id=" << primary_track.key() << "\n"
-                  "   position : x=" << vtx.x() << "  y=" << vtx.y() << "  z=" << vtx.z() << "\n"
+                  "   position : x=" << vertexBuilder->getVertex().x() << "  y=" << vertexBuilder->getVertex().y() << "  z=" << vertexBuilder->getVertex().z() << "\n"
                   "   Number of seeds = " << seeds.size() << "\n"
-                  "   Number of secondary tracks = " << secondary_tracks.size() << "( = " << vtx.tracksSize()-1 << ")\n";
+                  "   Number of secondary tracks = " << secondary_tracks.size() << "\n";
 
    }
 
@@ -117,6 +113,14 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 void
 NuclearInteractionEDProducer::beginJob(const edm::EventSetup& es)
 {
+   /// Get magnetic field
+   edm::ESHandle<MagneticField> magField;
+   es.get<IdealMagneticFieldRecord>().get(magField);
+   theMagField = magField.product();
+
+   vertexBuilder = std::auto_ptr< NuclearVertexBuilder >(new NuclearVertexBuilder( theMagField) );
+   likelihoodCalculator = std::auto_ptr< NuclearLikelihood >(new NuclearLikelihood);
+
 }
 
 void  NuclearInteractionEDProducer::endJob() {}
