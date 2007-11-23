@@ -54,6 +54,7 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_Tracking(p.getParameter<bool>("SimulateTracking")),
       m_Calorimetry(p.getParameter<bool>("SimulateCalorimetry")),
+      m_Alignment(p.getParameter<bool>("ApplyAlignment")),
       m_TRandom(p.getParameter<bool>("UseTRandomEngine")),
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
       m_pVerbose(p.getUntrackedParameter<int>("Verbosity",1))
@@ -125,26 +126,29 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
   mySimEvent->initializePdt(&(*pdt));
   ParticleTable::instance(&(*pdt));
 
-  // Initialize the full (misaligned) tracker geometry (only if tracking is requested)
-  // By default, the misaligned geometry is aligned
+  // Initialize the full (misaligned) tracker geometry 
+  // (only if tracking is requested)
+  std::string misAligned = m_Alignment ? "MisAligned" : "";
+  // 1) By default, the aligned geometry is chosen (m_Alignment = false)
+  // 2) By default, the misaligned geometry is aligned
   edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get("MisAligned",tracker);
+  es.get<TrackerDigiGeometryRecord>().get(misAligned,tracker);
   if (m_Tracking)  myTrajectoryManager->initializeTrackerGeometry(&(*tracker)); 
 
   // Initialize the tracker misaligned reco geometry (always needed)
   // By default, the misaligned geometry is aligned
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
-  es.get<TrackerRecoGeometryRecord>().get("MisAligned", theGeomSearchTracker );
+  es.get<TrackerRecoGeometryRecord>().get(misAligned, theGeomSearchTracker );
 
   // Initialize the misaligned tracker interaction geometry 
   edm::ESHandle<TrackerInteractionGeometry>  theTrackerInteractionGeometry;
-  es.get<TrackerInteractionGeometryRecord>().get("MisAligned", theTrackerInteractionGeometry );
+  es.get<TrackerInteractionGeometryRecord>().get(misAligned, theTrackerInteractionGeometry );
 
   // Initialize the magnetic field
   double bField000 = 0.;
   if (m_pUseMagneticField) {
     edm::ESHandle<MagneticFieldMap> theMagneticFieldMap;
-    es.get<MagneticFieldMapRecord>().get("MisAligned", theMagneticFieldMap);
+    es.get<MagneticFieldMapRecord>().get(misAligned, theMagneticFieldMap);
     const GlobalPoint g(0.,0.,0.);
     bField000 = theMagneticFieldMap->inTeslaZ(g);
     myTrajectoryManager->initializeRecoGeometry(&(*theGeomSearchTracker),

@@ -70,6 +70,7 @@ class FamosManager
   bool m_pUseMagneticField;
   bool m_Tracking;
   bool m_Calorimetry;
+  bool m_Alignment;
   bool m_TRandom;
   double weight_;    
   int m_pRunNumber;
