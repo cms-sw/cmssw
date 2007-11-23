@@ -1,7 +1,7 @@
 /* \file EcalDCCTB07UnpackingModule.h
  *
- *  $Date: 2007/10/20 10:58:01 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/10/23 16:04:06 $
+ *  $Revision: 1.8 $
  *  \author Y. Maravin
  *  \author G. Franzoni
  *  \author G. Della Ricca
@@ -136,7 +136,7 @@ EcalDCCTB07UnpackingModule::EcalDCCTB07UnpackingModule(const edm::ParameterSet& 
   produces<EcalMatacqDigiCollection>();
   produces<EcalPnDiodeDigiCollection>();
   produces<EcalRawDataCollection>();
-  produces<EcalTrigPrimDigiCollection>();
+  produces<EcalTrigPrimDigiCollection>("EBTT");
 
   //TB specifics data
   produces<EcalTBHodoscopeRawInfo>();
@@ -302,7 +302,7 @@ void EcalDCCTB07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& 
   if (ProduceEEDigis_)  e.put(productEe,"eeDigis");
   e.put(productMatacq);
   e.put(productDCCHeader);
-  e.put(productTriggerPrimitives);
+  e.put(productTriggerPrimitives, "EBTT");
   
   if (ProduceEBDigis_)  e.put(productDCCSize,"EcalIntegrityDCCSizeErrors");
   if (ProduceEBDigis_)  e.put(productTTId,"EcalIntegrityTTIdErrors");

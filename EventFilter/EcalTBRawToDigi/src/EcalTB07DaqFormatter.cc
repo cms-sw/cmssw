@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/11/21 14:23:21 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/11/22 20:12:47 $
+ *  $Revision: 1.17 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -243,6 +243,15 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
     //DCCHeader filled!
     DCCheaderCollection.push_back(theDCCheader);
     
+    // add three more DCC headers (EE region used at h4)
+    EcalDCCHeaderBlock hdr = theDCCheader;
+    hdr.setId(04);
+    DCCheaderCollection.push_back(hdr);
+    hdr.setId(05);
+    DCCheaderCollection.push_back(hdr);
+    hdr.setId(06);
+    DCCheaderCollection.push_back(hdr);
+
     std::vector< DCCTBTowerBlock * > dccTowerBlocks = (*itEventBlock)->towerBlocks();
     LogDebug("EcalTB07RawToDigi") << "@SUBS=EcalTB07DaqFormatter::interpretRawData"
 				<< "dccTowerBlocks size " << dccTowerBlocks.size();

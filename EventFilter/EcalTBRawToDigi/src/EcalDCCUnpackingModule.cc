@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2007/10/20 10:58:01 $
- *  $Revision: 1.39 $
+ *  $Date: 2007/10/23 15:30:05 $
+ *  $Revision: 1.40 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -54,7 +54,7 @@ EcalDCCTBUnpackingModule::EcalDCCTBUnpackingModule(const edm::ParameterSet& pset
   produces<EcalMatacqDigiCollection>();
   produces<EcalPnDiodeDigiCollection>();
   produces<EcalRawDataCollection>();
-  produces<EcalTrigPrimDigiCollection>();
+  produces<EcalTrigPrimDigiCollection>("EBTT");
 
   //TB specifics data
   produces<EcalTBHodoscopeRawInfo>();
@@ -215,7 +215,7 @@ void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
   e.put(productEb,"ebDigis");
   e.put(productMatacq);
   e.put(productDCCHeader);
-  e.put(productTriggerPrimitives);
+  e.put(productTriggerPrimitives,"EBTT");
 
   e.put(productDCCSize,"EcalIntegrityDCCSizeErrors");
   e.put(productTTId,"EcalIntegrityTTIdErrors");
