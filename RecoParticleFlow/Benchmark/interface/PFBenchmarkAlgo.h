@@ -1,111 +1,37 @@
-#ifndef RecoParticleFlow_Benchmark_PFBenchmarkAlgo
-#define RecoParticleFlow_Benchmark_PFBenchmarkAlgo
+#ifndef RecoParticleFlow_Benchmark_PFBenchmarkAlgo_h
+#define RecoParticleFlow_Benchmark_PFBenchmarkAlgo_h
 
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
-#include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetfwd.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetfwd.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include <string>
+class PFBenchmarkAlgo {
+public:
 
-class TH1F;
-class TFile;
+  // optional c'tor -- all methods can be used without an instance
+  PFBenchmarkAlgo();
+  virtual ~PFBenchmarkAlgo();
 
-class PFBenchmarkAlgo
-{
- public:
-  PFBenchmarkAlgo(std::string);
-  ~PFBenchmarkAlgo();
-  void doBenchmark();
-  void createPlots();
-  void setOutputRootFileName(std::string);
-  void setGenJets(edm::Handle<reco::GenJetCollection>);
-  void setCaloJets(edm::Handle<reco::CaloJetCollection>);
-  void setPfJets(edm::Handle<reco::PFJetCollection>);
-  void setHepMC(edm::Handle<edm::HepMCProduct>);
+  // calculate base quantities for the given pair of candidates
+  static double deltaEt(const reco::Candidate *, const reco::Candidate *);
+  static double deltaEta(const reco::Candidate *, const reco::Candidate *);
+  static double deltaPhi(const reco::Candidate *, const reco::Candidate *);
+  static double deltaR(const reco::Candidate *, const reco::Candidate *);
 
- private:
-  std::string outputRootFileName_;
-  edm::Handle<reco::GenJetCollection> genJets_;
-  edm::Handle<reco::CaloJetCollection> caloJets_;
-  edm::Handle<reco::PFJetCollection> pfJets_;
-  edm::Handle<edm::HepMCProduct> hepMC_; 
+  // simple candidate matching
+  static const reco::Candidate *matchByDeltaEt(const reco::Candidate *, const reco::CandidateCollection *);
+  static const reco::Candidate *matchByDeltaR(const reco::Candidate *, const reco::CandidateCollection *);
 
-  TFile *file_;
-  
-  TH1F *h_deltaETvisible_EHT_GEN_;
-  TH1F *h_deltaETvisible_PF_GEN_;
+  // find a duplicate of the candidate in the collection and return a pointer to that element
+  static const reco::Candidate *recoverCandidate(const reco::Candidate *, const reco::CandidateCollection *);
 
-  TH1F* h_deltaETvisible_MCHEPMC_PF_;	                      
-  TH1F* h_deltaETvisible_MCHEPMC_EHT_;
-  
-  TH1F* h_deltaEtvsEt_MCHEPMC_PF_;
-  TH1F* h_deltaEtvsEt_MCHEPMC_EHT_;
-  TH1F* n_deltaEtvsEt;
+  // sorting functions - returns a sorted copy of the input
+  static reco::CandidateCollection sortByDeltaR(const reco::Candidate *, const reco::CandidateCollection *);
+  static reco::CandidateCollection sortByDeltaEt(const reco::Candidate *, const reco::CandidateCollection *);
 
-  TH1F* h_deltaEtvsEta_MCHEPMC_PF_;
-  TH1F* h_deltaEtvsEta_MCHEPMC_EHT_;
-  TH1F* n_deltaEtvsEta;
-
-  TH1F* h_deltaEtDivEtvsEt_MCHEPMC_PF_;
-  TH1F* h_deltaEtDivEtvsEt_MCHEPMC_EHT_;
-  TH1F* n_deltaEtDivEtvsEt;
-
-  TH1F* h_deltaEtDivEtrecvsEt_MCHEPMC_PF_;
-  TH1F* h_deltaEtDivEtrecvsEt_MCHEPMC_EHT_;//
-  TH1F* n_deltaEtDivEtrecvsEt;
- 
-  TH1F* h_deltaEtDivEtvsEta_MCHEPMC_PF_;
-  TH1F* h_deltaEtDivEtvsEta_MCHEPMC_EHT_;
-  TH1F* n_deltaEtDivEtvsEta;
- 
-  TH1F* h_deltaEtDivEtrecvsEta_MCHEPMC_PF_;
-  TH1F* h_deltaEtDivEtrecvsEta_MCHEPMC_EHT_;//
-  TH1F* n_deltaEtDivEtrecvsEta;
- 
-  TH1F* h_deltaEta_MCHEPMC_PF_;
-  TH1F* h_deltaEta_MCHEPMC_EHT_;
-  
-  TH1F* h_deltaEtavsPt_MCHEPMC_PF_;
-  TH1F* h_deltaEtavsPt_MCHEPMC_EHT_;
-  TH1F* n_deltaEtavsPt;
- 
-  TH1F* h_deltaEtavsEta_MCHEPMC_PF_;
-  TH1F* h_deltaEtavsEta_MCHEPMC_EHT_;
-  TH1F* n_deltaEtavsEta;
- 
-  TH1F* h_deltaPhi_MCHEPMC_PF_;
-  TH1F* h_deltaPhi_MCHEPMC_EHT_;
-  TH1F* n_deltaPhi;
-
-  TH1F* h_deltaPhivsPt_MCHEPMC_PF_;
-  TH1F* h_deltaPhivsPt_MCHEPMC_EHT_;
-  TH1F* n_deltaPhivsPt;
- 
-  TH1F* h_deltaPhivsEta_MCHEPMC_PF_;
-  TH1F* h_deltaPhivsEta_MCHEPMC_EHT_;
-  TH1F* n_deltaPhivsEta;
-  
-  // ABC____________________
-  
-  TH1F* h_deltaETDivTrue_MCHEPMC_PF_;
-  TH1F* h_deltaETDivTrue_MCHEPMC_EHT_;
-  
-  TH1F* h_deltaETDivReco_MCHEPMC_PF_;
-  TH1F* h_deltaETDivReco_MCHEPMC_EHT_;
-  
-  TH1F* h_deltaEtaDivReco_MCHEPMC_PF_;
-  TH1F* h_deltaEtaDivReco_MCHEPMC_EHT_;
-  
-  TH1F* h_deltaPhiDivReco_MCHEPMC_PF_;
-  TH1F* h_deltaPhiDivReco_MCHEPMC_EHT_;
-  
-  TH1F* h_ErecDivEtrue_MCHEPMC_PF_;
-  TH1F* h_ErecDivEtrue_MCHEPMC_EHT_;
-  TH1F* n_ErecDivEtrue;
+  // multi-match function - returns a sorted, constrained collection
+  static reco::CandidateCollection findAllInCone(const reco::Candidate *, const reco::CandidateCollection *, double ConeSize);
+  static reco::CandidateCollection findAllInEtWindow(const reco::Candidate *, const reco::CandidateCollection *, double EtWindow);
 
 };
 
-#endif
+#endif // RecoParticleFlow_Benchmark_PFBenchmarkAlgo_h
