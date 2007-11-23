@@ -55,13 +55,11 @@ ConfigurableVertexReconstructor * ConfigurableVertexReconstructor::clone() const
 vector < TransientVertex > ConfigurableVertexReconstructor::vertices ( 
     const vector < reco::TransientTrack > & t ) const
 {
-  cout << "[CVR] vertices(t)" << endl;
   return theRector->vertices ( t );
 }
 
 vector < TransientVertex > ConfigurableVertexReconstructor::vertices ( 
     const vector < reco::TransientTrack > & t, const reco::BeamSpot & b ) const
 {
-  cout << "[CVR] vertices(t,b)" << endl;
   return theRector->vertices ( t, b );
 }
