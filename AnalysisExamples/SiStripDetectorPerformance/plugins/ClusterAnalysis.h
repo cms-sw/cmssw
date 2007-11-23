@@ -131,6 +131,9 @@ namespace cms{
       //      edm::Handle<reco::TrackInfoTrackAssociationCollection> tkiTkAssCollectionCmb ;
       edm::Handle<reco::TrackInfoTrackAssociationCollection> tkiTkAssCollection;
       std::vector<const SiStripCluster*> vPSiStripCluster;
+      //Susy modifying
+      //      std::vector<SiStripQuality::BadComponent> BC;
+      // = SiStripQuality_->getBadComponentList();     
       
       std::map<std::pair<std::string,uint32_t>,bool> DetectedLayers;
 
@@ -163,7 +166,6 @@ namespace cms{
 
       bool tracksCollection_in_EventTree;
       bool trackAssociatorCollection_in_EventTree;
-      bool ltcdigisCollection_in_EventTree;
 
       int countOn, countOff, countAll, NClus[4][3];
       uint32_t istart;

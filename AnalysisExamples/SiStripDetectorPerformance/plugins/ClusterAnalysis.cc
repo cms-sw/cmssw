@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/11/22 15:29:20 $
- * $Revision: 1.3 $
+ * $Date: 2007/11/22 18:06:21 $
+ * $Revision: 1.4 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -678,6 +678,8 @@ void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV
   //------------------------------------------------------------------------
   
   void ClusterAnalysis::AllClusters(){
+    edm::LogInfo("ClusterAnalysis") << "Executing AllClusters" << std::endl;
+
     //Loop on Dets
     edm::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin();
     for (; DSViter!=dsv_SiStripCluster->end();DSViter++){
@@ -728,12 +730,53 @@ void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV
 
   //------------------------------------------------------------------------
   
-  bool ClusterAnalysis::clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag , const LocalVector LV){
+  bool ClusterAnalysis::clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag , const LocalVector LV ){
     LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
     
     if (cluster==0) 
       return false;
-    
+   
+    const  edm::ParameterSet ps_b = conf_.getParameter<edm::ParameterSet>("BadModuleStudies");
+    if  ( ps_b.getParameter<bool>("Bad") ) {//it will perform Bad modules discrimination
+      short n_Apv;
+      switch((int)cluster->firstStrip()/128){
+      case 0:
+	n_Apv=0;
+	break;
+      case 1:
+	n_Apv=1;
+	break;
+      case 2:
+	n_Apv=2;
+	break;
+      case 3:
+	n_Apv=3;
+	break;
+      case 4:
+	n_Apv=4;
+	break;
+      case 5:
+	n_Apv=5;
+	break;
+      }
+      if ( ps_b.getParameter<bool>("justGood") ){//it will analyze just good modules 
+	edm::LogInfo("SiStripQuality") << "Just good module selected " << std::endl;
+	if(SiStripQuality_->IsModuleBad(detid)){
+	  edm::LogInfo("SiStripQuality") << "\n Excluding bad module " << detid << std::endl;
+	  return false;
+	}else if(SiStripQuality_->IsApvBad(detid, n_Apv)){
+	  edm::LogInfo("SiStripQuality") << "\n Excluding bad module and APV " << detid << n_Apv << std::endl;
+	  return false;
+	}
+      }else{
+	edm::LogInfo("SiStripQuality") << "Just bad module selected " << std::endl;
+	if(!SiStripQuality_->IsModuleBad(detid) || !SiStripQuality_->IsApvBad(detid, n_Apv)){
+	  edm::LogInfo("SiStripQuality") << "\n Skipping good module " << detid << std::endl;
+	  return false;
+	}
+      }
+    }
+
     const  edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
     if  ( ps.getParameter<bool>("On") 
 	  &&
@@ -749,28 +792,19 @@ void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV
 	  )
       return false;
 
-    LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
-    //susy modifying
-    std::vector<SiStripQuality::BadComponent> BC = SiStripQuality_->getBadComponentList();     
-    uint32_t BadDet;
-    for (size_t i=0;i<BC.size();++i){
-      if (BC[i].BadModule) {
-	BadDet = BC[i].detid;
-	edm::LogInfo("ClusterAnalysis") << "\n Working... excluding module " << BadDet << std::endl;
-      }
-    }
-    
+    edm::LogInfo("ClusterAnalysis") << "Executing clusterInfos for module " << detid << std::endl;
+
     const StripGeomDetUnit*_StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
     //GeomDetEnumerators::SubDetector SubDet_enum=_StripGeomDetUnit->specificType().subDetector();
     int SubDet_enum=_StripGeomDetUnit->specificType().subDetector() -2;
-
+    
     //&&&&&&&&&&&&&&&& GLOBAL POS &&&&&&&&&&&&&&&&&&&&&&&&
     const StripTopology &topol=(StripTopology&)_StripGeomDetUnit->topology();
     MeasurementPoint mp(cluster->position(),rnd.Uniform(-0.5,0.5));
     LocalPoint localPos = topol.localPosition(mp);
     GlobalPoint globalPos=(_StripGeomDetUnit->surface()).toGlobal(localPos);
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
+    
     //char cdetid[128];
     //sprintf(cdetid,"_%d",detid);
     
@@ -781,9 +815,9 @@ void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV
       iflag=1;
     else
       iflag=2;
-
+    
     NClus[SubDet_enum][iflag]++;
-
+    
     std::stringstream ss;
     const_cast<SiStripClusterInfo*>(cluster)->print(ss);
     LogTrace("ClusterAnalysis") 
