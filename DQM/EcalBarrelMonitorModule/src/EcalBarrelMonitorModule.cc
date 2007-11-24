@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/11/24 16:42:44 $
- * $Revision: 1.147 $
+ * $Date: 2007/11/24 18:21:02 $
+ * $Revision: 1.148 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -199,8 +199,10 @@ void EcalBarrelMonitorModule::setup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
 
-    meEBDCC_ = dbe_->book1D("EBMM SM", "EBMM SM", 36, 1, 37.);
-    meEBDCC_->setAxisTitle("DCC module", 1);
+    meEBDCC_ = dbe_->book1D("EBMM DCC", "EBMM DCC", 36, 1, 37.);
+    for (int i = 0; i < 36; i++) {
+      meEBDCC_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
 
     meEBdigi_ = dbe_->book1D("EBMM digi", "EBMM digi", 100, 0., 61201.);
 
@@ -209,7 +211,7 @@ void EcalBarrelMonitorModule::setup(void){
     if ( enableEventDisplay_ ) {
       dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
       for (int i = 0; i < 36; i++) {
-        sprintf(histo, "EBMM event SM%02d", i+1);
+        sprintf(histo, "EBMM event %s", Numbers::sEB(i+1).c_str());
         meEvent_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
         meEvent_[i]->setAxisTitle("ieta", 1);
         meEvent_[i]->setAxisTitle("iphi", 2);

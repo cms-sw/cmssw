@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/11/24 16:42:44 $
- * $Revision: 1.19 $
+ * $Date: 2007/11/24 18:21:04 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -199,8 +199,10 @@ void EcalEndcapMonitorModule::setup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EcalInfo");
 
-    meEEDCC_ = dbe_->book1D("EEMM SM", "EEMM SM", 18, 1, 19.);
-    meEEDCC_->setAxisTitle("DCC module", 1);
+    meEEDCC_ = dbe_->book1D("EEMM DCC", "EEMM DCC", 18, 1, 19.);
+    for (int i = 0; i < 36; i++) {
+      meEEDCC_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
 
     meEEdigi_ = dbe_->book1D("EEMM digi", "EEMM digi", 100, 0., 13299.);
 
@@ -209,7 +211,7 @@ void EcalEndcapMonitorModule::setup(void){
     if ( enableEventDisplay_ ) {
       dbe_->setCurrentFolder("EcalEndcap/EcalEvent");
       for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EEMM event SM%02d", i+1);
+        sprintf(histo, "EEMM event %s", Numbers::sEE(i+1).c_str());
         meEvent_[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
         meEvent_[i]->setAxisTitle("ix", 1);
         meEvent_[i]->setAxisTitle("iy", 2);
