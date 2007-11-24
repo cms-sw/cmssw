@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/11/24 21:25:45 $
- * $Revision: 1.22 $
+ * $Date: 2007/11/24 21:30:25 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -200,7 +200,7 @@ void EcalEndcapMonitorModule::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EcalInfo");
 
     meEEDCC_ = dbe_->book1D("EEMM DCC", "EEMM DCC", 18, 1, 19.);
-    for (int i = 0; i < 36; i++) {
+    for (int i = 0; i < 18; i++) {
       meEEDCC_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
