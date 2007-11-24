@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/11/24 18:21:04 $
- * $Revision: 1.20 $
+ * $Date: 2007/11/24 21:13:35 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -330,7 +330,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       dccMap[dcch.id()] = dcch;
 
-      meEEDCC_->Fill((dcch.id()+1)+0.5);
+      meEEDCC_->Fill(Numbers::iSM( dcch, EcalEndcap )+0.5);
 
       if ( ! fixedRunNumber_ ) runNumber_ = dcch.getRunNumber();
 

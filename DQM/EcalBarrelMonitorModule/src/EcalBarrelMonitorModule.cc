@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/11/24 18:21:02 $
- * $Revision: 1.148 $
+ * $Date: 2007/11/24 21:13:35 $
+ * $Revision: 1.149 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -330,7 +330,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       dccMap[dcch.id()] = dcch;
 
-      meEBDCC_->Fill((dcch.id()+1)+0.5);
+      meEBDCC_->Fill(Numbers::iSM( dcch, EcalBarrel )+0.5);
 
       if ( ! fixedRunNumber_ ) runNumber_ = dcch.getRunNumber();
 
