@@ -11,5 +11,6 @@ class HcalQIEData;
 class HcalCalibrationQIEData;
 class HcalChannelQuality;
 class HcalElectronicsMap;
+class HcalZSThresholds;
 
 #endif
