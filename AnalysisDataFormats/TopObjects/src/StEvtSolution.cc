@@ -1,5 +1,5 @@
 //
-// $Id: StEvtSolution.cc,v 1.6 2007/09/19 23:05:08 lowette Exp $
+// $Id: StEvtSolution.cc,v 1.7 2007/10/22 19:10:11 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
@@ -9,6 +9,7 @@
 
 /// constructor
 StEvtSolution::StEvtSolution() {
+  jetCorrScheme_  = 0;
   chi2Prob_       = -999.;
   pTrueCombExist_ = -999.;
   pTrueBJetSel_   = -999.;
@@ -31,8 +32,16 @@ StEvtSolution::~StEvtSolution() {
 
 
 // members to get original TopObjects 
-TopJet         StEvtSolution::getBottom()   const { return *bottom_; }
-TopJet         StEvtSolution::getLight()    const { return *light_; }
+TopJet         StEvtSolution::getBottom()   const {
+  if (jetCorrScheme_ == 1) return bottom_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return bottom_->getBCorrJet();
+  else return *bottom_;
+}
+TopJet         StEvtSolution::getLight()    const {
+  if (jetCorrScheme_ == 1) return light_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return light_->getUdsCorrJet();
+  else return *light_;
+}
 TopMuon        StEvtSolution::getMuon()     const { return *muon_; }
 TopElectron    StEvtSolution::getElectron() const { return *electron_; }
 TopMET         StEvtSolution::getNeutrino() const { return *neutrino_; }
@@ -102,6 +111,9 @@ void StEvtSolution::setGenEvt(const edm::Handle<StGenEvent> & aGenEvt){
 
 
 // methods to set the basic TopObjects
+void StEvtSolution::setJetCorrectionScheme(int jetCorrScheme) {
+  jetCorrScheme_ = jetCorrScheme;
+}
 void StEvtSolution::setBottom(const edm::Handle<std::vector<TopJet> > & jh, int i)        { bottom_ = edm::Ref<std::vector<TopJet> >(jh, i); }
 void StEvtSolution::setLight(const edm::Handle<std::vector<TopJet> > & jh, int i)         { light_ = edm::Ref<std::vector<TopJet> >(jh, i); }
 void StEvtSolution::setMuon(const edm::Handle<std::vector<TopMuon> > & mh, int i)         { muon_ = edm::Ref<std::vector<TopMuon> >(mh, i); decay_ = "muon"; }

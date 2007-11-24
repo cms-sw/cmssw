@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.h,v 1.20 2007/10/03 23:29:40 lowette Exp $
+// $Id: TtSemiEvtSolution.h,v 1.21 2007/10/22 08:24:25 lowette Exp $
 //
 
 #ifndef TopObjects_TtSemiEvtSolution_h
@@ -125,6 +125,7 @@ class TtSemiEvtSolution {
     // method to set the generated event
     void                      setGenEvt(const edm::Handle<TtGenEvent> & aGenEvt);
     // methods to set the basic TopObjects
+    void                      setJetCorrectionScheme(int jetCorrScheme);
     void                      setHadp(const edm::Handle<std::vector<TopJet> > & jh, int i);
     void                      setHadq(const edm::Handle<std::vector<TopJet> > & jh, int i);
     void                      setHadb(const edm::Handle<std::vector<TopJet> > & jh, int i);
@@ -176,6 +177,7 @@ class TtSemiEvtSolution {
     std::vector<TopParticle>            fitLepb_, fitLepl_, fitLepn_;
     // miscellaneous
     std::string               decay_;
+    int                       jetCorrScheme_;
     double                    sumAnglejp_, angleHadp_, angleHadq_, angleHadb_, angleLepb_;
     int                       changeWQ_;
     int                       jetParam_, leptonParam_, neutrinoParam_;

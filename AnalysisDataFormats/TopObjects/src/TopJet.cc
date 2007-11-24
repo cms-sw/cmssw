@@ -1,5 +1,5 @@
 //
-// $Id: TopJet.cc,v 1.11 2007/06/30 14:42:54 gpetrucc Exp $
+// $Id: TopJet.cc,v 1.12 2007/07/05 23:33:35 lowette Exp $
 //
 
 
@@ -44,21 +44,136 @@ reco::GenJet TopJet::getGenJet() const {
 }
 
 
-/// return the associated non-calibrated jet
-TopJetType TopJet::getRecJet() const {
-  TopJetType recJet;
-  if (recJet_.size() > 0) {
-    recJet = *this;
-    recJet.setP4(recJet_.front());
-  }
-  return recJet;
-}
-
-
 /// return the flavour of the parton underlying the jet
 int TopJet::getPartonFlavour() const {
   return jetFlavour_;
 }
+
+
+/// return the correction factor to go to a non-calibrated jet
+float TopJet::getNoCorrF() const {
+  return noCorrF_;
+}
+
+
+/// return the correction factor to go to a uds-calibrated jet
+float TopJet::getUdsCorrF() const {
+  return udsCorrF_;
+}
+
+
+/// return the correction factor to go to a gluon-calibrated jet
+float TopJet::getGluCorrF() const {
+  return gCorrF_;
+}
+
+
+/// return the correction factor to go to a c-calibrated jet
+float TopJet::getCCorrF() const {
+  return cCorrF_;
+}
+
+
+/// return the correction factor to go to a b-calibrated jet
+float TopJet::getBCorrF() const {
+  return bCorrF_;
+}
+
+
+/// return the associated non-calibrated jet
+TopJetType TopJet::getRecJet() const {
+  TopJetType recJet(*this);
+  recJet.setP4(noCorrF_*this->p4());
+  return recJet;
+}
+
+
+/// return the associated non-calibrated jet
+TopJet TopJet::getNoCorrJet() const {
+  TopJet jet(*this);
+  jet.setP4(noCorrF_*this->p4());
+  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
+  jet.setScaleCalibFactors(1., this->getUdsCorrF(), this->getGluCorrF(), this->getCCorrF(), this->getBCorrF());
+  return jet;
+}
+
+
+/// return the associated uds-calibrated jet
+TopJet TopJet::getUdsCorrJet() const {
+  TopJet jet(*this);
+  jet.setP4(udsCorrF_*noCorrF_*this->p4());
+  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
+  jet.setScaleCalibFactors(1./this->getUdsCorrF(), this->getUdsCorrF(), this->getGluCorrF(), this->getCCorrF(), this->getBCorrF());
+  return jet;
+}
+
+
+/// return the associated gluon-calibrated jet
+TopJet TopJet::getGluCorrJet() const {
+  TopJet jet(*this);
+  jet.setP4(gCorrF_*noCorrF_*this->p4());
+  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
+  jet.setScaleCalibFactors(1./this->getGluCorrF(), this->getUdsCorrF(), this->getGluCorrF(), this->getCCorrF(), this->getBCorrF());
+  return jet;
+}
+
+
+/// return the associated c-calibrated jet
+TopJet TopJet::getCCorrJet() const {
+  TopJet jet(*this);
+  jet.setP4(cCorrF_*noCorrF_*this->p4());
+  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
+  jet.setScaleCalibFactors(1./this->getCCorrF(), this->getUdsCorrF(), this->getGluCorrF(), this->getCCorrF(), this->getBCorrF());
+  return jet;
+}
+
+
+/// return the associated b-calibrated jet
+TopJet TopJet::getBCorrJet() const {
+  TopJet jet(*this);
+  // set the corrected 4-vector
+  jet.setP4(bCorrF_*noCorrF_*this->p4());
+  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
+  jet.setScaleCalibFactors(1./this->getBCorrF(), this->getUdsCorrF(), this->getGluCorrF(), this->getCCorrF(), this->getBCorrF());
+  // set the resolutions assuming this jet to be a b-jet
+  jet.setResA(bResA_);
+  jet.setResB(bResB_);
+  jet.setResC(bResC_);
+  jet.setResD(bResD_);
+  jet.setResET(bResET_);
+  jet.setResEta(bResEta_);
+  jet.setResPhi(bResPhi_);
+  jet.setResTheta(bResTheta_);
+  jet.setCovM(bCovM_);
+  return jet;
+}
+
+
+/// return the jet calibrated according to the MC flavour truth
+TopJet TopJet::getMCFlavCorrJet() const {
+  // determine the correction factor to use depending on MC flavour truth
+  float corrF = gCorrF_; // default, also for unidentified flavour
+  if (abs(this->getPartonFlavour()) == 1 || abs(this->getPartonFlavour()) == 2 || abs(this->getPartonFlavour()) == 3) corrF = udsCorrF_;
+  if (abs(this->getPartonFlavour()) == 4) corrF = cCorrF_;
+  if (abs(this->getPartonFlavour()) == 5) corrF = bCorrF_;
+  TopJet jet(*this);
+  jet.setP4(corrF*noCorrF_*this->p4());
+  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
+  jet.setScaleCalibFactors(1./corrF, this->getUdsCorrF(), this->getGluCorrF(), this->getCCorrF(), this->getBCorrF());
+  return jet;
+}
+
+
+/// return the jet calibrated with weights assuming W decay
+TopJet TopJet::getWCorrJet() const {
+  TopJet jet(*this);
+  // set the corrected 4-vector weighting for the c-content in W decays
+  jet.setP4((5*udsCorrF_+cCorrF_)/6*noCorrF_*this->p4());
+  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
+  jet.setScaleCalibFactors(6./(5*udsCorrF_+cCorrF_), this->getUdsCorrF(), this->getGluCorrF(), this->getCCorrF(), this->getBCorrF());
+  return jet;
+}
+
 
 
 /// get b discriminant from label name
@@ -138,16 +253,32 @@ void TopJet::setGenJet(const reco::GenJet & gj) {
 }
 
 
-/// method to set the uncalibrated jet
-void TopJet::setRecJet(const TopJetType & rj) {
-  recJet_.clear();
-  recJet_.push_back(rj.p4());
-}
-
-
 /// method to set the flavour of the parton underlying the jet
 void TopJet::setPartonFlavour(int jetFl) {
   jetFlavour_ = jetFl;
+}
+
+
+/// method to set the energy scale correction factors
+void TopJet::setScaleCalibFactors(float noCorrF, float udsCorrF, float gCorrF, float cCorrF, float bCorrF) {
+  noCorrF_ = noCorrF;
+  udsCorrF_ = udsCorrF;
+  gCorrF_ = gCorrF;
+  cCorrF_ = cCorrF;
+  bCorrF_ = bCorrF;
+}
+
+
+/// method to set the resolutions under the assumption this is a b-jet
+void TopJet::setBResolutions(float bResET, float bResEta, float bResPhi, float bResA, float bResB, float bResC, float bResD, float bResTheta) {
+  bResET_ = bResET;
+  bResEta_ = bResEta;
+  bResPhi_ = bResPhi;
+  bResA_ = bResA;
+  bResB_ = bResB;
+  bResC_ = bResC;
+  bResD_ = bResD;
+  bResTheta_ = bResTheta;
 }
 
 
@@ -189,4 +320,3 @@ float TopJet::getJetCharge() const {
 const reco::TrackRefVector & TopJet::getAssociatedTracks() const {
   return associatedTracks_;
 }
-

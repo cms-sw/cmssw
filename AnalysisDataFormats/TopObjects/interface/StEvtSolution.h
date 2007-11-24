@@ -1,5 +1,5 @@
 //
-// $Id: StEvtSolution.h,v 1.7 2007/09/20 18:12:21 lowette Exp $
+// $Id: StEvtSolution.h,v 1.8 2007/10/22 19:10:11 lowette Exp $
 //
 
 #ifndef TopObjects_StEvtSolution_h
@@ -81,6 +81,7 @@ class StEvtSolution {
     // method to set the generated event
     void setGenEvt(const edm::Handle<StGenEvent> & aGenEvt);
     // methods to set the basic TopObjects
+    void setJetCorrectionScheme(int jetCorrScheme);
     void setBottom(const edm::Handle<std::vector<TopJet> > & jh, int i);
     void setLight(const edm::Handle<std::vector<TopJet> > & jh, int i);
     void setMuon(const edm::Handle<std::vector<TopMuon> > & mh, int i);
@@ -117,6 +118,7 @@ class StEvtSolution {
     std::vector<TopParticle>            fitBottom_, fitLight_, fitLepton_, fitNeutrino_;
     // miscellaneous
     std::string         decay_;
+    int                 jetCorrScheme_;
     double              chi2Prob_;
     std::vector<double> scanValues_;
     double              pTrueCombExist_, pTrueBJetSel_, pTrueBhadrSel_, pTrueJetComb_;

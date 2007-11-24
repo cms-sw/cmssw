@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.cc,v 1.19 2007/10/22 08:24:24 lowette Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.20 2007/10/22 19:10:12 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
@@ -9,6 +9,7 @@
 
 /// constructor
 TtSemiEvtSolution::TtSemiEvtSolution() {
+  jetCorrScheme_     = 0;
   sumAnglejp_        = -999.;
   angleHadp_         = -999.;
   angleHadq_         = -999.;
@@ -31,14 +32,30 @@ TtSemiEvtSolution::~TtSemiEvtSolution() {
 }
 
 
-// members to get original TopObjects 
-TopJet      TtSemiEvtSolution::getHadb() const     { return *hadb_; }
-TopJet      TtSemiEvtSolution::getHadp() const     { return *hadp_; }
-TopJet      TtSemiEvtSolution::getHadq() const     { return *hadq_; }
-TopJet      TtSemiEvtSolution::getLepb() const     { return *lepb_; }
-TopMuon     TtSemiEvtSolution::getMuon() const     { return *muon_; }
+// members to get original TopObjects
+TopJet TtSemiEvtSolution::getHadb() const {
+  if (jetCorrScheme_ == 1) return hadb_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return hadb_->getBCorrJet();
+  else return *hadb_;
+}
+TopJet TtSemiEvtSolution::getHadp() const {
+  if (jetCorrScheme_ == 1) return hadp_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return hadp_->getWCorrJet();
+  else return *hadp_;
+}
+TopJet TtSemiEvtSolution::getHadq() const {
+  if (jetCorrScheme_ == 1) return hadq_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return hadq_->getWCorrJet();
+  else return *hadq_;
+}
+TopJet TtSemiEvtSolution::getLepb() const {
+  if (jetCorrScheme_ == 1) return lepb_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return lepb_->getBCorrJet();
+  else return *lepb_;
+}
+TopMuon TtSemiEvtSolution::getMuon() const { return *muon_; }
 TopElectron TtSemiEvtSolution::getElectron() const { return *electron_; }
-TopMET      TtSemiEvtSolution::getNeutrino() const { return *neutrino_; }
+TopMET TtSemiEvtSolution::getNeutrino() const { return *neutrino_; }
 
 
 // methods to get the MC matched particles
@@ -166,6 +183,9 @@ void TtSemiEvtSolution::setGenEvt(const edm::Handle<TtGenEvent> & aGenEvt){
 
 
 // methods to set the basic TopObjects
+void TtSemiEvtSolution::setJetCorrectionScheme(int jetCorrScheme) {
+  jetCorrScheme_ = jetCorrScheme;
+}
 void TtSemiEvtSolution::setHadb(const edm::Handle<std::vector<TopJet> > & jh, int i)          { hadb_ = edm::Ref<std::vector<TopJet> >(jh, i); }
 void TtSemiEvtSolution::setHadp(const edm::Handle<std::vector<TopJet> > & jh, int i)          { hadp_ = edm::Ref<std::vector<TopJet> >(jh, i); }
 void TtSemiEvtSolution::setHadq(const edm::Handle<std::vector<TopJet> > & jh, int i)          { hadq_ = edm::Ref<std::vector<TopJet> >(jh, i); }

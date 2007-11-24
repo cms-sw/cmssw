@@ -1,5 +1,5 @@
 //
-// $Id: TtHadEvtSolution.cc,v 1.3 2007/10/07 15:25:21 mfhansen Exp $
+// $Id: TtHadEvtSolution.cc,v 1.4 2007/10/22 19:10:12 lowette Exp $
 // adapted TtSemiEvtSolution.cc,v 1.13 2007/07/05 23:43:08 lowette Exp 
 // for fully hadronic channel
 
@@ -10,6 +10,7 @@
 
 /// constructor
 TtHadEvtSolution::TtHadEvtSolution() {
+  jetCorrScheme_     = 0;
   sumAnglejp_        = -999.;
   angleHadp_         = -999.;
   angleHadq_         = -999.;
@@ -36,12 +37,36 @@ TtHadEvtSolution::~TtHadEvtSolution() {
 
 
 // members to get original TopObjects 
-TopJet      TtHadEvtSolution::getHadb() const     { return *hadb_; }
-TopJet      TtHadEvtSolution::getHadp() const     { return *hadp_; }
-TopJet      TtHadEvtSolution::getHadq() const     { return *hadq_; }
-TopJet      TtHadEvtSolution::getHadbbar() const  { return *hadbbar_; }
-TopJet      TtHadEvtSolution::getHadj() const     { return *hadj_; }
-TopJet      TtHadEvtSolution::getHadk() const     { return *hadk_; }
+TopJet TtHadEvtSolution::getHadb() const {
+  if (jetCorrScheme_ == 1) return hadb_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return hadb_->getBCorrJet();
+  else return *hadb_;
+}
+TopJet TtHadEvtSolution::getHadp() const {
+  if (jetCorrScheme_ == 1) return hadp_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return hadp_->getWCorrJet();
+  else return *hadp_;
+}
+TopJet TtHadEvtSolution::getHadq() const {
+  if (jetCorrScheme_ == 1) return hadq_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return hadq_->getWCorrJet();
+  else return *hadq_;
+}
+TopJet TtHadEvtSolution::getHadbbar() const {
+  if (jetCorrScheme_ == 1) return hadbbar_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return hadbbar_->getBCorrJet();
+  else return *hadbbar_;
+}
+TopJet TtHadEvtSolution::getHadj() const {
+  if (jetCorrScheme_ == 1) return hadj_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return hadj_->getWCorrJet();
+  else return *hadj_;
+}
+TopJet TtHadEvtSolution::getHadk() const {
+  if (jetCorrScheme_ == 1) return hadk_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return hadk_->getWCorrJet();
+  else return *hadk_;
+}
 
 // methods to get the MC matched particles
 const edm::RefProd<TtGenEvent> & TtHadEvtSolution::getGenEvent() const { return theGenEvt_; }
@@ -143,6 +168,9 @@ void TtHadEvtSolution::setGenEvt(const edm::Handle<TtGenEvent> & aGenEvt){
 
 
 // methods to set the basic TopObjects
+void TtHadEvtSolution::setJetCorrectionScheme(int jetCorrScheme) {
+  jetCorrScheme_ = jetCorrScheme;
+}
 void TtHadEvtSolution::setHadb(const edm::Handle<std::vector<TopJet> > & jh, int i)          { hadb_ = edm::Ref<std::vector<TopJet> >(jh, i); }
 void TtHadEvtSolution::setHadbbar(const edm::Handle<std::vector<TopJet> > & jh, int i)       { hadbbar_ = edm::Ref<std::vector<TopJet> >(jh, i); }
 void TtHadEvtSolution::setHadp(const edm::Handle<std::vector<TopJet> > & jh, int i)          { hadp_ = edm::Ref<std::vector<TopJet> >(jh, i); }

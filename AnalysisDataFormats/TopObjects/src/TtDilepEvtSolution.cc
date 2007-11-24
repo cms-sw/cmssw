@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.cc,v 1.11 2007/10/24 21:12:35 lowette Exp $
+// $Id: TtDilepEvtSolution.cc,v 1.12 2007/10/30 09:59:07 delaer Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
@@ -10,6 +10,7 @@
 
 /// constructor
 TtDilepEvtSolution::TtDilepEvtSolution() {
+  jetCorrScheme_ = 0;
   wpDecay_ = "NotDefined";
   wmDecay_ = "NotDefined";
   bestSol_ = false;
@@ -24,8 +25,16 @@ TtDilepEvtSolution::~TtDilepEvtSolution() {
 
 
 // members to get original TopObjects 
-TopJet      TtDilepEvtSolution::getJetB() const      { return *jetB_; }
-TopJet      TtDilepEvtSolution::getJetBbar() const   { return *jetBbar_; }
+TopJet      TtDilepEvtSolution::getJetB() const      {
+  if (jetCorrScheme_ == 1) return jetB_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return jetB_->getBCorrJet();
+  else return *jetB_;
+}
+TopJet      TtDilepEvtSolution::getJetBbar() const   {
+  if (jetCorrScheme_ == 1) return jetBbar_->getMCFlavCorrJet(); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return jetBbar_->getBCorrJet();
+  else return *jetBbar_;
+}
 TopElectron TtDilepEvtSolution::getElectronp() const { return *elecp_; }
 TopElectron TtDilepEvtSolution::getElectronm() const { return *elecm_; }
 TopMuon     TtDilepEvtSolution::getMuonp() const     { return *muonp_; }
@@ -66,6 +75,9 @@ void TtDilepEvtSolution::setGenEvt(const edm::Handle<TtGenEvent> & aGenEvt) {
 
 
 // methods to set the basic TopObjects
+void TtDilepEvtSolution::setJetCorrectionScheme(int jetCorrScheme) {
+  jetCorrScheme_ = jetCorrScheme;
+}
 void TtDilepEvtSolution::setB(const edm::Handle<std::vector<TopJet> > & jh, int i)              { jetB_ = edm::Ref<std::vector<TopJet> >(jh, i); }
 void TtDilepEvtSolution::setBbar(const edm::Handle<std::vector<TopJet> > & jh, int i)           { jetBbar_ = edm::Ref<std::vector<TopJet> >(jh, i); }
 void TtDilepEvtSolution::setTaup(const edm::Handle<std::vector<TopTau> > & mh, int i)         { taup_ = edm::Ref<std::vector<TopTau> >(mh, i); wpDecay_ = "tau"; }

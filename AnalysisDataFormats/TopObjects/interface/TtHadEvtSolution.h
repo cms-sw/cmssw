@@ -1,7 +1,7 @@
 #ifndef TopObjects_TtHadEvtSolution_h
 #define TopObjects_TtHadEvtSolution_h
 //
-// $Id: TtHadEvtSolution.h,v 1.3 2007/10/07 15:25:01 mfhansen Exp $
+// $Id: TtHadEvtSolution.h,v 1.4 2007/10/22 19:10:11 lowette Exp $
 // adapted TtSemiEvtSolution.h,v 1.14 2007/07/06 03:07:47 lowette Exp 
 // for fully hadronic channel
 
@@ -120,6 +120,7 @@ class TtHadEvtSolution {
     // method to set the generated event
     void                      setGenEvt(const edm::Handle<TtGenEvent> & aGenEvt);
     // methods to set the basic TopObjects
+    void                      setJetCorrectionScheme(int jetCorrScheme);
     void                      setHadp(const edm::Handle<std::vector<TopJet> > & jh, int i);
     void                      setHadq(const edm::Handle<std::vector<TopJet> > & jh, int i);
     void                      setHadj(const edm::Handle<std::vector<TopJet> > & jh, int i);
@@ -166,6 +167,7 @@ class TtHadEvtSolution {
     std::vector<TopParticle>            fitHadb_, fitHadp_, fitHadq_, fitHadbbar_, fitHadj_, fitHadk_;
 
     std::string               decay_;
+    int                       jetCorrScheme_;
     double                    sumAnglejp_, angleHadp_, angleHadq_, angleHadb_, angleHadbbar_, angleHadj_ , angleHadk_;
     int                       changeW1Q_, changeW2Q_;
     int                       jetParam_;
