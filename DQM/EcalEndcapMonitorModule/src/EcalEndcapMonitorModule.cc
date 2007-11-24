@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/11/24 21:30:25 $
- * $Revision: 1.23 $
+ * $Date: 2007/11/24 21:40:07 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -318,8 +318,8 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     e.getByLabel(EcalRawDataCollection_, dcchs);
 
-    int nebc = dcchs->size();
-    LogDebug("EcalEndcapMonitor") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
+    int neec = dcchs->size();
+    LogDebug("EcalEndcapMonitor") << "event: " << ievt_ << " DCC headers collection size: " << neec;
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -407,10 +407,10 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     Handle<EEDigiCollection> digis;
     e.getByLabel(EEDigiCollection_, digis);
 
-    int nebd = digis->size();
-    LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " digi collection size " << nebd;
+    int need = digis->size();
+    LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " digi collection size " << need;
 
-    if ( meEEdigi_ ) meEEdigi_->Fill(float(nebd));
+    if ( meEEdigi_ ) meEEdigi_->Fill(float(need));
 
     for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -440,10 +440,10 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     Handle<EcalUncalibratedRecHitCollection> hits;
     e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
 
-    int nebh = hits->size();
-    LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " hits collection size " << nebh;
+    int neeh = hits->size();
+    LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " hits collection size " << neeh;
 
-    if ( meEEhits_ ) meEEhits_->Fill(float(nebh));
+    if ( meEEhits_ ) meEEhits_->Fill(float(neeh));
 
     if ( enableEventDisplay_ ) {
 
