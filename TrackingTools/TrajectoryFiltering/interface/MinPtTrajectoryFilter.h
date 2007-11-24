@@ -18,7 +18,7 @@
 class MinPtTrajectoryFilter : public TrajectoryFilter {
 public:
 
-  explicit MinPtTrajectoryFilter( double ptMin, float nSigma = 5.F, int nH=-1): thePtMin( ptMin), theNSigma(nSigma), theMinHits(nH)  {}
+  explicit MinPtTrajectoryFilter( double ptMin, float nSigma = 5.F, int nH=3): thePtMin( ptMin), theNSigma(nSigma), theMinHits(nH)  {}
 
   explicit MinPtTrajectoryFilter( const edm::ParameterSet & pset) :
     thePtMin(pset.getParameter<double>("minPt")),
