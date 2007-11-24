@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/11/09 15:23:44 $
- * $Revision: 1.145 $
+ * $Date: 2007/11/24 16:28:56 $
+ * $Revision: 1.146 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -203,12 +203,8 @@ void EcalBarrelMonitorModule::setup(void){
     meEBDCC_->setAxisTitle("DCC module", 1);
 
     meEBdigi_ = dbe_->book1D("EBMM digi", "EBMM digi", 100, 0., 61201.);
-    meEBdigi_->setAxisTitle("ieta", 1);
-    meEBdigi_->setAxisTitle("iphi", 2);
 
     meEBhits_ = dbe_->book1D("EBMM hits", "EBMM hits", 100, 0., 61201.);
-    meEBhits_->setAxisTitle("ieta", 1);
-    meEBhits_->setAxisTitle("iphi", 2);
 
     if ( enableEventDisplay_ ) {
       dbe_->setCurrentFolder("EcalBarrel/EcalEvent");

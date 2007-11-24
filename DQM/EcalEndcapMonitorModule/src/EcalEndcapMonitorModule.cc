@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/11/09 15:23:45 $
- * $Revision: 1.17 $
+ * $Date: 2007/11/24 16:28:56 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -203,12 +203,8 @@ void EcalEndcapMonitorModule::setup(void){
     meEEDCC_->setAxisTitle("DCC module", 1);
 
     meEEdigi_ = dbe_->book1D("EEMM digi", "EEMM digi", 100, 0., 13299.);
-    meEEdigi_->setAxisTitle("ix", 1);
-    meEEdigi_->setAxisTitle("iy", 2);
 
     meEEhits_ = dbe_->book1D("EEMM hits", "EEMM hits", 100, 0., 13299.);
-    meEEhits_->setAxisTitle("ix", 1);
-    meEEhits_->setAxisTitle("iy", 2);
 
     if ( enableEventDisplay_ ) {
       dbe_->setCurrentFolder("EcalEndcap/EcalEvent");
