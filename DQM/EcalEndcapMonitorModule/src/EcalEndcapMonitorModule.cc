@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/11/07 19:03:28 $
- * $Revision: 1.16 $
+ * $Date: 2007/11/09 15:23:45 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -158,6 +158,27 @@ void EcalEndcapMonitorModule::setup(void){
 
     meRunType_ = dbe_->bookInt("RUNTYPE");
     meEvtType_ = dbe_->book1D("EVTTYPE", "EVTTYPE", 30, 0., 30.);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::BEAMH2, "BEAMH2", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::MTCC, "MTCC", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::LASER_STD, "LASER_STD", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::LASER_POWER_SCAN, "LASER_POWER_SCAN", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::LASER_DELAY_SCAN, "LASER_DELAY_SCAN", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::TESTPULSE_SCAN_MEM, "TESTPULSE_SCAN_MEM", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::TESTPULSE_MGPA, "TESTPULSE_MGPA", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::PEDESTAL_STD, "PEDESTAL_STD", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN, "PEDESTAL_OFFSET_SCAN", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::PEDESTAL_25NS_SCAN, "PEDESTAL_25NS_SCAN", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::LED_STD, "LED_STD", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::PHYSICS_GLOBAL, "PHYSICS_GLOBAL", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::COSMICS_GLOBAL, "COSMICS_GLOBAL", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::HALO_GLOBAL, "HALO_GLOBAL", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::LASER_GAP, "LASER_GAP", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::LED_GAP, "LED_GAP", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::PHYSICS_LOCAL, "PHYSICS_LOCAL", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
+    meEvtType_->setBinLabel(EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
   }
 
   // unknown
