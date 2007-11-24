@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/11/24 21:13:35 $
- * $Revision: 1.21 $
+ * $Date: 2007/11/24 21:25:45 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -359,7 +359,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
       e.getByLabel(EcalTBEventHeader_, pEvtH);
       evtHeader = pEvtH.product();
 
-      meEEDCC_->Fill(1);
+      meEEDCC_->Fill(1+0.5);
 
       if ( ! fixedRunNumber_ ) runNumber_ = evtHeader->runNumber();
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/11/24 21:13:35 $
- * $Revision: 1.149 $
+ * $Date: 2007/11/24 21:25:44 $
+ * $Revision: 1.150 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -359,7 +359,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       e.getByLabel(EcalTBEventHeader_, pEvtH);
       evtHeader = pEvtH.product();
 
-      meEBDCC_->Fill(1);
+      meEBDCC_->Fill(1+0.5);
 
       if ( ! fixedRunNumber_ ) runNumber_ = evtHeader->runNumber();
 
