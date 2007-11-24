@@ -18,7 +18,7 @@
 class ThresholdPtTrajectoryFilter : public TrajectoryFilter {
 public:
 
-  explicit ThresholdPtTrajectoryFilter( double ptThreshold, float nSigma = 5.F): thePtThreshold( ptThreshold), theNSigma(nSigma) {}
+  explicit ThresholdPtTrajectoryFilter( double ptThreshold, float nSigma = 5.F, int nH): thePtThreshold( ptThreshold), theNSigma(nSigma), theMinHits(nH) {}
 
   explicit ThresholdPtTrajectoryFilter( const edm::ParameterSet & pset) :
     thePtThreshold(pset.getParameter<double>("thresholdPt")),
