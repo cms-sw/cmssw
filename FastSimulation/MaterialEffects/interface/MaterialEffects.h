@@ -97,6 +97,7 @@ class MaterialEffects
   GlobalVector theNormalVector;
   double theThickness;
   double theEnergyLoss;
+  double theTECFudgeFactor;
 
   // debugging
   //  double myEta;

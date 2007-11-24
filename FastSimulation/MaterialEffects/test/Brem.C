@@ -53,6 +53,7 @@ void Ratio(TH1F* fast, TH1F* full) {
   ratio->SetLineColor(4);
   ratio->SetLineWidth(2);
   ratio->SetTitle(Form("%s_Ratio",fast->GetName()));
+  //  ratio->Fit("pol0");
   ratio->Draw();
   //  BremComparison->SaveAs(Form("%s_Ratio_Test.eps", fast->GetName()));
   //  BremComparison->SaveAs(Form("%s_Ratio_Test.gif", fast->GetName()));
@@ -62,7 +63,8 @@ void Brem() {
 
   gDirectory->cd("DQMData");
   BremComparison = new TCanvas("Brem","BremComparison",150,150,800,600);
-  TrackerFast->SetMaximum(24000);
+  //  TrackerFast->SetMaximum(24000);
+  TrackerFast->SetMaximum(2500);
   TrackerFast->SetMinimum(0);
   TLegend* pixel = new TLegend(0.6,0.17,0.67,0.20);
   pixel->AddEntry("Pixels ","Pixels ","");

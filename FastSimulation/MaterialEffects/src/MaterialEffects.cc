@@ -97,7 +97,10 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
     //    std::map<int,double> lengthRatio;
     //    for ( unsigned i=0; i<theLengthRatio.size(); ++i )
     //      lengthRatio[ pionTypes[i] ] = theLengthRatio[i];
-    double fudgeFactor = matEff.getParameter<double>("fudgeFactor");
+
+    // A global fudge factor for TEC layers (which apparently do not react to 
+    // hadrons the same way as all other layers...
+    theTECFudgeFactor = matEff.getParameter<double>("fudgeFactor");
 
     // The evolution of the interaction lengths with energy
     std::vector<double> theRatios  
@@ -177,7 +180,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
     NuclearInteraction = 
       new NuclearInteractionSimulator(pionEnergies, pionTypes, pionNames, 
 				      pionMasses, pionPMin, pionEnergy, 
-				      lengthRatio, fudgeFactor, ratios, idMap, 
+				      lengthRatio, ratios, idMap, 
 				      inputFile, random);
   }
 
@@ -241,7 +244,10 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
                           && abs(myTrack.pid()) < 1000000) { 
 
     // Simulate a nuclear interaction
-    NuclearInteraction->updateState(myTrack,radlen);
+    double factor = 1.0;
+    if (layer.layerNumber() >= 19 && layer.layerNumber() <= 27 ) 
+      factor = theTECFudgeFactor;
+    NuclearInteraction->updateState(myTrack,radlen*factor);
 
     if ( NuclearInteraction->nDaughters() ) { 
 

@@ -42,7 +42,6 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
 			      std::vector<double>& pionPMin,
 			      double pionEnergy,
 			      std::vector<double>& lengthRatio,
-			      double fudgeFactor,
 			      std::vector< std::vector<double> >& ratios,
 			      std::map<int,int >& idMap,
 			      std::string inputFile,

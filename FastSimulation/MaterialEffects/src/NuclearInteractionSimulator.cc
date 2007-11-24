@@ -25,7 +25,6 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   std::vector<double>& pionPMin,
   double pionEnergy,
   std::vector<double>& lengthRatio,
-  double fudgeFactor,
   std::vector< std::vector<double> >& ratios,
   std::map<int,int >& idMap,
   std::string inputFile,
@@ -168,11 +167,6 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   // Find the index for which EN = 4. (or thereabout)
   ien4 = 0;
   while ( thePionEN[ien4] < 4.0 ) ++ien4;
-
-  // Rescale the ratio "Interaction length/Radiation length" by a fudge factor
-  for ( unsigned il=0; il < theLengthRatio.size(); ++il ) { 
-    theLengthRatio[il] *= fudgeFactor;
-  }
 
   // Return Loot in the same state as it was when entering. 
   gROOT->cd();
