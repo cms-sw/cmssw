@@ -27,9 +27,9 @@ class StEvtSolutionMaker : public edm::EDProducer {
       edm::InputTag electronSrc_;
       edm::InputTag muonSrc_;
       edm::InputTag metSrc_;
-      edm::InputTag lJetSrc_;
-      edm::InputTag bJetSrc_;
+      edm::InputTag jetSrc_;
       std::string leptonFlavour_;
+      int jetCorrScheme_;
   //      std::string jetInput_;
   //      bool addJetCombProb_, 
       bool addLRJetComb_, doKinFit_, matchToGenEvt_;

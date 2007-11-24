@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.26 2007/10/16 19:33:54 lowette Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.27 2007/10/16 20:18:46 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -26,9 +26,9 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig
   electronSrc_     = iConfig.getParameter<edm::InputTag>    ("electronSource");
   muonSrc_         = iConfig.getParameter<edm::InputTag>    ("muonSource");
   metSrc_          = iConfig.getParameter<edm::InputTag>    ("metSource");
-  lJetSrc_         = iConfig.getParameter<edm::InputTag>    ("lJetSource");
-  bJetSrc_         = iConfig.getParameter<edm::InputTag>    ("bJetSource");
+  jetSrc_          = iConfig.getParameter<edm::InputTag>    ("jetSource");
   leptonFlavour_   = iConfig.getParameter<std::string>      ("leptonFlavour");
+  jetCorrScheme_   = iConfig.getParameter<int>              ("jetCorrectionScheme");
   nrCombJets_      = iConfig.getParameter<unsigned int>     ("nrCombJets");
   doKinFit_        = iConfig.getParameter<bool>             ("doKinFit");
   addLRSignalSel_  = iConfig.getParameter<bool>             ("addLRSignalSel");
@@ -99,13 +99,11 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
   iEvent.getByLabel(metSrc_, mets);
   if (mets->size() > 0) metFound = true;
 
-  // select Jets (TopJet vector is sorted on recET, so four first elements in both the lJets and bJets vector are the same )
+  // select Jets
   bool jetsFound = false;
-  edm::Handle<std::vector<TopJet> > lJets;
-  iEvent.getByLabel(lJetSrc_, lJets);
-  edm::Handle<std::vector<TopJet> > bJets;
-  iEvent.getByLabel(bJetSrc_, bJets);
-  if (lJets->size() >= 4) jetsFound = true;
+  edm::Handle<std::vector<TopJet> > jets;
+  iEvent.getByLabel(jetSrc_, jets);
+  if (jets->size() >= 4) jetsFound = true;
 
   //
   // Build Event solutions according to the ambiguity in the jet combination
@@ -115,7 +113,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
   if(leptonFound && metFound && jetsFound){
     // protect against reading beyond array boundaries
     unsigned int nrCombJets = nrCombJets_; // do not overwrite nrCombJets_
-    if (lJets->size() < nrCombJets) nrCombJets = lJets->size();
+    if (jets->size() < nrCombJets) nrCombJets = jets->size();
     // loop over all jets
     for (unsigned int p=0; p<nrCombJets; p++) {
       for (unsigned int q=0; q<nrCombJets; q++) {
@@ -124,13 +122,14 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
             for (unsigned int bl=0; bl<nrCombJets; bl++) {
               if (!(bl==p || bl==q || bl==bh)) {
                 TtSemiEvtSolution asol;
+                asol.setJetCorrectionScheme(jetCorrScheme_);
                 if(leptonFlavour_ == "muon")     asol.setMuon(muons, 0);
                 if(leptonFlavour_ == "electron") asol.setElectron(electrons, 0);
                 asol.setNeutrino(mets, 0);
-                asol.setHadp(lJets, p);
-                asol.setHadq(lJets, q);
-                asol.setHadb(bJets, bh);
-                asol.setLepb(bJets, bl);
+                asol.setHadp(jets, p);
+                asol.setHadq(jets, q);
+                asol.setHadb(jets, bh);
+                asol.setLepb(jets, bl);
                 if (doKinFit_) {
                   asol = myKinFitter->addKinFitInfo(&asol);
                   // just to keep a record in the event (drop? -> present in provenance anyway...)
@@ -182,18 +181,18 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
         quarks.push_back( &genq );
         quarks.push_back( &genbh );
         quarks.push_back( &genbl );
-        vector<const reco::Candidate*> jets;  
+        vector<const reco::Candidate*> recjets;  
         for(size_t s=0; s<evtsols->size(); s++) {
-          jets.clear();
+          recjets.clear();
           const reco::Candidate & jetp  = (*evtsols)[s].getRecHadp();
           const reco::Candidate & jetq  = (*evtsols)[s].getRecHadq();
           const reco::Candidate & jetbh = (*evtsols)[s].getRecHadb();
           const reco::Candidate & jetbl = (*evtsols)[s].getRecLepb();
-          jets.push_back( &jetp );
-          jets.push_back( &jetq );
-          jets.push_back( &jetbh );
-          jets.push_back( &jetbl );
-          JetPartonMatching aMatch(quarks,jets,1);  // 1: SpaceAngle; 2: DeltaR   
+          recjets.push_back( &jetp );
+          recjets.push_back( &jetq );
+          recjets.push_back( &jetbh );
+          recjets.push_back( &jetbl );
+          JetPartonMatching aMatch(quarks,recjets,1);  // 1: SpaceAngle; 2: DeltaR   
           (*evtsols)[s].setGenEvt(genEvt);   
           (*evtsols)[s].setMCBestSumAngles(aMatch.getSumAngles());
           (*evtsols)[s].setMCBestAngleHadp(aMatch.getAngleForParton(0));

@@ -17,7 +17,6 @@ DEFINE_FWK_MODULE(TopMETProducer);
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopObjectSelector.h"
 
-DEFINE_FWK_MODULE(CaloJetSelector);
 DEFINE_FWK_MODULE(TopElectronSelector);
 DEFINE_FWK_MODULE(TopMuonSelector);
 DEFINE_FWK_MODULE(TopTauSelector);

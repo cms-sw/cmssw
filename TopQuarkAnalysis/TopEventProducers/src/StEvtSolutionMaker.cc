@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: StEvtSolutionMaker.cc,v 1.7 2007/09/19 23:05:30 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/StEvtSolutionMaker.h"
@@ -12,9 +12,9 @@ StEvtSolutionMaker::StEvtSolutionMaker(const edm::ParameterSet& iConfig) {
    electronSrc_     = iConfig.getParameter<edm::InputTag>("electronSource");
    muonSrc_         = iConfig.getParameter<edm::InputTag>("muonSource");
    metSrc_          = iConfig.getParameter<edm::InputTag>("metSource");
-   lJetSrc_         = iConfig.getParameter<edm::InputTag>("lJetSource");
-   bJetSrc_         = iConfig.getParameter<edm::InputTag>("bJetSource");
+   jetSrc_         = iConfig.getParameter<edm::InputTag>("jetSource");
    leptonFlavour_   = iConfig.getParameter< std::string > 	  ("leptonFlavour");
+   jetCorrScheme_   = iConfig.getParameter<int>           ("jetCorrectionScheme");
    //   jetInput_        = iConfig.getParameter< std::string > 	  ("jetInput");
    doKinFit_        = iConfig.getParameter< bool >        ("doKinFit");
    addLRJetComb_    = iConfig.getParameter< bool >        ("addLRJetComb");
@@ -65,14 +65,12 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.getByLabel(metSrc_, mets);
    if( mets->size() > 0 ) metFound = true;
 
-   // select Jets (TopJet vector is sorted on recET, so four first elements in both the lJets and bJets vector are the same )
+   // select Jets
    bool jetsFound = false;
-   edm::Handle<std::vector<TopJet> > lJets;
-   iEvent.getByLabel(lJetSrc_, lJets);
-   edm::Handle<std::vector<TopJet> > bJets;
-   iEvent.getByLabel(bJetSrc_, bJets);
+   edm::Handle<std::vector<TopJet> > jets;
+   iEvent.getByLabel(jetSrc_, jets);
    unsigned int maxJets=2;//this has to become a custom-defined parameter (we may want 2 or 3 jets)
-   if (lJets->size() >= 2) jetsFound = true;
+   if (jets->size() >= 2) jetsFound = true;
    
    
    
@@ -83,11 +81,12 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
        for (unsigned int l=0; l<maxJets; l++) {
 	 if(b!=l){  // to avoid double counting
 	   StEvtSolution asol;
+           asol.setJetCorrectionScheme(jetCorrScheme_);
 	   if(leptonFlavour_ == "muon")     asol.setMuon(muons, 0);
 	   if(leptonFlavour_ == "electron") asol.setElectron(electrons, 0);
 	   asol.setNeutrino(mets, 0);
-	   asol.setBottom(bJets, b);
-	   asol.setLight(lJets, l);
+	   asol.setBottom(jets, b);
+	   asol.setLight(jets, l);
 
 	   if(doKinFit_) asol = myKinFitter->addKinFitInfo(&asol);
 
@@ -132,8 +131,7 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    {
 
      std::cout<<"@@@ No calibrated solutions built, because:  " << std::endl;;
-     if(lJets->size()<maxJets)   				  std::cout<<"@ nr light jets = " << lJets->size() << " < " << maxJets <<std::endl;
-     if(bJets->size()<maxJets)   				  std::cout<<"@ nr b jets = " << bJets->size() << " < " << maxJets <<std::endl;
+     if(jets->size()<maxJets)   				  std::cout<<"@ nr jets = " << jets->size() << " < " << maxJets <<std::endl;
      if(leptonFlavour_ == "muon" && !leptonFound)     	          std::cout<<"@ no good muon candidate"<<std::endl;
      if(leptonFlavour_ == "electron" && !leptonFound)             std::cout<<"@ no good electron candidate"<<std::endl;
      if(mets->size() == 0)    					  std::cout<<"@ no MET reconstruction"<<std::endl;

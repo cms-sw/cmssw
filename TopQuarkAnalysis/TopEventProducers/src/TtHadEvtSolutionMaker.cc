@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.5 2007/11/01 20:46:29 mfhansen Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.6 2007/11/01 20:50:58 mfhansen Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,8 +18,8 @@
 /// constructor
 TtHadEvtSolutionMaker::TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig) {
   // configurables
-  lJetSrc_         = iConfig.getParameter<edm::InputTag>    ("lJetSource");
-  bJetSrc_         = iConfig.getParameter<edm::InputTag>    ("bJetSource");
+  jetSrc_          = iConfig.getParameter<edm::InputTag>    ("jetSource");
+  jetCorrScheme_   = iConfig.getParameter<int>              ("jetCorrectionScheme");
   doKinFit_        = iConfig.getParameter<bool>             ("doKinFit");
   addLRSignalSel_  = iConfig.getParameter<bool>             ("addLRSignalSel");
   lrSignalSelObs_  = iConfig.getParameter<std::vector<int> >("lrSignalSelObs");
@@ -71,15 +71,13 @@ TtHadEvtSolutionMaker::~TtHadEvtSolutionMaker()
 
 void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   // TopObject Selection
-  // Select Jets (TopJet vector is sorted on recET, so four first elements in both the lJets and bJets vector are the same )
+  // Select Jets
 
   bool jetsFound = false;
-  edm::Handle<std::vector<TopJet> > lJets;
-  iEvent.getByLabel(lJetSrc_, lJets);
-  edm::Handle<std::vector<TopJet> > bJets;
-  iEvent.getByLabel(bJetSrc_, bJets);
+  edm::Handle<std::vector<TopJet> > jets;
+  iEvent.getByLabel(jetSrc_, jets);
 
-  if (lJets->size() >= 6) jetsFound = true;
+  if (jets->size() >= 6) jetsFound = true;
   
   // Build Event solutions according to the ambiguity in the jet combination
   // Note, hardcoded to only run through the 6 most energetic jets - could be changed ....
@@ -91,9 +89,9 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
       for (unsigned int q=p+1; q<4; q++) { // loop over light jet q
 	for (unsigned int j=q+1; j<5; j++) {  // loop over light jet j
 	  for (unsigned int k=j+1; k<6; k++) { // loop over light jet k
-	    for (unsigned int bh=0; bh!=bJets->size(); bh++) { //loop over hadronic b-jet1
+	    for (unsigned int bh=0; bh!=jets->size(); bh++) { //loop over hadronic b-jet1
 	      if(!(bh==p || bh==q || bh==j || bh==k)) { 
-		for (unsigned int bbarh=0; bbarh!=bJets->size(); bbarh++) { //loop over hadronic b-jet2
+		for (unsigned int bbarh=0; bbarh!=jets->size(); bbarh++) { //loop over hadronic b-jet2
 		  if (!(bbarh==p || bbarh==q || bbarh==j || bbarh==k) && !(bbarh==bh)) {
 		    // Make event solutions for all possible combinations of the 4 light
 		    // jets and 2 possible b-jets, not including the option of the b's being swapped. 
@@ -101,28 +99,31 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
 		    vector<TtHadEvtSolution> asol;
 		    asol.resize(3);
 		    //[p][q][b] and [j][k][bbar]
-		    asol[0].setHadp(lJets, p);
-		    asol[0].setHadq(lJets, q);
-		    asol[0].setHadj(lJets, j);
-		    asol[0].setHadk(lJets, k);
-		    asol[0].setHadb(bJets, bh);
-		    asol[0].setHadbbar(bJets, bbarh);
+                    asol[0].setJetCorrectionScheme(jetCorrScheme_);
+		    asol[0].setHadp(jets, p);
+		    asol[0].setHadq(jets, q);
+		    asol[0].setHadj(jets, j);
+		    asol[0].setHadk(jets, k);
+		    asol[0].setHadb(jets, bh);
+		    asol[0].setHadbbar(jets, bbarh);
 
 		    //[p][j][b] and [q][k][bbar]
-		    asol[1].setHadp(lJets, p);
-		    asol[1].setHadq(lJets, j);
-		    asol[1].setHadj(lJets, q);
-		    asol[1].setHadk(lJets, k);
-		    asol[1].setHadb(bJets, bh);
-		    asol[1].setHadbbar(bJets, bbarh);
+                    asol[1].setJetCorrectionScheme(jetCorrScheme_);
+		    asol[1].setHadp(jets, p);
+		    asol[1].setHadq(jets, j);
+		    asol[1].setHadj(jets, q);
+		    asol[1].setHadk(jets, k);
+		    asol[1].setHadb(jets, bh);
+		    asol[1].setHadbbar(jets, bbarh);
 
 		    //[p][k][b] and [j][q][bbar]
-		    asol[2].setHadp(lJets, p);
-		    asol[2].setHadq(lJets, k);
-		    asol[2].setHadj(lJets, j);
-		    asol[2].setHadk(lJets, q);
-		    asol[2].setHadb(bJets, bh);
-		    asol[2].setHadbbar(bJets, bbarh);
+                    asol[2].setJetCorrectionScheme(jetCorrScheme_);
+		    asol[2].setHadp(jets, p);
+		    asol[2].setHadq(jets, k);
+		    asol[2].setHadj(jets, j);
+		    asol[2].setHadk(jets, q);
+		    asol[2].setHadb(jets, bh);
+		    asol[2].setHadbbar(jets, bbarh);
 		   
 		    if(doKinFit_){
 		      for(unsigned int i=0;i!=asol.size();i++){
@@ -279,7 +280,7 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
     std::auto_ptr<std::vector<TtHadEvtSolution> > pOut(evtsols);
     iEvent.put(pOut);
   }else {     //end loop jet/MET found
-    std::cout<<"No calibrated solutions built, because only "<<lJets->size()<<" were present";
+    std::cout<<"No calibrated solutions built, because only "<<jets->size()<<" were present";
      
     std::auto_ptr<std::vector<TtHadEvtSolution> > pOut(evtsols);
     iEvent.put(pOut);

@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.12 2007/10/31 14:16:25 delaer Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.13 2007/10/31 14:58:27 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
@@ -23,6 +23,7 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConf
   tauSource_      = iConfig.getParameter<edm::InputTag>("tauSource");
   metSource_      = iConfig.getParameter<edm::InputTag>("metSource");
   jetSource_      = iConfig.getParameter<edm::InputTag>("jetSource");
+  jetCorrScheme_  = iConfig.getParameter<int>          ("jetCorrectionScheme");
   evtSource_      = iConfig.getParameter<edm::InputTag>("evtSource");
   nrCombJets_     = iConfig.getParameter<unsigned int> ("nrCombJets");
   matchToGenEvt_  = iConfig.getParameter<bool>         ("matchToGenEvt");
@@ -274,6 +275,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	if(find(JetVetoByTaus.begin(),JetVetoByTaus.end(),int(ibbar))!=JetVetoByTaus.end())continue;
 	// Build and save a solution
         TtDilepEvtSolution asol;
+        asol.setJetCorrectionScheme(jetCorrScheme_);
         double xconstraint = 0, yconstraint = 0;
 	// Set e+ in the event
         if (leptonFoundEE || leptonFoundEpMm || leptonFoundEpTm) {

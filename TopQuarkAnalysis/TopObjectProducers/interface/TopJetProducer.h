@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.h,v 1.24 2007/10/04 16:11:39 delaer Exp $
+// $Id: TopJetProducer.h,v 1.25 2007/10/11 14:46:11 jandrea Exp $
 //
 
 #ifndef TopObjectProducers_TopJetProducer_h
@@ -13,7 +13,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.24 2007/10/04 16:11:39 delaer Exp $
+  \version  $Id: TopJetProducer.h,v 1.25 2007/10/11 14:46:11 jandrea Exp $
 */
 
 
@@ -53,8 +53,7 @@ class TopJetProducer : public edm::EDProducer {
     // TEMP End
 
     // configurables
-    edm::InputTag            caliJetsSrc_;
-    edm::InputTag            recJetsSrc_;
+    edm::InputTag            jetsSrc_;
     // TEMP Jet cleaning from electrons
     bool                     doJetCleaning_;
     edm::InputTag            topElectronsLabel_;
@@ -74,21 +73,22 @@ class TopJetProducer : public edm::EDProducer {
     bool                     addResolutions_;
     bool                     useNNReso_;
     std::string              caliJetResoFile_;
+    std::string              caliBJetResoFile_;
     bool                     addBTagInfo_;
     bool                     addDiscriminators_; 
     bool                     addJetTagRefs_;
-    std::vector<std::string> bTaggingTagInfoNames_;
-    //std::vector<std::string> tagModuleLabelsToIgnore_;
     std::vector<std::string> tagModuleLabelsToKeep_;
     bool                     addAssociatedTracks_;
     edm::ParameterSet        trackAssociationPSet_;
     bool                     addJetCharge_;
     edm::ParameterSet        jetChargePSet_;
     // tools
-    TopObjectResolutionCalc            * theResoCalc_;
+    TopObjectResolutionCalc          * theResoCalc_;
+    TopObjectResolutionCalc          * theBResoCalc_;
     helper::SimpleJetTrackAssociator   simpleJetTrackAssociator_;
-    JetCharge                          * jetCharge_;
+    JetCharge                        * jetCharge_;
     GreaterByEt<TopJet>                eTComparator_;
+
 };
 
 
