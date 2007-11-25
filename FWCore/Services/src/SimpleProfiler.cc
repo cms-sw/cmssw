@@ -129,7 +129,7 @@ namespace
 		 ucontext_t* ucp)
   {
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
-    throw logic_error("Cannot dumpStack on 64 bit build");
+    throw std::logic_error("Cannot dumpStack on 64 bit build");
 #else
     fprintf(frame_cond, msg);
     fflush(frame_cond);
@@ -357,7 +357,7 @@ namespace
   void* setStacktop()
   {
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
-    throw logic_error("setStacktop not callable on 64 bit platform");
+    throw std::logic_error("setStacktop not callable on 64 bit platform");
     return 0;
 #else
     const std::string target_name("__libc_start_main");
@@ -634,7 +634,7 @@ void SimpleProfiler::doWrite()
 void SimpleProfiler::start()
 {
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
-  throw logic_error("SimpleProfiler not available on 64 bit platform");
+  throw std::logic_error("SimpleProfiler not available on 64 bit platform");
 #endif
   {
     boost::mutex::scoped_lock sl(lock_);
