@@ -20,7 +20,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
   PixelCalibBase(), PixelConfigBase("","","") {
 
   _bufferData=false; 
-  
+
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
@@ -859,7 +859,47 @@ std::string PixelCalibConfiguration::parameterValue(std::string parameterName) c
 
 void PixelCalibConfiguration::writeASCII(std::string dir) const {
 
-  //FIXME not yet implemented...
-  assert(0);
+
+  //FIXME this is not tested for all the use cases...
+
+  if (dir!="") dir+="/";
+  std::string filename=dir+"calib.dat";
+  std::ofstream out(filename.c_str());
+
+  out << "Mode: "<<mode_<<endl;
+  if (singleROC_) out << "SingleROC"<<endl;
+  out << "Rows:" <<endl;
+  for (unsigned int i=0;i<rows_.size();i++){
+    for (unsigned int j=0;j<rows_[i].size();j++){
+      out << rows_[i][j] <<" ";
+    }
+    if (i!=rows_.size()-1) out <<"|";
+    out <<endl;
+  }
+  out << "Cols:" <<endl;
+  for (unsigned int i=0;i<cols_.size();i++){
+    for (unsigned int j=0;j<cols_[i].size();j++){
+      out << cols_[i][j] <<" ";
+    }
+    if (i!=cols_.size()-1) out <<"|";
+    out <<endl;
+  }
+
+  for (unsigned int i=0;i<dacs_.size();i++){
+    out << "Scan: "<<dacs_[i].name()<<" "
+	<<dacs_[i].first()<<" "
+	<<dacs_[i].last()<<" "
+	<<dacs_[i].step()<<endl;
+  }
+
+  out << "Repeat:" <<endl;
+  out << ntrigger_ << endl;
+
+  out << "Rocs:"<< endl;
+  for (unsigned int i=0;i<rocs_.size();i++){
+    out << rocs_[i].rocname() <<endl;
+  }  
+
+  out.close();
 
 }

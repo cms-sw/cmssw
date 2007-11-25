@@ -10,6 +10,7 @@
 //
 //
 #include <sstream>
+#include "CalibFormats/SiPixelObjects/interface/PixelModuleName.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelMaskAllPixels.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h"
 #include <fstream>
@@ -18,6 +19,7 @@
 #include <assert.h>
 
 using namespace pos;
+using namespace std;
 
 PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& tableMat) : PixelMaskBase("","","")
 {
@@ -219,8 +221,9 @@ void PixelMaskAllPixels::writeBinary(std::string filename) const{
 
 void PixelMaskAllPixels::writeASCII(std::string dir) const{
 
-  std::string filename=dir;
-  assert(0); //FIXME need to get right file name
+  if (dir!="") dir+="/";
+  PixelModuleName module(maskbits_[0].name().rocname());
+  std::string filename=dir+"ROC_Masks_module_"+module.modulename()+".dat";
   
     std::ofstream out(filename.c_str());
 

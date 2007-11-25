@@ -13,6 +13,7 @@
 #include <assert.h>
 
 using namespace pos;
+using namespace std;
 
 
 
@@ -217,15 +218,17 @@ unsigned int PixelFECConfig::VMEBaseAddressFromFECNumber(unsigned int fecnumber)
 
 void PixelFECConfig::writeASCII(std::string dir) const {
 
+  if (dir!="") dir+="/";
   std::string filename=dir+"fecconfig.dat";
   std::ofstream out(filename.c_str());
 
   std::vector< PixelFECParameters >::const_iterator i=fecconfig_.begin();
 
+  out << "#FEC number     crate     vme base address" << endl;
   for(;i!=fecconfig_.end();++i){
-    out << i->getFECNumber()<<" "
-        << i->getCrate()<<" "
-        << i->getVMEBaseAddress()<<std::endl;
+    out << i->getFECNumber()<<"               "
+        << i->getCrate()<<"         "
+        << "0x"<<hex<<i->getVMEBaseAddress()<<dec<<endl;
   }
 
 }

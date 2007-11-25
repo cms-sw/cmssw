@@ -266,7 +266,12 @@ void PixelTrimAllPixels::writeBinary(std::string filename) const{
 }
 
 
-void PixelTrimAllPixels::writeASCII(std::string filename) const{
+void PixelTrimAllPixels::writeASCII(std::string dir) const{
+
+  if (dir!="") dir+="/";
+  PixelModuleName module(trimbits_[0].name().rocname());
+  std::string filename=dir+"ROC_Trims_module_"+module.modulename()+".dat";
+  
 
   std::ofstream out(filename.c_str());
 

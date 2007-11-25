@@ -17,7 +17,9 @@ using namespace pos;
 
 using namespace std;
 
-PixelDelay25Calib::PixelDelay25Calib(std::string filename) : PixelCalibBase() {
+PixelDelay25Calib::PixelDelay25Calib(std::string filename) : 
+  PixelCalibBase(),
+  PixelConfigBase("","",""){
 
   std::cout<<"PixelDelay25Calib::PixelDelay25Calib"<<std::endl;
   
@@ -352,3 +354,55 @@ int PixelDelay25Calib::getNextNeighborSDa(int n) {
 int PixelDelay25Calib::getNextNeighborRDa(int n) {
   return vecNeighborRDa_.at(n);
 }
+
+void PixelDelay25Calib::writeASCII(std::string dir) const {
+
+
+  //FIXME this is not tested for all the use cases...
+
+  if (dir!="") dir+="/";
+  std::string filename=dir+"delay25.dat";
+  std::ofstream out(filename.c_str());
+
+  out << "Mode: "<<mode_<<endl;
+  
+  out << "Portcards:" <<endl;
+
+  std::set<std::string>::const_iterator i=portcardNames_.begin();
+  while (i!=portcardNames_.end()) {
+    out << *i << endl;
+    ++i;
+  }
+
+  out << "AllModules:" <<endl;
+  if (allModules_) {
+    out << "1" <<endl;
+  } else {
+    out << "0" <<endl;
+  }
+
+  out << "OrigSDa:"<<endl;
+  out << origSDa_<<endl;
+  
+  out << "OrigRDa:"<<endl;
+  out << origRDa_<<endl;
+  
+  out << "Range:"<<endl;
+  out << range_<<endl;
+  
+  out << "GridSize:"<<endl;
+  out << gridSize_<<endl;
+  
+  out << "Tests:"<<endl;
+  out << numTests_<<endl;
+  
+  out << "StableRange:"<<endl;
+  out << stableRange_<<endl;
+
+  out << "StableShape:"<<endl;
+  out << stableShape_<<endl;
+  
+  out.close();
+}
+
+

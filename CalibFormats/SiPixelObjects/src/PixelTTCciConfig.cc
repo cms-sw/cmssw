@@ -8,6 +8,7 @@
 #include <cassert>
   
 using namespace pos;
+using namespace std;
  
 PixelTTCciConfig::PixelTTCciConfig(std::string filename):
   PixelConfigBase(" "," "," "){
@@ -27,8 +28,25 @@ PixelTTCciConfig::PixelTTCciConfig(std::string filename):
 } 
 
 void PixelTTCciConfig::writeASCII(std::string dir) const {
-  //FIXME not implemented
-  assert(0);
+
+  
+  if (dir!="") dir+="/";
+  std::string filename=dir+"TTCciConfiguration.txt";
+  std::ofstream out(filename.c_str());
+
+  std::ifstream in(ttcConfigPath_.c_str());
+  assert(in.good());
+
+  string line;
+  while (!in.eof()) {
+    getline (in,line);
+    out << line << endl;
+  }
+
+  out.close();
+
+
+
 }
 
 

@@ -14,6 +14,7 @@
 
 
 using namespace pos;
+using namespace std;
 
 
 PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> >& tableMat ) : PixelConfigBase(" "," "," "){
@@ -157,9 +158,27 @@ PixelTKFECConfig::~PixelTKFECConfig() {}
 
 void PixelTKFECConfig::writeASCII(std::string dir) const {
 
-  //FIXME not implemented
-  assert(0);
+  if (dir!="") dir+="/";
+  string filename=dir+"tkfecconfig.dat";
 
+  ofstream out(filename.c_str());
+  if(!out.good()){
+    cout << "Could not open file:"<<filename<<endl;
+    assert(0);
+  }
+
+  out <<"#TKFEC ID     crate     VME/PCI    slot/address" <<endl;
+  for(unsigned int i=0;i<TKFECconfig_.size();i++){
+    out << TKFECconfig_[i].getTKFECID()<<"          "
+	<< TKFECconfig_[i].getCrate()<<"          ";
+    if (TKFECconfig_[i].getType()=="PCI") {
+      out << "PCI       ";
+    } else {
+      out << "          ";
+    }
+    out << "0x"<<hex<<TKFECconfig_[i].getAddress()<<dec<<endl;
+  }
+  out.close();
 }
 
 

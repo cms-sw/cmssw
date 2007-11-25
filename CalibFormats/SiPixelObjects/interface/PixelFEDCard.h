@@ -3,19 +3,21 @@
 // The structure which holds all the informations needed to setup 
 // a pixel FED. Danek Kotlinski 18/4/06
 
+#include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
+
 #include <string>
 
 namespace pos{
-  class PixelFEDCard {
+  class PixelFEDCard : public PixelConfigBase{
 
   public:
 
     // Constructor and destructor
-    PixelFEDCard() {}; // empty
+    PixelFEDCard(); // empty
     PixelFEDCard(std::string filename); // create from files
     ~PixelFEDCard() {};
 
-    void writeASCII(std::string dir=""); // write to files
+    void writeASCII(std::string dir="") const; // write to files
     unsigned long long enabledChannels();  // returns 64-bit integer mask 35..0
 
     //Settable optical input parameters (one for each 12-receiver)

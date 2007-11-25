@@ -12,6 +12,7 @@
 #include <assert.h>
 
 using namespace pos;
+using namespace std;
 
 
 PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string> > &tableMat):PixelConfigBase(" "," "," "){
@@ -368,24 +369,27 @@ PixelROCName PixelNameTranslation::ROCNameFromFEDChannelROC(unsigned int fednumb
 
 void PixelNameTranslation::writeASCII(std::string dir) const {
 
+  if (dir!="") dir+="/";
   std::string filename=dir+"translation.dat";
 
   std::ofstream out(filename.c_str());
 
+  out << "# name                              FEC      mfec  mfecchannel hubaddress portadd rocid     FED     channel     roc#"<<endl;
+
   std::map<PixelROCName,PixelHdwAddress>::const_iterator iroc=translationtable_.begin();
 
   for (;iroc!=translationtable_.end();++iroc) {
-    out << iroc->first.rocname()<<" "
-	<< iroc->second.fecnumber()<<" "
-	<< iroc->second.mfec()<<" "
-	<< iroc->second.mfecchannel()<<" "
-	<< iroc->second.hubaddress()<<" "
-	<< iroc->second.portaddress()<<" "
-	<< iroc->second.rocid()<<" "
-	<< iroc->second.fednumber()<<" "
-	<< iroc->second.fedchannel()<<" "
+    out << iroc->first.rocname()<<"       "
+	<< iroc->second.fecnumber()<<"       "
+	<< iroc->second.mfec()<<"       "
+	<< iroc->second.mfecchannel()<<"       "
+	<< iroc->second.hubaddress()<<"       "
+	<< iroc->second.portaddress()<<"       "
+	<< iroc->second.rocid()<<"         "
+	<< iroc->second.fednumber()<<"       "
+	<< iroc->second.fedchannel()<<"       "
 	<< iroc->second.fedrocnumber()
-	<< std::endl;
+	<< endl;
   }
 
 

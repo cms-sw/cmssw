@@ -8,6 +8,7 @@
 #include <cassert>   
 
 using namespace pos;
+using namespace std;
 
 PixelLTCConfig::PixelLTCConfig(std::string filename):
   PixelConfigBase(" "," "," "){
@@ -27,8 +28,22 @@ PixelLTCConfig::PixelLTCConfig(std::string filename):
 } 
 
 void PixelLTCConfig::writeASCII(std::string dir) const {
-  //FIXME not implemented
-  assert(0);
+
+  if (dir!="") dir+="/";
+  std::string filename=dir+"LTCConfiguration.txt";
+  std::ofstream out(filename.c_str());
+
+  std::ifstream in(ltcConfigPath_.c_str());
+  assert(in.good());
+
+  string line;
+  while (!in.eof()) {
+    getline (in,line);
+    out << line << endl;
+  }
+
+  out.close();
+
 }
 
 

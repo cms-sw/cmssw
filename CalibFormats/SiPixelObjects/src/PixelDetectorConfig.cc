@@ -248,7 +248,8 @@ bool PixelDetectorConfig::containsModule(const PixelModuleName& moduleToFind) co
 
 void PixelDetectorConfig::writeASCII(std::string dir) const {
 
-  std::string filename=dir+"detconfig.dat";
+  if (dir!="") dir+="/";
+  std::string filename=dir+"detectconfig.dat";
 
   std::ofstream out(filename.c_str());
 

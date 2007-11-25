@@ -13,6 +13,7 @@
 #include <assert.h>
 
 using namespace pos;
+using namespace std;
 
 PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat ) : PixelConfigBase(" "," "," "){
   std::vector< std::string > ins = tableMat[0];
@@ -158,9 +159,22 @@ PixelFEDConfig::~PixelFEDConfig() {}
 
 void PixelFEDConfig::writeASCII(std::string dir) const {
 
-  //FIXME not implemented
-  assert(0);
+  if (dir!="") dir+="/";
+  string filename=dir+"fedconfig.dat";
 
+  ofstream out(filename.c_str());
+  if(!out.good()){
+    cout << "Could not open file:"<<filename<<endl;
+    assert(0);
+  }
+
+  out <<" #FED number     crate     vme base address" <<endl;
+  for(unsigned int i=0;i<fedconfig_.size();i++){
+    out << fedconfig_[i].getFEDNumber()<<"               "
+	<< fedconfig_[i].getCrate()<<"         "
+	<< "0x"<<hex<<fedconfig_[i].getVMEBaseAddress()<<dec<<endl;
+  }
+  out.close();
 }
 
 

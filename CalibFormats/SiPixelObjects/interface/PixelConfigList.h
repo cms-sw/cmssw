@@ -9,11 +9,11 @@ namespace pos{
     void writefile(){
 
       std::string directory=getenv("PIXELCONFIGURATIONBASE");
-      directory+="/pixel/PixelConfigDataExamples/";
     
-      std::string filename=directory+"configurations.txt";
+      std::string filename=directory+"/configurations.txt";
 
       std::ofstream out(filename.c_str());
+      assert(out.good());
 
       for (unsigned int i=0;i<configs.size();i++){
 	out << "key "<<i<<std::endl;
@@ -39,7 +39,7 @@ namespace pos{
 
       unsigned int version=0;
 
-      do{
+      while(!in.eof()){
 	if (tag!="key"){
 	  std::cout << "PixelConfigDB: tag="<<tag<<std::endl;
 	  assert(0);
@@ -74,7 +74,7 @@ namespace pos{
 	configs.push_back(aConfig);
 	version++;
       
-      }while (in.good());
+      };
 		
       in.close();
 

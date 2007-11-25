@@ -13,13 +13,18 @@ using namespace std;
 using namespace pos;
 
 
+PixelFEDCard::PixelFEDCard(): 
+  PixelConfigBase(" "," "," "){}
+
 // Read the configuration parameters from file
-PixelFEDCard::PixelFEDCard(string fileName) {
+PixelFEDCard::PixelFEDCard(string fileName):
+  PixelConfigBase(" "," "," ")
+{
 
   //const bool localDEBUG = true;
   const bool localDEBUG = false;
 
-  cout<<" Get setup parameters from file "<<fileName<<endl;
+  //cout<<" Get setup parameters from file "<<fileName<<endl;
   FILE *infile = fopen((fileName.c_str()),"r");
   if (infile == NULL) {
     cout<<"No parameter file:"<<fileName<<endl; 
@@ -259,16 +264,15 @@ PixelFEDCard::PixelFEDCard(string fileName) {
          &SpecialDac);
   if(localDEBUG)
     printf("Special Random testDAC mode (on = 0x1, off=0x0):%x\n",SpecialDac);
-
-
-
    
   fclose(infile);
   return;
 }
 
 
-void PixelFEDCard::writeASCII(std::string dir){
+void PixelFEDCard::writeASCII(std::string dir) const{
+
+  cout << "PixelFEDCard::writeASCII"<<endl;
 
   ostringstream s1;
   s1<<fedNumber;

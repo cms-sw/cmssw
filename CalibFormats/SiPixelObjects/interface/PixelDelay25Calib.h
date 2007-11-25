@@ -12,14 +12,18 @@
 #include <set>
 #include <fstream>
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibBase.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
 namespace pos{
-  class PixelDelay25Calib : public PixelCalibBase {
+  class PixelDelay25Calib : public PixelCalibBase, public PixelConfigBase{
 
   public:
   
     PixelDelay25Calib(std::string);
     ~PixelDelay25Calib();
+
+    virtual void writeASCII(std::string dir="") const;
+
 
     virtual std::string mode() {return mode_;}
     std::set<std::string>& portcardList() {return portcardNames_;}

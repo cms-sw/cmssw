@@ -10,6 +10,7 @@
 
 
 using namespace pos;
+using namespace std;
 
 PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &tableMat):PixelConfigBase(" "," "," "){
 
@@ -142,8 +143,26 @@ PixelPortcardMap::~PixelPortcardMap(){}
 
 void PixelPortcardMap::writeASCII(std::string dir) const {
 
-  //FIXME not implemented
-  assert(0);
+  
+  if (dir!="") dir+="/";
+  string filename=dir+"portcardmap.dat";
+  
+  ofstream out(filename.c_str());
+  if(!out.good()){
+    cout << "Could not open file:"<<filename<<endl;
+    assert(0);
+  }
+
+  out <<"# Portcard          Module                     AOH channel" <<endl;
+  std::map< std::pair<PixelModuleName, std::string>, std::pair<std::string, int> >::const_iterator i=map_.begin();
+ for(;i!=map_.end();++i){
+    out << i->second.first<<"   "
+	<< i->first.first<<"       "
+	<< i->first.second<<"       "
+	<< i->second.second<<endl;
+  }
+  out.close();
+
 
 }
 

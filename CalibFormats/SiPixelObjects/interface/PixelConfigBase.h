@@ -31,6 +31,7 @@ namespace pos{
     std::string creator();
     std::string date();
 
+    //Interface to write out data to ascii file
     virtual void writeASCII(std::string dir="") const = 0;
 
   private:
