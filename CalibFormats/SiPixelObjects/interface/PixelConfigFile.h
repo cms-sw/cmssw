@@ -346,7 +346,7 @@ namespace pos{
       //std::cout << "Extracted base:"<<base<<std::endl;
       //std::cout << "Extracted ext :"<<ext<<std::endl;
     
-      std::strstream s1;
+      ostringstream s1;
       s1 << version<<(char)(0);
       std::string strversion=s1.str();
 
