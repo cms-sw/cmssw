@@ -1,9 +1,11 @@
 
 #include "RecoTracker/CkfPattern/interface/TrajectorySegmentBuilder.h"
 
+//B.M. #include "CommonDet/BasicDet/interface/RecHitEqualByChannels.h"
+//B.M. #include "RecoTracker/CkfPattern/interface/TrajectoryMeasurementEqualByHit.h"
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
-#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
-
+#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
+//B.M. #include "Utilities/Notification/interface/TimingReport.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
@@ -12,6 +14,7 @@
 #include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+//B.M.#include "CommonDet/PatternPrimitives/interface/PropagationDirection.h"
 #include "RecoTracker/CkfPattern/src/TrajectoryLessByFoundHits.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
@@ -19,7 +22,7 @@
 
 #include <algorithm> 
 
-//#define DBG_TSB
+// #define DBG_TSB
 
 using namespace std;
 
@@ -55,34 +58,46 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
       const vector<TM>& measurements = ig->measurements();
       for ( vector<TM>::const_iterator im=measurements.begin();
 	    im!=measurements.end(); im++ ) {
-	if ( im->recHit()->getType() != TrackingRecHit::missing )  ngrp++;
+	if ( im->recHit()->isValid() )  ngrp++;
       }
       cout << " " << ngrp;
       if ( ngrp>0 )  ntot *= ngrp;
     }  
     cout << endl;
-    cout << "TrajectorySegmentBuilder::partialTrajectories:: got " 
-	 << measGroups.size() << " groups " 
-	 << "; total combinatorics = " << ntot << endl;
+    cout << "TrajectorySegmentBuilder::partialTrajectories:: det ids & hit types / group" << endl;
+    for (vector<TMG>::const_iterator ig=measGroups.begin();
+	 ig!=measGroups.end(); ig++) {
+      const vector<TM>& measurements = ig->measurements();
+      for ( vector<TM>::const_iterator im=measurements.begin();
+	    im!=measurements.end(); im++ ) {
+	if ( im!=measurements.begin() )  cout << " / ";
+	if ( im->recHit()->det() )
+	  cout << im->recHit()->det()->geographicalId().rawId() << " "
+	       << im->recHit()->getType();
+	else
+	  cout << "no det";
+      }
+      cout << endl;
+    }  
   }
 
 #ifdef DBG_TSB
-  if ( measGroups.size()>4 ) {
+//   if ( measGroups.size()>4 ) {
     cout << typeid(theLayer).name() << endl;
     cout << startingState.localError().matrix() << endl;
-    for (vector<TMG>::const_iterator ig=measGroups.begin();
-	 ig!=measGroups.end(); ig++) {
-      cout << "Nr. of measurements = " << ig->measurements().size() << endl;
-      const DetGroup& dg = ig->detGroup();
-      for ( DetGroup::const_iterator id=dg.begin();
-	    id!=dg.end(); id++ ) {
-	GlobalPoint p(id->det()->position());
-	GlobalVector v(id->det()->toGlobal(LocalVector(0.,0.,1.)));
-	cout << p.perp() << " " << p.phi() << " " << p.z() << " ; "
-	     << v.phi() << " " << v.z() << endl;
-      }
-    }
-  }
+//     for (vector<TMG>::const_iterator ig=measGroups.begin();
+// 	 ig!=measGroups.end(); ig++) {
+//       cout << "Nr. of measurements = " << ig->measurements().size() << endl;
+//       const DetGroup& dg = ig->detGroup();
+//       for ( DetGroup::const_iterator id=dg.begin();
+// 	    id!=dg.end(); id++ ) {
+// 	GlobalPoint p(id->det()->position());
+// 	GlobalVector v(id->det()->toGlobal(LocalVector(0.,0.,1.)));
+// 	cout << p.perp() << " " << p.phi() << " " << p.z() << " ; "
+// 	     << v.phi() << " " << v.z() << endl;
+//       }
+//     }
+//   }
 #endif
 
   TrajectoryContainer candidates = 
@@ -198,9 +213,7 @@ TrajectorySegmentBuilder::updateCandidates (TempTrajectory& traj,
   //
   for ( vector<TM>::const_iterator im=measurements.begin();
 	im!=measurements.end(); im++ ) {
-    // if ( im->recHit()->isValid() ) {      // << not bad module aware?
-    if ( im->recHit()->getType()      // let's try this way
-            != TrackingRecHit::missing ) {   //     (gpetrucc, 02/11/07)
+    if ( im->recHit()->isValid() ) {
       TempTrajectory newTraj(traj);
       updateTrajectory(newTraj,*im);
       if ( theLockHits )  lockMeasurement(*im);
@@ -227,9 +240,10 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory& traj,
             ibest = im;
             bestIsValid = true;
         }
-    } else if (!bestIsValid && (im->recHit()->getType() != TrackingRecHit::missing)) {
-        if (ibest==measurements.end()) ibest = im;
-    }
+    } 
+//     else if (!bestIsValid && (im->recHit()->getType() != TrackingRecHit::missing)) {
+//         if (ibest==measurements.end()) ibest = im;
+//     }
   }
   if ( ibest!=measurements.end() ) {
     TempTrajectory newTraj(traj);
@@ -242,7 +256,7 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory& traj,
                << ibest->recHit()->globalPosition().perp() << " "
                << ibest->recHit()->globalPosition().z() << endl;
       } else {
-          cout << "TSB: found best measurement at invalid hit on det " << ibest->recHit()->geographicalId().rawId();
+	cout << "TSB: found best measurement at invalid hit on det " << ibest->recHit()->geographicalId().rawId() << endl;
       }
     }
   }
@@ -300,7 +314,8 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
   // set layer in TM, because the Det cannot do it
   //
   for(vector<TM>::const_iterator tmpIt=tmpResult.begin();tmpIt!=tmpResult.end();tmpIt++){
-    result.push_back(  TrajectoryMeasurement(tmpIt->predictedState(),tmpIt->recHit(),tmpIt->estimate(),&theLayer)  );
+    if ( tmpIt->recHit()->isValid() )
+      result.push_back(  TrajectoryMeasurement(tmpIt->predictedState(),tmpIt->recHit(),tmpIt->estimate(),&theLayer)  );
   }
   
   return result;
@@ -311,6 +326,44 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 						const vector<TMG>& groups,
 						TrajectoryContainer& candidates) const
 {
+  //
+  // first try to find an inactive hit with dets crossed by the prediction,
+  //   then take any inactive hit
+  //
+  // loop over groups
+  for ( int iteration=0; iteration<2; iteration++ ) {
+    for ( vector<TMG>::const_iterator ig=groups.begin(); ig!=groups.end(); ig++) {
+      // loop over measurements
+      const vector<TM>& measurements = ig->measurements();
+      for ( vector<TM>::const_reverse_iterator im=measurements.rbegin();
+	    im!=measurements.rend(); im++ ) {
+	ConstRecHitPointer hit = im->recHit();
+	if ( hit->getType()==TrackingRecHit::valid ||
+	     hit->getType()==TrackingRecHit::missing )  continue;
+	//
+	// check, if the extrapolation traverses the Det or
+	// if 2nd iteration
+	//
+	if ( hit->det() ) {
+	  TSOS predState(im->predictedState());
+	  if ( iteration>0 || 
+	       (predState.isValid() &&
+		hit->det()->surface().bounds().inside(predState.localPosition())) ) {
+	    // add the hit
+	    TempTrajectory newTraj(traj);
+	    updateTrajectory(newTraj,*im);
+	    candidates.push_back(newTraj.toTrajectory());
+	    if ( theDbgFlg ) cout << "TrajectorySegmentBuilder::updateWithInvalidHit "
+				  << "added inactive hit" << endl;
+	    return;
+	  }
+	}
+      }
+    }
+  }
+  //
+  // No suitable inactive hit: add a missing one
+  //
   bool found(false);
   for ( int iteration=0; iteration<2; iteration++ ) {
     //
@@ -325,8 +378,7 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	// only use invalid hits
 	//
 	ConstRecHitPointer hit = im->recHit();
-	//if ( hit->isValid() )  break;                          // gpetrucc: not bad module aware
-	if ( hit->getType() != TrackingRecHit::missing )  break; // let's try this
+	if ( hit->isValid() )  continue;
 
 	//
 	// check, if the extrapolation traverses the Det
@@ -370,7 +422,7 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 vector<TrajectoryMeasurement>
 TrajectorySegmentBuilder::unlockedMeasurements (const vector<TM>& measurements) const
 {
-  if ( !theLockHits )  return measurements;
+//   if ( !theLockHits )  return measurements;
 
   //========== B.M. to be ported later ===============
   vector<TM> result;
@@ -381,13 +433,15 @@ TrajectorySegmentBuilder::unlockedMeasurements (const vector<TM>& measurements) 
   for ( vector<TM>::const_iterator im=measurements.begin();
 	im!=measurements.end(); im++ ) {
     ConstRecHitPointer testHit = im->recHit();
-    if ( testHit->getType() ==  TrackingRecHit::missing )  continue;
+    if ( !testHit->isValid() )  continue;
     bool found(false);
-    for ( ConstRecHitContainer::const_iterator ih=theLockedHits.begin();
-	  ih!=theLockedHits.end(); ih++ ) {
-      if ( (*ih)->hit()->sharesInput(testHit->hit(), TrackingRecHit::all) ) {
-      	found = true;
-	break;
+    if ( theLockHits ) {
+      for ( ConstRecHitContainer::const_iterator ih=theLockedHits.begin();
+	    ih!=theLockedHits.end(); ih++ ) {
+	if ( (*ih)->hit()->sharesInput(testHit->hit(), TrackingRecHit::all) ) {
+	  found = true;
+	  break;
+	}
       }
     }
     if ( !found )  result.push_back(*im);
