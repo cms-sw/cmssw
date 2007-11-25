@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/11/24 21:40:07 $
- * $Revision: 1.24 $
+ * $Date: 2007/11/24 21:43:55 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -175,6 +175,8 @@ void EcalEndcapMonitorModule::setup(void){
     meEvtType_->setBinLabel(1+EcalDCCHeaderBlock::COSMICS_GLOBAL, "COSMICS_GLOBAL", 1);
     meEvtType_->setBinLabel(1+EcalDCCHeaderBlock::HALO_GLOBAL, "HALO_GLOBAL", 1);
     meEvtType_->setBinLabel(1+EcalDCCHeaderBlock::LASER_GAP, "LASER_GAP", 1);
+    meEvtType_->setBinLabel(1+EcalDCCHeaderBlock::TESTPULSE_GAP, "TESTPULSE_GAP");
+    meEvtType_->setBinLabel(1+EcalDCCHeaderBlock::PEDESTAL_GAP, "PEDESTAL_GAP");
     meEvtType_->setBinLabel(1+EcalDCCHeaderBlock::LED_GAP, "LED_GAP", 1);
     meEvtType_->setBinLabel(1+EcalDCCHeaderBlock::PHYSICS_LOCAL, "PHYSICS_LOCAL", 1);
     meEvtType_->setBinLabel(1+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
