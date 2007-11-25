@@ -39,7 +39,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <strstream>
+#include <sstream>
 #include <typeinfo>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -199,7 +199,7 @@ namespace pos{
 	  return;
 	}
     
-      std::strstream s1;
+      std::ostringstream s1;
       s1 << version<<(char)(0);
       std::string strversion=s1.str();
 
@@ -348,7 +348,7 @@ namespace pos{
       int version=-1;
       do{
 	version++;
-	std::strstream s1;
+	std::ostringstream s1;
 	s1 << version <<(char)(0);
 	std::string strversion=s1.str();
 	dir=directory+strversion;

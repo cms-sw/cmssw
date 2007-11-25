@@ -7,7 +7,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelModuleName.h"
 #include <string>
 #include <iostream>
-#include <strstream>
+#include <sstream>
 #include <cctype>
 
 #include <assert.h>
@@ -203,7 +203,7 @@ std::string PixelModuleName::modulename() const{
 
     std::string s;
 
-    std::strstream s1;
+    std::ostringstream s1;
 
     if (detsub()=='F') {
 	s1<<"FPix"; 

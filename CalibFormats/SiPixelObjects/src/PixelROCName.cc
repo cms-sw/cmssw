@@ -7,7 +7,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 #include <string>
 #include <iostream>
-#include <strstream>
+#include <sstream>
 #include <cctype>
 
 #include <assert.h>
@@ -245,7 +245,7 @@ std::string PixelROCName::rocname() const{
 
     std::string s;
 
-    std::strstream s1;
+    std::ostringstream s1;
 
     if (detsub()=='F') {
 	s1<<"FPix"; 

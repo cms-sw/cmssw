@@ -6,6 +6,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDCard.h"
 
 #include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -269,9 +270,9 @@ PixelFEDCard::PixelFEDCard(string fileName) {
 
 void PixelFEDCard::writeASCII(std::string dir){
 
-  char buffer[50];
-  sprintf(buffer,"%d",fedNumber);
-  std::string fedNum(buffer);
+  ostringstream s1;
+  s1<<fedNumber;
+  std::string fedNum=s1.str();
 
 
   std::string filename=dir+"/params_fed_"+fedNum+".dat";
