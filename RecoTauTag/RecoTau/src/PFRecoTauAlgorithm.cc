@@ -81,11 +81,14 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 	      if(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).first)
 		myPFTau.setleadPFChargedHadrCandsignedSipt(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).second.significance());
 	    }
+	    // Track::innerOk(), ::innerPosition() make use of the TrackExtra object possibly wrongly -in RecoParticleFlow/PFTracking package- associated to the Track - Nov 25, 2007;
+	    /*
 	    if((*myleadPFCand_rectk).innerOk()){
 	      myPFTau_refInnerPosition_x=(*myleadPFCand_rectk).innerPosition().x(); 
 	      myPFTau_refInnerPosition_y=(*myleadPFCand_rectk).innerPosition().y(); 
 	      myPFTau_refInnerPosition_z=(*myleadPFCand_rectk).innerPosition().z(); 
 	    }
+	    */
 	  }
 	}
       }
