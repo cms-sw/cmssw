@@ -21,9 +21,6 @@
 
 <library name="AlignmentMonitorSurvey" file="AlignmentMonitorSurvey.cc">
  <use name=Alignment/CommonAlignmentMonitor>
- <use name=Alignment/MuonAlignment>
- <use name=Alignment/SurveyAnalysis>
- <use name=DataFormats/MuonDetId>
  <flags EDM_PLUGIN=1>
 </library>
 
