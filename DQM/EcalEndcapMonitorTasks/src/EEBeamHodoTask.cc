@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2007/11/05 19:23:38 $
- * $Revision: 1.8 $
+ * $Date: 2007/11/09 17:36:45 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -26,7 +26,6 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
