@@ -5,8 +5,8 @@
  *
  *  Classes for new HLT data model (to be split into separate header files)
  *
- *  $Date: 2007/11/26 15:39:49 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/11/26 16:51:16 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -162,7 +162,8 @@ namespace trigger
 
 
 
-  /// The single EDProduct to be saved in addition for each event (RAW case)
+  /// The single EDProduct to be saved in addition for each event
+  /// - but only in the RAW case
   class TriggerEventWithRefs {
 
   private:
