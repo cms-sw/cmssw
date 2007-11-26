@@ -620,7 +620,7 @@ void HIPAlignmentAlgorithm::bookRoot(void)
   theTree2->Branch("Zpos",   &m2_Zpos,    "Zpos/F");
   theTree2->Branch("Eta",    &m2_Eta,     "Eta/F");
   theTree2->Branch("Phi",    &m2_Phi,     "Phi/F");
-  theTree2->Branch("Id",     &m2_Id,      "Id/I");
+  theTree2->Branch("Id",     &m2_Id,      "Id/i");
   theTree2->Branch("ObjId",  &m2_ObjId,   "ObjId/I");
 
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::bookRoot] Root trees booked.";
@@ -644,9 +644,6 @@ void HIPAlignmentAlgorithm::fillRoot(void)
     // consider only those parameters classified as 'valid'
     if (dap->isValid()) {
 
-      printf("------------------------------------------------------------------------\n");
-      printf(" ALIGNABLE: %6d \n",naligned);
-
       // get number of hits from user variable
       HIPUserVariables* uservar =
         dynamic_cast<HIPUserVariables*>(dap->userVariables());
@@ -669,14 +666,37 @@ void HIPAlignmentAlgorithm::fillRoot(void)
       m2_Eta=pos.eta();
       m2_Phi=pos.phi();
 
-      printf("hits: %4d type: %4d layer %4d id %4d objId: %4d \n",
-	     m2_Nhit,m2_Type,m2_Layer,m2_Id,m2_ObjId);
-      printf("x,y,z: %12.5f %12.5f %12.5f eta,phi: %12.5f %12.5f \n",
-             m2_Xpos,m2_Ypos,m2_Zpos,m2_Eta,m2_Phi);
-
       AlgebraicVector pars=dap->parameters();
-      printf("params:  %12.5f %12.5f %12.5f %12.5f %12.5f %12.5f \n",
-	     pars[0],pars[1],pars[2],pars[3],pars[4],pars[5]);
+
+      if (verbose)
+      {
+	edm::LogVerbatim("Alignment")
+	  << "------------------------------------------------------------------------\n"
+	  << " ALIGNABLE: " << setw(6) << naligned
+	  << '\n'
+	  << "hits: "   << setw(4) << m2_Nhit
+	  << " type: "  << setw(4) << m2_Type
+	  << " layer: " << setw(4) << m2_Layer
+	  << " id: "    << setw(4) << m2_Id
+	  << " objId: " << setw(4) << m2_ObjId
+	  << '\n'
+	  << fixed << setprecision(5)
+	  << "x,y,z: "
+	  << setw(12) << m2_Xpos
+	  << setw(12) << m2_Ypos 
+	  << setw(12) << m2_Zpos
+	  << " eta,phi: "
+	  << setw(12) << m2_Eta
+	  << setw(12) << m2_Phi
+	  << '\n'
+	  << "params: "
+	  << setw(12) << pars[0]
+	  << setw(12) << pars[1]
+	  << setw(12) << pars[2]
+	  << setw(12) << pars[3]
+	  << setw(12) << pars[4]
+	  << setw(12) << pars[5];
+      }
 
       naligned++;
       theTree2->Fill();
