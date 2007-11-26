@@ -131,7 +131,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	RPCRecHitCollection::const_iterator recIt;	
 	for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
 	  LocalPoint rhitlocal = (*recIt).localPosition();
-	  rhitpos = rhitlocal.x();  	
+	  float rhitpos = rhitlocal.x();  	
 	  std::cout << " RPC with recHit "<<rhitpos<<"\t on : "<<(*r)->id()<<std::endl;
 	}
       }
