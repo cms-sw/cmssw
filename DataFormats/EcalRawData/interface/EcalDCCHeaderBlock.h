@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.11 2007/06/12 23:35:03 franzoni Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.12 2007/11/26 15:18:07 franzoni Exp $
  */
 
 #include <vector>
@@ -108,6 +108,7 @@ class EcalDCCHeaderBlock
   void setSrpStatus(const short& srpStatus) { srpStatus_=srpStatus; };
   void setTccStatus(const std::vector<short>& tccStatus) { tccStatus_=tccStatus; };
   void setTriggerTowerFlags(const std::vector<short>& triggerTowerFlag) { triggerTowerFlag_ = triggerTowerFlag; };
+  void setFEStatus(const std::vector<short>& feStatus) { feStatus_ = feStatus; };
 
   //TODO add all the get methods
   
@@ -128,6 +129,7 @@ class EcalDCCHeaderBlock
   short getSrpStatus() const  { return srpStatus_;}
   std::vector<short> getTccStatus() const { return tccStatus_ ;}
   std::vector<short> getTriggerTowerFlag() const { return triggerTowerFlag_ ;}
+  std::vector<short> getFEStatus() const { return feStatus_ ;}
  private:
 
   int dccId_;  //to be used as the Key
@@ -153,6 +155,7 @@ class EcalDCCHeaderBlock
   short srpStatus_;
   std::vector<short> tccStatus_;
   std::vector<short> triggerTowerFlag_;
+  std::vector<short> feStatus_;
  
 };
 
