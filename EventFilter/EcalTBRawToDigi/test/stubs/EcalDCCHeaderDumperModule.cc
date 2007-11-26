@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2007/04/12 08:36:47 $
- * $Revision: 1.6 $
+ * $Date: 2007/10/20 10:58:02 $
+ * $Revision: 1.7 $
  *
  * \author A. Ghezzi
  *
@@ -94,7 +94,7 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
       }
       std::cout<<std::endl;
       
-      std::vector<short> TTStatus = headerItr->getTriggerTowerStatus();
+      std::vector<short> TTStatus = headerItr->getFEStatus();
       std::cout<<"TT Status size: "<<TTStatus.size()<<std::endl;
       std::cout<<"TT Status: ";
       for(unsigned u =0;u<TTStatus.size();u++){
