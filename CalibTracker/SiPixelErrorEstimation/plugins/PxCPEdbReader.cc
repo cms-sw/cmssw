@@ -43,15 +43,15 @@ PxCPEdbReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 PxCPEdbReader::beginJob(const edm::EventSetup& setup)
 {
-	edm::ESHandle<SiPixelCPEParmErrors> SiPixelCPEParmErrorsHandle;
-	setup.get<SiPixelCPEParmErrorsRcd>().get(SiPixelCPEParmErrorsHandle);
+	edm::ESHandle<SiPixelCPEParmErrors> errorsH;
+	setup.get<SiPixelCPEParmErrorsRcd>().get(errorsH);
 	
-	const std::vector<SiPixelCPEParmErrors::siPixelCPEParmErrorsEntry>& errors_By = SiPixelCPEParmErrorsHandle->siPixelCPEParmErrors_By;
-	const std::vector<SiPixelCPEParmErrors::siPixelCPEParmErrorsEntry>& errors_Bx = SiPixelCPEParmErrorsHandle->siPixelCPEParmErrors_Bx;
-	const std::vector<SiPixelCPEParmErrors::siPixelCPEParmErrorsEntry>& errors_Fy = SiPixelCPEParmErrorsHandle->siPixelCPEParmErrors_Fy;
-	const std::vector<SiPixelCPEParmErrors::siPixelCPEParmErrorsEntry>& errors_Fx = SiPixelCPEParmErrorsHandle->siPixelCPEParmErrors_Fx;
+	const SiPixelCPEParmErrors::DbVector & errors_By = errorsH->errorsBy();
+	const SiPixelCPEParmErrors::DbVector & errors_Bx = errorsH->errorsBx();
+	const SiPixelCPEParmErrors::DbVector & errors_Fy = errorsH->errorsFy();
+	const SiPixelCPEParmErrors::DbVector & errors_Fx = errorsH->errorsFx();
 	
-	SiPixelCPEParmErrors::siPixelCPEParmErrorsEntry Entry;
+	SiPixelCPEParmErrors::DbEntry Entry;
 	
 	//Part = 1 By
 	for (unsigned int size=0;size<6;++size) {

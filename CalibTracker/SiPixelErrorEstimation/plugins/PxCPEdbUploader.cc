@@ -49,40 +49,46 @@ PxCPEdbUploader::beginJob(const edm::EventSetup&)
 void 
 PxCPEdbUploader::endJob()
 {
-  SiPixelCPEParmErrors* pSiPixelCPEParmErrors = new SiPixelCPEParmErrors();
-	pSiPixelCPEParmErrors->siPixelCPEParmErrors_By.reserve(300);
-	pSiPixelCPEParmErrors->siPixelCPEParmErrors_Bx.reserve(300);
-	pSiPixelCPEParmErrors->siPixelCPEParmErrors_Fy.reserve(300);
-	pSiPixelCPEParmErrors->siPixelCPEParmErrors_Fx.reserve(300);
+  //--- Make the POOL-ORA thingy to store the vector of error structs (DbEntry)
+  SiPixelCPEParmErrors* pErrors = new SiPixelCPEParmErrors();
+  pErrors->reserve();   // Default 300 elements.  Optimize?  &&&
 
-	std::ifstream in;
-		
-	in.open(theFileName.c_str());
+  //--- Open the file
+  std::ifstream in;
+  in.open(theFileName.c_str());
 	
-	SiPixelCPEParmErrors::siPixelCPEParmErrorsEntry Entry;
-	in >> Entry.bias >> Entry.pix_height >> Entry.ave_qclu >> Entry.sigma >> Entry.sigma >> Entry.rms;
+  SiPixelCPEParmErrors::DbEntry Entry;
+  in >> Entry.bias >> Entry.pix_height >> Entry.ave_qclu >> Entry.sigma >> Entry.sigma >> Entry.rms;
 
-	while(!in.eof()) {
-	  if (Entry.bias == 1) pSiPixelCPEParmErrors->siPixelCPEParmErrors_By.push_back(Entry);
-	  else if (Entry.bias == 2) pSiPixelCPEParmErrors->siPixelCPEParmErrors_Bx.push_back(Entry);
-	  else if (Entry.bias == 3) pSiPixelCPEParmErrors->siPixelCPEParmErrors_Fy.push_back(Entry);
-	  else if (Entry.bias == 4) pSiPixelCPEParmErrors->siPixelCPEParmErrors_Fx.push_back(Entry);
-	  
-	  in >> Entry.bias >> Entry.pix_height >> Entry.ave_qclu >> Entry.sigma >> Entry.sigma >> Entry.rms;
-	}
-	
-	in.close();
+  while(!in.eof()) {
+    //--- [Petar] I don't understand why Entry.bias carries this info?
+    pErrors->push_back( (int)Entry.bias, Entry );
+    //
+    in >> Entry.bias  >> Entry.pix_height >> Entry.ave_qclu 
+       >> Entry.sigma >> Entry.sigma      >> Entry.rms;
+  }
+  //--- Finished parsing the file, we're done.
+  in.close();
+  
 
-	edm::Service<cond::service::PoolDBOutputService> poolDbService;
-	if( poolDbService.isAvailable() )
-	  {
-	    if ( poolDbService->isNewTagRequest("SiPixelCPEParmErrorsRcd") )
-	      poolDbService->createNewIOV<SiPixelCPEParmErrors>( pSiPixelCPEParmErrors, poolDbService->endOfTime(),"SiPixelCPEParmErrorsRcd"  );
-	    else
-	      poolDbService->appendSinceTime<SiPixelCPEParmErrors>( pSiPixelCPEParmErrors, poolDbService->currentTime(),"SiPixelCPEParmErrorsRcd" );
-	  }
-	else
-	  std::cout << "Pool Service Unavailable" << std::endl;
-	
+  //--- Create a new IOV
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
+
+  if( poolDbService.isAvailable() ) {
+    if ( poolDbService->isNewTagRequest("SiPixelCPEParmErrorsRcd") )
+      poolDbService->
+	createNewIOV<SiPixelCPEParmErrors>( pErrors, 
+					    poolDbService->endOfTime(),
+					    "SiPixelCPEParmErrorsRcd"  );
+    else
+      poolDbService->
+	appendSinceTime<SiPixelCPEParmErrors>( pErrors, 
+					       poolDbService->currentTime(),
+					       "SiPixelCPEParmErrorsRcd" );
+  }
+  else {
+    std::cout << "Pool Service Unavailable" << std::endl;
+    // &&& throw an exception???
+  }
 }
 
