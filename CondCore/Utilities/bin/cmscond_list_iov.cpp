@@ -1,6 +1,6 @@
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+//#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
@@ -82,32 +82,33 @@ int main( int argc, char** argv ){
   }else{
     session->configuration().setMessageLevel( cond::Error );
   }
-  session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
-  session->configuration().connectionConfiguration()->enableConnectionSharing();
-  session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
+  //rely on default
+  //session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
+  //session->configuration().connectionConfiguration()->enableConnectionSharing();
+  //session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
   std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
   std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
   ::putenv(const_cast<char*>(userenv.c_str()));
   ::putenv(const_cast<char*>(passenv.c_str()));
   ::putenv(const_cast<char*>(authenv.c_str()));
-  static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+  
   if( connect.find("sqlite_fip:") != std::string::npos ){
     cond::FipProtocolParser p;
     connect=p.getRealConnect(connect);
   }
-  conHandler.registerConnection("mydb",connect,0);  
+  cond::Connection myconnection(connect,-1);  
+  session->open();
   if( listAll ){
     try{
-      session->open();
-      conHandler.connect(session);
-      cond::Connection* myconnection=conHandler.getConnection("mydb");
-      cond::CoralTransaction& coraldb=myconnection->coralTransaction(true);
+      myconnection.connect(session);
+      cond::CoralTransaction& coraldb=myconnection.coralTransaction();
       cond::MetaData metadata_svc(coraldb);
       std::vector<std::string> alltags;
-      coraldb.start();
+      coraldb.start(true);
       metadata_svc.listAllTags(alltags);
       coraldb.commit();
+      myconnection.disconnect();
       std::copy (alltags.begin(),
 		 alltags.end(),
 		 std::ostream_iterator<std::string>(std::cout,"\n")
@@ -120,19 +121,17 @@ int main( int argc, char** argv ){
     }
    }else{ 
      try{
-       session->open();
-       conHandler.connect(session);
-       cond::Connection* myconnection=conHandler.getConnection("mydb");
-       cond::CoralTransaction& coraldb=myconnection->coralTransaction(true);
+       myconnection.connect(session);
+       cond::CoralTransaction& coraldb=myconnection.coralTransaction();
        cond::MetaData metadata_svc(coraldb);
        std::string token;
-       coraldb.start();
+       coraldb.start(true);
        token=metadata_svc.getToken(tag);
        coraldb.commit();
-       cond::PoolTransaction& pooldb = myconnection->poolTransaction(true);
+       cond::PoolTransaction& pooldb = myconnection.poolTransaction();
        cond::IOVService iovservice(pooldb);
        cond::IOVIterator* ioviterator=iovservice.newIOVIterator(token);
-       pooldb.start();
+       pooldb.start(true);
        unsigned int counter=0;
        std::string payloadContainer=iovservice.payloadContainerName(token);
        std::cout<<"Tag "<<tag<<"\n";
@@ -145,6 +144,7 @@ int main( int argc, char** argv ){
        std::cout<<"Total # of payload objects: "<<counter<<std::endl;
        pooldb.commit();
        delete ioviterator;
+       myconnection.disconnect();
      }catch(cond::Exception& er){
        std::cout<<er.what()<<std::endl;
      }catch(std::exception& er){

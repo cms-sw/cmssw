@@ -1,9 +1,7 @@
 #include "CondCore/Utilities/interface/CondBasicIter.h"
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
-static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 CondBasicIter::CondBasicIter(){
     ioviterator = 0;
     pooldb = 0;
@@ -63,9 +61,9 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
     }
 
     session->configuration().setMessageLevel( cond::Error );
-    session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
-    session->configuration().connectionConfiguration()->enableConnectionSharing();
-    session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
+    //session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
+    //session->configuration().connectionConfiguration()->enableConnectionSharing();
+    //session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
     std::string userenv(std::string("CORAL_AUTH_USER=")+user);
     std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
     
@@ -75,52 +73,41 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
     }
     
     try{
-        conHandler.registerConnection(connect,connect,0);
-        session->open();
-	cond::CoralTransaction& coraldb=conHandler.getConnection(connect)->coralTransaction(true);
-        cond::MetaData metadata_svc(coraldb);
-        std::string token;
-        coraldb.start();
-        token=metadata_svc.getToken(tag);
-        coraldb.commit();
-        int test = 0;
-        if (!pooldb) {
-	  pooldb = &(conHandler.getConnection(connect)->poolTransaction(true));
-	  test = 1;
-        }
-                    
-        cond::IOVService iovservice(*pooldb);
-        //-----------------------------------------
-        if (ioviterator) {
-            delete ioviterator;
-            ioviterator = 0;
-        }
-        //-----------------------------------------
-       
-        ioviterator=iovservice.newIOVIterator(token);
+      cond::Connection myconnection(connect,-1);
+      session->open();
+      myconnection.connect(session);
+      cond::CoralTransaction& coraldb=myconnection.coralTransaction();
+      cond::MetaData metadata_svc(coraldb);
+      std::string token;
+      coraldb.start(true);
+      token=metadata_svc.getToken(tag);
+      coraldb.commit();
+      int test = 0;
+      if (!pooldb) {
+	pooldb = &(myconnection.poolTransaction());
+	test = 1;
+      }
       
-        if (test==1){
-            pooldb->start();
-        }
-        
-        payloadContainer=iovservice.payloadContainerName(token);
-        
+      cond::IOVService iovservice(*pooldb);
+      //-----------------------------------------
+      if (ioviterator) {
+	delete ioviterator;
+	ioviterator = 0;
+      }
+      //-----------------------------------------
+      
+      ioviterator=iovservice.newIOVIterator(token);
+      
+      if (test==1){
+	pooldb->start(true);
+      }
+      payloadContainer=iovservice.payloadContainerName(token); 
     }catch(cond::Exception& er){
         std::cout<<er.what()<<std::endl;
     }catch(std::exception& er){
-        std::cout<<er.what()<<std::endl;
-    }catch(...){
-        std::cout<<"Unknown error"<<std::endl;
+      std::cout<<er.what()<<std::endl;
     }
-  
-    
     delete session;
- 
-    
-    
-    
-    
-     
     
     //---- inizializer
     iter_Min = 0;
@@ -128,80 +115,70 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
     
 }
 
+void CondBasicIter::setRange(unsigned int min,unsigned int max){
+  if (min<max) {
+    iter_Min = (unsigned int) min;
+    iter_Max = (unsigned int) max;
+    std::cout << "min = " << iter_Min << " and max = " << iter_Max << std::endl;
+  }
+  else std::cout << "Not possible: Minimum > Maximum" <<std::endl;
+}
 
-
-
-    void CondBasicIter::setRange(unsigned int min,unsigned int max){
-        if (min<max) {
-            iter_Min = (unsigned int) min;
-            iter_Max = (unsigned int) max;
-            std::cout << "min = " << iter_Min << " and max = " << iter_Max << std::endl;
-        }
-        else std::cout << "Not possible: Minimum > Maximum" <<std::endl;
-    }
-
-
-
-    void CondBasicIter::setMin(unsigned int min){
-        if (((unsigned int) min)>iter_Max) std::cout << "Not possible: Minimum > Maximum";
-        else iter_Min = (unsigned int) min;
-        std::cout << "min = " << iter_Min << " and max = " << iter_Max<< std::endl;
-
-    }
-
-    void CondBasicIter::setMax(unsigned int max){
-        if (((unsigned int) max)>=iter_Min) iter_Max = (unsigned int) max;
-        else std::cout << "Not possible: Maximum < Minimum";
-
-        std::cout << "min = " << iter_Min << " and max = " << iter_Max<< std::endl;
-
-    }
-
-    void CondBasicIter::setRange(int min,int max){
-        try{ 
-            if (min<max) {
-                iter_Min = (unsigned int) min;
-                iter_Max = (unsigned int) max;
-                std::cout << "min = " << iter_Min << " and max = " << iter_Max << std::endl;
-            }
-            else throw 1;
-        }
-        catch(int) {
-            std::cout << "Not possible: Minimum > Maximum" <<std::endl;
-        }
-    }
- 
-    void CondBasicIter::setMin(int min){
-        if (((unsigned int) min)>iter_Max) std::cout << "Not possible: Minimum > Maximum";
-        else iter_Min = (unsigned int) min;
-        std::cout << "min = " << iter_Min << " and max = " << iter_Max<< std::endl;
-
-    }
- 
-    void CondBasicIter::setMax(int max){
-        if (((unsigned int) max)<iter_Min) std::cout << "Not possible: Maximum < Minimum";
-        else iter_Max = (unsigned int) max;
-        std::cout << "min = " << iter_Min << " and max = " << iter_Max<< std::endl;
-
-    }
- 
-
-
-    unsigned int CondBasicIter::getMin(){return iter_Min;}
+void CondBasicIter::setMin(unsigned int min){
+  if (((unsigned int) min)>iter_Max) std::cout << "Not possible: Minimum > Maximum";
+  else iter_Min = (unsigned int) min;
+  std::cout << "min = " << iter_Min << " and max = " << iter_Max<< std::endl;
   
-    unsigned int CondBasicIter::getMax(){return iter_Max;}
+}
+
+void CondBasicIter::setMax(unsigned int max){
+  if (((unsigned int) max)>=iter_Min) iter_Max = (unsigned int) max;
+  else std::cout << "Not possible: Maximum < Minimum";
+
+  std::cout << "min = " << iter_Min << " and max = " << iter_Max<< std::endl;
   
-    void CondBasicIter::getRange(unsigned int * Min_out,unsigned int * Max_out){
-        *Min_out = iter_Min;
-        *Max_out = iter_Max;
+}
+
+void CondBasicIter::setRange(int min,int max){
+  try{ 
+    if (min<max) {
+      iter_Min = (unsigned int) min;
+      iter_Max = (unsigned int) max;
+      std::cout << "min = " << iter_Min << " and max = " << iter_Max << std::endl;
     }
+    else throw 1;
+  }catch(int) {
+    std::cout << "Not possible: Minimum > Maximum" <<std::endl;
+  }
+}
+
+void CondBasicIter::setMin(int min){
+  if (((unsigned int) min)>iter_Max) std::cout << "Not possible: Minimum > Maximum";
+  else iter_Min = (unsigned int) min;
+  std::cout << "min = " << iter_Min << " and max = " << iter_Max<< std::endl;  
+}
+
+void CondBasicIter::setMax(int max){
+  if (((unsigned int) max)<iter_Min) std::cout << "Not possible: Maximum < Minimum";
+  else iter_Max = (unsigned int) max;
+  std::cout << "min = " << iter_Min << " and max = " << iter_Max<< std::endl;
+}
+
+unsigned int CondBasicIter::getMin(){return iter_Min;}
+
+unsigned int CondBasicIter::getMax(){return iter_Max;}
+
+void CondBasicIter::getRange(unsigned int * Min_out,unsigned int * Max_out){
+  *Min_out = iter_Min;
+  *Max_out = iter_Max;
+}
 
 
-    unsigned int CondBasicIter::getTime(){return m_time;}
-  
-    unsigned int CondBasicIter::getStartTime(){return m_startTime;}
-  
-    unsigned int CondBasicIter::getStopTime(){return m_stopTime;}
+unsigned int CondBasicIter::getTime(){return m_time;}
 
- 
+unsigned int CondBasicIter::getStartTime(){return m_startTime;}
+
+unsigned int CondBasicIter::getStopTime(){return m_stopTime;}
+
+
    

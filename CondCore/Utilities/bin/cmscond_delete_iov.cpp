@@ -1,7 +1,7 @@
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+//#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
@@ -21,7 +21,6 @@ int main( int argc, char** argv ){
     ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
     ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
     ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
-    //("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default $POOL_CATALOG)")
     ("authPath,P",boost::program_options::value<std::string>(),"path to authentication.xml")
     ("all,a","delete all tags")
     ("tag,t",boost::program_options::value<std::string>(),"delete the specified tag and IOV")
@@ -66,9 +65,6 @@ int main( int argc, char** argv ){
   if( vm.count("authPath") ){
     authPath=vm["authPath"].as<std::string>();
   }
-  /*if(vm.count("catalog")){
-    catalog=vm["catalog"].as<std::string>();
-    }*/
   if(vm.count("tag")){
     tag=vm["tag"].as<std::string>();
     deleteAll=false;
@@ -91,9 +87,10 @@ int main( int argc, char** argv ){
   }else{
     session->configuration().setMessageLevel( cond::Error );
   }
-  session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
-  session->configuration().connectionConfiguration()->enableConnectionSharing();
-  session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections(); 
+  //rely on default
+  //session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
+  //session->configuration().connectionConfiguration()->enableConnectionSharing();
+  //session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections(); 
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
   std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
   std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
@@ -102,19 +99,19 @@ int main( int argc, char** argv ){
   ::putenv(const_cast<char*>(authenv.c_str()));
   //std::string catalog("pfncatalog_memory://POOL_RDBMS?");
   //catalog.append(connect);
-  static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-  conHandler.registerConnection("mydb",connect,0);
+  cond::Connection con(connect,-1);
   session->open();
+  con.connect(session);
   if( deleteAll ){
     try{
-      cond::PoolTransaction& pooldb=conHandler.getConnection("mydb")->poolTransaction(false);
+      cond::PoolTransaction& pooldb=con.poolTransaction();
       cond::IOVService iovservice(pooldb);
-      pooldb.start();
+      pooldb.start(false);
       iovservice.deleteAll(withPayload);
       pooldb.commit();
-      cond::CoralTransaction& coraldb=conHandler.getConnection("mydb")->coralTransaction(false);
+      cond::CoralTransaction& coraldb=con.coralTransaction();
       cond::MetaData metadata_svc(coraldb);
-      coraldb.start();
+      coraldb.start(false);
       metadata_svc.deleteAllEntries();
       coraldb.commit();
       return 0;
@@ -125,22 +122,22 @@ int main( int argc, char** argv ){
     }
   }else{
     try{
-      cond::CoralTransaction& coraldb=conHandler.getConnection("mydb")->coralTransaction(true);
+      cond::CoralTransaction& coraldb=con.coralTransaction();
       cond::MetaData metadata_svc(coraldb);
-      coraldb.start();
+      coraldb.start(true);
       std::string token=metadata_svc.getToken(tag);
       if( token.empty() ) {
 	std::cout<<"non-existing tag "<<tag<<std::endl;
 	return 11;
       }
       coraldb.commit();      
-      cond::PoolTransaction& pooldb=conHandler.getConnection("mydb")->poolTransaction(false);
+      cond::PoolTransaction& pooldb=con.poolTransaction();
       cond::IOVService iovservice(pooldb);
       cond::IOVEditor* ioveditor=iovservice.newIOVEditor(token);
-      pooldb.start();
+      pooldb.start(false);
       ioveditor->deleteEntries(withPayload);
       pooldb.commit();
-      coraldb.start();
+      coraldb.start(true);
       metadata_svc.deleteEntryByTag(tag);
       coraldb.commit();
       delete ioveditor;
@@ -150,6 +147,7 @@ int main( int argc, char** argv ){
       std::cout<<er.what()<<std::endl;
     }
   }
+  con.disconnect();
   delete session;
   return 0;
 }

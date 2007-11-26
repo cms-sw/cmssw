@@ -27,8 +27,6 @@ int main( int argc, char** argv ){
     ("sourceConnect,s",boost::program_options::value<std::string>(),"source connection string(required)")
     ("destConnect,d",boost::program_options::value<std::string>(),"destionation connection string(required)")
     ("dictionary,D",boost::program_options::value<std::string>(),"data dictionary(required)")
-    //("inputCatalog,i",boost::program_options::value<std::string>(),"input catalog contact string(required)")
-    //("outputCatalog,o",boost::program_options::value<std::string>(),"output catalog contact string(required)")
     ("tag,t",boost::program_options::value<std::string>(),"tag to export(required)")
     ("payloadName,n",boost::program_options::value<std::string>(),"payload object name(required)")
     ("authPath,p",boost::program_options::value<std::string>(),"path to authentication xml(default .)")
@@ -39,7 +37,6 @@ int main( int argc, char** argv ){
     ;
   desc.add(visible);
   std::string sourceConnect, destConnect;
-  //std::string inputCatalog, outputCatalog;
   std::string dictionary;
   std::string tag;
   std::string payloadName;
@@ -77,21 +74,6 @@ int main( int argc, char** argv ){
     }else{
       destConnect=vm["destConnect"].as<std::string>();
     }
-    /*if(!vm.count("inputCatalog")){
-      std::cerr <<"[Error] no inputCatalog[i] option given \n";
-      std::cerr<<" please do "<<argv[0]<<" --help \n";
-      return 1;
-    }else{
-      inputCatalog=vm["inputCatalog"].as<std::string>();
-    }
-    if(!vm.count("outputCatalog")){
-      std::cerr <<"[Error] no outputCatalog[o] option given \n";
-      std::cerr<<" please do "<<argv[0]<<" --help \n";
-      return 1;
-    }else{
-      outputCatalog=vm["outputCatalog"].as<std::string>();
-    }
-    */
     if(!vm.count("dictionary")){
       std::cerr <<"[Error] no dictionary[D] option given \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
@@ -130,9 +112,7 @@ int main( int argc, char** argv ){
   std::string dictlibrary=seal::SharedLibrary::libname( dictionary );
   if(debug){
     std::cout<<"sourceConnect:\t"<<sourceConnect<<'\n';
-    //std::cout<<"inputCatalog:\t"<<inputCatalog<<'\n';
     std::cout<<"destConnect:\t"<<destConnect<<'\n';
-    //std::cout<<"outputCatalog:\t"<<outputCatalog<<'\n';
     std::cout<<"dictionary:\t"<<dictlibrary<<'\n';
     std::cout<<"payloadName:\t"<<payloadName<<'\n';
     std::cout<<"tag:\t"<<tag<<'\n';
@@ -168,8 +148,8 @@ int main( int argc, char** argv ){
       cond::FipProtocolParser p;
       sourceConnect=p.getRealConnect(sourceConnect);
     }
-    cond::CoralTransaction& sourceCoralDB=conHandler.getConnection("mysource")->coralTransaction(true);
-    sourceCoralDB.start();
+    cond::CoralTransaction& sourceCoralDB=conHandler.getConnection("mysource")->coralTransaction();
+    sourceCoralDB.start(true);
     cond::MetaData* sourceMetadata=new cond::MetaData(sourceCoralDB);
     if( !sourceMetadata->hasTag(tag) ){
       throw std::runtime_error(std::string("tag ")+tag+std::string(" not found") );
@@ -180,20 +160,20 @@ int main( int argc, char** argv ){
       std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
     }
     delete sourceMetadata;
-    cond::PoolTransaction& sourcedb=conHandler.getConnection("mysource")->poolTransaction(true);
-    cond::PoolTransaction& destdb=conHandler.getConnection("mydest")->poolTransaction(false);
+    cond::PoolTransaction& sourcedb=conHandler.getConnection("mysource")->poolTransaction();
+    cond::PoolTransaction& destdb=conHandler.getConnection("mydest")->poolTransaction();
     cond::IOVService iovmanager(sourcedb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    sourcedb.start();
-    destdb.start();
+    sourcedb.start(true);
+    destdb.start(false);
     destiovtoken=iovmanager.exportIOVWithPayload( destdb,
 						  sourceiovtoken,
 						  payloadName );
     sourcedb.commit();
     destdb.commit();
-    cond::CoralTransaction& destCoralDB=conHandler.getConnection("mydest")->coralTransaction(false);
+    cond::CoralTransaction& destCoralDB=conHandler.getConnection("mydest")->coralTransaction();
     cond::MetaData destMetadata(destCoralDB);
-    destCoralDB.start();
+    destCoralDB.start(false);
     destMetadata.addMapping(tag,destiovtoken);
     if(debug){
       std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
