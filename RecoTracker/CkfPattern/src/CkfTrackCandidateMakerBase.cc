@@ -28,8 +28,7 @@
 #include "RecoTracker/CkfPattern/interface/SeedCleanerBySharedInput.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
 
-#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "RecoTracker/TkNavigation/interface/NavigationSchoolFactory.h"
 
 #include<algorithm>
 #include<functional>
@@ -39,8 +38,9 @@ using namespace std;
 
 namespace cms{
   CkfTrackCandidateMakerBase::CkfTrackCandidateMakerBase(edm::ParameterSet const& conf) : 
-
-    conf_(conf),theTrajectoryBuilder(0),theTrajectoryCleaner(0),
+    conf_(conf),
+    theTrajectoryBuilderName(conf.getParameter<std::string>("TrajectoryBuilder")),
+    theTrajectoryCleaner(0),
     theInitialState(0),theNavigationSchool(0),theSeedCleaner(0)
   {  
     //produces<TrackCandidateCollection>();  
@@ -50,6 +50,8 @@ namespace cms{
   // Virtual destructor needed.
   CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() {
     delete theInitialState;  
+    delete theNavigationSchool;
+    delete theTrajectoryCleaner;    
     if (theSeedCleaner) delete theSeedCleaner;
   }  
 
@@ -62,26 +64,17 @@ namespace cms{
     // get nested parameter set for the TransientInitialStateEstimator
     ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
     theInitialState          = new TransientInitialStateEstimator( es,tise_params);
+    theTrajectoryCleaner     = new TrajectoryCleanerBySharedHits();          
 
-    std::string trajectoryCleanerName = conf_.getParameter<std::string>("TrajectoryCleaner");
-    edm::ESHandle<TrajectoryCleaner> trajectoryCleanerH;
-    es.get<TrajectoryCleaner::Record>().get(trajectoryCleanerName, trajectoryCleanerH);
-    theTrajectoryCleaner= trajectoryCleanerH.product();
+    //theNavigationSchool      = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
+    edm::ParameterSet NavigationPSet = conf_.getParameter<edm::ParameterSet>("NavigationPSet");
+    std::string navigationSchoolName = NavigationPSet.getParameter<std::string>("ComponentName");
+    theNavigationSchool = NavigationSchoolFactory::get()->create( navigationSchoolName, &(*theGeomSearchTracker), &(*theMagField));
 
-    std::string navigationSchoolName = conf_.getParameter<std::string>("NavigationSchool");
-    edm::ESHandle<NavigationSchool> navigationSchoolH;
-    es.get<NavigationSchoolRecord>().get(navigationSchoolName, navigationSchoolH);
-    theNavigationSchool = navigationSchoolH.product();
 
     // set the correct navigation
     NavigationSetter setter( *theNavigationSchool);
 
-    // set the TrajectoryBuilder
-    std::string trajectoryBuilderName = conf_.getParameter<std::string>("TrajectoryBuilder");
-    edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
-    es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
-    theTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
-    
     std::string cleaner = conf_.getParameter<std::string>("RedundantSeedCleaner");
     if (cleaner == "SeedCleanerByHitPosition") {
         theSeedCleaner = new SeedCleanerByHitPosition();
@@ -103,6 +96,11 @@ namespace cms{
   { 
     // method for Debugging
     printHitsDebugger(e);
+
+    // get the TrajectoryBuilder out of the eventSetup
+    edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
+    es.get<CkfComponentsRecord>().get(theTrajectoryBuilderName,theTrajectoryBuilderHandle);
+    const TrajectoryBuilder *theTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
 
     // Step A: set Event for the TrajectoryBuilder
     theTrajectoryBuilder->setEvent(e);        

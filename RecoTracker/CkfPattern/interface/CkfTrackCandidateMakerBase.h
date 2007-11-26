@@ -37,12 +37,15 @@ namespace cms
 
   protected:
     edm::ParameterSet conf_;
-    const TrajectoryBuilder*  theTrajectoryBuilder;
-    const TrajectoryCleaner*               theTrajectoryCleaner;
+    std::string theTrajectoryBuilderName;
+    //const TrajectoryBuilder*  theTrajectoryBuilder; // NOOOOOOOO 
+                                                      // you MUST get it from the EventSetup AT EACH EVENT
+    TrajectoryCleaner*               theTrajectoryCleaner;
     TransientInitialStateEstimator*  theInitialState;
     
     edm::ESHandle<MagneticField>                theMagField;
-    edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
+    edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker; // NOOOOO
+                                                    // FIXME: you MUST get it from the EventSetup AT EACH EVENT
 
     const NavigationSchool*       theNavigationSchool;
     
