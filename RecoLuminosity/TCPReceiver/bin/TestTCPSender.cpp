@@ -14,10 +14,14 @@
 #include "RecoLuminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh"
 
 int gContinue=1;
+bool Connected = false;
+char * Buffer;
 
 void CtrlC(int aSigNum) {
   std::cout << "Ctrl-c detected, stopping run" << std::endl;
   gContinue=0;
+  delete [] Buffer;
+  exit(1);
 }
 
 int main(){
@@ -37,7 +41,6 @@ int main(){
   unsigned short servPort = 50002;
 
   unsigned int Buffer_Size;
-  char *Buffer;
 
   signal(SIGINT,CtrlC);  
 
@@ -98,19 +101,24 @@ int main(){
 
     memcpy(Buffer,reinterpret_cast<char *>(&lumiSection), Buffer_Size);
 
-    do{
-      cout << " **** Waiting *** " << endl;
-      if((clntSock = accept(servSock, (struct sockaddr *) &clntAddr, &clntLen)) < 0)
-	cout << " ** accept() failed ** " << endl;
-    }while(clntSock < 0 && gContinue);
+    if(Connected == false){
 
-
-    // cout << " ** Sending lumi section ** " << endl;
-    if(send(clntSock, Buffer, Buffer_Size, 0) != (int)Buffer_Size){
-      cout << " ** send failed ** " << endl;
-      exit(1);
+      do{
+	cout << " **** Waiting *** " << endl;
+	if((clntSock = accept(servSock, (struct sockaddr *) &clntAddr, &clntLen)) < 0)
+	  cout << " ** accept() failed ** " << endl;
+      }while(clntSock < 0 && gContinue);
+      Connected = true;
+      
+    } else {
+      
+      // cout << " ** Sending lumi section ** " << endl;
+      if(send(clntSock, Buffer, Buffer_Size, 0) != (int)Buffer_Size){
+	cout << " ** send failed ** " << endl;
+	Connected = false;
+      }
+      sleep(3);
     }
   }
   
-  delete [] Buffer;
 }
