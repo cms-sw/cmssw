@@ -2,6 +2,7 @@
 <use name=FWCore/ParameterSet>
 <use name=rootcintex>
 <use name=root>
+<use name=AnalysisDataFormats/TopObjects>
 
 <export>
   <lib name=TopQuarkAnalysisTopTools>
@@ -9,5 +10,6 @@
   <use name=FWCore/ParameterSet>
   <use name=rootcintex>
   <use name=root>
+  <use name=AnalysisDataFormats/TopObjects>
 </export>
 

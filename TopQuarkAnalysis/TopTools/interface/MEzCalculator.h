@@ -1,12 +1,12 @@
-#ifndef TopEventProducers_MEzCalculator_h
-#define TopEventProducers_MEzCalculator_h
+#ifndef TopTools_MEzCalculator_h
+#define TopTools_MEzCalculator_h
 
 /**_________________________________________________________________
    class:   MEzCalculator.h
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: MEzCalculator,v 1.0 2007/05/09 20:35:49 yumiceva Exp $
+ version $Id: MEzCalculator.h,v 1.1.2.1 2007/11/26 17:56:12 lowette Exp $
 
 ________________________________________________________________**/
 
