@@ -39,8 +39,8 @@ template< class RecordT, class DataT >
     DataT* result=0;
     try{
       //std::cout<<"DataT make "<<std::endl;
-      cond::PoolTransaction& pooldb=m_connection->poolTransaction(true);
-      pooldb.start();      
+      cond::PoolTransaction& pooldb=m_connection->poolTransaction();
+      pooldb.start(true);      
       pool::Ref<DataT> mydata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
       result=mydata.ptr();
       m_data.copyShallow(mydata);
