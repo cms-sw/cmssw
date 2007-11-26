@@ -1,8 +1,12 @@
+<use name=root>
+<use name=boost>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=root>
 <use name=JetMETCorrections/JetPlusTrack>
-<use name=hepmc>
+<use name=SimDataFormats/HepMCProduct>
+<use name=JetMETCorrections/Objects>
+<use name=SimDataFormats/HepMCProduct>
+<use name=SimGeneral/HepPDTRecord>
 <library file="*.cc" name=JetMETCorrectionsJetPlusTrackPlugins>
       <flags EDM_PLUGIN=1>
 </library>
