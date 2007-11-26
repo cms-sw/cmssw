@@ -697,7 +697,10 @@ void EcalTPGParamBuilder::computeFineGrainEBParameters(uint & lowRatio, uint & h
   // bit3: maxof2/ET >= lowRatio, bit2: maxof2/ET >= highRatio, bit1: ET >= lowThreshold, bit0: ET >= highThreshold
   // FGVB =1 if jet-like (veto active), =0 if E.M.-like
   // the condition for jet-like is: ET>Threshold and  maxof2/ET < Ratio (only TT with enough energy are vetoed)
-  if (FG_lut_EB_ == 0) lut = 0x0808 ; // both threshols and ratio are treated the same way.
+
+  // With the following lut, what matters is only max(TLow, Thigh) and max(Elow, Ehigh)
+  // So, jet-like if maxof2/ettot<max(TLow, Thigh) && ettot >= max(Elow, Ehigh)
+  if (FG_lut_EB_ == 0) lut = 0x0888 ; 
   else lut = FG_lut_EB_ ; // let's use the users value (hope he/she knows what he/she does!)
 }
 
