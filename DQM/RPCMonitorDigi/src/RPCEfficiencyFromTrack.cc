@@ -117,26 +117,15 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
 
+  RPCRecHitCollection::const_iterator recIt;	
+  for (recIt = rpcHits->begin(); recIt!=rpcHits->end(); ++recIt){
+    LocalPoint rhitlocal = (*recIt).localPosition();
+    float rhitpos = rhitlocal.x();  	
+    std::cout << " RPC with recHit "<<rhitpos<<"\t on : "<<(*recIt).rpcId()<<std::endl;
+  }
+
   Handle<Trajectories> trajectories;
   iEvent.getByLabel(TjInput,trajectories);
-
-           
-  for (GlobalTrackingGeometry::DetContainer::const_iterator itDet=rpcGeo->dets().begin();itDet<rpcGeo->dets().end();itDet++){
-    if( dynamic_cast< RPCChamber* >( *itDet ) != 0 ){
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *itDet ); 
-      std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
-	RPCRecHitCollection::range rpcRecHitRange = rpcHits->get((*r)->id());
-	RPCRecHitCollection::const_iterator recIt;	
-	for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
-	  LocalPoint rhitlocal = (*recIt).localPosition();
-	  float rhitpos = rhitlocal.x();  	
-	  std::cout << " RPC with recHit "<<rhitpos<<"\t on : "<<(*r)->id()<<std::endl;
-	}
-      }
-    }
-  }
 
   for(Trajectories::const_iterator tj = trajectories->begin(); tj != trajectories->end(); ++tj){
     std::vector<TrajectoryMeasurement> tmColl = tj->measurements();
@@ -147,8 +136,8 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
       if(! itTraj->updatedState().isValid()) continue;
 
       
-//       std::cout<<" Tj r "<<itTraj->updatedState().globalPosition().perp()
-// 	       <<" Tj z "<<itTraj->updatedState().globalPosition().z()<<std::endl;
+      std::cout<<" Tj r "<<itTraj->updatedState().globalPosition().perp()
+	       <<" Tj z "<<itTraj->updatedState().globalPosition().z()<<std::endl;
             
       for (GlobalTrackingGeometry::DetContainer::const_iterator itDet=rpcGeo->dets().begin();itDet<rpcGeo->dets().end();itDet++){
 	if( dynamic_cast< RPCChamber* >( *itDet ) != 0 ){
