@@ -125,6 +125,10 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
     edm::ESHandle< L1GtBoardMaps > l1GtBM;
     evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
 
+    const std::vector<L1GtBoard> boardMaps = l1GtBM->gtBoardMaps();
+    typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
+
+
     // get L1GlobalTriggerEvmReadoutRecord
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord;
     iEvent.getByLabel(m_evmGtInputTag.label(), gtReadoutRecord);
@@ -140,10 +144,6 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
         << std::endl;
     }
 
-    // get record map
-    std::map<int, L1GtBoard> recordMap = l1GtBM->gtEvmRecordMap();
-    typedef std::map<int, L1GtBoard>::const_iterator CItRecord;
-
     // get GTFE block
     L1GtfeExtWord gtfeBlock = gtReadoutRecord->gtfeWord();
 
@@ -158,30 +158,6 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
     << m_totalBxInEvent << " = " << "["
     << m_minBxInEvent << ", " << m_maxBxInEvent << "] BX\n"
     << std::endl;
-
-    // GTFE is not in the list of active boards, need separate treatment
-    int gtfeKey = -1; // negative integer for GTFE key
-
-    for (CItRecord itRecord = recordMap.begin();
-            itRecord != recordMap.end(); ++itRecord) {
-
-        if (itRecord->second.boardType() == GTFE) {
-
-            gtfeKey = itRecord->first;
-            break; // there is only one GTFE block
-
-        }
-    }
-
-    // throw exception if no GTFE found (action for NotFound: SkipEvent)
-    if (gtfeKey < 0 ) {
-
-        throw cms::Exception("NotFound")
-        << "\nError: GTFE block not requested to be written in raw data.\n"
-        << "Can not find afterwards the record length (BxInEvent) and the active boards!\n"
-        << std::endl;
-    }
-
 
     // get list of active blocks from the GTFE block
     // and mask some blocks, if required
@@ -207,10 +183,6 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
     << std::dec << std::setfill(' ') << " \n"
     << std::endl;
 
-    // get "active boards" map
-    std::map<L1GtBoard, int> activeBoardsMap = l1GtBM->gtEvmActiveBoardsMap();
-    typedef std::map<L1GtBoard, int>::const_iterator CItActive;
-
     // get the size of the record
 
     unsigned int gtDataSize = 0;
@@ -218,66 +190,61 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
     unsigned int headerSize = 8;
     gtDataSize += headerSize;
 
-    for (CItRecord itRecord = recordMap.begin();
-            itRecord != recordMap.end(); ++itRecord) {
+    for (CItBoardMaps
+            itBoard = boardMaps.begin();
+            itBoard != boardMaps.end(); ++itBoard) {
 
-        if (itRecord->first == gtfeKey) {
+        if (itBoard->gtBoardType() == GTFE) {
             gtDataSize += gtfeBlock.getSize();
             continue;
         }
 
-        // size of modules other than GTFE
 
-        // skip if the board is not active
-        bool activeBoard = false;
+        int iActiveBit = itBoard->gtBitEvmActiveBoards();
+        bool activeBoardToPack = false;
 
-        CItActive itBoard = activeBoardsMap.find(itRecord->second);
-        if (itBoard != activeBoardsMap.end()) {
-            activeBoard = activeBoardsGt & (1 << (itBoard->second));
+        if (iActiveBit >= 0) {
+            activeBoardToPack = activeBoardsGt & (1 << iActiveBit);
         } else {
-
-            // board not found in the map
-            LogDebug("L1GTEvmDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType()
-            << " with index "  << itRecord->second.boardIndex()
-            << " not found in the activeBoardsMap\n"
-            << std::endl;
-
+            // board not in the ActiveBoards for the record
             continue;
         }
 
-        if ( !activeBoard ) {
+        if (activeBoardToPack) {
 
-            LogDebug("L1GTEvmDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType()
-            << " with index "  << itRecord->second.boardIndex()
-            << " not active (from activeBoardsMap)\n"
-            << std::endl;
+            switch (itBoard->gtBoardType()) {
+                case GTFE: {
+                        // size already added;
+                    }
 
-            continue;
-        }
+                    break;
+                case FDL: {
+                        L1GtFdlWord fdlBlock;
+                        gtDataSize += m_totalBxInEvent*fdlBlock.getSize();
+                    }
 
-        // active board, add its size
-        switch (itRecord->second.boardType()) {
+                    break;
+                case TCS: {
+                        L1TcsWord tcsBlock;
+                        gtDataSize += tcsBlock.getSize();
+                    }
 
-            case TCS: {
-                    L1TcsWord tcsBlock;
-                    gtDataSize += tcsBlock.getSize();
-                }
-                break;
-            case FDL: {
-                    L1GtFdlWord fdlBlock;
-                    gtDataSize += m_totalBxInEvent*fdlBlock.getSize();
-                }
-                break;
-            default: {
+                    break;
+                case TIM: {
+                        // not considered
+                    }
 
-                    // do nothing, all blocks are given in GtBoardType enum
-                }
-                break;
+                    break;
+                default: {
+                        // do nothing, all blocks are given in GtBoardType enum
+                    }
+
+                    break;
+            }
         }
 
     }
+
 
     unsigned int trailerSize = 8;
     gtDataSize += trailerSize;
@@ -289,6 +256,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
     // ptrGt: pointer to the beginning of GT record in the raw data
 
     FEDRawData& gtRawData = allFedRawData->FEDData(m_evmGtFedId);
+
     // resize, GT raw data record has variable length,
     // depending on active boards (read in GTFE)
     gtRawData.resize(gtDataSize);
@@ -310,17 +278,19 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
     // loop over other blocks in the raw record, if they are active
 
-    for (CItRecord itRecord = recordMap.begin();
-            itRecord != recordMap.end(); ++itRecord) {
+    for (CItBoardMaps
+            itBoard = boardMaps.begin();
+            itBoard != boardMaps.end(); ++itBoard) {
 
-        if (itRecord->first == gtfeKey) {
+        if (itBoard->gtBoardType() == GTFE) {
+
             packGTFE(evSetup, ptrGt, gtfeBlock, activeBoardsGt);
 
             if ( edm::isDebugEnabled() ) {
 
                 std::ostringstream myCoutStream;
                 gtfeBlock.print(myCoutStream);
-                LogTrace("L1GTDigiToRaw")
+                LogTrace("L1GTEvmDigiToRaw")
                 << myCoutStream.str() << "\n"
                 << std::endl;
             }
@@ -330,85 +300,82 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
             continue;
         }
 
-        // pack modules other than GTFE
 
-        // skip if the board is not active
-        bool activeBoard = false;
+        // pack modules other than GTFE if they are active
 
-        CItActive itBoard = activeBoardsMap.find(itRecord->second);
-        if (itBoard != activeBoardsMap.end()) {
-            activeBoard = activeBoardsGt & (1 << (itBoard->second));
+        int iActiveBit = itBoard->gtBitEvmActiveBoards();
+        bool activeBoardToPack = false;
+
+        if (iActiveBit >= 0) {
+            activeBoardToPack = activeBoardsGt & (1 << iActiveBit);
         } else {
-            // board not found in the map
-
-            LogDebug("L1GTEvmDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType()
-            << " with index "  << itRecord->second.boardIndex()
-            << " not found in the activeBoardsMap\n"
-            << std::endl;
-
+            // board not in the ActiveBoards for the record
             continue;
         }
 
-        if ( !activeBoard ) {
+        if (activeBoardToPack) {
 
-            LogDebug("L1GTEvmDigiToRaw")
-            << "\nBoard of type " << itRecord->second.boardType()
-            << " with index "  << itRecord->second.boardIndex()
-            << " not active (from activeBoardsMap)\n"
-            << std::endl;
+            // active board, pack it
+            switch (itBoard->gtBoardType()) {
 
-            continue;
-        }
+                case TCS: {
 
-        // active board, pack it
-        switch (itRecord->second.boardType()) {
-
-            case TCS: {
-
-                    L1TcsWord tcsBlock = gtReadoutRecord->tcsWord();
-                    packTCS(evSetup, ptrGt, tcsBlock);
-                    ptrGt += tcsBlock.getSize(); // advance with TCS block size
-
-                }
-                break;
-            case FDL: {
-
-                    for (int iBxInEvent = m_minBxInEvent; iBxInEvent <= m_maxBxInEvent;
-                            ++iBxInEvent) {
-                        L1GtFdlWord fdlBlock = gtReadoutRecord->gtFdlWord(iBxInEvent);
-                        packFDL(evSetup, ptrGt, fdlBlock);
+                        L1TcsWord tcsBlock = gtReadoutRecord->tcsWord();
+                        packTCS(evSetup, ptrGt, tcsBlock);
 
                         if ( edm::isDebugEnabled() ) {
 
                             std::ostringstream myCoutStream;
-                            fdlBlock.print(myCoutStream);
-                            LogTrace("L1GTDigiToRaw")
+                            tcsBlock.print(myCoutStream);
+                            LogTrace("L1GTEvmDigiToRaw")
                             << myCoutStream.str() << "\n"
                             << std::endl;
                         }
 
-                        ptrGt += fdlBlock.getSize(); // advance with FDL block size
+                        ptrGt += tcsBlock.getSize(); // advance with TCS block size
+
                     }
-
-                }
-                break;
-            default: {
-
-                    // do nothing, all blocks are given in GtBoardType enum
                     break;
-                }
-        }
+                case FDL: {
 
+                        for (int iBxInEvent = m_minBxInEvent; iBxInEvent <= m_maxBxInEvent;
+                                ++iBxInEvent) {
+
+                            L1GtFdlWord fdlBlock = gtReadoutRecord->gtFdlWord(iBxInEvent);
+                            packFDL(evSetup, ptrGt, fdlBlock);
+
+                            if ( edm::isDebugEnabled() ) {
+
+                                std::ostringstream myCoutStream;
+                                fdlBlock.print(myCoutStream);
+                                LogTrace("L1GTEvmDigiToRaw")
+                                << myCoutStream.str() << "\n"
+                                << std::endl;
+                            }
+
+                            ptrGt += fdlBlock.getSize(); // advance with FDL block size
+                        }
+
+                    }
+                    break;
+                default: {
+
+                        // do nothing, all blocks are given in GtBoardType enum
+                        break;
+                    }
+            }
+
+        }
     }
 
     // pack trailer
-    //    FEDTrailer cmsTrailerGt = gtReadoutRecord.cmsTrailer();
     packTrailer(ptrGt, ptrGtBegin, gtDataSize);
 
     // put the raw data in the event
 
     iEvent.put(allFedRawData);
+
+
 }
 
 
@@ -479,6 +446,8 @@ void L1GTEvmDigiToRaw::packGTFE(
         gtfeBlock.setSetupVersionWord64(tmpWord64[iWord], iWord);
         gtfeBlock.setActiveBoardsWord64(tmpWord64[iWord], iWord, activeBoardsGtValue);
         gtfeBlock.setTotalTriggerNrWord64(tmpWord64[iWord], iWord);
+
+        // gtfeBlock.setBstWord64(tmpWord64[iWord], iBst, iWord); // FIXME
 
     }
 

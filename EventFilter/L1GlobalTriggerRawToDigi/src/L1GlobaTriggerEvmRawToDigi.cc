@@ -68,10 +68,6 @@ L1GlobalTriggerEvmRawToDigi::L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet
     m_evmGtInputTag = pSet.getUntrackedParameter<edm::InputTag>(
                           "EvmGtInputTag", edm::InputTag("l1GtEvmPack"));
 
-    LogDebug("L1GlobalTriggerEvmRawToDigi")
-    << "\nInput tag for EVM GT record: "
-    << m_evmGtInputTag.label() << " \n"
-    << std::endl;
 
     // FED Id for GT EVM record
     // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
@@ -79,27 +75,23 @@ L1GlobalTriggerEvmRawToDigi::L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet
     m_evmGtFedId = pSet.getUntrackedParameter<int>(
                        "EvmGtFedId", FEDNumbering::getTriggerGTPFEDIds().first);
 
-    LogDebug("L1GlobalTriggerEvmRawToDigi")
-    << "\nFED Id for EVM GT record: "
-    << m_evmGtFedId << " \n"
-    << std::endl;
-
-
     // mask for active boards
     m_activeBoardsMaskGt = pSet.getParameter<unsigned int>("ActiveBoardsMask");
 
-    LogDebug("L1GlobalTriggerEvmRawToDigi")
-    << "\nMask for active boards (hex format): "
-    << std::hex << std::setw(sizeof(m_activeBoardsMaskGt)*2) << std::setfill('0')
-    << m_activeBoardsMaskGt
-    << std::dec << std::setfill(' ') << " \n"
-    << std::endl;
 
     // number of bunch crossing to be unpacked
 
     m_unpackBxInEvent = pSet.getParameter<int>("UnpackBxInEvent");
 
     LogDebug("L1GlobalTriggerEvmRawToDigi")
+    << "\nInput tag for EVM GT record:             "
+    << m_evmGtInputTag.label()
+    << "\nFED Id for EVM GT record:                "
+    << m_evmGtFedId
+    << "\nMask for active boards (hex format):     "
+    << std::hex << std::setw(sizeof(m_activeBoardsMaskGt)*2) << std::setfill('0')
+    << m_activeBoardsMaskGt
+    << std::dec << std::setfill(' ')
     << "\nNumber of bunch crossing to be unpacked: "
     << m_unpackBxInEvent << "\n"
     << std::endl;
@@ -158,6 +150,8 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
     edm::ESHandle< L1GtBoardMaps > l1GtBM;
     evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
 
+    const std::vector<L1GtBoard> boardMaps = l1GtBM->gtBoardMaps();
+    typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
 
     // raw collection
 
@@ -169,9 +163,6 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
         (fedHandle.product())->FEDData(m_evmGtFedId);
 
     int gtSize = raw.size();
-    LogDebug("L1GlobalTriggerEvmRawToDigi")
-    << "\n Size of raw data: " << gtSize << "\n"
-    << std::endl;
 
     // get a const pointer to the beginning of the data buffer
     const unsigned char* ptrGt = raw.data();
@@ -181,7 +172,8 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
         std::ostringstream myCoutStream;
         dumpFedRawData(ptrGt, gtSize, myCoutStream);
-        LogDebug("L1GlobalTriggerEvmRawToDigi")
+        LogTrace("L1GlobalTriggerEvmRawToDigi")
+        << "\n Size of raw data: " << gtSize << "\n"
         << "\n Dump FEDRawData\n" << myCoutStream.str() << "\n"
         << std::endl;
 
@@ -196,42 +188,50 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
     unpackHeader(ptrGt, cmsHeader);
     ptrGt += headerSize; // advance with header size
 
-    // get record map
-    std::map<int, L1GtBoard> recordMap = l1GtBM->gtEvmRecordMap();
-    typedef std::map<int, L1GtBoard>::const_iterator CItRecord;
-
     // unpack first GTFE to find the length of the record and the active boards
-    // here GTFE assumed immediately after the header, the loop is superfluous
-    // one must have only fixed-size blocks before GTFE in the record
-    int gtfeKey = -1; // negative integer for GTFE key
+    // here GTFE assumed immediately after the header
 
-    for (CItRecord itRecord = recordMap.begin();
-            itRecord != recordMap.end(); ++itRecord) {
+    bool gtfeUnpacked = false;
 
-        if (itRecord->second.boardType() == GTFE) {
+    for (CItBoardMaps
+            itBoard = boardMaps.begin();
+            itBoard != boardMaps.end(); ++itBoard) {
+
+        if (itBoard->gtBoardType() == GTFE) {
 
             // unpack GTFE
-            m_gtfeWord->unpack(ptrGt);
+            if (itBoard->gtPositionEvmRecord() == 1) {
 
-            if ( edm::isDebugEnabled() ) {
+                m_gtfeWord->unpack(ptrGt);
+                ptrGt += m_gtfeWord->getSize(); // advance with GTFE block size
+                gtfeUnpacked = true;
 
-                std::ostringstream myCoutStream;
-                m_gtfeWord->print(myCoutStream);
-                LogTrace("L1GlobalTriggerEvmRawToDigi")
-                << myCoutStream.str() << "\n"
+                if ( edm::isDebugEnabled() ) {
+
+                    std::ostringstream myCoutStream;
+                    m_gtfeWord->print(myCoutStream);
+                    LogTrace("L1GlobalTriggerEvmRawToDigi")
+                    << myCoutStream.str() << "\n"
+                    << std::endl;
+                }
+
+                // break the loop - GTFE was found
+                break;
+
+            } else {
+
+                throw cms::Exception("Configuration")
+                << "\nError: GTFE block found in raw data does not follow header.\n"
+                << "Assumed start position of the block is wrong!\n"
                 << std::endl;
+
             }
-
-
-            gtfeKey = itRecord->first;
-
-            break; // there is only one GTFE block
 
         }
     }
 
     // throw exception if no GTFE found (action for NotFound: SkipEvent)
-    if (gtfeKey < 0 ) {
+    if ( ! gtfeUnpacked ) {
 
         throw cms::Exception("NotFound")
         << "\nError: no GTFE block found in raw data.\n"
@@ -239,17 +239,10 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
         << std::endl;
     }
 
-    // TODO check boardID for GTFE
-
     // life normal here, GTFE found
 
     // get number of Bx in the event from GTFE block
     m_totalBxInEvent = m_gtfeWord->recordLength();
-
-    LogDebug("L1GlobalTriggerEvmRawToDigi")
-    << "\nNumber of bunch crosses in the record: "
-    <<  m_totalBxInEvent << " \n"
-    << std::endl;
 
     // number of BX required to be unpacked
 
@@ -270,7 +263,6 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
         // for the readout record
 
         m_unpackBxInEvent = m_totalBxInEvent;
-
 
     } else if (m_unpackBxInEvent < 0) {
 
@@ -325,32 +317,95 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
     // blocks not active are not written to the record
     boost::uint16_t activeBoardsGtInitial = m_gtfeWord->activeBoards();
 
+    // mask some boards, if needed
+    boost::uint16_t activeBoardsGt = activeBoardsGtInitial & m_activeBoardsMaskGt;
+    m_gtfeWord->setActiveBoards(activeBoardsGt);
+
     LogDebug("L1GlobalTriggerEvmRawToDigi")
     << "\nActive boards before masking(hex format): "
     << std::hex << std::setw(sizeof(activeBoardsGtInitial)*2) << std::setfill('0')
     << activeBoardsGtInitial
     << std::dec << std::setfill(' ')
-    << std::endl;
-
-    // mask some boards, if needed
-    boost::uint16_t activeBoardsGt = activeBoardsGtInitial & m_activeBoardsMaskGt;
-    m_gtfeWord->setActiveBoards(activeBoardsGt);
-
-    LogTrace("L1GlobalTriggerEvmRawToDigi")
-    << "Active boards after masking(hex format):  "
+    << "\nActive boards after masking(hex format):  "
     << std::hex << std::setw(sizeof(activeBoardsGt)*2) << std::setfill('0')
     << activeBoardsGt
     << std::dec << std::setfill(' ') << " \n"
     << std::endl;
 
-    // produce the L1GlobalTriggerEvmReadoutRecord now, after we found how many Bx's it has
-    // m_unpackBxInEvent was resized, if it was needed
-    LogDebug("L1GlobalTriggerEvmRawToDigi")
-    << "\nL1GlobalTriggerEvmRawToDigi: producing L1GlobalTriggerEvmReadoutRecord\n"
-    << std::endl;
+    // loop over other blocks in the raw record, count them if they are active
+
+    int numberGtfeBoards = 0;
+    int numberFdlBoards = 0;
+    int numberPsbBoards = 0;
+    int numberGmtBoards = 0;
+    int numberTcsBoards = 0;
+    int numberTimBoards = 0;
+
+    for (CItBoardMaps
+            itBoard = boardMaps.begin();
+            itBoard != boardMaps.end(); ++itBoard) {
+
+        int iActiveBit = itBoard->gtBitEvmActiveBoards();
+        bool activeBoardToUnpack = false;
+
+        if (iActiveBit >= 0) {
+            activeBoardToUnpack = activeBoardsGt & (1 << iActiveBit);
+        } else {
+            // board not in the ActiveBoards for the record
+            continue;
+        }
+
+        if (activeBoardToUnpack) {
+
+            switch (itBoard->gtBoardType()) {
+                case GTFE: {
+                        numberGtfeBoards++;
+                    }
+
+                    break;
+                case FDL: {
+                        numberFdlBoards++;
+                    }
+
+                    break;
+                case PSB: {
+                        numberPsbBoards++;
+                    }
+
+                    break;
+                case GMT: {
+                        numberGmtBoards++;
+                    }
+
+                    break;
+                case TCS: {
+                        numberTcsBoards++;
+                    }
+
+                    break;
+                case TIM: {
+                        numberTimBoards++;
+                    }
+
+                    break;
+                default: {
+                        // do nothing, all blocks are given in GtBoardType enum
+                    }
+
+                    break;
+            }
+        }
+
+    }
+
+    // produce the L1GlobalTriggerEvmReadoutRecord now, after we found how many
+    // BxInEvent the record has and how many boards are active
+    //LogDebug("L1GlobalTriggerEvmRawToDigi")
+    //<< "\nL1GlobalTriggerEvmRawToDigi: producing L1GlobalTriggerEvmReadoutRecord\n"
+    //<< std::endl;
 
     std::auto_ptr<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord(
-        new L1GlobalTriggerEvmReadoutRecord(m_unpackBxInEvent) );
+        new L1GlobalTriggerEvmReadoutRecord(m_unpackBxInEvent, numberFdlBoards) );
 
 
     // add GTFE block to GT readout record, after updating active boards and record length
@@ -360,114 +415,37 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
     // ... and reset it
     m_gtfeWord->reset();
 
-    // loop over other blocks in the raw record, if they are active
-
-    // get "active boards" map
-    std::map<L1GtBoard, int> activeBoardsMap = l1GtBM->gtEvmActiveBoardsMap();
-    typedef std::map<L1GtBoard, int>::const_iterator CItActive;
-
-    // first, clean the L1GlobalTriggerEvmReadoutRecord of un-necessary empty boards ...
-    for (CItRecord itRecord = recordMap.begin();
-            itRecord != recordMap.end(); ++itRecord) {
-
-        if (itRecord->first == gtfeKey) {
-            continue;
-        }
-
-        // find if the board is requested to be unpacked
-        bool activeBoardToUnpack = false;
-
-        CItActive itBoard = activeBoardsMap.find(itRecord->second);
-        if (itBoard != activeBoardsMap.end()) {
-            activeBoardToUnpack = activeBoardsGt & (1 << (itBoard->second));
-        } else {
-            // board not found in the map (pretty strange, throw exception? TODO)
-            LogDebug("L1GlobalTriggerEvmRawToDigi")
-            << "\nBoard of type " << itRecord->second.boardType()
-            << " with index "  << itRecord->second.boardIndex()
-            << " not found in the activeBoardsMap\n"
-            << std::endl;
-
-            continue;
-        }
-
-        if (activeBoardToUnpack) {
-            LogDebug("L1GlobalTriggerEvmRawToDigi")
-            << "\nBoard of type " << itRecord->second.boardType()
-            << " with index "  << itRecord->second.boardIndex()
-            << "\nexists in the raw data and is requested to be unpacked.\n"
-            << std::endl;
-
-        } else {
-            // clean the L1GlobalTriggerEvmReadoutRecord of
-            // un-necessary empty boards
-
-            // all FDL boards are created in constructor
-            // for the required number of BxInEvent at the beginning
-
-            switch (itRecord->second.boardType()) {
-
-                case FDL: {
-
-                        // remove m_unpackBxInEvent FDLs if FDL is not active
-                        // it is not needed to check which BxInEvent is, as
-                        // there are only m_unpackBxInEvent FDLs in the record
-                        // constructor
-                        for (int iBx = 0; iBx < m_unpackBxInEvent; ++iBx) {
-                            gtReadoutRecord->gtFdlVector().pop_back();
-                        }
-
-                    }
-
-                    break;
-                default: {
-
-                        // do nothing, all blocks are given in GtBoardType enum
-
-                    }
-                    break;
-
-            }
-        }
-
-    }
-
-
     // ... then unpack modules other than GTFE, if requested
-    for (CItRecord itRecord = recordMap.begin();
-            itRecord != recordMap.end(); ++itRecord) {
 
-        if (itRecord->first == gtfeKey) {
-            ptrGt += m_gtfeWord->getSize(); // advance with GTFE block size
+    for (CItBoardMaps
+            itBoard = boardMaps.begin();
+            itBoard != boardMaps.end(); ++itBoard) {
 
-            continue;
-        }
+        int iActiveBit = itBoard->gtBitEvmActiveBoards();
 
-        // skip if the board is not active
-        bool activeBoardInitial = false;
         bool activeBoardToUnpack = false;
+        bool activeBoardInitial = false;
 
-        CItActive itBoard = activeBoardsMap.find(itRecord->second);
-        if (itBoard != activeBoardsMap.end()) {
-            activeBoardInitial = activeBoardsGtInitial & (1 << (itBoard->second));
-            activeBoardToUnpack = activeBoardsGt & (1 << (itBoard->second));
+        if (iActiveBit >= 0) {
+            activeBoardInitial = activeBoardsGtInitial & (1 << iActiveBit);
+            activeBoardToUnpack = activeBoardsGt & (1 << iActiveBit);
         } else {
-            // board not found in the map
+            // board not in the ActiveBoards for the record
             continue;
         }
 
         if ( !activeBoardInitial ) {
             LogDebug("L1GlobalTriggerEvmRawToDigi")
-            << "\nBoard of type " << itRecord->second.boardType()
-            << " with index "  << itRecord->second.boardIndex()
-            << " not active initially in raw data (from activeBoardsMap)\n"
+            << "\nBoard of type " << itBoard->gtBoardName()
+            << " with index "  << itBoard->gtBoardIndex()
+            << " not active initially in raw data.\n"
             << std::endl;
 
             continue;
         }
 
-        // active board initially, unpack it
-        switch (itRecord->second.boardType()) {
+        // active board initially, could unpack it
+        switch (itBoard->gtBoardType()) {
 
             case TCS: {
                     // unpack only if requested, otherwise skip it
@@ -510,11 +488,8 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
                                 m_gtFdlWord->unpack(ptrGt);
 
-                                // get bxInEvent
-                                const int iBxInEvent = m_gtFdlWord->bxInEvent();
-
                                 // add FDL block to GT readout record
-                                gtReadoutRecord->setGtFdlWord(*m_gtFdlWord, iBxInEvent);
+                                gtReadoutRecord->setGtFdlWord(*m_gtFdlWord);
 
                                 if ( edm::isDebugEnabled() ) {
 
@@ -550,6 +525,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
     // unpack trailer
     unpackTrailer(ptrGt, cmsTrailer);
 
+
     if ( edm::isDebugEnabled() ) {
         std::ostringstream myCoutStream;
         gtReadoutRecord->print(myCoutStream);
@@ -560,7 +536,6 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
     }
 
     // put records into event
-
     iEvent.put( gtReadoutRecord );
 
 }
@@ -644,7 +619,7 @@ void L1GlobalTriggerEvmRawToDigi::unpackHeader(
         << cmsHeader.moreHeaders()
         << std::endl;
 
-        LogDebug("L1GlobalTriggerRawToDigi")
+        LogDebug("L1GlobalTriggerEvmRawToDigi")
         << "\n CMS Header \n" << myCoutStream.str() << "\n"
         << std::endl;
 
@@ -726,7 +701,7 @@ void L1GlobalTriggerEvmRawToDigi::unpackTrailer(
         << cmsTrailer.moreTrailers()
         << std::endl;
 
-        LogDebug("L1GlobalTriggerRawToDigi")
+        LogDebug("L1GlobalTriggerEvmRawToDigi")
         << "\n CMS Trailer \n" << myCoutStream.str() << "\n"
         << std::endl;
 
