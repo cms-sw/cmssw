@@ -1,6 +1,9 @@
-// $Id$
+// $Id: HLTScalers.cc,v 1.1 2007/11/26 16:37:50 wittich Exp $
 // 
-// $Log$
+// $Log: HLTScalers.cc,v $
+// Revision 1.1  2007/11/26 16:37:50  wittich
+// Prototype HLT scaler information.
+//
 
 #include <iostream>
 
@@ -26,7 +29,7 @@ using namespace edm;
 HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   dbe_(0),
   scalers_(0), detailedScalers_(0),
-  trigResultsSource_( ps.getParameter< edm::InputTag >("rctSource")),
+  trigResultsSource_( ps.getParameter< edm::InputTag >("triggerResults")),
   resetMe_(true),
   verbose_(ps.getUntrackedParameter < bool > ("verbose", false)),
   monitorDaemon_(ps.getUntrackedParameter<bool>("MonitorDaemon", false))
