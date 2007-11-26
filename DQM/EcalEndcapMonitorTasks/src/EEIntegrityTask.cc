@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/11/09 15:24:09 $
- * $Revision: 1.17 $
+ * $Date: 2007/11/26 22:23:09 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
  */
@@ -22,6 +22,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
 

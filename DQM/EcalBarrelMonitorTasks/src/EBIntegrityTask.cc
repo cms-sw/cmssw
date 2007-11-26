@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/11/09 15:24:06 $
- * $Revision: 1.51 $
+ * $Date: 2007/11/26 22:23:09 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
  */
@@ -22,6 +22,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
 
