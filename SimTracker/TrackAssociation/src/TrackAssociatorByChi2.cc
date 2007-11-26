@@ -299,7 +299,7 @@ TrackAssociatorByChi2::parametersAtClosestApproach(Basic3DVector<double> vertex,
     
     return make_pair<bool,TrackBase::ParameterVector>(true,sParameters);
   } catch ( ... ) {
-    return make_pair<bool,TrackBase::ParameterVector>(true,sParameters);
+    return make_pair<bool,TrackBase::ParameterVector>(false,sParameters);
   }
 }
 
