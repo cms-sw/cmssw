@@ -3,7 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
-#include <exception>
+#include <stdexcept>
 #include <boost/tuple/tuple.hpp>
 
 #include "FWCore/Framework/interface/Event.h"
@@ -27,7 +27,7 @@ TrackingMaterialAnalyser::TrackingMaterialAnalyser(const edm::ParameterSet& iPSe
   m_material                = iPSet.getParameter<edm::InputTag>("MaterialAccounting");
   m_skipAfterLastDetector   = iPSet.getParameter<bool>("SkipAfterLastDetector");
   m_skipBeforeFirstDetector = iPSet.getParameter<bool>("SkipBeforeFirstDetector");
-  m_symmetricForwardLayers  = iPSet.getParameter<bool>("ForceSymmetricForwardLayers");
+  m_symmetricForwardLayers  = iPSet.getParameter<bool>("SymmetricForwardLayers");
   m_plotter                 = new TrackingMaterialPlotter( 300., 120., 10 );      // 10x10 points per cm2
 }    
 
@@ -46,7 +46,7 @@ void TrackingMaterialAnalyser::endJob(void)
   for (unsigned int i = 0; i < m_layers.size(); ++i) {
     MaterialAccountingLayer & layer = *(m_layers[i]);
     std::cout << std::setprecision(3);
-    std::cout << std::setw(20) << std::left << layer.getName() << std::endl;
+    std::cout << std::setw(20) << std::left << layer.name() << std::endl;
     std::cout << std::setprecision(6);
     std::cout << "\tnumber of hits:        "        << std::setw(9) << layer.tracks()                  << std::endl;
     std::cout << "\tnormalized segment length:    " << std::setw(9) << layer.averageLength()           << " ± " << std::setw(9) << layer.sigmaLength()           << " cm" << std::endl;
@@ -59,16 +59,14 @@ void TrackingMaterialAnalyser::endJob(void)
       std::cout << "\t(was " << layer.material()->xi() * 1000. << " MeV)";     // GeV --> MeV
     std::cout << std::endl;
 
-    parameters << std::setw(20) << std::left << layer.getName() << std::right << std::setprecision(6)
+    parameters << std::setw(20) << std::left << layer.name() << std::right << std::setprecision(6)
                << std::setw(6) << layer.tracks()
                << '\t' << std::setw(9) << layer.averageLength()             << " ± " << std::setw(9) << layer.sigmaLength()             << " cm"
                << '\t' << std::setw(9) << layer.averageRadiationLengths()   << " ± " << std::setw(9) << layer.sigmaRadiationLengths()
                << '\t' << std::setw(9) << layer.averageEnergyLoss() / 1000. << " ± " << std::setw(9) << layer.sigmaEnergyLoss() / 1000. << " Gev"
                << std::endl;
 
-    std::stringstream s;
-    s << "layer_" << std::setw(2) << std::setfill('0') << (i+1);
-    layer.savePlots( s.str() );
+    layer.savePlots();
   }
 
   parameters.close();
@@ -81,6 +79,39 @@ void TrackingMaterialAnalyser::endJob(void)
 
 
 //-------------------------------------------------------------------------
+void TrackingMaterialAnalyser::parseBarrelLayers( const std::vector<BarrelDetLayer*> & layers )
+{
+  unsigned int size = layers.size();
+  for (unsigned int i = 0; i < size; ++i) {
+    const DetLayer & layer = * layers[i];
+    std::stringstream s;
+    s << layer.subDetector() << "_layer_" << (i+1);
+    m_layers.push_back( new MaterialAccountingLayer( layer, s.str() ) );
+    std::cout << '\t' << m_layers.back()->name() << std::endl;
+  }
+}
+
+//-------------------------------------------------------------------------
+void TrackingMaterialAnalyser::parseForwardLayers( const std::vector<ForwardDetLayer*> & neg_layers, const std::vector<ForwardDetLayer*> & pos_layers )
+{
+  if (neg_layers.size() != pos_layers.size())
+    throw std::invalid_argument("positive and negative forward layers do not match");
+  
+  unsigned int size = pos_layers.size();
+  for (unsigned int i = 0; i < size; ++i) {
+    const DetLayer & neg_layer = * neg_layers[i];
+    const DetLayer & pos_layer = * pos_layers[i];
+    std::stringstream s;
+    s << pos_layer.subDetector() << "_layer_" << (i+1);
+    std::vector <const DetLayer *> layers(2);
+    layers[0] = & neg_layer;
+    layers[1] = & pos_layer;
+    m_layers.push_back( new MaterialAccountingLayer( layers, s.str(), m_symmetricForwardLayers ) );
+    std::cout << '\t' << m_layers.back()->name() << "\tZ-\tZ+" <<std::endl;
+  }
+}
+
+//-------------------------------------------------------------------------
 void TrackingMaterialAnalyser::beginJob(const edm::EventSetup & iSetup)
 {
   edm::ESHandle<GeometricSearchTracker> hTracker;
@@ -90,10 +121,12 @@ void TrackingMaterialAnalyser::beginJob(const edm::EventSetup & iSetup)
   m_layers.reserve( layers.size() );
   // INFO
   std::cout << "TrackingMaterialAnalyser: List of the tracker layers: " << std::endl;
-  for (std::vector<DetLayer*>::const_iterator layer = layers.begin(); layer != layers.end(); ++layer) {
-    std::cout << '\t' << (*layer)->subDetector() << std::endl;
-    m_layers.push_back( new MaterialAccountingLayer( **layer ) );
-  }
+  parseBarrelLayers( hTracker->pixelBarrelLayers() );
+  parseBarrelLayers( hTracker->tibLayers() );
+  parseBarrelLayers( hTracker->tobLayers() );
+  parseForwardLayers( hTracker->negPixelForwardLayers(), hTracker->posPixelForwardLayers() );
+  parseForwardLayers( hTracker->negTidLayers(), hTracker->posTidLayers() );
+  parseForwardLayers( hTracker->negTecLayers(), hTracker->posTecLayers() );
   std::cout << std::endl;
 }
 

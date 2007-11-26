@@ -3,9 +3,7 @@
 
 #include <iostream>
 #include <string>
-
-#include <TH1F.h>
-#include <TH2F.h>
+#include <stdexcept>
 
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -13,13 +11,18 @@
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingStep.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingDetector.h"
 
+class TH1;
+class TH1F;
+class TProfile;
+class TFile;
 class DetLayer;
 
 class MaterialAccountingLayer {
 public:
-  /// explicit constructor
-  explicit MaterialAccountingLayer( const DetLayer & layer );
-
+  /// explicit constructors
+  explicit MaterialAccountingLayer( const DetLayer & layer,                       const std::string & name, bool symmetric = false );
+  explicit MaterialAccountingLayer( const std::vector<const DetLayer *> & layers, const std::string & name, bool symmetric = false );
+    
   /// destructor
   ~MaterialAccountingLayer( void );
 
@@ -38,13 +41,7 @@ public:
   void endOfTrack( void );
   
   /// check if detector is inside any part of this layer 
-  bool inside( const MaterialAccountingDetector& detector ) const 
-  {
-    for (unsigned int i = 0; i < m_layers.size(); ++i)
-      if (m_layers[i]->surface().bounds().inside( m_layers[i]->surface().toLocal( detector.position() ) ))
-        return true;
-    return false;
-  }
+  bool inside( const MaterialAccountingDetector& detector ) const;
 
   /// return the average normalized material accounting informations
   MaterialAccountingStep average(void) const 
@@ -94,40 +91,67 @@ public:
     return m_tracks;
   }
  
-  /// get the layer subdetector name (PixelBarrel, TOB, ...) 
-  std::string getName(void) const;
-
-  /// access the DetLayer
-  const DetLayer * layer(unsigned int i) const 
+  /// get the layer name 
+  const std::string & name(void) const
   {
-    return i < m_layers.size() ? m_layers[i] : 0;
+    return m_name;
   }
 
-  const MediumProperties * material(unsigned int i) const
+  /// return the number of DetLayers associated to this layer
+  unsigned int layers(void) const 
   {
-    return i < m_layers.size() ? m_layers[i]->surface().mediumProperties() : 0;
+    return m_layers.size();
+  }
+
+  /// access one DetLayer (defaults to the 1st)
+  const DetLayer * layer(unsigned int i = 0) const 
+  {
+    checkLayer(i);
+    return m_layers[i];
+  }
+
+  /// access one DetLayer material properties (defaults to the 1st DetLayer's)
+  const MediumProperties * material(unsigned int i = 0) const
+  {
+    checkLayer(i);
+    return m_layers[i]->surface().mediumProperties();
   }
   
-  void savePlots(const std::string & name) const;
-  
+  void savePlots(void);
+ 
 private:
-  // m_layers are used to access subdetector, R & Z ranges, and to check for inside-ness
-  std::vector<const DetLayer *>     m_layers;
-  MaterialAccountingStep            m_accounting;
-  MaterialAccountingStep            m_errors;
-  unsigned int                      m_tracks;
-  bool                              m_counted;
-  mutable MaterialAccountingStep    m_buffer;
+  void checkLayer(unsigned int i) const 
+  {
+    if (i >= m_layers.size())
+      throw std::out_of_range("DetLayer index out of range");
+  }
 
-  // plots of material distribution, and material vs. eta/Z/R
+  void savePlot(TH1F * plot, const std::string & name);
+  void savePlot(TProfile * plot, float average, const std::string & name);
+  
+  // m_layers allow to access subdetector type (not used), access η / Z / R ranges (broken), and to check for inside-ness
+  std::vector<const DetLayer *> m_layers;
+  std::string                   m_name;
+  bool                          m_symmetric;      // layer is symmteric for reflection on the XY plane (Z <--> -Z, η <--> -η)
+  MaterialAccountingStep        m_accounting;
+  MaterialAccountingStep        m_errors;
+  unsigned int                  m_tracks;
+  bool                          m_counted;
+  MaterialAccountingStep        m_buffer;
+  
+  // plots of material effects distribution
   TH1F * m_dedx_spectrum;
-  TH1F * m_dedx_vs_eta;
-  TH1F * m_dedx_vs_z;
-  TH1F * m_dedx_vs_r;
   TH1F * m_radlen_spectrum;
-  TH1F * m_radlen_vs_eta;
-  TH1F * m_radlen_vs_z;
-  TH1F * m_radlen_vs_r;
+  // plots of material effects vs. η / Z / R
+  TProfile * m_dedx_vs_eta;
+  TProfile * m_dedx_vs_z;
+  TProfile * m_dedx_vs_r;
+  TProfile * m_radlen_vs_eta;
+  TProfile * m_radlen_vs_z;
+  TProfile * m_radlen_vs_r;
+
+  // file to store plots into
+  mutable TFile * m_file;
 };
 
 #endif // MaterialAccountingLayer_h
