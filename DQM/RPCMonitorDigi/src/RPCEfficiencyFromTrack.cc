@@ -120,6 +120,18 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   Handle<Trajectories> trajectories;
   iEvent.getByLabel(TjInput,trajectories);
 
+           
+  for (GlobalTrackingGeometry::DetContainer::const_iterator itDet=rpcGeo->dets().begin();itDet<rpcGeo->dets().end();itDet++){
+    if( dynamic_cast< RPCChamber* >( *itDet ) != 0 ){
+      RPCChamber* ch = dynamic_cast< RPCChamber* >( *itDet ); 
+      std::vector< const RPCRoll*> roles = (ch->rolls());
+      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+	RPCDetId rpcId = (*r)->id();
+	
+      }
+    }
+  }
+
   for(Trajectories::const_iterator tj = trajectories->begin(); tj != trajectories->end(); ++tj){
     std::vector<TrajectoryMeasurement> tmColl = tj->measurements();
 
@@ -238,12 +250,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		  buff=counter[2];
 		  buff[rollId]++;
 		  counter[2]=buff;
-	      }
-	    }else{
-	      RPCRecHitCollection::range rpcRecHitRange = rpcHits->get((*r)->id());
-	      RPCRecHitCollection::const_iterator recIt;
-	      for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
-		std::cout<<" Roll Not found -->"<<(*r)->id()<<std::endl;
 	      }
 	    }
 	  }
