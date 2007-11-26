@@ -14,7 +14,7 @@ namespace edm {
   class PileUp {
   public:
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
-    explicit PileUp(ParameterSet const& pset, int const minb, int const maxb, double const averageNumber);
+    explicit PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber);
     ~PileUp();
 
     void readPileUp(std::vector<EventPrincipalVector> & result);

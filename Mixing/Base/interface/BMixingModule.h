@@ -53,14 +53,14 @@ namespace edm {
       virtual void setSourceOffset (const unsigned int s) {std::cout << "BMixingModule::setSourceOffset must be overwritten!" << std::endl;}
       virtual void put(edm::Event &e) {;}
 
-    protected:
+  protected:
       int bunchSpace_;
       static int vertexoffset;
       bool checktof_;
       int const minBunch_;
       int const maxBunch_;
 
-    private:
+  private:
       boost::shared_ptr<PileUp> input_;
       boost::shared_ptr<PileUp> beamHalo_;
       boost::shared_ptr<PileUp> cosmics_;
@@ -68,7 +68,7 @@ namespace edm {
       unsigned int eventId_;
 
       const static unsigned int maxNbSources;
-    };
+  };
 }//edm
 
 #endif

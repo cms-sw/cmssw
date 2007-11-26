@@ -21,7 +21,7 @@ const unsigned int edm::BMixingModule::maxNbSources =3;
 namespace
 {
   boost::shared_ptr<edm::PileUp>
-  maybeMakePileUp(edm::ParameterSet const& ps,std::string sourceName)
+  maybeMakePileUp(edm::ParameterSet const& ps,std::string sourceName, const int minb, const int maxb)
   {
     boost::shared_ptr<edm::PileUp> pileup; // value to be returned
     // Make sure we have a parameter named 'sourceName'
@@ -32,10 +32,6 @@ namespace
 	// We have the parameter
 	// and if we have either averageNumber or cfg by luminosity... make the PileUp
         double averageNumber;
-        int minb=ps.getParameter<int>("minBunch");
-	minb=(minb*25)/ps.getParameter<int>("bunchspace");
-        int maxb=ps.getParameter<int>("maxBunch");
-	maxb=(maxb*25)/ps.getParameter<int>("bunchspace");
         edm::ParameterSet psin=ps.getParameter<edm::ParameterSet>(sourceName);
         vector<string> namesIn = psin.getParameterNames();
         if (find(namesIn.begin(), namesIn.end(), std::string("nbPileupEvents"))
@@ -52,9 +48,9 @@ namespace
 	
 	  //special for pileup input
 	  else if (sourceName=="input" && find(namesAverage.begin(), namesAverage.end(), std::string("Lumi")) 
-		   != namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("sigmaTot"))
+		   != namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("sigmaInel"))
 		   != namesAverage.end()) {
-	    averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaTot")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;
+	    averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaInel")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;
 	    pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber));
 	    edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb;
 	    edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber;
@@ -72,11 +68,11 @@ namespace edm {
   BMixingModule::BMixingModule(const edm::ParameterSet& pset) :
     bunchSpace_(pset.getParameter<int>("bunchspace")),
     checktof_(pset.getUntrackedParameter<bool>("checktof",true)),
-    minBunch_(pset.getParameter<int>("minBunch")),
-    maxBunch_(pset.getParameter<int>("maxBunch")),
-    input_(maybeMakePileUp(pset,"input")),
-    beamHalo_(maybeMakePileUp(pset,"beamhalo")),
-    cosmics_(maybeMakePileUp(pset,"cosmics")),
+    minBunch_((pset.getParameter<int>("minBunch")*25)/pset.getParameter<int>("bunchspace")),
+    maxBunch_((pset.getParameter<int>("maxBunch")*25)/pset.getParameter<int>("bunchspace")),
+    input_(maybeMakePileUp(pset,"input",minBunch_,maxBunch_)),
+    beamHalo_(maybeMakePileUp(pset,"beamhalo",minBunch_,maxBunch_)),
+    cosmics_(maybeMakePileUp(pset,"cosmics",minBunch_,maxBunch_)),
     md_()
   {
     md_.parameterSetID_ = pset.id();
