@@ -71,56 +71,56 @@ void L1GtStableParameters::setGtNumberTechnicalTriggers(
 
 
 // set the number of L1 muons received by GT
-void L1GtStableParameters::setGtNumberL1Muons(const unsigned int& numberL1MuonsValue)
+void L1GtStableParameters::setGtNumberL1Mu(const unsigned int& numberL1MuValue)
 {
 
-    m_numberL1Muons = numberL1MuonsValue;
+    m_numberL1Mu = numberL1MuValue;
 
 }
 
 
 //  set the number of L1 e/gamma objects received by GT
-void L1GtStableParameters::setGtNumberL1EGamma(const unsigned int& numberL1EGammaValue)
+void L1GtStableParameters::setGtNumberL1NoIsoEG(const unsigned int& numberL1NoIsoEGValue)
 {
 
-    m_numberL1EGamma = numberL1EGammaValue;
+    m_numberL1NoIsoEG = numberL1NoIsoEGValue;
 
 }
 
 //  set the number of L1 isolated e/gamma objects received by GT
-void L1GtStableParameters::setGtNumberL1IsolatedEGamma(
-    const unsigned int& numberL1IsolatedEGammaValue)
+void L1GtStableParameters::setGtNumberL1IsoEG(
+    const unsigned int& numberL1IsoEGValue)
 {
 
-    m_numberL1IsolatedEGamma = numberL1IsolatedEGammaValue;
+    m_numberL1IsoEG = numberL1IsoEGValue;
 
 }
 
 // set the number of L1 central jets received by GT
-void L1GtStableParameters::setGtNumberL1CentralJets(
-    const unsigned int& numberL1CentralJetsValue)
+void L1GtStableParameters::setGtNumberL1CenJet(
+    const unsigned int& numberL1CenJetValue)
 {
 
-    m_numberL1CentralJets = numberL1CentralJetsValue;
+    m_numberL1CenJet = numberL1CenJetValue;
 
 }
 
 // set the number of L1 forward jets received by GT
-void L1GtStableParameters::setGtNumberL1ForwardJets(
-    const unsigned int& numberL1ForwardJetsValue)
+void L1GtStableParameters::setGtNumberL1ForJet(
+    const unsigned int& numberL1ForJetValue)
 {
 
-    m_numberL1ForwardJets = numberL1ForwardJetsValue;
+    m_numberL1ForJet = numberL1ForJetValue;
 
 }
 
 
 // set the number of L1 tau jets received by GT
-void L1GtStableParameters::setGtNumberL1TauJets(
-    const unsigned int& numberL1TauJetsValue)
+void L1GtStableParameters::setGtNumberL1TauJet(
+    const unsigned int& numberL1TauJetValue)
 {
 
-    m_numberL1TauJets = numberL1TauJetsValue;
+    m_numberL1TauJet = numberL1TauJetValue;
 
 }
 
@@ -175,6 +175,16 @@ void L1GtStableParameters::setGtNumberPsbBoards(const int& numberPsbBoardsValue)
 
 }
 
+//   set the number of bits for eta of calorimeter objects
+void L1GtStableParameters::setGtIfCaloEtaNumberBits(
+    const unsigned int& ifCaloEtaNumberBitsValue)
+{
+
+    m_ifCaloEtaNumberBits = ifCaloEtaNumberBitsValue;
+
+}
+
+
 // set WordLength
 void L1GtStableParameters::setGtWordLength(const int& wordLengthValue)
 {
@@ -199,56 +209,56 @@ void L1GtStableParameters::print(std::ostream& myStr) const
     myStr << "\nL1 GT Stable Parameters \n" << std::endl;
 
 
-    /// trigger decision
+    // trigger decision
 
-    /// number of physics trigger algorithms
+    // number of physics trigger algorithms
     myStr << "\n  Number of physics trigger algorithms =            "
     << m_numberPhysTriggers << std::endl;
 
-    /// additional number of physics trigger algorithms
+    // additional number of physics trigger algorithms
     myStr << "  Additional number of physics trigger algorithms = "
     << m_numberPhysTriggersExtended << std::endl;
 
-    /// number of technical triggers
+    // number of technical triggers
     myStr << "  Number of technical triggers =                    "
     << m_numberTechnicalTriggers << std::endl;
 
 
-    /// muons
-    myStr << "\n  Number of muon received by L1 GT =                     "
-    << m_numberL1Muons << std::endl;
+    // muons
+    myStr << "\n  Number of muons received by L1 GT =                     "
+    << m_numberL1Mu << std::endl;
 
-    /// e/gamma and isolated e/gamma objects
+    // e/gamma and isolated e/gamma objects
     myStr << "  Number of e/gamma objects received by L1 GT =          "
-    << m_numberL1EGamma << std::endl;
+    << m_numberL1NoIsoEG << std::endl;
     myStr << "  Number of isolated e/gamma objects received by L1 GT = "
-    <<  m_numberL1IsolatedEGamma << std::endl;
+    <<  m_numberL1IsoEG << std::endl;
 
-    /// central, forward and tau jets
+    // central, forward and tau jets
     myStr << "\n  Number of central jets received by L1 GT =             "
-    << m_numberL1CentralJets << std::endl;
+    << m_numberL1CenJet << std::endl;
     myStr << "  Number of forward jets received by L1 GT =             "
-    << m_numberL1ForwardJets << std::endl;
+    << m_numberL1ForJet << std::endl;
     myStr << "  Number of tau jets received by L1 GT =                 "
-    << m_numberL1TauJets << std::endl;
+    << m_numberL1TauJet << std::endl;
 
-    /// jet counts
+    // jet counts
     myStr << "\n  Number of jet counts received by L1 GT =               "
     << m_numberL1JetCounts << std::endl;
 
 
-    /// hardware
+    // hardware
 
-    /// number of condition chips
+    // number of condition chips
     myStr << "\n  Number of condition chips =                        "
     << m_numberConditionChips << std::endl;
 
-    /// number of pins on the GTL condition chips
+    // number of pins on the GTL condition chips
     myStr << "  Number of pins on the GTL condition chips =        "
     << m_pinsOnConditionChip << std::endl;
 
-    /// correspondence "condition chip - GTL algorithm word" in the hardware
-    /// chip 2: 0 - 95;  chip 1: 96 - 128 (191)
+    // correspondence "condition chip - GTL algorithm word" in the hardware
+    // chip 2: 0 - 95;  chip 1: 96 - 128 (191)
     myStr << "  Order of condition chips for GTL algorithm word = {";
 
     for (unsigned int iChip = 0; iChip < m_orderConditionChip.size(); ++iChip) {
@@ -260,14 +270,17 @@ void L1GtStableParameters::print(std::ostream& myStr) const
 
     myStr << "}" << std::endl;
 
-    /// number of PSB boards in GT
+    // number of PSB boards in GT
     myStr << "\n  Number of PSB boards in GT = " << m_numberPsbBoards << std::endl;
 
+    // number of bits for eta of calorimeter objects
+    myStr << "\n  Number of bits for eta of calorimeter objects = "
+    << m_ifCaloEtaNumberBits << std::endl;
 
-    /// GT DAQ record organized in words of WordLength bits
+    // GT DAQ record organized in words of WordLength bits
     myStr << "\n  Word length (bits) for GT records = " << m_wordLength << std::endl;
 
-    /// one unit in the word is UnitLength bits
+    // one unit in the word is UnitLength bits
     myStr << "  Unit length (bits) for GT records = " << m_unitLength << std::endl;
 
     myStr << "\n" << std::endl;

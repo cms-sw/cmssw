@@ -46,9 +46,39 @@ L1GtTriggerMenu::~L1GtTriggerMenu()
 }
 
 
+// set the condition maps
+void L1GtTriggerMenu::setGtConditionMap(const std::vector<ConditionMap>& condMap)
+{
+    m_conditionMap = condMap;
+}
+
+// set the algorithm map
+void L1GtTriggerMenu::setGtAlgorithmMap(const AlgorithmMap& algoMap)
+{
+    m_algorithmMap = algoMap;
+}
+
+
 // print the trigger menu (bit number, algorithm name, logical expression)
 void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity ) const
 {
+
+
+    // use another map <int, L1GtAlgorithm> to get the menu sorted after bit number
+    // both algorithm and bit numbers are unique
+    std::map<int, L1GtAlgorithm> algoBitToAlgo;
+    typedef std::map<int, L1GtAlgorithm>::const_iterator CItBit;
+
+
+    for (CItAlgo
+            itAlgo  = m_algorithmMap.begin();
+            itAlgo != m_algorithmMap.end(); itAlgo++) {
+
+        int bitNumber = (itAlgo->second).algoBitNumber();
+        algoBitToAlgo[bitNumber] = itAlgo->second;
+    }
+
+
 
     switch (printVerbosity) {
 
@@ -57,21 +87,20 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity ) const
                 // header for printing algorithms
 
                 myCout
-                << "\n L1 Trigger Menu - short printing\n"
-                << "  Bit Number " << " Algorithm Name " << "Logical Expresssion \n"
+                << "\n   ********** L1 Trigger Menu - printing   ********** \n\n"
+                << "Bit Number " << " Algorithm Name "
                 << std::endl;
 
-                for (CItAlgo itAlgo  = m_algorithmsMap.begin();
-                        itAlgo != m_algorithmsMap.end(); itAlgo++) {
+                for (CItBit
+                        itBit  = algoBitToAlgo.begin();
+                        itBit != algoBitToAlgo.end(); itBit++) {
 
-                    int bitNumber = 0; // FIXME
-                    std::string algoName = itAlgo->first;
-                    std::string algoLogicalExpression = ""; // FIXME
+                    int bitNumber = itBit->first;
+                    std::string aName = (itBit->second).algoName();
 
                     myCout
-                    << algoName
-                    << "  " << bitNumber
-                    << " = " << algoLogicalExpression
+                    << std::setw(6) << bitNumber << "       "
+                    << aName
                     << std::endl;
                 }
             }
@@ -79,7 +108,28 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity ) const
 
         case 1: {
 
-                // more verbose
+                // header for printing algorithms
+
+                myCout
+                << "\n   ********** L1 Trigger Menu - printing   ********** \n\n"
+                << "Bit Number " << " Algorithm Name " << "\n  Logical Expresssion \n"
+                << std::endl;
+
+                for (CItBit
+                        itBit  = algoBitToAlgo.begin();
+                        itBit != algoBitToAlgo.end(); itBit++) {
+
+                    int bitNumber = itBit->first;
+                    std::string aName = (itBit->second).algoName();
+                    std::string aLogicalExpression =
+                        (itBit->second).algoLogicalExpression();
+
+                    myCout
+                    << std::setw(6) << bitNumber << "       "
+                    << aName
+                    << "\n  Logical expression: " << aLogicalExpression << "\n"
+                    << std::endl;
+                }
             }
             break;
 
@@ -96,35 +146,4 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity ) const
     }
 
 
-}
-
-// clearMaps - delete all conditions in the maps and clear the maps.
-void L1GtTriggerMenu::clearMaps()
-{
-
-    // FIXME
-
-}
-
-
-// insertConditionIntoMap - safe insert of condition into condition map.
-// if the condition name already exists, do not insert it and return false
-bool L1GtTriggerMenu::insertConditionIntoMap(L1GtCondition* cond, int chipNr,
-        std::ostream& myCout)
-{
-
-    // FIXME
-    return true;
-}
-
-
-// insertAlgorithmIntoMap - safe insert of Algorithm into Algorithm map.
-// if the condition name already exists, do not insert it and return false
-bool L1GtTriggerMenu::insertAlgoIntoMap(L1GtAlgorithm* algo,
-                                        AlgorithmsMap* insertMap, ConditionsMap* operandMap,
-                                        int chipNr, std::ostream& myCout)
-{
-
-    // FIXME
-    return true;
 }

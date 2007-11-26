@@ -11,8 +11,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -25,16 +25,17 @@
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 
 /// map containing the conditions
-typedef std::map<std::string, L1GtCondition*> ConditionsMap;
+typedef std::map<std::string, L1GtCondition> ConditionMap;
 
 /// map containing the algorithms
-typedef std::map<std::string, L1GtAlgorithm*> AlgorithmsMap;
+typedef std::map<std::string, L1GtAlgorithm> AlgorithmMap;
 
-/// constant iterator through map containing the conditions
-typedef ConditionsMap::const_iterator CItCond;
+/// iterators through map containing the conditions
+typedef ConditionMap::const_iterator CItCond;
+typedef ConditionMap::iterator ItCond;
 
-/// constant iterator through map containing the algorithms
-typedef AlgorithmsMap::const_iterator CItAlgo;
-
+/// iterators through map containing the algorithms
+typedef AlgorithmMap::const_iterator CItAlgo;
+typedef AlgorithmMap::iterator ItAlgo;
 
 #endif /*CondFormats_L1TObjects_L1GtTriggerMenuFwd_h*/

@@ -2,15 +2,15 @@
  * \class L1GtBoardMaps
  * 
  * 
- * Description: various mappings of the L1 GT boards.  
+ * Description: map of the L1 GT boards.  
  *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -19,7 +19,8 @@
 
 // system include files
 #include <vector>
-#include <ostream>
+#include <iostream>
+#include <iomanip>
 
 // user include files
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
@@ -41,277 +42,323 @@ L1GtBoardMaps::~L1GtBoardMaps()
 
 
 
-// set / print L1 GT DAQ record map
-void L1GtBoardMaps::setGtDaqRecordMap(const std::map<int, L1GtBoard>& gtDaqRecordMapValue)
+// set / print the L1 GT board map
+void L1GtBoardMaps::setGtBoardMaps(const std::vector<L1GtBoard>& gtBoardMapsValue)
 {
 
-    m_gtDaqRecordMap = gtDaqRecordMapValue;
+    m_gtBoardMaps = gtBoardMapsValue;
 
 }
 
-void L1GtBoardMaps::printGtDaqRecordMap(std::ostream& s) const
+void L1GtBoardMaps::printGtBoardMaps(std::ostream& myCout) const
 {
-    s << "\nL1 GT Trigger DAQ record map" << std::endl;
+    myCout <<  "\nL1 GT board map" << std::endl;
 
-    s << "  Size: " << m_gtDaqRecordMap.size() << " board blocks." << std::endl;
-    s << "  Header and trailer are automatically added to the hardware record.\n"
-    << std::endl;
+    myCout <<  "  Size: " << m_gtBoardMaps.size() << " boards in L1 GT." << std::endl;
 
-    for (CItIntBoard cIt = m_gtDaqRecordMap.begin(); cIt != m_gtDaqRecordMap.end(); ++cIt) {
+    for (std::vector<L1GtBoard>::const_iterator
+            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
 
-        s << "  Position " << cIt->first
-        << ": \t board " << cIt->second.boardName() << " " << cIt->second.boardIndex()
-        << std::endl;
+        cIt->print(myCout);
+        myCout << std::endl;
     }
 
-    s << std::endl;
+    myCout << std::endl;
 
 }
 
-
-// set / print L1 GT EVM record map
-void L1GtBoardMaps::setGtEvmRecordMap(const std::map<int, L1GtBoard>& gtEvmRecordMapValue)
+// print L1 GT DAQ record map
+void L1GtBoardMaps::printGtDaqRecordMap(std::ostream& myCout) const
 {
+    myCout << "\nL1 GT DAQ record map" << std::endl;
 
-    m_gtEvmRecordMap = gtEvmRecordMapValue;
+    int nrBoards = 0;
+    int posRec = -1;
+    boost::uint16_t boardId = 0;
+    std::string boardName;
 
-}
+    for (std::vector<L1GtBoard>::const_iterator
+            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
 
-void L1GtBoardMaps::printGtEvmRecordMap(std::ostream& s) const
-{
-    s << "\nL1 GT Trigger EVM record map" << std::endl;
+        posRec = cIt->gtPositionDaqRecord();
+        boardId = cIt->gtBoardId();
+        boardName = cIt->gtBoardName();
 
-    s << "  Size: " << m_gtEvmRecordMap.size() << " board blocks." << std::endl;
-    s << "  Header and trailer are automatically added to the hardware record.\n"
-    << std::endl;
+        if (posRec >=0) {
+            myCout
+            << "  " << boardName << "  " << std::hex << boardId << std::dec
+            << " at position " << posRec << std::endl;
 
-    for (CItIntBoard cIt = m_gtEvmRecordMap.begin(); cIt != m_gtEvmRecordMap.end(); ++cIt) {
-
-        s << "  Position " << cIt->first
-        << ": \t board " << cIt->second.boardName() << " " << cIt->second.boardIndex()
-        << std::endl;
-    }
-
-    s << std::endl;
-
-}
-
-// set / print L1 GT active boards map for DAQ record
-void L1GtBoardMaps::setGtDaqActiveBoardsMap(
-    const std::map<L1GtBoard, int>& gtDaqActiveBoardsMapValue)
-{
-
-    m_gtDaqActiveBoardsMap = gtDaqActiveBoardsMapValue;
-
-}
-
-void L1GtBoardMaps::printGtDaqActiveBoardsMap(std::ostream& s) const
-{
-    s << "\nL1 GT Trigger DAQ \"active boards\" record map" << std::endl;
-
-    s << "  Size: " << m_gtDaqActiveBoardsMap.size() << " boards." << std::endl;
-    s << std::endl;
-
-    for (CItBoardInt cIt = m_gtDaqActiveBoardsMap.begin();
-            cIt != m_gtDaqActiveBoardsMap.end(); ++cIt) {
-
-        s << "  Bit " << cIt->second
-        << ": \t board " << cIt->first.boardName() << " " << cIt->first.boardIndex()
-        << std::endl;
-    }
-
-    s << std::endl;
-
-}
-
-// set / print L1 GT active boards map for EVM record
-void L1GtBoardMaps::setGtEvmActiveBoardsMap(
-    const std::map<L1GtBoard, int>& gtEvmActiveBoardsMapValue)
-{
-
-    m_gtEvmActiveBoardsMap = gtEvmActiveBoardsMapValue;
-
-}
-
-void L1GtBoardMaps::printGtEvmActiveBoardsMap(std::ostream& s) const
-{
-    s << "\nL1 GT Trigger EVM \"active boards\" record map" << std::endl;
-
-    s << "  Size: " << m_gtEvmActiveBoardsMap.size() << " boards." << std::endl;
-    s << std::endl;
-
-    for (CItBoardInt cIt = m_gtEvmActiveBoardsMap.begin();
-            cIt != m_gtEvmActiveBoardsMap.end(); ++cIt) {
-
-        s << "  Bit " << cIt->second
-        << ": \t board " << cIt->first.boardName() << " " << cIt->first.boardIndex()
-        << std::endl;
-    }
-
-    s << std::endl;
-
-}
-
-
-// set / print L1 GT board - slot map
-void L1GtBoardMaps::setGtBoardSlotMap(
-    const std::map<L1GtBoard, int>& gtBoardSlotMapValue)
-{
-
-    m_gtBoardSlotMap = gtBoardSlotMapValue;
-
-}
-
-void L1GtBoardMaps::printGtBoardSlotMap(std::ostream& s) const
-{
-    s << "\nL1 GT Trigger board - slot map" << std::endl;
-
-    s << "  Size: " << m_gtBoardSlotMap.size() << " boards." << std::endl;
-    s << std::endl;
-
-    for (CItBoardInt cIt = m_gtBoardSlotMap.begin();
-            cIt != m_gtBoardSlotMap.end(); ++cIt) {
-
-        s << "  Slot " << cIt->second
-        << ": \t board " << cIt->first.boardName() << " " << cIt->first.boardIndex()
-        << std::endl;
-    }
-
-    s << std::endl;
-
-}
-
-// set / print L1 GT board name in hw record map
-void L1GtBoardMaps::setGtBoardHexNameMap(
-    const std::map<L1GtBoard, int>& gtBoardHexNameMapValue)
-{
-
-    m_gtBoardHexNameMap = gtBoardHexNameMapValue;
-
-}
-
-void L1GtBoardMaps::printGtBoardHexNameMap(std::ostream& s) const
-{
-    s << "\nL1 GT Trigger board names in hw record map" << std::endl;
-
-    s << "  Size: " << m_gtBoardHexNameMap.size() << " boards." << std::endl;
-    s << std::endl;
-
-    for (CItBoardInt cIt = m_gtBoardHexNameMap.begin();
-            cIt != m_gtBoardHexNameMap.end(); ++cIt) {
-
-        s << "  Hex name " << std::hex << cIt->second << std::dec
-        << ": \t board " << cIt->first.boardName() << " " << cIt->first.boardIndex()
-        << std::endl;
-    }
-
-    s << std::endl;
-
-}
-
-// set / print L1 GT calo input map
-void L1GtBoardMaps::setGtCaloObjectInputMap(
-    const std::map<int, L1GtCaloQuad>& gtCaloObjectInputMapValue)
-{
-
-    m_gtCaloObjectInputMap = gtCaloObjectInputMapValue;
-
-}
-
-void L1GtBoardMaps::printGtCaloObjectInputMap(std::ostream& s) const
-{
-    s << "\nL1 GT calorimeter input map" << std::endl;
-
-    s << "  Size: " << m_gtCaloObjectInputMap.size() << " cables in this map." << std::endl;
-    s << std::endl;
-
-    for (CItIntCaloQ cIt = m_gtCaloObjectInputMap.begin();
-            cIt != m_gtCaloObjectInputMap.end(); ++cIt) {
-
-        std::string objType;
-
-        if ( cIt->second == IsoEGQ ) {
-            objType = "IsoEGQ";
-        } else if ( cIt->second == NoIsoEGQ ) {
-            objType = "NoIsoEGQ";
-        } else if ( cIt->second == CenJetQ ) {
-            objType = "CenJetQ";
-        } else if ( cIt->second == ForJetQ ) {
-            objType = "ForJetQ";
-        } else if ( cIt->second == TauJetQ ) {
-            objType = "TauJetQ";
-        } else if ( cIt->second == ESumsQ ) {
-            objType = "ESumsQ";
-        } else if ( cIt->second == JetCountsQ ) {
-            objType = "JetCountsQ";
-        } else {
-            // do nothing, return empty string
+            nrBoards++;
         }
-
-        s << "  Cable CA_" << cIt->first
-        << " input: \t " << objType
-        << std::endl;
     }
 
-    s << std::endl;
+    myCout << "\n  Size: " << nrBoards << " boards in the record" << std::endl;
+    myCout << "  Header and trailer are automatically added to the hardware record.\n"
+    << std::endl;
+
+
+    myCout << std::endl;
 
 }
 
-// set / print L1 GT calo input to PSB map
+// print L1 GT EVM record map
+void L1GtBoardMaps::printGtEvmRecordMap(std::ostream& myCout) const
+{
+    myCout << "\nL1 GT EVM record map" << std::endl;
 
-void L1GtBoardMaps::setGtCaloInputToPsbMap(
-    const std::map<int, int>& gtCaloInputToPsbMapValue)
+    int nrBoards = 0;
+    int posRec = -1;
+    boost::uint16_t boardId = 0;
+    std::string boardName;
+
+    for (std::vector<L1GtBoard>::const_iterator
+            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+
+        posRec = cIt->gtPositionEvmRecord();
+        boardId = cIt->gtBoardId();
+        boardName = cIt->gtBoardName();
+
+        if (posRec >=0) {
+            myCout
+            << "  " << boardName << "  " << std::hex << boardId << std::dec
+            << " at position " << posRec << std::endl;
+
+            nrBoards++;
+        }
+    }
+
+    myCout << "\n  Size: " << nrBoards << " boards in the record" << std::endl;
+    myCout << "  Header and trailer are automatically added to the hardware record.\n"
+    << std::endl;
+
+
+    myCout << std::endl;
+
+}
+
+// print L1 GT active boards map for DAQ record
+void L1GtBoardMaps::printGtDaqActiveBoardsMap(std::ostream& myCout) const
+{
+    myCout << "\nL1 GT DAQ \"active boards\" record map" << std::endl;
+
+    int nrBoards = 0;
+    int posRec = -1;
+    boost::uint16_t boardId = 0;
+    std::string boardName;
+
+    for (std::vector<L1GtBoard>::const_iterator
+            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+
+        posRec = cIt->gtBitDaqActiveBoards();
+        boardId = cIt->gtBoardId();
+        boardName = cIt->gtBoardName();
+
+        if (posRec >=0) {
+            myCout
+            << "  " << boardName << "  " << std::hex << boardId << std::dec
+            << " at bit " << posRec << std::endl;
+
+            nrBoards++;
+        }
+    }
+
+    myCout << "\n  Size: " << nrBoards << " boards in the record" << std::endl;
+    myCout << std::endl;
+
+
+    myCout << std::endl;
+
+}
+
+// print L1 GT active boards map for EVM record
+void L1GtBoardMaps::printGtEvmActiveBoardsMap(std::ostream& myCout) const
+{
+    myCout << "\nL1 GT EVM \"active boards\" record map" << std::endl;
+
+    int nrBoards = 0;
+    int posRec = -1;
+    boost::uint16_t boardId = 0;
+    std::string boardName;
+
+    for (std::vector<L1GtBoard>::const_iterator
+            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+
+        posRec = cIt->gtBitEvmActiveBoards();
+        boardId = cIt->gtBoardId();
+        boardName = cIt->gtBoardName();
+
+        if (posRec >=0) {
+            myCout
+            << "  " << boardName << "  " << std::hex << boardId << std::dec
+            << " at bit " << posRec << std::endl;
+
+            nrBoards++;
+        }
+    }
+
+    myCout << "\n  Size: " << nrBoards << " boards in the record" << std::endl;
+    myCout << std::endl;
+
+
+    myCout << std::endl;
+
+}
+
+
+// print L1 GT board - slot map
+void L1GtBoardMaps::printGtBoardSlotMap(std::ostream& myCout) const
+{
+    myCout << "\nL1 GT board - slot map" << std::endl;
+
+    int nrBoards = 0;
+    int posRec = -1;
+    boost::uint16_t boardId = 0;
+    std::string boardName;
+
+    for (std::vector<L1GtBoard>::const_iterator
+            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+
+        posRec = cIt->gtBoardSlot();
+        boardId = cIt->gtBoardId();
+        boardName = cIt->gtBoardName();
+
+        if (posRec >=0) {
+            myCout
+            << "  " << boardName << "  " << std::hex << boardId << std::dec
+            << " in slot " << posRec << std::endl;
+
+            nrBoards++;
+        }
+    }
+
+    myCout << "\n  Size: " << nrBoards << " boards in the slot map" << std::endl;
+    myCout << std::endl;
+
+
+    myCout << std::endl;
+
+}
+
+// print L1 GT board name in hw record map
+void L1GtBoardMaps::printGtBoardHexNameMap(std::ostream& myCout) const
+{
+    myCout << "\nL1 GT board names in hw record map" << std::endl;
+
+    int nrBoards = 0;
+    int posRec = -1;
+    boost::uint16_t boardId = 0;
+    std::string boardName;
+
+    for (std::vector<L1GtBoard>::const_iterator
+            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+
+        posRec = cIt->gtBoardHexName();
+        boardId = cIt->gtBoardId();
+        boardName = cIt->gtBoardName();
+
+        if (posRec >=0) {
+            myCout
+            << "  " << boardName << "  " << std::hex << boardId << std::dec
+            << " has HexName " << std::hex << posRec << std::dec << std::endl;
+
+            nrBoards++;
+        }
+    }
+
+    myCout << "\n  Size: " << nrBoards << " boards in the record" << std::endl;
+    myCout << std::endl;
+
+
+    myCout << std::endl;
+
+}
+
+// print L1 quadruplet (4x16 bits)(cable) to PSB input map
+void L1GtBoardMaps::printGtQuadToPsbMap(std::ostream& myCout) const
 {
 
-    m_gtCaloInputToPsbMap = gtCaloInputToPsbMapValue;
+    myCout << "\nL1 GT \"cables to PSB\" input map (4x16 bits per cable) " << std::endl;
+
+    int nrBoards = 0;
+    int nrCable = 0;
+
+    for (std::vector<L1GtBoard>::const_iterator
+            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+
+        if (cIt->gtBoardType() == PSB) {
+
+            myCout << "\n  PSB_" << cIt->gtBoardIndex() << "\n      ";
+
+            nrBoards++;
+
+            std::vector<L1GtPsbQuad> quadInPsb = cIt->gtQuadInPsb();
+            std::string objType;
+
+            for (std::vector<L1GtPsbQuad>::const_iterator
+                    cItQuad = quadInPsb.begin(); cItQuad != quadInPsb.end(); ++cItQuad) {
+
+                nrCable++;
+
+                if ( *cItQuad == TechTr ) {
+                    objType = "TechTr";
+                } else if ( *cItQuad == IsoEGQ ) {
+                    objType = "IsoEGQ";
+                } else if ( *cItQuad == NoIsoEGQ ) {
+                    objType = "NoIsoEGQ";
+                } else if ( *cItQuad == CenJetQ ) {
+                    objType = "CenJetQ";
+                } else if ( *cItQuad == ForJetQ ) {
+                    objType = "ForJetQ";
+                } else if ( *cItQuad == TauJetQ ) {
+                    objType = "TauJetQ";
+                } else if ( *cItQuad == ESumsQ ) {
+                    objType = "ESumsQ";
+                } else if ( *cItQuad == JetCountsQ ) {
+                    objType = "JetCountsQ";
+                } else if ( *cItQuad == MQB1 ) {
+                    objType = "MQB1";
+                } else if ( *cItQuad == MQB2 ) {
+                    objType = "MQB2";
+                } else if ( *cItQuad == MQF3 ) {
+                    objType = "MQF3";
+                } else if ( *cItQuad == MQF4 ) {
+                    objType = "MQF4";
+                } else if ( *cItQuad == MQB5 ) {
+                    objType = "MQB5";
+                } else if ( *cItQuad == MQB6 ) {
+                    objType = "MQB6";
+                } else if ( *cItQuad == MQF7 ) {
+                    objType = "MQF7";
+                } else if ( *cItQuad == MQF8 ) {
+                    objType = "MQF8";
+                } else if ( *cItQuad == MQB9 ) {
+                    objType = "MQB9";
+                } else if ( *cItQuad == MQB10 ) {
+                    objType = "MQB10";
+                } else if ( *cItQuad == MQF11 ) {
+                    objType = "MQF11";
+                } else if ( *cItQuad == MQF12 ) {
+                    objType = "MQF12";
+                } else if ( *cItQuad == Free ) {
+                    objType = "Free";
+                } else {
+                    // do nothing, return empty string
+                }
+
+                myCout << objType << " ";
+            }
+
+
+        }
+    }
+
+
+    myCout << "\n\n  Size: " << nrCable << " cables for " << nrBoards << " PSB boards"
+    << std::endl;
+
+    myCout << std::endl;
 
 }
 
-void L1GtBoardMaps::printGtCaloInputToPsbMap(std::ostream& s) const
-{
-    s << "\nL1 GT \"calorimeter input to PSB\" map" << std::endl;
 
-    s << "  Size: " << m_gtCaloInputToPsbMap.size() << " cables." << std::endl;
-    s << std::endl;
-
-    for (CItIntInt cIt = m_gtCaloInputToPsbMap.begin();
-            cIt != m_gtCaloInputToPsbMap.end(); ++cIt) {
-
-        s << "  Cable CA_" << cIt->first
-        << "\t belongs to PSB_" << cIt->second
-        << std::endl;
-    }
-
-    s << std::endl;
-
-}
-
-// get the board ID - it needs the maps from event setup
-const boost::uint16_t L1GtBoardMaps::boardId(const L1GtBoard& gtb) const
-{
-
-    boost::uint16_t boardIdValue = 0;
-
-    int boardHexName = 0;
-    int boardSlot = 0;
-
-    CItBoardInt itHex = m_gtBoardHexNameMap.find(gtb);
-    if (itHex != m_gtBoardHexNameMap.end()) {
-        boardHexName = itHex->second;
-    }
-
-    CItBoardInt itSlot = m_gtBoardSlotMap.find(gtb);
-    if (itSlot != m_gtBoardSlotMap.end()) {
-        boardSlot = itSlot->second;
-    }
-
-    if (gtb.boardType() == GTFE) {
-        boardIdValue = boardIdValue | boardSlot;
-    } else {
-        boardIdValue = boardIdValue | (boardHexName << 8) | boardSlot;
-    }
-
-
-    return boardIdValue;
-
-}

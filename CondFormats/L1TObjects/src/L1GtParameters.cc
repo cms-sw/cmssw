@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -41,34 +41,53 @@ L1GtParameters::~L1GtParameters()
 }
 
 // set the total Bx's in the event
-void L1GtParameters::setGtTotalBxInEvent(int& totalBxInEventValue)
+void L1GtParameters::setGtTotalBxInEvent(const int& totalBxInEventValue)
 {
 
     m_totalBxInEvent = totalBxInEventValue;
 
 }
 
-// set the active boards
-void L1GtParameters::setGtActiveBoards(boost::uint16_t& activeBoardsValue)
+// set active boards for L1 GT DAQ record
+void L1GtParameters::setGtDaqActiveBoards(const boost::uint16_t& activeBoardsValue)
 {
 
-    m_activeBoards = activeBoardsValue;
+    m_daqActiveBoards = activeBoardsValue;
+
+}
+
+// set active boards for L1 GT EVM record
+void L1GtParameters::setGtEvmActiveBoards(const boost::uint16_t& activeBoardsValue)
+{
+
+    m_evmActiveBoards = activeBoardsValue;
 
 }
 
 // print all the L1 GT parameters
-void L1GtParameters::print(std::ostream& s) const
+void L1GtParameters::print(std::ostream& myCout) const
 {
-    s << "\nL1 GT Parameters" << std::endl;
+    myCout
+    << "\nL1 GT Parameters" << std::endl;
 
-    s << "\n  Total Bx's in the event             = " << m_totalBxInEvent << std::endl;
+    myCout
+    << "\n  Total Bx's in the event             = " << m_totalBxInEvent << std::endl;
 
-    s << "\n  Active boards in L1 GT (hex format) = "
-    << std::hex << std::setw(sizeof(m_activeBoards)*2) << std::setfill('0')
-    << m_activeBoards
+    myCout
+    << "\n  Active boards in L1 GT DAQ record (hex format) = "
+    << std::hex << std::setw(sizeof(m_daqActiveBoards)*2) << std::setfill('0')
+    << m_daqActiveBoards
     << std::dec << std::setfill(' ')
     << std::endl;
 
-    s << "\n" << std::endl;
+    myCout
+    << "\n  Active boards in L1 GT EVM record (hex format) = "
+    << std::hex << std::setw(sizeof(m_evmActiveBoards)*2) << std::setfill('0')
+    << m_evmActiveBoards
+    << std::dec << std::setfill(' ')
+    << std::endl;
+
+    myCout
+    << "\n" << std::endl;
 
 }

@@ -68,54 +68,54 @@ public:
     void setGtNumberTechnicalTriggers(const unsigned int&);
 
     ///  get / set the number of L1 muons received by GT
-    inline unsigned int gtNumberL1Muons() const
+    inline unsigned int gtNumberL1Mu() const
     {
-        return m_numberL1Muons;
+        return m_numberL1Mu;
     }
 
-    void setGtNumberL1Muons(const unsigned int&);
+    void setGtNumberL1Mu(const unsigned int&);
 
 
     ///  get / set the number of L1 e/gamma objects received by GT
-    inline unsigned int gtNumberL1EGamma() const
+    inline unsigned int gtNumberL1NoIsoEG() const
     {
-        return m_numberL1EGamma;
+        return m_numberL1NoIsoEG;
     }
 
-    void setGtNumberL1EGamma(const unsigned int&);
+    void setGtNumberL1NoIsoEG(const unsigned int&);
 
 
     ///  get / set the number of L1 isolated e/gamma objects received by GT
-    inline unsigned int gtNumberL1IsolatedEGamma() const
+    inline unsigned int gtNumberL1IsoEG() const
     {
-        return m_numberL1IsolatedEGamma;
+        return m_numberL1IsoEG;
     }
 
-    void setGtNumberL1IsolatedEGamma(const unsigned int&);
+    void setGtNumberL1IsoEG(const unsigned int&);
 
     ///  get / set the number of L1 central jets received by GT
-    inline unsigned int gtNumberL1CentralJets() const
+    inline unsigned int gtNumberL1CenJet() const
     {
-        return m_numberL1CentralJets;
+        return m_numberL1CenJet;
     }
 
-    void setGtNumberL1CentralJets(const unsigned int&);
+    void setGtNumberL1CenJet(const unsigned int&);
 
     ///  get / set the number of L1 forward jets received by GT
-    inline unsigned int gtNumberL1ForwardJets() const
+    inline unsigned int gtNumberL1ForJet() const
     {
-        return m_numberL1ForwardJets;
+        return m_numberL1ForJet;
     }
 
-    void setGtNumberL1ForwardJets(const unsigned int&);
+    void setGtNumberL1ForJet(const unsigned int&);
 
     ///  get / set the number of L1 tau jets received by GT
-    inline unsigned int gtNumberL1TauJets() const
+    inline unsigned int gtNumberL1TauJet() const
     {
-        return m_numberL1TauJets;
+        return m_numberL1TauJet;
     }
 
-    void setGtNumberL1TauJets(const unsigned int&);
+    void setGtNumberL1TauJet(const unsigned int&);
 
     ///  get / set the number of L1 jet counts received by GT
     inline unsigned int gtNumberL1JetCounts() const
@@ -162,6 +162,16 @@ public:
 
     void setGtNumberPsbBoards(const int&);
 
+    ///   get / set the number of bits for eta of calorimeter objects
+    inline unsigned int gtIfCaloEtaNumberBits() const
+    {
+        return m_ifCaloEtaNumberBits;
+    }
+
+    void setGtIfCaloEtaNumberBits(const unsigned int&);
+
+
+
     ///    get / set WordLength
     inline int gtWordLength() const
     {
@@ -198,16 +208,16 @@ private:
     /// trigger objects
 
     /// muons
-    unsigned int m_numberL1Muons;
+    unsigned int m_numberL1Mu;
 
     /// e/gamma and isolated e/gamma objects
-    unsigned int m_numberL1EGamma;
-    unsigned int m_numberL1IsolatedEGamma;
+    unsigned int m_numberL1NoIsoEG;
+    unsigned int m_numberL1IsoEG;
 
     /// central, forward and tau jets
-    unsigned int m_numberL1CentralJets;
-    unsigned int m_numberL1ForwardJets;
-    unsigned int m_numberL1TauJets;
+    unsigned int m_numberL1CenJet;
+    unsigned int m_numberL1ForJet;
+    unsigned int m_numberL1TauJet;
 
     /// jet counts
     unsigned int m_numberL1JetCounts;
@@ -228,6 +238,10 @@ private:
 
     /// number of PSB boards in GT
     int m_numberPsbBoards;
+
+    /// number of bits for eta of calorimeter objects
+    //  TODO define an interface record?
+    unsigned int m_ifCaloEtaNumberBits;
 
 private:
 

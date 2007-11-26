@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -47,17 +47,25 @@ public:
         return m_totalBxInEvent;
     }
 
-    void setGtTotalBxInEvent(int&);
+    void setGtTotalBxInEvent(const int&);
 
 
-    /// get / set the active boards
-    inline boost::uint16_t gtActiveBoards() const
+    /// get / set the active boards for L1 GT DAQ record
+    inline boost::uint16_t gtDaqActiveBoards() const
     {
-        return m_activeBoards;
+        return m_daqActiveBoards;
     }
 
-    void setGtActiveBoards(boost::uint16_t&);
+    void setGtDaqActiveBoards(const boost::uint16_t&);
 
+
+    /// get / set the active boards for L1 GT EVM record
+    inline boost::uint16_t gtEvmActiveBoards() const
+    {
+        return m_evmActiveBoards;
+    }
+
+    void setGtEvmActiveBoards(const boost::uint16_t&);
 
 
     /// print all the L1 GT parameters
@@ -68,8 +76,11 @@ private:
     /// total Bx's in the event
     int m_totalBxInEvent;
 
-    /// active boards
-    boost::uint16_t m_activeBoards;
+    /// active boards in the L1 DAQ record
+    boost::uint16_t m_daqActiveBoards;
+
+    /// active boards in the L1 EVM record
+    boost::uint16_t m_evmActiveBoards;
 
 };
 

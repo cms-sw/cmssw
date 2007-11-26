@@ -21,6 +21,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 // user include files
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -40,8 +42,9 @@ public:
     ///   constructor from condition name
     L1GtCondition(const std::string& );
 
-    ///   constructor from condition name and type
-    L1GtCondition(const std::string&, const L1GtConditionType& );
+    ///   constructor from condition name, category and type
+    L1GtCondition(const std::string&,
+                  const L1GtConditionCategory&, const L1GtConditionType& );
 
     /// destructor
     virtual ~L1GtCondition();
@@ -60,25 +63,14 @@ public:
     }
 
     /// get / set the category of the condition
-    inline const std::string& condCategory() const
+    inline const L1GtConditionCategory& condCategory() const
     {
         return m_condCategory;
     }
 
-    inline void setCondCategory(const std::string& cCategory)
+    inline void setCondCategory(const L1GtConditionCategory& cCategory)
     {
         m_condCategory = cCategory;
-    }
-
-    /// get / set the trigger object type(s) in the condition
-    inline const std::vector<L1GtObject>& objectType() const
-    {
-        return m_objectType;
-    }
-
-    inline void setObjectType(const std::vector<L1GtObject>& objType)
-    {
-        m_objectType = objType;
     }
 
     /// get / set the type of the condition (1s, etc)
@@ -90,6 +82,17 @@ public:
     inline void setCondType(const L1GtConditionType& cType)
     {
         m_condType = cType;
+    }
+
+    /// get / set the trigger object type(s) in the condition
+    inline const std::vector<L1GtObject>& objectType() const
+    {
+        return m_objectType;
+    }
+
+    inline void setObjectType(const std::vector<L1GtObject>& objType)
+    {
+        m_objectType = objType;
     }
 
     /// get / set condition GEq flag
@@ -128,7 +131,7 @@ public:
     const bool corr() const;
 
     /// print condition
-    virtual void print(std::ostream& myCout) const = 0;
+    virtual void print(std::ostream& myCout) const;
 
 protected:
 
@@ -136,13 +139,13 @@ protected:
     std::string m_condName;
 
     /// the category of the condition
-    std::string m_condCategory;
-
-    /// the trigger object type(s)
-    std::vector<L1GtObject> m_objectType;
+    L1GtConditionCategory m_condCategory;
 
     /// the type of the condition (1s, etc)
     L1GtConditionType m_condType;
+
+    /// the trigger object type(s)
+    std::vector<L1GtObject> m_objectType;
 
     /// the operator used for the condition (>=, =): true for >=
     bool m_condGEq;

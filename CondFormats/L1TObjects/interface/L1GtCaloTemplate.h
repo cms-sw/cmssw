@@ -1,11 +1,11 @@
-#ifndef CondFormats_L1TObjects_L1GtMuonTemplate_h
-#define CondFormats_L1TObjects_L1GtMuonTemplate_h
+#ifndef CondFormats_L1TObjects_L1GtCaloTemplate_h
+#define CondFormats_L1TObjects_L1GtCaloTemplate_h
 
 /**
- * \class L1GtMuonTemplate
+ * \class L1GtCaloTemplate
  * 
  * 
- * Description: L1 Global Trigger muon template.  
+ * Description: L1 Global Trigger calo template.  
  *
  * Implementation:
  *    <TODO: enter implementation details>
@@ -31,59 +31,50 @@
 // forward declarations
 
 // class declaration
-class L1GtMuonTemplate : public L1GtCondition
+class L1GtCaloTemplate : public L1GtCondition
 {
 
 public:
 
     // constructor
-    L1GtMuonTemplate();
+    L1GtCaloTemplate();
 
     // constructor
-    L1GtMuonTemplate(const std::string& );
+    L1GtCaloTemplate(const std::string& );
 
     // constructor
-    L1GtMuonTemplate(const std::string&, const L1GtConditionType& );
+    L1GtCaloTemplate(const std::string&, const L1GtConditionType& );
 
     // copy constructor
-    L1GtMuonTemplate( const L1GtMuonTemplate& );
+    L1GtCaloTemplate( const L1GtCaloTemplate& );
 
     // destructor
-    virtual ~L1GtMuonTemplate();
+    virtual ~L1GtCaloTemplate();
 
     // assign operator
-    L1GtMuonTemplate& operator= (const L1GtMuonTemplate&);
+    L1GtCaloTemplate& operator= (const L1GtCaloTemplate&);
 
 public:
 
-    // typedef for a single object template
+    /// typedef for a single object template
     typedef struct
     {
-        unsigned int ptHighThreshold;
-        unsigned int ptLowThreshold;
-        bool enableMip;
-        bool enableIso;
-        bool requestIso;
-        unsigned int qualityRange;
-        boost::uint64_t etaRange;
-        unsigned int phiHigh;
-        unsigned int phiLow;
+        unsigned int etThreshold;
+        unsigned int etaRange;
+        unsigned int phiRange;
     }
     ObjectParameter;
 
-    // typedef for correlation parameters
-    // chargeCorrelation is defined always
-    // see documentation for meaning
+    /// typedef for correlation parameters
     typedef struct
     {
-        unsigned int chargeCorrelation;
         boost::uint64_t deltaEtaRange;
 
-        boost::uint64_t deltaPhiRange0Word;
-        boost::uint64_t deltaPhiRange1Word;
+        boost::uint64_t deltaPhiRange;
         unsigned int deltaPhiMaxbits;
     }
     CorrelationParameter;
+
 
 public:
 
@@ -106,13 +97,13 @@ public:
     /// print the condition
     virtual void print(std::ostream& myCout) const;
 
-private:
+protected:
 
     /// copy function for copy constructor and operator=
-    void copy( const L1GtMuonTemplate& cp);
+    void copy( const L1GtCaloTemplate& cp);
 
 
-private:
+protected:
 
     /// variables containing the parameters
     std::vector<ObjectParameter> m_objectParameter;
