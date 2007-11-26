@@ -133,9 +133,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
     std::cout<<"------------------------------- Reading Trajectory ---------------------------------"<<std::endl;
 
     for(vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj!=tmColl.end(); itTraj++){
-      if(! itTraj->updatedState().isValid()) continue;
-
-      
+      //if(! itTraj->updatedState().isValid()) continue;
       std::cout<<" Tj r "<<itTraj->updatedState().globalPosition().perp()
       	       <<" Tj z "<<itTraj->updatedState().globalPosition().z()<<std::endl;
             
@@ -221,11 +219,11 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
 		if(fabs(res)<maxRes){
 		  anycoincidence=true;
-		  //std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
+		  std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
 		}
 		else{
 		  anycoincidence=false;
-		  //std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
+		  std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
 		}
 	      }
 	      if(anycoincidence==true){
