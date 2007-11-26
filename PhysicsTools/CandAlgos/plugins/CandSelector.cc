@@ -10,8 +10,6 @@
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-DEFINE_SEAL_MODULE();
-
 namespace reco {
   namespace modules {
     typedef SingleObjectSelector<
@@ -19,7 +17,7 @@ namespace reco {
               StringCutObjectSelector<reco::Candidate>
             > CandSelector;
 
-DEFINE_ANOTHER_FWK_MODULE( CandSelector );
+DEFINE_FWK_MODULE( CandSelector );
 
   }
 }

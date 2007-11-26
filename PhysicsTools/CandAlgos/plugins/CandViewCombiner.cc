@@ -11,12 +11,10 @@
 #include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-DEFINE_SEAL_MODULE();
-
 typedef reco::modules::CandCombiner<
                          reco::CandidateView,
                          StringCutObjectSelector<reco::Candidate>,
                          reco::CompositeCandidateCollection
                        > CandViewCombiner;
       
-DEFINE_ANOTHER_FWK_MODULE( CandViewCombiner );
+DEFINE_FWK_MODULE( CandViewCombiner );
