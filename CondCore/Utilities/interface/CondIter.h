@@ -6,7 +6,7 @@
 
 
 
-#include "CondCore/DBCommon/interface/Ref.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
@@ -34,7 +34,7 @@ class CondIter{
         
 
         const T* Reference;
-        cond::Ref<T> *ref;  
+        cond::TypedRef<T> *ref;  
         CondBasicIter bIter;
                   
     public:
@@ -128,7 +128,7 @@ It needs:
         I need this method in order to manage the memory leak. If I use method "next(0)" I mantain the Ref which may cause a memory leak if I don't delete it. In order to delete it I need its pointer: the method "whatRef" gives me the pointer.  
  */
         
-        cond::Ref<T> const * whatRef();
+        cond::TypedRef<T> const * whatRef();
         
 /**
         It returns the minimum of the range of interest of the Iterator of the IOVs
@@ -192,7 +192,7 @@ It needs:
 //                 delete Reference;
                           delete ref;
                       }   
-                      ref = new cond::Ref<T> (*(bIter.pooldb),(bIter.ioviterator)->payloadToken());
+                      ref = new cond::TypedRef<T> (*(bIter.pooldb),(bIter.ioviterator)->payloadToken());
                       Reference = (const T*) ref->ptr();
                       bIter.setStartTime((bIter.ioviterator)->validity().first);
                       bIter.setStopTime((bIter.ioviterator)->validity().second);
@@ -245,7 +245,7 @@ It needs:
 //                     delete Reference;
                               delete ref;
                           }   //test to choose if mantain the object or not
-                          ref = new cond::Ref<T> (*(bIter.pooldb),(bIter.ioviterator)->payloadToken());
+                          ref = new cond::TypedRef<T> (*(bIter.pooldb),(bIter.ioviterator)->payloadToken());
                           Reference = (const T*) ref->ptr();
                           bIter.setStartTime((bIter.ioviterator)->validity().first);
                           bIter.setStopTime((bIter.ioviterator)->validity().second);
@@ -300,7 +300,7 @@ It needs:
 
 
 
-          template <class T> cond::Ref<T> const * CondIter<T>::whatRef() {
+          template <class T> cond::TypedRef<T> const * CondIter<T>::whatRef() {
 
               return ref;
     

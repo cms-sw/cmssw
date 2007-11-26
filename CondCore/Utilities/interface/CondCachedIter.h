@@ -17,7 +17,7 @@ class CondCachedIter{
       
         std::vector<const T *> m_CondCachedIter;
  
-        std::vector<const cond::Ref<T> *> m_TempCache;
+        std::vector<const cond::TypedRef<T> *> m_TempCache;
                 
         std::vector<unsigned int> m_Run;
         std::vector<unsigned int> m_RunStop;
