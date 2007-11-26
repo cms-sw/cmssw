@@ -4,7 +4,12 @@
 #include <string>
 
 namespace dqm {
-  std::string DQMPatchVersion = "none" ;
+  std::string DQMPatchVersion = "01" ;
 }
 #endif
 
+
+/* 01 (on top of 171)
+cvs co -r V00-05-11 DQMServices/Core
+cvs co -r V00-05-11 DQMServices/CoreROOT
+*/

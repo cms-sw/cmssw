@@ -1,4 +1,5 @@
 #include "DQMServices/Core/interface/MonitorElementBaseT.h"
+#include <iomanip>
 
 using std::string; using std::ostringstream;
 
@@ -23,7 +24,7 @@ void MonitorElementFloat::Reset()
 string MonitorElementFloat::valueString() const
 {
   ostringstream retval;
-  retval << "f=" << MonitorElementT<float>::operator*();
+  retval << "f=" << std::setprecision(16) << MonitorElementT<float>::operator*();
   return retval.str();
 }
 
