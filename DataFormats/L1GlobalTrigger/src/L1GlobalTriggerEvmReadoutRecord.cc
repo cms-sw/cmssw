@@ -71,6 +71,25 @@ L1GlobalTriggerEvmReadoutRecord::L1GlobalTriggerEvmReadoutRecord(int NumberBxInE
 
 }
 
+L1GlobalTriggerEvmReadoutRecord::L1GlobalTriggerEvmReadoutRecord(
+    const int numberBxInEvent,
+    const int numberFdlBoards)
+{
+
+    // GTFE board
+    m_gtfeWord = L1GtfeExtWord();
+
+    // TCS board
+    m_tcsWord  = L1TcsWord();
+
+    // FDL board
+    if (numberFdlBoards > 0) {
+        m_gtFdlWord.reserve(numberBxInEvent);
+    }
+
+}
+
+
 // copy constructor
 L1GlobalTriggerEvmReadoutRecord::L1GlobalTriggerEvmReadoutRecord(
     const L1GlobalTriggerEvmReadoutRecord& result)
@@ -424,8 +443,8 @@ void L1GlobalTriggerEvmReadoutRecord::setGtFdlWord(
 void L1GlobalTriggerEvmReadoutRecord::setGtFdlWord(const L1GtFdlWord& gtFdlWordValue)
 {
 
-    int bxInEventL1Accept = 0;
-    setGtFdlWord(gtFdlWordValue, bxInEventL1Accept);
+    // just push back the new FDL block
+    m_gtFdlWord.push_back(gtFdlWordValue);
 
 }
 
