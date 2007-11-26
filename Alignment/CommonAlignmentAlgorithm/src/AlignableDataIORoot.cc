@@ -29,7 +29,7 @@ AlignableDataIORoot::AlignableDataIORoot(PosType p) :
 
 void AlignableDataIORoot::createBranches(void) 
 {
-  tree->Branch("Id",    &Id,    "Id/I");
+  tree->Branch("Id",    &Id,    "Id/i");
   tree->Branch("ObjId", &ObjId, "ObjId/I");
   tree->Branch("Pos",   &Pos,   "Pos[3]/D");
   tree->Branch("Rot",   &Rot,   "Rot[9]/D");
