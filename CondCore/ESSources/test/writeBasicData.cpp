@@ -3,10 +3,10 @@
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+//#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/ConnectMode.h"
+//#include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
@@ -17,16 +17,13 @@ int main(){
   try{
     cond::DBSession* session=new cond::DBSession;
     session->configuration().setMessageLevel(cond::Error);
-    static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-    conHandler.registerConnection("mysqlite","sqlite_file:mytest.db",0);
+    cond::Connection myconnection("sqlite_file:mytest.db",-1);
     session->open();
-    conHandler.connect(session);
-    cond::Connection* myconnection=conHandler.getConnection("mysqlite");
-    std::cout<<"myconnection "<<myconnection<<std::endl;
-    cond::PoolTransaction& pooldb=myconnection->poolTransaction(false);
+    myconnection.connect(session);
+    cond::PoolTransaction& pooldb=myconnection.poolTransaction();
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* ioveditor=iovmanager.newIOVEditor();
-    pooldb.start();
+    pooldb.start(false);
     std::string mytestiovtoken;
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
@@ -60,7 +57,7 @@ int main(){
     
     std::string mypedestalsiovtoken;
     cond::IOVEditor* ioveditor2=iovmanager.newIOVEditor();
-    pooldb.start();
+    pooldb.start(false);
     for(unsigned int i=0; i<2; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=5; ++ichannel){
@@ -84,7 +81,7 @@ int main(){
     //
     std::string anothermytestiovtoken;
     cond::IOVEditor* anotherioveditor=iovmanager.newIOVEditor();
-    pooldb.start();
+    pooldb.start(false);
     for(unsigned int i=0; i<2; ++i){ //inserting 2 payloads to another Rcd
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=3; ++ichannel){
@@ -103,13 +100,14 @@ int main(){
     std::cout<<"anothermytest iov token "<<anothermytestiovtoken<<std::endl;
     delete anotherioveditor;
     
-    cond::CoralTransaction& coraldb=myconnection->coralTransaction(false);
+    cond::CoralTransaction& coraldb=myconnection.coralTransaction();
     cond::MetaData metadata(coraldb);
-    coraldb.start();
+    coraldb.start(false);
     metadata.addMapping("mytest",mytestiovtoken);
     metadata.addMapping("mypedestals",mypedestalsiovtoken);
     metadata.addMapping("anothermytest",anothermytestiovtoken);
     coraldb.commit();
+    myconnection.disconnect();
     delete session;
     session=0;
   }catch(const cond::Exception& er){
