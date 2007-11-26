@@ -1,6 +1,5 @@
 <flags EDM_PLUGIN=1>
 <use name=DQM/EcalCommon>
-<use name=DQMServices/Core>
 <use name=DQMServices/Daemon>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalDigi>
@@ -12,8 +11,5 @@
 <use name=FWCore/ServiceRegistry>
 <use name=TBDataFormats/EcalTBObjects>
 <export>
-  <use name=DQMServices/Core>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
   <lib name=DQMEcalEndcapMonitorModule>
 </export>
