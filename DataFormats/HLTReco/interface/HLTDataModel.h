@@ -5,8 +5,8 @@
  *
  *  Classes for new HLT data model (to be split into separate header files)
  *
- *  $Date: 2007/11/16 10:50:44 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/11/26 15:39:49 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -26,6 +26,8 @@
 namespace trigger
 {
 
+  /// space saving index type for trigger (size_t is too large - 64 bits)
+  typedef uint16_t tInd;
 
   /// 4-momentum of a trigger physics object
   typedef math::PtEtaPhiMLorentzVectorF TriggerFourMomentum;
@@ -62,10 +64,10 @@ namespace trigger
   typedef std::vector<TriggerObject> TriggerObjectCollection;
 
 
-  /// Transient book-keeping EDProduct filled by HLTFilter modules
-  /// to record physics objects firing the filter (never persistent)
-  /// (same functionality but different implementation as
-  ///  HLTFilterObjectWithRefs)
+  /// Transient book-keeping EDProduct filled by HLTFilter modules to
+  /// record physics objects firing the filter (not persistet in 
+  /// production - same functionality but different implementation 
+  /// compared to the old HLT data model's HLTFilterObjectWithRefs class)
   class TriggerFilterObjectWithRefs {
 
   /// data members
@@ -73,9 +75,7 @@ namespace trigger
     /// label of filter module for which the info is recorded here
     /// (can be recovered from "provenance" of product instance? how?)
     std::string filterLabel_;
-    /// non-owning pointers into TriggerObjectCollections
-    std::vector<edm::Ref<TriggerObjectCollection> > triggerObjects_;
-    /// ... or into original collections
+    /// Ref<C> more efficient than Ptr<T> - perhaps use RefVector?
     std::vector<edm::Ref<reco::PhotonCollection> > photons_;
     std::vector<edm::Ref<reco::ElectronCollection> > electrons_;
     std::vector<edm::Ref<reco::MuonCollection> > muons_;
@@ -86,14 +86,13 @@ namespace trigger
   public:
     /// constructors
     TriggerFilterObjectWithRefs():
-      filterLabel_(), triggerObjects_(),
+      filterLabel_(),
       photons_(), electrons_(), muons_(), taus_(), jets_() { }
     TriggerFilterObjectWithRefs(const std::string& filterLabel):
-      filterLabel_(filterLabel), triggerObjects_(),
+      filterLabel_(filterLabel),
       photons_(), electrons_(), muons_(), taus_(), jets_() { }
 
     /// setters
-    void addObject(const edm::Ref<trigger::TriggerObjectCollection>& triggerObject) {triggerObjects_.push_back(triggerObject);}
     void addObject(const edm::Ref<reco::PhotonCollection>& photon) {photons_.push_back(photon);}
     void addObject(const edm::Ref<reco::ElectronCollection>& electron) {electrons_.push_back(electron);}
     void addObject(const edm::Ref<reco::MuonCollection>& muon) {muons_.push_back(muon);}
@@ -102,7 +101,7 @@ namespace trigger
 
     /// getters
     const std::string& getLabel() const {return filterLabel_;}
-    const std::vector<edm::Ref<trigger::TriggerObjectCollection> >& getTriggerObjects() const {return triggerObjects_;}
+
     const std::vector<edm::Ref<reco::PhotonCollection> >& getPhotons() const {return photons_;}
     const std::vector<edm::Ref<reco::ElectronCollection> >& getElectrons() const {return electrons_;}
     const std::vector<edm::Ref<reco::MuonCollection> >& getMuons() const {return muons_;}
@@ -124,12 +123,12 @@ namespace trigger
       /// the label of the filter
       std::string filterLabel_;
       /// indices pointing into collection of unique TriggerObjects
-      std::vector<size_t> filterKeys_;
+      std::vector<tInd> filterKeys_;
 
       /// constructors
       TriggerFilterObject(): filterLabel_(), filterKeys_() { }
       TriggerFilterObject(const std::string& filterLabel): filterLabel_(filterLabel), filterKeys_() { }
-      TriggerFilterObject(const std::string& filterLabel, const std::vector<size_t>& filterKeys): filterLabel_(filterLabel), filterKeys_(filterKeys) { }
+      TriggerFilterObject(const std::string& filterLabel, const std::vector<tInd>& filterKeys): filterLabel_(filterLabel), filterKeys_(filterKeys) { }
     };
 
   /// data members
@@ -147,17 +146,17 @@ namespace trigger
 
     /// setters
     void addObject(const TriggerObject& triggerObject) {triggerObjects_.push_back(triggerObject);}
-    void addFilter(const std::string& filterLabel, const std::vector<size_t>& keys) {triggerFilters_.push_back(TriggerFilterObject(filterLabel, keys));}
+    void addFilter(const std::string& filterLabel, const std::vector<tInd>& keys) {triggerFilters_.push_back(TriggerFilterObject(filterLabel, keys));}
 
     /// getters
     const TriggerObjectCollection& getObjects() const {return triggerObjects_;}
-    const TriggerObject& getObject(size_t index) const {return triggerObjects_.at(index);}
-    const std::string& getFilterLabel(size_t index) const {return triggerFilters_.at(index).filterLabel_;}
-    const std::vector<size_t>& getFilterKeys(size_t index) const {return triggerFilters_.at(index).filterKeys_;}
+    const TriggerObject& getObject(tInd index) const {return triggerObjects_.at(index);}
+    const std::string& getFilterLabel(tInd index) const {return triggerFilters_.at(index).filterLabel_;}
+    const std::vector<tInd>& getFilterKeys(tInd index) const {return triggerFilters_.at(index).filterKeys_;}
 
     /// other
-    size_t numObjects() const {return triggerObjects_.size();}
-    size_t numFilters() const {return triggerFilters_.size();}
+    tInd numObjects() const {return triggerObjects_.size();}
+    tInd numFilters() const {return triggerFilters_.size();}
 
   };
 
@@ -175,17 +174,17 @@ namespace trigger
       std::string filterLabel_;
       /// end indices into linearised vector of Refs
       /// (-> first start index is always 0)
-      size_t photons_;
-      size_t electrons_;
-      size_t muons_;
-      size_t taus_;
-      size_t jets_;
+      tInd photons_;
+      tInd electrons_;
+      tInd muons_;
+      tInd taus_;
+      tInd jets_;
       /// constructor
       TriggerFilterObject() :
 	filterLabel_(),
 	photons_(0), electrons_(0), muons_(0), taus_(0), jets_(0) { }
       TriggerFilterObject(const std::string& filterLabel,
-          size_t np, size_t ne, size_t nm, size_t nt, size_t nj) :
+          tInd np, tInd ne, tInd nm, tInd nt, tInd nj) :
 	filterLabel_(filterLabel),
 	photons_(np), electrons_(ne), muons_(nm), taus_(nt), jets_(nj) { }
     };
@@ -193,7 +192,7 @@ namespace trigger
   /// data members
   private:
     /// the filters recorded here
-    std::vector<trigger::TriggerEventWithRefs::TriggerFilterObject> filterObjects_;
+    std::vector<TriggerFilterObject> filterObjects_;
     /// non-owning pointers into collections (linearised)
     std::vector<edm::Ref<reco::PhotonCollection> > photons_;
     std::vector<edm::Ref<reco::ElectronCollection> > electrons_;
@@ -223,102 +222,102 @@ namespace trigger
     }
 
     /// getters - for user access
-    size_t numFilters() const {return filterObjects_.size();}
+    tInd numFilters() const {return filterObjects_.size();}
 
-    const std::string& getFilterLabel(size_t key) const {return filterObjects_.at(key).filterLabel_;}
+    const std::string& getFilterLabel(tInd key) const {return filterObjects_.at(key).filterLabel_;}
 
 
-    size_t find(const std::string& filterLabel) const {
-      for (size_t i=0; i!=numFilters(); ++i) {
+    tInd find(const std::string& filterLabel) const {
+      for (tInd i=0; i!=numFilters(); ++i) {
 	if (filterLabel==filterObjects_[i].filterLabel_) {return i;}
       }
       return numFilters();
     }
 
-    size_t numPhotons(size_t key) const {
+    tInd numPhotons(tInd key) const {
       return filterObjects_.at(key).photons_ - (key==0? 0 : filterObjects_.at(key-1).photons_);
     }
-    size_t numPhotons(const std::string& filterLabel) const {
+    tInd numPhotons(const std::string& filterLabel) const {
       return numPhotons(find(filterLabel));
     }
 
-    size_t numElectrons(size_t key) const {
+    tInd numElectrons(tInd key) const {
       return filterObjects_.at(key).electrons_ - (key==0? 0 : filterObjects_.at(key-1).electrons_);
     }
-    size_t numElectrons(const std::string& filterLabel) const {
+    tInd numElectrons(const std::string& filterLabel) const {
       return numElectrons(find(filterLabel));
     }
 
-    size_t numMuons(size_t key) const {
+    tInd numMuons(tInd key) const {
       return filterObjects_.at(key).muons_ - (key==0? 0 : filterObjects_.at(key-1).muons_);
     }
-    size_t numMuons(const std::string& filterLabel) const {
+    tInd numMuons(const std::string& filterLabel) const {
       return numMuons(find(filterLabel));
     }
 
-    size_t numTaus(size_t key) const {
+    tInd numTaus(tInd key) const {
       return filterObjects_.at(key).taus_ - (key==0? 0 : filterObjects_.at(key-1).taus_);
     }
-    size_t numTaus(const std::string& filterLabel) const {
+    tInd numTaus(const std::string& filterLabel) const {
       return numTaus(find(filterLabel));
     }
 
-    size_t numJets(size_t key) const {
+    tInd numJets(tInd key) const {
       return filterObjects_.at(key).jets_ - (key==0? 0 : filterObjects_.at(key-1).jets_);
     }
-    size_t numJets(const std::string& filterLabel) const {
+    tInd numJets(const std::string& filterLabel) const {
       return numJets(find(filterLabel));
     }
 
     /// iterators
 
     std::vector<edm::Ref<reco::PhotonCollection> >::const_iterator
-      photons_begin(size_t key) const
+      photons_begin(tInd key) const
     { return photons_.begin() + 
       (key==0? 0 : filterObjects_.at(key-1).photons_);
     }
     std::vector<edm::Ref<reco::PhotonCollection> >::const_iterator
-      photons_end(size_t key) const
+      photons_end(tInd key) const
     { return photons_.begin() + filterObjects_.at(key).photons_; }
 
 
     std::vector<edm::Ref<reco::ElectronCollection> >::const_iterator
-      electrons_begin(size_t key) const
+      electrons_begin(tInd key) const
     { return electrons_.begin() + 
       (key==0? 0 : filterObjects_[key-1].electrons_);
     }
     std::vector<edm::Ref<reco::ElectronCollection> >::const_iterator
-      electrons_end(size_t key) const
+      electrons_end(tInd key) const
     { return electrons_.begin() + filterObjects_[key].electrons_; }
 
 
     std::vector<edm::Ref<reco::MuonCollection> >::const_iterator
-      muons_begin(size_t key) const
+      muons_begin(tInd key) const
     { return muons_.begin() + 
       (key==0? 0 : filterObjects_[key-1].muons_);
     }
     std::vector<edm::Ref<reco::MuonCollection> >::const_iterator
-      muons_end(size_t key) const
+      muons_end(tInd key) const
     { return muons_.begin() + filterObjects_[key].muons_; }
 
 
     std::vector<edm::Ref<reco::HLTTauCollection> >::const_iterator
-      taus_begin(size_t key) const
+      taus_begin(tInd key) const
     { return taus_.begin() + 
       (key==0? 0 : filterObjects_[key-1].taus_);
     }
     std::vector<edm::Ref<reco::HLTTauCollection> >::const_iterator
-      taus_end(size_t key) const
+      taus_end(tInd key) const
     { return taus_.begin() + filterObjects_[key].taus_; }
 
 
     std::vector<edm::Ref<reco::CaloJetCollection> >::const_iterator
-      jets_begin(size_t key) const
+      jets_begin(tInd key) const
     { return jets_.begin() + 
       (key==0? 0 : filterObjects_[key-1].jets_);
     }
     std::vector<edm::Ref<reco::CaloJetCollection> >::const_iterator
-      jets_end(size_t key) const
+      jets_end(tInd key) const
     { return jets_.begin() + filterObjects_[key].jets_; }
 
 
