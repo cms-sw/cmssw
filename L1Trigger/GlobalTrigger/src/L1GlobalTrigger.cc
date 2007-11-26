@@ -45,8 +45,12 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConfig.h"
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
+#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
@@ -77,25 +81,53 @@
 L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
 {
 
-    LogDebug ("Trace") << "Entering L1GlobalTriger constructor";
-
     // input tag for muon collection from GMT
     m_muGmtInputTag = parSet.getUntrackedParameter<edm::InputTag>(
                           "GmtInputTag", edm::InputTag("L1GmtEmulDigis"));
-
-    LogDebug("L1GlobalTrigger")
-    << "\nInput tag for muon collection from GMT: "
-    << m_muGmtInputTag.label() << " \n"
-    << std::endl;
 
     // input tag for calorimeter collection from GCT
     m_caloGctInputTag = parSet.getUntrackedParameter<edm::InputTag>(
                             "GctInputTag", edm::InputTag("L1GctEmulDigis"));
 
-    LogDebug("L1GlobalTrigger")
-    << "\nInput tag for calorimeter collection from GCT: "
-    << m_caloGctInputTag.label() << " \n"
+
+    // logical flag to produce the L1 GT DAQ readout record
+    //     if true, produce the record
+    m_produceL1GtDaqRecord = parSet.getUntrackedParameter<bool>(
+                                 "ProduceL1GtDaqRecord", true);
+
+
+    // logical flag to produce the L1 GT EVM readout record
+    //     if true, produce the record
+    m_produceL1GtEvmRecord = parSet.getUntrackedParameter<bool>(
+                                 "ProduceL1GtEvmRecord", true);
+
+
+    // logical flag to produce the L1 GT object map record
+    //     if true, produce the record
+    m_produceL1GtObjectMapRecord = parSet.getUntrackedParameter<bool>(
+                                       "ProduceL1GtObjectMapRecord", true);
+
+
+    // logical flag to write the PSB content in the  L1 GT DAQ record
+    //     if true, write the PSB content in the record
+    m_writePsbL1GtDaqRecord = parSet.getUntrackedParameter<bool>(
+                                  "WritePsbL1GtDaqRecord", true);
+
+    LogTrace("L1GlobalTrigger")
+    << "\nInput tag for muon collection from GMT:         "
+    << m_muGmtInputTag.label()
+    << "\nInput tag for calorimeter collections from GCT: "
+    << m_caloGctInputTag.label()
+    << "\nProduce the L1 GT DAQ readout record:           "
+    << m_produceL1GtDaqRecord
+    << "\nProduce the L1 GT EVM readout record:           "
+    << m_produceL1GtEvmRecord
+    << "\nProduce the L1 GT Object Map record:            "
+    << m_produceL1GtObjectMapRecord << " \n"
+    << "\nWrite Psb content to L1 GT DAQ Record:          "
+    << m_writePsbL1GtDaqRecord << " \n"
     << std::endl;
+
 
     // set L1 GT configuration parameters
     if(!m_gtSetup) {
@@ -103,21 +135,26 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     }
 
     // register products
-    produces<L1GlobalTriggerReadoutRecord>();
-    produces<L1GlobalTriggerEvmReadoutRecord>();
-    produces<L1GlobalTriggerObjectMapRecord>();
+    if (m_produceL1GtDaqRecord) {
+        produces<L1GlobalTriggerReadoutRecord>();
+    }
+
+    if (m_produceL1GtEvmRecord) {
+        produces<L1GlobalTriggerEvmReadoutRecord>();
+    }
+
+    if (m_produceL1GtObjectMapRecord) {
+        produces<L1GlobalTriggerObjectMapRecord>();
+    }
 
 
     // create new PSBs
-    LogDebug("L1GlobalTrigger") << "\n Creating GT PSBs" << std::endl;
     m_gtPSB = new L1GlobalTriggerPSB(*this);
 
     // create new GTL
-    LogDebug("L1GlobalTrigger") << "\n Creating GT GTL" << std::endl;
     m_gtGTL = new L1GlobalTriggerGTL(*this);
 
     // create new FDL
-    LogDebug("L1GlobalTrigger") << "\n Creating GT FDL" << std::endl;
     m_gtFDL = new L1GlobalTriggerFDL(*this);
 
 
@@ -144,185 +181,475 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 {
 
     // process event iEvent
-    
-    // get from EventSetup
-    //  parameter record
+
+    // get parameters
+
+    edm::ESHandle< L1GtStableParameters > l1GtStablePar;
+    evSetup.get< L1GtStableParametersRcd >().get( l1GtStablePar );
+
+    // number of physics triggers
+    //unsigned int numberPhysTriggers = l1GtStablePar->gtNumberPhysTriggers();
+
     edm::ESHandle< L1GtParameters > l1GtPar;
     evSetup.get< L1GtParametersRcd >().get( l1GtPar );
-    //  board maps
-    edm::ESHandle< L1GtBoardMaps > l1GtBM;
-    evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
 
     //    total number of Bx's in the event
     int totalBxInEvent = l1GtPar->gtTotalBxInEvent();
-    
+
     int minBxInEvent = (totalBxInEvent + 1)/2 - totalBxInEvent;
     int maxBxInEvent = (totalBxInEvent + 1)/2 - 1;
+
+    //    active boards in L1 GT DAQ record and in L1 GT EVM record
+    boost::uint16_t activeBoardsGtDaq = l1GtPar->gtDaqActiveBoards();
+    boost::uint16_t activeBoardsGtEvm = l1GtPar->gtEvmActiveBoards();
 
     LogDebug("L1GlobalTrigger")
     << "\nTotal number of bunch crosses to put in the GT readout record: "
     << totalBxInEvent << " = " << "["
     << minBxInEvent << ", " << maxBxInEvent << "] BX\n"
-    << std::endl;
-
-    // get from EventSetup: active boards
-    boost::uint16_t activeBoards = l1GtPar->gtActiveBoards();
-    
-    LogDebug("L1GlobalTrigger")
-    << "\n  Active boards in L1 GT (hex format) = "
-    << std::hex << std::setw(sizeof(activeBoards)*2) << std::setfill('0')
-    << activeBoards
+    << "\n  Active boards in L1 GT DAQ record (hex format) = "
+    << std::hex << std::setw(sizeof(activeBoardsGtDaq)*2) << std::setfill('0')
+    << activeBoardsGtDaq
     << std::dec << std::setfill(' ')
     << std::endl;
 
-    
+    // get board maps
+    edm::ESHandle< L1GtBoardMaps > l1GtBM;
+    evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
 
-    // * produce the L1GlobalTriggerReadoutRecord
-    LogDebug("L1GlobalTrigger")
-    << "\nL1GlobalTrigger : producing L1GlobalTriggerReadoutRecord\n"
-    << std::endl;
+    const std::vector<L1GtBoard> boardMaps = l1GtBM->gtBoardMaps();
+    typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
 
-    std::auto_ptr<L1GlobalTriggerReadoutRecord> gtReadoutRecord(
-        new L1GlobalTriggerReadoutRecord(totalBxInEvent) );
+    // loop over blocks in the GT DAQ record receiving data, count them if they are active
+    // all board type are defined in CondFormats/L1TObjects/L1GtFwd
+    // enum L1GtBoardType { GTFE, FDL, PSB, GMT, TCS, TIM };
+    // &
+    // set the active flag for each object type received from GMT and GCT
+    // all objects in the GT system are defined in enum L1GtObject from
+    // DataFormats/L1Trigger/L1GlobalTriggerReadoutSetupFwd
+    // enum L1GtObject
+    //    { Mu, NoIsoEG, IsoEG, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
+
+    int daqNrGtfeBoards = 0;
+
+    int daqNrFdlBoards = 0;
+    int daqNrPsbBoards = 0;
+    int daqNrGmtBoards = 0;
+    int daqNrTcsBoards = 0;
+    int daqNrTimBoards = 0;
+
+    //
+    bool receiveMu = false;
+    bool receiveNoIsoEG = false;
+    bool receiveIsoEG = false;
+    bool receiveCenJet = false;
+    bool receiveForJet = false;
+    bool receiveTauJet = false;
+    bool receiveETM = false;
+    bool receiveETT = false;
+    bool receiveHTT = false;
+    bool receiveJetCounts = false;
+
+    bool receiveTechTr = false;
+
+    for (CItBoardMaps
+            itBoard = boardMaps.begin();
+            itBoard != boardMaps.end(); ++itBoard) {
+
+        int iPosition = itBoard->gtPositionDaqRecord();
+        if (iPosition > 0) {
+
+            int iActiveBit = itBoard->gtBitDaqActiveBoards();
+            bool activeBoard = false;
+
+            if (iActiveBit >= 0) {
+                activeBoard = activeBoardsGtDaq & (1 << iActiveBit);
+            }
+
+            // use board if: in the record, but not in ActiveBoardsMap (iActiveBit < 0)
+            //               in the record and ActiveBoardsMap, and active
+            if ((iActiveBit < 0) || activeBoard) {
+
+                switch (itBoard->gtBoardType()) {
+
+                    case GTFE: {
+                            daqNrGtfeBoards++;
+                        }
+
+                        break;
+                    case FDL: {
+                            daqNrFdlBoards++;
+                        }
+
+                        break;
+                    case PSB: {
+                            daqNrPsbBoards++;
+
+                            // get the objects coming to this PSB
+                            std::vector<L1GtPsbQuad> quadInPsb = itBoard->gtQuadInPsb();
+                            for (std::vector<L1GtPsbQuad>::const_iterator
+                                    itQuad = quadInPsb.begin();
+                                    itQuad != quadInPsb.end(); ++itQuad) {
+
+                                switch (*itQuad) {
+
+                                    case TechTr: {
+                                            receiveTechTr = true;
+                                        }
+
+                                        break;
+                                    case NoIsoEGQ: {
+                                            receiveNoIsoEG = true;
+                                        }
+
+                                        break;
+                                    case IsoEGQ: {
+                                            receiveIsoEG = true;
+                                        }
+
+                                        break;
+                                    case CenJetQ: {
+                                            receiveCenJet = true;
+                                        }
+
+                                        break;
+                                    case ForJetQ: {
+                                            receiveForJet = true;
+                                        }
+
+                                        break;
+                                    case TauJetQ: {
+                                            receiveTauJet = true;
+                                        }
+
+                                        break;
+                                    case ESumsQ: {
+                                            receiveETM = true;
+                                            receiveETT = true;
+                                            receiveHTT = true;
+                                        }
+
+                                        break;
+                                    case JetCountsQ: {
+                                            receiveJetCounts = true;
+                                        }
+
+                                        break;
+                                        // FIXME add MIP/Iso bits
+                                    default: {
+                                            // do nothing
+                                        }
+
+                                        break;
+                                }
+
+                            }
+
+                        }
+
+                        break;
+                    case GMT: {
+                            daqNrGmtBoards++;
+                            receiveMu = true;
+                        }
+
+                        break;
+                    case TCS: {
+                            daqNrTcsBoards++;
+                        }
+
+                        break;
+                    case TIM: {
+                            daqNrTimBoards++;
+                        }
+
+                        break;
+                    default: {
+                            // do nothing, all blocks are given in GtBoardType enum
+                        }
+
+                        break;
+                }
+            }
+        }
+
+    }
+
+    // number of objects of each type
+    //    { Mu, NoIsoEG, IsoEG, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
+    unsigned int nrL1Mu = l1GtStablePar->gtNumberL1Mu();
+
+    unsigned int nrL1NoIsoEG = l1GtStablePar->gtNumberL1NoIsoEG();
+    unsigned int nrL1IsoEG = l1GtStablePar->gtNumberL1IsoEG();
+
+    unsigned int nrL1CenJet = l1GtStablePar->gtNumberL1CenJet();
+    unsigned int nrL1ForJet = l1GtStablePar->gtNumberL1ForJet();
+    unsigned int nrL1TauJet = l1GtStablePar->gtNumberL1TauJet();
+
+    // ... the rest of the objects are global
+
+    // produce the L1GlobalTriggerReadoutRecord now, after we found how many
+    // BxInEvent the record has and how many boards are active
+    std::auto_ptr<L1GlobalTriggerReadoutRecord> gtDaqReadoutRecord(
+        new L1GlobalTriggerReadoutRecord(
+            totalBxInEvent, daqNrFdlBoards, daqNrPsbBoards) );
 
 
     // * produce the L1GlobalTriggerEvmReadoutRecord
-    LogDebug("L1GlobalTrigger")
-    << "\nL1GlobalTrigger : producing L1GlobalTriggerEvmReadoutRecord\n"
-    << std::endl;
-
     std::auto_ptr<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord(
-        new L1GlobalTriggerEvmReadoutRecord(totalBxInEvent) );
+        new L1GlobalTriggerEvmReadoutRecord(totalBxInEvent, daqNrFdlBoards) );
+    // daqNrFdlBoards OK, just reserve memory at this point
 
     // * produce the L1GlobalTriggerObjectMapRecord
-    LogDebug("L1GlobalTrigger")
-    << "\nL1GlobalTrigger : producing L1GlobalTriggerObjectMapRecord\n"
-    << std::endl;
-
     std::auto_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
         new L1GlobalTriggerObjectMapRecord() );
 
 
+    // fill the boards not depending on the BxInEvent in the L1 GT DAQ record
+    // GMT, PSB and FDL depend on BxInEvent
 
-    // * create L1GtfeExtWord
+    if (m_produceL1GtDaqRecord) {
 
-    L1GtfeExtWord gtfeExtWordValue;
-    
-    int iBoard = 0;    
-    L1GtBoard gtfeBoard = L1GtBoard(GTFE, iBoard);    
-    gtfeExtWordValue.setBoardId( l1GtBM->boardId(gtfeBoard) );
-    
-    // cast int to boost::uint16_t (there are normally 3 or 5 BxInEvent)
-    gtfeExtWordValue.setRecordLength(static_cast<boost::uint16_t>(totalBxInEvent));
+        for (CItBoardMaps
+                itBoard = boardMaps.begin();
+                itBoard != boardMaps.end(); ++itBoard) {
 
-    // set the list of active boards
-    gtfeExtWordValue.setActiveBoards(activeBoards);
-    
-    // set the TOTAL_TRIGNR as read from iEvent
-    // TODO check again - PTC stuff
-    
-    gtfeExtWordValue.setTotalTriggerNr(static_cast<boost::uint32_t>(iEvent.id().event()));
+            int iPosition = itBoard->gtPositionDaqRecord();
+            if (iPosition > 0) {
 
-    // ** fill L1GtfeWord in GT DAQ record
+                int iActiveBit = itBoard->gtBitDaqActiveBoards();
+                bool activeBoard = false;
 
-    L1GtfeWord& gtfeWordValue = dynamic_cast<L1GtfeExtWord&>(gtfeExtWordValue);
-    gtReadoutRecord->setGtfeWord(gtfeWordValue);
+                if (iActiveBit >= 0) {
+                    activeBoard = activeBoardsGtDaq & (1 << iActiveBit);
+                }
 
-    // ** fill L1GtfeExtWord in GT EVM record
-    gtEvmReadoutRecord->setGtfeWord(gtfeExtWordValue);
+                // use board if: in the record, but not in ActiveBoardsMap (iActiveBit < 0)
+                //               in the record and ActiveBoardsMap, and active
+                if ((iActiveBit < 0) || activeBoard) {
 
-    LogDebug("L1GlobalTrigger")
-    << "\n  GTFE board " << gtReadoutRecord->gtfeWord().boardId() << "\n"
-    << "    GTFE word: total number of bx in DAQ record = "
-    << gtReadoutRecord->gtfeWord().recordLength()
-    << "    GTFE word: total number of bx in EVM record = "
-    << gtEvmReadoutRecord->gtfeWord().recordLength()
-    << std::endl;
+                    switch (itBoard->gtBoardType()) {
 
-    // * create L1TcsWord
+                        case GTFE: {
+                                L1GtfeWord gtfeWordValue;
 
-    L1TcsWord tcsWordValue;
+                                gtfeWordValue.setBoardId( itBoard->gtBoardId() );
 
-    iBoard = 0;    
-    L1GtBoard tcsBoard = L1GtBoard(TCS, iBoard);    
-    tcsWordValue.setBoardId( l1GtBM->boardId(tcsBoard) ); 
+                                // cast int to boost::uint16_t
+                                // there are normally 3 or 5 BxInEvent
+                                gtfeWordValue.setRecordLength(
+                                    static_cast<boost::uint16_t>(totalBxInEvent));
 
-    boost::uint16_t trigType = 0x5; // 0101 simulated event
-    tcsWordValue.setTriggerType(trigType);
+                                // set the list of active boards
+                                gtfeWordValue.setActiveBoards(activeBoardsGtDaq);
 
-    // set the Event_Nr as read from iEvent
-    tcsWordValue.setEventNr(static_cast<boost::uint32_t>(iEvent.id().event()));
+                                // set the TOTAL_TRIGNR as read from iEvent
+                                // TODO check again - PTC stuff
 
-    // ** fill L1TcsWord in the EVM record
+                                gtfeWordValue.setTotalTriggerNr(
+                                    static_cast<boost::uint32_t>(iEvent.id().event()));
 
-    gtEvmReadoutRecord->setTcsWord(tcsWordValue);
-    LogDebug("L1GlobalTrigger")
-    << "\n  TCS word: trigger type = "
-    << std::bitset<4>(gtEvmReadoutRecord->tcsWord().triggerType())
-    << std::endl;
+                                // ** fill L1GtfeWord in GT DAQ record
 
-    // loop over bx in event
+                                gtDaqReadoutRecord->setGtfeWord(gtfeWordValue);
+                            }
+
+                            break;
+                        case TCS: {
+                                // nothing
+                            }
+
+                            break;
+                        case TIM: {
+                                // nothing
+                            }
+
+                            break;
+                        default: {
+                                // do nothing, all blocks are given in GtBoardType enum
+                            }
+
+                            break;
+                    }
+                }
+            }
+
+        }
+
+    }
+
+    // fill the boards not depending on the BxInEvent in the L1 GT EVM record
+
+    int evmNrFdlBoards = 0;
+
+    if (m_produceL1GtEvmRecord) {
+
+        for (CItBoardMaps
+                itBoard = boardMaps.begin();
+                itBoard != boardMaps.end(); ++itBoard) {
+
+            int iPosition = itBoard->gtPositionEvmRecord();
+            if (iPosition > 0) {
+
+                int iActiveBit = itBoard->gtBitEvmActiveBoards();
+                bool activeBoard = false;
+
+                if (iActiveBit >= 0) {
+                    activeBoard = activeBoardsGtEvm & (1 << iActiveBit);
+                }
+
+                // use board if: in the record, but not in ActiveBoardsMap (iActiveBit < 0)
+                //               in the record and ActiveBoardsMap, and active
+                if ((iActiveBit < 0) || activeBoard) {
+
+                    switch (itBoard->gtBoardType()) {
+
+                        case GTFE: {
+                                L1GtfeExtWord gtfeWordValue;
+
+                                gtfeWordValue.setBoardId( itBoard->gtBoardId() );
+
+                                // cast int to boost::uint16_t
+                                // there are normally 3 or 5 BxInEvent
+                                gtfeWordValue.setRecordLength(
+                                    static_cast<boost::uint16_t>(totalBxInEvent));
+
+                                // set the list of active boards
+                                gtfeWordValue.setActiveBoards(activeBoardsGtEvm);
+
+                                // set the TOTAL_TRIGNR as read from iEvent
+                                // TODO check again - PTC stuff
+
+                                gtfeWordValue.setTotalTriggerNr(
+                                    static_cast<boost::uint32_t>(iEvent.id().event()));
+
+                                // ** fill L1GtfeWord in GT EVM record
+
+                                gtEvmReadoutRecord->setGtfeWord(gtfeWordValue);
+                            }
+
+                            break;
+                        case FDL: {
+                                evmNrFdlBoards++;
+                            }
+
+                            break;
+                        case TCS: {
+
+                                L1TcsWord tcsWordValue;
+
+                                tcsWordValue.setBoardId( itBoard->gtBoardId() );
+
+                                boost::uint16_t trigType = 0x5; // 0101 simulated event
+                                tcsWordValue.setTriggerType(trigType);
+
+                                // set the Event_Nr as read from iEvent
+                                tcsWordValue.setEventNr(
+                                    static_cast<boost::uint32_t>(iEvent.id().event()));
+
+                                // ** fill L1TcsWord in the EVM record
+
+                                gtEvmReadoutRecord->setTcsWord(tcsWordValue);
+
+                            }
+
+                            break;
+                        case TIM: {
+                                // nothing
+                            }
+
+                            break;
+                        default: {
+                                // do nothing, all blocks are given in GtBoardType enum
+                            }
+
+                            break;
+                    }
+                }
+            }
+
+        }
+
+    }
+
+
+    // loop over BxInEvent
     for (int iBxInEvent = minBxInEvent; iBxInEvent <= maxBxInEvent;
             ++iBxInEvent) {
 
-        // * receive GCT data via PSBs
-        if ( m_gtPSB ) {
-            LogDebug("L1GlobalTrigger")
-            << "\nL1GlobalTrigger : running PSB for bx = " << iBxInEvent << "\n"
-            << std::endl;
-            m_gtPSB->receiveData(iEvent, m_caloGctInputTag, iBxInEvent, evSetup);
+        // * receive GCT object data via PSBs
+        //LogDebug("L1GlobalTrigger")
+        //<< "\nL1GlobalTrigger : receiving PSB data for bx = " << iBxInEvent << "\n"
+        //<< std::endl;
+
+        m_gtPSB->receiveGctObjectData(
+            iEvent,
+            m_caloGctInputTag, iBxInEvent,
+            receiveNoIsoEG, nrL1NoIsoEG,
+            receiveIsoEG, nrL1IsoEG,
+            receiveCenJet, nrL1CenJet,
+            receiveForJet, nrL1ForJet,
+            receiveTauJet, nrL1TauJet,
+            receiveETM, receiveETT, receiveHTT,
+            receiveJetCounts);
+
+        if (m_produceL1GtDaqRecord && m_writePsbL1GtDaqRecord) {
+            m_gtPSB->fillPsbBlock(iEvent, evSetup, iBxInEvent, gtDaqReadoutRecord);
         }
 
-        // * receive GMT data via GTL
-        if ( m_gtGTL ) {
-            LogDebug("L1GlobalTrigger")
-            << "\nL1GlobalTrigger : receiving GMT data for bx = " << iBxInEvent << "\n"
-            << std::endl;
-            m_gtGTL->receiveData(iEvent, m_muGmtInputTag, iBxInEvent, evSetup);
-        }
+        // * receive GMT object data via GTL
+        //LogDebug("L1GlobalTrigger")
+        //<< "\nL1GlobalTrigger : receiving GMT data for bx = " << iBxInEvent << "\n"
+        //<< std::endl;
+
+        m_gtGTL->receiveGmtObjectData(
+            iEvent,
+            m_muGmtInputTag, iBxInEvent,
+            receiveMu, nrL1Mu);
 
         // * run GTL
-        if ( m_gtGTL ) {
-            LogDebug("L1GlobalTrigger")
-            << "\nL1GlobalTrigger : running GTL for bx = " << iBxInEvent << "\n"
-            << std::endl;
+        //LogDebug("L1GlobalTrigger")
+        //<< "\nL1GlobalTrigger : running GTL for bx = " << iBxInEvent << "\n"
+        //<< std::endl;
 
-            m_gtGTL->run(iBxInEvent);
+        m_gtGTL->run(iBxInEvent);
 
-            LogDebug("L1GlobalTrigger")
-            << "\n AlgorithmOR\n" << m_gtGTL->getAlgorithmOR() << "\n"
-            << std::endl;
+        //LogDebug("L1GlobalTrigger")
+        //<< "\n AlgorithmOR\n" << m_gtGTL->getAlgorithmOR() << "\n"
+        //<< std::endl;
 
-            if (iBxInEvent == 0) { // TODO map only for BX = 0?
+        // maps only for BX = 0
+        if (m_produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
 
-                const std::vector<L1GlobalTriggerObjectMap>* objMapVec = m_gtGTL->objectMap();
+            const std::vector<L1GlobalTriggerObjectMap>* objMapVec = m_gtGTL->objectMap();
 
-                gtObjectMapRecord->setGtObjectMap(*objMapVec);
-                delete objMapVec;
-
-            }
+            gtObjectMapRecord->setGtObjectMap(*objMapVec);
+            delete objMapVec;
 
         }
 
+
         // * run FDL
-        if ( m_gtFDL ) {
-            LogDebug("L1GlobalTrigger")
-            << "\nL1GlobalTrigger : running FDL for bx = " << iBxInEvent << "\n"
-            << std::endl;
+        //LogDebug("L1GlobalTrigger")
+        //<< "\nL1GlobalTrigger : running FDL for bx = " << iBxInEvent << "\n"
+        //<< std::endl;
 
-            m_gtFDL->run(iBxInEvent, evSetup);
+        m_gtFDL->run(iEvent, evSetup,
+                     boardMaps,
+                     totalBxInEvent,
+                     iBxInEvent);
 
-            std::ostringstream myCoutStream;
-            if ( edm::isDebugEnabled() ) {
-                m_gtFDL->gtFdlWord()->printGtDecisionWord(myCoutStream);
-            }
-            LogDebug("L1GlobalTrigger")
-            << "\n FDL decision word\n" << myCoutStream.str() << "\n"
-            << std::endl;
+        if (m_produceL1GtDaqRecord && (daqNrFdlBoards > 0)) {
+            m_gtFDL->fillDaqFdlBlock(
+                activeBoardsGtDaq, boardMaps,
+                gtDaqReadoutRecord);
+        }
 
-            gtReadoutRecord->setGtFdlWord( *(*m_gtFDL).gtFdlWord(), iBxInEvent );
-            gtEvmReadoutRecord->setGtFdlWord( *(*m_gtFDL).gtFdlWord(), iBxInEvent );
 
+        if (m_produceL1GtEvmRecord && (evmNrFdlBoards > 0)) {
+            m_gtFDL->fillEvmFdlBlock(
+                activeBoardsGtEvm, boardMaps,
+                gtEvmReadoutRecord);
         }
 
         // reset
@@ -330,185 +657,65 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         m_gtGTL->reset();
         m_gtFDL->reset();
 
-        LogDebug("L1GlobalTrigger") << "\n Reset PSB, GTL, FDL\n" << std::endl;
+        //LogDebug("L1GlobalTrigger") << "\n Reset PSB, GTL, FDL\n" << std::endl;
 
     }
 
 
-    std::ostringstream myCoutStream;
-
-    if ( edm::isDebugEnabled() ) {
-        gtReadoutRecord->printGtDecision(myCoutStream);
-
-        LogDebug("L1GlobalTrigger")
-        << myCoutStream.str()
-        << std::endl;
-        myCoutStream.str("");
-        myCoutStream.clear();
-    }
+    if ( daqNrGmtBoards > 0 ) {
 
 
-    // print result for every bx in event
-    if ( edm::isDebugEnabled() ) {
-        for (int iBxInEvent = minBxInEvent; iBxInEvent <= maxBxInEvent;
-                ++iBxInEvent) {
-
-            gtReadoutRecord->printGtDecision(myCoutStream, iBxInEvent);
-            LogDebug("L1GlobalTrigger")
-            << myCoutStream.str()
-            << std::endl;
-            myCoutStream.str("");
-            myCoutStream.clear();
-
-            gtReadoutRecord->printTechnicalTrigger(myCoutStream, iBxInEvent);
-            LogDebug("L1GlobalTrigger")
-            << myCoutStream.str()
-            << std::endl;
-            myCoutStream.str("");
-            myCoutStream.clear();
-
-        }
-    }
-
-    if ( m_gtSetup->gtConfig()->getInputMask()[1] ) {
-
-        LogDebug("L1GlobalTrigger")
-        << "\n**** Global Muon input disabled! \n  inputMask[1] = "
-        << m_gtSetup->gtConfig()->getInputMask()[1]
-        << "\n  No persistent reference for L1MuGMTReadoutCollection."
-        << "\n**** \n"
-        << std::endl;
-    } else {
-
-        // ** set muons in L1GlobalTriggerReadoutRecord
-
-        LogDebug("L1GlobalTrigger")
-        << "\n**** "
-        << "\n  Persistent reference for L1MuGMTReadoutCollection with input tag: "
-        << m_muGmtInputTag.label()
-        << "\n**** \n"
-        << std::endl;
+        //LogDebug("L1GlobalTrigger")
+        //<< "\n**** "
+        //<< "\n  Persistent reference for L1MuGMTReadoutCollection with input tag: "
+        //<< m_muGmtInputTag.label()
+        //<< "\n**** \n"
+        //<< std::endl;
 
         // get L1MuGMTReadoutCollection reference and set it in GT record
 
         edm::Handle<L1MuGMTReadoutCollection> gmtRcHandle;
         iEvent.getByLabel(m_muGmtInputTag.label(), gmtRcHandle);
 
-        gtReadoutRecord->setMuCollectionRefProd(gmtRcHandle);
-
-    }
-
-    // test muon part in L1GlobalTriggerReadoutRecord
-
-    if ( edm::isDebugEnabled() && !( m_gtSetup->gtConfig()->getInputMask()[1] ) ) {
-
-        LogTrace("L1GlobalTrigger")
-        << "\n Test muon collection in the GT readout record"
-        << std::endl;
-
-        // get reference to muon collection
-        const edm::RefProd<L1MuGMTReadoutCollection>
-        muCollRefProd = gtReadoutRecord->muCollectionRefProd();
-
-        if (muCollRefProd.isNull()) {
-            LogTrace("L1GlobalTrigger")
-            << "Null reference for L1MuGMTReadoutCollection"
-            << std::endl;
-
-        } else {
-            LogTrace("L1GlobalTrigger")
-            << "RefProd address = " << &muCollRefProd
-            << std::endl;
-
-            // test all three variants to get muon index 0 in BXInEvent = 0
-            unsigned int indexCand = 0;
-            int bxInEvent = 0;
-
-            // test first if the record has the required number of candidates
-            if ((*muCollRefProd).getRecord(bxInEvent).getGMTCands().size() > indexCand) {
-
-                LogTrace("L1GlobalTrigger")
-                << "Three variants to get muon index 0 in BXInEvent = 0"
-                << "\n via RefProd, muonCand(indexCand, bxInEvent), muonCand(indexCand)"
-                << std::endl;
-
-                L1MuGMTExtendedCand mu00 = (*muCollRefProd).getRecord(bxInEvent).getGMTCands()[indexCand];
-                mu00.print();
-
-                L1MuGMTExtendedCand mu00A = gtReadoutRecord->muonCand(indexCand, bxInEvent);
-                mu00A.print();
-
-                L1MuGMTExtendedCand mu00B = gtReadoutRecord->muonCand(indexCand);
-                mu00B.print();
-
-            }
-
-            // test methods to get GMT records
-            std::vector<L1MuGMTReadoutRecord> muRecords = (*muCollRefProd).getRecords();
-            LogTrace("L1GlobalTrigger")
-            << "\nNumber of records in the GMT RefProd readout collection = "
-            << muRecords.size()
-            << std::endl;
-
-            for (std::vector<L1MuGMTReadoutRecord>::const_iterator itMu = muRecords.begin();
-                    itMu < muRecords.end(); ++itMu) {
-
-                std::vector<L1MuGMTExtendedCand>::const_iterator gmt_iter;
-                std::vector<L1MuGMTExtendedCand> exc = itMu->getGMTCands();
-                for(gmt_iter = exc.begin(); gmt_iter != exc.end(); gmt_iter++) {
-                    (*gmt_iter).print();
-                }
-
-            }
-
-            // test GMT record for BxInEvent = 0  (default argument)
-            std::vector<L1MuGMTExtendedCand> muRecord0 = gtReadoutRecord->muonCands();
-            LogTrace("L1GlobalTrigger")
-            << "\nRecord for BxInEvent = 0 using default argument"
-            << std::endl;
-
-            for(std::vector<L1MuGMTExtendedCand>::const_iterator gmt_iter = muRecord0.begin();
-                    gmt_iter != muRecord0.end(); gmt_iter++) {
-                (*gmt_iter).print();
-            }
-
-            // test GMT record for BxInEvent = 1
-            std::vector<L1MuGMTExtendedCand> muRecord1 = gtReadoutRecord->muonCands(1);
-            LogTrace("L1GlobalTrigger")
-            << "\nRecord for BxInEvent = 1 using BxInEvent argument"
-            << std::endl;
-
-            for(std::vector<L1MuGMTExtendedCand>::const_iterator gmt_iter = muRecord1.begin();
-                    gmt_iter != muRecord1.end(); gmt_iter++) {
-                (*gmt_iter).print();
-            }
-        }
+        gtDaqReadoutRecord->setMuCollectionRefProd(gmtRcHandle);
 
     }
 
     if ( edm::isDebugEnabled() ) {
+        std::ostringstream myCoutStream;
+        gtDaqReadoutRecord->print(myCoutStream);
+        LogTrace("L1GlobalTrigger")
+        << "\n The following L1 GT DAQ readout record was produced:\n"
+        << myCoutStream.str() << "\n"
+        << std::endl;
+    }
 
-        const std::vector<L1GlobalTriggerObjectMap>&
-        objMapVec = gtObjectMapRecord->gtObjectMap();
 
-        for (std::vector<L1GlobalTriggerObjectMap>::const_iterator it = objMapVec.begin();
-                it != objMapVec.end(); ++it) {
+
+    if ( edm::isDebugEnabled() ) {
+        std::ostringstream myCoutStream;
+        gtEvmReadoutRecord->print(myCoutStream);
+        LogTrace("L1GlobalTrigger")
+        << "\n The following L1 GT EVM readout record was produced:\n"
+        << myCoutStream.str() << "\n"
+        << std::endl;
+    }
+
+
+    if ( edm::isDebugEnabled() ) {
+
+        std::ostringstream myCoutStream;
+
+        const std::vector<L1GlobalTriggerObjectMap> objMapVec =
+            gtObjectMapRecord->gtObjectMap();
+
+        for (std::vector<L1GlobalTriggerObjectMap>::const_iterator
+                it = objMapVec.begin(); it != objMapVec.end(); ++it) {
+
             (*it).print(myCoutStream);
+
         }
 
-        //const CombinationsInCond*
-        //comb = gtObjectMapRecord->getCombinationsInCond("Algo_ComplexSyntax", "Mu_60");
-
-        //if (comb != 0) {
-        //    myCoutStream << "\n  Number of combinations passing (Algo_ComplexSyntax, Mu_60): "
-        //    << comb->size();
-        //}
-
-
-        //bool result = gtObjectMapRecord->getConditionResult("Algo_ComplexSyntax", "Mu_60");
-
-        //myCoutStream << "\n  Result for condition Mu_60 in Algo_ComplexSyntax: "
-        //<< result;
 
         LogDebug("L1GlobalTrigger")
         << "Test gtObjectMapRecord in L1GlobalTrigger \n\n" << myCoutStream.str() << "\n\n"
@@ -519,9 +726,18 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     }
 
     // **
-    iEvent.put( gtReadoutRecord );
-    iEvent.put( gtEvmReadoutRecord );
-    iEvent.put( gtObjectMapRecord );
+    // register products
+    if (m_produceL1GtDaqRecord) {
+        iEvent.put( gtDaqReadoutRecord );
+    }
+
+    if (m_produceL1GtEvmRecord) {
+        iEvent.put( gtEvmReadoutRecord );
+    }
+
+    if (m_produceL1GtObjectMapRecord) {
+        iEvent.put( gtObjectMapRecord );
+    }
 
 }
 

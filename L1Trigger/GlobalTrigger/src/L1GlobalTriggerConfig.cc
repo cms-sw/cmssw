@@ -44,6 +44,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -103,11 +104,13 @@ void L1GlobalTriggerConfig::parseTriggerMenu(std::string& defFile, std::string& 
     }
     cleanupXML(parser);
 
-    std::ostringstream myCoutStream;
-    printThresholds(myCoutStream);
-    LogTrace("L1GlobalTriggerConfig") << myCoutStream.str() << std::endl;
+    if ( edm::isDebugEnabled() ) {
 
+        std::ostringstream myCoutStream;
+        printThresholds(myCoutStream);
+        LogTrace("L1GlobalTriggerConfig") << myCoutStream.str() << std::endl;
 
+    }
     // part to generate vme-bus preamble
 
     if (vmeFile != "") {

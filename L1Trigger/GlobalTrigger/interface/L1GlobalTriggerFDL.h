@@ -19,15 +19,23 @@
 
 // system include files
 #include <vector>
-#include <bitset>
+
+#include <boost/cstdint.hpp>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
+
 // forward declarations
+class L1GlobalTriggerReadoutRecord;
+class L1GlobalTriggerEvmReadoutRecord;
+
 class L1GlobalTrigger;
 class L1GtFdlWord;
 
@@ -44,7 +52,24 @@ public:
     virtual ~L1GlobalTriggerFDL();
 
     /// run the FDL
-    void run(int iBxInEvent, const edm::EventSetup& evSetup);
+    void run(
+        edm::Event& iEvent,
+        const edm::EventSetup& evSetup,
+        const std::vector<L1GtBoard>& boardMaps,
+        const int totalBxInEvent,
+        const int iBxInEvent);
+
+    /// fill the FDL block in the L1 GT DAQ record for iBxInEvent
+    void fillDaqFdlBlock(
+        const boost::uint16_t& activeBoardsGtDaq,
+        const std::vector<L1GtBoard>& boardMaps,
+        std::auto_ptr<L1GlobalTriggerReadoutRecord>& gtDaqReadoutRecord);
+
+    /// fill the FDL block in the L1 GT EVM record for iBxInEvent
+    void fillEvmFdlBlock(
+        const boost::uint16_t& activeBoardsGtEvm,
+        const std::vector<L1GtBoard>& boardMaps,
+        std::auto_ptr<L1GlobalTriggerEvmReadoutRecord>& gtEvmReadoutRecord);
 
     /// clear FDL
     void reset();

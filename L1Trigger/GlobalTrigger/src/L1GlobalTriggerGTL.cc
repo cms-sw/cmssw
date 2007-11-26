@@ -100,59 +100,51 @@ L1GlobalTriggerGTL::~L1GlobalTriggerGTL()
 
 // operations
 
-// receive input data
-
-void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent,
-                                     const edm::InputTag& muGmtInputTag, const int iBxInEvent,
-                                     const edm::EventSetup& evSetup)
+// receive data from Global Muon Trigger
+void L1GlobalTriggerGTL::receiveGmtObjectData(
+    edm::Event& iEvent,
+    const edm::InputTag& muGmtInputTag, const int iBxInEvent,
+    const bool receiveMu, const unsigned int nrL1Mu)
 {
 
+    //
     reset();
 
-    // check if GMT board is disabled
+    //
+    if ( receiveMu ) {
 
-    // get from EventSetup: active boards
-    edm::ESHandle< L1GtParameters > l1GtPar ;
-    evSetup.get< L1GtParametersRcd >().get( l1GtPar ) ;
+        LogDebug("L1GlobalTriggerGTL")
+        << "**** L1GlobalTriggerGTL receiving muon data from input tag "
+        << muGmtInputTag.label()
+        << std::endl;
 
-    boost::uint16_t activeBoards = l1GtPar->gtActiveBoards();
+        // get data from Global Muon Trigger
 
-    // get "active boards" map
-    edm::ESHandle< L1GtBoardMaps > l1GtBM;
-    evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
+        edm::Handle<std::vector<L1MuGMTCand> > muonData;
+        iEvent.getByLabel(muGmtInputTag.label(), muonData);
 
-    std::map<L1GtBoard, int> activeBoardsMap = l1GtBM->gtDaqActiveBoardsMap();
-    typedef std::map<L1GtBoard, int>::const_iterator CItActive;
+        for ( unsigned int iMuon = 0; iMuon < nrL1Mu; iMuon++ ) {
 
-    // just one GMT board
-    // TODO one could use the record map however to find the GMT board
-    int iBoard = 0;
-    L1GtBoard gmtBoard = L1GtBoard(GMT, iBoard);
+            L1MuGMTCand muCand;
+            unsigned int nMuon = 0;
 
-    // skip if the board is not active
-    bool activeBoard = false;
+            std::vector< L1MuGMTCand >::const_iterator itMuon;
+            for (itMuon = muonData->begin(); itMuon != muonData->end(); itMuon++ ) {
 
-    CItActive itBoard = activeBoardsMap.find(gmtBoard);
-    if (itBoard != activeBoardsMap.end()) {
-        activeBoard = activeBoards & (1 << (itBoard->second));
+                // retrieving info for a given bx only
+                if ( (*itMuon).bx() == iBxInEvent ) {
+                    if ( nMuon == iMuon ) {
+                        muCand = (*itMuon);
+                        break;
+                    }
+                    nMuon++;
+                }
+            }
+
+            (*glt_muonCand)[iMuon] = new L1MuGMTCand( muCand );
+        }
+
     } else {
-
-        // board not found in the map
-        LogDebug("L1GlobalTriggerGTL")
-        << "\nBoard of type " << itBoard->first.boardType()
-        << " with index "  << itBoard->first.boardIndex()
-        << " not found in the activeBoardsMap\n"
-        << std::endl;
-
-    }
-
-    if ( !activeBoard ) {
-
-        LogDebug("L1GlobalTriggerGTL")
-        << "\nBoard of type " << itBoard->first.boardType()
-        << " with index "  << itBoard->first.boardIndex()
-        << " not active (from activeBoardsMap)\n"
-        << std::endl;
 
         LogDebug("L1GlobalTriggerGTL")
         << "\n**** Global Muon input disabled!"
@@ -160,56 +152,19 @@ void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent,
         << std::endl;
 
         // set all muon candidates empty
-        for ( unsigned int
-                iMuon = 0;
-                iMuon < L1GlobalTriggerReadoutSetup::NumberL1Muons; iMuon++ ) {
+        for ( unsigned int iMuon = 0; iMuon < nrL1Mu; iMuon++ ) {
 
             MuonDataWord dataword = 0;
             (*glt_muonCand)[iMuon] = new L1MuGMTCand( dataword );
         }
 
-        return;
-
     }
 
-    LogDebug("L1GlobalTriggerGTL")
-    << "**** L1GlobalTriggerGTL receiving muon data from input tag "
-    << muGmtInputTag.label()
-    << std::endl;
-
-
-    // get data from Global Muon Trigger
-    // the GLT receives 4 * 26 bits from the Global Muon Trigger
-
-    edm::Handle<std::vector<L1MuGMTCand> > muonData;
-    iEvent.getByLabel(muGmtInputTag.label(), muonData);
-
-    for ( unsigned int iMuon = 0; iMuon < L1GlobalTriggerReadoutSetup::NumberL1Muons; iMuon++ ) {
-
-        L1MuGMTCand muCand;
-        unsigned int nMuon = 0;
-
-        for (std::vector<L1MuGMTCand>::const_iterator
-                itMuon = muonData->begin();
-                itMuon != muonData->end();
-                itMuon++ ) {
-
-            // retrieving info for a given bx only
-            if ( (*itMuon).bx() == iBxInEvent ) {
-                if ( nMuon == iMuon ) {
-                    muCand = (*itMuon);
-                    break;
-                }
-                nMuon++;
-            }
-        }
-
-        (*glt_muonCand)[iMuon] = new L1MuGMTCand( muCand );
-    }
 
     if ( edm::isDebugEnabled() ) {
         printGmtData(iBxInEvent);
     }
+
 }
 
 // run GTL
@@ -434,8 +389,7 @@ void L1GlobalTriggerGTL::reset()
 
 }
 
-// print Global Muon Trigger data
-
+// print Global Muon Trigger data received by GTL
 void L1GlobalTriggerGTL::printGmtData(int iBxInEvent) const
 {
 
@@ -450,27 +404,8 @@ void L1GlobalTriggerGTL::printGmtData(int iBxInEvent) const
 
         (*iter)->print();
 
-        LogTrace("L1GlobalTriggerGTL")
-        << "Indices: pt = " << (*iter)->ptIndex()
-        << " eta = " << (*iter)->etaIndex()
-        << " phi = " << (*iter)->phiIndex()
-        << std::endl;
-
     }
 
     LogTrace("L1GlobalTriggerGTL") << std::endl;
 
-}
-
-
-const std::vector<MuonDataWord> L1GlobalTriggerGTL::getMuons() const
-{
-
-    std::vector<MuonDataWord> muon(L1GlobalTriggerReadoutSetup::NumberL1Muons);
-
-    for (unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1Muons; i++) {
-        muon[i] = (*glt_muonCand)[i]->getDataWord();
-    }
-
-    return muon;
 }

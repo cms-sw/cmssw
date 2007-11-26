@@ -117,7 +117,7 @@ const bool L1GlobalTriggerJetCountsTemplate::blockCondition() const {
     ObjectTypeInCond typeInCond;
 
     // get jet counts and set the type
-    L1GctJetCounts* jetNr = m_GT.gtPSB()->getJetCountsList();
+    L1GctJetCounts* jetNr = m_GT.gtPSB()->getListJetCounts();
 
     typeInCond.push_back(JetCounts);
     (*p_objectsInCond) = typeInCond;

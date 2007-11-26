@@ -46,78 +46,122 @@ class L1GctEtHad;
 
 class L1GctJetCounts;
 
+class L1GlobalTriggerReadoutRecord;
+
 // class declaration
-class L1GlobalTriggerPSB 
+class L1GlobalTriggerPSB
 {
-  
+
 public:
-    
+
     // constructor
     L1GlobalTriggerPSB(L1GlobalTrigger& gt);
-    
+
     // destructor
     virtual ~L1GlobalTriggerPSB();
-    
+
 public:
-  
+
     typedef std::vector<L1GctCand*> CaloVector;
 
 public:
-  
-    /// receive input data
-    void receiveData(edm::Event&, const edm::InputTag&, const int iBxInEvent, 
-        const edm::EventSetup&);
-    
+
+    /// receive Global Calorimeter Trigger objects
+    void receiveGctObjectData(
+        edm::Event& iEvent,
+        const edm::InputTag& caloGctInputTag, const int iBxInEvent,
+        const bool receiveNoIsoEG, const unsigned int nrL1NoIsoEG,
+        const bool receiveIsoEG, const unsigned int nrL1IsoEG,
+        const bool receiveCenJet, const unsigned int nrL1CenJet,
+        const bool receiveForJet, const unsigned int nrL1ForJet,
+        const bool receiveTauJet, const unsigned int nrL1TauJet,
+        const bool receiveETM, const bool receiveETT, const bool receiveHTT,
+        const bool receiveJetCounts);
+
+    /// fill the content of active PSB boards
+    void fillPsbBlock(
+        edm::Event& iEvent,
+        const edm::EventSetup& evSetup,
+        const int iBxInEvent,
+        std::auto_ptr<L1GlobalTriggerReadoutRecord>& gtDaqReadoutRecord);
+
     /// clear PSB
     void reset();
-    
-    /// print Global Calorimter Trigger data  
-    void printGctData() const;
-    
-    /// pointer to electron data list 
-    inline const CaloVector* getElectronList() const { return glt_electronList; }
 
-    /// pointer to isolated electron data list 
-    inline const CaloVector* getIsolatedElectronList() const { return glt_isolatedElectronList; }
+    /// print Global Calorimeter Trigger data
+    void printGctObjectData() const;
 
-    /// pointer to central jet data list 
-    inline const CaloVector* getCentralJetList() const { return glt_centralJetList; }
+    /// pointer to NoIsoEG data list
+    inline const CaloVector* getListNoIsoEG() const
+    {
+        return m_listNoIsoEG;
+    }
 
-    /// pointer to forward jet data list 
-    inline const CaloVector* getForwardJetList() const { return glt_forwardJetList; }
+    /// pointer to IsoEG data list
+    inline const CaloVector* getListIsoEG() const
+    {
+        return m_listIsoEG;
+    }
 
-    /// pointer to tau jet data list 
-    inline const CaloVector* getTauJetList() const { return glt_tauJetList; }
+    /// pointer to CenJet data list
+    inline const CaloVector* getListCenJet() const
+    {
+        return m_listCenJet;
+    }
 
-    /// pointer to Missing Et data list
-    inline L1GctEtMiss* getCaloMissingEtList() const { return glt_missingEtList; }
+    /// pointer to ForJet data list
+    inline const CaloVector* getListForJet() const
+    {
+        return m_listForJet;
+    }
 
-    /// pointer to Total Et data list 
-    inline L1GctEtTotal* getCaloTotalEtList() const { return glt_totalEtList; }
+    /// pointer to TauJet data list
+    inline const CaloVector* getListTauJet() const
+    {
+        return m_listTauJet;
+    }
 
-    /// pointer to Total Ht data list 
-    inline L1GctEtHad* getCaloTotalHtList() const { return glt_totalHtList; }
-    
-    /// pointer to Jet-counts data list 
-    inline L1GctJetCounts* getJetCountsList() const { return glt_jetCountsList; }
-    
+    /// pointer to ETM data list
+    inline L1GctEtMiss* getListETM() const
+    {
+        return m_listETM;
+    }
+
+    /// pointer to ETT data list
+    inline L1GctEtTotal* getListETT() const
+    {
+        return m_listETT;
+    }
+
+    /// pointer to HTT data list
+    inline L1GctEtHad* getListHTT() const
+    {
+        return m_listHTT;
+    }
+
+    /// pointer to JetCounts data list
+    inline L1GctJetCounts* getListJetCounts() const
+    {
+        return m_listJetCounts;
+    }
+
 private:
-    
+
     const L1GlobalTrigger& m_GT;
 
-    CaloVector* glt_electronList;
-    CaloVector* glt_isolatedElectronList;
-    CaloVector* glt_centralJetList;
-    CaloVector* glt_forwardJetList;
-    CaloVector* glt_tauJetList;
+    CaloVector* m_listNoIsoEG;
+    CaloVector* m_listIsoEG;
+    CaloVector* m_listCenJet;
+    CaloVector* m_listForJet;
+    CaloVector* m_listTauJet;
 
-    L1GctEtMiss*  glt_missingEtList;
-    L1GctEtTotal* glt_totalEtList;
-    L1GctEtHad*   glt_totalHtList;
-    
-    L1GctJetCounts* glt_jetCountsList;
+    L1GctEtMiss*  m_listETM;
+    L1GctEtTotal* m_listETT;
+    L1GctEtHad*   m_listHTT;
+
+    L1GctJetCounts* m_listJetCounts;
 
 
 };
-    
+
 #endif

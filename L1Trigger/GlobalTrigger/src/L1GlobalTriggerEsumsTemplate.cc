@@ -136,7 +136,7 @@ const bool L1GlobalTriggerEsumsTemplate::blockCondition() const
 
     switch (p_sumtype) {
         case ETT_ST: {
-                L1GctEtTotal* cand1 = m_GT.gtPSB()->getCaloTotalEtList();
+                L1GctEtTotal* cand1 = m_GT.gtPSB()->getListETT();
 
                 typeInCond.push_back(ETT);
                 (*p_objectsInCond) = typeInCond;
@@ -150,7 +150,7 @@ const bool L1GlobalTriggerEsumsTemplate::blockCondition() const
                 break;
             }
         case ETM_ST: {
-                L1GctEtMiss* cand2 = m_GT.gtPSB()->getCaloMissingEtList();
+                L1GctEtMiss* cand2 = m_GT.gtPSB()->getListETM();
 
                 typeInCond.push_back(ETM);
                 (*p_objectsInCond) = typeInCond;
@@ -165,7 +165,7 @@ const bool L1GlobalTriggerEsumsTemplate::blockCondition() const
                 break;
             }
         case HTT_ST: {
-                L1GctEtHad* cand3 = m_GT.gtPSB()->getCaloTotalHtList();
+                L1GctEtHad* cand3 = m_GT.gtPSB()->getListHTT();
 
                 typeInCond.push_back(HTT);
                 (*p_objectsInCond) = typeInCond;

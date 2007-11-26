@@ -86,11 +86,25 @@ private:
     L1GlobalTriggerPSB* m_gtPSB;
     L1GlobalTriggerGTL* m_gtGTL;
     L1GlobalTriggerFDL* m_gtFDL;
-    
+
+    /// input tag for muon collection from GMT
     edm::InputTag m_muGmtInputTag;
 
+    /// input tag for calorimeter collections from GCT
     edm::InputTag m_caloGctInputTag;
-    
+
+
+    /// logical flag to produce the L1 GT DAQ readout record
+    bool m_produceL1GtDaqRecord;
+
+    /// logical flag to produce the L1 GT EVM readout record
+    bool m_produceL1GtEvmRecord;
+
+    /// logical flag to produce the L1 GT object map record
+    bool m_produceL1GtObjectMapRecord;
+
+    // logical flag to write the PSB content in the  L1 GT DAQ record
+    bool m_writePsbL1GtDaqRecord;
 
 };
 
