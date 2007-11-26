@@ -5,36 +5,43 @@
  *
  *  Classes for new HLT data model (to be split into separate header files)
  *
- *  $Date: 2007/11/16 09:20:06 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/11/16 10:50:44 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/Handle.h"
 
-#include <cassert>
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TauReco/interface/HLTTauFwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+
 #include <string>
 #include <vector>
 
-namespace reco
+namespace trigger
 {
 
+
+  /// 4-momentum of a trigger physics object
   typedef math::PtEtaPhiMLorentzVectorF TriggerFourMomentum;
 
 
-  /// individual physics object (e.g., electron or muon or jet)
+  /// Single trigger physics object (e.g., an isolated muon)
   class TriggerObject {
 
+  /// data members
   private:
     /// 4-momentum of physics object
     TriggerFourMomentum objectP4_;
     /// id or type - similar to pdgId
     int objectId_;
 
+  /// methods
   public:
     /// constructors
     TriggerObject(): objectP4_(), objectId_() { }
@@ -46,249 +53,277 @@ namespace reco
 
     /// getters
     const TriggerFourMomentum& getP4() const {return objectP4_;}
-    const int & getId() const {return objectId_;}
+    int getId() const {return objectId_;}
 
   };
 
 
-  /// collection of physics objects (e.g., all electrons or all muons)
-  class TriggerCollection {
+  /// collection of trigger physics objects (e.g., all isolated muons)
+  typedef std::vector<TriggerObject> TriggerObjectCollection;
 
+
+  /// Transient book-keeping EDProduct filled by HLTFilter modules
+  /// to record physics objects firing the filter (never persistent)
+  /// (same functionality but different implementation as
+  ///  HLTFilterObjectWithRefs)
+  class TriggerFilterObjectWithRefs {
+
+  /// data members
   private:
-    /// objects making the collection
-    std::vector<TriggerObject> triggerObjects_;
-    /// id or type - of collection
-    int collectionId_;
-
-  public:
-    /// constructors
-    TriggerCollection(): triggerObjects_(), collectionId_() { }
-    TriggerCollection(const std::vector<TriggerObject>& triggerObjects, int Id=0):
-      triggerObjects_(triggerObjects), collectionId_(Id) { }
-
-    /// setters
-    void setCollection(const std::vector<TriggerObject>& triggerObjects) {triggerObjects_=triggerObjects;}
-    void setId(int Id) {collectionId_=Id;}
-    void addObject(const TriggerObject& triggerObject) {triggerObjects_.push_back(triggerObject);}
-
-    /// getters
-    const std::vector<TriggerObject>& getCollection() const {return triggerObjects_;}
-    int getId() const {return collectionId_;}
-    const TriggerObject& getObject(int index) {return triggerObjects_.at(index);}
-
-  };
-
-
-  /// collection of physics object collections (all electrons and muons and...)
-  /// only needed if we want _one_ EDProduct containing _all_
-  /// TriggerCollections!
-  class TriggerGlobalCollection {
-
-  private:
-    ///
-    std::vector<TriggerCollection> triggerCollections_;
-
-  public:
-    /// constructors
-    TriggerGlobalCollection(): triggerCollections_() { }
-    TriggerGlobalCollection(const std::vector<TriggerCollection>& triggerCollections):
-      triggerCollections_(triggerCollections) { }
-    /// setters
-    void addCollection(const TriggerCollection& triggerCollection) {
-      triggerCollections_.push_back(triggerCollection);}
-    /// getters
-    const TriggerCollection& getCollection(int i) const {
-      return triggerCollections_.at(i);
-    }
-
-  };
-
-
-  /// Non-templated pointer class, pointing to an object within a collection
-  class TriggerPointer { // should be edm::Ref<C> or edm::Ptr<T> ??
-
-  private:
-    /// id of product pointed to
-    edm::ProductID productID_;
-    /// key to get item within collection pointed to (-1 = none)
-    long int       key_;
-
-  public:
-    /// constructors
-    TriggerPointer(): productID_(), key_() { key_=-1; }
-    TriggerPointer(const edm::ProductID& productID, int key=-1):
-      productID_(productID), key_(key) { }
-
-    template <typename C> 
-    TriggerPointer(const edm::Handle<C>& handle, int key=-1):
-      productID_(handle.id()), key_(key) { }
-    template <typename C> 
-    TriggerPointer(const edm::RefProd<C>& refprod, int key=-1):
-      productID_(refprod.id()), key_(key) { }
-    template <typename C> 
-    TriggerPointer(const edm::RefToBaseProd<C>& reftobaseprod, int key=-1):
-      productID_(reftobaseprod.id()), key_(key) { }
-
-    template <typename C> 
-    TriggerPointer(const edm::Ref<C>& ref):
-      productID_(ref.id()), key_(ref.key()) { }
-    template <typename C> 
-    TriggerPointer(const edm::RefToBase<C>& reftobase):
-      productID_(reftobase.id()), key_(reftobase.key()) { }
-    template <typename T> 
-    TriggerPointer(const edm::Ptr<T> ptr):
-      productID_(ptr.id()), key_(ptr.key()) { }
-
-    /// setters
-    void setProductID (const edm::ProductID& productID) {productID_=productID;}
-    void setKey (int key=-1) {key_=key;}
-
-    /// getters
-    const edm::ProductID& id() const {return productID_;}
-    const long int& key() const {return key_;}
-
-    /// the user needs to provide a Handle to the EDProduct
-    template <typename C>
-    const edm::RefProd<C> getRefProd(const edm::Handle<C>& handle) const {
-      assert(handle.isValid());
-      assert(handle.id()==id()); 
-      edm::RefProd<C> refprod(handle);
-      return refprod;
-    }
-    template <typename C>
-    const edm::Ref<C> getRef(const edm::Handle<C>& handle) const {
-      edm::RefProd<C> refprod(getRefProd<C>(handle));
-      assert (key_>=0);
-      edm::Ref<C> ref(refprod,static_cast<unsigned long int>(key_));
-      return ref;
-    }
-    template <typename C>
-    const edm::Ref<C> getRef(const edm::RefProd<C>& refprod) const {
-      assert (key_>=0);
-      edm::Ref<C> ref(refprod,static_cast<unsigned int>(key_));
-      return ref;
-    }
-    template <typename T>
-    const edm::Ptr<T> getPtr() const {
-      assert (key_>=0);
-      edm::Ptr<T> ptr(id(),key());
-      return ptr;
-    }
-
-  };
-
-
-  /// Collection of pointers to physics objects belonging to a filter on a trigger path
-  class TriggerFilterCollection {
-
-  private:
-    /// filter module label
+    /// label of filter module for which the info is recorded here
+    /// (can be recovered from "provenance" of product instance? how?)
     std::string filterLabel_;
-    /// non-owning pointers into collections
-    std::vector<TriggerPointer> triggerPointers_;
-    /// id or type - of collection
-    int collectionId_;
+    /// non-owning pointers into TriggerObjectCollections
+    std::vector<edm::Ref<TriggerObjectCollection> > triggerObjects_;
+    /// ... or into original collections
+    std::vector<edm::Ref<reco::PhotonCollection> > photons_;
+    std::vector<edm::Ref<reco::ElectronCollection> > electrons_;
+    std::vector<edm::Ref<reco::MuonCollection> > muons_;
+    std::vector<edm::Ref<reco::HLTTauCollection> > taus_;
+    std::vector<edm::Ref<reco::CaloJetCollection> > jets_;
     
+  /// methods
   public:
     /// constructors
-    TriggerFilterCollection(): filterLabel_(), triggerPointers_(), collectionId_() { }
-    TriggerFilterCollection(const std::string& filterLabel, const std::vector<TriggerPointer>& triggerPointers, int Id=0):
-      filterLabel_(filterLabel), triggerPointers_(triggerPointers), collectionId_(Id) { }
+    TriggerFilterObjectWithRefs():
+      filterLabel_(), triggerObjects_(),
+      photons_(), electrons_(), muons_(), taus_(), jets_() { }
+    TriggerFilterObjectWithRefs(const std::string& filterLabel):
+      filterLabel_(filterLabel), triggerObjects_(),
+      photons_(), electrons_(), muons_(), taus_(), jets_() { }
 
     /// setters
-    void setLabel(const std::string& filterLabel) {filterLabel_=filterLabel;}
-    void setCollection(const std::vector<TriggerPointer>& triggerPointers) {triggerPointers_=triggerPointers;}
-    void setId(int Id) {collectionId_=Id;}
-    void addObject(const TriggerPointer& triggerPointer) {triggerPointers_.push_back(triggerPointer);}
+    void addObject(const edm::Ref<trigger::TriggerObjectCollection>& triggerObject) {triggerObjects_.push_back(triggerObject);}
+    void addObject(const edm::Ref<reco::PhotonCollection>& photon) {photons_.push_back(photon);}
+    void addObject(const edm::Ref<reco::ElectronCollection>& electron) {electrons_.push_back(electron);}
+    void addObject(const edm::Ref<reco::MuonCollection>& muon) {muons_.push_back(muon);}
+    void addObject(const edm::Ref<reco::HLTTauCollection>& tau) {taus_.push_back(tau);}
+    void addObject(const edm::Ref<reco::CaloJetCollection>& jet) {jets_.push_back(jet);}
 
     /// getters
     const std::string& getLabel() const {return filterLabel_;}
-    const std::vector<TriggerPointer>& getPointers() const {return triggerPointers_;}
-    int getId() const {return collectionId_;}
-    const TriggerPointer& getPointer(int index) const {return triggerPointers_.at(index);}
+    const std::vector<edm::Ref<trigger::TriggerObjectCollection> >& getTriggerObjects() const {return triggerObjects_;}
+    const std::vector<edm::Ref<reco::PhotonCollection> >& getPhotons() const {return photons_;}
+    const std::vector<edm::Ref<reco::ElectronCollection> >& getElectrons() const {return electrons_;}
+    const std::vector<edm::Ref<reco::MuonCollection> >& getMuons() const {return muons_;}
+    const std::vector<edm::Ref<reco::HLTTauCollection> >& getTaus() const {return taus_;}
+    const std::vector<edm::Ref<reco::CaloJetCollection> >& getJets() const {return jets_;}
 
   };
 
 
-  /// Collection of pointer collections describing the trigger table
-  /// only needed if we want _one_ EDProduct containing _all_ 
-  /// TriggerFilter collections!
-  class TriggerTableCollection {
 
-  private:
-    std::vector<TriggerFilterCollection> triggerFilterCollections_;
-
-  public:
-    /// constructors
-    TriggerTableCollection(): triggerFilterCollections_() { }
-    TriggerTableCollection(const std::vector<TriggerFilterCollection>& triggerFilterCollections):
-      triggerFilterCollections_(triggerFilterCollections) { }
-    /// setters
-    void addFilterCollection(const TriggerFilterCollection& triggerFilterCollection) {
-      triggerFilterCollections_.push_back(triggerFilterCollection);}
-    /// getters
-    const TriggerFilterCollection& getFilterCollection(int i) const {
-      return triggerFilterCollections_.at(i);
-    }
-
-  };
-
-
-  /// Classes to allow one single combined EDProduct containing all
-  /// objects and pointers, such that pointers are just indices.
-
-  class TriggerFilter {
-    
-  private:
-    /// filter module label
-    std::string filterLabel_;
-    /// indices into linearised trigger objects vector of TriggerEvent
-    std::vector<int> filterKeys_;
-    
-  public:
-    /// constructors
-    TriggerFilter(): filterLabel_(), filterKeys_() { }
-    TriggerFilter(const std::string& filterLabel): filterLabel_(filterLabel), filterKeys_() { }
-    TriggerFilter(const std::string& filterLabel, const std::vector<int>& filterKeys): filterLabel_(filterLabel), filterKeys_(filterKeys) { }
-
-    /// setters
-    void setLabel(const std::string& filterLabel) {filterLabel_=filterLabel;}
-    void setKeys(const std::vector<int>& filterKeys) {filterKeys_=filterKeys;}
-    void addKey(int key) {filterKeys_.push_back(key);} 
-
-    /// getters
-    const std::string& getLabel() const {return filterLabel_;}
-    const std::vector<int>& getKeys() const {return filterKeys_;}
-    int getKey(int index) const {return filterKeys_.at(index);}
-  };
-  
+  /// The single EDProduct to be saved for each event (AOD case)
   class TriggerEvent {
-    
-  private:
-    /// the trigger objects
-    std::vector<TriggerObject> triggerObjects_;
-    /// the relevant filters with their indices
-    std::vector<TriggerFilter> triggerFilters_;
 
+  private:
+
+    /// Helper class: recording trigger objects firing a single filter
+    class TriggerFilterObject {
+    public:
+      /// the label of the filter
+      std::string filterLabel_;
+      /// indices pointing into collection of unique TriggerObjects
+      std::vector<size_t> filterKeys_;
+
+      /// constructors
+      TriggerFilterObject(): filterLabel_(), filterKeys_() { }
+      TriggerFilterObject(const std::string& filterLabel): filterLabel_(filterLabel), filterKeys_() { }
+      TriggerFilterObject(const std::string& filterLabel, const std::vector<size_t>& filterKeys): filterLabel_(filterLabel), filterKeys_(filterKeys) { }
+    };
+
+  /// data members
+  private:
+
+    /// collection of all unique physics objects (linearised vector)
+    TriggerObjectCollection triggerObjects_;
+    /// collection of all TriggerFilterObjects
+    std::vector<TriggerFilterObject> triggerFilters_;
+
+  ///methods
   public:
     /// constructors
     TriggerEvent(): triggerObjects_(), triggerFilters_() { }
-    TriggerEvent(const std::vector<TriggerObject>& triggerObjects, const std::vector<TriggerFilter>& triggerFilters) : triggerObjects_(triggerObjects), triggerFilters_(triggerFilters) { }
 
     /// setters
-    void setObjects(const std::vector<TriggerObject>& triggerObjects) {triggerObjects_=triggerObjects;}
     void addObject(const TriggerObject& triggerObject) {triggerObjects_.push_back(triggerObject);}
-    void setFilters(const std::vector<TriggerFilter>& triggerFilters) {triggerFilters_=triggerFilters;}
-    void addFilter(const TriggerFilter& triggerFilter) {triggerFilters_.push_back(triggerFilter);}
+    void addFilter(const std::string& filterLabel, const std::vector<size_t>& keys) {triggerFilters_.push_back(TriggerFilterObject(filterLabel, keys));}
 
     /// getters
-    const std::vector<TriggerObject>& getObjects() const {return triggerObjects_;}
-    const std::vector<TriggerFilter>& getFilters() const {return triggerFilters_;}
-    const TriggerObject& getObject(int index) const {return triggerObjects_.at(index);}
-    const TriggerFilter& getFilter(int index) const {return triggerFilters_.at(index);}
-   
+    const TriggerObjectCollection& getObjects() const {return triggerObjects_;}
+    const TriggerObject& getObject(size_t index) const {return triggerObjects_.at(index);}
+    const std::string& getFilterLabel(size_t index) const {return triggerFilters_.at(index).filterLabel_;}
+    const std::vector<size_t>& getFilterKeys(size_t index) const {return triggerFilters_.at(index).filterKeys_;}
+
+    /// other
+    size_t numObjects() const {return triggerObjects_.size();}
+    size_t numFilters() const {return triggerFilters_.size();}
+
   };
-  
+
+
+
+  /// The single EDProduct to be saved in addition for each event (RAW case)
+  class TriggerEventWithRefs {
+
+  private:
+
+    /// Helper class: trigger objects firing a single filter
+    class TriggerFilterObject {
+    public:
+      /// label of filter
+      std::string filterLabel_;
+      /// end indices into linearised vector of Refs
+      /// (-> first start index is always 0)
+      size_t photons_;
+      size_t electrons_;
+      size_t muons_;
+      size_t taus_;
+      size_t jets_;
+      /// constructor
+      TriggerFilterObject() :
+	filterLabel_(),
+	photons_(0), electrons_(0), muons_(0), taus_(0), jets_(0) { }
+      TriggerFilterObject(const std::string& filterLabel,
+          size_t np, size_t ne, size_t nm, size_t nt, size_t nj) :
+	filterLabel_(filterLabel),
+	photons_(np), electrons_(ne), muons_(nm), taus_(nt), jets_(nj) { }
+    };
+
+  /// data members
+  private:
+    /// the filters recorded here
+    std::vector<trigger::TriggerEventWithRefs::TriggerFilterObject> filterObjects_;
+    /// non-owning pointers into collections (linearised)
+    std::vector<edm::Ref<reco::PhotonCollection> > photons_;
+    std::vector<edm::Ref<reco::ElectronCollection> > electrons_;
+    std::vector<edm::Ref<reco::MuonCollection> > muons_;
+    std::vector<edm::Ref<reco::HLTTauCollection> > taus_;
+    std::vector<edm::Ref<reco::CaloJetCollection> > jets_;
+   
+  /// methods
+  public:
+    /// constructors
+    TriggerEventWithRefs(): filterObjects_(),
+      photons_(), electrons_(), muons_(), taus_(), jets_() { }
+
+    /// setters - to build EDProduct
+    void addObject(const TriggerFilterObjectWithRefs& tfowr) {
+      photons_.insert(photons_.end(),tfowr.getPhotons().begin(),tfowr.getPhotons().end());
+      electrons_.insert(electrons_.end(),tfowr.getElectrons().begin(),tfowr.getElectrons().end());
+      muons_.insert(muons_.end(),tfowr.getMuons().begin(),tfowr.getMuons().end());
+      taus_.insert(taus_.end(),tfowr.getTaus().begin(),tfowr.getTaus().end());
+      jets_.insert(jets_.end(),tfowr.getJets().begin(),tfowr.getJets().end());
+      filterObjects_.push_back(
+        TriggerFilterObject (tfowr.getLabel(), 
+			    photons_.size(), electrons_.size(), 
+			    muons_.size(), taus_.size(), jets_.size()
+			    )
+	);
+    }
+
+    /// getters - for user access
+    size_t numFilters() const {return filterObjects_.size();}
+
+    const std::string& getFilterLabel(size_t key) const {return filterObjects_.at(key).filterLabel_;}
+
+
+    size_t find(const std::string& filterLabel) const {
+      for (size_t i=0; i!=numFilters(); ++i) {
+	if (filterLabel==filterObjects_[i].filterLabel_) {return i;}
+      }
+      return numFilters();
+    }
+
+    size_t numPhotons(size_t key) const {
+      return filterObjects_.at(key).photons_ - (key==0? 0 : filterObjects_.at(key-1).photons_);
+    }
+    size_t numPhotons(const std::string& filterLabel) const {
+      return numPhotons(find(filterLabel));
+    }
+
+    size_t numElectrons(size_t key) const {
+      return filterObjects_.at(key).electrons_ - (key==0? 0 : filterObjects_.at(key-1).electrons_);
+    }
+    size_t numElectrons(const std::string& filterLabel) const {
+      return numElectrons(find(filterLabel));
+    }
+
+    size_t numMuons(size_t key) const {
+      return filterObjects_.at(key).muons_ - (key==0? 0 : filterObjects_.at(key-1).muons_);
+    }
+    size_t numMuons(const std::string& filterLabel) const {
+      return numMuons(find(filterLabel));
+    }
+
+    size_t numTaus(size_t key) const {
+      return filterObjects_.at(key).taus_ - (key==0? 0 : filterObjects_.at(key-1).taus_);
+    }
+    size_t numTaus(const std::string& filterLabel) const {
+      return numTaus(find(filterLabel));
+    }
+
+    size_t numJets(size_t key) const {
+      return filterObjects_.at(key).jets_ - (key==0? 0 : filterObjects_.at(key-1).jets_);
+    }
+    size_t numJets(const std::string& filterLabel) const {
+      return numJets(find(filterLabel));
+    }
+
+    /// iterators
+
+    std::vector<edm::Ref<reco::PhotonCollection> >::const_iterator
+      photons_begin(size_t key) const
+    { return photons_.begin() + 
+      (key==0? 0 : filterObjects_.at(key-1).photons_);
+    }
+    std::vector<edm::Ref<reco::PhotonCollection> >::const_iterator
+      photons_end(size_t key) const
+    { return photons_.begin() + filterObjects_.at(key).photons_; }
+
+
+    std::vector<edm::Ref<reco::ElectronCollection> >::const_iterator
+      electrons_begin(size_t key) const
+    { return electrons_.begin() + 
+      (key==0? 0 : filterObjects_[key-1].electrons_);
+    }
+    std::vector<edm::Ref<reco::ElectronCollection> >::const_iterator
+      electrons_end(size_t key) const
+    { return electrons_.begin() + filterObjects_[key].electrons_; }
+
+
+    std::vector<edm::Ref<reco::MuonCollection> >::const_iterator
+      muons_begin(size_t key) const
+    { return muons_.begin() + 
+      (key==0? 0 : filterObjects_[key-1].muons_);
+    }
+    std::vector<edm::Ref<reco::MuonCollection> >::const_iterator
+      muons_end(size_t key) const
+    { return muons_.begin() + filterObjects_[key].muons_; }
+
+
+    std::vector<edm::Ref<reco::HLTTauCollection> >::const_iterator
+      taus_begin(size_t key) const
+    { return taus_.begin() + 
+      (key==0? 0 : filterObjects_[key-1].taus_);
+    }
+    std::vector<edm::Ref<reco::HLTTauCollection> >::const_iterator
+      taus_end(size_t key) const
+    { return taus_.begin() + filterObjects_[key].taus_; }
+
+
+    std::vector<edm::Ref<reco::CaloJetCollection> >::const_iterator
+      jets_begin(size_t key) const
+    { return jets_.begin() + 
+      (key==0? 0 : filterObjects_[key-1].jets_);
+    }
+    std::vector<edm::Ref<reco::CaloJetCollection> >::const_iterator
+      jets_end(size_t key) const
+    { return jets_.begin() + filterObjects_[key].jets_; }
+
+
+  };
+
 }
 
 #endif

@@ -65,25 +65,15 @@ namespace {
     HLTPerformanceInfo::Path::const_iterator pw13;
 
 
-    reco::TriggerObject to;
-    reco::TriggerCollection tc;
-    reco::TriggerGlobalCollection tg;
+    trigger::TriggerObjectCollection toc;
+    trigger::TriggerFilterObjectWithRefs tfowr;
+    trigger::TriggerEvent te;
+    trigger::TriggerEventWithRefs tewr;
 
-    reco::TriggerPointer tp;
-    reco::TriggerFilterCollection tfc;
-    reco::TriggerTableCollection ttc;
-    reco::TriggerFilter tf;
-    reco::TriggerEvent te;
-
-    edm::Wrapper<reco::TriggerObject> wto;
-    edm::Wrapper<reco::TriggerCollection> wtc;
-    edm::Wrapper<reco::TriggerGlobalCollection> wtg;
-
-    edm::Wrapper<reco::TriggerPointer> wtp;
-    edm::Wrapper<reco::TriggerFilterCollection> wtfc;
-    edm::Wrapper<reco::TriggerTableCollection> wttc;
-    edm::Wrapper<reco::TriggerFilter> wtf;
-    edm::Wrapper<reco::TriggerEvent> wte;
+    edm::Wrapper<trigger::TriggerObjectCollection> wtoc;
+    edm::Wrapper<trigger::TriggerFilterObjectWithRefs> wtfowr;
+    edm::Wrapper<trigger::TriggerEvent> wte;
+    edm::Wrapper<trigger::TriggerEventWithRefs> wtewr;
 
   }
 }
