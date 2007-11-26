@@ -239,6 +239,12 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		  buff[rollId]++;
 		  counter[2]=buff;
 	      }
+	    }else{
+	      RPCRecHitCollection::range rpcRecHitRange = rpcHits->get((*r)->id());
+	      RPCRecHitCollection::const_iterator recIt;
+	      for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
+		std::cout<<" Roll Not found -->"<<(*r)->id()<<std::endl;
+	      }
 	    }
 	  }
 	}
