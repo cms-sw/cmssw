@@ -15,6 +15,7 @@
 // ROOT classes
 #include "TLorentzVector.h"
 #include "TVector.h"
+#include "TVector3.h"
 #include "TVectorD.h"
 
 #include "TMatrix.h"
@@ -22,9 +23,10 @@
 #include "TMatrixDSym.h"
 #include "TMatrixTSym.h"
 
-//own code
+//TQAF classes
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
+#include "TopQuarkAnalysis/TopTools/interface/MEzCalculator.h"
 
 const double PI=3.14159265;
 
@@ -37,18 +39,19 @@ class TtSemiLRSignalSelObservables{
     TtSemiLRSignalSelObservables();
     ~TtSemiLRSignalSelObservables();	
 
-    void  operator()(TtSemiEvtSolution&);
-    
-    
+    void  operator()(TtSemiEvtSolution&, const std::vector<TopJet>&);
+   
   private:
+
+    vector<pair<unsigned int,double> > evtselectVarVal;
 
     // compare two jets in ET
     struct CompareET {
     	bool operator()( TopJet j1, TopJet j2 ) const
     	{
-    		return j1.getRecJet().et() > j2.getRecJet().et();
+		return j1.et() > j2.et();
     	}
-    		};
+    };
 
     CompareET EtComparator;
 
@@ -71,9 +74,7 @@ class TtSemiLRSignalSelObservables{
     };
   
     CompareDouble dComparator;
-  
-    vector<pair<unsigned int,double> > evtselectVarVal;
-    
+
 };
 
 #endif
