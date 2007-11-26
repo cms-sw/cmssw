@@ -32,13 +32,6 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
-
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
 
@@ -219,34 +212,6 @@ void L1GtAnalyzer::analyzeSetDecision(const edm::Event& iEvent, const edm::Event
 
 } // end snippet to test setting decision
 
-// print/access L1 objects in bunch cross with L1A
-void L1GtAnalyzer::analyzeL1Objects(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-    LogDebug("L1GtAnalyzer")
-    << "\n**** L1GtAnalyzer::analyzeL1Objects print/access L1 objects in L1GlobalTriggerReadoutRecord ****\n"
-    << std::endl;
-
-    // define an output stream to print into
-    // it can then be directed to whatever log level is desired
-    std::ostringstream myCoutStream;
-
-    // get L1GlobalTriggerReadoutRecord
-    edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel(m_daqGtInputTag.label(), gtReadoutRecord);
-
-    // print L1 objects in bunch cross with L1A
-    gtReadoutRecord->printL1Objects(myCoutStream);
-
-    edm::LogVerbatim("L1GtAnalyzer")
-    << myCoutStream.str()
-    << std::endl;
-
-    myCoutStream.str("");
-    myCoutStream.clear();
-
-}
-
-
 // test muon part in L1GlobalTriggerReadoutRecord
 void L1GtAnalyzer::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -272,29 +237,6 @@ void L1GtAnalyzer::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup&
         << "RefProd address = " << &muCollRefProd
         << std::endl;
 
-        // test all three variants to get muon index 0 in BXInEvent = 0
-        unsigned int indexCand = 0;
-        int bxInEvent = 0;
-
-        // test first if the record has the required number of candidates
-        if ((*muCollRefProd).getRecord(bxInEvent).getGMTCands().size() > indexCand) {
-            edm::LogInfo("L1GtAnalyzer")
-            << "Three variants to get muon index 0 in BXInEvent = 0"
-            << "\n via RefProd, muonCand(indexCand, bxInEvent), muonCand(indexCand)"
-            << std::endl;
-
-            L1MuGMTExtendedCand mu00 =
-                (*muCollRefProd).getRecord(bxInEvent).getGMTCands().at(indexCand);
-            mu00.print();
-
-            L1MuGMTExtendedCand mu00A = gtReadoutRecord->muonCand(indexCand, bxInEvent);
-            mu00A.print();
-
-            L1MuGMTExtendedCand mu00B = gtReadoutRecord->muonCand(indexCand);
-            mu00B.print();
-
-        }
-
         // test methods to get GMT records
         std::vector<L1MuGMTReadoutRecord> muRecords = (*muCollRefProd).getRecords();
         edm::LogInfo("L1GtAnalyzer")
@@ -302,43 +244,7 @@ void L1GtAnalyzer::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup&
         << muRecords.size()
         << std::endl;
 
-        for (std::vector<L1MuGMTReadoutRecord>::const_iterator itMu = muRecords.begin();
-                itMu < muRecords.end(); ++itMu) {
-
-            std::vector<L1MuGMTExtendedCand>
-            exc = itMu->getGMTCands();
-            for(std::vector<L1MuGMTExtendedCand>::const_iterator gmt_iter = exc.begin();
-                    gmt_iter != exc.end(); gmt_iter++) {
-
-                (*gmt_iter).print();
-            }
-
-        }
-
-        // test GMT record for BxInEvent = 0  (default argument)
-        std::vector<L1MuGMTExtendedCand> muRecord0 = gtReadoutRecord->muonCands();
-        edm::LogInfo("L1GtAnalyzer")
-        << "\nRecord for BxInEvent = 0 using default argument"
-        << std::endl;
-
-        for(std::vector<L1MuGMTExtendedCand>::const_iterator gmt_iter = muRecord0.begin();
-                gmt_iter != muRecord0.end(); gmt_iter++) {
-            (*gmt_iter).print();
-        }
-
-        // test GMT record for BxInEvent = 1
-        std::vector<L1MuGMTExtendedCand> muRecord1 = gtReadoutRecord->muonCands(1);
-        edm::LogInfo("L1GtAnalyzer")
-        << "\nRecord for BxInEvent = 1 using BxInEvent argument"
-        << std::endl;
-
-        for(std::vector<L1MuGMTExtendedCand>::const_iterator gmt_iter = muRecord1.begin();
-                gmt_iter != muRecord1.end(); gmt_iter++) {
-            (*gmt_iter).print();
-        }
     }
-
-
 }
 
 // analyze: object map record
@@ -413,9 +319,6 @@ void L1GtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     // analyze: test setting decision
     //   bunch cross in event BxInEvent = 0 - L1Accept event
     analyzeSetDecision(iEvent, iSetup);
-
-    // print/access L1 objects in bunch cross with L1A
-    //    analyzeL1Objects(iEvent, iSetup); // TODO FIXME temporary disable it
 
     // test muon part in L1GlobalTriggerReadoutRecord
     analyzeMuons(iEvent, iSetup);

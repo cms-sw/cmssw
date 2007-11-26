@@ -51,9 +51,6 @@ private:
     ///   bunch cross in event BxInEvent = 0 - L1Accept event
     virtual void analyzeSetDecision(const edm::Event&, const edm::EventSetup&);
 
-    /// print/access L1 objects in bunch cross with L1A
-    virtual void analyzeL1Objects(const edm::Event&, const edm::EventSetup&);
-
     /// test muon part in L1GlobalTriggerReadoutRecord
     virtual void analyzeMuons(const edm::Event&, const edm::EventSetup&);
 
