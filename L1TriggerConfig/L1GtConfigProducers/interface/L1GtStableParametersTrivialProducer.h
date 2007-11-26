@@ -72,16 +72,16 @@ private:
     /// trigger objects
 
     /// muons
-    unsigned int m_numberL1Muons;
+    unsigned int m_numberL1Mu;
 
     /// e/gamma and isolated e/gamma objects
-    unsigned int m_numberL1EGamma;
-    unsigned int m_numberL1IsolatedEGamma;
+    unsigned int m_numberL1NoIsoEG;
+    unsigned int m_numberL1IsoEG;
 
     /// central, forward and tau jets
-    unsigned int m_numberL1CentralJets;
-    unsigned int m_numberL1ForwardJets;
-    unsigned int m_numberL1TauJets;
+    unsigned int m_numberL1CenJet;
+    unsigned int m_numberL1ForJet;
+    unsigned int m_numberL1TauJet;
 
     /// jet counts
     unsigned int m_numberL1JetCounts;
@@ -102,6 +102,10 @@ private:
 
     /// number of PSB boards in GT
     int m_numberPsbBoards;
+
+    /// number of bits for eta of calorimeter objects
+    //  TODO define an interface record?
+    unsigned int m_ifCaloEtaNumberBits;
 
 private:
 

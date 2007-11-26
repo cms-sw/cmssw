@@ -63,17 +63,17 @@ L1GtStableParametersTrivialProducer::L1GtStableParametersTrivialProducer(
     // trigger objects
 
     // muons
-    m_numberL1Muons = parSet.getParameter<unsigned int>("NumberL1Muons");
+    m_numberL1Mu = parSet.getParameter<unsigned int>("NumberL1Mu");
 
     // e/gamma and isolated e/gamma objects
-    m_numberL1EGamma = parSet.getParameter<unsigned int>("NumberL1EGamma");
-    m_numberL1IsolatedEGamma =
-        parSet.getParameter<unsigned int>("NumberL1IsolatedEGamma");
+    m_numberL1NoIsoEG = parSet.getParameter<unsigned int>("NumberL1NoIsoEG");
+    m_numberL1IsoEG =
+        parSet.getParameter<unsigned int>("NumberL1IsoEG");
 
     // central, forward and tau jets
-    m_numberL1CentralJets = parSet.getParameter<unsigned int>("NumberL1CentralJets");
-    m_numberL1ForwardJets = parSet.getParameter<unsigned int>("NumberL1ForwardJets");
-    m_numberL1TauJets = parSet.getParameter<unsigned int>("NumberL1TauJets");
+    m_numberL1CenJet = parSet.getParameter<unsigned int>("NumberL1CenJet");
+    m_numberL1ForJet = parSet.getParameter<unsigned int>("NumberL1ForJet");
+    m_numberL1TauJet = parSet.getParameter<unsigned int>("NumberL1TauJet");
 
     // jet counts
     m_numberL1JetCounts = parSet.getParameter<unsigned int>("NumberL1JetCounts");
@@ -94,6 +94,8 @@ L1GtStableParametersTrivialProducer::L1GtStableParametersTrivialProducer(
     // number of PSB boards in GT
     m_numberPsbBoards = parSet.getParameter<int>("NumberPsbBoards");
 
+    /// number of bits for eta of calorimeter objects
+    m_ifCaloEtaNumberBits = parSet.getParameter<unsigned int>("IfCaloEtaNumberBits");
 
     // GT DAQ record organized in words of WordLength bits
     m_wordLength = parSet.getParameter<int>("WordLength");
@@ -137,22 +139,22 @@ boost::shared_ptr<L1GtStableParameters> L1GtStableParametersTrivialProducer::pro
     pL1GtStableParameters->setGtNumberTechnicalTriggers(m_numberTechnicalTriggers);
 
     // set the number of L1 muons received by GT
-    pL1GtStableParameters->setGtNumberL1Muons(m_numberL1Muons);
+    pL1GtStableParameters->setGtNumberL1Mu(m_numberL1Mu);
 
     //  set the number of L1 e/gamma objects received by GT
-    pL1GtStableParameters->setGtNumberL1EGamma(m_numberL1EGamma);
+    pL1GtStableParameters->setGtNumberL1NoIsoEG(m_numberL1NoIsoEG);
 
     //  set the number of L1 isolated e/gamma objects received by GT
-    pL1GtStableParameters->setGtNumberL1IsolatedEGamma(m_numberL1IsolatedEGamma);
+    pL1GtStableParameters->setGtNumberL1IsoEG(m_numberL1IsoEG);
 
     // set the number of L1 central jets received by GT
-    pL1GtStableParameters->setGtNumberL1CentralJets(m_numberL1CentralJets);
+    pL1GtStableParameters->setGtNumberL1CenJet(m_numberL1CenJet);
 
     // set the number of L1 forward jets received by GT
-    pL1GtStableParameters->setGtNumberL1ForwardJets(m_numberL1ForwardJets);
+    pL1GtStableParameters->setGtNumberL1ForJet(m_numberL1ForJet);
 
     // set the number of L1 tau jets received by GT
-    pL1GtStableParameters->setGtNumberL1TauJets(m_numberL1TauJets);
+    pL1GtStableParameters->setGtNumberL1TauJet(m_numberL1TauJet);
 
     // set the number of L1 jet counts received by GT
     pL1GtStableParameters->setGtNumberL1JetCounts(m_numberL1JetCounts);
@@ -172,12 +174,18 @@ boost::shared_ptr<L1GtStableParameters> L1GtStableParametersTrivialProducer::pro
     // set the number of PSB boards in GT
     pL1GtStableParameters->setGtNumberPsbBoards(m_numberPsbBoards);
 
+    //   set the number of bits for eta of calorimeter objects
+    pL1GtStableParameters->setGtIfCaloEtaNumberBits(m_ifCaloEtaNumberBits);
+
+
     // set WordLength
     pL1GtStableParameters->setGtWordLength(m_wordLength);
 
     // set one UnitLength
     pL1GtStableParameters->setGtUnitLength(m_unitLength);
 
+    //
+    //
     return pL1GtStableParameters ;
 }
 

@@ -36,6 +36,13 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
+#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
+#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
+
+#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtTriggerMenuXmlParser.h"
+
+
+
 // forward declarations
 
 // constructor(s)
@@ -95,16 +102,46 @@ L1GtTriggerMenuXmlProducer::~L1GtTriggerMenuXmlProducer()
 
 // method called to produce the data
 boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerMenu(
-    const L1GtTriggerMenuRcd& iRecord)
+    const L1GtTriggerMenuRcd& l1MenuRecord)
 {
 
     boost::shared_ptr<L1GtTriggerMenu> pL1GtTriggerMenu =
         boost::shared_ptr<L1GtTriggerMenu>( new L1GtTriggerMenu() );
 
+    // get the parameters needed from other records
+    const L1GtStableParametersRcd& stableParametersRcd =
+        l1MenuRecord.getRecord<L1GtStableParametersRcd>();
 
-    //    // set the number of physics trigger algorithms
-    //    pL1GtTriggerMenu->setGtNumberPhysTriggers(m_numberPhysTriggers);
+    edm::ESHandle<L1GtStableParameters> stableParameters;
+    stableParametersRcd.get(stableParameters);
 
+    unsigned int numberConditionChips = stableParameters->gtNumberConditionChips();
+    unsigned int pinsOnConditionChip = stableParameters->gtPinsOnConditionChip();
+    std::vector<int> orderConditionChip = stableParameters->gtOrderConditionChip();
+    unsigned int numberPhysTriggers = stableParameters->gtNumberPhysTriggers();
+    unsigned int numberL1JetCounts = stableParameters->gtNumberL1JetCounts();
+
+    L1GtTriggerMenuXmlParser gtXmlParser = L1GtTriggerMenuXmlParser();
+
+    gtXmlParser.setGtNumberConditionChips(numberConditionChips);
+    gtXmlParser.setGtPinsOnConditionChip(pinsOnConditionChip);
+    gtXmlParser.setGtOrderConditionChip(orderConditionChip);
+    gtXmlParser.setGtNumberPhysTriggers(numberPhysTriggers);
+    gtXmlParser.setGtNumberL1JetCounts(numberL1JetCounts);
+
+    gtXmlParser.parseXmlFile(m_defXmlFile, m_vmeXmlFile);
+
+    // transfer the condition map and algorithm map from parser to L1GtTriggerMenu
+    std::vector<ConditionMap> condMap = gtXmlParser.gtConditionMap();
+    AlgorithmMap algoMap = gtXmlParser.gtAlgorithmMap();
+
+    pL1GtTriggerMenu->setGtConditionMap(condMap);
+    pL1GtTriggerMenu->setGtAlgorithmMap(algoMap);
+
+    //LogDebug("L1GtConfigProducers")
+    //<< "\n\nReturning L1 Trigger Menu!"
+    //<< "\n\n"
+    //<< std::endl;
 
     return pL1GtTriggerMenu ;
 }

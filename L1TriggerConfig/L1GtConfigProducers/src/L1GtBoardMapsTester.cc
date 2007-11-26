@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -57,6 +57,11 @@ void L1GtBoardMapsTester::analyze(
     edm::ESHandle< L1GtBoardMaps > l1GtBM ;
     evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM ) ;
 
+    l1GtBM->printGtBoardMaps(std::cout);
+    std::cout << std::endl;
+
+    // print for simplicity the individual maps
+
     l1GtBM->printGtDaqRecordMap(std::cout);
     std::cout << std::endl;
 
@@ -75,30 +80,6 @@ void L1GtBoardMapsTester::analyze(
     l1GtBM->printGtBoardHexNameMap(std::cout);
     std::cout << std::endl;
 
-    l1GtBM->printGtCaloObjectInputMap(std::cout);
+    l1GtBM->printGtQuadToPsbMap(std::cout);
     std::cout << std::endl;
-
-    l1GtBM->printGtCaloInputToPsbMap(std::cout);
-    std::cout << std::endl;
-
-    // print board ID
-
-    std::map<L1GtBoard, int> boardList = l1GtBM->gtBoardHexNameMap();
-    std::cout << "\nL1 GT Trigger: board ID " << std::endl;
-
-    std::cout << "  Size: " << boardList.size() << " boards." << std::endl;
-    std::cout << std::endl;
-
-    typedef std::map<L1GtBoard, int>::const_iterator CItBoardInt;
-    for (CItBoardInt cIt = boardList.begin(); cIt != boardList.end(); ++cIt) {
-
-        std::cout << "  Board ID (hex): "
-        << std::hex << l1GtBM->boardId(cIt->first) << std::dec
-        << ": \t board " << cIt->first.boardName() << " " << cIt->first.boardIndex()
-        << std::endl;
-    }
-
-    std::cout << std::endl;
-
-
 }

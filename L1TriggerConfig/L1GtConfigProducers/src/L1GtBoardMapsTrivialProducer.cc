@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -23,8 +23,6 @@
 
 #include <string>
 #include <vector>
-#include <map>
-
 
 // user include files
 //   base class
@@ -67,10 +65,10 @@ L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterS
     }
 
     // L1 GT DAQ record map
-    std::vector<int> boardIndexDaqRecord =
-        parSet.getParameter<std::vector<int> >("BoardIndexDaqRecord");
+    std::vector<int> boardPositionDaqRecord =
+        parSet.getParameter<std::vector<int> >("BoardPositionDaqRecord");
 
-    if (boardList.size() != boardIndexDaqRecord.size()) {
+    if (boardList.size() != boardPositionDaqRecord.size()) {
         throw cms::Exception("Configuration")
         << "\nError: inconsistent length of board list and board indices in GT DAQ record.\n"
         << "\n       Can not define the mapping of the L1 GT boards.     \n"
@@ -78,10 +76,10 @@ L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterS
     }
 
     // L1 GT EVM record map
-    std::vector<int> boardIndexEvmRecord =
-        parSet.getParameter<std::vector<int> >("BoardIndexEvmRecord");
+    std::vector<int> boardPositionEvmRecord =
+        parSet.getParameter<std::vector<int> >("BoardPositionEvmRecord");
 
-    if (boardList.size() != boardIndexEvmRecord.size()) {
+    if (boardList.size() != boardPositionEvmRecord.size()) {
         throw cms::Exception("Configuration")
         << "\nError: inconsistent length of board list and board indices in GT EVM record.\n"
         << "\n       Can not define the mapping of the L1 GT boards.     \n"
@@ -133,345 +131,174 @@ L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterS
     }
 
 
-    // fill the maps
 
-    int posVec = 0;
-
-    for (std::vector<std::string>::const_iterator it = boardList.begin();
-            it != boardList.end(); ++it) {
-
-        if ( (*it) == "GTFE" ) {
-
-            int iBoard = boardIndexVec.at(posVec);
-            L1GtBoard gtfeBoard = L1GtBoard(GTFE, iBoard);
-
-            // entry in L1 GT DAQ record map
-            iBoard = boardIndexDaqRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtDaqRecordMap[iBoard] = gtfeBoard;
-            }
-
-            // entry in L1 GT EVM record map
-            iBoard = boardIndexEvmRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtEvmRecordMap[iBoard] = gtfeBoard;
-            }
-
-            // entry in "active boards" map for DAQ record
-            iBoard = activeBoardsDaqRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtDaqActiveBoardsMap[gtfeBoard] = iBoard;
-            }
-
-            // entry in "active boards" map for EVM record
-            iBoard = activeBoardsEvmRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtEvmActiveBoardsMap[gtfeBoard] = iBoard;
-            }
-
-            // entry in board - slot map
-            iBoard = boardSlotMap.at(posVec);
-            if (iBoard >= 0) {
-                m_gtBoardSlotMap[gtfeBoard] = iBoard;
-            }
-
-            // entry in board name in hw record map
-            iBoard = boardHexNameMap.at(posVec);
-            if (iBoard >= 0) {
-                m_gtBoardHexNameMap[gtfeBoard] = iBoard;
-            }
-
-        } else if ( (*it) == "FDL" ) {
-
-            int iBoard = boardIndexVec.at(posVec);
-            L1GtBoard fdlBoard = L1GtBoard(FDL, iBoard);
-
-            // entry in L1 GT DAQ record map
-            iBoard = boardIndexDaqRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtDaqRecordMap[iBoard] = fdlBoard;
-            }
-
-            // entry in L1 GT EVM record map
-            iBoard = boardIndexEvmRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtEvmRecordMap[iBoard] = fdlBoard;
-            }
-
-            // entry in "active boards" map for DAQ record
-            iBoard = activeBoardsDaqRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtDaqActiveBoardsMap[fdlBoard] = iBoard;
-            }
-
-            // entry in "active boards" map for EVM record
-            iBoard = activeBoardsEvmRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtEvmActiveBoardsMap[fdlBoard] = iBoard;
-            }
-
-            // entry in board - slot map
-            iBoard = boardSlotMap.at(posVec);
-            if (iBoard >= 0) {
-                m_gtBoardSlotMap[fdlBoard] = iBoard;
-            }
-
-            // entry in board name in hw record map
-            iBoard = boardHexNameMap.at(posVec);
-            if (iBoard >= 0) {
-                m_gtBoardHexNameMap[fdlBoard] = iBoard;
-            }
-
-        } else if ( (*it) == "PSB" ) {
-
-            int iBoard = boardIndexVec.at(posVec);
-            L1GtBoard psbBoard = L1GtBoard(PSB, iBoard);
-
-            // entry in L1 GT DAQ record map
-            iBoard = boardIndexDaqRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtDaqRecordMap[iBoard] = psbBoard;
-            }
-
-            // entry in L1 GT EVM record map
-            iBoard = boardIndexEvmRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtEvmRecordMap[iBoard] = psbBoard;
-            }
-
-            // entry in "active boards" map for DAQ record
-            iBoard = activeBoardsDaqRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtDaqActiveBoardsMap[psbBoard] = iBoard;
-            }
-
-            // entry in "active boards" map for EVM record
-            iBoard = activeBoardsEvmRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtEvmActiveBoardsMap[psbBoard] = iBoard;
-            }
-
-            // entry in board - slot map
-            iBoard = boardSlotMap.at(posVec);
-            if (iBoard >= 0) {
-                m_gtBoardSlotMap[psbBoard] = iBoard;
-            }
-
-            // entry in board name in hw record map
-            iBoard = boardHexNameMap.at(posVec);
-            if (iBoard >= 0) {
-                m_gtBoardHexNameMap[psbBoard] = iBoard;
-            }
-
-        } else if ( (*it) == "GMT" ) {
-
-            int iBoard = boardIndexVec.at(posVec);
-            L1GtBoard gmtBoard = L1GtBoard(GMT, iBoard);
-
-            // entry in L1 GT DAQ record map
-            iBoard = boardIndexDaqRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtDaqRecordMap[iBoard] = gmtBoard;
-            }
-
-            // entry in L1 GT EVM record map
-            iBoard = boardIndexEvmRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtEvmRecordMap[iBoard] = gmtBoard;
-            }
-
-            // entry in "active boards" map for DAQ record
-            iBoard = activeBoardsDaqRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtDaqActiveBoardsMap[gmtBoard] = iBoard;
-            }
-
-            // entry in "active boards" map for EVM record
-            iBoard = activeBoardsEvmRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtEvmActiveBoardsMap[gmtBoard] = iBoard;
-            }
-
-            // entry in board - slot map
-            iBoard = boardSlotMap.at(posVec);
-            if (iBoard >= 0) {
-                m_gtBoardSlotMap[gmtBoard] = iBoard;
-            }
-
-            // entry in board name in hw record map
-            iBoard = boardHexNameMap.at(posVec);
-            if (iBoard >= 0) {
-                m_gtBoardHexNameMap[gmtBoard] = iBoard;
-            }
-
-        } else if ( (*it) == "TCS" ) {
-
-            int iBoard = boardIndexVec.at(posVec);
-            L1GtBoard tcsBoard = L1GtBoard(TCS, iBoard);
-
-            // entry in L1 GT DAQ record map
-            iBoard = boardIndexDaqRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtDaqRecordMap[iBoard] = tcsBoard;
-            }
-
-            // entry in L1 GT EVM record map
-            iBoard = boardIndexEvmRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtEvmRecordMap[iBoard] = tcsBoard;
-            }
-
-            // entry in "active boards" map for DAQ record
-            iBoard = activeBoardsDaqRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtDaqActiveBoardsMap[tcsBoard] = iBoard;
-            }
-
-            // entry in "active boards" map for EVM record
-            iBoard = activeBoardsEvmRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtEvmActiveBoardsMap[tcsBoard] = iBoard;
-            }
-
-            // entry in board - slot map
-            iBoard = boardSlotMap.at(posVec);
-            if (iBoard >= 0) {
-                m_gtBoardSlotMap[tcsBoard] = iBoard;
-            }
-
-            // entry in board name in hw record map
-            iBoard = boardHexNameMap.at(posVec);
-            if (iBoard >= 0) {
-                m_gtBoardHexNameMap[tcsBoard] = iBoard;
-            }
-
-        } else if ( (*it) == "TIM" ) {
-
-            int iBoard = boardIndexVec.at(posVec);
-            L1GtBoard timBoard = L1GtBoard(TIM, iBoard);
-
-            // entry in L1 GT DAQ record map
-            iBoard = boardIndexDaqRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtDaqRecordMap[iBoard] = timBoard;
-            }
-
-            // entry in L1 GT EVM record map
-            iBoard = boardIndexEvmRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtEvmRecordMap[iBoard] = timBoard;
-            }
-
-            // entry in "active boards" map for DAQ record
-            iBoard = activeBoardsDaqRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtDaqActiveBoardsMap[timBoard] = iBoard;
-            }
-
-            // entry in "active boards" map for EVM record
-            iBoard = activeBoardsEvmRecord.at(posVec);
-            if (iBoard >= 0) {
-                m_gtEvmActiveBoardsMap[timBoard] = iBoard;
-            }
-
-            // entry in board - slot map
-            iBoard = boardSlotMap.at(posVec);
-            if (iBoard >= 0) {
-                m_gtBoardSlotMap[timBoard] = iBoard;
-            }
-
-            // entry in board name in hw record map
-            iBoard = boardHexNameMap.at(posVec);
-            if (iBoard >= 0) {
-                m_gtBoardHexNameMap[timBoard] = iBoard;
-            }
-
-        } else {
-
-            throw cms::Exception("Configuration")
-            << "\nError: no such board: " << (*it).c_str() << "\n"
-            << "\n       Can not define the mapping of the L1 GT boards.     \n"
-            << std::endl;
-
-        }
-
-        posVec++;
-
-    }
+    // GCT PSB to GT - map cables to input quadruplets  and PSB indices
 
 
-    // GCT to GT maps
-
-
-    // L1 GT CA list (GCT input to PSB)
-    std::vector<int> cableList =
-        parSet.getParameter<std::vector<int> >("CableList");
-
-    // L1 GT calo input map (IsoEGQ to CA_X, ...)
-    //    gives the mapping of calorimeter objects to GT calorimeter input
-    // GT calorimeter input will be mapped to PSBs later
-    std::vector<std::string> caloObjectInputMap =
-        parSet.getParameter<std::vector<std::string> >("CaloObjectInputMap");
-
-    // check if the CA list and the calorimeter input are consistent
-    // i.e. have the same number of entries
-
-    if (cableList.size() != caloObjectInputMap.size()) {
-        throw cms::Exception("Configuration")
-        << "\nError: inconsistent length of cable list and GCT quadruplet list.\n"
-        << "\n       Can not define the mapping of GCT quadruplets to GT cables.\n"
-        << std::endl;
-    }
+    // L1 GT cable list (GCT input to PSB)
+    std::vector<std::string> cableList =
+        parSet.getParameter<std::vector<std::string> >("CableList");
 
     // L1 GT calo input to PSB map
     //    gives the mapping of GT calorimeter input to GT PSBs via PSB index
     //    4 infinicables per PSB (last PSB can use only 2!)
-    std::vector<int> caloInputToPsbMap =
-        parSet.getParameter<std::vector<int> >("CaloInputToPsbMap");
+    std::vector<int> cableToPsbMap =
+        parSet.getParameter<std::vector<int> >("CableToPsbMap");
 
 
-    if (cableList.size() != caloInputToPsbMap.size()) {
+    if (cableList.size() != cableToPsbMap.size()) {
         throw cms::Exception("Configuration")
         << "\nError: inconsistent length of cable list and input to PSB list.\n"
         << "\n       Can not define the mapping of GCT quadruplets to GT PSBs.\n"
         << std::endl;
     }
 
-    // fill the calorimeter related maps
 
-    posVec = 0;
+    // reserve space for L1 GT boards
+    m_gtBoardMaps.reserve(boardList.size());
 
-    for (std::vector<int>::const_iterator itCable = cableList.begin();
-            itCable != cableList.end(); ++itCable) {
 
-        std::string objType = caloObjectInputMap.at(posVec);
+    // fill the maps
+    int posVec = 0;
 
-        if ( objType == "IsoEGQ" ) {
-            m_gtCaloObjectInputMap[(*itCable)] = IsoEGQ;
-        } else if ( objType == "NoIsoEGQ" ) {
-            m_gtCaloObjectInputMap[(*itCable)] = NoIsoEGQ;
-        } else if ( objType == "CenJetQ" ) {
-            m_gtCaloObjectInputMap[(*itCable)] = CenJetQ;
-        } else if ( objType == "ForJetQ" ) {
-            m_gtCaloObjectInputMap[(*itCable)] = ForJetQ;
-        } else if ( objType == "TauJetQ" ) {
-            m_gtCaloObjectInputMap[(*itCable)] = TauJetQ;
-        } else if ( objType == "ESumsQ" ) {
-            m_gtCaloObjectInputMap[(*itCable)] = ESumsQ;
-        } else if ( objType == "JetCountsQ" ) {
-            m_gtCaloObjectInputMap[(*itCable)] = JetCountsQ;
-        } else if ( objType == "Free" ) {
-            // do nothing, no connection to that cable - cable free
+    for (std::vector<std::string>::const_iterator
+            it = boardList.begin(); it != boardList.end(); ++it) {
+
+        L1GtBoardType boardType;
+
+        if ( (*it) == "GTFE" ) {
+            boardType = GTFE;
+        } else if ( (*it) == "FDL" ) {
+            boardType = FDL;
+        } else if ( (*it) == "PSB" ) {
+            boardType = PSB;
+        } else if ( (*it) == "GMT" ) {
+            boardType = GMT;
+        } else if ( (*it) == "TCS" ) {
+            boardType = TCS;
+        } else if ( (*it) == "TIM" ) {
+            boardType = TIM;
         } else {
             throw cms::Exception("Configuration")
-            << "\nError: no such GCT quadruplet: " << objType << "\n"
-            << "\n       Can not define the mapping of the L1 GT calorimeter mapping.\n"
+            << "\nError: no such board: " << (*it).c_str() << "\n"
+            << "\n       Can not define the mapping of the L1 GT boards.     \n"
             << std::endl;
         }
 
-        int iPSB = caloInputToPsbMap.at(posVec);
-        m_gtCaloInputToPsbMap[(*itCable)] = iPSB;
+        // construct from board type and board index
 
+        int iBoard = boardIndexVec.at(posVec);
+        L1GtBoard gtBoard = L1GtBoard(boardType, iBoard);
+
+        // set the position of board data block
+        // in the GT DAQ readout record
+        gtBoard.setGtPositionDaqRecord(boardPositionDaqRecord.at(posVec));
+
+        // set the position of board data block
+        // in the GT EVM readout record
+        gtBoard.setGtPositionEvmRecord(boardPositionEvmRecord.at(posVec));
+
+        // set the bit of board in the GTFE ACTIVE_BOARDS
+        // for the GT DAQ readout record
+        gtBoard.setGtBitDaqActiveBoards(activeBoardsDaqRecord.at(posVec));
+
+        // set the bit of board in the GTFE ACTIVE_BOARDS
+        // for the GT EVM readout record
+        gtBoard.setGtBitEvmActiveBoards(activeBoardsEvmRecord.at(posVec));
+
+        // set board slot
+        gtBoard.setGtBoardSlot(boardSlotMap.at(posVec));
+
+        // set board hex fragment name in hw record
+        gtBoard.setGtBoardHexName(boardHexNameMap.at(posVec));
+
+        // set L1 quadruplet (4x16 bits)(cable) in the PSB input
+        // valid for PSB only
+
+        if (boardType == PSB) {
+
+            L1GtPsbQuad psbQuad = Free;
+            int posCable = 0;
+            int iPsb = 0;
+            std::vector<L1GtPsbQuad> quadVec(L1GtBoard::NumberCablesBoard);
+
+            for (std::vector<std::string>::const_iterator
+                    cIt = cableList.begin(); cIt != cableList.end(); ++cIt) {
+
+
+                if ( *cIt == "TechTr" ) {
+                    psbQuad = TechTr;
+                } else if ( *cIt == "IsoEGQ" ) {
+                    psbQuad = IsoEGQ;
+                } else if ( *cIt == "NoIsoEGQ" ) {
+                    psbQuad = NoIsoEGQ;
+                } else if ( *cIt == "CenJetQ" ) {
+                    psbQuad = CenJetQ;
+                } else if ( *cIt == "ForJetQ" ) {
+                    psbQuad = ForJetQ;
+                } else if ( *cIt == "TauJetQ" ) {
+                    psbQuad = TauJetQ;
+                } else if ( *cIt == "ESumsQ" ) {
+                    psbQuad = ESumsQ;
+                } else if ( *cIt == "JetCountsQ" ) {
+                    psbQuad = JetCountsQ;
+                } else if ( *cIt == "MQB1" ) {
+                    psbQuad = MQB1;
+                } else if ( *cIt == "MQB2" ) {
+                    psbQuad = MQB2;
+                } else if ( *cIt == "MQF3" ) {
+                    psbQuad = MQF3;
+                } else if ( *cIt == "MQF4" ) {
+                    psbQuad = MQF4;
+                } else if ( *cIt == "MQB5" ) {
+                    psbQuad = MQB5;
+                } else if ( *cIt == "MQB6" ) {
+                    psbQuad = MQB6;
+                } else if ( *cIt == "MQF7" ) {
+                    psbQuad = MQF7;
+                } else if ( *cIt == "MQF8" ) {
+                    psbQuad = MQF8;
+                } else if ( *cIt == "MQB9" ) {
+                    psbQuad = MQB9;
+                } else if ( *cIt == "MQB10" ) {
+                    psbQuad = MQB10;
+                } else if ( *cIt == "MQF11" ) {
+                    psbQuad = MQF11;
+                } else if ( *cIt == "MQF12" ) {
+                    psbQuad = MQF12;
+                } else if ( *cIt == "Free" ) {
+                    psbQuad = Free;
+                } else {
+                    // do nothing, return empty string
+                }
+
+                int psbIndex = cableToPsbMap.at(posCable);
+
+                if (psbIndex == gtBoard.gtBoardIndex()) {
+
+                    if (iPsb > L1GtBoard::NumberCablesBoard) {
+                        throw cms::Exception("Configuration")
+                        << "\nError: too many cables for PSB_" << gtBoard.gtBoardIndex()
+                        << "\n\n       "
+                        << "Can not define the mapping of cables to L1 PSB boards.     \n"
+                        << std::endl;
+
+                    }
+                    quadVec[iPsb] = psbQuad;
+                    iPsb++;
+                }
+                posCable++;
+
+            }
+
+            gtBoard.setGtQuadInPsb(quadVec);
+
+        }
+
+        // push the board in the vector
+        m_gtBoardMaps.push_back(gtBoard);
+
+        // increase the counter
         posVec++;
 
     }
@@ -499,15 +326,7 @@ boost::shared_ptr<L1GtBoardMaps> L1GtBoardMapsTrivialProducer::produceBoardMaps(
     boost::shared_ptr<L1GtBoardMaps> pL1GtBoardMaps =
         boost::shared_ptr<L1GtBoardMaps>( new L1GtBoardMaps() );
 
-    pL1GtBoardMaps->setGtDaqRecordMap(m_gtDaqRecordMap);
-    pL1GtBoardMaps->setGtEvmRecordMap(m_gtEvmRecordMap);
-    pL1GtBoardMaps->setGtDaqActiveBoardsMap(m_gtDaqActiveBoardsMap);
-    pL1GtBoardMaps->setGtEvmActiveBoardsMap(m_gtEvmActiveBoardsMap);
-    pL1GtBoardMaps->setGtBoardSlotMap(m_gtBoardSlotMap);
-    pL1GtBoardMaps->setGtBoardHexNameMap(m_gtBoardHexNameMap);
-
-    pL1GtBoardMaps->setGtCaloObjectInputMap(m_gtCaloObjectInputMap);
-    pL1GtBoardMaps->setGtCaloInputToPsbMap(m_gtCaloInputToPsbMap);
+    pL1GtBoardMaps->setGtBoardMaps(m_gtBoardMaps);
 
     return pL1GtBoardMaps ;
 }

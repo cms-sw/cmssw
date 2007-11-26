@@ -19,6 +19,7 @@
 
 // system include files
 #include <string>
+#include <vector>
 
 #include <iostream>
 #include <fstream>
@@ -27,7 +28,20 @@
 #include <boost/cstdint.hpp>
 
 // user include files
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtCondition.h"
+#include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtMuonTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtCaloTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
+
 
 // constructor
 L1GtTriggerMenuXmlParser::L1GtTriggerMenuXmlParser()
@@ -41,7 +55,100 @@ L1GtTriggerMenuXmlParser::L1GtTriggerMenuXmlParser()
 // destructor
 L1GtTriggerMenuXmlParser::~L1GtTriggerMenuXmlParser()
 {
-    // empty
+
+    clearMaps();
+
+}
+
+
+// set the number of condition chips in GTL
+void L1GtTriggerMenuXmlParser::setGtNumberConditionChips(
+    const unsigned int& numberConditionChipsValue)
+{
+
+    m_numberConditionChips = numberConditionChipsValue;
+
+}
+
+// set the number of pins on the GTL condition chips
+void L1GtTriggerMenuXmlParser::setGtPinsOnConditionChip(
+    const unsigned int& pinsOnConditionChipValue)
+{
+
+    m_pinsOnConditionChip = pinsOnConditionChipValue;
+
+}
+
+// set the correspondence "condition chip - GTL algorithm word"
+// in the hardware
+void L1GtTriggerMenuXmlParser::setGtOrderConditionChip(
+    const std::vector<int>& orderConditionChipValue)
+{
+
+    m_orderConditionChip = orderConditionChipValue;
+
+}
+
+// set the number of physics trigger algorithms
+void L1GtTriggerMenuXmlParser::setGtNumberPhysTriggers(
+    const unsigned int& numberPhysTriggersValue)
+{
+
+    m_numberPhysTriggers = numberPhysTriggersValue;
+
+}
+
+// set the number of L1 jet counts received by GT
+void L1GtTriggerMenuXmlParser::setGtNumberL1JetCounts(
+    const unsigned int& numberL1JetCountsValue)
+{
+
+    m_numberL1JetCounts = numberL1JetCountsValue;
+
+}
+
+
+
+
+// set the condition maps
+void L1GtTriggerMenuXmlParser::setGtConditionMap(const std::vector<ConditionMap>& condMap)
+{
+    m_conditionMap = condMap;
+}
+
+// set the algorithm map
+void L1GtTriggerMenuXmlParser::setGtAlgorithmMap(const AlgorithmMap& algoMap)
+{
+    m_algorithmMap = algoMap;
+}
+
+
+// parse def.xml and vme.xml files
+void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
+        const std::string& vmeXmlFile)
+{
+
+    XERCES_CPP_NAMESPACE_USE
+
+    // resize the vector of condition maps
+    // the number of condition chips should be correctly set before calling parseXmlFile
+    m_conditionMap.resize(m_numberConditionChips);
+
+    // error handler for xml-parser
+    m_xmlErrHandler = 0;
+
+    XercesDOMParser* parser;
+
+    LogTrace("L1GtTriggerMenuXmlParser")
+    << "\nOpening XML-File: \n  " << defXmlFile
+    << std::endl;
+
+    if ((parser = initXML(defXmlFile)) != 0) {
+        workXML(parser);
+    }
+    cleanupXML(parser);
+
+
 }
 
 
@@ -130,7 +237,7 @@ XERCES_CPP_NAMESPACE::XercesDOMParser* L1GtTriggerMenuXmlParser::initXML(
 }
 
 
-/// find a named child of a xml node
+// find a named child of a xml node
 XERCES_CPP_NAMESPACE::DOMNode* L1GtTriggerMenuXmlParser::findXMLChild(
     XERCES_CPP_NAMESPACE::DOMNode* startChild, const std::string& tagName,
     bool beginOnly = false, std::string* rest = 0)
@@ -149,7 +256,7 @@ XERCES_CPP_NAMESPACE::DOMNode* L1GtTriggerMenuXmlParser::findXMLChild(
         nodeName = XMLString::transcode(n1->getNodeName());
 
         if (!beginOnly) {
-             //match the whole tag
+            //match the whole tag
             while (XMLString::compareIString(nodeName, tagName.c_str())) {
 
                 XMLString::release(&nodeName);
@@ -254,12 +361,12 @@ std::string L1GtTriggerMenuXmlParser::getXMLTextValue(XERCES_CPP_NAMESPACE::DOMN
     if (n1 == 0) {
         return ret;
     }
-    
-    const XMLCh* retXmlCh = n1->getTextContent();    
+
+    const XMLCh* retXmlCh = n1->getTextContent();
     if (retXmlCh == 0) {
         return ret;
     }
-    
+
     char* retCstr = XMLString::transcode(retXmlCh);
     XMLString::trim(retCstr); // trim spaces
 
@@ -298,7 +405,7 @@ bool L1GtTriggerMenuXmlParser::hexString2UInt128(const std::string& hexString,
 
     if (hexStart == hexEnd) {
 
-        LogTrace("L1GtTriggerMenuXmlParser")
+        LogDebug("L1GtTriggerMenuXmlParser")
         << "No hex value found in: " << tempStr << std::endl;
 
         return false;
@@ -308,7 +415,7 @@ bool L1GtTriggerMenuXmlParser::hexString2UInt128(const std::string& hexString,
 
     if ( tempStr.empty() ) {
 
-        LogTrace("L1GtTriggerMenuXmlParser")
+        LogDebug("L1GtTriggerMenuXmlParser")
         << "Empty value in " << __PRETTY_FUNCTION__ << std::endl;
 
         return false;
@@ -327,27 +434,29 @@ bool L1GtTriggerMenuXmlParser::hexString2UInt128(const std::string& hexString,
 
     // convert lower 64bit
     char* endPtr = (char*) tempStrL.c_str();
+    boost::uint64_t tempUIntL = strtoull(tempStrL.c_str(), &endPtr, 16);
+
     if (*endPtr != 0) {
 
-        LogTrace("L1GtTriggerMenuXmlParser")
+        LogDebug("L1GtTriggerMenuXmlParser")
         << "Unable to convert " << tempStr << " to hex." << std::endl;
 
         return false;
     }
 
-    boost::uint64_t tempUIntL = strtoull(tempStrL.c_str(), &endPtr, 16);
 
     // convert higher64 bit
     endPtr = (char*) tempStrH.c_str();
+    boost::uint64_t tempUIntH = strtoull(tempStrH.c_str(), &endPtr, 16);
+
     if (*endPtr != 0) {
 
-        LogTrace("L1GtTriggerMenuXmlParser")
+        LogDebug("L1GtTriggerMenuXmlParser")
         << "Unable to convert " << tempStr << " to hex." << std::endl;
 
         return false;
     }
 
-    boost::uint64_t tempUIntH = strtoull(tempStrH.c_str(), &endPtr, 16);
 
     dstL = tempUIntL;
     dstH = tempUIntH;
@@ -374,7 +483,7 @@ bool L1GtTriggerMenuXmlParser::getXMLHexTextValue128(XERCES_CPP_NAMESPACE::DOMNo
 
     if (node == 0) {
 
-        LogTrace("L1GtTriggerMenuXmlParser")
+        LogDebug("L1GtTriggerMenuXmlParser")
         << "node == 0 in " << __PRETTY_FUNCTION__
         << std::endl;
 
@@ -423,7 +532,7 @@ bool L1GtTriggerMenuXmlParser::getXMLHexTextValue(
     }
 
     dst = tempUInt;
-    
+
     return true;
 }
 
@@ -447,7 +556,7 @@ bool L1GtTriggerMenuXmlParser::countConditionChildMaxBits(XERCES_CPP_NAMESPACE::
     // should never happen...
     if (node == 0) {
 
-        LogTrace("L1GtTriggerMenuXmlParser")
+        LogDebug("L1GtTriggerMenuXmlParser")
         << "node == 0 in " << __PRETTY_FUNCTION__ << std::endl;
 
         return false;
@@ -457,18 +566,18 @@ bool L1GtTriggerMenuXmlParser::countConditionChildMaxBits(XERCES_CPP_NAMESPACE::
 
     if (n1 == 0) {
 
-        LogTrace("L1GtTriggerMenuXmlParser")
+        LogDebug("L1GtTriggerMenuXmlParser")
         << "Child of condition not found ( " << childName << ")"
         << std::endl;
 
         return false;
     }
 
-    DOMNode* n2 = findXMLChild(n1->getFirstChild(), xml_value_tag);
+    DOMNode* n2 = findXMLChild(n1->getFirstChild(), m_xmlTagValue);
 
     if (n2 == 0) {
 
-        LogTrace("L1GtTriggerMenuXmlParser")
+        LogDebug("L1GtTriggerMenuXmlParser")
         << "No value tag found for child " << childName << " in " << __PRETTY_FUNCTION__
         << std::endl;
 
@@ -476,14 +585,14 @@ bool L1GtTriggerMenuXmlParser::countConditionChildMaxBits(XERCES_CPP_NAMESPACE::
     }
 
     // first try direct
-    std::string maxString = getXMLAttribute(n1, xml_attr_max); // string for the maxbits
+    std::string maxString = getXMLAttribute(n1, m_xmlAttrMax); // string for the maxbits
 
     if ( maxString.empty() ) {
-        maxString = getXMLAttribute(n2, xml_attr_max); // try next value tag
+        maxString = getXMLAttribute(n2, m_xmlAttrMax); // try next value tag
         // if no max was found neither in value nor in the childName tag
         if ( maxString.empty() ) {
 
-            LogTrace("L1GtTriggerMenuXmlParser")
+            LogDebug("L1GtTriggerMenuXmlParser")
             << "No Max value found for " << childName
             << std::endl;
 
@@ -499,13 +608,13 @@ bool L1GtTriggerMenuXmlParser::countConditionChildMaxBits(XERCES_CPP_NAMESPACE::
     }
 
     // count the bits
-    LogTrace("L1GtTriggerMenuXmlParser")
-    << std::dec
-    << "        words: dec: high (MSB) word = " << maxBitsH << " low word = " << maxBitsL
-    << std::hex << "\n"
-    << "        words: hex: high (MSB) word = " << maxBitsH << " low word = " << maxBitsL
-    << std::dec
-    << std::endl;
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< std::dec
+    //<< "        words: dec: high (MSB) word = " << maxBitsH << " low word = " << maxBitsL
+    //<< std::hex << "\n"
+    //<< "        words: hex: high (MSB) word = " << maxBitsH << " low word = " << maxBitsL
+    //<< std::dec
+    //<< std::endl;
 
     unsigned int counter = 0;
 
@@ -563,21 +672,21 @@ bool L1GtTriggerMenuXmlParser::countConditionChildMaxBits(XERCES_CPP_NAMESPACE::
  * @param node The xml node of the condition.
  * @param childName The name of the child the values should be extracted from.
  * @param num The number of values needed.
- * @param dst A pointer to a array of boost::uint64_t where the results are written.
+ * @param dst A pointer to a vector of boost::uint64_t where the results are written.
  *
  * @return true if suceeded. false if an error occured or not enough values found. 
  */
 
 bool L1GtTriggerMenuXmlParser::getConditionChildValues(XERCES_CPP_NAMESPACE::DOMNode* node,
         const std::string& childName,
-        unsigned int num, boost::uint64_t* dst)
+        unsigned int num, std::vector<boost::uint64_t>& dst)
 {
 
     XERCES_CPP_NAMESPACE_USE
 
     if (node == 0) {
 
-        LogTrace("L1GtTriggerMenuXmlParser")
+        LogDebug("L1GtTriggerMenuXmlParser")
         << "node == 0 in " << __PRETTY_FUNCTION__
         << std::endl;
 
@@ -589,7 +698,7 @@ bool L1GtTriggerMenuXmlParser::getConditionChildValues(XERCES_CPP_NAMESPACE::DOM
     // if child not found
     if (n1 == 0) {
 
-        LogTrace("L1GtTriggerMenuXmlParser")
+        LogDebug("L1GtTriggerMenuXmlParser")
         << "Child of condition not found ( " << childName << ")"
         << std::endl;
 
@@ -601,16 +710,21 @@ bool L1GtTriggerMenuXmlParser::getConditionChildValues(XERCES_CPP_NAMESPACE::DOM
         return true;
     }
 
-    n1 = findXMLChild(n1->getFirstChild(), xml_value_tag);
+    //
+    dst.reserve(num);
+
+    //
+    n1 = findXMLChild(n1->getFirstChild(), m_xmlTagValue);
     for (unsigned int i = 0; i < num; i++) {
         if (n1 == 0) {
 
-            LogTrace("L1GtTriggerMenuXmlParser")
+            LogDebug("L1GtTriggerMenuXmlParser")
             << "Not enough values in condition child ( " << childName << ")"
             << std::endl;
 
-            return false; // too less values
+            return false;
         }
+
 
         if ( ! getXMLHexTextValue(n1, dst[i]) ) {
 
@@ -621,7 +735,7 @@ bool L1GtTriggerMenuXmlParser::getConditionChildValues(XERCES_CPP_NAMESPACE::DOM
             return false;
         }
 
-        n1 = findXMLChild(n1->getNextSibling(), xml_value_tag); // next child
+        n1 = findXMLChild(n1->getNextSibling(), m_xmlTagValue); // next child
     }
 
     return true;
@@ -801,7 +915,7 @@ bool L1GtTriggerMenuXmlParser::parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser
 
     if (n1 == 0) {
 
-        edm::LogError("L1GtTriggerMenuXmlParser") << "Error: Found no XML child" 
+        edm::LogError("L1GtTriggerMenuXmlParser") << "Error: Found no XML child"
         << std::endl;
 
         return false;
@@ -811,7 +925,7 @@ bool L1GtTriggerMenuXmlParser::parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser
     n1 = findXMLChild(n1, vmexml_vme_tag);
     if (n1 == 0) {
 
-        edm::LogError("L1GtTriggerMenuXmlParser") << "Error: No vme tag found." 
+        edm::LogError("L1GtTriggerMenuXmlParser") << "Error: No vme tag found."
         << std::endl;
 
         return false;
@@ -827,10 +941,7 @@ bool L1GtTriggerMenuXmlParser::parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser
 
     unsigned int chipCounter = 0; // count chips
 
-    // TODO FIXME get it from EventSetup 
-    const unsigned int NumberConditionChips = 2;
-    
-    while (chipCounter < NumberConditionChips) {
+    while (chipCounter < m_numberConditionChips) {
 
         n1 = findXMLChild(n1, vmexml_condchip_tag, true);
         if (n1 == 0) {
@@ -884,7 +995,171 @@ bool L1GtTriggerMenuXmlParser::parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser
 
 }
 
-    // methods for conditions and algorithms
+// methods for conditions and algorithms
+
+// clearMaps - delete all conditions and algorithms in
+// the maps and clear the maps.
+void L1GtTriggerMenuXmlParser::clearMaps()
+{
+
+    for (unsigned int i = 0; i < m_numberConditionChips; i++) {
+        (m_conditionMap[i]).clear();
+    }
+
+    m_algorithmMap.clear();
+
+}
+
+// insertConditionIntoMap - safe insert of condition into condition map.
+// if the condition name already exists, do not insert it and return false
+bool L1GtTriggerMenuXmlParser::insertConditionIntoMap(
+    const L1GtCondition& cond, const int chipNr)
+{
+
+    std::string cName = cond.condName();
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "    Trying to insert condition \"" << cName << "\" in the condition map." ;
+
+    // no condition name has to appear twice!
+    if ((m_conditionMap[chipNr]).count(cName) != 0) {
+        LogTrace("L1GtTriggerMenuXmlParser")
+        << "      Condition " << cName << " already exists - not inserted!"
+        << std::endl;
+        return false;
+    }
+
+    (m_conditionMap[chipNr])[cName] = cond;
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      OK - condition inserted!"
+    //<< std::endl;
+
+
+    return true;
+
+}
+
+// insert an algorithm into algorithm map
+bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(const L1GtAlgorithm& alg)
+{
+
+    std::string algName = alg.algoName();
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "    Trying to insert algorithm \"" << algName << "\" in the algorithm map." ;
+
+    // no algorithm name has to appear twice!
+    if (m_algorithmMap.count(algName) != 0) {
+        LogTrace("L1GtTriggerMenuXmlParser")
+        << "      Algorithm \"" << algName
+        << "\"already exists in the algorithm map- not inserted!"
+        << std::endl;
+        return false;
+    }
+
+    // maximum number of algorithms
+    if (m_algorithmMap.size() > m_numberPhysTriggers) {
+        LogTrace("L1GtTriggerMenuXmlParser")
+        << "      More than maximum allowed " << m_numberPhysTriggers
+        << " algorithms in the algorithm map - not inserted!"
+        << std::endl;
+        return false;
+    }
+
+    // chip number outside allowed values
+    int chipNr = alg.algoChipNr(static_cast<int>(m_numberConditionChips),
+                                static_cast<int>(m_pinsOnConditionChip),
+                                m_orderConditionChip);
+
+    if ((chipNr < 0) || (chipNr > static_cast<int>(m_numberConditionChips))) {
+        LogTrace("L1GtTriggerMenuXmlParser")
+        << "      Chip number " << chipNr << " outside allowed range [0, "
+        << m_numberConditionChips << ") - algorithm not inserted!"
+        << std::endl;
+        return false;
+    }
+
+    // output pin outside allowed values
+    int outputPin = alg.algoOutputPin(static_cast<int>(m_numberConditionChips),
+                                      static_cast<int>(m_pinsOnConditionChip),
+                                      m_orderConditionChip);
+
+    if ((outputPin < 0) || (outputPin > static_cast<int>(m_pinsOnConditionChip))) {
+        LogTrace("L1GtTriggerMenuXmlParser")
+        << "      Output pin " << outputPin << " outside allowed range [0, "
+        << m_pinsOnConditionChip << "] - algorithm not inserted!"
+        << std::endl;
+        return false;
+    }
+
+    // no two algorithms on the same chip can have the same output pin
+    for (CItAlgo
+            itAlgo  = m_algorithmMap.begin();
+            itAlgo != m_algorithmMap.end(); itAlgo++) {
+
+        int iPin = (itAlgo->second).algoOutputPin(
+                       static_cast<int>(m_numberConditionChips),
+                       static_cast<int>(m_pinsOnConditionChip),
+                       m_orderConditionChip);
+        std::string iName = itAlgo->first;
+        int iChip = (itAlgo->second).algoChipNr(static_cast<int>(m_numberConditionChips),
+                                                static_cast<int>(m_pinsOnConditionChip),
+                                                m_orderConditionChip);
+
+        if ( (outputPin == iPin) && (chipNr == iChip) ) {
+            LogTrace("L1GtTriggerMenuXmlParser")
+            << "      Output pin " << outputPin << " is the same as for algorithm "
+            << iName << "\n      from the same chip number " << chipNr
+            << " - algorithm not inserted!"
+            << std::endl;
+            return false;
+        }
+
+    }
+
+    // insert algorithm
+    m_algorithmMap[algName] = alg;
+
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      OK - algorithm inserted!"
+    //<< std::endl;
+
+    return true;
+
+
+}
+
+
+// get the type of the condition, as defined in enum, from the condition type
+// as defined in the XML file
+L1GtConditionType L1GtTriggerMenuXmlParser::getTypeFromType(const std::string& type)
+{
+
+    if (type == m_xmlConditionAttrType1s) {
+        return Type1s;
+    }
+
+    if (type == m_xmlConditionAttrType2s) {
+        return Type2s;
+    }
+
+    if (type == m_xmlConditionAttrType3s) {
+        return Type3s;
+    }
+
+    if (type == m_xmlConditionAttrType4s) {
+        return Type4s;
+    }
+
+    if (type == m_xmlConditionAttrType2wsc) {
+        return Type2wsc;
+    }
+
+    if (type == m_xmlConditionAttrType2cor) {
+        return Type2cor;
+    }
+
+    return TypeNull;
+}
+
 
 /**
  * getNumFromType - get the number of particles from a specified type name 
@@ -898,23 +1173,27 @@ bool L1GtTriggerMenuXmlParser::parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser
 int L1GtTriggerMenuXmlParser::getNumFromType(const std::string &type)
 {
 
-    if (type == xml_condition_attr_type_1) {
+    if (type == m_xmlConditionAttrType1s) {
         return 1;
     }
 
-    if (type == xml_condition_attr_type_2) {
+    if (type == m_xmlConditionAttrType2s) {
         return 2;
     }
 
-    if (type == xml_condition_attr_type_3) {
+    if (type == m_xmlConditionAttrType3s) {
         return 3;
     }
 
-    if (type == xml_condition_attr_type_4) {
+    if (type == m_xmlConditionAttrType4s) {
         return 4;
     }
 
-    if (type == xml_condition_attr_type_2wsc) {
+    if (type == m_xmlConditionAttrType2wsc) {
+        return 2;
+    }
+
+    if (type == m_xmlConditionAttrType2cor) {
         return 2;
     }
 
@@ -929,32 +1208,33 @@ int L1GtTriggerMenuXmlParser::getNumFromType(const std::string &type)
  * @return The value of the bit or -1 if an error occured.
  */
 
-int L1GtTriggerMenuXmlParser::getBitFromNode(XERCES_CPP_NAMESPACE::DOMNode* node) {
+int L1GtTriggerMenuXmlParser::getBitFromNode(XERCES_CPP_NAMESPACE::DOMNode* node)
+{
 
-        if (getXMLAttribute(node, xml_attr_mode) != xml_attr_mode_bit) {
-            
-            edm::LogError("L1GtTriggerMenuXmlParser") 
-                << "Invalid mode for single bit" 
-                << std::endl;
-            
-            return -1;
-        }        
+    if (getXMLAttribute(node, m_xmlAttrMode) != m_xmlAttrModeBit) {
 
-        std::string tmpStr = getXMLTextValue(node);
-        if (tmpStr == "0") {
-            return 0;
-        } else if (tmpStr == "1") {
-            return 1;
-        } else {
-            edm::LogError("L1GtTriggerMenuXmlParser") 
-                << "Bad bit value (" << tmpStr << ")" 
-                << std::endl;
-            return -1;
-        }
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Invalid mode for single bit"
+        << std::endl;
+
+        return -1;
+    }
+
+    std::string tmpStr = getXMLTextValue(node);
+    if (tmpStr == "0") {
+        return 0;
+    } else if (tmpStr == "1") {
+        return 1;
+    } else {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Bad bit value (" << tmpStr << ")"
+        << std::endl;
+        return -1;
+    }
 }
 
 /**
- * getGeEqFlag - get the "greater or equal flag" from a condition
+ * getGEqFlag - get the "greater or equal flag" from a condition
  *
  * @param node The xml node of the condition.
  * @nodeName The name of the node from which the flag is a subchild.
@@ -963,264 +1243,1462 @@ int L1GtTriggerMenuXmlParser::getBitFromNode(XERCES_CPP_NAMESPACE::DOMNode* node
  */
 
 
-int L1GtTriggerMenuXmlParser::getGeEqFlag(XERCES_CPP_NAMESPACE::DOMNode* node,
- const std::string& nodeName) {
-        
+int L1GtTriggerMenuXmlParser::getGEqFlag(XERCES_CPP_NAMESPACE::DOMNode* node,
+        const std::string& nodeName)
+{
+
     XERCES_CPP_NAMESPACE_USE
 
     if (node == 0) {
-        
-        LogTrace("L1GtTriggerMenuXmlParser") 
-            << "node == 0 in " << __PRETTY_FUNCTION__ 
-            << std::endl;
-        
+
+        LogDebug("L1GtTriggerMenuXmlParser")
+        << "node == 0 in " << __PRETTY_FUNCTION__
+        << std::endl;
+
         return -1;
     }
-    
-    // usually the geeq flag is a child of the first child (the first element node)
+
+    // usually the GEq flag is a child of the first child (the first element node)
     DOMNode* n1 = node->getFirstChild();
     n1 = findXMLChild(n1, nodeName);
 
     if (n1 != 0) {
-        n1 = findXMLChild( n1->getFirstChild(), xml_geeq_tag);
+        n1 = findXMLChild( n1->getFirstChild(), m_xmlTagGEq);
         if (n1 == 0) {
-            
-            LogTrace("L1GtTriggerMenuXmlParser") 
-                << "No greater equal tag found" 
-                << std::endl;
-            
+
+            LogDebug("L1GtTriggerMenuXmlParser")
+            << "No \"greater or equal\" tag found"
+            << std::endl;
+
             return -1;
         }
-        
+
         return getBitFromNode(n1);
     } else {
-        
+
         return -1;
-    
+
     }
-        
+
 }
 
-///**
-// * workCondition - call the apropiate function to parse this condition.
-// *
-// * @param node The corresponding node to the condition.
-// * @param name The name of the condition.
-// * @param chipNr The number of the chip the condition is located on.
-// *
-// * @return "true" on success, "false" if an error occured.
-// *
-// */
-//
-//bool L1GtTriggerMenuXmlParser::workCondition(DOMNode* node,
-//    const std::string& name, unsigned int chipNr) {
-//
-//    // get condition, particle name and type name
-//    std::string condition = getXMLAttribute(node, xml_condition_attr_condition);
-//    std::string particle  = getXMLAttribute(node, xml_condition_attr_particle);
-//    std::string type      = getXMLAttribute(node, xml_condition_attr_type);
-//
-//    if ( condition.empty() || particle.empty() || type.empty() ) {
-//        
-//        edm::LogError("L1GtTriggerMenuXmlParser") 
-//            << "Missing attributes for condition " << name 
-//            << std::endl;
-//        
-//        return false;
-//    }
-//
-//    LogTrace("L1GtTriggerMenuXmlParser") 
-//        << "    condition: " << condition << ", particle: " << particle 
-//        << ", type: " << type << std::endl;
-//
-//    // call the appropiate function for this condition
-//
-//    if (condition == xml_condition_attr_condition_muon) {
-//        return parseMuon(node, name, chipNr);
-//    } else if (condition == xml_condition_attr_condition_calo) {
-//        return parseCalo(node, name, chipNr);
-//    } else if (condition == xml_condition_attr_condition_esums) {
-//        return parseESums(node, name, chipNr);
-//    } else if (condition == xml_condition_attr_condition_jetcnts) {
-//        return parseJetCounts(node, name, chipNr);
-//    } else {
-//        edm::LogError("L1GtTriggerMenuXmlParser") 
-//        << "Unknown condition (" << condition << ")" 
-//        << std::endl;
-//        
-//        return false;
-//    }
-//     
-//    return true;
-//
-//}
-//
-//
-//
-///**
-// * parseConditions - look for conditions and call the workCondition 
-// *     function for each node
-// *
-// * @param parser The parser to parse the XML file with.
-// *
-// * @return "true" if succeeded. "false" if an error occured.
-// *
-// */
-//
-//
-//bool L1GtTriggerMenuXmlParser::parseConditions(XERCES_CPP_NAMESPACE::XercesDOMParser* parser)
-//{
-//
-//    XERCES_CPP_NAMESPACE_USE
-//
-//    LogTrace("L1GtTriggerMenuXmlParser") << "\nParsing conditions" << std::endl;
-//
-//    DOMNode* doc = parser->getDocument();
-//    DOMNode* n1 = doc->getFirstChild();
-//
-//    // we assume that the first child is "def" because it was checked in workXML
-//
-//    // TODO def tag
-//    DOMNode* chipNode = n1->getFirstChild();
-//    if (chipNode == 0) {
-//
-//        edm::LogError("L1GtTriggerMenuXmlParser")
-//        << "Error: No child of <def> found"
-//        << std::endl;
-//
-//        return false;
-//    }
-//
-//    // find chip
-//
-//    std::string chipName;        // name of the actual chip
-//    chipNode = findXMLChild(chipNode, xml_chip_tag, true, &chipName);
-//    if (chipNode == 0) {
-//
-//        edm::LogError("L1GtTriggerMenuXmlParser")
-//        << "  Error: Could not find <" << xml_chip_tag
-//        << std::endl;
-//
-//        return false;
-//    }
-//
-//    unsigned int chipNr = 0;
-//    do {
-//
-//        // find conditions
-//        DOMNode* conditionsNode = chipNode->getFirstChild();
-//        conditionsNode = findXMLChild(conditionsNode, xml_conditions_tag);
-//        if (conditionsNode == 0) {
-//
-//            edm::LogError("L1GtTriggerMenuXmlParser")
-//            << "Error: No <" << xml_conditions_tag << "> child found in Chip "
-//            << chipName << std::endl;
-//
-//            return false;
-//        }
-//
-//        char* nodeName = XMLString::transcode(chipNode->getNodeName());
-//        LogTrace("L1GtTriggerMenuXmlParser")
-//        << "\n  Found Chip: " << nodeName << " Name: " << chipName
-//        << std::endl;
-//
-//        XMLString::release(&nodeName);
-//
-//        // walk through conditions
-//        DOMNode* conditionNameNode = conditionsNode->getFirstChild();
-//        std::string conditionNameNodeName;
-//        conditionNameNode = findXMLChild(conditionNameNode, "", true, &conditionNameNodeName);
-//        while (conditionNameNode != 0) {
-//
-//            LogTrace("L1GtTriggerMenuXmlParser")
-//            << "\n    Found a condition with name: " << conditionNameNodeName
-//            << std::endl;
-//
-//            if (workCondition(conditionNameNode, conditionNameNodeName, chipNr) != 0) {
-//                return false;
-//            }
-//            conditionNameNode = findXMLChild(conditionNameNode->getNextSibling(), "",
-//                                             true, &conditionNameNodeName);
-//
-//        }
-//        // next chip
-//        chipNode = findXMLChild(chipNode->getNextSibling(), xml_chip_tag, true, &chipName);
-//        chipNr++;
-//
-//    } while (chipNode != 0 && chipNr < NumberConditionChips);
-//
-//    return true;
-//}
-//
-//
-///**
-// * workXML parse the XML-File
-// *
-// * @param parser The parser to use for parsing the XML-File
-// *
-// * @return true if succeeded, false if an error occured.
-// */
-//
-//
-//bool L1GtTriggerMenuXmlParser::workXML(XERCES_CPP_NAMESPACE::XercesDOMParser* parser)
-//{
-//
-//    XERCES_CPP_NAMESPACE_USE
-//
-//    DOMDocument* doc = parser->getDocument();
-//    DOMNode* n1 = doc->getFirstChild();
-//
-//    if (n1 == 0) {
-//
-//        edm::LogError("L1GtTriggerMenuXmlParser") << "Error: Found no XML child"
-//        << std::endl;
-//
-//        return false;
-//    }
-//
-//    char* nodeName = XMLString::transcode(n1->getNodeName());
-//    // TODO def as static std::string
-//    if (XMLString::compareIString(nodeName, "def")) {
-//
-//        edm::LogError("L1GtTriggerMenuXmlParser")
-//        << "Error: First XML child is not \"def\""
-//        << std::endl;
-//
-//        return false;
-//    }
-//
-//    LogTrace("L1GtTriggerMenuXmlParser")
-//    << "\nFirst node name is: " << nodeName
-//    << std::endl;
-//    XMLString::release(&nodeName);
-//
-//    // clear possible old conditions
-//    clearConditionsMap();
-//
-//    if ( ! checkVersion(parser) ) {
-//        return false;
-//    }
-//
-//    if ( ! parseConditions(parser) ) {
-//        clearConditionsMap();
-//        return false;
-//    }
-//
-//    if ( ! parseAllAlgos(parser) ) {
-//        clearConditionsMap();
-//        return false;
-//    }
-//
-//    return true;
-//
-//}
-//
-//
-//
-//
-//
-//
-//
+/**
+ * getMuonMipIsoBits - get MIP and Isolation bits from a muon.
+ *
+ * @param node The node of the condition. 
+ * @param num The number of bits required.
+ * @param mipDst A pointer to the vector of the MIP bits.
+ * @param isoEnDst A pointer to the vector of the "enable isolation" bits.
+ * @param isoReqDst A pointer to the vector of the "request isolation" bits.
+ *
+ * @return "true" if suceeded, "false" if an error occured.
+ */
+
+bool L1GtTriggerMenuXmlParser::getMuonMipIsoBits(XERCES_CPP_NAMESPACE::DOMNode* node,
+        unsigned int num, std::vector<bool>& mipDst,
+        std::vector<bool>& isoEnDst, std::vector<bool>& isoReqDst)
+{
+
+    XERCES_CPP_NAMESPACE_USE
+
+    if (node == 0) {
+        return false;
+    }
+
+    // find ptLowThreshold child
+    DOMNode* n1 = findXMLChild(node->getFirstChild(), m_xmlTagPtLowThreshold);
+
+    if (n1 == 0)  {
+        return false;
+    }
+
+    // get first value tag
+    n1 = findXMLChild(n1->getFirstChild(), m_xmlTagValue);
+
+    for (unsigned int i = 0; i < num; i++) {
+
+        if (n1 == 0)  {
+            return false;
+        }
+
+        // MIP bit
+
+        DOMNode* bitnode = findXMLChild(n1->getFirstChild(), m_xmlTagEnableMip);
+        if (bitnode == 0) {
+            return true;
+        }
+
+        int tmpint = getBitFromNode(bitnode);
+        if (tmpint < 0) {
+            return false;
+        }
+
+        mipDst[i] = (tmpint != 0);
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      MIP bit value for muon " << i << " = " << mipDst[i]
+        //<< std::endl;
+
+
+        // enable iso bit
+        bitnode = findXMLChild(n1->getFirstChild(), m_xmlTagEnableIso);
+        if (bitnode == 0) {
+            return true;
+        }
+
+        tmpint = getBitFromNode(bitnode);
+        if (tmpint < 0) {
+            return false;
+        }
+
+        isoEnDst[i] = (tmpint != 0);
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      Enabled iso bit value for muon " << i << " = " << isoEnDst[i]
+        //<< std::endl;
+
+        // request iso bit
+        bitnode = findXMLChild(n1->getFirstChild(), m_xmlTagRequestIso);
+        if (bitnode == 0) {
+            return true;
+        }
+
+        tmpint = getBitFromNode(bitnode);
+        if (tmpint < 0) {
+            return false;
+        }
+
+        isoReqDst[i] = (tmpint != 0);
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      Request iso bit value for muon " << i << " = " << isoReqDst[i]
+        //<< std::endl;
+
+        //
+        n1 = findXMLChild(n1->getNextSibling(), m_xmlTagValue); // next value
+    }
+
+    return true;
+}
+
+
+
+
+
+/**
+ * parseMuon Parse a muon condition and insert an entry to the conditions map
+ *
+ * @param node The corresponding node.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip this condition is located.
+ *
+ * @return "true" if suceeded, "false" if an error occured.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node,
+        const std::string& name, unsigned int chipNr = 0)
+{
+
+    XERCES_CPP_NAMESPACE_USE
+
+    // get condition, particle name (must be muon) and type name
+    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
+    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
+    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
+
+    if (particle != m_xmlConditionAttrObjectMu) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Wrong particle for muon-condition (" << particle << ")"
+        << std::endl;
+        return false;
+    }
+
+    int nrObj = getNumFromType(type);
+    if (nrObj < 0) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Unknown type for muon-condition (" << type << ")"
+        << "\nCan not determine number of trigger objects. "
+        << std::endl;
+        return false;
+    }
+
+    // get greater equal flag
+
+    int intGEq = getGEqFlag(node, m_xmlTagPtHighThreshold);
+    if (intGEq < 0) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Error getting \"greater or equal\" flag"
+        << std::endl;
+        return false;
+    }
+    // set the boolean value for the ge_eq mode
+    bool gEq = ( intGEq != 0);
+
+    // get values
+
+    // temporary storage of the parameters
+    std::vector<L1GtMuonTemplate::ObjectParameter> objParameter(nrObj);
+    L1GtMuonTemplate::CorrelationParameter corrParameter;
+
+    // need at least two values for deltaPhi
+    std::vector<boost::uint64_t> tmpValues((nrObj > 2) ? nrObj : 2 );
+
+    // get ptHighThreshold values and fill into structure
+    if ( ! getConditionChildValues(node, m_xmlTagPtHighThreshold, nrObj, tmpValues) ) {
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        objParameter[i].ptHighThreshold = tmpValues[i];
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      Muon pT high threshold (hex) for muon " << i << " = "
+        //<< std::hex << objParameter[i].ptHighThreshold << std::dec
+        //<< std::endl;
+    }
+
+    // get ptLowThreshold values  and fill into structure
+    if ( ! getConditionChildValues(node, m_xmlTagPtLowThreshold, nrObj, tmpValues) ) {
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "        Muon pT low threshold word (hex) for muon " << i << " = "
+        //<< std::hex << tmpValues[i] << std::dec
+        //<< std::endl;
+
+        // TODO FIXME stupid format in def.xml...
+        // one takes mip bit also, therefore one divide by 16
+        tmpValues[i] = (tmpValues[i])/16;
+
+        objParameter[i].ptLowThreshold = tmpValues[i];
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      Muon pT low threshold (hex) for muon  " << i << " = "
+        //<< std::hex << objParameter[i].ptLowThreshold << std::dec
+        //<< std::endl;
+    }
+
+    // get qualityRange and fill into structure
+    if ( ! getConditionChildValues(node, m_xmlTagQuality, nrObj, tmpValues) ) {
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        objParameter[i].qualityRange = tmpValues[i];
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      qualityRange mask (hex) for muon " << i << " = "
+        //<< std::hex << objParameter[i].qualityRange << std::dec
+        //<< std::endl;
+    }
+
+    // get etaRange and fill into structure
+    if ( ! getConditionChildValues(node, m_xmlTagEta, nrObj, tmpValues) ) {
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        objParameter[i].etaRange = tmpValues[i];
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      etaRange (hex) for muon " << i << " = "
+        //<< std::hex << objParameter[i].etaRange << std::dec
+        //<< std::endl;
+    }
+
+    // get phiHigh values and fill into structure
+    if ( ! getConditionChildValues(node, m_xmlTagPhiHigh, nrObj, tmpValues) ) {
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        objParameter[i].phiHigh = tmpValues[i];
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      phiHigh (hex) for muon " << i << " = "
+        //<< std::hex << objParameter[i].phiHigh << std::dec
+        //<< std::endl;
+    }
+
+    // get phiLow values and fill into structure
+    if ( ! getConditionChildValues(node, m_xmlTagPhiLow, nrObj, tmpValues) ) {
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        objParameter[i].phiLow = tmpValues[i];
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      phiLow (hex) for muon " << i << " = "
+        //<< std::hex << objParameter[i].phiLow << std::dec
+        //<< std::endl;
+    }
+
+    // get charge correlation and fill into structure
+    if ( ! getXMLHexTextValue(findXMLChild(node->getFirstChild(),
+                                           m_xmlTagChargeCorrelation), tmpValues[0]) ) {
+
+        LogDebug("L1GtTriggerMenuXmlParser")
+        << "    Error getting charge correlation from muon condition ("
+        << name << ")" << std::endl;
+        return false;
+    }
+
+    corrParameter.chargeCorrelation = tmpValues[0];
+
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      charge correlation" << " = "
+    //<< std::hex << corrParameter.chargeCorrelation << std::dec
+    //<< std::endl;
+
+    // get mip and iso bits and fill into structure
+
+    std::vector<bool> tmpMip(nrObj);
+    std::vector<bool> tmpEnableIso(nrObj);
+    std::vector<bool> tmpRequestIso(nrObj);
+
+    if ( ! getMuonMipIsoBits(node, nrObj, tmpMip, tmpEnableIso, tmpRequestIso) ) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "    Could not get mip and iso bits from muon condition ("
+        << name << ")" << std::endl;
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        objParameter[i].enableMip  = tmpMip[i];
+        objParameter[i].enableIso  = tmpEnableIso[i];
+        objParameter[i].requestIso = tmpRequestIso[i];
+    }
+
+    // indicates if a correlation is used
+    bool wscVal = ( type == m_xmlConditionAttrType2wsc );
+
+    if (wscVal) {
+        // get deltaEtaRange
+        if ( ! getConditionChildValues(node, m_xmlTagDeltaEta, 1, tmpValues) ) {
+            return false;
+        }
+
+        corrParameter.deltaEtaRange = tmpValues[0];
+
+        // deltaPhi is larger than 64bit
+        if ( ! getXMLHexTextValue128(findXMLChild(node->getFirstChild(),
+                                     m_xmlTagDeltaPhi), tmpValues[0], tmpValues[1])) {
+            edm::LogError("L1GtTriggerMenuXmlParser")
+            << "    Could not get deltaPhi for muon condition with wsc ("
+            << name << ")"
+            << std::endl;
+            return false;
+        }
+
+        corrParameter.deltaPhiRange0Word = tmpValues[0];
+        corrParameter.deltaPhiRange1Word = tmpValues[1];
+
+        // get maximum number of bits for delta phi
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      Counting deltaPhiMaxbits"
+        //<< std::endl;
+
+        unsigned int maxbits;
+
+        if ( ! countConditionChildMaxBits(node, m_xmlTagDeltaPhi, maxbits) ) {
+            return false;
+        }
+
+        corrParameter.deltaPhiMaxbits = maxbits;
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "        deltaPhiMaxbits (dec) = " << maxbits
+        //<< std::endl;
+    }
+
+    // get the type of the condition, as defined in enum, from the condition type
+    // as defined in the XML file
+    L1GtConditionType cType = getTypeFromType(type);
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      Condition type (enum value) = " << cType
+    //<< std::endl;
+
+    if (cType == TypeNull) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Type for muon condition id TypeNull - it means not defined in the XML file."
+        << "\nNumber of trigger objects is set to zero. "
+        << std::endl;
+        return false;
+    }
+
+    // object types - all muons
+    std::vector<L1GtObject> objType(nrObj, Mu);
+
+    // now create a new CondMuonition
+
+    L1GtMuonTemplate muonCond = L1GtMuonTemplate(name);
+
+    muonCond.setCondType(cType);
+    muonCond.setObjectType(objType);
+    muonCond.setCondGEq(gEq);
+    muonCond.setCondChipNr(chipNr);
+
+    muonCond.setConditionParameter(objParameter, corrParameter);
+
+    if ( edm::isDebugEnabled() ) {
+        std::ostringstream myCoutStream;
+        muonCond.print(myCoutStream);
+        LogTrace("L1GtTriggerMenuXmlParser")
+        << myCoutStream.str() << "\n"
+        << std::endl;
+    }
+
+
+
+    // insert condition into the map
+    if ( ! insertConditionIntoMap(muonCond, chipNr)) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "    Error: duplicate condition (" << name << ")"
+        << std::endl;
+
+        return false;
+    }
+
+    //
+    return true;
+}
+
+
+/**
+ * parseCalo Parse a calo condition and insert an entry to the conditions map
+ *
+ * @param node The corresponding node.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip this condition is located.
+ *
+ * @return "true" if suceeded, "false" if an error occured.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node,
+        const std::string& name, unsigned int chipNr = 0)
+{
+
+    XERCES_CPP_NAMESPACE_USE
+
+    // get condition, particle name and type name
+    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
+    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
+    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
+
+    // determine object type type
+    L1GtObject caloObjType;
+
+    if (particle == m_xmlConditionAttrObjectNoIsoEG) {
+        caloObjType = NoIsoEG;
+    } else if (particle == m_xmlConditionAttrObjectIsoEG) {
+        caloObjType = IsoEG;
+    } else if (particle == m_xmlConditionAttrObjectCenJet) {
+        caloObjType = CenJet;
+    } else if (particle == m_xmlConditionAttrObjectTauJet) {
+        caloObjType = TauJet;
+    } else if (particle == m_xmlConditionAttrObjectForJet) {
+        caloObjType = ForJet;
+    } else {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Wrong particle for calo-condition (" << particle << ")"
+        << std::endl;
+        return false;
+    }
+
+    int nrObj = getNumFromType(type);
+    if (nrObj < 0) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Unknown type for calo-condition (" << type << ")"
+        << "\nCan not determine number of trigger objects. "
+        << std::endl;
+        return false;
+    }
+
+    // get greater equal flag
+
+    int intGEq = getGEqFlag(node, m_xmlTagEtThreshold);
+    if (intGEq < 0) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Error getting \"greater or equal\" flag"
+        << std::endl;
+        return false;
+    }
+    // set the boolean value for the ge_eq mode
+    bool gEq = ( intGEq != 0);
+
+    // get values
+
+    // temporary storage of the parameters
+    std::vector<L1GtCaloTemplate::ObjectParameter> objParameter(nrObj);
+    L1GtCaloTemplate::CorrelationParameter corrParameter;
+
+    // need at least one value for deltaPhiRange
+    std::vector<boost::uint64_t> tmpValues((nrObj > 1) ? nrObj : 1 );
+
+    // get etThreshold values and fill into structure
+    if ( ! getConditionChildValues(node, m_xmlTagEtThreshold, nrObj, tmpValues) ) {
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        objParameter[i].etThreshold = tmpValues[i];
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      Calo ET high threshold (hex) for calo object " << i << " = "
+        //<< std::hex << objParameter[i].etThreshold << std::dec
+        //<< std::endl;
+    }
+
+
+    // get etaRange and fill into structure
+    if ( ! getConditionChildValues(node, m_xmlTagEta, nrObj, tmpValues) ) {
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        objParameter[i].etaRange = tmpValues[i];
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      etaRange (hex) for calo object " << i << " = "
+        //<< std::hex << objParameter[i].etaRange << std::dec
+        //<< std::endl;
+    }
+
+    // get phiRange values and fill into structure
+    if ( ! getConditionChildValues(node, m_xmlTagPhi, nrObj, tmpValues) ) {
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        objParameter[i].phiRange = tmpValues[i];
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      phiRange (hex) for calo object " << i << " = "
+        //<< std::hex << objParameter[i].phiRange << std::dec
+        //<< std::endl;
+    }
+
+
+    // indicates if a correlation is used
+    bool wscVal = ( type == m_xmlConditionAttrType2wsc );
+
+    if (wscVal) {
+        // get deltaEtaRange
+        if ( ! getConditionChildValues(node, m_xmlTagDeltaEta, 1, tmpValues) ) {
+            return false;
+        }
+
+        corrParameter.deltaEtaRange = tmpValues[0];
+
+        // get deltaPhiRange
+        if ( ! getConditionChildValues(node, m_xmlTagDeltaPhi, 1, tmpValues) ) {
+            return false;
+        }
+
+        corrParameter.deltaPhiRange = tmpValues[0];
+
+        // get maximum number of bits for delta phi
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      Counting deltaPhiMaxbits"
+        //<< std::endl;
+
+        unsigned int maxbits;
+
+        if ( ! countConditionChildMaxBits(node, m_xmlTagDeltaPhi, maxbits) ) {
+            return false;
+        }
+
+        corrParameter.deltaPhiMaxbits = maxbits;
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "        deltaPhiMaxbits (dec) = " << maxbits
+        //<< std::endl;
+    }
+
+    // get the type of the condition, as defined in enum, from the condition type
+    // as defined in the XML file
+    L1GtConditionType cType = getTypeFromType(type);
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      Condition type (enum value) = " << cType
+    //<< std::endl;
+
+    if (cType == TypeNull) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Type for calo condition id TypeNull - it means not defined in the XML file."
+        << "\nNumber of trigger objects is set to zero. "
+        << std::endl;
+        return false;
+    }
+
+    // object types - all same caloObjType
+    std::vector<L1GtObject> objType(nrObj, caloObjType);
+
+    // now create a new calo condition
+
+    L1GtCaloTemplate caloCond = L1GtCaloTemplate(name);
+
+    caloCond.setCondType(cType);
+    caloCond.setObjectType(objType);
+    caloCond.setCondGEq(gEq);
+    caloCond.setCondChipNr(chipNr);
+
+    caloCond.setConditionParameter(objParameter, corrParameter);
+
+    if ( edm::isDebugEnabled() ) {
+
+        std::ostringstream myCoutStream;
+        caloCond.print(myCoutStream);
+        LogTrace("L1GtTriggerMenuXmlParser")
+        << myCoutStream.str() << "\n"
+        << std::endl;
+
+    }
+
+    // insert condition into the map
+    if ( ! insertConditionIntoMap(caloCond, chipNr)) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "    Error: duplicate condition (" << name << ")"
+        << std::endl;
+
+        return false;
+    }
+
+    //
+    return true;
+}
+
+
+/**
+ * parseEnergySum Parse an "energy sum" condition and insert an entry to the conditions map
+ *
+ * @param node The corresponding node.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip this condition is located.
+ *
+ * @return "true" if suceeded, "false" if an error occured.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::parseEnergySum(XERCES_CPP_NAMESPACE::DOMNode* node,
+        const std::string& name, unsigned int chipNr = 0)
+{
+
+    XERCES_CPP_NAMESPACE_USE
+
+    // get condition, particle name and type name
+    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
+    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
+    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
+
+    // determine object type type
+    L1GtObject energySumObjType;
+    L1GtConditionType cType;
+
+    if ((particle == m_xmlConditionAttrObjectETM) &&
+            (type == m_xmlConditionAttrObjectETM)) {
+
+        energySumObjType = ETM;
+        cType = TypeETM;
+
+    } else if ((particle == m_xmlConditionAttrObjectETT) &&
+               (type == m_xmlConditionAttrObjectETT)) {
+
+        energySumObjType = ETT;
+        cType = TypeETT;
+
+    } else if ((particle == m_xmlConditionAttrObjectHTT) &&
+               (type == m_xmlConditionAttrObjectHTT)) {
+
+        energySumObjType = HTT;
+        cType = TypeHTT;
+
+    } else {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Wrong particle or type for energy-sum condition ("
+        << particle << ", " << type << ")"
+        << std::endl;
+        return false;
+    }
+
+    // global object
+    int nrObj = 1;
+
+    // get greater equal flag
+
+    int intGEq = getGEqFlag(node, m_xmlTagEtThreshold);
+    if (intGEq < 0) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Error getting \"greater or equal\" flag"
+        << std::endl;
+        return false;
+    }
+    // set the boolean value for the ge_eq mode
+    bool gEq = ( intGEq != 0);
+
+    // get values
+
+    // temporary storage of the parameters
+    std::vector<L1GtEnergySumTemplate::ObjectParameter> objParameter(nrObj);
+
+    // need at least two values for phi
+    std::vector<boost::uint64_t> tmpValues((nrObj > 2) ? nrObj : 2 );
+
+    // get etThreshold values and fill into structure
+    if ( ! getConditionChildValues(node, m_xmlTagEtThreshold, nrObj, tmpValues) ) {
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        objParameter[i].etThreshold = tmpValues[i];
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      EnergySum ET high threshold (hex) for energySum object " << i << " = "
+        //<< std::hex << objParameter[i].etThreshold << std::dec
+        //<< std::endl;
+
+        // for ETM read phi value
+        // phi is larger than 64 bits -it needs two 64bits words
+        if (energySumObjType == ETM) {
+
+            if ( ! getXMLHexTextValue128(findXMLChild(node->getFirstChild(),
+                                         m_xmlTagPhi), tmpValues[0], tmpValues[1])) {
+                edm::LogError("L1GtTriggerMenuXmlParser")
+                << "    Could not get phi for ETM condition (" << name << ")"
+                << std::endl;
+                return false;
+            }
+
+            objParameter[i].phiRange0Word = tmpValues[0];
+            objParameter[i].phiRange1Word = tmpValues[1];
+
+        }
+
+        // get energyOverflow logical flag and fill into structure
+        DOMNode* n1;
+        if ( (n1 = findXMLChild(node->getFirstChild(), m_xmlTagEtThreshold)) == 0) {
+            edm::LogError("L1GtTriggerMenuXmlParser")
+            << "    Could not get energyOverflow for EnergySum condition ("
+            << name << ")"
+            << std::endl;
+            return false;
+        }
+        if ( (n1 = findXMLChild(n1->getFirstChild(), m_xmlTagEnergyOverflow)) == 0) {
+            edm::LogError("L1GtTriggerMenuXmlParser")
+            << "    Could not get energyOverflow for EnergySum condition ("
+            << name << ")"
+            << std::endl;
+            return false;
+        }
+
+        int tmpInt = getBitFromNode(n1);
+        if (tmpInt == 0) {
+            objParameter[i].energyOverflow = false;
+
+            //LogTrace("L1GtTriggerMenuXmlParser")
+            //<< "      EnergySum energyOverflow logical flag (hex) = "
+            //<< std::hex << objParameter[i].energyOverflow << std::dec
+            //<< std::endl;
+        } else if (tmpInt == 1) {
+            objParameter[i].energyOverflow = true;
+
+            //LogTrace("L1GtTriggerMenuXmlParser")
+            //<< "      EnergySum energyOverflow logical flag (hex) = "
+            //<< std::hex << objParameter[i].energyOverflow << std::dec
+            //<< std::endl;
+        } else {
+            LogTrace("L1GtTriggerMenuXmlParser")
+            << "      EnergySum energyOverflow logical flag (hex) = "
+            << std::hex << tmpInt << std::dec << " - wrong value! "
+            << std::endl;
+            return false;
+        }
+
+    }
+
+
+    // type of the condition, as defined in enum, from the condition type
+    // as defined in the XML file determined before
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      Condition type (enum value) = " << cType
+    //<< std::endl;
+
+    if (cType == TypeNull) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Type for energySum condition id TypeNull - it means not defined in the XML file."
+        << "\nNumber of trigger objects is set to zero. "
+        << std::endl;
+        return false;
+    }
+
+    // object types - all same energySumObjType
+    std::vector<L1GtObject> objType(nrObj, energySumObjType);
+
+    // now create a new energySum condition
+
+    L1GtEnergySumTemplate energySumCond = L1GtEnergySumTemplate(name);
+
+    energySumCond.setCondType(cType);
+    energySumCond.setObjectType(objType);
+    energySumCond.setCondGEq(gEq);
+    energySumCond.setCondChipNr(chipNr);
+
+    energySumCond.setConditionParameter(objParameter);
+
+    if ( edm::isDebugEnabled() ) {
+
+        std::ostringstream myCoutStream;
+        energySumCond.print(myCoutStream);
+        LogTrace("L1GtTriggerMenuXmlParser")
+        << myCoutStream.str() << "\n"
+        << std::endl;
+
+    }
+
+    // insert condition into the map
+    if ( ! insertConditionIntoMap(energySumCond, chipNr)) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "    Error: duplicate condition (" << name << ")"
+        << std::endl;
+
+        return false;
+    }
+
+    //
+    return true;
+}
+
+
+/**
+ * parseJetCounts Parse a "jet counts" condition and 
+ * insert an entry to the conditions map
+ *
+ * @param node The corresponding node.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip this condition is located.
+ *
+ * @return "true" if suceeded, "false" if an error occured.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* node,
+        const std::string& name, unsigned int chipNr = 0)
+{
+
+    XERCES_CPP_NAMESPACE_USE
+
+    // get condition, particle name and type name
+    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
+    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
+    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
+
+    if (particle != m_xmlConditionAttrObjectJetCounts) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Wrong particle for JetCounts condition (" << particle << ")"
+        << std::endl;
+        return false;
+    }
+
+    // object type and condition type
+    L1GtObject jetCountsObjType = JetCounts;
+    L1GtConditionType cType = TypeJetCounts;
+
+    // global object
+    int nrObj = 1;
+
+    // get greater equal flag
+
+    int intGEq = getGEqFlag(node, m_xmlTagCountThreshold);
+    if (intGEq < 0) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Error getting \"greater or equal\" flag"
+        << std::endl;
+        return false;
+    }
+    // set the boolean value for the ge_eq mode
+    bool gEq = ( intGEq != 0);
+
+    // get values
+
+    // temporary storage of the parameters
+    std::vector<L1GtJetCountsTemplate::ObjectParameter> objParameter(nrObj);
+
+    // get countIndex value and fill into structure
+    // they are expressed in  base 10  (values: 0 - m_numberL1JetCounts)
+    char* endPtr = const_cast<char*>(type.c_str());
+    long  int typeInt = strtol(type.c_str(), &endPtr, 10); // base = 10
+    unsigned int typeIntUInt = static_cast<unsigned int>(typeInt);
+
+    if (*endPtr != 0) {
+
+        LogDebug("L1GtTriggerMenuXmlParser")
+        << "Unable to convert " << type << " to dec." << std::endl;
+
+        return false;
+    }
+
+    // test if count index is out of range
+    if ((typeIntUInt < 0) || (typeIntUInt > m_numberL1JetCounts)) {
+        LogDebug("L1GtTriggerMenuXmlParser")
+        << "Count index " << typeIntUInt << " outside range [0, "
+        << m_numberL1JetCounts << "]"
+        << std::endl;
+
+        return false;
+    }
+
+    objParameter[0].countIndex = typeIntUInt;
+
+
+    // get etThreshold values and fill into structure
+    std::vector<boost::uint64_t> tmpValues( nrObj );
+
+    if ( ! getConditionChildValues(node, m_xmlTagCountThreshold, nrObj, tmpValues) ) {
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        objParameter[i].countThreshold = tmpValues[i];
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      JetCounts count threshold (hex) for JetCounts object " << i << " = "
+        //<< std::hex << objParameter[i].countThreshold << std::dec
+        //<< std::endl;
+
+        // TODO FIXME un-cooment when tag available in XML file
+
+        //        // get countOverflow logical flag and fill into structure
+        //        DOMNode* n1;
+        //        if ( (n1 = findXMLChild(node->getFirstChild(), m_xmlTagCountThreshold)) == 0) {
+        //            edm::LogError("L1GtTriggerMenuXmlParser")
+        //            << "    Could not get countOverflow for JetCounts condition ("
+        //            << name << ")"
+        //            << std::endl;
+        //            return false;
+        //        }
+        //        if ( (n1 = findXMLChild(n1->getFirstChild(), m_xmlTagCountThreshold)) == 0) {
+        //            edm::LogError("L1GtTriggerMenuXmlParser")
+        //            << "    Could not get countOverflow for JetCounts condition ("
+        //            << name << ")"
+        //            << std::endl;
+        //            return false;
+        //        }
+        //
+        //        int tmpInt = getBitFromNode(n1);
+        //        if (tmpInt == 0) {
+        //            objParameter[i].countOverflow = false;
+        //
+        //            LogTrace("L1GtTriggerMenuXmlParser")
+        //            << "      JetCounts countOverflow logical flag (hex) = "
+        //            << std::hex << objParameter[i].countOverflow << std::dec
+        //            << std::endl;
+        //        } else if (tmpInt == 1) {
+        //            objParameter[i].countOverflow = true;
+        //
+        //            LogTrace("L1GtTriggerMenuXmlParser")
+        //            << "      JetCounts countOverflow logical flag (hex) = "
+        //            << std::hex << objParameter[i].countOverflow << std::dec
+        //            << std::endl;
+        //        } else {
+        //            LogTrace("L1GtTriggerMenuXmlParser")
+        //            << "      JetCounts countOverflow logical flag (hex) = "
+        //            << std::hex << tmpInt << std::dec << " - wrong value! "
+        //            << std::endl;
+        //            return false;
+        //        }
+
+    }
+
+
+    // type of the condition, as defined in enum, from the condition type
+    // as defined in the XML file determined before
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      Condition type (enum value) = " << cType
+    //<< std::endl;
+
+    if (cType == TypeNull) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Type for energySum condition id TypeNull - it means not defined in the XML file."
+        << "\nNumber of trigger objects is set to zero. "
+        << std::endl;
+        return false;
+    }
+
+    // object types - all same objType
+    std::vector<L1GtObject> objType(nrObj, jetCountsObjType);
+
+    // now create a new JetCounts condition
+
+    L1GtJetCountsTemplate jetCountsCond = L1GtJetCountsTemplate(name);
+
+    jetCountsCond.setCondType(cType);
+    jetCountsCond.setObjectType(objType);
+    jetCountsCond.setCondGEq(gEq);
+    jetCountsCond.setCondChipNr(chipNr);
+
+    jetCountsCond.setConditionParameter(objParameter);
+
+    if ( edm::isDebugEnabled() ) {
+
+        std::ostringstream myCoutStream;
+        jetCountsCond.print(myCoutStream);
+        LogTrace("L1GtTriggerMenuXmlParser")
+        << myCoutStream.str() << "\n"
+        << std::endl;
+
+    }
+
+
+    // insert condition into the map
+    if ( ! insertConditionIntoMap(jetCountsCond, chipNr)) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "    Error: duplicate condition (" << name << ")"
+        << std::endl;
+
+        return false;
+    }
+
+    //
+    return true;
+}
+
+
+
+
+/**
+ * workCondition - call the apropiate function to parse this condition.
+ *
+ * @param node The corresponding node to the condition.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip the condition is located on.
+ *
+ * @return "true" on success, "false" if an error occured.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::workCondition(XERCES_CPP_NAMESPACE::DOMNode* node,
+        const std::string& name, unsigned int chipNr)
+{
+
+    XERCES_CPP_NAMESPACE_USE
+
+    // get condition, particle name and type name
+    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
+    std::string particle  = getXMLAttribute(node, m_xmlConditionAttrObject);
+    std::string type      = getXMLAttribute(node, m_xmlConditionAttrType);
+
+    if ( condition.empty() || particle.empty() || type.empty() ) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Missing attributes for condition " << name
+        << std::endl;
+
+        return false;
+    }
+
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "    condition: " << condition << ", particle: " << particle
+    //<< ", type: " << type << std::endl;
+
+    // call the appropiate function for this condition
+
+    if (condition == m_xmlConditionAttrConditionMuon) {
+        return parseMuon(node, name, chipNr);
+    } else if (condition == m_xmlConditionAttrConditionCalo) {
+        return parseCalo(node, name, chipNr);
+    } else if (condition == m_xmlConditionAttrConditionEnergySum) {
+        return parseEnergySum(node, name, chipNr);
+    } else if (condition == m_xmlConditionAttrConditionJetCounts) {
+        return parseJetCounts(node, name, chipNr);
+    } else {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Unknown condition (" << condition << ")"
+        << std::endl;
+
+        return false;
+    }
+
+    return true;
+
+}
+
+
+
+/**
+ * parseConditions - look for conditions and call the workCondition 
+ *                   function for each node
+ *
+ * @param parser The parser to parse the XML file with.
+ *
+ * @return "true" if succeeded. "false" if an error occured.
+ *
+ */
+
+
+bool L1GtTriggerMenuXmlParser::parseConditions(
+    XERCES_CPP_NAMESPACE::XercesDOMParser* parser)
+{
+
+    XERCES_CPP_NAMESPACE_USE
+
+    //LogTrace("L1GtTriggerMenuXmlParser") << "\nParsing conditions" << std::endl;
+
+    DOMNode* doc = parser->getDocument();
+    DOMNode* n1 = doc->getFirstChild();
+
+    // we assume that the first child is m_xmlTagDef because it was checked in workXML
+
+    DOMNode* chipNode = n1->getFirstChild();
+    if (chipNode == 0) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Error: No child of <" << m_xmlTagDef << "> tag found."
+        << std::endl;
+
+        return false;
+    }
+
+    // find chip
+
+    std::string chipName;        // name of the actual chip
+    chipNode = findXMLChild(chipNode, m_xmlTagChip, true, &chipName);
+    if (chipNode == 0) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "  Error: Could not find <" << m_xmlTagChip
+        << std::endl;
+
+        return false;
+    }
+
+    unsigned int chipNr = 0;
+    do {
+
+        // find conditions
+        DOMNode* conditionsNode = chipNode->getFirstChild();
+        conditionsNode = findXMLChild(conditionsNode, m_xmlTagConditions);
+        if (conditionsNode == 0) {
+
+            edm::LogError("L1GtTriggerMenuXmlParser")
+            << "Error: No <" << m_xmlTagConditions << "> child found in Chip "
+            << chipName << std::endl;
+
+            return false;
+        }
+
+        char* nodeName = XMLString::transcode(chipNode->getNodeName());
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "\n  Found Chip: " << nodeName << " Name: " << chipName
+        //<< std::endl;
+
+        XMLString::release(&nodeName);
+
+        // walk through conditions
+        DOMNode* conditionNameNode = conditionsNode->getFirstChild();
+        std::string conditionNameNodeName;
+        conditionNameNode = findXMLChild(conditionNameNode, "", true, &conditionNameNodeName);
+        while (conditionNameNode != 0) {
+
+            //LogTrace("L1GtTriggerMenuXmlParser")
+            //<< "\n    Found a condition with name: " << conditionNameNodeName
+            //<< std::endl;
+
+            if ( ! workCondition(conditionNameNode, conditionNameNodeName, chipNr) ) {
+                return false;
+            }
+            conditionNameNode = findXMLChild(conditionNameNode->getNextSibling(), "",
+                                             true, &conditionNameNodeName);
+
+        }
+        // next chip
+        chipNode = findXMLChild(chipNode->getNextSibling(), m_xmlTagChip, true, &chipName);
+        chipNr++;
+
+    } while (chipNode != 0 && chipNr < m_numberConditionChips);
+
+    return true;
+}
+
+/**
+ * workAlgorithm - parse the algorithm and insert it into algorithm map.
+ *
+ * @param node The corresponding node to the algorithm.
+ * @param name The name of the algorithm.
+ * @param chipNr The number of the chip the conditions for that algorithm are located on.
+ *
+ * @return "true" on success, "false" if an error occured.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node,
+        const std::string& algName, unsigned int chipNr)
+{
+
+    XERCES_CPP_NAMESPACE_USE
+
+    if (node == 0) {
+        LogDebug("L1GtTriggerMenuXmlParser")
+        << "    Node is 0 in " << __PRETTY_FUNCTION__
+        << " can not parse the algorithm " << algName
+        << std::endl;
+        return false;
+    }
+
+    // get the logical expression from the node
+    std::string logExpression = getXMLTextValue(node);
+
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      Logical expression: " << logExpression
+    //<< std::endl;
+
+    // parse the logical expression - check for correctness
+    // TODO FIXME
+
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      Chip number:        " << chipNr
+    //<< std::endl;
+
+    // determine output pin
+    DOMNode* pinNode = findXMLChild(node->getFirstChild(), m_xmlTagOutput);
+    std::string pinString;
+    int outputPin = 0;
+
+    pinNode = node->getFirstChild();
+    while ( ( pinNode = findXMLChild(pinNode, m_xmlTagOutputPin) ) != 0 ) {
+        pinString = getXMLAttribute(pinNode, m_xmlAttrPin); // we look for the "a" pin
+        if (pinString == m_xmlAttrPinA) {
+            // found pin a
+            pinString = getXMLAttribute(pinNode, m_xmlAttrNr);
+
+            // convert pinString to integer
+            std::istringstream opStream(pinString);
+
+            if ((opStream >> outputPin).fail()) {
+                LogDebug("L1GtTriggerMenuXmlParser")
+                << "    Unable to convert pin string " << pinString
+                << " to int for algorithm : " << algName
+                << std::endl;
+
+                return false;
+            }
+
+            //LogTrace("L1GtTriggerMenuXmlParser")
+            //<< "      Output pin:         " << outputPin
+            //<< std::endl;
+
+            break;
+        }
+        pinNode = pinNode->getNextSibling();
+    }
+
+    if (pinNode == 0) {
+        LogTrace("L1GlobalTriggerConfig")
+        << "    Warning: No pin number found for algorithm: " << algName
+        << std::endl;
+
+        return false;
+    }
+
+    // compute the bit number from chip number, output pin and order of the chips
+    int bitNumber = outputPin + (m_orderConditionChip[chipNr] -1)*m_pinsOnConditionChip;
+
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      Bit number:         " << bitNumber
+    //<< std::endl;
+
+    // create a new algorithm and insert it into algorithm map
+    L1GtAlgorithm alg = L1GtAlgorithm(algName, logExpression, bitNumber);
+
+    if ( edm::isDebugEnabled() ) {
+
+        std::ostringstream myCoutStream;
+        alg.print(myCoutStream);
+        LogTrace("L1GtTriggerMenuXmlParser")
+        << myCoutStream.str() << "\n"
+        << std::endl;
+
+    }
+
+
+    // insert condition into the map
+    if ( ! insertAlgorithmIntoMap(alg)) {
+        return false;
+    }
+
+
+    return true;
+
+}
+
+
+
+/*
+ * parseAlgorithms Parse the algorithms
+ * NOTE: the algorithms used here are equivalent to "prealgo" from XML file 
+ *       for the VERSION_FINAL
+ *       The "VERSION_PROTOTYPE algo" will be phased out later in the XML file
+ *       See L1GlobalTriggerConfig.h 
+ * 
+ * @param parser A reference to the XercesDOMParser to use.
+ * 
+ * @return "true" if succeeded, "false" if an error occured.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::parseAlgorithms(
+    XERCES_CPP_NAMESPACE::XercesDOMParser* parser)
+{
+
+    XERCES_CPP_NAMESPACE_USE
+
+    //LogTrace("L1GtTriggerMenuXmlParser") << "\nParsing algorithms" << std::endl;
+
+    DOMNode* doc = parser->getDocument();
+    DOMNode* node = doc->getFirstChild();
+
+    DOMNode* chipNode = node->getFirstChild();
+    if (chipNode == 0) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "  Error: No child found for " << m_xmlTagDef
+        << std::endl;
+        return false;
+    }
+
+    // find first chip
+    std::string chipName;
+    chipNode = findXMLChild(chipNode, m_xmlTagChip, true, &chipName);
+    if (chipNode == 0) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "  Error: Could not find <" << m_xmlTagChip
+        << std::endl;
+        return false;
+    }
+
+    unsigned int chipNr = 0;
+    do {
+
+        //LogTrace("L1GtTriggerMenuXmlParser") << std::endl;
+
+        std::string nodeName = m_xmlTagChip + chipName;
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "  Chip: " << nodeName << " Name: " << chipName
+        //<< std::endl;
+
+        // find algorithms
+        DOMNode* algNode = chipNode->getFirstChild();
+        algNode = findXMLChild(algNode, m_xmlTagAlgorithms);
+        if (algNode == 0) {
+            edm::LogError("L1GtTriggerMenuXmlParser")
+            << "    Error: No <" << m_xmlTagAlgorithms << "> child found in chip "
+            << chipName
+            << std::endl;
+            return false;
+        }
+
+        // walk through algorithms
+        DOMNode* algNameNode = algNode->getFirstChild();
+        std::string algNameNodeName;
+        algNameNode = findXMLChild(algNameNode, "", true, &algNameNodeName);
+
+        while (algNameNode != 0) {
+            //LogTrace("L1GtTriggerMenuXmlParser")
+            //<< "    Found an algorithm with name: " << algNameNodeName
+            //<< std::endl;
+
+            if ( ! workAlgorithm(algNameNode, algNameNodeName, chipNr)) {
+                return false;
+            }
+
+            algNameNode = findXMLChild(algNameNode->getNextSibling(), "", true,
+                                       &algNameNodeName);
+
+        }
+
+        // next chip
+        chipNode = findXMLChild(chipNode->getNextSibling(), m_xmlTagChip, true, &chipName);
+        chipNr++;
+
+
+    } while (chipNode != 0 && chipNr < m_numberConditionChips);
+
+    return true;
+}
+
+/**
+ * workXML parse the XML-File
+ *
+ * @param parser The parser to use for parsing the XML-File
+ *
+ * @return "true" if succeeded, "false" if an error occured.
+ */
+
+
+bool L1GtTriggerMenuXmlParser::workXML(XERCES_CPP_NAMESPACE::XercesDOMParser* parser)
+{
+
+    XERCES_CPP_NAMESPACE_USE
+
+    DOMDocument* doc = parser->getDocument();
+    DOMNode* n1 = doc->getFirstChild();
+
+    if (n1 == 0) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser") << "Error: Found no XML child"
+        << std::endl;
+
+        return false;
+    }
+
+    char* nodeName = XMLString::transcode(n1->getNodeName());
+
+    if (XMLString::compareIString(nodeName, m_xmlTagDef.c_str())) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser")
+        << "Error: First XML child is not \" " << m_xmlTagDef << "\" "
+        << std::endl;
+
+        return false;
+    }
+
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "\nFirst node name is: " << nodeName
+    //<< std::endl;
+    XMLString::release(&nodeName);
+
+
+    // clear possible old maps
+    clearMaps();
+
+    // FIXME uncomment the checks
+    //    if ( ! checkVersion(parser) ) {
+    //        return false;
+    //    }
+
+    if ( ! parseConditions(parser) ) {
+        clearMaps();
+        return false;
+    }
+
+    if ( ! parseAlgorithms(parser) ) {
+        clearMaps();
+        return false;
+    }
+
+    return true;
+
+}
+
+
+
+
+
+
 
 
 
@@ -1228,72 +2706,79 @@ int L1GtTriggerMenuXmlParser::getGeEqFlag(XERCES_CPP_NAMESPACE::DOMNode* node,
 
 // static class members
 
-const std::string L1GtTriggerMenuXmlParser::xml_def_tag("def");
-const std::string L1GtTriggerMenuXmlParser::xml_chip_tag("condition_chip_");
-const std::string L1GtTriggerMenuXmlParser::xml_conditions_tag("conditions");
-const std::string L1GtTriggerMenuXmlParser::xml_prealgos_tag("prealgos");
-const std::string L1GtTriggerMenuXmlParser::xml_algos_tag("algos");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagDef("def");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagChip("condition_chip_");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagConditions("conditions");
+// see parseAlgorithms note for "prealgos"
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagAlgorithms("prealgos");
 
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_condition("condition");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_particle("particle");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_type("type");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_condition_muon("muon");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_condition_calo("calo");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_condition_esums("esums");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_condition_jetcnts("jet_cnts");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrCondition("condition");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObject("particle");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType("type");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrConditionMuon("muon");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrConditionCalo("calo");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrConditionEnergySum("esums");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrConditionJetCounts("jet_cnts");
 
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_particle_muon("muon");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_particle_eg("eg");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_particle_ieg("ieg");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_particle_jet("jet");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_particle_fwdjet("fwdjet");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_particle_tau("tau");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_particle_etm("etm");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_particle_ett("ett");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_particle_htt("htt");
-
-
-
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_type_1("1_s");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_type_2("2_s");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_type_2wsc("2_wsc");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_type_3("3");
-const std::string L1GtTriggerMenuXmlParser::xml_condition_attr_type_4("4");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectMu("muon");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectNoIsoEG("eg");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectIsoEG("ieg");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectCenJet("jet");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectForJet("fwdjet");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectTauJet("tau");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectETM("etm");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectETT("ett");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectHTT("htt");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrObjectJetCounts("jet_cnts");
 
 
-const std::string L1GtTriggerMenuXmlParser::xml_attr_mode("mode");
-const std::string L1GtTriggerMenuXmlParser::xml_attr_mode_bit("bit");
-const std::string L1GtTriggerMenuXmlParser::xml_attr_max("max");
 
-const std::string L1GtTriggerMenuXmlParser::xml_attr_nr("nr");
-const std::string L1GtTriggerMenuXmlParser::xml_attr_pin("pin");
-const std::string L1GtTriggerMenuXmlParser::xml_attr_pin_a("a");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType1s("1_s");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType2s("2_s");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType2wsc("2_wsc");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType2cor("2_cor");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType3s("3");
+const std::string L1GtTriggerMenuXmlParser::m_xmlConditionAttrType4s("4");
 
-const std::string L1GtTriggerMenuXmlParser::xml_etthreshold_tag("et_threshold");
 
-const std::string L1GtTriggerMenuXmlParser::xml_pththreshold_tag("pt_h_threshold");
-const std::string L1GtTriggerMenuXmlParser::xml_ptlthreshold_tag("pt_l_threshold");
-const std::string L1GtTriggerMenuXmlParser::xml_quality_tag("quality");
-const std::string L1GtTriggerMenuXmlParser::xml_eta_tag("eta");
-const std::string L1GtTriggerMenuXmlParser::xml_phi_tag("phi");
-const std::string L1GtTriggerMenuXmlParser::xml_phih_tag("phi_h");
-const std::string L1GtTriggerMenuXmlParser::xml_phil_tag("phi_l");
-const std::string L1GtTriggerMenuXmlParser::xml_chargecorrelation_tag("charge_correlation");
-const std::string L1GtTriggerMenuXmlParser::xml_enmip_tag("en_mip");
-const std::string L1GtTriggerMenuXmlParser::xml_eniso_tag("en_iso");
-const std::string L1GtTriggerMenuXmlParser::xml_enoverflow_tag("en_overflow");
-const std::string L1GtTriggerMenuXmlParser::xml_deltaeta_tag("delta_eta");
-const std::string L1GtTriggerMenuXmlParser::xml_deltaphi_tag("delta_phi");
+const std::string L1GtTriggerMenuXmlParser::m_xmlAttrMode("mode");
+const std::string L1GtTriggerMenuXmlParser::m_xmlAttrModeBit("bit");
+const std::string L1GtTriggerMenuXmlParser::m_xmlAttrMax("max");
 
-const std::string L1GtTriggerMenuXmlParser::xml_output_tag("output");
-const std::string L1GtTriggerMenuXmlParser::xml_outputpin_tag("output_pin");
+const std::string L1GtTriggerMenuXmlParser::m_xmlAttrNr("nr");
+const std::string L1GtTriggerMenuXmlParser::m_xmlAttrPin("pin");
+const std::string L1GtTriggerMenuXmlParser::m_xmlAttrPinA("a");
 
-const std::string L1GtTriggerMenuXmlParser::xml_geeq_tag("ge_eq");
-const std::string L1GtTriggerMenuXmlParser::xml_value_tag("value");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagPtHighThreshold("pt_h_threshold");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagPtLowThreshold("pt_l_threshold");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagQuality("quality");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagEta("eta");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagPhi("phi");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagPhiHigh("phi_h");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagPhiLow("phi_l");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagChargeCorrelation("charge_correlation");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagEnableMip("en_mip");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagEnableIso("en_iso");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagRequestIso("request_iso");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagDeltaEta("delta_eta");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagDeltaPhi("delta_phi");
 
-const std::string L1GtTriggerMenuXmlParser::xml_chipdef_tag("chip_def");
-const std::string L1GtTriggerMenuXmlParser::xml_chip1_tag("chip_1");
-const std::string L1GtTriggerMenuXmlParser::xml_ca_tag("ca");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagEtThreshold("et_threshold");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagEnergyOverflow("en_overflow");
+
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagCountThreshold("et_threshold");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagCountOverflow("en_overflow");
+
+
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagOutput("output");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagOutputPin("output_pin");
+
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagGEq("ge_eq");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagValue("value");
+
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagChipDef("chip_def");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagChip1("chip_1");
+const std::string L1GtTriggerMenuXmlParser::m_xmlTagCa("ca");
 
 //vmexml std::strings
 const std::string L1GtTriggerMenuXmlParser::vmexml_vme_tag("vme");

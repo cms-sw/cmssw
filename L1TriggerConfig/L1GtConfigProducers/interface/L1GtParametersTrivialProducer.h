@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -59,8 +59,11 @@ private:
     /// total Bx's in the event
     int m_totalBxInEvent;
 
-    /// active boards
-    boost::uint16_t m_activeBoards;
+    /// active boards in the L1 DAQ record
+    boost::uint16_t m_daqActiveBoards;
+
+    /// active boards in the L1 EVM record
+    boost::uint16_t m_evmActiveBoards;
 
 };
 

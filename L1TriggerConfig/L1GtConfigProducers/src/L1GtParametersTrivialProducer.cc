@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -71,8 +71,11 @@ L1GtParametersTrivialProducer::L1GtParametersTrivialProducer(const edm::Paramete
 
     }
 
-    m_activeBoards =
-        static_cast<boost::uint16_t>(parSet.getParameter<unsigned int>("ActiveBoards"));
+    m_daqActiveBoards =
+        static_cast<boost::uint16_t>(parSet.getParameter<unsigned int>("DaqActiveBoards"));
+
+    m_evmActiveBoards =
+        static_cast<boost::uint16_t>(parSet.getParameter<unsigned int>("EvmActiveBoards"));
 
 }
 
@@ -102,9 +105,11 @@ boost::shared_ptr<L1GtParameters> L1GtParametersTrivialProducer::produceGtParame
     // set total Bx's in the event
     pL1GtParameters->setGtTotalBxInEvent(m_totalBxInEvent);
 
-    // set the active boards
-    pL1GtParameters->setGtActiveBoards(m_activeBoards);
+    // set the active boards for L1 GT DAQ record
+    pL1GtParameters->setGtDaqActiveBoards(m_daqActiveBoards);
 
+    // set the active boards for L1 GT EVM record
+    pL1GtParameters->setGtEvmActiveBoards(m_evmActiveBoards);
 
     return pL1GtParameters ;
 }

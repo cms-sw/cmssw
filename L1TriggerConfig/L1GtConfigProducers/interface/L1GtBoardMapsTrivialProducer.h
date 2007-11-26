@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -22,7 +22,6 @@
 #include "boost/shared_ptr.hpp"
 
 #include <string>
-#include <map>
 
 // user include files
 //   base class
@@ -58,42 +57,8 @@ public:
 
 private:
 
-    /// L1 GT DAQ record map
-    ///    gives the position of each block in the GT DAQ readout record
-    std::map<int, L1GtBoard> m_gtDaqRecordMap;
-
-    /// L1 GT EVM record map
-    ///    gives the position of each block in the GT EVM readout record
-    std::map<int, L1GtBoard> m_gtEvmRecordMap;
-
-    /// L1 GT active boards map for DAQ record
-    ///    gives the bit of each GT board in the GTFE ACTIVE_BOARDS
-    ///    for the GT DAQ readout record
-    std::map<L1GtBoard, int> m_gtDaqActiveBoardsMap;
-
-    /// L1 GT active boards map for EVM record
-    ///    gives the bit of each GT board in the GTFE ACTIVE_BOARDS
-    ///    for the GT EVM readout record
-    std::map<L1GtBoard, int> m_gtEvmActiveBoardsMap;
-
-    /// L1 GT board - slot map
-    ///    gives the slot of each GT board (part of Board_Id)
-    std::map<L1GtBoard, int> m_gtBoardSlotMap;
-
-    /// L1 GT board name in hw record map
-    ///    gives the bits written for each GT board in the Board_Id
-    std::map<L1GtBoard, int> m_gtBoardHexNameMap;
-
-
-    /// L1 GT calo input map
-    ///    gives the mapping of calorimeter objects to GT calorimeter input
-    /// GT calorimeter input will be mapped to PSBs later
-    std::map<int, L1GtCaloQuad> m_gtCaloObjectInputMap;
-
-
-    /// L1 GT calo input to PSB map
-    ///    gives the mapping of GT calorimeter input to GT PSBs
-    std::map<int, int> m_gtCaloInputToPsbMap;
+    /// L1 GT boards and their mapping
+    std::vector<L1GtBoard> m_gtBoardMaps;
 
 };
 
