@@ -101,7 +101,8 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
                   "New nuclear interaction found : primary track with id=" << primary_track.key() << "\n"
                   "   position : x=" << vertexBuilder->getVertex().x() << "  y=" << vertexBuilder->getVertex().y() << "  z=" << vertexBuilder->getVertex().z() << "\n"
                   "   Number of seeds = " << seeds.size() << "\n"
-                  "   Number of secondary tracks = " << secondary_tracks.size() << "\n";
+                  "   Number of secondary tracks = " << secondary_tracks.size() << "\n"
+                  "   Likelihood = " << likelihoodCalculator->result() << "\n";
 
    }
 
