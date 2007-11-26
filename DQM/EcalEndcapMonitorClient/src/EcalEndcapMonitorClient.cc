@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/11/10 15:31:33 $
- * $Revision: 1.79 $
+ * $Date: 2007/11/10 17:36:02 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,7 +29,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
