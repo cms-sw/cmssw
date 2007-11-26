@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/10/05 20:38:02 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/11/20 18:46:27 $
+ *  $Revision: 1.11 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -336,32 +336,11 @@ TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryMeasurement& tm) c
   const std::string category = "Muon|RecoMuon|TSGFromPropagation";
 
   LogTrace(category)<<"Trajectory State on Surface of Seed";
-  LogTrace(category)<<"original seed TSOS: " << tsos;
-
-  resetError(tsos);
-
-  LogTrace(category)<<"reseted seed TSOS: " << tsos;
-
-
-/*
-  LogTrace(category) << "createSeed: Apply the vertex constraint";
-  pair<bool,FreeTrajectoryState> updateResult = theVtxUpdator->update(*(tsos.freeState()));
-
-  if(!updateResult.first){
-    LogTrace(category) << "createSeed: vertex constraint failed ";
-  } else {
-
-    LogTrace(category) << "FTS after the vertex constraint";
-    FreeTrajectoryState &ftsAtVtx = updateResult.second;
-    LogTrace(category) << ftsAtVtx;
-    tsos = theService->propagator("PropagatorWithMaterial")->propagate(ftsAtVtx, tm.layer()->surface());
-
-  }
-*/
+  LogTrace(category)<<tsos;
 
   TrajectoryStateTransform tsTransform;
     
-  PTrajectoryStateOnDet *seedTSOS =
+  PTrajectoryStateOnDet* seedTSOS =
     tsTransform.persistentState(tsos,tm.recHit()->geographicalId().rawId());
     
   edm::OwnVector<TrackingRecHit> container;
@@ -533,22 +512,4 @@ void TSGFromPropagation::findSecondMeasurements(std::vector<TrajectoryMeasuremen
   tms.clear();
   tms.swap(secondMeas);
   return; 
-}
-
-void TSGFromPropagation::resetError(TrajectoryStateOnSurface& tsos) const {
-
-   AlgebraicSymMatrix55 matrix = AlgebraicMatrixID();
-
-   matrix(0,0) = 0.01; //charge/momentum
-   matrix(1,1) = 0.02; //lambda
-   matrix(2,2) = 0.05; // phi
-   matrix(3,3) = theErrorReset; //x
-   matrix(4,4) = theErrorReset; //y
-
-   CurvilinearTrajectoryError error(matrix);
- 
-   TrajectoryStateOnSurface newTsos(tsos.globalParameters(), error, tsos.surface()); 
-   tsos = newTsos;
-   return;
-
 }
