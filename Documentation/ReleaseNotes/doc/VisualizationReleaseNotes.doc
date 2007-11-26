@@ -3,14 +3,54 @@
 
 - General:
 
+This release target is an on-line event display for GREN. 
+
 - Main changes and new features:
+
+Active configurable parameters for visualization cuts and a GUI editor
+to change these parameters interactively.
+
+Fully configurable automatic start up of the event display with a
+configurable time delay between requesting events.
+
+Central exception handling by the visualization framework: either GUI pop ups or silent.
+
+Better messaging on the status bar: which displays what is going on.
+
+Simulated track labels added. Enabled by default. Configurable.
+
+Simulated hits not connected by default. Configurable.
+
+Separation between known event display connections and
+unknown. Unknown event display collections are grayed out and put in a
+separate tree brunch.
+
+Fully configurable iglets: Reco/Tracker, Reco/Ecal, etc.
+
+Updated geometry for RPC and Absorber in end-caps - there is no 4th
+wheel.
+
+Basic Clusters display added.
 
 - Major bug fixes:
 
+Crash on picking due to corrupted iv files.
+
+Update of SimTracks on a new event is synchronized.
+
 - Known issues:
 
+Reco/Tracker may not behave normally and some of the twigs may need to
+be disabled in cff. The following symptoms have been observed and are
+under investigation:
+
+Track display needs TrackExtra and crashes if this is not stored.
+
+TrackTransformer fails to refit the Tracks.
+
+Requesting GeomDet by DetId fails in some cases.
 
 <hr>
-Last updated: @DATE@ Your name
+Last updated: @DATE@ Ianna Osborne
  
 */
