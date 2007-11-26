@@ -181,30 +181,69 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	      RPCRecHitCollection::range rpcRecHitRange = rpcHits->get((*r)->id());
 	      RPCRecHitCollection::const_iterator recIt;
 
-	      bool anycoincidence=false;
-	      int stripDetected = 0;
+
+	      
 	      int stripPredicted = (int)((*r)->strip(itTraj->updatedState().localPosition()));
-	      double rhitpos = 0.;
 	      double xextrap = itTraj->updatedState().localPosition().x();
 
 	      sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
 	      meMap[meIdTrack]->Fill(stripPredicted);
 
+	      bool recFound=false;
+	      bool anycoincidence=false;
+	      std::vector<double> ResVec;
+	      ResVec.clear();
+	      std::vector<double> RecErr;
+	      RecErr.clear();
+	      std::vector<double> extrVec;
+	      extrVec.clear();
+	      std::vector<double> posVec;
+	      posVec.clear();
+	      std::vector<double> stripD;
+	      stripD.clear();
+	      std::vector<double> stripPr;
+	      stripPr.clear();
+
+	      double res=0.;
+
 	      for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
-	
+		recFound=true;
 		LocalPoint rhitlocal = (*recIt).localPosition();
-		rhitpos = rhitlocal.x();  
-		stripDetected = (int)((*r)->strip(rhitlocal));
+		double rhitpos = rhitlocal.x();  
+		double stripDetected = (int)((*r)->strip(rhitlocal));
 		LocalError RecError = (*recIt).localPositionError();
 		double sigmaRec = RecError.xx();
-		double res = (double)(xextrap - rhitpos);
-				
+		res = (double)(xextrap - rhitpos);
+
+		ResVec.push_back(res);		
+		RecErr.push_back(sigmaRec);
+		extrVec.push_back(xextrap);	
+		posVec.push_back(rhitpos);	
+		stripD.push_back(stripDetected);	
+		stripPr.push_back(stripPredicted);
+	      }
+
+	      //Find the minimum residual
+
+	      res = ResVec[0];
+	      int rpos=0;
+	      if(ResVec.size()>1)std::cout<<"Best Residual Finder "<<std::endl;
+	      for(unsigned int rs=0;rs<ResVec.size();rs++){
+		if(ResVec[rs] < res){
+		  res = ResVec[rs];
+		  rpos=rs;
+		}
+	      }
+
+
+	      if(recFound==true){
+
 		std::cout<<"**********************************************"<<std::endl;
 		std::cout<<"\t                                   "<<std::endl;
-		std::cout<<"Point Extrapolated                   "<<xextrap<<std::endl;
-		std::cout<<"Real Point                           "<<rhitpos<<std::endl;
+		std::cout<<"Point Extrapolated                   "<<extrVec[rpos]<<std::endl;
+		std::cout<<"Real Point                           "<<posVec[rpos]<<std::endl;
 		std::cout<<"**********************************************"<<std::endl;
-		std::cout<<"Strip Extrapolated "<<stripPredicted<<" Strip Detected "<<stripDetected<<std::endl;
+		std::cout<<"Strip Extrapolated "<<stripPr[rpos]<<" Strip Detected "<<stripD[rpos]<<std::endl;
 		std::cout<<"**********************************************"<<std::endl;
 
 		sprintf(meIdRPC,"Residuals_%s",detUnitLabel);
@@ -212,9 +251,8 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		sprintf(meIdRPC,"Residuals_VS_RecPt_%s",detUnitLabel);
 		meMap[meIdRPC]->Fill(itTraj->updatedState().globalMomentum().perp(),res);
 
-
 		hGlobalRes->Fill(res);
-		hGlobalPull->Fill(res/sigmaRec);
+		hGlobalPull->Fill(res/RecErr[rpos]);
 		hRecPt->Fill(itTraj->updatedState().globalMomentum().perp());
 
 		if(fabs(res)<maxRes){
@@ -226,6 +264,8 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		  std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
 		}
 	      }
+
+
 	      if(anycoincidence==true){
 		  totalcounter[1]++;
 		  buff=counter[1];
@@ -233,10 +273,10 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		  counter[1]=buff;
 	
 		  sprintf(meIdRPC,"RealDetectedOccupancy_%s",detUnitLabel);
-		  meMap[meIdRPC]->Fill(stripDetected);
+		  meMap[meIdRPC]->Fill(stripD[rpos]);
 
 		  sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
-		  meMap[meIdRPC]->Fill(stripPredicted);
+		  meMap[meIdRPC]->Fill(stripPr[rpos]);
 
 	      }else{
 		  totalcounter[2]++;
