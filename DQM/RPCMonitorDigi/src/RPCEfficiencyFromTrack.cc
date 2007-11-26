@@ -117,11 +117,11 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
 
-  RPCRecHitCollection::const_iterator recIt;	
-  for (recIt = rpcHits->begin(); recIt!=rpcHits->end(); ++recIt){
-    LocalPoint rhitlocal = (*recIt).localPosition();
-    float rhitpos = rhitlocal.x();  	
-    std::cout << " RPC with recHit "<<rhitpos<<"\t on : "<<(*recIt).rpcId()<<std::endl;
+  RPCRecHitCollection::const_iterator rec;	
+  for (rec = rpcHits->begin(); rec!=rpcHits->end(); ++rec){
+    LocalPoint rhitloc = (*rec).localPosition();
+    float rhitpoint = rhitloc.x();  	
+    std::cout << " RPC with recHit "<<rhitpoint<<"\t on : "<<(*rec).rpcId()<<std::endl;
   }
 
   Handle<Trajectories> trajectories;
@@ -137,7 +137,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
       
       std::cout<<" Tj r "<<itTraj->updatedState().globalPosition().perp()
-	       <<" Tj z "<<itTraj->updatedState().globalPosition().z()<<std::endl;
+      	       <<" Tj z "<<itTraj->updatedState().globalPosition().z()<<std::endl;
             
       for (GlobalTrackingGeometry::DetContainer::const_iterator itDet=rpcGeo->dets().begin();itDet<rpcGeo->dets().end();itDet++){
 	if( dynamic_cast< RPCChamber* >( *itDet ) != 0 ){
@@ -221,11 +221,11 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
 		if(fabs(res)<maxRes){
 		  anycoincidence=true;
-		  std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
+		  //std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
 		}
 		else{
 		  anycoincidence=false;
-		  std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
+		  //std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
 		}
 	      }
 	      if(anycoincidence==true){
