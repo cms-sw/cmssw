@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.10 2007/04/10 12:43:53 franzoni Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.11 2007/06/12 23:35:03 franzoni Exp $
  */
 
 #include <vector>
@@ -107,7 +107,7 @@ class EcalDCCHeaderBlock
   void setTestZeroSuppression(const bool& testZeroSuppression) { testZeroSuppression_ = testZeroSuppression; };
   void setSrpStatus(const short& srpStatus) { srpStatus_=srpStatus; };
   void setTccStatus(const std::vector<short>& tccStatus) { tccStatus_=tccStatus; };
-  void setTriggerTowerStatus(const std::vector<short>& triggerTowerStatus) { triggerTowerStatus_ = triggerTowerStatus; };
+  void setTriggerTowerFlags(const std::vector<short>& triggerTowerFlag) { triggerTowerFlag_ = triggerTowerFlag; };
 
   //TODO add all the get methods
   
@@ -127,7 +127,7 @@ class EcalDCCHeaderBlock
   bool getTestZeroSuppression() const {return testZeroSuppression_ ;}
   short getSrpStatus() const  { return srpStatus_;}
   std::vector<short> getTccStatus() const { return tccStatus_ ;}
-  std::vector<short> getTriggerTowerStatus() const { return triggerTowerStatus_ ;}
+  std::vector<short> getTriggerTowerFlag() const { return triggerTowerFlag_ ;}
  private:
 
   int dccId_;  //to be used as the Key
@@ -152,7 +152,7 @@ class EcalDCCHeaderBlock
   
   short srpStatus_;
   std::vector<short> tccStatus_;
-  std::vector<short> triggerTowerStatus_;
+  std::vector<short> triggerTowerFlag_;
  
 };
 
