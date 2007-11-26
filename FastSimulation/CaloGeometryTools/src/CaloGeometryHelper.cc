@@ -11,6 +11,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
 
@@ -89,6 +90,34 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
   else
     {
       result=HcalGeometry_->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
+      HcalDetId myDetId(result);
+      if(result.subdetId()!=HcalEndcap) return result;
+      // Special patch to correct the HCAL geometry
+      if(myDetId.depth()==3) return result;
+
+      int ieta=myDetId.ietaAbs();
+      float azmin=388.;
+
+      if(ieta<=17) 
+        return result;
+      else if(ieta==18)
+        azmin=416;
+      else if(ieta>=10&&ieta<=26) 
+        azmin=423.;
+      else if(ieta>=27)
+        azmin=409;
+
+      HcalDetId first(HcalEndcap,myDetId.ieta(),myDetId.iphi(),1);
+      bool layer2=(fabs(point.Z())>azmin);
+      if(!layer2)
+        {
+          return first;
+        }
+      else
+        {
+          HcalDetId second(HcalEndcap,myDetId.ieta(),myDetId.iphi(),2);
+	  if(second!=HcalDetId()) result=second;
+	}
 #ifdef DEBUGGCC
       if(result.null()) 
 	{
