@@ -10,8 +10,9 @@ namespace cond{
     IConnectionProxy(){}
     virtual ~IConnectionProxy(){}
     virtual ITransaction&  transaction() = 0;
+    //virtual bool isActive() const = 0;
     virtual bool isReadOnly() const = 0;
-    virtual unsigned int connectionTimeOut() const = 0;
+    virtual int connectionTimeOut() const = 0;
     virtual std::string connectStr() const = 0;
   };
 }

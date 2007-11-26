@@ -1,5 +1,5 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
@@ -13,18 +13,16 @@
 int main(){
   try{
     cond::DBSession* session=new cond::DBSession;
-    session->configuration().setMessageLevel(cond::Error);
-    session->configuration().setAuthenticationMethod(cond::XML);
-    static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-    conHandler.registerConnection("mytest","sqlite_file:testqueryc.db",0);
+    //session->configuration().setMessageLevel(cond::Error);
+    //session->configuration().setAuthenticationMethod(cond::XML);
     session->open();
-    conHandler.connect(session);
+    cond::Connection myconnection("sqlite_file:mytest.db",0); 
+    myconnection.connect(session);    
     testPayloadObj* myobj=new testPayloadObj;
     myobj->data.push_back(1);
     myobj->data.push_back(10);
-    cond::Connection* myconnection=conHandler.getConnection("mytest");    
-    cond::PoolTransaction& pooldb=myconnection->poolTransaction(false);
-    pooldb.start();
+    cond::PoolTransaction& pooldb=myconnection.poolTransaction();
+    pooldb.start(false);
     cond::TypedRef<testPayloadObj> myref(pooldb,myobj);
     myref.markWrite("mypayloadcontainer");
     std::string token=myref.token();
@@ -35,6 +33,7 @@ int main(){
     std::string iovtok=editor->token();
     std::string cname=iovmanager.payloadContainerName(iovtok);
     pooldb.commit();
+    myconnection.disconnect();
     std::cout<<"Payload Container Name: "<<cname<<std::endl;
     delete editor;
     delete session;

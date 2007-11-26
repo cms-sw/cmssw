@@ -24,15 +24,15 @@ int main(){
     testCondObj* myobj=new testCondObj;
     myobj->data.insert(std::make_pair(1,"strangestring1"));
     myobj->data.insert(std::make_pair(100,"strangestring2"));
-    cond::PoolTransaction& poolTransaction=source->poolTransaction(false);
-    poolTransaction.start();
+    cond::PoolTransaction& poolTransaction=source->poolTransaction();
+    poolTransaction.start(false);
     cond::TypedRef<testCondObj> myref(poolTransaction,myobj);
     myref.markWrite("mycontainer");
     std::string token=myref.token();
     std::cout<<"token "<<token<<std::endl;
     poolTransaction.commit();
     std::cout<<"committed"<<std::endl;
-    poolTransaction.start();
+    poolTransaction.start(true);
     std::cout<<"started"<<std::endl;
     cond::TypedRef<testCondObj> myinstance(poolTransaction,token);
     std::cout<<"mem pointer "<<myinstance.ptr()<<std::endl;
@@ -43,14 +43,14 @@ int main(){
     
     //start of copying data
     cond::Connection* destcon=conHandler.getConnection("mycopy");
-    cond::PoolTransaction& destTransaction=destcon->poolTransaction(false);
-    poolTransaction=source->poolTransaction(true);
-    poolTransaction.start();
+    cond::PoolTransaction& destTransaction=destcon->poolTransaction();
+    poolTransaction=source->poolTransaction();
+    poolTransaction.start(true);
     cond::GenericRef mydata(poolTransaction,token,"testCondObj");
     std::string t=mydata.token();
     std::string n=mydata.className();
     std::string m=mydata.containerName();
-    destTransaction.start();
+    destTransaction.start(false);
     std::string resultToken=mydata.exportTo(destTransaction);
     destTransaction.commit();
     poolTransaction.commit();

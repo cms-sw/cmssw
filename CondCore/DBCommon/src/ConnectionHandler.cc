@@ -4,7 +4,7 @@
 void
 cond::ConnectionHandler::registerConnection(const std::string& name,
 					    const std::string& con,
-					    unsigned int connectionTimeout){
+					    int connectionTimeout){
   m_registry.insert(std::make_pair<std::string,cond::Connection*>(name, new cond::Connection(con,connectionTimeout)));
 }
 void
@@ -29,15 +29,21 @@ cond::ConnectionHandler::connect(cond::DBSession* session){
 }
 void 
 cond::ConnectionHandler::disconnectAll(){
-}
-cond::ConnectionHandler::~ConnectionHandler(){
+  if( m_registry.size()==0 ) return;
   std::map<std::string,cond::Connection*>::iterator it;  
   std::map<std::string,cond::Connection*>::iterator itEnd=m_registry.end();
   for(it=m_registry.begin();it!=itEnd;++it){
-    delete it->second;
-    it->second=0;
+    if(it->second!=0){
+      delete it->second;
+      it->second=0;
+    }
   }
   m_registry.clear();
+}
+cond::ConnectionHandler::~ConnectionHandler(){
+  if( m_registry.size() != 0){
+    this->disconnectAll();
+  }
 }
 cond::Connection* 
 cond::ConnectionHandler::getConnection( const std::string& name ){

@@ -1,5 +1,16 @@
 #ifndef CondCore_DBCommon_Connection_H
 #define CondCore_DBCommon_Connection_H
+//
+// Package:     DBCommon
+// Class  :     Connection
+// 
+/**\class Connection Connection.h CondCore/DBCommon/interface/Connection.h
+   Description: logical connection interface. Logical connection delegates the 
+   real connection to underlying proxy
+*/
+//
+// Author:      Zhen Xie
+//
 #include <vector>
 #include <string>
 namespace coral{
@@ -12,27 +23,27 @@ namespace cond{
   class CoralConnectionProxy;
   class CoralTransaction;
   class PoolTransaction;
-  /*logical connection interface,each logical connection is a connection pool
-    delegate real connection to underlying proxy
-    developer level interface
-  **/
   class Connection{
   public:
+    /// Constructor. If connectionTimeout=0, the commit method will close the database connection; if connectionTimeout=-1, the connection is not closed untill explict user call of disconnect method; if connectionTimeout=n, the connection will be closed by the commit method that holds the closest value of n. 
     Connection(const std::string& con,
-	       unsigned int connectionTimeout=0);
+	       int connectionTimeout=0);
+    /// Destructor
     ~Connection();
-    /// just pass  on the connection service handle to the proxy, 
+    /// pass on the connection service handle to the proxy, 
     /// do not connect for real
     void connect( cond::DBSession* session );
+    /// disconnect open connection by hand if connectionTimeout <0, otherwise, no real action taken
+    void disconnect();
     /// return handle to the underlying coral transaction
-    CoralTransaction& coralTransaction(bool isReadOnly=true);
+    CoralTransaction& coralTransaction();
     /// return handle to the underlying pool transaction
-    PoolTransaction& poolTransaction(bool isReadOnly=true);
+    PoolTransaction& poolTransaction();
     /// return connection string in use
     std::string connectStr() const;
   private:
     std::string m_con;
-    unsigned int m_connectionTimeOut;
+    int m_connectionTimeOut;
     std::vector<PoolConnectionProxy*> m_poolConnectionPool;
     std::vector<CoralConnectionProxy*> m_coralConnectionPool;
     coral::IConnectionService* m_connectionServiceHandle;

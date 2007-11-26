@@ -10,12 +10,10 @@
 #include "FileCatalog/IFileCatalog.h"
 //#include <iostream>
 cond::PoolConnectionProxy::PoolConnectionProxy(const std::string& con,
-					       bool isReadOnly,
-					       unsigned int connectionTimeOut):
+					       int connectionTimeOut):
   m_datasvc( 0 ),
   m_transaction( 0 ),
   m_con( con ),
-  m_isReadOnly( isReadOnly ),
   m_transactionCounter( 0 ),
   m_connectionTimeOut( connectionTimeOut ),
   m_catalog( new pool::IFileCatalog ) 
@@ -43,11 +41,18 @@ cond::PoolConnectionProxy::transaction(){
   }
   return *m_transaction;
 }
+/*bool 
+cond::PoolConnectionProxy::isActive() const {
+  if(m_transaction) return m_transaction->isActive();
+  return false;
+}
+*/
 bool 
 cond::PoolConnectionProxy::isReadOnly() const {
-  return m_isReadOnly;
+  if(m_transaction) return m_transaction->isReadOnly();
+  return false;
 }
-unsigned int
+int
 cond::PoolConnectionProxy::connectionTimeOut() const{
   return m_connectionTimeOut;
 }
@@ -67,7 +72,7 @@ cond::PoolConnectionProxy::connect(){
   policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
   policy.setReadMode(pool::DatabaseConnectionPolicy::READ);
   m_datasvc->session().setDefaultConnectionPolicy(policy);
-  if(m_connectionTimeOut!=0){
+  if(m_connectionTimeOut>0){
     m_timer.restart();
   }
 }

@@ -9,11 +9,9 @@
 cond::CoralConnectionProxy::CoralConnectionProxy(
       coral::IConnectionService* connectionServiceHandle,
       const std::string& con,
-      bool isReadOnly,
-      unsigned int connectionTimeOut):
+      int connectionTimeOut):
   m_connectionSvcHandle(connectionServiceHandle),
   m_con(con),
-  m_isReadOnly(isReadOnly),
   m_coralHandle(0),
   m_transactionCounter(0),
   m_connectionTimeOut(connectionTimeOut),
@@ -25,11 +23,18 @@ cond::ITransaction&
 cond::CoralConnectionProxy::transaction(){
   return *m_transaction;
 }
+/*bool
+cond::CoralConnectionProxy::isActive() const {
+  if(m_transaction) return m_transaction->isActive();
+  return false;
+}
+*/
 bool 
 cond::CoralConnectionProxy::isReadOnly() const {
-  return m_isReadOnly;
+  if(m_transaction) return m_transaction->isReadOnly();
+  return false;
 }
-unsigned int
+int
 cond::CoralConnectionProxy::connectionTimeOut() const{
   return m_connectionTimeOut;
 }
@@ -38,9 +43,9 @@ cond::CoralConnectionProxy::connectStr() const{
   return m_con;
 }
 void 
-cond::CoralConnectionProxy::connect(){
-  m_coralHandle = m_connectionSvcHandle->connect(m_con, ( m_isReadOnly ) ? coral::ReadOnly : coral::Update );
-  if(m_connectionTimeOut!=0){
+cond::CoralConnectionProxy::connect(bool isReadOnly){
+  m_coralHandle = m_connectionSvcHandle->connect(m_con, ( isReadOnly ) ? coral::ReadOnly : coral::Update );
+  if(m_connectionTimeOut>0){
     m_timer.restart();
   }
 }
@@ -57,15 +62,15 @@ cond::CoralConnectionProxy::coralProxy(){
 }
 void 
 cond::CoralConnectionProxy::reactOnStartOfTransaction( const cond::ITransaction* transactionSubject ){
-  if(m_transactionCounter==0){
-    this->connect();
+  if(m_transactionCounter==0){    
+    this->connect(transactionSubject->isReadOnly());
     static_cast<const cond::CoralTransaction*>(transactionSubject)->resetCoralHandle(m_coralHandle);
   }
   ++m_transactionCounter;
 }
 void 
 cond::CoralConnectionProxy::reactOnEndOfTransaction( const cond::ITransaction* transactionSubject ){
-  unsigned int connectedTime=(unsigned int)m_timer.elapsed();
+  int connectedTime=(int)m_timer.elapsed();
   if(m_connectionTimeOut==0){
     this->disconnect();
   }else{

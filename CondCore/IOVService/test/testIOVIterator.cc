@@ -1,5 +1,4 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
@@ -12,15 +11,11 @@
 int main(){
   try{
     cond::DBSession* session=new cond::DBSession;
-    session->configuration().setMessageLevel(cond::Error);
-    session->configuration().setAuthenticationMethod(cond::XML);
-    static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-    conHandler.registerConnection("mytest","sqlite_file:test.db",0);
     session->open();
-    conHandler.connect(session);
-    cond::Connection* myconnection=conHandler.getConnection("mytest");  
-    cond::PoolTransaction& pooldb=myconnection->poolTransaction(false);
-    pooldb.start();
+    cond::Connection myconnection("sqlite_file:mytest.db",0); 
+    myconnection.connect(session);
+    cond::PoolTransaction& pooldb=myconnection.poolTransaction();
+    pooldb.start(false);
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     editor->insert(20,"pay1tok");
@@ -31,7 +26,7 @@ int main(){
     ///test iterator
     cond::IOVIterator* it=iovmanager.newIOVIterator(iovtok);
     std::cout<<"test iterator "<<std::endl;
-    pooldb.start();
+    pooldb.start(true);
     while( it->next() ){
       std::cout<<"payloadToken "<<it->payloadToken()<<std::endl;
       std::cout<<"since "<<it->validity().first<<std::endl;
@@ -39,6 +34,7 @@ int main(){
     }
     std::cout<<"is 30 valid? "<<iovmanager.isValid(iovtok,30)<<std::endl;
     pooldb.commit();
+    myconnection.disconnect();
     delete editor;
     delete it;
     delete session;

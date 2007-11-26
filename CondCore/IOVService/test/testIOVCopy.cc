@@ -21,12 +21,12 @@ int main(){
     conHandler.registerConnection("mydest","sqlite_file:dest.db",0);
     session->open();
     
-    cond::PoolTransaction& sourcedb=conHandler.getConnection("mysource")->poolTransaction(false);
-    cond::PoolTransaction& destdb=conHandler.getConnection("mydest")->poolTransaction(false);
+    cond::PoolTransaction& sourcedb=conHandler.getConnection("mysource")->poolTransaction();
+    cond::PoolTransaction& destdb=conHandler.getConnection("mydest")->poolTransaction();
     
     cond::IOVService iovmanager(sourcedb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    sourcedb.start();
+    sourcedb.start(false);
     for(int i=0; i<5; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
       testPayloadObj* myobj=new testPayloadObj;
@@ -40,8 +40,8 @@ int main(){
     std::string iovtoken=editor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
     sourcedb.commit();
-    sourcedb.start();
-    destdb.start();
+    sourcedb.start(true);
+    destdb.start(false);
     iovmanager.exportIOVWithPayload( destdb,
 				     iovtoken,
 				     "testPayloadObj" );

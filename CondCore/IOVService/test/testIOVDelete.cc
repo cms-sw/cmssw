@@ -1,6 +1,7 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+//#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
+#include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
@@ -13,15 +14,11 @@
 int main(){
   try{
     cond::DBSession* session=new cond::DBSession;
-    session->configuration().setMessageLevel(cond::Error);
-    session->configuration().setAuthenticationMethod(cond::XML);
-    static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-    conHandler.registerConnection("mytest","sqlite_file:test.db",0);
     session->open();
-    conHandler.connect(session);
-    cond::Connection* myconnection=conHandler.getConnection("mytest");  
-    cond::PoolTransaction& pooldb=myconnection->poolTransaction(false);
-    pooldb.start();
+    cond::Connection myconnection("sqlite_file:mytest.db",0); 
+    myconnection.connect(session);
+    cond::PoolTransaction& pooldb=myconnection.poolTransaction();
+    pooldb.start(false);
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     for(int i=0; i<5; ++i){
@@ -38,11 +35,11 @@ int main(){
     std::string iovtoken=editor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
     pooldb.commit();
-    pooldb.start();
+    pooldb.start(false);
     iovmanager.deleteAll(true);
     pooldb.commit();
     delete editor;
-    pooldb.start();
+    pooldb.start(false);
     //same data, delete by tag this time
     cond::IOVEditor* editorNew=iovmanager.newIOVEditor();
     for(int i=0; i<9; ++i){
@@ -62,7 +59,7 @@ int main(){
     std::cout<<"iov token "<<iovtoken<<std::endl;
     pooldb.commit();
     delete editorNew;
-    pooldb.start();
+    pooldb.start(false);
     cond::IOVEditor* editorNewNew=iovmanager.newIOVEditor();
     for(int i=0; i<10; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
@@ -77,10 +74,11 @@ int main(){
     iovtoken=editorNewNew->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
     pooldb.commit();
-    pooldb.start();
+    //pooldb.start();
     //editorNewNew->deleteEntries(true);
-    pooldb.commit();
+    //pooldb.commit();
     delete editorNewNew;
+    myconnection.disconnect();
     delete session;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;

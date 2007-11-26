@@ -1,29 +1,35 @@
 #ifndef CondCore_DBCommon_ConnectionHandler_H
 #define CondCore_DBCommon_ConnectionHandler_H
+//
+// Package:     DBCommon
+// Class  :     ConnectionHandler
+// 
+/**\class ConnectionHandler ConnectionHandler.h CondCore/DBCommon/interface/ConnectionHandler.h
+   Top level handler for reigsitration/handling multiple connections in the same session 
+   Meyers singleton
+*/
+//
+// Author:      Zhen Xie
+//
 #include <map>
 #include <string>
 namespace cond{
   class DBSession;
   class Connection;
-  /*
-    handle connections registered in the same session and connection timeout 
-    Meyers singleton
-    user level interface
-  **/ 
   class ConnectionHandler{
   public:
     static ConnectionHandler& Instance();
-    /// register coral only connection with a given name
+    /// register connection with a given name and timeout value. timeout value can be -1,0 and n sec
     void registerConnection(const std::string& name,
 			    const std::string& con,
-			    unsigned int timeOutInSec=0);
+			    int timeOutInSec=0);
     /// remove connection from connection pool
     void removeConnection( const std::string& name );
     /// global connect
     /// delegate all the registered proxy to connect 
     /// if timeOutInSec !=0, cleanup idle connections with given parameter
     void connect(cond::DBSession* session);
-    /// global disconnect
+    /// manually disconnect all and clean the registry as well. Otherwise, all connections will be closed and cleaned in the destructor
     void disconnectAll();
     /// contructor
     ConnectionHandler(){}

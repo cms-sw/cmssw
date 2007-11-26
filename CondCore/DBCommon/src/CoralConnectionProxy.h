@@ -17,14 +17,14 @@ namespace cond{
   public:
     CoralConnectionProxy(coral::IConnectionService* connectionServiceHandle,
 			 const std::string& con,
-			 bool isReadOnly,
-			 unsigned int connectionTimeOut
+			 int connectionTimeOut
 			 );
     ~CoralConnectionProxy();
     ///connection interface
     ITransaction&  transaction();
+    bool isActive() const ;
     bool isReadOnly() const ;
-    unsigned int connectionTimeOut() const;
+    int connectionTimeOut() const;
     coral::ISessionProxy& coralProxy();
     std::string connectStr() const;
     ///observer interface
@@ -33,14 +33,13 @@ namespace cond{
   private:
     coral::IConnectionService* m_connectionSvcHandle;
     std::string m_con;
-    bool m_isReadOnly;
     coral::ISessionProxy* m_coralHandle;
     unsigned int m_transactionCounter;
-    unsigned int m_connectionTimeOut;
+    int m_connectionTimeOut;
     cond::CoralTransaction* m_transaction;
     boost::timer m_timer;
   private:
-    void connect();
+    void connect(bool isReadOnly);
     void disconnect();
   };
 }
