@@ -58,8 +58,8 @@ coral::TimeStamp  popcon::LogReader::lastRun(std::string& name, std::string& cs)
 {
   coral::TimeStamp ts;
   try{
-    cond::CoralTransaction& coraldb=conHandler.getConnection(m_connect)->coralTransaction(true);
-    coraldb.start();
+    cond::CoralTransaction& coraldb=conHandler.getConnection(m_connect)->coralTransaction();
+    coraldb.start(true);
     coral::IQuery* query = coraldb.coralSessionProxy().nominalSchema().newQuery();
     query->addToOutputList("max(P_CON_EXECUTION.EXEC_START)","mes");
     query->addToTableList("P_CON_EXECUTION");

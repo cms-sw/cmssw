@@ -15,19 +15,19 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 popcon::OfflineDBInterface::OfflineDBInterface (const std::string& connect ) : m_connect(connect) {
-	session=new cond::DBSession;
-	session->configuration().setAuthenticationMethod( cond::XML );
-	//session->sessionConfiguration().setMessageLevel( cond::Debug );
-	session->configuration().setMessageLevel( cond::Error );
-	session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut(10);
-	session->configuration().connectionConfiguration()->enableConnectionSharing();
-	session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
-	conHandler.registerConnection(m_connect,m_connect,0);
+  session=new cond::DBSession;
+  session->configuration().setAuthenticationMethod( cond::XML );
+  //session->sessionConfiguration().setMessageLevel( cond::Debug );
+  session->configuration().setMessageLevel( cond::Error );
+  //session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut(10);
+  //session->configuration().connectionConfiguration()->enableConnectionSharing();
+  //session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
+  //conHandler.registerConnection(m_connect,m_connect,0);
 }
 
 popcon::OfflineDBInterface::~OfflineDBInterface ()
 {
-	delete session;
+  delete session;
 }
 
 
@@ -36,10 +36,10 @@ popcon::OfflineDBInterface::~OfflineDBInterface ()
 std::map<std::string, popcon::PayloadIOV> popcon::OfflineDBInterface::getStatusMap()
 {
 
-	//TODO - currently all the tags per schema are being returned 
-	//Possiblity to return the tags for a given object type??
-	getAllTagsInfo();
-	return m_status_map;
+  //TODO - currently all the tags per schema are being returned 
+  //Possiblity to return the tags for a given object type??
+  getAllTagsInfo();
+  return m_status_map;
 }
 
 popcon::PayloadIOV popcon::OfflineDBInterface::getSpecificTagInfo(const std::string& tag)
@@ -66,11 +66,11 @@ void  popcon::OfflineDBInterface::getAllTagsInfo()
     session->open();
     conHandler.connect(session);
     cond::Connection* myconnection=conHandler.getConnection(m_connect);
-    cond::CoralTransaction& coraldb=myconnection->coralTransaction(true);
+    cond::CoralTransaction& coraldb=myconnection->coralTransaction();
     cond::MetaData metadata_svc(coraldb);
     std::vector<std::string> alltags;
     std::vector<std::string> alltokens;
-    coraldb.start();
+    coraldb.start(true);
     metadata_svc.listAllTags(alltags);
     //std::copy (alltags.begin(),
     //		alltags.end(),
@@ -87,16 +87,15 @@ void  popcon::OfflineDBInterface::getAllTagsInfo()
     //		std::ostream_iterator<std::string>(std::cerr,"\n")
     //	  );
     //connect to pool DB
-    cond::PoolTransaction& pooldb=myconnection->poolTransaction(true);
+    cond::PoolTransaction& pooldb=myconnection->poolTransaction();
     cond::IOVService iovservice(pooldb);
-    pooldb.start();
+    pooldb.start(true);
     cond::IOVIterator* ioviterator;
     std::string payloadContainer;
     unsigned int counter=0;
     unsigned int itpos =0;
     for(std::vector<std::string>::iterator tok_it = alltokens.begin(); tok_it != alltokens.end(); tok_it++, itpos++){
       ioviterator=iovservice.newIOVIterator(*tok_it);
-      pooldb.start();
       counter = 0;
       payloadContainer=iovservice.payloadContainerName(*tok_it);
       //std::cerr<<"Tag "<< alltags[itpos]  <<"\n";

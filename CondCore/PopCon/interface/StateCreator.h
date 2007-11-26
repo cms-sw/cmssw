@@ -2,14 +2,6 @@
 #define STATECERATOR_H
 
 #include "CondCore/PopCon/interface/DBState.h"
-/*#include "CondCore/DBCommon/interface/AuthenticationMethod.h"
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
-#include "CondCore/DBCommon/interface/MessageLevel.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/Exception.h"
-#include <iterator>
-*/
 //#include <iostream>
 #include <string>
 //#include <map>
@@ -50,12 +42,9 @@ namespace popcon{
     std::string m_connect;
     //payload destintion connect string
     std::string m_offline;
-    
     bool m_debug;
-    
     //Name of the payload class 
     std::string m_obj_name;
-    
     cond::DBSession* session;
     cond::CoralTransaction* m_coraldb;
   };

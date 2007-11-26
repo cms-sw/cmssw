@@ -66,7 +66,7 @@ void  popcon::Logger::initialize()
     if (m_debug) std::cerr << "Logger::initialize - session.open\n";
     session->open();
     conHandler.connect(session);
-    m_coraldb=&(conHandler.getConnection(m_connect)->coralTransaction(false));
+    m_coraldb=&(conHandler.getConnection(m_connect)->coralTransaction());
     m_established = true;
     //FIXME - subquery instead
     payloadIDMap();
@@ -94,9 +94,9 @@ void popcon::Logger::payloadIDMap()
 {
   if (m_debug)
     std::cerr << "PayloadIDMap\n";
-  cond::CoralTransaction& statdb=conHandler.getConnection(m_connect)->coralTransaction(true);
+  cond::CoralTransaction& statdb=conHandler.getConnection(m_connect)->coralTransaction();
   try{
-    statdb.start();
+    statdb.start(true);
     coral::ITable& mytable=statdb.coralSessionProxy().nominalSchema().tableHandle("P_CON_PAYLOAD_STATE");
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
     query->addToOutputList("NAME");
@@ -123,7 +123,7 @@ void popcon::Logger::lock()
   if (!m_established)
     throw popcon::Exception("Logger::lock exception ");
   try{
-    m_coraldb->start();
+    m_coraldb->start(false);
     coral::ITable& mytable=m_coraldb->coralSessionProxy().nominalSchema().tableHandle("P_CON_LOCK");
     coral::AttributeList inputData;
     coral::ITableDataEditor& dataEditor = mytable.dataEditor();
@@ -154,8 +154,8 @@ void popcon::Logger::unlock()
 void popcon::Logger::updateExecID()
 {
   try{
-    cond::CoralTransaction& statdb=conHandler.getConnection(m_connect)->coralTransaction(true);
-    statdb.start();
+    cond::CoralTransaction& statdb=conHandler.getConnection(m_connect)->coralTransaction();
+    statdb.start(true);
     coral::ITable& mytable=statdb.coralSessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION");
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
     query->addToOutputList("max(EXEC_ID)");
@@ -177,8 +177,8 @@ void popcon::Logger::updatePayloadID()
   if (m_debug)
     std::cerr << "Logger::updatePayloadID\n";
   try{
-    cond::CoralTransaction& statdb=conHandler.getConnection(m_connect)->coralTransaction(true);
-    statdb.start();
+    cond::CoralTransaction& statdb=conHandler.getConnection(m_connect)->coralTransaction();
+    statdb.start(true);
     coral::ITable& mytable=statdb.coralSessionProxy().nominalSchema().tableHandle("P_CON_EXECUTION_PAYLOAD");
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
     query->addToOutputList("max(PL_ID)");
