@@ -40,7 +40,7 @@ public:
   //					      const edm::Handle<reco::TrackCollection>& inOutTrkHandle,
   //					      const edm::Handle<reco::TrackSuperClusterAssociationCollection>& inOutTrackSCAssH  );
 
-  std::map<std::vector<reco::TransientTrack>, reco::SuperCluster>  run(std::vector<reco::TransientTrack> outIn,  
+  std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>  run(std::vector<reco::TransientTrack> outIn,  
   					      const edm::Handle<reco::TrackCollection>&  outInTrkHandle,
   					      const edm::Handle<reco::TrackSuperClusterAssociationCollection>&  outInTrackSCAssH, 
   					      std::vector<reco::TransientTrack> inOut,  
