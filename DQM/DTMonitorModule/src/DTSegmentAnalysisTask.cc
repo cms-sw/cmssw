@@ -2,9 +2,9 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/13 10:49:45 $
- *  $Revision: 1.3 $
- *  \author G. Cerminara - INFN Torino
+ *  $Date: 2007/11/06 17:36:20 $
+ *  $Revision: 1.4 $
+ *  \authors G. Cerminara, G. Mila - INFN Torino
  */
 
 #include "DTSegmentAnalysisTask.h"
@@ -45,6 +45,10 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) {
   theDbe->setVerbose(1);
   edm::Service<MonitorDaemon>().operator->();
   theDbe->setCurrentFolder("DT/DTSegmentAnalysisTask");
+
+  Chi2Threshold = pset.getUntrackedParameter<double>("chi2_threshold",1.2);
+  prescaleFactor = pset.getUntrackedParameter<int>("diagnosticPrescaler",2000);
+  percentual = pset.getUntrackedParameter<int>("BadCHpercentual", 10);
 
   parameters = pset;
 
@@ -108,6 +112,21 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
     }
 
   // -- 4D segment analysis  -----------------------------------------------------
+ 
+  //to fill summary histos
+  if ( event.id().event()%prescaleFactor == 0 ) {
+    for(map<int, MonitorElement*> ::const_iterator histo = wheelHistos.begin();
+	histo != wheelHistos.end();
+	histo++) {
+      (*histo).second->Reset();
+    }
+    cmsHistos.clear();
+    for(int i=-2; i<3; i++){
+      for(int j=1; j<15; j++){
+	filled[make_pair(i,j)]=false;
+      }
+    }
+  }
   
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
@@ -124,7 +143,8 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
     if(debug)
       cout << "   Chamber: " << *chamberId << " has " << nsegm
 	   << " 4D segments" << endl;
-    fillHistos(*chamberId, nsegm);
+    fillHistos(*chamberId, nsegm);   
+
     if((*chamberId).wheel()==1 &&((*chamberId).sector()==10 ||(*chamberId).sector()==14))
       nsegm_W1Sec10 = nsegm_W1Sec10+nsegm;
     if((*chamberId).wheel()==2 &&((*chamberId).sector()==10||(*chamberId).sector()==14))
@@ -137,30 +157,32 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 	   ++segment4D){
 
       //FOR NOISY CHANNELS////////////////////////////////
-     const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
      bool segmNoisy = false;
-     vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
-     map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
-     for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
-	 hit != phiHits.end(); ++hit) {
-       DTWireId wireId = (*hit).wireId();
-
-	// Check for noisy channels to skip them
-	if(checkNoisyChannels) {
-	  bool isNoisy = false;
-	  bool isFEMasked = false;
-	  bool isTDCMasked = false;
-	  bool isTrigMask = false;
-	  bool isDead = false;
-	  bool isNohv = false;
-	  statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
-	  if(isNoisy) {
-	    if(debug)
+     if((*segment4D).hasPhi()){
+       const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
+       vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
+       map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
+       for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
+	   hit != phiHits.end(); ++hit) {
+	 DTWireId wireId = (*hit).wireId();
+	 // Check for noisy channels to skip them
+	 if(checkNoisyChannels) {
+	   bool isNoisy = false;
+	   bool isFEMasked = false;
+	   bool isTDCMasked = false;
+	   bool isTrigMask = false;
+	   bool isDead = false;
+	   bool isNohv = false;
+	   statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+	   if(isNoisy) {
+	     if(debug)
 	      cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
-	    segmNoisy = true;
-	  }      
-	}
-      }
+	     segmNoisy = true;
+	   }      
+	 }
+       }
+     }
+
      if((*segment4D).hasZed()) {
 	const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();  // zSeg lives in the SL RF
 	// Check for noisy channels to skip them
@@ -191,13 +213,15 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
        continue;
      }
      //END FOR NOISY CHANNELS////////////////////////////////
-      
-  LocalPoint segment4DLocalPos = (*segment4D).localPosition();
+ 
+     int nHits=0;
+     LocalPoint segment4DLocalPos = (*segment4D).localPosition();
       LocalVector segment4DLocalDirection = (*segment4D).localDirection();
-      int nHits = (((*segment4D).phiSegment())->specificRecHits()).size();
+      if((*segment4D).hasPhi())
+	nHits = (((*segment4D).phiSegment())->specificRecHits()).size();
       if((*segment4D).hasZed()) 
 	nHits = nHits + ((((*segment4D).zSegment())->specificRecHits()).size());
-      
+	
       if (segment4DLocalDirection.z()) {
 	fillHistos(*chamberId,
 		   nHits,
@@ -211,14 +235,35 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 	  cout << "[DTSegmentAnalysisTask] Warning: segment local direction is: "
 	       << segment4DLocalDirection << endl;
       }
+
+      //fill summary Plot
+      if ( event.id().event()%prescaleFactor == 0 ) {
+	if(wheelHistos.find((*chamberId).wheel()) == wheelHistos.end()) bookHistos(*chamberId, (*chamberId).wheel());
+	if((*segment4D).chi2()/(*segment4D).degreesOfFreedom()>Chi2Threshold){
+	  wheelHistos[(*chamberId).wheel()]->Fill((*chamberId).sector()-1,(*chamberId).station()-1);
+	  cmsHistos[make_pair((*chamberId).wheel(),(*chamberId).sector())]++;
+	  if(((*chamberId).sector()<13 &&
+	      double(cmsHistos[make_pair((*chamberId).wheel(),(*chamberId).sector())])/4>double(percentual)/100 &&
+	      filled[make_pair((*chamberId).wheel(),(*chamberId).sector())]==false) ||
+	     ((*chamberId).sector()>=13 && 
+	      filled[make_pair((*chamberId).wheel(),(*chamberId).sector())]==false)){
+	    filled[make_pair((*chamberId).wheel(),(*chamberId).sector())]=true;
+	    wheelHistos[3]->Fill((*chamberId).sector()-1,(*chamberId).wheel());
+	  }
+	}
+	wheelHistos[(*chamberId).wheel()+6]->Fill((*chamberId).sector()-1,nHits);
+      }
+      
     }
   }
-   fillHistos(nsegm_W1Sec10,1,10);
-   fillHistos(nsegm_W2Sec10,2,10);
-   fillHistos(nsegm_W2Sec11,2,11);
+  fillHistos(nsegm_W1Sec10,1,10);
+  fillHistos(nsegm_W2Sec10,2,10);
+  fillHistos(nsegm_W2Sec11,2,11);
   // -----------------------------------------------------------------------------
-}
   
+  
+}
+
 // Book a set of histograms for a give chamber
 void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
   if(debug)
@@ -359,3 +404,76 @@ void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId,
        if(DTTrig==1) histos[8]->Fill(posY,theta); 
      }
 }
+
+
+
+void DTSegmentAnalysisTask::bookHistos(const DTChamberId & ch, int wh) {
+  
+  theDbe->setCurrentFolder("DT/DTSegmentAnalysisTask/SummaryPlot");
+
+  if(wheelHistos.find(3) == wheelHistos.end()){
+    string histoName =  "chi2Summary_testFailedByAtLeast%BadCH";
+    wheelHistos[3] = theDbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
+    wheelHistos[3]->setBinLabel(1,"Sector1",1);
+    wheelHistos[3]->setBinLabel(1,"Sector1",1);
+    wheelHistos[3]->setBinLabel(2,"Sector2",1);
+    wheelHistos[3]->setBinLabel(3,"Sector3",1);
+    wheelHistos[3]->setBinLabel(4,"Sector4",1);
+    wheelHistos[3]->setBinLabel(5,"Sector5",1);
+    wheelHistos[3]->setBinLabel(6,"Sector6",1);
+    wheelHistos[3]->setBinLabel(7,"Sector7",1);
+    wheelHistos[3]->setBinLabel(8,"Sector8",1);
+    wheelHistos[3]->setBinLabel(9,"Sector9",1);
+    wheelHistos[3]->setBinLabel(10,"Sector10",1);
+    wheelHistos[3]->setBinLabel(11,"Sector11",1);
+    wheelHistos[3]->setBinLabel(12,"Sector12",1);
+    wheelHistos[3]->setBinLabel(13,"Sector13",1);
+    wheelHistos[3]->setBinLabel(14,"Sector14",1);
+    wheelHistos[3]->setBinLabel(1,"Wheel-2",2);
+    wheelHistos[3]->setBinLabel(2,"Wheel-1",2);
+    wheelHistos[3]->setBinLabel(3,"Wheel0",2);
+    wheelHistos[3]->setBinLabel(4,"Wheel+1",2);
+    wheelHistos[3]->setBinLabel(5,"Wheel+2",2);
+  }
+
+  stringstream wheel; wheel <<wh;
+  string histoName =  "chi2Summary_testFailed_W" + wheel.str();
+  wheelHistos[wh] = theDbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,4,0,4);
+  wheelHistos[wh]->setBinLabel(1,"Sector1",1);
+  wheelHistos[wh]->setBinLabel(2,"Sector2",1);
+  wheelHistos[wh]->setBinLabel(3,"Sector3",1);
+  wheelHistos[wh]->setBinLabel(4,"Sector4",1);
+  wheelHistos[wh]->setBinLabel(5,"Sector5",1);
+  wheelHistos[wh]->setBinLabel(6,"Sector6",1);
+  wheelHistos[wh]->setBinLabel(7,"Sector7",1);
+  wheelHistos[wh]->setBinLabel(8,"Sector8",1);
+  wheelHistos[wh]->setBinLabel(9,"Sector9",1);
+  wheelHistos[wh]->setBinLabel(10,"Sector10",1);
+  wheelHistos[wh]->setBinLabel(11,"Sector11",1);
+  wheelHistos[wh]->setBinLabel(12,"Sector12",1);
+  wheelHistos[wh]->setBinLabel(13,"Sector13",1);
+  wheelHistos[wh]->setBinLabel(14,"Sector14",1);
+  wheelHistos[wh]->setBinLabel(1,"MB1",2);
+  wheelHistos[wh]->setBinLabel(2,"MB2",2);
+  wheelHistos[wh]->setBinLabel(3,"MB3",2);
+  wheelHistos[wh]->setBinLabel(4,"MB4",2);
+
+  histoName =  "NumberOfHitsPerSegm_W" + wheel.str();
+  wheelHistos[wh+6] = theDbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,12,1,13);
+  wheelHistos[wh+6]->setBinLabel(1,"Sector1",1);
+  wheelHistos[wh+6]->setBinLabel(2,"Sector2",1);
+  wheelHistos[wh+6]->setBinLabel(3,"Sector3",1);
+  wheelHistos[wh+6]->setBinLabel(4,"Sector4",1);
+  wheelHistos[wh+6]->setBinLabel(5,"Sector5",1);
+  wheelHistos[wh+6]->setBinLabel(6,"Sector6",1);
+  wheelHistos[wh+6]->setBinLabel(7,"Sector7",1);
+  wheelHistos[wh+6]->setBinLabel(8,"Sector8",1);
+  wheelHistos[wh+6]->setBinLabel(9,"Sector9",1);
+  wheelHistos[wh+6]->setBinLabel(10,"Sector10",1);
+  wheelHistos[wh+6]->setBinLabel(11,"Sector11",1);
+  wheelHistos[wh+6]->setBinLabel(12,"Sector12",1);
+  wheelHistos[wh+6]->setBinLabel(13,"Sector13",1);
+  wheelHistos[wh+6]->setBinLabel(14,"Sector14",1);
+
+}
+  
