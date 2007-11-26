@@ -274,7 +274,7 @@ void DCCEventBlock::addHeaderToCollection(){
   theDCCheader.setTestZeroSuppression(tzs_);
   theDCCheader.setSrpStatus(srChStatus_);
   theDCCheader.setTccStatus(tccChStatus_);
-  theDCCheader.setTriggerTowerStatus(feChStatus_);
+  theDCCheader.setFEStatus(feChStatus_);
   
   // The Run type
   EcalDCCHeaderRuntypeDecoder theRuntypeDecoder;
