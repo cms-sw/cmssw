@@ -127,7 +127,13 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
       std::vector< const RPCRoll*> roles = (ch->rolls());
       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	RPCDetId rpcId = (*r)->id();
-	
+	RPCRecHitCollection::range rpcRecHitRange = rpcHits->get((*r)->id());
+	RPCRecHitCollection::const_iterator recIt;	
+	for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
+	  LocalPoint rhitlocal = (*recIt).localPosition();
+	  rhitpos = rhitlocal.x();  	
+	  std::cout << " RPC with recHit "<<rhitpos<<"\t on : "<<(*r)->id()<<std::endl;
+	}
       }
     }
   }
@@ -141,8 +147,8 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
       if(! itTraj->updatedState().isValid()) continue;
 
       
-      std::cout<<" Tj r "<<itTraj->updatedState().globalPosition().perp()
-	       <<" Tj z "<<itTraj->updatedState().globalPosition().z()<<std::endl;
+//       std::cout<<" Tj r "<<itTraj->updatedState().globalPosition().perp()
+// 	       <<" Tj z "<<itTraj->updatedState().globalPosition().z()<<std::endl;
             
       for (GlobalTrackingGeometry::DetContainer::const_iterator itDet=rpcGeo->dets().begin();itDet<rpcGeo->dets().end();itDet++){
 	if( dynamic_cast< RPCChamber* >( *itDet ) != 0 ){
