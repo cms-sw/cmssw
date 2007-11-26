@@ -29,6 +29,8 @@ DEFINE_JET_CORRECTION_SERVICE (L4EMFCorrector, L4EMFCorrectionService);
 DEFINE_JET_CORRECTION_SERVICE (GammaJetCorrector, GammaJetCorrectionService);
 #include "JetMETCorrections/JetParton/interface/JetPartonCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (JetPartonCorrector, JetPartonCorrectionService);
+#include "JetMETCorrections/Algorithms/interface/ZSPJetCorrector.h"
+DEFINE_JET_CORRECTION_SERVICE (ZSPJetCorrector, ZSPJetCorrectionService);
 #include "JetMETCorrections/JetPlusTrack/interface/JetPlusTrackCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (JetPlusTrackCorrector, JetPlusTrackCorrectionService);
 #include "JetMETCorrections/TauJet/interface/TauJetCorrector.h"

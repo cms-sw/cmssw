@@ -5,7 +5,12 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/JetReco>
 <use name=JetMETCorrections/Objects>
+<<<<<<< BuildFile
+<use name=JetMETCorrections/MCJet>
 <use name=JetMETCorrections/Algorithms>
+=======
+<use name=JetMETCorrections/Algorithms>
+>>>>>>> 1.8
 <use name=JetMETCorrections/GammaJet>
 <use name=JetMETCorrections/JetParton>
 <use name=JetMETCorrections/TauJet>
