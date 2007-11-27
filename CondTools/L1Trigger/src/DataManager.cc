@@ -36,12 +36,15 @@ DataManager::DataManager (const std::string & connect, const std::string & catal
 //     pool = new cond::PoolTransaction (connect, catalog, poolSession);
 
     connection = new cond::Connection( connect ) ;
-    //    connection->connect( session ) ;
-    coral = &( connection->coralTransaction() ) ;
-    pool = &( connection->poolTransaction() ) ;
+    connection->connect( session ) ;
+    cond::CoralTransaction& coral = connection->coralTransaction() ;
+//     coral = &( connection->coralTransaction() ) ;
+//     pool = &( connection->poolTransaction() ) ;
 
     // and data object
-    metadata = new cond::MetaData (*coral);
+    metadata = new cond::MetaData (coral);
+
+    // wsun: need to disconnect?
 
     // can I use two sessions? One for pool and one for coral? So that I could connect to one and another....
     // will sqlite will be happy with transactions?
