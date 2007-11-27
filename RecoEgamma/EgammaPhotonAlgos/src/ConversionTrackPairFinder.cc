@@ -257,7 +257,7 @@ std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>  Conversi
     
     if ( nFound == 0) {
 
-
+      thePair.clear();  
       thePair.push_back(iMap1->first);
       
       allPairs.push_back ( thePair );
