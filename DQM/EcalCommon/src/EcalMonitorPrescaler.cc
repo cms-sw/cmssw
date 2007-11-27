@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.2 2007/04/28 14:47:40 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.3 2007/04/28 15:58:13 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.2 $
-  \date $Date: 2007/04/28 14:47:40 $
+  \version $Revision: 1.3 $
+  \date $Date: 2007/04/28 15:58:13 $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -21,11 +21,11 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EcalMonitorPrescaler::EcalMonitorPrescaler(edm::ParameterSet const& ps) {
+EcalMonitorPrescaler::EcalMonitorPrescaler(ParameterSet const& ps) {
 
   count_ = 0;
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
+  EcalRawDataCollection_ = ps.getParameter<InputTag>("EcalRawDataCollection");
 
   occupancyPrescaleFactor_ = ps.getUntrackedParameter<int>("occupancyPrescaleFactor" , 0);
   integrityPrescaleFactor_ = ps.getUntrackedParameter<int>("integrityPrescaleFactor", 0);
@@ -45,7 +45,7 @@ EcalMonitorPrescaler::EcalMonitorPrescaler(edm::ParameterSet const& ps) {
     
 EcalMonitorPrescaler::~EcalMonitorPrescaler() { }
 
-bool EcalMonitorPrescaler::filter(edm::Event & e,edm::EventSetup const&) {
+bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
 
   count_++;
 
