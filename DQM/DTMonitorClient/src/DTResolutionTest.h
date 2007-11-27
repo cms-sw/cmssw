@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/09/19 17:08:12 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/11/07 15:29:28 $
+ *  $Revision: 1.7 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -62,9 +62,11 @@ protected:
   /// book the new ME
   void bookHistos(const DTChamberId & ch);
 
+  /// book the summary histograms
+  void bookHistos(int wh);
+
   /// Get the ME name
   std::string getMEName(const DTSuperLayerId & slID);
-
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
@@ -79,21 +81,24 @@ private:
   unsigned int nLumiSegs;
   int prescaleFactor;
   int run;
+  int percentual;
 
   DaqMonitorBEInterface* dbe;
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
 
-  
-
   // histograms: < detRawID, Histogram >
-  std::map< std::string , MonitorElement* > MeanHistos;
-  std::map< std::string , MonitorElement* > SigmaHistos;
+  std::map< std::pair<int,int> , MonitorElement* > MeanHistos;
+  std::map< std::pair<int,int> , MonitorElement* > SigmaHistos;
   std::map< std::string , MonitorElement* > MeanHistosSetRange;
   std::map< std::string , MonitorElement* > SigmaHistosSetRange;
   std::map< std::string , MonitorElement* > MeanHistosSetRange2D;
   std::map< std::string , MonitorElement* > SigmaHistosSetRange2D;
+
+  // wheel summary histograms  
+  std::map< int, MonitorElement* > wheelMeanHistos;
+  std::map< int, MonitorElement* > wheelSigmaHistos;
 
 };
 
