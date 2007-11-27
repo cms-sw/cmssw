@@ -51,7 +51,7 @@ TransientVertex AdaptiveVertexReconstructor::cleanUp ( const TransientVertex & o
       }
       origtrkiter++;
     }
-    ret.refittedTracks ( newrfs ); // copy refitted tracks
+    if ( newrfs.size() ) ret.refittedTracks ( newrfs ); // copy refitted tracks
   }
 
   if ( ret.refittedTracks().size() > ret.originalTracks().size() )
