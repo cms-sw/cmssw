@@ -14,5 +14,9 @@
 <use name=TBDataFormats/EcalTBObjects>
 <use name=rootcore>
 <export>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/ServiceRegistry>
   <lib name=DQMEcalEndcapMonitorTasks>
 </export>
