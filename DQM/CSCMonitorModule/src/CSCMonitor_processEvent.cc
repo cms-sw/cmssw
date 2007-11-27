@@ -200,10 +200,13 @@ void CSCMonitor::monitorDDU(const CSCDDUEventData& dduData, int nodeNumber)
   if (isMEvalid(dduME, "Word_Count", mo)) mo->Fill(trl_word_count );
 //  LOG4CPLUS_DEBUG(logger_,dduTag << " Trailer Word (64 bits) Count = " << dec << trl_word_count);
 
-  if (isMEvalid(nodeME, "All_DDUs_Event_Size", mo)) {
-        mo->Fill(dduID, trl_word_count );
-   //     mo->getObject()->GetXaxis()->SetBinLabel(dduID+1, Form("%d",dduID));
+  if (trl_word_count > 0) {
+    if (isMEvalid(nodeME, "All_DDUs_Event_Size", mo)) {
+      mo->Fill(dduID, log10((double)trl_word_count) );
+      //        mo->getObject()->GetXaxis()->SetBinLabel(dduID, Form("%d",dduID));
+    }
   }
+
   if (isMEvalid(nodeME, "All_DDUs_Average_Event_Size", mo)) {
         mo->Fill(dduID, trl_word_count );
    //     mo->getObject()->GetXaxis()->SetBinLabel(dduID+1, Form("%d",dduID));
