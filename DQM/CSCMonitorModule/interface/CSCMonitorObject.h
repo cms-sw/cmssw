@@ -132,6 +132,8 @@ class CSCMonitorObject
   void Reset();
   void Write();
   void Draw();
+  
+  void Divide(CSCMonitorElement*, CSCMonitorElement*);
 	
   int getQTestResult() const {return QTest_result;}
   int doQTest();

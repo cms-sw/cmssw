@@ -49,9 +49,10 @@ void CSCMonitor::monitorCSC(const CSCEventData& data, int nodeID=0, int dduID = 
   // LOG4CPLUS_INFO(logger_, 
   //		  "Chamber ID = "<< ChamberID << " Crate ID = "<< crateID << " DMB ID = " << dmbID);
 
-  string nodeTag(Form("EMU_%d", nodeID));
-  string dduTag(Form("DDU_%d", dduID));
-  string cscTag(Form("CSC_%03d_%02d", crateID, dmbID));
+  // std::string nodeTag(Form("EMU_%d", nodeID));
+  std::string nodeTag = "EMU";
+  std::string dduTag(Form("DDU_%d", dduID));
+  std::string cscTag(Form("CSC_%03d_%02d", crateID, dmbID));
   nDMBEvents[cscTag]++;
   // LOG4CPLUS_INFO(logger_,
 //		 "Unpacking " << cscTag << " (Event: " << nDMBEvents[cscTag]<< ")");
@@ -78,7 +79,7 @@ void CSCMonitor::monitorCSC(const CSCEventData& data, int nodeID=0, int dduID = 
   int CSCtype = 0;
   int CSCposition = 0;
   this->getCSCFromMap(crateID, dmbID, CSCtype, CSCposition ); 
-  if (CSCtype && CSCposition && isMEvalid(nodeME, "CSC_Mapped_Unpacked", mo, UNPACK_CSC)) 
+  if (CSCtype && CSCposition && isMEvalid(nodeME, "CSC_Unpacked", mo, UNPACK_CSC)) 
 	mo->Fill(CSCposition-1, CSCtype);  
 
 
@@ -177,7 +178,7 @@ void CSCMonitor::monitorCSC(const CSCEventData& data, int nodeID=0, int dduID = 
   if (isMEvalid(cscME, "DMB_CFEB_MOVLP", mo, UNPACK_DMB)) mo->Fill(cfeb_movlp);
   if (isMEvalid(cscME, "DMB_CFEB_Sync", mo, UNPACK_DMB)) mo->Fill(dmb_cfeb_sync);
 
-  if (isMEvalid(nodeME, "CSC_Unpacked", mo, UNPACK_DMB)) { 
+  if (isMEvalid(nodeME, "DMB_Unpacked", mo, UNPACK_DMB)) { 
     mo->Fill(crateID,dmbID);
     mo->SetEntries(nEvents);
   }

@@ -41,7 +41,8 @@ void CSCMonitor::process(const char * data, int32_t dataSize, uint32_t errorStat
  
   if (unpackMask == UNPACK_NONE) return;
 
-  string nodeTag = Form("EMU_%d",nodeNumber); // == This emuMonitor node number
+  // std::string nodeTag = Form("EMU_%d",nodeNumber); // == This emuMonitor node number
+  std::string nodeTag = "EMU";
   std::map<std::string, ME_List >::iterator itr;
 
   CSCMonitorObject *mo = NULL;  // == pointer to MonitoringObject
@@ -96,7 +97,8 @@ void CSCMonitor::process(const char * data, int32_t dataSize, uint32_t errorStat
 
 void CSCMonitor::monitorDDU(const CSCDDUEventData& dduData, int nodeNumber)
 {
-  string nodeTag = Form("EMU_%d",nodeNumber); // == This emuMonitor node number
+  // std::string nodeTag = Form("EMU_%d",nodeNumber); // == This emuMonitor node number
+  std::string nodeTag = "EMU";
   std::map<std::string, ME_List >::iterator itr;
   //  ME_List& nodeME=NULL; // === Global histos specific for this emuMonitor node
   CSCMonitorObject *mo = NULL;  // == pointer to MonitoringObject
@@ -134,7 +136,7 @@ void CSCMonitor::monitorDDU(const CSCDDUEventData& dduData, int nodeNumber)
 
 
 
-  string dduTag = Form("DDU_%d",dduID);
+  std::string dduTag = Form("DDU_%d",dduID);
 
   if (MEs.size() == 0 || ((itr = MEs.find(dduTag)) == MEs.end())) {
     LOG4CPLUS_WARN(logger_, " List of MEs for " << dduTag << " not found. Booking...")
@@ -167,17 +169,17 @@ void CSCMonitor::monitorDDU(const CSCDDUEventData& dduData, int nodeNumber)
   }
 
   if (isMEvalid(nodeME, "All_DDUs_Trailer_Errors", mo)) {
-        if (trl_errorstat) {
-                mo->Fill(dduID,32); // Any Error
-                for (int i=0; i<32; i++) {
-                        if ((trl_errorstat>>i) & 0x1) {
-                                mo->Fill(dduID,i);
-                        }
-                }
-        } else {
-                mo->Fill(dduID,33); // No Errors
+    if (trl_errorstat) {
+      mo->Fill(dduID,1); // Any Error
+      for (int i=0; i<32; i++) {
+        if ((trl_errorstat>>i) & 0x1) {
+          mo->Fill(dduID,i+2);
         }
-//        mo->getObject()->GetXaxis()->SetBinLabel(dduID+1, Form("%d",dduID));
+      }
+    } else {
+      mo->Fill(dduID,0); // No Errors
+    }
+    //  mo->getObject()->GetXaxis()->SetBinLabel(dduID, Form("%d",dduID));
 
   }
 	
@@ -220,10 +222,17 @@ void CSCMonitor::monitorDDU(const CSCDDUEventData& dduData, int nodeNumber)
   if (isMEvalid(dduME, "L1A_Increment", mo)) mo->Fill(L1A_inc);
 
   if (isMEvalid(nodeME, "All_DDUs_L1A_Increment", mo)) {
-        // !!! Change to actual max numbe
-        if (L1A_inc >= 20) L1A_inc = 20;
-        mo->Fill(dduID, L1A_inc);
-       // mo->getObject()->GetXaxis()->SetBinLabel(dduID+1, Form("%d",dduID));
+    if (L1A_inc > 100000) { L1A_inc = 19;}
+    else if (L1A_inc > 30000) { L1A_inc = 18;}
+    else if (L1A_inc > 10000) { L1A_inc = 17;}
+    else if (L1A_inc > 3000)  { L1A_inc = 16;}
+    else if (L1A_inc > 1000)  { L1A_inc = 15;}
+    else if (L1A_inc > 300)   { L1A_inc = 14;}
+    else if (L1A_inc > 100)   { L1A_inc = 13;}
+    else if (L1A_inc > 30)        { L1A_inc = 12;}
+    else if (L1A_inc > 10)    { L1A_inc = 11;}
+    mo->Fill(dduID, L1A_inc);
+
   }
   //if (isMEvalid(dduME, "L1A_Increment", mo)) dduME["L1A_Increment"]->Fill(L1ANumber - L1ANumber_previous_event);
 /*
@@ -296,6 +305,10 @@ void CSCMonitor::monitorDDU(const CSCDDUEventData& dduData, int nodeNumber)
 	freq = 100.0*(mo->GetBinContent(i+1))/nEvents;
 	if (isMEvalid(dduME, "CSC_Errors", mo)) mo->SetBinContent(i+1, freq);
       }
+      if (isMEvalid(nodeME, "All_DDUs_Live_Inputs", mo)) {
+        mo->Fill(dduID, i);
+      }
+
     }
     if( (csc_warning_state>>i) & 0x1 ){
       if (isMEvalid(dduME, "CSC_Warnings_Rate", mo)) {
@@ -303,16 +316,30 @@ void CSCMonitor::monitorDDU(const CSCDDUEventData& dduData, int nodeNumber)
 	freq = 100.0*(mo->GetBinContent(i+1))/nEvents;
 	if (isMEvalid(dduME,"CSC_Warnings", mo)) mo->SetBinContent(i+1, freq);
       }
+      if (isMEvalid(nodeME, "All_DDUs_Inputs_Warnings", mo)) {
+        mo->Fill(dduID, i+2);
+      }
+
     }
 
   }
 
   if (isMEvalid(nodeME, "All_DDUs_Average_Live_Inputs", mo)) {
-        mo->Fill(dduID, ddu_connected_inputs_cnt);
+    mo->Fill(dduID, ddu_connected_inputs_cnt);
   }
 
   if (isMEvalid(nodeME, "All_DDUs_Average_Inputs_with_Data", mo)) {
-        mo->Fill(dduID, dmb_dav_header_cnt);
+    mo->Fill(dduID, dmb_dav_header_cnt);
+  }
+
+  if (isMEvalid(nodeME, "All_DDUs_Inputs_Errors", mo)) {
+    if (csc_error_state>0) { mo->Fill(dduID, 1);} // Any Input
+    else { mo->Fill(dduID, 0);} // No errors
+  }
+
+  if (isMEvalid(nodeME, "All_DDUs_Inputs_Warnings", mo)) {
+    if (csc_warning_state>0) { mo->Fill(dduID, 1);} // Any Input
+    else { mo->Fill(dduID, 0);} // No warnings
   }
 
   if (isMEvalid(dduME,"DMB_DAV_Header_Occupancy",mo)) mo->SetEntries(nEvents);
@@ -343,6 +370,7 @@ void CSCMonitor::monitorDDU(const CSCDDUEventData& dduData, int nodeNumber)
 //		    "Total number of unpacked DMB = " << dec << unpackedDMBcount);
 
     if (isMEvalid(dduME,"DMB_unpacked_vs_DAV",mo)) mo->Fill(dmb_active_header, unpackedDMBcount);
+/*
     if (isMEvalid(nodeME,"Unpacking_Match_vs_nEvents", mo)) {
       if(dmb_active_header == unpackedDMBcount) {
 	mo->Fill(nEvents, 0.0);
@@ -352,6 +380,35 @@ void CSCMonitor::monitorDDU(const CSCDDUEventData& dduData, int nodeNumber)
       }
       mo->SetAxisRange(0, nEvents, "X");
     }
+*/
+
+    CSCMonitorObject *mo1 = NULL;
+    CSCMonitorObject *mo2 = NULL;
+  if (isMEvalid(nodeME, "DMB_Format_Errors_Fract", mo)
+      && isMEvalid(nodeME, "DMB_Format_Errors", mo1)
+      && isMEvalid(nodeME, "DMB_Unpacked", mo2))
+    {
+      mo->Divide(mo1->getObject(), mo2->getObject());
+
+    }
+
+  if (isMEvalid(nodeME, "CSC_Format_Errors_Fract", mo)
+      && isMEvalid(nodeME, "CSC_Format_Errors", mo1)
+      && isMEvalid(nodeME, "CSC_Unpacked", mo2))
+    {
+      mo->Divide(mo1->getObject(), mo2->getObject());
+
+    }
+
+  if (isMEvalid(nodeME, "CSC_Format_Warnings_Fract", mo)
+      && isMEvalid(nodeME, "CSC_Format_Warnings", mo1)
+      && isMEvalid(nodeME, "CSC_Unpacked", mo2))
+    {
+      mo->Divide(mo1->getObject(), mo2->getObject());
+
+    }
+
+
   }
   // LOG4CPLUS_DEBUG(logger_,
 //		  "END OF EVENT :-(");
@@ -359,24 +416,41 @@ void CSCMonitor::monitorDDU(const CSCDDUEventData& dduData, int nodeNumber)
 
 
 void CSCMonitor::binExaminer(CSCDCCExaminer & bin_checker,int32_t nodeNumber) {
-  string nodeTag = Form("EMU_%d",nodeNumber); // == This emuMonitor node number
+  // std::string nodeTag = Form("EMU_%d",nodeNumber); // == This emuMonitor node number
+  std::string nodeTag = "EMU";
   std::map<std::string, ME_List >::iterator itr;
+  ME_List& nodeME = MEs[nodeTag];
+
+  CSCMonitorObject* mo = NULL;
+  CSCMonitorObject* mof = NULL;
+
+
+  if (isMEvalid(nodeME, "All_DDUs_Format_Errors", mo)) {
+    std::vector<int> DDUs = bin_checker.listOfDDUs();
+    for (std::vector<int>::iterator itr = DDUs.begin(); itr != DDUs.end(); ++itr) {
+      if (*itr != 0xFFF) {
+        long errs = bin_checker.errorsForDDU(*itr);
+        int dduID = (*itr)&0xFF;
+        if (errs != 0) {
+          for(int i=0; i<bin_checker.nERRORS; i++) { // run over all errors
+            if ((errs>>i) & 0x1 ) mo->Fill(dduID,i+1);
+          }
+        } else {
+            mo->Fill(dduID,0);
+        }
+      }
+    }
+  }
+
+
 
   // == Check and book global node specific histos
   if (MEs.size() == 0 || ((itr = MEs.find(nodeTag)) == MEs.end())) {
     LOG4CPLUS_WARN(logger_, " List of MEs for " << nodeTag << " not found. Booking...")
       fBusy = true;
     MEs[nodeTag] = bookCommon(nodeNumber);
-  //  printMECollection(MEs[nodeTag]);
     fBusy = false;
   }
-
-//  LOG4CPLUS_INFO(logger_, "========== binExaminer " << nEvents);
-
-  ME_List& nodeME = MEs[nodeTag];
-
-  CSCMonitorObject* mo = NULL;
-  CSCMonitorObject* mof = NULL;
 
   //  if(check_bin_error){
   uint32_t BinaryErrorStatus = 0, BinaryWarningStatus = 0;
@@ -411,22 +485,7 @@ void CSCMonitor::binExaminer(CSCDCCExaminer & bin_checker,int32_t nodeNumber) {
   else {
     // LOG4CPLUS_DEBUG(logger_,nodeTag << " Binary Warnings Status is OK: 0x" << hex << BinaryWarningStatus);
   }
-
-  if (isMEvalid(nodeME, "Data_Format_Check_vs_nEvents", mo)) {
-    if( BinaryErrorStatus != 0 ) {
-      mo->Fill(nEvents,2.0);
-    } else {
-      mo->Fill(nEvents,0.0);
-    }
-
-    //	if any warnings
-    if( BinaryWarningStatus != 0 ) {
-      mo->Fill(nEvents,1.0);
-    }
-    mo->SetAxisRange(0, nEvents, "X");
-    // LOG4CPLUS_DEBUG(logger_,nodeTag << " Error checking has been done");
-  }
-
+  
   if ((unpackMask & UNPACK_CSC)==0) return;  
   if ((BinaryErrorStatus != 0) || (BinaryWarningStatus != 0)) {
 
@@ -437,7 +496,7 @@ void CSCMonitor::binExaminer(CSCDCCExaminer & bin_checker,int32_t nodeNumber) {
       int ChamberID     = chamber->first;
       int CrateID = (chamber->first>>4) & 0xFF;
       int DMBSlot = chamber->first & 0xF;
-      string cscTag(Form("CSC_%03d_%02d", CrateID , DMBSlot));
+      std::string cscTag(Form("CSC_%03d_%02d", CrateID , DMBSlot));
       map<string, ME_List >::iterator h_itr = MEs.find(cscTag);
 
       if ((CrateID == 255 ) ||
@@ -476,18 +535,18 @@ void CSCMonitor::binExaminer(CSCDCCExaminer & bin_checker,int32_t nodeNumber) {
 	mo->SetEntries(nDMBEvents[cscTag]);
 	mof->SetEntries(nDMBEvents[cscTag]);
       }
+
+      if (isCSCError && isMEvalid(nodeME, "DMB_Format_Errors", mo)) {
+        mo->Fill(CrateID, DMBSlot);
+      }
+
       // Fill common CSC errors Histo
       int CSCtype   = 0;
       int CSCposition = 0;
       this->getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition );
-      if (CSCtype && CSCposition && isMEvalid(nodeME, "CSC_Data_Format_Errors", mo)) {
-        // mo->Fill((chamber->first>>4) & 0xFF, chamber->first & 0xF);
+      if (isCSCError && CSCtype && CSCposition && isMEvalid(nodeME, "CSC_Format_Errors", mo)) {
 //	LOG4CPLUS_INFO(logger_, "========== binExaminer CSC Error " << nEvents << " crate" << crateID << " slot" << dmbID);
 	mo->Fill(CSCposition-1, CSCtype);
-      }
-      
-      if (isCSCError && isMEvalid(nodeME, "CSC_Format_Errors", mo)) {
-        mo->Fill(CrateID, DMBSlot);
       }
 
       chamber++;
@@ -500,9 +559,10 @@ void CSCMonitor::binExaminer(CSCDCCExaminer & bin_checker,int32_t nodeNumber) {
     while( chamber != checkerWarnings.end() ){
 
       int ChamberID     = chamber->first;
-      string cscTag(Form("CSC_%03d_%02d", (chamber->first>>4) & 0xFF, chamber->first & 0xF));
-
-      if (((chamber->first>>4) & 0xFF) ==255) {chamber++; continue;}
+      int CrateID = (chamber->first>>4) & 0xFF;
+      int DMBSlot = chamber->first & 0xF;
+      std::string cscTag(Form("CSC_%03d_%02d", CrateID, DMBSlot));
+      if (CrateID ==255) {chamber++; continue;}
       map<string, ME_List >::iterator h_itr = MEs.find(cscTag);
       if (h_itr == MEs.end() || (MEs.size()==0)) {
 	LOG4CPLUS_WARN(logger_,
@@ -511,16 +571,16 @@ void CSCMonitor::binExaminer(CSCDCCExaminer & bin_checker,int32_t nodeNumber) {
 //			"Booking Histos for " << cscTag);
 	fBusy = true;
 	MEs[cscTag] = bookChamber(ChamberID);
-//	printMECollection(MEs[cscTag]);
 	fBusy = false;
       }
 
       ME_List& cscME = MEs[cscTag];
-
+      bool isCSCWarning = false;
       if (isMEvalid(cscME, "BinCheck_WarningStat_Table", mo)
 	  && isMEvalid(cscME, "BinCheck_WarningStat_Frequency", mof)) {
 	for(int bit=1; bit<2; bit++)
 	  if( chamber->second & (1<<bit) ) {
+            isCSCWarning = true;
 	    mo->Fill(0.,bit-1);
 	    double freq = (100.0*mo->GetBinContent(1,bit))/nDMBEvents[cscTag];
 	    mof->SetBinContent(bit, freq);
@@ -529,7 +589,18 @@ void CSCMonitor::binExaminer(CSCDCCExaminer & bin_checker,int32_t nodeNumber) {
 	mof->SetEntries(nDMBEvents[cscTag]);
       }
       
-     
+     if (isCSCWarning && isMEvalid(nodeME, "DMB_Format_Warnings", mo)) {
+        mo->Fill(CrateID, DMBSlot);
+     }
+
+     int CSCtype   = 0;
+     int CSCposition = 0;
+     getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition );
+     if (isCSCWarning && CSCtype && CSCposition && isMEvalid(nodeME, "CSC_Format_Warnings", mo)) {
+       mo->Fill(CSCposition-1, CSCtype);
+      //      mo->SetEntries(nBadEvents);
+     }
+ 
       chamber++;
     }
   }

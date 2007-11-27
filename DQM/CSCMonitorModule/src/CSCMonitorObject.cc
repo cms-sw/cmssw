@@ -14,7 +14,7 @@ std::map<int, std::string> ParseAxisLabels(std::string s)
       tmp.replace(0,pos+1,"");
       if (label_pair.find("=") != std::string::npos) {
 	int nbin = strtol(label_pair.substr(0,label_pair.find("=")).c_str(),  &stopstring, 10);
-	std:: string label = label_pair.substr(label_pair.find("=")+1, label_pair.length());
+	std::string label = label_pair.substr(label_pair.find("=")+1, label_pair.length());
 	while (label.find("\'") != std::string::npos) {
 	  label.erase(label.find("\'"),1);
 	}
@@ -166,7 +166,7 @@ int CSCMonitorObject::Book(DaqMonitorBEInterface* dbe)
 	  //			nbinsy, ylow, yup);
 	} else
 	  if (type.find("hp") != std::string::npos) {
-//	    	object = dbe->bookProfile(getFullName(), getTitle(), nbinsx, xlow, xup, ylow, yup);
+	    	object = dbe->bookProfile(getFullName(), getTitle(), nbinsx, xlow, xup, nbinsy, ylow, yup, "");
 	    //         object = new TProfile(getFullName().c_str(), getTitle().c_str(), nbinsx, xlow, xup);
 	  }
 
@@ -630,6 +630,20 @@ int CSCMonitorObject::Fill(double xval, double yval, double zval)
   }
   return res;
 }
+
+void CSCMonitorObject::Divide(CSCMonitorElement* me1, CSCMonitorElement* me2)
+{
+	if (object != NULL) {
+	    MonitorElementT<TNamed> * ob = dynamic_cast<MonitorElementT<TNamed>*>(object);
+	    MonitorElementT<TNamed> * ob1 = dynamic_cast<MonitorElementT<TNamed>*>(me1);
+	    MonitorElementT<TNamed> * ob2 = dynamic_cast<MonitorElementT<TNamed>*>(me2);	
+	    if (ob && ob1 && ob2) {
+	      ( (TH1 *) ob->operator->() )->Divide((TH1 *) ob1->operator->() , (TH1 *) ob2->operator->());
+    		}
+ 	 }
+
+}
+
 
 int CSCMonitorObject::doQTest()
 {

@@ -5,7 +5,8 @@ ME_List CSCMonitor::bookCommon(int nodeNumber)
 {
 	std::string dir = Form("EMU");
 //	dbe->setCurrentFolder(dir);
-	string prefix = Form("EMU_%d", nodeNumber);
+//	string prefix = Form("EMU_%d", nodeNumber);
+	string prefix = "EMU";
 	ME_List commonMEs;
 	ME_List_iterator itr;
 	for (itr = commonMEfactory.begin(); itr != commonMEfactory.end(); ++itr) {

@@ -41,7 +41,7 @@ int CSCMonitor::loadXMLBookingInfo(string xmlFile)
     // CSCMonitorObject obj(itemList->item(i));
     obj = new CSCMonitorObject(itemList->item(i));
 
-    string name = obj->getName();
+    std::string name = obj->getName();
     if (obj->getPrefix().find("DDU") != std::string::npos) {
       // dduMEfactory.insert(pair<string,CSCMonitorObject>(name, obj)); ;
       dduMEfactory[name] = obj;

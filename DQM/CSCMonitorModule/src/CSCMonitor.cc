@@ -169,7 +169,7 @@ void CSCMonitor::getCSCFromMap(int crate, int slot, int& csctype, int& cscpositi
 
 }
 
-bool CSCMonitor::isMEvalid(ME_List& MEs, string name, CSCMonitorObject*& me, uint32_t mask)
+bool CSCMonitor::isMEvalid(ME_List& MEs, std::string name, CSCMonitorObject*& me, uint32_t mask)
 {
   if ((unpackMask & mask)==0) return false;
   ME_List_iterator res = MEs.find(name);

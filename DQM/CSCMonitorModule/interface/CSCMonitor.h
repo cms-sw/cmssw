@@ -125,11 +125,11 @@ class CSCMonitor : public CSCMonitorInterface {
 		  int height=DEFAULT_CANVAS_HEIGHT);
   
   void setXMLHistosBookingCfgFile(string filename) {xmlHistosBookingCfgFile = filename;}
-  string xigGetXMLHistosBookingCfgFile() const {return xmlHistosBookingCfgFile;}
+  std::string xigGetXMLHistosBookingCfgFile() const {return xmlHistosBookingCfgFile;}
    
   bool isBusy() { return fBusy;};
   
-  bool isMEvalid(ME_List&, string, CSCMonitorObject* &, uint32_t mask=UNPACK_ALL);
+  bool isMEvalid(ME_List&, std::string, CSCMonitorObject* &, uint32_t mask=UNPACK_ALL);
   map<string, ME_List >  GetMEs() { return MEs;};
  
   int getUnpackedDMBCount() const {return unpackedDMBcount;}
@@ -146,7 +146,7 @@ class CSCMonitor : public CSCMonitorInterface {
   void printMECollection(ME_List &collection);
   CSCMonitorObject* createME(DOMNode* MEInfo);  
 
-  void createHTMLNavigation(std:: string path);
+  void createHTMLNavigation(std::string path);
   void createTreeTemplate(std::string path);
   void createTreeEngine(std::string path);
   void createTreePage(std::string path);
