@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.1 2007/11/19 11:38:23 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.2 2007/11/19 12:13:50 fblekman Exp $
 //
 //
 
@@ -75,7 +75,7 @@ public:
   //pure virtual function, called after each DetID loaded
   virtual bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix);
   
-      //translate DetID to human readable string
+  //translate DetID to human readable string
   std::string translateDetIdToString(uint32_t detid);
   
   //booking DQM histograms (for dynamic histogram creation)
@@ -84,8 +84,10 @@ public:
   MonitorElement* 			bookDQMHistogram2D(std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
   
   MonitorElement*                       bookDQMHistoPlaquetteSummary2D(std::string name,std::string title,uint32_t detid); // take the detid to determine the size of rows and columns, this saves looking up everything in the cabling map by the user. 
-  bool				setDQMDirectory(std::string dirName);	
-  bool				setDQMDirectory(uint32_t detID); //automatically create directory hierachy based on DetID
+  bool				        setDQMDirectory(std::string dirName);	
+  bool				        setDQMDirectory(uint32_t detID); //automatically create directory hierachy based on DetID
+  static TF1*                           fitFunction_;
+  static const std::vector<short>*      getVcalValues();
   
 protected:
 
@@ -95,7 +97,7 @@ protected:
   
   std::string calibrationMode_;
   short nTriggers_;
-  std::vector<short> vCalValues_;
+  static std::vector<short> vCalValues_;
 
 private:
   
@@ -108,9 +110,6 @@ private:
   std::map<uint32_t, int> detIdsEntered_;
   std::map<uint32_t, std::string> detIdNames_;
   
-  //function for fitting
-  TF1* fitFunction_;
-  
   edm::InputTag siPixelCalibDigiProducer_;
   
   //the beginJob is used to load the calib database.  It then calls the pure
@@ -121,10 +120,10 @@ private:
   virtual void calibrationSetup(const edm::EventSetup& iSetup);
   
   //called when new DetID discovered
-  virtual void newDetID(short detid);
+  virtual void newDetID(uint32_t detid);
   
   void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void endJob() ;
  
 };
 

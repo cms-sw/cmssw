@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id$
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.1 2007/11/19 11:38:25 fblekman Exp $
 //
 //
 
@@ -23,14 +23,14 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
 
-//
+TF1* SiPixelOfflineCalibAnalysisBase::fitFunction_ = NULL;
+std::vector<short>  SiPixelOfflineCalibAnalysisBase::vCalValues_(0);
 // constructors and destructor
 //
 SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase(const edm::ParameterSet& iConfig)
 {
    siPixelCalibDigiProducer_ = iConfig.getParameter<edm::InputTag>("DetSetVectorSiPixelCalibDigiTag");
    outputFileName_ = iConfig.getParameter<std::string>("outputFileName");
-   fitFunction_ = NULL;
    daqBE_ = &*edm::Service<DaqMonitorBEInterface>();
    folderMaker_ = new SiPixelFolderOrganizer();
 }
@@ -105,15 +105,30 @@ SiPixelOfflineCalibAnalysisBase::beginJob(const edm::EventSetup& iSetup)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SiPixelOfflineCalibAnalysisBase::endJob() {
-   if (!outputFileName_.empty())
+   edm::LogInfo("SiPixelOfflineCalibAnalysisBase") << "Running end job... output file name is: " << outputFileName_;
+   if (!outputFileName_.empty()) 
+   {
+      edm::LogInfo("SiPixelOfflineCalibAnalysisBase") << "Writing ROOT file to: " << outputFileName_ << std::endl;
       daqBE_->save(outputFileName_);
+   }
 
 }
 
 // ------------ helper functions ---------------------------------------------------------
+
+const std::vector<short>* 
+SiPixelOfflineCalibAnalysisBase::getVcalValues()
+{
+   return &vCalValues_;
+}
+
 std::string
 SiPixelOfflineCalibAnalysisBase::translateDetIdToString(uint32_t detid)
 {
+   std::map<uint32_t, std::string>::iterator detNameIter = detIdNames_.find(detid);
+   if (detNameIter != detIdNames_.end()) {
+      return detNameIter->second;
+   }
    std::string output = "DetID translation error";
    DetId detId(detid);
    uint32_t detSubId = detId.subdetId();
@@ -131,6 +146,7 @@ SiPixelOfflineCalibAnalysisBase::translateDetIdToString(uint32_t detid)
       PixelBarrelName nameworker(detid);
       output = nameworker.name();
    }
+   detIdNames_.insert(std::make_pair(detid, output));
    return output;
 }
 
@@ -204,10 +220,10 @@ SiPixelOfflineCalibAnalysisBase::calibrationSetup(const edm::EventSetup&)
 }
 
 void 
-SiPixelOfflineCalibAnalysisBase::newDetID(short detid)
+SiPixelOfflineCalibAnalysisBase::newDetID(uint32_t detid)
 {
    //do nothing
-   std::cout << "SiPixelOfflineCalibAnalysisBase - Found new DetID: " << detid << "  Name: " << detIdNames_[detid] << std::endl;
+   edm::LogInfo("SiPixelOfflineCalibAnalysisBase") << "SiPixelOfflineCalibAnalysisBase - Found new DetID: " << detid << "  Name: " << detIdNames_[detid];
 }
 
 //define this as a plug-in
