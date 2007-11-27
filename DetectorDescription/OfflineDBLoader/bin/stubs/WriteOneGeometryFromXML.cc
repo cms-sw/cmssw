@@ -1,50 +1,27 @@
 #include "WriteOneGeometryFromXML.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-//#include "CondFormats/IdealGeomObjects/interface/PIdealGeometry.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-//#include "CondFormats/DataRecord/interface/PIdealGeometryRcd.h"
-//#include "CondFormats/IdealGeomObjects/interface/DDCompactViewForPers.h"
-//#include "CondFormats/DataRecord/interface/NewIdealGeometryRecord.h"
+#include <FWCore/ServiceRegistry/interface/Service.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <CondCore/DBOutputService/interface/PoolDBOutputService.h>
+#include <FWCore/Framework/interface/EventSetup.h>
+#include <FWCore/Framework/interface/ESHandle.h>
 
-//#include <FWCore/Framework/interface/Frameworkfwd.h>
-//#include <FWCore/Framework/interface/EDAnalyzer.h>
-//#include <FWCore/Framework/interface/MakerMacros.h>
-
-#include <DetectorDescription/Core/interface/DDCompactView.h>
-#include <DetectorDescription/Core/interface/DDValue.h>
-#include <DetectorDescription/Core/interface/DDsvalues.h>
-#include <DetectorDescription/Core/interface/DDExpandedView.h>
-#include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDMaterial.h>
 #include <DetectorDescription/Core/interface/DDTransform.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
 #include <DetectorDescription/Core/interface/DDLogicalPart.h>
-#include <DetectorDescription/Core/interface/DDPosPart.h>
 #include <DetectorDescription/Core/interface/DDSpecifics.h>
 #include <DetectorDescription/Core/interface/DDRoot.h>
-#include <DetectorDescription/Core/interface/DDPartSelection.h>
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-//#include "DetectorDescription/OfflineDBLoader/interface/ReadWriteORA.h"
+#include <DetectorDescription/Core/interface/DDName.h>
+#include <DetectorDescription/Core/interface/DDPosData.h>
 #include <DetectorDescription/PersistentDDDObjects/interface/DDDToPersFactory.h>
 
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
 
 #include <iostream>
-//#include <istream>
-//#include <fstream>
 #include <string>
-//#include <memory>
 #include <vector>
 #include <map>
-#include <sstream>
-
 
 WriteOneGeometryFromXML::WriteOneGeometryFromXML(const edm::ParameterSet& iConfig) : label_()
 {

@@ -3,8 +3,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <string>
-
 class WriteOneGeometryFromXML : public edm::EDAnalyzer {
 
  public:
