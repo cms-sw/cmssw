@@ -140,7 +140,7 @@ void TouchableToHistory::dumpG4VPV(const G4VTouchable* v){
   int levels = v->GetHistoryDepth();
   
   for (int k=0; k<=levels; k++){
-    edm::LogInfo("TrackerSimInfoNumbering") <<" Hist: "<< v->GetVolume(k)->GetLogicalVolume()->GetName()<<
+    LogDebug("TrackerSimInfoNumbering") <<" Hist: "<< v->GetVolume(k)->GetLogicalVolume()->GetName()<<
       " Copy "<< v->GetVolume(k)->GetCopyNo();
   }
 }
