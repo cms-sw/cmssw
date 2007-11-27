@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.28 2007/11/20 23:09:26 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.29 2007/11/21 13:44:07 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -208,9 +208,6 @@ class SiStripConfigDb {
   // Utility and tests
   friend class PopulateConfigDb;
   friend class testDatabaseService;
-
-  //@@ TEMPORARY!!!
-  friend class SiStripHistoricInfoClient;
 
  protected:
   
