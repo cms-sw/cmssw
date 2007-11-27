@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/11/06 10:29:36 $
- * $Revision: 1.86 $
+ * $Date: 2007/11/08 15:43:50 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,12 +20,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
 #include <DQM/EcalBarrelMonitorClient/interface/EBClient.h>
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
@@ -37,6 +31,11 @@
 
 #include "TROOT.h"
 #include "TH1.h"
+
+class MonitorUserInterface;
+class DaqMonitorBEInterface;
+class RunIOV;
+class MonRunIOV;
 
 class EcalBarrelMonitorClient: public edm::EDAnalyzer, public evf::ModuleWeb{
 
@@ -105,17 +104,20 @@ void writeDb(void);
 /// EndRunDB
 void endRunDb(void);
 
-inline int                      getEvtPerJob()      { return( ievt_ ); }
-inline int                      getEvtPerRun()      { return( jevt_ ); }
-inline int                      getEvt( void )      { return( evt_ ); }
-inline int                      getRun( void )      { return( run_ ); }
-inline string                   getRunType( void )  { return( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ); }
-inline vector<string>           getRunTypes( void ) { return( runTypes_ ); }
-inline const vector<EBClient*>  getClients()        { return( clients_ ); }
-inline const vector<string>     getClientNames()    { return( clientNames_ ); }
-inline RunIOV                   getRunIOV()         { return( runiov_ ); }
-inline MonRunIOV                getMonIOV()         { return( moniov_ ); }
-inline const TH1F*              getEntryHisto()     { return( h_ ); }
+inline int getEvtPerJob() { return( ievt_ ); }
+inline int getEvtPerRun() { return( jevt_ ); }
+inline int getEvt( void ) { return( evt_ ); }
+inline int getRun( void ) { return( run_ ); }
+inline std::string getRunType( void ) { return( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ); }
+
+inline std::vector<std::string> getRunTypes( void ) { return( runTypes_ ); }
+
+inline const std::vector<EBClient*>  getClients() { return( clients_ ); }
+inline const std::vector<std::string> getClientNames() { return( clientNames_ ); }
+
+inline RunIOV getRunIOV() { return( runiov_ ); }
+inline MonRunIOV getMonIOV() { return( moniov_ ); }
+inline const TH1F* getEntryHisto() { return( h_ ); }
 
 private:
 
@@ -128,25 +130,25 @@ bool verbose_;
 
 bool enableMonitorDaemon_;
 
-string clientName_;
+std::string clientName_;
 
-string prefixME_;
+std::string prefixME_;
 
-string hostName_;
-int    hostPort_;
+std::string hostName_;
+int         hostPort_;
 
 bool enableServer_;
 int  serverPort_;
  
-string inputFile_;
+std::string inputFile_;
  
-string dbName_;
-string dbHostName_;
-int    dbHostPort_;
-string dbUserName_;
-string dbPassword_;
+std::string dbName_;
+std::string dbHostName_;
+int         dbHostPort_;
+std::string dbUserName_;
+std::string dbPassword_;
 
-string maskFile_;
+std::string maskFile_;
 
 bool mergeRuns_;
  
@@ -163,17 +165,17 @@ time_t last_time_html_;
 time_t dbRefreshTime_;
 time_t htmlRefreshTime_;
  
-string baseHtmlDir_;
+std::string baseHtmlDir_;
 
-vector<int> superModules_;
+std::vector<int> superModules_;
 
-vector<string> enabledClients_;
+std::vector<std::string> enabledClients_;
 
-typedef multimap<EBClient*,int> EBCIMMap; 
+typedef std::multimap<EBClient*,int> EBCIMMap; 
 EBCIMMap chb_;
-vector<string> runTypes_;
-vector<EBClient*> clients_; 
-vector<string> clientNames_; 
+std::vector<std::string> runTypes_;
+std::vector<EBClient*> clients_; 
+std::vector<std::string> clientNames_; 
 
 EBSummaryClient* summaryClient_;
 
@@ -182,9 +184,9 @@ DaqMonitorBEInterface* dbe_;
  
 bool enableStateMachine_;
  
-string location_;
-int    runtype_;
-string status_;
+std::string location_;
+int         runtype_;
+std::string status_;
 int run_;
 int evt_;
  

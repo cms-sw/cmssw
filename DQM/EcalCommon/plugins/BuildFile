@@ -3,6 +3,6 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
- <library file=plugins.cc name=DQMEcalCommonPlugins>
+<library file=plugins.cc name=DQMEcalCommonPlugins>
  <flags EDM_PLUGIN=1>
 </library>

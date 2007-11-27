@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/11/10 17:36:02 $
- * $Revision: 1.321 $
+ * $Date: 2007/11/26 22:32:06 $
+ * $Revision: 1.322 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -28,6 +28,9 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
+
+#include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 

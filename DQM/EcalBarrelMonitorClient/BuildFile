@@ -13,5 +13,11 @@
 <use name=rootcore>
 <use name=xdaq>
 <export>
+  <use name=EventFilter/Utilities>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/ServiceRegistry>
+  <use name=OnlineDB/EcalCondDB>
   <lib name=DQMEcalBarrelMonitorClient>
 </export>

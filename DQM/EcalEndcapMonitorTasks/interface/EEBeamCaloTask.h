@@ -4,13 +4,11 @@
 /*
  * \file EEBeamCaloTask.h
  *
- * $Date: 2007/11/10 15:33:55 $
- * $Revision: 1.4 $
+ * $Date: 2007/11/13 13:20:52 $
+ * $Revision: 1.5 $
  * \author A. Ghezzi
  *
 */
-
-#include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"

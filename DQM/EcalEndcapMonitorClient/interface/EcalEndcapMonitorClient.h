@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/11/06 10:29:40 $
- * $Revision: 1.22 $
+ * $Date: 2007/11/08 15:43:52 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,12 +20,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
 #include <DQM/EcalEndcapMonitorClient/interface/EEClient.h>
 
 #include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
@@ -37,6 +31,11 @@
 
 #include "TROOT.h"
 #include "TH1.h"
+
+class MonitorUserInterface;
+class DaqMonitorBEInterface;
+class RunIOV;
+class MonRunIOV;
 
 class EcalEndcapMonitorClient: public edm::EDAnalyzer, public evf::ModuleWeb{
 
@@ -105,17 +104,21 @@ void writeDb(void);
 /// EndRunDB
 void endRunDb(void);
 
-inline int                      getEvtPerJob()      { return( ievt_ ); }
-inline int                      getEvtPerRun()      { return( jevt_ ); }
-inline int                      getEvt( void )      { return( evt_ ); }
-inline int                      getRun( void )      { return( run_ ); }
-inline string                   getRunType( void )  { return( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ); }
-inline vector<string>           getRunTypes( void ) { return( runTypes_ ); }
-inline const vector<EEClient*>  getClients()        { return( clients_ ); }
-inline const vector<string>     getClientNames()    { return( clientNames_ ); }
-inline RunIOV                   getRunIOV()         { return( runiov_ ); }
-inline MonRunIOV                getMonIOV()         { return( moniov_ ); }
-inline const TH1F*              getEntryHisto()     { return( h_ ); }
+inline int getEvtPerJob() { return( ievt_ ); }
+inline int getEvtPerRun() { return( jevt_ ); }
+inline int getEvt( void ) { return( evt_ ); }
+inline int getRun( void ) { return( run_ ); }
+
+inline std::string getRunType( void )  { return( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ); }
+
+inline std::vector<std::string> getRunTypes( void ) { return( runTypes_ ); }
+
+inline const std::vector<EEClient*> getClients() { return( clients_ ); }
+inline const std::vector<std::string> getClientNames() { return( clientNames_ ); }
+
+inline RunIOV getRunIOV() { return( runiov_ ); }
+inline MonRunIOV getMonIOV() { return( moniov_ ); }
+inline const TH1F* getEntryHisto() { return( h_ ); }
 
 private:
 
@@ -128,26 +131,26 @@ bool verbose_;
 
 bool enableMonitorDaemon_;
 
-string clientName_;
+std::string clientName_;
 
-string prefixME_;
+std::string prefixME_;
 
-string hostName_;
-int    hostPort_;
+std::string hostName_;
+int         hostPort_;
 
 bool enableServer_;
 int  serverPort_;
  
-string inputFile_;
-string referenceFile_;
+std::string inputFile_;
+std::string referenceFile_;
  
-string dbName_;
-string dbHostName_;
-int    dbHostPort_;
-string dbUserName_;
-string dbPassword_;
+std::string dbName_;
+std::string dbHostName_;
+int         dbHostPort_;
+std::string dbUserName_;
+std::string dbPassword_;
 
-string maskFile_;
+std::string maskFile_;
 
 bool mergeRuns_;
  
@@ -164,17 +167,17 @@ time_t last_time_html_;
 time_t dbRefreshTime_;
 time_t htmlRefreshTime_; 
 
-string baseHtmlDir_;
+std::string baseHtmlDir_;
 
-vector<int> superModules_;
+std::vector<int> superModules_;
 
-vector<string> enabledClients_;
+std::vector<std::string> enabledClients_;
 
-typedef multimap<EEClient*,int> EECIMMap; 
+typedef std::multimap<EEClient*,int> EECIMMap; 
 EECIMMap chb_;
-vector<string> runTypes_;
-vector<EEClient*> clients_; 
-vector<string> clientNames_; 
+std::vector<std::string> runTypes_;
+std::vector<EEClient*> clients_; 
+std::vector<std::string> clientNames_; 
 
 EESummaryClient* summaryClient_;
 
@@ -183,9 +186,9 @@ DaqMonitorBEInterface* dbe_;
  
 bool enableStateMachine_;
  
-string location_;
-int    runtype_;
-string status_;
+std::string location_;
+int         runtype_;
+std::string status_;
 int run_;
 int evt_;
  

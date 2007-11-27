@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2007/11/08 15:43:52 $
- * $Revision: 1.9 $
+ * $Date: 2007/11/13 13:20:51 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -69,7 +69,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
+void htmlOutput(int run, std::string htmlDir, std::string htmlName);
 
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
@@ -79,7 +79,7 @@ inline int getEvtPerJob() { return ievt_; }
 inline int getEvtPerRun() { return jevt_; }
 
 /// Set Clients
-inline void setFriends(vector<EEClient*> clients) { clients_ = clients; }
+inline void setFriends(std::vector<EEClient*> clients) { clients_ = clients; }
 
 private:
 
@@ -94,11 +94,11 @@ bool verbose_;
 
 bool enableMonitorDaemon_;
 
-string prefixME_;
+std::string prefixME_;
 
-vector<int> superModules_;
+std::vector<int> superModules_;
 
-vector<EEClient*> clients_;
+std::vector<EEClient*> clients_;
 
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;

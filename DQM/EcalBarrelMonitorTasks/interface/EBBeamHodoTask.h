@@ -4,14 +4,12 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2007/11/10 15:01:25 $
- * $Revision: 1.14 $
+ * $Date: 2007/11/13 13:20:50 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
 */
-
-#include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"

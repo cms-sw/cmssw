@@ -4,13 +4,11 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2007/11/06 11:37:14 $
- * $Revision: 1.6 $
+ * $Date: 2007/11/13 13:20:51 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
-
-#include <string>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

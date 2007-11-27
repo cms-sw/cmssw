@@ -4,13 +4,11 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2007/11/10 15:01:25 $
- * $Revision: 1.23 $
+ * $Date: 2007/11/13 13:20:50 $
+ * $Revision: 1.24 $
  * \author A. Ghezzi
  *
 */
-
-#include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"

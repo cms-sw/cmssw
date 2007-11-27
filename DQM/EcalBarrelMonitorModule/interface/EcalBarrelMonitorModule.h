@@ -4,13 +4,11 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2007/11/06 10:29:38 $
- * $Revision: 1.44 $
+ * $Date: 2007/11/13 13:20:49 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
-
-#include <string>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

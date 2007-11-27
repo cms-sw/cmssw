@@ -11,5 +11,10 @@
 <use name=xerces-c>
 <use name=DQM/EcalBarrelMonitorDbModule>
 <export>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/ServiceRegistry>
+  <use name=xerces-c>
   <lib name=DQMEcalEndcapMonitorDbModule>
 </export>
