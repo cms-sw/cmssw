@@ -1,70 +1,99 @@
-#ifndef SiPixelSCurveCalibration_SiPixelSCurveCalibrationAnalysis_h
-#define SiPixelSCurveCalibration_SiPixelSCurveCalibrationAnalysis_h
+#ifndef CALIBTRACKER_SIPIXELSCURVECALIBRATION_SIPIXELSCURVE_CALIBRATION_H
+#define CALIBTRACKER_SIPIXELSCURVECALIBRATION_SIPIXELSCURVE_CALIBRATION_H
+//
+// Package:    SiPixelSCurveCalibrationAnalysis
+// Class:      SiPixelSCurveCalibrationAnalysis
+// 
+/**\class SiPixelSCurveCalibrationAnalysis SiPixelSCurveCalibrationAnalysis.cc CalibTracker/SiPixelSCurveCalibration/src/SiPixelSCurveCalibrationAnalysis.cc
 
-/** \class SiPixelSCurveCalibrationAnalysis
- *
- * A class which will perform an SCurve Calibration
- * analysis, given an SCurve file.
- *
- * \authors Jason Keller (University of Nebraska), Freya Blekman (Cornell University)
- *
- * \version 1.3 July 5, 2007
- *
- ***********************************************************/
+ Description: <one line class summary>
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"  
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-#include "CalibTracker/SiPixelSCurveCalibration/interface/SCurveContainer.h" 
-#include "DataFormats/DetId/interface/DetId.h" 
-#include "FWCore/Framework/interface/ESHandle.h" 
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Evan Klose Friis
+//         Created:  Tue Nov 13 13:59:09 CET 2007
+// $Id$
+//
+//
 
-#include <TF1.h>
-#include <TH1F.h> 
-#include <TObjArray.h>
 
+// system include files
 #include <memory>
-#include <map>
-#include <string>
 
-class SiPixelSCurveCalibrationAnalysis : public edm::EDAnalyzer
-{
-  public:
-    explicit SiPixelSCurveCalibrationAnalysis( const edm::ParameterSet& conf);
-    ~SiPixelSCurveCalibrationAnalysis();
+// user include files
+#include "CalibTracker/SiPixelTools/interface/SiPixelOfflineCalibAnalysisBase.h"
+#include "TMinuit.h"
+#include <iomanip>
+//
+enum sCurveHistogramType {
+   kSigmaSummary,       //1d
+   kSigmas,             //2d
+   kThresholdSummary,   //1d
+   kThresholds,         //2d
+   kChi2Summary,        //1d
+   kChi2s,              //2d
+   kFitResults,         //2d
+   kFitResultSummary   //1d
+};
 
-    virtual void beginJob(const edm::EventSetup&);
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
-    std::string makeName(const int&, const int&, const DetId&);
-    std::string makeTitle(const int&, const int&, const DetId&); 
-    std::string makeRocName(const int&, const int&, const DetId&, const int&);
-    std::string makeRocTitle(const int&, const int&, const DetId&, const int&);
-    bool makeHistogram(const SCurveContainer&, const int&, const int&, const int&);
-    bool isPeculiar(const TH1F*);
+enum sCurveErrorFlag {
+   errNoDigi,
+   errOK,
+   errFlaggedBadByUser,
+   errBadChi2Prob,
+   errNoTurnOn,
+   errAllZeros,
+   errFitNonPhysical
+};
 
-  private:
-    edm::ParameterSet conf_; 
-    edm::ESHandle<SiPixelFedCablingMap> map_;
-    std::string pixsrc_; 
-    unsigned int evtnum_;
-    std::string outputtxtfile_;
-    unsigned int fedid_; 
-    unsigned int histoNum_;
-    bool printHistos_; 
-    edm::ESHandle<SiPixelCalibConfiguration> calib_;
-    unsigned int vcalmin_;
-    unsigned int vcalmax_;
-    unsigned int vcalstep_; 
-    edm::Service<TFileService> fs_;
-    std::map<unsigned int, SCurveContainer> detIdMap_;
-    TF1* fitfunc_;
-    TObjArray* meanhistos_;
-    TObjArray* sigmahistos_;
+
+typedef std::map<sCurveHistogramType, MonitorElement*> sCurveHistogramHolder;
+typedef std::map<uint32_t, sCurveHistogramHolder> detIDHistogramMap;
+
+// class decleration
+//
+
+class SiPixelSCurveCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
+   public:
+      explicit SiPixelSCurveCalibrationAnalysis(const edm::ParameterSet& iConfig):SiPixelOfflineCalibAnalysisBase(iConfig){doSetup(iConfig);};
+      ~SiPixelSCurveCalibrationAnalysis();
+      void doSetup(const edm::ParameterSet&);
+
+      virtual bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix);
+
+      static std::vector<float> efficiencies_;
+      static std::vector<float> effErrors_;
+
+      sCurveErrorFlag estimateSCurveParameters(const std::vector<float>& eff, float& threshold, float& sigma);
+      sCurveErrorFlag fittedSCurveSanityCheck(float threshold, float sigma, float amplitude);
+
+   private:
+      //configuration options
+      bool                      saveCurvesThatFlaggedBad_;
+      bool                      write2dHistograms_;
+      bool                      write2dFitResult_; 
+      std::vector<std::string>  plaquettesToSave_;
+
+      //parameters that define "bad curves"
+      double                     minimumChi2prob_;
+      double                     minimumThreshold_;
+      double                     maximumThreshold_;
+      double                     minimumSigma_;
+      double                     maximumSigma_;
+      double                     minimumEffAsymptote_;
+      double                     maximumEffAsymptote_;
+      
+      //holds histogrms entered
+      detIDHistogramMap histograms_;
+
+      virtual void calibrationSetup(const edm::EventSetup& iSetup);
+      virtual void newDetID(uint32_t detid);
+      //virtual void endJob();  //do nothing
+
+
+      // ----------member data ---------------------------
 };
 
 #endif
