@@ -4,7 +4,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/SealUtil>
 <use name=Geometry/Records>
 <use name=MagneticField/Records>
 <export>
