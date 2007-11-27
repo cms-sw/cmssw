@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.2 2007/06/21 16:32:49 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.3 2007/11/20 22:40:53 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -92,7 +92,7 @@ void FastFedCablingHistosUsingDb::uploadToConfigDb() {
     edm::LogVerbatim(mlDqmClient_) 
       << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
       << " Uploading FED descriptions to DB...";
-    db_->uploadFedDescriptions(false); 
+    db_->uploadFedDescriptions(true); 
     edm::LogVerbatim(mlDqmClient_) 
       << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
       << " Completed database upload of " << feds.size()
@@ -111,16 +111,14 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
 					  const SiStripConfigDb::DeviceDescriptions& dcus, 
 					  const SiStripConfigDb::DcuDetIdMap& detids ) {
 
-  // Check no connections already exist in database
+  // Clear any connections retrieved from database
   if ( !conns.empty() ) {
     edm::LogWarning(mlDqmClient_)
       << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-      << " Found existing FED channel connections!"
-      << " No upload to DB will be performed!";
-    test_ = true; // Inhibit DB upload
+      << " Clearing existing FED channel connections!";
     conns.clear();
   }
-    
+  
   // Counter for unconnected channels
   uint16_t unconnected = 0;
 
