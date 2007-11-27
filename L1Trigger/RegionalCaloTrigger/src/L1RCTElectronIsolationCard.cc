@@ -268,8 +268,8 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region, int regi
 	
 	// threshold for five-tower corner quiet veto
 	//int quietThreshold = 3;   // 3 - loose isolation 0 - very tight isolation
-	int quietThreshold = 7; // ECALGREN
-	//int quietThreshold = 0; // HCALGREN
+	//int quietThreshold = 7; // ECALGREN
+	int quietThreshold = 0; // HCALGREN
 	
 	bool nw = false;
 	bool ne = false;
