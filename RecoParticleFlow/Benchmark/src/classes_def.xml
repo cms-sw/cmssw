@@ -1,3 +1,4 @@
 <lcgdict>
-  <class name="PFBenchmarkAlgo"/>    
+  <class name="PFBenchmarkAlgo"/>
+  <class name="PFBenchmarkAna"/>
 </lcgdict>
