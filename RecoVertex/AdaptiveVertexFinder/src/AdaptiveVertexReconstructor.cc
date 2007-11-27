@@ -223,12 +223,9 @@ vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
       // cout << "[AdaptiveVertexReconstructor] erased" << endl;
       n_tracks = remainingtrks.size();
     };
-  } catch ( exception & e ) {
+  } catch ( VertexException & e ) {
     // Will catch all (not enough significant tracks exceptions.
     // in this case, the iteration can safely terminate.
-    edm::LogWarning ( "AdaptiveVertexReconstructor" ) << "Exception: " << e.what();
-  } catch ( ... ) {
-    edm::LogWarning ( "AdaptiveVertexReconstructor" ) << "Unidentified exception.";
   };
 
   return cleanUpVertices ( ret );
