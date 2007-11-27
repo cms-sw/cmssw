@@ -1,4 +1,4 @@
-// $Id: MonitorElementsDb.h,v 1.2 2007/10/24 06:22:03 dellaric Exp $
+// $Id: MonitorElementsDb.h,v 1.3 2007/11/13 13:20:49 dellaric Exp $
 
 #ifndef MonitorElementsDb_H
 #define MonitorElementsDb_H
@@ -7,8 +7,8 @@
   \file MonitorElementsDb.h
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.2 $
-  \date $Date: 2007/10/24 06:22:03 $
+  \version $Revision: 1.3 $
+  \date $Date: 2007/11/13 13:20:49 $
 */
 
 
@@ -45,7 +45,7 @@ class MonitorElementsDb{
  protected:
 
   /// Analyze
-  void analyze( const edm::Event& e, const edm::EventSetup& c,   coral::ISessionProxy* s );
+  void analyze( const edm::Event& e, const edm::EventSetup& c, coral::ISessionProxy* s );
 
   // BeginJob
   void beginJob(const edm::EventSetup& c);
