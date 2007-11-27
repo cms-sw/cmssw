@@ -4,8 +4,9 @@
 #include "FWCore/Framework/interface/DataKeyTags.h"
 
 #include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
+#include "CondCore/DBCommon/interface/Connection.h"
+/* #include "CondCore/DBCommon/interface/CoralTransaction.h" */
+/* #include "CondCore/DBCommon/interface/PoolTransaction.h" */
 
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
@@ -32,10 +33,12 @@ class DataManager
         edm::eventsetup::TypeTag findType (const std::string & type) const;
 
         // Database connection management
-        cond::DBSession * poolSession;
-        cond::DBSession * coralSession;
-        cond::RelationalStorageManager * coral;
-        cond::PoolStorageManager * pool;
+/*         cond::DBSession * poolSession; */
+/*         cond::DBSession * coralSession; */
+	cond::DBSession * session;
+	cond::Connection * connection ;
+/*         cond::CoralTransaction * coral; */
+/*         cond::PoolTransaction * pool; */
         cond::MetaData * metadata;
 };
 

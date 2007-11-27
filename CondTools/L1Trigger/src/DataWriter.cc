@@ -1,5 +1,7 @@
 #include "CondTools/L1Trigger/interface/DataWriter.h"
 
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
+
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 
 #include "CondCore/IOVService/interface/IOVService.h"
@@ -19,15 +21,19 @@ std::string DataWriter::findTokenForTag (const std::string & tag)
         return found->second;
 
     // else slow way, also we may need to create db
-    coral->connect (cond::ReadWriteCreate);
-    coral->startTransaction (false);
+//     coral->connect (cond::ReadWriteCreate);
+//     coral->startTransaction (false);
+    connection->connect ( session );
+  cond::CoralTransaction& coral = connection->coralTransaction() ;
+    coral.start (false);
 
     std::string tagToken;
     if (metadata->hasTag (tag))
         tagToken = metadata->getToken (tag);
 
-    coral->commit ();
-    coral->disconnect ();
+    coral.commit ();
+//     coral->disconnect ();
+    connection->disconnect ();
 
     // if not found empty string is returned
     return tagToken;
@@ -45,13 +51,15 @@ void DataWriter::writeKey (L1TriggerKey * key, const std::string & tag, const in
     std::string tagToken = findTokenForTag (tag);
     bool requireMapping = tagToken.empty ();
 
-    pool->connect ();
-    pool->startTransaction (false);
+    //    pool->connect ();
+    connection->connect ( session );
+    cond::PoolTransaction& pool = connection->poolTransaction() ;
+    pool.start (false);
 
-    cond::Ref<L1TriggerKey> ref (*pool, key);
+    cond::TypedRef<L1TriggerKey> ref (pool, key);
     ref.markWrite ("L1TriggerKeyRcd");
 
-    cond::IOVService iov (*pool);
+    cond::IOVService iov (pool);
 
     // Create editor, with or wothoug TagToken
     cond::IOVEditor * editor;
@@ -62,8 +70,9 @@ void DataWriter::writeKey (L1TriggerKey * key, const std::string & tag, const in
     tagToken = editor->token ();
     delete editor;
 
-    pool->commit ();
-    pool->disconnect ();
+    pool.commit ();
+    //    pool->disconnect ();
+    connection->disconnect ();
 
     if (tagToToken.find (tag) != tagToToken.end ())
         tagToToken.insert (std::make_pair (tag, tagToken));
@@ -75,13 +84,17 @@ void DataWriter::writeKey (L1TriggerKey * key, const std::string & tag, const in
 
 void DataWriter::addMappings (const std::string tag, const std::string iovToken)
 {
-    coral->connect (cond::ReadWriteCreate);
-    coral->startTransaction (false);
+  //    coral->connect (cond::ReadWriteCreate);
+  connection->connect( session ) ;
+  cond::CoralTransaction& coral = connection->coralTransaction() ;
+  //    coral->startTransaction (false);
+    coral.start (false);
 
     metadata->addMapping (tag, iovToken);
 
-    coral->commit ();
-    coral->disconnect ();
+    coral.commit ();
+    //    coral->disconnect ();
+    connection->disconnect ();
 }
 
 static std::string buildName( const std::string& iRecordName, const std::string& iTypeName )
@@ -97,19 +110,23 @@ void DataWriter::writePayload (L1TriggerKey & key, const edm::EventSetup & setup
     WriterProxy * writer = factory->create(name);
     assert (writer != 0);
 
-    pool->connect ();
-    pool->startTransaction (false);
+    //    pool->connect ();
+    connection->connect ( session );
+    cond::PoolTransaction& pool = connection->poolTransaction() ;
+    //    pool->startTransaction (false);
+    pool.start (false);
 
     // update key to have new payload registered for record-type pair.
-    std::string payloadToken = writer->save(setup, *pool);
+    std::string payloadToken = writer->save(setup, pool);
     assert (!payloadToken.empty ());
 
     key.add (record, type, payloadToken);
 
     delete writer;
 
-    pool->commit ();
-    pool->disconnect ();
+    pool.commit ();
+    // pool->disconnect ();
+    connection->disconnect ();
 }
 
 

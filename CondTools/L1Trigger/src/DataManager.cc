@@ -12,22 +12,33 @@ namespace l1t
 
 DataManager::DataManager (const std::string & connect, const std::string & catalog)
 {
-    // Initialize session used with this object
-    poolSession = new cond::DBSession ();
-    poolSession->sessionConfiguration ().setAuthenticationMethod (cond::Env);
-//    poolSession->sessionConfiguration ().setMessageLevel (cond::Info);
-    poolSession->connectionConfiguration ().enableConnectionSharing ();
-    poolSession->connectionConfiguration ().enableReadOnlySessionOnUpdateConnections ();
+//     // Initialize session used with this object
+//     poolSession = new cond::DBSession ();
+//     poolSession->configuration ().setAuthenticationMethod (cond::Env);
+// //    poolSession->sessionConfiguration ().setMessageLevel (cond::Info);
+//     poolSession->configuration ().connectionConfiguration ()->enableConnectionSharing ();
+//     poolSession->configuration ().connectionConfiguration ()->enableReadOnlySessionOnUpdateConnections ();
 
-    coralSession = new cond::DBSession ();
-    coralSession->sessionConfiguration ().setAuthenticationMethod (cond::Env);
-//    coralSession->sessionConfiguration ().setMessageLevel (cond::Info);
-    coralSession->connectionConfiguration ().enableConnectionSharing ();
-    coralSession->connectionConfiguration ().enableReadOnlySessionOnUpdateConnections ();
+//     coralSession = new cond::DBSession ();
+//     coralSession->configuration ().setAuthenticationMethod (cond::Env);
+// //    coralSession->sessionConfiguration ().setMessageLevel (cond::Info);
+//     coralSession->configuration ().connectionConfiguration ()->enableConnectionSharing ();
+//     coralSession->configuration ().connectionConfiguration ()->enableReadOnlySessionOnUpdateConnections ();
+
+    session = new cond::DBSession ();
+    session->configuration ().setAuthenticationMethod (cond::Env);
+    session->configuration ().connectionConfiguration ()->enableConnectionSharing ();
+    session->configuration ().connectionConfiguration ()->enableReadOnlySessionOnUpdateConnections ();
+    
 
     // create Coral connection and pool. This ones should be connected on required basis
-    coral = new cond::RelationalStorageManager (connect, coralSession);
-    pool = new cond::PoolStorageManager (connect, catalog, poolSession);
+//     coral = new cond::CoralTransaction (connect, coralSession);
+//     pool = new cond::PoolTransaction (connect, catalog, poolSession);
+
+    connection = new cond::Connection( connect ) ;
+    //    connection->connect( session ) ;
+    coral = &( connection->coralTransaction() ) ;
+    pool = &( connection->poolTransaction() ) ;
 
     // and data object
     metadata = new cond::MetaData (*coral);
@@ -43,10 +54,12 @@ DataManager::~DataManager ()
     // in case we have exception in some other part between connect/close pairs
 
     delete metadata;
-    delete pool;
-    delete coral;
-    delete coralSession;
-    delete poolSession;
+//     delete pool;
+//     delete coral;
+    delete connection ;
+//     delete coralSession;
+//     delete poolSession;
+    delete session ;
 }
 
 edm::eventsetup::TypeTag DataManager::findType (const std::string & type) const

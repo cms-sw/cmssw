@@ -7,8 +7,10 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
-#include "CondCore/DBCommon/interface/Ref.h"
+/* #include "CondCore/DBCommon/interface/PoolStorageManager.h" */
+/* #include "CondCore/DBCommon/interface/Ref.h" */
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 
 #include <string>
 
@@ -30,7 +32,7 @@ class WriterProxy
          * In case some need other methods, like delete and update, one should add more abstract
          * methods here.
          */
-        virtual std::string save (const edm::EventSetup & setup, cond::PoolStorageManager & pool) const = 0;
+        virtual std::string save (const edm::EventSetup & setup, cond::PoolTransaction & pool) const = 0;
 
     protected:
 };
@@ -43,7 +45,7 @@ class WriterProxyT : public WriterProxy
 {
     public:
         /* This method requires that Record and Type supports copy constructor */
-        virtual std::string save (const edm::EventSetup & setup, cond::PoolStorageManager & pool) const
+        virtual std::string save (const edm::EventSetup & setup, cond::PoolTransaction & pool) const
         {
             // get className for the record first
             std::string recordName =
@@ -53,7 +55,7 @@ class WriterProxyT : public WriterProxy
             edm::ESHandle<Type> handle;
             setup.get<Record> ().get (handle);
 
-            cond::Ref<Type> ref (pool, new Type (*(handle.product ())));
+            cond::TypedRef<Type> ref (pool, new Type (*(handle.product ())));
             ref.markWrite (recordName);
 
             return ref.token ();

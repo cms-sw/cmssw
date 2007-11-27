@@ -10,7 +10,7 @@
 #include "CondTools/L1Trigger/interface/DataManager.h"
 #include "CondTools/L1Trigger/interface/Interval.h"
 
-#include "CondCore/DBCommon/interface/Ref.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/PluginSystem/interface/DataProxy.h"
 
 
@@ -129,8 +129,11 @@ class DataReader : public DataManager
 template<typename T>
 T DataReader::readPayload (const L1TriggerKey & key, const std::string & record)
 {
-    pool->connect ();
-    pool->startTransaction (false);
+/*     pool->connect (); */
+  connection->connect( session ) ;
+/*     pool->startTransaction (false); */
+  cond::PoolTransaction& pool = connection->poolTransaction() ;
+  pool.start( false ) ;
 
     // Convert type to class name.
     std::string typeName = 
@@ -138,10 +141,11 @@ T DataReader::readPayload (const L1TriggerKey & key, const std::string & record)
     std::string token = key.get (record, typeName);
     assert (!token.empty ());
 
-    cond::Ref<T> ref (*pool, token);
+    cond::TypedRef<T> ref (pool, token);
 
-    pool->commit ();
-    pool->disconnect ();
+    pool.commit ();
+/*     pool->disconnect (); */
+    connection->disconnect ();
     return T (*ref);
 }
 

@@ -2,6 +2,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
+
 #include "CondCore/PluginSystem/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 
@@ -17,17 +19,21 @@ DataReader::DataReader (const std::string & connect, const std::string & catalog
     : DataManager (connect, catalog)
 {
     // we always maintain pool connection open, so that DataProxy could load the data.
-    pool->connect ();
+//     pool->connect ();
+    connection->connect ( session );
 }
 
 DataReader::~DataReader ()
 {
-    pool->disconnect ();
+//     pool->disconnect ();
+    connection->disconnect ();
 }
 
 L1TriggerKey DataReader::readKey (const std::string & tag, const edm::RunNumber_t & run)
 {
-    pool->startTransaction (true);
+//     pool->startTransaction (true);
+  cond::PoolTransaction& pool = connection->poolTransaction() ;
+    pool.start (true);
 
     // get interval for given time, and laod intervals fromd DB if they do not exist for the tag
     if (intervals.find (tag) == intervals.end ())
@@ -40,10 +46,10 @@ L1TriggerKey DataReader::readKey (const std::string & tag, const edm::RunNumber_
         throw cond::Exception ("DataReader::readKey") << "Provided time value " << run << " does not exist in the database "
             << "for l1 tag \"" << tag << "\"";
 
-    cond::Ref<L1TriggerKey> key (*pool, data.payload ());
+    cond::TypedRef<L1TriggerKey> key (pool, data.payload ());
     L1TriggerKey ret (*key); // clone key, so that it could be returned nicely
 
-    pool->commit ();
+    pool.commit ();
 
     return ret;
 }
@@ -51,17 +57,23 @@ L1TriggerKey DataReader::readKey (const std::string & tag, const edm::RunNumber_
 IntervalManager<edm::RunNumber_t, std::string> DataReader::loadIntervals (const std::string & tag)
 {
     // convert tag to tag token
-    coral->connect (cond::ReadOnly);
-    coral->startTransaction (true);
-    std::string tagToken = metadata->getToken (tag);
-    coral->commit();
-    coral->disconnect ();
+//     coral->connect (cond::ReadOnly);
+//     coral->startTransaction (true);
+    connection->connect ( session );
 
-    pool->startTransaction (false);
+  cond::CoralTransaction& coral = connection->coralTransaction() ;
+    coral.start (true);
+    std::string tagToken = metadata->getToken (tag);
+    coral.commit();
+//     coral->disconnect ();
+
+//     pool->startTransaction (false);
+  cond::PoolTransaction& pool = connection->poolTransaction() ;
+    pool.start (false);
 
     intervals.clear ();
 
-    cond::IOVService iov (*pool);
+    cond::IOVService iov (pool);
     cond::IOVIterator * iovIt = iov.newIOVIterator (tagToken);
     IntervalManager<edm::RunNumber_t, std::string> intervals;
 
@@ -71,7 +83,9 @@ IntervalManager<edm::RunNumber_t, std::string> DataReader::loadIntervals (const 
                     iovIt->payloadToken ()));
 
     delete iovIt;
-    pool->commit ();
+    pool.commit ();
+
+    connection->disconnect ();
 
     return intervals;
 }
@@ -98,17 +112,22 @@ std::pair<edm::RunNumber_t, edm::RunNumber_t> DataReader::interval (const std::s
 
 std::string DataReader::payloadToken (const std::string & tag, const edm::RunNumber_t run) const
 {
-    coral->connect (cond::ReadOnly);
-    coral->startTransaction (true);
+//     coral->connect (cond::ReadOnly);
+//     coral->startTransaction (true);
+    connection->connect ( session );
+  cond::CoralTransaction& coral = connection->coralTransaction() ;
+    coral.start (true);
     std::string payload;
 
     std::string token = metadata->getToken (tag);
 
-    coral->commit ();
-    coral->disconnect ();
+    coral.commit ();
+//     coral->disconnect ();
 
-    pool->startTransaction (true);
-    cond::IOVService iov (*pool);
+//     pool->startTransaction (true);
+  cond::PoolTransaction& pool = connection->poolTransaction() ;
+    pool.start (true);
+    cond::IOVService iov (pool);
     cond::IOVIterator * iovIt = iov.newIOVIterator (token);
 
     // If this is a key, then validity interval is important. But if this is a record
@@ -119,7 +138,9 @@ std::string DataReader::payloadToken (const std::string & tag, const edm::RunNum
             payload = iovIt->payloadToken ();
 
     delete iovIt;
-    pool->commit ();
+    pool.commit ();
+
+    connection->disconnect ();
 
     assert (!payload.empty ());
     return payload;
@@ -170,7 +191,8 @@ DataReader::createPayload (const std::string & record, const std::string & type)
          it = typeToToken.insert (std::make_pair (ss.str (), "")).first;
 
      boost::shared_ptr<edm::eventsetup::DataProxy> proxy(
-             cond::ProxyFactory::get()->create(buildName(record, type), pool, it));
+//              cond::ProxyFactory::get()->create(buildName(record, type), pool, it));
+             cond::ProxyFactory::get()->create(buildName(record, type), connection, it));
 
      if(0 == proxy.get())
         throw cond::Exception ("DataReader::createPayload") << "Proxy for type " << type

@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/DataKey.h"
 
-#include "CondCore/DBCommon/interface/Ref.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
 // L1T includes
@@ -82,10 +82,13 @@ class DataWriter : public DataManager
 template<typename T>
 void DataWriter::writePayload (L1TriggerKey & key, T * payload, const std::string & recordName)
 {
-    pool->connect ();
-    pool->startTransaction (false);
+/*     pool->connect (); */
+    connection->connect ( session );
+/*     pool->startTransaction (false); */
+  cond::PoolTransaction& pool = connection->poolTransaction() ;
+    pool.start (false);
 
-    cond::Ref<T> ref (*pool, payload);
+    cond::TypedRef<T> ref (pool, payload);
     ref.markWrite (recordName);
 
     std::string typeName = 
@@ -93,8 +96,9 @@ void DataWriter::writePayload (L1TriggerKey & key, T * payload, const std::strin
 
     key.add (recordName, typeName, ref.token ());
 
-    pool->commit ();
-    pool->disconnect ();
+    pool.commit ();
+/*     pool->disconnect (); */
+    connection->disconnect ();
 }
 
 } // ns
