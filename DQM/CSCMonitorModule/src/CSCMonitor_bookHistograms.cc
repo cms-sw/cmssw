@@ -3,7 +3,7 @@
 
 ME_List CSCMonitor::bookCommon(int nodeNumber) 
 {
-	std::string dir = Form("EMU");
+	std::string dir = "EMU/Common";
 //	dbe->setCurrentFolder(dir);
 //	string prefix = Form("EMU_%d", nodeNumber);
 	string prefix = "EMU";
