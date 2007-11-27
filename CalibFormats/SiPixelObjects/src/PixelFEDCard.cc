@@ -272,7 +272,7 @@ PixelFEDCard::PixelFEDCard(string fileName):
 
 void PixelFEDCard::writeASCII(std::string dir) const{
 
-  cout << "PixelFEDCard::writeASCII"<<endl;
+  //  cout << "PixelFEDCard::writeASCII"<<endl;
 
   ostringstream s1;
   s1<<fedNumber;
