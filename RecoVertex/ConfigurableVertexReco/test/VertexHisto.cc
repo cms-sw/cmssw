@@ -15,14 +15,54 @@ void VertexHisto::stamp()
   hasStamped=true;
 }
 
-VertexHisto::VertexHisto ( const string & filename ) : filename_ ( filename ),
-  hasStamped(false)
+VertexHisto::VertexHisto ( const string & filename, const string & trackname ) : filename_ ( filename ),
+  tracks_ ( TrackHisto ( trackname ) ), hasStamped(false)
 {
   stamp();
 }
 
-void VertexHisto::analyse ( const TrackingVertex & sim, const TransientVertex & rec,
+void VertexHisto::saveTracks ( const TransientVertex & trec, 
+    const reco::RecoToSimCollection & p,
     const string & name ) const
+{
+  vector < TransientTrack > ttrks = trec.originalTracks();
+  for ( vector< TransientTrack >::const_iterator i=ttrks.begin(); 
+        i!=ttrks.end() ; ++i )
+  {
+    // reco::Track t = i->track();
+    // reco::TrackRef k; // ( t );
+    TrackRef k = i->trackBaseRef().castTo<TrackRef>();
+    vector<pair<TrackingParticleRef, double> > coll = p[k];
+    if ( coll.size() )
+    {
+      tracks_.analyse ( *(coll[0].first), (*i), "VtxTk" );
+    } else {
+      tracks_.analyse ( (*i), "UnassociatedTk" );
+    }
+  }
+
+  if ( trec.hasRefittedTracks () )
+  {
+    vector < TransientTrack > ttrks = trec.refittedTracks();
+    for ( vector< TransientTrack >::const_iterator i=ttrks.begin(); 
+          i!=ttrks.end() ; ++i )
+    {
+      // reco::Track t = i->track();
+      // reco::TrackRef k; // ( t );
+      TrackRef k = trec.originalTrack ( *i ).trackBaseRef().castTo<TrackRef>();
+      vector<pair<TrackingParticleRef, double> > coll = p[k];
+      if ( coll.size() )
+      {
+        tracks_.analyse ( *(coll[0].first), (*i), "RefittedVtxTk" );
+      } else {
+        tracks_.analyse ( (*i), "UnassociatedRefittedTk" );
+      }
+    }
+  }
+}
+
+void VertexHisto::analyse ( const TrackingVertex & sim, const TransientVertex & rec,
+                            const string & name ) const
 {
   Tuple t ( name );
   float simx=sim.position().x();
@@ -53,6 +93,7 @@ void VertexHisto::analyse ( const TrackingVertex & sim, const TransientVertex & 
   t["sty"]=pully;
   t["stz"]=pullz;
   t["time"]=0.;
+
   Writer::file ( filename_ ) << t;
 }
 

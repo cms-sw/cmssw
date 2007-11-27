@@ -75,8 +75,8 @@ CVRAnalysis::CVRAnalysis(const edm::ParameterSet& iconfig) :
   beamspot_( iconfig.getParameter<string>("beamspot") ),
   trackingtruth_ ( iconfig.getParameter<string>("truth") ),
   associator_ ( iconfig.getParameter<string>("associator") ),
-  histo_ ( VertexHisto ( "vertices.root" ) ),
-  bhisto_ ( VertexHisto ( "vertices-b.root" ) )
+  histo_ ( VertexHisto ( "vertices.root", "tracks.root" ) ),
+  bhisto_ ( VertexHisto ( "vertices-b.root", "tracks-b.root" ) )
 {
   edm::ParameterSet vtxconfig = iconfig.getParameter<edm::ParameterSet>("vertexreco");
   vrec_ = new ConfigurableVertexReconstructor ( vtxconfig );
@@ -140,6 +140,7 @@ void CVRAnalysis::analyze( const edm::Event & iEvent,
   if ( vtces.size() && TVCollectionH->size() )
   {
     histo_.analyse ( *(TVCollectionH->begin()), vtces[0], "Primaries" );
+    histo_.saveTracks ( vtces[0], p, "VtxTk" );
   }
 
   cout << "[CVRAnalysis] fit w beamspot constraint" << endl;
