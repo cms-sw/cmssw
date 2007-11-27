@@ -27,6 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
+//#include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include <boost/cstdint.hpp>
 #include <memory>
 #include <iomanip>
@@ -690,6 +691,9 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
 // -----------------------------------------------------------------------------
 //
 void SiStripCommissioningSource::createCablingTasks() {
+
+  // Rebuilding FED/FEC cabling objects from device descriptions
+  //rebuildCabling();
   
   // Iterate through FEC cabling and create commissioning task objects
   uint16_t booked = 0;
@@ -1020,5 +1024,36 @@ void SiStripCommissioningSource::directory( std::stringstream& dir,
 
 }
 
+// -----------------------------------------------------------------------------
+//
+// void SiStripCommissioningSource::rebuildCabling() {
+  
+//   std::stringstream ss;
+//   ss << "[SiStripCommissioningSource::" << __func__ << "]"
+//      << " Run type is " << SiStripEnumsAndStrings::runType( task_ ) << "!"
+//      << " Rebuilding cabling using FED and device descriptions!";
+//   edm::LogVerbatim(mlDqmSource_) << ss.str();
+  
+//   if ( fecCabling_ ) { delete fecCabling_; fecCabling_ = 0; }
+//   if ( fedCabling_ ) { delete fedCabling_; fedCabling_ = 0; }
 
+//     // Build and retrieve SiStripConfigDb object using service
+//   SiStripConfigDb* db = edm::Service<SiStripConfigDb>().operator->(); //@@ NOT GUARANTEED TO BE THREAD SAFE! 
+//   edm::LogWarning(mlCabling_) 
+//     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
+//     << " Nota bene: using the SiStripConfigDb API"
+//     << " as a \"service\" does not presently guarantee"
+//     << " thread-safe behaviour!...";
+  
+//   // Build FEC cabling
+//   fecCabling_ = new SiStripFecCabling();
+//   SiStripConfigDb::DcuDetIdMap mapping;
+//   SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( db,
+// 							      *fecCabling_,
+// 							      mapping );
+//   // Build FED cabling
+//   fedCabling_ = new SiStripFedCabling();
+//   SiStripFedCablingBuilderFromDb::getFedCabling( *fecCabling_,
+// 						 *fedCabling_ );
 
+// }
