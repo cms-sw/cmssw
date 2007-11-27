@@ -131,8 +131,8 @@ PixelFEDConfig::PixelFEDConfig(std::string filename):
       in >> fednumber >> crate >> std::hex >> vme_base_address >> std::dec;
 
       if (!in.eof() ){
-	//std::cout << fednumber <<" "<< crate << " "  
-	//      << std::hex << vme_base_address<<std::dec<<std::endl;
+	//	std::cout << std::dec << fednumber <<" "<< crate << " 0x"  
+	//   << std::hex << vme_base_address<<std::dec<<std::endl;
 	PixelFEDParameters tmp;
 	    
 	tmp.setFEDParameters(fednumber , crate , vme_base_address);
