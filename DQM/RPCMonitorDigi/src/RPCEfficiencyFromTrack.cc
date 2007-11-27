@@ -227,9 +227,10 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
 	      res = ResVec[0];
 	      int rpos=0;
-	      if(ResVec.size()>1)std::cout<<"Best Residual Finder "<<std::endl;
+	      if(ResVec.size()>1)std::cout<<"Best Residual Finder.............. "<<std::endl;
 	      for(unsigned int rs=0;rs<ResVec.size();rs++){
-		if(ResVec[rs] < res){
+		if(ResVec.size()>1)std::cout<<"Residual candidate"<<rs<<"\t= "<<ResVec[rs]<<std::endl;
+		if(fabs(ResVec[rs]) < fabs(res)){
 		  res = ResVec[rs];
 		  rpos=rs;
 		}
