@@ -39,7 +39,7 @@ mv dumpSpecs dumpSpecsDBIdealRead
 echo end all DB reads
 date
 cd ../xml
-rm trIdealxml.out
+rm trIdeal.out
 rm dumpGeoHistoryXMLIdealRead
 rm dumpSpecsXMLIdealRead
 rm diffgeomIdeal.out
