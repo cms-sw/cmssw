@@ -1,7 +1,7 @@
 //
 // Original Author:  Jie Chen
 //         Created:  Mon Apr  9 11:36:53 CDT 2007
-// $Id: RotationForOnline.cc,v 1.1 2007/08/09 00:12:18 case Exp $
+// $Id: RotationForOnline.cc,v 1.2 2007/09/06 20:12:03 case Exp $
 //
 //
 
@@ -28,7 +28,6 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/OfflineDBLoader/interface/ReadWriteORA.h"
 #include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
 #include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>

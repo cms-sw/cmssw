@@ -1,6 +1,6 @@
 // Original Author:  Jie Chen
 //         Created:  Thu Apr  5 10:36:22 CDT 2007
-// $Id$
+// $Id: MaterialForOnline.cc,v 1.1 2007/08/09 00:12:17 case Exp $
 //
 //
 
@@ -28,7 +28,6 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/OfflineDBLoader/interface/ReadWriteORA.h"
 #include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
 #include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>

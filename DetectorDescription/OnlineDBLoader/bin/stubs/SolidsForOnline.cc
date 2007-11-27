@@ -18,7 +18,6 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/OfflineDBLoader/interface/ReadWriteORA.h"
 #include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
 
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
