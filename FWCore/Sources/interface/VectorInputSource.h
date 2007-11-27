@@ -5,7 +5,7 @@
 /*----------------------------------------------------------------------
   
 VectorInputSource: Abstract interface for vector input sources.
-$Id: VectorInputSource.h,v 1.1 2007/05/01 20:21:56 wmtan Exp $
+$Id: VectorInputSource.h,v 1.2 2007/06/14 21:03:40 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,9 +27,13 @@ namespace edm {
     virtual ~VectorInputSource();
 
     void readMany(int number, EventPrincipalVector& result);
+    void readMany(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
+    void readManyRandom(int number, EventPrincipalVector& result); 
 
   private:
     virtual void readMany_(int number, EventPrincipalVector& result) = 0;
+    virtual void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber) = 0;
+    virtual void readManyRandom_(int number, EventPrincipalVector& result) = 0;
   };
 }
 
