@@ -11,10 +11,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-//#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-//#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-//#include "SimDataFormats/Track/interface/SimTrack.h"
-//#include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "MixingModule.h"
 
 const int  edm::MixingModule::lowTrackTof = -36; 

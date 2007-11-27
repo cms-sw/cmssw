@@ -62,8 +62,9 @@ namespace edm {
 
   private:
       boost::shared_ptr<PileUp> input_;
-      boost::shared_ptr<PileUp> beamHalo_;
       boost::shared_ptr<PileUp> cosmics_;
+      boost::shared_ptr<PileUp> beamHalo_p_;
+      boost::shared_ptr<PileUp> beamHalo_m_;
       ModuleDescription md_;
       unsigned int eventId_;
 

@@ -13,7 +13,6 @@
 //using namespace std;
 using namespace edm;
 
-
 template <> const int  CrossingFrame<PSimHit>::lowTrackTof = -36;
 template <> const int  CrossingFrame<PSimHit>::highTrackTof = 36;
 

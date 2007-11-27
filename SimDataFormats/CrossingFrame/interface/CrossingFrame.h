@@ -9,9 +9,9 @@
  *
  * \version   1st Version July 2005
  * \version   2nd Version Sep 2005
+ * \version   3rd Version Nov 2007
  *
  ************************************************************/
-
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,7 +42,7 @@ class CrossingFrame
     pileupOffsetsBcr_.push_back(pileups_.size());
   }
   void setSourceOffset(const unsigned int s) {
-    pileupOffsetsSource_[s].push_back(pileups_.size());
+    pileupOffsetsSource_[s].push_back(pileups_.size());//FIXME: timing
   }
 
   //getters
@@ -79,18 +79,21 @@ class CrossingFrame
   edm::EventID idFirstPileup_;   // EventId fof the first pileup event used for this signal event
   unsigned int pileupFileNr_;    // ordinal number of the pileup file this event was in
 
+  static const unsigned int maxNbSources =4 ;
+
   // signal
   std::vector<T>  signals_; 
 
   //pileup
   std::vector<T>  pileups_;  
   std::vector<unsigned int> pileupOffsetsBcr_;
-  std::vector<unsigned int> pileupOffsetsSource_[3]; //one per source
+  std::vector<unsigned int> pileupOffsetsSource_[maxNbSources]; //one per source
 };
 
 //==============================================================================
 //                              implementations
 //==============================================================================
+
 template <class T> 
 CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet),idFirstPileup_(0,0),pileupFileNr_(0) {
   //FIXME: should we force around 0 or so??
@@ -116,21 +119,13 @@ void CrossingFrame<T>::print(int level) const {
 template <class T> 
 int  CrossingFrame<T>::getSourceType(unsigned int ip) const {
   // decide to which source belongs object with index ip in the pileup vector
-  // pileup=0, beam halo=1, cosmics =2
-  int ipos= getBunchCrossing(ip)-firstCrossing_; //starts at 0
-  // case pileup
-  if (pileupOffsetsSource_[0].size()>0 ) {
-    if (pileupOffsetsSource_[1].size()>0) {
-      if (ip<(pileupOffsetsSource_[1])[ipos]) return 0;
+  // pileup=0, cosmics=2, beam halo+ =3, beam halo- =4
+  unsigned int bcr= getBunchCrossing(ip)-firstCrossing_; //starts at 0
+
+    for (unsigned int i=0;i<maxNbSources-1;++i) {
+      if (ip>=(pileupOffsetsSource_[i])[bcr] && ip <(pileupOffsetsSource_[i+1])[bcr]) return i;
     }
-    else if (pileupOffsetsSource_[2].size()>0 ) {
-      if ( ip<(pileupOffsetsSource_[2])[ipos]) return 0;
-    } else return 0;
-  }
-  if (pileupOffsetsSource_[1].size()>0 ) {
-    if (pileupOffsetsSource_[2].size()>0 && ip<(pileupOffsetsSource_[2])[ipos]) return 1;
-  }
-  return 2;
+    return maxNbSources-1;
 }
 
 template <class T>   

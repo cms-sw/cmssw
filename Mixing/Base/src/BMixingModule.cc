@@ -16,7 +16,7 @@
 using namespace std;
 
 int edm::BMixingModule::vertexoffset = 0;
-const unsigned int edm::BMixingModule::maxNbSources =3;
+const unsigned int edm::BMixingModule::maxNbSources =4;
 
 namespace
 {
@@ -50,7 +50,7 @@ namespace
 	  else if (sourceName=="input" && find(namesAverage.begin(), namesAverage.end(), std::string("Lumi")) 
 		   != namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("sigmaInel"))
 		   != namesAverage.end()) {
-	    averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaInel")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;
+	    averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaInel")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;  //FIXME
 	    pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber));
 	    edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb;
 	    edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber;
@@ -71,8 +71,9 @@ namespace edm {
     minBunch_((pset.getParameter<int>("minBunch")*25)/pset.getParameter<int>("bunchspace")),
     maxBunch_((pset.getParameter<int>("maxBunch")*25)/pset.getParameter<int>("bunchspace")),
     input_(maybeMakePileUp(pset,"input",minBunch_,maxBunch_)),
-    beamHalo_(maybeMakePileUp(pset,"beamhalo",minBunch_,maxBunch_)),
     cosmics_(maybeMakePileUp(pset,"cosmics",minBunch_,maxBunch_)),
+    beamHalo_p_(maybeMakePileUp(pset,"beamhalo_plus",minBunch_,maxBunch_)),
+    beamHalo_m_(maybeMakePileUp(pset,"beamhalo_minus",minBunch_,maxBunch_)),
     md_()
   {
     md_.parameterSetID_ = pset.id();
@@ -98,22 +99,27 @@ namespace edm {
 
     // Read the PileUp 
     std::vector<EventPrincipalVector> pileup[maxNbSources];
-    bool doit[]={false,false,false};
+    bool doit[]={false,false,false,false};
 
     if ( input_)  {
       LogDebug("MixingModule") <<"\n\n==============================>Adding pileup to signal event "<<e.id(); 
       input_->readPileUp(pileup[0]); 
       if ( input_->doPileup()) doit[0]=true;
     }
-    if (beamHalo_) {
-      beamHalo_->readPileUp(pileup[1]);
-      LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo to signal event "<<e.id();
-      if (beamHalo_->doPileup()) doit[1]=true;
-    }
     if (cosmics_) {
-      cosmics_->readPileUp(pileup[2]);
+      cosmics_->readPileUp(pileup[1]);
       LogDebug("MixingModule") <<"\n\n==============================>Adding cosmics to signal event "<<e.id(); 
-      if (cosmics_->doPileup()) doit[2]=true;
+      if (cosmics_->doPileup()) doit[1]=true;
+    }
+    if (beamHalo_p_) {
+      beamHalo_p_->readPileUp(pileup[2]);
+      LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo+ to signal event "<<e.id();
+      if (beamHalo_p_->doPileup()) doit[2]=true;
+    }
+    if (beamHalo_m_) {
+      beamHalo_m_->readPileUp(pileup[3]);
+      LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo- to signal event "<<e.id();
+      if (beamHalo_m_->doPileup()) doit[3]=true;
     }
 
     // and merge it
@@ -122,8 +128,8 @@ namespace edm {
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       setBcrOffset();
       for (unsigned int isource=0;isource<maxNbSources;++isource) {
+        setSourceOffset(isource);
 	if (doit[isource])   {
-          setSourceOffset(isource);
 	  merge(bunchCrossing, (pileup[isource])[bunchCrossing-minBunch_]);
 	}	
       }
