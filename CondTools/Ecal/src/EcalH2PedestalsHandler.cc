@@ -1,7 +1,7 @@
 #include "CondTools/Ecal/interface/EcalH2PedestalsHandler.h"
 
-popcon::EcalH2PedestalsHandler::EcalH2PedestalsHandler(std::string name, std::string cstring, 
-std::string cat , const edm::Event& evt, const edm::EventSetup& est, unsigned int firstRun,unsigned int lastRun, std::string sid, std::string user, std::string pass) : popcon::PopConSourceHandler<EcalPedestals>(name,cstring,cat,evt,est)
+popcon::EcalH2PedestalsHandler::EcalH2PedestalsHandler(const std::string& name,
+						       const std::string& cstring, const edm::Event& evt, const edm::EventSetup& est, unsigned int firstRun,unsigned int lastRun, const std::string& sid, const std::string& user, const std::string& pass) : popcon::PopConSourceHandler<EcalPedestals>(name,cstring,evt,est)
 {
 	std::cout << "EcalPedestals Source handler constructor\n" << std::endl;
 

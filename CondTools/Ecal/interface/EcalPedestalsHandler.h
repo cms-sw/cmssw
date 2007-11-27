@@ -52,8 +52,17 @@ namespace popcon
 		public:
 			void getNewObjects();
 			~EcalPedestalsHandler(); 
-			EcalPedestalsHandler(std::string,std::string,std::string, const edm::Event& evt, const edm::EventSetup& est,
-					  unsigned int firstRun,unsigned int lastRun, std::string sid, std::string user, std::string pass, std::string tag, std::string loca); 
+			EcalPedestalsHandler(const std::string&,
+					     const std::string&,
+					     const edm::Event& evt, 
+					     const edm::EventSetup& est,
+					     unsigned int firstRun,
+					     unsigned int lastRun, 
+					     const std::string& sid,
+					     const std::string& user, 
+					     const std::string& pass, 
+					     const std::string& tag, 
+					     const std::string& loca); 
 
 			EcalCondDBInterface* econn;
 		private:

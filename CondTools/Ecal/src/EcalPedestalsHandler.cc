@@ -1,7 +1,8 @@
 #include "CondTools/Ecal/interface/EcalPedestalsHandler.h"
 
-popcon::EcalPedestalsHandler::EcalPedestalsHandler(std::string name, std::string cstring, 
-std::string cat , const edm::Event& evt, const edm::EventSetup& est, unsigned int firstRun,unsigned int lastRun, std::string sid, std::string user, std::string pass, std::string tag, std::string loca) : popcon::PopConSourceHandler<EcalPedestals>(name,cstring,cat,evt,est)
+popcon::EcalPedestalsHandler::EcalPedestalsHandler(const std::string& name,
+						   const std::string& cstring, 
+const edm::Event& evt, const edm::EventSetup& est, unsigned int firstRun,unsigned int lastRun, const std::string& sid, const std::string& user, const std::string& pass, const std::string& tag, const std::string& loca) : popcon::PopConSourceHandler<EcalPedestals>(name,cstring,evt,est)
 {
 	std::cout << "EcalPedestals Source handler constructor\n" << std::endl;
 
