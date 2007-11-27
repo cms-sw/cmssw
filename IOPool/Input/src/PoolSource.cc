@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.69 2007/11/03 06:53:01 wmtan Exp $
+$Id: PoolSource.cc,v 1.70 2007/11/22 16:58:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -21,7 +21,8 @@ $Id: PoolSource.cc,v 1.69 2007/11/03 06:53:01 wmtan Exp $
 namespace edm {
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
-    fileIter_(fileCatalogItems().begin()),
+    fileIterBegin_(fileCatalogItems().begin()),
+    fileIter_(fileCatalogItems().end()),
     rootFile_(),
     matchMode_(BranchDescription::Permissive),
     flatDistribution_(0),
@@ -36,6 +37,7 @@ namespace edm {
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     ClassFiller();
     if (primary()) {
+      fileIter_ = fileIterBegin_;
       init(*fileIter_);
       forcedRunOffset_ = rootFile_->setForcedRunOffset(
 			pset.getUntrackedParameter<unsigned int>("setRunNumber", 0));
@@ -63,7 +65,7 @@ namespace edm {
 
   void
   PoolSource::endJob() {
-    rootFile_->close(true);
+    if (rootFile_ != 0) rootFile_->close(true);
     delete flatDistribution_;
     flatDistribution_ = 0;
   }
@@ -107,7 +109,7 @@ namespace edm {
       if (primary()) {
 	return false;
       } else {
-	fileIter_ = fileCatalogItems().begin();
+	fileIter_ = fileIterBegin_;
       }
     }
 
@@ -128,7 +130,7 @@ namespace edm {
   }
 
   bool PoolSource::previousFile() {
-    if(fileIter_ == fileCatalogItems().begin()) {
+    if(fileIter_ == fileIterBegin_) {
       if (primary()) {
 	return false;
       } else {
@@ -187,20 +189,23 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  PoolSource::readAnEvent() {
-    return rootFile_->readAnEvent(primary() ? productRegistry() : rootFile_->productRegistry()); 
+  PoolSource::readCurrentEvent() {
+    return rootFile_->readCurrentEvent(primary() ?
+				       productRegistry() :
+				       rootFile_->productRegistry(), boost::shared_ptr<LuminosityBlockPrincipal>()); 
   }
 
   std::auto_ptr<EventPrincipal>
   PoolSource::readIt(EventID const& id) {
-    rootFile_->setCurrentPosition(id.run(), 0U, id.event());
-    return readAnEvent();
+    rootFile_->setEntryAtEvent(id);
+    return readCurrentEvent();
   }
 
   // Rewind to before the first event that was read.
   void
   PoolSource::rewind_() {
-    fileIter_ = fileCatalogItems().begin();
+    if (rootFile_ != 0) rootFile_->close(primary());
+    fileIter_ = fileIterBegin_;
     init(*fileIter_);    
   }
 
@@ -223,43 +228,65 @@ namespace edm {
   void
   PoolSource::readMany_(int number, EventPrincipalVector& result) {
     if (!primary()) {
-	readRandom(number, result);
-	return;
+      readManyRandom_(number, result);
+      return;
     }
     for (int i = 0; i < number; ++i) {
-      std::auto_ptr<EventPrincipal> ev = readAnEvent();
+      std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
       if (ev.get() == 0) {
 	return;
       }
       EventPrincipalVectorElement e(ev.release());
       result.push_back(e);
-      --eventsRemainingInFile_;
+      rootFile_->nextEventEntry();
     }
   }
 
   void
-  PoolSource::readRandom(int number, EventPrincipalVector& result) {
+  PoolSource::readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber) {
+    unsigned int currentSeqNumber = fileIter_ - fileIterBegin_;
+    if (currentSeqNumber != fileSeqNumber) {
+      if (rootFile_ != 0) rootFile_->close(primary());
+      fileIter_ = fileIterBegin_ + fileSeqNumber;
+      rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog().url(),
+          processConfiguration(), fileIter_->logicalFileName(), 0U, 0U, 0U, 0U, -1, 0));
+    }
+    rootFile_->setEntryAtEvent(id);
     for (int i = 0; i < number; ++i) {
-      while (eventsRemainingInFile_ <= 0) randomize();
-      std::auto_ptr<EventPrincipal> ev = readAnEvent();
+      std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
       if (ev.get() == 0) {
         rewindFile();
-	ev = readAnEvent();
+	ev = readCurrentEvent();
+	assert(ev.get() != 0);
+      }
+      EventPrincipalVectorElement e(ev.release());
+      result.push_back(e);
+      rootFile_->nextEventEntry();
+    }
+  }
+
+  void
+  PoolSource::readManyRandom_(int number, EventPrincipalVector& result) {
+    while (eventsRemainingInFile_ < number) {
+      if (rootFile_ != 0) rootFile_->close(primary());
+      fileIter_ = fileIterBegin_ + flatDistribution_->fireInt(fileCatalogItems().size());
+      rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog().url(),
+          processConfiguration(), fileIter_->logicalFileName(), 0U, 0U, 0U, 0U, -1, 0));
+      eventsRemainingInFile_ = rootFile_->eventTree().entries();
+      rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));
+    }
+    for (int i = 0; i < number; ++i) {
+      std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
+      if (ev.get() == 0) {
+        rewindFile();
+	ev = readCurrentEvent();
 	assert(ev.get() != 0);
       }
       EventPrincipalVectorElement e(ev.release());
       result.push_back(e);
       --eventsRemainingInFile_;
+      rootFile_->nextEventEntry();
     }
   }
-
-  void
-  PoolSource::randomize() {
-    FileCatalogItem const& file = *(fileCatalogItems().begin() +
-				 flatDistribution_->fireInt(fileCatalogItems().size()));
-    rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(),
-        processConfiguration(), file.logicalFileName(), 0U, 0U, 0U, 0U, -1, 0));
-    eventsRemainingInFile_ = rootFile_->eventTree().entries();
-    rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));
-  }
 }
+

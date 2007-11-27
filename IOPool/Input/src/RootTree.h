@@ -5,7 +5,7 @@
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.18 2007/11/03 06:53:02 wmtan Exp $
+$Id: RootTree.h,v 1.19 2007/11/22 16:58:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -36,6 +36,8 @@ namespace edm {
 		   std::string const& oldBranchName);
     bool next() {return ++entryNumber_ < entries_;} 
     bool previous() {return --entryNumber_ >= 0;} 
+    bool current() {return entryNumber_ < entries_ && entryNumber_ >= 0;} 
+    void rewind() {entryNumber_ = 0;} 
     EntryNumber const& entryNumber() const {return entryNumber_;}
     EntryNumber const& entries() const {return entries_;}
     void setEntryNumber(EntryNumber theEntryNumber) {entryNumber_ = theEntryNumber;}

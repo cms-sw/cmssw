@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.40 2007/11/04 02:45:09 wmtan Exp $
+$Id: RootFile.h,v 1.41 2007/11/22 16:58:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -49,9 +49,9 @@ namespace edm {
     ~RootFile();
     void open();
     void close(bool reallyClose);
-    void setAtEventEntry(FileIndex::EntryNumber_t entry);
-    std::auto_ptr<EventPrincipal> readAnEvent(
-	boost::shared_ptr<ProductRegistry const> pReg);
+    std::auto_ptr<EventPrincipal> readCurrentEvent(
+	boost::shared_ptr<ProductRegistry const> pReg,
+	boost::shared_ptr<LuminosityBlockPrincipal> lbp);
     std::auto_ptr<EventPrincipal> readEvent(
 	boost::shared_ptr<ProductRegistry const> pReg,
 	boost::shared_ptr<LuminosityBlockPrincipal> lbp);
@@ -72,13 +72,13 @@ namespace edm {
     bool fastClonable() const {return fastClonable_;}
     boost::shared_ptr<FileBlock> createFileBlock() const;
     FileIndex const& fileIndex() const {return fileIndex_;}
-    void setCurrentPosition(RunNumber_t const& run,
-			    LuminosityBlockNumber_t const& lumi,
-			    EventNumber_t const& event) {
-      fileIndexIter_ = fileIndex_.findPosition(run, lumi, event);
-    }
+    bool setEntryAtEvent(EventID const& id);
+    void setAtEventEntry(FileIndex::EntryNumber_t entry);
     void rewind() {
       fileIndexIter_ = fileIndexBegin_;
+      eventTree_.rewind();
+      lumiTree_.rewind();
+      runTree_.rewind();
     }
     void setToLastEntry() {
       fileIndexIter_ = fileIndexEnd_;
@@ -87,6 +87,7 @@ namespace edm {
     unsigned int eventsToSkip() const {return eventsToSkip_;}
     int skipEvents(int offset);
     int setForcedRunOffset(RunNumber_t const& forcedRunNumber);
+    bool nextEventEntry() {return eventTree_.next();}
 
   private:
     bool setIfFastClonable(int remainingEvents) const;

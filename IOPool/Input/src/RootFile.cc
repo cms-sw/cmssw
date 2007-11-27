@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.97 2007/11/19 18:43:30 wmtan Exp $
+$Id: RootFile.cc,v 1.98 2007/11/22 16:58:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -423,10 +423,29 @@ namespace edm {
         return std::auto_ptr<EventPrincipal>(0);
       }
     }
+    // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(fileIndexIter_->entry_); 
-    fillEventAuxiliary();
-    assert(eventAux_.run() == fileIndexIter_->run_);
+    std::auto_ptr<EventPrincipal> ep = readCurrentEvent(pReg, lbp);
+
+    assert(ep.get() != 0);
+    assert(eventAux_.run() == fileIndexIter_->run_ + forcedRunOffset_);
     assert(eventAux_.luminosityBlock() == fileIndexIter_->lumi_);
+
+    // report event read from file
+    Service<JobReport> reportSvc;
+    reportSvc->eventReadFromFile(reportToken_, eventID().run(), eventID().event());
+    ++fileIndexIter_;
+    return ep;
+  }
+
+  // Reads event at the current entry in the tree.
+  // Note: This function neither uses nor sets fileIndexIter_.
+  std::auto_ptr<EventPrincipal>
+  RootFile::readCurrentEvent(boost::shared_ptr<ProductRegistry const> pReg, boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+    if (!eventTree_.current()) {
+      return std::auto_ptr<EventPrincipal>(0);
+    }
+    fillEventAuxiliary();
     overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
     if (lbp.get() == 0) {
 	boost::shared_ptr<RunPrincipal> rp(
@@ -456,68 +475,12 @@ namespace edm {
 
     // Create a group in the event for each product
     eventTree_.fillGroups(thisEvent->groupGetter());
-
-    // report event read from file
-    Service<JobReport> reportSvc;
-    reportSvc->eventReadFromFile(reportToken_, eventID().run(), eventID().event());
-    ++fileIndexIter_;
-    return thisEvent;
-  }
-
-  std::auto_ptr<EventPrincipal>
-  RootFile::readAnEvent(boost::shared_ptr<ProductRegistry const> pReg) {
-    while(fileIndexIter_ != fileIndexEnd_ && fileIndexIter_->getEntryType() != FileIndex::kEvent) {
-      ++fileIndexIter_;
-    }
-    if (fileIndexIter_ == fileIndexEnd_) {
-      return std::auto_ptr<EventPrincipal>(0);
-    }
-    eventTree_.setEntryNumber(fileIndexIter_->entry_); 
-    fillEventAuxiliary();
-    assert(eventAux_.run() == fileIndexIter_->run_);
-    assert(eventAux_.luminosityBlock() == fileIndexIter_->lumi_);
-    overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
-    boost::shared_ptr<RunPrincipal> rp(
-      new RunPrincipal(eventAux_.run(), eventAux_.time(), eventAux_.time(), pReg, processConfiguration_));
-    boost::shared_ptr<LuminosityBlockPrincipal>  lbp(
-      new LuminosityBlockPrincipal(
-	eventAux_.luminosityBlock(),
-	eventAux_.time(),
-	eventAux_.time(),
-	pReg,
-	rp,
-	processConfiguration_));
-    // We're not done ... so prepare the EventPrincipal
-    std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
-                eventID(),
-		eventAux_.time(), pReg,
-		lbp, processConfiguration_,
-		eventAux_.isRealData(),
-		eventAux_.experimentType(),
-		eventAux_.bunchCrossing(),
-                eventAux_.storeNumber(),
-		eventAux_.processHistoryID_,
-		eventTree_.makeDelayedReader()));
-
-    // Create a group in the event for each product
-    eventTree_.fillGroups(thisEvent->groupGetter());
-
-    // report event read from file
-    Service<JobReport> reportSvc;
-    reportSvc->eventReadFromFile(reportToken_, eventID().run(), eventID().event());
-    ++fileIndexIter_;
     return thisEvent;
   }
 
   void
   RootFile::setAtEventEntry(FileIndex::EntryNumber_t entry) {
-    eventTree_.setEntryNumber(entry); 
-    fillEventAuxiliary();
-    fileIndexIter_ = fileIndex_.findPosition(eventAux_.run(), eventAux_.luminosityBlock(), eventAux_.event());
-    assert(fileIndexIter_ != fileIndexEnd_);
-    assert(eventAux_.run() == fileIndexIter_->run_);
-    assert(eventAux_.luminosityBlock() == fileIndexIter_->lumi_);
-    assert(eventAux_.event() == fileIndexIter_->event_);
+    eventTree_.setEntryNumber(entry);
   }
 
   boost::shared_ptr<RunPrincipal>
@@ -642,6 +605,19 @@ namespace edm {
     lumiTree_.fillGroups(thisLumi->groupGetter());
     ++fileIndexIter_;
     return thisLumi;
+  }
+
+
+  
+  bool
+  RootFile::setEntryAtEvent(EventID const& id) {
+    fileIndexIter_ = fileIndex_.findPosition(id.run(), 0U, id.event());
+    while (fileIndexIter_ != fileIndexEnd_ && fileIndexIter_->getEntryType() != FileIndex::kEvent) {
+      ++fileIndexIter_;
+    }
+    if (fileIndexIter_ == fileIndexEnd_) return false;
+    eventTree_.setEntryNumber(fileIndexIter_->entry_);
+    return true;
   }
 
   void

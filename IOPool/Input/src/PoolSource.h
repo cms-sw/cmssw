@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.42 2007/11/03 06:53:02 wmtan Exp $
+$Id: PoolSource.h,v 1.43 2007/11/22 16:58:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -46,7 +46,7 @@ namespace edm {
     typedef input::EntryNumber EntryNumber;
     PoolSource(PoolSource const&); // disable copy construction
     PoolSource & operator=(PoolSource const&); // disable assignment
-    virtual std::auto_ptr<EventPrincipal> readAnEvent();
+    virtual std::auto_ptr<EventPrincipal> readCurrentEvent();
     virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp);
     virtual boost::shared_ptr<RunPrincipal> readRun_();
@@ -55,14 +55,15 @@ namespace edm {
     virtual void skip(int offset);
     virtual void rewind_();
     virtual void readMany_(int number, EventPrincipalVector& result);
+    virtual void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
+    virtual void readManyRandom_(int number, EventPrincipalVector& result);
     void init(FileCatalogItem const& file);
     void updateProductRegistry() const;
     bool nextFile();
     bool previousFile();
     void rewindFile();
-    void readRandom(int number, EventPrincipalVector& result);
-    void randomize();
 
+    std::vector<FileCatalogItem>::const_iterator fileIterBegin_;
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
     BranchDescription::MatchMode matchMode_;
