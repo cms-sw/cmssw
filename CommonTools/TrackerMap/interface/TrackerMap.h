@@ -6,6 +6,7 @@
 #include <sstream>
 #include <cmath>
 #include <map>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class TmModule;
 class EventSetup;
@@ -16,9 +17,11 @@ class TrackerMap {
  public:
   //TrackerMap(){TrackerMap(" ");};   //!< default constructor
   TrackerMap(std::string s=" ",int xsize1=340,int ysize1=200);
+  TrackerMap(const edm::ParameterSet & iConfig);
   ~TrackerMap();  //!< default destructor
   
   void build();
+  void init();
   void drawModule(TmModule * mod, int key, int layer, bool total, std::ofstream * file);
   void print(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
   void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap.svg",int width=1500, int height=800);
@@ -45,6 +48,8 @@ class TrackerMap {
   int ndet; //number of detectors 
   int npart; //number of detectors parts 
   string title;
+   std::string jsfilename,infilename;
+   bool psetAvailable;
   double phival(double x, double y){
     double phi;
     double phi1=atan(y/x);

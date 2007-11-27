@@ -1,5 +1,6 @@
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/TrackerMap/interface/TmModule.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <fstream>
 #include <iostream>
@@ -17,13 +18,39 @@ The filling of the values for each module is done later
 when the user starts to fill it.
 **********************************************************/
 
+TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset) {
+ psetAvailable=true;
+  xsize=340;ysize=200;
+  title=" ";
+  jsfilename="CommonTools/TrackerMap/data/trackermap.txt";
+  infilename="CommonTools/TrackerMap/data/tracker.dat";
+  if(tkmapPset.exists("trackermaptxtPath")){
+  jsfilename=tkmapPset.getUntrackedParameter<std::string>("trackermaptxtPath","")+"trackermap.txt";
+  cout << jsfilename << endl;
+  } else cout << "no parameter found" << endl;
+  if(tkmapPset.exists("trackerdatPath")){
+  infilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"tracker.dat";
+  cout << infilename << endl;
+  } else cout << "no parameter found" << endl;
+  //tkmapPset = iConfig.getParameter<edm::ParameterSet>("TkmapParameters"); 
+ init();
+}
+
 TrackerMap::TrackerMap(string s,int xsize1,int ysize1) {
+ psetAvailable=false;
+  xsize=xsize1;ysize=ysize1;
+  title=s;
+  jsfilename="CommonTools/TrackerMap/data/trackermap.txt";
+  infilename="CommonTools/TrackerMap/data/tracker.dat";
+ init();
+}
+
+void TrackerMap::init() {
   
   int ntotmod=0;
-  xsize=xsize1;ysize=ysize1;ix=0;iy=0; //used to compute the place of each layer in the tracker map
+  ix=0;iy=0; //used to compute the place of each layer in the tracker map
   firstcall = true;
   minvalue=0.; maxvalue=minvalue;
-  title=s;
   posrel=true;
   palette = 1;
   printflag=false;
@@ -68,7 +95,6 @@ TrackerMap::TrackerMap(string s,int xsize1,int ysize1) {
 
 TrackerMap::~TrackerMap() {
 }
-
 void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total, ofstream * svgfile){
   //int x,y;
   double phi,r,dx,dy, dy1;
@@ -377,7 +403,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, string outp
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".xml";
   svgfile = new ofstream(outs.str().c_str(),ios::out);
-  jsfile = new ifstream(edm::FileInPath("CommonTools/TrackerMap/test/trackermap.txt").fullPath().c_str(),ios::in);
+  jsfile = new ifstream(edm::FileInPath(jsfilename).fullPath().c_str(),ios::in);
 
   //copy javascript interface from trackermap.txt file
   string line;
@@ -542,8 +568,7 @@ void TrackerMap::build(){
   float posx, posy, posz, length, width, thickness, widthAtHalfLength;
   int iModule=0,old_layer=0, ntotMod =0;
   string name,dummys;
-
-  ifstream infile(edm::FileInPath("CommonTools/TrackerMap/test/tracker.dat").fullPath().c_str(),ios::in);
+  ifstream infile(edm::FileInPath(infilename).fullPath().c_str(),ios::in);
   while(!infile.eof()) {
     infile >> nmods >> pix_sil >> fow_bar >> layer >> ring >> nmod >> posx >> posy
 	   >> posz>> length >> width >> thickness
