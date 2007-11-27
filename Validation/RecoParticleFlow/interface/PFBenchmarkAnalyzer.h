@@ -10,12 +10,12 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAna.h"
+
 #include <string>
 #include <map>
 
-class PFBenchmarkAlgo;
-
-class PFBenchmarkAnalyzer: public edm::EDAnalyzer {
+class PFBenchmarkAnalyzer: public edm::EDAnalyzer, public PFBenchmarkAna {
 public:
 
   explicit PFBenchmarkAnalyzer(const edm::ParameterSet&);
@@ -26,13 +26,6 @@ public:
   virtual void endJob() ;
 
  private:
-
-  // DAQ Tools
-  DaqMonitorBEInterface* dbe_;
-  std::map<std::string, MonitorElement*> me;
-
-  // PFlow Benchmark Tool
-  PFBenchmarkAlgo* algo_;
 
   // Inputs from Configuration File
   std::string outputFile_;
