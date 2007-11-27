@@ -13,72 +13,29 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.18 2007/11/19 12:17:47 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.19 2007/11/19 18:04:26 fblekman Exp $
 //
 //
-
-
-// system include files
-#include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "CalibTracker/SiPixelTools/interface/SiPixelOfflineCalibAnalysisBase.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//
-// class decleration
-//
-
-class SiPixelGainCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
-   public:
-      explicit SiPixelGainCalibrationAnalysis(const edm::ParameterSet& iConfig);
-      ~SiPixelGainCalibrationAnalysis();
-
-      virtual bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix);
-
-
-   private:
-      
-      virtual void calibrationSetup(const edm::EventSetup& iSetup);
-      
-  //      void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
-      virtual void newDetID(short detid);
-
-      // ----------member data --------------------------- 
-
-  // more class members used to keep track of the histograms
-  std::map<uint32_t,std::vector<MonitorElement *> > bookkeeper_;
- //  std::map<uint32_t,MonitorElement *> bookkeeper_gain1d_; 
-//   std::map<uint32_t,MonitorElement *> bookkeeper_gain2d_; 
-//   std::map<uint32_t,MonitorElement *> bookkeeper_ped1d_; 
-//   std::map<uint32_t,MonitorElement *> bookkeeper_ped2d_; 
-
-  // flags
-  bool reject_badpoints_;
-};
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
+//#include "CalibTracker/SiPixelGainCalibration/interface/SiPixelGainCalibrationAnalysis.h"
+#include "SiPixelGainCalibrationAnalysis.h"
 //
 // constructors and destructor
 //
-SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::ParameterSet& iConfig):SiPixelOfflineCalibAnalysisBase(iConfig),
-  reject_badpoints_(iConfig.getUntrackedParameter<bool>("suppressZeroAndPlateausInFit",true))
+SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::ParameterSet& iConfig):
+  SiPixelOfflineCalibAnalysisBase(iConfig),
+  reject_badpoints_(iConfig.getUntrackedParameter<bool>("suppressZeroAndPlateausInFit",true)),
+  reject_badpoints_frac_(iConfig.getUntrackedParameter<double>("suppressZeroAndPlateausInFitFrac",0)),
+  conf_(iConfig)
+  //  recordName_(conf_.getParameter<std::string>("record")),
+  //  appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
+  //  theGainCalibrationDbInput_(0),
+  //  theGainCalibrationDbInputService_(conf_)
 {
-  
-
+  ::putenv("CORAL_AUTH_USER=me");
+  ::putenv("CORAL_AUTH_PASSWORD=test");   
+  elementsize_=4;// this is the definition the number of histograms used in bookkeeper_;
 }
 
 SiPixelGainCalibrationAnalysis::~SiPixelGainCalibrationAnalysis()
@@ -96,14 +53,18 @@ SiPixelGainCalibrationAnalysis::calibrationSetup(const edm::EventSetup&)
 void 
 SiPixelGainCalibrationAnalysis::endJob() {
 
-  // this is where we loop over all 
+  // this is where we loop over all histograms and save the database objects
+  for(std::map<uint32_t,std::vector<MonitorElement *> >::const_iterator idet=bookkeeper_.begin(); idet!= bookkeeper_.end(); ++idet){
+    // now filling stuff
+    std::cout << "now looking at detid " << idet->first << std::endl;
 
+  }
 }
 
 // ------------ method called to do fits to all objects available  ------------
 bool
 SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix)
-{
+{std::cout << "looking at Det ID" << detid << ", pixel " << ipix->row() << "," << ipix->col() << std::endl;
   // inspired by Tony Kelly's analytical fit code
   double xpoints_mean_sum=0;
   double xpoints_sqmean_sum=0;
@@ -128,9 +89,11 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   
   
   for(uint32_t ipoint = 0; ipoint < ipix->getnpoints(); ++ipoint){
-    if(ipix->getsum(ipoint)==0 && reject_badpoints_)
+    double minrange = 255.*ipix->getnentries(ipoint)*reject_badpoints_frac_;
+    double maxrange = (255*ipix->getnentries(ipoint)) - minrange;
+    if(ipix->getsum(ipoint)<=minrange && reject_badpoints_)
       continue;
-    if(ipix->getsum(ipoint)>=250*ipix->getnentries(ipoint) && reject_badpoints_)
+    if(ipix->getsum(ipoint)>=maxrange && reject_badpoints_)
        continue;
     xpoints_mean_sum += vCalValues_[ipoint];
     ypoints_mean_sum += ipix->getsum(ipoint);
@@ -173,7 +136,7 @@ SiPixelGainCalibrationAnalysis::newDetID(short detid)
 {
   setDQMDirectory(detid);
   std::string tempname=translateDetIdToString(detid);
-  std::vector<MonitorElement *> entries(4);// hard-code the number of calibrations.
+  std::vector<MonitorElement *> entries(elementsize_);// hard-code the number of calibrations.
   bookkeeper_[detid]=entries;
   bookkeeper_[detid][0] = bookDQMHistogram1D("gain1d_"+tempname,"gain for "+tempname,100,0.,100.);
   bookkeeper_[detid][1] = bookDQMHistoPlaquetteSummary2D("gain2d_"+tempname,"gain for "+tempname,detid);

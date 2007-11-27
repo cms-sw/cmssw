@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.1 2007/11/09 17:27:20 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.2 2007/11/19 12:17:46 fblekman Exp $
 //
 //
 
@@ -124,7 +124,7 @@ SiPixelCalibDigiProducer::fill(edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::DetSet<PixelDigi>::const_iterator ipix; // ITERATOR OVER DIGI DATA  
 
     for(ipix = digiIter->data.begin(); ipix!=digiIter->end(); ++ipix){
-      edm::LogInfo("DEBUG") << "now looking at pixel (row,col):" << ipix->row() << "," << ipix->column() << " with adc counts " << ipix->adc() ;
+      //      edm::LogInfo("DEBUG") << "now looking at pixel (row,col):" << ipix->row() << "," << ipix->column() << " with adc counts " << ipix->adc() ;
 
       // fill in the appropriate location of the temporary data container
       fillPixel(detid,ipix->row(),ipix->column(),icalibpoint,ipix->adc());
@@ -371,4 +371,4 @@ SiPixelCalibDigiProducer::beginJob(const edm::EventSetup& iSetup)
 void 
 SiPixelCalibDigiProducer::endJob() {
 }
-
+DEFINE_FWK_MODULE(SiPixelCalibDigiProducer);
