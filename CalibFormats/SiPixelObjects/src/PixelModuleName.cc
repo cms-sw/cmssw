@@ -215,7 +215,7 @@ std::string PixelModuleName::modulename() const{
 	s1<<"_BLD";
 	s1<<blade();
 	s1<<"_PNL";
-	s1<<panel()<<(char)(0);
+	s1<<panel();
 
     }
     else{
@@ -231,7 +231,7 @@ std::string PixelModuleName::modulename() const{
 	s1<<ladder();
 	s1<<HF();
 	s1<<"_MOD";
-	s1<<module()<<(char)(0);
+	s1<<module();
 	
     }
 

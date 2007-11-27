@@ -200,7 +200,7 @@ namespace pos{
 	}
     
       std::ostringstream s1;
-      s1 << version<<(char)(0);
+      s1 << version;
       std::string strversion=s1.str();
 
       static std::string directory;
@@ -212,43 +212,43 @@ namespace pos{
     
       if (typeid(data)==typeid(PixelTrimBase*)){
 	//std::cout << "Will return PixelTrimBase" << std::endl;
-	assert(base=="trim");
+	assert(dir=="trim");
 	data = (T*) new PixelTrimAllPixels(fullpath+"ROC_Trims_module_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelMaskBase*)){
 	//std::cout << "Will return PixelMaskBase" << std::endl;
-	assert(base=="mask");
+	assert(dir=="mask");
 	data = (T*) new PixelMaskAllPixels(fullpath+"ROC_Masks_module_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelDACSettings*)){
 	//std::cout << "Will return PixelDACSettings" << std::endl;
-	assert(base=="dac");
+	assert(dir=="dac");
 	data = (T*) new PixelDACSettings(fullpath+"ROC_DAC_module_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelTBMSettings*)){
 	//std::cout << "Will return PixelTBMSettings" << std::endl;
-	assert(base=="tbm");
+	assert(dir=="tbm");
 	data = (T*) new PixelTBMSettings(fullpath+"TBM_module_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelDetectorConfig*)){
 	//std::cout << "Will return PixelDetectorConfig" << std::endl;
-	assert(base=="detconfig");
+	assert(dir=="detconfig");
 	data = (T*) new PixelDetectorConfig(fullpath+"detectconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelNameTranslation*)){
 	//std::cout << "Will return PixelDACSettings" << std::endl;
-	assert(base=="nametranslation");
+	assert(dir=="nametranslation");
 	data = (T*) new PixelNameTranslation(fullpath+"translation.dat");
 	return;
       }else if (typeid(data)==typeid(PixelFEDCard*)){
 	//std::cout << "Will return PixelFEDCard" << std::endl;
-	assert(base=="fedcard");
+	assert(dir=="fedcard");
 	//std::cout << "Will open:"<<fullpath+"params_fed_"+ext+".dat"<< std::endl;
 	data = (T*) new PixelFEDCard(fullpath+"params_fed_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelCalibBase*)){
 	//std::cout << "Will return PixelCalibBase" << std::endl;
-	assert(base=="calib");
+	assert(dir=="calib");
 	std::string calibfile=fullpath+"calib.dat";
 	//std::cout << "Looking for file " << calibfile << std::endl;
 	std::ifstream calibin(calibfile.c_str());
@@ -275,42 +275,42 @@ namespace pos{
 	return;
       }else if (typeid(data)==typeid(PixelTKFECConfig*)){
 	//std::cout << "Will return PixelTKFECConfig" << std::endl;
-	assert(base=="tkfecconfig");
+	assert(dir=="tkfecconfig");
 	data = (T*) new PixelTKFECConfig(fullpath+"tkfecconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelFECConfig*)){
 	//std::cout << "Will return PixelFECConfig" << std::endl;
-	assert(base=="fecconfig");
+	assert(dir=="fecconfig");
 	data = (T*) new PixelFECConfig(fullpath+"fecconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelFEDConfig*)){
 	//std::cout << "Will return PixelFEDConfig" << std::endl;
-	assert(base=="fedconfig");
+	assert(dir=="fedconfig");
 	data = (T*) new PixelFEDConfig(fullpath+"fedconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelPortCardConfig*)){
 	//std::cout << "Will return PixelPortCardConfig" << std::endl;
-	assert(base=="portcard");
+	assert(dir=="portcard");
 	data = (T*) new PixelPortCardConfig(fullpath+"portcard_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelPortcardMap*)){
 	//std::cout << "Will return PixelPortcardMap" << std::endl;
-	assert(base=="portcardmap");
+	assert(dir=="portcardmap");
 	data = (T*) new PixelPortcardMap(fullpath+"portcardmap.dat");
 	return;
       }else if (typeid(data)==typeid(PixelDelay25Calib*)){
 	//cout << "Will return PixelDelay25Calib" << std::endl;
-	assert(base=="portcard");
+	assert(dir=="portcard");
 	data = (T*) new PixelDelay25Calib(fullpath+"delay25.dat");
 	return;
       }else if (typeid(data)==typeid(PixelTTCciConfig*)){
 	//cout << "Will return PixelTTCciConfig" << std::endl;
-	assert(base=="ttcciconfig");
+	assert(dir=="ttcciconfig");
 	data = (T*) new PixelTTCciConfig(fullpath+"TTCciConfiguration.txt");
 	return;
       }else if (typeid(data)==typeid(PixelLTCConfig*)){
 	//cout << "Will return PixelLTCConfig" << std::endl;
-	assert(base=="ltcconfig");
+	assert(dir=="ltcconfig");
 	data = (T*) new PixelLTCConfig(fullpath+"LTCConfiguration.txt");
 	return;
       }else{
@@ -359,37 +359,37 @@ namespace pos{
     
       if (typeid(data)==typeid(PixelTrimBase*)){
 	//std::cout << "Will return PixelTrimBase" << std::endl;
-	assert(base=="trim");
+	assert(dir=="trim");
 	data = (T*) new PixelTrimAllPixels(fullpath+"ROC_Trims_module_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelMaskBase*)){
 	//std::cout << "Will return PixelMaskBase" << std::endl;
-	assert(base=="mask");
+	assert(dir=="mask");
 	data = (T*) new PixelMaskAllPixels(fullpath+"ROC_Masks_module_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelDACSettings*)){
 	//std::cout << "Will return PixelDACSettings" << std::endl;
-	assert(base=="dac");
+	assert(dir=="dac");
 	data = (T*) new PixelDACSettings(fullpath+"ROC_DAC_module_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelTBMSettings*)){
 	//std::cout << "Will return PixelTBMSettings" << std::endl;
-	assert(base=="tbm");
+	assert(dir=="tbm");
 	data = (T*) new PixelTBMSettings(fullpath+"TBM_module_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelDetectorConfig*)){
 	//std::cout << "Will return PixelDACSettings" << std::endl;
-	assert(base=="detconfig");
+	assert(dir=="detconfig");
 	data = (T*) new PixelDetectorConfig(fullpath+"detectconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelNameTranslation*)){
 	//std::cout << "Will return PixelDACSettings" << std::endl;
-	assert(base=="nametranslation");
+	assert(dir=="nametranslation");
 	data = (T*) new PixelNameTranslation(fullpath+"translation.dat");
 	return;
       }else if (typeid(data)==typeid(PixelFEDCard*)){
 	//std::cout << "Will return PixelFEDCard" << std::endl;
-	assert(base=="fedcard");
+	assert(dir=="fedcard");
 	//std::cout << "Will open:"<<fullpath+"params_fed_"+ext+".dat"<< std::endl;
 	data = (T*) new PixelFEDCard(fullpath+"params_fed_"+ext+".dat");
 	return;
@@ -422,42 +422,42 @@ namespace pos{
 	return;
       }else if (typeid(data)==typeid(PixelTKFECConfig*)){
 	//std::cout << "Will return PixelTKFECConfig" << std::endl;
-	assert(base=="tkfecconfig");
+	assert(dir=="tkfecconfig");
 	data = (T*) new PixelTKFECConfig(fullpath+"tkfecconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelFECConfig*)){
 	//std::cout << "Will return PixelFECConfig" << std::endl;
-	assert(base=="fecconfig");
+	assert(dir=="fecconfig");
 	data = (T*) new PixelFECConfig(fullpath+"fecconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelFEDConfig*)){
 	//std::cout << "Will return PixelFEDConfig" << std::endl;
-	assert(base=="fedconfig");
+	assert(dir=="fedconfig");
 	data = (T*) new PixelFEDConfig(fullpath+"fedconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelPortCardConfig*)){
 	//std::cout << "Will return PixelPortCardConfig" << std::endl;
-	assert(base=="portcard");
+	assert(dir=="portcard");
 	data = (T*) new PixelPortCardConfig(fullpath+"portcard_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelPortcardMap*)){
 	//std::cout << "Will return PixelPortcardMap" << std::endl;
-	assert(base=="portcardmap");
+	assert(dir=="portcardmap");
 	data = (T*) new PixelPortcardMap(fullpath+"portcardmap.dat");
 	return;
       }else if (typeid(data)==typeid(PixelDelay25Calib*)){
 	//cout << "Will return PixelDelay25Calib" << std::endl;
-	assert(base=="portcard");
+	assert(dir=="portcard");
 	data = (T*) new PixelDelay25Calib(fullpath+"delay25.dat");
 	return;
       }else if (typeid(data)==typeid(PixelTTCciConfig*)){
 	//cout << "Will return PixelTTCciConfig" << std::endl;
-	assert(base=="ttcciconfig");
+	assert(dir=="ttcciconfig");
 	data = (T*) new PixelTTCciConfig(fullpath+"TTCciConfiguration.txt");
 	return;
       }else if (typeid(data)==typeid(PixelLTCConfig*)){
 	//cout << "Will return PixelLTCConfig" << std::endl;
-	assert(base=="ltcconfig");
+	assert(dir=="ltcconfig");
 	data = (T*) new PixelLTCConfig(fullpath+"LTCConfiguration.txt");
 	return;
       }else{

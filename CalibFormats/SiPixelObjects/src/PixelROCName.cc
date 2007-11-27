@@ -261,7 +261,7 @@ std::string PixelROCName::rocname() const{
 	s1<<"_PLQ";
 	s1<<plaquet();
 	s1<<"_ROC";
-	s1<<roc()<<(char)(0);
+	s1<<roc();
 
 	assert(roc()>=0&&roc()<=10);
     }
@@ -280,7 +280,7 @@ std::string PixelROCName::rocname() const{
 	s1<<"_MOD";
 	s1<<module();
 	s1<<"_ROC";
-	s1<<roc()<<(char)(0);
+	s1<<roc();
 	
 	assert(roc()>=0&&roc()<=15);
     }
