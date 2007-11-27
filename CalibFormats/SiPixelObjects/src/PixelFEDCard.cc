@@ -278,8 +278,9 @@ void PixelFEDCard::writeASCII(std::string dir) const{
   s1<<fedNumber;
   std::string fedNum=s1.str();
 
+  if (dir!="") dir+="/";
 
-  std::string filename=dir+"/params_fed_"+fedNum+".dat";
+  std::string filename=dir+"params_fed_"+fedNum+".dat";
 
   FILE *outfile = fopen((filename.c_str()),"w");
   if (outfile == NULL) {
