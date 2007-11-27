@@ -1,5 +1,4 @@
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
