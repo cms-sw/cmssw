@@ -112,7 +112,7 @@ int main(){
       
     } else {
       
-      // cout << " ** Sending lumi section ** " << endl;
+      cout << " ** Sending lumi section ** " << endl;
       if(send(clntSock, Buffer, Buffer_Size, 0) != (int)Buffer_Size){
 	cout << " ** send failed ** " << endl;
 	Connected = false;

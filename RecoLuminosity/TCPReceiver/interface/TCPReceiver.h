@@ -53,6 +53,7 @@ namespace HCAL_HLX{
     void SetIP(std::string IP);
     int ReceiveLumiSection();
     int Disconnect();
+    bool IsConnected();
 
     HCAL_HLX::LUMI_SECTION lumiSection;
 

@@ -7,7 +7,7 @@
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 #include <iostream>
 #include <signal.h>
-
+#define DEBUG
 
 using std::cout;
 using std::endl;
@@ -35,17 +35,19 @@ int main(){
     exit(1);
  
   while(gContinue){
-    
-    errorCode = HT.Connect();
-    cout << "Connect: " << errorCode << endl;
-  if(errorCode != 1)
-    exit(1);
-  
+    if(!HT.IsConnected()){
+      errorCode = HT.Connect();
+      cout << "Connect: " << errorCode << endl;
+      if(errorCode != 1)
+	exit(1);
+    }
+
     errorCode = HT.ReceiveLumiSection();
     cout << "ReceiveLumiSection(): " << errorCode << endl;
-  if(errorCode != 1)
-    exit(1);
-
+    
+    if(errorCode != 1)
+      exit(1);
+    
     if( HT.lumiSection.hdr.runNumber != 1){
       cout << "Error -5 " << endl;
       ErrorCount++;
@@ -114,11 +116,14 @@ int main(){
 	}
       }
     }
-
-    errorCode = HT.Disconnect();
-    cout << "Disconnect: " << errorCode << endl;
-   if(errorCode != 1)
-    exit(1);
+    
+    if(ErrorCount > 1){
+      errorCode = HT.Disconnect();
+      cout << "Disconnect: " << errorCode << endl;
+      ErrorCount = 0;
+    }
+    //   if(errorCode != 1)
+    //   exit(1);
 
    cout << ErrorCount << endl;
   }

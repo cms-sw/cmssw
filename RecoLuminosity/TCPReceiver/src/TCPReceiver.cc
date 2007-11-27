@@ -212,6 +212,11 @@ namespace HCAL_HLX{
     }
     return 201;
   }
+
+  bool TCPReceiver::IsConnected(){
+
+    return Connected;
+  }
   
   int TCPReceiver::SetPort(unsigned short int port){
     //cout << "In " << __PRETTY_FUNCTION__ << endl;
