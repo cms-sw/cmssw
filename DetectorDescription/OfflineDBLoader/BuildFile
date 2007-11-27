@@ -1,17 +1,7 @@
-<use name=CondCore/DBCommon>
-<use name=CondCore/IOVService>
-<use name=CondCore/MetaDataService>
-<use name=CondFormats/IdealGeometryObjects>
 <use name=CoralBase>
 <use name=DataSvc>
 <use name=DetectorDescription/Core>
-<use name=DetectorDescription/DBReader>
-<use name=DetectorDescription/Parser>
-<use name=DetectorDescription/PersistentDDDObjects>
-<use name=MagneticField/Records>
-<use name=FWCore/Framework>
-<use name=FWCore/MessageLogger>
-<use name=POOLCore>
+<use name=FWCore/Utilities>
 <export>
   <use name=DetectorDescription/Core>
   <lib name=DetectorDescriptionOfflineDBLoader>
