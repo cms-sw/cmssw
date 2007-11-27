@@ -419,6 +419,15 @@ void CSCMonitor::binExaminer(CSCDCCExaminer & bin_checker,int32_t nodeNumber) {
   // std::string nodeTag = Form("EMU_%d",nodeNumber); // == This emuMonitor node number
   std::string nodeTag = "EMU";
   std::map<std::string, ME_List >::iterator itr;
+
+  // == Check and book global node specific histos
+  if (MEs.size() == 0 || ((itr = MEs.find(nodeTag)) == MEs.end())) {
+    LOG4CPLUS_WARN(logger_, " List of MEs for " << nodeTag << " not found. Booking...")
+      fBusy = true;
+    MEs[nodeTag] = bookCommon(nodeNumber);
+    fBusy = false;
+  }
+
   ME_List& nodeME = MEs[nodeTag];
 
   CSCMonitorObject* mo = NULL;
@@ -440,16 +449,6 @@ void CSCMonitor::binExaminer(CSCDCCExaminer & bin_checker,int32_t nodeNumber) {
         }
       }
     }
-  }
-
-
-
-  // == Check and book global node specific histos
-  if (MEs.size() == 0 || ((itr = MEs.find(nodeTag)) == MEs.end())) {
-    LOG4CPLUS_WARN(logger_, " List of MEs for " << nodeTag << " not found. Booking...")
-      fBusy = true;
-    MEs[nodeTag] = bookCommon(nodeNumber);
-    fBusy = false;
   }
 
   //  if(check_bin_error){
