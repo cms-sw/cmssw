@@ -5,7 +5,6 @@
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
-#include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/src/IOV.h"
