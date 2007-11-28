@@ -11,9 +11,11 @@
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
-#include "Rtypes.h" 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/EcalCluster.h"
+
+#include "Rtypes.h"
 
 namespace reco {
   
