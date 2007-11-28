@@ -69,8 +69,6 @@ private:
   // Book a set of histograms for a give chamber
   void bookHistos(int w, int sec);
   void bookHistos(DTChamberId chamberId);
-  // Book the summary histograms
-  void bookHistos(const DTChamberId & ch, int wh);
   // Fill a single histogram
   void fillHistos(int nsegm, int w, int sec) ;
   // Fill a set of histograms for a give chamber 
@@ -86,14 +84,6 @@ private:
   //   std::map<DTChamberId, MonitorElement*> numSegmentPerCh;
   std::map<DTChamberId, std::vector<MonitorElement*> > histosPerCh;
   std::map<std::pair<int,int>, MonitorElement* > histosPerSec;
-
-  //to fill summary histos
-  int prescaleFactor;
-  double Chi2Threshold;
-  int percentual;
-  std::map <std::pair<int,int>, int> cmsHistos;
-  std::map <std::pair<int,int>, bool> filled;
-  std::map< int, MonitorElement* > wheelHistos;
 
 };
 #endif
