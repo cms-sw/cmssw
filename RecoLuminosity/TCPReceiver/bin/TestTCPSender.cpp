@@ -38,7 +38,7 @@ int main(){
   struct sockaddr_in servAddr;
   struct sockaddr_in clntAddr;
   unsigned int clntLen;
-  unsigned short servPort = 50002;
+  unsigned short servPort = 51001;
 
   unsigned int Buffer_Size;
 
