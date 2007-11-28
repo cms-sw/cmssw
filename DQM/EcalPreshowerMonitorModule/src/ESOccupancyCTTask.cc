@@ -40,6 +40,7 @@ ESOccupancyCTTask::ESOccupancyCTTask(const ParameterSet& ps) {
 }
 
 ESOccupancyCTTask::~ESOccupancyCTTask(){
+  delete theApp_;
 }
 
 void ESOccupancyCTTask::beginJob(const EventSetup& c) {
