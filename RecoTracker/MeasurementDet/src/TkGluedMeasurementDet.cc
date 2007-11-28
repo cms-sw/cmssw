@@ -139,21 +139,16 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
                     )
                 ) /*Stereo OK*/ 
               ) {
-                  edm::LogWarning("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) active but no hit found: missing";
             // no problem, at least one detector has good strips
           } else {
             //LogDebug("TkStripMeasurementDet") << "Tested strips on TkGlued, returning 'inactive' invalid hit";
-            edm::LogWarning("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) globally active, but no hit found and faulty components: inactive";
             ret[0] = TrajectoryMeasurement(stateOnThisDet, 
                          InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
                          0.F);
           }
-      } else {
-          edm::LogWarning("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) active, valid hit found, all ok";
       }
       return ret;
    } else {
-      edm::LogWarning("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) fully inactive";
       std::vector<TrajectoryMeasurement> result;
       result.push_back( TrajectoryMeasurement( stateOnThisDet, 
                InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
