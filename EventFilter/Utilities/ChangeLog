@@ -1,3 +1,9 @@
+2007-11-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-13-12
+	* explicitely generate '<html>' and '</html>' tags, don't rely on
+	cgicc commands.
+
 2007-11-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-13-11

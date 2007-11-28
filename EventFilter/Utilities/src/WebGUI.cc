@@ -91,7 +91,7 @@ void WebGUI::defaultWebPage(Input_t *in,Output_t *out) throw (WebGUI::XgiExcepti
 {
   updateParams();
   
-  *out<<html()<<endl;
+  *out<<"<html>"<<endl;
   htmlHead(in,out,sourceId_);
   *out<<body()<<endl;
   htmlHeadline(in,out,urn_+"/debugWebPage",smallDbgIcon_);
@@ -100,7 +100,7 @@ void WebGUI::defaultWebPage(Input_t *in,Output_t *out) throw (WebGUI::XgiExcepti
   *out<<"</td><td>"<<endl;
   htmlTable(in,out,"Monitored Parameters",monitorParams_);
   *out<<"</td></tr></table>"<<endl;
-  *out<<body()<<endl<<html()<<endl;
+  *out<<body()<<endl<<"</html>"<<endl;
   return;
 }
 
@@ -110,14 +110,14 @@ void WebGUI::debugWebPage(Input_t *in,Output_t *out) throw (WebGUI::XgiException
 {
   updateParams();
 
-  *out<<html()<<endl;
+  *out<<"<html>"<<endl;
   htmlHead(in,out,sourceId_+" [DEBUG]");
   *out<<body()<<endl;
   htmlHeadline(in,out,urn_+"/defaultWebPage",smallAppIcon_);
   *out<<"<table cellpadding=\"25\"><tr valign=\"top\"><td>"<<endl;
   htmlTable(in,out,"Debug Parameters",debugParams_);
   *out<<"</td></tr></table>"<<endl;
-  *out<<body()<<endl<<html()<<endl;
+  *out<<body()<<endl<<"</html>"<<endl;
   return;
 }
 
