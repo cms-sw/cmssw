@@ -67,192 +67,192 @@ void MakeValidation(TString sfilename = "GlobalRecHitsHistograms.root",
   vector<Int_t> histnames;
 
   vector<string> eehistname;
-  eehistname.push_back("hEcalRecn_EE");
+  eehistname.push_back("hEcaln_EE");
   eehistname.push_back("hEcalRes_EE");
   histnames.push_back(0);
 
   vector<string> ebhistname;
-  ebhistname.push_back("hEcalRecn_EB");
+  ebhistname.push_back("hEcaln_EB");
   ebhistname.push_back("hEcalRes_EB");
   histnames.push_back(1);
 
   vector<string> eshistname;
-  eshistname.push_back("hEcalRecn_ES");
+  eshistname.push_back("hEcaln_ES");
   eshistname.push_back("hEcalRes_ES");
   histnames.push_back(2);
 
   vector<string> hbhistname;
-  hbhistname.push_back("hHcalRecn_HB");
+  hbhistname.push_back("hHcaln_HB");
   hbhistname.push_back("hHcalRes_HB");
   histnames.push_back(3);
 
   vector<string> hehistname;
-  hehistname.push_back("hHcalRecn_HE");
+  hehistname.push_back("hHcaln_HE");
   hehistname.push_back("hHcalRes_HE");
   histnames.push_back(4);
 
   vector<string> hohistname;
-  hohistname.push_back("hHcalRecn_HO");
+  hohistname.push_back("hHcaln_HO");
   hohistname.push_back("hHcalRes_HO");
   histnames.push_back(5);
 
   vector<string> hfhistname;
-  hfhistname.push_back("hHcalRecn_HF");
+  hfhistname.push_back("hHcaln_HF");
   hfhistname.push_back("hHcalRes_HF");
   histnames.push_back(6);
 
   vector<string> tibl1histname;
-  tibl1histname.push_back("hSiStripRecn_TIBL1");
+  tibl1histname.push_back("hSiStripn_TIBL1");
   tibl1histname.push_back("hSiStripResX_TIBL1");
   tibl1histname.push_back("hSiStripResY_TIBL1");
   histnames.push_back(7);
 
   vector<string> tibl2histname;
-  tibl2histname.push_back("hSiStripRecn_TIBL2");
+  tibl2histname.push_back("hSiStripn_TIBL2");
   tibl2histname.push_back("hSiStripResX_TIBL2");
   tibl2histname.push_back("hSiStripResY_TIBL2");
   histnames.push_back(8);
 
   vector<string> tibl3histname;
-  tibl3histname.push_back("hSiStripRecn_TIBL3");
+  tibl3histname.push_back("hSiStripn_TIBL3");
   tibl3histname.push_back("hSiStripResX_TIBL3");
   tibl3histname.push_back("hSiStripResY_TIBL3");
   histnames.push_back(9);
 
   vector<string> tibl4histname;
-  tibl4histname.push_back("hSiStripRecn_TIBL4");
+  tibl4histname.push_back("hSiStripn_TIBL4");
   tibl4histname.push_back("hSiStripResX_TIBL4");
   tibl4histname.push_back("hSiStripResY_TIBL4");
   histnames.push_back(10);
 
   vector<string> tobl1histname;
-  tobl1histname.push_back("hSiStripRecn_TOBL1");
+  tobl1histname.push_back("hSiStripn_TOBL1");
   tobl1histname.push_back("hSiStripResX_TOBL1");
   tobl1histname.push_back("hSiStripResY_TOBL1");
   histnames.push_back(11);
 
   vector<string> tobl2histname;
-  tobl2histname.push_back("hSiStripRecn_TOBL2");
+  tobl2histname.push_back("hSiStripn_TOBL2");
   tobl2histname.push_back("hSiStripResX_TOBL2");
   tobl2histname.push_back("hSiStripResY_TOBL2");
   histnames.push_back(12);
 
   vector<string> tobl3histname;
-  tobl3histname.push_back("hSiStripRecn_TOBL3");
+  tobl3histname.push_back("hSiStripn_TOBL3");
   tobl3histname.push_back("hSiStripResX_TOBL3");
   tobl3histname.push_back("hSiStripResY_TOBL3");
   histnames.push_back(13);
 
   vector<string> tobl4histname;
-  tobl4histname.push_back("hSiStripRecn_TOBL4");
+  tobl4histname.push_back("hSiStripn_TOBL4");
   tobl4histname.push_back("hSiStripResX_TOBL4");
   tobl4histname.push_back("hSiStripResY_TOBL4");
   histnames.push_back(14);
 
   vector<string> tidw1histname;
-  tidw1histname.push_back("hSiStripRecn_TIDW1");
+  tidw1histname.push_back("hSiStripn_TIDW1");
   tidw1histname.push_back("hSiStripResX_TIDW1");
   tidw1histname.push_back("hSiStripResY_TIDW1");
   histnames.push_back(15);
 
   vector<string> tidw2histname;
-  tidw2histname.push_back("hSiStripRecn_TIDW2");
+  tidw2histname.push_back("hSiStripn_TIDW2");
   tidw2histname.push_back("hSiStripResX_TIDW2");
   tidw2histname.push_back("hSiStripResY_TIDW2");
   histnames.push_back(16);
 
   vector<string> tidw3histname;
-  tidw3histname.push_back("hSiStripRecn_TIDW3");
+  tidw3histname.push_back("hSiStripn_TIDW3");
   tidw3histname.push_back("hSiStripResX_TIDW3");
   tidw3histname.push_back("hSiStripResY_TIDW3");
   histnames.push_back(17);
 
   vector<string> tecw1histname;
-  tecw1histname.push_back("hSiStripRecn_TECW1");
+  tecw1histname.push_back("hSiStripn_TECW1");
   tecw1histname.push_back("hSiStripResX_TECW1");
   tecw1histname.push_back("hSiStripResY_TECW1");
   histnames.push_back(18);
 
   vector<string> tecw2histname;
-  tecw2histname.push_back("hSiStripRecn_TECW2");
+  tecw2histname.push_back("hSiStripn_TECW2");
   tecw2histname.push_back("hSiStripResX_TECW2");
   tecw2histname.push_back("hSiStripResY_TECW2");
   histnames.push_back(19);
 
   vector<string> tecw3histname;
-  tecw3histname.push_back("hSiStripRecn_TECW3");
+  tecw3histname.push_back("hSiStripn_TECW3");
   tecw3histname.push_back("hSiStripResX_TECW3");
   tecw3histname.push_back("hSiStripResY_TECW3");
   histnames.push_back(20);
 
   vector<string> tecw4histname;
-  tecw4histname.push_back("hSiStripRecn_TECW4");
+  tecw4histname.push_back("hSiStripn_TECW4");
   tecw4histname.push_back("hSiStripResX_TECW4");
   tecw4histname.push_back("hSiStripResY_TECW4");
   histnames.push_back(21);
 
   vector<string> tecw5histname;
-  tecw5histname.push_back("hSiStripRecn_TECW5");
+  tecw5histname.push_back("hSiStripn_TECW5");
   tecw5histname.push_back("hSiStripResX_TECW5");
   tecw5histname.push_back("hSiStripResY_TECW5");
   histnames.push_back(22);
 
   vector<string> tecw6histname;
-  tecw6histname.push_back("hSiStripRecn_TECW6");
+  tecw6histname.push_back("hSiStripn_TECW6");
   tecw6histname.push_back("hSiStripResX_TECW6");
   tecw6histname.push_back("hSiStripResY_TECW6");
   histnames.push_back(23);
 
   vector<string> tecw7histname;
-  tecw7histname.push_back("hSiStripRecn_TECW7");
+  tecw7histname.push_back("hSiStripn_TECW7");
   tecw7histname.push_back("hSiStripResX_TECW7");
   tecw7histname.push_back("hSiStripResY_TECW7");
   histnames.push_back(24);
 
   vector<string> tecw8histname;
-  tecw8histname.push_back("hSiStripRecn_TECW8");
+  tecw8histname.push_back("hSiStripn_TECW8");
   tecw8histname.push_back("hSiStripResX_TECW8");
   tecw8histname.push_back("hSiStripResY_TECW8");
   histnames.push_back(25);
 
   vector<string> brl1histname;
-  brl1histname.push_back("hSiPixelRecn_BRL1");
+  brl1histname.push_back("hSiPixeln_BRL1");
   brl1histname.push_back("hSiPixelResX_BRL1");
   brl1histname.push_back("hSiPixelResY_BRL1");
   histnames.push_back(26);
 
   vector<string> brl2histname;
-  brl2histname.push_back("hSiPixelRecn_BRL2");
+  brl2histname.push_back("hSiPixeln_BRL2");
   brl2histname.push_back("hSiPixelResX_BRL2");
   brl2histname.push_back("hSiPixelResY_BRL2");
   histnames.push_back(27);
 
   vector<string> brl3histname;
-  brl3histname.push_back("hSiPixelRecn_BRL3");
+  brl3histname.push_back("hSiPixeln_BRL3");
   brl3histname.push_back("hSiPixelResX_BRL3");
   brl3histname.push_back("hSiPixelResY_BRL3");
   histnames.push_back(28);
 
   vector<string> fwd1phistname;
-  fwd1phistname.push_back("hSiPixelRecn_FWD1p");
+  fwd1phistname.push_back("hSiPixeln_FWD1p");
   fwd1phistname.push_back("hSiPixelResX_FWD1p");
   fwd1phistname.push_back("hSiPixelResY_FWD1p");
   histnames.push_back(29);
 
   vector<string> fwd1nhistname;
-  fwd1nhistname.push_back("hSiPixelRecn_FWD1n");
+  fwd1nhistname.push_back("hSiPixeln_FWD1n");
   fwd1nhistname.push_back("hSiPixelResX_FWD1n");
   fwd1nhistname.push_back("hSiPixelResY_FWD1n");
   histnames.push_back(30);
 
   vector<string> fwd2phistname;
-  fwd2phistname.push_back("hSiPixelRecn_FWD2p");
+  fwd2phistname.push_back("hSiPixeln_FWD2p");
   fwd2phistname.push_back("hSiPixelResX_FWD2p");
   fwd2phistname.push_back("hSiPixelResY_FWD2p");
   histnames.push_back(31);
 
   vector<string> fwd2nhistname;
-  fwd2nhistname.push_back("hSiPixelRecn_FWD2n");
+  fwd2nhistname.push_back("hSiPixeln_FWD2n");
   fwd2nhistname.push_back("hSiPixelResX_FWD2n");
   fwd2nhistname.push_back("hSiPixelResY_FWD2n");
   histnames.push_back(32);

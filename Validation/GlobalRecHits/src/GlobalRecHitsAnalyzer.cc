@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/10/22 18:05:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/11/15 23:25:23 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -122,10 +122,10 @@ for(int i = 0; i<19; ++i)
   mehSiStripResY[i]=0;
 }
  string hcharname, hchartitle;
-dbe->setCurrentFolder("SiStrip");
+dbe->setCurrentFolder("GlobalRecHitsAnalyzer/SiStrips");
 for(int amend = 0; amend < 19; ++amend)
 { 
-  hcharname = "hSiStripRecn_"+SiStripString[amend];
+  hcharname = "hSiStripn_"+SiStripString[amend];
   hchartitle= SiStripString[amend]+"  rechits";
   sprintf(hname, hcharname.c_str());
   sprintf(htitle, hchartitle.c_str());
@@ -159,10 +159,10 @@ for(int j =0; j <4; ++j)
   mehHcalRes[j]=0;
 }
 
-dbe->setCurrentFolder("HCal");
+dbe->setCurrentFolder("GlobalRecHitsAnalyzer/HCals");
 for(int amend = 0; amend < 4; ++amend)
 {
-  hcharname = "hHcalRecn_"+HCalString[amend];
+  hcharname = "hHcaln_"+HCalString[amend];
   hchartitle= HCalString[amend]+"  rechits";
   sprintf(hname, hcharname.c_str());
   sprintf(htitle, hchartitle.c_str());
@@ -192,11 +192,11 @@ for(int i =0; i<3; ++i)
   mehEcaln[i]=0;
   mehEcalRes[i]=0;
 }
-dbe->setCurrentFolder("ECal");
+dbe->setCurrentFolder("GlobalRecHitsAnalyzer/ECals");
  
 for(int amend = 0; amend < 3; ++amend)
 {
-  hcharname = "hEcalRecn_"+ECalString[amend];
+  hcharname = "hEcaln_"+ECalString[amend];
   hchartitle= ECalString[amend]+"  rechits";
   sprintf(hname, hcharname.c_str());
   sprintf(htitle, hchartitle.c_str());
@@ -222,10 +222,10 @@ for(int j =0; j<7; ++j)
   mehSiPixelResY[j]=0;
 }
 
-dbe->setCurrentFolder("SiPixels");
+dbe->setCurrentFolder("GlobalRecHitsAnalyzer/SiPixels");
 for(int amend = 0; amend < 7; ++amend)
 {
-  hcharname = "hSiPixelRecn_"+SiPixelString[amend];
+  hcharname = "hSiPixeln_"+SiPixelString[amend];
   hchartitle= SiPixelString[amend]+" rechits";
   sprintf(hname, hcharname.c_str());
   sprintf(htitle, hchartitle.c_str());
@@ -249,7 +249,7 @@ for(int amend = 0; amend < 7; ++amend)
   mehSiPixelResY[amend]->setAxisTitle("Count",2);
 }
 //Muons 
-dbe->setCurrentFolder("Muons");
+dbe->setCurrentFolder("GlobalRecHitsAnalyzer/Muons");
 
 mehDtMuonn = 0;
 mehCSCn = 0;

@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/10/23 23:16:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/11/15 23:22:51 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -112,7 +112,7 @@ for(int i = 0; i<19; ++i)
   mehSiStripStrip[i]=0;
 }
  std::string hcharname, hchartitle;
-dbe->setCurrentFolder("SiStrip");
+dbe->setCurrentFolder("GlobalDigisAnalyzer/SiStrips");
 for(int amend = 0; amend < 19; ++amend)
 { 
   hcharname = "hSiStripn_"+SiStripString[amend];
@@ -155,7 +155,7 @@ for(int i =0; i<4; ++i)
   mehHcalAEESHE[i]=0;
   mehHcalSHEvAEE[i]=0;
 }
-dbe->setCurrentFolder("HCal");
+dbe->setCurrentFolder("GlobalDigisAnalyzer/HCals");
  
 for(int amend = 0; amend < 4; ++amend)
 {
@@ -215,7 +215,7 @@ for(int i =0; i<2; ++i)
   mehEcalMultvAEE[i]=0;
   mehEcalSHEvAEESHE[i]=0;
 }
-dbe->setCurrentFolder("ECal");
+dbe->setCurrentFolder("GlobalDigisAnalyzer/ECals");
  
 for(int amend = 0; amend < 2; ++amend)
 {
@@ -298,7 +298,7 @@ for(int j =0; j<7; ++j)
   mehSiPixelCol[j]=0;
 }
 
-dbe->setCurrentFolder("SiPixels");
+dbe->setCurrentFolder("GlobalDigisAnalyzer/SiPixels");
 for(int amend = 0; amend < 7; ++amend)
 {
   hcharname = "hSiPixeln_"+SiPixelString[amend];
@@ -332,7 +332,7 @@ for(int amend = 0; amend < 7; ++amend)
   mehSiPixelCol[amend]->setAxisTitle("Count",2);
 }
 //Muons ***DONE****
-dbe->setCurrentFolder("Muons");
+dbe->setCurrentFolder("GlobalDigisAnalyzer/Muons");
 std::string MuonString[4] = {"MB1", "MB2", "MB3", "MB4"};
 
 for(int i =0; i < 4; ++i)
