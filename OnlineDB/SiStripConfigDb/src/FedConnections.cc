@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.8 2007/11/07 15:55:33 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.9 2007/11/20 22:39:27 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedConnections.cc,v $
 
@@ -20,8 +20,8 @@ const SiStripConfigDb::FedConnections& SiStripConfigDb::getFedConnections() {
 #ifdef USING_NEW_DATABASE_MODEL
     deviceFactory(__func__)->getConnectionDescriptions( dbParams_.partition_, 
 							connections_,
-							dbParams_.cablingMajor_,
-							dbParams_.cablingMinor_,
+							dbParams_.cabMajor_,
+							dbParams_.cabMinor_,
 							false ); //@@ do not get DISABLED connections
 #else
     for ( uint16_t iconn = 0; iconn < deviceFactory(__func__)->getNumberOfFedChannel(); iconn++ ) {
@@ -63,8 +63,8 @@ void SiStripConfigDb::uploadFedConnections( bool new_major_version ) {
 #ifdef USING_NEW_DATABASE_MODEL
       deviceFactory(__func__)->setConnectionDescriptions( connections_,
 							  dbParams_.partition_, 
-							  &(dbParams_.cablingMajor_),
-							  &(dbParams_.cablingMinor_),
+							  &(dbParams_.cabMajor_),
+							  &(dbParams_.cabMinor_),
 							  new_major_version );
 #else 
       SiStripConfigDb::FedConnections::iterator ifed = connections_.begin();
