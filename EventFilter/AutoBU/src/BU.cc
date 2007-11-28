@@ -69,6 +69,7 @@ BU::BU(xdaq::ApplicationStub *s)
   , mode_("RANDOM")
   , replay_(false)
   , crc_(true)
+  , overwriteEvtId_(true)
   , firstEvent_(1)
   , queueSize_(32)
   , eventBufferSize_(0x400000)
@@ -214,11 +215,11 @@ bool BU::stopping(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_,"Start stopping :) ...");
 
-   if (0!=PlaybackRawDataProvider::instance() && (!replay_.value_ || nbEventsBuilt_<events_.size()))
-     { 
-       lock();
-       freeIds_.push(events_.size()); 
-       unlock();
+    if (0!=PlaybackRawDataProvider::instance() && (!replay_.value_ || nbEventsBuilt_<events_.size()))
+      { 
+	lock();
+	freeIds_.push(events_.size()); 
+	unlock();
 	postBuild();
 	while (!builtIds_.empty()) {
 	  LOG4CPLUS_INFO(log_,"wait to flush ...builtIds=" << builtIds_.size() );
@@ -360,9 +361,9 @@ void BU::actionPerformed(xdata::Event& e)
 {
   gui_->monInfoSpace()->lock();
   if (e.type()=="urn:xdata-event:ItemGroupRetrieveEvent") {
-      mode_=(0==PlaybackRawDataProvider::instance())?"RANDOM":"PLAYBACK";
-      if (0!=i2oPool_) memUsedInMB_=i2oPool_->getMemoryUsage().getUsed()*9.53674e-07;
-      else             memUsedInMB_=0.0;
+    mode_=(0==PlaybackRawDataProvider::instance())?"RANDOM":"PLAYBACK";
+    if (0!=i2oPool_) memUsedInMB_=i2oPool_->getMemoryUsage().getUsed()*9.53674e-07;
+    else             memUsedInMB_=0.0;
   }
   else if (e.type()=="ItemChangedEvent") {
     string item=dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
@@ -626,6 +627,7 @@ void BU::exportParameters()
 
   gui_->addStandardParam("mode",              &mode_);
   gui_->addStandardParam("replay",            &replay_);
+  gui_->addStandardParam("overwriteEvtId",    &overwriteEvtId_);
   gui_->addStandardParam("crc",               &crc_);
   gui_->addStandardParam("firstEvent_",       &firstEvent_);
   gui_->addStandardParam("queueSize_",        &queueSize_);
@@ -717,7 +719,7 @@ bool BU::generateEvent(BUEvent* evt)
   // PLAYBACK mode
   if (0!=PlaybackRawDataProvider::instance()) {
     if(init_)LOG4CPLUS_INFO(log_,"AutoBU::using pbprovider at 0x" << hex 
-		   << (unsigned int) PlaybackRawDataProvider::instance() << dec);
+			    << (unsigned int) PlaybackRawDataProvider::instance() << dec);
     unsigned int runNumber,evtNumber;
 
     FEDRawDataCollection* event=
@@ -729,6 +731,11 @@ bool BU::generateEvent(BUEvent* evt)
       unsigned int   fedId  =validFedIds_[i];
       unsigned int   fedSize=event->FEDData(fedId).size();
       unsigned char* fedAddr=event->FEDData(fedId).data();
+      if (overwriteEvtId_.value_) {
+	fedh_t *fedHeader=(fedh_t*)fedAddr;
+	fedHeader->eventid = evtNumber;
+	fedHeader->eventid|=0x50000000;
+      }
       if (fedSize>0) evt->writeFed(fedId,fedAddr,fedSize);
     }
     delete event;

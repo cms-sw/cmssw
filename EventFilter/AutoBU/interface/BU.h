@@ -206,6 +206,7 @@ namespace evf {
     xdata::String                   mode_;
     xdata::Boolean                  replay_;
     xdata::Boolean                  crc_;
+    xdata::Boolean                  overwriteEvtId_;
     xdata::UnsignedInteger32        firstEvent_;
     xdata::UnsignedInteger32        queueSize_;
     xdata::UnsignedInteger32        eventBufferSize_;
