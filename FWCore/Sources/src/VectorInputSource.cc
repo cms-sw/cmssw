@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: VectorInputSource.cc,v 1.2 2007/06/14 21:03:40 wmtan Exp $
+$Id: VectorInputSource.cc,v 1.3 2007/11/27 20:23:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "FWCore/Sources/interface/VectorInputSource.h"
 
@@ -21,7 +21,7 @@ namespace edm {
   }
 
   void
-  VectorInputSource::readManyRandom(int number, EventPrincipalVector& result) {
-    this->readManyRandom_(number, result);
+  VectorInputSource::readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
+    this->readManyRandom_(number, result, fileSeqNumber);
   }
 }

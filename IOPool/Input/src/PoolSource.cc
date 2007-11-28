@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.70 2007/11/22 16:58:44 wmtan Exp $
+$Id: PoolSource.cc,v 1.71 2007/11/27 21:01:09 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -227,10 +227,6 @@ namespace edm {
 
   void
   PoolSource::readMany_(int number, EventPrincipalVector& result) {
-    if (!primary()) {
-      readManyRandom_(number, result);
-      return;
-    }
     for (int i = 0; i < number; ++i) {
       std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
       if (ev.get() == 0) {
@@ -266,7 +262,7 @@ namespace edm {
   }
 
   void
-  PoolSource::readManyRandom_(int number, EventPrincipalVector& result) {
+  PoolSource::readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
     while (eventsRemainingInFile_ < number) {
       if (rootFile_ != 0) rootFile_->close(primary());
       fileIter_ = fileIterBegin_ + flatDistribution_->fireInt(fileCatalogItems().size());
@@ -275,6 +271,7 @@ namespace edm {
       eventsRemainingInFile_ = rootFile_->eventTree().entries();
       rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));
     }
+    fileSeqNumber = fileIter_ - fileIterBegin_;
     for (int i = 0; i < number; ++i) {
       std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
       if (ev.get() == 0) {

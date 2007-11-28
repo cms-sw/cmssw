@@ -35,7 +35,8 @@ namespace edm {
     typedef edm::Wrapper<TC> WTC;
 
     VectorInputSource::EventPrincipalVector result;
-    secInput_->readManyRandom(1, result);
+    unsigned int fileSequenceNumber;
+    secInput_->readManyRandom(1, result, fileSequenceNumber);
 
     EventPrincipal *p = &**result.begin();
     EDProduct const* ep = p->getByType(TypeID(typeid(TC))).wrapper();

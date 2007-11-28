@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.43 2007/11/22 16:58:44 wmtan Exp $
+$Id: PoolSource.h,v 1.44 2007/11/27 21:01:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -56,7 +56,7 @@ namespace edm {
     virtual void rewind_();
     virtual void readMany_(int number, EventPrincipalVector& result);
     virtual void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
-    virtual void readManyRandom_(int number, EventPrincipalVector& result);
+    virtual void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
     void init(FileCatalogItem const& file);
     void updateProductRegistry() const;
     bool nextFile();
