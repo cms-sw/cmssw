@@ -17,7 +17,10 @@ PixelHdwAddress::PixelHdwAddress():
     mfecchannel_(0),
     portaddress_(0),
     hubaddress_(0),
-    rocid_(0)
+    rocid_(0),
+    fednumber_(0),
+    fedchannel_(0),
+    fedrocnumber_(0)
 {}
 
 
