@@ -7,15 +7,13 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: BasicCluster.h,v 1.8 2007/02/06 23:51:27 futyand Exp $
+ * \version $Id: BasicCluster.h,v 1.9 2007/07/31 15:20:04 ratnik Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
+#include "Rtypes.h" 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/EcalCluster.h"
-
-#include "Rtypes.h"
 
 namespace reco {
   
