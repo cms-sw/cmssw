@@ -61,6 +61,7 @@ class ESOccupancyCTTask: public EDAnalyzer{
   string instanceName_;
   int gain_;
   bool sta_;
+  bool x11_;
 
   bool init_;
 
