@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/11/20 00:33:16 $
- * $Revision: 1.43 $
+ * $Date: 2007/11/21 20:45:14 $
+ * $Revision: 1.44 $
  * \author W Fisher
  *
 */
@@ -25,7 +25,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   rhMon_ = NULL;     pedMon_ = NULL; 
   ledMon_ = NULL;    mtccMon_ = NULL;
   hotMon_ = NULL;    tempAnalysis_ = NULL;
-  deadMon_ = NULL;
+  deadMon_ = NULL;   tpMon_ = NULL;
 
   inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
   inputLabelRecHitHBHE_  = ps.getParameter<edm::InputTag>("hbheRecHitLabel");
@@ -86,7 +86,12 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     deadMon_ = new HcalDeadCellMonitor();
     deadMon_->setup(ps, dbe_);
   }
-  
+
+  if ( ps.getUntrackedParameter<bool>("TrigPrimMonitor", false) ) { 	 
+    if(debug_) cout << "HcalMonitorModule: TrigPrim monitor flag is on...." << endl; 	 
+    tpMon_ = new HcalTrigPrimMonitor(); 	 
+    tpMon_->setup(ps, dbe_); 	 
+  }  
 
   if ( ps.getUntrackedParameter<bool>("HcalAnalysis", false) ) {
     if(debug_) cout << "HcalMonitorModule: Hcal Analysis flag is on...." << endl;
@@ -317,11 +322,11 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
   edm::Handle<HFDigiCollection> hf_digi;
-  //  edm::Handle<HcalTrigPrimDigiCollection> tp_digi;
+  edm::Handle<HcalTrigPrimDigiCollection> tp_digi;
   try{e.getByLabel(inputLabelDigi_,hbhe_digi);} catch(exception& ex){digiOK_=false;};
   try{e.getByLabel(inputLabelDigi_,hf_digi);} catch(exception& ex){digiOK_=false;};
   try{e.getByLabel(inputLabelDigi_,ho_digi);} catch(exception& ex){digiOK_=false;};
-  //  try{e.getByLabel(inputLabelDigi_,tp_digi);} catch(exception& ex){tpdOK_=false;};
+  try{e.getByLabel(inputLabelDigi_,tp_digi);} catch(exception& ex){tpdOK_=false;};
 
 
 
@@ -362,16 +367,14 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // Dead Cell monitor task -- may end up using both rec hits and digis?
   if((deadMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_ && digiOK_) 
-    {
-      deadMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
-			     *hbhe_digi,*ho_digi,*hf_digi,*conditions_);			     
-    }
+    deadMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
+			   *hbhe_digi,*ho_digi,*hf_digi,*conditions_);			     
 
-  // Temporary or development tasks...
-  //  if(tempAnalysis_ != NULL && digiOK_ && trigOK_ && rechitOK_) 
-  //    tempAnalysis_->processEvent(*hbhe_digi,*ho_digi, *hf_digi,
-  //				 *hb_hits,*ho_hits,*hf_hits,
-  //				 *ltc,*conditions_);
+  // Dead Cell monitor task -- may end up using both rec hits and digis?
+  if((tpMon_ != NULL) && rechitOK_ && digiOK_ && tpdOK_) 
+    tpMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
+			 *hbhe_digi,*ho_digi,*hf_digi,*tp_digi);			     
+
 
 
 
