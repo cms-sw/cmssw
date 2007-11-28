@@ -104,7 +104,7 @@ void FUResource::release()
 		      <<xcept::stdformat_exception_history(e));
     }
   }
-
+  
   superFragHead_=0;
   superFragTail_=0;
   
@@ -118,12 +118,11 @@ void FUResource::release()
 
   for (UInt_t i=0;i<1024;i++) fedSize_[i]=0;
   eventSize_    =0;
-    
+  
   if (0!=shmCell_) {
     shmdt(shmCell_);
     shmCell_=0;
   }
-  
 }
 
 
@@ -136,25 +135,24 @@ void FUResource::process(MemRef_t* bufRef)
     return;
   }
   
-  while(0!=bufRef) {
-    MemRef_t* next=bufRef->getNextReference();
-    bufRef->setNextReference(0);
+  MemRef_t* itBufRef = bufRef;
+  while(0!=itBufRef&&!fatalError()) {
+    MemRef_t* next=itBufRef->getNextReference();
+    itBufRef->setNextReference(0);
     
     try {
-      processDataBlock(bufRef);
+      processDataBlock(itBufRef);
     }
     catch (xcept::Exception& e) {
       LOG4CPLUS_ERROR(log_,"EVENT LOST:"
 		      <<xcept::stdformat_exception_history(e));
       fatalError_=true;
-      next->release();
-      if (0==superFragHead_) bufRef->release();
-      next=0;
+      bufRef->setNextReference(next);
     }
     
-    bufRef=next;
+    itBufRef=next;
   }
-
+  
   return;
 }
 
