@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/11/26 22:32:06 $
- * $Revision: 1.81 $
+ * $Date: 2007/11/27 10:43:24 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1063,9 +1063,9 @@ void EcalEndcapMonitorClient::writeDb(void) {
   for ( int j = 0; j<int(clients_.size()); ++j ) {
     bool written; written = false;
     for ( EECIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-      if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
-        if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
-        if ( clientNames_[j] == "Led" && h_->GetBinContent(EcalDCCHeaderBlock::LED_STD+1) == 0 ) continue;
+      if ( h_ && h_->GetBinContent(2+(*k).second) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
+        if ( clientNames_[j] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 ) continue;
+        if ( clientNames_[j] == "Led" && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 ) continue;
         written = true;
         taskl |= 0x1 << j;
         cout << endl;
@@ -1373,7 +1373,7 @@ void EcalEndcapMonitorClient::analyze(void){
         if ( h_->GetEntries() != 0 ) {
           cout << " ( " << flush;
           for ( int i=0; i<int(runTypes_.size()); ++i ) {
-            if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(i+1) != 0 ) {
+            if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(2+i) != 0 ) {
               string s = runTypes_[i];
               transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
               cout << s << " ";
@@ -1749,9 +1749,9 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ){
   for ( int j = 0; j<int(clients_.size()); ++j ) {
     bool written; written = false;
     for ( EECIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-      if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
-        if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
-        if ( clientNames_[j] == "Led" && h_->GetBinContent(EcalDCCHeaderBlock::LED_STD+1) == 0 ) continue;
+      if ( h_ && h_->GetBinContent(2+(*k).second) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
+        if ( clientNames_[j] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 ) continue;
+        if ( clientNames_[j] == "Led" && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 ) continue;
         written = true;
         htmlName = "EE" + clientNames_[j] + "Client.html";
         clients_[j]->htmlOutput(run_, htmlDir, htmlName);
