@@ -20,6 +20,7 @@
 #include "CondCore/DBOutputService/interface/Exception.h"
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 //POOL include
 //#include "FileCatalog/IFileCatalog.h"
 #include "serviceCallbackToken.h"
@@ -141,7 +142,7 @@ cond::service::PoolDBOutputService::callbackToken(const std::string& EventSetupR
 
 cond::Time_t 
 cond::service::PoolDBOutputService::endOfTime() const{
-  return 1234;
+  return (cond::Time_t)edm::IOVSyncValue::endOfTime().eventID().run();
 }
 
 cond::Time_t 
