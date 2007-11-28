@@ -69,6 +69,7 @@ class ESOccupancyCTTask: public EDAnalyzer{
   MonitorElement *hitSensors1B_;
   MonitorElement *hitSensors2B_;
 
+  TApplication *theApp_;
 };
 
 #endif
