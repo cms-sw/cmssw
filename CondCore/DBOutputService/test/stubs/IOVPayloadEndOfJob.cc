@@ -21,7 +21,6 @@ void IOVPayloadEndOfJob::analyze( const edm::Event& evt, const edm::EventSetup& 
 }
 void IOVPayloadEndOfJob::endJob(){ 
   std::cout<<"IOVPayloadEndOfJob::endJob "<<std::endl;
-  //::putenv(const_cast<char*>("CORAL_AUTH_PATH=/home/xiezhen/work/CMSSW/dev130/CMSSW_1_2_0/src/CondCore/DBOutputService/test/auth"));
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( !mydbservice.isAvailable() ){
     std::cout<<"Service is unavailable"<<std::endl;
@@ -39,6 +38,7 @@ void IOVPayloadEndOfJob::endJob(){
       }
       //create 
       cond::Time_t firstTillTime=mydbservice->endOfTime();
+      std::cout<<"firstTillTime is end of time "<<firstTillTime<<std::endl;
       mydbservice->createNewIOV<Pedestals>(myped,firstTillTime,m_record);
     }else{
       //append 
