@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.8 2007/07/13 14:18:26 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.9 2007/11/20 22:40:53 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -72,8 +72,8 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
   
   if ( uploadFecSettings_ ) {
 
-    // Update PLL device descriptions
-    const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions(); 
+    // Retrieve and update PLL device descriptions
+    const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( PLL ); 
     bool upload = update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
     
     // Check if new PLL settings are valid 
@@ -84,7 +84,7 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
 	<< " Aborting update to database...";
       return;
     }
-
+    
     // Upload PLL device descriptions
     if ( !test_ ) { 
       LogTrace(mlDqmClient_) 
@@ -117,7 +117,7 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
       LogTrace(mlDqmClient_) 
 	<< "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	<< " Uploading FED ticker thresholds to DB...";
-      db_->uploadFedDescriptions(false); 
+      db_->uploadFedDescriptions(true); 
       LogTrace(mlDqmClient_) 
 	<< "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	<< " Upload of FED ticker thresholds to DB finished!";
@@ -171,7 +171,15 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 					addr.ccuChan_,
 					ichan+1 ).key();
       fec_path = SiStripFecKey( fec_key );
-      
+      {
+	std::stringstream sss;
+	sss << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	    << " FEC crate: " << addr.fecCrate_
+	    << " FEC ring " << addr.fecRing_
+	    << " FEC key " << fec_key;
+	edm::LogWarning(mlDqmClient_) << sss.str();
+      }
+
       // Locate appropriate analysis object    
       map<uint32_t,ApvTimingAnalysis*>::const_iterator iter = data_.find( fec_key );
       if ( iter != data_.end() ) { 
