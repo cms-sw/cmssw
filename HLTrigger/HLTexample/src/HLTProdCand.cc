@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/04/13 16:06:16 $
- *  $Revision: 1.37 $
+ *  $Date: 2007/11/09 16:01:13 $
+ *  $Revision: 1.43 $
  *
  *  \author Martin Grunewald
  *
@@ -17,14 +17,19 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
 
-#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
@@ -158,7 +163,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   taus->push_back(CaloJet(p4,specific,jetconst));
 	 } else if (abs(ipdg)==22) {
 	   // photon
-	   phot->push_back(    Photon(0,p4,math::XYZPoint(0,0,0),1.0,1.0,p4.E()));
+	   // phot->push_back(    Photon(0,p4,math::XYZPoint(0,0,0),SuperClusterRef(), ClusterShapeRef()) );
 	   ecal->push_back(RecoEcalCandidate(0,p4));
 	 } else if (abs(ipdg)==12 || abs(ipdg)==14 || abs(ipdg)==16 || abs(ipdg)==18) {
 	   // neutrinos (e mu tau 4th generation)
