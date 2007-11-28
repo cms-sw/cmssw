@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/10/08 08:58:26 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/10/09 18:23:11 $
+ *  $Revision: 1.15 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -93,23 +93,15 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
 {
   
-  cout << "PythiaSource: initializing Pythia. " << endl;
-  
- 
-  
   // PYLIST Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
   pythiaPylistVerbosity_ = pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0);
-  cout << "Pythia PYLIST verbosity level = " << pythiaPylistVerbosity_ << endl;
   
   // HepMC event verbosity Level
   pythiaHepMCVerbosity_ = pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false);
-  cout << "Pythia HepMC verbosity = " << pythiaHepMCVerbosity_ << endl; 
 
   //Max number of events printed on verbosity level 
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
-  cout << "Number of events to be printed = " << maxEventsToPrint_ << endl;
-
   
   particleID = pset.getUntrackedParameter<int>("ParticleID", 0);
   if(particleID) {
@@ -142,7 +134,6 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     cout << " seed= " << seed << endl ;
     fRandomEngine = new CLHEP::HepJamesRandom(seed) ;
     fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
-    cout << "Internal BaseFlatGunSource is initialzed" << endl ;
  
   }
   // Set PYTHIA parameters in a single ParameterSet
@@ -164,9 +155,6 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
       pythia_params.getParameter<vector<string> >(mySet);
     
     if (mySet != "SLHAParameters" && mySet != "CSAParameters"){
-    cout << "----------------------------------------------" << endl;
-    cout << "Read PYTHIA parameter set " << mySet << endl;
-    cout << "----------------------------------------------" << endl;
     
     // Loop over all parameters and stop in case of mistake
     for( vector<string>::const_iterator  
@@ -187,10 +175,6 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
    pars = pythia_params.getParameter<vector<string> >("CSAParameters");
 
-   cout << "----------------------------------------------" << endl; 
-   cout << "Reading CSA parameter settings. " << endl;
-   cout << "----------------------------------------------" << endl;                                                                           
-
    call_txgive_init();
   
   
@@ -207,12 +191,6 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
    pars = pythia_params.getParameter<vector<string> >("SLHAParameters");
 
-   cout << "----------------------------------------------" << endl; 
-   cout << "Reading SLHA parameters. " << endl;
-   cout << "----------------------------------------------" << endl;                                                                           
-
-  
-  
    // Loop over all parameters and stop in case of a mistake
     for (vector<string>::const_iterator 
             itPar = pars.begin(); itPar != pars.end(); ++itPar) {
@@ -226,9 +204,6 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   }
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
-    cout << "----------------------------------------------" << endl;
-    cout << "Setting Pythia random number seed " << endl;
-    cout << "----------------------------------------------" << endl;
   edm::Service<RandomNumberGenerator> rng;
   uint32_t seed = rng->mySeed();
   ostringstream sRandomSet;
@@ -247,12 +222,10 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
   produces<HepMCProduct>();
   produces<GenInfoProduct, edm::InRun>();
-  cout << "PythiaSource: starting event generation ... " << endl;
 }
 
 
 PythiaSource::~PythiaSource(){
-  cout << "PythiaSource: event generation done. " << endl;
   call_pystat(1);
   clear(); 
 }
@@ -275,7 +248,6 @@ void PythiaSource::endRun(Run & r) {
 bool PythiaSource::produce(Event & e) {
 
     auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
-    //cout << "PythiaSource: Generating event ...  " << endl;
 
     //********                                         
     //	
@@ -383,17 +355,14 @@ PythiaSource::call_txgive(const std::string& iParm ) {
   
    TXGIVE( iParm.c_str(), iParm.length() );
    cout << "     " <<  iParm.c_str() << endl; 
-
-	return 1;  
+   return 1;  
 }
 
 bool 
 PythiaSource::call_txgive_init() {
   
    TXGIVE_INIT();
-   cout << "  Setting CSA reweighting parameters.   "   << endl; 
-   
-	return 1;  
+   return 1;  
 }
 
 bool
@@ -438,7 +407,5 @@ bool
 PythiaSource::call_slha_init() {
   
    SLHA_INIT();
-   cout << "  Opening the SLHA spectrum file.   "   << endl; 
-   
-	return 1;  
+   return 1;  
 }
