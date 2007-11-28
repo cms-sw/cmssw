@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.3 2007/11/20 22:40:53 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.4 2007/11/27 16:27:05 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -282,12 +282,18 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds
   }
       
   // Some debug 
-  edm::LogVerbatim(mlDqmClient_)
-    << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-    << " Enabled a total of " << connected 
-    << " FED channels and disabled " << feds.size() * 96 - connected 
-    << " FED channels (" << 100 * connected / ( feds.size() * 96 )
-    << "% of total)";
+  std::stringstream sss;
+  if ( !feds.empty() ) {
+    sss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+	<< " Enabled a total of " << connected 
+	<< " FED channels and disabled " << feds.size() * 96 - connected 
+	<< " FED channels (" << 100 * connected / ( feds.size() * 96 )
+	<< "% of total)";
+  } else {
+    sss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+	<< " Found no FEDs! (and therefore no connected channels)";
+  }
+  edm::LogVerbatim(mlDqmClient_) << sss.str();
   
   // Some debug 
   std::stringstream ss;
