@@ -277,7 +277,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const FreeTrajectoryStat
                 return 0;
 	}	
 	LogDebug("SeedFromGenericPairOrTriplet") << "starting TSOS " << seedTSOS ;
-	if (!theSetMomentum) seedTSOS.rescaleError(50); //with the magnetic field estimated parameters can be bad due to the use of SS hits.
+	seedTSOS.rescaleError(50); 
 	PTrajectoryStateOnDet *PTraj=
 		theTransformer.persistentState(seedTSOS, trHits[1]->geographicalId().rawId());
 	edm::OwnVector<TrackingRecHit> seed_hits;
