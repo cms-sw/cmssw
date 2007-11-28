@@ -1,4 +1,4 @@
-// Last commit: $Id: FedCablingHistosUsingDb.cc,v 1.4 2007/05/24 15:59:49 bainbrid Exp $
+// Last commit: $Id: FedCablingHistosUsingDb.cc,v 1.5 2007/11/20 22:40:53 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FedCablingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -92,7 +92,7 @@ void FedCablingHistosUsingDb::uploadToConfigDb() {
     edm::LogVerbatim(mlDqmClient_) 
       << "[FedCablingHistosUsingDb::" << __func__ << "]"
       << " Uploading FED descriptions to DB...";
-    db_->uploadFedDescriptions(false); 
+    db_->uploadFedDescriptions(true); 
     edm::LogVerbatim(mlDqmClient_) 
       << "[FedCablingHistosUsingDb::" << __func__ << "]"
       << " Completed database upload of " << feds.size()
