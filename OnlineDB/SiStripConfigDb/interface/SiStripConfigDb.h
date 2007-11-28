@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.29 2007/11/21 13:44:07 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.30 2007/11/27 18:26:44 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -146,12 +146,15 @@ class SiStripConfigDb {
     std::string passwd_;
     std::string path_;
     std::string partition_; 
-    uint32_t cablingMajor_;
-    uint32_t cablingMinor_;
+    uint32_t runNumber_;
+    uint32_t cabMajor_;
+    uint32_t cabMinor_;
     uint32_t fedMajor_;
     uint32_t fedMinor_;
     uint32_t fecMajor_;
     uint32_t fecMinor_;
+    uint32_t calMajor_;
+    uint32_t calMinor_;
     std::string inputModuleXml_;
     std::string inputDcuInfoXml_;
     std::vector<std::string> inputFecXml_;

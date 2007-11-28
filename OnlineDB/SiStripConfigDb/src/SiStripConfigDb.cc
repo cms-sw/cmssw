@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.35 2007/11/20 23:07:30 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.36 2007/11/21 13:45:47 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -75,8 +75,8 @@ SiStripConfigDb::SiStripConfigDb( string confdb,
   dbParams_.usingDb_ = true; 
   dbParams_.confdb( confdb );
   dbParams_.partition_ = partition; 
-  dbParams_.cablingMajor_ = major;
-  dbParams_.cablingMinor_ = minor;
+  dbParams_.cabMajor_ = major;
+  dbParams_.cabMinor_ = minor;
   dbParams_.fedMajor_ = major; //@@
   dbParams_.fedMinor_ = minor; //@@
   dbParams_.fecMajor_ = major; //@@
@@ -120,8 +120,8 @@ SiStripConfigDb::SiStripConfigDb( string user,
   dbParams_.usingDb_ = true; 
   dbParams_.confdb( user, passwd, path );
   dbParams_.partition_ = partition; 
-  dbParams_.cablingMajor_ = major;
-  dbParams_.cablingMinor_ = minor;
+  dbParams_.cabMajor_ = major;
+  dbParams_.cabMinor_ = minor;
   dbParams_.fedMajor_ = major; //@@
   dbParams_.fedMinor_ = minor; //@@
   dbParams_.fecMajor_ = major; //@@
@@ -200,12 +200,15 @@ SiStripConfigDb::DbParams::DbParams() :
   passwd_(null_),
   path_(null_),
   partition_(null_), 
-  cablingMajor_(0),
-  cablingMinor_(0),
+  runNumber_(0),
+  cabMajor_(0),
+  cabMinor_(0),
   fedMajor_(0),
   fedMinor_(0),
   fecMajor_(0),
   fecMinor_(0),
+  calMajor_(0),
+  calMinor_(0),
   inputModuleXml_(""),
   inputDcuInfoXml_(""),
   inputFecXml_(),
@@ -233,12 +236,15 @@ void SiStripConfigDb::DbParams::reset() {
   confdb_ = null_;
   confdb( confdb_ );
   partition_ = null_;
-  cablingMajor_ = 0;
-  cablingMinor_ = 0;
+  runNumber_ = 0;
+  cabMajor_ = 0;
+  cabMinor_ = 0;
   fedMajor_ = 0;
   fedMinor_ = 0;
   fecMajor_ = 0;
   fecMinor_ = 0;
+  calMajor_ = 0;
+  calMinor_ = 0;
   inputModuleXml_ = "";
   inputDcuInfoXml_ = "";
   inputFecXml_ = vector<string>(1,"");
@@ -257,12 +263,15 @@ void SiStripConfigDb::DbParams::setParams( const edm::ParameterSet& pset ) {
   usingDb_ = pset.getUntrackedParameter<bool>("UsingDb",true); 
   confdb( pset.getUntrackedParameter<string>("ConfDb","") );
   partition_ = pset.getUntrackedParameter<string>("Partition","");
-  cablingMajor_ = pset.getUntrackedParameter<unsigned int>("MajorVersion",0);
-  cablingMinor_ = pset.getUntrackedParameter<unsigned int>("MinorVersion",0);
+  runNumber_ = pset.getUntrackedParameter<unsigned int>("RunNumber",0);
+  cabMajor_ = pset.getUntrackedParameter<unsigned int>("MajorVersion",0);
+  cabMinor_ = pset.getUntrackedParameter<unsigned int>("MinorVersion",0);
   fedMajor_ = pset.getUntrackedParameter<unsigned int>("FedMajorVersion",0);
   fedMinor_ = pset.getUntrackedParameter<unsigned int>("FedMinorVersion",0);
   fecMajor_ = pset.getUntrackedParameter<unsigned int>("FecMajorVersion",0);
   fecMinor_ = pset.getUntrackedParameter<unsigned int>("FecMinorVersion",0);
+  calMajor_ = pset.getUntrackedParameter<unsigned int>("CalibMajorVersion",0);
+  calMinor_ = pset.getUntrackedParameter<unsigned int>("CalibMinorVersion",0);
   inputModuleXml_ = pset.getUntrackedParameter<string>("InputModuleXml","");
   inputDcuInfoXml_ = pset.getUntrackedParameter<string>("InputDcuInfoXml",""); 
   inputFecXml_ = pset.getUntrackedParameter< vector<string> >( "InputFecXml", vector<string>(1,"") ); 
@@ -317,9 +326,11 @@ void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
      << " ConfDb                    : " << confdb_ << endl
      << " User/Passwd@Path          : " << user_ << "/" << passwd_ << "@" << path_ << endl
      << " Partition                 : " << partition_ << endl
-     << " Cabling major/minor vers  : " << cablingMajor_ << "/" << cablingMinor_ << endl
-     << " FED major/minor verss     : " << fedMajor_ << "/" << fedMinor_ << endl
-     << " FEC major/minor verss     : " << fecMajor_ << "/" << fecMinor_ << endl;
+     << " Run number                : " << runNumber_ << endl
+     << " Cabling major/minor vers  : " << cabMajor_ << "/" << cabMinor_ << endl
+     << " FED major/minor vers      : " << fedMajor_ << "/" << fedMinor_ << endl
+     << " FEC major/minor vers      : " << fecMajor_ << "/" << fecMinor_ << endl
+     << " Calibration major/minor   : " << calMajor_ << "/" << calMinor_ << endl;
   // Input
   ss << " Input \"module.xml\" file   : " << inputModuleXml_ << endl
      << " Input \"dcuinfo.xml\" file  : " << inputDcuInfoXml_ << endl
@@ -589,6 +600,38 @@ void SiStripConfigDb::usingDatabase() {
     handleException( __func__, "Attempted to 'setUsingDb'" );
   }
   
+  // Retrieve versioning from DB for a non-zero run numbers
+  if ( dbParams_.runNumber_ ) {
+    TkRun* run = deviceFactory(__func__)->getRun( dbParams_.partition_, 
+						  dbParams_.runNumber_ );
+    if ( run ) {
+      if ( run->getRunNumber() ) {
+#ifdef USING_NEW_DATABASE_MODEL
+	dbParams_.cabMajor_ = run->getConnectionVersionMajorId();
+	dbParams_.cabMinor_ = run->getConnectionVersionMinorId();
+#endif
+	dbParams_.fecMajor_ = run->getFecVersionMajorId();
+	dbParams_.fecMinor_ = run->getFecVersionMinorId();
+	dbParams_.fedMajor_ = run->getFedVersionMajorId();
+	dbParams_.fedMinor_ = run->getFedVersionMinorId();
+	//@@ need versioning for calibrations too!
+	std::stringstream ss;
+	ss << "[SiStripConfigDb::" << __func__ << "]"
+	   << " Versions overridden using values retrieved for specific run number:"
+	   << std::endl << dbParams_;
+	edm::LogVerbatim(mlConfigDb_) << ss.str();
+      } else {
+	edm::LogWarning(mlConfigDb_)
+	  << "[SiStripConfigDb::" << __func__ << "]"
+	  << " NULL run number returned!";
+      }
+    } else {
+      edm::LogWarning(mlConfigDb_)
+	<< "[SiStripConfigDb::" << __func__ << "]"
+	<< " NULL pointer to TkRun!";
+    }
+  }
+  
   // DCU-DetId 
   try { 
     deviceFactory(__func__)->addDetIdPartition( dbParams_.partition_ );
@@ -608,8 +651,8 @@ void SiStripConfigDb::usingDatabase() {
   
   try {
     deviceFactory(__func__)->setInputDBVersion( dbParams_.partition_,
-						dbParams_.cablingMajor_,
-						dbParams_.cablingMinor_ );
+						dbParams_.cabMajor_,
+						dbParams_.cabMinor_ );
   } catch (...) { 
     stringstream ss;
     ss << "Attempted to 'setInputDBVersion; for partition: " << dbParams_.partition_;
@@ -944,7 +987,7 @@ void SiStripConfigDb::createPartition( const string& partition_name,
       ss << "Failed to create and upload ConnectionDescriptions"
 	 << " to partition with name "
 	 << dbParams_.partition_ << " and version " 
-	 << dbParams_.cablingMajor_ << "." << dbParams_.cablingMinor_;
+	 << dbParams_.cabMajor_ << "." << dbParams_.cabMinor_;
       handleException( __func__, ss.str() );
     }
   }
