@@ -68,6 +68,11 @@ class ESOccupancyCTClient: public EDAnalyzer{
   TH1F *hOccupancy1D_[2][6];
   TH2F *hOccupancy2D_[2][6];
 
+  TH2F *hStrips1B_;
+  TH2F *hStrips2B_;
+  TH2F *hSensors1B_;
+  TH2F *hSensors2B_;
+
 };
 
 #endif
