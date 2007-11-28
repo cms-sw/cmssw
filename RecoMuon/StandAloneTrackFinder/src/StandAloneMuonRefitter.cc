@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2007/04/27 14:55:16 $
- *  $Revision: 1.34 $
+ *  $Date: 2007/05/11 18:28:25 $
+ *  $Revision: 1.35 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -37,8 +37,10 @@ using namespace edm;
 using namespace std;
 
 StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par,
-					       const MuonServiceProxy* service):theService(service){
-  
+					       const MuonServiceProxy* service)
+:theService(service),
+ useOverlappingChambers_(true)
+{
   // Fit direction
   string fitDirectionName = par.getParameter<string>("FitDirection");
 
@@ -180,15 +182,10 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
   
   LogTrace(metname) << "Starting the refit"<<endl; 
 
-  // this is the most outward TSOS updated with a recHit onto a DetLayer
-  TrajectoryStateOnSurface lastUpdatedTSOS;
-  // this is the last but one most outward TSOS updated with a recHit onto a DetLayer
-  TrajectoryStateOnSurface lastButOneUpdatedTSOS;
   // this is the most outward TSOS (updated or predicted) onto a DetLayer
-  TrajectoryStateOnSurface lastTSOS;
+  TrajectoryStateOnSurface lastTSOS = theLastUpdatedTSOS = theLastButOneUpdatedTSOS = initialTSOS;
   
-  lastUpdatedTSOS = lastButOneUpdatedTSOS = lastTSOS = initialTSOS;
-  
+  double eta0 = initialTSOS.freeTrajectoryState()->momentum().eta();
   vector<const DetLayer*> detLayers = compatibleLayers(initialLayer,*initialTSOS.freeTrajectoryState(),
 						       propagationDirection());  
   
@@ -205,15 +202,8 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
     
     LogTrace(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
     
-    vector<TrajectoryMeasurement> measL = 
-      theMeasurementExtractor->measurements(*layer,
-      					   lastTSOS, 
-      					   *propagator(), 
-					   *estimator());
-
-    LogTrace(metname) << "Number of Trajectory Measurement: " << measL.size();
-        
-    TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL, propagator());
+    // pick the best measurement from each group
+    std::vector<TrajectoryMeasurement> bestMeasurements = findBestMeasurements(*layer, lastTSOS);
 
     // RB: Different ways can be choosen if no bestMeasurement is available:
     // 1- check on lastTSOS-initialTSOS eta difference
@@ -227,56 +217,37 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
     // if no measurement found and the current TSOS has an eta very different
     // wrt the initial one (i.e. seed), then try to find the measurements
     // according to the lastButOne FTS. (1B)
-    if( !bestMeasurement && 
-	fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - 
-	     initialTSOS.freeTrajectoryState()->momentum().eta())>0.1 ) {
-
+    double lastdEta = fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - eta0);
+    if( bestMeasurements.empty() && lastdEta > 0.1) {
       LogTrace(metname) << "No measurement and big eta variation wrt seed" << endl
 			<< "trying with lastButOneUpdatedTSOS";
-      measL = theMeasurementExtractor->measurements(*layer,
-						   lastButOneUpdatedTSOS, 
-						   *propagator(), 
-						   *estimator());
-      bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL, propagator());
+      bestMeasurements = findBestMeasurements(*layer, theLastButOneUpdatedTSOS);
     }
     
     //if no measurement found and the current FTS has an eta very different
     //wrt the initial one (i.e. seed), then try to find the measurements
     //according to the initial FTS. (1A)
-    if( !bestMeasurement && 
-	fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - 
-	     initialTSOS.freeTrajectoryState()->momentum().eta())>0.1 ) {
-
+    if( bestMeasurements.empty() && lastdEta > 0.1) {
       LogTrace(metname) << "No measurement and big eta variation wrt seed" << endl
 			<< "tryng with seed TSOS";
-
-      measL = theMeasurementExtractor->measurements(*layer,
-						   initialTSOS, 
-						   *propagator(), 
-						   *estimator());
-      bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL, propagator());
+      bestMeasurements = findBestMeasurements(*layer, initialTSOS);
     }
     
     // FIXME: uncomment this line!!
     // if(!bestMeasurement && firstTime) break;
 
-    // check if the there is a measurement
-    if(bestMeasurement){
-      LogTrace(metname)<<"best measurement found" << "\n"
-		       <<"updating the trajectory..."<<endl;
-      pair<bool,TrajectoryStateOnSurface> result = updator()->update(bestMeasurement,
-								     trajectory,
-								     propagator());
-      LogTrace(metname)<<"trajectory updated: "<<result.first<<endl;
-      LogTrace(metname) << debug.dumpTSOS(result.second);
-      
-      if(result.first){ 
-	lastTSOS = result.second;
-	incrementChamberCounters(*layer);
-	theDetLayers.push_back(*layer);
-	
-	lastButOneUpdatedTSOS = lastUpdatedTSOS;
-	lastUpdatedTSOS = lastTSOS;
+    if(!bestMeasurements.empty()) 
+    {
+      bool added = false;
+      for(std::vector<TrajectoryMeasurement>::const_iterator tmItr = bestMeasurements.begin();
+          tmItr != bestMeasurements.end(); ++tmItr)
+      {
+        added |= update(*layer, &(*tmItr), trajectory);
+        lastTSOS = theLastUpdatedTSOS;
+      }
+      if(added) {
+        incrementChamberCounters(*layer);
+        theDetLayers.push_back(*layer);
       }
     }
     // SL in case no valid mesurement is found, still I want to use the predicted
@@ -284,15 +255,68 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
     // container. FIXME!!! I want to carefully check this!!!!!
     else{
       LogTrace(metname)<<"No best measurement found"<<endl;
-      if (measL.size()>0){
-	LogTrace(metname)<<"but the #of measurement is "<<measL.size()<<endl;
-        lastTSOS = measL.front().predictedState();
+      if (!theMeasurementCache.empty()){
+	LogTrace(metname)<<"but the #of measurement is "<<theMeasurementCache.size()<<endl;
+        lastTSOS = theMeasurementCache.front().predictedState();
       }
     }
-
-  }
-  setLastUpdatedTSOS(lastUpdatedTSOS);
-  setLastButOneUpdatedTSOS(lastButOneUpdatedTSOS);
+  } // loop over layers
 }
 
 
+std::vector<TrajectoryMeasurement>
+StandAloneMuonRefitter::findBestMeasurements(const DetLayer * layer,
+                                             const TrajectoryStateOnSurface & tsos)
+{
+  std::vector<TrajectoryMeasurement> result;
+  if(useOverlappingChambers_ && layer->hasGroups())
+  {
+    std::vector<TrajectoryMeasurementGroup> measurementGroups =
+      theMeasurementExtractor->groupedMeasurements(layer, tsos, *propagator(), *estimator());
+    for(std::vector<TrajectoryMeasurementGroup>::const_iterator tmGroupItr = measurementGroups.begin();
+        tmGroupItr != measurementGroups.end(); ++tmGroupItr)
+    {
+      theMeasurementCache = tmGroupItr->measurements();
+      const TrajectoryMeasurement * best 
+        = bestMeasurementFinder()->findBestMeasurement(theMeasurementCache,  propagator());
+      if(best) {
+        result.push_back( *best );
+      }
+    }
+  }
+  else 
+  {
+    theMeasurementCache = theMeasurementExtractor->measurements(layer, tsos, *propagator(), *estimator());
+    const TrajectoryMeasurement * best
+      = bestMeasurementFinder()->findBestMeasurement(theMeasurementCache,  propagator());
+    if(best) {
+      result.push_back( *best );
+    }
+  }
+  return result;
+}
+
+
+
+
+bool StandAloneMuonRefitter::update(const DetLayer * layer, 
+                                    const TrajectoryMeasurement * meas, 
+                                    Trajectory & trajectory)
+{
+  const std::string metname = "Muon|RecoMuon|StandAloneMuonRefitter";
+  MuonPatternRecoDumper debug;
+
+  LogTrace(metname)<<"best measurement found" << "\n"
+                   <<"updating the trajectory..."<<endl;
+  pair<bool,TrajectoryStateOnSurface> result = updator()->update(meas,
+                                                                 trajectory,
+                                                                 propagator());
+  LogTrace(metname)<<"trajectory updated: "<<result.first<<endl;
+  LogTrace(metname) << debug.dumpTSOS(result.second);
+
+  if(result.first){
+    theLastButOneUpdatedTSOS = theLastUpdatedTSOS;
+    theLastUpdatedTSOS = result.second;
+  }
+  return result.first;
+}
