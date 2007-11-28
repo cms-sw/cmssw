@@ -373,6 +373,9 @@ void MeasurementTracker::initializeStripStatus(const SiStripQuality *quality, in
           bool isOn = quality->IsModuleUsable(detid);
           (*i)->setActive(isOn);
           tot++; on += (unsigned int) isOn;
+          if (qualityDebugFlags & BadModules) {
+             std::cout << "MeasurementTracker::initializeStripStatus : detid " << detid << " is " << (isOn ?  "on" : "off") << std::endl;
+          }
        } else {
           (*i)->setActive(true);
        }
