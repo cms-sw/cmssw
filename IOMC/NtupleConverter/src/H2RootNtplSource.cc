@@ -18,8 +18,8 @@ using namespace std;
 
 H2RootNtplSource::H2RootNtplSource( const ParameterSet & pset, InputSourceDescription const& desc ) :
 ExternalInputSource(pset, desc),  
-evt(0),   maxEvents_(pset.getUntrackedParameter<int>("maxEvents",-1)),  firstEvent_ (pset.getUntrackedParameter<unsigned int>("firstEvent",0)),
-reader_(  Ntuple2HepMCFiller::instance() ){
+evt(0), firstEvent_ (pset.getUntrackedParameter<unsigned int>("firstEvent",0)),
+reader_( Ntuple2HepMCFiller::instance() ){
 	
 
 	cout << "H2RootNtplSource: Reading HepMC file: " << fileNames()[0] << endl;
@@ -29,8 +29,7 @@ reader_(  Ntuple2HepMCFiller::instance() ){
 	  fileName.erase(0,5);
 	}   
 	//Max number of events processed  
-	maxEvents_ = pset.getUntrackedParameter<int>("maxEvents",0);
-	cout << "H2RootNtplSource: Number of events to be processed = " << maxEvents_ << endl;
+	cout << "H2RootNtplSource: Number of events to be processed = " << maxEvents() << endl;
 	
 	//First event
 	firstEvent_ = pset.getUntrackedParameter<unsigned int>("firstEvent",0);

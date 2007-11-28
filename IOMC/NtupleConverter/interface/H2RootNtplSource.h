@@ -28,7 +28,6 @@ namespace edm
 		EventID nextID_;	
 		std::string filename_;
 	public:
-	        int maxEvents_;
 		unsigned int firstEvent_;
 		Ntuple2HepMCFiller * reader_;
 		
