@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/11/20 18:46:27 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/11/26 15:25:48 $
+ *  $Revision: 1.12 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -20,11 +20,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theUpdator(0), theVtxUpdator(0), theConfig (iConfig)
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theConfig (iConfig)
 {
 }
 
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theEstimator(0), theUpdator(0), theVtxUpdator(0), theConfig (iConfig)
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theEstimator(0), theConfig (iConfig)
 {
 }
 
@@ -36,8 +36,6 @@ TSGFromPropagation::~TSGFromPropagation()
   LogTrace(category) << " TSGFromPropagation dtor called ";
 
   if ( theNavigation ) delete theNavigation;
-  if ( theUpdator ) delete theUpdator;
-  if ( theVtxUpdator ) delete theVtxUpdator;
   if ( theEstimator ) delete theEstimator;
   if ( theTkLayerMeasurements ) delete theTkLayerMeasurements;
   LogTrace(category) << " TSGFromPropagation dtor finished  ";
@@ -51,19 +49,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
 
   LogTrace(category) << " begin of trackerSeed ";
 
-  TrajectoryStateOnSurface staState;
-
-  if ( theUseMuonStateFlag ) {
-    TrajectoryStateOnSurface staState = outerTkState(staMuon);
-
-    if ( !staState.isValid() ) { 
-       LogTrace(category) << " outerTkState failed ";
-       staState = innerState(staMuon);
-    }
-  } else {
-    LogTrace(category) << " use inner state ";
-    staState = innerState(staMuon);
-  }
+  TrajectoryStateOnSurface staState = innerState(staMuon);
 
   if ( !staState.isValid() ) { 
     LogTrace(category) << " initial state invalid, fail";
@@ -73,70 +59,13 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
   LogTrace(category) << " staState pos: "<<staState.globalPosition()
                      << " mom: "<<staState.globalMomentum() <<"eta: "<<staState.globalPosition().eta();
 
-  float err = 10;
-  staState.rescaleError(err);
+  staState.rescaleError(10);
 
   std::vector<const DetLayer*> nls = theNavigation->compatibleLayers(*(staState.freeState()), oppositeToMomentum);
 
   LogTrace(category) << " compatible layers: "<<nls.size();
 
   if ( nls.empty() ) return;
-
-//// debug only ===========
-/*
-std::vector<TkStripMeasurementDet*> stripdets = theMeasTracker->stripDets();
-
-for (std::vector<TkStripMeasurementDet*>::const_iterator isd = stripdets.begin(); isd !=  stripdets.end(); ++isd  ) {
-
-  TransientTrackingRecHit::RecHitContainer hits = (*isd)->recHits(staState); 
-  if ( !hits.empty() ) LogTrace(category) << " here is hit ";
-
-  for (TransientTrackingRecHit::RecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ihit++ ) {
-     LogTrace(category) << "a hit is at "<< (*ihit)->globalPosition();
-     LogTrace(category) << "a hit is at layer "<<
-     debug.dumpLayer(theTracker->detLayer((*ihit)->geographicalId()));
-
-     TrajectoryStateOnSurface prdstat = propagator()->propagate(staState,theTracker->detLayer((*ihit)->geographicalId())->surface());
-
-     std::vector<TrajectoryMeasurement> alltm = findMeasurements(theTracker->detLayer((*ihit)->geographicalId()), staState);
-
-//===================
-  typedef DetLayer::DetWithState   DetWithState;
-  vector<DetWithState> compatDets = theTracker->detLayer((*ihit)->geographicalId())->compatibleDets( staState, *propagator(), *estimator());
-
-  LogTrace(category) << " compatDets "<<compatDets.size();
-
-  vector<TrajectoryMeasurement> result;
-  if (compatDets.empty()) {
-    pair<bool, TrajectoryStateOnSurface> compat =
-      theTracker->detLayer((*ihit)->geographicalId())->compatible(staState, *propagator(), *estimator());
-     LogTrace(category) << " compatDets empty and compat is "<<compat.first;
-     LogTrace(category) << " build invalid hit ";
-
-  }
-
-  GeometricSearchDetMeasurements gsdm(&*theMeasTracker);
-  vector<TrajectoryMeasurement> tmpResult = gsdm.get( (*theTracker->detLayer((*ihit)->geographicalId())), compatDets, staState, *propagator(), *estimator());
-  LogTrace(category) << " tmpResult "<<tmpResult.size();
-  if ( !tmpResult.empty() ) LogTrace(category) << " tmpResult rechit valid "<<tmpResult.front().recHit()->isValid();
-  
-//---------------------------
-
-  LogTrace(category) << " alltm: "<<alltm.size();
-
-   if ( !alltm.empty() )  LogTrace(category)<<"hit valid "<<alltm.front().recHit()->isValid()<<" predstat valid "<<alltm.front().predictedState().isValid();
-
-     if (prdstat.isValid() )
-        LogTrace(category) << "pred tsos at layer "<<prdstat;
-
-    std::pair<bool,double> chi2 = estimator()->estimate(prdstat, (**ihit));
-    LogTrace(category) << "estimated chi2 "<<chi2.second<<" valid hit "<<(**ihit).isValid();
-
-  }
-
- } 
-*/
-///// ======
 
   std::vector<TrajectoryMeasurement> alltm = findMeasurements(nls.front(), staState);
 
@@ -198,29 +127,15 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theMaxChi2 = theConfig.getParameter<double>("MaxChi2");
 
-  theErrorReset = theConfig.getUntrackedParameter<double>("ErrorReset", 100.0);
-
-  theVtxFlag = theConfig.getUntrackedParameter<bool>("ApplyVertexConstraint",  true);
-
-  theSkipFirstLayerFlag = theConfig.getUntrackedParameter<bool>("SkipFirstLayer", true);
-
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
 
-  theUpdator= new KFUpdator();
   theCacheId_MT = 0;
 
   thePropagatorName = theConfig.getParameter<std::string>("Propagator");
 
   theService = service;
 
-  edm::ParameterSet vtxUpdatorParameters = theConfig.getParameter<edm::ParameterSet>("MuonUpdatorAtVertexParameters");
-
   theUseSecondMeasurementsFlag = theConfig.getParameter<bool>("UseSecondMeasurements");
-
-  theUseMuonStateFlag = theConfig.getParameter<bool>("UseMuonState");
-
-  theVtxUpdator = new MuonUpdatorAtVertex(vtxUpdatorParameters,theService);
-
 
 }
 
@@ -280,54 +195,6 @@ TrajectoryStateOnSurface TSGFromPropagation::innerState(const TrackCand& staMuon
   return  innerTS;
 
 }
-
-TrajectoryStateOnSurface TSGFromPropagation::outerTkState(const TrackCand& staMuon) const {
-
-  const string category = "Muon|RecoMuon|TSGFromPropagation";
-
-  TrajectoryStateOnSurface result;
-  MuonPatternRecoDumper debug;
-
-
-  if ( theVtxFlag ) {
-
-    // build the transient track
-    reco::TransientTrack transientTrack(staMuon.second,
-  				      &*theService->magneticField(),
-				      theService->trackingGeometry());
-
-    LogTrace(category) << "Apply the vertex constraint";
-    pair<bool,FreeTrajectoryState> updateResult = theVtxUpdator->update(transientTrack);
-
-    if(!updateResult.first){
-      LogTrace(category) << "vertex constraint failed ";
-      return result; //FIXME
-    }
-
-    LogTrace(category) << "FTS after the vertex constraint";
-    FreeTrajectoryState &ftsAtVtx = updateResult.second;
-
-    LogTrace(category) << debug.dumpFTS(ftsAtVtx);
-
-    StateOnTrackerBound fromInside(&*theService->propagator("PropagatorWithMaterial"));
-
-    result = fromInside(ftsAtVtx);
-    LogTrace(category) << "fromInside"<< debug.dumpTSOS(result);
-
-  } else {
-
-    LogTrace(category) << "propagate from muon state directly";
-
-    StateOnTrackerBound fromOutside(&*theService->propagator("SteppingHelixPropagatorAny"));
-    result = fromOutside(innerState(staMuon));
-    LogTrace(category) << "fromOutside"<< debug.dumpTSOS(result);
-
-  }
-
-  return result;
-
-}
-
 
 TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryMeasurement& tm) const {
 

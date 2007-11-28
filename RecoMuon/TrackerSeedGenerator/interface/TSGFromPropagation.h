@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2007/08/20 20:57:05 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/10/05 20:38:17 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -50,8 +50,6 @@ private:
 
   const Chi2MeasurementEstimator* estimator() const { return theEstimator; }
 
-  const KFUpdator* updator() const { return theUpdator; }
-
   edm::ESHandle<Propagator> propagator() const {return theService->propagator(thePropagatorName); }
 
   TrajectorySeed createSeed(const TrajectoryMeasurement&) const;
@@ -88,10 +86,6 @@ private:
 
   const Chi2MeasurementEstimator*   theEstimator;
 
-  const KFUpdator* theUpdator;
-
-  MuonUpdatorAtVertex*        theVtxUpdator;
-
   edm::ParameterSet theConfig;
 
   double theMaxChi2;
@@ -99,10 +93,6 @@ private:
   unsigned int theMaxSeeds;
 
   double theErrorReset;
-
-  bool theVtxFlag;
-
-  bool theSkipFirstLayerFlag;
 
   bool theUseSecondMeasurementsFlag;
 
