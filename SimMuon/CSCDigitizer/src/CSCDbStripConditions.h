@@ -6,11 +6,12 @@
 #include "CondFormats/CSCObjects/interface/CSCDBGains.h"
 #include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class CSCDbStripConditions : public CSCStripConditions
 {
 public:
-  CSCDbStripConditions();
+  explicit CSCDbStripConditions(const edm::ParameterSet & pset);
   virtual ~CSCDbStripConditions();
 
   /// fetch the maps from the database
@@ -51,6 +52,7 @@ private:
   float theCapacitiveCrosstalk;
   // converts DB gains to the gain we expect, 0.5 fC/ADC
   float theGainsConstant;
+  bool doCorrelatedNoise_;
 };
 
 #endif

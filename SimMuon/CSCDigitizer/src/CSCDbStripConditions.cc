@@ -8,14 +8,15 @@
 #include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
 
 
-CSCDbStripConditions::CSCDbStripConditions() 
+CSCDbStripConditions::CSCDbStripConditions(const edm::ParameterSet & pset) 
 : CSCStripConditions(),
   theNoiseMatrix(0),
   theGains(0),
   thePedestals(0),
   theCrosstalk(0),
-  theCapacitiveCrosstalk(76.2),
-  theGainsConstant(0.27)
+  theCapacitiveCrosstalk(pset.getParameter<double>("capacativeCrosstalk")),
+  theGainsConstant(pset.getParameter<double>("gainsConstant")),
+  doCorrelatedNoise_(pset.getParameter<bool>("doCorrelatedNoise"))
 {
 //  theCapacitiveCrosstalk = = 1/maxslope/maxsignal) = 1/ (0.00231/0.143);
 // Howoever, need a bit more.  Maybe the slope gets smeared?
@@ -155,27 +156,31 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
   assert(theNoiseMatrix != 0);
   const CSCDBNoiseMatrix::Item & item = theNoiseMatrix->item(detId, istrip);
 
-  HepSymMatrix matrix(8);
+  CSCCorrelatedNoiseMatrix matrix;
   //TODO get the pedestals right
-  matrix[3][3] = item.elem33;
-  matrix[3][4] = item.elem34;
-  matrix[3][5] = item.elem35;
-  matrix[4][4] = item.elem44;
-  matrix[4][5] = item.elem45;
-  matrix[4][6] = item.elem46;
-  matrix[5][5] = item.elem55;
-  matrix[5][6] = item.elem56;
-  matrix[5][7] = item.elem57;
-  matrix[6][6] = item.elem66;
-  matrix[6][7] = item.elem67;
-  matrix[7][7] = item.elem77;
+  matrix(3,3) = item.elem33;
+  matrix(4,4) = item.elem44;
+  matrix(5,5) = item.elem55;
+  matrix(6,6) = item.elem66;
+  matrix(7,7) = item.elem77;
   
+  if(doCorrelatedNoise_)
+  {
+    matrix(3,4) = item.elem34;
+    matrix(3,5) = item.elem35;
+    matrix(4,5) = item.elem45;
+    matrix(4,6) = item.elem46;
+    matrix(5,6) = item.elem56;
+    matrix(5,7) = item.elem57;
+    matrix(6,7) = item.elem67;
+  }
+
   // the other diagonal elements can just come from the pedestal sigma, I guess
   float sigma = pedestalSigma(detId, istrip);
   float scaVariance = 2 * sigma * sigma;
-  matrix[0][0] = matrix[1][1] = matrix[2][2] = scaVariance;
+  matrix(0,0) = matrix(1,1) = matrix(2,2) = scaVariance;
   if(theNoisifier != 0) delete theNoisifier;
-  theNoisifier = new CorrelatedNoisifier(matrix);
+  theNoisifier = new CSCCorrelatedNoisifier(matrix);
 }
 
 

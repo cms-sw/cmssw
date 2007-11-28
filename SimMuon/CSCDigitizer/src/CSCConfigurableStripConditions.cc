@@ -67,27 +67,27 @@ void CSCConfigurableStripConditions::makeNoisifier(int chamberType, const std::v
       << correlations.size();
   }
 
-  HepSymMatrix matrix(8);
-  matrix[3][3] = correlations[0];
-  matrix[3][4] = correlations[1];
-  matrix[4][4] = correlations[2];
-  matrix[3][5] = correlations[3];
-  matrix[4][5] = correlations[4];
-  matrix[5][5] = correlations[5];
-  matrix[4][6] = correlations[6];
-  matrix[5][6] = correlations[7];
-  matrix[6][6] = correlations[8];
-  matrix[5][7] = correlations[9];
-  matrix[6][7] = correlations[10];
-  matrix[7][7] = correlations[11];
+  CSCCorrelatedNoiseMatrix matrix;
+  matrix(3,3) = correlations[0];
+  matrix(3,4) = correlations[1];
+  matrix(4,4) = correlations[2];
+  matrix(3,5) = correlations[3];
+  matrix(4,5) = correlations[4];
+  matrix(5,5) = correlations[5];
+  matrix(4,6) = correlations[6];
+  matrix(5,6) = correlations[7];
+  matrix(6,6) = correlations[8];
+  matrix(5,7) = correlations[9];
+  matrix(6,7) = correlations[10];
+  matrix(7,7) = correlations[11];
 
   // since I don't know how to correlate the pedestal samples,
   // take as constant
   double scaVariance = 2. * thePedestalSigma * thePedestalSigma;
-  matrix[0][0] = scaVariance;
-  matrix[1][1] = scaVariance;
-  matrix[2][2] = scaVariance;
-  theNoisifiers[chamberType-1] = new CorrelatedNoisifier(matrix);
+  matrix(0,0) = scaVariance;
+  matrix(1,1) = scaVariance;
+  matrix(2,2) = scaVariance;
+  theNoisifiers[chamberType-1] = new CSCCorrelatedNoisifier(matrix);
 
 }
 

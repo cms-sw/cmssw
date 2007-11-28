@@ -11,6 +11,8 @@
 class CSCStripConditions
 {
 public:
+  typedef math::ErrorD<8>::type CSCCorrelatedNoiseMatrix;
+  typedef CorrelatedNoisifier<CSCCorrelatedNoiseMatrix> CSCCorrelatedNoisifier;
   CSCStripConditions();
 
   virtual ~CSCStripConditions();
@@ -40,7 +42,7 @@ public:
 protected:
   virtual void fetchNoisifier(const CSCDetId & detId, int istrip) = 0;
 
-  CorrelatedNoisifier * theNoisifier;
+  CSCCorrelatedNoisifier * theNoisifier;
   CLHEP::RandGaussQ * theRandGaussQ;
 };
 

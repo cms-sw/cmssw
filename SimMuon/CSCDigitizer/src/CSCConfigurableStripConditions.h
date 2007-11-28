@@ -26,7 +26,7 @@ public:
 private:
   virtual void fetchNoisifier(const CSCDetId & detId, int istrip);
   void makeNoisifier(int chamberType, const std::vector<double> & correlations);
-  std::vector<CorrelatedNoisifier *> theNoisifiers;
+  std::vector<CSCCorrelatedNoisifier *> theNoisifiers;
 
   float theGain;
   float theME11Gain;
