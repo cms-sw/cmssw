@@ -17,7 +17,7 @@
 #include "TProfile.h"
 #include "TProfile2D.h"
 #include "TProfile3D.h"
-
+#include "DataFormats/Histograms/interface/MEtoROOTFormat.h"
 
 namespace {
   struct dictionary {
@@ -39,5 +39,9 @@ namespace {
   edm::Wrapper<TProfile> dummyPr;
   edm::Wrapper<TProfile2D> dummyPr2D;
   edm::Wrapper<TProfile3D> dummyPr3D;
-};
+  };
+
+  namespace {
+    edm::Wrapper<MEtoROOT> theValidData1;
+  }
 }
