@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.24 2007/10/08 21:22:10 hcheung Exp $
+  $Id: EventStreamHttpReader.cc,v 1.25 2007/11/26 19:46:36 biery Exp $
 */
 
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
@@ -49,7 +49,6 @@ namespace edm
     edm::StreamerInputSource(ps, desc),
     sourceurl_(ps.getParameter<string>("sourceURL")),
     buf_(1000*1000*7), 
-    events_read_(0),
     endRunAlreadyNotified_(true),
     runEnded_(false),
     alreadySaidHalted_(false),
@@ -122,10 +121,6 @@ namespace edm
     // wait for Storage Manager event server buffer to not be empty
     // only way to stop is specify a maxEvents parameter
     // or kill the Storage Manager so the http get fails.
-
-    // see if already read maxEvents
-    if(maxEvents() > 0 && events_read_ >= maxEvents()) 
-      return std::auto_ptr<edm::EventPrincipal>();
 
     // try to get an event repeat until we get one, this allows
     // re-registration if the SM is halted or stopped
@@ -274,7 +269,6 @@ namespace edm
       // reset need-to-set-end-run flag when we get the first event (here any event)
       endRunAlreadyNotified_ = false;
       alreadySaidHalted_ = false;
-      events_read_++;
       EventMsgView eventView(&buf_[0]);
       return deserializeEvent(eventView);
     }

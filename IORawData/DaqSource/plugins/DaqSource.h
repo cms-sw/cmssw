@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2007/08/14 19:19:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/08/15 01:48:01 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -32,8 +32,6 @@ namespace edm {
   
     virtual ~DaqSource();
   
-    int remainingEvents() const {return remainingEvents_;}
-  
    private:
   
     std::auto_ptr<EventPrincipal> readOneEvent(boost::shared_ptr<RunPrincipal> rp);
@@ -50,7 +48,6 @@ namespace edm {
     unsigned int    lumiSegmentSizeInEvents_; //temporary kludge, LS# will come from L1 Global record
     bool            fakeLSid_;
   
-    int remainingEvents_;
     RunNumber_t runNumber_;
     LuminosityBlockNumber_t luminosityBlockNumber_;
     bool noMoreEvents_;

@@ -1,7 +1,7 @@
 #ifndef STREAMER_EVENTSTREAMHTTPREADER_H
 #define STREAMER_EVENTSTREAMHTTPREADER_H
 
-// $Id: EventStreamHttpReader.h,v 1.15 2007/09/14 13:18:31 hcheung Exp $
+// $Id: EventStreamHttpReader.h,v 1.16 2007/09/28 17:04:53 badgett Exp $
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
@@ -38,7 +38,6 @@ namespace edm
     char headerurl_[256];
     char subscriptionurl_[256];
     Buf buf_;
-    int events_read_;      // use this until we inherent from the right input source
     int hltBitCount;
     int l1BitCount;
     std::string consumerName_;

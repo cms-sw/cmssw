@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/08/15 18:45:34 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/10/05 09:34:47 $
+ *  $Revision: 1.10 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -38,7 +38,6 @@ namespace edm {
     , reader_(0)
     , lumiSegmentSizeInEvents_(pset.getUntrackedParameter<unsigned int>("evtsPerLS",0))
     , fakeLSid_(lumiSegmentSizeInEvents_ != 0)
-    , remainingEvents_(maxEvents())
     , runNumber_(RunNumber_t())
     , luminosityBlockNumber_(LuminosityBlockNumber_t())
     , noMoreEvents_(false)
@@ -164,7 +163,7 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   DaqSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    if (remainingEvents_ == 0 || noMoreEvents_) {
+    if (noMoreEvents_) {
       return std::auto_ptr<EventPrincipal>(0); 
     }
     if (ep_.get() == 0) ep_ = readOneEvent(lbp->runPrincipalSharedPtr());
@@ -177,7 +176,6 @@ namespace edm {
       // in the luminosity block.
       return std::auto_ptr<EventPrincipal>(0);
     }
-    --remainingEvents_;
     // Since ep_ is an auto_ptr, this return resets ep_ to null.
     return ep_;
   }

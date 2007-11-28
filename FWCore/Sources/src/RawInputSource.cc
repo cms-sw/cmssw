@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.13 2007/07/31 23:58:56 wmtan Exp $
+$Id: RawInputSource.cc,v 1.14 2007/08/06 22:22:35 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Sources/interface/RawInputSource.h"
@@ -14,7 +14,6 @@ namespace edm {
   RawInputSource::RawInputSource(ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
     InputSource(pset, desc),
-    remainingEvents_(maxEvents()),
     runNumber_(RunNumber_t()),
     newRun_(true),
     newLumi_(true),
@@ -77,14 +76,13 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   RawInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    if (remainingEvents_ == 0 || newRun_ || newLumi_) {
+    if (newRun_ || newLumi_) {
       return std::auto_ptr<EventPrincipal>(0); 
     }
     std::auto_ptr<Event> e(readOneEvent());
     if (e.get() == 0) {
       return std::auto_ptr<EventPrincipal>(0); 
     }
-    --remainingEvents_;
     e->commit_();
     return ep_;
   }
