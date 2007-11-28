@@ -270,6 +270,7 @@ void ESOccupancyCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
   histName = htmlDir+"/Occupancy2D.png";
   cE->SaveAs(histName.c_str());  
 
+  delete cE; cE=0;
 
   //Read info for current event 
   int hit1_strips[6][64], hit1_sensors[6][5]; //Z=1 (1st box)
@@ -589,6 +590,44 @@ void ESOccupancyCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
   histName = htmlDir+"/Box2CurEvent.png";
   cv2->SaveAs(histName.c_str());  
 
+  delete cv; cv=0;
+  delete cv2; cv2=0;
+  delete l1; l1=0;
+  delete l2; l2=0;
+  delete l3; l3=0;
+  delete l4; l4=0;
+  delete l5; l5=0;
+  delete l6; l6=0;
+  delete sl1; sl1=0;
+  delete sl2; sl2=0;
+  delete sl3; sl3=0;
+  delete sl4; sl4=0;
+  delete sl5; sl5=0;
+  delete sl6; sl6=0;
+  delete hitL1; hitL1=0;
+  delete hitL2; hitL2=0;
+  delete hitL3; hitL3=0;
+  delete hitL4; hitL4=0;
+  delete hitL5; hitL5=0;
+  delete hitL6; hitL6=0;
+  delete shitL1; shitL1=0;
+  delete shitL2; shitL2=0;
+  delete shitL3; shitL3=0;
+  delete shitL4; shitL4=0;
+  delete shitL5; shitL5=0;
+  delete shitL6; shitL6=0;
+  delete hitL1_2; hitL1_2=0;
+  delete hitL2_2; hitL2_2=0;
+  delete hitL3_2; hitL3_2=0;
+  delete hitL4_2; hitL4_2=0;
+  delete hitL5_2; hitL5_2=0;
+  delete hitL6_2; hitL6_2=0;
+  delete shitL1_2; shitL1_2=0;
+  delete shitL2_2; shitL2_2=0;
+  delete shitL3_2; shitL3_2=0;
+  delete shitL4_2; shitL4_2=0;
+  delete shitL5_2; shitL5_2=0;
+  delete shitL6_2; shitL6_2=0;
 
   htmlFile << "<img src=\"EnergySpectrum.png\"></img>" << endl;
   htmlFile << "<img src=\"Occupancy1D.png\"></img>" << endl;
