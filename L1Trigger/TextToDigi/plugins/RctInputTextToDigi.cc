@@ -57,23 +57,6 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::cout << std::endl << std::endl << "Event number " << nEvent_ << std::endl;
 
-  /* This is an event example
-  //Read 'ExampleData' from the Event
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example",pIn);
-
-  //Use the ExampleData to create an ExampleData2 which 
-  // is put into the Event
-  std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-  iEvent.put(pOut);
-  */
-
-  /* this is an EventSetup example
-  //Read SetupData from the SetupRecord in the EventSetup
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-  */
-
   // This next section taken directly from 
   // L1Trigger/RegionalCaloTrigger/plugins/L1RCTProducer.cc rev. 1.6
   // Refresh configuration information every event
@@ -83,13 +66,6 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const L1RCTParameters* r = rctParameters.product();
   lookupTables_->setRCTParameters(r);
 
-  // following SimCalorimetry/EcalElectronicsEmulation/src/EcalSimpleSource.cc
-  /*// ecal way of doing it:
-    std::auto_ptr<EcalTrigPrimDigiCollection> ecalTPs 
-    = std::auto_ptr<EcalTrigPrimDigiCollection>(new EcalTrigPrimDigiCollection);
-    std::auto_ptr<HcalTrigPrimDigiCollection> hcalTPs
-    = std::auto_ptr<HcalTrigPrimDigiCollection>(new HcalTrigPrimDigiCollection);*/
-  // hcal way of doing it:
   std::auto_ptr<EcalTrigPrimDigiCollection>
     ecalTPs(new EcalTrigPrimDigiCollection());
   std::auto_ptr<HcalTrigPrimDigiCollection> 
@@ -100,14 +76,6 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const int nHcalSamples = 1;
   
   int fileEventNumber; 
-  
-  //std::cout << "Starting file read" << std::endl;
-  //if(!inputStream_.good()) {std::cout << "Bad file!! ";}
-  //else{std::cout << "Good file so far ";}
-  //if(inputStream_.is_open()) {std::cout << "-- open ";}
-  //else{std::cout << "-- CLOSED! ";}
-  
-  //if(nEvent_ == 0) {inputStream_.seekg(0,ios_base::beg);}
   
   // check to see if need to skip file header and do so before
   // looping through entire event
@@ -151,25 +119,6 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  // calc ieta, iphi coords of tower 
 	  // ieta -28 to -1 or 1 to 28, iphi 1 to 72
 	  // methods in CondFormats/L1TObjects/src/L1RCTParameters.cc
-	  
-	  // skip file header -- only do for nEvent_ == 0!
-	  //std::string junk;
-	  //unsigned short junk_counter = 0;
-	  //bool old_version = false;
-	  //do
-	  //  {
-	  //    if(inputStream_ >> junk) {std::cout << "Good: ";}
-	  //    std::cout << "header junk was input: \"" << junk << "\"." 
-	  //			 << std::endl;
-	  //    if((junk_counter == 11) && (junk.compare("0-32") == 0))
-	  //    {
-	  //		 old_version = true;
-	  //    }
-	  //    junk_counter++;
-	  //  }
-	  //while (junk.compare("LUTOut") != 0);
-	  ////while (junk != "LUTOut");
-	  //std::cout << "Skipped file header" << std::endl;
 	  
 	  unsigned short crate;
 	  unsigned short card;
@@ -240,13 +189,13 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	{
 	  for (int j = 0; j < 8; j++)
 	    {
-	      // HF ieta: +- 29 through 32.  HF iphi: 0-17
+	      // HF ieta: +- 29 through 32.  HF iphi: 1,5,9,13,etc.
 	      int hfIEta = (j%4)+29;
 	      if (i < 9)
 		{
 		  hfIEta = hfIEta*(-1);
 		}
-	      int hfIPhi = i%9 + j/4;
+	      int hfIPhi = (i%9 + j/4)*4 + 1;
 	      
 	      HcalTriggerPrimitiveDigi
 		hfDigi(HcalTrigTowerDetId(hfIEta, hfIPhi));
