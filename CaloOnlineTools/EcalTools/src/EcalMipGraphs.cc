@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.1 2007/11/27 09:44:05 franzoni Exp $
+// $Id: EcalMipGraphs.cc,v 1.2 2007/11/28 10:01:17 scooper Exp $
 //
 //
 
@@ -223,16 +223,18 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(result != maskedFEDs_.end())
     {
       LogWarning("EcalMipGraphs") << "skipping uncalRecHit for FED " << FEDid << " ; amplitude " << ampli;
-      return;
+      continue;
     }      
 
+    // todo: check that hashedindex is used
     result = find(maskedChannels_.begin(), maskedChannels_.end(), ic);    
     if  (result != maskedChannels_.end()) 
     {
       LogWarning("EcalMipGraphs") << "skipping uncalRecHit for channel: " << ic << " with amplitude " << ampli ;
-      continue; //TODO: return or continue? (changed to continue by SIC)
+      continue;
     }      
 
+    // todo: look into navigators, this would ease EE
     if (ampli > threshold_ )
     { 
       LogWarning("EcalMipGraphs") << "channel: " << ic << "  ampli: " << ampli << " jitter " << jitter
@@ -264,14 +266,14 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-  // retrieving crystal data from Event
+  // retrieving crystal digi from Event
   edm::Handle<EBDigiCollection>  digis;
   iEvent.getByLabel(EBDigis_, digis);
 
   for(std::set<EBDetId>::const_iterator chnlItr = listAllChannels.begin(); chnlItr!= listAllChannels.end(); ++chnlItr)
   {
       //find digi we need  -- can't get find() to work; need DataFrame(DetId det) to work? 
-      //TODO: use find()
+      //TODO: use find(), lanching it twice over EB and EE collections
 
     EBDigiCollection::const_iterator digiItr = digis->begin();
     while(digiItr != digis->end() && ((*digiItr).id()!=*chnlItr))
