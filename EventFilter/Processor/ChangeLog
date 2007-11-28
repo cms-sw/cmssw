@@ -1,3 +1,9 @@
+2007-11-28  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-01-04
+	* added bool flag isRunNumberSetter to toggle use of 
+	* setRunNumber/declareRunNumber
+
 2007-10-09  Emilio Meschi  <emilio.meschi@cern.ch>
 	
 	* tag V01-01-03
