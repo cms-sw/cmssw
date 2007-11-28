@@ -8,8 +8,7 @@ PTrajectoryStateOnDet::PTrajectoryStateOnDet( const LocalTrajectoryParameters& p
   theDetId( id),
   theSurfaceSide( surfaceSide)
 {
-  //for (int i=0; i<15; i++) theLocalErrors[i] = errmatrix[i]; // not the best way, surely
-  theLocalErrors.insert(theLocalErrors.begin(), errmatrix, &errmatrix[15]); // maybe slightly better
+  for (int i=0; i<15; i++) theLocalErrors[i] = errmatrix[i]; // let's try this way
 }
 
 
