@@ -1,12 +1,13 @@
-/** \file
- *
- *  implementation of RPCMonitorDigi class
- *
- *  $Date: 2007/07/26 10:37:29 $
- *  $Revision: 1.17 $
- *
- * \author Ilaria Segoni
- */
+/************************************************
+ *						*
+ *  implementation of RPCMonitorDigi class	*
+ *						*
+ *  						*
+ *  						*
+ *						*
+ * 						*
+ ************************************************/
+
 
 #include <map>
 #include <string>
