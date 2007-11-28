@@ -30,12 +30,15 @@ namespace pos{
     unsigned int getccuAddress() const;
     unsigned int getchannelAddress() const;
     unsigned int geti2cSpeed() const;
+    std::string  gettype() const;
     unsigned int getdeviceAddress(unsigned int i) const;
     unsigned int getdeviceValues(unsigned int i) const;
     unsigned int getdeviceAddressForSetting(std::string settingName) const;
     unsigned int getdeviceValuesForSetting(std::string settingName) const;
     void setdeviceValues(unsigned int address, unsigned int value);
     void setdeviceValues(std::string settingName, unsigned int value);
+  
+    unsigned int AOHBiasAddressFromAOHNumber(unsigned int AOHNumber) const;
   
   private:
     void fillNameToAddress();
@@ -49,6 +52,8 @@ namespace pos{
     unsigned int channelAddress_;//there are 8? channels on a CCU board
     vector < pair<unsigned int, unsigned int> > device_;//the address on the portcard, and the value of it
     unsigned int i2cSpeed_;//for the portcard, the slow i2c speed is 100kHz
+  
+    std::string type_; // fpix or bpix, used to determine setting names and addresses
   
     std::map<std::string, unsigned int> nameToAddress_; // translation from name to address, filled in by fillNameToAddress();
   };
