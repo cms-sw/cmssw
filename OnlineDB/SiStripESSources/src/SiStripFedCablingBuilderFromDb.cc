@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.37 2007/06/19 12:25:04 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.38 2007/11/20 22:39:51 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -591,16 +591,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
 	break;
       }
 
-      // Create "invalid" connection with dummy FED id/channel
-      if ( fecRing( module ) > 8 ) { 
-	edm::LogWarning(mlTest_) 
-	  << "TESTROB " 
-	  << fecSlot( module ) << " " 
-	  << fecRing( module ) << " " 
-	  << ccuAddr( module ) << " " 
-	  << ccuChan( module );
-      }
-      FedChannelConnection temp( sistrip::invalid_,
+      FedChannelConnection temp( fecCrate( module ), 
 				 fecSlot( module ), 
 				 fecRing( module ), 
 				 ccuAddr( module ), 
