@@ -20,6 +20,44 @@
 lclphidat* CSCSectorReceiverLUT::me_lcl_phi = NULL;
 bool CSCSectorReceiverLUT::me_lcl_phi_loaded = false;
 
+///KK
+#include "CondFormats/L1TObjects/interface/L1MuCSCDTLut.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCDTLutRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuCSCLocalPhiLut.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCLocalPhiLutRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuCSCGlobalLuts.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCGlobalLutsRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
+					   const edm::EventSetup& c):_endcap(endcap),_sector(sector),
+									   _subsector(subsector),
+									   _station(station)
+{
+	mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
+	me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
+	me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
+    me_lcl_phi    = new lclphidat[1<<CSCBitWidths::kLocalPhiAddressWidth];
+
+	edm::ESHandle<L1MuCSCLocalPhiLut>  localLUT;
+	c.get<L1MuCSCLocalPhiLutRcd>().get(localLUT);
+	const L1MuCSCLocalPhiLut *myConfigLocal_ = localLUT.product();
+	memcpy((void*)me_lcl_phi,(void*)myConfigLocal_->lut(),(1<<19)*sizeof(lclphidat));
+
+	edm::ESHandle<L1MuCSCGlobalLuts> globalLUTs;
+	c.get<L1MuCSCGlobalLutsRcd>().get(globalLUTs);
+	const L1MuCSCGlobalLuts *myConfigGlobal_ = globalLUTs.product();
+	int mpc = (station==1?subsector-1:station);
+	if( mpc<0 || mpc>4 ) throw cms::Exception("Configuration error")<<"CSCSectorReceiverLUT|ctor: station="<<station<<" subsector="<<subsector<<" doesn't exist. Initialization error in CSCTFTrackProducer|CSCTFTrackBuilder|CSCTFSectorProcessor.";
+	memcpy((void*)me_global_phi,(void*)myConfigGlobal_->phi_lut(mpc),(1<<19)*sizeof(gblphidat));
+	memcpy((void*)me_global_eta,(void*)myConfigGlobal_->eta_lut(mpc),(1<<19)*sizeof(gbletadat));
+
+	edm::ESHandle<L1MuCSCDTLut> dtLUTs;
+	c.get<L1MuCSCDTLutRcd>().get(dtLUTs);
+	const L1MuCSCDTLut *myConfigDT_ = dtLUTs.product();
+	memcpy((void*)mb_global_phi,(void*)myConfigDT_->lut(0),(1<<19)*sizeof(gblphidat));
+}
+///
+
 CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
 					   const edm::ParameterSet & pset):_endcap(endcap),_sector(sector),
 									   _subsector(subsector),
@@ -46,6 +84,7 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector
 												       + (isBinary ? std::string(".bin") : std::string(".dat")))));
       readLUTsFromFile();
     }
+
 }
 
 CSCSectorReceiverLUT::CSCSectorReceiverLUT(const CSCSectorReceiverLUT& lut):_endcap(lut._endcap),
@@ -151,6 +190,7 @@ lclphidat CSCSectorReceiverLUT::calcLocalPhi(const lclphiadd& theadd) const
   double binPhiL = static_cast<double>(maxPhiL)/(2.*CSCConstants::MAX_NUM_STRIPS);
 
   memset(&data,0,sizeof(lclphidat));
+
   double patternOffset = CSCPatternLUT::getPosition(theadd.clct_pattern);
 
   // The phiL value stored is for the center of the half-/di-strip.
@@ -274,26 +314,43 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 
   if(cscid < CSCTriggerNumbering::minTriggerCscId())
     {
+      edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
+	<< " warning: cscId " << cscid << " is out of bounds ["
+	<< CSCTriggerNumbering::maxTriggerCscId() << "-"
+	<< CSCTriggerNumbering::maxTriggerCscId() << "]\n";
       throw cms::Exception("CSCSectorReceiverLUT")
 	<< "+++ Value of CSC ID, " << cscid
 	<< ", is out of bounds [" << CSCTriggerNumbering::minTriggerCscId() << "-"
 	<< CSCTriggerNumbering::maxTriggerCscId() << "] +++\n";
     }
+
   if(cscid > CSCTriggerNumbering::maxTriggerCscId())
     {
+      edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
+	<< " warning: cscId " << cscid << " is out of bounds ["
+	<< CSCTriggerNumbering::maxTriggerCscId() << "-"
+	<< CSCTriggerNumbering::maxTriggerCscId() << "]\n";
       throw cms::Exception("CSCSectorReceiverLUT")
 	<< "+++ Value of CSC ID, " << cscid
 	<< ", is out of bounds [" << CSCTriggerNumbering::minTriggerCscId() << "-"
 	<< CSCTriggerNumbering::maxTriggerCscId() << "] +++\n";
     }
+
   if(wire_group >= 1<<5)
     {
+      edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
+	<< "warning: wire_group" << wire_group
+	<< " is out of bounds (1-" << ((1<<5)-1) << "]\n";
       throw cms::Exception("CSCSectorReceiverLUT")
 	<< "+++ Value of wire_group, " << wire_group
 	<< ", is out of bounds (1-" << ((1<<5)-1) << "] +++\n";
     }
+
   if(local_phi >= maxPhiL)
     {
+      edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
+	<< "warning: local_phi" << local_phi
+	<< " is out of bounds [0-" << maxPhiL << ")\n";
       throw cms::Exception("CSCSectorReceiverLUT")
 	<< "+++ Value of local_phi, " << local_phi
 	<< ", is out of bounds [0-, " << maxPhiL << ") +++\n";
@@ -567,10 +624,10 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
 
   if(cscid < CSCTriggerNumbering::minTriggerCscId() ||
      cscid > CSCTriggerNumbering::maxTriggerCscId()) {
-    //edm::LogWarning("CSCSectorReceiverLUT|getEtaValue")
-    // << " warning: cscId " << cscid
-    // << " is out of bounds [1-" << CSCTriggerNumbering::maxTriggerCscId()
-    // << "]\n";
+       edm::LogWarning("CSCSectorReceiverLUT|getEtaValue")
+	 << " warning: cscId " << cscid
+	 << " is out of bounds [1-" << CSCTriggerNumbering::maxTriggerCscId()
+	 << "]\n";
       cscid = CSCTriggerNumbering::maxTriggerCscId();
     }
 
@@ -579,9 +636,9 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
   const unsigned numBins = 1 << 2; // 4 local phi bins
 
   if(phi_local > numBins - 1) {
-    //edm::LogWarning("CSCSectorReceiverLUT|getEtaValue")
-    //<< "warning: phiL " << phi_local
-    //<< " is out of bounds [0-" << numBins - 1 << "]\n";
+      edm::LogWarning("CSCSectorReceiverLUT|getEtaValue")
+	<< "warning: phiL " << phi_local
+	<< " is out of bounds [0-" << numBins - 1 << "]\n";
       phi_local = numBins - 1;
   }
   try
@@ -594,9 +651,9 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
 	// Check wire group numbers; expect them to be counted from 0, as in
 	// CorrelatedLCTDigi class.
 	if (wire_group >= nWireGroups) {
-	  //edm::LogWarning("CSCSectorReceiverLUT|getEtaValue")
-	  // << "warning: wireGroup " << wire_group
-	  // << " is out of bounds [0-" << nWireGroups << ")\n";
+	   edm::LogWarning("CSCSectorReceiverLUT|getEtaValue")
+	     << "warning: wireGroup " << wire_group
+	    << " is out of bounds [0-" << nWireGroups << ")\n";
 	  wire_group = nWireGroups - 1;
 	}
 	// Convert to [1; nWireGroups] range used in geometry methods.
@@ -617,13 +674,13 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
 	   */
 
 	  // Check that no strips will be left out.
-	  //if (nStrips%numBins != 0 || CSCConstants::MAX_NUM_STRIPS%numBins != 0)
-	  //edm::LogWarning("CSCSectorReceiverLUT")
-	  //  << "getGlobalEtaValue warning: number of strips "
-	  //  << nStrips << " (" << CSCConstants::MAX_NUM_STRIPS
-	  //  << ") is not divisible by numBins " << numBins
-	  //  << " Station " << _station << " sector " << _sector
-	  //  << " subsector " << _subsector << " cscid " << cscid << "\n";
+	  if (nStrips%numBins != 0 || CSCConstants::MAX_NUM_STRIPS%numBins != 0)
+	    edm::LogWarning("CSCSectorReceiverLUT")
+	      << "getGlobalEtaValue warning: number of strips "
+	      << nStrips << " (" << CSCConstants::MAX_NUM_STRIPS
+	      << ") is not divisible by numBins " << numBins
+	      << " Station " << _station << " sector " << _sector
+	      << " subsector " << _subsector << " cscid " << cscid << "\n";
 
 	  unsigned    maxStripPrevBin = 0, maxStripThisBin = 0;
 	  unsigned    correctionStrip;
@@ -671,10 +728,21 @@ gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gbletaadd& address) const
 
   if ((float_eta < CSCTFConstants::minEta) || (float_eta >= CSCTFConstants::maxEta))
     {
+      edm::LogWarning("CSCSectorReceiverLUT:OutOfBounds")
+	<< "CSCSectorReceiverLUT warning: float_eta = " << float_eta
+	<< " minEta = " << CSCTFConstants::minEta << " maxEta = " << CSCTFConstants::maxEta
+	<< "   station " << _station << " sector " << _sector
+	<< " chamber "   << address.cscid << " wire group " << address.wire_group;
+
       throw cms::Exception("CSCSectorReceiverLUT")
 	<< "+++ Value of CSC ID, " << float_eta
 	<< ", is out of bounds [" << CSCTFConstants::minEta << "-"
 	<< CSCTFConstants::maxEta << ") +++\n";
+
+      //if (float_eta < CSCTFConstants::minEta)
+      //result.global_eta = 0;
+      //else if (float_eta >= CSCTFConstants::maxEta)
+      //result.global_eta = CSCTFConstants::etaBins - 1;
     }
   else
     {
