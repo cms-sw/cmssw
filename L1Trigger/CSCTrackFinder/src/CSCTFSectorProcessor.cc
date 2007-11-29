@@ -160,9 +160,19 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
 	  CSCDetId id(itr->getDetId().rawId());
 	  unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
 
-	  lclphidat lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend());
-	  gblphidat gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
-	  gbletadat gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
+          lclphidat lclPhi;
+          try {
+            lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend());
+          } catch(...) { bzero(&lclPhi,sizeof(lclPhi)); }
+          gblphidat gblPhi;
+          try {
+            gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
+          } catch(...) { bzero(&gblPhi,sizeof(gblPhi)); }
+          gbletadat gblEta;
+          try {
+            gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
+          } catch(...) { bzero(&gblEta,sizeof(gblEta)); }
+
 	  itr->setEtaPacked(gblEta.global_eta);
 	  itr->setPhiPacked(gblPhi.global_phi);
 
