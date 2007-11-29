@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.3 2007/11/28 13:44:44 franzoni Exp $
+// $Id: EcalMipGraphs.cc,v 1.4 2007/11/29 11:10:46 scooper Exp $
 //
 //
 
@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
@@ -38,6 +39,8 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
 #include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"
 
@@ -109,7 +112,7 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
   EcalUncalibratedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection")),
   EBDigis_ (iConfig.getParameter<edm::InputTag>("EBDigiCollection")),
   runNum_(-1),
-  side_ (iConfig.getUntrackedParameter< int >("side", 3)),
+  side_ (iConfig.getUntrackedParameter<int>("side", 3)),
   threshold_ (iConfig.getUntrackedParameter<double>("amplitudeThreshold", 12.0)),
   fileName_ (iConfig.getUntrackedParameter<std::string>("fileName", std::string("mipDumper")))
 {
@@ -163,6 +166,10 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   auto_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
   Handle<EcalUncalibratedRecHitCollection> hits;
 
+  ESHandle<CaloTopology> caloTopo;
+  iSetup.get<CaloTopologyRecord>().get(caloTopo);
+  
+  //TODO: improve try/catch behavior
   try
   {
     iEvent.getByLabel(EcalUncalibratedRecHitCollection_, hits);
@@ -229,29 +236,11 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     { 
       LogWarning("EcalMipGraphs") << "channel: " << ic << "  ampli: " << ampli << " jitter " << jitter
         << " Event: " << ievt << " FED: " << FEDid;
-      
-      int ism = ebDet.ism();
-
-      int ieta = (ic-1)/20   +1;
-      int iphi = (ic-1)%20 +1;
-      
-
-      int hside = (side_/2);
-      
-      for (int u = (-hside) ; u<=hside; u++)
+     
+      vector<DetId> neighbors = caloTopo->getWindow(ebDet,side_,side_);
+      for(vector<DetId>::const_iterator itr = neighbors.begin(); itr != neighbors.end(); ++itr)
       {
-        for (int v = (-hside) ; v<=hside; v++)
-        {  
-          int ieta_c = ieta + u;
-          int iphi_c = iphi + v;
-
-          if (ieta_c < 1 || 85 < ieta_c) continue;
-          if (iphi_c < 1 || 20 < iphi_c)  continue;
-
-          int ic_c = (ieta_c-1) *20 + iphi_c;
-          EBDetId toInsert = EBDetId(ism, ic_c,1);
-          listAllChannels.insert(toInsert);
-        }
+        listAllChannels.insert(*itr);
       }
     }
   }
