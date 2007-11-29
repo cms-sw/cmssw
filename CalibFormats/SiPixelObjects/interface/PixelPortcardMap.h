@@ -14,6 +14,8 @@
 #include <set>
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelModuleName.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelTBMChannel.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelChannel.h"
 
 namespace pos{
   class PixelPortcardMap: public PixelConfigBase
@@ -35,6 +37,8 @@ namespace pos{
     int numChannels(const PixelModuleName& aModule) {return PortCardAndAOHs(aModule).size();}
 
     const std::pair< std::string, int > PortCardAndAOH(const PixelModuleName& aModule, const std::string& TBMChannel) const;
+    const std::pair< std::string, int > PortCardAndAOH(const PixelModuleName& aModule, const PixelTBMChannel& TBMChannel) const;
+    const std::pair< std::string, int > PortCardAndAOH(const PixelChannel& aChannel) const;
 
     // set of all modules attached to a port card
     std::set< PixelModuleName > modules(std::string portCardName) const;
@@ -45,8 +49,8 @@ namespace pos{
     virtual void writeASCII(std::string dir) const;
 
   private:
-    //    (modulename, TBM channel A or B) <--> (portcardname, aoh #)
-    std::map< std::pair<PixelModuleName, std::string>, std::pair<std::string, int> > map_;
+    //                               portcardname, AOH #
+    std::map< PixelChannel, std::pair<std::string, int> > map_;
   };
 }
 #endif
