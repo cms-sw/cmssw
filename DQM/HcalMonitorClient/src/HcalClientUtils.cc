@@ -391,7 +391,7 @@ void createH2ContentTest(DaqMonitorBEInterface* dbe, vector<string>& params){
     qc = dbe->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(),params[1]);
     // Contents within a mean value     
     ContentsTH2FWithinRangeROOT* me_qc = dynamic_cast<ContentsTH2FWithinRangeROOT*> (qc);
-    me_qc->setMeanRange(0,1e-10);//(atof(params[2].c_str())
+    me_qc->setMeanRange(0,1e-10);
     me_qc->setRMSRange(0,1e-10);
     // link it to the monitor element
     dbe->useQTest(params[0], params[1]);

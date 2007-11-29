@@ -104,6 +104,7 @@ private:
 
   TH1F* dferr_[3];
 
+  TH2F* DCC_Err_Warn_;
   TH2F* BCNMap_;
   TH2F* EvtMap_;
   TH2F* ErrMapbyCrate_;

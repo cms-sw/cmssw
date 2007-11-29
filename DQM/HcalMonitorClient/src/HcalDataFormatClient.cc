@@ -12,6 +12,7 @@ HcalDataFormatClient::HcalDataFormatClient(const ParameterSet& ps, DaqMonitorBEI
     //    spigotErrMap_[i] = NULL;
   }
   spigotErrs_ = NULL;
+  DCC_Err_Warn_ = NULL;
   badDigis_ = NULL;
   unmappedDigis_ = NULL;
   unmappedTPDs_ = NULL;
@@ -78,6 +79,7 @@ HcalDataFormatClient::HcalDataFormatClient(){
   }
 
   spigotErrs_ = NULL;
+  DCC_Err_Warn_ = NULL;
   badDigis_ = NULL;
   unmappedDigis_ = NULL;
   unmappedTPDs_ = NULL;
@@ -169,6 +171,7 @@ void HcalDataFormatClient::cleanup(void) {
     }
   
     if ( spigotErrs_) delete spigotErrs_;
+    if ( DCC_Err_Warn_) delete DCC_Err_Warn_;
     if ( badDigis_) delete badDigis_;
     if ( unmappedDigis_) delete unmappedDigis_;
     if ( unmappedTPDs_) delete unmappedTPDs_;
@@ -210,6 +213,7 @@ void HcalDataFormatClient::cleanup(void) {
   }
   
   spigotErrs_ = NULL;
+  DCC_Err_Warn__ = NULL;
   badDigis_ = NULL;
   unmappedDigis_ = NULL;
   unmappedTPDs_ = NULL;
@@ -314,6 +318,9 @@ void HcalDataFormatClient::getHistograms(){
   if(!dbe_) return;
   
   char name[150];     
+  sprintf(name,"DataFormatMonitor/DCC Event Format violation");
+  DCC_Err_Warn_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
+
   sprintf(name,"DataFormatMonitor/Spigot Format Errors");
   spigotErrs_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
@@ -683,7 +690,7 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,ErrMapbyCrate_,"Crate #"," ", 92, htmlFile,htmlDir);
-  //histoHTML(runNo,BCN_,"Bunch Counter Number","Events", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,DCC_Err_Warn_,"DCC Errors and Warnings","", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -826,6 +833,20 @@ void HcalDataFormatClient::createTests(){
 	createYRangeTest(dbe_, params);
       }
     }
+
+    sprintf(meTitle,"%sHcalMonitor/DataFormatMonitor/DCC Event Format violation",process_.c_str() );
+    sprintf(name,"%s DataFormat",type.c_str());
+    if(dqmQtests_.find(name) == dqmQtests_.end()){	
+      MonitorElement* me = dbe_->get(meTitle);
+      if(me){
+	dqmQtests_[name]=meTitle;	  
+	params.clear();
+	params.push_back(meTitle); params.push_back(name);  //hist and test titles
+	createH2ContentTest(dbe_, params);
+      }
+    }
+
+    
   }
 
   return;
@@ -842,10 +863,6 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
 
 
   char name[150]; 
-
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Spigot Format Errors");
-  spigotErrs_ = (TH1F*)infile->Get(name);
-
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/Bad Quality Digis");
   badDigis_ = (TH1F*)infile->Get(name);
 
