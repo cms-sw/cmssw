@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/11/20 23:53:45 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/11/28 22:13:20 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -49,8 +49,18 @@ MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
   //  if (verbosity >= 0 ) dbe->showDirStructure();
   //}
 
-
-
+  dbe->getContents(items);
+  if (verbosity >= 0) {
+    edm::LogInfo(MsgLoggerCat) 
+      << "\n===============================\n"
+      << "Getting registered ME paths" << "\n"
+      << "===============================\n";
+    for (i = items.begin(), e = items.end(); i != e; ++i) {
+      edm::LogInfo(MsgLoggerCat) 
+	<< *i << "\n";
+    }
+  }
+  
   // create persistent object(s)
   produces<MEtoROOT, edm::InRun>("test").setBranchAlias("test");
   
