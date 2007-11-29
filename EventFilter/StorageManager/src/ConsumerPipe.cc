@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.13 2007/11/09 23:09:12 badgett Exp $
+ * $Id: ConsumerPipe.cc,v 1.14 2007/11/29 17:04:00 wmtan Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -34,14 +34,15 @@ boost::mutex ConsumerPipe::rootIdLock_;
 ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
                            int activeTimeout, int idleTimeout,
                            boost::shared_ptr<edm::ParameterSet> parameterSet,
-			   std::string hostName):
+                           std::string hostName, int queueSize):
   han_(curl_easy_init()),
   headers_(),
   consumerName_(name),consumerPriority_(priority),
   events_(0),
   requestParamSet_(parameterSet),
   hostName_(hostName),
-  pushEventFailures_(0)
+  pushEventFailures_(0),
+  maxQueueSize_(queueSize)
 {
   // initialize the time values we use for defining "states"
   timeToIdleState_ = activeTimeout;
@@ -191,9 +192,12 @@ bool ConsumerPipe::wantsEvent(EventMsgView const& eventView) const
  */
 void ConsumerPipe::putEvent(boost::shared_ptr< std::vector<char> > bufPtr)
 {
-  // update the local pointer to the most recent event
-  boost::mutex::scoped_lock scopedLockForLatestEvent(latestEventLock_);
-  latestEvent_ = bufPtr;
+  // add this event to the queue
+  boost::mutex::scoped_lock scopedLockForEventQueue(eventQueueLock_);
+  eventQueue_.push_back(bufPtr);
+  while (eventQueue_.size() > maxQueueSize_) {
+    eventQueue_.pop_front();
+  }
   // if a push mode consumer actually push the event out to SMProxyServer
   if(pushMode_) {
     bool success = pushEvent();
@@ -217,16 +221,18 @@ boost::shared_ptr< std::vector<char> > ConsumerPipe::getEvent()
   // 25-Aug-2005, KAB: clear out any stale event(s)
   if (isIdle() || isDisconnected())
   {
-    latestEvent_.reset();
+    this->clearQueue();
   }
 
   // fetch the most recent event
   boost::shared_ptr< std::vector<char> > bufPtr;
   {
-    boost::mutex::scoped_lock scopedLockForLatestEvent(latestEventLock_);
-    //bufPtr_ = latestEvent_;
-    //latestEvent_.reset();
-    bufPtr.swap(latestEvent_);
+    boost::mutex::scoped_lock scopedLockForEventQueue(eventQueueLock_);
+    if (! eventQueue_.empty())
+    {
+      bufPtr = eventQueue_.front();
+      eventQueue_.pop_front();
+    }
   }
 
   // update the time of the most recent request
@@ -238,6 +244,23 @@ boost::shared_ptr< std::vector<char> > ConsumerPipe::getEvent()
 
 bool ConsumerPipe::pushEvent()
 {
+  // fetch the most recent event
+  boost::shared_ptr< std::vector<char> > bufPtr;
+  {
+    boost::mutex::scoped_lock scopedLockForEventQueue(eventQueueLock_);
+    if (! eventQueue_.empty())
+    {
+      bufPtr = eventQueue_.front();
+      eventQueue_.pop_front();
+    }
+  }
+  if (bufPtr.get() == NULL)
+  {
+    edm::LogError("pushEvent") << "========================================";
+    edm::LogError("pushEvent") << "pushEvent called with empty event queue!";
+    return false;
+  }
+
   // push the next event out to a push mode consumer (SMProxyServer)
   FDEBUG(5) << "pushing out event to " << consumerName_ << std::endl;
   stor::ReadData data;
@@ -264,7 +287,7 @@ bool ConsumerPipe::pushEvent()
   setopt(han_,CURLOPT_WRITEDATA,&data);
 
   // build the event message
-  EventMsgView msgView(&(*latestEvent_)[0]);
+  EventMsgView msgView(&(*bufPtr)[0]);
 
   // add the request message as a http post
   setopt(han_, CURLOPT_POSTFIELDS, msgView.startAddress());
@@ -314,6 +337,6 @@ bool ConsumerPipe::pushEvent()
 
 void ConsumerPipe::clearQueue()
 {
-  boost::mutex::scoped_lock scopedLockForLatestEvent(latestEventLock_);
-  latestEvent_.reset();
+  boost::mutex::scoped_lock scopedLockForEventQueue(eventQueueLock_);
+  eventQueue_.clear();
 }

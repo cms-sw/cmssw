@@ -6,7 +6,7 @@
  * Initial Implementation based on Kurt's ConsumerPipe
  * make a common class later when all this works
  *
- * $Id: DQMConsumerPipe.cc,v 1.6 2007/10/18 17:41:19 hcheung Exp $
+ * $Id: DQMConsumerPipe.cc,v 1.7 2007/11/09 23:09:12 badgett Exp $
  */
 
 #include "EventFilter/StorageManager/interface/DQMConsumerPipe.h"
@@ -34,9 +34,9 @@ boost::mutex DQMConsumerPipe::rootIdLock_;
  * DQMConsumerPipe constructor.
  */
 DQMConsumerPipe::DQMConsumerPipe(std::string name, std::string priority,
-				 int activeTimeout, int idleTimeout,
-				 std::string folderName,
-				 std::string hostName):
+                                 int activeTimeout, int idleTimeout,
+                                 std::string folderName, std::string hostName,
+                                 int queueSize):
   han_(curl_easy_init()),
   headers_(),
   consumerName_(name),consumerPriority_(priority),
@@ -164,8 +164,11 @@ bool DQMConsumerPipe::wantsDQMEvent(DQMEventMsgView const& eventView) const
 void DQMConsumerPipe::putDQMEvent(boost::shared_ptr< std::vector<char> > bufPtr)
 {
   // update the local pointer to the most recent event
-  boost::mutex::scoped_lock scopedLockForLatestEvent(latestEventLock_);
-  latestEvent_ = bufPtr;
+  boost::mutex::scoped_lock scopedLockForEventQueue(eventQueueLock_);
+  eventQueue_.push_back(bufPtr);
+  while (eventQueue_.size() > maxQueueSize_) {
+    eventQueue_.pop_front();
+  }
   // actually push out DQM data if this is a push mode consumer (SMProxyServer)
   if(pushMode_) {
     bool success = pushEvent();
@@ -189,16 +192,18 @@ boost::shared_ptr< std::vector<char> > DQMConsumerPipe::getDQMEvent()
   // clear out any stale event(s)
   if (isIdle() || isDisconnected())
   {
-    latestEvent_.reset();
+    this->clearQueue();
   }
 
   // fetch the most recent event
   boost::shared_ptr< std::vector<char> > bufPtr;
   {
-    boost::mutex::scoped_lock scopedLockForLatestEvent(latestEventLock_);
-    //bufPtr_ = latestEvent_;
-    //latestEvent_.reset();
-    bufPtr.swap(latestEvent_);
+    boost::mutex::scoped_lock scopedLockForEventQueue(eventQueueLock_);
+    if (! eventQueue_.empty())
+    {
+      bufPtr = eventQueue_.front();
+      eventQueue_.pop_front();
+    }
   }
 
   // update the time of the most recent request
@@ -210,6 +215,23 @@ boost::shared_ptr< std::vector<char> > DQMConsumerPipe::getDQMEvent()
 
 bool DQMConsumerPipe::pushEvent()
 {
+  // fetch the most recent event
+  boost::shared_ptr< std::vector<char> > bufPtr;
+  {
+    boost::mutex::scoped_lock scopedLockForEventQueue(eventQueueLock_);
+    if (! eventQueue_.empty())
+    {
+      bufPtr = eventQueue_.front();
+      eventQueue_.pop_front();
+    }
+  }
+  if (bufPtr.get() == NULL)
+  {
+    edm::LogError("pushEvent") << "========================================";
+    edm::LogError("pushEvent") << "pushEvent called with empty event queue!";
+    return false;
+  }
+
   // push the next event out to a push mode consumer (SMProxyServer)
   FDEBUG(5) << "pushing out DQMevent to " << consumerName_ << std::endl;
   stor::ReadData data;
@@ -235,7 +257,7 @@ bool DQMConsumerPipe::pushEvent()
   setopt(han_,CURLOPT_WRITEDATA,&data);
 
   // build the event message
-  DQMEventMsgView msgView(&(*latestEvent_)[0]);
+  DQMEventMsgView msgView(&(*bufPtr)[0]);
 
   // add the request message as a http post
   setopt(han_, CURLOPT_POSTFIELDS, msgView.startAddress());
@@ -285,6 +307,6 @@ bool DQMConsumerPipe::pushEvent()
 
 void DQMConsumerPipe::clearQueue()
 {
-  boost::mutex::scoped_lock scopedLockForLatestEvent(latestEventLock_);
-  latestEvent_.reset();
+  boost::mutex::scoped_lock scopedLockForEventQueue(eventQueueLock_);
+  eventQueue_.clear();
 }

@@ -23,7 +23,7 @@
  *   isIdle() will return false since the consumer has moved from the idle
  *   to the disconnected state.)
  *
- * $Id: ConsumerPipe.h,v 1.7 2007/10/18 17:41:18 hcheung Exp $
+ * $Id: ConsumerPipe.h,v 1.8 2007/11/09 23:08:33 badgett Exp $
  */
 
 #include <string>
@@ -36,6 +36,7 @@
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
 #include "curl/curl.h"
+#include <deque>
 
 namespace stor
 {
@@ -45,7 +46,7 @@ namespace stor
     ConsumerPipe(std::string name, std::string priority,
                  int activeTimeout, int idleTimeout,
                  boost::shared_ptr<edm::ParameterSet> parameterSet,
-		 std::string hostName);
+                 std::string hostName, int queueSize);
 
     ~ConsumerPipe();
 
@@ -93,11 +94,12 @@ namespace stor
     bool pushEvent();
     unsigned int pushEventFailures_;
 
-    // for consumers with normal priority, we keep only the most recent event
-    boost::shared_ptr< std::vector<char> > latestEvent_;
+    // 28-Nov-2007, KAB: upgrade to a queue of events
+    std::deque< boost::shared_ptr< std::vector<char> > > eventQueue_;
+    unsigned int maxQueueSize_;
 
-    // lock for controlling access to the most recent event
-    boost::mutex latestEventLock_;
+    // lock for controlling access to the event queue
+    boost::mutex eventQueueLock_;
 
     // class data members used for creating unique consumer IDs
     static uint32 rootId_;
