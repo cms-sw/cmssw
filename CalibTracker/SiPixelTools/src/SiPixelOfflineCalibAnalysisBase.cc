@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.2 2007/11/27 09:42:40 friis Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.3 2007/11/29 17:42:41 fblekman Exp $
 //
 //
 
@@ -105,13 +105,13 @@ SiPixelOfflineCalibAnalysisBase::beginJob(const edm::EventSetup& iSetup)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SiPixelOfflineCalibAnalysisBase::endJob() {
+  this->calibrationEnd();
    edm::LogInfo("SiPixelOfflineCalibAnalysisBase") << "Running end job... output file name is: " << outputFileName_;
    if (!outputFileName_.empty()) 
    {
       edm::LogInfo("SiPixelOfflineCalibAnalysisBase") << "Writing ROOT file to: " << outputFileName_ << std::endl;
       daqBE_->save(outputFileName_);
    }
-   this->calibrationEnd();
 }
 
 // ------------ helper functions ---------------------------------------------------------
