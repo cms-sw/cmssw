@@ -1,3 +1,6 @@
+#ifndef ECALFEDMAP_h
+#define ECALFEDMAP_h
+
 #include <map>
 #include <string>
 
@@ -19,3 +22,4 @@ class EcalFedMap{
   std::map<int,  std::string> fedToSliceMap_;
   std::map<std::string, int>  sliceToFedMap_;
 };
+#endif
