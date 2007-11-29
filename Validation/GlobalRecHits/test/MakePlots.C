@@ -194,40 +194,40 @@ void MakePlots(TString filename="GlobalRecHitsHistograms")
       // set axis info for the histograms
    
       if (i == 0) {
-	  TString hpath = "DQMData/ECal/"+names[j];
+	  TString hpath = "DQMData/GlobalRecHitsV/ECals/"+names[j];
 	  sh = (TH1F*)srcfile->Get(hpath);
 	  cout << "i = 0" << "j =  " << j  << endl ; 
        
       }
       if (i == 1) {
-	TString hpath = "DQMData/HCal/"+names[j];
+	TString hpath = "DQMData/GlobalRecHitsV/HCals/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);
 	cout << "i = 1" << endl;
 		    
       }
       if (i == 2) {
-	TString hpath = "DQMData/SiPixels/"+names[j];
+	TString hpath = "DQMData/GlobalRecHitsV/SiPixels/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);
 	 cout << "i = 2" << endl ;
 
       }
       if (i == 3) {
-	TString hpath = "DQMData/SiStrip/"+names[j];
+	TString hpath = "DQMData/GlobalRecHitsV/SiStrips/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);
 	 cout << "i = 3" << endl ;
       }		    
       if (i == 4) {
-	TString hpath = "DQMData/Muons/"+names[j];
+	TString hpath = "DQMData/GlobalRecHitsV/Muons/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);
 	 cout << "i = 3" << endl ;
       }
       if (i == 5) {
-	TString hpath = "DQMData/Muons/"+names[j];
+	TString hpath = "DQMData/GlobalRecHitsV/Muons/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);
 	 cout << "i = 5" << endl ;
       }
       if (i == 6) {
-	TString hpath = "DQMData/Muons/"+names[j];
+	TString hpath = "DQMData/GlobalRecHitsV/Muons/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);
 	 cout << "i = 6" << endl ;
       }

@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/10/22 18:05:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/11/28 21:42:31 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -99,7 +99,7 @@ for(int i = 0; i<19; ++i)
   mehSiStripResY[i]=0;
 }
  string hcharname, hchartitle;
-dbe->setCurrentFolder("GlobalRecHitsHistogrammer/SiStrips");
+dbe->setCurrentFolder("GlobalRecHitsV/SiStrips");
 for(int amend = 0; amend < 19; ++amend)
 { 
   hcharname = "hSiStripn_"+SiStripString[amend];
@@ -136,7 +136,7 @@ for(int j =0; j <4; ++j)
   mehHcalRes[j]=0;
 }
 
-dbe->setCurrentFolder("GlobalRecHitsHistogrammer/HCals");
+dbe->setCurrentFolder("GlobalRecHitsV/HCals");
 for(int amend = 0; amend < 4; ++amend)
 {
   hcharname = "hHcaln_"+HCalString[amend];
@@ -169,7 +169,7 @@ for(int i =0; i<3; ++i)
   mehEcaln[i]=0;
   mehEcalRes[i]=0;
 }
-dbe->setCurrentFolder("GlobalRecHitsHistogrammer/ECals");
+dbe->setCurrentFolder("GlobalRecHitsV/ECals");
  
 for(int amend = 0; amend < 3; ++amend)
 {
@@ -199,7 +199,7 @@ for(int j =0; j<7; ++j)
   mehSiPixelResY[j]=0;
 }
 
-dbe->setCurrentFolder("GlobalRecHitsHistogrammer/SiPixels");
+dbe->setCurrentFolder("GlobalRecHitsV/SiPixels");
 for(int amend = 0; amend < 7; ++amend)
 {
   hcharname = "hSiPixeln_"+SiPixelString[amend];
@@ -226,7 +226,7 @@ for(int amend = 0; amend < 7; ++amend)
   mehSiPixelResY[amend]->setAxisTitle("Count",2);
 }
 //Muons 
-dbe->setCurrentFolder("GlobalRecHitsHistogrammer/Muons");
+dbe->setCurrentFolder("GlobalRecHitsV/Muons");
 
 mehDtMuonn = 0;
 mehCSCn = 0;

@@ -522,23 +522,23 @@ void MakeValidation(TString sfilename = "GlobalRecHitsHistograms.root",
       TH1F *sh; TH1F *rh;
       if(page >= 0 && page < 3)
 	{
-	  TString hpath = "DQMData/ECal/"+names[j];
+	  TString hpath = "DQMData/GlobalRecHitsV/ECals/"+names[j];
 	}
       if(page >= 3 && page < 7)
 	{
-	  TString hpath = "DQMData/HCal/"+names[j];
+	  TString hpath = "DQMData/GlobalRecHitsV/HCals/"+names[j];
 	}
       if(page >=7 && page < 26)
 	{
-	  TString hpath = "DQMData/SiStrip/"+names[j];
+	  TString hpath = "DQMData/GlobalRecHitsV/SiStrips/"+names[j];
 	}
       if(page >= 26 && page < 33)
 	{
-	  TString hpath = "DQMData/SiPixels/"+names[j];
+	  TString hpath = "DQMData/GlobalRecHitsV/SiPixels/"+names[j];
 	}
       if(page >= 33 && page < 36)
 	{
-	  TString hpath = "DQMData/Muons/"+names[j];
+	  TString hpath = "DQMData/GlobalRecHitsV/Muons/"+names[j];
 	}
 	sh = (TH1F*)sfile->Get(hpath);
 	rh = (TH1F*)rfile->Get(hpath);
