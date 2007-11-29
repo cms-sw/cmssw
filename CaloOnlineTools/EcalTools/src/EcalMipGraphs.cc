@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.2 2007/11/28 10:01:17 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.3 2007/11/28 13:44:44 franzoni Exp $
 //
 //
 
@@ -139,7 +139,6 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
     }
   }
   
-  //vector<int>::iterator result;
   for (int i=0; i<10; i++)        abscissa[i] = i;
 }
 
@@ -157,16 +156,6 @@ EcalMipGraphs::~EcalMipGraphs()
 void
 EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-    
-  //Handle<EcalRawDataCollection> DCCHeaders;
-  //try {
-  //  iEvent.getByLabel(headerProducer_, DCCHeaders);
-  //} catch ( std::exception& ex ) {
-  //  edm::LogError ("") << "Error! can't get the product " 
-  //    << headerProducer_;
-  //  return;
-  //}
-
   int ievt = iEvent.id().event();
   int graphCount = 0;
   //We only want the 3x3's for this event...
@@ -189,6 +178,7 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   {
     EcalUncalibratedRecHit hit = (*hitItr);
     int ic = 0;
+    int hashedIndex= 0;
     //EEDetId eeDet;
     //cout << "Subdetector field is: " << hit.id().subdetId() << endl;
     EBDetId ebDet = hit.id();
@@ -196,6 +186,7 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //if(ebDet.isValid())
     //{
     ic = ebDet.ic();
+    hashedIndex = ebDet.hashedIndex();
     EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(ebDet);
     //}
     //else
@@ -226,15 +217,14 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       continue;
     }      
 
-    // todo: check that hashedindex is used
-    result = find(maskedChannels_.begin(), maskedChannels_.end(), ic);    
-    if  (result != maskedChannels_.end()) 
+    result = find(maskedChannels_.begin(), maskedChannels_.end(), hashedIndex);
+    if  (result != maskedChannels_.end())
     {
       LogWarning("EcalMipGraphs") << "skipping uncalRecHit for channel: " << ic << " with amplitude " << ampli ;
       continue;
     }      
 
-    // todo: look into navigators, this would ease EE
+    //TODO: look into navigators, this would ease EE
     if (ampli > threshold_ )
     { 
       LogWarning("EcalMipGraphs") << "channel: " << ic << "  ampli: " << ampli << " jitter " << jitter
