@@ -32,6 +32,8 @@ namespace {
     const_iterator end() const { return children_.end();}
 };
 }
+typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
+
 static void printHistory(const edm::ProcessHistory& iHist)
 {
   const std::string indentDelta("  ");
@@ -57,8 +59,49 @@ static void printHistory(const HistoryNode& iNode, const std::string& iIndent = 
   }
 }
 
+static void printEventSetupComponent(const char* iType, const std::string& iCompName, const edm::ParameterSet& iProcessConfig, const std::string& iProcessName) {
+  const edm::ParameterSet& pset = iProcessConfig.getParameter<edm::ParameterSet>(iCompName);
+  std::string name( pset.getParameter<std::string>("@module_label") );
+  if(0 == name.size() ) {
+    name = pset.getParameter<std::string>("@module_type");
+  }
+  
+  std::cout <<iType<<": "<< name<<" "<<iProcessName <<std::endl;
+  std::cout <<" parameters: "<<pset <<std::endl;
+}
+static void printEventSetupHistory(const HistoryNode& iNode, const ParameterSetMap& iPSM, ostream& oErrorLog)
+{
+  for (HistoryNode::const_iterator itH = iNode.begin(), itHEnd = iNode.end();
+       itH != itHEnd;
+       ++itH) {
+    //Get ParameterSet for process
+    ParameterSetMap::const_iterator itFind = iPSM.find(itH->config_.parameterSetID());
+    if(itFind == iPSM.end()){
+      oErrorLog << "No ParameterSetID for " << itH->config_.parameterSetID() << std::endl;
+    } else {
+      edm::ParameterSet processConfig(itFind->second.pset_);
+      //get the sources
+      std::vector<std::string> sources = processConfig.getParameter<std::vector<std::string> >("@all_essources");
+      for(std::vector<std::string>::iterator itM = sources.begin(); itM != sources.end(); ++itM) {
+        printEventSetupComponent("ESSource",
+                                 *itM,
+                                 processConfig,
+                                 itH->config_.processName());
+      }
+      //get the modules
+      std::vector<std::string> modules = processConfig.getParameter<std::vector<std::string> >("@all_esmodules");
+      for(std::vector<std::string>::iterator itM = modules.begin(); itM != modules.end(); ++itM) {
+        printEventSetupComponent("ESModule",
+                                 *itM,
+                                 processConfig,
+                                 itH->config_.processName());
+      }
+    }
+    printEventSetupHistory(*itH, iPSM, oErrorLog);
+  }
+}
+
 int main(int argc, char* argv[]) {
-   typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
    std::stringstream errorLog;
    int exitCode(0);
 
@@ -99,6 +142,8 @@ int main(int argc, char* argv[]) {
       std::cout << "Processing History:"<<std::endl;
       if (1 == phm.size()) {
 	 printHistory((phm.begin()->second));
+         historyGraph.children_.push_back(HistoryNode(*(phm.begin()->second.begin()),
+                                                      1));
       } else {
         bool multipleHistories =false;
         for (edm::ProcessHistoryMap::const_iterator it = phm.begin(), itEnd = phm.end();
@@ -141,7 +186,7 @@ int main(int argc, char* argv[]) {
         printHistory(historyGraph);
       }
    
-      std::cout <<"------------------"<<std::endl;
+      std::cout <<"---------Event---------"<<std::endl;
       /*
       for (std::vector<edm::ProcessHistory>::const_iterator it = uniqueLongHistories.begin(),
 	  itEnd = uniqueLongHistories.end();
@@ -214,6 +259,12 @@ int main(int argc, char* argv[]) {
 	    std::cout << std::endl;
 	 }
       }
+      std::cout <<"---------EventSetup---------"<<std::endl;
+     printEventSetupHistory( historyGraph, psm, errorLog);
+     if(0 != errorLog.str().length() ) {
+       exitCode = 1;
+     }
+     
    }
    catch (cms::Exception const& x) {
       std::cerr << "cms::Exception caught\n";
