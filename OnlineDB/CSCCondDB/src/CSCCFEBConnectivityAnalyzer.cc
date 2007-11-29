@@ -205,7 +205,7 @@ CSCCFEBConnectivityAnalyzer::~CSCCFEBConnectivityAnalyzer(){
   TCalibCFEBConnectEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","Connectivity");
-  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:adcMax/F:adcMin/F:diff/F:RMS/F:id:flagConnect/I");
+  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:adcMax/F:adcMin/F:diff/F:RMS/F:id/I:flagConnect/I");
   
   for (int iii=0; iii<Nddu; iii++){
     for (int i=0; i<myNcham; i++){
@@ -228,9 +228,9 @@ CSCCFEBConnectivityAnalyzer::~CSCCFEBConnectivityAnalyzer(){
 	chamber_index=mapitem.chamberId;
 	chamber_type = mapitem.chamberLabel;
 
-	std::cout<<"Data is for chamber:: "<< chamber_type<<"  "<<chamber_id<<" in sector:  "<<" index "<<first_strip_index<<sector<<std::endl;
+	std::cout<<"Data is for chamber:: "<< chamber_type<<"  "<<chamber_id<<"  "<<mapitem.chamberId<<" in sector:  "<<" index "<<first_strip_index<<sector<<std::endl;
       
-      calib_evt.id = chamber_num;
+      calib_evt.id =chamber_num ;
 
       for (int j=0; j<LAYERS_con; j++){
 	int layer_id=chamber_num+j+1;
