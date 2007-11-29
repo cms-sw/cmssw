@@ -28,7 +28,7 @@
 CSCMakeSRLUT::CSCMakeSRLUT(edm::ParameterSet const& conf)
 {
   writeLocalPhi = conf.getUntrackedParameter<bool>("WriteLocalPhi",true);
-  station = conf.getUntrackedParameter<int>("Station",-1);
+ station = conf.getUntrackedParameter<int>("Station",-1);
   sector = conf.getUntrackedParameter<int>("Sector",-1);
   endcap = conf.getUntrackedParameter<int>("Endcap",-1);
   writeGlobalPhi = conf.getUntrackedParameter<bool>("WriteGlobalPhi",true);
@@ -82,7 +82,9 @@ void CSCMakeSRLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
       std::ofstream LocalPhiLUT(filename.c_str());
       for(int i=0; i < 1<<CSCBitWidths::kLocalPhiAddressWidth; ++i)
 	{
-	  unsigned short thedata = mySR[0][0][0][0]->localPhi(i).toint();
+	  unsigned short thedata;
+	  try { thedata = mySR[0][0][0][0]->localPhi(i).toint(); }
+	  catch(...) { thedata = 0; }
 	  if(binary) LocalPhiLUT.write(reinterpret_cast<char*>(&thedata), sizeof(unsigned short));
 	  else LocalPhiLUT << std::dec << thedata << std::endl;
 	}
@@ -110,7 +112,8 @@ void CSCMakeSRLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
                           GlobalPhiLUT.open(fname.c_str());
                           for(int i=0; i < 1 << CSCBitWidths::kGlobalPhiAddressWidth; ++i)
                             {
-                              thedata = mySR[e-1][se-1][ss-1][st-1]->globalPhiME(i).toint();
+			      try { thedata = mySR[e-1][se-1][ss-1][st-1]->globalPhiME(i).toint(); }
+			      catch(...) { thedata = 0; }
                               if(binary) GlobalPhiLUT.write(reinterpret_cast<char*>(&thedata), sizeof(unsigned short));
                               else GlobalPhiLUT << std::dec << thedata << std::endl;
 			    }
@@ -122,7 +125,8 @@ void CSCMakeSRLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 			  GlobalPhiLUT.open(fname.c_str());
                           for(int i=0; i < 1 << CSCBitWidths::kGlobalPhiAddressWidth; ++i)
                             {
-                              thedata = mySR[e-1][se-1][ss-1][st-1]->globalPhiMB(i).toint();
+			      try { thedata = mySR[e-1][se-1][ss-1][st-1]->globalPhiMB(i).toint(); }
+			      catch(...) { thedata = 0; }
                               if(binary) GlobalPhiLUT.write(reinterpret_cast<char*>(&thedata), sizeof(unsigned short));
                               else GlobalPhiLUT << std::dec << thedata << std::endl;
                             }
@@ -137,7 +141,8 @@ void CSCMakeSRLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
                               GlobalPhiLUT.open(fname.c_str());
                               for(int i=0; i < 1<<CSCBitWidths::kGlobalPhiAddressWidth; ++i)
                                 {
-                                  thedata = mySR[e-1][se-1][0][st-1]->globalPhiME(i).toint();
+				  try { thedata = mySR[e-1][se-1][0][st-1]->globalPhiME(i).toint(); }
+				  catch(...) { thedata = 0; }
                                   if(binary) GlobalPhiLUT.write(reinterpret_cast<char*>(&thedata), sizeof(unsigned short));
                                   else GlobalPhiLUT << std::dec << thedata << std::endl;
                                 }
@@ -169,7 +174,8 @@ void CSCMakeSRLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 			  GlobalEtaLUT.open(fname.c_str());
 			  for(int i=0; i < 1 << CSCBitWidths::kGlobalEtaAddressWidth; ++i)
 			    {
-			      thedata = mySR[e-1][se-1][ss-1][st-1]->globalEtaME(i).toint();
+			      try { thedata = mySR[e-1][se-1][ss-1][st-1]->globalEtaME(i).toint(); }
+			      catch(...) { thedata = 0; }
 			      if(binary) GlobalEtaLUT.write(reinterpret_cast<char*>(&thedata), sizeof(unsigned short));
 			      else GlobalEtaLUT << std::dec << thedata << std::endl;
 			    }
@@ -183,7 +189,8 @@ void CSCMakeSRLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 			      GlobalEtaLUT.open(fname.c_str());
 			      for(int i=0; i < 1<<CSCBitWidths::kGlobalEtaAddressWidth; ++i)
 				{
-				  thedata = mySR[e-1][se-1][0][st-1]->globalEtaME(i).toint();
+				  try { thedata = mySR[e-1][se-1][0][st-1]->globalEtaME(i).toint(); }
+				  catch(...) { thedata = 0; }
 				  if(binary) GlobalEtaLUT.write(reinterpret_cast<char*>(&thedata), sizeof(unsigned short));
 				  else GlobalEtaLUT << std::dec << thedata << std::endl;
 				}
