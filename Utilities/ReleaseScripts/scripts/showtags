@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id:$
+# $Id: showtags,v 1.4 2007/06/07 19:55:09 elmer Exp $
 #
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
@@ -15,8 +15,10 @@ my $doDiff;
 my $doHelp;
 my $tagCollector;
 my $reltag;
+my $updatedtags;
 GetOptions("check|c" => \$doCVS,
            "diff|d" => \$doDiff,
+           "updated|u" => \$updatedtags,
            "release|r" => \$reltag,
            "tagCollector|t" => \$tagCollector,
            "help|h" => \$doHelp);
@@ -106,6 +108,7 @@ if(defined $reltag) {
 
 # Loop over the packages and get the requested information for them
 chdir("$maindir");
+my $pkgsdisplayed=0;
 foreach my $ipack (@packages) {
   # First look at the tag in the scram developer area
   my $tag = "NoCVS";
@@ -121,9 +124,13 @@ foreach my $ipack (@packages) {
       $tag = "NoTag"; 
     }
   }
-  # If requested, look also at the tag in the base release
+  # If requested to print the tag from the base release or requested to
+  # only print tags which are different from the base release, obtain
+  # the tag from the base release (this should probably be moved out
+  # of the loop over packages as read read the release tag list N times
+  # in this implementation) 
   my $tagrel = ""; 
-  if (defined $reltag) {
+  if ((defined $reltag)||(defined $updatedtags)) {
     open IN, "$taglist";
     my $l2="";
     my $thepack=""; my $thetag="";
@@ -134,18 +141,21 @@ foreach my $ipack (@packages) {
     }
     close IN;
   }
-  #print "package: $pack\ttag: $tag\n";
-  if (defined $reltag) {
-    if(defined $tagCollector) {
-      printf '%-48s %-14s %-14s %s', $ipack, $tag, $tagrel, "\n";
+
+  if ((!defined $updatedtags)||($tag ne $tagrel)) {
+    $pkgsdisplayed=$pkgsdisplayed+1;
+    if (defined $reltag) {
+      if(defined $tagCollector) {
+        printf '%-48s %-14s %-14s %s', $ipack, $tag, $tagrel, "\n";
+      } else {
+        printf '%-14s %-14s %-48s %s', $tag, $tagrel, "$ipack", "\n";
+      }
     } else {
-      printf '%-14s %-14s %-48s %s', $tag, $tagrel, "$ipack", "\n";
-    }
-  } else {
-    if(defined $tagCollector) {
-      printf '%-48s %-14s %s', $ipack, $tag, "\n";
-    } else {
-      printf '%-14s %-48s %s', $tag, "$ipack", "\n";
+      if(defined $tagCollector) {
+        printf '%-48s %-14s %s', $ipack, $tag, "\n";
+      } else {
+        printf '%-14s %-48s %s', $tag, "$ipack", "\n";
+      }
     }
   }
   $tagMap{"$ipack"} = $tag;
@@ -192,7 +202,7 @@ foreach my $ipack (@packages) {
 
 my $nsys = @packages;
 print "---------------------------------------\n";
-print STDOUT "total packages: $nsys\n";
+print STDOUT "total packages: $nsys ($pkgsdisplayed displayed)\n";
 
 # go back to user's initial directory
 chdir $curr;
@@ -205,11 +215,15 @@ sub usage {
 print STDOUT <<ENDHELP;
 showtags [--check|-c] [--diff|-d] [--help|-h]
 
-  usage:      --help|-h    print this message
-              --check|-c   check for differences wrt tag in the base release
-              --diff|-d    do cvs diff with tag in the base release
-              --release|-r show also the tag used for the base release 
-              --tagCollector|-t print "package   tag" instead of default "tag   package"
+  usage:      --help|-h           Print this message
+              --check|-c          Check for differences wrt tag in the base 
+                                  release
+              --diff|-d           Do cvs diff with tag in the base release
+              --updated|-u        Only show tags which are different from 
+                                  the base release
+              --release|-r        Show also the tag used for the base release 
+              --tagCollector|-t   Print "package   tag" instead of the
+                                  default "tag   package"
 
 ENDHELP
 exit 0;
