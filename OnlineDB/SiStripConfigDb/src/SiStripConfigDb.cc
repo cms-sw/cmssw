@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.36 2007/11/21 13:45:47 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.37 2007/11/28 18:52:20 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -455,9 +455,9 @@ void SiStripConfigDb::usingDatabase() {
     } else if ( tmp != env_var ) { 
       edm::LogWarning(mlConfigDb_)
 	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Env. var. TNS_ADMIN is set to '" << tmp
-	<< "'! Setting to '" << env_var << "'...";
-      setenv(tns_admin.c_str(),env_var.c_str(),1); 
+	<< " Env. var. TNS_ADMIN is set to '" << tmp;
+      //<< "'! Setting to '" << env_var << "'...";
+      //setenv(tns_admin.c_str(),env_var.c_str(),1); 
     } else {
       LogTrace(mlConfigDb_)
 	<< "[SiStripConfigDb::" << __func__ << "]"
