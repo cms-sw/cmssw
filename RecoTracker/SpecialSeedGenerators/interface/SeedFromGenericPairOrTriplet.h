@@ -47,23 +47,24 @@ class SeedFromGenericPairOrTriplet{
 	TrajectorySeed* seedFromTriplet(const SeedingHitSet& hits,
                                         const PropagationDirection& dir,
 					const NavigationDirection&  seedDir,
-                                  	const edm::EventSetup& iSetup, int charge = -1);
+                                  	const edm::EventSetup& iSetup, int charge = -1) const ;
   	TrajectorySeed*    seedFromPair(const SeedingHitSet& hits,
                                   	const PropagationDirection& dir,
-					const NavigationDirection&  seedDir, int charge = -1);
+					const NavigationDirection&  seedDir, int charge = -1) const ;
 
 	
 	private:
-	TrajectorySeed*       buildSeed(const FreeTrajectoryState* startingState,
+	TrajectorySeed*       buildSeed(const GlobalVector& momentum,
+					int charge,
                                   	//const TrackingRecHit* firsthit,
 					std::vector<const TrackingRecHit*>& trHits,
-                                  	const PropagationDirection& dir);
+                                  	const PropagationDirection& dir) const;
 	//initial error estimate	
-	CurvilinearTrajectoryError initialError(const TrackingRecHit* rechit);	
+	//CurvilinearTrajectoryError initialError(const TrackingRecHit* rechit);	
 	//in the case of noB it returns false if 3 hist are not aligned
 	//if the B is on it returns false if the initial momentum is less than p
-	bool qualityFilter(const FreeTrajectoryState* startingState,
-                      	   const SeedingHitSet& hits);
+	bool qualityFilter(const SeedingHitSet& hits) const ;
+	bool qualityFilter(const GlobalVector& momentum) const;
 	const MagneticField*   theMagfield;
 	const TrackerGeometry* theTracker;
 	const TransientTrackingRecHitBuilder* theBuilder;
