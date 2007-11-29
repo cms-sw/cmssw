@@ -7,8 +7,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "EventFilter/RPCRawToDigi/interface/RPCPackingModule.h"
-#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
-#include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
+//#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+//#include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -135,6 +137,8 @@ LinkDataXMLWriter::LinkDataXMLWriter(const edm::ParameterSet& iConfig){
     linkData.push_back(rpdvvv);
   }
 
+  cabling = new RPCReadOutMapping("");
+
   nEvents = 0; 
 }
 
@@ -175,8 +179,17 @@ void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es)
   }
  
  
-  ESHandle<RPCReadOutMapping> readoutMapping;
-  es.get<RPCReadOutMappingRcd>().get(readoutMapping);
+//  ESHandle<RPCReadOutMapping> readoutMapping;
+//  es.get<RPCReadOutMappingRcd>().get(readoutMapping);
+
+  ESHandle<RPCEMap> readoutMapping;
+  es.get<RPCEMapRcd>().get(readoutMapping);
+  const RPCEMap* eMap=readoutMapping.product();
+
+  if (eMap->theVersion != cabling->version()) {
+    delete cabling;
+    cabling = eMap->convert();
+  }
 
   int trigger_BX = 200;
   int dccFactor = 3;
@@ -185,7 +198,8 @@ void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es)
    for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
      dccFactor--;
 
-    RPCRecordFormatter formatter(id, readoutMapping.product()) ;
+//    RPCRecordFormatter formatter(id, readoutMapping.product()) ;
+    RPCRecordFormatter formatter(id, cabling) ;
     std::vector<rpcrawtodigi::EventRecords> myEventRecords = RPCPackingModule::eventRecords(id,
 											    trigger_BX,  
 											    digiCollection.product(),
