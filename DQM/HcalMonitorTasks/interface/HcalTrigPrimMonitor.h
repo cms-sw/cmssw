@@ -6,8 +6,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2007/10/04 21:03:13 $
-  * $Revision: 1.2 $
+  * $Date: 2007/11/28 11:48:44 $
+  * $Revision: 1.4 $
   * \author W. Fisher - FNAL
   */
 class HcalTrigPrimMonitor: public HcalBaseMonitor {
@@ -42,7 +42,9 @@ private:  ///Monitoring elements
   MonitorElement* tpSpectrum_[10];
   MonitorElement* tpSpectrumAll_;
   MonitorElement* tpETSumAll_;
+  MonitorElement* tpSOI_ET_;
 
+  MonitorElement* OCC_MAP_SLB;
   MonitorElement* OCC_ETA;
   MonitorElement* OCC_PHI;
   MonitorElement* OCC_MAP_GEO;
