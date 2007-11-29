@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.29 2007/10/14 15:06:55 hcheung Exp $
+// $Id: StorageManager.cc,v 1.30 2007/11/09 23:09:12 badgett Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -209,7 +209,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("DQMactiveConsumerTimeout",&DQMactiveConsumerTimeout_);
   DQMidleConsumerTimeout_ = 600;  // seconds
   ispace->fireItemAvailable("DQMidleConsumerTimeout",&DQMidleConsumerTimeout_);
-  DQMconsumerQueueSize_ = 5;
+  DQMconsumerQueueSize_ = 15;
   ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
 
   // for performance measurements
@@ -1760,12 +1760,11 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
 
     // create the local consumer interface and add it to the event server
     boost::shared_ptr<ConsumerPipe>
-      consPtr(new ConsumerPipe(consumerName, 
-			       consumerPriority,
+      consPtr(new ConsumerPipe(consumerName, consumerPriority,
                                activeConsumerTimeout_.value_,
                                idleConsumerTimeout_.value_,
-                               requestParamSet,
-			       consumerHost));
+                               requestParamSet, consumerHost,
+                               consumerQueueSize_));
     eventServer->addConsumer(consPtr);
     // over-ride pushmode if not set in StorageManager
     if((consumerPriority.compare("SMProxyServer") == 0) && !pushMode_)
@@ -1928,9 +1927,10 @@ void StorageManager::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
       // create the local consumer interface and add it to the event server
       boost::shared_ptr<DQMConsumerPipe>
         consPtr(new DQMConsumerPipe(consumerName, consumerPriority,
-				    DQMactiveConsumerTimeout_.value_,
-				    DQMidleConsumerTimeout_.value_,
-				    consumerRequest,consumerHost));
+                                    DQMactiveConsumerTimeout_.value_,
+                                    DQMidleConsumerTimeout_.value_,
+                                    consumerRequest, consumerHost,
+                                    DQMconsumerQueueSize_));
       eventServer->addConsumer(consPtr);
       // over-ride pushmode if not set in StorageManager
       if((consumerPriority.compare("SMProxyServer") == 0) && !pushMode_)
