@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEnumsAndStrings.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: SiStripEnumsAndStrings.h,v 1.3 2007/06/19 12:16:52 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripEnumsAndStrings_H
 #define DataFormats_SiStripCommon_SiStripEnumsAndStrings_H
@@ -16,6 +16,8 @@ class SiStripEnumsAndStrings {
   
   static std::string runType( const sistrip::RunType& );
   static sistrip::RunType runType( const std::string& run_type );
+
+  static sistrip::RunType runType( const uint16_t& );
   
   static std::string keyType( const sistrip::KeyType& );
   static sistrip::KeyType keyType( const std::string& key_type );

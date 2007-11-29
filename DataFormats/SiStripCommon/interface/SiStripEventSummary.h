@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.h,v 1.4 2007/07/31 15:20:24 ratnik Exp $
+// Last commit: $Id: SiStripEventSummary.h,v 1.5 2007/09/06 21:38:13 delaer Exp $
 
 #ifndef DataFormats_SiStripEventSummary_SiStripEventSummary_H
 #define DataFormats_SiStripEventSummary_SiStripEventSummary_H
@@ -32,8 +32,20 @@ class SiStripEventSummary {
   /** Default destructor. */
   ~SiStripEventSummary() {;}
   
-  // ---------- Run and event-related info ----------
+  // ---------- General information ----------
+  
+  /** Identifies if commissioning info is valid or not (when using
+      global trigger to understand if HW config is being changed). */
+  inline bool valid() const;
+  
+  /** Identifier of trigger FED (null value means not found). */
+  inline uint16_t triggerFed() const;
 
+  /** Flag to identify if commissioning info already set. */
+  inline bool isSet() const;
+  
+  // ---------- Run and event-related info ----------
+  
   /** Returns run type. */ 
   inline const sistrip::RunType& runType() const;
 
@@ -127,7 +139,17 @@ class SiStripEventSummary {
   /** Sets commissioning-related information. */
   void commissioningInfo( const uint32_t* const buffer,
 			  const uint32_t& event );
+
+  /** Sets DAQ register information. */
+  void commissioningInfo( const uint32_t& daq_register1,
+			  const uint32_t& daq_register2 );
   
+  /** Sets trigger FED number. */
+  inline void triggerFed( const uint16_t& );
+  
+  /** Sets FED readout mode. */
+  void fedReadoutMode( const uint16_t& );
+
   /** Sets event number. */
   inline void event( const uint32_t& );
 
@@ -140,6 +162,15 @@ class SiStripEventSummary {
   inline void nApvsErrors( uint32_t& napvs_with_errors );
   
  private:
+
+  // ---------- General info ----------
+
+  /** Flag to signify if trigger FED information is valid. */
+  bool valid_;
+
+  /** */
+  uint16_t triggerFed_;
+
 
   // ---------- Run- and event-related info ----------
   
@@ -157,7 +188,7 @@ class SiStripEventSummary {
 
   /** Number of DataSenders (c.f. ReadoutUnits). */
   uint32_t nDataSenders_;
-
+  
   // ---------- Hardware-related info ----------
 
   /** FED readout mode. */
@@ -184,6 +215,10 @@ class SiStripEventSummary {
 };
 
 // ---------- inline methods ----------
+
+bool SiStripEventSummary::valid() const { return valid_; }
+uint16_t SiStripEventSummary::triggerFed() const { return triggerFed_; }
+bool SiStripEventSummary::isSet() const { return ( triggerFed_ > 0 && runType_ != sistrip::UNDEFINED_RUN_TYPE && !nullParams() ); }  
 
 const sistrip::RunType& SiStripEventSummary::runType() const { return runType_; }
 const uint32_t& SiStripEventSummary::event() const { return event_; }
@@ -216,7 +251,8 @@ const uint32_t& SiStripEventSummary::deviceId() const { return params_[0]; }
 const uint32_t& SiStripEventSummary::processId() const { return params_[1]; }
 const uint32_t& SiStripEventSummary::processIp() const { return params_[2]; }
 const uint32_t& SiStripEventSummary::dcuId() const { return params_[3]; }
-  
+
+void SiStripEventSummary::triggerFed( const uint16_t& fed ) { triggerFed_ = fed; }
 void SiStripEventSummary::event( const uint32_t& event ) { event_ = event; }
 void SiStripEventSummary::bx( const uint32_t& bx ) { bx_ = bx; }
 

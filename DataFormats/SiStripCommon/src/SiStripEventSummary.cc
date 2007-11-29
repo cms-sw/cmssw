@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.cc,v 1.3 2007/06/19 12:16:53 bainbrid Exp $
+// Last commit: $Id: SiStripEventSummary.cc,v 1.4 2007/09/06 21:38:13 delaer Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -11,6 +11,8 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 SiStripEventSummary::SiStripEventSummary() : 
+  valid_(true),
+  triggerFed_(0),
   runType_(sistrip::UNDEFINED_RUN_TYPE), 
   event_(0), 
   bx_(0),
@@ -29,13 +31,11 @@ SiStripEventSummary::SiStripEventSummary() :
 //
 void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
 					     const uint32_t& event ) {
-
+  
   // Set RunType
-  sistrip::RunType tmp = static_cast<sistrip::RunType>( buffer[10] );
-  if ( buffer[10] == 11 || buffer[10] == 16 ) { tmp = sistrip::FED_CABLING; }
-  std::string run_type = SiStripEnumsAndStrings::runType(tmp);
-  runType_ = SiStripEnumsAndStrings::runType(run_type);
-
+  uint16_t run = static_cast<uint16_t>( buffer[10] & 0xFFFF );
+  runType_ = SiStripEnumsAndStrings::runType(run);
+  
   // Set spill number
   spillNumber_ = buffer[0];
 
@@ -51,10 +51,9 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
   else { fedReadoutMode_ = sistrip::UNKNOWN_FED_READOUT_MODE; }
   
   // Set hardware parameters
-  if ( buffer[10] == 3  ||
-       buffer[10] == 33 ||
-       buffer[10] == 6  || 
-       buffer[10] == 26 ) { // Calibration or latency
+  if ( runType_ == sistrip::CALIBRATION ||
+       runType_ == sistrip::CALIBRATION_DECO ||
+       runType_ == sistrip::APV_LATENCY ) { 
 
     params_[0] = buffer[11]; // latency
     params_[1] = buffer[12]; // cal_chan
@@ -62,33 +61,32 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
     params_[3] = buffer[15]; // isha
     params_[4] = buffer[16]; // vfs
 
-  } else if ( buffer[10] == 4 ) { // Laser driver tuning
+  } else if ( runType_ == sistrip::OPTO_SCAN ) { 
 
     params_[0] = buffer[11]; // opto gain
     params_[1] = buffer[12]; // opto bias
 
-  } else if ( buffer[10] == 7 ||
-	      buffer[10] == 17||
-	      buffer[10] == 8 ||
-	      buffer[10] == 5 ||
-	      buffer[10] == 12 ) { // Synchronisation and delay scans
+  } else if ( runType_ == sistrip::APV_TIMING ||
+	      runType_ == sistrip::FED_TIMING ||
+	      runType_ == sistrip::FINE_DELAY || //@@ layer
+	      runType_ == sistrip::FINE_DELAY_PLL ||
+	      runType_ == sistrip::FINE_DELAY_TTC ) { 
 
     params_[0] = buffer[11]; // pll coarse delay
     params_[1] = buffer[12]; // pll fine delay
     params_[2] = buffer[13]; // ttcrx delay
 
-  } else if ( buffer[10] == 21 ) { // "Very fast" connection 
+  } else if ( runType_ == sistrip::FAST_CABLING ) { 
 
     params_[0] = event-1; // buffer[11]; // bin number
     params_[1] = buffer[12]; // fec instance
     params_[2] = buffer[13]; // fec ip
     params_[3] = buffer[14]; // dcu hard id 
 
-  } else if ( buffer[10] == 11 ||
-	      buffer[10] == 13 ||
-	      buffer[10] == 16 ) { // Connection loop 
+  } else if ( runType_ == sistrip::FED_CABLING ||
+	      runType_ == sistrip::QUITE_FAST_CABLING ) { 
 
-    if ( buffer[10] == 16 ) { // If fast connection
+    if ( runType_ == sistrip::QUITE_FAST_CABLING ) { 
 
       uint16_t ii = 0;
       bool found = false;
@@ -124,7 +122,7 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
 	LogTrace(mlDigis_) << ss.str();
       }
 
-    } else { // If not fast connection
+    } else {
 
       params_[0] = buffer[11]; // device id
       params_[1] = buffer[12]; // process id
@@ -133,26 +131,27 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
 
     }
 
-  } else if ( buffer[10] == 14 ) { // VPSP scan
+  } else if ( runType_ == sistrip::VPSP_SCAN ) { 
 
     params_[0] = buffer[11]; // vpsp value
     params_[1] = buffer[12]; // ccu channel (I2C of module)
 
-  } else if ( buffer[10] == 15 ) { // DAQ scope mode readout
+  } else if ( runType_ == sistrip::DAQ_SCOPE_MODE ) { 
 
     // nothing interesting!
 
-  } else if (  buffer[10] == 1 ||
-	       buffer[10] == 2 ) { // Physics and pedestals
+  } else if (  runType_ == sistrip::PHYSICS ||
+	       runType_ == sistrip::PHYSICS_ZS ||
+	       runType_ == sistrip::PEDESTALS ) { 
 
     //@@ do anything?...
 
-  } else { // Unknown commissioning task
+  } else { 
     
     edm::LogWarning(mlDigis_)
       << "[SiStripEventSummary::" << __func__ << "]"
-      << " Unknown commissioning task: "
-      << buffer[10];
+      << " Unexpected commissioning task: "
+      << runType_;
 
   }
 
@@ -160,8 +159,96 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
 
 // -----------------------------------------------------------------------------
 //
+
+// -----------------------------------------------------------------------------
+//
+void SiStripEventSummary::commissioningInfo( const uint32_t& daq1,
+					     const uint32_t& daq2 ) {
+  
+  // Extract if commissioning info are valid or not 
+  if ( (daq1>>8)&0x3 == 1 ) { valid_ = true; }
+  else if ( (daq1>>8)&0x3 == 2 ) { valid_ = false; }
+  else if ( (daq1>>8)&0x3 == 3 && 
+	    daq1 == sistrip::invalid32_ ) {
+    edm::LogWarning(mlDigis_)
+      << "[SiStripEventSummary::" << __func__ << "]"
+      << " DAQ register contents set to invalid!";
+    valid_ = false;
+  } else {
+    edm::LogWarning(mlDigis_)
+      << "[SiStripEventSummary::" << __func__ << "]"
+      << " Unexpected bit pattern set"
+      << " (used to flag if data are valid or not)!";
+    valid_ = false;
+  }
+  
+  // Set RunType
+  uint16_t run = static_cast<uint16_t>( daq1&0xFF );
+  runType_ = SiStripEnumsAndStrings::runType(run);
+  
+  // Set hardware parameters
+  if        ( runType_ == sistrip::PHYSICS ) { 
+  } else if ( runType_ == sistrip::PHYSICS_ZS ) { 
+  } else if ( runType_ == sistrip::PEDESTALS ) { 
+  } else if ( runType_ == sistrip::DAQ_SCOPE_MODE ) { 
+  } else if ( runType_ == sistrip::CALIBRATION ) { 
+  } else if ( runType_ == sistrip::CALIBRATION_DECO ) { 
+    params_[0] = (daq2>>8)&0xFF; // latency
+    params_[1] = (daq2>>4)&0x0F; // cal_chan
+    params_[2] = (daq2>>0)&0x0F; // cal_sel
+  } else if ( runType_ == sistrip::CALIBRATION_SCAN ) { 
+    params_[0] = (daq2>>8)&0xFF; // latency
+    params_[1] = (daq2>>4)&0x0F; // cal_chan
+    params_[2] = (daq2>>0)&0x0F; // cal_sel
+  } else if ( runType_ == sistrip::OPTO_SCAN ) { 
+    params_[0] = (daq2>>8)&0xFF; // opto gain
+    params_[1] = (daq2>>0)&0xFF; // opto bias
+  } else if ( runType_ == sistrip::APV_TIMING ) { 
+    params_[1] = (daq2>>0)&0xFF; // pll fine delay
+  } else if ( runType_ == sistrip::APV_LATENCY ) { 
+    params_[0] = (daq2>>0)&0xFF; // latency
+  } else if ( runType_ == sistrip::FINE_DELAY_PLL ) { 
+  } else if ( runType_ == sistrip::FINE_DELAY_TTC ) { 
+  } else if ( runType_ == sistrip::FINE_DELAY ) { //@@ layer
+    params_[0] = (daq2>>0)&0xFF; // pll coarse delay
+    params_[1] = (daq2>>0)&0xFF; // pll fine delay
+    params_[2] = (daq2>>0)&0xFF; // ttcrx delay
+  } else if ( runType_ == sistrip::FED_TIMING ) { 
+    params_[1] = (daq2>>0)&0xFF; // pll fine delay
+  } else if ( runType_ == sistrip::VPSP_SCAN ) { 
+    params_[0] = (daq2>>8)&0xFF; // vpsp value
+    params_[1] = (daq2>>0)&0xFF; // ccu channel
+  } else if ( runType_ == sistrip::FED_CABLING ) { 
+  } else if ( runType_ == sistrip::QUITE_FAST_CABLING ) { 
+  } else if ( runType_ == sistrip::FAST_CABLING ) { 
+    params_[0] = (daq2>>0)&0xFF; // key
+  } else { 
+    edm::LogWarning(mlDigis_)
+      << "[SiStripEventSummary::" << __func__ << "]"
+      << " Unexpected commissioning task: "
+      << runType_;
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripEventSummary::fedReadoutMode( const uint16_t& mode ) {
+  if      ( mode ==  1 ) { fedReadoutMode_ = sistrip::FED_SCOPE_MODE; }
+  else if ( mode ==  2 ) { fedReadoutMode_ = sistrip::FED_VIRGIN_RAW; }
+  else if ( mode ==  6 ) { fedReadoutMode_ = sistrip::FED_PROC_RAW; }
+  else if ( mode == 10 ) { fedReadoutMode_ = sistrip::FED_ZERO_SUPPR; }
+  else if ( mode == 12 ) { fedReadoutMode_ = sistrip::FED_ZERO_SUPPR_LITE; }
+  else { fedReadoutMode_ = sistrip::UNKNOWN_FED_READOUT_MODE; }
+}
+
+// -----------------------------------------------------------------------------
+//
 std::ostream& operator<< ( std::ostream& os, const SiStripEventSummary& input ) {
   return os << "[SiStripEventSummary::" << __func__ << "]" << std::endl
+	    << " isValid              : " << std::boolalpha << input.valid() << std::noboolalpha << std::endl
+	    << " Triggef FED id       : " << input.triggerFed() << std::endl
+	    << " isSet                : " << input.isSet() << std::endl
 	    << " Run type             : " << input.runType() << std::endl
 	    << " Event number         : " << input.event() << std::endl 
 	    << " Bunch crossing       : " << input.bx() << std::endl
