@@ -27,6 +27,10 @@ namespace pos{
     const bool operator<(const PixelChannel& aChannel) const{
       return (module_<aChannel.module_ || (module_==aChannel.module_ && TBMChannel_ < aChannel.TBMChannel_) );
     }
+    
+    const bool operator==(const PixelChannel& aChannel) const{
+      return (module_==aChannel.module_ && TBMChannel_==aChannel.TBMChannel_);
+    }
 
     private:
     PixelModuleName module_;

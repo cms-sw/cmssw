@@ -21,6 +21,10 @@ namespace pos{
       return ( isChannelB_ == false && aTBMChannel.isChannelB_ == true );
     }
 
+    const bool operator==(const PixelTBMChannel& aTBMChannel) const{
+      return isChannelB_==aTBMChannel.isChannelB_;
+    }
+
     private:
     bool isChannelB_;
   };
