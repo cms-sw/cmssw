@@ -18,6 +18,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelModuleName.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelChannel.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelHdwAddress.h"
 
 
@@ -61,6 +62,10 @@ namespace pos{
         
     std::map<PixelROCName,PixelHdwAddress> translationtable_;  
 
+    // This is a bit ugly, since the PixelHdwAddress contains the ROC number, which isn't really relevant to a PixelChannel.
+    std::map<PixelChannel, PixelHdwAddress > channelTranslationTable_;
+
+    // Eventually moduleTranslationtable_ should be removed since it just duplicates information in channelTranslationTable_.  First, though, we have to remove the functions that need it, and the other spots in the code where they're called.
     //FIXME This code is not really good as we should have a more
     //general solution that works for the dual TBM mode in the
     //barrel. One possible solution would be to split the PixelHdwAddress

@@ -48,6 +48,7 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
 
  for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
    std::string rocname       = tableMat[r][colM[colNames[0]]];//ROC_NAME
+   std::string TBMChannel = "A"; assert(0); // need to add this to the input table
    tableMat[r][colM[colNames[1]]].erase(0 , 8);//PIXFEC
    unsigned int fecnumber    = (unsigned int)atoi(tableMat[r][colM[colNames[1]]].c_str());//"PIXFEC"
    unsigned int mfec         = (unsigned int)atoi(tableMat[r][colM[colNames[2]]].c_str());//"MFEC_POSN"
@@ -75,6 +76,31 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
    translationtable_[aROC]=hdwAdd;
    
    PixelModuleName aModule(rocname);
+   
+	    PixelChannel aChannel(aModule, TBMChannel);
+	    // Look for this channel in channelTransaltionTable.  If it is found, check that the hardware address agrees.  If not, add it to the table.  Also, if another channel on that module is found, check that the FEC part agrees, and the FED part doesn't.
+	    bool foundChannel = false;
+	    for ( std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.begin(); channelTranslationTable_itr != channelTranslationTable_.end(); channelTranslationTable_itr++ )
+	    {
+	        if ( channelTranslationTable_itr->first == aChannel )
+	        {
+	           assert( channelTranslationTable_itr->second |= hdwAdd );
+	           foundChannel = true;
+	        }
+	        else if ( channelTranslationTable_itr->first.module() == aModule )
+	        {
+	           assert( channelTranslationTable_itr->second.fecnumber() == hdwAdd.fecnumber() );
+	           assert( channelTranslationTable_itr->second.mfec() == hdwAdd.mfec() );
+	           assert( channelTranslationTable_itr->second.mfecchannel() == hdwAdd.mfecchannel() );
+	           assert( channelTranslationTable_itr->second.portaddress() == hdwAdd.portaddress() );
+	           assert( channelTranslationTable_itr->second.hubaddress() == hdwAdd.hubaddress() );
+	           assert( channelTranslationTable_itr->second.fednumber() != hdwAdd.fednumber() || channelTranslationTable_itr->second.fedchannel() != hdwAdd.fedchannel() );
+	        }
+	    }
+	    if ( foundChannel == false ) channelTranslationTable_[aChannel] = hdwAdd;
+	    
+	// Fill moduleTranslationtable_ below
+   
 //    const PixelHdwAddress* aHdwAdd=getHdwAddress(aModule);
    const std::vector<PixelHdwAddress>& aHdwAdd(*getHdwAddress(aModule));
    if (&aHdwAdd==0){
@@ -125,21 +151,12 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
 
     std::string dummy;
 
-    in >> dummy;
-    in >> dummy;
-    in >> dummy;
-    in >> dummy;
-    in >> dummy;
-    in >> dummy;
-    in >> dummy;
-    in >> dummy;
-    in >> dummy;
-    in >> dummy;
-    in >> dummy;
+    getline(in, dummy); // skip the column headings
 
     do {
 	
 	std::string rocname;
+	std::string TBMChannel;
 	unsigned int fecnumber;
 	unsigned int mfec;
 	unsigned int mfecchannel;
@@ -150,7 +167,18 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
 	unsigned int fedchannel;
 	unsigned int fedrocnumber;
 
-	in >> rocname >> fecnumber >> mfec >> mfecchannel 
+	in >> rocname;
+	in >> TBMChannel;
+	if ( TBMChannel != "A" && TBMChannel != "B" ) // no TBM channel was specified, so default to A and set fecnumber to the value of this string
+	{
+		fecnumber = atoi(TBMChannel.c_str());
+		TBMChannel = "A";
+	}
+	else // TBM channel was specified, now read fecnumber
+	{
+		in >> fecnumber;
+	}
+	in >> mfec >> mfecchannel 
            >> hubaddress >> portaddress >> rocid >> fednumber 
            >> fedchannel >> fedrocnumber;
 
@@ -183,6 +211,29 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
 	    translationtable_[aROC]=hdwAdd;
 	    
 	    PixelModuleName aModule(rocname);
+	    PixelChannel aChannel(aModule, TBMChannel);
+	    // Look for this channel in channelTransaltionTable.  If it is found, check that the hardware address agrees.  If not, add it to the table.  Also, if another channel on that module is found, check that the FEC part agrees, and the FED part doesn't.
+	    bool foundChannel = false;
+	    for ( std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.begin(); channelTranslationTable_itr != channelTranslationTable_.end(); channelTranslationTable_itr++ )
+	    {
+	        if ( channelTranslationTable_itr->first == aChannel )
+	        {
+	           assert( channelTranslationTable_itr->second |= hdwAdd );
+	           foundChannel = true;
+	        }
+	        else if ( channelTranslationTable_itr->first.module() == aModule )
+	        {
+	           assert( channelTranslationTable_itr->second.fecnumber() == hdwAdd.fecnumber() );
+	           assert( channelTranslationTable_itr->second.mfec() == hdwAdd.mfec() );
+	           assert( channelTranslationTable_itr->second.mfecchannel() == hdwAdd.mfecchannel() );
+	           assert( channelTranslationTable_itr->second.portaddress() == hdwAdd.portaddress() );
+	           assert( channelTranslationTable_itr->second.hubaddress() == hdwAdd.hubaddress() );
+	           assert( channelTranslationTable_itr->second.fednumber() != hdwAdd.fednumber() || channelTranslationTable_itr->second.fedchannel() != hdwAdd.fedchannel() );
+	        }
+	    }
+	    if ( foundChannel == false ) channelTranslationTable_[aChannel] = hdwAdd;
+	    
+	    // Fill moduleTranslationtable_
 	    const std::vector<PixelHdwAddress>& aHdwAdd(*getHdwAddress(aModule));
 	    if (&aHdwAdd==0){
 	      //std::cout << "Inserting new module:"<<aModule<<std::endl;
@@ -374,12 +425,26 @@ void PixelNameTranslation::writeASCII(std::string dir) const {
 
   std::ofstream out(filename.c_str());
 
-  out << "# name                              FEC      mfec  mfecchannel hubaddress portadd rocid     FED     channel     roc#"<<endl;
+  out << "# name                          TBMchannel  FEC      mfec  mfecchannel hubaddress portadd rocid     FED     channel     roc#"<<endl;
 
   std::map<PixelROCName,PixelHdwAddress>::const_iterator iroc=translationtable_.begin();
 
   for (;iroc!=translationtable_.end();++iroc) {
+  
+    // Find the PixelChannel for this ROC, in order to get the TBM channel.
+    std::string TBMChannel = "notFound";
+    for ( std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.begin(); channelTranslationTable_itr != channelTranslationTable_.end(); channelTranslationTable_itr++ )
+    {
+       if ( iroc->second |= channelTranslationTable_itr->second )
+       {
+          TBMChannel = channelTranslationTable_itr->first.TBMChannelString();
+          break;
+       }
+    }
+    assert( TBMChannel != "notFound" );
+  
     out << iroc->first.rocname()<<"       "
+	<< TBMChannel<<"       "
 	<< iroc->second.fecnumber()<<"       "
 	<< iroc->second.mfec()<<"       "
 	<< iroc->second.mfecchannel()<<"       "
