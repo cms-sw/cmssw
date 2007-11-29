@@ -42,6 +42,46 @@ namespace HCAL_HLX{
     Disconnect();
   }
 
+void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
+                 fd_set& ExceptFDs, int ListeningSocket = -1,
+                 int connectSocket = -1) { //std::vector & gConnections) {
+    FD_ZERO(&ReadFDs);
+    FD_ZERO(&WriteFDs);
+    FD_ZERO(&ExceptFDs);
+
+    // Add the listener socket to the read and except FD sets, if there
+    // is one.
+    if (ListeningSocket != -1) {
+        FD_SET(ListeningSocket, &ReadFDs);
+        FD_SET(ListeningSocket, &ExceptFDs);
+    }
+
+    // Add client connections
+    /*    std::vector<ClientConnectionData>::iterator it = gConnections.begin();
+    while (it != gConnections.end()) {
+      if (it->nCharsInBuffer < kBufferSize) {
+        // There's space in the read buffer, so pay attention to
+        // incoming data.
+        FD_SET(it->sd, &ReadFDs);
+      }
+
+      //if (it->nCharsInBuffer > 0) {
+      // There's data still to be sent on this socket, so we need
+      // to be signalled when it becomes writable.
+      //FD_SET(it->sd, &WriteFDs);
+      //  }
+
+      FD_SET(it->sd, &ExceptFDs);
+
+      ++it;
+      }*/
+    if (connectSocket != -1) {
+      FD_SET(connectSocket, &ReadFDs);
+      FD_SET(connectSocket, &ExceptFDs);
+    }
+}
+
+
   int TCPReceiver::ReceiveLumiSection(HCAL_HLX::LUMI_SECTION &localSection){
 #ifdef DEBUG
     std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
@@ -57,11 +97,24 @@ namespace HCAL_HLX{
 	const unsigned int Buffer_Size = 8192;
 	char *Buffer;
 	char *BigBuffer;
-	time_t tempTime;
-	time_t curTime;
-	fd_set fds;
+
+	// From John's code
+
+	fd_set fdsRead, fdsWrite, fdsExcept;
+	struct timeval tv;
+
+	tv.tv_sec = 1;
+	tv.tv_usec = 0;
+
+	int outputcode;
+	int z = 0, localCount = 0;
+	time_t tempTime, curTime;
+	int ret;
+
 	time(&curTime);
 	
+
+
 	bytesToReceive = sizeof(localSection);
 	Buffer = new char[Buffer_Size];
 	BigBuffer = new char[bytesToReceive];
@@ -74,13 +127,15 @@ namespace HCAL_HLX{
 	usleep(10000);
 	
 	while((totalBytesRcvd < bytesToReceive) && (errorCode == 0)){
+
+	SetupFDSets(fdsRead, fdsWrite, fdsExcept, -1, tcpSocket);
 	  
-	  FD_ZERO(&fds);
-	  FD_SET(tcpSocket, &fds); // adds sock to the file descriptor set
+	// FD_ZERO(&fds);
+	// FD_SET(tcpSocket, &fds); // adds sock to the file descriptor set
 	  
-	  if(select(tcpSocket+1, &fds, NULL, NULL, 0)> 0){
+	  if(select(tcpSocket+1, &fdsRead, 0, &fdsExcept, 0)> 0){
 	    
-	    if (FD_ISSET(tcpSocket, &fds)) {
+	    if (FD_ISSET(tcpSocket, &fdsRead)) {
 	      
 	      if((bytesRcvd = recv(tcpSocket, Buffer, Buffer_Size, 0))<=0){
 		errorCode = 501;

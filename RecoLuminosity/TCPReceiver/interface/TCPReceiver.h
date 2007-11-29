@@ -122,6 +122,9 @@ namespace HCAL_HLX{
     struct sockaddr_in servAddr;
     void GenerateFakeData(HCAL_HLX::LUMI_SECTION & localSection);
     void GenerateRandomData(HCAL_HLX::LUMI_SECTION & localSection);
+    //  void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
+    //             fd_set& ExceptFDs, int ListeningSocket = -1,
+    //            int connectSocket = -1)
   };
 
 }
