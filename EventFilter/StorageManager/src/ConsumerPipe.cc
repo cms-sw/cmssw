@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.12 2007/10/18 17:41:19 hcheung Exp $
+ * $Id: ConsumerPipe.cc,v 1.13 2007/11/09 23:09:12 badgett Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -38,9 +38,9 @@ ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
   han_(curl_easy_init()),
   headers_(),
   consumerName_(name),consumerPriority_(priority),
+  events_(0),
   requestParamSet_(parameterSet),
   hostName_(hostName),
-  events_(0),
   pushEventFailures_(0)
 {
   // initialize the time values we use for defining "states"
