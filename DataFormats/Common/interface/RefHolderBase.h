@@ -2,7 +2,7 @@
 #define Common_RefHolderBase_h
 /* \class edm::reftobase::Base
  *
- * $Id: RefHolderBase.h,v 1.4 2007/08/15 03:23:19 wmtan Exp $
+ * $Id: RefHolderBase.h,v 1.5 2007/09/17 14:15:21 llista Exp $
  *
  */
 #include "Reflex/Type.h"
@@ -15,6 +15,7 @@ namespace edm {
 
     class RefHolderBase {
     public:
+      RefHolderBase() { }
       template <class T> T const* getPtr() const;
       virtual ~RefHolderBase();
       virtual RefHolderBase* clone() const = 0;
