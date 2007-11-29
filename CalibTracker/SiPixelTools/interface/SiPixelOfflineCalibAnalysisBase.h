@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.2 2007/11/19 12:13:50 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.3 2007/11/27 09:42:39 friis Exp $
 //
 //
 
@@ -123,7 +123,11 @@ private:
   virtual void newDetID(uint32_t detid);
   
   void analyze(const edm::Event&, const edm::EventSetup&);
+  // the endJob method is used to save things like histograms etc.
+  // for additional actions derived classes should use the calibrationEnd() method for endJob functionality.
   void endJob() ;
+  // calibrationEnd() will be used by derived classes
+  virtual void calibrationEnd() ;
  
 };
 
