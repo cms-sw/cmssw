@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Fri Aug 10 12:05:36 CET 2007
-// $Id: NuclearInteractionEDProducer.h,v 1.3 2007/11/20 12:01:23 roberfro Exp $
+// $Id: NuclearInteractionEDProducer.h,v 1.4 2007/11/23 13:03:29 roberfro Exp $
 //
 //
 
@@ -63,7 +63,6 @@ public:
       std::string primaryProducer_;
       std::string seedsProducer_;
       std::string secondaryProducer_;
-      const MagneticField * theMagField;
 
       std::auto_ptr< NuclearVertexBuilder >  vertexBuilder;
       std::auto_ptr< NuclearLikelihood >     likelihoodCalculator;

@@ -5,8 +5,12 @@
 <use name=FWCore/ParameterSet>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
+<use name=RecoTracker/NuclearSeedGenerator>
+<use name=RecoVertex/AdaptiveVertexFit>
+<use name=RecoVertex/VertexPrimitives>
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TransientTrack>
 <export>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/VertexReco>
@@ -14,6 +18,8 @@
   <use name=FWCore/ParameterSet>
   <use name=MagneticField/Engine>
   <use name=MagneticField/Records>
+  <use name=RecoTracker/NuclearSeedGenerator>
+  <use name=TrackingTools/TransientTrack>
   <lib name=RecoVertexNuclearInteractionProducer>
 </export>
 

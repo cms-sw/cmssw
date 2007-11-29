@@ -1,3 +1,6 @@
+#ifndef _NuclearLikelihood_h_
+#define _NuclearLikelihood_h_
+
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 class NuclearLikelihood {
@@ -11,3 +14,5 @@ class NuclearLikelihood {
             int secondaryTrackMaxHits(const reco::Vertex& vtx );
             double likelihood_;
 };
+
+#endif

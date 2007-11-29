@@ -8,6 +8,9 @@
 
 #include "RecoVertex/NuclearInteractionProducer/interface/NuclearVertexBuilder.h"
 #include "RecoVertex/NuclearInteractionProducer/interface/NuclearLikelihood.h"
+
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
 #include "FWCore/Framework/interface/EventSetup.h"
 
 
@@ -117,9 +120,11 @@ NuclearInteractionEDProducer::beginJob(const edm::EventSetup& es)
    /// Get magnetic field
    edm::ESHandle<MagneticField> magField;
    es.get<IdealMagneticFieldRecord>().get(magField);
-   theMagField = magField.product();
 
-   vertexBuilder = std::auto_ptr< NuclearVertexBuilder >(new NuclearVertexBuilder( theMagField) );
+   edm::ESHandle<TransientTrackBuilder> builder;
+   es.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
+
+   vertexBuilder = std::auto_ptr< NuclearVertexBuilder >(new NuclearVertexBuilder( magField.product(), builder.product()) );
    likelihoodCalculator = std::auto_ptr< NuclearLikelihood >(new NuclearLikelihood);
 
 }
