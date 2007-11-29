@@ -44,19 +44,22 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     m_dbe->setCurrentFolder(baseFolder_);
     meEVT_ = m_dbe->bookInt("TrigPrim Event Number");  
 
-    tpCount_ = m_dbe->book1D("# TP Digis","# TP Digis",100,-0.5,999.5);
+    tpCount_ = m_dbe->book1D("# TP Digis","# TP Digis",200,-0.5,1999.5);
     tpCountThr_ = m_dbe->book1D("# TP Digis over Threshold","# TP Digis over Threshold",100,-0.5,999.5);
     tpSize_ = m_dbe->book1D("TP Size","TP Size",20,-0.5,19.5);
 
     char name[128];
     for (int i=0; i<10; i++) {
       sprintf(name,"TP Spectrum sample %d",i);
-      tpSpectrum_[i]= m_dbe->book1D(name,name,400,-0.5,399.5);      
+      tpSpectrum_[i]= m_dbe->book1D(name,name,100,-0.5,99.5);      
     }
     sprintf(name,"Full TP Spectrum");
-    tpSpectrumAll_ = m_dbe->book1D(name,name,500,-0.5,999.5);
+    tpSpectrumAll_ = m_dbe->book1D(name,name,200,-0.5,199.5);
     sprintf(name,"TP ET Sum");
-    tpETSumAll_ = m_dbe->book1D(name,name,500,-0.5,999.5);
+    tpETSumAll_ = m_dbe->book1D(name,name,200,-0.5,199.5);
+
+    sprintf(name,"TP SOI ET");
+    tpSOI_ET_ = m_dbe->book1D(name,name,100,-0.5,99.5);
 
     OCC_ETA = m_dbe->book1D("TrigPrim Eta Occupancy Map","TrigPrim Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
     OCC_PHI = m_dbe->book1D("TrigPrim Phi Occupancy Map","TrigPrim Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
@@ -68,7 +71,10 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
 				 36,-0.5,35.5);
     OCC_MAP_GEO = m_dbe->book2D("TrigPrim Geo Occupancy Map","TrigPrim Geo Occupancy Map",
 				etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    OCC_MAP_GEO = m_dbe->book2D("TrigPrim Geo Threshold Map","TrigPrim Geo Threshold Map",
+    OCC_MAP_SLB = m_dbe->book2D("TrigPrim SLB Occupancy Map","TrigPrim SLB Occupancy Map",
+				10,-0.5,9.5,10,-0.5,9.5);
+
+    OCC_MAP_THR = m_dbe->book2D("TrigPrim Geo Threshold Map","TrigPrim Geo Threshold Map",
 				etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
 
@@ -116,16 +122,20 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
       // find corresponding rechit and digis
       HcalTrigTowerDetId tpid=digi.id();	
-      HcalDetId did(tpid.subdet(),tpid.ieta(),tpid.iphi(),1);
+      HcalDetId did(HcalBarrel,tpid.ieta(),tpid.iphi(),1);
       HcalElectronicsId eid(did.rawId());
-
-      if(digi.SOI_compressedEt()>0){
+      
+      tpSOI_ET_->Fill(digi.SOI_compressedEt());
+      
+      if(digi.SOI_compressedEt()>0 || true){
 	
 	tpSize_->Fill(digi.size());
 	
 	OCC_ETA->Fill(tpid.ieta());
 	OCC_PHI->Fill(tpid.iphi());
 	OCC_MAP_GEO->Fill(tpid.ieta(), tpid.iphi());
+	OCC_MAP_SLB->Fill(digi.t0().slb(),digi.t0().slbChan());
+
 	EN_ETA->Fill(tpid.ieta(),digi.SOI_compressedEt());
 	EN_PHI->Fill(tpid.iphi(),digi.SOI_compressedEt());
 	EN_MAP_GEO->Fill(tpid.ieta(), tpid.iphi(),digi.SOI_compressedEt());
@@ -135,11 +145,14 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	OCC_ELEC_DCC->Fill(eid.spigot(),eid.dccid());
 	EN_ELEC_VME->Fill(slotnum,eid.readoutVMECrateId(),digi.SOI_compressedEt());
 	EN_ELEC_DCC->Fill(eid.spigot(),eid.dccid(),digi.SOI_compressedEt());
-	
+
 	double etSum = 0;
 	bool threshCond = false;
+	//	printf("\nSampling\n");
 	for (int j=0; j<digi.size(); j++) {
-	  float compressedEt = (digi)[j].compressedEt();
+	  //	  printf("Sample %d\n",j);
+	  float compressedEt = digi.sample(j).compressedEt();
+	  //	  float compressedEt =1;
 	  tpSpectrum_[j]->Fill(compressedEt);
 	  tpSpectrumAll_->Fill(compressedEt);
 	  etSum += compressedEt;
@@ -148,26 +161,25 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	tpETSumAll_->Fill(etSum);
 	
 	if (threshCond){
-	  OCC_MAP_THR->Fill(did.ieta(),did.iphi());  // which ieta and iphi positions the TPGs have for overThreshold cut
+	  OCC_MAP_THR->Fill(tpid.ieta(),tpid.iphi());  // which ieta and iphi positions the TPGs have for overThreshold cut
 	  
 	  TPGsOverThreshold++;
 	}
 	
-
 	/*
-	  std::cout << "size  " <<  digi.size() << std::endl;
-	  std::cout << "iphi  " <<  tpid.iphi() << std::endl;
-	  std::cout << "ieta  " <<  tpid.ieta() << std::endl;
-	  std::cout << "subdet  " <<  tpid.subdet() << std::endl;
-	  std::cout << "zside  " <<  tpid.zside() << std::endl;
-	  std::cout << "compressed Et  " <<  digi.SOI_compressedEt() << std::endl;
-	  std::cout << "FG bit  " <<  digi.SOI_fineGrain() << std::endl;
-	  std::cout << "raw  " <<  digi.t0().raw() << std::endl;
-	  std::cout << "raw Et " <<  digi.t0().compressedEt() << std::endl;
-	  std::cout << "raw FG " <<  digi.t0().fineGrain() << std::endl;
-	  std::cout << "raw slb " <<  digi.t0().slb() << std::endl;
-	  std::cout << "raw slbChan " <<  digi.t0().slbChan() << std::endl;
-	  std::cout << "raw slbAndChan " <<  digi.t0().slbAndChan() << std::endl;
+	std::cout << "size  " <<  digi.size() << std::endl;
+	std::cout << "iphi  " <<  tpid.iphi() << std::endl;
+	std::cout << "ieta  " <<  tpid.ieta() << std::endl;
+	std::cout << "subdet  " <<  tpid.subdet() << std::endl;
+	std::cout << "zside  " <<  tpid.zside() << std::endl;
+	std::cout << "compressed Et  " <<  digi.SOI_compressedEt() << std::endl;
+	std::cout << "FG bit  " <<  digi.SOI_fineGrain() << std::endl;
+	std::cout << "raw  " <<  digi.t0().raw() << std::endl;
+	std::cout << "raw Et " <<  digi.t0().compressedEt() << std::endl;
+	std::cout << "raw FG " <<  digi.t0().fineGrain() << std::endl;
+	std::cout << "raw slb " <<  digi.t0().slb() << std::endl;
+	std::cout << "raw slbChan " <<  digi.t0().slbChan() << std::endl;
+	std::cout << "raw slbAndChan " <<  digi.t0().slbAndChan() << std::endl;
 	*/
       }
     }
