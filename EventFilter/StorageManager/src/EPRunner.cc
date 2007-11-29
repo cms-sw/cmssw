@@ -5,7 +5,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
 
 #include "boost/bind.hpp"
@@ -36,7 +36,8 @@ namespace stor
 
   const edm::ProductRegistry& EPRunner::getRegistry()
   {
-    return *ep_.getInputSource().productRegistry();
+    Service<ConstProductRegistry> reg;
+    return reg->productRegistry();
   }
 
   void EPRunner::start()

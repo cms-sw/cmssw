@@ -82,11 +82,7 @@ namespace stor
 /*
   void JobController::setRegistry(const std::string& fu_config)
   {
-    // generate a temporary event processor just to get out the
-    // product registry
-    EventProcessor tmp_ep(fu_config);
-    InputSource& is = tmp_ep.getInputSource();
-    prods_ = is.productRegistry();
+    prods_ = ep_runner_->getRegistry();
   }
 */
 
