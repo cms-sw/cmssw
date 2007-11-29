@@ -17,7 +17,7 @@ ROOTFileBase::ROOTFileBase(){
   L1HLTrigger     = new HCAL_HLX::LEVEL1_HLT_TRIGGER;
   TriggerDeadtime = new HCAL_HLX::TRIGGER_DEADTIME;
 
-  outputDir = "/cms/mon/dqm/lumi/root/ls";
+  outputDir = "/cms/mon/data/dqm/lumi/root/schema";
 
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
@@ -56,7 +56,7 @@ void ROOTFileBase::CreateFileName(const HCAL_HLX::LUMI_SECTION &localSection){
   std::ostringstream outputString;
   outputString << outputDir << "/LS_"
 	       << std::setfill('0') << std::setw(9)  << localSection.hdr.runNumber
-	       << "_" << std::setfill('0') << std::setw(6) << localSection.hdr.sectionNumber << ".root";
+	       << "_" << std::setfill('0') << std::setw(4) << localSection.hdr.sectionNumber << ".root";
   
   fileName = outputString.str();
   
