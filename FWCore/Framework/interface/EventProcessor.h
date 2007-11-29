@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.45 2007/10/31 22:56:29 wmtan Exp $
+$Id: EventProcessor.h,v 1.46 2007/11/12 23:57:47 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -42,6 +42,7 @@ $Id: EventProcessor.h,v 1.45 2007/10/31 22:56:29 wmtan Exp $
 #include "sigc++/signal.h"
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
+#include "boost/utility.hpp"
 
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
@@ -82,10 +83,9 @@ namespace edm {
     class InputFileSentry;
   }
     
-  class EventProcessor
+  class EventProcessor : private boost::noncopyable
   {
     // ------------ friend classes and functions ----------------
-    friend class EDLooperHelper;
 
   public:
 
@@ -221,15 +221,6 @@ namespace edm {
     // Rewind to the first event
     void rewind();
 
-    InputSource& getInputSource();
-
-    /// Get the main input source, dynamic_casting it to type T. This
-    /// will throw an execption if an inappropriate type T is used.
-    template <class T> 
-    T& 
-    getSpecificInputSource();
-
-
     /// Return a vector allowing const access to all the
     /// ModuleDescriptions for this EventProccessor.
 
@@ -268,20 +259,23 @@ namespace edm {
     /// Clears counters used by trigger report.
     void clearCounters();
 
-    //------------------------------------------------------------------
-    //
-    // Data members (and nested classes and structs) below.
+    // Really should not be public,
+    //   but the EventFilter needs it for now.    
+    ServiceToken getToken();
 
     /// signal is emitted after the Event has been created by the
     /// InputSource but before any modules have seen the Event
-    ActivityRegistry::PreProcessEvent
-    preProcessEventSignal;
+    ActivityRegistry::PreProcessEvent &
+    preProcessEventSignal() {return preProcessEventSignal_;}
 
     /// signal is emitted after all modules have finished processing
     /// the Event
-    ActivityRegistry::PostProcessEvent
-    postProcessEventSignal;
+    ActivityRegistry::PostProcessEvent &
+    postProcessEventSignal() {return postProcessEventSignal_;}
 
+    //------------------------------------------------------------------
+    //
+    // Nested classes and structs below.
 
     struct CommonParams
     {
@@ -289,30 +283,33 @@ namespace edm {
 	processName_(),
 	releaseVersion_(),
 	passID_(),
-	maxEventsInput_()
+	maxEventsInput_(),
+	maxLumisInput_()
       { }
 
       CommonParams(std::string const& processName,
 		   ReleaseVersion const& releaseVersion,
 		   PassID const& passID,
-		   int maxEvents):
+		   int maxEvents,
+		   int maxLumis):
 	processName_(processName),
 	releaseVersion_(releaseVersion),
 	passID_(passID),
-        maxEventsInput_(maxEvents)
+        maxEventsInput_(maxEvents),
+        maxLumisInput_(maxLumis)
       { }
       
       std::string processName_;
       ReleaseVersion releaseVersion_;
       PassID passID_;
       int maxEventsInput_;
+      int maxLumisInput_;
     }; // struct CommonParams
 
-    // Really should not be public,
-    //   but the EventFilter needs it for now.    
-    ServiceToken getToken();
-
   private:
+    //------------------------------------------------------------------
+    //
+    // Now private functions.
     // init() is used by only by constructors
     void init(boost::shared_ptr<edm::ProcessDesc> & processDesc,
               ServiceToken const& token,
@@ -352,13 +349,18 @@ namespace edm {
 
     static void asyncRun(EventProcessor *);
 
+    //------------------------------------------------------------------
+    //
+    // Data members below.
     // Are all these data members really needed? Some of them are used
     // only during construction, and never again. If they aren't
     // really needed, we should remove them.    
 
+    ActivityRegistry::PreProcessEvent             preProcessEventSignal_;
+    ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
     DoPluginInit                                  plug_init_;
     ParameterSet			          maxEventsPset_;
-    int                                           maxEventsInput_;
+    ParameterSet			          maxLumisPset_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
     WorkerRegistry                                wreg_;
     SignallingProductRegistry                     preg_;
@@ -386,6 +388,7 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal>   lbp_;
     boost::shared_ptr<EDLooper>                   looper_;
 
+    friend class EDLooperHelper;
     friend class event_processor::StateSentry;
     friend class event_processor::LuminosityBlockSentry;
     friend class event_processor::RunSentry;
@@ -398,13 +401,7 @@ namespace edm {
   inline
   EventProcessor::StatusCode
   EventProcessor::run() {
-    return run(maxEventsInput_, false);
-  }
-
-  template <class T> T& EventProcessor::getSpecificInputSource()
-  {
-    InputSource& is = this->getInputSource();
-    return dynamic_cast<T&>(is);
+    return run(-1, false);
   }
 
 }
