@@ -37,7 +37,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
  
   if( (*dwToEnd_)<1){
    edm::LogWarning("EcalRawToDigiDevTowerSize")
-      <<"\n Unable to unpack Tower block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
+      <<"\n Unable to unpack Tower block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
       <<"\n The end of event was reached !";
     //TODO : add this to a dcc event size collection error?
     return STOP_EVENT_UNPACKING;
@@ -102,7 +102,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
 
     edm::LogWarning("EcalRawToDigiDevNumTowerBlocks")
       <<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
-      <<"\n Unable to unpack Tower Block "<<towerId_<<" for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
+      <<"\n Unable to unpack Tower Block "<<towerId_<<" for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
       <<"\n Number of time samples "<<nTSamples_<<" is not the same as expected ("<<expXtalTSamples_<<")"
       <<"\n => Skipping to next tower block...";
     //Note : add to error collection ?		 
@@ -117,7 +117,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   if((*dwToEnd_)<blockLength_){
     
     edm::LogWarning("EcalRawToDigiDevNumTowerBlocks")
-      <<"\n Unable to unpack Tower Block "<<towerId_<<" for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
+      <<"\n Unable to unpack Tower Block "<<towerId_<<" for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
       <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<blockSize_<<" are needed!"
       <<"\n => Skipping to next fed block...";
     //TODO : add to error collections
