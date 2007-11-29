@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.29 2007/07/16 21:30:05 wdd Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.30 2007/08/07 22:10:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -267,8 +267,8 @@ void testeventprocessor::prepostTest()
 			    "}\n");
   edm::EventProcessor proc(configuration);
    
-  proc.preProcessEventSignal.connect(&doPre);
-  proc.postProcessEventSignal.connect(&doPost);
+  proc.preProcessEventSignal().connect(&doPre);
+  proc.postProcessEventSignal().connect(&doPost);
   proc.beginJob();
   proc.run();
   proc.endJob();
