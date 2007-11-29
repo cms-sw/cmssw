@@ -1,11 +1,14 @@
 /*
  * \file L1THCALTPGXAna.cc
  *
- * $Date: 2007/06/12 19:32:53 $
- * $Revision: 1.4 $
+ * $Date: 2007/11/28 17:41:19 $
+ * $Revision: 1.1 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPGXAna.cc,v $
+ * Revision 1.1  2007/11/28 17:41:19  aurisano
+ * New L1 Hcal monitor
+ *
  * Revision 1.4  2007/06/12 19:32:53  berryhil
  *
  *
@@ -348,23 +351,25 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
       //conversion factor et -> e
       et2e = TMath::CosH(eta_avg);
 
+      if (TMath::Abs(ieta) >= 29) rec_e = rec_e/et2e;
+
       //fill individual num. and den. of efficiency plots
       if (TMath::Abs(ieta) >= 29)
 	{
 	  if (ieta <0)
 	    {
-	      hcalEffDen_HF[(ieta+32)][iphi/4]->Fill(rec_e/et2e);
+	      hcalEffDen_HF[(ieta+32)][iphi/4]->Fill(rec_e);
 	      if (rank !=0)
 		{
-		  hcalEffNum_HF[(ieta+32)][iphi/4]->Fill(rec_e/et2e);
+		  hcalEffNum_HF[(ieta+32)][iphi/4]->Fill(rec_e);
 		}
 	    }
 	  else
 	    {
-              hcalEffDen_HF[(ieta-25)][iphi/4]->Fill(rec_e/et2e);
+              hcalEffDen_HF[(ieta-25)][iphi/4]->Fill(rec_e);
               if (rank !=0)
                 {
-                  hcalEffNum_HF[(ieta-25)][iphi/4]->Fill(rec_e/et2e);
+                  hcalEffNum_HF[(ieta-25)][iphi/4]->Fill(rec_e);
                 }
             }
 	}
@@ -419,10 +424,10 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
       else
 	{
 	  //fill HF with Et rather than E (triggering is done in Et)
-	  if(et2e != 0) { hcalEffDen_4_->Fill(rec_e/et2e); }
+	  if(et2e != 0) { hcalEffDen_4_->Fill(rec_e); }
 	  if (rank != 0)
 	    {
-	      hcalEffNum_4_->Fill(rec_e/et2e);
+	      hcalEffNum_4_->Fill(rec_e);
 	      hcalTpgvsRec4_->Fill(rec_e,rank);
 	    }
 	}
