@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.6 2007/07/30 04:51:29 wmtan Exp $
+// $Id: SMProxyServer.cc,v 1.7 2007/10/14 14:40:04 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -958,6 +958,7 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
   std::string consumerName = "None provided";
   std::string consumerPriority = "normal";
   std::string consumerRequest = "<>";
+  std::string consumerHost = in->getenv("REMOTE_HOST");
 
   // read the consumer registration message from the http input stream
   std::string lengthString = in->getenv("CONTENT_LENGTH");
@@ -1006,7 +1007,8 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
       consPtr(new ConsumerPipe(consumerName, consumerPriority,
                                activeConsumerTimeout_.value_,
                                idleConsumerTimeout_.value_,
-                               requestParamSet));
+                               requestParamSet, consumerHost,
+                               consumerQueueSize_));
     eventServer->addConsumer(consPtr);
 
     // build the registration response into the message buffer
@@ -1123,6 +1125,7 @@ void SMProxyServer::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
     std::string consumerName = "None provided";
     std::string consumerPriority = "normal";
     std::string consumerRequest = "*";
+    std::string consumerHost = in->getenv("REMOTE_HOST");
 
     // read the consumer registration message from the http input stream
     std::string lengthString = in->getenv("CONTENT_LENGTH");
@@ -1167,9 +1170,10 @@ void SMProxyServer::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
       // create the local consumer interface and add it to the event server
       boost::shared_ptr<DQMConsumerPipe>
         consPtr(new DQMConsumerPipe(consumerName, consumerPriority,
-                                 DQMactiveConsumerTimeout_.value_,
-                                 DQMidleConsumerTimeout_.value_,
-                                 consumerRequest));
+                                    DQMactiveConsumerTimeout_.value_,
+                                    DQMidleConsumerTimeout_.value_,
+                                    consumerRequest, consumerHost,
+                                    DQMconsumerQueueSize_));
       eventServer->addConsumer(consPtr);
 
       // initialize it straight away (should later pass in the folder name to
