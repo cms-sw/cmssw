@@ -5,7 +5,7 @@
 
 RootOutputTree.h // used by ROOT output modules
 
-$Id: RootOutputTree.h,v 1.9 2007/11/03 06:53:02 wmtan Exp $
+$Id: RootOutputTree.h,v 1.10 2007/11/22 16:53:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -109,8 +109,8 @@ namespace edm {
     }
 
     void setEntries() {
-      tree_->SetEntries(-1);
-      metaTree_->SetEntries(-1);
+      if (tree_->GetNbranches() != 0) tree_->SetEntries(-1);
+      if (metaTree_->GetNbranches() != 0) metaTree_->SetEntries(-1);
     }
 
     void beginInputFile(bool fastCloning) {currentlyFastCloning_ = fastCloning;}
