@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.4 2007/11/29 11:10:46 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.5 2007/11/29 12:09:48 scooper Exp $
 //
 //
 
@@ -231,7 +231,6 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       continue;
     }      
 
-    //TODO: look into navigators, this would ease EE
     if (ampli > threshold_ )
     { 
       LogWarning("EcalMipGraphs") << "channel: " << ic << "  ampli: " << ampli << " jitter " << jitter
