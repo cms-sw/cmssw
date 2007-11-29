@@ -143,18 +143,12 @@ namespace edm {
   {
     ParameterSet maxEventsPSet(pset_.getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()));
 
-    std::string const input("input");
     std::string const output("output");
 
     int maxEventSpecs = 0; 
-    int maxEventsIn = -1;
     int maxEventsOut = -1;
     ParameterSet vMaxEventsOut;
     std::vector<std::string> intNames = maxEventsPSet.getParameterNamesForType<int>(false);
-    if (search_all(intNames, input)) {
-      maxEventsIn = maxEventsPSet.getUntrackedParameter<int>(input);
-      ++maxEventSpecs;
-    }
     if (search_all(intNames, output)) {
       maxEventsOut = maxEventsPSet.getUntrackedParameter<int>(output);
       ++maxEventSpecs;
@@ -168,7 +162,7 @@ namespace edm {
 
     if (maxEventSpecs > 1) {
       throw edm::Exception(edm::errors::Configuration) <<
-	"\nAt most, one of 'input' and 'output' may appear in the 'maxEvents' parameter set";
+	"\nAt most, one form of 'output' may appear in the 'maxEvents' parameter set";
     }
 
     ParameterSet opts(pset_.getUntrackedParameter<ParameterSet>("options", ParameterSet()));

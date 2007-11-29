@@ -327,7 +327,7 @@ namespace edm {
 				params.id(), getReleaseVersion(), getPassID());
 
       sourceSpecified = true;
-      InputSourceDescription isdesc(md, preg, common.maxEventsInput_);
+      InputSourceDescription isdesc(md, preg, common.maxEventsInput_, common.maxLumisInput_);
       areg.preSourceConstructionSignal_(md);
       shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
       areg.postSourceConstructionSignal_(md);
@@ -536,11 +536,11 @@ namespace edm {
 				serviceregistry::ServiceLegacy iLegacy,
 			        std::vector<std::string> const& defaultServices,
 				std::vector<std::string> const& forcedServices) :
-    preProcessEventSignal(),
-    postProcessEventSignal(),
+    preProcessEventSignal_(),
+    postProcessEventSignal_(),
     plug_init_(),
     maxEventsPset_(),
-    maxEventsInput_(-1),
+    maxLumisPset_(),
     actReg_(new ActivityRegistry),
     wreg_(actReg_),
     preg_(),
@@ -573,11 +573,11 @@ namespace edm {
   EventProcessor::EventProcessor(std::string const& config,
 			        std::vector<std::string> const& defaultServices,
 				std::vector<std::string> const& forcedServices) :
-    preProcessEventSignal(),
-    postProcessEventSignal(),
+    preProcessEventSignal_(),
+    postProcessEventSignal_(),
     plug_init_(),
     maxEventsPset_(),
-    maxEventsInput_(-1),
+    maxLumisPset_(),
     actReg_(new ActivityRegistry),
     wreg_(actReg_),
     preg_(),
@@ -610,11 +610,11 @@ namespace edm {
   EventProcessor::EventProcessor(boost::shared_ptr<edm::ProcessDesc> & processDesc,
                  ServiceToken const& token,
                  serviceregistry::ServiceLegacy legacy) :
-    preProcessEventSignal(),
-    postProcessEventSignal(),
+    preProcessEventSignal_(),
+    postProcessEventSignal_(),
     plug_init_(),
     maxEventsPset_(),
-    maxEventsInput_(-1),
+    maxLumisPset_(),
     actReg_(new ActivityRegistry),
     wreg_(actReg_),
     preg_(),
@@ -655,7 +655,7 @@ namespace edm {
     shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
     //makeParameterSets(config, parameterSet, pServiceSets);
     maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
-    maxEventsInput_ = maxEventsPset_.getUntrackedParameter<int>("input", -1);
+    maxLumisPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet());
 
     //create the services
     ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets, iToken, iLegacy));
@@ -694,7 +694,8 @@ namespace edm {
     CommonParams common = CommonParams(processName,
 			   getReleaseVersion(),
 			   getPassID(),
-			   maxEventsInput_);
+    			   maxEventsPset_.getUntrackedParameter<int>("input", -1),
+    			   maxLumisPset_.getUntrackedParameter<int>("input", -1));
 
     esp_ = makeEventSetupProvider(*parameterSet);
     fillEventSetupProvider(*esp_, *parameterSet, common);
@@ -1337,14 +1338,8 @@ namespace edm {
     // When the FwkImpl signals are given, pass them to the
     // appropriate EventProcessor signals so that the outside world
     // can see the signal.
-    actReg_->preProcessEventSignal_.connect(ep->preProcessEventSignal);
-    actReg_->postProcessEventSignal_.connect(ep->postProcessEventSignal);
-  }
-
-  InputSource&
-  EventProcessor::getInputSource()
-  {
-    return *input_;
+    actReg_->preProcessEventSignal_.connect(ep->preProcessEventSignal_);
+    actReg_->postProcessEventSignal_.connect(ep->postProcessEventSignal_);
   }
 
   std::vector<ModuleDescription const*>

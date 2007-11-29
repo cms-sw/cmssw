@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.30 2007/07/31 23:58:55 wmtan Exp $
+$Id: InputSource.cc,v 1.31 2007/10/31 22:56:29 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -44,8 +44,9 @@ namespace edm {
       ProductRegistryHelper(),
       maxEvents_(desc.maxEvents_),
       remainingEvents_(maxEvents_),
+      maxLumis_(desc.maxLumis_),
+      remainingLumis_(maxLumis_),
       readCount_(0),
-      unlimited_(maxEvents_ < 0),
       moduleDescription_(desc.moduleDescription_),
       productRegistry_(createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_)),
       primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")),
@@ -86,7 +87,7 @@ namespace edm {
 
   boost::shared_ptr<FileBlock>
   InputSource::readFile() {
-    if (remainingEvents_ == 0) {
+    if (done()) {
       return boost::shared_ptr<FileBlock>();
     }
     return readFile_();
@@ -110,7 +111,7 @@ namespace edm {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of runs
     // (e.g. beginRun(), endRun())
-    if (remainingEvents_ == 0) {
+    if (done()) {
       return boost::shared_ptr<RunPrincipal>();
     }
     return readRun_();
@@ -121,10 +122,14 @@ namespace edm {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of lumi blocks
     // (e.g. beginLuminosityBlock(), endLuminosityBlock())
-    if (remainingEvents_ == 0) {
-      return boost::shared_ptr<LuminosityBlockPrincipal>();
+    boost::shared_ptr<LuminosityBlockPrincipal> result;
+    if (!done()) {
+      result = readLuminosityBlock_(rp);
+      if (result.get() != 0) {
+        if (maxLumis_ >= 0) --remainingLumis_;
+      }
     }
-    return readLuminosityBlock_(rp);
+    return result;
   }
 
   std::auto_ptr<EventPrincipal>
@@ -132,13 +137,13 @@ namespace edm {
 
     std::auto_ptr<EventPrincipal> result(0);
 
-    if (remainingEvents_ != 0) {
+    if (!done()) {
       preRead();
       result = readEvent_(lbp);
       if (result.get() != 0) {
         Event event(*result, moduleDescription());
         postRead(event);
-        if (!unlimited_) --remainingEvents_;
+        if (maxEvents_ >= 0) --remainingEvents_;
 	++readCount_;
         setTimestamp(result->time());
 	issueReports(result->id());
@@ -152,13 +157,13 @@ namespace edm {
 
     std::auto_ptr<EventPrincipal> result(0);
 
-    if (remainingEvents_ != 0) {
+    if (!done()) {
       preRead();
       result = readIt(eventID);
       if (result.get() != 0) {
         Event event(*result, moduleDescription());
         postRead(event);
-        if (!unlimited_) --remainingEvents_;
+        if (maxEvents_ >= 0) --remainingEvents_;
 	++readCount_;
 	issueReports(result->id());
       }
