@@ -10,11 +10,8 @@ cond::CoralConnectionProxy::CoralConnectionProxy(
       coral::IConnectionService* connectionServiceHandle,
       const std::string& con,
       int connectionTimeOut):
-  m_connectionSvcHandle(connectionServiceHandle),
-  m_con(con),
-  m_coralHandle(0),
+  cond::IConnectionProxy(connectionServiceHandle,con,connectionTimeOut),
   m_transactionCounter(0),
-  m_connectionTimeOut(connectionTimeOut),
   m_transaction(new cond::CoralTransaction(this)){
 }
 cond::CoralConnectionProxy::~CoralConnectionProxy(){
@@ -22,25 +19,6 @@ cond::CoralConnectionProxy::~CoralConnectionProxy(){
 cond::ITransaction&  
 cond::CoralConnectionProxy::transaction(){
   return *m_transaction;
-}
-/*bool
-cond::CoralConnectionProxy::isActive() const {
-  if(m_transaction) return m_transaction->isActive();
-  return false;
-}
-*/
-bool 
-cond::CoralConnectionProxy::isReadOnly() const {
-  if(m_transaction) return m_transaction->isReadOnly();
-  return false;
-}
-int
-cond::CoralConnectionProxy::connectionTimeOut() const{
-  return m_connectionTimeOut;
-}
-std::string 
-cond::CoralConnectionProxy::connectStr() const{
-  return m_con;
 }
 void 
 cond::CoralConnectionProxy::connect(bool isReadOnly){

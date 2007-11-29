@@ -45,7 +45,7 @@ cond::Connection::poolTransaction(){
       return static_cast<cond::PoolTransaction&>((*it)->transaction());
     }
   }
-  cond::PoolConnectionProxy* me=new cond::PoolConnectionProxy(m_con,m_connectionTimeOut); 
+  cond::PoolConnectionProxy* me=new cond::PoolConnectionProxy(m_connectionServiceHandle,m_con,m_connectionTimeOut); 
   m_poolConnectionPool.push_back(me);
   return static_cast<cond::PoolTransaction&>(me->transaction());
 }

@@ -1,6 +1,8 @@
 //local includes
 #include "PoolConnectionProxy.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
+//connection service includes
+#include "RelationalAccess/IConnectionService.h"
 //pool includes
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/ISession.h"
@@ -9,13 +11,13 @@
 #include "DataSvc/IDataSvc.h"
 #include "FileCatalog/IFileCatalog.h"
 //#include <iostream>
-cond::PoolConnectionProxy::PoolConnectionProxy(const std::string& con,
-					       int connectionTimeOut):
-  m_datasvc( 0 ),
+cond::PoolConnectionProxy::PoolConnectionProxy(
+	  coral::IConnectionService* connectionServiceHandle,
+	  const std::string& con,
+	  int connectionTimeOut):
+  cond::IConnectionProxy(connectionServiceHandle,con,connectionTimeOut),
   m_transaction( 0 ),
-  m_con( con ),
   m_transactionCounter( 0 ),
-  m_connectionTimeOut( connectionTimeOut ),
   m_catalog( new pool::IFileCatalog ) 
 {
   std::string catconnect("pfncatalog_memory://POOL_RDBMS?");
@@ -40,25 +42,6 @@ cond::PoolConnectionProxy::transaction(){
     m_transaction=new cond::PoolTransaction(this);
   }
   return *m_transaction;
-}
-/*bool 
-cond::PoolConnectionProxy::isActive() const {
-  if(m_transaction) return m_transaction->isActive();
-  return false;
-}
-*/
-bool 
-cond::PoolConnectionProxy::isReadOnly() const {
-  if(m_transaction) return m_transaction->isReadOnly();
-  return false;
-}
-int
-cond::PoolConnectionProxy::connectionTimeOut() const{
-  return m_connectionTimeOut;
-}
-std::string 
-cond::PoolConnectionProxy::connectStr() const{
-  return m_con;
 }
 pool::IDataSvc* 
 cond::PoolConnectionProxy::poolDataSvc(){

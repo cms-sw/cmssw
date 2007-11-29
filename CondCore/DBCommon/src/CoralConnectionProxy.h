@@ -3,10 +3,17 @@
 #include "CondCore/DBCommon/interface/IConnectionProxy.h"
 #include "ITransactionObserver.h"
 #include <string>
-#include <vector>
-#include <boost/timer.hpp>
+//
+// Package:     DBCommon
+// Class  :     CoralConnectionProxy
+// 
+/**\class CoralConnectionProxy CoralConnectionProxy.h CondCore/DBCommon/src/CoralConnectionProxy.h
+   Description: this class handles coral connection. It is a IConnectionProxy implementation and a transaction observer 
+*/
+//
+// Author:      Zhen Xie
+//
 namespace coral{
-  class IConnectionService;
   class ISessionProxy;
 }
 namespace cond{
@@ -20,24 +27,21 @@ namespace cond{
 			 int connectionTimeOut
 			 );
     ~CoralConnectionProxy();
-    ///connection interface
+    /// required implementation by IConnectionProxy interface
     ITransaction&  transaction();
-    bool isActive() const ;
-    bool isReadOnly() const ;
-    int connectionTimeOut() const;
+    /// returns coral session proxy
     coral::ISessionProxy& coralProxy();
-    std::string connectStr() const;
-    ///observer interface
+    /// required implementation by observer interface
     void reactOnStartOfTransaction( const ITransaction* );
     void reactOnEndOfTransaction( const ITransaction* );    
-  private:
-    coral::IConnectionService* m_connectionSvcHandle;
-    std::string m_con;
+    private:
+    //coral::IConnectionService* m_connectionSvcHandle;
+    //std::string m_con;
     coral::ISessionProxy* m_coralHandle;
     unsigned int m_transactionCounter;
-    int m_connectionTimeOut;
+    //int m_connectionTimeOut;
     cond::CoralTransaction* m_transaction;
-    boost::timer m_timer;
+    //boost::timer m_timer;
   private:
     void connect(bool isReadOnly);
     void disconnect();
