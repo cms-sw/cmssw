@@ -186,10 +186,22 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
     if ( tmp=="Rocs:" ) buildROCListNow = true;
     else { assert(tmp=="ToCalibrate:"); buildROCListNow = false; }
 
-    while (!in.eof())
+    while (!in.eof() && buildROCListNow)
     {
        tmp = "";
        in >> tmp;
+
+       // added by F.Blekman to be able to deal with POS245 style calib.dat files in CMSSW
+       // these files use the syntax: 
+       // Rocs:
+       // all
+
+       if( tmp=="all"){
+	 buildROCListNow=false;
+	 continue;
+       }
+       // end of addition by F.B.
+	 
        if ( tmp=="" ) continue;
        rocListInstructions_.push_back(tmp);
     }
