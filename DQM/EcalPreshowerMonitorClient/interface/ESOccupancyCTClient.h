@@ -47,6 +47,9 @@ class ESOccupancyCTClient: public EDAnalyzer{
 
   void htmlOutput(int run, string htmlDir, string htmlName);
 
+  void CRtd(void);          // initialize the track display
+  void PlotTrackDisplay(void);
+
  private:
   
   bool writeHisto_;
@@ -73,6 +76,11 @@ class ESOccupancyCTClient: public EDAnalyzer{
   TH2F *hSensors1B_;
   TH2F *hSensors2B_;
 
+  bool x11_;                 // enable the ROOT application's x11 interface?
+  TApplication *theApp_;     // the ROOT application
+  TPad *CRtd_pad_[3];        // Cosmic Run track display pads
+  TCanvas *CRtd_canvas_;     // Cosmic Run track display canvas
+  TList *currentTrackList_;  // A TList that contains the current track objects
 };
 
 #endif

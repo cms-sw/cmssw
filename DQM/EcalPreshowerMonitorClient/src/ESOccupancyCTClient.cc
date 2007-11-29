@@ -13,8 +13,15 @@
 #include "TPaveText.h"
 #include <TGraphErrors.h>
 
+#include "TApplication.h"
+#include "TGeoTrack.h"
+#include "TMarker3DBox.h"
+#include "TAxis3D.h"
+#include "TGeoManager.h"
+#include "TView.h"
+
 ESOccupancyCTClient::ESOccupancyCTClient(const ParameterSet& ps) {
-  
+
   writeHisto_ = ps.getUntrackedParameter<bool>("writeHisto", true);
   writeHTML_  = ps.getUntrackedParameter<bool>("writeHTML", true);
   dumpRate_   = ps.getUntrackedParameter<int>("dumpRate", 100);
@@ -23,24 +30,41 @@ ESOccupancyCTClient::ESOccupancyCTClient(const ParameterSet& ps) {
   htmlDir_    = ps.getUntrackedParameter<string>("htmlDir","/preshower/DQM/TB");
   htmlName_   = ps.getUntrackedParameter<string>("htmlName","ESOccupancyCT.html");  
   sta_        = ps.getUntrackedParameter<bool>("RunStandalone", false);
+  x11_        = ps.getUntrackedParameter<bool>("InitializeX11", false);
 
   count_ = 0;
   run_ = -1;
   init_ = false;
-  
+
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  if (x11_) {
+    // If this block is executed, the x11 interface is initialized
+    // and the created canvases are displayed at run time.
+    int argc=0;
+    char *argv[1];
+    theApp_= new TApplication("App", &argc, argv);
+  }
+  else
+    theApp_= 0;
+
+  CRtd(); // setup the track display
+
+  // A TList that contains the current track objects
+  currentTrackList_ = new TList();
 
 }
 
 ESOccupancyCTClient::~ESOccupancyCTClient(){
+  if (theApp_) delete theApp_;
 }
 
 void ESOccupancyCTClient::endJob(){
-  
+
   Char_t runNum_s[50];
   sprintf(runNum_s, "%08d", run_);
   outputFile_ = htmlDir_+"/"+runNum_s+"/"+outputFileName_+"_"+runNum_s+".root";
-  
+
   if (writeHTML_) {
     doQT();
     htmlOutput(run_, htmlDir_, htmlName_);
@@ -54,7 +78,7 @@ void ESOccupancyCTClient::endJob(){
 
 void ESOccupancyCTClient::setup() {
 
-   init_ = true;
+  init_ = true;
 
 }
 
@@ -81,36 +105,36 @@ void ESOccupancyCTClient::cleanup() {
 }
 
 void ESOccupancyCTClient::analyze(const Event& e, const EventSetup& context){
-	
+
   if (! init_) this->setup();
 
   int runNum = e.id().run();
   Char_t runNum_s[50];
-      
+
   if (runNum != run_) { 
-    
+
     if (run_ > 0) {
 
       sprintf(runNum_s, "%08d", run_);
       outputFile_ = htmlDir_+"/"+runNum_s+"/"+outputFileName_+"_"+runNum_s+".root";
-      
+
       if (writeHTML_) {
-        doQT();
-        htmlOutput(run_, htmlDir_, htmlName_);
+	doQT();
+	htmlOutput(run_, htmlDir_, htmlName_);
       }
-      
+
       if (writeHisto_) dbe_->save(outputFile_);
     }
-    
+
     run_ = runNum; 
     count_ = 0;
 
     sprintf(runNum_s, "%08d", run_);
     outputFile_ = htmlDir_+"/"+runNum_s+"/"+outputFileName_+"_"+runNum_s+".root";
   }
-  
+
   count_++;
-  
+
   if ((count_ % dumpRate_) == 0) {
     if (writeHTML_) {
       doQT();
@@ -118,7 +142,7 @@ void ESOccupancyCTClient::analyze(const Event& e, const EventSetup& context){
     }
     if (writeHisto_) dbe_->save(outputFile_);
   }
-  
+
 }
 
 void ESOccupancyCTClient::doQT() {
@@ -145,45 +169,45 @@ void ESOccupancyCTClient::doQT() {
 	meT = dynamic_cast<MonitorElementT<TNamed>*>(meOccupancy2D);
 	hOccupancy2D_[i][j] = dynamic_cast<TH2F*> (meT->operator->());
       }
-      
+
     }
   }
 
-      Char_t tit[200];
+  Char_t tit[512];
 
-      sprintf(tit, "%sES/ESOccupancyCTTask/Box1 Plane vs Strip, Current event",rootFolder_.c_str());
-      MonitorElement *hitStrips1B= dbe_->get(tit);
-      if (hitStrips1B) {
-	meT = dynamic_cast<MonitorElementT<TNamed>*>(hitStrips1B);
-	hStrips1B_ = dynamic_cast<TH2F*> (meT->operator->());
-      }
+  sprintf(tit, "%sES/ESOccupancyCTTask/Box1 Plane vs Strip, Current event",rootFolder_.c_str());
+  MonitorElement *hitStrips1B= dbe_->get(tit);
+  if (hitStrips1B) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(hitStrips1B);
+    hStrips1B_ = dynamic_cast<TH2F*> (meT->operator->());
+  }
 
-      sprintf(tit, "%sES/ESOccupancyCTTask/Box1 Plane vs Sensor, Current event",rootFolder_.c_str());
-      MonitorElement *hitSensors1B= dbe_->get(tit);
-      if (hitSensors1B) {
-	meT = dynamic_cast<MonitorElementT<TNamed>*>(hitSensors1B);
-	hSensors1B_ = dynamic_cast<TH2F*> (meT->operator->());
-      }
+  sprintf(tit, "%sES/ESOccupancyCTTask/Box1 Plane vs Sensor, Current event",rootFolder_.c_str());
+  MonitorElement *hitSensors1B= dbe_->get(tit);
+  if (hitSensors1B) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(hitSensors1B);
+    hSensors1B_ = dynamic_cast<TH2F*> (meT->operator->());
+  }
 
-      sprintf(tit, "%sES/ESOccupancyCTTask/Box2 Plane vs Strip, Current event",rootFolder_.c_str());
-      MonitorElement *hitStrips2B= dbe_->get(tit);
-      if (hitStrips2B) {
-	meT = dynamic_cast<MonitorElementT<TNamed>*>(hitStrips2B);
-	hStrips2B_ = dynamic_cast<TH2F*> (meT->operator->());
-      }
+  sprintf(tit, "%sES/ESOccupancyCTTask/Box2 Plane vs Strip, Current event",rootFolder_.c_str());
+  MonitorElement *hitStrips2B= dbe_->get(tit);
+  if (hitStrips2B) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(hitStrips2B);
+    hStrips2B_ = dynamic_cast<TH2F*> (meT->operator->());
+  }
 
-      sprintf(tit, "%sES/ESOccupancyCTTask/Box2 Plane vs Sensor, Current event",rootFolder_.c_str());
-      MonitorElement *hitSensors2B= dbe_->get(tit);
-      if (hitSensors2B) {
-	meT = dynamic_cast<MonitorElementT<TNamed>*>(hitSensors2B);
-	hSensors2B_ = dynamic_cast<TH2F*> (meT->operator->());
-      }
+  sprintf(tit, "%sES/ESOccupancyCTTask/Box2 Plane vs Sensor, Current event",rootFolder_.c_str());
+  MonitorElement *hitSensors2B= dbe_->get(tit);
+  if (hitSensors2B) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(hitSensors2B);
+    hSensors2B_ = dynamic_cast<TH2F*> (meT->operator->());
+  }
 
 }
 
 
 string ESOccupancyCTClient::getMEName(const int & zside, const int & plane, const int & type) {
-  
+
   Char_t hist[500];
   if (type == 0)
     sprintf(hist,"%sES/ESOccupancyCTTask/ES Energy Box %d P %d",rootFolder_.c_str(),zside,plane);
@@ -191,14 +215,14 @@ string ESOccupancyCTClient::getMEName(const int & zside, const int & plane, cons
     sprintf(hist,"%sES/ESOccupancyCTTask/ES Occupancy 1D Box %d P %d",rootFolder_.c_str(),zside,plane);
   else if (type == 2)
     sprintf(hist,"%sES/ESOccupancyCTTask/ES Occupancy 2D Box %d P %d",rootFolder_.c_str(),zside,plane);
-  
+
   return hist;
 }
 
 void ESOccupancyCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
-  
+
   cout<<"Going to output ESOccupancyCTClient html ..."<<endl;
-  
+
   Char_t run_s[50];
   sprintf(run_s, "%08d", run); 
   htmlDir = htmlDir+"/"+run_s;
@@ -278,20 +302,20 @@ void ESOccupancyCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
 
 
   for(int i=0;i<6;i++){
-     for(int j=0;j<64;j++){
-       hit1_strips[i][j]=(int)hStrips1B_->GetCellContent(j+1,i+1);
-       hit2_strips[i][j]=(int)hStrips2B_->GetCellContent(j+1,i+1);
-     }
-     for(int j=0;j<5;j++){
-       hit1_sensors[i][j]=(int)hSensors1B_->GetCellContent(j+1,i+1);
-       hit2_sensors[i][j]=(int)hSensors2B_->GetCellContent(j+1,i+1);
-     }
+    for(int j=0;j<64;j++){
+      hit1_strips[i][j]=(int)hStrips1B_->GetCellContent(j+1,i+1);
+      hit2_strips[i][j]=(int)hStrips2B_->GetCellContent(j+1,i+1);
+    }
+    for(int j=0;j<5;j++){
+      hit1_sensors[i][j]=(int)hSensors1B_->GetCellContent(j+1,i+1);
+      hit2_sensors[i][j]=(int)hSensors2B_->GetCellContent(j+1,i+1);
+    }
   }
 
 
   float strip_no[64], lad1[64], lad2[64], lad3[64], lad4[64], lad5[64], lad6[64];
   float sensor_no[5],slad1[5], slad2[5], slad3[5], slad4[5], slad5[5], slad6[5];
-  
+
   float hits1[64], hits2[64], hits3[64], hits4[64], hits5[64], hits6[64];
   float shits1[5], shits2[5], shits3[5], shits4[5], shits5[5], shits6[5];
 
@@ -329,7 +353,7 @@ void ESOccupancyCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
 
 
 
-   //First Box setup
+  //First Box setup
   for(int j=0;j<64;j++){
     if(hit1_strips[0][j]>0) hits1[j]=1; 
     if(hit1_strips[1][j]>0) hits2[j]=2;
@@ -345,9 +369,9 @@ void ESOccupancyCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
     if(hit1_sensors[3][j]>0) shits4[j]=4;
     if(hit1_sensors[4][j]>0) shits5[j]=5;
     if(hit1_sensors[5][j]>0) shits6[j]=6;
-   }
+  }
 
- 
+
   TGraph *hitL1 = new TGraph(64,strip_no,hits1);
   TGraph *hitL2 = new TGraph(64,strip_no,hits2);
   TGraph *hitL3 = new TGraph(64,strip_no,hits3);
@@ -478,7 +502,7 @@ void ESOccupancyCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
 
 
 
-   /// Second Box setup   
+  /// Second Box setup   
   for(int j=0;j<64;j++){
     if(hit2_strips[0][j]>0) hits1_2[j]=1; 
     if(hit2_strips[1][j]>0) hits2_2[j]=2;
@@ -494,7 +518,7 @@ void ESOccupancyCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
     if(hit2_sensors[3][j]>0) shits4_2[j]=4;
     if(hit2_sensors[4][j]>0) shits5_2[j]=5;
     if(hit2_sensors[5][j]>0) shits6_2[j]=6;
-   }
+  }
 
 
   TGraph *hitL1_2 = new TGraph(64,strip_no,hits1_2);
@@ -634,12 +658,278 @@ void ESOccupancyCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
   htmlFile << "<img src=\"Occupancy2D.png\"></img>" << endl;
   htmlFile << "<img src=\"Box1CurEvent.png\"></img>" << endl;
   htmlFile << "<img src=\"Box2CurEvent.png\"></img>" << endl;
+  htmlFile << "<img src=\"Box1TrackDisplay.png\"></img>" << endl;
 
   // html page footer
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
 
+  // Plot the track display canvas and save it to png
+  PlotTrackDisplay();
+
+
   htmlFile.close();
 
 }
 
+//==========================================================================
+//==========================================================================
+//==========================================================================
+
+
+void ESOccupancyCTClient::PlotTrackDisplay()
+{
+  // Get the monitored data...
+  char tit[512];
+  string tmp;
+
+  sprintf(tit, "%sES/ESOccupancyCTTask/%s",rootFolder_.c_str(),"meTrack_Npoints");
+  tmp=dbe_->get(tit)->valueString().substr(2);
+  int Npoints=atoi(tmp.c_str());
+  //cout << "Npoints=" << Npoints << "   tmp=" << tmp << endl;
+
+  int Nhits_lad[6];       // Nhits_lad[i]  : gives the number of hits in ladder i
+  for (int i=0; i<6; i++) {
+    sprintf(tit, "%sES/ESOccupancyCTTask/me_Nhits_lad%d",rootFolder_.c_str(),i);
+    tmp=dbe_->get(tit)->valueString().substr(2);
+    Nhits_lad[i]=atoi(tmp.c_str());
+    //cout << "Nhits_lad[" << i << "]=" << Nhits_lad[i] << "   tmp=" << tmp << endl;
+  }
+
+  MonitorElementT<TNamed>* meT;
+  MonitorElement *me;
+  TH2F *me_hit_x=0;
+  TH2F *me_hit_y=0;
+  sprintf(tit, "%sES/ESOccupancyCTTask/me_hit_x",rootFolder_.c_str());
+  me=dbe_->get(tit);
+  if (me) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(me);
+    me_hit_x = dynamic_cast<TH2F*> (meT->operator->());
+  }
+  sprintf(tit, "%sES/ESOccupancyCTTask/me_hit_y",rootFolder_.c_str());
+  me=dbe_->get(tit);
+  if (me) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(me);
+    me_hit_y = dynamic_cast<TH2F*> (meT->operator->());
+  }
+  //cout << "me_hit_x=" << me_hit_x << "    me_hit_y=" << me_hit_y << endl;
+
+  float hit_x[6][200];
+  float hit_y[6][200];
+  for (int i=0; i<6; i++) {
+    for (int j=0; j<Nhits_lad[i]; j++) {
+      hit_x[i][j]=me_hit_x->GetBinContent(i,j);
+      hit_y[i][j]=me_hit_y->GetBinContent(i,j);
+    }
+  }
+
+  int best_hit[6];
+  float best_Px[6], best_Py[6], best_Pz[6], best_par[6];
+  for (int i=0; i<6; i++) {
+    sprintf(tit, "%sES/ESOccupancyCTTask/meTrack_hit%d",rootFolder_.c_str(),i);
+    tmp=dbe_->get(tit)->valueString().substr(2);
+    best_hit[i]=atoi(tmp.c_str());
+
+    //cout << "best_hit[" << i << "]=" << best_hit[i] << "   tmp=" << tmp << endl;
+    sprintf(tit, "%sES/ESOccupancyCTTask/meTrack_Px%d",rootFolder_.c_str(),i);
+    tmp=dbe_->get(tit)->valueString().substr(2);
+    best_Px[i]=atof(tmp.c_str());
+
+    //cout << "best_Px[" << i << "]=" << best_Px[i] << "   tmp=" << tmp << endl;
+    sprintf(tit, "%sES/ESOccupancyCTTask/meTrack_Py%d",rootFolder_.c_str(),i);
+    tmp=dbe_->get(tit)->valueString().substr(2);
+    best_Py[i]=atof(tmp.c_str());
+    //cout << "best_Py[" << i << "]=" << best_Py[i] << "   tmp=" << tmp << endl;
+
+    sprintf(tit, "%sES/ESOccupancyCTTask/meTrack_Pz%d",rootFolder_.c_str(),i);
+    tmp=dbe_->get(tit)->valueString().substr(2);
+    best_Pz[i]=atof(tmp.c_str());
+    //cout << "best_Pz[" << i << "]=" << best_Pz[i] << "   tmp=" << tmp << endl;
+
+    sprintf(tit, "%sES/ESOccupancyCTTask/meTrack_par%d",rootFolder_.c_str(),i);
+    tmp=dbe_->get(tit)->valueString().substr(2);
+    best_par[i]=atof(tmp.c_str());
+    //cout << "best_par[" << i << "]=" << best_par[i] << "   tmp=" << tmp << endl;
+  }
+
+  // delete the previous track and hits
+  currentTrackList_->Delete();
+
+  Double_t DZ=39.0; // all sensors Z projection length (cm)
+
+  // place off-track hits in blue...
+  TMarker3DBox *mm_off[6][200];
+  for (int i=0; i<6; i++) {
+    for (int j=0; j<Nhits_lad[i]; j++) {
+      if (j!=best_hit[i]) {
+	mm_off[i][j] = new TMarker3DBox(hit_x[i][j], hit_y[i][j], i*DZ/5-DZ/2, 0.1,0.1,0.1, 45,45);
+	currentTrackList_->Add(mm_off[i][j]);
+	mm_off[i][j]->SetLineColor(4);
+	mm_off[i][j]->SetLineWidth(8);
+      }
+      else {
+	mm_off[i][j]=0;
+      }
+    }
+  }
+
+  // Check if no track was found
+  int sum=0, TrackFound=1;
+  for (int i=0; i<6; i++) sum+=best_hit[i];
+  if (sum==-6) TrackFound=0;
+
+  TMarker3DBox *mm[6];
+  TGeoTrack *track=0;
+  if (TrackFound) {
+    // place track hits in red...
+    for (int i=0; i<Npoints; i++) {
+      mm[i] = new TMarker3DBox(best_Px[i], best_Py[i], best_Pz[i], 0.1,0.1,0.1, 45,45);
+      currentTrackList_->Add(mm[i]);
+      mm[i]->SetLineColor(2);
+      mm[i]->SetLineWidth(8);
+    }
+
+    // make track
+    Double_t x, y, z, t;
+    track = new TGeoTrack();
+    currentTrackList_->Add(track);
+    track->SetLineColor(2);
+    track->SetLineWidth(1);
+    z=-50.0;  // 1st track point
+    t=(z-best_par[2])/best_par[5];
+    x=best_par[0]+t*best_par[3];
+    y=best_par[1]+t*best_par[4];
+    track->AddPoint(x, y, z, 0);
+    z= 50.0;  // 2nd track point
+    t=(z-best_par[2])/best_par[5];
+    x=best_par[0]+t*best_par[3];
+    y=best_par[1]+t*best_par[4];
+    track->AddPoint(x, y, z, 1);
+  }
+
+  // Draw track hits and track
+  for (int p=0; p<3; p++) {
+    CRtd_pad_[p]->cd();
+    for (int i=0; i<6; i++)
+      for (int j=0; j<Nhits_lad[i]; j++)
+	if (mm_off[i][j]) mm_off[i][j]->Draw();
+    if (TrackFound) {
+      for (int i=0; i<Npoints; i++)
+	mm[i]->Draw();
+      track->Draw();
+    }
+    CRtd_pad_[p]->Update();
+  }
+
+}
+
+//-------------------------------------------------------------------------------------------------
+
+// To comunicate with the "Cosmic Run Track Display",
+// we only need the pointers to the three pads: TPad *CRtd_pad_[3]
+
+void ESOccupancyCTClient::CRtd()
+{
+  Double_t deg=acos(-1.0)/180.0;
+  Double_t phi=3.8;              //      sensor tilt in degrees
+  Double_t DX=6.3;               //      sensor X projection length (cm)
+  Double_t DY=6.3*cos(phi*deg);  //      sensor Y projection length (cm)
+  Double_t DZ=39.0;              // all sensors Z projection length (cm)
+
+  TView *view;
+  TAxis3D *axis;
+  gSystem->Load("libGeom");
+
+  // construct the canvas
+  TCanvas *c = new TCanvas("c", "Cosmic Run Track Display", 700,700);
+  CRtd_canvas_=c;
+  c->Divide(2,1,1e-10,1e-10);
+  c->cd(2);
+  TPad *p = (TPad*) gPad;
+  p->Divide(1,2,1e-10,1e-10);
+
+  if (gGeoManager) delete gGeoManager;
+  TGeoManager *gm = new TGeoManager("CR setup", "3D views");
+  TGeoMaterial *mat = new TGeoMaterial("Si"); //, 26.98,13,2.7);
+  TGeoMedium *med = new TGeoMedium("MED",1,mat);
+  TGeoVolume *top = gGeoManager->MakeBox("TOP", med, DX,    DY*5.0/2.0, DZ/2.0); // the box...
+  //gGeoManager->SetTopVolume(top);
+  gm->SetTopVolume(top);
+  TGeoVolume *vol = gGeoManager->MakeBox("BOX", med, DX/2., DY/2.,      0.01);   // a sensor
+  vol->SetLineColor(1);
+  vol->SetLineWidth(4);
+
+  // create all sensors
+  TGeoRotation *sensor_rotation;
+  TGeoTranslation *sensor_trans;
+  TGeoCombiTrans *sensor_position;
+  for (int ladder=0; ladder<6;  ladder++) {
+    for (int sensor=0; sensor<10; sensor++) {
+      sensor_rotation = new TGeoRotation("",0,phi,0);
+      sensor_trans = new TGeoTranslation(-DX/2.0+DX*(sensor%2), -DY*2.0+DY*(sensor/2), -DZ/2.0+ladder*DZ/5.0);
+      sensor_position = new TGeoCombiTrans(*sensor_trans, *sensor_rotation);
+      top->AddNode(vol,ladder*10+sensor+1, sensor_position);
+    }
+  }
+
+  // create all strips
+  int ndiv=32;
+  Double_t start=-DX/2.;
+  Double_t step=DX/ndiv;
+  TGeoVolume *slice = vol->Divide("SLICE", 1, ndiv, start, step);
+  slice->SetLineColor(5);
+  slice->SetLineWidth(1);
+
+  top->SetLineColor(kMagenta);
+  top->SetVisContainers();
+  gGeoManager->SetTopVisible();
+
+  gGeoManager->CloseGeometry();
+  gGeoManager->SetNsegments(80);
+
+  // ----- 3D view -----
+  c->cd(1);
+  CRtd_pad_[0]=(TPad*) gPad;
+  top->Draw();
+  view = gPad->GetView();
+  view->RotateView(-40,90);
+  view->ZoomView(0,2);
+  //view->ShowAxis();
+
+  // ----- XZ view -----
+  p->cd(1);
+  CRtd_pad_[1]=(TPad*) gPad;
+  top->Draw();
+  view = gPad->GetView();
+  view->RotateView(-90,90);
+  view->SetParallel();
+  view->ZoomView(0,1.5);
+  view->ShowAxis();
+  axis = TAxis3D::GetPadAxis(); // Ask axis pointer
+  axis->SetLabelSize(0);
+  axis->GetXaxis()->SetTitleColor(2);
+  axis->GetXaxis()->SetTitle("strip");
+  axis->GetYaxis()->SetTitleColor(3);
+  axis->GetYaxis()->SetTitle("sensor");
+  axis->GetZaxis()->SetTitleColor(4);
+  axis->GetZaxis()->SetTitle("ladder");
+
+  // ----- YZ view -----
+  p->cd(2);
+  CRtd_pad_[2]=(TPad*) gPad;
+  top->Draw();
+  view = gPad->GetView();
+  view->RotateView(0,90);
+  view->SetParallel();
+  view->ZoomView(0,1.5);
+  view->ShowAxis();
+  axis = TAxis3D::GetPadAxis(); // Ask axis pointer
+  axis->SetLabelSize(0);
+  axis->GetXaxis()->SetTitleColor(2);
+  axis->GetXaxis()->SetTitle("strip");
+  axis->GetYaxis()->SetTitleColor(3);
+  axis->GetYaxis()->SetTitle("sensor");
+  axis->GetZaxis()->SetTitleColor(4);
+  axis->GetZaxis()->SetTitle("ladder");
+}
+//-------------------------------------------------------------------------------------------------

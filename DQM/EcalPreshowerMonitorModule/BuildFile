@@ -11,6 +11,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=Foundation/PluginManager>
 <use name=rootcore>
+<use name=rootminuit>
 <use name=TBDataFormats/HcalTBObjects>
 <export>
   <use name=DQMServices/Core>

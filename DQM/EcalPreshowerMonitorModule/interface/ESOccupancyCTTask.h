@@ -47,6 +47,8 @@ class ESOccupancyCTTask: public EDAnalyzer{
   void setup(void);
   void cleanup(void);
 
+  void DoTracking(float local_event[2][6][10][32], int zbox);
+
  private:
 
   int ievt_;
@@ -61,16 +63,54 @@ class ESOccupancyCTTask: public EDAnalyzer{
   string instanceName_;
   int gain_;
   bool sta_;
-  bool x11_;
 
   bool init_;
+  double zs_N_sigmas_;
 
   MonitorElement *hitStrips1B_;
   MonitorElement *hitStrips2B_;
   MonitorElement *hitSensors1B_;
   MonitorElement *hitSensors2B_;
 
-  TApplication *theApp_;
+  MonitorElement *meTrack_Npoints_;
+  MonitorElement *me_Nhits_lad0_;
+  MonitorElement *me_Nhits_lad1_;
+  MonitorElement *me_Nhits_lad2_;
+  MonitorElement *me_Nhits_lad3_;
+  MonitorElement *me_Nhits_lad4_;
+  MonitorElement *me_Nhits_lad5_;
+  MonitorElement *me_hit_x_;
+  MonitorElement *me_hit_y_;
+  MonitorElement *meTrack_hit0_;
+  MonitorElement *meTrack_hit1_;
+  MonitorElement *meTrack_hit2_;
+  MonitorElement *meTrack_hit3_;
+  MonitorElement *meTrack_hit4_;
+  MonitorElement *meTrack_hit5_;
+  MonitorElement *meTrack_Px0_;
+  MonitorElement *meTrack_Px1_;
+  MonitorElement *meTrack_Px2_;
+  MonitorElement *meTrack_Px3_;
+  MonitorElement *meTrack_Px4_;
+  MonitorElement *meTrack_Px5_;
+  MonitorElement *meTrack_Py0_;
+  MonitorElement *meTrack_Py1_;
+  MonitorElement *meTrack_Py2_;
+  MonitorElement *meTrack_Py3_;
+  MonitorElement *meTrack_Py4_;
+  MonitorElement *meTrack_Py5_;
+  MonitorElement *meTrack_Pz0_;
+  MonitorElement *meTrack_Pz1_;
+  MonitorElement *meTrack_Pz2_;
+  MonitorElement *meTrack_Pz3_;
+  MonitorElement *meTrack_Pz4_;
+  MonitorElement *meTrack_Pz5_;
+  MonitorElement *meTrack_par0_;
+  MonitorElement *meTrack_par1_;
+  MonitorElement *meTrack_par2_;
+  MonitorElement *meTrack_par3_;
+  MonitorElement *meTrack_par4_;
+  MonitorElement *meTrack_par5_;
 };
 
 #endif
