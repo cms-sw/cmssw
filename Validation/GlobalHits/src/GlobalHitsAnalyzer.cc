@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/11/20 23:53:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/11/28 21:39:02 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -186,7 +186,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
   if (dbe) {
 
     // MCGeant
-    dbe->setCurrentFolder("GlobalHitsAnalyzer/MCGeant");
+    dbe->setCurrentFolder("GlobalHitsV/MCGeant");
     sprintf(hname,"hMCRGP1");
     sprintf(htitle,"RawGenParticles");
     meMCRGP[0] = dbe->book1D(hname,htitle,100,0.,5000.);
@@ -260,7 +260,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     meGeantTrkE->setAxisTitle("Count",2);
 
     // ECal
-    dbe->setCurrentFolder("GlobalHitsAnalyzer/ECals");
+    dbe->setCurrentFolder("GlobalHitsV/ECals");
     sprintf(hname,"hCaloEcal1");
     sprintf(htitle,"Ecal hits");
     meCaloEcal[0] = dbe->book1D(hname,htitle,100,0.,10000.);
@@ -340,7 +340,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     meCaloPreShEta->setAxisTitle("Count",2);
 
     // Hcal
-    dbe->setCurrentFolder("GlobalHitsAnalyzer/HCals");
+    dbe->setCurrentFolder("GlobalHitsV/HCals");
     sprintf(hname,"hCaloHcal1");
     sprintf(htitle,"Hcal hits");
     meCaloHcal[0] = dbe->book1D(hname,htitle,100,0.,10000.);
@@ -381,7 +381,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     meCaloHcalEta->setAxisTitle("Count",2);
     
     // SiPixels
-    dbe->setCurrentFolder("GlobalHitsAnalyzer/SiPixels");
+    dbe->setCurrentFolder("GlobalHitsV/SiPixels");
     sprintf(hname,"hTrackerPx1");
     sprintf(htitle,"Pixel hits");
     meTrackerPx[0] = dbe->book1D(hname,htitle,100,0.,10000.);
@@ -430,7 +430,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     meTrackerPxFZ->setAxisTitle("Count",2);
 
     // SiStrips
-    dbe->setCurrentFolder("GlobalHitsAnalyzer/SiStrips");
+    dbe->setCurrentFolder("GlobalHitsV/SiStrips");
     sprintf(hname,"hTrackerSi1");
     sprintf(htitle,"Silicon hits");
     meTrackerSi[0] = dbe->book1D(hname,htitle,100,0.,10000.);
@@ -478,7 +478,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     meTrackerSiFZ->setAxisTitle("Count",2);
 
     // Muon
-    dbe->setCurrentFolder("GlobalHitsAnalyzer/Muons");
+    dbe->setCurrentFolder("GlobalHitsV/Muons");
     sprintf(hname,"hMuon1");
     sprintf(htitle,"Muon hits");
     meMuon[0] = dbe->book1D(hname,htitle,100,0.,10000.);

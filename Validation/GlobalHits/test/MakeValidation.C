@@ -308,170 +308,61 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
 
       // set axis info for the histograms
       if (i == 0) {
-	TString hpath = "DQMData/MCGeant/"+names[j];
+	TString hpath = "DQMData/GlobalHitsV/MCGeant/"+names[j];
 	sh = (TH1F*)sfile->Get(hpath);
 	rh = (TH1F*)rfile->Get(hpath);
-	sh->GetXaxis()->SetTitle("Number of Raw Generated Particles");
-	sh->GetYaxis()->SetTitle("Count");
       }
       if (i == 1) {
-	TString hpath = "DQMData/MCGeant/"+names[j];
-	sh = (TH1F*)sfile->Get(hpath);
+	TString hpath = "DQMData/GlobalHitsV/MCGeant/"+names[j];
+	sh = (TH1F*)sfile->Get(hpath);	
 	rh = (TH1F*)rfile->Get(hpath);
-	if (j == 0 || j == 1) {
-	  sh->GetXaxis()->SetTitle("Number of Vertices");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 2 || j == 3) {
-	  sh->GetXaxis()->SetTitle("x of Vertex (um)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 4 || j == 5) {
-	  sh->GetXaxis()->SetTitle("y of Vertex (um)");
-	  sh->GetYaxis()->SetTitle("Count");	  
-	}
-	if (j == 6 || j == 7) {
-	  sh->GetXaxis()->SetTitle("z of Vertex (mm)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}	
       }
       if (i == 2) {
-	TString hpath = "DQMData/MCGeant/"+names[j];
-	sh = (TH1F*)sfile->Get(hpath);
+	TString hpath = "DQMData/GlobalHitsV/MCGeant/"+names[j];
+	sh = (TH1F*)srcfile->Get(hpath);
 	rh = (TH1F*)rfile->Get(hpath);
-	if (j == 0 || j == 1) {
-	  sh->GetXaxis()->SetTitle("Number of Tracks");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 2) {
-	  sh->GetXaxis()->SetTitle("pT of Track (GeV)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 3) {
-	  sh->GetXaxis()->SetTitle("E of Track (GeV)");
-	  sh->GetYaxis()->SetTitle("Count");	  
-	}
       }
       if (i == 3 || i == 4 || i == 5) {
 	if (i == 3 || i == 4) {
-	  TString hpath = "DQMData/ECal/"+names[j];
+	  TString hpath = "DQMData/GlobalHitsV/ECals/"+names[j];
 	  sh = (TH1F*)sfile->Get(hpath);
 	  rh = (TH1F*)rfile->Get(hpath);
 	}
 	if (i == 5) {
-	  TString hpath = "DQMData/HCal/"+names[j];
+	  TString hpath = "DQMData/GlobalHitsV/HCals/"+names[j];
 	  sh = (TH1F*)sfile->Get(hpath);
 	  rh = (TH1F*)rfile->Get(hpath);
-	}
-	if (j == 0 || j == 1) {
-	  sh->GetXaxis()->SetTitle("Number of Hits");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 2 || j == 3) {
-	  sh->GetXaxis()->SetTitle("Energy of Hits (GeV)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 4 || j == 5) {
-	  sh->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
-	  sh->GetYaxis()->SetTitle("Count");
 	}	
-	if (j == 6) {
-	  sh->GetXaxis()->SetTitle("Phi of Hits (rad)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 7) {
-	  sh->GetXaxis()->SetTitle("Eta of Hits");
-	  sh->GetYaxis()->SetTitle("Count");	  
-	}
       }
-      if (i == 6 || i == 7) {
-	TString hpath = "DQMData/Tracker/"+names[j];
+      if (i == 6) {
+	TString hpath = "DQMData/GlobalHitsV/SiPixels/"+names[j];
 	sh = (TH1F*)sfile->Get(hpath);
 	rh = (TH1F*)rfile->Get(hpath);
-	if (j == 0 || j == 1) {
-	  sh->GetXaxis()->SetTitle("Number of Hits");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 2) {
-	  sh->GetXaxis()->SetTitle("Phi of Hits (rad)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 3) {
-	  sh->GetXaxis()->SetTitle("Eta of Hits");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 4 || j == 6) {
-	  sh->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
-	  sh->GetYaxis()->SetTitle("Count");	  
-	}
-	if (j == 5) {
-	  sh->GetXaxis()->SetTitle("R of Hits (cm)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 7) {
-	    sh->GetXaxis()->SetTitle("Z of Hits (cm)");
-	    sh->GetYaxis()->SetTitle("Count");
-	}
       }
+      if (i == 7) {
+	TString hpath = "DQMData/GlobalHitsV/SiStrips/"+names[j];
+	sh = (TH1F*)sfile->Get(hpath);
+	rh = (TH1F*)rfile->Get(hpath);
+      }      
       if (i == 8) {
-	TString hpath = "DQMData/Muon/"+names[j];
+	TString hpath = "DQMData/GlobalHitsV/Muons/"+names[j];
 	sh = (TH1F*)sfile->Get(hpath);
 	rh = (TH1F*)rfile->Get(hpath);
-	if (j == 0 || j == 1) {
-	  sh->GetXaxis()->SetTitle("Number of Hits");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 2) {
-	  sh->GetXaxis()->SetTitle("Phi of Hits (rad)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 3) {
-	  sh->GetXaxis()->SetTitle("Eta of Hits");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
       }
       if (i == 9) {
-	TString hpath = "DQMData/Muon/"+names[j];
+	TString hpath = "DQMData/GlobalHitsV/Muons/"+names[j];
 	sh = (TH1F*)sfile->Get(hpath);
 	rh = (TH1F*)rfile->Get(hpath);
-	if (j == 0 || j == 1) {
-	  sh->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 2) {
-	  sh->GetXaxis()->SetTitle("Z of Hits (cm)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
       }
       if (i == 10) {
-	TString hpath = "DQMData/Muon/"+names[j];
+	TString hpath = "DQMData/GlobalHitsV/Muons/"+names[j];
 	sh = (TH1F*)sfile->Get(hpath);
 	rh = (TH1F*)rfile->Get(hpath);
-	if (j == 0 || j == 1) {
-	  sh->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 2) {
-	  sh->GetXaxis()->SetTitle("R of Hits (cm)");
-	  sh->GetYaxis()->SetTitle("Count");	    
-	}
       }
       if (i == 11) {
-	TString hpath = "DQMData/Muon/"+names[j];
+	TString hpath = "DQMData/GlobalHitsV/Muon/"+names[j];
 	sh = (TH1F*)sfile->Get(hpath);
 	rh = (TH1F*)rfile->Get(hpath);
-	if (j == 0 || j == 1 || j == 3 || j == 4) {
-	  sh->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 2) {
-	  sh->GetXaxis()->SetTitle("Z of Hits (cm)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
-	if (j == 5) {
-	  sh->GetXaxis()->SetTitle("R of Hits (cm)");
-	  sh->GetYaxis()->SetTitle("Count");
-	}
       }
 
       // extract plot from both files

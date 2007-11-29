@@ -288,45 +288,49 @@ void MakePlots(TString filename="GlobalHitsHistograms")
 
       // set axis info for the histograms
       if (i == 0) {
-	TString hpath = "DQMData/MCGeant/"+names[j];
+	TString hpath = "DQMData/GlobalHitsV/MCGeant/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);
       }
       if (i == 1) {
-	TString hpath = "DQMData/MCGeant/"+names[j];
+	TString hpath = "DQMData/GlobalHitsV/MCGeant/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);	
       }
       if (i == 2) {
-	TString hpath = "DQMData/MCGeant/"+names[j];
+	TString hpath = "DQMData/GlobalHitsV/MCGeant/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);
       }
       if (i == 3 || i == 4 || i == 5) {
 	if (i == 3 || i == 4) {
-	  TString hpath = "DQMData/ECal/"+names[j];
+	  TString hpath = "DQMData/GlobalHitsV/ECals/"+names[j];
 	  sh = (TH1F*)srcfile->Get(hpath);
 	}
 	if (i == 5) {
-	  TString hpath = "DQMData/HCal/"+names[j];
+	  TString hpath = "DQMData/GlobalHitsV/HCals/"+names[j];
 	  sh = (TH1F*)srcfile->Get(hpath);
 	}	
       }
-      if (i == 6 || i == 7) {
-	TString hpath = "DQMData/Tracker/"+names[j];
+      if (i == 6) {
+	TString hpath = "DQMData/GlobalHitsV/SiPixels/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);
       }
+      if (i == 7) {
+	TString hpath = "DQMData/GlobalHitsV/SiStrips/"+names[j];
+	sh = (TH1F*)srcfile->Get(hpath);
+      }      
       if (i == 8) {
-	TString hpath = "DQMData/Muon/"+names[j];
+	TString hpath = "DQMData/GlobalHitsV/Muons/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);
       }
       if (i == 9) {
-	TString hpath = "DQMData/Muon/"+names[j];
+	TString hpath = "DQMData/GlobalHitsV/Muons/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);
       }
       if (i == 10) {
-	TString hpath = "DQMData/Muon/"+names[j];
+	TString hpath = "DQMData/GlobalHitsV/Muons/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);
       }
       if (i == 11) {
-	TString hpath = "DQMData/Muon/"+names[j];
+	TString hpath = "DQMData/GlobalHitsV/Muon/"+names[j];
 	sh = (TH1F*)srcfile->Get(hpath);
       }
       sh->SetLineColor(srccolor);
