@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/11/09 17:36:44 $
- * $Revision: 1.58 $
+ * $Date: 2007/11/13 14:05:25 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -701,7 +701,7 @@ void EBBeamCaloClient::analyze(void){
 	//cout<<"step +1 entries: "<<hBEntriesvsCry_->GetBinContent(step+1)<<endl;
 	bool readCryOk = true;
 	if( hBReadCryErrors_ ) {
-	  int step_bin = hBReadCryErrors_->GetXaxis()->FindBin(step);
+	  int step_bin = hBReadCryErrors_->GetXaxis()->FindFixBin(step);
 	  if ( step_bin > 0 && step_bin < hBReadCryErrors_->GetNbinsX() ){
 	    if ( hBReadCryErrors_->GetBinContent(step_bin) <= Entries*ReadCryErrThr_ ){readCryOk = true;}
 	    else {readCryOk = false;}

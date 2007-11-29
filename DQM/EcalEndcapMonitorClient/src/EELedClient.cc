@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/13 15:50:55 $
- * $Revision: 1.38 $
+ * $Date: 2007/11/14 10:31:41 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1522,10 +1522,10 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum(6.0);
         obj2f->Draw("col");
-        int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
-        int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
-        int y1 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+0.);
-        int y2 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+50.);
+        int x1 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+0.);
+        int x2 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+50.);
+        int y1 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+0.);
+        int y2 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+50.);
         labelGrid.GetXaxis()->SetRange(x1, x2);
         labelGrid.GetYaxis()->SetRange(y1, y2);
         labelGrid.Draw("text,same");

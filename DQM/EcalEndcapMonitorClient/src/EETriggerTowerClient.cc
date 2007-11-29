@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/11/14 20:54:31 $
- * $Revision: 1.40 $
+ * $Date: 2007/11/15 08:09:35 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -802,10 +802,10 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f->GetZaxis()->SetLabelSize(0.02);
       obj2f->SetMinimum(0);
       obj2f->Draw("colz");
-      int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
-      int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
-      int y1 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+0.);
-      int y2 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+50.);
+      int x1 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+0.);
+      int x2 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+50.);
+      int y1 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+0.);
+      int y2 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+50.);
       labelGrid.GetXaxis()->SetRange(x1, x2);
       labelGrid.GetYaxis()->SetRange(y1, y2);
       labelGrid.Draw("text,same");
@@ -869,10 +869,10 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2p->GetYaxis()->SetTitleSize(0.02);
         obj2p->GetZaxis()->SetLabelSize(0.02);
         obj2p->Draw("colz");
-        int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
-        int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
-        int y1 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+0.);
-        int y2 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+50.);
+        int x1 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+0.);
+        int x2 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+50.);
+        int y1 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+0.);
+        int y2 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+50.);
         labelGrid.GetXaxis()->SetRange(x1, x2);
         labelGrid.GetYaxis()->SetRange(y1, y2);
         labelGrid.Draw("text,same");
@@ -979,10 +979,10 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           obj2f->GetZaxis()->SetLabelSize(0.02);
           obj2f->SetMinimum(0);
           obj2f->Draw("colz");
-          int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
-          int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
-          int y1 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+0.);
-          int y2 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+50.);
+          int x1 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+0.);
+          int x2 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+50.);
+          int y1 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+0.);
+          int y2 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+50.);
           labelGrid.GetXaxis()->SetRange(x1, x2);
           labelGrid.GetYaxis()->SetRange(y1, y2);
           labelGrid.Draw("text,same");
@@ -1062,10 +1062,10 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           obj2f->GetZaxis()->SetLabelSize(0.02);
           obj2f->SetMinimum(0);
           obj2f->Draw("colz");
-          int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
-          int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
-          int y1 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+0.);
-          int y2 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+50.);
+          int x1 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+0.);
+          int x2 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+50.);
+          int y1 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+0.);
+          int y2 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+50.);
           labelGrid.GetXaxis()->SetRange(x1, x2);
           labelGrid.GetYaxis()->SetRange(y1, y2);
           labelGrid.Draw("text,same");
