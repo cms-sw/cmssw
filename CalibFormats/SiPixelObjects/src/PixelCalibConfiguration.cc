@@ -186,7 +186,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
     if ( tmp=="Rocs:" ) buildROCListNow = true;
     else { assert(tmp=="ToCalibrate:"); buildROCListNow = false; }
 
-    while (!in.eof() && buildROCListNow)
+    while (!in.eof())
     {
        tmp = "";
        in >> tmp;
@@ -196,9 +196,8 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
        // Rocs:
        // all
 
-       if( tmp=="all"){
+       if( tmp=="all" || tmp=="+" || tmp=="-" ){
 	 buildROCListNow=false;
-	 continue;
        }
        // end of addition by F.B.
 	 
