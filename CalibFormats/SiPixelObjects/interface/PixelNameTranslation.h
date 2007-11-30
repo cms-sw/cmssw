@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <set>
 #include <iostream>
 
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
@@ -40,6 +41,9 @@ namespace pos{
     //Should really use a different type of hdw address for a module
     //See comment below...
     const std::vector<PixelHdwAddress>* getHdwAddress(const PixelModuleName& aModule) const;
+    const PixelHdwAddress& getHdwAddress(const PixelChannel& aChannel) const;
+    
+    std::set< PixelChannel > getChannelsOnModule(const PixelModuleName& aModule) const;
     
     friend std::ostream& operator<<(std::ostream& s, const PixelNameTranslation& table);
 

@@ -16,9 +16,9 @@ namespace pos{
     PixelChannel(PixelModuleName module, std::string TBMChannel);
     PixelChannel(PixelModuleName module, PixelTBMChannel TBMChannel);
 
-    PixelModuleName module() const { return module_; }
+    const PixelModuleName& module() const { return module_; }
     std::string modulename() const { return module_.modulename(); }
-    PixelTBMChannel TBMChannel() const { return TBMChannel_; }
+    const PixelTBMChannel& TBMChannel() const { return TBMChannel_; }
     std::string TBMChannelString() const { return TBMChannel_.string(); }
 
     friend std::ostream& operator<<(std::ostream& s, const PixelChannel& channel);
