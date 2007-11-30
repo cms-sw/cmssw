@@ -87,12 +87,6 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     ApvTimingAnalysis* anal = new ApvTimingAnalysis( iter->first );
     anal->analysis( profs );
     data_[iter->first] = anal; 
-    
-    // Check tick height is valid
-    if ( anal->height() < ApvTimingAnalysis::tickMarkHeightThreshold_ ) { 
-      anal->addErrorCode(sistrip::tickMarkBelowThresh_);      
-      continue; 
-    }
 
     // Check time of rising edge
     if ( anal->time() > sistrip::valid_ ) { continue; }
