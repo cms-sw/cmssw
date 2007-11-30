@@ -6,7 +6,7 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticle.h,v 1.2 2007/10/15 13:03:35 llista Exp $
+ * \version $Id: GenParticle.h,v 1.3 2007/11/05 15:43:54 llista Exp $
  */
 #include "DataFormats/Candidate/interface/CompositeRefCandidateT.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -22,12 +22,15 @@ namespace reco {
   public:
     /// default constructor
     GenParticle() { }
+    /// default constructor
+    GenParticle(const Particle & p) : 
+      CompositeRefCandidateT<GenParticleRefVector>(p) { }
     /// constrocturo from values
-    GenParticle( Charge q, const LorentzVector & p4, const Point & vtx, 
-		 int pdgId, int status, bool integerCharge );
+    GenParticle(Charge q, const LorentzVector & p4, const Point & vtx, 
+		int pdgId, int status, bool integerCharge);
     /// constrocturo from values
-    GenParticle( Charge q, const PolarLorentzVector & p4, const Point & vtx, 
-		 int pdgId, int status, bool integerCharge );
+    GenParticle(Charge q, const PolarLorentzVector & p4, const Point & vtx, 
+		int pdgId, int status, bool integerCharge);
     /// destructor
     virtual ~GenParticle();
     /// return a clone
@@ -35,7 +38,7 @@ namespace reco {
 
   private:
     /// checp overlap with another candidate
-    bool overlap( const Candidate & ) const;
+    bool overlap(const Candidate &) const;
  };
 
 }
