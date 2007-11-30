@@ -37,13 +37,14 @@ void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
       TrackInformationExtractor extractor;
       if (extractor(aTrack).storeTrack()) 
 	{
+	  /*
 	  Hep3Vector pos = aTrack->GetStep()->GetPostStepPoint()->GetPosition();
 	  HepLorentzVector mom;
 	  uint32_t id = aTrack->GetTrackID();
 	  
 	  std::pair<Hep3Vector,HepLorentzVector> p(pos,mom);
 	  eventAction_->addTkCaloStateInfo(id,p);
-	  
+	  */
 	  currentTrack_->save();
 	}
       if (extractor(aTrack).isInHistory())
