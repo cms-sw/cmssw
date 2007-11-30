@@ -46,16 +46,16 @@ namespace reco {
   namespace fitHelper {
     template<typename C>
     struct Adder {
-      static void add(std::auto_ptr<C> c, std::auto_ptr<reco::VertexCompositeCandidate> t) { c->push_back(*t); }
+      static void add(std::auto_ptr<C> & c, std::auto_ptr<reco::VertexCompositeCandidate> t) { c->push_back(*t); }
     };
 
     template<typename T>
     struct Adder<edm::OwnVector<T> > {
-      static void add(std::auto_ptr<edm::OwnVector<T> > c, std::auto_ptr<reco::VertexCompositeCandidate> t) { c->push_back(t); }
+      static void add(std::auto_ptr<edm::OwnVector<T> > & c, std::auto_ptr<reco::VertexCompositeCandidate> t) { c->push_back(t); }
     };
 
     template<typename C>
-      inline void add(std::auto_ptr<C> c, std::auto_ptr<reco::VertexCompositeCandidate> t) {
+      inline void add(std::auto_ptr<C> & c, std::auto_ptr<reco::VertexCompositeCandidate> t) {
       Adder<C>::add(c, t);
     }
   }
