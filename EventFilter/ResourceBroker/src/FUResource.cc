@@ -639,8 +639,17 @@ void FUResource::findFEDs() throw (evf::Exception)
   
     // check that fedid is within valid ranges
     if (fedId>=1024||
-	(doFedIdCheck_&&(!FEDNumbering::inRange(fedId)||fedSize_[fedId]!=0))) {
-      LOG4CPLUS_ERROR(log_,"Invalid fedid."
+	(doFedIdCheck_&&(!FEDNumbering::inRange(fedId)))) {
+      LOG4CPLUS_WARN(log_,"Invalid fedid. Data will still be logged"
+		     <<" evtNumber:"<<evtNumber_
+		     <<" fedid:"<<fedId);
+      nbErrors_++;
+    }
+
+    // check if a previous fed has already claimed same fed id
+
+    if(fedSize_[fedId]!=0) {
+      LOG4CPLUS_ERROR(log_,"Duplicated fedid. Data will be lost for"
 		      <<" evtNumber:"<<evtNumber_
 		      <<" fedid:"<<fedId);
       nbErrors_++;
