@@ -22,7 +22,8 @@ namespace cond{
     /// Constructor. A connection proxy holds connection parameters shared by underlying implementations
     IConnectionProxy(coral::IConnectionService* connectionServiceHandle, 
 		     const std::string& con, 
-		     int connectionTimeOut);
+		     int connectionTimeOut,
+		     int idleConnectionCleanupPeriod);
     /// Destructor
     virtual ~IConnectionProxy();
     /// real connection time out parameter
@@ -36,6 +37,7 @@ namespace cond{
     coral::IConnectionService* m_connectionSvcHandle;
     std::string m_con;
     int m_connectionTimeOut;
+    int m_idleConnectionCleanupPeriod;
     boost::timer m_timer;    
   };
 }

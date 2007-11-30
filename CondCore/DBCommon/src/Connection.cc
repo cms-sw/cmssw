@@ -2,6 +2,8 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/SessionConfiguration.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "PoolConnectionProxy.h"
 #include "CoralConnectionProxy.h"
 cond::Connection::Connection(const std::string& con,
@@ -16,6 +18,7 @@ cond::Connection::~Connection(){
 }
 void cond::Connection::connect( cond::DBSession* session ){
   m_connectionServiceHandle=&(session->connectionService());
+  m_idleConnectionCleanupPeriod=session->configuration().connectionConfiguration()->idleConnectionCleanupPeriod();
 }
 
 /**if first time, init everything, start timer
@@ -31,7 +34,7 @@ cond::Connection::coralTransaction(){
     }
   }
   cond::CoralConnectionProxy* me=new cond::CoralConnectionProxy(
-	     m_connectionServiceHandle,m_con,m_connectionTimeOut);
+	     m_connectionServiceHandle,m_con,m_connectionTimeOut,m_idleConnectionCleanupPeriod);
   m_coralConnectionPool.push_back(me);
   return static_cast<cond::CoralTransaction&>( me->transaction() );
 }
@@ -45,7 +48,7 @@ cond::Connection::poolTransaction(){
       return static_cast<cond::PoolTransaction&>((*it)->transaction());
     }
   }
-  cond::PoolConnectionProxy* me=new cond::PoolConnectionProxy(m_connectionServiceHandle,m_con,m_connectionTimeOut); 
+  cond::PoolConnectionProxy* me=new cond::PoolConnectionProxy(m_connectionServiceHandle,m_con,m_connectionTimeOut,m_idleConnectionCleanupPeriod); 
   m_poolConnectionPool.push_back(me);
   return static_cast<cond::PoolTransaction&>(me->transaction());
 }

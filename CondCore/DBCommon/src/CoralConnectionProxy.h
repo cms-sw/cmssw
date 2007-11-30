@@ -24,7 +24,8 @@ namespace cond{
   public:
     CoralConnectionProxy(coral::IConnectionService* connectionServiceHandle,
 			 const std::string& con,
-			 int connectionTimeOut
+			 int connectionTimeOut,
+			 int idleConnectionCleanupPeriod
 			 );
     ~CoralConnectionProxy();
     /// required implementation by IConnectionProxy interface

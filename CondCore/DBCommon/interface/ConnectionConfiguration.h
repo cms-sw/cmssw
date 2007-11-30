@@ -1,6 +1,16 @@
 #ifndef COND_DBCommon_ConnectionConfiguration_h
 #define COND_DBCommon_ConnectionConfiguration_h
 #include "RelationalAccess/IMonitoring.h"
+//
+// Package:     DBCommon
+// Class  :     Connection
+//
+/**\class ConnectionConfiguration ConnectionConfiguration.h CondCore/DBCommon/interface/ConnectionConfiguration.h
+   Description: interface to query and set the connection configuration parameters. The parameters will take effect only after the DBSession is opened.
+*/
+//
+// Author:      Zhen Xie
+//
 namespace cond{
   class ConnectionConfiguration{
   public:
@@ -54,6 +64,17 @@ namespace cond{
      * Retrieves the connection time out in seconds.
      */
     int connectionTimeOut();
+
+    /**
+     * Sets idle connection pool cleanup period. Has effect only if 
+     * PoolAutomaticCleanUp is disabled
+     */
+    void setIdleConnectionCleanupPeriod( int timeInSeconds );
+    
+    /**
+     * Returns period in second for manual cleanup idle connections 
+     */
+    int idleConnectionCleanupPeriod() const;
     
     /**
      * Enables the re-use of Update connections for Read-Only sessions
@@ -66,7 +87,7 @@ namespace cond{
     void disableReadOnlySessionOnUpdateConnections();
     
     /**
-     * Returns true if the  re-use of Update connections for Read-Only sessions is enabled 
+     * Returns true if the re-use of Update connections for Read-Only sessions is enabled 
      */
     bool isReadOnlySessionOnUpdateConnectionsEnabled();
     
@@ -91,6 +112,7 @@ namespace cond{
     int m_connectionRetrialPeriod;
     int m_connectionRetrialTimeOut;
     int m_connectionTimeOut;
+    int m_idleconnectionCleanupPeriod;
     bool m_enableCommonConnection;
     bool m_enablePoolAutomaticCleanUp; 
     coral::monitor::Level m_monitorLevel;

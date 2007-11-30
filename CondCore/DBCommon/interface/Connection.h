@@ -31,7 +31,8 @@ namespace cond{
     /// Destructor
     ~Connection();
     /// pass on the connection service handle to the proxy, 
-    /// do not connect for real
+    /// do not connect for real. This method must be called after 
+    // DBSession::open
     void connect( cond::DBSession* session );
     /// disconnect open connection by hand if connectionTimeout <0, otherwise, no real action taken
     void disconnect();
@@ -44,6 +45,7 @@ namespace cond{
   private:
     std::string m_con;
     int m_connectionTimeOut;
+    int m_idleConnectionCleanupPeriod;
     std::vector<PoolConnectionProxy*> m_poolConnectionPool;
     std::vector<CoralConnectionProxy*> m_coralConnectionPool;
     coral::IConnectionService* m_connectionServiceHandle;

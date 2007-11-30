@@ -5,14 +5,14 @@
 #include "DataSvc/IDataSvc.h"
 #include "PersistencySvc/ITransaction.h"
 //#include <iostream>
-cond::PoolTransaction::PoolTransaction(cond::PoolConnectionProxy* parentConnection):m_parentConnection(parentConnection){
+cond::PoolTransaction::PoolTransaction(cond::PoolConnectionProxy* parentConnection):m_parentConnection(parentConnection),m_datasvc(0){
   this->attach(m_parentConnection);
 }
 cond::PoolTransaction::~PoolTransaction(){}
 void 
 cond::PoolTransaction::start(bool isReadOnly){
-  if(!m_datasvc) throw cond::Exception("PoolTransaction::start: database not connected");
   this->NotifyStartOfTransaction();
+  if(!m_datasvc) throw cond::Exception("PoolTransaction::start: database not connected");
   if(!isReadOnly){
     m_datasvc->transaction().start( pool::ITransaction::UPDATE );
   }else{
@@ -31,11 +31,6 @@ cond::PoolTransaction::rollback(){
    m_datasvc->transaction().rollback();
    this->NotifyEndOfTransaction();
 }
-/*bool 
-cond::PoolTransaction::isActive()const{
-  return m_datasvc->transaction().isActive();
-}
-*/
 bool 
 cond::PoolTransaction::isReadOnly()const{
   if(m_datasvc->transaction().type()==pool::ITransaction::READ) return true;

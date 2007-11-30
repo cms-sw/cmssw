@@ -99,15 +99,20 @@ void cond::DBSession::open(){
   coral::IConnectionServiceConfiguration& conserviceConfig = connectionService().configuration();
   cond::ConnectionConfiguration* conConfig=m_sessionConfig->connectionConfiguration();
   if( conConfig ){
-  if( conConfig->isConnectionSharingEnabled() ){
-    conserviceConfig.enableConnectionSharing();
-  }
-  conserviceConfig.setConnectionRetrialPeriod( conConfig->connectionRetrialPeriod() );
-  conserviceConfig.setConnectionRetrialTimeOut( conConfig->connectionRetrialTimeOut() );
-  conserviceConfig.setConnectionTimeOut( conConfig->connectionTimeOut() );
-  conserviceConfig.setMonitoringLevel( conConfig->monitorLevel() ); 
-  if( m_sessionConfig->hasBlobStreamService() ){
-    std::string streamerName=m_sessionConfig->blobStreamerName();
+    if( conConfig->isConnectionSharingEnabled() ){
+      conserviceConfig.enableConnectionSharing();
+    }
+    if( conConfig->isPoolAutomaticCleanUpEnabled() ){
+      conserviceConfig.enablePoolAutomaticCleanUp();
+    }else{
+      conserviceConfig.disablePoolAutomaticCleanUp();
+    }
+    conserviceConfig.setConnectionRetrialPeriod( conConfig->connectionRetrialPeriod() );
+    conserviceConfig.setConnectionRetrialTimeOut( conConfig->connectionRetrialTimeOut() );
+    conserviceConfig.setConnectionTimeOut( conConfig->connectionTimeOut() );
+    conserviceConfig.setMonitoringLevel( conConfig->monitorLevel() ); 
+    if( m_sessionConfig->hasBlobStreamService() ){
+      std::string streamerName=m_sessionConfig->blobStreamerName();
       if(streamerName.empty()){
 	m_loader->load( "COND/Services/DefaultBlobStreamingService" );
       }else{

@@ -1,4 +1,5 @@
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+//#include <iostream>
 cond::ConnectionConfiguration::ConnectionConfiguration():m_enableConSharing(false),m_connectionRetrialPeriod(0),m_connectionRetrialTimeOut(0),m_connectionTimeOut(0),m_enableCommonConnection(false),m_enablePoolAutomaticCleanUp(false),m_monitorLevel(coral::monitor::Off){}
 cond::ConnectionConfiguration::~ConnectionConfiguration(){}
 void cond::ConnectionConfiguration::enableConnectionSharing(){
@@ -27,6 +28,12 @@ void cond::ConnectionConfiguration::setConnectionTimeOut( int timeOutInSeconds )
 }
 int cond::ConnectionConfiguration::connectionTimeOut(){
   return m_connectionTimeOut;
+}
+void cond::ConnectionConfiguration::setIdleConnectionCleanupPeriod( int timeInSeconds ){
+  m_idleconnectionCleanupPeriod=timeInSeconds;
+}
+int cond::ConnectionConfiguration::idleConnectionCleanupPeriod() const{
+  return m_idleconnectionCleanupPeriod;
 }
 void cond::ConnectionConfiguration::enableReadOnlySessionOnUpdateConnections(){
   m_enableCommonConnection=true;
