@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.h,v 1.5 2007/09/06 21:38:13 delaer Exp $
+// Last commit: $Id: SiStripEventSummary.h,v 1.6 2007/11/29 17:08:03 bainbrid Exp $
 
 #ifndef DataFormats_SiStripEventSummary_SiStripEventSummary_H
 #define DataFormats_SiStripEventSummary_SiStripEventSummary_H
@@ -218,7 +218,7 @@ class SiStripEventSummary {
 
 bool SiStripEventSummary::valid() const { return valid_; }
 uint16_t SiStripEventSummary::triggerFed() const { return triggerFed_; }
-bool SiStripEventSummary::isSet() const { return ( triggerFed_ > 0 && runType_ != sistrip::UNDEFINED_RUN_TYPE && !nullParams() ); }  
+bool SiStripEventSummary::isSet() const { return ( triggerFed_ > 0 && runType_ != sistrip::UNDEFINED_RUN_TYPE ); }  
 
 const sistrip::RunType& SiStripEventSummary::runType() const { return runType_; }
 const uint32_t& SiStripEventSummary::event() const { return event_; }
