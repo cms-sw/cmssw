@@ -952,6 +952,9 @@ namespace edm {
       }
       endLuminosityBlock(lbp_.get());
       lbp_.reset();
+      if(state_ == sRunning && schedule_->terminate()) {
+	changeState(mCountComplete);
+      }
     }
 
     // check once more for shutdown signal

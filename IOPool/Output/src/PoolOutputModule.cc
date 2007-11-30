@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.91 2007/11/05 22:44:44 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.92 2007/11/22 16:53:49 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -52,7 +52,12 @@ namespace edm {
       }
       doOpenFile();
     }
-    rootFile_->beginInputFile(fb);
+    bool fastCloneThisOne = fastCloning_ &&
+			    fb.tree() != 0 &&
+                            (remainingEvents() < 0 || remainingEvents() >= fb.tree()->GetEntries()) &&
+                            (remainingLuminosityBlocks() < 0 ||
+                             fb.lumiTree() != 0 && remainingLuminosityBlocks() >= fb.lumiTree()->GetEntries());
+    rootFile_->beginInputFile(fb, fastCloneThisOne);
   }
 
   void PoolOutputModule::endInputFile(FileBlock const& fb) {

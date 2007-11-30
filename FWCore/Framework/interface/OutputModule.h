@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.59 2007/10/31 22:56:29 wmtan Exp $
+$Id: OutputModule.h,v 1.60 2007/11/22 16:50:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,6 +20,7 @@ $Id: OutputModule.h,v 1.59 2007/10/31 22:56:29 wmtan Exp $
 #include "FWCore/Framework/interface/CachedProducts.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
+#include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 
@@ -37,6 +38,7 @@ namespace edm {
 
     explicit OutputModule(ParameterSet const& pset);
     virtual ~OutputModule();
+    void configure(OutputModuleDescription const& desc);
     void doBeginJob(EventSetup const&);
     void doEndJob();
     void writeEvent(EventPrincipal const& e, ModuleDescription const& d,
@@ -62,11 +64,26 @@ namespace edm {
     /// already open.
     void maybeOpenFile();
 
+    /// Accessor for maximum number of events to be written.
+    /// -1 is used for unlimited.
+    int maxEvents() const {return maxEvents_;}
+
+    /// Accessor for remaining number of events to be written.
+    /// -1 is used for unlimited.
+    int remainingEvents() const {return remainingEvents_;}
+
+    /// Accessor for maximum number of lumis to be written.
+    /// -1 is used for unlimited.
+    int maxLuminosityBlocks() const {return maxLumis_;}
+
+    /// Accessor for remaining number of lumis to be written.
+    /// -1 is used for unlimited.
+    int remainingLuminosityBlocks() const {return remainingLumis_;}
+
     bool selected(BranchDescription const& desc) const;
 
     unsigned int nextID() const;
     void selectProducts();
-    int eventCount() const {return eventCount_;}
     std::string const& processName() const {return process_name_;}
     SelectionsArray const& keptProducts() const {return keptProducts_;}
     SelectionsArray const& droppedProducts() const {return droppedProducts_;}
@@ -96,6 +113,11 @@ namespace edm {
     ModuleDescription const& description() const;
 
   private:
+
+    int maxEvents_;
+    int remainingEvents_;
+    int maxLumis_;
+    int remainingLumis_;
 
     unsigned int nextID_;
     // TODO: Give OutputModule
@@ -152,9 +174,6 @@ namespace edm {
     bool wantAllEvents_;
     mutable detail::CachedProducts selectors_;
 
-    int eventCount_;
-
-
     //------------------------------------------------------------------
     // private member functions
     //------------------------------------------------------------------
@@ -181,6 +200,8 @@ namespace edm {
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
     }
+
+    bool done() const {return remainingEvents_ == 0 || remainingLumis_ == 0;}
 
     // The following member functions are part of the Template Method
     // pattern, used for implementing doEndFile() and maybeEndFil().

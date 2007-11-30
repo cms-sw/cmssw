@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
+#include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/src/ProducerWorker.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
@@ -83,6 +84,7 @@ namespace edm {
       Schedule::WorkerPtr ptr(new ProducerWorker(producer,md,work_args));
       return ptr;
     }
+
   }
 
   // -----------------------------
@@ -130,7 +132,6 @@ namespace edm {
     results_inserter_(),
     all_workers_(),
     all_output_workers_(),
-    limited_output_workers_(),
     trig_paths_(),
     end_paths_(),
     wantSummary_(tns.wantSummary()),
@@ -141,30 +142,6 @@ namespace edm {
     demandBranches_(),
     endpathsAreActive_(true)
   {
-    ParameterSet maxEventsPSet(pset_.getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()));
-
-    std::string const output("output");
-
-    int maxEventSpecs = 0; 
-    int maxEventsOut = -1;
-    ParameterSet vMaxEventsOut;
-    std::vector<std::string> intNames = maxEventsPSet.getParameterNamesForType<int>(false);
-    if (search_all(intNames, output)) {
-      maxEventsOut = maxEventsPSet.getUntrackedParameter<int>(output);
-      ++maxEventSpecs;
-    }
-    std::vector<std::string> psetNames;
-    maxEventsPSet.getParameterSetNames(psetNames, false);
-    if (search_all(psetNames, output)) {
-      vMaxEventsOut = maxEventsPSet.getUntrackedParameter<ParameterSet>(output);
-      ++maxEventSpecs;
-    }
-
-    if (maxEventSpecs > 1) {
-      throw edm::Exception(edm::errors::Configuration) <<
-	"\nAt most, one form of 'output' may appear in the 'maxEvents' parameter set";
-    }
-
     ParameterSet opts(pset_.getUntrackedParameter<ParameterSet>("options", ParameterSet()));
     bool hasPath = false;
 
@@ -272,30 +249,10 @@ namespace edm {
       if (ow) all_output_workers_.push_back(ow);
     }
 
-    prod_reg_->setProductIDs();
+    // Now that the output workers are filled in, set any output limits.
+    limitOutput();
 
-    // Set up limited_output_workers_ if limiting the amount of output.
-    if (maxEventsOut >= 0) {
-      for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
-	   it != itEnd; ++it) {
-	limited_output_workers_.push_back(std::make_pair(maxEventsOut, *it));
-      }
-      if (limited_output_workers_.empty()) {
-	throw edm::Exception(edm::errors::Configuration) <<
-	  "\nMaximum output specified, and there are no output modules configured.\n";
-      }
-    } else if (!vMaxEventsOut.empty()) {
-      for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
-	   it != itEnd; ++it) {
-	std::string moduleLabel = (*it)->description().moduleLabel_;
-	try {
-	  limited_output_workers_.push_back(std::make_pair(vMaxEventsOut.getUntrackedParameter<int>(moduleLabel), *it));
-	} catch (edm::Exception) {
-	  throw edm::Exception(edm::errors::Configuration) <<
-	    "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
-	}
-      }
-    }
+    prod_reg_->setProductIDs();
 
     //Now that these have been set, we can create the list of Branches we need for the 'on demand'
     ProductRegistry::ProductList const& prodsList = prod_reg_->productList();
@@ -315,15 +272,89 @@ namespace edm {
       
   } // Schedule::Schedule
 
+  void
+  Schedule::limitOutput() {
+    std::string const output("output");
+
+    ParameterSet maxEventsPSet(pset_.getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()));
+    int maxEventSpecs = 0; 
+    int maxEventsOut = -1;
+    ParameterSet vMaxEventsOut;
+    std::vector<std::string> intNamesE = maxEventsPSet.getParameterNamesForType<int>(false);
+    if (search_all(intNamesE, output)) {
+      maxEventsOut = maxEventsPSet.getUntrackedParameter<int>(output);
+      ++maxEventSpecs;
+    }
+    std::vector<std::string> psetNamesE;
+    maxEventsPSet.getParameterSetNames(psetNamesE, false);
+    if (search_all(psetNamesE, output)) {
+      vMaxEventsOut = maxEventsPSet.getUntrackedParameter<ParameterSet>(output);
+      ++maxEventSpecs;
+    }
+
+    if (maxEventSpecs > 1) {
+      throw edm::Exception(edm::errors::Configuration) <<
+	"\nAt most, one form of 'output' may appear in the 'maxEvents' parameter set";
+    }
+
+    ParameterSet maxLumisPSet(pset_.getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet()));
+    int maxLumiSpecs = 0; 
+    int maxLumisOut = -1;
+    ParameterSet vMaxLumisOut;
+    std::vector<std::string> intNamesL = maxLumisPSet.getParameterNamesForType<int>(false);
+    if (search_all(intNamesL, output)) {
+      maxLumisOut = maxLumisPSet.getUntrackedParameter<int>(output);
+      ++maxLumiSpecs;
+    }
+    std::vector<std::string> psetNamesL;
+    maxLumisPSet.getParameterSetNames(psetNamesL, false);
+    if (search_all(psetNamesL, output)) {
+      vMaxLumisOut = maxLumisPSet.getUntrackedParameter<ParameterSet>(output);
+      ++maxLumiSpecs;
+    }
+
+    if (maxLumiSpecs > 1) {
+      throw edm::Exception(edm::errors::Configuration) <<
+	"\nAt most, one form of 'output' may appear in the 'maxLumis' parameter set";
+    }
+    if (maxEventSpecs == 0 && maxLumiSpecs == 0) {
+      return;
+    }
+
+    for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
+        it != itEnd; ++it) {
+      OutputModuleDescription desc(maxEventsOut, maxLumisOut);
+      if (!vMaxEventsOut.empty() || !vMaxLumisOut.empty()) {
+	std::string moduleLabel = (*it)->description().moduleLabel_;
+        if (!vMaxEventsOut.empty()) {
+          try {
+            desc.maxEvents_ = vMaxEventsOut.getUntrackedParameter<int>(moduleLabel);
+	  } catch (edm::Exception) {
+            throw edm::Exception(edm::errors::Configuration) <<
+              "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
+	  }
+	}
+        if (!vMaxLumisOut.empty()) {
+          try {
+            desc.maxLumis_ = vMaxLumisOut.getUntrackedParameter<int>(moduleLabel);
+	  } catch (edm::Exception) {
+            throw edm::Exception(edm::errors::Configuration) <<
+              "\nNo entry in 'maxLuminosityBlocks' for output module label '" << moduleLabel << "'.\n";
+	  }
+	}
+      }
+      (*it)->configure(desc);
+    }
+  }
+
   bool const Schedule::terminate() const {
-    if (limited_output_workers_.empty()) {
-      // not terminating on output event count.
+    if (all_output_workers_.empty()) {
       return false;
     }
-    for (AllLimitedOutputWorkers::const_iterator it = limited_output_workers_.begin(),
-	   itEnd = limited_output_workers_.end();
+    for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(),
+	 itEnd = all_output_workers_.end();
 	 it != itEnd; ++it) {
-      if (it->first < 0 || it->second->eventCount() < it->first) {
+      if (!(*it)->done()) {
 	// Found an output module that has not reached output event count.
 	return false;
       }
@@ -803,9 +834,6 @@ namespace edm {
   }
 
   void Schedule::beginInputFile(FileBlock & fb) {
-    if (!limited_output_workers_.empty()) {
-      fb.setNonClonable();
-    }
     for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
       it != itEnd; ++it) {
 	(*it)->beginInputFile(fb); 

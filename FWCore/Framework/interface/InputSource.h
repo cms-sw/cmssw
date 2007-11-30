@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.32 2007/10/31 22:56:29 wmtan Exp $
+$Id: InputSource.h,v 1.33 2007/11/29 17:27:38 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -114,18 +114,33 @@ namespace edm {
     /// Accessor for product registry.
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     
-    /// Reset the remaining number of events to the maximum number.
-    void repeat() {remainingEvents_ = maxEvents_;}
+    /// Reset the remaining number of events/lumis to the maximum number.
+    void repeat() {
+      remainingEvents_ = maxEvents_;
+      remainingLumis_ = maxLumis_;
+    }
 
-    /// Reset the remaining number of events to zero.
-    void noMoreInput() {remainingEvents_ = 0;}
+    /// Reset the remaining number of events/lumis to zero.
+    void noMoreInput() {
+      remainingEvents_ = 0;
+      remainingLumis_ = 0;
+    }
 
     /// Accessor for maximum number of events to be read.
     /// -1 is used for unlimited.
     int maxEvents() const {return maxEvents_;}
 
     /// Accessor for remaining number of events to be read.
+    /// -1 is used for unlimited.
     int remainingEvents() const {return remainingEvents_;}
+
+    /// Accessor for maximum number of lumis to be read.
+    /// -1 is used for unlimited.
+    int maxLuminosityBlocks() const {return maxLumis_;}
+
+    /// Accessor for remaining number of lumis to be read.
+    /// -1 is used for unlimited.
+    int remainingLuminosityBlocks() const {return remainingLumis_;}
 
     /// Accessor for 'module' description.
     ModuleDescription const& moduleDescription() const {return moduleDescription_;}
@@ -182,9 +197,9 @@ namespace edm {
     virtual void endRun(Run &);
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
+    bool done() const {return remainingEvents_ == 0 || remainingLumis_ == 0;}
 
   private:
-    bool done() const {return remainingEvents_ == 0 || remainingLumis_ == 0;}
 
     int maxEvents_;
     int remainingEvents_;

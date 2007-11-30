@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.12 2007/11/03 06:53:02 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.13 2007/11/22 16:53:49 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -57,7 +57,7 @@ namespace edm {
     void writeParameterSetRegistry();
     void writeProductDescriptionRegistry();
     void finishEndFile();
-    void beginInputFile(FileBlock const& fb);
+    void beginInputFile(FileBlock const& fb, bool fastCloneThisOne);
     void endInputFile(FileBlock const& fb);
 
     bool isFileFull() const {return newFileAtEndOfRun_;}

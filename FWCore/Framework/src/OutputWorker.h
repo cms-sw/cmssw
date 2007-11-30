@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.24 2007/09/28 16:37:11 wmtan Exp $
+$Id: OutputWorker.h,v 1.25 2007/10/31 22:56:29 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -33,8 +33,6 @@ namespace edm {
     static std::auto_ptr<OutputModule> makeOne(ModuleDescription const& md,
 					WorkerParams const& wp);
 
-    int eventCount() const;
-
     // Call maybeEndFile() on the controlled OutputModule.
     void maybeEndFile();
 
@@ -48,6 +46,10 @@ namespace edm {
     void beginInputFile(FileBlock const& fb);
 
     void endInputFile(FileBlock const& fb);
+
+    bool done() const;
+
+    void configure(OutputModuleDescription const& desc);
 
   private:
     virtual bool implDoWork(EventPrincipal& e, EventSetup const& c,

@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.47 2007/11/07 08:04:54 wmtan Exp $
+$Id: OutputModule.cc,v 1.48 2007/11/22 16:50:48 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -114,6 +114,10 @@ namespace edm {
 
   // -------------------------------------------------------
   OutputModule::OutputModule(ParameterSet const& pset) : 
+    maxEvents_(-1),
+    remainingEvents_(maxEvents_),
+    maxLumis_(-1),
+    remainingLumis_(maxLumis_),
     nextID_(),
     keptProducts_(),
     droppedProducts_(),
@@ -126,8 +130,7 @@ namespace edm {
     current_context_(0),
     prodsValid_(false),
     wantAllEvents_(false),
-    selectors_(),
-    eventCount_(0)
+    selectors_()
   {
     hasNewlyDroppedBranch_.assign(false);
 
@@ -164,6 +167,11 @@ namespace edm {
       parse_path_spec(path_specs[i], parsed_paths[i]);
 
     selectors_.setup(parsed_paths, getAllTriggerNames(), process_name_);
+  }
+
+  void OutputModule::configure(OutputModuleDescription const& desc) {
+    remainingEvents_ = maxEvents_ = desc.maxEvents_;
+    remainingLumis_ = maxLumis_ = desc.maxLumis_;
   }
 
   void OutputModule::selectProducts() {
@@ -275,19 +283,19 @@ namespace edm {
 
     FDEBUG(2) << "writeEvent called\n";
 
-    // This ugly little bit is here to prevent making the Event if
-    // don't need it.
-    if (wantAllEvents_) {
-      write(ep); 
-      ++eventCount_;
-    } else {
+    // This ugly little bit is here to prevent making the Event
+    // if we don't need it.
+    if (!wantAllEvents_) {
       // use module description and const_cast unless interface to
       // event is changed to just take a const EventPrincipal
       Event e(const_cast<EventPrincipal&>(ep), *c->moduleDescription());
-      if (selectors_.wantEvent(e)) {
-	write(ep);
-        ++eventCount_;
+      if (!selectors_.wantEvent(e)) {
+	return;
       }
+    }
+    write(ep);
+    if (remainingEvents_ > 0) {
+      --remainingEvents_;
     }
   }
 
@@ -341,6 +349,9 @@ namespace edm {
     detail::CPCSentry sentry(current_context_, c);
     FDEBUG(2) << "endLuminosityBlock called\n";
     endLuminosityBlock(lbp);
+    if (remainingLumis_ > 0) {
+      --remainingLumis_;
+    }
   }
 
   void OutputModule::doBeginInputFile(FileBlock const& fb)
