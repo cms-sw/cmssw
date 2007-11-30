@@ -436,9 +436,9 @@ PoolDBESSource::setupFrontier(const std::string& frontierconnect){
   std::string proto("frontier://");
   std::string::size_type fpos=frontierconnect.find(proto);
   unsigned int nslash=this->countslash(frontierconnect.substr(proto.size(),frontierconnect.size()-fpos));
-  if( nslash!=1 && nslash!=2) {
-    throw cms::Exception("connect string "+frontierconnect+" has bad format");
-  }
+  //if( nslash!=1 && nslash!=2) {
+  //throw cms::Exception("connect string "+frontierconnect+" has bad format");
+  //}
   if(nslash==1){
     edm::Service<edm::SiteLocalConfig> localconfservice;
     if( !localconfservice.isAvailable() ){
