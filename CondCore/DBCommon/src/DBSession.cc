@@ -26,6 +26,7 @@
 // pool includes
 #include "POOLCore/POOLContext.h"
 #include <boost/filesystem/operations.hpp>
+//#include <iostream>
 cond::DBSession::DBSession(){ 
   seal::PluginManager* pm = seal::PluginManager::get();
   if ( ! pm ) {

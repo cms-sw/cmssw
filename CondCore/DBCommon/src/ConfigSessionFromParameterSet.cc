@@ -16,6 +16,7 @@ cond::ConfigSessionFromParameterSet::ConfigSessionFromParameterSet(
   int connectionRetrialPeriod=connectionPset.getUntrackedParameter<int>("connectionRetrialPeriod",30);
   int connectionRetrialTimeOut=connectionPset.getUntrackedParameter<int>("connectionRetrialTimeOut",180);
   bool enablePoolAutomaticCleanUp=connectionPset.getUntrackedParameter<bool>("enablePoolAutomaticCleanUp",false);
+  int idleConnectionCleanupPeriod=connectionPset.getUntrackedParameter<int>("idleConnectionCleanupPeriod",300);
   if( xmlauthName.empty() ){
     session.configuration().setAuthenticationMethod(cond::Env);
   }else{
@@ -53,6 +54,7 @@ cond::ConfigSessionFromParameterSet::ConfigSessionFromParameterSet(
     session.configuration().connectionConfiguration()->enablePoolAutomaticCleanUp();
   }else{
     session.configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
+    session.configuration().connectionConfiguration()->setIdleConnectionCleanupPeriod(idleConnectionCleanupPeriod);
   }
   session.configuration().connectionConfiguration()->setConnectionRetrialPeriod(connectionRetrialPeriod);
   session.configuration().connectionConfiguration()->setConnectionRetrialTimeOut(connectionRetrialTimeOut);

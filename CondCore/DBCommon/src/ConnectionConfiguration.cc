@@ -1,6 +1,6 @@
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 //#include <iostream>
-cond::ConnectionConfiguration::ConnectionConfiguration():m_enableConSharing(false),m_connectionRetrialPeriod(0),m_connectionRetrialTimeOut(0),m_connectionTimeOut(0),m_enableCommonConnection(false),m_enablePoolAutomaticCleanUp(false),m_monitorLevel(coral::monitor::Off){}
+cond::ConnectionConfiguration::ConnectionConfiguration():m_enableConSharing(true),m_connectionRetrialPeriod(10),m_connectionRetrialTimeOut(60),m_connectionTimeOut(300),m_idleconnectionCleanupPeriod(10),m_enableCommonConnection(false),m_enablePoolAutomaticCleanUp(true),m_monitorLevel(coral::monitor::Off){}
 cond::ConnectionConfiguration::~ConnectionConfiguration(){}
 void cond::ConnectionConfiguration::enableConnectionSharing(){
   m_enableConSharing=true;
