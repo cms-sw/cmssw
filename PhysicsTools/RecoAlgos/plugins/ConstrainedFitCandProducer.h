@@ -70,6 +70,7 @@ void ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>
   Handle<InputCollection> cands;
   evt.getByLabel(src_, cands);
   auto_ptr<OutputCollection> fitted(new OutputCollection);
+  fitted->reserve(cands->size());
   for(typename InputCollection::const_iterator c = cands->begin(); c != cands->end(); ++ c) {
     std::auto_ptr<VertexCompositeCandidate> clone(new VertexCompositeCandidate(*c));
     fitter_.set(*clone);
