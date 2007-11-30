@@ -421,7 +421,8 @@ CommissioningAnalysis::Histo OptoScanAnalysis::histo( const uint16_t& gain,
 // 
 bool OptoScanAnalysis::isValid() const {
   return ( gain_ < sistrip::maximum_ &&
-	   bias_[gain_] < sistrip::maximum_ );
+	   bias_[gain_] < sistrip::maximum_ &&
+	   getErrorCodes().empty() );
 }
 
 // ----------------------------------------------------------------------------

@@ -131,7 +131,8 @@ bool FedCablingAnalysis::isValid() const {
   return ( fedId_ < sistrip::maximum_ &&
 	   fedCh_ < sistrip::maximum_ &&
 	   adcLevel_ < 1+sistrip::maximum_ &&
-	   !candidates_.empty() );
+	   !candidates_.empty() &&
+	   getErrorCodes().empty() );
 } 
 
 // ----------------------------------------------------------------------------

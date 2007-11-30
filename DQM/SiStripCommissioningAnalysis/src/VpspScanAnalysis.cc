@@ -111,7 +111,8 @@ bool VpspScanAnalysis::isValid() const {
 	   topLevel_[0] < 1. * sistrip::valid_ &&
 	   topLevel_[1] < 1. * sistrip::valid_ &&
 	   bottomLevel_[0] < 1. * sistrip::valid_ &&
-	   bottomLevel_[1] < 1. * sistrip::valid_ );
+	   bottomLevel_[1] < 1. * sistrip::valid_ &&
+	   getErrorCodes().empty() );
 } 
 
 // ----------------------------------------------------------------------------
