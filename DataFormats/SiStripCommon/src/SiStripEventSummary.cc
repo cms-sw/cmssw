@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.cc,v 1.5 2007/11/29 17:08:04 bainbrid Exp $
+// Last commit: $Id: SiStripEventSummary.cc,v 1.6 2007/11/30 09:27:36 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -134,7 +134,7 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
   } else if ( runType_ == sistrip::VPSP_SCAN ) { 
 
     params_[0] = buffer[11]; // vpsp value
-    params_[1] = buffer[12]; // ccu channel (I2C of module)
+    params_[1] = buffer[12]; // ccu channel
 
   } else if ( runType_ == sistrip::DAQ_SCOPE_MODE ) { 
 
@@ -252,18 +252,12 @@ std::ostream& operator<< ( std::ostream& os, const SiStripEventSummary& input ) 
 	    << " Run type             : " << SiStripEnumsAndStrings::runType( input.runType() ) << std::endl
 	    << " Event number         : " << input.event() << std::endl 
 	    << " Bunch crossing       : " << input.bx() << std::endl
-	    << " FED readout mode     : " << input.fedReadoutMode() << std::endl
-	    << " APV readout mode     : " << input.apvReadoutMode() << std::endl
+	    << " FED readout mode     : " << SiStripEnumsAndStrings::fedReadoutMode( input.fedReadoutMode() ) << std::endl
+	    << " APV readout mode     : " << SiStripEnumsAndStrings::apvReadoutMode( input.apvReadoutMode() ) << std::endl
 	    << " Commissioning params : "
-// 	    << std::hex 
-// 	    << " 0x" << std::setw(8) << std::setfill('0') << input.params()[0] 
-// 	    << ", 0x" << std::setw(8) << std::setfill('0') << input.params()[1] 
-// 	    << ", 0x" << std::setw(8) << std::setfill('0') << input.params()[2] 
-// 	    << ", 0x" << std::setw(8) << std::setfill('0') << input.params()[3] 
-// 	    << std::dec
-	    << input.params()[0] 
-	    << ", " << input.params()[1] 
-	    << ", " << input.params()[2] 
-	    << ", " << input.params()[3] 
+	    << input.params()[0] << ", " 
+	    << input.params()[1] << ", " 
+	    << input.params()[2] << ", "  
+	    << input.params()[3] 
 	    << std::endl;
 }
