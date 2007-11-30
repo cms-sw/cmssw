@@ -174,8 +174,8 @@
     <Vector name="MidAbsName" type="string" nEntries="5">
       Rail, Ledge, ExtPlate, Spacer, Gap</Vector>
     <Vector name="MidAbsMat" type="string" nEntries="5">
-      materials:Air, materials:Air, materials:Air,
-      materials:Air, materials:Air</Vector>
+      materials:Air, materials:Air, materials:StainlessSteel,
+      materials:Aluminium, materials:Air</Vector>
     <Vector name="MidAbsW" type="numeric" nEntries="5">
       242.0*mm, 162.0*mm, 130.0*mm, 130.0*mm, 50.0*mm</Vector>
     <Vector name="MidAbsT" type="numeric" nEntries="5">
@@ -190,7 +190,7 @@
     <Vector name="SideAbsName" type="string" nEntries="2">
       Spacer, Gap</Vector>
     <Vector name="SideAbsMat" type="string" nEntries="2">
-      materials:Air, materials:Air</Vector>
+      materials:Aluminium, materials:Air</Vector>
     <Vector name="SideAbsW" type="numeric" nEntries="2">
      130.0*mm,  50.0*mm</Vector>
 
