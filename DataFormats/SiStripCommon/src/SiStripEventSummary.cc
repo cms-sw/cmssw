@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.cc,v 1.4 2007/09/06 21:38:13 delaer Exp $
+// Last commit: $Id: SiStripEventSummary.cc,v 1.5 2007/11/29 17:08:04 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -35,7 +35,7 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
   // Set RunType
   uint16_t run = static_cast<uint16_t>( buffer[10] & 0xFFFF );
   runType_ = SiStripEnumsAndStrings::runType(run);
-  
+
   // Set spill number
   spillNumber_ = buffer[0];
 
@@ -78,7 +78,7 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
 
   } else if ( runType_ == sistrip::FAST_CABLING ) { 
 
-    params_[0] = event-1; // buffer[11]; // bin number
+    params_[0] = buffer[11]; // bin number
     params_[1] = buffer[12]; // fec instance
     params_[2] = buffer[13]; // fec ip
     params_[3] = buffer[14]; // dcu hard id 
@@ -246,20 +246,24 @@ void SiStripEventSummary::fedReadoutMode( const uint16_t& mode ) {
 //
 std::ostream& operator<< ( std::ostream& os, const SiStripEventSummary& input ) {
   return os << "[SiStripEventSummary::" << __func__ << "]" << std::endl
+	    << " isSet                : " << std::boolalpha << input.isSet() << std::noboolalpha << std::endl
+	    << " Trigger FED id       : " << input.triggerFed() << std::endl
 	    << " isValid              : " << std::boolalpha << input.valid() << std::noboolalpha << std::endl
-	    << " Triggef FED id       : " << input.triggerFed() << std::endl
-	    << " isSet                : " << input.isSet() << std::endl
-	    << " Run type             : " << input.runType() << std::endl
+	    << " Run type             : " << SiStripEnumsAndStrings::runType( input.runType() ) << std::endl
 	    << " Event number         : " << input.event() << std::endl 
 	    << " Bunch crossing       : " << input.bx() << std::endl
 	    << " FED readout mode     : " << input.fedReadoutMode() << std::endl
 	    << " APV readout mode     : " << input.apvReadoutMode() << std::endl
 	    << " Commissioning params : "
-	    << std::hex 
-	    << " 0x" << std::setw(8) << std::setfill('0') << input.params()[0] 
-	    << ", 0x" << std::setw(8) << std::setfill('0') << input.params()[1] 
-	    << ", 0x" << std::setw(8) << std::setfill('0') << input.params()[2] 
-	    << ", 0x" << std::setw(8) << std::setfill('0') << input.params()[3] 
-	    << std::dec
+// 	    << std::hex 
+// 	    << " 0x" << std::setw(8) << std::setfill('0') << input.params()[0] 
+// 	    << ", 0x" << std::setw(8) << std::setfill('0') << input.params()[1] 
+// 	    << ", 0x" << std::setw(8) << std::setfill('0') << input.params()[2] 
+// 	    << ", 0x" << std::setw(8) << std::setfill('0') << input.params()[3] 
+// 	    << std::dec
+	    << input.params()[0] 
+	    << ", " << input.params()[1] 
+	    << ", " << input.params()[2] 
+	    << ", " << input.params()[3] 
 	    << std::endl;
 }
