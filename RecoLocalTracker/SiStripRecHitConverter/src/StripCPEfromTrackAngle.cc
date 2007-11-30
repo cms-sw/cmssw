@@ -72,27 +72,29 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParamet
   MeasurementPoint m2 = p.topology->measurementPosition(p2);
   float u1 = m1.x();
   float u2 = m2.x();
-
+  float uerr2;
   float uProj = std::min( float(fabs( u1 - u2)), float(p.nstrips));
+  if((cl.amplitudes().size() - (uProj+3.5)) > 1)uerr2=cl.amplitudes().size() * cl.amplitudes().size() * (1./12.);
+  else{
+    //   float par1=38.07;
+    //   float par2=0.3184; 
+    //   float par3=0.09828; 
+    //   float P1 = par1 * thickness; 
+    //   float P2 = par2; 
+    //   float P3 = par3;
+    //   float uerr;
+    
+    //   uerr =(uProj-P1)*(uProj-P1)*(P2-P3)/(P1*P1)+P3;
+    
+    const float P1=-0.341;
+    const float P2=0.916;
+    const float P3=0.283;
+    
+    float uerr=P1*uProj*exp(-uProj*P2)+P3;
+    uerr2=uerr*uerr;
+  }
 
-
-//   float par1=38.07;
-//   float par2=0.3184; 
-//   float par3=0.09828; 
-//   float P1 = par1 * thickness; 
-//   float P2 = par2; 
-//   float P3 = par3;
-//   float uerr;
-
-//   uerr =(uProj-P1)*(uProj-P1)*(P2-P3)/(P1*P1)+P3;
-
-  const float P1=-0.314;
-  const float P2=0.687;
-  const float P3=0.294;
-  
-  float uerr=P1*uProj*exp(-uProj*P2)+P3;
-
-  MeasurementError merror=MeasurementError( uerr*uerr, 0., 1./12.);
+  MeasurementError merror=MeasurementError( uerr2, 0., 1./12.);
   LocalPoint result=LocalPoint(position.x()-0.5*p.drift.x(),position.y()-0.5*p.drift.y(),0);
   MeasurementPoint mpoint=p.topology->measurementPosition(result);
   LocalError eresult=p.topology->localError(mpoint,merror);
