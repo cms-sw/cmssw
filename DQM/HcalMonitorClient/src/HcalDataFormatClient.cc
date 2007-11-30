@@ -2,10 +2,8 @@
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 
 HcalDataFormatClient::HcalDataFormatClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-
-  dbe_ = dbe;
+  HcalBaseClient::HcalBaseClient(ps,dbe);
+  
   for(int i=0; i<3; i++){
     dferr_[i] = NULL;
     //    crateErrMap_[i] =NULL;
@@ -21,57 +19,35 @@ HcalDataFormatClient::HcalDataFormatClient(const ParameterSet& ps, DaqMonitorBEI
   BCNCheck_ = NULL;
   EvtNCheck_ = NULL;
   FibOrbMsgBCN_ = NULL;
-
-   BCNMap_ = NULL;
-   EvtMap_ = NULL;
-   ErrMapbyCrate_ = NULL;
-   FWVerbyCrate_ = NULL;
-   ErrCrate0_ = NULL;
-   ErrCrate1_ = NULL;
-   ErrCrate2_ = NULL;
-   ErrCrate3_ = NULL;
-   ErrCrate4_ = NULL;
-   ErrCrate5_ = NULL;
-   ErrCrate6_ = NULL;
-   ErrCrate7_ = NULL;
-   ErrCrate8_ = NULL;
-   ErrCrate9_ = NULL;
-   ErrCrate10_ = NULL;
-   ErrCrate11_ = NULL;
-   ErrCrate12_ = NULL;
-   ErrCrate13_ = NULL;
-   ErrCrate14_ = NULL;
-   ErrCrate15_ = NULL;
-   ErrCrate16_ = NULL;
-   ErrCrate17_ = NULL;
-
-  ievt_=0; jevt_=0;
-
-  // cloneME switch
-  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
   
-  // verbosity switch
-  debug_ = ps.getUntrackedParameter<bool>("debug", false);
-
-  // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
-
-  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
+  BCNMap_ = NULL;
+  EvtMap_ = NULL;
+  ErrMapbyCrate_ = NULL;
+  FWVerbyCrate_ = NULL;
+  ErrCrate0_ = NULL;
+  ErrCrate1_ = NULL;
+  ErrCrate2_ = NULL;
+  ErrCrate3_ = NULL;
+  ErrCrate4_ = NULL;
+  ErrCrate5_ = NULL;
+  ErrCrate6_ = NULL;
+  ErrCrate7_ = NULL;
+  ErrCrate8_ = NULL;
+  ErrCrate9_ = NULL;
+  ErrCrate10_ = NULL;
+  ErrCrate11_ = NULL;
+  ErrCrate12_ = NULL;
+  ErrCrate13_ = NULL;
+  ErrCrate14_ = NULL;
+  ErrCrate15_ = NULL;
+  ErrCrate16_ = NULL;
+  ErrCrate17_ = NULL;
   
-  for(unsigned int i=0; i<subdets.size(); i++){
-    if(subdets[i]=="HB") subDetsOn_[0] = true;
-    else if(subdets[i]=="HE") subDetsOn_[1] = true;
-    else if(subdets[i]=="HF") subDetsOn_[2] = true;
-    else if(subdets[i]=="HO") subDetsOn_[3] = true;
-  }
 }
 
 HcalDataFormatClient::HcalDataFormatClient(){
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-  debug_ =false;
-  dbe_ = 0;
+  HcalBaseClient::HcalBaseClient();
+
   for(int i=0; i<3; i++){
     dferr_[i] = NULL;
     //   crateErrMap_[i] =NULL;
@@ -90,30 +66,29 @@ HcalDataFormatClient::HcalDataFormatClient(){
   EvtNCheck_ = NULL;
   FibOrbMsgBCN_ = NULL; 
 
-   BCNMap_ = NULL;
-   EvtMap_ = NULL;
-   ErrMapbyCrate_ = NULL;
-   FWVerbyCrate_ = NULL;
-   ErrCrate0_ = NULL;
-   ErrCrate1_ = NULL;
-   ErrCrate2_ = NULL;
-   ErrCrate3_ = NULL;
-   ErrCrate4_ = NULL;
-   ErrCrate5_ = NULL;
-   ErrCrate6_ = NULL;
-   ErrCrate7_ = NULL;
-   ErrCrate8_ = NULL;
-   ErrCrate9_ = NULL;
-   ErrCrate10_ = NULL;
-   ErrCrate11_ = NULL;
-   ErrCrate12_ = NULL;
-   ErrCrate13_ = NULL;
-   ErrCrate14_ = NULL;
-   ErrCrate15_ = NULL;
-   ErrCrate16_ = NULL;
-   ErrCrate17_ = NULL;
+  BCNMap_ = NULL;
+  EvtMap_ = NULL;
+  ErrMapbyCrate_ = NULL;
+  FWVerbyCrate_ = NULL;
+  ErrCrate0_ = NULL;
+  ErrCrate1_ = NULL;
+  ErrCrate2_ = NULL;
+  ErrCrate3_ = NULL;
+  ErrCrate4_ = NULL;
+  ErrCrate5_ = NULL;
+  ErrCrate6_ = NULL;
+  ErrCrate7_ = NULL;
+  ErrCrate8_ = NULL;
+  ErrCrate9_ = NULL;
+  ErrCrate10_ = NULL;
+  ErrCrate11_ = NULL;
+  ErrCrate12_ = NULL;
+  ErrCrate13_ = NULL;
+  ErrCrate14_ = NULL;
+  ErrCrate15_ = NULL;
+  ErrCrate16_ = NULL;
+  ErrCrate17_ = NULL;
 
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
 }
 
 HcalDataFormatClient::~HcalDataFormatClient(){
@@ -213,7 +188,7 @@ void HcalDataFormatClient::cleanup(void) {
   }
   
   spigotErrs_ = NULL;
-  DCC_Err_Warn__ = NULL;
+  DCC_Err_Warn_ = NULL;
   badDigis_ = NULL;
   unmappedDigis_ = NULL;
   unmappedTPDs_ = NULL;
@@ -249,58 +224,10 @@ void HcalDataFormatClient::cleanup(void) {
    ErrCrate16_ = NULL;
    ErrCrate17_ = NULL;
 
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-
   return;
 }
 
-void HcalDataFormatClient::errorOutput(){
-  
-  if(!dbe_) return;
 
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  
-  for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
-    string testName = testsMap->first;
-    string meName = testsMap->second;
-    MonitorElement* me = dbe_->get(meName);
-    if(me){
-      if (me->hasError()){
-	vector<QReport*> report =  me->getQErrors();
-	dqmReportMapErr_[meName] = report;
-      }
-      if (me->hasWarning()){
-	vector<QReport*> report =  me->getQWarnings();
-	dqmReportMapWarn_[meName] = report;
-      }
-      if(me->hasOtherReport()){
-	vector<QReport*> report= me->getQOthers();
-	dqmReportMapOther_[meName] = report;
-      }
-    }
-  }
-  printf("Data Format Task: %d errs, %d warnings, %d others\n",dqmReportMapErr_.size(),dqmReportMapWarn_.size(),dqmReportMapOther_.size());
-  return;
-}
-
-void HcalDataFormatClient::getErrors(map<string, vector<QReport*> > outE, map<string, vector<QReport*> > outW, map<string, vector<QReport*> > outO){
-
-  this->errorOutput();
-  outE.clear(); outW.clear(); outO.clear();
-
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapErr_.begin(); i!=dqmReportMapErr_.end(); i++){
-    outE[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapWarn_.begin(); i!=dqmReportMapWarn_.end(); i++){
-    outW[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapOther_.begin(); i!=dqmReportMapOther_.end(); i++){
-    outO[i->first] = i->second;
-  }
-
-  return;
-}
 
 void HcalDataFormatClient::analyze(void){
 

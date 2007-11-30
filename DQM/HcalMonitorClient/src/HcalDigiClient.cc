@@ -2,10 +2,8 @@
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 
 HcalDigiClient::HcalDigiClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
+  HcalBaseClient::HcalBaseClient(ps,dbe);
 
-  dbe_ = dbe;
   for(int i=0; i<4; i++){
     gl_occ_geo_[i]=0;
     gl_err_geo_=0;
@@ -29,33 +27,11 @@ HcalDigiClient::HcalDigiClient(const ParameterSet& ps, DaqMonitorBEInterface* db
     qie_adc_[i]=0;  num_digi_[i]=0;
     qie_capid_[i]=0; qie_dverr_[i]=0;
   }
-
-  // cloneME switch
-  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-  
-  // verbosity switch
-  debug_ = ps.getUntrackedParameter<bool>("debug", false);
-
-  // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "Hcal/"); 
-
-  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
-  
-  for(unsigned int i=0; i<subdets.size(); i++){
-    if(subdets[i]=="HB") subDetsOn_[0] = true;
-    else if(subdets[i]=="HE") subDetsOn_[1] = true;
-    else if(subdets[i]=="HF") subDetsOn_[2] = true;
-    else if(subdets[i]=="HO") subDetsOn_[3] = true;
-  }
-
 }
 
 HcalDigiClient::HcalDigiClient(){
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-  
-  dbe_ = 0;
+  HcalBaseClient::HcalBaseClient();
+
   for(int i=0; i<4; i++){
     gl_occ_geo_[i]=0;
     gl_err_geo_=0;
@@ -79,19 +55,11 @@ HcalDigiClient::HcalDigiClient(){
     qie_adc_[i]=0;  num_digi_[i]=0;
     qie_capid_[i]=0; qie_dverr_[i]=0;
   }
-  ievt_ = 0;
-  jevt_ = 0;
-  // verbosity switch
-  debug_ = false;
-  
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
 
 }
 
 HcalDigiClient::~HcalDigiClient(){
-
   cleanup();
-
 }
 
 void HcalDigiClient::beginJob(void){
@@ -199,58 +167,9 @@ void HcalDigiClient::cleanup(void) {
     qie_capid_[i]=0; qie_dverr_[i]=0;
   }
 
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-
   return;
 }
 
-void HcalDigiClient::errorOutput(){
-  
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  
-  for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
-    string testName = testsMap->first;
-    string meName = testsMap->second;
-    MonitorElement* me = 0;
-    if(dbe_) me = dbe_->get(meName);
-    if(me){
-      if (me->hasError()){
-	vector<QReport*> report =  me->getQErrors();
-	dqmReportMapErr_[meName] = report;
-      }
-      if (me->hasWarning()){
-	vector<QReport*> report =  me->getQWarnings();
-	dqmReportMapWarn_[meName] = report;
-      }
-      if(me->hasOtherReport()){
-	vector<QReport*> report= me->getQOthers();
-	dqmReportMapOther_[meName] = report;
-      }
-    }
-  }
-  printf("Digi Task: %d errors, %d warnings, %d others\n",dqmReportMapErr_.size(),dqmReportMapWarn_.size(),dqmReportMapOther_.size());
-
-  return;
-}
-
-void HcalDigiClient::getErrors(map<string, vector<QReport*> > outE, map<string, vector<QReport*> > outW, map<string, vector<QReport*> > outO){
-
-  errorOutput();
-  outE.clear(); outW.clear(); outO.clear();
-
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapErr_.begin(); i!=dqmReportMapErr_.end(); i++){
-    outE[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapWarn_.begin(); i!=dqmReportMapWarn_.end(); i++){
-    outW[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapOther_.begin(); i!=dqmReportMapOther_.end(); i++){
-    outO[i->first] = i->second;
-  }
-
-  return;
-}
 
 void HcalDigiClient::report(){
 

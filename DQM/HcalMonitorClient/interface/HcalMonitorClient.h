@@ -71,14 +71,12 @@ public:
   /// BeginLumiBlock
   void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
 
-
   /// EndJob
   void endJob(void);
   /// EndRun
   void endRun(const edm::Run & r, const edm::EventSetup & c);
   /// EndLumiBlock
   void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
-
   
   /// HtmlOutput
   void htmlOutput(void);
@@ -99,7 +97,7 @@ public:
   /// Boolean prescale test for this event
   bool prescale();
   
-private:
+ private:
   void removeAllME(void);
   /********************************************************/
   //  The following member variables can be specified in  //
@@ -132,12 +130,11 @@ private:
     double elapsedTime; 
     double updateTime;
   } psTime_;    
-
+  
   ///Connection to the DQM backend
   DaqMonitorBEInterface* dbe_;  
   MonitorUserInterface* mui_;
-
-
+  
   // environment variables
   int irun_,ilumisec_,ievent_,itime_;
   bool actonLS_ ;
