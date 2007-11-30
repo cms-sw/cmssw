@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.4 2007/11/27 16:27:05 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.5 2007/11/28 19:24:42 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -200,14 +200,19 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
     if ( !found ) { unconnected++; }
   }
   
-  edm::LogVerbatim(mlDqmClient_)
-    << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-    << " Found " << conns.size() 
-    << " connections and "
-    << unconnected 
-    << " unconnected LLD channels ("
-    << 100 * conns.size() / ( conns.size() + unconnected ) 
-    << "% of total)";
+  // Some debug 
+  std::stringstream sss;
+  sss << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+      << " Found " << conns.size() 
+      << " connections and "
+      << unconnected 
+      << " unconnected LLD channels";
+  if ( !conns.empty() ) {
+    sss << " ("
+	<< 100 * conns.size() / ( conns.size() + unconnected ) 
+	<< "% of total)";
+  }
+  edm::LogVerbatim(mlDqmClient_) << sss.str();
   
 #ifndef USING_NEW_DATABASE_MODEL	
   // Some debug
