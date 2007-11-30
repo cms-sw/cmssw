@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/11/26 15:25:48 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/11/28 02:50:35 $
+ *  $Revision: 1.13 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -59,7 +59,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
   LogTrace(category) << " staState pos: "<<staState.globalPosition()
                      << " mom: "<<staState.globalMomentum() <<"eta: "<<staState.globalPosition().eta();
 
-  staState.rescaleError(10);
+  staState.rescaleError(theErrorRescaling);
 
   std::vector<const DetLayer*> nls = theNavigation->compatibleLayers(*(staState.freeState()), oppositeToMomentum);
 
@@ -123,9 +123,9 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
 
 void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
-  theMaxSeeds = theConfig.getUntrackedParameter<int>("MaxSeeds", 4);
-
   theMaxChi2 = theConfig.getParameter<double>("MaxChi2");
+
+  theErrorRescaling = theConfig.getParameter<double>("ErrorRescaling");
 
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
 
@@ -269,11 +269,6 @@ void TSGFromPropagation::selectMeasurements(std::vector<TrajectoryMeasurement>& 
   }
   tms.clear();
   tms.swap(result);
-
-  if (tms.size() > theMaxSeeds ) {
-    std::stable_sort(tms.begin(),tms.end(),IncreasingEstimate());
-    tms.erase(tms.begin()+theMaxSeeds, tms.end());
-   }
 
   return;
 

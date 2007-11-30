@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2007/10/05 20:38:17 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/11/28 02:50:59 $
+ *  $Revision: 1.9 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -44,8 +44,6 @@ private:
 
   TrajectoryStateOnSurface innerState(const TrackCand&) const;
 
-  TrajectoryStateOnSurface outerTkState(const TrackCand&) const;
-
   const LayerMeasurements* tkLayerMeasurements() const { return theTkLayerMeasurements; } 
 
   const Chi2MeasurementEstimator* estimator() const { return theEstimator; }
@@ -61,9 +59,6 @@ private:
   std::vector<TrajectoryMeasurement> findMeasurements(const DetLayer*, const TrajectoryStateOnSurface&) const;
 
   void findSecondMeasurements(std::vector<TrajectoryMeasurement>&, const std::vector<const DetLayer*>& ) const;
-
-  void resetError(TrajectoryStateOnSurface& tsos) const;
-
 
   struct IncreasingEstimate{
     bool operator()(const TrajectoryMeasurement& lhs,
@@ -82,21 +77,17 @@ private:
 
   const DirectTrackerNavigation* theNavigation;
 
-  const MuonServiceProxy * theService;
+  const MuonServiceProxy* theService;
 
-  const Chi2MeasurementEstimator*   theEstimator;
+  const Chi2MeasurementEstimator* theEstimator;
 
   edm::ParameterSet theConfig;
 
   double theMaxChi2;
 
-  unsigned int theMaxSeeds;
-
-  double theErrorReset;
+  double theErrorRescaling;
 
   bool theUseSecondMeasurementsFlag;
-
-  bool theUseMuonStateFlag;
 
   std::string thePropagatorName;
 
