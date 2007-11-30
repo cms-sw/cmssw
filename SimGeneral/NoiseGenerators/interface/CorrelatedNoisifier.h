@@ -7,10 +7,9 @@
    \brief adds noise to the given frame
 
 */
+#include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Matrix/SymMatrix.h"
-class Samples;
-
+#include "DataFormats/Math/interface/Error.h"
 
 #include <valarray>
 #include <vector>
@@ -19,158 +18,14 @@ class Samples;
 #include <ostream>
 #include <cassert>
 
-namespace noiseMath {
-
-// a sparse square matrix with minimal accessors
-  template<typename T>
-  class SparseMatrix {
-    
-  public:
-    typedef int size_type;
-    struct Element {
-      Element(size_type ii, size_type jj, T vv) :
-	i(ii),j(jj),v(vv){}
-      size_type i;
-      size_type j;
-      T v;
-      bool operator<(const Element& rh) const {
-	return less(rh.i,rh.j);
-      }
-      bool less(size_type ii, size_type jj) const {
-	return (i<ii) || (!(ii<i))&&(j<jj);
-      }
-      bool equal(size_type ii, size_type jj) const {
-	return i==ii && j==jj;
-      }
-    };
-    
-    typedef Element value_type;
-    typedef  std::vector<value_type> Container;
-    typedef typename Container::iterator iterator;
-    typedef typename Container::const_iterator const_iterator;
-    typedef std::pair<iterator, iterator> range;
-    typedef std::pair<const_iterator,const_iterator> const_range;
-    
-    // initialize it empty...
-    explicit SparseMatrix(size_type r) : m_rank(r) {}
-    
-    // initialize it diagonal ...
-    explicit SparseMatrix(size_type r, T t) : m_rank(r) 
-    {
-      m_values.reserve(m_rank);
-      for (size_type row=0; row!=m_rank; row++)
-	m_values.push_back(value_type(row,row,t));
-    }
-    // initialize it with a Matrix
-    template<typename M>
-    explicit SparseMatrix(size_type r, const M& m) : m_rank(r) 
-    {
-      m_values.reserve(m_rank);
-      for (size_type row=0; row!=m_rank; row++)
-	for (size_type col=0; col!=m_rank; col++)
-	  if (m[row][col]!=0)
-	    m_values.push_back(value_type(row,col,m[row][col]));
-    }
-    
-    const_range row(size_type i) const {
-      value_type b(i,0,0);
-      value_type e(i+1,0,0);
-      const_iterator f = std::lower_bound(values().begin(),values().end(),b);
-      const_iterator s = std::lower_bound(values().begin(),values().end(),e);
-      return const_range(f,s);
-    }
-    
-    range row(size_type i)  {
-      value_type b(i,0,0);
-      value_type e(i+1,0,0);
-      iterator f = std::lower_bound(values().begin(),values().end(),b);
-      iterator s = std::lower_bound(values().begin(),values().end(),e);
-      return range(f,s);
-    }
-    
-    // slow
-    T operator()(size_type ii, size_type jj) const {
-      value_type e(ii,jj,0);
-      const_iterator p = std::lower_bound(values().begin(),values().end(),e);
-      return p!=values().end()&&(*p).equal(ii,jj) ? (*p).v : T(0);
-    }
-    
-    // slow
-    T &  operator()(size_type ii, size_type jj) {
-      value_type e(ii,jj,0);
-      iterator p = std::lower_bound(values().begin(),values().end(),e);
-      return p!=values().end()&&(*p).equal(ii,jj)  ? (*p).v :
-	(*values().insert(p,e)).v;
-    }
-    
-    // slow
-    iterator insert(size_type ii, size_type jj, T v) {
-      if (v==0) return;
-      value_type e(ii,jj,v);
-      iterator p = std::lower_bound(values().begin(),values().end(),e);
-      if (p!=values().end()&&(*p).equal(ii,jj) )  (*p).v=e;
-      else p = values().insert(p,e);
-      return p;
-    }
-    
-    size_type rank() const { return m_rank;}
-    
-    const Container & values () const { return m_values;}
-    Container & values ()  { return m_values;}
-    
-  private:
-    
-    Container m_values;
-    size_type m_rank;
-    
-  };
-}  
-  
-template<typename V, typename T>
-V operator*(noiseMath::SparseMatrix<T> const & m, V const & vi) {
-  V vo(T(0),m.rank());
-  noiseMath::SparseMatrix<double>::const_iterator p = m.values().begin();
-  noiseMath::SparseMatrix<double>::const_iterator e = m.values().end();
-  for (;p!=e;p++)
-    vo[(*p).i] += (*p).v*vi[(*p).j];
-  return vo;
-}
-
-template<typename V, typename T>
-V operator*(V const & vi, noiseMath::SparseMatrix<T> const & m) {
-  V vo(T(0),m.rank());
-  noiseMath::SparseMatrix<double>::const_iterator p = m.values().begin();
-  noiseMath::SparseMatrix<double>::const_iterator e = m.values().end();
-  for (;p!=e;p++)
-    vo[(*p).j] += (*p).v*vi[(*p).i];
-  return vo;
-}
-
-template<typename T>
-std::ostream & operator<<(std::ostream & os, const noiseMath::SparseMatrix<T> & m) {
-  typename noiseMath::SparseMatrix<T>::const_iterator p = m.values().begin();
-  typename noiseMath::SparseMatrix<T>::const_iterator e = m.values().end();
-  for (typename noiseMath::SparseMatrix<T>::size_type row=0; row!=m.rank(); row++) {
-    for (typename noiseMath::SparseMatrix<T>::size_type col=0; col!=m.rank(); col++) {
-      if ( (*p).equal(row,col)) { 
-	os <<  (*p).v; p++;
-      } else os << 0.;
-      os << " ";
-    }
-    os << "\n";
-  }
-  return os;
-}
 
 
-
-class CorrelatedNoisifier
+template<class M> class CorrelatedNoisifier
 {
 public:
-  explicit CorrelatedNoisifier(int nFrames);
- 
-  /// if the result should be multiplied by the sqrt(diagonal element)
-  explicit CorrelatedNoisifier(const HepSymMatrix & matrix);
+
+  explicit CorrelatedNoisifier(M & matrix);
+  CorrelatedNoisifier(M & matrix, CLHEP::HepRandomEngine & engine);
 
   virtual ~CorrelatedNoisifier() { delete theRandomGaussian;}
 
@@ -179,9 +34,6 @@ public:
   void setDiagonal(double value);
   
   void setOffDiagonal(int neighbor, double value);
-
-  /// to be used for standalone tests
-  static void initializeServices();
 
   void setRandomEngine();
   void setRandomEngine(CLHEP::HepRandomEngine & engine);
@@ -192,23 +44,39 @@ public:
     // make a vector of random values
     assert(frame.size() == theSize);
     std::valarray<double> uncorrelated(0.,theSize);
-    for (int i=0; i<theSize; i++)
+    for (unsigned int i=0; i<theSize; i++)
       uncorrelated[i]=theRandomGaussian->fire();
-
-    if ( isDiagonal_ ) 
+    if ( isIdentity_ ) 
     {
-      for(int i = 0; i < theSize; ++i)
+      for(unsigned int i = 0; i < theSize; ++i)
       { 
-        frame[i] += uncorrelated[i]; }
+        frame[i] += uncorrelated[i]; 
+      }
+    }
+    else if ( isDiagonal_ )
+    {
+      for(unsigned int i = 0; i < theSize; ++i)
+      {
+        frame[i] += uncorrelated[i] * std::sqrt(theMatrix(i,i)); 
+      }
     }
     else 
     {
 
       // rotate them to make a correlated noise vector
-      std::valarray<double> correlated = theMatrix * uncorrelated;
+      //std::valarray<double> correlated = theMatrix * uncorrelated;
+      std::valarray<double> correlated(0., theSize);
+      for (unsigned int i = 0; i < theSize; ++i) 
+        {
+          //@@ Not sure why the old version only used the lower half, but it worked
+          for (unsigned int j = 0; j <= i; ++j) 
+            {
+              correlated[i] += theMatrix(i,j)*uncorrelated[j];
+            }
+        }
 
       // stuff 'em in the frame
-      for(int i = 0; i < theSize; ++i)
+      for(unsigned int i = 0; i < theSize; ++i)
       {
         frame[i] += correlated[i];
       }
@@ -219,23 +87,195 @@ public:
 
   void computeDecomposition();
 
-  void checkOffDiagonal(bool & isDiagonal_) const;
-
   // for test purpose
-  const noiseMath::SparseMatrix<double> & covmatrix() {
+  const M & covmatrix() {
     return theCovarianceMatrix;
   }
 
-  const noiseMath::SparseMatrix<double> & matrix() const {
-    return theMatrix;
-  }
 private:
-  noiseMath::SparseMatrix<double> theCovarianceMatrix;
-  noiseMath::SparseMatrix<double> theMatrix;
+  void init();
+  void checkOffDiagonal();
+
+  const M theCovarianceMatrix;
+  M theMatrix;
   mutable RandGaussQ * theRandomGaussian;
-  int theSize; 
+  unsigned int theSize; 
   bool isDiagonal_;
+  bool isIdentity_;
 
 };
+
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+
+template<class M> CorrelatedNoisifier<M>::CorrelatedNoisifier(M & matrix)
+  :  theCovarianceMatrix(matrix),
+     theRandomGaussian(0),
+     theSize(matrix.kRows),
+     isDiagonal_(true),
+     isIdentity_(true)
+{
+  init();
+  setRandomEngine();
+}
+ 
+
+template<class M> CorrelatedNoisifier<M>::CorrelatedNoisifier(M & matrix, CLHEP::HepRandomEngine & engine)
+  :  theCovarianceMatrix(matrix),
+     theRandomGaussian(0),
+     theSize(matrix.kRows),
+     isDiagonal_(true),
+     isIdentity_(true)
+{
+  init();
+  setRandomEngine(engine);
+}
+
+
+template<class M>
+void CorrelatedNoisifier<M>::init()
+{
+  for ( unsigned int i = 0 ; i < theSize ; i++ ) {
+    theMatrix(i,i) = 0.;
+    for ( unsigned int j = 0 ; j < theSize ; j++ ) {
+      theMatrix(i,j) = 0.;
+      theMatrix(j,i) = 0.;
+    }
+  }
+
+  checkOffDiagonal();
+
+  if ( ! isDiagonal_ ) computeDecomposition();
+}
+
+
+template<class M> void CorrelatedNoisifier<M>::setRandomEngine()
+{
+   edm::Service<edm::RandomNumberGenerator> rng;
+   if ( ! rng.isAvailable()) {
+     throw cms::Exception("Configuration")
+       << "CorrelatedNoisifier requires the RandomNumberGeneratorService\n"
+          "which is not present in the configuration file.  You must add the service\n"
+          "in the configuration file or remove the modules that require it.";
+   }
+   setRandomEngine(rng->getEngine());
+}
+
+
+template<class M> void CorrelatedNoisifier<M>::setRandomEngine(CLHEP::HepRandomEngine & engine)
+{
+  if(theRandomGaussian) delete theRandomGaussian;
+  theRandomGaussian = new CLHEP::RandGaussQ(engine);
+}
+
+
+template<class M> void CorrelatedNoisifier<M>::setDiagonal(double value) 
+{
+  for(unsigned int i = 0; i < theSize; ++i) 
+  {
+    theCovarianceMatrix(i,i) = value;
+  }
+
+  checkOffDiagonal();
+
+  if ( ! isDiagonal_ ) computeDecomposition();
+
+} 
+
+template<class M> void CorrelatedNoisifier<M>::setOffDiagonal(int distance, double value)
+{
+  for(unsigned int column = 0; column < theSize; ++column)
+  {
+    unsigned int row = column - distance;
+    if(row < 0) continue;
+    theCovarianceMatrix(row,column) = value;
+    theCovarianceMatrix(column,row) = value;
+
+  }
+
+  checkOffDiagonal();
+
+  if ( ! isDiagonal_ ) computeDecomposition();
+
+}
+
+
+template<class M> void CorrelatedNoisifier<M>::computeDecomposition()
+{
+
+  for ( unsigned int i = 0 ; i < theSize ; i++ ) {
+    for ( unsigned int j = 0 ; j < theSize ; j++ ) {
+      theMatrix(i,j) = 0.;
+    }
+  }
+
+  double sqrtSigma00 = theCovarianceMatrix(0,0);
+  if ( sqrtSigma00 <= 0. ) {
+    throw cms::Exception("CorrelatedNoisifier") << "non positive variance.";
+  }
+  sqrtSigma00 = std::sqrt(sqrtSigma00);
+
+  for ( unsigned int i = 0 ; i < theSize ; i++ )
+    {
+      double hi0 = theCovarianceMatrix(i,0)/sqrtSigma00;
+      theMatrix(i,0) = hi0;
+    }
+
+  for ( unsigned int i = 1 ; i < theSize ; i++ ) 
+    {
+
+      for ( unsigned int j = 1 ; j < i ; j++ )
+        {
+          double hij = theCovarianceMatrix(i,j);
+          for ( unsigned int k = 0 ; k <= j-1 ; k++ ) hij -= theMatrix(i,k)*theMatrix(j,k);
+          hij /= theMatrix(j,j);
+          theMatrix(i,j) = hij;
+        }
+      
+      double hii = theCovarianceMatrix(i,i);
+      for ( unsigned int j = 0 ; j <= i-1 ; j++ ) {
+        double hij = theMatrix(i,j);
+        hii -= hij*hij;
+      }
+      hii = sqrt(hii);
+      theMatrix(i,i) = hii;
+
+    }
+}
+
+template<class M>
+void CorrelatedNoisifier<M>::checkOffDiagonal() {
+
+  isDiagonal_ = true;
+  isIdentity_ = true;
+
+  for ( unsigned int i = 0 ; i < theSize ; i++ ) {
+    for ( unsigned int j = 0 ; j < theSize ; j++ ) {
+      if ( i == j )
+      {
+        if( theCovarianceMatrix(i,j) != 1.)
+        {
+          isIdentity_ = false;
+        }
+        if( theCovarianceMatrix(i,j) < 0.)
+        {
+          throw cms::Exception("CorrelatedNoisifier") 
+            << "Bad correlation matrix.  Negative diagonal";
+        }
+      }
+      if ( i != j && theCovarianceMatrix(i,j) != 0. ) 
+      { 
+        isDiagonal_ = false ; 
+        isIdentity_ = false;
+        return ; 
+      }
+    }
+  }
+  
+}
 
 #endif
