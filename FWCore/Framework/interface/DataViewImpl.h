@@ -81,7 +81,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.32 2007/10/05 21:59:24 chrjones Exp $
+$Id: DataViewImpl.h,v 1.33 2007/10/11 15:31:49 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -424,7 +424,13 @@ namespace edm {
   OrphanHandle<PROD> 
   DataViewImpl::put(std::auto_ptr<PROD> product, std::string const& productInstanceName)
   {
-    assert (product.get());                // null pointer is illegal
+    if (product.get() == 0) {                // null pointer is illegal
+      TypeID typeID(typeid(PROD));
+      throw edm::Exception(edm::errors::NullPointerError)
+        << "DataViewImpl::put: A null auto_ptr was passed to 'put'.\n"
+	<< "The pointer is of type " << typeID << ".\n"
+	<< "The specified productInstanceName was '" << productInstanceName << "'.\n";
+    }
 
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
