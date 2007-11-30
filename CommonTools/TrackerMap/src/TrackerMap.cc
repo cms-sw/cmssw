@@ -46,6 +46,15 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
     const std::vector<FedChannelConnection> theconn = tkFed->connections( *ifed );
     int num_conn=0;
     for(std::vector<FedChannelConnection>::const_iterator iconn = theconn.begin();iconn<theconn.end();iconn++){
+
+      if( iconn->fedId()== sistrip::invalid_    ||  
+	  iconn->detId() == sistrip::invalid_   ||  
+	  iconn->detId() == sistrip::invalid32_ ||  
+	  iconn->apvPairNumber() == sistrip::invalid_  ||
+	  iconn->nApvPairs() == sistrip::invalid_ ) {
+	continue;
+      }
+	
       TmModule *imod = imoduleMap[iconn->detId()];
       int key = iconn->fedId()*1000+iconn->fedCh();
       TmApvPair* apvpair = apvMap[key];
@@ -436,6 +445,7 @@ if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/
     }
     MyC->Update();
     if(filetype=="png"){
+      std::cout << "printing " << std::endl;
       string filename = outputfilename + ".png";
       MyC->Print(filename.c_str());
     }
@@ -475,8 +485,8 @@ void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, Tm
   int numfed_inrow = 4;
   boxinitx=boxinitx+(numfed_incolumn-(numfed_incrate-1)/numfed_inrow)*14.;
   boxinity=boxinity+(numfed_inrow-(numfed_incrate-1)%numfed_inrow)*9.;
-  boxinity=boxinity+numfedch_inrow-(int)(apvPair->getFedCh()%numfedch_inrow);
-  boxinitx = boxinitx+numfedch_incolumn-(apvPair->getFedCh()/numfedch_inrow);
+  boxinity=boxinity+numfedch_inrow-(apvPair->getFedCh()/numfedch_incolumn);
+  boxinitx = boxinitx+numfedch_incolumn-(int)(apvPair->getFedCh()%numfedch_incolumn);
   //cout << crate << " " << numfed_incrate << " " << apvPair->getFedCh()<<" "<<boxinitx<< " " << boxinity << endl; ;
   xp[0]=boxinitx;yp[0]=boxinity;
   xp[1]=boxinitx+dx;yp[1]=boxinity;
@@ -489,7 +499,7 @@ void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, Tm
   
   char buffer [20];
   sprintf(buffer,"%X",apvPair->mod->idex);
-  if(useApvPairValue){ 
+  if(!useApvPairValue){ 
     if(apvPair->red < 0){ //use count to compute color
       green = (int)((apvPair->value-minvalue)/(maxvalue-minvalue)*256.); 
       if (green > 255) green=255;
@@ -506,11 +516,12 @@ void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, Tm
     }
   }else{
     if(apvPair->mod->red < 0){ //use count to compute color
-  color = getcolor(apvPair->mod->value,palette);
-     red=(color>>16)&0xFF;
-     green=(color>>8)&0xFF;
-     blue=(color)&0xFF;
-      if(apvPair->mod->count > 0)
+      color = getcolor(apvPair->value,palette);
+      red=(color>>16)&0xFF;
+      green=(color>>8)&0xFF;
+      blue=(color)&0xFF;
+
+      if(apvPair->count > 0)
 	*svgfile << red << " " << green << " " << blue << " ";
       else
         *svgfile << 255 << " " << 255 << " " << 255 << " ";
@@ -548,7 +559,8 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     if(apvPair!=0) {
       TmModule * apv_mod = apvPair->mod;
       if(apv_mod !=0 && !apv_mod->notInUse()){
-        if(apvPair->count > 0 && apvPair->red!=-1) { useApvPairValue=true; break;}
+	std::cout << "apvpair " << apvPair->count << std::endl;
+        if(apvPair->count > 0 || apvPair->red!=-1) { useApvPairValue=true; break;}
       }
     }
   }
@@ -645,8 +657,15 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
       tempfile  >> red >> green  >> blue >> npoints; 
       colindex=red+green*1000+blue*1000000;
       pos=colorList.find(colindex); 
-      if(pos == colorList.end()){ colorList[colindex]=ncolor+100; col =gROOT->GetColor(ncolor+100);
-if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); else TColor *c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));ncolor++;}
+      if(pos == colorList.end()){ 
+	colorList[colindex]=ncolor+100; 
+	col =gROOT->GetColor(ncolor+100);
+	if(col) 
+	  col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); 
+	else 
+	  TColor *c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
+	ncolor++;
+      }
       for (int i=0;i<npoints;i++){
 	tempfile >> x[i] >> y[i];  
       }
@@ -674,6 +693,7 @@ if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/
       }
     }
     MyC->Update();
+    std::cout << "Filetype " << filetype << std::endl;
     if(filetype=="png"){
       string filename = outputfilename + ".png";
       MyC->Print(filename.c_str());
