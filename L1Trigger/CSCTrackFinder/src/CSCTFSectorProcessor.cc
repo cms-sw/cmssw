@@ -55,6 +55,12 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   m_etamax[7] = 12*2;
   std::vector<unsigned> etamaxs = pset.getUntrackedParameter<std::vector<unsigned> >("EtaMax",std::vector<unsigned>(0));
   for(iter=etamaxs.begin(),i=0; iter!=etamaxs.end(); iter++,i++) m_etamax[i] = *iter;
+
+  m_mindphip     = 70;
+  m_mindeta_accp = 4;
+  m_maxdeta_accp = 16;
+  m_maxdphi_accp = 128;
+
 //KK end
 
   try {
@@ -201,8 +207,9 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
 		 m_etamax[0], m_etamax[1], m_etamax[2], m_etamax[3],
 		 m_etamax[4], m_etamax[5], m_etamax[6], m_etamax[7],
 		 m_etawin[1], m_etawin[2], m_etawin[3],
-		 m_etawin[4], m_etawin[5], m_bxa_on,
-		 m_extend_length, m_minBX, m_maxBX) )
+		 m_etawin[4], m_etawin[5],
+		 m_mindphip,  m_mindeta_accp,  m_maxdeta_accp, m_maxdphi_accp,
+		 m_bxa_on,    m_extend_length, m_minBX, m_maxBX) )
     {
       l1_tracks = core_->tracks();
     }

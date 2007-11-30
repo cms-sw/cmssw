@@ -55,6 +55,9 @@ public:
   int m_minBX, m_maxBX;
   unsigned m_etawin[6], m_etamin[8], m_etamax[8];
 
+  unsigned m_mindphip, m_mindeta_accp, m_maxdeta_accp, m_maxdphi_accp;
+
+
   CSCTriggerContainer<csc::L1Track> l1_tracks; // fully defined L1Tracks
   CSCTriggerContainer<csctf::TrackStub> dt_stubs; // Track Stubs to be sent to the DTTF
 

@@ -241,6 +241,8 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  	           const unsigned& etamax5, const unsigned& etamax6, const unsigned& etamax7, const unsigned& etamax8,
 			   const unsigned& etawin1, const unsigned& etawin2, const unsigned& etawin3,
 			   const unsigned& etawin4, const unsigned& etawin5, const unsigned& etawin6,
+			   const unsigned& mindphip, const unsigned& mindeta_accp,
+			   const unsigned& maxdeta_accp, const unsigned& maxdphi_accp,
 			   const unsigned& bxa_on, const unsigned& extend, const int& minBX,
 			   const int& maxBX)
 {
@@ -305,7 +307,10 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 //10, 0, 0, 0,                           // eta offsets - NOTE bug in first offset for June04 beam test
 	 // ORCA settings:
 	 etawin1, etawin2, etawin3, etawin4, etawin5, etawin6,// eta windows
-	 0, 0, 0, 0, // eta offsets
+
+	 mindphip, mindeta_accp, maxdeta_accp, maxdphi_accp,
+	 //70, 4, 16, 128,
+
 	 //((extend << 1) & 0xe)|bxa_on // {reserved[11:0], extend[2:0],BXA_enable}
 	 0x144
 	 );
