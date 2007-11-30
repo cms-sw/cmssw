@@ -27,14 +27,14 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps)
   produces<DigiSimLinks>("MuonCSCWireDigiSimLinks");
   produces<DigiSimLinks>("MuonCSCStripDigiSimLinks");
   std::string stripConditions( ps.getParameter<std::string>("stripConditions") );
+  edm::ParameterSet stripPSet = ps.getParameter<edm::ParameterSet>("strips");
   if( stripConditions == "Configurable" )
   {
-    edm::ParameterSet stripPSet = ps.getParameter<edm::ParameterSet>("strips");
     theStripConditions = new CSCConfigurableStripConditions(stripPSet);
   }
   else if ( stripConditions == "Database" )
   {
-    theStripConditions = new CSCDbStripConditions();
+    theStripConditions = new CSCDbStripConditions(stripPSet);
   }
   else
   {
