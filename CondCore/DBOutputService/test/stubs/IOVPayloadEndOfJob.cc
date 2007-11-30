@@ -42,6 +42,7 @@ void IOVPayloadEndOfJob::endJob(){
       mydbservice->createNewIOV<Pedestals>(myped,firstTillTime,m_record);
     }else{
       //append 
+      std::cout<<"appending payload"<<std::endl;
       for(int ichannel=1; ichannel<=5; ++ichannel){
 	Pedestals::Item item;
 	item.m_mean=0.15*ichannel;
@@ -49,9 +50,11 @@ void IOVPayloadEndOfJob::endJob(){
 	myped->m_pedestals.push_back(item);
       }
       cond::Time_t thisPayload_valid_since=5;
+      std::cout<<"appeding since time "<<thisPayload_valid_since<<std::endl;
       mydbservice->appendSinceTime<Pedestals>(myped,thisPayload_valid_since,m_record);
+      std::cout<<"done"<<std::endl;
+      //std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
     }
-    std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
   }catch(const cond::Exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(const std::exception& er){
