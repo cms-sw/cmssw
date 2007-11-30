@@ -54,7 +54,7 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
   CaloTowerCollection::const_iterator cal;
   for ( mu = muons.begin(); mu != muons.end(); ++mu ) {
       for ( cal = towers->begin(); cal != towers->end(); ++cal ) {
-            double deltar0 = deltaR(*mu,*cal);
+            double deltar0 = reco::deltaR(*mu,*cal);
             if (deltar0>theDR_Max) continue;
 
             double etecal = cal->emEt();
@@ -68,7 +68,7 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
             DetId calId = cal->id();
             GlobalPoint endpos = caloGeom->getPosition(calId);
             GlobalPoint muatcal = MuonAtCaloPosition(*mu,bz,endpos, vertexConstraintFlag_XY, vertexConstraintFlag_Z);
-            double deltar = deltaR(muatcal,endpos);
+            double deltar = reco::deltaR(muatcal,endpos);
 
             if (doEcal) {
                   if (deltar<theDR_Veto_E) theVetoCollection.push_back(calId);
@@ -100,7 +100,7 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
 
   CaloTowerCollection::const_iterator cal;
   for ( cal = towers->begin(); cal != towers->end(); ++cal ) {
-      double deltar0 = deltaR(muon,*cal);
+      double deltar0 = reco::deltaR(muon,*cal);
       if (deltar0>theDR_Max) continue;
 
       double etecal = cal->emEt();
@@ -114,7 +114,7 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
       DetId calId = cal->id();
       GlobalPoint endpos = caloGeom->getPosition(calId);
       GlobalPoint muatcal = MuonAtCaloPosition(muon,bz,endpos,vertexConstraintFlag_XY, vertexConstraintFlag_Z);
-      double deltar = deltaR(muatcal,endpos);
+      double deltar = reco::deltaR(muatcal,endpos);
 
       if (deltar<theDR_Veto_H) {
 	      dep.setVeto(MuIsoDeposit::Veto(Direction(muatcal.eta(), muatcal.phi()), theDR_Veto_H));
