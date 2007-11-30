@@ -4,6 +4,7 @@
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
 typedef ConstrainedFitCandProducer<CandCommonVertexFitter<KalmanVertexFitter>,
+                                   edm::View<reco::Candidate>,
                                    std::vector<reco::VertexCompositeCandidate> > KalmanVertexFitCompositeCandProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
