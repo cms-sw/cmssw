@@ -2,6 +2,8 @@
 #include "CommonTools/TrackerMap/interface/TmModule.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "CommonTools/TrackerMap/interface/TmApvPair.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -18,7 +20,8 @@ The filling of the values for each module is done later
 when the user starts to fill it.
 **********************************************************/
 
-TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset) {
+TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<SiStripFedCabling> tkFed) {
+
  psetAvailable=true;
   xsize=340;ysize=200;
   title=" ";
@@ -27,12 +30,82 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset) {
   if(tkmapPset.exists("trackermaptxtPath")){
   jsfilename=tkmapPset.getUntrackedParameter<std::string>("trackermaptxtPath","")+"trackermap.txt";
   cout << jsfilename << endl;
-  } else cout << "no parameter found" << endl;
-  if(tkmapPset.exists("trackerdatPath")){
   infilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"tracker.dat";
   cout << infilename << endl;
-  } else cout << "no parameter found" << endl;
-  //tkmapPset = iConfig.getParameter<edm::ParameterSet>("TkmapParameters"); 
+  enableFedProcessing=tkmapPset.getUntrackedParameter<bool>("loadFedCabling",false);
+  } else cout << "no parameters found" << endl;
+
+ init();
+// Now load fed cabling information
+ if(enableFedProcessing){
+ const vector<unsigned short> feds = tkFed->feds();
+  cout<<"SiStripFedCabling has "<< feds.size()<<" active FEDS"<<endl;
+    int num_board=0;
+    int num_crate;
+  for(vector<unsigned short>::const_iterator ifed = feds.begin();ifed<feds.end();ifed++){
+    const std::vector<FedChannelConnection> theconn = tkFed->connections( *ifed );
+    int num_conn=0;
+    for(std::vector<FedChannelConnection>::const_iterator iconn = theconn.begin();iconn<theconn.end();iconn++){
+      TmModule *imod = imoduleMap[iconn->detId()];
+      int key = iconn->fedId()*1000+iconn->fedCh();
+      TmApvPair* apvpair = apvMap[key];
+      if(apvpair!=0)cout << "Fed "<< iconn->fedId() << " channel " << iconn->fedCh() << " seem to be already loaded!"<<endl;
+      else
+	{
+	  num_conn++;
+	  if(num_conn==1){
+	    if(fedMap[iconn->fedId()]==0){num_crate=num_board/18+1;fedMap[iconn->fedId()]=num_crate;num_board++;}
+          }
+	  apvpair = new TmApvPair(key);
+	  apvpair->mod=imod;
+          apvpair->mpos=iconn->apvPairNumber();
+	  apvMap[key] = apvpair;	
+          apvModuleMap.insert(make_pair(iconn->detId(),apvpair));
+	}
+    }
+  }
+  cout << num_crate << " crates used "<< endl;
+//Now add APv information to module name
+    std::map<int , TmModule *>::iterator i_mod;
+    for( i_mod=imoduleMap.begin();i_mod !=imoduleMap.end(); i_mod++){
+      TmModule *  mod= i_mod->second;
+      if(mod!=0) {
+       ostringstream outs;
+       outs << " connected to ";
+
+      int idmod=mod->idex;
+       int nchan=0;
+       multimap<const int, TmApvPair*>::iterator pos;
+       for (pos = apvModuleMap.lower_bound(idmod);
+         pos != apvModuleMap.upper_bound(idmod); ++pos) {
+       TmApvPair* apvpair = pos->second;
+       if(apvpair!=0){
+       outs << apvpair->mpos << " " <<apvpair->getFedId() << "/"<<apvpair->getFedCh()<<" ";
+      nchan++;
+    }
+
+  }
+       outs<< "("<<nchan<<")";
+      mod->name=mod->name + outs.str(); 
+  }
+  }
+}
+}
+
+
+TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset) {
+ psetAvailable=true;
+  xsize=340;ysize=200;
+  title=" ";
+  jsfilename="CommonTools/TrackerMap/data/trackermap.txt";
+  infilename="CommonTools/TrackerMap/data/tracker.dat";
+  enableFedProcessing=false;
+  if(tkmapPset.exists("trackermaptxtPath")){
+  jsfilename=tkmapPset.getUntrackedParameter<std::string>("trackermaptxtPath","")+"trackermap.txt";
+  cout << jsfilename << endl;
+  infilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"tracker.dat";
+  cout << infilename << endl;
+  } else cout << "no parameters found" << endl;
  init();
 }
 
@@ -42,6 +115,7 @@ TrackerMap::TrackerMap(string s,int xsize1,int ysize1) {
   title=s;
   jsfilename="CommonTools/TrackerMap/data/trackermap.txt";
   infilename="CommonTools/TrackerMap/data/tracker.dat";
+  enableFedProcessing=false; 
  init();
 }
 
@@ -194,27 +268,19 @@ void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total, 
    sprintf(buffer,"%X",mod->idex);
 
  if(mod->red < 0){ //use count to compute color
-   if(palette==1){//palette1 1 - raibow
-   float delta=(maxvalue-minvalue);
-   float x =(mod->value-minvalue);
-   red = (int) ( x<(delta/2) ? 0 : ( x > ((3./4.)*delta) ?  255 : 255/(delta/4) * (x-(2./4.)*delta)  ) );
-   green= (int) ( x<delta/4 ? (x*255/(delta/4)) : ( x > ((3./4.)*delta) ?  255-255/(delta/4) *(x-(3./4.)*delta) : 255 ) );
-   blue = (int) ( x<delta/4 ? 255 : ( x > ((1./2.)*delta) ?  0 : 255-255/(delta/4) * (x-(1./4.)*delta) ) );
-     }
-     if (palette==2){//palette 2 yellow-green
-     green = (int)((mod->value-minvalue)/(maxvalue-minvalue)*256.);
-         if (green > 255) green=255;
-         red = 255; blue=0;green=255-green;  
-        } 
-
+ int color = getcolor(mod->value,palette);
+     red=(color>>16)&0xFF;
+     green=(color>>8)&0xFF;
+     blue=(color)&0xFF;
+  
 if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
   
   if(mod->count > 0)
     if(temporary_file) *svgfile << red << " " << green << " " << blue << " "; else
- *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<mod->idex<<" \" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" points=\"";
+ *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" points=\"";
   else
     if(temporary_file) *svgfile << 255 << " " << 255 << " " << 255 << " "; else
-    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\"  onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<mod->idex<<" \" fill=\"white\" points=\"";
+    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\"  onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"white\" points=\"";
   if(temporary_file) *svgfile << np << " ";
   for(int k=0;k<np;k++){
     if(temporary_file)*svgfile << xd[k] << " " << yd[k] << " " ; else
@@ -226,7 +292,7 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
   if(mod->green>255)mod->green=255;
   if(mod->blue>255)mod->blue=255;
     if(temporary_file) *svgfile << mod->red << " " << mod->green << " " << mod->blue << " "; else
-    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<mod->idex<<" \" fill=\"rgb("<<mod->red<<","<<mod->green<<","<<mod->blue<<")\" points=\"";
+    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"rgb("<<mod->red<<","<<mod->green<<","<<mod->blue<<")\" points=\"";
   if(temporary_file) *svgfile << np << " ";
   for(int k=0;k<np;k++){
     if(temporary_file)*svgfile << xd[k] << " " << yd[k] << " " ; else
@@ -392,7 +458,245 @@ if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/
   
   
 }
+void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, TmApvPair* apvPair,ofstream * svgfile,bool useApvPairValue)
+{
+  double xp[4],yp[4];
+  int color;
+  int green = 0;
+  int red = 0;
+  int blue = 0;
+  double xd[4],yd[4];
+  int np = 4;
+  double boxinitx=0., boxinity=0.; 
+  double dx=.9,dy=.9;
+  int numfedch_incolumn = 12;
+  int numfedch_inrow = 8;
+  int numfed_incolumn = 5;
+  int numfed_inrow = 4;
+  boxinitx=boxinitx+(numfed_incolumn-(numfed_incrate-1)/numfed_inrow)*14.;
+  boxinity=boxinity+(numfed_inrow-(numfed_incrate-1)%numfed_inrow)*9.;
+  boxinity=boxinity+numfedch_inrow-(int)(apvPair->getFedCh()%numfedch_inrow);
+  boxinitx = boxinitx+numfedch_incolumn-(apvPair->getFedCh()/numfedch_inrow);
+  //cout << crate << " " << numfed_incrate << " " << apvPair->getFedCh()<<" "<<boxinitx<< " " << boxinity << endl; ;
+  xp[0]=boxinitx;yp[0]=boxinity;
+  xp[1]=boxinitx+dx;yp[1]=boxinity;
+  xp[2]=boxinitx+dx;yp[2]=boxinity + dy;
+  xp[3]=boxinitx;yp[3]=boxinity + dy;
+  for(int j=0;j<4;j++){
+    xd[j]=xdpixelc(xp[j]);yd[j]=ydpixelc(yp[j]);
+    //cout << boxinity << " "<< ymax << " "<< yp[j] << endl;
+  }
+  
+  char buffer [20];
+  sprintf(buffer,"%X",apvPair->mod->idex);
+  if(useApvPairValue){ 
+    if(apvPair->red < 0){ //use count to compute color
+      green = (int)((apvPair->value-minvalue)/(maxvalue-minvalue)*256.); 
+      if (green > 255) green=255;
+      if(!print_total)apvPair->value=apvPair->value*apvPair->count;//restore mod->value
+      if(apvPair->count > 0)
+	*svgfile << red << " " << green << " " << blue << " ";
+      else
+        *svgfile << 255 << " " << 255 << " " << 255 << " ";
+    } else {//color defined with fillc
+      if(apvPair->red>255)apvPair->red=255;
+      if(apvPair->green>255)apvPair->green=255;
+      if(apvPair->blue>255)apvPair->blue=255;
+      *svgfile << apvPair->red << " " << apvPair->green << " " << apvPair->blue << " ";
+    }
+  }else{
+    if(apvPair->mod->red < 0){ //use count to compute color
+  color = getcolor(apvPair->mod->value,palette);
+     red=(color>>16)&0xFF;
+     green=(color>>8)&0xFF;
+     blue=(color)&0xFF;
+      if(apvPair->mod->count > 0)
+	*svgfile << red << " " << green << " " << blue << " ";
+      else
+        *svgfile << 255 << " " << 255 << " " << 255 << " ";
+    } else {//color defined with fillc
+      if(apvPair->mod->red>255)apvPair->mod->red=255;
+      if(apvPair->mod->green>255)apvPair->mod->green=255;
+      if(apvPair->mod->blue>255)apvPair->mod->blue=255;
+      *svgfile << apvPair->mod->red << " " << apvPair->mod->green << " " << apvPair->mod->blue << " ";
+    }
+  }
+  *svgfile << np << " ";
+  for(int k=0;k<np;k++){
+    *svgfile << xd[k] << " " << yd[k] << " " ; 
+  }
+  *svgfile << endl;
+}
 
+void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
+ if(enableFedProcessing){
+  std::string filetype=s,outputfilename=s;
+  filetype.erase(0,filetype.find(".")+1);
+  outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
+  temporary_file=true;
+
+  ostringstream outs;
+  minvalue=minval; maxvalue=maxval;
+  outs << outputfilename << ".coor";
+  savefile = new ofstream(outs.str().c_str(),ios::out);
+  std::map<int , TmApvPair *>::iterator i_apv;
+  std::map<int , int>::iterator i_fed;
+  //Decide if we must use Module or ApvPair value
+  bool useApvPairValue=false;
+  for( i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
+    TmApvPair *  apvPair= i_apv->second;
+    if(apvPair!=0) {
+      TmModule * apv_mod = apvPair->mod;
+      if(apv_mod !=0 && !apv_mod->notInUse()){
+        if(apvPair->count > 0 && apvPair->red!=-1) { useApvPairValue=true; break;}
+      }
+    }
+  }
+  cout << "point 1 " << useApvPairValue << endl;
+  if(!print_total){
+    for( i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
+      TmApvPair *  apvPair= i_apv->second;
+      if(apvPair!=0) {
+	TmModule * apv_mod = apvPair->mod;
+	if(apv_mod !=0 && !apv_mod->notInUse()){
+	  if(useApvPairValue) apvPair->value = apvPair->value / apvPair->count;
+	  else if(apvPair->mpos==0)apv_mod->value = apv_mod->value / apv_mod->count;
+	}
+      }
+    }
+  }
+  cout << "point 2 "  << endl;
+  if(minvalue>=maxvalue){
+    
+    minvalue=9999999.;
+    maxvalue=-9999999.;
+    for(i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
+	TmApvPair *  apvPair= i_apv->second;
+	if(apvPair!=0) {
+	  TmModule * apv_mod = apvPair->mod;
+	  if( apv_mod !=0 && !apv_mod->notInUse()){
+	    if(useApvPairValue){
+	      if (minvalue > apvPair->value)minvalue=apvPair->value;
+	      if (maxvalue < apvPair->value)maxvalue=apvPair->value;
+	    } else {
+	      if (minvalue > apv_mod->value)minvalue=apv_mod->value;
+	      if (maxvalue < apv_mod->value)maxvalue=apv_mod->value;
+	    }
+	  }
+	}
+    }
+  }
+  cout << "point 3 " << minvalue << " " << maxvalue << endl;
+  for (int crate=1; crate < 25; crate++){
+    ncrate=crate;
+    defcwindow(ncrate);
+    int numfed_incrate=0;
+    for (i_fed=fedMap.begin();i_fed != fedMap.end(); i_fed++){
+      if(i_fed->second == crate){
+	int fedId = i_fed->first;
+	numfed_incrate++;
+	for (int nconn=0;nconn<96;nconn++){
+	  int key = fedId*1000+nconn; 
+	  TmApvPair *  apvPair= apvMap[key];
+	  if(apvPair !=0){
+	    TmModule * apv_mod = apvPair->mod;
+	    if(apv_mod !=0 && !apv_mod->notInUse()){
+	      drawApvPair(crate,numfed_incrate,print_total,apvPair,savefile,useApvPairValue);
+	    }
+	  } 
+	}
+      }
+    }
+  }
+  if(!print_total && !useApvPairValue){
+//Restore module value
+    for( i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
+      TmApvPair *  apvPair= i_apv->second;
+      if(apvPair!=0) {
+	TmModule * apv_mod = apvPair->mod;
+	if(apv_mod !=0 && apvPair->mpos==0 && !apv_mod->notInUse()){
+	  apv_mod->value = apv_mod->value * apv_mod->count;
+	}
+      }
+    }
+}
+  
+  cout << "point 4 "  << endl;
+  if(printflag)drawPalette(savefile);
+  savefile->close(); 
+
+  const char * command1;
+  string tempfilename = outputfilename + ".coor";
+    int red,green,blue,npoints,colindex,ncolor;
+    double x[4],y[4];
+    ifstream tempfile(tempfilename.c_str(),ios::in);
+    TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
+    gPad->SetFillColor(38);
+    
+    gPad->Range(0,0,3000,1600);
+    
+    //First  build palette
+    ncolor=0;
+    typedef std::map<int,int> ColorList;
+    ColorList colorList;
+    ColorList::iterator pos;
+    TColor *col;
+    while(!tempfile.eof()) {
+      tempfile  >> red >> green  >> blue >> npoints; 
+      colindex=red+green*1000+blue*1000000;
+      pos=colorList.find(colindex); 
+      if(pos == colorList.end()){ colorList[colindex]=ncolor+100; col =gROOT->GetColor(ncolor+100);
+if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); else TColor *c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));ncolor++;}
+      for (int i=0;i<npoints;i++){
+	tempfile >> x[i] >> y[i];  
+      }
+    }
+    if(ncolor>0 && ncolor<10000){
+      Int_t colors[10000];
+      for(int i=0;i<ncolor;i++){colors[i]=i+100;}
+      gStyle->SetPalette(ncolor,colors);
+    }
+    tempfile.clear();
+    tempfile.seekg(0,ios::beg);
+    cout << "created palette with " << ncolor << " colors" << endl;
+    TPolyLine*  pline = new TPolyLine();
+    while(!tempfile.eof()) {//create polylines
+      tempfile  >> red >> green  >> blue >> npoints; 
+      for (int i=0;i<npoints;i++){
+	tempfile >> x[i] >> y[i];  
+      }
+      colindex=red+green*1000+blue*1000000;
+      pos=colorList.find(colindex); 
+      if(pos != colorList.end()){
+	pline->SetFillColor(colorList[colindex]);
+	pline->SetLineWidth(0);
+        pline->DrawPolyLine(npoints,y,x,"f");
+      }
+    }
+    MyC->Update();
+    if(filetype=="png"){
+      string filename = outputfilename + ".png";
+      MyC->Print(filename.c_str());
+    }
+    if(filetype=="jpg"){
+      string filename = outputfilename + ".jpg";
+      MyC->Print(filename.c_str());
+    }
+    if(filetype=="pdf"){
+      string filename = outputfilename + ".pdf";
+      MyC->Print(filename.c_str());
+    }
+    string command = "rm "+tempfilename ;
+    command1=command.c_str();
+    cout << "Executing " << command1 << endl;
+//    system(command1);
+    MyC->Clear();
+    delete MyC;
+    delete pline;
+  
+  
+}
+}
 
 //print in svg format tracker map
 //print_total = true represent in color the total stored in the module
@@ -464,23 +768,15 @@ void TrackerMap::print(bool print_total, float minval, float maxval, string outp
 }
 
 void TrackerMap::drawPalette(ofstream * svgfile){
-  int red, green, blue;
+  int color,red, green, blue;
   float val=minvalue;
   int paletteLength = 250;
   float dval = (maxvalue-minvalue)/(float)paletteLength;
   for(int i=0;i<paletteLength;i++){
- if(palette==1){//palette1 1 - raibow
-   float delta=(maxvalue-minvalue);
-   float x =(val-minvalue);
-   red = (int) ( x<(delta/2) ? 0 : ( x > ((3./4.)*delta) ?  255 : 255/(delta/4) * (x-(2./4.)*delta)  ) );
-   green= (int) ( x<delta/4 ? (x*255/(delta/4)) : ( x > ((3./4.)*delta) ?  255-255/(delta/4) *(x-(3./4.)*delta) : 255 ) );
-   blue = (int) ( x<delta/4 ? 255 : ( x > ((1./2.)*delta) ?  0 : 255-255/(delta/4) * (x-(1./4.)*delta) ) );
-     }
-     if (palette==2){//palette 2 yellow-green
-     green = (int)((val-minvalue)/(maxvalue-minvalue)*256.);
-         if (green > 255) green=255;
-         red = 255; blue=0;green=255-green;
-        }
+  color = getcolor(val,palette);
+     red=(color>>16)&0xFF;
+     green=(color>>8)&0xFF;
+     blue=(color)&0xFF;
     if(!temporary_file)*svgfile <<"<svg:rect  x=\""<<i<<"\" y=\"0\" width=\"1\" height=\"20\" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" />\n";
     if(i%50 == 0){
        if(!temporary_file)*svgfile <<"<svg:rect  x=\""<<i<<"\" y=\"10\" width=\"1\" height=\"10\" fill=\"black\" />\n";
@@ -489,6 +785,64 @@ void TrackerMap::drawPalette(ofstream * svgfile){
     val = val + dval;
    }
 } 
+void TrackerMap::fillc_fed_channel(int fedId,int fedCh, int red, int green, int blue  )
+{
+  int key = fedId*1000+fedCh;
+  TmApvPair* apvpair = apvMap[key];
+  
+  if(apvpair!=0){
+    apvpair->red=red; apvpair->green=green; apvpair->blue=blue;
+    return;
+  }
+  cout << "*** error in FedTrackerMap fillc method ***";
+}
+
+void TrackerMap::fill_fed_channel(int idmod, float qty  )
+{
+  multimap<const int, TmApvPair*>::iterator pos;
+  for (pos = apvModuleMap.lower_bound(idmod);
+         pos != apvModuleMap.upper_bound(idmod); ++pos) {
+  TmApvPair* apvpair = pos->second;
+  if(apvpair!=0){
+    apvpair->value=apvpair->value+qty;
+    apvpair->count++;
+  }
+  }
+    return;
+  cout << "*** error in FedTrackerMap fill by module method ***";
+  }
+
+void TrackerMap::fill_current_val_fed_channel(int fedId, int fedCh, float current_val )
+{
+  int key = fedId*1000+fedCh;
+  TmApvPair* apvpair = apvMap[key];
+  
+  if(apvpair!=0)  apvpair->value=current_val;
+  else 
+    cout << "*** error in FedTrackerMap fill_current_val method ***";
+}
+
+int TrackerMap::module(int fedId, int fedCh)
+{
+  int key = fedId*1000+fedCh;
+  TmApvPair* apvpair = apvMap[key];
+  if(apvpair!=0){
+    return(apvpair->mod->idex);
+  }
+  return(0);
+  cout << "*** error in FedTrackerMap module method ***";
+}
+void TrackerMap::fill_fed_channel(int fedId, int fedCh, float qty )
+{
+  int key = fedId*1000+fedCh;
+  TmApvPair* apvpair = apvMap[key];
+  if(apvpair!=0){
+    apvpair->value=apvpair->value+qty;
+    apvpair->count++;
+    return;
+  }
+  cout << "*** error inFedTrackerMap fill method ***";
+}
 void TrackerMap::fillc(int idmod, int red, int green, int blue  ){
 
   TmModule * mod = imoduleMap[idmod];
@@ -603,4 +957,19 @@ void TrackerMap::build(){
   infile.close();
   number_modules = ntotMod-1;
 }
-
+int TrackerMap::getcolor(float value,int palette){
+   int red,green,blue;
+   if(palette==1){//palette1 1 - raibow
+   float delta=(maxvalue-minvalue);
+   float x =(value-minvalue);
+   red = (int) ( x<(delta/2) ? 0 : ( x > ((3./4.)*delta) ?  255 : 255/(delta/4) * (x-(2./4.)*delta)  ) );
+   green= (int) ( x<delta/4 ? (x*255/(delta/4)) : ( x > ((3./4.)*delta) ?  255-255/(delta/4) *(x-(3./4.)*delta) : 255 ) );
+   blue = (int) ( x<delta/4 ? 255 : ( x > ((1./2.)*delta) ?  0 : 255-255/(delta/4) * (x-(1./4.)*delta) ) );
+     }
+     if (palette==2){//palette 2 yellow-green
+     green = (int)((value-minvalue)/(maxvalue-minvalue)*256.);
+         if (green > 255) green=255;
+         red = 255; blue=0;green=255-green;  
+        } 
+   return(blue|(green<<8)|(red<<16));
+}

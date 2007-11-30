@@ -7,8 +7,12 @@
 #include <cmath>
 #include <map>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+
 
 class TmModule;
+class TmApvPair;
 class EventSetup;
 
 using namespace std;
@@ -18,6 +22,7 @@ class TrackerMap {
   //TrackerMap(){TrackerMap(" ");};   //!< default constructor
   TrackerMap(std::string s=" ",int xsize1=340,int ysize1=200);
   TrackerMap(const edm::ParameterSet & iConfig);
+  TrackerMap(const edm::ParameterSet & iConfig,const edm::ESHandle<SiStripFedCabling> tkFed);
   ~TrackerMap();  //!< default destructor
   
   void build();
@@ -25,12 +30,19 @@ class TrackerMap {
   void drawModule(TmModule * mod, int key, int layer, bool total, std::ofstream * file);
   void print(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
   void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap.svg",int width=1500, int height=800);
+  void save_as_fedtrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="fed_svgmap.svg",int width=1500, int height=800);
+  void drawApvPair( int crate, int numfed_incrate, bool total, TmApvPair* apvPair,std::ofstream * file,bool useApvPairValue);
   void fill_current_val(int idmod, float current_val );
   void fill(int layer , int ring, int nmod, float x );
   void fill(int idmod, float qty );
   void fillc(int idmod, int RGBcode) {fillc(idmod,(RGBcode>>16) & 0xFF , (RGBcode>>8) & 0xFF, RGBcode & 0xFF);}
   void fillc(int idmod, int red, int green, int blue);
   void fillc(int layer,int ring, int nmod, int red, int green, int blue);
+  void fill_current_val_fed_channel(int fedId,int fedCh, float current_val );
+  void fill_fed_channel(int fedId,int fedCh, float qty );
+  void fill_fed_channel(int modId, float qty );
+  void fillc_fed_channel(int fedId,int fedCh, int red, int green, int blue);
+  int module(int fedId,int fedCh);
   void setText(int idmod , std::string s );
   void setText(int layer, int ring, int nmod , string s );
   void setPalette(int numpalette){palette=numpalette;} 
@@ -38,13 +50,21 @@ class TrackerMap {
   void showPalette(bool printflag1){printflag=printflag1;}; 
   int getxsize(){return xsize;};
   int getysize(){return ysize;};
+  int getcolor(float value, int palette);
   int getNumMod(){return number_modules;};
   typedef std::map<const int  , TmModule *> SmoduleMap;
   SmoduleMap smoduleMap;
   typedef std::map<const int  , TmModule *> ImoduleMap;
   ImoduleMap imoduleMap;
+ typedef std::map<const int  , TmApvPair*> SvgApvPair;
+  SvgApvPair apvMap;
+  typedef std::multimap<const int  , TmApvPair*> ModApvPair;
+   ModApvPair apvModuleMap;
+  typedef std::map<const int  , int>  SvgFed;
+  SvgFed fedMap;
   int palette;
   bool printflag;
+  bool enableFedProcessing;
   int ndet; //number of detectors 
   int npart; //number of detectors parts 
   string title;
@@ -125,7 +145,28 @@ class TrackerMap {
     else res= ysize - (y1*ysize)+iy;
     return res;
   }
-  
+  double  xdpixelc(double x){
+    double res;
+    res= ((x-xmin)/(xmax-xmin)*xsize)+ix;
+    return res;
+  }
+  double  ydpixelc(double y){
+    double res;
+    double y1;
+    y1 = (y-ymin)/(ymax-ymin);
+     res= 2*ysize - (y1*2*ysize)+iy;
+    return res;
+  }
+   void defcwindow(int num_crate){
+    ncrate = num_crate;
+    int xoffset=xsize/3;
+    int yoffset=ysize;
+    xmin=-1.;xmax=63.;  ymin = -1.; ymax=37.;
+    if((ncrate%3)==2)ix = xoffset+xsize*4/3;
+    if((ncrate%3)==1)ix = xoffset+2*xsize*4/3;
+    if((ncrate%3)==0)ix = xoffset;
+    iy = yoffset+((ncrate-1)/3)*ysize*2;
+  } 
 void defwindow(int num_lay){
   nlay = num_lay;
   if(posrel){ // separated modules
@@ -273,6 +314,7 @@ void defwindow(int num_lay){
   
  protected:
   int nlay;
+  int ncrate;
   double xmin,xmax,ymin,ymax;
   int xsize,ysize,ix,iy;
   bool posrel;
