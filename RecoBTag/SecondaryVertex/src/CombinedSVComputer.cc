@@ -38,6 +38,7 @@ CombinedSVComputer::CombinedSVComputer(const edm::ParameterSet &params) :
 	pseudoMultiplicityMin(params.getParameter<unsigned int>("pseudoMultiplicityMin")),
 	trackMultiplicityMin(params.getParameter<unsigned int>("trackMultiplicityMin")),
 	useTrackWeights(params.getParameter<bool>("useTrackWeights")),
+	vertexMassCorrection(params.getParameter<bool>("correctVertexMass")),
 	pseudoVertexV0Filter(params.getParameter<edm::ParameterSet>("pseudoVertexV0Filter")),
 	trackPairV0Filter(params.getParameter<edm::ParameterSet>("trackPairV0Filter"))
 {
@@ -242,7 +243,17 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 			            VectorUtil::DeltaR(vertexSum, jetDir), true);
 		}
 
-		vars.insert(btau::vertexMass, vertexSum.M(), true);
+		double vertexMass = vertexSum.M();
+		if (vtxType == btag::Vertices::RecoVertex &&
+		    vertexMassCorrection) {
+			GlobalVector dir = svInfo.flightDirection(0);
+			double vertexPt2 =
+				math::XYZVector(dir.x(), dir.y(), dir.z()).
+					Cross(vertexSum).Mag2();
+			vertexMass = std::sqrt(vertexMass * vertexMass +
+			                       vertexPt2) + std::sqrt(vertexPt2);
+		}
+		vars.insert(btau::vertexMass, vertexMass, true);
 		vars.insert(btau::vertexEnergyRatio, vertexSum.E() / allSum.E(), true);
 	}
 
