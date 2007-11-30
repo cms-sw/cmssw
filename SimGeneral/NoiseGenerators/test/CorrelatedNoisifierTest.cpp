@@ -1,5 +1,8 @@
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "CommonTools/Statistics/interface/AutocorrelationAnalyzer.h"
+#include "CLHEP/Random/JamesRandom.h"
+
+
 
 class BoringSignal
 {
@@ -19,23 +22,30 @@ private:
 
 int main()
 {
- HepSymMatrix input (10);
+  math::ErrorD<10>::type input;
   for (int k = 0; k < 10; k++) {
     for (int kk = k; kk < 10; kk++) {
-      input[k][kk] =
-        kk == k ? 5
-        : kk == k+1 ? -0.2
-        : kk == k+2 ? -0.1
+      input(k,kk) =
+        kk == k ? 1
+        : kk == k+1 ? 0.67
+        : kk == k+2 ? 0.53
+        : kk == k+3 ? 0.44
+        : kk == k+4 ? 0.39
+        : kk == k+5 ? 0.36
+        : kk == k+6 ? 0.38
+        : kk == k+7 ? 0.35
+        : kk == k+8 ? 0.36
+        : kk == k+9 ? 0.32
         : 0.;
     }
   }
-  std::cout << std::endl << "Initial correlations:" << std::endl << input;
 
-  CorrelatedNoisifier noisifier(input);
-
+  std::cout << std::endl << "Initial correlations:" << "\n" << input << std::endl;;
+  CLHEP::HepJamesRandom  engine;
+  CorrelatedNoisifier<math::ErrorD<10>::type> noisifier(input, engine);
   AutocorrelationAnalyzer analyzer(10);
 
-  int nTotal = 4000000;
+  int nTotal = 10000;
   for (int i=0; i<nTotal; i++) {
     BoringSignal samples(10);
     noisifier.noisify(samples);
@@ -43,11 +53,12 @@ int main()
   }
 
   std::cout << analyzer << std::endl;
-  HepSymMatrix input2 (10, 0);
+  ROOT::Math::SMatrixIdentity a;
+  math::ErrorD<10>::type input2(a);
   for (int k = 0; k < 10; k++) {
     for (int kk = k; kk < 10; kk++) {
       for (int ix = 0; ix < 10; ix++) {
-        input2 [k][kk] += input[k][ix]*input[ix][kk];
+        input2(k,kk)  += input(k,ix)*input(ix,kk);
       }
     }
   }
