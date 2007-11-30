@@ -666,6 +666,9 @@ void ESOccupancyCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
 
   // Plot the track display canvas and save it to png
   PlotTrackDisplay();
+  histName = htmlDir+"/Box1TrackDisplay.png";
+  CRtd_canvas_->cd(0);
+  CRtd_canvas_->SaveAs(histName.c_str());  
 
 
   htmlFile.close();
