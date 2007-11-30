@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.4 2007/07/04 08:27:55 bainbrid Exp $
+// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.5 2007/07/11 11:13:58 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
 #define DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
@@ -39,6 +39,8 @@ namespace sistrip {
   static const std::string tickMarkBelowThresh_ = "TickMarkHeightBelowThreshold";
   static const std::string noRisingEdges_       = "NoCandidateRisingEdges";
   static const std::string rejectedCandidate_   = "RejectedTickMarkCandidate";
+  static const std::string invalidRefTime_      = "InvalidRefTime";
+  static const std::string invalidDelayTime_    = "InvalidDelayTime";
 
   // ---------- Opto scan ----------
   
