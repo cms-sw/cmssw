@@ -1,8 +1,8 @@
 /** \class MuonTrackAnalyzer
  *  Analyzer of the Muon tracks
  *
- *  $Date: 2007/03/13 09:39:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/29 08:57:31 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -20,6 +20,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
@@ -278,9 +279,9 @@ void MuonTrackAnalyzer::tracksAnalysis(const Event & event, const EventSetup& ev
     
     hChargeVsEta->Fill(simTrack.momentum().eta(),pcaTSOS.charge());
     
-    hChargeVsPt->Fill(simTrack.momentum().perp(),pcaTSOS.charge());
+    hChargeVsPt->Fill(sqrt(simTrack.momentum().perp2()),pcaTSOS.charge());
     
-    hPtRecVsPtGen->Fill(simTrack.momentum().perp(),pcaTSOS.globalMomentum().perp());    
+    hPtRecVsPtGen->Fill(sqrt(simTrack.momentum().perp2()),pcaTSOS.globalMomentum().perp());    
   }
   cout<<"--------------------------------------------"<<endl;  
 }
@@ -304,11 +305,11 @@ void  MuonTrackAnalyzer::fillPlots(const Event &event, edm::Handle<edm::SimTrack
 	numberOfSimTracks++;
 	
 	cout<<"Simualted muon:"<<endl;
-	cout<<"Sim pT: "<<(*simTrack).momentum().perp()<<endl;
+	cout<<"Sim pT: "<<sqrt((*simTrack).momentum().perp2())<<endl;
 	cout<<"Sim Eta: "<<(*simTrack).momentum().eta()<<endl; // FIXME
 	
 	hSimTracks->Fill((*simTrack).momentum().mag(), 
-			 (*simTrack).momentum().perp(), 
+			 sqrt((*simTrack).momentum().perp2()), 
 			 (*simTrack).momentum().eta(), 
 			 (*simTrack).momentum().phi(), 
 			 -(*simTrack).type()/ abs((*simTrack).type()) ); // Double FIXME  
@@ -343,8 +344,9 @@ void  MuonTrackAnalyzer::fillPlots(TrajectoryStateOnSurface &recoTSOS,SimTrack &
   
   GlobalVector tsosVect = recoTSOS.globalMomentum();
   Hep3Vector reco(tsosVect.x(), tsosVect.y(), tsosVect.z());
-  double deltaR = reco.deltaR(simTrack.momentum().vect());
-  histo->FillDeltaR(deltaR);
+  double deltaRVal = deltaR<double>(reco.eta(),reco.phi(),
+				    simTrack.momentum().eta(),simTrack.momentum().phi());
+  histo->FillDeltaR(deltaRVal);
 
   histo->computeResolutionAndPull(recoTSOS,simTrack);
 }
@@ -358,8 +360,9 @@ void  MuonTrackAnalyzer::fillPlots(FreeTrajectoryState &recoFTS,SimTrack &simTra
   
   GlobalVector ftsVect = recoFTS.momentum();
   Hep3Vector reco(ftsVect.x(), ftsVect.y(), ftsVect.z());
-  double deltaR = reco.deltaR(simTrack.momentum().vect());
-  histo->FillDeltaR(deltaR);
+  double deltaRVal = deltaR<double>(reco.eta(),reco.phi(),
+				    simTrack.momentum().eta(),simTrack.momentum().phi());
+  histo->FillDeltaR(deltaRVal);
 
   histo->computeResolutionAndPull(recoFTS,simTrack);
 }
@@ -397,7 +400,8 @@ pair<SimTrack,double> MuonTrackAnalyzer::getSimTrack(TrajectoryStateOnSurface &t
     //    double newDeltaR = tsos.globalMomentum().basicVector().deltaR(simTrack->momentum().vect());
     GlobalVector tsosVect = tsos.globalMomentum();
     Hep3Vector vect(tsosVect.x(), tsosVect.y(), tsosVect.z());
-    double newDeltaR = vect.deltaR(simTrack->momentum().vect());
+    double newDeltaR = deltaR<double>(vect.eta(),vect.phi(),
+				      simTrack->momentum().eta(),simTrack->momentum().phi());
 
     if (  newDeltaR < bestDeltaR ) {
       cout << "Matching Track with DeltaR = " << newDeltaR<<endl;

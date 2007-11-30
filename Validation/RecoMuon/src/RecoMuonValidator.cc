@@ -6,6 +6,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TMath.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 using namespace reco;
 using namespace edm;
@@ -249,11 +250,12 @@ pair<TSOS, TransientTrack> RecoMuonValidator::matchTrack(const SimTrack& simTrac
 
     GlobalVector tsosVect = tsos.globalMomentum();
     Hep3Vector trackVect = Hep3Vector(tsosVect.x(), tsosVect.y(), tsosVect.z());
-    double deltaR = trackVect.deltaR(simTrack.momentum().vect());
+    double deltaRVal = deltaR<double>(trackVect.eta(),trackVect.phi(),
+				      simTrack.momentum().eta(),simTrack.momentum().phi());
 
-    if ( candDeltaR < 0 || deltaR < candDeltaR  ) {
-      LogDebug("RecoMuonValidator") << "Matching Track with DeltaR = " << deltaR;
-      candDeltaR = deltaR;
+    if ( candDeltaR < 0 || deltaRVal < candDeltaR  ) {
+      LogDebug("RecoMuonValidator") << "Matching Track with DeltaR = " << deltaRVal;
+      candDeltaR = deltaRVal;
       candTrack  = track;
       candTSOS   = tsos;
     }
@@ -276,11 +278,12 @@ pair<TSOS, TrajectorySeed> RecoMuonValidator::matchTrack(const SimTrack& simTrac
 
     GlobalVector tsosVect = tsos.globalMomentum();
     Hep3Vector seedVect(tsosVect.x(), tsosVect.y(), tsosVect.z());
-    double deltaR = seedVect.deltaR(simTrack.momentum().vect());
+    double deltaRVal = deltaR<double>(seedVect.eta(),seedVect.phi(),
+				      simTrack.momentum().eta(),simTrack.momentum().phi());
 
-    if ( candDeltaR < 0 || deltaR < candDeltaR ) {
-      LogDebug("RecoMuonValidator") << "Matching Track with DeltaR = " << deltaR;
-      candDeltaR = deltaR;
+    if ( candDeltaR < 0 || deltaRVal < candDeltaR ) {
+      LogDebug("RecoMuonValidator") << "Matching Track with DeltaR = " << deltaRVal;
+      candDeltaR = deltaRVal;
       candSeed   = *iSeed;
       candTSOS   = tsos;
     }

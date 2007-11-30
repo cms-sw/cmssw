@@ -4,8 +4,8 @@
 /** \class FitSlicesYTool
  *  Class to fill Monitor Elements using the ROOT FitSlicesY tool
  *
- *  $Date: 2007/06/29 15:47:59 $
- *  $Revision: $
+ *  $Date: 2007/07/18 20:31:34 $
+ *  $Revision: 1.1 $
  *  \author cerati
  */
 
@@ -14,7 +14,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 #include <string>
-
+namespace ValidationMuon {
 class FitSlicesYTool {
  public:
   FitSlicesYTool(MonitorElement*);
@@ -36,5 +36,6 @@ class FitSlicesYTool {
   TH1* h2;
   TH1* h3;
 };
-
+}
 #endif
+

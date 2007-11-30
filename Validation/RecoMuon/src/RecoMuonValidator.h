@@ -69,7 +69,7 @@ class HResolution
   void fillInfo(const SimTrack& simTrack, const TrajectoryStateOnSurface& tsos)
     {
       const TrackCharge simQ = static_cast<TrackCharge>(simTrack.charge());
-      const double simPt  = simTrack.momentum().perp();
+      const double simPt  = sqrt(simTrack.momentum().perp2());
       const double simEta = simTrack.momentum().eta();
       const double simPhi = simTrack.momentum().phi();
       const double simQPt = simQ/simPt;
@@ -101,11 +101,11 @@ class HResolution
   
   void doFits() 
     {
-      FitSlicesYTool fsyt_pt(hEtaVsErrQPt_);
+      ValidationMuon::FitSlicesYTool fsyt_pt(hEtaVsErrQPt_);
       fsyt_pt.getFittedSigmaWithError(hPtResSigma_);
       fsyt_pt.getFittedMeanWithError(hPtResMean_);
  
-      FitSlicesYTool fsyt_pullpt(hEtaVsPullPt_);
+      ValidationMuon::FitSlicesYTool fsyt_pullpt(hEtaVsPullPt_);
       fsyt_pullpt.getFittedSigmaWithError(hPullPtSigma_);
       fsyt_pullpt.getFittedMeanWithError(hPullPtMean_);
     };
