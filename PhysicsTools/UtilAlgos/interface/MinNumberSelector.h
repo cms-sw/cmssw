@@ -8,8 +8,8 @@ namespace reco {
     
     template<>
     struct ParameterAdapter<MinNumberSelector> {
-      static MinNumberSelector make( const edm::ParameterSet & cfg ) {
-	return MinNumberSelector( cfg.getParameter<unsigned int>( "minNumber" ) );
+      static MinNumberSelector make(const edm::ParameterSet & cfg) {
+	return MinNumberSelector(cfg.getParameter<unsigned int>("minNumber"));
       }
     };
 
