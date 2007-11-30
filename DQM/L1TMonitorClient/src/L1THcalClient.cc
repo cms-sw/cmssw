@@ -5,9 +5,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/MonitorElementBaseT.h"
-#include "DQMServices/ClientConfig/interface/SubscriptionHandle.h"
-#include "DQMServices/ClientConfig/interface/QTestHandle.h"
-#include <DQMServices/UI/interface/MonitorUIRoot.h>
 #include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 #include <iostream>
 #include <stdio.h>
@@ -16,11 +13,9 @@
 #include <math.h>
 #include <TROOT.h>
 #include <TStyle.h>
-#include <TPaveStats.h>
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TF1.h>
-#include <TRandom.h>
 using namespace edm;
 using namespace std;
 
@@ -55,35 +50,16 @@ const unsigned int effcombo = 6472;
 const float effcombomin = -3272;
 const float effcombomax = 3272;
 
-L1THcalClient::L1THcalClient(const edm::ParameterSet& iConfig): L1TBaseClient()
+L1THcalClient::L1THcalClient(const edm::ParameterSet& iConfig)
 {
-  saveOutput = iConfig.getUntrackedParameter<bool>("saveOutput", false);
-  outputFile = iConfig.getUntrackedParameter<string>("outputFile", "L1THcalClient.root");
-  stdalone = iConfig.getUntrackedParameter<bool>("Standalone",false);
   minEventsforFit = iConfig.getUntrackedParameter<int>("minEventsforFit",1000);
   input_dir = "L1TMonitor/L1THCALTPGXAna/";
-  output_dir = "L1TMonitor/QTests/";
+  output_dir = "L1TMonitor/C1/Tests/";
 
-  //qualityCriterionName = iConfig.getUntrackedParameter<string>("qualityTestName","testYRange");
-  
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe->showDirStructure();
   dbe->setVerbose(1); 
 
-  if(stdalone){ 
-  getMESubscriptionListFromFile = iConfig.getUntrackedParameter<bool>("getMESubscriptionListFromFile", true);
-  getQualityTestsFromFile = iConfig.getUntrackedParameter<bool>("getQualityTestsFromFile", true);
-
-  subscriber=new SubscriptionHandle;
-  qtHandler=new QTestHandle;
-
-  if (getMESubscriptionListFromFile)
-  subscriber->getMEList("MESubscriptionList.xml"); 
-  if (getQualityTestsFromFile)
-  qtHandler->configureTests("QualityTests.xml",mui_->getBEInterface());
-
-  }
-  
   LogInfo( "TriggerDQM");
 }
 
@@ -99,25 +75,16 @@ L1THcalClient::~L1THcalClient()
 
 // ------------ method called to for each event  ------------
 
-void
-L1THcalClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
 
-// access to Geometry if needed
-  nevents++;
-  if (!stdalone || (nevents%10 == 0))    LogInfo("TriggerDQM")<<"[TriggerDQM]: event analyzed "<<nevents;
-
-}
 
 // ------------ method called once each job just before starting event loop  ------------
 
 void L1THcalClient::beginJob(const edm::EventSetup&)
 {
   LogInfo("TriggerDQM")<<"[TriggerDQM]: Begin Job";
-  LogInfo("TriggerDQM")<<"[TriggerDQM]: Standalone = "<<stdalone;
+  //  LogInfo("TriggerDQM")<<"[TriggerDQM]: Standalone = "<<stdalone;
   nevents = 0;
-  dbe->setCurrentFolder("L1TMonitor/QTests");
+  dbe->setCurrentFolder(output_dir);
   //2-D plots
   hcalPlateau_ =
     dbe->book2D("FitPlateau","HCAL Fit Plateau",TPETABINS,TPETAMIN,TPETAMAX,
@@ -128,14 +95,42 @@ void L1THcalClient::beginJob(const edm::EventSetup&)
   hcalWidth_ =
     dbe->book2D("FitWidth","HCAL Fit Width",TPETABINS,TPETAMIN,TPETAMAX,
                 TPPHIBINS,TPPHIMIN,TPPHIMAX);
-
-  //1-D plots
-
-  if(stdalone){
-   subscriber->makeSubscriptions(mui_);
-   qtHandler->attachTests(mui_->getBEInterface());	
-  }
-
+  hcalEff_1_ =
+    dbe->book1D("HcalEff1","HCAL Efficiency - 1",effBins,effMinHBHE,effMaxHBHE);
+  hcalEff_2_ =
+    dbe->book1D("HcalEff2","HCAL Efficiency - 2",effBins,effMinHBHE,effMaxHBHE);
+  hcalEff_3_ =
+    dbe->book1D("HcalEff3","HCAL Efficiency - 3",effBins,effMinHBHE,effMaxHBHE);
+  hcalEff_4_ =
+    dbe->book1D("HcalEff4","HCAL Efficiency - 4",effBins,effMinHF,effMaxHF);
+  for (int i=0; i < 56; i++)
+    {
+      char hname[20],htitle[30];
+      int ieta, iphi;
+      for (int j=0; j < 72; j++)
+        {
+          iphi = j+1;
+          if (i<28) ieta = i-28;
+          else ieta = i-27;
+          sprintf(hname,"eff_%d_%d",ieta,iphi);
+          sprintf(htitle,"Eff  <%d,%d>",ieta,iphi);
+          hcalEff_HBHE[i][j] = dbe->book1D(hname, htitle, effBins,effMinHBHE,effMaxHBHE);
+	}
+    }
+  for (int i=0; i < 8; i++)
+    {
+      char hname[20],htitle[30];
+      int ieta, iphi;
+      for (int j=0; j < 18; j++)
+        {
+          iphi = j*4+1;
+          if (i<4) ieta = i-32;
+          else ieta = i+25;
+          sprintf(hname,"eff_%d_%d",ieta,iphi);
+          sprintf(htitle,"Eff  <%d,%d>",ieta,iphi);
+          hcalEff_HF[i][j] = dbe->book1D(hname, htitle, effBins,effMinHF,effMaxHF);
+	}
+    }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -145,16 +140,19 @@ void L1THcalClient::endJob() {
 
 }
 
-void L1THcalClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection, const edm::EventSetup & iSetup) {
+void
+L1THcalClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+   using namespace edm;
+  nevents++;
+  if (nevents%10 == 0)    LogInfo("TriggerDQM")<<"[TriggerDQM]: event analyzed "<<nevents;
 
-  LogInfo("TriggerDQM")<<"[TriggerDQM]: end Lumi Section.";
-  dbe->setCurrentFolder("L1TMonitor/QTests");
+  //}
+  //  //void L1THcalClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection, const edm::EventSetup & iSetup) {
+  //  LogInfo("TriggerDQM")<<"[TriggerDQM]: end Lumi Section.";
+  //dbe->setCurrentFolder("L1TMonitor/QTests");
   TF1 *turnon = new TF1("turnon","[0]*0.5*(TMath::Erf((x -[1])*0.5/[2])+1.)",0,30);
   TH1F *eff_histo;
-  //int ilumi = iLumiSection.id().luminosityBlock();
-  // if(stdalone) mui_->doMonitoring();
-  // ----------------- QT examples example
-  // ----------------- get bin content and create new ME, then perform QT
 
   //efficiency by region
   //std::cout << "before eff calc \n";
@@ -162,10 +160,10 @@ void L1THcalClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection
   if (!hcalEff_num) std::cout << "numerator not found\n";
   TH1F *hcalEff_den = this->get1DHisto(input_dir+"HcalAll1",dbe);
   if (!hcalEff_den) std::cout << "denominator not found\n";
-  hcalEff_1_ =
-    dbe->book1D("HcalEff1","HCAL Efficiency - 1",effBins,effMinHBHE,effMaxHBHE);
+  //hcalEff_1_ =
+  //  dbe->book1D("HcalEff1","HCAL Efficiency - 1",effBins,effMinHBHE,effMaxHBHE);
   calcEff(hcalEff_num, hcalEff_den, hcalEff_1_);
-  if (hcalEff_num->GetEntries() > minEventsforFit)
+  if (hcalEff_num->GetEntries() > minEventsforFit && nevents%1000 == 0)
     {
       eff_histo = this->get1DHisto(output_dir+"HcalEff1",dbe);
       turnon->SetParameter(0,1);
@@ -177,10 +175,10 @@ void L1THcalClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection
   if (!hcalEff_num) std::cout << "numerator not found\n";
   hcalEff_den = this->get1DHisto(input_dir+"HcalAll2",dbe);
   if (!hcalEff_den) std::cout << "denominator not found\n";
-  hcalEff_2_ =
-    dbe->book1D("HcalEff2","HCAL Efficiency - 2",effBins,effMinHBHE,effMaxHBHE);
+  //hcalEff_2_ =
+  // dbe->book1D("HcalEff2","HCAL Efficiency - 2",effBins,effMinHBHE,effMaxHBHE);
   calcEff(hcalEff_num, hcalEff_den, hcalEff_2_);
-    if (hcalEff_num->GetEntries() > minEventsforFit)
+    if (hcalEff_num->GetEntries() > minEventsforFit && nevents%1000 == 0)
       {
 	eff_histo = this->get1DHisto(output_dir+"HcalEff2",dbe);
 	turnon->SetParameter(0,1);
@@ -192,10 +190,10 @@ void L1THcalClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection
   if (!hcalEff_num) std::cout << "numerator not found\n";
   hcalEff_den = this->get1DHisto(input_dir+"HcalAll3",dbe);
   if (!hcalEff_den) std::cout << "denominator not found\n";
-  hcalEff_3_ =
-    dbe->book1D("HcalEff3","HCAL Efficiency - 3",effBins,effMinHBHE,effMaxHBHE);
+  //hcalEff_3_ =
+  //dbe->book1D("HcalEff3","HCAL Efficiency - 3",effBins,effMinHBHE,effMaxHBHE);
   calcEff(hcalEff_num, hcalEff_den, hcalEff_3_);
-  if (hcalEff_num->GetEntries() > minEventsforFit)
+  if (hcalEff_num->GetEntries() > minEventsforFit && nevents%1000 == 0)
     {
       eff_histo = this->get1DHisto(output_dir+"HcalEff3",dbe);
       turnon->SetParameter(0,1);
@@ -207,10 +205,10 @@ void L1THcalClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection
   if (!hcalEff_num) std::cout << "numerator not found\n";
   hcalEff_den = this->get1DHisto(input_dir+"HcalAll4",dbe);
   if (!hcalEff_den) std::cout << "denominator not found\n";
-  hcalEff_4_ =
-    dbe->book1D("HcalEff4","HCAL Efficiency - 4",effBins,effMinHF,effMaxHF);
+  // hcalEff_4_ =
+  //dbe->book1D("HcalEff4","HCAL Efficiency - 4",effBins,effMinHF,effMaxHF);
   calcEff(hcalEff_num, hcalEff_den, hcalEff_4_);
-  if (hcalEff_num->GetEntries() > minEventsforFit)
+  if (hcalEff_num->GetEntries() > minEventsforFit && nevents%1000 == 0)
     {
       eff_histo = this->get1DHisto(output_dir+"HcalEff4",dbe);
       turnon->SetParameter(0,1);
@@ -232,14 +230,14 @@ void L1THcalClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection
 	  else ieta = i-27;
 	  sprintf(hname,"eff_%d_%d",ieta,iphi);
 	  sprintf(htitle,"Eff  <%d,%d>",ieta,iphi);
-	  hcalEff_HBHE[i][j] = dbe->book1D(hname, htitle, effBins,effMinHBHE,effMaxHBHE);
+	  //hcalEff_HBHE[i][j] = dbe->book1D(hname, htitle, effBins,effMinHBHE,effMaxHBHE);
 	  hcalEff_num = this->get1DHisto(input_dir+(string)hname+"_num",dbe);
 	  hcalEff_den = this->get1DHisto(input_dir+(string)hname+"_den",dbe);
 	  if (!hcalEff_num) std::cout << "numerator not found\n";
 	  if (!hcalEff_den) std::cout << "denominator not found\n";
 	  calcEff(hcalEff_num, hcalEff_den, hcalEff_HBHE[i][j]);
 
-	  if (hcalEff_num->GetEntries() > minEventsforFit)
+	  if (hcalEff_num->GetEntries() > minEventsforFit && nevents%1000 == 0)
 	    {
 	      eff_histo = this->get1DHisto(output_dir+(string)hname,dbe);
 	      turnon->SetParameter(0,1);
@@ -267,13 +265,13 @@ void L1THcalClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection
 	  else ieta = i+25;
 	  sprintf(hname,"eff_%d_%d",ieta,iphi);
 	  sprintf(htitle,"Eff  <%d,%d>",ieta,iphi);
-	  hcalEff_HF[i][j] = dbe->book1D(hname, htitle, effBins,effMinHF,effMaxHF);
+	  //hcalEff_HF[i][j] = dbe->book1D(hname, htitle, effBins,effMinHF,effMaxHF);
           hcalEff_num = this->get1DHisto(input_dir+(string)hname+"_num",dbe);
           hcalEff_den = this->get1DHisto(input_dir+(string)hname+"_den",dbe);
           if (!hcalEff_num) std::cout << "numerator not found\n";
           if (!hcalEff_den) std::cout << "denominator not found\n";
           calcEff(hcalEff_num, hcalEff_den, hcalEff_HF[i][j]);
-	  if (hcalEff_num->GetEntries() > minEventsforFit)
+	  if (hcalEff_num->GetEntries() > minEventsforFit && nevents%1000 == 0)
 	    {
 	      eff_histo = this->get1DHisto(output_dir+(string)hname,dbe);
 	      turnon->SetParameter(0,1);
@@ -289,15 +287,6 @@ void L1THcalClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection
 	    }
 	}
     }
-
-  // ----------------- save results
-  //add tests here --> one for each final plot
-  //if(stdalone){
-  //   mui_->getBEInterface()->runQTests();
-  //   qtHandler->checkGlobalQTStatus(mui_->getBEInterface());
-  // }
-  // this->getReport("L1TMonitor/QTests/normGTFEBx", dbe, qualityCriterionName);
-  dbe->save(outputFile);
 }
 
 void L1THcalClient::calcEff(TH1F *num, TH1F *den, MonitorElement* me)
@@ -314,5 +303,54 @@ void L1THcalClient::calcEff(TH1F *num, TH1F *den, MonitorElement* me)
       else eff = 0;
       me->setBinContent(bin,eff);
     }
+}
+
+TH1F * L1THcalClient::get1DHisto(string meName, DaqMonitorBEInterface * dbi)
+{
+
+  //  string mePath = "Collector/GlobalDQM/L1TMonitor/" + meName;
+
+  //  MonitorElement * me_ = dbi->get(mePath);
+  MonitorElement * me_ = dbi->get(meName);
+
+  MonitorElementT<TNamed>* me_temp = dynamic_cast<MonitorElementT<TNamed>*>(me_);
+
+  TH1F * meHisto = NULL;
+
+  if (me_temp) {
+
+    meHisto = dynamic_cast<TH1F*> (me_temp->operator->());
+  }
+  else {               
+                       
+    LogInfo("TriggerDQM") << "ME " << meName << " NOT FOUND!";
+                       
+  }
+                                   
+  return meHisto;
+}
+
+TH2F * L1THcalClient::get2DHisto(string meName, DaqMonitorBEInterface * dbi)
+{
+
+  //  string mePath = "Collector/GlobalDQM/L1TMonitor/" + meName;
+
+  MonitorElement * me_ = dbi->get(meName);
+
+  MonitorElementT<TNamed>* me_temp = dynamic_cast<MonitorElementT<TNamed>*>(me_);
+
+  TH2F * meHisto = NULL;
+
+  if (me_temp) {
+
+    meHisto = dynamic_cast<TH2F*> (me_temp->operator->());
+  }
+  else {
+        
+    LogInfo("TriggerDQM") << "ME NOT FOUND.";
+
+  }
+
+  return meHisto;
 }
 

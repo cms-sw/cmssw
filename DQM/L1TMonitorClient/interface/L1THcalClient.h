@@ -39,34 +39,36 @@
 class SubscriptionHandle;
 class QTestHandle;
 
-class L1THcalClient : public edm::EDAnalyzer, public L1TBaseClient {
+class L1THcalClient : public edm::EDAnalyzer{
    public:
       explicit L1THcalClient(const edm::ParameterSet&);
       ~L1THcalClient();
+      TH1F * get1DHisto(string meName, DaqMonitorBEInterface * dbi);
+      TH2F * get2DHisto(string meName, DaqMonitorBEInterface * dbi);
 
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      virtual void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+      // virtual void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
       void calcEff(TH1F* num, TH1F* den, MonitorElement* me);
 
       // ----------member data ---------------------------
       int nevents,nupdates;
 
       DaqMonitorBEInterface *dbe;
-      std::string outputFile;
-      std::string qualityCriterionName;
+      //std::string outputFile;
+      //std::string qualityCriterionName;
       std::string input_dir;
       std::string output_dir;
       int minEventsforFit;
-      bool stdalone;
-      bool saveOutput;
-      bool getMESubscriptionListFromFile;
-      bool getQualityTestsFromFile;
-      SubscriptionHandle *subscriber;
-      QTestHandle * qtHandler;
+      //bool stdalone;
+      //bool saveOutput;
+      //bool getMESubscriptionListFromFile;
+      //bool getQualityTestsFromFile;
+      //SubscriptionHandle *subscriber;
+      //QTestHandle * qtHandler;
       MonitorElement *hcalPlateau_;
       MonitorElement *hcalThreshold_;
       MonitorElement *hcalWidth_;
