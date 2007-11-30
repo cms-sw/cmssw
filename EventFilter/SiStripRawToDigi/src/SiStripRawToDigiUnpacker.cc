@@ -149,11 +149,11 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       continue;
     } 
    
-    // Extract DAQ register info for EventSummary object
-    if ( first_fed && *ifed != triggerFedId_ ) {
-      first_fed = false;
-      updateEventSummary( fedEvent_, summary );
-    }
+//     // Check if EventSummary ("trigger FED info") needs updating
+//     if ( first_fed ) {
+//       updateEventSummary( fedEvent_, summary );
+//       first_fed = false;
+//     }
     
     // Retrive readout mode
     sistrip::FedReadoutMode mode = sistrip::UNDEFINED_FED_READOUT_MODE;
@@ -468,8 +468,16 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
     uint32_t hsize = sizeof(TFHeaderDescription)/sizeof(uint32_t);
     uint32_t* head = &data_u32[hsize];
     summary.commissioningInfo( head, event );
+    summary.triggerFed( triggerFedId_ < 0 ? 0 : triggerFedId_ );
     
   }
+
+  // Some debug
+  std::stringstream ss;
+  ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+     << " Found trigger FED! Contents of EventSummary are:" 
+     << std::endl << summary;
+  LogTrace(mlRawToDigi_) << ss.str();
   
 }
 
@@ -593,36 +601,64 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
 void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* const fed, 
 						   SiStripEventSummary& summary ) {
   
-  // Check to see if "trigger FED" found
-  std::stringstream ss;
-  if ( once_ && summary.isSet() ) {
-    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-       << " Overwriting contents of SiStripEventSummary!" << std::endl
-       << " Summary built from \"trigger FED\" data:" << std::endl
-       << summary;
-  }
+  // Local cache of "once" 
+  bool once = once;
   
+  // Check to see if "trigger FED" found
+  if ( summary.isSet() ) {
+
+    if ( once ) {
+      std::stringstream ss;
+      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	 << " Found trigger FED! Contents of EventSummary are:" 
+	 << std::endl << summary;
+      LogTrace(mlRawToDigi_) << ss.str();
+      once = false;
+    }
+
+  }
+    
   // Retrieve contents of DAQ registers
   uint16_t mode = sistrip::invalid_;
   uint32_t daq1 = sistrip::invalid32_;
   uint32_t daq2 = sistrip::invalid32_;
+  
   if ( fed ) {
     mode = static_cast<uint16_t>( fed->getEventType() ); 
     daq1 = static_cast<uint32_t>( fed->getDaqRegister() ); 
     daq2 = static_cast<uint32_t>( fed->getDaqRegisterTwo() ); 
   }
   
-  // Sets commissioning info
-  summary.triggerFed( triggerFedId_ < 0 ? 0 : triggerFedId_ );
-  summary.fedReadoutMode( mode );
-  summary.commissioningInfo( daq1, daq2 );
-  
-  if ( once_ && summary.isSet() ) {
-    ss << " Summary built from FED DAQ register contents:" << std::endl
-       << summary;
-    edm::LogWarning(mlRawToDigi_) << ss.str();
-    once_ = false;
+  // Overwrite EventSummary if FED DAQ registers contain info 
+  if ( daq1 && daq1 != sistrip::invalid32_ &&
+       daq2 && daq2 != sistrip::invalid32_ ) {
+    
+    // Sets commissioning info
+    summary.triggerFed( triggerFedId_ < 0 ? 0 : triggerFedId_ );
+    summary.fedReadoutMode( mode );
+    summary.commissioningInfo( daq1, daq2 );
+    
+    if ( once ) {
+      std::stringstream ss;
+      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	 << " EventSummary built from FED DAQ register contents:"
+	 << std::endl << summary;
+      LogTrace(mlRawToDigi_) << ss.str();
+      once = false;
+    }
+
+    // Last check to see if set using FED DAQ registers
+    if ( !summary.isSet() ) {
+      std::stringstream ss;
+      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	 << " EventSummary is not set correctly!"
+	 << std::endl << summary;
+      edm::LogWarning(mlRawToDigi_) << ss.str();
+    }
+
   }
+
+  if ( !once ) { once_ = false; }
   
 }
 
