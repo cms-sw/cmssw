@@ -1,8 +1,15 @@
-// $Id: CompositeCandidate.cc,v 1.6 2007/09/14 09:53:43 llista Exp $
+// $Id: CompositeCandidate.cc,v 1.7 2007/09/21 14:13:05 llista Exp $
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace reco;
+
+CompositeCandidate::CompositeCandidate(const Candidate & c) :
+  Candidate(c) {
+  size_t n = c.numberOfDaughters();
+  for(size_t i = 0; i != n; ++i)
+    addDaughter(*c.daughter(i));
+}
 
 CompositeCandidate::~CompositeCandidate() { }
 

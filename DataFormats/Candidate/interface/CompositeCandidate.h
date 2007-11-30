@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.23 2007/10/18 16:02:56 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.24 2007/10/22 17:02:49 llista Exp $
  *
  */
 
@@ -32,10 +32,12 @@ namespace reco {
     CompositeCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			int pdgId = 0, int status = 0, bool integerCharge = true ) :
       Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
-     /// constructor from values
+    /// constructor from values
     CompositeCandidate( const Particle & p ) :
       Candidate( p ) { }
-   /// destructor
+    /// constructor from values
+    CompositeCandidate( const Candidate & p );
+    /// destructor
     virtual ~CompositeCandidate();
     /// returns a clone of the candidate
     virtual CompositeCandidate * clone() const;
