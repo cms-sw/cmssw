@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.h,v 1.6 2007/11/29 17:08:03 bainbrid Exp $
+// Last commit: $Id: SiStripEventSummary.h,v 1.7 2007/11/30 09:27:41 bainbrid Exp $
 
 #ifndef DataFormats_SiStripEventSummary_SiStripEventSummary_H
 #define DataFormats_SiStripEventSummary_SiStripEventSummary_H
@@ -145,11 +145,11 @@ class SiStripEventSummary {
 			  const uint32_t& daq_register2 );
   
   /** Sets trigger FED number. */
-  inline void triggerFed( const uint16_t& );
+  inline void triggerFed( const int16_t& );
   
   /** Sets FED readout mode. */
   void fedReadoutMode( const uint16_t& );
-
+  
   /** Sets event number. */
   inline void event( const uint32_t& );
 
@@ -252,7 +252,7 @@ const uint32_t& SiStripEventSummary::processId() const { return params_[1]; }
 const uint32_t& SiStripEventSummary::processIp() const { return params_[2]; }
 const uint32_t& SiStripEventSummary::dcuId() const { return params_[3]; }
 
-void SiStripEventSummary::triggerFed( const uint16_t& fed ) { triggerFed_ = fed; }
+void SiStripEventSummary::triggerFed( const int16_t& fed ) { fed < 0 ? triggerFed_ = 0 : triggerFed_ = fed; }
 void SiStripEventSummary::event( const uint32_t& event ) { event_ = event; }
 void SiStripEventSummary::bx( const uint32_t& bx ) { bx_ = bx; }
 
