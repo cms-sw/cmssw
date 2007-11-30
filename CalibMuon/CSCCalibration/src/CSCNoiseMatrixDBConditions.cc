@@ -69,9 +69,11 @@ void CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
   newdata.close();
   
   std::vector<CSCDBNoiseMatrix::Item> itemvector;
-   itemvector.resize(252288);
-
+  itemvector.resize(252288);
+  //itemvector.resize(217728);
+  
   for(int i=0; i<252288;++i){
+  //for(int i=0; i<217728;++i){
     itemvector[i].elem33 = db_elem33[i];
     itemvector[i].elem34 = db_elem34[i]; 
     itemvector[i].elem44 = db_elem44[i];
@@ -86,22 +88,24 @@ void CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
     itemvector[i].elem77 = db_elem77[i];
   }
 
+  
   for(int i=0; i<252288;++i){
+    //for(int i=0; i<217728;++i){
     counter=db_index_id[i];  
     for (unsigned int k=0;k<new_index_id.size()-1;k++){
       if(counter==new_index_id[k]){
-	itemvector[counter].elem33 = db_elem33[k];
-	itemvector[counter].elem34 = db_elem34[k]; 
-	itemvector[counter].elem44 = db_elem44[k];
-	itemvector[counter].elem35 = db_elem35[k];
-	itemvector[counter].elem45 = db_elem45[k];
-	itemvector[counter].elem55 = db_elem55[k];
-	itemvector[counter].elem46 = db_elem46[k];
-	itemvector[counter].elem56 = db_elem56[k];
-	itemvector[counter].elem66 = db_elem66[k];
-	itemvector[counter].elem57 = db_elem57[k];
-	itemvector[counter].elem67 = db_elem67[k];
-	itemvector[counter].elem77 = db_elem77[k];
+	itemvector[counter].elem33 = new_elem33[k];
+	itemvector[counter].elem34 = new_elem34[k]; 
+	itemvector[counter].elem44 = new_elem44[k];
+	itemvector[counter].elem35 = new_elem35[k];
+	itemvector[counter].elem45 = new_elem45[k];
+	itemvector[counter].elem55 = new_elem55[k];
+	itemvector[counter].elem46 = new_elem46[k];
+	itemvector[counter].elem56 = new_elem56[k];
+	itemvector[counter].elem66 = new_elem66[k];
+	itemvector[counter].elem57 = new_elem57[k];
+	itemvector[counter].elem67 = new_elem67[k];
+	itemvector[counter].elem77 = new_elem77[k];
 	itemvector[i] = itemvector[counter];
       }  
     }
