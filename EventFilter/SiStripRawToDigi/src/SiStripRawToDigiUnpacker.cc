@@ -154,13 +154,13 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       updateEventSummary( fedEvent_, summary );
       first_fed = false;
     }
-
-    // Check to see if EvetnSummary info is set
+    
+    // Check to see if EventSummary info is set
     if ( !summary.isSet() ) {
       std::stringstream ss;
       ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
 	 << " EventSummary is not set correctly!"
-	 << std::endl << summary;
+	 << " Missing information from \"trigger FED\" and DAQ registers!";
       edm::LogWarning(mlRawToDigi_) << ss.str();
     }
     
@@ -482,12 +482,14 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
   }
 
   // Some debug
-  if ( )
-  std::stringstream ss;
-  ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-     << " Found trigger FED! Contents of EventSummary are:" 
-     << std::endl << summary;
-  LogTrace(mlRawToDigi_) << ss.str();
+  if ( summary.isSet() && once_ ) {
+    std::stringstream ss;
+    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+       << " EventSummary built from \"trigger FED\":" 
+       << std::endl << summary;
+    LogTrace(mlRawToDigi_) << ss.str();
+    once_ = false;
+  }
   
 }
 
@@ -622,7 +624,7 @@ void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* cons
     daq2 = static_cast<uint32_t>( fed->getDaqRegisterTwo() ); 
   }
   
-  // Check if FED DAQ registers contain info 
+  // If FED DAQ registers contain info, update (and possibly overwrite) EventSummary 
   if ( daq1 != 0 && daq1 != sistrip::invalid32_ &&
        daq2 != 0 && daq2 != sistrip::invalid32_ ) {
     
@@ -630,11 +632,14 @@ void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* cons
     summary.fedReadoutMode( mode );
     summary.commissioningInfo( daq1, daq2 );
     
-    std::stringstream ss;
-    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-       << " EventSummary built from FED DAQ register contents:"
-       << std::endl << summary;
-    LogTrace(mlRawToDigi_) << ss.str();
+    if ( summary.isSet() && once_ ) {
+      std::stringstream ss;
+      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	 << " EventSummary built from FED DAQ registers:"
+	 << std::endl << summary;
+      LogTrace(mlRawToDigi_) << ss.str();
+      once_ = false;
+    }
     
   } 
   
