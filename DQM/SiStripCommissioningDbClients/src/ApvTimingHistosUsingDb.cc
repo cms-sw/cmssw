@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.9 2007/11/20 22:40:53 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.10 2007/11/28 16:59:32 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -185,37 +185,14 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
       if ( iter != data_.end() ) { 
 	
 	// Check delay value
-	if ( iter->second->refTime() < 0. || iter->second->refTime() > sistrip::maximum_ ) { 
-	  edm::LogWarning(mlDqmClient_) 
-	    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	    << " Unexpected maximum time setting: "
-	    << iter->second->refTime();
-	  continue;
-	}
-	
-	// Check delay and tick height are valid
-	if ( iter->second->delay() < 0. || 
-	     iter->second->delay() > sistrip::maximum_ ) { 
-	  edm::LogWarning(mlDqmClient_) 
-	    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	    << " Unexpected delay value: "
-	    << iter->second->delay();
-	  continue; 
-	}
-	if ( iter->second->height() < 100. ) { 
-	  edm::LogWarning(mlDqmClient_) 
-	    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	    << " Unexpected tick height: "
-	    << iter->second->height();
-	  continue; 
-	}
+	if ( !iter->second->isValid() ) { continue; }
 	
 	// Calculate coarse and fine delays
 	uint32_t delay = static_cast<uint32_t>( rint( iter->second->delay() * 24. / 25. ) ); 
 	coarse = static_cast<uint16_t>( desc->getDelayCoarse() ) 
 	  + ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) / 24;
 	fine = ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) % 24;
-
+	
 	// Record PPLs maximum coarse setting
 	if ( coarse > 15 ) { invalid.push_back(fec_path); }
 	
