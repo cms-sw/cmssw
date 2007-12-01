@@ -110,8 +110,12 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
       for(SiStripRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
         int ring = TIDDetId( it->geographicalId() ).ring();
         if (ringRange(ring)){
+	  bool 	isInGlued = SiStripDetId(it->geographicalId() ).partnerDetId();
 	  if (hasMatchedHits){
-	    if (!hasSimpleRphiHitsCleaner){ // this is a brutal "cleaning". Add something smarter in the future
+	    if (isInGlued){
+	      // this is a brutal "cleaning". Add something smarter in the future
+	      if(!hasSimpleRphiHitsCleaner) result.push_back( SeedingHit(&(*it), sl, es) );
+	    }else{
 	      result.push_back( SeedingHit(&(*it), sl, es) );
 	    }
 	  } else {
@@ -198,8 +202,12 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
         int ring = TECDetId( it->geographicalId() ).ring();
 	//      std::cout << "layer " << theIdLayer << " ring " << ring << std::endl;
         if (ringRange(ring)){
+	  bool 	isInGlued = SiStripDetId(it->geographicalId() ).partnerDetId();
 	  if (hasMatchedHits){
-	    if (!hasSimpleRphiHitsCleaner){ // this is a brutal "cleaning". Add something smarter in the future
+	    if(isInGlued){
+	      // this is a brutal "cleaning". Add something smarter in the future
+	      if (!hasSimpleRphiHitsCleaner) result.push_back( SeedingHit(&(*it), sl, es) );       
+	    }else{
 	      result.push_back( SeedingHit(&(*it), sl, es) );
 	    }
 	  }else {
