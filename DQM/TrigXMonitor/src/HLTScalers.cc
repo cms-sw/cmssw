@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.2 2007/11/26 18:24:21 wittich Exp $
+// $Id: HLTScalers.cc,v 1.3 2007/11/26 19:43:37 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.3  2007/11/26 19:43:37  wittich
+// add cfi, add Reset() on endRun, cfg add tweaks
+//
 // Revision 1.2  2007/11/26 18:24:21  wittich
 // fix bug in cfg handling
 //
@@ -13,6 +16,7 @@
 
 // FW
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -35,7 +39,9 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   trigResultsSource_( ps.getParameter< edm::InputTag >("triggerResults")),
   resetMe_(true),
   verbose_(ps.getUntrackedParameter < bool > ("verbose", false)),
-  monitorDaemon_(ps.getUntrackedParameter<bool>("MonitorDaemon", false))
+  monitorDaemon_(ps.getUntrackedParameter<bool>("MonitorDaemon", false)),
+  nev_(0), 
+  currentRun_(-1)
 {
   if ( verbose_ ) {
     std::cout << "HLTScalers::HLTScalers(ParameterSet) called...." 
@@ -111,12 +117,14 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
   // also dynamically set up the size of the histogram here.
   if (resetMe_ ) {
     if ( verbose_) {
-      std::cout << "HLTScalers: new run: " << std::endl;
+      std::cout << "HLTScalers::analyze(): new run. dump path for this evt " 
+		<< e.id()
+		<< std::endl;
       std::cout << *results << std::endl;
       std::cout << std::endl;
-      for ( int i = 0; i < npath; ++i ) {
-	;
-      }
+//       for ( int i = 0; i < npath; ++i ) {
+// 	;
+//       }
     }
     scalers_->Reset();
     detailedScalers_->Reset();
@@ -156,18 +164,28 @@ void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 void HLTScalers::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
   if ( verbose_) {
-    std::cout << "HLTScalers::beginRun "<< std::endl;
+    std::cout << "HLTScalers::beginRun, run "
+	      << run.id()
+	      << std::endl;
   }
-  resetMe_ = true;
+  if ( currentRun_ != run.id().run() ) {
+    resetMe_ = true;
+    currentRun_ = run.id().run();
+  }
 }
 
 /// EndRun
 void HLTScalers::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
   if ( verbose_) {
-    std::cout << "HLTScalers::endRun "<< std::endl;
+    std::cout << "HLTScalers::endRun , run "
+      	      << run.id()
+	      << std::endl;
   }
-  resetMe_ = true;
+  if ( currentRun_ != run.id().run() ) {
+    resetMe_ = true;
+    currentRun_ = run.id().run();
+  }
 }
 
 

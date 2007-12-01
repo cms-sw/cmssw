@@ -1,12 +1,15 @@
 // -*-c++-*-
 // 
 //
-// $Id$
+// $Id: HLTScalers.h,v 1.1 2007/11/26 16:37:50 wittich Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
-// $Log$
+// $Log: HLTScalers.h,v $
+// Revision 1.1  2007/11/26 16:37:50  wittich
+// Prototype HLT scaler information.
+//
 
 #ifndef HLTSCALERS_H
 #define HLTSCALERS_H
@@ -61,6 +64,7 @@ private:
   edm::InputTag trigResultsSource_;
   bool resetMe_, verbose_, monitorDaemon_;
   int nev_; // Number of events processed
+  int currentRun_;
 };
 
 #endif // HLTSCALERS_H
