@@ -15,7 +15,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
   baseFolder_ = rootFolder_+"PedestalMonitor";
 
   doPerChannel_ = ps.getUntrackedParameter<bool>("PedestalsPerChannel", false);
-  doFCpeds_ = ps.getUntrackedParameter<bool>("PedestalsInFC", false);
+  doFCpeds_ = ps.getUntrackedParameter<bool>("PedestalsInFC", true);
 
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 29.5);
   etaMin_ = ps.getUntrackedParameter<double>("MinEta", -29.5);
@@ -230,7 +230,12 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
       const HODataFrame digi = (const HODataFrame)(*j);	
       const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
       cond.makeHcalCalibration(digi.id(), &calibs_);
-
+      detID_.clear(); capID_.clear(); pedVals_.clear();
+      if(doFCpeds_){
+	channelCoder_ = cond.getHcalCoder(digi.id());
+	HcalCoderDb coderDB(*channelCoder_, *shape_);
+	coderDB.adc2fC(digi,tool);
+      }
       for(int capID=0; capID<4; capID++){
 	  float width=0;
 	  if(pedw) width = pedw->getWidth(capID);
@@ -260,6 +265,12 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
       const HFDataFrame digi = (const HFDataFrame)(*j);	
       const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
       cond.makeHcalCalibration(digi.id(), &calibs_);
+      detID_.clear(); capID_.clear(); pedVals_.clear();
+      if(doFCpeds_){
+	channelCoder_ = cond.getHcalCoder(digi.id());
+	HcalCoderDb coderDB(*channelCoder_, *shape_);
+	coderDB.adc2fC(digi,tool);
+      }
       for(int capID=0; capID<4; capID++){
 	  float width=0;
 	  if(pedw) width = pedw->getWidth(capID);
@@ -267,18 +278,18 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  hfHists.WIDTH_REFS->Fill(width);
 	  PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
 	  WIDTH_REFS->Fill(width);
-	}
-
-	for (int i=0; i<digi.size(); i++) {
-	  if(doFCpeds_) pedVals_.push_back(tool[i]);
-	  else pedVals_.push_back(digi.sample(i).adc());
-	  detID_.push_back(digi.id());
-	  capID_.push_back(digi.sample(i).capid());
-	  hfHists.ALLPEDS->Fill(pedVals_[i]);
-	}
-	if(doPerChannel_) perChanHists(3,detID_,capID_,pedVals_,
-				       hfHists.PEDVALS,hfHists.SUBVALS, baseFolder_);
-	
+      }
+      
+      for (int i=0; i<digi.size(); i++) {
+	if(doFCpeds_) pedVals_.push_back(tool[i]);
+	else pedVals_.push_back(digi.sample(i).adc());
+	detID_.push_back(digi.id());
+	capID_.push_back(digi.sample(i).capid());
+	hfHists.ALLPEDS->Fill(pedVals_[i]);
+      }
+      if(doPerChannel_) perChanHists(3,detID_,capID_,pedVals_,
+				     hfHists.PEDVALS,hfHists.SUBVALS, baseFolder_);
+      
     }
   } catch (...) {
     if(fVerbosity) cout << "HcalPedestalMonitor::processEvent  No HF Digis." << endl;
@@ -340,11 +351,11 @@ void HcalPedestalMonitor::perChanHists(int id,
 	  char name[1024];
 	  sprintf(name,"%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d",
 		  type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);      
-	  insertP[i] =  m_dbe->book1D(name,name,100,-0.5,9.5);
+	  insertP[i] =  m_dbe->book1D(name,name,10,-0.5,9.5);
 	  
 	  sprintf(name,"%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d",
 		  type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);      
-	  insertS[i] =  m_dbe->book1D(name,name,100,-5,5);	
+	  insertS[i] =  m_dbe->book1D(name,name,10,-5,5);	
 	}
 	insertP[capid]->Fill(pedVal);
 	insertS[capid]->Fill(pedVal-calibs_.pedestal(capid));
