@@ -464,7 +464,7 @@ void HcalMonitorClient::report(bool doUpdate) {
   if(me) me->Fill(errorSummary);
 
   //create html output if specified...
-  if( baseHtmlDir_.size() != 0 ) htmlOutput();
+  if( baseHtmlDir_.size() != 0 && ievt_>0) htmlOutput();
 
   return;
 }
@@ -475,8 +475,8 @@ void HcalMonitorClient::htmlOutput(void){
   cout << "Preparing HcalMonitorClient html output ..." << endl;
 
   char tmp[10];
-  if(irun_!=-1) sprintf(tmp, "%09d", irun_);
-  else sprintf(tmp, "%09d", 0);
+  if(irun_!=-1) sprintf(tmp, "DQM_Hcal_R%09d", irun_);
+  else sprintf(tmp, "DQM_Hcal_R%09d", 0);
   string htmlDir = baseHtmlDir_ + "/" + tmp + "/";
   system(("/bin/mkdir -p " + htmlDir).c_str());
 
