@@ -218,8 +218,13 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
 	    {
 	        if ( channelTranslationTable_itr->first == aChannel )
 	        {
-	           assert( channelTranslationTable_itr->second |= hdwAdd );
-	           foundChannel = true;
+		  if (!(channelTranslationTable_itr->second |= hdwAdd)){
+		    cout << "Found two ROCs on the same channe, but not same hdw"<<endl;
+		    cout << "Hdw1:"<<endl<<channelTranslationTable_itr->second<<endl;
+		    cout << "Hdw2:"<<endl<<hdwAdd<<endl;
+		  }
+		  assert( channelTranslationTable_itr->second |= hdwAdd );
+		  foundChannel = true;
 	        }
 	        else if ( channelTranslationTable_itr->first.module() == aModule )
 	        {
