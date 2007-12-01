@@ -7,8 +7,7 @@ HcalBaseMonitor::HcalBaseMonitor() {
   baseFolder_ = "BaseMonitor";
 }
 
-HcalBaseMonitor::~HcalBaseMonitor() {
-}
+HcalBaseMonitor::~HcalBaseMonitor() {}
 
 void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   m_dbe = NULL;
@@ -25,9 +24,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
   return;
 }
 
-void HcalBaseMonitor::done(){
-  return;
-}
+void HcalBaseMonitor::done(){}
 
 void HcalBaseMonitor::clearME(){
 

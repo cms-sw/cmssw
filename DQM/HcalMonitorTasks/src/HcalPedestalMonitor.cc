@@ -340,11 +340,11 @@ void HcalPedestalMonitor::perChanHists(int id,
 	  char name[1024];
 	  sprintf(name,"%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d",
 		  type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);      
-	  insertP[i] =  m_dbe->book1D(name,name,10,-0.5,9.5);
+	  insertP[i] =  m_dbe->book1D(name,name,100,-0.5,9.5);
 	  
 	  sprintf(name,"%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d",
 		  type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);      
-	  insertS[i] =  m_dbe->book1D(name,name,10,-5,5);	
+	  insertS[i] =  m_dbe->book1D(name,name,100,-5,5);	
 	}
 	insertP[capid]->Fill(pedVal);
 	insertS[capid]->Fill(pedVal-calibs_.pedestal(capid));
