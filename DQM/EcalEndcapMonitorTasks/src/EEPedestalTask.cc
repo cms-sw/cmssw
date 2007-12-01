@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2007/10/14 16:02:59 $
- * $Revision: 1.18 $
+ * $Date: 2007/11/10 10:03:54 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -91,12 +91,18 @@ void EEPedestalTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPT pedestal %s G01", Numbers::sEE(i+1).c_str());
       mePedMapG01_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      mePedMapG01_[i]->setAxisTitle("ix", 1);
+      mePedMapG01_[i]->setAxisTitle("iy", 2);
       dbe_->tag(mePedMapG01_[i], i+1);
       sprintf(histo, "EEPT pedestal 3sum %s G01", Numbers::sEE(i+1).c_str());
       mePed3SumMapG01_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      mePed3SumMapG01_[i]->setAxisTitle("ix", 1);
+      mePed3SumMapG01_[i]->setAxisTitle("iy", 2);
       dbe_->tag(mePed3SumMapG01_[i], i+1);
       sprintf(histo, "EEPT pedestal 5sum %s G01", Numbers::sEE(i+1).c_str());
       mePed5SumMapG01_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      mePed5SumMapG01_[i]->setAxisTitle("ix", 1);
+      mePed5SumMapG01_[i]->setAxisTitle("iy", 2);
       dbe_->tag(mePed5SumMapG01_[i], i+1);
     }
 
@@ -104,12 +110,18 @@ void EEPedestalTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPT pedestal %s G06", Numbers::sEE(i+1).c_str());
       mePedMapG06_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      mePedMapG06_[i]->setAxisTitle("ix", 1);
+      mePedMapG06_[i]->setAxisTitle("iy", 2);
       dbe_->tag(mePedMapG06_[i], i+1);
       sprintf(histo, "EEPT pedestal 3sum %s G06", Numbers::sEE(i+1).c_str());
       mePed3SumMapG06_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      mePed3SumMapG06_[i]->setAxisTitle("ix", 1);
+      mePed3SumMapG06_[i]->setAxisTitle("iy", 2);
       dbe_->tag(mePed3SumMapG06_[i], i+1);
       sprintf(histo, "EEPT pedestal 5sum %s G06", Numbers::sEE(i+1).c_str());
       mePed5SumMapG06_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      mePed5SumMapG06_[i]->setAxisTitle("ix", 1);
+      mePed5SumMapG06_[i]->setAxisTitle("iy", 2);
       dbe_->tag(mePed5SumMapG06_[i], i+1);
     }
 
@@ -117,12 +129,18 @@ void EEPedestalTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPT pedestal %s G12", Numbers::sEE(i+1).c_str());
       mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      mePedMapG12_[i]->setAxisTitle("ix", 1);
+      mePedMapG12_[i]->setAxisTitle("iy", 2);
       dbe_->tag(mePedMapG12_[i], i+1);
       sprintf(histo, "EEPT pedestal 3sum %s G12", Numbers::sEE(i+1).c_str());
       mePed3SumMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      mePed3SumMapG12_[i]->setAxisTitle("ix", 1);
+      mePed3SumMapG12_[i]->setAxisTitle("iy", 2);
       dbe_->tag(mePed3SumMapG12_[i], i+1);
       sprintf(histo, "EEPT pedestal 5sum %s G12", Numbers::sEE(i+1).c_str());
       mePed5SumMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      mePed5SumMapG12_[i]->setAxisTitle("ix", 1);
+      mePed5SumMapG12_[i]->setAxisTitle("iy", 2);
       dbe_->tag(mePed5SumMapG12_[i], i+1);
     }
 
@@ -131,14 +149,18 @@ void EEPedestalTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnPedMapG01_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG01_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG01_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 10, 0., 10., 1, 0., 1., 4096, 0., 4096., "s");
+      mePnPedMapG16_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG16_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG16_[i], i+1);
     }
 
@@ -446,7 +468,7 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
 
         float xval = float(adc);
 
-        if ( mePNPed ) mePNPed->Fill(num - 0.5, 0.5, xval);
+        if ( mePNPed ) mePNPed->Fill(num - 0.5, xval);
 
       }
 

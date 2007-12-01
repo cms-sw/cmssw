@@ -29,8 +29,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 #include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
 
@@ -58,7 +56,10 @@ class GenJetBCEnergyRatio : public edm::EDProducer
 
   private:
     virtual void produce(edm::Event&, const edm::EventSetup& );
-    Handle< View <Jet> > genjets;
+
+    Handle< View<Jet> >         genJets;
+    Handle<CandidateCollection> particles;
+
     edm::InputTag m_genjetsSrc;
 
 };
@@ -69,7 +70,7 @@ GenJetBCEnergyRatio::GenJetBCEnergyRatio( const edm::ParameterSet& iConfig )
 {
     produces<JetBCEnergyRatioCollection>("bRatioCollection");
     produces<JetBCEnergyRatioCollection>("cRatioCollection");
-    m_genjetsSrc = iConfig.getParameter<edm::InputTag>("genJets");
+    m_genjetsSrc           = iConfig.getParameter<edm::InputTag>("genJets");
 }
 
 //=========================================================================
@@ -82,37 +83,25 @@ GenJetBCEnergyRatio::~GenJetBCEnergyRatio()
 
 void GenJetBCEnergyRatio::produce( Event& iEvent, const EventSetup& iEs ) 
 {
-  iEvent.getByLabel(m_genjetsSrc, genjets);
+  iEvent.getByLabel(m_genjetsSrc, genJets);
+  iEvent.getByLabel ("genParticleCandidates", particles );
 
-  typedef edm::RefToBase<reco::Jet> JetRef;
+  typedef edm::RefToBase<reco::Jet> GenJetRef;
 
-  JetBCEnergyRatioCollection * jtc1;
-  JetBCEnergyRatioCollection * jtc2;
+  std::auto_ptr<JetBCEnergyRatioCollection> bRatioColl(new JetBCEnergyRatioCollection());
+  std::auto_ptr<JetBCEnergyRatioCollection> cRatioColl(new JetBCEnergyRatioCollection());
 
-  if (genjets.product()->size() > 0) {
-    const JetRef jj = genjets->refAt(0);
-    jtc1 = new JetBCEnergyRatioCollection(RefToBaseProd<Jet>(jj));
-    jtc2 = new JetBCEnergyRatioCollection(RefToBaseProd<Jet>(jj));
-  } else {
-    jtc1 = new JetBCEnergyRatioCollection();
-    jtc2 = new JetBCEnergyRatioCollection();
-  }
+  for( size_t j = 0; j != genJets->size(); ++j ) {
 
-  std::auto_ptr<JetBCEnergyRatioCollection> bRatioColl(jtc1);
-  std::auto_ptr<JetBCEnergyRatioCollection> cRatioColl(jtc2);
+    float bRatio = EnergyRatioFromBHadrons( (*genJets)[j] );
+    float cRatio = EnergyRatioFromCHadrons( (*genJets)[j] );
 
-  for( size_t j = 0; j != genjets->size(); ++j ) {
+    GenJetRef jet = genJets->refAt(j) ;
 
-    float bRatio = EnergyRatioFromBHadrons( (*genjets)[j] );
-    float cRatio = EnergyRatioFromCHadrons( (*genjets)[j] );
-
-    const JetRef & aJet = genjets->refAt(j) ;
-
-    JetFloatAssociation::setValue(*bRatioColl, aJet, bRatio);
-    JetFloatAssociation::setValue(*cRatioColl, aJet, cRatio);
+    reco::JetFloatAssociation::setValue(*bRatioColl, jet, bRatio);
+    reco::JetFloatAssociation::setValue(*cRatioColl, jet, cRatio);
 
   }
-
 
   iEvent.put(bRatioColl, "bRatioCollection");
   iEvent.put(cRatioColl, "cRatioCollection");

@@ -33,19 +33,9 @@ namespace reco {
   public:
 
     typedef edm::OwnVector< reco::PFBlockElement >::const_iterator IE;
-    /*     typedef std::vector< reco::PFBlockLink >::const_iterator IL; */
-    
-    typedef std::vector< std::vector<double> > LinkData;
-    
-    enum LinkType {
-      CHI2=0,
-      RECHIT,
-      TANGENT,
-      NLINKTYPES
-    };
+/*     typedef std::vector< reco::PFBlockLink >::const_iterator IL; */
     
     
-
     PFBlock() {}
     // PFBlock(const PFBlock& other);
 
@@ -61,41 +51,36 @@ namespace reco {
 
     /// set a link between elements of indices i1 and i2, of "distance" chi2
     /// the link is set in the linkData vector provided as an argument.
-    /// As indicated by the 'const' statement, 'this' is not modified.
     void setLink(unsigned i1, unsigned i2, double chi2, 
-                 LinkData& linkData, 
-		 LinkType  type=CHI2 ) const;
+		 std::vector<double>& linkData ) const;
 
 
     /// lock an element ( unlink it from the others )
-    /// Colin: this function is misleading
-    /// void lock(unsigned i, LinkData& linkData ) const;
+    void lock(unsigned i, std::vector<double>& linkData ) const;
 
 
     /// fills a map with the elements associated to element i.
     /// elements are sorted by increasing chi2.
     /// if specified, only the elements of type "type" will be considered
     void associatedElements( unsigned i,
-                             const LinkData& linkData, 
-                             std::map<double, unsigned>& sortedAssociates,
-                             reco::PFBlockElement::Type type = PFBlockElement::NONE) const;  
+			     std::map<double, unsigned>& sortedAssociates,
+			     reco::PFBlockElement::Type type = PFBlockElement::NONE) const;  
       
 
     /// \return chi2 of link
     double chi2( unsigned ie1, unsigned ie2, 
-                 const LinkData& linkData, 
-		 LinkType  type=CHI2 ) const;
+		 const std::vector<double>& linkData ) const;
 
     /// \return elements
     const edm::OwnVector< reco::PFBlockElement >& elements() const 
       {return elements_;}
 
     /// \return link data
-    const LinkData& linkData() const 
+    const std::vector< double >& linkData() const 
       {return linkData_;}
 
     /// \return link data
-    LinkData& linkData()  
+    std::vector< double >& linkData()  
       {return linkData_;}
 
     friend std::ostream& operator<<( std::ostream& out, const PFBlock& co );
@@ -106,7 +91,7 @@ namespace reco {
     unsigned linkDataSize() const;
     
     /// link data (permanent)
-    LinkData                                        linkData_;
+    std::vector< double >                           linkData_;
      
     /// all elements 
     edm::OwnVector< reco::PFBlockElement >          elements_;

@@ -192,7 +192,7 @@ TH2F* getHisto2(string name, string process, DaqMonitorBEInterface* dbe_, bool v
 
   TH2F* out = NULL;
   char title[150];  
-  sprintf(title, "%sHcalMonitor/%s",process.c_str(),name.c_str());
+  sprintf(title, "%sHcal/%s",process.c_str(),name.c_str());
 
   MonitorElement* me = dbe_->get(title);
 
@@ -216,9 +216,9 @@ TH2F* getHisto2(string name, string process, DaqMonitorBEInterface* dbe_, bool v
 
 TH1F* getHisto(string name, string process, DaqMonitorBEInterface* dbe_, bool verb, bool clone){
   if(!dbe_) return NULL;
-
+  
   char title[150];  
-  sprintf(title, "%sHcalMonitor/%s",process.c_str(),name.c_str());
+  sprintf(title, "%sHcal/%s",process.c_str(),name.c_str());
   TH1F* out = NULL;
 
   const MonitorElement* me = dbe_->get(title);

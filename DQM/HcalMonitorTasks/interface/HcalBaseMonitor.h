@@ -24,8 +24,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2006/09/28 22:19:07 $
-  * $Revision: 1.5 $
+  * $Date: 2007/04/02 13:19:38 $
+  * $Revision: 1.6 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -33,8 +33,8 @@ public:
   HcalBaseMonitor(); 
   virtual ~HcalBaseMonitor(); 
 
-  virtual void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
-  virtual void done();
+  virtual void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);    virtual void done();
+  virtual void clearME();
 
   void setVerbosity(int verb) { fVerbosity = verb; }
   int getVerbosity() const { return fVerbosity; }
@@ -45,6 +45,8 @@ protected:
   int fVerbosity;
   DaqMonitorBEInterface* m_dbe;
   vector<string> hotCells_;
+  string rootFolder_;
+  string baseFolder_;
 
 };
 

@@ -3,8 +3,8 @@
 /*                                                              */
 /* Author : N.Almeida (LIP)  Date   : 30/05/2005                */
 /*--------------------------------------------------------------*/
-#ifndef DCCTBTCCBLOCK_HH
-#define DCCTBTCCBLOCK_HH
+#ifndef DCCTCCBLOCK_HH
+#define DCCTCCBLOCK_HH
 
 #include <iostream>                  //STL
 #include <string>
@@ -17,18 +17,18 @@
 #include "DCCDataMapper.h"
 #include "DCCEventBlock.h"
 
-class DCCTBEventBlock;
-class DCCTBDataParser;
+class DCCEventBlock;
+class DCCDataParser;
 
 
-class DCCTBTCCBlock : public DCCTBBlockPrototype {
+class DCCTCCBlock : public DCCBlockPrototype {
 	
 public :
   /**
      Class constructor
   */
-  DCCTBTCCBlock(DCCTBEventBlock * dccBlock,
-	      DCCTBDataParser * parser, 
+  DCCTCCBlock(DCCEventBlock * dccBlock,
+	      DCCDataParser * parser, 
 	      ulong * buffer, 
 	      ulong numbBytes, 
 	      ulong wordsToEnd,
@@ -68,7 +68,7 @@ protected :
     ETMASK = 0xFF                  
   };
   
-  DCCTBEventBlock * dccBlock_;
+  DCCEventBlock * dccBlock_;
   ulong expectedId_;
 };
 

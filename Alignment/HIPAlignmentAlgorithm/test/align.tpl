@@ -20,6 +20,7 @@ process Alignment =
 
   replace AlignmentProducer.maxLoops = 1
   replace AlignmentProducer.algoConfig = { using HIPAlignmentAlgorithm }
+  replace AlignmentProducer.doMisalignmentScenario = false
 
   replace AlignmentProducer.monitorConfig.AlignmentMonitorGeneric =
   {

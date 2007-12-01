@@ -249,13 +249,14 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 
     int tmpTV = 0;
     for (TrackingVertexCollection::iterator iTrkVtx = tVC -> begin(); iTrkVtx != tVC ->end(); ++iTrkVtx, ++tmpTV) {
-      double distance = (iTrkVtx -> position() - position).mag();
+      double distance = (iTrkVtx -> position() - position).P();
       if (distance <= closest && vertEvtId == iTrkVtx -> eventId()) { // flag which one so we can associate them
         closest = distance;
         nearestVertex = iTrkVtx;
         indexTV = tmpTV;
       }
-    }
+    }    
+    
 
 // If outside cutoff, create another TrackingVertex, set nearestVertex to it
 
@@ -283,6 +284,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
           (*nearestVertex).addDaughterTrack(TrackingParticleRef(refTPC,indexTP));
           (tPC->at(indexTP)).setParentVertex(TrackingVertexRef(refTVC,indexTV));
           const LorentzVector  &v = (*nearestVertex).position();
+
           math::XYZPoint xyz = math::XYZPoint(v.x(), v.y(), v.z());
           double t = v.t();
           (tPC->at(indexTP)).setVertex(xyz,t);

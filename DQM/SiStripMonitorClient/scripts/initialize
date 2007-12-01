@@ -116,6 +116,7 @@ print "make xdaq configuration ...\n";
 
 my @EPproperties = ("parameterSet", "string","file:$pwd/cfg/source.cfg",
 		    "collReconnSec","integer","-1",
+		    "hasPrescaleService","boolean","false",
 		    "hasSharedMemory","boolean","false");
 my @DPproperties = ("parameterSet", "string","file:$pwd/cfg/client.cfg",
 		    "collReconnSec","integer","-1",

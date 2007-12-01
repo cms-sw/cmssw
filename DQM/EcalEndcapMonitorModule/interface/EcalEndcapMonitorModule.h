@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2007/11/06 10:29:41 $
- * $Revision: 1.5 $
+ * $Date: 2007/11/06 11:37:14 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -17,7 +17,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+class MonitorElement;
+class DaqMonitorBEInterface;
 
 class EcalEndcapMonitorModule: public edm::EDAnalyzer{
 

@@ -1,7 +1,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2007/09/28 12:47:14 $
+ * $Date: 2007/11/02 09:14:54 $
  * \author C. Rovelli
  *
  */
@@ -200,48 +200,39 @@ void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       meEBUncalibRecHitPedMap_[ism-1] ->Fill(xie, xip, uncalibRecHit->pedestal());
       meEBUncalibRecHitAmplMap_[ism-1]->Fill(xie, xip, uncalibRecHit->amplitude());
       
-
       // find the rechit corresponding digi and the max sample
-      for (unsigned int digis=0; digis<EcalDigiEB->size(); ++digis){
+      EBDigiCollection::const_iterator myDigi = EBDigi->find(EBid);
+      int sMax = -1;
+      double eMax = 0.;
+      if (myDigi != EBDigi->end()){
+	for (unsigned int sample = 0 ; sample < myDigi->size(); ++sample){
+	  EcalMGPASample thisSample = (*myDigi)[sample];
+	  double analogSample = thisSample.adc();
+	  if ( eMax < analogSample ){
+	    eMax = analogSample;
+	    sMax = sample;
+	  }
+	}
+      }
+      else
+	continue;
+      
+      // ratio uncalibratedRecHit amplitude + ped / max energy digi  
+      const EcalPedestals* myped = ecalPeds.product();
+      EcalPedestalsMap::const_iterator it=myped->getMap().find( EBid );
+      if( it != myped->getMap().end() ){
 	
-	EBDataFrame ebdf = (*EBDigi)[digis];
-	EBDetId ebid     = ebdf.id () ;
-	
-	int sMax = -1;
-	double eMax = 0.;
-	if (ebid == EBid){
+	if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1 ) {//only real signal RecHit
 	  
-	  int nrSamples = ebdf.size();
-	  for (int sample = 0 ; sample < nrSamples; ++sample){
-	    EcalMGPASample thisSample = ebdf[sample];
-	    double analogSample = thisSample.adc();
-	    if ( eMax < analogSample ){
-	      eMax = analogSample;
-	      sMax = sample;
-	    }
-	  }
-	
-	  // ratio uncalibratedRecHit amplitude + ped / max energy digi  
-	  const EcalPedestals* myped = ecalPeds.product();
-	  EcalPedestalsMap::const_iterator it=myped->getMap().find( EBid );
-	  if( it != myped->getMap().end() ){
-
-	    if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1 ) {//only real signal RecHit
-
-	      if ( meEBUncalibRecHitMaxSampleRatio_ ) meEBUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax);
-	      if ( meEBUncalibRecHitMaxSampleRatioGt100adc_ && (uncalibRecHit->amplitude()>100) ) meEBUncalibRecHitMaxSampleRatioGt100adc_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax);
-	      LogDebug("EcalRecHitsTaskInfo") << "barrel, eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
-	    }
-	    else
-	      continue;
-	  }
-	  else
-	    continue;
-	} // right detid
+	  if ( meEBUncalibRecHitMaxSampleRatio_ ) meEBUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax);
+	  if ( meEBUncalibRecHitMaxSampleRatioGt100adc_ && (uncalibRecHit->amplitude()>100) ) meEBUncalibRecHitMaxSampleRatioGt100adc_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax);
+	  LogDebug("EcalRecHitsTaskInfo") << "barrel, eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
+	}
 	else
 	  continue;
-      } // loop over digis
+      }
+      else
+	continue;
       
     }  // loop over the UncalibratedRecHitCollection
-
 }

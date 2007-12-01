@@ -1,4 +1,4 @@
-5~<?xml version="1.0"  standalone="no" ?>
+<?xml version="1.0"  standalone="no" ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 xmlns:svg="http://www.w3.org/2000/svg" 
 xmlns:xlink="http://www.w3.org/1999/xlink"

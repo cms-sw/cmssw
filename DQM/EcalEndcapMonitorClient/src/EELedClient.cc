@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/05 11:09:08 $
- * $Revision: 1.28 $
+ * $Date: 2007/11/13 15:50:55 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -23,8 +23,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -33,12 +31,16 @@
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EELedClient.h>
 
@@ -50,9 +52,6 @@ EELedClient::EELedClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -125,28 +124,14 @@ EELedClient::EELedClient(const ParameterSet& ps){
     meaopn01_[ism-1] = 0;
 
     meaopn05_[ism-1] = 0;
- 
+
     mepnprms01_[ism-1] = 0;
 
     mepnprms05_[ism-1] = 0;
-    
-    qth01_[ism-1] = 0;
 
-    qth05_[ism-1] = 0;
+    me_hs01_[ism-1] = 0;
 
-    qth09_[ism-1] = 0;
-
-    qth13_[ism-1] = 0;
-
-    qth17_[ism-1] = 0;
-
-    qth21_[ism-1] = 0;
-
-    qtg01_[ism-1] = 0;
-
-    qtg05_[ism-1] = 0;
-
-    qtg09_[ism-1] = 0;
+    me_hs05_[ism-1] = 0;
 
   }
 
@@ -154,16 +139,16 @@ EELedClient::EELedClient(const ParameterSet& ps){
 
   amplitudeThresholdPnG01_ = 50.;
   amplitudeThresholdPnG16_ = 50.;
-  
+
   pedPnExpectedMean_[0] = 750.0;
   pedPnExpectedMean_[1] = 750.0;
-  
+
   pedPnDiscrepancyMean_[0] = 100.0;
   pedPnDiscrepancyMean_[1] = 100.0;
-  
+
   pedPnRMSThreshold_[0] = 1.0; // value at h4; expected nominal: 0.5
   pedPnRMSThreshold_[1] = 3.0; // value at h4; expected nominal: 1.6
-  
+
 }
 
 EELedClient::~EELedClient(){
@@ -179,107 +164,6 @@ void EELedClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EELDT led quality %s A", Numbers::sEE(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELDT led quality %s B", Numbers::sEE(ism).c_str());
-      qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELDT led amplitude quality PNs %s G01", Numbers::sEE(ism).c_str());
-      qth09_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELDT led pedestal quality PNs %s G01", Numbers::sEE(ism).c_str());
-      qth13_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELDT led amplitude quality PNs %s G16", Numbers::sEE(ism).c_str());
-      qth17_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELDT led pedestal quality PNs %s G16", Numbers::sEE(ism).c_str());
-      qth21_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qth01_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-
-      qth05_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-
-      qth09_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-
-      qth13_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
-                                  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-
-      qth17_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-
-      qth21_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
-                                  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-
-      qth01_[ism-1]->setMeanTolerance(percentVariation_);
-
-      qth05_[ism-1]->setMeanTolerance(percentVariation_);
-
-      qth09_[ism-1]->setRMSRange(0.0, 4096.0);
-
-      qth13_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-
-      qth17_[ism-1]->setRMSRange(0.0, 4096.0);
-
-      qth21_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-
-      qth01_[ism-1]->setMinimumEntries(10*1700);
-
-      qth05_[ism-1]->setMinimumEntries(10*1700);
-
-      qth09_[ism-1]->setMinimumEntries(10*10);
-
-      qth13_[ism-1]->setMinimumEntries(10*10);
-
-      qth17_[ism-1]->setMinimumEntries(10*10);
-
-      qth21_[ism-1]->setMinimumEntries(10*10);
-
-      qth01_[ism-1]->setErrorProb(1.00);
-
-      qth05_[ism-1]->setErrorProb(1.00);
-
-      qth09_[ism-1]->setErrorProb(1.00);
-
-      qth13_[ism-1]->setErrorProb(1.00);
-
-      qth17_[ism-1]->setErrorProb(1.00);
-
-      qth21_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EELDT quality test %s", Numbers::sEE(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg01_[ism-1]->setMeanRange(1., 6.);
-
-      qtg01_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EELDT quality test PNs %s G01", Numbers::sEE(ism).c_str());
-      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EELDT quality test PNs %s G16", Numbers::sEE(ism).c_str());
-      qtg09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg05_[ism-1]->setMeanRange(1., 6.);
-
-      qtg09_[ism-1]->setMeanRange(1., 6.);
-
-      qtg05_[ism-1]->setErrorProb(1.00);
-
-      qtg09_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -328,62 +212,98 @@ void EELedClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg01_[ism-1]->setAxisTitle("ix", 1);
+    meg01_[ism-1]->setAxisTitle("iy", 2);
 
     if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EELDT led quality PNs %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led quality G01 PNs %s", Numbers::sEE(ism).c_str());
     meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg05_[ism-1]->setAxisTitle("channel", 2);
 
     if ( meg09_[ism-1] ) dbe_->removeElement( meg09_[ism-1]->getName() );
-    sprintf(histo, "EELDT led quality PNs %s G16", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led quality G16 PNs %s", Numbers::sEE(ism).c_str());
     meg09_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg09_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg09_[ism-1]->setAxisTitle("channel", 2);
 
     if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );;
     sprintf(histo, "EELDT amplitude A %s", Numbers::sEE(ism).c_str());
     mea01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea01_[ism-1]->setAxisTitle("channel", 1);
+    mea01_[ism-1]->setAxisTitle("amplitude", 2);
 
     if ( mea05_[ism-1] ) dbe_->removeElement( mea05_[ism-1]->getName() );;
     sprintf(histo, "EELDT amplitude B %s", Numbers::sEE(ism).c_str());
     mea05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea05_[ism-1]->setAxisTitle("channel", 1);
+    mea05_[ism-1]->setAxisTitle("amplitude", 2);
 
     if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
-    sprintf(histo, "EELDT timing A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led timing A %s", Numbers::sEE(ism).c_str());
     met01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met01_[ism-1]->setAxisTitle("channel", 1);
+    met01_[ism-1]->setAxisTitle("jitter", 2);
 
     if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
-    sprintf(histo, "EELDT timing B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led timing B %s", Numbers::sEE(ism).c_str());
     met05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met05_[ism-1]->setAxisTitle("channel", 1);
+    met05_[ism-1]->setAxisTitle("jitter", 2);
 
     if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
-    sprintf(histo, "EELDT timing mean A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led timing mean A %s", Numbers::sEE(ism).c_str());
     metav01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav01_[ism-1]->setAxisTitle("mean", 1);
 
     if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
-    sprintf(histo, "EELDT timing mean B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led timing mean B %s", Numbers::sEE(ism).c_str());
     metav05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav05_[ism-1]->setAxisTitle("mean", 1);
 
     if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
-    sprintf(histo, "EELDT timing rms A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led timing rms A %s", Numbers::sEE(ism).c_str());
     metrms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms01_[ism-1]->setAxisTitle("rms", 1);
 
     if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
-    sprintf(histo, "EELDT timing rms B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led timing rms B %s", Numbers::sEE(ism).c_str());
     metrms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms05_[ism-1]->setAxisTitle("rms", 1);
 
     if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude over PN A %s", Numbers::sEE(ism).c_str());
     meaopn01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn01_[ism-1]->setAxisTitle("channel", 1);
+    meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
 
     if ( meaopn05_[ism-1] ) dbe_->removeElement( meaopn05_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude over PN B %s", Numbers::sEE(ism).c_str());
     meaopn05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn05_[ism-1]->setAxisTitle("channel", 1);
+    meaopn05_[ism-1]->setAxisTitle("amplitude/PN", 2);
 
     if ( mepnprms01_[ism-1] ) dbe_->removeElement( mepnprms01_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01", Numbers::sEE(ism).c_str());
     mepnprms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms01_[ism-1]->setAxisTitle("rms", 1);
 
     if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16", Numbers::sEE(ism).c_str());
     mepnprms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms05_[ism-1]->setAxisTitle("rms", 1);
+
+    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    sprintf(histo, "EELDT led shape A %s", Numbers::sEB(ism).c_str());
+    me_hs01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs01_[ism-1]->setAxisTitle("sample", 1);
+    me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
+
+    if ( me_hs05_[ism-1] ) dbe_->removeElement( me_hs05_[ism-1]->getName() );
+    sprintf(histo, "EELDT led shape B %s", Numbers::sEB(ism).c_str());
+    me_hs05_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs05_[ism-1]->setAxisTitle("sample", 1);
+    me_hs05_[ism-1]->setAxisTitle("amplitude", 2);
 
   }
 
@@ -441,11 +361,15 @@ void EELedClient::setup(void) {
     meaopn01_[ism-1]->Reset();
 
     meaopn05_[ism-1]->Reset();
-    
+
     mepnprms01_[ism-1]->Reset();
 
     mepnprms05_[ism-1]->Reset();
-    
+
+    me_hs01_[ism-1]->Reset();
+
+    me_hs05_[ism-1]->Reset();
+
   }
 
 }
@@ -554,6 +478,12 @@ void EELedClient::cleanup(void) {
 
     if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
     mepnprms05_[ism-1] = 0;
+
+    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    me_hs01_[ism-1] = 0;
+
+    if ( me_hs05_[ism-1] ) dbe_->removeElement( me_hs05_[ism-1]->getName() );
+    me_hs05_[ism-1] = 0;
 
   }
 
@@ -741,13 +671,13 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
       float rms01, rms05;
       float rms09, rms13;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
 
-      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 1, num05, mean05, rms05);
+      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 0, num05, mean05, rms05);
 
-      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 1, num09, mean09, rms09);
+      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 0, num09, mean09, rms09);
 
-      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 1, num13, mean13, rms13);
+      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 0, num13, mean13, rms13);
 
       if ( update01 || update05 || update09 || update13 ) {
 
@@ -853,49 +783,6 @@ void EELedClient::subscribe(void){
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-      if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-      if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-      if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-      if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-      if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-      if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalEndcap/EELaserTask/EELDT led quality %s", Numbers::sEE(ism).c_str());
-    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
-
-    sprintf(histo, "EcalEndcap/EELaserTask/EELDT led quality PNs %s G01", Numbers::sEE(ism).c_str());
-    if ( qtg05_[ism-1] ) dbe_->useQTest(histo, qtg05_[ism-1]->getName());
-
-    sprintf(histo, "EcalEndcap/EELaserTask/EELDT led quality PNs %s G16", Numbers::sEE(ism).c_str());
-    if ( qtg09_[ism-1] ) dbe_->useQTest(histo, qtg09_[ism-1]->getName());
 
   }
 
@@ -1071,19 +958,19 @@ void EELedClient::analyze(void){
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i05_[ism-1] );
+    i05_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i05_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i09_[ism-1] );
+    i09_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i09_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
-    i13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i13_[ism-1] );
+    i13_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i13_[ism-1] );
 
     meg01_[ism-1]->Reset();
 
@@ -1114,7 +1001,11 @@ void EELedClient::analyze(void){
     mepnprms01_[ism-1]->Reset();
 
     mepnprms05_[ism-1]->Reset();
-    
+
+    me_hs01_[ism-1]->Reset();
+
+    me_hs05_[ism-1]->Reset();
+
     float meanAmplA;
     float meanAmplB;
 
@@ -1386,13 +1277,13 @@ void EELedClient::analyze(void){
       float rms01, rms05;
       float rms09, rms13;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
 
-      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 1, num05, mean05, rms05);
+      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 0, num05, mean05, rms05);
 
-      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 1, num09, mean09, rms09);
+      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 0, num09, mean09, rms09);
 
-      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 1, num13, mean13, rms13);
+      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 0, num13, mean13, rms13);
 
       if ( update01 && update05 ) {
 
@@ -1424,7 +1315,7 @@ void EELedClient::analyze(void){
           val = 0.;
         if ( rms13 > pedPnRMSThreshold_[1] )
           val = 0.;
-        
+
         if ( meg09_[ism-1] )           meg09_[ism-1]->setBinContent(i, 1, val);
         if ( mepnprms05_[ism-1] ) mepnprms05_[ism-1]->Fill(rms13);
 
@@ -1454,6 +1345,20 @@ void EELedClient::analyze(void){
           }
 
         }
+      }
+
+    }
+
+    for ( int i = 1; i <= 10; i++ ) {
+
+      if ( hs01_[ism-1] ) {
+        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
+        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs05_[ism-1] ) {
+        me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(426, i) );
+        me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(426, i) );
       }
 
     }
@@ -1544,7 +1449,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   dummy1.SetMarkerSize(2);
   dummy1.SetMinimum(0.1);
-  
+
   string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameTimav[8], imgNameTimrms[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQualG01[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnRmsPedG01[8], imgNameMEPnQualG16[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgNameMEPnRmsPedG16[8], imgName, meName;
 
   TCanvas* cQual   = new TCanvas("cQual", "Temp", 2*csize, 2*csize);
@@ -1559,7 +1464,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TH2F* obj2f;
   TH1F* obj1f;
-  TH1D* obj1d;
+  TProfile* objp;
 
   // Loop on barrel supermodules
 
@@ -1611,7 +1516,9 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         cQual->SetGridx();
         cQual->SetGridy();
         obj2f->GetXaxis()->SetLabelSize(0.02);
+        obj2f->GetXaxis()->SetTitleSize(0.02);
         obj2f->GetYaxis()->SetLabelSize(0.02);
+        obj2f->GetYaxis()->SetTitleSize(0.02);
         obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum(6.0);
         obj2f->Draw("col");
@@ -1647,7 +1554,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         case 2:
         case 3:
         case 4:
-          obj2f = 0;
+          obj1f = 0;
           break;
         case 5:
           obj1f = UtilsClient::getHisto<TH1F*>( mea05_[ism-1] );
@@ -1655,7 +1562,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         case 6:
         case 7:
         case 8:
-          obj2f = 0;
+          obj1f = 0;
           break;
         default:
           break;
@@ -1849,30 +1756,30 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameShape[iCanvas-1] = "";
 
-      obj1d = 0;
+      obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( hs01_[ism-1] ) obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs01_[ism-1] );
           break;
         case 2:
         case 3:
         case 4:
-          obj1d = 0;
+          obj1f = 0;
           break;
         case 5:
-          if ( hs05_[ism-1] ) obj1d = hs05_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs05_[ism-1] );
           break;
         case 6:
         case 7:
         case 8:
-          obj1d = 0;
+          obj1f = 0;
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
-        meName = obj1d->GetName();
+      if ( obj1f ) {
+        meName = obj1f->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -1884,18 +1791,16 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cShape->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        obj1f->SetStats(kTRUE);
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->Draw();
+        obj1f->Draw();
         cShape->Update();
         cShape->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
@@ -2054,10 +1959,10 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPnG01[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i01_[ism-1];
           break;
         case 2:
         case 3:
@@ -2066,15 +1971,15 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         case 6:
         case 7:
         case 8:
-          obj2f = 0;
+          objp = 0;
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -2086,28 +1991,26 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cAmp->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
       imgNameMEPnG16[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i09_[ism-1] ) obj1d = i09_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i09_[ism-1];
           break;
         case 2:
         case 3:
@@ -2116,15 +2019,15 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         case 6:
         case 7:
         case 8:
-          obj2f = 0;
+          objp = 0;
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -2136,19 +2039,17 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cAmp->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
@@ -2156,10 +2057,10 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPnPedG01[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i05_[ism-1] ) obj1d = i05_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i05_[ism-1];
           break;
         case 2:
         case 3:
@@ -2168,15 +2069,15 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         case 6:
         case 7:
         case 8:
-          obj2f = 0;
+          objp = 0;
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -2188,25 +2089,70 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cPed->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
-        delete obj1d;
+      }
+
+      imgNameMEPnPedG16[iCanvas-1] = "";
+
+      objp = 0;
+      switch ( iCanvas ) {
+      case 1:
+        objp = i13_[ism-1];
+        break;
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+        objp = 0;
+        break;
+      default:
+        break;
+      }
+
+      if ( objp ) {
+
+        meName = objp->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnPedG16[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnPedG16[iCanvas-1];
+
+        cPed->cd();
+        gStyle->SetOptStat("euo");
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
+        objp->SetMinimum(0.0);
+        objp->Draw();
+        cPed->Update();
+        cPed->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
 
       }
-      
-      
+
       imgNameMEPnRmsPedG01[iCanvas-1] = "";
-      
+
       obj1f = 0;
       switch ( iCanvas ) {
       case 1:
@@ -2219,16 +2165,16 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
       case 6:
       case 7:
       case 8:
-        obj2f = 0;
+        obj1f = 0;
         break;
       default:
         break;
       }
-      
+
       if ( obj1f ) {
-          
+
         meName = obj1f->GetName();
-          
+
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
             meName.replace(i, 1 ,"_" );
@@ -2236,7 +2182,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         imgNameMEPnRmsPedG01[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnRmsPedG01[iCanvas-1];
-          
+
         cPed->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
@@ -2252,10 +2198,9 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         gPad->SetLogy(0);
 
       }
-      
-      
+
       imgNameMEPnRmsPedG16[iCanvas-1] = "";
-      
+
       obj1f = 0;
       switch ( iCanvas ) {
       case 1:
@@ -2268,16 +2213,16 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
       case 6:
       case 7:
       case 8:
-        obj2f = 0;
+        obj1f = 0;
         break;
       default:
         break;
       }
-      
+
       if ( obj1f ) {
-          
+
         meName = obj1f->GetName();
-          
+
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
             meName.replace(i, 1 ,"_" );
@@ -2285,7 +2230,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         imgNameMEPnRmsPedG16[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnRmsPedG16[iCanvas-1];
-          
+
         cPed->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
@@ -2299,61 +2244,11 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-          
+
       }
-      
-      imgNameMEPnPedG16[iCanvas-1] = "";
-      
-      obj1d = 0;
-      switch ( iCanvas ) {
-      case 1:
-        if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionX("_px", 1, 1, "e");
-        break;
-      case 2:
-      case 3:
-      case 4:
-      case 5:
-      case 6:
-      case 7:
-      case 8:
-        obj2f = 0;
-        break;
-      default:
-        break;
-      }
-      
-      if ( obj1d ) {
-        
-        meName = obj1d->GetName();
-        
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
-        imgNameMEPnPedG16[iCanvas-1] = meName + ".png";
-        imgName = htmlDir + imgNameMEPnPedG16[iCanvas-1];
-        
-        cPed->cd();
-        gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
-//        } else {
-//          gPad->SetLogy(0);
-//        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
-        cPed->Update();
-        cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
-        
-        delete obj1d;
-        
-      }
-      
+
     }
-    
+
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""

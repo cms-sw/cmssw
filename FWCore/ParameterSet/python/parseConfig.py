@@ -1122,8 +1122,6 @@ def _finalizeProcessFragment(values,usingLabels):
         for replace in replaces:
             if not isinstance(getattr(adapted,replace.rootLabel()),cms.PSet):
                 replace.do(adapted)
-        # maybe the user said something like 'replace a.b = {using bl}
-        _findAndHandleProcessUsingBlock(values)
     except Exception, e:
         raise RuntimeError("the configuration contains the error \n"+str(e))    
     #FIX: now need to create Sequences, Paths, EndPaths from the available
@@ -1907,25 +1905,6 @@ process RECO = {
 }
 """)
             self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
-
-            _allUsingLabels = set()
-            t=process.parseString("""
-process RECO = {
-  module i = iterativeCone5CaloJets from "FWCore/ParameterSet/test/chainIncludeModule.cfi"
-}
-""")
-            self.assertEqual(t[0].i.jetType.value(), "CaloJet")
-
-
-            _allUsingLabels = set()
-            t=process.parseString("""
-process RECO = {
-  include "FWCore/ParameterSet/test/chainIncludeBlock.cfi"
-  module i = iterativeConeNoBlock from "FWCore/ParameterSet/test/chainIncludeModule2.cfi"
-}
-""")
-            self.assertEqual(t[0].i.jetType.value(), "CaloJet")
-
 
 
             _allUsingLabels = set()

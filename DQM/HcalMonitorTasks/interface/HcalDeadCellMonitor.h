@@ -6,8 +6,8 @@
 
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2007/10/04 21:03:13 $
-  * $Revision: 1.14 $
+  * $Date: 2007/11/15 23:13:46 $
+  * $Revision: 1.2 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -55,7 +55,6 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 			 const HFRecHitCollection& hfHits);
 
   void reset_Nevents(DeadCellHists& h);
-  void clearME();
   void reset();
 
 
@@ -72,7 +71,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
    double Nsigma_;
    double minADCcount_;
 
-   DeadCellHists hbHists, heHists, hoHists, hfHists;
+   DeadCellHists hbHists, heHists, hoHists, hfHists, hcalHists;
    MonitorElement* meEVT_;
 
 

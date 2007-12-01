@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/11/05 10:51:29 $
- * $Revision: 1.190 $
+ * $Date: 2007/11/13 14:05:26 $
+ * $Revision: 1.199 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -21,8 +21,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -37,12 +35,16 @@
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 
@@ -55,9 +57,6 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -207,45 +206,14 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
     mepnprms07_[ism-1] = 0;
     mepnprms08_[ism-1] = 0;
 
-    qth01_[ism-1] = 0;
-    qth02_[ism-1] = 0;
-    qth03_[ism-1] = 0;
-    qth04_[ism-1] = 0;
-    qth05_[ism-1] = 0;
-    qth06_[ism-1] = 0;
-    qth07_[ism-1] = 0;
-    qth08_[ism-1] = 0;
-
-    qth09_[ism-1] = 0;
-    qth10_[ism-1] = 0;
-    qth11_[ism-1] = 0;
-    qth12_[ism-1] = 0;
-    qth13_[ism-1] = 0;
-    qth14_[ism-1] = 0;
-    qth15_[ism-1] = 0;
-    qth16_[ism-1] = 0;
-    qth17_[ism-1] = 0;
-    qth18_[ism-1] = 0;
-    qth19_[ism-1] = 0;
-    qth20_[ism-1] = 0;
-    qth21_[ism-1] = 0;
-    qth22_[ism-1] = 0;
-    qth23_[ism-1] = 0;
-    qth24_[ism-1] = 0;
-
-    qtg01_[ism-1] = 0;
-    qtg02_[ism-1] = 0;
-    qtg03_[ism-1] = 0;
-    qtg04_[ism-1] = 0;
-
-    qtg05_[ism-1] = 0;
-    qtg06_[ism-1] = 0;
-    qtg07_[ism-1] = 0;
-    qtg08_[ism-1] = 0;
-    qtg09_[ism-1] = 0;
-    qtg10_[ism-1] = 0;
-    qtg11_[ism-1] = 0;
-    qtg12_[ism-1] = 0;
+    me_hs01_[ism-1] = 0;
+    me_hs02_[ism-1] = 0;
+    me_hs03_[ism-1] = 0;
+    me_hs04_[ism-1] = 0;
+    me_hs05_[ism-1] = 0;
+    me_hs06_[ism-1] = 0;
+    me_hs07_[ism-1] = 0;
+    me_hs08_[ism-1] = 0;
 
   }
 
@@ -253,13 +221,13 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
 
   amplitudeThresholdPnG01_ = 50.;
   amplitudeThresholdPnG16_ = 50.;
-  
+
   pedPnExpectedMean_[0] = 750.0;
   pedPnExpectedMean_[1] = 750.0;
-  
+
   pedPnDiscrepancyMean_[0] = 100.0;
   pedPnDiscrepancyMean_[1] = 100.0;
-  
+
   pedPnRMSThreshold_[0] = 1.0; // value at h4; expected nominal: 0.5
   pedPnRMSThreshold_[1] = 3.0; // value at h4; expected nominal: 1.6
 
@@ -278,259 +246,6 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EBLT laser quality %s L1A", Numbers::sEB(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser quality %s L2A", Numbers::sEB(ism).c_str());
-      qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser quality %s L3A", Numbers::sEB(ism).c_str());
-      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser quality %s L4A", Numbers::sEB(ism).c_str());
-      qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser quality %s L1B", Numbers::sEB(ism).c_str());
-      qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser quality %s L2B", Numbers::sEB(ism).c_str());
-      qth06_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser quality %s L3B", Numbers::sEB(ism).c_str());
-      qth07_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser quality %s L4B", Numbers::sEB(ism).c_str());
-      qth08_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser amplitude quality PNs %s L1 G01", Numbers::sEB(ism).c_str());
-      qth09_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser amplitude quality PNs %s L2 G01", Numbers::sEB(ism).c_str());
-      qth10_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser amplitude quality PNs %s L3 G01", Numbers::sEB(ism).c_str());
-      qth11_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser amplitude quality PNs %s L4 G01", Numbers::sEB(ism).c_str());
-      qth12_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser pedestal quality PNs %s L1 G01", Numbers::sEB(ism).c_str());
-      qth13_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser pedestal quality PNs %s L2 G01", Numbers::sEB(ism).c_str());
-      qth14_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser pedestal quality PNs %s L3 G01", Numbers::sEB(ism).c_str());
-      qth15_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser pedestal quality PNs %s L4 G01", Numbers::sEB(ism).c_str());
-      qth16_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser amplitude quality PNs %s L1 G16", Numbers::sEB(ism).c_str());
-      qth17_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser amplitude quality PNs %s L2 G16", Numbers::sEB(ism).c_str());
-      qth18_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser amplitude quality PNs %s L3 G16", Numbers::sEB(ism).c_str());
-      qth19_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser amplitude quality PNs %s L4 G16", Numbers::sEB(ism).c_str());
-      qth20_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser pedestal quality PNs %s L1 G16", Numbers::sEB(ism).c_str());
-      qth21_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser pedestal quality PNs %s L2 G16", Numbers::sEB(ism).c_str());
-      qth22_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser pedestal quality PNs %s L3 G16", Numbers::sEB(ism).c_str());
-      qth23_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser pedestal quality PNs %s L4 G16", Numbers::sEB(ism).c_str());
-      qth24_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qth01_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth02_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth03_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth04_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth05_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth06_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth07_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-      qth08_[ism-1]->setMeanRange(100.0, 4096.0*12.);
-
-      qth09_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth10_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth11_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth12_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-
-      qth13_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0], pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qth14_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0], pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qth15_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0], pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qth16_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0], pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qth17_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth18_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth19_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth20_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth21_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1], pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-      qth22_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1], pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-      qth23_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1], pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-      qth24_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1], pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-
-      qth01_[ism-1]->setMeanTolerance(percentVariation_);
-      qth02_[ism-1]->setMeanTolerance(percentVariation_);
-      qth03_[ism-1]->setMeanTolerance(percentVariation_);
-      qth04_[ism-1]->setMeanTolerance(percentVariation_);
-      qth05_[ism-1]->setMeanTolerance(percentVariation_);
-      qth06_[ism-1]->setMeanTolerance(percentVariation_);
-      qth07_[ism-1]->setMeanTolerance(percentVariation_);
-      qth08_[ism-1]->setMeanTolerance(percentVariation_);
-
-      qth09_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth10_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth11_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth12_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth13_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qth14_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qth15_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qth16_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qth17_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth18_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth19_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth20_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth21_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-      qth22_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-      qth23_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-      qth24_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-
-      qth01_[ism-1]->setMinimumEntries(10*1700);
-      qth02_[ism-1]->setMinimumEntries(10*1700);
-      qth03_[ism-1]->setMinimumEntries(10*1700);
-      qth04_[ism-1]->setMinimumEntries(10*1700);
-      qth05_[ism-1]->setMinimumEntries(10*1700);
-      qth06_[ism-1]->setMinimumEntries(10*1700);
-      qth07_[ism-1]->setMinimumEntries(10*1700);
-      qth08_[ism-1]->setMinimumEntries(10*1700);
-
-      qth09_[ism-1]->setMinimumEntries(10*10);
-      qth10_[ism-1]->setMinimumEntries(10*10);
-      qth11_[ism-1]->setMinimumEntries(10*10);
-      qth12_[ism-1]->setMinimumEntries(10*10);
-      qth13_[ism-1]->setMinimumEntries(10*10);
-      qth14_[ism-1]->setMinimumEntries(10*10);
-      qth15_[ism-1]->setMinimumEntries(10*10);
-      qth16_[ism-1]->setMinimumEntries(10*10);
-      qth17_[ism-1]->setMinimumEntries(10*10);
-      qth18_[ism-1]->setMinimumEntries(10*10);
-      qth19_[ism-1]->setMinimumEntries(10*10);
-      qth20_[ism-1]->setMinimumEntries(10*10);
-      qth21_[ism-1]->setMinimumEntries(10*10);
-      qth22_[ism-1]->setMinimumEntries(10*10);
-      qth23_[ism-1]->setMinimumEntries(10*10);
-      qth24_[ism-1]->setMinimumEntries(10*10);
-
-      qth01_[ism-1]->setErrorProb(1.00);
-      qth02_[ism-1]->setErrorProb(1.00);
-      qth03_[ism-1]->setErrorProb(1.00);
-      qth04_[ism-1]->setErrorProb(1.00);
-      qth05_[ism-1]->setErrorProb(1.00);
-      qth06_[ism-1]->setErrorProb(1.00);
-      qth07_[ism-1]->setErrorProb(1.00);
-      qth08_[ism-1]->setErrorProb(1.00);
-
-      qth09_[ism-1]->setErrorProb(1.00);
-      qth10_[ism-1]->setErrorProb(1.00);
-      qth11_[ism-1]->setErrorProb(1.00);
-      qth12_[ism-1]->setErrorProb(1.00);
-      qth13_[ism-1]->setErrorProb(1.00);
-      qth14_[ism-1]->setErrorProb(1.00);
-      qth15_[ism-1]->setErrorProb(1.00);
-      qth16_[ism-1]->setErrorProb(1.00);
-      qth17_[ism-1]->setErrorProb(1.00);
-      qth18_[ism-1]->setErrorProb(1.00);
-      qth19_[ism-1]->setErrorProb(1.00);
-      qth20_[ism-1]->setErrorProb(1.00);
-      qth21_[ism-1]->setErrorProb(1.00);
-      qth22_[ism-1]->setErrorProb(1.00);
-      qth23_[ism-1]->setErrorProb(1.00);
-      qth24_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EBLT quality test %s L1", Numbers::sEB(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT quality test %s L2", Numbers::sEB(ism).c_str());
-      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT quality test %s L3", Numbers::sEB(ism).c_str());
-      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT quality test %s L4", Numbers::sEB(ism).c_str());
-      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg01_[ism-1]->setMeanRange(1., 6.);
-      qtg02_[ism-1]->setMeanRange(1., 6.);
-      qtg03_[ism-1]->setMeanRange(1., 6.);
-      qtg04_[ism-1]->setMeanRange(1., 6.);
-
-      qtg01_[ism-1]->setErrorProb(1.00);
-      qtg02_[ism-1]->setErrorProb(1.00);
-      qtg03_[ism-1]->setErrorProb(1.00);
-      qtg04_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EBLT quality test PNs %s L1 G01", Numbers::sEB(ism).c_str());
-      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT quality test PNs %s L2 G01", Numbers::sEB(ism).c_str());
-      qtg06_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT quality test PNs %s L3 G01", Numbers::sEB(ism).c_str());
-      qtg07_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT quality test PNs %s L4 G01", Numbers::sEB(ism).c_str());
-      qtg08_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT quality test PNs %s L1 G16", Numbers::sEB(ism).c_str());
-      qtg09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT quality test PNs %s L2 G16", Numbers::sEB(ism).c_str());
-      qtg10_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT quality test PNs %s L3 G16", Numbers::sEB(ism).c_str());
-      qtg11_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT quality test PNs %s L4 G16", Numbers::sEB(ism).c_str());
-      qtg12_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg05_[ism-1]->setMeanRange(1., 6.);
-      qtg06_[ism-1]->setMeanRange(1., 6.);
-      qtg07_[ism-1]->setMeanRange(1., 6.);
-      qtg08_[ism-1]->setMeanRange(1., 6.);
-      qtg09_[ism-1]->setMeanRange(1., 6.);
-      qtg10_[ism-1]->setMeanRange(1., 6.);
-      qtg11_[ism-1]->setMeanRange(1., 6.);
-      qtg12_[ism-1]->setMeanRange(1., 6.);
-
-      qtg05_[ism-1]->setErrorProb(1.00);
-      qtg06_[ism-1]->setErrorProb(1.00);
-      qtg07_[ism-1]->setErrorProb(1.00);
-      qtg08_[ism-1]->setErrorProb(1.00);
-      qtg09_[ism-1]->setErrorProb(1.00);
-      qtg10_[ism-1]->setErrorProb(1.00);
-      qtg11_[ism-1]->setErrorProb(1.00);
-      qtg12_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -579,190 +294,327 @@ void EBLaserClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L1 %s", Numbers::sEB(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1]->setAxisTitle("ieta", 1);
+    meg01_[ism-1]->setAxisTitle("iphi", 2);
     if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L2 %s", Numbers::sEB(ism).c_str());
     meg02_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg02_[ism-1]->setAxisTitle("ieta", 1);
+    meg02_[ism-1]->setAxisTitle("iphi", 2);
     if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L3 %s", Numbers::sEB(ism).c_str());
     meg03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1]->setAxisTitle("ieta", 1);
+    meg03_[ism-1]->setAxisTitle("iphi", 2);
     if ( meg04_[ism-1] ) dbe_->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L4 %s", Numbers::sEB(ism).c_str());
     meg04_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg04_[ism-1]->setAxisTitle("ieta", 1);
+    meg04_[ism-1]->setAxisTitle("iphi", 2);
 
     if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L1 PNs %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser quality L1 PNs G01 %s", Numbers::sEB(ism).c_str());
     meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg05_[ism-1]->setAxisTitle("channel", 2);
     if ( meg06_[ism-1] ) dbe_->removeElement( meg06_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L2 PNs %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser quality L2 PNs G01 %s", Numbers::sEB(ism).c_str());
     meg06_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg06_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg06_[ism-1]->setAxisTitle("channel", 2);
     if ( meg07_[ism-1] ) dbe_->removeElement( meg07_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L3 PNs %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser quality L3 PNs G01 %s", Numbers::sEB(ism).c_str());
     meg07_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg07_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg07_[ism-1]->setAxisTitle("channel", 2);
     if ( meg08_[ism-1] ) dbe_->removeElement( meg08_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L4 PNs %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser quality L4 PNs G01 %s", Numbers::sEB(ism).c_str());
     meg08_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg08_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg08_[ism-1]->setAxisTitle("channel", 2);
     if ( meg09_[ism-1] ) dbe_->removeElement( meg09_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L1 PNs %s G16", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser quality L1 PNs G16 %s", Numbers::sEB(ism).c_str());
     meg09_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg09_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg09_[ism-1]->setAxisTitle("channel", 2);
     if ( meg10_[ism-1] ) dbe_->removeElement( meg10_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L2 PNs %s G16", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser quality L2 PNs G16 %s", Numbers::sEB(ism).c_str());
     meg10_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg10_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg10_[ism-1]->setAxisTitle("channel", 2);
     if ( meg11_[ism-1] ) dbe_->removeElement( meg11_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L3 PNs %s G16", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser quality L3 PNs G16 %s", Numbers::sEB(ism).c_str());
     meg11_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg11_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg11_[ism-1]->setAxisTitle("channel", 2);
     if ( meg12_[ism-1] ) dbe_->removeElement( meg12_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L4 PNs %s G16", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser quality L4 PNs G16 %s", Numbers::sEB(ism).c_str());
     meg12_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg12_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg12_[ism-1]->setAxisTitle("channel", 2);
 
     if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );;
     sprintf(histo, "EBLT amplitude L1A %s", Numbers::sEB(ism).c_str());
     mea01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea01_[ism-1]->setAxisTitle("channel", 1);
+    mea01_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea02_[ism-1] ) dbe_->removeElement( mea02_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude L2A %s", Numbers::sEB(ism).c_str());
     mea02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea02_[ism-1]->setAxisTitle("channel", 1);
+    mea02_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea03_[ism-1] ) dbe_->removeElement( mea03_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude L3A %s", Numbers::sEB(ism).c_str());
     mea03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea03_[ism-1]->setAxisTitle("channel", 1);
+    mea03_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea04_[ism-1] ) dbe_->removeElement( mea04_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude L4A %s", Numbers::sEB(ism).c_str());
     mea04_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea04_[ism-1]->setAxisTitle("channel", 1);
+    mea04_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea05_[ism-1] ) dbe_->removeElement( mea05_[ism-1]->getName() );;
     sprintf(histo, "EBLT amplitude L1B %s", Numbers::sEB(ism).c_str());
     mea05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea05_[ism-1]->setAxisTitle("channel", 1);
+    mea05_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea06_[ism-1] ) dbe_->removeElement( mea06_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude L2B %s", Numbers::sEB(ism).c_str());
     mea06_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea06_[ism-1]->setAxisTitle("channel", 1);
+    mea06_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea07_[ism-1] ) dbe_->removeElement( mea07_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude L3B %s", Numbers::sEB(ism).c_str());
     mea07_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea07_[ism-1]->setAxisTitle("channel", 1);
+    mea07_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea08_[ism-1] ) dbe_->removeElement( mea08_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude L4B %s", Numbers::sEB(ism).c_str());
     mea08_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea08_[ism-1]->setAxisTitle("channel", 1);
+    mea08_[ism-1]->setAxisTitle("amplitude", 2);
 
     if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L1A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L1A %s", Numbers::sEB(ism).c_str());
     met01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met01_[ism-1]->setAxisTitle("channel", 1);
+    met01_[ism-1]->setAxisTitle("jitter", 2);
     if ( met02_[ism-1] ) dbe_->removeElement( met02_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L2A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L2A %s", Numbers::sEB(ism).c_str());
     met02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met02_[ism-1]->setAxisTitle("channel", 1);
+    met02_[ism-1]->setAxisTitle("jitter", 2);
     if ( met03_[ism-1] ) dbe_->removeElement( met03_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L3A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L3A %s", Numbers::sEB(ism).c_str());
     met03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met03_[ism-1]->setAxisTitle("channel", 1);
+    met03_[ism-1]->setAxisTitle("jitter", 2);
     if ( met04_[ism-1] ) dbe_->removeElement( met04_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L4A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L4A %s", Numbers::sEB(ism).c_str());
     met04_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met04_[ism-1]->setAxisTitle("channel", 1);
+    met04_[ism-1]->setAxisTitle("jitter", 2);
     if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L1B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L1B %s", Numbers::sEB(ism).c_str());
     met05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met05_[ism-1]->setAxisTitle("channel", 1);
+    met05_[ism-1]->setAxisTitle("jitter", 2);
     if ( met06_[ism-1] ) dbe_->removeElement( met06_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L2B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L2B %s", Numbers::sEB(ism).c_str());
     met06_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met06_[ism-1]->setAxisTitle("channel", 1);
+    met06_[ism-1]->setAxisTitle("jitter", 2);
     if ( met07_[ism-1] ) dbe_->removeElement( met07_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L3B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L3B %s", Numbers::sEB(ism).c_str());
     met07_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met07_[ism-1]->setAxisTitle("channel", 1);
+    met07_[ism-1]->setAxisTitle("jitter", 2);
     if ( met08_[ism-1] ) dbe_->removeElement( met08_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L4B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing L4B %s", Numbers::sEB(ism).c_str());
     met08_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met08_[ism-1]->setAxisTitle("channel", 1);
+    met08_[ism-1]->setAxisTitle("jitter", 2);
 
     if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L1A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L1A %s", Numbers::sEB(ism).c_str());
     metav01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav01_[ism-1]->setAxisTitle("mean", 1);
     if ( metav02_[ism-1] ) dbe_->removeElement( metav02_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L2A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L2A %s", Numbers::sEB(ism).c_str());
     metav02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav02_[ism-1]->setAxisTitle("mean", 1);
     if ( metav03_[ism-1] ) dbe_->removeElement( metav03_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L3A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L3A %s", Numbers::sEB(ism).c_str());
     metav03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav03_[ism-1]->setAxisTitle("mean", 1);
     if ( metav04_[ism-1] ) dbe_->removeElement( metav04_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L4A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L4A %s", Numbers::sEB(ism).c_str());
     metav04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav04_[ism-1]->setAxisTitle("mean", 1);
     if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L1B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L1B %s", Numbers::sEB(ism).c_str());
     metav05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav05_[ism-1]->setAxisTitle("mean", 1);
     if ( metav06_[ism-1] ) dbe_->removeElement( metav06_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L2B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L2B %s", Numbers::sEB(ism).c_str());
     metav06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav06_[ism-1]->setAxisTitle("mean", 1);
     if ( metav07_[ism-1] ) dbe_->removeElement( metav07_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L3B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L3B %s", Numbers::sEB(ism).c_str());
     metav07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav07_[ism-1]->setAxisTitle("mean", 1);
     if ( metav08_[ism-1] ) dbe_->removeElement( metav08_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L4B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing mean L4B %s", Numbers::sEB(ism).c_str());
     metav08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav08_[ism-1]->setAxisTitle("mean", 1);
 
     if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L1A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L1A %s", Numbers::sEB(ism).c_str());
     metrms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms01_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms02_[ism-1] ) dbe_->removeElement( metrms02_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L2A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L2A %s", Numbers::sEB(ism).c_str());
     metrms02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms02_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms03_[ism-1] ) dbe_->removeElement( metrms03_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L3A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L3A %s", Numbers::sEB(ism).c_str());
     metrms03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms03_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms04_[ism-1] ) dbe_->removeElement( metrms04_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L4A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L4A %s", Numbers::sEB(ism).c_str());
     metrms04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms04_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L1B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L1B %s", Numbers::sEB(ism).c_str());
     metrms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms05_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms06_[ism-1] ) dbe_->removeElement( metrms06_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L2B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L2B %s", Numbers::sEB(ism).c_str());
     metrms06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms06_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms07_[ism-1] ) dbe_->removeElement( metrms07_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L3B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L3B %s", Numbers::sEB(ism).c_str());
     metrms07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms07_[ism-1]->setAxisTitle("rms", 1);
     if ( metrms08_[ism-1] ) dbe_->removeElement( metrms08_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L4B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT laser timing rms L4B %s", Numbers::sEB(ism).c_str());
     metrms08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms08_[ism-1]->setAxisTitle("rms", 1);
 
     if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L1A %s", Numbers::sEB(ism).c_str());
     meaopn01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn01_[ism-1]->setAxisTitle("channel", 1);
+    meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn02_[ism-1] ) dbe_->removeElement( meaopn02_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L2A %s", Numbers::sEB(ism).c_str());
     meaopn02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn02_[ism-1]->setAxisTitle("channel", 1);
+    meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn03_[ism-1] ) dbe_->removeElement( meaopn03_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L3A %s", Numbers::sEB(ism).c_str());
     meaopn03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn03_[ism-1]->setAxisTitle("channel", 1);
+    meaopn03_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn04_[ism-1] ) dbe_->removeElement( meaopn04_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L4A %s", Numbers::sEB(ism).c_str());
     meaopn04_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn04_[ism-1]->setAxisTitle("channel", 1);
+    meaopn04_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn05_[ism-1] ) dbe_->removeElement( meaopn05_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L1B %s", Numbers::sEB(ism).c_str());
     meaopn05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn05_[ism-1]->setAxisTitle("channel", 1);
+    meaopn05_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn06_[ism-1] ) dbe_->removeElement( meaopn06_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L2B %s", Numbers::sEB(ism).c_str());
     meaopn06_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn06_[ism-1]->setAxisTitle("channel", 1);
+    meaopn06_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn07_[ism-1] ) dbe_->removeElement( meaopn07_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L3B %s", Numbers::sEB(ism).c_str());
     meaopn07_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn07_[ism-1]->setAxisTitle("channel", 1);
+    meaopn07_[ism-1]->setAxisTitle("amplitude/PN", 2);
     if ( meaopn08_[ism-1] ) dbe_->removeElement( meaopn08_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L4B %s", Numbers::sEB(ism).c_str());
     meaopn08_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn08_[ism-1]->setAxisTitle("channel", 1);
+    meaopn08_[ism-1]->setAxisTitle("amplitude/PN", 2);
 
     if ( mepnprms01_[ism-1] ) dbe_->removeElement( mepnprms01_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G01 L1", Numbers::sEB(ism).c_str());
     mepnprms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms01_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms02_[ism-1] ) dbe_->removeElement( mepnprms02_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G01 L2", Numbers::sEB(ism).c_str());
     mepnprms02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms02_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms03_[ism-1] ) dbe_->removeElement( mepnprms03_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G01 L3", Numbers::sEB(ism).c_str());
     mepnprms03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms03_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms04_[ism-1] ) dbe_->removeElement( mepnprms04_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G01 L4", Numbers::sEB(ism).c_str());
     mepnprms04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms04_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G16 L1", Numbers::sEB(ism).c_str());
     mepnprms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms05_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms06_[ism-1] ) dbe_->removeElement( mepnprms06_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G16 L2", Numbers::sEB(ism).c_str());
     mepnprms06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms06_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms07_[ism-1] ) dbe_->removeElement( mepnprms07_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G16 L3", Numbers::sEB(ism).c_str());
     mepnprms07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms07_[ism-1]->setAxisTitle("rms", 1);
     if ( mepnprms08_[ism-1] ) dbe_->removeElement( mepnprms08_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G16 L4", Numbers::sEB(ism).c_str());
     mepnprms08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms08_[ism-1]->setAxisTitle("rms", 1);
+
+    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    sprintf(histo, "EBLT laser shape L1A %s", Numbers::sEB(ism).c_str());
+    me_hs01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs01_[ism-1]->setAxisTitle("sample", 1);
+    me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
+    sprintf(histo, "EBLT laser shape L2A %s", Numbers::sEB(ism).c_str());
+    me_hs02_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs02_[ism-1]->setAxisTitle("sample", 1);
+    me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs03_[ism-1] ) dbe_->removeElement( me_hs03_[ism-1]->getName() );
+    sprintf(histo, "EBLT laser shape L3A %s", Numbers::sEB(ism).c_str());
+    me_hs03_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs03_[ism-1]->setAxisTitle("sample", 1);
+    me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs04_[ism-1] ) dbe_->removeElement( me_hs04_[ism-1]->getName() );
+    sprintf(histo, "EBLT laser shape L4A %s", Numbers::sEB(ism).c_str());
+    me_hs04_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs04_[ism-1]->setAxisTitle("sample", 1);
+    me_hs04_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs05_[ism-1] ) dbe_->removeElement( me_hs05_[ism-1]->getName() );
+    sprintf(histo, "EBLT laser shape L1B %s", Numbers::sEB(ism).c_str());
+    me_hs05_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs05_[ism-1]->setAxisTitle("sample", 1);
+    me_hs05_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs06_[ism-1] ) dbe_->removeElement( me_hs06_[ism-1]->getName() );
+    sprintf(histo, "EBLT laser shape L2B %s", Numbers::sEB(ism).c_str());
+    me_hs06_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs06_[ism-1]->setAxisTitle("sample", 1);
+    me_hs06_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs07_[ism-1] ) dbe_->removeElement( me_hs07_[ism-1]->getName() );
+    sprintf(histo, "EBLT laser shape L3B %s", Numbers::sEB(ism).c_str());
+    me_hs07_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs07_[ism-1]->setAxisTitle("sample", 1);
+    me_hs07_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs08_[ism-1] ) dbe_->removeElement( me_hs08_[ism-1]->getName() );
+    sprintf(histo, "EBLT laser shape L4B %s", Numbers::sEB(ism).c_str());
+    me_hs08_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs08_[ism-1]->setAxisTitle("sample", 1);
+    me_hs08_[ism-1]->setAxisTitle("amplitude", 2);
 
   }
 
@@ -861,6 +713,16 @@ void EBLaserClient::setup(void) {
     mepnprms06_[ism-1]->Reset();
     mepnprms07_[ism-1]->Reset();
     mepnprms08_[ism-1]->Reset();
+
+    me_hs01_[ism-1]->Reset();
+    me_hs02_[ism-1]->Reset();
+    me_hs03_[ism-1]->Reset();
+    me_hs04_[ism-1]->Reset();
+    me_hs05_[ism-1]->Reset();
+    me_hs06_[ism-1]->Reset();
+    me_hs07_[ism-1]->Reset();
+    me_hs08_[ism-1]->Reset();
+
   }
 
 }
@@ -1121,6 +983,23 @@ void EBLaserClient::cleanup(void) {
     if ( mepnprms08_[ism-1] ) dbe_->removeElement( mepnprms08_[ism-1]->getName() );
     mepnprms08_[ism-1] = 0;
 
+    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    me_hs01_[ism-1] = 0;
+    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
+    me_hs02_[ism-1] = 0;
+    if ( me_hs03_[ism-1] ) dbe_->removeElement( me_hs03_[ism-1]->getName() );
+    me_hs03_[ism-1] = 0;
+    if ( me_hs04_[ism-1] ) dbe_->removeElement( me_hs04_[ism-1]->getName() );
+    me_hs04_[ism-1] = 0;
+    if ( me_hs05_[ism-1] ) dbe_->removeElement( me_hs05_[ism-1]->getName() );
+    me_hs05_[ism-1] = 0;
+    if ( me_hs06_[ism-1] ) dbe_->removeElement( me_hs06_[ism-1]->getName() );
+    me_hs06_[ism-1] = 0;
+    if ( me_hs07_[ism-1] ) dbe_->removeElement( me_hs07_[ism-1]->getName() );
+    me_hs07_[ism-1] = 0;
+    if ( me_hs08_[ism-1] ) dbe_->removeElement( me_hs08_[ism-1]->getName() );
+    me_hs08_[ism-1] = 0;
+
   }
 
 }
@@ -1143,7 +1022,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
-    
+
     cout << " SM=" << ism << endl;
     cout << endl;
 
@@ -1547,7 +1426,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
-    
+
     cout << " SM=" << ism << endl;
     cout << endl;
 
@@ -1594,22 +1473,22 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
       float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 1, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 1, num04, mean04, rms04);
-      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 1, num05, mean05, rms05);
-      update06 = UtilsClient::getBinStats(i06_[ism-1], i, 1, num06, mean06, rms06);
-      update07 = UtilsClient::getBinStats(i07_[ism-1], i, 1, num07, mean07, rms07);
-      update08 = UtilsClient::getBinStats(i08_[ism-1], i, 1, num08, mean08, rms08);
-      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 1, num09, mean09, rms09);
-      update10 = UtilsClient::getBinStats(i10_[ism-1], i, 1, num10, mean10, rms10);
-      update11 = UtilsClient::getBinStats(i11_[ism-1], i, 1, num11, mean11, rms11);
-      update12 = UtilsClient::getBinStats(i12_[ism-1], i, 1, num12, mean12, rms12);
-      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 1, num13, mean13, rms13);
-      update14 = UtilsClient::getBinStats(i14_[ism-1], i, 1, num14, mean14, rms14);
-      update15 = UtilsClient::getBinStats(i15_[ism-1], i, 1, num15, mean15, rms15);
-      update16 = UtilsClient::getBinStats(i16_[ism-1], i, 1, num16, mean16, rms16);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 0, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 0, num04, mean04, rms04);
+      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 0, num05, mean05, rms05);
+      update06 = UtilsClient::getBinStats(i06_[ism-1], i, 0, num06, mean06, rms06);
+      update07 = UtilsClient::getBinStats(i07_[ism-1], i, 0, num07, mean07, rms07);
+      update08 = UtilsClient::getBinStats(i08_[ism-1], i, 0, num08, mean08, rms08);
+      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 0, num09, mean09, rms09);
+      update10 = UtilsClient::getBinStats(i10_[ism-1], i, 0, num10, mean10, rms10);
+      update11 = UtilsClient::getBinStats(i11_[ism-1], i, 0, num11, mean11, rms11);
+      update12 = UtilsClient::getBinStats(i12_[ism-1], i, 0, num12, mean12, rms12);
+      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 0, num13, mean13, rms13);
+      update14 = UtilsClient::getBinStats(i14_[ism-1], i, 0, num14, mean14, rms14);
+      update15 = UtilsClient::getBinStats(i15_[ism-1], i, 0, num15, mean15, rms15);
+      update16 = UtilsClient::getBinStats(i16_[ism-1], i, 0, num16, mean16, rms16);
 
       if ( update01 || update05 || update09 || update13 ) {
 
@@ -1927,139 +1806,6 @@ void EBLaserClient::subscribe(void){
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs pedestal %s G16 L4", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1A", Numbers::sEB(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2A", Numbers::sEB(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3A", Numbers::sEB(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4A", Numbers::sEB(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1B", Numbers::sEB(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2B", Numbers::sEB(ism).c_str());
-      if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3B", Numbers::sEB(ism).c_str());
-      if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4B", Numbers::sEB(ism).c_str());
-      if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs amplitude %s G01 L1", Numbers::sEB(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBPDT PNs amplitude %s G01 L2", Numbers::sEB(ism).c_str());
-      if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBPDT PNs amplitude %s G01 L3", Numbers::sEB(ism).c_str());
-      if ( qth11_[ism-1] ) dbe_->useQTest(histo, qth11_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs amplitude %s G01 L4", Numbers::sEB(ism).c_str());
-      if ( qth12_[ism-1] ) dbe_->useQTest(histo, qth12_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs pedestal %s G01 L1", Numbers::sEB(ism).c_str());
-      if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBPDT PNs pedestal %s G01 L2", Numbers::sEB(ism).c_str());
-      if ( qth14_[ism-1] ) dbe_->useQTest(histo, qth14_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBPDT PNs pedestal %s G01 L3", Numbers::sEB(ism).c_str());
-      if ( qth15_[ism-1] ) dbe_->useQTest(histo, qth15_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs pedestal %s G01 L4", Numbers::sEB(ism).c_str());
-      if ( qth16_[ism-1] ) dbe_->useQTest(histo, qth16_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs amplitude %s G16 L1", Numbers::sEB(ism).c_str());
-      if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBPDT PNs amplitude %s G16 L2", Numbers::sEB(ism).c_str());
-      if ( qth18_[ism-1] ) dbe_->useQTest(histo, qth18_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBPDT PNs amplitude %s G16 L3", Numbers::sEB(ism).c_str());
-      if ( qth19_[ism-1] ) dbe_->useQTest(histo, qth19_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs amplitude %s G16 L4", Numbers::sEB(ism).c_str());
-      if ( qth20_[ism-1] ) dbe_->useQTest(histo, qth20_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs pedestal %s G16 L1", Numbers::sEB(ism).c_str());
-      if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBPDT PNs pedestal %s G16 L2", Numbers::sEB(ism).c_str());
-      if ( qth22_[ism-1] ) dbe_->useQTest(histo, qth22_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBPDT PNs pedestal %s G16 L3", Numbers::sEB(ism).c_str());
-      if ( qth23_[ism-1] ) dbe_->useQTest(histo, qth23_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs pedestal %s G16 L4", Numbers::sEB(ism).c_str());
-      if ( qth24_[ism-1] ) dbe_->useQTest(histo, qth24_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1A", Numbers::sEB(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2A", Numbers::sEB(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3A", Numbers::sEB(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4A", Numbers::sEB(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1B", Numbers::sEB(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2B", Numbers::sEB(ism).c_str());
-      if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3B", Numbers::sEB(ism).c_str());
-      if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4B", Numbers::sEB(ism).c_str());
-      if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs amplitude %s G01 L1", Numbers::sEB(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBPDT PNs amplitude %s G01 L2", Numbers::sEB(ism).c_str());
-      if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBPDT PNs amplitude %s G01 L3", Numbers::sEB(ism).c_str());
-      if ( qth11_[ism-1] ) dbe_->useQTest(histo, qth11_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs amplitude %s G01 L4", Numbers::sEB(ism).c_str());
-      if ( qth12_[ism-1] ) dbe_->useQTest(histo, qth12_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs pedestal %s G01 L1", Numbers::sEB(ism).c_str());
-      if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBPDT PNs pedestal %s G01 L2", Numbers::sEB(ism).c_str());
-      if ( qth14_[ism-1] ) dbe_->useQTest(histo, qth14_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBPDT PNs pedestal %s G01 L3", Numbers::sEB(ism).c_str());
-      if ( qth15_[ism-1] ) dbe_->useQTest(histo, qth15_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs pedestal %s G01 L4", Numbers::sEB(ism).c_str());
-      if ( qth16_[ism-1] ) dbe_->useQTest(histo, qth16_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs amplitude %s G16 L1", Numbers::sEB(ism).c_str());
-      if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBPDT PNs amplitude %s G16 L2", Numbers::sEB(ism).c_str());
-      if ( qth18_[ism-1] ) dbe_->useQTest(histo, qth18_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBPDT PNs amplitude %s G16 L3", Numbers::sEB(ism).c_str());
-      if ( qth19_[ism-1] ) dbe_->useQTest(histo, qth19_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs amplitude %s G16 L4", Numbers::sEB(ism).c_str());
-      if ( qth20_[ism-1] ) dbe_->useQTest(histo, qth20_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs pedestal %s G16 L1", Numbers::sEB(ism).c_str());
-      if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBPDT PNs pedestal %s G16 L2", Numbers::sEB(ism).c_str());
-      if ( qth22_[ism-1] ) dbe_->useQTest(histo, qth22_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBPDT PNs pedestal %s G16 L3", Numbers::sEB(ism).c_str());
-      if ( qth23_[ism-1] ) dbe_->useQTest(histo, qth23_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs pedestal %s G16 L4", Numbers::sEB(ism).c_str());
-      if ( qth24_[ism-1] ) dbe_->useQTest(histo, qth24_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L1 %s", Numbers::sEB(ism).c_str());
-    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L2 %s", Numbers::sEB(ism).c_str());
-    if ( qtg02_[ism-1] ) dbe_->useQTest(histo, qtg02_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L3 %s", Numbers::sEB(ism).c_str());
-    if ( qtg03_[ism-1] ) dbe_->useQTest(histo, qtg03_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L4 %s", Numbers::sEB(ism).c_str());
-    if ( qtg04_[ism-1] ) dbe_->useQTest(histo, qtg04_[ism-1]->getName());
-
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L1 PNs %s G01", Numbers::sEB(ism).c_str());
-    if ( qtg05_[ism-1] ) dbe_->useQTest(histo, qtg05_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L2 PNs %s G01", Numbers::sEB(ism).c_str());
-    if ( qtg06_[ism-1] ) dbe_->useQTest(histo, qtg06_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L3 PNs %s G01", Numbers::sEB(ism).c_str());
-    if ( qtg07_[ism-1] ) dbe_->useQTest(histo, qtg07_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L4 PNs %s G01", Numbers::sEB(ism).c_str());
-    if ( qtg08_[ism-1] ) dbe_->useQTest(histo, qtg08_[ism-1]->getName());
-
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L1 PNs %s G16", Numbers::sEB(ism).c_str());
-    if ( qtg09_[ism-1] ) dbe_->useQTest(histo, qtg09_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L2 PNs %s G16", Numbers::sEB(ism).c_str());
-    if ( qtg10_[ism-1] ) dbe_->useQTest(histo, qtg10_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L3 PNs %s G16", Numbers::sEB(ism).c_str());
-    if ( qtg11_[ism-1] ) dbe_->useQTest(histo, qtg11_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L4 PNs %s G16", Numbers::sEB(ism).c_str());
-    if ( qtg12_[ism-1] ) dbe_->useQTest(histo, qtg12_[ism-1]->getName());
 
   }
 
@@ -2475,67 +2221,67 @@ void EBLaserClient::analyze(void){
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs amplitude %s G01 L1").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBPDT PNs amplitude %s G01 L2").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
+    i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBPDT PNs amplitude %s G01 L3").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i03_[ism-1] );
+    i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs amplitude %s G01 L4").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
+    i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs pedestal %s G01 L1").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i05_[ism-1] );
+    i05_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i05_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBPDT PNs pedestal %s G01 L2").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i06_[ism-1] );
+    i06_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i06_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBPDT PNs pedestal %s G01 L3").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i07_[ism-1] );
+    i07_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i07_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs pedestal %s G01 L4").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i08_[ism-1] );
+    i08_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i08_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs amplitude %s G16 L1").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i09_[ism-1] );
+    i09_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i09_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBPDT PNs amplitude %s G16 L2").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i10_[ism-1] );
+    i10_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i10_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBPDT PNs amplitude %s G16 L3").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i11_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i11_[ism-1] );
+    i11_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i11_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs amplitude %s G16 L4").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i12_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i12_[ism-1] );
+    i12_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i12_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs pedestal %s G16 L1").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i13_[ism-1] );
+    i13_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i13_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBPDT PNs pedestal %s G16 L2").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i14_[ism-1] );
+    i14_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i14_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBPDT PNs pedestal %s G16 L3").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i15_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i15_[ism-1] );
+    i15_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i15_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs pedestal %s G16 L4").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i16_[ism-1] );
+    i16_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i16_[ism-1] );
 
     meg01_[ism-1]->Reset();
     meg02_[ism-1]->Reset();
@@ -2604,6 +2350,15 @@ void EBLaserClient::analyze(void){
     mepnprms06_[ism-1]->Reset();
     mepnprms07_[ism-1]->Reset();
     mepnprms08_[ism-1]->Reset();
+
+    me_hs01_[ism-1]->Reset();
+    me_hs02_[ism-1]->Reset();
+    me_hs03_[ism-1]->Reset();
+    me_hs04_[ism-1]->Reset();
+    me_hs05_[ism-1]->Reset();
+    me_hs06_[ism-1]->Reset();
+    me_hs07_[ism-1]->Reset();
+    me_hs08_[ism-1]->Reset();
 
     float meanAmplL1A, meanAmplL2A, meanAmplL3A, meanAmplL4A;
     float meanAmplL1B, meanAmplL2B, meanAmplL3B, meanAmplL4B;
@@ -3282,22 +3037,22 @@ void EBLaserClient::analyze(void){
       float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
       float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 1, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 1, num04, mean04, rms04);
-      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 1, num05, mean05, rms05);
-      update06 = UtilsClient::getBinStats(i06_[ism-1], i, 1, num06, mean06, rms06);
-      update07 = UtilsClient::getBinStats(i07_[ism-1], i, 1, num07, mean07, rms07);
-      update08 = UtilsClient::getBinStats(i08_[ism-1], i, 1, num08, mean08, rms08);
-      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 1, num09, mean09, rms09);
-      update10 = UtilsClient::getBinStats(i10_[ism-1], i, 1, num10, mean10, rms10);
-      update11 = UtilsClient::getBinStats(i11_[ism-1], i, 1, num11, mean11, rms11);
-      update12 = UtilsClient::getBinStats(i12_[ism-1], i, 1, num12, mean12, rms12);
-      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 1, num13, mean13, rms13);
-      update14 = UtilsClient::getBinStats(i14_[ism-1], i, 1, num14, mean14, rms14);
-      update15 = UtilsClient::getBinStats(i15_[ism-1], i, 1, num15, mean15, rms15);
-      update16 = UtilsClient::getBinStats(i16_[ism-1], i, 1, num16, mean16, rms16);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 0, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 0, num04, mean04, rms04);
+      update05 = UtilsClient::getBinStats(i05_[ism-1], i, 0, num05, mean05, rms05);
+      update06 = UtilsClient::getBinStats(i06_[ism-1], i, 0, num06, mean06, rms06);
+      update07 = UtilsClient::getBinStats(i07_[ism-1], i, 0, num07, mean07, rms07);
+      update08 = UtilsClient::getBinStats(i08_[ism-1], i, 0, num08, mean08, rms08);
+      update09 = UtilsClient::getBinStats(i09_[ism-1], i, 0, num09, mean09, rms09);
+      update10 = UtilsClient::getBinStats(i10_[ism-1], i, 0, num10, mean10, rms10);
+      update11 = UtilsClient::getBinStats(i11_[ism-1], i, 0, num11, mean11, rms11);
+      update12 = UtilsClient::getBinStats(i12_[ism-1], i, 0, num12, mean12, rms12);
+      update13 = UtilsClient::getBinStats(i13_[ism-1], i, 0, num13, mean13, rms13);
+      update14 = UtilsClient::getBinStats(i14_[ism-1], i, 0, num14, mean14, rms14);
+      update15 = UtilsClient::getBinStats(i15_[ism-1], i, 0, num15, mean15, rms15);
+      update16 = UtilsClient::getBinStats(i16_[ism-1], i, 0, num16, mean16, rms16);
 
       if ( update01 && update05 ) {
 
@@ -3314,7 +3069,7 @@ void EBLaserClient::analyze(void){
 
         if ( meg05_[ism-1] )           meg05_[ism-1]->setBinContent(i, 1, val);
         if ( mepnprms01_[ism-1] ) mepnprms01_[ism-1]->Fill(rms05);
-        
+
       }
 
       if ( update02 && update06 ) {
@@ -3500,6 +3255,50 @@ void EBLaserClient::analyze(void){
 
     }
 
+    for ( int i = 1; i <= 10; i++ ) {
+
+      if ( hs01_[ism-1] ) {
+        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
+        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs02_[ism-1] ) {
+        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(1, i) );
+        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs03_[ism-1] ) {
+        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(1, i) );
+        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs04_[ism-1] ) {
+        me_hs04_[ism-1]->setBinContent( i, hs04_[ism-1]->GetBinContent(1, i) );
+        me_hs04_[ism-1]->setBinError( i, hs04_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs05_[ism-1] ) {
+        me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(1681, i) );
+        me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(1681, i) );
+      }
+
+      if ( hs06_[ism-1] ) {
+        me_hs06_[ism-1]->setBinContent( i, hs06_[ism-1]->GetBinContent(1681, i) );
+        me_hs06_[ism-1]->setBinError( i, hs06_[ism-1]->GetBinError(1681, i) );
+      }
+
+      if ( hs07_[ism-1] ) {
+        me_hs07_[ism-1]->setBinContent( i, hs07_[ism-1]->GetBinContent(1681, i) );
+        me_hs07_[ism-1]->setBinError( i, hs07_[ism-1]->GetBinError(1681, i) );
+      }
+
+      if ( hs08_[ism-1] ) {
+        me_hs08_[ism-1]->setBinContent( i, hs08_[ism-1]->GetBinContent(1681, i) );
+        me_hs08_[ism-1]->setBinError( i, hs08_[ism-1]->GetBinError(1681, i) );
+      }
+
+    }
+
   }
 
 }
@@ -3617,7 +3416,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TH2F* obj2f;
   TH1F* obj1f;
-  TH1D* obj1d;
+  TProfile* objp;
 
   // Loop on barrel supermodules
 
@@ -3935,38 +3734,38 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameShape[iCanvas-1] = "";
 
-      obj1d = 0;
+      obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( hs01_[ism-1] ) obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs01_[ism-1] );
           break;
         case 2:
-          if ( hs02_[ism-1] ) obj1d = hs02_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs02_[ism-1] );
           break;
         case 3:
-          if ( hs03_[ism-1] ) obj1d = hs03_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs03_[ism-1] );
           break;
         case 4:
-          if ( hs04_[ism-1] ) obj1d = hs04_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs04_[ism-1] );
           break;
         case 5:
-          if ( hs05_[ism-1] ) obj1d = hs05_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs05_[ism-1] );
           break;
         case 6:
-          if ( hs06_[ism-1] ) obj1d = hs06_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs06_[ism-1] );
           break;
         case 7:
-          if ( hs07_[ism-1] ) obj1d = hs07_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs07_[ism-1] );
           break;
         case 8:
-          if ( hs08_[ism-1] ) obj1d = hs08_[ism-1]->ProjectionY("_py", 1681, 1681, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs08_[ism-1] );
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
-        meName = obj1d->GetName();
+      if ( obj1f ) {
+        meName = obj1f->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -3978,18 +3777,16 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cShape->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        obj1f->SetStats(kTRUE);
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->Draw();
+        obj1f->Draw();
         cShape->Update();
         cShape->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
@@ -4168,33 +3965,33 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPnG01[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i01_[ism-1];
           break;
         case 2:
-          if ( i02_[ism-1] ) obj1d = i02_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i02_[ism-1];
           break;
         case 3:
-          if ( i03_[ism-1] ) obj1d = i03_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i03_[ism-1];
           break;
         case 4:
-          if ( i04_[ism-1] ) obj1d = i04_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i04_[ism-1];
           break;
         case 5:
         case 6:
         case 7:
         case 8:
-          obj2f = 0;
+          objp = 0;
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -4206,51 +4003,49 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cAmp->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
       imgNameMEPnG16[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i09_[ism-1] ) obj1d = i09_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i09_[ism-1];
           break;
         case 2:
-          if ( i10_[ism-1] ) obj1d = i10_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i10_[ism-1];
           break;
         case 3:
-          if ( i11_[ism-1] ) obj1d = i11_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i11_[ism-1];
           break;
         case 4:
-          if ( i12_[ism-1] ) obj1d = i12_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i12_[ism-1];
           break;
         case 5:
         case 6:
         case 7:
         case 8:
-          obj2f = 0;
+          objp = 0;
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -4262,19 +4057,17 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cAmp->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
@@ -4282,33 +4075,33 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPnPedG01[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i05_[ism-1] ) obj1d = i05_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i05_[ism-1];
           break;
         case 2:
-          if ( i06_[ism-1] ) obj1d = i06_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i06_[ism-1];
           break;
         case 3:
-          if ( i07_[ism-1] ) obj1d = i07_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i07_[ism-1];
           break;
         case 4:
-          if ( i08_[ism-1] ) obj1d = i08_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i08_[ism-1];
           break;
         case 5:
         case 6:
         case 7:
         case 8:
-          obj2f = 0;
+          objp = 0;
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -4320,19 +4113,71 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cPed->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
-        delete obj1d;
+      }
+
+      imgNameMEPnPedG16[iCanvas-1] = "";
+
+      objp = 0;
+      switch ( iCanvas ) {
+        case 1:
+          objp = i13_[ism-1];
+          break;
+        case 2:
+          objp = i14_[ism-1];
+          break;
+        case 3:
+          objp = i15_[ism-1];
+          break;
+        case 4:
+          objp = i16_[ism-1];
+          break;
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+          objp = 0;
+          break;
+        default:
+          break;
+      }
+
+      if ( objp ) {
+
+        meName = objp->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnPedG16[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnPedG16[iCanvas-1];
+
+        cPed->cd();
+        gStyle->SetOptStat("euo");
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
+        objp->SetMinimum(0.0);
+        objp->Draw();
+        cPed->Update();
+        cPed->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
 
       }
 
@@ -4356,7 +4201,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         case 6:
         case 7:
         case 8:
-          obj2f = 0;
+          obj1f = 0;
           break;
         default:
           break;
@@ -4390,7 +4235,6 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       }
 
-
       imgNameMEPnRmsPedG16[iCanvas-1] = "";
 
       obj1f = 0;
@@ -4411,7 +4255,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         case 6:
         case 7:
         case 8:
-          obj2f = 0;
+          obj1f = 0;
           break;
         default:
           break;
@@ -4442,62 +4286,6 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-      }
-
-      imgNameMEPnPedG16[iCanvas-1] = "";
-
-      obj1d = 0;
-      switch ( iCanvas ) {
-        case 1:
-          if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionX("_px", 1, 1, "e");
-          break;
-        case 2:
-          if ( i14_[ism-1] ) obj1d = i14_[ism-1]->ProjectionX("_px", 1, 1, "e");
-          break;
-        case 3:
-          if ( i15_[ism-1] ) obj1d = i15_[ism-1]->ProjectionX("_px", 1, 1, "e");
-          break;
-        case 4:
-          if ( i16_[ism-1] ) obj1d = i16_[ism-1]->ProjectionX("_px", 1, 1, "e");
-          break;
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-          obj2f = 0;
-          break;
-        default:
-          break;
-      }
-
-      if ( obj1d ) {
-
-        meName = obj1d->GetName();
-
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
-        imgNameMEPnPedG16[iCanvas-1] = meName + ".png";
-        imgName = htmlDir + imgNameMEPnPedG16[iCanvas-1];
-
-        cPed->cd();
-        gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
-//        } else {
-//          gPad->SetLogy(0);
-//        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
-        cPed->Update();
-        cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 

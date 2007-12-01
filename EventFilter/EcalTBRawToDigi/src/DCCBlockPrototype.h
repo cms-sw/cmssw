@@ -1,8 +1,8 @@
 // Date   : 25/05/2005
 // Author : N.Almeida (LIP)
 
-#ifndef DCCTBBLOCKPROTOTYPE_HH
-#define DCCTBBLOCKPROTOTYPE_HH
+#ifndef DCCBLOCKPROTOTYPE_HH
+#define DCCBLOCKPROTOTYPE_HH
 
 
 #include <iostream>
@@ -15,17 +15,17 @@
 #include <iomanip>
 
 
-class DCCTBDataParser;
-class DCCTBDataField;
-class DCCTBDataFieldComparator;
+class DCCDataParser;
+class DCCDataField;
+class DCCDataFieldComparator;
 
 
-class DCCTBBlockPrototype{
+class DCCBlockPrototype{
 	
 	public :
 		
-		DCCTBBlockPrototype(
-			DCCTBDataParser * parser, 
+		DCCBlockPrototype(
+			DCCDataParser * parser, 
 			std::string name, 
 			ulong * buffer,
 			ulong numbBytes, 
@@ -33,7 +33,7 @@ class DCCTBBlockPrototype{
 			ulong wordEventOffset = 0 
 		);
 
-		virtual ~ DCCTBBlockPrototype(){}
+		virtual ~ DCCBlockPrototype(){}
 
 		virtual void   parseData();		
 		virtual void   increment(ulong numb, std::string msg="");
@@ -44,7 +44,7 @@ class DCCTBBlockPrototype{
 		
 		virtual std::pair<bool,std::string> checkDataField(std::string name, ulong data);
 		virtual void displayData(std::ostream & os=std::cout);
-		virtual std::pair<bool,std::string> compare(DCCTBBlockPrototype * block);
+		virtual std::pair<bool,std::string> compare(DCCBlockPrototype * block);
 	
 		std::map<std::string,ulong> & errorCounters(){ return errors_; }
 		
@@ -64,7 +64,7 @@ class DCCTBBlockPrototype{
                 /**
                  * Returns data parser
                  */
-                DCCTBDataParser *getParser() { return parser_; }
+                DCCDataParser *getParser() { return parser_; }
 		
 	protected :
 		
@@ -85,12 +85,12 @@ class DCCTBBlockPrototype{
 		std::string blockString_;
 		std::string processingString_;
 		
-		DCCTBDataParser * parser_;
+		DCCDataParser * parser_;
 		
 		std::map<std::string,ulong> dataFields_;
 		std::map<std::string,ulong> errors_;
 		
-		std::set<DCCTBDataField *,DCCTBDataFieldComparator> * mapperFields_;
+		std::set<DCCDataField *,DCCDataFieldComparator> * mapperFields_;
 		
 	
 };

@@ -1,4 +1,4 @@
-//$Id: SprMultiClassApp.cc,v 1.10 2007/10/22 21:23:41 narsky Exp $
+//$Id: SprMultiClassApp.cc,v 1.9 2007/10/05 20:03:09 narsky Exp $
 /*
   Note: "-y" option has a different meaning for this executable than
   for other executables in the package. Instead of specifying what
@@ -33,7 +33,6 @@
 #include "PhysicsTools/StatPatternRecognition/interface/SprMultiClassReader.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierReader.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
-#include "PhysicsTools/StatPatternRecognition/interface/SprMultiClassPlotter.hh"
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -560,42 +559,70 @@ int main(int argc, char ** argv)
   // analyze validation data
   if( valFilter.get() != 0 ) {
 
-    // compute response
-    vector<SprMultiClassPlotter::Response> responses(valFilter->size());
-    for( int i=0;i<valFilter->size();i++ ) {
-      if( ((i+1)%1000) == 0 )
-	cout << "Computing response for validation point " << i+1 << endl;
+    // init
+    SprAverageLoss loss(&SprLoss::correct_id);
+    map<int,SprAverageLoss> lossPerClass;
+    unsigned nClasses = trainedMulti->nClasses();
+    vector<int> classes;
+    trainedMulti->classes(classes);
+    map<int,vector<double> > lossTable;
 
-      // get point, class and weight
+    // loop over test points
+    for( int i=0;i<valFilter->size();i++ ) {
+      if( ((i+1)%1000) == 0 ) 
+	cout << "Processing validation point " << i+1 << endl;
+
       const SprPoint* p = (*(valFilter.get()))[i];
       int cls = p->class_;
       double w = valFilter->w(i);
 
-      // compute loss
+      // overall loss
       map<int,double> output;
       int resp = trainedMulti->response(p,output);
-      responses[i] = SprMultiClassPlotter::Response(cls,w,resp,output);
-    }    
+      loss.update(cls,double(resp),w);
 
-    // get the loss table
-    SprMultiClassPlotter plotter(responses);
-    vector<int> classes;
-    trainedMulti->classes(classes);
-    map<int,vector<double> > lossTable;
-    map<int,double> weightInClass;
-    double totalLoss = plotter.multiClassTable(classes,lossTable,
-					       weightInClass);
+      // individual loss
+      map<int,SprAverageLoss>::iterator found = lossPerClass.find(cls);
+      if( found == lossPerClass.end() ) {
+	pair<map<int,SprAverageLoss>::iterator,bool> inserted
+	  = lossPerClass.insert(pair<const int,
+				SprAverageLoss>(cls,
+				        SprAverageLoss(&SprLoss::correct_id)));
+	assert( inserted.second );
+	found = inserted.first;
+      }
+      found->second.update(cls,double(resp),w);
 
-    // print out
+      // indvidual loss mapped to classes
+      map<int,vector<double> >::iterator tabulated = lossTable.find(cls);
+      if( tabulated == lossTable.end() ) {
+	pair<map<int,vector<double> >::iterator,bool> inserted
+	  = lossTable.insert(pair<const int,
+			     vector<double> >(cls,vector<double>(nClasses,0)));
+	assert( inserted.second );
+	tabulated = inserted.first;
+      }
+      vector<int>::const_iterator foundClass =
+	find(classes.begin(),classes.end(),resp);
+      assert( foundClass != classes.end() );
+      int icls = foundClass - classes.begin();
+      (tabulated->second)[icls] += w;
+    }
     cout << "=====================================" << endl;
-    cout << "Overall validation misid fraction = " << totalLoss << endl;
+    cout << "Overall validation misid fraction = " << loss.value() << endl;
+    cout << "Misid fraction per class:" << endl;
+    for( map<int,SprAverageLoss>::const_iterator
+	   i=lossPerClass.begin();i!=lossPerClass.end();i++ ) {
+      cout << "Class " << i->first 
+	   << "    Loss " << i->second.value() << endl;
+    }
     cout << "=====================================" << endl;
-    cout << "Classification table: Fractions of total class weight" << endl;
+    cout << "Classification table:" << endl;
     char s[200];
     sprintf(s,"True Class \\ Classification |");
     string temp = "------------------------------";
     cout << s;
-    for( int i=0;i<classes.size();i++ ) {
+    for( int i=0;i<nClasses;i++ ) {
       sprintf(s," %5i      |",classes[i]);
       cout << s;
       temp += "-------------";
@@ -612,7 +639,7 @@ int main(int argc, char ** argv)
 	sprintf(s," %10.4f |",i->second[j]);
 	cout << s;
       }
-      sprintf(s,"              %10.4f |",weightInClass[i->first]);
+      sprintf(s,"              %10.4f |",valFilter->weightInClass(i->first));
       cout << s << endl;
     }
     cout << temp.c_str() << endl;

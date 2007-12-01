@@ -25,7 +25,7 @@ friend class RPCVHDLConeMaker;
     
     struct stripCords {
       uint32_t m_detRawId;
-      int m_stripNo;
+      signed char m_stripNo;
       bool m_isVirtual;
     };
     
@@ -40,10 +40,10 @@ friend class RPCVHDLConeMaker;
     };
     
     struct RPCConnection {
-      int m_PAC;
-      int m_tower;
-      int m_logplane;
-      int m_posInCone;
+      unsigned char m_PAC;
+      signed char m_tower;
+      signed char m_logplane;
+      signed char m_posInCone;
     };
     
     typedef std::vector<RPCConnection> RPCConnectionsVec;

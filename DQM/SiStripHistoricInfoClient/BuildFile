@@ -7,7 +7,6 @@
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
 <use name=CalibTracker/SiStripConnectivity>
-<use name=OnlineDB/SiStripConfigDb>
 <use name=DQM/SiStripCommon>
 <use name=DQMServices/Core>
 <use name=DQMServices/NodeROOT>
@@ -30,7 +29,6 @@
   <use name=CalibFormats/SiStripObjects>
   <use name=CalibTracker/Records>
   <use name=CalibTracker/SiStripConnectivity>
-  <use name=OnlineDB/SiStripConfigDb>
   <use name=DQM/SiStripCommon>
   <use name=DQMServices/Core>
   <use name=DQMServices/NodeROOT>

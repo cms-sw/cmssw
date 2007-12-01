@@ -216,24 +216,21 @@ RequestHistos.DrawSelectedHistos = function()
   var hist_opt   = RequestHistos.SetHistosAndPlotOption();
   if (hist_opt == " ") return;
   queryString   += hist_opt;	
-  // Get Canavs
-  var canvas     = document.getElementById("drawingcanvas");
-  if (canvas == null) {
-    alert("Canvas is not defined!");
-    return;
-  }
-  queryString += '&width='+canvas.width+'&height='+canvas.height;
+  IMGC.computeCanvasSize();
+  queryString += '&width='+IMGC.BASE_IMAGE_WIDTH+
+                 '&height='+IMGC.BASE_IMAGE_HEIGHT;
   url += queryString;
-  var retVal = new Ajax.Request(url,
-                               {           
-                  		method: 'get',	  
- 			        parameters: '', 
- 			        onComplete: ''
- 			       });
-
-//  WebLib.makeRequest(url, null);
-  CommonActions.ShowProgress('visible', 'Selected Plot');
-  setTimeout('RequestHistos.UpdatePlot()', 2000);   
+  IMGC.IMAGES_PER_ROW      = 2;
+  IMGC.IMAGES_PER_COL      = 2; 
+  IMGC.IMAGES_PER_PAGE     = IMGC.IMAGES_PER_ROW * IMGC.IMAGES_PER_COL;
+  var getMEURLS = new Ajax.Request(url,                    
+ 	 		         {			  
+ 	 		          method: 'get',	  
+ 			          parameters: '', 
+ 			          onComplete: IMGC.processIMGCPlots // <-- call-back function
+ 			         });
+//  CommonActions.ShowProgress('visible', 'Selected Plot');
+//  setTimeout('RequestHistos.UpdatePlot()', 2000);   
 }
 //
 //  -- Set Histograms and plotting options 
@@ -323,24 +320,25 @@ RequestHistos.DrawSingleHisto = function(path)
   var url      = WebLib.getApplicationURL2();
   queryString  = 'RequestID=PlotHistogramFromPath';
   queryString += '&Path='+path;
-  var canvas   = document.getElementById("drawingcanvas");
-  if (canvas == null) {
-    alert("Canvas is not defined!");
-    return;
-  }
-  queryString += '&width='+canvas.width+'&height='+canvas.height;
   queryString += '&histotype=summary';
-  url         += queryString;
-  var retVal = new Ajax.Request(url,
-                               {           
-                  		method: 'get',	  
- 			        parameters: '', 
- 			        onComplete: ''
- 			       });
+  IMGC.computeCanvasSize();
+  queryString += '&width='+IMGC.BASE_IMAGE_WIDTH+
+                 '&height='+IMGC.BASE_IMAGE_HEIGHT;
 
-//  WebLib.makeRequest(url, null);
-  CommonActions.ShowProgress('visible', 'Selected Plot');   
-  setTimeout('RequestHistos.UpdatePlot()', 2000);     
+  url         += queryString;
+
+  IMGC.IMAGES_PER_ROW      = 2;
+  IMGC.IMAGES_PER_COL      = 2; 
+  IMGC.IMAGES_PER_PAGE     = IMGC.IMAGES_PER_ROW * IMGC.IMAGES_PER_COL;
+  var getMEURLS = new Ajax.Request(url,                    
+ 	 		         {			  
+ 	 		          method: 'get',	  
+ 			          parameters: '', 
+ 			          onComplete: IMGC.processIMGCPlots // <-- call-back function
+ 			         });
+
+//  CommonActions.ShowProgress('visible', 'Selected Plot');   
+//  setTimeout('RequestHistos.UpdatePlot()', 2000);     
 }
 //
 // -- Read status message from QTest
@@ -350,6 +348,8 @@ RequestHistos.ReadStatus = function(path)
   var url      = WebLib.getApplicationURL2();
   queryString  = 'RequestID=ReadQTestStatus';
   queryString += '&Path='+path;
+  queryString += '&width='+IMGC.BASE_IMAGE_WIDTH+
+                 '&height='+IMGC.BASE_IMAGE_HEIGHT;
   url         += queryString;
   CommonActions.ShowProgress('visible', 'Status Message');
   var retVal = new Ajax.Request(url,
@@ -358,8 +358,6 @@ RequestHistos.ReadStatus = function(path)
  			        parameters: '', 
  			        onSuccess: RequestHistos.FillStatus
  			       });
-
-//  WebLib.makeRequest(url, RequestHistos.FillStatus);
 }
 //
 // -- Fill status message from QTest in the status list area
@@ -378,9 +376,26 @@ RequestHistos.FillStatus = function(transport) {
         }       
       }
       mrows = root.getElementsByTagName('HPath');
-      if (mrows.length > 0) {
+      if (mrows.length > 1) {
         var hpath  = mrows[0].childNodes[0].nodeValue;
-        if (hpath != "NONE") RequestHistos.DrawQTestHisto(hpath);
+        if (hpath != "NONE")  {
+          var tempImages = new Array() ;
+          var tempTitles = new Array() ; 
+          var date = new Date() ;
+          date = date.toString() ;
+          date = date.replace(/\s+/g,"_") ;
+          var url = WebLib.getApplicationURL2();
+  
+          for (var i = 1; i < mrows.length; i++) {
+            var name = mrows[i].childNodes[0].nodeValue;
+            tempImages[i-1] = url + "RequestID=GetIMGCImage&Path=" + 
+                           hpath + "/" + name + "&Date=" + date;
+            tempTitles[i-1] = hpath + "|" + name;
+          }
+        }
+        $('imageCanvas').imageList     = tempImages;
+	$('imageCanvas').titlesList    = tempTitles;
+        IMGC.computeCanvasSize();
       }
     }
     catch (err) {
@@ -388,47 +403,26 @@ RequestHistos.FillStatus = function(transport) {
     }
 }
 //
-// -- Draw Histogram used for QTest
-//
-RequestHistos.DrawQTestHisto = function(path)
-{
-  var url      = WebLib.getApplicationURL2();
-  queryString  = 'RequestID=PlotHistogramFromPath';
-  queryString += '&Path='+path;
-  var canvas   = document.getElementById("drawingcanvas");
-  if (canvas == null) {
-    alert("Canvas is not defined!");
-    return;
-  }
-  queryString  += '&width='+canvas.width+'&height='+canvas.height;
-  queryString  += '&histotype=qtest';
-  url          += queryString;
-  var retVal = new Ajax.Request(url,
-                               {           
-                  		method: 'get',	  
- 			        parameters: '', 
- 			        onComplete: ''
- 			       });
-
-//  WebLib.makeRequest(url, null);
-  CommonActions.ShowProgress('visible', 'Selected Plot');
-   
-  setTimeout('RequestHistos.UpdatePlot()', 2000);     
-}
-//
 // -- Draw selected group plot from shifter page
 //
 RequestHistos.DrawSelectedSummary = function() 
 {
-  var canvas    = document.getElementById("drawingcanvas");
-  if (canvas == null) {
-    alert("Canvas is not defined!");
-    return;
-  } 
   var tobj      = document.getElementById("summary_plot_type");
-  var image_src = SlideShow.slideList[tobj.selectedIndex];
-  image_src    += '?t=' + Math.random();  //Should start with "?"
-  canvas.src    = image_src;   
+  var url = IMGC.getURL() ;
+  var urlTitleList = url + 'images/' + tobj.value +'_titles.lis';
+  var urlImageList = url + 'images/' + tobj.value +'.lis';
+  var getTitles = new Ajax.Request(urlTitleList,	   // Load titles first, because they are
+  				  {			   // used by the IMGC.processImageList
+  				   method: 'get',	   // which fires later on
+  				   parameters: '', 
+  				   onComplete: IMGC.processTitlesList // <-- call back function
+  				  });
+  var getFiles  = new Ajax.Request(urlImageList, 
+  				  {
+  				   method: 'get', 
+  				   parameters: '', 
+  				   onComplete: IMGC.processImageList  // <-- call back function
+  				  });
 } 
 //
 // Check Quality Test Results (Lite)
@@ -445,8 +439,6 @@ RequestHistos.CheckQualityTestResultsLite = function()
  			        parameters: '', 
  			        onSuccess: RequestHistos.FillTextStatus
  			       });
-  
-//  WebLib.makeRequest(url, RequestHistos.FillTextStatus); 
 }
 //
 // Check Quality Test Results (Expert)
@@ -462,8 +454,6 @@ RequestHistos.CheckQualityTestResultsDetail = function() {
  			        parameters: '', 
  			        onSuccess: RequestHistos.FillTextStatus
  			       });
-
-//  WebLib.makeRequest(url, RequestHistos.FillTextStatus); 
 }
 //
 // -- Fill the status of QTest in the status list area

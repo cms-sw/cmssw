@@ -2,8 +2,8 @@
 // Author : N.Almeida (LIP)
 
 
-#ifndef DCCTBTOWERBLOCK_HH
-#define DCCTBTOWERBLOCK_HH
+#ifndef DCCTOWERBLOCK_HH
+#define DCCTOWERBLOCK_HH
 
 #include <iostream>
 #include <string>
@@ -14,17 +14,17 @@
 
 #include "DCCBlockPrototype.h"
 
-class DCCTBEventBlock;
-class DCCTBXtalBlock;
-class DCCTBDataParser;
+class DCCEventBlock;
+class DCCXtalBlock;
+class DCCDataParser;
 
-class DCCTBTowerBlock : public DCCTBBlockPrototype {
+class DCCTowerBlock : public DCCBlockPrototype {
 	
 	public :
 		
-		DCCTBTowerBlock(
-			DCCTBEventBlock * dccBlock,
-			DCCTBDataParser * parser, 
+		DCCTowerBlock(
+			DCCEventBlock * dccBlock,
+			DCCDataParser * parser, 
 			ulong * buffer, 
 			ulong numbBytes, 
 			ulong wordsToEnd,
@@ -32,14 +32,14 @@ class DCCTBTowerBlock : public DCCTBBlockPrototype {
 			ulong expectedTowerID
 		);
 		
-		~DCCTBTowerBlock();
+		~DCCTowerBlock();
 		
 		void parseXtalData();
 		int towerID();
 
-		std::vector< DCCTBXtalBlock * > & xtalBlocks();
+		std::vector< DCCXtalBlock * > & xtalBlocks();
 		
-		std::vector< DCCTBXtalBlock * > xtalBlocksById(ulong stripId, ulong xtalId);
+		std::vector< DCCXtalBlock * > xtalBlocksById(ulong stripId, ulong xtalId);
 		
 	protected :
 		
@@ -47,13 +47,13 @@ class DCCTBTowerBlock : public DCCTBBlockPrototype {
 		
 		enum towerFields{ BXMASK = 0xFFF,L1MASK = 0xFFF };
 		
-		std::vector<DCCTBXtalBlock * > xtalBlocks_;
-		DCCTBEventBlock * dccBlock_;
+		std::vector<DCCXtalBlock * > xtalBlocks_;
+		DCCEventBlock * dccBlock_;
 		ulong expectedTowerID_;
 		
 		
 };
 
-inline std::vector<DCCTBXtalBlock *> & DCCTBTowerBlock::xtalBlocks(){ return xtalBlocks_; }
+inline std::vector<DCCXtalBlock *> & DCCTowerBlock::xtalBlocks(){ return xtalBlocks_; }
 
 #endif

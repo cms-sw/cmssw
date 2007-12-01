@@ -3,6 +3,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 
@@ -47,6 +48,18 @@ vector<RawHits> trajectoryRawHits(const Trajectory & trajectory)
 
       } 
       else {
+        if(const ProjectedSiStripRecHit2D* projectedHit=dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit))
+         {
+         const SiStripRecHit2D* singleHit=&(projectedHit->originalHit());
+         RawHits mono;
+	 mono.angleCosine = cosine; 
+         const std::vector<uint16_t> & amplitudes = singleHit->cluster()->amplitudes();
+         mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
+         mono.detId= singleHit->geographicalId();
+         hits.push_back(mono);
+      
+        }
+      else 
         if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit))
          {
          RawHits mono;
@@ -57,8 +70,7 @@ vector<RawHits> trajectoryRawHits(const Trajectory & trajectory)
          hits.push_back(mono);
       
         }
-      else 
-        if(const SiPixelRecHit* pixelHit=dynamic_cast<const SiPixelRecHit*>(recHit))
+      else  if(const SiPixelRecHit* pixelHit=dynamic_cast<const SiPixelRecHit*>(recHit))
       {
          RawHits pixel;
 	 pixel.angleCosine = cosine; 

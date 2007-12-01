@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/11/05 10:51:30 $
- * $Revision: 1.160 $
+ * $Date: 2007/11/10 14:09:09 $
+ * $Revision: 1.165 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,8 +20,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -30,12 +28,16 @@
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 
@@ -47,9 +49,6 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -116,20 +115,6 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
     met02_[ism-1] = 0;
     met03_[ism-1] = 0;
 
-    qth01_[ism-1] = 0;
-    qth02_[ism-1] = 0;
-    qth03_[ism-1] = 0;
-
-    qth04_[ism-1] = 0;
-    qth05_[ism-1] = 0;
-
-    qtg01_[ism-1] = 0;
-    qtg02_[ism-1] = 0;
-    qtg03_[ism-1] = 0;
-
-    qtg04_[ism-1] = 0;
-    qtg05_[ism-1] = 0;
-
   }
 
   expectedMean_[0] = 200.0;
@@ -168,90 +153,6 @@ void EBPedestalClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EBPT quality %s G01", Numbers::sEB(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBPT quality %s G06", Numbers::sEB(ism).c_str());
-      qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBPT quality %s G12", Numbers::sEB(ism).c_str());
-      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBPT pedestal quality PNs %s G01", Numbers::sEB(ism).c_str());
-      qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBPT pedestal quality PNs %s G16", Numbers::sEB(ism).c_str());
-      qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qth01_[ism-1]->setMeanRange(expectedMean_[0] - discrepancyMean_[0], expectedMean_[0] + discrepancyMean_[0]);
-      qth02_[ism-1]->setMeanRange(expectedMean_[1] - discrepancyMean_[1], expectedMean_[1] + discrepancyMean_[1]);
-      qth03_[ism-1]->setMeanRange(expectedMean_[2] - discrepancyMean_[2], expectedMean_[2] + discrepancyMean_[2]);
-
-      qth04_[ism-1]->setMeanRange(expectedMeanPn_[0] - discrepancyMeanPn_[0], expectedMeanPn_[0] + discrepancyMeanPn_[0]);
-      qth05_[ism-1]->setMeanRange(expectedMeanPn_[1] - discrepancyMeanPn_[1], expectedMeanPn_[1] + discrepancyMeanPn_[1]);
-
-      qth01_[ism-1]->setRMSRange(0.0, RMSThreshold_[0]);
-      qth02_[ism-1]->setRMSRange(0.0, RMSThreshold_[1]);
-      qth03_[ism-1]->setRMSRange(0.0, RMSThreshold_[2]);
-
-      qth04_[ism-1]->setRMSRange(0.0, RMSThresholdPn_[0]);
-      qth05_[ism-1]->setRMSRange(0.0, RMSThresholdPn_[1]);
-
-      qth01_[ism-1]->setMinimumEntries(10*1700);
-      qth02_[ism-1]->setMinimumEntries(10*1700);
-      qth03_[ism-1]->setMinimumEntries(10*1700);
-
-      qth04_[ism-1]->setMinimumEntries(10*10);
-      qth05_[ism-1]->setMinimumEntries(10*10);
-
-      qth01_[ism-1]->setErrorProb(1.00);
-      qth02_[ism-1]->setErrorProb(1.00);
-      qth03_[ism-1]->setErrorProb(1.00);
-
-      qth04_[ism-1]->setErrorProb(1.00);
-      qth05_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EBPT quality test %s G01", Numbers::sEB(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBPT quality test %s G06", Numbers::sEB(ism).c_str());
-      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBPT quality test %s G12", Numbers::sEB(ism).c_str());
-      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg01_[ism-1]->setMeanRange(1., 6.);
-      qtg02_[ism-1]->setMeanRange(1., 6.);
-      qtg03_[ism-1]->setMeanRange(1., 6.);
-
-      qtg01_[ism-1]->setErrorProb(1.00);
-      qtg02_[ism-1]->setErrorProb(1.00);
-      qtg03_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EBPT quality test PNs %s G01", Numbers::sEB(ism).c_str());
-      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBPT quality test PNs %s G16", Numbers::sEB(ism).c_str());
-      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg04_[ism-1]->setMeanRange(1., 6.);
-      qtg05_[ism-1]->setMeanRange(1., 6.);
-
-      qtg04_[ism-1]->setErrorProb(1.00);
-      qtg05_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -300,66 +201,96 @@ void EBPedestalClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality G01 %s", Numbers::sEB(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1]->setAxisTitle("ieta", 1);
+    meg01_[ism-1]->setAxisTitle("iphi", 2);
     if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality G06 %s", Numbers::sEB(ism).c_str());
     meg02_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg02_[ism-1]->setAxisTitle("ieta", 1);
+    meg02_[ism-1]->setAxisTitle("iphi", 2);
     if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality G12 %s", Numbers::sEB(ism).c_str());
     meg03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1]->setAxisTitle("ieta", 1);
+    meg03_[ism-1]->setAxisTitle("iphi", 2);
 
     if ( meg04_[ism-1] ) dbe_->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality PNs G01 %s", Numbers::sEB(ism).c_str());
     meg04_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg04_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg04_[ism-1]->setAxisTitle("channel", 2);
     if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality PNs G16 %s", Numbers::sEB(ism).c_str());
     meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg05_[ism-1]->setAxisTitle("channel", 2);
 
     if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal mean G01 %s", Numbers::sEB(ism).c_str());
     mep01_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep01_[ism-1]->setAxisTitle("mean", 1);
     if ( mep02_[ism-1] ) dbe_->removeElement( mep02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal mean G06 %s", Numbers::sEB(ism).c_str());
     mep02_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep02_[ism-1]->setAxisTitle("mean", 1);
     if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal mean G12 %s", Numbers::sEB(ism).c_str());
     mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep03_[ism-1]->setAxisTitle("mean", 1);
 
     if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal rms G01 %s", Numbers::sEB(ism).c_str());
     mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer01_[ism-1]->setAxisTitle("rms", 1);
     if ( mer02_[ism-1] ) dbe_->removeElement( mer02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal rms G06 %s", Numbers::sEB(ism).c_str());
     mer02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer02_[ism-1]->setAxisTitle("rms", 1);
     if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal rms G12 %s", Numbers::sEB(ism).c_str());
     mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer03_[ism-1]->setAxisTitle("rms", 1);
 
     if ( mer04_[ism-1] ) dbe_->removeElement( mer04_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G01", Numbers::sEB(ism).c_str());
     mer04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer04_[ism-1]->setAxisTitle("rms", 1);
     if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G16", Numbers::sEB(ism).c_str());
     mer05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer05_[ism-1]->setAxisTitle("rms", 1);
 
     if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 3sum G01 %s", Numbers::sEB(ism).c_str());
     mes01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    mes01_[ism-1]->setAxisTitle("ieta", 1);
+    mes01_[ism-1]->setAxisTitle("iphi", 2);
     if ( mes02_[ism-1] ) dbe_->removeElement( mes02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 3sum G06 %s", Numbers::sEB(ism).c_str());
     mes02_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    mes02_[ism-1]->setAxisTitle("ieta", 1);
+    mes02_[ism-1]->setAxisTitle("iphi", 2);
     if ( mes03_[ism-1] ) dbe_->removeElement( mes03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 3sum G12 %s", Numbers::sEB(ism).c_str());
     mes03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    mes03_[ism-1]->setAxisTitle("ieta", 1);
+    mes03_[ism-1]->setAxisTitle("iphi", 2);
 
     if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 5sum G01 %s", Numbers::sEB(ism).c_str());
     met01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    met01_[ism-1]->setAxisTitle("ieta", 1);
+    met01_[ism-1]->setAxisTitle("iphi", 2);
     if ( met02_[ism-1] ) dbe_->removeElement( met02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 5sum G06 %s", Numbers::sEB(ism).c_str());
     met02_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    met02_[ism-1]->setAxisTitle("ieta", 1);
+    met02_[ism-1]->setAxisTitle("iphi", 2);
     if ( met03_[ism-1] ) dbe_->removeElement( met03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 5sum G12 %s", Numbers::sEB(ism).c_str());
     met03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    met03_[ism-1]->setAxisTitle("ieta", 1);
+    met03_[ism-1]->setAxisTitle("iphi", 2);
 
   }
 
@@ -641,8 +572,8 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
       float mean01, mean02;
       float rms01, rms02;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
 
       if ( update01 || update02 ) {
 
@@ -737,48 +668,6 @@ void EBPedestalClient::subscribe(void){
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBPedestalTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality G01 %s", Numbers::sEB(ism).c_str());
-    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality G06 %s", Numbers::sEB(ism).c_str());
-    if ( qtg02_[ism-1] ) dbe_->useQTest(histo, qtg02_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality G12 %s", Numbers::sEB(ism).c_str());
-    if ( qtg03_[ism-1] ) dbe_->useQTest(histo, qtg03_[ism-1]->getName());
-
-    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality PNs G01 %s", Numbers::sEB(ism).c_str());
-    if ( qtg04_[ism-1] ) dbe_->useQTest(histo, qtg04_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality PNs G16 %s", Numbers::sEB(ism).c_str());
-    if ( qtg05_[ism-1] ) dbe_->useQTest(histo, qtg05_[ism-1]->getName());
 
   }
 
@@ -944,11 +833,11 @@ void EBPedestalClient::analyze(void){
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/PN/Gain01/EBPDT PNs pedestal %s G01").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal %s G16").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
+    i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
     meg01_[ism-1]->Reset();
     meg02_[ism-1]->Reset();
@@ -1094,8 +983,8 @@ void EBPedestalClient::analyze(void){
       float mean01, mean02;
       float rms01, rms02;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
 
       // filling projections
       if ( mer04_[ism-1] )  mer04_[ism-1]->Fill(rms01);
@@ -1389,7 +1278,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TH2F* obj2f;
   TH1F* obj1f;
-  TH1D* obj1d;
+  TProfile* objp;
 
   // Loop on barrel supermodules
 
@@ -1686,21 +1575,21 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPnPed[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i01_[ism-1];
           break;
         case 2:
-          if ( i02_[ism-1] ) obj1d = i02_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i02_[ism-1];
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -1712,19 +1601,17 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cPed->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 

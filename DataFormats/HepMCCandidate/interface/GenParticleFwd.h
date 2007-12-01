@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/Association.h"
 
 namespace reco {
   class GenParticle;
@@ -16,8 +15,8 @@ namespace reco {
   typedef edm::RefProd<GenParticleCollection> GenParticleRefProd;
   /// vector of reference to GenParticle in the same collection
   typedef edm::RefVector<GenParticleCollection> GenParticleRefVector;
-  /// vector of reference to GenParticle in the same collection
-  typedef edm::Association<GenParticleCollection> GenParticleMatch;
+  /// iterator over a vector of reference to GenParticle in the same collection
+  typedef GenParticleRefVector::iterator GenParticle_iterator;
 }
 
 #endif

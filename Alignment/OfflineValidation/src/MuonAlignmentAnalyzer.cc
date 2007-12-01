@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/10/15 19:32:33 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/09/05 11:06:25 $
+ *  $Revision: 1.14 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -24,7 +24,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/Math/interface/deltaR.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -459,13 +458,13 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
    
     if(SArecPt && theDataType == "SimData"){  
 
-     double candDeltaR= -999.0, dR;
+     double candDeltaR= -999.0, deltaR;
      int iCand=0;
      if(simPar[0].size()>0){
      for(unsigned int  iSim = 0; iSim <simPar[0].size(); iSim++) {
-     dR=deltaR(SAeta,SAphi,simPar[1][iSim],simPar[2][iSim]);
-     if(candDeltaR<0 || dR<candDeltaR) {
-        candDeltaR=dR;
+     deltaR=sqrt((SAeta-simPar[1][iSim])*(SAeta-simPar[1][iSim])+(SAphi-simPar[2][iSim])*(SAphi-simPar[2][iSim]));
+     if(candDeltaR<0 || deltaR<candDeltaR) {
+        candDeltaR=deltaR;
         iCand=iSim;
         }
      }}
@@ -546,13 +545,13 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
     if(i==2)  p2=GlobalVector((*glbTrack).momentum().x(),(*glbTrack).momentum().y(),(*glbTrack).momentum().z());
 
     if(GBrecPt && theDataType == "SimData"){ 
-     double candDeltaR= -999.0, dR;
+     double candDeltaR= -999.0, deltaR;
      int iCand=0;
      if(simPar[0].size()>0){
      for(unsigned int  iSim = 0; iSim <simPar[0].size(); iSim++) {
-     dR=deltaR(GBeta,GBphi,simPar[1][iSim],simPar[2][iSim]);
-     if(candDeltaR<0 || dR<candDeltaR) {
-	candDeltaR=dR;
+     deltaR=sqrt((GBeta-simPar[1][iSim])*(GBeta-simPar[1][iSim])+(GBphi-simPar[2][iSim])*(GBphi-simPar[2][iSim]));
+     if(candDeltaR<0 || deltaR<candDeltaR) {
+	candDeltaR=deltaR;
 	iCand=iSim;
 	}
      }}

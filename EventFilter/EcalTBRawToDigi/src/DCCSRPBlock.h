@@ -2,8 +2,8 @@
 // Author : N.Almeida (LIP)
 
 
-#ifndef DCCTBSRPBLOCK_HH
-#define DCCTBSRPBLOCK_HH
+#ifndef DCCSRPBLOCK_HH
+#define DCCSRPBLOCK_HH
 
 #include <iostream>
 #include <string>
@@ -14,17 +14,17 @@
 
 #include "DCCBlockPrototype.h"
 
-class DCCTBEventBlock;
-class DCCTBXtalBlock;
-class DCCTBDataParser;
+class DCCEventBlock;
+class DCCXtalBlock;
+class DCCDataParser;
 
-class DCCTBSRPBlock : public DCCTBBlockPrototype {
+class DCCSRPBlock : public DCCBlockPrototype {
 	
 	public :
 		
-		DCCTBSRPBlock(
-			DCCTBEventBlock * dccBlock,
-			DCCTBDataParser * parser, 
+		DCCSRPBlock(
+			DCCEventBlock * dccBlock,
+			DCCDataParser * parser, 
 			ulong * buffer, 
 			ulong numbBytes,
 			ulong wordsToEnd, 
@@ -46,7 +46,7 @@ class DCCTBSRPBlock : public DCCTBBlockPrototype {
 			BLOCKID = 4
 		};
 	
-		DCCTBEventBlock * dccBlock_;
+		DCCEventBlock * dccBlock_;
 		
 		
 		

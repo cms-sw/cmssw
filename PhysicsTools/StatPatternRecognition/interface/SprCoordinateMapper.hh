@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprCoordinateMapper.hh,v 1.3 2007/10/29 22:10:40 narsky Exp $
+//      $Id: SprCoordinateMapper.hh,v 1.2 2007/07/06 21:46:22 narsky Exp $
 //
 // Description:
 //      Class SprCoordinateMapper
@@ -43,10 +43,7 @@ public:
     return new SprCoordinateMapper(*this);
   }
 
-  /*
-    output() method requires clear() to be called before deletion of
-    the mapper. map() method does not require the cleaner.
-  */
+  // map vectors
   const SprPoint* output(const SprPoint* input);
   void map(const std::vector<double>& in, std::vector<double>& out) const;
 

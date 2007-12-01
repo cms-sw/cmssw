@@ -18,7 +18,5 @@
   <bin file=SprRBFNetApp.cc></bin>
   <bin file=SprStdBackpropApp.cc></bin>
   <bin file=SprVariableImportanceApp.cc></bin>
-  <bin file=SprIOTestApp.cc></bin>
-  <bin file=SprAddBaggersApp.cc></bin>
 </environment>
 

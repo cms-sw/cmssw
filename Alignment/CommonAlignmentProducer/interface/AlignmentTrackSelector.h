@@ -1,16 +1,16 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentTrackSelector_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentTrackSelector_h
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include <vector>
 
-namespace edm {
-  class Event;
-  class ParameterSet;
-}
-
-class TrackingRecHit;
+namespace edm { class Event; }
 
 class AlignmentTrackSelector
 {
@@ -32,10 +32,6 @@ class AlignmentTrackSelector
 
   /// apply basic cuts on pt,eta,phi,nhit
   Tracks basicCuts(const Tracks& tracks) const;
-  /// checking hit requirements beyond simple number of valid hits
-  bool detailedHitsCheck(const reco::Track* track) const;
-  bool isHit2D(const TrackingRecHit &hit) const;
-
 
   /// filter the n highest pt tracks
   Tracks theNHighestPtTracks(const Tracks& tracks) const;
@@ -48,13 +44,15 @@ class AlignmentTrackSelector
   };
   ComparePt ptComparator;
 
-  const bool applyBasicCuts_, applyNHighestPt_, applyMultiplicityFilter_;
-  const int nHighestPt_, minMultiplicity_, maxMultiplicity_;
-  const bool multiplicityOnInput_; /// if true, cut min/maxMultiplicity on input instead of on final result
-  const double ptMin_,ptMax_,etaMin_,etaMax_,phiMin_,phiMax_,nHitMin_,nHitMax_,chi2nMax_;
-  const unsigned int nHitMin2D_;
-  const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_, minHitsinBPIX_, minHitsinFPIX_;
+  /// private data members
+  edm::ParameterSet conf_;
 
+  bool applyBasicCuts,applyNHighestPt,applyMultiplicityFilter;
+  int nHighestPt,minMultiplicity,maxMultiplicity;
+  double ptMin,ptMax,etaMin,etaMax,phiMin,phiMax,nHitMin,nHitMax,chi2nMax;
+  int minHitsinTIB, minHitsinTOB, minHitsinTID, minHitsinTEC;
+
+  TrackerAlignableId *TkMap;
 };
 
 #endif

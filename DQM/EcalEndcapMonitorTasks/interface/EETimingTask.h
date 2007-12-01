@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2007/04/05 14:54:03 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/12 09:28:32 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -13,7 +13,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+class MonitorElement;
+class DaqMonitorBEInterface;
 
 class EETimingTask: public edm::EDAnalyzer{
 

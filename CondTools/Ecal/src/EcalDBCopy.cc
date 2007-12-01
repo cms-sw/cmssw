@@ -25,6 +25,12 @@
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -93,7 +99,15 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalWeightXtalGroupsRcd>().cacheIdentifier();
   } else if (container == "EcalTBWeights") {
     cacheID = evtSetup.get<EcalTBWeightsRcd>().cacheIdentifier();
-  } else {
+  } else if (container == "EcalLaserAPDPNRatios") {
+    cacheID = evtSetup.get<EcalLaserAPDPNRatiosRcd>().cacheIdentifier();
+  } else if (container == "EcalLaserAPDPNRatiosRef") {
+    cacheID = evtSetup.get<EcalTBWeightsRcd>().cacheIdentifier();
+  } else if (container == "EcalLaserAlphas") {
+    cacheID = evtSetup.get<EcalTBWeightsRcd>().cacheIdentifier();
+  } 
+
+  else {
     throw cms::Exception("Unknown container");
   }
   
@@ -160,7 +174,27 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
     const EcalTBWeights* obj = handle.product();
     cout << "tbweight pointer is: "<< obj<< endl;
    dbOutput->createNewIOV<const EcalTBWeights>( new EcalTBWeights(*obj), dbOutput->endOfTime(),recordName);
-  
+
+  } else if (container == "EcalLaserAlphas") {
+    edm::ESHandle<EcalLaserAlphas> handle;
+    evtSetup.get<EcalLaserAlphasRcd>().get(handle);
+    const EcalLaserAlphas* obj = handle.product();
+    cout << "ecalLaserAlpha pointer is: "<< obj<< endl;
+   dbOutput->createNewIOV<const EcalLaserAlphas>( new EcalLaserAlphas(*obj), dbOutput->endOfTime(),recordName);
+
+  } else if (container == "EcalLaserAPDPNRatios") {
+    edm::ESHandle<EcalLaserAPDPNRatios> handle;
+    evtSetup.get<EcalLaserAPDPNRatiosRcd>().get(handle);
+    const EcalLaserAPDPNRatios* obj = handle.product();
+    cout << "tbweight pointer is: "<< obj<< endl;
+   dbOutput->createNewIOV<const EcalLaserAPDPNRatios>( new EcalLaserAPDPNRatios(*obj), dbOutput->endOfTime(),recordName);
+
+  } else if (container == "EcalLaserAPDPNRatiosRef") {
+    edm::ESHandle<EcalLaserAPDPNRatiosRef> handle;
+    evtSetup.get<EcalLaserAPDPNRatiosRefRcd>().get(handle);
+    const EcalLaserAPDPNRatiosRef* obj = handle.product();
+    cout << "tbweight pointer is: "<< obj<< endl;
+   dbOutput->createNewIOV<const EcalLaserAPDPNRatiosRef>( new EcalLaserAPDPNRatiosRef(*obj), dbOutput->endOfTime(),recordName);
 
   } else {
     throw cms::Exception("Unknown container");

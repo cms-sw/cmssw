@@ -15,6 +15,7 @@ process TEST = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
 	module output = PoolOutputModule {
 		untracked string fileName = '${LOCAL_TMP_DIR}/SecondaryInputTest2.root'
+		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {}
 	endpath ep = {output}
@@ -32,6 +33,7 @@ process TEST = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
 	module output = PoolOutputModule {
 		untracked string fileName = '${LOCAL_TMP_DIR}/SecondaryInputTest.root'
+		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {}
 	endpath ep = {output}

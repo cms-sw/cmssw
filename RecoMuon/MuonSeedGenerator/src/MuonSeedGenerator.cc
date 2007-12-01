@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2007/10/10 21:13:48 $
- *  $Revision: 1.19 $
+ *  $Date: 2007/03/27 08:04:08 $
+ *  $Revision: 1.17 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -188,14 +188,43 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   MuonRecHitContainer list7 = muonMeasurements.recHits(MB2DL,event);
   MuonRecHitContainer list8 = muonMeasurements.recHits(MB1DL,event);
   
-  bool* MB1 = zero(list8.size());
-  bool* MB2 = zero(list7.size());
-  bool* MB3 = zero(list6.size());
+  bool* MB1 = 0;
+  if (list8.size()) {
+    MB1 = new bool[list8.size()];
+    for ( size_t i=0; i<list8.size(); i++ ) MB1[i]=false;
+  }
+  bool* MB2 = 0;
+  if (list7.size()) {
+    MB2 = new bool[list7.size()];
+    for ( size_t i=0; i<list7.size(); i++ ) MB2[i]=false;
+  }
+  bool* MB3 = 0;
+  if (list6.size()) {
+    MB3 = new bool[list6.size()];
+    for ( size_t i=0; i<list6.size(); i++ ) MB3[i]=false;
+  }
 
-  bool* ME2 = zero(list2.size());
-  bool* ME3 = zero(list3.size());
-  bool* ME4 = zero(list4.size());
-  bool* ME5 = zero(list5.size());
+  // +v ME-flags:
+  bool* ME2 = 0;
+  if (list2.size()) {
+    ME2 = new bool[list2.size()];
+    for ( size_t i=0; i<list2.size(); i++ ) ME2[i]=false;
+  }
+  bool* ME3 = 0;
+  if (list3.size()) {
+    ME3 = new bool[list3.size()];
+    for ( size_t i=0; i<list3.size(); i++ ) ME3[i]=false;
+  }
+  bool* ME4 = 0;
+  if (list4.size()) {
+    ME4 = new bool[list4.size()];
+    for ( size_t i=0; i<list4.size(); i++ ) ME4[i]=false;
+  }
+  bool* ME5 = 0;
+  if (list5.size()) {
+    ME5 = new bool[list5.size()];
+    for ( size_t i=0; i<list5.size(); i++ ) ME5[i]=false;
+  }
 
   // creates list of compatible track segments
 
@@ -217,7 +246,6 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   unsigned int counter;
 
   for ( counter = 0; counter<list2.size(); counter++ ){
-
     if ( !ME2[counter] ) {
       MuonSeedFinder theSeed;
       theSeed.add(list2[counter]);
@@ -334,11 +362,24 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( ME4 ) delete [] ME4;
   if ( ME3 ) delete [] ME3;
   if ( ME2 ) delete [] ME2;
+  ME5 = ME4 = ME3 = ME2 = 0;
 
-  ME2 = zero(list2.size());
-  ME3 = zero(list3.size());
-  ME4 = zero(list4.size());
-  ME5 = zero(list5.size());
+  if (list2.size()) {
+    ME2 = new bool[list2.size()];
+    for ( size_t i=0; i<list2.size(); i++ ) ME2[i]=false;
+  }
+  if (list3.size()) {
+    ME3 = new bool[list3.size()];
+    for ( size_t i=0; i<list3.size(); i++ ) ME3[i]=false;
+  }
+  if (list4.size()) {
+    ME4 = new bool[list4.size()];
+    for ( size_t i=0; i<list4.size(); i++ ) ME4[i]=false;
+  }
+  if (list5.size()) {
+    ME5 = new bool[list5.size()];
+    for ( size_t i=0; i<list5.size(); i++ ) ME5[i]=false;
+  }
 
 
   for (MuonRecHitContainer::iterator iter=list1.begin(); iter!=list1.end(); iter++ ){
@@ -503,17 +544,6 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 }
 
 
-bool * MuonSeedGenerator::zero(unsigned listSize)
-{
-  bool * result = 0;
-  if (listSize) {
-    result = new bool[listSize]; 
-    for ( size_t i=0; i<listSize; i++ ) result[i]=false;
-  }
-  return result;
-}
-
-
 void MuonSeedGenerator::complete(MuonSeedFinder& seed,
                                  MuonRecHitContainer &recHits, bool* used) const {
 
@@ -530,18 +560,14 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
   for (MuonRecHitContainer::iterator iter=recHits.begin(); iter!=recHits.end(); iter++){
 
     GlobalPoint ptg1 = (*iter)->globalPosition();  //+v global pos of rechit
-    float deta = fabs (ptg1.eta()-ptg2.eta());
-    // Geom::Phi should keep it in the range [-pi, pi]
-    float dphi = fabs (ptg1.phi()-ptg2.phi());
-    float eta2 = fabs( ptg2.eta() );
 
     // Cox: Just too far away?
-    if ( deta > .2 || dphi > .1 ) {
+    if ( fabs (ptg1.eta()-ptg2.eta()) > .2 || fabs (ptg1.phi()-ptg2.phi()) > .1 ) {
       nr++;
       continue;
     }   // +vvp!!!
 
-    if( eta2 < 1.0 ) {     //  barrel only
+    if( fabs ( ptg2.eta() ) < 1.0 ) {     //  barrel only
 
       LocalPoint pt1 = first->det()->toLocal(ptg1); // local pos of rechit in seed's det
 
@@ -568,11 +594,9 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 
     }  // eta  < 1.0
 
-    else {    //  endcap & overlap.
-      // allow a looser dphi cut where bend is greatest, so we get those little 5-GeV muons
-      // watch out for ghosts from ME1/A, below 2.0.
-      float dphicut = (eta2 > 1.6 && eta2 < 2.0) ? 0.1 : 0.07;
-      if ( deta < .1 && dphi < dphicut ) {  
+    if( fabs ( ptg2.eta() ) > 1.0 ) {    //  endcap & overlap.
+
+      if ( fabs (ptg1.eta()-ptg2.eta()) < .1 && fabs (ptg1.phi()-ptg2.phi()) < .07 ) {  
 
 	good_rhit.push_back(*iter);
 	if (used) used[nr]=true;
@@ -609,6 +633,7 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
       if (dphi < 0.) dphi = -dphi;             //+v
       if (dphi > M_PI) dphi = 2.*M_PI - dphi;  //+v
 
+   
       if (  dphi < best_dphiG*1.5 ) {  
 
 
@@ -620,6 +645,7 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 
 	if (dphidir > M_PI) dphidir = 2.*M_PI - dphidir;
 	if (dphidir > M_PI*.5) dphidir = M_PI - dphidir;  // +v  [0,pi/2]
+
 	if (  dphidir < best_dphiD ) {
 
 	  best_dphiG = dphi;

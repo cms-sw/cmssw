@@ -164,8 +164,7 @@ void PixelTrackVal::analyze(
 
     math::XYZVector mom_gen( (*p).momentum().x(), (*p).momentum().y(), (*p).momentum().z());
     float phi_gen = (*p).momentum().phi();
-//    float pt_gen = (*p).momentum().Pt();
-    float pt_gen = sqrt((*p).momentum().x() * (*p).momentum().x() + (*p).momentum().y() * (*p).momentum().y());
+    float pt_gen = (*p).momentum().Pt();
     float eta_gen = (*p).momentum().eta();
     HepLorentzVector vtx((*simVtcs)[p->vertIndex()].position().x(),
                          (*simVtcs)[p->vertIndex()].position().y(),

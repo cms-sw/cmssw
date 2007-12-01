@@ -2,6 +2,7 @@
 #include "CommonTools/TrackerMap/interface/TmApvPair.h"
 #include "CommonTools/TrackerMap/interface/TmModule.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <fstream>
 #include <iostream>
@@ -98,7 +99,7 @@ void FedTrackerMap::print(bool print_total, float minval, float maxval)
 {
   minvalue=minval; maxvalue=maxval;
   svgfile = new ofstream("svgmap_fed.xml",ios::out);
-  jsfile = new ifstream("trackermap.txt",ios::in);
+  jsfile = new ifstream(edm::FileInPath("CommonTools/TrackerMap/test/trackermap.txt").fullPath().c_str(),ios::in);
   
   //copy javascript interface from trackermap.txt file
   string line;

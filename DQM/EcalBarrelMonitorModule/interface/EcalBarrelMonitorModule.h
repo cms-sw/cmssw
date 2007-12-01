@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2007/05/25 08:19:03 $
- * $Revision: 1.43 $
+ * $Date: 2007/11/06 10:29:38 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
 */
@@ -17,7 +17,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+class MonitorElement;
+class DaqMonitorBEInterface;
 
 class EcalBarrelMonitorModule: public edm::EDAnalyzer{
 

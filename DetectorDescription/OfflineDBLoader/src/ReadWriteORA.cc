@@ -67,13 +67,10 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     DDCompactView::graph_type gra = cpv.graph();
     
     DDMaterial::iterator<DDMaterial> it(DDMaterial::begin()), ed(DDMaterial::end());
-
-    DDDToPersFactory dddFact;
-
     PMaterial* pm;
     for (; it != ed; ++it) {
       if (! it->isDefined().second) continue;
-      pm = dddFact.material ( *it );
+      pm = DDDToPersFactory::material ( *it );
       pgeom->pMaterials.push_back ( *pm );
       delete pm;
     }
@@ -84,14 +81,14 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     if ( !rotn.isDefined().second ) {
       DDRotationMatrix* rotID = new DDRotationMatrix();
       DDRotation mydr = DDrot (DDName("IDENTITYDB","generatedForDB"), rotID);
-      pr = dddFact.rotation ( mydr );
+      pr = DDDToPersFactory::rotation ( mydr );
       pgeom->pRotations.push_back ( *pr );
     }
     for (; rit != red; ++rit) {
       if (! rit->isDefined().second) continue;
       // if it is the identity...
       if ( *(rit->matrix()) == *(rotn.matrix()) ) continue;
-      pr = dddFact.rotation( *rit );
+      pr = DDDToPersFactory::rotation( *rit );
       pgeom->pRotations.push_back ( *pr );
     } 
 
@@ -100,7 +97,7 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     PSolid* ps;
     for (; sit != sed; ++sit) {
       if (! sit->isDefined().second) continue;  
-      ps = dddFact.solid( *sit );
+      ps = DDDToPersFactory::solid( *sit );
       pgeom->pSolids.push_back( *ps );
       delete ps;
     }
@@ -123,7 +120,7 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
       {
 	const DDLogicalPart & ddLP = gra.nodeData(git);
 	//	std::cout << ddLP << std::endl;
-	plp = dddFact.logicalPart ( ddLP  );
+	plp = DDDToPersFactory::logicalPart ( ddLP  );
 	pgeom->pLogicalParts.push_back( *plp );
 	delete plp;
 	++i;
@@ -136,7 +133,7 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
 	    for (; cit != cend; ++cit) 
 	      {
 		const DDLogicalPart & ddcurLP = gra.nodeData(cit->first);
-		ppp = dddFact.position ( ddLP, ddcurLP, gra.edgeData(cit->second), *pgeom, rotNumSeed_ );
+		ppp = DDDToPersFactory::position ( ddLP, ddcurLP, gra.edgeData(cit->second), *pgeom, rotNumSeed_ );
 // 		std::cout << "okay after the factory..." << std::endl;
 		pgeom->pPosParts.push_back( *ppp );
 // 		std::cout << "okay after the push_back" << std::endl;
@@ -159,12 +156,11 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     // ======= For each DDSpecific...
     for (; spit != spend; ++spit) {
       if ( !spit->isDefined().second ) continue;  
-      psp = dddFact.specpar( *spit );
+      psp = DDDToPersFactory::specpar( *spit );
       pgeom->pSpecPars.push_back( *psp );
       delete psp;
     } 
 
-    pgeom->pStrings = dddFact.pstrs.pStrings;
     pgeom->pStartNode = DDRootDef::instance().root().toString();
 
     pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );

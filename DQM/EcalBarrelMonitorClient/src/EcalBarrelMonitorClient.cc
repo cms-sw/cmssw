@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/11/05 11:00:05 $
- * $Revision: 1.316 $
+ * $Date: 2007/11/10 15:31:31 $
+ * $Revision: 1.320 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,7 +25,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
@@ -150,7 +149,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " mergeRuns switch is ON" << endl;
   } else {
     cout << " mergeRuns switch is OFF" << endl;
-  } 
+  }
 
   // enableSubRunDb switch
 
@@ -199,16 +198,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " cloneME switch is ON" << endl;
   } else {
     cout << " cloneME switch is OFF" << endl;
-  }
-
-  // enableQT switch
-
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
-
-  if ( enableQT_ ) {
-    cout << " enableQT switch is ON" << endl;
-  } else {
-    cout << " enableQT switch is OFF" << endl;
   }
 
   // enableExit switch
@@ -313,7 +302,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   enabledClients_.push_back("PedestalOnline");
 
   enabledClients_ = ps.getUntrackedParameter<vector<string> >("enabledClients", enabledClients_);
- 
+
   cout << " Enabled Clients:" << endl;
 
   for ( unsigned int i = 0; i < enabledClients_.size(); i++ ) {
@@ -426,7 +415,9 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
 
@@ -496,6 +487,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBTriggerTowerClient(ps) );
     clientNames_.push_back( "TriggerTower" );
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
@@ -1273,11 +1265,6 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( verbose_ ) cout << " updates = " << updates << endl;
 
-  // run QTs on MEs updated during last cycle (offline mode)
-  if ( ! enableStateMachine_ ) {
-    if ( enableQT_ ) dbe_->runQTests();
-  }
-
   // update MEs (online mode)
   if ( ! enableStateMachine_ ) {
     mui_->doMonitoring();
@@ -1342,7 +1329,7 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    if ( ( jevt_ < 10 || jevt_ % 10 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
+    if ( ( jevt_ < 10 || ( jevt_ < 100 && jevt_ % 10 == 0 ) || ( jevt_ < 1000 && jevt_ % 100 == 0 ) || jevt_ % 1000 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
       cout << " RUN status = \"" << status_ << "\"" << endl;
 
@@ -1417,11 +1404,6 @@ void EcalBarrelMonitorClient::analyze(void){
 
         if ( status_ == "running" || status_ == "end-of-run" || forced_update_ ) {
 
-          // run QTs on local MEs, updated in analyze()
-          if ( ! enableStateMachine_ ) {
-            if ( enableQT_ ) dbe_->runQTests();
-          }
-
           // update MEs [again, just to silence a warning]
           if ( ! enableStateMachine_ ) {
             mui_->doMonitoring();
@@ -1433,26 +1415,22 @@ void EcalBarrelMonitorClient::analyze(void){
 
       if ( status_ == "end-of-run" || forced_update_ ) {
 
-        if ( enableQT_ ) {
-
-          cout << endl;
-          switch ( dbe_->getStatus() ) {
-            case dqm::qstatus::ERROR:
-              cout << " Error(s)";
-              break;
-            case dqm::qstatus::WARNING:
-              cout << " Warning(s)";
-              break;
-            case dqm::qstatus::OTHER:
-              cout << " Some tests did not run;";
-              break;
-            default:
-              cout << " No problems";
-          }
-          cout << " reported after running the quality tests" << endl;
-          cout << endl;
-
+        cout << endl;
+        switch ( dbe_->getStatus() ) {
+          case dqm::qstatus::ERROR:
+            cout << " Error(s)";
+            break;
+          case dqm::qstatus::WARNING:
+            cout << " Warning(s)";
+            break;
+          case dqm::qstatus::OTHER:
+            cout << " Some tests did not run;";
+            break;
+          default:
+            cout << " No problems";
         }
+        cout << " reported after running the quality tests" << endl;
+        cout << endl;
 
       }
 
@@ -1835,7 +1813,7 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
        << std::endl;
   *out << cgicc::input().set("type","hidden").set("name","module").set("value", mname)
        << std::endl;
-  *out << cgicc::input().set("type","hidden").set("name","autorefresh").set("value", autorefresh_?"0":"1") 
+  *out << cgicc::input().set("type","hidden").set("name","autorefresh").set("value", autorefresh_?"0":"1")
        << std::endl;
   *out << cgicc::input().set("type","submit").set("value",autorefresh_?"Toggle AutoRefresh OFF":"Toggle AutoRefresh ON")
        << std::endl;
@@ -1845,20 +1823,20 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "<table style=\"font-family: arial\"><tr><td>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th>Cycle</th><td align=right>" << this->getEvtPerJob();
   int nevt = 0;
   if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetEntries());
   *out << "<tr><th>Event</th><td align=right>" << nevt
-       << "</td><tr><th>Run</th><td align=right>" << this->getRun() 
-       << "</td><tr><th>Run Type</th><td align=right> " << this->getRunType() 
+       << "</td><tr><th>Run</th><td align=right>" << this->getRun()
+       << "</td><tr><th>Run Type</th><td align=right> " << this->getRunType()
        << "</td></table></p>" << endl;
 
   *out << "</td><td>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th>Evt Type</th><th>Evt/Run</th><th>Evt Type</th><th>Evt/Run</th>" << endl;
   vector<string> runTypes = this->getRunTypes();
   for( unsigned int i=0, j=0; i<runTypes.size(); i++ ) {
@@ -1866,7 +1844,7 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
       if ( j++%2 == 0 ) *out << "<tr>";
       nevt = 0;
       if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetBinContent(i+1));
-      *out << "<td>" << runTypes[i] 
+      *out << "<td>" << runTypes[i]
            << "</td><td align=right>" << nevt << endl;
     }
   }
@@ -1874,15 +1852,15 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "</td><tr><td colspan=2>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th>" << endl;
   const vector<EBClient*> clients = this->getClients();
   const vector<string> clientNames = this->getClientNames();
   for( unsigned int i=0; i<clients.size(); i++ ) {
     if ( clients[i] != 0 ) {
       if ( i%2 == 0 ) *out << "<tr>";
-      *out << "<td>" << clientNames[i] 
+      *out << "<td>" << clientNames[i]
            << "</td><td align=right>" << clients[i]->getEvtPerJob()
            << "</td><td align=right>" << clients[i]->getEvtPerRun() << endl;
     }
@@ -1892,7 +1870,7 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
   *out << "</td><tr><td>" << endl;
 
 
-  *out << "<p style=\"font-family: arial\">" 
+  *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
        << "<tr><th colspan=2>RunIOV</th>"
        << "<tr><td>Run Number</td><td align=right> " << this->getRunIOV().getRunNumber()
@@ -1902,8 +1880,8 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "</td><td colsapn=2>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th colspan=2>RunTag</th>"
        << "<tr><td>GeneralTag</td><td align=right> " << this->getRunIOV().getRunTag().getGeneralTag()
        << "</td><tr><td>Location</td><td align=right> " << this->getRunIOV().getRunTag().getLocationDef().getLocation()
@@ -1912,8 +1890,8 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "</td><tr><td>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th colspan=2>MonRunIOV</th>"
        << "<tr><td>SubRun Number</td><td align=right> " << this->getMonIOV().getSubRunNumber()
        << "</td><tr><td>SubRun Start</td><td align=right> " << this->getMonIOV().getSubRunStart().str()
@@ -1922,8 +1900,8 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "</td><td colspan=2>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th colspan=2>MonRunTag</th>"
        << "<tr><td>GeneralTag</td><td align=right> " << this->getMonIOV().getMonRunTag().getGeneralTag()
        << "</td><tr><td>Monitoring Version</td><td align=right> " << this->getMonIOV().getMonRunTag().getMonVersionDef().getMonitoringVersion()

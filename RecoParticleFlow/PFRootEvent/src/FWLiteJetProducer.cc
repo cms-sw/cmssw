@@ -178,7 +178,7 @@ namespace {
       }
       else if ((fEtCut <= 0 || constituent->et() > fEtCut) &&
 	  (fECut <= 0 || constituent->energy() > fECut)) {
-	fInput->push_back (constituent);
+	//	fInput->push_back (constituent);
       }
     }
   }

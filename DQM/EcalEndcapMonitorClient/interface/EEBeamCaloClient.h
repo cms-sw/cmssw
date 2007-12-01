@@ -4,8 +4,8 @@
 /*
  * \file EEBeamCaloClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.3 $
+ * $Date: 2007/11/08 15:43:52 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -21,14 +21,13 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
+
+class MonitorElement;
+class MonitorUserInterface;
+class DaqMonitorBEInterface;
+class EcalCondDBInterface;
+class MonRunIOV;
 
 class EEBeamCaloClient : public EEClient {
 
@@ -89,7 +88,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 

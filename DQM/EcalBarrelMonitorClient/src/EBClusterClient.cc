@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/10/23 07:13:24 $
- * $Revision: 1.38 $
+ * $Date: 2007/11/10 14:09:08 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -21,14 +21,21 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 
-#include <DQM/EcalCommon/interface/UtilsClient.h>
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
 
@@ -40,9 +47,6 @@ EBClusterClient::EBClusterClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -64,7 +68,7 @@ EBClusterClient::EBClusterClient(const ParameterSet& ps){
 
   h02_[0] = 0;
   h02ProjEta_[0] = 0;
-  h02ProjPhi_[0] = 0;    
+  h02ProjPhi_[0] = 0;
   h02_[1] = 0;
   h02ProjEta_[1] = 0;
   h02ProjPhi_[1] = 0;
@@ -100,11 +104,6 @@ void EBClusterClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-
-  }
 
 }
 
@@ -867,7 +866,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>" << endl;
 
   //   // super clusters
-  // 
+  //
   for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
 
     imgNameS[iCanvas-1] = "";
@@ -924,7 +923,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
-
 
   // ===========================================================================
   // Higher Level variables

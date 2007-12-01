@@ -109,7 +109,8 @@ private:
   bool doPerChanTests_;
   bool plotPedRAW_;
   string process_;
-  
+  string baseFolder_;
+
   //  MonitorUserInterface* mui_;
   DaqMonitorBEInterface* dbe_;
   const HcalElectronicsMap* readoutMap_;

@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/11/05 11:07:05 $
- * $Revision: 1.35 $
+ * $Date: 2007/11/10 14:09:11 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -23,8 +23,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -38,12 +36,16 @@
 #include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
 
@@ -55,9 +57,6 @@ EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -103,20 +102,6 @@ EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps){
     meg01_[ism-1] = 0;
     meg02_[ism-1] = 0;
 
-    qth01_[ism-1] = 0;
-    qth02_[ism-1] = 0;
-    qth03_[ism-1] = 0;
-    qth04_[ism-1] = 0;
-    qth05_[ism-1] = 0;
-    qth06_[ism-1] = 0;
-    qth07_[ism-1] = 0;
-    qth08_[ism-1] = 0;
-    qth09_[ism-1] = 0;
-    qth10_[ism-1] = 0;
-
-    qtg01_[ism-1] = 0;
-    qtg02_[ism-1] = 0;
-
   }
 
   threshCry_ = 0.;
@@ -136,93 +121,6 @@ void EEIntegrityClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EEIT data integrity quality gain %s", Numbers::sEE(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEIT data integrity quality ChId %s", Numbers::sEE(ism).c_str());
-      qth02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEIT data integrity quality gain switch %s", Numbers::sEE(ism).c_str());
-      qth03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEIT data integrity quality gain switch stay %s", Numbers::sEE(ism).c_str());
-      qth04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEIT data integrity quality TTId %s", Numbers::sEE(ism).c_str());
-      qth05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEIT data integrity quality TTBlockSize %s", Numbers::sEE(ism).c_str());
-      qth06_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEIT data integrity quality MemChId %s", Numbers::sEE(ism).c_str());
-      qth07_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEIT data integrity quality MemGain %s", Numbers::sEE(ism).c_str());
-      qth08_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEIT data integrity quality MemTTId %s", Numbers::sEE(ism).c_str());
-      qth09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEIT data integrity quality MemSize %s", Numbers::sEE(ism).c_str());
-      qth10_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qth01_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth02_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth03_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth04_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth05_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth06_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth07_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth08_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth09_[ism-1]->setMeanRange(-1.0, threshCry_);
-      qth10_[ism-1]->setMeanRange(-1.0, threshCry_);
-
-      qth01_[ism-1]->setMinimumEntries(0);
-      qth02_[ism-1]->setMinimumEntries(0);
-      qth03_[ism-1]->setMinimumEntries(0);
-      qth04_[ism-1]->setMinimumEntries(0);
-      qth05_[ism-1]->setMinimumEntries(0);
-      qth06_[ism-1]->setMinimumEntries(0);
-      qth07_[ism-1]->setMinimumEntries(0);
-      qth08_[ism-1]->setMinimumEntries(0);
-      qth09_[ism-1]->setMinimumEntries(0);
-      qth10_[ism-1]->setMinimumEntries(0);
-
-      qth01_[ism-1]->setErrorProb(1.00);
-      qth02_[ism-1]->setErrorProb(1.00);
-      qth03_[ism-1]->setErrorProb(1.00);
-      qth04_[ism-1]->setErrorProb(1.00);
-      qth05_[ism-1]->setErrorProb(1.00);
-      qth06_[ism-1]->setErrorProb(1.00);
-      qth07_[ism-1]->setErrorProb(1.00);
-      qth08_[ism-1]->setErrorProb(1.00);
-      qth09_[ism-1]->setErrorProb(1.00);
-      qth10_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EEIT quality test %s", Numbers::sEE(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EEIT quality test MEM %s", Numbers::sEE(ism).c_str());
-      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg01_[ism-1]->setMeanRange(1., 6.);
-      qtg02_[ism-1]->setMeanRange(1., 6.);
-
-      qtg01_[ism-1]->setErrorProb(1.00);
-      qtg02_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -271,10 +169,14 @@ void EEIntegrityClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EEIT data integrity quality %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg01_[ism-1]->setAxisTitle("ix", 1);
+    meg01_[ism-1]->setAxisTitle("iy", 2);
 
     if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EEIT data integrity quality MEM %s", Numbers::sEE(ism).c_str());
     meg02_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0.,5.);
+    meg02_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg02_[ism-1]->setAxisTitle("channel", 2);
 
   }
 
@@ -407,7 +309,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     UtilsClient::printBadChannels(meg01_[ism-1], h04_[ism-1], true);
     UtilsClient::printBadChannels(meg01_[ism-1], h05_[ism-1], true);
     UtilsClient::printBadChannels(meg01_[ism-1], h06_[ism-1], true);
-    
+
     UtilsClient::printBadChannels(meg02_[ism-1], h07_[ism-1], true);
     UtilsClient::printBadChannels(meg02_[ism-1], h08_[ism-1], true);
     UtilsClient::printBadChannels(meg02_[ism-1], h09_[ism-1], true);
@@ -545,7 +447,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
               num05  = h05_[ism-1]->GetBinContent(ix, iy);
               if ( num05 > 0 ) update1 = true;
-            } 
+            }
           }
         }
 
@@ -554,7 +456,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
               num06  = h06_[ism-1]->GetBinContent(ix, iy);
               if ( num06 > 0 ) update1 = true;
-            } 
+            }
           }
         }
 
@@ -829,62 +731,6 @@ void EEIntegrityClient::subscribe(void){
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
-      if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
-      if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain %s", Numbers::sEE(ism).c_str());
-      if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
-      if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
-      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
-      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
-      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
-      if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
-      if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EEIntegrityTask/MemGain %s", Numbers::sEE(ism).c_str());
-      if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
-      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
-      if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalEndcap/EEIntegrityTask/EEIT data integrity quality %s", Numbers::sEE(ism).c_str());
-    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
-
-    sprintf(histo, "EcalEndcap/EEIntegrityTask/EEIT data integrity quality MEM %s", Numbers::sEE(ism).c_str());
-    if ( qtg02_[ism-1] ) dbe_->useQTest(histo, qtg02_[ism-1]->getName());
 
   }
 
@@ -1182,7 +1028,7 @@ void EEIntegrityClient::analyze(void){
             int jy = iy + Numbers::iy0EE(ism);
 
             if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
- 
+
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
             int ic = Numbers::indexEE(ism, ix, iy);
@@ -1500,7 +1346,9 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f->SetMinimum(-0.00000001);
       obj2f->SetMaximum(6.0);
       obj2f->GetXaxis()->SetLabelSize(0.02);
+      obj2f->GetXaxis()->SetTitleSize(0.02);
       obj2f->GetYaxis()->SetLabelSize(0.02);
+      obj2f->GetYaxis()->SetTitleSize(0.02);
       obj2f->Draw("col");
       int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
       int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
@@ -1547,7 +1395,9 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       cOcc->SetGridx();
       cOcc->SetGridy();
       obj2f->GetXaxis()->SetLabelSize(0.02);
+      obj2f->GetXaxis()->SetTitleSize(0.02);
       obj2f->GetYaxis()->SetLabelSize(0.02);
+      obj2f->GetYaxis()->SetTitleSize(0.02);
       obj2f->GetZaxis()->SetLabelSize(0.02);
       obj2f->SetMinimum(0.0);
       obj2f->Draw("colz");
@@ -1619,7 +1469,9 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         cMe->SetGridx();
         cMe->SetGridy();
         obj2f->GetXaxis()->SetLabelSize(0.02);
+        obj2f->GetXaxis()->SetTitleSize(0.02);
         obj2f->GetYaxis()->SetLabelSize(0.02);
+        obj2f->GetYaxis()->SetTitleSize(0.02);
         obj2f->GetZaxis()->SetLabelSize(0.02);
         obj2f->SetMinimum(0.0);
         obj2f->Draw("colz");
@@ -1706,7 +1558,9 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMeMem->SetGridx();
       cMeMem->SetGridy(0);
       obj2f->GetXaxis()->SetLabelSize(0.02);
+      obj2f->GetXaxis()->SetTitleSize(0.02);
       obj2f->GetYaxis()->SetLabelSize(0.02);
+      obj2f->GetYaxis()->SetTitleSize(0.02);
       obj2f->GetZaxis()->SetLabelSize(0.02);
       obj2f->SetMinimum(0.0);
       obj2f->Draw("colz");

@@ -101,7 +101,6 @@ public:
   };
   std::vector<BadStripBlock> &getBadStripBlocks() { return badStripBlocks_; }
 
-  // void setNoises(const SiStripNoises::Range range); // DEPRECATED
 private:
 
   const StripGeomDetUnit*               theStripGDU;
@@ -116,8 +115,6 @@ private:
   bool hasAny128StripBad_;
   std::vector<BadStripBlock> badStripBlocks_;  
   int totalStrips_;
-
-  // SiStripNoises::Range stripNoises_;    // DEPRECATED
 
   // --- regional unpacking
   bool isRegional;

@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/10/18 17:09:31 $
- * $Revision: 1.30 $
+ * $Date: 2007/11/09 19:19:56 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -114,66 +114,99 @@ void EBClusterTask::setup(void){
 
     sprintf(histo, "EBCLT island BC energy");
     meBCEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
+    meBCEne_->setAxisTitle("energy (GeV)", 1);
 
     sprintf(histo, "EBCLT island BC number");
     meBCNum_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meBCNum_->setAxisTitle("number of clusters", 1);
 
     sprintf(histo, "EBCLT island BC size");
     meBCSiz_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meBCSiz_->setAxisTitle("cluster size", 1);
 
     sprintf(histo, "EBCLT island BC energy map");
     meBCEneMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meBCEneMap_->setAxisTitle("phi", 1);
+    meBCEneMap_->setAxisTitle("eta", 2);
 
     sprintf(histo, "EBCLT island BC number map");
     meBCNumMap_ = dbe_->book2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479);
+    meBCNumMap_->setAxisTitle("phi", 1);
+    meBCNumMap_->setAxisTitle("eta", 2);
 
     sprintf(histo, "EBCLT island BC ET map");
     meBCETMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meBCETMap_->setAxisTitle("phi", 1);
+    meBCETMap_->setAxisTitle("eta", 2);
 
     sprintf(histo, "EBCLT island BC size map");
     meBCSizMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 100., "s");
+    meBCSizMap_->setAxisTitle("phi", 1);
+    meBCSizMap_->setAxisTitle("eta", 2);
 
     sprintf(histo, "EBCLT island BC energy projection eta");
     meBCEneMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meBCEneMapProjEta_->setAxisTitle("eta", 1);
+    meBCEneMapProjEta_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EBCLT island BC energy projection phi");
     meBCEneMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 500., "s");
+    meBCEneMapProjPhi_->setAxisTitle("phi", 1);
+    meBCEneMapProjPhi_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EBCLT island BC number projection eta");
     meBCNumMapProjEta_ = dbe_->book1D(histo, histo, 34, -1.479, 1.479);
+    meBCNumMapProjEta_->setAxisTitle("eta", 1);
+    meBCNumMapProjEta_->setAxisTitle("number of clusters", 2);
 
     sprintf(histo, "EBCLT island BC number projection phi");
     meBCNumMapProjPhi_ = dbe_->book1D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9);
+    meBCNumMapProjPhi_->setAxisTitle("phi", 1);
+    meBCNumMapProjPhi_->setAxisTitle("number of clusters", 2);
 
     sprintf(histo, "EBCLT island BC ET projection eta");
     meBCETMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meBCETMapProjEta_->setAxisTitle("eta", 1);
+    meBCETMapProjEta_->setAxisTitle("transverse energy (GeV)", 2);
 
     sprintf(histo, "EBCLT island BC ET projection phi");
     meBCETMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 500., "s");
+    meBCETMapProjPhi_->setAxisTitle("phi", 1);
+    meBCETMapProjPhi_->setAxisTitle("transverse energy (GeV)", 2);
 
     sprintf(histo, "EBCLT island BC size projection eta");
     meBCSizMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 100., "s");
+    meBCSizMapProjEta_->setAxisTitle("eta", 1);
+    meBCSizMapProjEta_->setAxisTitle("cluster size", 2);
 
     sprintf(histo, "EBCLT island BC size projection phi");
     meBCSizMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 100., "s");
+    meBCSizMapProjPhi_->setAxisTitle("phi", 1);
+    meBCSizMapProjPhi_->setAxisTitle("cluster size", 2);
 
     sprintf(histo, "EBCLT hybrid SC energy");
     meSCEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
+    meSCEne_->setAxisTitle("energy (GeV)", 1);
 
     sprintf(histo, "EBCLT hybrid SC number");
     meSCNum_ = dbe_->book1D(histo, histo, 50, 0., 50.);
+    meSCNum_->setAxisTitle("number of clusters", 1);
 
     sprintf(histo, "EBCLT hybrid SC size");
     meSCSiz_ = dbe_->book1D(histo, histo, 10, 0., 10.);
+    meSCSiz_->setAxisTitle("cluster size", 1);
 
     sprintf(histo, "EBCLT hybrid s1s9");
     mes1s9_ = dbe_->book1D(histo, histo, 50, 0., 1.);
+    mes1s9_->setAxisTitle("s1/s9", 1);
 
     sprintf(histo, "EBCLT hybrid s9s25");
     mes9s25_ = dbe_->book1D(histo, histo, 75, 0., 1.5);
+    mes9s25_->setAxisTitle("s9/s25", 1);
 
     sprintf(histo, "EBCLT dicluster invariant mass");
     meInvMass_ = dbe_->book1D(histo, histo, 100, 0., 200.);
+    meInvMass_->setAxisTitle("mass (GeV)", 1);
 
   }
 
@@ -326,7 +359,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     Handle<BasicClusterShapeAssociationCollection> pClusterShapeAssociation;
     try	{
       e.getByLabel(ClusterShapeAssociation_, pClusterShapeAssociation);
-    }	catch ( cms::Exception& ex )	{
+    }	catch ( exception& ex )	{
       LogWarning("EBClusterTask") << "Can't get collection with label "   << ClusterShapeAssociation_.label();
     }
 

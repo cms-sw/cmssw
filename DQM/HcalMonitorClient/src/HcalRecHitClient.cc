@@ -29,7 +29,7 @@ HcalRecHitClient::HcalRecHitClient(const ParameterSet& ps, DaqMonitorBEInterface
   cout << "Beam energy reco width set to " << beamE_thresh_ << endl;
 
   // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor/");
+  process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
 
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
@@ -190,7 +190,7 @@ void HcalRecHitClient::report(){
   this->setup();
 
   char name[256];
-  sprintf(name, "%sHcalMonitor/RecHitMonitor/RecHit Event Number",process_.c_str());
+  sprintf(name, "%sHcal/RecHitMonitor/RecHit Event Number",process_.c_str());
   MonitorElement* me = dbe_->get(name); 
   if ( me ) {
     string s = me->valueString();
@@ -255,21 +255,21 @@ void HcalRecHitClient::resetAllME(){
   if(!dbe_) return;
   Char_t name[150];
   
-  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Total Energy",process_.c_str());
+  sprintf(name,"%sHcal/RecHitMonitor/RecHit Total Energy",process_.c_str());
   resetME(name,dbe_);
   for(int i=1; i<5; i++){
-    sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Depth %d Occupancy Map",process_.c_str(),i);
+    sprintf(name,"%sHcal/RecHitMonitor/RecHit Depth %d Occupancy Map",process_.c_str(),i);
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Depth %d Energy Map",process_.c_str(),i);
+    sprintf(name,"%sHcal/RecHitMonitor/RecHit Depth %d Energy Map",process_.c_str(),i);
     resetME(name,dbe_);
   }
-  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Eta Occupancy Map",process_.c_str());
+  sprintf(name,"%sHcal/RecHitMonitor/RecHit Eta Occupancy Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Phi Occupancy Map",process_.c_str());
+  sprintf(name,"%sHcal/RecHitMonitor/RecHit Phi Occupancy Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Eta Energy Map",process_.c_str());
+  sprintf(name,"%sHcal/RecHitMonitor/RecHit Eta Energy Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Phi Energy Map",process_.c_str());
+  sprintf(name,"%sHcal/RecHitMonitor/RecHit Phi Energy Map",process_.c_str());
   resetME(name,dbe_);
 
   for(int i=0; i<4; i++){
@@ -280,15 +280,15 @@ void HcalRecHitClient::resetAllME(){
     if(i==3) type = "HO"; 
 
 
-    sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Geo Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Geo Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Energies",process_.c_str(),type.c_str(),type.c_str());      
+    sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Energies",process_.c_str(),type.c_str(),type.c_str());      
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Energies - Low Region",process_.c_str(),type.c_str(),type.c_str());      
+    sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Energies - Low Region",process_.c_str(),type.c_str(),type.c_str());      
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Total Energy",process_.c_str(),type.c_str(),type.c_str());      
+    sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Total Energy",process_.c_str(),type.c_str(),type.c_str());      
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Times",process_.c_str(),type.c_str(),type.c_str()); 
+    sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Times",process_.c_str(),type.c_str(),type.c_str()); 
     resetME(name,dbe_);     
   }
 
@@ -411,7 +411,7 @@ void HcalRecHitClient::createTests(){
 
 void HcalRecHitClient::loadHistograms(TFile* infile){
 
-  TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/RecHitMonitor/RecHit Event Number");
+  TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/RecHitMonitor/RecHit Event Number");
   if(tnd){
     string s =tnd->GetTitle();
     ievt_ = -1;
@@ -426,25 +426,25 @@ void HcalRecHitClient::loadHistograms(TFile* infile){
     if(i==2) type = "HF"; 
     if(i==3) type = "HO"; 
     
-    sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/%s/%s RecHit Energies",type.c_str(),type.c_str());      
+    sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s RecHit Energies",type.c_str(),type.c_str());      
     energy_[i] = (TH1F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/%s/%s RecHit Total Energy",type.c_str(),type.c_str());      
+    sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s RecHit Total Energy",type.c_str(),type.c_str());      
     energyT_[i] = (TH1F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/%s/%s RecHit Times",type.c_str(),type.c_str());      
+    sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s RecHit Times",type.c_str(),type.c_str());      
     time_[i] = (TH1F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/%s/%s RecHit Geo Occupancy Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s RecHit Geo Occupancy Map",type.c_str(),type.c_str());
     occ_[i] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/RecHit Depth %d Occupancy Map",i);
+    sprintf(name,"DQMData/Hcal/RecHitMonitor/RecHit Depth %d Occupancy Map",i);
     tot_occ_[i] = (TH2F*)infile->Get(name);
   
     
   }
 
-  sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/RecHit Total Energy");   
+  sprintf(name,"DQMData/Hcal/RecHitMonitor/RecHit Total Energy");   
   tot_energy_ = (TH1F*)infile->Get(name);
 
   return;

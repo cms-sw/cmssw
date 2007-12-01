@@ -1,15 +1,4 @@
-$Id: HISTORY,v 1.6 2007/10/15 17:52:09 narsky Exp $
-
-30.10.2007 narsky V00-02-00
-    Bringing up-to-date with Sourceforge SPR-07-05-01.
-    Various feature additions and bug fixes.
-    For a full description, see http://sourceforge.net/forum/forum.php?forum_id=749926
-
-15.10.2007 narsky V00-01-02
-    Added data/trainRoot.pat as a sample of Root input.
-
-12.10.2007 narsky V00-01-01
-    Minor fix in Root I/O - bringing up-to-date with SPR-07-02-01.
+$Id: HISTORY,v 1.3 2007/09/22 00:04:51 narsky Exp $
 
 07.10.2007 narsky V00-01-00
     Bringing to Sourceforge SPR-07-02-00.

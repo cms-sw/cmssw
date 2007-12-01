@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/09/07 21:18:23 $
- *  $Revision: 1.54 $
+ *  $Date: 2007/09/06 19:31:58 $
+ *  $Revision: 1.53 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -166,10 +166,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     pair<bool,reco::Track> resultOfTrackExtrapAtPCA = buildTrackAtPCA(trajectory);
     
     // Check if the extrapolation went well    
-    if(!resultOfTrackExtrapAtPCA.first) {
-      delete *rawTrajectory;
-      continue;
-    }
+    if(!resultOfTrackExtrapAtPCA.first) continue;
     
     // take the "bare" track at PCA
     reco::Track &track = resultOfTrackExtrapAtPCA.second;

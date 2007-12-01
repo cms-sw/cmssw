@@ -84,6 +84,7 @@ private:
   double beamE_thresh_;
   double beamE_width_;
   string process_;
+  string baseFolder_;
 
   //  MonitorUserInterface* mui_;
   DaqMonitorBEInterface* dbe_;

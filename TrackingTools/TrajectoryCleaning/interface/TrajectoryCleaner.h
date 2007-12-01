@@ -7,12 +7,9 @@
  *  between mutually exclusive trajectories.
  */
 
-class TrackingComponentsRecord;
-
 class TrajectoryCleaner {
 
  public:
-  typedef TrackingComponentsRecord      Record;
   typedef std::vector<Trajectory> 	TrajectoryContainer;
   typedef std::vector<Trajectory*> 	TrajectoryPointerContainer;
   typedef TrajectoryContainer::iterator TrajectoryIterator;

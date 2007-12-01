@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: MCJetCorrector.cc,v 1.1 2007/10/03 23:29:51 fedor Exp $
+// $Id: MCJetCorrector.cc,v 1.5 2007/03/30 23:47:55 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -31,8 +31,3 @@ MCJetCorrector::~MCJetCorrector () {
 double MCJetCorrector::correction (const LorentzVector& fJet) const {
   return mSimpleCorrector->correctionPtEtaPhiE (fJet.Pt(), fJet.Eta(), fJet.Phi(),fJet.E());
 }
-
-double MCJetCorrector::correction (const reco::Jet& fJet) const {
-  return correction (fJet.p4 ());
-}
-

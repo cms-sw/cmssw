@@ -36,7 +36,7 @@ HcalPedestalClient::HcalPedestalClient(const ParameterSet& ps, DaqMonitorBEInter
   else
     cout << "Plotting pedestals in subtracted format." << endl;
   // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor/");
+  process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
 
   /*
   nCrates_ = ps.getUntrackedParameter<int>("Crates", 0);
@@ -254,7 +254,7 @@ void HcalPedestalClient::report(){
   this->setup();
 
   char name[256];    
-  sprintf(name, "%sHcalMonitor/PedestalMonitor/Pedestal Task Event Number",process_.c_str());
+  sprintf(name, "%sHcal/PedestalMonitor/Pedestal Task Event Number",process_.c_str());
   MonitorElement* me = dbe_->get(name);
   if ( me ) {
     string s = me->valueString();
@@ -266,7 +266,7 @@ void HcalPedestalClient::report(){
 
   return;
 }
-  
+
 void HcalPedestalClient::getHistograms(){
    if(!dbe_) return;
 
@@ -278,20 +278,20 @@ void HcalPedestalClient::getHistograms(){
   MonitorElement* meRMSMap_E[3];
 
   for(int i=0; i<4; i++){
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped Mean Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/PedestalMonitor/Ped Mean Depth %d",process_.c_str(),i+1);
     meMeanMap_D[i]  = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped RMS Depth %d",process_.c_str(),i+1);
+    sprintf(name,"%sHcal/PedestalMonitor/Ped RMS Depth %d",process_.c_str(),i+1);
     meRMSMap_D[i]  = dbe_->get(name);
   }
   
-  sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped Mean by Crate-Slot",process_.c_str());
+  sprintf(name,"%sHcal/PedestalMonitor/Ped Mean by Crate-Slot",process_.c_str());
   meMeanMap_E[0] = dbe_->get(name);
-  sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped RMS by Crate-Slot",process_.c_str());
+  sprintf(name,"%sHcal/PedestalMonitor/Ped RMS by Crate-Slot",process_.c_str());
   meRMSMap_E[0] = dbe_->get(name);
   
-  sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped Mean by Fiber-Chan",process_.c_str());
+  sprintf(name,"%sHcal/PedestalMonitor/Ped Mean by Fiber-Chan",process_.c_str());
   meMeanMap_E[1] = dbe_->get(name);
-  sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped RMS by Fiber-Chan",process_.c_str());
+  sprintf(name,"%sHcal/PedestalMonitor/Ped RMS by Fiber-Chan",process_.c_str());
   meRMSMap_E[1] = dbe_->get(name);
 
 
@@ -302,30 +302,30 @@ void HcalPedestalClient::getHistograms(){
     else if(i==2) type = "HF";
     else if(i==3) type = "HO";
     
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal RMS Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal RMS Values",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* mePedRMS  = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Mean Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Mean Values",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* mePedMean = dbe_->get(name);
 
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Normalized RMS Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Normalized RMS Values",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meSubRMS  = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Subtracted Mean Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Subtracted Mean Values",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meSubMean = dbe_->get(name);
 
 
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s CapID RMS Variance",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s CapID RMS Variance",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meCapRMS  = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s CapID Mean Variance",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s CapID Mean Variance",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meCapMean = dbe_->get(name);
     
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s QIE RMS Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s QIE RMS Values",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meQieRMS  = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s QIE Mean Values",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s QIE Mean Values",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meQieMean = dbe_->get(name);
     
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meGeoErr  = dbe_->get(name);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Elec Error Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Elec Error Map",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meElecErr = dbe_->get(name);
     
     if(!mePedRMS || !mePedMean)continue;
@@ -367,10 +367,10 @@ void HcalPedestalClient::getHistograms(){
 	  for(int capid=0; capid<4 && capidOK; capid++){
 	    capmeanP[capid]=0; caprmsP[capid]=0; 
 	    capmeanS[capid]=0; caprmsS[capid]=0; 
-	    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(),
+	    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(),
 		    type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
 	    MonitorElement* mePed = dbe_->get(name);
-	    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(),
+	    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(),
 		    type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
 	    MonitorElement* meSub = dbe_->get(name);
 
@@ -483,7 +483,7 @@ void HcalPedestalClient::analyze(void){
   if ( updates % 10 == 0 ) {
     if ( debug_ ) cout << "HcalPedestalClient: " << updates << " updates" << endl;
   }
-  
+  getHistograms();
   return;
 }
 
@@ -503,7 +503,7 @@ void HcalPedestalClient::createTests(){
     else if(i==3) type = "HO";
     
     if(i<3){
-      sprintf(meTitle,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
+      sprintf(meTitle,"%sHcal/PedestalMonitor/%s/%s Pedestal Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
       sprintf(name,"%s Pedestal Errors by Geometry",type.c_str());
       if( dqmQtests_.find(name) == dqmQtests_.end() ){	
 	MonitorElement* me = dbe_->get(meTitle);
@@ -517,7 +517,7 @@ void HcalPedestalClient::createTests(){
 	}
       }
       
-      sprintf(meTitle,"%sHcalMonitor/PedestalMonitor/%s/%s All Pedestal Values",process_.c_str(),type.c_str(),type.c_str());
+      sprintf(meTitle,"%sHcal/PedestalMonitor/%s/%s All Pedestal Values",process_.c_str(),type.c_str(),type.c_str());
       sprintf(name,"%s All Pedestal Values: X-Range",type.c_str());
       if( dqmQtests_.find(name) == dqmQtests_.end() ){	
 	MonitorElement* me = dbe_->get(meTitle);
@@ -531,7 +531,7 @@ void HcalPedestalClient::createTests(){
 	}
       }
 
-      sprintf(meTitle,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal RMS Values",process_.c_str(),type.c_str(),type.c_str());
+      sprintf(meTitle,"%sHcal/PedestalMonitor/%s/%s Pedestal RMS Values",process_.c_str(),type.c_str(),type.c_str());
       sprintf(name,"%s Pedestal RMS Values: X-Range",type.c_str());
       if( dqmQtests_.find(name) == dqmQtests_.end() ){	
 	MonitorElement* me = dbe_->get(meTitle);
@@ -547,7 +547,7 @@ void HcalPedestalClient::createTests(){
 	}
       }
       
-      sprintf(meTitle,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Mean Values",process_.c_str(),type.c_str(),type.c_str());
+      sprintf(meTitle,"%sHcal/PedestalMonitor/%s/%s Pedestal Mean Values",process_.c_str(),type.c_str(),type.c_str());
       sprintf(name,"%s Pedestal Mean Values: X-Range",type.c_str());
       if( dqmQtests_.find(name) == dqmQtests_.end() ){	
 	MonitorElement* me = dbe_->get(meTitle);
@@ -563,7 +563,7 @@ void HcalPedestalClient::createTests(){
 	}
       }
 
-      sprintf(meTitle,"%sHcalMonitor/PedestalMonitor/%s/%s CapID RMS Variance",process_.c_str(),type.c_str(),type.c_str());
+      sprintf(meTitle,"%sHcal/PedestalMonitor/%s/%s CapID RMS Variance",process_.c_str(),type.c_str(),type.c_str());
       sprintf(name,"%s CapId RMS Variance: X-Range",type.c_str());
       if( dqmQtests_.find(name) == dqmQtests_.end() ){	
 	MonitorElement* me = dbe_->get(meTitle);
@@ -579,7 +579,7 @@ void HcalPedestalClient::createTests(){
 	}
       }
       
-      sprintf(meTitle,"%sHcalMonitor/PedestalMonitor/%s/%s CapID Mean Variance",process_.c_str(),type.c_str(),type.c_str());
+      sprintf(meTitle,"%sHcal/PedestalMonitor/%s/%s CapID Mean Variance",process_.c_str(),type.c_str(),type.c_str());
       sprintf(name,"%s CapId Mean Variance: X-Range",type.c_str());
       if( dqmQtests_.find(name) == dqmQtests_.end() ){	
 	MonitorElement* me = dbe_->get(meTitle);
@@ -611,7 +611,7 @@ void HcalPedestalClient::createTests(){
 	    const HcalDetId id(subdet,ieta,iphi,depth);
 	    bool qie = true;
 	    for(int capid=0; capid<4 && qie; capid++){
-	      sprintf(meTitle,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d", process_.c_str(),type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
+	      sprintf(meTitle,"%sHcal/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d", process_.c_str(),type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
 	      sprintf(name,"%s Pedestal ieta=%d iphi=%d depth=%d CAPID=%d: Sigma",type.c_str(),ieta,iphi,depth,capid);  
 	      if( dqmQtests_.find(name) == dqmQtests_.end()){ 
 		string test = ((string)name);
@@ -652,21 +652,21 @@ void HcalPedestalClient::resetAllME(){
   Char_t name[150];    
 
   for(int i=1; i<5; i++){
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped Mean Depth %d",process_.c_str(),i);
+    sprintf(name,"%sHcal/PedestalMonitor/Ped Mean Depth %d",process_.c_str(),i);
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped RMS Depth %d",process_.c_str(),i);
+    sprintf(name,"%sHcal/PedestalMonitor/Ped RMS Depth %d",process_.c_str(),i);
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped Mean by Crate-Slot",process_.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/Ped Mean by Crate-Slot",process_.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped RMS by Crate-Slot",process_.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/Ped RMS by Crate-Slot",process_.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped Mean by Fiber-Chan",process_.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/Ped Mean by Fiber-Chan",process_.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped RMS by Fiber-Chan",process_.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/Ped RMS by Fiber-Chan",process_.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Pedestal Mean Reference Values",process_.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/Pedestal Mean Reference Values",process_.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Pedestal RMS Reference Values",process_.c_str());
+    sprintf(name,"%sHcal/PedestalMonitor/Pedestal RMS Reference Values",process_.c_str());
     resetME(name,dbe_);
   }
 
@@ -677,43 +677,43 @@ void HcalPedestalClient::resetAllME(){
     else if(i==2) type = "HF"; 
     else if(i==3) type = "HO"; 
     
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s All Pedestal Values",
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s All Pedestal Values",
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal RMS Values",
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal RMS Values",
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Mean Values",
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Mean Values",
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Normalized RMS Values",
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Normalized RMS Values",
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Subtracted Mean Values",
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Subtracted Mean Values",
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s CapID RMS Variance",
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s CapID RMS Variance",
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s CapID Mean Variance",
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s CapID Mean Variance",
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s QIE RMS Values",
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s QIE RMS Values",
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s QIE Mean Values",
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s QIE Mean Values",
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Geo Error Map",
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Geo Error Map",
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Elec Error Map",
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Elec Error Map",
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Mean Reference Values",
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Mean Reference Values",
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal RMS Reference Values",
+    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal RMS Reference Values",
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
     
@@ -721,9 +721,9 @@ void HcalPedestalClient::resetAllME(){
       for(int iphi=0; iphi<72; iphi++){
 	for(int depth=0; depth<4; depth++){
 	  for(int capid=0; capid<4; capid++){
-	    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(), type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
+	    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(), type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
 	    resetME(name,dbe_);
-	    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(), type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
+	    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(), type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
 	    resetME(name,dbe_);
 	  }
 	}
@@ -885,7 +885,7 @@ void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
 void HcalPedestalClient::loadHistograms(TFile* infile){
 
-  TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/PedestalMonitor/Pedestal Task Event Number");
+  TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/PedestalMonitor/Pedestal Task Event Number");
   if(tnd){
     string s =tnd->GetTitle();
     ievt_ = -1;
@@ -895,20 +895,20 @@ void HcalPedestalClient::loadHistograms(TFile* infile){
   char name[256];    
   
   for(int i=0; i<4; i++){
-    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/Ped Mean Depth %d",i+1);
+    sprintf(name,"DQMData/Hcal/PedestalMonitor/Ped Mean Depth %d",i+1);
     pedMapMeanD_[i] = (TH2F*)infile->Get(name);
-    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/Ped RMS Depth %d",i+1);
+    sprintf(name,"DQMData/Hcal/PedestalMonitor/Ped RMS Depth %d",i+1);
     pedMapRMSD_[i]  = (TH2F*)infile->Get(name);
   }
   
-  sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/Ped Mean by Crate-Slot");
+  sprintf(name,"DQMData/Hcal/PedestalMonitor/Ped Mean by Crate-Slot");
   pedMapMean_E[0] = (TH2F*)infile->Get(name);
-  sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/Ped RMS by Crate-Slot");
+  sprintf(name,"DQMData/Hcal/PedestalMonitor/Ped RMS by Crate-Slot");
   pedMapRMS_E[0] = (TH2F*)infile->Get(name);
   
-  sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/Ped Mean by Fiber-Chan");
+  sprintf(name,"DQMData/Hcal/PedestalMonitor/Ped Mean by Fiber-Chan");
   pedMapMean_E[1] = (TH2F*)infile->Get(name);
-  sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/Ped RMS by Fiber-Chan");
+  sprintf(name,"DQMData/Hcal/PedestalMonitor/Ped RMS by Fiber-Chan");
   pedMapRMS_E[1] = (TH2F*)infile->Get(name);
   
   for(int i=0; i<4; i++){
@@ -918,36 +918,36 @@ void HcalPedestalClient::loadHistograms(TFile* infile){
     else if(i==2) type = "HF";
     else if(i==3) type = "HO";
     
-    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s All Pedestal Values",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s All Pedestal Values",type.c_str(),type.c_str());
     all_peds_[i] = (TH1F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s Pedestal RMS Values",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s Pedestal RMS Values",type.c_str(),type.c_str());
     ped_rms_[i] = (TH1F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s Pedestal Mean Values",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s Pedestal Mean Values",type.c_str(),type.c_str());
     ped_mean_[i] = (TH1F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s Normalized RMS Values",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s Normalized RMS Values",type.c_str(),type.c_str());
     sub_rms_[i] = (TH1F*)infile->Get(name);
-    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s Subtracted Mean Values",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s Subtracted Mean Values",type.c_str(),type.c_str());
     sub_mean_[i] = (TH1F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s CapID RMS Variance",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s CapID RMS Variance",type.c_str(),type.c_str());
     capid_rms_[i] = (TH1F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s CapID Mean Variance",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s CapID Mean Variance",type.c_str(),type.c_str());
     capid_mean_[i] = (TH1F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s QIE RMS Values",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s QIE RMS Values",type.c_str(),type.c_str());
     qie_rms_[i] = (TH1F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s QIE Mean Values",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s QIE Mean Values",type.c_str(),type.c_str());
     qie_mean_[i] = (TH1F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s Pedestal Geo Error Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s Pedestal Geo Error Map",type.c_str(),type.c_str());
     err_map_geo_[i] = (TH2F*)infile->Get(name);
     
-    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s Pedestal Elec Error Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s Pedestal Elec Error Map",type.c_str(),type.c_str());
     err_map_elec_[i] = (TH2F*)infile->Get(name);
     
     bool capidOK = false;
@@ -971,10 +971,10 @@ void HcalPedestalClient::loadHistograms(TFile* infile){
 	  for(int capid=0; capid<4 && capidOK; capid++){
 	    capmeanS[capid]=0; caprmsS[capid]=0; 
 	    capmeanP[capid]=0; caprmsP[capid]=0; 
-	    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d", type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
+	    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d", type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
 	    TH1F* mePed = (TH1F*)infile->Get(name);
 	    
-	    sprintf(name,"DQMData/HcalMonitor/PedestalMonitor/%s/%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d", type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
+	    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d", type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
 	    TH1F* meSub = (TH1F*)infile->Get(name);
 	    
 	    if(mePed!=NULL){

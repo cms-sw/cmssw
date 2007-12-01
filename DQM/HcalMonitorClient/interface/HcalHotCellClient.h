@@ -21,16 +21,39 @@
 #include <vector>
 #include <string>
 
+/*
 using namespace cms;
 using namespace edm;
 using namespace std;
+*/
+
+struct HotCellHists{
+  int type;
+  int thresholds;
+  TH2F* OCC_MAP_GEO_Max;
+  TH2F* EN_MAP_GEO_Max;
+  TH1F* MAX_E;
+  TH1F* MAX_T;
+  TH1F* MAX_ID;
+  std::vector<TH2F*> OCCmap;
+  std::vector<TH2F*> ENERGYmap;
+  // NADA histograms
+  TH2F* NADA_OCC_MAP;
+  TH2F* NADA_EN_MAP;
+  TH1F* NADA_NumHotCells;
+  TH1F* NADA_testcell;
+  TH1F* NADA_Energy;
+  TH1F* NADA_NumNegCells;
+  TH2F* NADA_NEG_OCC_MAP;
+  TH2F* NADA_NEG_EN_MAP;
+};
 
 class HcalHotCellClient{
 
 public:
 
 /// Constructor
-HcalHotCellClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
+  HcalHotCellClient(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe_);
 HcalHotCellClient();
 
 /// Destructor
@@ -62,18 +85,29 @@ void cleanup(void);
   void report();
   
   /// WriteDB
-  void htmlOutput(int run, string htmlDir, string htmlName);
+  void htmlOutput(int run, std::string htmlDir, std::string htmlName);
+  void htmlSubDetOutput(HotCellHists& hist, int run, std::string htmlDir, std::string htmlName);
   void getHistograms();
   void loadHistograms(TFile* f);
 
   void errorOutput();
-  void getErrors(map<string, vector<QReport*> > out1, map<string, vector<QReport*> > out2, map<string, vector<QReport*> > out3);
+  void getErrors(std::map<std::string, std::vector<QReport*> > out1, std::map<std::string, std::vector<QReport*> > out2, std::map<std::string, std::vector<QReport*> > out3);
   bool hasErrors() const { return dqmReportMapErr_.size(); }
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
 
   void resetAllME();
+
   void createTests();
+  void createSubDetTests(HotCellHists& hist);
+
+  // Clear histograms
+  void clearHists(HotCellHists& hist);
+  void deleteHists(HotCellHists& hist);
+
+  void getSubDetHistograms(HotCellHists& hist);
+  void resetSubDetHistograms(HotCellHists& hist);
+  void getSubDetHistogramsFromFile(HotCellHists& hist, TFile* infile);
 
 private:
 
@@ -83,9 +117,12 @@ private:
   bool collateSources_;
   bool cloneME_;
   bool verbose_;
-  string process_;
+  std::string process_;
+  std::string baseFolder_;
 
-  //  MonitorUserInterface* mui_;
+  // Can we get threshold information from same .cfi file that HotCellMonitor uses?  
+  int thresholds_;
+
   DaqMonitorBEInterface* dbe_;
 
   bool subDetsOn_[4];
@@ -99,11 +136,19 @@ private:
   TH1F* max_t_[4];
   
   // Quality criteria for data integrity
-  map<string, vector<QReport*> > dqmReportMapErr_;
-  map<string, vector<QReport*> > dqmReportMapWarn_;
-  map<string, vector<QReport*> > dqmReportMapOther_;
-  map<string, string> dqmQtests_;
+  std::map<std::string, std::vector<QReport*> > dqmReportMapErr_;
+  std::map<std::string, std::vector<QReport*> > dqmReportMapWarn_;
+  std::map<std::string, std::vector<QReport*> > dqmReportMapOther_;
+  std::map<std::string, std::string> dqmQtests_;
 
+
+  HotCellHists hbhists;
+  HotCellHists hehists;
+  HotCellHists hohists;
+  HotCellHists hfhists;
+  HotCellHists hcalhists;
+
+  ofstream htmlFile;
 };
 
 #endif

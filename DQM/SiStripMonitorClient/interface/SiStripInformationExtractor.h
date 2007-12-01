@@ -28,21 +28,23 @@ class SiStripInformationExtractor {
 
   void readModuleAndHistoList(DaqMonitorBEInterface* bei,xgi::Output * out);
   void plotSingleModuleHistos(DaqMonitorBEInterface * bei,
-                      std::multimap<std::string, std::string>& req_map);
+                      std::multimap<std::string, std::string>& req_map, xgi::Output * out );
   void plotGlobalHistos(DaqMonitorBEInterface * bei,
-                      std::multimap<std::string, std::string>& req_map);
-  void plotHistosFromPath(DaqMonitorBEInterface * bei,std::multimap<std::string, std::string>& req_map);
+                      std::multimap<std::string, std::string>& req_map, xgi::Output * out );
+  void plotHistosFromPath(DaqMonitorBEInterface * bei,std::multimap<std::string, std::string>& req_map, xgi::Output * out);
   void plotHistosFromLayout(DaqMonitorBEInterface * bei);
-  void plotTrackerMapHistos(DaqMonitorBEInterface* bei, std::multimap<std::string, std::string>& req_map);
+  void plotTrackerMapHistos(DaqMonitorBEInterface* bei, std::multimap<std::string, std::string>& req_map, xgi::Output * out);
   const std::ostringstream& getImage() const;
+  const std::ostringstream& getNamedImage(std::string name);
   void readSummaryHistoTree(DaqMonitorBEInterface* bei, std::string& str_name, 
                 xgi::Output * out);
   void readAlarmTree(DaqMonitorBEInterface* bei, std::string& str_name, 
                 xgi::Output * out);
  
-  void readStatusMessage(DaqMonitorBEInterface* bei, std::string& path,xgi::Output * out);
+  void readStatusMessage(DaqMonitorBEInterface* bei, std::multimap<std::string, std::string>& req_map, xgi::Output * out);
   void readGlobalHistoList(DaqMonitorBEInterface* bei, xgi::Output * out);
-  void readLayoutNames(xgi::Output * out);
+  void readLayoutNames(std::multimap<std::string, std::string>& req_map, xgi::Output * out);
+  const std::ostringstream& getIMGCImage(DaqMonitorBEInterface * bei, std::multimap<std::string, std::string>& req_map);
 
 
  private:
@@ -62,6 +64,8 @@ class SiStripInformationExtractor {
   void fillImageBuffer();
   void plotHistos(std::multimap<std::string, std::string>& req_map, 
                   std::vector<MonitorElement*> me_list, bool sflag);
+  void plotHisto(std::multimap<std::string, std::string>& req_map, 
+                  MonitorElement* me, bool sflag);
   bool goToDir(DaqMonitorBEInterface* bei, std::string& sname);
   void printSummaryHistoList(DaqMonitorBEInterface* bei, std::ostringstream& str_val);
   void printAlarmList(DaqMonitorBEInterface * bei, std::ostringstream& str_val);
@@ -72,12 +76,21 @@ class SiStripInformationExtractor {
   void setCanvasMessage(const std::string& error_string);
   void createDummiesFromLayout();
   void setDrawingOption(TH1* hist, float xlow=-1.0, float xhigh=-1.0);
+  void fillNamedImageBuffer(std::string name);
+  bool hasNamedImage(std::string name);
+  void setCanvasDimension(std::multimap<std::string, std::string>& req_map);
+
 
   std::ostringstream pictureBuffer_;
+  std::map<std::string, std::string>       namedPictureBuffer_;
+
   SiStripLayoutParser* layoutParser_;
 
   std::map<std::string, std::vector< std::string > > layoutMap;
   TCanvas* canvas_;
   bool  readReference_;
+ 
+  int canvasWidth;
+  int canvasHeight;
 };
 #endif

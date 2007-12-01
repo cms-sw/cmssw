@@ -84,11 +84,12 @@ private:
   bool cloneME_;
   bool debug_;
   string process_;
+  string baseFolder_;
 
   //  MonitorUserInterface* mui_;
   DaqMonitorBEInterface* dbe_;
-
-  bool subDetsOn_[3];
+  
+  bool subDetsOn_[4];
 
   TH1F* spigotErrs_;
   TH1F* badDigis_;
@@ -96,6 +97,10 @@ private:
   TH1F* unmappedTPDs_;
   TH1F* fedErrMap_;
   TH1F* BCN_;
+
+  TH1F* BCNCheck_;
+  TH1F* EvtNCheck_;
+  TH1F* FibOrbMsgBCN_;
 
   TH1F* dferr_[3];
 

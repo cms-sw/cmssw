@@ -1,10 +1,19 @@
 #ifndef CondCore_ESSources_PoolDBESSource_h
 #define CondCore_ESSources_PoolDBESSource_h
+//
+// Package:    CondCore/ESSources
+// Class:      PoolDBESSource
+// 
+/**\class PoolDBESSource PoolDBESSource.h CondCore/ESSources/interface/PoolDBESSource.h
+ Description: EventSetup source module for serving data from offline database
+*/
+//
+// Author:      Zhen Xie
+//
+
 // system include files
-//#include <memory>
 #include <string>
 #include <map>
-#include <vector>
 // user include files
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
@@ -14,8 +23,8 @@ namespace edm{
 }
 namespace cond{
   class DBSession;
-  class CoralTransaction;
-  class Connection;
+  class PoolStorageManager;
+  class IOVService;
   struct IOVInfo{
     std::string tag; 
     std::string token;
@@ -24,8 +33,7 @@ namespace cond{
     std::string timetype;
   };
 }
-class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
-		       public edm::EventSetupRecordIntervalFinder{
+class PoolDBESSource : public edm::eventsetup::DataProxyProvider,public edm::EventSetupRecordIntervalFinder{
  public:
   PoolDBESSource( const edm::ParameterSet& );
   ~PoolDBESSource();
@@ -38,19 +46,22 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   virtual void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType, const edm::ValidityInterval& iInterval) ;    
  private:
   // ----------member data ---------------------------
-  typedef std::multimap< std::string, std::string > RecordToTypes;
-  RecordToTypes m_recordToTypes; 
-  typedef std::map< std::string, std::vector<cond::IOVInfo> > ProxyToIOVInfo;
+  typedef std::multimap<std::string, std::string> RecordToTypes;
+  RecordToTypes m_recordToTypes; //should be static?
+  typedef std::map<std::string,std::vector<cond::IOVInfo> > ProxyToIOVInfo;
   ProxyToIOVInfo m_proxyToIOVInfo;
   typedef std::map< std::string, cond::TagMetadata > TagCollection;
   TagCollection m_tagCollection;
   typedef std::map<std::string, std::string > DatumToToken;
   DatumToToken m_datumToToken;
   cond::DBSession* m_session;
+  cond::IOVService* m_iovservice;
+  cond::PoolStorageManager* m_pooldb;
+  std::string m_timetype;
+  bool m_connected; 
+  std::string m_con;
  private:
   void fillRecordToIOVInfo();
-  void fillTagCollectionFromDB( cond::CoralTransaction& coraldb,
-				const std::string& roottag );
-  std::string setupFrontier(const std::string& frontierconnect);
+  unsigned int countslash(const std::string& input)const;
 };
 #endif

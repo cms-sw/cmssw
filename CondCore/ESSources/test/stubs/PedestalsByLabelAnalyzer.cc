@@ -1,3 +1,4 @@
+
 /*----------------------------------------------------------------------
 
 Toy EDProducers and EDProducts for testing purposes only.
@@ -53,7 +54,7 @@ namespace edmtest
     }
     edm::ESHandle<Pedestals> pPeds;
     std::cout<<"got eshandle"<<std::endl;
-    context.get<PedestalsRcd>().get("lab3d",pPeds);
+    context.get<PedestalsRcd>().get("PEDPED",pPeds);
     std::cout<<"got context"<<std::endl;
     const Pedestals* myped=pPeds.product();
     std::cout<<"Pedestals* "<<myped<<std::endl;
@@ -65,5 +66,3 @@ namespace edmtest
   }
   DEFINE_FWK_MODULE(PedestalsByLabelAnalyzer);
 }
-
-

@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/03 09:06:43 $
- * $Revision: 1.49 $
+ * $Date: 2007/11/15 14:59:48 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  *
 */
@@ -21,8 +21,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -53,9 +51,6 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -105,41 +100,6 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   meTriggerTowerEmulError_[0] = 0;
   meTriggerTowerEmulError_[1] = 0;
 
-  qtg01_[0] = 0;
-  qtg01_[1] = 0;
-  qtg02_[0] = 0;
-  qtg02_[1] = 0;
-  qtg03_[0] = 0;
-  qtg03_[1] = 0;
-  qtg04_[0] = 0;
-  qtg04_[1] = 0;
-  qtg04PN_[0] = 0;
-  qtg04PN_[1] = 0;
-  qtg05_[0] = 0;
-  qtg05_[1] = 0;
-  qtg05PN_[0] = 0;
-  qtg05PN_[1] = 0;
-  qtg06_[0] = 0;
-  qtg06_[1] = 0;
-  qtg06PN_[0] = 0;
-  qtg06PN_[1] = 0;
-  qtg07_[0] = 0;
-  qtg07_[1] = 0;
-  qtg07PN_[0] = 0;
-  qtg07PN_[1] = 0;
-
-  qtg08_[0] = 0;
-  qtg08_[1] = 0;
-  qtg09_[0] = 0;
-  qtg09_[1] = 0;
-  qtg10_[0] = 0;
-  qtg10_[1] = 0;
-  qtg11_[0] = 0;
-  qtg11_[1] = 0;
-
-  qtg99_[0] = 0;
-  qtg99_[1] = 0;
-
 }
 
 EESummaryClient::~EESummaryClient(){
@@ -155,178 +115,6 @@ void EESummaryClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    sprintf(qtname, "EEIT EE - summary quality test");
-    qtg01_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEIT EE + summary quality test");
-    qtg01_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEOT EE - summary quality test");
-    qtg02_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEOT EE + summary quality test");
-    qtg02_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEPOT EE - summary quality test");
-    qtg03_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEPOT EE + summary quality test");
-    qtg03_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELT EE - summary quality test L1");
-    qtg04_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELT EE - PN summary quality test L1");
-    qtg04PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELT EE + summary quality test L1");
-    qtg04_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELT EE + PN summary quality test L1");
-    qtg04PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELDT EE - summary quality test");
-    qtg05_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELDT EE - PN summary quality test");
-    qtg05PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELDT EE + summary quality test");
-    qtg05_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EELDT EE + PN summary quality test");
-    qtg05PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEPT EE - summary quality test");
-    qtg06_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEPT EE - PN summary quality test");
-    qtg06PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEPT EE + summary quality test");
-    qtg06_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EEPT EE + PN summary quality test");
-    qtg06PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETPT EE - summary quality test");
-    qtg07_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETPT EE - PN summary quality test");
-    qtg07PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETPT EE + summary quality test");
-    qtg07_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETPT EE + PN summary quality test");
-    qtg07PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EECT EE - summary quality test");
-    qtg08_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EECT EE + summary quality test");
-    qtg08_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETMT EE - summary quality test");
-    qtg09_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETMT EE + summary quality test");
-    qtg09_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETTT EE - Et summary quality test");
-//     qtg10_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETTT EE + Et summary quality test");
-//     qtg10_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETTT EE - emulator error summary quality test");
-    qtg11_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EETTT EE + emulator error summary quality test");
-    qtg11_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EE global summary quality test EE -");
-    qtg99_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    sprintf(qtname, "EE global summary quality test EE +");
-    qtg99_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-    qtg01_[0]->setMeanRange(1., 6.);
-    qtg01_[1]->setMeanRange(1., 6.);
-//    qtg02_[0]->setMeanRange(1., 6.);
-//    qtg02_[1]->setMeanRange(1., 6.);
-    qtg03_[0]->setMeanRange(1., 6.);
-    qtg03_[1]->setMeanRange(1., 6.);
-    qtg04_[0]->setMeanRange(1., 6.);
-    qtg04PN_[0]->setMeanRange(1., 6.);
-    qtg04_[1]->setMeanRange(1., 6.);
-    qtg04PN_[1]->setMeanRange(1., 6.);
-    qtg05_[0]->setMeanRange(1., 6.);
-    qtg05PN_[0]->setMeanRange(1., 6.);
-    qtg05_[1]->setMeanRange(1., 6.);
-    qtg05PN_[1]->setMeanRange(1., 6.);
-    qtg06_[0]->setMeanRange(1., 6.);
-    qtg06PN_[0]->setMeanRange(1., 6.);
-    qtg06_[1]->setMeanRange(1., 6.);
-    qtg06PN_[1]->setMeanRange(1., 6.);
-    qtg07_[0]->setMeanRange(1., 6.);
-    qtg07PN_[0]->setMeanRange(1., 6.);
-    qtg07_[1]->setMeanRange(1., 6.);
-    qtg07PN_[1]->setMeanRange(1., 6.);
-
-//    qtg08_[0]->setMeanRange(1., 6.);
-//    qtg08_[1]->setMeanRange(1., 6.);
-//    qtg09_[0]->setMeanRange(1., 6.);
-//    qtg09_[1]->setMeanRange(1., 6.);
-//    qtg10[0]_->setMeanRange(1., 6.);
-//    qtg10[1]_->setMeanRange(1., 6.);
-    qtg11_[0]->setMeanRange(1., 6.);
-    qtg11_[1]->setMeanRange(1., 6.);
-
-    qtg99_[0]->setMeanRange(1., 6.);
-    qtg99_[1]->setMeanRange(1., 6.);
-
-    qtg01_[0]->setErrorProb(1.00);
-    qtg01_[1]->setErrorProb(1.00);
-//    qtg02_[0]->setErrorProb(1.00);
-//    qtg02_[1]->setErrorProb(1.00);
-    qtg03_[0]->setErrorProb(1.00);
-    qtg03_[1]->setErrorProb(1.00);
-    qtg04_[0]->setErrorProb(1.00);
-    qtg04PN_[0]->setErrorProb(1.00);
-    qtg04_[1]->setErrorProb(1.00);
-    qtg04PN_[1]->setErrorProb(1.00);
-    qtg05_[0]->setErrorProb(1.00);
-    qtg05PN_[0]->setErrorProb(1.00);
-    qtg05_[1]->setErrorProb(1.00);
-    qtg05PN_[1]->setErrorProb(1.00);
-    qtg06_[0]->setErrorProb(1.00);
-    qtg06PN_[0]->setErrorProb(1.00);
-    qtg06_[1]->setErrorProb(1.00);
-    qtg06PN_[1]->setErrorProb(1.00);
-    qtg07_[0]->setErrorProb(1.00);
-    qtg07PN_[0]->setErrorProb(1.00);
-    qtg07_[1]->setErrorProb(1.00);
-    qtg07PN_[1]->setErrorProb(1.00);
-
-//    qtg08_[0]->setErrorProb(1.00);
-//    qtg08_[1]->setErrorProb(1.00);
-//    qtg09_[0]->setErrorProb(1.00);
-//    qtg09_[1]->setErrorProb(1.00);
-//    qtg10_[0]->setErrorProb(1.00);
-//    qtg10_[1]->setErrorProb(1.00);
-    qtg11_[0]->setErrorProb(1.00);
-    qtg11_[1]->setErrorProb(1.00);
-
-    qtg99_[0]->setErrorProb(1.00);
-    qtg99_[1]->setErrorProb(1.00);
-
-  }
 
 }
 
@@ -371,130 +159,194 @@ void EESummaryClient::setup(void) {
   if ( meIntegrity_[0] ) dbe_->removeElement( meIntegrity_[0]->getName() );
   sprintf(histo, "EEIT EE - integrity quality summary");
   meIntegrity_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meIntegrity_[0]->setAxisTitle("ix", 1);
+  meIntegrity_[0]->setAxisTitle("iy", 2);
 
   if ( meIntegrity_[1] ) dbe_->removeElement( meIntegrity_[0]->getName() );
   sprintf(histo, "EEIT EE + integrity quality summary");
   meIntegrity_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meIntegrity_[1]->setAxisTitle("ix", 1);
+  meIntegrity_[1]->setAxisTitle("iy", 2);
 
   if ( meOccupancy_[0] ) dbe_->removeElement( meOccupancy_[0]->getName() );
   sprintf(histo, "EEOT EE - occupancy summary");
   meOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meOccupancy_[0]->setAxisTitle("ix", 1);
+  meOccupancy_[0]->setAxisTitle("iy", 2);
 
   if ( meOccupancy_[1] ) dbe_->removeElement( meOccupancy_[1]->getName() );
   sprintf(histo, "EEOT EE + occupancy summary");
   meOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meOccupancy_[1]->setAxisTitle("ix", 1);
+  meOccupancy_[1]->setAxisTitle("iy", 2);
 
   if ( mePedestalOnline_[0] ) dbe_->removeElement( mePedestalOnline_[0]->getName() );
   sprintf(histo, "EEPOT EE - pedestal quality summary G12");
   mePedestalOnline_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  mePedestalOnline_[0]->setAxisTitle("ix", 1);
+  mePedestalOnline_[0]->setAxisTitle("iy", 2);
 
   if ( mePedestalOnline_[1] ) dbe_->removeElement( mePedestalOnline_[1]->getName() );
   sprintf(histo, "EEPOT EE + pedestal quality summary G12");
   mePedestalOnline_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  mePedestalOnline_[1]->setAxisTitle("ix", 1);
+  mePedestalOnline_[1]->setAxisTitle("iy", 2);
 
   if ( meLaserL1_[0] ) dbe_->removeElement( meLaserL1_[0]->getName() );
   sprintf(histo, "EELT EE - laser quality summary L1");
   meLaserL1_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLaserL1_[0]->setAxisTitle("ix", 1);
+  meLaserL1_[0]->setAxisTitle("iy", 2);
 
   if ( meLaserL1PN_[0] ) dbe_->removeElement( meLaserL1PN_[0]->getName() );
   sprintf(histo, "EELT EE - PN laser quality summary L1");
   meLaserL1PN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLaserL1PN_[0]->setAxisTitle("ix", 1);
+  meLaserL1PN_[0]->setAxisTitle("iy", 2);
 
   if ( meLaserL1_[1] ) dbe_->removeElement( meLaserL1_[1]->getName() );
   sprintf(histo, "EELT EE + laser quality summary L1");
   meLaserL1_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  
+  meLaserL1_[1]->setAxisTitle("ix", 1);
+  meLaserL1_[1]->setAxisTitle("iy", 2);
+
   if ( meLaserL1PN_[1] ) dbe_->removeElement( meLaserL1PN_[1]->getName() );
   sprintf(histo, "EELT EE + PN laser quality summary L1");
   meLaserL1PN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLaserL1PN_[1]->setAxisTitle("ix", 1);
+  meLaserL1PN_[1]->setAxisTitle("iy", 2);
 
   if ( meLed_[0] ) dbe_->removeElement( meLed_[0]->getName() );
   sprintf(histo, "EELDT EE - led quality summary");
   meLed_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  
+  meLed_[0]->setAxisTitle("ix", 1);
+  meLed_[0]->setAxisTitle("iy", 2);
+
   if ( meLedPN_[0] ) dbe_->removeElement( meLedPN_[0]->getName() );
   sprintf(histo, "EELDT EE - PN led quality summary");
   meLedPN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  
+  meLedPN_[0]->setAxisTitle("ix", 1);
+  meLedPN_[0]->setAxisTitle("iy", 2);
+
   if ( meLed_[1] ) dbe_->removeElement( meLed_[1]->getName() );
   sprintf(histo, "EELDT EE + led quality summary");
   meLed_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  
+  meLed_[1]->setAxisTitle("ix", 1);
+  meLed_[1]->setAxisTitle("iy", 2);
+
   if ( meLedPN_[1] ) dbe_->removeElement( meLedPN_[1]->getName() );
   sprintf(histo, "EELDT EE + PN led quality summary");
   meLedPN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLedPN_[1]->setAxisTitle("ix", 1);
+  meLedPN_[1]->setAxisTitle("iy", 2);
 
   if( mePedestal_[0] ) dbe_->removeElement( mePedestal_[0]->getName() );
   sprintf(histo, "EEPT EE - pedestal quality summary");
   mePedestal_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  
+  mePedestal_[0]->setAxisTitle("ix", 1);
+  mePedestal_[0]->setAxisTitle("iy", 2);
+
   if( mePedestalPN_[0] ) dbe_->removeElement( mePedestalPN_[0]->getName() );
   sprintf(histo, "EEPT EE - PN pedestal quality summary");
   mePedestalPN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+  mePedestalPN_[0]->setAxisTitle("ix", 1);
+  mePedestalPN_[0]->setAxisTitle("iy", 2);
 
   if( mePedestal_[1] ) dbe_->removeElement( mePedestal_[1]->getName() );
   sprintf(histo, "EEPT EE + pedestal quality summary");
   mePedestal_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  
+  mePedestal_[1]->setAxisTitle("ix", 1);
+  mePedestal_[1]->setAxisTitle("iy", 2);
+
   if( mePedestalPN_[1] ) dbe_->removeElement( mePedestalPN_[1]->getName() );
   sprintf(histo, "EEPT EE + PN pedestal quality summary");
   mePedestalPN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+  mePedestalPN_[1]->setAxisTitle("ix", 1);
+  mePedestalPN_[1]->setAxisTitle("iy", 2);
 
   if( meTestPulse_[0] ) dbe_->removeElement( meTestPulse_[0]->getName() );
   sprintf(histo, "EETPT EE - test pulse quality summary");
   meTestPulse_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTestPulse_[0]->setAxisTitle("ix", 1);
+  meTestPulse_[0]->setAxisTitle("iy", 2);
 
   if( meTestPulsePN_[0] ) dbe_->removeElement( meTestPulsePN_[0]->getName() );
   sprintf(histo, "EETPT EE - PN test pulse quality summary");
   meTestPulsePN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meTestPulsePN_[0]->setAxisTitle("ix", 1);
+  meTestPulsePN_[0]->setAxisTitle("iy", 2);
 
   if( meTestPulse_[1] ) dbe_->removeElement( meTestPulse_[1]->getName() );
   sprintf(histo, "EETPT EE + test pulse quality summary");
   meTestPulse_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTestPulse_[1]->setAxisTitle("ix", 1);
+  meTestPulse_[1]->setAxisTitle("iy", 2);
 
   if( meTestPulsePN_[1] ) dbe_->removeElement( meTestPulsePN_[1]->getName() );
   sprintf(histo, "EETPT EE + PN test pulse quality summary");
   meTestPulsePN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meTestPulsePN_[1]->setAxisTitle("ix", 1);
+  meTestPulsePN_[1]->setAxisTitle("iy", 2);
 
   if( meCosmic_[0] ) dbe_->removeElement( meCosmic_[0]->getName() );
-  sprintf(histo, "EECT EE - cosmic quality summary");
+  sprintf(histo, "EECT EE - quality summary");
   meCosmic_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meCosmic_[0]->setAxisTitle("ix", 1);
+  meCosmic_[0]->setAxisTitle("iy", 2);
 
   if( meCosmic_[1] ) dbe_->removeElement( meCosmic_[1]->getName() );
-  sprintf(histo, "EECT EE + cosmic quality summary");
+  sprintf(histo, "EECT EE + quality summary");
   meCosmic_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meCosmic_[1]->setAxisTitle("ix", 1);
+  meCosmic_[1]->setAxisTitle("iy", 2);
 
   if( meTiming_[0] ) dbe_->removeElement( meTiming_[0]->getName() );
-  sprintf(histo, "EETPT EE - timing quality summary");
+  sprintf(histo, "EETMT EE - timing quality summary");
   meTiming_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTiming_[0]->setAxisTitle("ix", 1);
+  meTiming_[0]->setAxisTitle("iy", 2);
 
   if( meTiming_[1] ) dbe_->removeElement( meTiming_[1]->getName() );
-  sprintf(histo, "EETPT EE + timing quality summary");
+  sprintf(histo, "EETMT EE + timing quality summary");
   meTiming_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTiming_[1]->setAxisTitle("ix", 1);
+  meTiming_[1]->setAxisTitle("iy", 2);
 
   if( meTriggerTowerEt_[0] ) dbe_->removeElement( meTriggerTowerEt_[0]->getName() );
-  sprintf(histo, "EETTT EE - Et trigger tower quality summary");
-  meTriggerTowerEt_[0] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 256, 0., 256.);
-  
+  sprintf(histo, "EETTT EE - Et trigger tower summary");
+  meTriggerTowerEt_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTriggerTowerEt_[0]->setAxisTitle("ix", 1);
+  meTriggerTowerEt_[0]->setAxisTitle("iy", 2);
+
   if( meTriggerTowerEt_[1] ) dbe_->removeElement( meTriggerTowerEt_[1]->getName() );
-  sprintf(histo, "EETTT EE + Et trigger tower quality summary");
-  meTriggerTowerEt_[1] = dbe_->book3D(histo, histo, 100, 0., 100., 100, 0., 100., 256, 0., 256.);
-  
+  sprintf(histo, "EETTT EE + Et trigger tower summary");
+  meTriggerTowerEt_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTriggerTowerEt_[1]->setAxisTitle("ix", 1);
+  meTriggerTowerEt_[1]->setAxisTitle("iy", 2);
+
   if( meTriggerTowerEmulError_[0] ) dbe_->removeElement( meTriggerTowerEmulError_[0]->getName() );
   sprintf(histo, "EETTT EE - emulator error quality summary");
   meTriggerTowerEmulError_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTriggerTowerEmulError_[0]->setAxisTitle("ix", 1);
+  meTriggerTowerEmulError_[0]->setAxisTitle("iy", 2);
 
   if( meTriggerTowerEmulError_[1] ) dbe_->removeElement( meTriggerTowerEmulError_[1]->getName() );
   sprintf(histo, "EETTT EE + emulator error quality summary");
   meTriggerTowerEmulError_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTriggerTowerEmulError_[1]->setAxisTitle("ix", 1);
+  meTriggerTowerEmulError_[1]->setAxisTitle("iy", 2);
 
   if( meGlobalSummary_[0] ) dbe_->removeElement( meGlobalSummary_[0]->getName() );
   sprintf(histo, "EE global summary EE -");
   meGlobalSummary_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meGlobalSummary_[0]->setAxisTitle("ix", 1);
+  meGlobalSummary_[0]->setAxisTitle("iy", 2);
 
   if( meGlobalSummary_[1] ) dbe_->removeElement( meGlobalSummary_[1]->getName() );
   sprintf(histo, "EE global summary EE +");
   meGlobalSummary_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meGlobalSummary_[1]->setAxisTitle("ix", 1);
+  meGlobalSummary_[1]->setAxisTitle("iy", 2);
 
 }
 
@@ -534,10 +386,10 @@ void EESummaryClient::cleanup(void) {
 
   if ( meLed_[0] ) dbe_->removeElement( meLed_[0]->getName() );
   meLed_[0] = 0;
- 
+
   if ( meLed_[1] ) dbe_->removeElement( meLed_[1]->getName() );
   meLed_[1] = 0;
- 
+
   if ( meLedPN_[0] ) dbe_->removeElement( meLedPN_[0]->getName() );
   meLedPN_[0] = 0;
 
@@ -612,75 +464,6 @@ void EESummaryClient::subscribe(void){
 
   if ( verbose_ ) cout << "EESummaryClient: subscribe" << endl;
 
-  Char_t histo[200];
-
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEIT EE - integrity quality summary");
-  if ( qtg01_[0] ) dbe_->useQTest(histo, qtg01_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEIT EE + integrity quality summary");
-  if ( qtg01_[1] ) dbe_->useQTest(histo, qtg01_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEOT EE - occupancy summary");
-//  if ( qtg02_[0] ) dbe_->useQTest(histo, qtg02_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEOT EE + occupancy summary");
-//  if ( qtg02_[1] ) dbe_->useQTest(histo, qtg02_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEPOT EE - pedestal quality summary G12");
-  if ( qtg03_[0] ) dbe_->useQTest(histo, qtg03_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEPOT EE + pedestal quality summary G12");
-  if ( qtg03_[1] ) dbe_->useQTest(histo, qtg03_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELT EE - laser quality summary L1");
-  if ( qtg04_[0] ) dbe_->useQTest(histo, qtg04_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELT EE + laser quality summary L1");
-  if ( qtg04_[1] ) dbe_->useQTest(histo, qtg04_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELT EE - PN laser quality summary L1");
-  if ( qtg04PN_[0] ) dbe_->useQTest(histo, qtg04PN_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELT EE + PN laser quality summary L1");
-  if ( qtg04PN_[1] ) dbe_->useQTest(histo, qtg04PN_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELDT EE - led quality summary");
-  if ( qtg05_[0] ) dbe_->useQTest(histo, qtg05_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELDT EE + led quality summary");
-  if ( qtg05_[1] ) dbe_->useQTest(histo, qtg05_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELDT EE - PN led quality summary");
-  if ( qtg05PN_[0] ) dbe_->useQTest(histo, qtg05PN_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EELDT EE + PN led quality summary");
-  if ( qtg05PN_[1] ) dbe_->useQTest(histo, qtg05PN_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEPT EE - PN pedestal quality summary");
-  if ( qtg06_[0] ) dbe_->useQTest(histo, qtg06_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEPT EE + PN pedestal quality summary");
-  if ( qtg06_[1] ) dbe_->useQTest(histo, qtg06_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEPT EE - PN pedestal quality summary");
-  if ( qtg06PN_[0] ) dbe_->useQTest(histo, qtg06PN_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EEPT EE + PN pedestal quality summary");
-  if ( qtg06PN_[1] ) dbe_->useQTest(histo, qtg06PN_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETPT EE - test pulse quality summary");
-  if ( qtg07_[0] ) dbe_->useQTest(histo, qtg07_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETPT EE + test pulse quality summary");
-  if ( qtg07_[1] ) dbe_->useQTest(histo, qtg07_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETPT EE - PN test pulse quality summary");
-  if ( qtg07PN_[0] ) dbe_->useQTest(histo, qtg07PN_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETPT EE + PN test pulse quality summary");
-  if ( qtg07PN_[1] ) dbe_->useQTest(histo, qtg07PN_[1]->getName());
-
-  sprintf(histo, "EcalEndcap/EESummaryClient/EECT EE - cosmic quality summary");
-  if ( qtg08_[0] ) dbe_->useQTest(histo, qtg08_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EECT EE + cosmic quality summary");
-  if ( qtg08_[1] ) dbe_->useQTest(histo, qtg08_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETMT EE - timing quality summary");
-  if ( qtg09_[0] ) dbe_->useQTest(histo, qtg09_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETMT EE + timing quality summary");
-  if ( qtg09_[1] ) dbe_->useQTest(histo, qtg09_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETTT EE - Et trigger tower quality summary");
-//   if ( qtg10_[0] ) dbe_->useQTest(histo, qtg10_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETTT EE + Et trigger tower quality summary");
-//   if ( qtg10_[1] ) dbe_->useQTest(histo, qtg10_[1]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETTT EE + emulator error quality summary"); 
-  if ( qtg11_[0] ) dbe_->useQTest(histo, qtg11_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EETTT EE - emulator error quality summary"); 
-  if ( qtg11_[1] ) dbe_->useQTest(histo, qtg11_[1]->getName());
-
-  sprintf(histo, "EcalEndcap/EESummaryClient/EE global summary EE -");
-  if ( qtg99_[0] ) dbe_->useQTest(histo, qtg99_[0]->getName());
-  sprintf(histo, "EcalEndcap/EESummaryClient/EE global summary EE +");
-  if ( qtg99_[1] ) dbe_->useQTest(histo, qtg99_[1]->getName());
-
 }
 
 void EESummaryClient::subscribeNew(void){
@@ -750,10 +533,8 @@ void EESummaryClient::analyze(void){
 
   for ( int ix = 1; ix <= 100; ix++ ) {
     for ( int iy = 1; iy <= 100; iy++ ) {
-      for ( int en = 1; en <= 256; en++ ) {
-        meTriggerTowerEt_[0]->setBinContent( ix, iy, en, 0. );
-        meTriggerTowerEt_[1]->setBinContent( ix, iy, en, 0. );
-      }
+      meTriggerTowerEt_[0]->setBinContent( ix, iy, 0. );
+      meTriggerTowerEt_[1]->setBinContent( ix, iy, 0. );
       meTriggerTowerEmulError_[0]->setBinContent( ix, iy, -1. );
       meTriggerTowerEmulError_[1]->setBinContent( ix, iy, -1. );
     }
@@ -812,9 +593,9 @@ void EESummaryClient::analyze(void){
     MonitorElement* me;
     MonitorElement *me_01, *me_02, *me_03;
 //    MonitorElement *me_04, *me_05;
+
     TH2F* h2;
     TProfile2D* h2d;
-    TH3F* h3;
 
     // fill the gain value priority map<id,priority>
     std::map<float,float> priority;
@@ -1048,14 +829,14 @@ void EESummaryClient::analyze(void){
             me = eetmc->meg01_[ism-1];
 
             if ( me ) {
-    
+
               float xval = me->getBinContent( ix, iy );
 
               if ( ism >= 1 && ism <= 9 ) {
                 if ( Numbers::validEE(ism, 101 - jx, jy) ) meTiming_[0]->setBinContent( jx, jy, xval );
               } else {
                 if ( Numbers::validEE(ism, jx, jy) ) meTiming_[1]->setBinContent( jx, jy, xval );
-              } 
+              }
 
             }
 
@@ -1072,25 +853,22 @@ void EESummaryClient::analyze(void){
 
           if ( eetttc ) {
 
-            h3 = eetttc->h01_[ism-1];
+            me = eetttc->me_h01_[ism-1];
 
             bool hasRealDigi = false;
 
-            if ( h3 ) {
+            if ( me ) {
 
-              for( int en = 1; en <= 256; en++ ) {
+              float xval = me->getBinContent( ix, iy );
 
-                float xval = h3->GetBinContent( ix, iy, en );
+              if(xval!=0) hasRealDigi = true;
 
-                if(xval!=0) hasRealDigi = true;
-                
-                if ( ism >= 1 && ism <= 9 ) {
-                  if ( xval != 0 ) meTriggerTowerEt_[0]->setBinContent( jx, jy, en, xval );
-                } else {
-                  if ( xval != 0 ) meTriggerTowerEt_[1]->setBinContent( jx, jy, en, xval );
-                }
-
+              if ( ism >= 1 && ism <= 9 ) {
+                if ( xval != 0 ) meTriggerTowerEt_[0]->setBinContent( jx, jy, xval );
+              } else {
+                if ( xval != 0 ) meTriggerTowerEt_[1]->setBinContent( jx, jy, xval );
               }
+
             }
 
             h2 = eetttc->l01_[ism-1];
@@ -1154,17 +932,17 @@ void EESummaryClient::analyze(void){
 
       for ( int ix = 1; ix <= 50; ix++ ) {
         for ( int iy = 1; iy <= 50; iy++ ) {
-    
+
           int jx = ix + Numbers::ix0EE(ism);
           int jy = iy + Numbers::iy0EE(ism);
 
           if ( eetttc ) {
 
-            if ( ism >= 1 && ism <= 9 ) { 
+            if ( ism >= 1 && ism <= 9 ) {
               if ( meTriggerTowerEmulError_[0]->getBinContent( jx, jy ) == -1 ) {
                 if ( Numbers::validEE(ism, 101 - jx, jy) ) meTriggerTowerEmulError_[0]->setBinContent( jx, jy, 2 );
               }
-            } else { 
+            } else {
               if ( meTriggerTowerEmulError_[1]->getBinContent( jx, jy ) == -1 ) {
                 if ( Numbers::validEE(ism, jx, jy) ) meTriggerTowerEmulError_[1]->setBinContent( jx, jy, 2 );
               }
@@ -1187,7 +965,7 @@ void EESummaryClient::analyze(void){
       if(meIntegrity_[0] && mePedestalOnline_[0]) {
 
         float xval = -1;
-        float val_in = meIntegrity_[0]->getBinContent(jx,jy); 
+        float val_in = meIntegrity_[0]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[0]->getBinContent(jx,jy);
 
         // turn each dark color (masked channel) to bright green
@@ -1197,7 +975,7 @@ void EESummaryClient::analyze(void){
         // -1 = unknown
         //  0 = red
         //  1 = green
-        //  2 = yellow 
+        //  2 = yellow
 
         if(val_in==-1) xval=-1;
         else if(val_in==0) xval=0;
@@ -1213,7 +991,7 @@ void EESummaryClient::analyze(void){
       if(meIntegrity_[1] && mePedestalOnline_[1]) {
 
         float xval = -1;
-        float val_in = meIntegrity_[1]->getBinContent(jx,jy);  
+        float val_in = meIntegrity_[1]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[1]->getBinContent(jx,jy);
 
         // turn each dark color to bright green
@@ -1348,8 +1126,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   gStyle->SetTitleFontSize(14);
 
   TH2F* obj2f;
-  TH3F* obj3f;
-  TProfile2D* obj2p;
 
   gStyle->SetPaintTextFormat("+g");
 
@@ -1678,7 +1454,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
-  
+
   }
 
 //
@@ -1731,11 +1507,11 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meLed_[1] );
-  
+
   if ( obj2f && obj2f->GetEntries() != 0 ) {
-  
+
     meName = obj2f->GetName();
-  
+
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
         meName.replace(i, 1 ,"_" );
@@ -1818,7 +1594,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( mePedestal_[1] );
-  
+
   if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
@@ -1905,11 +1681,11 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meTestPulse_[1] );
-  
+
   if ( obj2f && obj2f->GetEntries() != 0 ) {
-  
+
     meName = obj2f->GetName();
-  
+
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
         meName.replace(i, 1 ,"_" );
@@ -2035,7 +1811,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = UtilsClient::getHisto<TH2F*>( meTiming_[0] );
 
   if ( obj2f && obj2f->GetEntries() != 0 ) {
-    
+
     meName = obj2f->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
@@ -2045,7 +1821,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
     imgNameMapTM[0] = meName + ".png";
     imgName = htmlDir + imgNameMapTM[0];
-    
+
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(6, pCol3);
@@ -2063,7 +1839,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     for ( int i=0; i<201; i=i+1){
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
-      } 
+      }
     }
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
@@ -2074,9 +1850,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meTiming_[1] );
-  
+
   if ( obj2f && obj2f->GetEntries() != 0 ) {
-    
+
     meName = obj2f->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
@@ -2112,10 +1888,10 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
 
   imgNameMapTTEmulError[0] = "";
-  
+
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meTriggerTowerEmulError_[0] );
-  
+
   if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
@@ -2168,7 +1944,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
     imgNameMapTTEmulError[1] = meName + ".png";
     imgName = htmlDir + imgNameMapTTEmulError[1];
-    
+
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(6, pCol3);
@@ -2195,12 +1971,12 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   imgNameMapTTEt[0] = "";
 
-  obj3f = 0;
-  obj3f = UtilsClient::getHisto<TH3F*>( meTriggerTowerEt_[0] );
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTriggerTowerEt_[0] );
 
-  if ( obj3f && obj3f->GetEntries() != 0 ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
-    meName = obj3f->GetName();
+    meName = obj2f->GetName();
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
@@ -2210,73 +1986,16 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameMapTTEt[0] = meName + ".png";
     imgName = htmlDir + imgNameMapTTEt[0];
 
-    obj2p = obj3f->Project3DProfile("yx");
-
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
-
-    std::string projname(obj2p->GetName());
-    string::size_type loc = projname.find( "_pyx", 0 );
-    projname.replace( loc, projname.length(), "");
-    obj2p->SetTitle(projname.c_str());
-
     cMap->SetGridx();
     cMap->SetGridy();
-    obj2p->SetMinimum(0.0);
-    obj2p->GetXaxis()->SetLabelSize(0.03);
-    obj2p->GetYaxis()->SetLabelSize(0.03);
-    obj2p->GetZaxis()->SetLabelSize(0.03);
-    obj2p->Draw("colz");
-    labelGrid1.Draw("text,same");
-    cMap->SetBit(TGraph::kClipFrame);
-    TLine l;
-    l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
-      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
-        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]); 
-      }
-    }
-    cMap->Update();
-    cMap->SaveAs(imgName.c_str());
-    delete obj2p;
-  }
-
-  imgNameMapTTEt[1] = "";
-
-  obj3f = 0;
-  obj3f = UtilsClient::getHisto<TH3F*>( meTriggerTowerEt_[1] );
-
-  if ( obj3f && obj3f->GetEntries() != 0 ) {
-
-    meName = obj3f->GetName();
-
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
-    imgNameMapTTEt[1] = meName + ".png";
-    imgName = htmlDir + imgNameMapTTEt[1];
-
-    obj2p = obj3f->Project3DProfile("yx");
-
-    cMap->cd();
-    gStyle->SetOptStat(" ");
-    gStyle->SetPalette(10, pCol4);
-
-    std::string projname(obj2p->GetName());
-    string::size_type loc = projname.find( "_pyx", 0 );
-    projname.replace( loc, projname.length(), "");
-    obj2p->SetTitle(projname.c_str());
-
-    cMap->SetGridx();
-    cMap->SetGridy();
-    obj2p->SetMinimum(0.0);
-    obj2p->GetXaxis()->SetLabelSize(0.03);
-    obj2p->GetYaxis()->SetLabelSize(0.03);
-    obj2p->GetZaxis()->SetLabelSize(0.03);
-    obj2p->Draw("colz");
+    obj2f->SetMinimum(0.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->GetZaxis()->SetLabelSize(0.03);
+    obj2f->Draw("colz");
     labelGrid1.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
@@ -2288,7 +2007,48 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
-    delete obj2p;
+
+  }
+
+  imgNameMapTTEt[1] = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTriggerTowerEt_[1] );
+
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapTTEt[1] = meName + ".png";
+    imgName = htmlDir + imgNameMapTTEt[1];
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(10, pCol4);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(0.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->GetZaxis()->SetLabelSize(0.03);
+    obj2f->Draw("colz");
+    labelGrid1.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
   }
 
   imgNameMapGS[0] = "";
@@ -2336,11 +2096,11 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meGlobalSummary_[1] );
-  
+
   if ( obj2f ) {
 
     meName = obj2f->GetName();
-    
+
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
         meName.replace(i, 1 ,"_" );

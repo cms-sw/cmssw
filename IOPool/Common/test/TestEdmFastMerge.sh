@@ -24,6 +24,7 @@ process TESTPROD = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 0}
 	module output = PoolOutputModule {
 		untracked string fileName = '${INPUT_1}'
+		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {
                  untracked uint32 firstEvent = 1
@@ -49,6 +50,7 @@ process TESTPROD = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 0}
 	module output = PoolOutputModule {
 		untracked string fileName = '${INPUT_2}'
+		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {
                  untracked uint32 firstEvent = 100

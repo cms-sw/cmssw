@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.41 2007/10/31 22:56:30 wmtan Exp $
+$Id: PoolSource.h,v 1.39 2007/09/07 19:34:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -43,11 +43,10 @@ namespace edm {
     typedef input::EntryNumber EntryNumber;
     PoolSource(PoolSource const&); // disable copy construction
     PoolSource & operator=(PoolSource const&); // disable assignment
-    std::auto_ptr<EventPrincipal> readNextEvent();
+    virtual std::auto_ptr<EventPrincipal> read();
     virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp);
     virtual boost::shared_ptr<RunPrincipal> readRun_();
-    virtual boost::shared_ptr<FileBlock> readFile_();
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& id);
     virtual void skip(int offset);
     virtual void rewind_();
@@ -68,7 +67,6 @@ namespace edm {
 
     CLHEP::RandFlat * flatDistribution_;
     int eventsRemainingInFile_;
-    bool startAtBeginning_;
   }; // class PoolSource
   typedef PoolSource PoolRASource;
 }

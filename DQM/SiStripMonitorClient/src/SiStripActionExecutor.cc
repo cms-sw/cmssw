@@ -68,7 +68,7 @@ void SiStripActionExecutor::createSummary(DaqMonitorBEInterface* bei) {
 //
 void SiStripActionExecutor::setupQTests(DaqMonitorBEInterface* bei) {
   bei->cd();
-  string localPath = string("DQM/SiStripMonitorClient/test/sistrip_qualitytest_config.xml");
+  string localPath = string("DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml");
   if (!qtHandler_) {
     qtHandler_ = new QTestHandle();
   }

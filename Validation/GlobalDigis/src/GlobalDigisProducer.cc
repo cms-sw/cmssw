@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/09/04 20:00:21 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/08/09 18:23:26 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -1790,4 +1790,4 @@ void GlobalDigisProducer::clear()
 }
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(GlobalDigisProducer);
+DEFINE_FWK_MODULE(GlobalDigisProducer);

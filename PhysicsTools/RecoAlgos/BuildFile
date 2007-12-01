@@ -1,11 +1,2 @@
-<use name=SimGeneral/HepPDTRecord>
-<use name=DataFormats/RecoCandidate>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
 <export>
-  <lib name=PhysicsToolsRecoAlgos>
-  <use name=SimGeneral/HepPDTRecord>
-  <use name=DataFormats/RecoCandidate>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
 </export>

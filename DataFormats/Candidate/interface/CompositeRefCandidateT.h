@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidateT.h,v 1.6 2007/10/15 12:44:33 llista Exp $
+ * \version $Id: CompositeRefCandidateT.h,v 1.2 2007/09/14 09:53:42 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -27,10 +27,6 @@ namespace reco {
     CompositeRefCandidateT() : Candidate() { }
     /// constructor from values
     CompositeRefCandidateT( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-			    int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
-    /// constructor from values
-    CompositeRefCandidateT( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			    int pdgId = 0, int status = 0, bool integerCharge = true ) :
       Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
     /// constructor from a particle
@@ -67,10 +63,6 @@ namespace reco {
     typename daughters::value_type daughterRef( size_type i ) const { return dau[ i ]; }
     /// references to daughtes
     const daughters & daughterRefVector() const { return dau; }
-    /// reference to mother at given position
-    typename daughters::value_type motherRef( size_type i = 0 ) const { return mom[ i ]; }
-    /// references to mothers
-    const mothers & motherRefVector() const { return mom; }
     /// set daughters product ID
     void resetDaughters( const edm::ProductID & id ) { dau = daughters( id ); }
 

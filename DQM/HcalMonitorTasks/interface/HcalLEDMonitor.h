@@ -6,8 +6,8 @@
 
 /** \class HcalLEDMonitor
   *  
-  * $Date: 2007/06/07 22:13:29 $
-  * $Revision: 1.9 $
+  * $Date: 2007/11/15 23:13:46 $
+  * $Revision: 1.11 $
   * \author W. Fisher - FNAL
   */
   static const float LedMonAdc2fc[128]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
@@ -52,7 +52,6 @@ public:
   void reset();
 
   void done();
-  void clearME();
 
  private: //members vars...
 
@@ -65,7 +64,8 @@ public:
   void perChanHists(int type, const HcalDetId detid, float* vals, 
 		    map<HcalDetId, MonitorElement*> &tShape, 
 		    map<HcalDetId, MonitorElement*> &tTime, 
-		    map<HcalDetId, MonitorElement*> &tEnergy);
+		    map<HcalDetId, MonitorElement*> &tEnergy,
+		    string baseFolder);
 
   void createFEDmap(unsigned int fed);
 
@@ -109,6 +109,16 @@ public:
     MonitorElement* err_map_elec;
 
   } hbHists, heHists, hfHists, hoHists;
+
+
+  MonitorElement* HFlumi_ETsum_perwedge;
+  MonitorElement* HFlumi_Occupancy_above_thr_r1;
+  MonitorElement* HFlumi_Occupancy_between_thrs_r1;
+  MonitorElement* HFlumi_Occupancy_below_thr_r1;
+  MonitorElement* HFlumi_Occupancy_above_thr_r2;
+  MonitorElement* HFlumi_Occupancy_between_thrs_r2;
+  MonitorElement* HFlumi_Occupancy_below_thr_r2;
+
 
   /*  
   MonitorElement* mean_map_ADCraw;

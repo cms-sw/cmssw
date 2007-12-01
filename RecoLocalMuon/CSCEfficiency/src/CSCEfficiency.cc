@@ -4,7 +4,7 @@
  *  Comments about the program logic are denoted by //----
  * 
  *  Stoyan Stoynev, Northwestern University.
- */ 
+ */
   
 #include "RecoLocalMuon/CSCEfficiency/interface/CSCEfficiency.h"
 
@@ -21,7 +21,7 @@
 template <class T>
 inline std::string to_string (const T& t)
 {
-  std::stringstream ss; 
+  std::stringstream ss;
   ss << t;
   return ss.str();
 }
@@ -32,9 +32,9 @@ using namespace std;
 using namespace edm;
 
 // Constructor
-//CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
+CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
 //---- this allows access to MC (if needed)
-CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHits"){
+//CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHits"){
   const float Xmin = XMIN;
   const float Xmax = XMAX;
   const int nXbins = int(4.*(Xmax - Xmin));
@@ -75,129 +75,16 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHi
     theFile->cd();
     //---- Book histograms for the analysis
     char SpecName[50];
-
-    sprintf(SpecName,"DataFlow"); 
+    sprintf(SpecName,"DataFlow");
+    
     if(!update){
-      DataFlow =  
+      DataFlow = 
 	new TH1F(SpecName,"Data flow;condition number;entries",30,-0.5,29.5);
     }
     else{
       FullName = Path + to_string(SpecName);
       strcpy(SpecName, FullName.c_str());
       DataFlow = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    int Chan = 100;
-    float minChan = 0.;
-    float maxChan = 30.;
-    sprintf(SpecName,"chi2_ndf");    
-    if(!update){
-      Chi2 = 
-	new TH1F(SpecName,"Chi2/ndf;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME1_a");
-    if(!update){
-      Chi2_ME1_a = 
-	new TH1F(SpecName,"Chi2/ndf-ME1_a;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME1_a = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME1_b");
-    if(!update){
-      Chi2_ME1_b = 
-	new TH1F(SpecName,"Chi2/ndf-ME1_b;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME1_b = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME1_2");
-    if(!update){
-      Chi2_ME1_2 = 
-	new TH1F(SpecName,"Chi2/ndf-ME1_2;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME1_2 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME1_3");
-    if(!update){
-      Chi2_ME1_3 = 
-	new TH1F(SpecName,"Chi2/ndf-ME1_3;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME1_3 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME2_1");
-    if(!update){
-      Chi2_ME2_1 = 
-	new TH1F(SpecName,"Chi2/ndf-ME2_1;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME2_1 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME2_2");
-    if(!update){
-      Chi2_ME2_2 = 
-	new TH1F(SpecName,"Chi2/ndf-ME2_2;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME2_2 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME3_1");
-    if(!update){
-      Chi2_ME3_1 = 
-	new TH1F(SpecName,"Chi2/ndf-ME3_1;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME3_1 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME3_2");
-    if(!update){
-      Chi2_ME3_2 = 
-	new TH1F(SpecName,"Chi2/ndf-ME3_2;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME3_2 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME4_1");
-    if(!update){
-      Chi2_ME4_1 = 
-	new TH1F(SpecName,"Chi2/ndf-ME4_1;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME4_1 = (TH1F*)(theFile)->Get(SpecName);
     }
     //
     sprintf(SpecName,"XY_ALCTmissing");
@@ -253,28 +140,6 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHi
       FullName = Path + to_string(SpecName);
       strcpy(SpecName, FullName.c_str());
       AllSegments = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"EfficientSegments_theta");
-    if(!update){
-      EfficientSegments_theta = 
-	new TH1F(SpecName,"Efficient segments in theta;theta;entries",79, 0., 3.16);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      EfficientSegments_theta = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"AllSegments_theta");
-    if(!update){
-      AllSegments_theta = 
-	new TH1F(SpecName,"All segments in theta;theta;entries",79, 0., 3.16);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      AllSegments_theta = (TH1F*)(theFile)->Get(SpecName);
     }
 
     //
@@ -445,55 +310,6 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHi
 	Y_AllRecHits_inSegment.push_back( (TH1F*)((theFile))->Get(SpecName));
       }
     }
-    //
-
-
-    //
-    sprintf(SpecName,"Sim_Rechits");
-    if(!update){
-      SimRechits = 
-	new TH1F(SpecName,"Existing RecHit (Sim);layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      SimRechits = (TH1F*)((theFile))->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"Sim_Simhits");
-    if(!update){
-      SimSimhits = 
-	new TH1F(SpecName,"Existing SimHit (Sim);layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      SimSimhits = (TH1F*)((theFile))->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"Sim_Rechits_each");
-    if(!update){
-      SimRechits_each = 
-	new TH1F(SpecName,"Existing RecHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      SimRechits_each = (TH1F*)((theFile))->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"Sim_Simhits_each");
-    if(!update){
-      SimSimhits_each = 
-	new TH1F(SpecName,"Existing SimHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      SimSimhits_each = (TH1F*)((theFile))->Get(SpecName);
-    }
-    
-
     //---- Book groups of histograms (for any chamber)
     for(int iChamber=FirstCh;iChamber<FirstCh+NumCh;iChamber++){
       sprintf(SpecName,"Chamber_%d",iChamber);
@@ -675,51 +491,6 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHi
 	  ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment.push_back((TH1F*)((theFile))->Get(SpecName));
 	}
       }
-      //
-      sprintf(SpecName,"Sim_Rechits_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].SimRechits = 
-	  new TH1F(SpecName,"Existing RecHit (Sim);layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName)+"_AllCh";
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].SimRechits = (TH1F*)((theFile))->Get(SpecName);
-      }
-      //
-      sprintf(SpecName,"Sim_Simhits_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].SimSimhits = 
-	  new TH1F(SpecName,"Existing SimHit (Sim);layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName)+"_AllCh";
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].SimSimhits = (TH1F*)((theFile))->Get(SpecName);
-      }
-      //
-      sprintf(SpecName,"Sim_Rechits_each_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].SimRechits_each = 
-	  new TH1F(SpecName,"Existing RecHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName)+"_AllCh";
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].SimRechits_each = (TH1F*)((theFile))->Get(SpecName);
-      }
-      //
-      sprintf(SpecName,"Sim_Simhits_each_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].SimSimhits_each = 
-	  new TH1F(SpecName,"Existing SimHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName)+"_AllCh";
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].SimSimhits_each = (TH1F*)((theFile))->Get(SpecName);
-      }
-      
       //Auto_ptr... ? better but it doesn't work... (with root?...) 
       //    sprintf(SpecName,"IneffperLayerRecHit_st3_Ch%d",iChamber);
       //ChHist[iChamber-FirstCh].perLayerIneffRecHit = new TH1F(SpecName,"Ineff per Layer Rec Hit",10,-0.5,9.5);
@@ -837,27 +608,6 @@ CSCEfficiency::~CSCEfficiency(){
 	  changed_title = ChangeTitle(current_title);
 	  Y_AllRecHits_inSegment[iLayer]->SetName(changed_title);
 	}
-	//
-	SimRechits=(TH1F*)ChHist[iChamber-FirstCh].SimRechits->Clone();
-	current_title = SimRechits->GetName();
-	changed_title = ChangeTitle(current_title);
-	SimRechits->SetName(changed_title);
-	//
-	SimSimhits=(TH1F*)ChHist[iChamber-FirstCh].SimSimhits->Clone();
-	current_title = SimSimhits->GetName();
-	changed_title = ChangeTitle(current_title);
-	SimSimhits->SetName(changed_title);
-	//
-	SimRechits_each=(TH1F*)ChHist[iChamber-FirstCh].SimRechits_each->Clone();
-	current_title = SimRechits_each->GetName();
-	changed_title = ChangeTitle(current_title);
-	SimRechits_each->SetName(changed_title);
-	//
-	SimSimhits_each=(TH1F*)ChHist[iChamber-FirstCh].SimSimhits_each->Clone();
-	current_title = SimSimhits_each->GetName();
-	changed_title = ChangeTitle(current_title);
-	SimSimhits_each->SetName(changed_title);
-	//
       }
       else{
 	AllSingleHits->Add(ChHist[iChamber-FirstCh].AllSingleHits);
@@ -879,10 +629,6 @@ CSCEfficiency::~CSCEfficiency(){
 	    Add(ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment[iLayer]);
 	  Y_AllRecHits_inSegment[iLayer]->Add(ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment[iLayer]);
 	}
-	SimRechits->Add(ChHist[iChamber-FirstCh].SimRechits);
-	SimSimhits->Add(ChHist[iChamber-FirstCh].SimSimhits);
-	SimRechits_each->Add(ChHist[iChamber-FirstCh].SimRechits_each);
-	SimSimhits_each->Add(ChHist[iChamber-FirstCh].SimSimhits_each);
       }
       //---- Write histograms chamber by chamber 
       theFile->cd(SpecName);
@@ -904,10 +650,6 @@ CSCEfficiency::~CSCEfficiency(){
 	ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment[iLayer]->Write();
 	ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment[iLayer]->Write();
       }
-      ChHist[iChamber-FirstCh].SimRechits->Write();
-      ChHist[iChamber-FirstCh].SimSimhits->Write();
-      ChHist[iChamber-FirstCh].SimRechits_each->Write();
-      ChHist[iChamber-FirstCh].SimSimhits_each->Write();
     }
     theFile->cd(SpecName);
     //---- Calculate the efficiencies, write the result in histograms
@@ -1018,34 +760,6 @@ CSCEfficiency::~CSCEfficiency(){
       ChHist[iChamber-FirstCh].FINAL_Y_RecHit_InSegment_Efficiency.back()->Write();
     }
     //
-    sprintf(SpecName,"FINAL_SimRechit_Efficiency_Ch%d",iChamber);
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_Efficiency =
-      new TH1F(SpecName,"Rechit Efficiency (Nrechit layers / Nsimhit layers);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_Efficiency->Sumw2();
-    sprintf(SpecName,"SimRechits_Ch%d",iChamber);
-    TH1F * SimRechits = new TH1F(SpecName,"Rechit Efficiency (Nrechit layers / Nsimhit layers);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-    SimRechits = (TH1F*)ChHist[iChamber-FirstCh].SimRechits->Clone();
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_Efficiency->
-      Divide(SimRechits,
-	     ChHist[iChamber-FirstCh].SimSimhits,
-	     1.,1.,"B");
-    delete SimRechits;
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_Efficiency->Write();
-    // 
-    sprintf(SpecName,"FINAL_SimRechit_each_Efficiency_Ch%d",iChamber);
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_each_Efficiency =
-      new TH1F(SpecName,"Rechit Efficiency (Nrechits/Nsimhits);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_each_Efficiency->Sumw2();
-    sprintf(SpecName,"SimRechits_each_Ch%d",iChamber);
-    TH1F * SimRechits_each = new TH1F(SpecName,"Rechit Efficiency (Nrechits/ Nsimhits);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-    SimRechits_each = (TH1F*)ChHist[iChamber-FirstCh].SimRechits_each->Clone();
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_each_Efficiency->
-      Divide(SimRechits_each,
-	     ChHist[iChamber-FirstCh].SimSimhits_each,
-	     1.,1.,"B");
-    delete SimRechits_each;
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_each_Efficiency->Write();
-    // 
     theFile->cd();
     //
   }
@@ -1054,23 +768,9 @@ CSCEfficiency::~CSCEfficiency(){
     theFile->mkdir(SpecName);
     theFile->cd(SpecName);
     DataFlow->Write();
-
-    Chi2->Write();
-    Chi2_ME1_a->Write();
-    Chi2_ME1_b->Write();
-    Chi2_ME1_2->Write();
-    Chi2_ME1_3->Write();
-    Chi2_ME2_1->Write();
-    Chi2_ME2_2->Write();
-    Chi2_ME3_1->Write();
-    Chi2_ME3_2->Write();
-    Chi2_ME4_1->Write();
-    //
     XY_ALCTmissing->Write();
     EfficientSegments->Write();
     AllSegments->Write();
-    EfficientSegments_theta->Write();
-    AllSegments_theta->Write();
     //---- Write "summed" histograms 
     EfficientRechits_inSegment->Write();
     AllSingleHits->Write();
@@ -1089,11 +789,6 @@ CSCEfficiency::~CSCEfficiency(){
       Y_InefficientRecHits_inSegment[iLayer]->Write();
       Y_AllRecHits_inSegment[iLayer]->Write();
     }
-    SimRechits->Write();
-    SimSimhits->Write();
-    SimRechits_each->Write();
-    SimSimhits_each->Write();
-    
   }
   theFile->cd(SpecName);
   //
@@ -1117,16 +812,7 @@ CSCEfficiency::~CSCEfficiency(){
             AllSegments,
             1.,1.,"B");
   FINAL_Segment_Efficiency->Write(); 
-  //
-  sprintf(SpecName,"FINAL_Segment_Efficiency_theta");
-  FINAL_Segment_Efficiency_theta =
-    new TH1F(SpecName,"Segment Efficiency in theta;theta;efficiency", 79, 0., 3.16);
-  FINAL_Segment_Efficiency_theta->Sumw2();
-  FINAL_Segment_Efficiency_theta->
-    Divide(EfficientSegments_theta,
-            AllSegments_theta,
-            1.,1.,"B");
-  FINAL_Segment_Efficiency_theta->Write(); 
+
 //
   sprintf(SpecName,"FINAL_Rechit_inSegment_Efficiency");
   FINAL_Rechit_inSegment_Efficiency =  
@@ -1234,35 +920,6 @@ CSCEfficiency::~CSCEfficiency(){
     delete efficientRecHits_Y;
     FINAL_Y_RecHit_InSegment_Efficiency[iLayer]->Write(); 
   }
-  //
-  sprintf(SpecName,"FINAL_SimRechit_Efficiency");
-  FINAL_SimRechit_Efficiency =
-    new TH1F(SpecName,"Rechit Efficiency (Nrechit layers / Nsimhit layers);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-  FINAL_SimRechit_Efficiency->Sumw2();
-  sprintf(SpecName,"SimRechits_tmp");
-  TH1F * SimRechits_tmp = new TH1F(SpecName,"Rechit Efficiency (Nrechit layers / Nsimhit layers);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-  SimRechits_tmp = (TH1F*)SimRechits->Clone();
-  FINAL_SimRechit_Efficiency->
-    Divide(SimRechits_tmp,
-	   SimSimhits,
-	   1.,1.,"B");
-  delete SimRechits_tmp;
-  FINAL_SimRechit_Efficiency->Write();
-  // 
-  sprintf(SpecName,"FINAL_SimRechit_each_Efficiency");
-  FINAL_SimRechit_each_Efficiency =
-    new TH1F(SpecName,"Rechit Efficiency (Nrechits/ Nsimhits);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-  FINAL_SimRechit_each_Efficiency->Sumw2();
-  sprintf(SpecName,"SimRechits_each_tmp");
-  TH1F * SimRechits_each_tmp = new TH1F(SpecName,"Rechit Efficiency (Nrechits/ Nsimhits);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-  SimRechits_each_tmp = (TH1F*)SimRechits_each->Clone();
-  FINAL_SimRechit_each_Efficiency->
-    Divide(SimRechits_each_tmp,
-	   SimSimhits_each,
-	   1.,1.,"B");
-  delete SimRechits_each_tmp;
-  FINAL_SimRechit_each_Efficiency->Write();
-  // 
   
   //---- Close the file
   theFile->Close();
@@ -1273,6 +930,14 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
   DataFlow->Fill(0.);  
   //---- increment counter
   nEventsAnalyzed++;
+
+  //----IBL - test to read simhits a la digi/rechit validation
+  //---- MC treatment is reserved in case 
+  //if(!DATA){
+    //theSimHitMap.reset();
+    //theSimHitMap.fill(event);
+  //}
+
   // printalot debug output
   printalot = (nEventsAnalyzed < 100);
   int iRun   = event.id().run();
@@ -1292,11 +957,10 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
   //---- zero or more than one instance exists in the event an exception is thrown.
   if (printalot) printf("\tpass handles\n");
   if(DATA){
-    event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
-    event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);    
+    event.getByLabel("cscunpacker","MuonCSCWireDigi",wires);
+    event.getByLabel("cscunpacker","MuonCSCStripDigi",strips);    
   }
   else{
-    theSimHitMap.fill(event);
     event.getByLabel(mycscunpacker,"MuonCSCWireDigi",wires);
     event.getByLabel(mycscunpacker,"MuonCSCStripDigi",strips);
   }
@@ -1317,7 +981,7 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
   //---- WIRE GROUPS
   for(int iE=0;iE<2;iE++){
     for(int iS=0;iS<4;iS++){
-      for(int iR=0;iR<4;iR++){
+      for(int iR=0;iR<3;iR++){
 	for(int iC=0;iC<NumCh;iC++){
 	  for(int iL=0;iL<6;iL++){
 	    AllWG[iE][iS][iR][iC][iL].clear();
@@ -1405,7 +1069,7 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
   int nRecHits = recHits->size();
   if (printalot) printf("  The size is %i\n",nRecHits);
   //
-  SetOfRecHits AllRecHits[2][4][4][ NumCh];
+  SetOfRecHits AllRecHits[2][4][3][ NumCh];
   std::vector<bool> InitVectBool6(6);
   std::vector<double> InitVectD6(6);
   map<int,  std::vector <bool> > MyRecHits;// 6 chambers, 6 layers
@@ -1477,13 +1141,19 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
     vec_p = &ThisChamber->RecHitsPosYlocal[kLayer-1];
     vec_p->push_back(yreco);
 
+    //---- obsolete...
+    AllRecHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].nEndcap=kEndcap;
+    AllRecHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].nStation=kStation;
+    AllRecHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].nRing=kRing;
+    AllRecHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].Nchamber=kChamber;
     //
     if (printalot) printf("\t\t\tx,y,z: %f, %f, %f\texx,eey,exy: %f, %f, %f\tglobal x,y,z: %f, %f, %f \n",xreco,yreco,zreco,xxerr,yyerr,xyerr,grecx,grecy,grecz);
   }
+  
   //---- loop over all layers, chambers, etc.
   for(int ii=0;ii<2;ii++){ // endcaps
     for(int jj=0;jj<4;jj++){ // stations
-      for(int kk=0;kk<4;kk++){ // rings
+      for(int kk=0;kk<3;kk++){ // rings
   	for(int ll=0;ll<LastCh-FirstCh+1;ll++){ // chambers
 	  for(int mm = 0;mm<6;mm++){ // layers
 	    int new_size = 
@@ -1504,37 +1174,6 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
 	}
       }
     }
-  }
-  //
-
-  //---- look at SIMHITs
-  SetOfSimHits AllSimHits[2][4][4][ NumCh];
-  if(!DATA){
-    //SetOfSimHits AllSimHits[2][4][4][ NumCh];
-    //if (printalot) printf("\t...start loop over simhits... The size is: "<<detsWithHits.size()<<"\n");
-    std::vector<int> detsWithHits = theSimHitMap.detsWithHits();
-    int rawdetId = 0;
-    if (printalot) printf("\t Loop over simhits... \n");
-    for(unsigned int iDet=0;iDet<detsWithHits.size();iDet++){
-      rawdetId = detsWithHits[iDet];
-      edm::PSimHitContainer simHits = theSimHitMap.hits(rawdetId);
-      CSCDetId simId = (CSCDetId)(*(simHits.begin())).detUnitId();
-      int kEndcap  = simId.endcap();
-      int kRing    = simId.ring();
-      int kStation = simId.station();
-      int kChamber = simId.chamber();
-      int kLayer   = simId.layer();
-
-      //---- Fill SimHit information in a structure (contain basic info about simhits)
-      AllSimHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].sChamber.NSimHits[kLayer-1] = simHits.size();
-      for(unsigned int simhit = 0; simhit <simHits.size(); ++simhit) {
-	AllSimHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].sChamber.SimHitsPosXlocal[kLayer-1].push_back(simHits[simhit].localPosition().x());
-	AllSimHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].sChamber.SimHitsPosYlocal[kLayer-1].push_back(simHits[simhit].localPosition().y());
-	AllSimHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].sChamber.SimHitsEnergy[kLayer-1].push_back(simHits[simhit].energyLoss());
-	AllSimHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].sChamber.SimHitsPID[kLayer-1].push_back(simHits[simhit].particleType());
-      }
-    }
-    all_SimHits = &AllSimHits;
   }
 
   //---- ==============================================
@@ -1636,43 +1275,6 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
     if (printalot){ 
       printf("\tendcap/station/ring/chamber: %i %i %i %i\n",
 	     id.endcap(),id.station(),id.ring(),id.chamber());
-      cout<<"chi2/ndf = "<<chisq/DOF<<" nhits = "<<nhits <<std::endl;
-    }
-    Chi2->Fill(chisq/DOF);
-    if(1==id.station()){
-      if(1==id.ring()){
-	Chi2_ME1_b->Fill(chisq/DOF);
-      }
-      else if(2==id.ring()){
-	Chi2_ME1_2->Fill(chisq/DOF);
-      }
-      else if(3==id.ring()){
-	Chi2_ME1_3->Fill(chisq/DOF);
-      }
-      else if(4==id.ring()){
-	Chi2_ME1_a->Fill(chisq/DOF);
-      }
-    }
-    else if(2==id.station()){
-      if(1==id.ring()){
-	Chi2_ME2_1->Fill(chisq/DOF);
-      }
-      else if(2==id.ring()){
-	Chi2_ME2_2->Fill(chisq/DOF);
-      }
-    }
-    else if(3==id.station()){
-      if(1==id.ring()){
-	Chi2_ME3_1->Fill(chisq/DOF);
-      }
-      else if(2==id.ring()){
-	Chi2_ME3_2->Fill(chisq/DOF);
-      }
-    }
-    else if(4==id.station()){
-      if(1==id.ring()){
-	Chi2_ME4_1->Fill(chisq/DOF);
-      }
     }
     //---- try to get the CSC recHits that contribute to this segment.
     if (printalot) printf("\tGet the recHits for this segment.\t");
@@ -1847,7 +1449,6 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
 	  }
 	}
 	int NSegFound = 0;
-	double theta = acos(DirCouple[0][2]);
 	for(int iSeg=0;iSeg<nSegments;iSeg++){
 	  if( NChamberCouple[1]==SegmentInChamber[iSeg] // is there a segment in the chamber required
 	      && ExtrapolateToRing==SegmentInRing[iSeg] // and in the extrapolated ring
@@ -1857,7 +1458,7 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
 	}
 
 	//---- Various efficiency calcultions
-	CalculateEfficiencies( event, eventSetup, PosCouple[0], DirCouple[0],NSegFound, theta);
+	CalculateEfficiencies( event, eventSetup, PosCouple[0], DirCouple[0],NSegFound);
 
 	//---- One (only) segment in the station/ring to which we extrapolate 
 	if(1==NSegFound){
@@ -2172,26 +1773,22 @@ bool CSCEfficiency::CheckLocal(double Y, double Yborder, int Station, int Ring, 
 }
 
 void CSCEfficiency::CalculateEfficiencies(const Event & event, const EventSetup& eventSetup,
-				    std::vector<double> &Pos , std::vector<double> &Dir, int NSegFound, double theta){
+				    std::vector<double> &Pos , std::vector<double> &Dir, int NSegFound){
   DataFlow->Fill(7.);  
   edm::Handle<CSCALCTDigiCollection> alcts;
   edm::Handle<CSCCLCTDigiCollection> clcts;
   //edm::Handle<CSCRPCDigiCollection> rpcs;
   edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
   if(DATA){
-    event.getByLabel("muonCSCDigis","MuonCSCALCTDigi",alcts);
-    event.getByLabel("muonCSCDigis","MuonCSCCLCTDigi",clcts);
-    //event.getByLabel("muonCSCDigis","MuonCSCRPCDigi",rpcs);
-    event.getByLabel("muonCSCDigis","MuonCSCCorrelatedLCTDigi",correlatedlcts); 
+    event.getByLabel("cscunpacker","MuonCSCALCTDigi",alcts);
+    event.getByLabel("cscunpacker","MuonCSCCLCTDigi",clcts);
+    //event.getByLabel("cscunpacker","MuonCSCRPCDigi",rpcs);
+    event.getByLabel("cscunpacker","MuonCSCCorrelatedLCTDigi",correlatedlcts); 
   }
   ESHandle<CSCGeometry> cscGeom;
   eventSetup.get<MuonGeometryRecord>().get(cscGeom);
   //
   const std::vector<CSCChamber*> ChamberContainer = cscGeom->chambers();
-  //---- Rechit efficiency from simhits
-  if(!DATA){
-    RecSimHitEfficiency();
-  }
 
   //---- Find a chamber fulfilling conditions 
   for(unsigned int nCh=0;nCh<ChamberContainer.size();nCh++){
@@ -2242,7 +1839,7 @@ void CSCEfficiency::CalculateEfficiencies(const Event & event, const EventSetup&
           std::cout<<"NO ALCT when ME1 and ME3"<<std::endl;
         }
         StripWire_Efficiencies(id.chamber());
-        Segment_Efficiency(id.chamber(), NSegFound, theta);
+        Segment_Efficiency(id.chamber(), NSegFound);
       }
       //---- Good regions are checked separately within;
       // here just check chamber (this is a quick fix to avoid noise hits)
@@ -2359,33 +1956,6 @@ void CSCEfficiency::RecHitEfficiency(double X, double Y, int iCh){
 	ChHist[iCh-FirstCh].EfficientRechits_good->Fill(8);
       }
       ChHist[iCh-FirstCh].EfficientRechits_good->Fill(9);
-    }
-  }
-}
-//
-void CSCEfficiency::RecSimHitEfficiency(void){
-  for(int iCh=0;iCh<LastCh;iCh++){
-    //---- Rechits...
-    ChamberRecHits *sChamber_p =
-      &(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][iCh].sChamber;
-    //---- Simhits...
-    ChamberSimHits *sSimChamber_p =
-      &(*all_SimHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][iCh].sChamber;
-    for(int iLayer=0; iLayer<6;iLayer++){
-      if(sSimChamber_p->NSimHits[iLayer]){
-	ChHist[iCh].SimSimhits->Fill(iLayer+1);
-	if(sChamber_p->NRecHits[iLayer]){
-	  ChHist[iCh].SimRechits->Fill(iLayer+1);
-	}
-	//---- Next is not too usefull... 
-        for(unsigned int iSimHits=0;iSimHits<sSimChamber_p->SimHitsPosXlocal[iLayer].size();iSimHits++){
-	  ChHist[iCh].SimSimhits_each->Fill(iLayer+1);
-	}
-	for(unsigned int iRecHits=0;iRecHits<sChamber_p->RecHitsPosXlocal[iLayer].size();iRecHits++){
-	  ChHist[iCh].SimRechits_each->Fill(iLayer+1);
-	}
-	//
-      }
     }
   }
 }
@@ -2619,7 +2189,7 @@ void CSCEfficiency::StripWire_Efficiencies( int iCh){
   }
 }
 //
-void CSCEfficiency::Segment_Efficiency(int iCh,  int NSegmentsFound, double theta){
+void CSCEfficiency::Segment_Efficiency(int iCh,  int NSegmentsFound){
   ChamberRecHits *sChamber_p =
     &(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][iCh-FirstCh].sChamber;
   int missingLayers = 0;
@@ -2631,10 +2201,8 @@ void CSCEfficiency::Segment_Efficiency(int iCh,  int NSegmentsFound, double thet
   if(missingLayers<5){
     if(NSegmentsFound){
       EfficientSegments->Fill(iCh);
-      EfficientSegments_theta->Fill(theta);
     }
     AllSegments->Fill(iCh);
-    AllSegments_theta->Fill(theta);
   }
 }
 //

@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2007/08/17 09:05:07 $
- * $Revision: 1.16 $
+ * $Date: 2007/11/14 10:31:40 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,17 +20,13 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
+class MonitorElement;
 class MonitorUserInterface;
+class DaqMonitorBEInterface;
 class EcalCondDBInterface;
+class RunIOV;
 class MonRunIOV;
 
 class EBTriggerTowerClient : public EBClient {
@@ -95,7 +91,6 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -109,30 +104,43 @@ MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
 MonitorElement* meh01_[36];
+MonitorElement* meh02_[36];
 MonitorElement* mei01_[36];
+MonitorElement* mei02_[36];
 MonitorElement* mej01_[36];
+MonitorElement* mej02_[36];
+
 MonitorElement* mel01_[36];
 MonitorElement* mem01_[36];
 MonitorElement* men01_[36];
-MonitorElement* meh02_[36];
-MonitorElement* mei02_[36];
-MonitorElement* mej02_[36];
 
 TH3F* h01_[36];
+TH3F* h02_[36];
 TH3F* i01_[36];
+TH3F* i02_[36];
 TH3F* j01_[36];
+TH3F* j02_[36];
+
 TH2F* l01_[36];
 TH3F* m01_[36];
 TH3F* n01_[36];
-TH3F* h02_[36];
-TH3F* i02_[36];
-TH3F* j02_[36];
 
-MonitorElement* mek01_[36][68];
-MonitorElement* mek02_[36][68];
+//MonitorElement* mek01_[36][68];
+//MonitorElement* mek02_[36][68];
 
-TH1F* k01_[36][68];
-TH1F* k02_[36][68];
+//TH1F* k01_[36][68];
+//TH1F* k02_[36][68];
+
+MonitorElement* me_h01_[36];
+MonitorElement* me_h02_[36];
+
+MonitorElement* me_i01_[36][2];
+MonitorElement* me_i02_[36][2];
+MonitorElement* me_n01_[36][2];
+
+MonitorElement* me_j01_[36][6];
+MonitorElement* me_j02_[36][6];
+MonitorElement* me_m01_[36][6];
 
 };
 

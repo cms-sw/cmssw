@@ -4,8 +4,8 @@
 /** \class TrackAssociatorByChi2
  *  Class that performs the association of reco::Tracks and TrackingParticles evaluating the chi2 of reco tracks parameters and sim tracks parameters. The cut can be tuned from the config file: see data/TrackAssociatorByChi2.cfi. Note that the Association Map is filled with -ch2 and not chi2 because it is ordered using std::greater: the track with the lowest association chi2 will be the first in the output map.It is possible to use only diagonal terms (associator by pulls) seeting onlyDiagonal = true in the PSet 
  *
- *  $Date: 2007/06/29 15:49:54 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/03/26 16:15:58 $
+ *  $Revision: 1.15 $
  *  \author cerati, magni
  */
 

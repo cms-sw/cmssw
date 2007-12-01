@@ -23,6 +23,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 using namespace std;
 using namespace edm;
@@ -91,17 +93,26 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 					      tjvec[igsf] );
       if(valid)
 	gsfPFRecTrackCollection->push_back(pftrack);		
+      
+
+//       gsfPFRecTrackCollection->
+// 	push_back(pfTransformer_-> producePFtrack( &(tjvec[igsf]), 
+// 						   gsftracks[igsf],
+// 						   reco::PFRecTrack::GSF,
+// 						   igsf));    
     }
     iEvent.put(gsfPFRecTrackCollection);
   }else LogError("PFEleTkProducer")<<"No trajectory in the events";
-  
+      
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
 PFElecTkProducer::beginJob(const EventSetup& iSetup)
 {
-  pfTransformer_= new PFTrackTransformer();
+  edm::ESHandle<MagneticField> magField;
+  iSetup.get<IdealMagneticFieldRecord>().get(magField);
+  pfTransformer_= new PFTrackTransformer(magField.product());
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

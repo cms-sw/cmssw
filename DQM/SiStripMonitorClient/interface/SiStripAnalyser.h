@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/10/24 17:13:23 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/11/11 19:52:35 $
+ *  $Revision: 1.13 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -47,13 +47,13 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& eSetup);
+  void beginJob(edm::EventSetup const& eSetup);
 
   /// BeginRun
-  void beginRun(const edm::Run& run, const edm::EventSetup& eSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
 
   /// Begin Luminosity Block
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
@@ -69,9 +69,6 @@ protected:
   void endJob();
 
 
-  /// Save histograms to a root file
-
-  void saveAll(int irun, int ilumi);
 
 private:
 
@@ -88,12 +85,15 @@ private:
   int staticUpdateFrequency_;
 
   std::string outputFilePath_;
+  std::string outputFileName_;
 
   edm::ESHandle< SiStripFedCabling > fedCabling_;
   SiStripTrackerMapCreator* trackerMapCreator_;
-  bool defaultPageCreated_;
 
   int nLumiSecs_;
+
+  std::ostringstream html_out_;
+
 };
 
 

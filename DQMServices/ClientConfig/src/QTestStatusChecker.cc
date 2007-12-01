@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestStatusChecker
  *
- *  $Date: 2007/07/08 21:03:54 $
- *  $Revision: 1.4.4.1 $
+ *  $Date: 2007/09/06 13:21:57 $
+ *  $Revision: 1.5 $
  *  \author Ilaria Segoni
  */
 
@@ -87,6 +87,7 @@ void QTestStatusChecker::processAlarms(std::vector<std::string> allPathNames, Da
 
  				 messageList=detailedWarnings[colour];
  				 messageList.push_back(text);
+ 				 detailedWarnings[colour]=messageList;
 
  			 }	
  		 }

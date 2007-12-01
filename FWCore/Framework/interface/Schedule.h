@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.30 2007/10/31 22:56:29 wmtan Exp $
+  $Id: Schedule.h,v 1.29 2007/09/20 19:35:23 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -142,12 +142,6 @@ namespace edm {
     // Call openNewFileIfNeeded() on all OutputModules
     void openNewOutputFilesIfNeeded();
 
-    // Call beginInputFile() on all OutputModules
-    void beginInputFile(FileBlock & fb);
-
-    // Call endInputFile() on all OutputModules
-    void endInputFile(FileBlock const& fb);
-
     std::pair<double,double> timeCpuReal() const {
       return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
     }
@@ -193,6 +187,9 @@ namespace edm {
 
     /// Return whether a module has reached its maximum count.
     bool const terminate() const;
+
+    ///  Clear all the counters in the trigger report.
+    void clearCounters();
 
     class CallPrePost {
     public:

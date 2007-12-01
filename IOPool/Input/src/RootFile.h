@@ -5,11 +5,10 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.39 2007/11/03 06:53:02 wmtan Exp $
+$Id: RootFile.h,v 1.36 2007/10/08 21:39:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include <map>
 #include <memory>
 #include <string>
 
@@ -50,21 +49,15 @@ namespace edm {
 	boost::shared_ptr<RunPrincipal> rp);
     boost::shared_ptr<RunPrincipal> readRun(boost::shared_ptr<ProductRegistry const> pReg);
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
-    EventAuxiliary const& eventAux() const {return eventAux_;}
+    EventAuxiliary const& eventAux() {return eventAux_;}
     LuminosityBlockAuxiliary const& luminosityBlockAux() {return lumiAux_;}
-    RunAuxiliary const& runAux() const {return runAux_;}
-    EventID const& eventID() const {return eventAux().id();}
+    RunAuxiliary const& runAux() {return runAux_;}
+    EventID const& eventID() {return eventAux().id();}
     RootTreePtrArray & treePointers() {return treePointers_;}
     RootTree & eventTree() {return eventTree_;}
-    RootTree const& eventTree() const {return eventTree_;}
     RootTree & lumiTree() {return lumiTree_;}
-    RootTree const& lumiTree() const {return lumiTree_;}
     RootTree & runTree() {return runTree_;}
-    RootTree const & runTree() const {return runTree_;}
     void forceRunNumber(RunNumber_t const& run) {forcedRunNumber_ = run;}
-    FileFormatVersion fileFormatVersion() const {return fileFormatVersion_;}
-    bool fastClonable() const {return fileFormatVersion().value_ >= 3;}
-    boost::shared_ptr<FileBlock> createFileBlock(bool isFastClonable) const;
 
   private:
     void validateFile();
@@ -72,7 +65,6 @@ namespace edm {
     void overrideRunNumber(RunID & id);
     void overrideRunNumber(LuminosityBlockID & id);
     void overrideRunNumber(EventID & id, bool isRealData);
-    std::string const& newBranchToOldBranch(std::string const& newBranch) const;
     RootFile(RootFile const&); // disable copy construction
     RootFile & operator=(RootFile const&); // disable assignment
     std::string const file_;
@@ -93,9 +85,6 @@ namespace edm {
     boost::shared_ptr<ProductRegistry const> productRegistry_;
     RunNumber_t forcedRunNumber_;
     int forcedRunNumberOffset_;
-    std::map<std::string, std::string> newBranchToOldBranch_;
-    std::vector<std::string> sortedNewBranchNames_;
-    std::vector<std::string> oldBranchNames_;
   }; // class RootFile
 
 }

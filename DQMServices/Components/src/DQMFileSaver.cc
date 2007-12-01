@@ -1,8 +1,9 @@
 /*
  * \file DQMFileSaver.cc
  * 
- * $Date: 2007/10/23 14:22:42 $
- * $Revision: 1.1 $
+ * $Date: 2007/11/14 12:17:14 $
+ * $Revision: 1.4 $
+ * $Author: ameyer $
  * \author A. Meyer, DESY
  *
  */
@@ -48,25 +49,29 @@ void DQMFileSaver::initialize(){
     
   // set parameters   
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
-  cout << "===>DQM Output save every " << prescaleEvt_ << " event(s)"<< endl;
+  edm::LogVerbatim ("DQMFileSaver") << "===> save every " << prescaleEvt_ << " event(s)"<< endl;
 
   prescaleLS_ = parameters_.getUntrackedParameter<int>("prescaleLS", -1);
-  cout << "===>DQM Output save every " << prescaleLS_ << " lumi section(s)"<< endl;
+  edm::LogVerbatim ("DQMFileSaver") << "===> save every " << prescaleLS_ << " lumi section(s)"<< endl;
 
   prescaleTime_ = parameters_.getUntrackedParameter<int>("prescaleTime", -1);
-  cout << "===>DQM Output save every " << prescaleTime_ << " minutes(s)"<< endl;
+  edm::LogVerbatim ("DQMFileSaver") << "===> save every " << prescaleTime_ << " minutes(s)"<< endl;
   
   saveAtRunEnd_ = parameters_.getUntrackedParameter<bool>("saveAtRunEnd",true);
-  (saveAtRunEnd_)? cout << "===>DQM Output save at run end " << endl :
-                   cout << "===>DQM Output NO save at run end " << endl ; 
+  (saveAtRunEnd_)? edm::LogVerbatim ("DQMFileSaver") << "===> save at run end " << endl :
+                   edm::LogVerbatim ("DQMFileSaver") << "===> NO save at run end " << endl ; 
   
   saveAtJobEnd_ = parameters_.getUntrackedParameter<bool>("saveAtJobEnd",false);
-  (saveAtJobEnd_)? cout << "===>DQM Output save at Job end " << endl :
-                   cout << "===>DQM Output NO save at Job end " << endl ; 
+  (saveAtJobEnd_)? edm::LogVerbatim ("DQMFileSaver") << "===> save at Job end " << endl :
+                   edm::LogVerbatim ("DQMFileSaver") << "===> NO save at Job end " << endl ; 
   
-  // Base folder for the contents of this job
-  fileName_ = "DQM_"+parameters_.getUntrackedParameter<string>("fileName","");
-  cout << "===>DQM Output file name = " << fileName_ << endl;
+  // Base filename for the contents of this job
+  fileName_ = "DQM_"+parameters_.getUntrackedParameter<string>("fileName","YourSubsystemName");
+  edm::LogVerbatim ("DQMFileSaver") << "===>DQM Output file name = " << fileName_ << endl;
+  // Base filename for the contents of this job
+  dirName_ = parameters_.getUntrackedParameter<string>("dirName",".");
+  if (dirName_ == "" ) dirName_ == "." ;
+  edm::LogVerbatim ("DQMFileSaver") << "===>DQM Output dir name = " << dirName_ << endl;
     
   gettimeofday(&psTime_.startTV,NULL);
   /// get time in milliseconds, convert to minutes
@@ -80,14 +85,14 @@ void DQMFileSaver::initialize(){
 //--------------------------------------------------------
 DQMFileSaver::~DQMFileSaver(){
 
-  cout<<"DQMFileSaver::destructor"<<endl;
+  edm::LogVerbatim ("DQMFileSaver")<<"DQMFileSaver::destructor"<<endl;
 
 }
 
 //--------------------------------------------------------
 void DQMFileSaver::beginJob(const EventSetup& c){
   
-  cout<<"DQMFileSaver::begin job"<<endl;
+  edm::LogVerbatim ("DQMFileSaver")<<"DQMFileSaver::begin job"<<endl;
 
   counterEvt_=0;
   counterLS_=0;
@@ -98,7 +103,7 @@ void DQMFileSaver::beginJob(const EventSetup& c){
 void DQMFileSaver::analyze(const Event& e, const EventSetup& c){
  
   counterEvt_++;
-  if (counterEvt_==1) cout<<"DQMFileSaver::analyze"<<endl;
+  if (counterEvt_==1) edm::LogVerbatim ("DQMFileSaver")<<"DQMFileSaver::analyze"<<endl;
 
   // environment datamembers
   irun_     = e.id().run();
@@ -113,7 +118,7 @@ void DQMFileSaver::analyze(const Event& e, const EventSetup& c){
     // take event and run number from Event setup
     char run[10]; sprintf(run,"%09d", irun_);
     char evt[10]; sprintf(evt,"%08d", ievent_);
-    string outFile = fileName_+"_R"+run+"_E"+evt+".root";
+    string outFile = dirName_+"/"+fileName_+"_R"+run+"_E"+evt+".root";
     dbe_->save(outFile);
   }
 
@@ -135,7 +140,7 @@ void DQMFileSaver::analyze(const Event& e, const EventSetup& c){
        
        char run[10]; sprintf(run,"%09d", irun_);
        char time[10]; sprintf(time,"%08d", (int)psTime_.elapsedTime);
-       string outFile = fileName_+"_R"+run+"_T"+time+".root";
+       string outFile = dirName_ +"/"+fileName_+"_R"+run+"_T"+time+".root";
        dbe_->save(outFile);
      }
   }
@@ -149,19 +154,19 @@ void DQMFileSaver::beginRun(const Run& r, const EventSetup& c){
 //--------------------------------------------------------
 void DQMFileSaver::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& c){
    counterLS_++;
-   if (counterLS_==1) cout <<"DQMFileSaver::beginLuminosityBlock"<<endl;
+   if (counterLS_==1) edm::LogVerbatim ("DQMFileSaver") <<"DQMFileSaver::beginLuminosityBlock"<<endl;
 }
 
 //--------------------------------------------------------
 void DQMFileSaver::endLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& c){
-   if (counterLS_==1) cout <<"DQMFileSaver::endLuminosityBlock"<<endl;
+   if (counterLS_==1) edm::LogVerbatim ("DQMFileSaver") <<"DQMFileSaver::endLuminosityBlock"<<endl;
    if (prescaleLS_<0) return ;
    if (counterLS_%prescaleLS_ != 0 ) return;
  
    // add lumisection number (get from event)
    char run[10]; sprintf(run,"%09d", irun_);
    char lumisec[10]; sprintf(lumisec,"%06d", ilumisec_);
-   string outFile = fileName_+"_R"+run+"_L"+lumisec+".root";
+   string outFile = dirName_+"/"+fileName_+"_R"+run+"_L"+lumisec+".root";
    dbe_->save(outFile);
 
 }
@@ -172,7 +177,7 @@ void DQMFileSaver::endRun(const Run& r, const EventSetup& c){
      char run[10];
      if(irun_>0) sprintf(run,"%09d", irun_);
      else sprintf(run,"%09d", 0);
-     string outFile = fileName_+"_R"+run+".root";
+     string outFile = dirName_+"/"+fileName_+"_R"+run+".root";
      dbe_->save(outFile);
    }
 }
@@ -180,7 +185,7 @@ void DQMFileSaver::endRun(const Run& r, const EventSetup& c){
 //--------------------------------------------------------
 void DQMFileSaver::endJob() { 
    if (saveAtJobEnd_) {
-     string outFile = fileName_+".root";
+     string outFile = dirName_+"/"+fileName_+".root";
      dbe_->save(outFile);
    }   
 }

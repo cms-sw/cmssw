@@ -12,9 +12,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.3 $
  *
- * $Id: Merger.h,v 1.4 2006/07/26 10:41:14 llista Exp $
+ * $Id: Merger.h,v 1.3 2006/03/03 10:45:48 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -24,9 +24,7 @@
 #include "DataFormats/Common/interface/CloneTrait.h"
 #include <vector>
 
-template<typename InputCollection, 
-	 typename OutputCollection = InputCollection,
-	 typename P = typename edm::clonehelper::CloneTrait<InputCollection>::type>
+template<typename C, typename P = typename edm::clonehelper::CloneTrait<C>::type>
 class Merger : public edm::EDProducer {
 public:
   /// constructor from parameter set
@@ -43,23 +41,23 @@ private:
   vtag src_;
 };
 
-template<typename InputCollection, typename OutputCollection, typename P>
-Merger<InputCollection, OutputCollection, P>::Merger( const edm::ParameterSet& par ) : 
+template<typename C, typename P>
+Merger<C, P>::Merger( const edm::ParameterSet& par ) : 
   src_( par.template getParameter<vtag>( "src" ) ) {
-  produces<InputCollection>();
+  produces<C>();
 }
 
-template<typename InputCollection, typename OutputCollection, typename P>
-Merger<InputCollection, OutputCollection, P>::~Merger() {
+template<typename C, typename P>
+Merger<C, P>::~Merger() {
 }
 
-template<typename InputCollection, typename OutputCollection, typename P>
-void Merger<InputCollection, OutputCollection, P>::produce( edm::Event& evt, const edm::EventSetup& ) {
-  std::auto_ptr<OutputCollection> coll( new OutputCollection );
+template<typename C, typename P>
+void Merger<C, P>::produce( edm::Event& evt, const edm::EventSetup& ) {
+  std::auto_ptr<C> coll( new C );
   for( vtag::const_iterator s = src_.begin(); s != src_.end(); ++ s ) {
-    edm::Handle<InputCollection> h;
+    edm::Handle<C> h;
     evt.getByLabel( * s, h );
-    for( typename InputCollection::const_iterator c = h->begin(); c != h->end(); ++c ) {
+    for( typename C::const_iterator c = h->begin(); c != h->end(); ++c ) {
       coll->push_back( P::clone( * c ) );
     }
   }

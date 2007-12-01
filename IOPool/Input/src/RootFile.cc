@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.93 2007/11/03 06:53:02 wmtan Exp $
+$Id: RootFile.cc,v 1.91 2007/10/09 19:41:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -8,7 +8,6 @@ $Id: RootFile.cc,v 1.93 2007/11/03 06:53:02 wmtan Exp $
 #include "FWCore/Catalog/interface/FileIdentifier.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -31,7 +30,6 @@ $Id: RootFile.cc,v 1.93 2007/11/03 06:53:02 wmtan Exp $
 #include "TFile.h"
 #include "TTree.h"
 #include "Rtypes.h"
-#include <algorithm>
 
 namespace edm {
 //---------------------------------------------------------------------
@@ -55,10 +53,7 @@ namespace edm {
       treePointers_(),
       productRegistry_(),
       forcedRunNumber_(0),
-      forcedRunNumberOffset_(0),
-      newBranchToOldBranch_(),
-      sortedNewBranchNames_(),
-      oldBranchNames_() {
+      forcedRunNumberOffset_(0) {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
@@ -102,6 +97,7 @@ namespace edm {
 
     ProductRegistry *newReg = new ProductRegistry;
     // Do the translation from the old registry to the new one
+    std::map<std::string,std::string> newBranchToOldBranch;
     {
       ProductRegistry::ProductList const& prodList = tempReg.productList();
       for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
@@ -111,6 +107,7 @@ namespace edm {
 	if (newFriendlyName == prod.friendlyClassName_) {
 	  prod.init();
           newReg->addProduct(prod);
+	  newBranchToOldBranch[prod.branchName()] = prod.branchName();
 	} else {
           BranchDescription newBD(prod);
           newBD.friendlyClassName_ = newFriendlyName;
@@ -118,14 +115,9 @@ namespace edm {
           newReg->addProduct(newBD);
 	  // Need to call init to get old branch name.
 	  prod.init();
-	  newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
-	  if (newBD.branchType() == InEvent) {
-	    sortedNewBranchNames_.push_back(newBD.branchName());
-	    oldBranchNames_.push_back(prod.branchName());
-	  }
+	  newBranchToOldBranch[newBD.branchName()] = prod.branchName();
 	}
       }
-      std::sort(sortedNewBranchNames_.begin(), sortedNewBranchNames_.end());
       // freeze the product registry
       newReg->setFrozen();
       productRegistry_ = boost::shared_ptr<ProductRegistry const>(newReg);
@@ -151,34 +143,14 @@ namespace edm {
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
       treePointers_[prod.branchType()]->addBranch(it->first, prod,
-						 newBranchToOldBranch(prod.branchName()));
+						 newBranchToOldBranch[prod.branchName()]);
     }
   }
 
   RootFile::~RootFile() {
   }
 
-  boost::shared_ptr<FileBlock>
-  RootFile::createFileBlock(bool isFastClonable) const {
-    isFastClonable = isFastClonable && fastClonable();
-    return boost::shared_ptr<FileBlock>(new FileBlock(eventTree().tree(),
-						     eventTree().metaTree(),
-						     isFastClonable,
-						     sortedNewBranchNames_,
-						     oldBranchNames_));
-  }
-
-  std::string const&
-  RootFile::newBranchToOldBranch(std::string const& newBranch) const {
-    std::map<std::string, std::string>::const_iterator it = newBranchToOldBranch_.find(newBranch);
-    if (it != newBranchToOldBranch_.end()) {
-      return it->second;
-    }
-    return newBranch;
-  }
-
-  void
-  RootFile::validateFile() {
+  void RootFile::validateFile() {
     if (!fileFormatVersion_.isValid()) {
       fileFormatVersion_.value_ = 0;
     }

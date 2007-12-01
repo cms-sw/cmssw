@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/11/05 10:51:30 $
- * $Revision: 1.162 $
+ * $Date: 2007/11/13 14:05:29 $
+ * $Revision: 1.169 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,8 +20,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -31,12 +29,16 @@
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
 
@@ -48,9 +50,6 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -103,21 +102,9 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
     mer04_[ism-1] = 0;
     mer05_[ism-1] = 0;
 
-    qtha01_[ism-1] = 0;
-    qtha02_[ism-1] = 0;
-    qtha03_[ism-1] = 0;
-
-    qtha04_[ism-1] = 0;
-    qtha05_[ism-1] = 0;
-    qtha06_[ism-1] = 0;
-    qtha07_[ism-1] = 0;
-
-    qtg01_[ism-1] = 0;
-    qtg02_[ism-1] = 0;
-    qtg03_[ism-1] = 0;
-
-    qtg04_[ism-1] = 0;
-    qtg05_[ism-1] = 0;
+    me_hs01_[ism-1] = 0;
+    me_hs02_[ism-1] = 0;
+    me_hs03_[ism-1] = 0;
 
   }
 
@@ -151,104 +138,6 @@ void EBTestPulseClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EBTPT quality %s G01", Numbers::sEB(ism).c_str());
-      qtha01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT quality %s G06", Numbers::sEB(ism).c_str());
-      qtha02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT quality %s G12", Numbers::sEB(ism).c_str());
-      qtha03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT amplitude quality PNs %s G01", Numbers::sEB(ism).c_str());
-      qtha04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT amplitude quality PNs %s G16", Numbers::sEB(ism).c_str());
-      qtha05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT pedestal quality PNs %s G01", Numbers::sEB(ism).c_str());
-      qtha06_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT pedestal quality PNs %s G16", Numbers::sEB(ism).c_str());
-      qtha07_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qtha01_[ism-1]->setMeanTolerance(percentVariation_);
-      qtha02_[ism-1]->setMeanTolerance(percentVariation_);
-      qtha03_[ism-1]->setMeanTolerance(percentVariation_);
-
-      qtha04_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qtha05_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qtha06_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0], pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
-      qtha07_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1], pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
-
-      qtha01_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-      qtha02_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-      qtha03_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-
-      qtha04_[ism-1]->setRMSRange(0.0, 4096.0);
-      qtha05_[ism-1]->setRMSRange(0.0, 4096.0);
-      qtha06_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
-      qtha07_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-
-      qtha01_[ism-1]->setMinimumEntries(10*1700);
-      qtha02_[ism-1]->setMinimumEntries(10*1700);
-      qtha03_[ism-1]->setMinimumEntries(10*1700);
-
-      qtha04_[ism-1]->setMinimumEntries(10*10);
-      qtha05_[ism-1]->setMinimumEntries(10*10);
-      qtha06_[ism-1]->setMinimumEntries(10*10);
-      qtha07_[ism-1]->setMinimumEntries(10*10);
-
-      qtha01_[ism-1]->setErrorProb(1.00);
-      qtha02_[ism-1]->setErrorProb(1.00);
-      qtha03_[ism-1]->setErrorProb(1.00);
-
-      qtha04_[ism-1]->setErrorProb(1.00);
-      qtha05_[ism-1]->setErrorProb(1.00);
-      qtha06_[ism-1]->setErrorProb(1.00);
-      qtha07_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EBTPT quality test %s G01", Numbers::sEB(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT quality test %s G06", Numbers::sEB(ism).c_str());
-      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT quality test %s G12", Numbers::sEB(ism).c_str());
-      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg01_[ism-1]->setMeanRange(1., 6.);
-      qtg02_[ism-1]->setMeanRange(1., 6.);
-      qtg03_[ism-1]->setMeanRange(1., 6.);
-
-      qtg01_[ism-1]->setErrorProb(1.00);
-      qtg02_[ism-1]->setErrorProb(1.00);
-      qtg03_[ism-1]->setErrorProb(1.00);
-
-      sprintf(qtname, "EBTPT quality test PNs %s G01", Numbers::sEB(ism).c_str());
-      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT quality test PNs %s G16", Numbers::sEB(ism).c_str());
-      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-
-      qtg04_[ism-1]->setMeanRange(1., 6.);
-      qtg05_[ism-1]->setMeanRange(1., 6.);
-
-      qtg04_[ism-1]->setErrorProb(1.00);
-      qtg05_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -297,36 +186,70 @@ void EBTestPulseClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality G01 %s", Numbers::sEB(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1]->setAxisTitle("ieta", 1);
+    meg01_[ism-1]->setAxisTitle("iphi", 2);
     if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality G06 %s", Numbers::sEB(ism).c_str());
     meg02_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg02_[ism-1]->setAxisTitle("ieta", 1);
+    meg02_[ism-1]->setAxisTitle("iphi", 2);
     if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality G12 %s", Numbers::sEB(ism).c_str());
     meg03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1]->setAxisTitle("ieta", 1);
+    meg03_[ism-1]->setAxisTitle("iphi", 2);
 
     if ( meg04_[ism-1] ) dbe_->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality PNs G01 %s", Numbers::sEB(ism).c_str());
     meg04_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg04_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg04_[ism-1]->setAxisTitle("channel", 2);
     if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality PNs G16 %s", Numbers::sEB(ism).c_str());
     meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg05_[ism-1]->setAxisTitle("channel", 2);
 
     if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse amplitude G01 %s", Numbers::sEB(ism).c_str());
     mea01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea01_[ism-1]->setAxisTitle("channel", 1);
+    mea01_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea02_[ism-1] ) dbe_->removeElement( mea02_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse amplitude G06 %s", Numbers::sEB(ism).c_str());
     mea02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea02_[ism-1]->setAxisTitle("channel", 1);
+    mea02_[ism-1]->setAxisTitle("amplitude", 2);
     if ( mea03_[ism-1] ) dbe_->removeElement( mea03_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse amplitude G12 %s", Numbers::sEB(ism).c_str());
     mea03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea03_[ism-1]->setAxisTitle("channel", 1);
+    mea03_[ism-1]->setAxisTitle("amplitude", 2);
 
     if ( mer04_[ism-1] ) dbe_->removeElement( mer04_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G01", Numbers::sEB(ism).c_str());
     mer04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer04_[ism-1]->setAxisTitle("rms", 1);
     if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G16", Numbers::sEB(ism).c_str());
     mer05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer05_[ism-1]->setAxisTitle("rms", 1);
+
+    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    sprintf(histo, "EBTPT test pulse shape G01 %s", Numbers::sEB(ism).c_str());
+    me_hs01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs01_[ism-1]->setAxisTitle("sample", 1);
+    me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
+    sprintf(histo, "EBTPT test pulse shape G06 %s", Numbers::sEB(ism).c_str());
+    me_hs02_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs02_[ism-1]->setAxisTitle("sample", 1);
+    me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs03_[ism-1] ) dbe_->removeElement( me_hs03_[ism-1]->getName() );
+    sprintf(histo, "EBTPT test pulse shape G12 %s", Numbers::sEB(ism).c_str());
+    me_hs03_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs03_[ism-1]->setAxisTitle("sample", 1);
+    me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
 
   }
 
@@ -364,6 +287,10 @@ void EBTestPulseClient::setup(void) {
 
     mer04_[ism-1]->Reset();
     mer05_[ism-1]->Reset();
+
+    me_hs01_[ism-1]->Reset();
+    me_hs02_[ism-1]->Reset();
+    me_hs03_[ism-1]->Reset();
 
   }
 
@@ -434,6 +361,13 @@ void EBTestPulseClient::cleanup(void) {
     mer04_[ism-1] = 0;
     if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
     mer05_[ism-1] = 0;
+
+    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    me_hs01_[ism-1] = 0;
+    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
+    me_hs02_[ism-1] = 0;
+    if ( me_hs03_[ism-1] ) dbe_->removeElement( me_hs03_[ism-1]->getName() );
+    me_hs03_[ism-1] = 0;
 
   }
 
@@ -518,27 +452,25 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             sample02.clear();
             sample03.clear();
 
-            const float n_min_tot = 1000.;
-
-            if ( hs01_[ism-1] && hs01_[ism-1]->GetEntries() >= n_min_tot ) {
+            if ( me_hs01_[ism-1] ) {
               for ( int i = 1; i <= 10; i++ ) {
-                sample01.push_back(int(hs01_[ism-1]->GetBinContent(1, i)));
+                sample01.push_back(int(me_hs01_[ism-1]->getBinContent(i)));
               }
             } else {
               for ( int i = 1; i <= 10; i++ ) { sample01.push_back(-1.); }
             }
 
-            if ( hs02_[ism-1] && hs02_[ism-1]->GetEntries() >= n_min_tot ) {
+            if ( me_hs02_[ism-1] ) {
               for ( int i = 1; i <= 10; i++ ) {
-                sample02.push_back(int(hs02_[ism-1]->GetBinContent(1, i)));
+                sample02.push_back(int(me_hs02_[ism-1]->getBinContent(i)));
               }
             } else {
               for ( int i = 1; i <= 10; i++ ) { sample02.push_back(-1.); }
             }
 
-            if ( hs03_[ism-1] && hs03_[ism-1]->GetEntries() >= n_min_tot ) {
+            if ( me_hs03_[ism-1] ) {
               for ( int i = 1; i <= 10; i++ ) {
-                sample03.push_back(int(hs03_[ism-1]->GetBinContent(1, i)));
+                sample03.push_back(int(me_hs03_[ism-1]->getBinContent(i)));
               }
             } else {
               for ( int i = 1; i <= 10; i++ ) { sample03.push_back(-1.); }
@@ -628,8 +560,8 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       float mean01, mean02, mean03, mean04;
       float rms01, rms02, rms03, rms04;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
       update03 = UtilsClient::getBinStats(i03_[ism-1], i, 1, num03, mean03, rms03);
       update04 = UtilsClient::getBinStats(i04_[ism-1], i, 1, num04, mean04, rms04);
 
@@ -728,56 +660,6 @@ void EBTestPulseClient::subscribe(void){
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha01_[ism-1] ) dbe_->useQTest(histo, qtha01_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
-      if ( qtha02_[ism-1] ) dbe_->useQTest(histo, qtha02_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
-      if ( qtha03_[ism-1] ) dbe_->useQTest(histo, qtha03_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha04_[ism-1] ) dbe_->useQTest(histo, qtha04_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16", Numbers::sEB(ism).c_str());
-      if ( qtha05_[ism-1] ) dbe_->useQTest(histo, qtha05_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha06_[ism-1] ) dbe_->useQTest(histo, qtha06_[ism-1]->getName());
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-      if ( qtha07_[ism-1] ) dbe_->useQTest(histo, qtha07_[ism-1]->getName());
-    } else {
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha01_[ism-1] ) dbe_->useQTest(histo, qtha01_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
-      if ( qtha02_[ism-1] ) dbe_->useQTest(histo, qtha02_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
-      if ( qtha03_[ism-1] ) dbe_->useQTest(histo, qtha03_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha04_[ism-1] ) dbe_->useQTest(histo, qtha04_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16", Numbers::sEB(ism).c_str());
-      if ( qtha05_[ism-1] ) dbe_->useQTest(histo, qtha05_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha06_[ism-1] ) dbe_->useQTest(histo, qtha06_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-      if ( qtha07_[ism-1] ) dbe_->useQTest(histo, qtha07_[ism-1]->getName());
-    }
-
-    sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality G01 %s", Numbers::sEB(ism).c_str());
-    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality G06 %s", Numbers::sEB(ism).c_str());
-    if ( qtg02_[ism-1] ) dbe_->useQTest(histo, qtg02_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality G12 %s", Numbers::sEB(ism).c_str());
-    if ( qtg03_[ism-1] ) dbe_->useQTest(histo, qtg03_[ism-1]->getName());
-
-    sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality PNs G01 %s", Numbers::sEB(ism).c_str());
-    if ( qtg04_[ism-1] ) dbe_->useQTest(histo, qtg04_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality PNs G16 %s", Numbers::sEB(ism).c_str());
-    if ( qtg05_[ism-1] ) dbe_->useQTest(histo, qtg05_[ism-1]->getName());
 
   }
 
@@ -935,19 +817,19 @@ void EBTestPulseClient::analyze(void){
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
+    i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i03_[ism-1] );
+    i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
-    i04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
+    i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
 
     meg01_[ism-1]->Reset();
     meg02_[ism-1]->Reset();
@@ -962,6 +844,10 @@ void EBTestPulseClient::analyze(void){
 
     mer04_[ism-1]->Reset();
     mer05_[ism-1]->Reset();
+
+    me_hs01_[ism-1]->Reset();
+    me_hs02_[ism-1]->Reset();
+    me_hs03_[ism-1]->Reset();
 
     float meanAmpl01, meanAmpl02, meanAmpl03;
 
@@ -1156,10 +1042,10 @@ void EBTestPulseClient::analyze(void){
       float mean01, mean02, mean03, mean04;
       float rms01, rms02, rms03, rms04;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 1, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 1, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 1, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 1, num04, mean04, rms04);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 0, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 0, num04, mean04, rms04);
 
       if ( mer04_[ism-1] ) mer04_[ism-1]->Fill(rms03);
       if ( mer05_[ism-1] ) mer05_[ism-1]->Fill(rms04);
@@ -1220,6 +1106,25 @@ void EBTestPulseClient::analyze(void){
           }
 
         }
+      }
+
+    }
+
+    for ( int i = 1; i <= 10; i++ ) {
+
+      if ( hs01_[ism-1] ) {
+        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
+        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs02_[ism-1] ) {
+        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(1, i) );
+        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(1, i) );
+      }
+
+      if ( hs03_[ism-1] ) {
+        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(1, i) );
+        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(1, i) );
       }
 
     }
@@ -1301,7 +1206,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TH2F* obj2f;
   TH1F* obj1f;
-  TH1D* obj1d;
+  TProfile* objp;
 
   // Loop on barrel supermodules
 
@@ -1412,24 +1317,24 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameShape[iCanvas-1] = "";
 
-      obj1d = 0;
+      obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( hs01_[ism-1] ) obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs01_[ism-1] );
           break;
         case 2:
-          if ( hs02_[ism-1] ) obj1d = hs02_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs02_[ism-1] );
           break;
         case 3:
-          if ( hs03_[ism-1] ) obj1d = hs03_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs03_[ism-1] );
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( obj1f ) {
 
-        meName = obj1d->GetName();
+        meName = obj1f->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -1441,18 +1346,16 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cShape->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        obj1f->SetStats(kTRUE);
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->Draw();
+        obj1f->Draw();
         cShape->Update();
         cShape->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
@@ -1508,21 +1411,21 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPn[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i01_[ism-1];
           break;
         case 2:
-          if ( i02_[ism-1] ) obj1d = i02_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i02_[ism-1];
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -1534,19 +1437,17 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cAmp->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
-        delete obj1d;
 
       }
 
@@ -1554,21 +1455,21 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       imgNameMEPnPed[iCanvas-1] = "";
 
-      obj1d = 0;
+      objp = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( i03_[ism-1] ) obj1d = i03_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i03_[ism-1];
           break;
         case 2:
-          if ( i04_[ism-1] ) obj1d = i04_[ism-1]->ProjectionX("_px", 1, 1, "e");
+          objp = i04_[ism-1];
           break;
         default:
           break;
       }
 
-      if ( obj1d ) {
+      if ( objp ) {
 
-        meName = obj1d->GetName();
+        meName = objp->GetName();
 
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
@@ -1580,22 +1481,19 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cPed->cd();
         gStyle->SetOptStat("euo");
-        obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.0);
-        obj1d->Draw();
+        objp->SetMinimum(0.0);
+        objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
-        delete obj1d;
-
       }
-
 
       imgNameMEPnPedRms[iCanvas-1] = "";
 

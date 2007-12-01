@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/11/05 10:59:23 $
- * $Revision: 1.75 $
+ * $Date: 2007/11/10 15:31:33 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,7 +25,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
@@ -98,7 +97,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]         = "TEST_PULSE";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]           = "PEDESTAL";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN]   = "PEDESTAL-OFFSET";
-  
+
   runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL]         = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL]         = "PHYSICS";
   runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]          = "COSMIC";
@@ -202,16 +201,6 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     cout << " cloneME switch is ON" << endl;
   } else {
     cout << " cloneME switch is OFF" << endl;
-  }
-
-  // enableQT switch
-
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
-
-  if ( enableQT_ ) {
-    cout << " enableQT switch is ON" << endl;
-  } else {
-    cout << " enableQT switch is OFF" << endl;
   }
 
   // enableExit switch
@@ -322,7 +311,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   for ( unsigned int i = 0; i < enabledClients_.size(); i++ ) {
     cout << " " << enabledClients_[i];
   }
-  
+
   cout << endl;
 
   // global ROOT style
@@ -431,7 +420,9 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
 
@@ -470,7 +461,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
-  
+
   if ( find(enabledClients_.begin(), enabledClients_.end(), "TestPulse" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EETestPulseClient(ps) );
@@ -479,8 +470,8 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
-  } 
-    
+  }
+
   if ( find(enabledClients_.begin(), enabledClients_.end(), "BeamCalo" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EEBeamCaloClient(ps) );
@@ -503,6 +494,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EETriggerTowerClient(ps) );
     clientNames_.push_back( "TriggerTower" );
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
@@ -1298,11 +1290,6 @@ void EcalEndcapMonitorClient::analyze(void){
 
   if ( verbose_ ) cout << " updates = " << updates << endl;
 
-  // run QTs on MEs updated during last cycle (offline mode)
-  if ( ! enableStateMachine_ ) {
-    if ( enableQT_ ) dbe_->runQTests();
-  }
-
   // update MEs (online mode)
   if ( ! enableStateMachine_ ) {
     mui_->doMonitoring();
@@ -1367,7 +1354,7 @@ void EcalEndcapMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    if ( ( jevt_ < 10 || jevt_ % 10 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
+    if ( ( jevt_ < 10 || ( jevt_ < 100 && jevt_ % 10 == 0 ) || ( jevt_ < 1000 && jevt_ % 100 == 0 ) || jevt_ % 1000 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
       cout << " RUN status = \"" << status_ << "\"" << endl;
 
@@ -1442,11 +1429,6 @@ void EcalEndcapMonitorClient::analyze(void){
 
         if ( status_ == "running" || status_ == "end-of-run" || forced_update_ ) {
 
-          // run QTs on local MEs, updated in analyze()
-          if ( ! enableStateMachine_ ) {
-            if ( enableQT_ ) dbe_->runQTests();
-          }
-
           // update MEs [again, just to silence a warning]
           if ( ! enableStateMachine_ ) {
             mui_->doMonitoring();
@@ -1458,26 +1440,22 @@ void EcalEndcapMonitorClient::analyze(void){
 
       if ( status_ == "end-of-run" || forced_update_ ) {
 
-        if ( enableQT_ ) {
-
-          cout << endl;
-          switch ( dbe_->getStatus() ) {
-            case dqm::qstatus::ERROR:
-              cout << " Error(s)";
-              break;
-            case dqm::qstatus::WARNING:
-              cout << " Warning(s)";
-              break;
-            case dqm::qstatus::OTHER:
-              cout << " Some tests did not run;";
-              break;
-            default:
-              cout << " No problems";
-          }
-          cout << " reported after running the quality tests" << endl;
-          cout << endl;
-
+        cout << endl;
+        switch ( dbe_->getStatus() ) {
+          case dqm::qstatus::ERROR:
+            cout << " Error(s)";
+            break;
+          case dqm::qstatus::WARNING:
+            cout << " Warning(s)";
+            break;
+          case dqm::qstatus::OTHER:
+            cout << " Some tests did not run;";
+            break;
+          default:
+            cout << " No problems";
         }
+        cout << " reported after running the quality tests" << endl;
+        cout << endl;
 
       }
 
@@ -1548,7 +1526,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
         int new_run_ = run_;
         int old_run_ = last_run_;
-            
+
         if ( new_run_ != old_run_ ) {
 
           if ( begin_run_ && ! end_run_ ) {
@@ -1715,8 +1693,8 @@ void EcalEndcapMonitorClient::analyze(const Event &e, const EventSetup &c) {
   run_ = e.id().run();
 
   evt_ = e.id().event();
- 
-  this->analyze(); 
+
+  this->analyze();
 
 }
 
@@ -1820,11 +1798,11 @@ void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   string path;
   string mname;
-  
+
   static bool autorefresh_ = false;
-  
+
   try {
-  
+
     cgicc::Cgicc cgi(in);
 
     if ( xgi::Utils::hasFormElement(cgi,"autorefresh") ) {

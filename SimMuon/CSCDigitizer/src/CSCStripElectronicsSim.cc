@@ -10,8 +10,7 @@
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-#include <list>
-#include <cassert>
+#include<list>
 
 // This is CSCStripElectronicsSim.cc
 

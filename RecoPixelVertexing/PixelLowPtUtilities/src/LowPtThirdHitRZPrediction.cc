@@ -364,8 +364,7 @@ void LowPtThirdHitRZPrediction::getRanges
 
 /*****************************************************************************/
 bool LowPtThirdHitRZPrediction::isCompatibleWithMultipleScattering
-  (GlobalPoint g3, const TrackingRecHit* h3,
-   vector<GlobalVector>& globalDirs, const edm::EventSetup& es)
+  (GlobalPoint g3, vector<GlobalVector>& globalDirs, const edm::EventSetup& es)
 {
   Global2DVector p1(g1.x(),g1.y());
   Global2DVector p2(g2.x(),g2.y());
@@ -424,14 +423,7 @@ bool LowPtThirdHitRZPrediction::isCompatibleWithMultipleScattering
    globalDirs.push_back(GlobalVector(-v.y()*sinTheta,v.x()*sinTheta,cosTheta));
   }
 
-  // Multiple scattering
-  float sigma_ms  = sigma_z * coshEta;
-
-  // Local error squared
-  float sigma_le2 = max(h3->localPositionError().xx(),
-                        h3->localPositionError().yy());
-
-  return (delta_z*delta_z / (sigma_ms*sigma_ms + sigma_le2 ) < 4*4);
+  return (fabsf(delta_z / (sigma_z * coshEta)) < 4.);
   }
 
   return false;

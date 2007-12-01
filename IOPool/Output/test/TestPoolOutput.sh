@@ -23,6 +23,7 @@ process TESTOUTPUT = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
 	module output = PoolOutputModule {
 		untracked string fileName = '${LOCAL_TMP_DIR}/PoolOutputTest.root'
+		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {}
 	endpath ep = {output}
@@ -40,6 +41,7 @@ process TESTDROP = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
 	module output = PoolOutputModule {
 		untracked string fileName = '${LOCAL_TMP_DIR}/PoolDropTest.root'
+		untracked int32 maxSize = 100000
 		untracked vstring outputCommands = {'drop *',
 		    'keep *_dummy_*_*'
 		    }
@@ -59,6 +61,7 @@ process TESTMISSING = {
 	module Thing = ThingProducer {untracked bool noPut = true}
 	module output = PoolOutputModule {
 		untracked string fileName = '${LOCAL_TMP_DIR}/PoolMissingTest.root'
+		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {}
 	endpath ep = {output}

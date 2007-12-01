@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2007/10/15 15:01:17 $
- * $Revision: 1.15 $
+ * $Date: 2007/10/16 08:30:09 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -78,6 +78,8 @@ void EETimingTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETMT timing %s", Numbers::sEE(i+1).c_str());
       meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      meTimeMap_[i]->setAxisTitle("ix", 1);
+      meTimeMap_[i]->setAxisTitle("iy", 2);
       dbe_->tag(meTimeMap_[i], i+1);
     }
 

@@ -10,14 +10,18 @@
 <link rel="stylesheet" type="text/css" href="css_files/context-menu.css"/>
 <link rel="stylesheet" type="text/css" href="css_files/folder-tree-static.css"/>
 <link rel="stylesheet" type="text/css" href="css_files/tooltip.css"/>
+<link rel = "stylesheet" type = "text/css" href = "css_files/IMGC.css"               />
 <script type="text/javascript" src="WebLib.js"></script> 
 <script type = "text/javascript" src = "js_files/scriptaculous/lib/prototype.js">    </script>
 <script type = "text/javascript" src = "js_files/scriptaculous/src/scriptaculous.js"></script>
 <script type = "text/javascript" src = "js_files/scriptaculous/lib/moo.fx.js">       </script>
-<body>
+<script type = "text/javascript" src = "js_files/IMGC.js">			     </script>
+<body onresize = "IMGC.repaintUponResize()">
 <div id="dhtmltooltip"></div>
 <script type="text/javascript" src="js_files/tooltip.js"></script>
 <form name="Form1" action="javascript:void%200">
+
+<!--
   <div class="bloc" id="bloc1" style="width:56%;height=100%;float:left;">
     <fieldset style="background:#77FF87;">
       <legend >Drawing Canvas</legend>
@@ -41,13 +45,28 @@
       </div>
     </fieldset>
   </div>
-  <div class="bloc"  id="bloc2" style="width:44%; float:right;">
+-->
+
+  <!-- The left frame: the canvas where all ME plots end up -->
+  
+  <div class = "theCanvas"
+       id    = "theCanvas"
+       style = "width:  70%  ; 
+        	height: 100% ; 
+        	float:  left ;">
+  </div>
+
+<!--  <div class="bloc"  id="bloc2" style="width:44%; float:right;"> -->
+   <div class = "dqmControls"
+        id    = "dqmControls"
+        style = "width:  30%   ; 
+    	         height: 100%  ; 
+                 float:  right ;">
     <fieldset style="background:#DDEFFF;">
         <div class="bloc"  id="bloc2_1" style="background:#C093FF;"
           onmouseover="ddrivetip('Different actions for the Client ', '#EAFFF9', 200);"
 	  onmouseout="hideddrivetip();">
 	  <fieldset>
-	     <legend>Client Controls</legend>
 	       <input name="summary" 
                   id="create_summary"
                   value="Update Summary" 
@@ -59,7 +78,7 @@
                  id="create_tkmap"
                  value="Create Tk Map"
 		 style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
-                 onClick="ClientActions.OpenTrackerMap()"
+                 onClick="ClientActions.OpenTrackerMapFrame()"
                  type="submit">                   
              </input>
           </fieldset>

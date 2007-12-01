@@ -4,8 +4,8 @@
 /*
  * \file EECosmicTask.h
  *
- * $Date: 2007/04/05 14:54:03 $
- * $Revision: 1.3 $
+ * $Date: 2007/11/10 15:33:55 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -13,7 +13,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+class MonitorElement;
+class DaqMonitorBEInterface;
 
 class EECosmicTask: public edm::EDAnalyzer{
 

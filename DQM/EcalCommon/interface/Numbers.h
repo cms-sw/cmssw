@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.14 2007/10/17 15:58:43 dellaric Exp $
+// $Id: Numbers.h,v 1.16 2007/11/13 14:05:33 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.14 $
-  \date $Date: 2007/10/17 15:58:43 $
+  \version $Revision: 1.16 $
+  \date $Date: 2007/11/13 14:05:33 $
 */
 
 #ifndef Numbers_H
@@ -17,20 +17,17 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+class DetId;
+class EBDetId;
+class EEDetId;
 
-#include <DataFormats/EcalDetId/interface/EBDetId.h>
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
+class EcalTrigTowerDetId;
+class EcalElectronicsId;
+class EcalPnDiodeDetId;
 
-#include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
-#include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
-#include <DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h>
-#include <DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h>
+class EcalDCCHeaderBlock;
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+class EcalElectronicsMapping;
 
 class Numbers {
 
@@ -75,6 +72,10 @@ class Numbers {
   static std::vector<DetId> crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 
   static std::vector<DetId> crystals( const EcalElectronicsId& id ) throw( std::runtime_error );
+
+  static int RtHalf(const EBDetId& id) throw( std::runtime_error );
+
+  static int RtHalf(const EEDetId& id) throw( std::runtime_error );
 
   static int ix0EE( const int ism );
 

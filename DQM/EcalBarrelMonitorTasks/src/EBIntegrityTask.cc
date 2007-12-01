@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/10/23 10:03:40 $
- * $Revision: 1.49 $
+ * $Date: 2007/10/24 06:09:52 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
  */
@@ -97,12 +97,15 @@ void EBIntegrityTask::setup(void){
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EBIT DCC size error");
     meIntegrityDCCSize = dbe_->book1D(histo, histo, 36, 1, 37.);
+    meIntegrityDCCSize->setAxisTitle("DCC module", 1);
 
     // checking when the gain is 0
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/Gain");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT gain %s", Numbers::sEB(i+1).c_str());
       meIntegrityGain[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityGain[i]->setAxisTitle("ieta", 1);
+      meIntegrityGain[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meIntegrityGain[i], i+1);
     }
 
@@ -111,6 +114,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT ChId %s", Numbers::sEB(i+1).c_str());
       meIntegrityChId[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityChId[i]->setAxisTitle("ieta", 1);
+      meIntegrityChId[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meIntegrityChId[i], i+1);
     }
 
@@ -119,6 +124,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT gain switch %s", Numbers::sEB(i+1).c_str());
       meIntegrityGainSwitch[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityGainSwitch[i]->setAxisTitle("ieta", 1);
+      meIntegrityGainSwitch[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meIntegrityGainSwitch[i], i+1);
     }
 
@@ -127,6 +134,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT gain switch stay %s", Numbers::sEB(i+1).c_str());
       meIntegrityGainSwitchStay[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityGainSwitchStay[i]->setAxisTitle("ieta", 1);
+      meIntegrityGainSwitchStay[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meIntegrityGainSwitchStay[i], i+1);
     }
 
@@ -135,6 +144,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT TTId %s", Numbers::sEB(i+1).c_str());
       meIntegrityTTId[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      meIntegrityTTId[i]->setAxisTitle("ieta", 1);
+      meIntegrityTTId[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meIntegrityTTId[i], i+1);
     }
 
@@ -143,6 +154,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT TTBlockSize %s", Numbers::sEB(i+1).c_str());
       meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      meIntegrityTTBlockSize[i]->setAxisTitle("ieta", 1);
+      meIntegrityTTBlockSize[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meIntegrityTTBlockSize[i], i+1);
     }
 
@@ -151,6 +164,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT MemChId %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemChId[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      meIntegrityMemChId[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemChId[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemChId[i], i+1);
     }
 
@@ -161,6 +176,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT MemGain %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemGain[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      meIntegrityMemGain[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemGain[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemGain[i], i+1);
     }
 
@@ -169,6 +186,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT MemTTId %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemTTId[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemTTId[i], i+1);
     }
 
@@ -177,6 +196,9 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT MemSize %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemTTBlockSize[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      meIntegrityMemTTBlockSize[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
+      meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
       dbe_->tag(meIntegrityMemTTBlockSize[i], i+1);
     }
 

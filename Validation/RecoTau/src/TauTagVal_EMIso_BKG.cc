@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal_EMIso_BKG.cc,v 1.3 2007/05/10 14:29:55 gennai Exp $
+// $Id: TauTagVal_EMIso_BKG.cc,v 1.2 2007/03/05 18:23:34 gennai Exp $
 //
 //
 

@@ -14,6 +14,7 @@ process TESTPROD = {
 	module Thing = ThingProducer {untracked int32 debugLevel = 1}
 	module output = PoolOutputModule {
 		untracked string fileName = '${LOCAL_TMP_DIR}/PoolInputTest.root'
+		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {
 		untracked uint32 firstRun = 561
@@ -63,6 +64,7 @@ process TESTPROD = {
 	module Thing = ThingProducer {untracked int32 debugLevel = 1}
 	module output = PoolOutputModule {
 		untracked string fileName = '${LOCAL_TMP_DIR}/PoolInputTest.root'
+		untracked int32 maxSize = 100000
 	}
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
 	source = EmptySource {

@@ -46,8 +46,8 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
     << "[FedCablingHistograms::" << __func__ << "]";
 
   uint16_t valid = 0;
-  HistosMap::const_iterator iter = 0;
-  Analyses::iterator ianal = 0;
+  HistosMap::const_iterator iter;
+  Analyses::iterator ianal;
   
   // Clear map holding analysis objects
   for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 

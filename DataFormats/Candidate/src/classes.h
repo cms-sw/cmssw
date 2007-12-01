@@ -6,7 +6,6 @@
 #include "Math/PxPyPzE4D.h" 
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
-#include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -27,7 +26,6 @@ namespace {
     std::vector<reco::Particle> v2;
     edm::Wrapper<std::vector<reco::Particle> > w2;
     reco::CandidateRef r1;
-    reco::CandidatePtr ptr1;
     reco::CandidateBaseRef r2;
     std::vector<reco::CandidateBaseRef> rv2;
     edm::reftobase::IndirectHolder<reco::Candidate> rbih1;
@@ -41,7 +39,6 @@ namespace {
     reco::CandidateRefProd rp1;
     reco::CandidateBaseRefProd rp2;
     std::vector<edm::RefToBase<reco::Candidate> > vrb1;
-    std::vector<edm::Ptr<reco::Candidate> > vrb2;
     edm::Wrapper<reco::CandFloatAssociations> wav1;
     edm::Wrapper<reco::CandDoubleAssociations> wav2;
     edm::Wrapper<reco::CandIntAssociations> wav3;
@@ -65,12 +62,5 @@ namespace {
     reco::CandMatchMapMany::const_iterator cmm3it;
     edm::Wrapper<reco::CandMatchMapMany> wcmm3;
     edm::Wrapper<std::vector<reco::CandidateBaseRef> > wvrb1;
-
-    edm::Wrapper<reco::CompositeCandidateCollection> wcc1;
-    edm::reftobase::Holder<reco::Candidate, reco::CompositeCandidateRef> hcc1;
-    edm::reftobase::RefHolder<reco::CompositeCandidateRef> hcc2;
-    edm::reftobase::VectorHolder<reco::Candidate, reco::CompositeCandidateRefVector> hcc3;
-    edm::reftobase::RefVectorHolder<reco::CompositeCandidateRefVector> hcc4;
-    
   }
 }

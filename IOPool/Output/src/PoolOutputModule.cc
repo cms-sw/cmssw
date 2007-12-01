@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.90 2007/11/03 06:53:02 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.88 2007/09/12 22:39:05 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -29,8 +28,7 @@ namespace edm {
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 1)),
     basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),
     splitLevel_(pset.getUntrackedParameter<int>("splitLevel", 99)),
-    fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", true) && wantAllEvents()),
-    fileBlock_(0),
+    fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", false)),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
     fileCount_(0),
     rootFile_() {
@@ -38,23 +36,6 @@ namespace edm {
     // We need to set a custom streamer for edm::RefCore so that it will not be split.
     // even though a custom streamer is not otherwise necessary.
     SetRefStreamer();
-    // We don't use this next parameter, but we read it anyway because it is part
-    // of the configuration of this module.  An external parser creates the
-    // configuration by reading this source code.
-    pset.getUntrackedParameter<ParameterSet>("dataset", ParameterSet());
-  }
-
-  void PoolOutputModule::beginInputFile(FileBlock const& fb) {
-    fileBlock_ = const_cast<FileBlock *>(&fb);
-    if (!isFileOpen()) {
-      // Since we currently merge files, if the first input file is not fast clonable,
-      // we cannot do fast cloning at all.
-      if (!fb.fastClonable()) {
-        fastCloning_ = false;
-      }
-      doOpenFile();
-    }
-    rootFile_->beginInputFile(fb);
   }
 
   void PoolOutputModule::beginJob(EventSetup const&) {
@@ -83,6 +64,30 @@ namespace edm {
       reportSvc->reportLumiSection(lb.id().run(), lb.id().luminosityBlock());
   }
 
+  void PoolOutputModule::beginRun(RunPrincipal const&) {
+    if (!isFileOpen()) {
+//       std::string suffix(".root");
+//       std::string::size_type offset = fileName().rfind(suffix);
+//       bool ext = (offset == fileName().size() - suffix.size());
+//       if (!ext) suffix.clear();
+//       std::string fileBase(ext ? fileName().substr(0, offset) : fileName());
+//       std::ostringstream ofilename;
+//       std::ostringstream lfilename;
+//       ofilename << fileBase;
+//       lfilename << logicalFileName();
+//       if (fileCount_) {
+//         ofilename << std::setw(3) << std::setfill('0') << fileCount_;
+// 	if (!logicalFileName().empty()) {
+// 	  lfilename << std::setw(3) << std::setfill('0') << fileCount_;
+// 	}
+//       }
+//       ofilename << suffix;
+//       rootFile_ = boost::shared_ptr<RootOutputFile>(new RootOutputFile(this, ofilename.str(), lfilename.str()));
+//       ++fileCount_;
+      doOpenFile();
+    }
+  }
+
   void PoolOutputModule::endRun(RunPrincipal const& r) {
       if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
       if (rootFile_->writeRun(r)) {
@@ -109,11 +114,6 @@ namespace edm {
   bool PoolOutputModule::isFileFull() const { return rootFile_->isFileFull(); }
 
   void PoolOutputModule::doOpenFile() {
-      if (fileBlock_ == 0) {
-        throw edm::Exception(edm::errors::LogicError)
-          << "Attempt to open output file before input file. "
-          << "Please report this to the core framework developers.\n";
-      }
       std::string suffix(".root");
       std::string::size_type offset = fileName().rfind(suffix);
       bool ext = (offset == fileName().size() - suffix.size());

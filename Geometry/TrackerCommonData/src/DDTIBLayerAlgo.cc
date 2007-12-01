@@ -78,7 +78,7 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
 		      << "thickness " << cylinderMat << " " << cylinderT 
 		      << " Rib Material " << ribMat << " at "
 		      << ribW.size() << " positions with width/phi";
-  for (unsigned int i = 0; i < ribW.size(); i++)
+  for (int i = 0; i < (int)(ribW.size()); i++)
     LogDebug("TIBGeom") << "\tribW[" << i << "] = " <<  ribW[i] 
 			<< "\tribPhi[" << i << "] = " << ribPhi[i]/deg;
   
@@ -101,11 +101,11 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
 		      << " Material " << dohmPrimMaterial << " Length " << dohmPrimL;
   LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: DOHM Aux     "
 		      << " Material " << dohmAuxMaterial << " Length " << dohmAuxL;
-  for (unsigned int i=0; i<dohmListFW.size(); i++) {
+  for (int i=0; i<dohmListFW.size(); i++) {
     if (dohmListFW[i]>0.) LogDebug("TIBGeom") << "DOHM Primary at FW Position " << dohmListFW[i];
     if (dohmListFW[i]<0.) LogDebug("TIBGeom") << "DOHM Aux     at FW Position " << -dohmListFW[i];
   }
-  for (unsigned int i=0; i<dohmListBW.size(); i++) {
+  for (int i=0; i<dohmListBW.size(); i++) {
     if (dohmListBW[i]>0.) LogDebug("TIBGeom") << "DOHM Primary at BW Position " << dohmListBW[i];
     if (dohmListBW[i]<0.) LogDebug("TIBGeom") << "DOHM Aux     at BW Position " << -dohmListBW[i];
   }
@@ -479,28 +479,27 @@ void DDTIBLayerAlgo::execute() {
     int primReplica = 0;
     int auxReplica = 0;
 
-    for (int i = 0; i < placeDohm*((int)(dohmList.size())); i++) {
+    for (int i = 0; i < placeDohm*dohmList.size(); i++) {
 
-      double phi    = (std::abs(dohmList[i])+0.5-1.)*dphi;
+      double phi    = (abs(dohmList[i])+0.5-1.)*dphi;
       double phix   = phi + 90*deg;
       double phideg = phix/deg;
       if (phideg != 0) {
 	double theta  = 90*deg;
 	double phiy   = phix + 90.*deg;
-	std::string   rotstr = idName+dbl_to_string(std::abs(dohmList[i])-1.);
+	std::string   rotstr = idName + dbl_to_string(abs(dohmList[i])-1.);
 	dohmRotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!dohmRotation) {
 	  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
-			      << "rotation: "	<< rotstr << "\t" << theta 
-			      << ", "  << phix/deg << ", " << theta << ", "
-			      << phiy/deg <<", 0, 0";
-	  dohmRotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta,
-			       phiy, 0., 0.);
+			      << "rotation: "	<< rotstr << "\t" << theta << ", " 
+			      << phix/deg << ", " << theta << ", " << phiy/deg <<", 0, 0";
+	  dohmRotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
+			       0., 0.);
 	}
       }
       
       std::string dohmName;
-      int dohmReplica = 0;
+      int dohmReplica = 0.;
       double dohmZ = 0.;
       
       if(dohmList[i]<0.) {

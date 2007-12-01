@@ -12,7 +12,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=HLTrigger/HLTcore>
-<use name=PhysicsTools/Utilities>
+<use name=PhysicsTools/Parser>
 <use name=SimDataFormats/HepMCProduct>
 <use name=hepmc>
 <use name=heppdt>
@@ -20,7 +20,7 @@
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=HLTrigger/HLTcore>
-  <use name=PhysicsTools/Utilities>
+  <use name=PhysicsTools/Parser>
   <lib name=HLTriggerHLTexample>
 </export>
 
