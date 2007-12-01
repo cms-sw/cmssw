@@ -6,7 +6,15 @@ HcalRecHitClient::HcalRecHitClient(){}
 void HcalRecHitClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe, string clientName){
   //Call the base class first
   HcalBaseClient::init(ps,dbe,clientName);
+  ievt_ = 0;
+  jevt_ = 0;
+  for(int i=0; i<4; i++){
+    occ_[i]=0; energy_[i]=0;
+    energyT_[i]=0; time_[i]=0;
+    tot_occ_[i]=0;
+  }
   tot_energy_=0;
+
 }
 
 HcalRecHitClient::~HcalRecHitClient(){
@@ -56,16 +64,18 @@ void HcalRecHitClient::setup(void) {
 }
 
 void HcalRecHitClient::cleanup(void) {
-
-  for(int i=0; i<4; i++){
-    if(occ_[i]) delete occ_[i];
-    if(energy_[i]) delete energy_[i];
-    if(energyT_[i]) delete energyT_[i];
-    if(time_[i]) delete time_[i];
-    if(tot_occ_[i]) delete tot_occ_[i];
-  }    
+  
+  if(cloneME_){
+    for(int i=0; i<4; i++){
+      if(occ_[i]) delete occ_[i];
+      if(energy_[i]) delete energy_[i];
+      if(energyT_[i]) delete energyT_[i];
+      if(time_[i]) delete time_[i];
+      if(tot_occ_[i]) delete tot_occ_[i];
+    }    
     
-  if(tot_energy_) delete tot_energy_;
+    if(tot_energy_) delete tot_energy_;
+  }  
   
   for(int i=0; i<4; i++){
     occ_[i]=0; energy_[i]=0;
@@ -74,6 +84,7 @@ void HcalRecHitClient::cleanup(void) {
   }
   tot_energy_=0;
   
+
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
   
