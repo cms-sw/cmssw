@@ -38,7 +38,7 @@ echo "      -f|--first_ev         f_ev            first (as written to file) eve
 echo "      -l|--last_ev          l_ev            last (as written to file) event that will be analyzed; default is 9999"
 
 echo "      -bf|--beg_fed_id      b_f_id          fed_id: EE- is 601-609,  EB is 610-645,  EE- is 646-654; default is 0"
-echo "      -ef|--end_fed_id      e_f_id          when using 'single sm' fed corresponds to construction number; default is 36"
+echo "      -ef|--end_fed_id      e_f_id          when using 'single sm' fed corresponds to construction number; default is 670"
 
 echo ""
 echo ""
@@ -55,7 +55,7 @@ data_file="none"
 cfg_path="$conf_dir"
 
 beg_fed_id=0
-end_fed_id=36
+end_fed_id=670
 
 first_event=1
 last_event=9999
@@ -134,7 +134,7 @@ process HEXDUMP = {
      untracked string filename = 'dump.bin'
    }
 
-     module counter = AsciiOutputModule{}
+    module counter = AsciiOutputModule{}
 
     service = MessageLogger{
        untracked vstring destinations = { "cout" }
@@ -153,8 +153,8 @@ process HEXDUMP = {
 
   untracked PSet maxEvents = {untracked int32 input = 9999}
 
-     path p = {counter, hexDump}
-
+     path p = { hexDump}
+     endpath e = {counter}
 
 }
 
