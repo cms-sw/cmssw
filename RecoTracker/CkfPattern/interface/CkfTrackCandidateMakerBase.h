@@ -38,8 +38,10 @@ namespace cms
   protected:
     edm::ParameterSet conf_;
     std::string theTrajectoryBuilderName;
-    //const TrajectoryBuilder*  theTrajectoryBuilder; // NOOOOOOOO 
-                                                      // you MUST get it from the EventSetup AT EACH EVENT
+
+    // WARNING: you MUST get it from the EventSetup AT EACH EVENT 
+    const TrajectoryBuilder*  theTrajectoryBuilder;    
+                                                   
     TrajectoryCleaner*               theTrajectoryCleaner;
     TransientInitialStateEstimator*  theInitialState;
     

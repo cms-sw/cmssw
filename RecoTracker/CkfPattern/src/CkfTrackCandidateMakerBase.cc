@@ -100,7 +100,7 @@ namespace cms{
     // get the TrajectoryBuilder out of the eventSetup
     edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
     es.get<CkfComponentsRecord>().get(theTrajectoryBuilderName,theTrajectoryBuilderHandle);
-    const TrajectoryBuilder *theTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
+    theTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
 
     // Step A: set Event for the TrajectoryBuilder
     theTrajectoryBuilder->setEvent(e);        
