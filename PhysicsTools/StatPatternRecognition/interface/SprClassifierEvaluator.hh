@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprClassifierEvaluator.hh,v 1.1 2007/10/29 22:10:40 narsky Exp $
+//      $Id: SprClassifierEvaluator.hh,v 1.2 2007/11/30 20:13:29 narsky Exp $
 //
 // Description:
 //      Class SprClassifierEvaluator :
@@ -43,6 +43,31 @@ struct SprClassifierEvaluator
 				 SprCoordinateMapper* mapper,
 				 unsigned nPerm,
 				 std::vector<NameAndValue>& lossIncrease);
+
+  /*
+    Computes interaction between a subset of variables "vars" and all
+    other variables used for this trained classifier. Fills out a
+    vector of size D, where D is the total number of variables used by
+    this classifier. If the variable is included in the subset, the
+    intercation for this variable is set to 1.  If the input variable
+    list is empty (''), this method computes interaction between each
+    input variable and all other input variables.
+
+    Interaction is defined as Correlation(F(S),F(Xd)), where
+
+        F(S) is the classifier response at a given point integrated
+	     over all variables not included in block S
+	F(Xd) is the classifier response at a given point integrated
+	     over all variables except variable Xd
+  */
+  static bool variableInteraction(const SprAbsFilter* data,
+				  SprAbsTrainedClassifier* trained,
+				  SprTrainedMultiClassLearner* mcTrained,
+				  SprCoordinateMapper* mapper,
+				  const char* vars,
+				  unsigned nPoints,
+				  std::vector<NameAndValue>& interaction,
+				  int verbose=0);
 };
 
 #endif

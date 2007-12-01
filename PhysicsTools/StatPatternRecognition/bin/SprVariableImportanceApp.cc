@@ -1,4 +1,4 @@
-//$Id: SprVariableImportanceApp.cc,v 1.4 2007/11/12 04:41:17 narsky Exp $
+//$Id: SprVariableImportanceApp.cc,v 1.5 2007/11/30 20:13:36 narsky Exp $
 //
 // An executable to estimate the relative importance of variables.
 // See notes in README (Variable Selection).
@@ -6,6 +6,7 @@
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprEmptyFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprPoint.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsReader.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprRWFactory.hh"
@@ -32,21 +33,8 @@
 #include <cassert>
 #include <algorithm>
 #include <utility>
-#include <functional>
 
 using namespace std;
-
-
-// sorts in descending order
-struct SVICmpSDDSecond
-  : public binary_function<pair<string,pair<double,double> >,
-			   pair<string,pair<double,double> >,bool> {
-  bool operator()(const pair<string,pair<double,double> >& l, 
-		  const pair<string,pair<double,double> >& r)
-    const {
-    return (l.second.first > r.second.first);
-  }
-};
 
 
 void help(const char* prog) 
@@ -58,9 +46,28 @@ void help(const char* prog)
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
   cout << "\t-Q apply variable transformation saved in file     " << endl;
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh)  " << endl;
-  cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
+  cout << "\t-k keep the specified fraction in input data       " << endl;
+  cout << "\t-K keep (1-this_fraction) in input data            " << endl;
+  cout << "\t\t For consistency with other executables,         " << endl;
+  cout << "\t\t this option will use \"test\" data to estimate "
+       << "variable importance." << endl;
   cout << "\t-m use multiclass learner                          " << endl;
-  cout << "\t-n number of class permutations per variable (def=1)" << endl;
+  cout << "\t-n number of class permutations per variable (def=1)"<< endl;
+  cout << "\t-S subset of variables used to compute interactions" << endl;
+  cout << "\t\t Variables must be entered in quotes, "
+       << "separated by commas." << endl;
+  cout << "\t\t Interactions between this subset and each of the rest " 
+       << "of variables will be computed." << endl;
+  cout << "\t\t If an empty list is entered, interaction between "
+       << "each variable and all other variables will be computed." << endl;
+  cout << "\t-N number of points used for data integration      " << endl;
+  cout << "\t\t -N is only used for computation of interactions "
+       << "between variables. "                                   << endl;
+  cout << "\t\t The greater the N, the more accurate the estimate." << endl;
+  cout << "\t\t The smaller the N, the faster you get results."   << endl;
+  cout << "\t\t N cannot exceed data size."                       << endl;
+  cout << "\t\t By default all available points in data are used."<< endl;
+  cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
   cout << "\t-w scale all signal weights by this factor         " << endl;
   cout << "\t-V include only these input variables              " << endl;
   cout << "\t-z exclude input variables from the list           " << endl;
@@ -90,12 +97,18 @@ int main(int argc, char ** argv)
   int nPerm = 1;
   bool useMCLearner = false;
   string transformerFile;
+  unsigned nPoints = 0;
+  bool computeInteraction = false;
+  string varList;
+  bool split = false;
+  double splitFactor = 0;
+  bool useTrainingData = false;
 
   // decode command line
   int c;
   extern char* optarg;
   extern int optind;
-  while( (c = getopt(argc,argv,"hy:Q:a:mn:v:w:V:z:M")) != EOF ) {
+  while( (c = getopt(argc,argv,"hy:Q:a:k:K:mn:S:N:v:w:V:z:M")) != EOF ) {
     switch( c )
       {
       case 'h' :
@@ -110,11 +123,28 @@ int main(int argc, char ** argv)
       case 'a' :
 	readMode = (optarg==0 ? 0 : atoi(optarg));
 	break;
+      case 'k' :
+	split = true;
+	splitFactor = (optarg==0 ? 0 : atof(optarg));
+	useTrainingData = true;
+	break;
+      case 'K' :
+	split = true;
+	splitFactor = (optarg==0 ? 0 : atof(optarg));
+	useTrainingData = false;
+	break;
       case 'm' :
 	useMCLearner = true;
 	break;
       case 'n' :
 	nPerm = (optarg==0 ? 1 : atoi(optarg));
+	break;
+      case 'S' :
+	computeInteraction = true;
+	varList = (optarg==0 ? "" : optarg);
+	break;
+      case 'N' :
+	nPoints = (optarg==0 ? 1 : atoi(optarg));
 	break;
       case 'v' :
 	verbose = (optarg==0 ? 0 : atoi(optarg));
@@ -231,8 +261,31 @@ int main(int argc, char ** argv)
     filter->scaleWeights(inputClasses[1],sW);
   }
 
+  // split data
+  auto_ptr<SprAbsFilter> garbage_split;
+  if( split ) {
+    cout << "Splitting input data with factor " << splitFactor << endl;
+    vector<double> weights;
+    bool splitRandomize = false;
+    SprData* splitted = filter->split(splitFactor,weights,splitRandomize);
+    if( splitted == 0 ) {
+      cerr << "Unable to split input data." << endl;
+      return 2;
+    }
+    if( !useTrainingData ) {
+      garbage_split.reset(filter.release());
+      bool ownData = true;
+      filter.reset(new SprEmptyFilter(splitted,weights,ownData));
+    }
+    cout << "Input data re-filtered:" << endl;
+    for( int i=0;i<inputClasses.size();i++ ) {
+      cout << "Points in class " << inputClasses[i] << ":   " 
+	   << filter->ptsInClass(inputClasses[i]) << endl;
+    }
+  }
+
   // apply transformation of variables to training and test data
-  auto_ptr<SprAbsFilter> garbage_train;
+  auto_ptr<SprAbsFilter> garbage_trans;
   if( !transformerFile.empty() ) {
     SprVarTransformerReader transReader;
     const SprAbsVarTransformer* t = transReader.read(transformerFile.c_str());
@@ -241,17 +294,18 @@ int main(int argc, char ** argv)
            << transformerFile.c_str() << endl;
       return 2;
     }
-    SprTransformerFilter* t_train = new SprTransformerFilter(filter.get());
+    SprTransformerFilter* tf = new SprTransformerFilter(filter.get());
     bool replaceOriginalData = true;
-    if( !t_train->transform(t,replaceOriginalData) ) {
+    if( !tf->transform(t,replaceOriginalData) ) {
       cerr << "Unable to apply VarTransformer to training data." << endl;
       return 2;
     }
     cout << "Variable transformation from file "
          << transformerFile.c_str() << " has been applied to "
          << "training data." << endl;
-    garbage_train.reset(filter.release());
-    filter.reset(t_train);
+    garbage_trans.reset(filter.release());
+    filter.reset(tf);
+    filter->vars(vars);
   }
 
   // read classifier configuration
@@ -305,7 +359,8 @@ int main(int argc, char ** argv)
   }
 
   // call evaluator
-  vector<SprClassifierEvaluator::NameAndValue> lossIncrease;
+  vector<SprClassifierEvaluator::NameAndValue> lossIncrease, 
+    interaction(trainedVars.size());
   if( !SprClassifierEvaluator::variableImportance(filter.get(),
 						  trained.get(),
 						  mcTrained.get(),
@@ -315,23 +370,41 @@ int main(int argc, char ** argv)
     cerr << "Unable to estimate variable importance." << endl;
     return 5;
   }
+  if( computeInteraction &&
+      !SprClassifierEvaluator::variableInteraction(filter.get(),
+						   trained.get(),
+						   mcTrained.get(),
+						   mapper.get(),
+						   varList.c_str(),
+						   nPoints,
+						   interaction,
+						   verbose) ) {
+    cerr << "Unable to estimate variable interactions." << endl;
+    return 6;
+  }
+  assert( lossIncrease.size() == interaction.size() );
 
   //
   // process computed loss
   //
-  stable_sort(lossIncrease.begin(),lossIncrease.end(),SVICmpSDDSecond());
-  cout << "==========================================================" << endl;
+  cout << "==============================================================================================================================" << endl;
+  if( computeInteraction ) {
+    cout << "Displaying interactions with variable block " 
+	 << varList.c_str() << endl;
+  }
   char t [200];
-  sprintf(t,"%35s      %15s","Variable","Change in loss");
+  sprintf(t,"%35s        %15s                      %15s","Variable",
+	  "Change in loss","Interaction");
   cout << t << endl;
   for( int d=0;d<lossIncrease.size();d++ ) {
     char s [200];
-    sprintf(s,"%35s      %15.10f +- %15.10f",
+    sprintf(s,"%35s      %15.10f +- %15.10f      %15.10f +- %15.10f",
 	    lossIncrease[d].first.c_str(),
-	    lossIncrease[d].second.first,lossIncrease[d].second.second);
+	    lossIncrease[d].second.first,lossIncrease[d].second.second,
+	    interaction[d].second.first,interaction[d].second.second);
     cout << s << endl;
   }
-  cout << "==========================================================" << endl;
+  cout << "==============================================================================================================================" << endl;
 
   // exit
   return 0;

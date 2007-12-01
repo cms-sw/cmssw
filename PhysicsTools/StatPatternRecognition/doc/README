@@ -1,4 +1,4 @@
-$Id: README,v 1.18 2007/11/12 04:41:16 narsky Exp $
+$Id: README,v 1.19 2007/11/30 20:13:28 narsky Exp $
  
 General description of the package:
 -----------------------------------
@@ -16,8 +16,9 @@ List of all classifiers currently implemented in the package:
 - bump hunter (PRIM)
 - LDA and QDA
 - logistic regression
-- boosting (discrete and real AdaBoost, epsilon-Boost)
-- bagging
+- boosting an arbitrary sequence of classifiers; 
+	boosting flavors: discrete and real AdaBoost, epsilon-Boost
+- bagging an arbitrary sequence of classifiers
 - random forest
 - arc-x4
 - backprop neural net with a logistic activation function 
@@ -1511,7 +1512,7 @@ each input variable and estimate the change in the split criterion FOM
 due to this variable. The change in the FOM is a more reliable measure
 of the variable importance than the split counting. Both these options
 are invoked by the "-i" command-line option with the
-decision-tree-related executables.
+decision-tree-based executables.
 
 SprVariableImportanceApp estimates the importance of each input
 variable for the applied classifier. It randomly permutes class labels
@@ -1528,6 +1529,20 @@ output ranges from -infty to +infty automatically map the output onto
 [0,1] in that case. The reverse is not true - if you choose
 exponential loss, you can obtain nonsensical results for classifiers
 that by default return values within [0,1]. 
+
+SprVariableImportanceApp can also estimate an interaction between a
+subset of input variables and every other input variable, for the
+selected classifier. The interaction is defined as
+
+corr(F(S),F(Xd))
+
+where F(S) is the response of the classifier at a given point averaged
+over all variables not included in S, and F(Xd) is the classifier
+response at a given point averaged over all variables but Xd. A weak
+correlation indicates that one can build a classifier on S and an
+independent classifier on Xd, while building a common classifier on
+the union of S+Xd will likely not increase the overall classification
+power.
 
 These methods only provide crude estimates. The best (and
 time-consuming) approach is to try all or most variable combinations
@@ -1614,30 +1629,38 @@ The Ascii input format is close to that of SNNS. There are two
 essential rules:
 - everything to the right of '#' is treated as comments
 - an input line must contain at least as many numbers as the dimensionality
-  of the input space; these are considered point coordinates
-The point class can be supplied either on the same line or on a separate line.
-For details and acceptable Ascii formats, see SprSimpleReader.hh.
+  of the input space; these are considered point coordinates The point
+  class can be supplied either on the same line or on a separate line.
 
-If you have a *.pat file readable by SNNS, you can easily turn it
-into a file readable by SprSimpleReader. To do this,
-a) comment out the SNNS header by placing '#' at the beginning of each line
-b) the 1st non-comment line must start with an integer number which represents
-   the dimensionality of input space
-c) the 2nd non-comment line must show names of input variables, at least as
-   many as the specified number of dimensions; spaces in the variable
-   names are not allowed
-The rest of the *.pat file can be kept as is.
+For details and acceptable Ascii formats, see SprSimpleReader.hh and
+examples in data/.
 
-For details on Root input, see SprRootReader.hh.
+Ascii input format 7 allows to read input data from output files
+obtained by SprOutputWriterApp. This is useful for sequential training
+and splitting data into training and test sets.
 
-As of Sourceforge tag V07-02-00, if the package was built against
-Root, the user can choose between input and output from/to Ascii and
-Root files. For Ascii input, the user must specify -a flag for all
-executables with an appropriate integer mode. If -a is omitted or "-a
-0" is specified, the executable assumes that input data must be
-fetched from Root files. For output, the default choice is Root. To
-output data into Ascii files, the user must specify -A flag on the
-command line.
+For details on Root input, see SprRootReader.hh and examples in data/.
+
+If the package is built against Root, the user can choose between
+input and output from/to Ascii and Root files. For Ascii input, the
+user must specify -a flag for all executables with an appropriate
+integer mode. If -a is omitted or "-a 0" is specified, the executable
+assumes that input data must be fetched from Root files. For output,
+the default choice is Root. To output data into Ascii files, the user
+must specify -A flag on the command line.
+
+SprSplitterApp lets the user split input data into training and test
+sets in the specified proportion using the specified random seed. If
+you save data in Ascii format, it will be saved in format 7. You can
+read the splitted data back instantly by running any executable with
+"-a 7". If you save the splitted data in Root, you have to prepare a
+new *.pat file for input from Root (see examples in data/). This
+should be straightforward.
+
+Splitting into training and test datasets with different random seeds
+is a valuable tool for analysis of small datasets, if you want to
+investigate how sensitive are your conclusions about the classifier
+performance to training data.
 
 
 10. Computing output for trained classifiers
@@ -1757,11 +1780,13 @@ SprInteractiveAnalysisApp -a 1 train.pat test.pat
 14. Working in Root environment
 -------------------------------
 
-Starting with SPR release 7, the user can run SPR interactively from
-Root session. See root/spr_tutorial.C. The package needs to be built
-against Root. This functionality is provided by the SprRootAdapter
-class. See the interface in include/StatPatternRecognition for a list
-of all available options.
+Starting with SPR release 7, the user can run SPR interactively from a
+Root session. See root/spr_tutorial.C and other examples in root/. The
+package needs to be built against Root. This functionality is provided
+by the SprRootAdapter class. See the interface in
+include/StatPatternRecognition for a list of all available options.
+This interface implements wrappers to most SPR methods and gives the
+user quick access to Root graphics.
 
 I strongly advise against running CPU-intensive jobs within Root
 environment, whether interactive or batch. The SPR Root wrapper has
@@ -1769,7 +1794,7 @@ been provided to let the user run interactive analysis on small
 datasets in not too many dimensions and give the user access to
 graphics. If you need to train on datasets of appreciable size, do it
 by running SPR executables. To enjoy graphics, you can then load test
-data and the saved classifier configuration from an interactive Root
+data and the saved classifier configuration into an interactive Root
 session using loadData..() and loadClassifier() methods.
 
 

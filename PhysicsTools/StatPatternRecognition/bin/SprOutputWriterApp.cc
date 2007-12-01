@@ -1,4 +1,4 @@
-//$Id: SprOutputWriterApp.cc,v 1.9 2007/11/12 04:41:17 narsky Exp $
+//$Id: SprOutputWriterApp.cc,v 1.10 2007/11/30 20:13:35 narsky Exp $
 
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
@@ -295,6 +295,7 @@ int main(int argc, char ** argv)
          << transformerFile.c_str() << " has been applied to data." << endl;
     garbage_train.reset(filter.release());
     filter.reset(t_train);
+    filter->vars(vars);
   }
 
   // split data if desired

@@ -1,4 +1,4 @@
-// $Id: spr_plot.C,v 1.5 2007/10/30 00:15:35 narsky Exp $
+// $Id: spr_plot.C,v 1.6 2007/11/30 20:13:30 narsky Exp $
 
 void plotEffCurve(const char* canvas,
 		  int npts, const double* signalEff, const char* classifier,
@@ -79,6 +79,8 @@ void plotCorrelation(const char* canvas, const char* title,
       h2->Fill(vars[i],vars[j],corr[i*nVars+j]);
     }
   }
+  h2->SetLabelSize(0.06,"X");
+  h2->SetLabelSize(0.06,"Y");
   h2->LabelsDeflate("X");
   h2->LabelsDeflate("Y");
   h2->LabelsOption("v");
@@ -112,17 +114,33 @@ void plotImportance(const char* canvas, const char* title,
     ymin = 0.;
     ymax = 1.;
   }
-  for( int i=0;i<nVars;i++ )
-    h1->SetBinError(i+1,error[i]);
+  if( error == 0 ) {
+    for( int i=0;i<nVars;i++ )
+      h1->SetBinError(i+1,0.);
+  }
+  else {
+    for( int i=0;i<nVars;i++ )
+      h1->SetBinError(i+1,error[i]);
+  }
   h1->LabelsDeflate("X");
   h1->LabelsOption("v");
+  h1->SetLabelSize(0.06,"X");
   h1->SetLineColor(4);
   h1->SetMarkerStyle(21);
   h1->SetMarkerColor(4);
   h1->SetLineWidth(2);
   TAxis* yaxis = h1->GetYaxis();
   yaxis->SetRangeUser(ymin,ymax);
-  h1->Draw("E0P");
+  if( error == 0 ) {
+    h1->SetLineColor(4);
+    h1->SetFillColor(4);
+    h1->SetBarWidth(0.8);
+    h1->SetBarOffset(0.1);
+    h1->Draw("B");
+  }
+  else
+    h1->Draw("E0P");
+  l = new TLine(0,0,nVars,0); l->Draw();
 }
 
 
@@ -188,6 +206,7 @@ plotClasses(const char* canvas, const char* title,
   for( int i=0;i<nClasses;i++ )
     hev->Fill(classes[i],events[i]);
   hev->LabelsDeflate("X");
+  hev->SetLabelSize(0.06,"X");
   hev->SetLabelSize(0.1,"X");
   hev->SetLabelSize(0.1,"Y");
   hev->SetLineColor(4);
@@ -204,6 +223,7 @@ plotClasses(const char* canvas, const char* title,
   for( int i=0;i<nClasses;i++ )
     hwt->Fill(classes[i],weights[i]);
   hwt->LabelsDeflate("X");
+  hwt->SetLabelSize(0.06,"X");
   hwt->SetLabelSize(0.1,"X");
   hwt->SetLabelSize(0.1,"Y");
   hwt->SetLineColor(3);
@@ -234,6 +254,8 @@ void plotMultiClassTable(const char* canvas, const char* title,
   }
   h2->LabelsDeflate("X");
   h2->LabelsDeflate("Y");
+  h2->SetLabelSize(0.06,"X");
+  h2->SetLabelSize(0.06,"Y");
   h2->LabelsOption("v");
   h2->Draw("Z COL");
 }

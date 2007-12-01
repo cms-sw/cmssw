@@ -1,6 +1,4 @@
-// $Id: spr_multiclass.C,v 1.5 2007/10/30 00:15:35 narsky Exp $
-//
-// Load spr_plot.C before running spr_tutorial():
+// $Id: spr_multiclass.C,v 1.6 2007/11/30 20:13:29 narsky Exp $
 //
 // .L spr_plot.C
 // .L spr_multiclass.C
@@ -18,7 +16,7 @@ using namespace std;
 int spr_multiclass()
 {
   // load lib
-  gSystem->Load("/afs/cern.ch/user/n/narsky/w0/CMSSW_1_8_X_2007-10-28-1600/lib/slc4_ia32_gcc345/libPhysicsToolsStatPatternRecognition.so");
+  gSystem->Load("/afs/cern.ch/user/n/narsky/w0/CMSSW_1_8_X_2007-11-29-1600/lib/slc4_ia32_gcc345/libPhysicsToolsStatPatternRecognition.so");
   
   // create main SPR object
   SprRootAdapter spr;
@@ -27,7 +25,7 @@ int spr_multiclass()
   spr.loadDataFromAscii(1,"cmc.data","train");
 
   // split data into train/test as 0.7/0.3
-  spr.split(0.7);
+  spr.split(0.7,false);
 
   // choose classes
   spr.chooseClasses("1,2,3");

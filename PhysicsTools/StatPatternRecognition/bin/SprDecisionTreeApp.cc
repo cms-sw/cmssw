@@ -1,4 +1,4 @@
-//$Id: SprDecisionTreeApp.cc,v 1.10 2007/11/12 04:41:17 narsky Exp $
+//$Id: SprDecisionTreeApp.cc,v 1.11 2007/11/30 20:13:35 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -57,7 +57,7 @@ void help(const char* prog)
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
   cout << "\t-Q apply variable transformation saved in file     " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
-  cout << "\t-T use Topdown tree with contonuous output         " << endl;
+  cout << "\t-T use Topdown tree with continuous output         " << endl;
   cout << "\t-f store decision tree to file in human-readable format" << endl;
   cout << "\t-F store decision tree to file in machine-readable format"<< endl;
   cout << "\t-c criterion for optimization                      " << endl;

@@ -1,4 +1,4 @@
-//$Id: SprSimpleReader.cc,v 1.7 2007/10/22 21:23:41 narsky Exp $
+//$Id: SprSimpleReader.cc,v 1.8 2007/11/30 20:13:35 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
@@ -24,7 +24,7 @@ SprSimpleReader::SprSimpleReader(int mode, SprPreFilter* filter)
   include_(),
   exclude_()
 {
-  assert( mode_>0 && mode_<7 );
+  assert( mode_>0 && mode_<8 );
 }
 
 
@@ -45,45 +45,62 @@ SprAbsFilter* SprSimpleReader::read(const char* filename)
     return 0;
   }
 
-  // read number of dimensions
+  // init
   string line;
   unsigned dim = 0;
   unsigned nline = 0;
+
+  // read number of dimensions
+  if( mode_ != 7 ) {
+    while( getline(file,line) ) {
+      nline++;
+      if( line.find('#') != string::npos )
+	line.erase( line.find_first_of('#') );
+      if( line.find_first_not_of(' ') == string::npos ) continue;
+      istringstream ist(line);
+      ist >> dim;
+      assert( dim != 0 );
+      break;
+    }
+  }
+
+  // read var names
+  vector<int> ind;
+  vector<string> selected;
   while( getline(file,line) ) {
     nline++;
     if( line.find('#') != string::npos )
       line.erase( line.find_first_of('#') );
     if( line.find_first_not_of(' ') == string::npos ) continue;
     istringstream ist(line);
-    ist >> dim;
-    assert( dim != 0 );
-    break;
-  }
-
-  // read var names
-  vector<int> ind(dim,-1);
-  vector<string> selected;
-  int varCounter = 0;
-  while( getline(file,line) ) {
-    nline++;
-    if( line.find('#') != string::npos )
-      line.erase( line.find_first_of('#') );
-    if( line.find_first_not_of(' ') == string::npos ) continue;
-    if( mode_==5 || mode_==6 ) {// variable names take separate lines
-      istringstream ist(line);
-      std::string varName;
+    string varName;
+    if(      mode_==5 || mode_==6 ) {// variable names take separate lines
       ist >> varName;
       if( exclude_.find(varName)==exclude_.end() &&
 	  (include_.empty() || include_.find(varName)!=include_.end()) ) {
-	ind[varCounter] = selected.size();
+	ind.push_back(selected.size());
 	selected.push_back(varName);
       }
-      if( ++varCounter >= dim ) break;
+      if( ind.size() >= dim ) break;
+    }
+    else if( mode_ == 7 ) {// don't know how many vars yet
+      int varCounter = 0;
+      while( ist >> varName ) {
+	if( ++varCounter > 3 ) {
+	  if( exclude_.find(varName)==exclude_.end() &&
+	      (include_.empty() || include_.find(varName)!=include_.end()) ) {
+	    ind.push_back(selected.size());
+	    selected.push_back(varName);
+	  }
+	}
+      }
+      dim = selected.size();
+      break;
     }
     else {// all variable names are on one line
-      istringstream ist(line);
+      ind.clear();
+      ind.resize(dim,-1);
       for( int i=0;i<dim;i++ ) {
-	std::string varName;
 	ist >> varName;
 	if( exclude_.find(varName)==exclude_.end() &&
 	    (include_.empty() || include_.find(varName)!=include_.end()) ) {
@@ -133,11 +150,21 @@ SprAbsFilter* SprSimpleReader::read(const char* filename)
   int charge = 0;
   bool readcls = false;
   while( getline(file,line) ) {
+    // get line
     nline++;
     if( line.find('#') != string::npos )
       line.erase( line.find_first_of('#') );
     if( line.find_first_not_of(' ') == string::npos ) continue;
+
+    // read coords
+    int icls = 0;
+    double weight = 1.;
+    int pointIndex = -1;
     istringstream ist(line);
+    if( mode_ == 7 ) {
+      ist >> pointIndex >> icls >> weight;
+      assert( pointIndex >= 0 );
+    }
     if( !readcls ) {
       for( int i=0;i<dim;i++ ) {
 	double r = 0;
@@ -147,52 +174,63 @@ SprAbsFilter* SprSimpleReader::read(const char* filename)
       }
       if( mode_ == 3 ) ist >> charge;
     }
-    double weight = 1.;
     if( mode_ == 4 || mode_ == 6 ) ist >> weight;
 
-    // copy a new point into SprData
-    if( mode_ == 1 || mode_ == 4 || mode_ == 5 || mode_ == 6 || readcls ) {
-      int icls = 0;
+    // if 2 modes split into lines, skip the rest
+    if( (mode_==2 || mode_==3) && !readcls ) {
+      readcls = true;
+      continue;
+    }
+
+    // read class
+    if( mode_ != 7 ) {
       ist >> icls;
       readcls = false;
-      if( mode_ == 3 ) {
-	icls = ( icls<=0 ? -1 : 1 );
-	icls = ( (icls*charge)<0 ? 0 : 1);
-      }
+    }
 
-      // passes selection requirements?
-      if( filter_!=0 && !filter_->pass(icls,v) ) continue;
+    // assign class for special modes
+    if( mode_ == 3 ) {
+      icls = ( icls<=0 ? -1 : 1 );
+      icls = ( (icls*charge)<0 ? 0 : 1);
+    }
 
-      // compute user-defined class
-      if( filter_!=0 ) {
-	pair<int,bool> computedClass = filter_->computeClass(v);
-	if( computedClass.second ) 
-	  icls = computedClass.first;
-      }
+    // passes selection requirements?
+    if( filter_!=0 && !filter_->pass(icls,v) ) continue;
 
-      // transform coordinates
-      if( filter_ != 0 ) {
-	vector<double> vNew;
-	if( filter_->transformCoords(v,vNew) )
+    // compute user-defined class
+    if( filter_!=0 ) {
+      pair<int,bool> computedClass = filter_->computeClass(v);
+      if( computedClass.second ) 
+	icls = computedClass.first;
+    }
+
+    // transform coordinates
+    if( filter_ != 0 ) {
+      vector<double> vNew;
+      if( filter_->transformCoords(v,vNew) ) {
+	if( mode_ == 7 )
+	  data->insert(pointIndex,icls,vNew);
+	else
 	  data->insert(icls,vNew);
-	else {
-	  cerr << "Pre-filter is unable to transform coordinates." << endl;
-	  return 0;
-	}
       }
-      else
-	data->insert(icls,v);
-
-      if( mode_ == 4 || mode_ == 6 ) weights.push_back(weight);
+      else {
+	cerr << "Pre-filter is unable to transform coordinates." << endl;
+	return 0;
+      }
     }
     else {
-      // the next line contains the class for this point
-      readcls = true;
+      if( mode_ == 7 )
+	data->insert(pointIndex,icls,v);
+      else
+	data->insert(icls,v);
     }
+
+    // store weight
+    if( mode_==4 || mode_==6 || mode_==7 ) weights.push_back(weight);
   }
 
   // exit
-  if( mode_ == 4 || mode_ == 6 )
+  if( mode_ == 4 || mode_ == 6 || mode_==7 )
     return new SprEmptyFilter(data.release(), weights, true);
   return new SprEmptyFilter(data.release(), true);
 }

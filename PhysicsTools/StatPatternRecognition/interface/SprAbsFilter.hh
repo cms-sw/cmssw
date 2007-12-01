@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprAbsFilter.hh,v 1.10 2007/10/29 22:10:40 narsky Exp $
+//      $Id: SprAbsFilter.hh,v 1.11 2007/11/30 20:13:29 narsky Exp $
 //
 // Description:
 //      Class SprAbsFilter :
@@ -150,10 +150,12 @@ public:
   // Splits data using the specified fraction.
   // Keeps fractionToKeep in this filter and splits 1.-fractionToKeep
   // off to a new SprData object. Returns weights for the split-off events.
-  // If randomize is set, data points will be permuted.
+  // If randomize is set to true, data points will be permuted.
+  // Initial seed will be used for permutation.
   SprData* split(double fractionToKeep, 
 		 std::vector<double>& splitWeights,
-		 bool randomize=false);
+		 bool randomize,
+		 int seed=0);
 
   // Remove a bunch of points from the sample.
   // This method compares points by their unique id (SprPoint::index_)

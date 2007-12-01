@@ -1,4 +1,4 @@
-//$Id: SprAbsFilter.cc,v 1.10 2007/10/29 22:10:40 narsky Exp $
+//$Id: SprAbsFilter.cc,v 1.11 2007/11/30 20:13:35 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -873,7 +873,8 @@ void SprAbsFilter::allClasses(std::vector<SprClass>& classes) const
 
 SprData* SprAbsFilter::split(double fractionToKeep, 
 			     std::vector<double>& splitWeights,
-			     bool randomize)
+			     bool randomize,
+			     int seed)
 {
   assert( copy_ != 0 );
 
@@ -902,7 +903,7 @@ SprData* SprAbsFilter::split(double fractionToKeep,
   int N = copy_->size();
   vector<unsigned> indices;
   if( randomize ) {
-    SprIntegerPermutator permu(N);
+    SprIntegerPermutator permu(N,seed);
     if( !permu.sequence(indices) ) {
       cerr << "Unable to permute input indices for splitting." << endl;
       return 0;

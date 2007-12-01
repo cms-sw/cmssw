@@ -1,4 +1,4 @@
-// $Id: spr_transform.C,v 1.2 2007/11/12 04:41:16 narsky Exp $
+// $Id: spr_transform.C,v 1.1 2007/11/12 06:19:16 narsky Exp $
 //
 // Load spr_plot.C before running spr_transform():
 //
@@ -27,7 +27,7 @@ using namespace std;
 int spr_transform_1()
 {
   // load lib
-  gSystem->Load("/afs/cern.ch/user/n/narsky/w0/CMSSW_1_8_X_2007-11-09-0200/lib/slc4_ia32_gcc345/libPhysicsToolsStatPatternRecognition.so");
+  gSystem->Load("/afs/cern.ch/user/n/narsky/w0/CMSSW_1_8_X_2007-11-29-1600/lib/slc4_ia32_gcc345/libPhysicsToolsStatPatternRecognition.so");
   
   // create main SPR object
   SprRootAdapter spr;

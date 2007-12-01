@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprRootAdapter.hh,v 1.7 2007/11/12 04:41:16 narsky Exp $
+//      $Id: SprRootAdapter.hh,v 1.8 2007/11/30 20:13:29 narsky Exp $
 //
 // Description:
 //      Class SprRootAdapter :
@@ -68,7 +68,7 @@ public:
 
   // Split dataset into training and test subsets.
   // All classifiers are cleared.
-  bool split(double fractionForTraining, bool randomize=false);
+  bool split(double fractionForTraining, bool randomize, int seed=0);
 
   // Return dimensionality of training data.
   unsigned dim() const;
@@ -298,9 +298,19 @@ public:
   // The user must book an array of size this->dim()*this->dim().
   bool correlation(int cls, double* corr, const char* datatype="train") const;
 
+  // Compute correlation with the class label.
+  // mode can be set to "normal" or "abs".
+  // In the abs mode, correlations between |X-M(X)| and class label
+  // are computed for each variable, where M(X) is the mean of this
+  // variable in the sample.
+  // The user must book arrays vars and corr of size this->dim().
+  bool correlationClassLabel(const char* mode, char vars[][200],
+			     double* corr, const char* datatype="train") const;
+
   // Estimate variable importance for a given classifier.
-  // The user must book 3 arrays of size this->dim() - for the list
-  // of variables, importance and error on importance.
+  // The user must book 3 arrays of at least size nVars given 
+  // by the chosen classifier, for the list of variables, 
+  // importance and error on importance.
   // nPerm defines number of permutations per each variable.
   // The greater nPerm, the better is the accuracy of the estimate,
   // and the longer it takes to compute.
@@ -309,6 +319,24 @@ public:
                           char vars[][200],
                           double* importance,
 			  double* error) const;
+
+  // Estimate interaction between the specified subset of variables
+  // and all other variables used by the classifier.
+  // The user must book 3 arrays of size at least D, where
+  // D is the number of variables used by this classifier.
+  // The subset can be an empty string '',
+  // in which case interactions between each variable and all
+  // others will be computed. For details, see SprClassifierEvaluator.hh.
+  //
+  // nPoints specifies the number of points used for integration of classifier
+  // response over each variable. The user should weigh accuracy vs CPU time.
+  bool variableInteraction(const char* classifierName,
+			   const char* subset,
+			   unsigned nPoints,
+			   char vars[][200],
+			   double* interaction,
+			   double* error,
+			   int verbose=0) const;
 
   // Returns classification table for the multi class learner
   // for the selected subset of classes. The user must provide

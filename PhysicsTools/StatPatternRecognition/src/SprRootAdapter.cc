@@ -1,4 +1,4 @@
-//$Id: SprRootAdapter.cc,v 1.7 2007/11/12 04:41:17 narsky Exp $
+//$Id: SprRootAdapter.cc,v 1.9 2007/12/01 01:12:13 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprRootAdapter.hh"
@@ -354,7 +354,8 @@ bool SprRootAdapter::scaleWeights(double w, const char* classtype)
 }
 
 
-bool SprRootAdapter::split(double fractionForTraining, bool randomize)
+bool SprRootAdapter::split(double fractionForTraining, 
+			   bool randomize, int seed)
 {
   // sanity check
   if( trainData_ == 0 ) {
@@ -373,7 +374,8 @@ bool SprRootAdapter::split(double fractionForTraining, bool randomize)
 
   // split training data
   vector<double> weights;
-  SprData* splitted = trainData_->split(fractionForTraining,weights,randomize);
+  SprData* splitted 
+    = trainData_->split(fractionForTraining,weights,randomize,seed);
   if( splitted == 0 ) {
     cerr << "Unable to split training data." << endl;
     return false;
@@ -1513,7 +1515,7 @@ bool SprRootAdapter::correlation(int cls, double* corr, const char* datatype)
   }
 
   // compute
-  SprDataMoments moms(data);
+  SprDataMoments moms(&tempData);
   SprSymMatrix cov;
   SprVector mean;
   if( !moms.covariance(cov,mean) ) {
@@ -1551,6 +1553,54 @@ bool SprRootAdapter::correlation(int cls, double* corr, const char* datatype)
     for( int j=0;j<i;j++ ) {
       corr[i*N+j] = corr[i+j*N];
     }
+  }
+
+  // exit
+  return true;
+}
+
+
+bool SprRootAdapter::correlationClassLabel(const char* mode,
+					   char vars[][200],
+					   double* corr, 
+					   const char* datatype) const
+{
+  // sanity check
+  string sdatatype = datatype;
+  SprAbsFilter* data = 0;
+  if(      sdatatype == "train" )
+    data = trainData_;
+  else if( sdatatype == "test" )
+    data = testData_;
+  if( data == 0 ) {
+    cerr << "Data of type " << sdatatype.c_str()
+         << " has not been loaded." << endl;
+    return false;
+  }
+
+  // fill out vars
+  unsigned dim = data->dim();
+  vector<string> dataVars;
+  data->vars(dataVars);
+  assert( dataVars.size() == dim );
+  for( int d=0;d<dim;d++ )
+    strcpy(vars[d],dataVars[d].c_str());
+
+  // compute correlation
+  SprDataMoments moms(data);
+  string smode = mode;
+  double mean(0), var(0);
+  if(      smode == "normal" ) {
+    for( int d=0;d<dim;d++ )
+      corr[d] = moms.correlClassLabel(d,mean,var);
+  }
+  else if( smode == "abs" ) {
+    for( int d=0;d<dim;d++ )
+      corr[d] = moms.absCorrelClassLabel(d,mean,var);
+  }
+  else {
+    cerr << "Unknown mode in correlationClassLabel." << endl;
+    return false;
   }
 
   // exit
@@ -1615,11 +1665,82 @@ bool SprRootAdapter::variableImportance(const char* classifierName,
   }
 
   // convert result into arrays
-  assert( lossIncrease.size() == this->dim() );
   for( int d=0;d<lossIncrease.size();d++ ) {
     strcpy(vars[d],lossIncrease[d].first.c_str());
     importance[d] = lossIncrease[d].second.first;
     error[d] = lossIncrease[d].second.second;
+  }
+
+  // exit
+  return true;
+}
+
+
+bool SprRootAdapter::variableInteraction(const char* classifierName,
+					 const char* subset,
+					 unsigned nPoints,
+					 char vars[][200],
+					 double* interaction,
+					 double* error,
+					 int verbose) const
+{
+  // sanity check
+  if( testData_ == 0 ) {
+    cerr << "Test data has not been loaded." << endl;
+    return false;
+  }
+  if( needToTest_ ) {
+    cerr << "Test data has changed. Need to run test() again." << endl;
+    return false;
+  }
+
+  // find classifier and mapper
+  string sclassifier = classifierName;
+  SprCoordinateMapper* mapper = 0;
+  SprAbsTrainedClassifier* trained = 0;
+  SprTrainedMultiClassLearner* mcTrained = 0;
+  if( sclassifier == "MultiClassLearner" ) {
+    mapper = mcMapper_;
+    if( mcTrained_ == 0 ) {
+      cerr << "Classifier MultiClassLearner not found." << endl;
+      return false;
+    }
+    mcTrained = mcTrained_;
+  }
+  else {
+    map<string,SprAbsTrainedClassifier*>::const_iterator ic
+      = trained_.find(sclassifier);
+    if( ic == trained_.end() ) {
+      cerr << "Classifier " << sclassifier.c_str() << " not found." << endl;
+      return false;
+    }
+    trained = ic->second;
+    assert( trained != 0 );
+    map<SprAbsTrainedClassifier*,SprCoordinateMapper*>::const_iterator im
+      = mapper_.find(trained);
+    if( im != mapper_.end() )
+      mapper = im->second;
+  }
+
+  // compute interaction
+  vector<SprClassifierEvaluator::NameAndValue> varInteraction;
+  if( !SprClassifierEvaluator::variableInteraction(testData_,
+						   trained,
+						   mcTrained,
+						   mapper,
+						   subset,
+						   nPoints,
+						   varInteraction,
+						   verbose) ) {
+    cerr << "Unable to estimate variable interactions." << endl;
+    return false;
+  }
+
+  // convert result into arrays
+  for( int d=0;d<varInteraction.size();d++ ) {
+    strcpy(vars[d],varInteraction[d].first.c_str());
+    interaction[d] = varInteraction[d].second.first;
+    error[d] = varInteraction[d].second.second;
   }
 
   // exit

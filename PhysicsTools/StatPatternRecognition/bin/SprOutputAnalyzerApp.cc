@@ -1,4 +1,4 @@
-//$Id: SprOutputAnalyzerApp.cc,v 1.12 2007/10/05 20:03:09 narsky Exp $
+//$Id: SprOutputAnalyzerApp.cc,v 1.13 2007/11/30 20:13:35 narsky Exp $
 /*
   This executable for analysis of output ascii files produced by 
   a classifier. It lets the user quickly estimate fractions of 
@@ -335,8 +335,6 @@ int main(int argc, char ** argv)
   }
 
   // read lines and fill out responses
-  double wsig(0), wbgr(0);
-  unsigned nsig(0), nbgr(0);
   vector<SprPlotter::Response> responses;
   while( getline(file,line) ) {
     int index(0), icls(0);

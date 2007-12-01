@@ -1,7 +1,13 @@
-//$Id: SprIOTestApp.cc,v 1.3 2007/11/30 20:13:35 narsky Exp $
+//$Id: SprSplitterApp.cc,v 1.1 2007/11/30 20:13:36 narsky Exp $
+/*
+  This executable splits input data into training and test data,
+  optionally converting them into a different format (e.g., Ascii 
+  instead of Root).
+*/
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
+#include "PhysicsTools/StatPatternRecognition/interface/SprEmptyFilter.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprData.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsReader.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsWriter.hh"
@@ -23,21 +29,22 @@ using namespace std;
 void help(const char* prog) 
 {
   cout << "Usage:  " << prog 
-       << " training_data_file" << endl;
+       << " input_data_file output_training_data_file output_test_data_file" 
+       << endl;
   cout << "\t Options: " << endl;
   cout << "\t-h --- help                                        " << endl;
-  cout << "\t-o output Tuple file                               " << endl;
   cout << "\t-a input ascii file mode (see SprSimpleReader.hh)  " << endl;
   cout << "\t-A save output data in ascii instead of Root       " << endl;
   cout << "\t-y list of input classes (see SprAbsFilter.hh)     " << endl;
   cout << "\t-v verbose level (0=silent default,1,2)            " << endl;
   cout << "\t-V include only these input variables              " << endl;
   cout << "\t-z exclude input variables from the list           " << endl;
-  cout << "\t-Z exclude input variables from the list, "
-       << "but put them in the output file " << endl;
   cout << "\t\t Variables must be listed in quotes and separated by commas." 
        << endl;
-  cout << "\t\t Variables must be listed in quotes and separated by commas." 
+  cout << "\t-K keep the specified fraction in input data       " << endl;
+  cout << "\t\t If no fraction specified, 0.5 is assumed.       " << endl;
+  cout << "\t-S random seed used for splitting.                 " << endl;
+  cout << "\t\t If none, puts K into training and (1-K) into test data." 
        << endl;
 }
 
@@ -51,29 +58,27 @@ int main(int argc, char ** argv)
   }
 
   // init
-  string tupleFile;
   int readMode = 0;
   SprRWFactory::DataType writeMode = SprRWFactory::Root;
   int verbose = 0;
   string outFile;
   string includeList, excludeList;
   string inputClassesString;
-  string stringVarsDoNotFeed;
+  double splitFactor = 0.5;
+  int seed = 0;
+  bool splitRandomize = false;
 
   // decode command line
   int c;
   extern char* optarg;
   //  extern int optind;
-  while( (c = getopt(argc,argv,"ho:a:Ay:v:V:z:Z:")) != EOF ) {
+  while( (c = getopt(argc,argv,"ha:Ay:v:V:z:K:S:")) != EOF ) {
     switch( c )
       {
       case 'h' :
 	help(argv[0]);
 	return 1;
-      case 'o' :
-	tupleFile = optarg;
-	break;
-      case 'a' :
+       case 'a' :
 	readMode = (optarg==0 ? 0 : atoi(optarg));
 	break;
       case 'A' :
@@ -91,16 +96,30 @@ int main(int argc, char ** argv)
       case 'z' :
 	excludeList = optarg;
 	break;
-      case 'Z' :
-	stringVarsDoNotFeed = optarg;
+      case 'K' :
+	splitFactor = (optarg==0 ? 0.5 : atof(optarg));
+	break;
+      case 'S' :
+	splitRandomize = true;
+	seed = (optarg==0 ? 0 : atoi(optarg));
 	break;
       }
   }
 
-  // There has to be 1 argument after all options.
-  string trFile = argv[argc-1];
-  if( trFile.empty() ) {
+  // arguments
+  string inputFile = argv[argc-3];
+  if( inputFile.empty() ) {
+    cerr << "No input file is specified." << endl;
+    return 1;
+  }
+  string trainFile = argv[argc-2];
+  if( trainFile.empty() ) {
     cerr << "No training file is specified." << endl;
+    return 1;
+  }
+  string testFile = argv[argc-1];
+  if( testFile.empty() ) {
+    cerr << "No test file is specified." << endl;
     return 1;
   }
 
@@ -118,7 +137,7 @@ int main(int argc, char ** argv)
     for( int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
     if( !reader->chooseVars(includeSet) ) {
-      cerr << "Unable to include variables in training set." << endl;
+      cerr << "Unable to include variables in input set." << endl;
       return 2;
     }
     else {
@@ -139,7 +158,7 @@ int main(int argc, char ** argv)
     for( int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
     if( !reader->chooseAllBut(excludeSet) ) {
-      cerr << "Unable to exclude variables from training set." << endl;
+      cerr << "Unable to exclude variables from input set." << endl;
       return 2;
     }
     else {
@@ -152,15 +171,14 @@ int main(int argc, char ** argv)
   }
 
   // read training data from file
-  auto_ptr<SprAbsFilter> filter(reader->read(trFile.c_str()));
+  auto_ptr<SprAbsFilter> filter(reader->read(inputFile.c_str()));
   if( filter.get() == 0 ) {
-    cerr << "Unable to read data from file " << trFile.c_str() << endl;
+    cerr << "Unable to read data from file " << inputFile.c_str() << endl;
     return 2;
   }
   vector<string> vars;
   filter->vars(vars);
-  cout << "Read data from file " << trFile.c_str() 
-       << " for variables";
+  cout << "Read data from file " << inputFile.c_str() << " for variables";
   for( int i=0;i<vars.size();i++ ) 
     cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
@@ -175,50 +193,59 @@ int main(int argc, char ** argv)
   }
   filter->classes(inputClasses);
   assert( inputClasses.size() > 1 );
-  cout << "Training data filtered by class." << endl;
+  cout << "Input data filtered by class." << endl;
   for( int i=0;i<inputClasses.size();i++ ) {
     cout << "Points in class " << inputClasses[i] << ":   " 
 	 << filter->ptsInClass(inputClasses[i]) << endl;
   }
 
-  // make histogram if requested
-  if( tupleFile.empty() ) return 0;
+  // split data
+  cout << "Splitting input data with factor " << splitFactor << endl;
+  vector<double> weights;
+  SprData* splitted = filter->split(splitFactor,weights,splitRandomize,seed);
+  if( splitted == 0 ) {
+    cerr << "Unable to split input data." << endl;
+    return 2;
+  }
+  bool ownData = true;
+  auto_ptr<SprAbsFilter> valFilter(new SprEmptyFilter(splitted,
+						      weights,ownData));
+  cout << "Data re-filtered:" << endl;
+  cout << "Training data:" << endl;
+  for( int i=0;i<inputClasses.size();i++ ) {
+    cout << "Points in class " << inputClasses[i] << ":   " 
+	 << filter->ptsInClass(inputClasses[i]) << endl;
+  }
+  cout << "Test data:" << endl;
+  for( int i=0;i<inputClasses.size();i++ ) {
+    cout << "Points in class " << inputClasses[i] << ":   " 
+	 << valFilter->ptsInClass(inputClasses[i]) << endl;
+  }
 
   // make a writer
-  auto_ptr<SprAbsWriter> tuple(SprRWFactory::makeWriter(writeMode,"training"));
-  if( !tuple->init(tupleFile.c_str()) ) {
-    cerr << "Unable to open output file " << tupleFile.c_str() << endl;
-    return 8;
+  auto_ptr<SprAbsWriter> trainTuple(SprRWFactory::makeWriter(writeMode,
+							     "training"));
+  if( !trainTuple->init(trainFile.c_str()) ) {
+    cerr << "Unable to open output file " << trainFile.c_str() << endl;
+    return 3;
   }
-
-  // determine if certain variables are to be excluded from usage,
-  // but included in the output storage file (-Z option)
-  string printVarsDoNotFeed;
-  vector<vector<string> > varsDoNotFeed;
-  SprStringParser::parseToStrings(stringVarsDoNotFeed.c_str(),varsDoNotFeed);
-  vector<unsigned> mapper;
-  for( int d=0;d<vars.size();d++ ) {
-    if( varsDoNotFeed.empty() ||
-        (find(varsDoNotFeed[0].begin(),varsDoNotFeed[0].end(),vars[d])
-	 ==varsDoNotFeed[0].end()) ) {
-      mapper.push_back(d);
-    }
-    else {
-      printVarsDoNotFeed += ( printVarsDoNotFeed.empty() ? "" : ", " );
-      printVarsDoNotFeed += vars[d];
-    }
-  }
-  if( !printVarsDoNotFeed.empty() ) {
-    cout << "The following variables are not used in the algorithm, " 
-         << "but will be included in the output file: " 
-         << printVarsDoNotFeed.c_str() << endl;
+  auto_ptr<SprAbsWriter> testTuple(SprRWFactory::makeWriter(writeMode,
+							    "test"));
+  if( !testTuple->init(testFile.c_str()) ) {
+    cerr << "Unable to open output file " << testFile.c_str() << endl;
+    return 3;
   }
 
   // feed
-  SprDataFeeder feeder(filter.get(),tuple.get(),mapper);
+  SprDataFeeder feeder(filter.get(),trainTuple.get());
   if( !feeder.feed(1000) ) {
-    cerr << "Cannot feed data into file " << tupleFile.c_str() << endl;
-    return 9;
+    cerr << "Cannot feed data into file " << trainFile.c_str() << endl;
+    return 4;
+  }
+  SprDataFeeder valFeeder(valFilter.get(),testTuple.get());
+  if( !valFeeder.feed(1000) ) {
+    cerr << "Cannot feed data into file " << testFile.c_str() << endl;
+    return 4;
   }
 
   // exit
