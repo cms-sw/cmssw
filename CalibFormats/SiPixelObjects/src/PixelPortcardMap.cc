@@ -7,62 +7,65 @@
 //
  
 #include "CalibFormats/SiPixelObjects/interface/PixelPortcardMap.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelChannel.h"
 
+#include <string>
+#include <cassert>
 
 using namespace pos;
 using namespace std;
 
 PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &tableMat):PixelConfigBase(" "," "," "){
 
-std::vector< std::string > ins = tableMat[0];
-std::map<std::string , int > colM;
-std::vector<std::string > colNames;
-colNames.push_back("PORTCARD_NAME");//0
-colNames.push_back("AOH_CHAN");//1
-colNames.push_back("PANEL_NAME");//2
+  std::vector< std::string > ins = tableMat[0];
+  std::map<std::string , int > colM;
+  std::vector<std::string > colNames;
+  colNames.push_back("PORTCARD_NAME");//0
+  colNames.push_back("AOH_CHAN");//1
+  colNames.push_back("PANEL_NAME");//2
 
-for(unsigned int c = 0 ; c < ins.size() ; c++){
-   for(unsigned int n=0; n<colNames.size(); n++){
-     if(tableMat[0][c] == colNames[n]){
-       colM[colNames[n]] = c;
-       break;
-     }
-   }
- }//end for
- for(unsigned int n=0; n<colNames.size(); n++){
-   if(colM.find(colNames[n]) == colM.end()){
-     std::cerr << "[PixelPortcardMap::PixelPortcardMap()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
-     assert(0);
-   }
- }
+  for(unsigned int c = 0 ; c < ins.size() ; c++){
+    for(unsigned int n=0; n<colNames.size(); n++){
+      if(tableMat[0][c] == colNames[n]){
+	colM[colNames[n]] = c;
+	break;
+      }
+    }
+  }//end for
+  for(unsigned int n=0; n<colNames.size(); n++){
+    if(colM.find(colNames[n]) == colM.end()){
+      std::cerr << "[PixelPortcardMap::PixelPortcardMap()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+      assert(0);
+    }
+  }
 	
 	
 	
-std::string portcardname;
-std::string modulename;
-unsigned int aoh;
-std::string aohstring;
-	
-for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
+  std::string portcardname;
+  std::string modulename;
+  unsigned int aoh;
+  std::string aohstring;
+  
+  for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
 
-portcardname = tableMat[r][colM[colNames[0]]];
-modulename =   tableMat[r][colM[colNames[2]]];
-aohstring = tableMat[r][colM[colNames[1]]];
-//aohname.erase(0,20);  // Is going to be change when Umesh put a AOH Channel column in the view.
-aoh = (((unsigned int)atoi(aohstring.c_str()))+1);
-//std::cout<<aoh<<std::endl;
-PixelModuleName module(modulename);
-	    if (module.modulename()!=modulename){
-	      std::cout << "Modulename:"<<modulename<<std::endl;
-	      std::cout << "Parsed to:"<<module.modulename()<<std::endl;
-	      assert(0);
-	    }
+    portcardname = tableMat[r][colM[colNames[0]]];
+    modulename =   tableMat[r][colM[colNames[2]]];
+    aohstring = tableMat[r][colM[colNames[1]]];
+    //aohname.erase(0,20);  // Is going to be change when Umesh put a AOH Channel column in the view.
+    aoh = (((unsigned int)atoi(aohstring.c_str()))+1);
+    //std::cout<<aoh<<std::endl;
+    PixelModuleName module(modulename);
+    if (module.modulename()!=modulename){
+      std::cout << "Modulename:"<<modulename<<std::endl;
+      std::cout << "Parsed to:"<<module.modulename()<<std::endl;
+      assert(0);
+    }
 
-		std::string TBMChannel = "A"; assert(0); // add TBMChannel to the input, then remove assert
-		PixelChannel channel(PixelModuleName(modulename), TBMChannel);
-		std::pair<std::string, int> portcardAndAOH(portcardname, aoh);
-		map_[channel] = portcardAndAOH;
-}//end for r
+    std::string tbmChannel = "A"; assert(0); // add TBMChannel to the input, then remove assert
+    PixelChannel channel(module, tbmChannel);
+    std::pair<std::string, int> portcardAndAOH(portcardname, aoh);
+    map_[channel] = portcardAndAOH;
+  }//end for r
 
 
 }//end constructor
@@ -71,55 +74,55 @@ PixelModuleName module(modulename);
 PixelPortcardMap::PixelPortcardMap(std::string filename):
   PixelConfigBase(" "," "," "){
 
-    std::ifstream in(filename.c_str());
+  std::ifstream in(filename.c_str());
 
-    if (!in.good()){
-	std::cout << "Could not open:"<<filename<<std::endl;
+  if (!in.good()){
+    std::cout << "Could not open:"<<filename<<std::endl;
+    assert(0);
+  }
+  else {
+    std::cout << "Opened:"<<filename<<std::endl;
+  }
+  
+  std::string dummy;
+
+  in >> dummy;
+  in >> dummy;
+  in >> dummy;
+  in >> dummy;
+  in >> dummy;
+
+  do {
+    
+    std::string portcardname;
+    std::string modulename;
+    std::string TBMChannel = "A";
+    std::string aoh_string;
+    unsigned int aoh;
+
+    in >> portcardname >> modulename >> aoh_string ;
+    if (aoh_string == "A" || aoh_string == "B") // Optionally, the TBM channel may be specified after the module name.  Check for this.
+      {
+	TBMChannel = aoh_string;
+	in >> aoh_string;
+      }
+    aoh = atoi(aoh_string.c_str());
+    
+    if (!in.eof() ){
+      PixelModuleName module(modulename);
+      if (module.modulename()!=modulename){
+	std::cout << "Modulename:"<<modulename<<std::endl;
+	std::cout << "Parsed to:"<<module.modulename()<<std::endl;
 	assert(0);
+      }
+
+      PixelChannel channel(module, TBMChannel);
+      std::pair<std::string, int> portcardAndAOH(portcardname, aoh);
+      map_[channel] = portcardAndAOH;
     }
-    else {
-	std::cout << "Opened:"<<filename<<std::endl;
-    }
-
-    std::string dummy;
-
-    in >> dummy;
-    in >> dummy;
-    in >> dummy;
-    in >> dummy;
-    in >> dummy;
-
-    do {
-	
-	std::string portcardname;
-	std::string modulename;
-	std::string TBMChannel = "A";
-	std::string aoh_string;
-	unsigned int aoh;
-
-	in >> portcardname >> modulename >> aoh_string ;
-	if (aoh_string == "A" || aoh_string == "B") // Optionally, the TBM channel may be specified after the module name.  Check for this.
-	{
-		TBMChannel = aoh_string;
-		in >> aoh_string;
-	}
-	aoh = atoi(aoh_string.c_str());
-
-	if (!in.eof() ){
-	    PixelModuleName module(modulename);
-	    if (module.modulename()!=modulename){
-	      std::cout << "Modulename:"<<modulename<<std::endl;
-	      std::cout << "Parsed to:"<<module.modulename()<<std::endl;
-	      assert(0);
-	    }
-
-		PixelChannel channel(PixelModuleName(modulename), TBMChannel);
-		std::pair<std::string, int> portcardAndAOH(portcardname, aoh);
-		map_[channel] = portcardAndAOH;
-	}
 	    
 
-    }while (!in.eof());
+  }while (!in.eof());
 }
     
 /*const std::map<PixelModuleName, int>& PixelPortcardMap::modules(std::string portcard) const{
