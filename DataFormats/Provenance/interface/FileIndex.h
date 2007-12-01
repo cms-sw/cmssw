@@ -5,11 +5,12 @@
 
 FileIndex.h 
 
-$Id$
+$Id: FileIndex.h,v 1.1 2007/11/22 16:44:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
+#include <cassert>
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
