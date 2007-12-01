@@ -34,45 +34,26 @@ CSCGeometryBuilderFromDDD::~CSCGeometryBuilderFromDDD(){}
 
 void CSCGeometryBuilderFromDDD::build(boost::shared_ptr<CSCGeometry> geom, const DDCompactView* cview, const MuonDDDConstants& muonConstants){
 
-  try {
-    std::string attribute = "MuStructure";      // could come from outside
-    std::string value     = "MuonEndcapCSC";    // could come from outside
-    DDValue muval(attribute, value, 0.0);
+  std::string attribute = "MuStructure";      // could come from outside
+  std::string value     = "MuonEndcapCSC";    // could come from outside
+  DDValue muval(attribute, value, 0.0);
 
-    // Asking for a specific section of the MuStructure
+  // Asking for a specific section of the MuStructure
 
-    DDSpecificsFilter filter;
-    filter.setCriteria(muval, // name & value of a variable 
-		       DDSpecificsFilter::equals,
-		       DDSpecificsFilter::AND, 
-		       true, // compare strings otherwise doubles
-		       true // use merged-specifics or simple-specifics
-		       );
+  DDSpecificsFilter filter;
+  filter.setCriteria(muval, // name & value of a variable 
+		     DDSpecificsFilter::equals,
+		     DDSpecificsFilter::AND, 
+		     true, // compare strings otherwise doubles
+		     true // use merged-specifics or simple-specifics
+		     );
 
-    DDFilteredView fview( *cview );
-    fview.addFilter(filter);
+  DDFilteredView fview( *cview );
+  fview.addFilter(filter);
 
-    bool doSubDets = fview.firstChild();
-    doSubDets      = fview.firstChild(); // and again?!
-    buildEndcaps( geom, &fview, muonConstants ); 
-    return;
-  }
-
-  catch (const DDException & e ) {
-    edm::LogError("DDD") << "something went wrong during XML parsing!" << std::endl
-	      << "  Message: " << e << std::endl
-	      << "  Terminating execution ... " << std::endl;
-    throw;	       
-  }
-  catch (const std::exception & e) {
-    edm::LogError(myName) << "An unexpected exception occured: " << e.what() << std::endl;
-    throw;
-  }
-  catch (...) {
-    edm::LogError(myName) << "An unexpected unnamed exception occured!" << std::endl
-	      << "  Terminating execution ... " << std::endl;
-    std::unexpected();	         
-  }
+  bool doSubDets = fview.firstChild();
+  doSubDets      = fview.firstChild(); // and again?!
+  buildEndcaps( geom, &fview, muonConstants ); 
 
 }
 
