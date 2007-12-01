@@ -18,7 +18,8 @@ cmssw_dir=`pwd`
 #
 #fi
 
-
+mkdir -p  $preferred_dir/log/
+mkdir -p  $preferred_dir/conf
 
 if [ ! -n "$1" ]
 
