@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <dlfcn.h>
 
+#include <cassert>
 #include <cstdio>
 #include <iostream>
 #include <sstream>
