@@ -4,11 +4,10 @@
 preferred_dir=`pwd`
 log_dir=$preferred_dir/log/
 conf_dir=$preferred_dir/conf/
-#cmssw_dir="/nfshome0/ecaldev/DUMP/CMSSW_1_3_0_pre3/src"
+#cmssw_dir=/nfshome0/ecaldev/DUMP/CMSSW_1_7_1/src
 cmssw_dir=`pwd`
 
-# in case you wanted to force  execution inside the preferred_dir
-#if [ "$PWD" != $preferred_dir ]; then
+# if [ "$PWD" != $preferred_dir ]; then
 #
 # echo ""
 # echo "this script should be executed from $preferred_dir"
@@ -18,9 +17,6 @@ cmssw_dir=`pwd`
 # exit
 #
 #fi
-
-mkdir -p  $preferred_dir/log/
-mkdir -p  $preferred_dir/conf
 
 
 
@@ -32,13 +28,13 @@ echo ""
 echo "Options:"
 echo ""
 echo "      -p|--path_file        file_path       path to the data to be analyzed (default is /data/ecalod-22/daq-data/)"
-echo "      -d|--data_file        file_name       data file to be analyzed"
+echo "      -d|--data_file        file_name       data file to be analyzed (both .root and .dat files are supported)"
 echo ""
 echo "      -f|--first_ev         f_ev            first (as written to file) event that will be analyzed; default is 1"
 echo "      -l|--last_ev          l_ev            last (as written to file) event that will be analyzed; default is 9999"
 
 echo "      -bf|--beg_fed_id      b_f_id          fed_id: EE- is 601-609,  EB is 610-645,  EE- is 646-654; default is 0"
-echo "      -ef|--end_fed_id      e_f_id          when using 'single sm' fed corresponds to construction number; default is 670"
+echo "      -ef|--end_fed_id      e_f_id          when using 'single sm' fed corresponds to construction number; default is 654"
 
 echo ""
 echo ""
@@ -55,7 +51,7 @@ data_file="none"
 cfg_path="$conf_dir"
 
 beg_fed_id=0
-end_fed_id=670
+end_fed_id=654
 
 first_event=1
 last_event=9999
@@ -93,7 +89,7 @@ last_event=9999
                 ;;
 
     esac
-    shift       # Verifica la serie successiva di parametri.
+    shift
 
 done
 
@@ -111,9 +107,25 @@ echo "last fed that will be dumped:                 $end_fed_id"
 echo ""
 echo ""
 
+extension=${data_file##*.}
 
-
-
+if [[ $extension == "root" ]]; then
+  input_module="
+# if getting data from a .root pool file
+  source = PoolSource {
+    untracked uint32 skipEvents = $first_event
+      untracked vstring fileNames = { 'file:$data_path/$data_file' }
+    untracked bool   debugFlag     = true
+   }"
+else
+  input_module="
+     source = NewEventStreamFileReader{
+       untracked uint32 skipEvents = $first_event
+       untracked vstring fileNames = { 'file:$data_path/$data_file' }
+       untracked uint32 debugVebosity = 10
+       untracked bool   debugFlag     = true
+     }" 
+fi
 
 cat > "$cfg_path$data_file".hex.$$.cfg <<EOF
 process HEXDUMP = { 
@@ -134,7 +146,7 @@ process HEXDUMP = {
      untracked string filename = 'dump.bin'
    }
 
-    module counter = AsciiOutputModule{}
+#     module counter = AsciiOutputModule{}
 
     service = MessageLogger{
        untracked vstring destinations = { "cout" }
@@ -145,16 +157,13 @@ process HEXDUMP = {
      }
 
 
-# if getting data from a .root pool file
-      source = PoolSource {
-              untracked vstring fileNames = { 'file:$data_path$data_file' }
-              untracked uint32 skipEvents =$first_event
-               }
+    untracked PSet maxEvents = {untracked int32 input = $last_event}
 
-  untracked PSet maxEvents = {untracked int32 input = 9999}
+     $input_module
+     
+     path p = {# counter,
+               hexDump}
 
-     path p = { hexDump}
-     endpath e = {counter}
 
 }
 
@@ -168,7 +177,7 @@ EOF
 
 echo "initializing cmssw..."
 export SCRAM_ARCH=slc3_ia32_gcc323
-#. /nfshome0/cmssw/cmsset_default.sh
+. /nfshome0/cmssw/cmsset_default.sh
 cd $cmssw_dir;
 eval `scramv1 ru -sh`;
 cd -;
@@ -179,8 +188,7 @@ echo ""
 echo ""
 echo ""
 echo "-------------------------------------------------------------------------------------------------------------------------"
-echo "hexadecimal dump completed. To see the results edit:"
-echo  "$log_dir$data_file".$$.hex 
+echo "hexadecimal dump completed, now edit "$log_dir$data_file".$$.hex to see the results"
 echo "-------------------------------------------------------------------------------------------------------------------------"
 echo ""
 echo ""
