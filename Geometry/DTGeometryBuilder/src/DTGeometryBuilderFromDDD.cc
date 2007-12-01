@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/05/28 10:32:24 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/06/04 16:29:12 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - CERN. 
  */
 
@@ -47,39 +47,21 @@ DTGeometry* DTGeometryBuilderFromDDD::build(const DDCompactView* cview, const Mu
   //   static const string t0 = "DTGeometryBuilderFromDDD::build";
   //   TimeMe timer(t0,true);
 
-  try {
-    std::string attribute = "MuStructure"; 
-    std::string value     = "MuonBarrelDT";
-    DDValue val(attribute, value, 0.0);
+  std::string attribute = "MuStructure"; 
+  std::string value     = "MuonBarrelDT";
+  DDValue val(attribute, value, 0.0);
 
-    // Asking only for the Muon DTs
-    DDSpecificsFilter filter;
-    filter.setCriteria(val,  // name & value of a variable 
-		       DDSpecificsFilter::matches,
-		       DDSpecificsFilter::AND, 
-		       true, // compare strings otherwise doubles
-		       true  // use merged-specifics or simple-specifics
-		       );
-    DDFilteredView fview(*cview);
-    fview.addFilter(filter);
-
-    return buildGeometry(fview, muonConstants);
-  }
-  catch (const DDException & e ) {
-    std::cerr << "DTGeometryBuilderFromDDD::build() : DDD Exception: something went wrong during XML parsing!" << std::endl
-	      << "  Message: " << e << std::endl
-	      << "  Terminating execution ... " << std::endl;
-    throw;
-  }
-  catch (const exception & e) {
-    std::cerr << "DTGeometryBuilderFromDDD::build() : an unexpected exception occured: " << e.what() << std::endl; 
-    throw;
-  }
-  catch (...) {
-    std::cerr << "DTGeometryBuilderFromDDD::build() : An unexpected exception occured!" << std::endl
-	      << "  Terminating execution ... " << std::endl;
-    std::unexpected();           
-  }
+  // Asking only for the Muon DTs
+  DDSpecificsFilter filter;
+  filter.setCriteria(val,  // name & value of a variable 
+		     DDSpecificsFilter::matches,
+		     DDSpecificsFilter::AND, 
+		     true, // compare strings otherwise doubles
+		     true  // use merged-specifics or simple-specifics
+		     );
+  DDFilteredView fview(*cview);
+  fview.addFilter(filter);
+  return buildGeometry(fview, muonConstants);
 }
 
 
