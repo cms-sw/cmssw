@@ -5,8 +5,8 @@ var RequestHistos = {};
 RequestHistos.RequestHistoList = function() 
 {
   var queryString;
-  var url = WebLib.getApplicationURL2();
-  if (document.getElementById("module_histos").checked) {
+  var url = WebLib.getApplicationURLWithLID();
+  if ($('module_histos').checked) {
     queryString = "RequestID=SingleModuleHistoList";
     url        += queryString; 
     var retVal = new Ajax.Request(url,                    
@@ -17,7 +17,7 @@ RequestHistos.RequestHistoList = function()
  			         });
 //    WebLib.makeRequest(url, RequestHistos.FillModuleHistoList);
     CommonActions.ShowProgress("visible", "Module Histogram List");     
-  } else if (document.getElementById("global_histos").checked) {
+  } else if ($('global_histos').checked) {
     queryString = "RequestID=GlobalHistoList";    
     url        += queryString;
     var retVal = new Ajax.Request(url,                    
@@ -36,9 +36,9 @@ RequestHistos.RequestHistoList = function()
 RequestHistos.RequestSummaryHistoList = function()
 {
   var queryString;
-  var url      = WebLib.getApplicationURL2();
+  var url      = WebLib.getApplicationURLWithLID();
   queryString  = "RequestID=SummaryHistoList";
-  var obj      = document.getElementById("structure_name");
+  var obj      = $('structure_name');
   var sname    = obj.options[obj.selectedIndex].value;
   queryString += '&StructureName='+sname;
   url         += queryString; 
@@ -57,9 +57,9 @@ RequestHistos.RequestSummaryHistoList = function()
 RequestHistos.RequestAlarmList = function()
 {
   var queryString;
-  var url      = WebLib.getApplicationURL2();
+  var url      = WebLib.getApplicationURLWithLID();
   queryString  = "RequestID=AlarmList";
-  var obj      = document.getElementById("structure_for_alarm");
+  var obj      = $('structure_for_alarm');
   var sname    = obj.options[obj.selectedIndex].value;
   queryString += '&StructureName='+sname;
   url         += queryString; 
@@ -85,7 +85,7 @@ RequestHistos.FillModuleHistoList = function(transport)
       var root  = doc.documentElement;
         
       // Module Number select box
-      var aobj  = document.getElementById("module_numbers");
+      var aobj  = $('module_numbers');
 
       aobj.options.length = 0;
         
@@ -103,12 +103,12 @@ RequestHistos.FillModuleHistoList = function(transport)
         }
       }
       // Select the first option and set to editable text  
-      var cobj = document.getElementById("module_number_edit");
+      var cobj = $('module_number_edit');
       if (cobj != null) {
         cobj.value = aobj.options[0].value;;
       }   
       // Histogram  select box
-      var bobj = document.getElementById("histolistarea");
+      var bobj = $('histolistarea');
       bobj.options.length = 0;
 
       var hrows = root.getElementsByTagName('Histo');
@@ -140,7 +140,7 @@ RequestHistos.FillGlobalHistoList = function(transport)
       var root = doc.documentElement;
        
       // Histogram  select box
-      var bobj = document.getElementById("histolistarea");
+      var bobj = $('histolistarea');
       bobj.options.length = 0;
 
       var hrows = root.getElementsByTagName('GHisto');
@@ -169,7 +169,7 @@ RequestHistos.FillSummaryHistoList = function(transport)
     CommonActions.ShowProgress("hidden");
     try {
       var text = transport.responseText;
-      var obj  = document.getElementById("tree_list");
+      var obj  = $('tree_list');
       if (obj != null) {
         obj.innerHTML = text;
         initTree();
@@ -187,7 +187,7 @@ RequestHistos.FillAlarmList = function(transport)
     CommonActions.ShowProgress("hidden");
     try {
       var text = transport.responseText;
-      var obj = document.getElementById("alarm_list");
+      var obj = $('alarm_list');
       if (obj != null) {
         obj.innerHTML = text;
         initTree();
@@ -203,14 +203,14 @@ RequestHistos.FillAlarmList = function(transport)
 RequestHistos.DrawSelectedHistos = function() 
 {
   var queryString;
-  var url = WebLib.getApplicationURL2();
-  if (document.getElementById("module_histos").checked) {
+  var url = WebLib.getApplicationURLWithLID();
+  if ($('module_histos').checked) {
     queryString = "RequestID=PlotAsModule";
     // Get Module Number
-    var obj      = document.getElementById("module_number_edit");
+    var obj      = $('module_number_edit');
     var value    = obj.value;
     queryString += '&ModId='+value;
-  } else if (document.getElementById("global_histos").checked) {
+  } else if ($('global_histos').checked) {
     queryString  = "RequestID=PlotGlobalHisto";    
   }
   var hist_opt   = RequestHistos.SetHistosAndPlotOption();
@@ -239,61 +239,36 @@ RequestHistos.SetHistosAndPlotOption = function() {
    var dummy = " ";
    var qstring;
   // Histogram Names 
-  var histos = CommonActions.GetSelectedHistos();
-  if (histos.length == 0) {
-    alert("Plot(s) not defined!");
+  var hist_obj   = $('histolistarea');
+  var nhist = hist_obj.length;
+  if (nhist == 0) {
+    alert("Histogram List Area Empty!");
     return dummy;
+  } else {
+    for (var i = 0; i < nhist; i++) {
+      if (hist_obj.options[i].selected) {
+	if (i == 0) qstring  = '&histo='+ hist_obj.options[i].value;
+        else        qstring += '&histo='+ hist_obj.options[i].value;
+      }
+    }
   }
-  //  
-  var nhist = histos.length;
-  // alert(" "+nhist);
-  for (var i = 0; i < nhist; i++) {
-    if (i == 0) qstring = '&histo='+histos[i];
-    else qstring += '&histo='+histos[i];
-  }
-
-  // Rows and columns
-  var nr = 1;
-  var nc = 1;
+ 
+  // Plot options for single histogram 
   if (nhist == 1) {
     // logy option
-    if (document.getElementById("logy").checked) {
+    if ($('logy').checked) {
       qstring += '&logy=true';
     }
-    obj = document.getElementById("x-low");
+    obj = $('x-low');
     value = parseFloat(obj.value);
     if (!isNaN(value)) qstring += '&xmin=' + value;
 
-    obj = document.getElementById("x-high");
+    obj = $('x-high');
     value = parseFloat(obj.value);
     if (!isNaN(value)) qstring += '&xmax=' + value;
-  } else {
-    if (document.getElementById("multizone").checked) {
-      obj = document.getElementById("nrow");
-      nr =  parseInt(obj.value);
-      if (isNaN(nr)) {
-        nr = 1;
-      }
-      obj = document.getElementById("ncol");
-      nc = parseInt(obj.value);
-      if (isNaN(nc)) {
-        nc = 2;       
-      }
-    }
-    if (nr*nc < nhist) {
-      if (nhist <= 10) {
-        nc = 2;
-      } else if (nhist <= 20) {
-        nc = 3;
-      } else if (nhist <= 30) {
-         nc = 4;
-      } 		
-       nr = Math.ceil(nhist*1.0/nc);
-    }
-    qstring += '&cols=' + nc + '&rows=' + nr;       
-  }
+  } 
   // Drawing option
-  var obj1 = document.getElementById("drawing_options");
+  var obj1 = $('drawing_options');
   var value1 =  obj1.options[obj1.selectedIndex].value;
   qstring += '&drawopt='+value1;
   return qstring;
@@ -303,10 +278,10 @@ RequestHistos.SetHistosAndPlotOption = function() {
 // 
 RequestHistos.UpdatePlot = function()
 {
-  var canvas = document.getElementById("drawingcanvas");
+  var canvas = $('drawingcanvas');
 
   var queryString = "RequestID=UpdatePlot";
-  var url = WebLib.getApplicationURL2();
+  var url = WebLib.getApplicationURLWithLID();
   url = url + queryString;
   url = url + '&t=' + Math.random();
   canvas.src = url; 
@@ -317,7 +292,7 @@ RequestHistos.UpdatePlot = function()
 // 
 RequestHistos.DrawSingleHisto = function(path)
 {
-  var url      = WebLib.getApplicationURL2();
+  var url      = WebLib.getApplicationURLWithLID();
   queryString  = 'RequestID=PlotHistogramFromPath';
   queryString += '&Path='+path;
   queryString += '&histotype=summary';
@@ -345,7 +320,7 @@ RequestHistos.DrawSingleHisto = function(path)
 //
 RequestHistos.ReadStatus = function(path) 
 {
-  var url      = WebLib.getApplicationURL2();
+  var url      = WebLib.getApplicationURLWithLID();
   queryString  = 'RequestID=ReadQTestStatus';
   queryString += '&Path='+path;
   queryString += '&width='+IMGC.BASE_IMAGE_WIDTH+
@@ -370,7 +345,7 @@ RequestHistos.FillStatus = function(transport) {
       var mrows = root.getElementsByTagName('Status');
       if (mrows.length > 0) {
         var stat  = mrows[0].childNodes[0].nodeValue;
-        var obj = document.getElementById("status_area");
+        var obj = $('status_area');
         if (obj != null) {
           obj.innerHTML = stat;
         }       
@@ -384,7 +359,7 @@ RequestHistos.FillStatus = function(transport) {
           var date = new Date() ;
           date = date.toString() ;
           date = date.replace(/\s+/g,"_") ;
-          var url = WebLib.getApplicationURL2();
+          var url = WebLib.getApplicationURLWithLID();
   
           for (var i = 1; i < mrows.length; i++) {
             var name = mrows[i].childNodes[0].nodeValue;
@@ -407,10 +382,10 @@ RequestHistos.FillStatus = function(transport) {
 //
 RequestHistos.DrawSelectedSummary = function() 
 {
-  var tobj      = document.getElementById("summary_plot_type");
-  var url = IMGC.getURL() ;
-  var urlTitleList = url + 'images/' + tobj.value +'_titles.lis';
-  var urlImageList = url + 'images/' + tobj.value +'.lis';
+  var tobj      = $('summary_plot_type');
+  var url = WebLib.getApplicationURL() ;
+  var urlTitleList = url + '/images/' + tobj.value +'_titles.lis';
+  var urlImageList = url + '/images/' + tobj.value +'.lis';
   var getTitles = new Ajax.Request(urlTitleList,	   // Load titles first, because they are
   				  {			   // used by the IMGC.processImageList
   				   method: 'get',	   // which fires later on
@@ -431,7 +406,7 @@ RequestHistos.CheckQualityTestResultsLite = function()
 {
   var queryString  = "RequestID=CheckQTResults";
   queryString     += '&InfoType=Lite';
-  var url          = WebLib.getApplicationURL2();
+  var url          = WebLib.getApplicationURLWithLID();
   url              = url + queryString; 
   var retVal = new Ajax.Request(url,
                                {           
@@ -446,7 +421,7 @@ RequestHistos.CheckQualityTestResultsLite = function()
 RequestHistos.CheckQualityTestResultsDetail = function() {
   var queryString  = "RequestID=CheckQTResults";
   queryString     += '&InfoType=Detail';
-  var url          = WebLib.getApplicationURL2();
+  var url          = WebLib.getApplicationURLWithLID();
   url              = url + queryString; 
   var retVal = new Ajax.Request(url,
                                {           

@@ -67,18 +67,11 @@
           onmouseover="ddrivetip('Different actions for the Client ', '#EAFFF9', 200);"
 	  onmouseout="hideddrivetip();">
 	  <fieldset>
-	       <input name="summary" 
-                  id="create_summary"
-                  value="Update Summary" 
-                  style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"                  
-                  onClick="ClientActions.CreateSummary()" 
-                  type="submit">
-               </input>
                <input name="UpdateTrackerMap" 
                  id="create_tkmap"
-                 value="Create Tk Map"
-		 style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
-                 onClick="ClientActions.OpenTrackerMapFrame()"
+                 value="Open Tk Map"
+		 style="width:40%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                 onClick="CommonActions.OpenTrackerMapFrame()"
                  type="submit">                   
              </input>
           </fieldset>
@@ -158,20 +151,20 @@
                  <input name="QtestResultLite" 
                    id="check_qtest_result_lite"
                    value="QTest Result" 
-                   style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                   style="width:40%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
                    onClick="RequestHistos.CheckQualityTestResultsLite()" 
                    type="submit">
                  </input>  
                  <input name="QtestResultDetail" 
                    id="check_qtest_result_detail"
                    value="QTest Result Detail" 
-                   style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                   style="width:40%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
                    onClick="RequestHistos.CheckQualityTestResultsDetail()" 
                    type="submit">
                  </input>  
                </fieldset>
               </div>
-              <div class="block" id="summary_status_area" style="overflow:scroll;height:290px;width:100%;background:#FFF8C9"> 
+              <div class="block" id="summary_status_area" style="overflow:scroll;height:300px;width:100%;background:#FFF8C9"> 
        	      </div>
             </div>
           </div>
@@ -205,7 +198,7 @@
 	        </fieldset>
       	      </div>
 	      </br>
-   	      <div class="bloc" id="tree_list" style="overflow:scroll;height:400px;width:100%;background:#FFF;"> 
+   	      <div class="bloc" id="tree_list" style="overflow:scroll;height:420px;width:100%;background:#FFF;"> 
       	      </div> 
 	    </div>
           </div>
@@ -239,7 +232,7 @@
 	        </fieldset>
               </div>
    	      </br>
-   	      <div class="bloc" id="alarm_list" style="overflow:scroll;height:300px;width:100%;background:#FFF;"> 
+   	      <div class="bloc" id="alarm_list" style="overflow:scroll;height:320px;width:100%;background:#FFF;"> 
       	      </div> 
               <div class="block" id="status_area" style="overflow:scroll;height:100px;width:100%;background:#FFF8C9"> 
               </div>
@@ -271,13 +264,16 @@
                   <select name="mod_num"
                     id="module_numbers"
                     style="margin-left:2%;position:absolute;z-index:0;width:120px;clip:rect(0px,120px,22px,100px);"
-                    onChange="CommonActions.SetSelectedValue();">
+                  onChange="EditableSelect.SetSelectedValue();">
                   </select>
                   <input type="text"
                      name="mod_num_edit"
                      id="module_number_edit"
                      style="margin-left:2%;position:absolute;z-index:1000;width:100px;"
                   </input>
+                  <br/>
+                  <br/>
+                  <br/>
                   <input name="listhisto" 
                         id="list_histos"
                         value="Get Histo List" 
@@ -292,7 +288,7 @@
               <div class="bloc" id="bloc2_3_2">
                 <fieldset>
                   <select size=12 multiple
-                          style="width:100%;height:250px;font-size:10pt;"
+                          style="width:100%;height:260px;font-size:10pt;"
                           name="HistoListArea"
                           id="histolistarea">
                  </select>
@@ -327,41 +323,13 @@
                         name="xHigh">
                  </input>
                  <br/>
-                 <input type="checkbox" 
-	                class="check" 
-                        style="margin-right:2%"
-                        id="multizone" 
-                        name="MultiZone">
-                     Multiple Plot
-                  </input>
-                  <label id="rows"
-                        style="margin-left:30%">
-                    Rows:
-                  </label> 
-                 <input type="text"
-                        style="width:5%;border:1px solid #000;margin-top:2%" 
-                        value="1"
-                        id="nrow" 
-                        name="nRows">
-                 </input>
-                  <label id="cols"
-                        style="margin-left:2%;margin-top:2%">
-                    Columns:
-                  </label> 
-                 <input type="text"
-                        style="width:5%;border:1px solid #000;margin-top:2%" 
-                        value="1"
-                        id="ncol" 
-                        name="nColumns">
-                 </input>
-                 <br/>
                   <label id="drawing_option_label"
                      style="margin-left:5%;margin-top:2%">
                      DrawOption:
 	          </label>
                   <select name="draw_opt" 
                         id="drawing_options"
-                        style="width:15%;margin-top:2%"
+                        style="width:30%;margin-top:2%"
                        <option value=" " SELECTED>Normal</option>
                        <option value="BOX">Box</option>
                        <option value="LEGO1">Lego1</option>
@@ -384,6 +352,22 @@
     </fieldset>
   </div>
 </form>
+<script type="text/javascript">
+   // Addig the selected value from a select menu
+   // to a text input (editable select)
+   var EditableSelect = {};
+   EditableSelect.SetSelectedValue = function() {
+   var aobj = $('module_numbers');
+   if (aobj != null) {
+     var value =  aobj.options[aobj.selectedIndex].value;
+     var bobj = $('module_number_edit');
+     if (bobj != null) {
+       bobj.value = value;
+     }   
+   }
+ }
+</script>
+
 <!--
 <script type="text/javascript">
   initTabs('dhtmlgoodies_tabView1', Array('Shifter View', 'Summary View','Alarm View'Expert View'), 0, 

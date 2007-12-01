@@ -1,11 +1,17 @@
+//-------------------------------------------------------------------------|
+//  A few basic actions to get the url of the application Web Page without |
+//  asking the Web Server. These methods are used by a number of other     |
+//  java acripts.                                                           |
+//                                                                         |
+//  Also the entry point for all necessary javascripts for the             |
+//  DQM application                                                        |
+//-------------------------------------------------------------------------|
 var WebLib = {};
 
-  WebLib.http_request      = null;                                                            
-  WebLib.view_all_contents = true;                                                        
-                                                                                     
-
-//
-// --  Get the url of the application webpage without asking the server...
+  WebLib.http_request      = null;
+  WebLib.view_all_contents = true;
+//--------------------------------------------------------------------------                           // Get the url location of the application web page removing the
+// last part without asking the server...
 //
 WebLib.getApplicationURL = function() 
 {
@@ -16,24 +22,18 @@ WebLib.getApplicationURL = function()
    if (index >= 0) {
      url = url.substring(0, index);
    }
-
-   index = url.lastIndexOf("general");
-   url = url.substring(0, index);
-
    // remove the trailing '/' from the end of the string
    index = url.lastIndexOf("/");
-   if (index == url.length - 1) {
-     url = url.substring(0, index);
-   }
+   url = url.substring(0, index);
    return url;
   } catch (errorMessage) {
    alert("[WebLib.getApplicationURL] Exeuction/syntax error: " + errorMessage ) ;
   }
 }
+//--------------------------------------------------------------------------                           //  Get the url of the application webpage with correct LID 
+//   without asking the server...
 //
-// -- Get the url of the application webpage with correct LID without asking the server...
-//
-WebLib.getApplicationURL2 = function() 
+WebLib.getApplicationURLWithLID = function() 
 {
  try 
  { 
@@ -60,9 +60,8 @@ WebLib.getApplicationURL2 = function()
    alert("[WebLib.getApplicationURL2] Exeuction/syntax error: " + errorMessage ) ;
  }   
 }
-//
-// -- Get Context url
-//
+//--------------------------------------------------------------------------                           // Get the context url location of the application web page, i.e.
+// the string up to the port number
 WebLib.getContextURL = function()
 {
  try 
@@ -74,32 +73,7 @@ WebLib.getContextURL = function()
   alert("[WebLib.getContextURL] Exeuction/syntax error: " + errorMessage ) ;
  }
 }
-//
-// -- Get parent url
-//
-WebLib.getApplicationParentURL = function()
-{
- try 
- {
-   var url = window.opener.location.href;
-   // remove the cgi request from the end of the string
-   var index = url.indexOf("?");
-   if (index != -1) {
-    url = url.substring(0, index);
-   }
-   index = url.lastIndexOf("general");
-   url   = url.substring(0, index);
-   // remove the trailing '/' from the end of the string
-   index = url.lastIndexOf("/");
-   if (index == url.length - 1) {
-     url = url.substring(0, index);
-   }
-   return url;
- } catch (errorMessage) {
-  alert("[WebLib.getApplicationParentURL] Exeuction/syntax error: " + errorMessage ) ;
- }
-}
-//
+//--------------------------------------------------------------------------                           //
 //  -- This function submits a generic request in the form of a url
 //  -- and calls the receiver_function when the state of the request
 //  -- changes.
@@ -129,14 +103,7 @@ WebLib.makeRequest = function(url, receiver_function)
    alert("[WebLib.makeRequest] Exeuction/syntax error: " + errorMessage ) ;
  }
 }
-//
-// -- A dummy method
-//
-WebLib.dummy = function()
-{
-  displayMessages();
-}
-//
+//--------------------------------------------------------------------------                           //
 // -- Initialize a request object that is already constructed 
 //
 WebLib.initReq = function(reqType, url, bool, respHandle)
@@ -164,16 +131,8 @@ WebLib.initReq = function(reqType, url, bool, respHandle)
         "Error detail: " + errv.message); 
   } 
 }
-
-document.write('<script src="SERVED_DIRECTORY_URL/js_files/Navigator.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/js_files/GifDisplay.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/js_files/ContentViewer.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/js_files/ConfigBox.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/js_files/Select.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/js_files/Messages.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/RequestHistos.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/CommonActions.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/js_files/ClientActions.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/tab-view.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/context-menu.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/folder-tree-static.js"><\/script>');

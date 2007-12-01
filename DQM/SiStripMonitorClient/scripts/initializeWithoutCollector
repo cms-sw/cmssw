@@ -34,6 +34,8 @@ my $libname = "libEventFilterProcessor.so";
 
 my $pwd = `pwd`; chomp $pwd;
 
+my $dqm_dir    = $ENV{"CMSSW_BASE"}."/src/DQM/SiStripMonitorClient/test";
+my $dqm_common = $ENV{"CMSSW_BASE"}."/src/DQM/TrackerCommon/test";
 
 #
 # interpret command line
@@ -56,17 +58,12 @@ print "make directories ...\n";
 `mkdir -p xml`;
 
 #
-# make cfg files
+# copy cfg and config files
 #
 print "copy cfg files ...\n";
 
-copy("$ENV{PWD}/../test/source_client.cfg", "$ENV{PWD}/source_client.cfg");
-
-
-
-# make source xml input
-
-copy("$ENV{PWD}/../data/sistrip_qualitytest_config.xml", "$ENV{PWD}/.");
+copy("$dqm_dir/source_client.cfg", "$ENV{PWD}/source_client.cfg");
+copy("$dqm_dir/../data/sistrip_qualitytest_config.xml", "$ENV{PWD}/sistrip_qualitytest_config.xml");
 
 
 #
@@ -188,19 +185,23 @@ close (CTL);
 #
 # copy scripts and other auxiliary files
 #
-copy("$ENV{PWD}/../test/.WebLib.js", "$ENV{PWD}/WebLib.js");
-copy("$ENV{PWD}/../test/Online.html", "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/loader.html", "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/TrackerMapFrame.html", "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/TrackerMapSelection.html", "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/TrackerMapPlot.html", "$ENV{PWD}/.");
+copy("$dqm_dir/.WebLib.js", "$ENV{PWD}/WebLib.js");
+copy("$dqm_dir/Online.html", "$ENV{PWD}/.");
+copy("$dqm_dir/loader.html", "$ENV{PWD}/.");
+copy("$dqm_dir/TrackerMapFrame.html", "$ENV{PWD}/.");
+copy("$dqm_dir/TrackerMapSelection.html", "$ENV{PWD}/.");
+copy("$dqm_dir/TrackerMapPlot.html", "$ENV{PWD}/.");
 
 $SERVED_DIR="http://$hostname:40000/temporary";
 system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$ENV{PWD}/WebLib.js]; 
 
-system qq[cp], qq[-r], qq[$ENV{PWD}/../test/js_files], qq[$ENV{PWD}/js_files];
-system qq[cp], qq[-r], qq[$ENV{PWD}/../test/css_files], qq[$ENV{PWD}/css_files];
-system qq[cp], qq[-r], qq[$ENV{PWD}/../test/images], qq[$ENV{PWD}/images];
+system qq[cp], qq[-r], qq[$dqm_common/js_files],  qq[$ENV{PWD}/js_files];
+system qq[cp], qq[-r], qq[$dqm_common/css_files], qq[$ENV{PWD}/css_files];
+system qq[cp], qq[-r], qq[$dqm_common/images],    qq[$ENV{PWD}/images];
+copy("$dqm_dir/js_files/CommonActions.js", "$ENV{PWD}/js_files/CommonActions.js");
+copy("$dqm_dir/js_files/RequestHistos.js", "$ENV{PWD}/js_files/RequestHistos.js");
+copy("$dqm_dir/js_files/sistrip_svgmap.js", "$ENV{PWD}/js_files/sistrip_svgmap.js");
+copy("$dqm_dir/css_files/style.css", "$ENV{PWD}/css_files/style.css");
 
 #
 # start processes
