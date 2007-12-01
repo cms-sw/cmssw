@@ -53,6 +53,12 @@ namespace cms{
     // method for Debugging
     printHitsDebugger(e);
 
+    // Shahram, 1 Dec 2007: add missing piece needed due to changes
+    //  following tags requested for TIF analysis as suggested by Boris
+    edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
+    es.get<CkfComponentsRecord>().get(theTrajectoryBuilderName,theTrajectoryBuilderHandle);
+    theTrajectoryBuilder = theTrajectoryBuilderHandle.product();
+
     // Step A: set Event for the TrajectoryBuilder
     theTrajectoryBuilder->setEvent(e);        
     
