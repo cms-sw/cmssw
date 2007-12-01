@@ -41,7 +41,7 @@ public:
   /// get the SLB channel index  (valid only for trigger-chain ids)
   int slbChannelIndex() const { return hcalElectronicsId_&0x3; }
   /// get the SLB site number (valid only for trigger-chain ids)
-  int slbSiteNumber() const { return ((hcalElectronicsId_>>2)&0x7)+1; }
+  int slbSiteNumber() const { return ((hcalElectronicsId_>>2)&0x7); }
 
   /// get the HTR-wide slb channel code (letter plus number)
   std::string slbChannelCode() const;
