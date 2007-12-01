@@ -1,5 +1,6 @@
 #include "Utilities/StorageFactory/interface/IOInput.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include <cassert>
 
 /// Destruct the stream.  A no-op.
 IOInput::~IOInput (void)
