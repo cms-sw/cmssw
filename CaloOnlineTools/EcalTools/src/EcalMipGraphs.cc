@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.5 2007/11/29 12:09:48 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.6 2007/11/29 12:13:01 scooper Exp $
 //
 //
 
@@ -47,7 +47,7 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "TGraph.h"
-
+#include "TNtuple.h"
 
 
 //
@@ -89,6 +89,7 @@ class EcalMipGraphs : public edm::EDAnalyzer {
   std::vector<int> EBids_;
 
   TFile* file;
+  TNtuple* eventsAndSeedCrys_;
   EcalFedMap* fedMap;
   
 };
@@ -143,6 +144,7 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
   }
   
   for (int i=0; i<10; i++)        abscissa[i] = i;
+  eventsAndSeedCrys_ = new TNtuple("eventsSeedCrys","Events and Seed Crys Mapping","LV1A:ic:fed");
 }
 
 
@@ -186,6 +188,7 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     EcalUncalibratedRecHit hit = (*hitItr);
     int ic = 0;
     int hashedIndex= 0;
+    int ism = 0;
     //EEDetId eeDet;
     //cout << "Subdetector field is: " << hit.id().subdetId() << endl;
     EBDetId ebDet = hit.id();
@@ -193,6 +196,7 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //if(ebDet.isValid())
     //{
     ic = ebDet.ic();
+    ism = ebDet.ism();
     hashedIndex = ebDet.hashedIndex();
     EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(ebDet);
     //}
@@ -236,6 +240,7 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       LogWarning("EcalMipGraphs") << "channel: " << ic << "  ampli: " << ampli << " jitter " << jitter
         << " Event: " << ievt << " FED: " << FEDid;
      
+      eventsAndSeedCrys_->Fill(ievt, ic, FEDid);
       vector<DetId> neighbors = caloTopo->getWindow(ebDet,side_,side_);
       for(vector<DetId>::const_iterator itr = neighbors.begin(); itr != neighbors.end(); ++itr)
       {
@@ -265,16 +270,21 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(*chnlItr);
     int FEDid = 600+elecId.dccId();
     string sliceName = fedMap->getSliceFromFed(FEDid);
+    //int hashedIndex = (*chnlItr).hashedIndex();
+    //EBDataFrame df = (*digis)[hashedIndex];
+    
+    //cout << "the detId is: " << (*chnlItr).rawId() << endl;
+    //cout << "the detId found: " << df.id().rawId() << endl;
     
     for (int i=0; (unsigned int)i< (*digiItr).size() ; ++i ) {
-      EBDataFrame df(*digiItr);
+      EBDataFrame df(*digiItr); 
       ordinate[i] = df.sample(i).adc();
     }
 
     TGraph oneGraph(10, abscissa,ordinate);
-    string title = "Graph_ev" + intToString(ievt) + "_ic" + intToString(ic)
+    string name = "Graph_ev" + intToString(ievt) + "_ic" + intToString(ic)
       + "_FED" + intToString(FEDid);
-    string name = "Event" + intToString(ievt) + "_ic" + intToString(ic)
+    string title = "Event" + intToString(ievt) + "_ic" + intToString(ic)
       + "_" + sliceName;
     
     oneGraph.SetTitle(title.c_str());
@@ -329,6 +339,7 @@ void
 EcalMipGraphs::endJob()
 {
   writeGraphs();
+  eventsAndSeedCrys_->Write();
   file->Close();
 }
 
