@@ -8,12 +8,13 @@ class HcalDataFormatClient : public HcalBaseClient {
  public:
   
   /// Constructor
-  HcalDataFormatClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
   HcalDataFormatClient();
   
   /// Destructor
-  virtual ~HcalDataFormatClient();
-  
+  ~HcalDataFormatClient();
+
+  void init(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe, string clientName);    
+
   /// Analyze
   void analyze(void);
   
@@ -62,8 +63,11 @@ class HcalDataFormatClient : public HcalBaseClient {
   TH1F* FibOrbMsgBCN_;
   
   TH1F* dferr_[3];
-  
+
   TH2F* DCC_Err_Warn_;
+  TH2F* CDF_Violation_;
+  TH2F* DCC_Evt_Fmt_;
+  TH2F* DCC_Spigot_Err_;
   TH2F* BCNMap_;
   TH2F* EvtMap_;
   TH2F* ErrMapbyCrate_;

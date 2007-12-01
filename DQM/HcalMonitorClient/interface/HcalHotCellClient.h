@@ -1,31 +1,7 @@
 #ifndef HcalHotCellClient_H
 #define HcalHotCellClient_H
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-#include "TROOT.h"
-#include "TStyle.h"
-#include "TFile.h"
-
-#include <memory>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
-
-/*
-using namespace cms;
-using namespace edm;
-using namespace std;
-*/
+#include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
 
 struct HotCellHists{
   int type;
@@ -48,40 +24,39 @@ struct HotCellHists{
   TH2F* NADA_NEG_EN_MAP;
 };
 
-class HcalHotCellClient{
+class HcalHotCellClient : public HcalBaseClient{
+  
+ public:
+  
+  /// Constructor
+  HcalHotCellClient();
+  /// Destructor
+   ~HcalHotCellClient();
 
-public:
+   void init(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe, string clientName);    
 
-/// Constructor
-  HcalHotCellClient(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe_);
-HcalHotCellClient();
-
-/// Destructor
-virtual ~HcalHotCellClient();
-
-/// Analyze
-void analyze(void);
-
-/// BeginJob
-void beginJob(void);
-
-/// EndJob
-void endJob(void);
-
-/// BeginRun
-void beginRun(void);
-
-/// EndRun
-void endRun(void);
-
-/// Setup
-void setup(void);
-
-/// Cleanup
-void cleanup(void);
-
-
- ///process report
+  /// Analyze
+  void analyze(void);
+  
+  /// BeginJob
+  void beginJob(void);
+  
+  /// EndJob
+  void endJob(void);
+  
+  /// BeginRun
+  void beginRun(void);
+  
+  /// EndRun
+  void endRun(void);
+  
+  /// Setup
+  void setup(void);
+  
+  /// Cleanup
+  void cleanup(void);
+    
+  ///process report
   void report();
   
   /// WriteDB
@@ -89,12 +64,6 @@ void cleanup(void);
   void htmlSubDetOutput(HotCellHists& hist, int run, std::string htmlDir, std::string htmlName);
   void getHistograms();
   void loadHistograms(TFile* f);
-
-  void errorOutput();
-  void getErrors(std::map<std::string, std::vector<QReport*> > out1, std::map<std::string, std::vector<QReport*> > out2, std::map<std::string, std::vector<QReport*> > out3);
-  bool hasErrors() const { return dqmReportMapErr_.size(); }
-  bool hasWarnings() const { return dqmReportMapWarn_.size(); }
-  bool hasOther() const { return dqmReportMapOther_.size(); }
 
   void resetAllME();
 
@@ -111,21 +80,8 @@ void cleanup(void);
 
 private:
 
-  int ievt_;
-  int jevt_;
-
-  bool collateSources_;
-  bool cloneME_;
-  bool verbose_;
-  std::string process_;
-  std::string baseFolder_;
-
   // Can we get threshold information from same .cfi file that HotCellMonitor uses?  
   int thresholds_;
-
-  DaqMonitorBEInterface* dbe_;
-
-  bool subDetsOn_[4];
 
   TH2F* gl_geo_[4];
   TH2F* gl_en_[4];
@@ -135,13 +91,6 @@ private:
   TH1F* max_en_[4];
   TH1F* max_t_[4];
   
-  // Quality criteria for data integrity
-  std::map<std::string, std::vector<QReport*> > dqmReportMapErr_;
-  std::map<std::string, std::vector<QReport*> > dqmReportMapWarn_;
-  std::map<std::string, std::vector<QReport*> > dqmReportMapOther_;
-  std::map<std::string, std::string> dqmQtests_;
-
-
   HotCellHists hbhists;
   HotCellHists hehists;
   HotCellHists hohists;

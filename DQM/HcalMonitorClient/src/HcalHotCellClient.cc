@@ -1,18 +1,14 @@
 #include <DQM/HcalMonitorClient/interface/HcalHotCellClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+HcalHotCellClient::HcalHotCellClient(){}
 
-
-HcalHotCellClient::HcalHotCellClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-
-  dbe_ = dbe;
+void HcalHotCellClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe,string clientName){
   
-  if (verbose_)
+  //Call the base class first
+  HcalBaseClient::init(ps,dbe,clientName);
+
+  if (debug_)
     cout <<"Initializing HcalHotCellClient from ParameterSet"<<endl;
 
   hbhists.type=1;
@@ -27,96 +23,45 @@ HcalHotCellClient::HcalHotCellClient(const ParameterSet& ps, DaqMonitorBEInterfa
   clearHists(hfhists);
   clearHists(hcalhists);
 
-  // cloneME switch
-  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-  
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
-  
-  // Set # of histogram hot cell thresholds to 0 at start
-
   int dummy = 0;
   thresholds_=ps.getUntrackedParameter<int>("HotCellThresholds",dummy);
   hcalhists.thresholds=thresholds_;
 
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
-  
   for(unsigned int i=0; i<subdets.size(); i++){
     if(subdets[i]=="HB"){
-      subDetsOn_[0] = true;
       hbhists.thresholds=ps.getUntrackedParameter<int>("HBHotCellThresholds",thresholds_);
     }
     else if(subdets[1]=="HE") {
-      subDetsOn_[1] = true;
       hehists.thresholds=ps.getUntrackedParameter<int>("HEHotCellThresholds",thresholds_);
     }
     else if(subdets[i]=="HO") {
-      subDetsOn_[2] = true;
       hohists.thresholds=ps.getUntrackedParameter<int>("HOHotCellThresholds",thresholds_);
     }
     else if(subdets[i]=="HF"){
-      subDetsOn_[3] = true;
       hfhists.thresholds=ps.getUntrackedParameter<int>("HFHotCellThresholds",thresholds_);
     }
   }
 }
 
-HcalHotCellClient::HcalHotCellClient(){
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-
-  dbe_ = 0;
-
-  if (verbose_)
-    cout <<"Initializing HcalHotCellClient *without* ParameterSet"<<endl;
-  clearHists(hbhists);
-  clearHists(hehists);
-  clearHists(hohists);
-  clearHists(hfhists);
-  clearHists(hfhists);
-
-  hbhists.type=1;
-  hehists.type=2;
-  hohists.type=3;
-  hfhists.type=4;
-  hcalhists.type=10;
-
-  hbhists.thresholds=1;
-  hehists.thresholds=1;
-  hohists.thresholds=1;
-  hfhists.thresholds=1;
-  hcalhists.thresholds=1;
-
-  // verbosity switch
-  verbose_ = false;
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
-}
-
 HcalHotCellClient::~HcalHotCellClient(){
-
   this->cleanup();
-
 }
 
 void HcalHotCellClient::beginJob(void){
   
-  if ( verbose_ ) cout << "HcalHotCellClient: beginJob" << endl;
+  if ( debug_ ) cout << "HcalHotCellClient: beginJob" << endl;
   
   ievt_ = 0;
   jevt_ = 0;
 
   this->setup();
-  this->resetAllME();
   return;
 }
 
 void HcalHotCellClient::beginRun(void){
 
-  if ( verbose_ ) cout << "HcalHotCellClient: beginRun" << endl;
+  if ( debug_ ) cout << "HcalHotCellClient: beginRun" << endl;
 
   jevt_ = 0;
   this->setup();
@@ -126,7 +71,7 @@ void HcalHotCellClient::beginRun(void){
 
 void HcalHotCellClient::endJob(void) {
 
-  if ( verbose_ ) cout << "HcalHotCellClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "HcalHotCellClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup(); 
   return;
@@ -134,7 +79,7 @@ void HcalHotCellClient::endJob(void) {
 
 void HcalHotCellClient::endRun(void) {
 
-  if ( verbose_ ) cout << "HcalHotCellClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "HcalHotCellClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();  
   return;
@@ -147,7 +92,7 @@ void HcalHotCellClient::setup(void) {
 
 void HcalHotCellClient::cleanup(void) {
 
-  if (verbose_)
+  if (debug_)
     cout <<"HcalHotCellClient::cleanup"<<endl;
   if ( cloneME_ ) 
     {
@@ -170,57 +115,11 @@ void HcalHotCellClient::cleanup(void) {
   return;
 }
 
-void HcalHotCellClient::errorOutput(){
-  if(!dbe_) return;
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  
-  for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
-    string testName = testsMap->first;
-    string meName = testsMap->second;
-    MonitorElement* me = dbe_->get(meName);
-    if(me){
-      if (me->hasError()){
-	vector<QReport*> report =  me->getQErrors();
-	dqmReportMapErr_[meName] = report;
-      }
-      if (me->hasWarning()){
-	vector<QReport*> report =  me->getQWarnings();
-	dqmReportMapWarn_[meName] = report;
-      }
-      if(me->hasOtherReport()){
-	vector<QReport*> report= me->getQOthers();
-	dqmReportMapOther_[meName] = report;
-      }
-    }
-  }
-  cout <<"HotCell Task: "<<dqmReportMapErr_.size()<<" errors, "<<dqmReportMapWarn_.size()<<" warnings, "<<dqmReportMapOther_.size()<<" others"<<endl;
-
-  return;
-}
-
-void HcalHotCellClient::getErrors(map<string, vector<QReport*> > outE, map<string, vector<QReport*> > outW, map<string, vector<QReport*> > outO){
-
-  this->errorOutput();
-  outE.clear(); outW.clear(); outO.clear();
-
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapErr_.begin(); i!=dqmReportMapErr_.end(); i++){
-    outE[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapWarn_.begin(); i!=dqmReportMapWarn_.end(); i++){
-    outW[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapOther_.begin(); i!=dqmReportMapOther_.end(); i++){
-    outO[i->first] = i->second;
-  }
-
-  return;
-}
 
 void HcalHotCellClient::report(){
 
-  if ( verbose_ ) cout << "HcalHotCellClient: report" << endl;
-  //  this->setup();  
-  
+  if ( debug_ ) cout << "HcalHotCellClient: report" << endl;
+
   char name[256];
   sprintf(name, "%sHcal/HotCellMonitor/HotCell Task Event Number",process_.c_str());
   MonitorElement* me = 0;
@@ -229,7 +128,7 @@ void HcalHotCellClient::report(){
     string s = me->valueString();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( verbose_ ) cout << "Found '" << name << "'" << endl;
+    if ( debug_ ) cout << "Found '" << name << "'" << endl;
   }
 
   getHistograms();
@@ -241,9 +140,9 @@ void HcalHotCellClient::analyze(void){
 
   jevt_++;
   int updates = 0;
-  //  if(dbe_) dbe_->getNumUpdates();
+
   if ( updates % 10 == 0 ) {
-    if ( verbose_ ) cout << "HcalHotCellClient: " << updates << " updates" << endl;
+    if ( debug_ ) cout << "HcalHotCellClient: " << updates << " updates" << endl;
   }
   
   return;
@@ -253,15 +152,15 @@ void HcalHotCellClient::getHistograms(){
   if(!dbe_) return;
   char name[150];    
   
-  if (verbose_)
+  if (debug_)
     cout <<"HcalHotCellClient::getHistograms()"<<endl;
   for(int i=0; i<4; i++){
 
     sprintf(name,"HotCellMonitor/HotCellDepth%dOccupancyMap",i+1);
-    gl_geo_[i] = getHisto2(name, process_, dbe_,verbose_,cloneME_);
+    gl_geo_[i] = getHisto2(name, process_, dbe_,debug_,cloneME_);
 
     sprintf(name,"HotCellMonitor/HotCellDepth%dEnergyMap",i+1);
-    gl_en_[i] = getHisto2(name, process_, dbe_,verbose_,cloneME_);    
+    gl_en_[i] = getHisto2(name, process_, dbe_,debug_,cloneME_);    
   }
     
   
@@ -408,7 +307,7 @@ void HcalHotCellClient::htmlSubDetOutput(HotCellHists& hist, int runNo,
   else if(hist.type==10) type = "HCAL";
   else
     {
-      if (verbose_)cout <<"<HcalHotCellClient::htmlSubDetOutput> Unrecognized detector type: "<<hist.type<<endl;
+      if (debug_)cout <<"<HcalHotCellClient::htmlSubDetOutput> Unrecognized detector type: "<<hist.type<<endl;
       return;
     }
 
@@ -466,7 +365,7 @@ void HcalHotCellClient::createTests()
   vector<string> params;
   */
 
-  if (verbose_) cout <<"Creating HotCell tests..."<<endl;
+  if (debug_) cout <<"Creating HotCell tests..."<<endl;
   createSubDetTests(hbhists);
   createSubDetTests(hehists);
   createSubDetTests(hohists);
@@ -479,7 +378,7 @@ void HcalHotCellClient::createTests()
 void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
 {
   if(!subDetsOn_[hist.type]) return;
-  if (verbose_) 
+  if (debug_) 
     cout <<"Running HcalHotCellClient::createSubDetTests for subdetector: "<<hist.type<<endl;
   char meTitle[250], name[250];
   vector<string> params;
@@ -499,14 +398,14 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
   // Check NADA Hot Cell
   sprintf(meTitle,"%sHcal/HotCellMonitor/%s/NADA_%s_OCC_MAP",process_.c_str(),type.c_str(), type.c_str());
   sprintf(name,"%s NADA Hot Cell Test",type.c_str()); 
-  if (verbose_) cout <<"Checking for histogram named: "<<name<<endl;
+  if (debug_) cout <<"Checking for histogram named: "<<name<<endl;
   if(dqmQtests_.find(name)==dqmQtests_.end())
     {
-      if (verbose_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
+      if (debug_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
       MonitorElement* me = dbe_->get(meTitle);
       if (me)
 	{
-	  if (verbose_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
+	  if (debug_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
 	  dqmQtests_[name]=meTitle;
 	  params.clear();
 	  params.push_back((string)meTitle);
@@ -514,20 +413,20 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
 	  createH2ContentTest(dbe_,params);
 	}
       else
-	if (verbose_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
+	if (debug_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
     }
 
   // Check NADA Negative-energy cells
   sprintf(meTitle,"%sHcal/HotCellMonitor/%s/NADA_%s_NEG_OCC_MAP",process_.c_str(),type.c_str(), type.c_str());
   sprintf(name,"%s NADA Negative Energy Cell Test",type.c_str()); 
-  if (verbose_) cout <<"Checking for histogram named: "<<name<<endl;
+  if (debug_) cout <<"Checking for histogram named: "<<name<<endl;
   if(dqmQtests_.find(name)==dqmQtests_.end())
     {
-      if (verbose_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
+      if (debug_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
       MonitorElement* me = dbe_->get(meTitle);
       if (me)
 	{
-	  if (verbose_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
+	  if (debug_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
 	  dqmQtests_[name]=meTitle;
 	  params.clear();
 	  params.push_back((string)meTitle);
@@ -535,20 +434,20 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
 	  createH2ContentTest(dbe_,params);
 	}
       else
-	if (verbose_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
+	if (debug_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
     }
   
   // Check Cell with Maximum Energy deposited
   sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%sHotCellGeoOccupancyMap_MaxCell",process_.c_str(),type.c_str(), type.c_str());
   sprintf(name,"%s Maximum Energy Cell",type.c_str()); 
-  if (verbose_) cout <<"Checking for histogram named: "<<name<<endl;
+  if (debug_) cout <<"Checking for histogram named: "<<name<<endl;
   if(dqmQtests_.find(name)==dqmQtests_.end())
     {
-      if (verbose_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
+      if (debug_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
       MonitorElement* me = dbe_->get(meTitle);
       if (me)
 	{
-	  if (verbose_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
+	  if (debug_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
 	  dqmQtests_[name]=meTitle;
 	  params.clear();
 	  params.push_back((string)meTitle);
@@ -556,7 +455,7 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
 	  createH2ContentTest(dbe_,params);
 	}
       else
-	if (verbose_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
+	if (debug_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
     }
 
   // Check threshold tests
@@ -564,14 +463,14 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
     {
       sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%sHotCellOCCmap_Thresh%i",process_.c_str(),type.c_str(), type.c_str(),i);
       sprintf(name,"%s Hot Cells Above Threshold %i",type.c_str(),i); 
-      if (verbose_) cout <<"Checking for histogram named: "<<name<<endl;
+      if (debug_) cout <<"Checking for histogram named: "<<name<<endl;
       if(dqmQtests_.find(name)==dqmQtests_.end())
 	{
-	  if (verbose_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
+	  if (debug_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
 	  MonitorElement* me = dbe_->get(meTitle);
 	  if (me)
 	    {
-	      if (verbose_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
+	      if (debug_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
 	      dqmQtests_[name]=meTitle;
 	      params.clear();
 	      params.push_back((string)meTitle);
@@ -579,7 +478,7 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
 	      createH2ContentTest(dbe_,params);
 	    }
 	  else
-	    if (verbose_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
+	    if (debug_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
 	}
     } // for (int i=0;i<thresholds; i++)
 
@@ -606,7 +505,7 @@ void HcalHotCellClient::loadHistograms(TFile* infile){
 
 void HcalHotCellClient::clearHists(HotCellHists& hist)
 {
-  cout <<"Clearing HcalHotCell histograms for HCAL type: "<<hist.type<<endl;
+  if(debug_) cout <<"Clearing HcalHotCell histograms for HCAL type: "<<hist.type<<endl;
   //hist.type=-1; //clear type?  Probably not?
   hist.OCC_MAP_GEO_Max=0;
   hist.EN_MAP_GEO_Max=0;
@@ -661,72 +560,72 @@ void HcalHotCellClient::getSubDetHistograms(HotCellHists& hist)
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    if (verbose_)cout <<"<HcalHotCellClient::getSubDetHistograms> Unrecognized subdetector type:  "<<hist.type<<endl;
+    if (debug_)cout <<"<HcalHotCellClient::getSubDetHistograms> Unrecognized subdetector type:  "<<hist.type<<endl;
     return;
   }
   // Why are these 2 lines here?
   //hist.OCCmap.clear();
   //hist.ENERGYmap.clear();
   
-  if (verbose_)
+  if (debug_)
     cout <<"Getting HcalHotCell Subdetector Histograms for Subdetector:  "<<type<<endl;
 
   for (int i=0;i<hist.thresholds;i++)
     {
       sprintf(name,"HotCellMonitor/%s/%sHotCellOCCmap_Thresh%i",type.c_str(),type.c_str(),i);
       //cout <<name<<endl;
-      hist.OCCmap.push_back(getHisto2(name,process_,dbe_,verbose_,cloneME_));
+      hist.OCCmap.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
       sprintf(name,"HotCellMonitor/%s/%sHotCellENERGYmap_Thresh%i",type.c_str(),type.c_str(),i);
       //cout <<name<<endl;
-      hist.ENERGYmap.push_back(getHisto2(name,process_,dbe_,verbose_,cloneME_));
+      hist.ENERGYmap.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
     }
 
   sprintf(name,"HotCellMonitor/%s/%sHotCellGeoOccupancyMap_MaxCell",type.c_str(),type.c_str());
   //cout <<name<<endl;
-  hist.OCC_MAP_GEO_Max = getHisto2(name, process_, dbe_,verbose_,cloneME_);      
+  hist.OCC_MAP_GEO_Max = getHisto2(name, process_, dbe_,debug_,cloneME_);      
   sprintf(name,"HotCellMonitor/%s/%sHotCellGeoEnergyMap_MaxCell",type.c_str(),type.c_str());
   //cout <<name<<endl;
-  hist.EN_MAP_GEO_Max = getHisto2(name, process_, dbe_,verbose_,cloneME_);
+  hist.EN_MAP_GEO_Max = getHisto2(name, process_, dbe_,debug_,cloneME_);
   
   sprintf(name,"HotCellMonitor/%s/%sHotCellEnergy",type.c_str(),type.c_str());
-  hist.MAX_E = getHisto(name, process_, dbe_,verbose_,cloneME_);
+  hist.MAX_E = getHisto(name, process_, dbe_,debug_,cloneME_);
   //cout <<name<<endl;
   sprintf(name,"HotCellMonitor/%s/%sHotCellTime",type.c_str(),type.c_str());
-  hist.MAX_T = getHisto(name, process_, dbe_,verbose_,cloneME_);    
+  hist.MAX_T = getHisto(name, process_, dbe_,debug_,cloneME_);    
   //cout <<name<<endl;
   sprintf(name,"HotCellMonitor/%s/%sHotCellID",type.c_str(),type.c_str());
-  hist.MAX_ID = getHisto(name, process_, dbe_,verbose_,cloneME_);    
+  hist.MAX_ID = getHisto(name, process_, dbe_,debug_,cloneME_);    
   //cout <<name<<endl;
 
   // NADA histograms
   sprintf(name,"HotCellMonitor/%s/NADA_%s_OCC_MAP",type.c_str(),type.c_str());
-  hist.NADA_OCC_MAP=getHisto2(name, process_, dbe_,verbose_,cloneME_);
+  hist.NADA_OCC_MAP=getHisto2(name, process_, dbe_,debug_,cloneME_);
   //cout <<"NAME = "<<name<<endl;
   sprintf(name,"HotCellMonitor/%s/NADA_%s_EN_MAP",type.c_str(),type.c_str());
-  hist.NADA_EN_MAP=getHisto2(name, process_, dbe_,verbose_,cloneME_);
+  hist.NADA_EN_MAP=getHisto2(name, process_, dbe_,debug_,cloneME_);
   //cout <<name<<endl;
   sprintf(name,"HotCellMonitor/%s/NADA_%s_NumHotCells",type.c_str(),type.c_str());
-  hist.NADA_NumHotCells = getHisto(name, process_, dbe_,verbose_,cloneME_);
+  hist.NADA_NumHotCells = getHisto(name, process_, dbe_,debug_,cloneME_);
    //cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/NADA_%s_testcell",type.c_str(),type.c_str());
-  hist.NADA_testcell = getHisto(name, process_, dbe_,verbose_,cloneME_); 
+  hist.NADA_testcell = getHisto(name, process_, dbe_,debug_,cloneME_); 
   //cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/NADA_%s_Energy",type.c_str(),type.c_str());
-  hist.NADA_Energy = getHisto(name, process_, dbe_,verbose_,cloneME_); 
+  hist.NADA_Energy = getHisto(name, process_, dbe_,debug_,cloneME_); 
   //cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/NADA_%s_NumNegCells",type.c_str(),type.c_str());
-  hist.NADA_NumNegCells = getHisto(name, process_, dbe_,verbose_,cloneME_); 
+  hist.NADA_NumNegCells = getHisto(name, process_, dbe_,debug_,cloneME_); 
   //cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/NADA_%s_NEG_OCC_MAP",type.c_str(),type.c_str());
-  hist.NADA_NEG_OCC_MAP = getHisto2(name, process_, dbe_,verbose_,cloneME_); 
+  hist.NADA_NEG_OCC_MAP = getHisto2(name, process_, dbe_,debug_,cloneME_); 
   //cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/NADA_%s_NEG_EN_MAP",type.c_str(),type.c_str());
-  hist.NADA_NEG_EN_MAP = getHisto2(name, process_, dbe_,verbose_,cloneME_); 
+  hist.NADA_NEG_EN_MAP = getHisto2(name, process_, dbe_,debug_,cloneME_); 
   //cout <<name<<endl;
 
   return;
@@ -743,7 +642,7 @@ void HcalHotCellClient::getSubDetHistogramsFromFile(HotCellHists& hist, TFile* i
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    if (verbose_)cout <<"<HcalHotCellClient::getSubDetHistogramsFromFile> Unrecognized subdetector type:  "<<hist.type<<endl;
+    if (debug_)cout <<"<HcalHotCellClient::getSubDetHistogramsFromFile> Unrecognized subdetector type:  "<<hist.type<<endl;
     return;
   }
 
@@ -793,9 +692,8 @@ void HcalHotCellClient::getSubDetHistogramsFromFile(HotCellHists& hist, TFile* i
 
 
 
-void HcalHotCellClient::resetSubDetHistograms(HotCellHists& hist)
-{
-
+void HcalHotCellClient::resetSubDetHistograms(HotCellHists& hist){
+  
   char name[150];
   string type;
   if(hist.type==1) type= "HB";
@@ -804,19 +702,19 @@ void HcalHotCellClient::resetSubDetHistograms(HotCellHists& hist)
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    if (verbose_)cout <<"<HcalHotCellClient::resetSubDetHistograms> Unrecognized subdetector type:  "<<hist.type<<endl;
+    if (debug_)cout <<"<HcalHotCellClient::resetSubDetHistograms> Unrecognized subdetector type:  "<<hist.type<<endl;
     return;
   }
-  
+  printf("Reset subdet %s\n",type.c_str());
   for (int i=0;i<hist.thresholds;i++){
-      sprintf(name,"HotCellMonitor/%s/%sHotCellENERGYmap_Thresh%i",type.c_str(),type.c_str(),i);
-      //cout <<"NAME = "<<name<<endl;
-      resetME(name,dbe_);
-      sprintf(name,"HotCellMonitor/%s/%sHotCellOCCmap_Thresh%i",type.c_str(),type.c_str(),i);
-      //cout <<"NAME = "<<name<<endl;
-      resetME(name,dbe_);
-    }
-
+    sprintf(name,"HotCellMonitor/%s/%sHotCellENERGYmap_Thresh%i",type.c_str(),type.c_str(),i);
+    //cout <<"NAME = "<<name<<endl;
+    resetME(name,dbe_);
+    sprintf(name,"HotCellMonitor/%s/%sHotCellOCCmap_Thresh%i",type.c_str(),type.c_str(),i);
+    //cout <<"NAME = "<<name<<endl;
+    resetME(name,dbe_);
+  }
+  
   sprintf(name,"HotCellMonitor/%s/%sHotCellEnergyMap_MaxCell",type.c_str(),type.c_str());
   //cout <<name<<endl;
   resetME(name,dbe_);

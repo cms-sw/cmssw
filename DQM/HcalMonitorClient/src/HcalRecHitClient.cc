@@ -1,76 +1,21 @@
 #include <DQM/HcalMonitorClient/interface/HcalRecHitClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 
-HcalRecHitClient::HcalRecHitClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
+HcalRecHitClient::HcalRecHitClient(){}
 
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-
-  dbe_ = dbe;
-  for(int i=0; i<4; i++){
-    occ_[i]=0;
-    energy_[i]=0;
-    energyT_[i]=0;
-    time_[i]=0;
-    tot_occ_[i]=0;
-  }
+void HcalRecHitClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe, string clientName){
+  //Call the base class first
+  HcalBaseClient::init(ps,dbe,clientName);
   tot_energy_=0;
-
-  // cloneME switch
-  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-  
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  beamE_thresh_ = ps.getUntrackedParameter<double>("beamEnergyMaxThresh", 0.9);
-  cout << "Beam energy maximum threshold set to " << beamE_thresh_ << endl;
-
-  beamE_width_ = ps.getUntrackedParameter<double>("beamEnergyWidth", 0.1);
-  cout << "Beam energy reco width set to " << beamE_thresh_ << endl;
-
-  // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
-
-  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
-  
-  for(unsigned int i=0; i<subdets.size(); i++){
-    if(subdets[i]=="HB") subDetsOn_[0] = true;
-    else if(subdets[i]=="HE") subDetsOn_[1] = true;
-    else if(subdets[i]=="HF") subDetsOn_[2] = true;
-    else if(subdets[i]=="HO") subDetsOn_[3] = true;
-  }
-}
-
-HcalRecHitClient::HcalRecHitClient(){
-
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-
-  dbe_ = 0;
-  for(int i=0; i<4; i++){
-    occ_[i]=0;
-    energy_[i]=0;
-    energyT_[i]=0;
-    time_[i]=0;
-    tot_occ_[i]=0;
-  }
-  tot_energy_=0;
-
-  // verbosity switch
-  verbose_ = false;
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
 }
 
 HcalRecHitClient::~HcalRecHitClient(){
-
   this->cleanup();
-
 }
 
 void HcalRecHitClient::beginJob(void){
 
-  if ( verbose_ ) cout << "HcalRecHitClient: beginJob" << endl;
+  if ( debug_ ) cout << "HcalRecHitClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -82,7 +27,7 @@ void HcalRecHitClient::beginJob(void){
 
 void HcalRecHitClient::beginRun(void){
 
-  if ( verbose_ ) cout << "HcalRecHitClient: beginRun" << endl;
+  if ( debug_ ) cout << "HcalRecHitClient: beginRun" << endl;
 
   jevt_ = 0;
   this->setup();
@@ -92,7 +37,7 @@ void HcalRecHitClient::beginRun(void){
 
 void HcalRecHitClient::endJob(void) {
 
-  if ( verbose_ ) cout << "HcalRecHitClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "HcalRecHitClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup(); 
   return;
@@ -100,7 +45,7 @@ void HcalRecHitClient::endJob(void) {
 
 void HcalRecHitClient::endRun(void) {
 
-  if ( verbose_ ) cout << "HcalRecHitClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "HcalRecHitClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
   return;
@@ -112,17 +57,15 @@ void HcalRecHitClient::setup(void) {
 
 void HcalRecHitClient::cleanup(void) {
 
-  if ( cloneME_ ) {
-    for(int i=0; i<4; i++){
-      if(occ_[i]) delete occ_[i];
-      if(energy_[i]) delete energy_[i];
-      if(energyT_[i]) delete energyT_[i];
-      if(time_[i]) delete time_[i];
-      if(tot_occ_[i]) delete tot_occ_[i];
-    }    
-
-    if(tot_energy_) delete tot_energy_;
-  }
+  for(int i=0; i<4; i++){
+    if(occ_[i]) delete occ_[i];
+    if(energy_[i]) delete energy_[i];
+    if(energyT_[i]) delete energyT_[i];
+    if(time_[i]) delete time_[i];
+    if(tot_occ_[i]) delete tot_occ_[i];
+  }    
+    
+  if(tot_energy_) delete tot_energy_;
   
   for(int i=0; i<4; i++){
     occ_[i]=0; energy_[i]=0;
@@ -137,56 +80,10 @@ void HcalRecHitClient::cleanup(void) {
   return;
 }
 
-void HcalRecHitClient::errorOutput(){
-  if(!dbe_) return;
-
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  
-  for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
-    string testName = testsMap->first;
-    string meName = testsMap->second;
-    MonitorElement* me = dbe_->get(meName);
-    if(me){
-      if (me->hasError()){
-	vector<QReport*> report =  me->getQErrors();
-	dqmReportMapErr_[meName] = report;
-      }
-      if (me->hasWarning()){
-	vector<QReport*> report =  me->getQWarnings();
-	dqmReportMapWarn_[meName] = report;
-      }
-      if(me->hasOtherReport()){
-	vector<QReport*> report= me->getQOthers();
-	dqmReportMapOther_[meName] = report;
-      }
-    }
-  }
-  printf("RecHit Task: %d errors, %d warnings, %d others\n",dqmReportMapErr_.size(),dqmReportMapWarn_.size(),dqmReportMapOther_.size());
-
-  return;
-}
-
-void HcalRecHitClient::getErrors(map<string, vector<QReport*> > outE, map<string, vector<QReport*> > outW, map<string, vector<QReport*> > outO){
-
-  this->errorOutput();
-  outE.clear(); outW.clear(); outO.clear();
-
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapErr_.begin(); i!=dqmReportMapErr_.end(); i++){
-    outE[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapWarn_.begin(); i!=dqmReportMapWarn_.end(); i++){
-    outW[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapOther_.begin(); i!=dqmReportMapOther_.end(); i++){
-    outO[i->first] = i->second;
-  }
-
-  return;
-}
 
 void HcalRecHitClient::report(){
   if(!dbe_) return;
-  if ( verbose_ ) cout << "HcalRecHitClient: report" << endl;
+  if ( debug_ ) cout << "HcalRecHitClient: report" << endl;
   this->setup();
 
   char name[256];
@@ -196,7 +93,7 @@ void HcalRecHitClient::report(){
     string s = me->valueString();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( verbose_ ) cout << "Found '" << name << "'" << endl;
+    if ( debug_ ) cout << "Found '" << name << "'" << endl;
   }
 
   getHistograms();
@@ -208,9 +105,9 @@ void HcalRecHitClient::analyze(void){
 
   jevt_++;
   int updates = 0;
-  //  if(dbe_) dbe_->getNumUpdates();
+
   if ( updates % 10 == 0 ) {
-    if ( verbose_ ) cout << "HcalRecHitClient: " << updates << " updates" << endl;
+    if ( debug_ ) cout << "HcalRecHitClient: " << updates << " updates" << endl;
   }
 
   return;
@@ -221,7 +118,7 @@ void HcalRecHitClient::getHistograms(){
   char name[150];    
   for(int i=0; i<4; i++){
     sprintf(name,"RecHitMonitor/RecHit Depth %d Occupancy Map",i+1);
-    tot_occ_[i] = getHisto2(name, process_, dbe_, verbose_,cloneME_);
+    tot_occ_[i] = getHisto2(name, process_, dbe_, debug_,cloneME_);
   }
 
   for(int i=0; i<4; i++){
@@ -232,21 +129,21 @@ void HcalRecHitClient::getHistograms(){
     if(i==3) type = "HO"; 
     
     sprintf(name,"RecHitMonitor/%s/%s RecHit Energies",type.c_str(),type.c_str());      
-    energy_[i] = getHisto(name, process_,dbe_,verbose_,cloneME_);
+    energy_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
     
     sprintf(name,"RecHitMonitor/%s/%s RecHit Total Energy",type.c_str(),type.c_str());      
-    energyT_[i] = getHisto(name, process_,dbe_,verbose_,cloneME_);
+    energyT_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
 
     sprintf(name,"RecHitMonitor/%s/%s RecHit Times",type.c_str(),type.c_str());      
-    time_[i] = getHisto(name, process_,dbe_,verbose_,cloneME_);
+    time_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
 
     sprintf(name,"RecHitMonitor/%s/%s RecHit Geo Occupancy Map",type.c_str(),type.c_str());
-    occ_[i] = getHisto2(name, process_,dbe_,verbose_,cloneME_);
+    occ_[i] = getHisto2(name, process_,dbe_,debug_,cloneME_);
   }
 
   
   sprintf(name,"RecHitMonitor/RecHit Total Energy");   
-  tot_energy_ = getHisto(name, process_,dbe_, verbose_,cloneME_);
+  tot_energy_ = getHisto(name, process_,dbe_, debug_,cloneME_);
 
   return;
 }
@@ -399,12 +296,8 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
 void HcalRecHitClient::createTests(){
   if(!dbe_) return;
-  //  char meTitle[250], name[250];    
-  //  vector<string> params;
-  
-  if(verbose_) printf("Creating RecHit tests...\n"); 
 
-
+  if(debug_) printf("Creating RecHit tests...\n"); 
   
   return;
 }

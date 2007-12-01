@@ -1,11 +1,12 @@
 #include <DQM/HcalMonitorClient/interface/HcalPedestalClient.h>
+#include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 
-HcalPedestalClient::HcalPedestalClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
-  
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
+HcalPedestalClient::HcalPedestalClient(){}
 
-  dbe_ = dbe;
+void HcalPedestalClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe,string clientName){
+  //Call the base class first
+  HcalBaseClient::init(ps,dbe,clientName);
+
   readoutMap_=0;
 
   for(int i=0; i<4; i++){
@@ -21,37 +22,18 @@ HcalPedestalClient::HcalPedestalClient(const ParameterSet& ps, DaqMonitorBEInter
     pedMapRMSD_[i] = 0;
   }
 
-  // cloneME switch
-  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-  // verbosity switch
-  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
   // per channel tests switch
   doPerChanTests_ = ps.getUntrackedParameter<bool>("DoPerChanTests", false);
   if(doPerChanTests_) 
     cout << "Will perform per-channel pedestal tests." << endl;
+
   // plot peds in RAW or subtracted values in iEta/iPhi maps
   plotPedRAW_ = ps.getUntrackedParameter<bool>("plotPedRAW", false);
   if(plotPedRAW_) 
     cout << "Plotting pedestals in RAW format." << endl;
   else
     cout << "Plotting pedestals in subtracted format." << endl;
-  // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
-
-  /*
-  nCrates_ = ps.getUntrackedParameter<int>("Crates", 0);
-  if(nCrates_>50) nCrates_=50;
-  char name[256];
-  for(int cr=0; cr<nCrates_; cr++){
-    for(int sl = 0; sl<20; sl++){
-      int idx = cr*20+sl;
-      sprintf(name,"Crate: %d, Slot: %d: Pedestal Mean Values",cr,sl);
-      htrMean[idx] = new TH1F("name","name",36,0,35);
-      sprintf(name,"Crate: %d, Slot: %d: Pedestal RMS Values",cr,sl);
-      htrRMS[idx] = new TH1F("name","name",36,0,35);
-    }
-  }
-  */
 
   pedrms_thresh_ = ps.getUntrackedParameter<double>("PedestalRMS_ErrThresh", 1);
   cout << "Pedestal RMS error threshold set to " << pedrms_thresh_ << endl;
@@ -65,52 +47,10 @@ HcalPedestalClient::HcalPedestalClient(const ParameterSet& ps, DaqMonitorBEInter
   capmean_thresh_ = ps.getUntrackedParameter<double>("CapIdMEAN_ErrThresh", 1.5);
   cout << "CapId MEAN Variance error threshold set to " << capmean_thresh_ << endl;
 
-  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
-  
-  for(unsigned int i=0; i<subdets.size(); i++){
-
-    if(subdets[i]=="HB") subDetsOn_[0] = true;
-    else if(subdets[i]=="HE") subDetsOn_[1] = true;
-    else if(subdets[i]=="HF") subDetsOn_[2] = true;
-    else if(subdets[i]=="HO") subDetsOn_[3] = true;
-
-  }
-
-}
-
-HcalPedestalClient::HcalPedestalClient(){
-  
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-
-  dbe_ = 0;
-  readoutMap_=0;
-  nCrates_ =0;
-
-  for(int i=0; i<4; i++){
-    all_peds_[i]=0;   ped_rms_[i]=0;
-    ped_mean_[i]=0;   capid_rms_[i]=0;
-    sub_mean_[i]=0;   sub_rms_[i]=0;
-    capid_mean_[i]=0; qie_rms_[i]=0;
-    qie_mean_[i]=0;   err_map_geo_[i]=0;
-    err_map_elec_[i]=0;
-    pedMapMean_E[i] = 0;
-    pedMapRMS_E[i] = 0;
-    pedMapMeanD_[i] = 0;
-    pedMapRMSD_[i] = 0;
-  }
-  // verbosity switch
-  debug_ = false;
-  offline_ = true;
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
-  
 }
 
 HcalPedestalClient::~HcalPedestalClient(){
-
   this->cleanup();
-
 }
 
 void HcalPedestalClient::beginJob(const EventSetup& eventSetup){
@@ -126,7 +66,6 @@ void HcalPedestalClient::beginJob(const EventSetup& eventSetup){
   ievt_ = 0;
   jevt_ = 0;
   this->setup();
-  this->resetAllME();
   return;
 }
 
@@ -197,53 +136,6 @@ void HcalPedestalClient::cleanup(void) {
 
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
-
-  return;
-}
-
-void HcalPedestalClient::errorOutput(){
-  if(!dbe_) return;
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  
-  for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
-    string testName = testsMap->first;
-    string meName = testsMap->second;
-    MonitorElement* me = dbe_->get(meName);
-    if(me){
-      if (me->hasError()){
-	vector<QReport*> report =  me->getQErrors();
-	dqmReportMapErr_[meName] = report;
-      }
-      if (me->hasWarning()){
-	vector<QReport*> report =  me->getQWarnings();
-	dqmReportMapWarn_[meName] = report;
-      }
-      if(me->hasOtherReport()){
-	vector<QReport*> report= me->getQOthers();
-	dqmReportMapOther_[meName] = report;
-      }
-    }
-  }
-
-  printf("Pedestal Task: %d errs, %d warnings, %d others\n",dqmReportMapErr_.size(),dqmReportMapWarn_.size(),dqmReportMapOther_.size());
-  
-  return;
-}
-
-void HcalPedestalClient::getErrors(map<string, vector<QReport*> > outE, map<string, vector<QReport*> > outW, map<string, vector<QReport*> > outO){
-
-  this->errorOutput();
-  outE.clear(); outW.clear(); outO.clear();
-
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapErr_.begin(); i!=dqmReportMapErr_.end(); i++){
-    outE[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapWarn_.begin(); i!=dqmReportMapWarn_.end(); i++){
-    outW[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapOther_.begin(); i!=dqmReportMapOther_.end(); i++){
-    outO[i->first] = i->second;
-  }
 
   return;
 }
@@ -479,7 +371,6 @@ void HcalPedestalClient::analyze(void){
 
   jevt_++;
   int updates = 0;
-  //  if(dbe_) dbe_->getNumUpdates();
   if ( updates % 10 == 0 ) {
     if ( debug_ ) cout << "HcalPedestalClient: " << updates << " updates" << endl;
   }

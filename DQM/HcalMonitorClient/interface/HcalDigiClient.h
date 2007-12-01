@@ -9,12 +9,13 @@ class HcalDigiClient : public HcalBaseClient {
  public:
   
   /// Constructor
-  HcalDigiClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
   HcalDigiClient();
   
   /// Destructor
-  virtual ~HcalDigiClient();
-  
+  ~HcalDigiClient();
+
+  void init(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe, string clientName);    
+
   /// Analyze
   void analyze(void);
   

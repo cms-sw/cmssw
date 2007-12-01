@@ -1,8 +1,11 @@
 #include <DQM/HcalMonitorClient/interface/HcalDigiClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 
-HcalDigiClient::HcalDigiClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
-  HcalBaseClient::HcalBaseClient(ps,dbe);
+HcalDigiClient::HcalDigiClient(){}
+
+void HcalDigiClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe, string clientName){
+  //Call the base class first
+  HcalBaseClient::init(ps,dbe,clientName);
 
   for(int i=0; i<4; i++){
     gl_occ_geo_[i]=0;
@@ -27,35 +30,6 @@ HcalDigiClient::HcalDigiClient(const ParameterSet& ps, DaqMonitorBEInterface* db
     qie_adc_[i]=0;  num_digi_[i]=0;
     qie_capid_[i]=0; qie_dverr_[i]=0;
   }
-}
-
-HcalDigiClient::HcalDigiClient(){
-  HcalBaseClient::HcalBaseClient();
-
-  for(int i=0; i<4; i++){
-    gl_occ_geo_[i]=0;
-    gl_err_geo_=0;
-    if(i<3) gl_occ_elec_[i]=0;
-    if(i<3) gl_err_elec_[i]=0;
-    gl_occ_eta_ = 0;
-    gl_occ_phi_ = 0;
-
-    sub_occ_geo_[i][0]=0;  sub_occ_geo_[i][1]=0;
-    sub_occ_geo_[i][2]=0;  sub_occ_geo_[i][3]=0;
-    sub_occ_elec_[i][0]=0;
-    sub_occ_elec_[i][1]=0;
-    sub_occ_elec_[i][2]=0;
-    sub_occ_eta_[i] = 0;
-    sub_occ_phi_[i] = 0;
-
-    sub_err_geo_[i]=0;  
-    sub_err_elec_[i][0]=0;
-    sub_err_elec_[i][1]=0;
-    sub_err_elec_[i][2]=0;
-    qie_adc_[i]=0;  num_digi_[i]=0;
-    qie_capid_[i]=0; qie_dverr_[i]=0;
-  }
-
 }
 
 HcalDigiClient::~HcalDigiClient(){
@@ -571,7 +545,7 @@ void HcalDigiClient::createTests(){
 	createH2ContentTest(dbe_, params);
       }
     }
-
+    /*
     sprintf(meTitle,"%sHcal/DigiMonitor/%s/%s # of Digis",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s # of Digis",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
@@ -585,13 +559,11 @@ void HcalDigiClient::createTests(){
 	//Window below has problems with bin edge effects; should fix this.
 	sprintf(low,"%.2f", me->getMean());
 	sprintf(high,"%.2f", me->getMean()+1);
-
-	//	cout << "low, high:  " << low << " " << high << endl;
 	params.push_back(low); params.push_back(high);  //xmin, xmax
 	createXRangeTest(dbe_, params);
       }
     }
-
+    */
     sprintf(meTitle,"%sHcal/DigiMonitor/%s/%s QIE Cap-ID",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s QIE CapID",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	

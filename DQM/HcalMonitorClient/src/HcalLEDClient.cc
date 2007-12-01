@@ -1,11 +1,11 @@
 #include <DQM/HcalMonitorClient/interface/HcalLEDClient.h>
+#include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 
-HcalLEDClient::HcalLEDClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
-  
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
+HcalLEDClient::HcalLEDClient(){}
 
-  dbe_ = dbe;
+void HcalLEDClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe,string clientName){
+  //Call the base class first
+  HcalBaseClient::init(ps,dbe,clientName);
 
   for(int i=0; i<4; i++){    
     rms_shape_[i]=0;
@@ -36,11 +36,6 @@ HcalLEDClient::HcalLEDClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe)
   HFlumi_occbetthr2 = 0;
   HFlumi_occbelthr2 = 0;
 
-  // cloneME switch
-  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-  // verbosity switch
-  debug_ = ps.getUntrackedParameter<bool>("debug", false);
-
   rms_thresh_ = ps.getUntrackedParameter<double>("LEDRMS_ErrThresh", 0.8);
   cout << "LED RMS error threshold set to " << rms_thresh_ << endl;
   
@@ -55,62 +50,6 @@ HcalLEDClient::HcalLEDClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe)
     m_outTextFile.open(m_outputFileName.c_str());
     m_outTextFile<<"Det\tEta\tPhi\tD\tEnergy_Mean\tEnergy_RMS\tTime_Mean\tTime_RMS     "<<std::endl;
   }
-
-
-  // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
-
-  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
-  
-  for(unsigned int i=0; i<subdets.size(); i++){
-    if(subdets[i]=="HB") subDetsOn_[0] = true;
-    else if(subdets[i]=="HE") subDetsOn_[1] = true;
-    else if(subdets[i]=="HF") subDetsOn_[2] = true;
-    else if(subdets[i]=="HO") subDetsOn_[3] = true;
-  }
-
-}
-
-HcalLEDClient::HcalLEDClient(){
-  
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-
-  dbe_ = 0;
- for(int i=0; i<4; i++){    
-    rms_shape_[i]=0;
-    mean_shape_[i]=0;
-    rms_time_[i]=0;
-    mean_time_[i]=0;
-    rms_energy_[i]=0;
-    mean_energy_[i]=0;
-
-    rms_shapeDep_[i]=0;
-    mean_shapeDep_[i]=0;
-    rms_timeDep_[i]=0;
-    mean_timeDep_[i]=0;
-    rms_energyDep_[i]=0;
-    mean_energyDep_[i]=0;
-
-    err_map_geo_[i]=0;
-    err_map_elec_[i]=0;
-    avg_shape_[i] = 0;
-    avg_time_[i] = 0;
-    avg_energy_[i] = 0;
-  }
-  HFlumi_etsum = 0;
-  HFlumi_occabthr1 = 0;
-  HFlumi_occbetthr1 = 0;
-  HFlumi_occbelthr1 = 0;
-  HFlumi_occabthr2 = 0;
-  HFlumi_occbetthr2 = 0;
-  HFlumi_occbelthr2 = 0;
-
-  // verbosity switch
-  debug_ = false;
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
-
 }
 
 HcalLEDClient::~HcalLEDClient(){
@@ -226,53 +165,6 @@ void HcalLEDClient::cleanup(void) {
 
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
-  return;
-}
-
-
-void HcalLEDClient::errorOutput(){
-  if(!dbe_) return;
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  
-  for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
-    string testName = testsMap->first;
-    string meName = testsMap->second;
-    MonitorElement* me = dbe_->get(meName);
-    if(me){
-      if (me->hasError()){
-	vector<QReport*> report =  me->getQErrors();
-	dqmReportMapErr_[meName] = report;
-      }
-      if (me->hasWarning()){
-	vector<QReport*> report =  me->getQWarnings();
-	dqmReportMapWarn_[meName] = report;
-      }
-      if(me->hasOtherReport()){
-	vector<QReport*> report = me->getQOthers();
-	dqmReportMapOther_[meName] = report;
-      }
-    }
-  }
-  printf("LED Task: %d errs, %d warnings, %d others\n",dqmReportMapErr_.size(),dqmReportMapWarn_.size(),dqmReportMapOther_.size());
-
-  return;
-}
-
-void HcalLEDClient::getErrors(map<string, vector<QReport*> > outE, map<string, vector<QReport*> > outW, map<string, vector<QReport*> > outO){
-
-  this->errorOutput();
-  outE.clear(); outW.clear(); outO.clear();
-
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapErr_.begin(); i!=dqmReportMapErr_.end(); i++){
-    outE[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapWarn_.begin(); i!=dqmReportMapWarn_.end(); i++){
-    outW[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapOther_.begin(); i!=dqmReportMapOther_.end(); i++){
-    outO[i->first] = i->second;
-  }
-
   return;
 }
 
@@ -569,7 +461,6 @@ void HcalLEDClient::analyze(void){
   
   jevt_++;
   int updates = 0;
-  //  if(dbe_) dbe_->getNumUpdates();
   if ( (updates % 10) == 0 ) {
     if ( debug_ ) cout << "HcalLEDClient: " << updates << " updates" << endl;
   }
@@ -969,22 +860,22 @@ void HcalLEDClient::loadHistograms(TFile* infile){
     err_map_elec_[i]=(TH2F*)infile->Get(name);
 
     if(i==2){
-     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi ET-sum per wedge",type.c_str(),type.c_str());      
+     sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s lumi ET-sum per wedge",type.c_str(),type.c_str());      
      HFlumi_etsum = (TH1F*)infile->Get(name);
 
-     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi Occupancy above threshold ring1",type.c_str(),type.c_str()); 
+     sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s lumi Occupancy above threshold ring1",type.c_str(),type.c_str()); 
      HFlumi_occabthr1 = (TH1F*)infile->Get(name);
-     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi Occupancy between thresholds ring1",type.c_str(),type.c_str()); 
+     sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s lumi Occupancy between thresholds ring1",type.c_str(),type.c_str()); 
      HFlumi_occbetthr1 = (TH1F*)infile->Get(name);
-     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi Occupancy below threshold ring1",type.c_str(),type.c_str()); 
+     sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s lumi Occupancy below threshold ring1",type.c_str(),type.c_str()); 
      HFlumi_occbelthr1 = (TH1F*)infile->Get(name);
 
 
-     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi Occupancy above threshold ring2",type.c_str(),type.c_str()); 
+     sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s lumi Occupancy above threshold ring2",type.c_str(),type.c_str()); 
      HFlumi_occabthr2 = (TH1F*)infile->Get(name);
-     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi Occupancy between thresholds ring2",type.c_str(),type.c_str()); 
+     sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s lumi Occupancy between thresholds ring2",type.c_str(),type.c_str()); 
      HFlumi_occbetthr2 = (TH1F*)infile->Get(name);
-     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s lumi Occupancy below threshold ring2",type.c_str(),type.c_str()); 
+     sprintf(name,"DQMData/Hcal/LEDMonitor/%s/%s lumi Occupancy below threshold ring2",type.c_str(),type.c_str()); 
      HFlumi_occbelthr2 = (TH1F*)infile->Get(name);
     }
 

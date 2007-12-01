@@ -1,53 +1,28 @@
-
 #ifndef HcalLEDClient_H
 #define HcalLEDClient_H
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-#include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
+#include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestal.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include <CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
-
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
-#include "TROOT.h"
-#include "TStyle.h"
-#include "TFile.h"
-
-#include <memory>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
-
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-class HcalLEDClient{
+class HcalLEDClient : public HcalBaseClient {
   
 public:
   
   /// Constructor
-  HcalLEDClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
   HcalLEDClient();
-  
   /// Destructor
-  virtual ~HcalLEDClient();
-  
+  ~HcalLEDClient();
+
+  void init(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe, string clientName);
+
   /// Analyze
   void analyze(void);
   
@@ -78,36 +53,17 @@ public:
   ///process report
   void report();
   
-  void errorOutput();
-  void getErrors(map<string, vector<QReport*> > out1, map<string, vector<QReport*> > out2, map<string, vector<QReport*> > out3);
-  bool hasErrors() const { return dqmReportMapErr_.size(); }
-  bool hasWarnings() const { return dqmReportMapWarn_.size(); }
-  bool hasOther() const { return dqmReportMapOther_.size(); }
-
   void resetAllME();
   void createTests();
 
 
 private:
   
-  int ievt_;
-  int jevt_;
-
-  bool collateSources_;
-  bool cloneME_;
-  bool debug_;
-  string process_;
-  string baseFolder_;
-
   string m_outputFileName;
   ofstream m_outTextFile;
 
-  //  MonitorUserInterface* mui_;
-  DaqMonitorBEInterface* dbe_;
   const HcalElectronicsMap* readoutMap_;
   edm::ESHandle<HcalDbService> conditions_;
-
-  bool subDetsOn_[4];
 
   TH1F* avg_shape_[4];
   TH1F* avg_time_[4];
@@ -151,11 +107,7 @@ private:
   // Quality criteria for data integrity
   float rms_thresh_;
   float mean_thresh_;
-  
-  map<string, vector<QReport*> > dqmReportMapErr_;
-  map<string, vector<QReport*> > dqmReportMapWarn_;
-  map<string, vector<QReport*> > dqmReportMapOther_;
-  map<string, string> dqmQtests_;
+
 };
 
 #endif

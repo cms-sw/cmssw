@@ -28,39 +28,28 @@ using namespace edm;
 using namespace std;
 
 class HcalBaseClient{
-
-public:
-
+  
+ public:
+  
   /// Constructor
-  HcalBaseClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe_);
   HcalBaseClient();
   
   /// Destructor
   virtual ~HcalBaseClient();
   
-  /// BeginJob
-  void beginJob(void);
-  
-  /// EndJob
-  void endJob(void);
-  
-  /// BeginRun
-  void beginRun(void);
-  
-  /// EndRun
-  void endRun(void);
-  
+  virtual void init(const ParameterSet& ps, DaqMonitorBEInterface* dbe_, string clientName);
+
   void errorOutput();
-  void getErrors(map<string, vector<QReport*> > out1, map<string, vector<QReport*> > out2, map<string, vector<QReport*> > out3);
+  void getTestResults(int& totalTests, 
+		      map<string, vector<QReport*> >& err, 
+		      map<string, vector<QReport*> >& warn, 
+		      map<string, vector<QReport*> >& other);
   bool hasErrors() const { return dqmReportMapErr_.size(); }
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
   
-  void resetAllME();
-  void createTests();
-  
  protected:
-  
+
   int ievt_;
   int jevt_;
   
@@ -68,7 +57,8 @@ public:
   bool debug_;
   string process_;
   string baseFolder_;
-  
+  string clientName_;
+
   DaqMonitorBEInterface* dbe_;
   
   bool subDetsOn_[4];

@@ -100,31 +100,38 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   // clients' constructors
   if( ps.getUntrackedParameter<bool>("DataFormatClient", false) ){
     if(debug_)   cout << "===>DQM DataFormat Client is ON" << endl;
-    dataformat_client_   = new HcalDataFormatClient(ps, dbe_);
+    dataformat_client_   = new HcalDataFormatClient();
+    dataformat_client_->init(ps, dbe_,"DataFormatClient");
   }
   if( ps.getUntrackedParameter<bool>("DigiClient", false) ){
     if(debug_)   cout << "===>DQM Digi Client is ON" << endl;
-    digi_client_         = new HcalDigiClient(ps, dbe_);
+    digi_client_         = new HcalDigiClient();
+    digi_client_->init(ps, dbe_,"DigiClient");
   }
   if( ps.getUntrackedParameter<bool>("RecHitClient", false) ){
     if(debug_)   cout << "===>DQM RecHit Client is ON" << endl;
-    rechit_client_       = new HcalRecHitClient(ps, dbe_);
+    rechit_client_       = new HcalRecHitClient();
+    rechit_client_->init(ps, dbe_,"RecHitClient");
 }
   if( ps.getUntrackedParameter<bool>("PedestalClient", false) ){
     if(debug_)   cout << "===>DQM Pedestal Client is ON" << endl;
-    pedestal_client_     = new HcalPedestalClient(ps, dbe_);
+    pedestal_client_     = new HcalPedestalClient();
+    pedestal_client_->init(ps, dbe_,"PedestalClient"); 
   }
   if( ps.getUntrackedParameter<bool>("LEDClient", false) ){
     if(debug_)   cout << "===>DQM LED Client is ON" << endl;
-    led_client_          = new HcalLEDClient(ps, dbe_);
+    led_client_          = new HcalLEDClient();
+    led_client_->init(ps, dbe_,"LEDClient"); 
   }
   if( ps.getUntrackedParameter<bool>("HotCellClient", false) ){
     if(debug_)   cout << "===>DQM HotCell Client is ON" << endl;
-    hot_client_          = new HcalHotCellClient(ps, dbe_);
+    hot_client_          = new HcalHotCellClient();
+    hot_client_->init(ps, dbe_,"HotCellClient");
   }
   if( ps.getUntrackedParameter<bool>("DeadCellClient", false) ){
     if(debug_)   cout << "===>DQM DeadCell Client is ON" << endl;
-    dead_client_          = new HcalDeadCellClient(ps, dbe_);
+    dead_client_          = new HcalDeadCellClient();
+    dead_client_->init(ps, dbe_,"DeadCellClient");
   }
 
   dqm_db_ = new HcalHotCellDbInterface(); 
@@ -143,7 +150,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   prescaleTime_ = ps.getUntrackedParameter<int>("diagnosticPrescaleTime", -1);
   cout << "===>DQM time prescale = " << prescaleTime_ << " minute(s)"<< endl;
   
-  
+
   // Base folder for the contents of this job
   string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
   cout << "===>HcalMonitor name = " << subsystemname << endl;
@@ -362,7 +369,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
     resetAllME();
     lastResetTime_ = itime_;
   }
-  //  if(nupdates%resetUpdate_)==0) resetAllME();
+
 
   // environment datamembers
   irun_     = e.id().run();
@@ -382,7 +389,7 @@ void HcalMonitorClient::analyze(){
   
   ievt_++;
   if(debug_) printf("\nHcal Monitor Client heartbeat....\n");
-
+  
   createTests();  
   mui_->doMonitoring();
   dbe_->runQTests();
@@ -400,6 +407,8 @@ void HcalMonitorClient::analyze(){
 
 //--------------------------------------------------------
 void HcalMonitorClient::createTests(void){
+  
+  if( debug_ ) cout << "HcalMonitorClient: creating all tests" << endl;
 
   if( dataformat_client_ ) dataformat_client_->createTests(); 
   if( digi_client_ )       digi_client_->createTests(); 
@@ -415,7 +424,8 @@ void HcalMonitorClient::createTests(void){
 //--------------------------------------------------------
 void HcalMonitorClient::report(bool doUpdate) {
   
-  if( debug_ ) cout << "HcalMonitorClient: creating report, ievt = " << ievt_ << endl;
+  if( debug_ ) 
+    cout << "HcalMonitorClient: creating report, ievt = " << ievt_ << endl;
   
   if(doUpdate){
     createTests();  
@@ -431,16 +441,29 @@ void HcalMonitorClient::report(bool doUpdate) {
   if( dead_client_ ) dead_client_->report();
   
 
+  ///Collect test summary information
   map<string, vector<QReport*> > errE, errW, errO;
-  if( hot_client_ ) hot_client_->getErrors(errE,errW,errO);
-  if( dead_client_ ) dead_client_->getErrors(errE,errW,errO);
-  if( led_client_ ) led_client_->getErrors(errE,errW,errO);
-  if( pedestal_client_ ) pedestal_client_->getErrors(errE,errW,errO);
-  if( digi_client_ ) digi_client_->getErrors(errE,errW,errO);
-  if( rechit_client_ ) rechit_client_->getErrors(errE,errW,errO);
-  if( dataformat_client_ ) dataformat_client_->getErrors(errE,errW,errO);
+  int nTests=0;
+  if( hot_client_ ) hot_client_->getTestResults(nTests,errE,errW,errO);
+  if( dead_client_ ) dead_client_->getTestResults(nTests,errE,errW,errO);
+  if( led_client_ ) led_client_->getTestResults(nTests,errE,errW,errO);
+  if( pedestal_client_ ) pedestal_client_->getTestResults(nTests,errE,errW,errO);
+  if( digi_client_ ) digi_client_->getTestResults(nTests,errE,errW,errO);
+  if( rechit_client_ ) rechit_client_->getTestResults(nTests,errE,errW,errO);
+  if( dataformat_client_ ) dataformat_client_->getTestResults(nTests,errE,errW,errO);
 
+  //For now, report the fraction of good tests....
+  float errorSummary = 1.0;
+  if(nTests>0) errorSummary = 1.0 - (float(errE.size())+float(errW.size()))/float(nTests);
+    
+  cout << "Hcal DQM Error Summary ("<< errorSummary <<"): "<< nTests << " tests, "<<errE.size() << " errors, " <<errW.size() << " warnings, "<< errO.size() << " others" << endl;
 
+  char meTitle[256];
+  sprintf(meTitle,"%sEventInfo/errorSummary",rootFolder_.c_str() );
+  MonitorElement* me = dbe_->get(meTitle);
+  if(me) me->Fill(errorSummary);
+
+  //create html output if specified...
   if( baseHtmlDir_.size() != 0 ) htmlOutput();
 
   return;
@@ -579,7 +602,7 @@ void HcalMonitorClient::offlineSetup(){
   //  cout << endl;
   //  cout << " *** Hcal Generic Monitor Client, for offline operation***" << endl;
   //  cout << endl;
-
+  /*
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
   led_client_ = 0;  hot_client_ = 0;
@@ -596,7 +619,7 @@ void HcalMonitorClient::offlineSetup(){
   digi_client_         = new HcalDigiClient();
   pedestal_client_     = new HcalPedestalClient();
   led_client_          = new HcalLEDClient();
-
+  */
   return;
 }
 

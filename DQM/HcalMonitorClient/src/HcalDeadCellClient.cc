@@ -1,17 +1,15 @@
 #include <DQM/HcalMonitorClient/interface/HcalDeadCellClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
 
-HcalDeadCellClient::HcalDeadCellClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
+HcalDeadCellClient::HcalDeadCellClient(){}
 
-  dbe_ = dbe;
 
-  if (verbose_)
+void HcalDeadCellClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe,string clientName){
+  //Call the base class first
+  HcalBaseClient::init(ps,dbe,clientName);
+
+  if (debug_)
     cout <<"Initializing HcalDeadCellClient from ParameterSet"<<endl;
 
   hbhists.type=1;
@@ -26,72 +24,27 @@ HcalDeadCellClient::HcalDeadCellClient(const ParameterSet& ps, DaqMonitorBEInter
   clearHists(hfhists);
   clearHists(hcalhists);
 
-  // cloneME switch
-  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-  
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
-  
-  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
-  
-  for(unsigned int i=0; i<subdets.size(); i++){
-    if(subdets[i]=="HB") subDetsOn_[0] = true;
-    else if(subdets[i]=="HE") subDetsOn_[1] = true;
-    else if(subdets[i]=="HO") subDetsOn_[2] = true;
-    else if(subdets[i]=="HF") subDetsOn_[3] = true;
-  }
-}
-
-HcalDeadCellClient::HcalDeadCellClient(){
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-
-  dbe_ = 0;
-
-  if (verbose_)
-    cout <<"Initializing HcalDeadCellClient *without* ParameterSet"<<endl;
-  clearHists(hbhists);
-  clearHists(hehists);
-  clearHists(hohists);
-  clearHists(hfhists);
-  clearHists(hcalhists);
-
-  hbhists.type=1;
-  hehists.type=2;
-  hohists.type=3;
-  hfhists.type=4;
-  hcalhists.type=10;
-
-  // verbosity switch
-  verbose_ = false;
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
 }
 
 HcalDeadCellClient::~HcalDeadCellClient(){
-
   this->cleanup();
-
 }
 
 void HcalDeadCellClient::beginJob(void){
   
-  if ( verbose_ ) cout << "HcalDeadCellClient: beginJob" << endl;
+  if ( debug_ ) cout << "HcalDeadCellClient: beginJob" << endl;
   
   ievt_ = 0;
   jevt_ = 0;
 
   this->setup();
-  this->resetAllME();
+
   return;
 }
 
 void HcalDeadCellClient::beginRun(void){
 
-  if ( verbose_ ) cout << "HcalDeadCellClient: beginRun" << endl;
+  if ( debug_ ) cout << "HcalDeadCellClient: beginRun" << endl;
 
   jevt_ = 0;
   this->setup();
@@ -101,7 +54,7 @@ void HcalDeadCellClient::beginRun(void){
 
 void HcalDeadCellClient::endJob(void) {
 
-  if ( verbose_ ) cout << "HcalDeadCellClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "HcalDeadCellClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup(); 
   return;
@@ -109,7 +62,7 @@ void HcalDeadCellClient::endJob(void) {
 
 void HcalDeadCellClient::endRun(void) {
 
-  if ( verbose_ ) cout << "HcalDeadCellClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "HcalDeadCellClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();  
   return;
@@ -122,7 +75,7 @@ void HcalDeadCellClient::setup(void) {
 
 void HcalDeadCellClient::cleanup(void) {
 
-  if (verbose_)
+  if (debug_)
     cout <<"HcalDeadCellClient::cleanup"<<endl;
   if ( cloneME_ ) 
     {
@@ -145,56 +98,10 @@ void HcalDeadCellClient::cleanup(void) {
   return;
 }
 
-void HcalDeadCellClient::errorOutput(){
-  if(!dbe_) return;
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  
-  for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
-    string testName = testsMap->first;
-    string meName = testsMap->second;
-    MonitorElement* me = dbe_->get(meName);
-    if(me){
-      if (me->hasError()){
-	vector<QReport*> report =  me->getQErrors();
-	dqmReportMapErr_[meName] = report;
-      }
-      if (me->hasWarning()){
-	vector<QReport*> report =  me->getQWarnings();
-	dqmReportMapWarn_[meName] = report;
-      }
-      if(me->hasOtherReport()){
-	vector<QReport*> report= me->getQOthers();
-	dqmReportMapOther_[meName] = report;
-      }
-    }
-  }  
-  cout <<"DeadCell Task: "<<dqmReportMapErr_.size()<<" errors, "<<dqmReportMapWarn_.size()<<" warnings, "<<dqmReportMapOther_.size()<<" others"<<endl;
-
-  return;
-}
-
-void HcalDeadCellClient::getErrors(map<string, vector<QReport*> > outE, map<string, vector<QReport*> > outW, map<string, vector<QReport*> > outO){
-
-  this->errorOutput();
-  outE.clear(); outW.clear(); outO.clear();
-
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapErr_.begin(); i!=dqmReportMapErr_.end(); i++){
-    outE[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapWarn_.begin(); i!=dqmReportMapWarn_.end(); i++){
-    outW[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapOther_.begin(); i!=dqmReportMapOther_.end(); i++){
-    outO[i->first] = i->second;
-  }
-
-  return;
-}
 
 void HcalDeadCellClient::report(){
 
-  if ( verbose_ ) cout << "HcalDeadCellClient: report" << endl;
-  //  this->setup();  
+  if ( debug_ ) cout << "HcalDeadCellClient: report" << endl;
   
   char name[256];
   sprintf(name, "%sHcal/DeadCellMonitor/DeadCell Task Event Number",process_.c_str());
@@ -204,7 +111,7 @@ void HcalDeadCellClient::report(){
     string s = me->valueString();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( verbose_ ) cout << "Found '" << name << "'" << endl;
+    if ( debug_ ) cout << "Found '" << name << "'" << endl;
   }
 
   getHistograms();
@@ -216,9 +123,8 @@ void HcalDeadCellClient::analyze(void){
 
   jevt_++;
   int updates = 0;
-  //  if(dbe_) dbe_->getNumUpdates();
   if ( updates % 10 == 0 ) {
-    if ( verbose_ ) cout << "HcalDeadCellClient: " << updates << " updates" << endl;
+    if ( debug_ ) cout << "HcalDeadCellClient: " << updates << " updates" << endl;
   }
   
   return;
@@ -226,7 +132,7 @@ void HcalDeadCellClient::analyze(void){
 
 void HcalDeadCellClient::clearHists(DeadCellHists& hist)
 {
-  cout <<"Clearing HcalDeadCell histograms for HCAL type: "<<hist.type<<endl;
+  if(debug_) cout <<"Clearing HcalDeadCell histograms for HCAL type: "<<hist.type<<endl;
 
   hist.deadADC_OccMap=0;
   hist.deadADC_Eta=0;
@@ -274,7 +180,7 @@ void HcalDeadCellClient::getHistograms(){
 
 void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
 {
-  if (verbose_)
+  if (debug_)
     cout <<"HcalDeadCellClient:: Getting subdetector histograms for subdetector "<<hist.type<<endl;
   
   char name[150];
@@ -285,52 +191,52 @@ void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    if (verbose_)cout <<"<HcalDeadCellClient::getSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    if (debug_)cout <<"<HcalDeadCellClient::getSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
     return;
   }
 
   sprintf(name,"DeadCellMonitor/%s/%s_deadADCOccupancyMap",type.c_str(),type.c_str());
-  if (verbose_) cout <<"Histogram name = "<<name<<endl;
-  hist.deadADC_OccMap = getHisto2(name, process_, dbe_,verbose_,cloneME_); 
+  if (debug_) cout <<"Histogram name = "<<name<<endl;
+  hist.deadADC_OccMap = getHisto2(name, process_, dbe_,debug_,cloneME_); 
   sprintf(name,"DeadCellMonitor/%s/%s_deadADCEta",type.c_str(),type.c_str());
-  if (verbose_) cout <<"Histogram name = "<<name<<endl;
-  hist.deadADC_Eta = getHisto(name, process_, dbe_,verbose_,cloneME_);      
+  if (debug_) cout <<"Histogram name = "<<name<<endl;
+  hist.deadADC_Eta = getHisto(name, process_, dbe_,debug_,cloneME_);      
   sprintf(name,"DeadCellMonitor/%s/%s_noADCIDOccupancyMap",type.c_str(),type.c_str());
-  if (verbose_) cout <<"Histogram name = "<<name<<endl;
-  hist.badCAPID_OccMap = getHisto2(name, process_, dbe_,verbose_,cloneME_); 
+  if (debug_) cout <<"Histogram name = "<<name<<endl;
+  hist.badCAPID_OccMap = getHisto2(name, process_, dbe_,debug_,cloneME_); 
   sprintf(name,"DeadCellMonitor/%s/%s_noADCIDEta",type.c_str(),type.c_str());
-  if (verbose_) cout <<"Histogram name = "<<name<<endl;
-  hist.badCAPID_Eta = getHisto(name, process_, dbe_,verbose_,cloneME_);      
+  if (debug_) cout <<"Histogram name = "<<name<<endl;
+  hist.badCAPID_Eta = getHisto(name, process_, dbe_,debug_,cloneME_);      
  
   sprintf(name,"DeadCellMonitor/%s/%s_ADCdist",type.c_str(),type.c_str());
-  if (verbose_) cout <<"Histogram name = "<<name<<endl;
-  hist.ADCdist = getHisto(name, process_, dbe_,verbose_,cloneME_);  
+  if (debug_) cout <<"Histogram name = "<<name<<endl;
+  hist.ADCdist = getHisto(name, process_, dbe_,debug_,cloneME_);  
   
   sprintf(name,"DeadCellMonitor/%s/%s_NADA_CoolCellMap",type.c_str(),type.c_str());
-  if (verbose_) cout <<"Histogram name = "<<name<<endl;
-  hist.NADACoolCellMap=getHisto2(name, process_, dbe_,verbose_,cloneME_);
+  if (debug_) cout <<"Histogram name = "<<name<<endl;
+  hist.NADACoolCellMap=getHisto2(name, process_, dbe_,debug_,cloneME_);
 
   sprintf(name,"DeadCellMonitor/%s/%s_digiCheck",type.c_str(),type.c_str());
-  if (verbose_) cout <<"Histogram name = "<<name<<endl;
-  hist.digiCheck=getHisto2(name, process_, dbe_,verbose_,cloneME_);
+  if (debug_) cout <<"Histogram name = "<<name<<endl;
+  hist.digiCheck=getHisto2(name, process_, dbe_,debug_,cloneME_);
 
   sprintf(name,"DeadCellMonitor/%s/%s_cellCheck",type.c_str(),type.c_str());
-  if (verbose_) cout <<"Histogram name = "<<name<<endl;
-  hist.cellCheck=getHisto2(name, process_, dbe_,verbose_,cloneME_);
+  if (debug_) cout <<"Histogram name = "<<name<<endl;
+  hist.cellCheck=getHisto2(name, process_, dbe_,debug_,cloneME_);
   
   sprintf(name,"DeadCellMonitor/%s/%s_abovePed",type.c_str(),type.c_str());
-  if (verbose_) cout <<"Histogram name = "<<name<<endl;
-  hist.AbovePed=getHisto2(name, process_, dbe_,verbose_,cloneME_);
+  if (debug_) cout <<"Histogram name = "<<name<<endl;
+  hist.AbovePed=getHisto2(name, process_, dbe_,debug_,cloneME_);
   
   sprintf(name,"DeadCellMonitor/%s/%s_CoolCell_belowPed",type.c_str(),type.c_str());
-  if (verbose_) cout <<"Histogram name = "<<name<<endl;
-  hist.CoolCellBelowPed=getHisto2(name, process_, dbe_,verbose_,cloneME_);
+  if (debug_) cout <<"Histogram name = "<<name<<endl;
+  hist.CoolCellBelowPed=getHisto2(name, process_, dbe_,debug_,cloneME_);
   
   for (int i=0;i<4;i++)
     {
       sprintf(name,"DeadCellMonitor/%s/%s_DeadCap%i",type.c_str(),type.c_str(),i);
-      if (verbose_) cout <<"Histogram name = "<<name<<endl;
-      hist.DeadCap.push_back(getHisto2(name, process_, dbe_,verbose_,cloneME_));
+      if (debug_) cout <<"Histogram name = "<<name<<endl;
+      hist.DeadCap.push_back(getHisto2(name, process_, dbe_,debug_,cloneME_));
     }
   return;
 }
@@ -338,7 +244,7 @@ void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
   
 void HcalDeadCellClient::getSubDetHistogramsFromFile(DeadCellHists& hist, TFile* infile)
 {
-  if (verbose_)
+  if (debug_)
     cout <<"HcalDeadCellClient:: Getting subdetector histograms from file for subdetector "<<hist.type<<endl;
   
   char name[150];
@@ -349,7 +255,7 @@ void HcalDeadCellClient::getSubDetHistogramsFromFile(DeadCellHists& hist, TFile*
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    if (verbose_)cout <<"<HcalDeadCellClient::getSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    if (debug_)cout <<"<HcalDeadCellClient::getSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
     return;
   }
   
@@ -402,7 +308,7 @@ void HcalDeadCellClient::getSubDetHistogramsFromFile(DeadCellHists& hist, TFile*
 
 void HcalDeadCellClient::resetSubDetHistograms(DeadCellHists& hist)
 {
-  if (verbose_)
+  if (debug_)
     cout <<"HcalDeadCellClient::Resetting subdetector histograms for subdetector "<<hist.type<<endl;
   
   char name[150];
@@ -413,10 +319,10 @@ void HcalDeadCellClient::resetSubDetHistograms(DeadCellHists& hist)
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    if (verbose_)cout <<"<HcalDeadCellClient::resetSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    if (debug_)cout <<"<HcalDeadCellClient::resetSubDetHistograms> Error:  unrecognized histogram type: "<<hist.type<<endl;
     return;
   }
-  
+    printf("Reset subdet %s\n",type.c_str());
   sprintf(name,"DeadCellMonitor/%s/%s_deadADCOccupancyMap",type.c_str(),type.c_str());
   resetME(name,dbe_);
   sprintf(name,"DeadCellMonitor/%s/%s_deadADCEta",type.c_str(),type.c_str());
@@ -468,8 +374,7 @@ void HcalDeadCellClient::resetAllME(){
 
 void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
-  if (verbose_)cout <<"HI THERE!"<<endl;
-  if (verbose_)
+  if (debug_)
     cout << "Preparing HcalDeadCellClient html output ..." << endl;
   string client = "DeadCellMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
@@ -544,7 +449,7 @@ void HcalDeadCellClient::htmlSubDetOutput(DeadCellHists& hist, int runNo,
 					  string htmlDir,
 					  string htmlName)
 {
-  if (verbose_) cout <<"HcalDeadCellClient::Creating html output for subdetector "<<hist.type<<endl;
+  if (debug_) cout <<"HcalDeadCellClient::Creating html output for subdetector "<<hist.type<<endl;
   if(hist.type<5 && !subDetsOn_[hist.type-1]) return;
   
   string type;
@@ -554,7 +459,7 @@ void HcalDeadCellClient::htmlSubDetOutput(DeadCellHists& hist, int runNo,
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    if (verbose_)cout <<"<HcalDeadCellClient::htmlSubDetOutput> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    if (debug_)cout <<"<HcalDeadCellClient::htmlSubDetOutput> Error:  unrecognized histogram type: "<<hist.type<<endl;
     return;
   }
 
@@ -592,7 +497,7 @@ void HcalDeadCellClient::createTests(){
   //  char meTitle[250], name[250];    
   //  vector<string> params;
   
-  if(verbose_) cout <<"Creating DeadCell tests..."<<endl;
+  if(debug_) cout <<"Creating DeadCell tests..."<<endl;
   createSubDetTests(hbhists);
   createSubDetTests(hehists);
   createSubDetTests(hohists);
@@ -601,14 +506,16 @@ void HcalDeadCellClient::createTests(){
   return;
 }
 
-void HcalDeadCellClient::createSubDetTests(DeadCellHists& hist)
-{
+void HcalDeadCellClient::createSubDetTests(DeadCellHists& hist){  
+
+  if(!dbe_) return;
+
   if(!subDetsOn_[hist.type]) return;
-  if (verbose_) 
+  if (debug_) 
     cout <<"Running HcalDeadCellClient::createSubDetTests for subdetector: "<<hist.type<<endl;
   char meTitle[250], name[250];
   vector<string> params;
-
+  
   string type;
   if(hist.type==1) type= "HB";
   else if(hist.type==2) type = "HE"; 
@@ -616,72 +523,66 @@ void HcalDeadCellClient::createSubDetTests(DeadCellHists& hist)
   else if(hist.type==4) type = "HF"; 
   else if(hist.type==10) type = "HCAL";
   else {
-    if (verbose_)cout <<"<HcalDeadCellClient::createSubDetTests> Error:  unrecognized histogram type: "<<hist.type<<endl;
+    if (debug_)cout <<"<HcalDeadCellClient::createSubDetTests> Error:  unrecognized histogram type: "<<hist.type<<endl;
     return;
   }
-
+  
   // Check for dead ADCs
   sprintf(meTitle,"%sHcal/DeadCellMonitor/%s/%s_deadADCOccupancyMap",process_.c_str(),type.c_str(), type.c_str());
   sprintf(name,"%s Dead ADC Map",type.c_str()); 
-  if (verbose_) cout <<"Checking for histogram named: "<<name<<endl;
-  if(dqmQtests_.find(name)==dqmQtests_.end())
-    {
-      if (verbose_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
-      MonitorElement* me = dbe_->get(meTitle);
-      if (me)
-	{
-	  if (verbose_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
-	  dqmQtests_[name]=meTitle;
-	  params.clear();
-	  params.push_back((string)meTitle);
-	  params.push_back((string)name);
-	  createH2ContentTest(dbe_,params);
-	}
-      else
-	if (verbose_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
+  if (debug_) cout <<"Checking for histogram named: "<<name<<endl;
+  if(dqmQtests_.find(name)==dqmQtests_.end()){
+    if (debug_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
+    MonitorElement* me = dbe_->get(meTitle);
+    if (me){
+      if (debug_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
+      dqmQtests_[name]=meTitle;
+      params.clear();
+      params.push_back((string)meTitle);
+      params.push_back((string)name);
+      createH2ContentTest(dbe_,params);
     }
-
+    else
+      if (debug_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
+  }
+  
   // Check NADA cool cells
   sprintf(meTitle,"%sHcal/DeadCellMonitor/%s/%s_NADA_CoolCellMap",process_.c_str(),type.c_str(), type.c_str());
   sprintf(name,"%s NADA Cool Cell Map",type.c_str()); 
-  if (verbose_) cout <<"Checking for histogram named: "<<name<<endl;
-  if(dqmQtests_.find(name)==dqmQtests_.end())
-    {
-      if (verbose_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
-      MonitorElement* me = dbe_->get(meTitle);
-      if (me)
-	{
-	  if (verbose_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
-	  dqmQtests_[name]=meTitle;
-	  params.clear();
-	  params.push_back((string)meTitle);
-	  params.push_back((string)name);
-	  createH2ContentTest(dbe_,params);
-	}
-      else
-	if (verbose_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
+  if (debug_) cout <<"Checking for histogram named: "<<name<<endl;
+  if(dqmQtests_.find(name)==dqmQtests_.end()){
+    if (debug_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
+    MonitorElement* me = dbe_->get(meTitle);
+    if (me){
+      if (debug_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
+      dqmQtests_[name]=meTitle;
+      params.clear();
+      params.push_back((string)meTitle);
+      params.push_back((string)name);
+      createH2ContentTest(dbe_,params);
     }
+    else
+      if (debug_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
+  }
   
   // Check for cells consistently below pedestal+nsigma
   sprintf(meTitle,"%sHcal/DeadCellMonitor/%s/%s_HE_CoolCell_belowPed",process_.c_str(),type.c_str(), type.c_str());
   sprintf(name,"%s NADA Cool Cell Map",type.c_str()); 
-  if (verbose_) cout <<"Checking for histogram named: "<<name<<endl;
-  if(dqmQtests_.find(name)==dqmQtests_.end())
-    {
-      if (verbose_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
-      MonitorElement* me = dbe_->get(meTitle);
-      if (me)
-	{
-	  if (verbose_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
-	  dqmQtests_[name]=meTitle;
-	  params.clear();
-	  params.push_back((string)meTitle);
-	  params.push_back((string)name);
-	  createH2ContentTest(dbe_,params);
-	}
-      else
-	if (verbose_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
+  if (debug_) cout <<"Checking for histogram named: "<<name<<endl;
+  if(dqmQtests_.find(name)==dqmQtests_.end()){
+    if (debug_) cout <<"Didn't find histogram; search for title: "<<meTitle<<endl;
+    MonitorElement* me = dbe_->get(meTitle);
+    if (me){
+      if (debug_) cout <<"Got histogram with title "<<meTitle<<"\nChecking for content"<<endl;
+      dqmQtests_[name]=meTitle;
+      params.clear();
+      params.push_back((string)meTitle);
+      params.push_back((string)name);
+      createH2ContentTest(dbe_,params);
     }
+    else
+      if (debug_) cout <<"Couldn't find histogram with title: "<<meTitle<<endl;
+  }
   return;
 }
 

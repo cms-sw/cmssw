@@ -2,7 +2,7 @@
 
 
 void resetME(const char* name, DaqMonitorBEInterface* dbe){
-  if(!dbe) return;
+  if(dbe==NULL) return;
   MonitorElement* me= dbe->get(name);
   if(me) dbe->softReset(me);
   return;
