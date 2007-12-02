@@ -5,7 +5,9 @@
 <use name=DQMServices/Core>
 <use name=DQMServices/UI>
 <use name=DQMServices/ClientConfig>
+<use name=Iguana/Utilities>
 <use name=boost>
+<use name=DataFormats/Histograms>
 <library file="*.cc" name=DQMServicesComponentsPlugins>
 	<flags EDM_PLUGIN=1>
 </library>

@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/11/20 23:53:45 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/11/28 22:13:21 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -71,7 +71,7 @@ void ROOTtoMEConverter::beginRun(const edm::Run& iRun,
     edm::LogInfo(MsgLoggerCat)
       << "Processing run " << nrun << " (" << count << " runs total)";
   } else if (verbosity == 0) {
-    if (nrun%frequency == 0 || nrun == 0) {
+    if (nrun%frequency == 0 || count == 1) {
       edm::LogInfo(MsgLoggerCat)
 	<< "Processing run " << nrun << " (" << count << " runs total)";
     }
