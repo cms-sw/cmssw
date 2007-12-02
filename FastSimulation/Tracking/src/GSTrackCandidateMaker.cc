@@ -14,8 +14,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
 
 #include "FastSimulation/Tracking/interface/GSTrackCandidateMaker.h"
@@ -39,7 +37,6 @@
 
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
-#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 //
 
 //for debug only 

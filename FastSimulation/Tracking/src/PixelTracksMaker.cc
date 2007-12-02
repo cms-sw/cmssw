@@ -12,15 +12,12 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
@@ -38,6 +35,7 @@
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -129,7 +127,7 @@ PixelTracksMaker::produce(edm::Event& e, const edm::EventSetup& es) {
   unsigned nTriplets = 0;
   unsigned nFilterTracks = 0;
   unsigned nPixelTracks = 0;
-  unsigned nCleanedTracks = 0;
+  // unsigned nCleanedTracks = 0;
   
   std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);    
   std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);

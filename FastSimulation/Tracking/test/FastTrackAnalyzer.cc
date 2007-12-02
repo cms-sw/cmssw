@@ -4,18 +4,23 @@
 // This code was created during the debugging of the fast RecHits and fast 
 // tracks.  It produces some validation and debugging plots of the RecHits and tracks.
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "FastSimulation/Tracking/test/FastTrackAnalyzer.h"
-#include "Math/GenVector/BitReproducible.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h" 
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
@@ -29,10 +34,6 @@
 
 #include "TH1F.h"
 #include "TFile.h"
-#include "TString.h"
-#include <memory>
-#include <iostream>
-#include <string>
 
 using namespace edm;
 using namespace std;
@@ -411,9 +412,10 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
       for (MixCollection<PSimHit>::iterator isim=(*allTrackerHits).begin(); isim!= (*allTrackerHits).end(); isim++) {
 	//	std::cout<<" looping over simhits " << std::endl;
 	//compare detUnitIds && SimTrackIds to match rechit to simhit (for pileup will need to add EncodedEventId info as well).
-	int simdetid = (*isim).detUnitId();
+	// int simdetid = (*isim).detUnitId();
 	//	std::cout<<"  simdetid = "<< simdetid << std::endl;
-	if(detid.rawId() == (*isim).detUnitId() && (*iterrechit).simtrackId()==(*isim).trackId())
+	if((int) detid.rawId() == (int) (*isim).detUnitId() && 
+	   (int) (*iterrechit).simtrackId()== (int) (*isim).trackId())
 	  {
 	    matchedSimHits++;
 	    numpartners++;
@@ -435,7 +437,8 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	      int monodetid = theMonoDet->geographicalId().rawId();
 	      int stereodetid = theStereoDet->geographicalId().rawId();
 	      //	      std::cout<< "   monodetid = " << monodetid << std::endl;
-	      if( monodetid ==  (*isim).detUnitId() && (*iterrechit).simtrackId()==(*isim).trackId()){
+	      if( monodetid == (int) (*isim).detUnitId() && 
+		  (int) (*iterrechit).simtrackId()==(int) (*isim).trackId()){
 		//matching the rphi one
 		std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
 		matchedSimHits++;
@@ -445,7 +448,8 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 		std::cout << "\tRecHit pos = " << position << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
 		std::cout << "\tmatched to Simhit = " << (*isim).localPosition() << "\tsimtkId = " <<(*isim).trackId() << std::endl; 
 	      }
-	      if( stereodetid ==  (*isim).detUnitId() && (*iterrechit).simtrackId()==(*isim).trackId()){
+	      if( stereodetid == (int) (*isim).detUnitId() && 
+		  (int) (*iterrechit).simtrackId() == (int) (*isim).trackId()){
 		//matching the rphi one
 		numpartners++;
 		std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
@@ -474,7 +478,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
       }
 
       // now match TrackingRecHits from track candidate to rec hit
-      unsigned int matchedCandHits = 0;
+      // unsigned int matchedCandHits = 0;
       const TrackingRecHit * matchedCandHit=0;
 //       TrackCandidate::RecHitContainer::const_iterator theItBegin =    theTrackCandColl->begin()->recHits().first;
 //       TrackCandidate::RecHitContainer::const_iterator theItEnd =    theTrackCandColl->begin()->recHits().second;
@@ -554,7 +558,8 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	      int numpartners=0;
 
 	      for (MixCollection<PSimHit>::iterator isim=(*allTrackerHits).begin(); isim!= (*allTrackerHits).end(); isim++) {
-		if(detid.rawId() == (*isim).detUnitId() && rechit->simtrackId()==(*isim).trackId()){
+		if( (int) detid.rawId() == (int) (*isim).detUnitId() && 
+		    (int) rechit->simtrackId() == (int) (*isim).trackId()){
 		  simHit = const_cast<PSimHit*>(&(*isim));
 		  matchedSimHits++;
 		  std::cout << "\tRecHit pos = " << rechit->localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << rechit->simtrackId() << std::endl;
@@ -573,7 +578,8 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 		      int monodetid = theMonoDet->geographicalId().rawId();
 		      int stereodetid = theStereoDet->geographicalId().rawId();
 		      //	      std::cout<< "   monodetid = " << monodetid << std::endl;
-		      if( monodetid ==  (*isim).detUnitId() && rechit->simtrackId()==(*isim).trackId()){
+		      if( monodetid == (int) (*isim).detUnitId() && 
+			  (int) rechit->simtrackId() == (int) (*isim).trackId()){
 			//matching the rphi one
 			std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
 			matchedSimHits++;
@@ -582,7 +588,8 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 		
 
 		      }
-		      if( stereodetid ==  (*isim).detUnitId() && (*rechit).simtrackId()==(*isim).trackId()){
+		      if( stereodetid == (int) (*isim).detUnitId() && 
+			  (int) (*rechit).simtrackId() == (int) (*isim).trackId()){
 			//matching the rphi one
 			numpartners++;
 			std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
@@ -643,7 +650,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
        //      //now found the simtrack information
        for(SimTrackContainer::const_iterator simTrack = theSimTracks->begin(); simTrack != theSimTracks->end(); simTrack++)
 	 { 
-	   if(simTrack->trackId() == idmax) {
+	   if( (int) simTrack->trackId() == idmax) {
 	     std::cout << "\t\tSim track mom = " << simTrack->momentum() << " charge = " <<  simTrack->charge() << std::endl;
 	     
 	     
@@ -712,13 +719,13 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
   DetId simdetid= DetId(simHit->detUnitId());
 
   DetId recdetid = rechit->geographicalId();
-  unsigned int recsubdet = recdetid.subdetId();
+  // unsigned int recsubdet = recdetid.subdetId();
   unsigned int subdet   = DetId(simHit->detUnitId()).subdetId();
   unsigned int detid    = DetId(simHit->detUnitId()).rawId();
 
   //  const GeomDetUnit *  det = trackerG->idToDetUnit(adetid);
   const GeomDet* det = trackerG->idToDet( adetid ); 
-  const GeomDetUnit *  simdet = trackerG->idToDetUnit(simdetid);
+  // const GeomDetUnit *  simdet = trackerG->idToDetUnit(simdetid);
 
   const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*> (trackerG->idToDet(adetid));
 
@@ -729,16 +736,16 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
   float xGlobRec = posGlobRec.x();
   float yGlobRec = posGlobRec.y();
   float zGlobRec = posGlobRec.z();
-  float rGlobRec = posGlobRec.perp();
+  // float rGlobRec = posGlobRec.perp();
 
   float xGlobSim = posGlobSim.x();
   float yGlobSim = posGlobSim.y();
   float zGlobSim = posGlobSim.z();
-  float rGlobSim = posGlobSim.perp();
+  // float rGlobSim = posGlobSim.perp();
 
   float xRec = rechit->localPosition().x();
   float yRec = rechit->localPosition().y();
-  float zRec = rechit->localPosition().z();
+  // float zRec = rechit->localPosition().z();
   
   float xSim = simHit->localPosition().x();
   float ySim = simHit->localPosition().y();
@@ -746,7 +753,7 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
  
   if(gluedDet){    
     const StripGeomDetUnit* partnerstripdet = (StripGeomDetUnit*) gluedDet->monoDet();
-    const StripGeomDetUnit* stereostripdet = (StripGeomDetUnit*) gluedDet->stereoDet();
+    //const StripGeomDetUnit* stereostripdet = (StripGeomDetUnit*) gluedDet->stereoDet();
     std::pair<LocalPoint,LocalVector> hitPair1, hitPair2;
     //check both track directions
     hitPair1= projectHit(*simHit,partnerstripdet,gluedDet->surface(), 1);
@@ -758,11 +765,11 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
     */
     float xSim1 =  hitPair1.first.x();
     float ySim1 =  hitPair1.first.y();
-    float zSim1 =  hitPair1.first.z();
+    //float zSim1 =  hitPair1.first.z();
 
     float xSim2 =  hitPair2.first.x();
     float ySim2 =  hitPair2.first.y();
-    float zSim2 =  hitPair2.first.z();
+    //float zSim2 =  hitPair2.first.z();
 
     if( ((xSim1-xRec)*(xSim1-xRec)+(ySim1-yRec)*(ySim1-yRec)) <  ((xSim2-xRec)*(xSim2-xRec)+(ySim2-yRec)*(ySim2-yRec))){
       xSim =  hitPair1.first.x();
@@ -784,7 +791,7 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 
   float delta_x = xRec - xSim;
   float delta_y = yRec - ySim;
-  float delta_z = zRec - zSim;
+  // float delta_z = zRec - zSim;
   
   float err_xx = sqrt(rechit->localPositionError().xx());
   float err_xy = sqrt(rechit->localPositionError().xy());
@@ -911,7 +918,7 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 		  StripSubdetector specDetId=StripSubdetector(detid);
 		  TECDetId module(detid);
 		  unsigned int theRing  = module.ring();
-		  unsigned int theWheel = module.wheel();
+		  //unsigned int theWheel = module.wheel();
 		  if(!gluedDet && theRing==1){
 		    std::cout<<"     AS debugging2 !gluedDet && theRing==1"<< std::endl;
 		    exit(1);
@@ -942,8 +949,8 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 		
 	      }
 	  
-	      float err_x = sqrt(rechit->localPositionError().xx());
-	      float err_y = sqrt(rechit->localPositionError().yy());
+ // float err_x = sqrt(rechit->localPositionError().xx());
+ // float err_y = sqrt(rechit->localPositionError().yy());
 
 	      // some debugging printout
 

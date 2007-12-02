@@ -7,15 +7,11 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-//#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h" 
-//#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
 
@@ -31,20 +27,9 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
-/*
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
-*/
-
 
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
-#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 //
 
 //for debug only 
@@ -333,15 +318,15 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       
       BaseParticlePropagator theParticle = 
 	BaseParticlePropagator( 
-			       RawParticle(XYZTLorentzVector(theSimTrack.momentum().px(),
-							     theSimTrack.momentum().py(),
-							     theSimTrack.momentum().pz(),
-							     theSimTrack.momentum().e()),
-					   XYZTLorentzVector(theSimVertex.position().x(),
-							     theSimVertex.position().y(),
-							     theSimVertex.position().z(),
-							     theSimVertex.position().t())),
-			       0.,0.,4.);
+	    RawParticle(XYZTLorentzVector(theSimTrack.momentum().px(),
+					  theSimTrack.momentum().py(),
+					  theSimTrack.momentum().pz(),
+					  theSimTrack.momentum().e()),
+			XYZTLorentzVector(theSimVertex.position().x(),
+					  theSimVertex.position().y(),
+					  theSimVertex.position().z(),
+					  theSimVertex.position().t())),
+	                0.,0.,4.);
       theParticle.setCharge((*theSimTracks)[simTrackId].charge());
       if ( theParticle.xyImpactParameter() > maxD0[ialgo] ) continue;
       if ( fabs( theParticle.zImpactParameter() ) > maxZ0[ialgo] ) continue;
