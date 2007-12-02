@@ -21,27 +21,31 @@
 
 namespace {
   struct dictionary {
-  edm::Wrapper<TH1C> dummy1C;
-  edm::Wrapper<TH1D> dummy1D;
-  edm::Wrapper<TH1F> dummy1F;
-  edm::Wrapper<TH1I> dummy1I;
-  edm::Wrapper<TH1S> dummy1S;
-  edm::Wrapper<TH2C> dummy2C;
-  edm::Wrapper<TH2D> dummy2D;
-  edm::Wrapper<TH2F> dummy2F;
-  edm::Wrapper<TH2I> dummy2I;
-  edm::Wrapper<TH2S> dummy2S;
-  edm::Wrapper<TH3C> dummy3C;
-  edm::Wrapper<TH3D> dummy3D;
-  edm::Wrapper<TH3F> dummy3F;
-  edm::Wrapper<TH3I> dummy3I;
-  edm::Wrapper<TH3S> dummy3K;
-  edm::Wrapper<TProfile> dummyPr;
-  edm::Wrapper<TProfile2D> dummyPr2D;
-  edm::Wrapper<TProfile3D> dummyPr3D;
+    edm::Wrapper<TH1C> dummy1C;
+    edm::Wrapper<TH1D> dummy1D;
+    edm::Wrapper<TH1F> dummy1F;
+    edm::Wrapper<TH1I> dummy1I;
+    edm::Wrapper<TH1S> dummy1S;
+    edm::Wrapper<TH2C> dummy2C;
+    edm::Wrapper<TH2D> dummy2D;
+    edm::Wrapper<TH2F> dummy2F;
+    edm::Wrapper<TH2I> dummy2I;
+    edm::Wrapper<TH2S> dummy2S;
+    edm::Wrapper<TH3C> dummy3C;
+    edm::Wrapper<TH3D> dummy3D;
+    edm::Wrapper<TH3F> dummy3F;
+    edm::Wrapper<TH3I> dummy3I;
+    edm::Wrapper<TH3S> dummy3K;
+    edm::Wrapper<TProfile> dummyPr;
+    edm::Wrapper<TProfile2D> dummyPr2D;
+    edm::Wrapper<TProfile3D> dummyPr3D;
+    edm::Wrapper<TObject> dummyObject;
   };
 
   namespace {
+    std::vector<uint32_t> dummy1;
+    std::map<std::string,MEtoROOT::QValue> dummy2;
+    std::vector<MEtoROOT::MEROOTObject> dummy3;
     edm::Wrapper<MEtoROOT> theValidData1;
   }
 }

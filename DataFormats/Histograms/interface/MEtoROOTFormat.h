@@ -6,12 +6,17 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2007/11/20 12:45:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/11/28 22:06:14 $
+ *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
 
+#include <TObject.h>
+
 #include <string>
+#include <vector>
+#include <memory>
+#include <map>
 
 class MEtoROOT
 {
@@ -21,18 +26,41 @@ class MEtoROOT
   MEtoROOT() {}
   virtual ~MEtoROOT() {}
 
-  struct ROOTObject
+  struct QValue
   {
-    std::string dirpath;
+    int		code;
+    std::string	message;
   };
 
-  void putRootObject(std::string dirpath);
+  typedef std::vector<uint32_t> TagList;
+  typedef std::map<std::string, struct QValue> QReports;
 
-  ROOTObject getRootObject() const {return test;}
+  struct MEROOTObject
+  {
+    uint64_t	version;
+    std::string	name;
+    TagList 	tags;
+    TObject*	object;
+    TObject*	reference;
+    QReports	qreports;
+    uint32_t	flags;
+  };
+
+  typedef std::vector<MEROOTObject> MERootObjectVector;
+
+  void putMERootObject(std::vector<uint64_t> version,
+		       std::vector<std::string> name,
+		       std::vector<TagList> tags,
+		       std::vector<TObject*> object,
+		       std::vector<TObject*> reference,
+		       std::vector<QReports> qreports,
+		       std::vector<uint32_t> flags);
+
+  MERootObjectVector getMERootObject() const {return MERootObject;}
 
  private:
 
-  ROOTObject test;
+  MERootObjectVector MERootObject;
 
 }; // end class declaration
 

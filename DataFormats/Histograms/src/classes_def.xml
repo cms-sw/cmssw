@@ -42,8 +42,15 @@
  </class>
  <class name="edm::Wrapper<TProfile3D>"/>
 
+ <class name="TObject"/>
+ <class name="edm::Wrapper<TObject>"/>
+
  <class name="MEtoROOT"/>
- <class name="MEtoROOT::ROOTObject"/>
+ <class name="MEtoROOT::QValue"/>
+ <class name="std::vector<uint32_t>"/>
+ <class name="std::map<std::string,MEtoROOT::QValue>"/>
+ <class name="MEtoROOT::MEROOTObject"/>
+ <class name="std::vector<MEtoROOT::MEROOTObject>"/>
  <class name="edm::Wrapper<MEtoROOT>"/>
 
 </lcgdict>
