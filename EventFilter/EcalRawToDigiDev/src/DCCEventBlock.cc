@@ -227,6 +227,13 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 	STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,chNumber);
       }		 
   
+      // notify if for any reason channel is not being unpacked
+      else if(feUnpacking_) {
+	edm::LogWarning("EcalRawToDigiDev") << "In fed: " << fedId_ << " the DCC channel: " << chNumber 
+					    << " has channel status: " << chStatus 
+					    << " and is not being unpacked at event: " << l1_;
+      }
+      
 
 
       // Unpack Mem blocks
