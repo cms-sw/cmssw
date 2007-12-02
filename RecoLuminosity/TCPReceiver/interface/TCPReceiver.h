@@ -112,6 +112,9 @@ namespace HCAL_HLX{
     bool IsConnected();    
     bool VerifyFakeData(HCAL_HLX::LUMI_SECTION & localSection);
 
+    void GenerateFakeData(HCAL_HLX::LUMI_SECTION & localSection);
+    void GenerateRandomData(HCAL_HLX::LUMI_SECTION & localSection);
+
   private:
     unsigned char acquireMode;
     bool Connected;
@@ -120,8 +123,6 @@ namespace HCAL_HLX{
     std::string servIP;
     int tcpSocket;
     struct sockaddr_in servAddr;
-    void GenerateFakeData(HCAL_HLX::LUMI_SECTION & localSection);
-    void GenerateRandomData(HCAL_HLX::LUMI_SECTION & localSection);
     //  void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
     //             fd_set& ExceptFDs, int ListeningSocket = -1,
     //            int connectSocket = -1)

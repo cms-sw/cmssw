@@ -24,7 +24,6 @@ int main(){
   HCAL_HLX::LUMI_SECTION L;
 
   int errorCode;
-  unsigned int ErrorCount = 0;
   
   errorCode = HT.SetMode(0);
   cout << "SetMode: " << errorCode << endl;
