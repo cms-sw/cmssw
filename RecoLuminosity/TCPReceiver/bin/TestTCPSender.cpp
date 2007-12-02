@@ -12,6 +12,7 @@
 
 #include "RecoLuminosity/HLXReadOut/CoreUtils/include/ICTypeDefs.hh"
 #include "RecoLuminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh"
+#include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 
 int gContinue=1;
 bool Connected = false;
@@ -31,18 +32,24 @@ int main(){
   int servSock;
   int clntSock;
 
+  unsigned int runCount = 1;
+  unsigned int orbitCount = 0;
+  unsigned int sectionCount = 0;
+  unsigned int sizeOfRun = 960;
+  unsigned int sizeOfSection = 1000;
+
   int er;
-  unsigned short i, j, k;
+
   HCAL_HLX::LUMI_SECTION lumiSection;
+  HCAL_HLX::TCPReceiver HT;
 
   struct sockaddr_in servAddr;
   struct sockaddr_in clntAddr;
   unsigned int clntLen;
   unsigned short servPort = 51001;
-
   unsigned int Buffer_Size;
 
-  signal(SIGINT,CtrlC);  
+  signal(SIGINT,CtrlC);
 
   clntLen = sizeof(clntAddr);    
   Buffer_Size = sizeof(lumiSection);
@@ -73,32 +80,30 @@ int main(){
   memset(Buffer, 0, Buffer_Size); 
 
   while(gContinue){
-    // cout << " ** Writing Lumi Section ** " << endl;
-    lumiSection.hdr.runNumber = 1;
-    lumiSection.hdr.startOrbit = 2;
-    lumiSection.hdr.numOrbits = 3;
-    lumiSection.hdr.numBunches = 4;
-    lumiSection.hdr.numHLXs = 5;
-    lumiSection.hdr.bCMSLive = 6;
+
+    cout << " ** Generating Lumi Section ** " << endl;
+    HT.GenerateRandomData(lumiSection);
     
-    for(i=0; i<36; i ++){
-      lumiSection.etSum[i].hdr.numNibbles = 7;
-      lumiSection.occupancy[i].hdr.numNibbles = 8;
-      lumiSection.lhc[i].hdr.numNibbles = 9;
-      
-      lumiSection.etSum[i].hdr.bIsComplete = true;
-      lumiSection.occupancy[i].hdr.bIsComplete = true;
-      lumiSection.lhc[i].hdr.bIsComplete = true;
-      
-      for(j=0; j < 3564; j ++){
-	lumiSection.etSum[i].data[j] = 6*j;
-	for(k=0; k < 6; k++){
-	  lumiSection.occupancy[i].data[k][j] = k*j;
-	}
-	lumiSection.lhc[i].data[j]= 7*j;
-      }
+    orbitCount += 4;
+    
+    if(orbitCount >= sizeOfSection){
+      sectionCount++;
+      orbitCount = 0;
+    }
+    
+    if(sectionCount >= sizeOfRun){
+      runCount++;
+      sectionCount = 0;
     }
 
+    lumiSection.hdr.runNumber = runCount;
+    lumiSection.hdr.sectionNumber = sectionCount;
+    lumiSection.hdr.startOrbit = orbitCount - 4;
+    lumiSection.hdr.numOrbits = 4;
+    lumiSection.hdr.numBunches = 3546;
+    lumiSection.hdr.numHLXs = 36;
+    lumiSection.hdr.bCMSLive = true;
+    
     memcpy(Buffer,reinterpret_cast<char *>(&lumiSection), Buffer_Size);
 
     if(Connected == false){
@@ -112,7 +117,13 @@ int main(){
       
     } else {
       
-      cout << " ** Sending lumi section ** " << endl;
+      cout << " ** Sending Lumi Section - Run: " 
+	   << lumiSection.hdr.runNumber
+	   << " Section: " 
+	   << lumiSection.hdr.sectionNumber
+	   << " Orbit: "
+	   << lumiSection.hdr.startOrbit
+	   << " ** " << endl;
       if(send(clntSock, Buffer, Buffer_Size, 0) != (int)Buffer_Size){
 	cout << " ** send failed ** " << endl;
 	Connected = false;
@@ -120,5 +131,4 @@ int main(){
       sleep(3);
     }
   }
-  
 }
