@@ -274,7 +274,13 @@ void DCCEventBlock::addHeaderToCollection(){
   theDCCheader.setTestZeroSuppression(tzs_);
   theDCCheader.setSrpStatus(srChStatus_);
   theDCCheader.setTccStatus(tccChStatus_);
-  theDCCheader.setFEStatus(feChStatus_);
+  // this is good with DataFormats/EcalRawData V01-01-11;
+  // rolling back temporarily to allow development within CMSSW_1_7_0
+  // theDCCheader.setFEStatus(feChStatus_);
+
+  // this is good with DataFormats/EcalRawData V01-01-10 && CMSSW_1_7_0
+  theDCCheader.setTriggerTowerStatus(feChStatus_);
+
   
   // The Run type
   EcalDCCHeaderRuntypeDecoder theRuntypeDecoder;
