@@ -23,19 +23,21 @@ endif
 
 echo "Run: $Run"
 
-set InputDir = "/cms/mon/dqm/lumi/root/ls"
-set OutputDir = "/cms/mon/dqm/lumi/root/run"
+set InputDir = "/cms/mon/data/dqm/lumi/root/schema"
+set OutputDir = "/cms/mon/data/dqm/lumi/root/schema"
 
-set files = `ls $InputDir/LS_"$Run"_??????.root`
+set files = `ls $InputDir/LS_"$Run"_*.root`
 
 if( `echo $files` != '' ) then
 
 set TreeName = "LumiTree"
 set ChainName = "LumiChain"
-set ScriptName = "LumiCat.C"
+set ScriptName = "/tmp/LumiCat.C"
 set DictName = "$CMSSW_BASE/lib/slc4_ia32_gcc345/libRecoLuminosityROOTSchema.so"
 set OutputFile = "$OutputDir/Lumi_$Run.root"
 set FileTitle = "Luminosity - Run Number $Run"
+
+rm -f $ScriptName
 
 cat >> $ScriptName <<EOF
 {
@@ -74,7 +76,7 @@ cat >> $ScriptName <<EOF
 EOF
 
 root -b -q .x $ScriptName
-rm $ScriptName
+#rm $ScriptName
 
 mkdir -p $InputDir/$Run
 
@@ -83,6 +85,7 @@ foreach file ($files)
 end
 
 mv /tmp/Temp.root $OutputFile
+cp $OutputFile /cmsdisk1/data1a/dropbox
 
 else
 
