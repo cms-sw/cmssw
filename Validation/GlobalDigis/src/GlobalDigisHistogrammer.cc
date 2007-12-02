@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/11/28 21:40:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/29 13:21:18 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -68,14 +68,14 @@ GlobalDigisHistogrammer::GlobalDigisHistogrammer(const edm::ParameterSet& iPSet)
   dbe = 0;
 dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 if (dbe) {
-    if (verbosity >= 0 ) {
+    if (verbosity > 0 ) {
       dbe->setVerbose(1);
     } else {
       dbe->setVerbose(0);
     }
 }
 if (dbe) {
-    if (verbosity >= 0 ) dbe->showDirStructure();
+    if (verbosity > 0 ) dbe->showDirStructure();
   }
 
  Char_t hname[100];

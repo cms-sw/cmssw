@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/11/28 21:39:02 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/11/29 13:12:20 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -117,7 +117,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
   dbe = 0;
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   if (dbe) {
-    if (verbosity >= 0 ) {
+    if (verbosity > 0 ) {
       dbe->setVerbose(1);
     } else {
       dbe->setVerbose(0);
@@ -125,7 +125,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
   }
 
   if (dbe) {
-    if (verbosity >= 0 ) dbe->showDirStructure();
+    if (verbosity > 0 ) dbe->showDirStructure();
   }
 
   // initialize monitor elements

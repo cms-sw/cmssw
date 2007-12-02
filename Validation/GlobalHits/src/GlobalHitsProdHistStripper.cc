@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/11/06 22:21:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/11/20 23:53:45 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -41,7 +41,7 @@ GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(const
   dbe = 0;
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   if (dbe) {
-    if (verbosity >= 0 ) {
+    if (verbosity > 0 ) {
       dbe->setVerbose(1);
     } else {
       dbe->setVerbose(0);
@@ -49,7 +49,7 @@ GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(const
   }
 
   if (dbe) {
-    if (verbosity >= 0 ) dbe->showDirStructure();
+    if (verbosity > 0 ) dbe->showDirStructure();
   }
 
   // print out Parameter Set information being used
@@ -101,7 +101,7 @@ void GlobalHitsProdHistStripper::beginRun(const edm::Run& iRun,
     edm::LogInfo(MsgLoggerCat)
       << "Processing run " << nrun << " (" << count << " runs total)";
   } else if (verbosity == 0) {
-    if (nrun%frequency == 0 || nrun == 0) {
+    if (nrun%frequency == 0 || count == 1) {
       edm::LogInfo(MsgLoggerCat)
 	<< "Processing run " << nrun << " (" << count << " runs total)";
     }
@@ -215,9 +215,9 @@ void GlobalHitsProdHistStripper::endRun(const edm::Run& iRun,
     
     std::string mename = me[i]->getName();
     
-    std::cout << "Extracting histogram " << histname
-	      << " into MonitorElement " << mename
-	      << std::endl;
+    //std::cout << "Extracting histogram " << histname
+    //	      << " into MonitorElement " << mename
+    //	      << std::endl;
     
     for (Int_t x = 1; x <= histogram1D->GetXaxis()->GetNbins(); ++x) {
       Double_t binx = histogram1D->GetBinCenter(x);
