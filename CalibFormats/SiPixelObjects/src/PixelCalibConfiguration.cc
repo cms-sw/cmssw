@@ -123,6 +123,8 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
     cols_.push_back(cols);
     cols.clear();
 
+    highVCalRange_=true;
+
     if (tmp=="VcalLow") {
       highVCalRange_=false;
       in >> tmp;
@@ -133,7 +135,6 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
       in >> tmp;
     }
 
-    highVCalRange_=true;
     if (tmp=="VcalLow:") {
 	highVCalRange_=false;
     }
