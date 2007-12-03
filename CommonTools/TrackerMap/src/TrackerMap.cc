@@ -499,15 +499,19 @@ void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, Tm
   
   char buffer [20];
   sprintf(buffer,"%X",apvPair->mod->idex);
-  if(!useApvPairValue){ 
+
+  if(useApvPairValue){ 
     if(apvPair->red < 0){ //use count to compute color
-      green = (int)((apvPair->value-minvalue)/(maxvalue-minvalue)*256.); 
-      if (green > 255) green=255;
-      if(!print_total)apvPair->value=apvPair->value*apvPair->count;//restore mod->value
-      if(apvPair->count > 0)
+      if(apvPair->count > 0) {
+	color = getcolor(apvPair->value,palette);
+	red=(color>>16)&0xFF;
+	green=(color>>8)&0xFF;
+	blue=(color)&0xFF;
+	if(!print_total)apvPair->value=apvPair->value*apvPair->count;//restore mod->value
 	*svgfile << red << " " << green << " " << blue << " ";
-      else
+      } else {
         *svgfile << 255 << " " << 255 << " " << 255 << " ";
+      }
     } else {//color defined with fillc
       if(apvPair->red>255)apvPair->red=255;
       if(apvPair->green>255)apvPair->green=255;
@@ -516,15 +520,15 @@ void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, Tm
     }
   }else{
     if(apvPair->mod->red < 0){ //use count to compute color
-      color = getcolor(apvPair->value,palette);
-      red=(color>>16)&0xFF;
-      green=(color>>8)&0xFF;
-      blue=(color)&0xFF;
-
-      if(apvPair->count > 0)
+      if(apvPair->mod->count > 0) {
+	color = getcolor(apvPair->mod->value,palette);
+	red=(color>>16)&0xFF;
+	green=(color>>8)&0xFF;
+	blue=(color)&0xFF;
 	*svgfile << red << " " << green << " " << blue << " ";
-      else
+      } else {
         *svgfile << 255 << " " << 255 << " " << 255 << " ";
+      }
     } else {//color defined with fillc
       if(apvPair->mod->red>255)apvPair->mod->red=255;
       if(apvPair->mod->green>255)apvPair->mod->green=255;
@@ -559,12 +563,10 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     if(apvPair!=0) {
       TmModule * apv_mod = apvPair->mod;
       if(apv_mod !=0 && !apv_mod->notInUse()){
-	std::cout << "apvpair " << apvPair->count << std::endl;
         if(apvPair->count > 0 || apvPair->red!=-1) { useApvPairValue=true; break;}
       }
     }
   }
-  cout << "point 1 " << useApvPairValue << endl;
   if(!print_total){
     for( i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
       TmApvPair *  apvPair= i_apv->second;
@@ -577,7 +579,6 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
       }
     }
   }
-  cout << "point 2 "  << endl;
   if(minvalue>=maxvalue){
     
     minvalue=9999999.;
@@ -598,7 +599,6 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	}
     }
   }
-  cout << "point 3 " << minvalue << " " << maxvalue << endl;
   for (int crate=1; crate < 25; crate++){
     ncrate=crate;
     defcwindow(ncrate);
@@ -633,7 +633,6 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     }
 }
   
-  cout << "point 4 "  << endl;
   if(printflag)drawPalette(savefile);
   savefile->close(); 
 
@@ -709,7 +708,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     string command = "rm "+tempfilename ;
     command1=command.c_str();
     cout << "Executing " << command1 << endl;
-//    system(command1);
+    system(command1);
     MyC->Clear();
     delete MyC;
     delete pline;
