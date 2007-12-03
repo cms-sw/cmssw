@@ -1,7 +1,7 @@
 /* \file testDaqSource.cc
  *
- *  $Date: 2007/04/17 22:46:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/08/06 16:42:40 $
+ *  $Revision: 1.4 $
  *  \author S. Argiro, N. Amapane - CERN
  */
 
@@ -62,10 +62,15 @@ public:
 
 int testDaqSource::runIt(const std::string& config){
   edm::AssertHandler ah;
+  std::vector<std::string> services;
+  services.reserve(1);
+  services.push_back(std::string("JobReportService"));
   int rc=0;
   try {
-    edm::EventProcessor proc(config);
+    edm::EventProcessor proc(config, services);
+    proc.beginJob();
     proc.run();
+    proc.endJob();
   } catch (cms::Exception& e){
     std::cerr << "Exception caught:  " 
 	      << e.explainSelf()
@@ -82,7 +87,7 @@ void testDaqSource::testReadFile(){
        << endl << endl;
 
   const std::string config=
-    "process TEST = { \n"
+    "process TESTReadFile = { \n"
     "untracked PSet maxEvents = {untracked int32 input = 1}"
     "source = DaqSource{ untracked string readerPluginName = \"DaqFileReader\"\n"
     "                    untracked PSet readerPset = { string fileName = \"" + testfileLocation+ "rawdt.raw" +"\"}} \n"
@@ -101,7 +106,7 @@ void testDaqSource::testReadFileWritePool(){
        << endl << endl;
 
   const std::string config=
-    "process TEST = { \n"
+    "process TESTReadFileWritePool = { \n"
     "untracked PSet maxEvents = {untracked int32 input = 1}"
     "source = DaqSource{ untracked string readerPluginName = \"DaqFileReader\"\n"
     "                    untracked PSet readerPset = { string fileName = \"" + testfileLocation+ "rawdt.raw" +"\"}} \n"
@@ -123,7 +128,7 @@ void testDaqSource::testReadPool(){
        << endl << endl;
 
   const std::string config=
-    "process TEST = { \n"
+    "process TestReadPool = { \n"
     "untracked PSet maxEvents = {untracked int32 input = 1}"
     " module dummyunpacker = DummyUnpackingModule{ }\n"
     " path p = {dummyunpacker}\n"
@@ -143,7 +148,7 @@ void testDaqSource::testGenerate(){
        << endl << endl;
 
   const std::string config=
-    "process TEST = { \n"
+    "process TESTGenerate = { \n"
     "untracked PSet maxEvents = {untracked int32 input = 1}"
     "source = DaqSource{ untracked string readerPluginName = \"DaqFakeReader\"\n"
     "                    untracked PSet readerPset = { untracked int32 dummy = 0} }\n"
@@ -162,7 +167,7 @@ void testDaqSource::testGenerateWritePool(){
        << endl << endl;
 
   const std::string config=
-    "process TEST = { \n"
+    "process TESTGenerateWritePool = { \n"
     "untracked PSet maxEvents = {untracked int32 input = 1}"
     "source = DaqSource{ untracked string readerPluginName = \"DaqFakeReader\"\n"
     "                    untracked PSet readerPset = { untracked int32 dummy = 0} }\n"
