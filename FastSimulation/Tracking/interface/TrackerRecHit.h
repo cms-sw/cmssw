@@ -34,13 +34,15 @@ public:
     theGeomDet(0),
     theSubDetId(0),
     theLayerNumber(0),
-    theRingNumber(0)    {}
+    theRingNumber(0),
+    theLocalError(0.) {}
   /// constructor from private members
   TrackerRecHit(const SiTrackerGSRecHit2D* theHit, const TrackerGeometry* theGeometry) :
     theHit(theHit),
     theSubDetId(0),
     theLayerNumber(0),
-    theRingNumber(0)
+    theRingNumber(0),
+    theLocalError(0.)
     { 
       const DetId& theDetId = theHit->geographicalId();
       theGeomDet = theGeometry->idToDet(theDetId);
@@ -146,7 +148,37 @@ public:
     return isOnDet;
   }
 
+  // The smallest local error
+  double localError() { 
+
+    // Check if it has been already computed
+    if ( theLocalError != 0. ) return theLocalError;
+
+    // Otherwise, compute it!
+    double xx = theHit->localPositionError().xx();
+    double yy = theHit->localPositionError().yy();
+    double xy = theHit->localPositionError().xy();
+    double delta = std::sqrt((xx-yy)*(xx-yy)+4.*xy*xy);
+    theLocalError = 0.5 * (xx+yy-delta);
+    return theLocalError;
+
+  }
   
+  inline bool operator!=(const TrackerRecHit& aHit) const {
+    std::cout << "The geom Dets = " << aHit.geomDet() 
+	      << " " << this->geomDet() 
+	      << std::endl
+	      << "The positions = " << aHit.hit()->localPosition() 
+	      << " " << this->hit()->localPosition() 
+	      << std::endl;
+
+    return 
+      aHit.geomDet() != this->geomDet() ||
+      aHit.hit()->localPosition().x() != this->hit()->localPosition().x() ||
+      aHit.hit()->localPosition().y() != this->hit()->localPosition().y() ||
+      aHit.hit()->localPosition().z() != this->hit()->localPosition().z();
+  }
+
  private:
   
   const SiTrackerGSRecHit2D* theHit;
@@ -154,6 +186,7 @@ public:
   unsigned int theSubDetId; 
   unsigned int theLayerNumber;
   unsigned int theRingNumber;
+  double theLocalError;
 
 };
 #endif
