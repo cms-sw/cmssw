@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.6 2007/11/29 12:13:01 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.7 2007/12/01 17:58:15 scooper Exp $
 //
 //
 
@@ -85,8 +85,6 @@ class EcalMipGraphs : public edm::EDAnalyzer {
   std::vector<int> maskedChannels_;
   std::vector<int> maskedFEDs_;
   std::vector<std::string> maskedEBs_;
-  std::vector<int> FEDids_;
-  std::vector<int> EBids_;
 
   TFile* file;
   TNtuple* eventsAndSeedCrys_;
@@ -115,7 +113,7 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
   runNum_(-1),
   side_ (iConfig.getUntrackedParameter<int>("side", 3)),
   threshold_ (iConfig.getUntrackedParameter<double>("amplitudeThreshold", 12.0)),
-  fileName_ (iConfig.getUntrackedParameter<std::string>("fileName", std::string("mipDumper")))
+  fileName_ (iConfig.getUntrackedParameter<std::string>("fileName", std::string("ecalMipGraphs")))
 {
   vector<int> listDefaults;
   listDefaults.push_back(-1);
@@ -341,6 +339,15 @@ EcalMipGraphs::endJob()
   writeGraphs();
   eventsAndSeedCrys_->Write();
   file->Close();
+  std::string channels;
+  for(std::vector<int>::const_iterator itr = maskedChannels_.begin();
+      itr != maskedChannels_.end(); ++itr)
+  {
+    channels+=intToString(*itr);
+    channels+=",";
+  }
+  
+  LogWarning("EcalMipGraphs") << "Masked channels are: " << channels << " and that is all!";
 }
 
 
