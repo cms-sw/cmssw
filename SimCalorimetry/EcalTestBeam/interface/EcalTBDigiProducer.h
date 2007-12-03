@@ -63,7 +63,7 @@ private:
 
   CaloHitResponse * theEcalResponse;
 
-  CorrelatedNoisifier * theCorrNoise;
+  CorrelatedNoisifier<EcalCorrMatrix> * theCorrNoise;
   EcalCorrelatedNoiseMatrix * theNoiseMatrix;
 
   EcalElectronicsSim * theElectronicsSim;
