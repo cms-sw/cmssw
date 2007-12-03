@@ -17,7 +17,8 @@ class tagTreeRootBuilder:
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
-        -r, --rootname=rootnodename
+        -T, --tree=treename: name of the tree to create(required). Note: the tree name is case insensitive, it is always internally converted to uppercase.
+        -r, --rootname=rootnodename(default 'All')
         -a, --all: attach all tags in the inventory as leafs under the root
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
@@ -28,6 +29,7 @@ class tagTreeRootBuilder:
         self.__password=''
         self.__authpath='.'
         self.__rootname=''
+        self.__treename=''
         self.__all=False
         self.__verbose=False        
     def parsecmdln(self):
@@ -40,8 +42,9 @@ class tagTreeRootBuilder:
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
+        self.__parser.add_option("-T","--tree",action="store",dest="treename",type="string",help="name of the tree to create(required). Note: the tree name is case insensitive, it is internally converted to uppercase")
         self.__parser.add_option("-r","--rootname",action="store",dest="rootname",type="string",help="root node name (default \'All\')")
-        self.__parser.add_option("-a","--all",action="store_true",dest="all",help="attach all tags in the inventory as leafs under the root(optional)")
+        self.__parser.add_option("-a","--all",action="store_true",dest="all",help="attach all tags in the inventory as leafs under the root(optional). Note: the leafnode names in this case are identical to the tag name")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(filename='')
         self.__parser.set_defaults(connectstring='')
@@ -52,6 +55,10 @@ class tagTreeRootBuilder:
         self.__parser.set_defaults(all=False)
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
+
+        if not self.__parser.values.treename:
+            raise OptionValueError("option -%s --%s is required "%('T','tree'))
+        self.__treename=self.__parser.values.treename
         if options.filename and options.connectstring:
             raise OptionValueError("option -%s and -%s are exclusive"%('f','c'))
         if len(self.__parser.values.authpath)!=0:
@@ -60,20 +67,28 @@ class tagTreeRootBuilder:
             self.__user=self.__parser.values.user
             self.__password=self.__parser.values.password
         self.__verbose=self.__parser.values.verbose
-        self.__all=self.__parser.values.all
+        self.__all=self.__parser.values.all        
         if self.__parser.values.filename!='':
             configparser=ConfigParser()
             configparser.read(self.__parser.values.filename)
             self.__connectstring=configparser.get("COMMON","connect")
-            self.__rootname=stripws(configparser.get("TAGTREE",'root'))
+            sections=configparser.sections()
+            for section in sections:
+                treesection=' '.join(['TAGTREE',str.upper(self.__treename)])
+                self.__rootname=stripws(configparser.get(treesection,'root'))
             if self.__parser.values.verbose is True:
                 print 'config file: ',self.__parser.values.filename
         else:    
             self.__connectstring=self.__parser.values.connectstring
             self.__rootname=self.__parser.values.rootname
+        if self.__parser.values.verbose is True:
+            print 'connect: ',self.__connectstring
+            print 'tree: ',self.__treename
+            print 'root: ',self.__rootname
+
     def createRootNode(self):
         """
-        Create root node of the tree 
+        Create root node for the the given tree 
         """
         context = coral.Context()
         if self.__verbose is True:
@@ -83,7 +98,7 @@ class tagTreeRootBuilder:
         svc = coral.ConnectionService( context )
         session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
         try:
-            mytree=TagTree.tagTree(session)
+            mytree=TagTree.tagTree(session,self.__treename)
             if mytree.existTagTreeTable() is False:
                 mytree.createTagTreeTable()   
             mynode=Node.Node()

@@ -50,8 +50,9 @@ class tagTreeBuilder:
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
+        -T, --tree=treename:  name of the tree to create(required). Note: the tree name is case insensitive, it is always internally converted to uppercase.
         -n, --node=node: one or a collection of non-leaf node(s) to attach to the tree. \"node1{parent=string,globalsince=unsigned long long,globaltill=unsigned long long};node2{...}\". 
-        -l, --leafnode=leafnode: one or a collection of leaf node(s) to attach to the tree. \"node1{parent=string};node2{...}\".
+        -l, --leafnode=leafnode: one or a collection of leaf node(s) to attach to the tree. \"node1{parent=string,tagname=string};node2{...}\".
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
         """
@@ -60,6 +61,7 @@ class tagTreeBuilder:
         self.__user=''
         self.__password=''
         self.__authpath=''
+        self.__treename=''
         self.__nodecollection=[]
         self.__leafcollection=[]
         self.__verbose=False
@@ -73,8 +75,9 @@ class tagTreeBuilder:
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
+        self.__parser.add_option("-T","--tree",action="store",dest="treename",type="string",help="name of the tree to create(required). Note: the tree name is case insensitive, it is internally converted to uppercase")
         self.__parser.add_option("-n","--nodedata",action="store",dest="nodedata",type="nodedata",help="one or a collection of non-leaf node(s) to attach to the tree. \"node1{parent=string,globalsince=unsigned long long,globaltill=unsigned long long};node2{...}\"")
-        self.__parser.add_option("-l","--leafdata",action="store",dest="leafdata",type="nodedata",help=" one or a collection of leaf node(s) to attach to the tree. \"node1{parent=string};node2{...}\" ")
+        self.__parser.add_option("-l","--leafdata",action="store",dest="leafdata",type="nodedata",help=" one or a collection of leaf node(s) to attach to the tree. \"node1{parent=string,tagname=string};node2{...}\" ")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(filename='')
         self.__parser.set_defaults(connectstring='')
@@ -85,6 +88,9 @@ class tagTreeBuilder:
         self.__parser.set_defaults(leafdata=[])
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
+        if not self.__parser.values.treename:
+            raise OptionValueError("option -%s --%s is required "%('T','tree'))
+        self.__treename=self.__parser.values.treename
         if options.filename and options.connectstring:
             raise OptionValueError("option -%s and -%s are exclusive"%('f','c'))
         if len(self.__parser.values.authpath)!=0:
@@ -95,14 +101,16 @@ class tagTreeBuilder:
         self.__verbose=self.__parser.values.verbose
         
         if self.__parser.values.filename!='':
+            treesection=' '.join(['TAGTREE',self.__treename])
+            print treesection
             configparser=ConfigParser()
             configparser.read(self.__parser.values.filename)
             self.__connectstring=configparser.get('COMMON','connect')
-            if configparser.has_option('TAGTREE', 'nodedata'):
-                nodedata=stripws(configparser.get('TAGTREE','nodedata'))
+            if configparser.has_option(treesection, 'nodedata'):
+                nodedata=stripws(configparser.get(treesection,'nodedata'))
                 self.__nodecollection=convertnodecollection(nodedata)
-            if configparser.has_option('TAGTREE', 'leafdata'):
-                leafdata=stripws(configparser.get('TAGTREE','leafdata'))
+            if configparser.has_option(treesection, 'leafdata'):
+                leafdata=stripws(configparser.get(treesection,'leafdata'))
                 self.__leafcollection=convertnodecollection(leafdata)
             if self.__parser.values.verbose is True:
                 print 'config file: ',self.__parser.values.filename
@@ -119,6 +127,7 @@ class tagTreeBuilder:
             print 'user: ',self.__user
             print 'password: ',self.__password
             print 'authpath: ',self.__authpath
+            print 'tree: ',self.__treename
             print 'nodecollection: ',self.__nodecollection
             print 'leafcollection: ',self.__leafcollection
 
@@ -138,7 +147,7 @@ class tagTreeBuilder:
         svc = coral.ConnectionService( context )
         session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
         try:
-            mytree=TagTree.tagTree(session)
+            mytree=TagTree.tagTree(session,self.__treename)
             if mytree.existTagTreeTable() is False:
                 raise Exception,'non-existing tag tree table, use cmscond_tagtree_createroot to create the table and tree root first'
             for item in self.__nodecollection:
@@ -162,9 +171,12 @@ class tagTreeBuilder:
                     myleaf.globaltill=0
                     myleaf.tagid=0
                     myleaf.nodelabel=leafdata['nodelabel']
-                    result=inv.getEntryByName(myleaf.nodelabel)
+                    if leafdata.has_key('tagname') is False:
+                        raise ValueError, "tagname is not specified for the leaf node "+myleaf.nodelabel
+                    tagname=leafdata['tagname']
+                    result=inv.getEntryByName(tagname)
                     if result.tagid == 0:
-                        raise ValueError, "unknown tag \'"+leafdata['nodelabel']+"\' in the inventory"
+                        raise ValueError, "unknown tag \'"+leafdata['tagname']+"\' in the inventory"
                     myleaf.tagid=result.tagid
                     if not leafdata.has_key('parent'):
                         raise KeyError,'no parent parameter for'+myleaf.nodelabel
