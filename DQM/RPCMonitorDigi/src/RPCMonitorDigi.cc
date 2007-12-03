@@ -65,19 +65,19 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
     
     cout<<"\n \033[0;35m DQM will be run in RPC EXPERTS mode !!! "<<endl;
     cout<<"\033[0;30m"<<endl;
-    sleep(10);
+    //    sleep(10);
    
   } else if (dqmexpert && dqmsuperexpert) {
     
     cout<<"\n \033[0;31m DQM will be run in RPC SUPER EXPERTS mode !!! "<<endl;
     cout<<"\033[0;30m"<<endl;
-    sleep(10);
+    //    sleep(10);
     
   } else { 
     
     cout<<"\n \033[0;32m DQM will be run in RPC Shifter mode !!! "<<endl;
     cout<<"\033[0;30m"<<endl;
-    sleep(10);
+    //    sleep(10);
     
   }    
   
@@ -130,7 +130,7 @@ void RPCMonitorDigi::endJob(void)
 
 void RPCMonitorDigi::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup ){
-  sleep(1);
+  //  sleep(1);
   counter++;
   edm::LogInfo (nameInLog) <<"Beginning analyzing event " << counter;
   
@@ -153,11 +153,12 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
   /// RecHits
   edm::Handle<RPCRecHitCollection> rpcHits;
   iEvent.getByType(rpcHits);
-  
+    
 
   RPCDigiCollection::DigiRangeIterator collectionItr;
   for(collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
     
+
     RPCDetId detId=(*collectionItr ).first; 
     uint32_t id=detId(); 
     
@@ -170,6 +171,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
     
 
     RPCGeomServ RPCname(detId);
+    //    std::cout <<"==> RPC Digi found in "<<RPCname.name()<<std::endl;
     std::string nameRoll = RPCname.name();
     sprintf(detUnitLabel ,"%s",nameRoll.c_str());
     sprintf(layerLabel ,"%s",nameRoll.c_str());
@@ -220,6 +222,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
        strips.push_back(strip);
        int bx=(*digiItr).bx();
        bool bxExists = false;
+       //std::cout <<"==> strip = "<<strip<<" bx = "<<bx<<std::endl;
        for(std::vector<int>::iterator existingBX= bxs.begin();
 	   existingBX != bxs.end(); ++existingBX){
 	 if (bx==*existingBX) {
