@@ -18,7 +18,9 @@
 EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params) 
 :  theGeometry(0)
 {
+
   /// output collections names
+
   EBdigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
   EEdigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
   ESdigiCollection_ = params.getParameter<std::string>("ESdigiCollection");
@@ -29,6 +31,8 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
 
 
   // initialize the default valuer for hardcoded parameters and the EB/EE shape
+
+  bool addNoise = params.getParameter<bool>("doNoise"); 
   double simHitToPhotoelectronsBarrel = params.getParameter<double>("simHitToPhotoelectronsBarrel");
   double simHitToPhotoelectronsEndcap = params.getParameter<double>("simHitToPhotoelectronsEndcap");
   double photoelectronsToAnalogBarrel = params.getParameter<double>("photoelectronsToAnalogBarrel");
@@ -44,15 +48,14 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
                                             photoelectronsToAnalogBarrel, photoelectronsToAnalogEndcap, 
                                             samplingFactor, timePhase, readoutFrameSize, binOfMaximum,
                                             doPhotostatistics, syncPhase);
-  theEcalShape = new EcalShape(timePhase);
 
+  theEcalShape = new EcalShape(timePhase);
+  
   int ESGain = params.getParameter<int>("ESGain");
   theESShape = new ESShape(ESGain);
 
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
   theESResponse = new CaloHitResponse(theParameterMap, theESShape);
-  
-  bool addNoise = params.getParameter<bool>("doNoise"); 
 
   //theNoiseMatrix = new EcalCorrelatedNoiseMatrix(readoutFrameSize);
   HepSymMatrix thisMatrix(readoutFrameSize,1);
@@ -76,16 +79,28 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   double rmsConstantTerm = params.getParameter<double> ("ConstantTerm");
   theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder, applyConstantTerm, rmsConstantTerm);
 
+  doFast = params.getParameter<bool>("doFast");
   bool addESNoise = params.getParameter<bool>("doESNoise");
   double ESNoiseSigma = params.getParameter<double> ("ESNoiseSigma");
-  int ESBaseline = params.getParameter<int>("ESBaseline");
+  int ESBaseline  = params.getParameter<int>("ESBaseline");
   double ESMIPADC = params.getParameter<double>("ESMIPADC");
   double ESMIPkeV = params.getParameter<double>("ESMIPkeV");
-  theESElectronicsSim = new ESElectronicsSim(addESNoise, ESNoiseSigma, ESGain, ESBaseline, ESMIPADC, ESMIPkeV);
+  int numESdetId  = params.getParameter<int>("numESdetId");
+  double zsThreshold = params.getParameter<double>("zsThreshold");
+  std::string refFile = params.getParameter<std::string>("refHistosFile");
+
+  theESElectronicsSim     = 0;
+  theESElectronicsSimFast = 0;
+  if (!doFast) { theESElectronicsSim     = new ESElectronicsSim(addESNoise, ESNoiseSigma, ESGain, ESBaseline, ESMIPADC, ESMIPkeV); }
+  if ( doFast) { theESElectronicsSimFast = new ESElectronicsSimFast(addESNoise, ESNoiseSigma, ESGain, ESBaseline, ESMIPADC, ESMIPkeV);  }
 
   theBarrelDigitizer = new EBDigitizer(theEcalResponse, theElectronicsSim, addNoise);
   theEndcapDigitizer = new EEDigitizer(theEcalResponse, theElectronicsSim, addNoise);
-  theESDigitizer = new ESDigitizer(theESResponse, theESElectronicsSim, addESNoise);
+
+  theESDigitizer = 0;
+  theESDigitizerFast = 0;
+  if (!doFast){ theESDigitizer = new ESDigitizer(theESResponse, theESElectronicsSim, addESNoise); }
+  if ( doFast){ theESDigitizerFast = new ESFastTDigitizer(theESResponse, theESElectronicsSimFast, addESNoise, numESdetId, zsThreshold, refFile);}
 
   // not containment corrections
   EBs25notCont = params.getParameter<double>("EBs25notContainment");
@@ -95,19 +110,21 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
 
 EcalDigiProducer::~EcalDigiProducer() 
 {
-  delete theParameterMap;
-  delete theEcalShape;
-  delete theESShape;
-  delete theEcalResponse;
-  delete theESResponse;
-  delete theCorrNoise;
-  delete theNoiseMatrix;
-  delete theCoder;
-  delete theElectronicsSim;
-  delete theESElectronicsSim;
-  delete theBarrelDigitizer;
-  delete theEndcapDigitizer;
-  delete theESDigitizer;
+  if (theParameterMap)  { delete theParameterMap; }
+  if (theEcalShape)     { delete theEcalShape; }
+  if (theESShape)       { delete theESShape; }
+  if (theEcalResponse)  { delete theEcalResponse; }
+  if (theESResponse)    { delete theESResponse; }
+  if (theCorrNoise)     { delete theCorrNoise; }
+  if (theNoiseMatrix)   { delete theNoiseMatrix; }
+  if (theCoder)         { delete theCoder; }
+  if (theElectronicsSim){ delete theElectronicsSim; }
+  if (theESElectronicsSim)    { delete theESElectronicsSim; }
+  if (theESElectronicsSimFast){ delete theESElectronicsSimFast; }
+  if (theBarrelDigitizer){ delete theBarrelDigitizer; }
+  if (theEndcapDigitizer){ delete theEndcapDigitizer; }
+  if (theESDigitizer)    { delete theESDigitizer; }
+  if (theESDigitizerFast){ delete theESDigitizerFast; }
 }
 
 
@@ -115,12 +132,13 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
 {
 
   // Step A: Get Inputs
+
   checkGeometry(eventSetup);
   checkCalibrations(eventSetup);
 
   // Get input
   edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
-  
+
   // test access to SimHits
   const std::string barrelHitsName("EcalHitsEB");
   const std::string endcapHitsName("EcalHitsEE");
@@ -129,27 +147,25 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   bool isEB = true;
   event.getByLabel("mix",barrelHitsName,crossingFrame);
   MixCollection<PCaloHit> * EBHits = 0 ;
-  try {
-    EBHits = new MixCollection<PCaloHit>(crossingFrame.product());
-  } catch ( cms::Exception &e ) { isEB = false; }
+  // try {
+  EBHits = new MixCollection<PCaloHit>(crossingFrame.product());
+  // } catch ( cms::Exception &e ) { isEB = false; }
   if ( ! EBHits->inRegistry() || theBarrelDets.size() == 0 ) isEB = false;
   
-
   bool isEE = true;
   event.getByLabel("mix",endcapHitsName,crossingFrame);
   MixCollection<PCaloHit> * EEHits = 0 ;
-  try {
-    EEHits = new MixCollection<PCaloHit>(crossingFrame.product());
-  } catch ( cms::Exception &e ) { isEE = false; }
+  // try {
+  EEHits = new MixCollection<PCaloHit>(crossingFrame.product());
+  // } catch ( cms::Exception &e ) { isEE = false; }
   if ( ! EEHits->inRegistry() || theEndcapDets.size() == 0 ) isEE = false;
-
 
   bool isES = true;
   event.getByLabel("mix",preshowerHitsName,crossingFrame);
   MixCollection<PCaloHit> * ESHits = 0 ;
-  try {
-    ESHits = new MixCollection<PCaloHit>(crossingFrame.product());
-  } catch ( cms::Exception &e ) { isES = false; }
+  // try {
+  ESHits = new MixCollection<PCaloHit>(crossingFrame.product());
+  // } catch ( cms::Exception &e ) { isES = false; }
   if ( ! ESHits->inRegistry() || theESDets.size() == 0 ) isES = false;
 
   // Step B: Create empty output
@@ -158,6 +174,7 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   std::auto_ptr<ESDigiCollection> preshowerResult(new ESDigiCollection());
 
   // run the algorithm
+
   CaloDigiCollectionSorter sorter(5);
 
   if ( isEB ) {
@@ -166,12 +183,14 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
     theBarrelDigitizer->run(*barrelHits, *barrelResult);
     edm::LogInfo("DigiInfo") << "EB Digis: " << barrelResult->size();
 
+    /*
     std::vector<EBDataFrame> sortedDigisEB = sorter.sortedVector(*barrelResult);
     LogDebug("EcalDigi") << "Top 10 EB digis";
     for(int i = 0; i < std::min(10,(int) sortedDigisEB.size()); ++i) 
       {
         LogDebug("EcalDigi") << sortedDigisEB[i];
       }
+    */
   }
 
   if ( isEE ) {
@@ -180,18 +199,21 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
     theEndcapDigitizer->run(*endcapHits, *endcapResult);
     edm::LogInfo("EcalDigi") << "EE Digis: " << endcapResult->size();
 
+    /*
     std::vector<EEDataFrame> sortedDigisEE = sorter.sortedVector(*endcapResult);
     LogDebug("EcalDigi")  << "Top 10 EE digis";
     for(int i = 0; i < std::min(10,(int) sortedDigisEE.size()); ++i) 
       {
         LogDebug("EcalDigi") << sortedDigisEE[i];
       }
+    */
   }
 
   if ( isES ) {
 
     std::auto_ptr<MixCollection<PCaloHit> >  preshowerHits( ESHits );
-    theESDigitizer->run(*preshowerHits, *preshowerResult);
+    if (!doFast) { theESDigitizer->run(*preshowerHits, *preshowerResult); }
+    if ( doFast) { theESDigitizerFast->run(*preshowerHits, *preshowerResult); }
     edm::LogInfo("EcalDigi") << "ES Digis: " << preshowerResult->size();
     
 //   CaloDigiCollectionSorter sorter_es(7);
@@ -290,6 +312,7 @@ void EcalDigiProducer::updateGeometry() {
   
   theBarrelDigitizer->setDetIds(theBarrelDets);
   theEndcapDigitizer->setDetIds(theEndcapDets);
-  theESDigitizer->setDetIds(theESDets);
+  if (!doFast) { theESDigitizer->setDetIds(theESDets); }
+  if ( doFast) { theESDigitizerFast->setDetIds(theESDets); }
 }
 
