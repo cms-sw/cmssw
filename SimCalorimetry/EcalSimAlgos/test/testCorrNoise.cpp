@@ -7,7 +7,7 @@
 #include<iomanip>
 #include<fstream>
 
-#include "CLHEP/Matrix/SymMatrix.h"
+#include "DataFormats/Math/interface/Error.h"
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -18,15 +18,133 @@ int main() {
 
   edm::MessageDrop::instance()->debugEnabled = false;
 
-  const int readoutFrameSize = 10;
+  const unsigned int readoutFrameSize = CaloSamples::MAXSAMPLES;
 
-  EcalCorrelatedNoiseMatrix theNoiseMatrix(readoutFrameSize);
-  HepSymMatrix thisMatrix(readoutFrameSize,1);
-  theNoiseMatrix.getMatrix(thisMatrix);
-  CorrelatedNoisifier theCorrNoise(thisMatrix);
+  EcalCorrMatrix thisMatrix;
 
-  HepSymMatrix thisTrivialMatrix(readoutFrameSize,1);
-  CorrelatedNoisifier theUncorrNoise(thisTrivialMatrix);
+  thisMatrix(0,0) = 1.;
+  thisMatrix(0,1) = 0.67;
+  thisMatrix(0,2) = 0.53;
+  thisMatrix(0,3) = 0.44;
+  thisMatrix(0,4) = 0.39;
+  thisMatrix(0,5) = 0.36;
+  thisMatrix(0,6) = 0.38;
+  thisMatrix(0,7) = 0.35;
+  thisMatrix(0,8) = 0.36;
+  thisMatrix(0,9) = 0.32;
+  
+  thisMatrix(1,0) = 0.67;
+  thisMatrix(1,1) = 1.;
+  thisMatrix(1,2) = 0.67;
+  thisMatrix(1,3) = 0.53;
+  thisMatrix(1,4) = 0.44;
+  thisMatrix(1,5) = 0.39;
+  thisMatrix(1,6) = 0.36;
+  thisMatrix(1,7) = 0.38;
+  thisMatrix(1,8) = 0.35;
+  thisMatrix(1,9) = 0.36;
+  
+  thisMatrix(2,0) = 0.53;
+  thisMatrix(2,1) = 0.67;
+  thisMatrix(2,2) = 1.;
+  thisMatrix(2,3) = 0.67;
+  thisMatrix(2,4) = 0.53;
+  thisMatrix(2,5) = 0.44;
+  thisMatrix(2,6) = 0.39;
+  thisMatrix(2,7) = 0.36;
+  thisMatrix(2,8) = 0.38;
+  thisMatrix(2,9) = 0.35;
+  
+  thisMatrix(3,0) = 0.44;
+  thisMatrix(3,1) = 0.53;
+  thisMatrix(3,2) = 0.67;
+  thisMatrix(3,3) = 1.;
+  thisMatrix(3,4) = 0.67;
+  thisMatrix(3,5) = 0.53;
+  thisMatrix(3,6) = 0.44;
+  thisMatrix(3,7) = 0.39;
+  thisMatrix(3,8) = 0.36;
+  thisMatrix(3,9) = 0.38;
+  
+  thisMatrix(4,0) = 0.39;
+  thisMatrix(4,1) = 0.44;
+  thisMatrix(4,2) = 0.53;
+  thisMatrix(4,3) = 0.67;
+  thisMatrix(4,4) = 1.;
+  thisMatrix(4,5) = 0.67;
+  thisMatrix(4,6) = 0.53;
+  thisMatrix(4,7) = 0.44;
+  thisMatrix(4,8) = 0.39;
+  thisMatrix(4,9) = 0.36;
+  
+  thisMatrix(5,0) = 0.36;
+  thisMatrix(5,1) = 0.39;
+  thisMatrix(5,2) = 0.44;
+  thisMatrix(5,3) = 0.53;
+  thisMatrix(5,4) = 0.67;
+  thisMatrix(5,5) = 1.;
+  thisMatrix(5,6) = 0.67;
+  thisMatrix(5,7) = 0.53;
+  thisMatrix(5,8) = 0.44;
+  thisMatrix(5,9) = 0.39;
+  
+  thisMatrix(6,0) = 0.38;
+  thisMatrix(6,1) = 0.36;
+  thisMatrix(6,2) = 0.39;
+  thisMatrix(6,3) = 0.44;
+  thisMatrix(6,4) = 0.53;
+  thisMatrix(6,5) = 0.67;
+  thisMatrix(6,6) = 1.;
+  thisMatrix(6,7) = 0.67;
+  thisMatrix(6,8) = 0.53;
+  thisMatrix(6,9) = 0.44;
+  
+  thisMatrix(7,0) = 0.35;
+  thisMatrix(7,1) = 0.38;
+  thisMatrix(7,2) = 0.36;
+  thisMatrix(7,3) = 0.39;
+  thisMatrix(7,4) = 0.44;
+  thisMatrix(7,5) = 0.53;
+  thisMatrix(7,6) = 0.67;
+  thisMatrix(7,7) = 1.;
+  thisMatrix(7,8) = 0.67;
+  thisMatrix(7,9) = 0.53;
+  
+  thisMatrix(8,0) = 0.36;
+  thisMatrix(8,1) = 0.35;
+  thisMatrix(8,2) = 0.38;
+  thisMatrix(8,3) = 0.36;
+  thisMatrix(8,4) = 0.39;
+  thisMatrix(8,5) = 0.44;
+  thisMatrix(8,6) = 0.53;
+  thisMatrix(8,7) = 0.67;
+  thisMatrix(8,8) = 1.;
+  thisMatrix(8,9) = 0.67;
+  
+  thisMatrix(9,0) = 0.32;
+  thisMatrix(9,1) = 0.36;
+  thisMatrix(9,2) = 0.35;
+  thisMatrix(9,3) = 0.38;
+  thisMatrix(9,4) = 0.36;
+  thisMatrix(9,5) = 0.39;
+  thisMatrix(9,6) = 0.44;
+  thisMatrix(9,7) = 0.53;
+  thisMatrix(9,8) = 0.67;
+  thisMatrix(9,9) = 1.;
+  
+  CorrelatedNoisifier<EcalCorrMatrix> theCorrNoise(thisMatrix);
+
+  EcalCorrMatrix thisTrivialMatrix;
+  for (unsigned int i = 0; i < readoutFrameSize; i++ )
+    {
+      thisTrivialMatrix(i,i) = 1.;
+      for ( unsigned int j = 0; j < readoutFrameSize; j++ )
+        {
+          thisTrivialMatrix(i,j) = 0.;
+          thisTrivialMatrix(j,i) = 0.;
+        }
+    }
+  CorrelatedNoisifier<EcalCorrMatrix> theUncorrNoise(thisTrivialMatrix);
 
   std::cout << "Using the correlation matrix: " << thisMatrix << std::cout;
 
@@ -40,9 +158,9 @@ int main() {
   TH1F* uncorrPed = new TH1F("uncorrPed","first 3 samples, uncorrelated average",200,-10.,10.);
   TH1F* corrPed = new TH1F("corrPed","first 3 samples, correlated average",200,-10.,10.);
 
-  TH1F* frame[readoutFrameSize];
+  TH1F* frame[(int)readoutFrameSize];
   Char_t histo[200];
-  for ( Int_t i = 0; i < readoutFrameSize; ++i) {
+  for ( Int_t i = 0; i < (int)readoutFrameSize; ++i) {
     sprintf (histo,"frame %02d",i) ;
     frame[i] = new TH1F(histo,histo,200,-10.,10.);
   }
@@ -56,7 +174,7 @@ int main() {
       uncorr->Fill(flatframe[j]);
       corr->Fill(noiseframe[j]);
     }
-    for ( int j = 0; j < readoutFrameSize; ++j ) {
+    for ( int j = 0; j < (int)readoutFrameSize; ++j ) {
       frame[j]->Fill(noiseframe[j]);
     }
     float thisUncorrPed = (flatframe[0]+flatframe[1]+flatframe[2])/3.;
@@ -90,7 +208,7 @@ int main() {
 
   TCanvas * showNoiseFrame = new TCanvas("showNoiseFrame","showNoiseFrame",2*csize,2*csize);
   showNoiseFrame->Divide(2,5);
-  for ( int i = 0; i < readoutFrameSize; ++i) {
+  for ( int i = 0; i < (int)readoutFrameSize; ++i) {
     showNoiseFrame->cd(i+1);
     frame[i]->Fit("gaus","Q");
     frame[i]->Draw();

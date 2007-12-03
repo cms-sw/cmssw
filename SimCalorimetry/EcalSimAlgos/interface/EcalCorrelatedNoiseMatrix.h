@@ -3,31 +3,32 @@
 
 /*
  *
- * $Id:$
+ * $Id: EcalCorrelatedNoiseMatrix.h,v 1.1 2006/06/27 19:01:33 fabiocos Exp $
  *
  */
 
-#include "CLHEP/Matrix/SymMatrix.h"
+#include "DataFormats/Math/interface/Error.h"
+#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+
+typedef math::ErrorD<CaloSamples::MAXSAMPLES>::type EcalCorrMatrix;
 
 class EcalCorrelatedNoiseMatrix
 {
 
  public:
 
-  explicit EcalCorrelatedNoiseMatrix(int nFrames);
- 
-  explicit EcalCorrelatedNoiseMatrix(const HepSymMatrix & matrix);
+  explicit EcalCorrelatedNoiseMatrix(const EcalCorrMatrix & matrix);
 
   ~EcalCorrelatedNoiseMatrix() {};
 
-  void setMatrix(const HepSymMatrix & matrix) { theMatrix = matrix; }
+  void setMatrix(const EcalCorrMatrix & matrix) { theMatrix = matrix; }
 
-  void getMatrix(HepSymMatrix & matrix) { matrix = theMatrix; }
+  void getMatrix(EcalCorrMatrix & matrix) { matrix = theMatrix; }
 
 private:
 
-  HepSymMatrix theMatrix;
-  int theSize; 
+  EcalCorrMatrix theMatrix;
+  unsigned int theSize; 
 };
 
 #endif

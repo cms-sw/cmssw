@@ -8,7 +8,7 @@
 #include <iostream>
 
 
-EcalCoder::EcalCoder(bool addNoise, CorrelatedNoisifier * theCorrNoise)
+EcalCoder::EcalCoder(bool addNoise, CorrelatedNoisifier<EcalCorrMatrix> * theCorrNoise)
 :  thePedestals(0),
    addNoise_(addNoise),
    theCorrNoise_(theCorrNoise)
