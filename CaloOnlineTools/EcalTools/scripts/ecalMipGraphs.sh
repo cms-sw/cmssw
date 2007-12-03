@@ -167,9 +167,23 @@ process TESTGRAPHDUMPER = {
 
     $input_module
 
-module ecalUncalibHit = ecalMaxSampleUncalibRecHit from "RecoLocalCalo/EcalRecProducers/data/ecalMaxSampleUncalibRecHit.cfi"
+#module ecalUncalibHit = ecalMaxSampleUncalibRecHit from "RecoLocalCalo/EcalRecProducers/data/ecalMaxSampleUncalibRecHit.cfi"
+
+module ecalUncalibHit = ecalFixedAlphaBetaFitUncalibRecHit from "RecoLocalCalo/EcalRecProducers/data/ecalFixedAlphaBetaFitUncalibRecHit.cfi"
      replace ecalUncalibHit.EBdigiCollection = ecalEBunpacker:ebDigis
      replace ecalUncalibHit.EEdigiCollection = ecalEBunpacker:eeDigis
+
+es_source src1 = EcalTrivialConditionRetriever{
+     untracked vdouble amplWeights = { -0.333, -0.333, -0.333,
+                                        0.000,  0.000,  1.000,
+                                        0.000,  0.000,  0.000,  0.000 }
+     untracked vdouble pedWeights  = {  0.333,  0.333,  0.333,
+                                        0.000,  0.000,  0.000,
+                                        0.000,  0.000,  0.000,  0.000 }
+     untracked vdouble jittWeights = {  0.040,  0.040,  0.040,
+                                        0.000,  1.320, -0.050,
+                                       -0.500, -0.500, -0.400,  0.000 }
+ }
 
     module dumpMip = EcalMipGraphs {
 
@@ -178,7 +192,7 @@ module ecalUncalibHit = ecalMaxSampleUncalibRecHit from "RecoLocalCalo/EcalRecPr
 
       # use hashed index to mask channels
       # add a simple description of hashIndex (hhahhahhh...)
-      #untracked vint32 maskedChannels           = {${mcry}}
+      untracked vint32 maskedChannels           = {${mcry}}
 
       # masked FEDs
       untracked vint32 maskedFEDs = {${mfed}}
