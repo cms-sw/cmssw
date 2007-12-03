@@ -12,7 +12,7 @@
 #include <map>
 #include <string>
 #include <TRandom.h> 
-#include <unistd.h>
+//#include <unistd.h>
 
 #include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
 
@@ -65,7 +65,11 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
     
     cout<<"\n \033[0;35m DQM will be run in RPC EXPERTS mode !!! "<<endl;
     cout<<"\033[0;30m"<<endl;
+<<<<<<< RPCMonitorDigi.cc
+    // sleep(10);
+=======
     //    sleep(10);
+>>>>>>> 1.20
    
   } else if (dqmexpert && dqmsuperexpert) {
     
@@ -77,7 +81,11 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
     
     cout<<"\n \033[0;32m DQM will be run in RPC Shifter mode !!! "<<endl;
     cout<<"\033[0;30m"<<endl;
+<<<<<<< RPCMonitorDigi.cc
+    // sleep(10);
+=======
     //    sleep(10);
+>>>>>>> 1.20
     
   }    
   
@@ -338,8 +346,8 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	     //float yposition=point.y();
 	     
 	     
-	     if(mult<=10) ClusterSize_for_BarrelandEndcaps -> Fill(mult);
-	     if(mult>10) ClusterSize_for_BarrelandEndcaps -> Fill(11);
+	     if (mult<=10)ClusterSize_for_BarrelandEndcaps -> Fill(mult);
+	   	if(mult>10) ClusterSize_for_BarrelandEndcaps -> Fill(11);
 	     
 	     
 	     
