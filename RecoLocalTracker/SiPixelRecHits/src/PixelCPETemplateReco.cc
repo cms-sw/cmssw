@@ -53,7 +53,9 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   
   //cout << "About to read speed..." << endl;
   speed_ = conf.getParameter<int>( "speed");
-  cout << "PixelCPETemplateReco::PixelCPETemplateReco: Template speed = " << speed_ << endl;
+  LogDebug("PixelCPETemplateReco::PixelCPETemplateReco:") <<
+    "Template speed = " << speed_ << "\n";
+
 }
 
 //-----------------------------------------------------------------------------
@@ -215,16 +217,17 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   // Check exit status
   if (ierr != 0) 
     {
-      printf("reconstruction failed with error %d \n", ierr);
-      
+      LogDebug("PixelCPETemplateReco::localPosition") <<
+	"reconstruction failed with error " << ierr << "\n";
+
       // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift correction
       double lorentz_drift = 60.0;
       templXrec_ = theTopol->localX( cluster.x() ) / micronsToCm - lorentz_drift; // very rough Lorentz drift correction
       templYrec_ = theTopol->localY( cluster.y() ) / micronsToCm;
     
-      cout << "templXrec_ = " << templXrec_ << endl;
-      cout << "templYrec_ = " << templYrec_ << endl;
+      //cout << "templXrec_ = " << templXrec_ << endl;
+      //cout << "templYrec_ = " << templYrec_ << endl;
     }
 
   // Save probabilities and qBin in the quantities given to us by the base class
