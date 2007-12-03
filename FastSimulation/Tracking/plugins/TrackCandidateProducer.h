@@ -4,13 +4,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-class TransientInitialStateEstimator;
-class MagneticField;
-class MagneticFieldMap;
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
-class PTrajectoryStateOnDet;
-class ParticlePropagator; 
 
 namespace edm { 
   class ParameterSet;
