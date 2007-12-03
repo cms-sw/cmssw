@@ -22,6 +22,9 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/ESFastTDigitizer.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
+#include "DataFormats/Math/interface/Error.h"
+#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+
 class EcalDigiProducer : public edm::EDProducer
 {
 public:
@@ -60,7 +63,7 @@ private:
   CaloHitResponse * theEcalResponse;
   CaloHitResponse * theESResponse;
 
-  CorrelatedNoisifier * theCorrNoise;
+  CorrelatedNoisifier<EcalCorrMatrix> * theCorrNoise;
   EcalCorrelatedNoiseMatrix * theNoiseMatrix;
 
   EcalElectronicsSim * theElectronicsSim;

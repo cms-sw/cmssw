@@ -13,8 +13,6 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
-#include "CLHEP/Matrix/SymMatrix.h"
-
 EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params) 
 :  theGeometry(0)
 {
@@ -57,22 +55,20 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
   theESResponse = new CaloHitResponse(theParameterMap, theESShape);
 
-  //theNoiseMatrix = new EcalCorrelatedNoiseMatrix(readoutFrameSize);
-  HepSymMatrix thisMatrix(readoutFrameSize,1);
-  //theNoiseMatrix->getMatrix(thisMatrix);
+  EcalCorrMatrix thisMatrix;
 
   std::vector<double> corrNoiseMatrix = params.getParameter< std::vector<double> >("CorrelatedNoiseMatrix");
   if ( corrNoiseMatrix.size() == (unsigned int)(readoutFrameSize*readoutFrameSize) ) {
     for ( int row = 0 ; row < readoutFrameSize; ++row ) {
       for ( int column = 0 ; column < readoutFrameSize; ++column ) {
         int index = column + readoutFrameSize*row;
-        thisMatrix[row][column] = corrNoiseMatrix[index];
+        thisMatrix(row,column) = corrNoiseMatrix[index];
       }
     }
   }
   theNoiseMatrix = new EcalCorrelatedNoiseMatrix(thisMatrix);
 
-  theCorrNoise = new CorrelatedNoisifier(thisMatrix);
+  theCorrNoise = new CorrelatedNoisifier<EcalCorrMatrix>(thisMatrix);
 
   theCoder = new EcalCoder(addNoise, theCorrNoise);
   bool applyConstantTerm = params.getParameter<bool>("applyConstantTerm");
