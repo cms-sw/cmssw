@@ -2,7 +2,7 @@
 #define Framework_TestRunLumiSource_h
 
 /*----------------------------------------------------------------------
-$Id$
+$Id: TestRunLumiSource.h,v 1.1 2007/11/22 16:23:28 wmtan Exp $
 
 This source is intended only for test purposes.  With it one can
 create data files with arbitrary sequences of run number, lumi
@@ -66,13 +66,10 @@ namespace edm {
 
   private:
 
-    void setRunLumiEvent();
+    virtual InputSource::ItemType getNextItemType() const;
     virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp);
     virtual boost::shared_ptr<RunPrincipal> readRun_();
-
-    EventID eventID_;
-    LuminosityBlockNumber_t luminosityBlock_;
 
     // This vector holds 3 values representing (run, lumi, event)
     // repeated over and over again, in one vector.
@@ -85,7 +82,6 @@ namespace edm {
     // last lumi, or last run.
     std::vector<int> runLumiEvent_;
     std::vector<int>::size_type currentIndex_;
-    bool end_;
   };
 }
 #endif

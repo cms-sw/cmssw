@@ -2,7 +2,7 @@
 #define FWCore_Sources_RawInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: RawInputSource.h,v 1.6 2007/08/06 22:22:34 wmtan Exp $
+$Id: RawInputSource.h,v 1.7 2007/11/28 17:59:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -31,9 +31,12 @@ namespace edm {
     virtual void skip(int offset);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void setRun(RunNumber_t r);
+    virtual InputSource::ItemType getNextItemType() const;
+    void readAhead();
     
     RunNumber_t runNumber_;
     LuminosityBlockNumber_t luminosityBlockNumber_;
+    bool noMoreEvents_;
     bool newRun_;
     bool newLumi_;
     std::auto_ptr<EventPrincipal> ep_;

@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.33 2007/11/29 17:27:38 wmtan Exp $
+$Id: InputSource.h,v 1.34 2007/11/30 07:06:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -65,6 +65,16 @@ namespace edm {
   class InputSource : public ProductRegistryHelper {
 #endif
   public:
+    enum ItemType {
+	IsStop,
+	IsFile,
+	IsRun,
+	IsLumi,
+	IsEvent,
+	IsRepeat,
+	IsUnknown
+    };
+
     typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
     /// Constructor
     explicit InputSource(ParameterSet const&, InputSourceDescription const&);
@@ -72,9 +82,10 @@ namespace edm {
     /// Destructor
     virtual ~InputSource();
 
-    /// Indicate inability to get a new event by returning a null auto_ptr.
+    ItemType nextItemType() const;
 
     /// Read next event
+    /// Indicate inability to get a new event by returning a null auto_ptr.
     std::auto_ptr<EventPrincipal> readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
 
     /// Read a specific event
@@ -118,12 +129,6 @@ namespace edm {
     void repeat() {
       remainingEvents_ = maxEvents_;
       remainingLumis_ = maxLumis_;
-    }
-
-    /// Reset the remaining number of events/lumis to zero.
-    void noMoreInput() {
-      remainingEvents_ = 0;
-      remainingLumis_ = 0;
     }
 
     /// Accessor for maximum number of events to be read.
@@ -173,14 +178,11 @@ namespace edm {
 
     ProductRegistry & productRegistryUpdate() const {return const_cast<ProductRegistry &>(*productRegistry_);}
 
-    bool const& initialized() const {return initialized_;}
-
-    void setInitialized() {initialized_ = true;}
+    bool limitReached() const {return remainingEvents_ == 0 || remainingLumis_ == 0;}
 
   private:
 
-    // Indicate inability to get a new event by returning a null
-    // auto_ptr.
+    virtual ItemType getNextItemType() const = 0;
     virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal>) = 0;
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const&);
     virtual boost::shared_ptr<FileBlock> readFile_();
@@ -197,7 +199,6 @@ namespace edm {
     virtual void endRun(Run &);
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
-    bool done() const {return remainingEvents_ == 0 || remainingLumis_ == 0;}
 
   private:
 
@@ -210,7 +211,6 @@ namespace edm {
     boost::shared_ptr<ProductRegistry const> productRegistry_;
     bool const primary_;
     Timestamp time_;
-    bool initialized_;
   };
 }
 

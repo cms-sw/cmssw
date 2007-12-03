@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.28 2007/10/31 22:56:29 wmtan Exp $
+$Id: OutputWorker.cc,v 1.29 2007/11/30 07:06:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -97,7 +97,7 @@ namespace edm {
   
   bool OutputWorker::wantAllEvents() const {return mod_->wantAllEvents();}
 
-  bool OutputWorker::done() const {return mod_->done();}
+  bool OutputWorker::limitReached() const {return mod_->limitReached();}
 
   void OutputWorker::configure(OutputModuleDescription const& desc) {mod_->configure(desc);}
 }

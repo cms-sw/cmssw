@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.71 2007/11/27 21:01:09 wmtan Exp $
+$Id: PoolSource.cc,v 1.72 2007/11/28 17:51:30 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -21,6 +21,7 @@ $Id: PoolSource.cc,v 1.71 2007/11/27 21:01:09 wmtan Exp $
 namespace edm {
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
+    initialized_(false),
     fileIterBegin_(fileCatalogItems().begin()),
     fileIter_(fileCatalogItems().end()),
     rootFile_(),
@@ -55,8 +56,8 @@ namespace edm {
       if (!rng.isAvailable()) {
         throw cms::Exception("Configuration")
           << "A secondary input source requires the RandomNumberGeneratorService\n"
-          "which is not present in the configuration file.  You must add the service\n"
-          "in the configuration file or remove the modules that require it.";
+          << "which is not present in the configuration file.  You must add the service\n"
+          << "in the configuration file or remove the modules that require it.";
       }
       CLHEP::HepRandomEngine& engine = rng->getEngine();
       flatDistribution_ = new CLHEP::RandFlat(engine);
@@ -72,12 +73,13 @@ namespace edm {
 
   boost::shared_ptr<FileBlock>
   PoolSource::readFile_() {
-    if (!initialized()) {
+    if (!initialized_) {
       // The first input file has already been opened.
-      setInitialized();
+      initialized_ = true;
     } else {
-      // Open the next input file.
-      if (!nextFile()) return boost::shared_ptr<FileBlock>();
+      if (!nextFile()) {
+	assert(0);
+      }
     }
     return rootFile_->createFileBlock();
   }
@@ -199,6 +201,29 @@ namespace edm {
   PoolSource::readIt(EventID const& id) {
     rootFile_->setEntryAtEvent(id);
     return readCurrentEvent();
+  }
+
+  InputSource::ItemType
+  PoolSource::getNextItemType() const {
+    if (fileIter_ == fileCatalogItems().end()) {
+      return InputSource::IsStop;
+    }
+    if (!initialized_) {
+      return InputSource::IsFile;
+    }
+    FileIndex::EntryType entryType = rootFile_->getEntryType();
+    if (entryType == FileIndex::kEvent) {
+      return InputSource::IsEvent;
+    } else if (entryType == FileIndex::kLumi) {
+      return InputSource::IsLumi;
+    } else if (entryType == FileIndex::kRun) {
+      return InputSource::IsRun;
+    }
+    assert(entryType == FileIndex::kEnd);
+    if (fileIter_ + 1 == fileCatalogItems().end()) {
+      return InputSource::IsStop;
+    }
+    return InputSource::IsFile;
   }
 
   // Rewind to before the first event that was read.

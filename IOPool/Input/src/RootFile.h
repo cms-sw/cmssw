@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.41 2007/11/22 16:58:44 wmtan Exp $
+$Id: RootFile.h,v 1.42 2007/11/27 21:01:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -71,7 +71,6 @@ namespace edm {
     FileFormatVersion fileFormatVersion() const {return fileFormatVersion_;}
     bool fastClonable() const {return fastClonable_;}
     boost::shared_ptr<FileBlock> createFileBlock() const;
-    FileIndex const& fileIndex() const {return fileIndex_;}
     bool setEntryAtEvent(EventID const& id);
     void setAtEventEntry(FileIndex::EntryNumber_t entry);
     void rewind() {
@@ -88,6 +87,7 @@ namespace edm {
     int skipEvents(int offset);
     int setForcedRunOffset(RunNumber_t const& forcedRunNumber);
     bool nextEventEntry() {return eventTree_.next();}
+    FileIndex::EntryType getEntryType() const;
 
   private:
     bool setIfFastClonable(int remainingEvents) const;

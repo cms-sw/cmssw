@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/10/05 09:34:47 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/11/28 18:01:39 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -38,9 +38,11 @@ namespace edm {
     , reader_(0)
     , lumiSegmentSizeInEvents_(pset.getUntrackedParameter<unsigned int>("evtsPerLS",0))
     , fakeLSid_(lumiSegmentSizeInEvents_ != 0)
-    , runNumber_(RunNumber_t())
-    , luminosityBlockNumber_(LuminosityBlockNumber_t())
+    , runNumber_(RunID::firstValidRun().run())
+    , luminosityBlockNumber_(LuminosityBlockID::firstValidLuminosityBlock().luminosityBlock())
     , noMoreEvents_(false)
+    , newRun_(true)
+    , newLumi_(true)
     , lbp_()
     , ep_() {
     produces<FEDRawDataCollection>();
@@ -75,7 +77,11 @@ namespace edm {
   ////////////////////////////////////////////////////////////////////////////////
   
   //______________________________________________________________________________
-  std::auto_ptr<EventPrincipal> DaqSource::readOneEvent(boost::shared_ptr<RunPrincipal> rp) {
+  void DaqSource::readAhead(boost::shared_ptr<RunPrincipal> rp) {
+    assert(ep_.get() == 0);
+    if (limitReached()) {
+      return;
+    }
     if(reader_ == 0) {
       throw cms::Exception("LogicError")
         << "DaqSource is used without a reader. Check your configuration !";
@@ -93,18 +99,24 @@ namespace edm {
       // fillRawData() failed, clean up the fedCollection in case it was allocated!
       if (0 != fedCollection) delete fedCollection;
       noMoreEvents_ = true;
-      return std::auto_ptr<EventPrincipal>(0);
+      return;
     }
     setTimestamp(tstamp);
-    eventId = EventID(runNumber_, eventId.event());
     if(fakeLSid_ && luminosityBlockNumber_ != (eventId.event()/lumiSegmentSizeInEvents_ + 1)) {
 	luminosityBlockNumber_ = eventId.event()/lumiSegmentSizeInEvents_ + 1;
 	lbp_.reset();
     }
+
+    // Framework event numbers start at 1, not at zero.
+    eventId = EventID(runNumber_, eventId.event() + 1);
+
+    std::cout << "BARF: " << rp->run() << " : " << luminosityBlockNumber_ << " : " << eventId.event() << std::endl;
+    std::cout << "BARF: " << eventId.run() << " : " << luminosityBlockNumber_ << " : " << eventId.event() << std::endl;
     
     // If there is no luminosity block principal, make one.
     if (lbp_.get() == 0 || lbp_->luminosityBlock() != luminosityBlockNumber_) {
-     lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>(
+      newLumi_ = true;
+      lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>(
         new LuminosityBlockPrincipal(luminosityBlockNumber_,
                                      timestamp(),
                                      Timestamp::invalidTimestamp(),
@@ -126,58 +138,66 @@ namespace edm {
     e->put(bare_product);
     // The commit is needed to complete the "put" transaction.
     e->commit_();
-    return ep_;
   }
 
   void
   DaqSource::setRun(RunNumber_t r) {
+    assert(ep_.get() == 0);
+    newRun_ = newLumi_ = true;
     runNumber_ = r;
     noMoreEvents_ = false;
     lbp_.reset();
-    ep_.reset();
   }
 
   boost::shared_ptr<RunPrincipal>
   DaqSource::readRun_() {
-    if (noMoreEvents_) {
-      noMoreEvents_ = false;
-      return boost::shared_ptr<RunPrincipal>();
-    }
-    return boost::shared_ptr<RunPrincipal>(
+    assert(newRun_);
+    assert(!noMoreEvents_);
+    newRun_ = false;
+    boost::shared_ptr<RunPrincipal> rp =
+	boost::shared_ptr<RunPrincipal>(
 	new RunPrincipal(runNumber_,
 			 timestamp(),
 			 Timestamp::invalidTimestamp(),
 			 productRegistry(),
 			 processConfiguration()));
+   readAhead(rp);
+   return rp;
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   DaqSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
-    if (noMoreEvents_) {
-      lbp_.reset();
-      return boost::shared_ptr<LuminosityBlockPrincipal>();
-    }
-    if (ep_.get() == 0) ep_ = readOneEvent(rp);
-    return  (ep_.get() == 0) ? boost::shared_ptr<LuminosityBlockPrincipal>() : ep_->luminosityBlockPrincipalSharedPtr();
+    assert(!newRun_);
+    assert(newLumi_);
+    assert(!noMoreEvents_);
+    assert(lbp_);
+    assert(ep_.get() != 0);
+    newLumi_ = false;
+    return  lbp_;
   }
 
   std::auto_ptr<EventPrincipal>
   DaqSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+    assert(!newRun_);
+    assert(!newLumi_);
+    assert(!noMoreEvents_);
+    assert(lbp);
+    assert(ep_.get() != 0);
+    std::auto_ptr<EventPrincipal> result = ep_;
+    readAhead(lbp->runPrincipalSharedPtr());
+    return result;
+  }
+
+  InputSource::ItemType 
+  DaqSource::getNextItemType() const {
     if (noMoreEvents_) {
-      return std::auto_ptr<EventPrincipal>(0); 
+      return InputSource::IsStop;
+    } else if (newRun_) {
+      return InputSource::IsRun;
+    } else if (newLumi_) {
+      return InputSource::IsLumi;
     }
-    if (ep_.get() == 0) ep_ = readOneEvent(lbp->runPrincipalSharedPtr());
-    if (ep_.get() == 0) {
-      return std::auto_ptr<EventPrincipal>(0); 
-    }
-    if (lbp->luminosityBlock() != ep_->luminosityBlock()) {
-      // We have advanced to the next luminosity block.
-      // Return a null pointer, indicating no more events
-      // in the luminosity block.
-      return std::auto_ptr<EventPrincipal>(0);
-    }
-    // Since ep_ is an auto_ptr, this return resets ep_ to null.
-    return ep_;
+    return InputSource::IsEvent;
   }
 
   void

@@ -940,7 +940,7 @@ namespace edm {
 
       if(!lbp_) {
 	lbp_ = beginLuminosityBlock(rp_);
-        if(!lbp_) {
+	if(!lbp_) {
 	  break;
         }
       }
@@ -1080,6 +1080,9 @@ namespace edm {
   boost::shared_ptr<LuminosityBlockPrincipal>
   EventProcessor::beginLuminosityBlock(boost::shared_ptr<RunPrincipal> rp) {
     boost::shared_ptr<LuminosityBlockPrincipal> lbp;
+    if (input_->nextItemType() != InputSource::IsLumi) {
+      return lbp;
+    }
     {
       // CallPrePost holder(*actReg_);
       lbp = input_->readLuminosityBlock(rp);
@@ -1095,6 +1098,9 @@ namespace edm {
   boost::shared_ptr<RunPrincipal>
   EventProcessor::beginRun() {
     boost::shared_ptr<RunPrincipal> rp;
+    if (input_->nextItemType() != InputSource::IsRun) {
+      return rp;
+    }
     {
       // CallPrePost holder(*actReg_);
       rp = input_->readRun();
@@ -1110,6 +1116,9 @@ namespace edm {
   boost::shared_ptr<FileBlock>
   EventProcessor::beginInputFile() {
     boost::shared_ptr<FileBlock> fb;
+    if (input_->nextItemType() == InputSource::IsStop) {
+      return fb;
+    }
     {
       fb = input_->readFile();
     }
@@ -1121,7 +1130,10 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   EventProcessor::doOneEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    std::auto_ptr<EventPrincipal> pep;
+    std::auto_ptr<EventPrincipal> pep(0);
+    if (input_->nextItemType() != InputSource::IsEvent) {
+      return pep;
+    }
     {
       CallPrePost holder(*actReg_);
       pep = input_->readEvent(lbp);

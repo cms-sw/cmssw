@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.25 2007/10/31 22:56:29 wmtan Exp $
+$Id: OutputWorker.h,v 1.26 2007/11/30 07:06:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -47,7 +47,7 @@ namespace edm {
 
     void endInputFile(FileBlock const& fb);
 
-    bool done() const;
+    bool limitReached() const;
 
     void configure(OutputModuleDescription const& desc);
 

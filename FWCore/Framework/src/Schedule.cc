@@ -354,7 +354,7 @@ namespace edm {
     for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(),
 	 itEnd = all_output_workers_.end();
 	 it != itEnd; ++it) {
-      if (!(*it)->done()) {
+      if (!(*it)->limitReached()) {
 	// Found an output module that has not reached output event count.
 	return false;
       }

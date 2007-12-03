@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id$
+$Id: TestRunLumiSource.cc,v 1.1 2007/11/22 16:23:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Integration/test/TestRunLumiSource.h"
@@ -24,69 +24,67 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   TestRunLumiSource::readRun_() {
-    setRunLumiEvent();
-    if (end_) return boost::shared_ptr<RunPrincipal>();
+    unsigned int run = runLumiEvent_[currentIndex_];
     Timestamp ts = Timestamp(1);  // 1 is just a meaningless number to make it compile for the test
+
     boost::shared_ptr<RunPrincipal> runPrincipal(
-        new RunPrincipal(eventID_.run(), ts, Timestamp::invalidTimestamp(), productRegistry(), processConfiguration()));
+        new RunPrincipal(run, ts, Timestamp::invalidTimestamp(), productRegistry(), processConfiguration()));
+    currentIndex_ += 3;
     return runPrincipal;
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   TestRunLumiSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
-    setRunLumiEvent();
-    if (end_) return boost::shared_ptr<LuminosityBlockPrincipal>();
+    unsigned int run = runLumiEvent_[currentIndex_];
+    unsigned int lumi = runLumiEvent_[currentIndex_ + 1];
     Timestamp ts = Timestamp(1);
 
     boost::shared_ptr<RunPrincipal> rp2(
-        new RunPrincipal(eventID_.run(), ts, Timestamp::invalidTimestamp(), productRegistry(), processConfiguration()));
+        new RunPrincipal(run, ts, Timestamp::invalidTimestamp(), productRegistry(), processConfiguration()));
 
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal(
-        new LuminosityBlockPrincipal(
-	    luminosityBlock_, ts, Timestamp::invalidTimestamp(), productRegistry(), rp2, processConfiguration()));
+        new LuminosityBlockPrincipal(lumi,
+	    ts, Timestamp::invalidTimestamp(), productRegistry(), rp2, processConfiguration()));
 
     return luminosityBlockPrincipal;
   }
 
   std::auto_ptr<EventPrincipal>
   TestRunLumiSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    setRunLumiEvent();
-    if (end_) return std::auto_ptr<EventPrincipal>(0);
+    unsigned int run = runLumiEvent_[currentIndex_];
+    unsigned int lumi = runLumiEvent_[currentIndex_ + 1];
+    unsigned int event = runLumiEvent_[currentIndex_ + 2];
     Timestamp ts = Timestamp(1);
 
     boost::shared_ptr<RunPrincipal> rp2(
-        new RunPrincipal(eventID_.run(), ts, Timestamp::invalidTimestamp(), productRegistry(), processConfiguration()));
+        new RunPrincipal(run, ts, Timestamp::invalidTimestamp(), productRegistry(), processConfiguration()));
 
     boost::shared_ptr<LuminosityBlockPrincipal> lbp2(
-        new LuminosityBlockPrincipal(
-	    luminosityBlock_, ts, Timestamp::invalidTimestamp(), productRegistry(), rp2, processConfiguration()));
+        new LuminosityBlockPrincipal(lumi,
+	    ts, Timestamp::invalidTimestamp(), productRegistry(), rp2, processConfiguration()));
 
+    EventID id(run, event);
     std::auto_ptr<EventPrincipal> result(
-	new EventPrincipal(eventID_, ts,
-	productRegistry(), lbp2, processConfiguration(), false));
+	new EventPrincipal(id, ts, productRegistry(), lbp2, processConfiguration(), false));
     return result;
   }
 
-  void
-  TestRunLumiSource::setRunLumiEvent() {
+  InputSource::ItemType
+  TestRunLumiSource::getNextItemType() const {
 
-    int run = 0;
-    int lumi = 0;
-    int event = 0;
-
-    if (currentIndex_ + 2 < runLumiEvent_.size()) {
-      run   = runLumiEvent_[currentIndex_];
-      lumi  = runLumiEvent_[currentIndex_ + 1];
-      event = runLumiEvent_[currentIndex_ + 2];
-      currentIndex_ += 3;
+    if (currentIndex_ + 2 >= runLumiEvent_.size()) {
+      return InputSource::IsStop;
     }
-
-    if (run == 0 && lumi == 0 && event == 0) end_ = true;
-    else {
-      end_ = false;
-      eventID_ = EventID(run, event);
-      luminosityBlock_ = lumi;
+    if (runLumiEvent_[currentIndex_] == 0) {
+      return InputSource::IsStop;
     }
+    if (runLumiEvent_[currentIndex_ + 1] == 0) {
+      return InputSource::IsRun;
+    }
+    if (runLumiEvent_[currentIndex_ + 2] == 0) {
+      return InputSource::IsLumi;
+    }
+    return InputSource::IsEvent;
   }
 }
 

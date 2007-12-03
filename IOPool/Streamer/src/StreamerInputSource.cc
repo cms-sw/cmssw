@@ -6,6 +6,7 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 
@@ -42,7 +43,10 @@ namespace edm {
                     ParameterSet const& pset,
                     InputSourceDescription const& desc):
     InputSource(pset, desc),
-    holder_(),
+    initialized_(false),
+    newRun_(true),
+    newLumi_(true),
+    ep_(),
     lbp_(),
     rp_(),
     processHistoryID_(),
@@ -50,7 +54,7 @@ namespace edm {
     dest_(init_size),
     xbuf_(TBuffer::kRead, init_size),
     runEndingFlag_(false),
-    inputExhausted_(false)
+    noMoreEvents_(false)
   {
   }
 
@@ -157,44 +161,73 @@ namespace edm {
 
   void
   StreamerInputSource::readAhead() {
-    if (inputExhausted_ || runEndingFlag_) return;
-    if (holder_.get() == 0) holder_ = read();
-    if (holder_.get() == 0) {
-      if (!runEndingFlag_) inputExhausted_ = true;
-    } else {
-      inputExhausted_ = runEndingFlag_ = false;
+    if (limitReached() || noMoreEvents_ || runEndingFlag_) {
+      return;
     }
+    if (ep_.get() != 0) {
+      return;
+    }
+    ep_ = read();
+    if (ep_.get() == 0) {
+      if (!runEndingFlag_) noMoreEvents_ = true;
+    } else {
+      noMoreEvents_ = runEndingFlag_ = false;
+    }
+  }
+
+  boost::shared_ptr<FileBlock>
+  StreamerInputSource::readFile_() {
+    if (!initialized_) {
+      initialized_ = true;
+    }
+    readAhead();
+    return boost::shared_ptr<FileBlock>(new FileBlock);
   }
 
   boost::shared_ptr<RunPrincipal>
   StreamerInputSource::readRun_() {
+    assert(newRun_);
+    assert(rp_);
+    boost::shared_ptr<RunPrincipal> result = rp_;
+    newRun_ = false;
     readAhead();
-    if (holder_.get() == 0) {
-      inputExhausted_ = runEndingFlag_ = false;
-      return boost::shared_ptr<RunPrincipal>();
-    }
-    return rp_;
+    return result;
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   StreamerInputSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
+    assert(!newRun_);
+    assert(newLumi_);
+    assert(lbp_);
+    boost::shared_ptr<LuminosityBlockPrincipal> result = lbp_;
+    newLumi_ = false;
     readAhead();
-    if (holder_.get() == 0 || rp->run() != rp_->run()) {
-      runEndingFlag_ = false;
-      return boost::shared_ptr<LuminosityBlockPrincipal>();
-    }
-    return lbp_;
+    return result;
   }
 
   std::auto_ptr<EventPrincipal>
   StreamerInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+    assert(!newRun_);
+    assert(!newLumi_);
+    assert(ep_.get() != 0);
+    // This copy resets ep_.
+    std::auto_ptr<EventPrincipal> result = ep_;
     readAhead();
-    if (holder_.get() == 0 ||
-	lbp->run() != rp_->run() ||
-        lbp->luminosityBlock() != lbp_->luminosityBlock()) {
-      return std::auto_ptr<EventPrincipal>(0);
+    return result;
+  }
+
+  InputSource::ItemType 
+  StreamerInputSource::getNextItemType() const {
+    if (!initialized_) {
+      return InputSource::IsFile;
+    } else if (noMoreEvents_) {
+      return InputSource::IsStop;
+    } else if (newRun_) {
+      return InputSource::IsRun;
+    } else if (newLumi_) {
+      return InputSource::IsLumi;
     }
-    return holder_;
+    return InputSource::IsEvent;
   }
 
   /**
@@ -289,6 +322,7 @@ namespace edm {
 
     FDEBUG(5) << "Got event: " << sd->id_ << " " << sd->prods_.size() << std::endl;
     if(!rp_ || rp_->run() != sd->id_.run()) {
+	newRun_ = newLumi_ = true;
 	rp_ = boost::shared_ptr<RunPrincipal>(
           new RunPrincipal(sd->id_.run(),
 			   sd->time_,
@@ -305,6 +339,7 @@ namespace edm {
 				     productRegistry(),
 				     rp_,
 				     processConfiguration()));
+	newLumi_ = true;
     }
     std::auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
                                                    sd->time_,

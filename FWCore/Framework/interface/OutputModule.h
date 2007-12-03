@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.60 2007/11/22 16:50:48 wmtan Exp $
+$Id: OutputModule.h,v 1.61 2007/11/30 07:06:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -201,7 +201,7 @@ namespace edm {
       moduleDescription_ = md;
     }
 
-    bool done() const {return remainingEvents_ == 0 || remainingLumis_ == 0;}
+    bool limitReached() const {return remainingEvents_ == 0 || remainingLumis_ == 0;}
 
     // The following member functions are part of the Template Method
     // pattern, used for implementing doEndFile() and maybeEndFil().

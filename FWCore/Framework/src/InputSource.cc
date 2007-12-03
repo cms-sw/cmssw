@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.32 2007/11/29 17:29:06 wmtan Exp $
+$Id: InputSource.cc,v 1.33 2007/11/30 07:06:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -50,8 +50,7 @@ namespace edm {
       moduleDescription_(desc.moduleDescription_),
       productRegistry_(createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_)),
       primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")),
-      time_(),
-      initialized_(false) {
+      time_() {
     // Secondary input sources currently do not have a product registry.
     if (primary_) {
       assert(desc.productRegistry_ != 0);
@@ -67,6 +66,14 @@ namespace edm {
   }
 
   InputSource::~InputSource() {}
+
+  InputSource::ItemType
+  InputSource::nextItemType() const {
+    if (limitReached()) {
+      return IsStop;
+    }
+    return getNextItemType();
+  }
 
   void
   InputSource::doBeginJob(EventSetup const& c) {
@@ -87,22 +94,15 @@ namespace edm {
 
   boost::shared_ptr<FileBlock>
   InputSource::readFile() {
-    if (done()) {
-      return boost::shared_ptr<FileBlock>();
-    }
+    assert(!limitReached());
     return readFile_();
   }
 
-  // Return a dummy FileBlock on the first call.
-  // Return a null pointer on subsequent calls.
+  // Return a dummy file block.
   // This function must be overridden for any input source that supports multiple input files
   // if the framework needs to inform modules about each input file.
   boost::shared_ptr<FileBlock>
   InputSource::readFile_() {
-    if (initialized()) {
-      return boost::shared_ptr<FileBlock>();
-    }
-    setInitialized();
     return boost::shared_ptr<FileBlock>(new FileBlock);
   }
 
@@ -111,9 +111,7 @@ namespace edm {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of runs
     // (e.g. beginRun(), endRun())
-    if (done()) {
-      return boost::shared_ptr<RunPrincipal>();
-    }
+    assert(!limitReached());
     return readRun_();
   }
 
@@ -122,29 +120,24 @@ namespace edm {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of lumi blocks
     // (e.g. beginLuminosityBlock(), endLuminosityBlock())
-    boost::shared_ptr<LuminosityBlockPrincipal> result;
-    if (!done()) {
-      result = readLuminosityBlock_(rp);
-    }
-    return result;
+    assert(!limitReached());
+    return readLuminosityBlock_(rp);
   }
 
   std::auto_ptr<EventPrincipal>
   InputSource::readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
 
-    std::auto_ptr<EventPrincipal> result(0);
+    assert(!limitReached());
 
-    if (!done()) {
-      preRead();
-      result = readEvent_(lbp);
-      if (result.get() != 0) {
-        Event event(*result, moduleDescription());
-        postRead(event);
-        if (remainingEvents_ > 0) --remainingEvents_;
-	++readCount_;
-        setTimestamp(result->time());
-	issueReports(result->id());
-      }
+    preRead();
+    std::auto_ptr<EventPrincipal> result = readEvent_(lbp);
+    if (result.get() != 0) {
+      Event event(*result, moduleDescription());
+      postRead(event);
+      if (remainingEvents_ > 0) --remainingEvents_;
+      ++readCount_;
+      setTimestamp(result->time());
+      issueReports(result->id());
     }
     return result;
   }
@@ -154,7 +147,7 @@ namespace edm {
 
     std::auto_ptr<EventPrincipal> result(0);
 
-    if (!done()) {
+    if (!limitReached()) {
       preRead();
       result = readIt(eventID);
       if (result.get() != 0) {

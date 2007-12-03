@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.99 2007/11/27 21:01:09 wmtan Exp $
+$Id: RootFile.cc,v 1.100 2007/11/30 07:06:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -178,6 +178,11 @@ namespace edm {
 
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(remainingEvents);
+    RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
+    if (currentRun < startAtRun_) {
+      fileIndexIter_ = fileIndex_.findPosition(startAtRun_, 0U, 0U);      
+    }
+    assert(fileIndexIter_ == fileIndexEnd_ || fileIndexIter_->getEntryType() == FileIndex::kRun);
   }
 
   RootFile::~RootFile() {
@@ -235,6 +240,14 @@ namespace edm {
       return it->second;
     }
     return newBranch;
+  }
+
+  FileIndex::EntryType
+  RootFile::getEntryType() const {
+    if (fileIndexIter_ == fileIndexEnd_) {
+      return FileIndex::kEnd;
+    }
+    return fileIndexIter_->getEntryType();
   }
 
   void
@@ -403,30 +416,13 @@ namespace edm {
   //
   std::auto_ptr<EventPrincipal>
   RootFile::readEvent(boost::shared_ptr<ProductRegistry const> pReg, boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    if (fileIndexIter_ == fileIndexEnd_) {
-      return std::auto_ptr<EventPrincipal>(0);
-    }
-    if (fileIndexIter_->getEntryType() != FileIndex::kEvent) {
-      return std::auto_ptr<EventPrincipal>(0);
-    }
+    assert(fileIndexIter_ != fileIndexEnd_);
+    assert(fileIndexIter_->getEntryType() == FileIndex::kEvent);
     RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
     assert(currentRun >= startAtRun_);
-    if (currentRun == startAtRun_ && fileIndexIter_->event_ < startAtEvent_) {
-      fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, 0U, startAtEvent_);      
-      if (fileIndexIter_ == fileIndexEnd_) {
-        return std::auto_ptr<EventPrincipal>(0);
-      }
-    }
-    while (eventsToSkip_ != 0) {
-      ++fileIndexIter_;
-      --eventsToSkip_;
-      if (fileIndexIter_ == fileIndexEnd_) {
-        return std::auto_ptr<EventPrincipal>(0);
-      }
-      if (fileIndexIter_->getEntryType() != FileIndex::kEvent) {
-        return std::auto_ptr<EventPrincipal>(0);
-      }
-    }
+    assert(currentRun > startAtRun_ || fileIndexIter_->lumi_ >= startAtLumi_);
+    assert(currentRun > startAtRun_ || fileIndexIter_->lumi_ > startAtLumi_ ||
+	 fileIndexIter_->event_ >= startAtEvent_);
     // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(fileIndexIter_->entry_); 
     std::auto_ptr<EventPrincipal> ep = readCurrentEvent(pReg, lbp);
@@ -489,17 +485,10 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   RootFile::readRun(boost::shared_ptr<ProductRegistry const> pReg) {
-    if (fileIndexIter_ == fileIndexEnd_) {
-      return boost::shared_ptr<RunPrincipal>();
-    }
+    assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kRun);
     RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
-    if (currentRun < startAtRun_) {
-      fileIndexIter_ = fileIndex_.findPosition(startAtRun_, 0U, 0U);      
-      if (fileIndexIter_ == fileIndexEnd_) {
-        return boost::shared_ptr<RunPrincipal>();
-      }
-    }
+    assert(currentRun >= startAtRun_);
     if (!runTree_.isValid()) {
       // prior to the support of run trees.
       // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
@@ -511,6 +500,10 @@ namespace edm {
       RunID run = RunID(fileIndexIter_->run_);
       overrideRunNumber(run);
       ++fileIndexIter_;
+      currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
+      if (currentRun == startAtRun_ && fileIndexIter_->lumi_ < startAtLumi_) {
+        fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, 0U);      
+      }
       return boost::shared_ptr<RunPrincipal>(
           new RunPrincipal(run.run(),
 	  eventAux_.time(),
@@ -542,26 +535,20 @@ namespace edm {
     // Create a group in the run for each product
     runTree_.fillGroups(thisRun->groupGetter());
     ++fileIndexIter_;
+    currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
+    if (currentRun == startAtRun_ && fileIndexIter_->lumi_ < startAtLumi_) {
+      fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, 0U);      
+    }
     return thisRun;
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   RootFile::readLumi(boost::shared_ptr<ProductRegistry const> pReg, boost::shared_ptr<RunPrincipal> rp) {
-    if (fileIndexIter_ == fileIndexEnd_) {
-      return boost::shared_ptr<LuminosityBlockPrincipal>();
-    }
-    if (fileIndexIter_->getEntryType() == FileIndex::kRun) {
-      return boost::shared_ptr<LuminosityBlockPrincipal>();
-    }
+    assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kLumi);
     RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
     assert(currentRun >= startAtRun_);
-    if (currentRun == startAtRun_ && fileIndexIter_->lumi_ < startAtLumi_) {
-      fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, 0U);      
-      if (fileIndexIter_ == fileIndexEnd_) {
-        return boost::shared_ptr<LuminosityBlockPrincipal>();
-      }
-    }
+    assert(currentRun > startAtRun_ || fileIndexIter_->lumi_ >= startAtLumi_);
     if (!lumiTree_.isValid()) {
         // prior to the support of lumi trees
       if (eventTree_.next()) {
@@ -573,6 +560,15 @@ namespace edm {
       LuminosityBlockID lumi = LuminosityBlockID(fileIndexIter_->run_, fileIndexIter_->lumi_);
       overrideRunNumber(lumi);
       ++fileIndexIter_;
+      currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
+      if (currentRun == startAtRun_ && fileIndexIter_->lumi_ == startAtLumi_ && fileIndexIter_->event_ < startAtEvent_) {
+        fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, startAtEvent_);      
+      }
+      while (eventsToSkip_ != 0 && fileIndexIter_ != fileIndexEnd_ &&
+	   fileIndexIter_->getEntryType() == FileIndex::kEvent) {
+        ++fileIndexIter_;
+        --eventsToSkip_;
+      }
       return boost::shared_ptr<LuminosityBlockPrincipal>(
 	new LuminosityBlockPrincipal(lumi.luminosityBlock(),
 				     eventAux_.time_,
@@ -608,6 +604,15 @@ namespace edm {
     // Create a group in the lumi for each product
     lumiTree_.fillGroups(thisLumi->groupGetter());
     ++fileIndexIter_;
+    currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
+    if (currentRun == startAtRun_ && fileIndexIter_->lumi_ == startAtLumi_ && fileIndexIter_->event_ < startAtEvent_) {
+      fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, startAtEvent_);      
+    }
+    while (eventsToSkip_ != 0 && fileIndexIter_ != fileIndexEnd_ &&
+	 fileIndexIter_->getEntryType() == FileIndex::kEvent) {
+      ++fileIndexIter_;
+      --eventsToSkip_;
+    }
     return thisLumi;
   }
 
