@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2007/12/03 14:21:03 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/03 18:22:27 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -21,8 +21,11 @@
 namespace trigger
 {
 
+  typedef uint16_t size_type;
+  typedef std::vector<size_type> Keys;
+
   /// The single EDProduct to be saved in addition for each event
-  /// - but only in the RAW case
+  /// - but only in the "RAW" case: for a fraction of all events
   class TriggerEventWithRefs {
 
   private:
@@ -64,7 +67,7 @@ namespace trigger
     std::vector<reco::CompositeCandidateRef> composites_;
     std::vector<reco::CaloMETRef> mets_;
     std::vector<reco::METRef> hts_;
-    std::vector<TriggerRef> others_;
+    std::vector<XRef> others_;
 
   /// methods
   public:
@@ -92,154 +95,144 @@ namespace trigger
     }
 
     /// getters - for user access
+
+    /// number of filters stored
     size_type numFilters() const {return filterObjects_.size();}
 
-    const std::string& getFilterLabel(size_type index) const {return filterObjects_.at(index).filterLabel_;}
+    /// label of ith filter
+    const std::string& getFilterLabel(size_type index) const {
+      return filterObjects_.at(index).filterLabel_;
+    }
 
+    /// find index of filter in data-member vector from filter label
     size_type find(const std::string& filterLabel) const {
-      const size_type n(numFilters());
+      const size_type n(filterObjects_.size());
       for (size_type i=0; i!=n; ++i) {
 	if (filterLabel==filterObjects_[i].filterLabel_) {return i;}
       }
       return n;
     }
 
+    /// number of photons for a specific filter
     size_type numPhotons(size_type index) const {
       return filterObjects_.at(index).photons_ - (index==0? 0 : filterObjects_.at(index-1).photons_);
     }
-    size_type numPhotons(const std::string& filterLabel) const {
-      return numPhotons(find(filterLabel));
-    }
 
+    /// number of electrons for a specific filter
     size_type numElectrons(size_type index) const {
       return filterObjects_.at(index).electrons_ - (index==0? 0 : filterObjects_.at(index-1).electrons_);
     }
-    size_type numElectrons(const std::string& filterLabel) const {
-      return numElectrons(find(filterLabel));
-    }
 
+    /// number of muonsfor a specific filter
     size_type numMuons(size_type index) const {
       return filterObjects_.at(index).muons_ - (index==0? 0 : filterObjects_.at(index-1).muons_);
     }
-    size_type numMuons(const std::string& filterLabel) const {
-      return numMuons(find(filterLabel));
-    }
 
+    /// number of jets for a specific filter
     size_type numJets(size_type index) const {
       return filterObjects_.at(index).jets_ - (index==0? 0 : filterObjects_.at(index-1).jets_);
     }
-    size_type numJets(const std::string& filterLabel) const {
-      return numJets(find(filterLabel));
-    }
 
+    /// number of composites for a specific filter
     size_type numComposites(size_type index) const {
       return filterObjects_.at(index).composites_ - (index==0? 0 : filterObjects_.at(index-1).composites_);
     }
-    size_type numComposites(const std::string& filterLabel) const {
-      return numComposites(find(filterLabel));
-    }
 
+    /// number of mets for a specific filter
     size_type numMETs(size_type index) const {
       return filterObjects_.at(index).mets_ - (index==0? 0 : filterObjects_.at(index-1).mets_);
     }
-    size_type numMETs(const std::string& filterLabel) const {
-      return numMETs(find(filterLabel));
-    }
 
+    /// number of hts for a specific filter
     size_type numHTs(size_type index) const {
       return filterObjects_.at(index).hts_ - (index==0? 0 : filterObjects_.at(index-1).hts_);
     }
-    size_type numHTs(const std::string& filterLabel) const {
-      return numHTs(find(filterLabel));
-    }
 
+    /// number of others for a specific filter
     size_type numOthers(size_type index) const {
       return filterObjects_.at(index).others_ - (index==0? 0 : filterObjects_.at(index-1).others_);
     }
-    size_type numOthers(const std::string& filterLabel) const {
-      return numOthers(find(filterLabel));
+
+
+    /// photons: _begin and _end iterators for specific filter
+    std::vector<reco::RecoEcalCandidateRef>::const_iterator photons_begin(size_type index) const {
+      return photons_.begin() + (index==0? 0 : filterObjects_.at(index-1).photons_);
+    }
+    std::vector<reco::RecoEcalCandidateRef>::const_iterator photons_end(size_type index) const {
+      return photons_.begin() + filterObjects_.at(index).photons_;
     }
 
-    /// iterators
 
-    std::vector<reco::RecoEcalCandidateRef>::const_iterator
-      photons_begin(size_type index) const
-    { return photons_.begin() + 
-      (index==0? 0 : filterObjects_.at(index-1).photons_);
+    /// electrons: _begin and _end iterators for specific filter
+    std::vector<reco::ElectronRef>::const_iterator electrons_begin(size_type index) const {
+      return electrons_.begin() + (index==0? 0 : filterObjects_.at(index-1).electrons_);
     }
-    std::vector<reco::RecoEcalCandidateRef>::const_iterator
-      photons_end(size_type index) const
-    { return photons_.begin() + filterObjects_.at(index).photons_; }
-
-
-    std::vector<reco::ElectronRef>::const_iterator
-      electrons_begin(size_type index) const
-    { return electrons_.begin() + 
-      (index==0? 0 : filterObjects_[index-1].electrons_);
+    std::vector<reco::ElectronRef>::const_iterator electrons_end(size_type index) const {
+      return electrons_.begin() + filterObjects_.at(index).electrons_;
     }
-    std::vector<reco::ElectronRef>::const_iterator
-      electrons_end(size_type index) const
-    { return electrons_.begin() + filterObjects_[index].electrons_; }
 
 
-    std::vector<reco::RecoChargedCandidateRef>::const_iterator
-      muons_begin(size_type index) const
-    { return muons_.begin() + 
-      (index==0? 0 : filterObjects_[index-1].muons_);
+    /// muons: _begin and _end iterators for specific filter
+    std::vector<reco::RecoChargedCandidateRef>::const_iterator muons_begin(size_type index) const {
+      return muons_.begin() + (index==0? 0 : filterObjects_.at(index-1).muons_);
     }
-    std::vector<reco::RecoChargedCandidateRef>::const_iterator
-      muons_end(size_type index) const
-    { return muons_.begin() + filterObjects_[index].muons_; }
-
-
-    std::vector<reco::CaloJetRef>::const_iterator
-      jets_begin(size_type index) const
-    { return jets_.begin() + 
-      (index==0? 0 : filterObjects_[index-1].jets_);
+    std::vector<reco::RecoChargedCandidateRef>::const_iterator muons_end(size_type index) const {
+      return muons_.begin() + filterObjects_.at(index).muons_;
     }
-    std::vector<reco::CaloJetRef>::const_iterator
-      jets_end(size_type index) const
-    { return jets_.begin() + filterObjects_[index].jets_; }
 
 
-    std::vector<reco::CompositeCandidateRef>::const_iterator
-      composites_begin(size_type index) const
-    { return composites_.begin() + 
-      (index==0? 0 : filterObjects_[index-1].composites_);
+    /// jets: _begin and _end iterators for specific filter
+    std::vector<reco::CaloJetRef>::const_iterator jets_begin(size_type index) const {
+      return jets_.begin() + (index==0? 0 : filterObjects_.at(index-1).jets_);
     }
-    std::vector<reco::CompositeCandidateRef>::const_iterator
-      composites_end(size_type index) const
-    { return composites_.begin() + filterObjects_[index].composites_; }
-
-
-    std::vector<reco::CaloMETRef>::const_iterator
-      mets_begin(size_type index) const
-    { return mets_.begin() + 
-      (index==0? 0 : filterObjects_[index-1].mets_);
+    std::vector<reco::CaloJetRef>::const_iterator jets_end(size_type index) const {
+      return jets_.begin() + filterObjects_.at(index).jets_;
     }
-    std::vector<reco::CaloMETRef>::const_iterator
-      mets_end(size_type index) const
-    { return mets_.begin() + filterObjects_[index].mets_; }
 
 
-    std::vector<reco::METRef>::const_iterator
-      hts_begin(size_type index) const
-    { return hts_.begin() + 
-      (index==0? 0 : filterObjects_[index-1].hts_);
+    /// composites: _begin and _end iterators for specific filter
+    std::vector<reco::CompositeCandidateRef>::const_iterator composites_begin(size_type index) const {
+      return composites_.begin() + (index==0? 0 : filterObjects_.at(index-1).composites_);
     }
-    std::vector<reco::METRef>::const_iterator
-      hts_end(size_type index) const
-    { return hts_.begin() + filterObjects_[index].hts_; }
-
-
-    std::vector<TriggerRef>::const_iterator
-      others_begin(size_type index) const
-    { return others_.begin() + 
-      (index==0? 0 : filterObjects_[index-1].others_);
+    std::vector<reco::CompositeCandidateRef>::const_iterator composites_end(size_type index) const {
+      return composites_.begin() + filterObjects_.at(index).composites_;
     }
-    std::vector<TriggerRef>::const_iterator
-      others_end(size_type index) const
-    { return others_.begin() + filterObjects_[index].others_; }
+
+
+    /// mets: _begin and _end iterators for specific filter
+    std::vector<reco::CaloMETRef>::const_iterator mets_begin(size_type index) const {
+      return mets_.begin() + (index==0? 0 : filterObjects_.at(index-1).mets_);
+    }
+    std::vector<reco::CaloMETRef>::const_iterator mets_end(size_type index) const {
+      return mets_.begin() + filterObjects_.at(index).mets_;
+    }
+
+
+    /// hts: _begin and _end iterators for specific filter
+    std::vector<reco::METRef>::const_iterator hts_begin(size_type index) const {
+      return hts_.begin() + (index==0? 0 : filterObjects_.at(index-1).hts_);
+    }
+    std::vector<reco::METRef>::const_iterator hts_end(size_type index) const {
+      return hts_.begin() + filterObjects_.at(index).hts_;
+    }
+
+
+    /// others: _begin and _end iterators for specific filter
+    std::vector<XRef>::const_iterator others_begin(size_type index) const {
+      return others_.begin() + (index==0? 0 : filterObjects_.at(index-1).others_);
+    }
+    std::vector<XRef>::const_iterator others_end(size_type index) const {
+      return others_.begin() + filterObjects_.at(index).others_;
+    }
+    /// get keys of objects passing specific filter in the collection identified by its ProductID
+    void otherKeys(size_type index, edm::ProductID id, Keys& keys) const {
+      keys.resize(0);
+      const std::vector<XRef>::const_iterator begin(others_begin(index));
+      const std::vector<XRef>::const_iterator end(others_end(index));
+      for (std::vector<XRef>::const_iterator i=begin; i!=end; ++i) {
+	if (i->first==id) keys.push_back(i->second);
+      }
+    }
 
   };
 

@@ -13,8 +13,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/12/03 14:21:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/03 18:22:27 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -37,7 +37,7 @@
 namespace trigger
 {
   typedef uint16_t size_type;
-  typedef std::pair<edm::ProductID,size_type> TriggerRef;
+  typedef std::pair<edm::ProductID,size_type> XRef;
 
   /// Transient book-keeping EDProduct filled by HLTFilter modules to
   /// record physics objects firing the filter (not persistet in 
@@ -54,7 +54,7 @@ namespace trigger
     std::vector<reco::CompositeCandidateRef> composites_;
     std::vector<reco::CaloMETRef> mets_;
     std::vector<reco::METRef> hts_;
-    std::vector<TriggerRef> others_;
+    std::vector<XRef> others_;
     
   /// methods
   public:
@@ -74,7 +74,7 @@ namespace trigger
     ///   typesafe as original collection is kept and user will match based
     ///   on ProductID - before using key as index into original collection
     void addOther(edm::ProductID id, size_type key) {
-      others_.push_back(TriggerRef(id,key));
+      others_.push_back(XRef(id,key));
     }
 
     /// getters
@@ -85,7 +85,7 @@ namespace trigger
     const std::vector<reco::CompositeCandidateRef>& getComposites() const {return composites_;}
     const std::vector<reco::CaloMETRef>& getMETs() const {return mets_;}
     const std::vector<reco::METRef>& getHTs() const {return hts_;}
-    const std::vector<TriggerRef>& getOthers() const {return others_;}
+    const std::vector<XRef>& getOthers() const {return others_;}
 
   };
 
