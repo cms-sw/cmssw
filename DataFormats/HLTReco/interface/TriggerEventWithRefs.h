@@ -6,30 +6,20 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2007/12/03 13:05:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/03 14:21:03 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "DataFormats/Math/interface/LorentzVector.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
-#include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include <string>
 #include <vector>
 
 namespace trigger
 {
-
-  typedef uint16_t size_type;
 
   /// The single EDProduct to be saved in addition for each event
   /// - but only in the RAW case
@@ -51,14 +41,15 @@ namespace trigger
       size_type composites_;
       size_type mets_;
       size_type hts_;
+      size_type others_;
       /// constructor
       TriggerFilterObject() :
 	filterLabel_(),
-	photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), mets_(0), hts_(0) { }
+	photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), mets_(0), hts_(0), others_(0) { }
       TriggerFilterObject(const std::string& filterLabel,
-        size_type np, size_type ne, size_type nm, size_type nj, size_type nc, size_type nM, size_type nH) :
+        size_type np, size_type ne, size_type nm, size_type nj, size_type nc, size_type nM, size_type nH, size_type nO) :
 	filterLabel_(filterLabel),
-	photons_(np), electrons_(ne), muons_(nm), jets_(nj), composites_(nc), mets_(nM), hts_(nH) { }
+	photons_(np), electrons_(ne), muons_(nm), jets_(nj), composites_(nc), mets_(nM), hts_(nH), others_(nO) { }
     };
 
   /// data members
@@ -73,12 +64,13 @@ namespace trigger
     std::vector<reco::CompositeCandidateRef> composites_;
     std::vector<reco::CaloMETRef> mets_;
     std::vector<reco::METRef> hts_;
-   
+    std::vector<TriggerRef> others_;
+
   /// methods
   public:
     /// constructors
     TriggerEventWithRefs(): filterObjects_(),
-      photons_(), electrons_(), muons_(), jets_(), composites_(), mets_(), hts_() { }
+      photons_(), electrons_(), muons_(), jets_(), composites_(), mets_(), hts_(), others_() { }
 
     /// setters - to build EDProduct
     void addFilterObject(const std::string filterLabel, const TriggerFilterObjectWithRefs& tfowr) {
@@ -89,11 +81,12 @@ namespace trigger
       composites_.insert(composites_.end(),tfowr.getComposites().begin(),tfowr.getComposites().end());
       mets_.insert(mets_.end(),tfowr.getMETs().begin(),tfowr.getMETs().end());
       hts_.insert(hts_.end(),tfowr.getHTs().begin(),tfowr.getHTs().end());
+      others_.insert(others_.end(),tfowr.getOthers().begin(),tfowr.getOthers().end());
       filterObjects_.push_back(
         TriggerFilterObject(filterLabel, 
 			    photons_.size(), electrons_.size(), 
 			    muons_.size(), jets_.size(), composites_.size(),
-			    mets_.size(), hts_.size()
+			    mets_.size(), hts_.size(), others_.size()
 			   )
 	);
     }
@@ -158,6 +151,13 @@ namespace trigger
     }
     size_type numHTs(const std::string& filterLabel) const {
       return numHTs(find(filterLabel));
+    }
+
+    size_type numOthers(size_type index) const {
+      return filterObjects_.at(index).others_ - (index==0? 0 : filterObjects_.at(index-1).others_);
+    }
+    size_type numOthers(const std::string& filterLabel) const {
+      return numOthers(find(filterLabel));
     }
 
     /// iterators
@@ -230,6 +230,16 @@ namespace trigger
     std::vector<reco::METRef>::const_iterator
       hts_end(size_type index) const
     { return hts_.begin() + filterObjects_[index].hts_; }
+
+
+    std::vector<TriggerRef>::const_iterator
+      others_begin(size_type index) const
+    { return others_.begin() + 
+      (index==0? 0 : filterObjects_[index-1].others_);
+    }
+    std::vector<TriggerRef>::const_iterator
+      others_end(size_type index) const
+    { return others_.begin() + filterObjects_[index].others_; }
 
   };
 

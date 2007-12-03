@@ -13,8 +13,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/12/03 13:05:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/03 14:21:04 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -22,6 +22,7 @@
 
 
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
@@ -35,6 +36,8 @@
 
 namespace trigger
 {
+  typedef uint16_t size_type;
+  typedef std::pair<edm::ProductID,size_type> TriggerRef;
 
   /// Transient book-keeping EDProduct filled by HLTFilter modules to
   /// record physics objects firing the filter (not persistet in 
@@ -51,14 +54,15 @@ namespace trigger
     std::vector<reco::CompositeCandidateRef> composites_;
     std::vector<reco::CaloMETRef> mets_;
     std::vector<reco::METRef> hts_;
+    std::vector<TriggerRef> others_;
     
   /// methods
   public:
     /// constructors
     TriggerFilterObjectWithRefs():
-      photons_(), electrons_(), muons_(), jets_(), composites_(), mets_(), hts_() { }
+      photons_(), electrons_(), muons_(), jets_(), composites_(), mets_(), hts_(), others_() { }
 
-    /// setters
+    /// setters for L3 collections
     void addPhoton(const reco::RecoEcalCandidateRef& photon) {photons_.push_back(photon);}
     void addElectron(const reco::ElectronRef& electron) {electrons_.push_back(electron);}
     void addMuon(const reco::RecoChargedCandidateRef& muon) {muons_.push_back(muon);}
@@ -66,6 +70,12 @@ namespace trigger
     void addComposite(const reco::CompositeCandidateRef& composite) {composites_.push_back(composite);}
     void addMET(const reco::CaloMETRef& met) {mets_.push_back(met);}
     void addHT (const reco::METRef& ht) {hts_.push_back(ht);}
+    /// setter for non-L3 collections
+    ///   typesafe as original collection is kept and user will match based
+    ///   on ProductID - before using key as index into original collection
+    void addOther(edm::ProductID id, size_type key) {
+      others_.push_back(TriggerRef(id,key));
+    }
 
     /// getters
     const std::vector<reco::RecoEcalCandidateRef>& getPhotons() const {return photons_;}
@@ -75,6 +85,7 @@ namespace trigger
     const std::vector<reco::CompositeCandidateRef>& getComposites() const {return composites_;}
     const std::vector<reco::CaloMETRef>& getMETs() const {return mets_;}
     const std::vector<reco::METRef>& getHTs() const {return hts_;}
+    const std::vector<TriggerRef>& getOthers() const {return others_;}
 
   };
 
