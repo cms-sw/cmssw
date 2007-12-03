@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/11/11 19:52:35 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/11/16 18:22:19 $
+ *  $Revision: 1.14 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -87,9 +87,11 @@ private:
   std::string outputFilePath_;
   std::string outputFileName_;
 
+  edm::ParameterSet tkMapPSet_;
   edm::ESHandle< SiStripFedCabling > fedCabling_;
   SiStripTrackerMapCreator* trackerMapCreator_;
 
+  unsigned long long m_cacheID_;
   int nLumiSecs_;
 
   std::ostringstream html_out_;

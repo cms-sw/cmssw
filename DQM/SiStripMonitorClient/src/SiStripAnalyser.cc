@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/11/11 19:52:38 $
- * $Revision: 1.18 $
+ * $Date: 2007/11/16 18:22:20 $
+ * $Revision: 1.19 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
@@ -51,8 +52,11 @@ using namespace std;
 // -- Constructor
 //
 SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
-  ModuleWeb("SiStripAnalyser"){
+  ModuleWeb("SiStripAnalyser") {
   
+  // Get TkMap ParameterSet and Fed Cabling
+  tkMapPSet_ = ps.getParameter<edm::ParameterSet>("TkmapParameters");
+
   string localPath = string("DQM/SiStripMonitorClient/test/loader.html");
   ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), ios::in);
   char buf[BUF_SIZE];
@@ -84,6 +88,8 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
 
   // instantiate web interface
   sistripWebInterface_ = new SiStripWebInterface("dummy", "dummy", &mui_);
+  trackerMapCreator_ = 0;
+  
 }
 //
 // -- Destructor
@@ -112,13 +118,6 @@ void SiStripAnalyser::beginJob(edm::EventSetup const& eSetup){
      summaryFrequency_ = -1;
   }
 
-  // Get Fed cabling and create TrackerMapCreator
-  eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
-  trackerMapCreator_ = new SiStripTrackerMapCreator();
-  if (!trackerMapCreator_->readConfiguration()) {
-    edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Error to read configuration file!! TrackerMap will not be produced!!!";    
-    tkMapFrequency_ = -1;
-  }
   nLumiSecs_ = 0;
 }
 //
@@ -126,6 +125,20 @@ void SiStripAnalyser::beginJob(edm::EventSetup const& eSetup){
 //
 void SiStripAnalyser::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Begining of Run";
+
+  // Check latest Fed cabling and create TrackerMapCreator
+  unsigned long long cacheID = eSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
+  if (m_cacheID_ != cacheID) {
+    m_cacheID_ = cacheID;       
+    edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser::beginRun: " 
+				    << " Reading  new Cabling ";     
+    if (trackerMapCreator_) delete trackerMapCreator_;
+    trackerMapCreator_ = new SiStripTrackerMapCreator();
+    if (!trackerMapCreator_->readConfiguration()) {
+      edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Error to read configuration file!! TrackerMap will not be produced!!!";    
+      tkMapFrequency_ = -1;
+    }
+  }
 }
 //
 // -- Begin Luminosity Block
@@ -162,8 +175,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   // -- Create TrackerMap  according to the frequency
   if (tkMapFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%tkMapFrequency_ == 0) {
     cout << " Creating Tracker Map " << endl;
-    //    trackerMapCreator_->create(dbe_);
-    trackerMapCreator_->create(fedCabling_, dbe_);
+    trackerMapCreator_->create(tkMapPSet_, fedCabling_, dbe_);
     sistripWebInterface_->setTkMapFlag(true);
   }
   // Create predefined plots

@@ -467,6 +467,7 @@ sub makeCtlDestroy
     $result = $result . "`rm -rf  sistrip\*.cfg sistrip_qualitytest_config.xml`;\n\n"; 
     $result = $result . "`rm -rf Online.html loader.html "
           . " TrackerMapFrame.html TrackerMapPlot.html TrackerMapSelection.html "
+          . " fedtrackermap.html "
           . " css_files js_files images WebLib.js `;\n\n";
     $result = $result . "`rm -rf svgmap.xml svgmap_fed.xml Layer\*.xml \*.png`;\n\n";
     $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
