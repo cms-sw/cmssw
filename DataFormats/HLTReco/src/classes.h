@@ -4,7 +4,10 @@
 #include "DataFormats/HLTReco/interface/HLTGlobalObject.h"
 #include "DataFormats/HLTReco/interface/ModuleTiming.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
-#include "DataFormats/HLTReco/interface/HLTDataModel.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
