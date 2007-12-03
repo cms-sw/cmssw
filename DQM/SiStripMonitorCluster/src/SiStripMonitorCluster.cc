@@ -5,7 +5,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.30 2007/11/18 18:24:07 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.31 2007/12/03 18:13:13 giordano Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -206,33 +206,34 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     if(modSingle.NumberOfClusters != NULL){ // nr. of clusters per module
       (modSingle.NumberOfClusters)->Fill(static_cast<float>(cluster_detset.data.size()),1.);
     }
-    if(modSingle.ClusterPosition != NULL){ // position of cluster
-      for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
-            (modSingle.ClusterPosition)->Fill(clusterIter->barycenter(),1.);
-      }
-    }
-    short total_clusterized_strips = 0;
-    if(modSingle.ClusterWidth != NULL){ // width of cluster, calculate yourself, no method for getting it
-      for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
-        const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
-        short local_size = ampls.size(); // width defined as nr. of strips that belong to cluster
-        total_clusterized_strips = total_clusterized_strips + local_size; // add nr of strips of this cluster to total nr. of clusterized strips
-        (modSingle.ClusterWidth)->Fill(static_cast<float>(local_size),1.);
-      }
-    }
 
+
+    short total_clusterized_strips = 0;
     //
     float clusterSignal = 0;
     float clusterNoise = 0.;
     float clusterNoise2 = 0;
     int nrnonzeroamplitudes = 0;
-    if( fill_signal_noise && (modSingle.ClusterSignalOverNoise || modSingle.ClusterSignal)){
-      
-      SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detid);
-      SiStripApvGain::Range detGainRange =  gainHandle->getRange(detid); 
 
-      for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
-        const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
+    SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detid);
+    SiStripApvGain::Range detGainRange =  gainHandle->getRange(detid); 
+
+    for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
+      
+      if(modSingle.ClusterPosition != NULL){ // position of cluster
+	(modSingle.ClusterPosition)->Fill(clusterIter->barycenter(),1.);
+      }
+    
+      if(modSingle.ClusterWidth != NULL){ // width of cluster, calculate yourself, no method for getting it
+	const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
+        short local_size = ampls.size(); // width defined as nr. of strips that belong to cluster
+        total_clusterized_strips = total_clusterized_strips + local_size; // add nr of strips of this cluster to total nr. of clusterized strips
+        (modSingle.ClusterWidth)->Fill(static_cast<float>(local_size),1.);
+      }
+    
+
+      if( fill_signal_noise && (modSingle.ClusterSignalOverNoise || modSingle.ClusterSignal)){
+	const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
         for(uint iamp=0; iamp<ampls.size(); iamp++){
           if(ampls[iamp]>0){ // nonzero amplitude
             clusterSignal += ampls[iamp];
@@ -251,21 +252,23 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
         if(modSingle.ClusterNoise) (modSingle.ClusterNoise)->Fill(clusterNoise,1.);
         if(modSingle.ClusterSignalOverNoise) (modSingle.ClusterSignalOverNoise)->Fill(clusterSignal/sqrt(clusterNoise2/nrnonzeroamplitudes),1.);
       }
-    }
-    //
-    if(modSingle.ClusterCharge != NULL){ // charge of cluster
-      for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
-        const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
-        short local_charge = 0;
+      
+      //
+      if(modSingle.ClusterCharge != NULL){ // charge of cluster
+	const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
+	short local_charge = 0;
         for(std::vector<uint16_t>::const_iterator iampls = ampls.begin(); iampls<ampls.end(); iampls++){
           local_charge += *iampls;
         }
         (modSingle.ClusterCharge)->Fill(static_cast<float>(local_charge),1.);
       }
-    }
+
+    } // end loop on clusters for the given detid
+
     if(modSingle.NrOfClusterizedStrips != NULL){ // nr of clusterized strips
       modSingle.NrOfClusterizedStrips->Fill(static_cast<float>(total_clusterized_strips),1.);
     }
+
     short total_nr_strips = 6 * 128; // assume 6 APVs per detector for the moment. later ask FedCabling object
     float local_occupancy = static_cast<float>(total_clusterized_strips)/static_cast<float>(total_nr_strips);
     if(modSingle.ModuleLocalOccupancy != NULL){ // nr of clusterized strips
