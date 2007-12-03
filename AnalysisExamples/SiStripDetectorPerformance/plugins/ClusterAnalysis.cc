@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/11/22 18:06:21 $
- * $Revision: 1.4 $
+ * $Date: 2007/11/23 18:09:06 $
+ * $Revision: 1.5 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -17,7 +17,10 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
+
 #include "AnalysisDataFormats/TrackInfo/src/TrackInfo.cc"
+
 #include "sstream"
 
 #include "TTree.h"
@@ -86,6 +89,10 @@ namespace cms{
     fFile->mkdir("Trigger");
     fFile->mkdir("Layer");
     fFile->cd();
+
+    tkMap_ClusOcc[0]=new TrackerMap( "ClusterOccupancy_onTrack" );
+    tkMap_ClusOcc[1]=new TrackerMap( "ClusterOccupancy_offTrack" );
+    tkMap_ClusOcc[2]=new TrackerMap( "ClusterOccupancy_All" );
 
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     // get list of active detectors from SiStripDetCabling 
@@ -438,6 +445,16 @@ namespace cms{
     fFile->Write();
     fFile->ls();
     fFile->Close();
+
+    //TkMap->Save() and Print()
+    tkMap_ClusOcc[0]->save(true,0,0,"ClusterOccupancyMap_onTrack.png");
+    tkMap_ClusOcc[1]->save(true,0,0,"ClusterOccupancyMap_offTrack.png");
+    tkMap_ClusOcc[2]->save(true,0,0,"ClusterOccupancyMap_All.png");
+
+    tkMap_ClusOcc[0]->print(true,0,0,"ClusterOccupancyMap_onTrack");   
+    tkMap_ClusOcc[1]->print(true,0,0,"ClusterOccupancyMap_offTrack");   
+    tkMap_ClusOcc[2]->print(true,0,0,"ClusterOccupancyMap_All");   
+
   }  
   //------------------------------------------------------------------------------------------
 
@@ -807,7 +824,6 @@ void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV
     
     //char cdetid[128];
     //sprintf(cdetid,"_%d",detid);
-    
     int iflag;
     if (flag=="_onTrack")
       iflag=0;
@@ -817,7 +833,10 @@ void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV
       iflag=2;
     
     NClus[SubDet_enum][iflag]++;
-    
+    edm::LogInfo("ClusterAnalysis") << "NClus on detid = " << detid << " " << flag << " is " << NClus[SubDet_enum][iflag] << std::endl;
+    //TrackerMap filling for each flag
+    tkMap_ClusOcc[iflag]->fill(detid,NClus[SubDet_enum][iflag]);
+
     std::stringstream ss;
     const_cast<SiStripClusterInfo*>(cluster)->print(ss);
     LogTrace("ClusterAnalysis") 

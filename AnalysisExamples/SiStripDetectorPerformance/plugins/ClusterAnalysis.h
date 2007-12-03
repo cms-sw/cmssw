@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"  
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -41,6 +42,8 @@
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfoTrackAssociation.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 //Services
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
@@ -55,16 +58,11 @@
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-
 // Function to evaluate the local angles
 //#include "AnalysisExamples/SiStripDetectorPerformance/interface/TrackLocalAngleTIF.h"
 
 #include "TFile.h"
-/* #include "TString.h" */
 #include "TROOT.h"
-#include "TObjArray.h"
 #include "TRandom.h"
 #include "THashList.h"
 
@@ -72,8 +70,6 @@
 #include <memory>
 #include <string>
 #include <iostream>
-
-//#include "ClusterTree.h"
 
 namespace cms{
   class ClusterAnalysis : public edm::EDAnalyzer
@@ -127,13 +123,8 @@ namespace cms{
       edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
       edm::Handle<reco::TrackCollection> trackCollection;
       edm::Handle<uint16_t> filterWord;
-      // Susy Debugging
-      //      edm::Handle<reco::TrackInfoTrackAssociationCollection> tkiTkAssCollectionCmb ;
       edm::Handle<reco::TrackInfoTrackAssociationCollection> tkiTkAssCollection;
       std::vector<const SiStripCluster*> vPSiStripCluster;
-      //Susy modifying
-      //      std::vector<SiStripQuality::BadComponent> BC;
-      // = SiStripQuality_->getBadComponentList();     
       
       std::map<std::pair<std::string,uint32_t>,bool> DetectedLayers;
 
@@ -147,6 +138,7 @@ namespace cms{
 
       TFile* fFile;
       THashList* Hlist;
+      TrackerMap* tkMap_ClusOcc[3];//0 for onTrack, 1 for offTrack, 2 for All
       
       int runNb;
       int eventNb;
