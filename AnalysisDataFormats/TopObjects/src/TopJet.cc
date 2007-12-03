@@ -1,5 +1,5 @@
 //
-// $Id: TopJet.cc,v 1.12 2007/07/05 23:33:35 lowette Exp $
+// $Id: TopJet.cc,v 1.13 2007/11/24 11:03:16 lowette Exp $
 //
 
 
@@ -168,9 +168,9 @@ TopJet TopJet::getMCFlavCorrJet() const {
 TopJet TopJet::getWCorrJet() const {
   TopJet jet(*this);
   // set the corrected 4-vector weighting for the c-content in W decays
-  jet.setP4((5*udsCorrF_+cCorrF_)/6*noCorrF_*this->p4());
+  jet.setP4((3*udsCorrF_+cCorrF_)/4*noCorrF_*this->p4());
   // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setScaleCalibFactors(6./(5*udsCorrF_+cCorrF_), this->getUdsCorrF(), this->getGluCorrF(), this->getCCorrF(), this->getBCorrF());
+  jet.setScaleCalibFactors(4./(3*udsCorrF_+cCorrF_), this->getUdsCorrF(), this->getGluCorrF(), this->getCCorrF(), this->getBCorrF());
   return jet;
 }
 
