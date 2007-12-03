@@ -88,14 +88,16 @@ namespace edm {
   
     // Iterate over the list of branch names to drop
     for(Selections::const_iterator it = dropList.begin(), itEnd = dropList.end(); it != itEnd; ++it) {
-      std::string branchName = (*it)->branchName();
-      char lastchar = branchName.at(branchName.size()-1);
-      if(lastchar == '.') {
-        branchName += "*";
-      } else {
-        branchName += ".*";
+      if ((*it)->present()) {
+        std::string branchName = (*it)->branchName();
+        char lastchar = branchName.at(branchName.size()-1);
+        if(lastchar == '.') {
+          branchName += "*";
+        } else {
+          branchName += ".*";
+        }
+        tree->SetBranchStatus(branchName.c_str(), 0);
       }
-      tree->SetBranchStatus(branchName.c_str(), 0);
     }
 
     for(std::vector<std::string>::const_iterator it = renamedList.begin(), itEnd = renamedList.end(); it != itEnd; ++it) {
