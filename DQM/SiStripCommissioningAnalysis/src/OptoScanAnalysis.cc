@@ -261,13 +261,12 @@ void OptoScanAnalysis::analyse() {
 	 zero_light_error <= sistrip::maximum_ ) { 
       zero_light_thres = zero_light_level + 5. * zero_light_error;
     } else {
-      edm::LogWarning(mlCommissioning_) 
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unable to find zero_light level."
-	<< " No entries in histogram.";
-      return;
+      std::stringstream ss;
+      ss << sistrip::invalidZeroLightLevel_ << "ForGain" << igain;
+      addErrorCode( ss.str() );
+      continue;
     }
-
+    
     // Find range of base histogram
     float base_range = base_max - base_min;
 
@@ -361,8 +360,6 @@ void OptoScanAnalysis::analyse() {
 
     // Set "zero light" level and link noise
     zeroLight_[igain] = zero_light_level;
-    //linkNoise_[igain] = zero_light_error; 
-    //@@ bias starts from 0 or 1? how does it correspond to bin number???
     uint16_t bin_number = static_cast<uint16_t>( threshold_[igain] / 0.45 ); 
     if ( bin_number < noise_contents.size() ) { linkNoise_[igain] = noise_contents[bin_number]; }
     else { 
@@ -370,11 +367,7 @@ void OptoScanAnalysis::analyse() {
 	<< "[" << myName() << "::" << __func__ << "]"
 	<< " Unexpected bin number for noise histogram.";
     }
-    //@@ WRONG!!!! should be error at threshold or "minimum noise" level from new histo?!?
-    //uint32_t bin_number = static_cast<uint32_t>( threshold_[igain] / 0.45 ); 
-    //if ( bin_number < base_errors.size() ) { linkNoise_[igain] = base_errors[bin_number]; }
-    //else { linkNoise_[igain] == sistrip::invalid_; }
-
+    
     // Calculate tick mark height
     if ( low_params.b_ <= sistrip::maximum_ &&
 	 width <= sistrip::maximum_ ) {
@@ -392,13 +385,13 @@ void OptoScanAnalysis::analyse() {
   const float target_gain = 0.8;
   float diff_in_gain = sistrip::invalid_;
   for ( uint16_t igain = 0; igain < 4; igain++ ) {
-
+    
     // Check for sensible gain value
     if ( measGain_[igain] > sistrip::maximum_ ) { continue; }
-
+    
     // Find optimum gain setting
     if ( fabs( measGain_[igain] - target_gain ) < diff_in_gain ) {
-      gain_ = static_cast<uint16_t>( igain );
+      gain_ = igain;
       diff_in_gain = fabs( measGain_[igain] - target_gain );
     }
     
@@ -406,7 +399,7 @@ void OptoScanAnalysis::analyse() {
 
   // Check optimum gain setting
   if ( gain_ > sistrip::maximum_ ) { gain_ = defaultGainSetting_; }
-
+  
 }
 
 // ----------------------------------------------------------------------------
@@ -466,6 +459,7 @@ void OptoScanAnalysis::print( std::stringstream& ss, uint32_t gain ) {
     for ( ; istr != jstr; ++istr ) { ss << *istr << " "; }
   }
   ss << std::endl;
+
 }
 
 
