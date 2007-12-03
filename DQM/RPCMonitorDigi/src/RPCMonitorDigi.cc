@@ -65,27 +65,39 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
     
     cout<<"\n \033[0;35m DQM will be run in RPC EXPERTS mode !!! "<<endl;
     cout<<"\033[0;30m"<<endl;
+<<<<<<< RPCMonitorDigi.cc
+    // sleep(10);
+=======
 
     // sleep(10);
 
     //    sleep(10);
 
+>>>>>>> 1.22
    
   } else if (dqmexpert && dqmsuperexpert) {
     
     cout<<"\n \033[0;31m DQM will be run in RPC SUPER EXPERTS mode !!! "<<endl;
     cout<<"\033[0;30m"<<endl;
+<<<<<<< RPCMonitorDigi.cc
+    //sleep(10);
+=======
     //    sleep(10);
+>>>>>>> 1.22
     
   } else { 
     
     cout<<"\n \033[0;32m DQM will be run in RPC Shifter mode !!! "<<endl;
     cout<<"\033[0;30m"<<endl;
+<<<<<<< RPCMonitorDigi.cc
+    //sleep(10);
+=======
 
     // sleep(10);
 
     //    sleep(10);
 
+>>>>>>> 1.22
     
   }    
   
@@ -138,7 +150,11 @@ void RPCMonitorDigi::endJob(void)
 
 void RPCMonitorDigi::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup ){
+<<<<<<< RPCMonitorDigi.cc
+  // sleep(1);
+=======
   //  sleep(1);
+>>>>>>> 1.22
   counter++;
   edm::LogInfo (nameInLog) <<"Beginning analyzing event " << counter;
   
