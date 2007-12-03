@@ -8,14 +8,13 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.12 2007/11/09 00:35:31 elmer Exp $
+// $Id: SiStripMonitorCluster.h,v 1.13 2007/11/18 18:24:07 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 class DaqMonitorBEInterface;
 
@@ -46,7 +45,6 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   private:
        DaqMonitorBEInterface* dbe_;
        edm::ParameterSet conf_;
-       SiStripNoiseService SiStripNoiseService_;  
        std::map<uint32_t, ModMEs> ClusterMEs;
        MonitorElement* charge_of_each_cluster;
        // flags

@@ -5,7 +5,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.29 2007/06/08 14:42:42 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.30 2007/11/18 18:24:07 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -16,6 +16,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
@@ -26,7 +31,7 @@
 #include "DQMServices/Core/interface/MonitorElementT.h"
 
 //--------------------------------------------------------------------------------------------
-SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) : dbe_(edm::Service<DaqMonitorBEInterface>().operator->()), conf_(iConfig), SiStripNoiseService_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), reset_each_run(false), fill_signal_noise (false) {} 
+SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) : dbe_(edm::Service<DaqMonitorBEInterface>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), reset_each_run(false), fill_signal_noise (false) {} 
 SiStripMonitorCluster::~SiStripMonitorCluster() { }
 
 //--------------------------------------------------------------------------------------------
@@ -161,7 +166,12 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-   SiStripNoiseService_.setESObjects(iSetup);
+  edm::ESHandle<SiStripNoises> noiseHandle;
+  iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
+
+  edm::ESHandle<SiStripGain> gainHandle;
+  iSetup.get<SiStripGainRcd>().get(gainHandle);
+
 
   // retrieve producer name of input StripClusterCollection
   std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
@@ -217,14 +227,18 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     float clusterNoise2 = 0;
     int nrnonzeroamplitudes = 0;
     if( fill_signal_noise && (modSingle.ClusterSignalOverNoise || modSingle.ClusterSignal)){
+      
+      SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detid);
+      SiStripApvGain::Range detGainRange =  gainHandle->getRange(detid); 
+
       for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
         const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
         for(uint iamp=0; iamp<ampls.size(); iamp++){
           if(ampls[iamp]>0){ // nonzero amplitude
             clusterSignal += ampls[iamp];
             try{
-              if(!SiStripNoiseService_.getDisable(detid,clusterIter->firstStrip()+iamp)){
-                  clusterNoise = SiStripNoiseService_.getNoise(detid,clusterIter->firstStrip()+iamp);
+              if(!noiseHandle->getDisable(clusterIter->firstStrip()+iamp,detNoiseRange)){
+		clusterNoise = noiseHandle->getNoise(clusterIter->firstStrip()+iamp,detNoiseRange)/gainHandle->getStripGain(clusterIter->firstStrip()+iamp, detGainRange);
               }
             }catch(cms::Exception& e){
               edm::LogError("SiStripTkDQM|SiStripMonitorCluster|DB")<<" cms::Exception:  detid="<<detid<<" firstStrip="<<clusterIter->firstStrip()<<" iamp="<<iamp<<e.what();
