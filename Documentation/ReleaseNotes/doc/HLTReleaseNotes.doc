@@ -1,0 +1,39 @@
+/*!
+\page HLTReleaseNotes HLT Release Notes
+
+- General:
+  - CMSSW_1_7_X used in GREN
+
+- Main changes and new features:
+  - FUEventProcessor handles DQM processes with no ability to set run number or
+	use PrescaleService
+  - Use EventProcessor::clearCounters() in enabling to reset edm event counters
+  - All applications publish "reasonForFailed" string in their web pages in 
+	case of state transition failure
+  - Script edmConfigFromDB added to Utilities/scripts to retrieve job 
+	configuration from HLTConfDB 
+  - EventFilter/Cosmics package added to host HLT selection for Cosmics 
+	specific to commissioning and global runs
+  - EventFilter/ShmBuffer now allows allocation of several reco cells for 
+	a single event
+  - EventFilter/AutoBU can override event numbers in playback to support use 
+	of MC data with wrong (overlapping) event ids
+- Major bug fixes:
+  - Added missing notification of transition to Failed state in 
+	Utilities/StateMachine
+  - Fixed/Validated Playback to function properly for all state transitions
+	(fixes to EventFilter/AutoBU, EventFilter/Playback)
+  - ResourceBroker correctly handles (discards) lost events due to data errors
+  - Split error message for invalid (out of range) fedId and duplicated valid
+	fedId
+  - WebGUI properly addresses XDAQ Monitoring framework (XMAS)
+  - ResourceBroker failure to configure -> halt -> configure fixed (ShmReader) 
+	in 1_7_1
+- Known issues:
+  - When a first RB process has acquired shared memory under a given account, 
+	a second process will fail to configure under same or different account
+
+<hr>
+Last updated: @DATE@ Philipp Schieferdecker / Emilio Meschi
+
+*/
