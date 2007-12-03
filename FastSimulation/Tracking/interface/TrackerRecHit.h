@@ -129,7 +129,7 @@ public:
 	
       case 6:
 	//Tracker EndCap
-	isOnDet = theSubDetId==6 && theLayerNumber<4 && theRingNumber < 3;
+	isOnDet = theSubDetId==6 && theLayerNumber < 4 && theRingNumber < 3;
 	break;
 	
       default:

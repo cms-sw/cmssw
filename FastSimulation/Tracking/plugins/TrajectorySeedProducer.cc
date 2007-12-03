@@ -33,7 +33,7 @@
 //
 
 //for debug only 
-#define FAMOS_DEBUG
+//#define FAMOS_DEBUG
 
 TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) 
 {  
@@ -277,14 +277,35 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // loop over SimTrack Id's
   for ( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
 
+#ifdef FAMOS_DEBUG
     std::cout << "Track number " << tkId << std::endl;
+#endif
 
     ++nSimTracks;
     unsigned simTrackId = theSimTrackIds[tkId];
     const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
+#ifdef FAMOS_DEBUG
     std::cout << "Pt = " << std::sqrt(theSimTrack.momentum().Perp2()) 
 	      << " eta " << theSimTrack.momentum().Eta()
 	      << std::endl;
+#endif
+    
+    // Check that the sim track comes from the main vertex (loose cut)
+    int vertexIndex = theSimTrack.vertIndex();
+    const SimVertex& theSimVertex = (*theSimVtx)[vertexIndex]; 
+    
+    BaseParticlePropagator theParticle = 
+      BaseParticlePropagator( 
+	 RawParticle(XYZTLorentzVector(theSimTrack.momentum().px(),
+				       theSimTrack.momentum().py(),
+				       theSimTrack.momentum().pz(),
+				       theSimTrack.momentum().e()),
+		     XYZTLorentzVector(theSimVertex.position().x(),
+				       theSimVertex.position().y(),
+				       theSimVertex.position().z(),
+				       theSimVertex.position().t())),
+	             0.,0.,4.);
+    theParticle.setCharge((*theSimTracks)[simTrackId].charge());
 
     SiTrackerGSRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
     SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
@@ -297,14 +318,19 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     // Loop on the successive seedings
     for ( unsigned int ialgo = 0; ialgo < seedingAlgo.size(); ++ialgo ) { 
 
+#ifdef FAMOS_DEBUG
       std::cout << "Algo " << seedingAlgo[ialgo] << std::endl;
+#endif
 
       // Request a minimum number of RecHits for the track to give a seed.
       unsigned numberOfRecHits = 0;
       for ( iterRecHit = theRecHitRangeIteratorBegin; 
 	    iterRecHit != theRecHitRangeIteratorEnd; 
 	    ++iterRecHit) ++numberOfRecHits;
+
+#ifdef FAMOS_DEBUG
       std::cout << "The number of RecHits = " << numberOfRecHits << std::endl;
+#endif
       if ( numberOfRecHits < minRecHits[ialgo] ) continue;
       ++nTracksWithHits;
 
@@ -312,22 +338,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       if ( theSimTrack.momentum().Perp2() < pTMin[ialgo] ) continue;
       ++nTracksWithPT;
       
-      // Check that the sim track comes from the main vertex (loose cut)
-      int vertexIndex = theSimTrack.vertIndex();
-      const SimVertex& theSimVertex = (*theSimVtx)[vertexIndex]; 
-      
-      BaseParticlePropagator theParticle = 
-	BaseParticlePropagator( 
-	    RawParticle(XYZTLorentzVector(theSimTrack.momentum().px(),
-					  theSimTrack.momentum().py(),
-					  theSimTrack.momentum().pz(),
-					  theSimTrack.momentum().e()),
-			XYZTLorentzVector(theSimVertex.position().x(),
-					  theSimVertex.position().y(),
-					  theSimVertex.position().z(),
-					  theSimVertex.position().t())),
-	                0.,0.,4.);
-      theParticle.setCharge((*theSimTracks)[simTrackId].charge());
       if ( theParticle.xyImpactParameter() > maxD0[ialgo] ) continue;
       if ( fabs( theParticle.zImpactParameter() ) > maxZ0[ialgo] ) continue;
       ++nTracksWithD0Z0;
@@ -336,61 +346,117 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       bool compatible = false;
       for ( iterRecHit1 = theRecHitRangeIteratorBegin; iterRecHit1 != theRecHitRangeIteratorEnd; ++iterRecHit1) {
 	theSeedHits[0] = TrackerRecHit(&(*iterRecHit1),theGeometry);
+#ifdef FAMOS_DEBUG
 	std::cout << "The first hit position = " << theSeedHits[0].globalPosition() << std::endl;
 	std::cout << "The first hit subDetId = " << theSeedHits[0].subDetId() << std::endl;
 	std::cout << "The first hit layer    = " << theSeedHits[0].layerNumber() << std::endl;
+#endif
 	// if ( !theSeedHits[0].isOnRequestedDet(firstHitSubDetectors[ialgo]) ) continue;
-	if ( !theSeedHits[0].isOnRequestedDet(firstHitSubDetectors[ialgo]) ) break;
+
+	// Check if inside the requested detectors
+	bool isInside = theSeedHits[0].subDetId() < firstHitSubDetectors[ialgo][0];
+	if ( isInside ) continue;
+
+	// Check if on requested detectors
+	bool isOndet =  theSeedHits[0].isOnRequestedDet(firstHitSubDetectors[ialgo]);
+	if ( !isOndet ) break;
+
+#ifdef FAMOS_DEBUG
 	std::cout << "Apparently the first hit is on the requested detector! " << std::endl;
-	GlobalPoint gpos1 = theSeedHits[0].globalPosition();
+#endif
 	for ( iterRecHit2 = iterRecHit1+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
 	  theSeedHits[1] = TrackerRecHit(&(*iterRecHit2),theGeometry);
+#ifdef FAMOS_DEBUG
 	  std::cout << "The second hit position = " << theSeedHits[1].globalPosition() << std::endl;
 	  std::cout << "The second hit subDetId = " << theSeedHits[1].subDetId() << std::endl;
 	  std::cout << "The second hit layer    = " << theSeedHits[1].layerNumber() << std::endl;
+#endif
 
-	  if ( !theSeedHits[1].isOnRequestedDet(firstHitSubDetectors[ialgo]) ) break;
+	  // Check if inside the requested detectors
+	  isInside = theSeedHits[1].subDetId() < secondHitSubDetectors[ialgo][0];
+	  if ( isInside ) continue;
 
-	  if ( !( theSeedHits[1].isOnRequestedDet(secondHitSubDetectors[ialgo]) && 
-		( theSeedHits[1].subDetId() > theSeedHits[0].subDetId() || 
-		  theSeedHits[1].layerNumber() > theSeedHits[0].layerNumber() ) ) ) continue;
-	  std::cout << "Apparently the first hit is on the requested detector! " << std::endl;
+	  // Check if on requested detectors
+	  isOndet =  theSeedHits[1].isOnRequestedDet(secondHitSubDetectors[ialgo]);
+	  if ( !isOndet ) break;
+
+	  // Check if on the same layer as previous hit
+	  if ( !( theSeedHits[1].subDetId() > theSeedHits[0].subDetId() || 
+		  theSeedHits[1].layerNumber() > theSeedHits[0].layerNumber() ) ) continue;
+
+#ifdef FAMOS_DEBUG
+	  std::cout << "Apparently the second hit is on the requested detector! " << std::endl;
+#endif
+	  GlobalPoint gpos1 = theSeedHits[0].globalPosition();
 	  GlobalPoint gpos2 = theSeedHits[1].globalPosition();
 	  compatible = compatibleWithVertex(gpos1,gpos2,ialgo);
+#ifdef FAMOS_DEBUG
 	  std::cout << "Are the two hits compatible with the PV? " << compatible << std::endl;
+#endif
 	  if ( !compatible ) continue;
+#ifdef FAMOS_DEBUG
 	  std::cout << "Pair kept! " << std::endl;
+#endif
+	  // Leave here if only two hits are required.
 	  if ( numberOfHits[ialgo] == 2 ) break; 
+	  
+	  compatible = false;
+	  // Check if there is a third satisfying hit otherwise
 	  for ( iterRecHit3 = iterRecHit2+1; iterRecHit3 != theRecHitRangeIteratorEnd; ++iterRecHit3) {
 	    theSeedHits[2] = TrackerRecHit(&(*iterRecHit3),theGeometry);
+#ifdef FAMOS_DEBUG
+	    std::cout << "The third hit position = " << theSeedHits[2].globalPosition() << std::endl;
+	    std::cout << "The third hit subDetId = " << theSeedHits[2].subDetId() << std::endl;
+	    std::cout << "The third hit layer    = " << theSeedHits[2].layerNumber() << std::endl;
+#endif
 
-	    if ( !theSeedHits[2].isOnRequestedDet(firstHitSubDetectors[ialgo]) ) break;
+	    // Check if inside the requested detectors
+	    isInside = theSeedHits[2].subDetId() < thirdHitSubDetectors[ialgo][0];
+	    if ( isInside ) continue;
+	    
+	    // Check if on requested detectors
+	    isOndet =  theSeedHits[2].isOnRequestedDet(thirdHitSubDetectors[ialgo]);
+	    if ( !isOndet ) break;
 
-	    compatible = theSeedHits[2].isOnRequestedDet(thirdHitSubDetectors[ialgo]) && 
-		       ( theSeedHits[2].subDetId() > theSeedHits[1].subDetId() || 
-			 theSeedHits[2].layerNumber() > theSeedHits[1].layerNumber() );
+	    // Check if on the same layer as previous hit
+	    compatible = theSeedHits[2].subDetId() > theSeedHits[1].subDetId() || 
+	                 theSeedHits[2].layerNumber() > theSeedHits[1].layerNumber() ;
+#ifdef FAMOS_DEBUG
+	    if ( compatible ) 
+	      std::cout << "Apparently the third hit is on the requested detector! " << std::endl;
+#endif
+
 	    if ( compatible ) break;	  
+
 	  }
+
 	  if ( compatible ) break;
+
 	}
+
 	if ( compatible ) break;
+
       }
 
       // There is no compatible seed for this track with this seeding algorithm 
       // Go to next algo
       if ( !compatible ) continue;
 
+#ifdef FAMOS_DEBUG
       std::cout << "Preparing to create the TrajectorySeed" << std::endl;
+#endif
       // The seed is validated -> include in the collection
       // 1) Create the vector of RecHits
       edm::OwnVector<TrackingRecHit> recHits;
-      for ( unsigned ih=0; ih<theSeedHits.size(); ++ih ) { 
+      for ( unsigned ih=0; ih<theSeedHits.size(); ++ih ) {
 	TrackingRecHit* aTrackingRecHit = 
 	  GenericTransientTrackingRecHit::build(theSeedHits[ih].geomDet(),
 						theSeedHits[ih].hit())->hit()->clone();
 	recHits.push_back(aTrackingRecHit);
       }
+#ifdef FAMOS_DEBUG
       std::cout << "with " << recHits.size() << " hits." << std::endl;
+#endif
 
       // 2) Create the initial state
       //   a) origin vertex
@@ -409,17 +475,40 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       //  -> large initial errors
       AlgebraicSymMatrix errorMatrix(5,1);      
       errorMatrix = errorMatrix * 10;
+#ifdef FAMOS_DEBUG
+      std::cout << "GSTrackCandidateMaker: SimTrack parameters " << std::endl;
+      std::cout << "\t\t pT  = " << (*theSimTracks)[simTrackId].momentum().Pt() << std::endl;
+      std::cout << "\t\t eta = " << (*theSimTracks)[simTrackId].momentum().Eta()  << std::endl;
+      std::cout << "\t\t phi = " << (*theSimTracks)[simTrackId].momentum().Phi()  << std::endl;
+      std::cout << "GSTrackCandidateMaker: AlgebraicSymMatrix " << errorMatrix << std::endl;
+#endif
       CurvilinearTrajectoryError initialError(errorMatrix);
       // -> initial state
       FreeTrajectoryState initialFTS(initialParams, initialError);      
-      const GeomDetUnit* initialLayer = theGeometry->idToDetUnit( recHits.front().geographicalId() );
+#ifdef FAMOS_DEBUG
+      std::cout << "GSTrackCandidateMaker: FTS momentum " << initialFTS.momentum() << std::endl;
+#endif
+      // const GeomDetUnit* initialLayer = theGeometry->idToDetUnit( recHits.front().geographicalId() );
+      const GeomDet* initialLayer = theGeometry->idToDet( recHits.front().geographicalId() );
       const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());      
+#ifdef FAMOS_DEBUG
+      std::cout << "GSTrackCandidateMaker: TSOS global momentum "    << initialTSOS.globalMomentum() << std::endl;
+      std::cout << "\t\t\tpT = "                                     << initialTSOS.globalMomentum().perp() << std::endl;
+      std::cout << "\t\t\teta = "                                    << initialTSOS.globalMomentum().eta() << std::endl;
+      std::cout << "\t\t\tphi = "                                    << initialTSOS.globalMomentum().phi() << std::endl;
+      std::cout << "GSTrackCandidateMaker: TSOS local momentum "     << initialTSOS.localMomentum()  << std::endl;
+      std::cout << "GSTrackCandidateMaker: TSOS local error "        << initialTSOS.localError().positionError() << std::endl;
+      std::cout << "GSTrackCandidateMaker: TSOS local error matrix " << initialTSOS.localError().matrix() << std::endl;
+      std::cout << "GSTrackCandidateMaker: TSOS surface side "       << initialTSOS.surfaceSide()    << std::endl;
+#endif
       stateOnDet(initialTSOS, 
 		 recHits.front().geographicalId().rawId(),
 		 initialState);
       // Create a new Trajectory Seed    
       output[ialgo]->push_back(TrajectorySeed(initialState, recHits, alongMomentum));
+#ifdef FAMOS_DEBUG
       std::cout << "Trajectory seed created ! " << std::endl;
+#endif
       break;
       // End of the loop over seeding algorithms
     }
@@ -503,12 +592,12 @@ TrajectorySeedProducer::compatibleWithVertex(GlobalPoint& gpos1,
   // And check at least one of the particles statisfy the SeedGenerator
   // constraint (originRadius, originHalfLength)
 
-  /*
+#ifdef FAMOS_DEBUG
   std::cout << " Neg Charge L R = " << myElecL.R() << "\t Z = " << fabs(myElecL.Z()) << std::endl;
   std::cout << " Pos Charge L R = " << myPosiL.R() << "\t Z = " << fabs(myPosiL.Z()) << std::endl;
   std::cout << " Neg Charge H R = " << myElecH.R() << "\t Z = " << fabs(myElecH.Z()) << std::endl;
   std::cout << " Pos Charge H R = " << myPosiH.R() << "\t Z = " << fabs(myPosiH.Z()) << std::endl;
-  */
+#endif
 
   if ( myElecL.R() < originRadius[algo] && 
        fabs(myElecL.Z()) < originHalfLength[algo] ) return true;
