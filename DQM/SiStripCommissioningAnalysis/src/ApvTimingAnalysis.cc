@@ -348,8 +348,8 @@ void ApvTimingAnalysis::print( std::stringstream& ss, uint32_t not_used ) {
      << " Time of tick mark rising edge        [ns] : " << time_ << std::endl 
     //<< " Error on time of rising edge         [ns] : " << error_ << std::endl
      << " Sampling point of last tick mark     [ns] : " << sampling << std::endl 
-     << " Delay required to synchronise        [ns] : " << delay_ << std::endl 
      << " Adjusted sampling point of last tick [ns] : " << adjust << std::endl 
+     << " Delay required to synchronise        [ns] : " << delay_ << std::endl 
      << " Tick mark height                    [ADC] : " << height_ << std::endl
      << " Baseline level                      [ADC] : " << base_ << std::endl 
      << " Tick mark top                       [ADC] : " << peak_ << std::endl 
