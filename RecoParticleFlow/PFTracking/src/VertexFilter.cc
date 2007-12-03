@@ -33,6 +33,7 @@ VertexFilter::VertexFilter(const edm::ParameterSet& iConfig):
   produces<reco::TrackExtraCollection>();
   produces<std::vector<Trajectory> >();
   produces<TrajTrackAssociationCollection>();
+
 }
 
 
@@ -145,13 +146,13 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       
  
-      trackingRecHit_iterator irhit=(*itc).recHitsBegin();
-      size_t i = 0;
-      for (; irhit!=(*itc).recHitsEnd(); irhit++){
-	  TrackingRecHit *hit=(*(*irhit)).clone();
-	  track.setHitPattern( * hit, i ++ );
-	  selHits->push_back(hit );
-      }
+//     trackingRecHit_iterator irhit=(*itc).recHitsBegin();
+//      size_t i = 0;
+//      for (; irhit!=(*itc).recHitsEnd(); irhit++){
+//	  TrackingRecHit *hit=(*(*irhit)).clone();
+//	  track.setHitPattern( * hit, i ++ );
+//	  selHits->push_back(hit );
+//      }
 
       selTrackExtras->push_back(tx);
       outputTJ->push_back(*traj);	
