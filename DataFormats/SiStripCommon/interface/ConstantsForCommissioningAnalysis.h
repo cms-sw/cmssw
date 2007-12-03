@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.5 2007/07/11 11:13:58 bainbrid Exp $
+// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.6 2007/11/30 15:40:40 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
 #define DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
@@ -44,7 +44,8 @@ namespace sistrip {
 
   // ---------- Opto scan ----------
   
-  static const std::string optoScanAnalysis_ = "OptoScanAnalysis";
+  static const std::string optoScanAnalysis_      = "OptoScanAnalysis";
+  static const std::string invalidZeroLightLevel_ = "InvalidZeroLightLevel";
 
 }
 
