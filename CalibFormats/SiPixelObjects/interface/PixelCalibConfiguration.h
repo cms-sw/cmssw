@@ -97,7 +97,8 @@ namespace pos{
     const std::vector<std::vector<unsigned int> > &columnList() const {return cols_;}
     const std::vector<std::vector<unsigned int> > &rowList() const {return rows_;}
     const std::vector<PixelROCName>& rocList() const {assert(rocAndModuleListsBuilt_); return rocs_;}
-    const std::set <PixelModuleName>& moduleList(){assert(rocAndModuleListsBuilt_); return modules_;}
+    const std::set <PixelModuleName>& moduleList() const {assert(rocAndModuleListsBuilt_); return modules_;}
+    const std::set <PixelChannel>& channelList(const PixelNameTranslation* aNameTranslation);
 
     virtual std::string mode() {return mode_;}
 
@@ -136,6 +137,10 @@ namespace pos{
     std::map <PixelModuleName,unsigned int> countROC_;
     bool rocAndModuleListsBuilt_;
     std::vector<std::string> rocListInstructions_;
+    
+    // Channel list, filled from ROC list only when needed.
+    std::set <PixelChannel> channels_;
+    bool channelListBuilt_;
 
     mutable std::vector<std::pair<unsigned int, std::vector<unsigned int> > > fedCardsAndChannels_;
 

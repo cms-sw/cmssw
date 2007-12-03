@@ -22,8 +22,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelChannel.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelHdwAddress.h"
 
-
 namespace pos{
+
+  class PixelDetectorConfig;
+
   class PixelNameTranslation: public PixelConfigBase {
 
   public:
@@ -35,6 +37,8 @@ namespace pos{
 
     std::list<const PixelROCName*> getROCs() const;
     std::list<const PixelModuleName*> getModules() const;
+    std::set<PixelChannel> getChannels() const; // returns all channels
+    std::set<PixelChannel> getChannels(const PixelDetectorConfig& aDetectorConfig) const; // only returns channels on modules found in the detector config
 
     const PixelHdwAddress* getHdwAddress(const PixelROCName& aROC) const;
 
@@ -43,6 +47,7 @@ namespace pos{
     const std::vector<PixelHdwAddress>* getHdwAddress(const PixelModuleName& aModule) const;
     const PixelHdwAddress& getHdwAddress(const PixelChannel& aChannel) const;
     
+    const PixelChannel& getChannelForROC(const PixelROCName& aROC) const;
     std::set< PixelChannel > getChannelsOnModule(const PixelModuleName& aModule) const;
     
     friend std::ostream& operator<<(std::ostream& s, const PixelNameTranslation& table);
@@ -63,6 +68,8 @@ namespace pos{
     void writeASCII(std::string dir="") const;
     
   private:
+  
+    const PixelChannel& getChannelFromHdwAddress(const PixelHdwAddress& aHdwAddress) const;
         
     std::map<PixelROCName,PixelHdwAddress> translationtable_;  
 

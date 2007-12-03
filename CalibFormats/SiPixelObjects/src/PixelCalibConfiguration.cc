@@ -20,6 +20,8 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
   PixelCalibBase(), PixelConfigBase("","","") {
 
   _bufferData=false; 
+  
+	channelListBuilt_ = false;
 
     std::ifstream in(filename.c_str());
 
@@ -381,6 +383,21 @@ void PixelCalibConfiguration::buildROCAndModuleListsFromROCSet(const std::set<Pi
 	}
 	
 	rocAndModuleListsBuilt_ = true;
+}
+
+const std::set <PixelChannel>& PixelCalibConfiguration::channelList(const PixelNameTranslation* aNameTranslation)
+{
+	assert( rocAndModuleListsBuilt_ );
+	if ( !channelListBuilt_ )
+	{
+		assert( aNameTranslation != 0 );
+		for (std::vector<PixelROCName>::const_iterator rocs_itr = rocs_.begin(); rocs_itr != rocs_.end(); ++rocs_itr)
+		{
+			channels_.insert( aNameTranslation->getChannelForROC(*rocs_itr) );
+		}
+		channelListBuilt_ = true;
+	}
+	return channels_;
 }
 
 unsigned int PixelCalibConfiguration::iScan(std::string dac) const{

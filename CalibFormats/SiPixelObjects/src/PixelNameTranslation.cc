@@ -5,6 +5,7 @@
 //
 
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
 #include <fstream>
 #include <map>
 #include <string>
@@ -320,6 +321,26 @@ std::list<const PixelModuleName*> PixelNameTranslation::getModules() const
 	return listOfModules;
 }
 
+std::set<PixelChannel> PixelNameTranslation::getChannels() const
+{
+	std::set<PixelChannel> channelSet;
+	for ( std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.begin(); channelTranslationTable_itr != channelTranslationTable_.end(); channelTranslationTable_itr++ )
+	{
+		channelSet.insert(channelTranslationTable_itr->first);
+	}
+	return channelSet;
+}
+
+std::set<PixelChannel> PixelNameTranslation::getChannels(const PixelDetectorConfig& aDetectorConfig) const
+{
+	std::set<PixelChannel> channelSet;
+	for ( std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.begin(); channelTranslationTable_itr != channelTranslationTable_.end(); channelTranslationTable_itr++ )
+	{
+		if ( aDetectorConfig.containsModule(channelTranslationTable_itr->first.module()) ) channelSet.insert(channelTranslationTable_itr->first);
+	}
+	return channelSet;
+}
+
 const PixelHdwAddress* PixelNameTranslation::getHdwAddress(const PixelROCName& aROC) const{
 
     if (translationtable_.find(aROC)==translationtable_.end()){
@@ -351,6 +372,13 @@ const PixelHdwAddress& PixelNameTranslation::getHdwAddress(const PixelChannel& a
 	std::map<PixelChannel, PixelHdwAddress >::const_iterator channelHdwAddress_itr = channelTranslationTable_.find(aChannel);
 	assert( channelHdwAddress_itr != channelTranslationTable_.end() );
 	return channelHdwAddress_itr->second;
+}
+
+const PixelChannel& PixelNameTranslation::getChannelForROC(const PixelROCName& aROC) const
+{
+	std::map<PixelROCName,PixelHdwAddress>::const_iterator foundEntry = translationtable_.find(aROC);
+	assert( foundEntry != translationtable_.end() );
+	return getChannelFromHdwAddress( foundEntry->second );
 }
 
 std::set< PixelChannel > PixelNameTranslation::getChannelsOnModule(const PixelModuleName& aModule) const
@@ -452,6 +480,19 @@ PixelROCName PixelNameTranslation::ROCNameFromFEDChannelROC(unsigned int fednumb
 
 }
 
+const PixelChannel& PixelNameTranslation::getChannelFromHdwAddress(const PixelHdwAddress& aHdwAddress) const
+{
+	for ( std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.begin(); channelTranslationTable_itr != channelTranslationTable_.end(); channelTranslationTable_itr++ )
+	{
+		if ( aHdwAddress |= channelTranslationTable_itr->second )
+		{
+			return channelTranslationTable_itr->first;
+		}
+	}
+	std::cout << "ERROR: no channel found for hardware address " << aHdwAddress << std::endl;
+	assert(0);
+}
+
 void PixelNameTranslation::writeASCII(std::string dir) const {
 
   if (dir!="") dir+="/";
@@ -466,16 +507,7 @@ void PixelNameTranslation::writeASCII(std::string dir) const {
   for (;iroc!=translationtable_.end();++iroc) {
   
     // Find the PixelChannel for this ROC, in order to get the TBM channel.
-    std::string TBMChannel = "notFound";
-    for ( std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.begin(); channelTranslationTable_itr != channelTranslationTable_.end(); channelTranslationTable_itr++ )
-    {
-       if ( iroc->second |= channelTranslationTable_itr->second )
-       {
-          TBMChannel = channelTranslationTable_itr->first.TBMChannelString();
-          break;
-       }
-    }
-    assert( TBMChannel != "notFound" );
+    std::string TBMChannel = getChannelFromHdwAddress(iroc->second).TBMChannelString();
   
     out << iroc->first.rocname()<<"       "
 	<< TBMChannel<<"       "
