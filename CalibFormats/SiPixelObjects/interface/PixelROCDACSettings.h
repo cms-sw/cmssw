@@ -120,6 +120,9 @@ namespace pos{
     bits8 getCalDel() {return CalDel_;}
     void setCalDel(bits8 calDel) {CalDel_=calDel;}
 
+    bits8 getTempRange() {return TempRange_;}
+    void setTempRange(bits8 tempRange) {TempRange_=tempRange;}
+
     bits8 getWBC() {return WBC_;}
     void setWBC(bits8 wbc) {WBC_=wbc;}
 
@@ -140,18 +143,18 @@ namespace pos{
     bits8 Vana_;             //addr 2
     bits8 Vsf_;              //addr 3
     bits4 Vcomp_;            //addr 4
-    bits8 Vleak_;       //addr 5
+    bits8 Vleak_;            //addr 5
     bits4 VrgPr_;            //addr 6
     bits8 VwllPr_;           //addr 7
     bits4 VrgSh_;            //addr 8
     bits8 VwllSh_;           //addr 9
     bits8 VHldDel_;          //addr 10
     bits8 Vtrim_;            //addr 11
-    bits8 VcThr_;         //addr 12
+    bits8 VcThr_;            //addr 12
     bits8 VIbias_bus_;       //addr 13
-    bits4 VIbias_sf_;         //addr 14
+    bits4 VIbias_sf_;        //addr 14
     bits8 VOffsetOp_;        //addr 15
-    bits8 VbiasOp_;         //addr 16
+    bits8 VbiasOp_;          //addr 16
     bits8 VOffsetRO_;        //addr 17
     bits8 VIon_;             //addr 18
     bits8 VIbias_PH_;        //addr 19
@@ -162,11 +165,10 @@ namespace pos{
     bits8 VsumCol_;          //addr 24
     bits8 Vcal_;             //addr 25
     bits8 CalDel_;           //addr 26
-    bits8 Temp_Range_;       //addr ????
+    bits8 TempRange_;        //addr 27
     bits8 WBC_;              //addr 254
     bits8 ChipContReg_;      //addr 253
     
-
   };
 }
 #endif

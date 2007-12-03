@@ -15,8 +15,8 @@ using namespace pos;
 PixelROCDACSettings::PixelROCDACSettings(){}
 
 
-void PixelROCDACSettings::getDACs(std::vector<unsigned int>& dacs) const{
-
+void PixelROCDACSettings::getDACs(std::vector<unsigned int>& dacs) const
+{
     dacs.clear();
     dacs.push_back(Vdd_);
     dacs.push_back(Vana_);
@@ -44,12 +44,13 @@ void PixelROCDACSettings::getDACs(std::vector<unsigned int>& dacs) const{
     dacs.push_back(VsumCol_);
     dacs.push_back(Vcal_);
     dacs.push_back(CalDel_);
+    dacs.push_back(TempRange_);
     dacs.push_back(WBC_);
     dacs.push_back(ChipContReg_);
 }
 
-void PixelROCDACSettings::setDAC(unsigned int dacaddress, unsigned int dacvalue) {
-
+void PixelROCDACSettings::setDAC(unsigned int dacaddress, unsigned int dacvalue) 
+{
 	switch (dacaddress) {
 		case 1: Vdd_=dacvalue; break;
 		case 2: Vana_=dacvalue; break;
@@ -77,6 +78,7 @@ void PixelROCDACSettings::setDAC(unsigned int dacaddress, unsigned int dacvalue)
 		case 24: VsumCol_=dacvalue; break;
 		case 25: Vcal_=dacvalue; break;
 		case 26: CalDel_=dacvalue; break;
+	        case 27: TempRange_=dacvalue; break;
 		case 254: WBC_=dacvalue; break;
 		case 253: ChipContReg_=dacvalue; break;
 		default: std::cout<<"DAC Address "<<dacaddress<<" does not exist!"<<std::endl;
@@ -84,8 +86,8 @@ void PixelROCDACSettings::setDAC(unsigned int dacaddress, unsigned int dacvalue)
 
 }
 
-void PixelROCDACSettings::writeBinary(std::ofstream& out) const{
-
+void PixelROCDACSettings::writeBinary(std::ofstream& out) const
+{
     out << (char)rocid_.rocname().size();
     out.write(rocid_.rocname().c_str(),rocid_.rocname().size());
 
@@ -115,10 +117,9 @@ void PixelROCDACSettings::writeBinary(std::ofstream& out) const{
     out << VsumCol_;
     out << Vcal_;
     out << CalDel_;
+    out << TempRange_;
     out << WBC_;
     out << ChipContReg_;	
-
-
 }
 
 
@@ -152,6 +153,7 @@ int PixelROCDACSettings::readBinary(std::ifstream& in, const PixelROCName& rocid
     in.read((char*)&VsumCol_,1);
     in.read((char*)&Vcal_,1);
     in.read((char*)&CalDel_,1);
+    in.read((char*)&TempRange_,1);
     in.read((char*)&WBC_,1);
     in.read((char*)&ChipContReg_,1);	
     
@@ -189,6 +191,7 @@ void PixelROCDACSettings::writeASCII(std::ostream& out) const{
     out << "VsumCol:       "<<(int)VsumCol_<<std::endl;
     out << "Vcal:          "<<(int)Vcal_<<std::endl;
     out << "CalDel:        "<<(int)CalDel_<<std::endl;
+    out << "TempRange:     "<<(int)TempRange_<<std::endl;
     out << "WBC:           "<<(int)WBC_<<std::endl;
     out << "ChipContReg:   "<<(int)ChipContReg_<<std::endl;	
 
@@ -229,6 +232,7 @@ int PixelROCDACSettings::read(std::ifstream& in, const PixelROCName& rocid){
     in >> tag >> tmp; VsumCol_=tmp;
     in >> tag >> tmp; Vcal_=tmp;
     in >> tag >> tmp; CalDel_=tmp;
+    in >> tag >> tmp; TempRange_=tmp;
     in >> tag >> tmp; WBC_=tmp;
     in >> tag >> tmp; ChipContReg_=tmp;
 
@@ -272,6 +276,7 @@ std::ostream& pos::operator<<(std::ostream& s, const PixelROCDACSettings& dacs){
   s << "VsumCol      :" << (unsigned int)dacs.VsumCol_ << std::endl;
   s << "Vcal         :" << (unsigned int)dacs.Vcal_ << std::endl;
   s << "CalDel       :" << (unsigned int)dacs.CalDel_ << std::endl;
+  s << "TempRange    :" << (unsigned int)dacs.TempRange_ << std::endl;
   s << "WBC          :" << (unsigned int)dacs.WBC_ << std::endl;
   s << "ChipContReg  :" << (unsigned int)dacs.ChipContReg_ << std::endl;
   
@@ -385,9 +390,9 @@ void PixelROCDACSettings::setDac(std::string dacName, int dacValue){
 //     std::cout << "CALDEL" << std::endl;
     CalDel_ = dacValue;
   }
-  else if(dacName == "TEMP_RANGE"){
-//     std::cout << "TEMP_RANGE" << std::endl;
-    Temp_Range_ = dacValue;
+  else if(dacName == "TEMPRANGE"){
+//     std::cout << "TEMPRANGE" << std::endl;
+    TempRange_ = dacValue;
   }
   else if(dacName == "WBC"){
 //     std::cout << "WBC" << std::endl;
