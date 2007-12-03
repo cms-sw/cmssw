@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: MasterCollectionHelper.h,v 1.1 2007/11/06 15:21:06 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/Handle.h"
@@ -19,17 +19,22 @@
 namespace helper {
   template<typename C1>
   struct MasterCollection {
+    typedef edm::Ref<C1> ref_type;
     explicit MasterCollection(const edm::Handle<C1> & handle) : 
       handle_(handle) { }
     size_t size() const { return handle_->size(); }
     size_t index(size_t i) const { return i; }
     const edm::Handle<C1> & get() const { return handle_; }
+    ref_type getRef(size_t idx) const { return ref_type(get(), idx); }
+    template<typename R>
+    R getConcreteRef(size_t idx) const { return getRef(idx); }
   private:
     edm::Handle<C1> handle_;
   };
   
   template<typename T>
   struct MasterCollection<edm::View<T> > {
+    typedef edm::RefToBase<T> ref_type;
     explicit MasterCollection(const edm::Handle<edm::View<T> > & handle) :
       handle_(handle) {
       if(handle_->size() != 0) 
@@ -43,11 +48,14 @@ namespace helper {
       return handle_->refAt(i).key(); 
     }
     const edm::RefToBaseProd<T> & get() const { return ref_; }
+    ref_type getRef(size_t idx) const { return ref_type(get(), idx); }
+    template<typename R>
+    R getConcreteRef(size_t idx) const { return getRef(idx).template castTo<R>(); }
   private:
     edm::Handle<edm::View<T> > handle_;
     edm::RefToBaseProd<T> ref_;
   };
-  
+
 }
 
 #endif

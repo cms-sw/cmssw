@@ -1,7 +1,8 @@
-/** \class ConcreteChargedCandidateProducer
+/** \class TrackViewCandidateProducer
  *
  * Framework module that produces a collection
- * of candidates with a Track compoment
+ * of candidates with a Track compoment from
+ * a View<Track>
  *
  * \author Luca Lista, INFN
  *
@@ -13,10 +14,11 @@
 
 #include "PhysicsTools/RecoAlgos/src/TrackToCandidate.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/Common/interface/View.h"
 
 typedef CandidateProducer<
-          reco::TrackCollection, 
+          edm::View<reco::Track>,
           reco::RecoChargedCandidateCollection
-        > ConcreteChargedCandidateProducer;
+        > TrackViewCandidateProducer;
 
-DEFINE_FWK_MODULE(ConcreteChargedCandidateProducer);
+DEFINE_FWK_MODULE(TrackViewCandidateProducer);
