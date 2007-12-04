@@ -4,8 +4,8 @@
 /*
  * \file DTNoiseCalibration.h
  *
- * $Date: 2007/03/22 18:52:01 $
- * $Revision: 1.11 $
+ * $Date: 2007/11/05 17:38:07 $
+ * $Revision: 1.1 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -25,6 +25,7 @@ namespace edm {
 }
 
 class DTGeometry;
+class DTTtrig;
 class TFile;
 class TH2F;
 class TH1F;
@@ -58,12 +59,22 @@ private:
   int counter;
   int TotEvents;
   int TriggerWidth;
+  bool cosmicRun;
+
+  /// tTrig from the DB
+  float tTrig;
+  float tTrigRMS;
+
+  edm::ParameterSet parameters;
 
   // TDC digi distribution
   TH1F *hTDCTriggerWidth;
 
   // Get the DT Geometry
   edm::ESHandle<DTGeometry> dtGeom;
+
+  // Get the tTrigMap
+  edm::ESHandle<DTTtrig> tTrigMap;
 
   // The file which will contain the occupancy plot and the digi event plot
   TFile *theFile;

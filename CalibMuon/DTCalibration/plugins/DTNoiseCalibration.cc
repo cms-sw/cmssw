@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/27 10:57:33 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/11/06 15:08:06 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -29,6 +29,10 @@
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+
+// Database
+#include <CondFormats/DTObjects/interface/DTTtrig.h>
+#include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -60,6 +64,11 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& ps){
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
 
+  // The trigger mode
+  cosmicRun = ps.getUntrackedParameter<bool>("cosmicRun", false);
+
+  parameters=ps;
+
 }
 
 
@@ -71,6 +80,10 @@ void DTNoiseCalibration::beginJob(const edm::EventSetup& context){
 
   // Get the DT Geometry
   context.get<MuonGeometryRecord>().get(dtGeom);
+
+  // tTrig 
+  if (parameters.getUntrackedParameter<bool>("readDB", true)) 
+    context.get<DTTtrigRcd>().get(tTrigMap);
 
   // TDC time distribution
   int numBin = (TriggerWidth*(32/25))/50;
@@ -99,56 +112,68 @@ void DTNoiseCalibration::analyze(const edm::Event& e, const edm::EventSetup& con
     for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
 	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
 
-
       //Check the TDC trigger width
       int tdcTime = (*digiIt).countsTDC();
-      if(debug)
-	cout<<"tdcTime (ns): "<<(tdcTime*25)/32<<endl;
-      if(((tdcTime*25)/32)>TriggerWidth){
-	cout<<"***Error*** : your digi has a tdcTime (ns) higher than the TDC trigger width :"<<(tdcTime*25)/32<<endl;
-	abort();
-      }
+      if(!cosmicRun){	
+	if(debug)
+	  cout<<"tdcTime (ns): "<<(tdcTime*25)/32<<endl;
+	if(((tdcTime*25)/32)>TriggerWidth){
+	  cout<<"***Error*** : your digi has a tdcTime (ns) higher than the TDC trigger width :"<<(tdcTime*25)/32<<endl;
+	  abort();
+	}
+      }	
       hTDCTriggerWidth->Fill(tdcTime);
 
-      // Get the number of wires
-      const  DTLayerId dtLId = (*dtLayerId_It).first;
-      const DTTopology& dtTopo = dtGeom->layer(dtLId)->specificTopology();
-      const int nWires = dtTopo.channels();
-      const int firstWire = dtTopo.firstChannel();
-      const int lastWire = dtTopo.lastChannel();
+      // Set the tTrigValue if the run is triggered by cosmics
+      if ( parameters.getUntrackedParameter<bool>("readDB", true) ) 
+	tTrigMap->slTtrig( ((*dtLayerId_It).first).superlayerId(), tTrig, tTrigRMS); 
+      else tTrig = parameters.getUntrackedParameter<int>("defaultTtrig", 1000);
+	
+      if((cosmicRun && (*digiIt).countsTDC()<tTrig) || (!cosmicRun) ){
 
-      // book the occupancy histos
-      theFile->cd();
-      hOccupancyHisto = theHistoOccupancyMap[dtLId];
-      if(hOccupancyHisto == 0) {
-	string HistoName = "DigiOccupancy_" + getLayerName(dtLId);
-	theFile->cd();
-	hOccupancyHisto = new TH1F(HistoName.c_str(), HistoName.c_str(), nWires, firstWire, lastWire+1);
 	if(debug)
-	  cout << "  New Occupancy Histo: " << hOccupancyHisto->GetName() << endl;
-	theHistoOccupancyMap[dtLId] = hOccupancyHisto;
-      }
-  
-      hOccupancyHisto->Fill((*digiIt).wire());
-      
-      // book the digi event plot every 1000 events
-      if(theHistoEvtPerWireMap.find(dtLId) == theHistoEvtPerWireMap.end() ||
-      (theHistoEvtPerWireMap.find(dtLId) != theHistoEvtPerWireMap.end() &&
-       skippedPlot[dtLId] != counter)) {
-	skippedPlot[dtLId] = counter;
-	stringstream toAppend; toAppend << counter;
-	Histo2Name = "DigiPerWirePerEvent_" + getLayerName(dtLId) + "_" + toAppend.str();
+	  cout<<"tdcTime (ns): "<<((*digiIt).countsTDC()*25)/32<<" --- TriggerWidth (ns): "<<(tTrig*25)/32<<endl;
+
+	// Get the number of wires
+	const  DTLayerId dtLId = (*dtLayerId_It).first;
+	const DTTopology& dtTopo = dtGeom->layer(dtLId)->specificTopology();
+	const int nWires = dtTopo.channels();
+	const int firstWire = dtTopo.firstChannel();
+	const int lastWire = dtTopo.lastChannel();
+	
+	// book the occupancy histos
 	theFile->cd();
-	hEvtPerWireH = new TH2F(Histo2Name.c_str(), Histo2Name.c_str(), 1000,0.5,1000.5,nWires, firstWire, lastWire+1);
-	if(hEvtPerWireH){
+	hOccupancyHisto = theHistoOccupancyMap[dtLId];
+	if(hOccupancyHisto == 0) {
+	  string HistoName = "DigiOccupancy_" + getLayerName(dtLId);
+	  theFile->cd();
+	  hOccupancyHisto = new TH1F(HistoName.c_str(), HistoName.c_str(), nWires, firstWire, lastWire+1);
 	  if(debug)
-	    cout << "  New Histo with the number of digi per evt per wire: " << hEvtPerWireH->GetName() << endl;
-	  theHistoEvtPerWireMap[dtLId]=hEvtPerWireH;
+	    cout << "  New Occupancy Histo: " << hOccupancyHisto->GetName() << endl;
+	  theHistoOccupancyMap[dtLId] = hOccupancyHisto;
+	}
+	
+	hOccupancyHisto->Fill((*digiIt).wire());
+	
+	// book the digi event plot every 1000 events
+	if(theHistoEvtPerWireMap.find(dtLId) == theHistoEvtPerWireMap.end() ||
+	   (theHistoEvtPerWireMap.find(dtLId) != theHistoEvtPerWireMap.end() &&
+	    skippedPlot[dtLId] != counter)) {
+	  skippedPlot[dtLId] = counter;
+	  stringstream toAppend; toAppend << counter;
+	  Histo2Name = "DigiPerWirePerEvent_" + getLayerName(dtLId) + "_" + toAppend.str();
+	  theFile->cd();
+	  hEvtPerWireH = new TH2F(Histo2Name.c_str(), Histo2Name.c_str(), 1000,0.5,1000.5,nWires, firstWire, lastWire+1);
+	  if(hEvtPerWireH){
+	    if(debug)
+	      cout << "  New Histo with the number of digi per evt per wire: " << hEvtPerWireH->GetName() << endl;
+	    theHistoEvtPerWireMap[dtLId]=hEvtPerWireH;
+	  }
 	}
       }
     }
   }
-
+    
   //Fill the plot of the number of digi per event per wire
   std::map<int,int > DigiPerWirePerEvent;
   // LOOP OVER ALL THE CHAMBERS
@@ -166,13 +191,13 @@ void DTNoiseCalibration::analyze(const edm::Event& e, const edm::EventSetup& con
       // Loop over the Ls
       for(; l_it != l_end; ++l_it) {
 	DTLayerId layerId = (*l_it)->id();
-
+	
 	// Get the number of wires
 	const DTTopology& dtTopo = dtGeom->layer(layerId)->specificTopology();
 	const int firstWire = dtTopo.firstChannel();
 	const int lastWire = dtTopo.lastChannel();
-
-        if (theHistoEvtPerWireMap.find(layerId) != theHistoEvtPerWireMap.end() &&
+	  
+	if (theHistoEvtPerWireMap.find(layerId) != theHistoEvtPerWireMap.end() &&
 	    skippedPlot[layerId] == counter) {
 	  
 	  for (int wire=firstWire; wire<=lastWire; wire++) {
@@ -183,7 +208,8 @@ void DTNoiseCalibration::analyze(const edm::Event& e, const edm::EventSetup& con
 	  for (DTDigiCollection::const_iterator digi = layerDigi.first;
 	       digi!=layerDigi.second;
 	       ++digi){
-	    DigiPerWirePerEvent[(*digi).wire()]+=1;
+	    if((cosmicRun && (*digi).countsTDC()<tTrig) || (!cosmicRun))
+	      DigiPerWirePerEvent[(*digi).wire()]+=1;
 	  }
 	  // fill the digi event histo
 	  for (int wire=firstWire; wire<=lastWire; wire++) {
@@ -195,8 +221,8 @@ void DTNoiseCalibration::analyze(const edm::Event& e, const edm::EventSetup& con
       } //Loop Ls
     } //Loop SLs
   } //Loop chambers
-
-
+  
+  
   if(nevents % 1000 == 0) {
     counter++;
     // save the digis event plot on file
@@ -227,10 +253,21 @@ void DTNoiseCalibration::endJob(){
   hTDCTriggerWidth->Write();
 
   // save on file the occupancy histo
+  double TriggerWidth_s=0;
   for(map<DTLayerId, TH1F*>::const_iterator lHisto = theHistoOccupancyMap.begin();
       lHisto != theHistoOccupancyMap.end();
       lHisto++) {
-    double TriggerWidth_s = double(TriggerWidth/1e9);
+    if(cosmicRun){
+      if ( parameters.getUntrackedParameter<bool>("readDB", true) ) 
+	tTrigMap->slTtrig( ((*lHisto).first).superlayerId(), tTrig, tTrigRMS); 
+      else tTrig = parameters.getUntrackedParameter<int>("defaultTtrig", 1000);
+      double TriggerWidth_ns = (tTrig*25)/32;
+      TriggerWidth_s = TriggerWidth_ns/1e9;
+    }
+    if(!cosmicRun)
+      TriggerWidth_s = double(TriggerWidth/1e9);
+    if(debug)
+      cout<<"TriggerWidth (s): "<<TriggerWidth_s<<"  TotEvents: "<<TotEvents<<endl;
     double normalization = 1/double(TotEvents*TriggerWidth_s);
     (*lHisto).second->Scale(normalization);
     theFile->cd();
