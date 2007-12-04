@@ -249,7 +249,7 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 			GlobalVector dir = svInfo.flightDirection(0);
 			double vertexPt2 =
 				math::XYZVector(dir.x(), dir.y(), dir.z()).
-					Cross(vertexSum).Mag2();
+					Cross(vertexSum).Mag2() / dir.mag2();
 			vertexMass = std::sqrt(vertexMass * vertexMass +
 			                       vertexPt2) + std::sqrt(vertexPt2);
 		}
