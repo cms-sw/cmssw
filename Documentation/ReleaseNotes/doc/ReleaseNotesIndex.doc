@@ -1,5 +1,5 @@
 /*!
-\page ReleaseNotes Release Notes
+\page ReleaseNotes Release Notes for CMSSW_1_7_x
 
 
 \htmlonly
@@ -28,10 +28,13 @@
     <a href="mailto:">Jim Brooke</a>,
     <a href="mailto:">Werner Sun</a>
   </td> </tr>
-<td>  \endhtmlonly \ref HLTDQMReleaseNotes \htmlonly  </td> 
+<td>  \endhtmlonly \ref HLTReleaseNotes \htmlonly  </td> 
   <td class="contact">
-    <a href="mailto:">Emilio Meschi</a>,
-    <a href="mailto:">Andreas Meyer</a>
+    <a href="mailto:">Emilio Meschi</a>
+  </td> </tr>
+<td>  \endhtmlonly \ref DQMReleaseNotes \htmlonly  </td> 
+  <td class="contact">
+    <a href="mailto:">Andreas Meier</a>
   </td> </tr>
 <td>  \endhtmlonly \ref ReconstructionReleaseNotes \htmlonly  </td>
    <td class="contact">
@@ -48,6 +51,10 @@
 </tr>
 </table>
 \endhtmlonly
+
+\section other Release notes for other release series: 
+- <a href="http://cms-service-sdtweb.web.cern.ch/cms-service-sdtweb/doxygen/CMSSW_1_7_1/doc/html/ReleaseNotes.html">CMSSW_1_7_x</a>
+
 
 <hr>
 Last updated: @DATE@ K. Lassila-Perini
