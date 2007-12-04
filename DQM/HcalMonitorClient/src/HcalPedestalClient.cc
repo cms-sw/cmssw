@@ -247,9 +247,9 @@ void HcalPedestalClient::getHistograms(){
 	  if(!isValidGeom(i, ieta, iphi,depth)) continue;
 	  
 	  HcalSubdetector subdet = HcalBarrel;
-	  if(i==1) subdet = HcalOuter;
+	  if(i==1) subdet = HcalEndcap;
 	  else if(i==2) subdet = HcalForward;
-	  else if(i==3) subdet = HcalEndcap;
+	  else if(i==3) subdet = HcalOuter;
 	  HcalDetId id(subdet,ieta,iphi,depth);
 	  HcalElectronicsId eid = readoutMap_->lookup(id);	  	  
 
@@ -496,9 +496,9 @@ void HcalPedestalClient::createTests(){
 	    if(!isValidGeom(i,ieta,iphi,depth)) continue;	    
 
 	    HcalSubdetector subdet = HcalBarrel;
-	    if(i==1) subdet = HcalOuter;
+	    if(i==1) subdet = HcalEndcap;
 	    else if(i==2) subdet = HcalForward;
-	    else if(i==3) subdet = HcalEndcap;
+	    else if(i==3) subdet = HcalOuter;
 	    const HcalDetId id(subdet,ieta,iphi,depth);
 	    bool qie = true;
 	    for(int capid=0; capid<4 && qie; capid++){
@@ -851,9 +851,9 @@ void HcalPedestalClient::loadHistograms(TFile* infile){
 	  capidOK = true;
 	  
 	  HcalSubdetector subdet = HcalBarrel;
-	  if(i==1) subdet = HcalOuter;
+	  if(i==1) subdet = HcalEndcap;
 	  else if(i==2) subdet = HcalForward;
-	  else if(i==3) subdet = HcalEndcap;
+	  else if(i==3) subdet = HcalOuter;
 	  HcalDetId id(subdet,ieta,iphi,depth);
 	  HcalElectronicsId eid;
 	  
@@ -986,9 +986,9 @@ void HcalPedestalClient::generateBadChanList(string htmlDir){
 		MonitorElement* me = dbe_->get(meName);
 		if(me){
 		  HcalSubdetector subdet = HcalBarrel;
-		  if(i==1) subdet = HcalOuter;
+		  if(i==1) subdet = HcalEndcap;
 		  else if(i==2) subdet = HcalForward;
-		  else if(i==3) subdet = HcalEndcap;
+		  else if(i==3) subdet = HcalOuter;
 		  const HcalDetId id(subdet,ieta,iphi,depth);
 		  const HcalPedestalWidth* pedw = (*conditions_).getPedestalWidth(id);
 		  const HcalPedestal* pedm = (*conditions_).getPedestal(id);
