@@ -67,35 +67,35 @@ void DDPixFwdBlades::initialize(const DDNumericArguments & nArgs,
 				const DDStringArguments & sArgs,
 				const DDStringVectorArguments & ) {
 				  	
-  try {
+  if ( nArgs.find("Endcap") != nArgs.end() ) {
     endcap = nArgs["Endcap"];
-  } catch (...) {
+  } else {
     endcap = 1.;
   }
 
-  try {
+  if ( sArgs.find("FlagString") != sArgs.end() ) {
     flagString = sArgs["FlagString"];
     flagSelector = sArgs["FlagSelector"];
-  } catch (...) {
+  } else {
     flagString = "YYYYYYYYYYYYYYYYYYYYYYYY";
     flagSelector = "Y";
   }
 
-  try {
+  if ( sArgs.find("Child") != sArgs.end() ) {
     childName   = sArgs["Child"];
-  } catch (...) {
+  } else {
     childName   = "";
   }
 
-  try {
+  if ( vArgs.find("ChildTranslation") != vArgs.end() ) {
     childTranslationVector = vArgs["ChildTranslation"];
-  } catch (...) {
+  } else {
     childTranslationVector = std::vector<double>(3, 0.);
   }
 
-  try {
+  if ( sArgs.find("ChildRotation") != sArgs.end() ) {
     childRotationName = sArgs["ChildRotation"];
-  } catch (...) {
+  } else {
     childRotationName = "";
   }
 
