@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/11/23 18:09:06 $
- * $Revision: 1.5 $
+ * $Date: 2007/12/03 16:40:15 $
+ * $Revision: 1.6 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -835,7 +835,7 @@ void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV
     NClus[SubDet_enum][iflag]++;
     edm::LogInfo("ClusterAnalysis") << "NClus on detid = " << detid << " " << flag << " is " << NClus[SubDet_enum][iflag] << std::endl;
     //TrackerMap filling for each flag
-    tkMap_ClusOcc[iflag]->fill(detid,NClus[SubDet_enum][iflag]);
+    tkMap_ClusOcc[iflag]->fill(detid,1);
 
     std::stringstream ss;
     const_cast<SiStripClusterInfo*>(cluster)->print(ss);
