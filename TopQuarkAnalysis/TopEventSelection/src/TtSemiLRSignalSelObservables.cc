@@ -22,9 +22,6 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
 	// activate the "debug mode"
 	bool DEBUG = false;
 	
-	// use fitted jets instead of calibrated jets
-	//bool USEFITJETS = false;
-	
 	if(DEBUG) cout<<"---------- Start calculating the LR observables ----------"<<endl;
 	
 	
@@ -113,7 +110,6 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
 // Transverse Mass of the system
 
 	TLorentzVector TtbarSystem = (*Hadp)+(*Hadq)+(*Hadb)+(*Lepb)+(*Lept)+(*Lepn);
-	
 	double MT = TtbarSystem.Mt();
 	double Obs7 = MT;
 	evtselectVarVal.push_back(pair<unsigned int,double>(7,Obs7));
@@ -151,6 +147,9 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
 	evtselectVarVal.push_back(pair<unsigned int,double>(9,Obs9));
 	evtselectVarVal.push_back(pair<unsigned int,double>(10,Obs10));
 	evtselectVarVal.push_back(pair<unsigned int,double>(11,Obs11));
+
+	//sort the TopJets in Et
+	std::sort(TopJets.begin(),TopJets.end(),EtComparator);
 
 // Circularity of the event
 
@@ -314,27 +313,20 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
 	evtselectVarVal.push_back(pair<unsigned int,double>(18,Obs18));
 	if(DEBUG) cout<<"------ LR observable 18 "<<Obs18<<" calculated ------"<<endl;
 
-
-
-// New observable (13/09/2007)
 //ratio between ET of the fifth jet and HT
 
-	//std::sort(TopJets.begin(),TopJets.end(),EtComparator);
 	double Obs19 = TopJets[4].et()/HT;
 	evtselectVarVal.push_back(pair<unsigned int,double>(19,Obs19));
 	if(DEBUG) cout<<"------ LR observable 19 "<<Obs19<<" calculated ------"<<endl;
 
-// New observable (20/09/2007)
 // HT variable calculated with all the jets in the event.
 	
-	//vector<TopJet> TopJets;
 	double HT_alljets = 0;
 	double  H_alljets = 0;
 	for(unsigned int i=0;i<TopJets.size();i++)
 	{
 		HT_alljets += TopJets[i].et();
 		H_alljets  += TopJets[i].energy();
-		//TopJets.push_back(TopJets[i]);
 	}
 	double Obs20 = HT_alljets;
 	evtselectVarVal.push_back(pair<unsigned int,double>(20,Obs20));
@@ -342,8 +334,6 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
 
 // HT3 = HT calculated with all jets except the two leading jets
 
-	//sort the Jets in Et
-	std::sort(TopJets.begin(),TopJets.end(),EtComparator);
 	double HT3_alljets = 0;
 	for(unsigned int i=2;i<TopJets.size();i++)
 	{
@@ -366,21 +356,15 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
 	evtselectVarVal.push_back(pair<unsigned int,double>(23,Obs23));
 	if(DEBUG) cout<<"------ LR observable 23 "<<Obs23<<" calculated ------"<<endl;
 	
-// New observable (25/09/2007)
 //Fox-Wolfram momenta (1st to 6th), modified for hadron collider and using a Legendre polynomials expansion
 
-
-	//double table[NbOfJets_15GeV][NbOfJets_15GeV][2];
 	double FW_momentum_0=0, FW_momentum_1=0, FW_momentum_2=0, FW_momentum_3=0, FW_momentum_4=0, FW_momentum_5=0, FW_momentum_6=0;
-	//double ET_Sum = 0;
 
 	for(unsigned int i=0;i<TopJets.size();i++)
 	{
-		//ET_Sum += TopJets[i].et();
 		for(unsigned int j=0;j<TopJets.size();j++)
 		{
 			double ET_ij_over_ETSum2= TopJets[i].et()*TopJets[j].et()/(pow(HT_alljets,2));
-			//double SP = (TopJets[i].px()*TopJets[j].px()+TopJets[i].py()*TopJets[j].py()+TopJets[i].pz()*TopJets[j].pz());
 			double cosTheta_ij = (TopJets[i].px()*TopJets[j].px()+
 					      TopJets[i].py()*TopJets[j].py()+
 					      TopJets[i].pz()*TopJets[j].pz())
