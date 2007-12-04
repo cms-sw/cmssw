@@ -20,7 +20,7 @@ HepPDTESSource::produce( const PDTRecord & iRecord ) {
   { // notice: the builder has to be destroyed 
     // in order to fill the table!
     HepPDT::TableBuilder builder( * pdt );
-    if( ! addPDGParticles( pdtFile, builder ) ) { 
+    if( ! addParticleTable( pdtFile, builder ) ) { 
       throw cms::Exception( "ConfigError", "can't read pdt file" )
 	<< "wrong format of " << pdtFileName.fullPath();
     }
