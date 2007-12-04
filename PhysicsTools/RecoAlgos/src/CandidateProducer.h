@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: CandidateProducer.h,v 1.1 2007/10/31 15:08:16 llista Exp $
+ * $Id: CandidateProducer.h,v 1.2 2007/12/03 15:38:50 llista Exp $
  *
  */
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -19,6 +19,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "PhysicsTools/UtilAlgos/interface/MasterCollectionHelper.h"
+#include "PhysicsTools/UtilAlgos/interface/AnySelector.h"
+#include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
 
 namespace converter {
   namespace helper {
@@ -59,15 +61,17 @@ namespace converter {
   }
 }
 
-template<typename TColl, typename CColl, 
+template<typename TColl, typename CColl, typename Selector = AnySelector,
 	 typename Conv = typename converter::helper::CandConverter<typename TColl::value_type>::type,
-	 typename Creator = typename converter::helper::CandCreator<CColl>::type>
+	 typename Creator = typename converter::helper::CandCreator<CColl>::type,
+	 typename Init = typename ::reco::modules::EventSetupInit<Selector>::type>
 class CandidateProducer : public edm::EDProducer {
 public:
   /// constructor from parameter set
   CandidateProducer(const edm::ParameterSet & cfg) :
-  src_(cfg.template getParameter<edm::InputTag>("src")), 
-    converter_(cfg) {
+    src_(cfg.template getParameter<edm::InputTag>("src")), 
+    converter_(cfg),
+    selector_(reco::modules::make<Selector>(cfg)){
     produces<CColl>();
   }
   /// destructor
@@ -77,26 +81,28 @@ private:
   /// begin job
   void beginJob(const edm::EventSetup& es) { converter_.beginJob(es); }
   /// process one event
-  void produce(edm::Event& e, const edm::EventSetup&);
+  void produce(edm::Event& evt, const edm::EventSetup& es) {
+    edm::Handle<TColl> src;
+    evt.getByLabel(src_, src);
+    Init::init(selector_, es);
+    ::helper::MasterCollection<TColl> master(src);
+    std::auto_ptr<CColl> cands(new CColl);
+    if(src->size()!= 0) {
+      size_t size = src->size();
+      cands->reserve(size);
+      for(size_t idx = 0; idx != size; ++ idx) {
+	if(selector_((*src)[idx]))
+	  Creator::create(master.index(idx), *cands, master, converter_);
+      }
+    }
+    evt.put(cands);
+  }
   /// label of source collection and tag
   edm::InputTag src_;
   /// converter helper
   Conv converter_;
+  /// selector
+  Selector selector_;
 };
-
-template<typename TColl, typename CColl, typename Conv, typename Creator>
-void CandidateProducer<TColl, CColl, Conv, Creator>::produce(edm::Event& evt, const edm::EventSetup&) {
-  edm::Handle<TColl> src;
-  evt.getByLabel(src_, src);
-  ::helper::MasterCollection<TColl> master(src);
-  std::auto_ptr<CColl> cands(new CColl);
-  if(src->size()!= 0) {
-    size_t size = src->size();
-    cands->reserve(size);
-    for(size_t idx = 0; idx != size; ++ idx)
-      Creator::create(master.index(idx), *cands, master, converter_);
-  }
-  evt.put(cands);
-}
 
 #endif
