@@ -159,12 +159,16 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    if((fabs(Gx1-Gx2)<0.01 && fabs(Gy1-Gy2)<0.01 && fabs(Gz1-Gz2)<0.01 && rpcId.region()==0 && MeasureBarrel==true) ||
 	       (fabs(Gx1-Gx2)<0.01 && fabs(Gy1-Gy2)<0.01 && fabs(Gz1-Gz2)<0.01 && rpcId.region()!=0 && MeasureEndCap==true)){
 
-	      //std::cout<<"RPC -- Candidate"<<(*r)->id()<<std::endl;
+
 
 	      RPCDetId rollId = (*r)->id();
 	      RPCGeomServ RPCname(rollId);
 	      std::string nameRoll = RPCname.name();
 	      _idList.push_back(nameRoll);
+	      
+
+	      std::cout<<"RPC -- Candidate"<<nameRoll<<std::endl;
+	      
 
 	      char detUnitLabel[128];
 	      sprintf(detUnitLabel ,"%s",nameRoll.c_str());

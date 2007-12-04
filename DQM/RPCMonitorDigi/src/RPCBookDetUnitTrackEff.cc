@@ -18,6 +18,7 @@
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include "DQM/RPCMonitorDigi/interface/RPCEfficiencyFromTrack.h"
+#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackEff(RPCDetId & detId) {
   
@@ -40,10 +41,14 @@ std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackE
 
   dbe->setCurrentFolder(folder);
 
+  RPCGeomServ RPCname(detId);
+  std::string nameRoll = RPCname.name();
+ 
   char detUnitLabel[128];
   char layerLabel[128];
-  sprintf(detUnitLabel ,"%d",detId());
-  sprintf(layerLabel ,"layer%d_subsector%d_roll%d",detId.layer(),detId.subsector(),detId.roll());
+
+  sprintf(detUnitLabel ,"%s",nameRoll.c_str());
+  sprintf(layerLabel ,"%s",nameRoll.c_str());
   
   char meId [128];
   char meTitle [128];
