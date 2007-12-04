@@ -131,7 +131,7 @@ void CSCDetIdAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
 	   unsigned lind2 = theIndexer->layerIndex( cscDetId );
 
 	   //	   std::cout << std::setw(12) << std::setw(12) << lind << std::setw(12) << lind2 << "     " << std::endl;
-	   std::cout << std::setw(12) << lind << std::setw(12) << lind2 << std::setw(12)<< cind << std::setw(12) <<  theIndexer->checkLabel(cind) << "     " ;
+	   std::cout << std::setw(12) << lind << std::setw(12) << lind2 << std::setw(12)<< cind << std::setw(12) <<  theIndexer->chamberLabelFromChamberIndex(cind) << "     " ;
 
            // Index a few strips
            unsigned short nstrips = theIndexer->stripChannelsPerLayer(is,ir);
