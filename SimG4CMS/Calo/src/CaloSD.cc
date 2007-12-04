@@ -402,7 +402,7 @@ CaloG4Hit* CaloSD::createNewHit() {
     LogDebug("CaloSim") << "CaloSD : TrackwithHistory pointer for " 
 			<< currentID.trackID() << " is " << trkh;
     if (trkh != NULL) {
-      etrack = trkh->momentum().mag();
+      etrack = sqrt(trkh->momentum().Mag2());
       if (etrack >= energyCut) {
 	trkh->save();
 	LogDebug("CaloSim") << "CaloSD: set save the track " 
