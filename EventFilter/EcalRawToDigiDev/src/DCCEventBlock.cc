@@ -128,6 +128,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 
   //Forth Header Word
   data_++;
+  orbitCounter_= ((*data_)>>H_ORBITCOUNTER_B)            & H_ORBITCOUNTER_MASK;
   sr_                  = ((*data_)>>H_SR_B)            & B_MASK;
   zs_                  = ((*data_)>>H_ZS_B)            & B_MASK;
   tzs_                 = ((*data_)>>H_TZS_B)           & B_MASK;
@@ -275,18 +276,20 @@ void DCCEventBlock::addHeaderToCollection(){
   theDCCheader.setBasicTriggerType(triggerType_);
   theDCCheader.setLV1(l1_);
   theDCCheader.setBX(bx_);
+  // this requires DataFormats/EcalRawData V01-01-12;
+  theDCCheader.setOrbit(orbitCounter_);
   theDCCheader.setErrors(dccErrors_);
   theDCCheader.setSelectiveReadout(sr_);
   theDCCheader.setZeroSuppression(zs_);
   theDCCheader.setTestZeroSuppression(tzs_);
   theDCCheader.setSrpStatus(srChStatus_);
   theDCCheader.setTccStatus(tccChStatus_);
-  // this is good with DataFormats/EcalRawData V01-01-11;
+  // this requires DataFormats/EcalRawData V01-01-12;
   // rolling back temporarily to allow development within CMSSW_1_7_0
-  // theDCCheader.setFEStatus(feChStatus_);
+  theDCCheader.setFEStatus(feChStatus_);
 
   // this is good with DataFormats/EcalRawData V01-01-10 && CMSSW_1_7_0
-  theDCCheader.setTriggerTowerStatus(feChStatus_);
+  //theDCCheader.setTriggerTowerStatus(feChStatus_);
 
   
   // The Run type

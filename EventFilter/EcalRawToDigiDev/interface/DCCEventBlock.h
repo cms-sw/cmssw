@@ -10,8 +10,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2007/07/24 11:39:35 $
- * $Revision: 1.6 $
+ * $Date: 2007/08/15 14:23:28 $
+ * $Revision: 1.7 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -79,6 +79,7 @@ class DCCEventBlock {
     uint runType_;
     uint detailedTriggerType_;
     
+    uint orbitCounter_;
     uint sr_;
     uint zs_;
     uint tzs_;
