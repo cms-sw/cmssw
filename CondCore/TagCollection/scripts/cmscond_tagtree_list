@@ -13,8 +13,10 @@ class tagTreePrinter:
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
-        -l, --leaf: print only leaf tags
-        -t, --tag: tag to print
+        -a, --all: print overview of all trees (default)
+        -T, --tree=treename:  name of the tree. Note: the tree name is case insensitive, it is always internally converted to uppercase.
+        -l, --leaf: print only leaf nodes
+        -n, --node: node to print
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
         """
@@ -23,9 +25,11 @@ class tagTreePrinter:
         self.__user=''
         self.__password=''
         self.__authpath='.'
-        self.__tag=''
+        self.__node=''
         self.__leafonly=False
         self.__verbose=False
+        self.__treename=''
+        self.__all=False
     def parsecmdln(self):
         """
         Parse commandline
@@ -35,31 +39,48 @@ class tagTreePrinter:
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
-        self.__parser.add_option("-l","--leaf",action="store_true",dest="leaf",help="print leaf tags only")
-        self.__parser.add_option("-t","--tag",action="store",dest="tag",type="string",help="tag to print")
+        self.__parser.add_option("-a","--all",action="store_true",dest="all",help="print overview of all trees(default)")
+        self.__parser.add_option("-l","--leaf",action="store_true",dest="leaf",help="print leaf nodes only")
+        self.__parser.add_option("-T","--tree",action="store",dest="treename",type="string",help="Print overview of the tree with given name. Note: the tree name is case insensitive, it is internally converted to uppercase")
+        self.__parser.add_option("-n","--node",action="store",dest="node",type="string",help="node to print. Exclusive with -a option")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(connectstring='')
         self.__parser.set_defaults(user='')
         self.__parser.set_defaults(password='')
         self.__parser.set_defaults(authpath='.')
-        self.__parser.set_defaults(tag='')
+        self.__parser.set_defaults(all=False)
         self.__parser.set_defaults(leaf=False)
+        self.__parser.set_defaults(treename='')
+        self.__parser.set_defaults(node='')
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
+        if self.__parser.values.treename and self.__parser.values.all:
+            raise OptionValueError("option -%s and -%s are exclusive"%('a','T'))
+        if self.__parser.values.node and self.__parser.values.all:
+            raise OptionValueError("option -%s and -%s are exclusive"%('a','n'))
+        self.__treename=self.__parser.values.treename
+        self.__all=self.__parser.values.all
         self.__connectstring=self.__parser.values.connectstring
         self.__user=self.__parser.values.user
         self.__password=self.__parser.values.password
         self.__authpath=self.__parser.values.authpath
         self.__leaf=self.__parser.values.leaf
-        self.__tag=self.__parser.values.tag
+        self.__node=self.__parser.values.node
         self.__verbose=self.__parser.values.verbose
+        if not self.__parser.values.treename and not self.__parser.values.all:
+            self.__all=True
         if self.__parser.values.verbose is True:
             print 'connectstring: ',self.__connectstring
             print 'user: ',self.__user
             print 'password: ',self.__password
             print 'authpath: ',self.__authpath
-            print 'print leaf: ',self.__leaf
-            print 'tag: ',self.__tag
+            if self.__all is True:
+                print 'print all'
+            else:
+                print 'print tree: ',self.__treename
+                print 'print node: ',self.__node
+            if self.__leaf is True:
+                print 'print leaf only'
     def printme(self):
         """
         print requested tag inventory entry or all
@@ -71,7 +92,44 @@ class tagTreePrinter:
             context.setVerbosityLevel( 'ERROR' )
         svc = coral.ConnectionService( context )
         session = svc.connect( self.__connectstring,accessMode = coral.access_ReadOnly )
-        mytree=TagTree.tagTree(session)
+        inv=tagInventory.tagInventory(session)
+        if self.__all is True:
+            transaction=session.transaction()
+            transaction.start(True)
+            schema=session.nominalSchema()
+            tablelist=schema.listTables()
+            treelist=[]
+            for tablename in tablelist:
+                if tablename.find("TAGTREE_TABLE_") != -1:
+                    treelist.append(tablename[len("TAGTREE_TABLE_"):])
+            transaction.commit()
+            for treename in treelist:
+                print 'tree: ',treename
+                mytree=TagTree.tagTree(session,treename)
+                if self.__leaf is True:
+                    result=mytree.getAllLeaves()
+                    for r in result:
+                        if r.parentid !=0:
+                            parentnode=mytree.getNodeById(r.parentid)
+                            parentname=parentnode.nodelabel
+                            print '   leafnode:%s   parent:%s'%(r.nodelabel,parentname)
+                        else:
+                            print '   root:%s'%(r.nodelabel)
+                else:
+                    result=mytree.getSubtree('ROOT')
+                    for r in result:                    
+                        if r.parentid !=0:
+                            parentnode=mytree.getNodeById(r.parentid)
+                            parentname=parentnode.nodelabel
+                            if r.tagid != 0:
+                               print '   leafnode:%s   parent:%s   tag:%s'%(r.nodelabel,parentname,inv.getEntryById(r.tagid).tagname)
+                            else:
+                               print '   node:%s   parent:%s'%(r.nodelabel,parentname)
+                            
+                        else:
+                            print '   root:%s'%(r.nodelabel)
+            return
+        mytree=TagTree.tagTree(session,self.__treename)
         try:
             if self.__leaf is True:
                result=mytree.getAllLeaves()
@@ -79,26 +137,32 @@ class tagTreePrinter:
                    if r.parentid !=0:
                        parentnode=mytree.getNodeById(r.parentid)
                        parentname=parentnode.nodelabel
-                       print 'leafnode:%s\t parent:%s'%(r.nodelabel,parentname)
+                       print 'leafnode:%s   parent:%s'%(r.nodelabel,parentname)
                    else:
                        print 'root:%s'%(r.nodelabel)
             else:
-                if len(self.__tag)==0:
+                if len(self.__node)==0:
                     result=mytree.getSubtree('ROOT')
                     for r in result:
                         if r.parentid !=0:
                             parentnode=mytree.getNodeById(r.parentid)
                             parentname=parentnode.nodelabel
-                            print 'node:%s\t parent:%s'%(r.nodelabel,parentname)
+                            if r.tagid != 0:
+                               print '   leafnode:%s   parent:%s   tag:%s'%(r.nodelabel,parentname,inv.getEntryById(r.tagid).tagname)
+                            else:
+                                print 'node:%s   parent:%s'%(r.nodelabel,parentname)
                         else:
                             print 'root:%s'%(r.nodelabel)
                 else:
-                    result=mytree.getSubtree(self.__tag)
+                    result=mytree.getSubtree(self.__node)
                     for r in result:
                         if r.parentid !=0:
                             parentnode=mytree.getNodeById(r.parentid)
                             parentname=parentnode.nodelabel
-                            print 'node:%s\t parent:%s'%(r.nodelabel,parentname)
+                            if r.tagid != 0:
+                               print '   leafnode:%s   parent:%s   tag:%s'%(r.nodelabel,parentname,inv.getEntryById(r.tagid).tagname)
+                            else:
+                                print 'node:%s   parent:%s'%(r.nodelabel,parentname)
                         else:
                             print 'node:%s'%(r.nodelabel)
             del session

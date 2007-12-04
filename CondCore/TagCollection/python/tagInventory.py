@@ -8,6 +8,7 @@ class  tagInventory(object):
         """
         self.__session = session
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
+        self.__tagInventoryIDName = 'TAGINVENTORY'
         self.__tagInventoryTableColumns = {'tagid':'unsigned int', 'tagname':'string', 'pfn':'string','recordname':'string', 'objectname':'string', 'labelname':'string','timetype':'string','comment':'string'}
         self.__tagInventoryTableNotNullColumns = ['tagname','pfn','recordname','objectname','labelname']
         self.__tagInventoryTableUniqueColumns = ['tagname']
@@ -49,7 +50,7 @@ class  tagInventory(object):
             self.__tagInventoryTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
             #create also the associated id table
             generator=IdGenerator.IdGenerator(schema)
-            generator.createIDTable(self.__tagInventoryTableName,True)
+            generator.createIDTable(self.__tagInventoryIDName,True)
             transaction.commit()
         except Exception, er:
             transaction.rollback()
@@ -65,7 +66,7 @@ class  tagInventory(object):
             transaction.start(True)
             schema = self.__session.nominalSchema()
             generator=IdGenerator.IdGenerator(schema)
-            tagid=generator.getNewID(generator.getIDTableName(self.__tagInventoryTableName))
+            tagid=generator.getNewID(generator.getIDTableName(self.__tagInventoryIDName))
             transaction.commit()
             
             transaction.start(False)
@@ -76,7 +77,7 @@ class  tagInventory(object):
                               tabrowValueDict)
             transaction.commit()
             transaction.start(False)
-            generator.incrementNextID(generator.getIDTableName(self.__tagInventoryTableName))
+            generator.incrementNextID(generator.getIDTableName(self.__tagInventoryIDName))
             transaction.commit()
             return tagid
         except Exception, er:
@@ -130,6 +131,8 @@ class  tagInventory(object):
             condition = "tagid=:tagid"
             conditionData = coral.AttributeList()
             conditionData.extend( 'tagid','unsigned long' )
+            conditionData['tagid'].setData(tagId)
+            query.setCondition( condition, conditionData)
             cursor = query.execute()
             while ( cursor.next() ):
                 leafnode.tagid=cursor.currentRow()['tagid'].data()

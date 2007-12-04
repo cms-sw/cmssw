@@ -2,15 +2,16 @@ import os
 import coral
 import IdGenerator, Node, DBImpl
 class tagTree(object):
-    """Class manages tag tree
+    """Class manages tag tree. Note: tree name is not case sensitive.
+    Tree name is always converted to upper case
     """
-    def __init__( self, session ):
+    def __init__( self, session, treename ):
         self.__session = session
-        self.__tagTreeTableName = 'TAGTREE_TABLE'
+        self.__tagTreeTableName = 'TAGTREE_TABLE_'+str.upper(treename)
+        self.__tagTreeIDs = 'TAGTREE_'+str.upper(treename)
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
         self.__tagTreeTableColumns = {'nodeid':'unsigned long', 'nodelabel':'string', 'lft':'unsigned long', 'rgt':'unsigned long', 'parentid':'unsigned long', 'tagid':'unsigned long', 'globalsince':'unsigned long long', 'globaltill':'unsigned long long','comment':'string'}
         self.__tagTreeTableNotNullColumns = ['nodelabel','lft','rgt','parentid']
-        #self.__tagTreeTableUniqueColumns = ['nodelabel','lft','rgt']
         self.__tagTreeTableUniqueColumns = ['nodelabel','lft']
         self.__tagTreeTablePK = ('nodeid')
     def existTagTreeTable( self ):
@@ -49,7 +50,7 @@ class tagTree(object):
             self.__tagTreeTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
             #create also the associated id table
             generator=IdGenerator.IdGenerator(schema)
-            generator.createIDTable(self.__tagTreeTableName,True)
+            generator.createIDTable(self.__tagTreeIDs,True)
             transaction.commit()
         except Exception, er:
             transaction.rollback()
@@ -68,7 +69,7 @@ class tagTree(object):
             transaction.start(True)
             schema = self.__session.nominalSchema()
             generator=IdGenerator.IdGenerator(schema)
-            nodeid=generator.getNewID(generator.getIDTableName(self.__tagTreeTableName))
+            nodeid=generator.getNewID(generator.getIDTableName(self.__tagTreeIDs))
             transaction.commit()
             if parentLabel == 'ROOT':
                 parentid=0
@@ -102,7 +103,7 @@ class tagTree(object):
             dbop.insertOneRow(self.__tagTreeTableName,
                               self.__tagTreeTableColumns,
                               tabrowValueDict)
-            generator.incrementNextID(generator.getIDTableName(self.__tagTreeTableName))
+            generator.incrementNextID(generator.getIDTableName(self.__tagTreeIDs))
             transaction.commit()
         except coral.Exception, er:
             transaction.rollback()
@@ -461,7 +462,8 @@ if __name__ == "__main__":
     #session = svc.connect( 'oracle://devdb10/cms_xiezhen_dev',
     #                       accessMode = coral.access_Update )
     try:
-        mytree=tagTree(session)
+        #create a tree named 'mytest'
+        mytree=tagTree(session,'mytest2')
         mytree.createTagTreeTable()
         mynode=Node.Node()
         mynode.nodelabel='A'
