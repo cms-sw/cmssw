@@ -6,7 +6,7 @@
  *  A single trigger object (e.g., an isolated muon, or MET)
  *  - described by its 4-momentum and physics type
  *
- *  $Date: 2007/11/26 16:55:56 $
+ *  $Date: 2007/12/03 13:05:43 $
  *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
@@ -36,6 +36,7 @@ namespace trigger
     TriggerObject(): id_(), pt_(), eta_(), phi_(), mass_() { }
     TriggerObject(int id, float pt, float eta, float phi, float mass):
       id_(id), pt_(pt), eta_(eta), phi_(phi), mass_(mass) { }
+
     /// any type T object implementing the methods pt(), eta(), phi(), mass()
     template <typename T>
     TriggerObject(int id, const T& o):

@@ -13,14 +13,16 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/12/03 19:53:18 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/04 08:35:53 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
  */
 
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
@@ -36,13 +38,12 @@
 
 namespace trigger
 {
-  typedef uint16_t size_type;
-  typedef std::pair<edm::ProductID,size_type> XRef;
 
-  /// Transient book-keeping EDProduct filled by HLTFilter modules to
-  /// record physics objects firing the filter (not persistet in 
-  /// production - same functionality but different implementation 
-  /// compared to the old HLT data model's HLTFilterObjectWithRefs class)
+  /// Transient book-keeping EDProduct filled by HLTFilter module to
+  /// record physics objects firing the filter (never persistet in
+  /// production; same functionality but different implementation
+  /// compared to the old HLT data model's HLTFilterObjectWithRefs
+  /// class)
   class TriggerFilterObjectWithRefs {
 
   /// data members
@@ -91,6 +92,7 @@ namespace trigger
     const std::vector<reco::CaloMETRef>& getMETs() const {return mets_;}
     const std::vector<reco::METRef>& getHTs() const {return hts_;}
     const std::vector<XRef>& getOthers() const {return others_;}
+
     template <typename C>
     void getOthers(const edm::Handle<C>& handle, std::vector<edm::Ref<C> >& vref) const {
       vref.resize(0);
@@ -102,7 +104,6 @@ namespace trigger
       }
       return;
     }
-
 
   };
 

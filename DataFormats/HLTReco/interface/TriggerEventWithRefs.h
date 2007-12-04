@@ -6,12 +6,26 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2007/12/03 19:53:18 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/04 08:35:53 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
  */
+
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/METFwd.h"
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
@@ -20,9 +34,6 @@
 
 namespace trigger
 {
-
-  typedef uint16_t size_type;
-  typedef std::vector<size_type> Keys;
 
   /// The single EDProduct to be saved in addition for each event
   /// - but only in the "RAW" case: for a fraction of all events
@@ -224,6 +235,7 @@ namespace trigger
     std::vector<XRef>::const_iterator others_end(size_type index) const {
       return others_.begin() + filterObjects_.at(index).others_;
     }
+
 
     /// get keys of objects passing specific filter in the collection identified by its ProductID
     void otherKeys(size_type index, edm::ProductID id, Keys& keys) const {

@@ -6,22 +6,20 @@
  *  The single EDProduct to be saved for each event (AOD case)
  *  describing the (HLT) trigger table
  *
- *  $Date: 2007/12/03 13:05:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/04 08:35:53 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
  */
 
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include <string>
 #include <vector>
 
 namespace trigger
 {
-
-  typedef uint16_t size_type;
-  typedef std::vector<size_type> Keys;
 
   /// The single EDProduct to be saved for each event (AOD case)
   class TriggerEvent {
@@ -61,6 +59,7 @@ namespace trigger
     const TriggerObjectCollection& getObjects() const {return triggerObjects_;}
     const std::string& getFilterLabel(size_type index) const {return triggerFilters_.at(index).filterLabel_;}
     const Keys& getFilterKeys(size_type index) const {return triggerFilters_.at(index).filterKeys_;}
+
     /// find index of filter in data-member vector from filter label
     size_type find(const std::string& filterLabel) const {
       const size_type n(triggerFilters_.size());
