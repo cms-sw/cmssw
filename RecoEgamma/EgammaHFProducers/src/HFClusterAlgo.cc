@@ -32,9 +32,9 @@ public:
   }
 };
 
-void HFClusterAlgo::setup() {
+void HFClusterAlgo::setup(double minTowerEnergy) {
   
-  
+  m_minTowerEnergy=minTowerEnergy;
 }
 
 /** Analyze the hits */
@@ -180,76 +180,76 @@ void HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	
 	DetId Did(id.rawId());
 	usedHits.push_back(Did);
-
+	
 	if (i==hf.end()) continue;
-	
-	if (ls==1) {
-	  l_5+=i->energy();
-	}
-	
-	if ((ls==1)&&(de>-2)&&(de<2)&&(dp>-4)&&(dp<4)) {
-	  l_3+=i->energy();
-	}
-	if ((ls==1)&&(dp==0)&&(de==0)) {
-	  l_1=i->energy();
-	}
-	if (ls==2) {
-	  s_5+=i->energy();
-	}	  
-	if ((ls==2)&&(de>-2)&&(de<2)&&(dp>-4)&&(dp<4)) {
-	  s_3+=i->energy();
-	}
-	if ((ls==2)&&(dp==0)&&(de==0)) {
-	  s_1=i->energy();
-	}
-	if ((ls==1)&&(de>-2)&&(de<2)&&(dp>-4)&&(dp<4)&&(i->energy()>(.5*si->energy()))) {
-	  coreCanid.push_back(i->energy());
-	}
-	
-	
-	GlobalPoint p=geom.getPosition(id);
-	
-	double d_p = p.phi()-sp.phi();
-	while (d_p < -M_PI)
-	  d_p+=2*M_PI;
-	while (d_p > M_PI)
-	  d_p-=2*M_PI;
-	double d_e = p.eta()-sp.eta();
-	if((de>-2)&&(de<2)&&(dp>-4)&&(dp<4)/*&&(ls==1)*/ && i->energy()>0) {//long only
-	  wgt=log((i->energy()));
-	  if (wgt>0){
-	    w+=wgt;
-	    w_e+=(d_e)*wgt;
-	    wp_e+=(d_p)*wgt;
-	    e_e+=d_e;
-	    e_ep+=d_p;
-	    sum_energy+=i->energy();
-	    w_x+=(p.x())*wgt;//(p.x()-sp.x())*wgt;
-	    w_y+=(p.y())*wgt;
-	    w_z+=(p.z())*wgt;
+	if (i->energy()> m_minTowerEnergy){
+	  if (ls==1) {
+	    l_5+=i->energy();
 	  }
-	}
-      }	
+	  
+	  if ((ls==1)&&(de>-2)&&(de<2)&&(dp>-4)&&(dp<4)) {
+	    l_3+=i->energy();
+	  }
+	  if ((ls==1)&&(dp==0)&&(de==0)) {
+	    l_1=i->energy();
+	  }
+	  if (ls==2) {
+	    s_5+=i->energy();
+	  }	  
+	  if ((ls==2)&&(de>-2)&&(de<2)&&(dp>-4)&&(dp<4)) {
+	    s_3+=i->energy();
+	  }
+	  if ((ls==2)&&(dp==0)&&(de==0)) {
+	    s_1=i->energy();
+	  }
+	  if ((ls==1)&&(de>-2)&&(de<2)&&(dp>-4)&&(dp<4)&&(i->energy()>(.5*si->energy()))) {
+	    coreCanid.push_back(i->energy());
+	  }
+	  
+	  
+	  GlobalPoint p=geom.getPosition(id);
+	  
+	  double d_p = p.phi()-sp.phi();
+	  while (d_p < -M_PI)
+	    d_p+=2*M_PI;
+	  while (d_p > M_PI)
+	    d_p-=2*M_PI;
+	  double d_e = p.eta()-sp.eta();
+	  if((de>-2)&&(de<2)&&(dp>-4)&&(dp<4)/*&&(ls==1)*/ && i->energy()>0) {//long only
+	    wgt=log((i->energy()));
+	    if (wgt>0){
+	      w+=wgt;
+	      w_e+=(d_e)*wgt;
+	      wp_e+=(d_p)*wgt;
+	      e_e+=d_e;
+	      e_ep+=d_p;
+	      sum_energy+=i->energy();
+	      w_x+=(p.x())*wgt;//(p.x()-sp.x())*wgt;
+	      w_y+=(p.y())*wgt;
+	      w_z+=(p.z())*wgt;
+	    }
+	  }
+	}	
+      }
     }
-   
   //Core sorting done here
   std::sort(coreCanid.begin(), coreCanid.end(), CompareHFCore());
   for (ci=coreCanid.begin();ci!=coreCanid.end();ci++){
-      if(ci==coreCanid.begin()){
-	l_1e=*ci;
-      }else if (*ci>.5*l_1e){
-	l_1e+=*ci;
-      }
+    if(ci==coreCanid.begin()){
+      l_1e=*ci;
+    }else if (*ci>.5*l_1e){
+      l_1e+=*ci;
+    }
   }//core sorting end 
   
   double z_=w_z/w;    //w_z/w+sp.z(); if changed to delta z style
   double x_=w_x/w;
   double y_=w_y/w;
-    
+  
   double eta=w_e/w+sp.eta();
- 
+  
   double phi=(wp_e/w)+sp.phi();
- 
+  
   while (phi < -M_PI)
     phi+=2*M_PI;
   while (phi > M_PI)
@@ -283,7 +283,7 @@ void HFClusterAlgo::makeCluster(const HcalDetId& seedid,
   
   BasicCluster MyBclus(l_3+s_3,xyzclus,chi2,usedHits,algoID);
   Bclus=MyBclus;
- 
+  
   
   SuperCluster MySclus(l_3+s_3,xyzclus);
   Sclus=MySclus;
