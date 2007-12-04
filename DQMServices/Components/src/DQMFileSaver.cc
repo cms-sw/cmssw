@@ -1,8 +1,8 @@
 /*
  * \file DQMFileSaver.cc
  * 
- * $Date: 2007/11/14 12:17:14 $
- * $Revision: 1.4 $
+ * $Date: 2007/11/15 23:59:41 $
+ * $Revision: 1.5 $
  * $Author: ameyer $
  * \author A. Meyer, DESY
  *
@@ -68,7 +68,11 @@ void DQMFileSaver::initialize(){
   // Base filename for the contents of this job
   fileName_ = "DQM_"+parameters_.getUntrackedParameter<string>("fileName","YourSubsystemName");
   edm::LogVerbatim ("DQMFileSaver") << "===>DQM Output file name = " << fileName_ << endl;
-  // Base filename for the contents of this job
+  // Give different filename in case it is from playback
+  isPlayback_ = parameters_.getUntrackedParameter<bool>("isPlayback",false);
+  edm::LogVerbatim ("DQMFileSaver") << "===>DQM Output from Playback = " << ( isPlayback_ ? "yes" : "no" ) << endl;
+  if ( isPlayback_ ) fileName_ = "Playback_"+fileName_;
+  // dirname for the file to be written
   dirName_ = parameters_.getUntrackedParameter<string>("dirName",".");
   if (dirName_ == "" ) dirName_ == "." ;
   edm::LogVerbatim ("DQMFileSaver") << "===>DQM Output dir name = " << dirName_ << endl;

@@ -4,8 +4,8 @@
 /*
  * \file DQMFileSaver.h
  *
- * $Date: 2007/11/05 11:28:47 $
- * $Revision: 1.1 $
+ * $Date: 2007/11/15 23:59:41 $
+ * $Revision: 1.2 $
  * \author A. Meyer, DESY
  *
 */
@@ -102,6 +102,7 @@ private:
 
   std::string fileName_;
   std::string dirName_;
+  bool isPlayback_;
   bool saveAtRunEnd_;
   bool saveAtJobEnd_;
 
