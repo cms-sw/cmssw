@@ -195,7 +195,7 @@ public:
   CSCDetId detIdFromChamberLabel( IndexType ie, IndexType icl ) const;
   std::pair<CSCDetId, IndexType> detIdFromStripChannelIndex( LongIndexType ichi ) const;
 
-  IndexType checkLabel( IndexType ) const;
+  IndexType chamberLabelFromChamberIndex( IndexType ) const; // just for cross-checks
 
   /**
    * Build index used internally in online CSC conditions databases (the 'Igor Index')

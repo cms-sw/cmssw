@@ -79,8 +79,31 @@ CSCDetId CSCIndexer::detIdFromChamberIndex( IndexType ici ) const {
     }
   }
   if (chamberLabel.empty()) fillChamberLabel();
-  IndexType label = chamberLabel[ici];  
+  IndexType label = chamberLabel[ici];    
   return detIdFromChamberLabel( ie, label );
+}
+
+CSCIndexer::IndexType CSCIndexer::chamberLabelFromChamberIndex( IndexType ici ) const {
+  // This is just for cross-checking
+
+  // Expected range of input range argument is 1-540.
+  // 1-468 for CSCs installed at 2008 start-up. 469-540 for ME42.
+
+  if ( ici > 468 ) {
+    // ME42
+    ici -= 234; // now in range 235-306
+    if ( ici > 270 ) { // -z
+      ici -= 36; // now in range 235-270
+    }
+  }
+  else { // in range 1-468
+    if ( ici > 234 ) { // -z
+      ici -= 234; // now in range 1-234
+    }
+  }
+  if (chamberLabel.empty()) fillChamberLabel();
+  return chamberLabel[ici];  
+
 }
 
 CSCDetId CSCIndexer::detIdFromChamberLabel( IndexType ie, IndexType label ) const {
@@ -156,12 +179,6 @@ std::pair<CSCDetId, CSCIndexer::IndexType>  CSCIndexer::detIdFromStripChannelInd
    if ( ie != 1 ) ili+= lastplusznonme42layer; // add offset to -z endcap; ME42 doesn't need this.
 	
    return std::pair<CSCDetId, IndexType>(detIdFromLayerIndex(ili), ichan);
-}
-
- 
-CSCIndexer::IndexType CSCIndexer::checkLabel( IndexType ici ) const {
-  if (chamberLabel.empty()) fillChamberLabel();
-  return chamberLabel[ici];  
 }
 
 int CSCIndexer::dbIndex(const CSCDetId & id, int & channel)
