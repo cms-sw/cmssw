@@ -18,8 +18,8 @@ using std::endl;
 G4TrackToParticleID * TrackWithHistory::theG4TrackToParticleID(0);
 
 TrackWithHistory::TrackWithHistory(const G4Track * g4trk) 
-  : trackID_(0),particleID_(0),parentID_(0),momentum_(0),totalEnergy_(0),
-    vertexPosition_(0),globalTime_(0),localTime_(0),properTime_(0),
+  : trackID_(0),particleID_(0),parentID_(0),momentum_(math::XYZVectorD(0.,0.,0.)),totalEnergy_(0),
+    vertexPosition_(math::XYZVectorD(0.,0.,0.)),globalTime_(0),localTime_(0),properTime_(0),
     creatorProcess_(0),weight_(0),storeTrack_(false),saved_(false)
 {
     if (theG4TrackToParticleID == 0) theG4TrackToParticleID = new G4TrackToParticleID;  
@@ -29,9 +29,9 @@ TrackWithHistory::TrackWithHistory(const G4Track * g4trk)
 	trackID_ = g4trk->GetTrackID();
 	particleID_ = theG4TrackToParticleID->particleID(g4trk);
 	parentID_ = g4trk->GetParentID();
-	momentum_ = g4trk->GetMomentum();
+	momentum_ = math::XYZVectorD(g4trk->GetMomentum().x(),g4trk->GetMomentum().y(),g4trk->GetMomentum().z());
 	totalEnergy_ = g4trk->GetTotalEnergy();
-	vertexPosition_  = g4trk->GetPosition();
+	vertexPosition_ = math::XYZVectorD(g4trk->GetPosition().x(),g4trk->GetPosition().y(),g4trk->GetPosition().z());
 	globalTime_  = g4trk->GetGlobalTime();
 	localTime_  = g4trk->GetLocalTime();
 	properTime_  = g4trk->GetProperTime();
@@ -49,33 +49,36 @@ TrackWithHistory::TrackWithHistory(const G4Track * g4trk)
 
 void TrackWithHistory::checkAtEnd(const G4Track * gt)
 {
-    bool ok = true;
-    double epsilon = 1.e-6;
-    double eps2 = epsilon*epsilon;
-    if ((vertexPosition_-gt->GetVertexPosition()).mag2() > eps2) 
+
+  math::XYZVectorD vposdir(gt->GetVertexPosition().x(),gt->GetVertexPosition().y(),gt->GetVertexPosition().z());
+  math::XYZVectorD vmomdir(gt->GetVertexMomentumDirection().x(),gt->GetVertexMomentumDirection().y(),gt->GetVertexMomentumDirection().z());
+  bool ok = true;
+  double epsilon = 1.e-6;
+  double eps2 = epsilon*epsilon;
+  if ((vertexPosition_-vposdir).Mag2() > eps2) 
     {
-	cout << "TrackWithHistory vertex position check failed" << endl;
-	cout << "At construction: " << vertexPosition_ << endl;
-	cout << "At end:          " << gt->GetVertexPosition() << endl;
-	ok = false;
+      cout << "TrackWithHistory vertex position check failed" << endl;
+      cout << "At construction: " << vertexPosition_ << endl;
+      cout << "At end:          " << vposdir << endl;
+      ok = false;
     }
-    Hep3Vector dirDiff = momentum_.unit() - gt->GetVertexMomentumDirection();
-    if (dirDiff.mag2() > eps2) 
+  math::XYZVectorD dirDiff = momentum_.Unit() - vmomdir;
+  if (dirDiff.Mag2() > eps2) 
     {
-	cout << "TrackWithHistory momentum direction check failed" << endl;
-	cout << "At construction: " << momentum_.unit() << endl;
-	cout << "At end:          " << gt->GetVertexMomentumDirection() << endl;
-	ok = false;
+      cout << "TrackWithHistory momentum direction check failed" << endl;
+      cout << "At construction: " << momentum_.Unit() << endl;
+      cout << "At end:          " << vmomdir << endl;
+      ok = false;
     }
-    if (!ok) throw SimG4Exception("TrackWithHistory::checkAtEnd failed");
+  if (!ok) throw SimG4Exception("TrackWithHistory::checkAtEnd failed");
 }
 
 int TrackWithHistory::extractGenID(const G4Track* gt) const
 {
-    void * vgprimary = gt->GetDynamicParticle()->GetPrimaryParticle();
-    if (vgprimary == 0) return -1;
-    // replace old-style cast with appropriate new-style cast...
-    G4PrimaryParticle* gprimary = (G4PrimaryParticle*) vgprimary;
-    GenParticleInfoExtractor ext;
-    return ext(gprimary).id();
+  void * vgprimary = gt->GetDynamicParticle()->GetPrimaryParticle();
+  if (vgprimary == 0) return -1;
+  // replace old-style cast with appropriate new-style cast...
+  G4PrimaryParticle* gprimary = (G4PrimaryParticle*) vgprimary;
+  GenParticleInfoExtractor ext;
+  return ext(gprimary).id();
 }

@@ -2,6 +2,8 @@
 #define SimG4Core_TrackWithHistory_H 
 
 #include "G4Track.hh"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 class G4VProcess;
 class G4TrackToParticleID;
@@ -17,23 +19,23 @@ public:
      */
     TrackWithHistory(const G4Track * g4track);
     ~TrackWithHistory() {}
-    void save()					 { saved_ = true; }
-    unsigned int trackID() const                 { return trackID_; }
-    int particleID() const                       { return particleID_; }
-    int parentID() const                         { return parentID_; }
-    int genParticleID() const                    { return genParticleID_; }
-    const Hep3Vector& momentum() const           { return momentum_; }
-    double totalEnergy() const                   { return totalEnergy_; }
-    const Hep3Vector& vertexPosition() const     { return vertexPosition_; }
-    double globalTime() const                    { return globalTime_; }
-    double localTime() const                     { return localTime_; }
-    double properTime() const                    { return properTime_; }
-    const G4VProcess * creatorProcess() const    { return creatorProcess_; }
-    double weight() const                        { return weight_; }
-    void setTrackID(int i)  			 { trackID_ = i; }
-    void setParentID(int i)			 { parentID_ = i; }
-    bool storeTrack() const                      { return storeTrack_; }
-    bool saved() const                           { return saved_; }
+    void save()					    { saved_ = true; }
+    unsigned int trackID() const                    { return trackID_; }
+    int particleID() const                          { return particleID_; }
+    int parentID() const                            { return parentID_; }
+    int genParticleID() const                       { return genParticleID_; }
+    const math::XYZVectorD & momentum() const       { return momentum_; }
+    double totalEnergy() const                      { return totalEnergy_; }
+    const math::XYZVectorD & vertexPosition() const { return vertexPosition_; }
+    double globalTime() const                       { return globalTime_; }
+    double localTime() const                        { return localTime_; }
+    double properTime() const                       { return properTime_; }
+    const G4VProcess * creatorProcess() const       { return creatorProcess_; }
+    double weight() const                           { return weight_; }
+    void setTrackID(int i)  			    { trackID_ = i; }
+    void setParentID(int i)			    { parentID_ = i; }
+    bool storeTrack() const                         { return storeTrack_; }
+    bool saved() const                              { return saved_; }
     /** Internal consistency check (optional).
      *  Method called at PostUserTrackingAction time, to check
      *  if the information is consistent with that provided
@@ -45,9 +47,9 @@ private:
     int particleID_;
     int parentID_;
     int genParticleID_;
-    Hep3Vector momentum_;
+    math::XYZVectorD momentum_;
     double totalEnergy_;
-    Hep3Vector vertexPosition_;
+    math::XYZVectorD vertexPosition_;
     double globalTime_;
     double localTime_;
     double properTime_;
