@@ -1,7 +1,7 @@
 /*
  *
- *  $Date: 2007/11/26 16:39:58 $
- *  $Revision: 1.66 $
+ *  $Date: 2007/12/04 11:04:52 $
+ *  $Revision: 1.67 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -119,6 +119,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     else{ edm::LogWarning("EcalTBRawToDigiTriggerType") << "@SUB=EcalTBDaqFormatter::interpretRawData"
 							<< "unrecognized TRIGGER TYPE: "<<trigger_type;}
     theDCCheader.setLV1((*itEventBlock)->getDataField("LV1"));
+    // this needs V01-01-12      DataFormats/EcalRawData
+    theDCCheader.setOrbit((*itEventBlock)->getDataField("ORBIT COUNTER"));
     theDCCheader.setBX((*itEventBlock)->getDataField("BX"));
     theDCCheader.setErrors((*itEventBlock)->getDataField("DCC ERRORS"));
     theDCCheader.setSelectiveReadout( sr );
@@ -202,11 +204,11 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	theTTstatus.push_back(TowerStatus[i]);
 	//cout << "tower " << i << " has status " <<  TowerStatus[i] << endl;  
       }
-    // this needs V01-01-11      DataFormats/EcalRawData
-    // theDCCheader.setFEStatus(theTTstatus);
+    // this needs V01-01-12      DataFormats/EcalRawData
+    theDCCheader.setFEStatus(theTTstatus);
 
     // rolled back temporarily to develop in CMSSW_1_7_0
-    theDCCheader.setTriggerTowerStatus(theTTstatus);
+    //theDCCheader.setTriggerTowerStatus(theTTstatus);
     
     EcalDCCTBHeaderRuntypeDecoder theRuntypeDecoder;
     ulong DCCruntype = (*itEventBlock)->getDataField("RUN TYPE");
