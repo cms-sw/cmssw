@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: PyquenAnalyzer.h,v 1.2 2007/10/05 15:08:48 loizides Exp $
 
 #ifndef PyquenAnalyzer_H
 #define PyquenAnalyzer_H
@@ -22,9 +22,6 @@ class PyquenAnalyzer : public edm::EDAnalyzer
 
  private:
  
-  std::string  sOutFileName;       // name of the output file
-
-  TFile*       pfOutFile;          // output file
   TH1D*        phdNdEta;           // histogram for dN/deta
   TH1D*        phdNdY;             // histogram for dN/dy
   TH1D*        phdNdPt;            // histogram for dN/dpt

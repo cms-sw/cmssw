@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id:$
+ * $Id: PyquenSource.cc,v 1.8 2007/10/05 15:17:58 loizides Exp $
 */
 
 #include <iostream>
@@ -13,14 +13,14 @@
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
 #include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
 
+#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
+#include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/HeavyIon.h"
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/PythiaWrapper.h"
 
@@ -73,6 +73,7 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
   cout<<endl;
 
   produces<HepMCProduct>();
+  produces<GenInfoProduct, edm::InRun>();
 }
 
 
@@ -144,6 +145,7 @@ bool PyquenSource::produce(Event & e)
   // Generate PYQUEN event
   // generate single partonic PYTHIA jet event
   call_pyevnt();
+
   // call PYQUEN to apply parton rescattering and energy loss 
   // if doQuench=FALSE, it is pure PYTHIA
   if( doquench_ ){
@@ -157,6 +159,7 @@ bool PyquenSource::produce(Event & e)
   // call PYTHIA to finish the hadronization
   PYEXEC();
   call_pylist(1);
+
   // fill the HEPEVT with the PYJETS event record
   call_pyhepc(1);
 
@@ -272,3 +275,6 @@ bool PyquenSource::pyquen_init(const ParameterSet &pset)
 
   return true;
 }
+
+
+//____________________________________________________________________
