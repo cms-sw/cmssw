@@ -9,7 +9,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
- 
+#include "HepMC/HeavyIon.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
 #include "TFile.h"
 #include "TH1.h"
  
@@ -26,8 +30,7 @@ using namespace std;
 
  
 HydjetAnalyzer::HydjetAnalyzer(const ParameterSet& pset)
-  : sOutFileName(pset.getUntrackedParameter<string>("HistOutFile",std::string("testHydjet.root")) ),
-pfOutFile(0), phdNdEta(0), phdNdY(0), phdNdPt(0),phdNdPhi(0)
+  : phdNdEta(0), phdNdY(0), phdNdPt(0),phdNdPhi(0)
 {
   // constructor
 
@@ -39,11 +42,13 @@ void HydjetAnalyzer::beginJob( const EventSetup& )
 {
   //runs at the begining of the job
 
-   pfOutFile     = new TFile(sOutFileName.c_str(),"RECREATE");
-   phdNdEta      = new TH1D("phdNdEta",";#eta;",100,-10.,10.);
-   phdNdY        = new TH1D("phdNdY",";y;",100,-10.,10.) ;
-   phdNdPt       = new TH1D("phdNdPt",";p_{T}(GeV/c);",100, 0.,10.) ;    
-   phdNdPhi      = new TH1D("phdNdPhi",";d#phi(rad);",100,-3.15,3.15);
+  edm::Service<TFileService> fs;
+  TH1::SetDefaultSumw2(true);
+
+  phdNdEta      = fs->make<TH1D>("phdNdEta",";#eta;",100,-10.,10.);
+  phdNdY        = fs->make<TH1D>("phdNdY",";y;",100,-10.,10.) ;
+  phdNdPt       = fs->make<TH1D>("phdNdPt",";p_{T}(GeV/c);",100, 0.,10.) ;    
+  phdNdPhi      = fs->make<TH1D>("phdNdPhi",";d#phi(rad);",100,-3.15,3.15);
 
    return ;
 }
@@ -99,8 +104,6 @@ void HydjetAnalyzer::endJob()
   phdNdPt->Scale(phdNdPt->GetBinWidth(0));
   phdNdPhi->Scale(phdNdPhi->GetBinWidth(0));  
 
-  pfOutFile->Write();
-  pfOutFile->Close();  
   return ;
 }
 
