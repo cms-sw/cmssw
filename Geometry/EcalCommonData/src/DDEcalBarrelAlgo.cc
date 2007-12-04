@@ -2646,22 +2646,16 @@ void DDEcalBarrelAlgo::execute()
 
 	 for( unsigned int iRod ( 0 ) ; iRod != vecPincerRodAzimuth().size() ; ++iRod )
 	 {
-	   try {
-	    const DDTranslation rodTra ( radius*cos(vecPincerRodAzimuth()[iRod]) ,
-					 radius*sin(vecPincerRodAzimuth()[iRod]) ,
-					 0 ) ;
-
-	    DDpos( rodLog,
-		   xilyName, 
-		   1+iRod, 
-		   rodTra,
-		   myrot( pincerRodName().name() + int_to_string(iRod),
-			  HepRotationZ( 90*deg + vecPincerRodAzimuth()[iRod] ) ) ) ;
-	   } catch ( DDException & e ) {
-	     std::cout << "DDEcalBarrelAlgo:  caught DDException in DDAlgorithm execute. e.what() = " << e.what() << std::endl;
-	   } catch (...) {
-	     std::cout << "DDEcalBarrelAlgo:  caught ANY exception in DDAlgorithm execute." << std::endl;
-	   }
+	   const DDTranslation rodTra ( radius*cos(vecPincerRodAzimuth()[iRod]) ,
+					radius*sin(vecPincerRodAzimuth()[iRod]) ,
+					0 ) ;
+	   
+	   DDpos( rodLog,
+		  xilyName, 
+		  1+iRod, 
+		  rodTra,
+		  myrot( pincerRodName().name() + int_to_string(iRod),
+			 HepRotationZ( 90*deg + vecPincerRodAzimuth()[iRod] ) ) ) ;
 	 }
       }
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
