@@ -10,6 +10,10 @@
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
+#include "DataFormats/Common/interface/Ref.h"
+
 namespace {
   namespace {
     boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned int*,std::vector<unsigned int> >,boost::use_default,boost::use_default> hltfubar1;
@@ -67,7 +71,7 @@ namespace {
     HLTPerformanceInfo::Path::Adapter pw12;
     HLTPerformanceInfo::Path::const_iterator pw13;
 
-
+    edm::Ref<reco::CompositeCandidateCollection> rxx;
     trigger::TriggerObjectCollection toc;
     trigger::TriggerFilterObjectWithRefs tfowr;
     trigger::TriggerEvent te;

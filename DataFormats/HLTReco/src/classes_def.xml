@@ -54,6 +54,15 @@
   <class name="boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned int*,std::vector<unsigned int> >,boost::use_default,boost::use_default>" />
   <class name="boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned long*,std::vector<unsigned long> >,boost::use_default,boost::use_default>" />
 
+  <class name="std::vector<edm::Ref<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > >"/>
+
+  <class name="edm::Ref<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate> >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >"/>
 
   <class name="trigger::TriggerObjectCollection"/>
   <class name="trigger::TriggerFilterObjectWithRefs"/>
