@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai/Ricardo Vasquez Sierra
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal.cc,v 1.11.2.8 2007/11/05 22:46:25 vasquez Exp $
+// $Id: TauTagVal.cc,v 1.13 2007/11/06 17:43:33 vasquez Exp $
 //
 //
 // user include files
@@ -27,6 +27,7 @@ using namespace reco;
 TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
 {
   dataType_ = iConfig.getParameter<string>("DataType");
+  outputhistograms_ = iConfig.getParameter<string>("OutPutHistograms");
   jetTagSrc_ = iConfig.getParameter<InputTag>("JetTagProd");
   jetEMTagSrc_ = iConfig.getParameter<InputTag>("JetEMTagProd");
   genJetSrc_ = iConfig.getParameter<InputTag>("GenJetProd");
@@ -51,6 +52,7 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
     phiTauMC_   = dbe->book1D("phi_Tau_GenLevel", "phi_Tau_GenLevel", 36, -180., 180.);
     energyTauMC_= dbe->book1D("Energy_Tau_GenLevel", "Energy_Tau_GenLevel", 45, 0., 450.0);
     hGenTauDecay_DecayModes_ = dbe->book1D("genDecayMode", "DecayMode", kOther + 1, -0.5, kOther + 0.5);
+    hGenTauDecay_DecayModesChosen_ = dbe->book1D("genDecayModeChosen", "DecayModeChosen", kOther + 1, -0.5, kOther + 0.5);
 
     nMCTaus_ptTauJet_ = dbe->book1D("nMC_Taus_vs_ptTauJet", "nMC_Taus_vs_ptTauJet", 75, 0., 150.); 
     nMCTaus_etaTauJet_ = dbe->book1D("nMC_Taus_vs_etaTauJet", "nMC_Taus_vs_etaTauJet", 60, -3.0, 3.0 );
@@ -119,14 +121,25 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
 
     nTausTotvsMatchingConeSize_ = dbe->book1D("nTaus_Tot_vs_MatchingConeSize","nTaus_Tot_vs_MatchingConeSize", 6, 0.065, 0.125);
     nTausTaggedvsMatchingConeSize_ = dbe->book1D("nTaus_Tagged_vs_MatchingConeSize","nTaus_Tagged_vs_MatchingConeSize", 6, 0.065, 0.125);
-    TString tversion(edm::getReleaseVersion());
+    tversion = edm::getReleaseVersion();
     cout<<endl<<"-----------------------*******************************Version: " << tversion<<endl;
   }
     
   if (outPutFile_.empty ()) {
     LogInfo("OutputInfo") << " TauJet histograms will NOT be saved";
   } else {
+    int sizeofstring = outPutFile_.size();
+    if (sizeofstring > 5);
+    outPutFile_.erase(sizeofstring-5);
+    outPutFile_.append("_");    
+    tversion.erase(0,1);
+    tversion.erase(tversion.size()-1,1);
+    outPutFile_.append(tversion);
+    outPutFile_.append("_"+ outputhistograms_ + "_");
+    outPutFile_.append(dataType_+".root");
+    cout<<endl<< outPutFile_<<endl;
     LogInfo("OutputInfo") << " TauJethistograms will be saved to file:" << outPutFile_;
+
   }
 
   //---- book-keeping information ---
@@ -552,9 +565,19 @@ std::vector<TLorentzVector> TauTagVal::getVectorOfVisibleTauJets(HepMC::GenEvent
 		   tauDecayMode == kOneProng1pi0   ||
 		   tauDecayMode == kOneProng2pi0   ||
 		   tauDecayMode == kThreeProng0pi0 ||
-		   tauDecayMode == kThreeProng1pi0 ||
-		   tauDecayMode == kOther) { 
-		FinalTau=true; 
+		   tauDecayMode == kThreeProng1pi0 ) {
+		   //||		   tauDecayMode == kOther) { 
+		if (outputhistograms_ == "OneProngAndThreeProng")
+                  FinalTau=true;
+                else if ( outputhistograms_ == "OneProng" &&
+                          (tauDecayMode == kOneProng0pi0 ||
+                           tauDecayMode == kOneProng1pi0   ||
+                           tauDecayMode == kOneProng2pi0 ))
+                  FinalTau=true;
+                else if ( outputhistograms_ == "ThreeProng" &&
+			  (tauDecayMode == kThreeProng0pi0 ||
+			   tauDecayMode == kThreeProng1pi0 ))
+                  FinalTau=true;	       
 	      }
 	      else {
 		FinalTau=false;
@@ -564,38 +587,38 @@ std::vector<TLorentzVector> TauTagVal::getVectorOfVisibleTauJets(HepMC::GenEvent
 	      }
 	      
 	      if(FinalTau) {  // Meaning: did it find a Neutrino in the list of Daughter particles? Then fill histograms of the original Tau info
-		
-		  ptTauMC_->Fill((*p)->momentum().perp());
-		  etaTauMC_->Fill((*p)->momentum().eta()); 
-                  phiTauMC_->Fill((*p)->momentum().phi()*(180./TMath::Pi()));
-		  energyTauMC_->Fill((*p)->momentum().e());		   
-                  
-		  // Get the Tau Lorentz Vector
-		  //		  TLorentzVector theTau((*p)->momentum().x(),(*p)->momentum().y(),(*p)->momentum().z(),(*p)->momentum().e());
-		  //	  TauJetMC=theTau-TauNeutrino;      // Substract the Neutrino Lorentz Vector from the Tau
-		  if (abs(TauJetMC.Eta())<2.5 && TauJetMC.Perp()>5.0) {
-		    nMCTaus_ptTauJet_->Fill(TauJetMC.Perp());  // Fill the histogram with the Pt, Eta, Energy of the Tau Jet at Generator level
-		    nMCTaus_etaTauJet_->Fill(TauJetMC.Eta()); 
-                    nMCTaus_phiTauJet_->Fill(TauJetMC.Phi()*180./TMath::Pi());
-		    nMCTaus_energyTauJet_->Fill(TauJetMC.E());
-		    for (int jj =0; jj != 6; jj++){
-                      double ChangingIsoCone = jj*0.05 + 0.2;
-		      nTausTotvsConeIsolation_->Fill(ChangingIsoCone);
-		      double ChangingSigCone = jj*0.01+0.07;
-		      nTausTotvsConeSignal_->Fill(ChangingSigCone);
-		      int ChangingPtLeadTk = int(jj*1.0 + 2.0);
-		      nTausTotvsPtLeadingTrack_->Fill(double (ChangingPtLeadTk));
-		      double ChangingMatchingCone = jj*0.01 + 0.07;
-		      nTausTotvsMatchingConeSize_->Fill(ChangingMatchingCone);
-		    }
-		    tempvec.push_back(TauJetMC);
-		    ++numMCTaus;
+		hGenTauDecay_DecayModesChosen_->Fill(tauDecayMode);	
+		ptTauMC_->Fill((*p)->momentum().perp());
+		etaTauMC_->Fill((*p)->momentum().eta()); 
+		phiTauMC_->Fill((*p)->momentum().phi()*(180./TMath::Pi()));
+		energyTauMC_->Fill((*p)->momentum().e());		   
+                
+		// Get the Tau Lorentz Vector
+		//		  TLorentzVector theTau((*p)->momentum().x(),(*p)->momentum().y(),(*p)->momentum().z(),(*p)->momentum().e());
+		//	  TauJetMC=theTau-TauNeutrino;      // Substract the Neutrino Lorentz Vector from the Tau
+		if (abs(TauJetMC.Eta())<2.5 && TauJetMC.Perp()>5.0) {
+		  nMCTaus_ptTauJet_->Fill(TauJetMC.Perp());  // Fill the histogram with the Pt, Eta, Energy of the Tau Jet at Generator level
+		  nMCTaus_etaTauJet_->Fill(TauJetMC.Eta()); 
+		  nMCTaus_phiTauJet_->Fill(TauJetMC.Phi()*180./TMath::Pi());
+		  nMCTaus_energyTauJet_->Fill(TauJetMC.E());
+		  for (int jj =0; jj != 6; jj++){
+		    double ChangingIsoCone = jj*0.05 + 0.2;
+		    nTausTotvsConeIsolation_->Fill(ChangingIsoCone);
+		    double ChangingSigCone = jj*0.01+0.07;
+		    nTausTotvsConeSignal_->Fill(ChangingSigCone);
+		    int ChangingPtLeadTk = int(jj*1.0 + 2.0);
+		    nTausTotvsPtLeadingTrack_->Fill(double (ChangingPtLeadTk));
+		    double ChangingMatchingCone = jj*0.01 + 0.07;
+		    nTausTotvsMatchingConeSize_->Fill(ChangingMatchingCone);
 		  }
-	    }
+		  tempvec.push_back(TauJetMC);
+		  ++numMCTaus;
+		}
+	      }
 	    }
 	}
     } // closing the loop over the Particles at Generator level
-
+  
   return tempvec;
   //  cout<<" Number of Taus at Generator Level: "<< numMCTaus << endl; 
 }

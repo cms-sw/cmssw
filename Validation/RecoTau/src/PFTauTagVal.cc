@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2007 
-// $Id: PFTauTagVal.cc,v 1.3 2007/11/06 17:43:33 vasquez Exp $
+// $Id: PFTauTagVal.cc,v 1.4 2007/11/06 20:06:18 vasquez Exp $
 //
 //
 // user include files
@@ -27,6 +27,7 @@ using namespace reco;
 PFTauTagVal::PFTauTagVal(const edm::ParameterSet& iConfig)
 {
   dataType_ = iConfig.getParameter<string>("DataType");
+  outputhistograms_ = iConfig.getParameter<string>("OutPutHistograms");
   //jetTagSrc_ = iConfig.getParameter<InputTag>("JetTagProd");
   //jetEMTagSrc_ = iConfig.getParameter<InputTag>("JetEMTagProd");
   genJetSrc_ = iConfig.getParameter<InputTag>("GenJetProd");
@@ -49,7 +50,8 @@ PFTauTagVal::PFTauTagVal(const edm::ParameterSet& iConfig)
     phiTauMC_   = dbe->book1D("phi_Tau_GenLevel", "phi_Tau_GenLevel", 36, -180., 180.);
     energyTauMC_= dbe->book1D("Energy_Tau_GenLevel", "Energy_Tau_GenLevel", 45, 0., 450.0);
     hGenTauDecay_DecayModes_ = dbe->book1D("genDecayMode", "DecayMode", kOther + 1, -0.5, kOther + 0.5);
-
+    hGenTauDecay_DecayModesChosen_ = dbe->book1D("genDecayModeChosen", "DecayModeChosen", kOther + 1, -0.5, kOther + 0.5);
+     
     nMCTaus_ptTauJet_ =     dbe->book1D("nMC_Taus_vs_ptTauJet", "nMC_Taus_vs_ptTauJet", 75, 0., 150.); 
     nMCTaus_etaTauJet_ =    dbe->book1D("nMC_Taus_vs_etaTauJet", "nMC_Taus_vs_etaTauJet", 60, -3.0, 3.0 );
     nMCTaus_phiTauJet_ =    dbe->book1D("nMC_Taus_vs_phiTauJet", "nMC_Taus_vs_phiTauJet", 36, -180., 180.);
@@ -124,19 +126,30 @@ PFTauTagVal::PFTauTagVal(const edm::ParameterSet& iConfig)
     N_1_NeutralHadronsSignal_          = dbe->book1D("N_1_NeutralHadronsSignal","N_1_NeutralHadronsSignal",21,-0.5,20.5);	      
     N_1_NeutralHadronsIsolAnnulus_     = dbe->book1D("N_1_NeutralHadronsIsolAnnulus","N_1_NeutralHadronsIsolAnnulus",21,-0.5,20.5);
     
-    TString tversion(edm::getReleaseVersion());
+    tversion = edm::getReleaseVersion();
     cout<<endl<<"-----------------------*******************************Version: " << tversion<<endl;
+ 
   }
     
   if (outPutFile_.empty ()) {
     LogInfo("OutputInfo") << " TauJet histograms will NOT be saved";
   } else {
+    int sizeofstring = outPutFile_.size();
+    if (sizeofstring > 5);
+    outPutFile_.erase(sizeofstring-5);
+    outPutFile_.append("_");    
+    tversion.erase(0,1);
+    tversion.erase(tversion.size()-1,1);
+    outPutFile_.append(tversion);
+    outPutFile_.append("_"+ outputhistograms_ + "_");
+    outPutFile_.append(dataType_+".root");
+
+    cout<<endl<< outPutFile_<<endl;
     LogInfo("OutputInfo") << " TauJethistograms will be saved to file:" << outPutFile_;
   }
 
   //---- book-keeping information ---
   numEvents_ = 0 ;
-  
 }
 
 void PFTauTagVal::beginJob()
@@ -233,7 +246,13 @@ void PFTauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	nPFTau_LeadingChargedHadron_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());
 	nPFTau_LeadingChargedHadron_ChargedHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFChargedHadrCands().size());
 	nPFTau_LeadingChargedHadron_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());		 
-	nPFTau_LeadingChargedHadron_GammasIsolAnnulus_->Fill((*thePFTau).isolationPFGammaCands().size());        
+	nPFTau_LeadingChargedHadron_GammasIsolAnnulus_->Fill((*thePFTau).isolationPFGammaCands().size()); 
+	
+	//	for (unsigned int k = 0; k != (*thePFTau).isolationPFGammaCands().size(); k++) {
+	// cout<<"pt of gammas: "<<(*thePFTau).isolationPFGammaCands().at(k)->pt()<<endl;
+	// }
+	
+       
 	nPFTau_LeadingChargedHadron_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());	 
 	nPFTau_LeadingChargedHadron_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());
 	
@@ -495,15 +514,28 @@ std::vector<TLorentzVector> PFTauTagVal::getVectorOfVisibleTauJets(HepMC::GenEve
 //		   theEvent->print();
 //		   std::cout << std::endl;
 	      }
+
 	      hGenTauDecay_DecayModes_->Fill(tauDecayMode);
+
 	      FinalTau=false;
+
 	      if ( tauDecayMode == kOneProng0pi0   ||
 		   tauDecayMode == kOneProng1pi0   ||
 		   tauDecayMode == kOneProng2pi0   ||
 		   tauDecayMode == kThreeProng0pi0 ||
-		   tauDecayMode == kThreeProng1pi0 ||
-		   tauDecayMode == kOther) { 
-		FinalTau=true; 
+		   tauDecayMode == kThreeProng1pi0 ){
+		   //  ||		   tauDecayMode == kOther) { 
+		if (outputhistograms_ == "OneProngAndThreeProng")
+                  FinalTau=true;
+                else if ( outputhistograms_ == "OneProng" &&
+                          (tauDecayMode == kOneProng0pi0 ||
+                           tauDecayMode == kOneProng1pi0   ||
+                           tauDecayMode == kOneProng2pi0 ))
+                  FinalTau=true;
+                else if ( outputhistograms_ == "ThreeProng" &&
+			  (tauDecayMode == kThreeProng0pi0 ||
+			   tauDecayMode == kThreeProng1pi0 ))
+                  FinalTau=true;
 	      }
 	      else {
 		FinalTau=false;
@@ -513,7 +545,7 @@ std::vector<TLorentzVector> PFTauTagVal::getVectorOfVisibleTauJets(HepMC::GenEve
 	      }
 	      
 	      if(FinalTau) {  // Meaning: did it find a Neutrino in the list of Daughter particles? Then fill histograms of the original Tau info
-		
+	  	  hGenTauDecay_DecayModesChosen_->Fill(tauDecayMode);		
 		  ptTauMC_->Fill((*p)->momentum().perp());
 		  etaTauMC_->Fill((*p)->momentum().eta()); 
                   phiTauMC_->Fill((*p)->momentum().phi()*(180./TMath::Pi()));

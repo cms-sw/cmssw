@@ -81,8 +81,10 @@ std::vector<TLorentzVector> getVectorOfGenJets(edm::Handle< reco::GenJetCollecti
   edm::InputTag ExtensionName_, genJetSrc_;
   std::string outPutFile_;
   std::string dataType_;
+  std::string outputhistograms_;
   std::string PFTauProducer_;
   std::string PFTauDiscriminatorByIsolationProducer_;
+  std::string tversion;
 
   // MonteCarlo Taus -- to see what kind of Taus do we originally have!
   MonitorElement* ptTauMC_;
@@ -90,6 +92,7 @@ std::vector<TLorentzVector> getVectorOfGenJets(edm::Handle< reco::GenJetCollecti
   MonitorElement* phiTauMC_;
   MonitorElement* energyTauMC_;
   MonitorElement* hGenTauDecay_DecayModes_;
+  MonitorElement* hGenTauDecay_DecayModesChosen_;
   MonitorElement* nMCTaus_ptTauJet_;
   MonitorElement* nMCTaus_etaTauJet_;
   MonitorElement* nMCTaus_phiTauJet_;
@@ -115,7 +118,7 @@ std::vector<TLorentzVector> getVectorOfGenJets(edm::Handle< reco::GenJetCollecti
   MonitorElement* nPFTau_LeadingChargedHadron_ChargedHadronsSignal_;	  
   MonitorElement* nPFTau_LeadingChargedHadron_ChargedHadronsIsolAnnulus_; 
   MonitorElement* nPFTau_LeadingChargedHadron_GammasSignal_;		  
-  MonitorElement* nPFTau_LeadingChargedHadron_GammasIsolAnnulus_;          
+  MonitorElement* nPFTau_LeadingChargedHadron_GammasIsolAnnulus_;
   MonitorElement* nPFTau_LeadingChargedHadron_NeutralHadronsSignal_;	 
   MonitorElement* nPFTau_LeadingChargedHadron_NeutralHadronsIsolAnnulus_;
     
@@ -142,7 +145,6 @@ std::vector<TLorentzVector> getVectorOfGenJets(edm::Handle< reco::GenJetCollecti
          
   MonitorElement* nIsolated_NoChargedNoGammas_NeutralHadronsSignal_;	 
   MonitorElement* nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_;
-  
 
 
   MonitorElement* nChargedHadronsSignalCone_isolated_;
