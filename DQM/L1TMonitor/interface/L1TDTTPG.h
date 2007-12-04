@@ -4,8 +4,8 @@
 /*
  * \file L1TDTTPG.h
  *
- * $Date: 2007/02/22 19:43:52 $
- * $Revision: 1.4 $
+ * $Date: 2007/07/12 16:06:18 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
 */
@@ -55,29 +55,30 @@ private:
   // ----------member data ---------------------------
   DaqMonitorBEInterface * dbe;
 
-  MonitorElement* dttpgphbx;  
-  MonitorElement* dttpgphwheel;  
-  MonitorElement* dttpgphsector;  
-  MonitorElement* dttpgphstation;  
-  MonitorElement* dttpgphphi;  
-  MonitorElement* dttpgphphiB;  
-  MonitorElement* dttpgphquality;  
-  MonitorElement* dttpgphts2tag;  
-  MonitorElement* dttpgphbxcnt;  
+  MonitorElement* dttpgphbx[8];  
+  MonitorElement* dttpgphbxcomp;
+  MonitorElement* dttpgphwheel[3];  
+  MonitorElement* dttpgphsector[3];  
+  MonitorElement* dttpgphstation[3];  
+  MonitorElement* dttpgphphi[3];  
+  MonitorElement* dttpgphphiB[3];  
+  MonitorElement* dttpgphquality[3];  
+  MonitorElement* dttpgphts2tag[3];  
+  MonitorElement* dttpgphbxcnt[3];  
   MonitorElement* dttpgphntrack;  
 
-  MonitorElement* dttpgthbx;  
-  MonitorElement* dttpgthwheel;  
-  MonitorElement* dttpgthsector;  
-  MonitorElement* dttpgthstation;  
-  MonitorElement* dttpgththeta;  
-  MonitorElement* dttpgthquality;    
+  MonitorElement* dttpgthbx[3];  
+  MonitorElement* dttpgthwheel[3];  
+  MonitorElement* dttpgthsector[3];  
+  MonitorElement* dttpgthstation[3];  
+  MonitorElement* dttpgththeta[3];  
+  MonitorElement* dttpgthquality[3];    
   MonitorElement* dttpgthntrack;  
 
-  MonitorElement *dttf_p_phi;
-  MonitorElement *dttf_p_pt ;
-  MonitorElement *dttf_p_q;
-  MonitorElement *dttf_p_qual;
+  MonitorElement *dttf_p_phi[3];
+  MonitorElement *dttf_p_pt[3];
+  MonitorElement *dttf_p_q[3];
+  MonitorElement *dttf_p_qual[3];
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 13:54:17 EDT 2005
-// $Id: TestBeginEndJobAnalyzer.cc,v 1.4 2006/10/21 17:18:57 wmtan Exp $
+// $Id: TestBeginEndJobAnalyzer.cc,v 1.5 2007/04/13 19:12:38 wmtan Exp $
 //
 //
 
@@ -23,11 +23,8 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
 

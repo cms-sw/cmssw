@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.32 2007/06/19 21:35:59 rpw Exp $
+// $Id: ParameterSet.cc,v 1.34 2007/07/26 00:27:29 rpw Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -194,33 +194,64 @@ namespace edm {
 
   std::string
   ParameterSet::toString() const {
-    std::string rep;
-    for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
-      if(b != tbl_.begin())
-        rep += ';';
-      rep += (b->first + '=' + b->second.toString());
+    if (tbl_.empty()) {
+      std::string emptyPSet = "<>";
+      return emptyPSet;
     }
-
-    return '<' + rep + '>';
+    size_t size = 1;
+    for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
+      size += 2;
+      size += b->first.size();
+      size += b->second.sizeOfString();
+    }
+    std::string rep;
+    rep.reserve(size);
+    rep += '<';
+    for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
+      if(b != tbl_.begin()) rep += ';';
+      rep += b->first;
+      rep += '=';
+      rep += b->second.toString();
+    }
+    rep += '>';
+    return rep;
   }  // to_string()
 
   // ----------------------------------------------------------------------
 
   std::string
   ParameterSet::toStringOfTracked() const {
-    std::string  rep = "<";
+    size_t size = 0;
     bool need_sep = false;
-    for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) 
-      {
-	if(b->second.isTracked())  
-	  {
-	    if(need_sep) rep += ';';
-	    rep += (b->first + '=' + b->second.toStringOfTracked());
-	    need_sep = true;
-	  }
+    for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
+      if(b->second.isTracked())  {
+	if(need_sep) ++size;
+	++size;
+	size += b->first.size();
+	size += b->second.sizeOfStringOfTracked();
+	need_sep = true;
       }
-    
-    return rep + '>';
+    }
+    if (size == 0) {
+      std::string emptyPSet = "<>";
+      return emptyPSet;
+    }
+    size += 2;
+    std::string rep;
+    rep.reserve(size);
+    rep += '<';
+    need_sep = false;
+    for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
+      if(b->second.isTracked())  {
+	if(need_sep) rep += ';';
+	rep += b->first;
+	rep += '=';
+	rep += b->second.toStringOfTracked();
+	need_sep = true;
+      }
+    }
+    rep += '>';    
+    return rep;
   } 
 
   // ----------------------------------------------------------------------
@@ -331,16 +362,24 @@ namespace edm {
   }
 
 
-  std::ostream & operator<<(std::ostream & os, const ParameterSet & pset)
+  std::string ParameterSet::dump() const
   {
-    ParameterSet::table::const_iterator i(pset.tbl_.begin()), e(pset.tbl_.end());
+    std::ostringstream os;
+    table::const_iterator i(tbl_.begin()), e(tbl_.end());
     os << "{" << std::endl;
-    for( ; i != e; ++i) 
+    for( ; i != e; ++i)
     {
       // indent a bit
       os << "  " << i->first << ": " << i->second << std::endl;
     }
     os << "}";
+    return os.str();
+  }
+
+
+  std::ostream & operator<<(std::ostream & os, const ParameterSet & pset)
+  {
+    os << pset.dump();
     return os;
   }
 

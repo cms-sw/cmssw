@@ -5,19 +5,19 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticleCandidate
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.21 2007/06/19 10:17:32 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.24 2007/10/19 15:17:18 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
 #include <vector>
 #include <map>
 #include <set>
 
 namespace edm { class ParameterSet; }
 namespace HepMC { class GenParticle; class GenEvent; }
+namespace reco { class GenParticleCandidate; }
 
 class FastGenParticleCandidateProducer : public edm::EDProducer {
  public:
@@ -35,19 +35,8 @@ class FastGenParticleCandidateProducer : public edm::EDProducer {
   edm::InputTag src_;
   /// unknown code treatment flag
   bool abortOnUnknownPDGCode_;
-  /// internal functional decomposition
-  void fillIndices( const HepMC::GenEvent *, 
-		    std::vector<const HepMC::GenParticle *>  &,
-		    std::map<int, size_t> &) const;
-  /// internal functional decomposition
-  void fillOutput( const std::vector<const HepMC::GenParticle *> &,
-		   reco::CandidateCollection &, 
-		   std::vector<reco::GenParticleCandidate *> & ) const;
-  /// internal functional decomposition
-  void fillRefs( const std::vector<const HepMC::GenParticle *> &,
-		 const std::map<int, size_t> &,
-		 const reco::CandidateRefProd,
-		 const std::vector<reco::GenParticleCandidate *> & ) const;
+  /// save bar-codes
+  bool saveBarCodes_;
   /// charge indices
   std::vector<int> chargeP_, chargeM_;
   std::map<int, int> chargeMap_;
@@ -70,20 +59,19 @@ using namespace reco;
 using namespace std;
 using namespace HepMC;
 
-static const int protonId = 2212;
-static const int gluonId = 21;
-static const int uId = 1;
-static const int tId = 6;
-static const int stringId = 92;
-static const int clusterId = 92;
 static const int PDGCacheMax = 32768;
 static const double mmToCm = 0.1;
 
-FastGenParticleCandidateProducer::FastGenParticleCandidateProducer( const ParameterSet & p ) :
-  src_( p.getParameter<InputTag>( "src" ) ),
-  abortOnUnknownPDGCode_( p.getUntrackedParameter<bool>( "abortOnUnknownPDGCode", true ) ),
+FastGenParticleCandidateProducer::FastGenParticleCandidateProducer( const ParameterSet & cfg ) :
+  src_( cfg.getParameter<InputTag>( "src" ) ),
+  abortOnUnknownPDGCode_( cfg.getUntrackedParameter<bool>( "abortOnUnknownPDGCode", true ) ),
+  saveBarCodes_( cfg.getUntrackedParameter<bool>( "saveBarCodes", false ) ),
   chargeP_( PDGCacheMax, 0 ), chargeM_( PDGCacheMax, 0 ) {
   produces<CandidateCollection>();
+  if( saveBarCodes_ ) {
+    std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
+    produces<vector<int> >().setBranchAlias( alias + "BarCodes" );
+  }				  
 }
 
 FastGenParticleCandidateProducer::~FastGenParticleCandidateProducer() { 
@@ -132,41 +120,26 @@ void FastGenParticleCandidateProducer::produce( Event& evt, const EventSetup& es
   vector<const GenParticle *> particles( size );
   map<int, size_t> barcodes;
   auto_ptr<CandidateCollection> cands( new CandidateCollection );
+  auto_ptr<vector<int> > barCodeVector( new vector<int>( size ) );
   const CandidateRefProd ref = evt.getRefBeforePut<CandidateCollection>();
 
   vector<GenParticleCandidate *> candVector( size );
   /// fill indices
-  fillIndices( mc, particles, barcodes );
-  // fill output collection and save association
-  fillOutput( particles, * cands, candVector );
-  // fill references to daughters
-  fillRefs( particles, barcodes, ref, candVector );
-
-  evt.put( cands );
-}
-
-void FastGenParticleCandidateProducer::fillIndices( const GenEvent * mc,
-						    vector<const GenParticle *> & particles,
-						    map<int, size_t> & barcodes ) const {
   GenEvent::particle_const_iterator begin = mc->particles_begin(), end = mc->particles_end();
   size_t idx = 0;
   for( GenEvent::particle_const_iterator p = begin; p != end; ++ p ) {
     const GenParticle * particle = * p;
-    size_t i = particle->barcode();
-    if( barcodes.find(i) != barcodes.end() ) {
+    size_t barCode = particle->barcode();
+    if( barcodes.find(barCode) != barcodes.end() )
       throw cms::Exception( "WrongReference" )
 	<< "barcodes are duplicated! " << endl;
-    }
     particles[ idx ] = particle;
-    barcodes.insert( make_pair( i, idx ++) );
+    (*barCodeVector)[idx] = barCode;
+    barcodes.insert( make_pair( barCode, idx ++) );
   }
-}
 
-void FastGenParticleCandidateProducer::fillOutput( const std::vector<const GenParticle *> & particles,
-						   CandidateCollection & cands, 
-						   vector<GenParticleCandidate *> & candVector ) const {
-  const size_t size = particles.size();
-  cands.reserve( size );
+  // fill output collection and save association
+  cands->reserve( size );
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
     Candidate::LorentzVector momentum( part->momentum() );
@@ -182,14 +155,10 @@ void FastGenParticleCandidateProducer::fillOutput( const std::vector<const GenPa
 				pdgId, part->status(), false );
     auto_ptr<Candidate> ptr( c );
     candVector[ i ] = c;
-    cands.push_back( ptr );
+    cands->push_back( ptr );
   }
-}
 
-void FastGenParticleCandidateProducer::fillRefs( const std::vector<const GenParticle *> & particles,
-						 const std::map<int, size_t> & barcodes,
-						 const CandidateRefProd ref,
-						 const vector<GenParticleCandidate *> & candVector ) const {
+  // fill references to daughters
   for( size_t d = 0; d < candVector.size(); ++ d ) {
     const GenParticle * part = particles[ d ];
     const GenVertex * productionVertex = part->production_vertex();
@@ -201,10 +170,14 @@ void FastGenParticleCandidateProducer::fillRefs( const std::vector<const GenPart
           const GenParticle * mother = * motherIt;
 	  size_t m = barcodes.find( mother->barcode() )->second;
           candVector[ m ]->addDaughter( CandidateRef( ref, d ) );  
+          candVector[ d ]->addMother( CandidateRef( ref, m ) );
         }
       }
     }
   }
+
+  evt.put( cands );
+  if(saveBarCodes_) evt.put( barCodeVector );
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

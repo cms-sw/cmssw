@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.2 $
  *
- * $Id: PixelMatchGsfElectronSelector.h,v 1.8 2006/12/07 11:28:31 llista Exp $
+ * $Id: PixelMatchGsfElectronSelector.h,v 1.2 2007/08/01 11:50:45 llista Exp $
  *
  */
 
@@ -23,7 +23,7 @@
 namespace helper {
   struct PixelMatchGsfElectronCollectionStoreManager {
     typedef reco::PixelMatchGsfElectronCollection collection;
-    PixelMatchGsfElectronCollectionStoreManager() :
+    PixelMatchGsfElectronCollectionStoreManager(const edm::Handle<reco::PixelMatchGsfElectronCollection>&) :
       selElectrons_( new reco::PixelMatchGsfElectronCollection ),
       selSuperClusters_( new reco::SuperClusterCollection ),
       selTracks_( new reco::GsfTrackCollection ),
@@ -54,7 +54,8 @@ namespace helper {
 	  selTrackExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
 						  trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
 						  trk.outerStateCovariance(), trk.outerDetId(),
-						  trk.innerStateCovariance(), trk.innerDetId() ) );
+						  trk.innerStateCovariance(), trk.innerDetId(),
+						  trk.seedDirection() ) );
 	  selGsfTrackExtras_->push_back( GsfTrackExtra( *(trk.gsfExtra()) ) );
   	  TrackExtra & tx = selTrackExtras_->back();
 	  for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {

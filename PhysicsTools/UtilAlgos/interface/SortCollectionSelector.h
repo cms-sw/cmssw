@@ -6,20 +6,23 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.9 $
  *
- * $Id: SortCollectionSelector.h,v 1.8 2007/03/09 14:07:08 llista Exp $
+ * $Id: SortCollectionSelector.h,v 1.9 2007/05/15 16:07:52 llista Exp $
  *
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/UtilAlgos/interface/SelectionAdderTrait.h"
+#include "PhysicsTools/UtilAlgos/interface/StoreContainerTrait.h"
+#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 #include <algorithm>
 #include <utility>
 namespace edm { class Event; }
 
 template<typename InputCollection, typename Comparator, 
-	 typename StoreContainer = std::vector<const typename InputCollection::value_type *>, 
+	 typename OutputCollection = typename helper::SelectedOutputCollectionTrait<InputCollection>::type, 
+	 typename StoreContainer = typename helper::StoreContainerTrait<OutputCollection>::type,
 	 typename RefAdder = typename helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 class SortCollectionSelector {
 public:

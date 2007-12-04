@@ -8,12 +8,13 @@
  *
  * \author Ted Kolberg, ND
  * 
- * \version $Id: PositionCalc.h,v 1.8 2006/11/21 21:09:41 futyand Exp $
+ * \version $Id: PositionCalc.h,v 1.9 2007/05/10 21:10:47 tsirig Exp $
  *
  */
 
 #include <vector>
 #include <map>
+#include "Rtypes.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"

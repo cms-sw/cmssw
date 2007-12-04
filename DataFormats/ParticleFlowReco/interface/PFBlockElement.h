@@ -56,7 +56,7 @@ namespace reco {
   
     /// print the object inside the element
     virtual void Dump(std::ostream& out=std::cout, 
-		      const char* tab=" " ) const;
+                      const char* tab=" " ) const;
     
     /// necessary to have the edm::OwnVector<PFBlockElement> working
     virtual PFBlockElement* clone() const = 0;
@@ -85,7 +85,7 @@ namespace reco {
 
 
     friend std::ostream& operator<<( std::ostream& out, 
-				     const PFBlockElement& element );
+                                     const PFBlockElement& element );
     
   protected:  
   

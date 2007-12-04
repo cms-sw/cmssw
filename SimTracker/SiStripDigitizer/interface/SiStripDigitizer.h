@@ -24,6 +24,8 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
 
+#include "SimTracker/Common/interface/SimHitSelectorFromDB.h"
+
 #include <string>
 #include <vector>
 #include <map>
@@ -49,6 +51,8 @@ private:
 
   SiStripDigitizerAlgorithm * theDigiAlgo;
   SiStripFedZeroSuppression* theSiFEDZeroSuppress;
+  std::map<uint32_t, std::vector<int> > theDetIdList;
+  SimHitSelectorFromDB SimHitSelectorFromDB_;
   std::vector<edm::DetSet<SiStripDigi> > theDigiVector;
   std::vector<edm::DetSet<SiStripRawDigi> > theRawDigiVector;
   std::vector<edm::DetSet<StripDigiSimLink> > theDigiLinkVector;
@@ -58,8 +62,8 @@ private:
   int numStrips;    // number of strips in the module
   CLHEP::HepRandomEngine* rndEngine;
   std::string alias;
-  bool useGainFromDB_;
   bool zeroSuppression;
+  bool useConfFromDB;
 };
 
 #endif

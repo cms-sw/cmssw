@@ -1,9 +1,9 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFResolutionMap.h"
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <functional>
+#include <stdexcept>
 
 using namespace std;
 
@@ -67,9 +67,7 @@ PFResolutionMap::PFResolutionMap(const char* name, unsigned nbinseta,
 //   } 
 // }
 
-PFResolutionMap::PFResolutionMap(const char* name, const char* mapfile) 
-throw (string) 
-try {
+PFResolutionMap::PFResolutionMap(const char* name, const char* mapfile) { 
   
   SetTitle(mapfile);
   GetXaxis()->SetTitle("#eta");
@@ -77,12 +75,10 @@ try {
   if( ! ReadMapFile(mapfile) ) {
     string err = "PFResolutionMap::PFResolutionMap : cannot read file ";
     err += mapfile;
-    throw err;
+    throw invalid_argument(err);
   }
 }
-catch(string) {
-}
-  
+
 
 bool PFResolutionMap::WriteMapFile(const char* mapfile) {
 

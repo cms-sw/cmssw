@@ -19,6 +19,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <set>
@@ -74,10 +75,13 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   string map_HCAL_eta 
     = iConfig.getParameter<string>("pf_resolution_map_HCAL_eta");  
   string map_HCAL_phi 
-    = iConfig.getParameter<string>("pf_resolution_map_HCAL_phi");  
+    = iConfig.getParameter<string>("pf_resolution_map_HCAL_phi"); 
+	
+  double DPtovPtCut 
+     = iConfig.getParameter<double>("pf_DPtoverPt_Cut");   
 
-//   double chi2_ECAL_PS 
-//     = iConfig.getParameter<double>("pf_chi2_ECAL_PS");  
+  double chi2_ECAL_PS 
+     = iConfig.getParameter<double>("pf_chi2_ECAL_PS");  
 //   double chi2_HCAL_PS 
 //     = iConfig.getParameter<double>("pf_chi2_HCAL_PS");  
 
@@ -87,10 +91,13 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
     = iConfig.getParameter<double>("pf_chi2_HCAL_Track");  
   double chi2_ECAL_HCAL 
     = iConfig.getParameter<double>("pf_chi2_ECAL_HCAL");  
-//   double chi2_PS_Track 
-//     = iConfig.getParameter<double>("pf_chi2_PS_Track");  
-
-
+  double chi2_PS_Track 
+    = iConfig.getParameter<double>("pf_chi2_PS_Track");  
+  double chi2_PSH_PSV 
+    = iConfig.getParameter<double>("pf_chi2_PSH_PSV");  
+  
+  bool multiLink = 
+    iConfig.getUntrackedParameter<bool>("pf_multilink",false);
 
   //energyCalibration_ = new PFEnergyCalibration(iConfig);
 
@@ -106,23 +113,29 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 			      path_ECAL_phi.fullPath().c_str(),
 			      path_HCAL_eta.fullPath().c_str(),
 			      path_HCAL_phi.fullPath().c_str(),
+			      DPtovPtCut,
 			      chi2_ECAL_Track,
 			      chi2_HCAL_Track,
-			      chi2_ECAL_HCAL );
-
+			      chi2_ECAL_HCAL,
+			      chi2_ECAL_PS,
+			      chi2_PS_Track,
+			      chi2_PSH_PSV,
+			      multiLink );
+  
 
 //   energyCalibration_ = new PFEnergyCalibration();
 //   double calibParamECAL_slope_ 
 //     = iConfig.getParameter<double>("pf_ECAL_calib_p1");
 //   double calibParamECAL_offset_ 
 //     = iConfig.getParameter<double>("pf_ECAL_calib_p0");
-
+  
 //   energyCalibration_->setCalibrationParametersEm(calibParamECAL_slope_, calibParamECAL_offset_); 
   
 //   //   PFBlock::setEnergyCalibration(energyCalibration_);
 //   //energyResolution_ = new PFEnergyResolution(iConfig);
 
 //   energyResolution_ = new PFEnergyResolution();
+
 
 }
 
@@ -131,24 +144,25 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 PFBlockProducer::~PFBlockProducer() { }
 
 
+
 void PFBlockProducer::beginJob(const edm::EventSetup & es) { }
 
 
 void PFBlockProducer::produce(Event& iEvent, 
-			 const EventSetup& iSetup) {
+			      const EventSetup& iSetup) {
   
   LogDebug("PFBlockProducer")<<"START event: "<<iEvent.id().event()
-			<<" in run "<<iEvent.id().run()<<endl;
+			     <<" in run "<<iEvent.id().run()<<endl;
   
   
   
   // get rectracks
- 
+  
   Handle< reco::PFRecTrackCollection > recTracks;
   try{      
     // LogDebug("PFBlockProducer")<<"get HCAL clusters"<<endl;
     iEvent.getByLabel(recTrackModuleLabel_.c_str(), "", recTracks);
-      
+    
   } catch (cms::Exception& err) { 
     LogError("PFBlockProducer")<<err
 			       <<" cannot get collection "
@@ -159,8 +173,8 @@ void PFBlockProducer::produce(Event& iEvent,
   
   
   // get ECAL, HCAL and PS clusters
- 
-    
+  
+  
   Handle< reco::PFClusterCollection > clustersECAL;
   try{      
     // LogDebug("PFBlockProducer")<<"get ECAL clusters"<<endl;
@@ -174,14 +188,14 @@ void PFBlockProducer::produce(Event& iEvent,
 			       <<pfClusterECALInstanceName_
 			       <<endl;
   }
-    
+  
   
   Handle< reco::PFClusterCollection > clustersHCAL;
   try{      
     // LogDebug("PFBlockProducer")<<"get HCAL clusters"<<endl;
     iEvent.getByLabel(pfClusterModuleLabel_, pfClusterHCALInstanceName_, 
 		      clustersHCAL);
-      
+    
   } catch (cms::Exception& err) { 
     LogError("PFBlockProducer")<<err
 			       <<" cannot get collection "
@@ -192,25 +206,27 @@ void PFBlockProducer::produce(Event& iEvent,
     
 
 
-  //     Handle< reco::PFClusterCollection > clustersPS;
-  //     try{      
-  //       LogDebug("PFBlockProducer")<<"get PS clusters"<<endl;
-  //       iEvent.getByLabel(pfClusterModuleLabel_, pfClusterPSInstanceName_, 
-  // 			clustersPS);
-  //     } catch (cms::Exception& err) { 
-  //       LogError("PFBlockProducer")<<err
-  // 			    <<" cannot get collection "
-  // 			    <<pfClusterModuleLabel_<<":"
-  // 			    <<pfClusterPSInstanceName_
-  // 			    <<endl;
-  //     }
-    
-    
+
+  Handle< reco::PFClusterCollection > clustersPS;
+  try{      
+    //       LogDebug("PFBlockProducer")<<"get PS clusters"<<endl;
+    iEvent.getByLabel(pfClusterModuleLabel_, pfClusterPSInstanceName_, 
+		      clustersPS);
+  } catch (cms::Exception& err) { 
+    LogError("PFBlockProducer")<<err
+			       <<" cannot get collection "
+			       <<pfClusterModuleLabel_<<":"
+			       <<pfClusterPSInstanceName_
+			       <<endl;
+  }
+  
+  
   pfBlockAlgo_.setInput( recTracks, 
 			 clustersECAL,
-			 clustersHCAL );
+			 clustersHCAL,
+			 clustersPS );
   pfBlockAlgo_.findBlocks();
-   
+  
   if(verbose_) {
     ostringstream  str;
     str<<pfBlockAlgo_<<endl;
@@ -219,10 +235,10 @@ void PFBlockProducer::produce(Event& iEvent,
   
   auto_ptr< reco::PFBlockCollection > 
     pOutputBlockCollection( pfBlockAlgo_.transferBlocks() ); 
-
-
+  
+  
   iEvent.put(pOutputBlockCollection);
-
+  
   LogDebug("PFBlockProducer")<<"STOP event: "<<iEvent.id().event()
 			     <<" in run "<<iEvent.id().run()<<endl;
 }

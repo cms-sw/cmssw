@@ -19,12 +19,12 @@ class ESDataFrame {
     
   int size() const { return size_; }
 
-  const ESSample& operator[](int i) const { return data_[i]; }
-  const ESSample& sample(int i) const { return data_[i]; }
+  const ESSample& operator[](const int& i) const { return data_[i]; }
+  const ESSample& sample(const int& i) const { return data_[i]; }
     
-  void setSize(int size);
+  void setSize(const int& size);
 
-  void setSample(int i, const ESSample& sam) { data_[i] = sam; }
+  void setSample(const int& i, const ESSample& sam) { data_[i] = sam; }
 
   static const int MAXSAMPLES = 3;
 

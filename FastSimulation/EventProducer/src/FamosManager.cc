@@ -41,17 +41,18 @@
 #include <memory>
 #include <vector>
 
+#include "TRandom3.h"
+
 using namespace HepMC;
 
 FamosManager::FamosManager(edm::ParameterSet const & p)
     : iEvent(0),
-      //      myGenEvent(0),
       myPileUpSimulator(0),
       myCalorimetry(0),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_Tracking(p.getParameter<bool>("SimulateTracking")),
       m_Calorimetry(p.getParameter<bool>("SimulateCalorimetry")),
-      m_PileUp(p.getParameter<bool>("SimulatePileUp")),
+      m_TRandom(p.getParameter<bool>("UseTRandomEngine")),
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
       m_pVerbose(p.getUntrackedParameter<int>("Verbosity",1))
 {
@@ -65,7 +66,14 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
          "You must add the service in the configuration file\n"
          "or remove the module that requires it";
   }
-  random = new RandomEngine(&(*rng));
+
+  if ( !m_TRandom ) { 
+    random = new RandomEngine(&(*rng));
+  } else {
+    TRandom3* anEngine = new TRandom3();
+    anEngine->SetSeed(rng->mySeed());
+    random = new RandomEngine(anEngine);
+  }
 
   // Initialize the FSimEvent
   mySimEvent = 
@@ -82,12 +90,7 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 			  random);
 
   // Initialize PileUp Producer (if requested)
-  if ( m_PileUp ) {
-    myPileUpSimulator = 
-      new PileUpSimulator(mySimEvent,
-			  p.getParameter<edm::ParameterSet>("PileUpSimulator"),
-			  random);
-  }
+  myPileUpSimulator = new PileUpSimulator(mySimEvent);
 
   // Initialize Calorimetry Fast Simulation (if requested)
   if ( m_Calorimetry) 
@@ -104,6 +107,8 @@ FamosManager::~FamosManager()
   if ( myTrajectoryManager ) delete myTrajectoryManager; 
   if ( myPileUpSimulator ) delete myPileUpSimulator;
   if ( myCalorimetry) delete myCalorimetry;
+  if ( random->theRootEngine() ) delete random->theRootEngine();
+  delete random;
 }
 
 void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
@@ -114,19 +119,17 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
   mySimEvent->initializePdt(&(*pdt));
   ParticleTable::instance(&(*pdt));
 
-  // Geometry
-  edm::ESHandle<DDCompactView> pDD;
-  es.get<IdealGeometryRecord>().get(pDD);
-
-  // Initialize the tracker reco geometry (always needed)
+  // Initialize the tracker misaligned reco geometry (always needed)
+  // By default, the misaligned geometry is aligned
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
-  es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
+  es.get<TrackerRecoGeometryRecord>().get("MisAligned", theGeomSearchTracker );
   myTrajectoryManager->initializeRecoGeometry(&(*theGeomSearchTracker));
 
-  // Initialize the full tracker geometry (only if tracking is requested)
+  // Initialize the full (misaligned) tracker geometry (only if tracking is requested)
+  // By default, the misaligned geometry is aligned
   if ( m_Tracking ) {
     edm::ESHandle<TrackerGeometry> tracker;
-    es.get<TrackerDigiGeometryRecord>().get(tracker);
+    es.get<TrackerDigiGeometryRecord>().get("MisAligned",tracker);
 
     myTrajectoryManager->initializeTrackerGeometry(&(*tracker)); 
 
@@ -159,7 +162,8 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
 
 void 
 FamosManager::reconstruct(const HepMC::GenEvent* evt,
-			  const reco::CandidateCollection* particles) 
+			  const reco::CandidateCollection* particles,
+			  const HepMC::GenEvent* pu) 
 {
 
   //  myGenEvent = evt;
@@ -177,16 +181,13 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt,
 
 
     //    mySimEvent->printMCTruth(*evt);
-    /* 
+    /*
     mySimEvent->print();
     std::cout << "----------------------------------------" << std::endl;
     */
 
     // Get the pileup events and add the particles to the main event
-    if ( myPileUpSimulator ) { 
-      myPileUpSimulator->produce();
-      myPileUpSimulator->save();
-    }
+    myPileUpSimulator->produce(pu);
 
     /*
     mySimEvent->print();

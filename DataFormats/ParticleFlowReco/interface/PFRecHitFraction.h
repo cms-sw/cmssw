@@ -4,7 +4,6 @@
 #include <iostream>
 #include <vector>
 
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h" 
 
 namespace reco {
@@ -25,7 +24,7 @@ namespace reco {
     
     /// constructor
     PFRecHitFraction(const PFRecHitRef& recHitRef, 
-		     double fraction ) 
+                     double fraction ) 
       : recHitRef_(recHitRef), fraction_(fraction) {}
     
     /// copy
@@ -39,7 +38,7 @@ namespace reco {
     double fraction() const {return fraction_;}
     
     friend    std::ostream& operator<<(std::ostream& out,
-				       const PFRecHitFraction& hit);
+                                       const PFRecHitFraction& hit);
     
   private:
     

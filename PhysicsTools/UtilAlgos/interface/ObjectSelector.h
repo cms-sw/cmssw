@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.20 $
+ * \version $Revision: 1.22 $
  *
- * $Id: ObjectSelector.h,v 1.20 2007/05/17 08:36:35 llista Exp $
+ * $Id: ObjectSelector.h,v 1.22 2007/09/20 11:29:41 llista Exp $
  *
  */
 
@@ -29,11 +29,11 @@
 #include <algorithm>
 
 template<typename Selector, 
-         typename OutputCollection = typename helper::SelectedOutputCollectionTrait<typename Selector::collection>::type,
+         typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<typename Selector::collection>::type,
 	 typename SizeSelector = NonNullNumberSelector,
-	 typename PostProcessor = helper::NullPostProcessor<OutputCollection>,
-	 typename StoreManager = typename helper::StoreManagerTrait<OutputCollection>::type,
-	 typename Base = typename helper::StoreManagerTrait<OutputCollection>::base,
+	 typename PostProcessor = ::helper::NullPostProcessor<OutputCollection>,
+	 typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection>::type,
+	 typename Base = typename ::helper::StoreManagerTrait<OutputCollection>::base,
 	 typename Init = typename ::reco::modules::EventSetupInit<Selector>::type
 	 >
 class ObjectSelector : public Base {
@@ -62,7 +62,7 @@ private:
     using namespace std;
     edm::Handle<typename Selector::collection> source;
     evt.getByLabel( src_, source );
-    StoreManager manager;
+    StoreManager manager( source );
     selector_.select( source, evt );
     manager.cloneAndStore( selector_.begin(), selector_.end(), evt );
     bool result = ( ! filter_ || sizeSelector_( manager.size() ) );

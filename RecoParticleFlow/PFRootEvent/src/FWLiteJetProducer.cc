@@ -53,8 +53,8 @@ void FWLiteJetProducer::updateParameter(){
   algoIC_= new CMSIterativeConeAlgorithm(seedThreshold_,coneRadius_ );
   algoMC_= new CMSMidpointAlgorithm(seedThreshold_, coneRadius_,coneAreaFraction_, 
 				    maxPairSize_, maxIterations_, overlapThreshold_, 0) ; 
-  algoF_.setPtMin(ptMin_);
-  algoF_.setRParam(rparam_);
+    algoF_.setPtMin(ptMin_);
+   algoF_.setRParam(rparam_);
   print();
 }
 
@@ -113,7 +113,7 @@ void FWLiteJetProducer::makeFastJets(const InputCollection& fInput, OutputCollec
     std::cout << "empty input for jet algorithm: bypassing..." << std::endl;
   }
   else {                                      
-    algoF_.run(fInput, &(*fOutput));
+       algoF_.run(fInput, &(*fOutput));
   } 
 }
 

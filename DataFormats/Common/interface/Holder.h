@@ -1,3 +1,4 @@
+
 #ifndef DataFormats_Common_Holder_h
 #define DataFormats_Common_Holder_h
 #include "DataFormats/Common/interface/BaseHolder.h"
@@ -22,6 +23,7 @@ namespace edm {
 
       virtual T const* getPtr() const;
       virtual ProductID id() const;
+      virtual size_t key() const;
       virtual bool isEqualTo(BaseHolder<T> const& rhs) const;
       REF const& getRef() const;
 
@@ -32,6 +34,10 @@ namespace edm {
 	return std::auto_ptr<RefHolderBase>( new RefHolder<REF>( ref_ ) );
       }
       virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const;
+      virtual std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() const;
+      virtual EDProductGetter const* productGetter() const;
+      virtual bool hasProductCache() const;
+      virtual void const * product() const;
 
     private:
       REF ref_;
@@ -126,6 +132,24 @@ namespace edm {
     }
 
     template <class T, class REF>
+    inline
+    EDProductGetter const* Holder<T,REF>::productGetter() const {
+      return ref_.productGetter();
+    }
+
+    template <class T, class REF>
+    inline
+    bool Holder<T,REF>::hasProductCache() const {
+      return ref_.hasProductCache();
+    }
+
+    template <class T, class REF>
+    inline
+    void const * Holder<T,REF>::product() const {
+      return ref_.product();
+    }
+
+    template <class T, class REF>
     bool
     Holder<T,REF>::fillRefIfMyTypeMatches(RefHolderBase& fillme,
 					  std::string& msg) const
@@ -145,6 +169,7 @@ namespace edm {
 }
 
 #include "DataFormats/Common/interface/HolderToVectorTrait.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 namespace edm {
   namespace reftobase {
@@ -155,7 +180,29 @@ namespace edm {
       return helper::makeVectorHolder();
     }
 
+    template <typename T, typename REF>
+    std::auto_ptr<RefVectorHolderBase> Holder<T,REF>::makeVectorBaseHolder() const {
+      typedef typename HolderToVectorTrait<T, REF>::type helper;
+      return helper::makeVectorBaseHolder();
+    }
+
   }
 }
 
+#include "DataFormats/Common/interface/RefKeyTrait.h"
+
+namespace edm {
+  namespace reftobase {
+
+    template <class T, class REF>
+    inline
+    size_t
+    Holder<T,REF>::key() const
+    {
+      typedef typename RefKeyTrait<REF>::type helper;
+      return helper::key( ref_ );
+    }
+    
+  }
+}
 #endif

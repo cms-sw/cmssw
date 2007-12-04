@@ -4,13 +4,14 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "Rtypes.h" 
 #include <vector>
 #include <cmath>
 
 /** \class CaloTower
     
-$Date: 2005/12/15 20:42:41 $
-$Revision: 1.3 $
+$Date: 2006/03/29 21:26:26 $
+$Revision: 1.4 $
 \author J. Mans - Minnesota
 */
 class CaloTower {

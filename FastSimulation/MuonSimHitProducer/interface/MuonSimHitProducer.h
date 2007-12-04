@@ -15,7 +15,7 @@
 //
 //  Author:  Martijn Mulders
 // Created:  Wed July 11 12:37:24 CET 2007
-// $Id: MuonSimHitProducer.h,v 1.0 2007/07/11 13:53:50 mulders Exp $
+// $Id: MuonSimHitProducer.h,v 1.2 2007/11/10 20:11:06 mulders Exp $
 //
 
 
@@ -26,30 +26,26 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 
 // FastSimulation headers
-class SimpleL1MuGMTCand;
-class FML1EfficiencyHandler;
-class FML1PtSmearer;
-class FML3EfficiencyHandler; 
-class FML3PtSmearer;
-class FMGLfromL3EfficiencyHandler; 
-class FMGLfromL3TKEfficiencyHandler; 
-class FMGLfromTKEfficiencyHandler; 
-
+class MuonTrajectoryUpdator;
 class RandomEngine;
+class MagneticField;
+class TrackerGeometry;
+class DTGeometry;
+class CSCGeometry;
+class RPCGeometry;
+class MuonServiceProxy;
 
+/*
 namespace reco { 
   class Muon;
 }
+*/
 
 namespace edm { 
   class ParameterSet;
   class Event;
   class EventSetup;
 }
-
-// Data Formats
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 //
 // class declaration
@@ -64,43 +60,25 @@ class MuonSimHitProducer : public edm::EDProducer {
    private:
 
       const RandomEngine * random;
+      MuonServiceProxy *theService;
+      MuonTrajectoryUpdator *theUpdator;
 
-      typedef std::vector<SimpleL1MuGMTCand*> FML1Muons;
-      typedef std::vector<L1MuGMTCand> L1MuonsContainer;
+      const MagneticField*  magfield;
+      const DTGeometry*     dtGeom;
+      const CSCGeometry*    cscGeom;
+      const RPCGeometry*    rpcGeom;
 
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       void readParameters(const edm::ParameterSet&, const edm::ParameterSet& );
-      void reconstruct();
-      void loadL1Muons(L1MuonsContainer & c) const;
-      void loadL3Muons(reco::MuonCollection & c) const;
-      void loadGLMuons(reco::MuonCollection & c) const;
-    
-  // ---------- member data ---------------------------
-
-      FML1Muons  mySimpleL1MuonCands;
-      FML1EfficiencyHandler * myL1EfficiencyHandler;
-      FML1PtSmearer * myL1PtSmearer;
-
-      reco::MuonCollection  mySimpleL3MuonCands;
-      FML3EfficiencyHandler * myL3EfficiencyHandler;
-      FML3PtSmearer * myL3PtSmearer;
-
-      reco::MuonCollection  mySimpleGLMuonCands;
-      FMGLfromL3EfficiencyHandler * myGLfromL3EfficiencyHandler;
-      FMGLfromL3TKEfficiencyHandler * myGLfromL3TKEfficiencyHandler;
-      FMGLfromTKEfficiencyHandler * myGLfromTKEfficiencyHandler;
-      FML3PtSmearer * myGLPtSmearer;
-      
+          
   // ----------- parameters ---------------------------- 
       bool debug_;
       bool fullPattern_;
       bool doL1_ , doL3_ , doGL_;
       std::string theSimModuleLabel_ , theSimModuleProcess_, theTrkModuleLabel_ ;
       double minEta_ ,  maxEta_;
-  // ----------- counters ------------------------------
-      int   nMuonTot , nL1MuonTot , nL3MuonTot , nGLMuonTot;
 };
 
 #endif

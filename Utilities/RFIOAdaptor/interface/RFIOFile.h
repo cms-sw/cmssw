@@ -3,6 +3,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
+# include "Utilities/StorageTypes/interface/RFIOStorage.h"
 # include "SealBase/Storage.h"
 # include "SealBase/FileAcl.h"
 # include "SealBase/IOChannel.h"
@@ -38,7 +39,7 @@ inline void push(IOVec& vec, off64_t b, int l) {
 
 using namespace seal;
 /** RFIO #Storage object.  */
-class RFIOFile : public seal::Storage
+class RFIOFile : public RFIOStorage
 {
 public:
     RFIOFile (void);
@@ -73,7 +74,7 @@ public:
     virtual void	close (void);
     virtual void	abort (void);
 
-  virtual void          preseek(const IOVec& iov);
+    virtual void        preseek(const IOVec& iov);
 
 private:
 

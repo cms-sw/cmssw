@@ -6,7 +6,7 @@
 Several fillView function templates, to provide View support for 
 Standard Library containers.
 
-$Id: FillView.h,v 1.2 2007/05/24 16:35:46 paterno Exp $
+$Id: FillView.h,v 1.7 2007/10/02 10:48:30 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -15,31 +15,39 @@ $Id: FillView.h,v 1.2 2007/05/24 16:35:46 paterno Exp $
 #include <list>
 #include <deque>
 #include <set>
+#include "DataFormats/Common/interface/RefTraits.h"
+#include "DataFormats/Common/interface/RefVectorTraits.h"
+#include "DataFormats/Common/interface/GetProduct.h"
 
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-
-namespace edm 
-{
-
-  namespace detail 
-  {
+namespace edm {
+  template<typename C, typename T, typename F> class RefVector;
+  template<typename C, typename T, typename F> class Ref;
+  namespace detail {
 
     // Function template reallyFillView<C> can fill views for
     // standard-library collections of appropriate types (vector, list,
     // deque, set).
 
-    template<typename C>
-    struct FillViewRefTypeTrait {
-      typedef Ref<C> type;
-    };
-    
     template<typename C, typename T, typename F>
-    struct FillViewRefTypeTrait<RefVector<C, T, F> > {
-      typedef typename RefVector<C, T, F>::value_type type;
+    struct FillViewRefTypeTrait {
+      typedef Ref<C, T, F> type;
     };
     
+    template<typename C, typename T, typename F, typename T1, typename F1>
+    struct FillViewRefTypeTrait<RefVector<C, T, F>, T1, F1> {
+      typedef typename refhelper::RefVectorTrait<C, T, F>::ref_type type;
+    };
+  }
+}
+
+#include "DataFormats/Common/interface/EDProductfwd.h"
+#include "DataFormats/Common/interface/RefHolder_.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Common/interface/RefVectorHolderBase.h"
+
+namespace edm {
+  namespace detail {
+
     template <class COLLECTION>
     void
     reallyFillView(COLLECTION const& coll,
@@ -48,17 +56,21 @@ namespace edm
 		   helper_vector& helpers)
     {
       typedef COLLECTION                            product_type;
-      typedef typename product_type::value_type     element_type;
+      typedef typename GetProduct<product_type>::element_type     element_type;
       typedef typename product_type::const_iterator iter;
       typedef typename product_type::size_type      size_type;
-      typedef typename FillViewRefTypeTrait<product_type>::type ref_type;
+      typedef typename FillViewRefTypeTrait<product_type, 
+	typename refhelper::ValueTrait<product_type>::value, 
+	typename refhelper::FindTrait<product_type, 
+	typename refhelper::ValueTrait<product_type>::value>::value>::type ref_type;
       typedef reftobase::RefHolder<ref_type>        holder_type;
       
       size_type key = 0;
       for (iter i = coll.begin(), e = coll.end(); i!=e; ++i, ++key) {
-	element_type const* address = &*i;
+	element_type const* address = GetProduct<product_type>::address(i);
 	ptrs.push_back(address);
-	holder_type h(ref_type(id, address, key));
+	ref_type ref(id, address, key, GetProduct<product_type>::product(coll) );
+	holder_type h(ref);
 	helpers.push_back(&h);
       }
     }
@@ -105,5 +117,13 @@ namespace edm
   }
 
 }
+
+#include "DataFormats/Common/interface/RefHolder.h"
+
+/*
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+*/
 
 #endif

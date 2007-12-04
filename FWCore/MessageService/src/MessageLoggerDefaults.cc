@@ -7,12 +7,18 @@
 //
 // Changes:
 //
+// 11/02/07 mf	Corrected sev_limit, sev_reportEvery, and sev_timespan
+//  		changing if (c != def_destin.category.end()) to
+//		if (c != def_destin.sev.end()) if 4 places in each.
+//		This fixes the skipped framework job report message 
+//		problem.  The bug also could have been causing other 
+//		messages to be skipped.  
+//
 // ----------------------------------------------------------------------
 
 
 
 #include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
-#include <string>
 
 namespace edm {
 namespace service {
@@ -187,7 +193,7 @@ sev_limit(std::string const & dest, std::string const & cat)
   if (d != destination.end()) {
     Destination & destin = d->second;
     std::map<std::string,Category>::iterator c = destin.sev.find(cat);
-    if (c != destin.category.end()) {
+    if (c != destin.sev.end()) {
       lim = c->second.limit;
     } 
   }
@@ -197,7 +203,7 @@ sev_limit(std::string const & dest, std::string const & cat)
       Destination & def_destin = dd->second;
       std::map<std::string,Category>::iterator 
 		      c = def_destin.sev.find(cat);
-      if (c != def_destin.category.end()) {
+      if (c != def_destin.sev.end()) {
         lim = c->second.limit;
       } 
     }
@@ -207,7 +213,7 @@ sev_limit(std::string const & dest, std::string const & cat)
       Destination & destin = d->second;
       std::map<std::string,Category>::iterator 
 		      cd = destin.sev.find("default");
-      if (cd != destin.category.end()) {
+      if (cd != destin.sev.end()) {
         lim = cd->second.limit;
       } 
     }
@@ -217,7 +223,7 @@ sev_limit(std::string const & dest, std::string const & cat)
       Destination & def_destin = dd->second;
       std::map<std::string,Category>::iterator 
 		      cdd = def_destin.sev.find("default");
-      if (cdd != def_destin.category.end()) {
+      if (cdd != def_destin.sev.end()) {
         lim = cdd->second.limit;
       } 
     }
@@ -234,7 +240,7 @@ sev_reportEvery(std::string const & dest, std::string const & cat)
   if (d != destination.end()) {
     Destination & destin = d->second;
     std::map<std::string,Category>::iterator c = destin.sev.find(cat);
-    if (c != destin.category.end()) {
+    if (c != destin.sev.end()) {
       re = c->second.reportEvery;
     } 
   }
@@ -244,7 +250,7 @@ sev_reportEvery(std::string const & dest, std::string const & cat)
       Destination & def_destin = dd->second;
       std::map<std::string,Category>::iterator 
 		      c = def_destin.sev.find(cat);
-      if (c != def_destin.category.end()) {
+      if (c != def_destin.sev.end()) {
         re = c->second.reportEvery;
       } 
     }
@@ -254,7 +260,7 @@ sev_reportEvery(std::string const & dest, std::string const & cat)
       Destination & destin = d->second;
       std::map<std::string,Category>::iterator 
 		      cd = destin.sev.find("default");
-      if (cd != destin.category.end()) {
+      if (cd != destin.sev.end()) {
         re = cd->second.reportEvery;
       } 
     }
@@ -264,7 +270,7 @@ sev_reportEvery(std::string const & dest, std::string const & cat)
       Destination & def_destin = dd->second;
       std::map<std::string,Category>::iterator 
 		      cdd = def_destin.sev.find("default");
-      if (cdd != def_destin.category.end()) {
+      if (cdd != def_destin.sev.end()) {
         re = cdd->second.reportEvery;
       } 
     }
@@ -281,7 +287,7 @@ sev_timespan(std::string const & dest, std::string const & cat)
   if (d != destination.end()) {
     Destination & destin = d->second;
     std::map<std::string,Category>::iterator c = destin.sev.find(cat);
-    if (c != destin.category.end()) {
+    if (c != destin.sev.end()) {
       tim = c->second.timespan;
     } 
   }
@@ -291,7 +297,7 @@ sev_timespan(std::string const & dest, std::string const & cat)
       Destination & def_destin = dd->second;
       std::map<std::string,Category>::iterator 
 		      c = def_destin.sev.find(cat);
-      if (c != def_destin.category.end()) {
+      if (c != def_destin.sev.end()) {
         tim = c->second.timespan;
       } 
     }
@@ -301,7 +307,7 @@ sev_timespan(std::string const & dest, std::string const & cat)
       Destination & destin = d->second;
       std::map<std::string,Category>::iterator 
 		      cd = destin.sev.find("default");
-      if (cd != destin.category.end()) {
+      if (cd != destin.sev.end()) {
         tim = cd->second.timespan;
       } 
     }
@@ -311,7 +317,7 @@ sev_timespan(std::string const & dest, std::string const & cat)
       Destination & def_destin = dd->second;
       std::map<std::string,Category>::iterator 
 		      cdd = def_destin.sev.find("default");
-      if (cdd != def_destin.category.end()) {
+      if (cdd != def_destin.sev.end()) {
         tim = cdd->second.timespan;
       } 
     }

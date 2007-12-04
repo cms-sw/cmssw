@@ -26,6 +26,7 @@ namespace edm {
       typedef std::map<std::string, NodePtr> NodePtrMap;
 
       static void setStrictParsing(bool strict);
+      static void doReplaces(bool doOrNotDo);
 
       explicit ParseTree(const std::string & configString);
 
@@ -139,6 +140,7 @@ namespace edm {
 
       /// warnings or exceptions?
       static bool strict_;
+      static bool doReplaces_;
     };
   }
 }

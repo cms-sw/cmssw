@@ -6,6 +6,7 @@
 
 class RedundantSeedCleaner {
   public:
+  virtual ~RedundantSeedCleaner(){}
    /** \brief Informs the cleaner that a new trajectory has been made, in case the cleaner keeps a local collection of those tracks (i.e. in a map) */
    virtual void add(const Trajectory *traj) = 0;
 

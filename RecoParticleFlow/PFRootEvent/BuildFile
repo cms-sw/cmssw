@@ -1,6 +1,5 @@
 <use name=FWCore/Framework>
 <use name=FWCore/FWLite>
-<use name=clhep>
 <use name=fastjet>
 <use name=ktjet>
 <use name=DataFormats/CaloTowers>
@@ -12,7 +11,6 @@
 <use name=RecoParticleFlow/PFAlgo>
 <use name=DataFormats/TrackReco>
 <use name=SimDataFormats/HepMCProduct>
-<use name=RecoJets/JetProducers>
 <use name=DataFormats/JetReco>
 <use name=RecoJets/JetAlgorithms>
 <use name=root>
@@ -22,18 +20,14 @@
 <export>
 <lib name=RecoParticleFlowPFRootEvent>
 <use name=FWCore/Framework>
-<use name=clhep>
+<use name=DataFormats/CaloTowers>
 <use name=fastjet>
 <use name=ktjet>
-<use name=DataFormats/CaloTowers>
 <use name=DataFormats/ParticleFlowReco>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/Math>
 <use name=DataFormats/TrackReco>
-<use name=DataFormats/Math>
-<use name=DataFormats/TrackReco> 
 <use name=DataFormats/JetReco>
-<use name=RecoJets/JetProducers> 
 <use name=RecoJets/JetAlgorithms>
 <use name=RecoParticleFlow/PFClusterAlgo>
 <use name=RecoParticleFlow/PFBlockAlgo> 

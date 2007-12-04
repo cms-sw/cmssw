@@ -23,10 +23,11 @@ public:
 
 
 private:
-
-    std::string m_file_name;
-    std::fstream m_file;
-    int m_fedid;
-
+  
+  bool open_file();
+  std::string m_file_name;
+  std::fstream m_file;
+  uint32_t m_fileindex;
+  int m_fedid;
 };
 #endif

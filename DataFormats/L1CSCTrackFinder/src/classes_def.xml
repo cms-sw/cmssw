@@ -23,14 +23,11 @@
 
    <class name="std::vector<std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > >"/>
 
-   <class name="edm::Wrapper<std::vector<csc::L1Track> >"
-            id="8CF9BE35-251F-30F9-62CA-A42659AECDC7"/>
+   <class name="edm::Wrapper<std::vector<csc::L1Track> >"/>
 
-   <class name="edm::Wrapper<std::vector<std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > > >"
-            id="608223FE-4B97-5638-1E14-4B20A252615E"/>
+   <class name="edm::Wrapper<std::vector<std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > > >" splitLevel="0"/>
 
-   <class name="edm::Wrapper<CSCTriggerContainer<csctf::TrackStub> >"
-            id="F2DA545D-C224-2D48-4DEC-598E9C809409"/>
+   <class name="edm::Wrapper<CSCTriggerContainer<csctf::TrackStub> >"/>
 
-   <class name="edm::Wrapper< std::pair< int, std::vector<L1CSCSPStatusDigi> > >"/>
+   <class name="edm::Wrapper< std::pair< int, std::vector<L1CSCSPStatusDigi> > >" splitLevel="0"/>
 </lcgdict>

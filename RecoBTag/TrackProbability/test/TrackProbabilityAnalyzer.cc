@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TrackProbabilityAnalyzer.cc,v 1.6 2007/02/14 17:13:53 arizzi Exp $
+// $Id: TrackProbabilityAnalyzer.cc,v 1.5 2007/01/23 14:11:02 arizzi Exp $
 //
 //
 
@@ -123,4 +123,5 @@ TrackProbabilityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TrackProbabilityAnalyzer);
+DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_MODULE(TrackProbabilityAnalyzer);

@@ -16,6 +16,7 @@ namespace reco {
   namespace modules {
     namespace plugin {
       typedef reco::modules::CandCombiner<
+	reco::CandidateCollection,
 	StringCutObjectSelector<reco::Candidate>
       > CandCombiner;
       

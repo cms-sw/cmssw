@@ -1,6 +1,11 @@
 #define G__DICTIONARY
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "Rtypes.h" 
+#include "Math/PxPyPzE4D.h" 
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "Math/Cartesian3D.h" 
+#include "Math/Polar3D.h" 
+#include "Math/CylindricalEta3D.h" 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"

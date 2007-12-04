@@ -5,14 +5,15 @@
   
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
-$Id: RefCore.h,v 1.13 2007/05/16 22:31:59 paterno Exp $
+$Id: RefCore.h,v 1.18 2007/10/31 19:06:01 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
+#include <algorithm>
 
 namespace edm {
-
+  class EDProduct;
   class RefCore {
   public:
     RefCore() : id_(), prodPtr_(0), prodGetter_(0) {}
@@ -37,6 +38,11 @@ namespace edm {
     // Checks for null
     bool operator!() const {return isNull();}
 
+    // Checks if collection is in memory or available
+    // in the Event. No type checking is done.
+
+    bool isAvailable() const;
+
     EDProductGetter const* productGetter() const {
       if (!prodGetter_) setProductGetter(EDProductGetter::instance());
       return prodGetter_;
@@ -44,9 +50,11 @@ namespace edm {
 
     void setProductGetter(EDProductGetter const* prodGetter) const {prodGetter_ = prodGetter;}
 
-    void setProductPointer(void const* prodPtr) const {prodPtr_ = prodPtr;}
+    EDProduct const* getProductPtr() const;
 
-    void checkDereferenceability() const;
+    void swap( RefCore & );
+    
+    void setId(const ProductID& iId) { id_ = iId;}
 
  private:
 
@@ -73,10 +81,19 @@ namespace edm {
     return lhs.id() < rhs.id();
   }
 
-  void wrongReType(std::string const& found, std::string const& requested);
+  inline 
+  void
+  RefCore::swap( RefCore & other ) {
+    std::swap( id_, other.id_ );
+    std::swap( prodPtr_, other.prodPtr_ );
+    std::swap( prodGetter_, other.prodGetter_ );
+  }
 
   void checkProduct(RefCore const& productToBeInserted, RefCore & commonProduct);
 
+  inline void swap( edm::RefCore & lhs, edm::RefCore & rhs ) {
+    lhs.swap( rhs );
+  }
 }
 
 #endif

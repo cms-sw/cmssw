@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.29 2007/06/24 23:00:53 wmtan Exp $
+$Id: InputSource.h,v 1.30 2007/06/25 23:22:12 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -51,6 +51,7 @@ $Id: InputSource.h,v 1.29 2007/06/24 23:00:53 wmtan Exp $
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -139,13 +140,19 @@ namespace edm {
     void doEndJob();
 
     /// Called by framework when events are exhausted.
-    void doFinishLumi(LuminosityBlockPrincipal& lbp) {finishLumi(lbp);}
-    void doFinishRun(RunPrincipal& rp) {finishRun(rp);}
+    void doFinishLumi(LuminosityBlockPrincipal& lbp);
+    void doFinishRun(RunPrincipal& rp);
+
+    /// Accessor for the current time, as seen by the input source
+    Timestamp const& timestamp() const {return time_;}
 
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
 
   protected:
+    /// To set the current time, as seen by the input source
+    void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
+
     ProductRegistry & productRegistryUpdate() const {return const_cast<ProductRegistry &>(*productRegistry_);}
 
   private:
@@ -160,13 +167,13 @@ namespace edm {
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
-    virtual void wakeUp_(){}
+    virtual void wakeUp_();
     void preRead();
     void postRead(Event& event);
-    virtual void finishLumi(LuminosityBlockPrincipal &){}
-    virtual void finishRun(RunPrincipal &){}
-    virtual void beginJob(EventSetup const&){}
-    virtual void endJob(){}
+    virtual void endLuminosityBlock(LuminosityBlock &);
+    virtual void endRun(Run &);
+    virtual void beginJob(EventSetup const&);
+    virtual void endJob();
 
   private:
 
@@ -177,6 +184,7 @@ namespace edm {
     ModuleDescription const moduleDescription_;
     boost::shared_ptr<ProductRegistry const> productRegistry_;
     bool const primary_;
+    Timestamp time_;
   };
 }
 

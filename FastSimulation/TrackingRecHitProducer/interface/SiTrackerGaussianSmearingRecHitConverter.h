@@ -85,6 +85,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   bool doMatching;
 
   const TrackerGeometry* geometry;
+  const TrackerGeometry* misAlignedGeometry;
   //
   // Pixel
   std::string thePixelMultiplicityFileName;

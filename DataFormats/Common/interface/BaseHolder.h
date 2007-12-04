@@ -6,6 +6,7 @@ namespace edm {
 
   namespace reftobase {
     template<typename T> class BaseVectorHolder;
+    class RefVectorHolderBase;
 
     //------------------------------------------------------------------
     // Class template BaseHolder<T>
@@ -19,6 +20,7 @@ namespace edm {
     template <class T>
     class BaseHolder {
     public:
+      BaseHolder();
       virtual ~BaseHolder();
       virtual BaseHolder<T>* clone() const = 0;
 
@@ -29,7 +31,7 @@ namespace edm {
       // Return the ProductID of the collection to which the hidden
       // Ref refers.
       virtual ProductID id() const = 0;
-
+      virtual size_t key() const = 0;
       // Check to see if the Ref hidden in 'rhs' is equal to the Ref
       // hidden in 'this'. They can not be equal if they are of
       // different types. Note that the equality test also returns
@@ -47,10 +49,14 @@ namespace edm {
       virtual std::auto_ptr<RefHolderBase> holder() const = 0;
 
       virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const = 0;
+      virtual std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() const = 0;
+
+      virtual EDProductGetter const* productGetter() const = 0;
+      virtual bool hasProductCache() const = 0;
+      virtual void const * product() const = 0;
 
     protected:
       // We want the following called only by derived classes.
-      BaseHolder();
       BaseHolder(BaseHolder const& other);
       BaseHolder& operator= (BaseHolder const& rhs);
 

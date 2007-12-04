@@ -38,10 +38,10 @@ void HcalMTCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
   cout << "MTCC occupancy threshold set to " << occThresh_ << endl;
   
   dumpThresh_ = ps.getUntrackedParameter<double>("DumpThreshold", -1);
-  dumpEtaLo_ = ps.getUntrackedParameter<int>("DumpEtaLow", -1);
-  dumpEtaHi_ = ps.getUntrackedParameter<int>("DumpEtaHigh", -1);
-  dumpPhiLo_ = ps.getUntrackedParameter<int>("DumpPhiLow", -1);
-  dumpPhiHi_ = ps.getUntrackedParameter<int>("DumpPhiHigh", -1);
+  dumpEtaLo_ = ps.getUntrackedParameter<double>("DumpEtaLow", -1);
+  dumpEtaHi_ = ps.getUntrackedParameter<double>("DumpEtaHigh", -1);
+  dumpPhiLo_ = ps.getUntrackedParameter<double>("DumpPhiLow", -1);
+  dumpPhiHi_ = ps.getUntrackedParameter<double>("DumpPhiHigh", -1);
 
   ievt_=0;
   

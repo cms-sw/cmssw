@@ -14,7 +14,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.20 2007/02/13 22:39:48 marafino Exp $
+// $Id: MessageLogger.h,v 1.24 2007/08/16 19:36:04 fischler Exp $
 //
 // =================================================
 // Change log
@@ -27,6 +27,12 @@
 // 3 mf 10/30/06    Added LogSystem and LogPrint
 //
 // 4 mf 6/1/07      Added LogAbsolute and LogProblem
+//
+// 5 mf 7/24/07     Added HaltMessageLogging
+//
+// 6 mf 8/7/07      Added FlushMessageLog
+//
+// 7 mf 8/7/07      Added GroupLogStatistics(category)
 //
 // =================================================
 
@@ -41,6 +47,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageSender.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"	// Change log 5
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
 namespace edm  {
@@ -230,7 +237,6 @@ private:
 };  // LogAbsolute
 
 
-
 void LogStatistics(); 
 
 class LogDebug_
@@ -293,6 +299,9 @@ public:
   bool isDebugEnabled();
   bool isInfoEnabled();
   bool isWarningEnabled();
+  void HaltMessageLogging();
+  void FlushMessageLog();
+  void GroupLogStatistics(std::string const & category);
 
 }  // namespace edm
 

@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.2 2007/06/11 15:30:42 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.1 2007/05/20 18:08:09 fblekman Exp $
 //
 //
 
@@ -39,7 +39,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
 
-#include "CalibFormats/SiPixelObjects/interface/PixelCalib.h"
+#include "CalibTracker/SiPixelGainCalibration/interface/PixelCalib.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalib.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelSLinkDataHit.h"
 

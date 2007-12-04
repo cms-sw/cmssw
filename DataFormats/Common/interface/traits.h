@@ -5,7 +5,7 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.13 2007/03/15 13:32:23 paterno Exp $
+$Id: traits.h,v 1.14 2007/03/27 16:16:36 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -236,6 +236,55 @@ namespace edm
 
   template <class T, class A>
   struct has_fillView<std::set<T,A> >
+  {
+    static bool const value = true;
+  };
+
+
+  //------------------------------------------------------------
+  //
+  // The trait struct template has_setPtr<T> is used to
+  // indicate whether or not the type T has a member function
+  //
+  //      void T::setPtr(const std::type_info&, void const*&) const
+  //
+  // We assume the 'general case' for T is to not support fillView.
+  // Classes which do support fillView must specialize this trait.
+  //
+  //------------------------------------------------------------
+  
+  template <class T>
+    struct has_setPtr
+  {
+    static bool const value = false;
+  };
+  
+  template <class T, class A>
+    struct has_setPtr<std::vector<T,A> >
+  {
+    static bool const value = true;
+  };
+  
+  template <class A>
+    struct has_setPtr<std::vector<bool,A> >
+  {
+    static bool const value = false;
+  };
+  
+  template <class T, class A>
+    struct has_setPtr<std::list<T,A> >
+  {
+    static bool const value = true;
+  };
+  
+  template <class T, class A>
+    struct has_setPtr<std::deque<T,A> >
+  {
+    static bool const value = true;
+  };
+  
+  template <class T, class A>
+    struct has_setPtr<std::set<T,A> >
   {
     static bool const value = true;
   };

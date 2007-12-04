@@ -47,6 +47,11 @@ namespace service {
 //   5 - 6/15/07 mf
 //	 Accommodations for use of MessageLoggerDefault structure 
 //
+//   5 - 7/24/07 mf
+//	 Instace variable indicating that we really are logging what is sent.
+//	 This is to be able to supress the <generator> info sent at exit by
+//	 the JobReport, in the case where no .cfg file was given. 
+//
 // -----------------------------------------------------------------------
 
 class MessageLoggerScribe
@@ -145,7 +150,8 @@ private:
   static ErrorLog		    * static_errorlog_p;
   bool				      clean_slate_configuration;
   value_ptr<MessageLoggerDefaults>    messageLoggerDefaults;
-  
+  bool				      active;
+    
 };  // MessageLoggerScribe
 
 

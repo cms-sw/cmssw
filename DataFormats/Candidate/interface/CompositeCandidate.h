@@ -9,11 +9,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.15 2007/05/14 11:59:26 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.16.2.1 2007/11/23 14:14:57 llista Exp $
  *
  */
 
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
+#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 
 namespace reco {
 
@@ -27,10 +28,12 @@ namespace reco {
     CompositeCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			int pdgId = 0, int status = 0, bool integerCharge = true ) :
       Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
-     /// constructor from values
+    /// constructor from values
     CompositeCandidate( const Particle & p ) :
       Candidate( p ) { }
-   /// destructor
+    /// constructor from values
+    CompositeCandidate( const Candidate & p );
+    /// destructor
     virtual ~CompositeCandidate();
     /// returns a clone of the candidate
     virtual CompositeCandidate * clone() const;

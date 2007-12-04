@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.15 2007/04/24 09:40:46 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.5 2006/12/05 17:46:07 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -17,37 +17,21 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <sstream>
+#include<sstream>
 
-#include "xdata/Table.h"
-#include "xdata/TableIterator.h"
-#include "xdata/Integer.h"
-#include "xdata/UnsignedInteger.h"
-#include "xdata/UnsignedInteger32.h"
-#include "xdata/UnsignedInteger64.h"
-#include "xdata/UnsignedShort.h"
-#include "xdata/UnsignedLong.h"
-#include "xdata/Float.h"
-#include "xdata/Double.h"
-#include "xdata/Boolean.h"
-#include "xdata/String.h"
-#include "xdata/TimeVal.h"
 
-#include "xdata/exdr/FixedSizeInputStreamBuffer.h"
-#include "xdata/exdr/AutoSizeOutputStreamBuffer.h"
-#include "xdata/exdr/Serializer.h"
 
-#include "xdaq/ApplicationDescriptor.h"
-#include "xdaq/ApplicationContext.h"
-
-#include "TSQLServer.h"
-#include "TSQLResult.h"
+#include "xoap/MessageReference.h"
+#include "xoap/MessageFactory.h"
+#include "xoap/Method.h"
+#include "xoap/SOAPEnvelope.h"
+#define TSTORE_NS_URI "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd" //eventually I suppose this will be defined in a header somewhere
 
 
 using namespace std;
 using namespace cgicc;
+using namespace xcept;
 
-//-----------------------------------------------------------------------------------------------
 SiStripHistoricInfoClient::SiStripHistoricInfoClient(xdaq::ApplicationStub *stub) 
   : DQMBaseClient(
 		  stub,       // the application stub - do not change
@@ -59,79 +43,77 @@ SiStripHistoricInfoClient::SiStripHistoricInfoClient(xdaq::ApplicationStub *stub
   // Instantiate a web interface:
   webInterface_p = new SiStripHistoricInfoWebInterface(getContextURL(),getApplicationURL(), & mui_);
   xgi::bind(this, &SiStripHistoricInfoClient::handleWebRequest, "Request");
-  firstTime = true;
-  pSummary_ = new SiStripPerformanceSummary();
-  // configure the database
- /*
-  db_ = new SiStripConfigDb( pset.getUntrackedParameter<string>("User",""),
-				 pset.getUntrackedParameter<string>("Passwd",""),
-				 pset.getUntrackedParameter<string>("Path",""),
-				 pset.getUntrackedParameter<string>("Partition",""),
-				 pset.getUntrackedParameter<unsigned int>("MajorVersion",0),
-				 pset.getUntrackedParameter<unsigned int>("MinorVersion",0) );
-*/
-  db_ = new SiStripConfigDb( "dorian", "test", "sqlite_file:HistoricPerformance.db", "TEST_PARTITION",0,0);
 }
 
-
-//-----------------------------------------------------------------------------------------------
 /*
   implement the method that outputs the page with the widgets (declared in DQMBaseClient):
 */
-void SiStripHistoricInfoClient::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception) {
+void SiStripHistoricInfoClient::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception)
+{
   // the web interface should know what to do:
   webInterface_p->Default(in, out);
 }
 
 
-//-----------------------------------------------------------------------------------------------
-/* the method called on all HTTP requests of the form ".../Request?RequestID=..." */
-void SiStripHistoricInfoClient::handleWebRequest(xgi::Input * in, xgi::Output * out) {
+/*
+  the method called on all HTTP requests of the form ".../Request?RequestID=..."
+*/
+void SiStripHistoricInfoClient::handleWebRequest(xgi::Input * in, xgi::Output * out)
+{
   // the web interface should know what to do:
   webInterface_p->handleRequest(in, out);
 }
 
+/*
+  this obligatory method is called whenever the client enters the "Configured" state:
+*/
+void SiStripHistoricInfoClient::configure()
+{
 
-//-----------------------------------------------------------------------------------------------
-/* this obligatory method is called whenever the client enters the "Configured" state: */
-void SiStripHistoricInfoClient::configure() {
 }
 
-
-//-----------------------------------------------------------------------------------------------
-/* this obligatory method is called whenever the client enters the "Enabled" state: */
-void SiStripHistoricInfoClient::newRun() {
+/*
+  this obligatory method is called whenever the client enters the "Enabled" state:
+*/
+void SiStripHistoricInfoClient::newRun()
+{
   upd_->registerObserver(this);   // upd_ is a pointer to dqm::Updater, protected data member of DQMBaseClient
 }
 
-
-//-----------------------------------------------------------------------------------------------
 //  this obligatory method is called whenever the client enters the "Halted" state:
-void SiStripHistoricInfoClient::endRun(){
+void SiStripHistoricInfoClient::endRun()
+{
   cout<<"SiStripHistoricInfoClient::endRun() : called"<<endl;
-//  printMEs();
-  retrievePointersToModuleMEs();
-  fillSummaryObjects();
-  pSummary_->print();
+  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+  cout<<"SiStripHistoricInfoClient::endRun ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<endl;
+  for(std::map<uint32_t , vector<MonitorElement *> >::iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
+     cout<<"      ++++++detid  "<<imapmes->first<<endl;
+     vector<MonitorElement*> locvec = imapmes->second;
+     DaqMonitorBEInterface * dbe_ = mui_->getBEInterface();
+     vector<MonitorElement*> tagged_mes = dbe_->get(imapmes->first);
+     for(vector<MonitorElement*>::const_iterator imep = locvec.begin(); imep != locvec.end() ; imep++){
+       cout<<"          ++  "<<(*imep)->getName()<<" entries/mean/rms : "<<(*imep)->getEntries()<<" / "<<(*imep)->getMean()<<" / "<<(*imep)->getRMS()<<endl;
+     }
+     for(vector<MonitorElement*>::const_iterator imep = tagged_mes.begin(); imep != tagged_mes.end() ; imep++){
+       cout<<"tagged_mes++  "<<(*imep)->getName()<<" entries/mean/rms : "<<(*imep)->getEntries()<<" / "<<(*imep)->getMean()<<" / "<<(*imep)->getRMS()<<endl;
+     }
+  }
+  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
   std::string final_filename = "endRun_SiStripHistoricInfoClient.root"; // run specific filename would be better
   std::cout<<"Saving all histograms in "<<final_filename<<std::endl;
   mui_->save(final_filename);
-  std::cout<<"Writing objects to DB"<<std::endl;
-  writeToDB();
+
+//  tstore_connect();
 }
 
-
-//-----------------------------------------------------------------------------------------------
-/* this obligatory method is called by the Updater component, whenever there is an update */
-void SiStripHistoricInfoClient::onUpdate() const{
-  //
-  int nr_updates = mui_->getNumUpdates();
-  std::cout<<" onUpdate = "<<nr_updates<<std::endl;
-  retrievePointersToModuleMEs();
-
+/*
+  this obligatory method is called by the Updater component, whenever there is an update 
+*/
+void SiStripHistoricInfoClient::onUpdate() const
+{
   //
   if(firstTime){
-    firstUpdate = nr_updates;
+    firstUpdate = mui_->getNumUpdates();
     cout<<"SiStripHistoricInfoClient::onUpdate() first time call. Subscribing. firstUpdate="<<firstUpdate<<endl;
     mui_->subscribe("Collector/*/SiStrip/*");
     firstTime = false; // done, set flag to false again
@@ -145,16 +127,35 @@ void SiStripHistoricInfoClient::onUpdate() const{
   }
 
   //
-  if( nr_updates == 10 ){
-    cout<<"SiStripHistoricInfoClient::onUpdate() : nr_updates="<<nr_updates<<" "<<nr_updates-firstUpdate<<endl;
+  int nr_updates = mui_->getNumUpdates();
+  cout<<"SiStripHistoricInfoClient::onUpdate() : nr_updates="<<nr_updates<<" "<<nr_updates-firstUpdate<<endl;
+  if(nr_updates==2){
     retrievePointersToModuleMEs();
-    fillSummaryObjects();
-    pSummary_->print();
+    cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+    cout<<"SiStripHistoricInfoClient::retrievePointersToModuleMEs ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<endl;
+    for(std::map<uint32_t , vector<MonitorElement *> >::iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
+       cout<<"      ++++++detid  "<<imapmes->first<<endl;
+       // MEs from pointer map
+       vector<MonitorElement*> locvec = imapmes->second;
+       for(vector<MonitorElement*>::const_iterator imep = locvec.begin(); imep != locvec.end() ; imep++){
+         cout<<"          ++  "<<(*imep)->getName()<<endl;
+       }
+       //  tagged MEs
+       DaqMonitorBEInterface * dbe_ = mui_->getBEInterface();
+       std::vector<MonitorElement *> taggedMEs = dbe_->get(imapmes->first);
+       for(std::vector<MonitorElement *>::const_iterator itme = taggedMEs.begin(); itme != taggedMEs.end(); itme++){
+         cout<<"          --  "<<(*itme)->getName()<<endl;
+       }
+    }
+    cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
   }
 }
 
+void SiStripHistoricInfoClient::fillSummaryObjects() {
+//   map<uint32_t, pair<double, double>> ClusterChargeMeanRMS;
+//   map<uint32_t, pair<double, double>> OccupancyMeanRMS;
+}
 
-//-----------------------------------------------------------------------------------------------
 void SiStripHistoricInfoClient::retrievePointersToModuleMEs() const{
 // painful and dangerous string operations to extract list of pointer to MEs and avoid strings with full paths
 // uses the MonitorUserInterface and fills the data member map
@@ -202,88 +203,32 @@ void SiStripHistoricInfoClient::retrievePointersToModuleMEs() const{
        }
      }
   }
+//  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+  cout<<"SiStripHistoricInfoClient::retrievePointersToModuleMEs ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<endl;
+//  for(std::map<uint32_t , vector<MonitorElement *> >::iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
+//     cout<<"      ++++++detid  "<<imapmes->first<<endl;
+//     vector<MonitorElement*> locvec = imapmes->second;
+//     for(vector<MonitorElement*>::const_iterator imep = locvec.begin(); imep != locvec.end() ; imep++){
+//       cout<<"          ++  "<<(*imep)->getName()<<endl;
+//     }
+//  }
+//  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
 }
 
 
-//-----------------------------------------------------------------------------------------------
-//  this obligatory method is called whenever the client enters the "Halted" state:
-void SiStripHistoricInfoClient::printMEs() const {
-  cout<<"SiStripHistoricInfoClient::printMEs() : called"<<endl;
-  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
-  cout<<"SiStripHistoricInfoClient::printMEs ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<endl;
-  for(std::map<uint32_t , vector<MonitorElement *> >::iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
-     cout<<"      ++++++detid  "<<imapmes->first<<endl;
-     vector<MonitorElement*> locvec = imapmes->second;
-     for(vector<MonitorElement*>::const_iterator imep = locvec.begin(); imep != locvec.end() ; imep++){
-       cout<<"          ++  "<<(*imep)->getName()<<" entries/mean/rms : "<<(*imep)->getEntries()<<" / "<<(*imep)->getMean()<<" / "<<(*imep)->getRMS()<<endl;
-     }
-/*
-     DaqMonitorBEInterface * dbe_ = mui_->getBEInterface();
-     vector<MonitorElement*> tagged_mes = dbe_->get(imapmes->first);
-     for(vector<MonitorElement*>::const_iterator imep = tagged_mes.begin(); imep != tagged_mes.end() ; imep++){
-       cout<<"tagged_mes++  "<<(*imep)->getName()<<" entries/mean/rms : "<<(*imep)->getEntries()<<" / "<<(*imep)->getMean()<<" / "<<(*imep)->getRMS()<<endl;
-     }
-*/
-  }
-  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
-}
+void SiStripHistoricInfoClient::tstore_connect(){
+  cout<<"SiStripHistoricInfoClient::tstore_connect()  called"<<endl;
+  xoap::MessageReference msg = xoap::createMessage();
+  try {
+        xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();
+        xoap::SOAPName msgName = envelope.createName( "connect", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
+        xoap::SOAPElement connectElement = envelope.getBody().addBodyElement ( msgName );
 
-
-//-----------------------------------------------------------------------------------------------
-void SiStripHistoricInfoClient::fillSummaryObjects() const {
-  cout<<"SiStripHistoricInfoClient::fillSummaryObjects() : called"<<endl;
-  for(std::map<uint32_t , vector<MonitorElement *> >::iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
-     uint32_t local_detid = imapmes->first;
-     vector<MonitorElement*> locvec = imapmes->second;
-     for(vector<MonitorElement*>::const_iterator imep = locvec.begin(); imep != locvec.end() ; imep++){
-       std::string MEName = (*imep)->getName(); unsigned int ipos = MEName.find("ClusterCharge__");
-       if(ipos != std::string::npos){
-         std::vector<float> summary_values;
-         summary_values.push_back((*imep)->getEntries());
-         summary_values.push_back((*imep)->getMean());
-         summary_values.push_back((*imep)->getRMS());
-         pSummary_->setDet(local_detid, summary_values);
-       }
-     }
+        xoap::SOAPName id = envelope.createName("id", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
+        connectElement.addAttribute(id, "urn:tstore-view-SQL:MyParameterisedView");
+        xoap::SOAPName passwordName = envelope.createName("password", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
+        connectElement.addAttribute(passwordName, "grape");
+  }catch(xoap::exception::Exception& e) {
+   //handle exception
   }
 }
-
-
-//-----------------------------------------------------------------------------------------------
-void SiStripHistoricInfoClient::writeToDB() const {
-/* // old TStore stuff
-   TSQLServer  *dbserver = TSQLServer::Connect("oracle://devb10","CMS_TRACKER_GBRUNO","client4histoplot");
-   TSQLResult* res = dbserver->Query( "SELECT * FROM PEDESTALS");
-   delete res;
-   delete dbserver;
-*/
-  bool appendMode_ = false;
-  edm::Service<cond::service::PoolDBOutputService> mydbservice;
-  if( mydbservice.isAvailable() ){
-    try{
-
-      unsigned long long tillTime;
-      if ( appendMode_){
-        tillTime = mydbservice->currentTime();
-      } else {
-        tillTime = mydbservice->endOfTime();
-      }
-      std::cout<<"SiStripHistoricInfoClient::writeToDB tillTime = " << tillTime << std::endl;
-
-      if( mydbservice->isNewTagRequest("SiStripPerformanceSummaryRcd") ){
-        mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");      
-      } else {
-        mydbservice->appendSinceTime<SiStripPerformanceSummary>(pSummary_,mydbservice->currentTime(),"SiStripPerformanceSummaryRcd");      
-      }
-    }catch(const cond::Exception& er){
-      std::cout<<"error SiStripHistoricInfoClient::writeToDB "<<er.what()<<std::endl;
-    }catch(const std::exception& er){
-      std::cout<<"ERROR SiStripHistoricInfoClient::writeToDB caught std::exception "<<er.what()<<std::endl;
-    }catch(...){
-      std::cout<<"ERROR SiStripHistoricInfoClient::writeToDB strange error"<<std::endl;
-    }
-  }else{
-    std::cout<<"ERROR SiStripHistoricInfoClient::writeToDB PoolDBOutputService is unavailable"<<std::endl;
-  }
-}
-

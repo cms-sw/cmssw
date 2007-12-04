@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.29 2007/07/12 12:08:57 llista Exp $
+$Id: Ref.h,v 1.32 2007/10/02 10:48:30 llista Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -204,8 +204,9 @@ namespace edm {
 	Event. The given ProductID must be the id of the collection in
 	the Event. */
     
-    Ref(ProductID const& productID, T const* item, key_type item_key) :
-      ref_(productID, 0, item_key, item, 0) { }
+    Ref(ProductID const& productID, T const* item, key_type item_key, const C * product ) :
+      ref_(productID, product, item_key, item, 0) { 
+      }
 
     /** Constructor that creates an invalid ("null") Ref that is
 	associated with a given product (denoted by that product's
@@ -266,6 +267,10 @@ namespace edm {
     bool hasProductCache() const {return ref_.refCore().productPtr() != 0;}
 
     bool hasCache() const {return ref_.item().ptr() != 0;}
+
+    /// Checks if collection is in memory or available
+    /// in the Event. No type checking is done.
+    bool isAvailable() const {return ref_.refCore().isAvailable();}
 
   private:
     // Constructor from member of RefVector
@@ -384,6 +389,12 @@ namespace edm {
 	                  typename REF::value_type, 
                        	  typename REF::finder_type> REFV;
 	return std::auto_ptr<BaseVectorHolder<T> >( new VectorHolder<T, REFV> );
+      }
+      static  std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
+	typedef RefVector<typename REF::product_type,
+	                  typename REF::value_type, 
+                       	  typename REF::finder_type> REFV;
+	return std::auto_ptr<RefVectorHolderBase>( new RefVectorHolder<REFV> );
       }
     };
 

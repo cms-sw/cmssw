@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.19 2007/02/26 13:06:35 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.23 2007/10/29 02:12:26 elmer Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -24,6 +24,10 @@ namespace reco {
     RecoCandidate() : LeafCandidate() { }
     /// constructor from values
     RecoCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
+		   int pdgId = 0, int status = 0 ) : 
+      LeafCandidate( q, p4, vtx, pdgId, status ) { }
+    /// constructor from values
+    RecoCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 		   int pdgId = 0, int status = 0 ) : 
       LeafCandidate( q, p4, vtx, pdgId, status ) { }
     /// destructor
@@ -60,7 +64,7 @@ namespace reco {
     }
 
   private:
-    template<typename T> friend struct component; 
+    template<typename, typename, typename> friend struct component; 
   };
 
   /// stand alone muon component tag

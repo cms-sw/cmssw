@@ -6,7 +6,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 class ParticleTreeDrawer : public edm::EDAnalyzer {
 public:
@@ -34,15 +34,14 @@ private:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <iostream>
 #include <algorithm>
 using namespace std;
 using namespace edm;
 using namespace reco;
-using namespace HepMC;
 
 ParticleTreeDrawer::ParticleTreeDrawer( const ParameterSet & cfg ) :
   src_( cfg.getParameter<InputTag>( "src" ) ),
@@ -69,14 +68,14 @@ bool ParticleTreeDrawer::hasValidDaughters( const reco::Candidate & c ) const {
 
 void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {  
   es.getData( pdt_ );
-  Handle<CandidateCollection> particles;
+  Handle<View<Candidate> > particles;
   event.getByLabel( src_, particles );
   cands_.clear();
-  for( CandidateCollection::const_iterator p = particles->begin();
+  for( View<Candidate>::const_iterator p = particles->begin();
        p != particles->end(); ++ p ) {
     cands_.push_back( & * p );
   }
-  for( CandidateCollection::const_iterator p = particles->begin();
+  for( View<Candidate>::const_iterator p = particles->begin();
        p != particles->end(); ++ p ) {
     if ( accept( * p ) ) {
       if ( p->mother() == 0 ) {

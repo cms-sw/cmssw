@@ -1,5 +1,8 @@
 #include "RefStreamer.h"
 #include "DataFormats/Common/interface/RefCore.h"
+#include "TROOT.h"
+#include <assert.h>
+
 class TBuffer;
 
 namespace fwlite {
@@ -10,7 +13,7 @@ namespace fwlite {
       cl_->ReadBuffer(R__b, objp);
       RefCore* obj = static_cast<RefCore *>(objp);
       obj->setProductGetter(prodGetter_);
-      obj->setProductPointer(0);
+      obj->setProductPtr(0);
     } else {
       cl_->WriteBuffer(R__b, objp);
     }

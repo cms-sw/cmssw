@@ -7,9 +7,8 @@
 #include <iostream>
 
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Math/interface/Vector3D.h"
+#include "Rtypes.h" 
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "Math/GenVector/PositionVector3D.h"
 
 namespace reco {
@@ -30,10 +29,10 @@ namespace reco {
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
 
     /// Define the different layers where the track can be propagated
-    enum LayerType_t {
-       /// Point of closest approach from beam axis (initial point in the case of PFSimParticle)
+    enum LayerType {
+      /// Point of closest approach from beam axis (initial point in the case of PFSimParticle)
       ClosestApproach = 0,
-      BeamPipe = 1,       
+      BeamPipeOrEndVertex = 1,       
       /// Preshower layer 1
       PS1 = 2,             
       /// Preshower layer 2
@@ -56,9 +55,9 @@ namespace reco {
     /// \brief constructor from values. 
     /// set detId to -1 if this point is not from a tracker layer
     PFTrajectoryPoint(int detId,
-		      int layer,
-		      const math::XYZPoint& posxyz, 
-		      const math::XYZTLorentzVector& momentum); 
+                      int layer,
+                      const math::XYZPoint& posxyz, 
+                      const math::XYZTLorentzVector& momentum); 
 
     /// copy
     PFTrajectoryPoint(const PFTrajectoryPoint& other);

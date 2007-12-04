@@ -48,5 +48,9 @@ namespace {
     edm::RefProd<std::vector<reco::MuonTrackLinks> > tl4;
     edm::Wrapper<edm::RefVector<std::vector<reco::MuonTrackLinks> > > wtl5;
 
+    edm::reftobase::Holder<reco::Candidate, reco::MuonRef> hcc1;
+    edm::reftobase::RefHolder<reco::MuonRef> hcc2;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::MuonRefVector> hcc3;
+    edm::reftobase::RefVectorHolder<reco::MuonRefVector> hcc4;
   }
 }

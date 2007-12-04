@@ -1,14 +1,13 @@
 /** \file
  *  implementation of DaqRawDataCollection
  *
- *  $Date: 2005/10/06 18:25:22 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/10/18 13:29:53 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - S. Argiro'
  */
 
 
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
-#include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
 #include <iostream>

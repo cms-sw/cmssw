@@ -1,7 +1,6 @@
 <use name=PhysicsTools/CandUtils>
 <use name=PhysicsTools/UtilAlgos>
 <use name=PhysicsTools/Utilities>
-<use name=PhysicsTools/Parser>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <export>
@@ -9,7 +8,6 @@
   <use name=PhysicsTools/CandUtils>
   <use name=PhysicsTools/UtilAlgos>
   <use name=PhysicsTools/Utilities>
-  <use name=PhysicsTools/Parser>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
 </export>

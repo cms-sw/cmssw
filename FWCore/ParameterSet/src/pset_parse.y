@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.58 2007/05/11 22:30:54 rpw Exp $
+ * $Id: pset_parse.y,v 1.59 2007/05/11 22:55:05 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -35,7 +35,19 @@
 
 #include "boost/shared_ptr.hpp"
 
+#include "FWCore/ParameterSet/interface/PSetNode.h"
+#include "FWCore/ParameterSet/interface/VPSetNode.h"
+#include "FWCore/ParameterSet/interface/ReplaceNode.h"
+#include "FWCore/ParameterSet/interface/EntryNode.h"
+#include "FWCore/ParameterSet/interface/RenamedIncludeNode.h"
+#include "FWCore/ParameterSet/interface/ImplicitIncludeNode.h"
+#include "FWCore/ParameterSet/interface/VEntryNode.h"
+#include "FWCore/ParameterSet/interface/ModuleNode.h"
+#include "FWCore/ParameterSet/interface/WrapperNode.h"
+#include "FWCore/ParameterSet/interface/OperatorNode.h"
+#include "FWCore/ParameterSet/interface/OperandNode.h"
 #include "FWCore/ParameterSet/interface/Nodes.h"
+
 // our includes here
 
 //

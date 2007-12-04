@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.12 2007/04/05 13:14:51 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.13 2007/04/05 14:39:33 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -35,6 +35,16 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
+ 
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
+ 
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
+
+
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
 // forward declarations
@@ -60,6 +70,9 @@ public:
   virtual std::auto_ptr<EcalTBWeights> produceEcalTBWeights( const EcalTBWeightsRcd& );
   virtual std::auto_ptr<EcalIntercalibConstants>  getIntercalibConstantsFromConfiguration ( const EcalIntercalibConstantsRcd& ) ;
 
+  virtual std::auto_ptr<EcalLaserAlphas> produceEcalLaserAlphas( const EcalLaserAlphasRcd& );
+  virtual std::auto_ptr<EcalLaserAPDPNRatiosRef> produceEcalLaserAPDPNRatiosRef( const EcalLaserAPDPNRatiosRefRcd& );
+  virtual std::auto_ptr<EcalLaserAPDPNRatios> produceEcalLaserAPDPNRatios( const EcalLaserAPDPNRatiosRcd& );
 
 protected:
   //overriding from ContextRecordIntervalFinder
@@ -80,6 +93,14 @@ private:
   double intercalibConstantSigma_; // sigma of intercalib constant
                                   // Gaussian used to generate intercalib constants for
                                   // each channel. no smearing if sigma=0.0 (default)
+
+  // laser
+  double laserAlphaMean_;  
+  double laserAlphaSigma_;  
+  double laserAPDPNRefMean_;  
+  double laserAPDPNRefSigma_;  
+  double laserAPDPNMean_;  
+  double laserAPDPNSigma_;  
 
   double EBpedMeanX12_;              // pedestal mean pedestal at gain 12
   double EBpedRMSX12_;               // pedestal rms at gain 12
@@ -129,6 +150,7 @@ private:
   bool producedEcalIntercalibConstants_;
   bool producedEcalGainRatios_;
   bool producedEcalADCToGeVConstant_;
+  bool producedEcalLaserCorrection_;
 
   int    verbose_; // verbosity
 

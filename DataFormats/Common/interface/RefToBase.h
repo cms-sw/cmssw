@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.21 2007/07/09 07:28:49 llista Exp $
+// $Id: RefToBase.h,v 1.29 2007/09/17 14:15:23 llista Exp $
 //
 
 // system include files
@@ -58,6 +58,8 @@ namespace edm {
   template<typename T> class RefToBaseVector;
   template<typename C, typename T, typename F> class Ref;
   template<typename C> class RefProd;
+  template<typename T> class RefToBaseProd;
+  template<typename T> class View;
 
   template <class T>
   class RefToBase
@@ -71,10 +73,11 @@ namespace edm {
     explicit RefToBase(Ref<C1, T1, F1> const& r);
     template <typename C> 
     explicit RefToBase(RefProd<C> const& r);
+    RefToBase(RefToBaseProd<T> const& r, size_t i);
+    RefToBase(Handle<View<T> > const& handle, size_t i);
     template <typename T1>
     explicit RefToBase(RefToBase<T1> const & r );
     RefToBase(boost::shared_ptr<reftobase::RefHolderBase> p);
-
     ~RefToBase();
 
     RefToBase const& operator= (RefToBase const& rhs);
@@ -84,6 +87,7 @@ namespace edm {
     value_type const* get() const;
 
     ProductID id() const;
+    size_t key() const;
 
     template <class REF> REF castTo() const;
 
@@ -98,10 +102,15 @@ namespace edm {
     
     std::auto_ptr<reftobase::RefHolderBase> holder() const;
 
+    EDProductGetter const* productGetter() const;
+    bool hasProductCache() const;
+    void const * product() const;
+
   private:
     value_type const* getPtrImpl() const;
     reftobase::BaseHolder<value_type>* holder_;
     friend class RefToBaseVector<T>;
+    friend class RefToBaseProd<T>;
     template<typename B> friend class RefToBase;
   };
 
@@ -171,9 +180,9 @@ namespace edm {
   RefToBase<T> const&
   RefToBase<T>:: operator= (RefToBase<T> const& iRHS) 
   {
-    RefToBase<T> temp(iRHS);
-    this->swap(temp);
-    return *this;
+    RefToBase<T> temp( iRHS);
+    temp.swap(*this);
+    return *this; 
   }
 
   template <class T>
@@ -192,7 +201,6 @@ namespace edm {
     return getPtrImpl();
   }
 
-
   template <class T>
   inline
   T const* 
@@ -208,7 +216,19 @@ namespace edm {
   { 
     return  holder_ ? holder_->id() : ProductID();
   }
-    
+
+  template <class T>
+  inline
+  size_t 
+  RefToBase<T>::key() const 
+  { 
+    if ( holder_ == 0 )
+	throw edm::Exception(errors::InvalidReference)
+	  << "attempting get key from  null RefToBase;\n"
+	  << "You should check for nullity before calling key().";
+    return  holder_->key();
+  }
+
   /// cast to a concrete type
   template <class T>
   template <class REF>
@@ -289,6 +309,23 @@ namespace edm {
     std::swap(holder_, other.holder_);
   }
     
+  template <class T>
+  inline
+  EDProductGetter const* RefToBase<T>::productGetter() const {
+    return holder_->productGetter();
+  }
+
+  template <class T>
+  inline
+  bool RefToBase<T>::hasProductCache() const {
+    return holder_->hasProductCache();
+  }
+
+  template <class T>
+  inline
+  void const * RefToBase<T>::product() const {
+    return holder_->product();
+  }
 
   template <class T>
   inline
@@ -310,6 +347,24 @@ namespace edm {
   swap(RefToBase<T>& a, RefToBase<T>& b) 
   {
     a.swap(b);
+  }
+}
+
+#include "DataFormats/Common/interface/RefToBaseProd.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
+
+namespace edm {
+  template <class T>
+  inline
+  RefToBase<T>::RefToBase(RefToBaseProd<T> const& r, size_t i) :
+    holder_( r.operator->()->refAt( i ).holder_->clone() ) {
+  }
+
+  template<typename T>
+  inline 
+  RefToBase<T>::RefToBase(Handle<View<T> > const& handle, size_t i) :
+    holder_( handle.operator->()->refAt( i ).holder_->clone() ) {
   }
 
 }

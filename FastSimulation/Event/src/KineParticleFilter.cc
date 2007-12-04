@@ -3,6 +3,8 @@
 //Framework Headers
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <vector>
+#include <iterator>
 
 KineParticleFilter::KineParticleFilter(const edm::ParameterSet& kine) 
   : BaseRawParticleFilter() 
@@ -13,8 +15,27 @@ KineParticleFilter::KineParticleFilter(const edm::ParameterSet& kine)
   etaMax = kine.getParameter<double>("etaMax"); 
   // Lower pT  bound (charged, in GeV/c)
   pTMin  = kine.getParameter<double>("pTMin");
-  // Lower E  bound (all, in GeV)
+  // Lower E  bound - reject (all, in GeV)
   EMin   = kine.getParameter<double>("EMin");
+  // Lower E  bound - accept (all, in GeV)
+  EMax   = kine.getParameter<double>("EProton");
+
+  // pdg codes of the particles to be removed from the events
+  // ParameterSet cannot handle sets, only vectors
+  std::vector<int> tmpcodes 
+    = kine.getUntrackedParameter< std::vector<int> >
+    ("forbiddenPdgCodes", std::vector<int>() );
+  
+  std::copy(tmpcodes.begin(), 
+	    tmpcodes.end(),  
+	    std::insert_iterator< std::set<int> >(forbiddenPdgCodes,
+						  forbiddenPdgCodes.begin() ));
+  
+  if( !forbiddenPdgCodes.empty() ) {
+    std::cout<<"KineParticleFilter : Forbidden PDG codes : ";
+    copy(forbiddenPdgCodes.begin(), forbiddenPdgCodes.end(), 
+	 std::ostream_iterator<int>(std::cout, " "));
+  }  
 
   // Change eta cuts to cos**2(theta) cuts (less CPU consuming)
   if ( etaMax > 20. ) etaMax = 20.; // Protection against paranoid people.
@@ -51,13 +72,20 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
 			 pId != 3203 && pId != 3303 );
     //    particleCut = particleCut || pId == 0;
 
+
     if ( !particleCut ) return false;
 
+    // Keep protons with energy in excess of 5 TeV
+    bool protonTaggers =  (pId == 2212 && p->E() >= EMax) ;
+    if ( protonTaggers ) return true;
+
+    std::set<int>::iterator is = forbiddenPdgCodes.find(pId);
+    if( is != forbiddenPdgCodes.end() ) return false;
 
   //  bool kineCut = pId == 0;
   // Cut on kinematic properties
     // Cut on the energy of all particles
-    bool eneCut = p->e() >= EMin;
+    bool eneCut = p->E() >= EMin;
     if (!eneCut) return false;
 
     // Cut on the transverse momentum of charged particles

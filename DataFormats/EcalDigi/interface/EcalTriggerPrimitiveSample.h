@@ -15,11 +15,11 @@ $Id : $
 class EcalTriggerPrimitiveSample {
  public:
   EcalTriggerPrimitiveSample();
-  EcalTriggerPrimitiveSample(uint16_t data);
-  EcalTriggerPrimitiveSample(int encodedEt, bool finegrain, int triggerFlag);
+  EcalTriggerPrimitiveSample(const uint16_t& data);
+  EcalTriggerPrimitiveSample(const int& encodedEt, const bool& finegrain, const int& triggerFlag);
 
   ///Set data
-  void setValue(uint16_t data){ theSample = data;}
+  void setValue(const uint16_t& data){ theSample = data;}
   /// get the raw word
   uint16_t raw() const { return theSample; }
   /// get the encoded/compressed Et (8 bits)

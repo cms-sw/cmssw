@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/05/24 14:15:38 $
- * $Revision: 1.28 $
+ * $Date: 2007/08/11 18:34:49 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -198,7 +198,7 @@ void EBClusterClient::cleanup(void) {
 
 }
 
-bool EBClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EBClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
@@ -677,7 +677,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   const int csize1D = 250;
   const int csize2D = 300;
 
-  //  const double histMax = 1.e15;
+  const double histMax = 1.e15;
 
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
@@ -698,7 +698,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGrid.SetMarkerSize(2);
   labelGrid.SetMinimum(-18.01);
 
-  TGaxis axis(-M_PI*(9+1.5)/9, -1.479, M_PI*(9-1.5)/9, -1.479, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 40306, "N");
+  TGaxis Xaxis(-M_PI*(9+1.5)/9, -1.479, M_PI*(9-1.5)/9, -1.479, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 40306, "N");
 
   string imgNameB[3], imgNameBMap[4], imgNameS[3], imgNameSMap[4];
   string imgNameBXproj[4], imgNameBYproj[4], imgNameSXproj[4], imgNameSYproj[4];
@@ -707,9 +707,9 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   TCanvas* cEne = new TCanvas("cEne", "Temp", csize1D, csize1D);
   TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize2D), csize2D);
 
-  TH1F* obj1f = 0;
+  TH1F* obj1f;
   TProfile2D* objp;
-  TH2F* obj2f = 0;
+  TH2F* obj2f;
   TH1D* obj1dX;
   TH1D* obj1dY;
 
@@ -740,9 +740,15 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cEne->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
     }
   }
 
@@ -796,7 +802,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->SetGridy();
       objp->Draw("colz");
       labelGrid.Draw("text,same");
-      axis.Draw();
+      Xaxis.Draw();
       cMap->Update();
       objp->GetXaxis()->SetLabelColor(0);
       cMap->SaveAs(imgName.c_str());
@@ -856,7 +862,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->Draw("colz");
     labelGrid.Draw("text,same");
-    axis.Draw();
+    Xaxis.Draw();
     cMap->Update();
     obj2f->GetXaxis()->SetLabelColor(0);
     cMap->SaveAs(imgName.c_str());
@@ -986,9 +992,15 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cEne->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
     }
   }
 
@@ -1042,7 +1054,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->SetGridy();
       objp->Draw("colz");
       labelGrid.Draw("text,same");
-      axis.Draw();
+      Xaxis.Draw();
       cMap->Update();
       objp->GetXaxis()->SetLabelColor(0);
       cMap->SaveAs(imgName.c_str());
@@ -1102,7 +1114,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->Draw("colz");
     labelGrid.Draw("text,same");
-    axis.Draw();
+    Xaxis.Draw();
     cMap->Update();
     obj2f->GetXaxis()->SetLabelColor(0);
     cMap->SaveAs(imgName.c_str());
@@ -1232,9 +1244,15 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cEne->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
     }
   }
 

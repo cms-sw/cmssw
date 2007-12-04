@@ -124,7 +124,7 @@ void SiPixelWebClient::onUpdate() const
 
   // Frequent Updating of Summary ME's: 
 //  if (updateFrequencyForBarrelSummary_ != -1 ) {
-    if (nUpdate > 0 && nUpdate%99 == 0) {
+    if (nUpdate > 0 && nUpdate%299 == 0) {
       webInterface_p->setActionFlag(SiPixelWebInterface::Summary);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));
@@ -132,7 +132,7 @@ void SiPixelWebClient::onUpdate() const
     }
 //  }	
   // Frequent Updating of Quality Test Results:
-  if (nUpdate > 0 && nUpdate%100 == 0){ 
+  if (nUpdate > 0 && nUpdate%300 == 0){ 
       webInterface_p->setActionFlag(SiPixelWebInterface::QTestResult);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));

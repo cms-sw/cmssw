@@ -8,6 +8,7 @@ namespace edm {
   namespace reftobase {
     class RefVectorHolderBase {
     public:
+      virtual ~RefVectorHolderBase() {}
       typedef size_t size_type;
       typedef RefHolderBase value_type;
       virtual bool empty() const = 0;
@@ -17,6 +18,7 @@ namespace edm {
       virtual ProductID id() const = 0;
       virtual EDProductGetter const* productGetter() const = 0;
       virtual RefVectorHolderBase * clone() const = 0;
+      virtual RefVectorHolderBase * cloneEmpty() const = 0;
       virtual void push_back( const RefHolderBase * r ) = 0;
       // the following structure is public 
       // to allow reflex dictionary to compile
@@ -149,7 +151,8 @@ namespace edm {
       virtual const_iterator begin() const = 0;
       virtual const_iterator end() const = 0;
       template <class T> RefToBase<T> getRef( size_t idx ) const;
-
+      virtual const void * product() const = 0;
+      virtual void reallyFillView( const void *, const ProductID &, std::vector<void const*> & ) = 0;
     private:
       virtual boost::shared_ptr<reftobase::RefHolderBase> refBase(size_t idx) const = 0;
     };

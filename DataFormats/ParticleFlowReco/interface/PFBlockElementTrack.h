@@ -21,7 +21,7 @@ namespace reco {
     PFBlockElement* clone() const { return new PFBlockElementTrack(*this); }
     
     void Dump(std::ostream& out = std::cout, 
-	      const char* tab = " " ) const;
+              const char* tab = " " ) const;
     
     /// \return reference to the corresponding PFRecTrack
     PFRecTrackRef trackRefPF() const {
@@ -34,6 +34,7 @@ namespace reco {
     }
     
   private:
+
     /// reference to the corresponding track (transient)
     PFRecTrackRef  trackRefPF_;
 

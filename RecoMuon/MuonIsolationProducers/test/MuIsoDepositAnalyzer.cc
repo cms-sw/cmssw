@@ -11,6 +11,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
 
 
 using namespace std;

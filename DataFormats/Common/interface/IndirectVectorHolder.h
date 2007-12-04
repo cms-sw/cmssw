@@ -19,10 +19,12 @@ namespace edm {
       IndirectVectorHolder();
       IndirectVectorHolder( const IndirectVectorHolder & other);
       IndirectVectorHolder(boost::shared_ptr<RefVectorHolderBase> p);
+      IndirectVectorHolder(RefVectorHolderBase * p);
       virtual ~IndirectVectorHolder();
       IndirectVectorHolder& operator= (IndirectVectorHolder const& rhs);
       void swap(IndirectVectorHolder& other);
       virtual BaseVectorHolder<T>* clone() const;
+      virtual BaseVectorHolder<T>* cloneEmpty() const;
       virtual ProductID id() const;
       virtual EDProductGetter const* productGetter() const;
       virtual bool empty() const;
@@ -39,6 +41,9 @@ namespace edm {
 	  throw edm::Exception( edm::errors::InvalidReference ) 
 	    << "In IndirectHolder<T> trying to push_back wrong reference type";
 	helper_->push_back( h->helper_ );
+      }
+      virtual const void * product() const {
+	return helper_->product();
       }
     private:
       typedef typename base_type::const_iterator_imp const_iterator_imp;
@@ -92,6 +97,10 @@ namespace edm {
       helper_(p->clone()) { }
 
     template <class T>
+    IndirectVectorHolder<T>::IndirectVectorHolder(RefVectorHolderBase * p) :
+      helper_(p) { }
+
+    template <class T>
     IndirectVectorHolder<T>::IndirectVectorHolder( const IndirectVectorHolder & other ) :
       helper_( other.helper_->clone() ) { }
 
@@ -120,6 +129,12 @@ namespace edm {
     }
     
     template <class T>
+    BaseVectorHolder<T>* 
+    IndirectVectorHolder<T>::cloneEmpty() const {
+      return new IndirectVectorHolder<T>( helper_->cloneEmpty() );
+    }
+
+    template <class T>
     ProductID
     IndirectVectorHolder<T>::id() const {
       return helper_->id();
@@ -147,7 +162,7 @@ namespace edm {
 
     template <class T>
     typename IndirectVectorHolder<T>::base_ref_type const IndirectVectorHolder<T>::at(size_type idx) const {
-      return helper_->template getRef<T>( idx );
+      return helper_ ? helper_->template getRef<T>( idx ) : typename IndirectVectorHolder<T>::base_ref_type();
     }
 
   }

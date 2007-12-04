@@ -1,5 +1,4 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
 using namespace std;
 using namespace reco;
@@ -18,25 +17,25 @@ unsigned PFCluster::instanceCounter_ = 0;
 PFCluster::PFCluster() :
   layer_(0),
   energy_(0),
-//   posCalcMode_(0),
-//   posCalcP1_(0),
-//   posCalcDepthCor_(false),
+  //   posCalcMode_(0),
+  //   posCalcP1_(0),
+  //   posCalcDepthCor_(false),
   color_(1)
 { 
   instanceCounter_++;
 }
 
 
-  
+
 PFCluster::PFCluster(int layer, double energy,
-		     double x, double y, double z ) : 
+                     double x, double y, double z ) : 
   layer_(layer),
   energy_(energy), 
   posxyz_(x,y,z),
   posrep_( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() ),
-//   posCalcMode_(0),
-//   posCalcP1_(0),
-//   posCalcDepthCor_(false),
+  //   posCalcMode_(0),
+  //   posCalcP1_(0),
+  //   posCalcDepthCor_(false),
   color_(2)
 {  
   instanceCounter_++;
@@ -49,9 +48,9 @@ PFCluster::PFCluster(const PFCluster& other) :
   energy_(other.energy_),
   posxyz_(other.posxyz_),
   posrep_(other.posrep_),
-//   posCalcMode_(other.posCalcMode_),
-//   posCalcP1_(other.posCalcP1_),
-//   posCalcDepthCor_(other.posCalcDepthCor_),
+  //   posCalcMode_(other.posCalcMode_),
+  //   posCalcP1_(other.posCalcP1_),
+  //   posCalcDepthCor_(other.posCalcDepthCor_),
   color_(other.color_)
 {
   instanceCounter_++;
@@ -78,9 +77,9 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 
 
 // void PFCluster::calculatePosition( int algo, 
-// 				   double p1, 
-// 				   bool depcor,
-// 				   int  ncrystals) {
+//                                 double p1, 
+//                                 bool depcor,
+//                                 int  ncrystals) {
 
 
 //   if( rechits_.empty() ) {
@@ -135,30 +134,30 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 //     case POSCALC_LOG:
 //       switch(layer_) {
 //       case PFLayer::ECAL_BARREL:
-// 	p1 = 0.004 + 0.022*energy_; // 27 feb 2006 
-// 	break;
+//      p1 = 0.004 + 0.022*energy_; // 27 feb 2006 
+//      break;
 //       case PFLayer::ECAL_ENDCAP:
-// 	p1 = 0.014 + 0.009*energy_; // 27 feb 2006 
-// 	break;
+//      p1 = 0.014 + 0.009*energy_; // 27 feb 2006 
+//      break;
 //       case PFLayer::HCAL_BARREL1:
 //       case PFLayer::HCAL_BARREL2:
 //       case PFLayer::HCAL_ENDCAP:
 //       case PFLayer::VFCAL:
-// 	// p1 = 0.007357 + 0.014952*energy_ + -0.000034*energy_*energy_; 
-// 	p1 = 5.41215e-01 * log( energy_ / 1.29803e+01 );
-// 	if(p1<0.01) p1 = 0.01;
-// 	break;
+//      // p1 = 0.007357 + 0.014952*energy_ + -0.000034*energy_*energy_; 
+//      p1 = 5.41215e-01 * log( energy_ / 1.29803e+01 );
+//      if(p1<0.01) p1 = 0.01;
+//      break;
 //       default:
-// 	cerr<<"Clusters weight_p1 -1 not yet allowed for layer "<<layer
-// 	    <<". Chose a better value in the opt file"<<endl;
-// 	assert(0);
-// 	break;
+//      cerr<<"Clusters weight_p1 -1 not yet allowed for layer "<<layer
+//          <<". Chose a better value in the opt file"<<endl;
+//      assert(0);
+//      break;
 //       }
 
 //       break;
 //     default:
 //       cerr<<"p1<0 means automatic p1 determination from the cluster energy"
-// 	  <<endl;
+//        <<endl;
 //       cerr<<"this is only implemented for POSCALC_LOG, sorry."<<endl;
 //       cerr<<algo<<endl;
 //       assert(0);
@@ -186,14 +185,14 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 
 //     if(rechit->detId() != seedId) { // not the seed
 //       if( ncrystals == 5 ) { // pos calculated from the 5 neighbours only
-// 	if(!rechit->isNeighbour4(seedId) ) {
-// 	  continue;
-// 	}
+//      if(!rechit->isNeighbour4(seedId) ) {
+//        continue;
+//      }
 //       }
 //       if( ncrystals == 9 ) { // pos calculated from the 9 neighbours only
-// 	if(!rechit->isNeighbour8(seedId) ) {
-// 	  continue;
-// 	}
+//      if(!rechit->isNeighbour8(seedId) ) {
+//        continue;
+//      }
 //       }
 //     }
     
@@ -259,13 +258,13 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 //   if( depthCorMode_ &&   // correction activated
 //       depcor &&          // correction requested
 //       ( layer_ == PFLayer::ECAL_BARREL ||       
-// 	layer_ == PFLayer::ECAL_ENDCAP ) ) {
+//      layer_ == PFLayer::ECAL_ENDCAP ) ) {
 
     
 //     double corra = depthCorA_;
 //     double corrb = depthCorB_;
 //     if( abs(clusterpos.Eta() ) < 2.6 && 
-// 	abs(clusterpos.Eta() ) > 1.65   ) { 
+//      abs(clusterpos.Eta() ) > 1.65   ) { 
 //       // if crystals under preshower, correction is not the same  
 //       // (shower depth smaller)
 //       corra = depthCorAp_;
@@ -293,8 +292,8 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 // //     double ydepthv = clusterposxyz.Y();
 // //     double zdepthv = clusterposxyz.Z();
 // //     double mag = sqrt( xdepthv*xdepthv + 
-// // 		       ydepthv*ydepthv + 
-// // 		       zdepthv*zdepthv );
+// //                  ydepthv*ydepthv + 
+// //                  zdepthv*zdepthv );
     
 
 // //     math::XYZPoint depthv(clusterposxyz); 
@@ -302,8 +301,8 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
     
     
 //     math::XYZVector depthv( clusterposxyz.X(), 
-// 			    clusterposxyz.Y(),
-// 			    clusterposxyz.Z() );
+//                          clusterposxyz.Y(),
+//                          clusterposxyz.Z() );
 //     depthv /= sqrt(depthv.Mag2() );
 //     depthv *= depth;
 
@@ -321,16 +320,16 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 //       const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
       
 //       if(rechit->detId() != seedId) {
-// 	if( ncrystals == 5 ) {
-// 	  if(!rechit->isNeighbour4(seedId) ) {
-// 	    continue;
-// 	  }
-// 	}
-// 	if( ncrystals == 9 ) {
-// 	  if(!rechit->isNeighbour8(seedId) ) {
-// 	    continue;
-// 	  }
-// 	}
+//      if( ncrystals == 5 ) {
+//        if(!rechit->isNeighbour4(seedId) ) {
+//          continue;
+//        }
+//      }
+//      if( ncrystals == 9 ) {
+//        if(!rechit->isNeighbour8(seedId) ) {
+//          continue;
+//        }
+//      }
 //       }
     
       
@@ -356,22 +355,22 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 
 
 //       if( theRecHitEnergy > maxe ) {
-// 	firstrechitposxyz = rechitposxyzcor;
-// 	maxe = theRecHitEnergy;
+//      firstrechitposxyz = rechitposxyzcor;
+//      maxe = theRecHitEnergy;
 //       }
       
 //       double norm=0;
     
 //       switch(algo) {
 //       case POSCALC_LIN:
-// 	norm = theRecHitEnergy;
-// 	break;
+//      norm = theRecHitEnergy;
+//      break;
 //       case POSCALC_LOG:
-// 	norm = max(0., log(theRecHitEnergy/p1 ));
-// 	break;
+//      norm = max(0., log(theRecHitEnergy/p1 ));
+//      break;
 //       default:
-// 	cerr<<"algo "<<algo<<" not defined !"<<endl;
-// 	assert(0);
+//      cerr<<"algo "<<algo<<" not defined !"<<endl;
+//      assert(0);
 //       }
       
 //       x += rechitposxyzcor.X() * norm;
@@ -396,8 +395,8 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 
 //       clusterposxyzcor.SetCoordinates(x,y,z);
 //       posrep_.SetCoordinates( clusterposxyzcor.Rho(), 
-// 			      clusterposxyzcor.Eta(), 
-// 			      clusterposxyzcor.Phi() );
+//                            clusterposxyzcor.Eta(), 
+//                            clusterposxyzcor.Phi() );
 //       posxyz_  = clusterposxyzcor;
 //       clusterposxyz = clusterposxyzcor;
 //     }
@@ -428,9 +427,9 @@ PFCluster& PFCluster::operator=(const PFCluster& other) {
 
 //   // these clusters must be compatible
 //   assert( posCalcMode_ == other.posCalcMode_ &&
-// 	  fabs(posCalcP1_ - other.posCalcP1_)<0.000001 && 
-// 	  posCalcDepthCor_ == other.posCalcDepthCor_ && 
-// 	  layer_ == other.layer_);
+//        fabs(posCalcP1_ - other.posCalcP1_)<0.000001 && 
+//        posCalcDepthCor_ == other.posCalcDepthCor_ && 
+//        layer_ == other.layer_);
 
 //   for(unsigned ic=0; ic<other.rechits_.size(); ic++) {
 //     reco::PFRecHitFraction& cf 
@@ -446,8 +445,8 @@ PFCluster& PFCluster::operator=(const PFCluster& other) {
   
 //   // rechits are not stored in the event ! must do something else
 //   //   calculatePosition(other.posCalcMode_, 
-//   // 		    other.posCalcP1_, 
-//   // 		    other.posCalcDepthCor_);
+//   //                     other.posCalcP1_, 
+//   //                     other.posCalcDepthCor_);
   
   
 //   //   cerr<<"To be implemented!"<<endl;
@@ -462,7 +461,7 @@ PFCluster& PFCluster::operator=(const PFCluster& other) {
 
 
 double PFCluster::getDepthCorrection(double energy, bool isBelowPS,
-				     bool isHadron)
+                                     bool isHadron)
 {
   double corrA = depthCorA_;
   double corrB = depthCorB_;
@@ -481,7 +480,7 @@ double PFCluster::getDepthCorrection(double energy, bool isBelowPS,
   default:
     assert(0);
     //     edm::LogError("PFCluster") << "unknown function for depth correction!"
-    // 			       << std::endl;
+    //                         << std::endl;
   }
   return depth;
 }
@@ -490,23 +489,26 @@ double PFCluster::getDepthCorrection(double energy, bool isBelowPS,
 
 
 std::ostream& reco::operator<<(std::ostream& out, 
-			       const PFCluster& cluster) {
+                               const PFCluster& cluster) {
   
   if(!out) return out;
   
+  const math::XYZPoint&  posxyz = cluster.positionXYZ();
   const PFCluster::REPPoint&  pos = cluster.positionREP();
   const std::vector< reco::PFRecHitFraction >& fracs = 
     cluster.recHitFractions();
-
+  
   out<<"cluster "
      <<"\tlayer: "<<cluster.layer()
      <<"\tenergy: "<<cluster.energy()
-     <<"\tpos: "
+     <<"\tXYZ: "
+     <<posxyz.X()<<","<<posxyz.Y()<<","<<posxyz.Z()<<" | "
+     <<"\tREP: "
      <<pos.Rho()<<","<<pos.Eta()<<","<<pos.Phi()<<" | "
-     <<fracs.size()<<" rechits";
-//     for(unsigned i=0; i<fracs.size(); i++) {
-//       out<<fracs[i]<<", ";
-//     }
-
+     <<fracs.size()<<" rechits: ";
+  for(unsigned i=0; i<fracs.size(); i++) {
+    out<<fracs[i]<<", ";
+  }
+  
   return out;
 }

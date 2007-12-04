@@ -1,4 +1,10 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "Rtypes.h" 
+#include "Math/Cartesian3D.h" 
+#include "Math/Polar3D.h" 
+#include "Math/CylindricalEta3D.h" 
+#include "Math/PxPyPzE4D.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 

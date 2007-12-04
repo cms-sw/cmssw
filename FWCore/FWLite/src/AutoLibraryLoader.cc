@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.18 2007/05/16 14:32:32 chrjones Exp $
+// $Id: AutoLibraryLoader.cc,v 1.19 2007/05/16 16:09:02 chrjones Exp $
 //
 
 // system include files
@@ -60,8 +60,22 @@ AutoLibraryLoader::enable()
    
    //Make it easy to load our headers
    TInterpreter* intrp= gROOT->GetInterpreter();
+   const char* env = getenv("CMSSW_FWLITE_INCLUDE_PATH");
+   if( 0 != env) {
+     //this is a comma separated list
+     const char* start = env;
+     const char* end = env;
+     do{
+       //find end
+       for(end=start; *end!=0 and *end != ':';++end);
+       std::string dir(start, end);
+       intrp->AddIncludePath(dir.c_str());
+       start = end+1;
+     }while(*end != 0);
+   }
+   
    bool foundCMSIncludes = false;
-   const char* env = getenv("CMSSW_BASE");
+   env = getenv("CMSSW_BASE");
    if( 0 != env) {
      foundCMSIncludes = true;
      std::string dir(env);
