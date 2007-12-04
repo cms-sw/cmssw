@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2007/12/04 08:35:53 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/12/04 09:00:30 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -44,6 +44,7 @@ namespace trigger
     /// Helper class: trigger objects firing a single filter
     class TriggerFilterObject {
     public:
+
       /// label of filter
       std::string filterLabel_;
       /// 1-after-end (std C++) indices into linearised vector of Refs
@@ -55,15 +56,15 @@ namespace trigger
       size_type composites_;
       size_type mets_;
       size_type hts_;
-      size_type others_;
+
       /// constructor
       TriggerFilterObject() :
 	filterLabel_(),
-	photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), mets_(0), hts_(0), others_(0) { }
+	photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), mets_(0), hts_(0) { }
       TriggerFilterObject(const std::string& filterLabel,
-        size_type np, size_type ne, size_type nm, size_type nj, size_type nc, size_type nM, size_type nH, size_type nO) :
+        size_type np, size_type ne, size_type nm, size_type nj, size_type nc, size_type nM, size_type nH) :
 	filterLabel_(filterLabel),
-	photons_(np), electrons_(ne), muons_(nm), jets_(nj), composites_(nc), mets_(nM), hts_(nH), others_(nO) { }
+	photons_(np), electrons_(ne), muons_(nm), jets_(nj), composites_(nc), mets_(nM), hts_(nH) { }
     };
 
   /// data members
@@ -78,13 +79,12 @@ namespace trigger
     std::vector<reco::CompositeCandidateRef> composites_;
     std::vector<reco::CaloMETRef> mets_;
     std::vector<reco::METRef> hts_;
-    std::vector<XRef> others_;
 
   /// methods
   public:
     /// constructors
     TriggerEventWithRefs(): filterObjects_(),
-      photons_(), electrons_(), muons_(), jets_(), composites_(), mets_(), hts_(), others_() { }
+      photons_(), electrons_(), muons_(), jets_(), composites_(), mets_(), hts_() { }
 
     /// setters - to build EDProduct
     void addFilterObject(const std::string filterLabel, const TriggerFilterObjectWithRefs& tfowr) {
@@ -95,12 +95,12 @@ namespace trigger
       composites_.insert(composites_.end(),tfowr.getComposites().begin(),tfowr.getComposites().end());
       mets_.insert(mets_.end(),tfowr.getMETs().begin(),tfowr.getMETs().end());
       hts_.insert(hts_.end(),tfowr.getHTs().begin(),tfowr.getHTs().end());
-      others_.insert(others_.end(),tfowr.getOthers().begin(),tfowr.getOthers().end());
+
       filterObjects_.push_back(
         TriggerFilterObject(filterLabel, 
 			    photons_.size(), electrons_.size(), 
 			    muons_.size(), jets_.size(), composites_.size(),
-			    mets_.size(), hts_.size(), others_.size()
+			    mets_.size(), hts_.size()
 			   )
 	);
     }
@@ -157,11 +157,6 @@ namespace trigger
     /// number of hts for a specific filter
     size_type numHTs(size_type index) const {
       return filterObjects_.at(index).hts_ - (index==0? 0 : filterObjects_.at(index-1).hts_);
-    }
-
-    /// number of others for a specific filter
-    size_type numOthers(size_type index) const {
-      return filterObjects_.at(index).others_ - (index==0? 0 : filterObjects_.at(index-1).others_);
     }
 
 
@@ -227,37 +222,6 @@ namespace trigger
       return hts_.begin() + filterObjects_.at(index).hts_;
     }
 
-
-    /// others: _begin and _end iterators for specific filter
-    std::vector<XRef>::const_iterator others_begin(size_type index) const {
-      return others_.begin() + (index==0? 0 : filterObjects_.at(index-1).others_);
-    }
-    std::vector<XRef>::const_iterator others_end(size_type index) const {
-      return others_.begin() + filterObjects_.at(index).others_;
-    }
-
-
-    /// get keys of objects passing specific filter in the collection identified by its ProductID
-    void otherKeys(size_type index, edm::ProductID id, Keys& keys) const {
-      keys.resize(0);
-      const std::vector<XRef>::const_iterator begin(others_begin(index));
-      const std::vector<XRef>::const_iterator end(others_end(index));
-      for (std::vector<XRef>::const_iterator i=begin; i!=end; ++i) {
-	if (i->first==id) keys.push_back(i->second);
-      }
-    }
-    /// get vector of Ref<C> using handle to original collection for type
-    template <typename C>
-    void getOthers(size_type index, const edm::Handle<C>& handle, std::vector<edm::Ref<C> >& vref) const {
-      Keys keys();
-      otherKeys(index, handle.id(), keys);
-      const size_type n(keys.size());
-      vref.resize(n);
-      for (size_type i=0; i!=n; ++i) {
-	vref[i]=edm::Ref<C>(handle,keys[i]);
-      }
-      return;
-    }
 
   };
 

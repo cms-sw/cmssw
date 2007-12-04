@@ -6,8 +6,8 @@
  *  A single trigger object (e.g., an isolated muon, or MET)
  *  - described by its 4-momentum and physics type
  *
- *  $Date: 2007/12/03 13:05:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/04 09:00:30 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -25,7 +25,7 @@ namespace trigger
 
   /// data members - similar to DataFormats/Candidate/interface/Particle.h
   private:
-    /// id or physics type including electric charge - similar to pdgId
+    /// id or physics type (including electric charge) - similar to pdgId
     int id_;
     /// 4-momentum of physics object
     float pt_, eta_, phi_, mass_;

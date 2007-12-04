@@ -3,16 +3,15 @@
 
 /** \class trigger::TriggerTypeDefs
  *
- *  Misc. typedefs
+ *  Misc. common simple typedefs
  *
- *  $Date: 2007/12/04 08:35:53 $
+ *  $Date: 2007/12/04 09:00:30 $
  *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include<vector>
 
 namespace trigger
@@ -20,7 +19,6 @@ namespace trigger
 
   typedef uint16_t size_type;
   typedef std::vector<size_type> Keys;
-  typedef std::pair<edm::ProductID,size_type> XRef;
 
 }
 
