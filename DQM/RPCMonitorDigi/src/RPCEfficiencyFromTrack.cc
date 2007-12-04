@@ -305,6 +305,7 @@ void RPCEfficiencyFromTrack::endJob() {
       float ef = float(o)/float(p); 
       float er = sqrt(ef*(1.-ef)/float(p));
       std::cout <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
+      histoMean->Fill(tote*100.);
       if(ef<0.8){
 	std::cout<<"\t \t Warning!";
       } 
@@ -318,7 +319,7 @@ void RPCEfficiencyFromTrack::endJob() {
     float totr = sqrt(tote*(1.-tote)/float(totalcounter[0]));
     std::cout <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<"%"<<std::endl;
     std::cout <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
-    histoMean->Fill(tote*100.);
+
   }
   else{
     std::cout<<"No predictions in this file = 0!!!"<<std::endl;
