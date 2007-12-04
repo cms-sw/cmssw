@@ -1,7 +1,7 @@
 /*
  *
- *  $Date: 2007/11/22 20:12:47 $
- *  $Revision: 1.65 $
+ *  $Date: 2007/11/26 16:39:58 $
+ *  $Revision: 1.66 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -202,7 +202,11 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	theTTstatus.push_back(TowerStatus[i]);
 	//cout << "tower " << i << " has status " <<  TowerStatus[i] << endl;  
       }
-    theDCCheader.setFEStatus(theTTstatus);
+    // this needs V01-01-11      DataFormats/EcalRawData
+    // theDCCheader.setFEStatus(theTTstatus);
+
+    // rolled back temporarily to develop in CMSSW_1_7_0
+    theDCCheader.setTriggerTowerStatus(theTTstatus);
     
     EcalDCCTBHeaderRuntypeDecoder theRuntypeDecoder;
     ulong DCCruntype = (*itEventBlock)->getDataField("RUN TYPE");
