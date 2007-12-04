@@ -117,27 +117,13 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
-
-  //RPCRecHitCollection::const_iterator rec;	
-  //for (rec = rpcHits->begin(); rec!=rpcHits->end(); ++rec){
-  //LocalPoint rhitloc = (*rec).localPosition();
-  //float rhitpoint = rhitloc.x();  	
-  //std::cout << " RPC with recHit "<<rhitpoint<<"\t on : "<<(*rec).rpcId()<<std::endl;
-  //}
-
   Handle<Trajectories> trajectories;
   iEvent.getByLabel(TjInput,trajectories);
 
   for(Trajectories::const_iterator tj = trajectories->begin(); tj != trajectories->end(); ++tj){
     std::vector<TrajectoryMeasurement> tmColl = tj->measurements();
 
-    //std::cout<<"------------------------------- Reading Trajectory ---------------------------------"<<std::endl;
-
     for(vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj!=tmColl.end(); itTraj++){
-      //if(! itTraj->updatedState().isValid()) continue;
-      //std::cout<<" Tj r "<<itTraj->updatedState().globalPosition().perp()
-      //<<" Tj z "<<itTraj->updatedState().globalPosition().z()<<std::endl;
-            
       for (GlobalTrackingGeometry::DetContainer::const_iterator itDet=rpcGeo->dets().begin();itDet<rpcGeo->dets().end();itDet++){
 	if( dynamic_cast< RPCChamber* >( *itDet ) != 0 ){
 	  RPCChamber* ch = dynamic_cast< RPCChamber* >( *itDet ); 
@@ -261,11 +247,11 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	      }
 	      if(fabs(res)<maxRes){
 		anycoincidence=true;
-		//std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
+		std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
 	      }
 	      else{
 		anycoincidence=false;
-		//std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
+		std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
 	      }
 	      
 
