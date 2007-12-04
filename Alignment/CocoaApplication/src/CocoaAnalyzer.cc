@@ -4,9 +4,16 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "../interface/CocoaAnalyzer.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h" 
+#include "DetectorDescription/Base/interface/Ptr.h" 
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "CondFormats/OptAlignObjects/interface/OAQuality.h" 
+#include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h" 
+#include "CondFormats/DataRecord/interface/OpticalAlignmentsRcd.h" 
+#include "Geometry/Records/interface/IdealGeometryRecord.h" 
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDValuePair.h" 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <list>

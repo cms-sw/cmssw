@@ -21,28 +21,23 @@
 #include <iostream>
 #include <map>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDPosData.h" 
 
 class Event;
 class EventSetup;
 class Entry;
 //#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/OptAlignObjects/interface/OAQuality.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignments.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
-#include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h"
 
-#include "CondFormats/DataRecord/interface/OpticalAlignmentsRcd.h"
 
 class DDFilteredView;
 class DDCompactView;
 class DDSpecifics;
 class OpticalObject;
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class CocoaAnalyzer : public edm::EDAnalyzer
 {
