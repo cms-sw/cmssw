@@ -239,14 +239,14 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
 	      if(recFound==true){
 
-		// 		std::cout<<"**********************************************"<<std::endl;
-		// 		std::cout<<"\t                                   "<<std::endl;
-		// 		std::cout<<"Point Extrapolated                   "<<extrVec[rpos]<<std::endl;
-		// 		std::cout<<"Real Point                           "<<posVec[rpos]<<std::endl;
-		// 		std::cout<<"**********************************************"<<std::endl;
-		// 		std::cout<<"Strip Extrapolated "<<stripPr[rpos]<<" Strip Detected "<<stripD[rpos]<<std::endl;
-		// 		std::cout<<"**********************************************"<<std::endl;
-
+		std::cout<<"**********************************************"<<std::endl;
+		std::cout<<"\t                                   "<<std::endl;
+		std::cout<<"Point Extrapolated                   "<<extrVec[rpos]<<std::endl;
+		std::cout<<"Real Point                           "<<posVec[rpos]<<std::endl;
+		std::cout<<"**********************************************"<<std::endl;
+		std::cout<<"Strip Extrapolated "<<stripPr[rpos]<<" Strip Detected "<<stripD[rpos]<<std::endl;
+		std::cout<<"**********************************************"<<std::endl;
+		
 		sprintf(meIdRPC,"Residuals_%s",detUnitLabel);
 		meMap[meIdRPC]->Fill(res);
 		sprintf(meIdRPC,"Residuals_VS_RecPt_%s",detUnitLabel);
