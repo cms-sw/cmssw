@@ -3,14 +3,15 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2006/08/10 22:51:50 $
-$Revision: 1.3 $
+$Date: 2007/01/09 22:49:20 $
+$Revision: 1.5 $
 */
 
 #include <iostream>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIEData.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 
 namespace {
   class compareItems {
@@ -46,7 +47,7 @@ const HcalCalibrationQIECoder* HcalCalibrationQIEData::getCoder (DetId fId) cons
     cell = find (mItems, target.rawId ());
   }
   if (cell == mItems.end() || cell->rawId () != fId.rawId ()) 
-    throw cms::Exception ("Conditions not found") << "Unavailable Coder for cell " << fId.rawId();
+    throw cms::Exception ("Conditions not found") << "Unavailable Coder for cell " << HcalGenericDetId(fId);
   return &(*cell);
 }
 

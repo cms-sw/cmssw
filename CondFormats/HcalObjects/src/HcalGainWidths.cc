@@ -3,14 +3,15 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store GainWidth values 4xCapId
 $Author: ratnikov
-$Date: 2006/09/15 19:12:10 $
-$Revision: 1.8 $
+$Date: 2007/01/09 22:49:20 $
+$Revision: 1.10 $
 */
 
 #include <iostream>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 
 namespace {
   class compareItems {
@@ -46,7 +47,7 @@ const HcalGainWidth* HcalGainWidths::getValues (DetId fId) const {
     cell = find (mItems, fId.rawId ());
   }
   if (cell == mItems.end() || cell->rawId () != target.rawId ())
-    throw cms::Exception ("Conditions not found") << "Unavailable Gain Widths for cell " << target.rawId();
+    throw cms::Exception ("Conditions not found") << "Unavailable Gain Widths for cell " << HcalGenericDetId(fId);
   return &(*cell);
 }
 

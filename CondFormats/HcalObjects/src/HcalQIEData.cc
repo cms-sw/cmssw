@@ -3,14 +3,15 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2007/01/09 22:49:21 $
-$Revision: 1.7 $
+$Date: 2007/01/17 00:35:16 $
+$Revision: 1.8 $
 */
 
 #include <iostream>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 
 namespace {
   HcalQIEShape shape_; // use one default set
@@ -61,7 +62,7 @@ const HcalQIECoder* HcalQIEData::getCoder (DetId fId) const {
     cell = find (mItems, target.rawId ());
   }
   if (cell == mItems.end() || cell->rawId () != fId.rawId ())
-    throw cms::Exception ("Conditions not found") << "Unavailable QIE data for cell " << fId.rawId();
+    throw cms::Exception ("Conditions not found") << "Unavailable QIE data for cell " << HcalGenericDetId(fId);
   return &(*cell);
 }
 
