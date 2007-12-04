@@ -1,4 +1,4 @@
-#include "RecoMuon/MuonIsolationProducers/src/MuIsoDepositProducer.h"
+#include "RecoMuon/MuonIsolationProducers/plugins/MuIsoDepositProducer.h"
 
 // Framework
 #include "FWCore/Framework/interface/EDProducer.h"
