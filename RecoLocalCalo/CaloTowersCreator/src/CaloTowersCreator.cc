@@ -102,41 +102,27 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.setGeometry(cttopo.product(),htopo.product(),pG.product());
 
   algo_.begin(); // clear the internal buffer
-  
+
+  bool present;
+
   // Step A/C: Get Inputs and process (repeatedly)
-  try {
-    edm::Handle<HBHERecHitCollection> hbhe;
-    e.getByLabel(hbheLabel_,hbhe);
-    algo_.process(*hbhe);
-  } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
-  }
+  edm::Handle<HBHERecHitCollection> hbhe;
+  present=e.getByLabel(hbheLabel_,hbhe);
+  if (present || !allowMissingInputs_)  algo_.process(*hbhe);
 
-  try {
-    edm::Handle<HORecHitCollection> ho;
-    e.getByLabel(hoLabel_,ho);
-    algo_.process(*ho);
-  } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
-  }
+  edm::Handle<HORecHitCollection> ho;
+  present=e.getByLabel(hoLabel_,ho);
+  if (present || !allowMissingInputs_) algo_.process(*ho);
 
-  try {
-    edm::Handle<HFRecHitCollection> hf;
-    e.getByLabel(hfLabel_,hf);
-    algo_.process(*hf);
-  } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
-  }
+  edm::Handle<HFRecHitCollection> hf;
+  present=e.getByLabel(hfLabel_,hf);
+  if (present || !allowMissingInputs_) algo_.process(*hf);
 
-  try {
-    std::vector<edm::InputTag>::const_iterator i;
-    for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
-      edm::Handle<EcalRecHitCollection> ec;
-      e.getByLabel(*i,ec);
-      algo_.process(*ec);
-    }
-  } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
+  std::vector<edm::InputTag>::const_iterator i;
+  for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
+    edm::Handle<EcalRecHitCollection> ec;
+    present=e.getByLabel(*i,ec);
+    if (present || !allowMissingInputs_) algo_.process(*ec);
   }
 
   // Step B: Create empty output
