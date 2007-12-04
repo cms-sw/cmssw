@@ -61,6 +61,15 @@
   <class pattern="edm::RefVector<edm::AssociationMap<*>" />
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingParticle> >, edm::RefProd<std::vector<reco::Track> > >"/>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >, edm::RefProd<std::vector<TrackingParticle> > >"/>
+ 
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::RecoChargedCandidateRef>" />
+  <class name="edm::reftobase::RefHolder<reco::RecoChargedCandidateRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::RecoChargedCandidateRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::RecoChargedCandidateRefVector>" />
 
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::RecoEcalCandidateRef>" />
+  <class name="edm::reftobase::RefHolder<reco::RecoEcalCandidateRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::RecoEcalCandidateRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::RecoEcalCandidateRefVector>" />
 </lcgdict>
  

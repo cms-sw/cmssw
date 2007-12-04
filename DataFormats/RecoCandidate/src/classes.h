@@ -71,5 +71,14 @@ namespace {
     reco::RecoToSimAssociationRefProd jj5;
     reco::RecoToSimAssociationRefVector jj6;
           
+    edm::reftobase::Holder<reco::Candidate, reco::RecoChargedCandidateRef> rbc1;
+    edm::reftobase::RefHolder<reco::RecoChargedCandidateRef> rbc2;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::RecoChargedCandidateRefVector> rbc3;
+    edm::reftobase::RefVectorHolder<reco::RecoChargedCandidateRefVector> rbc4;
+          
+    edm::reftobase::Holder<reco::Candidate, reco::RecoEcalCandidateRef> rbe1;
+    edm::reftobase::RefHolder<reco::RecoEcalCandidateRef> rbe2;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::RecoEcalCandidateRefVector> rbe3;
+    edm::reftobase::RefVectorHolder<reco::RecoEcalCandidateRefVector> rbe4;
   }
 }
