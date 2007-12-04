@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.11 2007/10/24 21:43:35 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.12 2007/11/13 14:05:34 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.11 $
-  \date $Date: 2007/10/24 21:43:35 $
+  \version $Revision: 1.12 $
+  \date $Date: 2007/11/13 14:05:34 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -581,7 +581,7 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapCrystalErrors_, &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << "RunCrystalErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
       throw( std::runtime_error( e.what() ) );
     }
 
@@ -591,25 +591,25 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapTTErrors_,      &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << " RunTTErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapPNErrors_,      &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << " RunPNErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemChErrors_,   &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << " RunMemChErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemTTErrors_,   &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << " RunMemTTErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
 */
@@ -619,7 +619,7 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapCrystalErrors_, &validIOV, location, runIOV->getRunNumber() );
       std::cout << "RunCrystalErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
       throw( std::runtime_error( e.what() ) );
     }
 
@@ -629,25 +629,25 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapTTErrors_,      &validIOV, location, runIOV->getRunNumber() );
       std::cout << " RunTTErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapPNErrors_,      &validIOV, location, runIOV->getRunNumber() );
       std::cout << " RunPNErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemChErrors_,   &validIOV, location, runIOV->getRunNumber() );
       std::cout << " RunMemChErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemTTErrors_,   &validIOV, location, runIOV->getRunNumber() );
       std::cout << " RunMemTTErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
 
@@ -672,7 +672,7 @@ void EcalErrorMask::writeDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw(
         eConn->insertDataSet( &EcalErrorMask::mapMemChErrors_,   runIOV );
       if (EcalErrorMask::mapMemTTErrors_.size() != 0 )
         eConn->insertDataSet( &EcalErrorMask::mapMemTTErrors_,   runIOV );
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
       throw( std::runtime_error( e.what() ) );
     }
 

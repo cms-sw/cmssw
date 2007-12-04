@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.cc
  * 
- * $Date: 2007/04/02 16:20:48 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/05 13:56:47 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -141,8 +141,8 @@ void EcalEndcapMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
 
     if ( ME_Db_ ) ME_Db_->analyze(e, c, session_ );
     
-  } catch (coral::Exception& se) {
-    std::cerr << "CORAL Exception : " << se.what() << std::endl;
+  } catch (coral::Exception& e) {
+    std::cerr << "CORAL Exception : " << e.what() << std::endl;
   } catch (std::exception& e) {
     std::cerr << "Standard C++ exception : " << e.what() << std::endl;
   } catch (...) {

@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.3 2007/04/28 15:58:13 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.4 2007/11/27 15:00:42 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.3 $
-  \date $Date: 2007/04/28 15:58:13 $
+  \version $Revision: 1.4 $
+  \date $Date: 2007/11/27 15:00:42 $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -105,7 +105,7 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
 
     }
 
-  } catch ( exception& ex) {
+  } catch ( exception &e ) {
 
     LogWarning("EcalMonitorPrescaler") << EcalRawDataCollection_ << " not available";
 

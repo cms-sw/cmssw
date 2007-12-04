@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2007/11/26 22:28:10 $
- * $Revision: 1.44 $
+ * $Date: 2007/12/04 08:24:07 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -592,13 +592,13 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     {
       unsigned int row = icry / 5;
       unsigned int column= icry %5;
-      try{
+      if ( EBDetId::validDetId(maxHitId.ieta()+column-2,maxHitId.iphi()+row-2) ) {
 	Xtals5x5[icry]=EBDetId(maxHitId.ieta()+column-2,maxHitId.iphi()+row-2,EBDetId::ETAPHIMODE);
 	double e = (*  pUncalRH->find( Xtals5x5[icry] )  ).amplitude();
 	if ( e <= 0. ) e = 0.0;
 	ene5x5[icry] =e;
 	e25 +=e;
-      } catch ( std::runtime_error &e ) {
+      } else {
 	LogDebug("EcalBeamTask")<< "Cannot construct 5x5 matrix around EBDetId " << maxHitId;
 	mat5x5 =false;
       }

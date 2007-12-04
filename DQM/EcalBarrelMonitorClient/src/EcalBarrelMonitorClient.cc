@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/11/27 10:43:17 $
- * $Revision: 1.323 $
+ * $Date: 2007/11/28 09:47:40 $
+ * $Revision: 1.324 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -936,7 +936,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
       std::cout << "Fetching EcalLogicID vectors..." << std::flush;
       LogicID::init( econn );
       std::cout << "done." << std::endl;
-    } catch( std::runtime_error &e ) {
+    } catch(runtime_error &e) {
       std::cerr << e.what() << std::endl;
     }
   }
@@ -1394,7 +1394,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
     if ( begin_run_ && ! end_run_ ) {
 
-      if ( ( update && ( jevt_ < 10 || jevt_ % 100 == 0 ) ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
+      if ( ( update && ( jevt_ < 3 || jevt_ % 100 == 0 ) ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
         for ( int i=0; i<int(clients_.size()); i++ ) {
           bool analyzed; analyzed = false;
@@ -1792,7 +1792,7 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
     cgicc::CgiEnvironment cgie(in);
     path = cgie.getPathInfo() + "?" + cgie.getQueryString();
 
-  } catch (const std::exception & e) { }
+  } catch (exception &e) { }
 
   *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict)            << endl;
   *out << cgicc::html().set("lang", "en").set("dir","ltr")           << endl;

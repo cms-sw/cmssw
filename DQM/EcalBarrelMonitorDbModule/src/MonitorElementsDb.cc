@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.5 2006/10/16 18:29:44 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.6 2007/04/07 07:50:41 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2006/10/16 18:29:44 $
+  \version $Revision: 1.6 $
+  \date $Date: 2007/04/07 07:50:41 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -212,11 +212,11 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
 	  
 	  delete query;
 	  
-	} catch (coral::Exception& se) {
-	  std::cerr << "CORAL Exception : " << se.what() << std::endl;
-	} catch (std::exception& e) {
+	} catch ( coral::Exception& e ) {
+	  std::cerr << "CORAL Exception : " << e.what() << std::endl;
+	} catch ( std::exception& e ) {
 	  std::cerr << "Standard C++ exception : " << e.what() << std::endl;
-	} catch (...) {
+	} catch ( ... ) {
 	  std::cerr << "Exception caught (...)" << std::endl;
 	}
 
