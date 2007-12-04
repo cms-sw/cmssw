@@ -66,16 +66,13 @@ float GenericMVAJetTagComputer::discriminator(const TagInfoHelper &info) const
 	if (categorySelector.get()) {
 		index = categorySelector->findCategory(variables);
 		if (index < 0)
-			return -1.0;
+			return -10.0;
 	}
 
 	GenericMVAComputer *computer = computerCache.getComputer(index);
 
 	if (!computer)
-		throw cms::Exception("GenericMVAJetTagComputer")
-			<< "No MVA computer obtained for record \""
-			<< categorySelector->getCategoryLabels()[index]
-			<< "\"." << std::endl;
+		return -10.0;
 
 	return computer->eval(variables);
 }
