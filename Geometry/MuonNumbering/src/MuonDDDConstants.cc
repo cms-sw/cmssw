@@ -2,6 +2,10 @@
 
 #include <string>
 #include <iostream>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -12,58 +16,47 @@
 
 //#define LOCAL_DEBUG
 
-MuonDDDConstants::MuonDDDConstants(){ }
-
 MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
   //  std::cout << "MuonDDDConstants;:MuonDDDConstants ( const DDCompactView& cpv ) constructor " << std::endl;
-  try {
-    std::string attribute = "OnlyForMuonNumbering"; 
-    std::string value     = "any";
-    DDValue val(attribute, value, 0.0);
+  std::string attribute = "OnlyForMuonNumbering"; 
+  std::string value     = "any";
+  DDValue val(attribute, value, 0.0);
+  
+  DDSpecificsFilter filter;
+  filter.setCriteria(val,
+		     DDSpecificsFilter::not_equals,
+		     DDSpecificsFilter::AND, 
+		     true, // compare strings otherwise doubles
+		     true  // use merged-specifics or simple-specifics
+		     );
+  DDFilteredView fview(cpv);
+  fview.addFilter(filter);
+  
+  DDValue val2("level");
+  const DDsvalues_type params(fview.mergedSpecifics());
+  
+  fview.firstChild();
+  
+  const DDsvalues_type mySpecs (fview.mergedSpecifics());
+  //std::cout << "mySpecs.size() = " << mySpecs.size() << std::endl;
+  if ( mySpecs.size() < 25 ) {
+    edm::LogError("MuonDDDConstants") << " MuonDDDConstants: Missing SpecPars from DetectorDescription." << std::endl;
+    std::string msg = "MuonDDDConstants does not have the appropriate number of SpecPars associated";
+    msg+= " with the part //MUON.";
+    throw cms::Exception("GeometryBuildFailure", msg);
+  }
 
-    DDSpecificsFilter filter;
-    filter.setCriteria(val,
-		       DDSpecificsFilter::not_equals,
-		       DDSpecificsFilter::AND, 
-		       true, // compare strings otherwise doubles
-		       true  // use merged-specifics or simple-specifics
-		       );
-    DDFilteredView fview(cpv);
-    fview.addFilter(filter);
-
-    DDValue val2("level");
-    const DDsvalues_type params(fview.mergedSpecifics());
-    
-    fview.firstChild();
-    
-    const DDsvalues_type mySpecs (fview.mergedSpecifics());
-    DDsvalues_type::const_iterator bit = mySpecs.begin();
-    DDsvalues_type::const_iterator eit = mySpecs.end();
-    for ( ; bit != eit; ++bit ) {
-      if ( bit->second.isEvaluated() ) {
-	this->addValue( bit->second.name(), int(bit->second.doubles()[0]) );
-	//	std::cout << "adding DDConstant of " << bit->second.name() << " = " << int(bit->second.doubles()[0]) << std::endl;
-      }
+  DDsvalues_type::const_iterator bit = mySpecs.begin();
+  DDsvalues_type::const_iterator eit = mySpecs.end();
+  for ( ; bit != eit; ++bit ) {
+    if ( bit->second.isEvaluated() ) {
+      this->addValue( bit->second.name(), int(bit->second.doubles()[0]) );
+      //	std::cout << "adding DDConstant of " << bit->second.name() << " = " << int(bit->second.doubles()[0]) << std::endl;
     }
-
+    //    std::cout << "DDConstant of " << bit->second.name() << " = " << bit->second.strings()[0] << std::endl;
   }
-  catch (const DDException & e ) {
-    std::cerr << "MuonNumberingInitialization::initializeMuonDDDConstants caught a DDD Exception: " << std::endl
-	      << "  Message: " << e << std::endl
-	      << "  Terminating execution ... " << std::endl;
-    throw;
-  }
-  catch (const std::exception & e) {
-    std::cerr << "MuonNumberingInitialization::initializeMuonDDDConstants : an std::exception occured: " << e.what() << std::endl; 
-    throw;
-  }
-  catch (...) {
-    std::cerr << "MuonNumberingInitialization::initializeMuonDDDConstants : An unexpected exception occured!" << std::endl
-	      << "  Terminating execution ... " << std::endl;
-    std::unexpected();           
-  }
+  
 }
-
 
 MuonDDDConstants::~MuonDDDConstants() { 
   //  std::cout << "destructed!!!" << std::endl;
@@ -74,14 +67,14 @@ int MuonDDDConstants::getValue( const std::string& name ) const {
 
   if ( namesAndValues_.size() == 0 ) {
     std::cout << "MuonDDDConstants::getValue HAS NO VALUES!" << std::endl;
-    throw;
+    throw cms::Exception("GeometryBuildFailure", "MuonDDDConstants does not have requested value for " + name);
   }
 
   std::map<std::string, int>::const_iterator findIt = namesAndValues_.find(name);
 
   if ( findIt == namesAndValues_.end() ) {
     std::cout << "MuonDDDConstants::getValue was asked for " << name << " and had NO clue!" << std::endl;
-    throw;
+    throw cms::Exception("GeometryBuildFailure", "MuonDDDConstants does not have requested value for " + name);
   }
 
   return findIt->second;
