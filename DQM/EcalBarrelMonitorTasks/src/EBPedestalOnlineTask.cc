@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2007/11/07 07:07:59 $
- * $Revision: 1.26 $
+ * $Date: 2007/11/09 15:24:06 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -123,10 +123,9 @@ void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EBDigiCollection> digis;
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+  if ( e.getByLabel(EBDigiCollection_, digis) ) {
 
     int nebd = digis->size();
     LogDebug("EBPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;
@@ -167,7 +166,7 @@ void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBPedestalOnlineTask") << EBDigiCollection_ << " not available";
 

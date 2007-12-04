@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2007/08/21 11:31:49 $
- * $Revision: 1.12 $
+ * $Date: 2007/10/14 16:02:59 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -129,10 +129,9 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EEDigiCollection> digis;
 
-    Handle<EEDigiCollection> digis;
-    e.getByLabel(EEDigiCollection_, digis);
+  if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
     int need = digis->size();
     LogDebug("EEOccupancyTask") << "event " << ievt_ << " digi collection size " << need;
@@ -165,16 +164,15 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EEOccupancyTask") << EEDigiCollection_ << " not available";
 
   }
 
-  try {
+  Handle<EcalPnDiodeDigiCollection> PNs;
 
-    Handle<EcalPnDiodeDigiCollection> PNs;
-    e.getByLabel(EcalPnDiodeDigiCollection_, PNs);
+  if ( e.getByLabel(EcalPnDiodeDigiCollection_, PNs) ) {
 
     // filling mem occupancy only for the 5 channels belonging
     // to a fully reconstructed PN's
@@ -202,7 +200,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EEOccupancyTask") << EcalPnDiodeDigiCollection_ << " not available";
 

@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/11/26 22:23:09 $
- * $Revision: 1.52 $
+ * $Date: 2007/11/26 22:25:45 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
  */
@@ -298,10 +298,9 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EBDetIdCollection> ids0;
 
-    Handle<EBDetIdCollection> ids0;
-    e.getByLabel(EBDetIdCollection0_, ids0);
+  if ( e.getByLabel(EBDetIdCollection0_, ids0) ) {
 
     for ( EBDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++ idItr ) {
 
@@ -315,16 +314,15 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBIntegrityTask") << EBDetIdCollection0_ << " not available";
 
   }
 
-  try {
+  Handle<EBDetIdCollection> ids1;
 
-    Handle<EBDetIdCollection> ids1;
-    e.getByLabel(EBDetIdCollection1_, ids1);
+  if ( e.getByLabel(EBDetIdCollection1_, ids1) ) {
 
     for ( EBDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++ idItr ) {
 
@@ -343,16 +341,15 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBIntegrityTask") << EBDetIdCollection1_ << " not available";
 
   }
 
-  try {
+  Handle<EBDetIdCollection> ids2;
 
-    Handle<EBDetIdCollection> ids2;
-    e.getByLabel(EBDetIdCollection2_, ids2);
+  if ( e.getByLabel(EBDetIdCollection2_, ids2) ) {
 
     for ( EBDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++ idItr ) {
 
@@ -371,16 +368,15 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBIntegrityTask") << EBDetIdCollection2_ << " not available";
 
   }
 
-  try {
+  Handle<EBDetIdCollection> ids3;
 
-    Handle<EBDetIdCollection> ids3;
-    e.getByLabel(EBDetIdCollection3_, ids3);
+  if ( e.getByLabel(EBDetIdCollection3_, ids3) ) {
 
     for ( EBDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++ idItr ) {
 
@@ -399,16 +395,15 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBIntegrityTask") << EBDetIdCollection3_ << " not available";
 
   }
 
-  try {
+  Handle<EBDetIdCollection> ids4;
 
-    Handle<EBDetIdCollection> ids4;
-    e.getByLabel(EBDetIdCollection4_, ids4);
+  if ( e.getByLabel(EBDetIdCollection4_, ids4) ) {
 
     for ( EBDetIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++ idItr ) {
 
@@ -427,16 +422,15 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBIntegrityTask") << EBDetIdCollection4_ << " not available";
 
   }
 
-  try {
+  Handle<EcalElectronicsIdCollection> ids5;
 
-    Handle<EcalElectronicsIdCollection> ids5;
-    e.getByLabel(EcalElectronicsIdCollection1_, ids5);
+  if ( e.getByLabel(EcalElectronicsIdCollection1_, ids5) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
 
@@ -458,16 +452,15 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
 
   }
 
-  try {
+  Handle<EcalElectronicsIdCollection> ids6;
 
-    Handle<EcalElectronicsIdCollection> ids6;
-    e.getByLabel(EcalElectronicsIdCollection2_, ids6);
+  if ( e.getByLabel(EcalElectronicsIdCollection2_, ids6) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
 
@@ -489,16 +482,15 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
 
   }
 
-  try {
+  Handle<EcalElectronicsIdCollection> ids7;
 
-    Handle<EcalElectronicsIdCollection> ids7;
-    e.getByLabel(EcalElectronicsIdCollection3_, ids7);
+  if ( e.getByLabel(EcalElectronicsIdCollection3_, ids7) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++ idItr ) {
 
@@ -515,16 +507,15 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
 
   }
 
-  try {
+  Handle<EcalElectronicsIdCollection> ids8;
 
-    Handle<EcalElectronicsIdCollection> ids8;
-    e.getByLabel(EcalElectronicsIdCollection4_, ids8);
+  if ( e.getByLabel(EcalElectronicsIdCollection4_, ids8) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++ idItr ) {
 
@@ -541,16 +532,15 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
 
   }
 
-  try {
+  Handle<EcalElectronicsIdCollection> ids9;
 
-    Handle<EcalElectronicsIdCollection> ids9;
-    e.getByLabel(EcalElectronicsIdCollection5_, ids9);
+  if ( e.getByLabel(EcalElectronicsIdCollection5_, ids9) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++ idItr ) {
 
@@ -574,16 +564,15 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection5_ << " not available";
 
   }
 
-  try {
+  Handle<EcalElectronicsIdCollection> ids10;
 
-    Handle<EcalElectronicsIdCollection> ids10;
-    e.getByLabel(EcalElectronicsIdCollection6_, ids10);
+  if ( e.getByLabel(EcalElectronicsIdCollection6_, ids10) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids10->begin(); idItr != ids10->end(); ++ idItr ) {
 
@@ -607,7 +596,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection6_ << " not available";
 

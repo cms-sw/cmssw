@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2007/11/15 07:14:29 $
- * $Revision: 1.27 $
+ * $Date: 2007/11/20 08:52:47 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -624,10 +624,9 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
-  try {
+  Handle<EcalRawDataCollection> dcchs;
 
-    Handle<EcalRawDataCollection> dcchs;
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -645,7 +644,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EELaserTask") << EcalRawDataCollection_ << " not available";
 
@@ -657,10 +656,9 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EEDigiCollection> digis;
 
-    Handle<EEDigiCollection> digis;
-    e.getByLabel(EEDigiCollection_, digis);
+  if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
     int need = digis->size();
     LogDebug("EELaserTask") << "event " << ievt_ << " digi collection size " << need;
@@ -732,7 +730,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EELaserTask") << EEDigiCollection_ << " not available";
 
@@ -746,10 +744,9 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
     adcB[i] = 0.;
   }
 
-  try {
+  Handle<EcalPnDiodeDigiCollection> pns;
 
-    Handle<EcalPnDiodeDigiCollection> pns;
-    e.getByLabel(EcalPnDiodeDigiCollection_, pns);
+  if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
 
     int nep = pns->size();
     LogDebug("EELaserTask") << "event " << ievt_ << " pns collection size " << nep;
@@ -843,16 +840,15 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EELaserTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 
-  try {
+  Handle<EcalUncalibratedRecHitCollection> hits;
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EELaserTask") << "event " << ievt_ << " hits collection size " << neh;
@@ -977,7 +973,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EELaserTask") << EcalUncalibratedRecHitCollection_ << " not available";
 

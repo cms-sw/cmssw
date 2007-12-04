@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/11/10 10:03:54 $
- * $Revision: 1.23 $
+ * $Date: 2007/11/10 14:09:13 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -236,10 +236,9 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
-  try {
+  Handle<EcalRawDataCollection> dcchs;
 
-    Handle<EcalRawDataCollection> dcchs;
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -257,7 +256,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EETestPulseTask") << EcalRawDataCollection_ << " not available";
 
@@ -269,10 +268,9 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EEDigiCollection> digis;
 
-    Handle<EEDigiCollection> digis;
-    e.getByLabel(EEDigiCollection_, digis);
+  if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
     int need = digis->size();
     LogDebug("EETestPulseTask") << "event " << ievt_ << " digi collection size " << need;
@@ -325,16 +323,15 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EETestPulseTask") << EEDigiCollection_ << " not available";
 
   }
 
-  try {
+  Handle<EcalUncalibratedRecHitCollection> hits;
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EETestPulseTask") << "event " << ievt_ << " hits collection size " << neh;
@@ -384,16 +381,15 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EETestPulseTask") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
 
-  try {
+  Handle<EcalPnDiodeDigiCollection> pns;
 
-    Handle<EcalPnDiodeDigiCollection> pns;
-    e.getByLabel(EcalPnDiodeDigiCollection_, pns);
+  if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
 
     int nep = pns->size();
     LogDebug("EETestPulseTask") << "event " << ievt_ << " pns collection size " << nep;
@@ -464,7 +460,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EETestPulseTask") << EcalPnDiodeDigiCollection_ << " not available";
 

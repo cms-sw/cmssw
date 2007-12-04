@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/11/25 10:45:23 $
- * $Revision: 1.152 $
+ * $Date: 2007/11/28 09:47:40 $
+ * $Revision: 1.153 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -315,11 +315,10 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   evtNumber_ = e.id().event();
 
   map<int, EcalDCCHeaderBlock> dccMap;
+
   Handle<EcalRawDataCollection> dcchs;
 
-  try {
-
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     int nebc = dcchs->size();
     LogDebug("EcalBarrelMonitor") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
@@ -350,17 +349,15 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex ) {
+  } else {
 
     LogWarning("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " not available";
 
-    try {
+    Handle<EcalTBEventHeader> pEvtH;
 
-      Handle<EcalTBEventHeader> pEvtH;
-      const EcalTBEventHeader* evtHeader=0;
+    if ( e.getByLabel(EcalTBEventHeader_, pEvtH) ) {
 
-      e.getByLabel(EcalTBEventHeader_, pEvtH);
-      evtHeader = pEvtH.product();
+      const EcalTBEventHeader* evtHeader = pEvtH.product();
 
       meEBDCC_->Fill(1+0.5);
 
@@ -372,7 +369,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       evtType_ = EcalDCCHeaderBlock::BEAMH4;
 
-    } catch ( exception& ex ) {
+    } else {
 
       LogWarning("EcalBarrelMonitorModule") << EcalTBEventHeader_ << " not available, TOO!";
 
@@ -405,10 +402,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   // pause the shipping of monitoring elements
   dbe_->lock();
 
-  try {
+  Handle<EBDigiCollection> digis;
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+  if ( e.getByLabel(EBDigiCollection_, digis) ) {
 
     int nebd = digis->size();
     LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " digi collection size " << nebd;
@@ -431,16 +427,15 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EcalBarrelMonitorModule") << EBDigiCollection_ << " not available";
 
   }
 
-  try {
+  Handle<EcalUncalibratedRecHitCollection> hits;
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int nebh = hits->size();
     LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " hits collection size " << nebh;
@@ -478,7 +473,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EcalBarrelMonitorModule") << EcalUncalibratedRecHitCollection_ << " not available";
 

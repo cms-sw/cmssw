@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2007/11/09 17:36:45 $
- * $Revision: 1.43 $
+ * $Date: 2007/11/26 22:28:10 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -298,9 +298,9 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
   bool enable = false;
   Handle<EcalTBEventHeader> pHeader;
-  const EcalTBEventHeader * Header =0;
-  try{
-    e.getByLabel(EcalTBEventHeader_, pHeader);
+  const EcalTBEventHeader* Header =0;
+
+  if (  e.getByLabel(EcalTBEventHeader_, pHeader) ) {
     Header = pHeader.product(); // get a ptr to the product
     if (!Header) {
       LogWarning("EBBeamHodoTask") << "Event header not found. Returning. ";
@@ -317,18 +317,14 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EBBeamHodoTask") << "Table is moving. ";  }
     else
       {      LogDebug("EBBeamHodoTask") << "Table is not moving. ";    }
-  }// end try
-  catch ( std::exception& ex) {
+  } else {
     LogWarning("EBBeamHodoTask") << "Event header not found (exception caught). Returning. ";
     return;
   }
 
-
-
-
   Handle<EcalRawDataCollection> dcchs;
-  try{
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     int nebc = dcchs->size();
     LogDebug("EBBeamHodoTask") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
@@ -341,14 +337,12 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 	   || dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2  ) enable = true;
     }
 
-  }
-  catch ( std::exception& ex) {
+  } else {
     LogWarning("EcalBeamTask") << EcalRawDataCollection_ << " not available";
     meMissingCollections_ -> Fill(1); // bin2: missing DCC headers
     return;
     // see bottom of cc file for compatibility to 2004 data [***]
   }
-
 
   if ( ! enable ) return;
   if ( ! init_ ) this->setup();
@@ -356,17 +350,14 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
   LV1_ = Header->eventNumber();
 
-
-
   Handle<EcalUncalibratedRecHitCollection> pUncalRH;
   const EcalUncalibratedRecHitCollection* uncalRecH =0;
-  try {
-    e.getByLabel(EcalUncalibratedRecHitCollection_, pUncalRH);
+
+  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, pUncalRH) ) {
     uncalRecH = pUncalRH.product(); // get a ptr to the product
     int neh = pUncalRH->size();
     LogDebug("EBBeamHodoTask") << EcalUncalibratedRecHitCollection_ << " found in event " << ievt_ << "; hits collection size " << neh;
-  }
-  catch ( std::exception& ex ) {
+  } else {
     LogWarning("EBBeamHodoTask") << EcalUncalibratedRecHitCollection_ << " not available";
     meMissingCollections_ -> Fill(2); // bin3: missing uncalibRecHits
     return;
@@ -374,10 +365,10 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
   Handle<EcalTBTDCRawInfo> pTDCRaw;
   const EcalTBTDCRawInfo* rawTDC=0;
-  try {
-    e.getByLabel(EcalTBTDCRawInfo_, pTDCRaw);
+
+  if ( e.getByLabel(EcalTBTDCRawInfo_, pTDCRaw) ) {
     rawTDC = pTDCRaw.product();
-  } catch ( std::exception& ex ) {
+  } else {
     LogError("EcalBeamTask") << "Error! Can't get the product EcalTBTDCRawInfo. Returning.";
     meMissingCollections_ -> Fill(4); // bin5: missing raw TDC
     return;
@@ -385,24 +376,23 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
   Handle<EcalTBHodoscopeRawInfo> pHodoRaw;
   const EcalTBHodoscopeRawInfo* rawHodo=0;
-  try {
-    e.getByLabel(EcalTBHodoscopeRawInfo_, pHodoRaw);
+
+  if ( e.getByLabel(EcalTBHodoscopeRawInfo_, pHodoRaw) ) {
     rawHodo = pHodoRaw.product();
     if(rawHodo->planes() ){
     LogDebug("EcalBeamTask") << "hodoscopeRaw:  num planes: " <<  rawHodo->planes()
 			     << " channels in plane 1: "  <<  rawHodo->channels(0);
     }
-  } catch ( std::exception& ex ) {
+  } else {
     LogError("EcalBeamTask") << "Error! Can't get the product EcalTBHodoscopeRawInfo. Returning";
     meMissingCollections_ -> Fill(3); // bin4: missing raw hodo hits collection
     return;
   }
 
-  if ( !rawTDC ||!rawHodo || !uncalRecH  || !( rawHodo->planes() ))
-    {
+  if ( !rawTDC ||!rawHodo || !uncalRecH  || !( rawHodo->planes() )) {
       LogWarning("EcalBeamTask") << "analyze: missing a needed collection or hodo collection empty. Returning.";
       return;
-    }
+  }
   LogDebug("EBBeamHodoTask") << " TDC raw, Hodo raw, uncalRecH and DCCheader found.";
 
 
@@ -410,8 +400,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   // table has come to a stop is identified by new value of cry_in_beam
   //   - increase counter of crystals that have been on beam
   //   - set flag for resetting
-  if (cryInBeam_ != previousCryInBeam_ )
-    {
+  if (cryInBeam_ != previousCryInBeam_ ) {
       previousCryInBeam_ = cryInBeam_ ;
       cryInBeamCounter_++;
       resetNow_ = true;
@@ -513,11 +502,11 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
   Handle<EcalTBTDCRecInfo> pTDC;
   const EcalTBTDCRecInfo* recTDC=0;
-  try {
-    e.getByLabel(EcalTBTDCRecInfo_, pTDC);
+
+  if ( e.getByLabel(EcalTBTDCRecInfo_, pTDC) ) {
     recTDC = pTDC.product();
     LogDebug("EBBeamHodoTask") << " TDC offset is: " << recTDC->offset();
-  } catch ( std::exception& ex ) {
+  } else {
     LogError("EcalBeamTask") << "Error! Can't get the product EcalTBTDCRecInfo. Returning";
     meMissingCollections_ -> Fill(5); // bin6: missing reconstructed TDC
     return;
@@ -525,24 +514,23 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
   Handle<EcalTBHodoscopeRecInfo> pHodo;
   const EcalTBHodoscopeRecInfo* recHodo=0;
-  try {
-    e.getByLabel(EcalTBHodoscopeRecInfo_, pHodo);
+
+  if ( e.getByLabel(EcalTBHodoscopeRecInfo_, pHodo) ) {
     recHodo = pHodo.product();
     LogDebug("EcalBeamTask") << "hodoscopeReco:    x: " << recHodo->posX()
 			     << "\ty: " << recHodo->posY()
 			     << "\t sx: " << recHodo->slopeX() << "\t qualx: " << recHodo->qualX()
 			     << "\t sy: " << recHodo->slopeY() << "\t qualy: " << recHodo->qualY();
-  } catch ( std::exception& ex ) {
+  } else {
     LogError("EcalBeamTask") << "Error! Can't get the product EcalTBHodoscopeRecInfo";
     meMissingCollections_ -> Fill(6); // bin7: missing reconstructed hodoscopes
     return;
   }
 
-  if ( (!recHodo) || (!recTDC) )
-    {
+  if ( (!recHodo) || (!recTDC) ) {
       LogWarning("EcalBeamTask") << "analyze: missing a needed collection, recHodo or recTDC. Returning.";
       return;
-    }
+  }
   LogDebug("EBBeamHodoTask") << " Hodo reco and TDC reco found.";
 
   meTDCRec_        ->Fill( recTDC->offset());
@@ -555,21 +543,16 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   meHodoQuaXRec_       ->Fill( recHodo->qualX());
   meHodoQuaYRec_       ->Fill( recHodo->qualY());
 
-
-
   /**************************************
   // handling histos type II:
   **************************************/
 
-  if (tableIsMoving_)
-    {
+  if (tableIsMoving_) {
       LogDebug("EcalBeamTask")<< "At event number:" << LV1_ << " table is moving. Not filling concerned monitoring elements. ";
       return;
-    }
-  else
-    {
+  } else {
       LogDebug("EcalBeamTask")<< "At event number:" << LV1_ << " table is not moving - thus filling alos monitoring elements requiring so.";
-    }
+  }
 
   float maxE =0;
   EBDetId maxHitId(0);
@@ -581,11 +564,10 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       maxHitId = (*uncalHitItr).id();
     }
   }
-  if (  maxHitId == EBDetId(0) )
-    {
+  if (  maxHitId == EBDetId(0) ) {
       LogError("EBBeamHodoTask") << "No positive UncalRecHit found in ECAL in event " << ievt_ << " - returning.";
       return;
-    }
+  }
 
   meEvsXRecProf_ -> Fill(recHodo->posX(), maxE);
   meEvsYRecProf_ -> Fill(recHodo->posY(), maxE);
@@ -603,7 +585,6 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
   if (!mat5x5) return;
 
-
   EBDetId Xtals5x5[25];
   double   ene5x5[25];
   double   e25    =0;
@@ -617,11 +598,10 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 	if ( e <= 0. ) e = 0.0;
 	ene5x5[icry] =e;
 	e25 +=e;
-      }catch ( std::runtime_error &e )
-	{
-	  LogDebug("EcalBeamTask")<< "Cannot construct 5x5 matrix around EBDetId " << maxHitId;
-	  mat5x5 =false;
-	}
+      } catch ( std::runtime_error &e ) {
+	LogDebug("EcalBeamTask")<< "Cannot construct 5x5 matrix around EBDetId " << maxHitId;
+	mat5x5 =false;
+      }
     }
 
   if (!mat5x5) return;

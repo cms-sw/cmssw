@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2007/08/21 11:31:49 $
- * $Revision: 1.11 $
+ * $Date: 2007/11/09 15:24:09 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -123,10 +123,9 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EEDigiCollection> digis;
 
-    Handle<EEDigiCollection> digis;
-    e.getByLabel(EEDigiCollection_, digis);
+  if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
     int need = digis->size();
     LogDebug("EEPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << need;
@@ -168,7 +167,7 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EEPedestalOnlineTask") << EEDigiCollection_ << " not available";
 

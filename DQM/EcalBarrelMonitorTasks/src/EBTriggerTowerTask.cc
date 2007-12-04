@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/11/10 14:09:10 $
- * $Revision: 1.50 $
+ * $Date: 2007/11/14 11:18:06 $
+ * $Revision: 1.51 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -281,13 +281,9 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EcalTrigPrimDigiCollection> realDigis;
 
-    Handle<EcalTrigPrimDigiCollection> realDigis;
-    e.getByLabel(realCollection_, realDigis);
-
-
-    Handle<EcalTrigPrimDigiCollection> dummy;
+  if ( e.getByLabel(realCollection_, realDigis) ) {
 
     int nebtpd = realDigis->size();
     LogDebug("EBTriggerTowerTask")
@@ -296,14 +292,19 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       <<" trigger primitive digi collection size: "
       <<nebtpd;
 
-
     processDigis( realDigis,
 		  meEtMapReal_,
 		  meVetoReal_,
 		  meFlagsReal_);
 
-    Handle<EcalTrigPrimDigiCollection> emulDigis;
-    e.getByLabel(emulCollection_, emulDigis);
+  } else {
+    LogWarning("EBTriggerTowerTask")
+      << realCollection_ << " not available"; 
+  }
+
+  Handle<EcalTrigPrimDigiCollection> emulDigis;
+
+  if ( e.getByLabel(emulCollection_, emulDigis) ) {
 
     processDigis( emulDigis,
 		  meEtMapEmul_,
@@ -312,13 +313,12 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 		  realDigis);
 
 
-  } catch ( std::exception& ex) {
-    LogError("EBTriggerTowerTask")
-      <<ex.what();
+  } else {
+    LogWarning("EBTriggerTowerTask")
+      << emulCollection_ << " not available";
   }
+
 }
-
-
 
 void
 EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&

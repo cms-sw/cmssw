@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2007/11/07 07:11:26 $
- * $Revision: 1.15 $
+ * $Date: 2007/11/09 17:36:45 $
+ * $Revision: 1.16 $
  * \author A. Ghezzi
  *
  */
@@ -370,8 +370,8 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   map<int, EcalDCCHeaderBlock> dccMap;
 
   Handle<EcalRawDataCollection> dcchs;
-  try{
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     int nebc = dcchs->size();
     LogDebug("EEBeamCaloTask") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
@@ -384,8 +384,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
            dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2 ) enable = true;
     }
 
-  }
-  catch ( std::exception& ex) {
+  } else {
     LogWarning("EEBeamCaloTask") << EcalRawDataCollection_ << " not available";
   }
 
@@ -393,14 +392,13 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   if ( ! init_ ) this->setup();
   ievt_++;
 
-
   Handle<EcalTBEventHeader> pEventHeader;
   const EcalTBEventHeader* evtHeader=0;
-  try {
-    e.getByLabel(EcalTBEventHeader_, pEventHeader);
+
+  if ( e.getByLabel(EcalTBEventHeader_, pEventHeader) ) {
     evtHeader = pEventHeader.product(); // get a ptr to the product
     //std::cout << "Taken EventHeader " << std::endl;
-  } catch ( std::exception& ex ) {
+  } else {
     std::cerr << "Error! can't get the product for the event header" << std::endl;
   }
 

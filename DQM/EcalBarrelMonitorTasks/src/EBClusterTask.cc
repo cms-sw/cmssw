@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/11/09 19:19:56 $
- * $Revision: 1.35 $
+ * $Date: 2007/11/10 12:43:03 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -305,10 +305,10 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   ievt_++;
 
   // --- Barrel "Hybrid" Basic Clusters ---
-  try {
 
-    Handle<BasicClusterCollection> pBasicClusters;
-    e.getByLabel(BasicClusterCollection_, pBasicClusters);
+  Handle<BasicClusterCollection> pBasicClusters;
+
+  if ( e.getByLabel(BasicClusterCollection_, pBasicClusters) ) {
 
     Int_t nbcc = pBasicClusters->size();
     meBCNum_->Fill(float(nbcc));
@@ -342,34 +342,32 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex ) {
+  } else {
     LogWarning("EBClusterTask") << " BasicClusterCollection: " << BasicClusterCollection_ << " not in event.";
   }
 
 
   // --- Barrel "Hybrid" Super Clusters ---
-  try {
 
-    Handle<SuperClusterCollection> pSuperClusters;
-    e.getByLabel(SuperClusterCollection_, pSuperClusters);
+  Handle<SuperClusterCollection> pSuperClusters;
+
+  if ( e.getByLabel(SuperClusterCollection_, pSuperClusters) ) {
 
     Int_t nscc = pSuperClusters->size();
     meSCNum_->Fill(float(nscc));
 
     Handle<BasicClusterShapeAssociationCollection> pClusterShapeAssociation;
-    try	{
-      e.getByLabel(ClusterShapeAssociation_, pClusterShapeAssociation);
-    }	catch ( exception& ex )	{
+
+    if ( e.getByLabel(ClusterShapeAssociation_, pClusterShapeAssociation) ) {
+    } else {
       LogWarning("EBClusterTask") << "Can't get collection with label "   << ClusterShapeAssociation_.label();
     }
-
 
     TLorentzVector sc1_p(0,0,0,0);
     TLorentzVector sc2_p(0,0,0,0);
 
     SuperClusterCollection::const_iterator sClusterItr;
     for(  sClusterItr = pSuperClusters->begin(); sClusterItr != pSuperClusters->end(); ++sClusterItr ) {
-
 
       // energy, size
       meSCEne_->Fill( sClusterItr->energy() );
@@ -399,7 +397,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       meInvMass_->Fill(sum.M());
     }
 
-  } catch ( exception& ex ) {
+  } else {
     LogWarning("EBClusterTask") << " SuperClusterCollection: not in event.";
   }
 

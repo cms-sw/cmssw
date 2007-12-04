@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/11/25 10:45:24 $
- * $Revision: 1.26 $
+ * $Date: 2007/11/28 09:47:42 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -315,11 +315,10 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   evtNumber_ = e.id().event();
 
   map<int, EcalDCCHeaderBlock> dccMap;
+
   Handle<EcalRawDataCollection> dcchs;
 
-  try {
-
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     int neec = dcchs->size();
     LogDebug("EcalEndcapMonitor") << "event: " << ievt_ << " DCC headers collection size: " << neec;
@@ -350,17 +349,15 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex ) {
+  } else {
 
     LogWarning("EcalEndcapMonitorModule") << EcalRawDataCollection_ << " not available";
 
-    try {
+    Handle<EcalTBEventHeader> pEvtH;
 
-      Handle<EcalTBEventHeader> pEvtH;
-      const EcalTBEventHeader* evtHeader=0;
+    if ( e.getByLabel(EcalTBEventHeader_, pEvtH) ) {
 
-      e.getByLabel(EcalTBEventHeader_, pEvtH);
-      evtHeader = pEvtH.product();
+      const EcalTBEventHeader* evtHeader = pEvtH.product();
 
       meEEDCC_->Fill(1+0.5);
 
@@ -372,7 +369,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       evtType_ = EcalDCCHeaderBlock::BEAMH4;
 
-    } catch ( exception& ex ) {
+    } else {
 
       LogWarning("EcalEndcapMonitorModule") << EcalTBEventHeader_ << " not available, TOO!";
 
@@ -405,10 +402,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   // pause the shipping of monitoring elements
   dbe_->lock();
 
-  try {
+  Handle<EEDigiCollection> digis;
 
-    Handle<EEDigiCollection> digis;
-    e.getByLabel(EEDigiCollection_, digis);
+  if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
     int need = digis->size();
     LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " digi collection size " << need;
@@ -432,16 +428,15 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EcalEndcapMonitorModule") << EEDigiCollection_ << " not available";
 
   }
 
-  try {
+  Handle<EcalUncalibratedRecHitCollection> hits;
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neeh = hits->size();
     LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " hits collection size " << neeh;
@@ -480,7 +475,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EcalEndcapMonitorModule") << EcalUncalibratedRecHitCollection_ << " not available";
 

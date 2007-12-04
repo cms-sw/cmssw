@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/11/07 07:08:00 $
- * $Revision: 1.23 $
+ * $Date: 2007/11/09 15:24:06 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -121,10 +121,9 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EcalUncalibratedRecHitCollection> hits;
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EBTimingTask") << "event " << ievt_ << " hits collection size " << neh;
@@ -167,7 +166,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBTimingTask") << EcalUncalibratedRecHitCollection_ << " not available";
 

@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2007/10/14 16:02:58 $
- * $Revision: 1.26 $
+ * $Date: 2007/11/07 07:07:59 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -129,10 +129,9 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EBDigiCollection> digis;
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+  if ( e.getByLabel(EBDigiCollection_, digis) ) {
 
     int nebd = digis->size();
     LogDebug("EBOccupancyTask") << "event " << ievt_ << " digi collection size " << nebd;
@@ -164,16 +163,15 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBOccupancyTask") << EBDigiCollection_ << " not available";
 
   }
 
-  try {
+  Handle<EcalPnDiodeDigiCollection> PNs;
 
-    Handle<EcalPnDiodeDigiCollection> PNs;
-    e.getByLabel(EcalPnDiodeDigiCollection_, PNs);
+  if ( e.getByLabel(EcalPnDiodeDigiCollection_, PNs) ) {
 
     // filling mem occupancy only for the 5 channels belonging
     // to a fully reconstructed PN's
@@ -201,7 +199,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBOccupancyTask") << EcalPnDiodeDigiCollection_ << " not available";
 

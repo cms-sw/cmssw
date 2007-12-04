@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2007/10/16 08:30:09 $
- * $Revision: 1.16 $
+ * $Date: 2007/11/09 15:24:10 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -121,10 +121,9 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EcalUncalibratedRecHitCollection> hits;
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EETimingTask") << "event " << ievt_ << " hits collection size " << neh;
@@ -168,7 +167,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EETimingTask") << EcalUncalibratedRecHitCollection_ << " not available";
 

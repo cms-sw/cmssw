@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/11/09 15:24:09 $
- * $Revision: 1.15 $
+ * $Date: 2007/11/09 19:15:45 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -151,10 +151,9 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
-  try {
+  Handle<EcalRawDataCollection> dcchs;
 
-    Handle<EcalRawDataCollection> dcchs;
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -176,7 +175,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EECosmicTask") << EcalRawDataCollection_ << " not available";
 
@@ -188,10 +187,9 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EcalRecHitCollection> hits;
 
-    Handle<EcalRecHitCollection> hits;
-    e.getByLabel(EcalRecHitCollection_, hits);
+  if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
     int neeh = hits->size();
     LogDebug("EECosmicTask") << "event " << ievt_ << " hits collection size " << neeh;
@@ -244,7 +242,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EECosmicTask") << EcalRecHitCollection_ << " not available";
 

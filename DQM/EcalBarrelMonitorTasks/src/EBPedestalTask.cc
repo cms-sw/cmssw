@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/11/10 10:03:52 $
- * $Revision: 1.69 $
+ * $Date: 2007/11/10 14:09:10 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  *
 */
@@ -240,10 +240,9 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
-  try {
+  Handle<EcalRawDataCollection> dcchs;
 
-    Handle<EcalRawDataCollection> dcchs;
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -261,7 +260,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBPedestalTask") << EcalRawDataCollection_ << " not available";
 
@@ -273,10 +272,9 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EBDigiCollection> digis;
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+  if ( e.getByLabel(EBDigiCollection_, digis) ) {
 
     int nebd = digis->size();
     LogDebug("EBPedestalTask") << "event " << ievt_ << " digi collection size " << nebd;
@@ -414,16 +412,15 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
       }
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBPedestalTask") << EBDigiCollection_ << " not available";
 
   }
 
-  try {
+  Handle<EcalPnDiodeDigiCollection> pns;
 
-    Handle<EcalPnDiodeDigiCollection> pns;
-    e.getByLabel(EcalPnDiodeDigiCollection_, pns);
+  if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
 
     int nep = pns->size();
     LogDebug("EBPedestalTask") << "event " << ievt_ << " pns collection size " << nep;
@@ -466,7 +463,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBPedestalTask") << EcalPnDiodeDigiCollection_ << " not available";
 

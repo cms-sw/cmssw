@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2007/11/10 12:43:06 $
- * $Revision: 1.22 $
+ * $Date: 2007/11/10 14:09:13 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -414,10 +414,10 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
   ievt_++;
 
   // --- Endcap "Island" Basic Clusters ---
-  try {
 
-    Handle<BasicClusterCollection> pIslandEndcapBasicClusters;
-    e.getByLabel(BasicClusterCollection_, pIslandEndcapBasicClusters);
+  Handle<BasicClusterCollection> pIslandEndcapBasicClusters;
+
+  if ( e.getByLabel(BasicClusterCollection_, pIslandEndcapBasicClusters) ) {
 
     meBCNum_->Fill(float(pIslandEndcapBasicClusters->size()));
 
@@ -464,23 +464,23 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex ) {
+  } else {
     LogWarning("EEClusterTask") << " BasicClusterCollection: " << BasicClusterCollection_ << " not in event.";
   }
 
   // --- Endcap "Island" Super Clusters ----
-  try {
 
-    Handle<SuperClusterCollection> pIslandEndcapSuperClusters;
-    e.getByLabel(SuperClusterCollection_, pIslandEndcapSuperClusters);
+  Handle<SuperClusterCollection> pIslandEndcapSuperClusters;
+
+  if ( e.getByLabel(SuperClusterCollection_, pIslandEndcapSuperClusters) ) {
 
     Int_t nscc = pIslandEndcapSuperClusters->size();
     meSCNum_->Fill(float(nscc));
 
     Handle<BasicClusterShapeAssociationCollection> pClusterShapeAssociation;
-    try	{
-      e.getByLabel(ClusterShapeAssociation_, pClusterShapeAssociation);
-    }	catch ( exception& ex )	{
+
+    if ( e.getByLabel(ClusterShapeAssociation_, pClusterShapeAssociation) ) {
+    } else {
       LogWarning("EEClusterTask") << "Can't get collection with label "   << ClusterShapeAssociation_.label();
     }
 
@@ -517,8 +517,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       meInvMass_->Fill(sum.M());
     }
 
-
-  } catch ( exception& ex ) {
+  } else {
     LogWarning("EEClusterTask") << " SuperClusterCollection: " << SuperClusterCollection_ << " not in event.";
   }
 
