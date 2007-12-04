@@ -1,12 +1,12 @@
 /**
- * \file EcalDigiDumperModule.h 
+ * \file EcalDigiDisplay.cc 
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2007/10/20 10:58:02 $
- * $Revision: 1.19 $
+ * $Date: 2007/11/29 14:13:46 $
+ * $Revision: 1.1 $
  * \author N. Amapane - S. Argiro'
- * \author G. Franzoni
+ * \author G. Franzoni - Keti Kaadze
  *
  */
 
@@ -16,7 +16,7 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include "CaloOnlineTools/EcalTools/interface/EcalDigiDumperModule.h"
+#include "CaloOnlineTools/EcalTools/interface/EcalDigiDisplay.h"
 #include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
@@ -33,7 +33,7 @@
 #include <map>
 
 //==========================================================================
-EcalDigiDumperModule::EcalDigiDumperModule(const edm::ParameterSet& ps) {
+EcalDigiDisplay::EcalDigiDisplay(const edm::ParameterSet& ps) {
 //=========================================================================
   
   ebDigiCollection_ = ps.getParameter<std::string>("ebDigiCollection");
@@ -68,7 +68,7 @@ EcalDigiDumperModule::EcalDigiDumperModule(const edm::ParameterSet& ps) {
       // Check with channels 
       for (intIter = listChannels.begin(); intIter != listChannels.end(); intIter++)  {  
 	if ( ((*intIter) < 1) ||  (1700 < (*intIter)) )       {  
-	  edm::LogError("EcalDigiDumperModule") << "[EcalDigiDumperModule] ic value: " << (*intIter) << " found in listChannels. "
+	  edm::LogError("EcalDigiDisplay") << "[EcalDigiDisplay] ic value: " << (*intIter) << " found in listChannels. "
 						<< " Valid range is 1-1700. Returning.";
 	  inputIsOk = false;
 	  return;
@@ -79,7 +79,7 @@ EcalDigiDumperModule::EcalDigiDumperModule(const edm::ParameterSet& ps) {
 	for (intIter = listTowers.begin(); intIter != listTowers.end(); intIter++) {
 	  
 	  if ( ((*intIter) < 1) ||  (70 < (*intIter)) )       {  
-	    edm::LogError("EcalDigiDumperModule") << "[EcalDigiDumperModule] ic value: " << (*intIter) << " found in listTowers. "
+	    edm::LogError("EcalDigiDisplay") << "[EcalDigiDisplay] ic value: " << (*intIter) << " found in listTowers. "
 						  << " Valid range for EB SM is 1-70. Returning.";
 	    inputIsOk = false;
 	    return;
@@ -91,7 +91,7 @@ EcalDigiDumperModule::EcalDigiDumperModule(const edm::ParameterSet& ps) {
 	//Check with Towers
 	for (intIter = listTowers.begin(); intIter != listTowers.end(); intIter++) { 
 	  if ( (*intIter) > 34 )       { 
-	    edm::LogError("EcalDigiDumperModule") << "[EcalDigiDumperModule] ic value: " << (*intIter) << " found in listTowers. "
+	    edm::LogError("EcalDigiDisplay") << "[EcalDigiDisplay] ic value: " << (*intIter) << " found in listTowers. "
 						  << " Valid range for EE DCC is 1-34. Returning.";
 	    inputIsOk = false;
 	    return;
@@ -99,7 +99,7 @@ EcalDigiDumperModule::EcalDigiDumperModule(const edm::ParameterSet& ps) {
 	}
       }
     } else {
-      edm::LogError("EcalDigiDumperModule") << "[EcalDigiDumperModule] FED id: "<<(*intIter)<<"found in listFeds."
+      edm::LogError("EcalDigiDisplay") << "[EcalDigiDisplay] FED id: "<<(*intIter)<<"found in listFeds."
 					    << "Valid range is [601-654]. Returning. ";
       inputIsOk = false;
       return;
@@ -108,7 +108,7 @@ EcalDigiDumperModule::EcalDigiDumperModule(const edm::ParameterSet& ps) {
   //Check with Pns
   for (intIter = listPns.begin(); intIter != listPns.end(); intIter++) {
     if ( ((*intIter) < 1) ||  (10 < (*intIter)) )       {  
-      edm::LogError("EcalDigiDumperModule") << "[EcalDigiDumperModule] pn number : " << (*intIter) << " found in listPns. "
+      edm::LogError("EcalDigiDisplay") << "[EcalDigiDisplay] pn number : " << (*intIter) << " found in listPns. "
 					    << " Valid range is 1-10. Returning.";
       inputIsOk = false;
       return;
@@ -129,19 +129,19 @@ EcalDigiDumperModule::EcalDigiDumperModule(const edm::ParameterSet& ps) {
   }
 }
 //=========================================================================
-EcalDigiDumperModule::~EcalDigiDumperModule() {
+EcalDigiDisplay::~EcalDigiDisplay() {
 //=========================================================================
   //delete *;
 }
     
 //========================================================================
-void EcalDigiDumperModule::beginJob(const edm::EventSetup& c) {
+void EcalDigiDisplay::beginJob(const edm::EventSetup& c) {
 //========================================================================
-  edm::LogInfo("EcalDigiDumperModule") << "entering beginJob! ";
+  edm::LogInfo("EcalDigiDisplay") << "entering beginJob! ";
 }
 
 //========================================================================
-void EcalDigiDumperModule::analyze( const edm::Event & e, const  edm::EventSetup& c) {
+void EcalDigiDisplay::analyze( const edm::Event & e, const  edm::EventSetup& c) {
 //========================================================================
 
   if (!inputIsOk) return;
@@ -155,34 +155,34 @@ void EcalDigiDumperModule::analyze( const edm::Event & e, const  edm::EventSetup
   } 
 
   //
-  bool ebDigisFound = true;
-  bool eeDigisFound = true;
-  bool pnDigisFound = true;
+  bool ebDigisFound = false;
+  bool eeDigisFound = false;
+  bool pnDigisFound = false;
   // retrieving crystal data from Event
   edm::Handle<EBDigiCollection>  eb_digis;    
   try {
     e.getByLabel(digiProducer_,ebDigiCollection_, eb_digis);
+    ebDigisFound = true;
   } catch (cms::Exception& ex) {
     edm::LogError("EcalDigiUnpackerModule") << "EB Digis were not found!";
-    ebDigisFound = false;
   }
   
   //
   edm::Handle<EEDigiCollection>  ee_digis;    
   try {
     e.getByLabel(digiProducer_,eeDigiCollection_, ee_digis);
+    eeDigisFound = true;
   } catch (cms::Exception& ex) {
     edm::LogError("EcalDigiUnpackerModule") << "EE Digis were not found!";
-    eeDigisFound = false;
   }
   
   // retrieving crystal PN diodes from Event
   edm::Handle<EcalPnDiodeDigiCollection>  pn_digis;
   try {
     e.getByLabel(digiProducer_, pn_digis);
+    pnDigisFound = true;
   } catch (cms::Exception& ex) {
     edm::LogError("EcalDigiUnpackerModule") << "PNs were not found!";
-    pnDigisFound = false;
   }
   
   if ( cryDigi ) {
@@ -206,7 +206,7 @@ void EcalDigiDumperModule::analyze( const edm::Event & e, const  edm::EventSetup
 // FUNCTIONS
 //////////////////////////////////
 
-void EcalDigiDumperModule::readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode) {
+void EcalDigiDisplay::readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode) {
 
   EcalElectronicsMapping* theMapping    = new EcalElectronicsMapping();
   int dumpDigiCounter = 0;
@@ -225,8 +225,8 @@ void EcalDigiDumperModule::readEBDigis (edm::Handle<EBDigiCollection> digis, int
     
     //Check if Mode is set 1 or 2 
      if ( Mode ==1 ) {
-       edm::LogInfo("EcalDigiDumperModule") << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  digi cry collection size " << digis->size();
-       edm::LogInfo("EcalDigiDumperModule") << "                       [EcalDigiDumperModule]  dumping first " << numChannel << " crystals\n";
+       edm::LogInfo("EcalDigiDisplay") << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDisplay]  digi cry collection size " << digis->size();
+       edm::LogInfo("EcalDigiDisplay") << "                       [EcalDigiDisplay]  dumping first " << numChannel << " crystals\n";
       //It will break if all required digis are dumpped
       if( (dumpDigiCounter++) >= numChannel) break;     
     } else if  ( Mode==2 ) {
@@ -238,9 +238,9 @@ void EcalDigiDumperModule::readEBDigis (edm::Handle<EBDigiCollection> digis, int
       icIterCh = find(listChannels.begin(), listChannels.end(), ic);
       icIterTt = find(listTowers.begin(), listTowers.end(), tt);
       if (icIterCh == listChannels.end() && icIterTt == listTowers.end() ) continue;   
-      edm::LogInfo("EcalDigiDumperModule") << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  digi cry collection size " << digis->size();
+      edm::LogInfo("EcalDigiDisplay") << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDisplay]  digi cry collection size " << digis->size();
     } else {
-      edm::LogInfo("EcalDigiDumperModule") << "[EcalDigiDumperModule] parameter mode set to: " << Mode
+      edm::LogInfo("EcalDigiDisplay") << "[EcalDigiDisplay] parameter mode set to: " << Mode
 					   << ". Only mode 1 and 2 are allowed. Returning...";
       inputIsOk = false;
       return;
@@ -264,7 +264,7 @@ void EcalDigiDumperModule::readEBDigis (edm::Handle<EBDigiCollection> digis, int
 }
 
 //Function for EE Digis
-void EcalDigiDumperModule::readEEDigis (edm::Handle<EEDigiCollection> digis, int Mode) {
+void EcalDigiDisplay::readEEDigis (edm::Handle<EEDigiCollection> digis, int Mode) {
 
   //For Endcap so far works only  Mode 2
   if ( Mode!=2 ) {
@@ -285,7 +285,7 @@ void EcalDigiDumperModule::readEEDigis (edm::Handle<EEDigiCollection> digis, int
     std::vector<int>::iterator fedIter = find(requestedFeds_.begin(), requestedFeds_.end(), FEDid);
     if (fedIter ==  requestedFeds_.end()) continue;
 
-    edm::LogInfo("EcalDigiDumperModule") << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  digi cry collection size " << digis->size();
+    edm::LogInfo("EcalDigiDisplay") << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDisplay]  digi cry collection size " << digis->size();
     
     int crystalId = 10000 * FEDid + 100 * elecId.towerId() + 5 * (elecId.stripId()-1)+elecId.xtalId();
     int chId = elecId.towerId();    // this is a channel in Endcap DCC, sometimes also called as Super Crystal
@@ -314,7 +314,7 @@ void EcalDigiDumperModule::readEEDigis (edm::Handle<EEDigiCollection> digis, int
   delete theMapping;
 }
 
-void EcalDigiDumperModule::readPNDigis(edm::Handle<EcalPnDiodeDigiCollection> PNs, int Mode ) {
+void EcalDigiDisplay::readPNDigis(edm::Handle<EcalPnDiodeDigiCollection> PNs, int Mode ) {
 
   int pnDigiCounter = 0;
   
@@ -329,19 +329,19 @@ void EcalDigiDumperModule::readPNDigis(edm::Handle<EcalPnDiodeDigiCollection> PN
     
     //If Mode is 1
       if ( Mode == 1) {
-	edm::LogInfo("EcalDigiDumperModule") << "\n\n^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  digi PN collection.  Size: " << PNs->size();
-	edm::LogInfo("EcalDigiDumperModule") << "                       [EcalDigiDumperModule]  dumping first " << numPN << " PNs ";
+	edm::LogInfo("EcalDigiDisplay") << "\n\n^^^^^^^^^^^^^^^^^^ EcalDigiDisplay  digi PN collection.  Size: " << PNs->size();
+	edm::LogInfo("EcalDigiDisplay") << "                       [EcalDigiDisplay]  dumping first " << numPN << " PNs ";
 	
 	if ( (pnDigiCounter++) >= numPN ) break;
       } else if ( Mode == 2) {
-	edm::LogInfo("EcalDigiDumperModule") << "\n\n^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  digi PN collection.  Size: " << PNs->size();
+	edm::LogInfo("EcalDigiDisplay") << "\n\n^^^^^^^^^^^^^^^^^^ EcalDigiDisplay  digi PN collection.  Size: " << PNs->size();
 	
 	// Check that we look at PN from the given list
 	std::vector<int>::iterator pnIter;
 	pnIter = find(listPns.begin(), listPns.end(), pnNum);
 	if (pnIter == listPns.end())  continue; 
       } else {
-	edm::LogError("EcalDigiDumperModule")<< "[EcalDigiDumperModule] parameter mode set to: " << Mode
+	edm::LogError("EcalDigiDisplay")<< "[EcalDigiDisplay] parameter mode set to: " << Mode
 					     << ". Only mode 1 and 2 are allowed. Returning...";
 	inputIsOk = false;
 	return;
@@ -359,9 +359,9 @@ void EcalDigiDumperModule::readPNDigis(edm::Handle<EcalPnDiodeDigiCollection> PN
 }
 
 //===================================================
-void EcalDigiDumperModule::endJob() {
+void EcalDigiDisplay::endJob() {
 //==================================================
-  edm::LogInfo("EcalDigiDumperModule") << "DONE!.... " ;
+  edm::LogInfo("EcalDigiDisplay") << "DONE!.... " ;
 }
 
  //     // retrieving crystal TP from the Event
@@ -370,15 +370,15 @@ void EcalDigiDumperModule::endJob() {
 
  //     if (verbosity>0 && tpDigi)
  //       {
- // 	std::cout << "\n\n^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  digi TP collection.  Size: " << primitives->size() << std::endl;
- // 	std::cout << "                                  [EcalDigiDumperModule]  dumping primitives "  << std::endl;
+ // 	std::cout << "\n\n^^^^^^^^^^^^^^^^^^ EcalDigiDisplay  digi TP collection.  Size: " << primitives->size() << std::endl;
+ // 	std::cout << "                                  [EcalDigiDisplay]  dumping primitives "  << std::endl;
 // 	for ( EcalTrigPrimDigiCollection::const_iterator TPtr = primitives->begin();
 // 	      ( TPtr != primitives->end()  && (TPtr-primitives->begin())<4 ); 
 // 		++TPtr ) {
 
 // 	  if (!  ((EcalTrigTowerDetId((*TPtr).id()).iDCC()==ieb_id) || (ieb_id==-1))   ) continue;
 
-// 	  std::cout << "[EcalDigiDumperModule] tower: " << ( (TPtr-primitives->begin()) +1) 
+// 	  std::cout << "[EcalDigiDisplay] tower: " << ( (TPtr-primitives->begin()) +1) 
 // 	       << "\n" << (*TPtr) << std::endl;
 // 	}
 //       }
@@ -386,7 +386,7 @@ void EcalDigiDumperModule::endJob() {
 
 //} // produce
 
-//};// class EcalDigiDumperModule
+//};// class EcalDigiDisplay
 
-DEFINE_FWK_MODULE(EcalDigiDumperModule);
+DEFINE_FWK_MODULE(EcalDigiDisplay);
 
