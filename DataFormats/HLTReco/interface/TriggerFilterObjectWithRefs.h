@@ -13,8 +13,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/12/04 09:00:30 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/12/04 17:00:31 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -34,6 +34,7 @@
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 
+#include <utility>
 #include <vector>
 
 namespace trigger
