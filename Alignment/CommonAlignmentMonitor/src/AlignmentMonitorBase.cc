@@ -8,13 +8,21 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:07 CDT 2007
-// $Id: AlignmentMonitorBase.cc,v 1.3 2007/07/09 12:35:23 pivarski Exp $
+// $Id: AlignmentMonitorBase.cc,v 1.4 2007/07/13 01:51:49 pivarski Exp $
 //
 
 // system include files
 
 // user include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "TROOT.h" 
+#include "TFile.h" 
+#include "TH1.h" 
+#include "TObject.h" 
+#include "TList.h" 
+#include "TIterator.h" 
+#include "TKey.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //

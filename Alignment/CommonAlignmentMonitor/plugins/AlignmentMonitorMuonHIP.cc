@@ -12,6 +12,19 @@
 
 // system include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
+#include "FWCore/Framework/interface/EventSetup.h" 
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
+#include <boost/cstdint.hpp> 
+#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h> 
+#include <Geometry/CommonDetUnit/interface/GeomDetType.h> 
+#include <DataFormats/GeometrySurface/interface/LocalError.h> 
+#include <Geometry/DTGeometry/interface/DTLayer.h> 
+#include "TROOT.h" 
+#include "TH1.h" 
+#include "TObject.h" 
+#include "TList.h" 
+#include "TIterator.h" 
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
@@ -19,6 +32,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableDTWheel.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h" 
 #include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
 #include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
 #include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
@@ -27,9 +42,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariables.h"
-#include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariablesIORoot.h"
 
-#include "TH1F.h"
 #include "TProfile.h"
 #include "TTree.h"
 

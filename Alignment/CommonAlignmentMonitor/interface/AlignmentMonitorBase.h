@@ -16,17 +16,16 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:02 CDT 2007
-// $Id: AlignmentMonitorBase.h,v 1.2 2007/05/09 07:06:32 fronga Exp $
+// $Id: AlignmentMonitorBase.h,v 1.3 2007/07/09 12:35:17 pivarski Exp $
 //
 
 // system include files
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+#include <FWCore/Framework/interface/Frameworkfwd.h> 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -35,14 +34,7 @@
 #include <string>
 
 // user include files
-#include "TROOT.h"
-#include "TFile.h"
-#include "TH1.h"
 #include "TTree.h"
-#include "TObject.h"
-#include "TList.h"
-#include "TIterator.h"
-#include "TKey.h"
 
 // forward declarations
 

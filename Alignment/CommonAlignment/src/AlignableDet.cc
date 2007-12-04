@@ -1,6 +1,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CLHEP/Vector/RotationInterfaces.h" 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 

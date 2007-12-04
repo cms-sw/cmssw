@@ -1,6 +1,7 @@
 #include "Alignment/CommonAlignment/interface/SurveyResidual.h"
 
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentMonitorSurvey.h"
+#include "TObject.h" 
 
 AlignmentMonitorSurvey::AlignmentMonitorSurvey(const edm::ParameterSet& cfg)
   :AlignmentMonitorBase(cfg)

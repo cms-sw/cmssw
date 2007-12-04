@@ -1,9 +1,9 @@
 /// \file
 ///
-/// $Date: 2007/10/08 13:21:29 $
-/// $Revision: 1.4 $
+/// $Date: 2007/10/18 09:41:08 $
+/// $Revision: 1.5 $
 ///
-/// $Author: cklae $
+/// $Author: fronga $
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <string>
@@ -16,6 +16,7 @@
 
 // Alignment
 #include "Alignment/CommonAlignment/interface/MisalignmentScenarioBuilder.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h" 
 
 
 //__________________________________________________________________________________________________

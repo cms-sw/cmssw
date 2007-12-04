@@ -1,6 +1,5 @@
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
-#include "Alignment/CommonAlignment/interface/Counters.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableBuilder.h"
 

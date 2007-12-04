@@ -3,17 +3,16 @@
 
 /// \class MisalignmentScenarioBuilder
 ///
-/// $Date: 2007/10/08 13:21:29 $
-/// $Revision: 1.3 $
+/// $Date: 2007/10/18 09:41:07 $
+/// $Revision: 1.4 $
 ///
-/// $Author: cklae $
+/// $Author: fronga $
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <vector>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableModifier.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 

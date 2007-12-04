@@ -8,11 +8,13 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar 29 13:59:56 CDT 2007
-// $Id: AlignmentMonitorTemplate.cc,v 1.1 2007/05/09 07:06:33 fronga Exp $
+// $Id: AlignmentMonitorTemplate.cc,v 1.1 2007/07/19 21:03:13 pivarski Exp $
 //
 
 // system include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
+#include "TH1.h" 
+#include "TObject.h" 
 // #include "PluginManager/ModuleDef.h"
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"

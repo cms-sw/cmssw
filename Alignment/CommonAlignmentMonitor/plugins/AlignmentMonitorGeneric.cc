@@ -2,6 +2,8 @@
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentMonitorGeneric.h"
+#include <DataFormats/GeometrySurface/interface/LocalError.h> 
+#include "TObject.h" 
 
 #include <TString.h>
 

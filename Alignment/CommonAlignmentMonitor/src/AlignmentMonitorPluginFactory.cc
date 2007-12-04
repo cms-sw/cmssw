@@ -8,14 +8,13 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Apr 23 15:30:20 CDT 2007
-// $Id$
+// $Id: AlignmentMonitorPluginFactory.cc,v 1.1 2007/04/23 22:19:14 pivarski Exp $
 //
 
 // system include files
 
 // user include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 EDM_REGISTER_PLUGINFACTORY(AlignmentMonitorPluginFactory, "AlignmentMonitorPluginFactory");
 

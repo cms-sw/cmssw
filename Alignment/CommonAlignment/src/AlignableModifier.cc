@@ -1,5 +1,4 @@
 #include "CLHEP/Random/DRand48Engine.h"
-#include "CLHEP/Random/Random.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/Randomize.h"
 

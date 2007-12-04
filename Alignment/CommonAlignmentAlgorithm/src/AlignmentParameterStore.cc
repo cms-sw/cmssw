@@ -1,15 +1,16 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.18 $
- *  $Date: 2007/09/12 14:26:01 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.19 $
+ *  $Date: 2007/10/08 14:38:16 $
+ *  (last update by $Author: cklae $)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include <boost/cstdint.hpp> 
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
