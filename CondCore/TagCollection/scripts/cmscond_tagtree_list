@@ -14,9 +14,9 @@ class tagTreePrinter:
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
         -a, --all: print overview of all trees (default)
-        -T, --tree=treename:  name of the tree. Note: the tree name is case insensitive, it is always internally converted to uppercase.
+        -T, --tree=treename: name of the tree. Note: the tree name is case insensitive, it is always internally converted to uppercase.
         -l, --leaf: print only leaf nodes
-        -n, --node: node to print
+        -n, --node: root node of the branch to print
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
         """
@@ -42,7 +42,7 @@ class tagTreePrinter:
         self.__parser.add_option("-a","--all",action="store_true",dest="all",help="print overview of all trees(default)")
         self.__parser.add_option("-l","--leaf",action="store_true",dest="leaf",help="print leaf nodes only")
         self.__parser.add_option("-T","--tree",action="store",dest="treename",type="string",help="Print overview of the tree with given name. Note: the tree name is case insensitive, it is internally converted to uppercase")
-        self.__parser.add_option("-n","--node",action="store",dest="node",type="string",help="node to print. Exclusive with -a option")
+        self.__parser.add_option("-n","--node",action="store",dest="node",type="string",help="root node of the branch to print. Exclusive with -a option")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(connectstring='')
         self.__parser.set_defaults(user='')
@@ -128,6 +128,7 @@ class tagTreePrinter:
                             
                         else:
                             print '   root:%s'%(r.nodelabel)
+            del session
             return
         mytree=TagTree.tagTree(session,self.__treename)
         try:

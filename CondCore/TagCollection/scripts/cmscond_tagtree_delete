@@ -14,9 +14,9 @@ class tagTreeDelete:
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
+        -T, --tree=treename: tree to delete. Note: the tree name is case insensitive, it is always internally converted to uppercase.
         -a, --all: print all
         -n, --node: root node of the branch to delete
-        -t, --tag: tag to delete
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
         """
@@ -25,9 +25,10 @@ class tagTreeDelete:
         self.__user=''
         self.__password=''
         self.__authpath='.'
+        self.__branch=''
         self.__node=''
-        self.__tag=''
         self.__all=True
+        self.__treename=''
         self.__verbose=False
     def parsecmdln(self):
         """
@@ -38,38 +39,58 @@ class tagTreeDelete:
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
-        self.__parser.add_option("-a","--all",action="store_true",dest="all",help="delete all entries")
-        self.__parser.add_option("-n","--node",action="store",dest="node",help="root node of the branch to delete")
-        self.__parser.add_option("-t","--tag",action="store",dest="tag",type="string",help="tag to delete")
+        self.__parser.add_option("-T","--tree",action="store",dest="treename",type="string",help="delete the tree with given name. Note: the tree name is case insensitive, it is internally converted to uppercase")
+        self.__parser.add_option("-a","--all",action="store_true",dest="all",help="delete all tag trees")
+        self.__parser.add_option("-b","--branch",action="store",dest="branch",help="root node of the branch to delete")
+        self.__parser.add_option("-n","--node",action="store",dest="node",help="delete a single node. The rest of the tree will be rearranged")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(connectstring='')
         self.__parser.set_defaults(user='')
         self.__parser.set_defaults(password='')
         self.__parser.set_defaults(authpath='.')
-        self.__parser.set_defaults(tag='')
+        self.__parser.set_defaults(branch='')
         self.__parser.set_defaults(node='')
-        self.__parser.set_defaults(all=True)
+        self.__parser.set_defaults(all=False)
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
+        if self.__parser.values.treename and self.__parser.values.all:
+            raise OptionValueError("option -%s and -%s are exclusive"%('a','T'))
+        if self.__parser.values.branch and self.__parser.values.all:
+            raise OptionValueError("option -%s and -%s are exclusive"%('a','b'))
+        if self.__parser.values.node and self.__parser.values.all:
+            raise OptionValueError("option -%s and -%s are exclusive"%('a','n'))
+        if self.__parser.values.node and self.__parser.values.branch:
+            raise OptionValueError("option -%s and -%s are exclusive"%('b','n'))
+        self.__treename=self.__parser.values.treename
+        self.__all=self.__parser.values.all
+        self.__branch=self.__parser.values.branch
+        self.__node=self.__parser.values.node
         self.__connectstring=self.__parser.values.connectstring
         self.__user=self.__parser.values.user
         self.__password=self.__parser.values.password
         self.__authpath=self.__parser.values.authpath
         self.__all=self.__parser.values.all
-        self.__node=self.__parser.values.node
-        self.__tag=self.__parser.values.tag
         self.__verbose=self.__parser.values.verbose
+        if not self.__parser.values.treename and not self.__parser.values.all:
+            self.__all=True
         if self.__parser.values.verbose is True:
             print 'connectstring: ',self.__connectstring
             print 'user: ',self.__user
             print 'password: ',self.__password
             print 'authpath: ',self.__authpath
-            print 'delete all: ',self.__all
-            print 'delete node: ',self.__node
-            print 'delete tag: ',self.__tag
+            if self.__all is True:
+                print 'delete all: ',self.__all
+            else:
+                print 'delete tree: ',self.__treename
+                if len(self.__branch)==0 and len(self.__node)==0:
+                    print 'delete from root'
+                if len(self.__branch)!=0:
+                    print 'delete branch',self.__branch
+                if len(self.__node)!= 0:
+                    print 'delete node: ',self.__node
     def deleteme(self):
         """
-        delete requested tag tree or all
+        delete requested tag tree and selected branch or all
         """
         context = coral.Context()
         if self.__verbose is True:
@@ -77,20 +98,35 @@ class tagTreeDelete:
         else:
             context.setVerbosityLevel( 'ERROR' )
         svc = coral.ConnectionService( context )
+        #try:
         session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
-        tree=TagTree.tagTree(session)
-        try:
-            if self.__all is True:
+        if self.__all is True:
+            transaction=session.transaction()
+            transaction.start(True)
+            schema=session.nominalSchema()
+            tablelist=schema.listTables()
+            treelist=[]
+            for tablename in tablelist:
+                if tablename.find("TAGTREE_TABLE_") != -1:
+                    treelist.append(tablename[len("TAGTREE_TABLE_"):])
+            transaction.commit()
+            for treename in treelist:
+                tree=TagTree.tagTree(session,treename)
                 tree.deleteSubtree( 'ROOT' )
-            else:
-                if len(self.__node) != 0:
-                    tree.deleteSubtree(self.__node)
-                elif len(self.__tag) != 0:
-                    tree.deleteNode(self.__tag)
             del session
-        except Exception, e:
-            print str(e)
-            del session
+            return
+        tree=TagTree.tagTree(session,self.__treename)
+        if self.__branch=='' and self.__node=='':
+            tree.deleteSubtree( 'ROOT' )
+        else:
+            if self.__branch != '':
+                print self.__branch
+                tree.deleteSubtree(self.__branch)
+            if self.__node != '':
+                tree.deleteNode(self.__node)
+        del session
+        #except Exception, e:
+        #    print str(e)
 if __name__ == "__main__":
     tagdelete=tagTreeDelete() 
     tagdelete.parsecmdln()
