@@ -33,7 +33,7 @@ echo "This script produces Root histograms of ADC counts using the given samples
 echo ""
 echo "Options:"
 echo ""
-echo "      -p|--path_file        file_path       path to the data to be analyzed (default is /data/ecalod-22/daq-data/)"
+echo "      -p|--path_file        file_path       data file to be analyzed preceeded by path"
 echo ""
 echo "      -f|--first_ev         f_ev            first (as written to file) event that will be analyzed; default is 1"
 echo "      -l|--last_ev          l_ev            last  (as written to file) event that will be analyzed; default is 9999"
