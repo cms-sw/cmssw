@@ -23,6 +23,7 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
@@ -161,17 +162,18 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	      //std::cout<<"RPC -- Candidate"<<(*r)->id()<<std::endl;
 
 	      RPCDetId rollId = (*r)->id();
-	      uint32_t id = rollId.rawId();
-	      _idList.push_back(id);
-		  
+	      RPCGeomServ RPCname(rollId);
+	      std::string nameRoll = RPCname.name();
+	      _idList.push_back(nameRoll);
+
 	      char detUnitLabel[128];
-	      sprintf(detUnitLabel ,"%d",id);
-	      sprintf(layerLabel ,"layer%d_subsector%d_roll%d",rollId.layer(),rollId.subsector(),rollId.roll());
-	      std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
+	      sprintf(detUnitLabel ,"%s",nameRoll.c_str());
+	      sprintf(layerLabel ,"%s",nameRoll.c_str());
+	      std::map<std::string, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(nameRoll);
 	      if (meItr == meCollection.end()){
-		meCollection[id] = bookDetUnitTrackEff(rollId);
+		meCollection[nameRoll] = bookDetUnitTrackEff(rollId);
 	      }
-	      std::map<std::string, MonitorElement*> meMap=meCollection[id];
+	      std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
 
 	      totalcounter[0]++;
 	      buff=counter[0];
@@ -180,8 +182,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
 	      RPCRecHitCollection::range rpcRecHitRange = rpcHits->get((*r)->id());
 	      RPCRecHitCollection::const_iterator recIt;
-
-
 	      
 	      int stripPredicted = (int)((*r)->strip(itTraj->updatedState().localPosition()));
 	      double xextrap = itTraj->updatedState().localPosition().x();
@@ -238,7 +238,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
 
 	      if(recFound==true){
-
 		std::cout<<"**********************************************"<<std::endl;
 		std::cout<<"\t                                   "<<std::endl;
 		std::cout<<"Point Extrapolated                   "<<extrVec[rpos]<<std::endl;
@@ -255,16 +254,16 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		hGlobalRes->Fill(res);
 		hGlobalPull->Fill(res/RecErr[rpos]);
 		hRecPt->Fill(itTraj->updatedState().globalMomentum().perp());
-
-		if(fabs(res)<maxRes){
-		  anycoincidence=true;
-		  //std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
-		}
-		else{
-		  anycoincidence=false;
-		  //std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
-		}
 	      }
+	      if(fabs(res)<maxRes){
+		anycoincidence=true;
+		//std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
+	      }
+	      else{
+		anycoincidence=false;
+		//std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
+	      }
+	      
 
 
 	      if(anycoincidence==true){
@@ -335,16 +334,17 @@ void RPCEfficiencyFromTrack::endJob() {
     std::cout<<"No predictions in this file = 0!!!"<<std::endl;
   }
 
-  std::vector<uint32_t>::iterator meIt;
+  std::vector<std::string>::iterator meIt;
   int id=0;
   for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
     id++;
+
     char detUnitLabel[128];
     char meIdRPC [128];
     char meIdTrack [128];
     char meIdRes [128];
     char effIdRPC [128];
-    sprintf(detUnitLabel ,"%d",*meIt);
+    sprintf(detUnitLabel ,"%s",(*meIt).c_str());
     sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
     sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
     sprintf(meIdRes,"Residuals_%s",detUnitLabel);
