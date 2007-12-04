@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2007/10/20 10:58:02 $
- * $Revision: 1.7 $
+ * $Date: 2007/11/26 16:39:58 $
+ * $Revision: 1.8 $
  *
  * \author A. Ghezzi
  *
@@ -65,6 +65,8 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
       std::cout << "DCCErrors: "<<headerItr->getDCCErrors()<<"\n";
       std::cout<<"Run Number: "<<headerItr->getRunNumber()<<"\n";
       std::cout<<"Event number (LV1): "<<headerItr->getLV1()<<"\n";
+      // this requires DataFormats/EcalRawData V01-01-12
+      //std::cout << "Orbit: " << headerItr->getOrbit () << "\n";
       std::cout<<"BX: "<<headerItr->getBX()<<"\n";
       std::cout<<"TRIGGER TYPE: "<< headerItr->getBasicTriggerType()<<"\n";
       
@@ -94,7 +96,9 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
       }
       std::cout<<std::endl;
       
-      std::vector<short> TTStatus = headerItr->getFEStatus();
+      // this requires DataFormats/EcalRawData V01-01-12
+      //std::vector<short> TTStatus = headerItr->getFEStatus();
+      std::vector<short> TTStatus = headerItr->getTriggerTowerStatus();
       std::cout<<"TT Status size: "<<TTStatus.size()<<std::endl;
       std::cout<<"TT Status: ";
       for(unsigned u =0;u<TTStatus.size();u++){

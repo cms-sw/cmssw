@@ -277,7 +277,7 @@ void DCCEventBlock::addHeaderToCollection(){
   theDCCheader.setLV1(l1_);
   theDCCheader.setBX(bx_);
   // this requires DataFormats/EcalRawData V01-01-12;
-  theDCCheader.setOrbit(orbitCounter_);
+  //theDCCheader.setOrbit(orbitCounter_);
   theDCCheader.setErrors(dccErrors_);
   theDCCheader.setSelectiveReadout(sr_);
   theDCCheader.setZeroSuppression(zs_);
@@ -286,10 +286,10 @@ void DCCEventBlock::addHeaderToCollection(){
   theDCCheader.setTccStatus(tccChStatus_);
   // this requires DataFormats/EcalRawData V01-01-12;
   // rolling back temporarily to allow development within CMSSW_1_7_0
-  theDCCheader.setFEStatus(feChStatus_);
+  //theDCCheader.setFEStatus(feChStatus_);
 
   // this is good with DataFormats/EcalRawData V01-01-10 && CMSSW_1_7_0
-  //theDCCheader.setTriggerTowerStatus(feChStatus_);
+  theDCCheader.setTriggerTowerStatus(feChStatus_);
 
   
   // The Run type
