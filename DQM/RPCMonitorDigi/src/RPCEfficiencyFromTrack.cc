@@ -305,7 +305,7 @@ void RPCEfficiencyFromTrack::endJob() {
       float ef = float(o)/float(p); 
       float er = sqrt(ef*(1.-ef)/float(p));
       std::cout <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
-      histoMean->Fill(tote*100.);
+      histoMean->Fill(ef*100.);
       if(ef<0.8){
 	std::cout<<"\t \t Warning!";
       } 
