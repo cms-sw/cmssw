@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.34 2007/11/14 09:54:02 dellaric Exp $
+// $Id: Numbers.cc,v 1.35 2007/12/04 08:51:21 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.34 $
-  \date $Date: 2007/11/14 09:54:02 $
+  \version $Revision: 1.35 $
+  \date $Date: 2007/12/04 08:51:21 $
 */
 
 #include <sstream>
@@ -199,7 +199,9 @@ int Numbers::iSM( const EBDetId& id ) throw( std::runtime_error ) {
     throw( std::runtime_error( s.str() ) );
 
   } else {
+
     return( Numbers::iSM( id.ism(), EcalBarrel ) );
+
   }
 
 }
@@ -258,14 +260,7 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
     if( subdet == EcalBarrel ) {
 
-      int idcc = id.iDCC();
-
-      // EB-/EB+
-      if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
-
-      std::ostringstream s;
-      s << "Wrong DCC id: dcc = " << idcc;
-      throw( std::runtime_error( s.str() ) );
+      return( Numbers::iSM( id.iDCC(), EcalBarrel ) );
 
     } else if( subdet ==  EcalEndcap) {
 
