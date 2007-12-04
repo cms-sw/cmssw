@@ -9,7 +9,7 @@ HcalMaterials::~HcalMaterials(){}
 float HcalMaterials::getValue (DetId fId, float energy) {
   // a real function should be added
   float value = 0.;
-  for(int iItem=0; iItem<mItems.size();iItem++){
+  for(unsigned int iItem=0; iItem<mItems.size();iItem++){
     if(fId.rawId()==mItems[iItem].mmId()){
       value = mItems[iItem].getValue(energy);
       continue;
@@ -23,6 +23,4 @@ void HcalMaterials::putValue (DetId fId, std::pair< std::vector <float>,std::vec
   mItems.push_back (item);
 }
 
-//DEFINE_SEAL_MODULE ();
-//DEFINE_ANOTHER_FWK_MODULE( HcalMaterials );
-//DEFINE_FWK_MODULE( HcalMaterials );
+

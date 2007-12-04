@@ -304,7 +304,7 @@ void CaloTowersCreationAlgo::rescale(const CaloTower * ct) {
   tower.E_em = 0.;
   tower.E_had = 0.;
   tower.E_outer = 0.;
-  for (int i=0; i<ct->constituentsSize(); i++) {
+  for (unsigned int i=0; i<ct->constituentsSize(); i++) {
     DetId detId = ct->constituent(i);
     getThresholdAndWeight(detId, threshold, weight);
     DetId::Detector det = detId.det();
