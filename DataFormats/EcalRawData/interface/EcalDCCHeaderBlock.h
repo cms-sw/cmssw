@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.12 2007/11/26 15:18:07 franzoni Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.13 2007/11/26 15:25:05 franzoni Exp $
  */
 
 #include <vector>
@@ -95,6 +95,7 @@ class EcalDCCHeaderBlock
   void setRunNumber(const int& run){runNumber_ = run;}
   void setLV1(const int& LV1){LV1event_ = LV1;}
   void setBX(const int& BX){BX_ = BX;}
+  void setOrbit(const int& orbit){orbitNumber_ = orbit;}
   void setEventSettings(const  EcalDCCEventSettings& EventSettings) { EventSettings_=EventSettings; };
   void setRunType(const short& runType) { runType_=runType; };
   void setBasicTriggerType(const short& triggerType) { basic_trigger_type_=triggerType; };
@@ -116,6 +117,7 @@ class EcalDCCHeaderBlock
   int getRunNumber() const {return runNumber_ ;}
   int getLV1() const {return LV1event_ ;}
   int getBX() const {return BX_ ;}
+  int getOrbit() const {return orbitNumber_;}
   EcalDCCEventSettings getEventSettings() const { return EventSettings_;}
   short getRunType() const {return runType_ ;}
   short getBasicTriggerType() const {return basic_trigger_type_ ;}
@@ -135,7 +137,7 @@ class EcalDCCHeaderBlock
   int dccId_;  //to be used as the Key
   int fedId_;
   int dccErrors_;
-  int orbitNumber_; // do we need it here?
+  int orbitNumber_;
   short runType_;
 
   short basic_trigger_type_;
