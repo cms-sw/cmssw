@@ -82,6 +82,8 @@ private:
   float rSig_,rMatch_,ptLeadTk_, rIso_, minPtIsoRing_;
   int nTracksInIsolationRing_;
   std::string dataType_;
+  std::string outputhistograms_; 
+  std::string tversion;
   //AGGIUNGERE MC INFO???
 
   // MonteCarlo Taus -- to see what kind of Taus do we originally have!
@@ -90,7 +92,7 @@ private:
   MonitorElement* phiTauMC_;
   MonitorElement* energyTauMC_;
   MonitorElement* hGenTauDecay_DecayModes_;
-
+  MonitorElement* hGenTauDecay_DecayModesChosen_;
   MonitorElement* nMCTaus_ptTauJet_;
   MonitorElement* nMCTaus_etaTauJet_;
   MonitorElement* nMCTaus_phiTauJet_;
