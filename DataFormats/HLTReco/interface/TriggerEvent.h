@@ -6,7 +6,7 @@
  *  The single EDProduct to be saved for each event (AOD case)
  *  describing the (HLT) trigger table
  *
- *  $Date: 2007/11/26 16:55:56 $
+ *  $Date: 2007/12/03 13:05:43 $
  *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
@@ -61,6 +61,14 @@ namespace trigger
     const TriggerObjectCollection& getObjects() const {return triggerObjects_;}
     const std::string& getFilterLabel(size_type index) const {return triggerFilters_.at(index).filterLabel_;}
     const Keys& getFilterKeys(size_type index) const {return triggerFilters_.at(index).filterKeys_;}
+    /// find index of filter in data-member vector from filter label
+    size_type find(const std::string& filterLabel) const {
+      const size_type n(triggerFilters_.size());
+      for (size_type i=0; i!=n; ++i) {
+	if (filterLabel==triggerFilters_[i].filterLabel_) {return i;}
+      }
+      return n;
+    }
 
     /// other
     size_type numObjects() const {return triggerObjects_.size();}

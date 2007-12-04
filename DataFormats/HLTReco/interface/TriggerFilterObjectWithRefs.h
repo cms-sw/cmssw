@@ -13,8 +13,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/12/03 18:22:27 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/03 19:53:18 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -70,9 +70,14 @@ namespace trigger
     void addComposite(const reco::CompositeCandidateRef& composite) {composites_.push_back(composite);}
     void addMET(const reco::CaloMETRef& met) {mets_.push_back(met);}
     void addHT (const reco::METRef& ht) {hts_.push_back(ht);}
+
     /// setter for non-L3 collections
     ///   typesafe as original collection is kept and user will match based
     ///   on ProductID - before using key as index into original collection
+    template <typename C>
+    void addOther(const edm::Ref<C>& ref) {
+      addOther(ref.id(),ref.key());
+    }
     void addOther(edm::ProductID id, size_type key) {
       others_.push_back(XRef(id,key));
     }
@@ -86,6 +91,18 @@ namespace trigger
     const std::vector<reco::CaloMETRef>& getMETs() const {return mets_;}
     const std::vector<reco::METRef>& getHTs() const {return hts_;}
     const std::vector<XRef>& getOthers() const {return others_;}
+    template <typename C>
+    void getOthers(const edm::Handle<C>& handle, std::vector<edm::Ref<C> >& vref) const {
+      vref.resize(0);
+      const size_type n(others_.size());
+      for (size_type i=0; i!=n; ++i) {
+	if (handle.id()==others_[i].first) {
+	  vref.push_back(edm::Ref<C>(handle,others_[i].second));
+	}
+      }
+      return;
+    }
+
 
   };
 

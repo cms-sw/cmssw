@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2007/12/03 18:22:27 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/03 19:53:18 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -224,6 +224,7 @@ namespace trigger
     std::vector<XRef>::const_iterator others_end(size_type index) const {
       return others_.begin() + filterObjects_.at(index).others_;
     }
+
     /// get keys of objects passing specific filter in the collection identified by its ProductID
     void otherKeys(size_type index, edm::ProductID id, Keys& keys) const {
       keys.resize(0);
@@ -232,6 +233,18 @@ namespace trigger
       for (std::vector<XRef>::const_iterator i=begin; i!=end; ++i) {
 	if (i->first==id) keys.push_back(i->second);
       }
+    }
+    /// get vector of Ref<C> using handle to original collection for type
+    template <typename C>
+    void getOthers(size_type index, const edm::Handle<C>& handle, std::vector<edm::Ref<C> >& vref) const {
+      Keys keys();
+      otherKeys(index, handle.id(), keys);
+      const size_type n(keys.size());
+      vref.resize(n);
+      for (size_type i=0; i!=n; ++i) {
+	vref[i]=edm::Ref<C>(handle,keys[i]);
+      }
+      return;
     }
 
   };
