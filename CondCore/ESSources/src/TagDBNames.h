@@ -5,7 +5,7 @@ namespace cond{
   class TagDBNames {
   public:
     TagDBNames(){}
-    static const std::string& tagTreeTable();
+    static const std::string& tagTreeTablePrefix();
     static const std::string& tagInventoryTable();
   };
 }

@@ -1,8 +1,8 @@
 #include "TagDBNames.h"
 const std::string& 
-cond::TagDBNames::tagTreeTable(){
-  static const std::string s_tagTreeTable("TAGTREE_TABLE");
-  return s_tagTreeTable;
+cond::TagDBNames::tagTreeTablePrefix(){
+  static const std::string s_tagTreeTablePrefix("TAGTREE_TABLE_");
+  return s_tagTreeTablePrefix;
 }
 const std::string& 
 cond::TagDBNames::tagInventoryTable(){

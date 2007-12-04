@@ -21,21 +21,32 @@ cond::TagCollectionRetriever::TagCollectionRetriever( cond::CoralTransaction& co
 }
 cond::TagCollectionRetriever::~TagCollectionRetriever(){}
 void 
-cond::TagCollectionRetriever::getTagCollection( const std::string& roottag,
+cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
 						std::map< std::string, 
 						cond::TagMetadata >& result){
   coral::ITable& tagInventorytable=m_coraldb->nominalSchema().tableHandle(cond::TagDBNames::tagInventoryTable());
   coral::IQuery* query=m_coraldb->nominalSchema().newQuery();
   try{
-    query->addToTableList( cond::TagDBNames::tagTreeTable(), "p1" );
-    query->addToTableList( cond::TagDBNames::tagTreeTable(), "p2" );
+    std::pair<std::string,std::string> treenodepair=parseglobaltag(globaltag);
+    std::string treename=treenodepair.first;
+    std::string nodename=treenodepair.second;
+    std::string treetablename(cond::TagDBNames::tagTreeTablePrefix());
+    if( !treename.empty() ){
+      for(unsigned int i=0; i<treename.size(); ++i){
+	treename[i]=std::toupper(treename[i]);	
+      }
+      treetablename+="_";
+      treetablename+=treename;
+    }
+    query->addToTableList( treetablename, "p1" );
+    query->addToTableList( treetablename, "p2" );
     query->addToOutputList( "p1.tagid" );
     query->setRowCacheSize( 100 );
     coral::AttributeList bindData;
     bindData.extend( "nodelabel",typeid(std::string) );
     bindData.extend( "tagid",typeid(unsigned int) );
     bindData["tagid"].data<unsigned int>()=0;
-    bindData["nodelabel"].data<std::string>()=roottag;
+    bindData["nodelabel"].data<std::string>()=nodename;
     query->setCondition( "p1.lft BETWEEN p2.lft AND p2.rgt AND p2.nodelabel = :nodelabel AND p1.tagid <> :tagid", bindData );
     coral::AttributeList qresult;
     qresult.extend("tagid", typeid(unsigned int));
@@ -91,4 +102,18 @@ cond::TagCollectionRetriever::getTagCollection( const std::string& roottag,
   }catch(const std::exception& er){
     throw er;
   }
+}
+
+std::pair<std::string,std::string>
+cond::TagCollectionRetriever::parseglobaltag(const std::string& globaltag){
+  std::pair<std::string,std::string> result;
+  std::size_t pos=globaltag.find("::");
+  if(pos==std::string::npos){
+    result.first="";
+    result.second=globaltag;
+  }else{
+    result.first=globaltag.substr(0,pos);
+    result.second=globaltag.substr(pos+2);
+  }
+  return result;
 }
