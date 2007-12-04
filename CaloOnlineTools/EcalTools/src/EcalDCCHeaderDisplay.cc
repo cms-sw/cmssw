@@ -58,6 +58,7 @@ void EcalDCCHeaderDisplay::analyze( const edm::Event & e, const  edm::EventSetup
     std::cout << "DCCErrors: "<<headerItr->getDCCErrors()<<"\n";
     std::cout<<"Run Number: "<<headerItr->getRunNumber()<<"\n";
     std::cout<<"Event number (LV1): "<<headerItr->getLV1()<<"\n";
+    std::cout<<"Orbit: "<<headerItr->getOrbit()<<"\n";
     std::cout<<"BX: "<<headerItr->getBX()<<"\n";
     std::cout<<"TRIGGER TYPE: "<< headerItr->getBasicTriggerType()<<"\n";
       
