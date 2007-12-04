@@ -82,15 +82,22 @@ void SteppingAction::catchLowEnergyInVacuumNext(const G4Step * aStep)
 
 void SteppingAction::storeTkCaloStateInfo(const G4Step * aStep)
 {
-  Hep3Vector pos = aStep->GetPreStepPoint()->GetPosition();
-  HepLorentzVector mom(aStep->GetPreStepPoint()->GetMomentum(),
-		       aStep->GetPreStepPoint()->GetTotalEnergy());
+  math::XYZVectorD pos((aStep->GetPreStepPoint()->GetPosition()).x(),
+		       (aStep->GetPreStepPoint()->GetPosition()).y(),
+		       (aStep->GetPreStepPoint()->GetPosition()).z());
+
+  math::XYZTLorentzVectorD mom((aStep->GetPreStepPoint()->GetMomentum()).x(),
+			       (aStep->GetPreStepPoint()->GetMomentum()).y(),
+			       (aStep->GetPreStepPoint()->GetMomentum()).z(),
+			       aStep->GetPreStepPoint()->GetTotalEnergy());
+
   uint32_t id = aStep->GetTrack()->GetTrackID();
-  
+
   if((aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="Tracker"&& 
       aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="CALO")){
-    
-    std::pair<Hep3Vector,HepLorentzVector> p(pos,mom);
+
+    std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> p(pos,mom);
     eventAction_->addTkCaloStateInfo(id,p);
+
   }
 }

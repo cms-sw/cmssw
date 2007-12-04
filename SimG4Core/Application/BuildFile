@@ -13,6 +13,7 @@
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/Common>
+<use name=DataFormats/Math>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <export>
@@ -30,6 +31,7 @@
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/Common>
+<use name=DataFormats/Math>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 </export>
@@ -37,3 +39,4 @@
 <use name=geant4>
 <use name=clhep>
 <use name=hepmc>
+<use name=rootrflx>

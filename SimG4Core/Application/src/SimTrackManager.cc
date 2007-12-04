@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.13 2007/07/12 16:23:58 sunanda Exp $
+// $Id: SimTrackManager.cc,v 1.14 2007/08/13 14:34:40 fambrogl Exp $
 //
 
 // system include files
@@ -172,7 +172,7 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent * simEvent)
         int ivertex = -1;
         int ig;
 
-        Hep3Vector pm = 0.;
+        math::XYZVectorD pm(0.,0.,0.);
         unsigned int iParentID = trkH->parentID();
 	for(unsigned int iit = 0; iit < m_trksForThisEvent->size(); iit++)
 	  {
@@ -183,8 +183,8 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent * simEvent)
 	  }
         ig = trkH->genParticleID();
         ivertex = getOrCreateVertex(trkH,iParentID,simEvent);
-	std::map<uint32_t,std::pair<Hep3Vector,HepLorentzVector> >::const_iterator it = mapTkCaloStateInfo.find(trkH->trackID());
-	std::pair<Hep3Vector,HepLorentzVector> tcinfo;
+	std::map<uint32_t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> >::const_iterator it = mapTkCaloStateInfo.find(trkH->trackID());
+	std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> tcinfo;
 	if (it !=  mapTkCaloStateInfo.end()){
 	  tcinfo =  it->second;
 	}
@@ -213,7 +213,7 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory * trkH, int iParentID,
   if (iterator != m_vertexMap.end()){
     // loop over saved vertices
     for (unsigned int k=0; k<m_vertexMap[parent].size(); k++){
-      if ((trkH->vertexPosition()-(((m_vertexMap[parent])[k]).second)).mag()<0.001)
+      if (sqrt((trkH->vertexPosition()-(((m_vertexMap[parent])[k]).second)).Mag2())<0.001)
 	return (((m_vertexMap[parent])[k]).first);
     }
   }

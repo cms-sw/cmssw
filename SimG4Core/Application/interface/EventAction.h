@@ -37,7 +37,7 @@ public:
       return m_trackManager->trackContainer();
     }
     void addTrack(TrackWithHistory* iTrack, bool );
-    void addTkCaloStateInfo(uint32_t t,std::pair<Hep3Vector,HepLorentzVector> p); 
+    void addTkCaloStateInfo(uint32_t t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> p); 
 
     SimActivityRegistry::BeginOfEventSignal m_beginOfEventSignal;
     SimActivityRegistry::EndOfEventSignal m_endOfEventSignal;

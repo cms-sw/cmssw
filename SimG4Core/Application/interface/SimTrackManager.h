@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:36:41 EST 2005
-// $Id: SimTrackManager.h,v 1.5 2007/01/23 13:40:33 fambrogl Exp $
+// $Id: SimTrackManager.h,v 1.6 2007/07/12 16:23:57 sunanda Exp $
 //
 
 // system include files
@@ -41,8 +41,8 @@ class SimTrackManager
   };
   //      enum SpecialNumbers {InvalidID = 65535};
       /// this map contains association between vertex number and position
-      typedef std::pair<int,Hep3Vector> MapVertexPosition;
-      typedef std::vector<std::pair<int,Hep3Vector> > MapVertexPositionVector;
+      typedef std::pair<int,math::XYZVectorD> MapVertexPosition;
+      typedef std::vector<std::pair<int,math::XYZVectorD> > MapVertexPositionVector;
       typedef std::map<int,MapVertexPositionVector> MotherParticleToVertexMap;
       typedef MotherParticleToVertexMap VertexMap;
      
@@ -66,10 +66,10 @@ class SimTrackManager
 	if (inHistory) m_trksForThisEvent->push_back(iTrack);
       }
 
-      void addTkCaloStateInfo(uint32_t t,std::pair<Hep3Vector,HepLorentzVector> p){
-	std::map<uint32_t,std::pair<Hep3Vector,HepLorentzVector> >::const_iterator it = mapTkCaloStateInfo.find(t);
+      void addTkCaloStateInfo(uint32_t t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> p){
+	std::map<uint32_t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> >::const_iterator it = mapTkCaloStateInfo.find(t);
 	if (it ==  mapTkCaloStateInfo.end())
-	  mapTkCaloStateInfo.insert(std::pair<uint32_t,std::pair<Hep3Vector,HepLorentzVector> >(t,p));
+	  mapTkCaloStateInfo.insert(std::pair<uint32_t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> >(t,p));
 
       }
       void setCollapsePrimaryVertices(bool iSet) {
@@ -92,7 +92,7 @@ class SimTrackManager
       MotherParticleToVertexMap m_vertexMap;
       int m_nVertices;
       bool m_collapsePrimaryVertices;
-      std::map<uint32_t,std::pair<Hep3Vector,HepLorentzVector > > mapTkCaloStateInfo;
+      std::map<uint32_t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD > > mapTkCaloStateInfo;
       std::map<int, int> idsave;
 };
 

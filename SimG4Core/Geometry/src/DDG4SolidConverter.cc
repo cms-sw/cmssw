@@ -266,7 +266,7 @@ G4VSolid * DDG4SolidConverter::unionsolid(const DDSolid & s)
       std::vector<double> tdbl(9);
       bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
       HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
-      Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
+      G4ThreeVector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
       us = new G4UnionSolid(s.name().name(),
                             sa,
 			    sb,
@@ -303,7 +303,7 @@ G4VSolid * DDG4SolidConverter::subtraction(const DDSolid & s)
       std::vector<double> tdbl(9);
       bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
       HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
-      Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
+      G4ThreeVector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
       us = new G4SubtractionSolid(s.name().name(),
                             sa,
 			    sb,
@@ -334,7 +334,7 @@ G4VSolid * DDG4SolidConverter::intersection(const DDSolid & s)
       std::vector<double> tdbl(9);
       bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
       HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
-      Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
+      G4ThreeVector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
       us = new G4IntersectionSolid(s.name().name(),
                             sa,
 			    sb,

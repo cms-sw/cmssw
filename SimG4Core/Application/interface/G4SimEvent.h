@@ -26,9 +26,7 @@ public:
     const HepMC::GenEvent * hepEvent() const { return hepMCEvent; }
     void weight(float w) { weight_ = w; }
     const float weight() const { return weight_; }
-    // void collisionPoint(HepLorentzVector v) { collisionPoint_ = v; }
     void collisionPoint( math::XYZTLorentzVectorD v ) { collisionPoint_ = v ; }
-    // const HepLorentzVector collisionPoint() const { return collisionPoint_; }
     const math::XYZTLorentzVectorD& collisionPoint() const { return collisionPoint_; }
     void nparam(int n) { nparam_ = n; }
     const int nparam() const { return nparam_; }
@@ -41,7 +39,6 @@ public:
 protected:
     const HepMC::GenEvent * hepMCEvent;  
     float weight_;
-    // HepLorentzVector collisionPoint_;
     math::XYZTLorentzVectorD collisionPoint_;
     int nparam_;
     std::vector<float> param_;

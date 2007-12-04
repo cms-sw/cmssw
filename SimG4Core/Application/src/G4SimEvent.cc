@@ -59,7 +59,6 @@ void G4SimEvent::load(edm::SimTrackContainer & c) const
     {
 	G4SimTrack * trk    = g4tracks[i];
 	int ip              = trk->part();
-	// HepLorentzVector p  = HepLorentzVector(trk->momentum()/GeV,trk->energy()/GeV);
 	math::XYZTLorentzVectorD p( trk->momentum().x()/GeV,
 	                            trk->momentum().y()/GeV,
                                     trk->momentum().z()/GeV,
@@ -67,11 +66,9 @@ void G4SimEvent::load(edm::SimTrackContainer & c) const
 	int iv              = trk->ivert();
 	int ig              = trk->igenpart();
 	int id              = trk->id();
-	// Hep3Vector tkpos    = trk->trackerSurfacePosition();
 	math::XYZVectorD tkpos( trk->trackerSurfacePosition().x()/cm,
 	                        trk->trackerSurfacePosition().y()/cm,
 			        trk->trackerSurfacePosition().z()/cm ) ;
-	// HepLorentzVector tkmom  = trk->trackerSurfaceMomentum();
 	math::XYZTLorentzVectorD tkmom( trk->trackerSurfaceMomentum().x()/GeV,
 	                                trk->trackerSurfaceMomentum().y()/GeV,
 	                                trk->trackerSurfaceMomentum().z()/GeV,
@@ -97,11 +94,9 @@ void G4SimEvent::load(edm::SimVertexContainer & c) const
 	//
 	// starting 1_1_0_pre3, SimVertex stores in cm !!!
 	// 
-	// Hep3Vector v3       = (vtx->vertexPosition())/cm;
 	math::XYZVectorD v3( vtx->vertexPosition().x()/cm, 
 	                     vtx->vertexPosition().y()/cm,
 			     vtx->vertexPosition().z()/cm ) ;
-	// Hep3Vector v3       = (vtx->vertexPosition());
 	float t             = vtx->vertexGlobalTime()/second;
 	int iv              = vtx->parentIndex();
 	// vv = position

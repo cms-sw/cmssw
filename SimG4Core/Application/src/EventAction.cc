@@ -1,7 +1,7 @@
 #include "SimG4Core/Application/interface/RunManager.h"
 #include "SimG4Core/Application/interface/EventAction.h"
-#include "SimG4Core/Application/interface/G4SimTrack.h"
 #include "SimG4Core/Application/interface/G4SimVertex.h"
+#include "SimG4Core/Application/interface/G4SimTrack.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 
@@ -70,7 +70,7 @@ void EventAction::addTrack(TrackWithHistory* iTrack, bool inHistory)
   m_trackManager->addTrack(iTrack, inHistory);
 }
 
-void EventAction::addTkCaloStateInfo(uint32_t t,std::pair<Hep3Vector,HepLorentzVector> p)
+void EventAction::addTkCaloStateInfo(uint32_t t,std::pair< math::XYZVectorD ,math::XYZTLorentzVectorD> p)
 {
   m_trackManager->addTkCaloStateInfo(t,p);
 }
