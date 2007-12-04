@@ -1,39 +1,14 @@
 /*!
-\page DQMReleaseNotes DQM Release Notes
+\page DQMReleaseNotes DQM Release Notes - CMSSW_1_8_x
 
-DQM:
-General:
-- Up-to-date notes are available at  http://cmsevf.web.cern.ch/cmsevf/DQM_doc/Release_Notes_17x.txt
+
+- General:
 
 - Main changes and new features:
-  - collation from file (so far for TH1F,TH2F,TProfile)     V00-05-00
-  - support for Reference histograms from file              V00-05-00
-  - first version for file merge across runs                V00-05-06
-  - fixes and new Methods in QualityTests (G.Della Ricca)   V00-05-07
-  - Client Operation on Lumisection Boundaries
-  - rename EventCoordinatesSource to DQMEventInfo           V00-05-07
-  - new modules DQMFileSaver and DQMEventInfo               
-    for environmental info and file output                  V00-05-07
-  - In Booking BEI returns pointer to ME in case ME
-    already exists                                          V00-05-02
-  - Introduced DQMPatchVersion                              V00-05-09
-    general streamlining for integration in P5              V00-05-10/11
 
 - Major bug fixes:
-  - none
-
-- Cleanups and minor bug fixes:
-  - move most of MonitorUserInterface functions into 
-    DaqMonitorBEInterface
-  - remove obsolete functions and classes
-  - MonitorElement::Reset() is now public                   V00-05-03
-  - MonitorUserInterface::doSummary() is now public         V00-05-06
-  - several other "cosmetic" updates
 
 - Known issues:
-  - several bugs still in Collector and NodeROOT
-  - plan to remove Collate classes
-  - looking for a way to simplify MonitorElement contents
 
 
 <hr>

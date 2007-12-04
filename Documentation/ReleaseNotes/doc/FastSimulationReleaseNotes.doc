@@ -1,21 +1,19 @@
 /*!
-\page FastSimulationReleaseNotes Fast Simulation Release Notes
+\page FastSimulationReleaseNotes Fast Simulation Release Notes - CMSSW_1_8_x 
 
-An up to date description of the Fast Simulation status can be found here:
-https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFastSimTags
+
+An up to date description of the Fast Simulation status can be found here: 
+https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFastSimTags 
 (this page is available from the Fast Simulation twiki page 
-https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFastSimulation
-in the "Supported tags section" )
+https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFastSimulation in the "Supported tags section" )
 
-The main changes and new features for CMSSW_1_7_0 are
-Overlapping hits by default in the tracking, fix thresholds for the HCAL hit making, 
-adapt to the new crossing frame, adapt to the new SimTrack data format, 
-new proton tagger package, use of two tracker geometries at once to avoid two-step 
-simulation/reconstruction with a misaligned geometry ; improved but not yet perfect 
-HCAL digitization, adapt to the new ECAL preshower and endcap geometry, adapt to 
-the new interface of the calibration database, improved but not yet perfect HCAL 
-digitization, new pile-up producer, use of TRandom3 random engine instead of 
-CLHEP, fixes for the CondDB, implement Ecal saturation
+- General:
+
+- Main changes and new features:
+
+- Major bug fixes:
+
+- Known issues:
 
 
 
