@@ -31,52 +31,63 @@ class HcalRecHitsMaker
 
  private:
   unsigned createVectorsOfCells(const edm::EventSetup &es);
-  unsigned createVectorOfSubdetectorCells( const CaloGeometry&,int subdetn,std::vector<uint32_t>&);
-  void noisifySubdet(std::map<uint32_t,std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells, double  hcalHotFraction_); 
+  unsigned createVectorOfSubdetectorCells( const CaloGeometry&,int subdetn,std::vector<int>&);
+  unsigned noisifySubdet(std::vector<float >& theMap, std::vector<int>& theHits,const std::vector<int>& thecells, unsigned ncells, double  hcalHotFraction_, const GaussianTail *); 
   // Not currently used. Will probably be removed soon.
   //  void noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap); 
   void noisify();
-  void Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,bool signal=true, double noise_=0.);
+  void Fill(int id,float energy, std::vector<int> & myHits,float noise);
   void loadPCaloHits(const edm::Event & iEvent);
   
   void clean();
+  void cleanSubDet(std::vector<float>& hits,std::vector<int>& cells);
   // conversion for digitization
   int fCtoAdc(double fc) const;
 
  private:
-  double thresholdHB_,  thresholdHE_, thresholdHO_, thresholdHF_;
-  double noiseHB_, noiseHE_, noiseHO_, noiseHF_;
+  float thresholdHB_,  thresholdHE_, thresholdHO_, thresholdHF_;
+  float noiseHB_, noiseHE_, noiseHO_, noiseHF_;
   double hcalHotFractionHB_,  hcalHotFractionHE_, hcalHotFractionHO_, hcalHotFractionHF_; 
 
   //  edm::ESHandle<CaloTowerConstituentsMap> calotowerMap_;
   
   bool initialized_;
   bool doDigis_;
-  //the bool means killed ! 
-  std::map<uint32_t,std::pair<float,bool> > hbRecHits_;
-  std::map<uint32_t,std::pair<float,bool> > heRecHits_;
-  std::map<uint32_t,std::pair<float,bool> > hoRecHits_;
-  std::map<uint32_t,std::pair<float,bool> > hfRecHits_;
+
+  std::vector<float> hcalRecHits_;
+
+  std::vector<int> firedCellsHB_;
+  std::vector<int> firedCellsHE_;
+  std::vector<int> firedCellsHO_;
+  std::vector<int> firedCellsHF_;
+
+  std::vector<HcalDetId> theDetIds_;
 
   // coefficients for fC to ADC conversion
   std::vector<int> fctoadc_;
 
-  std::map<uint32_t,float> hbpeds_,hepeds_,hopeds_,hfpeds_;
-  std::map<uint32_t,float> hbgains_,hegains_,hogains_,hfgains_;
+  std::vector<float> peds_;
+  std::vector<float> gains_;
 
   std::vector<float> TPGFactor_;
  
-  std::vector<uint32_t> hbcells_;
-  std::vector<uint32_t> hecells_;
-  std::vector<uint32_t> hocells_;
-  std::vector<uint32_t> hfcells_;
+  // the hashed indices
+  unsigned maxIndex_;
+  unsigned maxIndexDebug_;
+  std::vector<int> hbhi_;
+  std::vector<int> hehi_;
+  std::vector<int> hohi_;
+  std::vector<int> hfhi_;
   unsigned nhbcells_;
   unsigned nhecells_;
   unsigned nhocells_;
   unsigned nhfcells_;
 
   const RandomEngine* random_;
-  const GaussianTail* myGaussianTailGenerator_;
+  const GaussianTail* myGaussianTailGeneratorHB_;
+  const GaussianTail* myGaussianTailGeneratorHE_;
+  const GaussianTail* myGaussianTailGeneratorHO_;
+  const GaussianTail* myGaussianTailGeneratorHF_;
 
   const HcalTPGCoder * myCoder_;
 };

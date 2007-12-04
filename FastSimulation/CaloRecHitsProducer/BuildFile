@@ -18,12 +18,14 @@
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/CrossingFrame>
 <use name=CondFormats/EcalObjects>
+<use name=CondFormats/HcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=CalibFormats/HcalObjects>
 <use name=boost>
 <use name=clhep>
 <use name=rootmath>
 <flags EDM_PLUGIN="1">
+<flags CXXFLAGS="-g -O0">
 <export>
   <lib name=FastSimulationCaloRecHitsProducer>
 </export>
