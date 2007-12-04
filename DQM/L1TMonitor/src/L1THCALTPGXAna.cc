@@ -1,11 +1,14 @@
 /*
  * \file L1THCALTPGXAna.cc
  *
- * $Date: 2007/11/28 17:41:19 $
- * $Revision: 1.1 $
+ * $Date: 2007/11/29 01:02:41 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPGXAna.cc,v $
+ * Revision 1.2  2007/11/29 01:02:41  aurisano
+ * changes to histo bounds
+ *
  * Revision 1.1  2007/11/28 17:41:19  aurisano
  * New L1 Hcal monitor
  *
@@ -113,7 +116,7 @@ L1THCALTPGXAna::L1THCALTPGXAna(const ParameterSet& ps)
 
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1TMonitor/L1THCALTPGXAna");
+    dbe->setCurrentFolder("L1T/L1THCALTPGXAna");
   }
 
 }
@@ -131,13 +134,13 @@ void L1THCALTPGXAna::beginJob(const EventSetup& iSetup)
   dbe = Service<DaqMonitorBEInterface>().operator->();
   if ( dbe ) 
     {
-      dbe->setCurrentFolder("L1TMonitor/L1THCALTPGXAna");
-      dbe->rmdir("L1TMonitor/L1THCALTPGXAna");
+      dbe->setCurrentFolder("L1T/L1THCALTPGXAna");
+      dbe->rmdir("L1T/L1THCALTPGXAna");
     }
 
   if ( dbe ) 
     {
-      dbe->setCurrentFolder("L1TMonitor/L1THCALTPGXAna");
+      dbe->setCurrentFolder("L1T/L1THCALTPGXAna");
       //2-D plots
       hcalTpEtEtaPhi_ = 
 	dbe->book2D("HcalTpEtEtaPhi", "HCAL TP E_{T}", TPETABINS, TPETAMIN,
