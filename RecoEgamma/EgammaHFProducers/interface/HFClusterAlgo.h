@@ -23,7 +23,7 @@ class HFClusterAlgo {
 public:
   HFClusterAlgo(); 
 
-    void setup();
+    void setup(double minTowerEnergy);
 
   /** Analyze the hits */
   void clusterize(const HFRecHitCollection& hf, 
@@ -36,6 +36,7 @@ public:
 private:
   friend class CompareHFCompleteHitET;
   friend class CompareHFCore;
+  double m_minTowerEnergy;
   struct HFCompleteHit {
     HcalDetId id;
     double energy, et;
