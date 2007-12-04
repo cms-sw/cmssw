@@ -15,11 +15,8 @@
 
 #include "Alignment/CocoaModel/interface/Entry.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
-#include "Alignment/CocoaModel/interface/LightRay.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
-#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
-#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include "Alignment/CocoaModel/interface/ParameterMgr.h"
 #ifdef COCOA_VIS
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"

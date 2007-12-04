@@ -7,8 +7,8 @@
 
 #include "Alignment/CocoaModel/interface/OptOUserDefined.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/ALIPlane.h" 
 #include "Alignment/CocoaModel/interface/Measurement.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include <iostream>
 #include <iomanip>
 #ifdef COCOA_VIS
@@ -16,7 +16,6 @@
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/ALIVisLightPath.h"
 #endif
-#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Default behaviour: make measurement

@@ -1,13 +1,11 @@
 #include "../interface/CocoaDaqReaderRoot.h"
+#include "TFile.h" 
 #include "Alignment/CocoaDaq/interface/CocoaDaqRootEvent.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
 
 #include <iostream>
 
-#include "TROOT.h"
-#include "TBranch.h"
 #include "TClonesArray.h"
 
 

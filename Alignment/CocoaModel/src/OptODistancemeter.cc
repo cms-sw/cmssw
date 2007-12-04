@@ -6,9 +6,8 @@
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/OptODistancemeter.h"
-#include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/ALIPlane.h" 
 #include "Alignment/CocoaModel/interface/Measurement.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include <iostream>
 #include <iomanip>
 #ifdef COCOA_VIS

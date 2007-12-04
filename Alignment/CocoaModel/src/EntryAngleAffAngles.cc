@@ -7,7 +7,6 @@
 
 #include "Alignment/CocoaModel/interface/EntryAngleAffAngles.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

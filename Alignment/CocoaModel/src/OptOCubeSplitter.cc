@@ -7,6 +7,7 @@
 
 #include "Alignment/CocoaModel/interface/OptOCubeSplitter.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/ALIPlane.h" 
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #ifdef COCOA_VIS

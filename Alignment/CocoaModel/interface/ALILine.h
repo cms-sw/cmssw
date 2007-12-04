@@ -9,7 +9,6 @@
 
 #ifndef _ALILINE_HH
 #define _ALILINE_HH
-#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include <iostream>
 #include <CLHEP/Vector/ThreeVector.h>
 class ALIPlane;

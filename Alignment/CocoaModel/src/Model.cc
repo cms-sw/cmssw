@@ -8,7 +8,6 @@
 #include "Alignment/CocoaModel/interface/Model.h"
 
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
-#include "Alignment/CocoaUtilities/interface/ALIFileOut.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
@@ -22,7 +21,6 @@
 //t#include "Alignment/CocoaModel/interface/MeasurementDiffAngle.h"
 //t#include "Alignment/CocoaModel/interface/MeasurementCentreEntry.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
-#include "Alignment/CocoaModel/interface/EntryLength.h"
 #include "Alignment/CocoaModel/interface/EntryAngle.h"
 #include "Alignment/CocoaModel/interface/ParameterMgr.h"
 #include "Alignment/CocoaModel/interface/ErrorCorrelationMgr.h"

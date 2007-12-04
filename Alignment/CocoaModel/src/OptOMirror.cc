@@ -7,8 +7,8 @@
 
 #include "Alignment/CocoaModel/interface/OptOMirror.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/ALIPlane.h" 
 #include "Alignment/CocoaModel/interface/Measurement.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include <iostream>
 #include <iomanip>
 #ifdef COCOA_VIS

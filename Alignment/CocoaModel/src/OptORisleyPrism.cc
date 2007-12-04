@@ -6,9 +6,6 @@
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/OptORisleyPrism.h"
-#include "Alignment/CocoaModel/interface/LightRay.h"
-#include "Alignment/CocoaModel/interface/Measurement.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include <iostream>
 #include <iomanip>
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"

@@ -8,7 +8,6 @@
 
 #include "Alignment/CocoaModel/interface/MeasurementDistancemeter.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include <iostream>
 #include <iomanip>

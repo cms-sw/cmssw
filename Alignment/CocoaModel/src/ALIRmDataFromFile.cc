@@ -6,7 +6,6 @@
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/ALIRmDataFromFile.h"
-#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

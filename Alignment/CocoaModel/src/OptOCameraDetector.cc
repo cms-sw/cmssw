@@ -6,9 +6,6 @@
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/OptOCameraDetector.h"
-#include "Alignment/CocoaModel/interface/LightRay.h"
-#include "Alignment/CocoaModel/interface/Measurement.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include <iostream>

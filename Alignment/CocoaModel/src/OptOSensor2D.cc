@@ -7,6 +7,7 @@
 
 #include "Alignment/CocoaModel/interface/OptOSensor2D.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/ALIPlane.h" 
 #include "Alignment/CocoaModel/interface/Measurement.h"
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/Entry.h"

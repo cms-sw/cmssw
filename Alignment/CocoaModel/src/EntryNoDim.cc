@@ -6,8 +6,6 @@
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/EntryNoDim.h"
-#include "Alignment/CocoaModel/interface/Model.h"
-#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 
 
 ALIdouble EntryNoDim::_ValueDimensionFactor = 1.;

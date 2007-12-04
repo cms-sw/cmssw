@@ -1,5 +1,4 @@
  
-#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include "Alignment/CocoaModel/interface/ALIUnitsTable.h"
 #include <CLHEP/Units/SystemOfUnits.h>
 

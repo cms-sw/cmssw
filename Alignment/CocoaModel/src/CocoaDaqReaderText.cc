@@ -3,7 +3,6 @@
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
-#include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
 
 
 using namespace std;

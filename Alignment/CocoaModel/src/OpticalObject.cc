@@ -30,7 +30,6 @@
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
-#include "Alignment/CocoaUtilities/interface/ALIFileOut.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include "Alignment/CocoaModel/interface/EntryLengthAffCentre.h"
 #include "Alignment/CocoaModel/interface/EntryAngleAffAngles.h"
@@ -45,7 +44,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include <stdlib.h>
-#include <fstream>
 #include <iostream>
 
 

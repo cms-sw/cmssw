@@ -7,7 +7,6 @@
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/MeasurementDiffEntry.h"
-#include "Alignment/CocoaModel/interface/LightRay.h"
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include "Alignment/CocoaModel/interface/Entry.h"
@@ -19,7 +18,6 @@
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/ALIVisLightPath.h"
 #endif
-#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

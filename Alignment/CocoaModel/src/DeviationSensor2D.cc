@@ -7,7 +7,6 @@
 
 #include "Alignment/CocoaModel/interface/DeviationSensor2D.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 DeviationSensor2D::DeviationSensor2D( ALIdouble posDimFactor, ALIdouble angDimFactor )

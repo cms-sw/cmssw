@@ -8,14 +8,12 @@
 
 #include "Alignment/CocoaModel/interface/MeasurementCOPS.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #ifdef COCOA_VIS
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/ALIVisLightPath.h"
 #endif
-#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 #include <iostream>
 #include <iomanip>

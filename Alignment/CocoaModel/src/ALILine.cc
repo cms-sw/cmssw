@@ -6,6 +6,7 @@
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/ALILine.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h" 
 #include "Alignment/CocoaModel/interface/ALIPlane.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 
