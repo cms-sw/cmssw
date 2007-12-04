@@ -14,7 +14,7 @@
  *
  * \author Michele de Gruttola, INFN Naples
  *
- * \id $Id: ZMuMuAnalyzer.cc,v 1.1 2007/10/05 10:02:45 piccolo Exp $
+ * \id $Id: ZMuMuAnalyzer.cc,v 1.2 2007/10/12 11:28:57 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -80,16 +80,16 @@ ZMuMuAnalyzer::ZMuMuAnalyzer(const edm::ParameterSet& pset) :
   maxZmass_( pset.getParameter<double>( "maxZmass" )) {
   
   Service<TFileService> fs;
-  h_zMuMu_mass_ = fs->make<TH1D>( "ZMuMumass", "ZMuMu mass(GeV)", 20000,  0., 200. );
-  h_zMuSingleTrack_mass_ = fs->make<TH1D>( "ZMuSingleTrackmass", "ZMuSingleTrack mass(GeV)", 200,  0., 200. );
-  h_zMuSingleStandAlone_mass_ = fs->make<TH1D>( "ZMuSingleStandAlonemass", "ZMuSingleStandAlone mass(GeV)", 200,  0., 200. );
-  h_zMuSingleStandAloneOverlap_mass_ = fs->make<TH1D>( "ZMuSingleStandAloneOverlapmass", "ZMuSingleStandAloneOverlap  mass(GeV)", 200,  0., 200. );
+  h_zMuMu_mass_ = fs->make<TH1D>( "ZMuMumass", "ZMuMu mass(GeV)", 200,  0., 200. );
+  h_zMuSingleTrack_mass_ = fs->make<TH1D>( "ZMuSingleTrackmass", "ZMuSingleTrack mass(GeV)", 100,  0., 200. );
+  h_zMuSingleStandAlone_mass_ = fs->make<TH1D>( "ZMuSingleStandAlonemass", "ZMuSingleStandAlone mass(GeV)", 50,  0., 200. );
+  h_zMuSingleStandAloneOverlap_mass_ = fs->make<TH1D>( "ZMuSingleStandAloneOverlapmass", "ZMuSingleStandAloneOverlap  mass(GeV)", 50,  0., 200. );
   
   
-  h_zMuMuMatched_mass_ = fs->make<TH1D>( "ZMuMuMatchedmass", "ZMuMu Matched  mass(GeV)", 20000,  0., 200. );
-  h_zMuSingleTrackMatched_mass_ = fs->make<TH1D>( "ZMuSingleTrackmassMatched", "ZMuSingleTrackMatched mass(GeV)", 200,  0., 200. );
-  h_zMuSingleStandAloneMatched_mass_ = fs->make<TH1D>( "ZMuSingleStandAlonemassMatched", "ZMuSingleStandAloneMatched mass(GeV)", 200,  0., 200. );
-  h_zMuSingleStandAloneOverlapMatched_mass_ = fs->make<TH1D>( "ZMuSingleStandAloneOverlapmassMatched", "ZMuSingleStandAloneMatched Overlap  mass(GeV)", 200,  0., 200. );
+  h_zMuMuMatched_mass_ = fs->make<TH1D>( "ZMuMuMatchedmass", "ZMuMu Matched  mass(GeV)", 200,  0., 200. );
+  h_zMuSingleTrackMatched_mass_ = fs->make<TH1D>( "ZMuSingleTrackmassMatched", "ZMuSingleTrackMatched mass(GeV)", 100,  0., 200. );
+  h_zMuSingleStandAloneMatched_mass_ = fs->make<TH1D>( "ZMuSingleStandAlonemassMatched", "ZMuSingleStandAloneMatched mass(GeV)", 50,  0., 200. );
+  h_zMuSingleStandAloneOverlapMatched_mass_ = fs->make<TH1D>( "ZMuSingleStandAloneOverlapmassMatched", "ZMuSingleStandAloneMatched Overlap  mass(GeV)", 50,  0., 200. );
 }
 
 void ZMuMuAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -99,14 +99,31 @@ void ZMuMuAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setu
   event.getByLabel( zMuTrack_, zMuTrack );
   Handle<CandidateCollection> zMuStandAlone;
   event.getByLabel( zMuStandAlone_, zMuStandAlone );  
-  
+
+  size_t nZMuMu = zMuMu->size();
+  size_t nZTrackMu = zMuTrack->size();
+  size_t nZStandAloneMu = zMuStandAlone->size();
+  static const double zMass = 91.1876; // PDG Z mass
+
+  //  cout << "nZMuMu = " << nZMuMu << endl;
+  //  cout << "nZTrackMu = " << nZTrackMu << endl;
+  //  cout << "nZStandAloneMu = " << nZStandAloneMu << endl;
+ 
   Handle<CandMatchMap> zMuMuMap;
-  event.getByLabel(zMuMuMap_, zMuMuMap);
+  if( nZMuMu > 0 ) {
+    event.getByLabel(zMuMuMap_, zMuMuMap);
+  }
+
   Handle<CandMatchMap> zMuTrackMap;
-  event.getByLabel( zMuTrackMap_, zMuTrackMap );
+  if( nZTrackMu > 0 ) {
+    event.getByLabel( zMuTrackMap_, zMuTrackMap );
+  }
+
   Handle<CandMatchMap> zMuStandAloneMap;
-  event.getByLabel( zMuStandAloneMap_, zMuStandAloneMap );  
-    
+  if( nZStandAloneMu > 0 ) {
+    event.getByLabel( zMuStandAloneMap_, zMuStandAloneMap );  
+  }    
+
   Handle<IsolationCollection> muIso;
   event.getByLabel(muIso_, muIso);
   ProductID muIsoId = muIso->keyProduct().id();
@@ -117,11 +134,6 @@ void ZMuMuAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setu
   Handle<IsolationCollection> standAloneIso;
   event.getByLabel(standAloneIso_, standAloneIso);
   ProductID standAloneIsoId = standAloneIso->keyProduct().id();
-  
-  size_t nZMuMu = zMuMu->size();
-  size_t nZTrackMu = zMuTrack->size();
-  size_t nZStandAloneMu = zMuStandAlone->size();
-  static const double zMass = 91.1876; // PDG Z mass
   
   if (nZMuMu > 0) {
     double mass = 1000000.;
@@ -173,7 +185,7 @@ void ZMuMuAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setu
 	      iso2 = muIso->value( lep2.key() );	
       else if ( id2 == trackIsoId )
 	iso2 = trackIso->value( lep2.key() );	
-      
+ 
       double mt = ztmCand.mass();
       if (lep1->pt()>ptcut_ && lep2->pt()>ptcut_ &&    
 	  fabs(lep1->eta())<etacut_ && fabs(lep2->eta())<etacut_ &&
