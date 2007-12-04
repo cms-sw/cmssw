@@ -117,12 +117,12 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
 
-  RPCRecHitCollection::const_iterator rec;	
-  for (rec = rpcHits->begin(); rec!=rpcHits->end(); ++rec){
-    LocalPoint rhitloc = (*rec).localPosition();
-    float rhitpoint = rhitloc.x();  	
-    std::cout << " RPC with recHit "<<rhitpoint<<"\t on : "<<(*rec).rpcId()<<std::endl;
-  }
+  //RPCRecHitCollection::const_iterator rec;	
+  //for (rec = rpcHits->begin(); rec!=rpcHits->end(); ++rec){
+  //LocalPoint rhitloc = (*rec).localPosition();
+  //float rhitpoint = rhitloc.x();  	
+  //std::cout << " RPC with recHit "<<rhitpoint<<"\t on : "<<(*rec).rpcId()<<std::endl;
+  //}
 
   Handle<Trajectories> trajectories;
   iEvent.getByLabel(TjInput,trajectories);
@@ -130,12 +130,12 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   for(Trajectories::const_iterator tj = trajectories->begin(); tj != trajectories->end(); ++tj){
     std::vector<TrajectoryMeasurement> tmColl = tj->measurements();
 
-    std::cout<<"------------------------------- Reading Trajectory ---------------------------------"<<std::endl;
+    //std::cout<<"------------------------------- Reading Trajectory ---------------------------------"<<std::endl;
 
     for(vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj!=tmColl.end(); itTraj++){
       //if(! itTraj->updatedState().isValid()) continue;
-      std::cout<<" Tj r "<<itTraj->updatedState().globalPosition().perp()
-      	       <<" Tj z "<<itTraj->updatedState().globalPosition().z()<<std::endl;
+      //std::cout<<" Tj r "<<itTraj->updatedState().globalPosition().perp()
+      //<<" Tj z "<<itTraj->updatedState().globalPosition().z()<<std::endl;
             
       for (GlobalTrackingGeometry::DetContainer::const_iterator itDet=rpcGeo->dets().begin();itDet<rpcGeo->dets().end();itDet++){
 	if( dynamic_cast< RPCChamber* >( *itDet ) != 0 ){
@@ -158,7 +158,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    if((fabs(Gx1-Gx2)<0.01 && fabs(Gy1-Gy2)<0.01 && fabs(Gz1-Gz2)<0.01 && rpcId.region()==0 && MeasureBarrel==true) ||
 	       (fabs(Gx1-Gx2)<0.01 && fabs(Gy1-Gy2)<0.01 && fabs(Gz1-Gz2)<0.01 && rpcId.region()!=0 && MeasureEndCap==true)){
 
-	      std::cout<<"RPC -- Candidate"<<(*r)->id()<<std::endl;
+	      //std::cout<<"RPC -- Candidate"<<(*r)->id()<<std::endl;
 
 	      RPCDetId rollId = (*r)->id();
 	      uint32_t id = rollId.rawId();
@@ -239,13 +239,13 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
 	      if(recFound==true){
 
-		std::cout<<"**********************************************"<<std::endl;
-		std::cout<<"\t                                   "<<std::endl;
-		std::cout<<"Point Extrapolated                   "<<extrVec[rpos]<<std::endl;
-		std::cout<<"Real Point                           "<<posVec[rpos]<<std::endl;
-		std::cout<<"**********************************************"<<std::endl;
-		std::cout<<"Strip Extrapolated "<<stripPr[rpos]<<" Strip Detected "<<stripD[rpos]<<std::endl;
-		std::cout<<"**********************************************"<<std::endl;
+		// 		std::cout<<"**********************************************"<<std::endl;
+		// 		std::cout<<"\t                                   "<<std::endl;
+		// 		std::cout<<"Point Extrapolated                   "<<extrVec[rpos]<<std::endl;
+		// 		std::cout<<"Real Point                           "<<posVec[rpos]<<std::endl;
+		// 		std::cout<<"**********************************************"<<std::endl;
+		// 		std::cout<<"Strip Extrapolated "<<stripPr[rpos]<<" Strip Detected "<<stripD[rpos]<<std::endl;
+		// 		std::cout<<"**********************************************"<<std::endl;
 
 		sprintf(meIdRPC,"Residuals_%s",detUnitLabel);
 		meMap[meIdRPC]->Fill(res);
@@ -258,11 +258,11 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
 		if(fabs(res)<maxRes){
 		  anycoincidence=true;
-		  std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
+		  //std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
 		}
 		else{
 		  anycoincidence=false;
-		  std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
+		  //std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<(*r)->id()<<std::endl;
 		}
 	      }
 
@@ -329,6 +329,7 @@ void RPCEfficiencyFromTrack::endJob() {
     float totr = sqrt(tote*(1.-tote)/float(totalcounter[0]));
     std::cout <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<"%"<<std::endl;
     std::cout <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
+    histoMean->Fill(tote*100.);
   }
   else{
     std::cout<<"No predictions in this file = 0!!!"<<std::endl;
@@ -350,30 +351,17 @@ void RPCEfficiencyFromTrack::endJob() {
     sprintf(effIdRPC,"EfficienyFromTrackExtrapolation_%s",detUnitLabel);
     std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
 
-    float sumEff=0.;
-    float sumErr=0.;
-    int nbin=0;
-    float meanVal=0.;
-    float rmsVal=0.;
-
     for(unsigned int i=1;i<=100;++i){
       if(meMap[meIdTrack]->getBinContent(i) != 0){
-	nbin++;
 	float eff = meMap[meIdRPC]->getBinContent(i)/meMap[meIdTrack]->getBinContent(i);
 	float erreff = sqrt(eff*(1-eff)/meMap[meIdTrack]->getBinContent(i));
-	sumEff+=eff;
-	sumErr+=erreff;
 	meMap[effIdRPC]->setBinContent(i,eff*100.);
 	meMap[effIdRPC]->setBinError(i,erreff*100.);
       }
     }
-    if(sumEff!=0){
-      meanVal=sumEff/nbin;
-      rmsVal=sumErr/nbin;
-      histoMean->Fill(meanVal*100.);
-    }
   }
 
+  
   if(EffSaveRootFile) dbe->save(EffRootFileName);
 }
 
