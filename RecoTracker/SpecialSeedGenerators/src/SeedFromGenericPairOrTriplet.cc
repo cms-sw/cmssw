@@ -17,7 +17,8 @@ SeedFromGenericPairOrTriplet::SeedFromGenericPairOrTriplet(const MagneticField* 
 							   const Propagator* propagatorAlong,
 							   const Propagator* propagatorOpposite,
 							   const std::vector<int>& charges,
-							   bool momFromPSet):theMagfield(mf), theTracker(geom), theBuilder(builder), thePropagatorAlong(propagatorAlong), thePropagatorOpposite(propagatorOpposite), theSetMomentum(momFromPSet), theCharges(charges){}
+							   bool momFromPSet,
+							   double errorRescaling):theMagfield(mf), theTracker(geom), theBuilder(builder), thePropagatorAlong(propagatorAlong), thePropagatorOpposite(propagatorOpposite), theSetMomentum(momFromPSet), theCharges(charges), theErrorRescaling(errorRescaling){}
 
 
 std::vector<TrajectorySeed*> SeedFromGenericPairOrTriplet::seed(const SeedingHitSet& hits,
@@ -266,6 +267,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const GlobalVector& mome
                 return 0;
 	}	
 	LogDebug("SeedFromGenericPairOrTriplet") << "starting TSOS " << seedTSOS ;
+	seedTSOS.rescaleError(theErrorRescaling);
 	PTrajectoryStateOnDet *PTraj=
 		theTransformer.persistentState(seedTSOS, trHits[1]->geographicalId().rawId());
 	edm::OwnVector<TrackingRecHit> seed_hits;

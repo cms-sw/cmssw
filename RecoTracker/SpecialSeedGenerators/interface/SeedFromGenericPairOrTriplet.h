@@ -35,7 +35,8 @@ class SeedFromGenericPairOrTriplet{
 				     const Propagator* propagatorAlong,
 				     const Propagator* propagatorOpposite,
 				     const std::vector<int>& charges,		
-				     bool momFromPSet);
+				     bool momFromPSet,
+				     double errorRescaling );
 	~SeedFromGenericPairOrTriplet(){};
 	void setMomentumTo(double mom){theP = mom;};
 	bool momentumFromPSet(){return theSetMomentum;}; 
@@ -73,7 +74,8 @@ class SeedFromGenericPairOrTriplet{
         TrajectoryStateTransform theTransformer;
 	float theP;
 	bool theSetMomentum;
-	std::vector<int> theCharges;	
+	std::vector<int> theCharges;
+	double theErrorRescaling;	
 };
 
 #endif
