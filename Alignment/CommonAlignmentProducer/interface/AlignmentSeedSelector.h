@@ -2,7 +2,6 @@
 #define Alignment_CommonAlignmentAlgorithm_AlignmentSeedSelector_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include <vector>
 

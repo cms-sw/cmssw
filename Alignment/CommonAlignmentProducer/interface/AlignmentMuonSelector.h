@@ -9,15 +9,13 @@
  * 
  * \author Javier Fernandez, IFCA
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: AlignmentMuonSelector.h,v 1.1 2007/04/11 11:44:54 jfernan2 Exp $
+ * $Id: AlignmentMuonSelector.h,v 1.2 2007/09/24 16:40:53 ratnik Exp $
  *
  */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "PhysicsTools/RecoAlgos/interface/MuonSelector.h"
 #include <vector>
 

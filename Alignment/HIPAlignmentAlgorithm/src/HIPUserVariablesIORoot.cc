@@ -4,7 +4,6 @@
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariables.h"
 
 

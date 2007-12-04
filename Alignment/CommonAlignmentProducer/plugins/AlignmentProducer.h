@@ -7,31 +7,27 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.6 $
-///  last update: $Date: 2007/07/09 14:33:20 $
-///  by         : $Author: pivarski $
+///  Revision   : $Revision: 1.7 $
+///  last update: $Date: 2007/10/19 11:30:10 $
+///  by         : $Author: fronga $
 
 #include <vector>
 
 // Framework
-#include "FWCore/Framework/interface/LooperFactory.h"
 #include "FWCore/Framework/interface/ESProducerLooper.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 // Geometry
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 // Alignment
-#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include <Geometry/Records/interface/MuonGeometryRecord.h> 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+#include <FWCore/Framework/interface/Frameworkfwd.h> 
 
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
-#include "Alignment/CommonAlignment/interface/Alignable.h"
 
 class Alignments;
 class SurveyErrors;

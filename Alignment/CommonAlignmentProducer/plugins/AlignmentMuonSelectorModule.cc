@@ -8,19 +8,19 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: AlignmentMuonSelectorModule.h,v 1.1 2007/04/11 11:44:54 jfernan2 Exp $
+ * $Id: AlignmentMuonSelectorModule.cc,v 1.1 2007/05/02 11:57:00 fronga Exp $
  *
  */
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentMuonSelector.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h" 
 
 // the following include is necessary to clone all track branches
 // including recoTrackExtras and TrackingRecHitsOwned.
 // if you remove it the code will compile, but the cloned
 // tracks have only the recoMuons branch!
-#include "PhysicsTools/RecoAlgos/interface/MuonSelector.h"
 
 struct MuonConfigSelector {
 

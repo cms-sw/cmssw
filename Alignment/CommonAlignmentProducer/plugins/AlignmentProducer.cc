@@ -1,11 +1,15 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.16 $
-///  last update: $Date: 2007/10/19 11:30:10 $
+///  Revision   : $Revision: 1.17 $
+///  last update: $Date: 2007/10/19 15:10:39 $
 ///  by         : $Author: fronga $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
+#include "FWCore/Framework/interface/LooperFactory.h" 
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h" 
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h" 
+#include "Alignment/CommonAlignment/interface/Alignable.h" 
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
@@ -14,7 +18,6 @@
 #include <sstream>
 
 // Framework
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -30,7 +33,6 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
@@ -48,11 +50,9 @@
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorRcd.h"
 
 // Tracking 	 
-#include "TrackingTools/PatternTools/interface/Trajectory.h" 
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
 #include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"

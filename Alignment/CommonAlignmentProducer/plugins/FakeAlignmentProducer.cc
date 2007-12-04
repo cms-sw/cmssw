@@ -13,21 +13,19 @@ The alignement objects are filled with dummy data (not useable by the reconstruc
 //
 // Original Author:  Frederic Ronga
 //         Created:  Fri Feb  9 19:24:38 CET 2007
-// $Id: FakeAlignmentProducer.cc,v 1.1 2007/02/13 08:42:44 fronga Exp $
+// $Id: FakeAlignmentProducer.cc,v 1.2 2007/10/03 08:54:12 fronga Exp $
 //
 //
 
 
 // System
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // Framework
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 
 
 // Alignment
