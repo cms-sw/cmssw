@@ -147,7 +147,7 @@ process HEXDUMP = {
      untracked string filename = 'dump.bin'
    }
 
-#     module counter = AsciiOutputModule{}
+     module counter = AsciiOutputModule{}
 
     service = MessageLogger{
        untracked vstring destinations = { "cout" }
@@ -162,8 +162,8 @@ process HEXDUMP = {
 
      $input_module
      
-     path p = {# counter,
-               hexDump}
+     path p     = { hexDump }
+     endpath ep = { counter }
 
 
 }
