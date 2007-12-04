@@ -1,12 +1,13 @@
 /** \file LaserAlignmentInitHistograms.cc
  *  Histograms for the Laser Alignment System
  *
- *  $Date: Sun Mar 18 19:42:48 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:20 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserAlignment.h"
+#include "TFile.h" 
 
 void LaserAlignment::initHistograms()
 {

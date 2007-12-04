@@ -4,13 +4,12 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2007/05/08 07:59:43 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/10/11 09:19:37 $
+ *  $Revision: 1.8 $
  *  \author Maarten Thomas
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -34,8 +33,6 @@
 
 // ROOT
 #include "TH1.h"
-#include "TString.h"
-#include "TFile.h"
 #include "TObject.h"
 
 #include <iostream>

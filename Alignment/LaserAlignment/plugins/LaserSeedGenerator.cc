@@ -1,18 +1,18 @@
 /** \file LaserSeedGenerator.cc
  *  Seeds for Tracking of Laser Beams
  *
- *  $Date: Sun Mar 18 19:44:52 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:20 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserSeedGenerator.h" 
+#include "FWCore/Framework/interface/Event.h" 
+#include "DataFormats/Common/interface/Handle.h" 
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 //

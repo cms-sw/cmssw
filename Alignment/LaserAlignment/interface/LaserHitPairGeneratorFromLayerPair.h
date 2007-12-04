@@ -4,20 +4,19 @@
 /** \class CompareHitPairsZ
  *  compare hit pairs in z direction
  *
- *  $Date: 2007/05/10 12:00:32 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/10/19 08:42:13 $
+ *  $Revision: 1.15 $
  *  \author Maarten Thomas
  */
 
 /** \class LaserHitPairGeneratorFromLayerPair
  *  generate hit pairs from hits on consecutive discs in the endcaps used by the LaserSeedGenerator
  *
- *  $Date: 2007/05/10 12:00:32 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/10/19 08:42:13 $
+ *  $Revision: 1.15 $
  *  \author Maarten Thomas
  */
 
-#include "Alignment/LaserAlignment/interface/LaserHitPairGenerator.h"
 #include "Alignment/LaserAlignment/interface/OrderedLaserHitPair.h"
 #include "Alignment/LaserAlignment/interface/OrderedLaserHitPairs.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"

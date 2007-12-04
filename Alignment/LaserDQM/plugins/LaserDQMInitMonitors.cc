@@ -1,12 +1,13 @@
 /** \file LaserDQMInitMonitors.cc
  *  Initialisation of the DQM Monitors
  *
- *  $Date: Mon Mar 19 12:34:54 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:02:13 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserDQM/plugins/LaserDQM.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h" 
 
 void LaserDQM::initMonitors()
 {

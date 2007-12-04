@@ -1,12 +1,13 @@
 /** \file LaserHitPairGenerator.cc
  *  
  *
- *  $Date: 2007/05/10 07:12:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/05/10 12:00:46 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserHitPairGenerator.h"
+#include "Alignment/LaserAlignment/interface/LaserHitPairGeneratorFromLayerPair.h" 
 
 #include "Alignment/LaserAlignment/interface/SeedLayerPairs.h"
 

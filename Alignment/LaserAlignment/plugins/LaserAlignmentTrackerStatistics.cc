@@ -1,26 +1,19 @@
 /** \file LaserAlignmentTrackerStatistics.cc
 *  LAS Reconstruction Programm - Fill the histograms
   *
-  *  $Date: 2007/03/18 19:00:20 $
-  *  $Revision: 1.4 $
+  *  $Date: 2007/10/19 08:42:15 $
+  *  $Revision: 1.5 $
   *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserAlignment.h"
+#include "FWCore/Framework/interface/Event.h" 
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"

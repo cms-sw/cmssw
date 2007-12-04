@@ -4,8 +4,8 @@
 /** \class LaserClusterizerAlgorithm
  *  the Clusterizer Algorithm for the laser beams
  *
- *  $Date: Fri Mar 16 15:56:29 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:19 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
@@ -18,9 +18,7 @@
 #include "DataFormats/LaserAlignment/interface/LASBeamProfileFitCollection.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "Alignment/LaserAlignment/interface/LaserBeamClusterizer.h"
 
 class LaserBeamClusterizer;
 

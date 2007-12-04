@@ -4,20 +4,14 @@
 /** \class LaserAlignmentSimulation
  *  SimWatcher for the simulation of the Laser Alignment System of the CMS Tracker
  *
- *  $Date: Mon Mar 19 12:24:09 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:01:00 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 
 #include "SimG4Core/Notification/interface/Observer.h"
-#include "SimG4Core/Notification/interface/BeginOfRun.h"
-#include "SimG4Core/Notification/interface/EndOfRun.h"
-#include "SimG4Core/Notification/interface/BeginOfEvent.h"
-#include "SimG4Core/Notification/interface/EndOfEvent.h"
-#include "SimG4Core/Notification/interface/BeginOfTrack.h"
-#include "SimG4Core/Notification/interface/EndOfTrack.h"
 
 // own classes
 #include "Alignment/LaserAlignmentSimulation/interface/MaterialProperties.h"
@@ -28,15 +22,7 @@
 #include <iostream>
 
 // Geant4 includes
-#include "G4HCofThisEvent.hh"
-#include "G4PrimaryParticle.hh"
-#include "G4SDManager.hh"
-#include "G4Step.hh"
-#include "G4Track.hh"
-#include "G4Timer.hh"
-#include "G4VProcess.hh"
 
-#include "G4ProductionCutsTable.hh"
 
 class BeginOfRun;
 class EndOfRun;

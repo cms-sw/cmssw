@@ -4,13 +4,11 @@
 /** \class LaserAlignmentAlgorithmPosTEC
  *  class to align the tracker (TEC+) with Millepede
  *
- *  $Date: Fri Mar 16 15:44:50 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:19 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
-#include "Alignment/LaserAlignment/interface/Millepede.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Alignable Tracker needed to propagate the alignment corrections calculated 
 // for the disks down to the lowest levels

@@ -1,12 +1,14 @@
 /** \file LaserDQMStatistics.cc
  *  Fill the DQM Monitors
  *
- *  $Date: Mon Mar 19 12:35:23 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:02:13 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserDQM/plugins/LaserDQM.h"
+#include "FWCore/Framework/interface/Event.h" 
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -14,14 +16,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"

@@ -1,15 +1,13 @@
 /** \file BeamProfileFitter.cc
 *
-	*  $Date: 2007/04/12 14:20:33 $
-	*  $Revision: 1.10 $
+	*  $Date: 2007/06/11 14:44:27 $
+	*  $Revision: 1.11 $
 	*  \author Maarten Thomas
 */
 
 #include "Alignment/LaserAlignment/interface/BeamProfileFitter.h"
 
 // Framework headers
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,16 +15,13 @@
 // Geometry headers
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 // Topology
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 #include "TF1.h"
 

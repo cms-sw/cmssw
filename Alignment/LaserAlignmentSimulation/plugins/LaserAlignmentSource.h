@@ -6,8 +6,8 @@
  *  an empty MCHepEvent will be generated (needed by OscarProducer). The actual simulation of 
  *  the laser beams is done in the SimWatcher attached to OscarProducer
  *
- *  $Date: Mon Mar 19 12:26:06 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:00:32 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
@@ -17,8 +17,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
-#include "FWCore/Framework/interface/InputSourceMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "HepMC/GenEvent.h"
 

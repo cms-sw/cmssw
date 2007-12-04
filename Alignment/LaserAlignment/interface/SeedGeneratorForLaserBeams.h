@@ -4,12 +4,11 @@
 /** \class SeedGeneratorForLaserBeams
  *  seed finding algorithm for the LAS
  *
- *  $Date: 2007/06/27 06:13:21 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/06/27 06:28:16 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -18,16 +17,14 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "Alignment/LaserAlignment/interface/LaserHitPairGenerator.h"
+#include "DataFormats/Common/interface/RangeMap.h" 
+#include "Alignment/LaserAlignment/interface/LaserHitPairGeneratorFromLayerPair.h" 
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 class SeedGeneratorForLaserBeams
 {

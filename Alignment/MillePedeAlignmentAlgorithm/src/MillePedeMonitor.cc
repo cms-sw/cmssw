@@ -3,18 +3,16 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.9 $
- *  $Date: 2007/06/21 17:01:30 $
+ *  $Revision: 1.10 $
+ *  $Date: 2007/07/12 17:32:39 $
  *  (last update by $Author: flucke $)
  */
 
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeMonitor.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -24,10 +22,7 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
-#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
-#include <TH1.h>
-#include <TH2.h>
 #include <TProfile2D.h>
 #include <TFile.h>
 #include <TDirectory.h>

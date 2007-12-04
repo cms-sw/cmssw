@@ -1,5 +1,6 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/SingleTrajectoryUpdator.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h" 
 
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentDerivativesExtractor.h"
 

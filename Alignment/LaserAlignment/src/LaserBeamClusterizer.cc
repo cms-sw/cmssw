@@ -1,8 +1,8 @@
 /** \file LaserBeamClusterizer.cc
  *  
  *
- *  $Date: Sun Mar 18 19:36:45 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:20 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
@@ -10,7 +10,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
 
 void LaserBeamClusterizer::clusterizeDetUnit(const edm::DetSet<SiStripDigi>& input, edm::DetSet<SiStripCluster>& output,
 					     BeamFitIterator beginFit, BeamFitIterator endFit, unsigned int detId, double ClusterWidth)

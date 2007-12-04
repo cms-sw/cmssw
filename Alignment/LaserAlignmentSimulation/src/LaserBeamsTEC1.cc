@@ -1,23 +1,19 @@
 /** \file LaserBeamsTEC1.cc
  *  
  *
- *  $Date: 2007/03/20 12:01:01 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/06/11 14:44:29 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserBeamsTEC1.h"
 
-#include "SimG4Core/Notification/interface/GenParticleInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
 #include "globals.hh"                        // Global Constants and typedefs
-#include "G4DataVector.hh"
-#include "G4Event.hh"
-#include "G4OpticalPhoton.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleGun.hh"
 

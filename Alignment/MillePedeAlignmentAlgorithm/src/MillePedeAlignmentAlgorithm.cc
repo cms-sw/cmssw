@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.25 $
- *  $Date: 2007/08/31 18:03:19 $
+ *  $Revision: 1.26 $
+ *  $Date: 2007/10/11 16:11:28 $
  *  (last update by $Author: flucke $)
  */
 
@@ -12,8 +12,6 @@
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 // in header, too
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 // end in header, too
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeMonitor.h"
@@ -25,7 +23,6 @@
 #include "PedeReader.h" // dito
 #include "PedeLabeler.h" // dito
 
-#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
@@ -49,7 +46,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
 #include <fstream>
-#include <vector>
 #include <sstream>
 
 #include <TMath.h>

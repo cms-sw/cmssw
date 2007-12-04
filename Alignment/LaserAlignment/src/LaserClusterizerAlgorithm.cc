@@ -1,12 +1,13 @@
 /** \file LaserClusterizerAlgorithm.cc
  *  
  *
- *  $Date: Sun Mar 18 19:36:55 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:20 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserClusterizerAlgorithm.h"
+#include "Alignment/LaserAlignment/interface/LaserBeamClusterizer.h" 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

@@ -1,8 +1,8 @@
 /** \file LaserAlignmentFit.cc
  *  LAS Reconstruction Program - Fitting of the Beam Profiles
  *
- *  $Date: Sun Mar 18 19:42:34 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:20 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
@@ -12,8 +12,6 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 
 void LaserAlignment::fit(edm::EventSetup const& theSetup)
 {

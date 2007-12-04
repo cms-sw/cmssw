@@ -1,5 +1,6 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUserVariables.h"
+#include <boost/cstdint.hpp> 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"

@@ -4,12 +4,11 @@
 /** \class LaserAlignmentPosTEC
  *  Alignment of TEC+
  *
- *  $Date: Fri Mar 16 15:47:23 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:19 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/LaserAlignment/interface/LaserAlignmentAlgorithmPosTEC.h"
 
 // Alignable Tracker needed to propagate the alignment corrections calculated 

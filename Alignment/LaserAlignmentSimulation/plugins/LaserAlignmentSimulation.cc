@@ -1,28 +1,29 @@
 /** \file LaserAlignmentSimulation.cc
  *  SimWatcher for the simulation of the Laser Alignment System of the CMS Tracker
  *
- *  $Date: Mon Mar 19 12:23:46 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:01:00 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/plugins/LaserAlignmentSimulation.h"
+#include "SimG4Core/Notification/interface/BeginOfRun.h" 
+#include "SimG4Core/Notification/interface/EndOfRun.h" 
+#include "SimG4Core/Notification/interface/BeginOfEvent.h" 
+#include "SimG4Core/Notification/interface/EndOfEvent.h" 
+#include "G4SDManager.hh" 
+#include "G4Step.hh" 
+#include "G4Timer.hh" 
+#include "G4VProcess.hh" 
 
-#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimG4Core/Application/interface/EventAction.h"
-#include "SimG4Core/Application/interface/RunAction.h"
-#include "SimG4Core/Application/interface/SteppingAction.h"
-#include "SimG4Core/Application/interface/TrackingAction.h"
 
 #include "SimG4CMS/Tracker/interface/TkAccumulatingSensitiveDetector.h"
+#include "G4StepPoint.hh" 
 
-#include "SimG4Core/Application/interface/G4SimEvent.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 
 LaserAlignmentSimulation::LaserAlignmentSimulation(edm::ParameterSet const& theConf) 
@@ -182,7 +183,6 @@ void LaserAlignmentSimulation::update(const EndOfRun * myRun)
 
 // register a SimWatcher to get the Observer signals from OscarProducer
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 DEFINE_SEAL_MODULE ();
 DEFINE_SIMWATCHER (LaserAlignmentSimulation);

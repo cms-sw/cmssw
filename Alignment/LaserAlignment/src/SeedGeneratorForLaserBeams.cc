@@ -1,17 +1,26 @@
 /** \file SeedGeneratorForLaserBeams.cc
  *  
  *
- *  $Date: 2007/06/27 06:28:16 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/06/27 07:26:45 $
+ *  $Revision: 1.10 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/SeedGeneratorForLaserBeams.h"
+#include "FWCore/Framework/interface/EventSetup.h" 
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
+#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h" 
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h" 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+#include "boost/mpl/vector.hpp" 
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h" 
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h" 
 #include "Alignment/LaserAlignment/interface/LaserLayerPairs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h" // really needed?
+#include "FWCore/Framework/interface/ESHandle.h" 
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 

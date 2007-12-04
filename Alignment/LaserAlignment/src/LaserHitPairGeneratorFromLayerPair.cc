@@ -1,25 +1,19 @@
 /** \file LaserHitPairGeneratorFromLayerPair.cc
  *  
  *
- *  $Date: 2007/05/10 12:00:46 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/06/01 07:04:35 $
+ *  $Revision: 1.15 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserHitPairGeneratorFromLayerPair.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "Alignment/LaserAlignment/interface/OrderedLaserHitPairs.h"
-#include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h" 
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
 

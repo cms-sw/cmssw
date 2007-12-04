@@ -1,14 +1,15 @@
 /** \file LaserLayerPairs.cc
  *  
  *
- *  $Date: 2007/03/18 19:00:21 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/06/27 06:57:44 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserLayerPairs.h"
+#include "RecoTracker/TkHitPairs/interface/LayerWithHits.h" 
+#include "RecoTracker/TkDetLayers/interface/TECLayer.h"  
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -17,7 +18,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 std::vector<SeedLayerPairs::LayerPair> LaserLayerPairs::operator()()
 {

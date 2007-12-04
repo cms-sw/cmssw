@@ -1,12 +1,15 @@
 /** \file LaserAlignmentAlgorithmPosTEC.cc
  *  
  *
- *  $Date: 2007/03/18 19:00:20 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/11 09:19:38 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserAlignmentAlgorithmPosTEC.h"
+#include "Alignment/LaserAlignment/interface/Millepede.h" 
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include <boost/cstdint.hpp> 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

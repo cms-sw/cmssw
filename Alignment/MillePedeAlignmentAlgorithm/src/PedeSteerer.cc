@@ -3,18 +3,17 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.17 $
- *  $Date: 2007/09/16 19:52:40 $
+ *  $Revision: 1.18 $
+ *  $Date: 2007/10/11 16:13:20 $
  *  (last update by $Author: flucke $)
  */
 
 #include "PedeSteerer.h"
-#include "PedeLabeler.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include <boost/cstdint.hpp> 
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
@@ -26,6 +25,11 @@
 // for 'type identification' as Alignable
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+#include <FWCore/Framework/interface/EventSetup.h> 
+#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h> 
+#include <Geometry/CommonDetUnit/interface/GeomDetType.h> 
+#include <DataFormats/GeometrySurface/interface/LocalError.h> 
+#include <Geometry/DTGeometry/interface/DTLayer.h> 
 
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"

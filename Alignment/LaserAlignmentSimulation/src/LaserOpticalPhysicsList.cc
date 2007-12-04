@@ -1,12 +1,13 @@
 /** \file LaserOpticalPhysicsList.cc
  *  
  *
- *  $Date: 2007/03/20 12:01:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/11 14:44:29 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserOpticalPhysicsList.h"
+#include "G4ProcessManager.hh" 
 
 #include "G4Cerenkov.hh" 
 #include "G4Scintillation.hh" 

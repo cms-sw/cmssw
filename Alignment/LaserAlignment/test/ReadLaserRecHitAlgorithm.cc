@@ -1,12 +1,21 @@
 /** \file ReadLaserRecHitAlgorithm.cc
  *  Algorithm to read RecHits from the LaserBeams
  *
- *  $Date: Sun Mar 18 19:51:16 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:21 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/test/ReadLaserRecHitAlgorithm.h"
+#include "FWCore/Framework/interface/ESHandle.h" 
+#include "FWCore/Framework/interface/EventSetup.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h" 
+#include "DataFormats/GeometrySurface/interface/LocalError.h" 
+#include "DataFormats/GeometryVector/interface/LocalPoint.h" 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h" 
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h" 
 
 ReadLaserRecHitAlgorithm::ReadLaserRecHitAlgorithm(const edm::ParameterSet& conf) : conf_(conf) {}
 

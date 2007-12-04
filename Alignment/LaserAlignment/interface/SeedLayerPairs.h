@@ -4,16 +4,12 @@
 /** \class SeedLayerPairs
  *  interface to access pairs of layers; used for seedgenerator
  *
- *  $Date: Thu May 10 13:54:16 CEST 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/10 12:00:32 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
  
 #include <vector>
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/Common/interface/RangeMap.h"
 class DetLayer;
 class LayerWithHits;
 

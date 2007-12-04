@@ -4,15 +4,14 @@
 /** \class LaserOpticalPhysicsList
  *  Define the Optical processes for the Simulation of the Laser Alignment System
  *
- *  $Date: 2007/03/20 12:00:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/11 14:44:28 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
 // G4 includes
 #include "G4VPhysicsConstructor.hh"
 
-#include "G4ProcessManager.hh"
 #include "G4OpWLS.hh"
 
 class G4Cerenkov;

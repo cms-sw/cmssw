@@ -1,5 +1,6 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentAlgorithm.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h" 
 
 // includes for alignment
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
@@ -22,6 +23,7 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFFittingSmoother.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 

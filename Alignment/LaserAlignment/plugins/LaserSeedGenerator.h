@@ -4,8 +4,8 @@
 /** \class LaserSeedGenerator
 *  Seeds for Tracking of Laser Beams
 	*
-	*  $Date: Sun Mar 18 19:45:11 CET 2007 $
-	*  $Revision: 1.1 $
+	*  $Date: 2007/03/18 19:00:20 $
+	*  $Revision: 1.3 $
 	*  \author Maarten Thomas
 */
 
@@ -13,14 +13,9 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

@@ -3,8 +3,8 @@
  *  an empty MCHepEvent will be generated (needed by OscarProducer). The actual simulation of 
  *  the laser beams is done in the SimWatcher attached to OscarProducer
  *
- *  $Date: 2007/03/20 12:01:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/26 07:58:56 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 // system include files
@@ -12,6 +12,7 @@
 
 // user include files
 #include "Alignment/LaserAlignmentSimulation/plugins/LaserAlignmentSource.h"
+#include "FWCore/Framework/interface/InputSourceMacros.h" 
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -68,6 +69,5 @@ bool LaserAlignmentSource::produce(edm::Event& iEvent)
 }
 
 //define this as a plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_INPUT_SOURCE(LaserAlignmentSource);

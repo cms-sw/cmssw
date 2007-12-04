@@ -1,12 +1,19 @@
 /** \file LaserClusterizer.cc
  *  Clusterizer for the Laser Beams
  *
- *  $Date: Sun Mar 18 19:43:37 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:20 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserClusterizer.h"
+#include "FWCore/Framework/interface/Event.h" 
+#include "DataFormats/Common/interface/Handle.h" 
+#include "FWCore/Framework/interface/EventSetup.h" 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+#include "DataFormats/Common/interface/DetSetVector.h" 
+#include "DataFormats/LaserAlignment/interface/LASBeamProfileFitCollection.h" 
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h" 
 
 LaserClusterizer::LaserClusterizer(const edm::ParameterSet & theConf) : 
   theLaserClusterizerAlgorithm(theConf), theParameterSet(theConf)

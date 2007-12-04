@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.6 $
- *  $Date: 2007/07/12 17:32:39 $
+ *  $Revision: 1.7 $
+ *  $Date: 2007/08/31 17:24:28 $
  *  (last update by $Author: flucke $)
  */
 
@@ -16,7 +16,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/AlignableDet.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"

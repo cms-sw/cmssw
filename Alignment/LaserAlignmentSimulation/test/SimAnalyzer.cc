@@ -1,12 +1,32 @@
 /** \file SimAnalyzer.cc
  *  Get some statistics and plots about the simulation of the Laser Alignment System
  *
- *  $Date: 2007/03/20 12:01:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/02 15:25:18 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/test/SimAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h" 
+#include "FWCore/Framework/interface/ESHandle.h" 
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "FWCore/Framework/interface/EventSetup.h" 
+#include "FWCore/Utilities/interface/EDMException.h" 
+#include "FWCore/MessageLogger/interface/MessageLogger.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+#include "Geometry/CommonTopologies/interface/PixelTopology.h" 
+#include "Geometry/CommonTopologies/interface/StripTopology.h" 
+#include "DataFormats/GeometrySurface/interface/BoundSurface.h" 
+#include "DataFormats/DetId/interface/DetId.h" 
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h" 
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h" 
+#include "DataFormats/Common/interface/RefProd.h" 
+#include "DataFormats/Common/interface/RefToBase.h"  
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
+#include "TString.h" 
+#include "TFile.h" 
 
 	SimAnalyzer::SimAnalyzer(edm::ParameterSet const& theConf) 
 	: theEvents(0), 

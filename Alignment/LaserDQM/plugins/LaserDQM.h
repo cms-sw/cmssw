@@ -4,20 +4,16 @@
 /** \class LaserDQM
  *  DQM Monitor Elements for the Laser Alignment System
  *
- *  $Date: Mon Mar 19 12:33:24 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:02:13 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 // DQM
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include <iostream>
