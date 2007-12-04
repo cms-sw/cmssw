@@ -2,10 +2,7 @@
 #define CSCDigitizer_CSCDbStripConditions_h
 
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
-#include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
-#include "CondFormats/CSCObjects/interface/CSCDBGains.h"
-#include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
-#include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
+#include "CondFormats/CSCObjects/interface/CSCConditions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class CSCDbStripConditions : public CSCStripConditions
@@ -30,23 +27,10 @@ public:
                  double stripLength, bool leftRight,
                  float & capacitive, float & resistive) const;
 
-  void print() const;
-
 private:
   virtual void fetchNoisifier(const CSCDetId & detId, int istrip);  
 
-  CSCDBPedestals::Item pedestalObject(const CSCDetId & detId, int channel) const;
-
-  // might change the channel # for ME1A
-  static int dbIndex(const CSCDetId & id, int & channel);
-
-  const CSCDBNoiseMatrix * theNoiseMatrix;
-  
-  const CSCDBGains * theGains;
-
-  const CSCDBPedestals * thePedestals;
-
-  const CSCDBCrosstalk * theCrosstalk;
+  CSCConditions theConditions;
 
   // nominal constant to give 100% crosstalk
   float theCapacitiveCrosstalk;
