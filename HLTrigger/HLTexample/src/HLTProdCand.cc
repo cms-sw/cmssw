@@ -16,25 +16,25 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METFwd.h"
 
+#include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -54,14 +54,16 @@ HLTProdCand::HLTProdCand(const edm::ParameterSet& iConfig) :
 
    //register your products
 
-   produces<reco::PhotonCollection>();
-   produces<reco::ElectronCollection>();
-   produces<reco::MuonCollection>();
+   produces<reco::RecoEcalCandidateCollection>("photons");
+   produces<reco::ElectronCollection>("electrons");
+   produces<reco::RecoChargedCandidateCollection>("muons");
    produces<reco::CaloJetCollection>("taus");
    produces<reco::CaloJetCollection>("jets");
-   produces<reco::CaloMETCollection>();
-   produces<reco::RecoChargedCandidateCollection>();
-   produces<reco::RecoEcalCandidateCollection>();
+   produces<reco::CaloMETCollection>("mets");
+   produces<reco::METCollection>("hts");
+
+   produces<reco::RecoChargedCandidateCollection>("tracks");
+   produces<reco::RecoEcalCandidateCollection>("clusters");
 
 }
 
@@ -82,12 +84,13 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace reco;
 
    // produce collections of photons, electrons, muons, taus, jets, MET
-   auto_ptr<PhotonCollection>   phot (new PhotonCollection);
+   auto_ptr<RecoEcalCandidateCollection>    phot (new RecoEcalCandidateCollection);
    auto_ptr<ElectronCollection> elec (new ElectronCollection);
-   auto_ptr<MuonCollection>     muon (new MuonCollection);
+   auto_ptr<RecoChargedCandidateCollection> muon (new RecoChargedCandidateCollection);
    auto_ptr<CaloJetCollection>  taus (new CaloJetCollection); // stored as jets
    auto_ptr<CaloJetCollection>  jets (new CaloJetCollection);
    auto_ptr<CaloMETCollection>  mets (new CaloMETCollection);
+   auto_ptr<METCollection>  hts (new METCollection);
 
    // as well as charged tracks and elmg. superclusters
    auto_ptr<RecoChargedCandidateCollection> trck (new RecoChargedCandidateCollection);
@@ -155,7 +158,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   ecal->push_back(RecoEcalCandidate(-ipdg/abs(ipdg),p4));
 	 } else if (abs(ipdg)==13) {
 	   // mu+ mu-
-	   muon->push_back(Muon(-ipdg/abs(ipdg),p4));
+	   muon->push_back(RecoChargedCandidate(-ipdg/abs(ipdg),p4));
 	 } else if (abs(ipdg)==15 || abs(ipdg)==17) {
 	   // tau+ tau- or 4th generation tau'+ tau'-
 	   CaloJet::Specific specific;
@@ -163,7 +166,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   taus->push_back(CaloJet(p4,specific,jetconst));
 	 } else if (abs(ipdg)==22) {
 	   // photon
-	   // phot->push_back(    Photon(0,p4,math::XYZPoint(0,0,0),SuperClusterRef(), ClusterShapeRef()) );
+	   phot->push_back(RecoEcalCandidate(0,p4));
 	   ecal->push_back(RecoEcalCandidate(0,p4));
 	 } else if (abs(ipdg)==12 || abs(ipdg)==14 || abs(ipdg)==16 || abs(ipdg)==18) {
 	   // neutrinos (e mu tau 4th generation)
@@ -185,27 +188,29 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-   LogDebug("") << "Number of g/e/m/t/j/M/SC/TR objects reconstructed:"
+   LogDebug("") << "Number of g/e/m/t/j/M/H/TR/SC objects reconstructed:"
 		<< " " << phot->size()
 		<< " " << elec->size()
 		<< " " << muon->size()
 		<< " " << taus->size()
 		<< " " << jets->size()
 		<< " " << mets->size()
-		<< " " << ecal->size()
+		<< " " << hts->size()
 		<< " " << trck->size()
+		<< " " << ecal->size()
                 ;
 
    // put them into the event
 
-   iEvent.put(phot);
-   iEvent.put(elec);
-   iEvent.put(muon);
+   iEvent.put(phot,"photons");
+   iEvent.put(elec,"electrons");
+   iEvent.put(muon,"muons");
    iEvent.put(taus,"taus");
    iEvent.put(jets,"jets");
-   iEvent.put(mets);
-   iEvent.put(ecal);
-   iEvent.put(trck);
+   iEvent.put(mets,"mets");
+   iEvent.put(hts,"hts");
+   iEvent.put(trck,"tracks");
+   iEvent.put(ecal,"clusters");
 
    return;
 }

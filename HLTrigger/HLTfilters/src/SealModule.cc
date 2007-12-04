@@ -6,25 +6,29 @@
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 #include "HLTrigger/HLTfilters/interface/HLTDoublet.h"
 
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METFwd.h"
 
 #include "HLTrigger/HLTfilters/interface/HLTSinglet.h"
 #include "HLTrigger/HLTfilters/src/HLTSinglet.cc"
 
 // template HLTSinglet<reco::Electron>             ;
 
+typedef HLTSinglet<reco::RecoEcalCandidate>    HLT1Photon   ;
 typedef HLTSinglet<reco::Electron> HLT1Electron ;
-typedef HLTSinglet<reco::Photon>   HLT1Photon   ;
-typedef HLTSinglet<reco::Muon>     HLT1Muon     ;
+typedef HLTSinglet<reco::RecoChargedCandidate> HLT1Muon     ;
 typedef HLTSinglet<reco::CaloJet>  HLT1Tau      ; // taus are stored as jets
 typedef HLTSinglet<reco::CaloJet>  HLT1CaloJet  ;
 typedef HLTSinglet<reco::CaloMET>  HLT1CaloMET  ;
@@ -38,9 +42,9 @@ typedef HLTSinglet<reco::RecoEcalCandidate>    HLT1SuperCluster;
 
 // template HLTSmartSinglet<reco::Electron>             ;
 
+typedef HLTSmartSinglet<reco::RecoEcalCandidate>    HLT1SmartPhoton   ;
 typedef HLTSmartSinglet<reco::Electron> HLT1SmartElectron ;
-typedef HLTSmartSinglet<reco::Photon>   HLT1SmartPhoton   ;
-typedef HLTSmartSinglet<reco::Muon>     HLT1SmartMuon     ;
+typedef HLTSmartSinglet<reco::RecoChargedCandidate> HLT1SmartMuon     ;
 typedef HLTSmartSinglet<reco::CaloJet>  HLT1SmartTau      ; // taus are stored as jets
 typedef HLTSmartSinglet<reco::CaloJet>  HLT1SmartCaloJet  ;
 typedef HLTSmartSinglet<reco::CaloMET>  HLT1SmartCaloMET  ;

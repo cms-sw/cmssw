@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/09/20 19:58:39 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/09/24 18:20:12 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -13,21 +13,25 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "DataFormats/METReco/interface/GenMET.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
@@ -45,6 +49,7 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
   tausTag_ (iConfig.getParameter<edm::InputTag>("tausTag")),
   jetsTag_ (iConfig.getParameter<edm::InputTag>("jetsTag")),
   metsTag_ (iConfig.getParameter<edm::InputTag>("metsTag")),
+  httsTag_ (iConfig.getParameter<edm::InputTag>("httsTag")),
   trckTag_ (iConfig.getParameter<edm::InputTag>("trckTag")),
   ecalTag_ (iConfig.getParameter<edm::InputTag>("ecalTag")),
 
@@ -57,6 +62,7 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
    << " t: " << tausTag_.encode()
    << " j: " << jetsTag_.encode()
    << " M: " << metsTag_.encode()
+   << " H: " << httsTag_.encode()
    <<" TR: " << trckTag_.encode()
    <<" SC: " << ecalTag_.encode()
    ;
@@ -96,12 +102,13 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of products from Event
 
-   Handle<PhotonCollection>   photons;
+   Handle<RecoEcalCandidateCollection>   photons;
    Handle<ElectronCollection> electrons;
-   Handle<MuonCollection>     muons;
+   Handle<RecoChargedCandidateCollection>     muons;
    Handle<CaloJetCollection>  taus;
    Handle<CaloJetCollection>  jets;
    Handle<CaloMETCollection>  mets;
+   Handle<METCollection>      htts;
    Handle<RecoChargedCandidateCollection> trcks;
    Handle<RecoEcalCandidateCollection>    ecals;
 
@@ -111,21 +118,22 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(tausTag_,taus     );
    iEvent.getByLabel(jetsTag_,jets     );
    iEvent.getByLabel(metsTag_,mets     );
+   iEvent.getByLabel(httsTag_,htts     );
    iEvent.getByLabel(trckTag_,trcks    );
    iEvent.getByLabel(ecalTag_,ecals    );
 
 
-   // look for at least one g,e,m,t,j,M,TR,SC above its pt cut
+   // look for at least one g,e,m,t,j,M,H,TR,SC above its pt cut
 
    // photons
    int nphot(0);
-   PhotonCollection::const_iterator aphot(photons->begin());
-   PhotonCollection::const_iterator ophot(photons->end());
-   PhotonCollection::const_iterator iphot;
+   RecoEcalCandidateCollection::const_iterator aphot(photons->begin());
+   RecoEcalCandidateCollection::const_iterator ophot(photons->end());
+   RecoEcalCandidateCollection::const_iterator iphot;
    for (iphot=aphot; iphot!=ophot; iphot++) {
      if (iphot->pt() >= min_Pt_) {
        nphot++;
-       ref=RefToBase<Candidate>(PhotonRef(photons,distance(aphot,iphot)));
+       ref=RefToBase<Candidate>(RecoEcalCandidateRef(photons,distance(aphot,iphot)));
        filterobject->putParticle(ref);
      }
    }
@@ -145,13 +153,13 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // muon
    int nmuon(0);
-   MuonCollection::const_iterator amuon(muons->begin());
-   MuonCollection::const_iterator omuon(muons->end());
-   MuonCollection::const_iterator imuon;
+   RecoChargedCandidateCollection::const_iterator amuon(muons->begin());
+   RecoChargedCandidateCollection::const_iterator omuon(muons->end());
+   RecoChargedCandidateCollection::const_iterator imuon;
    for (imuon=amuon; imuon!=omuon; imuon++) {
      if (imuon->pt() >= min_Pt_) {
        nmuon++;
-       ref=RefToBase<Candidate>(MuonRef(muons,distance(amuon,imuon)));
+       ref=RefToBase<Candidate>(RecoChargedCandidateRef(muons,distance(amuon,imuon)));
        filterobject->putParticle(ref);
      }
    }
@@ -195,6 +203,19 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
+   // htts
+   int nhtts(0);
+   METCollection::const_iterator ahtts(htts->begin());
+   METCollection::const_iterator ohtts(htts->end());
+   METCollection::const_iterator ihtts;
+   for (ihtts=ahtts; ihtts!=ohtts; ihtts++) {
+     if (ihtts->pt() >= min_Pt_) {
+       nhtts++;
+       ref=RefToBase<Candidate>(METRef(htts,distance(ahtts,ihtts)));
+       filterobject->putParticle(ref);
+     }
+   }
+
    // trcks
    int ntrck(0);
    RecoChargedCandidateCollection::const_iterator atrcks(trcks->begin());
@@ -223,20 +244,21 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // final filter decision:
    const bool accept ( (nphot>0) && (nelec>0) && (nmuon>0) && (ntaus>0) &&
-		       (njets>0) && (nmets>0) && (ntrck>0) && (necal>0) );
+		       (njets>0) && (nmets>0) && (nhtts>=0) && (ntrck>0) && (necal>0) );
 
    // All filters: put filter object into the Event
    iEvent.put(filterobject);
 
-   LogDebug("") << "Number of g/e/m/t/j/M/SC/TR objects accepted:"
+   LogDebug("") << "Number of g/e/m/t/j/M/H/TR/SC objects accepted:"
 		<< " " << nphot
 		<< " " << nelec
 		<< " " << nmuon
 		<< " " << ntaus
 		<< " " << njets
 		<< " " << nmets
-		<< " " << necal
+		<< " " << nhtts
 		<< " " << ntrck
+		<< " " << necal
                 ;
 
    // return with final filter decision
