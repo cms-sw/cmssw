@@ -64,11 +64,11 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       std::string TjInput;
       std::string RPCDataLabel;
       std::string GlobalRootLabel;
-      std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
+      std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
 
       DaqMonitorBEInterface * dbe;
 
-      std::vector<uint32_t> _idList;
+      std::vector<std::string> _idList;
       std::vector<std::map<RPCDetId, int> > counter;
       std::vector<int> totalcounter;
 };
