@@ -1,12 +1,17 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.1 2007/11/26 16:37:50 wittich Exp $
+// $Id: HLTScalers.h,v 1.2 2007/12/01 19:28:56 wittich Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.2  2007/12/01 19:28:56  wittich
+// - fix cfi file (debug -> verbose, HLT -> FU for TriggerResults  label)
+// - handle multiple beginRun for same run (don't call reset on DQM )
+// - remove PathTimerService from cfg file in test subdir
+//
 // Revision 1.1  2007/11/26 16:37:50  wittich
 // Prototype HLT scaler information.
 //
@@ -61,7 +66,11 @@ private:
   DaqMonitorBEInterface * dbe_;
   MonitorElement *scalers_;
   MonitorElement *detailedScalers_;
+  MonitorElement *l1scalers_;
+  MonitorElement *nProc_;
+  std::vector<MonitorElement*> hltPathNames_;
   edm::InputTag trigResultsSource_;
+  edm::InputTag l1GtDataSource_; // L1 Scalers
   bool resetMe_, verbose_, monitorDaemon_;
   int nev_; // Number of events processed
   int currentRun_;

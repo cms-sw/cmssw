@@ -1,6 +1,11 @@
-// $Id: HLTScalers.cc,v 1.3 2007/11/26 19:43:37 wittich Exp $
+// $Id: HLTScalers.cc,v 1.4 2007/12/01 19:28:56 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.4  2007/12/01 19:28:56  wittich
+// - fix cfi file (debug -> verbose, HLT -> FU for TriggerResults  label)
+// - handle multiple beginRun for same run (don't call reset on DQM )
+// - remove PathTimerService from cfg file in test subdir
+//
 // Revision 1.3  2007/11/26 19:43:37  wittich
 // add cfi, add Reset() on endRun, cfg add tweaks
 //
@@ -22,9 +27,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
+// HLT
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/HLTenums.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+
+// L1
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include "DQM/TrigXMonitor/interface/HLTScalers.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -35,8 +45,9 @@ using namespace edm;
 
 HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   dbe_(0),
-  scalers_(0), detailedScalers_(0),
+  scalers_(0), detailedScalers_(0), l1scalers_(0), nProc_(0),
   trigResultsSource_( ps.getParameter< edm::InputTag >("triggerResults")),
+  l1GtDataSource_( ps.getParameter< edm::InputTag >("l1GtData")),
   resetMe_(true),
   verbose_(ps.getUntrackedParameter < bool > ("verbose", false)),
   monitorDaemon_(ps.getUntrackedParameter<bool>("MonitorDaemon", false)),
@@ -79,16 +90,14 @@ void HLTScalers::beginJob(const edm::EventSetup& c)
     }
     dbe_->setCurrentFolder("L1T/HLTScalers");
 
-    // need to get these dynamically
-    int maxModules = 200;
-    int npaths=100;
 
+    nProc_ = dbe_->bookInt("nProcessed");
 
-    detailedScalers_ = dbe_->book2D("detailedHltScalers", "HLT Scalers", 
-				    npaths, 0, npaths-1,
-				    maxModules, 0, maxModules-1);
-    scalers_ = dbe_->book1D("hltScalers", "HLT scalers",
-			    npaths, -0.5, npaths-1.5);
+    // fixed - only for 128 algo bits right now
+    l1scalers_ = dbe_->book1D("l1Scalers", "L1 scalers (locally derived)",
+			      128, -0.5, 127.5);
+    // other ME's are now found on the first event of the new run, 
+    // when we know more about the HLT configuration.
   
   }
   return;
@@ -96,60 +105,97 @@ void HLTScalers::beginJob(const edm::EventSetup& c)
 
 void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 {
-  edm::Handle<TriggerResults> results;
-  bool b = e.getByLabel(trigResultsSource_, results);
+  nProc_->Fill(++nev_);
+
+  edm::Handle<TriggerResults> hltResults;
+  bool b = e.getByLabel(trigResultsSource_, hltResults);
   if ( !b ) {
-    if ( verbose_ ) {
-      std::cout << "HLTScalers::analyze: getByLabel failed with label " 
-		<< trigResultsSource_
-		<< std::endl;;
-    }
+    edm::LogInfo("HLTScalers") << "HLTScalers::analyze: getByLabel"
+			       << " for TriggerResults failed"
+			       << " with label " << trigResultsSource_;
     return;
   }
   
   
-  int npath = results->size();
+  int npath = hltResults->size();
   if ( verbose_ ) {
     std::cout << "HLTScalers::analyze: npath = " << npath << std::endl;
   }
 
-  // this is a scaler at the beginning of a run. I should
-  // also dynamically set up the size of the histogram here.
+  // on the first event of a new run we book new ME's
   if (resetMe_ ) {
     if ( verbose_) {
       std::cout << "HLTScalers::analyze(): new run. dump path for this evt " 
 		<< e.id()
 		<< std::endl;
-      std::cout << *results << std::endl;
+      std::cout << *hltResults << std::endl;
       std::cout << std::endl;
-//       for ( int i = 0; i < npath; ++i ) {
-// 	;
-//       }
     }
-    scalers_->Reset();
-    detailedScalers_->Reset();
+    // need to get this dynamically
+    int maxModules = 200;
+    int npaths=hltResults->size();
+
+    detailedScalers_ = dbe_->book2D("detailedHltScalers", "HLT Scalers", 
+				    npaths, -0.5, npaths-0.5,
+				    maxModules, 0, maxModules-1);
+    scalers_ = dbe_->book1D("hltScalers", "HLT scalers",
+			    npaths, -0.5, npaths-0.5);
+
+    l1scalers_->Reset(); // should never have any effect?
     resetMe_ = false;
+    // save path names in DQM-accessible format
+    TriggerNames names(*hltResults);
+    int q =0;
+    for ( TriggerNames::Strings::const_iterator 
+	    j = names.triggerNames().begin();
+	  j !=names.triggerNames().end(); ++j ) {
+      if ( verbose_ )
+	std::cout << q << ": " << *j << std::endl;
+      char pname[256];
+      snprintf(pname, 256, "path%02d", q++);
+      MonitorElement *e = dbe_->bookString(pname, *j);
+      hltPathNames_.push_back(e);  // I don't ever use these....
+    }
   }
   int nm = 0;
   for ( int i = 0; i < npath; ++i ) {
     if ( verbose_ ) {
-      std::cout << "i = " << i << ", result = " << results->state(i)
-		<< ", index = " << results->index(i) << std::endl;
+      // state returns 0 on ready, 1 on accept, 2 on fail, 3 on exception.
+      // these are defined in HLTEnums.h
+      std::cout << "i = " << i << ", result = " << hltResults->state(i)
+		<< ", index = " << hltResults->index(i) << std::endl;
     }
-    nm += results->index(i);
-    for ( unsigned int j = 0; j < results->index(i); ++j ) {
+    nm += hltResults->index(i);
+    for ( unsigned int j = 0; j < hltResults->index(i); ++j ) {
       detailedScalers_->Fill(i,j);
     }
-    if ( results->state(i) == hlt::Pass) {
+    if ( hltResults->state(i) == hlt::Pass) {
       scalers_->Fill(i);
     }
   }
-  if ( verbose_ ) {
-    std::cout << "np, nm = " 
-	      << npath
-	      << ", " 
-	      << nm << std::endl;
+
+  // now the L1 equivalent. snarfed from L1TGT.cc
+  // get Global Trigger decision and the decision word
+  // these are locally derived; the HW scaler information is 
+  // the definitive source for this data.
+  edm::Handle<L1GlobalTriggerReadoutRecord> myGTReadoutRecord;
+  bool t = e.getByLabel(l1GtDataSource_,myGTReadoutRecord);
+  if ( ! t ) {
+    edm::LogInfo("HLTScalers") << "can't find L1GlobalTriggerReadoutRecord "
+			       << "with label " << l1GtDataSource_.label() ;
   }
+  else {
+    DecisionWord gtDecisionWord = myGTReadoutRecord->decisionWord();
+    // vector of bool
+    if ( ! gtDecisionWord.empty() > 0 ) { // if board not there this is zero
+      for ( int i = 0; i < 127; ++i ) {
+	if ( gtDecisionWord[i] ) {
+	  l1scalers_->Fill(i);
+	}
+      }
+    }
+  }
+
 }
 
 
@@ -168,7 +214,7 @@ void HLTScalers::beginRun(const edm::Run& run, const edm::EventSetup& c)
 	      << run.id()
 	      << std::endl;
   }
-  if ( currentRun_ != run.id().run() ) {
+  if ( currentRun_ != int(run.id().run()) ) {
     resetMe_ = true;
     currentRun_ = run.id().run();
   }
@@ -182,7 +228,7 @@ void HLTScalers::endRun(const edm::Run& run, const edm::EventSetup& c)
       	      << run.id()
 	      << std::endl;
   }
-  if ( currentRun_ != run.id().run() ) {
+  if ( currentRun_ != int(run.id().run()) ) {
     resetMe_ = true;
     currentRun_ = run.id().run();
   }

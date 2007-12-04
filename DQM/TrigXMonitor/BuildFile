@@ -5,6 +5,7 @@
 <use name=DQMServices/CoreROOT>
 <use name=DataFormats/HLTReco>
 <use name=DQMServices/Components>
+<use name=DataFormats/L1GlobalTrigger>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMTrigXMonitor>
@@ -15,4 +16,5 @@
    <use name=DQMServices/CoreROOT>
    <use name=DataFormats/HLTReco>
    <use name=DQMServices/Components>
+   <use name=DataFormats/L1GlobalTrigger>
 </export>
