@@ -1,10 +1,16 @@
 #include <cmath>
 #include "SimG4Core/CustomPhysics/interface/Decay3Body.h"
 
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Boost.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "Math/GenVector/Rotation3D.h"
+#include "Math/GenVector/EulerAngles.h"
+#include "Math/GenVector/Boost.h"
+#include <vector> 
+#include <cmath>
+
 #include "Randomize.hh"
 
 Decay3Body::Decay3Body() {
@@ -14,10 +20,10 @@ Decay3Body::~Decay3Body() {
 }
 
 
-void Decay3Body::doDecay(const HepLorentzVector & mother,
-                               HepLorentzVector & daughter1,
-                               HepLorentzVector & daughter2,
-                               HepLorentzVector & daughter3) {
+void Decay3Body::doDecay(const G4LorentzVector & mother,
+                               G4LorentzVector & daughter1,
+                               G4LorentzVector & daughter2,
+                               G4LorentzVector & daughter3) {
 
   double m0 = mother.m();
   double m1 = daughter1.m();
@@ -26,6 +32,7 @@ void Decay3Body::doDecay(const HepLorentzVector & mother,
   double sumM2 = m0*m0 + m1*m1 + m2*m2 + m3*m3;
   double tolerance = 1.0e-9;
 
+  math::XYZTLorentzVectorD mmm(mother.px(),mother.py(),mother.pz(),mother.e());
 
   if (m0 < m1+m2+m3) {
 	std::cout << "Error: Daughters too heavy!" << std::endl;
@@ -80,45 +87,62 @@ void Decay3Body::doDecay(const HepLorentzVector & mother,
 
 // Find the four vectors of the particles in a chosen (i.e. simple) frame:
     double xi    = 2.0 * pi * G4UniformRand();
-    Hep3Vector q1(0.0,0.0,p1);
-    Hep3Vector q2( sin(acos(cos12))*cos(xi)*p2, sin(acos(cos12))*sin(xi)*p2,cos12*p2);
-    Hep3Vector q3(-sin(acos(cos13))*cos(xi)*p3,-sin(acos(cos13))*sin(xi)*p3,cos13*p3);
+    math::XYZVectorD q1(0.0,0.0,p1);
+    math::XYZVectorD q2( sin(acos(cos12))*cos(xi)*p2, sin(acos(cos12))*sin(xi)*p2,cos12*p2);
+    math::XYZVectorD q3(-sin(acos(cos13))*cos(xi)*p3,-sin(acos(cos13))*sin(xi)*p3,cos13*p3);
 
 // Rotate all three daughters momentum with the angles theta and phi:
     double theta = acos(2.0 * G4UniformRand() - 1.0);
     double phi   = 2.0 * pi * G4UniformRand();
     double psi   = 2.0 * pi * G4UniformRand();
-    q1.rotate(phi,theta,psi);
-    q2.rotate(phi,theta,psi);
-    q3.rotate(phi,theta,psi);
-    daughter1 = HepLorentzVector(q1,e1);
-    daughter2 = HepLorentzVector(q2,e2);
-    daughter3 = HepLorentzVector(q3,e3);
+    
+    ROOT::Math::EulerAngles ang(phi,theta,psi);
+    ROOT::Math::Rotation3D rot(ang);
 
-// Check of total angle and momentum:
+    math::XYZVectorD q1rot = rot*q1;
+    math::XYZVectorD q2rot = rot*q2;
+    math::XYZVectorD q3rot = rot*q3;
+
+    math::XYZTLorentzVectorD daughter1_orig(q1rot.X(),q1rot.Y(),q1rot.Z(),e1);
+    math::XYZTLorentzVectorD daughter2_orig(q2rot.X(),q2rot.Y(),q2rot.Z(),e2);
+    math::XYZTLorentzVectorD daughter3_orig(q3rot.X(),q3rot.Y(),q3rot.Z(),e3);
+
+    ROOT::Math::Boost cmboost(mmm.BoostToCM());
+
+    // Check of total angle and momentum:
     if (acos(cos12)+acos(cos13)+acos(cos23)-2.0*pi > tolerance)
-	                           std::cout << "Error: Total angle not 2pi! " <<
-                    acos(cos12)+acos(cos13)+acos(cos23)-2.0*pi << std::endl;
-    if (fabs(daughter1.px()+daughter2.px()+daughter3.px())/GeV > tolerance)
-                            std::cout << "Error: Total 3B Px not conserved! " << 
-            (daughter1.px()+daughter2.px()+daughter3.px())/GeV << std::endl;
-    if (fabs(daughter1.py()+daughter2.py()+daughter3.py())/GeV > tolerance)
-                            std::cout << "Error: Total 3B Py not conserved! " << 
-            (daughter1.py()+daughter2.py()+daughter3.py())/GeV << std::endl;
-    if (fabs(daughter1.pz()+daughter2.pz()+daughter3.pz())/GeV > tolerance)
-                            std::cout << "Error: Total 3B Pz not conserved! " << 
-            (daughter1.pz()+daughter2.pz()+daughter3.pz())/GeV << std::endl;
+      std::cout << "Error: Total angle not 2pi! " <<
+	acos(cos12)+acos(cos13)+acos(cos23)-2.0*pi << std::endl;
+    if (fabs(daughter1_orig.px()+daughter2_orig.px()+daughter3_orig.px())/GeV > tolerance)
+      std::cout << "Error: Total 3B Px not conserved! " << 
+	(daughter1_orig.px()+daughter2_orig.px()+daughter3_orig.px())/GeV << std::endl;
+    if (fabs(daughter1_orig.py()+daughter2_orig.py()+daughter3_orig.py())/GeV > tolerance)
+      std::cout << "Error: Total 3B Py not conserved! " << 
+	(daughter1_orig.py()+daughter2_orig.py()+daughter3_orig.py())/GeV << std::endl;
+    if (fabs(daughter1_orig.pz()+daughter2_orig.pz()+daughter3_orig.pz())/GeV > tolerance)
+      std::cout << "Error: Total 3B Pz not conserved! " << 
+	(daughter1.pz()+daughter2.pz()+daughter3.pz())/GeV << std::endl;
+    
+    // Boost the daughters back to the frame of the mother:
 
-// Boost the daughters back to the frame of the mother:
-    daughter1.boost(mother.px()/mother.e(),
-                    mother.py()/mother.e(),
-                    mother.pz()/mother.e());
-    daughter2.boost(mother.px()/mother.e(),
-                    mother.py()/mother.e(),
-                    mother.pz()/mother.e());
-    daughter3.boost(mother.px()/mother.e(),
-                    mother.py()/mother.e(),
-                    mother.pz()/mother.e());
+    math::XYZTLorentzVectorD temp1(cmboost(daughter1_orig));
+    math::XYZTLorentzVectorD temp2(cmboost(daughter2_orig));
+    math::XYZTLorentzVectorD temp3(cmboost(daughter3_orig));
+    
+    daughter1.setPx(temp1.Px());
+    daughter1.setPy(temp1.Py());
+    daughter1.setPz(temp1.Pz());
+    daughter1.setE(temp1.e());
+
+    daughter2.setPx(temp2.Px());
+    daughter2.setPy(temp2.Py());
+    daughter2.setPz(temp2.Pz());
+    daughter2.setE(temp2.e());
+
+    daughter3.setPx(temp3.Px());
+    daughter3.setPy(temp3.Py());
+    daughter3.setPz(temp3.Pz());
+    daughter3.setE(temp3.e());
 
     return;
   }
