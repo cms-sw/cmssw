@@ -33,53 +33,22 @@ RPCGeometryBuilderFromDDD::~RPCGeometryBuilderFromDDD()
 
 RPCGeometry* RPCGeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants)
 {
+  std::string attribute = "ReadOutName"; // could come from .orcarc
+  std::string value     = "MuonRPCHits";    // could come from .orcarc
+  DDValue val(attribute, value, 0.0);
 
-  try {
+  // Asking only for the MuonRPC's
+  DDSpecificsFilter filter;
+  filter.setCriteria(val, // name & value of a variable 
+		     DDSpecificsFilter::matches,
+		     DDSpecificsFilter::AND, 
+		     true, // compare strings otherwise doubles
+		     true // use merged-specifics or simple-specifics
+		     );
+  DDFilteredView fview(*cview);
+  fview.addFilter(filter);
 
-
-    std::string attribute = "ReadOutName"; // could come from .orcarc
-    std::string value     = "MuonRPCHits";    // could come from .orcarc
-    DDValue val(attribute, value, 0.0);
-
-    // Asking only for the MuonRPC's
-    DDSpecificsFilter filter;
-    filter.setCriteria(val, // name & value of a variable 
-		       DDSpecificsFilter::matches,
-		       DDSpecificsFilter::AND, 
-		       true, // compare strings otherwise doubles
-		       true // use merged-specifics or simple-specifics
-		       );
-    DDFilteredView fview(*cview);
-    fview.addFilter(filter);
-
-    return this->buildGeometry(fview, muonConstants);
-  }
-  catch (const DDException & e ) {
-    std::cerr <<"RPCGeometryBuilderFromDDD::build() : "
-	      <<"DDD Exception: something went wrong during XML parsing!" 
-	      << std::endl
-	      << "  Message: " << e << std::endl
-	      << "  Terminating execution ... " << std::endl;
-    throw;
-  }
-  catch (const cms::Exception& e){  
-    std::cerr <<"RPCGeometryBuilderFromDDD::build() : "
-	      <<"an unexpected exception occured: " 
-	      << e << std::endl;   
-    throw;
-  }
-  catch (const std::exception& e) {
-    std::cerr <<"RPCGeometryBuilderFromDDD::build() : "
-	      <<"an unexpected exception occured: " 
-	      << e.what() << std::endl; 
-    throw;
-  }
-  catch (...) {
-    std::cerr <<"RPCGeometryBuilderFromDDD::build() : "
-	      <<"An unexpected exception occured!" << std::endl
-	      << "  Terminating execution ... " << std::endl;
-    std::unexpected();           
-  }
+  return this->buildGeometry(fview, muonConstants);
 }
 
 RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants)
