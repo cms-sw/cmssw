@@ -28,7 +28,8 @@ if [ ! -n "$1" ]
 then
 
 echo ""
-echo "This script produces Root histograms of ADC counts using the given samples, given supermodules, and given channels "
+echo "This script produces Root TGraphs of crystals in a sideXside square matrix around any crystal whose amplitude exceeds threshold."
+echo "By specifying cry, the threshold selection is disabled and graphs of crystals are made around the given cry only."
 echo ""
 echo "Options:"
 echo ""
@@ -41,6 +42,7 @@ echo "      -meb|--mask_ieb_id    mask_ieb_id     list of sm barrel ids to mask;
 echo "      -mcry|--mask_cry      mask_cry        list of channels (use hashedIndex) to mask; default is no masking"
 echo "      -t|--threshold        threshold       ADC count threshold to trigger graphing of cluster around seed channel; default is 12.0"
 echo "      -s|--side             side            side of the square centered on seed cry to graph; default is 3"
+echo "      -cry|--seed_cry       seed_crystal    crystal number (use hashedIndex) to fix as center cry (disables automatic threshold selection)"
 echo ""
 echo "To specify multiple fed_id's/ieb_id's/cry's to mask use a comma-separated list in between double quotes, e.g., \"1,2,3\" "
 exit
@@ -60,6 +62,7 @@ mcry=-1
 
 threshold=12.0
 side=3
+seed_cry=0
 
 first_event=1
 last_event=9999
@@ -104,6 +107,10 @@ last_event=9999
                 threshold=$2
                 ;;
 
+      -cry|--seed_cry)
+                seed_cry=$2
+                ;;
+
     esac
     shift       # Verifica la serie successiva di parametri.
 
@@ -126,6 +133,7 @@ echo "crys to mask:                                 ${mcry} (-1 => no masking)"
 echo "amplitude threshold:                          $threshold"
 
 echo "side:                                         $side"
+echo "seed crystal:                                 $seed_cry (0 => seed selected via amplitude threshold)"
 
 
 echo ""
@@ -153,22 +161,20 @@ fi
 cat > "$cfg_path$data_file".graph.$$.cfg <<EOF
 
 
+process ECALMIPGRAPHS = { 
 
-process TESTGRAPHDUMPER = { 
+include "EventFilter/EcalRawToDigiDev/data/EcalUnpackerMapping.cfi"
+include "EventFilter/EcalRawToDigiDev/data/EcalUnpackerData.cfi"  
 
-    include "EventFilter/EcalRawToDigiDev/data/EcalUnpackerMapping.cfi"
-    include "EventFilter/EcalRawToDigiDev/data/EcalUnpackerData.cfi"  
+include "Geometry/CaloEventSetup/data/CaloTopology.cfi"
+include "Geometry/EcalCommonData/data/EcalOnly.cfi"
+include "Geometry/CaloEventSetup/data/CaloGeometry.cff"
 
-    include "Geometry/CaloEventSetup/data/CaloTopology.cfi"
-    include "Geometry/EcalCommonData/data/EcalOnly.cfi"
-    include "Geometry/CaloEventSetup/data/CaloGeometry.cff"
+untracked PSet maxEvents = {untracked int32 input = $last_event}
 
-    untracked PSet maxEvents = {untracked int32 input = $last_event}
-
-    $input_module
+$input_module
 
 #module ecalUncalibHit = ecalMaxSampleUncalibRecHit from "RecoLocalCalo/EcalRecProducers/data/ecalMaxSampleUncalibRecHit.cfi"
-
 module ecalUncalibHit = ecalFixedAlphaBetaFitUncalibRecHit from "RecoLocalCalo/EcalRecProducers/data/ecalFixedAlphaBetaFitUncalibRecHit.cfi"
      replace ecalUncalibHit.EBdigiCollection = ecalEBunpacker:ebDigis
      replace ecalUncalibHit.EEdigiCollection = ecalEBunpacker:eeDigis
@@ -185,33 +191,17 @@ es_source src1 = EcalTrivialConditionRetriever{
                                        -0.500, -0.500, -0.400,  0.000 }
  }
 
-    module dumpMip = EcalMipGraphs {
+include "CaloOnlineTools/EcalTools/data/ecalMipGraphs.cfi"
+      replace ecalMipGraphs.maskedChannels = {${mcry}}
+      replace ecalMipGraphs.maskedFEDs = {${mfed}}
+      replace ecalMipGraphs.maskedEBs = {"${mieb}"}
+      replace ecalMipGraphs.amplitudeThreshold = $threshold
+      replace ecalMipGraphs.fileName =  '$data_file.$$.graph'
+      replace ecalMipGraphs.side = $side
+      replace ecalMipGraphs.seedCry = $seed_cry
+      
 
-      InputTag EcalUncalibratedRecHitCollection = ecalUncalibHit:EcalUncalibRecHitsEB
-      InputTag EBDigiCollection                   = ecalEBunpacker:ebDigis
-
-      # use hashed index to mask channels
-      # add a simple description of hashIndex (hhahhahhh...)
-      untracked vint32 maskedChannels           = {${mcry}}
-
-      # masked FEDs
-      untracked vint32 maskedFEDs = {${mfed}}
-
-      # masked EBids
-      untracked vstring maskedEBs = {"${mieb}"}
-
-      # parameter for the amplitude threshold
-      untracked double amplitudeThreshold = $threshold
-
-      # parameter for the name of the output root file with TH1F
-      untracked string fileName =  '$data_file.$$.graph'
-
-      # parameter for side of square
-      untracked int32 side = $side
-
-    }
-
-    path p = {ecalEBunpacker, ecalUncalibHit, dumpMip}
+path p = {ecalEBunpacker, ecalUncalibHit, ecalMipGraphs}
 
 }
 

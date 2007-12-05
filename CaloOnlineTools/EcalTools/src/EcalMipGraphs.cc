@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.7 2007/12/01 17:58:15 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.8 2007/12/03 23:16:28 scooper Exp $
 //
 //
 
@@ -73,6 +73,7 @@ class EcalMipGraphs : public edm::EDAnalyzer {
   edm::InputTag EBDigis_;
   int runNum_;
   int side_;
+  int givenSeedCry_;
   double threshold_;
   std::string fileName_;
 
@@ -92,7 +93,6 @@ class EcalMipGraphs : public edm::EDAnalyzer {
   
 };
 
-using namespace cms;
 using namespace edm;
 using namespace std;
 
@@ -112,6 +112,7 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
   EBDigis_ (iConfig.getParameter<edm::InputTag>("EBDigiCollection")),
   runNum_(-1),
   side_ (iConfig.getUntrackedParameter<int>("side", 3)),
+  givenSeedCry_ (iConfig.getUntrackedParameter<int>("seedCry",0)),
   threshold_ (iConfig.getUntrackedParameter<double>("amplitudeThreshold", 12.0)),
   fileName_ (iConfig.getUntrackedParameter<std::string>("fileName", std::string("ecalMipGraphs")))
 {
@@ -186,7 +187,6 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     EcalUncalibratedRecHit hit = (*hitItr);
     int ic = 0;
     int hashedIndex= 0;
-    int ism = 0;
     //EEDetId eeDet;
     //cout << "Subdetector field is: " << hit.id().subdetId() << endl;
     EBDetId ebDet = hit.id();
@@ -194,7 +194,6 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //if(ebDet.isValid())
     //{
     ic = ebDet.ic();
-    ism = ebDet.ism();
     hashedIndex = ebDet.hashedIndex();
     EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(ebDet);
     //}
@@ -231,13 +230,20 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       LogWarning("EcalMipGraphs") << "skipping uncalRecHit for channel: " << ic << " with amplitude " << ampli ;
       continue;
-    }      
-
-    if (ampli > threshold_ )
-    { 
+    } 
+    
+    if(ampli > threshold_ && !givenSeedCry_)
+    {
+      // only produce output if no seed cry is given by user and amplitude makes cut
       LogWarning("EcalMipGraphs") << "channel: " << ic << "  ampli: " << ampli << " jitter " << jitter
         << " Event: " << ievt << " FED: " << FEDid;
-     
+    }
+    
+    if(hashedIndex == givenSeedCry_ || (!givenSeedCry_ && ampli > threshold_))
+    {
+      //debug
+      cout << "fill event: " << ievt << endl;
+
       eventsAndSeedCrys_->Fill(ievt, ic, FEDid);
       vector<DetId> neighbors = caloTopo->getWindow(ebDet,side_,side_);
       for(vector<DetId>::const_iterator itr = neighbors.begin(); itr != neighbors.end(); ++itr)
@@ -254,7 +260,7 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(std::set<EBDetId>::const_iterator chnlItr = listAllChannels.begin(); chnlItr!= listAllChannels.end(); ++chnlItr)
   {
       //find digi we need  -- can't get find() to work; need DataFrame(DetId det) to work? 
-      //TODO: use find(), lanching it twice over EB and EE collections
+      //TODO: use find(), launching it twice over EB and EE collections
 
     EBDigiCollection::const_iterator digiItr = digis->begin();
     while(digiItr != digis->end() && ((*digiItr).id()!=*chnlItr))
