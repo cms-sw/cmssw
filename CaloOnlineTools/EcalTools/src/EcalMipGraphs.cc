@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.8 2007/12/03 23:16:28 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.9 2007/12/05 13:32:29 scooper Exp $
 //
 //
 
@@ -241,9 +241,6 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     if(hashedIndex == givenSeedCry_ || (!givenSeedCry_ && ampli > threshold_))
     {
-      //debug
-      cout << "fill event: " << ievt << endl;
-
       eventsAndSeedCrys_->Fill(ievt, ic, FEDid);
       vector<DetId> neighbors = caloTopo->getWindow(ebDet,side_,side_);
       for(vector<DetId>::const_iterator itr = neighbors.begin(); itr != neighbors.end(); ++itr)
