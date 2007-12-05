@@ -198,7 +198,7 @@ vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
       }
       TransientVertex newvtx = cleanUp ( tmpvtx );
       ret.push_back ( newvtx );
-      erase ( newvtx, remainingtrks, theWeightThreshold );
+      erase ( newvtx, remainingtrks, theMinWeight );
       if ( n_tracks == remainingtrks.size() )
       {
         if ( usespot )
