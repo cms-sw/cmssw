@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2007/12/04 17:00:31 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/12/05 14:24:02 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -66,7 +66,7 @@ namespace trigger
     TriggerEventWithRefs(): TriggerRefsCollections(), filterObjects_() { }
 
     /// setters - to build EDProduct
-    void addFilterObject(const std::string filterLabel, const TriggerFilterObjectWithRefs& tfowr) {
+    void addFilterObject(const std::string& filterLabel, const TriggerFilterObjectWithRefs& tfowr) {
       filterObjects_.push_back(
         TriggerFilterObject(filterLabel, 
 			    append(tfowr.photonIds(),tfowr.photonRefs()),
@@ -101,43 +101,43 @@ namespace trigger
 
     /// extract Ref<C>s for a specific filter and of specific physics type
 
-    void getObjects(size_type filter, int id, VRphotons& photons) const {
+    void getObjects(size_type filter, int id, VRphoton& photons) const {
       const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).photons_);
       const size_type end(filterObjects_.at(filter).photons_);
       TriggerRefsCollections::getObjects(id,photons,begin,end);
     }
 
-    void getObjects(size_type filter, int id, VRelectrons& electrons) const {
+    void getObjects(size_type filter, int id, VRelectron& electrons) const {
       const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).electrons_);
       const size_type end(filterObjects_.at(filter).electrons_);
       TriggerRefsCollections::getObjects(id,electrons,begin,end);
     }
 
-    void getObjects(size_type filter, int id, VRmuons& muons) const {
+    void getObjects(size_type filter, int id, VRmuon& muons) const {
       const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).muons_);
       const size_type end(filterObjects_.at(filter).muons_);
       TriggerRefsCollections::getObjects(id,muons,begin,end);
     }
 
-    void getObjects(size_type filter, int id, VRjets& jets) const {
+    void getObjects(size_type filter, int id, VRjet& jets) const {
       const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).jets_);
       const size_type end(filterObjects_.at(filter).jets_);
       TriggerRefsCollections::getObjects(id,jets,begin,end);
     }
 
-    void getObjects(size_type filter, int id, VRcomposites& composites) const {
+    void getObjects(size_type filter, int id, VRcomposite& composites) const {
       const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).composites_);
       const size_type end(filterObjects_.at(filter).composites_);
       TriggerRefsCollections::getObjects(id,composites,begin,end);
     }
 
-    void getObjects(size_type filter, int id, VRmets& mets) const {
+    void getObjects(size_type filter, int id, VRmet& mets) const {
       const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).mets_);
       const size_type end(filterObjects_.at(filter).mets_);
       TriggerRefsCollections::getObjects(id,mets,begin,end);
     }
 
-    void getObjects(size_type filter, int id, VRhts& hts) const {
+    void getObjects(size_type filter, int id, VRht& hts) const {
       const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).hts_);
       const size_type end(filterObjects_.at(filter).hts_);
       TriggerRefsCollections::getObjects(id,hts,begin,end);
