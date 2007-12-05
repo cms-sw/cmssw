@@ -1,7 +1,9 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.37 2007/11/28 18:52:20 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.38 2007/11/29 17:29:27 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 using namespace sistrip;
@@ -388,10 +390,6 @@ void SiStripConfigDb::openDbConnection() {
   dcuDetIdMap_.clear();
   fedIds_.clear();
   
-  edm::LogVerbatim(mlConfigDb_) 
-    << "[SiStripConfigDb::" << __func__ << "]"
-    << " Opened connection to database!";
-  
 }
 
 // -----------------------------------------------------------------------------
@@ -416,10 +414,6 @@ void SiStripConfigDb::closeDbConnection() {
   } catch (...) { handleException( __func__, "Attempting to close database connection..." ); }
   factory_ = 0; 
 
-  edm::LogVerbatim(mlConfigDb_) 
-    << "[SiStripConfigDb::" << __func__ << "]"
-    << " Closed connection to database!";
-
 }
 
 // -----------------------------------------------------------------------------
@@ -441,37 +435,7 @@ DeviceFactory* const SiStripConfigDb::deviceFactory( string method_name ) const 
 //
 void SiStripConfigDb::usingDatabase() {
   
-  // Check TNS_ADMIN env var
-  string tns_admin = "TNS_ADMIN";
-  string env_var = "/afs/cern.ch/project/oracle/admin";
-  if ( getenv(tns_admin.c_str()) != NULL ) { 
-    string tmp = getenv(tns_admin.c_str()); 
-    if ( tmp == "." ) { 
-      edm::LogWarning(mlConfigDb_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Env. var. TNS_ADMIN is set to 'pwd'!"
-	<< " Setting to '" << env_var << "'...";
-      setenv(tns_admin.c_str(),env_var.c_str(),1); 
-    } else if ( tmp != env_var ) { 
-      edm::LogWarning(mlConfigDb_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Env. var. TNS_ADMIN is set to '" << tmp;
-      //<< "'! Setting to '" << env_var << "'...";
-      //setenv(tns_admin.c_str(),env_var.c_str(),1); 
-    } else {
-      LogTrace(mlConfigDb_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Env. var. TNS_ADMIN is set to: " << tmp;
-    }
-  } else {
-    edm::LogWarning(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " Env. var. TNS_ADMIN is not set!"
-      << " Setting to '" << env_var << "'...";
-    setenv(tns_admin.c_str(),env_var.c_str(),1); 
-  }
-  
-  // Retrieve connection params from CONFDB env. var. and overwrite .cfg values 
+  // Retrieve connection params from CONFDB env. var. and override .cfg values 
   string user = "";
   string passwd = "";
   string path = "";
@@ -496,25 +460,28 @@ void SiStripConfigDb::usingDatabase() {
   } else if ( dbParams_.user_ != null_ && 
 	      dbParams_.passwd_ != null_ && 
 	      dbParams_.path_ != null_ ) { 
-    LogTrace(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " Setting \"user/passwd@path\" to \""
-      << user << "/" << passwd << "@" << path
-      << "\" using ConfDb read from .cfg file";
+    stringstream ss;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " Setting \"user/passwd@path\" to \""
+       << dbParams_.user_ << "/" 
+       << dbParams_.passwd_ << "@" 
+       << dbParams_.path_ 
+       << "\" using 'ConfDb' configurable read from .cfg file";
+    LogTrace(mlConfigDb_) << ss.str();
   } else {
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Unable to retrieve 'user/passwd@path' parameters"
       << " from 'CONFDB' environmental variable or .cfg file"
       << " (present value is \"" 
-      << dbParams_.user_ << "/" 
-      << dbParams_.passwd_ << "@" 
-      << dbParams_.path_ 
+      << user << "/" 
+      << passwd << "@" 
+      << path 
       << "\"). Aborting connection to database...";
     return;
   }
   
-  // Retrieve partition name from ENV_CMS_TK_PARTITION env. var. and overwrite .cfg value
+  // Retrieve partition name from ENV_CMS_TK_PARTITION env. var. and override .cfg value
   string partition = "ENV_CMS_TK_PARTITION";
   if ( getenv(partition.c_str()) != NULL ) { 
     stringstream ss;
@@ -530,21 +497,77 @@ void SiStripConfigDb::usingDatabase() {
     LogTrace(mlConfigDb_) << ss.str() << endl;
     dbParams_.partition_ = getenv( partition.c_str() ); 
   } else if ( dbParams_.partition_ != "" ) {
-    LogTrace(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " Setting \"partition\" to \""
-      << getenv( partition.c_str() )
-      << "\" using 'Partition' read from .cfg file";
+    std::stringstream ss;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " Setting \"partition\" to \""
+       << dbParams_.partition_
+       << "\" using 'Partition' configurable read from .cfg file";
+    LogTrace(mlConfigDb_) << ss.str();
   } else { 
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Unable to retrieve 'partition' parameter"
-      << " from 'CONFDB' environmental variable or .cfg file"
-      << " (present value is \"" 
-      << dbParams_.partition_
-      << "\"). Aborting connection to database...";
+      << " from 'CONFDB' environmental variable or .cfg file!"
+      << " Aborting connection to database...";
     return;
   } 
+
+  // Check TNS_ADMIN environmetal variable
+  std::string pattern = "TNS_ADMIN";
+  std::string tns_admin = "/afs/cern.ch/project/oracle/admin";
+  if ( getenv( pattern.c_str() ) != NULL ) { 
+    tns_admin = getenv( pattern.c_str() ); 
+    LogTrace(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " TNS_ADMIN is set to: \"" 
+      << tns_admin << "\"";
+  } else {
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " TNS_ADMIN is not set!"
+      << " Trying to use /afs and setting to: \"" 
+      << tns_admin << "\"";
+  }
+  
+  // Remove trailing slash and set TNS_ADMIN
+  if ( tns_admin.empty() ) { tns_admin = "."; }
+  std::string slash = tns_admin.substr( tns_admin.size()-1, 1 ); 
+  if ( slash == sistrip::dir_ ) { tns_admin = tns_admin.substr( 0, tns_admin.size()-1 ); }
+  setenv( pattern.c_str(), tns_admin.c_str(), 1 ); 
+  
+  // Check if database is found in tnsnames.ora file
+  std::string filename( tns_admin + "/tnsnames.ora" ); 
+  std::ifstream tnsnames_ora( filename.c_str() );
+  bool ok = false;
+  if ( tnsnames_ora.is_open() ) {
+    std::string line;
+    while ( !tnsnames_ora.eof() ) {
+      getline( tnsnames_ora, line );
+      if ( !dbParams_.path_.empty() && 
+	   line.find( dbParams_.path_ ) != std::string::npos ) { ok = true; }
+    }
+  } else {
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Cannot open file \""
+      << filename << "\"";
+  }
+  
+  if ( ok ) {
+    LogTrace(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Found database account \"" 
+      << dbParams_.path_ << "\" in file \""
+      << filename << "\"!";
+  } else {
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Cannot find database account \"" 
+      << dbParams_.path_ << "\" in file \""
+      << filename << "\""
+      << " Aborting connection to database...";
+    return; 
+  }
   
   // Create device factory object
   try { 
