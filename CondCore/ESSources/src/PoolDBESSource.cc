@@ -38,10 +38,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include <cstdlib>
 #include "TagCollectionRetriever.h"
-//
-// static data member definitions
-//
 
+//#include <iostream>
 static
 std::string
 buildName( const std::string& iRecordName, const std::string& iTypeName ) {
@@ -232,19 +230,18 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       usingRecordWithKey( recordKey );
       }    
     }
-
+    /*
       std::map< std::string, cond::TagMetadata >::iterator jt;
       std::map< std::string, cond::TagMetadata >::iterator jtBeg=m_tagCollection.begin();
       std::map< std::string, cond::TagMetadata >::iterator jtEnd=m_tagCollection.end();
-      /*
-	for( jt=jtBeg; jt!=jtEnd; ++jt ){
+      for( jt=jtBeg; jt!=jtEnd; ++jt ){
 	std::cout<<"tag "<<jt->first<<std::endl;
 	std::cout<<"pfn "<<jt->second.pfn<<std::endl;
 	std::cout<<"recordname "<<jt->second.recordname<<std::endl;
 	std::cout<<"objectname "<<jt->second.objectname<<std::endl;
 	std::cout<<"labelname "<<jt->second.labelname<<std::endl;
-	}
-      */
+      }
+    */
   }
   this->fillRecordToIOVInfo();
   }catch(const std::exception& er){

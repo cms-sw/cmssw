@@ -4,7 +4,6 @@
 //
 // Author:      Zhen Xie
 //
-//#include <iostream>
 #include "TagCollectionRetriever.h"
 #include "TagDBNames.h"
 #include "RelationalAccess/ISchema.h"
@@ -17,6 +16,7 @@
 #include "CoralBase/AttributeSpecification.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+//#include <iostream>
 cond::TagCollectionRetriever::TagCollectionRetriever( cond::CoralTransaction& coraldb ):m_coraldb(&coraldb){
 }
 cond::TagCollectionRetriever::~TagCollectionRetriever(){}
@@ -30,6 +30,8 @@ cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
     std::pair<std::string,std::string> treenodepair=parseglobaltag(globaltag);
     std::string treename=treenodepair.first;
     std::string nodename=treenodepair.second;
+    //std::cout<<"treename "<<treename<<std::endl;
+    //std::cout<<"nodename "<<nodename<<std::endl;
     std::string treetablename(cond::TagDBNames::tagTreeTablePrefix());
     if( !treename.empty() ){
       for(unsigned int i=0; i<treename.size(); ++i){
@@ -38,6 +40,7 @@ cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
       treetablename+="_";
       treetablename+=treename;
     }
+    //std::cout<<"treetablename "<<treetablename<<std::endl;
     query->addToTableList( treetablename, "p1" );
     query->addToTableList( treetablename, "p2" );
     query->addToOutputList( "p1.tagid" );
