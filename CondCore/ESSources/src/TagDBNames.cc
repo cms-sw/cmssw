@@ -1,7 +1,7 @@
 #include "TagDBNames.h"
 const std::string& 
 cond::TagDBNames::tagTreeTablePrefix(){
-  static const std::string s_tagTreeTablePrefix("TAGTREE_TABLE_");
+  static const std::string s_tagTreeTablePrefix("TAGTREE_TABLE");
   return s_tagTreeTablePrefix;
 }
 const std::string& 
