@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.39 2007/12/05 11:54:16 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.40 2007/12/05 14:19:38 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -525,7 +525,7 @@ void SiStripConfigDb::usingDatabase() {
     return;
   } 
 
-  // Check TNS_ADMIN environmetal variable
+  // Check TNS_ADMIN environmental variable
   std::string pattern = "TNS_ADMIN";
   std::string tns_admin = "/afs/cern.ch/project/oracle/admin";
   if ( getenv( pattern.c_str() ) != NULL ) { 
@@ -565,7 +565,7 @@ void SiStripConfigDb::usingDatabase() {
       << " Cannot open file \""
       << filename << "\"";
   }
-  
+
   if ( ok ) {
     LogTrace(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
