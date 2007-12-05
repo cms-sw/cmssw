@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.30 2007/11/22 16:53:49 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.31 2007/11/30 07:06:32 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -38,7 +38,6 @@
 namespace edm {
   RootOutputFile::RootOutputFile(PoolOutputModule *om, std::string const& fileName, std::string const& logicalFileName) :
       outputItemList_(), 
-      producedItemList_(), 
       file_(fileName),
       logicalFile_(logicalFileName),
       reportToken_(0),
@@ -80,29 +79,7 @@ namespace edm {
 	  it != itEnd; ++it) {
 	treePointers_[branchType]->addBranch(*it->branchDescription_, it->selected_, it->branchEntryDescription_, it->product_);
       }
-      bool fastCloning = (branchType == InEvent && om_->fastCloning());
-      if (fastCloning) {
-        fillItemList(om_->keptProducedProducts()[branchType], om_->droppedProducedProducts()[branchType], producedItemList_);
-	std::vector<std::string> const& renamed = om_->fileBlock_->sortedNewBranchNames();
-	if (!renamed.empty()) {
-          Selections const& kV = om_->keptPriorProducts()[branchType];
-          for (Selections::const_iterator it = kV.begin(), itEnd = kV.end(); it != itEnd; ++it) {
-            BranchDescription const& prod = **it;
-	    if(binary_search_all(renamed, prod.branchName())) {
-              producedItemList_.push_back(OutputItem(&prod, true));
-	    }
-          }
-          Selections const& dV = om_->droppedPriorProducts()[branchType];
-          for (Selections::const_iterator it = dV.begin(), itEnd = dV.end(); it != itEnd; ++it) {
-            BranchDescription const& prod = **it;
-	    if(binary_search_all(renamed, prod.branchName())) {
-              producedItemList_.push_back(OutputItem(&prod, false));
-	    }
-          }
-	}
-      }
     }
-
     // Don't split metadata tree.
     metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
 
@@ -124,16 +101,18 @@ namespace edm {
   void RootOutputFile::fillItemList(Selections const& keptVector,
 				    Selections const& droppedVector,
 				    OutputItemList & outputItemList) {
-      for (Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
-        BranchDescription const& prod = **it;
-        outputItemList.push_back(OutputItem(&prod, true));
-      }
-      for (Selections::const_iterator it = droppedVector.begin(), itEnd = droppedVector.end(); it != itEnd; ++it) {
-        BranchDescription const& prod = **it;
-        outputItemList.push_back(OutputItem(&prod, false));
-      }
-      sort_all(outputItemList);
+
+    std::vector<std::string> const& renamed = om_->fileBlock_->sortedNewBranchNames();
+    for (Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
+      BranchDescription const& prod = **it;
+      outputItemList.push_back(OutputItem(&prod, true, binary_search_all(renamed, prod.branchName())));
     }
+    for (Selections::const_iterator it = droppedVector.begin(), itEnd = droppedVector.end(); it != itEnd; ++it) {
+      BranchDescription const& prod = **it;
+      outputItemList.push_back(OutputItem(&prod, false, binary_search_all(renamed, prod.branchName())));
+    }
+    sort_all(outputItemList);
+  }
 
 
   void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastCloneThisOne) {
@@ -287,11 +266,15 @@ namespace edm {
     // Clear the provenance cache for the previous event/lumi/run
     provenances_.clear();
 
-    OutputItemList const& items =
-	(((branchType == InEvent) && currentlyFastCloning_) ? producedItemList_ : outputItemList_[branchType]);
+    bool const fastCloning = (branchType == InEvent) && currentlyFastCloning_;
+
+    OutputItemList const& items = outputItemList_[branchType];
     // Loop over EDProduct branches, fill the provenance, and write the branch.
-    for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end();
-	 i != iEnd; ++i) {
+    for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
+
+      // If fast cloning, process only produced or renamed branches.
+      if (fastCloning && !i->branchDescription_->produced() && !i->renamed_) continue;
+
       ProductID const& id = i->branchDescription_->productID_;
 
       if (id == ProductID()) {

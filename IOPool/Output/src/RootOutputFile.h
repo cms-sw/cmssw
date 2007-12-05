@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.13 2007/11/22 16:53:49 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.14 2007/11/30 07:06:32 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -69,11 +69,12 @@ namespace edm {
   private:
     struct OutputItem {
       OutputItem() : branchDescription_(0), selected_(false) {}
-      OutputItem(BranchDescription const* bd, bool sel) :
-	branchDescription_(bd), selected_(sel), branchEntryDescription_(0), product_(0) {}
+      OutputItem(BranchDescription const* bd, bool sel, bool ren) :
+	branchDescription_(bd), selected_(sel), renamed_(ren), branchEntryDescription_(0), product_(0) {}
       ~OutputItem() {}
       BranchDescription const* branchDescription_;
       bool selected_;
+      bool renamed_;
       mutable BranchEntryDescription const* branchEntryDescription_;
       mutable void const* product_;
       bool operator <(OutputItem const& rh) const {
@@ -89,7 +90,6 @@ namespace edm {
     void fillBranches(BranchType const& branchType, Principal const& principal) const;
 
     OutputItemListArray outputItemList_;
-    OutputItemList producedItemList_;
     std::string file_;
     std::string logicalFile_;
     JobReport::Token reportToken_;
