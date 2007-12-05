@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/12/02 03:49:27 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/05 05:39:20 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -217,7 +217,7 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     dbe->cd(pathvec[a]);
     bool validME = false;
    
-    std::cout << "MEobject:" << std::endl;
+    //std::cout << "MEobject:" << std::endl;
     if (MonitorElement *me = dbe->get(fullpath)) {
    
       if (me->hasError()) flag |= FLAG_ERROR;
