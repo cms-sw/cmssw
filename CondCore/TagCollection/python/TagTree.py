@@ -8,7 +8,7 @@ class tagTree(object):
     def __init__( self, session, treename ):
         self.__session = session
         self.__tagTreeTableName = 'TAGTREE_TABLE_'+str.upper(treename)
-        self.__tagTreeIDs = 'TAGTREE_'+str.upper(treename)
+        self.__tagTreeIDs = 'TAGTREE_'+str.upper(treename)+'_IDs'
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
         self.__tagTreeTableColumns = {'nodeid':'unsigned long', 'nodelabel':'string', 'lft':'unsigned long', 'rgt':'unsigned long', 'parentid':'unsigned long', 'tagid':'unsigned long', 'globalsince':'unsigned long long', 'globaltill':'unsigned long long','comment':'string'}
         self.__tagTreeTableNotNullColumns = ['nodelabel','lft','rgt','parentid']
@@ -372,6 +372,9 @@ class tagTree(object):
                 editor = tableHandle.dataEditor()
                 conditionData = coral.AttributeList()
                 editor.deleteRows('',conditionData)
+                idtableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeIDs)
+                ideditor = idtableHandle.dataEditor()
+                ideditor.deleteRows('',conditionData)
                 transaction.commit()
             else :
                 me=Node.Node()
