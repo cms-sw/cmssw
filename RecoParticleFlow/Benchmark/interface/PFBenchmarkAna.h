@@ -4,8 +4,8 @@
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAlgo.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include <string>
@@ -24,7 +24,7 @@ public:
   virtual ~PFBenchmarkAna();
 
   void setup(DaqMonitorBEInterface *DQM = NULL);
-  void fill(const reco::PFCandidateCollection *, const reco::CandidateCollection *, bool PlotAgainstReco = true);
+  void fill(const reco::CandidateCollection *, const reco::CandidateCollection *, bool PlotAgainstReco = true);
   void write(std::string Filename);
 
 private:

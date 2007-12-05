@@ -2,16 +2,9 @@
 <use name=rootcore>
 <use name=rootmath>
 <use name=boost>
-<use name=FWCore/Framework>
-<use name=FWCore/MessageLogger>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/PluginManager>
-<use name=root>
+<use name=DQMServices/CoreROOT>
+
 <export>
   <lib name=RecoParticleFlowBenchmark>
   <use name=DataFormats/RecoCandidate>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=RecoParticleFlow/PFAlgo>
-  <use name=FWCore/PluginManager>	
 </export>

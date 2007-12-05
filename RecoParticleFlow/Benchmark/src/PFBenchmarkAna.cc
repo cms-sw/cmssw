@@ -81,11 +81,11 @@ void PFBenchmarkAna::setup(DaqMonitorBEInterface *DQM) {
 
 }
 
-void PFBenchmarkAna::fill(const PFCandidateCollection *PF, const CandidateCollection *Gen, bool PlotAgainstReco) {
+void PFBenchmarkAna::fill(const CandidateCollection *Reco, const CandidateCollection *Gen, bool PlotAgainstReco) {
 
   // loop over reco particles
-  PFCandidateCollection::const_iterator reco;
-  for (reco = PF->begin(); reco != PF->end(); reco++) {
+  CandidateCollection::const_iterator reco;
+  for (reco = Reco->begin(); reco != Reco->end(); reco++) {
 
     // generate histograms comparing the reco and truth candidate (truth = closest in delta-R)
     const Candidate *particle = &(*reco);

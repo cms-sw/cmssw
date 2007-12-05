@@ -2,7 +2,8 @@
 #define RecoParticleFlow_Benchmark_PFBenchmarkAlgo_h
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
+
+#include <vector>
 
 class PFBenchmarkAlgo {
 public:
@@ -32,6 +33,26 @@ public:
   static reco::CandidateCollection findAllInCone(const reco::Candidate *, const reco::CandidateCollection *, double ConeSize);
   static reco::CandidateCollection findAllInEtWindow(const reco::Candidate *, const reco::CandidateCollection *, double EtWindow);
 
+  // make CandidateCollection out of vector<T> (like a PFCandidateCollection)
+  template <typename CandidateDerived>
+  static const reco::CandidateCollection *newCandidateCollection(const std::vector<CandidateDerived> *);
+  static void deleteCandidateCollection(const reco::CandidateCollection *);
+
 };
+
+// template implementation (required in header)
+template <typename CandidateDerived>
+const reco::CandidateCollection *PFBenchmarkAlgo::newCandidateCollection(const std::vector<CandidateDerived> *InputCollection) {
+
+  reco::CandidateCollection *copy_candidates = new reco::CandidateCollection();
+
+  for (unsigned int i = 0; i < InputCollection->size(); i++) {
+    CandidateDerived *c = (*InputCollection)[i].clone();
+    copy_candidates->push_back((CandidateDerived* const)c);
+  }
+
+  return copy_candidates;
+
+}
 
 #endif // RecoParticleFlow_Benchmark_PFBenchmarkAlgo_h

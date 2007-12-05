@@ -1,4 +1,5 @@
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAlgo.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include <cmath>
 #include <algorithm>
@@ -36,8 +37,17 @@ private:
 
 };
 
+
 PFBenchmarkAlgo::PFBenchmarkAlgo() {}
 PFBenchmarkAlgo::~PFBenchmarkAlgo() {}
+
+// added for completeness
+void PFBenchmarkAlgo::deleteCandidateCollection(const CandidateCollection *Candidates) {
+
+  if (Candidates) delete Candidates;
+
+}
+
 
 double PFBenchmarkAlgo::deltaEt(const Candidate *c1, const Candidate *c2) {
 
@@ -82,11 +92,13 @@ const Candidate *PFBenchmarkAlgo::matchByDeltaR(const Candidate *c1, const Candi
   // Loop Over the Candidates...
   CandidateCollection::const_iterator candidate;
   for (candidate = candidates->begin(); candidate != candidates->end(); candidate++) {
+ 
+    const Candidate *c2 = &(*candidate);
 
     // Find Minimal Delta-R
-    double dR = deltaR(c1,&(*candidate));
+    double dR = deltaR(c1,c2);
     if (dR <= minDeltaR) {
-      bestMatch = &(*candidate);
+      bestMatch = c2;
       minDeltaR = dR;
     }
 
