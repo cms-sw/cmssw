@@ -24,7 +24,7 @@ SimpleL3AbsoluteCorrector::~SimpleL3AbsoluteCorrector () {
 }
 
 double SimpleL3AbsoluteCorrector::correctionPtEta (double fPt, double fEta) const {
-  unsigned band = mParameters->bandIndex(fEta);
+  int band = mParameters->bandIndex(fEta);
   if (band<0) band = fEta<0 ? 0 : mParameters->size()-1;
   double result = correctionBandPtEta (band, fPt, fEta);  
   return result;

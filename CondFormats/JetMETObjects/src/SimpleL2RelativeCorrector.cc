@@ -25,11 +25,11 @@ SimpleL2RelativeCorrector::~SimpleL2RelativeCorrector () {
 
 double SimpleL2RelativeCorrector::correctionPtEta (double fPt, double fEta) const {
   double result = 1.;
-  unsigned band = mParameters->bandIndex(fEta);
+  int band = mParameters->bandIndex(fEta);
   if (band<0) {
     band = fEta<0 ? 0 : mParameters->size()-1;
   }
-  if (band==0 || band==mParameters->size()-1)
+  if (band==0 || band==int(mParameters->size())-1)
     result = correctionBandPtEta (band, fPt, fEta);
   else
     { 
