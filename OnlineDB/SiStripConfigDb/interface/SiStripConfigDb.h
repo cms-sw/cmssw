@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.30 2007/11/27 18:26:44 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.31 2007/11/28 18:51:27 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -153,6 +153,8 @@ class SiStripConfigDb {
     uint32_t fedMinor_;
     uint32_t fecMajor_;
     uint32_t fecMinor_;
+    uint32_t dcuMajor_;
+    uint32_t dcuMinor_;
     uint32_t calMajor_;
     uint32_t calMinor_;
     std::string inputModuleXml_;

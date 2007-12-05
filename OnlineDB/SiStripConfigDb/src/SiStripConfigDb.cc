@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.38 2007/11/29 17:29:27 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.39 2007/12/05 11:54:16 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -83,6 +83,10 @@ SiStripConfigDb::SiStripConfigDb( string confdb,
   dbParams_.fedMinor_ = minor; //@@
   dbParams_.fecMajor_ = major; //@@
   dbParams_.fecMinor_ = minor; //@@
+  dbParams_.dcuMajor_ = major; //@@
+  dbParams_.dcuMinor_ = minor; //@@
+  dbParams_.calMajor_ = major; //@@
+  dbParams_.calMinor_ = minor; //@@
 
   stringstream ss;
   ss << "[SiStripConfigDb::" << __func__ << "]"
@@ -128,6 +132,8 @@ SiStripConfigDb::SiStripConfigDb( string user,
   dbParams_.fedMinor_ = minor; //@@
   dbParams_.fecMajor_ = major; //@@
   dbParams_.fecMinor_ = minor; //@@
+  dbParams_.calMajor_ = major; //@@
+  dbParams_.calMinor_ = minor; //@@
 
   stringstream ss;
   ss << "[SiStripConfigDb::" << __func__ << "]"
@@ -209,6 +215,8 @@ SiStripConfigDb::DbParams::DbParams() :
   fedMinor_(0),
   fecMajor_(0),
   fecMinor_(0),
+  dcuMajor_(0),
+  dcuMinor_(0),
   calMajor_(0),
   calMinor_(0),
   inputModuleXml_(""),
@@ -245,6 +253,8 @@ void SiStripConfigDb::DbParams::reset() {
   fedMinor_ = 0;
   fecMajor_ = 0;
   fecMinor_ = 0;
+  dcuMajor_ = 0;
+  dcuMinor_ = 0;
   calMajor_ = 0;
   calMinor_ = 0;
   inputModuleXml_ = "";
@@ -272,6 +282,8 @@ void SiStripConfigDb::DbParams::setParams( const edm::ParameterSet& pset ) {
   fedMinor_ = pset.getUntrackedParameter<unsigned int>("FedMinorVersion",0);
   fecMajor_ = pset.getUntrackedParameter<unsigned int>("FecMajorVersion",0);
   fecMinor_ = pset.getUntrackedParameter<unsigned int>("FecMinorVersion",0);
+  dcuMajor_ = pset.getUntrackedParameter<unsigned int>("DcuDetIdMajorVersion",0);
+  dcuMinor_ = pset.getUntrackedParameter<unsigned int>("DcuDetIdMinorVersion",0);
   calMajor_ = pset.getUntrackedParameter<unsigned int>("CalibMajorVersion",0);
   calMinor_ = pset.getUntrackedParameter<unsigned int>("CalibMinorVersion",0);
   inputModuleXml_ = pset.getUntrackedParameter<string>("InputModuleXml","");
@@ -332,7 +344,8 @@ void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
      << " Cabling major/minor vers  : " << cabMajor_ << "/" << cabMinor_ << endl
      << " FED major/minor vers      : " << fedMajor_ << "/" << fedMinor_ << endl
      << " FEC major/minor vers      : " << fecMajor_ << "/" << fecMinor_ << endl
-     << " Calibration major/minor   : " << calMajor_ << "/" << calMinor_ << endl;
+     << " DCU-DetId maj/min vers    : " << dcuMajor_ << "/" << dcuMinor_ << endl
+     << " Calibration maj/min vers  : " << calMajor_ << "/" << calMinor_ << endl;
   // Input
   ss << " Input \"module.xml\" file   : " << inputModuleXml_ << endl
      << " Input \"dcuinfo.xml\" file  : " << inputDcuInfoXml_ << endl
@@ -637,6 +650,11 @@ void SiStripConfigDb::usingDatabase() {
 	dbParams_.fecMinor_ = run->getFecVersionMinorId();
 	dbParams_.fedMajor_ = run->getFedVersionMajorId();
 	dbParams_.fedMinor_ = run->getFedVersionMinorId();
+#ifdef USING_NEW_DATABASE_MODEL
+	dbParams_.dcuMajor_ = run->getDcuInfoVersionMajorId();
+	dbParams_.dcuMinor_ = run->getDcuInfoVersionMinorId();
+#endif
+
 	//@@ need versioning for calibrations too!
 	std::stringstream ss;
 	ss << "[SiStripConfigDb::" << __func__ << "]"
@@ -657,7 +675,13 @@ void SiStripConfigDb::usingDatabase() {
   
   // DCU-DetId 
   try { 
+#ifdef USING_NEW_DATABASE_MODEL
+    deviceFactory(__func__)->addDetIdPartition( dbParams_.partition_,
+						dbParams_.dcuMajor_, 
+						dbParams_.dcuMinor_ );
+#else
     deviceFactory(__func__)->addDetIdPartition( dbParams_.partition_ );
+#endif
   } catch (...) { 
     stringstream ss;
     ss << "Attempted to 'addDetIdPartition; for partition: " << dbParams_.partition_;
