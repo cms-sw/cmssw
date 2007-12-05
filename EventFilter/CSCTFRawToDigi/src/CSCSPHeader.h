@@ -24,7 +24,8 @@ private:
 
 	unsigned sp_slot_number     : 5; // SP_PADR, or physical address, or slot number
 	unsigned sp_ersv            : 3; // event record structure version
-	unsigned sp_logical_address : 4; // SP_LADR - Logical Address: [3] = ME-(0)/ME+(1), [2:0] = 1...6 - EMU 60deg Sector
+	unsigned sp_trigger_sector  : 4; // SP Trigger Sector 1, 2, 3, 4, 5, 6 for +Z EMU side and 7, 8, 9, 10, 11, 12 for -Z EMU side
+
 	unsigned header_mark_6      : 4; // constant, should be 1010 = 0xA
 /*
 	unsigned warning_overflow : 1; // FMM: L1A rate is too high
@@ -74,8 +75,11 @@ public:
 	unsigned int L1A(void) const throw() { return (sp_l1a_high<<12)|sp_l1a_low; }
 
 	unsigned int slot  (void) const throw() { return sp_slot_number; }
-	unsigned int sector(void) const throw() { return sp_logical_address&0x7; }
-	unsigned int endcap(void) const throw() { return sp_logical_address&0x8; }
+	unsigned int trigger_sector(void) const throw() { return sp_trigger_sector; }
+	// following two functions are kept for compatibility with earlier versions of TF data format:
+	unsigned int sector(void) const throw() { return (sp_trigger_sector<6?sp_trigger_sector:sp_trigger_sector-6); }
+	unsigned int endcap(void) const throw() { return (sp_trigger_sector<6?1:0);}
+
 
 	enum FMM {WOF=1,OSY=2,BUZY=4,READY=8,FA_OSY=16,SP_OSY=32};
 	unsigned int status(void) const throw() { return fmm_status; }
