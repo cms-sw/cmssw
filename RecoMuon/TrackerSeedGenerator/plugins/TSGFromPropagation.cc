@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/11/28 02:50:35 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/11/30 15:46:48 $
+ *  $Revision: 1.14 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -81,7 +81,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
 
      inl = nls.begin();
 
-     if ( !alltm.empty() && iUsedLayer > 2 ) break;
+     if ( !alltm.empty() && iUsedLayer > 1 ) break;
      if ( *inl == 0 ) break;
 
      std::vector<TrajectoryMeasurement> tmptm = findMeasurements(*inl, staState);
