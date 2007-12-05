@@ -131,7 +131,7 @@ void PFTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     me["CandidateEta"]->Fill(particle->eta());
     me["CandidatePhi"]->Fill(particle->phi());
     me["CandidateCharge"]->Fill(particle->charge());
-    me["CandidatePdgId"]->Fill(particle->pdgId());
+    //me["CandidatePdgId"]->Fill(particle->pdgId());
 
     // Fill Histograms for PFCandidate Specific Methods
     me["PFCandidateType"]->Fill(particle->particleId());
