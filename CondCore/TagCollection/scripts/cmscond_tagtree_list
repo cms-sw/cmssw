@@ -132,17 +132,21 @@ class tagTreePrinter:
             return
         mytree=TagTree.tagTree(session,self.__treename)
         try:
-            if self.__leaf is True:
+            if self.__leaf is True :
                result=mytree.getAllLeaves()
                for r in result:
                    if r.parentid !=0:
                        parentnode=mytree.getNodeById(r.parentid)
                        parentname=parentnode.nodelabel
-                       print 'leafnode:%s   parent:%s'%(r.nodelabel,parentname)
+                       if self.__node is not '':
+                           if self.__node == parentname:
+                               print 'leafnode:%s   parent:%s'%(r.nodelabel,parentname)
+                       else:
+                           print 'leafnode:%s   parent:%s'%(r.nodelabel,parentname)
                    else:
                        print 'root:%s'%(r.nodelabel)
             else:
-                if len(self.__node)==0:
+                if self.__node=='':
                     result=mytree.getSubtree('ROOT')
                     for r in result:
                         if r.parentid !=0:

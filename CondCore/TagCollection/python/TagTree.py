@@ -8,7 +8,7 @@ class tagTree(object):
     def __init__( self, session, treename ):
         self.__session = session
         self.__tagTreeTableName = 'TAGTREE_TABLE_'+str.upper(treename)
-        self.__tagTreeIDs = 'TAGTREE_'+str.upper(treename)+'_IDs'
+        self.__tagTreeIDs = 'TAGTREE_'+str.upper(treename)+'_IDS'
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
         self.__tagTreeTableColumns = {'nodeid':'unsigned long', 'nodelabel':'string', 'lft':'unsigned long', 'rgt':'unsigned long', 'parentid':'unsigned long', 'tagid':'unsigned long', 'globalsince':'unsigned long long', 'globaltill':'unsigned long long','comment':'string'}
         self.__tagTreeTableNotNullColumns = ['nodelabel','lft','rgt','parentid']
@@ -69,7 +69,7 @@ class tagTree(object):
             transaction.start(True)
             schema = self.__session.nominalSchema()
             generator=IdGenerator.IdGenerator(schema)
-            nodeid=generator.getNewID(generator.getIDTableName(self.__tagTreeIDs))
+            nodeid=generator.getNewID(self.__tagTreeIDs)
             transaction.commit()
             if parentLabel == 'ROOT':
                 parentid=0
@@ -103,7 +103,7 @@ class tagTree(object):
             dbop.insertOneRow(self.__tagTreeTableName,
                               self.__tagTreeTableColumns,
                               tabrowValueDict)
-            generator.incrementNextID(generator.getIDTableName(self.__tagTreeIDs))
+            generator.incrementNextID(self.__tagTreeIDs)
             transaction.commit()
         except coral.Exception, er:
             transaction.rollback()

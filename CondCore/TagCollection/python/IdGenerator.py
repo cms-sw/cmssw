@@ -45,20 +45,19 @@ class IdGenerator(object):
             dataEditor.updateRows('nextID = :newid','',inputData)
         except Exception, e:
             raise Exception, str(e)
-    def getIDTableName( self, tableName ):
-        """Returns the ID table name associated with given table.\n
-        No check on the existence of the table.\n
-        Input: data table name
-        Output: ID table name
-        """
-        return tableName+'_IDs'
-    def createIDTable( self, tableName, deleteOld=True ):
+    #def getIDTableName( self, tableName ):
+    #    """Returns the ID table name associated with given table.\n
+    #    No check on the existence of the table.\n
+    #    Input: data table name
+    #    Output: ID table name
+    #    """
+    #    return tableName+'_IDs'
+    def createIDTable( self, idtableName, deleteOld=True ):
         """Create ID table 'tableName_ID' for the given table.\n
         Input: name of the table which needs new associated id table
         Output: name of the id table created
         """
         dbop=DBImpl.DBImpl(self.__schema)
-        idtableName=self.getIDTableName(tableName)
         try:
             if dbop.tableExists(idtableName) is True:
                 if deleteOld is True:
@@ -75,11 +74,10 @@ class IdGenerator(object):
             editor.rowBuffer( inputData )
             inputData[self.__idTableColumnName].setData(1)
             editor.insertRow( inputData )
-            return idtableName
         except Exception, e:
             raise Exception, str(e)
 if __name__ == "__main__":
-    tableName = 'TagTreeTable'
+    idtableName = 'TagTreeTable_IDS'
     context = coral.Context()
     context.setVerbosityLevel( 'ERROR' )
     svc = coral.ConnectionService( context )
@@ -89,15 +87,15 @@ if __name__ == "__main__":
         transaction.start()
         schema = session.nominalSchema()
         generator=IdGenerator(schema)
-        generator.createIDTable( tableName )
+        generator.createIDTable( idtableName )
         transaction.commit()
         transaction.start(True)
-        result=generator.getNewID(generator.getIDTableName(tableName))
+        result=generator.getNewID(idtableName)
         print 'new id ',result
         transaction.commit()
         transaction.start(False)
-        generator.incrementNextID(generator.getIDTableName(tableName))
-        print 'new id ',generator.getNewID(generator.getIDTableName(tableName))
+        generator.incrementNextID(idtableName)
+        print 'new id ',generator.getNewID(idtableName)
         transaction.commit()
         del session
     except coral.Exception, e:

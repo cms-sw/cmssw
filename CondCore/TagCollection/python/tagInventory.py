@@ -8,7 +8,7 @@ class  tagInventory(object):
         """
         self.__session = session
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
-        self.__tagInventoryIDName = 'TAGINVENTORY'
+        self.__tagInventoryIDName = 'TAGINVENTORY_IDS'
         self.__tagInventoryTableColumns = {'tagid':'unsigned int', 'tagname':'string', 'pfn':'string','recordname':'string', 'objectname':'string', 'labelname':'string','timetype':'string','comment':'string'}
         self.__tagInventoryTableNotNullColumns = ['tagname','pfn','recordname','objectname','labelname']
         self.__tagInventoryTableUniqueColumns = ['tagname']
@@ -66,7 +66,7 @@ class  tagInventory(object):
             transaction.start(True)
             schema = self.__session.nominalSchema()
             generator=IdGenerator.IdGenerator(schema)
-            tagid=generator.getNewID(generator.getIDTableName(self.__tagInventoryIDName))
+            tagid=generator.getNewID(self.__tagInventoryIDName)
             transaction.commit()
             
             transaction.start(False)
@@ -77,7 +77,7 @@ class  tagInventory(object):
                               tabrowValueDict)
             transaction.commit()
             transaction.start(False)
-            generator.incrementNextID(generator.getIDTableName(self.__tagInventoryIDName))
+            generator.incrementNextID(self.__tagInventoryIDName)
             transaction.commit()
             return tagid
         except Exception, er:

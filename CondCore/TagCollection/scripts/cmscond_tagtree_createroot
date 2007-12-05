@@ -100,7 +100,7 @@ class tagTreeRootBuilder:
         try:
             mytree=TagTree.tagTree(session,self.__treename)
             if mytree.existTagTreeTable() is False:
-                mytree.createTagTreeTable()   
+                mytree.createTagTreeTable()
             mynode=Node.Node()
             mynode.nodelabel=self.__rootname
             mynode.globalsince=0

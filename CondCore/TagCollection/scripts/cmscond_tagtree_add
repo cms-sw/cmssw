@@ -90,7 +90,7 @@ class tagTreeBuilder:
         (options, args) = self.__parser.parse_args()
         if not self.__parser.values.treename:
             raise OptionValueError("option -%s --%s is required "%('T','tree'))
-        self.__treename=self.__parser.values.treename
+        self.__treename=str.upper(self.__parser.values.treename)
         if options.filename and options.connectstring:
             raise OptionValueError("option -%s and -%s are exclusive"%('f','c'))
         if len(self.__parser.values.authpath)!=0:
@@ -147,6 +147,7 @@ class tagTreeBuilder:
         svc = coral.ConnectionService( context )
         session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
         try:
+            print 'treename ',self.__treename
             mytree=TagTree.tagTree(session,self.__treename)
             if mytree.existTagTreeTable() is False:
                 raise Exception,'non-existing tag tree table, use cmscond_tagtree_createroot to create the table and tree root first'
