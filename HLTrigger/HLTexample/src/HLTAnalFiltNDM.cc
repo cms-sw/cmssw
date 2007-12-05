@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/06/15 14:42:30 $
- *  $Revision: 1.22 $
+ *  $Date: 2007/12/04 19:57:42 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -59,20 +59,20 @@ HLTAnalFiltNDM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    try {iEvent.getByLabel(inputTag_,ref);} catch(...) {;}
    if (ref.isValid()) {
      LogDebug("") << inputTag_.encode() + " Size = g/e/m/j/C/M/H "
-		  << ref->getPhotons().size() << " "
-		  << ref->getElectrons().size() << " "
-		  << ref->getMuons().size() << " "
-		  << ref->getJets().size() << " " 
-		  << ref->getComposites().size() << " " 
-		  << ref->getMETs().size() << " " 
-		  << ref->getHTs().size();
-     const unsigned int n(ref->getElectrons().size());
+		  << ref->photonIds().size() << " "
+		  << ref->electronIds().size() << " "
+		  << ref->muonIds().size() << " "
+		  << ref->jetIds().size() << " " 
+		  << ref->compositeIds().size() << " " 
+		  << ref->metIds().size() << " " 
+		  << ref->htIds().size();
+     const unsigned int n(ref->electronIds().size());
      for (unsigned int i=0; i!=n; i++) {
        // some Xchecks
-       Particle particle=*(ref->getElectrons().at(i));
+       Particle particle=*(ref->electronRefs().at(i));
        LogTrace("") << i << " E: "
 		    << particle.energy() << " " 
-		    << ref->getElectrons().at(i)->energy();
+		    << ref->electronRefs().at(i)->energy();
      }
      //
    } else {

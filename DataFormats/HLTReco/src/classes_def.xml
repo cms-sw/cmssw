@@ -65,6 +65,7 @@
   <class name="std::vector<edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >"/>
 
   <class name="trigger::TriggerObjectCollection"/>
+  <class name="trigger::TriggerRefsCollections"/>
   <class name="trigger::TriggerFilterObjectWithRefs"/>
   <class name="trigger::TriggerEvent"/>
   <class name="trigger::TriggerEventWithRefs"/>

@@ -72,7 +72,9 @@ namespace {
     HLTPerformanceInfo::Path::const_iterator pw13;
 
     edm::Ref<reco::CompositeCandidateCollection> rxx;
+
     trigger::TriggerObjectCollection toc;
+    trigger::TriggerRefsCollections trc;
     trigger::TriggerFilterObjectWithRefs tfowr;
     trigger::TriggerEvent te;
     trigger::TriggerEventWithRefs tewr;

@@ -6,8 +6,8 @@
  *  A single trigger object (e.g., an isolated muon, or MET)
  *  - described by its 4-momentum and physics type
  *
- *  $Date: 2007/12/04 09:00:30 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/04 17:00:31 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -62,8 +62,12 @@ namespace trigger
     float p () const {return pt_*cosh(eta_);}
     float energy() const {return pow(mass_,2)+pow(p(),2);}
 
-    reco::Particle particle() const {
-      return reco::Particle(0,reco::Particle::LorentzVector(px(),py(),pz(),energy()));
+    reco::Particle particle(reco::Particle::Charge q=0, 
+      const reco::Particle::Point & vertex = reco::Particle::Point(0,0,0),
+      int pdgId=0, int status=0, bool integerCharge=true) const {
+      return reco::Particle(q,
+        reco::Particle::LorentzVector(px(),py(),pz(),energy()),
+        vertex,pdgId,status,integerCharge);
     }
 
   };

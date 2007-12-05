@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/04 16:41:36 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/12/04 19:57:43 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -135,7 +135,7 @@ HLTFiltCandNDM::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (iphot->pt() >= min_Pt_) {
        nphot++;
        RecoEcalCandidateRef ref(RecoEcalCandidateRef(photons,distance(aphot,iphot)));
-       filterobject->addPhoton(ref);
+       filterobject->addObject(TriggerPhoton,ref);
      }
    }
 
@@ -148,7 +148,7 @@ HLTFiltCandNDM::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (ielec->pt() >= min_Pt_) {
        nelec++;
        ElectronRef ref(ElectronRef(electrons,distance(aelec,ielec)));
-       filterobject->addElectron(ref);
+       filterobject->addObject(TriggerElectron,ref);
      }
    }
 
@@ -161,7 +161,7 @@ HLTFiltCandNDM::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (imuon->pt() >= min_Pt_) {
        nmuon++;
        RecoChargedCandidateRef ref(RecoChargedCandidateRef(muons,distance(amuon,imuon)));
-       filterobject->addMuon(ref);
+       filterobject->addObject(TriggerMuon,ref);
      }
    }
 
@@ -174,7 +174,7 @@ HLTFiltCandNDM::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (itaus->pt() >= min_Pt_) {
        ntaus++;
        CaloJetRef ref(CaloJetRef(taus,distance(ataus,itaus)));
-       filterobject->addJet(ref);
+       filterobject->addObject(TriggerTau,ref);
      }
    }
 
@@ -187,7 +187,7 @@ HLTFiltCandNDM::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (ijets->pt() >= min_Pt_) {
        njets++;
        CaloJetRef ref(CaloJetRef(jets,distance(ajets,ijets)));
-       filterobject->addJet(ref);
+       filterobject->addObject(TriggerJet,ref);
      }
    }
 
@@ -200,7 +200,7 @@ HLTFiltCandNDM::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (imets->pt() >= min_Pt_) {
        nmets++;
        CaloMETRef ref(CaloMETRef(mets,distance(amets,imets)));
-       filterobject->addMET(ref);
+       filterobject->addObject(TriggerMET,ref);
      }
    }
 
@@ -213,7 +213,7 @@ HLTFiltCandNDM::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (ihtts->pt() >= min_Pt_) {
        nhtts++;
        METRef ref(METRef(htts,distance(ahtts,ihtts)));
-       filterobject->addHT(ref);
+       filterobject->addObject(TriggerHT,ref);
      }
    }
 
@@ -226,7 +226,7 @@ HLTFiltCandNDM::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (itrcks->pt() >= min_Pt_) {
        ntrck++;
        RecoChargedCandidateRef ref(RecoChargedCandidateRef(trcks,distance(atrcks,itrcks)));
-       // filterobject->addXXX(ref);
+       filterobject->addObject(TriggerTrack,ref);
      }
    }
 
@@ -239,9 +239,12 @@ HLTFiltCandNDM::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (iecals->pt() >= min_Pt_) {
        necal++;
        RecoEcalCandidateRef ref(RecoEcalCandidateRef(ecals,distance(aecals,iecals)));
-       // filterobject->addXXX(ref);
+       filterobject->addObject(TriggerCluster,ref);
      }
    }
+
+   // error case
+   // filterobject->addObject(0,Ref<vector<int> >());
 
    // final filter decision:
    const bool accept ( (nphot>0) && (nelec>0) && (nmuon>0) && (ntaus>0) &&

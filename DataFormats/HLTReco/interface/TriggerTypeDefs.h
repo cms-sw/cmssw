@@ -5,8 +5,8 @@
  *
  *  Misc. common simple typedefs
  *
- *  $Date: 2007/12/04 17:00:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/04 20:26:16 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -20,7 +20,7 @@ namespace trigger
   typedef uint16_t size_type;
   typedef std::vector<size_type> Keys;
 
-  enum TriggerObjectType = {
+  enum TriggerObjectType  {
     TriggerPhoton   = 80,
     TriggerElectron = 81,
     TriggerMuon     = 82,

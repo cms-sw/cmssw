@@ -6,27 +6,15 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2007/12/04 09:00:30 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/12/04 17:00:31 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
-#include "DataFormats/METReco/interface/METFwd.h"
-
+#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include <string>
@@ -37,14 +25,14 @@ namespace trigger
 
   /// The single EDProduct to be saved in addition for each event
   /// - but only in the "RAW" case: for a fraction of all events
-  class TriggerEventWithRefs {
+
+  class TriggerEventWithRefs : public TriggerRefsCollections {
 
   private:
 
     /// Helper class: trigger objects firing a single filter
     class TriggerFilterObject {
     public:
-
       /// label of filter
       std::string filterLabel_;
       /// 1-after-end (std C++) indices into linearised vector of Refs
@@ -71,52 +59,39 @@ namespace trigger
   private:
     /// the filters recorded here
     std::vector<TriggerFilterObject> filterObjects_;
-    /// non-owning pointers into collections (linearised)
-    std::vector<reco::RecoEcalCandidateRef> photons_;
-    std::vector<reco::ElectronRef> electrons_;
-    std::vector<reco::RecoChargedCandidateRef> muons_;
-    std::vector<reco::CaloJetRef> jets_;
-    std::vector<reco::CompositeCandidateRef> composites_;
-    std::vector<reco::CaloMETRef> mets_;
-    std::vector<reco::METRef> hts_;
 
   /// methods
   public:
     /// constructors
-    TriggerEventWithRefs(): filterObjects_(),
-      photons_(), electrons_(), muons_(), jets_(), composites_(), mets_(), hts_() { }
+    TriggerEventWithRefs(): TriggerRefsCollections(), filterObjects_() { }
 
     /// setters - to build EDProduct
     void addFilterObject(const std::string filterLabel, const TriggerFilterObjectWithRefs& tfowr) {
-      photons_.insert(photons_.end(),tfowr.getPhotons().begin(),tfowr.getPhotons().end());
-      electrons_.insert(electrons_.end(),tfowr.getElectrons().begin(),tfowr.getElectrons().end());
-      muons_.insert(muons_.end(),tfowr.getMuons().begin(),tfowr.getMuons().end());
-      jets_.insert(jets_.end(),tfowr.getJets().begin(),tfowr.getJets().end());
-      composites_.insert(composites_.end(),tfowr.getComposites().begin(),tfowr.getComposites().end());
-      mets_.insert(mets_.end(),tfowr.getMETs().begin(),tfowr.getMETs().end());
-      hts_.insert(hts_.end(),tfowr.getHTs().begin(),tfowr.getHTs().end());
-
       filterObjects_.push_back(
         TriggerFilterObject(filterLabel, 
-			    photons_.size(), electrons_.size(), 
-			    muons_.size(), jets_.size(), composites_.size(),
-			    mets_.size(), hts_.size()
+			    append(tfowr.photonIds(),tfowr.photonRefs()),
+			    append(tfowr.electronIds(),tfowr.electronRefs()),
+			    append(tfowr.muonIds(),tfowr.muonRefs()),
+			    append(tfowr.jetIds(),tfowr.jetRefs()),
+			    append(tfowr.compositeIds(),tfowr.compositeRefs()),
+			    append(tfowr.metIds(),tfowr.metRefs()),
+			    append(tfowr.htIds(),tfowr.htRefs())
 			   )
 	);
     }
 
     /// getters - for user access
 
-    /// number of filters stored
-    size_type numFilters() const {return filterObjects_.size();}
+    /// number of filters
+    size_type size() const {return filterObjects_.size();}
 
-    /// label of ith filter
-    const std::string& getFilterLabel(size_type index) const {
-      return filterObjects_.at(index).filterLabel_;
+    /// label from index
+    const std::string& filterLabel(size_type filterIndex) const {
+      return filterObjects_.at(filterIndex).filterLabel_;
     }
 
-    /// find index of filter in data-member vector from filter label
-    size_type find(const std::string& filterLabel) const {
+    /// index from label
+    size_type filterIndex(const std:: string filterLabel) const {
       const size_type n(filterObjects_.size());
       for (size_type i=0; i!=n; ++i) {
 	if (filterLabel==filterObjects_[i].filterLabel_) {return i;}
@@ -124,104 +99,49 @@ namespace trigger
       return n;
     }
 
-    /// number of photons for a specific filter
-    size_type numPhotons(size_type index) const {
-      return filterObjects_.at(index).photons_ - (index==0? 0 : filterObjects_.at(index-1).photons_);
+    /// extract Ref<C>s for a specific filter and of specific physics type
+
+    void getObjects(size_type filter, int id, VRphotons& photons) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).photons_);
+      const size_type end(filterObjects_.at(filter).photons_);
+      TriggerRefsCollections::getObjects(id,photons,begin,end);
     }
 
-    /// number of electrons for a specific filter
-    size_type numElectrons(size_type index) const {
-      return filterObjects_.at(index).electrons_ - (index==0? 0 : filterObjects_.at(index-1).electrons_);
+    void getObjects(size_type filter, int id, VRelectrons& electrons) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).electrons_);
+      const size_type end(filterObjects_.at(filter).electrons_);
+      TriggerRefsCollections::getObjects(id,electrons,begin,end);
     }
 
-    /// number of muonsfor a specific filter
-    size_type numMuons(size_type index) const {
-      return filterObjects_.at(index).muons_ - (index==0? 0 : filterObjects_.at(index-1).muons_);
+    void getObjects(size_type filter, int id, VRmuons& muons) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).muons_);
+      const size_type end(filterObjects_.at(filter).muons_);
+      TriggerRefsCollections::getObjects(id,muons,begin,end);
     }
 
-    /// number of jets for a specific filter
-    size_type numJets(size_type index) const {
-      return filterObjects_.at(index).jets_ - (index==0? 0 : filterObjects_.at(index-1).jets_);
+    void getObjects(size_type filter, int id, VRjets& jets) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).jets_);
+      const size_type end(filterObjects_.at(filter).jets_);
+      TriggerRefsCollections::getObjects(id,jets,begin,end);
     }
 
-    /// number of composites for a specific filter
-    size_type numComposites(size_type index) const {
-      return filterObjects_.at(index).composites_ - (index==0? 0 : filterObjects_.at(index-1).composites_);
+    void getObjects(size_type filter, int id, VRcomposites& composites) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).composites_);
+      const size_type end(filterObjects_.at(filter).composites_);
+      TriggerRefsCollections::getObjects(id,composites,begin,end);
     }
 
-    /// number of mets for a specific filter
-    size_type numMETs(size_type index) const {
-      return filterObjects_.at(index).mets_ - (index==0? 0 : filterObjects_.at(index-1).mets_);
+    void getObjects(size_type filter, int id, VRmets& mets) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).mets_);
+      const size_type end(filterObjects_.at(filter).mets_);
+      TriggerRefsCollections::getObjects(id,mets,begin,end);
     }
 
-    /// number of hts for a specific filter
-    size_type numHTs(size_type index) const {
-      return filterObjects_.at(index).hts_ - (index==0? 0 : filterObjects_.at(index-1).hts_);
+    void getObjects(size_type filter, int id, VRhts& hts) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).hts_);
+      const size_type end(filterObjects_.at(filter).hts_);
+      TriggerRefsCollections::getObjects(id,hts,begin,end);
     }
-
-
-    /// photons: _begin and _end iterators for specific filter
-    std::vector<reco::RecoEcalCandidateRef>::const_iterator photons_begin(size_type index) const {
-      return photons_.begin() + (index==0? 0 : filterObjects_.at(index-1).photons_);
-    }
-    std::vector<reco::RecoEcalCandidateRef>::const_iterator photons_end(size_type index) const {
-      return photons_.begin() + filterObjects_.at(index).photons_;
-    }
-
-
-    /// electrons: _begin and _end iterators for specific filter
-    std::vector<reco::ElectronRef>::const_iterator electrons_begin(size_type index) const {
-      return electrons_.begin() + (index==0? 0 : filterObjects_.at(index-1).electrons_);
-    }
-    std::vector<reco::ElectronRef>::const_iterator electrons_end(size_type index) const {
-      return electrons_.begin() + filterObjects_.at(index).electrons_;
-    }
-
-
-    /// muons: _begin and _end iterators for specific filter
-    std::vector<reco::RecoChargedCandidateRef>::const_iterator muons_begin(size_type index) const {
-      return muons_.begin() + (index==0? 0 : filterObjects_.at(index-1).muons_);
-    }
-    std::vector<reco::RecoChargedCandidateRef>::const_iterator muons_end(size_type index) const {
-      return muons_.begin() + filterObjects_.at(index).muons_;
-    }
-
-
-    /// jets: _begin and _end iterators for specific filter
-    std::vector<reco::CaloJetRef>::const_iterator jets_begin(size_type index) const {
-      return jets_.begin() + (index==0? 0 : filterObjects_.at(index-1).jets_);
-    }
-    std::vector<reco::CaloJetRef>::const_iterator jets_end(size_type index) const {
-      return jets_.begin() + filterObjects_.at(index).jets_;
-    }
-
-
-    /// composites: _begin and _end iterators for specific filter
-    std::vector<reco::CompositeCandidateRef>::const_iterator composites_begin(size_type index) const {
-      return composites_.begin() + (index==0? 0 : filterObjects_.at(index-1).composites_);
-    }
-    std::vector<reco::CompositeCandidateRef>::const_iterator composites_end(size_type index) const {
-      return composites_.begin() + filterObjects_.at(index).composites_;
-    }
-
-
-    /// mets: _begin and _end iterators for specific filter
-    std::vector<reco::CaloMETRef>::const_iterator mets_begin(size_type index) const {
-      return mets_.begin() + (index==0? 0 : filterObjects_.at(index-1).mets_);
-    }
-    std::vector<reco::CaloMETRef>::const_iterator mets_end(size_type index) const {
-      return mets_.begin() + filterObjects_.at(index).mets_;
-    }
-
-
-    /// hts: _begin and _end iterators for specific filter
-    std::vector<reco::METRef>::const_iterator hts_begin(size_type index) const {
-      return hts_.begin() + (index==0? 0 : filterObjects_.at(index-1).hts_);
-    }
-    std::vector<reco::METRef>::const_iterator hts_end(size_type index) const {
-      return hts_.begin() + filterObjects_.at(index).hts_;
-    }
-
 
   };
 
