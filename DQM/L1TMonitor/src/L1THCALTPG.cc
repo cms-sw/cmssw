@@ -1,11 +1,14 @@
 /*
  * \file L1THCALTPG.cc
  *
- * $Date: 2007/07/19 16:48:23 $
- * $Revision: 1.5 $
+ * $Date: 2007/11/19 15:08:22 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPG.cc,v $
+ * Revision 1.6  2007/11/19 15:08:22  lorenzo
+ * changed top folder name
+ *
  * Revision 1.5  2007/07/19 16:48:23  berryhil
  *
  *
@@ -154,7 +157,7 @@ void L1THCALTPG::analyze(const Event& e, const EventSetup& c)
     return;
   }
 //
-  std::cout << "--> event  " << hcalTpgs->size() << std::endl;
+//  std::cout << "--> event  " << hcalTpgs->size() << std::endl;
 //   int j = 0;
   for ( HcalTrigPrimDigiCollection::const_iterator i = hcalTpgs->begin();
 	i != hcalTpgs->end(); ++i ) {
