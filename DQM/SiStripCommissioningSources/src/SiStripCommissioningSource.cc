@@ -285,12 +285,24 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 
   // Retrieve raw digis with mode appropriate to task 
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
-  if ( task_ == sistrip::FAST_CABLING ||
-       task_ == sistrip::FED_CABLING ||
-       task_ == sistrip::APV_TIMING ||
-       task_ == sistrip::FED_TIMING ||
-       task_ == sistrip::OPTO_SCAN ||
-       task_ == sistrip::DAQ_SCOPE_MODE ) { 
+  if ( task_ == sistrip::DAQ_SCOPE_MODE ) { 
+    if ( summary->fedReadoutMode() == FED_VIRGIN_RAW ) {
+      event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
+    } else if ( summary->fedReadoutMode() == FED_SCOPE_MODE ) {
+      event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
+    } else {
+      std::stringstream ss;
+      ss << "[SiStripCommissioningSource::" << __func__ << "]"
+	 << " Requested DAQ_SCOPE_MODE but unknown FED"
+	 << " readout mode retrieved from SiStripEventSummary: " 
+	 << SiStripEnumsAndStrings::fedReadoutMode( summary->fedReadoutMode() );
+      edm::LogWarning(mlDqmSource_) << ss.str();
+    }
+  } else if ( task_ == sistrip::FAST_CABLING ||
+	      task_ == sistrip::FED_CABLING ||
+	      task_ == sistrip::APV_TIMING ||
+	      task_ == sistrip::FED_TIMING ||
+	      task_ == sistrip::OPTO_SCAN ) { 
     event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
   } else if ( task_ == sistrip::VPSP_SCAN ||
               task_ == sistrip::CALIBRATION_SCAN ||
