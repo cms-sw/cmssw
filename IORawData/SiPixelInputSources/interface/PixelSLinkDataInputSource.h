@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id: PixelSLinkDataInputSource.h,v 1.6 2007/10/19 20:54:55 fblekman Exp $
+// $Id: PixelSLinkDataInputSource.h,v 1.7 2007/11/17 23:23:02 wmtan Exp $
 //
 //
 
@@ -50,5 +50,7 @@ private:
   uint32_t m_fileindex;
   std::auto_ptr<Storage> storage;
   int m_runnumber;
+  uint64_t m_data;
+  uint32_t m_currenteventnumber;
 };
 #endif
