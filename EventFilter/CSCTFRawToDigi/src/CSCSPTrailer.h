@@ -14,18 +14,18 @@ private:
 	unsigned word_count_high: 4;
 	unsigned trailer_mark_4 : 4;  // constant, should be 1111 = 0xF
 	/////// word 3 ///////
-	unsigned core_release_month: 4;
-	unsigned core_release_year : 4;
+	unsigned month             : 4;
+	unsigned year              : 4;
+	unsigned bb                : 1; // SP readout configuration year base (0 / 16)
 	unsigned spare_1           : 1;
 	unsigned spare_2           : 1;
-	unsigned spare_3           : 1;
 	unsigned zero_1            : 1;
 	unsigned trailer_mark_5    : 4;  // constant, should be 1111 = 0xF
 	/////// word 4 ///////
 	unsigned core_configuraton : 12;
 	unsigned trailer_mark_6    : 4;  // constant, should be 1111 = 0xF
 	/////// word 5 ///////
-	unsigned core_release_day  : 5;
+	unsigned day               : 5;
 	unsigned zero_2            : 7;
 	unsigned trailer_mark_7    : 4;  // constant, should be 1110 = 0xE
 	/////// word 6 ///////
@@ -53,14 +53,15 @@ public:
 	unsigned int l1a_queue_size(void) const throw() { return (word_count_high<<4)|word_count_low; }
 	bool         l1a_fifo_full (void) const throw() { return l1a_fifo_full_; }
 
-	unsigned int firmware_year (void) const throw() { return core_release_year;  }
-	unsigned int firmware_month(void) const throw() { return core_release_month; }
-	unsigned int firmware_day  (void) const throw() { return core_release_day;   }
+	unsigned int year          (void) const throw() { return year;  }
+	unsigned int month         (void) const throw() { return month; }
+	unsigned int day           (void) const throw() { return day;   }
 	unsigned int configuration (void) const throw() { return core_configuraton;  }
 
-	unsigned int slot    (void) const throw() { return  board_id_&0x1F;       }
-	unsigned int sector  (void) const throw() { return (board_id_&0x700)>>8;  }
-	unsigned int endcap  (void) const throw() { return (board_id_&0x800)>>11; }
+	//unsigned int slot    (void) const throw() { return  board_id_&0x1F;       }
+	//unsigned int sector  (void) const throw() { return (board_id_&0x700)>>8;  }
+	//unsigned int endcap  (void) const throw() { return (board_id_&0x800)>>11; }
+
 	unsigned int board_id(void) const throw() { return  board_id_;             }
 
 	unsigned int crc     (void) const throw() { return crc_low|(crc_high<<11); }
