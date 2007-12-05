@@ -23,10 +23,10 @@ class CommissioningTask {
   
   // ---------- Constructors, destructors ----------
 
-  /** Constructor. */ 
   CommissioningTask( DaqMonitorBEInterface*, 
 		     const FedChannelConnection&,
 		     const std::string& my_name );
+
   virtual ~CommissioningTask();
 
   // ---------- Classes, structs ----------
@@ -49,25 +49,34 @@ class CommissioningTask {
     bool isProfile_;
   };
   
-
-
-
   // ---------- Public methods ----------
-  
+
+  /** Books histograms and constructs HistoSet cache. */
   void bookHistograms();
+
+  /** Fills HistoSet cache. */
   void fillHistograms( const SiStripEventSummary&, 
 		       const edm::DetSet<SiStripRawDigi>& );
+  
+  /** Fill HistoSet cache for FED cabling (special case). */
   void fillHistograms( const SiStripEventSummary&, 
 		       const uint16_t& fed_id,
 		       const std::map<uint16_t,float>& fed_ch );
   
+  /** Updates histograms using HistoSet cache. */
   void updateHistograms();
+
+  /** Get histogram filled counter. */
+  inline const uint32_t& fillCntr() const;
   
+  /** Get histogram update frequency. */
+  inline const uint32_t& updateFreq() const;
+
   /** Set histogram update frequency. */
-  void updateFreq( const uint32_t& freq ) { updateFreq_ = freq; }
+  inline void updateFreq( const uint32_t& );
   
   /** Returns the name of this commissioning task. */
-  const std::string& myName() const { return myName_; }
+  inline const std::string& myName() const;
   
  protected: 
   
@@ -75,8 +84,10 @@ class CommissioningTask {
   
   /** Updates the vectors of HistoSet. */
   void updateHistoSet( HistoSet&, const uint32_t& bin, const float& value );
+
   /** Updates the vectors of HistoSet. */
   void updateHistoSet( HistoSet&, const uint32_t& bin );
+
   /** Updates the MonitorElements of HistoSet. */
   void updateHistoSet( HistoSet& );
   
@@ -88,6 +99,7 @@ class CommissioningTask {
   
   /** Returns FEC key. */
   inline const uint32_t& fecKey() const;
+
   /** Returns FED key. */
   inline const uint32_t& fedKey() const;
   
@@ -98,27 +110,42 @@ class CommissioningTask {
   CommissioningTask() {;}
   
   virtual void book();
+
   virtual void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>& );
+
   virtual void fill( const SiStripEventSummary&, 
 		     const uint16_t& fed_id,
 		     const std::map<uint16_t,float>& fed_ch );
+
   virtual void update();
   
   // ---------- Private member data ----------
 
   DaqMonitorBEInterface* dqm_;
+
   uint32_t updateFreq_;
+
   uint32_t fillCntr_;
+
   FedChannelConnection connection_;
+
   uint32_t fedKey_;
+
   uint32_t fecKey_;
+
   bool booked_;
+
   std::string myName_;
   
 };
 
 // ----- inline methods -----
+
+const uint32_t& CommissioningTask::fillCntr() const { return fillCntr_; }
+const uint32_t& CommissioningTask::updateFreq() const { return updateFreq_; }
+void CommissioningTask::updateFreq( const uint32_t& freq ) { updateFreq_ = freq; }
+const std::string& CommissioningTask::myName() const { return myName_; }
 
 DaqMonitorBEInterface* const CommissioningTask::dqm() const { return dqm_; }
 const FedChannelConnection& CommissioningTask::connection() const { return connection_; }
