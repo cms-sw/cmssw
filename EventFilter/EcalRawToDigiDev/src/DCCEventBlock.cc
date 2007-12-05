@@ -203,10 +203,10 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       short  chStatus(*it);
       
       if(chStatus == CH_DISABLED ||
-	 chStatus != CH_SUPPRESS) 
+	 chStatus == CH_SUPPRESS) 
 	{continue;}
       
-      else if( chStatus = CH_TIMEOUT || chStatus == CH_HEADERERR || chStatus == CH_LINKERR )
+      else if( chStatus == CH_TIMEOUT || chStatus == CH_HEADERERR || chStatus == CH_LINKERR )
 	{
 	  edm::LogWarning("EcalRawToDigiDev") << "In fed: " << fedId_ << " the DCC channel: " << chNumber 
 					      << " has channel status: " << chStatus 
@@ -234,7 +234,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       
       
       // Unpack Mem blocks
-      if(memUnpacking_	 && chNumber>68 )
+      if(memUnpacking_	&& chNumber>68 )
 	{
 	  STATUS = memBlock_->unpack(&data_,&dwToEnd_,chNumber);
 	}
