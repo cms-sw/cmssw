@@ -201,48 +201,43 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       //for( uint i=1; chNumber<= numbChannels; chNumber++, it++ ){			
 
       short  chStatus(*it);
-
+      
+      if(chStatus == CH_DISABLED ||
+	 chStatus != CH_SUPPRESS) 
+	{continue;}
+      
+      else if( chStatus = CH_TIMEOUT || chStatus == CH_HEADERERR || chStatus == CH_LINKERR )
+	{
+	  edm::LogWarning("EcalRawToDigiDev") << "In fed: " << fedId_ << " the DCC channel: " << chNumber 
+					      << " has channel status: " << chStatus 
+					      << " and is not being unpacked at event: " << l1_;
+	}
+      
+      
       // Unpack Tower (Xtal Block) in case of SR (data are 0 suppressed)
-      if(feUnpacking_ && sr_
-	 && chStatus != CH_TIMEOUT && chStatus != CH_HEADERERR && chStatus != CH_LINKERR
-	 && chStatus != CH_DISABLED
-	 && chStatus != CH_SUPPRESS
-	 && chNumber<=68){
-	
-        if ( srpBlock_->srFlag(chNumber) != SRP_NREAD ){
-	  STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,chNumber);
-        }
-      }
-
-
+      if(feUnpacking_ && sr_ && chNumber<=68)
+	{
+	  if ( srpBlock_->srFlag(chNumber) != SRP_NREAD ){
+	    STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,chNumber);
+	  }
+	}
+      
+      
       
       // Unpack Tower (Xtal Block) for no SR (possibly 0 suppression flags)
-      else if (feUnpacking_ 
-	       && chStatus != CH_TIMEOUT && chStatus != CH_HEADERERR && chStatus != CH_LINKERR
-	       && chStatus != CH_DISABLED
-	       && chStatus != CH_SUPPRESS
-	       && chNumber<=68){
-	
-	// if tzs_ data are not really suppressed, even though zs flags are calculated
-	if(tzs_){ zs_ = false;}
-	STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,chNumber);
-      }		 
-  
-      // notify if for any reason channel is not being unpacked
-      else if(feUnpacking_) {
-	edm::LogWarning("EcalRawToDigiDev") << "In fed: " << fedId_ << " the DCC channel: " << chNumber 
-					    << " has channel status: " << chStatus 
-					    << " and is not being unpacked at event: " << l1_;
-      }
+      else if (feUnpacking_ && chNumber<=68)
+	{
+	  // if tzs_ data are not really suppressed, even though zs flags are calculated
+	  if(tzs_){ zs_ = false;}
+	  STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,chNumber);
+	}
       
-
-
+      
       // Unpack Mem blocks
-      if(memUnpacking_
-	 && chNumber>68 && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED){
-
-        STATUS = memBlock_->unpack(&data_,&dwToEnd_,chNumber);
-      }
+      if(memUnpacking_	 && chNumber>68 )
+	{
+	  STATUS = memBlock_->unpack(&data_,&dwToEnd_,chNumber);
+	}
       
     }
     // closing loop over FE/TTblock channels
