@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2007/11/29 13:36:36 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/02 03:49:27 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -29,11 +29,7 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
-
 #include "DQMServices/Core/interface/MonitorElement.h"
-//#include "DQMServices/Core/interface/MonitorUserInterface.h"
-//#include "DQMServices/CoreROOT/interface/DaqMonitorROOTBackEnd.h"
-//#include "DQMServices/UI/interface/MonitorUIRoot.h"
 
 //#include "VisMonitoring/DQMServer/interface/Objects.h"
 
@@ -75,7 +71,7 @@ class MEtoROOTConverter : public edm::EDProducer
   typedef std::vector<uint64_t> Int64Vector;
   typedef std::vector<std::string> StringVector;
   typedef std::vector<MEtoROOT::TagList> TagListVector;
-  typedef std::vector<TObject*> TObjectVector;
+  typedef std::vector<TH1F> TH1FVector;
   typedef std::vector<MEtoROOT::QReports> QReportsVector;
   typedef std::vector<uint32_t> Int32Vector;
 
@@ -107,8 +103,8 @@ class MEtoROOTConverter : public edm::EDProducer
   Int64Vector version;
   StringVector name;
   TagListVector tags;
-  TObjectVector object;
-  TObjectVector reference;
+  TH1FVector object;
+  TH1FVector refobj;
   QReportsVector qreports;
   Int32Vector flags;
 

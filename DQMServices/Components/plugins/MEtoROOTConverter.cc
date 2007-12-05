@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/11/29 13:36:36 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/02 03:49:27 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -33,7 +33,7 @@ MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
       << "    Frequency     = " << frequency << "\n"
       << "===============================\n";
   }
-  
+
   // get dqm info
   dbe = 0;
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
@@ -150,7 +150,7 @@ void MEtoROOTConverter::beginRun(edm::Run& iRun,
   name.clear();
   tags.clear();
   object.clear();
-  reference.clear();
+  refobj.clear();
   qreports.clear();
   flags.clear();
 
@@ -184,13 +184,13 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     if (!pathvec[a].empty()) fullpath += "/";
     fullpath += mevec[a];
 
+    //set name
     //std::cout << std::endl;    
     //std::cout << "name: " << fullpath << std::endl;
-    //set name
     name.push_back(fullpath);
 
-    //std::cout << "version: " << s_version.ns() << std::endl;    
     // set version
+    //std::cout << "version: " << s_version.ns() << std::endl;    
     version.push_back(s_version.ns());
     
     // get tags
@@ -206,19 +206,20 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     }
     if (!foundtags) taglist.clear();
     //std::cout << "taglist:" << std::endl;
-    for (unsigned int ii = 0; ii < taglist.size(); ++ii) {
-      std::cout << "   " << taglist[ii] << std::endl;
-    }
+    //for (unsigned int ii = 0; ii < taglist.size(); ++ii) {
+    //  std::cout << "   " << taglist[ii] << std::endl;
+    //}
     tags.push_back(taglist);
 
     // get monitor elements
+    TString classname;
     dbe->cd();
     dbe->cd(pathvec[a]);
     bool validME = false;
-    
-    //std::cout << "MEobject:" << std::endl;
+   
+    std::cout << "MEobject:" << std::endl;
     if (MonitorElement *me = dbe->get(fullpath)) {
-      
+   
       if (me->hasError()) flag |= FLAG_ERROR;
       if (me->hasWarning()) flag |= FLAG_WARNING;
       if (me->hasOtherReport()) flag |= FLAG_REPORT;
@@ -228,20 +229,38 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       if (ROOTObj *ob = dynamic_cast<ROOTObj *>(me)) {
 	if (TObject *tobj = ob->operator->()){
 	  validME = true;
-	  //std::cout << "   normal: " << me->getName() << std::endl;
-	  object.push_back(tobj);
+	  //std::cout << "   normal: " << tobj->GetName() << std::endl;
+	  classname = tobj->ClassName();
+	  //std::cout << "      classname: " << classname << std::endl;
+	  if (classname == "TH1F") {
+	    TH1F *histogram = dynamic_cast<TH1F*>(tobj);
+	    TH1F shistogram(*histogram);
+	    object.push_back(shistogram);
+	  }	  
 	  if (dynamic_cast<TObjString *> (tobj)) {
-	    //std::cout << "  normal scalar: " << me->getName() << std::endl;
+	    //std::cout << "  normal scalar: " << tobj->GetName() << std::endl;
 	    flag |= FLAG_SCALAR;
 	  }
 	}
       } else if (FoldableMonitor *ob = dynamic_cast<FoldableMonitor *>(me)) {
 	if (TObject *tobj = ob->getTagObject()) {
 	  validME = true;
-	  //std::cout << "   foldable: " << me->getName() << std::endl;	  
-	  object.push_back(tobj);
+	  //std::cout << "   foldable: " << tobj->GetName() << std::endl;
+	  classname = tobj->ClassName();
+	  //std::cout << "      classname: " << classname << std::endl;
+
+	  // Lassi says this is the only type this type of me can take....
+	  if (classname == "TObjString") {
+	    TObjString *hstring = dynamic_cast<TObjString*>(tobj);
+	    TObjString shstring(*hstring);
+	    TH1F dummyhist;
+	    object.push_back(dummyhist);
+	    //object.push_back(shstring); // this doesn't work right now
+	                                  // since only TH1F is implemented 
+	  };
 	  if (dynamic_cast<TObjString *> (tobj)) {
-	    //std::cout << "  foldable scalar: " << me->getName() << std::endl;
+	    //std::cout << "  foldable scalar: " << tobj->GetName() 
+	    //	      << std::endl;
 	    flag |= FLAG_SCALAR;
 	  }
 	}
@@ -254,12 +273,6 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       }
       
       // get quality reports
-      // fill with dummy empty report for now
-      MEtoROOT::QValue qvalue;
-      qvalue.code = 0;
-      qvalue.message = "";
-      qreportsmap[""] = qvalue;
-
       //std::cout << "qreports:" << std::endl;
       //MEtoROOT::QReports::iterator qmapIt;
       //for (qmapIt = qreportsmap.begin(); qmapIt != qreportsmap.end(); 
@@ -267,9 +280,9 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       //	std::cout << "   " << qmapIt->first << ":" << std::endl;
       //	std::cout << "      " << "code: " << (qmapIt->second).code
       //		  << std::endl;
-      //       std::cout << "      " << "message: " << (qmapIt->second).message
-      //		  << std::endl;	
-      //      }
+      //	std::cout << "      " << "message: " 
+      //		  << (qmapIt->second).message << std::endl;	
+      //}
       qreports.push_back(qreportsmap);
 
     } // end get monitor element
@@ -278,11 +291,13 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     //std::cout << "flag: " << flag << std::endl;
     flags.push_back(flag);
 
-    // get reference
-    TObject *tobjref = new TObject();
-    //std::cout << "reference:" << std::endl;
-    //std::cout << "   " << tobjref->GetName() << std::endl;
-    reference.push_back(tobjref);
+    // get refobj
+    if (classname == "TH1F") {
+      TH1F histref;
+      refobj.push_back(histref);
+      //std::cout << "refobj:" << std::endl;
+      //std::cout << "   " << histref.GetName() << std::endl;
+    }
 
   } // end loop through all monitor elements
 
@@ -290,7 +305,7 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   std::auto_ptr<MEtoROOT> pOut(new MEtoROOT);
 
   // fill pOut with vector info
-  pOut->putMERootObject(version,name,tags,object,reference,qreports,flags);
+  pOut->putMERootObject(version,name,tags,object,refobj,qreports,flags);
 
   // put into run tree
   iRun.put(pOut,fName);
