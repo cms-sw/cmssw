@@ -57,7 +57,7 @@ public:
     {
       for(unsigned int i = 0; i < theSize; ++i)
       {
-        frame[i] += uncorrelated[i] * std::sqrt(theMatrix(i,i)); 
+        frame[i] += uncorrelated[i] * std::sqrt(theCovarianceMatrix(i,i)); 
       }
     }
     else 
