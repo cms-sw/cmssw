@@ -1,11 +1,16 @@
 /*
  * \file L1THCALTPGXAna.cc
  *
- * $Date: 2007/11/29 01:02:41 $
- * $Revision: 1.2 $
+ * $Date: 2007/12/04 14:33:48 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPGXAna.cc,v $
+ * Revision 1.3  2007/12/04 14:33:48  berryhil
+ *
+ *
+ * hcal tpg xana activation
+ *
  * Revision 1.2  2007/11/29 01:02:41  aurisano
  * changes to histo bounds
  *
@@ -204,11 +209,17 @@ void L1THCALTPGXAna::beginJob(const EventSetup& iSetup)
       hcalTpgfgtimediff_ =
 	dbe->book1D("HcalFGtimediff", "Fine grain time diff", fgtdiffbins, fgtdiffmin, fgtdiffmax);
 
+      dbe->setCurrentFolder("L1T/L1THCALTPGXAna/EffByChannel");
       //efficiency histos for HBHE
       for (int i=0; i < 56; i++)
 	{      
 	  char hname[20],htitle[20];
-	  int ieta, iphi;
+          char dirname[80];
+ 	  int ieta, iphi;
+          if (i<28) ieta = i-28;
+	  else ieta = i-27;
+          sprintf(dirname,"L1T/L1THCALTPGXAna/EffByChannel/EtaTower%d",ieta);
+          dbe->setCurrentFolder(dirname);
 	  for (int j=0; j < 72; j++) 
 	    {
 	      iphi = j+1;
@@ -226,7 +237,12 @@ void L1THCALTPGXAna::beginJob(const EventSetup& iSetup)
       for (int i=0; i < 8; i++)
 	{
 	  char hname[20],htitle[20];
+          char dirname[80];
           int ieta, iphi;
+          if (i<4) ieta = i-32;
+	  else ieta = i+25;
+          sprintf(dirname,"L1T/L1THCALTPGXAna/EffByChannel/EtaTower%d",ieta);
+          dbe->setCurrentFolder(dirname);
 	  for (int j=0; j < 18; j++)
 	    {
 	      iphi = j*4+1;
