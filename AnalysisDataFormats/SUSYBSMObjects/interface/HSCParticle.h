@@ -7,6 +7,18 @@
 #include <vector>
 
 namespace susybsm {
+
+ class TimeMeasurement
+  {
+   public:
+     bool isLeft;
+     bool isPhi;
+     float posInLayer;
+     float distIP;
+     int station;
+     DetId driftCell;
+  };
+
  class DriftTubeTOF
   {
    public:
@@ -14,10 +26,11 @@ namespace susybsm {
      float invBetaErr;
      float invBetaFree;
      float invBetaFreeErr;
-     float vertexTimeFree;
-     float vertexTimeFreeErr;
+     float vertexTime;
+     float vertexTimeErr;
      int nStations;
      int nHits;
+     std::vector<TimeMeasurement> timeMeasurements;
   };
 
 

@@ -4,6 +4,8 @@ namespace {
   susybsm::HSCParticle pa;
   susybsm::DriftTubeTOF dtitof;
 
+  susybsm::TimeMeasurement tm;
+  std::vector<susybsm::TimeMeasurement> tmv;
   susybsm::MuonTOFCollection mtc; 
   susybsm::MuonTOF mt;
   susybsm::MuonTOFRef mtr;
