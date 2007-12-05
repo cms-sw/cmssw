@@ -77,7 +77,7 @@ void AnalyseITEP(char element[2], char list[10], char ene[6], int scan=1, char p
 
   TFile *file = new TFile(fname);
   TTree *tree = (TTree *) file->Get("T1");
-  int interval = 10000;
+  int interval = 100000;
   if (plot == 'N' || plot == 'n') interval = 100000;
 
   if (!tree) {
@@ -152,11 +152,11 @@ void AnalyseITEP(char element[2], char list[10], char ene[6], int scan=1, char p
 
     std::cout << ninter << " interactions seen in " << nentry << " trials\n";
     double sigma = atwt*10000.*log((double)(nentry)/(double)(nentry-ninter))/(rhol*6.023);
-    double dsigma    = sigma/sqrt(double(ninter));
-    double sigmaEl   = sigma*((double)(elastic))/((double)(ninter));
-    double dsigmaEl  = sigmaEl/sqrt(double(elastic));
-    double sigmaInel = sigma*((double)(inelastic))/((double)(ninter));
-    double dsigmaInel= sigmaInel/sqrt(double(inelastic));
+    double dsigma    = sigma/sqrt(double(max(ninter,1)));
+    double sigmaEl   = sigma*((double)(elastic))/((double)(max(ninter,1)));
+    double dsigmaEl  = sigmaEl/sqrt(double(max(elastic,1)));
+    double sigmaInel = sigma*((double)(inelastic))/((double)(max(ninter,1)));
+    double dsigmaInel= sigmaInel/sqrt(double(max(inelastic,1)));
     std::cout << "Total     " << sigma << " +- " << dsigma 
 	      << " mb (" << ninter << " events)\n"
 	      << "Elastic   " << sigmaEl<< " +- " << dsigmaEl
@@ -191,7 +191,7 @@ void AnalyseITEP(char element[2], char list[10], char ene[6], int scan=1, char p
       hiKE1[ii]->GetXaxis()->SetTitle("Kinetic Energy of proton (GeV)");
       hiKE1[ii]->GetYaxis()->SetTitle(title);
       double xbin  = hiKE2[ii]->GetBinWidth(1);
-      double scale = sigmaInel/(((double)(inelastic))*xbin*2.*pi*dcth);
+      double scale = sigmaInel/(((double)(max(inelastic,1)))*xbin*2.*pi*dcth);
       std::cout << "Bin " << ii << " Angle " << angles[ii]/deg << " Bin " << xbin << " Scale " << scale << " " << title << "\n";
       sprintf (title, "Events (scaled by #frac{1}{p})/%6.3f GeV", xbin);
       hiKE2[ii]->GetXaxis()->SetTitle("Kinetic Energy of proton (GeV)");
@@ -220,7 +220,7 @@ void AnalyseITEP(char element[2], char list[10], char ene[6], int scan=1, char p
       hiCT1[ii]->GetXaxis()->SetTitle("cos (#theta)");
       hiCT1[ii]->GetYaxis()->SetTitle(title);
       double xbin  = hiCT2[ii]->GetBinWidth(1);
-      double scale = sigmaInel/(((double)(inelastic))*xbin*2.*pi*de);
+      double scale = sigmaInel/(((double)(max(inelastic,1)))*xbin*2.*pi*de);
       std::cout << "Bin " << ii << " KE " << energies[ii] << " MeV Bin " << xbin << " Scale " << scale << " " << title << "\n";
       sprintf (title, "Events (scaled by #frac{1}{p})/%6.3f", xbin);
       hiCT2[ii]->GetXaxis()->SetTitle("cos (#theta)");
