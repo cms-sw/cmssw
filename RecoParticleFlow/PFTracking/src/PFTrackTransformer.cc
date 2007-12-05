@@ -26,9 +26,8 @@ PFTrackTransformer::PFTrackTransformer(){
   LogInfo("PFTrackTransformer")<<"PFTrackTransformer built";
 
   PFGeometry pfGeometry;
+  onlyprop_=true;
 }
-
-
 
 PFTrackTransformer::~PFTrackTransformer(){
 
@@ -40,10 +39,12 @@ PFTrackTransformer::~PFTrackTransformer(){
 
 
 
+
+
 bool 
 PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack, 
 			       const reco::Track& track,
-			       const Trajectory& traj ) const {
+			       const Trajectory& traj) const {
   
   LogDebug("PFTrackTransformer")<<"Trajectory propagation started";
   using namespace reco;
@@ -64,8 +65,8 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 							 track.vertex().z(),
 							 0.)),
 			   0.,0.,4.);
-    theParticle.setCharge(track.charge());
-    float pfoutenergy=sqrt((pfmass*pfmass)+track.outerMomentum().Mag2());
+  theParticle.setCharge(track.charge());
+  float pfoutenergy=sqrt((pfmass*pfmass)+track.outerMomentum().Mag2());
   BaseParticlePropagator theOutParticle = 
     BaseParticlePropagator( 
 			   RawParticle(XYZTLorentzVector(track.outerMomentum().x(),
@@ -78,8 +79,8 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 							 0.)),
 			   0.,0.,4.);
   theOutParticle.setCharge(track.charge());
-
-
+  
+  
   math::XYZTLorentzVector momClosest 
     = math::XYZTLorentzVector(track.px(), track.py(), 
 			      track.pz(), track.p());
@@ -106,22 +107,23 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 
   //trajectory points
 
-  bool direction =(traj.direction() == alongMomentum);
-  vector<TrajectoryMeasurement> measurements =traj.measurements();
-  int iTrajFirst = (direction) ? 0 :  measurements.size() - 1;
-  int increment = (direction) ? +1 : -1;
-  int iTrajLast  =  (direction) ? int(measurements.size()) : -1;
- 
+  if (!onlyprop_){
+    bool direction =(traj.direction() == alongMomentum);
+    vector<TrajectoryMeasurement> measurements =traj.measurements();
+    int iTrajFirst = (direction) ? 0 :  measurements.size() - 1;
+    int increment = (direction) ? +1 : -1;
+    int iTrajLast  =  (direction) ? int(measurements.size()) : -1;
+    
 
-   for (int iTraj = iTrajFirst; iTraj != iTrajLast; iTraj += increment) {
-     GlobalPoint v=measurements[iTraj].updatedState().globalPosition();
-     GlobalVector p=measurements[iTraj].updatedState().globalMomentum();
-     uint iid=measurements[iTraj].recHit()->det()->geographicalId().rawId();
-     pftrack.addPoint(PFTrajectoryPoint(iid,-1,
-				      math::XYZPoint(v.x(), v.y(), v.z()),
-				      math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.mag())));
-   }
-
+    for (int iTraj = iTrajFirst; iTraj != iTrajLast; iTraj += increment) {
+      GlobalPoint v=measurements[iTraj].updatedState().globalPosition();
+      GlobalVector p=measurements[iTraj].updatedState().globalMomentum();
+      uint iid=measurements[iTraj].recHit()->det()->geographicalId().rawId();
+      pftrack.addPoint(PFTrajectoryPoint(iid,-1,
+					 math::XYZPoint(v.x(), v.y(), v.z()),
+					 math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.mag())));
+    }
+  }
   
    bool isBelowPS=false; 
    theOutParticle.propagateToPreshowerLayer1(false);

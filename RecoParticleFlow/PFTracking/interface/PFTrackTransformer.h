@@ -40,11 +40,13 @@ class PFTrackTransformer{
   /// Add points to a PFTrack. return false if a TSOS is invalid
   bool addPoints(reco::PFRecTrack& pftrack, 
 		 const reco::Track& track,
-		 const Trajectory& traj ) const; 
+		 const Trajectory& traj) const; 
 
-
-
-
+  void OnlyProp(){
+    onlyprop_=true;
+  }
+  bool  onlyprop_;
+  
 };
 
 #endif
