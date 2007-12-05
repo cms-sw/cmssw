@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.6 2007/11/21 13:18:06 arizzi Exp $
+// $Id: BetaFromTOF.cc,v 1.7 2007/11/21 13:31:28 ptraczyk Exp $
 //
 //
 
@@ -361,6 +361,17 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                   if (hiti->lrSide()==DTEnums::Left) hitSide=-1; else hitSide=1;
                   double t0_segm = (-(hitSide*segmLocalPos)+(hitSide*hitLocalPos))/0.00543;
                   
+                  TimeMeasurement thisHit;
+                  
+                  thisHit.driftCell = hiti->geographicalId();
+                  if (hiti->lrSide()==DTEnums::Left) thisHit.isLeft=true; else thisHit.isLeft=false;
+                  thisHit.isPhi = false;
+                  thisHit.posInLayer = hitLocalPos;
+                  thisHit.distIP = dist;
+                  thisHit.station = station;
+                  
+                  tof.timeMeasurements.push_back(thisHit);
+                  
                   dstnc.push_back(dist);
                   dsegm.push_back(t0_segm);
                   left.push_back(hitSide);
@@ -414,23 +425,30 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       
     // unconstrained fit to the full set of points
     vector <double> x,y;
+    double freeBeta, freeBetaErr, freeTime, freeTimeErr, vertexTime=0, vertexTimeErr=0;    
+
     for (int i=0;i<dstnc.size();i++) {
 //      cout << "    Dstnc: " << dstnc.at(i) << "   delta t0(hit-segment): " << dsegm.at(i) << "   weight: " << hitWeight.at(i); 
 //      cout << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
       x.push_back(dstnc.at(i)/30.);
       y.push_back(dsegm.at(i)+dstnc.at(i)/30.);
+      vertexTime+=dsegm.at(i)*hitWeight.at(i)/totalWeight;
 //      cout << "    x: " << x.at(i) << "   y: " << y.at(i) << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
     }
 
+    for (int i=0;i<dstnc.size();i++) {
+      diff=dsegm.at(i)-vertexTime;
+      vertexTimeErr+=diff*diff*hitWeight.at(i);
+    }
+    vertexTimeErr=sqrt(vertexTimeErr)/totalWeight;
     
-    double freeBeta, freeBetaErr, freeTime, freeTimeErr;    
     rawFit(freeBeta, freeBetaErr, freeTime, freeTimeErr, x, y);
 //    textplot(x,y,left);
     
     tof.invBetaFree=freeBeta;
     tof.invBetaFreeErr=freeBetaErr;
-    tof.vertexTimeFree=freeTime;
-    tof.vertexTimeFreeErr=freeTimeErr;
+    tof.vertexTime=vertexTime;
+    tof.vertexTimeErr=vertexTimeErr;
     
     int nStations=0;
     for (int s=0;s<4;s++) 
@@ -441,6 +459,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     cout << " Free 1/beta: " << freeBeta << " +/- " << freeBetaErr << endl;   
     cout << "   Free time: " << freeTime << " +/- " << freeTimeErr << endl;   
+    cout << " Vertex time: " << vertexTime << " +/- " << freeTimeErr << endl;   
     
     // End the loop over STA muons - since we already found the matching one
     break;
