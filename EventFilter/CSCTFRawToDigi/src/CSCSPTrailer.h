@@ -14,9 +14,9 @@ private:
 	unsigned word_count_high: 4;
 	unsigned trailer_mark_4 : 4;  // constant, should be 1111 = 0xF
 	/////// word 3 ///////
-	unsigned month             : 4;
-	unsigned year              : 4;
-	unsigned bb                : 1; // SP readout configuration year base (0 / 16)
+	unsigned month_            : 4;
+	unsigned year_             : 4;
+	unsigned bb_               : 1; // SP readout configuration year base (0 / 16)
 	unsigned spare_1           : 1;
 	unsigned spare_2           : 1;
 	unsigned zero_1            : 1;
@@ -25,7 +25,7 @@ private:
 	unsigned core_configuraton : 12;
 	unsigned trailer_mark_6    : 4;  // constant, should be 1111 = 0xF
 	/////// word 5 ///////
-	unsigned day               : 5;
+	unsigned day_              : 5;
 	unsigned zero_2            : 7;
 	unsigned trailer_mark_7    : 4;  // constant, should be 1110 = 0xE
 	/////// word 6 ///////
@@ -44,7 +44,7 @@ private:
 
 public:
 	bool check(void) const throw() {
-		return spare_1!=0 || spare_2!=0 || spare_3!=0 || zero_1!=0 || zero_2!=0 ||
+		return spare_1!=0 || spare_2!=0 || zero_1!=0 || zero_2!=0 ||
 			trailer_mark_1!=0xF || trailer_mark_2!=0xF || trailer_mark_3!=0x7 || trailer_mark_4!=0xF || trailer_mark_5!=0xF || trailer_mark_6!=0xF ||
 			trailer_mark_7!=0xE || trailer_mark_8!=0xE || trailer_mark_9!=0xE || trailer_mark_10!=0xE;
 	}
@@ -53,9 +53,9 @@ public:
 	unsigned int l1a_queue_size(void) const throw() { return (word_count_high<<4)|word_count_low; }
 	bool         l1a_fifo_full (void) const throw() { return l1a_fifo_full_; }
 
-	unsigned int year          (void) const throw() { return year;  }
-	unsigned int month         (void) const throw() { return month; }
-	unsigned int day           (void) const throw() { return day;   }
+	unsigned int year          (void) const throw() { return 2000+16*bb_+year_; }
+	unsigned int month         (void) const throw() { return month_; }
+	unsigned int day           (void) const throw() { return day_;   }
 	unsigned int configuration (void) const throw() { return core_configuraton;  }
 
 	//unsigned int slot    (void) const throw() { return  board_id_&0x1F;       }
