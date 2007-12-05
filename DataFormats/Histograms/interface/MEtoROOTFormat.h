@@ -6,12 +6,13 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2007/11/28 22:06:14 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/02 03:46:22 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include <TObject.h>
+#include <TH1F.h>
 
 #include <string>
 #include <vector>
@@ -40,8 +41,8 @@ class MEtoROOT
     uint64_t	version;
     std::string	name;
     TagList 	tags;
-    TObject*	object;
-    TObject*	reference;
+    TH1F	object;
+    TH1F	refobj;
     QReports	qreports;
     uint32_t	flags;
   };
@@ -51,8 +52,8 @@ class MEtoROOT
   void putMERootObject(std::vector<uint64_t> version,
 		       std::vector<std::string> name,
 		       std::vector<TagList> tags,
-		       std::vector<TObject*> object,
-		       std::vector<TObject*> reference,
+		       std::vector<TH1F> object,
+		       std::vector<TH1F> refobj,
 		       std::vector<QReports> qreports,
 		       std::vector<uint32_t> flags);
 

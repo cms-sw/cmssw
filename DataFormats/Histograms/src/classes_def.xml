@@ -42,9 +42,6 @@
  </class>
  <class name="edm::Wrapper<TProfile3D>"/>
 
- <class name="TObject"/>
- <class name="edm::Wrapper<TObject>"/>
-
  <class name="MEtoROOT"/>
  <class name="MEtoROOT::QValue"/>
  <class name="std::vector<uint32_t>"/>

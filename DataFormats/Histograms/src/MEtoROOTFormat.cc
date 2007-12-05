@@ -3,8 +3,8 @@
  *  See header file for description of class
  *  
  *
- *  $Date: 2007/11/28 22:06:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/02 03:46:24 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -15,8 +15,8 @@
 void MEtoROOT::putMERootObject(std::vector<uint64_t> version,
 			       std::vector<std::string> name,
 			       std::vector<TagList> tags,
-			       std::vector<TObject*> object,
-			       std::vector<TObject*> reference,
+			       std::vector<TH1F> object,
+			       std::vector<TH1F> refobj,
 			       std::vector<QReports> qreports,
 			       std::vector<uint32_t> flags)
 {
@@ -29,7 +29,7 @@ void MEtoROOT::putMERootObject(std::vector<uint64_t> version,
     MERootObject[i].name = name[i];
     MERootObject[i].tags = tags[i];
     MERootObject[i].object = object[i];
-    MERootObject[i].reference = reference[i];
+    MERootObject[i].refobj = refobj[i];
     MERootObject[i].qreports = qreports[i];
     MERootObject[i].flags = flags[i];
   }
