@@ -94,7 +94,6 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const {
     break;
   }
   case 2007: {
-    std::vector<CSCCLCTDigi> result;
     CSCCLCTDigi digi0(header2007.clct0_valid, header2007.clct0_quality, header2007.clct0_shape, 1, 
 		      header2007.clct0_bend, header2007.clct0_key, 
 		      (header2007.clct0_cfeb_low)|(header2007.clct0_cfeb_high<<1),
