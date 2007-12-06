@@ -98,6 +98,9 @@ ptdat CSCTFPtLUT::Pt(const unsigned& delta_phi_12, const unsigned& track_eta,
   return Pt(address);
 }
 
+// Taken from spbits.h :
+#define MODE_ACC 15 // mode for accelerator tracks
+
 ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 {
   ptdat result;
@@ -287,13 +290,20 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
       if (rear_pt  < 5) rear_pt  = 5;
     }
 
-  result.front_rank = front_pt | front_quality << 5;
-  result.rear_rank  = rear_pt  | rear_quality << 5;
+  if( mode==MODE_ACC ){ // halo muon track:
+    result.front_rank = 1;
+    result.rear_rank  = 1;
+  } else { // any other tracks:
+    result.front_rank = front_pt | front_quality << 5;
+    result.rear_rank  = rear_pt  | rear_quality << 5;
+  }
   result.charge_valid_front = 1; //ptMethods.chargeValid(front_pt, quality, eta, pt_method);
   result.charge_valid_rear  = 1; //ptMethods.chargeValid(rear_pt, quality, eta, pt_method);
 
   return result;
 }
+
+#undef MODE_ACC
 
 unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) const
 {
@@ -407,3 +417,5 @@ void CSCTFPtLUT::readLUT()
       PtLUT.close();
     }
 }
+
+

@@ -56,11 +56,10 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   std::vector<unsigned> etamaxs = pset.getUntrackedParameter<std::vector<unsigned> >("EtaMax",std::vector<unsigned>(0));
   for(iter=etamaxs.begin(),i=0; iter!=etamaxs.end(); iter++,i++) m_etamax[i] = *iter;
 
-  m_mindphip     = 70;
-  m_mindeta_accp = 4;
-  m_maxdeta_accp = 16;
-  m_maxdphi_accp = 128;
-
+  m_mindphip     = pset.getUntrackedParameter<unsigned>("mindphip",unsigned(70));
+  m_mindeta_accp = pset.getUntrackedParameter<unsigned>("mindeta_accp",unsigned(4));
+  m_maxdeta_accp = pset.getUntrackedParameter<unsigned>("maxdeta_accp",unsigned(16));
+  m_maxdphi_accp = pset.getUntrackedParameter<unsigned>("maxdphi_accp",unsigned(128));
 //KK end
 
   try {

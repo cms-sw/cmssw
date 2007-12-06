@@ -444,6 +444,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkH.setBx((int)(bx)-minBX);
 	  trkH.setStationIds(io->me1idH, io->me2idH, io->me3idH, io->me4idH, io->mb1idH);
 	  trkH.m_output_link = 1;
+	  if( LUTAddressH.track_mode==MODE_ACC ) trkH.setFineHaloPacked(1);
 	  mytracks.push_back(trkH);
 	}
       if(LUTAddressM.track_mode)
@@ -455,6 +456,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkM.setBx((int)(bx)-minBX);
 	  trkM.setStationIds(io->me1idM, io->me2idM, io->me3idM, io->me4idM, io->mb1idM);
 	  trkM.m_output_link = 2;
+	  if( LUTAddressM.track_mode==MODE_ACC ) trkM.setFineHaloPacked(1);
 	  mytracks.push_back(trkM);
 	}
       if(LUTAddressL.track_mode)
@@ -466,6 +468,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkL.setBx((int)(bx)-minBX);
 	  trkL.setStationIds(io->me1idL, io->me2idL, io->me3idL, io->me4idL, io->mb1idL);
 	  trkL.m_output_link = 3;
+	  if( LUTAddressL.track_mode==MODE_ACC ) trkL.setFineHaloPacked(1);
 	  mytracks.push_back(trkL);
 	}
       ++bx;
