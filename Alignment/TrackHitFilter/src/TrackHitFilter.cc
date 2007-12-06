@@ -13,11 +13,21 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.cc,v 1.4 2007/07/26 15:59:28 covarell Exp $
+// $Id: TrackHitFilter.cc,v 1.5 2007/10/09 04:33:34 dlange Exp $
 //
 //
 
 #include "Alignment/TrackHitFilter/interface/TrackHitFilter.h"
+#include "FWCore/Framework/interface/Event.h" 
+#include "FWCore/Framework/interface/MakerMacros.h" 
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "FWCore/MessageLogger/interface/MessageLogger.h" 
+#include "DataFormats/TrackReco/interface/Track.h" 
+#include "DataFormats/TrackReco/interface/TrackExtra.h" 
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h" 
+#include "DataFormats/DetId/interface/DetId.h" 
+#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h" 
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h" 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 using namespace edm;

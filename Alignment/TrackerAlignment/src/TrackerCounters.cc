@@ -1,4 +1,3 @@
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/TrackerAlignment/interface/TECNameSpace.h"
 #include "Alignment/TrackerAlignment/interface/TIBNameSpace.h"
 #include "Alignment/TrackerAlignment/interface/TIDNameSpace.h"

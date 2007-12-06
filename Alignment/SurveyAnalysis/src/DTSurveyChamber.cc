@@ -1,4 +1,6 @@
 #include "Alignment/SurveyAnalysis/interface/DTSurveyChamber.h"
+#include "Alignment/SurveyAnalysis/interface/Chi2.h" 
+#include "Geometry/DTGeometry/interface/DTChamber.h" 
 
 
 #define MAX_PUNTOS 16

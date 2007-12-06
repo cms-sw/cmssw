@@ -1,9 +1,6 @@
 #include "TFile.h"
 #include "TTree.h"
-#include "TVector3.h"
-#include "Math/Cartesian3D.h"
 #include "Math/EulerAngles.h"
-#include "Math/Rotation3D.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"

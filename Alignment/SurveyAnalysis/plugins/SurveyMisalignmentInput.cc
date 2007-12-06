@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
@@ -9,7 +8,6 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

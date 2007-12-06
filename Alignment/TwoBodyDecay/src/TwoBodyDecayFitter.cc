@@ -1,6 +1,5 @@
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayFitter.h"
 
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
 using namespace std;
 

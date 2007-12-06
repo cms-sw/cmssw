@@ -1,4 +1,6 @@
 #include "Alignment/SurveyAnalysis/interface/DTSurvey.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h" 
+#include "Geometry/DTGeometry/interface/DTChamber.h" 
 
 
 

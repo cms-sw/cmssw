@@ -6,6 +6,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableModifier.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignment.h"
 #include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h" 
 
 #include "Alignment/SurveyAnalysis/plugins/SurveyDataConverter.h"
 

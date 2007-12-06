@@ -4,7 +4,8 @@
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecay.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayVirtualMeasurement.h"
 
-#include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
+#include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h" 
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

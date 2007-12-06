@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.h,v 1.3 2007/06/22 08:20:36 covarell Exp $
+// $Id: TrackHitFilter.h,v 1.4 2007/07/26 15:59:27 covarell Exp $
 //
 //
 
@@ -25,20 +25,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 //
 // class declaration

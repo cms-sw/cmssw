@@ -1,9 +1,9 @@
 /// \file
 ///
-/// $Date$
-/// $Revision$
+/// $Date: 2007/01/12 09:47:43 $
+/// $Revision: 1.1 $
 ///
-/// $Author$
+/// $Author: fronga $
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <string>
@@ -17,6 +17,7 @@
 // Alignment
 
 #include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h" 
 
 
 //__________________________________________________________________________________________________

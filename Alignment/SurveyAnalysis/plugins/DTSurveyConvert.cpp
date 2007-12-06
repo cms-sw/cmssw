@@ -16,7 +16,7 @@
 //
 // Original Author:  Pablo Martinez Ruiz Del Arbol
 //         Created:  Wed Mar 28 09:50:08 CEST 2007
-// $Id: DTSurveyConvert.cpp,v 1.3 2007/04/27 16:32:24 pablom Exp $
+// $Id: DTSurveyConvert.cpp,v 1.4 2007/04/27 17:05:31 pablom Exp $
 //
 //
 
@@ -31,7 +31,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignment.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/Framework/interface/MakerMacros.h"

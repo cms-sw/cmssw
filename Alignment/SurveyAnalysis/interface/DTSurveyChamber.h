@@ -3,8 +3,8 @@
  *  Implements a chamber in the context of Drift Tube Survey Measurements  
  *  and calculates displacements and rotations for it.
  *
- *  $Date: 2007/04/13 18:05:35 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/17 07:45:02 $
+ *  $Revision: 1.2 $
  *  \author Pablo Martinez Ruiz del Arbol
  */
 
@@ -12,10 +12,7 @@
 #ifndef Alignment_SurveyAnalysis_DTSurveyChamber_H
 #define Alignment_SurveyAnalysis_DTSurveyChamber_H
 
-#include "Alignment/SurveyAnalysis/interface/Chi2.h"
 
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "TMatrixD.h" 
 
 

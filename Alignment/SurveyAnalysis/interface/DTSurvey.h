@@ -4,8 +4,8 @@
  *  Contains DTSurveyChambers and the displacements and rotations for each are 
  *  calculated.
  *
- *  $Date: 2007/04/13 18:05:35 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/17 07:45:02 $
+ *  $Revision: 1.2 $
  *  \author Pablo Martinez Ruiz del Arbol
  */
 
@@ -25,10 +25,8 @@
 
 #include <FWCore/Framework/interface/ESHandle.h>
 
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
 
 
 using namespace std;
