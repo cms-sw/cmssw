@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.2 2007/12/06 17:07:23 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.3 2007/12/06 20:18:44 chrjones Exp $
 //
 
 // system include files
@@ -134,6 +134,11 @@ FWDisplayEvent::FWDisplayEvent() :
       frmMain->SetCleanup(kDeepCleanup);
 
       TGHorizontalFrame* hf = new TGHorizontalFrame(frmMain);
+      //We need an error handling system which can properly report
+      // errors and decide what to do
+      // given that we are an interactive system we need to leave
+      // the code in a good state so that users can decided to 
+      // continue or not
       {
 	if(0==gSystem->Getenv("ROOTSYS")) {
 	  std::cerr<<"environment variable ROOTSYS is not set" <<
@@ -251,83 +256,66 @@ FWDisplayEvent::waitingForUserAction() const
   return m_waitForUserAction;
 }
 
+namespace {
+  //guarantee that no matter how we go back to Cint that
+  // we have disabled these buttons
+  struct EnableButton {
+    EnableButton( TGButton* iButton):
+      m_button(iButton)
+    {
+      if(0!=m_button) {
+	m_button->SetEnabled();
+      }
+    }
+    ~EnableButton()
+    {
+      m_button->SetEnabled(kFALSE);
+      gSystem->DispatchOneEvent(kFALSE);
+    }
+
+  private:
+    TGButton* m_button;
+  };
+
+  struct DisableRedraw {
+    DisableRedraw() {
+      gEve->DisableRedraw();
+    }
+    ~DisableRedraw() {
+      gEve->EnableRedraw();
+    }
+  };
+}
 void
 FWDisplayEvent::draw(const fwlite::Event& iEvent) const
 {
   //need to reset 
   m_continueProcessingEvents = false;
-  m_advanceButton->SetEnabled();
+  EnableButton advancedB(m_advanceButton);
 
   using namespace std;
-  /*
-  fwlite::Handle<reco::TrackCollection> tracks;
-  tracks.getByLabel(iEvent,"ctfWithMaterialTracks");
-  
-  if(0 == tracks.ptr() ) {
-    cout <<"failed to get MC"<<endl;
-  }
-  */
   if(0==gEve) {
     cout <<"Eve not initialized"<<endl;
   }
-  gEve->DisableRedraw();
-  /*
-  if(0 == m_tracks) {
-    m_tracks = new TEveTrackList("Tracks");
-    m_tracks->SetMainColor(Color_t(3));
-    TEveTrackPropagator* rnrStyle = m_tracks->GetPropagator();
-    //units are kG
-    rnrStyle->SetMagField( 4.0*10.);
-    //get this from geometry, units are CM
-    rnrStyle->SetMaxR(120.0);
-    rnrStyle->SetMaxZ(300.0);
+  {
+    //while inside this scope, do not let
+    // Eve do any redrawing
+    DisableRedraw disableRedraw;
+
+    make_tracks_rhophi(&iEvent,
+		       &(m_physicsElements.front()));
     
-    gEve->AddElement(m_tracks);
-  } else {
-    m_tracks->DestroyElements();
-  }
-  
-  TEveTrackPropagator* rnrStyle = m_tracks->GetPropagator();
-  
-  int index=0;
-  cout <<"----"<<endl;
-  TEveRecTrack t;
-  t.beta = 1.;
-  for(reco::TrackCollection::const_iterator it = tracks->begin();
-      it != tracks->end();++it,++index) {
-    t.P = TEveVector(it->px(),
-		     it->py(),
-		     it->pz());
-    t.V = TEveVector(it->vx(),
-		     it->vy(),
-		     it->vz());
+    //setup the projection
+    m_rhoPhiProjMgr->DestroyElements();
+    m_rhoPhiProjMgr->ImportElements(m_geom);
+    for(std::vector<TEveElementList*>::iterator it = m_physicsElements.begin();
+	it != m_physicsElements.end();
+	++it) {
+      m_rhoPhiProjMgr->ImportElements(*it);
+    }
 
-    TEveTrack* trk = new TEveTrack(&t,rnrStyle);
-    trk->SetMainColor(m_tracks->GetMainColor());
-    gEve->AddElement(trk,m_tracks);
-    //cout << it->px()<<" "
-    //   <<it->py()<<" "
-    //   <<it->pz()<<endl;
-    //cout <<" *";
+    //At the end of this scope, redrawing will be enabled
   }
-  cout <<"finished"<<endl;
-  m_tracks->UpdateItems();
-  m_tracks->MakeTracks();
-  */
-
-  make_tracks_rhophi(&iEvent,
-		     &(m_physicsElements.front()));
-  
-  //setup the projection
-  m_rhoPhiProjMgr->DestroyElements();
-  m_rhoPhiProjMgr->ImportElements(m_geom);
-  for(std::vector<TEveElementList*>::iterator it = m_physicsElements.begin();
-      it != m_physicsElements.end();
-      ++it) {
-    m_rhoPhiProjMgr->ImportElements(*it);
-  }
-
-  gEve->EnableRedraw();
   
   //check for input at least once
   gSystem->ProcessEvents();
@@ -337,8 +325,6 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
     //gSystem->ProcessEvents();
     gSystem->DispatchOneEvent(kFALSE);
   }
-  m_advanceButton->SetEnabled(kFALSE);
-  gSystem->DispatchOneEvent(kFALSE);
 }
 
 //
