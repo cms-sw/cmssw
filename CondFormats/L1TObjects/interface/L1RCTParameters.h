@@ -37,6 +37,7 @@ class L1RCTParameters {
 		  double eMaxForHoECut,
 		  double eActivityCut,
 		  double hActivityCut,
+		  double eicIsolationThreshold,
 		  std::vector<double> eGammaECalScaleFactors,
 		  std::vector<double> eGammaHCalScaleFactors,
 		  std::vector<double> jetMETECalScaleFactors,
@@ -57,6 +58,7 @@ class L1RCTParameters {
   double eMaxForHoECut() const {return eMaxForHoECut_;}
   double eActivityCut() const {return eActivityCut_;}
   double hActivityCut() const {return hActivityCut_;}
+  double eicIsolationThreshold() const {return eicIsolationThreshold_;}
   std::vector<double> eGammaECalScaleFactors() const {return eGammaECalScaleFactors_;}
   std::vector<double> eGammaHCalScaleFactors() const {return eGammaHCalScaleFactors_;}
   std::vector<double> jetMETECalScaleFactors() const {return jetMETECalScaleFactors_;}
@@ -119,6 +121,13 @@ class L1RCTParameters {
   // for tau pattern logic
   
   double hActivityCut_;
+
+  // This parameter is used for the five-tower-corner isolation
+  // algorithm in the electron isolation card.  If one corner 
+  // set of five neighbor towers falls below this threshold, 
+  // the electron candidate is isolated.
+
+  double eicIsolationThreshold_;
 
   // eGamma object ET is computed using the trigger tower ET defined as
   // ecal * eGammaECalScaleFactors[iEta] + hcal * eGammaHCalScaleFactors[iEta]
