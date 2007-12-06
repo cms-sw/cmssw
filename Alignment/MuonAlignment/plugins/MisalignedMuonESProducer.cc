@@ -1,17 +1,15 @@
 /** \file
  *
- *  $Date: 2007/04/18 14:09:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/08/29 02:24:38 $
+ *  $Revision: 1.3 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
 
 // Framework
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -20,11 +18,10 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 // Alignment
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h" 
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h" 
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 #include "Alignment/MuonAlignment/plugins/MisalignedMuonESProducer.h"
 

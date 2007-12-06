@@ -1,12 +1,15 @@
 /** \file
  *
- *  $Date: 2006/08/04 20:18:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/10/16 14:39:31 $
+ *  $Revision: 1.5 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
 
 #include "Alignment/MuonAlignment/interface/AlignableDTBarrel.h"
+#include "CondFormats/Alignment/interface/Alignments.h" 
+#include "CondFormats/Alignment/interface/AlignmentErrors.h" 
+#include "CondFormats/Alignment/interface/AlignmentSorter.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 

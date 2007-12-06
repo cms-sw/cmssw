@@ -4,21 +4,18 @@
 /** \class MuonScenarioBuilder
  *  The misalignment scenario builder.
  *
- *  $Date: 2007/01/12 09:47:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/07 08:42:09 $
+ *  $Revision: 1.2 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
 
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableModifier.h"
 #include "Alignment/CommonAlignment/interface/MisalignmentScenarioBuilder.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 /// Builds a scenario from configuration and applies it to the alignable Muon.
 
 class MuonScenarioBuilder : public MisalignmentScenarioBuilder

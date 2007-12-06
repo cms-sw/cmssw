@@ -1,21 +1,27 @@
 /** \file
  *
- *  $Date: 2007/01/22 15:29:18 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/03/02 18:39:17 $
+ *  $Revision: 1.15 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
 
 // Framework
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+#include "Geometry/DTGeometry/interface/DTChamber.h" 
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h" 
+#include <Geometry/DTGeometry/interface/DTLayer.h> 
+#include "CondFormats/Alignment/interface/Alignments.h" 
+#include "CondFormats/Alignment/interface/AlignmentErrors.h" 
+#include "CondFormats/Alignment/interface/AlignmentSorter.h" 
 
 // Muon  components
 #include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
 #include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
 #include "Alignment/MuonAlignment/interface/AlignableDTStation.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
 #include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
 #include "Alignment/MuonAlignment/interface/AlignableDTWheel.h"
 #include "Alignment/MuonAlignment/interface/AlignableDTBarrel.h"

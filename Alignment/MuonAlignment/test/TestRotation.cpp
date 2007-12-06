@@ -16,11 +16,9 @@
 #include <TRotMatrix.h>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -28,13 +26,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
-#include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
+#include <Geometry/Records/interface/MuonGeometryRecord.h> 
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/DTGeometry/interface/DTChamber.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCChamber.h"
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 
