@@ -18,7 +18,7 @@ Number_BadChannels=10
 cat Fake.ClusterList.out | grep -A1 "Strips on the" | grep detID  | awk 'BEGIN{counter=0;apv=-1;detid=-1}{if(counter<c){counter++;print $2" "$4;detid=$2;apv=int($4/128)}else if(counter<b+c){if(detid!=$2 && apv!=int($4/128)){counter++;apv=int($4/128);print $2" "$4;detid=$2}}else if(counter<a+b+c){if(detid!=$2){detid=$2;counter++;print $2" "$4}}}' a=$Number_BadModules b=$Number_BadApv c=$Number_BadChannels > Fake.DetId_Strip_List.out
 
 
-C=`cat Fake.DetId_Strip_List.out | head -$Number_BadChannels | awk ' BEGIN{detid=-1;a="";flag=0} func printFunc(val){if(flag){print ""}; print "{ uint32 BadModule = "detid" vuint32 BadChannelList = {"val"}}" ; flag=1}{if(detid==-1){detid=$1;a=$2;} if(detid!=$1){printFunc(a); detid=$1;  a=$2}else{a=sprintf("%s , %d",a,$2);} } END{printFunc(a)}'`
+C=`cat Fake.DetId_Strip_List.out | head -$Number_BadChannels | awk ' BEGIN{detid=-1;a="";flag=0} func printFunc(val){if(flag){print ","}; print "{ uint32 BadModule = "detid" vuint32 BadChannelList = {"val"}}" ; flag=1}{if(detid==-1){detid=$1;a=$2;} if(detid!=$1){printFunc(a); detid=$1;  a=$2}else{a=sprintf("%s , %d",a,$2);} } END{printFunc(a)}'`
 
 echo
 echo $C
