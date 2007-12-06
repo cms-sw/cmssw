@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.1 2007/11/27 14:34:01 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.2 2007/12/06 17:04:58 fblekman Exp $
 //
 //
 
@@ -51,20 +51,22 @@ class SiPixelGainCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
       
       virtual void calibrationEnd();
       virtual void newDetID(short detid);
+  void fillDatabase();
 
       // ----------member data --------------------------- 
-
+  edm::ParameterSet conf_;
   // more class members used to keep track of the histograms
   std::map<uint32_t,std::map<std::string, MonitorElement *> > bookkeeper_;
 
   // flags
   bool reject_badpoints_;
   double reject_badpoints_frac_;
+  bool filldb_;
   
   // parameters for database output  
-//   std::string  recordName_;
-//   bool appendMode_;
-//   SiPixelGainCalibration *theGainCalibrationDbInput_;
+  std::string  recordName_;
+  bool appendMode_;
+  SiPixelGainCalibration *theGainCalibrationDbInput_;
 //   SiPixelGainCalibrationService theGainCalibrationDbInputService_;
 
 };

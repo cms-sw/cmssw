@@ -13,22 +13,25 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.1 2007/11/27 14:34:01 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.2 2007/12/06 17:04:57 fblekman Exp $
 //
 //
 
 // user include files
-//#include "CalibTracker/SiPixelGainCalibration/interface/SiPixelGainCalibrationAnalysis.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+
 #include "SiPixelGainCalibrationAnalysis.h"
 //
 // constructors and destructor
 //
 SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::ParameterSet& iConfig):
   SiPixelOfflineCalibAnalysisBase(iConfig),
+  conf_(iConfig),
   reject_badpoints_(iConfig.getUntrackedParameter<bool>("suppressZeroAndPlateausInFit",true)),
-  reject_badpoints_frac_(iConfig.getUntrackedParameter<double>("suppressZeroAndPlateausInFitFrac",0))
-  //  recordName_(conf_.getParameter<std::string>("record")),
-  //  appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
+  reject_badpoints_frac_(iConfig.getUntrackedParameter<double>("suppressZeroAndPlateausInFitFrac",0)),
+  filldb_(iConfig.getUntrackedParameter<bool>("writeDatabase",false)),
+  recordName_(conf_.getParameter<std::string>("record")),
+  appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true))
   //  theGainCalibrationDbInput_(0),
   //  theGainCalibrationDbInputService_(iConfig)
 {
@@ -57,8 +60,65 @@ SiPixelGainCalibrationAnalysis::calibrationEnd() {
     std::cout << "now looking at detid " << idet->first << std::endl;
     
   }
+  if(filldb_)
+    fillDatabase();
 }
+//-----------method to fill the database
+void SiPixelGainCalibrationAnalysis::fillDatabase(){
 
+  uint32_t nchannels=0;
+  uint32_t nmodules=0;
+  for(std::map<uint32_t,std::map<std::string, MonitorElement *> >::const_iterator idet=bookkeeper_.begin(); idet!= bookkeeper_.end(); ++idet){
+    uint32_t detid=idet->first;
+    // Get the module sizes.
+    int nrows = bookkeeper_[detid]["gain2d"]->getNbinsY();
+    int ncols = bookkeeper_[detid]["ped2d"]->getNbinsX();   
+    
+    std::vector<char> theSiPixelGainCalibration;
+
+    // Loop over columns and rows of this DetID
+    for(int i=0; i<ncols; i++) {
+      for(int j=0; j<nrows; j++) {
+	nchannels++;
+	     
+	float ped = bookkeeper_[detid]["ped2d"]->getBinContent(i,j);
+	float gain = bookkeeper_[detid]["gain2d"]->getBinContent(i,j);
+
+	theGainCalibrationDbInput_->setData( ped , gain , theSiPixelGainCalibration);
+      }
+    }
+
+    SiPixelGainCalibration::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());
+    if( !theGainCalibrationDbInput_->put(detid,range,ncols) )
+      edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists"<<std::endl;
+  }
+  std::cout << " ---> PIXEL Modules  " << nmodules  << std::endl;
+  std::cout << " ---> PIXEL Channels " << nchannels << std::endl;
+
+  edm::LogInfo(" --- writing to DB!");
+  edm::Service<cond::service::PoolDBOutputService> mydbservice;
+  if(!mydbservice.isAvailable() ){
+    edm::LogError("db service unavailable");
+    return;
+  } else { edm::LogInfo("DB service OK"); }
+
+  try{
+    if( mydbservice->isNewTagRequest(recordName_) ){
+      mydbservice->createNewIOV<SiPixelGainCalibration>(
+							theGainCalibrationDbInput_, mydbservice->endOfTime(),recordName_);
+    } else {
+      mydbservice->appendSinceTime<SiPixelGainCalibration>(
+							   theGainCalibrationDbInput_, mydbservice->currentTime(),recordName_);
+    }
+    edm::LogInfo(" --- all OK");
+  } 
+  catch(const cond::Exception& er){
+    edm::LogError("SiPixelCondObjBuilder")<<er.what()<<std::endl;
+  } 
+  catch(const std::exception& er){
+    edm::LogError("SiPixelCondObjBuilder")<<" caught std::error of type " << er.what() << std::endl;
+  }
+}
 // ------------ method called to do fits to all objects available  ------------
 bool
 SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix)
