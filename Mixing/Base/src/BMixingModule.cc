@@ -102,24 +102,32 @@ namespace edm {
     bool doit[]={false,false,false,false};
 
     if ( input_)  {
-      LogDebug("MixingModule") <<"\n\n==============================>Adding pileup to signal event "<<e.id(); 
       input_->readPileUp(pileup[0]); 
-      if ( input_->doPileup()) doit[0]=true;
+      if ( input_->doPileup()) {
+	LogDebug("MixingModule") <<"\n\n==============================>Adding pileup to signal event "<<e.id(); 
+	doit[0]=true;
+      }
     }
     if (cosmics_) {
       cosmics_->readPileUp(pileup[1]);
-      LogDebug("MixingModule") <<"\n\n==============================>Adding cosmics to signal event "<<e.id(); 
-      if (cosmics_->doPileup()) doit[1]=true;
+      if (cosmics_->doPileup()) {
+	LogDebug("MixingModule") <<"\n\n==============================>Adding cosmics to signal event "<<e.id(); 
+	doit[1]=true;
+      }
     }
     if (beamHalo_p_) {
       beamHalo_p_->readPileUp(pileup[2]);
-      LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo+ to signal event "<<e.id();
-      if (beamHalo_p_->doPileup()) doit[2]=true;
+      if (beamHalo_p_->doPileup()) {
+	LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo+ to signal event "<<e.id();
+	doit[2]=true;
+      }
     }
     if (beamHalo_m_) {
       beamHalo_m_->readPileUp(pileup[3]);
-      LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo- to signal event "<<e.id();
-      if (beamHalo_m_->doPileup()) doit[3]=true;
+      if (beamHalo_m_->doPileup()) {
+	doit[3]=true;
+	LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo- to signal event "<<e.id();
+      }
     }
 
     // and merge it
