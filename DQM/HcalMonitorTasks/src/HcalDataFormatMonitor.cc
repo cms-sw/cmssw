@@ -67,7 +67,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meFWVersion_ = m_dbe->book2D(type,type ,256,-0.5,255.5,18,-0.5,17.5);
 
     // Examine conditions of the DCC Event Fragment
-    type = "FED ID numbers. (Should be [700:731])";
+    type = "FED ID numbers. (Should be [700...731])";
     meFEDId_=m_dbe->book1D(type, type, 4095, -0.5, 4094.5);
     meFEDId_->setAxisTitle("All possible values of FED ID",1);
 
