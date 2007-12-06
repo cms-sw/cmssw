@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/11/16 18:22:20 $
- * $Revision: 1.19 $
+ * $Date: 2007/12/03 15:45:17 $
+ * $Revision: 1.20 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -119,6 +119,7 @@ void SiStripAnalyser::beginJob(edm::EventSetup const& eSetup){
   }
 
   nLumiSecs_ = 0;
+  nEvents_   = 0;
 }
 //
 // -- Begin Run
@@ -150,6 +151,7 @@ void SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 //  -- Analyze 
 //
 void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
+  nEvents_++;  
 }
 //
 // -- End Luminosity Block
@@ -217,7 +219,8 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << html_out_.str() << std::endl;
   }  else {
     // Handles all HTTP requests of the form
-    sistripWebInterface_->handleAnalyserRequest(in, out, nLumiSecs_);
+    int iter = nEvents_/100;
+    sistripWebInterface_->handleAnalyserRequest(in, out, iter);
   }
 }
 #include "FWCore/Framework/interface/MakerMacros.h"

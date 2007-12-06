@@ -105,7 +105,8 @@ print "make xdaq  configuration ...\n";
 
 my @properties = ("parameterSet", "string","file:$pwd/source_client.cfg",
 		    "collReconnSec","integer","-1",
-		    "hasPrescaleService","boolean","false",
+                    "hasPrescaleService","boolean","false",
+                    "isRunNumberSetter","boolean","false",
 		    "hasSharedMemory","boolean","false");
 
 open (XML,">./xml/evf.xml") or die ("Can't open file: $!\n");

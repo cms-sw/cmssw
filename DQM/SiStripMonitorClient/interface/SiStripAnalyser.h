@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/11/16 18:22:19 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/12/03 15:45:14 $
+ *  $Revision: 1.15 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -93,6 +93,7 @@ private:
 
   unsigned long long m_cacheID_;
   int nLumiSecs_;
+  int nEvents_;
 
   std::ostringstream html_out_;
 
