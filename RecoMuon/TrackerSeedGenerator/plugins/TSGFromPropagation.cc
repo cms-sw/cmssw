@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/11/30 15:46:48 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/12/05 03:27:34 $
+ *  $Revision: 1.15 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -15,7 +15,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
-//#include "TrackingTools/MeasurementDet/interface/GeometricSearchDetMeasurements.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -67,56 +66,37 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
 
   if ( nls.empty() ) return;
 
-  std::vector<TrajectoryMeasurement> alltm = findMeasurements(nls.front(), staState);
+  std::vector<TrajectoryMeasurement> alltm; 
 
-  std::vector<const DetLayer*>::iterator inl;
-  std::vector<const DetLayer*>::iterator usednl;
+  for (std::vector<const DetLayer*>::const_iterator inl = nls.begin();
+       inl != nls.end(); inl++ ) {
 
-  int iUsedLayer = 0; 
-
-  while ( inl != nls.end() - 2 )  { 
-
-     usednl = nls.begin();
-     nls.erase(usednl);
-
-     inl = nls.begin();
-
-     if ( !alltm.empty() && iUsedLayer > 1 ) break;
-     if ( *inl == 0 ) break;
+     if ( (!alltm.empty()) || (*inl == 0) ) break;
 
      std::vector<TrajectoryMeasurement> tmptm = findMeasurements(*inl, staState);
-     LogTrace(category) << " Number of measurements in used layer: "<<iUsedLayer<<" is" <<alltm.size();
-     iUsedLayer++;
+     LogTrace(category) << " Number of measurements in used layer: "<<alltm.size();
 
-     if ( !tmptm.empty() ) { 
-       iUsedLayer++;
-       alltm.insert(alltm.end(),tmptm.begin(), tmptm.end());
-     }
-
+     if ( tmptm.empty() )  continue;
+     alltm.insert(alltm.end(),tmptm.begin(), tmptm.end());
   }
-
-   LogTrace(category) << " remaining layers: "<<nls.size();
 
   if ( alltm.empty() ) LogTrace(category) << " NO Measurements Found: eta: "<<staState.globalPosition().eta() <<"pt "<<staState.globalMomentum().perp();
 
-  if ( theUseSecondMeasurementsFlag ) findSecondMeasurements(alltm, nls);
-
+  LogTrace(category) << " Measurements for seeds: "<<alltm.size();
   selectMeasurements(alltm);
-   LogTrace(category) << " Measurements for seeds: "<<alltm.size();
+  LogTrace(category) << " Measurements for seeds after select: "<<alltm.size();
 
   for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin();
        itm != alltm.end(); itm++) {
    LogTrace(category) << " meas: hit "<<itm->recHit()->isValid()<<" state "<<itm->updatedState().isValid() << " estimate "<<itm->estimate();
 
-    if ( itm->recHit()->isValid() && itm->updatedState().isValid() )  {
-      LogTrace(category) << " create seed ";
-
+//    if ( itm->recHit()->isValid() && itm->updatedState().isValid() )  {
        TrajectorySeed ts = createSeed(*itm);
        result.push_back(ts); 
-    }
+//    }
   }
 
-  return ;
+  return;
 
 }
     
@@ -277,47 +257,20 @@ void TSGFromPropagation::selectMeasurements(std::vector<TrajectoryMeasurement>& 
 
 void TSGFromPropagation::validMeasurements(std::vector<TrajectoryMeasurement>& tms) const {
 
-  const std::string category = "Muon|RecoMuon|MuonTkTrajectoryBuilder";
+  const std::string category = "Muon|RecoMuon|TSGFromPropagation";
 
   std::vector<TrajectoryMeasurement> validMeasurements;
 
   // consider only valid TM
   for ( std::vector<TrajectoryMeasurement>::const_iterator measurement = tms.begin();
         measurement!= tms.end(); ++measurement ) {
-    if ((*measurement).recHit()->isValid() && (*measurement).predictedState().isValid()) {
+    if ((*measurement).recHit()->isValid() && (*measurement).updatedState().isValid()) {
       validMeasurements.push_back( (*measurement) );
     }
   }
   tms.clear();
   tms.swap(validMeasurements);
   return;
-
-/*
-  std::vector<TrajectoryMeasurement> bestMeasurements;
-  float dchi2 = 9999.0;
-  std::vector<TrajectoryMeasurement>::const_iterator theBestMeasurement = validMeasurements.end();
-  for (std::vector<TrajectoryMeasurement>::const_iterator measurement = validMeasurements.begin(); measurement!= validMeasurements.end(); measurement++ ) {
-    TrajectoryStateOnSurface tsos = (measurement)->updatedState();
-    if ( !tsos.isValid() ) tsos = (measurement)->predictedState();
-    if ( !tsos.isValid() ) continue;
-    LogTrace(category)<<"estimate: "<<(measurement)->estimate();
-    if (fabs(tsos.globalPosition().eta() - tsos.globalMomentum().eta() ) > 0.2 )   {
-    LogTrace(category)<<"best measurements: traj direction too off, skip ...";
-    continue;
-   }
-    TransientTrackingRecHit::ConstRecHitPointer recHit = (measurement)->recHit();
-    if ( !recHit->isValid() ) continue;
-    std::pair<bool,double> chi2 = theEstimator->estimate(tsos, *(recHit));
-    if ( chi2.first && (chi2.second < dchi2) ) {
-      dchi2 = chi2.second;
-      theBestMeasurement = measurement;
-    }
-  }
-
-  if ( theBestMeasurement != validMeasurements.end() ) bestMeasurements.push_back(*theBestMeasurement);
-  tms.clear();
-  tms.swap(bestMeasurements);
-*/
 
 }
 
@@ -366,8 +319,6 @@ void TSGFromPropagation::findSecondMeasurements(std::vector<TrajectoryMeasuremen
              break;
             }
      }
-//     if ( tmpsectm.empty() ) secondMeas.push_back(*itm);
-//     else
       if ( !tmpsectm.empty() ) secondMeas.insert(secondMeas.end(),tmpsectm.begin(), tmpsectm.end()); 
   } 
 
