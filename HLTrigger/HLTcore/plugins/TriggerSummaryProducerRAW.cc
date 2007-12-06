@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/08/07 18:42:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/06 08:27:31 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -24,21 +24,25 @@ TriggerSummaryProducerRAW::TriggerSummaryProducerRAW(const edm::ParameterSet& ps
   selector_(edm::ProcessNameSelector(pn_)),
   tns_(), fobs_()
 {
-
-  if (edm::Service<edm::service::TriggerNamesService>().isAvailable()) {
-    // get tns pointer
-    tns_ = edm::Service<edm::service::TriggerNamesService>().operator->();
-    if (tns_!=0) {
-      pn_=tns_->getProcessName();
+  if (pn_=="@") {
+    // use tns
+    if (edm::Service<edm::service::TriggerNamesService>().isAvailable()) {
+      // get tns pointer
+      tns_ = edm::Service<edm::service::TriggerNamesService>().operator->();
+      if (tns_!=0) {
+	pn_=tns_->getProcessName();
+      } else {
+	LogDebug("") << "HLT Error: TriggerNamesService pointer = 0!";
+	pn_="*";
+      }
     } else {
-      LogDebug("") << "HLT Error: TriggerNamesService pointer = 0!";
+      LogDebug("") << "HLT Error: TriggerNamesService not available!";
+      pn_="*";
     }
-  } else {
-    LogDebug("") << "HLT Error: TriggerNamesService not available!";
+    selector_=edm::ProcessNameSelector(pn_);
   }
 
-  selector_=edm::ProcessNameSelector(pn_);
-  LogDebug("") << "Using process name: " << pn_;
+  LogDebug("") << "Using process name: '" << pn_ <<"'";
   produces<trigger::TriggerEventWithRefs>(pn_);
 
 }

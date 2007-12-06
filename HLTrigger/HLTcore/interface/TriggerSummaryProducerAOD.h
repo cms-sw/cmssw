@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2007/08/07 18:42:18 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/12/06 08:27:31 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include<string>
@@ -36,7 +37,19 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   explicit TriggerSummaryProducerAOD(const edm::ParameterSet&);
   ~TriggerSummaryProducerAOD();
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+
+
+  // additional
+
+  template <typename C>
+  void fillTriggerObjects(const edm::Event& );
+
+  template <typename C>
+  void fillFilterKeys(const std::vector<edm::Ref<C> >& , trigger::Keys& );
+
+  template <typename C>
+  trigger::size_type fillMask(const std::vector<edm::Handle<C> >& ,  const std::vector<edm::InputTag>& );
+
  private:
   /// process name
   std::string pn_;
@@ -45,13 +58,21 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   /// the pointer to the current TriggerNamesService
   edm::service::TriggerNamesService* tns_;
   /// list of L3 collection labels
-  std::vector<edm::InputTag> collections_;
+  std::vector<edm::InputTag> collectionTags_;
   /// list of L3 filter labels
-  std::vector<edm::InputTag> filters_;
+  std::vector<edm::InputTag> filterTags_;
+
   /// global map for indices of L3 collections: offset per collection
   std::map<edm::ProductID,int> offset_;
   /// handles to the filter objects
   std::vector<edm::Handle<trigger::TriggerFilterObjectWithRefs> > fobs_;
+
+  /// trigger object collection
+  trigger::TriggerObjectCollection toc_;
+  /// keys
+  trigger::Keys keys_;
+  /// packing decision
+  std::vector<bool> mask_;
 
 };
 #endif
