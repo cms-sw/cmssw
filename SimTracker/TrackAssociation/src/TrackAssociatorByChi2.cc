@@ -12,7 +12,7 @@ using namespace std;
 
 double TrackAssociatorByChi2::compareTracksParam ( TrackCollection::const_iterator rt, 
 						   SimTrackContainer::const_iterator st, 
-						   const HepLorentzVector vertexPosition, 
+						   const math::XYZTLorentzVectorD vertexPosition, 
 						   GlobalVector magField,
 						   TrackBase::CovarianceMatrix  
 						   invertedCovariance  ) const{

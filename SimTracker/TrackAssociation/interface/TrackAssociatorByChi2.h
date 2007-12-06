@@ -4,8 +4,8 @@
 /** \class TrackAssociatorByChi2
  *  Class that performs the association of reco::Tracks and TrackingParticles evaluating the chi2 of reco tracks parameters and sim tracks parameters. The cut can be tuned from the config file: see data/TrackAssociatorByChi2.cfi. Note that the Association Map is filled with -ch2 and not chi2 because it is ordered using std::greater: the track with the lowest association chi2 will be the first in the output map.It is possible to use only diagonal terms (associator by pulls) seeting onlyDiagonal = true in the PSet 
  *
- *  $Date: 2007/10/26 14:35:20 $
- *  $Revision: 1.18 $
+ *  $Date: 2007/11/23 10:28:51 $
+ *  $Revision: 1.19 $
  *  \author cerati, magni
  */
 
@@ -18,6 +18,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 #include<map>
 
@@ -55,9 +56,9 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
   /// compare reco::TrackCollection and edm::SimTrackContainer iterators: returns the chi2
   double compareTracksParam(reco::TrackCollection::const_iterator, 
 			    edm::SimTrackContainer::const_iterator, 
-			    const HepLorentzVector, 
+			    const math::XYZTLorentzVectorD, 
 			    GlobalVector,
-			     reco::TrackBase::CovarianceMatrix) const;
+			    reco::TrackBase::CovarianceMatrix) const;
 
   /// compare collections reco to sim
   RecoToSimPairAssociation compareTracksParam(const reco::TrackCollection&, 
