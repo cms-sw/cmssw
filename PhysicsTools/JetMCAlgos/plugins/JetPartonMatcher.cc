@@ -94,7 +94,6 @@ JetPartonMatcher::~JetPartonMatcher()
 
 void JetPartonMatcher::produce( Event& iEvent, const EventSetup& iEs ) 
 {
-cout << "JetPartonMatcher const" << endl; 
   edm::Handle <edm::View <reco::Jet> > jets_h;
   iEvent.getByLabel(m_jetsSrc,     jets_h    );
   iEvent.getByLabel(m_ParticleSrc, particles );

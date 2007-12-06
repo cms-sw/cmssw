@@ -52,7 +52,6 @@ using namespace ROOT::Math::VectorUtil;
 
 printJetFlavour::printJetFlavour(const edm::ParameterSet& iConfig)
 {
-  cout << "PJF test costruttore" << endl;
   sourceByRefer_ = iConfig.getParameter<InputTag> ("srcByReference");
   sourceByValue_ = iConfig.getParameter<InputTag> ("srcByValue");
 }
