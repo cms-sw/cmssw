@@ -41,13 +41,17 @@ private:
 PFBenchmarkAlgo::PFBenchmarkAlgo() {}
 PFBenchmarkAlgo::~PFBenchmarkAlgo() {}
 
-// added for completeness
-void PFBenchmarkAlgo::deleteCandidateCollection(const CandidateCollection *Candidates) {
+void PFBenchmarkAlgo::reset() {
 
-  if (Candidates) delete Candidates;
+  // Delete the storage
+  vector<CandidateCollection *>::iterator cc;
+  for (cc = allocatedMem_.begin(); cc != allocatedMem_.end(); cc++)
+    if (*cc != NULL) delete *cc;
+
+  // Clear the container
+  allocatedMem_.clear();
 
 }
-
 
 double PFBenchmarkAlgo::deltaEt(const Candidate *c1, const Candidate *c2) {
 
@@ -117,10 +121,12 @@ const Candidate *PFBenchmarkAlgo::matchByDeltaEt(const Candidate *c1, const Cand
   CandidateCollection::const_iterator candidate;
   for (candidate = candidates->begin(); candidate != candidates->end(); candidate++) {
 
+    const Candidate *c2 = &(*candidate);
+
     // Find Minimal Delta-Et
-    double dEt = fabs(deltaEt(c1,&(*candidate)));
+    double dEt = fabs(deltaEt(c1,c2));
     if (dEt <= minDeltaEt) {
-      bestMatch = &(*candidate);
+      bestMatch = c2;
       minDeltaEt = dEt;
     }
 
@@ -137,77 +143,95 @@ const Candidate *PFBenchmarkAlgo::recoverCandidate(const Candidate *c1, const Ca
 
   // Loop Over the Candidates...
   CandidateCollection::const_iterator candidate;
-  for (candidate = candidates->begin(); candidate != candidates->end(); candidate++)
+  for (candidate = candidates->begin(); candidate != candidates->end(); candidate++) {
 
-    // Candidates are assumed to be the same if eta, phi, and Et are the same
-    if (deltaR(c1,&(*candidate)) < eps && deltaEt(c1,&(*candidate)) < eps) return &(*candidate);
+    const Candidate *c2 = &(*candidate);
+
+    // Candidates are assumed to be the same if eta, phi, and Et are approximately the same
+    if (deltaR(c1,c2) < eps && deltaEt(c1,c2) < eps)
+      return c2;
+
+  }
 
   // Return NULL if the Candidate was Not Found in the Collection
   return NULL;
 
 }
 
-CandidateCollection PFBenchmarkAlgo::sortByDeltaR(const Candidate *c1, const CandidateCollection *candidates) {
+const CandidateCollection *PFBenchmarkAlgo::sortByDeltaR(const Candidate *c1, const CandidateCollection *candidates) {
 
-  CandidateCollection sorted = *candidates;
-  sorted.sort(deltaRSorter(c1));
+  // allocate storage and store pointer for bookkeeping
+  reco::CandidateCollection *sorted = new reco::CandidateCollection();
+  allocatedMem_.push_back(sorted);
 
-  // question: is the OwnVector c'tor sufficient, or should we copy using:
-  /*CandidateCollection sorted;
-  sorted.resize(candidates->size());
-  copy(candidates->begin(),candidates->end(),sorted.begin());
-  sort(sorted.begin(),sorted.end(),deltaRSorter());*/
-  return sorted;
+  // copy the input collection
+  CandidateCollection::const_iterator candidate;
+  for (candidate = candidates->begin(); candidate != candidates->end(); candidate++)
+    sorted->push_back((Candidate* const)candidate->clone());
+
+  // sort by dR and return
+  sorted->sort(deltaRSorter(c1));
+  return reinterpret_cast<const CandidateCollection *>(sorted);
   
 }
 
-CandidateCollection PFBenchmarkAlgo::sortByDeltaEt(const Candidate *c1, const CandidateCollection *candidates) {
+const CandidateCollection *PFBenchmarkAlgo::sortByDeltaEt(const Candidate *c1, const CandidateCollection *candidates) {
 
-  CandidateCollection sorted = *candidates;
-  //sort(sorted.begin(),sorted.end(),deltaEtSorter());
-  sorted.sort(deltaRSorter(c1));
-  return sorted;
+  // Allocate storage and store pointer for bookkeeping
+  reco::CandidateCollection *sorted = new reco::CandidateCollection();
+  allocatedMem_.push_back(sorted);
+
+  // Copy the input Collection
+  CandidateCollection::const_iterator candidate;
+  for (candidate = candidates->begin(); candidate != candidates->end(); candidate++)
+    sorted->push_back((Candidate* const)candidate->clone());
+
+  // Sort by dR and return
+  sorted->sort(deltaEtSorter(c1));
+  return reinterpret_cast<const CandidateCollection *>(sorted);
 
 }
 
-CandidateCollection PFBenchmarkAlgo::findAllInCone(const Candidate *c1, const CandidateCollection *candidates, double ConeSize) {
+const CandidateCollection *PFBenchmarkAlgo::findAllInCone(const Candidate *c1, const CandidateCollection *candidates, double ConeSize) {
+
+  // Allocate storage and store pointer for bookkeeping
+  reco::CandidateCollection *inCone = new reco::CandidateCollection();
+  allocatedMem_.push_back(inCone);
 
   // Copy the input Collection
-  CandidateCollection inCone = *candidates;
-
-  // Loop Over the Candidates...
-  CandidateCollection::iterator candidate;
-  for (candidate = inCone.begin(); candidate != inCone.end(); candidate++) {
-
-    // Remove Out-of-Cone Candidates from the copied Collection
-    double dR = deltaR(c1,&(*candidate));
-    if (dR >= ConeSize) inCone.erase(candidate);
+  CandidateCollection::const_iterator candidate;
+  for (candidate = candidates->begin(); candidate != candidates->end(); candidate++) {
+    
+    const Candidate *c2 = &(*candidate);
+    double dR = deltaR(c1,c2);
+    if (dR < ConeSize) inCone->push_back((Candidate* const)c2->clone());
 
   }
 
-  // Sort and Return
-  inCone.sort(deltaRSorter(c1));
-  return inCone;
+  // Sort by dR and return
+  inCone->sort(deltaRSorter(c1));
+  return reinterpret_cast<const CandidateCollection *>(inCone);
 
 }
 
-CandidateCollection PFBenchmarkAlgo::findAllInEtWindow(const Candidate *c1, const CandidateCollection *candidates, double EtWindow) {
+const CandidateCollection *PFBenchmarkAlgo::findAllInEtWindow(const Candidate *c1, const CandidateCollection *candidates, double EtWindow) {
+
+  // Allocate storage and store pointer for bookkeeping
+  reco::CandidateCollection *inEtWindow = new reco::CandidateCollection();
+  allocatedMem_.push_back(inEtWindow);
 
   // Copy the input Collection
-  CandidateCollection inWindow = *candidates;
-
-  // Loop Over the Candidates...
-  CandidateCollection::iterator candidate;
-  for (candidate = inWindow.begin(); candidate != inWindow.end(); candidate++) {
-
-    // Remove Out-of-Et Window Candidates from the copied Collection
-    double dEt = fabs(deltaEt(c1,&(*candidate)));
-    if (dEt >= EtWindow) inWindow.erase(candidate);
+  CandidateCollection::const_iterator candidate;
+  for (candidate = candidates->begin(); candidate != candidates->end(); candidate++) {
+    
+    const Candidate *c2 = &(*candidate);
+    double dEt = fabs(deltaEt(c1,c2));
+    if (dEt < EtWindow) inEtWindow->push_back((Candidate* const)c2->clone());
 
   }
 
-  // Sort and Return
-  inWindow.sort(deltaEtSorter(c1));
-  return inWindow;
+  // Sort by dEt and return
+  inEtWindow->sort(deltaEtSorter(c1));
+  return reinterpret_cast<const CandidateCollection *>(inEtWindow);
 
 }

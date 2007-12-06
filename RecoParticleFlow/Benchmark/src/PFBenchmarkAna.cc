@@ -133,38 +133,10 @@ void PFBenchmarkAna::fill(const CandidateCollection *Reco, const CandidateCollec
     hDeltaRvsEt->Fill(et,deltaR);
     hDeltaRvsEta->Fill(eta,deltaR);
 
-    /* still a work in progress....
-    // find all truth candidate matches within the given cone
-    CandidateCollection match_candidates = algo_->findAllInCone(particle,truth_candidates,MAXCONE);
-
-    // variables for filling out the 'NumMatches' histogram
-    int nmatches = match_candidates.size();
-    static int nbins = me["NumMatchesVsDeltaR"]->getNbinsX();
-    static double mincone = 0, maxcone = 1;
-    static double binwidth = (maxcone - mincone) / (2 * nbins);
-    int lastbin = 1;
-
-    // loop over matching candidates to find the delta-R's
-    CandidateCollection::iterator match;
-    for (match = match_candidates.begin(); match != match_candidates.end(); match++) {
-
-      // calculate this match's delta-R
-      const Candidate *match_particle = &(*match);
-      double deltaR = algo_->deltaR(particle,match_particle);
-
-      // identify the bin number associated with this delta-R
-      int upperbin = (int)ceil(deltaR / binwidth) + 1;
-
-      // fill the histogram
-      for (int bin = lastbin; bin < upperbin; bin++)
-        me["NumMatchesVsDeltaR"]->
-
-      // adjust the variables for the next pass
-      nmatches--; lastbin = bin;
-
-    }*/
-
   }
+
+  // do garbage collection
+  algo_->reset();
 
 }
 
