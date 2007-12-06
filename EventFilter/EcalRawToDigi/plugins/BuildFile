@@ -1,0 +1,13 @@
+<use name=EventFilter/EcalRawToDigi>
+<use name=root>
+<use name=DataFormats/Candidate>
+<use name=DataFormats/L1GlobalMuonTrigger>
+<use name=DataFormats/L1Trigger>
+<use name=L1TriggerConfig/L1Geometry>
+<use name=FWCore/Utilities>
+<use name=DataFormats/Common>
+<use name=RecoEcal/EgammaCoreTools>
+
+<library file="*.cc" name=EventFilterEcalRawToDigiPlugins>
+	<flags EDM_PLUGIN=1>
+</library>
