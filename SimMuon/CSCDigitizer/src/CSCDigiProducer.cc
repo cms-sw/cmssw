@@ -86,31 +86,35 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   std::auto_ptr<DigiSimLinks> pWireDigiSimLinks(new DigiSimLinks() );
   std::auto_ptr<DigiSimLinks> pStripDigiSimLinks(new DigiSimLinks() );
 
-  // find the geometry & conditions for this event
-  edm::ESHandle<CSCGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get( hGeom );
-  const CSCGeometry *pGeom = &*hGeom;
+  //@@ DOES NOTHING IF NO HITS.  Remove this for when there's real neutrons
+  if(hits->size() > 0) 
+  {
+    // find the geometry & conditions for this event
+    edm::ESHandle<CSCGeometry> hGeom;
+    eventSetup.get<MuonGeometryRecord>().get( hGeom );
+    const CSCGeometry *pGeom = &*hGeom;
 
-  theDigitizer.setGeometry( pGeom );
-
-
-  // find the magnetic field
-  edm::ESHandle<MagneticField> magfield;
-  eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
-
-  theDigitizer.setMagneticField(&*magfield);
+    theDigitizer.setGeometry( pGeom );
 
 
-  // set the particle table
-  edm::ESHandle < ParticleDataTable > pdt;
-  eventSetup.getData( pdt );
-  theDigitizer.setParticleDataTable(&*pdt);
+    // find the magnetic field
+    edm::ESHandle<MagneticField> magfield;
+    eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
 
-  theStripConditions->initializeEvent(eventSetup);
+    theDigitizer.setMagneticField(&*magfield);
 
-  // run the digitizer
-  theDigitizer.doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis,
-                        *pWireDigiSimLinks, *pStripDigiSimLinks);
+
+    // set the particle table
+    edm::ESHandle < ParticleDataTable > pdt;
+    eventSetup.getData( pdt );
+    theDigitizer.setParticleDataTable(&*pdt);
+
+    theStripConditions->initializeEvent(eventSetup);
+
+    // run the digitizer
+    theDigitizer.doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis,
+                          *pWireDigiSimLinks, *pStripDigiSimLinks);
+  }
 
 
   // store them in the event
