@@ -25,6 +25,8 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("ECALEndcap");
   noise_ = RecHitsParameters.getParameter<double>("Noise");
   threshold_ = RecHitsParameters.getParameter<double>("Threshold");
+  refactor_ = RecHitsParameters.getParameter<double> ("Refactor");
+  refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
   theCalorimeterHits_.resize(20000,0.);
   noisified_ = (noise_==0.);
   double c1 = pcalib.getParameter<double>("EEs25notContainment");
@@ -167,22 +169,14 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
       edm::ESHandle<EcalIntercalibConstants> pIcal;
       es.get<EcalIntercalibConstantsRcd>().get(pIcal);
       const EcalIntercalibConstants* ical = pIcal.product();
-//      const EcalIntercalibConstants::EcalIntercalibConstantMap& icalMap=ical->getMap();
-//      EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalMapit=icalMap.begin();
-//      EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalMapitend=icalMap.end();
-//      for(;icalMapit!=icalMapitend;++icalMapit)
-//	{
-//	  DetId myDetId(icalMapit->first);
-//	  if(myDetId.subdetId()==EcalEndcap)
-//	    {
-//	      theCalibConstants_[EEDetId(myDetId).hashedIndex()]=icalMapit->second;
-//	      rms+=fabs(icalMapit->second-1.);
-//	      ++ncells;
-//	    }
-//	}
+
+
       theCalibConstants_ = ical->endcapItems();
-      for ( std::vector<float>::const_iterator it = theCalibConstants_.begin(); it != theCalibConstants_.end(); ++it ) {
+      std::vector<float>::iterator it=theCalibConstants_.begin();
+      std::vector<float>::iterator itend=theCalibConstants_.end();
+      for ( ; it != itend; ++it ) {	
 	if(!EEDetId::validHashIndex(ncells)) continue;
+	*it= refactor_mean_+(*it-1.)*refactor_;
 	rms+=(*it-1.)*(*it-1.);
 	++ncells;
       }

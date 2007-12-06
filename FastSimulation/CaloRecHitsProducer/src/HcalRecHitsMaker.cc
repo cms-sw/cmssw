@@ -19,7 +19,9 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
-
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
+#include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLHcal.h"
+#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapHcal.h"
 #include "TFile.h"
 #include "TGraph.h"
 #include <fstream>
@@ -27,14 +29,14 @@
 class RandomEngine;
 
 
-HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p,
+HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p1,edm::ParameterSet const & p2,
 				   const RandomEngine * myrandom)
   :
   initialized_(false),
   random_(myrandom),
-  myGaussianTailGeneratorHB_(0),  myGaussianTailGeneratorHE_(0),  myGaussianTailGeneratorHO_(0),  myGaussianTailGeneratorHF_(0)
+  myGaussianTailGeneratorHB_(0),  myGaussianTailGeneratorHE_(0),  myGaussianTailGeneratorHO_(0),  myGaussianTailGeneratorHF_(0),myHcalSimParameterMap_(0)
 {
-  edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("HCAL");
+  edm::ParameterSet RecHitsParameters = p1.getParameter<edm::ParameterSet>("HCAL");
   noiseHB_ = RecHitsParameters.getParameter<double>("NoiseHB");
   noiseHE_ = RecHitsParameters.getParameter<double>("NoiseHE");
   noiseHO_ = RecHitsParameters.getParameter<double>("NoiseHO");
@@ -43,10 +45,13 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p,
   thresholdHE_ = RecHitsParameters.getParameter<double>("ThresholdHE");
   thresholdHO_ = RecHitsParameters.getParameter<double>("ThresholdHO");
   thresholdHF_ = RecHitsParameters.getParameter<double>("ThresholdHF");
-
+  refactor_ = RecHitsParameters.getParameter<double> ("Refactor");
+  refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
+  hcalfileinpath_= RecHitsParameters.getParameter<std::string> ("fileNameHcal");  
   maxIndex_=0;
   maxIndexDebug_=0;
   theDetIds_.resize(10000);
+
   peds_.resize(10000);
   gains_.resize(10000);
   hbhi_.reserve(2600);
@@ -54,6 +59,7 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p,
   hohi_.reserve(2200);
   hfhi_.reserve(1800);
   doDigis_=false;
+  //  myHcalSimParameterMap_ = new HcalSimParameterMap(p2);
 
   // Computes the fraction of HCAL above the threshold
   Genfun::Erf myErf;
@@ -96,6 +102,7 @@ HcalRecHitsMaker::~HcalRecHitsMaker()
   if(myGaussianTailGeneratorHE_) delete myGaussianTailGeneratorHE_;
   if(myGaussianTailGeneratorHO_) delete myGaussianTailGeneratorHO_;
   if(myGaussianTailGeneratorHF_) delete myGaussianTailGeneratorHF_;
+  if(myHcalSimParameterMap_) delete myHcalSimParameterMap_;
   theDetIds_.clear();
   hbhi_.clear();
   hehi_.clear();
@@ -104,16 +111,47 @@ HcalRecHitsMaker::~HcalRecHitsMaker()
     
 }
 
-void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis)
+void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscalib)
 {
   doDigis_=doDigis;
+  doMiscalib_=doMiscalib;
   if(initialized_) return;
+
+
   unsigned ncells=createVectorsOfCells(es);
   edm::LogInfo("CaloRecHitsProducer") << "Total number of cells in HCAL " << ncells << std::endl;
-
   hcalRecHits_.resize(maxIndex_+1,0.);
-
   edm::LogInfo("CaloRecHitsProducer") << "Largest HCAL hashedindex" << maxIndex_ << std::endl;
+
+  if(doMiscalib_)
+    {
+      miscalib_.resize(maxIndex_+1,1.);
+      // Read from file ( a la HcalRecHitsRecalib.cc)
+      // here read them from xml (particular to HCAL)
+      CaloMiscalibMapHcal mapHcal;
+      mapHcal.prefillMap();
+
+      edm::FileInPath hcalfiletmp("CalibCalorimetry/CaloMiscalibTools/data/"+hcalfileinpath_);      
+      std::string hcalfile=hcalfiletmp.fullPath();            
+      MiscalibReaderFromXMLHcal hcalreader_(mapHcal);
+      if(!hcalfile.empty()) 
+	{
+	  hcalreader_.parseXMLMiscalibFile(hcalfile);
+	  mapHcal.print();
+	  std::map<uint32_t,float>::const_iterator it=mapHcal.get().begin();
+	  std::map<uint32_t,float>::const_iterator itend=mapHcal.get().end();
+	  for(;it!=itend;++it)
+	    {
+	      HcalDetId myDetId(it->first);
+	      float icalconst=it->second;
+	      miscalib_[myDetId.hashed_index()]=refactor_mean_+(icalconst-1.)*refactor_;
+	    }
+	}
+    }
+
+
+
+
   if(!doDigis_)
     {
       initialized_=true;
@@ -126,10 +164,13 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis)
   myCoder_ = &(*inputCoder);
   std::cout << " Getting the HcalTPG coder -done " << std::endl;
 
+// Will be needed for the DB-based miscalibration
 //  std::cout << " Getting HcalDb service " << std::endl;
 //  edm::ESHandle<HcalDbService> conditions;
 //  es.get<HcalDbRecord>().get(conditions);
 //  const HcalDbService * theDbService=conditions.product();
+//  
+//  myHcalSimParameterMap_->setDbService(theDbService);
 
   // Open the histogram for the fC to ADC conversion
   gROOT->cd();
@@ -397,7 +438,7 @@ unsigned HcalRecHitsMaker::createVectorOfSubdetectorCells(const CaloGeometry& cg
   for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) 
     {
       HcalDetId myDetId(*i);
-
+      //      std::cout << myDetId << myHcalSimParameterMap_->simParameters(myDetId).simHitToPhotoelectrons() << std::endl;;
       unsigned hi=myDetId.hashed_index();
       theDetIds_[hi]=myDetId;
       //      std::cout << myDetId << " " << hi <<  std::endl;
@@ -412,6 +453,8 @@ unsigned HcalRecHitsMaker::createVectorOfSubdetectorCells(const CaloGeometry& cg
 // Takes a hit (from a PSimHit) and fills a map 
 void HcalRecHitsMaker::Fill(int id, float energy, std::vector<int>& theHits,float noise)
 {
+  if(doMiscalib_) 
+    energy*=miscalib_[id];
   // Check if the RecHit exists
   if(hcalRecHits_[id]>0.)
     hcalRecHits_[id]+=energy;

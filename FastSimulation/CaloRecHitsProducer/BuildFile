@@ -21,6 +21,8 @@
 <use name=CondFormats/HcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=CalibFormats/HcalObjects>
+<use name=SimCalorimetry/HcalSimAlgos>
+<use name=CalibCalorimetry/CaloMiscalibTools>
 <use name=boost>
 <use name=clhep>
 <use name=rootmath>

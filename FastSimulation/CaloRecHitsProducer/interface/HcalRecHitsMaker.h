@@ -4,7 +4,6 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
-
 #include <map>
 #include <vector>
 
@@ -13,6 +12,7 @@
 class CaloGeometry;
 class RandomEngine;
 class HcalTPGCoder;
+class HcalSimParameterMap;
 
 namespace edm { 
   class ParameterSet;
@@ -23,11 +23,11 @@ namespace edm {
 class HcalRecHitsMaker
 {
  public:
-  HcalRecHitsMaker(edm::ParameterSet const & p, const RandomEngine* random);
+  HcalRecHitsMaker(edm::ParameterSet const & p, edm::ParameterSet const & p,const RandomEngine* random);
   ~HcalRecHitsMaker();
 
   void loadHcalRecHits(edm::Event &iEvent, HBHERecHitCollection& hbheHits, HORecHitCollection &hoHits,HFRecHitCollection &hfHits, HBHEDigiCollection& hbheDigis, HODigiCollection & hoDigis, HFDigiCollection& hfDigis);
-  void init(const edm::EventSetup &es,bool dodigis);
+  void init(const edm::EventSetup &es,bool dodigis,bool domiscalib);
 
  private:
   unsigned createVectorsOfCells(const edm::EventSetup &es);
@@ -53,6 +53,10 @@ class HcalRecHitsMaker
   
   bool initialized_;
   bool doDigis_;
+  bool doMiscalib_;
+  double refactor_;
+  double refactor_mean_;
+  std::string hcalfileinpath_;
 
   std::vector<float> hcalRecHits_;
 
@@ -62,6 +66,7 @@ class HcalRecHitsMaker
   std::vector<int> firedCellsHF_;
 
   std::vector<HcalDetId> theDetIds_;
+  std::vector<float> miscalib_;
 
   // coefficients for fC to ADC conversion
   std::vector<int> fctoadc_;
@@ -90,6 +95,7 @@ class HcalRecHitsMaker
   const GaussianTail* myGaussianTailGeneratorHF_;
 
   const HcalTPGCoder * myCoder_;
+  HcalSimParameterMap * myHcalSimParameterMap_;
 };
 
 #endif

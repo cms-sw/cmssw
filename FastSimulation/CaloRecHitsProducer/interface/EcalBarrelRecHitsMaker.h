@@ -30,6 +30,8 @@ class EcalBarrelRecHitsMaker
  private:
   bool doDigis_;
   bool doMisCalib_;
+  double refactor_;
+  double refactor_mean_;
   // poor-man Selective Readout
   double threshold_;
   double noise_;

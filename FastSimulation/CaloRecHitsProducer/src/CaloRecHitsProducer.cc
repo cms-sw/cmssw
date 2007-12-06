@@ -71,7 +71,7 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
 
 
   HcalRecHitsMaker_ = 
-    new HcalRecHitsMaker(RecHitsParameters,random);
+    new HcalRecHitsMaker(RecHitsParameters,p,random);
   EcalBarrelRecHitsMaker_ = 
     new EcalBarrelRecHitsMaker(RecHitsParameters,CalibParameters,random);
   EcalEndcapRecHitsMaker_ = 
@@ -83,11 +83,6 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
 CaloRecHitsProducer::~CaloRecHitsProducer() 
 { 
   std::cout << " Destructor CaloRecHitsProducer " << std::endl;
-
-  if (EcalBarrelRecHitsMaker_) delete EcalBarrelRecHitsMaker_;
-  if (EcalEndcapRecHitsMaker_) delete EcalEndcapRecHitsMaker_;
-  if (EcalPreshowerRecHitsMaker_) delete EcalPreshowerRecHitsMaker_;
-  if (HcalRecHitsMaker_) delete HcalRecHitsMaker_; 
 
   if ( random ) { 
     if ( random->theRootEngine() ) delete random->theRootEngine();
@@ -103,12 +98,16 @@ void CaloRecHitsProducer::beginJob(const edm::EventSetup & es)
   EcalBarrelRecHitsMaker_->init(es,doDigis_,doMiscalib_);
   EcalEndcapRecHitsMaker_->init(es,doDigis_,doMiscalib_);
   EcalPreshowerRecHitsMaker_->init(es); 
-  HcalRecHitsMaker_->init(es,doDigis_);
+  HcalRecHitsMaker_->init(es,doDigis_,doMiscalib_);
 }
 
 void CaloRecHitsProducer::endJob()
 { 
     std::cout << " (Fast)RecHitsProducer terminating " << std::endl; 
+    if (EcalBarrelRecHitsMaker_) delete EcalBarrelRecHitsMaker_;
+    if (EcalEndcapRecHitsMaker_) delete EcalEndcapRecHitsMaker_;
+    if (EcalPreshowerRecHitsMaker_) delete EcalPreshowerRecHitsMaker_;
+    if (HcalRecHitsMaker_) delete HcalRecHitsMaker_; 
 }
 
 void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
