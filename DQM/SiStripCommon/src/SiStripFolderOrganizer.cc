@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
-// $Id: SiStripFolderOrganizer.cc,v 1.10 2007/05/15 12:17:02 dkcira Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.11 2007/09/04 17:31:25 dkcira Exp $
 //
 
 #include <iostream>
@@ -147,8 +147,9 @@ void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid){
   }else if( subdetid==6){
   // ---------------------------  TEC  --------------------------- //
     TECDetId tec1 = TECDetId(rawdetid);
-    std::string petal_bkw_frw;   if((tec1.petal()).at(1)==1){petal_bkw_frw="backward_petals";}else{petal_bkw_frw="forward_petals";}
+    std::string petal_bkw_frw;   if((tec1.petal()).at(0)==1) {petal_bkw_frw="backward_petals";} else {petal_bkw_frw="forward_petals";}
     std::string fec_stereo_mono; if(tec1.stereo()==0){fec_stereo_mono="mono_modules";}else{fec_stereo_mono="stereo_modules";}
+
     rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel()<<sep<<petal_bkw_frw<<sep<<"petal_"<<(tec1.petal()).at(1)<<sep<<"ring_"<<tec1.ring()<<sep<<fec_stereo_mono<<sep<<"module_"<<rawdetid;
   }else{
   // ---------------------------  ???  --------------------------- //
