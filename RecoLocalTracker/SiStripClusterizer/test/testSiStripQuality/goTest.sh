@@ -67,5 +67,8 @@ echo -e "\n&&&&&&&&&&&&&&&&&&&&&&&\n Run with Real SiStripQuality \n&&&&&&&&&&&&
 cmsRun testClusterizer_RealQuality.cfg > Real.out
 cat Real.out | awk '$0~/Seed/{aprint=1} {if(aprint==1) print $0} $0~/Cluster accepted/{aprint=0} $0~/Cluster rejected/{aprint=0}' > Real.ClusterList.out
 
-sdiff Real.ClusterList.out Fake.ClusterList.out 
+sdiff Real.ClusterList.out Fake.ClusterList.out > thediff.out
 
+echo "look at the thediff.out file, or with emacs"
+
+echo "emacs Real.ClusterList.out Fake.ClusterList.out"
