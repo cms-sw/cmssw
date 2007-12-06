@@ -4,7 +4,7 @@
 eval `scramv1 runtime -sh`
 
 echo -e "\n&&&&&&&&&&&&&&&&&&&&&&&\n Run with Fake SiStripQuality \n&&&&&&&&&&&&&&&&&&&&&&&\n"
-#cmsRun testClusterizer_FakeQuality.cfg > Fake.out
+cmsRun testClusterizer_FakeQuality.cfg > Fake.out
 cat Fake.out | awk '$0~/Seed/{aprint=1} {if(aprint==1) print $0} $0~/Cluster accepted/{aprint=0} $0~/Cluster rejected/{aprint=0}' > Fake.ClusterList.out
 
 
