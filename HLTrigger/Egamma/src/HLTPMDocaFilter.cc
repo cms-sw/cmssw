@@ -3,7 +3,7 @@
  *  Original Author: Jeremy Werner                          
  *  Institution: Princeton University, USA                                                                 *  Contact: Jeremy.Werner@cern.ch 
  *  Date: February 21, 2007     
- * $Id: HLTPMDocaFilter.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $
+ * $Id: HLTPMDocaFilter.cc,v 1.4 2007/10/16 14:37:38 ghezzi Exp $
  *
  */
 
@@ -90,7 +90,7 @@ HLTPMDocaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(jj <ii){
 
 	 double docaDiffPerp = sqrt( (vx[jj]-vx[ii])*(vx[jj]-vx[ii])+(vy[jj]-vy[ii])*(vy[jj]-vy[ii]));
-	 std::cout<<"docaDiffPerp= "<<docaDiffPerp<<std::endl;
+	 // std::cout<<"docaDiffPerp= "<<docaDiffPerp<<std::endl;
 	 if((docaDiffPerp>=docaDiffPerpCutLow_) && (docaDiffPerp<= docaDiffPerpCutHigh_)){
 	   n++;
 	   ref = recoecalcands->getParticleRef(ii);
