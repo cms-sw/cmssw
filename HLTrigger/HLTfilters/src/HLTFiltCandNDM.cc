@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/05 14:24:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/06 08:18:59 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -244,7 +244,7 @@ HLTFiltCandNDM::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // error case
-   // filterobject->addObject(0,Ref<vector<int> >());
+   filterobject->addObject(0,Ref<vector<int> >());
 
    // final filter decision:
    const bool accept ( (nphot>0) && (nelec>0) && (nmuon>0) && (ntaus>0) &&

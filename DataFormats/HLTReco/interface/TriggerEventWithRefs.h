@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2007/12/05 17:33:59 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/12/06 08:20:07 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -72,13 +72,13 @@ namespace trigger
     void addFilterObject(const std::string& filterLabel, const TriggerFilterObjectWithRefs& tfowr) {
       filterObjects_.push_back(
         TriggerFilterObject(filterLabel, 
-			    append(tfowr.photonIds(),tfowr.photonRefs()),
-			    append(tfowr.electronIds(),tfowr.electronRefs()),
-			    append(tfowr.muonIds(),tfowr.muonRefs()),
-			    append(tfowr.jetIds(),tfowr.jetRefs()),
-			    append(tfowr.compositeIds(),tfowr.compositeRefs()),
-			    append(tfowr.metIds(),tfowr.metRefs()),
-			    append(tfowr.htIds(),tfowr.htRefs())
+			    addObjects(tfowr.photonIds(),tfowr.photonRefs()),
+			    addObjects(tfowr.electronIds(),tfowr.electronRefs()),
+			    addObjects(tfowr.muonIds(),tfowr.muonRefs()),
+			    addObjects(tfowr.jetIds(),tfowr.jetRefs()),
+			    addObjects(tfowr.compositeIds(),tfowr.compositeRefs()),
+			    addObjects(tfowr.metIds(),tfowr.metRefs()),
+			    addObjects(tfowr.htIds(),tfowr.htRefs())
 			   )
 	);
     }

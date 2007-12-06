@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/12/05 14:24:02 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/05 17:33:59 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -34,6 +34,8 @@
 #include <cassert>
 #include <utility>
 #include <vector>
+
+#include<typeinfo>
 
 namespace trigger
 {
@@ -108,49 +110,61 @@ namespace trigger
       htIds_.push_back(id);
       htRefs_.push_back(ref);
     }
+    template<typename C>
+    void addObject(int id, const edm::Ref<C>& ref) {
+      std::cout << "@@@@ Trigger addObject(): collection type not recognized - ignored: '"
+		<< typeid(C).name() << "'" << std::endl;
+    }
+	
 
     /// 
-    size_type append (const Vint& ids, const VRphoton& refs) {
+    size_type addObjects (const Vint& ids, const VRphoton& refs) {
       assert(ids.size()==refs.size());
       photonIds_.insert(photonIds_.end(),ids.begin(),ids.end());
       photonRefs_.insert(photonRefs_.end(),refs.begin(),refs.end());
       return photonIds_.size();
     }
-    size_type append (const Vint& ids, const VRelectron& refs) {
+    size_type addObjects (const Vint& ids, const VRelectron& refs) {
       assert(ids.size()==refs.size());
       electronIds_.insert(electronIds_.end(),ids.begin(),ids.end());
       electronRefs_.insert(electronRefs_.end(),refs.begin(),refs.end());
       return electronIds_.size();
     }
-    size_type append (const Vint& ids, const VRmuon& refs) {
+    size_type addObjects (const Vint& ids, const VRmuon& refs) {
       assert(ids.size()==refs.size());
       muonIds_.insert(muonIds_.end(),ids.begin(),ids.end());
       muonRefs_.insert(muonRefs_.end(),refs.begin(),refs.end());
       return muonIds_.size();
     }
-    size_type append (const Vint& ids, const VRjet& refs) {
+    size_type addObjects (const Vint& ids, const VRjet& refs) {
       assert(ids.size()==refs.size());
       jetIds_.insert(jetIds_.end(),ids.begin(),ids.end());
       jetRefs_.insert(jetRefs_.end(),refs.begin(),refs.end());
       return jetIds_.size();
     }
-    size_type append (const Vint& ids, const VRcomposite& refs) {
+    size_type addObjects (const Vint& ids, const VRcomposite& refs) {
       assert(ids.size()==refs.size());
       compositeIds_.insert(compositeIds_.end(),ids.begin(),ids.end());
       compositeRefs_.insert(compositeRefs_.end(),refs.begin(),refs.end());
       return compositeIds_.size();
     }
-    size_type append (const Vint& ids, const VRmet& refs) {
+    size_type addObjects (const Vint& ids, const VRmet& refs) {
       assert(ids.size()==refs.size());
       metIds_.insert(metIds_.end(),ids.begin(),ids.end());
       metRefs_.insert(metRefs_.end(),refs.begin(),refs.end());
       return metIds_.size();
     }
-    size_type append (const Vint& ids, const VRht& refs) {
+    size_type addObjects (const Vint& ids, const VRht& refs) {
       assert(ids.size()==refs.size());
       htIds_.insert(htIds_.end(),ids.begin(),ids.end());
       htRefs_.insert(htRefs_.end(),refs.begin(),refs.end());
       return htIds_.size();
+    }
+    template<typename C>
+    size_type addObjects(const Vint& ids, const std::vector<edm::Ref<C> > refs) {
+      std::cout << "@@@@ Trigger addObjects(): collection type not recognized - ignored: '"
+		<< typeid(C).name() << "'" << std::endl;
+      return 0;
     }
 
     /// physics-level getters: get Ref<C>s for physics type id within a slice
@@ -244,6 +258,16 @@ namespace trigger
 	if (id==htIds_[i]) {refs[i]=htRefs_[i]; ++j;}
       }
       return;
+    }
+    template<typename C>
+    void getObjects(int id, std::vector<edm::Ref<C> > refs) const {
+      getObjects(id,refs,0,0);
+    }
+    template<typename C>
+    void getObjects(int id, std::vector<edm::Ref<C> > refs, size_type begin, size_type end) const {
+      refs.resize(0);
+      std::cout << "@@@@ Trigger getObjects(): collection type not recognized - ignored: '"
+		<< typeid(C).name() << "'" << std::endl;
     }
 
     /// low-level getters for data members
