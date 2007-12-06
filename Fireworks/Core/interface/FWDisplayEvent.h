@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id$
+// $Id: FWDisplayEvent.h,v 1.1.1.1 2007/12/06 01:40:00 chrjones Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@ class TEveTrackList;
 class TEveProjectionManager;
 class TEveElement;
 class TEveElementList;
+class TGPictureButton;
 
 namespace fwlite {
   class Event;
@@ -68,6 +69,8 @@ class FWDisplayEvent
 
       TEveElement* m_geom;
       TEveProjectionManager* m_rhoPhiProjMgr;
+
+      TGPictureButton* m_advanceButton;
 };
 
 

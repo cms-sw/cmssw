@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.1.1.1 2007/12/06 01:39:55 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.2 2007/12/06 17:07:23 chrjones Exp $
 //
 
 // system include files
@@ -135,16 +135,20 @@ FWDisplayEvent::FWDisplayEvent() :
 
       TGHorizontalFrame* hf = new TGHorizontalFrame(frmMain);
       {
+	if(0==gSystem->Getenv("ROOTSYS")) {
+	  std::cerr<<"environment variable ROOTSYS is not set" <<
+	    std::endl;
+	  throw std::runtime_error("ROOTSYS environment variable not set");
+	}
 	TString icondir(Form("%s/icons/",gSystem->Getenv("ROOTSYS")));
-	TGPictureButton* b=0;
 	
-	b= new TGPictureButton(hf,
-			       gClient->GetPicture(icondir+"GoForward.gif"));
-	hf->AddFrame(b);
-	b->Connect("Clicked()",
-		   "FWDisplayEvent",
-		   this,
-		   "continueProcessingEvents()");
+	m_advanceButton= new TGPictureButton(hf,
+			 gClient->GetPicture(icondir+"GoForward.gif"));
+	hf->AddFrame(m_advanceButton);
+	m_advanceButton->Connect("Clicked()",
+				 "FWDisplayEvent",
+				 this,
+				 "continueProcessingEvents()");
       }
       frmMain->AddFrame(hf);
 
@@ -181,6 +185,10 @@ FWDisplayEvent::FWDisplayEvent() :
   gEve->AddGlobalElement(re,gL);
   */
   TFile f("tracker.root");
+  if(not f.IsOpen()) {
+    std::cerr <<"failed to open 'tracker.root'"<<std::endl;
+    throw std::runtime_error("Failed to open 'tracker.root' geometry file");
+  }
   TEveGeoShapeExtract* gse = dynamic_cast<TEveGeoShapeExtract*>(f.Get("Tracker"));
   TEveGeoShape* gsre = TEveGeoShape::ImportShapeExtract(gse,0);
   f.Close();
@@ -248,6 +256,7 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
 {
   //need to reset 
   m_continueProcessingEvents = false;
+  m_advanceButton->SetEnabled();
 
   using namespace std;
   /*
@@ -328,6 +337,8 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
     //gSystem->ProcessEvents();
     gSystem->DispatchOneEvent(kFALSE);
   }
+  m_advanceButton->SetEnabled(kFALSE);
+  gSystem->DispatchOneEvent(kFALSE);
 }
 
 //
