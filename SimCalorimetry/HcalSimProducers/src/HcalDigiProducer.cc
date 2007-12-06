@@ -145,7 +145,7 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   theHODigitizer->run(*col, *hoResult);
   theHFDigitizer->run(*col, *hfResult);
   if(doZDC) {
-    theZDCDigitizer->run(*colzdc, *zdcResult);
+    //theZDCDigitizer->run(*colzdc, *zdcResult);
   }
 
   edm::LogInfo("HcalDigiProducer") << "HCAL HBHE digis : " << hbheResult->size();
