@@ -1,6 +1,6 @@
 /** \class HLTEgammaEtFilter
  *
- * $Id: HLTEgammaEtFilter.cc,v 1.3 2007/01/30 13:42:47 monicava Exp $
+ * $Id: HLTEgammaEtFilter.cc,v 1.4 2007/03/07 10:44:05 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -27,7 +27,7 @@ HLTEgammaEtFilter::HLTEgammaEtFilter(const edm::ParameterSet& iConfig)
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
+   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaEtFilter::~HLTEgammaEtFilter(){}
@@ -37,39 +37,34 @@ HLTEgammaEtFilter::~HLTEgammaEtFilter(){}
 bool
 HLTEgammaEtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  using namespace trigger;
   // The filter object
-  std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
+    std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
   // Ref to Candidate object to be recorded in filter object
-  edm::RefToBase<reco::Candidate> ref;
-  
+   edm::Ref<reco::RecoEcalCandidateCollection> ref;
+
   // get hold of filtered candidates
-  edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcands;
-  iEvent.getByLabel (inputTag_,recoecalcands);
-  
+  //edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcands;
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
+
+  iEvent.getByLabel (inputTag_,PrevFilterOutput);
+
+  std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;                // vref with your specific C++ collection type
+  PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
+ 
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 
-  for (unsigned int i=0; i<recoecalcands->size(); i++) {
+  for (unsigned int i=0; i<recoecalcands.size(); i++) {
     
-    ref = recoecalcands->getParticleRef(i);
+    ref = recoecalcands[i] ;
 
-    if ( (recoecalcands->getParticleRef(i).get()->et() ) >= etcut_) {
+    if ( ref->et()  >= etcut_) {
       n++;
-      filterproduct->putParticle(ref);
+      filterproduct->addObject(TriggerPhoton, ref);
     }
   }
 
-
-  /*
-  for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoecalcands->begin(); recoecalcand!=recoecalcands->end(); recoecalcand++) {
-    
-    if ( (recoecalcand->et()) >= etcut_) {
-      n++;
-      ref=edm::RefToBase<reco::Candidate>(reco::RecoEcalCandidateRef(recoecalcands,distance(recoecalcands->begin(),recoecalcand)));
-      filterproduct->putParticle(ref);
-    }
-  }
-  */
   
   // filter decision
   bool accept(n>=ncandcut_);

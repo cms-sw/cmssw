@@ -1,6 +1,6 @@
 /** \class HLTEgammaHcalIsolFilter
  *
- * $Id: HLTEgammaHcalIsolFilter.cc,v 1.5 2007/04/02 17:14:14 mpieri Exp $
+ * $Id: HLTEgammaHcalIsolFilter.cc,v 1.6 2007/08/30 14:21:34 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -12,7 +12,8 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -37,7 +38,7 @@ HLTEgammaHcalIsolFilter::HLTEgammaHcalIsolFilter(const edm::ParameterSet& iConfi
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
   //register your products
-  produces<reco::HLTFilterObjectWithRefs>();
+  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaHcalIsolFilter::~HLTEgammaHcalIsolFilter(){}
@@ -47,13 +48,19 @@ bool
 HLTEgammaHcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    // The filter object
-  std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
+  using namespace trigger;
+    std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
   // Ref to Candidate object to be recorded in filter object
-  edm::RefToBase<reco::Candidate> candref;
-  
-  // get hold of filtered candidates
-  edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcands;
-  iEvent.getByLabel (candTag_,recoecalcands);
+   edm::Ref<reco::RecoEcalCandidateCollection> ref;
+
+
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
+
+  iEvent.getByLabel (candTag_,PrevFilterOutput);
+
+  std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;       
+  PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
+
   
   //get hold of hcal isolation association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
@@ -66,39 +73,40 @@ HLTEgammaHcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   // look at all photons,  check cuts and add to filter object
   int n = 0;
   
-  for (unsigned int i=0; i<recoecalcands->size(); i++) {
-    
+  for (unsigned int i=0; i<recoecalcands.size(); i++) {
+
+     ref = recoecalcands[i] ;
     //std::cout<<"MARCO HLTEgammaHcalIsolFilter i "<<i<<" "<<std::endl;
-    candref = recoecalcands->getParticleRef(i);
-    //std::cout<<"MARCO HLTEgammaHcalIsolFilter candref "<<(long) candref<<" "<<std::endl;    
-    reco::RecoEcalCandidateRef recr = candref.castTo<reco::RecoEcalCandidateRef>();
+    //std::cout<<"MARCO HLTEgammaHcalIsolFilter candref "<<(long) ref<<" "<<std::endl;    
+     //  reco::RecoEcalCandidateRef recr = ref.castTo<reco::RecoEcalCandidateRef>();
     //std::cout<<"MARCO HLTEgammaHcalIsolFilter recr "<<recr<<" "<<std::endl;
     
-    reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find( recr );
+    reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find( ref );
     
     if(mapi==(*depMap).end()) {
-      if(!doIsolated_) mapi = (*depNonIsoMap).find( recr ); 
+      if(!doIsolated_) mapi = (*depNonIsoMap).find( ref ); 
       //std::cout<<"MARCO HLTEgammaEcalIsolFilter 100 "<<std::endl;
     }
      float vali = mapi->val;
      //std::cout<<"MARCO HLTEgammaHcalIsolFilter vali "<<vali<<" "<<std::endl;
-     float HoE = mapi->val / candref.get()->et();
-     if(fabs(recoecalcands->getParticleRef(i).get()->eta()) < 1.5){
+     float HoE = mapi->val / ref->et();
+     if(fabs(ref->eta()) < 1.5){
        if ( vali < hcalisolbarrelcut_ || HoE < HoverEcut_ ) {
 	 n++;
-	 filterproduct->putParticle(candref);
+	 filterproduct->addObject(TriggerPhoton, ref);
        }
      }
      if(
-	(fabs(recoecalcands->getParticleRef(i).get()->eta()) >= 1.5) && 
-	(fabs(recoecalcands->getParticleRef(i).get()->eta()) < 2.5)
+	( fabs(ref->eta()) >= 1.5) && 
+	( fabs(ref->eta()) < 2.5)
 	){
        if ( vali < hcalisolendcapcut_ || HoE < HoverEcut_) {
 	 n++;
-	 filterproduct->putParticle(candref);
+	 filterproduct->addObject(TriggerPhoton, ref);
        }
      }
-  }
+    
+  }//end of loop ofver recoecalcands
   
    // filter decision
    bool accept(n>=ncandcut_);

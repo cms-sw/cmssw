@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilterRegional
  *
- * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.1 2007/04/02 17:14:14 mpieri Exp $
+ * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.2 2007/09/20 00:05:22 ratnik Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -8,10 +8,11 @@
 
 #include "HLTrigger/Egamma/interface/HLTEgammaL1MatchFilterRegional.h"
 
+
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+//#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -48,7 +49,7 @@ HLTEgammaL1MatchFilterRegional::HLTEgammaL1MatchFilterRegional(const edm::Parame
    endcap_end_           = iConfig.getParameter<double> ("endcap_end");   
 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
+   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaL1MatchFilterRegional::~HLTEgammaL1MatchFilterRegional(){}
@@ -58,11 +59,16 @@ HLTEgammaL1MatchFilterRegional::~HLTEgammaL1MatchFilterRegional(){}
 bool
 HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // The filter object
-  std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
+
+  using namespace trigger;
+  //using namespace std;
+  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+
+  // std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
   // Ref to Candidate object to be recorded in filter object
-  edm::RefToBase<reco::Candidate> ref;
-  
+  //edm::RefToBase<reco::Candidate> ref;
+  //   edm::Ref<reco::RecoEcalCandidate> ref;// it does not work
+   edm::Ref<reco::RecoEcalCandidateCollection> ref;
 
   // Get the CaloGeometry
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
@@ -114,8 +120,10 @@ HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup
       
       if(MATCHEDSC) {
 	n++;
-	ref=edm::RefToBase<reco::Candidate>(reco::RecoEcalCandidateRef(recoIsolecalcands,distance(recoIsolecalcands->begin(),recoecalcand)));
-	filterproduct->putParticle(ref);
+	//ref=edm::RefToBase<reco::Candidate>(reco::RecoEcalCandidateRef(recoIsolecalcands,distance(recoIsolecalcands->begin(),recoecalcand)));
+	//filterproduct->putParticle(ref);
+	ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand) );       
+	filterobject->addObject(TriggerPhoton, ref);
       }
 
     }
@@ -165,8 +173,10 @@ HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup
       
       if(MATCHEDSC) {
 	n++;
-	ref=edm::RefToBase<reco::Candidate>(reco::RecoEcalCandidateRef(recoNonIsolecalcands,distance(recoNonIsolecalcands->begin(),recoecalcand)));
-	filterproduct->putParticle(ref);
+	//ref=edm::RefToBase<reco::Candidate>(reco::RecoEcalCandidateRef(recoNonIsolecalcands,distance(recoNonIsolecalcands->begin(),recoecalcand)));
+	//filterproduct->putParticle(ref);
+	ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand) );       
+	filterobject->addObject(TriggerPhoton, ref);
       }
 
     }
@@ -182,7 +192,7 @@ HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup
   bool accept(n>=ncandcut_);
   
   // put filter object into the Event
-  iEvent.put(filterproduct);
+  iEvent.put(filterobject);
   
   return accept;
 }

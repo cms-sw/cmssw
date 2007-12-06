@@ -3,7 +3,7 @@
  *  Original Author: Jeremy Werner                          
  *  Institution: Princeton University, USA                                                                 *  Contact: Jeremy.Werner@cern.ch 
  *  Date: February 21, 2007     
- * $Id: HLTPMDocaFilter.cc,v 1.4 2007/10/16 14:37:38 ghezzi Exp $
+ * $Id: HLTPMDocaFilter.cc,v 1.5 2007/12/06 13:13:44 ghezzi Exp $
  *
  */
 
@@ -12,22 +12,12 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/Common/interface/AssociationMap.h"
-
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
-//#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 
 //
 // constructors and destructor
@@ -40,7 +30,7 @@ HLTPMDocaFilter::HLTPMDocaFilter(const edm::ParameterSet& iConfig)
   nZcandcut_           = iConfig.getParameter<int> ("nZcandcut");
 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
+  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPMDocaFilter::~HLTPMDocaFilter(){}
@@ -55,53 +45,55 @@ HLTPMDocaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace reco;
 
-
   // The filter object
-  std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
+  using namespace trigger;
+  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
   // Ref to Candidate object to be recorded in filter object
-  edm::RefToBase<reco::Candidate> ref;
+  edm::Ref<reco::ElectronCollection> ref;
   
-  // get hold of filtered candidates
 
-  edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcands;
-  iEvent.getByLabel (candTag_,recoecalcands);
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
+
+  iEvent.getByLabel (candTag_,PrevFilterOutput);
   
+  std::vector<edm::Ref<reco::ElectronCollection> > electrons;
+  PrevFilterOutput->getObjects(TriggerElectron, electrons);
+  
+ 
   int n = 0;
 
   double vx[66];
   double vy[66];
   double vz[66];
 
-  unsigned int size = recoecalcands->size();
+  unsigned int size = electrons.size();
   if(size>66) size=66;
 
   for (unsigned int i=0; i< size; i++) {
     
-    ref = recoecalcands->getParticleRef(i);
+    ref = electrons[i];
 
-    vx[i]=ref.get()->vx();
-    vy[i]=ref.get()->vy();
-    vz[i]=ref.get()->vz();
+    vx[i]=ref->vx();
+    vy[i]=ref->vy();
+    vz[i]=ref->vz();
     
   }
 
   for(unsigned int jj=0;jj<size;jj++){
-     for(unsigned int ii=0;ii<size;ii++){
-       if(jj <ii){
-
+     for(unsigned int ii=jj+1;ii<size;ii++){
 	 double docaDiffPerp = sqrt( (vx[jj]-vx[ii])*(vx[jj]-vx[ii])+(vy[jj]-vy[ii])*(vy[jj]-vy[ii]));
 	 // std::cout<<"docaDiffPerp= "<<docaDiffPerp<<std::endl;
 	 if((docaDiffPerp>=docaDiffPerpCutLow_) && (docaDiffPerp<= docaDiffPerpCutHigh_)){
 	   n++;
-	   ref = recoecalcands->getParticleRef(ii);
-	   filterproduct->putParticle(ref);
-	   ref = recoecalcands->getParticleRef(jj);
-	   filterproduct->putParticle(ref);
+	   ref = electrons[ii];
+	   filterproduct->addObject(TriggerElectron, ref);
+	   ref = electrons[jj];
+	   filterproduct->addObject(TriggerElectron, ref);
 
 	 }
-       }
      }
   }
+  
 
   // filter decision
   bool accept(n>=nZcandcut_);

@@ -1,6 +1,6 @@
 /** \class HLTEgammaHcalDBCFilter
  *
- * $Id: HLTEgammaHcalDBCFilter.cc,v 1.5 2007/04/02 17:14:14 mpieri Exp $
+ * $Id: HLTEgammaHcalDBCFilter.cc,v 1.1 2007/05/31 19:35:22 mpieri Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *   hcal double cone isolation filter
@@ -12,7 +12,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -36,7 +36,7 @@ HLTEgammaHcalDBCFilter::HLTEgammaHcalDBCFilter(const edm::ParameterSet& iConfig)
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
   //register your products
-  produces<reco::HLTFilterObjectWithRefs>();
+  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaHcalDBCFilter::~HLTEgammaHcalDBCFilter(){}
@@ -46,14 +46,19 @@ bool
 HLTEgammaHcalDBCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    // The filter object
-  std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
+  using namespace trigger;
+    std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
   // Ref to Candidate object to be recorded in filter object
-  edm::RefToBase<reco::Candidate> candref;
-  
-  // get hold of filtered candidates
-  edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcands;
-  iEvent.getByLabel (candTag_,recoecalcands);
-  
+   edm::Ref<reco::RecoEcalCandidateCollection> ref;
+
+
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
+
+  iEvent.getByLabel (candTag_,PrevFilterOutput);
+
+  std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
+  PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
+
   //get hold of hcal isolation association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
   iEvent.getByLabel (isoTag_,depMap);
@@ -65,41 +70,31 @@ HLTEgammaHcalDBCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   // look at all photons,  check cuts and add to filter object
   int n = 0;
   
-  for (unsigned int i=0; i<recoecalcands->size(); i++) {
-    
-    //std::cout<<"MARCO HLTEgammaHcalDBCFilter i "<<i<<" "<<std::endl;
-    candref = recoecalcands->getParticleRef(i);
-    //std::cout<<"MARCO HLTEgammaHcalDBCFilter candref "<<(long) candref<<" "<<std::endl;    
-    reco::RecoEcalCandidateRef recr = candref.castTo<reco::RecoEcalCandidateRef>();
-    //std::cout<<"MARCO HLTEgammaHcalDBCFilter recr "<<recr<<" "<<std::endl;
-    
-    reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find( recr );
-    
+  for (unsigned int i=0; i<recoecalcands.size(); i++) {
+    ref = recoecalcands[i];
+    reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find( ref );
     if(mapi==(*depMap).end()) {
-      if(!doIsolated_) mapi = (*depNonIsoMap).find( recr ); 
-      //std::cout<<"MARCO HLTEgammaEcalDBCFilter 100 "<<std::endl;
+      if(!doIsolated_) mapi = (*depNonIsoMap).find( ref ); 
     }
-     float vali = mapi->val;
-     //std::cout<<"MARCO HLTEgammaHcalDBCFilter vali "<<vali<<" "<<std::endl;
-     
-     if(fabs(recoecalcands->getParticleRef(i).get()->eta()) < 1.5){
+    float vali = mapi->val;
+    
+     if(fabs(ref->eta()) < 1.5){
        if ( vali < hcalisolbarrelcut_) {
 	 n++;
-	 filterproduct->putParticle(candref);
+	 filterproduct->addObject(TriggerPhoton, ref);
        }
      }
      if(
-	(fabs(recoecalcands->getParticleRef(i).get()->eta()) > 1.5) //&& 
-	//	(fabs(recoecalcands->getParticleRef(i).get()->eta()) < 2.5)
+	(fabs(ref->eta()) > 1.5) //&& 
 	){
        if ( vali < hcalisolendcapcut_) {
 	 n++;
-	 filterproduct->putParticle(candref);
+	 filterproduct->addObject(TriggerPhoton, ref);
        }
      }
   }
   
-   // filter decision
+  // filter decision
    bool accept(n>=ncandcut_);
 
    // put filter object into the Event

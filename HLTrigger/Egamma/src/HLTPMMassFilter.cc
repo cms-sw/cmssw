@@ -11,19 +11,12 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/Common/interface/AssociationMap.h"
-
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 
 //
 // constructors and destructor
@@ -37,7 +30,7 @@ HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig)
   nZcandcut_           = iConfig.getParameter<int> ("nZcandcut");
   
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
+    produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPMMassFilter::~HLTPMMassFilter(){}
@@ -53,17 +46,19 @@ HLTPMMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace std;
   using namespace edm;
   using namespace reco;
-
-   // The filter object
-  std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
+  // The filter object
+  using namespace trigger;
+  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
   // Ref to Candidate object to be recorded in filter object
-  edm::RefToBase<reco::Candidate> ref;
-  
-  // get hold of filtered candidates
+  edm::Ref<reco::ElectronCollection> ref;
 
-  edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcands;
-  iEvent.getByLabel (candTag_,recoecalcands);
-  
+
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
+
+  iEvent.getByLabel (candTag_,PrevFilterOutput);
+
+  std::vector<edm::Ref<reco::ElectronCollection> > electrons;
+  PrevFilterOutput->getObjects(TriggerElectron, electrons);
   int n = 0;
 
   double px[66];
@@ -71,39 +66,36 @@ HLTPMMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double pz[66];
   double energy[66];
 
-  unsigned int size = recoecalcands->size();
+  unsigned int size = electrons.size();
   if(size>66) size=66;
 
 
   for (unsigned int i=0; i<size; i++) {
     
-    ref = recoecalcands->getParticleRef(i);
+    ref = electrons[i];
 
-    px[i]=ref.get()->px();
-    py[i]=ref.get()->py();
-    pz[i]=ref.get()->pz();
-    energy[i]=ref.get()->energy();
+    px[i]=ref->px();
+    py[i]=ref->py();
+    pz[i]=ref->pz();
+    energy[i]=ref->energy();
   }
-
+  
 
   for(unsigned int jj=0;jj<size;jj++){
-     for(unsigned int ii=0;ii<size;ii++){
-       if(jj <ii){
-	 double mass = sqrt((energy[jj]+energy[ii])*(energy[jj]+energy[ii]) - ((px[jj]+px[ii])*(px[jj]+px[ii])+(py[jj]+py[ii])*(py[jj]+py[ii])+(pz[jj]+pz[ii])*(pz[jj]+pz[ii])));
-
-	 std::cout<<"mass ="<<mass<<std::endl;
-
+     for(unsigned int ii=jj+1;ii<size;ii++){
+       	 double mass = sqrt((energy[jj]+energy[ii])*(energy[jj]+energy[ii]) - ((px[jj]+px[ii])*(px[jj]+px[ii])+(py[jj]+py[ii])*(py[jj]+py[ii])+(pz[jj]+pz[ii])*(pz[jj]+pz[ii])));
+	 //std::cout<<"mass ="<<mass<<std::endl;
 	 if(mass>= lowerMassCut_ && mass<=upperMassCut_){
 	   n++;
-	   ref = recoecalcands->getParticleRef(ii);
-	   filterproduct->putParticle(ref);
-	   ref = recoecalcands->getParticleRef(jj);
-	   filterproduct->putParticle(ref);
+	   ref = electrons[ii];
+           filterproduct->addObject(TriggerElectron, ref);
+           ref = electrons[jj];
+           filterproduct->addObject(TriggerElectron, ref);
 	 }
-       }
      }
   }
 
+  
 
   // filter decision
   bool accept(n>=nZcandcut_);
