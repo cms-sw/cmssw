@@ -46,17 +46,11 @@ namespace cms
 
     virtual ~SiStripClusterizer();
 
-    //    virtual void beginJob( const edm::EventSetup& );
-
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   private:
     edm::ParameterSet conf_;
     SiStripClusterizerAlgorithm SiStripClusterizerAlgorithm_;
-    //    SiStripNoiseService SiStripNoiseService_;  
-    //    bool useGainFromDB_;
-
-
   };
 }
 #endif

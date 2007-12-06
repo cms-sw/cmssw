@@ -39,7 +39,8 @@ class SiStripClusterizerAlgorithm
   ~SiStripClusterizerAlgorithm();
 
   /// Runs the algorithm
-  void run(const edm::DetSetVector<SiStripDigi>& input,std::vector< edm::DetSet<SiStripCluster> >& output, const edm::ESHandle<SiStripNoises> & noiseHandle , const edm::ESHandle<SiStripGain> & gainHandle);
+  void run(const edm::DetSetVector<SiStripDigi>& input,std::vector< edm::DetSet<SiStripCluster> >& output, const edm::ESHandle<SiStripNoises> & noiseHandle , const 
+edm::ESHandle<SiStripGain> & gainHandle, const edm::ESHandle<SiStripQuality> & qualityHandle);
 
   //  void configure( SiStripNoiseService* );
 

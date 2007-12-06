@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 
 #include <vector>
@@ -33,7 +34,8 @@ public:
   //  void setSiStripNoiseService( SiStripNoiseService* in ){ SiStripNoiseService_=in;}
 
   void clusterizeDetUnit(const 
-edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripCluster>&, const edm::ESHandle<SiStripNoises> & noiseHandle, const edm::ESHandle<SiStripGain>& );
+edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripCluster>&, const edm::ESHandle<SiStripNoises> & noiseHandle, const edm::ESHandle<SiStripGain>&, const 
+edm::ESHandle<SiStripQuality>&);
 
   float channelThresholdInNoiseSigma() const { return theChannelThreshold;}
   float seedThresholdInNoiseSigma()    const { return theSeedThreshold;}
@@ -55,22 +57,26 @@ class AboveSeed {
 
   //  AboveSeed(float aseed,SiStripNoiseService* noise,const uint32_t& detID) : seed(aseed), noise_(noise),detID_(detID) {};
 
-  AboveSeed(float aseed, const edm::ESHandle<SiStripNoises> & noise, const SiStripNoises::Range & range) : seed(aseed), noise_(noise), range_(range) {};
+  AboveSeed(float aseed, const edm::ESHandle<SiStripNoises> & noiseHandle, const SiStripNoises::Range & noiseRange, const edm::ESHandle<SiStripQuality> & qualityHandle, const SiStripQuality::Range & qualityRange) 
+    : seed(aseed), noise_(noiseHandle), noiseRange_(noiseRange),quality_(qualityHandle), qualityRange_(qualityRange)
+    {};
 	   //,detID_(detID) {};
 
   inline bool operator()(const SiStripDigi& digi) { 
     return ( 
-	    !noise_->getDisable(digi.strip(), range_) 
+	    !noise_->getDisable(digi.strip(), noiseRange_) 
 	    && 
-	    digi.adc() >= seed * noise_->getNoise(digi.strip(), range_)
+	    !quality_->IsStripBad(qualityRange_,digi.strip()) 
+	    && 
+	    digi.adc() >= seed * noise_->getNoise(digi.strip(), noiseRange_)
 	    );
   }
-private:
+ private:
   float seed;
-  //  SiStripNoiseService* noise_;
   const edm::ESHandle<SiStripNoises> & noise_;
-  const SiStripNoises::Range & range_;
-  //  const uint32_t& detID_;
+  const SiStripNoises::Range & noiseRange_;
+  const edm::ESHandle<SiStripQuality> & quality_;
+  const SiStripQuality::Range & qualityRange_;
 };
 
 #endif
