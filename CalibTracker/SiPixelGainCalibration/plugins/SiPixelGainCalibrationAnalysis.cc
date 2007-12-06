@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.19 2007/11/19 18:04:26 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.1 2007/11/27 14:34:01 fblekman Exp $
 //
 //
 
@@ -26,16 +26,14 @@
 SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::ParameterSet& iConfig):
   SiPixelOfflineCalibAnalysisBase(iConfig),
   reject_badpoints_(iConfig.getUntrackedParameter<bool>("suppressZeroAndPlateausInFit",true)),
-  reject_badpoints_frac_(iConfig.getUntrackedParameter<double>("suppressZeroAndPlateausInFitFrac",0)),
-  conf_(iConfig)
+  reject_badpoints_frac_(iConfig.getUntrackedParameter<double>("suppressZeroAndPlateausInFitFrac",0))
   //  recordName_(conf_.getParameter<std::string>("record")),
   //  appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
   //  theGainCalibrationDbInput_(0),
-  //  theGainCalibrationDbInputService_(conf_)
+  //  theGainCalibrationDbInputService_(iConfig)
 {
   ::putenv("CORAL_AUTH_USER=me");
   ::putenv("CORAL_AUTH_PASSWORD=test");   
-  elementsize_=4;// this is the definition the number of histograms used in bookkeeper_;
 }
 
 SiPixelGainCalibrationAnalysis::~SiPixelGainCalibrationAnalysis()
@@ -51,13 +49,13 @@ SiPixelGainCalibrationAnalysis::calibrationSetup(const edm::EventSetup&)
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-SiPixelGainCalibrationAnalysis::endJob() {
+SiPixelGainCalibrationAnalysis::calibrationEnd() {
 
   // this is where we loop over all histograms and save the database objects
-  for(std::map<uint32_t,std::vector<MonitorElement *> >::const_iterator idet=bookkeeper_.begin(); idet!= bookkeeper_.end(); ++idet){
+  for(std::map<uint32_t,std::map<std::string, MonitorElement *> >::const_iterator idet=bookkeeper_.begin(); idet!= bookkeeper_.end(); ++idet){
     // now filling stuff
     std::cout << "now looking at detid " << idet->first << std::endl;
-
+    
   }
 }
 
@@ -124,10 +122,10 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   intercept = ypoints_mean-(slope*xpoints_mean); 
 
   // numbering hard-coded in SiPixelGainCalibrationAnalysis::newDetID for now
-  bookkeeper_[detid][0]->Fill(slope);
-  bookkeeper_[detid][1]->Fill(ipix->col(),ipix->row(),slope);
-  bookkeeper_[detid][2]->Fill(intercept);
-  bookkeeper_[detid][3]->Fill(ipix->col(),ipix->row(),intercept);
+  bookkeeper_[detid]["gain1d"]->Fill(slope);
+  bookkeeper_[detid]["gain2d"]->Fill(ipix->col(),ipix->row(),slope);
+  bookkeeper_[detid]["ped1d"]->Fill(intercept);
+  bookkeeper_[detid]["ped2d"]->Fill(ipix->col(),ipix->row(),intercept);
   return true;
 }
 // ------------ method called to do fill new detids  ------------
@@ -136,12 +134,10 @@ SiPixelGainCalibrationAnalysis::newDetID(short detid)
 {
   setDQMDirectory(detid);
   std::string tempname=translateDetIdToString(detid);
-  std::vector<MonitorElement *> entries(elementsize_);// hard-code the number of calibrations.
-  bookkeeper_[detid]=entries;
-  bookkeeper_[detid][0] = bookDQMHistogram1D("gain1d_"+tempname,"gain for "+tempname,100,0.,100.);
-  bookkeeper_[detid][1] = bookDQMHistoPlaquetteSummary2D("gain2d_"+tempname,"gain for "+tempname,detid);
-  bookkeeper_[detid][2] = bookDQMHistogram1D("pedestal1d_"+tempname,"pedestal for "+tempname,256,0.,256.);
-  bookkeeper_[detid][3] = bookDQMHistoPlaquetteSummary2D("pedestal2d_"+tempname,"pedestal for "+tempname,detid);
+  bookkeeper_[detid]["gain1d"] = bookDQMHistogram1D("gain1d_"+tempname,"gain for "+tempname,100,0.,100.);
+  bookkeeper_[detid]["gain2d"] = bookDQMHistoPlaquetteSummary2D("gain2d_"+tempname,"gain for "+tempname,detid);
+  bookkeeper_[detid]["ped1d"] = bookDQMHistogram1D("pedestal1d_"+tempname,"pedestal for "+tempname,256,0.,256.);
+  bookkeeper_[detid]["ped2d"] = bookDQMHistoPlaquetteSummary2D("pedestal2d_"+tempname,"pedestal for "+tempname,detid);
 
 }
 //define this as a plug-in
