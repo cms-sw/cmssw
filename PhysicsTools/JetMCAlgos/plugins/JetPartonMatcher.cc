@@ -94,23 +94,22 @@ JetPartonMatcher::~JetPartonMatcher()
 
 void JetPartonMatcher::produce( Event& iEvent, const EventSetup& iEs ) 
 {
-
+cout << "JetPartonMatcher const" << endl; 
   edm::Handle <edm::View <reco::Jet> > jets_h;
   iEvent.getByLabel(m_jetsSrc,     jets_h    );
   iEvent.getByLabel(m_ParticleSrc, particles );
 
   edm::LogVerbatim("JetPartonMatcher") << "=== Partons size:" << particles->size();
 
-/*
-  for( size_t m = 0; m != particles1->size(); ++ m ) {
-    const Candidate & aParton = (*particles)[ m ];
-    cout << aParton.status() << " " <<
-            aParton.pdgId()  << " " <<
-            aParton.pt()     << " " << 
-            aParton.eta()    << " " <<
-            aParton.phi()    << endl;
+  for( size_t m = 0; m != particles->size(); ++ m ) {
+    const Candidate & aParton = *(particles->at(m).get());
+    edm::LogVerbatim("JetPartonMatcher") <<  aParton.status() << " " <<
+                                             aParton.pdgId()  << " " <<
+                                             aParton.pt()     << " " << 
+                                             aParton.eta()    << " " <<
+                                             aParton.phi()    << endl;
   }
-*/
+
 
   auto_ptr<reco::JetMatchedPartonsCollection> jetMatchedPartons( new JetMatchedPartonsCollection(reco::JetRefBaseProd(jets_h)));
   
