@@ -65,6 +65,14 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
     
     TSCPBuilderNoMaterial tscpBuilder;
     LogDebug("TrackProducer") << "innertsos=" << innertsos ;
+    //std::cout << "===== maremma maiala ======== " << std::endl;
+    //std::cout << "firstMeas free state perp: " << innertsos.freeState()->position().perp() 
+    //	      << std::endl;
+
+    //std::cout << "firstMeas updated global pos, perp: " 
+    //	      << theTraj->firstMeasurement().updatedState().globalPosition().perp() << std::endl;
+
+
     TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
 						     GlobalPoint(0,0,0) );//FIXME Correct?   
     GlobalPoint v = tscp.theState().position();

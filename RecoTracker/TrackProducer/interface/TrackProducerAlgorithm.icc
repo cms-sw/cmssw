@@ -18,6 +18,7 @@
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
+#include "RecoTracker/TrackProducer/interface/HitSplitter.h"
 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "Utilities/General/interface/CMSexception.h"
@@ -28,14 +29,17 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 
+
+using namespace std;
+
 template <class T> void
 TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
-					      const MagneticField * theMF,
-					      const TrackCandidateCollection& theTCCollection,
-					      const TrajectoryFitter * theFitter,
-					      const Propagator * thePropagator,
-					      const TransientTrackingRecHitBuilder* builder,
-					      AlgoProductCollection& algoResults)
+					    const MagneticField * theMF,
+					    const TrackCandidateCollection& theTCCollection,
+					    const TrajectoryFitter * theFitter,
+					    const Propagator * thePropagator,
+					    const TransientTrackingRecHitBuilder* builder,
+					    AlgoProductCollection& algoResults)
 {
   edm::LogInfo("TrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
 
@@ -63,13 +67,18 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       //meanwhile computes the number of degrees of freedom
       TransientTrackingRecHit::RecHitContainer hits;
       
-      float ndof=0;
-      
-      for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
-	   i!=recHitVec.second; i++){
-	hits.push_back(builder->build(&(*i) ));
-	if ((*i).isValid()){
-	  ndof = ndof + (i->dimension())*(i->weight());
+      float ndof=0;     
+
+      if(useHitsSplitting_){
+	HitSplitter mySplitter;
+	mySplitter.splitHits(recHitVec.first,recHitVec.second,builder,theG,false,hits,ndof);
+      }else{	
+	for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
+	     i!=recHitVec.second; i++){
+	  hits.push_back(builder->build(&(*i) ));
+	  if ((*i).isValid()){
+	    ndof = ndof + (i->dimension())*(i->weight());
+	  }
 	}
       }
       
@@ -87,12 +96,12 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
 
 template <class T> void
 TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
-					  const MagneticField * theMF,
-					  const TrackCollection& theTCollection,
-					  const TrajectoryFitter * theFitter,
-					  const Propagator * thePropagator,
-					  const TransientTrackingRecHitBuilder* builder,
-					  AlgoProductCollection& algoResults)
+					const MagneticField * theMF,
+					const TrackCollection& theTCollection,
+					const TrajectoryFitter * theFitter,
+					const Propagator * thePropagator,
+					const TransientTrackingRecHitBuilder* builder,
+					AlgoProductCollection& algoResults)
 {
   edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollection.size() << "\n";
   
@@ -105,7 +114,8 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	PropagationDirection seedDir = theT->seedDirection();
 	//LogDebug("TrackProducer") << "theT->seedDirection()=" << seedDir;
 
-	TransientTrackingRecHit::RecHitContainer hits = getHitVector(theT,seedDir,ndof,builder);
+	TransientTrackingRecHit::RecHitContainer hits;
+	getHitVector(theT,seedDir,builder,theG,ndof,hits,useHitsSplitting_);
 
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
 
@@ -132,13 +142,13 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 
 template <class T> void
 TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
-				             const MagneticField * theMF,
-				             const TrackMomConstraintAssociationCollection& theTCollectionWithConstraint,
-					     const TrajectoryFitter * theFitter,
-					     const Propagator * thePropagator,
-					     const TransientTrackingRecHitBuilder* builder,
-					     AlgoProductCollection& algoResults){
-
+					   const MagneticField * theMF,
+					   const TrackMomConstraintAssociationCollection& theTCollectionWithConstraint,
+					   const TrajectoryFitter * theFitter,
+					   const Propagator * thePropagator,
+					   const TransientTrackingRecHitBuilder* builder,
+					   AlgoProductCollection& algoResults){
+  
   edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
   
   int cont = 0;
@@ -151,7 +161,9 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 	float ndof=0;
 	PropagationDirection seedDir = theT->seedDirection();
 
-	TransientTrackingRecHit::RecHitContainer hits = getHitVector(theT,seedDir,ndof,builder);
+	TransientTrackingRecHit::RecHitContainer hits;
+	getHitVector(theT,seedDir,builder,theG,ndof,hits,false);
+
 
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
 
@@ -193,12 +205,12 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 
 template <class T> void
 TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
-					     const MagneticField * theMF,
-					     const TrackVtxConstraintAssociationCollection& theTCollectionWithConstraint,
-					     const TrajectoryFitter * theFitter,
-					     const Propagator * thePropagator,
-					     const TransientTrackingRecHitBuilder* builder,
-					     AlgoProductCollection& algoResults){
+					 const MagneticField * theMF,
+					 const TrackVtxConstraintAssociationCollection& theTCollectionWithConstraint,
+					 const TrajectoryFitter * theFitter,
+					 const Propagator * thePropagator,
+					 const TransientTrackingRecHitBuilder* builder,
+					 AlgoProductCollection& algoResults){
 
   edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
   
@@ -212,7 +224,8 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 	float ndof=0;
 	PropagationDirection seedDir = theT->seedDirection();
 
-	TransientTrackingRecHit::RecHitContainer hits = getHitVector(theT,seedDir,ndof,builder);
+	TransientTrackingRecHit::RecHitContainer hits;
+	getHitVector(theT,seedDir,builder,theG,ndof,hits,false);
 
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
 
@@ -270,9 +283,9 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 
 template <class T> TrajectoryStateOnSurface
 TrackProducerAlgorithm<T>::getInitialState(const T * theT,
-								 TransientTrackingRecHit::RecHitContainer& hits,
-								 const TrackingGeometry * theG,
-								 const MagneticField * theMF){
+					   TransientTrackingRecHit::RecHitContainer& hits,
+					   const TrackingGeometry * theG,
+					   const MagneticField * theMF){
 
   TrajectoryStateOnSurface theInitialStateForRefitting;
   //the starting state is the state closest to the first hit along seedDirection.
@@ -290,58 +303,85 @@ TrackProducerAlgorithm<T>::getInitialState(const T * theT,
   theInitialStateForRefitting = TrajectoryStateOnSurface(initialStateFromTrack.localParameters(),
 							 initialStateFromTrack.localError(), 		      
 							 initialStateFromTrack.surface(),
-							 theMF); 
+							 theMF);  
+  
   return theInitialStateForRefitting;
 }
 
-template <class T> TransientTrackingRecHit::RecHitContainer 
+template <class T> void 
 TrackProducerAlgorithm<T>::getHitVector(const T * theT,   
-				     PropagationDirection& seedDir,
-				     float& ndof,
-				     const TransientTrackingRecHitBuilder* builder){
+					PropagationDirection& seedDir,
+					const TransientTrackingRecHitBuilder* builder,
+					const TrackingGeometry * theG,
+					float& ndof,
+					TransientTrackingRecHit::RecHitContainer& hits,
+					bool doSplitting){
 
-  TransientTrackingRecHit::RecHitContainer hits;	
-  bool isFirstFound(false);
-  //just look for the first and second *valid* hits.Don't care about ordering.
   TransientTrackingRecHit::ConstRecHitPointer firstHit(0),secondHit(0);
+  
+  // ----- This method used to figure out the sorting of the hits (along or opposite to momentum) 
+  // is not robust. We should force all the TrackProducers to return consistently
+  // innermost/outermost state and hit container and avoid to figure out sorting a-posteriori
   for (trackingRecHit_iterator it=theT->recHitsBegin(); it!=theT->recHitsEnd(); it++){
     if(((**it).isValid()) ) {
-      if(!isFirstFound){
-	isFirstFound = true;
-	firstHit = builder->build(&**it);
-	//LogDebug("TrackProducer") << "firstHit->globalPosition(): " << firstHit->globalPosition() << std::endl;
-	continue;
-      }
-      secondHit = builder->build(&**it);
-      //LogDebug("TrackProducer") << "secondHit->globalPosition(): " << secondHit->globalPosition() << std::endl;
+      firstHit = builder->build(&**it);
       break;
-    }else LogDebug("TrackProducer") << "==== debug:this hit of a track is not valid!! =======";
+    }
   }
+
+  for (trackingRecHit_iterator it=theT->recHitsEnd()-1; it!=theT->recHitsBegin()-1; --it){
+    if(((**it).isValid()) ) {
+      secondHit = builder->build(&**it);
+      break;
+    }
+  }
+  
+
   GlobalVector delta = secondHit->globalPosition() - firstHit->globalPosition() ;
   PropagationDirection trackHitsSort = ( (delta.dot(GlobalVector(theT->momentum().x(),theT->momentum().y(),theT->momentum().z()))
 					  > 0) ? alongMomentum : oppositeToMomentum);
+
+  // -----
+  
   
   //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
   //meanwhile computes the number of degrees of freedom
+
+  bool doReverse = false;
+  
   //========  Sorted as seed direction (refit in the same ordeer of original final fit)
   if (seedDir==anyDirection){//if anyDirection the seed direction is not stored in the root file: keep same order
-    for (trackingRecHit_iterator i=theT->recHitsBegin(); i!=theT->recHitsEnd(); i++){
-      hits.push_back(builder->build(&**i ));
-      if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
-    }
-    seedDir=trackHitsSort;
+    //for (trackingRecHit_iterator i=theT->recHitsBegin(); i!=theT->recHitsEnd(); i++){
+    //  hits.push_back(builder->build(&**i ));
+    // if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
+    //}
+    //seedDir=trackHitsSort;
+    throw cms::Exception("TrackProducer") 
+      << "ERROR: trying to refit a track which doesn't have a properly filled 'seed direction' data member" << std::endl;
+    
   } else if (seedDir==trackHitsSort){//keep same order
-    for (trackingRecHit_iterator i=theT->recHitsBegin(); i!=theT->recHitsEnd(); i++){
-      hits.push_back(builder->build(&**i ));
-      if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
+    doReverse = false;
+    if(doSplitting){
+      HitSplitter mySplitter;
+      mySplitter.splitHits(theT->recHitsBegin(),theT->recHitsEnd(),builder,theG,doReverse,hits,ndof);
+    }else{      
+      for (trackingRecHit_iterator i=theT->recHitsBegin(); i!=theT->recHitsEnd(); i++){
+	hits.push_back(builder->build(&**i ));
+	if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
+      }
     }
   } else{//invert hits order
+    doReverse = true;
     //no reverse iterator in OwnVector...
-    for (TrackingRecHitRefVector::iterator i=theT->recHitsEnd()-1; i!=theT->recHitsBegin()-1; i--){
-      hits.push_back(builder->build(&**i ));
-      if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
+    if(doSplitting){
+      HitSplitter mySplitter;
+      mySplitter.splitHits(theT->recHitsBegin(),theT->recHitsEnd(),builder,theG,doReverse,hits,ndof);
+    }else{      
+      for (trackingRecHit_iterator i=theT->recHitsEnd()-1; i!=theT->recHitsBegin()-1; --i){
+	hits.push_back(builder->build(&**i ));
+	if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
+      }
     }	  
   }
   ndof = ndof - 5;
-  return hits;
 }
