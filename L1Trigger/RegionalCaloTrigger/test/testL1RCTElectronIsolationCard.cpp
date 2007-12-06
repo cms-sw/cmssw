@@ -21,6 +21,7 @@ int main() {
 			50.0,                      // eMaxForHoECut
 			2.0,                       // eActivityCut
 			3.0,                       // hActivityCut
+			3.0,                       // eicIsolationThreshold
 			eGammaECalScaleFactors,
 			eGammaHCalScaleFactors,
 			jetMETECalScaleFactors,

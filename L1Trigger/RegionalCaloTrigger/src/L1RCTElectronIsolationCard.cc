@@ -1,5 +1,6 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTElectronIsolationCard.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
+#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 
 #include <iostream>
 #include <iomanip>
@@ -267,9 +268,10 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region, int regi
 			     eastHE_FG || swHE_FG || southHE_FG || seHE_FG); 
 	
 	// threshold for five-tower corner quiet veto
-	int quietThreshold = 3;   // 3 - loose isolation 0 - very tight isolation
+	//int quietThreshold = 3;   // 3 - loose isolation 0 - very tight isolation
 	//int quietThreshold = 7; // ECALGREN
 	//int quietThreshold = 0; // HCALGREN
+	double quietThreshold = rctLookupTables_->rctParameters()->eicIsolationThreshold();
 	
 	bool nw = false;
 	bool ne = false;
