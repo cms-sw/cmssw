@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2007/12/05 14:24:02 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/12/05 17:33:59 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -64,6 +64,9 @@ namespace trigger
   public:
     /// constructors
     TriggerEventWithRefs(): TriggerRefsCollections(), filterObjects_() { }
+    TriggerEventWithRefs(size_type n): TriggerRefsCollections(), filterObjects_() {
+      filterObjects_.reserve(n);
+    }
 
     /// setters - to build EDProduct
     void addFilterObject(const std::string& filterLabel, const TriggerFilterObjectWithRefs& tfowr) {

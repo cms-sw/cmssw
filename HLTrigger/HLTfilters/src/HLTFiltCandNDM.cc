@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/04 19:57:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/05 14:24:05 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -148,7 +148,7 @@ HLTFiltCandNDM::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (ielec->pt() >= min_Pt_) {
        nelec++;
        ElectronRef ref(ElectronRef(electrons,distance(aelec,ielec)));
-       filterobject->addObject(TriggerElectron,ref);
+       filterobject->addObject(-TriggerElectron,ref);
      }
    }
 
@@ -174,7 +174,7 @@ HLTFiltCandNDM::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (itaus->pt() >= min_Pt_) {
        ntaus++;
        CaloJetRef ref(CaloJetRef(taus,distance(ataus,itaus)));
-       filterobject->addObject(TriggerTau,ref);
+       filterobject->addObject(-TriggerTau,ref);
      }
    }
 
