@@ -46,7 +46,7 @@ class printPartonJet : public edm::EDAnalyzer {
 printPartonJet::printPartonJet(const edm::ParameterSet& iConfig)
 {
   source_  = iConfig.getParameter<InputTag> ("src");
-  matched_ = iConfig.getParameter<InputTag> ("matched");
+  matched_ = iConfig.getParameter<InputTag> ("map");
 }
 
 void printPartonJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
