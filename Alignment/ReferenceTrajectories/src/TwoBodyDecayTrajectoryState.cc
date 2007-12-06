@@ -1,5 +1,6 @@
 
 #include "Alignment/ReferenceTrajectories/interface/TwoBodyDecayTrajectoryState.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayModel.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayDerivatives.h"

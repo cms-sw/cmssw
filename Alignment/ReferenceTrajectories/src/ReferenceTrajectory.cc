@@ -1,9 +1,10 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2007/05/02 17:11:23 $
+//  last update: $Date: 2007/06/13 14:37:29 $
 //  by         : $Author: ewidl $
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -27,7 +28,6 @@
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 
 //__________________________________________________________________________________

@@ -2,7 +2,6 @@
 #define Alignment_ReferenceTrajectories_TwoBodyDecayTrajectoryState_h
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecay.h"
 
 /** Computes the trajectory states and their derivatives w.r.t. the decay parameters.

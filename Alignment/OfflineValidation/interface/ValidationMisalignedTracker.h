@@ -7,53 +7,15 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // 
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+#include "FWCore/Framework/interface/ESHandle.h" 
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-
-#include "Math/GenVector/BitReproducible.h"
-
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-
-#include "DataFormats/Candidate/interface/Particle.h"
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-
-
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
-#include "MagneticField/Engine/interface/MagneticField.h" 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
-#include "DataFormats/Common/interface/RefVector.h"
-#include "TrackingTools/GeomPropagators/interface/HelixExtrapolatorToLine2Order.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h" 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
-
+#include "DataFormats/GeometryVector/interface/GlobalVector.h" 
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "TTree.h"
 #include "TFile.h"

@@ -13,53 +13,33 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.1 2007/10/11 17:34:54 ntran Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.2 2007/10/23 07:24:07 fronga Exp $
 //
 //
 
 // system include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Event.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "CondFormats/Alignment/interface/SurveyErrors.h"
 
 #include <algorithm>
-#include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignmentSorter.h"
-#include "CondFormats/Alignment/interface/SurveyErrors.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Alignment/CommonAlignment/interface/SurveyResidual.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
-#include "Alignment/CommonAlignment/interface/Utilities.h"
-#include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/AlignTools.h"
-#include "CondFormats/Alignment/interface/SurveyErrors.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
 //
 // class decleration

@@ -2,7 +2,6 @@
 #define Alignment_ReferenceTrajectories_ReferenceTrajectoryFactory_h
 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
-#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
 /// A factory that produces instances of class ReferenceTrajectory from a given TrajTrackPairCollection.
 

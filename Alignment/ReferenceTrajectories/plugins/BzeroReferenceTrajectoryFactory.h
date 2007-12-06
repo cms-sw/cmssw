@@ -2,7 +2,6 @@
 #define Alignment_ReferenceTrajectories_BzeroReferenceTrajectoryFactory_h
 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
-#include "Alignment/ReferenceTrajectories/interface/BzeroReferenceTrajectory.h"
 
 /// A factory that produces instances of class BzeroReferenceTrajectory from a given TrajTrackPairCollection.
 

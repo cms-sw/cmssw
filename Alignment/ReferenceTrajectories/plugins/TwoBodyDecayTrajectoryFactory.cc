@@ -1,15 +1,19 @@
 // Do not include .h from plugin directory, but locally:
 #include "TwoBodyDecayTrajectoryFactory.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
+#include "DataFormats/Math/interface/Vector.h" 
+#include "DataFormats/Math/interface/Error.h" 
+#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h" 
+#include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h" 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
 #include "FWCore/Framework/interface/ESHandle.h"

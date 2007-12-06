@@ -1,16 +1,15 @@
 
-#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "Alignment/ReferenceTrajectories/interface/TwoBodyDecayTrajectory.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
+#include "DataFormats/Math/interface/Error.h" 
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-#include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
-#include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
-#include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToLocal.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 
 TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryState& trajectoryState,

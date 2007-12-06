@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Jul 16 16:56:34 CDT 2007
-// $Id: MuonGeometryIntoNtuples.cc,v 1.2 2007/09/21 17:12:51 pivarski Exp $
+// $Id: MuonGeometryIntoNtuples.cc,v 1.3 2007/10/23 07:20:42 fronga Exp $
 //
 //
 
@@ -22,9 +22,7 @@
 #include <map>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,10 +30,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h" 
+#include "CondFormats/Alignment/interface/AlignmentErrors.h" 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"

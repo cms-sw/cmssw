@@ -3,21 +3,20 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/10/15 19:32:33 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/10/15 20:23:48 $
+ *  $Revision: 1.18 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
 #include "Alignment/OfflineValidation/interface/MuonAlignmentAnalyzer.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 
 // Collaborating Class Header
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "boost/mpl/vector.hpp" 
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -28,10 +27,7 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
@@ -40,10 +36,9 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h" 
 
-#include "TH1F.h"
 #include "TH2F.h"
 #include "TLorentzVector.h"
 
