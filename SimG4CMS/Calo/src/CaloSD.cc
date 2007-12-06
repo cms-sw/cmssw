@@ -14,6 +14,7 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 #include "G4GFlashSpot.hh"
+#include "G4ParticleTable.hh"
 
 CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
@@ -21,7 +22,8 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   SensitiveCaloDetector(name, cpv, clg, p),
   G4VGFlashSensitiveDetector(), 
   theTrack(0), preStepPoint(0), m_trackManager(manager), currentHit(0),
-  hcID(-1), theHC(0) {
+  hcID(-1), theHC(0){
+
   //Add Hcal Sentitive Detector Names
 
   collectionName.insert(name);
@@ -114,12 +116,12 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
   if (aSpot != NULL) {
 		
     theTrack = const_cast<G4Track *>(aSpot->GetOriginatorTrack()->GetPrimaryTrack());
-    G4String particleType = theTrack->GetDefinition()->GetParticleName();
+    G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
     TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
 		
-    if (particleType == "e-" ||
-	particleType == "e+" ||
-	particleType == "gamma" ) {
+    if (particleCode == emPDG ||
+	particleCode == epPDG ||
+	particleCode == gammaPDG ) {
       edepositEM  = aSpot->GetEnergySpot()->GetEnergy(); edepositHAD = 0.;
     } else {
       edepositEM  = 0.;  edepositHAD = 0.;
@@ -208,10 +210,10 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
   preStepPoint = aStep->GetPreStepPoint(); 
   theTrack     = aStep->GetTrack();   
 
-  G4String particleType = theTrack->GetDefinition()->GetParticleName();
-  if (particleType == "e-" ||
-      particleType == "e+" ||
-      particleType == "gamma" ){
+  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
+  if (particleCode == emPDG ||
+      particleCode == epPDG ||
+      particleCode == gammaPDG ) {
     edepositEM  = getEnergyDeposit(aStep); edepositHAD = 0.;
   } else {
     edepositEM  = 0.; edepositHAD = getEnergyDeposit(aStep);
@@ -538,6 +540,18 @@ void CaloSD::DrawAll() {}
 void CaloSD::PrintAll() {
   LogDebug("CaloSim") << "CaloSD: Collection " << theHC->GetName();
   theHC->PrintAllHits();
+} 
+
+void CaloSD::update(const BeginOfRun *) {
+
+  G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
+  G4String particleName;
+  emPDG = theParticleTable->FindParticle(particleName="e-")->GetPDGEncoding();
+  epPDG = theParticleTable->FindParticle(particleName="e+")->GetPDGEncoding();
+  gammaPDG = theParticleTable->FindParticle(particleName="gamma")->GetPDGEncoding();
+  mumPDG = theParticleTable->FindParticle(particleName="mu-")->GetPDGEncoding();
+  mupPDG = theParticleTable->FindParticle(particleName="mu+")->GetPDGEncoding();
+
 } 
 
 void CaloSD::update(const BeginOfEvent *) {

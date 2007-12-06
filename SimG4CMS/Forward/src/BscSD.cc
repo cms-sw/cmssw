@@ -32,6 +32,7 @@
 #include "G4VProcess.hh"
 #include "G4EventManager.hh"
 #include "G4Step.hh"
+#include "G4ParticleTable.hh"
 
 #include <string>
 #include <vector>
@@ -161,11 +162,11 @@ void BscSD::GetStepInfo(G4Step* aStep) {
   hitPointLocalExit = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPointExit);
 
 
-  G4String particleType = theTrack->GetDefinition()->GetParticleName();
-  LogDebug("BscSim") <<  "  BscSD :particleType =  " << particleType <<std::endl;
-  if (particleType == "e-" ||
-      particleType == "e+" ||
-      particleType == "gamma" ){
+  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
+  LogDebug("BscSim") <<  "  BscSD :particleType =  " << theTrack->GetDefinition()->GetParticleName() <<std::endl;
+  if (particleCode == emPDG ||
+      particleCode == epPDG ||
+      particleCode == gammaPDG ) {
     edepositEM  = getEnergyDeposit(aStep); edepositHAD = 0.;
   } else {
     edepositEM  = 0.; edepositHAD = getEnergyDeposit(aStep);
@@ -444,6 +445,16 @@ void BscSD::update (const BeginOfEvent * i) {
    clearHits();
    eventno = (*i)()->GetEventID();
 }
+
+void BscSD::update(const BeginOfRun *) {
+
+  G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
+  G4String particleName;
+  emPDG = theParticleTable->FindParticle(particleName="e-")->GetPDGEncoding();
+  epPDG = theParticleTable->FindParticle(particleName="e+")->GetPDGEncoding();
+  gammaPDG = theParticleTable->FindParticle(particleName="gamma")->GetPDGEncoding();
+
+} 
 
 void BscSD::update (const ::EndOfEvent*) {
 }

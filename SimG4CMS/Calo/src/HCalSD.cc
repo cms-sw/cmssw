@@ -186,44 +186,44 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     G4String nameVolume = 
       aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
     if (isItHF(aStep)) {
-      G4String parType =aStep->GetTrack()->GetDefinition()->GetParticleName();
+      G4int parCode =aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
       if (useParam) {
-	LogDebug("HcalSim") << "HCalSD: Hit from parametrization in " 
-			    << nameVolume << " for Track " 
-			    << aStep->GetTrack()->GetTrackID()
-			    <<" (" << parType << ")";
-	getFromParam(aStep);
+        LogDebug("HcalSim") << "HCalSD: Hit from parametrization in " 
+                            << nameVolume << " for Track " 
+                            << aStep->GetTrack()->GetTrackID()
+                            <<" (" << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
+        getFromParam(aStep);
       } else {
-	bool notaMuon = true;
-	if (parType == "mu+" || parType == "mu-") notaMuon = false;
-	if (useShowerLibrary && notaMuon) {
-	  LogDebug("HcalSim") << "HCalSD: Starts shower library from " 
-			      << nameVolume << " for Track " 
-			      << aStep->GetTrack()->GetTrackID()
-			      <<" (" << parType << ")";
-	  getFromLibrary(aStep);
-	} else if (isItFibre(nameVolume)) {
-	  LogDebug("HcalSim") << "HCalSD: Hit at Fibre in " << nameVolume 
-			      << " for Track " 
-			      << aStep->GetTrack()->GetTrackID()
-			      <<" ("  << parType << ")";
-	  hitForFibre(aStep);
-	}
+        bool notaMuon = true;
+        if (parCode == mupPDG || parCode == mumPDG ) notaMuon = false;
+        if (useShowerLibrary && notaMuon) {
+          LogDebug("HcalSim") << "HCalSD: Starts shower library from " 
+                              << nameVolume << " for Track " 
+                              << aStep->GetTrack()->GetTrackID()
+                              <<" (" << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
+          getFromLibrary(aStep);
+        } else if (isItFibre(nameVolume)) {
+          LogDebug("HcalSim") << "HCalSD: Hit at Fibre in " << nameVolume 
+                              << " for Track " 
+                              << aStep->GetTrack()->GetTrackID()
+                              <<" ("  << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
+          hitForFibre(aStep);
+        }
       }
     } else if (isItPMT(nameVolume)) {
       LogDebug("HcalSim") << "HCalSD: Hit from PMT parametrization from " 
-			  <<  nameVolume << " for Track " 
-			  << aStep->GetTrack()->GetTrackID() << " ("
-			  << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
+                          <<  nameVolume << " for Track " 
+                          << aStep->GetTrack()->GetTrackID() << " ("
+                          << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
       if (usePMTHit && showerPMT) getHitPMT(aStep);
     } else {
       LogDebug("HcalSim") << "HCalSD: Hit from standard path from " 
-			  <<  nameVolume << " for Track " 
-			  << aStep->GetTrack()->GetTrackID() << " ("
-			  << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
+                          <<  nameVolume << " for Track " 
+                          << aStep->GetTrack()->GetTrackID() << " ("
+                          << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
       if (getStepInfo(aStep)) {
-	if (hitExists() == false && edepositEM+edepositHAD>0.) 
-	  currentHit = createNewHit();
+        if (hitExists() == false && edepositEM+edepositHAD>0.) 
+          currentHit = createNewHit();
       }
     }
     return true;
@@ -412,9 +412,8 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
   resetForNewPrimary(posGlobal, etrack);
   //  int primaryID = setTrackID(aStep);
 
-  G4String particleType = theTrack->GetDefinition()->GetParticleName();
-  if (particleType == "e-" || particleType == "e+" ||
-      particleType == "gamma" ) {
+  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
+  if ( particleCode == emPDG || particleCode == epPDG || particleCode == gammaPDG ) {
     edepositEM  = 1.*GeV; edepositHAD = 0.;
   } else {
     edepositEM  = 0.; edepositHAD = 1.*GeV;
@@ -422,7 +421,7 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
 
   LogDebug("HcalSim") << "HCalSD::getFromLibrary " << nhit << " hits for "
 		      << GetName() << " of " << primaryID << " with " 
-		      << particleType << " of " 
+		      << theTrack->GetDefinition()->GetParticleName() << " of " 
 		      << preStepPoint->GetKineticEnergy()/GeV << " GeV";
 
   for (int i=0; i<nhit; i++) {
@@ -455,9 +454,8 @@ void HCalSD::hitForFibre (G4Step* aStep) {
   int det   = 5;
   int nHit  = hfshower->getHits(aStep);
 
-  G4String particleType = theTrack->GetDefinition()->GetParticleName();
-  if (particleType == "e-" || particleType == "e+" ||
-      particleType == "gamma" ) {
+  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
+  if ( particleCode == emPDG || particleCode == epPDG || particleCode == gammaPDG ) {
     edepositEM  = 1.*GeV; edepositHAD = 0.;
   } else {
     edepositEM  = 0.; edepositHAD = 1.*GeV;
@@ -465,7 +463,7 @@ void HCalSD::hitForFibre (G4Step* aStep) {
  
   LogDebug("HcalSim") << "HCalSD::hitForFibre " << nHit << " hits for " 
 		      << GetName() << " of " << primaryID << " with " 
-		      << particleType << " of " 
+		      << theTrack->GetDefinition()->GetParticleName() << " of " 
 		      << preStepPoint->GetKineticEnergy()/GeV 
 		      << " GeV in detector type " << det;
  
@@ -573,17 +571,16 @@ void HCalSD::getHitPMT (G4Step* aStep) {
     currentID.setID(unitID, time, primaryID);
 
     double beta = preStepPoint->GetBeta();
-    G4String particleType = theTrack->GetDefinition()->GetParticleName();
     if (beta > betaThr) {
       edepositEM  = edep*GeV; edepositHAD = 0.;
     } else {
       edepositEM  = 0.; edepositHAD = edep*GeV;
     }
     LogDebug("HcalSim") << "HCalSD::getHitPMT 1 hit for " << GetName() 
-			<< " of " << primaryID << " with " << particleType
-			<< " of " << preStepPoint->GetKineticEnergy()/GeV 
-			<< " GeV with velocity " << beta << " UnitID "
-			<< std::hex << unitID << std::dec;
+                        << " of " << primaryID << " with " << theTrack->GetDefinition()->GetParticleName()
+                        << " of " << preStepPoint->GetKineticEnergy()/GeV 
+                        << " GeV with velocity " << beta << " UnitID "
+                        << std::hex << unitID << std::dec;
 
     // check if it is in the same unit and timeslice as the previosus one
     if (currentID == previousID) {

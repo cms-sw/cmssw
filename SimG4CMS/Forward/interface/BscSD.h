@@ -6,6 +6,7 @@
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 
+#include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 
@@ -51,8 +52,9 @@ class G4TrackToParticleID;
 //-------------------------------------------------------------------
 
 class BscSD : public SensitiveTkDetector,
-		public Observer<const BeginOfEvent*>,
-		public Observer<const EndOfEvent*> {
+              public Observer<const BeginOfRun *>,
+              public Observer<const BeginOfEvent*>,
+              public Observer<const EndOfEvent*> {
 
 public:
   
@@ -79,6 +81,7 @@ public:
   std::vector<std::string> getNames();
   
  private:
+  void           update(const BeginOfRun *);
   void           update(const BeginOfEvent *);
   void           update(const ::EndOfEvent *);
   virtual void   clearHits();
@@ -159,6 +162,9 @@ public:
  protected:
   
   float                edepositEM, edepositHAD;
+  G4int emPDG;
+  G4int epPDG;
+  G4int gammaPDG;
 };
 
 #endif // BscSD_h

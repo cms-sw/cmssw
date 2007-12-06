@@ -10,6 +10,7 @@
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
@@ -37,10 +38,11 @@ class CaloSlaveSD;
 class G4GFlashSpot;
 
 class CaloSD : public SensitiveCaloDetector, 
-	       public G4VGFlashSensitiveDetector,
-	       public Observer<const BeginOfEvent *>,
-	       public Observer<const EndOfTrack *>,
-	       public Observer<const EndOfEvent *> {
+               public G4VGFlashSensitiveDetector,
+               public Observer<const BeginOfRun *>,    
+               public Observer<const BeginOfEvent *>,
+               public Observer<const EndOfTrack *>,
+               public Observer<const EndOfEvent *> {
 
 public:    
   
@@ -72,6 +74,7 @@ protected:
   void          resetForNewPrimary(G4ThreeVector, double);
   double        getAttenuation(G4Step* aStep, double birk1, double birk2);
 
+  virtual void  update(const BeginOfRun *);
   virtual void  update(const BeginOfEvent *);
   virtual void  update(const EndOfTrack * trk);
   virtual void  update(const ::EndOfEvent *);
@@ -114,6 +117,12 @@ protected:
   double                 correctT;
   double                 kmaxIon, kmaxNeutron, kmaxProton;
 
+  G4int emPDG;
+  G4int epPDG;
+  G4int gammaPDG;
+  G4int mumPDG;
+  G4int mupPDG; 
+
 private:
 
   CaloSlaveSD*           slave;
@@ -123,6 +132,7 @@ private:
 
   std::vector<CaloG4Hit*>         hitvec;
   std::map<int,TrackWithHistory*> tkMap;
+
 };
 
 #endif // SimG4CMS_CaloSD_h
