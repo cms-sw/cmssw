@@ -119,7 +119,7 @@ void CrossingFrame<T>::print(int level) const {
 template <class T> 
 int  CrossingFrame<T>::getSourceType(unsigned int ip) const {
   // decide to which source belongs object with index ip in the pileup vector
-  // pileup=0, cosmics=2, beam halo+ =3, beam halo- =4
+  // pileup=0, cosmics=1, beam halo+ =2, beam halo- =3
   unsigned int bcr= getBunchCrossing(ip)-firstCrossing_; //starts at 0
 
     for (unsigned int i=0;i<maxNbSources-1;++i) {
