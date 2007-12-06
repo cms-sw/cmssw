@@ -6,8 +6,8 @@
  *  A single trigger object (e.g., an isolated muon, or MET)
  *  - described by its 4-momentum and physics type
  *
- *  $Date: 2007/12/04 17:00:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/05 14:24:02 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -41,6 +41,10 @@ namespace trigger
     template <typename T>
     TriggerObject(int id, const T& o):
     id_(id), pt_(o.pt()), eta_(o.eta()), phi_(o.phi()), mass_(o.mass()) { }
+    /// ... and pdgId()
+    template <typename T>
+    TriggerObject(const T& o):
+    id_(o.pdgId()), pt_(o.pt()), eta_(o.eta()), phi_(o.phi()), mass_(o.mass()) { }
 
     /// setters
     void setId  (int     id) {id_  =id;}
@@ -64,10 +68,10 @@ namespace trigger
 
     reco::Particle particle(reco::Particle::Charge q=0, 
       const reco::Particle::Point & vertex = reco::Particle::Point(0,0,0),
-      int pdgId=0, int status=0, bool integerCharge=true) const {
+      int status=0, bool integerCharge=true) const {
       return reco::Particle(q,
         reco::Particle::LorentzVector(px(),py(),pz(),energy()),
-        vertex,pdgId,status,integerCharge);
+        vertex,id(),status,integerCharge);
     }
 
   };

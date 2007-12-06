@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for each event (AOD case)
  *  describing the (HLT) trigger table
  *
- *  $Date: 2007/12/04 09:00:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/05 14:24:02 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -50,7 +50,7 @@ namespace trigger
   public:
     /// constructors
     TriggerEvent(): triggerObjects_(), triggerFilters_() { }
-    TriggerEvent(size_type n): triggerObjects_(), triggerFilters_() {triggerFilters_.reserve(n); }
+    TriggerEvent(size_type no, size_type nf): triggerObjects_(), triggerFilters_() {triggerObjects_.reserve(no); triggerFilters_.reserve(nf); }
 
     /// setters
     void addObjects(const TriggerObjectCollection& triggerObjects) {triggerObjects_.insert(triggerObjects_.end(), triggerObjects.begin(), triggerObjects.end());}
@@ -71,8 +71,8 @@ namespace trigger
     }
 
     /// other
-    size_type numObjects() const {return triggerObjects_.size();}
-    size_type numFilters() const {return triggerFilters_.size();}
+    size_type sizeObjects() const {return triggerObjects_.size();}
+    size_type sizeFilters() const {return triggerFilters_.size();}
 
   };
 
