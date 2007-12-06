@@ -35,3 +35,28 @@ namespace {
     EcalRecHitsRef _ERHitsRef;
   }
 }
+
+//raw to rechit specific formats
+#include "DataFormats/EcalRecHit/interface/RefGetter.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitComparison.h"
+
+namespace {
+  namespace {
+    edm::Wrapper< EcalRecHit > dummy01;
+    edm::Wrapper< std::vector<EcalRecHit>  > dummy11;
+    edm::Wrapper< edm::DetSet<EcalRecHit> > dummy21;
+    edm::Wrapper< std::vector<edm::DetSet<EcalRecHit> > > dummy31;
+    edm::Wrapper< edm::DetSetVector<EcalRecHit> > dummy41;
+    edm::Wrapper< std::vector< std::vector < edm::DetSet<EcalRecHit> > > > dummy51;
+  }
+}
+
+namespace {
+  namespace {
+    edm::Wrapper< edm::LazyGetter<EcalRecHit> > dummy78;
+    edm::Wrapper< edm::RefGetter<EcalRecHit> > dummy79;
+  }
+}
