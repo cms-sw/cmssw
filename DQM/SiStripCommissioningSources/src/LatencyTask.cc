@@ -47,13 +47,14 @@ void LatencyTask::book() {
     // if not, book it
     timingMap_[title] = HistoSet();
     timing_ = timingMap_[title];
+    int nBins = 100;
     timing_.histo_ = dqm()->bookProfile( title, title,    // name and title
-  				         100, -2500, 0,   // binning + range
+  				         nBins, -2500, 0,   // binning + range
 				         100, 0., -1. );  // Y range : automatic
   
-    timing_.vNumOfEntries_.resize(nBins_,0);
-    timing_.vSumOfContents_.resize(nBins_,0);
-    timing_.vSumOfSquares_.resize(nBins_,0);
+    timing_.vNumOfEntries_.resize(nBins,0);
+    timing_.vSumOfContents_.resize(nBins,0);
+    timing_.vSumOfSquares_.resize(nBins,0);
   }
   LogDebug("Commissioning") << "[LatencyTask::book] done";
   
