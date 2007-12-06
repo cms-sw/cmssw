@@ -141,7 +141,7 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
     bestCB = AlgoBruteForce(nMin,nMax);
 
   // Algo is Switch Method
-  } else if( algoMethod_ == "SwitchMethod" ) {
+  } else if( algoMethod_ == "SwitchMode" ) {
 
     bestCB = AlgoSwitchMethod(nMin,nMax);
 
