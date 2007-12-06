@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.3 2007/12/06 20:18:44 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.4 2007/12/06 22:11:21 chrjones Exp $
 //
 
 // system include files
@@ -277,14 +277,6 @@ namespace {
     TGButton* m_button;
   };
 
-  struct DisableRedraw {
-    DisableRedraw() {
-      gEve->DisableRedraw();
-    }
-    ~DisableRedraw() {
-      gEve->EnableRedraw();
-    }
-  };
 }
 void
 FWDisplayEvent::draw(const fwlite::Event& iEvent) const
@@ -300,7 +292,7 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
   {
     //while inside this scope, do not let
     // Eve do any redrawing
-    DisableRedraw disableRedraw;
+    TEveManager::TRedrawDisabler disableRedraw(gEve);
 
     make_tracks_rhophi(&iEvent,
 		       &(m_physicsElements.front()));
