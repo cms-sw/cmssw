@@ -27,7 +27,7 @@ class CandOneToOneDeltaRMatcher : public edm::EDProducer {
   edm::InputTag source_;
   edm::InputTag matched_;
   std::vector < std::vector<float> > AllDist;
-  unsigned int algoMethod_;
+  std::string algoMethod_;
 
 };
 
@@ -59,7 +59,7 @@ using namespace stdcomb;
 CandOneToOneDeltaRMatcher::CandOneToOneDeltaRMatcher( const ParameterSet & cfg ) :
   source_( cfg.getParameter<InputTag>( "src" ) ),
   matched_( cfg.getParameter<InputTag>( "matched" ) ),
-  algoMethod_( cfg.getParameter<unsigned int>( "algoMethod" ) ) {
+  algoMethod_( cfg.getParameter<string>( "algoMethod" ) ) {
   produces<CandMatchMap>("src2mtc");
   produces<CandMatchMap>("mtc2src");
 }
@@ -136,17 +136,17 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
   vector<int> bestCB;
 
   // Algo is Brute Force
-  if( algoMethod_ == 0) {
+  if( algoMethod_ == "BruteForce") {
 
     bestCB = AlgoBruteForce(nMin,nMax);
 
   // Algo is Switch Method
-  } else if( algoMethod_ == 1 ) {
+  } else if( algoMethod_ == "SwitchMethod" ) {
 
     bestCB = AlgoSwitchMethod(nMin,nMax);
 
   // Algo is Brute Force if nLoop < 10000
-  } else if( algoMethod_ == 2 ) {
+  } else if( algoMethod_ == "MixMode" ) {
 
     if( nLoopToDo < 10000 ) {
       bestCB = AlgoBruteForce(nMin,nMax);
@@ -154,6 +154,8 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
       bestCB = AlgoSwitchMethod(nMin,nMax);
     } 
 
+  } else {
+    throw cms::Exception("OneToOne Constructor") << "wrong matching method in ParameterSet";
   }
 
   for(int i1=0; i1<nMin; i1++) edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "min: " << i1 << " " << bestCB[i1] << " " << AllDist[i1][bestCB[i1]];
