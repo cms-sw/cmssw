@@ -55,7 +55,7 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
-  std::cout << std::endl << std::endl << "Event number " << nEvent_ << std::endl;
+  //std::cout << std::endl << std::endl << "Event number " << nEvent_ << std::endl;
 
   // This next section taken directly from 
   // L1Trigger/RegionalCaloTrigger/plugins/L1RCTProducer.cc rev. 1.6
@@ -139,10 +139,10 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  int encodedEtHcal = (int) (hAddr>>1);
 	  bool fineGrainHcal = (bool) (hAddr&1);  // mip bit
 	  
-	  std::cout << "Eventnumber " << fileEventNumber << "\tCrate " 
-		    << crate << "\tCard " << card << "\tTower " 
-		    << tower << " \teAddr " << eAddr <<"\thAddr "
-		    << hAddr << "\tjunk " << junk << std::endl;
+	  //std::cout << "Eventnumber " << fileEventNumber << "\tCrate " 
+	  //    << crate << "\tCard " << card << "\tTower " 
+	  //    << tower << " \teAddr " << eAddr <<"\thAddr "
+	  //    << hAddr << "\tjunk " << junk << std::endl;
 	  
 	  int iEta = lookupTables_->rctParameters()->calcIEta(crate,card,tower);
 	  int iPhi = lookupTables_->rctParameters()->calcIPhi(crate,card,tower);
