@@ -53,8 +53,8 @@ const float effcombomax = 3272;
 L1THcalClient::L1THcalClient(const edm::ParameterSet& iConfig)
 {
   minEventsforFit = iConfig.getUntrackedParameter<int>("minEventsforFit",1000);
-  input_dir = "L1TMonitor/L1THCALTPGXAna/";
-  output_dir = "L1TMonitor/C1/Tests/";
+  input_dir = "L1T/L1THCALTPGXAna/";
+  output_dir = "L1T/L1THCALTPGXAna/Tests/";
 
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe->showDirStructure();
@@ -103,34 +103,51 @@ void L1THcalClient::beginJob(const edm::EventSetup&)
     dbe->book1D("HcalEff3","HCAL Efficiency - 3",effBins,effMinHBHE,effMaxHBHE);
   hcalEff_4_ =
     dbe->book1D("HcalEff4","HCAL Efficiency - 4",effBins,effMinHF,effMaxHF);
-  for (int i=0; i < 56; i++)
-    {
-      char hname[20],htitle[30];
-      int ieta, iphi;
-      for (int j=0; j < 72; j++)
-        {
-          iphi = j+1;
+
+
+
+
+   
+      //efficiency histos for HBHE
+      for (int i=0; i < 56; i++)
+	{      
+	  char hname[20],htitle[20];
+          char dirname[80];
+ 	  int ieta, iphi;
           if (i<28) ieta = i-28;
-          else ieta = i-27;
-          sprintf(hname,"eff_%d_%d",ieta,iphi);
-          sprintf(htitle,"Eff  <%d,%d>",ieta,iphi);
-          hcalEff_HBHE[i][j] = dbe->book1D(hname, htitle, effBins,effMinHBHE,effMaxHBHE);
+	  else ieta = i-27;
+          sprintf(dirname,"%sEffByChannel/EtaTower%d",output_dir.c_str(),ieta);
+          dbe->setCurrentFolder(dirname);
+	  for (int j=0; j < 72; j++) 
+	    {
+	      iphi = j+1;
+	      if (i<28) ieta = i-28;
+	      else ieta = i-27;
+              sprintf(hname,"eff_%d_%d",ieta,iphi);
+              sprintf(htitle,"Eff <%d,%d>",ieta,iphi);
+              hcalEff_HBHE[i][j] = dbe->book1D(hname, htitle, effBins,effMinHBHE,effMaxHBHE);
+	    }	     
 	}
-    }
-  for (int i=0; i < 8; i++)
-    {
-      char hname[20],htitle[30];
-      int ieta, iphi;
-      for (int j=0; j < 18; j++)
-        {
-          iphi = j*4+1;
+      //efficiency histos for HF
+      for (int i=0; i < 8; i++)
+	{
+	  char hname[20],htitle[20];
+          char dirname[80];
+          int ieta, iphi;
           if (i<4) ieta = i-32;
-          else ieta = i+25;
-          sprintf(hname,"eff_%d_%d",ieta,iphi);
-          sprintf(htitle,"Eff  <%d,%d>",ieta,iphi);
-          hcalEff_HF[i][j] = dbe->book1D(hname, htitle, effBins,effMinHF,effMaxHF);
+	  else ieta = i+25;
+          sprintf(dirname,"%sEffByChannel/EtaTower%d",output_dir.c_str(),ieta);
+          dbe->setCurrentFolder(dirname);
+	  for (int j=0; j < 18; j++)
+	    {
+	      iphi = j*4+1;
+	      if (i<4) ieta = i-32;
+	      else ieta = i+25;
+	      sprintf(hname,"eff_%d_%d",ieta,iphi);
+              sprintf(htitle,"Eff <%d,%d>",ieta,iphi);
+	      hcalEff_HF[i][j] = dbe->book1D(hname, htitle, effBins,effMinHF,effMaxHF);
+	    }
 	}
-    }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -150,7 +167,7 @@ L1THcalClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //}
   //  //void L1THcalClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection, const edm::EventSetup & iSetup) {
   //  LogInfo("TriggerDQM")<<"[TriggerDQM]: end Lumi Section.";
-  //dbe->setCurrentFolder("L1TMonitor/QTests");
+  //dbe->setCurrentFolder("L1T/QTests");
   TF1 *turnon = new TF1("turnon","[0]*0.5*(TMath::Erf((x -[1])*0.5/[2])+1.)",0,30);
   TH1F *eff_histo;
 
@@ -223,6 +240,7 @@ L1THcalClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       char hname[20],htitle[30];
       int ieta, iphi;
+      char subdirname[80];
       for (int j=0; j < 72; j++)
 	{
 	  iphi = j+1;
@@ -231,15 +249,18 @@ L1THcalClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  sprintf(hname,"eff_%d_%d",ieta,iphi);
 	  sprintf(htitle,"Eff  <%d,%d>",ieta,iphi);
 	  //hcalEff_HBHE[i][j] = dbe->book1D(hname, htitle, effBins,effMinHBHE,effMaxHBHE);
-	  hcalEff_num = this->get1DHisto(input_dir+(string)hname+"_num",dbe);
-	  hcalEff_den = this->get1DHisto(input_dir+(string)hname+"_den",dbe);
+	  sprintf(subdirname,"%sEffByChannel/EtaTower%d/",input_dir.c_str(),ieta);
+          hcalEff_num = this->get1DHisto((string)subdirname+(string)hname+"_num",dbe);
+	  hcalEff_den = this->get1DHisto((string)subdirname+(string)hname+"_den",dbe);
+     if (!hcalEff_num) std::cout <<(string)subdirname+(string)hname+"_num" << "numerator not found\n";
 	  if (!hcalEff_num) std::cout << "numerator not found\n";
 	  if (!hcalEff_den) std::cout << "denominator not found\n";
 	  calcEff(hcalEff_num, hcalEff_den, hcalEff_HBHE[i][j]);
 
 	  if (hcalEff_num->GetEntries() > minEventsforFit && nevents%1000 == 0)
 	    {
-	      eff_histo = this->get1DHisto(output_dir+(string)hname,dbe);
+              sprintf(subdirname,"%sEffByChannel/EtaTower%d/",output_dir.c_str(),ieta);
+	      eff_histo = this->get1DHisto((string)subdirname+(string)hname,dbe);
 	      turnon->SetParameter(0,1);
 	      turnon->SetParameter(1,3);
 	      turnon->SetParameter(2,6);
@@ -258,6 +279,7 @@ L1THcalClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       char hname[20],htitle[30];
       int ieta, iphi;
+      char subdirname[80];
       for (int j=0; j < 18; j++)
 	{
 	  iphi = j*4+1;
@@ -266,14 +288,16 @@ L1THcalClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  sprintf(hname,"eff_%d_%d",ieta,iphi);
 	  sprintf(htitle,"Eff  <%d,%d>",ieta,iphi);
 	  //hcalEff_HF[i][j] = dbe->book1D(hname, htitle, effBins,effMinHF,effMaxHF);
-          hcalEff_num = this->get1DHisto(input_dir+(string)hname+"_num",dbe);
-          hcalEff_den = this->get1DHisto(input_dir+(string)hname+"_den",dbe);
-          if (!hcalEff_num) std::cout << "numerator not found\n";
+          sprintf(subdirname,"%sEffByChannel/EtaTower%d/",input_dir.c_str(),ieta);
+          hcalEff_num = this->get1DHisto((string)subdirname+(string)hname+"_num",dbe);
+          hcalEff_den = this->get1DHisto((string)subdirname+(string)hname+"_den",dbe);
+          if (!hcalEff_num) std::cout <<(string)subdirname+(string)hname+"_num" << "numerator not found\n";
           if (!hcalEff_den) std::cout << "denominator not found\n";
           calcEff(hcalEff_num, hcalEff_den, hcalEff_HF[i][j]);
 	  if (hcalEff_num->GetEntries() > minEventsforFit && nevents%1000 == 0)
 	    {
-	      eff_histo = this->get1DHisto(output_dir+(string)hname,dbe);
+              sprintf(subdirname,"%sEffByChannel/EtaTower%d/",output_dir.c_str(),ieta);
+	      eff_histo = this->get1DHisto((string)output_dir+(string)hname,dbe);
 	      turnon->SetParameter(0,1);
 	      turnon->SetParameter(1,1);
 	      turnon->SetParameter(2,6);
@@ -308,7 +332,7 @@ void L1THcalClient::calcEff(TH1F *num, TH1F *den, MonitorElement* me)
 TH1F * L1THcalClient::get1DHisto(string meName, DaqMonitorBEInterface * dbi)
 {
 
-  //  string mePath = "Collector/GlobalDQM/L1TMonitor/" + meName;
+  //  string mePath = "Collector/GlobalDQM/L1T/" + meName;
 
   //  MonitorElement * me_ = dbi->get(mePath);
   MonitorElement * me_ = dbi->get(meName);
@@ -333,7 +357,7 @@ TH1F * L1THcalClient::get1DHisto(string meName, DaqMonitorBEInterface * dbi)
 TH2F * L1THcalClient::get2DHisto(string meName, DaqMonitorBEInterface * dbi)
 {
 
-  //  string mePath = "Collector/GlobalDQM/L1TMonitor/" + meName;
+  //  string mePath = "Collector/GlobalDQM/L1T/" + meName;
 
   MonitorElement * me_ = dbi->get(meName);
 
