@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id$
+// $Id: FWDisplayEvent.cc,v 1.1.1.1 2007/12/06 01:39:55 chrjones Exp $
 //
 
 // system include files
@@ -56,7 +56,7 @@ void make_tracks_rhophi(const fwlite::Event* iEvent,
   tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
   
   if(0 == tracks.ptr() ) {
-    std::cout <<"failed to get MC"<<std::endl;
+    std::cout <<"failed to get Tracks"<<std::endl;
   }
 
   if(0 == *oList) {
@@ -65,7 +65,7 @@ void make_tracks_rhophi(const fwlite::Event* iEvent,
     (*oList)->SetMainColor(Color_t(3));
     TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
     //units are kG
-    rnrStyle->SetMagField( 4.0*10.);
+    rnrStyle->SetMagField( -4.0*10.);
     //get this from geometry, units are CM
     rnrStyle->SetMaxR(120.0);
     rnrStyle->SetMaxZ(300.0);
@@ -91,6 +91,7 @@ void make_tracks_rhophi(const fwlite::Event* iEvent,
     t.V = TEveVector(it->vx(),
 		     it->vy(),
 		     it->vz());
+    t.sign = it->charge();
 
     TEveTrack* trk = new TEveTrack(&t,rnrStyle);
     trk->SetMainColor((*oList)->GetMainColor());
