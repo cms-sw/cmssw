@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.30 2007/11/09 23:09:12 badgett Exp $
+// $Id: StorageManager.cc,v 1.31 2007/11/29 19:19:50 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1535,6 +1535,7 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
 	{
 	  // overlay an INIT message view on the serialized
 	  // products array so that we can initialize the consumer event selection
+	  std::string errorString;
 	  InitMsgView initView(&serialized_prods_[0]);
 	  if (jc_.get() != NULL)
 	    {
@@ -1545,14 +1546,26 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
 		    eventServer->getConsumer(consumerId);
 		  if (consPtr.get() != NULL)
 		    {
-		      consPtr->initializeSelection(initView);
+		      try {
+			consPtr->initializeSelection(initView);
+		      }
+		      catch (const edm::Exception& excpt) {
+			errorString = excpt.what();
+		      }
 		    }
 		}
 	    }
 	  unsigned int len = ser_prods_size_;
+	  if (errorString.length() > 0) {len = errorString.length();}
           if(mybuffer_.capacity() < len) mybuffer_.resize(len);
-	  for (unsigned int i=0; i<len; ++i) mybuffer_[i]=serialized_prods_[i];
-	  
+	  if (errorString.length() > 0) {
+	    const char *errorBytes = errorString.c_str();
+	    for (unsigned int i=0; i<len; ++i) mybuffer_[i]=errorBytes[i];
+	  }
+	  else {
+	    for (unsigned int i=0; i<len; ++i) mybuffer_[i]=serialized_prods_[i];
+	  }
+
 	  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
 	  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
 	  out->write((char*) &mybuffer_[0],len);
