@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <fstream>
 
-#include "OnlineDB/CSCCondDB/interface/CSCMap.h"
+#include "OnlineDB/CSCCondDB/interface/CSCMap1.h"
 #include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "TFile.h"
@@ -57,13 +57,16 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
   int value_adc[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
   int scaNr[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca];
   float value_adc_mean[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
+  int count_adc_mean[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
+  float div[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
   std::vector<int> adc;
   std::string chamber_id;
-  int lines;
+  int lines,myIndex;
   std::ifstream filein;
-  std::string PSet,name;
+  std::string PSet,name,chamber_type;
   bool debug;
-  int flag,my_scaValue,counterzero;
+  int flag,my_scaValue,counterzero,maxStrip,counter;
+  unsigned int maxDDU;
   float pedMean,my_scaValueMean;
   int scaBlock,trigTime,lctPhase,power,cap,scaNumber,myNcham;
 

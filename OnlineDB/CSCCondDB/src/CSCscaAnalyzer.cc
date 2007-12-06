@@ -29,10 +29,10 @@
 CSCscaAnalyzer::CSCscaAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
   eventNumber=0,evt=0, Nddu=0;
-  strip=0,misMatch=0;
+  strip=0,misMatch=0,maxDDU=0,maxStrip=-999;
   chamber=0,layer=0,reportedChambers=0;
-  length=1,myevt=0,flag=-9;
-  pedMean=0.0,NChambers=0,myNcham=0;
+  length=1,myevt=0,flag=-9,myIndex=0;
+  pedMean=0.0,NChambers=0,myNcham=0,counter=0;
 
   for (int i=0;i<DDU_sca;i++){
     for (int j=0;j<CHAMBERS_sca;j++){
@@ -51,6 +51,8 @@ CSCscaAnalyzer::CSCscaAnalyzer(edm::ParameterSet const& conf) {
 	  for (int m=0;m<Number_sca;m++){
 	    value_adc[i][j][k][l][m]=0;
 	    value_adc_mean[i][j][k][l][m]=0.0;
+	    count_adc_mean[i][j][k][l][m]=0;
+	    div[i][j][k][l][m]=0.0;
 	  }
 	}
       }
@@ -71,11 +73,13 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
   //myevt=e.id().event();
   //counterzero=counterzero+1;
   //evt=(counterzero+1)/2;
+  int conv_blk[16]={0,1,2,3,4,5,6,7,8,0,9,0,10,0,11,0};
 
+  /*  
   if (NChambers !=0){
     evt++;
   }
-
+  */
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
@@ -91,7 +95,10 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
       
       //evt++;      
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) { 
-	
+	if(iDDU > maxDDU){
+	  maxDDU=iDDU;
+	}
+
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
 	//exclude empty events with no DMB/CFEB data
@@ -107,6 +114,7 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 	if(NChambers > myNcham){
 	  myNcham=NChambers;
 	}
+	if(NChambers !=0) evt++;
 
 	for (int chamber = 0; chamber < NChambers; chamber++){
 	  const CSCDMBHeader &thisDMBheader = cscData[chamber].dmbHeader();
@@ -123,6 +131,7 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 	      for (unsigned int layer = 1; layer <= 6; layer++){
 		std::vector<CSCStripDigi> digis = cscData[chamber].stripDigis(layer) ;		
 	
+                int blk_strt=0;
 		for (int itime=0;itime<8;itime++){
 		  const CSCCFEBTimeSlice * mytimeSlice =  mycfebData->timeSlice(itime);
 		  if (!mytimeSlice)continue;
@@ -132,26 +141,45 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 		  lctPhase = mytimeSlice->scaControllerWord(layer).lct_phase;
 		  int tmp=1;
 		  for(power=0;power<8;power++){if(trigTime==tmp) lctPhase=power; tmp=tmp*2;}
-		  cap = lctPhase+itime;
-		  scaNumber=8*scaBlock+cap;
-		  		  
+		  if(trigTime!=0){
+                     cap = lctPhase+itime;
+                     blk_strt=itime;
+                  }else{
+		    cap=itime-blk_strt-1;
+                  }
+		  scaNumber=8*conv_blk[scaBlock]+cap;
+		  // printf(" -> itime %d scaBlock %d trigTime %d cap %d scaNumber %d \n",itime,scaBlock,trigTime,cap,scaNumber);
+		  
 		  for (unsigned int i=0; i<digis.size(); i++){
 		    int strip = digis[i].getStrip();
+		    if (strip > maxStrip){
+		      maxStrip=strip;
+		    }
 		    adc = digis[i].getADCCounts();
+		    scaNr[iDDU][chamber][layer][strip] = scaNumber;
+		    std::cout<<"strip "<<strip<<"  "<<layer<<"  "<<chamber<<"  "<<iDDU<<" SCA nr "<<scaNumber<<std::endl;
+		    /*
 		    if(strip>=icfeb*16+1 && strip<=icfeb*16+16){
 		      value_adc[iDDU][chamber][layer][strip][scaNumber] = adc[itime];
 		      scaNr[iDDU][chamber][layer][strip] = scaNumber;
 		    }
-		    value_adc_mean[iDDU][chamber][layer][strip][scaNumber] += adc[itime]/evt ;
-		  
+		    */
+
+		    value_adc_mean[iDDU][chamber][layer][strip][scaNumber] += adc[itime];
+		    count_adc_mean[iDDU][chamber][layer][strip][scaNumber] +=1;
+		    
+		    div[iDDU][chamber][layer][strip][scaNumber]=value_adc_mean[iDDU][chamber][layer][strip][scaNumber]/count_adc_mean[iDDU][chamber][layer][strip][scaNumber];
+
+		    //std::cout<<"ADC mean "<<value_adc_mean[iDDU][chamber][layer][strip][scaNumber] <<"  "<<count_adc_mean[iDDU][chamber][layer][strip][scaNumber]<<std::endl;
 		  }
 		}//8 timeslice
 	      }//layer
 	    }//CFEBs
 	  }//CFEB available
 	}//chamber
-	
+      
 	//???????????
+	/*
 	if((evt-1)%20==0){
 	  for(int iii=0;iii<DDU_sca;iii++){
 	    for(int ii=0; ii<CHAMBERS_sca; ii++){
@@ -165,7 +193,7 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 	    }
 	  }
 	}
-	
+	*/
 
 	eventNumber++;
 	edm::LogInfo ("CSCscaAnalyzer")  << "end of event number " << eventNumber<<" and non-zero event "<<evt;
@@ -173,6 +201,21 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
       }
     }
   }
+  //  loop over ddu,cham,layer,strip,scanr!!!
+  /*
+  for (unsigned int iDDU=0; iDDU<maxDDU; ++iDDU) { 
+    for (int chamber = 0; chamber <myNcham; chamber++){
+      for (unsigned int layer = 1; layer <= 6; layer++){
+	for (int strip=0; strip<maxStrip; strip++){
+	  for (int scaNumber=0; scaNumber<96; scaNumber++){
+	    div[iDDU][chamber][layer][strip][scaNumber]=value_adc_mean[iDDU][chamber][layer][strip][scaNumber]/count_adc_mean[iDDU][chamber][layer][strip][scaNumber];
+	    std::cout<<"division "<<div[iDDU][chamber][layer][strip][scaNumber]<<std::endl;
+	  }
+	}
+      }
+    }
+  }
+  */
 }
 
 CSCscaAnalyzer::~CSCscaAnalyzer(){
@@ -220,10 +263,11 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
   calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:scaMeanVal/F:id/I:scanumber/I");
   
   //DB object and map
-  CSCobject *cn = new CSCobject();
+  //CSCobject *cn = new CSCobject();
   //CSCobject *cn1 = new CSCobject();
-  cscmap *map = new cscmap();
-  condbon *dbon = new condbon();
+  CSCMapItem::MapItem mapitem;
+  cscmap1 *map = new cscmap1();
+  //condbon *dbon = new condbon();
 
   for (int dduiter=0;dduiter<Nddu;dduiter++){ 
     for (int cham=0;cham<myNcham;cham++){ 
@@ -233,25 +277,37 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
       int new_dmbID   = dmbID[cham];
       
       std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-      map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
-      std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+      //map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
+      //new mapping
+      map->cratedmb(new_crateID,new_dmbID,&mapitem);
+      chamber_num=mapitem.chamberId;
+      sector= mapitem.sector;
+      first_strip_index=mapitem.stripIndex;
+      strips_per_layer=mapitem.strips;
+      chamber_index=mapitem.chamberId;
+      chamber_type = mapitem.chamberLabel;
+
+      std::cout<<"Data is for chamber:: "<< chamber_type<<"  "<<chamber_id<<" in sector:  "<<sector<<" index "<<first_strip_index<<std::endl;
       
       calib_evt.id = chamber_num;
 
       for (int layeriter=0; layeriter<LAYERS_sca; layeriter++){
-	int layer_id=chamber_num+layeriter+1;
+	//int layer_id=chamber_num+layeriter+1;
+
 	for (int stripiter=0; stripiter<STRIPS_sca; stripiter++){
 	  for (int k=0;k<Number_sca;k++){
 	    my_scaValue = value_adc[dduiter][cham][layeriter][stripiter][k];
-	    my_scaValueMean = value_adc_mean[dduiter][cham][layeriter][stripiter][k];
-	    
-	    mySCAfile<<cham<<"  "<<stripiter<<"  "<<k<<"  "<<layer_id<<"  "<<my_scaValueMean<<std::endl;
+	    //my_scaValueMean = value_adc_mean[dduiter][cham][layeriter][stripiter][k];
+	    my_scaValueMean = div[dduiter][cham][layeriter][stripiter][k];
+	    mySCAfile<<"  "<<myIndex-1<<"  "<<my_scaValueMean<<std::endl;
+	    counter++;
+	    myIndex = first_strip_index+counter-1;
 	    //std::cout<<"Ch "<<cham<<" Layer "<<layeriter<<" strip "<<stripiter<<" sca_nr "<<k<<" Mean ADC "<<my_scaValueMean <<std::endl;
 	    calib_evt.strip=stripiter;
 	    calib_evt.layer=layeriter;
 	    calib_evt.cham=cham;
 	    calib_evt.ddu=dduiter;
-	    calib_evt.scaMeanVal=my_scaValue;
+	    calib_evt.scaMeanVal=my_scaValueMean;
 	    calib_evt.scanumber=scaNr[dduiter][cham][layeriter][stripiter];
     
 	    calibtree.Fill();
