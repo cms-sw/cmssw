@@ -29,7 +29,7 @@ class printTrackJet : public edm::EDAnalyzer {
   private:
 
     edm::InputTag source_;
-    edm::Handle<reco::CandidateCollection> trackJets;
+    edm::Handle<reco::CandidateView> trackJets;
 };
 
 printTrackJet::printTrackJet(const edm::ParameterSet& iConfig)
@@ -51,9 +51,9 @@ void printTrackJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   cout << "************************" << endl;
   cout << "* TrackJetCollection  *" << endl;
   cout << "************************" << endl;
-  for( CandidateCollection::const_iterator f  = trackJets->begin();
-                                           f != trackJets->end();
-                                           f++) {
+  for( CandidateView::const_iterator f  = trackJets->begin();
+                                     f != trackJets->end();
+                                     f++) {
 
      printf("[printTrackJet] (pt,eta,phi) = %7.3f %6.3f %6.3f |\n",
               f->et(),
