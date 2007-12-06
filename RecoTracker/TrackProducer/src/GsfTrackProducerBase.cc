@@ -60,6 +60,9 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
     TrajectoryStateOnSurface outertsos;
     TrajectoryStateOnSurface innertsos;
     unsigned int innerId, outerId;
+
+    // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
+    // This is consistent with innermost and outermost labels only for tracks from LHC collision
     if (theTraj->direction() == alongMomentum) {
       outertsos = theTraj->lastMeasurement().updatedState();
       innertsos = theTraj->firstMeasurement().updatedState();
@@ -96,15 +99,31 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 
 
     size_t i = 0;
-    for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
-	 j != transHits.end(); j ++ ) {
-      if ((**j).hit()!=0){
-	TrackingRecHit * hit = (**j).hit()->clone();
-	track.setHitPattern( * hit, i ++ );
-	selHits->push_back( hit );
+    // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
+    // This is consistent with innermost and outermost labels only for tracks from LHC collisions
+    if (theTraj->direction() == alongMomentum) {
+      for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
+	   j != transHits.end(); j ++ ) {
+	if ((**j).hit()!=0){
+	  TrackingRecHit * hit = (**j).hit()->clone();
+	  track.setHitPattern( * hit, i ++ );
+	  selHits->push_back( hit );
+	  tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
+	}
+      }
+    }else{
+      for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.end()-1;
+	   j != transHits.begin()-1; --j ) {
+	if ((**j).hit()!=0){
+	  TrackingRecHit * hit = (**j).hit()->clone();
+	  track.setHitPattern( * hit, i ++ );
+	  selHits->push_back( hit );
 	tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
+	}
       }
     }
+    // ----
+
 
     //build the GsfTrackExtra
     std::vector<reco::GsfComponent5D> outerStates;
