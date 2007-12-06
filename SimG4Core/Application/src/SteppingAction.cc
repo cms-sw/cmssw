@@ -27,9 +27,23 @@ void SteppingAction::UserSteppingAction(const G4Step * aStep)
         catchLowEnergyInVacuumHere(aStep);
         catchLowEnergyInVacuumNext(aStep);
     }
-    if((aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="Tracker"&& 
-	aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="CALO")){
-      storeTkCaloStateInfo(aStep);
+    
+    if(!(strcmp(aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName().c_str(),"Tracker")&& 
+	 strcmp(aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName().c_str(),"CALO"))){
+
+      math::XYZVectorD pos((aStep->GetPreStepPoint()->GetPosition()).x(),
+			   (aStep->GetPreStepPoint()->GetPosition()).y(),
+			   (aStep->GetPreStepPoint()->GetPosition()).z());
+      
+      math::XYZTLorentzVectorD mom((aStep->GetPreStepPoint()->GetMomentum()).x(),
+				   (aStep->GetPreStepPoint()->GetMomentum()).y(),
+				   (aStep->GetPreStepPoint()->GetMomentum()).z(),
+				   aStep->GetPreStepPoint()->GetTotalEnergy());
+      
+      uint32_t id = aStep->GetTrack()->GetTrackID();
+      
+      std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> p(pos,mom);
+      eventAction_->addTkCaloStateInfo(id,p);
     }
 }
 
@@ -78,26 +92,4 @@ void SteppingAction::catchLowEnergyInVacuumNext(const G4Step * aStep)
             theTrack->SetTrackStatus(fStopButAlive);
         }
     }
-}
-
-void SteppingAction::storeTkCaloStateInfo(const G4Step * aStep)
-{
-  math::XYZVectorD pos((aStep->GetPreStepPoint()->GetPosition()).x(),
-		       (aStep->GetPreStepPoint()->GetPosition()).y(),
-		       (aStep->GetPreStepPoint()->GetPosition()).z());
-
-  math::XYZTLorentzVectorD mom((aStep->GetPreStepPoint()->GetMomentum()).x(),
-			       (aStep->GetPreStepPoint()->GetMomentum()).y(),
-			       (aStep->GetPreStepPoint()->GetMomentum()).z(),
-			       aStep->GetPreStepPoint()->GetTotalEnergy());
-
-  uint32_t id = aStep->GetTrack()->GetTrackID();
-
-  if((aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="Tracker"&& 
-      aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="CALO")){
-
-    std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> p(pos,mom);
-    eventAction_->addTkCaloStateInfo(id,p);
-
-  }
 }

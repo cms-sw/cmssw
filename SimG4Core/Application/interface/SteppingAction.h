@@ -11,21 +11,20 @@ class EventAction;
 class SteppingAction: public G4UserSteppingAction
 {
 public:
-    SteppingAction(EventAction * ea,const edm::ParameterSet & ps);
-    ~SteppingAction();
-    void UserSteppingAction(const G4Step * aStep);
-
-    SimActivityRegistry::G4StepSignal m_g4StepSignal;
+  SteppingAction(EventAction * ea,const edm::ParameterSet & ps);
+  ~SteppingAction();
+  void UserSteppingAction(const G4Step * aStep);
+  
+  SimActivityRegistry::G4StepSignal m_g4StepSignal;
 private:
-    void catchLowEnergyInVacuumHere(const G4Step * aStep);
-    void catchLowEnergyInVacuumNext(const G4Step * aStep);
-    void storeTkCaloStateInfo(const G4Step * aStep);
+  void catchLowEnergyInVacuumHere(const G4Step * aStep);
+  void catchLowEnergyInVacuumNext(const G4Step * aStep);
 private:
-    EventAction * eventAction_;
-    bool   killBeamPipe;
-    double theCriticalEnergyForVacuum;
-    double theCriticalDensity;
-    int    verbose;
+  EventAction * eventAction_;
+  bool   killBeamPipe;
+  double theCriticalEnergyForVacuum;
+  double theCriticalDensity;
+  int    verbose;
 };
 
 #endif
