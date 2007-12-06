@@ -1,4 +1,4 @@
-// $Id: spr_var_selection.C,v 1.1 2007/11/30 20:13:35 narsky Exp $
+// $Id: spr_var_selection.C,v 1.2 2007/12/06 00:04:10 narsky Exp $
 //
 // .L spr_plot.C
 // .L spr_var_selection.C
@@ -81,7 +81,7 @@ int spr_var_selection()
   double importance [nVars];
   double impError [nVars];
   spr.variableImportance("rf",10,vars,importance,impError);
-  plotImportance("SPR_1","Variable Importance for RF",
+  plotImportance("SPR_1","Variable Importance for RF from permutations",
 		 nVars,vars,importance,impError,true);
 
   // estimate interactions
@@ -111,25 +111,47 @@ int spr_var_selection()
   spr.chooseClasses("0:.");
 
   // train RF on the reduced subset
-  spr.addRandomForest("rf_reduced",2,200,0,10);
+  spr.addRandomForest("rf_5vars",2,200,0,10);
   spr.train(verbose);
 
   // save
-  spr.saveClassifier("rf_reduced","rf_reduced.spr");
+  spr.saveClassifier("rf_5vars","rf_5vars.spr");
 
   // compute classifier responses
   spr.test();
   
   // recompute variable importance
-  const unsigned nVarsReduced = spr.nClassifierVars("rf_reduced");
+  const unsigned nVarsReduced = spr.nClassifierVars("rf_5vars");
   char varsReduced [nVarsReduced][200];
   double importanceReduced [nVarsReduced];
   double impErrorReduced [nVarsReduced];
-  spr.variableImportance("rf_reduced",10,varsReduced,
+  spr.variableImportance("rf_5vars",10,varsReduced,
 			 importanceReduced,impErrorReduced);
   plotImportance("SPR_2","Variable Importance for RF Reduced",
 		 nVarsReduced,varsReduced,
 		 importanceReduced,impErrorReduced,true);
+
+  // choose a subset of variables
+  char useVars2[6][200];
+  strcpy(useVars2[0],"age");
+  strcpy(useVars2[1],"chol");
+  strcpy(useVars2[2],"trestbps");
+  strcpy(useVars2[3],"thalach");
+  strcpy(useVars2[4],"cp");
+  strcpy(useVars2[5],"oldpeak");
+  spr.chooseVars(6,useVars2);
+  spr.loadDataFromAscii(1,"cleveland.data","train");
+
+  // use identical splitting
+  spr.split(0.7,true,2627277);
+  spr.chooseClasses("0:.");
+
+  // train RF on the reduced subset
+  spr.addRandomForest("rf_6vars",2,200,0,10);
+  spr.train(verbose);
+
+  // save
+  spr.saveClassifier("rf_6vars","rf_6vars.spr");
 
   // reload data
   spr.chooseAllVars();
@@ -139,7 +161,8 @@ int spr_var_selection()
 
   // reload save classifiers
   spr.loadClassifier("rf","rf.spr");
-  spr.loadClassifier("rf_reduced","rf_reduced.spr");
+  spr.loadClassifier("rf_5vars","rf_5vars.spr");
+  spr.loadClassifier("rf_6vars","rf_6vars.spr");
 
   // rerun test
   spr.test();
