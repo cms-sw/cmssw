@@ -6,11 +6,14 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.13 2007/10/06 20:05:46 futyand Exp $
+ * \version $Id: Photon.h,v 1.14 2007/10/22 22:24:25 futyand Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h" 
+#include "DataFormats/EgammaReco/interface/ClusterShape.h" 
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 namespace reco {
 
@@ -19,8 +22,8 @@ namespace reco {
     /// default constructor
     Photon() : RecoCandidate() { }
     /// constructor from values
-    Photon( Charge q, const LorentzVector & p4, Point unconvPos,
-	    const SuperClusterRef scl, const ClusterShapeRef shp,
+    Photon( Charge q, const LorentzVector & p4, Point unconvPos, 
+	    const SuperClusterRef scl,  const ClusterShapeRef shp, 
 	    bool hasPixelSeed=false, const Point & vtx = Point( 0, 0, 0 ) );
     /// destructor
     virtual ~Photon();
@@ -28,24 +31,29 @@ namespace reco {
     virtual Photon * clone() const;
     /// reference to SuperCluster
     virtual reco::SuperClusterRef superCluster() const;
-    /// reference to ClusterShape for seed BasicCluster of SuperCluster
+    /// vector of references to  Conversion's
+    std::vector<reco::ConversionRef> conversions() const ; 
+     /// reference to ClusterShape for seed BasicCluster of SuperCluster
     virtual reco::ClusterShapeRef seedClusterShape() const;
     /// set reference to SuperCluster
     void setSuperCluster( const reco::SuperClusterRef & r ) { superCluster_ = r; }
+    /// add  single ConversionRef to the vector of Refs
+    void addConversion( const reco::ConversionRef & r ) { conversions_.push_back(r); }
+    //    void addConversion( const reco::ConvertedPhotonRef & r ) { conversions_.push_back(r); }
     /// set reference to ClusterShape
     void setClusterShapeRef( const reco::ClusterShapeRef & r ) { seedClusterShape_ = r; }
-    /// set primary event vertex used to define photon direction
+      /// set primary event vertex used to define photon direction
     void setVertex(const Point & vertex);
     /// position in ECAL
     math::XYZPoint caloPosition() const;
     /// position of seed BasicCluster for shower depth of unconverted photon
     math::XYZPoint unconvertedPosition() const { return unconvPosition_; }
     /// ratio of E(3x3)/ESC
-    double r9() const { return r9_; }
+    double r9() const { return   seedClusterShape_->e3x3()/(superCluster_->rawEnergy()+superCluster_->preshowerEnergy()); }
     /// ratio of Emax/E(3x3)
-    double r19() const { return r19_; }
+    double r19() const { return  seedClusterShape_->eMax()/seedClusterShape_->e3x3(); }
     /// 5x5 energy
-    double e5x5() const { return e5x5_; }
+    double e5x5() const { return seedClusterShape_->e5x5(); }
     /// Whether or not the SuperCluster has a matched pixel seed
     bool hasPixelSeed() const { return pixelSeed_; }
 
@@ -58,9 +66,9 @@ namespace reco {
     reco::SuperClusterRef superCluster_;
     /// reference to ClusterShape for seed BasicCluster of SuperCluster
     reco::ClusterShapeRef seedClusterShape_;
-    double r9_;
-    double r19_;
-    double e5x5_;
+    // vector of references to Conversions
+    std::vector<reco::ConversionRef>  conversions_;
+
     bool pixelSeed_;
   };
   
