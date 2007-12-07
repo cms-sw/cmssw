@@ -57,13 +57,12 @@ class ConvertedPhotonProducer : public edm::EDProducer {
 
 
   std::string ConvertedPhotonCollection_;
-  std::string PhotonExtraCollection_;
+  std::string PhotonWithConversionsCollection_;
 
 
   std::string photonProducer_   ;
   std::string photonCollection_ ;
-  std::string photonCorrCollection_ ;
-
+ 
   
   std::string bcProducer_;
   std::string bcBarrelCollection_;
