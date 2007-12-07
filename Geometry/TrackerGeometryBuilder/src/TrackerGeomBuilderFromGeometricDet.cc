@@ -113,8 +113,11 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 						   gdv[i]->stereo());
       tracker->addType(detTypeMap[detName]);
     }
-    
-    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i]);  
+     
+    StripSubdetector sidet( gdv[i]->geographicalID());
+    double scale  = (sidet.partnerDetId()) ? 0.5 : 1.0 ;	
+
+    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i],scale);  
     GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), detTypeMap[detName],gdv[i]);
     
     tracker->addDetUnit(temp);
@@ -208,14 +211,15 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
 // }
 
 PlaneBuilderFromGeometricDet::ResultType
-TrackerGeomBuilderFromGeometricDet::buildPlaneWithMaterial(const GeometricDet* gd) const
+TrackerGeomBuilderFromGeometricDet::buildPlaneWithMaterial(const GeometricDet* gd,
+							   double scale) const
 {
   PlaneBuilderFromGeometricDet planeBuilder;
   PlaneBuilderFromGeometricDet::ResultType plane = planeBuilder.plane(gd);  
   //
   // set medium properties (if defined)
   //
-  plane->setMediumProperties(MediumProperties(gd->radLength(),gd->xi()));
+  plane->setMediumProperties(MediumProperties(gd->radLength()*scale,gd->xi()*scale));
 
   return plane;
 }

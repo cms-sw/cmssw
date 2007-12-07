@@ -27,7 +27,7 @@ PlaneBuilderForGluedDet::ResultType PlaneBuilderForGluedDet::plane( const std::v
   // Take the medium properties from the first DetUnit 
   const MediumProperties* mp = dets.front()->surface().mediumProperties();
   MediumProperties* newmp = 0; 
-  if (mp != 0) newmp = new MediumProperties( *mp);
+  if (mp != 0) newmp = new MediumProperties( mp->radLen()*2.0,mp->xi()*2.0);
 
   std::pair<RectangularPlaneBounds,GlobalVector> bo = computeRectBounds( dets, tmpPlane);
   return new BoundPlane( meanPos+bo.second, rotation, bo.first, newmp);
