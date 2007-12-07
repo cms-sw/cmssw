@@ -36,7 +36,9 @@ class TFile;
 class TCanvas;
 class TH2F;
 class Trajectory;
-
+class Propagator;
+class GeomDet;
+class TrajectoryStateOnSurface;
 
 class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
    public:
@@ -65,7 +67,8 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       std::string RPCDataLabel;
       std::string GlobalRootLabel;
       std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
-
+      std::string thePropagatorName;
+      mutable Propagator* thePropagator;
       DaqMonitorBEInterface * dbe;
 
       std::vector<std::string> _idList;
