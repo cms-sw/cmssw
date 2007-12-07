@@ -9,7 +9,6 @@
 class PixelFitter;
 class PixelTrackFilter;
 class TrackingRegionProducer;
-class TrackerGeometry;
 
 namespace edm { 
   class ParameterSet;
@@ -30,8 +29,6 @@ public:
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
 
 private:
-
-  const TrackerGeometry*  theGeometry;
 
   const PixelFitter       * theFitter;
   const PixelTrackFilter  * theFilter;

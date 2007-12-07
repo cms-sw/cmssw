@@ -1,28 +1,17 @@
-<use name=DataFormats/Common>
 <use name=DataFormats/DetId>
+<use name=DataFormats/GeometryVector>
 <use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/SiStripDetId>
-<use name=DataFormats/TrackCandidate>
 <use name=DataFormats/TrackerRecHit2D>
-<use name=DataFormats/GeometryVector>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/PluginManager>
-<use name=FastSimulation/BaseParticlePropagator>
-<use name=FastSimulation/ParticlePropagator>
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=SimDataFormats/Track>
-<use name=SimDataFormats/Vertex>
-<use name=TrackingTools/Records>
-<use name=TrackingTools/TrajectoryParametrization>
-<use name=TrackingTools/TrajectoryState>
-<use name=TrackingTools/TransientTrackingRecHit>
-<use name=RecoPixelVertexing/PixelTrackFitting>
-
-<flags EDM_PLUGIN=1>
-
 <export>
+  <use name=DataFormats/DetId>
+  <use name=DataFormats/GeometryVector>
+  <use name=DataFormats/SiPixelDetId>
+  <use name=DataFormats/SiStripDetId>
+  <use name=DataFormats/TrackerRecHit2D>
+  <use name=Geometry/CommonDetUnit>
+  <use name=Geometry/TrackerGeometryBuilder>
   <lib name=FastSimulationTracking>
 </export>

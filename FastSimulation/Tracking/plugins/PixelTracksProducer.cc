@@ -8,16 +8,11 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 //Pixel Specific stuff
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 
@@ -74,14 +69,7 @@ PixelTracksProducer::~PixelTracksProducer() {
 } 
  
 
-void PixelTracksProducer::beginJob(const edm::EventSetup& es)
-{
-
-  edm::ESHandle<TrackerGeometry> geometry;
-  es.get<TrackerDigiGeometryRecord>().get(geometry);
-  theGeometry = &(*geometry);
-  
-}
+void PixelTracksProducer::beginJob(const edm::EventSetup& es) {}
 
 // Functions that gets called by framework every event
 void 
