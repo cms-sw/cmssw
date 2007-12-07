@@ -22,7 +22,7 @@ popcon::OfflineDBInterface::OfflineDBInterface (const std::string& connect ) : m
   //session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut(10);
   //session->configuration().connectionConfiguration()->enableConnectionSharing();
   //session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
-  //conHandler.registerConnection(m_connect,m_connect,0);
+  conHandler.registerConnection(m_connect,m_connect,0);
 }
 
 popcon::OfflineDBInterface::~OfflineDBInterface ()
