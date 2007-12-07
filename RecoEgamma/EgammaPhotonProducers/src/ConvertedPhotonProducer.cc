@@ -68,9 +68,8 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
 
 
   photonProducer_         = conf_.getParameter<std::string>("photonProducer");
-  photonCollection_       = conf_.getParameter<std::string>("photonCollection");
-  photonCorrCollection_   = conf_.getParameter<std::string>("photonCorrCollection");
- 
+  photonCollection_       = conf_.getParameter<std::string>("photonCorrCollection");
+  
   
   scHybridBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
   scIslandEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
@@ -100,12 +99,12 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   
   // use onfiguration file to setup output collection names
   ConvertedPhotonCollection_     = conf_.getParameter<std::string>("convertedPhotonCollection");
-  PhotonExtraCollection_     = conf_.getParameter<std::string>("photonExtraCollection");
+  PhotonWithConversionsCollection_     = conf_.getParameter<std::string>("photonWithConversionsCollection");
   
   
   // Register the product
   produces< reco::ConversionCollection >(ConvertedPhotonCollection_);
-  produces< reco::PhotonCollection >(PhotonExtraCollection_);
+  produces< reco::PhotonCollection >(PhotonWithConversionsCollection_);
   
   // instantiate the Track Pair Finder algorithm
   theTrackPairFinder_ = new ConversionTrackPairFinder ();
@@ -183,16 +182,16 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
 
   /// Photon completed with conversion info
-  reco::PhotonCollection outputPhotonExtraCollection;
-  std::auto_ptr<reco::PhotonCollection> outputPhotonExtraCollection_p(new reco::PhotonCollection);
+  reco::PhotonCollection outputPhotonCollection;
+  std::auto_ptr<reco::PhotonCollection> outputPhotonCollection_p(new reco::PhotonCollection);
 
 
 
 
   // Get the photons
   Handle<reco::PhotonCollection> photonHandle;
-  theEvent.getByLabel(photonProducer_,photonCorrCollection_,photonHandle);
-  reco::PhotonCollection photonCorrCollection = *(photonHandle.product());
+  theEvent.getByLabel(photonProducer_,photonCollection_,photonHandle);
+  reco::PhotonCollection photonCollection = *(photonHandle.product());
   
   
   // Get the Super Cluster collection in the Barrel
@@ -622,7 +621,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   //  std::cout << " ConvertedPhotonProducer orhpan handle size " << cpCollection.size() << std::endl;
   //std::cout << " ConvertedPhotonProducer corrected photon size " << photonCorrCollection.size() << std::endl;   
-  for(reco::PhotonCollection::iterator phoItr = photonCorrCollection.begin(); phoItr != photonCorrCollection.end(); phoItr++) {
+  for(reco::PhotonCollection::iterator phoItr = photonCollection.begin(); phoItr != photonCollection.end(); phoItr++) {
 
 
     reco::Photon* photon= phoItr->clone();
@@ -646,18 +645,20 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     
 
     
-    outputPhotonExtraCollection.push_back(*photon);    
+    outputPhotonCollection.push_back(*photon);    
 
 
   }
 
 
-  outputPhotonExtraCollection_p->assign(outputPhotonExtraCollection.begin(),outputPhotonExtraCollection.end());
-  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer Putting in the event  " <<  (*outputPhotonExtraCollection_p).size() << " photons completed with conversions " << "\n";  
+  outputPhotonCollection_p->assign(outputPhotonCollection.begin(),outputPhotonCollection.end());
+  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer Putting in the event  " <<  (*outputPhotonCollection_p).size() << " photons completed with conversions " << "\n";  
+  theEvent.put( outputPhotonCollection_p, PhotonWithConversionsCollection_ );
 
-  /* this was just for debugging
+  /*
   edm::OrphanHandle<reco::PhotonCollection> phoHandle;
-  phoHandle=theEvent.put( outputPhotonExtraCollection_p, PhotonExtraCollection_ ); 
+  phoHandle=theEvent.put( outputPhotonCollection_p, PhotonWithConversionsCollection_ );
+ 
   reco::PhotonCollection newphoCollection= *(phoHandle.product());
   std::cout << " Newly created photon collection size " << newphoCollection.size() << std::endl;  
   for(reco::PhotonCollection::iterator phoItr = newphoCollection.begin(); phoItr != newphoCollection.end(); phoItr++) {
@@ -668,6 +669,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     }
   }
   */
+
 
   
 }
