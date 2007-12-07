@@ -9,6 +9,12 @@ class TEveElement;
 // force a node to expand its internal reprsentation, so all children are actually present
 void expand_node( TEveElement * element );
 
+// retrieves a TShape from a TEveElement
+const TGeoShape * get_shape( const TEveElement * element );
+
+// overloaded non-const TShape retrieval, allowed from a TGeoShape only
+TGeoShape * get_shape( TEveElement * element );
+
 // set an element's color and alpha, and possibly its children's up to levels levels deep
 void set_color( TEveElement * element, Color_t color, float alpha = 1.0, unsigned int levels = 0 );
 

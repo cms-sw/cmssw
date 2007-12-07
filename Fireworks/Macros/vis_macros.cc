@@ -25,11 +25,41 @@ void expand_node( TEveElement * element )
     return;
   }
   // a TEveGeoShape is always exanded
-  if (TEveGeoShape * shape = dynamic_cast<TEveGeoShape *>( element )) {
-    return;
-  }
+  //if (TEveGeoShape * shape __attribute__ ((unused)) = dynamic_cast<TEveGeoShape *>( element )) {
+  //  return;
+  //}
+  // a generic TEveElement has no knwledge on children expansion
+  return;
 }
 
+// retrieves a TShape from a TEveElement
+const TGeoShape * get_shape( const TEveElement * element ) {
+  // a TEveGeoNode, can look into its TGeoNode and retrieve the shape
+  if (const TEveGeoNode * node = dynamic_cast<const TEveGeoNode *>( element )) {
+    return node->GetNode()->GetVolume()->GetShape();
+  }
+  // a TEveGeoShape owns its shape
+  if (const TEveGeoShape * shape = dynamic_cast<const TEveGeoShape *>( element )) {
+    TEveGeoShape * nc_shape = const_cast<TEveGeoShape *>( shape );
+    return const_cast<const TGeoShape *>( nc_shape->GetShape() );
+  }
+  // a TEveElement is too generic, no way to get a shape
+  return 0;
+}
+
+// overloaded non-const TShape retrieval, allowed from a TGeoShape only
+TGeoShape * get_shape( TEveElement * element ) {
+  // a TEveGeoNode cannot modify its shape
+  //if (const TEveGeoNode * node __attribute__ ((unused)) = dynamic_cast<const TEveGeoNode *>( element )) {
+  //  return 0;
+  //}
+  // a TEveGeoShape owns its shape, and can modifiy it
+  if (TEveGeoShape * shape = dynamic_cast<TEveGeoShape *>( element )) {
+    return shape->GetShape();
+  }
+  // a TEveElement is too generic, no way to get a shape
+  return 0;
+}
 // set an element's color and alpha, and possibly its children's up to levels levels deep
 void set_color( TEveElement * element, Color_t color, float alpha, unsigned int levels ) 
 {
@@ -49,7 +79,7 @@ void set_color( TEveElement * element, Color_t color, float alpha, unsigned int 
     for (std::list<TEveElement*>::iterator i = element->BeginChildren(); i != element->EndChildren(); ++i)
       set_color( *i, color, alpha, levels - 1);
   }
-  // notify the element that is had changed
+  // notify the element that it has changed
   element->ElementChanged(true, true);
 }
 
