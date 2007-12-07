@@ -8,7 +8,7 @@
 //                    D Maletic, "Vinca" Belgrade
 //
 //         Created:  Wed Sep 12 13:36:27 CEST 2007
-// $Id$
+// $Id: SimplePi0DiscAnalyzer.cc,v 1.2 2007/10/18 13:14:05 akyriaki Exp $
 //
 //
 
@@ -112,21 +112,25 @@ SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   cout << endl;
   cout << " -------------- NEW EVENT : Run, Event =  " << iEvent.id() << endl;
    
+  // Get the ConvertedPhotonCollection
   Handle<ConvertedPhotonCollection> convertedPhotonHandle; // get the Converted Photon info
   iEvent.getByLabel("convertedPhotons", "", convertedPhotonHandle);
   const reco::ConvertedPhotonCollection phoCollection = *(convertedPhotonHandle.product());
+
+  cout << " ---> ConvertedPhotonCollection.size() = " << phoCollection.size() << endl;
 
   // Get the  corrected  photon collection
   Handle<reco::PhotonCollection> correctedPhotonHandle; 
   iEvent.getByLabel(photonCorrCollectionProducer_, correctedPhotonCollection_ , correctedPhotonHandle);
   const reco::PhotonCollection photons = *(correctedPhotonHandle.product());
 
+  cout <<"----> Photons size: "<< photons.size()<<endl;
+
   edm::Handle<reco::PhotonPi0DiscriminatorAssociationMap>  map;
   iEvent.getByLabel("piZeroDiscriminators","PhotonPi0DiscriminatorAssociationMap",  map);
   reco::PhotonPi0DiscriminatorAssociationMap::const_iterator mapIter;
 
   int PhoInd = 0;
-  cout <<"Photons size: "<< photons.size()<<endl;
       
   for( reco::PhotonCollection::const_iterator  iPho = photons.begin(); iPho != photons.end(); iPho++) { // Loop over Photons
           
