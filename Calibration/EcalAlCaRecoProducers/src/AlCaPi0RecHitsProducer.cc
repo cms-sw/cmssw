@@ -40,7 +40,7 @@ AlCaPi0RecHitsProducer::AlCaPi0RecHitsProducer(const edm::ParameterSet& iConfig)
   selePtPi0_ = iConfig.getParameter<double> ("selePtPi0");  
   seleMinvMaxPi0_ = iConfig.getParameter<double> ("seleMinvMaxPi0");  
   seleMinvMinPi0_ = iConfig.getParameter<double> ("seleMinvMinPi0");  
-
+  seleXtalMinEnergy_ = iConfig.getParameter<double> ("seleXtalMinEnergy");
 
   //register your products
   produces< EBRecHitCollection >(pi0BarrelHits_);
@@ -348,8 +348,11 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 			      {
 				std::map<DetId, EcalRecHit>::iterator aHit;
 				aHit = recHitsEB_map->find(det);
-				pi0EBRecHitCollection->push_back(aHit->second);
-				scXtals.push_back(det);
+				if (aHit->second.energy() > seleXtalMinEnergy_)
+				  {
+				    pi0EBRecHitCollection->push_back(aHit->second);
+				    scXtals.push_back(det);
+				  }
 
 				//EBDetId sel_rh = aHit->second.detid();
 				//cout << "       RecHit Ok 20x20 matrix outside cluster : z,ieta,iphi "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;    
