@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2007/12/06 08:20:07 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/12/06 09:54:44 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -57,14 +57,20 @@ namespace trigger
 
   /// data members
   private:
+    /// processName used to select products packed up
+    std::string usedProcessName_;    
     /// the filters recorded here
     std::vector<TriggerFilterObject> filterObjects_;
 
   /// methods
   public:
     /// constructors
-    TriggerEventWithRefs(): TriggerRefsCollections(), filterObjects_() { }
-    TriggerEventWithRefs(size_type n): TriggerRefsCollections(), filterObjects_() {
+    TriggerEventWithRefs(): TriggerRefsCollections(), usedProcessName_(), filterObjects_() { }
+    TriggerEventWithRefs(const std::string& usedProcessName, size_type n):
+      TriggerRefsCollections(),
+      usedProcessName_(usedProcessName),
+      filterObjects_()
+    {
       filterObjects_.reserve(n);
     }
 
@@ -84,6 +90,7 @@ namespace trigger
     }
 
     /// getters - for user access
+    const std::string& usedProcessName() const {return usedProcessName_;}
 
     /// number of filters
     size_type size() const {return filterObjects_.size();}

@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for each event (AOD case)
  *  describing the (HLT) trigger table
  *
- *  $Date: 2007/12/05 14:24:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/06 20:34:51 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -41,6 +41,8 @@ namespace trigger
 
   /// data members
   private:
+    /// processName used to select products packed up
+    std::string usedProcessName_;
     /// collection of all unique physics objects (linearised vector)
     TriggerObjectCollection triggerObjects_;
     /// collection of all TriggerFilterObjects
@@ -49,14 +51,21 @@ namespace trigger
   ///methods
   public:
     /// constructors
-    TriggerEvent(): triggerObjects_(), triggerFilters_() { }
-    TriggerEvent(size_type no, size_type nf): triggerObjects_(), triggerFilters_() {triggerObjects_.reserve(no); triggerFilters_.reserve(nf); }
+    TriggerEvent(): usedProcessName_(), triggerObjects_(), triggerFilters_() { }
+    TriggerEvent(const std::string& usedProcessName, size_type no, size_type nf):
+      usedProcessName_(usedProcessName), 
+      triggerObjects_(), 
+      triggerFilters_() 
+    {
+      triggerObjects_.reserve(no); triggerFilters_.reserve(nf); 
+    }
 
     /// setters
     void addObjects(const TriggerObjectCollection& triggerObjects) {triggerObjects_.insert(triggerObjects_.end(), triggerObjects.begin(), triggerObjects.end());}
     void addFilter(const std::string& filterLabel, const Keys& filterKeys) {triggerFilters_.push_back(TriggerFilterObject(filterLabel, filterKeys));}
 
     /// getters
+    const std::string& usedProcessName() const {return usedProcessName_;}
     const TriggerObjectCollection& getObjects() const {return triggerObjects_;}
     const std::string& getFilterLabel(size_type index) const {return triggerFilters_.at(index).filterLabel_;}
     const Keys& getFilterKeys(size_type index) const {return triggerFilters_.at(index).filterKeys_;}
