@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/06 14:30:40 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/11/24 12:29:12 $
+ *  $Revision: 1.14.6.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -11,17 +11,16 @@
 // This Class' Header --
 //----------------------
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
-#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
 
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-
+#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
 
 //---------------
 // C++ Headers --
 //---------------
-
+#include <iostream>
 
 //-------------------
 // Initializations --
@@ -63,12 +62,8 @@ DTReadOutGeometryLink::DTReadOutGeometryLink():
 // Destructor --
 //--------------
 DTReadOutMapping::~DTReadOutMapping() {
-  std::string mapRtoG =
-       cellMapVersion + "_" + robMapVersion + "_map_RG";
-  std::string mapGtoR =
-       cellMapVersion + "_" + robMapVersion + "_map_GR";
-  DTDataBuffer<int,int>::dropBuffer( mapRtoG );
-  DTDataBuffer<int,int>::dropBuffer( mapGtoR );
+  DTDataBuffer<int,int>::dropBuffer( mapNameRG() );
+  DTDataBuffer<int,int>::dropBuffer( mapNameGR() );
 }
 
 DTReadOutGeometryLink::~DTReadOutGeometryLink() {
@@ -102,8 +97,8 @@ int DTReadOutMapping::readOutToGeometry( int      dduId,
                                         slId,
                                      layerId,
                                       cellId );
-  if ( !status ) wireId = DTWireId( wheelId, stationId, sectorId,
-                                       slId,   layerId,   cellId );
+
+  wireId = DTWireId( wheelId, stationId, sectorId, slId, layerId, cellId );
   return status;
 
 }
@@ -127,34 +122,55 @@ int DTReadOutMapping::readOutToGeometry( int      dduId,
   layerId   =
   cellId    = 0;
 
-  std::string mapRtoG =
-       cellMapVersion + "_" + robMapVersion + "_map_RG";
-  DTBufferTree<int,const DTReadOutGeometryLink*>* rgBuf =
-  DTDataBuffer<int,const DTReadOutGeometryLink*>::findBuffer( mapRtoG );
+  std::string mNameRG = mapNameRG();
+  DTBufferTree<int,int>* rgBuf =
+  DTDataBuffer<int,int>::findBuffer( mNameRG );
   if ( rgBuf == 0 ) {
-    initSetup();
+    cacheMap();
     rgBuf =
-    DTDataBuffer<int,const DTReadOutGeometryLink*>::findBuffer( mapRtoG );
+    DTDataBuffer<int,int>::findBuffer( mNameRG );
   }
+
   std::vector<int> chanKey;
   chanKey.push_back(     dduId );
   chanKey.push_back(     rosId );
   chanKey.push_back(     robId );
   chanKey.push_back(     tdcId );
   chanKey.push_back( channelId );
-  const DTReadOutGeometryLink* link;
-  int searchStatus = rgBuf->find( chanKey.begin(), chanKey.end(), link );
+  int ientry;
+  int searchStatus = rgBuf->find( chanKey.begin(), chanKey.end(), ientry );
   if ( !searchStatus ) {
-      wheelId = link->  wheelId;
-    stationId = link->stationId;
-     sectorId = link-> sectorId;
-         slId = link->     slId;
-      layerId = link->  layerId;
-       cellId = link->   cellId;
+    const DTReadOutGeometryLink& link( readOutChannelDriftTubeMap[ientry] );
+      wheelId = link.  wheelId;
+    stationId = link.stationId;
+     sectorId = link. sectorId;
+         slId = link.     slId;
+      layerId = link.  layerId;
+       cellId = link.   cellId;
   }
 
   return searchStatus;
 
+}
+
+
+int DTReadOutMapping::geometryToReadOut( const DTWireId& wireId,
+                                         int&     dduId,
+                                         int&     rosId,
+                                         int&     robId,
+                                         int&     tdcId,
+                                         int& channelId ) const {
+  return geometryToReadOut( wireId.wheel(),
+                  wireId.station(),
+                  wireId.sector(),
+                  wireId.superLayer(),
+                  wireId.layer(),
+                  wireId.wire(),
+                                       dduId,
+                                       rosId,
+                                       robId,
+                                       tdcId,
+                                   channelId);
 }
 
 
@@ -176,15 +192,15 @@ int DTReadOutMapping::geometryToReadOut( int    wheelId,
   tdcId =
   channelId = 0;
 
-  std::string mapGtoR =
-       cellMapVersion + "_" + robMapVersion + "_map_GR";
-  DTBufferTree<int,const DTReadOutGeometryLink*>* grBuf =
-  DTDataBuffer<int,const DTReadOutGeometryLink*>::findBuffer( mapGtoR );
+  std::string mNameGR = mapNameGR();
+  DTBufferTree<int,int>* grBuf =
+  DTDataBuffer<int,int>::findBuffer( mNameGR );
   if ( grBuf == 0 ) {
-    initSetup();
+    cacheMap();
     grBuf =
-    DTDataBuffer<int,const DTReadOutGeometryLink*>::findBuffer( mapGtoR );
+    DTDataBuffer<int,int>::findBuffer( mNameGR );
   }
+
   std::vector<int> cellKey;
   cellKey.push_back(   wheelId );
   cellKey.push_back( stationId );
@@ -192,14 +208,15 @@ int DTReadOutMapping::geometryToReadOut( int    wheelId,
   cellKey.push_back(      slId );
   cellKey.push_back(   layerId );
   cellKey.push_back(    cellId );
-  const DTReadOutGeometryLink* link;
-  int searchStatus = grBuf->find( cellKey.begin(), cellKey.end(), link );
+  int ientry;
+  int searchStatus = grBuf->find( cellKey.begin(), cellKey.end(), ientry );
   if ( !searchStatus ) {
-        dduId = link->    dduId;
-        rosId = link->    rosId;
-        robId = link->    robId;
-        tdcId = link->    tdcId;
-    channelId = link->channelId;
+    const DTReadOutGeometryLink& link( readOutChannelDriftTubeMap[ientry] );
+        dduId = link.    dduId;
+        rosId = link.    rosId;
+        robId = link.    robId;
+        tdcId = link.    tdcId;
+    channelId = link.channelId;
   }
 
   return searchStatus;
@@ -231,6 +248,8 @@ std::string& DTReadOutMapping::mapRobRos() {
 
 
 void DTReadOutMapping::clear() {
+  DTDataBuffer<int,int>::dropBuffer( mapNameRG() );
+  DTDataBuffer<int,int>::dropBuffer( mapNameGR() );
   readOutChannelDriftTubeMap.clear();
   return;
 }
@@ -260,18 +279,16 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
   link.  layerId =   layerId;
   link.   cellId =    cellId;
 
+  int ientry = readOutChannelDriftTubeMap.size();
   readOutChannelDriftTubeMap.push_back( link );
-  const DTReadOutGeometryLink* lptr = &( readOutChannelDriftTubeMap.back() );
 
-  std::string mapRtoG =
-       cellMapVersion + "_" + robMapVersion + "_map_RG";
-  std::string mapGtoR =
-       cellMapVersion + "_" + robMapVersion + "_map_GR";
+  std::string mNameRG = mapNameRG();
+  std::string mNameGR = mapNameGR();
 
-  DTBufferTree<int,const DTReadOutGeometryLink*>* rgBuf =
-  DTDataBuffer<int,const DTReadOutGeometryLink*>::openBuffer( mapRtoG );
-  DTBufferTree<int,const DTReadOutGeometryLink*>* grBuf =
-  DTDataBuffer<int,const DTReadOutGeometryLink*>::openBuffer( mapGtoR );
+  DTBufferTree<int,int>* rgBuf =
+  DTDataBuffer<int,int>::openBuffer( mNameRG );
+  DTBufferTree<int,int>* grBuf =
+  DTDataBuffer<int,int>::openBuffer( mNameGR );
 
   std::vector<int> cellKey;
   cellKey.push_back(   wheelId );
@@ -281,7 +298,7 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
   cellKey.push_back(   layerId );
   cellKey.push_back(    cellId );
   int grStatus =
-  grBuf->insert( cellKey.begin(), cellKey.end(), lptr );
+  grBuf->insert( cellKey.begin(), cellKey.end(), ientry );
   std::vector<int> chanKey;
   chanKey.push_back(     dduId );
   chanKey.push_back(     rosId );
@@ -289,7 +306,7 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
   chanKey.push_back(     tdcId );
   chanKey.push_back( channelId );
   int rgStatus =
-  rgBuf->insert( chanKey.begin(), chanKey.end(), lptr );
+  rgBuf->insert( chanKey.begin(), chanKey.end(), ientry );
 
   if ( grStatus || rgStatus ) return 1;
   else                        return 0;
@@ -307,68 +324,60 @@ DTReadOutMapping::const_iterator DTReadOutMapping::end() const {
 }
 
 
-void DTReadOutMapping::initSetup() const {
+std::string DTReadOutMapping::mapNameGR() const {
+  std::string name = cellMapVersion + "_" + robMapVersion + "_map_GR";
+  char nptr[100];
+  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
+  name += nptr;
+  return name;
+}
 
-  std::string mapRtoG =
-       cellMapVersion + "_" + robMapVersion + "_map_RG";
-  std::string mapGtoR =
-       cellMapVersion + "_" + robMapVersion + "_map_GR";
 
-  DTBufferTree<int,const DTReadOutGeometryLink*>* rgBuf =
-  DTDataBuffer<int,const DTReadOutGeometryLink*>::openBuffer( mapRtoG );
-  DTBufferTree<int,const DTReadOutGeometryLink*>* grBuf =
-  DTDataBuffer<int,const DTReadOutGeometryLink*>::openBuffer( mapGtoR );
+std::string DTReadOutMapping::mapNameRG() const {
+  std::string name = cellMapVersion + "_" + robMapVersion + "_map_RG";
+  char nptr[100];
+  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
+  name += nptr;
+  return name;
+}
 
-  std::vector<DTReadOutGeometryLink>::const_iterator iter =
-              readOutChannelDriftTubeMap.begin();
-  std::vector<DTReadOutGeometryLink>::const_iterator iend =
-              readOutChannelDriftTubeMap.end();
-  int      dduId;
-  int      rosId;
-  int      robId;
-  int      tdcId;
-  int  channelId;
-  int    wheelId;
-  int  stationId;
-  int   sectorId;
-  int       slId;
-  int    layerId;
-  int     cellId;
-  while ( iter != iend ) {
 
-    const DTReadOutGeometryLink& link = *iter++;
-        dduId = link.    dduId;
-        rosId = link.    rosId;
-        robId = link.    robId;
-        tdcId = link.    tdcId;
-    channelId = link.channelId;
-      wheelId = link.  wheelId;
-    stationId = link.stationId;
-     sectorId = link. sectorId;
-         slId = link.     slId;
-      layerId = link.  layerId;
-       cellId = link.   cellId;
+void DTReadOutMapping::cacheMap() const {
 
-    const DTReadOutGeometryLink* lptr = &link;
+  std::string mNameRG = mapNameRG();
+  std::string mNameGR = mapNameGR();
+
+  DTBufferTree<int,int>* rgBuf =
+  DTDataBuffer<int,int>::openBuffer( mNameRG );
+  DTBufferTree<int,int>* grBuf =
+  DTDataBuffer<int,int>::openBuffer( mNameGR );
+
+  int entryNum = 0;
+  int entryMax = readOutChannelDriftTubeMap.size();
+  while ( entryNum < entryMax ) {
+
+    const DTReadOutGeometryLink& link( readOutChannelDriftTubeMap[entryNum] );
 
     std::vector<int> cellKey;
-    cellKey.push_back(   wheelId );
-    cellKey.push_back( stationId );
-    cellKey.push_back(  sectorId );
-    cellKey.push_back(      slId );
-    cellKey.push_back(   layerId );
-    cellKey.push_back(    cellId );
+    cellKey.push_back( link.  wheelId );
+    cellKey.push_back( link.stationId );
+    cellKey.push_back( link. sectorId );
+    cellKey.push_back( link.     slId );
+    cellKey.push_back( link.  layerId );
+    cellKey.push_back( link.   cellId );
 
-    grBuf->insert( cellKey.begin(), cellKey.end(), lptr );
+    grBuf->insert( cellKey.begin(), cellKey.end(), entryNum );
 
     std::vector<int> chanKey;
-    chanKey.push_back(     dduId );
-    chanKey.push_back(     rosId );
-    chanKey.push_back(     robId );
-    chanKey.push_back(     tdcId );
-    chanKey.push_back( channelId );
+    chanKey.push_back( link.    dduId );
+    chanKey.push_back( link.    rosId );
+    chanKey.push_back( link.    robId );
+    chanKey.push_back( link.    tdcId );
+    chanKey.push_back( link.channelId );
 
-    rgBuf->insert( chanKey.begin(), chanKey.end(), lptr );
+    rgBuf->insert( chanKey.begin(), chanKey.end(), entryNum );
+
+    entryNum++;
 
   }
 

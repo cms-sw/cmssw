@@ -73,7 +73,7 @@ namespace edmtest {
                   >> qua
                   >> tri
                   >> rms ) {
-      status = tTrig->setSLTtrig( whe, sta, sec, qua, tri, rms );
+      status = tTrig->set( whe, sta, sec, qua, tri, rms );
       std::cout << whe << " "
                 << sta << " "
                 << sec << " "
@@ -82,6 +82,8 @@ namespace edmtest {
                 << rms << "  -> ";                
       std::cout << "insert status: " << status << std::endl;
     }
+
+    chkData( tTrig );
 
     if( dbservice->isNewTagRequest("DTTtrigRcd") ){
       dbservice->createNewIOV<DTTtrig>(
@@ -94,5 +96,37 @@ namespace edmtest {
     }
 
   }
+
+  void DTTtrigWrite::chkData( DTTtrig* tTrig ) {
+    std::ifstream ifile( "testTtrig.txt" );
+    int status = 0;
+    int whe;
+    int sta;
+    int sec;
+    int qua;
+    float tri;
+    float rms;
+    float cktri;
+    float ckrms;
+    while ( ifile >> whe
+                  >> sta
+                  >> sec
+                  >> qua
+                  >> tri
+                  >> rms ) {
+      status = tTrig->get( whe, sta, sec, qua, cktri, ckrms );
+      std::cout << whe << " "
+                << sta << " "
+                << sec << " "
+                << qua << " "
+                << tri << " "
+                << rms << "  -> "
+                << cktri << " "
+                << ckrms << "  -> ";
+      std::cout << "get status: " << status << std::endl;
+    }
+    return;
+  }
+
   DEFINE_FWK_MODULE(DTTtrigWrite);
 }

@@ -20,9 +20,9 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "CondFormats/DTObjects/test/stubs/DTRangeT0Write.h"
-#include "CondFormats/DTObjects/interface/DTRangeT0.h"
-#include "CondFormats/DataRecord/interface/DTRangeT0Rcd.h"
+#include "CondFormats/DTObjects/test/stubs/DTConfigWrite.h"
+#include "CondFormats/DTObjects/interface/DTCCBConfig.h"
+#include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
 
 #include <string>
 #include <map>
@@ -31,68 +31,74 @@ Toy EDAnalyzer for testing purposes only.
 
 namespace edmtest {
 
-  DTRangeT0Write::DTRangeT0Write(edm::ParameterSet const& p) {
+  DTConfigWrite::DTConfigWrite(edm::ParameterSet const& p) {
   }
 
-  DTRangeT0Write::DTRangeT0Write(int i) {
+  DTConfigWrite::DTConfigWrite(int i) {
   }
 
-  DTRangeT0Write::~DTRangeT0Write() {
+  DTConfigWrite::~DTConfigWrite() {
   }
 
-  void DTRangeT0Write::analyze(const edm::Event& e,
-                          const edm::EventSetup& context) {
+  void DTConfigWrite::analyze(const edm::Event& e,
+                              const edm::EventSetup& context) {
 
     std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
     std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
 
   }
 
-  void DTRangeT0Write::endJob() {
+  void DTConfigWrite::endJob() {
 
-    std::cout<<"DTRangeT0Write::analyze "<<std::endl;
+    std::cout<<"DTConfigWrite::analyze "<<std::endl;
     edm::Service<cond::service::PoolDBOutputService> dbservice;
     if( !dbservice.isAvailable() ){
       std::cout<<"db service unavailable"<<std::endl;
       return;
     }
 
-    DTRangeT0* rt0 = new DTRangeT0( "cmssw_rt0" );
+    DTCCBConfig* conf = new DTCCBConfig( "test_config" );
 
     int status = 0;
-    std::ifstream ifile( "testRT0.txt" );
+    std::ifstream ifile( "testConfig.txt" );
+    int run;
+    int key;
     int whe;
     int sta;
     int sec;
-    int qua;
-    int t0min;
-    int t0max;
+    int nbr;
+    int ibr;
+    ifile >> run >> key;
+    conf->setFullKey( key );
+    conf->setStamp( run );
     while ( ifile >> whe
                   >> sta
                   >> sec
-                  >> qua
-                  >> t0min
-                  >> t0max ) {
-      status = rt0->set( whe, sta, sec, qua, t0min, t0max );
+                  >> nbr ) {
+      std::vector<int> cfg;
+      while ( nbr-- ) {
+        ifile >> ibr;
+        cfg.push_back( ibr );
+      }
+      status = conf->setConfigKey( whe, sta, sec, cfg );
       std::cout << whe << " "
                 << sta << " "
-                << sec << " "
-                << qua << " "
-                << t0min << " "
-                << t0max << "  -> ";                
+                << sec << "  -> ";                
       std::cout << "insert status: " << status << std::endl;
     }
 
-    if( dbservice->isNewTagRequest("DTRangeT0Rcd") ){
-      dbservice->createNewIOV<DTRangeT0>(
-                 rt0,dbservice->endOfTime(),"DTRangeT0Rcd");
+    std::cout << "end of time : " << dbservice->endOfTime() << std::endl;
+    if( dbservice->isNewTagRequest("DTCCBConfigRcd") ){
+      dbservice->createNewIOV<DTCCBConfig>(
+                 conf,0xffffffff,"DTCCBConfigRcd");
+//                 conf,dbservice->endOfTime(),"DTCCBConfigRcd");
     }
     else{
       std::cout << "already present tag" << std::endl;
-//      dbservice->appendSinceTime<DTRangeT0>(
-//                 rt0,dbservice->currentTime(),"DTRangeT0Rcd");
+//      dbservice->appendSinceTime<DTCCBConfig>(
+//                 conf,dbservice->currentTime(),"DTCCBConfigRcd");
     }
 
   }
-  DEFINE_FWK_MODULE(DTRangeT0Write);
+  DEFINE_FWK_MODULE(DTConfigWrite);
 }

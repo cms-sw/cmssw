@@ -6,8 +6,8 @@
  *       Class to hold drift tubes mean-times
  *             ( SL by SL mean-time calculation )
  *
- *  $Date: 2006/05/17 10:33:51 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/10/30 17:30:20 $
+ *  $Revision: 1.6.6.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -21,13 +21,14 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <string>
-#include <map>
+#include <vector>
 
 //              ---------------------
 //              -- Class Interface --
@@ -44,6 +45,8 @@ class DTMtimeId {
   int stationId;
   int  sectorId;
   int      slId;
+  int   layerId;
+  int    cellId;
 
 };
 
@@ -58,13 +61,6 @@ class DTMtimeData {
   float mTime;
   float mTrms;
 
-};
-
-
-class DTMtimeCompare {
- public:
-  bool operator()( const DTMtimeId& idl,
-                   const DTMtimeId& idr ) const;
 };
 
 
@@ -90,11 +86,54 @@ class DTMtime {
                int      slId,
                float&  mTime,
                float&  mTrms,
-               DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+               DTTimeUnits::type unit = DTTimeUnits::counts ) const
+      { return get( wheelId, stationId, sectorId, slId, 0, 0,
+                    mTime, mTrms, unit ); };
+  int slMtime( int   wheelId,
+               int stationId,
+               int  sectorId,
+               int      slId,
+               int   layerId,
+               int    cellId,
+               float&  mTime,
+               float&  mTrms,
+               DTTimeUnits::type unit = DTTimeUnits::counts ) const
+      { return get( wheelId, stationId, sectorId, slId, layerId, cellId,
+                    mTime, mTrms, unit ); };
   int slMtime( const DTSuperLayerId& id,
                float&  mTime,
                float&  mTrms,
-               DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+               DTTimeUnits::type unit = DTTimeUnits::counts ) const
+      { return get( id, mTime, mTrms, unit ); };
+  int slMtime( const DetId& id,
+               float&  mTime,
+               float&  mTrms,
+               DTTimeUnits::type unit = DTTimeUnits::counts ) const
+      { return get( id, mTime, mTrms, unit ); };
+  int get( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           float&  mTime,
+           float&  mTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+  int get( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           float&  mTime,
+           float&  mTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+  int get( const DTSuperLayerId& id,
+           float&  mTime,
+           float&  mTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+  int get( const DetId& id,
+           float&  mTime,
+           float&  mTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
   float unit() const;
 
   /// access version
@@ -111,17 +150,60 @@ class DTMtime {
                   int      slId,
                   float   mTime,
                   float   mTrms,
-                  DTTimeUnits::type unit = DTTimeUnits::counts );
+                  DTTimeUnits::type unit = DTTimeUnits::counts )
+      { return set( wheelId, stationId, sectorId, slId, 0, 0,
+                    mTime, mTrms, unit ); };
+  int setSLMtime( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      slId,
+                  int   layerId,
+                  int    cellId,
+                  float   mTime,
+                  float   mTrms,
+                  DTTimeUnits::type unit = DTTimeUnits::counts )
+      { return set( wheelId, stationId, sectorId, slId, layerId, cellId,
+                    mTime, mTrms, unit ); };
   int setSLMtime( const DTSuperLayerId& id,
                   float   mTime,
                   float   mTrms,
-                  DTTimeUnits::type unit = DTTimeUnits::counts );
+                  DTTimeUnits::type unit = DTTimeUnits::counts )
+      { return set( id, mTime, mTrms, unit ); };
+  int setSLMtime( const DetId& id,
+                  float   mTime,
+                  float   mTrms,
+                  DTTimeUnits::type unit = DTTimeUnits::counts )
+      { return set( id, mTime, mTrms, unit ); };
+  int set( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           float   mTime,
+           float   mTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts );
+  int set( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           float   mTime,
+           float   mTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts );
+  int set( const DTSuperLayerId& id,
+           float   mTime,
+           float   mTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts );
+  int set( const DetId& id,
+           float   mTime,
+           float   mTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts );
   void setUnit( float unit );
 
   /// Access methods to data
-  typedef std::map<DTMtimeId,
-                   DTMtimeData,
-                   DTMtimeCompare>::const_iterator const_iterator;
+  typedef std::vector< std::pair<DTMtimeId,
+                                 DTMtimeData> >::const_iterator
+                                                 const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
@@ -130,7 +212,11 @@ class DTMtime {
   std::string dataVersion;
   float nsPerCount;
 
-  std::map<DTMtimeId,DTMtimeData,DTMtimeCompare> slData;
+  std::vector< std::pair<DTMtimeId,DTMtimeData> > dataList;
+
+  /// read and store full content
+  void cacheMap() const;
+  std::string mapName() const;
 
 };
 

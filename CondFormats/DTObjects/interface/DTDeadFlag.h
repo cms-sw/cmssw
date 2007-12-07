@@ -5,8 +5,8 @@
  *  Description:
  *       Class to hold drift tubes life and HV status
  *
- *  $Date: 2007/08/16 10:53:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/31 10:26:07 $
+ *  $Revision: 1.2.2.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -25,7 +25,7 @@
 // C++ Headers --
 //---------------
 #include <string>
-#include <map>
+#include <vector>
 
 //              ---------------------
 //              -- Class Interface --
@@ -63,13 +63,6 @@ class DTDeadFlagData {
 };
 
 
-class DTDeadFlagCompare {
- public:
-  bool operator()( const DTDeadFlagId& idl,
-                   const DTDeadFlagId& idr ) const;
-};
-
-
 class DTDeadFlag {
 
  public:
@@ -95,12 +88,30 @@ class DTDeadFlag {
                   bool& dead_HV,
                   bool& dead_TP,
                   bool& dead_RO,
-                  bool& discCat ) const;
+                  bool& discCat ) const
+      { return get( wheelId, stationId, sectorId, slId, layerId, cellId, 
+                    dead_HV, dead_TP, dead_RO, discCat ); };
   int cellStatus( const DTWireId& id,
                   bool& dead_HV,
                   bool& dead_TP,
                   bool& dead_RO,
-                  bool& discCat ) const;
+                  bool& discCat ) const
+      { return get( id, dead_HV, dead_TP, dead_RO, discCat ); };
+  int get( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           bool& dead_HV,
+           bool& dead_TP,
+           bool& dead_RO,
+           bool& discCat ) const;
+  int get( const DTWireId& id,
+           bool& dead_HV,
+           bool& dead_TP,
+           bool& dead_RO,
+           bool& discCat ) const;
 
   /// access version
   const
@@ -167,9 +178,9 @@ class DTDeadFlag {
                       bool flag );
 
   /// Access methods to data
-  typedef std::map<DTDeadFlagId,
-                   DTDeadFlagData,
-                   DTDeadFlagCompare>::const_iterator const_iterator;
+  typedef std::vector< std::pair<DTDeadFlagId,
+                                 DTDeadFlagData> >::const_iterator
+                                                    const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
@@ -177,7 +188,11 @@ class DTDeadFlag {
 
   std::string dataVersion;
 
-  std::map<DTDeadFlagId,DTDeadFlagData,DTDeadFlagCompare> cellData;
+  std::vector< std::pair<DTDeadFlagId,DTDeadFlagData> > dataList;
+
+  /// read and store full content
+  void cacheMap() const;
+  std::string mapName() const;
 
 };
 

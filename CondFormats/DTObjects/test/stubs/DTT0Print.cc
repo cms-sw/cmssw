@@ -50,17 +50,17 @@ namespace edmtest {
       float t0Time;
       float t0Trms;
       t0->get( t0Id.wheelId,
-                      t0Id.stationId,
-                      t0Id.sectorId,
-                      t0Id.slId,
-                      t0Id.layerId,
-                      t0Id.cellId,
-                      t0Time, t0Trms );
+               t0Id.stationId,
+               t0Id.sectorId,
+               t0Id.slId,
+               t0Id.layerId,
+               t0Id.cellId,
+               t0Time, t0Trms );
       std::cout << t0Id.wheelId   << " "
                 << t0Id.stationId << " "
                 << t0Id.sectorId  << " "
-                << t0Id.slId      << " -> "
-                << t0Id.layerId   << " -> "
+                << t0Id.slId      << " "
+                << t0Id.layerId   << " "
                 << t0Id.cellId    << " -> "
                 << t0Data.t0mean    << " "
                 << t0Data.t0rms     << " -> "

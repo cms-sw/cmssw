@@ -77,7 +77,7 @@ namespace edmtest {
                   >> cel
                   >> t0m
                   >> rms ) {
-      status = t0->setCellT0( whe, sta, sec, qua, lay, cel, t0m, rms );
+      status = t0->set( whe, sta, sec, qua, lay, cel, t0m, rms );
       std::cout << whe << " "
                 << sta << " "
                 << sec << " "

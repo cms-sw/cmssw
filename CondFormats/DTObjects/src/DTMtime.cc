@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/22 12:46:52 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/11/24 12:29:11 $
+ *  $Revision: 1.11.6.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,7 +15,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-
+#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
 
 //---------------
 // C++ Headers --
@@ -46,7 +46,9 @@ DTMtimeId::DTMtimeId() :
     wheelId( 0 ),
   stationId( 0 ),
    sectorId( 0 ),
-       slId( 0 ) {
+       slId( 0 ),
+    layerId( 0 ),
+     cellId( 0 ) {
 }
 
 
@@ -60,6 +62,7 @@ DTMtimeData::DTMtimeData() :
 // Destructor --
 //--------------
 DTMtime::~DTMtime() {
+  DTDataBuffer<int,int>::dropBuffer( mapName() );
 }
 
 
@@ -74,64 +77,90 @@ DTMtimeData::~DTMtimeData() {
 //--------------
 // Operations --
 //--------------
-bool DTMtimeCompare::operator()( const DTMtimeId& idl,
-                                 const DTMtimeId& idr ) const {
-  if ( idl.  wheelId < idr.  wheelId ) return true;
-  if ( idl.  wheelId > idr.  wheelId ) return false;
-  if ( idl.stationId < idr.stationId ) return true;
-  if ( idl.stationId > idr.stationId ) return false;
-  if ( idl. sectorId < idr. sectorId ) return true;
-  if ( idl. sectorId > idr. sectorId ) return false;
-  if ( idl.     slId < idr.     slId ) return true;
-  if ( idl.     slId > idr.     slId ) return false;
-  return false;
+int DTMtime::get( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      slId,
+                  float&  mTime,
+                  float&  mTrms,
+                  DTTimeUnits::type unit ) const {
+  return get( wheelId, stationId, sectorId,
+                 slId,         0,        0,
+                mTime, mTrms, unit );
+
 }
 
 
-int DTMtime::slMtime( int   wheelId,
-                      int stationId,
-                      int  sectorId,
-                      int      slId,
-                      float&  mTime,
-                      float&  mTrms,
-                      DTTimeUnits::type unit ) const {
+int DTMtime::get( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      slId,
+                  int   layerId,
+                  int    cellId,
+                  float&  mTime,
+                  float&  mTrms,
+                  DTTimeUnits::type unit ) const {
 
-  mTime = 0.0;
+  mTime =
   mTrms = 0.0;
 
-  DTMtimeId key;
-  key.  wheelId =   wheelId;
-  key.stationId = stationId;
-  key. sectorId =  sectorId;
-  key.     slId =      slId;
-  std::map<DTMtimeId,
-           DTMtimeData,
-           DTMtimeCompare>::const_iterator iter = slData.find( key );
+  std::string mName = mapName();
+  DTBufferTree<int,int>* dBuf =
+  DTDataBuffer<int,int>::findBuffer( mName );
+  if ( dBuf == 0 ) {
+    cacheMap();
+    dBuf =
+    DTDataBuffer<int,int>::findBuffer( mName );
+  }
 
-  if ( iter != slData.end() ) {
-    const DTMtimeData& data = iter->second;
+  std::vector<int> chanKey;
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  chanKey.push_back(   layerId );
+  chanKey.push_back(    cellId );
+  int ientry;
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  if ( !searchStatus ) {
+    const DTMtimeData& data( dataList[ientry].second );
     mTime = data.mTime;
     mTrms = data.mTrms;
     if ( unit == DTTimeUnits::ns ) {
       mTime *= nsPerCount;
       mTrms *= nsPerCount;
     }
-    return 0;
   }
-  return 1;
+
+  return searchStatus;
 
 }
 
 
-int DTMtime::slMtime( const DTSuperLayerId& id,
-                      float&  mTime,
-                      float&  mTrms,
-                      DTTimeUnits::type unit ) const {
-  return slMtime( id.wheel(),
-                  id.station(),
-                  id.sector(),
-                  id.superLayer(),
-                  mTime, mTrms, unit );
+int DTMtime::get( const DTSuperLayerId& id,
+                  float&  mTime,
+                  float&  mTrms,
+                  DTTimeUnits::type unit ) const {
+  return get( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(), 0, 0,
+              mTime, mTrms, unit );
+}
+
+
+int DTMtime::get( const DetId& id,
+                  float&  mTime,
+                  float&  mTrms,
+                  DTTimeUnits::type unit ) const {
+  DTWireId wireId( id.rawId() );
+  return get( wireId.wheel(),
+              wireId.station(),
+              wireId.sector(),
+              wireId.superLayer(),
+              wireId.layer(),
+              wireId.wire(),
+              mTime, mTrms, unit );
 }
 
 
@@ -152,44 +181,78 @@ std::string& DTMtime::version() {
 
 
 void DTMtime::clear() {
-  slData.clear();
+  DTDataBuffer<int,int>::dropBuffer( mapName() );
+  dataList.clear();
   return;
 }
 
 
-int DTMtime::setSLMtime( int   wheelId,
-                         int stationId,
-                         int  sectorId,
-                         int      slId,
-                         float   mTime,
-                         float   mTrms,
-                         DTTimeUnits::type unit ) {
+int DTMtime::set( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      slId,
+                  float   mTime,
+                  float   mTrms,
+                  DTTimeUnits::type unit ) {
+  return set( wheelId, stationId, sectorId,
+                 slId,         0,        0,
+                mTime, mTrms, unit );
+}
+
+
+int DTMtime::set( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      slId,
+                  int   layerId,
+                  int    cellId,
+                  float   mTime,
+                  float   mTrms,
+                  DTTimeUnits::type unit ) {
 
   if ( unit == DTTimeUnits::ns ) {
     mTime /= nsPerCount;
     mTrms /= nsPerCount;
   }
 
-  DTMtimeId key;
-  key.  wheelId =   wheelId;
-  key.stationId = stationId;
-  key. sectorId =  sectorId;
-  key.     slId =      slId;
+  std::string mName = mapName();
+  DTBufferTree<int,int>* dBuf =
+  DTDataBuffer<int,int>::findBuffer( mName );
+  if ( dBuf == 0 ) {
+    cacheMap();
+    dBuf =
+    DTDataBuffer<int,int>::findBuffer( mName );
+  }
+  std::vector<int> chanKey;
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  chanKey.push_back(   layerId );
+  chanKey.push_back(    cellId );
+  int ientry;
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
 
-  std::map<DTMtimeId,
-           DTMtimeData,
-           DTMtimeCompare>::iterator iter = slData.find( key );
-  if ( iter != slData.end() ) {
-    DTMtimeData& data = iter->second;
+  if ( !searchStatus ) {
+    DTMtimeData& data( dataList[ientry].second );
     data.mTime = mTime;
     data.mTrms = mTrms;
     return -1;
   }
   else {
+    DTMtimeId key;
+    key.  wheelId =   wheelId;
+    key.stationId = stationId;
+    key. sectorId =  sectorId;
+    key.     slId =      slId;
+    key.  layerId =   layerId;
+    key.   cellId =    cellId;
     DTMtimeData data;
     data.mTime = mTime;
     data.mTrms = mTrms;
-    slData.insert( std::pair<const DTMtimeId,DTMtimeData>( key, data ) );
+    ientry = dataList.size();
+    dataList.push_back( std::pair<DTMtimeId,DTMtimeData>( key, data ) );
+    dBuf->insert( chanKey.begin(), chanKey.end(), ientry );
     return 0;
   }
 
@@ -198,16 +261,32 @@ int DTMtime::setSLMtime( int   wheelId,
 }
 
 
-int DTMtime::setSLMtime( const DTSuperLayerId& id,
-                         float   mTime,
-                         float   mTrms,
-                         DTTimeUnits::type unit ) {
-  return setSLMtime( id.wheel(),
-                     id.station(),
-                     id.sector(),
-                     id.superLayer(),
-                     mTime, mTrms, unit );
+int DTMtime::set( const DTSuperLayerId& id,
+                  float   mTime,
+                  float   mTrms,
+                  DTTimeUnits::type unit ) {
+  return set( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(), 0, 0,
+              mTime, mTrms, unit );
 }
+
+
+int DTMtime::set( const DetId& id,
+                  float   mTime,
+                  float   mTrms,
+                  DTTimeUnits::type unit ) {
+  DTWireId wireId( id.rawId() );
+  return set( wireId.wheel(),
+              wireId.station(),
+              wireId.sector(),
+              wireId.superLayer(),
+              wireId.layer(),
+              wireId.wire(),
+              mTime, mTrms, unit );
+}
+
 
 void DTMtime::setUnit( float unit ) {
   nsPerCount = unit;
@@ -215,12 +294,48 @@ void DTMtime::setUnit( float unit ) {
 
 
 DTMtime::const_iterator DTMtime::begin() const {
-  return slData.begin();
+  return dataList.begin();
 }
 
 
 DTMtime::const_iterator DTMtime::end() const {
-  return slData.end();
+  return dataList.end();
 }
 
+
+std::string DTMtime::mapName() const {
+  std::string name = dataVersion + "_map_Mtime";
+  char nptr[100];
+  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
+  name += nptr;
+  return name;
+}
+
+
+void DTMtime::cacheMap() const {
+
+  std::string mName = mapName();
+  DTBufferTree<int,int>* dBuf =
+  DTDataBuffer<int,int>::openBuffer( mName );
+
+  int entryNum = 0;
+  int entryMax = dataList.size();
+  while ( entryNum < entryMax ) {
+
+    const DTMtimeId& chan = dataList[entryNum].first;
+
+    std::vector<int> chanKey;
+    chanKey.push_back( chan.  wheelId );
+    chanKey.push_back( chan.stationId );
+    chanKey.push_back( chan. sectorId );
+    chanKey.push_back( chan.     slId );
+    chanKey.push_back( chan.  layerId );
+    chanKey.push_back( chan.   cellId );
+    dBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
+
+  }
+
+  return;
+
+}
 

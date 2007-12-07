@@ -50,12 +50,12 @@ namespace edmtest {
       float trigTime;
       float trigTrms;
       tTrig->get( trigId.wheelId,
-                      trigId.stationId,
-                      trigId.sectorId,
-                      trigId.slId,
-                      trigId.layerId,
-                      trigId.cellId,
-                      trigTime, trigTrms );
+                  trigId.stationId,
+                  trigId.sectorId,
+                  trigId.slId,
+                  trigId.layerId,
+                  trigId.cellId,
+                  trigTime, trigTrms );
       std::cout << trigId.wheelId   << " "
                 << trigId.stationId << " "
                 << trigId.sectorId  << " "

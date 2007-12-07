@@ -5,8 +5,8 @@
  *  Description:
  *       Class to hold drift tubes performances ( SL by SL )
  *
- *  $Date: 2006/06/28 17:00:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/30 17:30:20 $
+ *  $Revision: 1.1.6.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -26,7 +26,7 @@
 // C++ Headers --
 //---------------
 #include <string>
-#include <map>
+#include <vector>
 
 //              ---------------------
 //              -- Class Interface --
@@ -65,13 +65,6 @@ class DTPerformanceData {
 };
 
 
-class DTPerformanceCompare {
- public:
-  bool operator()( const DTPerformanceId& idl,
-                   const DTPerformanceId& idr ) const;
-};
-
-
 class DTPerformance {
 
  public:
@@ -99,7 +92,10 @@ class DTPerformance {
                      float& meanAfterPulse,
                      float& meanResolution,
                      float& meanEfficiency,
-                     DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+                     DTTimeUnits::type unit = DTTimeUnits::counts ) const
+      { return get( wheelId, stationId, sectorId, slId,
+                    meanT0, meanTtrig, meanMtime, meanNoise, meanAfterPulse, 
+                    meanResolution, meanEfficiency, unit ); };
   int slPerformance( const DTSuperLayerId& id,
                      float& meanT0,
                      float& meanTtrig,
@@ -108,7 +104,31 @@ class DTPerformance {
                      float& meanAfterPulse,
                      float& meanResolution,
                      float& meanEfficiency,
-                     DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+                     DTTimeUnits::type unit = DTTimeUnits::counts ) const
+      { return get( id,
+                    meanT0, meanTtrig, meanMtime, meanNoise, meanAfterPulse,
+                    meanResolution, meanEfficiency, unit ); };
+  int get( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           float& meanT0,
+           float& meanTtrig,
+           float& meanMtime,
+           float& meanNoise,
+           float& meanAfterPulse,
+           float& meanResolution,
+           float& meanEfficiency,
+           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+  int get( const DTSuperLayerId& id,
+           float& meanT0,
+           float& meanTtrig,
+           float& meanMtime,
+           float& meanNoise,
+           float& meanAfterPulse,
+           float& meanResolution,
+           float& meanEfficiency,
+           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
   float unit() const;
 
   /// access version
@@ -130,7 +150,10 @@ class DTPerformance {
                         float meanAfterPulse,
                         float meanResolution,
                         float meanEfficiency,
-                        DTTimeUnits::type unit = DTTimeUnits::counts );
+                        DTTimeUnits::type unit = DTTimeUnits::counts )
+      { return set( wheelId, stationId, sectorId, slId,
+                    meanT0, meanTtrig, meanMtime, meanNoise, meanAfterPulse,
+                    meanResolution, meanEfficiency, unit ); };
   int setSLPerformance( const DTSuperLayerId& id,
                         float meanT0,
                         float meanTtrig,
@@ -139,13 +162,37 @@ class DTPerformance {
                         float meanAfterPulse,
                         float meanResolution,
                         float meanEfficiency,
-                        DTTimeUnits::type unit = DTTimeUnits::counts );
+                        DTTimeUnits::type unit = DTTimeUnits::counts )
+      { return set( id,
+                    meanT0, meanTtrig, meanMtime, meanNoise, meanAfterPulse,
+                    meanResolution, meanEfficiency, unit ); };
+  int set( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           float meanT0,
+           float meanTtrig,
+           float meanMtime,
+           float meanNoise,
+           float meanAfterPulse,
+           float meanResolution,
+           float meanEfficiency,
+           DTTimeUnits::type unit = DTTimeUnits::counts );
+  int set( const DTSuperLayerId& id,
+           float meanT0,
+           float meanTtrig,
+           float meanMtime,
+           float meanNoise,
+           float meanAfterPulse,
+           float meanResolution,
+           float meanEfficiency,
+           DTTimeUnits::type unit = DTTimeUnits::counts );
   void setUnit( float unit );
 
   /// Access methods to data
-  typedef std::map<DTPerformanceId,
-                   DTPerformanceData,
-                   DTPerformanceCompare>::const_iterator const_iterator;
+  typedef std::vector< std::pair<DTPerformanceId,
+                                 DTPerformanceData> >::const_iterator
+                                                       const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
@@ -154,7 +201,11 @@ class DTPerformance {
   std::string dataVersion;
   float nsPerCount;
 
-  std::map<DTPerformanceId,DTPerformanceData,DTPerformanceCompare> slData;
+  std::vector< std::pair<DTPerformanceId,DTPerformanceData> > dataList;
+
+  /// read and store full content
+  void cacheMap() const;
+  std::string mapName() const;
 
 };
 

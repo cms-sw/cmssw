@@ -42,6 +42,32 @@ namespace edmtest {
     context.get<DTMtimeRcd>().get(mTime);
     std::cout << mTime->version() << std::endl;
     std::cout << std::distance( mTime->begin(), mTime->end() ) << " data in the container" << std::endl;
+    DTMtime::const_iterator iter = mTime->begin();
+    DTMtime::const_iterator iend = mTime->end();
+    while ( iter != iend ) {
+      const DTMtimeId&   mTimeId   = iter->first;
+      const DTMtimeData& mTimeData = iter->second;
+      float mTTime;
+      float mTTrms;
+      mTime->get( mTimeId.wheelId,
+                  mTimeId.stationId,
+                  mTimeId.sectorId,
+                  mTimeId.slId,
+                  mTimeId.layerId,
+                  mTimeId.cellId,
+                  mTTime, mTTrms );
+      std::cout << mTimeId.wheelId   << " "
+                << mTimeId.stationId << " "
+                << mTimeId.sectorId  << " "
+                << mTimeId.slId      << " -> "
+                << mTimeId.layerId   << " -> "
+                << mTimeId.cellId    << " -> "
+                << mTimeData.mTime   << " "
+                << mTimeData.mTrms   << " -> "
+                << mTTime            << " "
+                << mTTrms            << std::endl;
+      iter++;
+    }
   }
   DEFINE_FWK_MODULE(DTMtimePrint);
 }

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/08/16 10:53:27 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/11/24 12:29:11 $
+ *  $Revision: 1.2.2.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,7 +15,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-
+#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
 
 //---------------
 // C++ Headers --
@@ -57,6 +57,7 @@ DTDeadFlagData::DTDeadFlagData() :
 // Destructor --
 //--------------
 DTDeadFlag::~DTDeadFlag() {
+  DTDataBuffer<int,int>::dropBuffer( mapName() );
 }
 
 
@@ -71,76 +72,64 @@ DTDeadFlagData::~DTDeadFlagData() {
 //--------------
 // Operations --
 //--------------
-bool DTDeadFlagCompare::operator()( const DTDeadFlagId& idl,
-                                      const DTDeadFlagId& idr ) const {
-  if ( idl.  wheelId < idr.  wheelId ) return true;
-  if ( idl.  wheelId > idr.  wheelId ) return false;
-  if ( idl.stationId < idr.stationId ) return true;
-  if ( idl.stationId > idr.stationId ) return false;
-  if ( idl. sectorId < idr. sectorId ) return true;
-  if ( idl. sectorId > idr. sectorId ) return false;
-  if ( idl.     slId < idr.     slId ) return true;
-  if ( idl.     slId > idr.     slId ) return false;
-  if ( idl.  layerId < idr.  layerId ) return true;
-  if ( idl.  layerId > idr.  layerId ) return false;
-  if ( idl.   cellId < idr.   cellId ) return true;
-  if ( idl.   cellId > idr.   cellId ) return false;
-  return false;
-}
+int DTDeadFlag::get( int   wheelId,
+                     int stationId,
+                     int  sectorId,
+                     int      slId,
+                     int   layerId,
+                     int    cellId,
+                     bool& dead_HV,
+                     bool& dead_TP,
+                     bool& dead_RO,
+                     bool& discCat ) const {
 
-
-int DTDeadFlag::cellStatus( int   wheelId,
-                            int stationId,
-                            int  sectorId,
-                            int      slId,
-                            int   layerId,
-                            int    cellId,
-                            bool& dead_HV,
-                            bool& dead_TP,
-                            bool& dead_RO,
-                            bool& discCat ) const {
-
-  dead_HV = false;
-  dead_TP = false;
-  dead_RO = false;
+  dead_HV =
+  dead_TP =
+  dead_RO =
   discCat = false;
 
-  DTDeadFlagId key;
-  key.  wheelId =   wheelId;
-  key.stationId = stationId;
-  key. sectorId =  sectorId;
-  key.     slId =      slId;
-  key.  layerId =   layerId;
-  key.   cellId =    cellId;
-  std::map<DTDeadFlagId,
-           DTDeadFlagData,
-           DTDeadFlagCompare>::const_iterator iter = cellData.find( key );
-
-  if ( iter != cellData.end() ) {
-    const DTDeadFlagData& data = iter->second;
+  std::string mName = mapName();
+  DTBufferTree<int,int>* dBuf =
+  DTDataBuffer<int,int>::findBuffer( mName );
+  if ( dBuf == 0 ) {
+    cacheMap();
+    dBuf =
+    DTDataBuffer<int,int>::findBuffer( mName );
+  }
+  std::vector<int> chanKey;
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  chanKey.push_back(   layerId );
+  chanKey.push_back(    cellId );
+  int ientry;
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  if ( !searchStatus ) {
+    const DTDeadFlagData& data( dataList[ientry].second );
     dead_HV = data.dead_HV;
     dead_TP = data.dead_TP;
     dead_RO = data.dead_RO;
     discCat = data.discCat;
-    return 0;
   }
-  return 1;
+
+  return searchStatus;
 
 }
 
 
-int DTDeadFlag::cellStatus( const DTWireId& id,
-                            bool& dead_HV,
-                            bool& dead_TP,
-                            bool& dead_RO,
-                            bool& discCat ) const {
-  return cellStatus( id.wheel(),
-                     id.station(),
-                     id.sector(),
-                     id.superLayer(),
-                     id.layer(),
-                     id.wire(),
-                     dead_HV, dead_TP, dead_RO, discCat );
+int DTDeadFlag::get( const DTWireId& id,
+                     bool& dead_HV,
+                     bool& dead_TP,
+                     bool& dead_RO,
+                     bool& discCat ) const {
+  return get( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(),
+              id.layer(),
+              id.wire(),
+              dead_HV, dead_TP, dead_RO, discCat );
 }
 
 
@@ -156,7 +145,8 @@ std::string& DTDeadFlag::version() {
 
 
 void DTDeadFlag::clear() {
-  cellData.clear();
+  DTDataBuffer<int,int>::dropBuffer( mapName() );
+  dataList.clear();
   return;
 }
 
@@ -172,19 +162,26 @@ int DTDeadFlag::setCellStatus( int   wheelId,
                                bool dead_RO,
                                bool discCat ) {
 
-  DTDeadFlagId key;
-  key.  wheelId =   wheelId;
-  key.stationId = stationId;
-  key. sectorId =  sectorId;
-  key.     slId =      slId;
-  key.  layerId =   layerId;
-  key.   cellId =    cellId;
+  std::string mName = mapName();
+  DTBufferTree<int,int>* dBuf =
+  DTDataBuffer<int,int>::findBuffer( mName );
+  if ( dBuf == 0 ) {
+    cacheMap();
+    dBuf =
+    DTDataBuffer<int,int>::findBuffer( mName );
+  }
+  std::vector<int> chanKey;
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  chanKey.push_back(   layerId );
+  chanKey.push_back(    cellId );
+  int ientry;
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
 
-  std::map<DTDeadFlagId,
-           DTDeadFlagData,
-           DTDeadFlagCompare>::iterator iter = cellData.find( key );
-  if ( iter != cellData.end() ) {
-    DTDeadFlagData& data = iter->second;
+  if ( !searchStatus ) {
+    DTDeadFlagData& data( dataList[ientry].second );
     data.dead_HV = dead_HV;
     data.dead_TP = dead_TP;
     data.dead_RO = dead_RO;
@@ -192,13 +189,22 @@ int DTDeadFlag::setCellStatus( int   wheelId,
     return -1;
   }
   else {
+    DTDeadFlagId key;
+    key.  wheelId =   wheelId;
+    key.stationId = stationId;
+    key. sectorId =  sectorId;
+    key.     slId =      slId;
+    key.  layerId =   layerId;
+    key.   cellId =    cellId;
     DTDeadFlagData data;
     data.dead_HV = dead_HV;
     data.dead_TP = dead_TP;
     data.dead_RO = dead_RO;
     data.discCat = discCat;
-    cellData.insert( std::pair<const DTDeadFlagId,
-                                     DTDeadFlagData>( key, data ) );
+    ientry = dataList.size();
+    dataList.push_back( std::pair<const DTDeadFlagId,
+                                        DTDeadFlagData>( key, data ) );
+    dBuf->insert( chanKey.begin(), chanKey.end(), ientry );
     return 0;
   }
 
@@ -395,12 +401,48 @@ int DTDeadFlag::setCellDiscCat( const DTWireId& id,
 
 
 DTDeadFlag::const_iterator DTDeadFlag::begin() const {
-  return cellData.begin();
+  return dataList.begin();
 }
 
 
 DTDeadFlag::const_iterator DTDeadFlag::end() const {
-  return cellData.end();
+  return dataList.end();
 }
 
+
+std::string DTDeadFlag::mapName() const {
+  std::string name = dataVersion + "_map_DeadFlag";
+  char nptr[100];
+  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
+  name += nptr;
+  return name;
+}
+
+
+void DTDeadFlag::cacheMap() const {
+
+  std::string mName = mapName();
+  DTBufferTree<int,int>* dBuf =
+  DTDataBuffer<int,int>::openBuffer( mName );
+
+  int entryNum = 0;
+  int entryMax = dataList.size();
+  while ( entryNum < entryMax ) {
+
+    const DTDeadFlagId& chan = dataList[entryNum].first;
+
+    std::vector<int> chanKey;
+    chanKey.push_back( chan.  wheelId );
+    chanKey.push_back( chan.stationId );
+    chanKey.push_back( chan. sectorId );
+    chanKey.push_back( chan.     slId );
+    chanKey.push_back( chan.  layerId );
+    chanKey.push_back( chan.   cellId );
+    dBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
+
+  }
+
+  return;
+
+}
 

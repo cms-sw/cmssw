@@ -6,8 +6,8 @@
  *       Class to hold drift tubes TTrigs
  *             ( SL by SL time offsets )
  *
- *  $Date: 2006/05/04 06:54:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/10/30 17:30:20 $
+ *  $Revision: 1.5.6.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -21,14 +21,14 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <string>
-//#include <vector>
-#include <map>
+#include <vector>
 
 //              ---------------------
 //              -- Class Interface --
@@ -45,6 +45,8 @@ class DTTtrigId   {
   int stationId;
   int  sectorId;
   int      slId;
+  int   layerId;
+  int    cellId;
 
 };
 
@@ -59,13 +61,6 @@ class DTTtrigData {
   float tTrig;
   float tTrms;
 
-};
-
-
-class DTTtrigCompare {
- public:
-  bool operator()( const DTTtrigId& idl,
-                   const DTTtrigId& idr ) const;
 };
 
 
@@ -91,11 +86,54 @@ class DTTtrig {
                int      slId,
                float&  tTrig,
                float&  tTrms,
-               DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+               DTTimeUnits::type unit = DTTimeUnits::counts ) const
+      { return get( wheelId, stationId, sectorId, slId, 0, 0,
+                    tTrig, tTrms, unit ); };
+  int slTtrig( int   wheelId,
+               int stationId,
+               int  sectorId,
+               int      slId,
+               int   layerId,
+               int    cellId,
+               float&  tTrig,
+               float&  tTrms,
+               DTTimeUnits::type unit = DTTimeUnits::counts ) const
+      { return get( wheelId, stationId, sectorId, slId, layerId, cellId,
+                    tTrig, tTrms, unit ); };
   int slTtrig( const DTSuperLayerId& id,
                float&  tTrig,
                float&  tTrms,
-               DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+               DTTimeUnits::type unit = DTTimeUnits::counts ) const
+      { return get( id, tTrig, tTrms, unit ); };
+  int slTtrig( const DetId& id,
+               float&  tTrig,
+               float&  tTrms,
+               DTTimeUnits::type unit = DTTimeUnits::counts ) const
+      { return get( id, tTrig, tTrms, unit ); };
+  int get( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           float&  tTrig,
+           float&  tTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+  int get( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           float&  tTrig,
+           float&  tTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+  int get( const DTSuperLayerId& id,
+           float&  tTrig,
+           float&  tTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+  int get( const DetId& id,
+           float&  tTrig,
+           float&  tTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
   float unit() const;
 
   /// access version
@@ -112,17 +150,60 @@ class DTTtrig {
                   int      slId,
                   float   tTrig,
                   float   tTrms,
-                  DTTimeUnits::type unit = DTTimeUnits::counts );
+                  DTTimeUnits::type unit = DTTimeUnits::counts )
+      { return set( wheelId, stationId, sectorId, slId, 0, 0,
+                    tTrig, tTrms, unit ); };
+  int setSLTtrig( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      slId,
+                  int   layerId,
+                  int    cellId,
+                  float   tTrig,
+                  float   tTrms,
+                  DTTimeUnits::type unit = DTTimeUnits::counts )
+      { return set( wheelId, stationId, sectorId, slId, layerId, cellId,
+                    tTrig, tTrms, unit ); };
   int setSLTtrig( const DTSuperLayerId& id,
                   float   tTrig,
                   float   tTrms,
-                  DTTimeUnits::type unit = DTTimeUnits::counts );
+                  DTTimeUnits::type unit = DTTimeUnits::counts )
+      { return set( id, tTrig, tTrms, unit ); };
+  int setSLTtrig( const DetId& id,
+                  float   tTrig,
+                  float   tTrms,
+                  DTTimeUnits::type unit = DTTimeUnits::counts )
+      { return set( id, tTrig, tTrms, unit ); };
+  int set( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           float   tTrig,
+           float   tTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts );
+  int set( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           float   tTrig,
+           float   tTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts );
+  int set( const DTSuperLayerId& id,
+           float   tTrig,
+           float   tTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts );
+  int set( const DetId& id,
+           float   tTrig,
+           float   tTrms,
+           DTTimeUnits::type unit = DTTimeUnits::counts );
   void setUnit( float unit );
 
   /// Access methods to data
-  typedef std::map<DTTtrigId,
-                   DTTtrigData,
-                   DTTtrigCompare>::const_iterator const_iterator;
+  typedef std::vector< std::pair<DTTtrigId,
+                                 DTTtrigData> >::const_iterator
+                                                 const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
@@ -131,7 +212,11 @@ class DTTtrig {
   std::string dataVersion;
   float nsPerCount;
 
-  std::map<DTTtrigId,DTTtrigData,DTTtrigCompare> slData;
+  std::vector< std::pair<DTTtrigId,DTTtrigData> > dataList;
+
+  /// read and store full content
+  void cacheMap() const;
+  std::string mapName() const;
 
 };
 

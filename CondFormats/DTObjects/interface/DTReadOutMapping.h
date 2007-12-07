@@ -5,8 +5,8 @@
  *  Description:
  *       Class to map read-out channels to physical drift tubes
  *
- *  $Date: 2006/02/28 17:28:55 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/10/30 17:30:20 $
+ *  $Revision: 1.5.6.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -69,9 +69,6 @@ class DTReadOutMapping {
 
   /** Operations
    */
-  /// read and store full content
-  void initSetup() const;
-
   /// transform identifiers
   int readOutToGeometry( int      dduId,
                          int      rosId,
@@ -98,6 +95,12 @@ class DTReadOutMapping {
                          int       slId,
                          int    layerId,
                          int     cellId,
+                         int&     dduId,
+                         int&     rosId,
+                         int&     robId,
+                         int&     tdcId,
+                         int& channelId ) const;
+  int geometryToReadOut( const DTWireId& wireId,
                          int&     dduId,
                          int&     rosId,
                          int&     robId,
@@ -140,6 +143,11 @@ class DTReadOutMapping {
   std::string  robMapVersion;
 
   std::vector<DTReadOutGeometryLink> readOutChannelDriftTubeMap;
+
+  /// read and store full content
+  void cacheMap() const;
+  std::string mapNameRG() const;
+  std::string mapNameGR() const;
 
 };
 

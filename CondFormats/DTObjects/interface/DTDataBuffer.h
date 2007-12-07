@@ -5,8 +5,8 @@
  *  Description:
  *       Class to hold drift tubes T0s
  *
- *  $Date: 2006/02/28 17:28:55 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/30 17:30:20 $
+ *  $Revision: 1.4.6.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -47,9 +47,9 @@ class DTDataBuffer {
   /** Operations
    */
   /// access internal buffer
-  static DTBufferTree<Key,Content>* openBuffer( std::string& name );
-  static DTBufferTree<Key,Content>* findBuffer( std::string& name );
-  static void                       dropBuffer( std::string& name );
+  static DTBufferTree<Key,Content>* openBuffer( const std::string& name );
+  static DTBufferTree<Key,Content>* findBuffer( const std::string& name );
+  static void                       dropBuffer( const std::string& name );
 
  private:
 

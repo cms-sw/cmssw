@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/22 12:46:52 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/11/24 12:29:12 $
+ *  $Revision: 1.12.6.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,7 +15,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-
+#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
 
 //---------------
 // C++ Headers --
@@ -62,6 +62,7 @@ DTT0Data::DTT0Data() :
 // Destructor --
 //--------------
 DTT0::~DTT0() {
+  DTDataBuffer<int,int>::dropBuffer( mapName() );
 }
 
 
@@ -76,74 +77,63 @@ DTT0Data::~DTT0Data() {
 //--------------
 // Operations --
 //--------------
-bool DTT0Compare::operator()( const DTT0Id& idl,
-                              const DTT0Id& idr ) const {
-  if ( idl.  wheelId < idr.  wheelId ) return true;
-  if ( idl.  wheelId > idr.  wheelId ) return false;
-  if ( idl.stationId < idr.stationId ) return true;
-  if ( idl.stationId > idr.stationId ) return false;
-  if ( idl. sectorId < idr. sectorId ) return true;
-  if ( idl. sectorId > idr. sectorId ) return false;
-  if ( idl.     slId < idr.     slId ) return true;
-  if ( idl.     slId > idr.     slId ) return false;
-  if ( idl.  layerId < idr.  layerId ) return true;
-  if ( idl.  layerId > idr.  layerId ) return false;
-  if ( idl.   cellId < idr.   cellId ) return true;
-  if ( idl.   cellId > idr.   cellId ) return false;
-  return false;
-}
+int DTT0::get( int   wheelId,
+               int stationId,
+               int  sectorId,
+               int      slId,
+               int   layerId,
+               int    cellId,
+               float& t0mean,
+               float& t0rms,
+               DTTimeUnits::type unit ) const {
 
+  t0mean =
+  t0rms  = 0.0;
 
-int DTT0::cellT0( int   wheelId,
-                  int stationId,
-                  int  sectorId,
-                  int      slId,
-                  int   layerId,
-                  int    cellId,
-                  float& t0mean,
-                  float& t0rms,
-                  DTTimeUnits::type unit ) const {
+  std::string mName = mapName();
+  DTBufferTree<int,int>* dBuf =
+  DTDataBuffer<int,int>::findBuffer( mName );
+  if ( dBuf == 0 ) {
+    cacheMap();
+    dBuf =
+    DTDataBuffer<int,int>::findBuffer( mName );
+  }
 
-  t0mean    = 0.0;
-  t0rms     = 0.0;
-
-  DTT0Id key;
-  key.  wheelId =   wheelId;
-  key.stationId = stationId;
-  key. sectorId =  sectorId;
-  key.     slId =      slId;
-  key.  layerId =   layerId;
-  key.   cellId =    cellId;
-  std::map<DTT0Id,
-           DTT0Data,
-           DTT0Compare>::const_iterator iter = cellData.find( key );
-
-  if ( iter != cellData.end() ) {
-    const DTT0Data& data = iter->second;
+  std::vector<int> chanKey;
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  chanKey.push_back(   layerId );
+  chanKey.push_back(    cellId );
+  int ientry;
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  if ( !searchStatus ) {
+    const DTT0Data& data( dataList[ientry].second );
     t0mean = data.t0mean;
     t0rms  = data.t0rms;
     if ( unit == DTTimeUnits::ns ) {
       t0mean *= nsPerCount;
       t0rms  *= nsPerCount;
     }
-    return 0;
   }
-  return 1;
+
+  return searchStatus;
 
 }
 
 
-int DTT0::cellT0( const DTWireId& id,
-                  float& t0mean,
-                  float& t0rms,
-                  DTTimeUnits::type unit ) const {
-  return cellT0( id.wheel(),
-                 id.station(),
-                 id.sector(),
-                 id.superLayer(),
-                 id.layer(),
-                 id.wire(),
-                 t0mean, t0rms, unit );
+int DTT0::get( const DTWireId& id,
+               float& t0mean,
+               float& t0rms,
+               DTTimeUnits::type unit ) const {
+  return get( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(),
+              id.layer(),
+              id.wire(),
+              t0mean, t0rms, unit );
 }
 
 
@@ -164,48 +154,65 @@ std::string& DTT0::version() {
 
 
 void DTT0::clear() {
-  cellData.clear();
+  DTDataBuffer<int,int>::dropBuffer( mapName() );
+  dataList.clear();
   return;
 }
 
 
-int DTT0::setCellT0( int   wheelId,
-                     int stationId,
-                     int  sectorId,
-                     int      slId,
-                     int   layerId,
-                     int    cellId,
-                     float t0mean,
-                     float t0rms,
-                     DTTimeUnits::type unit ) {
+int DTT0::set( int   wheelId,
+               int stationId,
+               int  sectorId,
+               int      slId,
+               int   layerId,
+               int    cellId,
+               float t0mean,
+               float t0rms,
+               DTTimeUnits::type unit ) {
 
   if ( unit == DTTimeUnits::ns ) {
     t0mean /= nsPerCount;
     t0rms  /= nsPerCount;
   }
 
-  DTT0Id key;
-  key.  wheelId =   wheelId;
-  key.stationId = stationId;
-  key. sectorId =  sectorId;
-  key.     slId =      slId;
-  key.  layerId =   layerId;
-  key.   cellId =    cellId;
+  std::string mName = mapName();
+  DTBufferTree<int,int>* dBuf =
+  DTDataBuffer<int,int>::findBuffer( mName );
+  if ( dBuf == 0 ) {
+    cacheMap();
+    dBuf =
+    DTDataBuffer<int,int>::findBuffer( mName );
+  }
+  std::vector<int> chanKey;
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+  chanKey.push_back(      slId );
+  chanKey.push_back(   layerId );
+  chanKey.push_back(    cellId );
+  int ientry;
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
 
-  std::map<DTT0Id,
-           DTT0Data,
-           DTT0Compare>::iterator iter = cellData.find( key );
-  if ( iter != cellData.end() ) {
-    DTT0Data& data = iter->second;
+  if ( !searchStatus ) {
+    DTT0Data& data( dataList[ientry].second );
     data.t0mean = t0mean;
     data.t0rms  = t0rms;
     return -1;
   }
   else {
+    DTT0Id key;
+    key.  wheelId =   wheelId;
+    key.stationId = stationId;
+    key. sectorId =  sectorId;
+    key.     slId =      slId;
+    key.  layerId =   layerId;
+    key.   cellId =    cellId;
     DTT0Data data;
     data.t0mean = t0mean;
     data.t0rms  = t0rms;
-    cellData.insert( std::pair<const DTT0Id,DTT0Data>( key, data ) );
+    ientry = dataList.size();
+    dataList.push_back( std::pair<const DTT0Id,DTT0Data>( key, data ) );
+    dBuf->insert( chanKey.begin(), chanKey.end(), ientry );
     return 0;
   }
 
@@ -214,17 +221,17 @@ int DTT0::setCellT0( int   wheelId,
 }
 
 
-int DTT0::setCellT0( const DTWireId& id,
-                     float t0mean,
-                     float t0rms,
-                     DTTimeUnits::type unit ) {
-  return setCellT0( id.wheel(),
-                    id.station(),
-                    id.sector(),
-                    id.superLayer(),
-                    id.layer(),
-                    id.wire(),
-                    t0mean, t0rms, unit );
+int DTT0::set( const DTWireId& id,
+               float t0mean,
+               float t0rms,
+               DTTimeUnits::type unit ) {
+  return set( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(),
+              id.layer(),
+              id.wire(),
+              t0mean, t0rms, unit );
 }
 
 
@@ -234,12 +241,48 @@ void DTT0::setUnit( float unit ) {
 
 
 DTT0::const_iterator DTT0::begin() const {
-  return cellData.begin();
+  return dataList.begin();
 }
 
 
 DTT0::const_iterator DTT0::end() const {
-  return cellData.end();
+  return dataList.end();
 }
 
+
+std::string DTT0::mapName() const {
+  std::string name = dataVersion + "_map_T0";
+  char nptr[100];
+  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
+  name += nptr;
+  return name;
+}
+
+
+void DTT0::cacheMap() const {
+
+  std::string mName = mapName();
+  DTBufferTree<int,int>* dBuf =
+  DTDataBuffer<int,int>::openBuffer( mName );
+
+  int entryNum = 0;
+  int entryMax = dataList.size();
+  while ( entryNum < entryMax ) {
+
+    const DTT0Id& chan = dataList[entryNum].first;
+
+    std::vector<int> chanKey;
+    chanKey.push_back( chan.  wheelId );
+    chanKey.push_back( chan.stationId );
+    chanKey.push_back( chan. sectorId );
+    chanKey.push_back( chan.     slId );
+    chanKey.push_back( chan.  layerId );
+    chanKey.push_back( chan.   cellId );
+    dBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
+
+  }
+
+  return;
+
+}
 
