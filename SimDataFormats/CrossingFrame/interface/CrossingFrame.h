@@ -28,7 +28,7 @@ class CrossingFrame
  public:
   // con- and destructors
 
-  CrossingFrame():  firstCrossing_(0), lastCrossing_(0), bunchSpace_(75),subdet_(""),idFirstPileup_(0,0),pileupFileNr_(0) {;}
+  CrossingFrame():  firstCrossing_(0), lastCrossing_(0), bunchSpace_(75),subdet_("") {;}
   CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet );
 
   ~CrossingFrame() {;}
@@ -95,7 +95,7 @@ class CrossingFrame
 //==============================================================================
 
 template <class T> 
-CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet),idFirstPileup_(0,0),pileupFileNr_(0) {
+CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet) {
   //FIXME: should we force around 0 or so??
   pileupOffsetsBcr_.reserve(-firstCrossing_+lastCrossing_+1);
 }

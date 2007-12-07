@@ -7,11 +7,13 @@
 #include "Mixing/Base/interface/BMixingModule.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 using namespace std;
 
@@ -33,31 +35,32 @@ namespace
 	// and if we have either averageNumber or cfg by luminosity... make the PileUp
         double averageNumber;
         edm::ParameterSet psin=ps.getParameter<edm::ParameterSet>(sourceName);
-        vector<string> namesIn = psin.getParameterNames();
-        if (find(namesIn.begin(), namesIn.end(), std::string("nbPileupEvents"))
-	    != namesIn.end()) {
-	  edm::ParameterSet psin_average=psin.getParameter<edm::ParameterSet>("nbPileupEvents");
-	  vector<string> namesAverage = psin_average.getParameterNames();
-	  if (find(namesAverage.begin(), namesAverage.end(), std::string("averageNumber"))
-	      != namesAverage.end()) 
-	    {
-              averageNumber=psin_average.getParameter<double>("averageNumber");
-	      pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber));
-	      edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb<<" and averageNumber "<<averageNumber;
-	    }
+        if (psin.getParameter<std::string>("type")!="none") {
+	  vector<string> namesIn = psin.getParameterNames();
+	  if (find(namesIn.begin(), namesIn.end(), std::string("nbPileupEvents"))
+	      != namesIn.end()) {
+	    edm::ParameterSet psin_average=psin.getParameter<edm::ParameterSet>("nbPileupEvents");
+	    vector<string> namesAverage = psin_average.getParameterNames();
+	    if (find(namesAverage.begin(), namesAverage.end(), std::string("averageNumber"))
+		!= namesAverage.end()) 
+	      {
+		averageNumber=psin_average.getParameter<double>("averageNumber");
+		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber));
+		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb<<" and averageNumber "<<averageNumber;
+	      }
 	
-	  //special for pileup input
-	  else if (sourceName=="input" && find(namesAverage.begin(), namesAverage.end(), std::string("Lumi")) 
-		   != namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("sigmaInel"))
-		   != namesAverage.end()) {
-	    averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaInel")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;  //FIXME
-	    pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber));
-	    edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb;
-	    edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber;
+	    //special for pileup input
+	    else if (sourceName=="input" && find(namesAverage.begin(), namesAverage.end(), std::string("Lumi")) 
+		     != namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("sigmaInel"))
+		     != namesAverage.end()) {
+	      averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaInel")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;  //FIXME
+	      pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber));
+	      edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb;
+	      edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber;
+	    }
 	  }
 	}
       }
-
     return pileup;
   }
 }
@@ -82,7 +85,14 @@ namespace edm {
     //#warning process name is hard coded, for now.  Fix this.
     //#warning the parameter set ID passed should be the one for the full process.  Fix this.
     md_.processConfiguration_ = ProcessConfiguration("PILEUP", pset.id(), getReleaseVersion(), getPassID());
-
+    // FIXME: temporary to keep bwds compatibility for cfg files
+    vector<string> names = pset.getParameterNames();
+    if (find(names.begin(), names.end(),"playback")
+	!= names.end()) {
+      playback_=pset.getUntrackedParameter<bool>("playback");
+      if (playback_) LogInfo("MixingModule") <<" Mixing will be done in playback mode!";
+    } else
+      playback_=false;
   }
 
   // Virtual destructor needed.
@@ -101,33 +111,68 @@ namespace edm {
     std::vector<EventPrincipalVector> pileup[maxNbSources];
     bool doit[]={false,false,false,false};
 
-    if ( input_)  {
-      input_->readPileUp(pileup[0]); 
-      if ( input_->doPileup()) {
+    if ( input_)  {  
+      if (playback_) {
+	getEventStartInfo(e,0);
+	input_->readPileUp(pileup[0],id_,fileNr_); 
+      } else {
+	input_->readPileUp(pileup[0]); 
+      }
+      if (input_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding pileup to signal event "<<e.id(); 
+	int fileNr=input_->getStartFileNr();
+	EventID id=((pileup[0])[0])[0]->id(); 
+	setEventStartInfo(id,fileNr,0);
 	doit[0]=true;
-      }
+      } 
     }
+
     if (cosmics_) {
-      cosmics_->readPileUp(pileup[1]);
-      if (cosmics_->doPileup()) {
+      if (playback_) {
+	getEventStartInfo(e,1);
+	cosmics_->readPileUp(pileup[1],id_,fileNr_); 
+      } else {
+	cosmics_->readPileUp(pileup[1]); 
+      }
+      if (cosmics_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding cosmics to signal event "<<e.id(); 
+	int fileNr=cosmics_->getStartFileNr();
+	EventID id=((pileup[1])[0])[0]->id(); 
+	setEventStartInfo(id,fileNr,1);
 	doit[1]=true;
-      }
+      } 
     }
+
     if (beamHalo_p_) {
-      beamHalo_p_->readPileUp(pileup[2]);
-      if (beamHalo_p_->doPileup()) {
+      if (playback_) {
+	getEventStartInfo(e,2);
+	beamHalo_p_->readPileUp(pileup[2],id_,fileNr_); 
+      } else {
+	beamHalo_p_->readPileUp(pileup[2]); 
+      }
+      if (beamHalo_p_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo+ to signal event "<<e.id();
+	int fileNr=beamHalo_p_->getStartFileNr();
+	EventID id=((pileup[2])[0])[0]->id(); 
+	setEventStartInfo(id,fileNr,2);
 	doit[2]=true;
-      }
+      } 
     }
+
     if (beamHalo_m_) {
-      beamHalo_m_->readPileUp(pileup[3]);
-      if (beamHalo_m_->doPileup()) {
-	doit[3]=true;
-	LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo- to signal event "<<e.id();
+      if (playback_) {
+	getEventStartInfo(e,3);
+	beamHalo_m_->readPileUp(pileup[3],id_,fileNr_); 
+      } else {
+	beamHalo_m_->readPileUp(pileup[3]); 
       }
+      if (beamHalo_m_->doPileup()) {  
+	LogDebug("MixingModule") <<"\n\n==============================>Adding beam Halo- to signal event "<<e.id();
+	int fileNr=beamHalo_m_->getStartFileNr();
+	EventID id=((pileup[3])[0])[0]->id(); 
+	setEventStartInfo(id,fileNr,3);
+	doit[3]=true;
+      } 
     }
 
     // and merge it

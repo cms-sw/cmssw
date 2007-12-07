@@ -5,6 +5,7 @@
 #include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
 namespace CLHEP {
   class RandPoissonQ;
@@ -17,13 +18,14 @@ namespace edm {
     explicit PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber);
     ~PileUp();
 
-    void readPileUp(std::vector<EventPrincipalVector> & result);
+    void readPileUp(std::vector<EventPrincipalVector> & result,const edm::EventID &id= EventID(0,0), const int fileNr=-1);
 
     //    int minBunch() const {return minBunch_;}
     //    int maxBunch() const {return maxBunch_;}
     double averageNumber() const {return averageNumber_;}
     bool poisson() const {return poisson_;}
     bool doPileup() {return none_ ? false :  averageNumber_>0.;}
+    int getStartFileNr() {return fileSeqNr_;}
 
   private:
     std::string const type_;
@@ -36,6 +38,7 @@ namespace edm {
     bool const none_;
     VectorInputSource * const input_;
     CLHEP::RandPoissonQ *poissonDistribution_;
+    unsigned int fileSeqNr_;
   };
 }
 
