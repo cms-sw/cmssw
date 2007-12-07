@@ -54,19 +54,20 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   //
   //declare and get TrackColection to be retrieved from the event
   //
-    AlgoProductCollection algoResults;
-  try{  
-    edm::Handle<TrackCandidateCollection> theTCCollection;
-    getFromEvt(theEvent,theTCCollection);
-    
-    //
-    //run the algorithm  
-    //
+  AlgoProductCollection algoResults;
+  edm::Handle<TrackCandidateCollection> theTCCollection;
+  getFromEvt(theEvent,theTCCollection);
+  //protect against missing product  
+  if (theTCCollection.failedToGet()){
+    edm::LogError("TrackProducer") <<"could not get the TrackCandidateCollection.";} 
+  else{
     LogDebug("TrackProducer") << "run the algorithm" << "\n";
-    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
-  } catch (cms::Exception &e){ edm::LogInfo("TrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
-  //
+    try{  
+      theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
+			       theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
+    } catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n";}
+  }
+  
   //put everything in the event
   putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
   LogDebug("TrackProducer") << "end" << "\n";
@@ -95,19 +96,20 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
   //declare and get TrackColection to be retrieved from the event
   //
   AlgoProductCollection algoResults;
-  try{  
-    edm::Handle<TrackCandidateCollection> theTCCollection;
-    getFromEvt(theEvent,theTCCollection);
-    
-    //
-    //run the algorithm  
-    //
+  edm::Handle<TrackCandidateCollection> theTCCollection;
+  getFromEvt(theEvent,theTCCollection);
+  //protect against missing product  
+  if (theTCCollection.failedToGet()){
+    edm::LogError("TrackProducer") <<"could not get the TrackCandidateCollection.";}
+  else{
     LogDebug("TrackProducer") << "run the algorithm" << "\n";
-    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
-  } catch (cms::Exception &e){ edm::LogInfo("TrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
-
-
+    try{  
+      theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
+			       theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
+    }
+    catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n";}
+  }
+  
   for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
     ttks.push_back( reco::TransientTrack(*((*prod).second.first),thePropagator.product()->magneticField() ));
   }
