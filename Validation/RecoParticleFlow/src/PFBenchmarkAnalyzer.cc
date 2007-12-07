@@ -97,7 +97,8 @@ void PFBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     Handle<PFCandidateCollection> reco_hnd;
     iEvent.getByLabel(inputRecoLabel_, reco_hnd);
     const PFCandidateCollection *pf_candidates = reco_hnd.product();
-    reco_candidates = algo_->makeCandidateCollection(pf_candidates);
+    static CandidateCollection reco_storage = algo_->makeCandidateCollection(pf_candidates);
+    reco_candidates = &reco_storage;
 
   }
 
