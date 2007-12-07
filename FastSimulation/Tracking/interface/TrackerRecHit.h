@@ -165,13 +165,6 @@ public:
   }
   
   inline bool operator!=(const TrackerRecHit& aHit) const {
-    std::cout << "The geom Dets = " << aHit.geomDet() 
-	      << " " << this->geomDet() 
-	      << std::endl
-	      << "The positions = " << aHit.hit()->localPosition() 
-	      << " " << this->hit()->localPosition() 
-	      << std::endl;
-
     return 
       aHit.geomDet() != this->geomDet() ||
       aHit.hit()->localPosition().x() != this->hit()->localPosition().x() ||

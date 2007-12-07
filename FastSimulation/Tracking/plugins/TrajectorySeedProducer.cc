@@ -37,8 +37,7 @@
 
 TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) 
 {  
-  std::cout << "TrajectorySeedProducer initializing" << std::endl;
-  
+
   // The name of the TrajectorySeed Collections
   seedingAlgo = conf.getParameter<std::vector<std::string> >("seedingAlgo");
   for ( unsigned i=0; i<seedingAlgo.size(); ++i )
@@ -176,10 +175,6 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
       << " WARNING : originpTMin does not have the proper size "
       << std::endl;
 
-
-  // Reject overlapping hits?
-  rejectOverlaps = conf.getParameter<bool>("overlapCleaning");
-
 }
 
   
@@ -293,6 +288,10 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     // Check that the sim track comes from the main vertex (loose cut)
     int vertexIndex = theSimTrack.vertIndex();
     const SimVertex& theSimVertex = (*theSimVtx)[vertexIndex]; 
+#ifdef FAMOS_DEBUG
+    std::cout << " o SimTrack " << theSimTrack << std::endl;
+    std::cout << " o SimVertex " << theSimVertex << std::endl;
+#endif
     
     BaseParticlePropagator theParticle = 
       BaseParticlePropagator( 
@@ -351,7 +350,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	std::cout << "The first hit subDetId = " << theSeedHits[0].subDetId() << std::endl;
 	std::cout << "The first hit layer    = " << theSeedHits[0].layerNumber() << std::endl;
 #endif
-	// if ( !theSeedHits[0].isOnRequestedDet(firstHitSubDetectors[ialgo]) ) continue;
 
 	// Check if inside the requested detectors
 	bool isInside = theSeedHits[0].subDetId() < firstHitSubDetectors[ialgo][0];
@@ -389,7 +387,8 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
 	  GlobalPoint gpos1 = theSeedHits[0].globalPosition();
 	  GlobalPoint gpos2 = theSeedHits[1].globalPosition();
-	  compatible = compatibleWithVertex(gpos1,gpos2,ialgo);
+	  //	  compatible = compatibleWithVertex(gpos1,gpos2,ialgo);
+	  compatible = compatibleWithBeamAxis(gpos1,gpos2,ialgo);
 #ifdef FAMOS_DEBUG
 	  std::cout << "Are the two hits compatible with the PV? " << compatible << std::endl;
 #endif
@@ -476,30 +475,30 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       AlgebraicSymMatrix errorMatrix(5,1);      
       errorMatrix = errorMatrix * 10;
 #ifdef FAMOS_DEBUG
-      std::cout << "GSTrackCandidateMaker: SimTrack parameters " << std::endl;
+      std::cout << "TrajectorySeedProducer: SimTrack parameters " << std::endl;
       std::cout << "\t\t pT  = " << (*theSimTracks)[simTrackId].momentum().Pt() << std::endl;
       std::cout << "\t\t eta = " << (*theSimTracks)[simTrackId].momentum().Eta()  << std::endl;
       std::cout << "\t\t phi = " << (*theSimTracks)[simTrackId].momentum().Phi()  << std::endl;
-      std::cout << "GSTrackCandidateMaker: AlgebraicSymMatrix " << errorMatrix << std::endl;
+      std::cout << "TrajectorySeedProducer: AlgebraicSymMatrix " << errorMatrix << std::endl;
 #endif
       CurvilinearTrajectoryError initialError(errorMatrix);
       // -> initial state
       FreeTrajectoryState initialFTS(initialParams, initialError);      
 #ifdef FAMOS_DEBUG
-      std::cout << "GSTrackCandidateMaker: FTS momentum " << initialFTS.momentum() << std::endl;
+      std::cout << "TrajectorySeedProducer: FTS momentum " << initialFTS.momentum() << std::endl;
 #endif
       // const GeomDetUnit* initialLayer = theGeometry->idToDetUnit( recHits.front().geographicalId() );
       const GeomDet* initialLayer = theGeometry->idToDet( recHits.front().geographicalId() );
       const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());      
 #ifdef FAMOS_DEBUG
-      std::cout << "GSTrackCandidateMaker: TSOS global momentum "    << initialTSOS.globalMomentum() << std::endl;
+      std::cout << "TrajectorySeedProducer: TSOS global momentum "    << initialTSOS.globalMomentum() << std::endl;
       std::cout << "\t\t\tpT = "                                     << initialTSOS.globalMomentum().perp() << std::endl;
       std::cout << "\t\t\teta = "                                    << initialTSOS.globalMomentum().eta() << std::endl;
       std::cout << "\t\t\tphi = "                                    << initialTSOS.globalMomentum().phi() << std::endl;
-      std::cout << "GSTrackCandidateMaker: TSOS local momentum "     << initialTSOS.localMomentum()  << std::endl;
-      std::cout << "GSTrackCandidateMaker: TSOS local error "        << initialTSOS.localError().positionError() << std::endl;
-      std::cout << "GSTrackCandidateMaker: TSOS local error matrix " << initialTSOS.localError().matrix() << std::endl;
-      std::cout << "GSTrackCandidateMaker: TSOS surface side "       << initialTSOS.surfaceSide()    << std::endl;
+      std::cout << "TrajectorySeedProducer: TSOS local momentum "     << initialTSOS.localMomentum()  << std::endl;
+      std::cout << "TrajectorySeedProducer: TSOS local error "        << initialTSOS.localError().positionError() << std::endl;
+      std::cout << "TrajectorySeedProducer: TSOS local error matrix " << initialTSOS.localError().matrix() << std::endl;
+      std::cout << "TrajectorySeedProducer: TSOS surface side "       << initialTSOS.surfaceSide()    << std::endl;
 #endif
       stateOnDet(initialTSOS, 
 		 recHits.front().geographicalId().rawId(),
@@ -552,61 +551,45 @@ TrajectorySeedProducer::stateOnDet(const TrajectoryStateOnSurface& ts,
 }
 
 bool
-TrajectorySeedProducer::compatibleWithVertex(GlobalPoint& gpos1, 
-					     GlobalPoint& gpos2,
-					     unsigned algo) const {
+TrajectorySeedProducer::compatibleWithBeamAxis(GlobalPoint& gpos1, 
+					       GlobalPoint& gpos2,
+					       unsigned algo) const {
 
   if ( !seedCleaning ) return true;
 
   // The hits 1 and 2 positions, in HepLorentzVector's
   XYZTLorentzVector thePos1(gpos1.x(),gpos1.y(),gpos1.z(),0.);
   XYZTLorentzVector thePos2(gpos2.x(),gpos2.y(),gpos2.z(),0.);
+#ifdef FAMOS_DEBUG
+  std::cout << "ThePos1 = " << thePos1 << std::endl;
+  std::cout << "ThePos2 = " << thePos2 << std::endl;
+#endif
+
 
   // Create new particles that pass through the second hit with pT = ptMin 
   // and charge = +/-1
+  
+  // The momentum direction is by default joining the two hits 
   XYZTLorentzVector theMom2 = (thePos2-thePos1);
 
-  theMom2 /= theMom2.Pt();
-  theMom2 *= originpTMin[algo];
-  theMom2.SetE(sqrt(theMom2.Vect().Mag2()));
+  // The corresponding RawParticle, with an (irrelevant) electric charge
+  // (The charge is determined in the next step)
+  ParticlePropagator myPart(theMom2,thePos2,1.,theFieldMap);
 
-  // The corresponding RawParticles (to be propagated) for e- and e+
-  ParticlePropagator myElecL(theMom2,thePos2,-1.,theFieldMap);
-  ParticlePropagator myPosiL(theMom2,thePos2,+1.,theFieldMap);
-
-  // Propagate to the closest approach point, with the constraint that 
-  // the particles should pass through the  first hit
-  myElecL.propagateToNominalVertex(thePos1);
-  myPosiL.propagateToNominalVertex(thePos1);
-
-  theMom2 *= 1000.0;//ptmax
-  // The corresponding RawParticles (to be propagated) for e- and e+
-  ParticlePropagator myElecH(theMom2,thePos2,-1.,theFieldMap);
-  ParticlePropagator myPosiH(theMom2,thePos2,+1.,theFieldMap);
-
-  // Propagate to the closest approach point, with the constraint that 
-  // the particles should pass through the  first hit
-  myElecH.propagateToNominalVertex(thePos1);
-  myPosiH.propagateToNominalVertex(thePos1);
-
-  // And check at least one of the particles statisfy the SeedGenerator
-  // constraint (originRadius, originHalfLength)
+  /// Check that the seed is compatible with a track coming from within
+  /// a cylinder of radius originRadius, with a decent pT, and propagate
+  /// to the distance of closest approach, for the appropriate charge
+  bool intersect = myPart.propagateToBeamCylinder(thePos1,originRadius[algo]*1.);
+  if ( !intersect ) return false;
 
 #ifdef FAMOS_DEBUG
-  std::cout << " Neg Charge L R = " << myElecL.R() << "\t Z = " << fabs(myElecL.Z()) << std::endl;
-  std::cout << " Pos Charge L R = " << myPosiL.R() << "\t Z = " << fabs(myPosiL.Z()) << std::endl;
-  std::cout << " Neg Charge H R = " << myElecH.R() << "\t Z = " << fabs(myElecH.Z()) << std::endl;
-  std::cout << " Pos Charge H R = " << myPosiH.R() << "\t Z = " << fabs(myPosiH.Z()) << std::endl;
+  std::cout << "MyPart R = " << myPart.R() << "\t Z = " << myPart.Z() 
+	    << "\t pT = " << myPart.Pt() << std::endl;
 #endif
 
-  if ( myElecL.R() < originRadius[algo] && 
-       fabs(myElecL.Z()) < originHalfLength[algo] ) return true;
-  if ( myPosiL.R() < originRadius[algo] && 
-       fabs(myPosiL.Z()) < originHalfLength[algo] ) return true;
-  if ( myElecH.R() < originRadius[algo] && 
-       fabs(myElecH.Z()) < originHalfLength[algo] ) return true;
-  if ( myPosiH.R() < originRadius[algo] && 
-       fabs(myPosiH.Z()) < originHalfLength[algo] ) return true;
+  // Check if the constraint (originpTMin, originHalfLength) is satisfied
+  return ( myPart.Pt() > originpTMin[algo] && 
+	   fabs(myPart.Z()) < originHalfLength[algo] );
 
-  return false;
-}
+}  
+

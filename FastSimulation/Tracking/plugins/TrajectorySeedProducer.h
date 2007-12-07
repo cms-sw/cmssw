@@ -36,13 +36,16 @@ class TrajectorySeedProducer : public edm::EDProducer
   
  private:
 
+  /// A mere copy (without memory leak) of an existing tracking method
   void stateOnDet(const TrajectoryStateOnSurface& ts,
 		  unsigned int detid,
 		  PTrajectoryStateOnDet& pts) const;
   
-  bool compatibleWithVertex(GlobalPoint& gpos1, 
-			    GlobalPoint& gpos2,
-			    unsigned algo) const; 
+  /// Check that the seed is compatible with a track coming from within
+  /// a cylinder of radius originRadius, with a decent pT.
+  bool compatibleWithBeamAxis(GlobalPoint& gpos1, 
+			      GlobalPoint& gpos2,
+			      unsigned algo) const;
 
  private:
 

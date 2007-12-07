@@ -23,14 +23,13 @@
 //
 
 //for debug only 
-#define FAMOS_DEBUG
+//#define FAMOS_DEBUG
 
 TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf) 
 {  
 #ifdef FAMOS_DEBUG
   std::cout << "TrackCandidateProducer created" << std::endl;
 #endif
-  std::cout << "TrackCandidate Producer initializing" << std::endl;
   produces<TrackCandidateCollection>();
   
   // The name of the seed producer
@@ -116,8 +115,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     SiTrackerGSRecHit2DCollection::const_iterator iterRecHit;
     std::vector<TrackerRecHit> theTrackerRecHits;
 
-    std::cout << "Les deux pointeurs = " << theFirstSeedingRecHit << " " << &(*theRecHitRangeIteratorBegin) << std::endl;
-
     bool firstRecHit = true;
     // 
     for ( iterRecHit = theRecHitRangeIteratorBegin; 
@@ -125,15 +122,10 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  ++iterRecHit) {
 
       TrackerRecHit theCurrentRecHit(&(*iterRecHit),theGeometry);
+      // Check that the first rechit is indeed the first seeding hit
       if ( firstRecHit && theCurrentRecHit != theFirstSeedingTrackerRecHit ) continue;
-	
-      ///***************************************************************************************
-      /// ICI NE PAS OUBLIER DE VERIFIER QUE LE PREMIER RECHIT EST BIEN LE PREMIER SEEDING HIT
-      /// SINON CONTINUER
-      ///***************************************************************************************
-      
-      
-      // Add all rechits (Grouped Trajectory Builder)
+
+      // Add all rechits (Grouped Trajectory Builder) from this hit onwards
       // Always add the first seeding rechit anyway
       if ( !rejectOverlaps || firstRecHit ) {  
 	

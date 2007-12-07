@@ -164,10 +164,20 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
   // loop over SimTrack Id's
   for ( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
 
+#ifdef FAMOS_DEBUG
+    std::cout << "Track number " << tkId << std::endl;
+#endif
+
     ++nSimTracks;
     unsigned simTrackId = theSimTrackIds[tkId];
     const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
 
+#ifdef FAMOS_DEBUG
+    std::cout << "Pt = " << std::sqrt(theSimTrack.momentum().Perp2()) 
+	      << " eta " << theSimTrack.momentum().Eta()
+	      << std::endl;
+#endif
+    
     SiTrackerGSRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
     SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
     SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
@@ -179,6 +189,9 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     for ( iterRecHit = theRecHitRangeIteratorBegin; 
 	  iterRecHit != theRecHitRangeIteratorEnd; 
 	  ++iterRecHit) ++numberOfRecHits;
+#ifdef FAMOS_DEBUG
+      std::cout << "The number of RecHits = " << numberOfRecHits << std::endl;
+#endif
     if ( numberOfRecHits < minRecHits ) continue;
     ++nTracksWithHits;
 
@@ -222,6 +235,10 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 	  const DetId& detId = hit1->geographicalId();
 	  const GeomDet* geomDet( theGeometry->idToDet(detId) );
 	  GlobalPoint gpos1 = geomDet->surface().toGlobal(hit1->localPosition());
+#ifdef FAMOS_DEBUG
+	  std::cout << "The first hit position = " << gpos1 << std::endl;
+	  std::cout << "The first hit subDetId = " << detId.subdetId() << std::endl;
+#endif
 	  for ( iterRecHit2 = iterRecHit+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
 	    hit2 = &(*iterRecHit2);
 	    if((unsigned int)hit2->geographicalId().subdetId()== PixelSubdetector::PixelBarrel || 
@@ -229,9 +246,16 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 	      const DetId& detId = hit2->geographicalId();
 	      const GeomDet* geomDet( theGeometry->idToDet(detId) );
 	      GlobalPoint gpos2 = geomDet->surface().toGlobal(hit2->localPosition());
+#ifdef FAMOS_DEBUG
+	      std::cout << "The second hit position = " << gpos2 << std::endl;
+	      std::cout << "The second hit subDetId = " << detId.subdetId() << std::endl;
+#endif
 	      
 	      compatible = compatibleWithVertex(gpos1,gpos2);
 	      
+#ifdef FAMOS_DEBUG
+	      if (compatible) std::cout << "Pair kept! " << std::endl;
+#endif
 	      if(compatible) break;
 	    }
 	  }
@@ -254,12 +278,20 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 	  const DetId& detId = hit1->geographicalId();
 	  const GeomDet* geomDet( theGeometry->idToDet(detId) );
 	  GlobalPoint gpos1 = geomDet->surface().toGlobal(hit1->localPosition());
+#ifdef FAMOS_DEBUG
+	  std::cout << "The first hit position = " << gpos1 << std::endl;
+	  std::cout << "The first hit subDetId = " << detId.subdetId() << std::endl;
+#endif
 	  
 	  for ( iterRecHit2 = iterRecHit+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
 	    hit2 = &(*iterRecHit2);
 	    const DetId& detId = hit2->geographicalId();
 	    const GeomDet* geomDet( theGeometry->idToDet(detId) );
 	    GlobalPoint gpos2 = geomDet->surface().toGlobal(hit2->localPosition());
+#ifdef FAMOS_DEBUG
+	      std::cout << "The second hit position = " << gpos2 << std::endl;
+	      std::cout << "The second hit subDetId = " << detId.subdetId() << std::endl;
+#endif
 
 	    if((unsigned int)hit2->geographicalId().subdetId()== PixelSubdetector::PixelBarrel || 
 	       (unsigned int)hit2->geographicalId().subdetId()== PixelSubdetector::PixelEndcap){
@@ -386,6 +418,38 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 	previousHit = aTrackingRecHit;
 
 #ifdef FAMOS_DEBUG
+	unsigned int subdetId = detId.subdetId(); 
+	unsigned int layerNumber=0;
+	unsigned int ringNumber = 0;
+	unsigned int stereo = 0;
+	if ( subdetId == StripSubdetector::TIB) { 
+	  TIBDetId tibid(detId.rawId()); 
+	  layerNumber = tibid.layer();
+	  stereo = tibid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TOB ) { 
+	  TOBDetId tobid(detId.rawId()); 
+	  layerNumber = tobid.layer();
+	  stereo = tobid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TID) { 
+	  TIDDetId tidid(detId.rawId());
+	  layerNumber = tidid.wheel();
+	  ringNumber = tidid.ring();
+	  stereo = tidid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TEC ) { 
+	  TECDetId tecid(detId.rawId()); 
+	  layerNumber = tecid.wheel(); 
+	  ringNumber = tecid.ring();
+	  stereo = tecid.stereo();
+	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) { 
+	  PXBDetId pxbid(detId.rawId()); 
+	  layerNumber = pxbid.layer();  
+	  stereo = 1;
+	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) { 
+	  PXFDetId pxfid(detId.rawId()); 
+	  layerNumber = pxfid.disk();  
+	  stereo = 1;
+	}
+
 	std::cout << "Added RecHit from detid " << detId.rawId() 
 		  << " subdet = " << subdetId 
 		  << " layer = " << layerNumber 
@@ -439,9 +503,9 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     
 #ifdef FAMOS_DEBUG
     std::cout << "GSTrackCandidateMaker: SimTrack parameters " << std::endl;
-    std::cout << "\t\t pT  = " << (*theSimTracks)[simTrackId].momentum().perp() << std::endl;
-    std::cout << "\t\t eta = " << (*theSimTracks)[simTrackId].momentum().eta()  << std::endl;
-    std::cout << "\t\t phi = " << (*theSimTracks)[simTrackId].momentum().phi()  << std::endl;
+    std::cout << "\t\t pT  = " << (*theSimTracks)[simTrackId].momentum().Pt() << std::endl;
+    std::cout << "\t\t eta = " << (*theSimTracks)[simTrackId].momentum().Eta()  << std::endl;
+    std::cout << "\t\t phi = " << (*theSimTracks)[simTrackId].momentum().Phi()  << std::endl;
     std::cout << "GSTrackCandidateMaker: AlgebraicSymMatrix " << errorMatrix << std::endl;
 #endif
     
@@ -604,12 +668,12 @@ GSTrackCandidateMaker::compatibleWithVertex(GlobalPoint& gpos1, GlobalPoint& gpo
   // And check at least one of the particles statisfy the SeedGenerator
   // constraint (originRadius, originHalfLength)
 
-  /*
+#ifdef FAMOS_DEBUG
   std::cout << " Neg Charge L R = " << myElecL.R() << "\t Z = " << fabs(myElecL.Z()) << std::endl;
   std::cout << " Pos Charge L R = " << myPosiL.R() << "\t Z = " << fabs(myPosiL.Z()) << std::endl;
   std::cout << " Neg Charge H R = " << myElecH.R() << "\t Z = " << fabs(myElecH.Z()) << std::endl;
   std::cout << " Pos Charge H R = " << myPosiH.R() << "\t Z = " << fabs(myPosiH.Z()) << std::endl;
-  */
+#endif
 
   if ( myElecL.R() < originRadius && 
        fabs(myElecL.Z()) < originHalfLength ) return true;
