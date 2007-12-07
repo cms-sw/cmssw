@@ -33,11 +33,11 @@ class CSCSegAlgoST : public CSCSegmentAlgorithm {
 public:
 
   /// Typedefs
-    
+
   typedef std::vector<const CSCRecHit2D*> ChamberHitContainer;
   typedef std::vector < std::vector<const CSCRecHit2D* > > Segments;
   typedef std::deque<bool> BoolContainer;
-    
+
   /// Constructor
   explicit CSCSegAlgoST(const edm::ParameterSet& ps);
 
@@ -57,7 +57,7 @@ public:
   std::vector<CSCSegment> buildSegments2(ChamberHitContainer rechits);
 
   /**
-   * Here we must implement the algorithm
+   * Build segments for all desired groups of hits
    */
   std::vector<CSCSegment> run(const CSCChamber* aChamber, ChamberHitContainer rechits); 
 
@@ -75,19 +75,18 @@ public:
 private:
 
   /// Utility functions 
-  double theWeight(double coordinate_1, double coordinate_2, double coordinate_3);
+  double theWeight(double coordinate_1, double coordinate_2, double coordinate_3, float layer_1, float layer_2, float layer_3);
 
   void ChooseSegments(void);
 
   // siplistic routine - just return the segment with the smallest weight
-  void ChooseSegments2a(int best_seg);
-
+  void ChooseSegments2a(std::vector< ChamberHitContainer > best_segments, int best_seg);
   // copy of Stoyans ChooseSegments adjusted to the case without fake hits
   void ChooseSegments2(int best_seg);
 
   // Choose routine with reduce nr of loops
   void ChooseSegments3(int best_seg);
-
+  void ChooseSegments3(std::vector< ChamberHitContainer > best_segments, std::vector< float > best_weight, int best_seg);
   //
   void fitSlopes(void);
   void fillChiSquared(void);
@@ -105,7 +104,37 @@ private:
   ChamberHitContainer Psegments_hits;
 
   std::vector< ChamberHitContainer > Psegments;
+  std::vector< ChamberHitContainer > Psegments_noLx;
+  std::vector< ChamberHitContainer > Psegments_noL1;
+  std::vector< ChamberHitContainer > Psegments_noL2;
+  std::vector< ChamberHitContainer > Psegments_noL3;
+  std::vector< ChamberHitContainer > Psegments_noL4;
+  std::vector< ChamberHitContainer > Psegments_noL5;
+  std::vector< ChamberHitContainer > Psegments_noL6;
+  std::vector< ChamberHitContainer > chosen_Psegments;
   std::vector< float > weight_A;
+  std::vector< float > weight_noLx_A;
+  std::vector< float > weight_noL1_A;
+  std::vector< float > weight_noL2_A;
+  std::vector< float > weight_noL3_A;
+  std::vector< float > weight_noL4_A;
+  std::vector< float > weight_noL5_A;
+  std::vector< float > weight_noL6_A;
+  std::vector< float > chosen_weight_A;
+  std::vector< float > curv_A;
+  std::vector< float > curv_noL1_A;
+  std::vector< float > curv_noL2_A;
+  std::vector< float > curv_noL3_A;
+  std::vector< float > curv_noL4_A;
+  std::vector< float > curv_noL5_A;
+  std::vector< float > curv_noL6_A;
+  std::vector< float > weight_B;
+  std::vector< float > weight_noL1_B;
+  std::vector< float > weight_noL2_B;
+  std::vector< float > weight_noL3_B;
+  std::vector< float > weight_noL4_B;
+  std::vector< float > weight_noL5_B;
+  std::vector< float > weight_noL6_B;
 
   //ibl
 
@@ -130,6 +159,19 @@ private:
   bool    Pruning;
   bool    BrutePruning;
   bool    onlyBestSegment;
+
+  double  hitDropLimit4Hits;
+  double  hitDropLimit5Hits;
+  double  hitDropLimit6Hits;
+
+  float a_yweightPenaltyThreshold[5][5];
+
+  double  yweightPenaltyThreshold;
+  double  yweightPenalty;
+
+  double  curvePenaltyThreshold;
+  double  curvePenalty;
+
 };
 
 #endif
