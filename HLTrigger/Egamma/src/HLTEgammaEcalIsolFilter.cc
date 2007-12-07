@@ -1,6 +1,6 @@
 /** \class EgammaHLTEcalIsolFilter
  *
- * $Id: HLTEgammaEcalIsolFilter.cc,v 1.4 2007/04/02 17:14:14 mpieri Exp $
+ * $Id: HLTEgammaEcalIsolFilter.cc,v 1.5 2007/12/06 21:12:27 ghezzi Exp $
  * 
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -10,7 +10,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

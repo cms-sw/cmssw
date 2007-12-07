@@ -1,6 +1,6 @@
 /** \class HLTEgammaDoubleEtPhiFilter
  *
- * $Id: HLTEgammaDoubleEtPhiFilter.cc,v 1.1 2007/07/18 12:17:37 ghezzi Exp $
+ * $Id: HLTEgammaDoubleEtPhiFilter.cc,v 1.2 2007/12/06 21:12:27 ghezzi Exp $
  *
  *  \author Jonathan Hollar (LLNL)
  *
@@ -10,7 +10,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

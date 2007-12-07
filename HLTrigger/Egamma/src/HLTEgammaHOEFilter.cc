@@ -1,6 +1,6 @@
 /** \class HLTEgammaHOEFilter
  *
- * $Id: HLTEgammaHOEFilter.cc,v 1.1 2007/05/31 19:35:22 mpieri Exp $
+ * $Id: HLTEgammaHOEFilter.cc,v 1.2 2007/12/06 21:12:27 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  * identical to old HLTEgammaHcalIsolFilter but 
@@ -13,7 +13,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

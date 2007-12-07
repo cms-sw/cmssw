@@ -1,6 +1,6 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.7 2007/10/19 17:56:14 ghezzi Exp $
+ * $Id: HLTElectronPixelMatchFilter.cc,v 1.8 2007/12/06 21:12:28 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -10,7 +10,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

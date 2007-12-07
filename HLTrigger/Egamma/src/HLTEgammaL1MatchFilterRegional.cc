@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilterRegional
  *
- * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.2 2007/09/20 00:05:22 ratnik Exp $
+ * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.3 2007/12/06 21:12:27 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -11,7 +11,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-//#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

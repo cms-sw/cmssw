@@ -1,6 +1,6 @@
 /** \class HLTEgammaDoubleEtFilter
  *
- * $Id: HLTEgammaDoubleEtFilter.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $
+ * $Id: HLTEgammaDoubleEtFilter.cc,v 1.4 2007/12/06 21:12:27 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -10,7 +10,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

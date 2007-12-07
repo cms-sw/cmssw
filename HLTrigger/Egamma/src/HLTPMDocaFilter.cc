@@ -3,7 +3,7 @@
  *  Original Author: Jeremy Werner                          
  *  Institution: Princeton University, USA                                                                 *  Contact: Jeremy.Werner@cern.ch 
  *  Date: February 21, 2007     
- * $Id: HLTPMDocaFilter.cc,v 1.5 2007/12/06 13:13:44 ghezzi Exp $
+ * $Id: HLTPMDocaFilter.cc,v 1.6 2007/12/06 21:12:28 ghezzi Exp $
  *
  */
 
@@ -11,7 +11,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

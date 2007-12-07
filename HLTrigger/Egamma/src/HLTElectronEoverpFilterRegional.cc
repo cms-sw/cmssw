@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronEoverpFilterRegional.cc,v 1.4 2007/09/20 00:05:22 ratnik Exp $
+ * $Id: HLTElectronEoverpFilterRegional.cc,v 1.5 2007/12/06 21:12:27 ghezzi Exp $
  *
  */
 
@@ -10,7 +10,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
