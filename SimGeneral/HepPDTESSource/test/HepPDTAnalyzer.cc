@@ -31,6 +31,13 @@ HepPDTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       const ParticleData * part = pdt->particle ( (*iter).first );
        printInfo(part); 	
     }
+  } else if ( particleName_ == "names" ) {
+    std::cout << " Number of particles in table = " << pdt->size() << std::endl;
+    printBanner();
+    for ( ParticleDataTable::const_iterator iter = pdt->begin() ; iter != pdt->end() ; iter++ ) {
+      const ParticleData * part = pdt->particle ( (*iter).first );
+       std::cout << " " << part->name() << std::endl; 	
+    }
   }
   else {
     printBanner();
