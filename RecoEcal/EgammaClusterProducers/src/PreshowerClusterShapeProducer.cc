@@ -30,9 +30,6 @@
 #include <fstream>
 #include <sstream>
 
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterShapeProducer.h"
 
 using namespace std;
@@ -46,8 +43,8 @@ PreshowerClusterShapeProducer::PreshowerClusterShapeProducer(const ParameterSet&
   preshHitProducer_   = ps.getParameter<string>("preshRecHitProducer");
   preshHitCollection_ = ps.getParameter<string>("preshRecHitCollection");
 
-  photonCorrCollectionProducer_ = ps.getParameter<string>("corrPhoProducer");
-  correctedPhotonCollection_ = ps.getParameter<string>("correctedPhotonCollection");
+  endcapSClusterCollection_ = ps.getParameter<std::string>("endcapSClusterCollection");
+  endcapSClusterProducer_   = ps.getParameter<std::string>("endcapSClusterProducer");
 
   PreshowerClusterShapeCollectionX_ = ps.getParameter<string>("PreshowerClusterShapeCollectionX");
   PreshowerClusterShapeCollectionY_ = ps.getParameter<string>("PreshowerClusterShapeCollectionY");
@@ -68,7 +65,8 @@ PreshowerClusterShapeProducer::PreshowerClusterShapeProducer(const ParameterSet&
   
   presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut, preshNst, tmpPath.c_str(), debugL_pi0); 
 
-  cout << "PreshowerClusterShapeProducer:presh_pi0_algo class instantiated " << endl; 
+  if ( debugL_pi0 == EndcapPiZeroDiscriminatorAlgo::pDEBUG ) 
+                  cout << "PreshowerClusterShapeProducer:presh_pi0_algo class instantiated " << endl; 
   
   nEvt_ = 0;
 
@@ -122,28 +120,27 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   reco::PreshowerClusterShapeCollection ps_cl_x, ps_cl_y;
 
   //make cycle over Photon Collection
-  int Photon_index  = 0;
-  Handle<PhotonCollection> correctedPhotonHandle; 
-  evt.getByLabel(photonCorrCollectionProducer_, correctedPhotonCollection_ , correctedPhotonHandle);
-  const PhotonCollection corrPhoCollection = *(correctedPhotonHandle.product());
-  cout << " Photon Collection size : " << corrPhoCollection.size() << endl;
-  for( PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
-       if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
-         cout << "PreshowerClusterShapeProducer: Photon index : " << Photon_index 
-                           << " with Energy = " <<  iPho->energy()
-			   << " Et = " << iPho->energy()*sin(2*atan(exp(-iPho->eta())))
-                           << " ETA = " << iPho->eta()
-       		           << " PHI = " << iPho->phi() << endl;
-       }
-       SuperClusterRef it_super = iPho->superCluster();
+  int SC_index  = 0;
+//  Handle<PhotonCollection> correctedPhotonHandle; 
+//  evt.getByLabel(photonCorrCollectionProducer_, correctedPhotonCollection_ , correctedPhotonHandle);
+//  const PhotonCollection corrPhoCollection = *(correctedPhotonHandle.product());
+//  cout << " Photon Collection size : " << corrPhoCollection.size() << endl;
 
+  evt.getByLabel(endcapSClusterProducer_, endcapSClusterCollection_, pSuperClusters);
+  const reco::SuperClusterCollection* SClusts = pSuperClusters.product();
+  if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout <<"### Total # Endcap Superclusters: " << SClusts->size() << endl;
+  SuperClusterCollection::const_iterator it_s;
+  for ( it_s=SClusts->begin();  it_s!=SClusts->end(); it_s++ ) {
+
+      SuperClusterRef it_super(reco::SuperClusterRef(pSuperClusters,SC_index));
+      
       float SC_Et   = it_super->energy()*sin(2*atan(exp(-it_super->eta())));
       float SC_eta  = it_super->eta();
       float SC_phi  = it_super->phi();
 
       if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
         cout << "PreshowerClusterShapeProducer: superCl_E = " << it_super->energy()
-	          << "  superCl_Et = " << SC_Et
+	          << " superCl_Et = " << SC_Et
                   << " superCl_Eta = " << SC_eta
        		  << " superCl_Phi = " << SC_phi << endl;
       }			   
@@ -181,8 +178,8 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
 	  ps_cl_y.push_back(ps2);
  
       }
-      Photon_index++;
-  } // end of cycle over Photons
+      SC_index++;
+  } // end of cycle over Endcap SC       
   // create an auto_ptr to a PreshowerClusterShapeProducer, copy the preshower clusters into it and put in the Event:
   std::auto_ptr< reco::PreshowerClusterShapeCollection > ps_cl_for_pi0_disc_x(new reco::PreshowerClusterShapeCollection);
   ps_cl_for_pi0_disc_x->assign(ps_cl_x.begin(), ps_cl_x.end());
