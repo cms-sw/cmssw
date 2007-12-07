@@ -1,6 +1,6 @@
 /** \class HLTEgammaDoubleEtPhiFilter
  *
- * $Id: HLTEgammaDoubleEtPhiFilter.cc,v 1.2 2007/12/06 21:12:27 ghezzi Exp $
+ * $Id: HLTEgammaDoubleEtPhiFilter.cc,v 1.3 2007/12/07 09:32:56 ghezzi Exp $
  *
  *  \author Jonathan Hollar (LLNL)
  *
@@ -60,7 +60,7 @@ HLTEgammaDoubleEtPhiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByLabel (candTag_,PrevFilterOutput);
   
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> >  mysortedrecoecalcands;
-  PrevFilterOutput->getObjects(TriggerPhoton,  mysortedrecoecalcands);
+  PrevFilterOutput->getObjects(TriggerCluster,  mysortedrecoecalcands);
   
   // Sort the list
   std::sort(mysortedrecoecalcands.begin(), mysortedrecoecalcands.end(), EgammaHLTEtSortCriterium());
@@ -87,8 +87,8 @@ HLTEgammaDoubleEtPhiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
             double etbalance = fabs(ref1->et()-ref2->et());
             if ((etbalance>=min_EtBalance_) && (etbalance<=max_EtBalance_))
 	    {
-	      filterproduct->addObject(TriggerPhoton, ref1);
-	      filterproduct->addObject(TriggerPhoton, ref2);
+	      filterproduct->addObject(TriggerCluster, ref1);
+	      filterproduct->addObject(TriggerCluster, ref2);
 	      n++;
 	    }
 	  }

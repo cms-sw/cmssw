@@ -1,6 +1,6 @@
 /** \class HLTEgammaHcalDBCFilter
  *
- * $Id: HLTEgammaHcalDBCFilter.cc,v 1.2 2007/12/06 21:12:27 ghezzi Exp $
+ * $Id: HLTEgammaHcalDBCFilter.cc,v 1.3 2007/12/07 09:32:56 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *   hcal double cone isolation filter
@@ -9,7 +9,6 @@
 #include "HLTrigger/Egamma/interface/HLTEgammaHcalDBCFilter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
@@ -56,7 +55,7 @@ HLTEgammaHcalDBCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByLabel (candTag_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
-  PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
+  PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
 
   //get hold of hcal isolation association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
@@ -80,7 +79,7 @@ HLTEgammaHcalDBCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
      if(fabs(ref->eta()) < 1.5){
        if ( vali < hcalisolbarrelcut_) {
 	 n++;
-	 filterproduct->addObject(TriggerPhoton, ref);
+	 filterproduct->addObject(TriggerCluster, ref);
        }
      }
      if(
@@ -88,7 +87,7 @@ HLTEgammaHcalDBCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	){
        if ( vali < hcalisolendcapcut_) {
 	 n++;
-	 filterproduct->addObject(TriggerPhoton, ref);
+	 filterproduct->addObject(TriggerCluster, ref);
        }
      }
   }

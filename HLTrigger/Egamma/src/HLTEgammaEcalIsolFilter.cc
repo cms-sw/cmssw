@@ -1,6 +1,6 @@
 /** \class EgammaHLTEcalIsolFilter
  *
- * $Id: HLTEgammaEcalIsolFilter.cc,v 1.5 2007/12/06 21:12:27 ghezzi Exp $
+ * $Id: HLTEgammaEcalIsolFilter.cc,v 1.6 2007/12/07 09:32:56 ghezzi Exp $
  * 
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -55,7 +55,7 @@ HLTEgammaEcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel (candTag_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
-  PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
+  PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
 
   //get hold of ecal isolation association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
@@ -80,7 +80,7 @@ HLTEgammaEcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     float vali = mapi->val;
     if ( vali < ecalisolcut_) {
       n++;
-      filterproduct->addObject(TriggerPhoton, ref);
+      filterproduct->addObject(TriggerCluster, ref);
     }
    }
   

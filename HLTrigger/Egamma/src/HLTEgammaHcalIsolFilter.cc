@@ -1,6 +1,6 @@
 /** \class HLTEgammaHcalIsolFilter
  *
- * $Id: HLTEgammaHcalIsolFilter.cc,v 1.7 2007/12/06 21:12:27 ghezzi Exp $
+ * $Id: HLTEgammaHcalIsolFilter.cc,v 1.8 2007/12/07 09:32:56 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -9,7 +9,6 @@
 #include "HLTrigger/Egamma/interface/HLTEgammaHcalIsolFilter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
@@ -58,7 +57,7 @@ HLTEgammaHcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel (candTag_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;       
-  PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
+  PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
 
   
   //get hold of hcal isolation association map
@@ -92,7 +91,7 @@ HLTEgammaHcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
      if(fabs(ref->eta()) < 1.5){
        if ( vali < hcalisolbarrelcut_ || HoE < HoverEcut_ ) {
 	 n++;
-	 filterproduct->addObject(TriggerPhoton, ref);
+	 filterproduct->addObject(TriggerCluster, ref);
        }
      }
      if(
@@ -101,7 +100,7 @@ HLTEgammaHcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	){
        if ( vali < hcalisolendcapcut_ || HoE < HoverEcut_) {
 	 n++;
-	 filterproduct->addObject(TriggerPhoton, ref);
+	 filterproduct->addObject(TriggerCluster, ref);
        }
      }
     

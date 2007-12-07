@@ -1,6 +1,6 @@
 /** \class HLTEgammaEtFilter
  *
- * $Id: HLTEgammaEtFilter.cc,v 1.5 2007/12/06 21:12:27 ghezzi Exp $
+ * $Id: HLTEgammaEtFilter.cc,v 1.6 2007/12/07 09:32:56 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -49,7 +49,7 @@ HLTEgammaEtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel (inputTag_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;                // vref with your specific C++ collection type
-  PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
+  PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
  
   // look at all candidates,  check cuts and add to filter object
   int n(0);
@@ -60,7 +60,7 @@ HLTEgammaEtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if ( ref->et()  >= etcut_) {
       n++;
-      filterproduct->addObject(TriggerPhoton, ref);
+      filterproduct->addObject(TriggerCluster, ref);
     }
   }
 

@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilterRegional
  *
- * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.3 2007/12/06 21:12:27 ghezzi Exp $
+ * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.4 2007/12/07 09:32:56 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -37,6 +37,7 @@ HLTEgammaL1MatchFilterRegional::HLTEgammaL1MatchFilterRegional(const edm::Parame
    l1IsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1IsolatedTag");
    candNonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("candNonIsolatedTag");
    l1NonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1NonIsolatedTag");
+   //L1SeedFilter_ = iConfig.getParameter< edm::InputTag > ("L1SeedFilterTag");
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
    doIsolated_   = iConfig.getParameter<bool>("doIsolated");
 
@@ -122,7 +123,7 @@ HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup
 	//ref=edm::RefToBase<reco::Candidate>(reco::RecoEcalCandidateRef(recoIsolecalcands,distance(recoIsolecalcands->begin(),recoecalcand)));
 	//filterproduct->putParticle(ref);
 	ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand) );       
-	filterobject->addObject(TriggerPhoton, ref);
+	filterobject->addObject(TriggerCluster, ref);
       }
 
     }
@@ -175,7 +176,7 @@ HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup
 	//ref=edm::RefToBase<reco::Candidate>(reco::RecoEcalCandidateRef(recoNonIsolecalcands,distance(recoNonIsolecalcands->begin(),recoecalcand)));
 	//filterproduct->putParticle(ref);
 	ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand) );       
-	filterobject->addObject(TriggerPhoton, ref);
+	filterobject->addObject(TriggerCluster, ref);
       }
 
     }

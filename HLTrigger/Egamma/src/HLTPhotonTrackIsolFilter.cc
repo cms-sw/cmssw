@@ -1,6 +1,6 @@
 /** \class HLTPhotonTrackIsolFilter
  *
- * $Id: HLTPhotonTrackIsolFilter.cc,v 1.5 2007/12/06 21:12:28 ghezzi Exp $
+ * $Id: HLTPhotonTrackIsolFilter.cc,v 1.6 2007/12/07 09:32:56 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -52,7 +52,7 @@ HLTPhotonTrackIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.getByLabel (candTag_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
-  PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
+  PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
 
 
   

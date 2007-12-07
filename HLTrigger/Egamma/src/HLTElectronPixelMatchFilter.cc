@@ -1,6 +1,6 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.8 2007/12/06 21:12:28 ghezzi Exp $
+ * $Id: HLTElectronPixelMatchFilter.cc,v 1.9 2007/12/07 09:32:56 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -67,7 +67,7 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel (candTag_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
-  PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
+  PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
 
   //get hold of the pixel seed - supercluster association map
   edm::Handle<reco::ElectronPixelSeedCollection> L1IsoSeeds;
@@ -111,7 +111,7 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
     
     if ( nmatch >= npixelmatchcut_) {
       n++;
-      filterproduct->addObject(TriggerPhoton, ref);
+      filterproduct->addObject(TriggerCluster, ref);
     }
     
   }//end of loop over candidates

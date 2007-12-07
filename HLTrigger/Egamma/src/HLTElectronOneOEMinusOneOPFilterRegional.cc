@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronOneOEMinusOneOPFilterRegional.cc,v 1.4 2007/12/06 21:12:27 ghezzi Exp $
+ * $Id: HLTElectronOneOEMinusOneOPFilterRegional.cc,v 1.5 2007/12/07 09:32:56 ghezzi Exp $
  *
  */
 
@@ -58,7 +58,7 @@ HLTElectronOneOEMinusOneOPFilterRegional::filter(edm::Event& iEvent, const edm::
   iEvent.getByLabel (candTag_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
-  PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
+  PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
 
   edm::Handle<reco::ElectronCollection> electronIsolatedHandle;
   iEvent.getByLabel(electronIsolatedProducer_,electronIsolatedHandle);
