@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/06 08:27:31 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/06 20:37:04 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -40,9 +40,9 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   tns_(),
   collectionTags_(ps.getParameter<std::vector<edm::InputTag> >("collections")),
   filterTags_(ps.getParameter<std::vector<edm::InputTag> >("filters")),
+  toc_(),
   offset_(),
   fobs_(),
-  toc_(),
   keys_(),
   mask_()
 {
@@ -65,7 +65,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   }
 
   LogDebug("") << "Using process name: '" << pn_ <<"'";
-  produces<trigger::TriggerEvent>(pn_);
+  produces<trigger::TriggerEvent>();
 
 }
 
@@ -107,8 +107,9 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    size_type nfo(0);
    nfo = fillMask(fobs_,filterTags_);
 
+
    /// construct single AOD product, reserving capacity
-   auto_ptr<TriggerEvent> product(new TriggerEvent(nto,nfo));
+   auto_ptr<TriggerEvent> product(new TriggerEvent(pn_,nto,nfo));
 
 
    /// fill trigger object collection
@@ -118,16 +119,17 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    for (size_type ifob=0; ifob!=nfob; ++ifob) {
      if (mask_[ifob]) {
        keys_.clear();
-       fillFilterKeys(fobs_[ifob]->photonRefs(),keys_);
-       fillFilterKeys(fobs_[ifob]->electronRefs(),keys_);
-       fillFilterKeys(fobs_[ifob]->muonRefs(),keys_);
-       fillFilterKeys(fobs_[ifob]->jetRefs(),keys_);
-       fillFilterKeys(fobs_[ifob]->compositeRefs(),keys_);
-       fillFilterKeys(fobs_[ifob]->metRefs(),keys_);
-       fillFilterKeys(fobs_[ifob]->htRefs(),keys_);
+       fillFilterKeys(fobs_[ifob]->photonRefs());
+       fillFilterKeys(fobs_[ifob]->electronRefs());
+       fillFilterKeys(fobs_[ifob]->muonRefs());
+       fillFilterKeys(fobs_[ifob]->jetRefs());
+       fillFilterKeys(fobs_[ifob]->compositeRefs());
+       fillFilterKeys(fobs_[ifob]->metRefs());
+       fillFilterKeys(fobs_[ifob]->htRefs());
        product->addFilter(fobs_[ifob].provenance()->moduleLabel(),keys_);
      }
    }
+
 
    OrphanHandle<TriggerEvent> ref = iEvent.put(product);
    LogTrace("") << "Number of physics objects packed: " << ref->sizeObjects();
@@ -137,48 +139,54 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 template <typename C>
 void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
+
+  /// this routine accesses the original (L3) collections (with C++
+  /// typename C), extracts 4-momentum and id, and packs this up in a
+  /// TriggerObjectCollection, i.e., a linearised vector of
+  /// TriggerObjects
+
   using namespace std;
   using namespace edm;
-  using namespace reco;
   using namespace trigger;
 
   vector<Handle<C> > collections;
   iEvent.getMany(selector_,collections);
   const size_type nc(collections.size());
-  
-  size_type no(0);
-  no=fillMask(collections,collectionTags_);
 
-  TriggerObjectCollection toc();
-  toc_.reserve(no);
-  
-  no=0;
+  fillMask(collections,collectionTags_);
+
   for (size_type ic=0; ic!=nc; ++ic) {
     if (mask_[ic]) {
       const ProductID pid(collections[ic].provenance()->productID());
-      assert(offset_.find(pid)==offset_.end());
-      offset_[pid]=no;
+      assert(offset_.find(pid)==offset_.end()); // else duplicate pid
+      offset_[pid]=toc_.size();
       const size_type n(collections[ic]->size());
       for (size_type i=0; i!=n; ++i) {
 	toc_.push_back(TriggerObject( (*collections[ic])[i] ));
       }
     }
   }
+
 }
 
 template <typename C>
-void TriggerSummaryProducerAOD::fillFilterKeys(const std::vector<edm::Ref<C> >& refs, trigger::Keys& keys) {
+void TriggerSummaryProducerAOD::fillFilterKeys(const std::vector<edm::Ref<C> >& refs) {
+
+  /// this routine takes a vector of Ref<C>s and determines the
+  /// corresponding vector of keys (i.e., indices) into the
+  /// TriggerObjectCollection
+
   using namespace std;
   using namespace edm;
-  using namespace reco;
   using namespace trigger;
 
   const size_type n(refs.size());
   for (size_type i=0; i!=n; ++i) {
     const ProductID pid(refs[i].id());
-    assert(offset_.find(pid)!=offset_.end());
-    keys.push_back(offset_[pid]+refs[i].key());
+    assert(offset_.find(pid)!=offset_.end()); // else unknown pid
+    keys_.push_back(offset_[pid]+refs[i].key());
   }
+
 }
 
 template <typename C>
@@ -186,9 +194,12 @@ trigger::size_type TriggerSummaryProducerAOD::fillMask(
   const std::vector<edm::Handle<C> >& products, 
   const std::vector<edm::InputTag>& wanted ) {
 
+  /// this routine filles the mask of Boolean values for the list of
+  /// products found in the Event, based on a list of wanted products
+  /// specified by their InputTag given by the module configuration
+
   using namespace std;
   using namespace edm;
-  using namespace reco;
   using namespace trigger;
 
   const size_type np(products.size());
@@ -208,7 +219,7 @@ trigger::size_type TriggerSummaryProducerAOD::fillMask(
     for (size_type iw=0; iw!=nw; ++iw) {
       if ( (label   ==collectionTags_[iw].label()   ) &&
 	   (instance==collectionTags_[iw].instance()) &&
-	   (process ==collectionTags_[iw].process() ) ) {
+	   ( (pn_=="*") || (process ==collectionTags_[iw].process()) ) ) {
 	mask_[ip]=true;
 	++n;
 	break;

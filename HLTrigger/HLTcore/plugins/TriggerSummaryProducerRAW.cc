@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/06 08:27:31 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/06 20:37:05 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -43,7 +43,7 @@ TriggerSummaryProducerRAW::TriggerSummaryProducerRAW(const edm::ParameterSet& ps
   }
 
   LogDebug("") << "Using process name: '" << pn_ <<"'";
-  produces<trigger::TriggerEventWithRefs>(pn_);
+  produces<trigger::TriggerEventWithRefs>();
 
 }
 
@@ -73,7 +73,7 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup& iS
    LogDebug("") << "Number of filter objects found: " << nfob;
 
    // construct single RAW product
-   auto_ptr<TriggerEventWithRefs> product(new TriggerEventWithRefs(nfob));
+   auto_ptr<TriggerEventWithRefs> product(new TriggerEventWithRefs(pn_,nfob));
    for (size_type ifob=0; ifob!=nfob; ++ifob) {
      product->addFilterObject(fobs_[ifob].provenance()->moduleLabel(),*fobs_[ifob]);
    }

@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2007/12/06 08:27:31 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/06 20:37:03 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -45,7 +45,7 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   void fillTriggerObjects(const edm::Event& );
 
   template <typename C>
-  void fillFilterKeys(const std::vector<edm::Ref<C> >& , trigger::Keys& );
+  void fillFilterKeys(const std::vector<edm::Ref<C> >&);
 
   template <typename C>
   trigger::size_type fillMask(const std::vector<edm::Handle<C> >& ,  const std::vector<edm::InputTag>& );
@@ -62,15 +62,16 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   /// list of L3 filter labels
   std::vector<edm::InputTag> filterTags_;
 
-  /// global map for indices of L3 collections: offset per collection
-  std::map<edm::ProductID,int> offset_;
-  /// handles to the filter objects
-  std::vector<edm::Handle<trigger::TriggerFilterObjectWithRefs> > fobs_;
-
   /// trigger object collection
   trigger::TriggerObjectCollection toc_;
+  /// global map for indices into toc_: offset per input L3 collection
+  std::map<edm::ProductID,int> offset_;
+
+  /// handles to the filter objects
+  std::vector<edm::Handle<trigger::TriggerFilterObjectWithRefs> > fobs_;
   /// keys
   trigger::Keys keys_;
+
   /// packing decision
   std::vector<bool> mask_;
 
