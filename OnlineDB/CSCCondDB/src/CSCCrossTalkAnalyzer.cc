@@ -251,7 +251,7 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 
                     int kk=8*k-(evt-1)%PULSES_xt+(PULSES_xt-1);//9 to zero everything, depends on how many pulses we have in total, it's always 1 less than the total nr of pulses, for binning 120
 		    
-                    thebins[iDDU][chamber][layer-1][strip-1][kk] = 8*k-(evt-1)%PULSES_xt+19;
+                    thebins[iDDU][chamber][layer-1][strip-1][kk] = 8*k-(evt-1)%PULSES_xt+(PULSES_xt-1);
 		    thetime[iDDU][chamber][layer-1][strip-1][kk] = time;
 		    
                     if(iuse==strip-1)  theadccountsc[iDDU][chamber][layer-1][iuse][kk] = adc[k];
