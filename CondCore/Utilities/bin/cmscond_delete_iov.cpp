@@ -137,7 +137,7 @@ int main( int argc, char** argv ){
       pooldb.start(false);
       ioveditor->deleteEntries(withPayload);
       pooldb.commit();
-      coraldb.start(true);
+      coraldb.start(false);
       metadata_svc.deleteEntryByTag(tag);
       coraldb.commit();
       delete ioveditor;
