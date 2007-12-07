@@ -3,11 +3,10 @@
 <use name=rootcore>
 <use name=zlib>
 <use name=boost>
+<use name=rootcore>
 <use name=roottmva>
-
 <export>
   <use name=CondFormats/PhysicsToolsObjects>
   <use name=zlib>
   <lib name=PhysicsToolsMVAComputer>
 </export>
-

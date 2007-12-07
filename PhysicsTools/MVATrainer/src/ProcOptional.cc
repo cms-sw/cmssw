@@ -78,7 +78,7 @@ void ProcOptional::configure(DOMElement *elem)
 		throw cms::Exception("ProcOptional")
 			<< "Got " << neutrals.size()
 			<< " neutral pos values for "
-			<< getInputs().size() << " input varibles."
+			<< getInputs().size() << " input variables."
 			<< std::endl;
 }
 

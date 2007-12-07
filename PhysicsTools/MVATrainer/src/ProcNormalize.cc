@@ -68,9 +68,11 @@ class ProcNormalize : public TrainProcessor {
 		std::vector<double>		distr;
 		Calibration::HistogramD::Range	range;
 		Iteration			iteration;
+		bool				fillSignal;
+		bool				fillBackground;
 	};
 
-	std::vector<PDF> pdfs;
+	std::vector<PDF>	pdfs;
 };
 
 static ProcNormalize::Registry registry("ProcNormalize");
@@ -105,6 +107,16 @@ void ProcNormalize::configure(DOMElement *elem)
 
 		pdf.smooth = XMLDocument::readAttribute<unsigned int>(
 							elem, "smooth", 40);
+
+		pdf.fillSignal =
+			XMLDocument::readAttribute<bool>(elem, "signal", true);
+		pdf.fillBackground =
+			XMLDocument::readAttribute<bool>(elem, "background", true);
+
+		if (!pdf.fillSignal && !pdf.fillBackground)
+			throw cms::Exception("ProcNormalize")
+				<< "Filling neither background nor signal "
+				   "in config." << std::endl;
 
 		try {
 			pdf.range.min = XMLDocument::readAttribute<double>(
@@ -167,6 +179,9 @@ void ProcNormalize::trainData(const std::vector<double> *values,
 		    default:
 			continue;
 		}
+
+		if (!(target ? iter->fillSignal : iter->fillBackground))
+			continue;
 
 		unsigned int n = iter->distr.size() - 1;
 		double mult = 1.0 / iter->range.width();
