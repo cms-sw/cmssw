@@ -2,16 +2,14 @@
 #define GflashHadronShowerModel_H
 
 #include "G4VFastSimulationModel.hh"
-#include "G4Step.hh"
 #include "G4TouchableHandle.hh"
-
-#include "TFile.h"
-#include "TH1.h"
+#include "G4Navigator.hh"
 
 class GflashHadronShowerProfile;
-class GFlashHitMaker;
+class GflashHistogram;
+class G4Step;
 
-class GflashHadronShowerModel : public G4VFastSimulationModel
+class GflashHadronShowerModel : public G4VFastSimulationModel 
 {
 public:
   //-------------------------
@@ -33,23 +31,14 @@ private:
   G4bool excludeDetectorRegion(const G4FastTrack& fastTrack);
 
 private:  
+
   GflashHadronShowerProfile *theProfile;
-  GFlashHitMaker *theHitMaker;
+  G4Step *theGflashStep; 
+  G4Navigator *theGflashNavigator;
+  G4TouchableHandle  theGflashTouchableHandle;
 
   //debugging histograms
- 
-  TFile* f;
-
-  TH1F*    h_enormal;
-  TH1F*    h_ewrapper;
-  
-  TH1F*    h_energy;
-  TH1F*    h_esum;
-  TH1F*    h_elos;
-  TH1F*    h_ssp;
-  TH1F*    h_ratio;
-  TH1F*    h_dout;
-
+  GflashHistogram* theHisto;
 };
 
 #endif

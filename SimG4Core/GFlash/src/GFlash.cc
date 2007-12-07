@@ -1,6 +1,7 @@
 #include "SimG4Core/GFlash/interface/GFlash.h"
 #include "SimG4Core/GFlash/interface/CaloModel.h"
 #include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
+#include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_WP.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -11,7 +12,6 @@
 #include "G4HadronElasticPhysics.hh" 
 #include "G4NeutronTrackingCut.hh"
 
-#include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_WP.h"
 #include "G4DataQuestionaire.hh"
 
 GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
@@ -23,12 +23,12 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSP 3.3 + CMS GFLASH\n";
 
-  if (caloModel==0) caloModel = new CaloModel(map, p);
+  if (caloModel==0) caloModel = new CaloModel(p);
 
   RegisterPhysics(new ParametrisedPhysics("parametrised")); 
 
   // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
+  RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
 
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics("extra EM"));
@@ -55,4 +55,11 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
 }
 
 GFlash::~GFlash() { if (caloModel!=0) delete caloModel; }
+
+//define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "SimG4Core/Physics/interface/PhysicsListFactory.h"
+
+DEFINE_SEAL_MODULE();
+DEFINE_PHYSICSLIST(GFlash);
 

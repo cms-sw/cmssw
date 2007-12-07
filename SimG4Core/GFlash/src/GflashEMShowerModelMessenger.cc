@@ -23,8 +23,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: GFlashShowerModelMessenger.cc,v 1.2 2006/09/28 15:35:46 sunanda Exp $
-// GEANT4 tag $Name: CMSSW_1_2_0_g4_81 $
+// $Id: GflashEMShowerModelMessenger.cc,v 1.1 2007/05/15 23:15:43 syjun Exp $
+// GEANT4 tag $Name:  $
 //
 //
 // ------------------------------------------------------------
@@ -107,7 +107,7 @@ GflashEMShowerModelMessenger::~GflashEMShowerModelMessenger()
 void GflashEMShowerModelMessenger::
 SetNewValue(G4UIcommand * command,G4String newValues)
 { 
-  
+  /*  
   if( command == FlagCmd ) { 
     myModel->SetFlagParamType(FlagCmd->GetNewIntValue(newValues));      
     this->GetCurrentValue(command);    
@@ -138,7 +138,7 @@ SetNewValue(G4UIcommand * command,G4String newValues)
                                        EkillCmd->GetNewDoubleValue(newValues));
     this->GetCurrentValue(command);  
   }
-  
+  */
 }
 
 
@@ -146,7 +146,7 @@ G4String GflashEMShowerModelMessenger::GetCurrentValue(G4UIcommand * command)
 {
   G4String returnValue('\0');
   std::ostringstream os;
-  
+  /*  
   if( command == FlagCmd ) { 
     os << "/GFlash/flag " << myModel->GetFlagParamType()  << '\0';
     returnValue = G4String(os.str());
@@ -172,6 +172,6 @@ G4String GflashEMShowerModelMessenger::GetCurrentValue(G4UIcommand * command)
        << " GeV" << '\0';
     returnValue = G4String(os.str());
   }
-  
+  */
   return returnValue;
 }
