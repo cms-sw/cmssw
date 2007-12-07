@@ -5,7 +5,7 @@
 <use name=DataFormats/BTauReco>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/L1Trigger>
-<use name=SimDataFormats/HepMCProduct>
+<use name=DataFormats/HLTReco>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=RecoPixelVertexing/PixelTrackFitting>
 <use name=root>

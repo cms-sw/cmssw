@@ -2,7 +2,7 @@
 #include "Math/GenVector/VectorUtil.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
 //
 // class decleration
@@ -32,6 +32,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
  using namespace edm;
  using namespace std;
  using namespace reco;
+ using namespace trigger;
  using namespace l1extra;
 
 
@@ -93,22 +94,26 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   //myL1Tau is the Collection of L1TauCandidates (from 0 to max  4 elements)
   //get the list of trigger candidates from the HLTL1SeedGT filter
 
-  Handle<reco::HLTFilterObjectWithRefs> l1TriggeredTaus;
-  iEvent.getByLabel(tauTrigger,l1TriggeredTaus);
-  edm::RefToBase<reco::Candidate> tauCandRef;
-  for( unsigned int i=0; i <l1TriggeredTaus->size();i++)
-    {  
-      tauCandRef = l1TriggeredTaus->getParticleRef(i);
-      //Avoid taking other from taujets in combined triggers
-      if(typeid(*tauCandRef) != typeid(L1JetParticle)) continue;
+  Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
 
-      for(int iJet=0;iJet<myL1Tau.size();iJet++)
-	{
-	  bool alreadyMatched = false;
-      //Find the relative L2TauJets, to see if it has been reconstructed
-	  map<int, const reco::CaloJet>::const_iterator myL2itr = myL2L1JetsMap.find(iJet);
-	  if(myL2itr!=myL2L1JetsMap.end()){
-	    
+  if(iEvent.getByLabel(tauTrigger,l1TriggeredTaus)){
+
+    //    typedef std::vector<l1extra::L1JetParticleRef>     VRl1jet;
+vector<L1JetParticleRef> tauCandRefVec;
+    L1JetParticleRef tauCandRef;
+    l1TriggeredTaus->getObjects(trigger::TriggerTau,tauCandRefVec);
+
+
+    for( unsigned int iL1Tau=0; iL1Tau <tauCandRefVec.size();iL1Tau++)
+      {  
+	tauCandRef = tauCandRefVec[iL1Tau];
+	for(int iJet=0;iJet<myL1Tau.size();iJet++)
+	  {
+	    bool alreadyMatched = false;
+	    //Find the relative L2TauJets, to see if it has been reconstructed
+	    map<int, const reco::CaloJet>::const_iterator myL2itr = myL2L1JetsMap.find(iJet);
+	    if(myL2itr!=myL2L1JetsMap.end()){
+	      
 	    //Calculate the DeltaR between L1TauCandidate and L1Tau which fired the trigger
 	    deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Tau[iJet].p4().Vect(), (tauCandRef->p4()).Vect());
 	    if(deltaR < matchingR) {
@@ -124,6 +129,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	}
     }
 
+  }
   iEvent.put(tauL2jets);
 
 }
