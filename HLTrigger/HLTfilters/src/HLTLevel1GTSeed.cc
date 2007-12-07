@@ -45,6 +45,7 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -91,6 +92,7 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet)
 
     // register the products
     produces<reco::HLTFilterObjectWithRefs>();
+    produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 // destructor
@@ -108,9 +110,11 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // recording any reconstructed physics objects satisfying (or not) // TODO "or not" ??
     // this HLT filter, and place it in the event.
 
-    // the filter object
-    std::auto_ptr<reco::HLTFilterObjectWithRefs> filterObject (
+    // the filter object - old and new
+    std::auto_ptr<reco::HLTFilterObjectWithRefs> filterObjectOLD (
         new reco::HLTFilterObjectWithRefs( path(), module() ) );
+    std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterObject (
+        new trigger::TriggerFilterObjectWithRefs( path(), module() ) );
 
 
     // get L1GlobalTriggerReadoutRecord and GT decision
@@ -122,6 +126,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // GT global decision "false" possible only when running on MC or on random triggers
     if ( !gtDecision) {
 
+        iEvent.put(filterObjectOLD);
         iEvent.put(filterObject);
         return gtDecision;
 
@@ -167,6 +172,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // the evaluation of the logical expression is false - skip event
     if ( !seedsResult) {
 
+        iEvent.put(filterObjectOLD);
         iEvent.put(filterObject);
         return seedsResult;
 
@@ -407,7 +413,8 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
                 itObj != listMuon.end(); ++itObj) {
 
             ref = edm::RefToBase<reco::Candidate>(l1extra::L1MuonParticleRef(l1Muon, *itObj));
-            filterObject->putParticle(ref);
+            filterObjectOLD->putParticle(ref);
+	    filterObject->addObject(Mu,l1extra::L1MuonParticleRef(l1Muon, *itObj));
 
         }
     }
@@ -424,7 +431,8 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
                 itObj != listIsoEG.end(); ++itObj) {
 
             ref = edm::RefToBase<reco::Candidate>(l1extra::L1EmParticleRef(l1IsoEG, *itObj));
-            filterObject->putParticle(ref);
+            filterObjectOLD->putParticle(ref);
+	    filterObject->addObject(IsoEG,l1extra::L1EmParticleRef(l1IsoEG, *itObj));
 
         }
     }
@@ -440,7 +448,8 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
                 itObj != listNoIsoEG.end(); ++itObj) {
 
             ref = edm::RefToBase<reco::Candidate>(l1extra::L1EmParticleRef(l1NoIsoEG, *itObj));
-            filterObject->putParticle(ref);
+            filterObjectOLD->putParticle(ref);
+	    filterObject->addObject(NoIsoEG,l1extra::L1EmParticleRef(l1NoIsoEG, *itObj));
 
         }
     }
@@ -456,7 +465,8 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
                 itObj != listCenJet.end(); ++itObj) {
 
             ref = edm::RefToBase<reco::Candidate>(l1extra::L1JetParticleRef(l1CenJet, *itObj));
-            filterObject->putParticle(ref);
+            filterObjectOLD->putParticle(ref);
+	    filterObject->addObject(CenJet,l1extra::L1JetParticleRef(l1CenJet, *itObj));
 
         }
     }
@@ -472,7 +482,8 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
                 itObj != listForJet.end(); ++itObj) {
 
             ref = edm::RefToBase<reco::Candidate>(l1extra::L1JetParticleRef(l1ForJet, *itObj));
-            filterObject->putParticle(ref);
+            filterObjectOLD->putParticle(ref);
+	    filterObject->addObject(ForJet,l1extra::L1JetParticleRef(l1ForJet, *itObj));
 
         }
     }
@@ -488,7 +499,8 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
                 itObj != listTauJet.end(); ++itObj) {
 
             ref = edm::RefToBase<reco::Candidate>(l1extra::L1JetParticleRef(l1TauJet, *itObj));
-            filterObject->putParticle(ref);
+            filterObjectOLD->putParticle(ref);
+	    filterObject->addObject(TauJet,l1extra::L1JetParticleRef(l1TauJet, *itObj));
 
         }
     }
@@ -502,7 +514,9 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
                 itObj != listETM.end(); ++itObj) {
 
             ref = edm::RefToBase<reco::Candidate>(l1extra::L1EtMissParticleRefProd(l1EnergySums));
-            filterObject->putParticle(ref);
+            filterObjectOLD->putParticle(ref);
+	    filterObject->addObject(ETM,l1extra::L1EtMissParticleRefProd(l1EnergySums));
+	    // FIXME: RefProd!
 
         }
 
@@ -510,7 +524,9 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
                 itObj != listETT.end(); ++itObj) {
 
             ref = edm::RefToBase<reco::Candidate>(l1extra::L1EtMissParticleRefProd(l1EnergySums));
-            filterObject->putParticle(ref);
+            filterObjectOLD->putParticle(ref);
+	    filterObject->addObject(ETT,l1extra::L1EtMissParticleRefProd(l1EnergySums));
+	    // FIXME: RefProd!
 
         }
 
@@ -518,7 +534,9 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
                 itObj != listHTT.end(); ++itObj) {
 
             ref = edm::RefToBase<reco::Candidate>(l1extra::L1EtMissParticleRefProd(l1EnergySums));
-            filterObject->putParticle(ref);
+            filterObjectOLD->putParticle(ref);
+	    filterObject->addObject(HTT,l1extra::L1EtMissParticleRefProd(l1EnergySums));
+	    // FIXME: RefProd!
 
         }
     }
@@ -535,7 +553,9 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     //                itObj != listJetCounts.end(); ++itObj) {
     //
     //            ref = edm::RefToBase<reco::Candidate>(l1extra::L1JetCountsRefProd(l1JetCounts));
-    //            filterObject->putParticle(ref);
+    //            filterObjectOLD->putParticle(ref);
+    //            filterObject->addObject(JetCounts,l1extra::L1JetCountsRefProd(l1JetCounts));
+    //	          // FIXME: RefProd!
     //
     //        }
     //
@@ -548,12 +568,12 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         << "\n  Dump HLTFilterObjectWithRefs\n"
         << std::endl;
 
-        const unsigned int n = filterObject->size();
+        const unsigned int n = filterObjectOLD->size();
         LogTrace("HLTLevel1GTSeed") << "  Size = " << n;
         for (unsigned int i = 0; i != n; i++) {
 
-            reco::Particle particle  = filterObject->getParticle(i);
-            const reco::Candidate* candidate = (filterObject->getParticleRef(i)).get();
+            reco::Particle particle  = filterObjectOLD->getParticle(i);
+            const reco::Candidate* candidate = (filterObjectOLD->getParticleRef(i)).get();
 
             LogTrace("HLTLevel1GTSeed")
             << "   " << i << "\t"
@@ -568,7 +588,9 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
     }
 
+    iEvent.put(filterObjectOLD);
     iEvent.put(filterObject);
+
     return seedsResult;
 
 }
