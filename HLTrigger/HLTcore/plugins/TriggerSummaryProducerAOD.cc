@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/06 20:37:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/07 08:43:22 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -217,9 +217,14 @@ trigger::size_type TriggerSummaryProducerAOD::fillMask(
     const string& process  (products[ip].provenance()->processName());
 
     for (size_type iw=0; iw!=nw; ++iw) {
-      if ( (label   ==collectionTags_[iw].label()   ) &&
-	   (instance==collectionTags_[iw].instance()) &&
-	   ( (pn_=="*") || (process ==collectionTags_[iw].process()) ) ) {
+      const string& tagLabel    (collectionTags_[iw].label());
+      const string& tagInstance (collectionTags_[iw].instance());
+      const string& tagProcess  (collectionTags_[iw].process());
+      if (
+	  ((tagLabel   =="*")||(label   ==tagLabel   )) &&
+	  ((tagInstance=="*")||(instance==tagInstance)) &&
+	  ((tagProcess =="*")||(process ==tagProcess )||(pn_=="*"))
+	 ) {
 	mask_[ip]=true;
 	++n;
 	break;
