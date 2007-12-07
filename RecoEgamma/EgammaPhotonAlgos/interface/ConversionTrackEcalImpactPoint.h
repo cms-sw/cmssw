@@ -47,8 +47,11 @@ public:
   ~ConversionTrackEcalImpactPoint();
 
   std::vector<math::XYZPoint> find( const std::vector<reco::TransientTrack>& tracks, 
-				    const edm::Handle<reco::BasicClusterCollection>&  bcHandle ); 
-  const std::vector<reco::BasicCluster>& matchingBC() const {return matchingBC_;}				  
+				    const edm::Handle<reco::BasicClusterCollection>&  bcHandle );
+
+  std::vector<reco::BasicClusterRef> matchingBC() const {return matchingBC_;}
+ 
+
  
 
  
@@ -60,8 +63,7 @@ private:
 
   mutable PropagatorWithMaterial*    forwardPropagator_ ;
   PropagationDirection       dir_;
-  mutable std::vector<reco::BasicCluster> matchingBC_;
-     
+  std::vector<reco::BasicClusterRef> matchingBC_;
 
 
 /** Hard-wired numbers defining the surfaces on which the crystal front faces lie. */
