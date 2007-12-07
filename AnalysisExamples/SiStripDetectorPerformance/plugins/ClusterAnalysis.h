@@ -4,15 +4,15 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-//#include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
+//needed for the geometry:
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"  
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -20,7 +20,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-//needed for the geometry:
+
+//Data Formats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
@@ -29,8 +30,6 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-
-//Data Formats
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
@@ -46,6 +45,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 //Services
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
@@ -93,7 +94,7 @@ namespace cms{
 
     private:
 
-      void bookHlist( char* HistoType, char* ParameterSetLabel, TString & HistoName,
+      void bookHlist( char* HistoType, char* ParameterSetLabel, TFileDirectory subDir, TString & HistoName,
 		      char* xTitle="", char* yTitle="", char* zTitle="");		      
 
       void book();
@@ -125,21 +126,22 @@ namespace cms{
       edm::Handle<uint16_t> filterWord;
       edm::Handle<reco::TrackInfoTrackAssociationCollection> tkiTkAssCollection;
       std::vector<const SiStripCluster*> vPSiStripCluster;
+
+      edm::Service<TFileService> fFile;
       
       std::map<std::pair<std::string,uint32_t>,bool> DetectedLayers;
 
       TString name;
       edm::ParameterSet Parameters;
 
-      std::string filename_;
+      //      std::string filename_;
       std::string psfilename_;
       int32_t psfiletype_;
       int32_t psfilemode_;    
 
-      TFile* fFile;
       THashList* Hlist;
       TrackerMap* tkMap_ClusOcc[3];//0 for onTrack, 1 for offTrack, 2 for All
-      
+      TrackerMap* tkInvHit;      
       int runNb;
       int eventNb;
 

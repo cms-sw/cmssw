@@ -25,6 +25,8 @@
 <use name=CalibTracker/SiStripConnectivity>
 <use name=CommonTools/SiStripZeroSuppression>
 
+<use name=PhysicsTools/UtilAlgos>
+<use name=FWCore/ServiceRegistry>
 
 <library file="*.cc" name=AnalysisExamplesSiStripDetectorPerformancePlugins>
 	<flags EDM_PLUGIN=1>	
