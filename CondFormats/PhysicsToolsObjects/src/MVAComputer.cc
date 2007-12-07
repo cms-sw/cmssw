@@ -18,7 +18,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.cc,v 1.3 2007/05/14 00:06:01 saout Exp $
+// $Id: MVAComputer.cc,v 1.4 2007/05/18 19:09:43 saout Exp $
 //
 #include <functional>
 #include <algorithm>
@@ -29,6 +29,8 @@
 #include <string>
 #include <vector>
 #include <map>
+
+#include <boost/thread.hpp>
 
 #include <Reflex/Reflex.h>
 
@@ -54,7 +56,10 @@ std::string VarProcessor::getInstanceName() const
 
 static MVAComputer::CacheId getNextMVAComputerCacheId()
 {
+	static boost::mutex mutex;
 	static MVAComputer::CacheId nextCacheId = 0;
+
+	boost::mutex::scoped_lock scoped_lock(mutex);
 	return nextCacheId++;
 }
 

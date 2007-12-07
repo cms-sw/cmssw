@@ -2,8 +2,8 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
 <use name=DataFormats/StdDictionaries>
+<use name=boost>
 <use name=rootrflx>
-<flags GENREFLEX_ARGS="--">
 <export>
   <use name=boost>
   <lib name=CondFormatsPhysicsToolsObjects>
