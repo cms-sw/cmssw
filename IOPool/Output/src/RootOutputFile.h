@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.15 2007/12/05 00:12:29 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.16 2007/12/05 05:35:04 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -24,6 +24,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -47,17 +48,18 @@ namespace edm {
     //void endFile();
     void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
     bool writeRun(RunPrincipal const& r);
-
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeFileIndex();
+    void writeEventHistory();
     void writeProcessConfigurationRegistry();
     void writeProcessHistoryRegistry();
     void writeModuleDescriptionRegistry();
     void writeParameterSetRegistry();
     void writeProductDescriptionRegistry();
+
     void finishEndFile();
-    void beginInputFile(FileBlock const& fb, bool fastCloneThisOne=true);
+    void beginInputFile(FileBlock const& fb, bool fastCloneThisOne);
     void endInputFile(FileBlock const& fb);
 
     bool isFileFull() const {return newFileAtEndOfRun_;}
@@ -103,6 +105,7 @@ namespace edm {
     FileIndex::EntryNumber_t eventEntryNumber_;
     FileIndex::EntryNumber_t lumiEntryNumber_;
     FileIndex::EntryNumber_t runEntryNumber_;
+    std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;
     TTree * metaDataTree_;
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;

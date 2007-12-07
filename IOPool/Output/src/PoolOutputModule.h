@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.36 2007/11/03 06:53:02 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.37 2007/11/22 16:53:49 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -54,6 +54,7 @@ namespace edm {
     virtual void writeFileFormatVersion();
     virtual void writeFileIdentifier();
     virtual void writeFileIndex();
+    virtual void writeEventHistory();
     virtual void writeProcessConfigurationRegistry();
     virtual void writeProcessHistoryRegistry();
     virtual void writeModuleDescriptionRegistry();

@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.31 2007/11/30 07:06:32 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.32 2007/12/05 00:12:29 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -51,6 +51,7 @@ namespace edm {
       eventEntryNumber_(0LL),
       lumiEntryNumber_(0LL),
       runEntryNumber_(0LL),
+      eventProcessHistoryIDs_(),
       metaDataTree_(0),
       eventAux_(),
       lumiAux_(),
@@ -139,6 +140,11 @@ namespace edm {
     fileIndex_.addEntry(pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
 
+    // Add event proces history
+    eventProcessHistoryIDs_.push_back(EventProcessHistoryID(pEventAux_->id(), pEventAux_->processHistoryID()));
+    // Store an invailid process history ID in EventAuxiliary for obsolete field.
+    pEventAux_->processHistoryID_ = ProcessHistoryID();
+
     fillBranches(InEvent, e.groupGetter());
 
     // Report event written 
@@ -197,6 +203,14 @@ namespace edm {
     fileIndex_.sort();
     FileIndex *findexPtr = &fileIndex_;
     TBranch* b = metaDataTree_->Branch(poolNames::fileIndexBranchName().c_str(), &findexPtr, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeEventHistory() {
+    edm::sort_all(eventProcessHistoryIDs_);
+    std::vector<EventProcessHistoryID> *phPtr = &eventProcessHistoryIDs_;
+    TBranch* b = metaDataTree_->Branch(poolNames::eventHistoryBranchName().c_str(), &phPtr, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }

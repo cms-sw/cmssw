@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.6 2007/06/28 23:32:45 wmtan Exp $
+// $Id: Event.h,v 1.7 2007/08/06 15:01:54 chrjones Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -33,6 +33,7 @@
 // user include files
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
@@ -162,6 +163,7 @@ class Event
       //takes ownership of the strings used by the DataKey keys in data_
       mutable std::vector<const char*> labels_;
       mutable edm::ProcessHistoryMap historyMap_;
+      mutable std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
       mutable edm::EventAuxiliary aux_;
       edm::EventAuxiliary* pAux_;
       edm::EventAux* pOldAux_;

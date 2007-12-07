@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.10 2007/08/23 23:20:52 wmtan Exp $
+// $Id: Event.cc,v 1.11 2007/10/30 14:27:39 chrjones Exp $
 //
 
 // system include files
@@ -381,18 +381,9 @@ Event::getByLabel(const std::type_info& iInfo,
 const edm::ProcessHistory& 
 Event::history() const
 {
-  if(historyMap_.empty()) {
-    TTree* meta = dynamic_cast<TTree*>(file_->Get(edm::poolNames::metaDataTreeName().c_str()));
-    if(0==meta) {
-      throw cms::Exception("NoMetaTree")<<"The TFile does not appear to contain a TTree named "
-      <<edm::poolNames::metaDataTreeName();
-    }
+  edm::ProcessHistoryID processHistoryID;
 
-    edm::ProcessHistoryMap* pPhm=&historyMap_;
-    TBranch* b = meta->GetBranch(edm::poolNames::processHistoryMapBranchName().c_str());
-    b->SetAddress(&pPhm);
-    b->GetEntry(0);
-  }
+  bool newFormat = (fileVersion_ >= 5);
 
   if(auxBranch_->GetEntryNumber() != eventIndex_) {
     auxBranch_->GetEntry(eventIndex_);
@@ -401,8 +392,32 @@ Event::history() const
       conversion(*pOldAux_,aux_);
     }
   }
+  if (!newFormat) {
+    processHistoryID = aux_.processHistoryID();
+  }
+  if(historyMap_.empty() || newFormat) {
+    TTree *meta = dynamic_cast<TTree*>(file_->Get(edm::poolNames::metaDataTreeName().c_str()));
+    if(0==meta) {
+      throw cms::Exception("NoMetaTree")<<"The TFile does not appear to contain a TTree named "
+      <<edm::poolNames::metaDataTreeName();
+    }
+    if (historyMap_.empty()) {
+      edm::ProcessHistoryMap* pPhm=&historyMap_;
+      TBranch* b = meta->GetBranch(edm::poolNames::processHistoryMapBranchName().c_str());
+      b->SetAddress(&pPhm);
+      b->GetEntry(0);
+    }
+    if (newFormat) {
+      std::vector<edm::EventProcessHistoryID> *pEventProcessHistoryIDs = &eventProcessHistoryIDs_;
+      TBranch* b = meta->GetBranch(edm::poolNames::eventHistoryBranchName().c_str());
+      b->SetAddress(&pEventProcessHistoryIDs);
+      b->GetEntry(0);
+      edm::EventProcessHistoryID target(aux_.id(), edm::ProcessHistoryID());
+      processHistoryID = std::lower_bound(eventProcessHistoryIDs_.begin(), eventProcessHistoryIDs_.end(), target)->processHistoryID_;
+    }
+  }
   
-  return historyMap_[aux_.processHistoryID()];
+  return historyMap_[processHistoryID];
 }
 
 edm::EDProduct const* 

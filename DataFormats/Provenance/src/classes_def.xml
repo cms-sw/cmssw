@@ -54,6 +54,8 @@
    <field name="eventsSorted_" transient="true"/>
    <field name="sortedCached_" transient="true"/>
  </class>
+ <class name="edm::EventProcessHistoryID"/>
+ <class name="std::vector<edm::EventProcessHistoryID>"/>
  <class name="edm::Hash<0>"/>
  <class name="std::map<edm::Hash<0>,edm::ModuleDescription>"/>
  <class name="std::pair<edm::Hash<0>,edm::ModuleDescription>"/>

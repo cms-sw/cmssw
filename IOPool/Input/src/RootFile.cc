@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.100 2007/11/30 07:06:32 wmtan Exp $
+$Id: RootFile.cc,v 1.101 2007/12/03 00:41:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -57,6 +57,8 @@ namespace edm {
       fileIndexBegin_(fileIndex_.begin()),
       fileIndexEnd_(fileIndexBegin_),
       fileIndexIter_(fileIndexBegin_),
+      eventProcessHistoryIDs_(),
+      eventProcessHistoryIter_(eventProcessHistoryIDs_.begin()),
       startAtRun_(startAtRun),
       startAtLumi_(startAtLumi),
       startAtEvent_(startAtEvent),
@@ -96,6 +98,7 @@ namespace edm {
     FileFormatVersion *fftPtr = &fileFormatVersion_;
     FileID *fidPtr = &fid_;
     FileIndex *findexPtr = &fileIndex_;
+    std::vector<EventProcessHistoryID> *eventHistoryIDsPtr = &eventProcessHistoryIDs_;
 
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
@@ -112,12 +115,16 @@ namespace edm {
     if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != 0) {
       metaDataTree->SetBranchAddress(poolNames::fileIndexBranchName().c_str(), &findexPtr);
     }
+    if (metaDataTree->FindBranch(poolNames::eventHistoryBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(poolNames::eventHistoryBranchName().c_str(), &eventHistoryIDsPtr);
+    }
 
     metaDataTree->GetEntry(0);
 
     validateFile();
     fileIndexIter_ = fileIndexBegin_ = fileIndex_.begin();
     fileIndexEnd_ = fileIndex_.end();
+    eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
     // freeze our temporary product registry
     tempReg.setFrozen();
@@ -359,6 +366,20 @@ namespace edm {
   }
 
   void
+  RootFile::fillEventAuxiliaryAndHistory() {
+    fillEventAuxiliary();
+    if (!eventProcessHistoryIDs_.empty()) {
+      if (eventProcessHistoryIter_->eventID_ != eventAux_.id()) {
+        EventProcessHistoryID target(eventAux_.id(), ProcessHistoryID());
+        eventProcessHistoryIter_ = std::lower_bound(eventProcessHistoryIDs_.begin(), eventProcessHistoryIDs_.end(), target);	
+        assert(eventProcessHistoryIter_->eventID_ == eventAux_.id());
+      }
+      eventAux_.processHistoryID_ = eventProcessHistoryIter_->processHistoryID_;
+      ++eventProcessHistoryIter_;
+    }
+  }
+
+  void
   RootFile::fillLumiAuxiliary() {
     if (fileFormatVersion_.value_ >= 3) {
       LuminosityBlockAuxiliary *pLumiAux = &lumiAux_;
@@ -445,7 +466,7 @@ namespace edm {
     if (!eventTree_.current()) {
       return std::auto_ptr<EventPrincipal>(0);
     }
-    fillEventAuxiliary();
+    fillEventAuxiliaryAndHistory();
     overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
     if (lbp.get() == 0) {
 	boost::shared_ptr<RunPrincipal> rp(

@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.42 2007/11/27 21:01:09 wmtan Exp $
+$Id: RootFile.h,v 1.43 2007/12/03 00:41:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,6 +19,7 @@ $Id: RootFile.h,v 1.42 2007/11/27 21:01:09 wmtan Exp $
 #include "RootTree.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
@@ -94,6 +95,7 @@ namespace edm {
     void validateFile();
     void fillFileIndex();
     void fillEventAuxiliary();
+    void fillEventAuxiliaryAndHistory();
     void fillLumiAuxiliary();
     void fillRunAuxiliary();
     void overrideRunNumber(RunID & id);
@@ -113,6 +115,8 @@ namespace edm {
     FileIndex::const_iterator fileIndexBegin_;
     FileIndex::const_iterator fileIndexEnd_;
     FileIndex::const_iterator fileIndexIter_;
+    std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;
+    std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_;
     RunNumber_t startAtRun_;
     LuminosityBlockNumber_t startAtLumi_;
     EventNumber_t startAtEvent_;

@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.92 2007/11/22 16:53:49 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.93 2007/11/30 07:06:32 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -105,6 +105,7 @@ namespace edm {
   void PoolOutputModule::writeFileFormatVersion() { rootFile_->writeFileFormatVersion(); }
   void PoolOutputModule::writeFileIdentifier() { rootFile_->writeFileIdentifier(); }
   void PoolOutputModule::writeFileIndex() { rootFile_->writeFileIndex(); }
+  void PoolOutputModule::writeEventHistory() { rootFile_->writeEventHistory(); }
   void PoolOutputModule::writeProcessConfigurationRegistry() { rootFile_->writeProcessConfigurationRegistry(); }
   void PoolOutputModule::writeProcessHistoryRegistry() { rootFile_->writeProcessHistoryRegistry(); }
   void PoolOutputModule::writeModuleDescriptionRegistry() { rootFile_->writeModuleDescriptionRegistry(); }

@@ -6,7 +6,7 @@
   
 BranchType: The type of a Branch (Event, LuminosityBlock, or Run)
 
-$Id: BranchType.h,v 1.5 2007/10/03 22:16:20 wmtan Exp $
+$Id: BranchType.h,v 1.6 2007/11/22 16:44:33 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 namespace edm {
@@ -43,7 +43,6 @@ namespace edm {
   std::string BranchTypeToAuxBranchName(BranchType const& branchType) {
     return BranchTypeToString(branchType) + "Aux";
   }
-
 
   inline
   std::string BranchTypeToMajorIndexName(BranchType const& branchType) {
@@ -110,6 +109,11 @@ namespace edm {
     inline
     std::string
     fileIndexBranchName() {return "FileIndex";}
+
+    // Branch on MetaData Tree
+    inline
+    std::string
+    eventHistoryBranchName() {return "EventHistory";}
 
     inline
     std::string
