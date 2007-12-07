@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2007/12/06 20:37:03 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/07 08:43:22 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -22,6 +22,8 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
@@ -45,7 +47,7 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   void fillTriggerObjects(const edm::Event& );
 
   template <typename C>
-  void fillFilterKeys(const std::vector<edm::Ref<C> >&);
+  void fillFilterObjects(const trigger::Vids &, const std::vector<edm::Ref<C> >&);
 
   template <typename C>
   trigger::size_type fillMask(const std::vector<edm::Handle<C> >& ,  const std::vector<edm::InputTag>& );
@@ -71,6 +73,8 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   std::vector<edm::Handle<trigger::TriggerFilterObjectWithRefs> > fobs_;
   /// keys
   trigger::Keys keys_;
+  /// ids
+  trigger::Vids ids_;
 
   /// packing decision
   std::vector<bool> mask_;

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/07 09:07:47 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/07 10:52:01 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -31,6 +31,16 @@
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+
 //
 // constructors and destructor
 //
@@ -44,6 +54,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   offset_(),
   fobs_(),
   keys_(),
+  ids_(),
   mask_()
 {
   if (pn_=="@") {
@@ -90,6 +101,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    using namespace std;
    using namespace edm;
    using namespace reco;
+   using namespace l1extra;
    using namespace trigger;
 
    /// create trigger objects, fill triggerobjectcollection and offset map
@@ -102,6 +114,12 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    fillTriggerObjects<  CompositeCandidateCollection>(iEvent);
    fillTriggerObjects<             CaloMETCollection>(iEvent);
    fillTriggerObjects<                 METCollection>(iEvent);
+
+   fillTriggerObjects<    L1EmParticleCollection>(iEvent);
+   fillTriggerObjects<  L1MuonParticleCollection>(iEvent);
+   fillTriggerObjects<   L1JetParticleCollection>(iEvent);
+   fillTriggerObjects<L1EtMissParticleCollection>(iEvent);
+
    const size_type nto(toc_.size());
    LogDebug("") << "Number of physics objects found: " << nto;
 
@@ -124,18 +142,22 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    /// fill the filter objects
    for (size_type ifob=0; ifob!=nfob; ++ifob) {
      if (mask_[ifob]) {
+       ids_.clear();
        keys_.clear();
-       fillFilterKeys(fobs_[ifob]->photonRefs());
-       fillFilterKeys(fobs_[ifob]->electronRefs());
-       fillFilterKeys(fobs_[ifob]->muonRefs());
-       fillFilterKeys(fobs_[ifob]->jetRefs());
-       fillFilterKeys(fobs_[ifob]->compositeRefs());
-       fillFilterKeys(fobs_[ifob]->metRefs());
-       fillFilterKeys(fobs_[ifob]->htRefs());
-       product->addFilter(fobs_[ifob].provenance()->moduleLabel(),keys_);
+       fillFilterObjects(fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());
+       fillFilterObjects(fobs_[ifob]->electronIds() ,fobs_[ifob]->electronRefs());
+       fillFilterObjects(fobs_[ifob]->muonIds()     ,fobs_[ifob]->muonRefs());
+       fillFilterObjects(fobs_[ifob]->jetIds()      ,fobs_[ifob]->jetRefs());
+       fillFilterObjects(fobs_[ifob]->compositeIds(),fobs_[ifob]->compositeRefs());
+       fillFilterObjects(fobs_[ifob]->metIds()      ,fobs_[ifob]->metRefs());
+       fillFilterObjects(fobs_[ifob]->htIds()       ,fobs_[ifob]->htRefs());
+       fillFilterObjects(fobs_[ifob]->l1emIds()     ,fobs_[ifob]->l1emRefs());
+       fillFilterObjects(fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
+       fillFilterObjects(fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
+       fillFilterObjects(fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
+       product->addFilter(fobs_[ifob].provenance()->moduleLabel(),ids_,keys_);
      }
    }
-
 
    OrphanHandle<TriggerEvent> ref = iEvent.put(product);
    LogTrace("") << "Number of physics objects packed: " << ref->sizeObjects();
@@ -176,7 +198,7 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
 }
 
 template <typename C>
-void TriggerSummaryProducerAOD::fillFilterKeys(const std::vector<edm::Ref<C> >& refs) {
+void TriggerSummaryProducerAOD::fillFilterObjects(const trigger::Vids& ids, const std::vector<edm::Ref<C> >& refs) {
 
   /// this routine takes a vector of Ref<C>s and determines the
   /// corresponding vector of keys (i.e., indices) into the
@@ -186,11 +208,14 @@ void TriggerSummaryProducerAOD::fillFilterKeys(const std::vector<edm::Ref<C> >& 
   using namespace edm;
   using namespace trigger;
 
-  const size_type n(refs.size());
+  assert(ids.size()==refs.size());
+
+  const size_type n(ids.size());
   for (size_type i=0; i!=n; ++i) {
     const ProductID pid(refs[i].id());
     assert(offset_.find(pid)!=offset_.end()); // else unknown pid
     keys_.push_back(offset_[pid]+refs[i].key());
+    ids_.push_back(ids[i]);
   }
 
 }
