@@ -64,6 +64,11 @@
   <class name="std::vector<edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >"/>
 
+
+  <class name="edm::Ref<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle> >"/>
+
+  <class name="std::vector<edm::Ref<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EtMissParticle>,l1extra::L1EtMissParticle> > >"/>
+
   <class name="trigger::TriggerObject"/>
   <class name="trigger::TriggerObjectCollection"/>
   <class name="trigger::TriggerRefsCollections"/>

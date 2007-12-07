@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/12/06 09:54:44 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/07 13:39:48 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -153,13 +153,17 @@ namespace trigger
 
     template<typename C>
     void addObject(int id, const edm::Ref<C>& ref) {
-      std::cout << "@@@@ Trigger addObject(Ref<C>): collection type not recognized - ignored: '"
+      std::cout << "@@@@" << std::endl;
+      std::cout << "@@@@ Trigger addObject(Ref<C>): collection type C not recognized - ignored: '"
 		<< typeid(C).name() << "'" << std::endl;
+      std::cout << "@@@@" << std::endl;
     }	
     template<typename C>
     void addObject(int id, const edm::RefProd<C>& ref) {
-      std::cout << "@@@@ Trigger addObject(RefProd<C>): collection type not recognized - ignored: '"
+      std::cout << "@@@@" << std::endl;
+      std::cout << "@@@@ Trigger addObject(RefProd<C>): collection type C not recognized - ignored: '"
 		<< typeid(C).name() << "'" << std::endl;
+      std::cout << "@@@@" << std::endl;
     }
 	
 
@@ -234,8 +238,10 @@ namespace trigger
 
     template<typename C>
     size_type addObjects(const Vids& ids, const std::vector<edm::Ref<C> > refs) {
-      std::cout << "@@@@ Trigger addObjects(): collection type not recognized - ignored: '"
+      std::cout << "@@@@" << std::endl;
+      std::cout << "@@@@ Trigger addObjects(): collection type C not recognized - ignored: '"
 		<< typeid(C).name() << "'" << std::endl;
+      std::cout << "@@@@" << std::endl;
       return 0;
     }
 
@@ -392,8 +398,10 @@ namespace trigger
     template<typename C>
     void getObjects(int id, std::vector<edm::Ref<C> > refs, size_type begin, size_type end) const {
       refs.resize(0);
-      std::cout << "@@@@ Trigger getObjects(): collection type not recognized - ignored: '"
+      std::cout << "@@@@" << std::endl;
+      std::cout << "@@@@ Trigger getObjects(): collection type C not recognized - ignored: '"
 		<< typeid(C).name() << "'" << std::endl;
+      std::cout << "@@@@" << std::endl;
     }
 
     /// low-level getters for data members
