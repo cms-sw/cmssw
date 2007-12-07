@@ -63,7 +63,8 @@ SiPixelCalibConfiguration::SiPixelCalibConfiguration(const pos::PixelCalibConfig
   fROCIds(std::vector<std::string>(0)),
   fRowPattern(std::vector<short>(0)),
   fColumnPattern(std::vector<short>(0)),
-  fVCalValues(std::vector<short>(0))
+  fVCalValues(std::vector<short>(0)),
+  fMode_("unknown")
 { // copy constructor that uses the complex object
   fNTriggers = fancyConfig.nTriggersPerPattern();
   std::vector<int> vcalpoints(0);
