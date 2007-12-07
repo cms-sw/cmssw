@@ -5,8 +5,8 @@
  *
  *  Misc. common simple typedefs
  *
- *  $Date: 2007/12/04 20:26:16 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/05 14:24:02 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -19,6 +19,8 @@ namespace trigger
 
   typedef uint16_t size_type;
   typedef std::vector<size_type> Keys;
+
+  typedef std::vector<int>       Vids;
 
   enum TriggerObjectType  {
     TriggerPhoton   = 80,

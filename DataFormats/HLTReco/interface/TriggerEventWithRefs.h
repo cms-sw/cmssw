@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2007/12/07 08:42:25 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/12/07 10:50:49 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -44,15 +44,19 @@ namespace trigger
       size_type composites_;
       size_type mets_;
       size_type hts_;
+      size_type l1em_;
+      size_type l1muon_;
+      size_type l1jet_;
+      size_type l1etmiss_;
 
       /// constructor
       TriggerFilterObject() :
 	filterLabel_(),
-	photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), mets_(0), hts_(0) { }
+	photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), mets_(0), hts_(0),l1em_(0), l1muon_(0), l1jet_(0), l1etmiss_(0) { }
       TriggerFilterObject(const std::string& filterLabel,
-        size_type np, size_type ne, size_type nm, size_type nj, size_type nc, size_type nM, size_type nH) :
+        size_type np, size_type ne, size_type nm, size_type nj, size_type nc, size_type nM, size_type nH, size_type l1em, size_type l1muon, size_type l1jet, size_type l1etmiss) :
 	filterLabel_(filterLabel),
-	photons_(np), electrons_(ne), muons_(nm), jets_(nj), composites_(nc), mets_(nM), hts_(nH) { }
+	photons_(np), electrons_(ne), muons_(nm), jets_(nj), composites_(nc), mets_(nM), hts_(nH), l1em_(l1em), l1muon_(l1muon), l1jet_(l1jet), l1etmiss_(l1etmiss) { }
     };
 
   /// data members
@@ -84,7 +88,11 @@ namespace trigger
 			    addObjects(tfowr.jetIds(),tfowr.jetRefs()),
 			    addObjects(tfowr.compositeIds(),tfowr.compositeRefs()),
 			    addObjects(tfowr.metIds(),tfowr.metRefs()),
-			    addObjects(tfowr.htIds(),tfowr.htRefs())
+			    addObjects(tfowr.htIds(),tfowr.htRefs()),
+			    addObjects(tfowr.l1emIds(),tfowr.l1emRefs()),
+			    addObjects(tfowr.l1muonIds(),tfowr.l1muonRefs()),
+			    addObjects(tfowr.l1jetIds(),tfowr.l1jetRefs()),
+			    addObjects(tfowr.l1etmissIds(),tfowr.l1etmissRefs())
 			   )
 	);
     }
@@ -151,6 +159,27 @@ namespace trigger
       const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).hts_);
       const size_type end(filterObjects_.at(filter).hts_);
       TriggerRefsCollections::getObjects(id,hts,begin,end);
+    }
+
+    void getObjects(size_type filter, int id, VRl1em& l1em) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1em_);
+      const size_type end(filterObjects_.at(filter).l1em_);
+      TriggerRefsCollections::getObjects(id,l1em,begin,end);
+    }
+    void getObjects(size_type filter, int id, VRl1muon& l1muon) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1muon_);
+      const size_type end(filterObjects_.at(filter).l1muon_);
+      TriggerRefsCollections::getObjects(id,l1muon,begin,end);
+    }
+    void getObjects(size_type filter, int id, VRl1jet& l1jet) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1jet_);
+      const size_type end(filterObjects_.at(filter).l1jet_);
+      TriggerRefsCollections::getObjects(id,l1jet,begin,end);
+    }
+    void getObjects(size_type filter, int id, VRl1etmiss& l1etmiss) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1etmiss_);
+      const size_type end(filterObjects_.at(filter).l1etmiss_);
+      TriggerRefsCollections::getObjects(id,l1etmiss,begin,end);
     }
 
   };

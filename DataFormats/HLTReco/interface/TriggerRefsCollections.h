@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/12/05 17:33:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/06 09:54:44 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -22,6 +22,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefProd.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
@@ -31,16 +32,18 @@
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+
 #include <cassert>
-#include <utility>
 #include <vector>
 
 #include<typeinfo>
 
 namespace trigger
 {
-
-  typedef std::vector<int>                           Vint;
 
   typedef std::vector<reco::RecoEcalCandidateRef>    VRphoton;
   typedef std::vector<reco::ElectronRef>             VRelectron;
@@ -50,25 +53,39 @@ namespace trigger
   typedef std::vector<reco::CaloMETRef>              VRmet;
   typedef std::vector<reco::METRef>                  VRht;
 
+  typedef std::vector<l1extra::L1EmParticleRef>      VRl1em;
+  typedef std::vector<l1extra::L1MuonParticleRef>    VRl1muon;
+  typedef std::vector<l1extra::L1JetParticleRef>     VRl1jet;
+  typedef std::vector<l1extra::L1EtMissParticleRef>  VRl1etmiss;
+
   class TriggerRefsCollections {
 
   /// data members
   private:
     /// physics type ids and Refs
-    Vint        photonIds_;
+    Vids        photonIds_;
     VRphoton    photonRefs_;
-    Vint        electronIds_;
+    Vids        electronIds_;
     VRelectron  electronRefs_;
-    Vint        muonIds_;
+    Vids        muonIds_;
     VRmuon      muonRefs_;
-    Vint        jetIds_;
+    Vids        jetIds_;
     VRjet       jetRefs_;
-    Vint        compositeIds_;
+    Vids        compositeIds_;
     VRcomposite compositeRefs_;
-    Vint        metIds_;
+    Vids        metIds_;
     VRmet       metRefs_;
-    Vint        htIds_;
+    Vids        htIds_;
     VRht        htRefs_;
+
+    Vids        l1emIds_;
+    VRl1em      l1emRefs_;
+    Vids        l1muonIds_;
+    VRl1muon    l1muonRefs_;
+    Vids        l1jetIds_;
+    VRl1jet     l1jetRefs_;
+    Vids        l1etmissIds_;
+    VRl1etmiss  l1etmissRefs_;
     
   /// methods
   public:
@@ -79,7 +96,13 @@ namespace trigger
       muonIds_(), muonRefs_(),
       compositeIds_(), compositeRefs_(),
       metIds_(), metRefs_(),
-      htIds_(), htRefs_() { }
+      htIds_(), htRefs_(),
+
+      l1emIds_(), l1emRefs_(),
+      l1muonIds_(), l1muonRefs_(),
+      l1jetIds_(), l1jetRefs_(),
+      l1etmissIds_(), l1etmissRefs_()
+      { }
 
     /// setters for L3 collections: (id=physics type, and Ref<C>)
     void addObject(int id, const reco::RecoEcalCandidateRef& ref) {
@@ -110,58 +133,107 @@ namespace trigger
       htIds_.push_back(id);
       htRefs_.push_back(ref);
     }
+
+    void addObject(int id, const l1extra::L1EmParticleRef& ref) {
+      l1emIds_.push_back(id);
+      l1emRefs_.push_back(ref);
+    }
+    void addObject(int id, const l1extra::L1MuonParticleRef& ref) {
+      l1muonIds_.push_back(id);
+      l1muonRefs_.push_back(ref);
+    }
+    void addObject(int id, const l1extra::L1JetParticleRef& ref) {
+      l1jetIds_.push_back(id);
+      l1jetRefs_.push_back(ref);
+    }
+    void addObject(int id, const l1extra::L1EtMissParticleRef& ref) {
+      l1etmissIds_.push_back(id);
+      l1etmissRefs_.push_back(ref);
+    }
+
     template<typename C>
     void addObject(int id, const edm::Ref<C>& ref) {
-      std::cout << "@@@@ Trigger addObject(): collection type not recognized - ignored: '"
+      std::cout << "@@@@ Trigger addObject(Ref<C>): collection type not recognized - ignored: '"
+		<< typeid(C).name() << "'" << std::endl;
+    }	
+    template<typename C>
+    void addObject(int id, const edm::RefProd<C>& ref) {
+      std::cout << "@@@@ Trigger addObject(RefProd<C>): collection type not recognized - ignored: '"
 		<< typeid(C).name() << "'" << std::endl;
     }
 	
 
     /// 
-    size_type addObjects (const Vint& ids, const VRphoton& refs) {
+    size_type addObjects (const Vids& ids, const VRphoton& refs) {
       assert(ids.size()==refs.size());
       photonIds_.insert(photonIds_.end(),ids.begin(),ids.end());
       photonRefs_.insert(photonRefs_.end(),refs.begin(),refs.end());
       return photonIds_.size();
     }
-    size_type addObjects (const Vint& ids, const VRelectron& refs) {
+    size_type addObjects (const Vids& ids, const VRelectron& refs) {
       assert(ids.size()==refs.size());
       electronIds_.insert(electronIds_.end(),ids.begin(),ids.end());
       electronRefs_.insert(electronRefs_.end(),refs.begin(),refs.end());
       return electronIds_.size();
     }
-    size_type addObjects (const Vint& ids, const VRmuon& refs) {
+    size_type addObjects (const Vids& ids, const VRmuon& refs) {
       assert(ids.size()==refs.size());
       muonIds_.insert(muonIds_.end(),ids.begin(),ids.end());
       muonRefs_.insert(muonRefs_.end(),refs.begin(),refs.end());
       return muonIds_.size();
     }
-    size_type addObjects (const Vint& ids, const VRjet& refs) {
+    size_type addObjects (const Vids& ids, const VRjet& refs) {
       assert(ids.size()==refs.size());
       jetIds_.insert(jetIds_.end(),ids.begin(),ids.end());
       jetRefs_.insert(jetRefs_.end(),refs.begin(),refs.end());
       return jetIds_.size();
     }
-    size_type addObjects (const Vint& ids, const VRcomposite& refs) {
+    size_type addObjects (const Vids& ids, const VRcomposite& refs) {
       assert(ids.size()==refs.size());
       compositeIds_.insert(compositeIds_.end(),ids.begin(),ids.end());
       compositeRefs_.insert(compositeRefs_.end(),refs.begin(),refs.end());
       return compositeIds_.size();
     }
-    size_type addObjects (const Vint& ids, const VRmet& refs) {
+    size_type addObjects (const Vids& ids, const VRmet& refs) {
       assert(ids.size()==refs.size());
       metIds_.insert(metIds_.end(),ids.begin(),ids.end());
       metRefs_.insert(metRefs_.end(),refs.begin(),refs.end());
       return metIds_.size();
     }
-    size_type addObjects (const Vint& ids, const VRht& refs) {
+    size_type addObjects (const Vids& ids, const VRht& refs) {
       assert(ids.size()==refs.size());
       htIds_.insert(htIds_.end(),ids.begin(),ids.end());
       htRefs_.insert(htRefs_.end(),refs.begin(),refs.end());
       return htIds_.size();
     }
+
+    size_type addObjects (const Vids& ids, const VRl1em& refs) {
+      assert(ids.size()==refs.size());
+      l1emIds_.insert(l1emIds_.end(),ids.begin(),ids.end());
+      l1emRefs_.insert(l1emRefs_.end(),refs.begin(),refs.end());
+      return l1emIds_.size();
+    }
+    size_type addObjects (const Vids& ids, const VRl1muon& refs) {
+      assert(ids.size()==refs.size());
+      l1muonIds_.insert(l1muonIds_.end(),ids.begin(),ids.end());
+      l1muonRefs_.insert(l1muonRefs_.end(),refs.begin(),refs.end());
+      return l1muonIds_.size();
+    }
+    size_type addObjects (const Vids& ids, const VRl1jet& refs) {
+      assert(ids.size()==refs.size());
+      l1jetIds_.insert(l1jetIds_.end(),ids.begin(),ids.end());
+      l1jetRefs_.insert(l1jetRefs_.end(),refs.begin(),refs.end());
+      return l1jetIds_.size();
+    }
+    size_type addObjects (const Vids& ids, const VRl1etmiss& refs) {
+      assert(ids.size()==refs.size());
+      l1etmissIds_.insert(l1etmissIds_.end(),ids.begin(),ids.end());
+      l1etmissRefs_.insert(l1etmissRefs_.end(),refs.begin(),refs.end());
+      return l1emIds_.size();
+    }
+
     template<typename C>
-    size_type addObjects(const Vint& ids, const std::vector<edm::Ref<C> > refs) {
+    size_type addObjects(const Vids& ids, const std::vector<edm::Ref<C> > refs) {
       std::cout << "@@@@ Trigger addObjects(): collection type not recognized - ignored: '"
 		<< typeid(C).name() << "'" << std::endl;
       return 0;
@@ -255,10 +327,64 @@ namespace trigger
       refs.resize(n);
       size_type j(0);
       for (size_type i=begin; i!=end; ++i) {
-	if (id==htIds_[i]) {refs[i]=htRefs_[i]; ++j;}
+	if (id==htIds_[i]) {refs[j]=htRefs_[i]; ++j;}
       }
       return;
     }
+
+    void getObjects(int id, VRl1em& refs) const {
+      getObjects(id,refs,0,l1emIds_.size());
+    } 
+    void getObjects(int id, VRl1em& refs, size_type begin, size_type end) const {
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==l1emIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==l1emIds_[i]) {refs[j]=l1emRefs_[i]; ++j;}
+      }
+      return;
+    }
+    void getObjects(int id, VRl1muon& refs) const {
+      getObjects(id,refs,0,l1muonIds_.size());
+    } 
+    void getObjects(int id, VRl1muon& refs, size_type begin, size_type end) const {
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==l1muonIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==l1muonIds_[i]) {refs[j]=l1muonRefs_[i]; ++j;}
+      }
+      return;
+    }
+    void getObjects(int id, VRl1jet& refs) const {
+      getObjects(id,refs,0,l1jetIds_.size());
+    } 
+    void getObjects(int id, VRl1jet& refs, size_type begin, size_type end) const {
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==l1jetIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==l1jetIds_[i]) {refs[j]=l1jetRefs_[i]; ++j;}
+      }
+      return;
+    }
+    void getObjects(int id, VRl1etmiss& refs) const {
+      getObjects(id,refs,0,l1etmissIds_.size());
+    } 
+    void getObjects(int id, VRl1etmiss& refs, size_type begin, size_type end) const {
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==l1etmissIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==l1etmissIds_[i]) {refs[j]=l1etmissRefs_[i]; ++j;}
+      }
+      return;
+    }
+
     template<typename C>
     void getObjects(int id, std::vector<edm::Ref<C> > refs) const {
       getObjects(id,refs,0,0);
@@ -271,20 +397,29 @@ namespace trigger
     }
 
     /// low-level getters for data members
-    const Vint&        photonIds()     const {return photonIds_;}
+    const Vids&        photonIds()     const {return photonIds_;}
     const VRphoton&    photonRefs()    const {return photonRefs_;}
-    const Vint&        electronIds()   const {return electronIds_;}
+    const Vids&        electronIds()   const {return electronIds_;}
     const VRelectron&  electronRefs()  const {return electronRefs_;}
-    const Vint&        muonIds()       const {return muonIds_;}
+    const Vids&        muonIds()       const {return muonIds_;}
     const VRmuon&      muonRefs()      const {return muonRefs_;}
-    const Vint&        jetIds()        const {return jetIds_;}
+    const Vids&        jetIds()        const {return jetIds_;}
     const VRjet&       jetRefs()       const {return jetRefs_;}
-    const Vint&        compositeIds()  const {return compositeIds_;}
+    const Vids&        compositeIds()  const {return compositeIds_;}
     const VRcomposite& compositeRefs() const {return compositeRefs_;}
-    const Vint&        metIds()        const {return metIds_;}
+    const Vids&        metIds()        const {return metIds_;}
     const VRmet&       metRefs()       const {return metRefs_;}
-    const Vint&        htIds()         const {return htIds_;}
+    const Vids&        htIds()         const {return htIds_;}
     const VRht&        htRefs()        const {return htRefs_;}
+
+    const Vids&        l1emIds()       const {return l1emIds_;}
+    const VRl1em&      l1emRefs()      const {return l1emRefs_;}
+    const Vids&        l1muonIds()     const {return l1muonIds_;}
+    const VRl1muon&    l1muonRefs()    const {return l1muonRefs_;}
+    const Vids&        l1jetIds()      const {return l1jetIds_;}
+    const VRl1jet&     l1jetRefs()     const {return l1jetRefs_;}
+    const Vids&        l1etmissIds()   const {return l1etmissIds_;}
+    const VRl1etmiss&  l1etmissRefs()  const {return l1etmissRefs_;}
 
   };
 
