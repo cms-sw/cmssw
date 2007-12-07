@@ -4,6 +4,7 @@
 <use name=CalibFormats/SiPixelObjects>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=DataFormats/SiPixelDigi>
+<use name=CalibTracker/SiPixelTools>
 <use name=CondTools/SiPixel>
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
@@ -14,4 +15,5 @@
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=CalibFormats/SiPixelObjects>
+   <use name=CalibTracker/SiPixelTools>
 </export>
