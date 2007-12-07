@@ -1,6 +1,7 @@
 #ifndef SimG4Core_PhysicsLists_EmStandardPhysics52_h
 #define SimG4Core_PhysicsLists_EmStandardPhysics52_h 1
-
+#include "SimG4Core/PhysicsLists/interface/G4Version.h"
+#ifndef G4V9
 #include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
 
@@ -21,7 +22,7 @@ private:
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+#endif
 #endif
 
 

@@ -61,7 +61,8 @@ void ConvertedPhoton::setVertex(const Point & vertex) {
   math::XYZVector direction = this->superCluster()->position() - vertex;
   double energy = this->energy();
   math::XYZVector momentum = direction.unit() * energy;
-  p4_.SetXYZT(momentum.x(), momentum.y(), momentum.z(), energy );
+  math::XYZTLorentzVector lv(momentum.x(), momentum.y(), momentum.z(), energy );
+  setP4(lv);
   vertex_ = vertex;
 }
 

@@ -137,7 +137,7 @@ void DDEcalPreshowerAlgo::doLayers()
     if ( I==12 ) {
       zlead1_ = zpos + zHalf;
     }
-    if ( I==21 ) {
+    if ( I==22 ) {
       zlead2_ = zpos + zHalf;
     }
     
@@ -147,7 +147,7 @@ void DDEcalPreshowerAlgo::doLayers()
 
       absz = int(abs1stx.size()); 
       if ( I==20) absz = int(abs2ndx.size()); 
-      int cutabsx=-1;
+      int cutabsx=-1, cutabsy=-1;
 
       DDName dd_Alname_f(getLayName(i)+"LOutAl","esalgo");
       DDName dd_Alname_g(getLayName(i)+"LOutAl2","esalgo");
@@ -188,7 +188,7 @@ void DDEcalPreshowerAlgo::doLayers()
 	
 	if(I==20) { bdx = abs(abs2ndx[K]-abs2ndx[K-1])/2; bdy=abs2ndy[K];}
 	
-	if((abs2ndx[K] < rIn+30*cm) && I==20) { bdy=abs2ndy[K]/2 - 30*cm; cutabsx = K;}
+	if((abs2ndx[K] < rIn+30*cm) && I==20) { bdy=abs2ndy[K]/2 - 30*cm; cutabsy = K;}
 	
 	DDSolid solid_b = DDSolidFactory::box(dd_tmp_name_b,bdx,bdy,zHalf);
 	DDSolid solid_b2 = DDSolidFactory::box(dd_tmp_name_b2,bdx+0.1*mm,bdy+0.1*mm,zHalf);
@@ -226,7 +226,7 @@ void DDEcalPreshowerAlgo::doLayers()
 
       
       bdx = abs1stx[cutabsx]; bdy=2*30*cm;
-      if(I==20) bdx = abs2ndx[cutabsx]; bdy=2*30*cm;
+      if(I==20) bdx = abs2ndx[cutabsy]; bdy=2*30*cm;
       
       DDSolid solidcut = DDSolidFactory::box(dd_tmp_name_b,bdx,bdy,zHalf);
 
@@ -239,8 +239,7 @@ void DDEcalPreshowerAlgo::doLayers()
       DDLogicalPart layer = DDLogicalPart(dd_tmp_name_d,getMaterial(i),final);
       DDpos(layer, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
 
-
-      DDSolid iner_Al = DDSolidFactory::tubs(dd_tmp_name_e,zHalf,In_rad_Abs_Al,In_rad_Abs_Pb,0.,360.*deg); 
+      DDSolid iner_Al = DDSolidFactory::tubs(dd_tmp_name_e,zHalf,In_rad_Abs_Al,In_rad_Abs_Pb-0.01*mm,0.,360.*deg); 
       DDLogicalPart layerAl = DDLogicalPart(dd_tmp_name_e,getMaterial(i-1),iner_Al);
       DDpos(layerAl, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
   
@@ -252,10 +251,10 @@ void DDEcalPreshowerAlgo::doLayers()
 
       DDLogicalPart layerFinOutAl = DDLogicalPart(dd_tmp_name_f,getMaterial(i-1),Outer_Al);
 
-     DDpos(layerFinOutAl, parent(), 4*(I/10-1)+1, DDTranslation(0,0, zpos), DDRotation());
-     DDpos(layerFinOutAl, parent(), 4*(I/10-1)+2, DDTranslation(0,0, zpos), DDRotation("esalgo:RABS90"));
-     DDpos(layerFinOutAl, parent(), 4*(I/10-1)+3, DDTranslation(0,0, zpos), DDRotation("esalgo:RABS180B"));
-     DDpos(layerFinOutAl, parent(), 4*(I/10-1)+4, DDTranslation(0,0, zpos), DDRotation("esalgo:R180"));
+     DDpos(layerFinOutAl, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
+     DDpos(layerFinOutAl, parent(), 2, DDTranslation(0,0, zpos), DDRotation("esalgo:RABS90"));
+     DDpos(layerFinOutAl, parent(), 3, DDTranslation(0,0, zpos), DDRotation("esalgo:RABS180B"));
+     DDpos(layerFinOutAl, parent(), 4, DDTranslation(0,0, zpos), DDRotation("esalgo:R180"));
   
 
     
@@ -287,8 +286,8 @@ void DDEcalPreshowerAlgo::doLadders() {
 						-wedge_angle,     // pTheta
 						0,		// pPhi
 						ladder_width/2,	// pDy1
-						ladder_thick/2,  // pDx1
-						ladder_thick/2,   //     pDx2
+						(ladder_thick)/2,  // pDx1
+						(ladder_thick)/2,   //     pDx2
 						0,		//pAlp1
 						ladder_width/2,   //pDy2
 						(ladder_thick-ceramic_length*sin(wedge_angle*2))/2,   // pDx3
@@ -301,8 +300,8 @@ void DDEcalPreshowerAlgo::doLadders() {
 					      -wedge_angle,     // pTheta
 					      0,		// pPhi
 					      ladder_width/2,	// pDy1
-					      (box_thick/cos(wedge_angle*2))/2,  // pDx1
-					      (box_thick/cos(wedge_angle*2))/2,   //     pDx2
+					      (box_thick/cos(wedge_angle*2)+0.02*mm)/2,  // pDx1
+					      (box_thick/cos(wedge_angle*2)+0.02*mm)/2,   //     pDx2
 					      0,		//pAlp1
 					      ladder_width/2,   //pDy2
 					      (ladder_thick-wedge_back_thick)/2,   // pDx3
@@ -314,8 +313,8 @@ void DDEcalPreshowerAlgo::doLadders() {
 						-wedge_angle,     // pTheta
 						0,		// pPhi
 						(ladder_width/2)/2,	// pDy1
-						ladder_thick/2,  // pDx1
-						ladder_thick/2,   //     pDx2
+						(ladder_thick)/2,  // pDx1
+						(ladder_thick)/2,   //     pDx2
 						0,		//pAlp1
 						(ladder_width/2)/2,   //pDy2
 						(ladder_thick-ceramic_length*sin(wedge_angle*2))/2,   // pDx3
@@ -327,8 +326,8 @@ void DDEcalPreshowerAlgo::doLadders() {
 						-wedge_angle,     // pTheta
 						0,		// pPhi
 						(ladder_width/2)/2,	// pDy1
-						(box_thick/cos(wedge_angle*2))/2,  // pDx1
-						(box_thick/cos(wedge_angle*2))/2,   //     pDx2
+						(box_thick/cos(wedge_angle*2)+0.02*mm)/2,  // pDx1
+						(box_thick/cos(wedge_angle*2)+0.02*mm)/2,   //     pDx2
 						0,		//pAlp1
 						(ladder_width/2)/2,   //pDy2
 						(ladder_thick-wedge_back_thick)/2,   // pDx3
@@ -340,13 +339,15 @@ void DDEcalPreshowerAlgo::doLadders() {
 						  -wedge_angle,     // pTheta
 						  0,		// pPhi
 						  (ladder_width/2)/2,	// pDy1
-						  ladder_thick/2,  // pDx1
-						  ladder_thick/2,   //     pDx2
+						  (ladder_thick)/2,  // pDx1
+						  (ladder_thick)/2,   //     pDx2
 						  0,		//pAlp1
 						  (ladder_width/2)/2,   //pDy2
 						  (ladder_thick-(ceramic_length-waf_active)*sin(wedge_angle*2))/2,   // pDx3
 						  (ladder_thick-(ceramic_length-waf_active)*sin(wedge_angle*2))/2,   // pDx4
 						  0 );
+
+// Creation of ladders with 5 micromodules length
     
     if(M<int(types_l5_.size())) {
       
@@ -360,7 +361,7 @@ void DDEcalPreshowerAlgo::doLadders() {
       }
       
       DDName ddname(getLadPrefix(0)+types_l5_[M],"esalgo");
-      ladder_length = micromodule_length + 4*waf_active;
+      ladder_length = micromodule_length + 4*waf_active + 0.1*mm;
       
       
       if(ladd_not_plain) {   
@@ -406,7 +407,7 @@ void DDEcalPreshowerAlgo::doLadders() {
 	  
 	}
 	
-      } //not_plain
+      } //end of not plain ladder shape
       else {
 	
 	
@@ -432,6 +433,8 @@ void DDEcalPreshowerAlgo::doLadders() {
       }
     }
 
+// Creation of ladders with 4 micromodules length
+
     if( M >= int(types_l5_.size()) ) {
       int d = M - types_l5_.size();
            
@@ -444,7 +447,7 @@ void DDEcalPreshowerAlgo::doLadders() {
       }
       
       DDName ddname(getLadPrefix(0)+types_l4_[d],"esalgo");      
-      ladder_length = micromodule_length + 3*waf_active;      
+      ladder_length = micromodule_length + 3*waf_active + 0.1*mm;      
       
       if(ladd_not_plain) {        
 	ostringstream tmp_name_b, tmp_name_c, tmp_name_d;
@@ -537,7 +540,7 @@ void DDEcalPreshowerAlgo::doLadders() {
 	  }     
 	}
 	
-      } //not_plain
+      } //end of not plain ladder shape
       else {
 	DDName dd_tmp_name_pa(getLadPrefix(2)+"p","esalgo");
 	DDName dd_tmp_name_pb(getLadPrefix(3)+"p","esalgo");
@@ -557,21 +560,21 @@ void DDEcalPreshowerAlgo::doLadders() {
       }
     }
    
+// insert SWED, SFBX and SFBY into ladders
   swed_scopy_glob++;
-
     if(M<int(types_l5_.size())) {
       DDName ddname(getLadPrefix(0)+types_l5_[M],"esalgo");
       DDName ddname2(getLadPrefix(1)+types_l5_[M],"esalgo"); 
       for (int i=0; i<=1; i++) {
 	for (int j=0; j<=4; j++) {
-	  xpos = (i*2-1)*waf_intra_col_sep/2.; ypos = -ladder_length/2.-(LdrFrnt_Length-LdrBck_Length)/2 + wedge_length/2. + j*waf_active;
-	  zpos = -ladder_thick/2. + wedge_offset;
+	  xpos = (i*2-1)*waf_intra_col_sep/2.; ypos = -ladder_length/2. + 0.05*mm -(LdrFrnt_Length-LdrBck_Length)/2 + wedge_length/2. + j*waf_active;
+	  zpos = -ladder_thick/2. + 0.005*mm + wedge_offset;
 	  if(ladd_l5_map_[(i+j*2+M*10)]==1) {
 	    scopy ++;
 	    DDpos(DDLogicalPart("esalgo:SWED"), ddname, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
 	    DDpos(DDLogicalPart("esalgo:SWED"), ddname2, scopy+1000*swed_scopy_glob+100, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
 	    
-	    ypos = ypos + ywedge_ceramic_diff; zpos = -ladder_thick/2. + zwedge_ceramic_diff;
+	    ypos = ypos + ywedge_ceramic_diff; zpos = -ladder_thick/2. + 0.005*mm + zwedge_ceramic_diff;
 	    DDpos(DDLogicalPart("esalgo:SFBX"), ddname, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1298"));
 	    DDpos(DDLogicalPart("esalgo:SFBY"), ddname2, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1300A")); 
 	  }
@@ -585,15 +588,14 @@ void DDEcalPreshowerAlgo::doLadders() {
 	DDName ddname2(getLadPrefix(1)+types_l4_[d],"esalgo"); 	
 	for (int i=0; i<=1; i++) {
 	  for (int j=0; j<=3; j++) {
-	 //   xpos = (i*2-1)*waf_intra_col_sep/2.; ypos = -ladder_length/2. + wedge_length/2. + j*waf_active;
-	    xpos = (i*2-1)*waf_intra_col_sep/2.; ypos = -ladder_length/2. - (LdrFrnt_Length-LdrBck_Length)/2 + wedge_length/2. + j*waf_active;
-	    zpos = -ladder_thick/2. + wedge_offset;
+	    xpos = (i*2-1)*waf_intra_col_sep/2.; ypos = -ladder_length/2. + 0.05*mm - (LdrFrnt_Length-LdrBck_Length)/2 + wedge_length/2. + j*waf_active;
+	    zpos = -ladder_thick/2. + 0.005*mm + wedge_offset;
 	    if(ladd_l4_map_[(i+j*2+(M-types_l5_.size())*8)]==1) {
 	      scopy ++;
 	      DDpos(DDLogicalPart("esalgo:SWED"), ddname, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
 	      DDpos(DDLogicalPart("esalgo:SWED"), ddname2, scopy+1000*swed_scopy_glob+100, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
 
-	      ypos = ypos + ywedge_ceramic_diff; zpos = -ladder_thick/2. + zwedge_ceramic_diff;
+	      ypos = ypos + ywedge_ceramic_diff; zpos = -ladder_thick/2. + 0.005*mm + zwedge_ceramic_diff;
 	      DDpos(DDLogicalPart("esalgo:SFBX"), ddname, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1298"));
 	      DDpos(DDLogicalPart("esalgo:SFBY"), ddname2, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1300A"));
 	    }
@@ -601,6 +603,9 @@ void DDEcalPreshowerAlgo::doLadders() {
 	}
       }
   }
+
+// Positioning of ladders
+
   string type;
   int icopy[100] = {0};
 
@@ -618,7 +623,7 @@ void DDEcalPreshowerAlgo::doLadders() {
       if(K==3) type = typeOfLaddRow3[J]; 
 
       for(int i=0;i<int(types_l5_.size());i++) if(type == types_l5_[i]) {
-	ladder_new_length_ = micromodule_length + 4*waf_active; 
+	ladder_new_length_ = micromodule_length + 4*waf_active;
 	ladd_shift_ = 5*waf_active;}
       
       int j = 0;
@@ -635,7 +640,7 @@ void DDEcalPreshowerAlgo::doLadders() {
 
       prev_length_ += ladd_shift_;        
       
-      zpos = zlead1_ + ladder_thick/2.;
+      zpos = zlead1_ + ladder_thick/2. + 0.01*mm;
       icopy[j] +=1;
       DDName ddname(getLadPrefix(0)+type,"esalgo"); 
       

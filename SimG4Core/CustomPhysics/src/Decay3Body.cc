@@ -5,7 +5,7 @@
 #include "CLHEP/Vector/Boost.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Random/RandFlat.h"
+#include "Randomize.hh"
 
 Decay3Body::Decay3Body() {
 }
@@ -46,9 +46,9 @@ void Decay3Body::doDecay(const HepLorentzVector & mother,
 
     do {
 // Pick values for m2_12 and m2_23 uniformly:
-      x1 = RandFlat::shoot();
+      x1 = G4UniformRand();
       m2_12 = m2_12min + x1*(m2_12max-m2_12min);
-      x2 = RandFlat::shoot();
+      x2 = G4UniformRand();
       m2_23 = m2_23min + x2*(m2_23max-m2_23min);
 
 // From the allowed range of m2_23 (given m2_12), determine if the point is valid:
@@ -79,15 +79,15 @@ void Decay3Body::doDecay(const HepLorentzVector & mother,
     if (fabs(cos23) > 1.0) std::cout << "Error: Undefined angle23!" << std::endl;
 
 // Find the four vectors of the particles in a chosen (i.e. simple) frame:
-    double xi    = 2.0 * pi * RandFlat::shoot();
+    double xi    = 2.0 * pi * G4UniformRand();
     Hep3Vector q1(0.0,0.0,p1);
     Hep3Vector q2( sin(acos(cos12))*cos(xi)*p2, sin(acos(cos12))*sin(xi)*p2,cos12*p2);
     Hep3Vector q3(-sin(acos(cos13))*cos(xi)*p3,-sin(acos(cos13))*sin(xi)*p3,cos13*p3);
 
 // Rotate all three daughters momentum with the angles theta and phi:
-    double theta = acos(2.0 * RandFlat::shoot() - 1.0);
-    double phi   = 2.0 * pi * RandFlat::shoot();
-    double psi   = 2.0 * pi * RandFlat::shoot();
+    double theta = acos(2.0 * G4UniformRand() - 1.0);
+    double phi   = 2.0 * pi * G4UniformRand();
+    double psi   = 2.0 * pi * G4UniformRand();
     q1.rotate(phi,theta,psi);
     q2.rotate(phi,theta,psi);
     q3.rotate(phi,theta,psi);

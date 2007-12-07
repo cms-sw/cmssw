@@ -22,19 +22,16 @@ class SiStripActionExecutor {
   virtual ~SiStripActionExecutor();
 
  void setupQTests(DaqMonitorBEInterface* bei);
- void createCollation(MonitorUserInterface* mui);
  void createTkMap(DaqMonitorBEInterface* bei);
  bool readConfiguration(int& sum_freq);
- void readConfiguration();
+ bool readConfiguration();
  void saveMEs(DaqMonitorBEInterface * bei, std::string fname);
- bool getCollationFlag(){return collationDone;}
  int getTkMapMENames(std::vector<std::string>& names);
  void createSummary(DaqMonitorBEInterface* bei);
 
  private:
  //  SiStripConfigParser* configParser_;
   std::vector<std::string> tkMapMENames;
-  bool collationDone;
 
   QTestHandle* qtHandler_;
 

@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2007/08/17 09:05:07 $
- * $Revision: 1.53 $
+ * $Date: 2007/11/14 10:31:39 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,14 +20,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
+
+class MonitorElement;
+class MonitorUserInterface;
+class DaqMonitorBEInterface;
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
 
 class EBTestPulseClient : public EBClient {
 
@@ -71,7 +71,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
+void htmlOutput(int run, std::string htmlDir, std::string htmlName);
 
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
@@ -86,17 +86,14 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
 bool enableMonitorDaemon_;
 
-string prefixME_;
+std::string prefixME_;
 
-string baseHtmlDir_;
-
-vector<int> superModules_;
+std::vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
@@ -104,15 +101,6 @@ DaqMonitorBEInterface* dbe_;
 TProfile2D* ha01_[36];
 TProfile2D* ha02_[36];
 TProfile2D* ha03_[36];
-
-MEContentsProf2DWithinRangeROOT* qtha01_[36];
-MEContentsProf2DWithinRangeROOT* qtha02_[36];
-MEContentsProf2DWithinRangeROOT* qtha03_[36];
-
-MEContentsProf2DWithinRangeROOT* qtha04_[36];
-MEContentsProf2DWithinRangeROOT* qtha05_[36];
-MEContentsProf2DWithinRangeROOT* qtha06_[36];
-MEContentsProf2DWithinRangeROOT* qtha07_[36];
 
 TProfile2D* hs01_[36];
 TProfile2D* hs02_[36];
@@ -132,10 +120,14 @@ MonitorElement* mea03_[36];
 MonitorElement* mer04_[36];
 MonitorElement* mer05_[36];
 
-TProfile2D* i01_[36];
-TProfile2D* i02_[36];
-TProfile2D* i03_[36];
-TProfile2D* i04_[36];
+MonitorElement* me_hs01_[36];
+MonitorElement* me_hs02_[36];
+MonitorElement* me_hs03_[36];
+
+TProfile* i01_[36];
+TProfile* i02_[36];
+TProfile* i03_[36];
+TProfile* i04_[36];
 
 // Quality check on crystals
 
@@ -149,13 +141,6 @@ float amplitudeThresholdPnG16_;
 float pedPnExpectedMean_[2];
 float pedPnDiscrepancyMean_[2];
 float pedPnRMSThreshold_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg01_[36];
-MEContentsTH2FWithinRangeROOT* qtg02_[36];
-MEContentsTH2FWithinRangeROOT* qtg03_[36];
-
-MEContentsTH2FWithinRangeROOT* qtg04_[36];
-MEContentsTH2FWithinRangeROOT* qtg05_[36];
 
 };
 

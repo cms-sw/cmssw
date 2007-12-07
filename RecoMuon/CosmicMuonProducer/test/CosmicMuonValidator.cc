@@ -4,8 +4,8 @@
  *
  *  the validator assumes single muon events
  *
- *  $Date: 2007/08/19 00:46:32 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/09/24 17:59:37 $
+ *  $Revision: 1.4 $
  *  \author Chang Liu   -  Purdue University <Chang.Liu@cern.ch>
  */
 
@@ -182,7 +182,7 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
        phisim = simTrack->momentum().phi();
 
        simC = - simTrack->type()/13.;
-       ptsim = simTrack->momentum().perp();
+       ptsim = simTrack->momentum().pt();
     }
   }
 

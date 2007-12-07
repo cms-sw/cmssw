@@ -137,7 +137,10 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 
 	//Attention isForward does not work
 	int isforw=0;
-        if(fabs((float) ((etaLow+etaHigh)/2.))>1.5) isforw=1;
+	int isbarl=0;
+	if((float)(etaHigh)>1.479 || (float)(etaLow)<-1.479) isforw=1;
+	if(((float)(etaLow)>-1.479 && (float)(etaLow)<1.479) || 
+	   ((float)(etaHigh)>-1.479 && (float)(etaHigh)<1.479)) isbarl=1;
 
 	//std::cout<<"Island etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
 	
@@ -146,14 +149,20 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 	phiLow -= regionPhiMargin_;
 	phiHigh += regionPhiMargin_;
 
-
-	EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	//if (emItr->gctEmCand()->regionId().isForward()) {
 	if (isforw) {
+	  if (etaHigh>-1.479 && etaHigh<1.479) etaHigh=-1.479;
+	  if ( etaLow>-1.479 &&  etaLow<1.479) etaLow=1.479;
+	  EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	  endcapRegions.push_back(region);
-	} else {
+	}
+	if (isbarl) {
+	  if (etaHigh>1.479) etaHigh=1.479;
+	  if (etaLow<-1.479) etaLow=-1.479;
+	  EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	  barrelRegions.push_back(region);
 	}
+	EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	
       }
     }
@@ -180,7 +189,10 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 
 
 	int isforw=0;
-        if(fabs((float) ((etaLow+etaHigh)/2.))>1.5) isforw=1;
+	int isbarl=0;
+	if((float)(etaHigh)>1.479 || (float)(etaLow)<-1.479) isforw=1;
+	if(((float)(etaLow)>-1.479 && (float)(etaLow)<1.479) || 
+	   ((float)(etaHigh)>-1.479 && (float)(etaHigh)<1.479)) isbarl=1;
 
 	//std::cout<<"Island etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
 	
@@ -189,12 +201,17 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 	phiLow -= regionPhiMargin_;
 	phiHigh += regionPhiMargin_;
 
-
-	EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	//if (emItr->gctEmCand()->regionId().isForward()) {
 	if (isforw) {
+	  if (etaHigh>-1.479 && etaHigh<1.479) etaHigh=-1.479;
+	  if ( etaLow>-1.479 &&  etaLow<1.479) etaLow=1.479;
+	  EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	  endcapRegions.push_back(region);
-	} else {
+	}
+	if (isbarl) {
+	  if (etaHigh>1.479) etaHigh=1.479;
+	  if (etaLow<-1.479) etaLow=-1.479;
+	  EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	  barrelRegions.push_back(region);
 	}
 	

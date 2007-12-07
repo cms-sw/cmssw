@@ -114,6 +114,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   multimap<EncodedTruthId,PSimHit>   simTrack_hit;
   typedef multimap<EncodedTruthId,PSimHit>::const_iterator hitItr;
 //  timers.pop();
+
   for (MixCollection<PSimHit>::MixItr hit = hitCollection -> begin();
        hit != hitCollection -> end(); ++hit) {
     EncodedTruthId simTrackId = EncodedTruthId(hit->eventId(),hit->trackId());
@@ -123,8 +124,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin();
        itP !=  trackCollection->end(); ++itP){
     int                       q = (int)(itP -> charge()); // Check this
-    // LorentzVector             p = itP -> momentum();
-    LorentzVector p(itP->momentum().x(),itP->momentum().y(),itP->momentum().z(),itP->momentum().e());
+    const LorentzVector theMomentum = itP -> momentum();
     unsigned int     simtrackId = itP -> trackId();
     int                 genPart = itP -> genpartIndex(); // The HepMC particle number
     int                 genVert = itP -> vertIndex();    // The SimVertex #
@@ -133,7 +133,6 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     EncodedTruthId      trackId = EncodedTruthId(trackEventId,simtrackId);
 
     bool signalEvent = (trackEventId.event() == 0 && trackEventId.bunchCrossing() == 0);
-    const TrackingParticle::LorentzVector theMomentum(p.x(), p.y(), p.z(), p.t());
     double  time = 0;
 
     const HepMC::GenParticle *gp = 0;
@@ -166,12 +165,13 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     for (hitItr iHit  = simTrack_hit.lower_bound(trackId);
                 iHit != simTrack_hit.upper_bound(trackId); ++iHit) {
       PSimHit hit = iHit->second;
-      float pratio = hit.pabs()/(itP->momentum().mag());
+      float pratio = hit.pabs()/theMomentum.P();     
 
 // Discard hits from delta rays if requested
 
-      if (!discardHitsFromDeltas_ || ( discardHitsFromDeltas_ &&  0.5 < pratio && pratio < 2) ) {
+      if (!discardHitsFromDeltas_ || ( discardHitsFromDeltas_ && 0.5 < pratio && pratio < 2.0 ) ) {
         tp.addPSimHit(hit);
+
         unsigned int detid = hit.detUnitId();
         DetId detId = DetId(detid);
         oldlay = newlay;
@@ -187,13 +187,13 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       }
     }
     tp.setMatchedHit(totsimhit);
-
     tp.addG4Track(*itP);
     if (genPart >= 0 && signalEvent) {
       tp.addGenParticle(GenParticleRef(hepMC,genPart));
     }
 
 // Add indices to map and add to collection
+
     simTrack_tP.insert(make_pair(trackId,tPC->size()));
     tPC -> push_back(tp);
   } // Loop on MixCollection<SimTrack>
@@ -249,13 +249,14 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 
     int tmpTV = 0;
     for (TrackingVertexCollection::iterator iTrkVtx = tVC -> begin(); iTrkVtx != tVC ->end(); ++iTrkVtx, ++tmpTV) {
-      double distance = (iTrkVtx -> position() - position).mag();
+      double distance = (iTrkVtx -> position() - position).P();
       if (distance <= closest && vertEvtId == iTrkVtx -> eventId()) { // flag which one so we can associate them
         closest = distance;
         nearestVertex = iTrkVtx;
         indexTV = tmpTV;
       }
-    }
+    }    
+    
 
 // If outside cutoff, create another TrackingVertex, set nearestVertex to it
 
@@ -283,6 +284,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
           (*nearestVertex).addDaughterTrack(TrackingParticleRef(refTPC,indexTP));
           (tPC->at(indexTP)).setParentVertex(TrackingVertexRef(refTVC,indexTV));
           const LorentzVector  &v = (*nearestVertex).position();
+
           math::XYZPoint xyz = math::XYZPoint(v.x(), v.y(), v.z());
           double t = v.t();
           (tPC->at(indexTP)).setVertex(xyz,t);
@@ -328,6 +330,19 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 
   edm::LogInfo(MessageCategory) << "TrackingTruthProducer found "  << tVC -> size()
                                 << " unique vertices and " << tPC -> size() << " tracks.";
+
+  /*
+  //DEBUG
+  for (TrackingParticleCollection::const_iterator t = tPC -> begin(); t != tPC -> end(); ++t) {
+  cout << "T.P.   Track mass, Momentum, q , ID, & Event # "
+  << t -> mass()  << " "
+  << t -> p4()    << " " << t -> charge() << " "
+  << t -> pdgId() << " "
+  << t -> eventId().bunchCrossing() << "." << t -> eventId().event() << endl;
+  cout << " Hits for this track: " << t -> trackPSimHit().size() << endl;
+  }
+  */
+
 
 // Put TrackingParticles and TrackingVertices in event
   event.put(tPC);

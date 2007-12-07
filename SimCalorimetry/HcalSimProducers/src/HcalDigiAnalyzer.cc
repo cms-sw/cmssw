@@ -25,40 +25,33 @@ HcalDigiAnalyzer::HcalDigiAnalyzer(edm::ParameterSet const& conf)
 namespace HcalDigiAnalyzerImpl {
   template<class Collection>
   void analyze(edm::Event const& e, HcalDigiStatistics & statistics) {
-    try {
-      edm::Handle<Collection> digis;
-      e.getByType(digis);
-      for(unsigned i = 0; i < digis->size(); ++i) {
-        statistics.analyze((*digis)[i]);
-      }
-    }
-    catch (...) {
-      edm::LogError("HcalDigiAnalyzer") << "Could not find Hcal Digi Container ";
+    edm::Handle<Collection> digis;
+    e.getByType(digis);
+    for(unsigned i = 0; i < digis->size(); ++i) {
+      std::cout << (*digis)[i] << std::endl;
+      statistics.analyze((*digis)[i]);
     }
   }
 }
 
 
 void HcalDigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& c) {
-  edm::Handle<edm::PCaloHitContainer> hits;
-  try{
-    hitReadoutName_ = "HcalHits";
-    e.getByLabel("g4SimHits",hitReadoutName_, hits);
-    
-  } catch(...){;}
-  try{
-    hitReadoutName_ = "ZDCHITS";
-    e.getByLabel("g4SimHits",hitReadoutName_, hits);
-    
-  } catch(...){;}
+  // Step A: Get Inputs
+  edm::Handle<CrossingFrame<PCaloHit> > cf, zdccf;
+  e.getByLabel("mix", "HcalHits",cf);
+  //e.getByLabel("mix", "ZDCHits", zdccf);
+  
+  // test access to SimHits for HcalHits and ZDC hits
+  std::auto_ptr<MixCollection<PCaloHit> > hits(new MixCollection<PCaloHit>(cf.product()));
+  //std::auto_ptr<MixCollection<PCaloHit> > zdcHits(new MixCollection<PCaloHit>(zdccf.product()));
   hbheHitAnalyzer_.fillHits(*hits);
   hoHitAnalyzer_.fillHits(*hits);
   hfHitAnalyzer_.fillHits(*hits);
-  zdcHitAnalyzer_.fillHits(*hits);
+  //zdcHitAnalyzer_.fillHits(*zdcHits);
   HcalDigiAnalyzerImpl::analyze<HBHEDigiCollection>(e, hbheDigiStatistics_);
   HcalDigiAnalyzerImpl::analyze<HODigiCollection>(e, hoDigiStatistics_);
   HcalDigiAnalyzerImpl::analyze<HFDigiCollection>(e, hfDigiStatistics_);
-  HcalDigiAnalyzerImpl::analyze<ZDCDigiCollection>(e, zdcDigiStatistics_);
+  //HcalDigiAnalyzerImpl::analyze<ZDCDigiCollection>(e, zdcDigiStatistics_);
 }
 
 

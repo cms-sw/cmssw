@@ -4,6 +4,7 @@
   <class name="SiStripFedKey"/>
   <class name="SiStripDetKey"/>
   <class name="SiStripNullKey"/>
+  <class name="SiStripKey"/>
 
   <class name="edm::Wrapper<sistrip::RunType>"/>
   <class name="edm::Wrapper<sistrip::ApvReadoutMode>"/>

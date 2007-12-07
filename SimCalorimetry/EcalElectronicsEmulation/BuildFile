@@ -6,6 +6,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=SimDataFormats/CaloHit>
 <use name=CondFormats/EcalObjects>
+<use name=CondFormats/DataRecord>
 <use name=root>
 
 <flags EDM_PLUGIN=1>
@@ -20,4 +21,5 @@
    <use name=DataFormats/EcalDetId>
    <use name=SimDataFormats/CaloHit>
    <use name=CondFormats/EcalObjects>
+   <use name=CondFormats/DataRecord>
 </export>

@@ -32,7 +32,6 @@
 
   <class name="SiStripRunSummary"/>
 
-  <class pattern="*iterator*"/>
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
 

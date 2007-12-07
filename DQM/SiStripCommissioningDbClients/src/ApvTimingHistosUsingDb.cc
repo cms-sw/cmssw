@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.7 2007/07/04 08:39:13 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.10 2007/11/28 16:59:32 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -72,9 +72,8 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
   
   if ( uploadFecSettings_ ) {
 
-    // Update PLL device descriptions
-    db_->resetDeviceDescriptions();
-    const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions(); 
+    // Retrieve and update PLL device descriptions
+    const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( PLL ); 
     bool upload = update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
     
     // Check if new PLL settings are valid 
@@ -85,7 +84,7 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
 	<< " Aborting update to database...";
       return;
     }
-
+    
     // Upload PLL device descriptions
     if ( !test_ ) { 
       LogTrace(mlDqmClient_) 
@@ -110,7 +109,6 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
   if ( uploadFedSettings_ ) {
 
     // Update FED descriptions with new ticker thresholds
-    db_->resetFedDescriptions();
     const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
     update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
 
@@ -119,7 +117,7 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
       LogTrace(mlDqmClient_) 
 	<< "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	<< " Uploading FED ticker thresholds to DB...";
-      db_->uploadFedDescriptions(false); 
+      db_->uploadFedDescriptions(true); 
       LogTrace(mlDqmClient_) 
 	<< "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	<< " Upload of FED ticker thresholds to DB finished!";
@@ -173,43 +171,28 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 					addr.ccuChan_,
 					ichan+1 ).key();
       fec_path = SiStripFecKey( fec_key );
-      
+      {
+	std::stringstream sss;
+	sss << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	    << " FEC crate: " << addr.fecCrate_
+	    << " FEC ring " << addr.fecRing_
+	    << " FEC key " << fec_key;
+	edm::LogWarning(mlDqmClient_) << sss.str();
+      }
+
       // Locate appropriate analysis object    
       map<uint32_t,ApvTimingAnalysis*>::const_iterator iter = data_.find( fec_key );
       if ( iter != data_.end() ) { 
 	
 	// Check delay value
-	if ( iter->second->refTime() < 0. || iter->second->refTime() > sistrip::maximum_ ) { 
-	  edm::LogWarning(mlDqmClient_) 
-	    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	    << " Unexpected maximum time setting: "
-	    << iter->second->refTime();
-	  continue;
-	}
-	
-	// Check delay and tick height are valid
-	if ( iter->second->delay() < 0. || 
-	     iter->second->delay() > sistrip::maximum_ ) { 
-	  edm::LogWarning(mlDqmClient_) 
-	    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	    << " Unexpected delay value: "
-	    << iter->second->delay();
-	  continue; 
-	}
-	if ( iter->second->height() < 100. ) { 
-	  edm::LogWarning(mlDqmClient_) 
-	    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	    << " Unexpected tick height: "
-	    << iter->second->height();
-	  continue; 
-	}
+	if ( !iter->second->isValid() ) { continue; }
 	
 	// Calculate coarse and fine delays
 	uint32_t delay = static_cast<uint32_t>( rint( iter->second->delay() * 24. / 25. ) ); 
 	coarse = static_cast<uint16_t>( desc->getDelayCoarse() ) 
 	  + ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) / 24;
 	fine = ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) % 24;
-
+	
 	// Record PPLs maximum coarse setting
 	if ( coarse > 15 ) { invalid.push_back(fec_path); }
 	

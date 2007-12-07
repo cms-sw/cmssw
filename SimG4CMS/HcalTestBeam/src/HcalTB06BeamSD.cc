@@ -16,6 +16,7 @@
 
 #include "G4Step.hh"
 #include "G4Track.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
 			       SensitiveDetectorCatalog & clg, 
@@ -133,8 +134,8 @@ uint32_t HcalTB06BeamSD::setDetUnitId(G4Step * aStep) {
     lay = (touch->GetReplicaNumber(1));
     G4ThreeVector hitPoint    = preStepPoint->GetPosition();
     G4ThreeVector localPoint  = setToLocal(hitPoint, touch);
-    x   = (int)(localPoint.x()/0.02);
-    y   = (int)(localPoint.y()/0.02);
+    x   = (int)(localPoint.x()/(0.2*mm));
+    y   = (int)(localPoint.y()/(0.2*mm));
   }
 
   return packIndex (det, lay, x, y);

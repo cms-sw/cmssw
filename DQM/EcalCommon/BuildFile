@@ -1,16 +1,13 @@
 <use name=DQMServices/Core>
+<use name=DataFormats/DetId>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalRawData>
-<use name=Geometry/EcalMapping>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
+<use name=Geometry/EcalMapping>
 <use name=OnlineDB/EcalCondDB>
+<use name=rootcore>
 <export>
-  <use name=DQMServices/Core>
-  <use name=Geometry/EcalMapping>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=OnlineDB/EcalCondDB>
   <lib name=DQMEcalCommon>
 </export>

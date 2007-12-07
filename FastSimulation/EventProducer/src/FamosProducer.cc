@@ -30,6 +30,9 @@
 
 FamosProducer::FamosProducer(edm::ParameterSet const & p)      
 {    
+
+    std::cout << " FamosProducer initializing " << std::endl;
+
     produces<edm::HepMCProduct>();
     produces<edm::SimTrackContainer>();
     produces<edm::SimVertexContainer>();
@@ -50,7 +53,7 @@ FamosProducer::~FamosProducer()
 
 void FamosProducer::beginJob(const edm::EventSetup & es)
 {
-    std::cout << " FamosProducer initializing " << std::endl;
+    std::cout << " FamosManager initializing " << std::endl;
     famosManager_->setupGeometryAndField(es);
     //    famosManager_->initEventReader();
 }
@@ -116,9 +119,20 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
      }
    }
 
+   // Get the pile-up events from the pile-up producer
+   // There might be no pile-up events, by the way, in that case, just continue
+   Handle<HepMCProduct> thePileUpEvents;
+   bool isPileUp = true;
+   try { 
+     iEvent.getByLabel("famosPileUp","PileUpEvents",thePileUpEvents);
+   } catch ( cms::Exception& e ) { 
+     isPileUp = false;
+   }
+   const HepMC::GenEvent* thePUEvents = isPileUp ? thePileUpEvents->GetEvent() : 0;
+
    // .and pass the event to the Famos Manager
    if ( myGenEvent || myGenParticles ) 
-     famosManager_->reconstruct(myGenEvent,myGenParticles);
+     famosManager_->reconstruct(myGenEvent,myGenParticles,thePUEvents);
    
    // Put info on to the end::Event
    FSimEvent* fevt = famosManager_->simEvent();

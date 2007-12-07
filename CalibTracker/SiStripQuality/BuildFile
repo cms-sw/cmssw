@@ -1,0 +1,16 @@
+<use name=boost>
+<use name=root>
+<use name=FWCore/MessageLogger>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/SiStripObjects>
+<use name=CalibFormats/SiStripObjects>
+<export>
+   <lib name=CalibTrackerSiStripQuality>
+   <use name=boost>
+   <use name=root>
+   <use name=FWCore/MessageLogger>
+   <use name=CondFormats/DataRecord>
+   <use name=CondFormats/SiStripObjects>
+   <use name=CalibFormats/SiStripObjects>
+</export>
+

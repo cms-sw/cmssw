@@ -20,18 +20,20 @@ public:
     MaxCharge(0),
     MaxPosition(0)
     {
-      RawDigiAmplitudesL=std::vector<short>(0);
-      RawDigiAmplitudesR=std::vector<short>(0);
+      RawDigiAmplitudesL=std::vector<float>(0);
+      RawDigiAmplitudesR=std::vector<float>(0);
       StripNoises=std::vector<float>(0);
+      ApvGains=std::vector<float>(1);
     };
   
 
   uint16_t firstStrip() const {return FirstStrip;}
   unsigned int geographicalId() const {return detId_;}
   const std::vector<uint16_t>& stripAmplitudes()    const {return StripAmplitudes;}
-  const std::vector<short>&    rawdigiAmplitudesL() const {return RawDigiAmplitudesL;}
-  const std::vector<short>&    rawdigiAmplitudesR() const {return RawDigiAmplitudesR;}
+  const std::vector<float>&    rawdigiAmplitudesL() const {return RawDigiAmplitudesL;}
+  const std::vector<float>&    rawdigiAmplitudesR() const {return RawDigiAmplitudesR;}
   const std::vector<float>&    stripNoises()        const {return StripNoises;}
+  const std::vector<float>&    apvGains()           const {return ApvGains;}
   
   float charge()    const {return Charge;}
   float noise()     const {return Noise;}
@@ -41,16 +43,18 @@ public:
   uint16_t maxPos() const {return MaxPosition;}
   float chargeL()   const {return ChargeL;}
   float chargeR()   const {return ChargeR;}
-  
+  float getGainForStripNb(uint16_t istrip) const;
+
   void setCharge(const float& value) {Charge=value;}  
   void setNoise(const float& value) {Noise=value;}
   void setStripNoises(std::vector<float>& value) {StripNoises=value;}
+  void setApvGains(std::vector<float>& value) {ApvGains=value;}
   void setMaxCharge(const float& value) {MaxCharge=value;}
   void setMaxPos(const uint16_t& value) {MaxPosition=value;}
   void setChargeL(const float& value) {ChargeL=value;}
   void setChargeR(const float& value) {ChargeR=value;}
-  void setRawDigiAmplitudesL(const std::vector<short>& value){RawDigiAmplitudesL=value;}
-  void setRawDigiAmplitudesR(const std::vector<short>& value){RawDigiAmplitudesR=value;}
+  void setRawDigiAmplitudesL(const std::vector<float>& value){RawDigiAmplitudesL=value;}
+  void setRawDigiAmplitudesR(const std::vector<float>& value){RawDigiAmplitudesR=value;}
 
   void print(std::stringstream &ss);
 
@@ -59,9 +63,10 @@ private:
   uint32_t                detId_;
   uint16_t                FirstStrip;
   std::vector<uint16_t>   StripAmplitudes;
-  std::vector<short>    RawDigiAmplitudesL;
-  std::vector<short>    RawDigiAmplitudesR;
+  std::vector<float>      RawDigiAmplitudesL;
+  std::vector<float>      RawDigiAmplitudesR;
   std::vector<float>      StripNoises;
+  std::vector<float>      ApvGains;
 
   float     Charge;
   float     Noise;

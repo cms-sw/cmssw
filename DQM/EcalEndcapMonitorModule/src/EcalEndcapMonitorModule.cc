@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/06/21 13:40:07 $
- * $Revision: 1.10 $
+ * $Date: 2007/11/28 09:47:42 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -12,13 +12,16 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
+
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -39,7 +42,7 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
 
   EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
   cout << endl;
@@ -62,15 +65,6 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
   // this should come from the EcalEndcap event header
   runType_ = ps.getUntrackedParameter<int>("runType", -1);
   evtType_ = runType_;
-
-  // DQM ROOT output
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-
-  if ( outputFile_.size() != 0 ) {
-    LogInfo("EcalEndcapMonitor") << " Ecal Barrel Monitoring histograms will be saved to '" << outputFile_.c_str() << "'";
-  } else {
-    LogInfo("EcalEndcapMonitor") << " Ecal Barrel Monitoring histograms will NOT be saved";
-  }
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -163,7 +157,31 @@ void EcalEndcapMonitorModule::setup(void){
     meEvt_ = dbe_->bookInt("EVT");
 
     meRunType_ = dbe_->bookInt("RUNTYPE");
-    meEvtType_ = dbe_->book1D("EVTTYPE", "EVTTYPE", 30, 0., 30.);
+    meEvtType_ = dbe_->book1D("EVTTYPE", "EVTTYPE", 31, -1., 30.);
+    meEvtType_->setBinLabel(1, "UNKNOWN", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH2, "BEAMH2", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::MTCC, "MTCC", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::LASER_STD, "LASER_STD", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::LASER_POWER_SCAN, "LASER_POWER_SCAN", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::LASER_DELAY_SCAN, "LASER_DELAY_SCAN", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_SCAN_MEM, "TESTPULSE_SCAN_MEM", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_MGPA, "TESTPULSE_MGPA", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_STD, "PEDESTAL_STD", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN, "PEDESTAL_OFFSET_SCAN", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_25NS_SCAN, "PEDESTAL_25NS_SCAN", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::LED_STD, "LED_STD", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL, "PHYSICS_GLOBAL", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_GLOBAL, "COSMICS_GLOBAL", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::HALO_GLOBAL, "HALO_GLOBAL", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::LASER_GAP, "LASER_GAP", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_GAP, "TESTPULSE_GAP");
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_GAP, "PEDESTAL_GAP");
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::LED_GAP, "LED_GAP", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_LOCAL, "PHYSICS_LOCAL", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
+    meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
   }
 
   // unknown
@@ -184,16 +202,22 @@ void EcalEndcapMonitorModule::setup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EcalInfo");
 
-    meEEDCC_ = dbe_->book1D("EEMM SM", "EEMM SM", 18, 1, 19.);
+    meEEDCC_ = dbe_->book1D("EEMM DCC", "EEMM DCC", 18, 1, 19.);
+    for (int i = 0; i < 18; i++) {
+      meEEDCC_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
 
-    meEEdigi_ = dbe_->book1D("EEMM digi", "EEMM digi", 100, 0., 61201.);
-    meEEhits_ = dbe_->book1D("EEMM hits", "EEMM hits", 100, 0., 61201.);
+    meEEdigi_ = dbe_->book1D("EEMM digi", "EEMM digi", 100, 0., 13299.);
+
+    meEEhits_ = dbe_->book1D("EEMM hits", "EEMM hits", 100, 0., 13299.);
 
     if ( enableEventDisplay_ ) {
       dbe_->setCurrentFolder("EcalEndcap/EcalEvent");
       for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EEMM event SM%02d", i+1);
-        meEvent_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+        sprintf(histo, "EEMM event %s", Numbers::sEE(i+1).c_str());
+        meEvent_[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+        meEvent_[i]->setAxisTitle("ix", 1);
+        meEvent_[i]->setAxisTitle("iy", 2);
         dbe_->tag(meEvent_[i], i+1);
         if ( meEvent_[i] ) meEvent_[i]->setResetMe(true);
       }
@@ -265,8 +289,6 @@ void EcalEndcapMonitorModule::endJob(void) {
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-
   // this should give enough time to meStatus_ to reach the Collector,
   // and then hopefully the Client, and to allow the Client to complete
 
@@ -280,6 +302,8 @@ void EcalEndcapMonitorModule::endJob(void) {
 
 void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   if ( ! init_ ) this->setup();
 
   ievt_++;
@@ -291,14 +315,13 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   evtNumber_ = e.id().event();
 
   map<int, EcalDCCHeaderBlock> dccMap;
+
   Handle<EcalRawDataCollection> dcchs;
 
-  try {
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
-    e.getByLabel(EcalRawDataCollection_, dcchs);
-
-    int nebc = dcchs->size();
-    LogDebug("EcalEndcapMonitor") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
+    int neec = dcchs->size();
+    LogDebug("EcalEndcapMonitor") << "event: " << ievt_ << " DCC headers collection size: " << neec;
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -309,7 +332,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       dccMap[dcch.id()] = dcch;
 
-      meEEDCC_->Fill((dcch.id()+1)+0.5);
+      meEEDCC_->Fill(Numbers::iSM( dcch, EcalEndcap )+0.5);
 
       if ( ! fixedRunNumber_ ) runNumber_ = dcch.getRunNumber();
 
@@ -326,19 +349,17 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex ) {
+  } else {
 
     LogWarning("EcalEndcapMonitorModule") << EcalRawDataCollection_ << " not available";
 
-    try {
+    Handle<EcalTBEventHeader> pEvtH;
 
-      Handle<EcalTBEventHeader> pEvtH;
-      const EcalTBEventHeader* evtHeader=0;
+    if ( e.getByLabel(EcalTBEventHeader_, pEvtH) ) {
 
-      e.getByLabel(EcalTBEventHeader_, pEvtH);
-      evtHeader = pEvtH.product();
+      const EcalTBEventHeader* evtHeader = pEvtH.product();
 
-      meEEDCC_->Fill(1);
+      meEEDCC_->Fill(1+0.5);
 
       if ( ! fixedRunNumber_ ) runNumber_ = evtHeader->runNumber();
 
@@ -348,7 +369,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       evtType_ = EcalDCCHeaderBlock::BEAMH4;
 
-    } catch ( exception& ex ) {
+    } else {
 
       LogWarning("EcalEndcapMonitorModule") << EcalTBEventHeader_ << " not available, TOO!";
 
@@ -378,112 +399,90 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( enableMonitorDaemon_ ) sleep(5);
   }
 
-  try {
+  // pause the shipping of monitoring elements
+  dbe_->lock();
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+  Handle<EEDigiCollection> digis;
 
-    int nebd = digis->size();
-    LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " digi collection size " << nebd;
+  if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
-    if ( meEEdigi_ ) meEEdigi_->Fill(float(nebd));
+    int need = digis->size();
+    LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " digi collection size " << need;
 
-    // pause the shipping of monitoring elements
-    dbe_->lock();
+    if ( meEEdigi_ ) meEEdigi_->Fill(float(need));
 
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EEDataFrame dataframe = (*digiItr);
+      EEDetId id = dataframe.id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = id.ix();
+      int iy = id.iy();
 
-      int ism = id.ism(); if ( ism > 9 ) continue;
+      int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
       LogDebug("EcalEndcapMonitor") << " det id = " << id;
-      LogDebug("EcalEndcapMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-
-      if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-        LogWarning("EcalEndcapMonitor") << " det id = " << id;
-        LogWarning("EcalEndcapMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-        LogWarning("EcalEndcapMonitor") << " xie, xip " << xie << " " << xip;
-        return;
-      }
+      LogDebug("EcalEndcapMonitor") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
     }
 
-    // resume the shipping of monitoring elements
-    dbe_->unlock();
+  } else {
 
-  } catch ( exception& ex) {
-
-    LogWarning("EcalEndcapMonitorModule") << EBDigiCollection_ << " not available";
+    LogWarning("EcalEndcapMonitorModule") << EEDigiCollection_ << " not available";
 
   }
 
-  try {
+  Handle<EcalUncalibratedRecHitCollection> hits;
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
-    int nebh = hits->size();
-    LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " hits collection size " << nebh;
+    int neeh = hits->size();
+    LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " hits collection size " << neeh;
 
-    if ( meEEhits_ ) meEEhits_->Fill(float(nebh));
+    if ( meEEhits_ ) meEEhits_->Fill(float(neeh));
 
     if ( enableEventDisplay_ ) {
-
-      // pause the shipping of monitoring elements
-      dbe_->lock();
 
       for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
         EcalUncalibratedRecHit hit = (*hitItr);
-        EBDetId id = hit.id();
+        EEDetId id = hit.id();
 
-        int ic = id.ic();
-        int ie = (ic-1)/20 + 1;
-        int ip = (ic-1)%20 + 1;
+        int ix = id.ix();
+        int iy = id.iy();
 
-        int ism = id.ism(); if ( ism > 9 ) continue;
+        int ism = Numbers::iSM( id );
 
-        float xie = ie - 0.5;
-        float xip = ip - 0.5;
+        if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
+
+        float xix = ix - 0.5;
+        float xiy = iy - 0.5;
 
         LogDebug("EcalEndcapMonitor") << " det id = " << id;
-        LogDebug("EcalEndcapMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-
-        if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-          LogWarning("EcalEndcapMonitor") << " det id = " << id;
-          LogWarning("EcalEndcapMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-          LogWarning("EcalEndcapMonitor") << " xie, xip " << xie << " " << xip;
-        }
+        LogDebug("EcalEndcapMonitor") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
         float xval = hit.amplitude();
 
         LogDebug("EcalEndcapMonitor") << " hit amplitude " << xval;
 
         if ( xval >= 10 ) {
-          if ( meEvent_[ism-1] ) meEvent_[ism-1]->Fill(xie, xip, xval);
+          if ( meEvent_[ism-1] ) meEvent_[ism-1]->Fill(xix, xiy, xval);
         }
 
       }
 
-      // resume the shipping of monitoring elements
-      dbe_->unlock();
-
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EcalEndcapMonitorModule") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
+
+  // resume the shipping of monitoring elements
+  dbe_->unlock();
 
 }
 

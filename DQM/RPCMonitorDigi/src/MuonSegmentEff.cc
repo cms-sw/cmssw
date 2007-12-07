@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.7 2007/10/08 12:13:05 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.13 2007/11/07 14:44:41 carrillo Exp $
 //
 //
 
@@ -49,6 +49,7 @@
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 
@@ -104,21 +105,39 @@ private:
   int _station; 
 };
 
+
 class CSCStationIndex{
 public:
-  CSCStationIndex():_region(0){}
-  CSCStationIndex(int region):
-    _region(region){}
+  CSCStationIndex():_region(0),_station(0),_ring(0),_chamber(0){}
+  CSCStationIndex(int region, int station, int ring, int chamber):
+    _region(region),
+    _station(station),
+    _ring(ring),
+    _chamber(chamber){}
   ~CSCStationIndex(){}
   int region() const {return _region;}
+  int station() const {return _station;}
+  int ring() const {return _ring;}
+  int chamber() const {return _chamber;}
   bool operator<(const CSCStationIndex& cscind) const{
     if(cscind.region()!=this->region())
       return cscind.region()<this->region();
+    else if(cscind.station()!=this->station())
+      return cscind.station()<this->station();
+    else if(cscind.ring()!=this->ring())
+      return cscind.ring()<this->ring();
+    else if(cscind.chamber()!=this->chamber())
+      return cscind.chamber()<this->chamber();
     return false;
   }
+
 private:
   int _region;
+  int _station;
+  int _ring;  
+  int _chamber;
 };
+
 
 
 MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
@@ -134,18 +153,26 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   totalcounter[0]=0;
   totalcounter[1]=0;
   totalcounter[2]=0;
-  ofrej.open("rejected.txt");
 
-  incldt=iConfig.getParameter<bool>("incldt");
-  incldtMB4=iConfig.getParameter<bool>("incldtMB4");
-  inclcsc=iConfig.getParameter<bool>("inclcsc");
-  widestrip=iConfig.getParameter<int>("widestrip");
-  widestripRB4=iConfig.getParameter<int>("widestripRB4");
-  MinCosAng=iConfig.getParameter<double>("MinCosAng");
-  MaxD=iConfig.getParameter<double>("MaxD");
-  muonRPCDigis=iConfig.getParameter<std::string>("muonRPCDigis");
-  cscSegments=iConfig.getParameter<std::string>("cscSegments");
-  dt4DSegments=iConfig.getParameter<std::string>("dt4DSegments");
+  incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
+  incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
+  inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
+  widestrip=iConfig.getUntrackedParameter<double>("widestrip",4.);
+  widestripRB4=iConfig.getUntrackedParameter<double>("widestripRB4",4.);
+  MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.9999);
+  MaxD=iConfig.getUntrackedParameter<double>("MaxD",40.);
+  muonRPCDigis=iConfig.getUntrackedParameter<std::string>("muonRPCDigis","muonRPCDigis");
+  cscSegments=iConfig.getUntrackedParameter<std::string>("cscSegments","cscSegments");
+  dt4DSegments=iConfig.getUntrackedParameter<std::string>("dt4DSegments","dt4DSegments");
+  rejected=iConfig.getUntrackedParameter<std::string>("rejected","rejected.txt");
+  rollseff=iConfig.getUntrackedParameter<std::string>("rollseff","rollseff.txt");
+
+  std::cout<<rejected<<std::endl;
+  std::cout<<rollseff<<std::endl;
+  
+  ofrej.open(rejected.c_str());
+  ofeff.open(rollseff.c_str());
+  
   // Giuseppe
   nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", true); 
@@ -180,8 +207,6 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   char meRPC [128];
   char meIdCSC [128];
 
-  float dx=0.,dy=0.,dz=0.,Xo=0.,Yo=0.,X=0.,Y=0.,Z=0.;
-  
   std::cout<<"New Event "<<iEvent.id().event()<<std::endl;
 
   std::cout <<"\t Getting the RPC Geometry"<<std::endl;
@@ -194,7 +219,6 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
   std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;    
-
   
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
     if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
@@ -216,14 +240,31 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  rollstoreDT[ind]=myrolls;
 	}
 	else if(inclcsc){
-	  //std::cout<<"--Filling the EndCaps"<<rpcId<<std::endl;
+	  //std::cout<<"--Filling the EndCaps!"<<rpcId<<std::endl;
 	  int region=rpcId.region();
-	  CSCStationIndex ind(region);
-	  std::set<RPCDetId> myrolls;
-	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end()) myrolls=rollstoreCSC[ind];
-	  myrolls.insert(rpcId);
-	  rollstoreCSC[ind]=myrolls;
-	}
+          int station=rpcId.station();
+          int ring=rpcId.ring();
+          int cscring=ring;
+          int cscstation=station;
+	  RPCGeomServ rpcsrv(rpcId);
+	  int rpcsegment = rpcsrv.segment();
+	  int cscchamber = rpcsegment;
+          if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
+            cscring = 2;
+          }
+	  if((station==4)&&(ring==2||ring==3)){//RE4 have just ring 1
+            cscstation=3;
+            cscring=2;
+          }
+          CSCStationIndex ind(region,cscstation,cscring,cscchamber);
+          std::set<RPCDetId> myrolls;
+	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end()){
+            myrolls=rollstoreCSC[ind];
+          }
+          
+          myrolls.insert(rpcId);
+          rollstoreCSC[ind]=myrolls;
+        }
       }
     }
   }
@@ -252,7 +293,8 @@ MuonSegmentEff::endJob() {
   std::map<RPCDetId, int> obse = counter[1];
   std::map<RPCDetId, int> reje = counter[2];
   std::map<RPCDetId, int>::iterator irpc;
-  
+
+     
   for (irpc=pred.begin(); irpc!=pred.end();irpc++){
     RPCDetId id=irpc->first;
     int p=pred[id]; 
@@ -264,25 +306,32 @@ MuonSegmentEff::endJob() {
       float ef = float(o)/float(p); 
       float er = sqrt(ef*(1.-ef)/float(p));
       std::cout <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
+      ofeff <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
       if(ef<0.8){
 	std::cout<<"\t \t Warning!";
+	ofeff<<"\t \t Warning!";
       } 
     }
     else{
       std::cout<<"No predictions in this file p=0"<<std::endl;
+      ofeff<<"No predictions in this file p=0"<<std::endl;
     }
   }
   if(totalcounter[0]!=0){
     float tote = float(totalcounter[1])/float(totalcounter[0]);
     float totr = sqrt(tote*(1.-tote)/float(totalcounter[0]));
   
-    std::cout <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<"%"<<std::endl;
+    std::cout <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<" %"<<std::endl;
     std::cout <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
+    
+    ofeff <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<" %"<<std::endl;
+    ofeff <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
+
   }
   else{
     std::cout<<"No predictions in this file = 0!!!"<<std::endl;
+    ofeff <<"No predictions in this file = 0!!!"<<std::endl;
   }
-
 
   std::vector<uint32_t>::iterator meIt;
   for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
@@ -373,8 +422,7 @@ MuonSegmentEff::endJob() {
     }
   }
 
-
   //Giuseppe
-  if(EffSaveRootFile) dbe->save(EffRootFileName);
+  //if(EffSaveRootFile) dbe->save(EffRootFileName);
 }
 

@@ -175,7 +175,7 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
   int eyTotal = eyMinusVl + eyPlusVal;
   unsigned etTotal = etMinusVl + etPlusVal;
 
-  etmiss_vec etResult = trueMissingEt(-exTotal, -eyTotal);
+  etmiss_vec etResult = trueMissingEt(-exTotal/2, -eyTotal/2);
 
   bool exTotalOvrFlow = (exTotal<-2048) || (exTotal>=2048) || exMinusOvrFlow || exPlusOverFlow;
   bool eyTotalOvrFlow = (eyTotal<-2048) || (eyTotal>=2048) || eyMinusOvrFlow || eyPlusOverFlow;
@@ -312,7 +312,7 @@ L1CaloRegion gctTestEnergyAlgos::nextRegionFromFile(const unsigned ieta, const u
 //=========================================================================
 int gctTestEnergyAlgos::etComponent(const unsigned Emag, const unsigned fact) const {
   // Copy the Ex, Ey conversion from the hardware emulation
-  const unsigned sinFact[10] = {0, 44, 88, 128, 165, 196, 222, 241, 252, 256};
+  const unsigned sinFact[10] = {0, 89, 175, 256, 329, 392, 443, 481, 504, 512};
   unsigned myFact;
   bool negativeResult;
   int result;

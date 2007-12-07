@@ -155,7 +155,11 @@ class _TypedParameterizable(_Parameterizable):
         config += options.indentation()+'}\n'
         return config
     def dumpPython(self, options=PrintOptions()):
-        return "cms."+str(type(self).__name__)+"(\""+self.type_()+"\",\n"+_Parameterizable.dumpPython(self,options)+options.indentation()+")\n"
+        result = "cms."+str(type(self).__name__)+"(\""+self.type_()+"\""
+        if len(self.parameters()) > 0:
+            result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation()
+        result += ")\n" 
+        return result
     def nameInProcessDesc_(self, myname):
         return myname;
     def moduleLabel_(self, myname):
@@ -182,8 +186,6 @@ class _Labelable(object):
         return str(self.__label)
     def dumpSequenceConfig(self):
         return str(self.__label)
-    def dumpSequencePython(self):
-        return "process."+str(self.label())
     def _findDependencies(self,knownDeps,presentDeps):
         #print 'in labelled'
         myDeps=knownDeps.get(self.label(),None)

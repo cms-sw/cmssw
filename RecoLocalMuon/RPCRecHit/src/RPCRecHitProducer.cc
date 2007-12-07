@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/13 12:04:31 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/23 08:11:34 $
+ *  $Revision: 1.4 $
  *  \author M. Maggi -- INFN Bari
 */
 
@@ -46,7 +46,6 @@ RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config){
 }
 
 RPCRecHitProducer::~RPCRecHitProducer(){
-  delete theAlgo;
 }
 
 

@@ -133,10 +133,10 @@ private:
   void checkSetup();
   /// Puts the output from a jetfinder into the correct index range of the m_inputJets array. 
   void storeJets(JetVector jets, unsigned short iLeaf, unsigned short offset);
-  /// Classifies jets into central, forward or tau, and re-addresses them using global co-ords.
+  /// Classifies jets into central, forward or tau.
   void classifyJets();
-  /// Sizes the m_rawTauJetsVec, and then sets all tauVeto bits to false.
-  void setupRawTauJetsVec();
+  /// Initialises all the jet vectors with jets of the correct type.
+  void setupJetsVectors();
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga);

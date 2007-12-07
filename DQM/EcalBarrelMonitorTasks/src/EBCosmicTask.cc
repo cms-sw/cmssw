@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/08/14 17:43:06 $
- * $Revision: 1.75 $
+ * $Date: 2007/11/09 19:15:51 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  *
 */
@@ -82,18 +82,23 @@ void EBCosmicTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy cut %s", Numbers::sEB(i+1).c_str());
       meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meCutMap_[i]->setAxisTitle("ieta", 1);
+      meCutMap_[i]->setAxisTitle("iphi", 2);
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy sel %s", Numbers::sEB(i+1).c_str());
       meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meSelMap_[i]->setAxisTitle("ieta", 1);
+      meSelMap_[i]->setAxisTitle("iphi", 2);
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy spectrum %s", Numbers::sEB(i+1).c_str());
       meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrumMap_[i]->setAxisTitle("energy (GeV)", 1);
     }
 
   }
@@ -146,10 +151,9 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
-  try {
+  Handle<EcalRawDataCollection> dcchs;
 
-    Handle<EcalRawDataCollection> dcchs;
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -171,7 +175,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBCosmicTask") << EcalRawDataCollection_ << " not available";
 
@@ -183,10 +187,9 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EcalRecHitCollection> hits;
 
-    Handle<EcalRecHitCollection> hits;
-    e.getByLabel(EcalRecHitCollection_, hits);
+  if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
     int nebh = hits->size();
     LogDebug("EBCosmicTask") << "event " << ievt_ << " hits collection size " << nebh;
@@ -216,7 +219,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
 
       LogDebug("EBCosmicTask") << " det id = " << id;
-      LogDebug("EBCosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EBCosmicTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       float xval = hit.energy();
       if ( xval <= 0. ) xval = 0.0;
@@ -238,7 +241,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBCosmicTask") << EcalRecHitCollection_ << " not available";
 

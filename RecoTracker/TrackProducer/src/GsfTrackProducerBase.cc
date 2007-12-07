@@ -31,15 +31,16 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 
   edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
   edm::Ref<reco::TrackExtraCollection>::key_type hidx = 0;
-  edm::Ref<reco::GsfTrackExtraCollection>::key_type iTkRef = 0;
-  edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
+  edm::Ref<reco::GsfTrackExtraCollection>::key_type idxGsf = 0;
+//   edm::Ref<reco::TrackCollection>::key_type iTkRef = 0;
+//   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
 //   std::map<unsigned int, unsigned int> tjTkMap;
 
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
     if(trajectoryInEvent_) {
       selTrajectories->push_back(*theTraj);
-      iTjRef++;
+//       iTjRef++;
     }
     const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
 
@@ -50,7 +51,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 
     reco::GsfTrack t = * theTrack;
     selTracks->push_back( t );
-    iTkRef++;
+//     iTkRef++;
 
 //     // Store indices in local map (starts at 0)
 //     if(trajectoryInEvent_) tjTkMap[iTjRef-1] = iTkRef-1;
@@ -113,7 +114,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
     innerStates.reserve(innertsos.components().size());
     fillStates(innertsos,innerStates);
 
-    reco::GsfTrackExtraRef terefGsf = reco::GsfTrackExtraRef ( rGsfTrackExtras, iTkRef ++ );
+    reco::GsfTrackExtraRef terefGsf = reco::GsfTrackExtraRef ( rGsfTrackExtras, idxGsf ++ );
     track.setGsfExtra( terefGsf );
     selGsfTrackExtras->push_back( reco::GsfTrackExtra (outerStates, outertsos.localParameters().pzSign(),
 						       innerStates, innertsos.localParameters().pzSign()));

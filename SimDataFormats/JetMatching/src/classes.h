@@ -13,6 +13,5 @@ namespace {
     reco::JetFlavourMatchingRefProd                  jfmrp;
     reco::JetFlavourMatchingRefVector                jfrv;
     edm::Wrapper<reco::JetFlavourMatchingCollection> wjfmc;
-
   }
 }

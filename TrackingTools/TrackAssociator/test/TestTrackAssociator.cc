@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.17 2007/09/18 18:28:31 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.18 2007/10/09 02:38:18 dmytro Exp $
 //
 //
 
@@ -121,8 +121,8 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
        tracksCI != simTracks->end(); tracksCI++){
       
       // skip low Pt tracks
-      if (tracksCI->momentum().perp() < 5) {
-	 LogVerbatim("TrackAssociator") << "Skipped low Pt track (Pt: " << tracksCI->momentum().perp() << ")" ;
+      if (tracksCI->momentum().pt() < 5) {
+	 LogVerbatim("TrackAssociator") << "Skipped low Pt track (Pt: " << tracksCI->momentum().pt() << ")" ;
 	 continue;
       }
       
@@ -139,7 +139,7 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	 continue;
       }
       
-      LogVerbatim("TrackAssociator") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().perp() << " , " <<
+      LogVerbatim("TrackAssociator") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().pt() << " , " <<
 	tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() ;
       
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,

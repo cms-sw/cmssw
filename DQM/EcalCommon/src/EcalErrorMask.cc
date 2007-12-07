@@ -1,21 +1,35 @@
-// $Id: EcalErrorMask.cc,v 1.6 2007/05/22 15:42:42 benigno Exp $
+// $Id: EcalErrorMask.cc,v 1.12 2007/11/13 14:05:34 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.6 $
-  \date $Date: 2007/05/22 15:42:42 $
+  \version $Revision: 1.12 $
+  \date $Date: 2007/11/13 14:05:34 $
 */
 
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
+#include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
+
+#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+
+#include <CondTools/Ecal/interface/EcalErrorDictionary.h>
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-#include <cstdlib>
 #include <regex.h>
-#include <CondTools/Ecal/interface/EcalErrorDictionary.h>
 
 bool EcalErrorMask::done_ = false;
 int  EcalErrorMask::runNb_ = -1;
@@ -77,21 +91,31 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 
     if( verbose ) std::cout << is.str() << std::endl;
 
-    // get SM number (1...36 or EB+1...EB-18)
+    int subdet = 0;
+
+    // get SM number (1...36 or EB-18...EB+18 or EE-09...EE+09)
     //int sm; is >> sm;
     std::string ssm; is >> ssm;
     int sm;
     if( ssm.substr( 0, 2 ) == "EB" ) {
       sm = atoi( ssm.substr(2, ssm.size()-2).c_str() );
       sm = (sm>0) ? sm : 18-sm;
+      subdet = EcalBarrel;
+    }
+    else if( ssm.substr( 0, 2 ) == "EE" ) {
+      sm = atoi( ssm.substr(2, ssm.size()-2).c_str() );
+      sm = (sm>0) ? sm : 18-sm;
+      subdet = EcalEndcap;
     }
     else {
       sm = atoi( ssm.c_str() );
+      if(sm >= 1 && sm <= 36) subdet = EcalBarrel;
+//      if(sm >= 1 && sm <= 18) subdet = EcalEndcap;
     }
 
-    if( sm < 1 || sm > 36 ) {
+    if( !(sm >= 1 && sm <= 36) ) {
       std::ostringstream os;
-      os << "line " << linecount << " --> SM must be a number between 1 and 36: " << sm << std::ends;
+      os << "line " << linecount << " --> SM must be a number between 1 and 36, or between 1 and 18: " << sm << std::ends;
       if( verifySyntax ) {
 	std::cerr << os.str() << std::endl;
 	nerrors++;
@@ -140,7 +164,9 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 	}
       }
       if( !verifySyntax ) {
-	EcalLogicID id = EcalLogicID( "EB_crystal_number", 1011000000+10000*sm+ic, sm, ic, 0 );
+	EcalLogicID id;
+        if(subdet == EcalBarrel) id = EcalLogicID( "EB_crystal_number", 1011000000+10000*sm+ic, sm, ic, 0 );
+        if(subdet == EcalEndcap) id = EcalLogicID( "EE_crystal_number", 1011000000+10000*sm+ic, sm, ic, 0 );
 	std::map<EcalLogicID, RunCrystalErrorsDat>::iterator i = EcalErrorMask::mapCrystalErrors_.find( id );
 	if( i != mapCrystalErrors_.end() ) {
 	  uint64_t oldBitmask = (i->second).getErrorBits();
@@ -191,7 +217,9 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 	}
       }
       if( !verifySyntax ) {
-	EcalLogicID id = EcalLogicID( "EB_trigger_tower", 1021000000+10000*sm+it, sm, it, 0 );
+	EcalLogicID id;
+        if(subdet == EcalBarrel) id = EcalLogicID( "EB_trigger_tower", 1021000000+10000*sm+it, sm, it, 0 );
+        if(subdet == EcalEndcap) id = EcalLogicID( "EE_trigger_tower", 1021000000+10000*sm+it, sm, it, 0 );
 	std::map<EcalLogicID, RunTTErrorsDat>::iterator i = EcalErrorMask::mapTTErrors_.find( id );
 	if( i != mapTTErrors_.end() ) {
 	  uint64_t oldBitmask = (i->second).getErrorBits();
@@ -242,7 +270,9 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 	}
       }
       if( !verifySyntax ) {
-	EcalLogicID id = EcalLogicID( "EB_LM_PN", 1131000000+10000*sm+(ic-1), sm, (ic-1), 0 );
+	EcalLogicID id;
+        if(subdet == EcalBarrel) id = EcalLogicID( "EB_LM_PN", 1131000000+10000*sm+(ic-1), sm, (ic-1), 0 );
+        if(subdet == EcalEndcap) id = EcalLogicID( "EE_LM_PN", 1131000000+10000*sm+(ic-1), sm, (ic-1), 0 );
 	std::map<EcalLogicID, RunPNErrorsDat>::iterator i = EcalErrorMask::mapPNErrors_.find( id );
 	if( i != mapPNErrors_.end() ) {
 	  uint64_t oldBitmask = (i->second).getErrorBits();
@@ -293,7 +323,9 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 	}
       }
       if( !verifySyntax ) {
-	EcalLogicID id = EcalLogicID( "EB_mem_channel", 1191000000+10000*sm+ic, sm, ic, 0 );
+	EcalLogicID id;
+        if(subdet == EcalBarrel) id = EcalLogicID( "EB_mem_channel", 1191000000+10000*sm+ic, sm, ic, 0 );
+        if(subdet == EcalEndcap) id = EcalLogicID( "EE_mem_channel", 1191000000+10000*sm+ic, sm, ic, 0 );
 	std::map<EcalLogicID, RunMemChErrorsDat>::iterator i = EcalErrorMask::mapMemChErrors_.find( id );
 	if( i != mapMemChErrors_.end() ) {
 	  uint64_t oldBitmask = (i->second).getErrorBits();
@@ -344,7 +376,9 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 	}
       }
       if( !verifySyntax ) {
-	EcalLogicID id = EcalLogicID( "EB_mem_TT", 1181000000+10000*sm+it, sm, it, 0 );
+	EcalLogicID id;
+        if(subdet == EcalBarrel) id = EcalLogicID( "EB_mem_TT", 1181000000+10000*sm+it, sm, it, 0 );
+        if(subdet == EcalEndcap) id = EcalLogicID( "EE_mem_TT", 1181000000+10000*sm+it, sm, it, 0 );
 	std::map<EcalLogicID, RunMemTTErrorsDat>::iterator i = EcalErrorMask::mapMemTTErrors_.find( id );
 	if( i != mapMemTTErrors_.end() ) {
 	  uint64_t oldBitmask = (i->second).getErrorBits();
@@ -415,6 +449,22 @@ std::string EcalErrorMask::sEB( int sm ) {
 
 //---------------------------------------------------------------------------------------------
 
+std::string EcalErrorMask::sEE( int sm ) {
+  if( sm > 9 ) sm = 9-sm;
+  std::ostringstream s;
+  s << "EE" << std::setw(3) << std::setfill('0')
+    << std::setiosflags( std::ios::showpos )
+    << std::setiosflags( std::ios::internal )
+    << sm
+    << std::resetiosflags( std::ios::showpos )
+    << std::resetiosflags( std::ios::internal )
+    << std::ends;
+  return( s.str() );
+
+}
+
+//---------------------------------------------------------------------------------------------
+
 void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error ) {
 
   std::ifstream inf( outFile.c_str() );
@@ -454,7 +504,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -467,7 +518,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << it << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << it << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm).c_str() << " " << it << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -480,7 +532,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -493,7 +546,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -506,7 +560,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << it << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << it << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm).c_str() << " " << it << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -526,7 +581,7 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapCrystalErrors_, &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << "RunCrystalErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
       throw( std::runtime_error( e.what() ) );
     }
 
@@ -536,25 +591,25 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapTTErrors_,      &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << " RunTTErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapPNErrors_,      &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << " RunPNErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemChErrors_,   &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << " RunMemChErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemTTErrors_,   &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << " RunMemTTErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
 */
@@ -564,7 +619,7 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapCrystalErrors_, &validIOV, location, runIOV->getRunNumber() );
       std::cout << "RunCrystalErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
       throw( std::runtime_error( e.what() ) );
     }
 
@@ -574,25 +629,25 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapTTErrors_,      &validIOV, location, runIOV->getRunNumber() );
       std::cout << " RunTTErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapPNErrors_,      &validIOV, location, runIOV->getRunNumber() );
       std::cout << " RunPNErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemChErrors_,   &validIOV, location, runIOV->getRunNumber() );
       std::cout << " RunMemChErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemTTErrors_,   &validIOV, location, runIOV->getRunNumber() );
       std::cout << " RunMemTTErrorsDat ";
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
 //      throw( std::runtime_error( e.what() ) );
     }
 
@@ -617,7 +672,7 @@ void EcalErrorMask::writeDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw(
         eConn->insertDataSet( &EcalErrorMask::mapMemChErrors_,   runIOV );
       if (EcalErrorMask::mapMemTTErrors_.size() != 0 )
         eConn->insertDataSet( &EcalErrorMask::mapMemTTErrors_,   runIOV );
-    } catch ( std::runtime_error & e ) {
+    } catch ( std::runtime_error &e ) {
       throw( std::runtime_error( e.what() ) );
     }
 

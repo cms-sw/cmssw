@@ -1,5 +1,5 @@
 #include "SimG4Core/PhysicsLists/interface/EmStandardPhysics52.hh"
-
+#ifndef G4V9
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
 #include "G4LossTableManager.hh"
@@ -156,4 +156,4 @@ void EmStandardPhysics52::ConstructProcess()
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+#endif

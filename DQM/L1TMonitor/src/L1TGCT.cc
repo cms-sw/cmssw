@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2007/09/27 16:56:26 $
- * $Revision: 1.13 $
+ * $Date: 2007/09/27 23:01:28 $
+ * $Revision: 1.14 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.14  2007/09/27 23:01:28  ratnik
+ * QA campaign: fixes to compensate includes cleanup in  DataFormats/L1Trigger
+ *
  * Revision 1.13  2007/09/27 16:56:26  wittich
  * verbosity fixes
  *
@@ -154,7 +157,7 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
 
 
   if (dbe != NULL) {
-    dbe->setCurrentFolder("L1TMonitor/L1TGCT");
+    dbe->setCurrentFolder("L1T/L1TGCT");
   }
 
 
@@ -174,13 +177,13 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
   dbe = edm::Service < DaqMonitorBEInterface > ().operator->();
 
   if (dbe) {
-    dbe->setCurrentFolder("L1TMonitor/L1TGCT");
-    dbe->rmdir("L1TMonitor/L1TGCT");
+    dbe->setCurrentFolder("L1T/L1TGCT");
+    dbe->rmdir("L1T/L1TGCT");
   }
 
 
   if (dbe) {
-    dbe->setCurrentFolder("L1TMonitor/L1TGCT");
+    dbe->setCurrentFolder("L1T/L1TGCT");
 
 
     const int nJetEta = 256;

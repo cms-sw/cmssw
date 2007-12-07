@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/13 18:59:53 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/06 17:36:20 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -46,10 +46,6 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) {
   edm::Service<MonitorDaemon>().operator->();
   theDbe->setCurrentFolder("DT/DTSegmentAnalysisTask");
 
-  // set the name of the outputfile
-  theRootFileName = pset.getUntrackedParameter<string>("rootFileName", "DTSegmentAnalysisTask.root");
-  writeHisto = pset.getUntrackedParameter<bool>("writeHisto", true);
-
   parameters = pset;
 
 }
@@ -70,9 +66,7 @@ void DTSegmentAnalysisTask::beginJob(const edm::EventSetup& context){
 void DTSegmentAnalysisTask::endJob(){
  if(debug)
     cout<<"[DTSegmentAnalysisTask] endjob called!"<<endl;
-  // Write the histos
-  if ( writeHisto ) 
-    theDbe->save(theRootFileName);
+
   theDbe->rmdir("DT/DTSegmentAnalysisTask");
 }
   
@@ -143,39 +137,42 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 	   ++segment4D){
 
       //FOR NOISY CHANNELS////////////////////////////////
-     const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
      bool segmNoisy = false;
-     vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
-     map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
-     for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
-	 hit != phiHits.end(); ++hit) {
-       DTWireId wireId = (*hit).wireId();
-
-	// Check for noisy channels to skip them
-	if(checkNoisyChannels) {
-	  bool isNoisy = false;
-	  bool isFEMasked = false;
-	  bool isTDCMasked = false;
-	  bool isTrigMask = false;
-	  bool isDead = false;
-	  bool isNohv = false;
-	  statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
-	  if(isNoisy) {
-	    if(debug)
-	      cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
-	    segmNoisy = true;
+     if((*segment4D).hasPhi()){
+       const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
+       vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
+       map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
+       for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
+	   hit != phiHits.end(); ++hit) {
+	 DTWireId wireId = (*hit).wireId();
+	 
+	 // Check for noisy channels to skip them
+	 if(checkNoisyChannels) {
+	   bool isNoisy = false;
+	   bool isFEMasked = false;
+	   bool isTDCMasked = false;
+	   bool isTrigMask = false;
+	   bool isDead = false;
+	   bool isNohv = false;
+	   statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+	   if(isNoisy) {
+	     if(debug)
+	       cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
+	     segmNoisy = true;
 	  }      
-	}
-      }
+	 }
+       }
+     }
+
      if((*segment4D).hasZed()) {
-	const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();  // zSeg lives in the SL RF
-	// Check for noisy channels to skip them
-	vector<DTRecHit1D> zHits = zSeg->specificRecHits();
-    	for(vector<DTRecHit1D>::const_iterator hit = zHits.begin();
-	    hit != zHits.end(); ++hit) {
-	  DTWireId wireId = (*hit).wireId();
-	  if(checkNoisyChannels) {
-	    bool isNoisy = false;
+       const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();  // zSeg lives in the SL RF
+       // Check for noisy channels to skip them
+       vector<DTRecHit1D> zHits = zSeg->specificRecHits();
+       for(vector<DTRecHit1D>::const_iterator hit = zHits.begin();
+	   hit != zHits.end(); ++hit) {
+	 DTWireId wireId = (*hit).wireId();
+	 if(checkNoisyChannels) {
+	   bool isNoisy = false;
 	    bool isFEMasked = false;
 	    bool isTDCMasked = false;
 	    bool isTrigMask = false;
@@ -188,9 +185,10 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 		cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
 	      segmNoisy = true;
 	    }      
-	  }
-	}
-      } 
+	 }
+       }
+     } 
+     
      if (segmNoisy) {
        if(debug)
 	 cout<<"skipping the segment: it contains noisy cells"<<endl;
@@ -198,11 +196,13 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
      }
      //END FOR NOISY CHANNELS////////////////////////////////
       
-  LocalPoint segment4DLocalPos = (*segment4D).localPosition();
-      LocalVector segment4DLocalDirection = (*segment4D).localDirection();
-      int nHits = (((*segment4D).phiSegment())->specificRecHits()).size();
-      if((*segment4D).hasZed()) 
-	nHits = nHits + ((((*segment4D).zSegment())->specificRecHits()).size());
+     int nHits=0;
+     LocalPoint segment4DLocalPos = (*segment4D).localPosition();
+     LocalVector segment4DLocalDirection = (*segment4D).localDirection();
+     if((*segment4D).hasPhi())
+       nHits = (((*segment4D).phiSegment())->specificRecHits()).size();
+     if((*segment4D).hasZed()) 
+       nHits = nHits + ((((*segment4D).zSegment())->specificRecHits()).size());
       
       if (segment4DLocalDirection.z()) {
 	fillHistos(*chamberId,

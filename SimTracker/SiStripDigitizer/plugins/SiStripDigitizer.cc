@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.5 2007/09/03 10:10:57 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.6 2007/10/02 10:03:50 fambrogl Exp $
 //
 //
 
@@ -168,9 +168,15 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   theDigiLinkVector.clear();
   
   for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
-    
+
+    if(useConfFromDB){
+      //apply the cable map _before_ digitization: consider only the detis that are connected 
+      if(theDetIdList.find((*iu)->geographicalId().rawId())==theDetIdList.end())
+	continue;
+    }
+
     GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
-    
+
     StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
     if (sgd != 0){
       edm::DetSet<SiStripDigi> collectorZS((*iu)->geographicalId().rawId());

@@ -1,7 +1,11 @@
 #include "IOVIteratorImpl.h"
 #include "IOV.h"
+//#include "CondCore/DBCommon/interface/PoolStorageManager.h"
+//#include "CondCore/DBCommon/interface/Ref.h"
+//#include "CondCore/DBCommon/interface/Time.h"
 #include <map>
-cond::IOVIteratorImpl::IOVIteratorImpl( cond::PoolTransaction& pooldb,
+//#include <algorithm>
+cond::IOVIteratorImpl::IOVIteratorImpl( cond::PoolStorageManager& pooldb,
 					const std::string token,
 					cond::Time_t globalSince, 
 					cond::Time_t globalTill)
@@ -10,7 +14,7 @@ cond::IOVIteratorImpl::IOVIteratorImpl( cond::PoolTransaction& pooldb,
 cond::IOVIteratorImpl::~IOVIteratorImpl(){
 }
 void cond::IOVIteratorImpl::init(){
-  m_iov=cond::TypedRef<cond::IOV>(m_pooldb, m_token);
+  m_iov=cond::Ref<cond::IOV>(m_pooldb, m_token);
   m_stop=(m_iov->iov.size())-1;
   m_isOpen=true;
 }

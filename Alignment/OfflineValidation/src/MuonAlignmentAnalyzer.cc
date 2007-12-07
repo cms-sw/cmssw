@@ -381,7 +381,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
     for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
       if (abs((*simTrack).type()) == 13) {
 	i++;
-	simPt=(*simTrack).momentum().perp();
+	simPt=(*simTrack).momentum().Pt();
 	simEta=(*simTrack).momentum().eta();
 	simPhi=(*simTrack).momentum().phi();
 	numberOfSimTracks++;
@@ -634,7 +634,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
     std::vector<TrackingRecHit *> my4DTrack;
     
     //Loop over the hits of the track
-    for(unsigned int counter  = 0; counter != staTrack->recHitsSize()-1; ++counter) {
+    for( unsigned int counter  = 0; counter != staTrack->recHitsSize()-1; ++counter) {
   
       TrackingRecHitRef myRef = staTrack->recHit(counter);
       const TrackingRecHit *rechit = myRef.get();

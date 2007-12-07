@@ -1,12 +1,13 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/10/04 08:39:55 $
- * $Revision: 1.8 $
+ * $Date: 2007/11/14 11:18:07 $
+ * $Revision: 1.16 $
+ * \author C. Bernet
  * \author G. Della Ricca
+ * \author E. Di Marco
  *
 */
-
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -158,12 +159,9 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
   string fineGrainVetoName = histo;
   sprintf(histo, "EETTT Flags %s", nameext);
   string flagsName = histo;
-  sprintf(histo, "EETTT EmulError %s", nameext);
-  string emulErrorName = histo;
-  sprintf(histo, "EETTT EmulFineGrainVetoError %s", nameext);
-  string emulFineGrainVetoErrorName = histo;
-  sprintf(histo, "EETTT EmulFlagError %s", nameext);
-  string emulFlagErrorName = histo;
+  string emulErrorName = "EETTT EmulError";
+  string emulFineGrainVetoErrorName = "EETTT EmulFineGrainVetoError";
+  string emulFlagErrorName = "EETTT EmulFlagError";
 
   for (int i = 0; i < 18 ; i++) {
 
@@ -173,7 +171,9 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
     (*meEtMap)[i] = dbe->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
 				50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 				50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
-				128, 0, 512.);
+				256, 0, 256.);
+    (*meEtMap)[i]->setAxisTitle("ix", 1);
+    (*meEtMap)[i]->setAxisTitle("iy", 2);
     dbe->tag((*meEtMap)[i], i+1);
 
     string  fineGrainVetoNameSM = fineGrainVetoName;
@@ -184,6 +184,8 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 			       50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 			       50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 			       2, 0., 2.);
+    (*meVeto)[i]->setAxisTitle("ix", 1);
+    (*meVeto)[i]->setAxisTitle("iy", 2);
     dbe->tag((*meVeto)[i], i+1);
 
     string  flagsNameSM = flagsName;
@@ -193,6 +195,8 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 				50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 				50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 				8, 0., 8.);
+    (*meFlags)[i]->setAxisTitle("ix", 1);
+    (*meFlags)[i]->setAxisTitle("iy", 2);
     dbe->tag((*meFlags)[i], i+1);
 
 
@@ -205,6 +209,8 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 				    emulErrorNameSM.c_str(),
 				    50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 				    50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50. );
+      meEmulError_[i]->setAxisTitle("ix", 1);
+      meEmulError_[i]->setAxisTitle("iy", 2);
       dbe->tag(meEmulError_[i], i+1);
 
       string  emulFineGrainVetoErrorNameSM = emulFineGrainVetoErrorName;
@@ -215,6 +221,8 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 					  50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 					  50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 					  8, 0., 8.);
+      meVetoEmulError_[i]->setAxisTitle("ix", 1);
+      meVetoEmulError_[i]->setAxisTitle("iy", 2);
       dbe->tag(meVetoEmulError_[i], i+1);
 
       string  emulFlagErrorNameSM = emulFlagErrorName;
@@ -225,6 +233,8 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 					  50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 					  50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 					  8, 0., 8.);
+      meFlagEmulError_[i]->setAxisTitle("ix", 1);
+      meFlagEmulError_[i]->setAxisTitle("iy", 2);
       dbe->tag(meFlagEmulError_[i], i+1);
 
     }
@@ -271,13 +281,9 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EcalTrigPrimDigiCollection> realDigis;
 
-    Handle<EcalTrigPrimDigiCollection> realDigis;
-    e.getByLabel(realCollection_, realDigis);
-
-
-    Handle<EcalTrigPrimDigiCollection> dummy;
+  if ( e.getByLabel(realCollection_, realDigis) ) {
 
     int neetpd = realDigis->size();
     LogDebug("EETriggerTowerTask")
@@ -286,14 +292,19 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       <<" trigger primitive digi collection size: "
       <<neetpd;
 
-
     processDigis( realDigis,
 		  meEtMapReal_,
 		  meVetoReal_,
 		  meFlagsReal_);
 
-    Handle<EcalTrigPrimDigiCollection> emulDigis;
-    e.getByLabel(emulCollection_, emulDigis);
+  } else {
+    LogWarning("EBTriggerTowerTask")
+      << realCollection_ << " not available"; 
+  }
+
+  Handle<EcalTrigPrimDigiCollection> emulDigis;
+
+  if ( e.getByLabel(emulCollection_, emulDigis) ) {
 
     processDigis( emulDigis,
 		  meEtMapEmul_,
@@ -302,13 +313,12 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 		  realDigis);
 
 
-  } catch ( std::exception& ex) {
-    LogError("EETriggerTowerTask")
-      <<ex.what();
+  } else {
+    LogWarning("EETriggerTowerTask")
+      << emulCollection_ << " not available";
   }
+
 }
-
-
 
 void
 EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
@@ -335,7 +345,7 @@ EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
     int itt = Numbers::iTT( idt );
 
-    vector<DetId> crystals = Numbers::ttCrystals( idt );
+    vector<DetId> crystals = Numbers::crystals( idt );
 
     for ( unsigned int i=0; i<crystals.size(); i++ ) {
 

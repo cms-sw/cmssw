@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/07/27 16:33:08 $
- * $Revision: 1.19 $
+ * $Date: 2007/11/09 15:24:06 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -78,6 +78,8 @@ void EBTimingTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
       meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
+      meTimeMap_[i]->setAxisTitle("ieta", 1);
+      meTimeMap_[i]->setAxisTitle("iphi", 2);
       dbe_->tag(meTimeMap_[i], i+1);
     }
 
@@ -119,10 +121,9 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EcalUncalibratedRecHitCollection> hits;
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EBTimingTask") << "event " << ievt_ << " hits collection size " << neh;
@@ -142,7 +143,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
       float xip = ip - 0.5;
 
       LogDebug("EBTimingTask") << " det id = " << id;
-      LogDebug("EBTimingTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EBTimingTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       MonitorElement* meTimeMap = 0;
 
@@ -155,6 +156,8 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
       float zval = hit.pedestal();
       if ( zval <= 0. ) zval = 0.0;
 
+      if ( xval <= 1. ) continue;
+
       LogDebug("EBTimingTask") << " hit amplitude " << xval;
       LogDebug("EBTimingTask") << " hit jitter " << yval;
       LogDebug("EBTimingTask") << " hit pedestal " << zval;
@@ -163,7 +166,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EBTimingTask") << EcalUncalibratedRecHitCollection_ << " not available";
 

@@ -44,6 +44,7 @@ namespace {
   std::pair<std::basic_string<char>,int> dummywp9;
   std::pair<std::basic_string<char>,double> dummywp10;
   std::pair<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > dummywp11;
+  std::pair<std::basic_string<char>,std::vector<std::basic_string<char> > > dummywp12;
   std::map<unsigned long, unsigned long> dymmywm1;
   std::map<unsigned int, unsigned int> dymmywm2;
   std::map<unsigned int, int> dymmywm2_1;
@@ -61,6 +62,7 @@ namespace {
   std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > dummyypwmv8;
   std::map<int,std::pair<unsigned int,unsigned int> > dummyypwmv9;
   std::map<int,std::pair<unsigned long,unsigned long> > dummyypwmv10;
+  std::map<std::basic_string<char>,std::vector<std::basic_string<char> > > dummyypwmv11;
   std::vector<char>::iterator itc;
   std::vector<short>::iterator its;
   std::vector<unsigned short>::iterator itus;

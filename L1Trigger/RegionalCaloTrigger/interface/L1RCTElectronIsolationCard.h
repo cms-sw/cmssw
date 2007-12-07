@@ -48,7 +48,7 @@ class L1RCTElectronIsolationCard {
   }
 
  private:
-  std::vector<unsigned short> calcElectronCandidates(L1RCTRegion *region, int regionNum);
+  std::vector<unsigned short> calcElectronCandidates(L1RCTRegion *region);
   unsigned short calcMaxSum(unsigned short primaryEt,unsigned short northEt,
 			    unsigned short southEt, unsigned short eastEt,
 			    unsigned short westEt);

@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2007/09/07 22:30:06 $
- * $Revision: 1.5 $
+ * $Date: 2007/11/13 13:20:51 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -20,14 +20,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
+
+class MonitorElement;
+class MonitorUserInterface;
+class DaqMonitorBEInterface;
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
 
 class EESummaryClient : public EEClient {
 
@@ -69,7 +69,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
+void htmlOutput(int run, std::string htmlDir, std::string htmlName);
 
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
@@ -79,7 +79,7 @@ inline int getEvtPerJob() { return ievt_; }
 inline int getEvtPerRun() { return jevt_; }
 
 /// Set Clients
-inline void setFriends(vector<EEClient*> clients) { clients_ = clients; }
+inline void setFriends(std::vector<EEClient*> clients) { clients_ = clients; }
 
 private:
 
@@ -89,17 +89,16 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
 bool enableMonitorDaemon_;
 
-string prefixME_;
+std::string prefixME_;
 
-vector<int> superModules_;
+std::vector<int> superModules_;
 
-vector<EEClient*> clients_;
+std::vector<EEClient*> clients_;
 
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
@@ -117,24 +116,11 @@ MonitorElement* meTestPulse_[2];
 MonitorElement* meTestPulsePN_[2];
 
 MonitorElement* meCosmic_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg01_[2];
-MEContentsTH2FWithinRangeROOT* qtg02_[2];
-MEContentsTH2FWithinRangeROOT* qtg03_[2];
-MEContentsTH2FWithinRangeROOT* qtg04_[2];
-MEContentsTH2FWithinRangeROOT* qtg04PN_[2];
-MEContentsTH2FWithinRangeROOT* qtg05_[2];
-MEContentsTH2FWithinRangeROOT* qtg05PN_[2];
-MEContentsTH2FWithinRangeROOT* qtg06_[2];
-MEContentsTH2FWithinRangeROOT* qtg06PN_[2];
-MEContentsTH2FWithinRangeROOT* qtg07_[2];
-MEContentsTH2FWithinRangeROOT* qtg07PN_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg08_[2];
+MonitorElement* meTiming_[2];
+MonitorElement* meTriggerTowerEt_[2];
+MonitorElement* meTriggerTowerEmulError_[2];
 
 MonitorElement* meGlobalSummary_[2];
-
-MEContentsTH2FWithinRangeROOT* qtg99_[2];
 
 };
 

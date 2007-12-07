@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/08/16 14:26:08 $
- * $Revision: 1.16 $
+ * $Date: 2007/11/10 14:09:13 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -90,30 +90,45 @@ void EETestPulseTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETPT shape %s G01", Numbers::sEE(i+1).c_str());
-      meShapeMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapG01_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapG01_[i]->setAxisTitle("channel", 1);
+      meShapeMapG01_[i]->setAxisTitle("sample", 2);
+      meShapeMapG01_[i]->setAxisTitle("amplitude", 3);
       dbe_->tag(meShapeMapG01_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G01", Numbers::sEE(i+1).c_str());
       meAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplMapG01_[i]->setAxisTitle("ix", 1);
+      meAmplMapG01_[i]->setAxisTitle("iy", 2);
       dbe_->tag(meAmplMapG01_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain06");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETPT shape %s G06", Numbers::sEE(i+1).c_str());
-      meShapeMapG06_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapG06_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapG06_[i]->setAxisTitle("channel", 1);
+      meShapeMapG06_[i]->setAxisTitle("sample", 2);
+      meShapeMapG06_[i]->setAxisTitle("amplitude", 3);
       dbe_->tag(meShapeMapG06_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G06", Numbers::sEE(i+1).c_str());
       meAmplMapG06_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplMapG06_[i]->setAxisTitle("ix", 1);
+      meAmplMapG06_[i]->setAxisTitle("iy", 2);
       dbe_->tag(meAmplMapG06_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain12");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETPT shape %s G12", Numbers::sEE(i+1).c_str());
-      meShapeMapG12_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapG12_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapG12_[i]->setAxisTitle("channel", 1);
+      meShapeMapG12_[i]->setAxisTitle("sample", 2);
+      meShapeMapG12_[i]->setAxisTitle("amplitude", 3);
       dbe_->tag(meShapeMapG12_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G12", Numbers::sEE(i+1).c_str());
       meAmplMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplMapG12_[i]->setAxisTitle("ix", 1);
+      meAmplMapG12_[i]->setAxisTitle("iy", 2);
       dbe_->tag(meAmplMapG12_[i], i+1);
    }
 
@@ -122,20 +137,28 @@ void EETestPulseTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG01_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG01_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG01_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG01_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG01_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG01_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG01_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG16_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG16_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG16_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG16_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG16_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG16_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG16_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG16_[i], i+1);
     }
 
@@ -213,10 +236,9 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
-  try {
+  Handle<EcalRawDataCollection> dcchs;
 
-    Handle<EcalRawDataCollection> dcchs;
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -234,7 +256,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EETestPulseTask") << EcalRawDataCollection_ << " not available";
 
@@ -246,10 +268,9 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EEDigiCollection> digis;
 
-    Handle<EEDigiCollection> digis;
-    e.getByLabel(EEDigiCollection_, digis);
+  if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
     int need = digis->size();
     LogDebug("EETestPulseTask") << "event " << ievt_ << " digi collection size " << need;
@@ -302,16 +323,15 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EETestPulseTask") << EEDigiCollection_ << " not available";
 
   }
 
-  try {
+  Handle<EcalUncalibratedRecHitCollection> hits;
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EETestPulseTask") << "event " << ievt_ << " hits collection size " << neh;
@@ -361,16 +381,15 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EETestPulseTask") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
 
-  try {
+  Handle<EcalPnDiodeDigiCollection> pns;
 
-    Handle<EcalPnDiodeDigiCollection> pns;
-    e.getByLabel(EcalPnDiodeDigiCollection_, pns);
+  if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
 
     int nep = pns->size();
     LogDebug("EETestPulseTask") << "event " << ievt_ << " pns collection size " << nep;
@@ -379,6 +398,8 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
+
+      if ( id.iEcalSubDetectorId() != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -407,7 +428,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
         float xval = float(adc);
 
-        if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+        if ( mePNPed ) mePNPed->Fill(num - 0.5, xval);
 
         xvalped = xvalped + xval;
 
@@ -435,11 +456,11 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
       if ( pn.sample(0).gainId() == 0 ) mePN = mePnAmplMapG01_[ism-1];
       if ( pn.sample(0).gainId() == 1 ) mePN = mePnAmplMapG16_[ism-1];
 
-      if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
+      if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EETestPulseTask") << EcalPnDiodeDigiCollection_ << " not available";
 

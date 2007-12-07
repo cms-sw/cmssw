@@ -28,9 +28,7 @@ void SteppingAction::UserSteppingAction(const G4Step * aStep)
         catchLowEnergyInVacuumNext(aStep);
     }
     if((aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="Tracker"&& 
-	aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="CALO")/*||
-       (aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="Tracker"&&
-       aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()!="EREG")*/){
+	aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="CALO")){
       storeTkCaloStateInfo(aStep);
     }
 }
@@ -85,16 +83,14 @@ void SteppingAction::catchLowEnergyInVacuumNext(const G4Step * aStep)
 void SteppingAction::storeTkCaloStateInfo(const G4Step * aStep)
 {
   Hep3Vector pos = aStep->GetPreStepPoint()->GetPosition();
-  HepLorentzVector mom = HepLorentzVector(aStep->GetPreStepPoint()->GetMomentum(),
-					       aStep->GetPreStepPoint()->GetTotalEnergy());
+  HepLorentzVector mom(aStep->GetPreStepPoint()->GetMomentum(),
+		       aStep->GetPreStepPoint()->GetTotalEnergy());
   uint32_t id = aStep->GetTrack()->GetTrackID();
-
+  
   if((aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="Tracker"&& 
-      aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="CALO")/*||
-     (aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="Tracker"&&
-     aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()!="EREG")*/){
+      aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()=="CALO")){
     
-    std::pair<Hep3Vector,HepLorentzVector> p = std::pair<Hep3Vector,HepLorentzVector>(pos,mom);
+    std::pair<Hep3Vector,HepLorentzVector> p(pos,mom);
     eventAction_->addTkCaloStateInfo(id,p);
   }
 }

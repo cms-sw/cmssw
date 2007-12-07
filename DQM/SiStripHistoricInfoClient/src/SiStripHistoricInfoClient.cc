@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.16 2007/05/16 08:06:56 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.17 2007/09/12 09:55:51 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -70,7 +70,8 @@ SiStripHistoricInfoClient::SiStripHistoricInfoClient(xdaq::ApplicationStub *stub
 				 pset.getUntrackedParameter<unsigned int>("MajorVersion",0),
 				 pset.getUntrackedParameter<unsigned int>("MinorVersion",0) );
 */
-  db_ = new SiStripConfigDb( "dorian", "test", "sqlite_file:HistoricPerformance.db", "TEST_PARTITION",0,0);
+  //GB: 25/11/07 commented out this apparently useless Online DB dependency
+  //  db_ = new SiStripConfigDb( "dorian", "test", "sqlite_file:HistoricPerformance.db", "TEST_PARTITION",0,0);
 }
 
 

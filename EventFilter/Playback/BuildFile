@@ -1,4 +1,8 @@
 <export>
   <lib name=EventFilterPlayback>
+  <use name=FWCore/Framework>
 </export>
+  <use name=DataFormats/FEDRawData>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
 

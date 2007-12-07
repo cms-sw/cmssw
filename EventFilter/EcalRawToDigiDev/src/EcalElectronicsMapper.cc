@@ -29,7 +29,6 @@ mappingBuilder_(0)
 		    
    	  //Reset DFrames and xtalDetIds
 	  xtalDetIds_[sm][fe][strip][xtal]=0;
-          xtalDFrames_[sm][fe][strip][xtal]=0;
 	}
       }
       //Reset SC Det Ids
@@ -146,7 +145,6 @@ EcalElectronicsMapper::~EcalElectronicsMapper(){
         for(uint xtal=0; xtal<NUMB_XTAL;xtal++){
 	  if(xtalDetIds_[sm][fe][strip][xtal]){ 
             delete xtalDetIds_[sm][fe][strip][xtal]; 
-            delete xtalDFrames_[sm][fe][strip][xtal];
           }
         }
       }
@@ -393,6 +391,8 @@ void EcalElectronicsMapper::fillMaps(){
         uint rawid = (mappingBuilder_->getTrigTowerDetId(tccId, feChannel)).rawId();
         EcalTrigTowerDetId * ttDetId = new EcalTrigTowerDetId(rawid);
         ttDetIds_[tccId-1][feChannel-1] = ttDetId;
+	EcalElectronicsId * ttEleId = new EcalElectronicsId(smId, feChannel, 1, 1);
+	ttEleIds_[tccId-1][feChannel-1] = ttEleId;
         EcalTriggerPrimitiveDigi * tp     = new EcalTriggerPrimitiveDigi(*ttDetId);
         tp->setSize(numbTriggerTSamples_);
         for(uint i=0;i<numbTriggerTSamples_;i++){
@@ -410,10 +410,6 @@ void EcalElectronicsMapper::fillMaps(){
 	      EcalElectronicsId eid(smId,feChannel,stripId,xtalId);
 	      EBDetId * detId = new EBDetId( (mappingBuilder_->getDetId(eid)).rawId());
 	      xtalDetIds_[smId-1][feChannel-1][stripId-1][xtalId-1] = detId;
-              EBDataFrame * df = new EBDataFrame(*detId);
-              df->setSize(numbXtalTSamples_);
-              xtalDFrames_[smId-1][feChannel-1][stripId-1][xtalId-1] = df;
-
 			 
 	   } // close loop over xtals
 	}// close loop over strips
@@ -475,10 +471,6 @@ void EcalElectronicsMapper::fillMaps(){
           EEDetId * detId = new EEDetId((*it).rawId());
           xtalDetIds_[smId-1][feChannel-1][stripId-1][xtalId-1] = detId;
           
-          EEDataFrame * df = new EEDataFrame(*detId);
-          df->setSize(numbXtalTSamples_);	  
-          xtalDFrames_[smId-1][feChannel-1][stripId-1][xtalId-1] = df;		
-	 
 	}// close loop over tower constituents 	
 				 
        }catch(cms::Exception){}

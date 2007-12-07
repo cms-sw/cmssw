@@ -16,7 +16,7 @@
 
 using namespace reco;
 
-void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  traj_iterator,TrackRef track,
+void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > traj_iterator,TrackRef track,
 				     TrackInfo &output,        const TrackerGeometry * tracker)
 {
 

@@ -24,7 +24,21 @@ std::auto_ptr<CaloSubdetectorGeometry> HcalDDDGeometryLoader::load(DetId::Detect
   HcalSubdetector  hsub        = static_cast<HcalSubdetector>(subdet);
   HcalDDDGeometry* geometryDDD = new HcalDDDGeometry();
   std::auto_ptr<CaloSubdetectorGeometry> hg(geometryDDD);
-  fill (hsub, geometryDDD, hg.get());
+
+  CaloSubdetectorGeometry* geom ( hg.get() ) ;
+
+  if( geom->cornersMgr() == 0 ) 
+  {
+     const unsigned int count (
+	numberingFromDDD->HcalCellTypes( HcalBarrel  ).size() +
+	numberingFromDDD->HcalCellTypes( HcalEndcap  ).size() +
+	numberingFromDDD->HcalCellTypes( HcalForward ).size() +
+	numberingFromDDD->HcalCellTypes( HcalOuter   ).size()   ) ;
+     geom->allocateCorners( count ) ;
+  }
+  if( geom->parMgr()     == 0 ) geom->allocatePar( 75, 3 ) ;
+
+  fill (hsub, geometryDDD, geom );
   return hg;
 }
 
@@ -32,10 +46,23 @@ std::auto_ptr<CaloSubdetectorGeometry> HcalDDDGeometryLoader::load() {
 
   HcalDDDGeometry* geometryDDD = new HcalDDDGeometry();
   std::auto_ptr<CaloSubdetectorGeometry> hg(geometryDDD);
-  fill(HcalBarrel,  geometryDDD, hg.get()); 
-  fill(HcalEndcap,  geometryDDD, hg.get()); 
-  fill(HcalForward, geometryDDD, hg.get()); 
-  fill(HcalOuter,   geometryDDD, hg.get());
+
+  CaloSubdetectorGeometry* geom ( hg.get() ) ;
+  if( geom->cornersMgr() == 0 ) 
+  {
+     const unsigned int count (
+	numberingFromDDD->HcalCellTypes( HcalBarrel  ).size() +
+	numberingFromDDD->HcalCellTypes( HcalEndcap  ).size() +
+	numberingFromDDD->HcalCellTypes( HcalForward ).size() +
+	numberingFromDDD->HcalCellTypes( HcalOuter   ).size()   ) ;
+     geom->allocateCorners( count ) ;
+  }
+  if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
+
+  fill(HcalBarrel,  geometryDDD, geom); 
+  fill(HcalEndcap,  geometryDDD, geom); 
+  fill(HcalForward, geometryDDD, geom); 
+  fill(HcalOuter,   geometryDDD, geom);
   return hg;
 }
 
@@ -49,10 +76,9 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector subdet,
   LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill gets " 
 		       << hcalCells.size() << " cells for subdetector " 
 		       << subdet;
-  if( geom->cornersMgr() == 0 ) geom->allocateCorners( 11000 ) ;
-  if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
 			 
   // Make the new HcalDetIds and the cells
+
   double deg = M_PI/180.;
   std::vector<HcalDetId> hcalIds;
   for (unsigned int i=0; i<hcalCells.size(); i++) {
@@ -146,9 +172,9 @@ HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
   {
      std::vector<float> hf ;
      hf.reserve(3) ;
-     hf.push_back( deta ) ;
-     hf.push_back( dphi ) ;
-     hf.push_back( thickness ) ;
+     hf.push_back( deta/2. ) ;
+     hf.push_back( dphi/2. ) ;
+     hf.push_back( thickness/2. ) ;
      return new calogeom::IdealZPrism( 
 	point, 
 	geom->cornersMgr(),
@@ -161,9 +187,9 @@ HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
      const double sign ( isBarrel ? 1 : -1 ) ;
      std::vector<float> hh ;
      hh.reserve(3) ;
-     hh.push_back( deta ) ;
-     hh.push_back( dphi ) ;
-     hh.push_back( sign*thickness ) ;
+     hh.push_back( deta/2. ) ;
+     hh.push_back( dphi/2. ) ;
+     hh.push_back( sign*thickness/2. ) ;
      return new calogeom::IdealObliquePrism(
 	point,
 	geom->cornersMgr(),

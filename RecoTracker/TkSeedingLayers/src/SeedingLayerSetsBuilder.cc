@@ -73,6 +73,7 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
       LayerSpec layer;
 
       layer.name = *is;
+      //std::cout << "layer name in config: " << *is << std::endl;
       edm::ParameterSet cfgLayer = layerConfig(layer.name, cfg);
 
       layer.usePixelHitProducer = true;
@@ -97,6 +98,9 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
         layer.minRing = cfgLayer.getParameter<int>("minRing");
         layer.maxRing = cfgLayer.getParameter<int>("maxRing");
       }
+
+      layer.useSimpleRphiHitsCleaner = cfgLayer.getUntrackedParameter<bool>("useSimpleRphiHitsCleaner",true);
+      //std::cout << "from configuration, useCleaner: " << layer.useSimpleRphiHitsCleaner << std::endl;
 
       layersInSet.push_back(layer);
       mapConfig[layer.name]=layer;
@@ -258,6 +262,7 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
           if (layer.useRPhiRecHits)    extSTRP.useRPhiHits(layer.rphiRecHits);
           if (layer.useStereoRecHits)  extSTRP.useStereoHits(layer.stereoRecHits);
           if (layer.useRingSelector)   extSTRP.useRingSelector(layer.minRing,layer.maxRing);
+	  extSTRP.useSimpleRphiHitsCleaner(layer.useSimpleRphiHitsCleaner);
           extractor = extSTRP.clone();
         }
 

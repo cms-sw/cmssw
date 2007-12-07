@@ -62,7 +62,6 @@ void PFBlock::lock(unsigned i, std::vector<double>& linkData ) const {
 
 
 void PFBlock::associatedElements( unsigned i, 
-				  std::vector<double>& linkData, 
 				  map<double, unsigned>& sortedAssociates,
 				  PFBlockElement::Type type ) 
   const {
@@ -87,7 +86,7 @@ void PFBlock::associatedElements( unsigned i,
       continue;
     }
 
-    double c2 = chi2(i, ie,  linkData );
+    double c2 = chi2(i, ie, linkData() );
     
     // not associated
     if( c2 < 0 ) { 

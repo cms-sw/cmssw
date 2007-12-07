@@ -5,14 +5,13 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "CondCore/DBCommon/interface/PoolStorageManager.h"
+#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
-//#include "CondCore/DBCommon/interface/ConnectMode.h"
+#include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
@@ -28,26 +27,33 @@
 cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & iAR ): 
   m_currentTime( 0 ),
   m_session( 0 ),
-  m_dbstarted( false )
+  m_iovservice( 0 ),
+  m_pooldb( 0 ),
+  m_coraldb( 0 ),
+  m_dbstarted( false ),
+  m_inTransaction( false )
 {
   std::string connect=iConfig.getParameter<std::string>("connect");
-  m_session=new cond::DBSession;  
-  m_timetype=iConfig.getParameter< std::string >("timetype");
+  m_session=new cond::DBSession(true);
+  std::string timetype=iConfig.getParameter< std::string >("timetype");
   std::string blobstreamerName("");
   if( iConfig.exists("BlobStreamerName") ){
     blobstreamerName=iConfig.getUntrackedParameter<std::string>("BlobStreamerName");
     blobstreamerName.insert(0,"COND/Services/");
-    m_session->configuration().setBlobStreamer(blobstreamerName);
+    m_session->sessionConfiguration().setBlobStreamer(blobstreamerName);
   }
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
-  static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-  //std::string catconnect("pfncatalog_memory://POOL_RDBMS?");
-  //catconnect.append(connect);
-  conHandler.registerConnection("outputdb",connect,0);
   m_session->open();
-  conHandler.connect(m_session);
-  m_connection=conHandler.getConnection("outputdb");
+  std::string catconnect("pfncatalog_memory://POOL_RDBMS?");
+  catconnect.append(connect);
+  m_pooldb=new cond::PoolStorageManager(connect,catconnect,m_session);
+  m_coraldb=new cond::RelationalStorageManager(connect,m_session);
+  if( timetype=="timestamp" ){
+    m_iovservice=new cond::IOVService(*m_pooldb,cond::timestamp);
+  }else{
+    m_iovservice=new cond::IOVService(*m_pooldb,cond::runnumber);
+  }
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toPut=iConfig.getParameter<Parameters>("toPut");
   for(Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut) {
@@ -66,7 +72,6 @@ std::string
 cond::service::PoolDBOutputService::tag( const std::string& EventSetupRecordName ){
   return this->lookUpRecord(EventSetupRecordName).m_tag;
 }
-
 bool 
 cond::service::PoolDBOutputService::isNewTagRequest( const std::string& EventSetupRecordName ){
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
@@ -77,31 +82,33 @@ void
 cond::service::PoolDBOutputService::initDB()
 {
   if(m_dbstarted) return;
-  cond::CoralTransaction& coraldb=m_connection->coralTransaction(false);
   try{
-    coraldb.start(); 
-    cond::ObjectRelationalMappingUtility* mappingUtil=new cond::ObjectRelationalMappingUtility(&(coraldb.coralSessionProxy()) );
+    m_coraldb->connect(cond::ReadWriteCreate);
+    cond::ObjectRelationalMappingUtility* mappingUtil=new cond::ObjectRelationalMappingUtility(*m_coraldb);
+    m_coraldb->startTransaction(false); 
     if( !mappingUtil->existsMapping(cond::IOVNames::iovMappingVersion()) ){
       mappingUtil->buildAndStoreMappingFromBuffer(cond::IOVNames::iovMappingXML());
     }
+    m_coraldb->commit();
     delete mappingUtil;
-    cond::MetaData metadata(coraldb);
+    cond::MetaData metadata(*m_coraldb);
+    m_coraldb->startTransaction(true);
     for(std::map<size_t,cond::service::serviceCallbackRecord>::iterator it=m_callbacks.begin(); it!=m_callbacks.end(); ++it){
-      //std::string iovtoken;
+      std::string iovtoken;
       if( !metadata.hasTag(it->second.m_tag) ){
-	it->second.m_iovtoken="";
 	it->second.m_isNewTag=true;
       }else{
-	it->second.m_iovtoken=metadata.getToken(it->second.m_tag);
+	iovtoken=metadata.getToken(it->second.m_tag);
 	it->second.m_isNewTag=false;
       }
+      it->second.m_iovEditor=m_iovservice->newIOVEditor(iovtoken);
     }
-    coraldb.commit();
+    m_coraldb->commit();
+    m_coraldb->disconnect();
+    m_pooldb->connect();
   }catch( const cond::Exception& er ){
-    coraldb.rollback();
     throw cms::Exception( er.what() );
   }catch( const std::exception& er ){
-    coraldb.rollback();
     throw cms::Exception( er.what() );
   }
   m_dbstarted=true;
@@ -110,13 +117,28 @@ cond::service::PoolDBOutputService::initDB()
 void 
 cond::service::PoolDBOutputService::postEndJob()
 {
-
+  if(!m_dbstarted) return;
+  if(m_inTransaction){
+    m_pooldb->commit();
+    m_inTransaction=false;
+  }
+  m_pooldb->disconnect();
+  m_coraldb->connect(cond::ReadWriteCreate);
+  m_coraldb->startTransaction(false); 
+  cond::MetaData metadata(*m_coraldb);
+  for(std::vector<std::pair<std::string,std::string> >::iterator it=m_newtags.begin(); it!=m_newtags.end(); ++it){
+    //std::cout<<"adding "<<it->first<<" "<<it->second<<std::endl;
+    metadata.addMapping(it->first,it->second);
+  }
+  m_coraldb->commit();
+  m_coraldb->disconnect();
+  m_session->close();
+  m_dbstarted=false;
 }
-
 void 
 cond::service::PoolDBOutputService::preEventProcessing(const edm::EventID& iEvtid, const edm::Timestamp& iTime)
 {
-  if( m_timetype == "runnumber" ){
+  if( m_iovservice->timeType() == cond::runnumber ){
     m_currentTime=iEvtid.run();
   }else{ //timestamp
     m_currentTime=iTime.value();
@@ -124,126 +146,84 @@ cond::service::PoolDBOutputService::preEventProcessing(const edm::EventID& iEvti
 }
 void
 cond::service::PoolDBOutputService::preModule(const edm::ModuleDescription& desc){
+  //std::cout<<"preModule"<<std::endl;
+  if(m_dbstarted){
+    m_pooldb->startTransaction(false);    
+  }
 }
-
 void
 cond::service::PoolDBOutputService::postModule(const edm::ModuleDescription& desc){
+  //std::cout<<"postModule"<<std::endl;
 }
-
 cond::service::PoolDBOutputService::~PoolDBOutputService(){
+  for(std::map<size_t,cond::service::serviceCallbackRecord>::iterator it=m_callbacks.begin(); it!=m_callbacks.end(); ++it){
+    if(it->second.m_iovEditor){
+      delete it->second.m_iovEditor;
+      it->second.m_iovEditor=0;
+    }
+  }
+  m_callbacks.clear();
+  delete m_iovservice;
   delete m_session;
 }
-
-size_t 
-cond::service::PoolDBOutputService::callbackToken(const std::string& EventSetupRecordName ) const {
+size_t cond::service::PoolDBOutputService::callbackToken(const std::string& EventSetupRecordName ) const {
   return cond::service::serviceCallbackToken::build(EventSetupRecordName);
 }
-
-cond::Time_t 
-cond::service::PoolDBOutputService::endOfTime() const{
-  return 1234;
+cond::Time_t cond::service::PoolDBOutputService::endOfTime() const{
+  return m_iovservice->globalTill();
 }
-
-cond::Time_t 
-cond::service::PoolDBOutputService::currentTime() const{
+cond::Time_t cond::service::PoolDBOutputService::currentTime() const{
   return m_currentTime;
 }
-
-void 
-cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloadToken, cond::Time_t firstTillTime,const std::string& EventSetupRecordName){
+void cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloadToken, cond::Time_t firstTillTime,const std::string& EventSetupRecordName){
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
   if(!myrecord.m_isNewTag) throw cond::Exception("not a new tag");
-  cond::PoolTransaction& pooldb=m_connection->poolTransaction(false);
-  std::string iovToken;
-  try{
-    pooldb.start();
-    iovToken=this->insertIOV(pooldb,myrecord,firstPayloadToken,firstTillTime);
-    pooldb.commit();
-  }catch(std::exception& er){
-    pooldb.rollback();
-    throw cond::Exception("PoolDBOutputService::createNewIOV error in commit");
+  if ( !m_inTransaction ){
+    m_pooldb->startTransaction(false);    
+    m_inTransaction=true;
   }
-  cond::CoralTransaction& coraldb=m_connection->coralTransaction(false);
-  try{
-    cond::MetaData metadata(coraldb);
-    coraldb.start();
-    metadata.addMapping(myrecord.m_tag,iovToken);
-    coraldb.commit();
-  }catch(const std::exception&){
-    //I hope it'll never happen!
-    coraldb.rollback();
-    //TODO: proper cleaning and rollback  in sequence
-    //delete new payload; 
-    //pooldb.start();
-    //this->resetPreviousPoolStatus(payloadToken,iovToken);
-    //pooldb.commit();
-  }
+  std::string iovToken=this->insertIOV(myrecord,firstPayloadToken,firstTillTime,EventSetupRecordName);
   m_newtags.push_back( std::make_pair<std::string,std::string>(myrecord.m_tag,iovToken) );
-  myrecord.m_iovtoken=iovToken;
   myrecord.m_isNewTag=false;
 }
-
-void 
-cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadToken, cond::Time_t tillTime,const std::string& EventSetupRecordName){
+void cond::service::PoolDBOutputService::appendTillTime( const std::string& payloadToken, cond::Time_t tillTime,const std::string& EventSetupRecordName){
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
-  cond::PoolTransaction& pooldb=m_connection->poolTransaction(false);
-  try{
-    pooldb.start();
-    this->insertIOV(pooldb,myrecord,payloadToken,tillTime);
-    pooldb.commit();
-  }catch(const std::exception&){
-    pooldb.rollback();
-    throw cond::Exception("PoolDBOutputService::appendTillTime error in commit");
+  if ( !m_inTransaction ){
+    m_pooldb->startTransaction(false);    
+    m_inTransaction=true;
   }
+  this->insertIOV(myrecord,payloadToken,tillTime,EventSetupRecordName);
 }
-
-void 
-cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadToken, cond::Time_t sinceTime,const std::string& EventSetupRecordName ){
+void cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadToken, cond::Time_t sinceTime,const std::string& EventSetupRecordName ){
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
-  cond::PoolTransaction& pooldb=m_connection->poolTransaction(false);
-  try{
-    pooldb.start();
-    this->appendIOV(pooldb,myrecord,payloadToken,sinceTime);
-    pooldb.commit();
-  }catch(const std::exception&){
-    pooldb.rollback();
-    throw cond::Exception("PoolDBOutputService::appendSinceTime error in commit");
+  if ( !m_inTransaction ){
+    m_pooldb->startTransaction(false);    
+    m_inTransaction=true;
   }
+  this->appendIOV(myrecord,payloadToken,sinceTime);
 }
-cond::service::serviceCallbackRecord& 
-cond::service::PoolDBOutputService::lookUpRecord(const std::string& EventSetupRecordName){
+void cond::service::PoolDBOutputService::appendIOV(cond::service::serviceCallbackRecord& record, const std::string& payloadToken, cond::Time_t sinceTime){
+  if( record.m_isNewTag ) throw cond::Exception(std::string("PoolDBOutputService::appendIOV: cannot append to non-existing tag ")+record.m_tag );  
+  if ( !m_inTransaction ){
+    m_pooldb->startTransaction(false);    
+    m_inTransaction=true;
+  }
+  record.m_iovEditor->append(sinceTime,payloadToken);
+}
+std::string cond::service::PoolDBOutputService::insertIOV(cond::service::serviceCallbackRecord& record, const std::string& payloadToken, cond::Time_t tillTime, const std::string& EventSetupRecordName){
+  //std::cout<<"insertIOV payloadToken"<<payloadToken<<std::endl;
+  //std::cout<<"tillTime "<<tillTime<<std::endl;
+  //std::cout<<"record "<<EventSetupRecordName<<std::endl;
+  record.m_iovEditor->insert(tillTime,payloadToken);
+  std::string iovToken=record.m_iovEditor->token();
+  return iovToken;
+}
+cond::service::serviceCallbackRecord& cond::service::PoolDBOutputService::lookUpRecord(const std::string& EventSetupRecordName){
   size_t callbackToken=this->callbackToken( EventSetupRecordName );
   std::map<size_t,cond::service::serviceCallbackRecord>::iterator it=m_callbacks.find(callbackToken);
   if(it==m_callbacks.end()) throw cond::UnregisteredRecordException(EventSetupRecordName);
   return it->second;
-}
-
-void 
-cond::service::PoolDBOutputService::appendIOV(cond::PoolTransaction& pooldb,
-						   cond::service::serviceCallbackRecord& record, 
-						   const std::string& payloadToken, 
-						   cond::Time_t sinceTime){
-  if( record.m_isNewTag ) {
-    throw cond::Exception(std::string("PoolDBOutputService::appendIOV: cannot append to non-existing tag ")+record.m_tag );  
-  }
-  cond::IOVService iovmanager(pooldb);  
-  cond::IOVEditor* editor=iovmanager.newIOVEditor(record.m_iovtoken);
-  editor->append(sinceTime,payloadToken);
-  delete editor;
-}
-std::string 
-cond::service::PoolDBOutputService::insertIOV( cond::PoolTransaction& pooldb,
-					       cond::service::serviceCallbackRecord& record, 
-					       const std::string& payloadToken,
-					       cond::Time_t tillTime)
-{
-  cond::IOVService iovmanager(pooldb);
-  cond::IOVEditor* editor=iovmanager.newIOVEditor();
-  editor->insert(tillTime,payloadToken);
-  std::string iovToken=editor->token();
-  delete editor;    
-  return iovToken;
 }

@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuDetIdMap.cc,v 1.8 2006/10/30 21:03:12 bainbrid Exp $
+// Last commit: $Id: DcuDetIdMap.cc,v 1.9 2006/11/24 11:41:58 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuDetIdMap.cc,v $
 
@@ -12,11 +12,9 @@ using namespace sistrip;
 const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
   
   if ( !deviceFactory(__func__) ) { return dcuDetIdMap_; }
-  if ( !resetDcuDetIdMap_ ) { return dcuDetIdMap_; }
   
   try {
     dcuDetIdMap_ = deviceFactory(__func__)->getInfos(); 
-    resetDcuDetIdMap_ = false;
   }
   catch (... ) {
     handleException( __func__ );
@@ -33,21 +31,6 @@ const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
   else { LogTrace(mlConfigDb_) << ss; }
 
   return dcuDetIdMap_;
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::setDcuDetIdMap( const SiStripConfigDb::DcuDetIdMap& dcu_detid_map ) {
-  resetDcuDetIdMap();
-  dcuDetIdMap_ = dcu_detid_map;
-  resetDcuDetIdMap_ = false;
-}
-
-// -----------------------------------------------------------------------------
-//
-void SiStripConfigDb::resetDcuDetIdMap() {
-  dcuDetIdMap_.clear(); 
-  resetDcuDetIdMap_ = true;
 }
 
 // -----------------------------------------------------------------------------

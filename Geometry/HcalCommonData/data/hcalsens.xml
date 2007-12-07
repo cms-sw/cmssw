@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
-<!-- HE segmentation confirmed by Alexei Volkov, 17-May-2005. -->
-
 <SpecParSection label="hcalsens.xml" eval="true">
  <SpecPar name="hcal">
    <PartSelector path="//HBS.*" />
@@ -201,13 +199,13 @@
    <Parameter name="etaMax"   value="16"/>
    <Parameter name="etaMax"   value="29"/>
    <Parameter name="etaMax"   value="41"/>
-   <Parameter name="gparHF"   value="22.8*cm"/>
+   <Parameter name="gparHF"   value="22.0*cm"/>
    <Parameter name="gparHF"   value="165.0*cm"/>
    <Parameter name="gparHF"   value="30.0*cm"/>
    <Parameter name="gparHF"   value="0.0*cm"/>
-   <Parameter name="gparHF"   value="1113.0*cm"/>
+   <Parameter name="gparHF"   value="1115.0*cm"/>
    <Parameter name="gparHF"   value="0.375*cm"/>
-   <Parameter name="gparHF"   value="1138.0*cm"/>
+   <Parameter name="gparHF"   value="1137.0*cm"/>
    <Parameter name="Layer0Wt" value="0.5"/>
    <Parameter name="Layer0Wt" value="0.5"/>
    <Parameter name="HBGains"  value="117.0"/>

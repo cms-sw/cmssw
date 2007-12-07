@@ -22,12 +22,12 @@ CaloHitAnalyzer::CaloHitAnalyzer(const std::string & name,
 
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-void CaloHitAnalyzer::fillHits(const edm::PCaloHitContainer & hits) {
+void CaloHitAnalyzer::fillHits(MixCollection<PCaloHit> & hits) {
   hitEnergySumMap_.clear();
   noiseHits_ = 0;
   // store the energy of each hit in a map
-  edm::PCaloHitContainer::const_iterator hitItr = hits.begin();
-  edm::PCaloHitContainer::const_iterator last = hits.end();
+  MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
+  MixCollection<PCaloHit>::MixItr last = hits.end();
   for( ; hitItr != last; ++hitItr) 
   {
     if(hitFilter_ == 0 || hitFilter_->accepts(*hitItr)) {

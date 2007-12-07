@@ -9,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2007/06/12 15:54:41 $
- * $Revision: 1.6 $
+ * $Date: 2007/10/19 14:36:16 $
+ * $Revision: 1.8 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -25,6 +25,7 @@
 
 #include "DCCRawDataDefinitions.h"
 #include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
+#include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
 #include <DataFormats/EcalDetId/interface/EcalScDetId.h>
 #include <DataFormats/EcalDigi/interface/EcalDataFrame.h>
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
@@ -91,10 +92,10 @@ public:
   const std::map<uint ,uint>& getDCCMap() const { return myDCCMap_; }
   
   DetId  * getDetIdPointer(uint feChannel, uint strip, uint xtal){  return  xtalDetIds_[smId_-1][feChannel-1][strip-1][xtal-1];}
-
-  EcalDataFrame * getDFramePointer(uint feChannel, uint strip, uint xtal){  return  xtalDFrames_[smId_-1][feChannel-1][strip-1][xtal-1];} 
 	 
   EcalTrigTowerDetId * getTTDetIdPointer(uint tccId, uint tower){ return ttDetIds_[tccId-1][tower-1];}
+	 
+  EcalElectronicsId  * getTTEleIdPointer(uint tccId, uint tower){ return ttEleIds_[tccId-1][tower-1];}
 
   EcalTriggerPrimitiveDigi * getTPPointer(uint tccId, uint tower){ return ttTPIds_[tccId-1][tower-1];}
 
@@ -183,8 +184,8 @@ private:
   DetId                     * xtalDetIds_[NUMB_SM][NUMB_FE][NUMB_STRIP][NUMB_XTAL];
   EcalScDetId               * scDetIds_[NUMB_SM][NUMB_FE];
   EcalTrigTowerDetId        * ttDetIds_[NUMB_TCC][NUMB_FE];
+  EcalElectronicsId         * ttEleIds_[NUMB_TCC][NUMB_FE];
   EcalTriggerPrimitiveDigi  * ttTPIds_[NUMB_TCC][NUMB_FE];
-  EcalDataFrame             * xtalDFrames_[NUMB_SM][NUMB_FE][NUMB_STRIP][NUMB_XTAL]; 
   EcalSrFlag                * srFlags_[NUMB_SM][NUMB_FE];
   EcalElectronicsMapping    * mappingBuilder_;
   

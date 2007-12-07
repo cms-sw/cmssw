@@ -76,6 +76,7 @@ L1GlobalTriggerRawToDigi::L1GlobalTriggerRawToDigi(const edm::ParameterSet& pSet
     produces<std::vector<L1MuRegionalCand> >("CSC");
     produces<std::vector<L1MuRegionalCand> >("RPCb");
     produces<std::vector<L1MuRegionalCand> >("RPCf");
+    produces<std::vector<L1MuGMTCand> >();
 
     // input tag for DAQ GT record
     m_daqGtInputTag = pSet.getUntrackedParameter<edm::InputTag>(
@@ -794,6 +795,7 @@ void L1GlobalTriggerRawToDigi::unpackGMT(
     std::auto_ptr<std::vector<L1MuRegionalCand> > CSCCands( new std::vector<L1MuRegionalCand> );
     std::auto_ptr<std::vector<L1MuRegionalCand> > RPCbCands( new std::vector<L1MuRegionalCand> );
     std::auto_ptr<std::vector<L1MuRegionalCand> > RPCfCands( new std::vector<L1MuRegionalCand> );
+    std::auto_ptr<std::vector<L1MuGMTCand> >      GMTCands( new std::vector<L1MuGMTCand> );
 
     const unsigned* p = (const unsigned*) chp;
 
@@ -868,8 +870,10 @@ void L1GlobalTriggerRawToDigi::unpackGMT(
                     gmtrr.setGMTBrlCand(im, cand);
                 else if(im<8)
                     gmtrr.setGMTFwdCand(im-4, cand);
-                else
+                else {
                     gmtrr.setGMTCand(im-8, cand);
+                    if(!cand.empty()) GMTCands->push_back(cand);
+                }
             }
 
             // skip the two sort rank words and two chip BX words
@@ -888,6 +892,7 @@ void L1GlobalTriggerRawToDigi::unpackGMT(
     iEvent.put(CSCCands,"CSC");
     iEvent.put(RPCbCands,"RPCb");
     iEvent.put(RPCfCands,"RPCf");
+    iEvent.put(GMTCands);
 
 }
 

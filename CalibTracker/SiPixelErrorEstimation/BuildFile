@@ -34,7 +34,7 @@
 <use name=CondFormats/DataRecord>
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
-<lib name=MathMore>
+<use name=rootmath>
 
 <export>
    <lib name=CalibTrackerSiPixelErrorEstimation>

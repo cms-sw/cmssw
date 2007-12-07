@@ -23,7 +23,7 @@
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/UI/interface/CollectorRoot.h"
 
-#include "DQMServices/Components/interface/StateMachine.h"
+#include "DQMServices/XdaqCollector/interface/StateMachine.h"
 #include <iostream>
 
 class XdaqCollector : public dqm::StateMachine, public xdata::ActionListener

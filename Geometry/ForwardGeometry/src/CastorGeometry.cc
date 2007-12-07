@@ -13,7 +13,7 @@ CastorGeometry::CastorGeometry(const CastorTopology * topology)
 CastorGeometry::~CastorGeometry() {
 }
 
-std::vector<DetId> const & CastorGeometry::getValidDetIds(DetId::Detector det, int subdet) const {
+std::vector<DetId> const & CastorGeometry::getValidDetIds(DetId::Detector det, int subdet) {
   if (lastReqDet_!=det || lastReqSubdet_!=subdet) {
     lastReqDet_=det;
     lastReqSubdet_=subdet;
@@ -60,7 +60,7 @@ DetId CastorGeometry::getClosestCell(const GlobalPoint& r) const
   // figure out if it's EM or HAD section
   // EM length = 2x51.5 mm,  HAD length = 12x101 mm
   // I assume that z0 of Castor is 14385 mm (cms.xml)
-  HcalCastorDetId::Section section;
+  HcalCastorDetId::Section section = HcalCastorDetId::EM;
   if(z<= theZSectionBoundaries[1])section = HcalCastorDetId::EM;
   if(z>theZSectionBoundaries[2])section = HcalCastorDetId::HAD;
 

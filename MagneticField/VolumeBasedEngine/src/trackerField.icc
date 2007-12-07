@@ -1,6 +1,4 @@
 
-namespace magField {
-
 bool MagGeometry::trackerField(const GlobalPoint& gp, GlobalVector& bvec) const {
 
 //
@@ -70,4 +68,3 @@ void MagGeometry::ffunkti(float u, float* ff) const {
  return;
 }
 
-} // end of namespace

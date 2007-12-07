@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/19 10:20:29 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/09/19 16:58:10 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -215,21 +215,6 @@ void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
       }
       edm::LogWarning ("chamberEfficiency") << "-------- Chamber : "<<(*hYEff).first<<"  "<<theYEfficiencyQReport->getMessage()<<" ------- "<<theYEfficiencyQReport->getStatus();
     }
-  }
-
-  //if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
-  //  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-  //    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTChamberEfficiencyTest.root"));
-  //}
-}
-
-
-void DTChamberEfficiencyTest::endRun(){
-
-  if (parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
-    stringstream runNumber; runNumber << run;
-    string rootFile = "DTChamberEfficiencyTest_" + runNumber.str() + ".root";
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
   }
 
 }

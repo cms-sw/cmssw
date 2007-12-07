@@ -14,7 +14,7 @@
 #include <string>
 #include <iostream>
 
-class TrackerMapCreator;
+class SiStripTrackerMapCreator;
 
 
 class SiStripClient : public DQMBaseClient, 
@@ -56,7 +56,7 @@ public:
   void checkCustomRequests() const;
   void setupQTest() const;
 
-  TrackerMapCreator* trackerMapCreator_;
+  SiStripTrackerMapCreator* trackerMapCreator_;
   int updateFrequencyForTrackerMap_;
   int updateFrequencyForSummary_;
 };

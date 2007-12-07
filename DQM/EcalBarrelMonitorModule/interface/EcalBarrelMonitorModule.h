@@ -4,20 +4,19 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2007/04/05 14:53:54 $
- * $Revision: 1.42 $
+ * $Date: 2007/11/13 13:20:49 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
-
-#include <string>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+class MonitorElement;
+class DaqMonitorBEInterface;
 
 class EcalBarrelMonitorModule: public edm::EDAnalyzer{
 
@@ -89,8 +88,6 @@ MonitorElement* meEBhits_;
 MonitorElement* meEvent_[36];
 
 bool init_;
-
-std::string outputFile_;
 
 };
 

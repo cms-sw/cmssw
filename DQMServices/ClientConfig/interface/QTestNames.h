@@ -17,6 +17,10 @@ namespace dqm{
     static std::string  NoisyChannel        = "NoisyChannelROOT";
     static std::string  MeanInExpectedValue = "MeanWithinExpectedROOT";
     static std::string  MostProbableLandau  = "MostProbableLandauROOT";
+
+    static std::string  TH2FContentsInRange   = "ContentsTH2FWithinRangeROOT";
+    static std::string  ProfContentsInRange   = "ContentsProfWithinRangeROOT";
+    static std::string  Prof2DContentsInRange = "ContentsProf2DWithinRangeROOT";
  
   }
   

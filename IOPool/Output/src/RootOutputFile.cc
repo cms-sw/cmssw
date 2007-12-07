@@ -1,9 +1,9 @@
-// $Id: RootOutputFile.cc,v 1.24 2007/10/06 04:08:28 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.25 2007/10/09 07:12:51 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
 
-#include "IOPool/Common/interface/FileIdentifier.h"
+#include "FWCore/Catalog/interface/FileIdentifier.h"
 #include "IOPool/Common/interface/RootChains.h"
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 

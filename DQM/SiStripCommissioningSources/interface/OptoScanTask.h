@@ -23,7 +23,8 @@ class OptoScanTask : public CommissioningTask {
   
   void locateTicks( const edm::DetSet<SiStripRawDigi>& scope_mode_data,
 		    std::pair<float,float>& digital_range, 
-		    std::vector<float>& baseline );
+		    std::vector<float>& baseline,
+		    float& baseline_rms );
   
   void deprecated( const edm::DetSet<SiStripRawDigi>& scope_mode_data,
 		   std::pair< uint16_t, uint16_t >& digital_range, 

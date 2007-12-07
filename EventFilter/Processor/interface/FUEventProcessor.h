@@ -139,6 +139,8 @@ namespace evf
     xdata::UnsignedInteger32         outputPrescale_;
     xdata::UnsignedInteger32         timeoutOnStop_; // in seconds
     xdata::Boolean                   hasShMem_;
+    xdata::Boolean                   hasPrescaleService_;
+    xdata::Boolean                   isRunNumberSetter_;
     bool                             outprev_;
     
     // dqm monitor thread configuration

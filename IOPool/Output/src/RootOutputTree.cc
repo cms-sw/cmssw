@@ -23,6 +23,9 @@ namespace edm {
       tree = new TTree(name.c_str(), "", splitLevel);
     }
     tree->SetDirectory(filePtr);
+    // Turn off autosaving because it is such a memory hog and we are not using
+    // this check-pointing feature anyway.
+    tree->SetAutoSave(400000000000LL);
     return tree;
     
   }

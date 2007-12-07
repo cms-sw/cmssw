@@ -99,5 +99,21 @@
   <class name="reco::PMGsfElectronIsoNumCollectionRefProd"/>
   <class name="reco::PMGsfElectronIsoNumCollectionRefVector"/>
   <class name="edm::Wrapper<reco::PMGsfElectronIsoNumCollection>"/>
+
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::PixelMatchGsfElectronRef>" />
+  <class name="edm::reftobase::RefHolder<reco::PixelMatchGsfElectronRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::PixelMatchGsfElectronRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::PixelMatchGsfElectronRefVector>" />
+
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::PhotonRef>" />
+  <class name="edm::reftobase::RefHolder<reco::PhotonRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::PhotonRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::PhotonRefVector>" />
+
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::ConvertedPhotonRef>" />
+  <class name="edm::reftobase::RefHolder<reco::ConvertedPhotonRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::ConvertedPhotonRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::ConvertedPhotonRefVector>" />
+
 </lcgdict>
 

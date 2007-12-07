@@ -7,8 +7,9 @@
 #include <functional>
 #include <algorithm>
 #include <boost/bind.hpp>
-#include<ostream>
-#include<limits>
+#include <ostream>
+#include <limits>
+#include <assert.h>
 
 #include <TROOT.h>
 #include <TFile.h>

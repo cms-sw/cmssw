@@ -129,6 +129,7 @@ boost::dynamic_bitset<> CSCDCCEventData::pack()
   boost::dynamic_bitset<> dccTrailer = bitset_utilities::ushortToBitset(theDCCTrailer.sizeInWords()*16,
 									theDCCTrailer.data());
   result = bitset_utilities::append(result,dccTrailer);
+  //  bitset_utilities::printWords(result);
   return result;
 }
 

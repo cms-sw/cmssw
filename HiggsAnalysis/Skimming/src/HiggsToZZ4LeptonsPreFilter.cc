@@ -32,8 +32,15 @@ using namespace reco;
 // Constructor
 HiggsToZZ4LeptonsPreFilter::HiggsToZZ4LeptonsPreFilter(const edm::ParameterSet& pset) {
 
+// LeptonFlavour
+// 0 = no tau
+// 1 = 4 mu
+// 2 = 4 e
+// 3 = 2e 2mu
+
   // Local Debug flag
   debug              = pset.getParameter<bool>("DebugHiggsToZZ4LeptonsPreFilter");
+  leptonFlavour      = pset.getParameter<int>("HiggsToZZ4LeptonsPreFilterLeptonFlavour");
 
   ikept = 0;
   evt = 0;
@@ -55,6 +62,10 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
   bool keepEvent   = false;
   evt++;
 
+  bool FourL    = false;
+  bool FourE    = false;
+  bool FourM    = false;
+  bool TwoETwoM = false;
 
   // get gen particle candidates 
   Handle<CandidateCollection> genCandidates;
@@ -83,10 +94,17 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
         if ( mcIter->eta() > -2.4 && mcIter->eta() < 2.4 ) nElec++;
       }
     }
+
      
-  if (nElec > 3) keepEvent = true;
-  if (nMuon > 3) keepEvent = true;
-  if (nMuon > 1 && nElec > 1) keepEvent = true;
+    if (nElec > 3) FourE = true;
+    if (nMuon > 3) FourM = true;
+    if (nMuon > 1 && nElec > 1) TwoETwoM = true;
+    if ( FourE || FourM || TwoETwoM ) FourL = true;
+
+    if ( leptonFlavour == 0 && FourL    ) keepEvent = true;    
+    if ( leptonFlavour == 1 && FourM    ) keepEvent = true;    
+    if ( leptonFlavour == 2 && FourE    ) keepEvent = true;    
+    if ( leptonFlavour == 3 && TwoETwoM ) keepEvent = true;    
 
   }
 
@@ -94,6 +112,7 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
     //wrong reason for exception
     if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;    
   }
+
 
   if (keepEvent ) ikept++;
 

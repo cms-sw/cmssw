@@ -3,6 +3,7 @@
 #include <string.h>
 #include <fstream>
 #include <stdlib.h>
+#include <cassert>
 
 using namespace std;
 

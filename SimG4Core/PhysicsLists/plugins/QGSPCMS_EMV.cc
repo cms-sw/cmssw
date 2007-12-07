@@ -1,8 +1,8 @@
 #include "QGSPCMS_EMV.hh"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics71.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
-#include "G4EmStandardPhysics71.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
 #include "G4QStoppingPhysics.hh"
@@ -27,7 +27,7 @@ QGSPCMS_EMV::QGSPCMS_EMV(G4LogicalVolumeToDDLogicalPartMap& map,
   
   if (emPhys) {
     // EM Physics
-    RegisterPhysics(new G4EmStandardPhysics71("standard EM v71",ver));
+    RegisterPhysics( new CMSEmStandardPhysics71("standard EM v71",ver));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics(new G4EmExtraPhysics("extra EM"));

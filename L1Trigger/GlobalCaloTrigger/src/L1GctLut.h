@@ -6,7 +6,8 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-
+#include <cassert>
+ 
 /*!
  * \author Greg Heath
  * \date Feb 2007

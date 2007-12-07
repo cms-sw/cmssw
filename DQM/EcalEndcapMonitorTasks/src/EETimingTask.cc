@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2007/08/15 10:36:23 $
- * $Revision: 1.13 $
+ * $Date: 2007/11/09 15:24:10 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -78,6 +78,8 @@ void EETimingTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETMT timing %s", Numbers::sEE(i+1).c_str());
       meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      meTimeMap_[i]->setAxisTitle("ix", 1);
+      meTimeMap_[i]->setAxisTitle("iy", 2);
       dbe_->tag(meTimeMap_[i], i+1);
     }
 
@@ -119,10 +121,9 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EcalUncalibratedRecHitCollection> hits;
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EETimingTask") << "event " << ievt_ << " hits collection size " << neh;
@@ -160,11 +161,13 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EETimingTask") << " hit jitter " << yval;
       LogDebug("EETimingTask") << " hit pedestal " << zval;
 
+      if ( xval <= 2. ) continue;
+
       if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EETimingTask") << EcalUncalibratedRecHitCollection_ << " not available";
 

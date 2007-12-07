@@ -5,30 +5,19 @@
  *
  *  Namespace for common calculations in alignment.
  *
- *  $Date: 2007/10/08 13:21:29 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/04/07 03:29:04 $
+ *  $Revision: 1.6 $
  *  \author Chung Khim Lae
  */
 
-#include <map>
-
 #include "CondFormats/Alignment/interface/Definitions.h"
-
-class Alignable;
-class AlignmentParameters;
 
 namespace align
 {
-  typedef std::vector<Scalar>       Scalars;
   typedef std::vector<GlobalPoint>  GlobalPoints;
   typedef std::vector<GlobalVector> GlobalVectors;
   typedef std::vector<LocalPoint>   LocalPoints;
   typedef std::vector<LocalVector>  LocalVectors;
-  typedef std::vector<LocalVector>  LocalVectors;
-  typedef std::vector<Alignable*>   Alignables;
-  typedef std::vector<AlignmentParameters*> Parameters;
-
-  typedef std::map<std::pair<Alignable*, Alignable*>, AlgebraicMatrix> Correlations;
 
   /// Convert rotation matrix to angles about x-, y-, z-axes (frame rotation).
   EulerAngles toAngles(
@@ -51,17 +40,6 @@ namespace align
 		       const GlobalVectors& current,
 		       const GlobalVectors& nominal
 		       );
-
-  GlobalVector diffR(
-		     const GlobalVectors& current,
-		     const GlobalVectors& nominal
-		     );
-
-  /// Find the CM of a set of points
-  GlobalVector centerOfMass(
-			    const GlobalVectors& theVs
-			    );
-	
 
   /// Correct a rotation matrix for rounding errors.
   void rectify(

@@ -13,6 +13,10 @@
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Candidate/interface/CandMatchMapMany.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
+#include "DataFormats/Common/interface/RefHolder.h"
+#include "DataFormats/Common/interface/Holder.h"
+#include "DataFormats/Common/interface/RefVectorHolder.h"
+#include "DataFormats/Common/interface/VectorHolder.h"
 
 namespace {
   namespace {

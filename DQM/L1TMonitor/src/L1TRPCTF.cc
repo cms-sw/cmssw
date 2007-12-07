@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2007/09/26 14:18:04 $
- * $Revision: 1.5 $
+ * $Date: 2007/09/28 08:52:46 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  */
@@ -52,7 +52,7 @@ L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
 
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TRPCTF");
+    dbe->setCurrentFolder("L1T/L1TRPCTF");
   }
 
 
@@ -72,14 +72,14 @@ void L1TRPCTF::beginJob(const EventSetup& c)
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TRPCTF");
-    dbe->rmdir("L1TMonitor/L1TRPCTF");
+    dbe->setCurrentFolder("L1T/L1TRPCTF");
+    dbe->rmdir("L1T/L1TRPCTF");
   }
 
 
   if ( dbe ) 
   {
-    dbe->setCurrentFolder("L1TMonitor/L1TRPCTF");
+    dbe->setCurrentFolder("L1T/L1TRPCTF");
     
     rpctfetavalue[1] = dbe->book1D("RPCTF_eta_value", 
        "RPCTF eta value", 100, -2.5, 2.5 ) ;

@@ -8,20 +8,18 @@ class MagVolumeOutsideValidity : public std::exception {
 public:
 
   MagVolumeOutsideValidity( MagVolume::LocalPoint l,
-			    MagVolume::LocalPoint u) throw();
+			    MagVolume::LocalPoint u) throw() :
+    lower_(l), upper_(u) {}
 
   MagVolume::LocalPoint lower() const  throw() {return lower_;} 
   MagVolume::LocalPoint upper() const  throw() {return upper_;} 
 
   virtual ~MagVolumeOutsideValidity() throw() {}
 
-  virtual const char* what() const throw() { 
-    return m_message.c_str();
-  }
-
+  virtual const char* what() const throw() { return "Magnetic field requested outside of validity of the MagVolume";}
 
 private:
-  std::string m_message;
+
   MagVolume::LocalPoint lower_;
   MagVolume::LocalPoint upper_;
 };

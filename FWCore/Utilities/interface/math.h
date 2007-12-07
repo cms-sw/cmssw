@@ -44,7 +44,7 @@ namespace edm
   {
     // I do not know of a preprocessor symbol used to identify the
     // presence of an x87 floating-point processor.
-#if defined(__i386__)
+#if defined(__i386__)||defined(__x86_64)
     u_int16_t flags;
     __asm__("fxam\n\t"
 	    "fstsw %%ax"

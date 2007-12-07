@@ -14,6 +14,7 @@
 class CaloSimParameters
 {
 public:
+  // note: sampling factor not used
   CaloSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog, 
                  double samplingFactor, double timePhase,
                  int readoutFrameSize, int binOfMaximum,
@@ -31,10 +32,8 @@ public:
   virtual double simHitToPhotoelectrons(const DetId &) const { return simHitToPhotoelectrons_;}
 
   /// the factor which goes from photoelectrons to whatever gets read by ADCs
- double photoelectronsToAnalog() const {return photoelectronsToAnalog_;}
-
-  ///@@ want to remove this soon
-double samplingFactor() const {return samplingFactor_;}
+  double photoelectronsToAnalog() const {return photoelectronsToAnalog_;}
+  virtual  double photoelectronsToAnalog(const DetId & detId) const {return photoelectronsToAnalog_;}
 
   /// the adjustment you need to apply to get the signal where you want it
   double timePhase() const {return timePhase_;}
@@ -54,7 +53,6 @@ double samplingFactor() const {return samplingFactor_;}
 private:
   double simHitToPhotoelectrons_;
   double photoelectronsToAnalog_;
-  double samplingFactor_;
   double timePhase_;
   int readoutFrameSize_;
   int binOfMaximum_;

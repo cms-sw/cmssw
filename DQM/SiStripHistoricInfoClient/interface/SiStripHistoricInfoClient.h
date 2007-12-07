@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:34 CEST 2006
-// $Id: SiStripHistoricInfoClient.h,v 1.7 2007/02/16 15:59:34 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.h,v 1.8 2007/05/16 08:07:15 dkcira Exp $
 //
 
 #include "DQMServices/Components/interface/DQMBaseClient.h"
@@ -28,7 +28,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
+  //GB: 25/11/07 commented out this apparently useless Online DB dependency
+//#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
 #include "xoap/SOAPBody.h"
 #include "xoap/SOAPEnvelope.h"
@@ -71,7 +72,8 @@ private:
   mutable std::map<uint32_t, std::vector<MonitorElement *> > ClientPointersToModuleMEs;
   SiStripPerformanceSummary* pSummary_;
   // Access to the configuration DB interface class
-  SiStripConfigDb* db_;
+  //GB: 25/11/07 commented out this apparently useless Online DB dependency
+  //  SiStripConfigDb* db_;
 };
 // You always need to have this line! Do not remove:
 XDAQ_INSTANTIATOR_IMPL(SiStripHistoricInfoClient)

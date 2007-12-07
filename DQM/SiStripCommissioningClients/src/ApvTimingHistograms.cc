@@ -47,8 +47,8 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
 
   // Some initialisation
   uint16_t valid = 0;
-  HistosMap::const_iterator iter = 0;
-  Analyses::iterator ianal = 0;
+  HistosMap::const_iterator iter;
+  Analyses::iterator ianal;
   std::map<std::string,uint16_t> errors;
   
   // Clear map holding analysis objects
@@ -87,12 +87,6 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     ApvTimingAnalysis* anal = new ApvTimingAnalysis( iter->first );
     anal->analysis( profs );
     data_[iter->first] = anal; 
-    
-    // Check tick height is valid
-    if ( anal->height() < ApvTimingAnalysis::tickMarkHeightThreshold_ ) { 
-      anal->addErrorCode(sistrip::tickMarkBelowThresh_);      
-      continue; 
-    }
 
     // Check time of rising edge
     if ( anal->time() > sistrip::valid_ ) { continue; }

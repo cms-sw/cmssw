@@ -9,6 +9,7 @@
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include <vector>
 
 #include <ext/hash_map>
@@ -29,6 +30,7 @@ private:
   edm::FileInPath fp_;
   bool printdebug_;
   std::vector<uint32_t> BadModuleList_;
- 
+  SiStripDetInfoFileReader* reader;
+
 };
 #endif

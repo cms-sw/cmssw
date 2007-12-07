@@ -102,7 +102,7 @@ void popcon::StateCreator::storeStatusData()
 		return;
 	try{	
 		m_coraldb->startTransaction(false);
-		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("POPCON_PAYLOAD_STATE");
+		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("P_CON_PAYLOAD_STATE");
 		coral::ITableDataEditor& editor = mytable.dataEditor();
 		
 		coral::AttributeList rowBuffer;
@@ -132,7 +132,13 @@ void popcon::StateCreator::generateStatusData()
 	if (m_sqlite)
 		return;
 
-	try{
+        if (nfo.top_level_table == "")
+                getPoolTableName();
+
+        if (nfo.top_level_table == "")
+                m_current_state = DBState(nfo.object_name, 0, m_offline);
+        else	
+          try{
 		cond::RelationalStorageManager status_db(m_offline, /*cond*/session);
 		status_db.connect(cond::ReadOnly);
 
@@ -155,7 +161,7 @@ void popcon::StateCreator::generateStatusData()
 		if (cursor->next() ){
 			if (m_debug)
 				std::cerr << "generateStatusData()for " << nfo.object_name << " , size is:  " <<  rowBuffer[0].data<int>() << std::endl;
-			m_current_state = DBState(nfo.object_name, rowBuffer[0].data<int>());
+			m_current_state = DBState(nfo.object_name, rowBuffer[0].data<int>(), m_offline);
 		}	
 
 		//status_db.commit();
@@ -183,11 +189,18 @@ void popcon::StateCreator::getPoolTableName()
 		cond::RelationalStorageManager status_db(m_offline,/*cond*/session);
 		status_db.connect(cond::ReadOnly);
 		status_db.startTransaction();
+ 
+                coral::ISchema& schema = status_db.sessionProxy().nominalSchema();
+
+                if ( ! schema.existsTable("POOL_RSS_CONTAINERS")){
+                    nfo.top_level_table = "";
+                    status_db.disconnect();
+                    return;
+                }
 
 		coral::AttributeList rowBuffer;
 		rowBuffer.extend<std::string>( "TLT" );
-		coral::ISchema& schema = status_db.sessionProxy().nominalSchema();
-		//std::auto_ptr< coral::IQuery > query(schema.newQuery()); 
+ 
 		coral::IQuery* query(schema.newQuery()); 
 		query->addToOutputList( "P.TABLE_NAME","TLT");
 		query->addToTableList("POOL_RSS_CONTAINERS","P");
@@ -265,22 +278,24 @@ void popcon::StateCreator::getStoredStatusData()
 		rowBuffer.extend<std::string>( "ED" );
 		rowBuffer.extend<std::string>( "MO" );
 		coral::IQuery* query = schema.newQuery();
-		query->addToOutputList( "POPCON_PAYLOAD_STATE.NAME","N");
-		query->addToOutputList( "POPCON_PAYLOAD_STATE.PAYLOAD_SIZE","PS");
-		query->addToOutputList( "POPCON_PAYLOAD_STATE.EXCEPT_DESCRIPTION","ED");
-		query->addToOutputList( "POPCON_PAYLOAD_STATE.MANUAL_OVERRIDE","MO");
-		query->addToTableList("POPCON_PAYLOAD_STATE","");
+		query->addToOutputList( "cps.NAME","N");
+		query->addToOutputList( "cps.PAYLOAD_SIZE","PS");
+		query->addToOutputList( "cps.EXCEPT_DESCRIPTION","ED");
+		query->addToOutputList( "cps.MANUAL_OVERRIDE","MO");
+		query->addToTableList("P_CON_PAYLOAD_STATE","cps");
 		coral::AttributeList conditionData;
 		conditionData.extend<std::string>( "oname" );
-		conditionData[0].data<std::string>() = nfo.object_name;
-		std::string condition = "POPCON_PAYLOAD_STATE.NAME = :oname";
-		query->setCondition(condition, conditionData);
+        conditionData[ "oname" ].data<std::string>() = nfo.object_name;
+        conditionData.extend<std::string>( "connStr" );
+        conditionData[ "connStr" ].data<std::string>() = m_offline;
+		std::string condition = "cps.NAME = :oname and cps.CONNECT_STRING = :connStr";
+        query->setCondition(condition, conditionData);
 		query->setMemoryCacheSize( 100 );
 		query->defineOutput( rowBuffer );
 		coral::ICursor& cursor4 = query->execute();
 		unsigned short count=0;
 		while ( cursor4.next() ) {
-			m_saved_state=DBState(rowBuffer);
+			m_saved_state=DBState(rowBuffer, m_offline);
 			count ++;
 		}
 

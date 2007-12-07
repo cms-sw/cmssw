@@ -10,7 +10,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:20 CET 2006
-// $Id: SiStripDetCabling.h,v 1.4 2007/01/29 15:24:29 dkcira Exp $
+// $Id: SiStripDetCabling.h,v 1.5 2007/05/16 08:22:22 dkcira Exp $
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <boost/cstdint.hpp>
@@ -41,10 +41,16 @@ class SiStripDetCabling
     const FedChannelConnection& getConnection( uint32_t det_id, unsigned short apv_pair ) const;
     const unsigned int getDcuId( uint32_t det_id ) const;
     const uint16_t nApvPairs(uint32_t det_id) const; // maximal nr. of apvpairs a detector can have (2 or 3)
+    bool IsConnected(const uint32_t& det_id) const;
+    bool IsDetected(const uint32_t& det_id) const;
+    bool IsUndetected(const uint32_t& det_id) const;
+
   private:
     SiStripDetCabling(const SiStripDetCabling&); // stop default
     const SiStripDetCabling& operator=(const SiStripDetCabling&); // stop default
     void addFromSpecificConnection( std::map<uint32_t, std::vector<int> > & , const std::map< uint32_t, std::vector<int> >  &) const;
+    bool IsInMap(const uint32_t& det_id, const std::map<uint32_t, std::vector<int> > &) const;
+    
     // ---------- member data --------------------------------
   private:
     // map of KEY=detid DATA=vector<FedChannelConnection> 

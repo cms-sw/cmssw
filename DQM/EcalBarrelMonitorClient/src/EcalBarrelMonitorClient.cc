@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/10/06 12:32:43 $
- * $Revision: 1.312 $
+ * $Date: 2007/11/28 09:47:40 $
+ * $Revision: 1.324 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,12 +25,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+
+#include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
@@ -116,14 +118,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " Reading DQM data from inputFile = '" << inputFile_ << "'" << endl;
   }
 
-  // DQM ROOT output file
-
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-
-  if ( outputFile_.size() != 0 ) {
-    cout << " Writing DQM data to outputFile = '" << outputFile_ << "'" << endl;
-  }
-
   // Ecal Cond DB
 
   dbName_ = ps.getUntrackedParameter<string>("dbName", "");
@@ -158,7 +152,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " mergeRuns switch is ON" << endl;
   } else {
     cout << " mergeRuns switch is OFF" << endl;
-  } 
+  }
 
   // enableSubRunDb switch
 
@@ -207,16 +201,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " cloneME switch is ON" << endl;
   } else {
     cout << " cloneME switch is OFF" << endl;
-  }
-
-  // enableQT switch
-
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
-
-  if ( enableQT_ ) {
-    cout << " enableQT switch is ON" << endl;
-  } else {
-    cout << " enableQT switch is OFF" << endl;
   }
 
   // enableExit switch
@@ -303,7 +287,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 36).
 
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
 
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
@@ -321,7 +305,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   enabledClients_.push_back("PedestalOnline");
 
   enabledClients_ = ps.getUntrackedParameter<vector<string> >("enabledClients", enabledClients_);
- 
+
   cout << " Enabled Clients:" << endl;
 
   for ( unsigned int i = 0; i < enabledClients_.size(); i++ ) {
@@ -434,7 +418,9 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
 
@@ -504,6 +490,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBTriggerTowerClient(ps) );
     clientNames_.push_back( "TriggerTower" );
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
@@ -532,16 +519,16 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBTimingClient(ps) );
     clientNames_.push_back( "Timing" );
-//    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+//    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
 //    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-//    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-//    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+//    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
 //    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
   }
@@ -753,24 +740,6 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
-  if ( outputFile_.size() != 0 ) {
-    string fileName = outputFile_;
-    char tmp[9];
-    if ( fileName.find("RUNNUMBER") < fileName.size() ) {
-      if ( run_ != -1 ) {
-        sprintf(tmp,"%09d", run_);
-      } else {
-        sprintf(tmp,"%09d", 0);
-      }
-      fileName.replace(fileName.find("RUNNUMBER"), 9, tmp);
-    }
-    if ( fileName.find("LBLOCK") < fileName.size() ) {
-      sprintf(tmp,"%06d", 0);
-      fileName.replace(fileName.find("LBLOCK"), 6, tmp);
-    }
-    dbe_->save(fileName);
-  }
-
   if ( subrun_ != -1 ) {
 
     this->writeDb();
@@ -840,25 +809,6 @@ void EcalBarrelMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, con
 void EcalBarrelMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
 
   this->analyze();
-
-  if ( outputFile_.size() != 0 ) {
-    if ( outputFile_.find("LBLOCK") < outputFile_.size() ) {
-      string fileName = outputFile_;
-      char tmp[10];
-      if ( fileName.find("RUNNUMBER") < fileName.size() ) {
-        if ( run_ != -1 ) {
-          sprintf(tmp,"%09d", run_);
-        } else {
-          sprintf(tmp,"%09d", 0);
-        }
-        fileName.replace(fileName.find("RUNNUMBER"), 9, tmp);
-      }
-      sprintf(tmp,"%06d", l.id().luminosityBlock());
-      fileName.replace(fileName.find("LBLOCK"), 6, tmp);
-
-      dbe_->save(fileName);
-    }
-  }
 
 }
 
@@ -986,7 +936,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
       std::cout << "Fetching EcalLogicID vectors..." << std::flush;
       LogicID::init( econn );
       std::cout << "done." << std::endl;
-    } catch( std::runtime_error &e ) {
+    } catch(runtime_error &e) {
       std::cerr << e.what() << std::endl;
     }
   }
@@ -1002,11 +952,11 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   } else {
     if ( econn ) {
       try {
-	cout << "Fetching masked channels from DB ... " << flush;
-	EcalErrorMask::readDB(econn, &runiov_);
-	cout << "done." << endl;
+        cout << "Fetching masked channels from DB ... " << flush;
+        EcalErrorMask::readDB(econn, &runiov_);
+        cout << "done." << endl;
       } catch (runtime_error &e) {
-	cerr << e.what() << endl;
+        cerr << e.what() << endl;
       }
     }
   }
@@ -1089,8 +1039,8 @@ void EcalBarrelMonitorClient::writeDb(void) {
   for ( int j = 0; j<int(clients_.size()); ++j ) {
     bool written; written = false;
     for ( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-      if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
-        if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
+      if ( h_ && h_->GetBinContent(2+(*k).second) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
+        if ( clientNames_[j] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 ) continue;
         written = true;
         taskl |= 0x1 << j;
         cout << endl;
@@ -1127,21 +1077,8 @@ void EcalBarrelMonitorClient::writeDb(void) {
   md.setNumEvents(int(nevt));
   md.setMonRunOutcomeDef(monRunOutcomeDef);
 
-  if ( outputFile_.size() != 0 ) {
-    string fileName = outputFile_;
-    for ( unsigned int i = 0; i < fileName.size(); i++ ) {
-      if( fileName.substr(i, 9) == "RUNNUMBER" )  {
-        char tmp[10];
-        if ( run_ != -1 ) {
-          sprintf(tmp,"%09d", run_);
-        } else {
-          sprintf(tmp,"%09d", 0);
-        }
-        fileName.replace(i, 5, tmp);
-      }
-    }
-    md.setRootfileName(fileName);
-  }
+//  string fileName = "";
+//  md.setRootfileName(fileName);
 
   md.setTaskList(taskl);
   md.setTaskOutcome(tasko);
@@ -1331,11 +1268,6 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( verbose_ ) cout << " updates = " << updates << endl;
 
-  // run QTs on MEs updated during last cycle (offline mode)
-  if ( ! enableStateMachine_ ) {
-    if ( enableQT_ ) dbe_->runQTests();
-  }
-
   // update MEs (online mode)
   if ( ! enableStateMachine_ ) {
     mui_->doMonitoring();
@@ -1400,7 +1332,7 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    if ( ( jevt_ < 10 || jevt_ % 10 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
+    if ( ( jevt_ < 10 || ( jevt_ < 100 && jevt_ % 10 == 0 ) || ( jevt_ < 1000 && jevt_ % 100 == 0 ) || jevt_ % 1000 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
       cout << " RUN status = \"" << status_ << "\"" << endl;
 
@@ -1416,7 +1348,7 @@ void EcalBarrelMonitorClient::analyze(void){
         if ( h_->GetEntries() != 0 ) {
           cout << " ( " << flush;
           for ( int i=0; i<int(runTypes_.size()); ++i ) {
-            if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(i+1) != 0 ) {
+            if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(2+i) != 0 ) {
               string s = runTypes_[i];
               transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
               cout << s << " ";
@@ -1462,7 +1394,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
     if ( begin_run_ && ! end_run_ ) {
 
-      if ( ( update && ( jevt_ < 10 || jevt_ % 100 == 0 ) ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
+      if ( ( update && ( jevt_ < 3 || jevt_ % 100 == 0 ) ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
         for ( int i=0; i<int(clients_.size()); i++ ) {
           bool analyzed; analyzed = false;
@@ -1475,11 +1407,6 @@ void EcalBarrelMonitorClient::analyze(void){
 
         if ( status_ == "running" || status_ == "end-of-run" || forced_update_ ) {
 
-          // run QTs on local MEs, updated in analyze()
-          if ( ! enableStateMachine_ ) {
-            if ( enableQT_ ) dbe_->runQTests();
-          }
-
           // update MEs [again, just to silence a warning]
           if ( ! enableStateMachine_ ) {
             mui_->doMonitoring();
@@ -1491,26 +1418,22 @@ void EcalBarrelMonitorClient::analyze(void){
 
       if ( status_ == "end-of-run" || forced_update_ ) {
 
-        if ( enableQT_ ) {
-
-          cout << endl;
-          switch ( dbe_->getStatus() ) {
-            case dqm::qstatus::ERROR:
-              cout << " Error(s)";
-              break;
-            case dqm::qstatus::WARNING:
-              cout << " Warning(s)";
-              break;
-            case dqm::qstatus::OTHER:
-              cout << " Some tests did not run;";
-              break;
-            default:
-              cout << " No problems";
-          }
-          cout << " reported after running the quality tests" << endl;
-          cout << endl;
-
+        cout << endl;
+        switch ( dbe_->getStatus() ) {
+          case dqm::qstatus::ERROR:
+            cout << " Error(s)";
+            break;
+          case dqm::qstatus::WARNING:
+            cout << " Warning(s)";
+            break;
+          case dqm::qstatus::OTHER:
+            cout << " Some tests did not run;";
+            break;
+          default:
+            cout << " No problems";
         }
+        cout << " reported after running the quality tests" << endl;
+        cout << endl;
 
       }
 
@@ -1801,8 +1724,8 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
   for ( int j = 0; j<int(clients_.size()); ++j ) {
     bool written; written = false;
     for ( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-      if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
-        if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
+      if ( h_ && h_->GetBinContent(2+(*k).second) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
+        if ( clientNames_[j] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 ) continue;
         written = true;
         htmlName = "EB" + clientNames_[j] + "Client.html";
         clients_[j]->htmlOutput(run_, htmlDir, htmlName);
@@ -1869,7 +1792,7 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
     cgicc::CgiEnvironment cgie(in);
     path = cgie.getPathInfo() + "?" + cgie.getQueryString();
 
-  } catch (const std::exception & e) { }
+  } catch (exception &e) { }
 
   *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict)            << endl;
   *out << cgicc::html().set("lang", "en").set("dir","ltr")           << endl;
@@ -1893,7 +1816,7 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
        << std::endl;
   *out << cgicc::input().set("type","hidden").set("name","module").set("value", mname)
        << std::endl;
-  *out << cgicc::input().set("type","hidden").set("name","autorefresh").set("value", autorefresh_?"0":"1") 
+  *out << cgicc::input().set("type","hidden").set("name","autorefresh").set("value", autorefresh_?"0":"1")
        << std::endl;
   *out << cgicc::input().set("type","submit").set("value",autorefresh_?"Toggle AutoRefresh OFF":"Toggle AutoRefresh ON")
        << std::endl;
@@ -1903,20 +1826,20 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "<table style=\"font-family: arial\"><tr><td>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th>Cycle</th><td align=right>" << this->getEvtPerJob();
   int nevt = 0;
   if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetEntries());
   *out << "<tr><th>Event</th><td align=right>" << nevt
-       << "</td><tr><th>Run</th><td align=right>" << this->getRun() 
-       << "</td><tr><th>Run Type</th><td align=right> " << this->getRunType() 
+       << "</td><tr><th>Run</th><td align=right>" << this->getRun()
+       << "</td><tr><th>Run Type</th><td align=right> " << this->getRunType()
        << "</td></table></p>" << endl;
 
   *out << "</td><td>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th>Evt Type</th><th>Evt/Run</th><th>Evt Type</th><th>Evt/Run</th>" << endl;
   vector<string> runTypes = this->getRunTypes();
   for( unsigned int i=0, j=0; i<runTypes.size(); i++ ) {
@@ -1924,7 +1847,7 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
       if ( j++%2 == 0 ) *out << "<tr>";
       nevt = 0;
       if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetBinContent(i+1));
-      *out << "<td>" << runTypes[i] 
+      *out << "<td>" << runTypes[i]
            << "</td><td align=right>" << nevt << endl;
     }
   }
@@ -1932,15 +1855,15 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "</td><tr><td colspan=2>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th>" << endl;
   const vector<EBClient*> clients = this->getClients();
   const vector<string> clientNames = this->getClientNames();
   for( unsigned int i=0; i<clients.size(); i++ ) {
     if ( clients[i] != 0 ) {
       if ( i%2 == 0 ) *out << "<tr>";
-      *out << "<td>" << clientNames[i] 
+      *out << "<td>" << clientNames[i]
            << "</td><td align=right>" << clients[i]->getEvtPerJob()
            << "</td><td align=right>" << clients[i]->getEvtPerRun() << endl;
     }
@@ -1950,7 +1873,7 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
   *out << "</td><tr><td>" << endl;
 
 
-  *out << "<p style=\"font-family: arial\">" 
+  *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
        << "<tr><th colspan=2>RunIOV</th>"
        << "<tr><td>Run Number</td><td align=right> " << this->getRunIOV().getRunNumber()
@@ -1960,8 +1883,8 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "</td><td colsapn=2>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th colspan=2>RunTag</th>"
        << "<tr><td>GeneralTag</td><td align=right> " << this->getRunIOV().getRunTag().getGeneralTag()
        << "</td><tr><td>Location</td><td align=right> " << this->getRunIOV().getRunTag().getLocationDef().getLocation()
@@ -1970,8 +1893,8 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "</td><tr><td>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th colspan=2>MonRunIOV</th>"
        << "<tr><td>SubRun Number</td><td align=right> " << this->getMonIOV().getSubRunNumber()
        << "</td><tr><td>SubRun Start</td><td align=right> " << this->getMonIOV().getSubRunStart().str()
@@ -1980,8 +1903,8 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << "</td><td colspan=2>" << endl;
 
-  *out << "<p style=\"font-family: arial\">" 
-       << "<table border=1>" 
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
        << "<tr><th colspan=2>MonRunTag</th>"
        << "<tr><td>GeneralTag</td><td align=right> " << this->getMonIOV().getMonRunTag().getGeneralTag()
        << "</td><tr><td>Monitoring Version</td><td align=right> " << this->getMonIOV().getMonRunTag().getMonVersionDef().getMonitoringVersion()
