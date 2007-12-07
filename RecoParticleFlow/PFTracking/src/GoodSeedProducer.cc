@@ -118,6 +118,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     pOutputPFRecTrackCollection(new reco::PFRecTrackCollection);
   
   
+  //Tracking Tools
+  iSetup.get<TrackingComponentsRecord>().get(fitterName_, fitter_);
+  iSetup.get<TrackingComponentsRecord>().get(smootherName_, smoother_);
+
   //Handle input collections
   //ECAL clusters	      
   Handle<reco::PFClusterCollection> theECPfClustCollection;
@@ -256,7 +260,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       //ENDCAP
       //USE OF PRESHOWER 
       if (fabs(Tk[i].eta())>1.6){
-        int iptbin =getBin(Tk[i].pt());
+        int iptbin =4*getBin(Tk[i].pt());
 	ps2En=0;ps1En=0;
 	ps2chi=100.; ps1chi=100.;
 	PSforTMVA(mom,pos);
@@ -429,12 +433,10 @@ void
 GoodSeedProducer::beginJob(const EventSetup& es)
 {
 
-  //Get Magnetic Field
+
   pfTransformer_= new PFTrackTransformer();
 
-  //Tracking Tools
-  es.get<TrackingComponentsRecord>().get(fitterName_, fitter_);
-  es.get<TrackingComponentsRecord>().get(smootherName_, smoother_);
+
 
   
   //Resolution maps
