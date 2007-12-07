@@ -1,0 +1,102 @@
+#ifndef EgammaCandidates_Conversion_h
+#define EgammaCandidates_Conversion_h
+/** \class reco::Conversion Conversion.h DataFormats/EgammaCandidates/interface/Conversion.h
+ *
+ * 
+ *
+ * \author N.Marinelli  University of Notre Dame, US
+ *
+ * \version $Id: Conversion.h,v 1.16 2007/10/06 20:05:46 futyand Exp $
+ *
+ */
+
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
+#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h" 
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+
+
+
+namespace reco {
+    class Conversion  {
+  public:
+
+    // Default constructor
+    Conversion() {}
+   
+    Conversion( const reco::SuperClusterRef sc, 
+                     const std::vector<reco::TrackRef> tr, 
+		     const std::vector<math::XYZPoint> trackPositionAtEcal , 
+		     const reco::Vertex  &  convVtx,
+		     const std::vector<reco::BasicClusterRef> & matchingBC);
+
+
+
+    /// destructor
+    virtual ~Conversion();
+    /// returns a clone of the candidate
+    Conversion * clone() const;
+    /// reference to a SuperCluster
+    reco::SuperClusterRef superCluster() const ;
+    /// vector of references to  tracks
+    std::vector<reco::TrackRef> tracks() const ; 
+     /// returns  the reco conversion vertex
+    reco::Vertex const & conversionVertex() const  { return theConversionVertex_ ; }
+     /// positions of the track extrapolation at the ECAL front face
+    std::vector<math::XYZPoint> const & ecalImpactPosition()  {return thePositionAtEcal_;}
+    //  pair of BC matching the tracks
+    const std::vector<reco::BasicClusterRef>&  bcMatchingWithTracks() const { return theMatchingBCs_;}
+    /// Bool flagging objects having track size >0
+    bool isConverted() const;
+    /// Number of tracks= 0,1,2
+    unsigned int nTracks() const {return  tracks().size(); }
+    /// if nTracks=2 returns the pair invariant mass
+    double pairInvariantMass() const {return makePairInvariantMass() ;}
+    /// Delta cot(Theta) where Theta is the angle in the (y,z) plane between the two tracks 
+    double pairCotThetaSeparation() const {return makePairCotThetaSeparation() ;}
+    /// Conversion tracks momentum 
+    GlobalVector  pairMomentum() const {return makePairMomentum() ;}
+    /// Phi  
+    double pairMomentumPhi() const {return makePairMomentumPhi();}
+    /// Eta 
+    double pairMomentumEta() const {return makePairMomentumEta();}
+    /// Pt from tracks divided by the super cluster transverse energy
+    double pairPtOverEtSC() const {return makePairPtOverEtSC();}
+    /// Super Cluster energy divided by tracks momentum
+    double EoverP() const {return makePairPtOverEtSC() ;}
+    /// set primary event vertex used to define photon direction
+    double zOfPrimaryVertexFromTracks() const  {return makePrimaryVertexZ();}
+
+
+
+
+  private:
+
+    /// reference to a SuperCluster
+    reco::SuperClusterRef superCluster_;
+    /// reference to a vector Track references
+    std::vector<reco::TrackRef>  tracks_;
+    std::vector<math::XYZPoint>  thePositionAtEcal_;
+    reco::Vertex theConversionVertex_;
+    std::vector<reco::BasicClusterRef> theMatchingBCs_;
+
+
+    double makePairInvariantMass() const;
+    double makePairCotThetaSeparation() const;
+    GlobalVector makePairMomentum() const;
+    double makePairMomentumEta() const;
+    double makePairMomentumPhi() const;
+    double makePairPtOverEtSC() const;
+    double makeEoverP() const;
+    double makePrimaryVertexZ() const ;
+
+
+  };
+  
+}
+
+#endif
