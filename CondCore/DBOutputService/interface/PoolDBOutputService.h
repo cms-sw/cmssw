@@ -11,6 +11,17 @@
 #include "serviceCallbackRecord.h"
 #include <string>
 #include <map>
+//#include <iostream>
+//
+// Package:     DBOutputService
+// Class  :     PoolDBOutputService
+// 
+/**\class PoolDBOutputService PoolDBOutputService.h CondCore/DBOutputService/interface/PoolDBOutputService.h
+   Description: edm service for writing conditions object to DB.  
+*/
+//
+// Author:      Zhen Xie
+//
 namespace edm{
   class Event;
   class EventSetup;
@@ -60,7 +71,7 @@ namespace cond{
 	if ( !m_dbstarted ) {
 	  this->initDB();
 	}
-	if(!myrecord.m_isNewTag) throw cond::Exception("not a new tag");
+	if(!myrecord.m_isNewTag) throw cond::Exception("PoolDBOutputService::createNewIOV not a new tag");
 	cond::PoolTransaction& pooldb=m_connection->poolTransaction();
 	std::string iovToken;
 	try{
@@ -70,27 +81,17 @@ namespace cond{
 	  std::string payloadToken=myPayload.token();
 	  iovToken=this->insertIOV(pooldb, myrecord,payloadToken,firstTillTime);
 	  pooldb.commit();
-	}catch(const std::exception& ){
-	  pooldb.rollback();
-	  throw cond::Exception("createNewIOV: error in commit in pool");
-	}
-	cond::CoralTransaction& coraldb=m_connection->coralTransaction();
-	try{
+	  cond::CoralTransaction& coraldb=m_connection->coralTransaction();
 	  cond::MetaData metadata(coraldb);
 	  coraldb.start(false);
 	  metadata.addMapping(myrecord.m_tag,iovToken);
 	  coraldb.commit();
-	}catch(const std::exception&){
-	  //I hope it'll never happen!
-	  coraldb.rollback();
-	  //delete new payload; 
-	  //pooldb.start();
-	  //this->resetPreviousPoolStatus(payloadToken,iovToken);
-	  //pooldb.commit();
+	  myrecord.m_isNewTag=false;
+	  myrecord.m_iovtoken=iovToken;
+	  m_newtags.push_back( std::make_pair<std::string,std::string>(myrecord.m_tag,iovToken) );
+	}catch(const std::exception& er){
+	  throw cond::Exception("PoolDBOutputService::createNewIOV "+std::string(er.what()));
 	}
-	myrecord.m_isNewTag=false;
-	myrecord.m_iovtoken=iovToken;
-	m_newtags.push_back( std::make_pair<std::string,std::string>(myrecord.m_tag,iovToken) );
       }
       void createNewIOV( const std::string& firstPayloadToken, 
 			cond::Time_t firstTillTime,
@@ -108,10 +109,10 @@ namespace cond{
 	  cond::TypedRef<T> myPayload(pooldb,payloadObj);
 	  myPayload.markWrite(EventSetupRecordName);
 	  std::string payloadToken=myPayload.token();
-	  pooldb.commit();
 	  std::string iovToken=this->insertIOV(pooldb,myrecord,payloadToken,tillTime);
-	}catch(const std::exception&){
-	  pooldb.rollback();
+	  pooldb.commit();
+	}catch(const std::exception& er){
+	  throw cond::Exception("PoolDBOutputService::appendTillTime "+std::string(er.what()));
 	}
       }
       void appendTillTime( const std::string& payloadToken, 
@@ -135,8 +136,8 @@ namespace cond{
 	  std::string payloadToken=myPayload.token();
 	  this->appendIOV(pooldb,myrecord,payloadToken,sinceTime);
 	  pooldb.commit();
-	}catch(const std::exception&){
-	  pooldb.rollback();
+	}catch(const std::exception& er){
+	  throw cond::Exception("PoolDBOutputService::appendSinceTime "+std::string(er.what()));
 	}
       }
       //
