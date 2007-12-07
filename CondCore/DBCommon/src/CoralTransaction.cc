@@ -27,7 +27,12 @@ cond::CoralTransaction::start(bool isReadOnly){
 void 
 cond::CoralTransaction::commit(){
   if(!m_coralHandle) throw cond::Exception("CoralTransaction::commit database not connected");
-  m_coralHandle->transaction().commit();
+  try{
+    m_coralHandle->transaction().commit();
+  }catch(const std::exception& er){
+    m_coralHandle->transaction().rollback();
+    throw cond::TransactionException("CoralTransaction::commit. The following error ocurred, transaction rolled back",er.what());
+  }
   this->NotifyEndOfTransaction();
 }
 void 
@@ -36,16 +41,6 @@ cond::CoralTransaction::rollback(){
   m_coralHandle->transaction().rollback();
   this->NotifyEndOfTransaction();
 }
-/*bool
-cond::CoralTransaction::isActive()const{
-  if(m_coralHandle!=0){
-    std::cout<<"m_coralHandle "<<m_coralHandle<<std::endl;
-    if(&(m_coralHandle->transaction())==0) return false;
-    return m_coralHandle->transaction().isActive();
-  }
-  return false;
-}
-*/
 bool 
 cond::CoralTransaction::isReadOnly()const{
   return m_isReadOnly;

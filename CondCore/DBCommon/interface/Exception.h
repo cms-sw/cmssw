@@ -21,5 +21,11 @@ namespace cond{
 		 const std::string& msg);
     virtual ~RefException() throw(){}
   };
+  class TransactionException : public Exception{
+  public:
+    TransactionException(const std::string& from, 
+			 const std::string& msg);
+    virtual ~TransactionException() throw(){}
+  };
 }
 #endif

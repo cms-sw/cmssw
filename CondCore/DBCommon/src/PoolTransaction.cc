@@ -22,7 +22,10 @@ cond::PoolTransaction::start(bool isReadOnly){
 void 
 cond::PoolTransaction::commit(){
   if(!m_datasvc) throw cond::Exception("PoolTransaction::commit: database not connected");
-  m_datasvc->transaction().commit();
+  if(!m_datasvc->transaction().commit()){
+    m_datasvc->transaction().rollback();
+    throw cond::TransactionException("cond::PoolTransaction::commit","An Error ocurred, transaction rolled back");
+  }
   this->NotifyEndOfTransaction();
 }
 void 
