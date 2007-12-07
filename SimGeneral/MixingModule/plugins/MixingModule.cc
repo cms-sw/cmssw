@@ -11,6 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfo.h"
 #include "MixingModule.h"
 
 const int  edm::MixingModule::lowTrackTof = -36; 
@@ -25,7 +26,7 @@ namespace edm
 
   // Constructor 
   MixingModule::MixingModule(const edm::ParameterSet& ps) : BMixingModule(ps),
-							    label_(ps.getParameter<std::string>("Label"))
+							    playbackInfo_(0),label_(ps.getParameter<std::string>("Label"))
 
   {
     // get the subdetector names
@@ -42,7 +43,6 @@ namespace edm
     // declare the product to produce
     for (unsigned int ii=0;ii<simHitSubdetectors_.size();ii++) {
       produces<CrossingFrame<PSimHit> > (simHitSubdetectors_[ii]);
-      //      cfSimHits_[simHitSubdetectors_[ii]]=new CrossingFrame<PSimHit>(minBunch(),maxBunch(),bunchSpace_,simHitSubdetectors_[ii]);
     }
     for (unsigned int ii=0;ii<caloSubdetectors_.size();ii++) {
       produces<CrossingFrame<PCaloHit> > (caloSubdetectors_[ii]);
@@ -50,6 +50,9 @@ namespace edm
     produces<CrossingFrame<SimTrack> >();
     produces<CrossingFrame<SimVertex> >();
     produces<CrossingFrame<edm::HepMCProduct> >();
+    
+    //
+    produces<CrossingFramePlaybackInfo>();  //FIXME: dependent on existence of rndmstore?
   }
 
   void MixingModule::getSubdetectorNames() {
@@ -75,7 +78,7 @@ namespace edm
 	// here we store the tracker subdetector name  for low and high part
 	int slow=(desc.productInstanceName_).find("LowTof");
 	int iend=(desc.productInstanceName_).size();
-	if (slow>0) {
+        if (slow>0) {
  	  trackerHighLowPids_.push_back(desc.productInstanceName_.substr(0,iend-6));
 	  LogInfo("MixingModule") <<"Adding tracker simhit container "<<desc.productInstanceName_.substr(0,iend-6) <<" for mixing";
         }
@@ -92,9 +95,13 @@ namespace edm
     for (unsigned int ii=0;ii<caloSubdetectors_.size();ii++) {
       cfCaloHits_[caloSubdetectors_[ii]]=new CrossingFrame<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,caloSubdetectors_[ii]);
     }
+
     cfTracks_=new CrossingFrame<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(" "));
     cfVertices_=new CrossingFrame<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(" "));
     cfHepMC_=new CrossingFrame<edm::HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(" "));
+
+    playbackInfo_=new CrossingFramePlaybackInfo(); //FIXME: dependent on existence of rndmstore?
+
   }
  
 
@@ -285,6 +292,10 @@ namespace edm
     cfHepMC_->setBcrOffset();
   }
 
+  void MixingModule::setEventStartInfo(edm::EventID& id, int fileNr, const unsigned int s) {
+   playbackInfo_->setEventStartInfo(id,fileNr,s); //FIXME: make dependent of rndmstore esistent?
+  }
+
   void MixingModule::setSourceOffset(const unsigned int is) {
     for (unsigned int ii=0;ii<simHitSubdetectors_.size();ii++) {
       cfSimHits_[simHitSubdetectors_[ii]]->setSourceOffset(is);
@@ -319,6 +330,27 @@ namespace edm
       std::auto_ptr<CrossingFrame<edm::HepMCProduct> > pOut(cfHepMC_);
       e.put(pOut);
     }
-  }
 
-} //edm
+    if (playbackInfo_) {
+      std::auto_ptr<CrossingFramePlaybackInfo> pOut(playbackInfo_);
+      e.put(pOut);
+    }
+  }
+  void MixingModule::getEventStartInfo(edm::Event & e, const unsigned int s) {
+    // set event start info in BMixingModule
+    id_=EventID(0,0);
+    fileNr_=-1;
+    if (playback_) {
+ 
+      edm::Handle<CrossingFramePlaybackInfo>  playbackInfo_H;
+      bool got;
+      got=e.get((*sel_), playbackInfo_H);
+      if (got) {
+	id_=playbackInfo_H->getStartEventId(s);
+	fileNr_=playbackInfo_H->getStartFileNr(s); 
+      }else{
+	LogWarning("MixingModule")<<"\n\nAttention: No CrossingFramePlaybackInfo on the input file, but playback option set!!!!!!!\nAttention: Job is executed without playback, please change the input file if you really want playback!!!!!!!";
+      }
+    }
+  }
+}//edm

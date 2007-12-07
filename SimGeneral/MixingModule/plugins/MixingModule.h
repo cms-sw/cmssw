@@ -33,6 +33,7 @@
 #include <vector>
 #include <string>
 
+class CrossingFramePlaybackInfo;
 
 namespace edm
 {
@@ -61,6 +62,8 @@ namespace edm
       virtual void setBcrOffset();
       virtual void setSourceOffset(const unsigned int s);
       virtual void getSubdetectorNames();
+      virtual void setEventStartInfo(edm::EventID&, int, const unsigned int s); // set in CF-s
+      virtual void getEventStartInfo(edm::Event & e, const unsigned int s); // fill in in base class
 
       // internally used information : subdetectors present in input
       std::vector<std::string> simHitSubdetectors_;
@@ -76,6 +79,8 @@ namespace edm
       CrossingFrame<SimTrack> *cfTracks_;
       CrossingFrame<SimVertex> *cfVertices_;
       CrossingFrame<HepMCProduct> *cfHepMC_;
+
+      CrossingFramePlaybackInfo *playbackInfo_;
 
       Selector * sel_;
       std::string label_;
