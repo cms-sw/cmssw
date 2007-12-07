@@ -1,22 +1,15 @@
-// $Id: Photon.cc,v 1.9 2007/10/21 22:01:59 futyand Exp $
+// $Id: Photon.cc,v 1.10 2007/10/22 22:24:25 futyand Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
 
 using namespace reco;
 
 Photon::Photon( Charge q, const LorentzVector & p4, Point unconvPos,
-		const SuperClusterRef scl, const ClusterShapeRef shp,
+		const SuperClusterRef scl,   const ClusterShapeRef shp, 
 		bool hasPixelSeed, const Point & vtx) : 
-  RecoCandidate( q, p4, vtx, 22 ), unconvPosition_( unconvPos ),
-  superCluster_(scl), seedClusterShape_( shp ), pixelSeed_( hasPixelSeed ) {
-
-  // compute R9=E3x3/ESC
-  r9_ = seedClusterShape_->e3x3()/(superCluster_->rawEnergy()+superCluster_->preshowerEnergy());
-  r19_ = seedClusterShape_->eMax()/seedClusterShape_->e3x3();
-  e5x5_ = seedClusterShape_->e5x5();
-  
+    RecoCandidate( q, p4, vtx, 22 ), unconvPosition_( unconvPos ),
+    superCluster_(scl),  seedClusterShape_( shp ),  pixelSeed_( hasPixelSeed ) {
+ 
 }
 
 Photon::~Photon() { }
@@ -31,6 +24,11 @@ reco::SuperClusterRef Photon::superCluster() const {
 
 reco::ClusterShapeRef Photon::seedClusterShape() const {
   return seedClusterShape_;
+}
+
+
+std::vector<reco::ConversionRef>  Photon::conversions() const { 
+   return conversions_;
 }
 
 bool Photon::overlap( const Candidate & c ) const {
@@ -51,7 +49,7 @@ void Photon::setVertex(const Point & vertex) {
 }
 
 math::XYZPoint Photon::caloPosition() const {
-  if (r9_>0.93) {
+  if (this->r9()>0.93) {
     return unconvPosition_;
   } else {
     return superCluster()->position();
