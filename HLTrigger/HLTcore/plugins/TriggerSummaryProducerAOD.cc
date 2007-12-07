@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/07 08:43:22 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/07 09:07:47 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -65,6 +65,12 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   }
 
   LogDebug("") << "Using process name: '" << pn_ <<"'";
+  for (trigger::size_type i=0; i!=collectionTags_.size(); ++i) {
+    LogTrace("") << "Collection " << i << " " << collectionTags_[i].encode();
+  }
+  for (trigger::size_type i=0; i!=filterTags_.size(); ++i) {
+    LogTrace("") << "Filter     " << i << " " << filterTags_[i].encode();
+  }
   produces<trigger::TriggerEvent>();
 
 }
@@ -204,6 +210,7 @@ trigger::size_type TriggerSummaryProducerAOD::fillMask(
 
   const size_type np(products.size());
   const size_type nw(wanted.size());
+  // LogTrace("") << np <<  " " << nw;
 
   mask_.clear();
   mask_.resize(np,false);
@@ -216,16 +223,20 @@ trigger::size_type TriggerSummaryProducerAOD::fillMask(
     const string& instance (products[ip].provenance()->productInstanceName());
     const string& process  (products[ip].provenance()->processName());
 
+    // LogTrace("") << "MASK P: " << ip << " "+label+" "+instance+" "+process;
+
     for (size_type iw=0; iw!=nw; ++iw) {
-      const string& tagLabel    (collectionTags_[iw].label());
-      const string& tagInstance (collectionTags_[iw].instance());
-      const string& tagProcess  (collectionTags_[iw].process());
+      const string& tagLabel    (wanted[iw].label());
+      const string& tagInstance (wanted[iw].instance());
+      const string& tagProcess  (wanted[iw].process());
+      // LogTrace("") << "MASK W: " << iw << " "+tagLabel+" "+tagInstance+" "+tagProcess;
       if (
-	  ((tagLabel   =="*")||(label   ==tagLabel   )) &&
-	  ((tagInstance=="*")||(instance==tagInstance)) &&
-	  ((tagProcess =="*")||(process ==tagProcess )||(pn_=="*"))
+ 	   (label   ==tagLabel   ) &&
+	   (instance==tagInstance) &&
+	  ((process ==tagProcess )||(tagProcess=="")||(pn_=="*"))
 	 ) {
 	mask_[ip]=true;
+        // LogTrace("") << "MASK match found!";
 	++n;
 	break;
       }
