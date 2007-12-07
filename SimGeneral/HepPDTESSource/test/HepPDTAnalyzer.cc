@@ -4,6 +4,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+#include <iostream>
+#include <iomanip>
+
 using namespace edm;
 using namespace std;
 
@@ -20,12 +23,45 @@ HepPDTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   ESHandle <ParticleDataTable> pdt;
   iSetup.getData( pdt );
-  
-  const ParticleData * part = pdt->particle( particleName_ );
-  cout << " Particle properties of the " <<  part->name() << " are:" << endl;  
-  cout << " Particle ID = " <<  part->pid() <<  endl;  
-  cout << " Charge = " <<  part->charge() << endl;  
-  cout << " Mass = " <<  part->mass() << endl;
+
+  if ( particleName_ == "all" ) {
+    std::cout << " Number of particles in table = " << pdt->size() << std::endl;
+    printBanner();
+    for ( ParticleDataTable::const_iterator iter = pdt->begin() ; iter != pdt->end() ; iter++ ) {
+      const ParticleData * part = pdt->particle ( (*iter).first );
+       printInfo(part); 	
+    }
+  }
+  else {
+    printBanner();
+    const ParticleData * part = pdt->particle( particleName_ );
+    printInfo(part);
+  }
+   
+}
+
+void 
+HepPDTAnalyzer::printInfo(const ParticleData* & part) {
+
+  cout << setfill(' ') << setw(14); 
+  cout << part->name();
+  cout << setfill(' ') << setw(12); 
+  cout << part->pid(); 
+  cout << setfill(' ') << setw(8) << setprecision(3) ; 
+  cout << part->charge();
+  cout << setfill(' ') << setw(12) << setprecision(6) ; 
+  cout << part->mass();
+  cout << setfill(' ') << setw(14) << setprecision(5) ; 
+  cout << part->totalWidth();
+  cout << setfill(' ') << setw(14) << setprecision(5) ;
+  cout << part->lifetime() << endl;
+
+}
+
+void
+HepPDTAnalyzer::printBanner() {
+    cout << " Particle name    ID        Charge     Mass       Tot. Width      Lifetime " << endl; 
+    cout << " ------------------------------------------------------------------------- " << endl;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
