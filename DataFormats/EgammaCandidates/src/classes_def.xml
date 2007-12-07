@@ -1,6 +1,6 @@
 <lcgdict>
   <class name="reco::Photon"/>
-  <class name="reco::ConvertedPhoton"/>
+  <class name="reco::Conversion"/>
   <class name="reco::Electron"/>
   <class name="reco::PixelMatchElectron"/>
   <class name="reco::PixelMatchGsfElectron"/>
@@ -35,12 +35,17 @@
   <class name="edm::RefVector<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron> > >"/>
 
-  <class name="std::vector<reco::ConvertedPhoton>"/>
-  <class name="edm::Wrapper<std::vector<reco::ConvertedPhoton> >"/>
-  <class name="edm::Ref<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton> >"/>
-  <class name="edm::RefProd<std::vector<reco::ConvertedPhoton> >"/>
-  <class name="edm::RefVector<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton> >"/>
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton> > >"/>
+  <class name="std::vector<reco::Conversion>"/>
+  <class name="edm::Wrapper<std::vector<reco::Conversion> >"/>
+  <class name="edm::Ref<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> >"/>
+  <class name="edm::RefProd<std::vector<reco::Conversion> >"/>
+  <class name="edm::RefVector<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
+  
+
+
 
   <class name="std::vector<reco::SiStripElectron>"/>
   <class name="edm::Wrapper<std::vector<reco::SiStripElectron> >"/>
@@ -49,11 +54,7 @@
   <class name="edm::RefVector<std::vector<reco::SiStripElectron>,reco::SiStripElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectron>,reco::SiStripElectron> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::SiStripElectron>,reco::SiStripElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectron>,reco::SiStripElectron> > >"/>
 
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> > >" />
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > >" />
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton> > >" />
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::SiStripElectron>,reco::SiStripElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectron>,reco::SiStripElectron> > >" />
-
+ 
   <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Photon>, float, unsigned int > >">
       <field name="transientMap_" transient="true" />
   </class>
@@ -102,10 +103,7 @@
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::PhotonRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::PhotonRefVector>" />
 
-  <class name="edm::reftobase::Holder<reco::Candidate, reco::ConvertedPhotonRef>" />
-  <class name="edm::reftobase::RefHolder<reco::ConvertedPhotonRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::ConvertedPhotonRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<reco::ConvertedPhotonRefVector>" />
+
 
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::Photon>,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,unsigned int> >">
      <field name="transientMap_" transient="true" />

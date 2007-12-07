@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.21 2007/10/29 11:29:33 llista Exp $
+// $Id: classes.h,v 1.22 2007/11/13 13:03:42 futyand Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -21,10 +21,10 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h" 
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h" 
-#include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
-#include "DataFormats/EgammaCandidates/interface/ConvertedPhotonFwd.h" 
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/CLHEP/interface/Migration.h" 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h" 
@@ -74,11 +74,14 @@ namespace {
     edm::RefProd<reco::SiStripElectronCollection> rp5;
     edm::Wrapper<edm::RefVector<reco::SiStripElectronCollection> > rv5;
 
-    reco::ConvertedPhotonCollection v6;
-    edm::Wrapper<reco::ConvertedPhotonCollection> w6;
-    edm::Ref<reco::ConvertedPhotonCollection> r6;
-    edm::RefProd<reco::ConvertedPhotonCollection> rp6;
-    edm::Wrapper<edm::RefVector<reco::ConvertedPhotonCollection> > rv6;
+
+    reco::ConversionCollection v6;
+    edm::Wrapper<reco::ConversionCollection> w6;
+    edm::Ref<reco::ConversionCollection> r6;
+    edm::RefProd<reco::ConversionCollection> rp6;
+    edm::Wrapper<edm::RefVector<reco::ConversionCollection> > rv6;
+
+
 
     reco::PhotonIsolationMap v66;
     edm::Wrapper<reco::PhotonIsolationMap> w66;
@@ -108,7 +111,7 @@ namespace {
     edm::reftobase::Holder<reco::Candidate, reco::ElectronRef> rb1;
     edm::reftobase::Holder<reco::Candidate, reco::PhotonRef> rb2;
     edm::reftobase::Holder<reco::Candidate, reco::SiStripElectronRef> rb3;
-    edm::reftobase::Holder<reco::Candidate, reco::ConvertedPhotonRef> rb4;
+
 
     edm::reftobase::Holder<reco::Candidate, reco::PixelMatchGsfElectronRef> rb11;
     edm::reftobase::RefHolder<reco::PixelMatchGsfElectronRef> rb12;
@@ -119,11 +122,6 @@ namespace {
     edm::reftobase::RefHolder<reco::PhotonRef> rb22;
     edm::reftobase::VectorHolder<reco::Candidate, reco::PhotonRefVector> rb23;
     edm::reftobase::RefVectorHolder<reco::PhotonRefVector> rb24;
-
-    edm::reftobase::Holder<reco::Candidate, reco::ConvertedPhotonRef> rb31;
-    edm::reftobase::RefHolder<reco::ConvertedPhotonRef> rb32;
-    edm::reftobase::VectorHolder<reco::Candidate, reco::ConvertedPhotonRefVector> rb33;
-    edm::reftobase::RefVectorHolder<reco::ConvertedPhotonRefVector> rb34;
 
     edm::Wrapper<reco::PhotonCandidateAssociation> pca1;
   }
