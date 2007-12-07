@@ -35,6 +35,7 @@
 #include <memory>
 #include <string>
 
+class SiStripQuality;
 
 namespace cms
 {
@@ -51,6 +52,8 @@ namespace cms
   private:
     edm::ParameterSet conf_;
     SiStripClusterizerAlgorithm SiStripClusterizerAlgorithm_;
+
+    SiStripQuality emptyQuality;
   };
 }
 #endif

@@ -19,7 +19,6 @@ namespace cms
     edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizer::SiStripClusterizer] Constructing object...";
     
     produces< edm::DetSetVector<SiStripCluster> > ();
-    
   }
 
   // Virtual destructor needed.
@@ -38,8 +37,12 @@ namespace cms
 
     es.get<SiStripGainRcd>().get(gainHandle);
     es.get<SiStripNoisesRcd>().get(noiseHandle);
-    es.get<SiStripQualityRcd>().get(conf_.getParameter<std::string>("SiStripQualityLabel"),qualityHandle);
-
+    if (conf_.getParameter<std::string>("SiStripQualityLabel")!="NULL")
+      es.get<SiStripQualityRcd>().get(conf_.getParameter<std::string>("SiStripQualityLabel"),qualityHandle);
+    else{
+      edm::ESHandle<SiStripQuality> tmpqualityHandle(&emptyQuality);
+      tmpqualityHandle.swap(qualityHandle);
+    }
 
     // Step B: Get Inputs 
     edm::Handle< edm::DetSetVector<SiStripDigi> >  input;
