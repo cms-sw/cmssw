@@ -16,6 +16,7 @@ class HcalPedestalsDBWriter : public popcon::PopConAnalyzer<HcalPedestals>
 	private: 
 		std::string m_pop_connection;
 		void initSource(const edm::Event& evt, const edm::EventSetup& est);
+		unsigned int sinceTime, tillTime;
 };
 
 

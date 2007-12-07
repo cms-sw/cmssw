@@ -25,13 +25,14 @@ namespace popcon
 		public:
 			void getNewObjects();
 			~HcalPedestalsSourceHandler(); 
-			HcalPedestalsSourceHandler(std::string,std::string,std::string, const edm::Event& evt, const edm::EventSetup& est, std::string); 
+			HcalPedestalsSourceHandler(std::string,std::string,std::string, const edm::Event& evt, const edm::EventSetup& est, std::string, unsigned int, unsigned int); 
 
 		private:
 			std::string m_pop_connect; //connect string to popcon metaschema
 			std::string m_name;
 			std::string m_cs;
 			LogReader* lgrdr;
+			unsigned int snc, tll;
 	};
 }
 #endif

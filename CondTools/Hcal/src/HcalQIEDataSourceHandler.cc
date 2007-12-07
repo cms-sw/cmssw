@@ -1,6 +1,7 @@
 #include "CondTools/Hcal/interface/HcalQIEDataSourceHandler.h"
 
-popcon::HcalQIEDataSourceHandler::HcalQIEDataSourceHandler(std::string name, std::string cstring, std::string cat,const edm::Event& evt, const edm::EventSetup& est, std::string pconnect) : popcon::PopConSourceHandler<HcalQIEData>(name,cstring,cat,evt,est), m_pop_connect(pconnect)
+popcon::HcalQIEDataSourceHandler::HcalQIEDataSourceHandler(std::string name, std::string cstring, std::string cat,const edm::Event& evt, const edm::EventSetup& est, std::string pconnect, unsigned int sinceTime, unsigned int tillTime) 
+  : popcon::PopConSourceHandler<HcalQIEData>(name,cstring,cat,evt,est), m_pop_connect(pconnect), snc(sinceTime), tll(tillTime)
 {
 	m_name = name;
 	m_cs = cstring;
@@ -28,8 +29,8 @@ void popcon::HcalQIEDataSourceHandler::getNewObjects()
 
 	//	coral::TimeStamp ts = lgrdr->lastRun(m_name, m_cs);
 	
-	unsigned int snc = edm::IOVSyncValue::beginOfTime().eventID().run();
-	unsigned int tll = edm::IOVSyncValue::endOfTime().eventID().run();
+	//	unsigned int snc = edm::IOVSyncValue::beginOfTime().eventID().run();
+	//	unsigned int tll = edm::IOVSyncValue::endOfTime().eventID().run();
 
 //	
 //	std::cerr << "Source implementation test ::getNewObjects : enter since ? \n";
@@ -49,6 +50,7 @@ void popcon::HcalQIEDataSourceHandler::getNewObjects()
 
 
 	popcon::IOVPair iop = {snc,tll};
+	std::cout << "IOV used: " << snc << ", " << tll << std::endl;
 
 	m_to_transfer->push_back(std::make_pair((HcalQIEData*)mypedestals,iop));
 
