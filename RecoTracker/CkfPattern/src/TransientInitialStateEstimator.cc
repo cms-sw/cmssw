@@ -21,13 +21,18 @@ using namespace std;
 TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::EventSetup& es,
 								const edm::ParameterSet& conf)
 {
-  std::string propagatorAlongName    = conf.getParameter<std::string>("propagatorAlongTISE");   
-  std::string propagatorOppositeName = conf.getParameter<std::string>("propagatorOppositeTISE");   
+  thePropagatorAlongName    = conf.getParameter<std::string>("propagatorAlongTISE");   
+  thePropagatorOppositeName = conf.getParameter<std::string>("propagatorOppositeTISE");   
 
-  es.get<TrackingComponentsRecord>().get(propagatorAlongName,thePropagatorAlong);
-  es.get<TrackingComponentsRecord>().get(propagatorOppositeName,thePropagatorOpposite);
+  // let's avoid breaking compatibility now
+  es.get<TrackingComponentsRecord>().get(thePropagatorAlongName,thePropagatorAlong);
+  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeName,thePropagatorOpposite);
 }
 
+void TransientInitialStateEstimator::setEventSetup( const edm::EventSetup& es ) {
+  es.get<TrackingComponentsRecord>().get(thePropagatorAlongName,thePropagatorAlong);
+  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeName,thePropagatorOpposite);
+}
 
 std::pair<TrajectoryStateOnSurface, const GeomDet*> 
 TransientInitialStateEstimator::innerState( const Trajectory& traj) const
@@ -51,7 +56,8 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
     }
   }
   TSOS unscaledState = measvec[actualLast].updatedState();
-  AlgebraicSymMatrix C(5,1);
+  //AlgebraicSymMatrix C(5,1); // why the **** we're still using CLHEP here at 07/12/2007?
+  AlgebraicSymMatrix55 C = AlgebraicMatrixID(); 
   // C *= 100.;
 
   TSOS startingState( unscaledState.localParameters(), LocalTrajectoryError(C),

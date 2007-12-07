@@ -23,12 +23,16 @@ public:
   typedef TrajectoryStateOnSurface TSOS;
 
   TransientInitialStateEstimator( const edm::EventSetup& es, const edm::ParameterSet& conf);
+  /// Call this at each event until this object will come from the EventSetup as it should
+  void setEventSetup( const edm::EventSetup& es );
 
   std::pair<TrajectoryStateOnSurface, const GeomDet*>
   innerState( const Trajectory& traj) const;
 
 
 private:
+  std::string thePropagatorAlongName;    
+  std::string thePropagatorOppositeName;  
   edm::ESHandle<Propagator>  thePropagatorAlong; 
   edm::ESHandle<Propagator>  thePropagatorOpposite;
  

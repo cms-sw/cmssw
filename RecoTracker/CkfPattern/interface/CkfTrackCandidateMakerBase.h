@@ -36,19 +36,21 @@ namespace cms
     virtual void produceBase(edm::Event& e, const edm::EventSetup& es);
 
   protected:
-    edm::ParameterSet conf_;
-    std::string theTrajectoryBuilderName;
 
-    // WARNING: you MUST get it from the EventSetup AT EACH EVENT 
-    const TrajectoryBuilder*  theTrajectoryBuilder;    
-                                                   
-    TrajectoryCleaner*               theTrajectoryCleaner;
+    edm::ParameterSet conf_;
+
+    std::string theTrajectoryBuilderName;
+    const TrajectoryBuilder*  theTrajectoryBuilder;
+
+    std::string theTrajectoryCleanerName;
+    const TrajectoryCleaner*               theTrajectoryCleaner;
+
     TransientInitialStateEstimator*  theInitialState;
     
     edm::ESHandle<MagneticField>                theMagField;
-    edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker; // NOOOOO
-                                                    // FIXME: you MUST get it from the EventSetup AT EACH EVENT
+    edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
 
+    std::string theNavigationSchoolName;
     const NavigationSchool*       theNavigationSchool;
     
     RedundantSeedCleaner*  theSeedCleaner;
@@ -58,7 +60,9 @@ namespace cms
     virtual void printHitsDebugger(edm::Event& e){;}
     virtual void countSeedsDebugger(){;}
     virtual void deleteAssocDebugger(){;}
-
+  private:
+    /// Initialize EventSetup objects at each event
+    void setEventSetup( const edm::EventSetup& es ) ; 
   };
 }
 

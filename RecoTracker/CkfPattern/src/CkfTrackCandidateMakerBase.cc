@@ -28,7 +28,8 @@
 #include "RecoTracker/CkfPattern/interface/SeedCleanerBySharedInput.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
 
-#include "RecoTracker/TkNavigation/interface/NavigationSchoolFactory.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
 #include<algorithm>
 #include<functional>
@@ -38,10 +39,16 @@ using namespace std;
 
 namespace cms{
   CkfTrackCandidateMakerBase::CkfTrackCandidateMakerBase(edm::ParameterSet const& conf) : 
+
     conf_(conf),
-    theTrajectoryBuilderName(conf.getParameter<std::string>("TrajectoryBuilder")),
+    theTrajectoryBuilderName(conf.getParameter<std::string>("TrajectoryBuilder")), 
+    theTrajectoryBuilder(0),
+    theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")), 
     theTrajectoryCleaner(0),
-    theInitialState(0),theNavigationSchool(0),theSeedCleaner(0)
+    theInitialState(0),
+    theNavigationSchoolName(conf.getParameter<std::string>("NavigationSchool")),
+    theNavigationSchool(0),
+    theSeedCleaner(0)
   {  
     //produces<TrackCandidateCollection>();  
   }
@@ -50,31 +57,15 @@ namespace cms{
   // Virtual destructor needed.
   CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() {
     delete theInitialState;  
-    delete theNavigationSchool;
-    delete theTrajectoryCleaner;    
     if (theSeedCleaner) delete theSeedCleaner;
   }  
 
   void CkfTrackCandidateMakerBase::beginJobBase (EventSetup const & es)
   {
-    //services
-    es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
-    es.get<IdealMagneticFieldRecord>().get(theMagField);
-      
     // get nested parameter set for the TransientInitialStateEstimator
     ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
     theInitialState          = new TransientInitialStateEstimator( es,tise_params);
-    theTrajectoryCleaner     = new TrajectoryCleanerBySharedHits();          
-
-    //theNavigationSchool      = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
-    edm::ParameterSet NavigationPSet = conf_.getParameter<edm::ParameterSet>("NavigationPSet");
-    std::string navigationSchoolName = NavigationPSet.getParameter<std::string>("ComponentName");
-    theNavigationSchool = NavigationSchoolFactory::get()->create( navigationSchoolName, &(*theGeomSearchTracker), &(*theMagField));
-
-
-    // set the correct navigation
-    NavigationSetter setter( *theNavigationSchool);
-
+   
     std::string cleaner = conf_.getParameter<std::string>("RedundantSeedCleaner");
     if (cleaner == "SeedCleanerByHitPosition") {
         theSeedCleaner = new SeedCleanerByHitPosition();
@@ -90,17 +81,40 @@ namespace cms{
         throw cms::Exception("RedundantSeedCleaner not found", cleaner);
     }
   }
-  
-  // Functions that gets called by framework every event
-  void CkfTrackCandidateMakerBase::produceBase(edm::Event& e, const edm::EventSetup& es)
-  { 
-    // method for Debugging
-    printHitsDebugger(e);
 
-    // get the TrajectoryBuilder out of the eventSetup
+  void CkfTrackCandidateMakerBase::setEventSetup( const edm::EventSetup& es ) {
+    //services
+    es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
+    es.get<IdealMagneticFieldRecord>().get( theMagField );
+
+    theInitialState->setEventSetup( es );
+
+    edm::ESHandle<TrajectoryCleaner> trajectoryCleanerH;
+    es.get<TrajectoryCleaner::Record>().get(theTrajectoryCleanerName, trajectoryCleanerH);
+    theTrajectoryCleaner= trajectoryCleanerH.product();
+
+    edm::ESHandle<NavigationSchool> navigationSchoolH;
+    es.get<NavigationSchoolRecord>().get(theNavigationSchoolName, navigationSchoolH);
+    theNavigationSchool = navigationSchoolH.product();
+
+    // set the correct navigation
+    NavigationSetter setter( *theNavigationSchool);
+
+    // set the TrajectoryBuilder
     edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
     es.get<CkfComponentsRecord>().get(theTrajectoryBuilderName,theTrajectoryBuilderHandle);
     theTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
+       
+  }
+
+  // Functions that gets called by framework every event
+  void CkfTrackCandidateMakerBase::produceBase(edm::Event& e, const edm::EventSetup& es)
+  { 
+    // getting objects from the EventSetup
+    setEventSetup( es ); 
+
+    // method for Debugging
+    printHitsDebugger(e);
 
     // Step A: set Event for the TrajectoryBuilder
     theTrajectoryBuilder->setEvent(e);        
