@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Dec  3 14:07:42 CET 2007
-// $Id$
+// $Id: SiPixelIsAliveCalibration.cc,v 1.8 2007/12/06 17:33:21 fblekman Exp $
 //
 //
 
@@ -103,7 +103,7 @@ SiPixelIsAliveCalibration::calibrationSetup(const edm::EventSetup & iSetup){
 }
 bool
 SiPixelIsAliveCalibration::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix){
-  std::cout << "now looking at DetID " << detid << ", pixel " << ipix->row() << "," << ipix->col() << std::endl;
+  edm::LogInfo("SiPixelIsAliveCalibration") << "now looking at DetID " << detid << ", pixel " << ipix->row() << "," << ipix->col() << std::endl;
   
   double denom=0;
   double nom=0;
@@ -111,9 +111,9 @@ SiPixelIsAliveCalibration::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>:
     nom+=ipix->getnentries(i);
     denom+=calib_->getNTriggers();
     if(i>0)
-      std::cout << "SiPixelIsAliveCalibration::doFits" << " ERROR!!" << " number of vcal points is now " << i << " for detid " << detid << std::endl;
+      edm::LogError("SiPixelIsAliveCalibration::doFits") << " ERROR!!" << " number of vcal points is now " << i << " for detid " << detid << std::endl;
   }
-  std::cout << "DetID/col/row " << detid << "/"<< ipix->col() << "/" << ipix->row() << ", now calculating efficiency: " << nom << "/" << denom <<"=" << nom/denom << std::endl;
+  edm::LogInfo("SiPixelIsAliveCalibration") << "DetID/col/row " << detid << "/"<< ipix->col() << "/" << ipix->row() << ", now calculating efficiency: " << nom << "/" << denom <<"=" << nom/denom << std::endl;
   double eff = -1;
   if(denom>0)
     eff = nom;
@@ -148,7 +148,7 @@ SiPixelIsAliveCalibration::calibrationEnd(){
 	  bookkeeper_[detid]->setBinContent(icol,irow,val/calib_->getNTriggers());
       }
     }
-    std::cout << "summary for " << translateDetIdToString(detid) << "\tfrac dead:" << idead/itot << " frac below " << mineff_ << ":" << iunderthres/itot << " bad " <<  imultiplefill/itot << std::endl;
+    edm::LogInfo("SiPixelIsAliveCalibration") << "summary for " << translateDetIdToString(detid) << "\tfrac dead:" << idead/itot << " frac below " << mineff_ << ":" << iunderthres/itot << " bad " <<  imultiplefill/itot << std::endl;
   }
 
 }
