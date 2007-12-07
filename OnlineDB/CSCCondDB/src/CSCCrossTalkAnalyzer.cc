@@ -249,7 +249,7 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 
 		    if (pedMean1>0) maxADC.Fill(max1-pedMean1);
 
-                    int kk=8*k-(evt-1)%PULSES_xt+19;//19 to zero everything, for binning 120
+                    int kk=8*k-(evt-1)%PULSES_xt+(PULSES_xt-1);//9 to zero everything, depends on how many pulses we have in total, it's always 1 less than the total nr of pulses, for binning 120
 		    
                     thebins[iDDU][chamber][layer-1][strip-1][kk] = 8*k-(evt-1)%PULSES_xt+19;
 		    thetime[iDDU][chamber][layer-1][strip-1][kk] = time;
@@ -304,7 +304,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   //get name of run file from .cfg and name root output after that
   std::string::size_type runNameStart = name.find("\"",0);
   std::string::size_type runNameEnd   = name.find("raw",0);
-  std::string::size_type rootStart    = name.find("Crosstalk",0);
+  std::string::size_type rootStart    = name.find("CrossTalk",0);
   
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
