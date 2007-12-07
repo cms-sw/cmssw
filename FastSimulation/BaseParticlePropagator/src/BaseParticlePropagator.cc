@@ -538,3 +538,128 @@ BaseParticlePropagator::propagateToNominalVertex(const XYZTLorentzVector& v)
   
 }
 
+bool
+BaseParticlePropagator::propagateToBeamCylinder(const XYZTLorentzVector& v, double radius) 
+{
+
+  // For neutral (or BField = 0, simply check that the track passes through the cylinder
+  if ( charge() == 0. || bField == 0.) 
+    return fabs( Px() * Y() - Py() * X() ) / Pt() < radius; 
+
+  // Now go to the charged particles
+
+  // A few needed intermediate variables (to make the code understandable)
+  // The inner cylinder
+  double r = radius;
+  double r2 = r*r;
+  double r4 = r2*r2;
+  // The two hits
+  double dx = X()-v.X();
+  double dy = Y()-v.Y();
+  double dz = Z()-v.Z();
+  double Sxy = X()*v.X() + Y()*v.Y();
+  double Dxy = Y()*v.X() - X()*v.Y();
+  double Dxy2 = Dxy*Dxy;
+  double Sxy2 = Sxy*Sxy;
+  double SDxy = dx*dx + dy*dy;
+  double SSDxy = std::sqrt(SDxy);
+  double ATxy = std::atan2(dy,dx);
+  // The coefficients of the second order equation for the trajectory radius
+  double a = r2 - Dxy2/SDxy;
+  double b = r * (r2 - Sxy);
+  double c = r4 - 2.*Sxy*r2 + Sxy2 + Dxy2;
+
+  // Here are the four possible solutions for
+  // 1) The trajectory radius
+  std::vector<double> helixRs(4,static_cast<double>(0.));
+  helixRs[0] = (b - std::sqrt(b*b - a*c))/(2.*a); 
+  helixRs[1] = (b + std::sqrt(b*b - a*c))/(2.*a); 
+  helixRs[2] = -helixRs[0]; 
+  helixRs[3] = -helixRs[1]; 
+  // 2) The azimuthal direction at the second point
+  std::vector<double> helixPhis(4,static_cast<double>(0.));
+  helixPhis[0] = std::asin ( SSDxy/(2.*helixRs[0]) );
+  helixPhis[1] = std::asin ( SSDxy/(2.*helixRs[1]) );
+  helixPhis[2] = -helixPhis[0];
+  helixPhis[3] = -helixPhis[1];
+  // Only two solutions are valid though
+  double solution1=0.;
+  double solution2=0.;
+  double phi1=0.;
+  double phi2=0.;
+  // Loop over the four possibilities
+  for ( unsigned int i=0; i<4; ++i ) {
+    helixPhis[i] = ATxy + helixPhis[i];
+    // The centre of the helix
+    double xC = helixCentreX(helixRs[i],helixPhis[i]);
+    double yC = helixCentreY(helixRs[i],helixPhis[i]);
+    // The distance of that centre to the origin
+    double dist = helixCentreDistToAxis(xC, yC);
+    /*
+    std::cout << "Solution "<< i << " = " << helixRs[i] << " accepted ? " 
+	      << fabs(fabs(helixRs[i]) - dist ) << " - " << radius << " = " 
+	      << fabs(fabs(helixRs[i]) - dist ) - fabs(radius) << " " 
+	      << ( fabs( fabs(fabs(helixRs[i]) - dist) -fabs(radius) ) < 1e-6)  << std::endl;
+    */
+    // Check that the propagation will lead to a trajectroy tangent to the inner cylinder
+    if ( fabs( fabs(fabs(helixRs[i]) - dist) -fabs(radius) ) < 1e-6 ) { 
+      // Fill first solution
+      if ( solution1 == 0. ) { 
+	solution1 = helixRs[i];
+	phi1 = helixPhis[i];
+      // Fill second solution (ordered)
+      } else if ( solution2 == 0. ) {
+	if ( helixRs[i] < solution1 ) {
+	  solution2 = solution1;
+	  solution1 = helixRs[i];
+	  phi2 = phi1;
+	  phi1 = helixPhis[i];
+	} else {
+	  solution2 = helixRs[i];
+	  phi2 = helixPhis[i];
+	}
+      // Must not happen! 
+      } else { 
+	std::cout << "warning !!! More than two solutions for this track !!! " << std::endl;
+      }
+    }
+  }
+
+  // Find the largest possible pT compatible with coming from within the inne cylinder
+  double pT = 0.;
+  double helixPhi = 0.;
+  double helixR = 0.;
+  // This should not happen
+  if ( solution1*solution2 == 0. ) { 
+    std::cout << "warning !!! Less than two solution for this track! " 
+	      << solution1 << " " << solution2 << std::endl;
+    return false;
+  // If the two solutions have opposite sign, it means that pT = infinity is a possibility.
+  } else if ( solution1*solution2 < 0. ) { 
+    pT = 1000.;
+    double norm = pT/std::sqrt(SDxy);
+    setCharge(+1.);
+    SetXYZT(dx*norm,dy*norm,dz*norm,0.);
+    SetE(std::sqrt(Vect().Mag2()));
+  // Otherwise take the solution that gives the largest transverse momentum 
+  } else { 
+    if (solution1<0.) { 
+      helixR   = solution1;
+      helixPhi = phi1;
+      pT = fabs(solution1) * 1e-5 * c_light() *bField;
+      setCharge(+1.);
+    } else {
+      helixR = solution2;
+      helixPhi = phi2;
+      pT = fabs(solution2) * 1e-5 * c_light() *bField;
+      setCharge(-1.);
+    }
+    double norm = pT/std::sqrt(SDxy);
+    SetXYZT(pT*std::cos(helixPhi),pT*std::sin(helixPhi),dz*norm,0.);
+    SetE(std::sqrt(Vect().Mag2()));      
+  }
+    
+  // Propagate to closest approach to get the Z value (a bit of an overkill)
+  return propagateToClosestApproach();
+  
+}

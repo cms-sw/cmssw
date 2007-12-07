@@ -121,9 +121,8 @@ public:
   bool propagateToHcalEntrance(bool first=true);
   bool propagateToVFcalEntrance(bool first=true);
   bool propagateToHcalExit(bool first=true);
-  bool propagateToNominalVertex(
-      const XYZTLorentzVector& hit2=XYZTLorentzVector(0.,0.,0.,0.));
-
+  bool propagateToNominalVertex(const XYZTLorentzVector& hit2=XYZTLorentzVector(0.,0.,0.,0.));
+  bool propagateToBeamCylinder(const XYZTLorentzVector& v, double radius=0.); 
   /// Set the propagation characteristics (rCyl, zCyl and first loop only)
   void setPropagationConditions(double r, double z, bool firstLoop=true);
 
