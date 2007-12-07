@@ -1,5 +1,11 @@
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAlgo.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include <cmath>
 #include <algorithm>
@@ -7,7 +13,7 @@
 using namespace reco;
 using namespace std;
 
-// functor for sorting candidatecollections by delta-r
+// Functor for sorting CandidateCollection inputs by Delta-R
 class deltaRSorter: public binary_function<Candidate, Candidate, bool> {
 public:
 
@@ -22,7 +28,7 @@ private:
 
 };
 
-// functor for sorting candidatecollections by delta-et
+// Functor for sorting CandidateCollection inputs by Delta-Et
 class deltaEtSorter: public binary_function<Candidate, Candidate, bool> {
 public:
 
@@ -38,28 +44,22 @@ private:
 };
 
 
-PFBenchmarkAlgo::PFBenchmarkAlgo() {}
-PFBenchmarkAlgo::~PFBenchmarkAlgo() {}
-
-void PFBenchmarkAlgo::reset() {
-
-  // Delete the storage
-  vector<CandidateCollection *>::iterator cc;
-  for (cc = allocatedMem_.begin(); cc != allocatedMem_.end(); cc++)
-    if (*cc != NULL) delete *cc;
-
-  // Clear the container
-  allocatedMem_.clear();
-
-}
-
 double PFBenchmarkAlgo::deltaEt(const Candidate *c1, const Candidate *c2) {
 
+  // Verify the valididy of Candidates
+  if (!validCandidate(c1) || !validCandidate(c2))
+    throw cms::Exception("Invalid Arg") << "attempted to calculate deltaEt for invalid Candidate(s)";
+
+  // Calculate dEt (may be negative, usually called with reco - true)
   return c1->et() - c2->et();
 
 }
 
 double PFBenchmarkAlgo::deltaPhi(const Candidate *c1, const Candidate *c2) {
+
+  // Verify the valididy of Candidates
+  if (!validCandidate(c1) || !validCandidate(c2))
+    throw cms::Exception("Invalid Arg") << "attempted to calculate deltaPhi for invalid Candidate(s)";
 
   double phi1 = c1->phi();
   while (phi1 > M_PI)   phi1 -= 2 * M_PI;
@@ -69,28 +69,45 @@ double PFBenchmarkAlgo::deltaPhi(const Candidate *c1, const Candidate *c2) {
   while (phi2 > M_PI)   phi2 -= 2 * M_PI;
   while (phi2 <= -M_PI) phi2 += 2 * M_PI;
 
+  // Calculate dPhi (may be negative, usually called with reco - true)
   return phi1 - phi2;
 
 }
 
 double PFBenchmarkAlgo::deltaEta(const Candidate *c1, const Candidate *c2) {
 
+  // Verify the valididy of Candidates
+  if (!validCandidate(c1) || !validCandidate(c2))
+    throw cms::Exception("Invalid Arg") << "attempted to calculate deltaEta for invalid Candidate(s)";
+
+  // Calculate dEta (may be negative, usually called with reco - true)
   return c1->eta() - c2->eta();
 
 }
 
 double PFBenchmarkAlgo::deltaR(const Candidate *c1, const Candidate *c2) {
 
+  // Verify the valididy of Candidates
+  if (!validCandidate(c1) || !validCandidate(c2))
+    throw cms::Exception("Invalid Arg") << "attempted to calculate deltaR for invalid Candidate(s)";
+
   double dphi = deltaPhi(c1,c2);
   double deta = deltaEta(c1,c2);
 
+  // Calculate dR
   return sqrt(pow(dphi,2) + pow(deta,2));
 
 }
 
 const Candidate *PFBenchmarkAlgo::matchByDeltaR(const Candidate *c1, const CandidateCollection *candidates) {
 
-  double minDeltaR = 99.;
+  // Verify the valididy of Candidate and the CandidateCollection
+  if (!validCandidate(c1))
+    throw cms::Exception("Invalid Arg") << "attempted to match invalid Candidate";
+  if (!validCandidateCollection(candidates))
+    throw cms::Exception("Invalid Arg") << "attempted to match to invalid CandidateCollection";
+
+  double minDeltaR = 9999.;
   const Candidate *bestMatch = NULL;
 
   // Loop Over the Candidates...
@@ -108,11 +125,18 @@ const Candidate *PFBenchmarkAlgo::matchByDeltaR(const Candidate *c1, const Candi
 
   }
 
+  // Return the Candidate with the smallest dR
   return bestMatch;
 
 }
 
 const Candidate *PFBenchmarkAlgo::matchByDeltaEt(const Candidate *c1, const CandidateCollection *candidates) {
+
+  // Verify the valididy of Candidate and the CandidateCollection
+  if (!validCandidate(c1))
+    throw cms::Exception("Invalid Arg") << "attempted to match invalid Candidate";
+  if (!validCandidateCollection(candidates))
+    throw cms::Exception("Invalid Arg") << "attempted to match to invalid CandidateCollection";
 
   double minDeltaEt = 9999.;
   const Candidate *bestMatch = NULL;
@@ -132,13 +156,14 @@ const Candidate *PFBenchmarkAlgo::matchByDeltaEt(const Candidate *c1, const Cand
 
   }
 
+  // Return the Candidate with the smallest fabs(dEt)
   return bestMatch;
 
 }
 
 const Candidate *PFBenchmarkAlgo::recoverCandidate(const Candidate *c1, const CandidateCollection *candidates) {
 
-  // Numerical Epsilon Factor for Comparing Equivalent Quantities
+  // Numerical epsilon Factor for Comparing Equivalent Quantities
   double eps = 1e-6;
 
   // Loop Over the Candidates...
@@ -147,91 +172,151 @@ const Candidate *PFBenchmarkAlgo::recoverCandidate(const Candidate *c1, const Ca
 
     const Candidate *c2 = &(*candidate);
 
-    // Candidates are assumed to be the same if eta, phi, and Et are approximately the same
-    if (deltaR(c1,c2) < eps && deltaEt(c1,c2) < eps)
-      return c2;
+    // Candidates are assumed to be the same if eta, phi, and Et are the same
+    if (deltaR(c1,c2) < eps && deltaEt(c1,c2) < eps) return c2;
 
   }
 
-  // Return NULL if the Candidate was Not Found in the Collection
+  // Return NULL if the Candidate was not found in the Collection
   return NULL;
 
 }
 
-const CandidateCollection *PFBenchmarkAlgo::sortByDeltaR(const Candidate *c1, const CandidateCollection *candidates) {
+CandidateCollection PFBenchmarkAlgo::sortByDeltaR(const Candidate *c1, const CandidateCollection *candidates) {
 
-  // allocate storage and store pointer for bookkeeping
-  reco::CandidateCollection *sorted = new reco::CandidateCollection();
-  allocatedMem_.push_back(sorted);
+  // Verify the valididy of Candidate and the CandidateCollection
+  if (!validCandidate(c1))
+    throw cms::Exception("Invalid Arg") << "attempted to sort by invalid Candidate";
+  if (!validCandidateCollection(candidates))
+    throw cms::Exception("Invalid Arg") << "attempted to sort invalid CandidateCollection";
 
-  // copy the input collection
+  reco::CandidateCollection sorted;
+
+  // Copy the input Collection
   CandidateCollection::const_iterator candidate;
-  for (candidate = candidates->begin(); candidate != candidates->end(); candidate++)
-    sorted->push_back((Candidate* const)candidate->clone());
+  for (candidate = candidates->begin(); candidate != candidates->end(); candidate++) {
+    const Candidate *c2 = &(*candidate);
+    sorted.push_back((Candidate* const)c2->clone());
+  }
 
-  // sort by dR and return
-  sorted->sort(deltaRSorter(c1));
-  return reinterpret_cast<const CandidateCollection *>(sorted);
+  // Sort and return Collection
+  sorted.sort(deltaRSorter(c1));
+  return sorted;
   
 }
 
-const CandidateCollection *PFBenchmarkAlgo::sortByDeltaEt(const Candidate *c1, const CandidateCollection *candidates) {
+CandidateCollection PFBenchmarkAlgo::sortByDeltaEt(const Candidate *c1, const CandidateCollection *candidates) {
 
-  // Allocate storage and store pointer for bookkeeping
-  reco::CandidateCollection *sorted = new reco::CandidateCollection();
-  allocatedMem_.push_back(sorted);
+  // Verify the valididy of Candidate and the CandidateCollection
+  if (!validCandidate(c1))
+    throw cms::Exception("Invalid Arg") << "attempted to sort by invalid Candidate";
+  if (!validCandidateCollection(candidates))
+    throw cms::Exception("Invalid Arg") << "attempted to sort invalid CandidateCollection";
 
-  // Copy the input Collection
-  CandidateCollection::const_iterator candidate;
-  for (candidate = candidates->begin(); candidate != candidates->end(); candidate++)
-    sorted->push_back((Candidate* const)candidate->clone());
-
-  // Sort by dR and return
-  sorted->sort(deltaEtSorter(c1));
-  return reinterpret_cast<const CandidateCollection *>(sorted);
-
-}
-
-const CandidateCollection *PFBenchmarkAlgo::findAllInCone(const Candidate *c1, const CandidateCollection *candidates, double ConeSize) {
-
-  // Allocate storage and store pointer for bookkeeping
-  reco::CandidateCollection *inCone = new reco::CandidateCollection();
-  allocatedMem_.push_back(inCone);
-
+  reco::CandidateCollection sorted;
+  
   // Copy the input Collection
   CandidateCollection::const_iterator candidate;
   for (candidate = candidates->begin(); candidate != candidates->end(); candidate++) {
-    
     const Candidate *c2 = &(*candidate);
+    sorted.push_back((Candidate* const)c2->clone());
+  }
+
+  // Sort and return Collection
+  sorted.sort(deltaEtSorter(c1));
+  return sorted;
+
+}
+
+CandidateCollection PFBenchmarkAlgo::findAllInCone(const Candidate *c1, const CandidateCollection *candidates, double ConeSize) {
+
+  // Verify the valididy of Candidate and the CandidateCollection
+  if (!validCandidate(c1))
+    throw cms::Exception("Invalid Arg") << "attempted to sort by invalid Candidate";
+  if (!validCandidateCollection(candidates))
+    throw cms::Exception("Invalid Arg") << "attempted to sort invalid CandidateCollection";
+  if (ConeSize <= 0)
+    throw cms::Exception("Invalid Arg") << "zero or negative cone size specified";
+
+  reco::CandidateCollection constrained;
+
+  // Copy the input Collection 
+  CandidateCollection::const_iterator candidate;
+  for (candidate = candidates->begin(); candidate != candidates->end(); candidate++) {
+
+    const Candidate *c2 = &(*candidate);
+
+    // Add in-cone Candidates to the new Collection
     double dR = deltaR(c1,c2);
-    if (dR < ConeSize) inCone->push_back((Candidate* const)c2->clone());
+    if (dR < ConeSize) constrained.push_back((Candidate* const)c2->clone());
 
   }
 
-  // Sort by dR and return
-  inCone->sort(deltaRSorter(c1));
-  return reinterpret_cast<const CandidateCollection *>(inCone);
+  // Sort and return Collection
+  constrained.sort(deltaRSorter(c1));
+  return constrained;
 
 }
 
-const CandidateCollection *PFBenchmarkAlgo::findAllInEtWindow(const Candidate *c1, const CandidateCollection *candidates, double EtWindow) {
+CandidateCollection PFBenchmarkAlgo::findAllInEtWindow(const Candidate *c1, const CandidateCollection *candidates, double EtWindow) {
 
-  // Allocate storage and store pointer for bookkeeping
-  reco::CandidateCollection *inEtWindow = new reco::CandidateCollection();
-  allocatedMem_.push_back(inEtWindow);
+  // Verify the valididy of Candidate and the CandidateCollection
+  if (!validCandidate(c1))
+    throw cms::Exception("Invalid Arg") << "attempted to sort by invalid Candidate";
+  if (!validCandidateCollection(candidates))
+    throw cms::Exception("Invalid Arg") << "attempted to sort invalid CandidateCollection";
+  if (EtWindow <= 0)
+    throw cms::Exception("Invalid Arg") << "zero or negative cone size specified";
 
-  // Copy the input Collection
+  reco::CandidateCollection constrained;
+
+  // Copy the input Collection 
   CandidateCollection::const_iterator candidate;
   for (candidate = candidates->begin(); candidate != candidates->end(); candidate++) {
-    
+
     const Candidate *c2 = &(*candidate);
+
+    // Add in-Et-Window Candidates to the new Collection
     double dEt = fabs(deltaEt(c1,c2));
-    if (dEt < EtWindow) inEtWindow->push_back((Candidate* const)c2->clone());
+    if (dEt < EtWindow) constrained.push_back((Candidate* const)c2->clone());
 
   }
 
-  // Sort by dEt and return
-  inEtWindow->sort(deltaEtSorter(c1));
-  return reinterpret_cast<const CandidateCollection *>(inEtWindow);
+  // Sort and return Collection
+  constrained.sort(deltaEtSorter(c1));
+  return constrained;
+
+}
+
+bool PFBenchmarkAlgo::validCandidate(const Candidate *c) {
+
+  return c == NULL ? false : true;
+
+}
+
+bool PFBenchmarkAlgo::validPFCandidate(const Candidate *c) {
+
+  const PFCandidate *pfcand = dynamic_cast<const PFCandidate *>(c);
+  return pfcand == NULL ? false : true;
+
+}
+
+bool PFBenchmarkAlgo::validPFJet(const Candidate *c) {
+
+  const PFJet *pfjet = dynamic_cast<const PFJet *>(c);
+  return pfjet == NULL ? false : true;
+
+}
+
+bool PFBenchmarkAlgo::validCaloJet(const Candidate *c) {
+
+  const CaloJet *calojet = dynamic_cast<const CaloJet *>(c);
+  return calojet == NULL ? false : true;
+
+}
+
+bool PFBenchmarkAlgo::validCandidateCollection(const CandidateCollection *candidates) {
+
+  return candidates == NULL ? false : true;
 
 }

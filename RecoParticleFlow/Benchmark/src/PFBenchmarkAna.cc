@@ -133,10 +133,16 @@ void PFBenchmarkAna::fill(const CandidateCollection *Reco, const CandidateCollec
     hDeltaRvsEt->Fill(et,deltaR);
     hDeltaRvsEta->Fill(eta,deltaR);
 
+    //cerr << "here\n";
+    //const CandidateCollection *modified = algo_->sortByDeltaEt(particle,Reco);
+    //const PFCandidate *modifiedpf = reinterpret_cast<const PFCandidate *>(&(*modified->begin()));
+    //cerr << "there\n";
+    //cerr << "My particle Id is = " << modifiedpf->particleId() << "\n";
+
   }
 
   // do garbage collection
-  algo_->reset();
+  //algo_->reset();
 
 }
 
