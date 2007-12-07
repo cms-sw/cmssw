@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for each event (AOD case)
  *  describing the (HLT) trigger table
  *
- *  $Date: 2007/12/07 08:42:25 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/12/07 08:54:44 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -24,7 +24,7 @@ namespace trigger
   /// The single EDProduct to be saved for each event (AOD case)
   class TriggerEvent {
 
-  private:
+  public:
 
     /// Helper class: recording trigger objects firing a single filter
     class TriggerFilterObject {

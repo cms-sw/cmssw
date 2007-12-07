@@ -64,10 +64,16 @@
   <class name="std::vector<edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >"/>
 
+  <class name="trigger::TriggerObject"/>
   <class name="trigger::TriggerObjectCollection"/>
   <class name="trigger::TriggerRefsCollections"/>
   <class name="trigger::TriggerFilterObjectWithRefs"/>
+
+  <class name="trigger::TriggerEvent::TriggerFilterObject"/>
+  <class name="std::vector<trigger::TriggerEvent::TriggerFilterObject>"/>
   <class name="trigger::TriggerEvent"/>
+  <class name="trigger::TriggerEventWithRefs::TriggerFilterObject"/>
+  <class name="std::vector<trigger::TriggerEventWithRefs::TriggerFilterObject>"/>
   <class name="trigger::TriggerEventWithRefs"/>
 
   <class name="edm::Wrapper<trigger::TriggerObjectCollection>"/>

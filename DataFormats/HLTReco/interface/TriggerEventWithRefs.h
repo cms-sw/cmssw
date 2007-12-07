@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2007/12/06 09:54:44 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/12/07 08:42:25 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -28,7 +28,7 @@ namespace trigger
 
   class TriggerEventWithRefs : public TriggerRefsCollections {
 
-  private:
+  public:
 
     /// Helper class: trigger objects firing a single filter
     class TriggerFilterObject {
