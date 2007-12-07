@@ -879,7 +879,7 @@ bool EcalElectronicsMapping::rightTower(int tower) const {
 }
 
 
-int EcalElectronicsMapping::DCCBoundary(int FED) {
+int EcalElectronicsMapping::DCCBoundary(int FED)const {
 
  if (FED >= MIN_DCCID_EEM && FED <= MAX_DCCID_EEM) return MIN_DCCID_EEM;
  if (FED >= MIN_DCCID_EBM && FED <= MAX_DCCID_EBM) return MIN_DCCID_EBM;
@@ -890,12 +890,17 @@ int EcalElectronicsMapping::DCCBoundary(int FED) {
 }
 
 
-std::vector<int> EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion region) {
+std::vector<int> EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion region) const {
+  std::vector<int> FEDs;
+  GetListofFEDs(region, FEDs);
+  return FEDs;
+}
+void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion region, std::vector<int> & FEDs) const {
 
 	// for regional unpacking.
 	// get list of FEDs corresponding to a region in (eta,phi)
 
-	std::vector<int> FEDs;
+  //	std::vector<int> FEDs;
 	double radTodeg = 180. / Geom::pi();
 
 	bool debug = false;
@@ -933,7 +938,7 @@ std::vector<int> EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion re
  
 	double etahigh = region.etaHigh();
 	int FED_RB = GetFED(etahigh, philow);	// right, bottom
-	if (FED_RB == FED_LB) return FEDs;
+	if (FED_RB == FED_LB) return;// FEDs;
 
 	int FED_RT = GetFED(etahigh, phihigh);	// right, top
 
@@ -972,7 +977,7 @@ std::vector<int> EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion re
 			if ( iR == maxR) break;
 			idx ++;
 		}
-		return FEDs;
+		return;// FEDs;
 	}
 
 	if (FED_LB >= MIN_DCCID_EEM && FED_LB <= MAX_DCCID_EEM &&
@@ -988,7 +993,7 @@ std::vector<int> EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion re
 			if (iL == maxL) break;
 			idx ++;
                 }
-		return FEDs;
+		return;// FEDs;
 	} 
 
 	if (FED_LB >= MIN_DCCID_EEM && FED_LB <= MAX_DCCID_EEM &&
@@ -1019,11 +1024,11 @@ std::vector<int> EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion re
                 }
 	}
 
-	return FEDs;
+	return;// FEDs;
 
 }
 
-int EcalElectronicsMapping::GetFED(double eta, double phi)  {
+int EcalElectronicsMapping::GetFED(double eta, double phi) const  {
 
 	// for regional unpacking.
 	// eta is signed, phi is in degrees.

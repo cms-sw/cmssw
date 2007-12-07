@@ -25,7 +25,7 @@
 
 /** \class EcalElectronicsMapping
   *  
-  * $Id: EcalElectronicsMapping.h,v 1.4 2007/08/01 15:52:59 eperez Exp $
+  * $Id: EcalElectronicsMapping.h,v 1.5 2007/08/20 19:35:13 eperez Exp $
   * \author P.Meridiani (INFN Roma1),  E. Perez (CERN)  
   */
 
@@ -105,9 +105,10 @@ class EcalElectronicsMapping {
   bool rightTower(int tower) const;
 
   // methods used for regional unpacking :
-  std::vector<int> GetListofFEDs(const EcalEtaPhiRegion region) ;
-  int GetFED(double eta, double phi) ;
-  int DCCBoundary(int FED);
+  std::vector<int> GetListofFEDs(const EcalEtaPhiRegion region) const ;
+  void GetListofFEDs(const EcalEtaPhiRegion region, std::vector<int> & FEDs) const ;
+  int GetFED(double eta, double phi) const ;
+  int DCCBoundary(int FED) const;
 
   // methods for retrieving the Laser Monitoring readout number
 
