@@ -51,7 +51,7 @@ public:
         edm::InputTag sourceTag_;
    
         /// tools
-        const EcalElectronicsMapping* TheMapping;
+        EcalElectronicsMapping* TheMapping; //FIXME please
      
         /// generic class to drive the job
         class CalUnpackJobPSet {

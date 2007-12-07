@@ -98,7 +98,7 @@ void EcalUnpackerWorker::setHandles(const EcalUnpackerWorkerRecord & iRecord){
   iRecord.getRecord<EcalRegionCablingRecord>().get(cabling);
 
   //just to be sure it is done each event
-  myMap_->setEcalElectronicsMapping(cabling->mapping());
+  myMap_->setEcalElectronicsMapping(const_cast<EcalElectronicsMapping*>(cabling->mapping()));//FIXME please
 }
 
 void EcalUnpackerWorker::write(edm::Event & e) const{

@@ -135,7 +135,7 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
   iSetup.get<EcalRegionCablingRecord>().get(cabling);
   LogDebug(category)<<"cabling retrieved."
 		    <<watcher.lap();
-  TheMapping = cabling->mapping();
+  TheMapping =const_cast<EcalElectronicsMapping*>(cabling->mapping()); //FIXME please;
 
   std::pair<int,int> ecalfeds = FEDNumbering::getEcalFEDIds();
   int first_fed = ecalfeds.first;

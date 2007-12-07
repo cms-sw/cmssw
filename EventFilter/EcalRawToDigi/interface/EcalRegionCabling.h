@@ -41,7 +41,7 @@ class EcalRegionCabling {
   
   ~EcalRegionCabling();
   //  const EcalElectronicsMapper * mapper() const { return &mapper_;}
-  const EcalElectronicsMapping * mapping() const  { return &mapping_;}
+  EcalElectronicsMapping * mapping() const  { return const_cast<EcalElectronicsMapping*>(&mapping_);} //FIXME please
 
   template <class T>  void updateEcalRefGetterWithElementIndex(edm::RefGetter<T> & refgetter,
 							       const edm::Handle< edm::LazyGetter<T> >& lazygetter,
@@ -74,7 +74,7 @@ class EcalRegionCabling {
 
     
   uint32_t elementIndex(const double eta, const double phi) const{
-    int FEDindex = mapping_.GetFED(eta,phi);
+    int FEDindex = mapping()->GetFED(eta,phi);
     return elementIndex(FEDindex); }
 
  private:
@@ -103,7 +103,7 @@ template <class T> void EcalRegionCabling::updateEcalRefGetterWithEtaPhi(edm::Re
 							 		 const edm::Handle< edm::LazyGetter<T> >& lazygetter, 
 									 const double eta,
 									 const double phi)const{
-  int index = mapping_.GetFED(eta,phi);
+  int index = mapping()->GetFED(eta,phi);
   LogDebug("EcalRawToRecHit|Cabling")<<"updating a refgetter with eta: "<<eta<<" phi: "<<phi;
   updateEcalRefGetterWithFedIndex(refgetter, lazygetter, index);
 }
