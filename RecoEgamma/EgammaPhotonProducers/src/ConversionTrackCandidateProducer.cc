@@ -12,7 +12,6 @@
 //
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackCandidateSuperClusterAssociation.h"
 //
