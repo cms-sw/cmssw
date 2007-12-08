@@ -10,7 +10,6 @@
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
 
 #include "SimG4Core/GFlash/interface/GflashEMShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashHadronShowerConstants.h"
 #include "SimG4Core/GFlash/interface/GflashEnergySpot.h"
 #include "SimG4Core/GFlash/interface/GflashHistogram.h"
 #include "FWCore/Utilities/interface/Exception.h"
