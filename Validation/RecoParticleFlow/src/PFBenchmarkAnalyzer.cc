@@ -16,18 +16,8 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-//#include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
-//#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
-//#include "DataFormats/METReco/interface/GenMET.h"
-//#include "DataFormats/METReco/interface/GenMETCollection.h"
-//#include "DataFormats/METReco/interface/CaloMET.h"
-//#include "DataFormats/METReco/interface/CaloMETCollection.h"
-//#include "DataFormats/TrackReco/interface/Track.h"
-//#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-//#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-//#include "DataFormats/Common/interface/RefToBase.h"
 
 #include <vector>
 #include <ostream>
@@ -80,7 +70,7 @@ void PFBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   // data to retrieve from the event
   const CandidateCollection *truth_candidates;
-  const CandidateCollection *reco_candidates;
+  const PFCandidateCollection *reco_candidates;
 
   // ==========================================================
   // Retrieve!
@@ -96,9 +86,12 @@ void PFBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     // Get Reco Candidates (PFlow, CaloJet, etc.)
     Handle<PFCandidateCollection> reco_hnd;
     iEvent.getByLabel(inputRecoLabel_, reco_hnd);
-    const PFCandidateCollection *pf_candidates = reco_hnd.product();
-    static CandidateCollection reco_storage = algo_->makeCandidateCollection(pf_candidates);
-    reco_candidates = &reco_storage;
+    reco_candidates = reco_hnd.product();
+
+    // no longer needed with template-ized Benchmark
+    //const PFCandidateCollection *pf_candidates = reco_hnd.product();
+    //static CandidateCollection reco_storage = algo_->makeCandidateCollection(pf_candidates);
+    //reco_candidates = &reco_storage;
 
   }
 
