@@ -22,8 +22,8 @@ public:
   virtual ~PFBenchmarkAna();
 
   void setup(DaqMonitorBEInterface *DQM = NULL);
-  template <typename RecoCollection, typename GenCollection>
-  void fill(const RecoCollection *, const GenCollection *, bool PlotAgainstReco = true);
+  template <typename RecoCandidate, typename GenCandidate, template <typename> class VectorT, template <typename> class VectorU>
+  void fill(const VectorT<RecoCandidate> *, const VectorU<GenCandidate> *, bool PlotAgainstReco = true);
   void write(std::string Filename);
 
 private:
@@ -68,15 +68,15 @@ protected:
 
 };
 
-template <typename RecoCollection, typename GenCollection>
-void PFBenchmarkAna::fill(const RecoCollection *Reco, const GenCollection *Gen, bool PlotAgainstReco) {
+template <typename RecoCandidate, typename GenCandidate, template <typename> class VectorT, template <typename> class VectorU>
+void PFBenchmarkAna::fill(const VectorT<RecoCandidate> *RecoCollection, const VectorU<GenCandidate> *GenCollection, bool PlotAgainstReco) {
 
   // loop over reco particles
-  for (unsigned int i = 0; i < Reco->size(); i++) {
+  for (unsigned int i = 0; i < RecoCollection->size(); i++) {
 
     // generate histograms comparing the reco and truth candidate (truth = closest in delta-R)
-    const reco::Candidate *particle = &(*Reco)[i];
-    const reco::Candidate *gen_particle = algo_->matchByDeltaR(particle,Gen);
+    const RecoCandidate *particle = &(*RecoCollection)[i];
+    const GenCandidate *gen_particle = algo_->matchByDeltaR(particle,GenCollection);
 
     // get the quantities to place on the denominator and/or divide by
     double et, eta, phi;
