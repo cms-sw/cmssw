@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.22 2007/11/13 13:03:42 futyand Exp $
+// $Id: classes.h,v 1.23 2007/12/07 19:19:32 nancy Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -17,10 +17,10 @@
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/EgammaCandidates/interface/PixelMatchElectronFwd.h" 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h" 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h" 
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
@@ -33,8 +33,8 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/PhotonIsolationAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
-#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
-#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoNumCollection.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronIsoCollection.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronIsoNumCollection.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCandidateAssociation.h"
 
@@ -62,11 +62,11 @@ namespace {
     edm::RefProd<reco::PixelMatchElectronCollection> rp3;
     edm::Wrapper<edm::RefVector<reco::PixelMatchElectronCollection> > rv3;
 
-    reco::PixelMatchGsfElectronCollection v4;
-    edm::Wrapper<reco::PixelMatchGsfElectronCollection> w4;
-    edm::Ref<reco::PixelMatchGsfElectronCollection> r4;
-    edm::RefProd<reco::PixelMatchGsfElectronCollection> rp4;
-    edm::Wrapper<edm::RefVector<reco::PixelMatchGsfElectronCollection> > rv4;
+    reco::GsfElectronCollection v4;
+    edm::Wrapper<reco::GsfElectronCollection> w4;
+    edm::Ref<reco::GsfElectronCollection> r4;
+    edm::RefProd<reco::GsfElectronCollection> rp4;
+    edm::Wrapper<edm::RefVector<reco::GsfElectronCollection> > rv4;
 
     reco::SiStripElectronCollection v5;
     edm::Wrapper<reco::SiStripElectronCollection> w5;
@@ -90,19 +90,19 @@ namespace {
     reco::ElectronIsolationMap v7;
     edm::Wrapper<reco::ElectronIsolationMap> w7;
     edm::helpers::Key<edm::RefProd<reco::ElectronCollection > > h7;
-    reco::PMGsfElectronIsoCollection v8;
-    reco::PMGsfElectronIsoCollectionRef r8;
-    reco::PMGsfElectronIsoCollectionRefProd rp8;
-    reco::PMGsfElectronIsoCollectionRefVector rv8;
+    reco::GsfElectronIsoCollection v8;
+    reco::GsfElectronIsoCollectionRef r8;
+    reco::GsfElectronIsoCollectionRefProd rp8;
+    reco::GsfElectronIsoCollectionRefVector rv8;
 
-    edm::Wrapper<reco::PMGsfElectronIsoCollection> w8;
+    edm::Wrapper<reco::GsfElectronIsoCollection> w8;
 
-    reco::PMGsfElectronIsoNumCollection v9;
-    reco::PMGsfElectronIsoNumCollectionRef r9;
-    reco::PMGsfElectronIsoNumCollectionRefProd rp9;
-    reco::PMGsfElectronIsoNumCollectionRefVector rv9;
+    reco::GsfElectronIsoNumCollection v9;
+    reco::GsfElectronIsoNumCollectionRef r9;
+    reco::GsfElectronIsoNumCollectionRefProd rp9;
+    reco::GsfElectronIsoNumCollectionRefVector rv9;
 
-    edm::Wrapper<reco::PMGsfElectronIsoNumCollection> w9;
+    edm::Wrapper<reco::GsfElectronIsoNumCollection> w9;
 
     reco::PhotonPi0DiscriminatorAssociationMap v10;
     edm::Wrapper<reco::PhotonPi0DiscriminatorAssociationMap> w10;
@@ -113,10 +113,10 @@ namespace {
     edm::reftobase::Holder<reco::Candidate, reco::SiStripElectronRef> rb3;
 
 
-    edm::reftobase::Holder<reco::Candidate, reco::PixelMatchGsfElectronRef> rb11;
-    edm::reftobase::RefHolder<reco::PixelMatchGsfElectronRef> rb12;
-    edm::reftobase::VectorHolder<reco::Candidate, reco::PixelMatchGsfElectronRefVector> rb13;
-    edm::reftobase::RefVectorHolder<reco::PixelMatchGsfElectronRefVector> rb14;
+    edm::reftobase::Holder<reco::Candidate, reco::GsfElectronRef> rb11;
+    edm::reftobase::RefHolder<reco::GsfElectronRef> rb12;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::GsfElectronRefVector> rb13;
+    edm::reftobase::RefVectorHolder<reco::GsfElectronRefVector> rb14;
 
     edm::reftobase::Holder<reco::Candidate, reco::PhotonRef> rb21;
     edm::reftobase::RefHolder<reco::PhotonRef> rb22;

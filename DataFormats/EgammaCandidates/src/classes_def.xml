@@ -3,7 +3,7 @@
   <class name="reco::Conversion"/>
   <class name="reco::Electron"/>
   <class name="reco::PixelMatchElectron"/>
-  <class name="reco::PixelMatchGsfElectron"/>
+  <class name="reco::GsfElectron"/>
   <class name="reco::SiStripElectron"/>
 
 
@@ -28,12 +28,12 @@
   <class name="edm::RefVector<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron> > >"/>
 
-  <class name="std::vector<reco::PixelMatchGsfElectron>"/>
-  <class name="edm::Wrapper<std::vector<reco::PixelMatchGsfElectron> >"/>
-  <class name="edm::Ref<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron> >"/>
-  <class name="edm::RefProd<std::vector<reco::PixelMatchGsfElectron> >"/>
-  <class name="edm::RefVector<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron> >"/>
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron> > >"/>
+  <class name="std::vector<reco::GsfElectron>"/>
+  <class name="edm::Wrapper<std::vector<reco::GsfElectron> >"/>
+  <class name="edm::Ref<std::vector<reco::GsfElectron>,reco::GsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectron>,reco::GsfElectron> >"/>
+  <class name="edm::RefProd<std::vector<reco::GsfElectron> >"/>
+  <class name="edm::RefVector<std::vector<reco::GsfElectron>,reco::GsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectron>,reco::GsfElectron> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::GsfElectron>,reco::GsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectron>,reco::GsfElectron> > >"/>
 
   <class name="std::vector<reco::Conversion>"/>
   <class name="edm::Wrapper<std::vector<reco::Conversion> >"/>
@@ -69,34 +69,34 @@
   <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::Electron> > >" />
 
 
-  <class name="std::pair<reco::PixelMatchGsfElectronRef,double>"/>
-  <class name="std::vector<std::pair<reco::PixelMatchGsfElectronRef,double> >"/>
+  <class name="std::pair<reco::GsfElectronRef,double>"/>
+  <class name="std::vector<std::pair<reco::GsfElectronRef,double> >"/>
 
-  <class name="reco::PMGsfElectronIsoCollection">
+  <class name="reco::GsfElectronIsoCollection">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
   </class>
-  <class name="reco::PMGsfElectronIsoCollectionRef"/>
-  <class name="reco::PMGsfElectronIsoCollectionRefProd"/>
-  <class name="reco::PMGsfElectronIsoCollectionRefVector"/>
-  <class name="edm::Wrapper<reco::PMGsfElectronIsoCollection>"/>
+  <class name="reco::GsfElectronIsoCollectionRef"/>
+  <class name="reco::GsfElectronIsoCollectionRefProd"/>
+  <class name="reco::GsfElectronIsoCollectionRefVector"/>
+  <class name="edm::Wrapper<reco::GsfElectronIsoCollection>"/>
 
-  <class name="std::pair<reco::PixelMatchGsfElectronRef,int>"/>
-  <class name="std::vector<std::pair<reco::PixelMatchGsfElectronRef,int> >"/>
+  <class name="std::pair<reco::GsfElectronRef,int>"/>
+  <class name="std::vector<std::pair<reco::GsfElectronRef,int> >"/>
 
-  <class name="reco::PMGsfElectronIsoNumCollection">
+  <class name="reco::GsfElectronIsoNumCollection">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
   </class>
-  <class name="reco::PMGsfElectronIsoNumCollectionRef"/>
-  <class name="reco::PMGsfElectronIsoNumCollectionRefProd"/>
-  <class name="reco::PMGsfElectronIsoNumCollectionRefVector"/>
-  <class name="edm::Wrapper<reco::PMGsfElectronIsoNumCollection>"/>
+  <class name="reco::GsfElectronIsoNumCollectionRef"/>
+  <class name="reco::GsfElectronIsoNumCollectionRefProd"/>
+  <class name="reco::GsfElectronIsoNumCollectionRefVector"/>
+  <class name="edm::Wrapper<reco::GsfElectronIsoNumCollection>"/>
 
-  <class name="edm::reftobase::Holder<reco::Candidate, reco::PixelMatchGsfElectronRef>" />
-  <class name="edm::reftobase::RefHolder<reco::PixelMatchGsfElectronRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::PixelMatchGsfElectronRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<reco::PixelMatchGsfElectronRefVector>" />
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::GsfElectronRef>" />
+  <class name="edm::reftobase::RefHolder<reco::GsfElectronRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::GsfElectronRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::GsfElectronRefVector>" />
 
   <class name="edm::reftobase::Holder<reco::Candidate, reco::PhotonRef>" />
   <class name="edm::reftobase::RefHolder<reco::PhotonRef>" />
