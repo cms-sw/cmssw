@@ -9,8 +9,8 @@
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
 
@@ -415,7 +415,7 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
 
 void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSetup& es )
 {
-  edm::Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
+  edm::Handle<reco::GsfElectronCollection> pElectrons;
   try
   {
     evt.getByLabel(RecoCollection_, pElectrons);
@@ -425,10 +425,10 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
     edm::LogError("DOEPlotsProducerElectrons") << "Error! can't get collection with label " << RecoCollection_.label();
   }
 
-  const reco::PixelMatchGsfElectronCollection* electrons = pElectrons.product();
-  std::vector<reco::PixelMatchGsfElectron> electronsMCMatched;
+  const reco::GsfElectronCollection* electrons = pElectrons.product();
+  std::vector<reco::GsfElectron> electronsMCMatched;
  
-  for(reco::PixelMatchGsfElectronCollection::const_iterator aClus = electrons->begin(); aClus != electrons->end(); aClus++)
+  for(reco::GsfElectronCollection::const_iterator aClus = electrons->begin(); aClus != electrons->end(); aClus++)
   {
     if(aClus->et() >= EtCut)
     {
@@ -442,8 +442,8 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
   for(int firstElectron = 0, numElectrons = electrons->size(); firstElectron < numElectrons - 1; firstElectron++)
     for(int secondElectron = firstElectron + 1; secondElectron < numElectrons; secondElectron++)
     {
-      reco::PixelMatchGsfElectron eOne = (*electrons)[firstElectron];
-      reco::PixelMatchGsfElectron eTwo = (*electrons)[secondElectron];
+      reco::GsfElectron eOne = (*electrons)[firstElectron];
+      reco::GsfElectron eTwo = (*electrons)[secondElectron];
 
       double recoMass = findRecoMass(eOne, eTwo);
 
@@ -487,11 +487,11 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
       double etCurrent,  etFound  = -999;
       double eCurrent,   eFound  = -999;      
 
-      reco::PixelMatchGsfElectron bestMatchElectron; 
+      reco::GsfElectron bestMatchElectron; 
 
       double closestParticleDistance = 999;  
       
-      for(reco::PixelMatchGsfElectronCollection::const_iterator aClus = electrons->begin(); aClus != electrons->end(); aClus++)
+      for(reco::GsfElectronCollection::const_iterator aClus = electrons->begin(); aClus != electrons->end(); aClus++)
       {
         if(aClus->et() > EtCut)
         {
@@ -565,8 +565,8 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
   
   if(electronsMCMatched.size() == 2)
   {
-    reco::PixelMatchGsfElectron eOne = electronsMCMatched[0];
-    reco::PixelMatchGsfElectron eTwo = electronsMCMatched[1];
+    reco::GsfElectron eOne = electronsMCMatched[0];
+    reco::GsfElectron eTwo = electronsMCMatched[1];
 
     double recoMass = findRecoMass(eOne, eTwo);
 
@@ -592,7 +592,7 @@ double EgammaObjects::findRecoMass(reco::Photon pOne, reco::Photon pTwo)
   return recoMass; 
 }
 
-double EgammaObjects::findRecoMass(reco::PixelMatchGsfElectron eOne, reco::PixelMatchGsfElectron eTwo)
+double EgammaObjects::findRecoMass(reco::GsfElectron eOne, reco::GsfElectron eTwo)
 {
   double cosTheta
     = (cos(eOne.caloPosition().phi() - eTwo.caloPosition().phi()) + sinh(eOne.caloPosition().eta()) * sinh(eTwo.caloPosition().eta())) /

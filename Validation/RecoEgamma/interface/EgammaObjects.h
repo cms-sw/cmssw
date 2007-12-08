@@ -13,7 +13,7 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 #include "TFile.h"
 
@@ -181,7 +181,7 @@ class EgammaObjects : public edm::EDAnalyzer {
     void saveHistos();
 
     double findRecoMass(reco::Photon pOne, reco::Photon pTwo);
-    double findRecoMass(reco::PixelMatchGsfElectron eOne, reco::PixelMatchGsfElectron eTwo);
+    double findRecoMass(reco::GsfElectron eOne, reco::GsfElectron eTwo);
     
     float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);
 };
