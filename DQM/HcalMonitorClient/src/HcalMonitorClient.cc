@@ -377,7 +377,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   ievent_   = e.id().event();
   itime_    = e.time().value();
 
-  if (debug_) cout << "HcalMonitorClient: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
+  if (debug_) cout << "HcalMonitorClient: evts: "<< ievt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
 
   if ( runningStandalone_ || prescale()) return;
   else analyze();
@@ -497,7 +497,7 @@ void HcalMonitorClient::htmlOutput(void){
   htmlFile << "<h2>Run Number:&nbsp&nbsp&nbsp" << endl;
   htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << irun_ <<"</span></h2> " << endl;
   htmlFile << "<h2>Events processed:&nbsp&nbsp&nbsp" << endl;
-  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << ievent_ <<"</span></h2> " << endl;
+  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << ievt_ <<"</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
   htmlFile << "<ul>" << endl;
 
