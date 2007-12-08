@@ -71,6 +71,7 @@ class AlCaPi0RecHitsProducer : public edm::EDProducer {
  double seleMinvMaxPi0_;
  double seleMinvMinPi0_;
  double seleXtalMinEnergy_;
+ int seleNRHMax_;
 
  std::map<DetId, EcalRecHit> *recHitsEB_map;
 

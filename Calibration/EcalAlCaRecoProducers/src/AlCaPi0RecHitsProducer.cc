@@ -41,6 +41,7 @@ AlCaPi0RecHitsProducer::AlCaPi0RecHitsProducer(const edm::ParameterSet& iConfig)
   seleMinvMaxPi0_ = iConfig.getParameter<double> ("seleMinvMaxPi0");  
   seleMinvMinPi0_ = iConfig.getParameter<double> ("seleMinvMinPi0");  
   seleXtalMinEnergy_ = iConfig.getParameter<double> ("seleXtalMinEnergy");
+  seleNRHMax_ = iConfig.getParameter<int> ("seleNRHMax");
 
   //register your products
   produces< EBRecHitCollection >(pi0BarrelHits_);
@@ -88,6 +89,7 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   //Create empty output collections
   std::auto_ptr< EBRecHitCollection > pi0EBRecHitCollection( new EBRecHitCollection );
+  std::auto_ptr< EBRecHitCollection > pi0EBDummyRecHitCollection( new EBRecHitCollection );
 
   //Select interesting EcalRecHits (barrel)
   EBRecHitCollection::const_iterator itb;
@@ -381,8 +383,17 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       //Put selected information in the event
       //      if (npi0>0) iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
-      cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
-      iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
+      if ( pi0EBRecHitCollection->size() > seleNRHMax_ )
+	{
+	  //	  pi0EBRecHitCollection->clear();
+	  cout<< "   Max RH limit exceeded: "<<pi0EBRecHitCollection->size()<<" Max RH: "<<seleNRHMax_<<endl;
+	  iEvent.put( pi0EBDummyRecHitCollection, pi0BarrelHits_);
+	  cout<< "   EB RecHits # in Collection: "<<0<<endl;
+	} else {
+
+	  cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
+	  iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
+	}
   
       timerName = category + "::storePi0RecHitsCollection";
       timers.pop_and_push(timerName);
