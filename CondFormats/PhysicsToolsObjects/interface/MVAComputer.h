@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.11 2007/10/07 02:35:45 saout Exp $
+// $Id: MVAComputer.h,v 1.12 2007/10/08 03:02:46 saout Exp $
 //
 
 #include <string>
@@ -25,6 +25,10 @@ namespace Calibration {
 
 class BitSet {
     public:
+	// help that poor ROOT Cint/Reflex to copy bitsets... (workaround)
+	BitSet &operator = (const BitSet &other)
+	{ store = other.store; bitsInLast = other.bitsInLast; return *this; }
+
 	std::vector<unsigned char>	store;
 	unsigned int			bitsInLast;
 };
@@ -48,6 +52,10 @@ class VarProcessor {
 
 class Variable {
     public:
+	inline Variable() {}
+	inline Variable(const std::string &name) : name(name) {}
+	inline ~Variable() {}
+
 	std::string			name;
 };
 
