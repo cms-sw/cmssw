@@ -22,8 +22,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
-#include "DataFormats/EgammaCandidates/interface/ConvertedPhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 //
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -173,11 +173,10 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
   std::cout << "ConvertedPhotonAnalyzer Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
  
   
-  
-  ///// Get the recontructed converted photons
-  Handle<reco::ConvertedPhotonCollection> convertedPhotonHandle; 
+  ///// Get the recontructed  conversions
+  Handle<reco::ConversionCollection> convertedPhotonHandle; 
   e.getByLabel(convertedPhotonCollectionProducer_, convertedPhotonCollection_ , convertedPhotonHandle);
-  const reco::ConvertedPhotonCollection phoCollection = *(convertedPhotonHandle.product());
+  const reco::ConversionCollection phoCollection = *(convertedPhotonHandle.product());
   std::cout  << "ConvertedPhotonAnalyzer  Converted photon collection size " << phoCollection.size() << "\n";
 
 
@@ -241,11 +240,11 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
 
     /// Loop over recontructed photons
     std::cout   << " ConvertedPhotonAnalyzer  Starting loop over photon candidates " << "\n";
-    for( reco::ConvertedPhotonCollection::const_iterator  iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
+    for( reco::ConversionCollection::const_iterator  iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
       REJECTED=false;
       
       std::cout  << " ConvertedPhotonAnalyzer Reco SC energy " << (*iPho).superCluster()->energy() <<  "\n";
-      std::cout  << " ConvertedPhotonAnalyzer Reco converted photon energy " << (*iPho).energy() <<  "\n";
+
 
       
       float phiClu=(*iPho).superCluster()->phi();
@@ -281,13 +280,6 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
       h_scE_->Fill( (*iPho).superCluster()->energy() );
       h_scEta_->Fill( (*iPho).superCluster()->position().eta() );
       h_scPhi_->Fill( (*iPho).superCluster()->position().phi() );
-      
-      h_phoE_->Fill( (*iPho).energy() );
-      h_phoEta_->Fill( (*iPho).eta() );
-      h_phoPhi_->Fill( (*iPho).phi() );
-      
-      //std::cout  << " ConvertedPhotonAnalyzer reco conversion vtx position " << (*iPho).conversionVertex().position() <<  "\n";
-      //std::cout  << " ConvertedPhotonAnalyzer reco tracks size " <<  (*iPho).tracks().size() << "\n"; 
       
       
       for (unsigned int i=0; i<(*iPho).tracks().size(); i++) {
