@@ -17,7 +17,7 @@
 
 //CMSSW includes 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 
@@ -35,8 +35,8 @@ class ElectronTkIsolation {
  
   //methods
 
-  int getNumberTracks(const reco::PixelMatchGsfElectron*) const ;
-  double getPtTracks (const reco::PixelMatchGsfElectron*) const ;
+  int getNumberTracks(const reco::GsfElectron*) const ;
+  double getPtTracks (const reco::GsfElectron*) const ;
   
  private:
     
@@ -47,7 +47,7 @@ class ElectronTkIsolation {
 
   const reco::TrackCollection *trackCollection_ ;
 
-  std::pair<int,double>getIso(const reco::PixelMatchGsfElectron*) const ;
+  std::pair<int,double>getIso(const reco::GsfElectron*) const ;
 };
 
 #endif

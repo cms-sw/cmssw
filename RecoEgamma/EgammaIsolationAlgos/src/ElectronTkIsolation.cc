@@ -42,7 +42,7 @@ ElectronTkIsolation::~ElectronTkIsolation ()
 }
 
 // unified acces to isolations
-std::pair<int,double> ElectronTkIsolation::getIso(const reco::PixelMatchGsfElectron* electron) const  
+std::pair<int,double> ElectronTkIsolation::getIso(const reco::GsfElectron* electron) const  
 {
   int counter  =0 ;
   double ptSum =0.;
@@ -77,13 +77,13 @@ std::pair<int,double> ElectronTkIsolation::getIso(const reco::PixelMatchGsfElect
 }
 
 
-int ElectronTkIsolation::getNumberTracks (const reco::PixelMatchGsfElectron* electron) const
+int ElectronTkIsolation::getNumberTracks (const reco::GsfElectron* electron) const
 {  
   //counter for the tracks in the isolation cone
   return getIso(electron).first ;
 }
 
-double ElectronTkIsolation::getPtTracks (const reco::PixelMatchGsfElectron* electron) const
+double ElectronTkIsolation::getPtTracks (const reco::GsfElectron* electron) const
 {
   return getIso(electron).second ;
 }

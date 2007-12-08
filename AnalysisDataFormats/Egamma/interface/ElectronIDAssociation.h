@@ -5,14 +5,14 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDFwd.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 
 namespace reco {
 
   // association map
-  typedef edm::AssociationMap<edm::OneToOne<PixelMatchGsfElectronCollection, ElectronIDCollection> > ElectronIDAssociationCollection;
+  typedef edm::AssociationMap<edm::OneToOne<GsfElectronCollection, ElectronIDCollection> > ElectronIDAssociationCollection;
  
   typedef ElectronIDAssociationCollection::value_type ElectronIDAssociation;
 
