@@ -9,6 +9,21 @@
 
 #include "vis_macros.h"
 
+// get the named from an object derived from both TEveElement and TNamed
+const char* get_name( const TEveElement * element ) {
+  // try as a TEveGeoNode or TEveGeoShape
+  if (const TEveGeoNode * node = dynamic_cast<const TEveGeoNode *>( element ))
+    return node->GetName();
+  if (const TEveGeoShape * shape = dynamic_cast<const TEveGeoShape *>( element ))
+    return shape->GetName();
+
+  // try to access the element as a named thingy
+  if (const TNamed * named = dynamic_cast<const TNamed *>( element ))
+    return named->GetName();
+
+  return 0;
+}
+
 // force a node to expand its internal reprsentation, so all children are actually present
 void expand_node( TEveElement * element )
 {
@@ -103,26 +118,26 @@ bool is_leaf_node( const TEveElement * element )
 void set_children_visibility( TEveElement * element, const std::string & node_name, const std::vector<std::string> & children_name, bool visibility )
 {
   // try to access the element as a named thingy
-  const TNamed * named = dynamic_cast<TNamed *>( element );
-  if (not named or strncmp(named->GetName(), node_name.c_str(), node_name.size()))
+  const char * name = get_name( element );
+  if (not name or strncmp(name, node_name.c_str(), node_name.size()))
     // unnamed node, or wrong node
     return;
 
   for (std::list<TEveElement *>::iterator j = element->BeginChildren(); j != element->EndChildren(); ++j) {
     TEveElement * child = *j;
-    TNamed * named_child = dynamic_cast<TNamed *>(child);
-    if (not named_child)
+    name = get_name( child );
+    if (not name)
       // unnamed node, ignore it
       continue;
 
     for (unsigned int i = 0; i < children_name.size(); ++i)
-      if (not strncmp(named_child->GetName(), children_name[i].c_str(), children_name[i].size())) {
+      if (not strncmp(name, children_name[i].c_str(), children_name[i].size())) {
         // change this child visibility
         if (is_leaf_node( child )) {
           child->SetRnrSelf( visibility );
-          //child->SetRnrChildren( false );
+          child->SetRnrChildren( false );
         } else {
-          //child->SetRnrSelf( false );
+          child->SetRnrSelf( false );
           child->SetRnrChildren( visibility );
         }
         break;

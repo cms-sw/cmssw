@@ -6,10 +6,13 @@
 #include <Rtypes.h>
 class TEveElement;
 
+// get the named from an object derived from both TEveElement and TNamed
+const char* get_name( const TEveElement * element );
+
 // force a node to expand its internal reprsentation, so all children are actually present
 void expand_node( TEveElement * element );
 
-// retrieves a TShape from a TEveElement
+// retrieve a TShape from a TEveElement
 const TGeoShape * get_shape( const TEveElement * element );
 
 // overloaded non-const TShape retrieval, allowed from a TGeoShape only
