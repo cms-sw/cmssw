@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: Variable.h,v 1.5 2007/12/08 16:11:11 saout Exp $
+// $Id: Variable.h,v 1.6 2007/12/08 17:30:26 saout Exp $
 //
 
 #include <vector>
@@ -100,6 +100,9 @@ class Variable {
 
 		inline ValueList &operator = (const ValueList &orig)
 		{ data_ = orig.data_; return *this; }
+
+		inline void clear()
+		{ data_.clear(); }
 
 		inline void add(AtomicId id, double value)
 		{ data_.push_back(Value(id, value)); }
