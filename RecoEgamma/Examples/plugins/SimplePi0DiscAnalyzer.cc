@@ -8,7 +8,7 @@
 //                    D Maletic, "Vinca" Belgrade
 //
 //         Created:  Wed Sep 12 13:36:27 CEST 2007
-// $Id: SimplePi0DiscAnalyzer.cc,v 1.2 2007/10/18 13:14:05 akyriaki Exp $
+// $Id: SimplePi0DiscAnalyzer.cc,v 1.3 2007/12/07 09:37:45 akyriaki Exp $
 //
 //
 
@@ -28,8 +28,8 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
-#include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
-#include "DataFormats/EgammaCandidates/interface/ConvertedPhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 #include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
@@ -113,9 +113,9 @@ SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   cout << " -------------- NEW EVENT : Run, Event =  " << iEvent.id() << endl;
    
   // Get the ConvertedPhotonCollection
-  Handle<ConvertedPhotonCollection> convertedPhotonHandle; // get the Converted Photon info
-  iEvent.getByLabel("convertedPhotons", "", convertedPhotonHandle);
-  const reco::ConvertedPhotonCollection phoCollection = *(convertedPhotonHandle.product());
+  Handle<ConversionCollection> convertedPhotonHandle; // get the Converted Photon info
+  iEvent.getByLabel("conversions", "", convertedPhotonHandle);
+  const reco::ConversionCollection phoCollection = *(convertedPhotonHandle.product());
 
   cout << " ---> ConvertedPhotonCollection.size() = " << phoCollection.size() << endl;
 
@@ -146,7 +146,7 @@ SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     bool isPhotConv = false;
     int Ntrk_conv = 0;
     int Conv_SCE_id = 0;
-    for( reco::ConvertedPhotonCollection::const_iterator iCPho = phoCollection.begin(); 
+    for( reco::ConversionCollection::const_iterator iCPho = phoCollection.begin(); 
 	 iCPho != phoCollection.end(); iCPho++) { 
        SuperClusterRef it_superConv = (*iCPho).superCluster();// get the SC related to the  Converted Photon candidate
        if(it_super == it_superConv) { 
