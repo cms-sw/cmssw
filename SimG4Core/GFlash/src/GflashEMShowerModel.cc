@@ -71,8 +71,13 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
   G4VPhysicalVolume* pCurrentVolume = touch->GetVolume();
   if( pCurrentVolume == 0) return false;
 
-  if(pCurrentVolume->GetLogicalVolume()->GetRegion()->GetName() != "GflashRegion") return false;
-  if(pCurrentVolume->GetName() != "EBRY" && pCurrentVolume->GetName() != "EFRY") return false;
+  G4LogicalVolume* lv = pCurrentVolume->GetLogicalVolume();
+  if(lv->GetRegion()->GetName() != "GflashRegion") return false;
+
+  std::size_t pos1 = lv->GetName().find("EBRY");
+  std::size_t pos2 = lv->GetName().find("EFRY");
+  if(pos1 == std::string::npos && pos2 == std::string::npos) return false;
+
   //  if(fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() != "eBrem") return false;
 
   return true;
