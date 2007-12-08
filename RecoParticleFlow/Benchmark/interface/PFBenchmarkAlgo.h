@@ -7,22 +7,28 @@
 #include <cmath>
 #include <vector>
 
+// Notes on template implementation:
+// - T, U are arbitrary types (must have et(), eta(), etc. defined)
+//   support for Candidate-derived objects is explicit
+// - Collection is a generic container class. Support for edm::OwnVector
+//   and std::vector is explicit.
+
 class PFBenchmarkAlgo {
 public:
 
-  // Calculate Delta-Et for Candidates (T - U)
+  // Calculate Delta-Et for the pair of Candidates (T - U)
   template <typename T, typename U>
   static double deltaEt(const T *, const U *);
 
-  // Calculate Delta-Eta for Candidates (T - U)
+  // Calculate Delta-Eta for the pair of Candidates (T - U)
   template <typename T, typename U>
   static double deltaEta(const T *, const U *);
 
-  // Calculate Delta-Phi for Candidates (T - U)
+  // Calculate Delta-Phi for the pair of Candidates (T - U)
   template <typename T, typename U>
   static double deltaPhi(const T *, const U *);
 
-  // Calculate Delta-R for Candidates 
+  // Calculate Delta-R for the pair of Candidates 
   template <typename T, typename U>
   static double deltaR(const T *, const U *);
 
@@ -146,8 +152,8 @@ double PFBenchmarkAlgo::deltaPhi(const T *c1, const U *c2) {
   if (phi1 <= - M_PI) phi1 += ceil((phi1 - M_PI) / (2 * M_PI)) * 2 * M_PI;
 
   double phi2 = c2->phi();
-  if (phi2 > M_PI) phi2 -= ceil((phi1 - M_PI) / (2 * M_PI)) * 2 * M_PI;
-  if (phi2 <= - M_PI) phi2 += ceil((phi1 - M_PI) / (2 * M_PI)) * 2 * M_PI;
+  if (phi2 > M_PI) phi2 -= ceil((phi2 - M_PI) / (2 * M_PI)) * 2 * M_PI;
+  if (phi2 <= - M_PI) phi2 += ceil((phi2 - M_PI) / (2 * M_PI)) * 2 * M_PI;
 
   // alternative method:
   // while (phi > M_PI) phi -= 2 * M_PI;
