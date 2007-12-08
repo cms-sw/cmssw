@@ -50,7 +50,6 @@ MVAComputer::MVAComputer(const char *filename) :
 	setup(owned.get());
 }
 
-
 MVAComputer::MVAComputer(std::istream &is) :
 	nVars(0), output(0), owned(readCalibration(is))
 {
@@ -224,7 +223,6 @@ Calibration::MVAComputer *MVAComputer::readCalibration(const char *filename)
 	return readCalibration(file);
 }
 
-
 Calibration::MVAComputer *MVAComputer::readCalibration(std::istream &is)
 {
 	if (!is.good())
@@ -232,19 +230,19 @@ Calibration::MVAComputer *MVAComputer::readCalibration(std::istream &is)
 			<< "Stream passed to MVAComputer::readCalibration "
 			   "has an invalid state." << std::endl;
 
-	char header[sizeof STANDALONE_HEADER] = { 0, };
-	is.read(header, sizeof header);
-	if (std::memcmp(header, STANDALONE_HEADER, sizeof header) != 0)
+	char header[sizeof STANDALONE_HEADER - 1] = { 0, };
+	if (is.readsome(header, sizeof header) != sizeof header ||
+	    std::memcmp(header, STANDALONE_HEADER, sizeof header) != 0)
 		throw cms::Exception("InvalidFileFormat")
 			<< "Stream passed to MVAComputer::readCalibration "
 			   "is not a valid calibration file." << std::endl;
 
 	TClass *rootClass =
-		TClass::GetClass("PhysicsTools::MVAComputer::Calibration");
+		TClass::GetClass("PhysicsTools::Calibration::MVAComputer");
 	if (!rootClass)
 		throw cms::Exception("DictionaryMissing")
 			<< "CondFormats dictionary for "
-			   "PhysicsTools::MVAComputer::Calibration missing"
+			   "PhysicsTools::Calibration::MVAComputer missing"
 			<< std::endl;
 
 	ext::izstream izs(&is);
@@ -263,14 +261,12 @@ Calibration::MVAComputer *MVAComputer::readCalibration(std::istream &is)
 	return calib.release();
 }
 
-
 void MVAComputer::writeCalibration(const char *filename,
                                    const Calibration::MVAComputer *calib)
 {
 	std::ofstream file(filename);
 	writeCalibration(file, calib);
 }
-
 
 void MVAComputer::writeCalibration(std::ostream &os,
                                    const Calibration::MVAComputer *calib)
@@ -283,11 +279,11 @@ void MVAComputer::writeCalibration(std::ostream &os,
 	os << STANDALONE_HEADER;
 
 	TClass *rootClass =
-		TClass::GetClass("PhysicsTools::MVAComputer::Calibration");
+		TClass::GetClass("PhysicsTools::Calibration::MVAComputer");
 	if (!rootClass)
 		throw cms::Exception("DictionaryMissing")
 			<< "CondFormats dictionary for "
-			   "PhysicsTools::MVAComputer::Calibration missing"
+			   "PhysicsTools::Calibration::MVAComputer missing"
 			<< std::endl;
 
 	TBuffer buffer(TBuffer::kWrite);

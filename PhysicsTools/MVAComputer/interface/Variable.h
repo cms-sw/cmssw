@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: Variable.h,v 1.3 2007/05/25 16:37:58 saout Exp $
+// $Id: Variable.h,v 1.4 2007/07/15 22:31:46 saout Exp $
 //
 
 #include <string>
@@ -48,22 +48,31 @@ class Variable {
 	 * an associated double value.
 	 *
 	 ************************************************************/
-	struct Value {
+	class Value {
+	    public:
 		inline Value() {}
+		inline Value(const Value &orig) :
+			name(orig.name), value(orig.value) {}
 		inline Value(AtomicId name, double value) :
 			name(name), value(value) {}
 
 		inline Value &operator = (const Value &orig)
 		{ name = orig.name; value = orig.value; return *this; }
 
+		inline void setName(AtomicId name) { this->name = name; }
+		inline void setValue(double value) { this->value = value; }
+
 		inline AtomicId getName() const { return name; }
 		inline double getValue() const { return value; }
 
+	    private:
 		AtomicId	name;
 		double		value;
 	};
 
 	inline Variable() {}
+	inline Variable(const Variable &orig) :
+		name(orig.name), flags(orig.flags) {}
 	inline Variable(AtomicId name, Flags flags = FLAG_NONE) :
 		name(name), flags(flags) {}
 

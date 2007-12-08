@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
+#include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
 
 #include "FWCore/Framework/interface/EventSetupRecord.h"

@@ -9,14 +9,14 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.3 2007/07/15 22:31:46 saout Exp $
+// $Id: MVAComputer.h,v 1.4 2007/12/07 15:04:41 saout Exp $
 //
 
 #include <iostream>
 #include <vector>
 #include <memory>
 
-#include "PhysicsTools/MVAComputer/interface/Calibration.h"
+#include "PhysicsTools/MVAComputer/interface/CalibrationFwd.h"
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Variable.h"
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
