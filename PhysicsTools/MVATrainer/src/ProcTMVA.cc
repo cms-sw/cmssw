@@ -87,8 +87,7 @@ class ProcTMVA : public TrainProcessor {
 	std::string			methodDescription;
 	std::vector<std::string>	names;
 	std::auto_ptr<TFile>		file;
-	TTree				*tree;
-	Bool_t				target;
+	TTree				*treeSig, *treeBkg;
 	Double_t			weight;
 	std::vector<Double_t>		vars;
 	bool				needCleanup;
@@ -101,7 +100,7 @@ static ProcTMVA::Registry registry("ProcTMVA");
 ProcTMVA::ProcTMVA(const char *name, const AtomicId *id,
                    MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer),
-	iteration(ITER_EXPORT), tree(0), needCleanup(false)
+	iteration(ITER_EXPORT), treeSig(0), treeBkg(0), needCleanup(false)
 {
 }
 
@@ -247,18 +246,24 @@ void ProcTMVA::trainBegin()
 				<< std::endl;
 
 		file->cd();
-		tree = new TTree(getTreeName().c_str(), "MVATrainer");
+		treeSig = new TTree((getTreeName() + "_sig").c_str(),
+		                    "MVATrainer signal");
+		treeBkg = new TTree((getTreeName() + "_bkg").c_str(),
+		                    "MVATrainer background");
 
-		tree->Branch("__TARGET__", &target, "__TARGET__/B");
-		tree->Branch("__WEIGHT__", &weight, "__WEIGHT__/D");
+		treeSig->Branch("__WEIGHT__", &weight, "__WEIGHT__/D");
+		treeBkg->Branch("__WEIGHT__", &weight, "__WEIGHT__/D");
 
 		vars.resize(names.size());
 
 		std::vector<Double_t>::iterator pos = vars.begin();
 		for(std::vector<std::string>::const_iterator iter =
-			names.begin(); iter != names.end(); iter++, pos++)
-			tree->Branch(iter->c_str(), &*pos,
-			             (*iter + "/D").c_str());
+			names.begin(); iter != names.end(); iter++, pos++) {
+			treeSig->Branch(iter->c_str(), &*pos,
+			                (*iter + "/D").c_str());
+			treeBkg->Branch(iter->c_str(), &*pos,
+			                (*iter + "/D").c_str());
+		}
 
 		nSignal = nBackground = 0;
 	}
@@ -270,17 +275,17 @@ void ProcTMVA::trainData(const std::vector<double> *values,
 	if (iteration != ITER_EXPORT)
 		return;
 
-	this->target = target;
 	this->weight = weight;
 	for(unsigned int i = 0; i < vars.size(); i++, values++)
 		vars[i] = values->front();
 
-	tree->Fill();
-
-	if (target)
+	if (target) {
+		treeSig->Fill();
 		nSignal++;
-	else
+	} else {
+		treeBkg->Fill();
 		nBackground++;
+	}
 }
 
 void ProcTMVA::runTMVATrainer()
@@ -303,10 +308,9 @@ void ProcTMVA::runTMVATrainer()
 	std::auto_ptr<TMVA::Factory> factory(
 		new TMVA::Factory(getTreeName().c_str(), file.get(), ""));
 
-	if (!factory->SetInputTrees(tree, TCut("__TARGET__"),
-	                                  TCut("!__TARGET__")))
+	if (!factory->SetInputTrees(treeSig, treeBkg))
 		throw cms::Exception("ProcTMVA")
-			<< "TMVA rejecte input trees." << std::endl;
+			<< "TMVA rejected input trees." << std::endl;
 
 	for(std::vector<std::string>::const_iterator iter = names.begin();
 	    iter != names.end(); iter++)
@@ -330,7 +334,8 @@ void ProcTMVA::trainEnd()
 		/* ROOT context-safe */ {
 			ROOTContextSentinel ctx;
 			file->cd();
-			tree->Write();
+			treeSig->Write();
+			treeBkg->Write();
 
 			file->Close();
 			file.reset();
@@ -341,13 +346,16 @@ void ProcTMVA::trainEnd()
 				throw cms::Exception("ProcTMVA")
 					<< "Could not open ROOT file for "
 					   "reading." << std::endl;
-			tree = dynamic_cast<TTree*>(
-					file->Get(getTreeName().c_str()));
+			treeSig = dynamic_cast<TTree*>(
+				file->Get((getTreeName() + "_sig").c_str()));
+			treeBkg = dynamic_cast<TTree*>(
+				file->Get((getTreeName() + "_bkg").c_str()));
 
 			runTMVATrainer();
 
 			file->Close();
-			tree = 0;
+			treeSig = 0;
+			treeBkg = 0;
 			file.reset();
 		}
 		vars.clear();
