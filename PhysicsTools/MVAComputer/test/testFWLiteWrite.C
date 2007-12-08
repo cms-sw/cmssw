@@ -1,10 +1,5 @@
 void testFWLiteWrite()
 {
-	// better put this in rootlogon.C
-	gSystem->Load("libFWCoreFWLite");
-	gSystem->Load("libPhysicsToolsMVAComputer");
-	AutoLibraryLoader::enable();
-
 	using namespace PhysicsTools::Calibration;
 
 // set up some dummy calibration by hand for testing

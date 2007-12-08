@@ -1,10 +1,5 @@
 void testFWLiteRead()
 {
-	// better put this in rootlogon.C
-	gSystem->Load("libFWCoreFWLite");
-	gSystem->Load("libPhysicsToolsMVAComputer");
-	AutoLibraryLoader::enable();
-
 	using namespace PhysicsTools;
 
 	MVAComputer mva("test.mva");
