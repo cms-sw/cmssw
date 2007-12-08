@@ -5,17 +5,15 @@
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include <string>
 
+#include "TFile.h"
+#include "TH1F.h"
+#include "TH2F.h"
+
 class DaqMonitorBEInterface;
 class PFBenchmarkAlgo;
-
-class TFile;
-class TH1F;
-class TH2F;
 
 class PFBenchmarkAna {
 public:
@@ -24,7 +22,8 @@ public:
   virtual ~PFBenchmarkAna();
 
   void setup(DaqMonitorBEInterface *DQM = NULL);
-  void fill(const reco::CandidateCollection *, const reco::CandidateCollection *, bool PlotAgainstReco = true);
+  template <typename RecoCollection, typename GenCollection>
+  void fill(const RecoCollection *, const GenCollection *, bool PlotAgainstReco = true);
   void write(std::string Filename);
 
 private:
@@ -68,5 +67,62 @@ protected:
   PFBenchmarkAlgo *algo_;
 
 };
+
+template <typename RecoCollection, typename GenCollection>
+void PFBenchmarkAna::fill(const RecoCollection *Reco, const GenCollection *Gen, bool PlotAgainstReco) {
+
+  // loop over reco particles
+  for (unsigned int i = 0; i < Reco->size(); i++) {
+
+    // generate histograms comparing the reco and truth candidate (truth = closest in delta-R)
+    const reco::Candidate *particle = &(*Reco)[i];
+    const reco::Candidate *gen_particle = algo_->matchByDeltaR(particle,Gen);
+
+    // get the quantities to place on the denominator and/or divide by
+    double et, eta, phi;
+    if (PlotAgainstReco) { et = particle->et(); eta = particle->eta(); phi = particle->phi(); }
+    else { et = gen_particle->et(); eta = gen_particle->eta(); phi = gen_particle->phi(); }
+    
+    // get the delta quantities
+    double deltaEt = algo_->deltaEt(particle,gen_particle);
+    double deltaR = algo_->deltaR(particle,gen_particle);
+    double deltaEta = algo_->deltaEta(particle,gen_particle);
+    double deltaPhi = algo_->deltaPhi(particle,gen_particle);
+    
+    // fill histograms
+    hDeltaEt->Fill(deltaEt);
+    hDeltaEtvsEt->Fill(et,deltaEt);
+    hDeltaEtOverEtvsEt->Fill(et,deltaEt/et);
+    hDeltaEtvsEta->Fill(eta,deltaEt);
+    hDeltaEtOverEtvsEta->Fill(eta,deltaEt/et);
+    hDeltaEtvsPhi->Fill(phi,deltaEt);
+    hDeltaEtOverEtvsPhi->Fill(phi,deltaEt/et);
+    hDeltaEtvsDeltaR->Fill(deltaR,deltaEt);
+    hDeltaEtOverEtvsDeltaR->Fill(deltaR,deltaEt/et);
+    
+    hDeltaEta->Fill(deltaEta);
+    hDeltaEtavsEt->Fill(et,deltaEta/eta);
+    hDeltaEtaOverEtavsEt->Fill(et,deltaEta/eta);
+    hDeltaEtavsEta->Fill(eta,deltaEta);
+    hDeltaEtaOverEtavsEta->Fill(eta,deltaEta/eta);
+    hDeltaEtavsPhi->Fill(phi,deltaEta);
+    hDeltaEtaOverEtavsPhi->Fill(phi,deltaEta/eta);
+    
+    hDeltaPhi->Fill(deltaPhi);
+    hDeltaPhivsEt->Fill(et,deltaPhi);
+    hDeltaPhiOverPhivsEt->Fill(et,deltaPhi/phi);
+    hDeltaPhivsEta->Fill(eta,deltaPhi);
+    hDeltaPhiOverPhivsEta->Fill(eta,deltaPhi/phi);
+    hDeltaPhivsPhi->Fill(phi,deltaPhi);
+    hDeltaPhiOverPhivsPhi->Fill(phi,deltaPhi/phi);
+
+    hDeltaR->Fill(deltaR);
+    hDeltaRvsEt->Fill(et,deltaR);
+    hDeltaRvsEta->Fill(eta,deltaR);
+
+  }
+
+}
+
 
 #endif // RecoParticleFlow_Benchmark_PFBenchmarkAna_h
