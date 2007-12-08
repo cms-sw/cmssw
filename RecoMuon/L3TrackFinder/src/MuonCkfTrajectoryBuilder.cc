@@ -138,6 +138,12 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj
 	  LogDebug("CkfPattern")<<"Need to go to next layer to get measurements";
           //the following will "JUMP" the first layer measurements
 	  nl = l->nextLayers(*currentState.freeState(), traj.direction());
+	  if (nl.size()==0){
+            LogDebug("CkfPattern")<<" there was no next layer with wellInside. Use the next with no check.";
+            //means you did not get any compatible layer on the next 1/2 tracker layer.
+            // use the next layers with no checking
+            nl = l->nextLayers(((traj.direction()==alongMomentum)?insideOut:outsideIn));
+          }
           invalidHits=0;
           collectMeasurement(nl,currentState,result,invalidHits,theForwardPropagator);
         }
