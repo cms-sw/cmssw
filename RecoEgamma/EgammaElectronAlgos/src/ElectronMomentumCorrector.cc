@@ -1,6 +1,6 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -21,7 +21,7 @@
 //===================================================================
 
 
-void ElectronMomentumCorrector::correct(reco::PixelMatchGsfElectron &electron, TrajectoryStateOnSurface & vtxTsos) {
+void ElectronMomentumCorrector::correct(reco::GsfElectron &electron, TrajectoryStateOnSurface & vtxTsos) {
 
   if (electron.isMomentumCorrected()) return;
 

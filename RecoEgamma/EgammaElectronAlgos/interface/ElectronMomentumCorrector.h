@@ -12,7 +12,7 @@
   Egamma class for Correction of electrons energy. 
 */
 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -24,7 +24,7 @@ class ElectronMomentumCorrector
    ElectronMomentumCorrector(){newMomentum_= math::XYZTLorentzVector();}
  virtual ~ElectronMomentumCorrector(){}
 
-  virtual void correct(reco::PixelMatchGsfElectron &, TrajectoryStateOnSurface &);
+  virtual void correct(reco::GsfElectron &, TrajectoryStateOnSurface &);
 
   //  HepLorentzVector getBestMomentum() const {return newMomentum_;}
   math::XYZTLorentzVector getBestMomentum() const {return newMomentum_;}

@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessandro Palma
 //         Created:  Thu Sep 21 11:41:35 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.1 2007/07/05 10:34:45 charlot Exp $
+// $Id: ElectronAnalyzer.cc,v 1.2 2007/08/28 01:49:46 ratnik Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -43,7 +43,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "RecoEgamma/Examples/plugins/ElectronAnalyzer.h"
 
 #include "TH1.h"
@@ -80,8 +80,8 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 {
    using namespace edm;
 
-   typedef reco::PixelMatchGsfElectron myElectron;
-   typedef reco::PixelMatchGsfElectronCollection myElectronCollection;
+   typedef reco::GsfElectron myElectron;
+   typedef reco::GsfElectronCollection myElectronCollection;
 
 
    //CLUSTERS - BEGIN

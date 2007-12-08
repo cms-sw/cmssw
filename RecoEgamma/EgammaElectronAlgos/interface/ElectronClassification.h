@@ -30,7 +30,7 @@
 */
 
 //#include "ElectronPhoton/EgammaAnalysis/interface/EgammaCorrector.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 
 class ElectronClassification
@@ -41,11 +41,11 @@ class ElectronClassification
 
   int getClass() const {return electronClass_;}
 
-  virtual void correct(reco::PixelMatchGsfElectron &);
+  virtual void correct(reco::GsfElectron &);
 
  private:
 
-  void classify(const reco::PixelMatchGsfElectron &);
+  void classify(const reco::GsfElectron &);
 
   bool isInCrack(float eta) const;
 

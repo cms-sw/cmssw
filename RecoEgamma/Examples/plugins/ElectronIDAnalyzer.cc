@@ -11,7 +11,7 @@ ElectronIDAnalyzer::ElectronIDAnalyzer(const edm::ParameterSet& conf) : conf_(co
 void ElectronIDAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   // Read in electrons
-  edm::Handle<reco::PixelMatchGsfElectronCollection> electrons;
+  edm::Handle<reco::GsfElectronCollection> electrons;
   e.getByLabel(electronProducer_,electronLabel_,electrons);
 
   // Read in electron ID association map
@@ -20,7 +20,7 @@ void ElectronIDAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
 
   // Loop over electrons
   for (unsigned int i = 0; i < electrons->size(); i++){
-    edm::Ref<reco::PixelMatchGsfElectronCollection> electronRef(electrons,i);
+    edm::Ref<reco::GsfElectronCollection> electronRef(electrons,i);
     // Find entry in electron ID map corresponding electron
     reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr;
     electronIDAssocItr = electronIDAssocHandle->find(electronRef);

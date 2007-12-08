@@ -13,7 +13,7 @@
 //===================================================================
 
 
-void ElectronEnergyCorrector::correct(reco::PixelMatchGsfElectron &electron) {
+void ElectronEnergyCorrector::correct(reco::GsfElectron &electron) {
   if (!electron.isEnergyScaleCorrected()) {
     setNewEnergy(electron);
     //    electron.correctElectronEnergyScale(this);
@@ -22,7 +22,7 @@ void ElectronEnergyCorrector::correct(reco::PixelMatchGsfElectron &electron) {
 
 }
 
-void ElectronEnergyCorrector::setNewEnergy(const reco::PixelMatchGsfElectron &electron) {
+void ElectronEnergyCorrector::setNewEnergy(const reco::GsfElectron &electron) {
 
   int elClass = electron.classification();
   double scEta = electron.caloPosition().eta();

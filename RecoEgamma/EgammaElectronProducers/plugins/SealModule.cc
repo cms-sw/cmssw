@@ -6,11 +6,11 @@
 #include "SiStripElectronProducer.h"
 #include "SiStripElectronAssociator.h"
 #include "ElectronPixelSeedProducer.h"
-#include "PixelMatchGsfElectronProducer.h"
+#include "GsfElectronProducer.h"
 
 DEFINE_SEAL_MODULE();
 
 DEFINE_ANOTHER_FWK_MODULE(SiStripElectronProducer);
 DEFINE_ANOTHER_FWK_MODULE(SiStripElectronAssociator);
 DEFINE_ANOTHER_FWK_MODULE(ElectronPixelSeedProducer);
-DEFINE_ANOTHER_FWK_MODULE(PixelMatchGsfElectronProducer);
+DEFINE_ANOTHER_FWK_MODULE(GsfElectronProducer);

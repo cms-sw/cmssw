@@ -11,7 +11,7 @@
 /*! \file ElectronEnergyCorrector.h
   Egamma class for Correction of electrons energy. 
 */
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 class ElectronEnergyCorrector
 {
@@ -21,11 +21,11 @@ class ElectronEnergyCorrector
 
   float getCorrectedEnergy() const {return newEnergy_;}
 
-  virtual void correct(reco::PixelMatchGsfElectron &);
+  virtual void correct(reco::GsfElectron &);
 
  private:
 
-  void setNewEnergy(const reco::PixelMatchGsfElectron &);
+  void setNewEnergy(const reco::GsfElectron &);
 
   double fEtaBarrelBad(double scEta) const;
   double fEtaBarrelGood(double scEta) const;
