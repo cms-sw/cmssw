@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/12/07 13:39:48 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/07 14:06:54 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -161,8 +161,8 @@ namespace trigger
     template<typename C>
     void addObject(int id, const edm::RefProd<C>& ref) {
       std::cout << "@@@@" << std::endl;
-      std::cout << "@@@@ Trigger addObject(RefProd<C>): collection type C not recognized - ignored: '"
-		<< typeid(C).name() << "'" << std::endl;
+      std::cout << "@@@@ Trigger addObject(RefProd<C>): need a Ref<C>, not a RefProd<C> [C="
+		<< typeid(C).name() << "]" << std::endl;
       std::cout << "@@@@" << std::endl;
     }
 	
