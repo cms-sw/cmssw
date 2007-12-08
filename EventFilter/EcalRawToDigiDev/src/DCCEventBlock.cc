@@ -273,7 +273,7 @@ void DCCEventBlock::addHeaderToCollection(){
   theDCCheader.setBX(bx_);
   // this requires DataFormats/EcalRawData V01-01-12;
   // rolling forward temporarily to allow development within CMSSW_1_8_x
-  theDCCheader.setOrbit(orbitCounter_);
+  //theDCCheader.setOrbit(orbitCounter_);
   theDCCheader.setErrors(dccErrors_);
   theDCCheader.setSelectiveReadout(sr_);
   theDCCheader.setZeroSuppression(zs_);
