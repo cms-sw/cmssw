@@ -8,8 +8,8 @@
  *  trigger for single objects of the same physics type, cutting on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2006/10/04 16:02:42 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/03/26 11:31:42 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -22,7 +22,7 @@
 // class declaration
 //
 
-template<typename T>
+template<typename T, int Tid>
 class HLTSinglet : public HLTFilter {
 
    public:

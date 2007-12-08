@@ -9,8 +9,8 @@
  *  for single objects of the same physics type, allowing to cut on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2007/03/26 11:31:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/31 14:14:30 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -26,7 +26,7 @@
 // class declaration
 //
 
-template<typename T>
+template<typename T, int Tid>
 class HLTSmartSinglet : public HLTFilter {
 
    public:

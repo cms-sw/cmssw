@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 11:31:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/26 11:39:20 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -17,6 +17,9 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include<cmath>
@@ -24,8 +27,8 @@
 //
 // constructors and destructor
 //
-template<typename T>
-HLTGlobalSums<T>::HLTGlobalSums(const edm::ParameterSet& iConfig) :
+template<typename T, int Tid>
+HLTGlobalSums<T,Tid>::HLTGlobalSums(const edm::ParameterSet& iConfig) :
   inputTag_   (iConfig.template getParameter<edm::InputTag>("inputTag")),
   observable_ (iConfig.template getParameter<std::string>("observable")),
   min_        (iConfig.template getParameter<double>("Min")),
@@ -40,10 +43,11 @@ HLTGlobalSums<T>::HLTGlobalSums(const edm::ParameterSet& iConfig) :
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
+   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
-template<typename T>
-HLTGlobalSums<T>::~HLTGlobalSums()
+template<typename T, int Tid>
+HLTGlobalSums<T,Tid>::~HLTGlobalSums()
 {
 }
 
@@ -52,13 +56,14 @@ HLTGlobalSums<T>::~HLTGlobalSums()
 //
 
 // ------------ method called to produce the data  ------------
-template<typename T> 
+template<typename T, int Tid> 
 bool
-HLTGlobalSums<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTGlobalSums<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace edm;
    using namespace reco;
+   using namespace trigger;
 
    typedef vector<T> TCollection;
    typedef Ref<TCollection> TRef;
@@ -69,9 +74,12 @@ HLTGlobalSums<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // The filter object
    auto_ptr<HLTFilterObjectWithRefs>
-     filterobject (new HLTFilterObjectWithRefs(path(),module()));
+     filterobjectOLD (new HLTFilterObjectWithRefs(path(),module()));
+   auto_ptr<TriggerFilterObjectWithRefs>
+     filterobject (new TriggerFilterObjectWithRefs(path(),module()));
    // Ref to Candidate object to be recorded in filter object
-   RefToBase<Candidate> ref;
+   RefToBase<Candidate> refOLD;
+   TRef ref;
 
 
    // get hold of MET product from Event
@@ -113,8 +121,10 @@ HLTGlobalSums<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( ( (min_<0.0) || (min_<=value) ) &&
 	  ( (max_<0.0) || (value<=max_) ) ) {
        n++;
-       ref=RefToBase<Candidate>(TRef(objects,distance(ibegin,iter)));
-       filterobject->putParticle(ref);
+       refOLD=RefToBase<Candidate>(TRef(objects,distance(ibegin,iter)));
+       filterobjectOLD->putParticle(refOLD);
+       ref=TRef(objects,distance(ibegin,iter));
+       filterobject->addObject(Tid,ref);
      }
 
    }

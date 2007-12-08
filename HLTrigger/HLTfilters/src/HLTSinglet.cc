@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 11:31:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/26 11:39:20 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -17,13 +17,16 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
 // constructors and destructor
 //
-template<typename T>
-HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig) :
+template<typename T, int Tid>
+HLTSinglet<T,Tid>::HLTSinglet(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
   min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
   max_Eta_  (iConfig.template getParameter<double>       ("MaxEta"  )),
@@ -35,10 +38,11 @@ HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig) :
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
+   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
-template<typename T>
-HLTSinglet<T>::~HLTSinglet()
+template<typename T, int Tid>
+HLTSinglet<T,Tid>::~HLTSinglet()
 {
 }
 
@@ -47,13 +51,14 @@ HLTSinglet<T>::~HLTSinglet()
 //
 
 // ------------ method called to produce the data  ------------
-template<typename T> 
+template<typename T, int Tid> 
 bool
-HLTSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace edm;
    using namespace reco;
+   using namespace trigger;
 
    typedef vector<T> TCollection;
    typedef Ref<TCollection> TRef;
@@ -64,9 +69,12 @@ HLTSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // The filter object
    auto_ptr<HLTFilterObjectWithRefs>
-     filterobject (new HLTFilterObjectWithRefs(path(),module()));
+     filterobjectOLD (new HLTFilterObjectWithRefs(path(),module()));
+   auto_ptr<TriggerFilterObjectWithRefs>
+     filterobject (new TriggerFilterObjectWithRefs(path(),module()));
    // Ref to Candidate object to be recorded in filter object
-   RefToBase<Candidate> ref;
+   RefToBase<Candidate> refOLD;
+   TRef ref;
 
 
    // get hold of collection of objects
@@ -80,8 +88,10 @@ HLTSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( (i->pt() >= min_Pt_) && 
 	  ( (max_Eta_ < 0.0) || (abs(i->eta()) <= max_Eta_) ) ) {
        n++;
-       ref=RefToBase<Candidate>(TRef(objects,distance(objects->begin(),i)));
-       filterobject->putParticle(ref);
+       refOLD=RefToBase<Candidate>(TRef(objects,distance(objects->begin(),i)));
+       filterobjectOLD->putParticle(refOLD);
+       ref=TRef(objects,distance(objects->begin(),i));
+       filterobject->addObject(Tid,ref);
      }
    }
 
@@ -89,6 +99,7 @@ HLTSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    bool accept(n>=min_N_);
 
    // put filter object into the Event
+   iEvent.put(filterobjectOLD);
    iEvent.put(filterobject);
 
    return accept;

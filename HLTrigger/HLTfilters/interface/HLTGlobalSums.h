@@ -8,8 +8,8 @@
  *  global sums such as the scalar sum of Et (a.k.a. H_T), available
  *  in the T=CaloMET or T=MET object.
  *
- *  $Date: 2007/03/09 08:34:09 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/26 11:31:42 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -22,7 +22,7 @@
 // class declaration
 //
 
-template<typename T>
+template<typename T, int Tid>
 class HLTGlobalSums : public HLTFilter {
 
    public:

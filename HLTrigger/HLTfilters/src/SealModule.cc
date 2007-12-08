@@ -22,20 +22,27 @@
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+
+using namespace reco;
+using namespace trigger;
+
 #include "HLTrigger/HLTfilters/interface/HLTSinglet.h"
 #include "HLTrigger/HLTfilters/src/HLTSinglet.cc"
 
 // template HLTSinglet<reco::Electron>             ;
 
-typedef HLTSinglet<reco::RecoEcalCandidate>    HLT1Photon   ;
-typedef HLTSinglet<reco::Electron> HLT1Electron ;
-typedef HLTSinglet<reco::RecoChargedCandidate> HLT1Muon     ;
-typedef HLTSinglet<reco::CaloJet>  HLT1Tau      ; // taus are stored as jets
-typedef HLTSinglet<reco::CaloJet>  HLT1CaloJet  ;
-typedef HLTSinglet<reco::CaloMET>  HLT1CaloMET  ;
-typedef HLTSinglet<reco::MET>      HLT1CaloHT   ;
-typedef HLTSinglet<reco::RecoChargedCandidate> HLT1Track;
-typedef HLTSinglet<reco::RecoEcalCandidate>    HLT1SuperCluster;
+typedef HLTSinglet<RecoEcalCandidate  ,TriggerPhoton> HLT1Photon   ;
+typedef HLTSinglet<Electron         ,TriggerElectron> HLT1Electron ;
+typedef HLTSinglet<RecoChargedCandidate ,TriggerMuon> HLT1Muon     ;
+typedef HLTSinglet<CaloJet               ,TriggerTau> HLT1Tau      ;
+typedef HLTSinglet<CaloJet               ,TriggerJet> HLT1CaloJet  ;
+typedef HLTSinglet<CaloJet              ,TriggerBJet> HLT1CaloBJet ;
+typedef HLTSinglet<CompositeCandidate             ,0> HLT1Composite;
+typedef HLTSinglet<CaloMET               ,TriggerMET> HLT1CaloMET  ;
+typedef HLTSinglet<MET                    ,TriggerHT> HLT1CaloHT   ;
+typedef HLTSinglet<RecoChargedCandidate,TriggerTrack> HLT1Track    ;
+typedef HLTSinglet<RecoEcalCandidate, TriggerCluster> HLT1Cluster  ;
 
 
 #include "HLTrigger/HLTfilters/interface/HLTSmartSinglet.h"
@@ -43,15 +50,17 @@ typedef HLTSinglet<reco::RecoEcalCandidate>    HLT1SuperCluster;
 
 // template HLTSmartSinglet<reco::Electron>             ;
 
-typedef HLTSmartSinglet<reco::RecoEcalCandidate>    HLT1SmartPhoton   ;
-typedef HLTSmartSinglet<reco::Electron> HLT1SmartElectron ;
-typedef HLTSmartSinglet<reco::RecoChargedCandidate> HLT1SmartMuon     ;
-typedef HLTSmartSinglet<reco::CaloJet>  HLT1SmartTau      ; // taus are stored as jets
-typedef HLTSmartSinglet<reco::CaloJet>  HLT1SmartCaloJet  ;
-typedef HLTSmartSinglet<reco::CaloMET>  HLT1SmartCaloMET  ;
-typedef HLTSmartSinglet<reco::MET>      HLT1SmartCaloHT   ;
-typedef HLTSmartSinglet<reco::RecoChargedCandidate> HLT1SmartTrack;
-typedef HLTSmartSinglet<reco::RecoEcalCandidate>    HLT1SmartSuperCluster;
+typedef HLTSmartSinglet<RecoEcalCandidate  ,TriggerPhoton> HLT1SmartPhoton   ;
+typedef HLTSmartSinglet<Electron         ,TriggerElectron> HLT1SmartElectron ;
+typedef HLTSmartSinglet<RecoChargedCandidate ,TriggerMuon> HLT1SmartMuon     ;
+typedef HLTSmartSinglet<CaloJet               ,TriggerTau> HLT1SmartTau      ;
+typedef HLTSmartSinglet<CaloJet               ,TriggerJet> HLT1SmartCaloJet  ;
+typedef HLTSmartSinglet<CaloJet              ,TriggerBJet> HLT1SmartCaloBJet ;
+typedef HLTSmartSinglet<CompositeCandidate             ,0> HLT1SmartComposite;
+typedef HLTSmartSinglet<CaloMET               ,TriggerMET> HLT1SmartCaloMET  ;
+typedef HLTSmartSinglet<MET                    ,TriggerHT> HLT1SmartCaloHT   ;
+typedef HLTSmartSinglet<RecoChargedCandidate,TriggerTrack> HLT1SmartTrack    ;
+typedef HLTSmartSinglet<RecoEcalCandidate ,TriggerCluster> HLT1SmartCluster  ;
 
 
 #include "HLTrigger/HLTfilters/interface/HLTGlobalSums.h"
@@ -59,8 +68,8 @@ typedef HLTSmartSinglet<reco::RecoEcalCandidate>    HLT1SmartSuperCluster;
 
 //
 
-typedef HLTGlobalSums<reco::CaloMET>  HLTGlobalSumMET  ;
-typedef HLTGlobalSums<reco::MET>      HLTGlobalSumHT   ;
+typedef HLTGlobalSums<CaloMET,TriggerMET> HLTGlobalSumMET  ;
+typedef HLTGlobalSums<MET     ,TriggerHT> HLTGlobalSumHT   ;
 
 
 DEFINE_FWK_MODULE(HLTBool);
@@ -75,20 +84,24 @@ DEFINE_FWK_MODULE(HLT1Photon);
 DEFINE_FWK_MODULE(HLT1Muon);
 DEFINE_FWK_MODULE(HLT1Tau);
 DEFINE_FWK_MODULE(HLT1CaloJet);
+DEFINE_FWK_MODULE(HLT1CaloBJet);
+DEFINE_FWK_MODULE(HLT1Composite);
 DEFINE_FWK_MODULE(HLT1CaloMET);
 DEFINE_FWK_MODULE(HLT1CaloHT);
 DEFINE_FWK_MODULE(HLT1Track);
-DEFINE_FWK_MODULE(HLT1SuperCluster);
+DEFINE_FWK_MODULE(HLT1Cluster);
 
 DEFINE_FWK_MODULE(HLT1SmartElectron);
 DEFINE_FWK_MODULE(HLT1SmartPhoton);
 DEFINE_FWK_MODULE(HLT1SmartMuon);
 DEFINE_FWK_MODULE(HLT1SmartTau);
 DEFINE_FWK_MODULE(HLT1SmartCaloJet);
+DEFINE_FWK_MODULE(HLT1SmartCaloBJet);
+DEFINE_FWK_MODULE(HLT1SmartComposite);
 DEFINE_FWK_MODULE(HLT1SmartCaloMET);
 DEFINE_FWK_MODULE(HLT1SmartCaloHT);
 DEFINE_FWK_MODULE(HLT1SmartTrack);
-DEFINE_FWK_MODULE(HLT1SmartSuperCluster);
+DEFINE_FWK_MODULE(HLT1SmartCluster);
 
 DEFINE_FWK_MODULE(HLTGlobalSumMET);
 DEFINE_FWK_MODULE(HLTGlobalSumHT);
