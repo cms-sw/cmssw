@@ -24,11 +24,7 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include <DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h>
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include <DataFormats/MuonDetId/interface/DTChamberId.h>
+
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
