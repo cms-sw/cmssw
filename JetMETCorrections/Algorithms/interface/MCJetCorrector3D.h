@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 1, 2007
-// $Id: MCJetCorrector3D.h,v 1.1 2007/10/03 23:29:50 fedor Exp $
+// $Id: MCJetCorrector3D.h,v 1.1 2007/11/14 00:03:31 fedor Exp $
 //
 // MC 3D monolithic Jet Corrector
 //

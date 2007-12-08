@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: MCJetCorrector3D.cc,v 1.1 2007/10/03 23:29:51 fedor Exp $
+// $Id: MCJetCorrector3D.cc,v 1.1 2007/11/14 00:03:32 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -34,5 +34,5 @@ double MCJetCorrector3D::correction (const LorentzVector& fJet) const {
 
 double MCJetCorrector3D::correction (const reco::Jet& fJet) const {
   const reco::CaloJet& caloJet = dynamic_cast <const reco::CaloJet&> (fJet); // applicable to CaloJets only
-  return mSimpleCorrector->correctionPtEtaPhiEEmfraction (caloJet.pt(), caloJet.eta(), caloJet.phi(), caloJet.energy(), caloJet.emEnergyFraction());
+  return mSimpleCorrector->correctionPtEtaEmfraction (caloJet.pt(), caloJet.eta(), caloJet.emEnergyFraction());
 }

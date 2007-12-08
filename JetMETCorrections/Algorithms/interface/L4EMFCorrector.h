@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: L4EMFCorrector.h,v 1.3 2007/03/30 23:47:55 fedor Exp $
+// $Id: L4EMFCorrector.h,v 1.1 2007/11/14 00:03:30 fedor Exp $
 //
 // Level4 EMF Corrector
 //
@@ -26,8 +26,8 @@ class L4EMFCorrector : public JetCorrector {
   /// apply correction using Jet information only
   virtual double correction (const LorentzVector& fJet) const;
 
-  /// apply correction using all event information !!!->this is huck to retrofit 1.6.X
-   virtual double correction (const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const;
+  /// apply correction using Jet information only
+  virtual double correction (const reco::Jet& fJet) const;
 
   /// if correction needs event information
    virtual bool eventRequired () const {return false;} 

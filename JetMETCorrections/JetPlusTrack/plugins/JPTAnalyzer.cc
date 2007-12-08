@@ -20,7 +20,7 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "CLHEP/HepPDT/DefaultConfig.hh"
+//#include "CLHEP/HepPDT/DefaultConfig.hh"
 //
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -35,9 +35,9 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 //jets
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetfwd.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 //
 // muons and tracks

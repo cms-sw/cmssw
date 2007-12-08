@@ -1,10 +1,10 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: L4EMFCorrector.cc,v 1.5 2007/03/30 23:47:55 fedor Exp $
+// $Id: L4EMFCorrector.cc,v 1.1 2007/11/14 00:03:32 fedor Exp $
 //
 // L4 EMF Corrector
 //
-#include "JetMETCorrections/MCJet/interface/L4EMFCorrector.h"
+#include "JetMETCorrections/Algorithms/interface/L4EMFCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleL4EMFCorrector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,7 +17,7 @@ using namespace std;
 
 
 L4EMFCorrector::L4EMFCorrector (const edm::ParameterSet& fConfig) {
- std::string file="JetMETCorrections/MCJet/data/"+fConfig.getParameter <std::string> ("tagName")+".txt";
+ std::string file="CondFormats/JetMETObjects/data/"+fConfig.getParameter <std::string> ("tagName")+".txt";
  edm::FileInPath f1(file);
  mSimpleCorrector = new SimpleL4EMFCorrector (f1.fullPath());
 }
@@ -31,7 +31,7 @@ double L4EMFCorrector::correction (const LorentzVector& fJet) const {
   return 1;
 }
 
-double L4EMFCorrector::correction (const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const {
+double L4EMFCorrector::correction (const reco::Jet& fJet) const {
   const reco::CaloJet& caloJet = dynamic_cast <const reco::CaloJet&> (fJet); // applicable to CaloJets only
   return mSimpleCorrector->correctionPtEtaEmfraction (caloJet.pt(), caloJet.eta(), caloJet.emEnergyFraction());
 }
