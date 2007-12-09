@@ -11,6 +11,7 @@
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
+#include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
  
 //ROOT
@@ -35,6 +36,7 @@ public:
 
 public:
 
+  void                initRun(G4ParticleTable * theParticleTable);
   int                 getHits(G4Step * aStep);
   G4ThreeVector       getPosHit(int i);
   int                 getDepth(int i);
@@ -77,9 +79,13 @@ private:
   int                 yOffset, yMultiplier, yScale;
   int                 zOffset, zMultiplier, zScale;
 
-  double              probMax;
+  double              probMax, backProb;
   double              dphi, rMin, rMax;
   std::vector<double> gpar;
+
+  int                 emPDG, epPDG, gammaPDG;
+  int                 pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
+  int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
 
   int                 nHit;
   std::vector<Hit>    hit;

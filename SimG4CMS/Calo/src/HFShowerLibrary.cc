@@ -33,6 +33,7 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   edm::ParameterSet m_HS= p.getParameter<edm::ParameterSet>("HFShowerLibrary");
   edm::FileInPath fp       = m_HS.getParameter<edm::FileInPath>("FileName");
   std::string pTreeName    = fp.fullPath();
+  backProb                 = m_HS.getParameter<double>("BackProbability");  
   std::string emName       = m_HS.getParameter<std::string>("TreeEMID");
   std::string hadName      = m_HS.getParameter<std::string>("TreeHadID");
   std::string branchEvInfo = m_HS.getUntrackedParameter<std::string>("BranchEvt","HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo");
@@ -148,7 +149,8 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 			     << " Assume x, y, z are not in packed form";
   }     
   edm::LogInfo("HFShower") << "HFShowerLibrary: Maximum probability cut off " 
-			   << probMax;
+			   << probMax << "  Back propagation of light prob. "
+                           << backProb ;
   
   G4String attribute = "ReadOutName";
   G4String value     = name;
@@ -194,6 +196,9 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   }
   
   fibre = new HFFibre(cpv);
+  emPDG = epPDG = gammaPDG = 0;
+  pi0PDG = etaPDG = nuePDG = numuPDG = nutauPDG= 0;
+  anuePDG= anumuPDG = anutauPDG = geantinoPDG = 0;
 }
 
 HFShowerLibrary::~HFShowerLibrary() {
@@ -201,39 +206,87 @@ HFShowerLibrary::~HFShowerLibrary() {
   if (fibre)  delete   fibre;  fibre  = 0;
 }
 
+void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
+
+  G4String parName;
+  emPDG = theParticleTable->FindParticle(parName="e-")->GetPDGEncoding();
+  epPDG = theParticleTable->FindParticle(parName="e+")->GetPDGEncoding();
+  gammaPDG = theParticleTable->FindParticle(parName="gamma")->GetPDGEncoding();
+  pi0PDG = theParticleTable->FindParticle(parName="pi0")->GetPDGEncoding();
+  etaPDG = theParticleTable->FindParticle(parName="eta")->GetPDGEncoding();
+  nuePDG = theParticleTable->FindParticle(parName="nu_e")->GetPDGEncoding();
+  numuPDG = theParticleTable->FindParticle(parName="nu_mu")->GetPDGEncoding();
+  nutauPDG= theParticleTable->FindParticle(parName="nu_tau")->GetPDGEncoding();
+  anuePDG = theParticleTable->FindParticle(parName="anti_nu_e")->GetPDGEncoding();
+  anumuPDG= theParticleTable->FindParticle(parName="anti_nu_mu")->GetPDGEncoding();
+  anutauPDG= theParticleTable->FindParticle(parName="anti_nu_tau")->GetPDGEncoding();
+  geantinoPDG= theParticleTable->FindParticle(parName="geantino")->GetPDGEncoding();
+  LogDebug("HFShower") << "HFShowerLibrary: Particle codes for e- = " << emPDG
+		       << ", e+ = " << epPDG << ", gamma = " << gammaPDG 
+		       << ", pi0 = " << pi0PDG << ", eta = " << etaPDG
+		       << ", geantino = " << geantinoPDG << "\n        nu_e = "
+		       << nuePDG << ", nu_mu = " << numuPDG << ", nu_tau = "
+		       << nutauPDG << ", anti_nu_e = " << anuePDG
+		       << ", anti_nu_mu = " << anumuPDG << ", anti_nu_tau = "
+		       << anutauPDG;
+}
+
 int HFShowerLibrary::getHits(G4Step * aStep) {
+
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
-  G4Track *     track    = aStep->GetTrack();   
+  G4Track *     track    = aStep->GetTrack();
+  // Get Z-direction 
+  const G4DynamicParticle *aParticle = track->GetDynamicParticle();
+  G4ThreeVector momDir = aParticle->GetMomentumDirection();
+  //  double mom = aParticle->GetTotalMomentum();
+
   G4ThreeVector hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
+  int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
   double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
   double pin    = preStepPoint->GetTotalEnergy();
+  
+  double px   = momDir.x(); 
+  double py   = momDir.y(); 
+  double pz   = momDir.z(); 
+
+  double xint = hitPoint.x(); 
+  double yint = hitPoint.y(); 
+  double zint = hitPoint.z(); 
+
+  // if particle moves from interaction point or "backwards (halo)
+  int backward = 0;
+  if(pz * zint < 0.) backward = 1;
+  
+  double sphi   = sin(momDir.phi());
+  double cphi   = cos(momDir.phi());
+  double ctheta = cos(momDir.theta());
+  double stheta = sin(momDir.theta());
+ 
+  /*  // Obsolete piece, only valid if particle comes from IP...
   double sphi   = sin(hitPoint.phi());
   double cphi   = cos(hitPoint.phi());
   double ctheta = cos(hitPoint.theta());
   double stheta = sin(hitPoint.theta());
-
-  double xint =   hitPoint.x(); 
-  double yint =   hitPoint.y(); 
-  double zint =   hitPoint.z(); 
+  */
 
   LogDebug("HFShower") << "HFShowerLibrary: getHits " << partType
-		       << " of energy " << pin/GeV << " GeV" 
-                       << " Pos x,y,z = " << xint << "," << yint << "," 
+		       << " of energy " << pin/GeV << " GeV"
+		       << "  dir.orts " << px << ", " << py << ", " << pz
+                       << "  Pos x,y,z = " << xint << "," << yint << "," 
                        << zint << "   sphi,cphi,stheta,ctheta  =" 
                        << sphi << "," << cphi << ","   
                        << stheta << "," << ctheta ; 
     
                        
-  if (partType == "pi0" || partType == "eta" || partType == "nu_e" ||
-      partType == "nu_mu" || partType == "nu_tau" || partType == "anti_nu_e" ||
-      partType == "anti_nu_mu" || partType == "anti_nu_tau" || 
-      partType == "geantino") {
+  if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
+      parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
+      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) {
     return -1;
-  } else if (partType == "e-" || partType == "e+" || partType == "gamma" ) {
+  } else if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
     if (pin<pmom[nMomBin-1]) {
       interpolate(0, pin);
     } else {
@@ -253,12 +306,18 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
   }
   for (int i = 0; i < npe; i++) {
     LogDebug("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i];
-    double zv = std::abs(pe[i].z());
+    double zv = std::abs(pe[i].z()); // abs local z  
     if (zv <= gpar[1] && pe[i].lambda() > 0 &&
 	(pe[i].z() >= 0 || pe[i].z() <= -gpar[0])) {
       int depth = 1;
-      if (pe[i].z() < 0) depth = 2;
-
+      if(backward == 0) {            // fully valid only for "front" particles
+	if (pe[i].z() < 0) depth = 2;// with "front"-simulated shower lib.
+      }
+      else {                         // for "backward" particles - almost equal
+	double r = G4UniformRand();  // share between L and S fibers
+        if(r > 0.5) depth = 2;
+      } 
+      
 
       // Updated coordinate transformation from local
       //  back to global using two Euler angles: phi and theta
@@ -269,18 +328,10 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
       double yy = pex*ctheta*sphi + pey*cphi + zv*stheta*sphi;
       double zz = -pex*stheta + zv*ctheta;
 
-      // Original transformation
-      /*
-      double xx = (pe[i].x)*(ctheta + (1.-ctheta)*sphi*sphi) -
-	(pe[i].y)*sphi*cphi*(1.-ctheta) + zv*cphi*stheta;
-      double yy = (pe[i].y)*(ctheta + (1.-ctheta)*cphi*cphi) -
-	(pe[i].x)*sphi*cphi*(1.-ctheta) + zv*sphi*stheta;
-      double zz =-(pe[i].x)*cphi*stheta + (pe[i].y)*sphi*stheta +zv*ctheta;
-      */
-
       G4ThreeVector pos = hitPoint + G4ThreeVector(xx,yy,zz);
 
-      zv = gpar[1] - zv;
+      if(backward == 0) zv = gpar[1] - zv;      // remaining distance to PMT !
+
       double r  = pos.perp();
       double p  = fibre->attLength(pe[i].lambda());
       double fi = pos.phi();
@@ -290,29 +341,34 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
       double dfi   = ((isect*2-1)*dphi - fi);
       if (dfi < 0) dfi = -dfi;
       double dfir  = r * sin(dfi);
-      LogDebug("HFShower") << "HFShowerLibrary: Position " << xx << ", " << yy 
+      LogDebug("HFShower") << "HFShowerLibrary: Position shift " << xx 
+			   << ", " << yy 
 			   << ", "  << zz << ": " << pos << " R " << r 
 			   << " Phi " << fi << " Section " << isect 
 			   << " R*Dfi " << dfir;
       zz           = ((pos.z()) >= 0 ? (pos.z()) : -(pos.z()));
       double r1    = G4UniformRand();
       double r2    = G4UniformRand();
-      LogDebug("HFShower") << "                   rLimits " << rInside(r)
+      double r3    = -9999.;
+      if(backward) r3 = G4UniformRand();
+
+      LogDebug("HFShower") << "  rLimits " << rInside(r)
 			   << " attenuation " << r1 <<":" << exp(-p*zv) 
-			   << " r2 " << r2 << " rDfi " << gpar[5] << " zz " 
+			   << " r2 " << r2 << " r3 " << r3 << " rDfi "  
+                           << gpar[5] << " zz " 
 			   << zz << " zLim " << gpar[4] << ":" 
 			   << gpar[4]+gpar[1];
-
       LogDebug("HFShower") << "  rInside(r) :" << rInside(r) 
                            << "  r1 <= exp(-p*zv) :" <<  (r1 <= exp(-p*zv))
-                           << "  r2 <= probMax :" << (r2 <= probMax)
-                           << "  dfir > gpar[5] :" << (dfir > gpar[5])
-                           << "  zz >= gpar[4] :" <<  (zz >= gpar[4])
+                           << "  r2 <= probMax :"    <<  (r2 <= probMax)
+			   << "  r3 <= backProb :"   <<  (r3 <= backProb) 
+                           << "  dfir > gpar[5] :"   <<  (dfir > gpar[5])
+                           << "  zz >= gpar[4] :"    <<  (zz >= gpar[4])
 			   << "  zz <= gpar[4]+gpar[1] :" 
 			   << (zz <= gpar[4]+gpar[1]);   
 
       if (rInside(r) && r1 <= exp(-p*zv) && r2 <= probMax && dfir > gpar[5] &&
-	  zz >= gpar[4] && zz <= gpar[4]+gpar[1]) {
+	  zz >= gpar[4] && zz <= gpar[4]+gpar[1] && r3 <= backProb ){
 	hit[nHit].position = pos;
 	hit[nHit].depth    = depth;
 	hit[nHit].time     = (tSlice + (pe[i].t()));

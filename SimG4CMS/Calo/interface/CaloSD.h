@@ -79,6 +79,7 @@ protected:
   virtual void  update(const EndOfTrack * trk);
   virtual void  update(const ::EndOfEvent *);
   virtual void  clearHits();
+  virtual void  initRun();
 
 private:
 
@@ -117,11 +118,7 @@ protected:
   double                 correctT;
   double                 kmaxIon, kmaxNeutron, kmaxProton;
 
-  G4int emPDG;
-  G4int epPDG;
-  G4int gammaPDG;
-  G4int mumPDG;
-  G4int mupPDG; 
+  G4int                  emPDG, epPDG, gammaPDG;
 
 private:
 

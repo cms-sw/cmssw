@@ -31,10 +31,14 @@ public:
   HCalSD(G4String , const DDCompactView &, SensitiveDetectorCatalog &,
 	 edm::ParameterSet const &, const SimTrackManager*);
   virtual ~HCalSD();
-  virtual bool ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
-  virtual double getEnergyDeposit(G4Step* );
+  virtual bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
+  virtual double   getEnergyDeposit(G4Step* );
   virtual uint32_t setDetUnitId(G4Step* step);
-  void setNumberingScheme(HcalNumberingScheme* scheme);
+  void             setNumberingScheme(HcalNumberingScheme* scheme);
+
+protected:
+
+  virtual void     initRun();
 
 private:    
 
@@ -61,6 +65,7 @@ private:
   bool                  useBirk;
   double                birk1, birk2, betaThr;
   bool                  useHF, useShowerLibrary, useParam, usePMTHit;
+  G4int                 mumPDG, mupPDG; 
   std::vector<double>   layer0wt;
   std::vector<G4String> hfNames;
   std::vector<int>      hfLevels;

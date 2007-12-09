@@ -16,6 +16,7 @@
 
 #include "G4Step.hh"
 #include "G4Track.hh"
+#include "G4ParticleTable.hh"
 
 HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
@@ -164,6 +165,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 			  << " = " << name << ":";
   for (unsigned int i=0; i<matNames.size(); i++)
     edm::LogInfo("HcalSim") << "HCalSD: (" << i << ") " << matNames[i];
+
+  mumPDG = mupPDG = 0;
 }
 
 HCalSD::~HCalSD() { 
@@ -290,6 +293,18 @@ void HCalSD::setNumberingScheme(HcalNumberingScheme* scheme) {
     if (numberingScheme) delete numberingScheme;
     numberingScheme = scheme;
   }
+}
+
+void HCalSD::initRun() {
+
+  G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
+  G4String          particleName;
+  mumPDG = theParticleTable->FindParticle(particleName="mu-")->GetPDGEncoding();
+  mupPDG = theParticleTable->FindParticle(particleName="mu+")->GetPDGEncoding();
+  LogDebug("HcalSim") << "HCalSD: Particle code for mu- = " << mumPDG
+		      << " for mu+ = " << mupPDG;
+
+  if (showerLibrary) showerLibrary->initRun(theParticleTable);
 }
 
 uint32_t HCalSD::setDetUnitId (int det, G4ThreeVector pos, int depth, 
