@@ -197,6 +197,19 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	      RPCDetId rollId = (*r)->id();
 	      RPCGeomServ RPCname(rollId);
 	      std::string nameRoll = RPCname.name();
+
+	      if(rollId.region()==0){
+		int first = nameRoll.find("W");
+		int second = nameRoll.substr(first,nameRoll.npos).find("/");
+		std::string wheel=nameRoll.substr(first,second-1);		
+		first = nameRoll.find("/");
+		second = nameRoll.substr(first,nameRoll.npos).rfind("/");
+		std::string rpc=nameRoll.substr(first+1,second-1);		
+		first = nameRoll.rfind("/");
+		std::string partition=nameRoll.substr(first+1);
+		nameRoll=wheel+"_"+rpc+"_"+partition;
+	      }
+
 	      _idList.push_back(nameRoll);
 	      std::cout<<"RPC -- Candidate"<<nameRoll<<std::endl;
 	      char detUnitLabel[128];
