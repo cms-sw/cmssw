@@ -94,7 +94,7 @@ HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup
 
   std::vector<l1extra::L1EmParticleRef > l1EGIso;       
   L1SeedOutput->getObjects(TriggerL1IsoEG, l1EGIso);
-  std::cout<<"L1EGIso size: "<<l1EGIso.size()<<std::endl;
+  // std::cout<<"L1EGIso size: "<<l1EGIso.size()<<std::endl;
 
   for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoIsolecalcands->begin(); recoecalcand!=recoIsolecalcands->end(); recoecalcand++) {
 
@@ -150,7 +150,7 @@ HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup
 
   std::vector<l1extra::L1EmParticleRef > l1EGNonIso;       
   L1SeedOutput->getObjects(TriggerL1NoIsoEG, l1EGNonIso);
-  std::cout<<"L1EGNonIso size: "<<l1EGNonIso.size()<<std::endl;
+  //std::cout<<"L1EGNonIso size: "<<l1EGNonIso.size()<<std::endl;
   for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoNonIsolecalcands->begin(); recoecalcand!=recoNonIsolecalcands->end(); recoecalcand++) {
 
     bool MATCHEDSC = false;
