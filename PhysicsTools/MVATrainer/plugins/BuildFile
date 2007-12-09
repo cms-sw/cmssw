@@ -2,6 +2,6 @@
 <use name=PhysicsTools/MVAComputer>
 <use name=PhysicsTools/MVATrainer>
 
-<library file="module.cc" name="PhysicsToolsJetTagMVATrainerPlugins">
+<library file="module.cc" name="PhysicsToolsMVATrainerPlugins">
   <flags EDM_PLUGIN="1">
 </library>
