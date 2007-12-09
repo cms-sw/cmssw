@@ -1,10 +1,65 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <iomanip>
 
 using namespace reco;
 using namespace std;
+
+
+PFCandidate::PFCandidate() : 
+  particleId_( X ),
+  ecalEnergy_(-1),
+  hcalEnergy_(-1),
+  ps1Energy_(-1),
+  ps2Energy_(-1),
+  flags_(0)  {}
+
+
+PFCandidate::PFCandidate( Charge charge, 
+			  const LorentzVector & p4, 
+			  ParticleType particleId, 
+			  reco::PFBlockRef blockRef ) : 
+  
+  LeafCandidate(charge, p4), 
+  particleId_(particleId), 
+  blockRef_(blockRef), 
+  ecalEnergy_(0),
+  hcalEnergy_(0),
+  ps1Energy_(-1),
+  ps2Energy_(-1),
+  flags_(0)
+  /*       ,elementIndices_(elementIndices)  */ 
+{
+
+  // proceed with various consistency checks
+
+  // charged candidate: track ref and charge must be non null
+  if(  particleId_ == h || 
+       particleId_ == e || 
+       particleId_ == mu ) {
+    
+    if( charge == 0 ) {
+      string err;
+      err+="Attempt to construct a charged PFCandidate with a zero charge";
+      throw cms::Exception("InconsistentValue",
+			   err.c_str() );
+    } 
+  }
+  else {
+    if( charge ) { 
+      string err;
+      err += "Attempt to construct a neutral PFCandidate ";
+      err += "with a non-zero charge";
+      throw cms::Exception("InconsistentValue",
+			   err.c_str() );
+    } 
+  }
+}
 
 
 PFCandidate * PFCandidate::clone() const {
@@ -12,26 +67,68 @@ PFCandidate * PFCandidate::clone() const {
 }
 
 
-// reco::TrackRef PFCandidate::trackRef() const {
+void PFCandidate::setTrackRef(const reco::TrackRef& ref) {
+  if(!charge()) {
+    string err;
+    err += "PFCandidate::setTrackRef: this is a neutral candidate! ";
+    err += "particleId_=";
+    char num[4];
+    sprintf( num, "%d", particleId_);
+    err += num;
+    
+    throw cms::Exception("InconsistentReference",
+			 err.c_str() );
+  }
+}
 
-//   const edm::OwnVector< reco::PFBlockElement >& elements
-//     = blockRef()->elements();
+
+void PFCandidate::setMuonRef(const reco::MuonRef& ref) {
+
+  if( particleId_ != mu ) {
+    string err;
+    err += "PFCandidate::setMuonRef: this is not a muon! particleId_=";
+    char num[4];
+    sprintf( num, "%d", particleId_);
+    err += num;
+
+    throw cms::Exception("InconsistentReference",
+			 err.c_str() );
+  }
+  else if(  trackRef_ != muonRef_->track() ) {
+    string err;
+    err += "PFCandidate::setMuonRef: inconsistent track references!";
+    
+    throw cms::Exception("InconsistentReference",
+			 err.c_str() );
+  }
+    
+  muonRef_ = ref;
+}
+
+
+void PFCandidate::rescaleMomentum( double rescaleFactor ) {
+  LorentzVector rescaledp4 = p4();
+  rescaledp4 *= rescaleFactor;
+  setP4( rescaledp4 );
+}
+
+
+void PFCandidate::setFlag(Flags theFlag, bool value) {
   
-//   unsigned ntracks = 0;
-//   unsigned itrack = 0;
-//   for(unsigned i=0; i<elements.size(); i++ ) {
-//     if( elements[i].type() == PFBlockElement::TRACK) {
-//       itrack = i;
-//       ntracks++;
-//     }
-//   }
-//   assert(ntracks<2);
-  
-//   if(ntracks == 1) 
-//     return elements[itrack].trackRef();
-//   else 
-//     return reco::TrackRef();
-// }
+  if(value)
+    flags_ = flags_ | (1<<theFlag);
+  else 
+    flags_ = flags_ ^ (1<<theFlag);
+}
+
+
+
+bool PFCandidate::flag(Flags theFlag) const {
+
+  return (flags_>>theFlag) & 1;
+}
+
+
 
 
 ostream& reco::operator<<(ostream& out, 
