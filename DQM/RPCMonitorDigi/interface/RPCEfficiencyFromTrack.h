@@ -63,7 +63,7 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       bool EffSaveRootFile;
       int EffSaveRootFileEventsInterval;
       int ringSelection;
-      std::string selectwheel;
+      bool selectwheel;
 
       std::string EffRootFileName;
       std::string TjInput;

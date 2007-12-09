@@ -79,7 +79,7 @@ RPCEfficiencyFromTrack::RPCEfficiencyFromTrack(const edm::ParameterSet& iConfig)
   MeasureBarrel = iConfig.getParameter<bool>("ReadBarrel");
   maxRes = iConfig.getParameter<double>("EfficiencyCut");
   ringSelection = iConfig.getParameter<int>("Ring");
-  selectwheel = iConfig.getParameter<std::string>("SelectWheel");
+  selectwheel = iConfig.getParameter<bool>("SelectWheel");
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", true); 
   EffSaveRootFileEventsInterval  = iConfig.getUntrackedParameter<int>("EffEventsInterval", 1000); 
   EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiencyFromTrack.root"); 
