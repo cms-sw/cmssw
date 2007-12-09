@@ -43,6 +43,7 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include <TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h>
 
 #include <memory>
 #include <cmath>
@@ -141,10 +142,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
     reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
-    TrajectoryStateOnSurface tState = track.innermostMeasurementState();
-    FreeTrajectoryState* fState = tState.freeState();    
-    std::cout << "Traj state"<<fState->position().x()<<"\t"<<fState->position().y()<<"\t"<<fState->position().z() << std::endl;
-
 
     for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
       if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
@@ -153,11 +150,17 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	  RPCDetId rpcId = (*r)->id();
 
-	  const BoundPlane& rpcPlane = (*r)->surface();
+	  if(track.innermostMeasurementState().isValid() && rpcId.ring()==0 && (rpcId.sector()==10 || rpcId.sector()==11)){
+	    const BoundPlane& rpcPlane = (*r)->surface();
+	    const GlobalPoint rpcGp=rpcPlane.toGlobal(LocalPoint(0,0,0));
+	    TrajectoryStateClosestToPoint tcp=track.impactPointTSCP();
+	    const FreeTrajectoryState& fS=tcp.theState();
+	    const FreeTrajectoryState* fState1 = &fS; 
 
-	  //Propagator
-	  if(rpcId.ring()==0 && (rpcId.sector()==10 || rpcId.sector()==11)){
-	    TrajectoryStateOnSurface tsosAtRPC = thePropagator->propagate(*fState,rpcPlane);
+	    //Propagator
+
+	    TrajectoryStateOnSurface tsosAtRPC = thePropagator->propagate(*fState1,rpcPlane);
+
 	    
 	    float rsize = 0.;
 	    float stripl = 0.;
