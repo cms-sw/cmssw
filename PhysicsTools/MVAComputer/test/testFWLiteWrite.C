@@ -1,9 +1,16 @@
+// ***************************************************************************
+// *                                                                         *
+// *        IMPORTANT NOTE: You would never want to do this by hand!         *
+// *                                                                         *
+// * This is for testing purposes only. Use PhysicsTools/MVATrainer instead. *
+// *                                                                         *
+// ***************************************************************************
+
 void testFWLiteWrite()
 {
 	using namespace PhysicsTools::Calibration;
 
 // set up some dummy calibration by hand for testing
-// this should normally be done by the MVATrainer
 
 	MVAComputer calibration;
 

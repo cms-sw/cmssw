@@ -1,3 +1,11 @@
+// ***************************************************************************
+// *                                                                         *
+// *        IMPORTANT NOTE: You would never want to do this by hand!         *
+// *                                                                         *
+// * This is for testing purposes only. Use PhysicsTools/MVATrainer instead. *
+// *                                                                         *
+// ***************************************************************************
+
 #include <iostream>
 #include <vector>
 #include <iterator>
@@ -49,6 +57,14 @@ void testWriteMVAComputerCondDB::analyze(const edm::Event& iEvent,
 void testWriteMVAComputerCondDB::endJob()
 {
 // set up some dummy calibration by hand for testing
+//
+// ***************************************************************************
+// *                                                                         *
+// *        IMPORTANT NOTE: You would never want to do this by hand!         *
+// *                                                                         *
+// * This is for testing purposes only. Use PhysicsTools/MVATrainer instead. *
+// *                                                                         *
+// ***************************************************************************
 
 	MVAComputerContainer *container = new MVAComputerContainer();
 	MVAComputer *computer = &container->add("test");

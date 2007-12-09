@@ -4,6 +4,17 @@ void testFWLiteRead()
 
 	MVAComputer mva("test.mva");
 
+	// note that there is also a TTree interface which can read entries
+	// directly from a ROOT tree. This interface is found in the
+	// class "TreeReader" in this package.
+	//
+	// Note that the TreeReader can also be used for ROOT-like
+	// interfacing of the MVAComputer::eval method, like the
+	// TTree::Fill() method. This might come in handy and might be
+	// simpler to use than the ValueList interface.
+	//
+	// See "MVATrainer/test/testFWLiteEvaluation.C" for an example.
+
 	Variable::ValueList vars;
 	vars.add("toast", 4.4);
 	vars.add("toast", 4.5);

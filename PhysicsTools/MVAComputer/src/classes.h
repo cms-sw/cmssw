@@ -3,6 +3,7 @@
 #include "PhysicsTools/MVAComputer/interface/Variable.h"
 #include "PhysicsTools/MVAComputer/interface/BitSet.h"
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
+#include "PhysicsTools/MVAComputer/interface/TreeReader.h"
 
 using namespace PhysicsTools;
 

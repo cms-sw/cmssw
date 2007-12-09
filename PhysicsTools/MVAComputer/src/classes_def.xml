@@ -7,5 +7,6 @@
 	<class name="PhysicsTools::Variable::ValueList"/>
 	<class name="std::vector&lt;PhysicsTools::Variable::Value&gt;"/>
 	<class name="PhysicsTools::AtomicId"/>
+	<class name="PhysicsTools::TreeReader"/>
 	<function name="PhysicsTools::Calibration::convert"/>
 </lcgdict>
