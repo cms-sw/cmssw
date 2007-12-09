@@ -438,9 +438,9 @@ unsigned long long PixelFEDCard::enabledChannels() {
 // return a 64-bit word with low 36 bits set if a channel is enabled
 // if bits are set in the control registers, transfer of data from 
 // fifo1 to fifo 2 is not done, meaning the channel is disabled.
-  channels  = (Ncntrl  & 0x1ff);
-  channels += (NCcntrl & 0x1ff) << 9;
-  channels += (SCcntrl & 0x1ff) << 18;
-  channels += (Scntrl  & 0x1ff) << 27;
+  channels  = (Ncntrl  & 0x1ffLL);  // Add LL for SLC4, d.k. 12/07
+  channels += (NCcntrl & 0x1ffLL) << 9;
+  channels += (SCcntrl & 0x1ffLL) << 18;
+  channels += (Scntrl  & 0x1ffLL) << 27;
   return ~channels;  //bitwise complement to get enabled channels
 }
