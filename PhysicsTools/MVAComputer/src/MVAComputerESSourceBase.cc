@@ -24,18 +24,16 @@ MVAComputerESSourceBase::MVAComputerESSourceBase(
 	std::vector<std::string> names = params.getParameterNames();
 	for(std::vector<std::string>::const_iterator iter = names.begin();
 	    iter != names.end(); iter++) {
-		const edm::Entry *entry = params.retrieveUntracked(*iter);
-		if (!entry)
-			throw edm::Exception(edm::errors::Configuration,
-			                     "MissingParameter")
-				<< "The required parameter '" << *iter
-				<< "' is missing." << std::endl;
+		if (iter->c_str()[0] == '@')
+			continue;
+
+		const edm::Entry &entry = params.retrieve(*iter);
 
 		std::string path;
-		if (entry->typeCode() == 'F')
-			path = entry->getFileInPath().fullPath();
+		if (entry.typeCode() == 'F')
+			path = entry.getFileInPath().fullPath();
 		else 
-			path = entry->getString();
+			path = entry.getString();
 
 		mvaCalibrations[*iter] = path;
 	}
