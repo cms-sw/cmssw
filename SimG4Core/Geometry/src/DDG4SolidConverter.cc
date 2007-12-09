@@ -231,20 +231,14 @@ G4VSolid * DDG4SolidConverter::reflected(const DDSolid & s)
 {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: reflected = " << s ;  
   G4ReflectedSolid * rs = 0;
-  try {
-    DDReflectionSolid rfs(s); 
-    if (rfs) {	
+  DDReflectionSolid rfs(s); 
+  if (rfs) {	
     static /* G4Transform3D */ HepReflectZ3D z_reflection; // = HepReflectZ3D;	
     rs = new G4ReflectedSolid(s.name().name(), 
                               DDG4SolidConverter().convert(rfs.unreflected()), 
 			      z_reflection);
     
-    }
-  }
-  catch(...) {
-    cerr << " conversion to unreflected solid failed! " << endl
-         << " Reflectionsolid name=" << s.name() << endl;
-  } 
+  } // else ?
   return rs;
 }
 
@@ -254,32 +248,25 @@ G4VSolid * DDG4SolidConverter::unionsolid(const DDSolid & s)
 {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: unionsolid = " << s.name() ;
   G4UnionSolid * us = 0;
-  try {
-    DDBooleanSolid bs(s);
-    if (bs) {
-      LogDebug("SimG4CoreGeometry") << "SolidA=" << bs.solidA();
-      G4VSolid * sa = DDG4SolidConverter().convert(bs.solidA());
-      LogDebug("SimG4CoreGeometry") << "SolidB=" << bs.solidB();
-      G4VSolid * sb = DDG4SolidConverter().convert(bs.solidB());
-      LogDebug("SimG4CoreGeometry") << " name:" << s.name() << " t=" << bs.translation() << flush;
-      LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation()->Inverse() << flush;
-      std::vector<double> tdbl(9);
-      bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
-      HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
-      G4ThreeVector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
-      us = new G4UnionSolid(s.name().name(),
-                            sa,
-			    sb,
-			    new HepRotation(temprep),
-			    temphvec);
-			   
-			    
-    }
-  }
-  catch(...) {
-    cerr << " conversion to a unionsolid failed! " << endl
-         << " UnionSolid name=" << s.name() << endl;
-  }
+  DDBooleanSolid bs(s);
+  if (bs) {
+    LogDebug("SimG4CoreGeometry") << "SolidA=" << bs.solidA();
+    G4VSolid * sa = DDG4SolidConverter().convert(bs.solidA());
+    LogDebug("SimG4CoreGeometry") << "SolidB=" << bs.solidB();
+    G4VSolid * sb = DDG4SolidConverter().convert(bs.solidB());
+    LogDebug("SimG4CoreGeometry") << " name:" << s.name() << " t=" << bs.translation() << flush;
+    LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation()->Inverse() << flush;
+    std::vector<double> tdbl(9);
+    bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
+    HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
+    Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
+    us = new G4UnionSolid(s.name().name(),
+			  sa,
+			  sb,
+			  new HepRotation(temprep),
+			  temphvec);
+    
+  } // else?
   return us;	   
 }
 
@@ -290,30 +277,24 @@ G4VSolid * DDG4SolidConverter::subtraction(const DDSolid & s)
 {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: subtraction = " << s ;
   G4SubtractionSolid * us = 0;
-  try {
-    DDBooleanSolid bs(s);
-    if (bs) {
-      G4VSolid * sa = DDG4SolidConverter().convert(bs.solidA());
-      G4VSolid * sb = DDG4SolidConverter().convert(bs.solidB());
-      LogDebug("SimG4CoreGeometry") << " name:" << s.name() << " t=" << bs.translation() << flush;
-//       stringstream sst;
-//       bs.rotation().rotation()->inverse().print(sst);
-//       LogDebug("SimG4CoreGeometry") << " " << sst.str() << flush;
-      LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation()->Inverse() << flush;
-      std::vector<double> tdbl(9);
-      bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
-      HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
-      G4ThreeVector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
-      us = new G4SubtractionSolid(s.name().name(),
-                            sa,
-			    sb,
-			    new HepRotation(temprep),
-			    temphvec);
-    }
-  }
-  catch(...) {
-    cerr << " conversion to a subtractionsolid failed! " << endl
-         << " SubtractionSolid name=" << s.name() << endl;
+  DDBooleanSolid bs(s);
+  if (bs) {
+    G4VSolid * sa = DDG4SolidConverter().convert(bs.solidA());
+    G4VSolid * sb = DDG4SolidConverter().convert(bs.solidB());
+    LogDebug("SimG4CoreGeometry") << " name:" << s.name() << " t=" << bs.translation() << flush;
+    //       stringstream sst;
+    //       bs.rotation().rotation()->inverse().print(sst);
+    //       LogDebug("SimG4CoreGeometry") << " " << sst.str() << flush;
+    LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation()->Inverse() << flush;
+    std::vector<double> tdbl(9);
+    bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
+    HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
+    Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
+    us = new G4SubtractionSolid(s.name().name(),
+				sa,
+				sb,
+				new HepRotation(temprep),
+				temphvec);
   }
   return us;	   
 }
@@ -324,27 +305,21 @@ G4VSolid * DDG4SolidConverter::intersection(const DDSolid & s)
 {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: intersection = " << s ;
   G4IntersectionSolid * us = 0;
-  try {
-    DDBooleanSolid bs(s);
-    if (bs) {
-      G4VSolid * sa = DDG4SolidConverter().convert(bs.solidA());
-      G4VSolid * sb = DDG4SolidConverter().convert(bs.solidB());
-      LogDebug("SimG4CoreGeometry") << " name:" << s.name() << " t=" << bs.translation() << flush;
-      LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation()->Inverse() << flush;
-      std::vector<double> tdbl(9);
-      bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
-      HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
-      G4ThreeVector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
-      us = new G4IntersectionSolid(s.name().name(),
-                            sa,
-			    sb,
-			    new HepRotation(temprep),
-			    temphvec);
-    }
-  }
-  catch(...) {
-    cerr << " conversion to a intersection failed! " << endl
-         << " IntersectionSolid name=" << s.name() << endl;
+  DDBooleanSolid bs(s);
+  if (bs) {
+    G4VSolid * sa = DDG4SolidConverter().convert(bs.solidA());
+    G4VSolid * sb = DDG4SolidConverter().convert(bs.solidB());
+    LogDebug("SimG4CoreGeometry") << " name:" << s.name() << " t=" << bs.translation() << flush;
+    LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation()->Inverse() << flush;
+    std::vector<double> tdbl(9);
+    bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
+    HepRep3x3 temprep(tdbl[0], tdbl[1], tdbl[2], tdbl[3], tdbl[4], tdbl[5], tdbl[6], tdbl[7], tdbl[8]);
+    Hep3Vector temphvec(bs.translation().X(), bs.translation().Y(), bs.translation().Z()); 
+    us = new G4IntersectionSolid(s.name().name(),
+				 sa,
+				 sb,
+				 new HepRotation(temprep),
+				 temphvec);
   }
   return us;	   
 }
@@ -365,102 +340,91 @@ G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & s)
   G4Trd * trap = 0;
   G4Tubs * tubs = 0;
   G4VSolid * result = 0;
-  try {
-    DDPseudoTrap pt(s); // pt...PseudoTrap
-    double r = pt.radius();
-    bool atMinusZ = pt.atMinusZ();
-    double x = 0;
-    double h = 0;
-    bool intersec = false; // union or intersection solid
-    if (pt.atMinusZ()) {
-      x = pt.x1(); // tubs radius
-    } 
+  DDPseudoTrap pt(s); // pt...PseudoTrap
+  double r = pt.radius();
+  bool atMinusZ = pt.atMinusZ();
+  double x = 0;
+  double h = 0;
+  bool intersec = false; // union or intersection solid
+  if (pt.atMinusZ()) {
+    x = pt.x1(); // tubs radius
+  } 
+  else {
+    x = pt.x2(); // tubs radius
+  }
+  double openingAngle = 2.*asin(x/abs(r));
+  //trap = new G4Trd(s.name().name(), 
+  double displacement=0;
+  double startPhi=0;
+  /* calculate the displacement of the tubs w.r.t. to the trap,
+     determine the opening angle of the tubs */
+  double delta = sqrt(r*r-x*x);
+  if (r < 0 && abs(r) >= x) {
+    intersec = true; // intersection solid
+    h = pt.y1() < pt.y2() ? pt.y2() : pt.y1(); // tubs half height
+    h += h/20.; // enlarge a bit - for subtraction solid
+    if (atMinusZ) {
+      displacement = - pt.halfZ() - delta; 
+      startPhi = 270.*deg - openingAngle/2.;
+    }
     else {
-      x = pt.x2(); // tubs radius
+      displacement =   pt.halfZ() + delta;
+      startPhi = 90.*deg - openingAngle/2.;
     }
-    double openingAngle = 2.*asin(x/abs(r));
-    //trap = new G4Trd(s.name().name(), 
-    double displacement=0;
-    double startPhi=0;
-    /* calculate the displacement of the tubs w.r.t. to the trap,
-      determine the opening angle of the tubs */
-    double delta = sqrt(r*r-x*x);
-    if (r < 0 && abs(r) >= x) {
-      intersec = true; // intersection solid
-      h = pt.y1() < pt.y2() ? pt.y2() : pt.y1(); // tubs half height
-      h += h/20.; // enlarge a bit - for subtraction solid
-      if (atMinusZ) {
-        displacement = - pt.halfZ() - delta; 
-	 startPhi = 270.*deg - openingAngle/2.;
-      }
-      else {
-        displacement =   pt.halfZ() + delta;
-	 startPhi = 90.*deg - openingAngle/2.;
-      }
-    }
-    else if ( r > 0 && abs(r) >= x )
+  }
+  else if ( r > 0 && abs(r) >= x )
     {
       if (atMinusZ) {
         displacement = - pt.halfZ() + delta;
-	 startPhi = 90.*deg - openingAngle/2.;
-	 h = pt.y1();
+	startPhi = 90.*deg - openingAngle/2.;
+	h = pt.y1();
       }
       else {
         displacement =   pt.halfZ() - delta; 
-	 startPhi = 270.*deg - openingAngle/2.;
-	 h = pt.y2();
+	startPhi = 270.*deg - openingAngle/2.;
+	h = pt.y2();
       }    
     }
-    else {
-     throw DDException("Check parameters of the PseudoTrap! name=" + pt.name().name());   
-    }
-    G4ThreeVector displ(0.,0.,displacement); // displacement of the tubs w.r.t. trap
-    LogDebug("SimG4CoreGeometry") << "DDSolidConverter::pseudotrap(): displacement=" << displacement 
-				  << " openingAngle=" << openingAngle/deg << " x=" << x << " h=" << h;
+  else {
+    throw DDException("Check parameters of the PseudoTrap! name=" + pt.name().name());   
+  }
+  G4ThreeVector displ(0.,0.,displacement); // displacement of the tubs w.r.t. trap
+  LogDebug("SimG4CoreGeometry") << "DDSolidConverter::pseudotrap(): displacement=" << displacement 
+				<< " openingAngle=" << openingAngle/deg << " x=" << x << " h=" << h;
     
-    // Now create two solids (trd & tubs), and a boolean solid out of them 
-    string name=pt.name().name();
-    trap = new G4Trd(name, pt.x1(), pt.x2(), pt.y1(), pt.y2(), pt.halfZ());
-    tubs = new G4Tubs(name, 
-                      0., // rMin
-		        abs(r), // rMax
-			 h, // half height
-			 startPhi, // start angle
-			 openingAngle);
-    if (intersec) {
-       result = new G4SubtractionSolid(name, trap, tubs, rot, displ);
-    }
-    else {
-      /** correct implementation, but fails to visualize due to G4/Iguana limitations */
-      G4VSolid * tubicCap = new G4SubtractionSolid(name, 
-						    tubs, 
-                                                   new G4Box(name, 1.1*x, sqrt(r*r-x*x), 1.1*h),  
-	 					  0, 
-						  G4ThreeVector());
-       result = new G4UnionSolid(name, trap, tubicCap, rot, displ);
+  // Now create two solids (trd & tubs), and a boolean solid out of them 
+  string name=pt.name().name();
+  trap = new G4Trd(name, pt.x1(), pt.x2(), pt.y1(), pt.y2(), pt.halfZ());
+  tubs = new G4Tubs(name, 
+		    0., // rMin
+		    abs(r), // rMax
+		    h, // half height
+		    startPhi, // start angle
+		    openingAngle);
+  if (intersec) {
+    result = new G4SubtractionSolid(name, trap, tubs, rot, displ);
+  }
+  else {
+    /** correct implementation, but fails to visualize due to G4/Iguana limitations */
+    G4VSolid * tubicCap = new G4SubtractionSolid(name, 
+						 tubs, 
+						 new G4Box(name, 1.1*x, sqrt(r*r-x*x), 1.1*h),  
+						 0, 
+						 G4ThreeVector());
+    result = new G4UnionSolid(name, trap, tubicCap, rot, displ);
             
-      // approximative implementation - also fails to visualize due to G4/Iguana limitations
-      /*
+    // approximative implementation - also fails to visualize due to G4/Iguana limitations
+    /*
       delete tubs;
       tubs = new G4Tubs(name, 
-                        sqrt(r*r-x*x), // rMin-approximation!
-		        abs(r), // rMax
-			 h, // half height
-			 startPhi, // start angle
-			 openingAngle);
+      sqrt(r*r-x*x), // rMin-approximation!
+      abs(r), // rMax
+      h, // half height
+      startPhi, // start angle
+      openingAngle);
       result = new G4UnionSolid(name, trap, tubs, rot, displ);
-      */
-    }			 	   
-  }
-  catch (DDException e) {
-    cerr << "DDException: " << e << endl;
-    throw;
-  }
-  catch (...) {
-    cerr << " conversion to a PseudoTrap failed!" << endl
-         << " PseudoTrap = " << s << endl;
-    throw;
-  }	 
+    */
+  }			 	   
   return result;
 }
 
@@ -471,90 +435,79 @@ G4VSolid * DDG4SolidConverter::trunctubs(const DDSolid & s)
   //                         from a tube-section a box is subtracted according to the  
   //                         given parameters
   LogDebug("SimG4CoreGeometry") << "MantisConverter: solidshape=" << DDSolidShapesName::name(s.shape()) << " " << s;
-  try {
-    LogDebug("SimG4CoreGeometry") << "before";
-    DDTruncTubs tt(s);
-    LogDebug("SimG4CoreGeometry") << "after";
-    double rIn(tt.rIn()), rOut(tt.rOut()), zHalf(tt.zHalf()),
-      startPhi(tt.startPhi()), deltaPhi(tt.deltaPhi()), 
-      cutAtStart(tt.cutAtStart()), cutAtDelta(tt.cutAtDelta());
-    bool cutInside(bool(tt.cutInside()));
-    string name=tt.name().name();
+  LogDebug("SimG4CoreGeometry") << "before";
+  DDTruncTubs tt(s);
+  LogDebug("SimG4CoreGeometry") << "after";
+  double rIn(tt.rIn()), rOut(tt.rOut()), zHalf(tt.zHalf()),
+    startPhi(tt.startPhi()), deltaPhi(tt.deltaPhi()), 
+    cutAtStart(tt.cutAtStart()), cutAtDelta(tt.cutAtDelta());
+  bool cutInside(bool(tt.cutInside()));
+  string name=tt.name().name();
 
-    // check the parameters
-    if (rIn <= 0 || rOut <=0 || cutAtStart <=0 || cutAtDelta <= 0) {
-      string s = "TruncTubs " + string(tt.name()) + ": 0 <= rIn,cutAtStart,rOut,cutAtDelta,rOut violated!";
-      throw DDException(s);
-    }
-    if (rIn >= rOut) {
-      string s = "TruncTubs " + string(tt.name()) + ": rIn<rOut violated!";
-      throw DDException(s);
-    }
-    if (startPhi != 0.) {
-      string s= "TruncTubs " + string(tt.name()) + ": startPhi != 0 not supported!";
-      throw DDException(s);
-    }
-//     if (cutInside != false) {
-//       string s = "TruncTubs " + string(tt.name()) + " cutInside == true not supported!";
-//       throw DDException(s);
-//     }
+  // check the parameters
+  if (rIn <= 0 || rOut <=0 || cutAtStart <=0 || cutAtDelta <= 0) {
+    string s = "TruncTubs " + string(tt.name()) + ": 0 <= rIn,cutAtStart,rOut,cutAtDelta,rOut violated!";
+    throw DDException(s);
+  }
+  if (rIn >= rOut) {
+    string s = "TruncTubs " + string(tt.name()) + ": rIn<rOut violated!";
+    throw DDException(s);
+  }
+  if (startPhi != 0.) {
+    string s= "TruncTubs " + string(tt.name()) + ": startPhi != 0 not supported!";
+    throw DDException(s);
+  }
+  //     if (cutInside != false) {
+  //       string s = "TruncTubs " + string(tt.name()) + " cutInside == true not supported!";
+  //       throw DDException(s);
+  //     }
 
-    startPhi=0.;
-    double r(cutAtStart), R(cutAtDelta);
-    G4VSolid * result(0);
-    G4VSolid * tubs = new G4Tubs(name,rIn,rOut,zHalf,startPhi,deltaPhi);
-    LogDebug("SimG4CoreGeometry") << "G4Tubs: " << rIn << ' ' << rOut << ' ' << zHalf << ' ' << startPhi/deg << ' ' << deltaPhi/deg;
-    LogDebug("SimG4CoreGeometry") << s;
-    // length & hight of the box 
-    double boxX(30.*rOut), boxY(20.*rOut); // exaggerate dimensions - does not matter, it's subtracted!
+  startPhi=0.;
+  double r(cutAtStart), R(cutAtDelta);
+  G4VSolid * result(0);
+  G4VSolid * tubs = new G4Tubs(name,rIn,rOut,zHalf,startPhi,deltaPhi);
+  LogDebug("SimG4CoreGeometry") << "G4Tubs: " << rIn << ' ' << rOut << ' ' << zHalf << ' ' << startPhi/deg << ' ' << deltaPhi/deg;
+  LogDebug("SimG4CoreGeometry") << s;
+  // length & hight of the box 
+  double boxX(30.*rOut), boxY(20.*rOut); // exaggerate dimensions - does not matter, it's subtracted!
    
-    // width of the box > width of the tubs
-    double boxZ(1.1*zHalf);
+  // width of the box > width of the tubs
+  double boxZ(1.1*zHalf);
    
-    // angle of the box w.r.t. tubs
-    double cath = r-R*cos(deltaPhi);
-    double hypo = sqrt(r*r+R*R-2.*r*R*cos(deltaPhi));
-    double cos_alpha = cath/hypo;
+  // angle of the box w.r.t. tubs
+  double cath = r-R*cos(deltaPhi);
+  double hypo = sqrt(r*r+R*R-2.*r*R*cos(deltaPhi));
+  double cos_alpha = cath/hypo;
 
-    double alpha = -acos(cos_alpha);
-    LogDebug("SimG4CoreGeometry") << "cath=" << cath/m;
-    LogDebug("SimG4CoreGeometry") << "hypo=" << hypo/m;
-    LogDebug("SimG4CoreGeometry") << "al=" << acos(cath/hypo)/deg;
-    LogDebug("SimG4CoreGeometry") << "deltaPhi=" << deltaPhi/deg << "\n"
-				  << "r=" << r/m << "\n"
-				  <<  "R=" << R/m;
+  double alpha = -acos(cos_alpha);
+  LogDebug("SimG4CoreGeometry") << "cath=" << cath/m;
+  LogDebug("SimG4CoreGeometry") << "hypo=" << hypo/m;
+  LogDebug("SimG4CoreGeometry") << "al=" << acos(cath/hypo)/deg;
+  LogDebug("SimG4CoreGeometry") << "deltaPhi=" << deltaPhi/deg << "\n"
+				<< "r=" << r/m << "\n"
+				<<  "R=" << R/m;
 
-    LogDebug("SimG4CoreGeometry") << "alpha=" << alpha/deg;
+  LogDebug("SimG4CoreGeometry") << "alpha=" << alpha/deg;
     
-    // rotationmatrix of box w.r.t. tubs
-    G4RotationMatrix * rot = new G4RotationMatrix;
-    rot->rotateZ(-alpha);
-    LogDebug("SimG4CoreGeometry") << (*rot);
+  // rotationmatrix of box w.r.t. tubs
+  G4RotationMatrix * rot = new G4RotationMatrix;
+  rot->rotateZ(-alpha);
+  LogDebug("SimG4CoreGeometry") << (*rot);
 
-    // center point of the box
-    double xBox;
-    if (!cutInside) {
-      xBox = r+boxY/sin(abs(alpha));
-    } else {
-      xBox = -(boxY/sin(abs(alpha))-r);
-    }
+  // center point of the box
+  double xBox;
+  if (!cutInside) {
+    xBox = r+boxY/sin(abs(alpha));
+  } else {
+    xBox = -(boxY/sin(abs(alpha))-r);
+  }
 
-    G4ThreeVector trans(xBox,0.,0.);
-    LogDebug("SimG4CoreGeometry") << "trans=" << trans;
+  G4ThreeVector trans(xBox,0.,0.);
+  LogDebug("SimG4CoreGeometry") << "trans=" << trans;
 
-    G4VSolid * box = new G4Box(name,boxX,boxY,boxZ);
-    result = new G4SubtractionSolid(name,tubs,box,rot,trans);
+  G4VSolid * box = new G4Box(name,boxX,boxY,boxZ);
+  result = new G4SubtractionSolid(name,tubs,box,rot,trans);
       
-    return result;
-  }
-  catch(const DDException & e) {
-    cerr << "DDException: " << e << endl << "Tried to convert: " << s << " to a TrucTubs" << endl;
-    throw;
-  }
-  catch(...) {
-    cerr << " conversion to a TruncTubs failed!" << endl
-	 << " TrucTubs = " << s << endl;
-    throw;
-  }
+  return result;
 
 }
