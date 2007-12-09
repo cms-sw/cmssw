@@ -102,6 +102,9 @@ bool PFRootEventManagerColin::processEntry(int entry) {
   outTreeMy_->Fill();
 
 
+  outTreeMy_->Fill();
+
+
   return rvalue;
 }
 
@@ -228,7 +231,6 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
   }
   assert( nStableChargedHadrons==1 );
 
- 
 
   
   double pHadron = trueParticles_[iHadron].extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach ).momentum().P(); 
@@ -324,7 +326,9 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
       
       reco::PFClusterRef clusterRef = elements[index].clusterRef();
 
+
       
+
       if( type == reco::PFBlockElement::ECAL ) {
 	if(!tauEvent_->nECAL ) { // closest ecal
 	  assert( !clusterRef.isNull() );
@@ -334,6 +338,8 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
 	  tauEvent_->nECAL++;
 	}
       }
+
+
       else if( type == reco::PFBlockElement::HCAL ) {
 	if(!tauEvent_->nHCAL ) { // closest hcal
 	  assert( !clusterRef.isNull() );
@@ -344,6 +350,8 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
       } 
     } // eles associated to the track
   } // blocks
+
+
 
 
   return false;    

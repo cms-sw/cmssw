@@ -42,12 +42,9 @@
 #include <stdlib.h>
 
 using namespace std;
+using namespace boost;
 
-
-PFRootEventManager::PFRootEventManager() {
-  //   energyCalibration_ = new PFEnergyCalibration();
-  //   energyResolution_ = new PFEnergyResolution();
-}
+PFRootEventManager::PFRootEventManager() {}
 
 
 
@@ -90,8 +87,6 @@ PFRootEventManager::PFRootEventManager(const char* file)
   //   maxERecHitEcal_ = -1;
   //   maxERecHitHcal_ = -1;
 
-  //   energyCalibration_ = new PFEnergyCalibration();
-  //   energyResolution_ = new PFEnergyResolution();
 }
 
 void PFRootEventManager::reset() { 
@@ -442,18 +437,38 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("PFAlgo", "debug",  AlgoDebug);  
   pfAlgo_.setDebug( AlgoDebug );
 
-  double eCalibP0 = 0;
-  double eCalibP1 = 1;
-  vector<double> ecalib;
-  options_->GetOpt("particle_flow", "ecalib", ecalib);
-  if(ecalib.size() == 2) {
-    eCalibP0 = ecalib[0];
-    eCalibP1 = ecalib[1]; 
-  }
-  else {
-    cerr<<"PFRootEventManager::readOptions : WARNING : "
-        <<"wrong calibration coefficients for ECAL"<<endl;
-  }
+  // read PFCluster calibration parameters
+  
+
+  double e_slope = 1;
+  options_->GetOpt("particle_flow","calib_ECAL_slope", e_slope);
+  double e_offset = 0;
+  options_->GetOpt("particle_flow","calib_ECAL_offset", e_offset);
+  
+  double eh_eslope = 1.05;
+  options_->GetOpt("particle_flow","calib_ECAL_HCAL_eslope", eh_eslope);
+  double eh_hslope = 1.06;
+  options_->GetOpt("particle_flow","calib_ECAL_HCAL_hslope", eh_hslope);
+  double eh_offset = 6.11;
+  options_->GetOpt("particle_flow","calib_ECAL_HCAL_offset", eh_offset);
+  
+  double h_slope = 2.17;
+  options_->GetOpt("particle_flow","calib_HCAL_slope", h_slope);
+  double h_offset = 1.73;
+  options_->GetOpt("particle_flow","calib_HCAL_offset", h_offset);
+  double h_damping = 2.49;
+  options_->GetOpt("particle_flow","calib_HCAL_damping", h_damping);
+  
+
+  shared_ptr<PFEnergyCalibration> 
+    calibration( new PFEnergyCalibration( e_slope,
+					  e_offset, 
+					  eh_eslope,
+					  eh_hslope,
+					  eh_offset,
+					  h_slope,
+					  h_offset,
+					  h_damping ) );
 
 
   double nSigmaECAL = 99999;
@@ -461,6 +476,8 @@ void PFRootEventManager::readOptions(const char* file,
   double nSigmaHCAL = 99999;
   options_->GetOpt("particle_flow", "nsigma_HCAL", nSigmaHCAL);
 
+  bool   clusterRecoveryAlgo = false;
+  options_->GetOpt("particle_flow", "clusterRecovery", clusterRecoveryAlgo );
 
   double mvaCut = 999999;
   options_->GetOpt("particle_flow", "mergedPhotons_mvaCut", mvaCut);
@@ -476,7 +493,11 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "mergedPhotons_PSCut", PSCut);
 
   try {
-    pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL,
+//     pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL,
+//                            PSCut, mvaCut, mvaWeightFile.c_str() );
+    pfAlgo_.setParameters( nSigmaECAL, nSigmaHCAL, 
+			   calibration,
+			   clusterRecoveryAlgo,
                            PSCut, mvaCut, mvaWeightFile.c_str() );
   }
   catch( std::exception& err ) {
@@ -860,15 +881,12 @@ bool PFRootEventManager::processEntry(int entry) {
 
   
   
-  //   if( deltaEt>0.1 && deltaEt<0.2 ) {
-  //     cout<<deltaEt<<endl;
-  //     return true;
-  //   }  
-  //   else return false;
-  //   //  if(trueParticles_.size() != 1 ) return false;
-  //   else 
-  //     return false;
-  
+  if( deltaEt>0.4 ) {
+    cout<<deltaEt<<endl;
+    return true;
+  }  
+  else return false;
+
   return goodevent;
 
 }
@@ -1897,6 +1915,7 @@ PFRootEventManager::printMCTruth(std::ostream& out,
   const HepMC::GenEvent* myGenEvent = MCTruth_.GetEvent();
   if(!myGenEvent) return;
 
+
   std::cout << "Id  Gen Name       eta    phi     pT     E    Vtx1   " 
             << " x      y      z   " 
             << "Moth  Vtx2  eta   phi     R      Z   Da1  Da2 Ecal?" 
@@ -2016,33 +2035,35 @@ PFRootEventManager::printMCTruth(std::ostream& out,
                              p->production_vertex()->position().z()/10.);
     vertexId1 = p->production_vertex()->barcode();
     
-    std::cout.setf(std::ios::fixed, std::ios::floatfield);
-    std::cout.setf(std::ios::right, std::ios::adjustfield);
+    out.setf(std::ios::fixed, std::ios::floatfield);
+    out.setf(std::ios::right, std::ios::adjustfield);
     
-    std::cout << std::setw(4) << p->barcode() << " " 
+    out << std::setw(4) << p->barcode() << " " 
               << name;
     
-    for(unsigned int k=0;k<11-name.length() && k<12; k++) std::cout << " ";  
+    for(unsigned int k=0;k<11-name.length() && k<12; k++) out << " ";  
     
     double eta = momentum1.eta();
     if ( eta > +10. ) eta = +10.;
     if ( eta < -10. ) eta = -10.;
-    std::cout << std::setw(6) << std::setprecision(2) << eta << " " 
-              << std::setw(6) << std::setprecision(2) << momentum1.phi() << " " 
-              << std::setw(7) << std::setprecision(2) << momentum1.pt() << " " 
-              << std::setw(7) << std::setprecision(2) << momentum1.e() << " " 
-              << std::setw(4) << vertexId1 << " " 
-              << std::setw(6) << std::setprecision(1) << vertex1.x() << " " 
-              << std::setw(6) << std::setprecision(1) << vertex1.y() << " " 
-              << std::setw(6) << std::setprecision(1) << vertex1.z() << " ";
+    
+    out << std::setw(6) << std::setprecision(2) << eta << " " 
+	<< std::setw(6) << std::setprecision(2) << momentum1.phi() << " " 
+	<< std::setw(7) << std::setprecision(2) << momentum1.pt() << " " 
+	<< std::setw(7) << std::setprecision(2) << momentum1.e() << " " 
+	<< std::setw(4) << vertexId1 << " " 
+	<< std::setw(6) << std::setprecision(1) << vertex1.x() << " " 
+	<< std::setw(6) << std::setprecision(1) << vertex1.y() << " " 
+	<< std::setw(6) << std::setprecision(1) << vertex1.z() << " ";
+
 
     const HepMC::GenParticle* mother = 
       *(p->production_vertex()->particles_in_const_begin());
 
     if ( mother )
-      std::cout << std::setw(4) << mother->barcode() << " ";
+      out << std::setw(4) << mother->barcode() << " ";
     else 
-      std::cout << "     " ;
+      out << "     " ;
     
     if ( p->end_vertex() ) {  
       math::XYZTLorentzVector vertex2(p->end_vertex()->position().x()/10.,
@@ -2060,16 +2081,16 @@ PFRootEventManager::printMCTruth(std::ostream& out,
         children.push_back(*firstDaughterIt);
       }      
 
-      std::cout << std::setw(4) << vertexId2 << " "
-                << std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
-                << std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
-                << std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
-                << std::setw(6) << std::setprecision(1) << vertex2.z() << " ";
-      for ( unsigned id=0; id<children.size(); ++id )
-        std::cout << std::setw(4) << children[id]->barcode() << " ";
-    }
-    std::cout << std::endl;
+      out << std::setw(4) << vertexId2 << " "
+	  << std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
+	  << std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
+	  << std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
+	  << std::setw(6) << std::setprecision(1) << vertex2.z() << " ";
 
+      for ( unsigned id=0; id<children.size(); ++id )
+        out << std::setw(4) << children[id]->barcode() << " ";
+    }
+    out << std::endl;
   }
 }
 
