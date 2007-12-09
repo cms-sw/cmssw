@@ -26,6 +26,11 @@ TreeReader::TreeReader() :
 {
 }
 
+TreeReader::TreeReader(const TreeReader &orig)
+{
+	this->operator = (orig);
+}
+
 TreeReader::TreeReader(TTree *tree) :
 	tree(tree), upToDate(false)
 {
@@ -34,6 +39,27 @@ TreeReader::TreeReader(TTree *tree) :
 
 TreeReader::~TreeReader()
 {
+}
+
+TreeReader &TreeReader::operator = (const TreeReader &orig)
+{
+	reset();
+
+	tree = orig.tree;
+
+	multiDouble.resize(orig.multiDouble.size());
+	multiFloat.resize(orig.multiFloat.size());
+	multiInt.resize(orig.multiBool.size());
+	multiBool.resize(orig.multiBool.size());
+
+	singleDouble.resize(orig.singleDouble.size());
+	singleFloat.resize(orig.singleFloat.size());
+	singleInt.resize(orig.singleBool.size());
+	singleBool.resize(orig.singleBool.size());
+
+	valueMap = orig.valueMap;
+
+	return *this;
 }
 
 void TreeReader::setTree(TTree *tree)

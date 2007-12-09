@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_MVATrainer_TreeReader_h
-#define PhysicsTools_MVATrainer_TreeReader_h
+#ifndef PhysicsTools_MVAComputer_TreeReader_h
+#define PhysicsTools_MVAComputer_TreeReader_h
 
 #include <stdint.h>
 #include <utility>
@@ -19,8 +19,11 @@ namespace PhysicsTools {
 class TreeReader {
     public:
 	TreeReader();
+	TreeReader(const TreeReader &orig);
 	TreeReader(TTree *tree);
 	virtual ~TreeReader();
+
+	TreeReader &operator = (const TreeReader &orig);
 
 	void setTree(TTree *tree);
 
@@ -118,4 +121,4 @@ TREEREADER_ADD_IMPL(Bool_t)
 
 } // namespace PhysicsTools
 
-#endif // PhysicsTools_MVATrainer_TreeReader_h
+#endif // PhysicsTools_MVAComputer_TreeReader_h
