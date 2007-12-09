@@ -16,13 +16,13 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.1.1.1 2007/12/06 01:40:00 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.2 2007/12/06 20:18:43 chrjones Exp $
 //
 
 // system include files
 #include <vector>
 #include <string>
-
+#include <boost/shared_ptr.hpp>
 // user include files
 
 // forward declarations
@@ -31,6 +31,7 @@ class TEveProjectionManager;
 class TEveElement;
 class TEveElementList;
 class TGPictureButton;
+class FWDataProxyBuilder;
 
 namespace fwlite {
   class Event;
@@ -53,6 +54,7 @@ class FWDisplayEvent
       void continueProcessingEvents();
       void waitForUserAction();
       void doNotWaitForUserAction();
+      void draw(const fwlite::Event& );
 
    private:
       FWDisplayEvent(const FWDisplayEvent&); // stop default
@@ -62,6 +64,7 @@ class FWDisplayEvent
       // ---------- member data --------------------------------
       mutable std::vector<std::string> m_physicsTypes;
       mutable std::vector<TEveElementList*> m_physicsElements;
+      std::vector<std::string> m_physicsProxyBuilderNames;
       //mutable TEveTrackList* m_tracks;
 
       mutable bool m_continueProcessingEvents;
@@ -71,6 +74,8 @@ class FWDisplayEvent
       TEveProjectionManager* m_rhoPhiProjMgr;
 
       TGPictureButton* m_advanceButton;
+
+      std::vector<boost::shared_ptr<FWDataProxyBuilder> > m_builders;
 };
 
 

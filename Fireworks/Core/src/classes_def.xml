@@ -1,3 +1,4 @@
 <lcgdict>
   <class name="FWDisplayEvent"/>
+  <class name="FWDataProxyBuilder"/>
 </lcgdict>

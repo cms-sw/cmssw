@@ -8,20 +8,20 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.4 2007/12/06 22:11:21 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.5 2007/12/06 22:28:37 chrjones Exp $
 //
 
 // system include files
+#include <sstream>
 #include "TEveManager.h"
 #include "TEveViewer.h"
 #include "TEveBrowser.h"
-#include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
 #include "TEveGeoNode.h"
 #include "TSystem.h"
 #include "TEveProjectionManager.h"
 #include "TEveScene.h"
 #include "TGLViewer.h"
+#include "TClass.h"
 
 //geometry
 #include "TFile.h"
@@ -35,11 +35,8 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWDisplayEvent.h"
+#include "Fireworks/Core/interface/FWDataProxyBuilder.h"
 #include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/FWLite/interface/Handle.h"
-//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 //
 // constants, enums and typedefs
@@ -48,61 +45,6 @@
 //
 // static data member definitions
 //
-static
-void make_tracks_rhophi(const fwlite::Event* iEvent,
-			TEveElementList** oList)
-{
-  fwlite::Handle<reco::TrackCollection> tracks;
-  tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
-  
-  if(0 == tracks.ptr() ) {
-    std::cout <<"failed to get Tracks"<<std::endl;
-  }
-
-  if(0 == *oList) {
-    TEveTrackList* tlist =  new TEveTrackList("Tracks");
-    *oList =tlist;
-    (*oList)->SetMainColor(Color_t(3));
-    TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
-    //units are kG
-    rnrStyle->SetMagField( -4.0*10.);
-    //get this from geometry, units are CM
-    rnrStyle->SetMaxR(120.0);
-    rnrStyle->SetMaxZ(300.0);
-    
-    gEve->AddElement(*oList);
-  } else {
-    (*oList)->DestroyElements();
-  }
-  //since we created it, we know the type (would like to do this better)
-  TEveTrackList* tlist = dynamic_cast<TEveTrackList*>(*oList);
-
-  TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
-  
-  int index=0;
-  //cout <<"----"<<endl;
-  TEveRecTrack t;
-  t.beta = 1.;
-  for(reco::TrackCollection::const_iterator it = tracks->begin();
-      it != tracks->end();++it,++index) {
-    t.P = TEveVector(it->px(),
-		     it->py(),
-		     it->pz());
-    t.V = TEveVector(it->vx(),
-		     it->vy(),
-		     it->vz());
-    t.sign = it->charge();
-
-    TEveTrack* trk = new TEveTrack(&t,rnrStyle);
-    trk->SetMainColor((*oList)->GetMainColor());
-    gEve->AddElement(trk,(*oList));
-    //cout << it->px()<<" "
-    //   <<it->py()<<" "
-    //   <<it->pz()<<endl;
-    //cout <<" *";
-  }
-}
-
 
 //
 // constructors and destructor
@@ -113,8 +55,53 @@ FWDisplayEvent::FWDisplayEvent() :
   m_rhoPhiProjMgr(0)
 
 {
+  const char* cmspath = gSystem->Getenv("CMSSW_BASE");
+  if(0 == cmspath) {
+    throw std::runtime_error("CMSSW_BASE environment variable not set");
+  }
+  //tell ROOT where to find our macros
+  std::string macPath(cmspath);
+  macPath += "/src/Fireworks/Core/macros";
+  gROOT->SetMacroPath(macPath.c_str());  
+
+  //will eventually get this info from the configuration
   m_physicsTypes.push_back("Tracks");
   m_physicsElements.push_back(0);
+  m_physicsProxyBuilderNames.push_back("TracksProxy3DBuilder");
+
+  //create proxy builders
+  Int_t error;
+  TClass *baseClass = TClass::GetClass(typeid(FWDataProxyBuilder));
+  assert(baseClass !=0);
+
+  for(std::vector<std::string>::iterator itBuilderName=
+	m_physicsProxyBuilderNames.begin();
+      itBuilderName !=m_physicsProxyBuilderNames.end();
+      ++itBuilderName) {
+    //does the class already exist?
+    TClass *c = TClass::GetClass(itBuilderName->c_str());
+    if(0==c) {
+      //try to load a macro of that name
+      
+      //How can I tell if this succeeds or failes? error and value are always 0!
+      // I could not make the non-compiled mechanism to work without seg-faults
+      Int_t value = gROOT->LoadMacro(((*itBuilderName)+".C+").c_str(),&error);
+      c = TClass::GetClass(itBuilderName->c_str());
+      if(0==c ) {
+	std::cerr <<"failed to find "<<*itBuilderName<<std::endl;
+	continue;
+      }
+    }
+    FWDataProxyBuilder* builder=0;
+    void* inst = c->New();
+    builder = reinterpret_cast<FWDataProxyBuilder*>(c->DynamicCast(baseClass,inst));
+    if(0==builder) {
+      std::cerr<<"conversion to FWDataProxyBuilder failed"<<std::endl;
+      continue;
+    }
+    m_builders.push_back(boost::shared_ptr<FWDataProxyBuilder>(builder));
+  }
+
 
   //These are only needed temporarilty to work around a problem which 
   // Matevz has patched in a later version of the code
@@ -279,6 +266,13 @@ namespace {
 
 }
 void
+FWDisplayEvent::draw(const fwlite::Event& iEvent)
+{
+  const FWDisplayEvent* c = this;
+  c->draw(iEvent);
+}
+
+void
 FWDisplayEvent::draw(const fwlite::Event& iEvent) const
 {
   //need to reset 
@@ -294,9 +288,13 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
     // Eve do any redrawing
     TEveManager::TRedrawDisabler disableRedraw(gEve);
 
-    make_tracks_rhophi(&iEvent,
-		       &(m_physicsElements.front()));
-    
+    for(std::vector<boost::shared_ptr<FWDataProxyBuilder> >::const_iterator
+	  it = m_builders.begin();
+	it != m_builders.end();
+	++it) {
+      (*it)->build(&iEvent,
+		   &(m_physicsElements.front()));
+    }
     //setup the projection
     m_rhoPhiProjMgr->DestroyElements();
     m_rhoPhiProjMgr->ImportElements(m_geom);
