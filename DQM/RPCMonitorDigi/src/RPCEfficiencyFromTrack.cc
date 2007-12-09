@@ -78,6 +78,8 @@ RPCEfficiencyFromTrack::RPCEfficiencyFromTrack(const edm::ParameterSet& iConfig)
   MeasureEndCap = iConfig.getParameter<bool>("ReadEndCap");
   MeasureBarrel = iConfig.getParameter<bool>("ReadBarrel");
   maxRes = iConfig.getParameter<double>("EfficiencyCut");
+  ringSelection = iConfig.getParameter<int>("Ring");
+  selectwheel = iConfig.getParameter<std::string>("SelectWheel");
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", true); 
   EffSaveRootFileEventsInterval  = iConfig.getUntrackedParameter<int>("EffEventsInterval", 1000); 
   EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiencyFromTrack.root"); 
@@ -150,7 +152,13 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	  RPCDetId rpcId = (*r)->id();
 
-	  if(track.innermostMeasurementState().isValid() && rpcId.ring()==0 && (rpcId.sector()==10 || rpcId.sector()==11)){
+	  int ringType=0;
+	  if(selectwheel==true){
+	    ringType=ringSelection;
+	  }else{
+	    ringType=rpcId.ring();
+	  }
+	  if(track.innermostMeasurementState().isValid() && rpcId.ring()==ringType){
 	    const BoundPlane& rpcPlane = (*r)->surface();
 	    const GlobalPoint rpcGp=rpcPlane.toGlobal(LocalPoint(0,0,0));
 	    TrajectoryStateClosestToPoint tcp=track.impactPointTSCP();

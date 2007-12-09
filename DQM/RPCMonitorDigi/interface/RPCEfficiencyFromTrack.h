@@ -61,7 +61,10 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       bool MeasureEndCap;
       bool MeasureBarrel;
       bool EffSaveRootFile;
-      int  EffSaveRootFileEventsInterval;
+      int EffSaveRootFileEventsInterval;
+      int ringSelection;
+      std::string selectwheel;
+
       std::string EffRootFileName;
       std::string TjInput;
       std::string RPCDataLabel;
