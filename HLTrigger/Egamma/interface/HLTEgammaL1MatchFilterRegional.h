@@ -26,7 +26,7 @@ class HLTEgammaL1MatchFilterRegional : public HLTFilter {
       edm::InputTag candNonIsolatedTag_; // input tag identifying product contains egammas
       edm::InputTag l1NonIsolatedTag_; // input tag identifying product contains egammas
 
-      //edm::InputTag L1SeedFilter_;
+      edm::InputTag L1SeedFilterTag_;
       bool doIsolated_;
 
       int    ncandcut_;        // number of egammas required
