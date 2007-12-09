@@ -2,7 +2,6 @@
 
 #include "HLTrigger/HLTfilters/interface/HLTBool.h"
 #include "HLTrigger/HLTfilters/interface/HLTFiltCand.h"
-#include "HLTrigger/HLTfilters/interface/HLTFiltCandNDM.h"
 #include "HLTrigger/HLTfilters/interface/HLTLevel1GTSeed.h"
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 #include "HLTrigger/HLTfilters/interface/HLTDoublet.h"
@@ -74,7 +73,6 @@ typedef HLTGlobalSums<MET     ,TriggerHT> HLTGlobalSumHT   ;
 
 DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
-DEFINE_FWK_MODULE(HLTFiltCandNDM);
 DEFINE_FWK_MODULE(HLTLevel1GTSeed);
 DEFINE_FWK_MODULE(HLTHighLevel);
 DEFINE_FWK_MODULE(HLTDoublet);

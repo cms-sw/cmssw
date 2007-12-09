@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/02/17 14:39:20 $
- *  $Revision: 1.21 $
+ *  $Date: 2007/06/15 14:42:30 $
+ *  $Revision: 1.22 $
  *
  *  \author Martin Grunewald
  *
@@ -16,7 +16,10 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include<typeinfo>
@@ -46,6 +49,7 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
    using namespace edm;
    using namespace reco;
+   using namespace trigger;
 
    // get hold of (single?) TriggerResults object
    vector<Handle<TriggerResults> > trhv;
@@ -96,7 +100,34 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
      //
    } else {
-     LogDebug("") << "Filterobject " + inputTag_.encode() + " not found!";
+     LogDebug("") << "Old Filterobject " + inputTag_.encode() + " not found!";
+   }
+
+   {
+   // get hold of requested filter object
+   Handle<TriggerFilterObjectWithRefs> ref;
+   try {iEvent.getByLabel(inputTag_,ref);} catch(...) {;}
+   if (ref.isValid()) {
+     LogDebug("") << inputTag_.encode() + " Size = g/e/m/j/C/M/H "
+                  << ref->photonIds().size() << " "
+                  << ref->electronIds().size() << " "
+                  << ref->muonIds().size() << " "
+                  << ref->jetIds().size() << " " 
+                  << ref->compositeIds().size() << " " 
+                  << ref->metIds().size() << " " 
+                  << ref->htIds().size();
+     const unsigned int n(ref->electronIds().size());
+     for (unsigned int i=0; i!=n; i++) {
+       // some Xchecks
+       Particle particle=*(ref->electronRefs().at(i));
+       LogTrace("") << i << " E: "
+                    << particle.energy() << " " 
+                    << ref->electronRefs().at(i)->energy();
+     }
+     //
+   } else {
+     LogDebug("") << "New Filterobject " + inputTag_.encode() + " not found!";
+   }
    }
 
    return;
