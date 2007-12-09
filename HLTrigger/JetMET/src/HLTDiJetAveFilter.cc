@@ -9,8 +9,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -31,7 +30,7 @@ HLTDiJetAveFilter::HLTDiJetAveFilter(const edm::ParameterSet& iConfig)
    minEtJet3_= iConfig.getParameter<double> ("minEtJet3"); 
    minDphi_= iConfig.getParameter<double> ("minDphi"); 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
+   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTDiJetAveFilter::~HLTDiJetAveFilter(){}
@@ -44,11 +43,11 @@ HLTDiJetAveFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace std;
   using namespace edm;
   using namespace reco;
+  using namespace trigger;
   // The filter object
-  auto_ptr<HLTFilterObjectWithRefs> filterproduct (new HLTFilterObjectWithRefs(path(),module()));
-  // Ref to Candidate object to be recorded in filter object
-  RefToBase<Candidate> ref1,ref2;
-  // Get the Candidates
+  auto_ptr<trigger::TriggerFilterObjectWithRefs> 
+    filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+
 
   Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputJetTag_,recocalojets);
@@ -66,18 +65,20 @@ HLTDiJetAveFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int nmax=1;
     if (recocalojets->size() > 2) nmax=2;
 
+    CaloJetRef JetRef1,JetRef2;
+
     for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
 	 recocalojet<=(recocalojets->begin()+nmax); recocalojet++) {
       
       if(countjets==0) {
 	etjet1 = recocalojet->et();
 	phijet1 = recocalojet->phi();
-                ref1  = RefToBase<Candidate>(CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet)));
+	JetRef1 = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
       }
       if(countjets==1) {
 	etjet2 = recocalojet->et();
 	phijet2 = recocalojet->phi();
-                ref2  = RefToBase<Candidate>(CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet)));
+	JetRef2 = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
       }
       if(countjets==2) {
 	etjet3 = recocalojet->et();
@@ -89,9 +90,9 @@ HLTDiJetAveFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double Dphi = fabs(deltaPhi(phijet1,phijet2));
 
     if( EtAve>minEtAve_  && etjet3<minEtJet3_ && Dphi>minDphi_){
-	filterproduct->putParticle(ref1);
-	filterproduct->putParticle(ref2);
-	n++;
+      filterobject->addObject(TriggerJet,JetRef1);
+      filterobject->addObject(TriggerJet,JetRef2);
+      n++;
     }
     
   } // events with two or more jets
@@ -102,7 +103,7 @@ HLTDiJetAveFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool accept(n>=1);
   
   // put filter object into the Event
-  iEvent.put(filterproduct);
+  iEvent.put(filterobject);
   
   return accept;
 }

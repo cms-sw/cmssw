@@ -3,6 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=HLTrigger/HLTcore>
 <use name=DataFormats/JetReco>
+<use name=DataFormats/METReco>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=HLTriggerJetMET>

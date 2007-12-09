@@ -10,6 +10,7 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include <string>
 #include <string.h>
+#include <cmath>
 //
 // class declaration
 //

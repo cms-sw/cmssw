@@ -1,6 +1,6 @@
 /** \class HLTRapGapFilter
  *
- * $Id: HLTRapGapFilter.cc,v 1.4 2007/08/05 22:57:19 apana Exp $
+ * $Id: HLTRapGapFilter.cc,v 1.5 2007/08/19 03:21:44 apana Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -10,8 +10,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -32,7 +31,7 @@ HLTRapGapFilter::HLTRapGapFilter(const edm::ParameterSet& iConfig)
    caloThresh_= iConfig.getParameter<double> ("caloThresh"); 
 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
+   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTRapGapFilter::~HLTRapGapFilter(){}
@@ -42,13 +41,14 @@ HLTRapGapFilter::~HLTRapGapFilter(){}
 bool
 HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // The filter object
-  std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
-  // Ref to Candidate object to be recorded in filter object
-  edm::RefToBase<reco::Candidate> ref;
-  // Get the recoEcalCandidates
+  using namespace reco;
+  using namespace trigger;
 
-  edm::Handle<reco::CaloJetCollection> recocalojets;
+  // The filter object
+  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> 
+    filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+
+  edm::Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputTag_,recocalojets);
 
   // look at all candidates,  check cuts and add to filter object
@@ -64,7 +64,7 @@ HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double sumets=0.;
     int countjets =0;
 
-    for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
+    for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
 	 recocalojet!=(recocalojets->end()); recocalojet++) {
       
       etjet = recocalojet->energy();
@@ -82,11 +82,10 @@ HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //std::cout << "Sum jet energy = " << sumets << std::endl;
     if(sumets<=caloThresh_){
       //std::cout << "Passed filter!" << std::endl;
-      for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
+      for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
 	   recocalojet!=(recocalojets->end()); recocalojet++) {
-	ref=edm::RefToBase<reco::Candidate>(reco::CaloJetRef(recocalojets,
-							     distance(recocalojets->begin(),recocalojet)));
-	filterproduct->putParticle(ref);
+	CaloJetRef ref(CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet)));
+	filterobject->addObject(TriggerJet,ref);
 	n++;
       }
     }
@@ -99,7 +98,7 @@ HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool accept(n>0);
   
   // put filter object into the Event
-  iEvent.put(filterproduct);
+  iEvent.put(filterobject);
   
   return accept;
 }

@@ -8,7 +8,7 @@
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-
+#include <cmath>
 //
 // class declaration
 //
