@@ -4,27 +4,24 @@ void testFWLiteEvaluation()
 
 	MVAComputer mva("TrainedGauss.mva");
 
-	Variable::Value vars[2];
-	vars[0].setName("x");
-	vars[1].setName("y");
+	double x, y;
 
-	vars[0].setValue(2);
-	vars[1].setValue(2);
-	cout << "at (+2.0, +2.0): " << mva.eval(vars, vars + 2) << endl;
+	TreeReader reader;
+	reader.addSingle("x", &x);
+	reader.addSingle("y", &y);
 
-	vars[0].setValue(0.1);
-	vars[1].setValue(0.1);
-	cout << "at (+0.1, +0.1): " << mva.eval(vars, vars + 2) << endl;
+	x = 2, y = 2;
+	cout << "at (+2.0, +2.0): " << reader.fill(&mva) << endl;
 
-	vars[0].setValue(0);
-	vars[1].setValue(0);
-	cout << "at (+0.0, +0.0): " << mva.eval(vars, vars + 2) << endl;
+	x = 0.1, y = 0.1;
+	cout << "at (+0.1, +0.1): " << reader.fill(&mva) << endl;
 
-	vars[0].setValue(-0.1);
-	vars[1].setValue(-0.1);
-	cout << "at (-0.1, -0.1): " << mva.eval(vars, vars + 2) << endl;
+	x = 0, y = 0;
+	cout << "at (+0.0, +0.0): " << reader.fill(&mva) << endl;
 
-	vars[0].setValue(-2);
-	vars[1].setValue(-2);
-	cout << "at (-2.0, -2.0): " << mva.eval(vars, vars + 2) << endl;
+	x = -0.1, y = -0.1;
+	cout << "at (-0.1, -0.1): " << reader.fill(&mva) << endl;
+
+	x = -2, y = -2;
+	cout << "at (-2.0, -2.0): " << reader.fill(&mva) << endl;
 }

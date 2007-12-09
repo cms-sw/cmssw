@@ -4,6 +4,8 @@ void testFWLiteTrainer()
 
 	MVATrainer trainer("testMVATrainer.xml");
 
+	// looping over dataset until trainer is satisfied
+
 	for(;;) {
 		Calibration::MVAComputer *calib = 
 			trainer.getTrainCalibration();
@@ -17,8 +19,7 @@ void testFWLiteTrainer()
 		trainer.doneTraining(calib);
 	}
 
-	Calibration::MVAComputer *calib =
-			trainer.getCalibration();
+	Calibration::MVAComputer *calib = trainer.getCalibration();
 
 	MVAComputer::writeCalibration("TrainedGauss.mva", calib);
 
