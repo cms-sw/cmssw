@@ -1,12 +1,15 @@
-<use name=CondFormats/PhysicsToolsObjects>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
-<use name=rootcore>
-<use name=zlib>
-<use name=boost>
+<use name=CondFormats/PhysicsToolsObjects>
 <use name=rootcore>
 <use name=roottmva>
+<use name=boost>
+<use name=zlib>
 <export>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
   <use name=CondFormats/PhysicsToolsObjects>
-  <use name=zlib>
+  <use name=boost>
   <lib name=PhysicsToolsMVAComputer>
 </export>
