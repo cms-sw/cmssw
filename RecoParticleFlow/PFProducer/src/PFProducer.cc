@@ -1,7 +1,12 @@
 #include "RecoParticleFlow/PFProducer/interface/PFProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+
 
 using namespace std;
+
+using namespace boost;
+
 using namespace edm;
 
 
@@ -30,19 +35,36 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     = iConfig.getParameter<double>("pf_nsigma_HCAL");
   
   
-  // energyCalibration_ = new PFEnergyCalibration(iConfig);
-  // energyCalibration_ = new PFEnergyCalibration();
+  double e_slope
+    = iConfig.getParameter<double>("pf_calib_ECAL_slope");
+  double e_offset 
+    = iConfig.getParameter<double>("pf_calib_ECAL_offset");
+  
+  double eh_eslope
+    = iConfig.getParameter<double>("pf_calib_ECAL_HCAL_eslope");
+  double eh_hslope 
+    = iConfig.getParameter<double>("pf_calib_ECAL_HCAL_hslope");
+  double eh_offset 
+    = iConfig.getParameter<double>("pf_calib_ECAL_HCAL_offset");
+  
+  double h_slope
+    = iConfig.getParameter<double>("pf_calib_HCAL_slope");
+  double h_offset 
+    = iConfig.getParameter<double>("pf_calib_HCAL_offset");
+  double h_damping 
+    = iConfig.getParameter<double>("pf_calib_HCAL_damping");
+  
+ 
 
-  double calibParamECAL_offset 
-    = iConfig.getParameter<double>("pf_ECAL_calib_p0");
-  double calibParamECAL_slope 
-    = iConfig.getParameter<double>("pf_ECAL_calib_p1");
-
-  // energyCalibration_->setCalibrationParametersEm(calibParamECAL_slope_, calibParamECAL_offset_); 
-  // PFBlock::setEnergyCalibration(energyCalibration_);
-  // energyResolution_ = new PFEnergyResolution(iConfig);
-  // energyResolution_ = new PFEnergyResolution();
-  // PFBlock::setEnergyResolution(energyResolution_);
+  shared_ptr<PFEnergyCalibration> 
+    calibration( new PFEnergyCalibration( e_slope,
+					  e_offset, 
+					  eh_eslope,
+					  eh_hslope,
+					  eh_offset,
+					  h_slope,
+					  h_offset,
+					  h_damping ) );
 
   bool   clusterRecovery 
     = iConfig.getParameter<bool>("pf_clusterRecovery");
@@ -53,10 +75,12 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   edm::FileInPath path_mvaWeightFile( mvaWeightFile.c_str() );
   double PSCut = iConfig.getParameter<double>("pf_mergedPhotons_PSCut");
   
-  pfAlgo_.setParameters( calibParamECAL_offset, 
-			 calibParamECAL_slope, 
-			 nSigmaECAL, 
+
+  
+
+  pfAlgo_.setParameters( nSigmaECAL, 
 			 nSigmaHCAL,
+			 calibration,
 			 clusterRecovery,
 			 PSCut, 
 			 mvaCut, 
