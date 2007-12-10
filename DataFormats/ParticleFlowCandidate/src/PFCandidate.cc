@@ -11,13 +11,24 @@ using namespace reco;
 using namespace std;
 
 
+
+const float PFCandidate::bigMva_ = 999;
+
 PFCandidate::PFCandidate() : 
   particleId_( X ),
   ecalEnergy_(-1),
   hcalEnergy_(-1),
   ps1Energy_(-1),
   ps2Energy_(-1),
-  flags_(0)  {}
+  flags_(0), 
+  deltaP_(-1), 
+  mva_e_pi_(-PFCandidate::bigMva_),
+  mva_e_mu_(-PFCandidate::bigMva_),
+  mva_pi_mu_(-PFCandidate::bigMva_),
+  mva_nothing_gamma_(-PFCandidate::bigMva_),
+  mva_nothing_nh_(-PFCandidate::bigMva_),
+  mva_gamma_nh_(-PFCandidate::bigMva_)
+{}
 
 
 PFCandidate::PFCandidate( Charge charge, 
@@ -32,7 +43,15 @@ PFCandidate::PFCandidate( Charge charge,
   hcalEnergy_(0),
   ps1Energy_(-1),
   ps2Energy_(-1),
-  flags_(0)
+  flags_(0),
+  deltaP_(-1),
+  mva_e_pi_(-PFCandidate::bigMva_),
+  mva_e_mu_(-PFCandidate::bigMva_),
+  mva_pi_mu_(-PFCandidate::bigMva_),
+  mva_nothing_gamma_(-PFCandidate::bigMva_),
+  mva_nothing_nh_(-PFCandidate::bigMva_),
+  mva_gamma_nh_(-PFCandidate::bigMva_)
+  
   /*       ,elementIndices_(elementIndices)  */ 
 {
 

@@ -94,6 +94,54 @@ namespace reco {
     /// return a given flag
     bool flag(Flags theFlag) const;
 
+    /// set uncertainty on momentum
+    void setDeltaP(double dp ) {deltaP_ = dp;}
+
+    /// uncertainty on 3-momentum
+    double deltaP() const { return deltaP_;}
+    
+
+    /// set mva for electron-pion discrimination
+    void set_mva_e_pi( float mva ) { mva_e_pi_ = mva; } 
+    
+    /// mva for electron-pion discrimination
+    float mva_e_pi() const { return mva_e_pi_;}
+
+    
+    /// set mva for electron-muon discrimination
+    void set_mva_e_mu( float mva ) { mva_e_mu_ = mva; } 
+    
+    /// mva for electron-muon discrimination
+    float mva_e_mu() const { return mva_e_mu_;}
+
+
+    /// set mva for pi-muon discrimination
+    void set_mva_pi_mu( float mva ) { mva_pi_mu_ = mva; } 
+
+    /// mva for pi-muon discrimination
+    float mva_pi_mu() const { return mva_pi_mu_;}
+    
+
+    /// set mva for gamma detection
+    void set_mva_nothing_gamma( float mva ) { mva_nothing_gamma_ = mva; } 
+
+    /// mva for gamma detection
+    float mva_nothing_gamma() const { return mva_nothing_gamma_;}
+
+
+    /// set mva for neutral hadron detection
+    void set_mva_nothing_nh( float mva ) { mva_nothing_nh_ = mva; } 
+
+    /// mva for neutral hadron detection
+    float mva_nothing_nh() const { return mva_nothing_nh_;}
+
+
+    /// set mva for neutral hadron - gamma discrimination
+    void set_mva_gamma_nh( float mva ) { mva_gamma_nh_ = mva; } 
+
+    /// mva for neutral hadron - gamma discrimination
+    float mva_gamma_nh() const { return mva_gamma_nh_;}
+
 
     /// particle identification code
     virtual int particleId() const { return particleId_;}
@@ -117,15 +165,13 @@ namespace reco {
     
     /// return reference to the block
     PFBlockRef block() const { return blockRef_; } 
-        
+  
+
+    static const float bigMva_;
 
     friend std::ostream& operator<<( std::ostream& out, 
 				     const PFCandidate& c );
-    
-
-
-
-
+  
   private:
     void setFlag(unsigned shift, unsigned flag, bool value);
 
@@ -139,7 +185,7 @@ namespace reco {
 
     /// indices of the elements used in the PFBlock
     /*     std::vector<unsigned>   elementIndices_; */
-    
+
     reco::TrackRef trackRef_;
     
     reco::MuonRef  muonRef_;
@@ -156,22 +202,29 @@ namespace reco {
     /// corrected PS2 energy
     float        ps2Energy_;
 
-    /**
-       \btrief all flags, packed (ecal regional, hcal regional, tracking)
-
-       0x0    normal
-
-       0x1    phi boundary between supermodules
-       0x2    eta boundary between modules
-       0x3    barrel/endcap transition
-       0x4    preshower transition
-       0x5    edge of ecal endcap
-
-       0x10   barrel/endcap overlap
-       0x20   endcap/vfcal  overlap
-       0x30   edge of vfcal
-    */
+    /// all flags, packed (ecal regional, hcal regional, tracking)
     unsigned     flags_;
+
+    /// uncertainty on 3-momentum
+    double       deltaP_;
+
+    /// mva for electron-pion discrimination
+    float       mva_e_pi_;
+
+    /// mva for electron-muon discrimination
+    float       mva_e_mu_;
+
+    /// mva for pi-muon discrimination
+    float       mva_pi_mu_;
+    
+    /// mva for gamma detection
+    float       mva_nothing_gamma_;
+
+    /// mva for neutral hadron detection
+    float       mva_nothing_nh_;
+
+    /// mva for neutral hadron - gamma discrimination
+    float       mva_gamma_nh_;
   };
 
   /// particle ID component tag
