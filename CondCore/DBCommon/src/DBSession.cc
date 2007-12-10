@@ -24,7 +24,6 @@
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 // pool includes
-#include "POOLCore/POOLContext.h"
 #include <boost/filesystem/operations.hpp>
 //#include <iostream>
 cond::DBSession::DBSession(){ 
@@ -89,7 +88,7 @@ void cond::DBSession::open(){
     throw cond::Exception( "Could not locate authentication service" );
   }
   //load relational service
-  m_loader->load( "CORAL/Services/RelationalService" );
+  //m_loader->load( "CORAL/Services/RelationalService" );
   //load connection service
   m_loader->load( "CORAL/Services/ConnectionService" );
   
