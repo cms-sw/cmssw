@@ -16,6 +16,9 @@
 <use name=RecoTracker/MeasurementDet>
 <use name=RecoTracker/CkfPattern>
 <use name=RecoTracker/TrackProducer>
+<use name=DataFormats/HcalRecHit>
+<use name=RecoCaloTools/Selectors>
+<use name=RecoCaloTools/MetaCollections>
 <use name=clhep>
  <flags EDM_PLUGIN=1>
 <export>
@@ -37,5 +40,8 @@
   <use name=RecoTracker/MeasurementDet>
   <use name=RecoTracker/CkfPattern>
   <use name=RecoTracker/TrackProducer>
+  <use name=DataFormats/HcalRecHit>
+  <use name=RecoCaloTools/Selectors>
+  <use name=RecoCaloTools/MetaCollections>
   <use name=clhep>
 </export>
