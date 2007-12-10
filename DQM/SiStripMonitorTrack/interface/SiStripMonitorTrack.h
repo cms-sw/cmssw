@@ -30,6 +30,7 @@
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfoTrackAssociation.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
+#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -113,6 +114,7 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   MonitorElement * NumberOfTracksTrend;
   MonitorElement * NumberOfRecHitsPerTrack;
   MonitorElement * NumberOfRecHitsPerTrackTrend;
+  //MonitorElement * LocalAngle;
 
   std::map<TString, ModMEs> ModMEsMap;
   std::map<TString, MonitorElement*> MEMap;
@@ -131,7 +133,7 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   std::vector<uint32_t> ModulesToBeExcluded_;
   std::vector<const SiStripCluster*> vPSiStripCluster;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
-
+  SiStripFolderOrganizer folder_organizer;
   bool tracksCollection_in_EventTree;
   int runNb, eventNb;
   int firstEvent;
