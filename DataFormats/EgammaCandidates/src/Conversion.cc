@@ -47,7 +47,7 @@ bool Conversion::isConverted() const {
 }
 
 
-double  Conversion::makePrimaryVertexZ() const  {
+double  Conversion::zOfPrimaryVertexFromTracks()  const  {
   double theZOfPrimaryVertexFromTracks=-9999.;
 
   float pTrkMag=this->pairMomentum().mag();
@@ -63,7 +63,7 @@ double  Conversion::makePrimaryVertexZ() const  {
 }
 
 
-double Conversion::makePairInvariantMass() const{
+double Conversion::pairInvariantMass() const{
   double invMass=-99.;
   const float mElec= 0.000511;
   if ( nTracks()==2 ) {
@@ -79,7 +79,7 @@ double Conversion::makePairInvariantMass() const{
   return invMass;
 }
 
-double  Conversion::makePairCotThetaSeparation() const  {
+double  Conversion::pairCotThetaSeparation() const  {
   double dCotTheta=-99.;
   
   if ( nTracks()==2 ) {
@@ -92,7 +92,7 @@ double  Conversion::makePairCotThetaSeparation() const  {
 
 }
 
-GlobalVector  Conversion::makePairMomentum() const  {
+GlobalVector  Conversion::pairMomentum() const  {
 
   double px=0.;
   double py=0.;
@@ -115,44 +115,10 @@ GlobalVector  Conversion::makePairMomentum() const  {
 
 }
 
-double  Conversion::makePairMomentumEta() const {
 
-  double etaTracks=-99.;
-  
-  if ( nTracks() > 0 ) {
-    etaTracks= pairMomentum().eta();
-  } 
 
-  return etaTracks;
-}
 
-double  Conversion::makePairMomentumPhi() const  {
-
-  double phiTracks=-99.;
-  
-  if ( nTracks() > 0 ) {
-    phiTracks= pairMomentum().phi();
-  } 
-
-  return phiTracks;
-
-}
-
-double  Conversion::makePairPtOverEtSC() const  {
-
-  double ptOverEtSC=-99.;
-  double etaSC=superCluster()->eta();
-  double EtSC= superCluster()->energy()/cosh(etaSC);
-  
-   if ( nTracks() ==2 ) {
-    ptOverEtSC= (pairMomentum().perp()) /EtSC; 
-   }
-
-   return ptOverEtSC;
-
-}
-
-double  Conversion::makeEoverP() const  {
+double  Conversion::EoverP() const  {
 
   double ep=-99.;
   if ( nTracks() > 0  ) 

@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.16 2007/10/06 20:05:46 futyand Exp $
+ * \version $Id: Conversion.h,v 1.1 2007/12/07 19:13:43 nancy Exp $
  *
  */
 
@@ -55,21 +55,15 @@ namespace reco {
     /// Number of tracks= 0,1,2
     unsigned int nTracks() const {return  tracks().size(); }
     /// if nTracks=2 returns the pair invariant mass
-    double pairInvariantMass() const {return makePairInvariantMass() ;}
+    double pairInvariantMass() const;
     /// Delta cot(Theta) where Theta is the angle in the (y,z) plane between the two tracks 
-    double pairCotThetaSeparation() const {return makePairCotThetaSeparation() ;}
+    double pairCotThetaSeparation() const;
     /// Conversion tracks momentum 
-    GlobalVector  pairMomentum() const {return makePairMomentum() ;}
-    /// Phi  
-    double pairMomentumPhi() const {return makePairMomentumPhi();}
-    /// Eta 
-    double pairMomentumEta() const {return makePairMomentumEta();}
-    /// Pt from tracks divided by the super cluster transverse energy
-    double pairPtOverEtSC() const {return makePairPtOverEtSC();}
+    GlobalVector  pairMomentum() const;
     /// Super Cluster energy divided by tracks momentum
-    double EoverP() const {return makePairPtOverEtSC() ;}
+    double EoverP() const;
     /// set primary event vertex used to define photon direction
-    double zOfPrimaryVertexFromTracks() const  {return makePrimaryVertexZ();}
+    double zOfPrimaryVertexFromTracks() const;
 
 
 
@@ -84,15 +78,14 @@ namespace reco {
     reco::Vertex theConversionVertex_;
     std::vector<reco::BasicClusterRef> theMatchingBCs_;
 
-
+    /*    
     double makePairInvariantMass() const;
     double makePairCotThetaSeparation() const;
     GlobalVector makePairMomentum() const;
-    double makePairMomentumEta() const;
-    double makePairMomentumPhi() const;
     double makePairPtOverEtSC() const;
     double makeEoverP() const;
     double makePrimaryVertexZ() const ;
+    */
 
 
   };
