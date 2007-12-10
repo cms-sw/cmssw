@@ -36,7 +36,7 @@ void TrackingTruthValid::beginJob(const edm::ParameterSet& conf) {}
 
 TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf) {
   
-  out   = conf.getUntrackedParameter<string>("out", "valid_TrackingParticle.root");
+  outputFile = conf.getUntrackedParameter<string>("outputFile","trackingtruthhisto.root");
   
   dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe_->showDirStructure();
