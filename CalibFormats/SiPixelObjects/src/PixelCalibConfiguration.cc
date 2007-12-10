@@ -51,8 +51,11 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 	     mode_=="Iana"||
 	     mode_=="FEDAddressLevelWithPixels"||
 	     mode_=="GainCalibration"||
+             mode_=="GainCalibrationWithSLink"||
 	     mode_=="PixelAlive"||
+             mode_=="PixelAliveWithSLink"||
 	     mode_=="SCurve"||
+             mode_=="SCurveWithSLink"||
 	     mode_=="Delay25"||
 	     mode_=="ClockPhaseCalibration"||
 	     mode_=="TemperatureCalibration"||
