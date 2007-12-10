@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/07 08:43:22 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/10 08:12:36 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -76,7 +76,7 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup& iS
    auto_ptr<TriggerEventWithRefs> product(new TriggerEventWithRefs(pn_,nfob));
    for (size_type ifob=0; ifob!=nfob; ++ifob) {
      const std::string& moduleLabel(fobs_[ifob].provenance()->moduleLabel());
-     LogDebug("") << ifob << " " << moduleLabel;
+     LogTrace("") << ifob << " " << moduleLabel;
      product->addFilterObject(moduleLabel,*fobs_[ifob]);
    }
 

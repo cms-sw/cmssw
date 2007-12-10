@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/07 13:40:49 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/12/10 08:12:36 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -127,7 +127,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    fobs_.clear();
    iEvent.getMany(selector_,fobs_);
    const size_type nfob(fobs_.size());
-   LogDebug("") << "Number of filter  objects found: " << nfob;
+   LogTrace("") << "Number of filter  objects found: " << nfob;
    size_type nfo(0);
    nfo = fillMask(fobs_,filterTags_);
 
