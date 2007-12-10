@@ -38,8 +38,8 @@ class SiPixelCalibConfiguration
   std::vector<short> getColumnPattern() const { return fColumnPattern;}
   void  setColumnPattern(const std::vector<short> & in) { fColumnPattern = in; }
 
-  void setCalibrationMode(const std::string & in) { fMode_ = in; }
-  std::string getCalibrationMode() const {return fMode_;}
+  void setCalibrationMode(const std::string & in) { fMode = in; }
+  std::string getCalibrationMode() const {return fMode;}
 
   const std::vector<short> getVCalValues() const { return fVCalValues;}
   void  setVCalValues(const std::vector< short> & in) { fVCalValues = in; }
@@ -66,7 +66,7 @@ class SiPixelCalibConfiguration
   std::vector<short>        fRowPattern;//
   std::vector<short>        fColumnPattern;//
   std::vector<short>                fVCalValues;//
-  std::string               fMode_;
+  std::string               fMode;
 };
 
 #endif
