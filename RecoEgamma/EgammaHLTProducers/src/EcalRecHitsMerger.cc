@@ -91,7 +91,7 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
  if (debug_) cout << " Number of EB Rechits to merge  = " << nEB << endl;
  if (debug_) cout << " Number of EE Rechits to merge  = " << nEE << endl;
 
- for (int i=0; i < nColl; i++) {
+ for (unsigned int i=0; i < nColl; i++) {
    std::string instance = EcalRecHits_done[i].provenance()->productInstanceName(); 
 
    std::string module_label = EcalRecHits_done[i].provenance()->moduleLabel();
