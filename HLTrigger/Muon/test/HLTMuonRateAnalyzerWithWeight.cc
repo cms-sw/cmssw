@@ -13,13 +13,16 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -29,6 +32,8 @@
 using namespace std;
 using namespace edm;
 using namespace reco;
+using namespace trigger;
+using namespace l1extra;
 
 /// Constructor
 HLTMuonRateAnalyzerWithWeight::HLTMuonRateAnalyzerWithWeight(const ParameterSet& pset)
@@ -207,7 +212,7 @@ void HLTMuonRateAnalyzerWithWeight::analyze(const Event & event, const EventSetu
   if(bcevent)theNumberOfBCEvents += this_event_weight;
   else theNumberOfLightEvents += this_event_weight;
   // Get the L1 collection
-  Handle<HLTFilterObjectWithRefs> l1cands;
+  Handle<TriggerFilterObjectWithRefs> l1cands;
   event.getByLabel(theL1CollectionLabel, l1cands);
   if (l1cands.failedToGet()){
     LogInfo("HLTMuonRateAnalyzerWithWeight") << " No L1 collection";
@@ -216,7 +221,7 @@ void HLTMuonRateAnalyzerWithWeight::analyze(const Event & event, const EventSetu
   }
 
   // Get the HLT collections
-  std::vector<Handle<HLTFilterObjectWithRefs> > hltcands(theHLTCollectionLabels.size());
+  std::vector<Handle<TriggerFilterObjectWithRefs> > hltcands(theHLTCollectionLabels.size());
 
   unsigned int modules_in_this_event = 0;
   for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
@@ -231,8 +236,10 @@ void HLTMuonRateAnalyzerWithWeight::analyze(const Event & event, const EventSetu
   // Fix L1 thresholds to obtain HLT plots
   unsigned int nL1FoundRef = 0;
   double epsilon = 0.001;
-  for (unsigned int k=0; k<l1cands->size(); k++) {
-      RefToBase<Candidate> candref = l1cands->getParticleRef(k);
+  vector<L1MuonParticleRef> l1mu;
+  l1cands->getObjects(TriggerL1Mu,l1mu);
+  for (unsigned int k=0; k<l1mu.size(); k++) {
+      L1MuonParticleRef candref = L1MuonParticleRef(l1mu[k]);
       // L1 PTs are "quantized" due to LUTs. 
       // Their meaning: true_pt > ptLUT more than 90% pof the times
       double ptLUT = candref->pt();
@@ -245,10 +252,10 @@ void HLTMuonRateAnalyzerWithWeight::analyze(const Event & event, const EventSetu
 
       // L1 filling
       unsigned int nFound = 0;
-      for (unsigned int k=0; k<l1cands->size(); k++) {
-            RefToBase<Candidate> candref = l1cands->getParticleRef(k);
-            double pt = candref->pt();
-            if (pt>ptcut) nFound++;
+      for (unsigned int k=0; k<l1mu.size(); k++) {
+	L1MuonParticleRef candref = L1MuonParticleRef(l1mu[k]);
+	double pt = candref->pt();
+	if (pt>ptcut) nFound++;
       }
       if (nFound>=theNumberOfObjects) {
 	if (bcevent) hBCL1eff->Fill(ptcut,this_event_weight);
@@ -260,8 +267,10 @@ void HLTMuonRateAnalyzerWithWeight::analyze(const Event & event, const EventSetu
       // HLT filling
       for (unsigned int i=0; i<modules_in_this_event; i++) {
             unsigned nFound = 0;
-            for (unsigned int k=0; k<hltcands[i]->size(); k++) {
-                  RefToBase<Candidate> candref = hltcands[i]->getParticleRef(k);
+	    vector<RecoChargedCandidateRef> vref;
+	    hltcands[i]->getObjects(TriggerMuon,vref);
+            for (unsigned int k=0; k<vref.size(); k++) {
+                  RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[k]);
                   TrackRef tk = candref->get<TrackRef>();
                   double pt = tk->pt();
                   double err0 = tk->error(0);
