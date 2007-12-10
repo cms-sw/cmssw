@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/10/07 18:03:05 $
- *  $Revision: 1.110 $
+ *  $Date: 2007/12/10 19:03:41 $
+ *  $Revision: 1.111 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -89,8 +89,7 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   LogInfo(category) 
       << "Found " << allTrackerTracks->size() 
       << " tracker Tracks with label "<< theTkTrackLabel;  
-  event.getByLabel(theTkTrackLabel,handleTrackerTrajs);
-  if (handleTrackerTrajs.isValid()) {
+  if (event.getByLabel(theTkTrackLabel,handleTrackerTrajs)) {
     theTkTrajsAvailableFlag = true;
     allTrackerTrajs = &*handleTrackerTrajs;  
     
