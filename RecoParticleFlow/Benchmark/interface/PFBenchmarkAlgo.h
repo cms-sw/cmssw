@@ -40,6 +40,10 @@ public:
   template <typename T, typename U, template <typename> class Collection>
   static const U *matchByDeltaEt(const T *, const Collection<U> *);
 
+  // Copy the input Collection (useful when sorting)
+  template <typename U, template <typename> class Collection>
+  static Collection<U> copyCollection(const Collection<U> *);
+
   // Sort the U Candidates to the T Candidate based on minimum Delta-R
   template <typename T, typename U, template <typename> class Collection>
   static void sortByDeltaR(const T *, Collection<U> &);
@@ -230,6 +234,23 @@ const U *PFBenchmarkAlgo::matchByDeltaEt(const T *c1, const Collection<U> *candi
 
 }
 
+// Copy the Collection (useful when sorting)
+template <typename U, template <typename> class Collection>
+Collection<U> PFBenchmarkAlgo::copyCollection(const Collection<U> *candidates) {
+
+  // Try to verify the validity of the Collection
+  if (!candidates) throw cms::Exception("Invalid Arg") << "attempted to copy invalid Collection";
+
+  Collection<U> copy;
+
+  for (unsigned int i = 0; i < candidates->size(); i++)
+    vector_add(&(*candidates)[i],copy);
+
+  return copy;
+
+}
+
+
 // Sort the U Candidates to the Candidate T based on minimum Delta-R
 template <typename T, typename U, template <typename> class Collection>
 void PFBenchmarkAlgo::sortByDeltaR(const T *c1, Collection<U> &candidates) {
@@ -260,9 +281,9 @@ void PFBenchmarkAlgo::sortByDeltaEt(const T *c1, Collection<U> &candidates) {
 template <typename T, typename U, template <typename> class Collection>
 Collection<U> PFBenchmarkAlgo::findAllInCone(const T *c1, const Collection<U> *candidates, double ConeSize) {
 
-  // Try to verify the validity of Candidate and the CandidateCollection
+  // Try to verify the validity of Candidate and the Collection
   if (!c1) throw cms::Exception("Invalid Arg") << "attempted to constrain to invalid Candidate";
-  if (!candidates) throw cms::Exception("Invalid Arg") << "attempted to constrain invalid CandidateCollection";
+  if (!candidates) throw cms::Exception("Invalid Arg") << "attempted to constrain invalid Collection";
   if (ConeSize <= 0) throw cms::Exception("Invalid Arg") << "zero or negative cone size specified";
 
   Collection<U> constrained;
@@ -287,9 +308,9 @@ Collection<U> PFBenchmarkAlgo::findAllInCone(const T *c1, const Collection<U> *c
 template <typename T, typename U, template <typename> class Collection>
 Collection<U> PFBenchmarkAlgo::findAllInEtWindow(const T *c1, const Collection<U> *candidates, double EtWindow) {
 
-  // Try to verify the validity of Candidate and the CandidateCollection
+  // Try to verify the validity of Candidate and the Collection
   if (!c1) throw cms::Exception("Invalid Arg") << "attempted to constrain to invalid Candidate";
-  if (!candidates) throw cms::Exception("Invalid Arg") << "attempted to constrain invalid CandidateCollection";
+  if (!candidates) throw cms::Exception("Invalid Arg") << "attempted to constrain invalid Collection";
   if (EtWindow <= 0) throw cms::Exception("Invalid Arg") << "zero or negative cone size specified";
 
   Collection<U> constrained;
