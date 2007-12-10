@@ -78,11 +78,11 @@ public:
 	unsigned int trigger_sector(void) const throw() { return sp_trigger_sector; }
 	// following two functions are kept for compatibility with earlier versions of TF data format:
 	unsigned int sector(void) const throw() {
-		if(sp_ersv<1) return sp_trigger_sector&0x7;
+		if(sp_ersv<2) return sp_trigger_sector&0x7;
 		else return (sp_trigger_sector<6?sp_trigger_sector:sp_trigger_sector-6);
 	}
 	unsigned int endcap(void) const throw() {
-		if(sp_ersv<1) return sp_trigger_sector&0x8;
+		if(sp_ersv<2) return sp_trigger_sector&0x8;
 		else return (sp_trigger_sector<6?1:0);
 	}
 
