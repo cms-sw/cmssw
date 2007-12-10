@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: PixelMatchGsfElectron.h,v 1.21 2007/07/31 15:20:03 ratnik Exp $
+ * \version $Id: PixelMatchGsfElectron.h,v 1.20 2007/06/20 08:33:38 llista Exp $
  *
  */
 
@@ -25,9 +25,6 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
-// Revision 1.21  2007/07/31 15:20:03  ratnik
-// QA campaign: include cleanup based on CMSSW_1_7_X_2007-07-30-1600 includechecker results.
-//
 // Revision 1.20  2007/06/20 08:33:38  llista
 // fixed electron content
 //
@@ -85,13 +82,11 @@
 //-------------------------------------------------------------------
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h" 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -108,8 +103,7 @@ class PixelMatchGsfElectron : public RecoCandidate {
   PixelMatchGsfElectron() { } 
 
   PixelMatchGsfElectron(const LorentzVector & p4,
-			const SuperClusterRef scl, 
-			const ClusterShapeRef shp, const GsfTrackRef gsft,
+			const SuperClusterRef scl, const GsfTrackRef gsft,
 			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, 
 			const GlobalPoint tsseedPos, const GlobalVector tsseedMom, 
 			const GlobalPoint innPos, const GlobalVector innMom, 
@@ -138,7 +132,6 @@ class PixelMatchGsfElectron : public RecoCandidate {
   void setDeltaPhiSuperClusterAtVtx (float dphi) {deltaPhiSuperClusterAtVtx_=dphi;}
 
   void setSuperCluster(const reco::SuperClusterRef &scl) {superCluster_=scl;}
-  void setClusterShape(const reco::ClusterShapeRef &shp) {seedClusterShape_=shp;}
   void setGsfTrack(const reco::GsfTrackRef &t) { track_=t;}
 
   // supercluster and electron track related quantities
@@ -193,9 +186,6 @@ class PixelMatchGsfElectron : public RecoCandidate {
   //! get associated superCluster Pointer
   SuperClusterRef superCluster() const { return superCluster_; } 
 
-  //! get pointer to ClusterShape for seed BasicCluster of the associated SuperCluster
-  ClusterShapeRef seedClusterShape() const { return seedClusterShape_; } 
-
   //! get associated GsfTrack pointer
   reco::GsfTrackRef gsfTrack() const { return track_; } 
   reco::TrackRef track() const {edm::LogWarning("PixelMatchGsfElectron")<<"!!!You are using the method 'track()' with a PixelMatchGsfElectron, which has a link to a GsfTrack, please use the method 'gsfTrack()' instead!!!";return TrackRef();} 
@@ -236,7 +226,6 @@ class PixelMatchGsfElectron : public RecoCandidate {
   float hadOverEm_;
 
   reco::SuperClusterRef superCluster_;
-  reco::ClusterShapeRef seedClusterShape_;
   reco::GsfTrackRef track_;
 
   bool energyScaleCorrected_;
@@ -246,6 +235,8 @@ class PixelMatchGsfElectron : public RecoCandidate {
   virtual bool overlap( const Candidate & ) const;
 
 };
+
+  typedef PixelMatchGsfElectron GsfElectron;
 
 }
 #endif
