@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/08/22 17:44:28 $
- *  $Revision: 1.109 $
+ *  $Date: 2007/10/07 18:03:05 $
+ *  $Revision: 1.110 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -58,11 +58,12 @@ using namespace edm;
 //----------------
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
-							 const MuonServiceProxy* service) : GlobalTrajectoryBuilderBase(par, service) {
+							 const MuonServiceProxy* service) : GlobalTrajectoryBuilderBase(par, service),
+											    theTkTrajsAvailableFlag(false)
+{
 
   theFirstEvent = true;
   theTkTrackLabel = par.getParameter<edm::InputTag>("TrackerCollectionLabel");
-
 }
 
 
@@ -88,10 +89,11 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   LogInfo(category) 
       << "Found " << allTrackerTracks->size() 
       << " tracker Tracks with label "<< theTkTrackLabel;  
-  if ( event.getByLabel(theTkTrackLabel,handleTrackerTrajs) ) {
+  event.getByLabel(theTkTrackLabel,handleTrackerTrajs);
+  if (handleTrackerTrajs.isValid()) {
     theTkTrajsAvailableFlag = true;
     allTrackerTrajs = &*handleTrackerTrajs;  
-   
+    
     event.getByLabel(theTkTrackLabel,tkAssoMap);   
     if ( theFirstEvent ) {
       LogInfo(category) << "Tk Trajectories Found! ";
