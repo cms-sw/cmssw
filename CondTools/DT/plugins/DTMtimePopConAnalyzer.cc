@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:53 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:13:01 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -10,12 +10,12 @@
 //-----------------------
 // This Class' Header --
 //-----------------------
-#include "CondTools/DT/plugins/DTPerformanceAnalyzer.h"
+#include "CondTools/DT/plugins/DTMtimePopConAnalyzer.h"
 
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "CondTools/DT/interface/DTPerformanceHandler.h"
+#include "CondTools/DT/interface/DTMtimeHandler.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 //---------------
@@ -31,8 +31,8 @@
 //----------------
 // Constructors --
 //----------------
-DTPerformanceAnalyzer::DTPerformanceAnalyzer( const edm::ParameterSet& ps ):
- popcon::PopConAnalyzer<DTPerformance>( ps, "DTPerformance" ),
+DTMtimePopConAnalyzer::DTMtimePopConAnalyzer( const edm::ParameterSet& ps ):
+ popcon::PopConAnalyzer<DTMtime>( ps, "DTMtime" ),
  dataTag(  ps.getParameter<std::string> ( "tag" ) ),
  fileName( ps.getParameter<std::string> ( "file" ) ) {
 }
@@ -40,20 +40,20 @@ DTPerformanceAnalyzer::DTPerformanceAnalyzer( const edm::ParameterSet& ps ):
 //--------------
 // Destructor --
 //--------------
-DTPerformanceAnalyzer::~DTPerformanceAnalyzer() {
+DTMtimePopConAnalyzer::~DTMtimePopConAnalyzer() {
 }
 
 //--------------
 // Operations --
 //--------------
-void DTPerformanceAnalyzer::initSource( const edm::Event& evt,
+void DTMtimePopConAnalyzer::initSource( const edm::Event& evt,
                                         const edm::EventSetup& est ) {
-  m_handler_object = new DTPerformanceHandler( "DTPerformance",
-                                               m_offline_connection,
-                                               evt, est,
-                                               dataTag, fileName );
+  m_handler_object = new DTMtimeHandler( "DTMtime",
+                                         m_offline_connection,
+                                         evt, est,
+                                         dataTag, fileName );
   return;
 }
 
-DEFINE_FWK_MODULE(DTPerformanceAnalyzer);
+DEFINE_FWK_MODULE(DTMtimePopConAnalyzer);
 

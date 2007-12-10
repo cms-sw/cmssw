@@ -1,12 +1,12 @@
-#ifndef DTTtrigAnalyzer_H
-#define DTTtrigAnalyzer_H
-/** \class DTTtrigAnalyzer
+#ifndef DTTtrigPopConAnalyzer_H
+#define DTTtrigPopConAnalyzer_H
+/** \class DTTtrigPopConAnalyzer
  *
  *  Description: 
  *
  *
- *  $Date: 2007/11/24 12:29:54 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:13:16 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -30,17 +30,17 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTTtrigAnalyzer: public popcon::PopConAnalyzer<DTTtrig> {
+class DTTtrigPopConAnalyzer: public popcon::PopConAnalyzer<DTTtrig> {
 
  public:
 
   /** Constructor
    */
-  DTTtrigAnalyzer( const edm::ParameterSet& ps );
+  DTTtrigPopConAnalyzer( const edm::ParameterSet& ps );
 
   /** Destructor
    */
-  virtual ~DTTtrigAnalyzer();
+  virtual ~DTTtrigPopConAnalyzer();
 
   /** Operations
    */
@@ -55,7 +55,7 @@ class DTTtrigAnalyzer: public popcon::PopConAnalyzer<DTTtrig> {
 };
 
 
-#endif // DTTtrigAnalyzer_H
+#endif // DTTtrigPopConAnalyzer_H
 
 
 

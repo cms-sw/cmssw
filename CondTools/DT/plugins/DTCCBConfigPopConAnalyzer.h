@@ -1,12 +1,12 @@
-#ifndef DTMtimeAnalyzer_H
-#define DTMtimeAnalyzer_H
-/** \class DTMtimeAnalyzer
+#ifndef DTCCBConfigPopConAnalyzer_H
+#define DTCCBConfigPopConAnalyzer_H
+/** \class DTCCBConfigPopConAnalyzer
  *
  *  Description: 
  *
  *
- *  $Date: 2007/11/24 12:29:53 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:12:47 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,7 +19,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 
 //---------------
 // C++ Headers --
@@ -30,17 +30,17 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTMtimeAnalyzer: public popcon::PopConAnalyzer<DTMtime> {
+class DTCCBConfigPopConAnalyzer: public popcon::PopConAnalyzer<DTCCBConfig> {
 
  public:
 
   /** Constructor
    */
-  DTMtimeAnalyzer( const edm::ParameterSet& ps );
+  DTCCBConfigPopConAnalyzer( const edm::ParameterSet& ps );
 
   /** Destructor
    */
-  virtual ~DTMtimeAnalyzer();
+  virtual ~DTCCBConfigPopConAnalyzer();
 
   /** Operations
    */
@@ -50,12 +50,15 @@ class DTMtimeAnalyzer: public popcon::PopConAnalyzer<DTMtime> {
  private:
 
   std::string dataTag;
-  std::string fileName;
+  std::string onlineConnect;
+  std::string onlineAuthentication;
+  std::string offlineAuthentication;
+  std::string listToken;
 
 };
 
 
-#endif // DTMtimeAnalyzer_H
+#endif // DTCCBConfigPopConAnalyzer_H
 
 
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:53 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:13:07 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -10,7 +10,7 @@
 //-----------------------
 // This Class' Header --
 //-----------------------
-#include "CondTools/DT/plugins/DTRangeT0Analyzer.h"
+#include "CondTools/DT/plugins/DTRangeT0PopConAnalyzer.h"
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -31,7 +31,7 @@
 //----------------
 // Constructors --
 //----------------
-DTRangeT0Analyzer::DTRangeT0Analyzer( const edm::ParameterSet& ps ):
+DTRangeT0PopConAnalyzer::DTRangeT0PopConAnalyzer( const edm::ParameterSet& ps ):
  popcon::PopConAnalyzer<DTRangeT0>( ps, "DTRangeT0" ),
  dataTag(  ps.getParameter<std::string> ( "tag" ) ),
  fileName( ps.getParameter<std::string> ( "file" ) ) {
@@ -40,14 +40,14 @@ DTRangeT0Analyzer::DTRangeT0Analyzer( const edm::ParameterSet& ps ):
 //--------------
 // Destructor --
 //--------------
-DTRangeT0Analyzer::~DTRangeT0Analyzer() {
+DTRangeT0PopConAnalyzer::~DTRangeT0PopConAnalyzer() {
 }
 
 //--------------
 // Operations --
 //--------------
-void DTRangeT0Analyzer::initSource( const edm::Event& evt,
-                                    const edm::EventSetup& est ) {
+void DTRangeT0PopConAnalyzer::initSource( const edm::Event& evt,
+                                          const edm::EventSetup& est ) {
   m_handler_object = new DTRangeT0Handler( "DTRangeT0",
                                            m_offline_connection,
                                            evt, est,
@@ -55,5 +55,5 @@ void DTRangeT0Analyzer::initSource( const edm::Event& evt,
   return;
 }
 
-DEFINE_FWK_MODULE(DTRangeT0Analyzer);
+DEFINE_FWK_MODULE(DTRangeT0PopConAnalyzer);
 

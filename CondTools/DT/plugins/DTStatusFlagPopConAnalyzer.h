@@ -1,12 +1,12 @@
-#ifndef DTT0Analyzer_H
-#define DTT0Analyzer_H
-/** \class DTT0Analyzer
+#ifndef DTStatusFlagPopConAnalyzer_H
+#define DTStatusFlagPopConAnalyzer_H
+/** \class DTStatusFlagPopConAnalyzer
  *
  *  Description: 
  *
  *
- *  $Date: 2007/11/24 12:29:54 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:13:13 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,7 +19,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "CondFormats/DTObjects/interface/DTT0.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 //---------------
 // C++ Headers --
@@ -30,17 +30,17 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTT0Analyzer: public popcon::PopConAnalyzer<DTT0> {
+class DTStatusFlagPopConAnalyzer: public popcon::PopConAnalyzer<DTStatusFlag> {
 
  public:
 
   /** Constructor
    */
-  DTT0Analyzer( const edm::ParameterSet& ps );
+  DTStatusFlagPopConAnalyzer( const edm::ParameterSet& ps );
 
   /** Destructor
    */
-  virtual ~DTT0Analyzer();
+  virtual ~DTStatusFlagPopConAnalyzer();
 
   /** Operations
    */
@@ -55,7 +55,7 @@ class DTT0Analyzer: public popcon::PopConAnalyzer<DTT0> {
 };
 
 
-#endif // DTT0Analyzer_H
+#endif // DTStatusFlagPopConAnalyzer_H
 
 
 

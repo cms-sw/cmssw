@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:53 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:13:14 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -10,12 +10,12 @@
 //-----------------------
 // This Class' Header --
 //-----------------------
-#include "CondTools/DT/plugins/DTMtimeAnalyzer.h"
+#include "CondTools/DT/plugins/DTT0PopConAnalyzer.h"
 
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "CondTools/DT/interface/DTMtimeHandler.h"
+#include "CondTools/DT/interface/DTT0Handler.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 //---------------
@@ -31,8 +31,8 @@
 //----------------
 // Constructors --
 //----------------
-DTMtimeAnalyzer::DTMtimeAnalyzer( const edm::ParameterSet& ps ):
- popcon::PopConAnalyzer<DTMtime>( ps, "DTMtime" ),
+DTT0PopConAnalyzer::DTT0PopConAnalyzer( const edm::ParameterSet& ps ):
+ popcon::PopConAnalyzer<DTT0>( ps, "DTT0" ),
  dataTag(  ps.getParameter<std::string> ( "tag" ) ),
  fileName( ps.getParameter<std::string> ( "file" ) ) {
 }
@@ -40,20 +40,20 @@ DTMtimeAnalyzer::DTMtimeAnalyzer( const edm::ParameterSet& ps ):
 //--------------
 // Destructor --
 //--------------
-DTMtimeAnalyzer::~DTMtimeAnalyzer() {
+DTT0PopConAnalyzer::~DTT0PopConAnalyzer() {
 }
 
 //--------------
 // Operations --
 //--------------
-void DTMtimeAnalyzer::initSource( const edm::Event& evt,
-                                  const edm::EventSetup& est ) {
-  m_handler_object = new DTMtimeHandler( "DTMtime",
-                                         m_offline_connection,
-                                         evt, est,
-                                         dataTag, fileName );
+void DTT0PopConAnalyzer::initSource( const edm::Event& evt,
+                                     const edm::EventSetup& est ) {
+  m_handler_object = new DTT0Handler( "DTT0",
+                                      m_offline_connection,
+                                      evt, est,
+                                      dataTag, fileName );
   return;
 }
 
-DEFINE_FWK_MODULE(DTMtimeAnalyzer);
+DEFINE_FWK_MODULE(DTT0PopConAnalyzer);
 

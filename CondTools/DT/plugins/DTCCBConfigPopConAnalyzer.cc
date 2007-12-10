@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:52 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:12:45 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -10,7 +10,7 @@
 //-----------------------
 // This Class' Header --
 //-----------------------
-#include "CondTools/DT/plugins/DTCCBConfigAnalyzer.h"
+#include "CondTools/DT/plugins/DTCCBConfigPopConAnalyzer.h"
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -31,7 +31,7 @@
 //----------------
 // Constructors --
 //----------------
-DTCCBConfigAnalyzer::DTCCBConfigAnalyzer( const edm::ParameterSet& ps ):
+DTCCBConfigPopConAnalyzer::DTCCBConfigPopConAnalyzer( const edm::ParameterSet& ps ):
  popcon::PopConAnalyzer<DTCCBConfig>( ps, "DTCCBConfig" ),
  dataTag(               ps.getParameter<std::string> ( "tag" ) ),
  onlineConnect(         ps.getParameter<std::string> ( "onlineDB" ) ),
@@ -56,14 +56,14 @@ DTCCBConfigAnalyzer::DTCCBConfigAnalyzer( const edm::ParameterSet& ps ):
 //--------------
 // Destructor --
 //--------------
-DTCCBConfigAnalyzer::~DTCCBConfigAnalyzer() {
+DTCCBConfigPopConAnalyzer::~DTCCBConfigPopConAnalyzer() {
 }
 
 //--------------
 // Operations --
 //--------------
-void DTCCBConfigAnalyzer::initSource( const edm::Event& evt,
-                                      const edm::EventSetup& est ) {
+void DTCCBConfigPopConAnalyzer::initSource( const edm::Event& evt,
+                                            const edm::EventSetup& est ) {
   m_handler_object = new DTCCBConfigHandler( "DTCCBConfig",
                                              m_offline_connection,
                                              evt, est,
@@ -75,5 +75,5 @@ void DTCCBConfigAnalyzer::initSource( const edm::Event& evt,
   return;
 }
 
-DEFINE_FWK_MODULE(DTCCBConfigAnalyzer);
+DEFINE_FWK_MODULE(DTCCBConfigPopConAnalyzer);
 

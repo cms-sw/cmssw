@@ -1,12 +1,12 @@
-#ifndef DTDeadFlagAnalyzer_H
-#define DTDeadFlagAnalyzer_H
-/** \class DTDeadFlagAnalyzer
+#ifndef DTDeadFlagPopConAnalyzer_H
+#define DTDeadFlagPopConAnalyzer_H
+/** \class DTDeadFlagPopConAnalyzer
  *
  *  Description: 
  *
  *
- *  $Date: 2007/11/24 12:29:53 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:13:00 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -30,17 +30,17 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTDeadFlagAnalyzer: public popcon::PopConAnalyzer<DTDeadFlag> {
+class DTDeadFlagPopConAnalyzer: public popcon::PopConAnalyzer<DTDeadFlag> {
 
  public:
 
   /** Constructor
    */
-  DTDeadFlagAnalyzer( const edm::ParameterSet& ps );
+  DTDeadFlagPopConAnalyzer( const edm::ParameterSet& ps );
 
   /** Destructor
    */
-  virtual ~DTDeadFlagAnalyzer();
+  virtual ~DTDeadFlagPopConAnalyzer();
 
   /** Operations
    */
@@ -54,7 +54,7 @@ class DTDeadFlagAnalyzer: public popcon::PopConAnalyzer<DTDeadFlag> {
 
 };
 
-#endif // DTDeadFlagAnalyzer_H
+#endif // DTDeadFlagPopConAnalyzer_H
 
 
 

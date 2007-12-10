@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:53 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:13:13 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -10,7 +10,7 @@
 //-----------------------
 // This Class' Header --
 //-----------------------
-#include "CondTools/DT/plugins/DTStatusFlagAnalyzer.h"
+#include "CondTools/DT/plugins/DTStatusFlagPopConAnalyzer.h"
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -31,7 +31,7 @@
 //----------------
 // Constructors --
 //----------------
-DTStatusFlagAnalyzer::DTStatusFlagAnalyzer( const edm::ParameterSet& ps ):
+DTStatusFlagPopConAnalyzer::DTStatusFlagPopConAnalyzer( const edm::ParameterSet& ps ):
  popcon::PopConAnalyzer<DTStatusFlag>( ps, "DTStatusFlag" ),
  dataTag(  ps.getParameter<std::string> ( "tag" ) ),
  fileName( ps.getParameter<std::string> ( "file" ) ) {
@@ -40,14 +40,14 @@ DTStatusFlagAnalyzer::DTStatusFlagAnalyzer( const edm::ParameterSet& ps ):
 //--------------
 // Destructor --
 //--------------
-DTStatusFlagAnalyzer::~DTStatusFlagAnalyzer() {
+DTStatusFlagPopConAnalyzer::~DTStatusFlagPopConAnalyzer() {
 }
 
 //--------------
 // Operations --
 //--------------
-void DTStatusFlagAnalyzer::initSource( const edm::Event& evt,
-                                       const edm::EventSetup& est ) {
+void DTStatusFlagPopConAnalyzer::initSource( const edm::Event& evt,
+                                             const edm::EventSetup& est ) {
   m_handler_object = new DTStatusFlagHandler( "DTStatusFlag",
                                               m_offline_connection,
                                               evt, est,
@@ -55,5 +55,5 @@ void DTStatusFlagAnalyzer::initSource( const edm::Event& evt,
   return;
 }
 
-DEFINE_FWK_MODULE(DTStatusFlagAnalyzer);
+DEFINE_FWK_MODULE(DTStatusFlagPopConAnalyzer);
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:53 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:13:10 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -10,7 +10,7 @@
 //-----------------------
 // This Class' Header --
 //-----------------------
-#include "CondTools/DT/plugins/DTReadOutMappingAnalyzer.h"
+#include "CondTools/DT/plugins/DTReadOutMappingPopConAnalyzer.h"
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -31,7 +31,7 @@
 //----------------
 // Constructors --
 //----------------
-DTReadOutMappingAnalyzer::DTReadOutMappingAnalyzer( const edm::ParameterSet& ps ):
+DTReadOutMappingPopConAnalyzer::DTReadOutMappingPopConAnalyzer( const edm::ParameterSet& ps ):
  popcon::PopConAnalyzer<DTReadOutMapping>( ps, "DTReadOutMapping" ),
  dataTag(  ps.getParameter<std::string> ( "tag" ) ),
  fileName( ps.getParameter<std::string> ( "file" ) ) {
@@ -40,14 +40,14 @@ DTReadOutMappingAnalyzer::DTReadOutMappingAnalyzer( const edm::ParameterSet& ps 
 //--------------
 // Destructor --
 //--------------
-DTReadOutMappingAnalyzer::~DTReadOutMappingAnalyzer() {
+DTReadOutMappingPopConAnalyzer::~DTReadOutMappingPopConAnalyzer() {
 }
 
 //--------------
 // Operations --
 //--------------
-void DTReadOutMappingAnalyzer::initSource( const edm::Event& evt,
-                                           const edm::EventSetup& est ) {
+void DTReadOutMappingPopConAnalyzer::initSource( const edm::Event& evt,
+                                                 const edm::EventSetup& est ) {
   m_handler_object = new DTReadOutMappingHandler( "DTReadOutMapping",
                                                   m_offline_connection,
                                                   evt, est,
@@ -55,5 +55,5 @@ void DTReadOutMappingAnalyzer::initSource( const edm::Event& evt,
   return;
 }
 
-DEFINE_FWK_MODULE(DTReadOutMappingAnalyzer);
+DEFINE_FWK_MODULE(DTReadOutMappingPopConAnalyzer);
 

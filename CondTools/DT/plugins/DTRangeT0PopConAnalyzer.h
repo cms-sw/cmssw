@@ -1,12 +1,12 @@
-#ifndef DTCCBConfigAnalyzer_H
-#define DTCCBConfigAnalyzer_H
-/** \class DTCCBConfigAnalyzer
+#ifndef DTRangeT0PopConAnalyzer_H
+#define DTRangeT0PopConAnalyzer_H
+/** \class DTRangeT0PopConAnalyzer
  *
  *  Description: 
  *
  *
- *  $Date: 2007/11/24 12:29:52 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:13:09 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,7 +19,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "CondFormats/DTObjects/interface/DTCCBConfig.h"
+#include "CondFormats/DTObjects/interface/DTRangeT0.h"
 
 //---------------
 // C++ Headers --
@@ -30,17 +30,17 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTCCBConfigAnalyzer: public popcon::PopConAnalyzer<DTCCBConfig> {
+class DTRangeT0PopConAnalyzer: public popcon::PopConAnalyzer<DTRangeT0> {
 
  public:
 
   /** Constructor
    */
-  DTCCBConfigAnalyzer( const edm::ParameterSet& ps );
+  DTRangeT0PopConAnalyzer( const edm::ParameterSet& ps );
 
   /** Destructor
    */
-  virtual ~DTCCBConfigAnalyzer();
+  virtual ~DTRangeT0PopConAnalyzer();
 
   /** Operations
    */
@@ -50,15 +50,12 @@ class DTCCBConfigAnalyzer: public popcon::PopConAnalyzer<DTCCBConfig> {
  private:
 
   std::string dataTag;
-  std::string onlineConnect;
-  std::string onlineAuthentication;
-  std::string offlineAuthentication;
-  std::string listToken;
+  std::string fileName;
 
 };
 
 
-#endif // DTCCBConfigAnalyzer_H
+#endif // DTRangeT0PopConAnalyzer_H
 
 
 

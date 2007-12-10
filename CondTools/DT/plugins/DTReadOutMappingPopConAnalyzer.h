@@ -1,12 +1,12 @@
-#ifndef DTPerformanceAnalyzer_H
-#define DTPerformanceAnalyzer_H
-/** \class DTPerformanceAnalyzer
+#ifndef DTReadOutMappingPopConAnalyzer_H
+#define DTReadOutMappingPopConAnalyzer_H
+/** \class DTReadOutMappingPopConAnalyzer
  *
  *  Description: 
  *
  *
- *  $Date: 2007/11/24 12:29:53 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:13:12 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,7 +19,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "CondFormats/DTObjects/interface/DTPerformance.h"
+#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
 //---------------
 // C++ Headers --
@@ -30,17 +30,17 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTPerformanceAnalyzer: public popcon::PopConAnalyzer<DTPerformance> {
+class DTReadOutMappingPopConAnalyzer: public popcon::PopConAnalyzer<DTReadOutMapping> {
 
  public:
 
   /** Constructor
    */
-  DTPerformanceAnalyzer( const edm::ParameterSet& ps );
+  DTReadOutMappingPopConAnalyzer( const edm::ParameterSet& ps );
 
   /** Destructor
    */
-  virtual ~DTPerformanceAnalyzer();
+  virtual ~DTReadOutMappingPopConAnalyzer();
 
   /** Operations
    */
@@ -55,7 +55,7 @@ class DTPerformanceAnalyzer: public popcon::PopConAnalyzer<DTPerformance> {
 };
 
 
-#endif // DTPerformanceAnalyzer_H
+#endif // DTReadOutMappingPopConAnalyzer_H
 
 
 

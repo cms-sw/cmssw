@@ -1,12 +1,12 @@
-#ifndef DTRangeT0Analyzer_H
-#define DTRangeT0Analyzer_H
-/** \class DTRangeT0Analyzer
+#ifndef DTMtimePopConAnalyzer_H
+#define DTMtimePopConAnalyzer_H
+/** \class DTMtimePopConAnalyzer
  *
  *  Description: 
  *
  *
- *  $Date: 2007/11/24 12:29:53 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:13:02 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,7 +19,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "CondFormats/DTObjects/interface/DTRangeT0.h"
+#include "CondFormats/DTObjects/interface/DTMtime.h"
 
 //---------------
 // C++ Headers --
@@ -30,17 +30,17 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTRangeT0Analyzer: public popcon::PopConAnalyzer<DTRangeT0> {
+class DTMtimePopConAnalyzer: public popcon::PopConAnalyzer<DTMtime> {
 
  public:
 
   /** Constructor
    */
-  DTRangeT0Analyzer( const edm::ParameterSet& ps );
+  DTMtimePopConAnalyzer( const edm::ParameterSet& ps );
 
   /** Destructor
    */
-  virtual ~DTRangeT0Analyzer();
+  virtual ~DTMtimePopConAnalyzer();
 
   /** Operations
    */
@@ -55,7 +55,7 @@ class DTRangeT0Analyzer: public popcon::PopConAnalyzer<DTRangeT0> {
 };
 
 
-#endif // DTRangeT0Analyzer_H
+#endif // DTMtimePopConAnalyzer_H
 
 
 
