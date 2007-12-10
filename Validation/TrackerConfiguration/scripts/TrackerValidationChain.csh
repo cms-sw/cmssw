@@ -16,6 +16,7 @@ cvs co -r $CMSSW_VERSION Validation/Geometry
 cvs co -r $CMSSW_VERSION Validation/TrackerHits
 cvs co -r $CMSSW_VERSION Validation/TrackerDigis
 cvs co -r $CMSSW_VERSION Validation/TrackerRecHits
+cvs co -r $CMSSW_VERSION Validation/TrackingMCTruth
 cvs co -r $CMSSW_VERSION Validation/RecoTrack
 #Add also co of CalibTracker for test o Lite version of Geometry
 cvs co -r $CMSSW_VERSION CalibTracker/SiStripCommon
@@ -81,6 +82,12 @@ root -b -p -q SiPixelRecHitsCompare.C
 source copyWWWPixel.csh
 root -b -p -q SiStripRecHitsCompare.C
 source copyWWWStrip.csh
+
+cd ${DATADIR}/Validation/TrackingMCTruth/test
+cp ${DATADIR}/Validation/TrackerConfiguration/test/trackingtruthhisto.root .
+cp ${REFDIR}/TrackingParticles/* ../data/
+root -b -p -q TrackingTruthCompare.C
+source copyWWWTP.csh
 
 cd ${DATADIR}/Validation/RecoTrack/test
 
