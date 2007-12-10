@@ -881,11 +881,11 @@ bool PFRootEventManager::processEntry(int entry) {
 
   
   
-  if( deltaEt>0.4 ) {
-    cout<<deltaEt<<endl;
-    return true;
-  }  
-  else return false;
+//   if( deltaEt>0.4 ) {
+//     cout<<deltaEt<<endl;
+//     return true;
+//   }  
+//   else return false;
 
   return goodevent;
 
