@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.9 2007/03/12 18:52:36 futyand Exp $ 
- **  $Date: 2007/03/12 18:52:36 $ 
- **  $Revision: 1.9 $
+ **  $Id: PhotonProducer.h,v 1.10 2007/10/15 18:13:37 futyand Exp $ 
+ **  $Date: 2007/10/15 18:13:37 $ 
+ **  $Revision: 1.10 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -15,6 +15,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -22,6 +24,7 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
 class PhotonProducer : public edm::EDProducer {
@@ -41,10 +44,13 @@ class PhotonProducer : public edm::EDProducer {
 			    const CaloSubdetectorGeometry *geometry,
 			    const CaloSubdetectorGeometry *geometryES,
 			    const EcalRecHitCollection *hits,
+			    HBHERecHitMetaCollection *mhbhe,
 			    const reco::ElectronPixelSeedCollection& pixelSeeds,
 			    math::XYZPoint & vtx,
 			    reco::PhotonCollection & outputCollection,
 			    int& iSC);
+
+  double hOverE(const reco::SuperClusterRef & scRef, HBHERecHitMetaCollection *mhbhe);
 
   std::string PhotonCollection_;
   std::string scHybridBarrelProducer_;
@@ -59,11 +65,16 @@ class PhotonProducer : public edm::EDProducer {
   std::string endcapHitProducer_;
   std::string barrelHitCollection_;
   std::string endcapHitCollection_;
+  std::string hbheLabel_;
+  std::string hbheInstanceName_;
+  double hOverEConeSize_;
+  double maxHOverE_;
   std::string pixelSeedProducer_;
   std::string vertexProducer_;
   edm::ParameterSet conf_;
 
   PositionCalc posCalculator_;
 
+  edm::ESHandle<CaloGeometry> theCaloGeom_;
 };
 #endif
