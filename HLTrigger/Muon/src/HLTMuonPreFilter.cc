@@ -9,11 +9,10 @@
 #include "HLTrigger/Muon/interface/HLTMuonPreFilter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
@@ -44,7 +43,7 @@ HLTMuonPreFilter::HLTMuonPreFilter(const edm::ParameterSet& iConfig) :
       << " " << nsigma_Pt_;
 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
+   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTMuonPreFilter::~HLTMuonPreFilter()
@@ -62,16 +61,17 @@ HLTMuonPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
    using namespace edm;
    using namespace reco;
+   using namespace trigger;
 
    // All HLT filters must create and fill an HLT filter object,
    // recording any reconstructed physics objects satisfying (or not)
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<HLTFilterObjectWithRefs>
-     filterproduct (new HLTFilterObjectWithRefs(path(),module()));
+   auto_ptr<TriggerFilterObjectWithRefs>
+     filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
    // Ref to Candidate object to be recorded in filter object
-   RefToBase<Candidate> ref;
+   RecoChargedCandidateRef ref;
 
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
@@ -107,25 +107,27 @@ HLTMuonPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (ptLx<min_Pt_) continue;
 
       n++;
-      ref=RefToBase<Candidate>( Ref<RecoChargedCandidateCollection>
-                     (mucands,distance(mucands->begin(), cand)));
-      filterproduct->putParticle(ref);
+      ref= RecoChargedCandidateRef(Ref<RecoChargedCandidateCollection>
+                     (mucands,distance(mucands->begin(),cand)));
+      filterproduct->addObject(TriggerMuon,ref);
    }
 
-   for (unsigned int i=0; i<filterproduct->size(); i++) {
-      RefToBase<Candidate> candref = filterproduct->getParticleRef(i);
-      TrackRef tk = candref->get<TrackRef>();
-      LogDebug("HLTMuonPreFilter")
-           << " Track passing filter: pt= " << tk->pt() << ", eta: " 
-            << tk->eta();
+   vector<RecoChargedCandidateRef> vref;
+   filterproduct->getObjects(TriggerMuon,vref);
+   for (unsigned int i=0; i<vref.size(); i++ ) {
+     RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[i]);
+     TrackRef tk = candref->get<TrackRef>();
+     LogDebug("HLTMuonPreFilter")
+       << " Track passing filter: pt= " << tk->pt() << ", eta: " 
+       << tk->eta();
    }
-
+   
    // filter decision
    const bool accept (n >= min_N_);
-
+   
    // put filter object into the Event
    iEvent.put(filterproduct);
-
+   
    LogDebug("HLTMuonPreFilter") << " >>>>> Result of HLTMuonPreFilter is " << accept << ", number of muons passing thresholds= " << n; 
 
    return accept;

@@ -9,8 +9,9 @@
 #include "HLTrigger/Muon/interface/HLTMuonDimuonFilter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -57,7 +58,7 @@ HLTMuonDimuonFilter::HLTMuonDimuonFilter(const edm::ParameterSet& iConfig) :
       << " " << nsigma_Pt_;
 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
+   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTMuonDimuonFilter::~HLTMuonDimuonFilter()
@@ -75,21 +76,21 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
    using namespace edm;
    using namespace reco;
+   using namespace trigger;
 
    double const MuMass = 0.106;
    double const MuMass2 = MuMass*MuMass;
-
    // All HLT filters must create and fill an HLT filter object,
    // recording any reconstructed physics objects satisfying (or not)
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<HLTFilterObjectWithRefs>
-     filterproduct (new HLTFilterObjectWithRefs(path(),module()));
+   auto_ptr<TriggerFilterObjectWithRefs>
+     filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
 
    // Ref to Candidate object to be recorded in filter object
-   RefToBase<Candidate> ref1;
-   RefToBase<Candidate> ref2;
+   RecoChargedCandidateRef ref1;
+   RecoChargedCandidateRef ref2;
 
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
@@ -207,26 +208,26 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             bool i1done = false;
             bool i2done = false;
-            for (unsigned int i=0; i<filterproduct->size(); i++) {
-                  RefToBase<Candidate> candref = filterproduct->getParticleRef(i);
-                  TrackRef tktmp = candref->get<TrackRef>();
-                  if (tktmp==tk1) {
+            vector<RecoChargedCandidateRef> vref;
+	    filterproduct->getObjects(TriggerMuon,vref);
+            for (unsigned int i=0; i<vref.size(); i++) {
+	      RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[i]);
+	      TrackRef tktmp = candref->get<TrackRef>();
+	      if (tktmp==tk1) {
                         i1done = true;
-                  } else if (tktmp==tk2) {
-                        i2done = true;
-                  }
-                  if (i1done && i2done) break;
+	      } else if (tktmp==tk2) {
+		i2done = true;
+	      }
+	      if (i1done && i2done) break;
             }
-
+	    
             if (!i1done) { 
-                  ref1=RefToBase<Candidate>( Ref<RecoChargedCandidateCollection>
-                     (mucands,distance(mucands->begin(), cand1)));
-                  filterproduct->putParticle(ref1);
+	      ref1=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(), cand1)));
+	      filterproduct->addObject(TriggerMuon,ref1);
             }
             if (!i2done) { 
-                  ref2=RefToBase<Candidate>( Ref<RecoChargedCandidateCollection>
-                     (mucands,distance(mucands->begin(), cand2)));
-                  filterproduct->putParticle(ref2);
+	      ref2=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(),cand2 )));
+	    filterproduct->addObject(TriggerMuon,ref2);
             }
 
             if (fast_Accept_) break;

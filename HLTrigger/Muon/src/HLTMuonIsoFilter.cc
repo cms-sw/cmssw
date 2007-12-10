@@ -9,15 +9,16 @@
 #include "HLTrigger/Muon/interface/HLTMuonIsoFilter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 #include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 
 #include <iostream>
@@ -34,7 +35,7 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) :
       << "  MinN : " << min_N_;
 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
+   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTMuonIsoFilter::~HLTMuonIsoFilter()
@@ -51,6 +52,7 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace edm;
+   using namespace trigger;
    using namespace reco;
 
    // All HLT filters must create and fill an HLT filter object,
@@ -58,14 +60,14 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<HLTFilterObjectWithRefs>
-     filterproduct (new HLTFilterObjectWithRefs(path(),module()));
+   auto_ptr<TriggerFilterObjectWithRefs>
+     filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
    // Ref to Candidate object to be recorded in filter object
-   RefToBase<Candidate> ref;
+   RecoChargedCandidateRef ref;
 
 
    // get hold of trks
-   Handle<HLTFilterObjectWithRefs> mucands;
+   Handle<TriggerFilterObjectWithRefs> mucands;
    iEvent.getByLabel (candTag_,mucands);
 
    Handle<MuIsoAssociationMap> depMap;
@@ -73,17 +75,18 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // look at all mucands,  check cuts and add to filter object
    int n = 0;
-   for (unsigned int i=0; i<mucands->size(); i++) {
-      RefToBase<Candidate> candref = mucands->getParticleRef(i);
-      TrackRef tk = candref->get<TrackRef>();
-      MuIsoAssociationMap::result_type muonIsIsolated = (*depMap)[tk];
-
-      LogDebug("HLTMuonIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << "; Is Muon isolated? " << muonIsIsolated;
-
-      if (!muonIsIsolated) continue;
-
-      n++;
-      filterproduct->putParticle(candref);
+   vector<RecoChargedCandidateRef> vcands;
+   mucands->getObjects(TriggerMuon,vcands);
+   for (unsigned int i=0; i<vcands.size(); i++) {
+     RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vcands[i]);
+     TrackRef tk = candref->get<TrackRef>();
+     MuIsoAssociationMap::result_type muonIsIsolated = (*depMap)[tk];
+     LogDebug("HLTMuonIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << "; Is Muon isolated? " << muonIsIsolated;
+     
+     if (!muonIsIsolated) continue;
+     
+     n++;
+     filterproduct->addObject(TriggerMuon,candref);
    }
 
    // filter decision

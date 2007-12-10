@@ -9,15 +9,15 @@
 #include "HLTrigger/Muon/interface/HLTMuonL1Filter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
-//#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+
 
 //
 // constructors and destructor
@@ -39,7 +39,7 @@ HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) :
       << " " << min_N_;
 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
+   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTMuonL1Filter::~HLTMuonL1Filter()
@@ -56,7 +56,7 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace edm;
-   using namespace reco;
+   using namespace trigger;
    using namespace l1extra;
 
    // All HLT filters must create and fill an HLT filter object,
@@ -64,20 +64,19 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<HLTFilterObjectWithRefs>
-     filterproduct (new HLTFilterObjectWithRefs(path(),module()));
+   auto_ptr<TriggerFilterObjectWithRefs>
+     filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
 
    // get hold of muons
-   Handle<HLTFilterObjectWithRefs> mucands;
+   Handle<TriggerFilterObjectWithRefs> mucands;
    iEvent.getByLabel (candTag_,mucands);
 
    // look at all mucands,  check cuts and add to filter object
    int n = 0;
-   for (unsigned int i=0; i<mucands->size(); i++) {
-      RefToBase<Candidate> cand = mucands->getParticleRef(i);
-      if (typeid(*cand)!=typeid(L1MuonParticle)) continue;
-      L1MuonParticleRef muon = cand.castTo<L1MuonParticleRef>();
-      if (muon.isNull()) continue;
+   vector<L1MuonParticleRef> l1mu;
+   mucands->getObjects(TriggerL1Mu,l1mu);
+   for (unsigned int i=0; i<l1mu.size(); i++) {
+      L1MuonParticleRef muon = L1MuonParticleRef(l1mu[i]);
 
       LogDebug("HLTMuonL1Filter") 
             << " Muon in loop: q*pt= " << muon->charge()*muon->pt() 
@@ -96,11 +95,12 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (quality<min_Quality_) continue;
 
       n++;
-      filterproduct->putParticle(cand);
+      filterproduct->addObject(TriggerL1Mu,muon);
    }
-
-   for (unsigned int i=0; i<filterproduct->size(); i++) {
-      RefToBase<Candidate> mu = filterproduct->getParticleRef(i);
+   vector<L1MuonParticleRef> vref;
+   filterproduct->getObjects(TriggerL1Mu,vref);
+   for (unsigned int i=0; i<vref.size(); i++) {
+      L1MuonParticleRef mu = L1MuonParticleRef(vref[i]);
       LogDebug("HLTMuonL1Filter")
            << " Muon passing filter: pt= " << mu->pt() << ", eta: " 
             << mu->eta();
