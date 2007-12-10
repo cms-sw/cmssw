@@ -1,6 +1,6 @@
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaElectronsProducer.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
@@ -47,7 +47,7 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
    using namespace std;
 
   // Get GSFElectrons
-  Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
+  Handle<reco::GsfElectronCollection> pElectrons;
   try {
       iEvent.getByLabel(electronLabel_, pElectrons);
     } catch (...) {
@@ -55,7 +55,7 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
 //      std::cerr << "[AlCaElectronsProducer]" << electronLabel_ << " not found" ; 
       return ;
     }
-  const reco::PixelMatchGsfElectronCollection * electronCollection = 
+  const reco::GsfElectronCollection * electronCollection = 
      pElectrons.product();
   
   // get RecHits
@@ -91,7 +91,7 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
 
 //  loop on SiStrip Electrons
   
-  reco::PixelMatchGsfElectronCollection::const_iterator eleIt;
+  reco::GsfElectronCollection::const_iterator eleIt;
   int ii=0;
   
   for (eleIt=electronCollection->begin(); eleIt!=electronCollection->end(); eleIt++) {
