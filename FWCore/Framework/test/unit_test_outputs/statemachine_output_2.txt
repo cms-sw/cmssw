@@ -1,0 +1,1028 @@
+
+Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 1 ***
+	readAndCacheRun 1
+    *** nextItemType: File 0 ***
+	writeRun 1
+	deleteRunFromCache 1
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+    *** nextItemType: File 0 ***
+	writeLumi 2/1
+	deleteLumiFromCache 2/1
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 1 ***
+	readAndCacheRun 1
+    *** nextItemType: File 0 ***
+	writeRun 1
+	deleteRunFromCache 1
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+    *** nextItemType: File 0 ***
+	beginLumi 2/1
+	endLumi 2/1
+	writeLumi 2/1
+	deleteLumiFromCache 2/1
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 1 ***
+	readAndCacheRun 1
+	beginRun 1
+    *** nextItemType: File 0 ***
+	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+	beginRun 2
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+    *** nextItemType: File 0 ***
+	writeLumi 2/1
+	deleteLumiFromCache 2/1
+	endRun 2
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 1 ***
+	readAndCacheRun 1
+	beginRun 1
+    *** nextItemType: File 0 ***
+	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+	beginRun 2
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+    *** nextItemType: File 0 ***
+	beginLumi 2/1
+	endLumi 2/1
+	writeLumi 2/1
+	deleteLumiFromCache 2/1
+	endRun 2
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 1 ***
+	readAndCacheRun 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 1 ***
+	readAndCacheRun 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	beginLumi 2/1
+	endLumi 2/1
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 1 ***
+	readAndCacheRun 1
+	beginRun 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	endRun 1
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+	beginRun 2
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	endRun 2
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 1 ***
+	readAndCacheRun 1
+	beginRun 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	endRun 1
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+	beginRun 2
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: File 1 ***
+	shouldWeCloseOutput
+	beginLumi 2/1
+	endLumi 2/1
+	endRun 2
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Stop 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	writeCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+	endOfLoop
+The state machine reports it has been terminated
