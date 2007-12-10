@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id$
+ * \version $Id: GsfElectron.h,v 1.1 2007/12/08 13:07:50 futyand Exp $
  *
  */
 
@@ -25,7 +25,10 @@
 // Claude Charlot - CNRS & IN2P3, LLR Ecole polytechnique
 // Ursula Berthon - LLR Ecole polytechnique
 // 
-// $Log$
+// $Log: GsfElectron.h,v $
+// Revision 1.1  2007/12/08 13:07:50  futyand
+// Renamed from PixelMatchGsfElectron
+//
 //
 //-------------------------------------------------------------------
 
@@ -191,6 +194,8 @@ class GsfElectron : public RecoCandidate {
   virtual bool overlap( const Candidate & ) const;
 
 };
+
+  typedef GsfElectron PixelMatchGsfElectron;
 
 }
 #endif
