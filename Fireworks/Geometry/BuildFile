@@ -1,0 +1,20 @@
+<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=Geometry/Records>
+<use name=DetectorDescription/Core>
+<use name=Geometry/DTGeometry>
+<use name=Geometry/MuonNumbering>
+<lib name=Gpad>
+<lib name=Geom>
+<flags EDM_PLUGIN=1>
+<export>
+   <lib name=Gpad>
+   <lib name=Geom>
+   <lib name=ReveDumpGeom>
+   <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=Geometry/Records>
+   <use name=DetectorDescription/Core>
+</export>
