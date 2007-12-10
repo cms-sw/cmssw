@@ -318,9 +318,9 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   for(itProxy=pos->second.begin(); itProxy!=pos->second.end(); ++itProxy){
     if( (itProxy->label) != leadingLable){
       std::string datumName=recordname+"@"+objectname+"@"+itProxy->label;
-      cond::Connection* c=conHandler.getConnection(itProxy->pfn);
+      //cond::Connection* c=conHandler.getConnection(itProxy->pfn);
       //cond::PoolTransaction& pooldb=c->poolTransaction();
-      cond::IOVService iovservice(pooldb);  
+      //cond::IOVService iovservice(pooldb);  
       //pooldb.start(true);
       std::string payloadToken=iovservice.payloadToken(itProxy->token,abtime);
       m_datumToToken[datumName]=payloadToken;  
@@ -380,7 +380,7 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
 void 
 PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,const edm::ValidityInterval& iInterval) 
 {
-  LogDebug ("PoolDBESSource")<<"newInterval";
+  //LogDebug ("PoolDBESSource")<<"newInterval";
   invalidateProxies(iRecordType);
 }
 
