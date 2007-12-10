@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/07 10:52:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/12/07 13:40:49 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -77,10 +77,10 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
 
   LogDebug("") << "Using process name: '" << pn_ <<"'";
   for (trigger::size_type i=0; i!=collectionTags_.size(); ++i) {
-    LogTrace("") << "Collection " << i << " " << collectionTags_[i].encode();
+    LogTrace("") << "Collections requested " << i << " " << collectionTags_[i].encode();
   }
   for (trigger::size_type i=0; i!=filterTags_.size(); ++i) {
-    LogTrace("") << "Filter     " << i << " " << filterTags_[i].encode();
+    LogTrace("") << "Filters requested     " << i << " " << filterTags_[i].encode();
   }
   produces<trigger::TriggerEvent>();
 

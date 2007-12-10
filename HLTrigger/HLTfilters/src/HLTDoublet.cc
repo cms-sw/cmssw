@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 11:39:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/15 14:42:31 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -17,6 +17,9 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include<cmath>
@@ -24,16 +27,19 @@
 //
 // constructors and destructor
 //
-HLTDoublet::HLTDoublet(const edm::ParameterSet& iConfig) :
-  inputTag1_(iConfig.getParameter<edm::InputTag>("inputTag1")),
-  inputTag2_(iConfig.getParameter<edm::InputTag>("inputTag2")),
-  min_Dphi_ (iConfig.getParameter<double>("MinDphi")),
-  max_Dphi_ (iConfig.getParameter<double>("MaxDphi")),
-  min_Deta_ (iConfig.getParameter<double>("MinDeta")),
-  max_Deta_ (iConfig.getParameter<double>("MaxDeta")),
-  min_Minv_ (iConfig.getParameter<double>("MinMinv")),
-  max_Minv_ (iConfig.getParameter<double>("MaxMinv")),
-  min_N_    (iConfig.getParameter<int>("MinN"))
+template<typename T1, int Tid1, typename T2, int Tid2>
+HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) :
+  inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
+  inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
+  min_Dphi_ (iConfig.template getParameter<double>("MinDphi")),
+  max_Dphi_ (iConfig.template getParameter<double>("MaxDphi")),
+  min_Deta_ (iConfig.template getParameter<double>("MinDeta")),
+  max_Deta_ (iConfig.template getParameter<double>("MaxDeta")),
+  min_Minv_ (iConfig.template getParameter<double>("MinMinv")),
+  max_Minv_ (iConfig.template getParameter<double>("MaxMinv")),
+  min_N_    (iConfig.template getParameter<int>("MinN")),
+  coll1_(),
+  coll2_()
 {
    // same collections to be compared?
    same_ = (inputTag1_.encode()==inputTag2_.encode());
@@ -53,9 +59,11 @@ HLTDoublet::HLTDoublet(const edm::ParameterSet& iConfig) :
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
+   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
-HLTDoublet::~HLTDoublet()
+template<typename T1, int Tid1, typename T2, int Tid2>
+HLTDoublet<T1,Tid1,T2,Tid2>::~HLTDoublet()
 {
 }
 
@@ -64,12 +72,14 @@ HLTDoublet::~HLTDoublet()
 //
 
 // ------------ method called to produce the data  ------------
+template<typename T1, int Tid1, typename T2, int Tid2>
 bool
-HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace edm;
    using namespace reco;
+   using namespace trigger;
 
    // All HLT filters must create and fill an HLT filter object,
    // recording any reconstructed physics objects satisfying (or not)
@@ -77,53 +87,97 @@ HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // The filter object
    auto_ptr<HLTFilterObjectWithRefs>
-     filterobject (new HLTFilterObjectWithRefs(path(),module()));
+     filterobjectOLD (new HLTFilterObjectWithRefs(path(),module()));
+   auto_ptr<TriggerFilterObjectWithRefs>
+     filterobject (new TriggerFilterObjectWithRefs(path(),module()));
+   bool accept(false);
+
    // Ref to Candidate object to be recorded in filter object
-   RefToBase<Candidate> r1,r2;
-
-
+   RefToBase<Candidate> r1OLD,r2OLD;
    // get hold of pre-filtered object collections
-   Handle<HLTFilterObjectWithRefs> coll1,coll2;
-   iEvent.getByLabel (inputTag1_,coll1);
-   iEvent.getByLabel (inputTag2_,coll2);
-
-   int n(0);
-   const unsigned int n1(coll1->size());
-   const unsigned int n2(coll2->size());
-   Particle p1,p2,p;
-   for (unsigned int i1=0; i1!=n1; i1++) {
-     p1=coll1->getParticle(i1);
-     r1=coll1->getParticleRef(i1);
-     unsigned int I(0);
-     if (same_) {I=i1+1;}
-     for (unsigned int i2=I; i2!=n2; i2++) {
-       p2=coll2->getParticle(i2);
-       r2=coll2->getParticleRef(i2);
-
-       double Dphi(abs(p1.phi()-p2.phi()));
-       if (Dphi>M_PI) Dphi=2.0*M_PI-Dphi;
-
-       double Deta(abs(p1.eta()-p2.eta()));
-
-       p.setP4(Particle::LorentzVector(p1.px()+p2.px(),p1.py()+p2.py(),p1.pz()+p2.pz(),p1.energy()+p2.energy()));
-       double Minv(abs(p.mass()));
-
-       if ( ( (!cutdphi_) || (min_Dphi_ <= Dphi) && (Dphi <= max_Dphi_) ) &&
-            ( (!cutdeta_) || (min_Deta_ <= Deta) && (Deta <= max_Deta_) ) &&
-            ( (!cutminv_) || (min_Minv_ <= Minv) && (Minv <= max_Minv_) ) ) {
-	 n++;
-         filterobject->putParticle(r1);
-         filterobject->putParticle(r2);
+   Handle<HLTFilterObjectWithRefs> coll1OLD,coll2OLD;
+   if (iEvent.getByLabel (inputTag1_,coll1OLD) && iEvent.getByLabel (inputTag2_,coll2OLD)) {
+     int n(0);
+     const unsigned int n1(coll1OLD->size());
+     const unsigned int n2(coll2OLD->size());
+     Particle p1,p2,p;
+     for (unsigned int i1=0; i1!=n1; i1++) {
+       p1=coll1OLD->getParticle(i1);
+       r1OLD=coll1OLD->getParticleRef(i1);
+       unsigned int I(0);
+       if (same_) {I=i1+1;}
+       for (unsigned int i2=I; i2!=n2; i2++) {
+	 p2=coll2OLD->getParticle(i2);
+	 r2OLD=coll2OLD->getParticleRef(i2);
+	 
+	 double Dphi(abs(p1.phi()-p2.phi()));
+	 if (Dphi>M_PI) Dphi=2.0*M_PI-Dphi;
+	 
+	 double Deta(abs(p1.eta()-p2.eta()));
+	 
+	 p.setP4(Particle::LorentzVector(p1.px()+p2.px(),p1.py()+p2.py(),p1.pz()+p2.pz(),p1.energy()+p2.energy()));
+	 double Minv(abs(p.mass()));
+	 
+	 if ( ( (!cutdphi_) || (min_Dphi_ <= Dphi) && (Dphi <= max_Dphi_) ) &&
+	      ( (!cutdeta_) || (min_Deta_ <= Deta) && (Deta <= max_Deta_) ) &&
+	      ( (!cutminv_) || (min_Minv_ <= Minv) && (Minv <= max_Minv_) ) ) {
+	   n++;
+	   filterobjectOLD->putParticle(r1OLD);
+	   filterobjectOLD->putParticle(r2OLD);
+	 }
+	 
        }
-
      }
+     // filter decision
+     accept = accept || (n>=min_N_);
+     iEvent.put(filterobjectOLD);
    }
 
-   // filter decision
-   const bool accept(n>=min_N_);
+   // get hold of pre-filtered object collections
+   T1Ref r1;
+   T2Ref r2;
+   Handle<TriggerFilterObjectWithRefs> coll1,coll2;
+   if (iEvent.getByLabel (inputTag1_,coll1) && iEvent.getByLabel (inputTag2_,coll2)) {
+     int n(0);
+     coll1_.clear();
+     coll1->getObjects(Tid1,coll1_);
+     const size_type n1(coll1_.size());
+     coll2_.clear();
+     coll2->getObjects(Tid2,coll2_);
+     const size_type n2(coll2_.size());
 
-   // put filter object into the Event
-   iEvent.put(filterobject);
+     Particle p1,p2,p;
+     for (unsigned int i1=0; i1!=n1; i1++) {
+       r1=coll1_[i1];
+       p1=*r1;
+       unsigned int I(0);
+       if (same_) {I=i1+1;}
+       for (unsigned int i2=I; i2!=n2; i2++) {
+	 r2=coll2_[i2];
+	 p2=*r2;
+
+	 double Dphi(abs(p1.phi()-p2.phi()));
+	 if (Dphi>M_PI) Dphi=2.0*M_PI-Dphi;
+	 
+	 double Deta(abs(p1.eta()-p2.eta()));
+	 
+	 p.setP4(Particle::LorentzVector(p1.px()+p2.px(),p1.py()+p2.py(),p1.pz()+p2.pz(),p1.energy()+p2.energy()));
+	 double Minv(abs(p.mass()));
+	 
+	 if ( ( (!cutdphi_) || (min_Dphi_ <= Dphi) && (Dphi <= max_Dphi_) ) &&
+	      ( (!cutdeta_) || (min_Deta_ <= Deta) && (Deta <= max_Deta_) ) &&
+	      ( (!cutminv_) || (min_Minv_ <= Minv) && (Minv <= max_Minv_) ) ) {
+	   n++;
+	   filterobject->addObject(Tid1,r1);
+	   filterobject->addObject(Tid2,r2);
+	 }
+	 
+       }
+     }
+     // filter decision
+     accept = accept || (n>=min_N_);
+     iEvent.put(filterobject);
+   }
 
    return accept;
 }

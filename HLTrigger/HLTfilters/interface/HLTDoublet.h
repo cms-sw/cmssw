@@ -12,13 +12,14 @@
  *  single-object-type filters so that the access is thorugh
  *  RefToBases and polymorphic.
  *
- *  $Date: 2006/10/04 16:02:42 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/03/26 11:31:42 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
  */
 
+#include "DataFormats/Common/interface/Ref.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include<vector>
 
@@ -26,6 +27,7 @@
 // class declaration
 //
 
+template<typename T1, int Tid1, typename T2, int Tid2>
 class HLTDoublet : public HLTFilter {
 
    public:
@@ -46,6 +48,16 @@ class HLTDoublet : public HLTFilter {
       // calculated from configuration in c'tor
       bool   same_;                      // 1st and 2nd product are one and the same
       bool   cutdphi_,cutdeta_,cutminv_; // cuts are on=true or off=false
+
+      //
+      typedef std::vector<T1> T1Collection;
+      typedef edm::Ref<T1Collection> T1Ref;
+      std::vector<T1Ref> coll1_;
+      typedef std::vector<T2> T2Collection;
+      typedef edm::Ref<T2Collection> T2Ref;
+      std::vector<T2Ref> coll2_;
+
+
 };
 
 #endif //HLTDoublet_h

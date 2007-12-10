@@ -4,7 +4,6 @@
 #include "HLTrigger/HLTfilters/interface/HLTFiltCand.h"
 #include "HLTrigger/HLTfilters/interface/HLTLevel1GTSeed.h"
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
-#include "HLTrigger/HLTfilters/interface/HLTDoublet.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
@@ -70,12 +69,17 @@ typedef HLTSmartSinglet<RecoEcalCandidate ,TriggerCluster> HLT1SmartCluster  ;
 typedef HLTGlobalSums<CaloMET,TriggerMET> HLTGlobalSumMET  ;
 typedef HLTGlobalSums<MET     ,TriggerHT> HLTGlobalSumHT   ;
 
+//
+
+#include "HLTrigger/HLTfilters/interface/HLTDoublet.h"
+typedef HLTXDoublet<CaloJet,TriggerJet,CaloJet,TriggerJet> HLT2CaloJetCaloJet;
 
 DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
 DEFINE_FWK_MODULE(HLTLevel1GTSeed);
 DEFINE_FWK_MODULE(HLTHighLevel);
-DEFINE_FWK_MODULE(HLTDoublet);
+
+DEFINE_FWK_MODULE(HLT2CaloJetCaloJet);
 
 DEFINE_FWK_MODULE(HLT1Electron);
 DEFINE_FWK_MODULE(HLT1Photon);
