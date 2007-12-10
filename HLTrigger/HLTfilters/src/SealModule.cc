@@ -74,6 +74,7 @@ typedef HLTGlobalSums<MET     ,TriggerHT> HLTGlobalSumHT   ;
 #include "HLTrigger/HLTfilters/interface/HLTDoublet.h"
 #include "HLTrigger/HLTfilters/src/HLTDoublet.cc"
 typedef HLTDoublet<CaloJet,TriggerJet,CaloJet,TriggerJet> HLT2JetJet;
+typedef HLTDoublet<CaloJet,TriggerJet,CaloMET,TriggerMET> HLT2JetMET;
 
 DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
@@ -81,6 +82,7 @@ DEFINE_FWK_MODULE(HLTLevel1GTSeed);
 DEFINE_FWK_MODULE(HLTHighLevel);
 
 DEFINE_FWK_MODULE(HLT2JetJet);
+DEFINE_FWK_MODULE(HLT2JetMET);
 
 DEFINE_FWK_MODULE(HLT1Electron);
 DEFINE_FWK_MODULE(HLT1Photon);
