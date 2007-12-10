@@ -1,4 +1,4 @@
-// $Id: Photon.cc,v 1.10 2007/10/22 22:24:25 futyand Exp $
+// $Id: Photon.cc,v 1.11 2007/12/07 19:23:04 nancy Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
 
@@ -30,6 +30,17 @@ reco::ClusterShapeRef Photon::seedClusterShape() const {
 std::vector<reco::ConversionRef>  Photon::conversions() const { 
    return conversions_;
 }
+
+bool Photon::isConverted() const {
+  
+  if ( this->conversions().size() > 0) 
+    return true;
+  else
+    return false;
+}
+
+
+
 
 bool Photon::overlap( const Candidate & c ) const {
   const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
