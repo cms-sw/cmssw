@@ -37,6 +37,7 @@ void TrackingTruthValid::beginJob(const edm::ParameterSet& conf) {}
 TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf) {
   
   outputFile = conf.getUntrackedParameter<string>("outputFile","trackingtruthhisto.root");
+  src_ =  conf.getParameter<edm::InputTag>( "src" );
   
   dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe_->showDirStructure();
@@ -63,7 +64,7 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
 
   edm::Handle<TrackingParticleCollection>  TruthTrackContainer ;
   edm::Handle<TrackingVertexCollection>    TruthVertexContainer;
-  event.getByType(TruthTrackContainer );
+  event.getByLabel(src_,TruthTrackContainer );
   event.getByType(TruthVertexContainer);
 
   const TrackingParticleCollection *tPC   = TruthTrackContainer.product();

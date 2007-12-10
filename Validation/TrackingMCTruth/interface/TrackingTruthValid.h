@@ -9,6 +9,7 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <iostream>
 #include <string>
@@ -31,7 +32,8 @@ class TrackingTruthValid  : public edm::EDAnalyzer {
   DaqMonitorBEInterface* dbe_;
   edm::ParameterSet conf_;
   std::string outputFile;
-
+  edm::InputTag src_;
+  
   MonitorElement* meTPMass;
   MonitorElement* meTPCharge; 
   MonitorElement* meTPId;
