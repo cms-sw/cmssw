@@ -72,7 +72,7 @@ typedef HLTGlobalSums<MET     ,TriggerHT> HLTGlobalSumHT   ;
 //
 
 #include "HLTrigger/HLTfilters/interface/HLTDoublet.h"
-typedef HLTXDoublet<CaloJet,TriggerJet,CaloJet,TriggerJet> HLT2CaloJetCaloJet;
+typedef HLTDoublet<CaloJet,TriggerJet,CaloJet,TriggerJet> HLT2CaloJetCaloJet;
 
 DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
