@@ -195,7 +195,7 @@ process TESTDUMPER = {
 
   untracked PSet maxEvents = {untracked int32 input = $last_event}
 
-     module ecalEBunpacker = EcalDCCUnpackingModule{ }
+     module ecalEBunpacker = EcalDCCTBUnpackingModule{ }
 
 # verbosity =0:  only headings
      module digi = EcalDigiDumperModule{

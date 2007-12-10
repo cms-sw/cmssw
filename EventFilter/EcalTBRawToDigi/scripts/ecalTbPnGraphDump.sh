@@ -182,7 +182,7 @@ process TESTGRAPHDUMPER = {
         #       untracked bool isBinary = true
         # }
 
-     module ecalEBunpacker = EcalDCCUnpackingModule{ }
+     module ecalEBunpacker = EcalDCCTBUnpackingModule{ }
 
 # verbosity =0:  only headings
      module PngraphDumperModule = EcalPnGraphDumperModule{
