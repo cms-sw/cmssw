@@ -5,8 +5,8 @@
  * default eta thresholds (lepton and jets) set to 3
  * At least two leptons and two jets present for each channel
  *
- * $Date: 2007/09/13 20:04:24 $
- * $Revision: 1.9 $
+ * $Date: 2007/09/18 11:51:50 $
+ * $Revision: 1.10 $
  *
  * \author Michele Gallinaro and Nuno Almeida - LIP
  *
@@ -26,7 +26,7 @@
 #include "TopQuarkAnalysis/TopSkimming/plugins/TopLeptonTauFilter.h"
 
 //electron includes
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 //muon includes
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -105,14 +105,14 @@ bool TopLeptonTauFilter::electronFilter( edm::Event& iEvent, const edm::EventSet
 & iSetup ){
 
   // dealing with electrons
-  Handle<PixelMatchGsfElectronCollection> ElecHandle;
+  Handle<GsfElectronCollection> ElecHandle;
   iEvent.getByLabel( Elecsrc_, ElecHandle );
   if ( ElecHandle->empty() && NminElec_!=0 ) return false;
-  PixelMatchGsfElectronCollection TheElecs = *ElecHandle;
+  GsfElectronCollection TheElecs = *ElecHandle;
   std::stable_sort( TheElecs.begin(), TheElecs.end(), PtSorter() );
   
   int nElec = 0;
-  for ( PixelMatchGsfElectronCollection::const_iterator it = TheElecs.begin();
+  for ( GsfElectronCollection::const_iterator it = TheElecs.begin();
 	it != TheElecs.end(); it++ ) {
     if ( (it->pt() > ElecPtmin_) 
 	 && (fabs(it->eta()) < 3.0) ) {

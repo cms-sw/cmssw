@@ -1,9 +1,9 @@
 // Original Author:  Dmytro Kovalskyi, UCSB
-// $Id: TopDiLeptonFilter.cc,v 1.2 2007/08/28 19:14:16 lowette Exp $
+// $Id: TopDiLeptonFilter.cc,v 1.3 2007/09/18 11:51:50 lowette Exp $
 #include "TopQuarkAnalysis/TopSkimming/plugins/TopDiLeptonFilter.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,14 +23,14 @@ bool TopDiLeptonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 {
    edm::Handle<reco::MuonCollection> muons;
    iEvent.getByLabel(theMuonCollection,muons);
-   edm::Handle<reco::PixelMatchGsfElectronCollection> electrons;
+   edm::Handle<reco::GsfElectronCollection> electrons;
    iEvent.getByLabel(theElectronCollection,electrons);
    
    unsigned int nMuons = 0;
    unsigned int nElectrons = 0;
    for(reco::MuonCollection::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon)
      if(muon->pt()>thePtThreshold) ++nMuons;
-   for(reco::PixelMatchGsfElectronCollection::const_iterator electron=electrons->begin(); electron!=electrons->end(); ++electron)
+   for(reco::GsfElectronCollection::const_iterator electron=electrons->begin(); electron!=electrons->end(); ++electron)
      if(electron->pt()>thePtThreshold) ++nElectrons;
    
    if (nMuons+nElectrons>1)
