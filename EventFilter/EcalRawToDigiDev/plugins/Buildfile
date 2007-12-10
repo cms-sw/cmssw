@@ -1,4 +1,0 @@
-<use name=EventFilter/EcalRawToDigiDev>
-<library file=plugins.cc name=EventFilterEcalRawToDigiDevPlugins>
- <flags EDM_PLUGIN=1>
-</library>
