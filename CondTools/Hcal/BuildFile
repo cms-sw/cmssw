@@ -4,6 +4,7 @@
 <use name=oracle>
 <use name=FWCore/Framework>
 <use name=DataFormats/HcalDetId>
+<use name=CalibCalorimetry/HcalAlgos>
 <use name=CondFormats/HcalObjects>
 <use name=CalibFormats/HcalObjects>
 <use name=CondCore/IOVService>
@@ -19,6 +20,7 @@
   <use name=oracle>
   <use name=FWCore/Framework>
   <use name=DataFormats/HcalDetId>
+  <use name=CalibCalorimetry/HcalAlgos>
   <use name=CondFormats/HcalObjects>
   <use name=CalibFormats/HcalObjects>
   <use name=CondCore/IOVService>

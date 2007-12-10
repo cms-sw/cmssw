@@ -1,7 +1,7 @@
 #include "CondTools/Hcal/interface/HcalGainsSourceHandler.h"
 
-popcon::HcalGainsSourceHandler::HcalGainsSourceHandler(std::string name, std::string cstring, std::string cat,const edm::Event& evt, const edm::EventSetup& est, std::string pconnect, unsigned int sinceTime, unsigned int tillTime) 
-  : popcon::PopConSourceHandler<HcalGains>(name,cstring,cat,evt,est), m_pop_connect(pconnect), snc(sinceTime), tll(tillTime)
+popcon::HcalGainsSourceHandler::HcalGainsSourceHandler(const std::string& name, const std::string& cstring, const edm::Event& evt, const edm::EventSetup& est, unsigned int sinceTime, unsigned int tillTime) 
+  : popcon::PopConSourceHandler<HcalGains>(name,cstring,evt,est), snc(sinceTime), tll(tillTime)
 {
 	m_name = name;
 	m_cs = cstring;

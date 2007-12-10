@@ -1,7 +1,7 @@
 #include "CondTools/Hcal/interface/HcalPedestalWidthsSourceHandler.h"
 
-popcon::HcalPedestalWidthsSourceHandler::HcalPedestalWidthsSourceHandler(std::string name, std::string cstring, std::string cat,const edm::Event& evt, const edm::EventSetup& est, std::string pconnect, unsigned int sinceTime, unsigned int tillTime) 
-  : popcon::PopConSourceHandler<HcalPedestalWidths>(name,cstring,cat,evt,est), m_pop_connect(pconnect), snc(sinceTime), tll(tillTime)
+popcon::HcalPedestalWidthsSourceHandler::HcalPedestalWidthsSourceHandler(const std::string& name, const std::string& cstring, const edm::Event& evt, const edm::EventSetup& est, unsigned int sinceTime, unsigned int tillTime) 
+  : popcon::PopConSourceHandler<HcalPedestalWidths>(name,cstring,evt,est), snc(sinceTime), tll(tillTime)
 {
 	m_name = name;
 	m_cs = cstring;

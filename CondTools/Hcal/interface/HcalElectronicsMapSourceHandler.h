@@ -25,7 +25,7 @@ namespace popcon
 		public:
 			void getNewObjects();
 			~HcalElectronicsMapSourceHandler(); 
-			HcalElectronicsMapSourceHandler(std::string,std::string,std::string, const edm::Event& evt, const edm::EventSetup& est, std::string, unsigned int, unsigned int); 
+			HcalElectronicsMapSourceHandler(const std::string&, const std::string&, const edm::Event& evt, const edm::EventSetup& est, unsigned int, unsigned int); 
 
 		private:
 			std::string m_pop_connect; //connect string to popcon metaschema
