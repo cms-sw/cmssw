@@ -16,7 +16,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorTrack.h"
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
+
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 
 static const uint16_t _NUM_SISTRIP_SUBDET_ = 4;
@@ -29,7 +29,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   Track_src_( conf.getParameter<edm::InputTag>( "Track_src" ) ),
   ClusterInfo_src_( conf.getParameter<edm::InputTag>( "ClusterInfo_src" ) ),
   Cluster_src_( conf.getParameter<edm::InputTag>( "Cluster_src" ) ),
-  tracksCollection_in_EventTree(true),
+   folder_organizer(), tracksCollection_in_EventTree(true),
   firstEvent(-1)
 {
   for(int i=0;i<4;++i) for(int j=0;j<3;++j) NClus[i][j]=0;
@@ -99,25 +99,29 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   for (int j=0;j<3;++j){ // loop over ontrack, offtrack, all
     int nTot=0;
     for (int i=0;i<4;++i){ // loop over TIB, TID, TOB, TEC
-      name=flags[j]+"_"+SubDet[i];      
+      name=flags[j]+"_in_"+SubDet[i];      
       iModME = ModMEsMap.find(name);
-      if(iModME!=ModMEsMap.end()){
+      if(iModME!=ModMEsMap.end()) {
 	fillME(   iModME->second.nClusters,      NClus[i][j]);
         fillTrend(iModME->second.nClustersTrend, NClus[i][j]);
       }
       nTot+=NClus[i][j];
       NClus[i][j]=0;
-    } // loop over TIB, TID, TOB, TEC
+    }// loop over TIB, TID, TOB, TEC
+  
     name=flags[j]+"_nClusters";
     iME = MEMap.find(name);
-    iME = MEMap.find(name+"Trend");
     if(iME!=MEMap.end()) iME->second->Fill(nTot);
+    iME = MEMap.find(name+"Trend");
     if(iME!=MEMap.end()) fillTrend(iME->second,nTot);
+
   } // loop over ontrack, offtrack, all
+  
 }
 
 //------------------------------------------------------------------------  
-void SiStripMonitorTrack::book() {
+void SiStripMonitorTrack::book() 
+{
   // set the DQM directory
   dbe->setCurrentFolder("Track/GlobalParameters");
 
@@ -126,11 +130,15 @@ void SiStripMonitorTrack::book() {
   NumberOfTracksTrend          = bookMETrend("TH1nTracks",  "nTracksTrend"); 
   NumberOfRecHitsPerTrack      = bookME1D("TH1nRecHits",    "nRecHitsPerTrack"); 
   NumberOfRecHitsPerTrackTrend = bookMETrend("TH1nRecHits", "nRecHitsPerTrackTrend");
-  for (int j=0;j<3;j++){ // Loop on onTrack, offTrack, All
+  //LocalAngle                   = bookME1D("TH1localAngle",    "localAngle"); 
+
+  for (int j=0;j<3;j++) { // Loop on onTrack, offTrack, All
     name=flags[j]+"_nClusters";
-    if(MEMap.find(name)==MEMap.end())
+    if(MEMap.find(name)==MEMap.end()) {
       MEMap[name]=bookME1D("TH1nClusters", name.Data()); 
-      MEMap[name+"Trend"]=bookMETrend("TH1nClusters", name.Data());
+      name+="Trend";
+      MEMap[name]=bookMETrend("TH1nClusters", name.Data());
+    }
   } // Loop on onTrack, offTrack, All
 
   //loop on active detector ids : build "DetectedLayers"
@@ -148,7 +156,7 @@ void SiStripMonitorTrack::book() {
   }//end loop on detector
 
   // create SiStripFolderOrganizer
-  SiStripFolderOrganizer folder_organizer;
+  //SiStripFolderOrganizer folder_organizer;
 
   // book layer plots
   for (std::map<std::pair<std::string,int32_t>,bool>::const_iterator iter=DetectedLayers.begin(); iter!=DetectedLayers.end();iter++){
@@ -163,8 +171,11 @@ void SiStripMonitorTrack::book() {
     sprintf(cApp,"_Layer_%d",iter->first.second); 
     folder_organizer.setDetectorFolder(0);
     dbe->cd(iter->first.first);
-    if(iter->first.first=="TOB" || iter->first.first=="TIB") { char layer[16]; sprintf(layer,"layer_%d",iter->first.second); dbe->cd(layer); }
-    else { char layer[64]; sprintf(layer,"side_%d/wheel_%d",iter->first.second<0 ? 1 : 2,abs(iter->first.second)); dbe->cd(layer); } 
+    if(iter->first.first=="TOB" || iter->first.first=="TIB") { 
+      char layer[16]; sprintf(layer,"layer_%d",iter->first.second); dbe->cd(layer); 
+    } else { 
+      char layer[64]; sprintf(layer,"side_%d/wheel_%d",iter->first.second<0 ? 1 : 2,abs(iter->first.second)); dbe->cd(layer); 
+    } 
     bookTrendMEs(flag+"_in_"+iter->first.first+cApp); // for layers
   } 
 
@@ -177,7 +188,8 @@ void SiStripMonitorTrack::book() {
 }
 
 //--------------------------------------------------------------------------------
-void SiStripMonitorTrack::bookModMEs(TString name, uint32_t id){
+void SiStripMonitorTrack::bookModMEs(TString name, uint32_t id)
+{
   SiStripHistoId hidmanager;
   std::string hid = hidmanager.createHistoId("",name.Data(),id);
   std::map<TString, ModMEs>::iterator iModME  = ModMEsMap.find(TString(hid));
@@ -205,11 +217,12 @@ void SiStripMonitorTrack::bookModMEs(TString name, uint32_t id){
     theModMEs.ClusterPGV=bookMEProfile("TProfileClusterPGV", hidmanager.createHistoId("cPGV",name.Data(),id).c_str()); 
     dbe->tag(theModMEs.ClusterPGV,id); 
     //bookeeping
-    ModMEsMap[name]=theModMEs;
+    ModMEsMap[hid]=theModMEs;
   }
 }
 
-void SiStripMonitorTrack::bookTrendMEs(TString name){
+void SiStripMonitorTrack::bookTrendMEs(TString name)
+{
   std::map<TString, ModMEs>::iterator iModME  = ModMEsMap.find(name);
   char completeName[1024];
   if(iModME==ModMEsMap.end()){
@@ -234,7 +247,8 @@ void SiStripMonitorTrack::bookTrendMEs(TString name){
   }
 }
 //--------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorTrack::bookME1D(const char* ParameterSetLabel, const char* HistoName){
+MonitorElement* SiStripMonitorTrack::bookME1D(const char* ParameterSetLabel, const char* HistoName)
+{
   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   return dbe->book1D(HistoName,HistoName,
 		         Parameters.getParameter<int32_t>("Nbinx"),
@@ -244,36 +258,39 @@ MonitorElement* SiStripMonitorTrack::bookME1D(const char* ParameterSetLabel, con
 }
 
 //--------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorTrack::bookME2D(const char* ParameterSetLabel, const char* HistoName){
-    Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
-    return dbe->book2D(HistoName,HistoName,
-                       Parameters.getParameter<int32_t>("Nbinx"),
-                       Parameters.getParameter<double>("xmin"),
-                       Parameters.getParameter<double>("xmax"),
-                       Parameters.getParameter<int32_t>("Nbiny"),
-                       Parameters.getParameter<double>("ymin"),
-                       Parameters.getParameter<double>("ymax")
-                      );
+MonitorElement* SiStripMonitorTrack::bookME2D(const char* ParameterSetLabel, const char* HistoName)
+{
+  Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
+  return dbe->book2D(HistoName,HistoName,
+		     Parameters.getParameter<int32_t>("Nbinx"),
+		     Parameters.getParameter<double>("xmin"),
+		     Parameters.getParameter<double>("xmax"),
+		     Parameters.getParameter<int32_t>("Nbiny"),
+		     Parameters.getParameter<double>("ymin"),
+		     Parameters.getParameter<double>("ymax")
+		     );
 }
 
 //--------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorTrack::bookME3D(const char* ParameterSetLabel, const char* HistoName){
-    Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
-    return dbe->book3D(HistoName,HistoName,
-                       Parameters.getParameter<int32_t>("Nbinx"),
-                       Parameters.getParameter<double>("xmin"),
-                       Parameters.getParameter<double>("xmax"),
-                       Parameters.getParameter<int32_t>("Nbiny"),
-                       Parameters.getParameter<double>("ymin"),
-                       Parameters.getParameter<double>("ymax"),
-                       Parameters.getParameter<int32_t>("Nbinz"),
-                       Parameters.getParameter<double>("zmin"),
-                       Parameters.getParameter<double>("zmax")
-                      );
+MonitorElement* SiStripMonitorTrack::bookME3D(const char* ParameterSetLabel, const char* HistoName)
+{
+  Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
+  return dbe->book3D(HistoName,HistoName,
+		     Parameters.getParameter<int32_t>("Nbinx"),
+		     Parameters.getParameter<double>("xmin"),
+		     Parameters.getParameter<double>("xmax"),
+		     Parameters.getParameter<int32_t>("Nbiny"),
+		     Parameters.getParameter<double>("ymin"),
+		     Parameters.getParameter<double>("ymax"),
+		     Parameters.getParameter<int32_t>("Nbinz"),
+		     Parameters.getParameter<double>("zmin"),
+		     Parameters.getParameter<double>("zmax")
+		     );
 }
 
 //--------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorTrack::bookMEProfile(const char* ParameterSetLabel, const char* HistoName){
+MonitorElement* SiStripMonitorTrack::bookMEProfile(const char* ParameterSetLabel, const char* HistoName)
+{
     Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
     return dbe->bookProfile(HistoName,HistoName,
                             Parameters.getParameter<int32_t>("Nbinx"),
@@ -286,17 +303,18 @@ MonitorElement* SiStripMonitorTrack::bookMEProfile(const char* ParameterSetLabel
 }
 
 //--------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, const char* HistoName){
-   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
-   edm::ParameterSet ParametersTrend =  conf_.getParameter<edm::ParameterSet>("Trending");
-   MonitorElement* me = dbe->bookProfile(HistoName,HistoName,
-                           ParametersTrend.getParameter<int32_t>("Nbins"),
-                           0,
-                           ParametersTrend.getParameter<int32_t>("Nbins"),
-                           100, //that parameter should not be there !?
-                           Parameters.getParameter<double>("xmin"),
-                           Parameters.getParameter<double>("xmax"),
-                           "" );
+MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, const char* HistoName)
+{
+  Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
+  edm::ParameterSet ParametersTrend =  conf_.getParameter<edm::ParameterSet>("Trending");
+  MonitorElement* me = dbe->bookProfile(HistoName,HistoName,
+					ParametersTrend.getParameter<int32_t>("Nbins"),
+					0,
+					ParametersTrend.getParameter<int32_t>("Nbins"),
+					100, //that parameter should not be there !?
+					Parameters.getParameter<double>("xmin"),
+					Parameters.getParameter<double>("xmax"),
+					"" );
   if(!me) return me;
   char buffer[256];
   sprintf(buffer,"EventId/%d",ParametersTrend.getParameter<int32_t>("Steps"));
@@ -305,8 +323,9 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
 }
 
 //------------------------------------------------------------------------------------------
-void SiStripMonitorTrack::trackStudy(){
-  LogDebug("SiStripMonitorTrack") << "Start trackStudy";
+void SiStripMonitorTrack::trackStudy()
+{
+  LogDebug("SiStripMonitorTrack") << "Start" << __PRETTY_FUNCTION__ ;
   const reco::TrackCollection tC = *(trackCollection.product());
   int nTracks=tC.size();
   NumberOfTracks->Fill(nTracks);
@@ -346,6 +365,7 @@ void SiStripMonitorTrack::trackStudy(){
 	  <<"\n\t\tRecHit track angle "<<tkangle_iter->second
 	  <<"\n\t\tRecHit in GP "<<tkgeom->idToDet(trh->geographicalId())->surface().toGlobal(trh->localPosition()) <<std::endl;
 	const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(trh);
+
 	if (hit){
 	  LogTrace("SiStripMonitorTrack") << "GOOD hit" << std::endl;
 	  const SiStripCluster* SiStripCluster_ = &*(hit->cluster());
@@ -362,11 +382,14 @@ void SiStripMonitorTrack::trackStudy(){
       }
     }
   }
+
 }
 
 //------------------------------------------------------------------------
 
-void SiStripMonitorTrack::AllClusters(){
+void SiStripMonitorTrack::AllClusters()
+{
+
   LogDebug("SiStripMonitorTrack") << "Start cluster analysis" ;
   //Loop on Dets
   edm::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin();
@@ -378,21 +401,24 @@ void SiStripMonitorTrack::AllClusters(){
     edm::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->data.begin();
     for(; ClusIter!=DSViter->data.end(); ClusIter++) {
       const SiStripClusterInfo* SiStripClusterInfo_=MatchClusterInfo(&*ClusIter,detid);
-      if ( clusterInfos(SiStripClusterInfo_, detid,"All") ){
+      if ( clusterInfos(SiStripClusterInfo_, detid,"All") ) {
 	countAll++;
 	LogDebug("SiStripMonitorTrack") << "ClusIter " << &*ClusIter << "\t " 
 	                                << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin();
 	if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
-	  if ( clusterInfos(SiStripClusterInfo_,detid,"OffTrack") )
+	  if ( clusterInfos(SiStripClusterInfo_,detid,"OffTrack") ) {
 	    countOff++;
+	  }
 	}
       }
     }
   }
+
 }
 
 //------------------------------------------------------------------------
-const SiStripClusterInfo* SiStripMonitorTrack::MatchClusterInfo(const SiStripCluster* cluster, const uint32_t& detid){
+const SiStripClusterInfo* SiStripMonitorTrack::MatchClusterInfo(const SiStripCluster* cluster, const uint32_t& detid)
+{
   LogTrace("SiStripMonitorTrack") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
   edm::DetSetVector<SiStripClusterInfo>::const_iterator DSViter = dsv_SiStripClusterInfo->find(detid);
   edm::DetSet<SiStripClusterInfo>::const_iterator ClusIter = DSViter->data.begin();
@@ -401,13 +427,16 @@ const SiStripClusterInfo* SiStripMonitorTrack::MatchClusterInfo(const SiStripClu
        (ClusIter->stripAmplitudes().size() == cluster->amplitudes().size()))
       return &(*ClusIter);
   }
-  edm::LogError("SiStripMonitorTrack") << "Matching of SiStripCluster and SiStripClusterInfo is failed for cluster on detid "<< detid << "\n\tReturning NULL pointer";
+  edm::LogError("SiStripMonitorTrack") << "Matching of SiStripCluster and SiStripClusterInfo is failed for cluster on detid "
+				       << detid << "\n\tReturning NULL pointer";
   return 0;
 }
 
 //------------------------------------------------------------------------
-bool SiStripMonitorTrack::clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag , float angle){
+bool SiStripMonitorTrack::clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag , float angle)
+{
   LogTrace("SiStripMonitorTrack") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
+  //folder_organizer.setDetectorFolder(0);
   if (cluster==0) return false;
   // if one imposes a cut on the clusters, apply it
   const  edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
@@ -421,16 +450,18 @@ bool SiStripMonitorTrack::clusterInfos(const SiStripClusterInfo* cluster, const 
   //Count Entries for single SubDet -> used later on for global histograms
   int SubDet_enum = StripSubdetector(detid).subdetId()-3;
   int iflag;
-  if      (flag=="onTrack")  iflag=0;
-  else if (flag=="offTrack") iflag=1;
+  if      (flag=="OnTrack")  iflag=0;
+  else if (flag=="OffTrack") iflag=1;
   else                       iflag=2;
   NClus[SubDet_enum][iflag]++;
   std::stringstream ss;
   const_cast<SiStripClusterInfo*>(cluster)->print(ss);
   LogTrace("SiStripMonitorTrack") << "\n["<<__PRETTY_FUNCTION__<<"]\n" << ss.str() << std::endl;
-
-  //TODO: correct for the local angle
   
+  //TODO: correct for the local angle
+  //if(flag == "OnTrack") {
+  //LocalAngle->Fill(angle);
+  //}
   //Cumulative Plots
   std::pair<std::string,int32_t> SubDetAndLayer = GetSubDetAndLayer(detid);
   name=flag+"_in_"+SubDetAndLayer.first;
@@ -442,16 +473,16 @@ bool SiStripMonitorTrack::clusterInfos(const SiStripClusterInfo* cluster, const 
     fillTrendMEs(cluster,name); // layer plots
   }
 
-  //Module-level plots
   SiStripHistoId hidmanager;
-  name = hidmanager.createHistoId("","det",detid).c_str();
+  name = hidmanager.createHistoId("","det",detid);
   fillModMEs(cluster,name);
   
   return true;
 }
   
 //--------------------------------------------------------------------------------
-std::pair<std::string,int32_t> SiStripMonitorTrack::GetSubDetAndLayer(const uint32_t& detid){
+std::pair<std::string,int32_t> SiStripMonitorTrack::GetSubDetAndLayer(const uint32_t& detid)
+{
   std::string cSubDet;
   int32_t layer=0;
   switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId()))
@@ -479,7 +510,8 @@ std::pair<std::string,int32_t> SiStripMonitorTrack::GetSubDetAndLayer(const uint
 }
 
 //--------------------------------------------------------------------------------
-void SiStripMonitorTrack::fillTrend(MonitorElement* me ,float value){
+void SiStripMonitorTrack::fillTrend(MonitorElement* me ,float value)
+{
   if(!me) return;
   //check the origin and check options
   int option = conf_.getParameter<edm::ParameterSet>("Trending").getParameter<int32_t>("UpdateMode");
@@ -490,67 +522,68 @@ void SiStripMonitorTrack::fillTrend(MonitorElement* me ,float value){
   if(option==2) firstEventUsed += CurrentStep * int(me->getBinEntries(me->getNbinsX()+1));
   else if(option==3) firstEventUsed += CurrentStep * int(me->getBinEntries(me->getNbinsX()+1)) * me->getNbinsX();
   //fill
-   me->Fill((eventNb-firstEventUsed)/CurrentStep,value);
+  me->Fill((eventNb-firstEventUsed)/CurrentStep,value);
   if(eventNb-firstEvent<1) return;
   // check if we reached the end
   if(presentOverflow == me->getBinEntries(me->getNbinsX()+1)) return;
   switch(option) {
-    case 1:
-     {
-       // mode 1: rebin and change X scale
-       int NbinsX = me->getNbinsX();
-       float entries = 0.;
-       float content = 0.;
-       float error = 0.;
-       int bin = 1;
-       int totEntries = int(me->getEntries());
-       for(;bin<=NbinsX/2;++bin) {
-         content = (me->getBinContent(2*bin-1) + me->getBinContent(2*bin))/2.; 
-         error   = pow((me->getBinError(2*bin-1)*me->getBinError(2*bin-1)) + (me->getBinError(2*bin)*me->getBinError(2*bin)),0.5)/2.; 
-         entries = me->getBinEntries(2*bin-1) + me->getBinEntries(2*bin);
-         me->setBinContent(bin,content*entries);
-         me->setBinError(bin,error);
-         me->setBinEntries(bin,entries);
-       }
-       for(;bin<=NbinsX+1;++bin) {
-         me->setBinContent(bin,0);
-         me->setBinError(bin,0);
-         me->setBinEntries(bin,0); 
-       }
-       me->setEntries(totEntries);
-       char buffer[256];
-       sprintf(buffer,"EventId/%d",CurrentStep*2);
-       me->setAxisTitle(std::string(buffer),1);
-       break;
-     }
-    case 2:
-     {
-       // mode 2: slide
-       int bin=1;
-       int NbinsX = me->getNbinsX();
-       for(;bin<=NbinsX;++bin) {
-         me->setBinContent(bin,me->getBinContent(bin+1)*me->getBinEntries(bin+1));
-         me->setBinError(bin,me->getBinError(bin+1));
-         me->setBinEntries(bin,me->getBinEntries(bin+1));
-       }
-       break;
-     }
-    case 3:
-     {
-       // mode 3: reset
-       int NbinsX = me->getNbinsX();
-       for(int bin=0;bin<=NbinsX;++bin) {
-         me->setBinContent(bin,0);
-         me->setBinError(bin,0);
-         me->setBinEntries(bin,0); 
-       }
-       break;
-     }
+  case 1:
+    {
+      // mode 1: rebin and change X scale
+      int NbinsX = me->getNbinsX();
+      float entries = 0.;
+      float content = 0.;
+      float error = 0.;
+      int bin = 1;
+      int totEntries = int(me->getEntries());
+      for(;bin<=NbinsX/2;++bin) {
+	content = (me->getBinContent(2*bin-1) + me->getBinContent(2*bin))/2.; 
+	error   = pow((me->getBinError(2*bin-1)*me->getBinError(2*bin-1)) + (me->getBinError(2*bin)*me->getBinError(2*bin)),0.5)/2.; 
+	entries = me->getBinEntries(2*bin-1) + me->getBinEntries(2*bin);
+	me->setBinContent(bin,content*entries);
+	me->setBinError(bin,error);
+	me->setBinEntries(bin,entries);
+      }
+      for(;bin<=NbinsX+1;++bin) {
+	me->setBinContent(bin,0);
+	me->setBinError(bin,0);
+	me->setBinEntries(bin,0); 
+      }
+      me->setEntries(totEntries);
+      char buffer[256];
+      sprintf(buffer,"EventId/%d",CurrentStep*2);
+      me->setAxisTitle(std::string(buffer),1);
+      break;
+    }
+  case 2:
+    {
+      // mode 2: slide
+      int bin=1;
+      int NbinsX = me->getNbinsX();
+      for(;bin<=NbinsX;++bin) {
+	me->setBinContent(bin,me->getBinContent(bin+1)*me->getBinEntries(bin+1));
+	me->setBinError(bin,me->getBinError(bin+1));
+	me->setBinEntries(bin,me->getBinEntries(bin+1));
+      }
+      break;
+    }
+  case 3:
+    {
+      // mode 3: reset
+      int NbinsX = me->getNbinsX();
+      for(int bin=0;bin<=NbinsX;++bin) {
+	me->setBinContent(bin,0);
+	me->setBinError(bin,0);
+	me->setBinEntries(bin,0); 
+      }
+      break;
+    }
   }
 }
 
 //--------------------------------------------------------------------------------
-void SiStripMonitorTrack::fillModMEs(const SiStripClusterInfo* cluster,TString name){
+void SiStripMonitorTrack::fillModMEs(const SiStripClusterInfo* cluster,TString name)
+{
   std::map<TString, ModMEs>::iterator iModME  = ModMEsMap.find(name);
   if(iModME!=ModMEsMap.end()){
     fillME(iModME->second.ClusterStoN  ,cluster->charge()/cluster->noise());
@@ -578,7 +611,8 @@ void SiStripMonitorTrack::fillModMEs(const SiStripClusterInfo* cluster,TString n
   }
 }
 
-void SiStripMonitorTrack::fillTrendMEs(const SiStripClusterInfo* cluster,TString name){
+void SiStripMonitorTrack::fillTrendMEs(const SiStripClusterInfo* cluster,TString name)
+{
   std::map<TString, ModMEs>::iterator iModME  = ModMEsMap.find(name);
   if(iModME!=ModMEsMap.end()){
     fillME(iModME->second.ClusterStoN  ,cluster->charge()/cluster->noise());
@@ -595,7 +629,8 @@ void SiStripMonitorTrack::fillTrendMEs(const SiStripClusterInfo* cluster,TString
 //--------------------------------------------------------------------------------
 // Method to separate matched rechits in single clusters and to take
 // the cluster from projected rechits and evaluate the track angle 
-std::vector<std::pair<const TrackingRecHit*,float> > SiStripMonitorTrack::SeparateHits(reco::TrackInfoRef & trackinforef) {
+std::vector<std::pair<const TrackingRecHit*,float> > SiStripMonitorTrack::SeparateHits(reco::TrackInfoRef & trackinforef) 
+{
   std::vector<std::pair<const TrackingRecHit*,float> >hitangleassociation;
   reco::TrackInfo::TrajectoryInfo::const_iterator _tkinfoiter;
   for(_tkinfoiter=trackinforef->trajStateMap().begin();_tkinfoiter!=trackinforef->trajStateMap().end();++_tkinfoiter) {
@@ -640,6 +675,6 @@ std::vector<std::pair<const TrackingRecHit*,float> > SiStripMonitorTrack::Separa
   } // end loop on rechits
   return (hitangleassociation);
 }
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripMonitorTrack);
-
