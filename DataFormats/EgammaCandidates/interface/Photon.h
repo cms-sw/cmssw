@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.14 2007/10/22 22:24:25 futyand Exp $
+ * \version $Id: Photon.h,v 1.15 2007/12/07 19:16:39 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -56,6 +56,8 @@ namespace reco {
     double e5x5() const { return seedClusterShape_->e5x5(); }
     /// Whether or not the SuperCluster has a matched pixel seed
     bool hasPixelSeed() const { return pixelSeed_; }
+    /// Bool flagging photons with a vector of refereces to conversions with size >0
+    bool isConverted() const;
 
   private:
     /// check overlap with another candidate
