@@ -15,11 +15,11 @@ int main(){
   try{
     cond::DBSession* session=new cond::DBSession;
     session->open();
-    cond::Connection myconnection("sqlite_file:mytest.db",0); 
+    cond::Connection myconnection("sqlite_file:mytest.db",-1); 
     myconnection.connect(session);
     cond::PoolTransaction& pooldb=myconnection.poolTransaction();
-    pooldb.start(false);
     cond::IOVService iovmanager(pooldb);
+    pooldb.start(false);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     for(int i=0; i<5; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
@@ -34,8 +34,6 @@ int main(){
     }
     std::string iovtoken=editor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
-    pooldb.commit();
-    pooldb.start(false);
     iovmanager.deleteAll(true);
     pooldb.commit();
     delete editor;

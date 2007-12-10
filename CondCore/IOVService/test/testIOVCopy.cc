@@ -20,7 +20,7 @@ int main(){
     conHandler.registerConnection("mysource","sqlite_file:source.db",0);
     conHandler.registerConnection("mydest","sqlite_file:dest.db",0);
     session->open();
-    
+    conHandler.connect(session);
     cond::PoolTransaction& sourcedb=conHandler.getConnection("mysource")->poolTransaction();
     cond::PoolTransaction& destdb=conHandler.getConnection("mydest")->poolTransaction();
     
@@ -40,15 +40,22 @@ int main(){
     std::string iovtoken=editor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
     sourcedb.commit();
+    std::cout<<"source db created "<<std::endl;
     sourcedb.start(true);
+    std::cout<<"source db started "<<std::endl;
     destdb.start(false);
+    std::cout<<"dest db started "<<std::endl;
     iovmanager.exportIOVWithPayload( destdb,
 				     iovtoken,
 				     "testPayloadObj" );
-    sourcedb.commit();
     destdb.commit();
+    std::cout<<"destdb committed"<<std::endl;
+    sourcedb.commit();
+    std::cout<<"source db committed"<<std::endl;
     delete editor;
+    std::cout<<"editor deleted"<<std::endl;
     delete session;
+    std::cout<<"session deleted"<<std::endl;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
   }catch(const std::exception& er){
