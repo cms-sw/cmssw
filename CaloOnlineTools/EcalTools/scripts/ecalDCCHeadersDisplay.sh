@@ -115,7 +115,7 @@ else
 fi
 
 
-cat > "$cfg_path$data_file".graph.$$.cfg <<EOF
+cat > "$cfg_path$data_file".dccHeader.$$.cfg <<EOF
 
 
 
@@ -152,7 +152,7 @@ cd $cmssw_dir;
 eval `scramv1 ru -sh`;
 cd -;
 echo "... running"
-cmsRun "$cfg_path$data_file".graph.$$.cfg >& "$log_dir$data_file".$$.dccHeaders
+cmsRun "$cfg_path$data_file".dccHeader.$$.cfg >& "$log_dir$data_file".$$.dccHeaders
 
 echo ""
 echo ""
