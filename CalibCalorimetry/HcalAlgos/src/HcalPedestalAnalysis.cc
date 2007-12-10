@@ -241,7 +241,10 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
     char name[1024];
     for(int i=0; i<4; i++){
       lo=-0.5;
-      hi=9.5;
+      // fix from Andy: if you convert to fC and then bin in units of 1, you may 'skip' a bin while
+      // filling, since the ADCs are quantized
+      if (m_pedsinADC) hi=9.5;
+      else hi = 11.5;
       sprintf(name,"%s Pedestal, eta=%d phi=%d d=%d cap=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);  
       insert[i].first =  new TH1F(name,name,bins,lo,hi);
       sprintf(name,"%s Product, eta=%d phi=%d d=%d caps=%d*%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i,(i+1)%4);  
