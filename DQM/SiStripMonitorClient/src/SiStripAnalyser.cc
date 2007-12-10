@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/12/03 15:45:17 $
- * $Revision: 1.20 $
+ * $Date: 2007/12/06 19:02:48 $
+ * $Revision: 1.21 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -181,7 +181,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
     sistripWebInterface_->setTkMapFlag(true);
   }
   // Create predefined plots
-  if (nLumiSecs_ > 0 && nLumiSecs_%staticUpdateFrequency_  == 0) {
+  if (staticUpdateFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%staticUpdateFrequency_  == 0) {
     cout << " Creating predefined plots " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();

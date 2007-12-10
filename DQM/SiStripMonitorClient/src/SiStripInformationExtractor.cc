@@ -969,32 +969,34 @@ void SiStripInformationExtractor::readStatusMessage(DaqMonitorBEInterface* bei, 
       MonitorElement* me = (*ic);
       if (!me) continue;
       string name = me->getName();  
-      dqm::qtests::QR_map test_map = me->getQReports();
-      if (test_map.size() == 0 ) continue;
 
+      dqm::qtests::QR_map test_map = me->getQReports();
+      if (test_map.size() == 0 && name.find("StripQualityFromCondDB") == string::npos) continue;
       canvas_->Clear();
       plotHisto(req_map, me, false);
       fillNamedImageBuffer(me->getFullname());
 
-      test_status << " QTest Status for " << name << " : " << endl;
-      test_status << " ======================================================== " << endl; 
-      for (dqm::qtests::QR_map::const_iterator it = test_map.begin(); it != test_map.end();
-	   it++) {
-	int status = it->second->getStatus();
-	if (status == dqm::qstatus::WARNING) test_status << " Warning ";
-	else if (status == dqm::qstatus::ERROR) test_status << " Error  ";
-	else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok  ";
-	else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") ";
-	string mess_str = it->second->getMessage();
-	test_status <<  "&lt;br/&gt;";
-	mess_str = mess_str.substr(mess_str.find(" Test")+5);
-	test_status <<  " QTest Name  : " << mess_str.substr(0, mess_str.find(")")+1) << endl;
-	test_status << "&lt;br/&gt;";
-	test_status <<  " QTest Detail  : " << mess_str.substr(mess_str.find(")")+2) << endl;
-      } 
-      test_status << " ======================================================== " << endl;
+      if (test_map.size() != 0) {
+        test_status << " QTest Status for " << name << " : " << endl;
+        test_status << " ======================================================== " << endl; 
+        for (dqm::qtests::QR_map::const_iterator it = test_map.begin(); it != test_map.end();
+	     it++) {
+	  int status = it->second->getStatus();
+	  if (status == dqm::qstatus::WARNING) test_status << " Warning ";
+	  else if (status == dqm::qstatus::ERROR) test_status << " Error  ";
+	  else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok  ";
+	  else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") ";
+	  string mess_str = it->second->getMessage();
+	  test_status <<  "&lt;br/&gt;";
+	  mess_str = mess_str.substr(mess_str.find(" Test")+5);
+	  test_status <<  " QTest Name  : " << mess_str.substr(0, mess_str.find(")")+1) << endl;
+	  test_status << "&lt;br/&gt;";
+	  test_status <<  " QTest Detail  : " << mess_str.substr(mess_str.find(")")+2) << endl;
+	} 
+	test_status << " ======================================================== " << endl;
+      }
       *out << "<HPath>" << name << "</HPath>" << endl;         
-    }
+    }    
   }
   *out << "</PathList>" << endl;
   *out << "<StatusList>" << endl;
