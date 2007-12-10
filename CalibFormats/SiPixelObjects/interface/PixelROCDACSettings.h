@@ -39,9 +39,13 @@ namespace pos{
 
     void getDACs(std::vector<unsigned int>& dacs) const;
     void setDAC(unsigned int dacaddress, unsigned int dacvalue);
-    //Added by Umesh
+
+    void checkTag(std::string tag, 
+		  std::string dacName,
+		  const PixelROCName& rocid);
+      
     void setDac(std::string dacName, int value);
-    ////////////////////////////
+
     bits4 getVdd() {return Vdd_;}
     void setVdd(bits4 vdd) {Vdd_=vdd;}
 
