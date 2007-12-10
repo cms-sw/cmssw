@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store QIE coder parameters for one channel
 $Author: ratnikov
-$Date: 2006/05/06 00:33:29 $
-$Revision: 1.3 $
+$Date: 2007/01/09 22:49:20 $
+$Revision: 1.5 $
 */
 #include <boost/cstdint.hpp>
 
@@ -31,10 +31,14 @@ class HcalQIECoder {
   
   void setOffset (unsigned fCapId, unsigned fRange, float fValue);
   void setSlope (unsigned fCapId, unsigned fRange, float fValue);
-  uint32_t rawId () const {return mId;}
+    // because of an oracle digestion problem with uint32_t 
+    // use unsigned long long
+  //  uint32_t rawId () const {return mId;}
+  unsigned long long rawId () const {return mId;}
 #endif
  private:
-  uint32_t mId;
+  //  uint32_t mId;
+  unsigned long long mId;
   float mOffset00;
   float mOffset01; 
   float mOffset02; 

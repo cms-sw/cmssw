@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store map between detector ID, electronics ID and trigger ID
 $Author: ratnikov
-$Date: 2007/05/05 19:49:05 $
-$Revision: 1.14 $
+$Date: 2007/09/18 06:48:37 $
+$Revision: 1.15 $
 */
 
 #include <vector>
@@ -61,21 +61,30 @@ class HcalElectronicsMap {
   void sortByTriggerId () const;
   void sort() {}
 
+    // because of an oracle digestion problem with uint32_t 
+    // use unsigned long long
+
   class PrecisionItem { 
   public:
     PrecisionItem () {mId = mElId = 0;}
-    PrecisionItem (uint32_t fId, uint32_t fElId) 
+    //    PrecisionItem (uint32_t fId, uint32_t fElId) 
+    PrecisionItem (unsigned long long fId, unsigned long long fElId) 
       : mId (fId), mElId (fElId) {}
-    uint32_t mId;
-    uint32_t mElId;
+    //    uint32_t mId;
+    //    uint32_t mElId;
+    unsigned long long mId;
+    unsigned long long mElId;
   };
   class TriggerItem { 
   public:
     TriggerItem () {mElId = mTrigId = 0;}
-    TriggerItem (uint32_t fTrigId, uint32_t fElId) 
+    //    TriggerItem (uint32_t fTrigId, uint32_t fElId) 
+    TriggerItem (unsigned long long fTrigId, unsigned long long fElId) 
       : mTrigId (fTrigId), mElId (fElId) { }
-    uint32_t mTrigId;
-    uint32_t mElId;
+    unsigned long long mTrigId;
+    unsigned long long mElId;
+    //    uint32_t mTrigId;
+    //    uint32_t mElId;
   };
  protected:
   const PrecisionItem* findById (unsigned long fId) const;

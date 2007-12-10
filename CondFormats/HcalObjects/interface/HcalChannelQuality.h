@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store channel quality information
 $Author: ratnikov
-$Date: 2006/02/01 21:34:52 $
-$Revision: 1.3 $
+$Date: 2007/01/09 22:49:20 $
+$Revision: 1.5 $
 */
 
 #include <vector>
@@ -38,7 +38,10 @@ class HcalChannelQuality {
   public:
     bool operator< (const Item& other) const {return mId < other.mId;}
     bool operator== (const Item& other) const {return mId == other.mId;}
-    uint32_t mId;
+    // because of an oracle digestion problem with uint32_t 
+    // use unsigned long long
+    //    uint32_t mId;
+    unsigned long long mId;
     unsigned mQuality;
   };
  protected:
