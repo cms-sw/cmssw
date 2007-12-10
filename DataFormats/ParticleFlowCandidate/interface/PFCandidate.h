@@ -54,11 +54,19 @@ namespace reco {
     /// set muon reference
     void    setMuonRef(const reco::MuonRef& ref);
 
+    /// set corrected Ecal energy 
     void    setEcalEnergy( float ee ) {ecalEnergy_ = ee;}
+
+    /// set corrected Hcal energy 
     void    setHcalEnergy( float eh ) {hcalEnergy_ = eh;}
+
+    /// set corrected PS1 energy
     void    setPs1Energy( float e1 ) {ps1Energy_ = e1;}
+
+    /// set corrected PS2 energy 
     void    setPs2Energy( float e2 ) {ps2Energy_ = e2;}
 
+    /// particle momentum *= rescaleFactor
     void    rescaleMomentum( double rescaleFactor );
 
     enum Flags {
@@ -87,7 +95,7 @@ namespace reco {
     bool flag(Flags theFlag) const;
 
 
-    /// particle identification
+    /// particle identification code
     virtual int particleId() const { return particleId_;}
     
     /// return reference to the block
