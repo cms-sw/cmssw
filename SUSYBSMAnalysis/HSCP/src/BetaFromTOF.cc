@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.7 2007/11/21 13:31:28 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.8 2007/12/05 12:58:49 ptraczyk Exp $
 //
 //
 
@@ -492,49 +492,43 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 double
 BetaFromTOF::fitT0(double &a, double &b, vector<double> xl, vector<double> yl, vector<double> xr, vector<double> yr ) {
 
-  double ar=0,br=0,al=0,bl=0,da,db;
-  
-  // Do the fit separately for left and right hits
-  if (xl.size()>1) rawFit(al,da,bl,db,xl,yl); 
-    else if (xl.size()==1) bl=yl[0];
-  if (xr.size()>1) rawFit(ar,da,br,db,xr,yr);
-    else if (xr.size()==1) br=yr[0];
+  double sx=0,sy=0,sxy=0,sxx=0,ssx=0,ssy=0,s=0,ss=0;
 
-  // If there's only 1 hit on one side, take the slope from the other side and adjust the constant
-  // so that the line passes through the single hit  
+  for (unsigned int i=0; i<xl.size(); i++) {
+    sx+=xl[i];
+    sy+=yl[i];
+    sxy+=xl[i]*yl[i];
+    sxx+=xl[i]*xl[i];
+    s++;
+    ssx+=xl[i];
+    ssy+=yl[i];
+    ss++;
+  } 
+
+  for (unsigned int i=0; i<xr.size(); i++) {
+    sx+=xr[i];
+    sy+=yr[i];
+    sxy+=xr[i]*yr[i];
+    sxx+=xr[i]*xr[i];
+    s++;
+    ssx-=xr[i];
+    ssy-=yr[i];
+    ss--;
+  } 
+
+  double delta = ss*ss*sxx+s*sx*sx+s*ssx*ssx-s*s*sxx-2*ss*sx*ssx;
   
-  if (al==0) { 
-    al=ar; 
-    if (bl==0) bl=br; 
-      else bl-=al*xl[0];
-  }    
-  if (ar==0) {
-    ar=al;
-    if (br==0) br=bl; 
-      else br-=ar*xr[0];
+  double t0_corr=0.;
+
+  if (delta) {
+    a=(ssy*s*ssx+sxy*ss*ss+sy*sx*s-sy*ss*ssx-ssy*sx*ss-sxy*s*s)/delta;
+    b=(ssx*sy*ssx+sxx*ssy*ss+sx*sxy*s-sxx*sy*s-ssx*sxy*ss-sx*ssy*ssx)/delta;
+    t0_corr=(ssx*s*sxy+sxx*ss*sy+sx*sx*ssy-sxx*s*ssy-sx*ss*sxy-ssx*sx*sy)/delta;
   }
 
-  // The best fit is the average of the left and right fits
-
-  a=(al+ar)/2.;
-  b=(bl+br)/2.;
-
-  // Now we can calculate the t0 correction for the hits
-
-  double t0_left=0, t0_right=0, t0_corr;
-  if (xl.size()) 
-    for (unsigned int i=0; i<xl.size(); i++) 
-      t0_left+=yl[i]-a*xl[i]-b;
-  if (xr.size()) 
-    for (unsigned int i=0; i<xr.size(); i++) 
-      t0_right+=yr[i]-a*xr[i]-b;
-  
-  t0_corr=(t0_right-t0_left)/(xl.size()+xr.size());
-  if ((t0_left==0) || (t0_right==0)) t0_corr=0;
   // convert drift distance to time
-  // TODO: a smarter conversion? (using 1D rechit algo?)
-  t0_corr/=0.00543;
-  
+  t0_corr/=-0.00543;
+
   return t0_corr;
 }
 
