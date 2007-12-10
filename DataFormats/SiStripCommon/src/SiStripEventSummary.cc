@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.cc,v 1.6 2007/11/30 09:27:36 bainbrid Exp $
+// Last commit: $Id: SiStripEventSummary.cc,v 1.7 2007/11/30 15:38:56 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -166,19 +166,25 @@ void SiStripEventSummary::commissioningInfo( const uint32_t& daq1,
 					     const uint32_t& daq2 ) {
   
   // Extract if commissioning info are valid or not 
-  if ( (daq1>>8)&0x3 == 1 ) { valid_ = true; }
-  else if ( (daq1>>8)&0x3 == 2 ) { valid_ = false; }
-  else if ( (daq1>>8)&0x3 == 3 && 
+  uint16_t temp = static_cast<uint16_t>( (daq1>>8)&0x3 );
+  if      ( temp == uint16_t(1) ) { valid_ = true; }
+  else if ( temp == uint16_t(2) ) { valid_ = false; }
+  else if ( temp == uint16_t(3) && 
 	    daq1 == sistrip::invalid32_ ) {
     edm::LogWarning(mlDigis_)
       << "[SiStripEventSummary::" << __func__ << "]"
-      << " DAQ register contents set to invalid!";
+      << " DAQ register contents set to invalid: 0x"
+      << std::hex 
+      << std::setw(8) << std::setfill('0') << daq1 
+      << std::dec;
     valid_ = false;
   } else {
     edm::LogWarning(mlDigis_)
       << "[SiStripEventSummary::" << __func__ << "]"
-      << " Unexpected bit pattern set"
-      << " (used to flag if data are valid or not)!";
+      << " Unexpected bit pattern set in DAQ1: 0x"
+      << std::hex 
+      << std::setw(8) << std::setfill('0') << daq1 
+      << std::dec;
     valid_ = false;
   }
   
