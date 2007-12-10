@@ -258,7 +258,7 @@ PoolDBESSource::~PoolDBESSource()
 void 
 PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ){
   //std::cout<<"PoolDBESSource::setIntervalFor"<<std::endl;
-  LogDebug ("PoolDBESSource")<<iKey.name();
+  //LogDebug ("PoolDBESSource")<<iKey.name();
   std::string recordname=iKey.name();
   std::string objectname("");
   std::string proxyname("");
@@ -312,27 +312,27 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   std::string payloadToken=iovservice.payloadToken(leadingToken,abtime);
   std::string datumName=recordname+"@"+objectname+"@"+leadingLable;
   m_datumToToken[datumName]=payloadToken;  
-  pooldb.commit();
+  //pooldb.commit();
 
   std::vector<cond::IOVInfo>::iterator itProxy;
   for(itProxy=pos->second.begin(); itProxy!=pos->second.end(); ++itProxy){
     if( (itProxy->label) != leadingLable){
       std::string datumName=recordname+"@"+objectname+"@"+itProxy->label;
       cond::Connection* c=conHandler.getConnection(itProxy->pfn);
-      cond::PoolTransaction& pooldb=c->poolTransaction();
+      //cond::PoolTransaction& pooldb=c->poolTransaction();
       cond::IOVService iovservice(pooldb);  
-      pooldb.start(true);
+      //pooldb.start(true);
       std::string payloadToken=iovservice.payloadToken(itProxy->token,abtime);
       m_datumToToken[datumName]=payloadToken;  
-      pooldb.commit();
     }
   }
+  pooldb.commit();
 }
 
 void 
 PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey , KeyedProxies& aProxyList) {
   //std::cout<<"registerProxies"<<std::endl;
-  LogDebug ("PoolDBESSource ")<<"registerProxies";
+  //LogDebug ("PoolDBESSource ")<<"registerProxies";
   //For each data type in this Record, create the proxy by dynamically loading it
   //loop over types in the same record
   std::string recordname=iRecordKey.name();
