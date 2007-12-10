@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.15 2007/12/07 19:16:39 nancy Exp $
+ * \version $Id: Photon.h,v 1.16 2007/12/10 18:24:07 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -23,7 +23,7 @@ namespace reco {
     Photon() : RecoCandidate() { }
     /// constructor from values
     Photon( Charge q, const LorentzVector & p4, Point unconvPos, 
-	    const SuperClusterRef scl,  const ClusterShapeRef shp, 
+	    const SuperClusterRef scl,  const ClusterShapeRef shp, double HoE,
 	    bool hasPixelSeed=false, const Point & vtx = Point( 0, 0, 0 ) );
     /// destructor
     virtual ~Photon();
@@ -54,6 +54,8 @@ namespace reco {
     double r19() const { return  seedClusterShape_->eMax()/seedClusterShape_->e3x3(); }
     /// 5x5 energy
     double e5x5() const { return seedClusterShape_->e5x5(); }
+    //! the hadronic over electromagnetic fraction
+    float hadronicOverEm() const {return hadOverEm_;}
     /// Whether or not the SuperCluster has a matched pixel seed
     bool hasPixelSeed() const { return pixelSeed_; }
     /// Bool flagging photons with a vector of refereces to conversions with size >0
@@ -71,6 +73,7 @@ namespace reco {
     // vector of references to Conversions
     std::vector<reco::ConversionRef>  conversions_;
 
+    float hadOverEm_;
     bool pixelSeed_;
   };
   

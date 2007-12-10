@@ -1,4 +1,4 @@
-// $Id: Photon.cc,v 1.11 2007/12/07 19:23:04 nancy Exp $
+// $Id: Photon.cc,v 1.12 2007/12/10 19:06:03 nancy Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
 
@@ -6,11 +6,10 @@ using namespace reco;
 
 Photon::Photon( Charge q, const LorentzVector & p4, Point unconvPos,
 		const SuperClusterRef scl,   const ClusterShapeRef shp, 
-		bool hasPixelSeed, const Point & vtx) : 
+		double HoE, bool hasPixelSeed, const Point & vtx) : 
     RecoCandidate( q, p4, vtx, 22 ), unconvPosition_( unconvPos ),
-    superCluster_(scl),  seedClusterShape_( shp ),  pixelSeed_( hasPixelSeed ) {
- 
-}
+    superCluster_(scl), seedClusterShape_( shp ),
+    hadOverEm_(HoE), pixelSeed_( hasPixelSeed ) {}
 
 Photon::~Photon() { }
 
