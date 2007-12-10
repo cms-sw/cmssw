@@ -54,195 +54,65 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
 
  if (debug_) cout << " EcalRecHitMerger : Run " << e.id().run() << " Event " << e.id().event() << endl;
 
- Handle<EcalRecHitCollection> EBrechits_egamma;
- Handle<EcalRecHitCollection> EBrechits_muons;
- Handle<EcalRecHitCollection> EBrechits_taus;
- Handle<EcalRecHitCollection> EBrechits_jets;
- Handle<EcalRecHitCollection> EBrechits_rest;
-
- Handle<EcalRecHitCollection> EErechits_egamma;
- Handle<EcalRecHitCollection> EErechits_muons;
- Handle<EcalRecHitCollection> EErechits_taus;
- Handle<EcalRecHitCollection> EErechits_jets;
- Handle<EcalRecHitCollection> EErechits_rest;
+ std::vector< edm::Handle<EcalRecHitCollection> > EcalRecHits_done;
+ e.getManyByType(EcalRecHits_done);
 
  std::auto_ptr<EcalRecHitCollection> EBMergedRecHits(new EcalRecHitCollection);
  std::auto_ptr<EcalRecHitCollection> EEMergedRecHits(new EcalRecHitCollection);
 
+ unsigned int nColl = EcalRecHits_done.size();
 
- try {	
-	e.getByLabel(EgammaSourceEB_, EBrechits_egamma);
+ int nEB = 0;
+ int nEE = 0;
+
+
+ for (unsigned int i=0; i < nColl; i++) {
+
+   std::string instance = EcalRecHits_done[i].provenance()->productInstanceName();
+   std::string module_label = EcalRecHits_done[i].provenance()->moduleLabel();
+
+   if ( module_label != "ecalRegionalEgammaRecHitTmp" && 
+	module_label != "ecalRegionalMuonsRecHitTmp" &&
+	module_label != "ecalRegionalJetsRecHitTmp" &&
+ 	module_label != "ecalRegionalTausRecHitTmp" &&
+ 	module_label != "ecalRegionalRestRecHitTmp" ) continue;
+
+   if (instance == "EcalRecHitsEB")  {
+	nEB += EcalRecHits_done[i] -> size();
+   }
+   else if (instance == "EcalRecHitsEE") {
+	nEE += EcalRecHits_done[i] -> size();
+   }
+
  }
- catch (...) { ;}
 
- try {
-	e.getByLabel(MuonsSourceEB_,  EBrechits_muons);
- }
- catch (...)  { ; }
+ EBMergedRecHits -> reserve(nEB);
+ EEMergedRecHits -> reserve(nEE);
+ if (debug_) cout << " Number of EB Rechits to merge  = " << nEB << endl;
+ if (debug_) cout << " Number of EE Rechits to merge  = " << nEE << endl;
 
- try {
-        e.getByLabel(TausSourceEB_,  EBrechits_taus);
- }
- catch (...)  { ; }
+ for (int i=0; i < nColl; i++) {
+   std::string instance = EcalRecHits_done[i].provenance()->productInstanceName(); 
 
+   std::string module_label = EcalRecHits_done[i].provenance()->moduleLabel();
 
- try {
-	e.getByLabel(JetsSourceEB_,   EBrechits_jets);
- }
- catch (...) { ;}
+   if ( module_label != "ecalRegionalEgammaRecHitTmp" &&
+        module_label != "ecalRegionalMuonsRecHitTmp" &&
+        module_label != "ecalRegionalJetsRecHitTmp" &&
+        module_label != "ecalRegionalTausRecHitTmp" &&
+        module_label != "ecalRegionalRestRecHitTmp" ) continue;
 
- try {
-	e.getByLabel(RestSourceEB_,   EBrechits_rest);
- }
- catch (...) { ;}
-
-
- try {
-        e.getByLabel(EgammaSourceEE_, EErechits_egamma);
- }
- catch (...) { ;}
-                                                                                                                               
- try {
-        e.getByLabel(MuonsSourceEE_,  EErechits_muons);
- }
- catch (...)  { ; }
-
- try {
-        e.getByLabel(TausSourceEE_,  EErechits_taus);
- }
- catch (...)  { ; }
-                                                                                                                               
- try {
-        e.getByLabel(JetsSourceEE_,   EErechits_jets);
- }
- catch (...) { ;}
-
- try {
-	e.getByLabel(RestSourceEE_,   EErechits_rest);
- }
- catch (...)  { ;}
-
-
- // EcalRecHitCollection* ptr = MergedRecHits.get();
-
- int EBN_egamma=0;
- int EBN_muons=0;
- int EBN_taus=0;
- int EBN_jets=0;
- int EBN_rest=0;
-
- if (EBrechits_egamma.isValid()) EBN_egamma = EBrechits_egamma -> size();
- if (EBrechits_muons.isValid())  EBN_muons  = EBrechits_muons  -> size();
- if (EBrechits_taus.isValid())  EBN_taus  = EBrechits_taus  -> size();
- if (EBrechits_jets.isValid())   EBN_jets   = EBrechits_jets   -> size();
- if (EBrechits_rest.isValid())   EBN_rest   = EBrechits_rest   -> size();
-
- if (debug_) cout << " EBN_egamma EBN_muons EBN_jets EBN_rest " << EBN_egamma << " " << EBN_muons << " " << EBN_jets << " " << EBN_rest << endl;
-
- int EBnHits = EBN_egamma+EBN_muons+EBN_jets+EBN_rest + EBN_taus;
- EBMergedRecHits -> reserve(EBnHits);
-
- // int n1=0;
-
- if (EBN_egamma > 0) {
-	if (debug_) cout << " Merging  " << EBN_egamma << " EB RecHits from Egamma. " << endl;
-	// EcalRecHitCollection& egamma = (EcalRecHitCollection&)*rechits_egamma;
-	// EcalRecHitCollection egamma = *rechits_egamma;
-	// ptr -> swap(egamma);
-	// n1 += N_egamma;
-	for (EcalRecHitCollection::const_iterator it=EBrechits_egamma->begin(); it !=EBrechits_egamma->end(); it++) {
+   if (instance == "EcalRecHitsEB") {
+	for (EcalRecHitCollection::const_iterator it=EcalRecHits_done[i]->begin(); it !=EcalRecHits_done[i]->end(); it++) {
 		EBMergedRecHits -> push_back(*it);
-	}
- }
- if (EBN_muons > 0) {
-	if (debug_) cout << " Merging  " << EBN_muons << " EB RecHits from Muons. " << endl;
-	// EcalRecHitCollection* ptr2 = ptr + n1;
-	// EcalRecHitCollection& muons = (EcalRecHitCollection&)*rechits_muons;
-	// EcalRecHitCollection muons = *rechits_muons;
-	// ptr2 -> swap(muons);
-	// n1 += N_muons;
-	for (EcalRecHitCollection::const_iterator it=EBrechits_muons->begin(); it !=EBrechits_muons->end(); it++) {
-		 EBMergedRecHits -> push_back(*it);
-	}
- } 
- if (EBN_taus > 0) {
-        if (debug_) cout << " Merging  " << EBN_taus << " EB RecHits from Taus. " << endl;
-        for (EcalRecHitCollection::const_iterator it=EBrechits_taus->begin(); it !=EBrechits_taus->end(); it++) {
-                 EBMergedRecHits -> push_back(*it);
-        }
- }
-
- if (EBN_jets > 0) {
-	if (debug_) cout << " Merging  " << EBN_jets << " EB RecHits from Jets. " << endl;
-	// EcalRecHitCollection* ptr3 = ptr + n1;
-	// EcalRecHitCollection& jets = (EcalRecHitCollection&)*rechits_jets;
-	// EcalRecHitCollection jets = *rechits_jets;
-	// ptr3 -> swap(jets);
-	// copy(rechits_jets->begin(), rechits_jets->end(),MergedRecHits->begin() + n1);
-	for (EcalRecHitCollection::const_iterator it=EBrechits_jets->begin(); it != EBrechits_jets->end(); it++) {
-		EBMergedRecHits -> push_back(*it);
-	}
-	// std::swap_ranges(jets.begin(), jets.end(),MergedRecHits->begin() +n1);
- }
- if (EBN_rest > 0) {
-	if (debug_) cout << " Merging  " << EBN_rest << " EB RecHits from rest." << endl;
-	for (EcalRecHitCollection::const_iterator it=EBrechits_rest->begin(); it != EBrechits_rest->end(); it++) {
-		EBMergedRecHits -> push_back(*it);
-	}
- }
-
-
-
- int EEN_egamma=0;
- int EEN_muons=0;
- int EEN_taus=0;
- int EEN_jets=0;
- int EEN_rest=0;
-
- if (EErechits_egamma.isValid()) EEN_egamma = EErechits_egamma -> size();
- if (EErechits_muons.isValid())  EEN_muons  = EErechits_muons  -> size();
- if (EErechits_taus.isValid())  EEN_taus  = EErechits_taus  -> size();
- if (EErechits_jets.isValid())   EEN_jets   = EErechits_jets   -> size();
- if (EErechits_rest.isValid())   EEN_rest   = EErechits_rest   -> size();
-                                                                                                                               
- if (debug_) cout << " EEN_egamma EEN_muons EEN_jets EEN_rest " << EEN_egamma << " " << EEN_muons << " " << EEN_jets << " " << EEN_rest << endl;
-                                                                                                                               
- int EEnHits = EEN_egamma+EEN_muons+EEN_jets + EEN_rest + EEN_taus;
- EEMergedRecHits -> reserve(EEnHits);
-                                                                                                                               
- // int n1=0;
-                                                                                                                               
- if (EEN_egamma > 0) {
-        if (debug_) cout << " Merging  " << EEN_egamma << " EE RecHits from Egamma. " << endl;
-        for (EcalRecHitCollection::const_iterator it=EErechits_egamma->begin(); it !=EErechits_egamma->end(); it++) {
-                EEMergedRecHits -> push_back(*it);
-        }
- }
- if (EEN_muons > 0) {
-        if (debug_) cout << " Merging  " << EEN_muons << " EE RecHits from Muons. " << endl;
-        for (EcalRecHitCollection::const_iterator it=EErechits_muons->begin(); it !=EErechits_muons->end(); it++) {
-                 EEMergedRecHits -> push_back(*it);
-        }
- }
- if (EEN_taus > 0) {
-        if (debug_) cout << " Merging  " << EEN_taus << " EE RecHits from Taus. " << endl;
-        for (EcalRecHitCollection::const_iterator it=EErechits_taus->begin(); it !=EErechits_taus->end(); it++) {
-                 EEMergedRecHits -> push_back(*it);
-        }
- }
-
- if (EEN_jets > 0) {
-        if (debug_) cout << " Merging  " << EEN_jets << " EE RecHits from Jets. " << endl;
-        for (EcalRecHitCollection::const_iterator it=EErechits_jets->begin(); it != EErechits_jets->end(); it++) {
-                EEMergedRecHits -> push_back(*it);
-        }
-        // std::swap_ranges(jets.begin(), jets.end(),MergedRecHits->begin() +n1);
- }
- if (EEN_rest > 0) {
-	if (debug_) cout << " Merging  " << EEN_rest << " EE RecHits from rest ." << endl;
-	for (EcalRecHitCollection::const_iterator it=EErechits_rest->begin(); it != EErechits_rest->end(); it++) {
+  	}
+   }
+   else if (instance == "EcalRecHitsEE") {
+	for (EcalRecHitCollection::const_iterator it=EcalRecHits_done[i]->begin(); it !=EcalRecHits_done[i]->end(); it++) {
 		EEMergedRecHits -> push_back(*it);
 	}
+   }
+
  }
 
 
@@ -250,7 +120,6 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
  e.put(EBMergedRecHits,OutputLabelEB_);
  e.put(EEMergedRecHits,OutputLabelEE_);
  // cout << " apres le put " << endl;
-
 
 }
 
