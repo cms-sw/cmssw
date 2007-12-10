@@ -155,6 +155,6 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
 
 void TrackingTruthValid::endJob(){ 
 
-  if ( out.size() != 0 && dbe_ ) dbe_->save(out);
+  if ( outputFile.size() != 0 && dbe_ ) dbe_->save(outputFile);
 
 } 

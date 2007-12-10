@@ -30,7 +30,7 @@ class TrackingTruthValid  : public edm::EDAnalyzer {
  private:
   DaqMonitorBEInterface* dbe_;
   edm::ParameterSet conf_;
-  std::string out;
+  std::string outputFile;
 
   MonitorElement* meTPMass;
   MonitorElement* meTPCharge; 
