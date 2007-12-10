@@ -109,21 +109,21 @@ class SiPixelRecHitQuality {
     //------------------------------------------------------
     //
     inline void setCotAlphaFromCluster( float cotalpha, QualWordType & qualWord ) {
-      int raw = (int) cotalpha/cotAlpha_units;     // convert to integer units
+      int raw = (int) (cotalpha/cotAlpha_units);     // convert to integer units
       qualWord &= ((raw & cotAlpha_mask) << cotAlpha_shift);
     }
     inline void setCotBetaFromCluster( float cotbeta, QualWordType & qualWord ) {
-      int raw = (int) cotbeta/cotBeta_units;     // convert to integer units
+      int raw = (int) (cotbeta/cotBeta_units);     // convert to integer units
       qualWord &= ((raw & cotBeta_mask) << cotBeta_shift);
     }
     
     
     inline void setProbabilityX( float prob, QualWordType & qualWord ) {
-      int raw = (int) prob/probX_units;     // convert to integer units
+      int raw = (int) (prob/probX_units);     // convert to integer units
       qualWord &= ((raw & probX_mask) << probX_shift);
     }
     inline void setProbabilityY( float prob, QualWordType & qualWord ) {
-      int raw = (int) prob/probY_units;     // convert to integer units
+      int raw = (int) (prob/probY_units);     // convert to integer units
       qualWord &= ((raw & probY_mask) << probY_shift);
     }
     

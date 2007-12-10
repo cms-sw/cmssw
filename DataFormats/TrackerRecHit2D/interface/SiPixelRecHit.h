@@ -29,7 +29,7 @@ public:
 
   typedef edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster > ClusterRef;
 
-  SiPixelRecHit(): BaseSiTrackerRecHit2DLocalPos (),cluster_() {}
+  SiPixelRecHit(): BaseSiTrackerRecHit2DLocalPos(), qualWord_(0), cluster_()  {}
 
   ~SiPixelRecHit() {}
   
@@ -44,26 +44,22 @@ public:
 
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
 
-#if 1
+
   //--------------------------------------------------------------------------
   //--- Accessors of other auxiliary quantities
   //--- Added Oct 07 by Petar for 18x.
-
 private:
+  // *************************************************************************
+  //
   SiPixelRecHitQuality::QualWordType  qualWord_ ;   // unsigned int 32-bit wide
   //
+  // *************************************************************************
 
 public:
   //--- Allow direct access to the packed quality information.
   SiPixelRecHitQuality::QualWordType rawQualityWord() const { return qualWord_; }
   
 
-  inline float cotAlphaFromCluster() const     {
-    return SiPixelRecHitQuality::thePacking.cotAlphaFromCluster( qualWord_ );
-  }
-  inline float cotBetaFromCluster() const     {
-    return SiPixelRecHitQuality::thePacking.cotBetaFromCluster( qualWord_ );
-  }
   //--- Template fit probability, in X and Y directions
   inline float probabilityX() const     {
     return SiPixelRecHitQuality::thePacking.probabilityX( qualWord_ );
@@ -71,32 +67,6 @@ public:
   inline float probabilityY() const     {
     return SiPixelRecHitQuality::thePacking.probabilityY( qualWord_ );
   }
-  //--- Charge `bin' (0,1,2,3 ~ charge, qBin==4 is unphysical, qBin=5,6,7 = unused)
-  inline int qBin() const     {
-    return SiPixelRecHitQuality::thePacking.qBin( qualWord_ );
-  }
-  //--- Quality flags (true or false):
-  //--- cluster is on the edge of the module, or straddles a dead ROC
-  inline bool isOnEdge() const     {
-    return SiPixelRecHitQuality::thePacking.isOnEdge( qualWord_ );
-  }
-  //--- cluster contains bad pixels, or straddles bad column or two-column
-  inline bool hasBadPixels() const     {
-    return SiPixelRecHitQuality::thePacking.hasBadPixels( qualWord_ );
-  }
-  //--- the cluster spans two ROCS (and thus contains big pixels)
-  inline bool spansTwoROCs() const     {
-    return SiPixelRecHitQuality::thePacking.spansTwoROCs( qualWord_ );
-  }
-
-
-
-
-
-
-
-
-
 
   // Add estimates of cot(alpha) and cot(beta) from the
   // cluster length.  This can be used by:
@@ -105,19 +75,62 @@ public:
   //    W_pred and W (from charge lenght)
   // c) an alternative 2nd pass CPE which reads charge per unit length (k_3D) from
   //    the DB but then needs angle estimates to switch to
-
   //--- cot(alpha) obtained from the sizes along X and Y (= thickness/(size-1))
-#endif
+  inline float cotAlphaFromCluster() const     {
+    return SiPixelRecHitQuality::thePacking.cotAlphaFromCluster( qualWord_ );
+  }
+  inline float cotBetaFromCluster() const     {
+    return SiPixelRecHitQuality::thePacking.cotBetaFromCluster( qualWord_ );
+  }
 
+  //--- Charge `bin' (values 0, 1, 2, 3) according to Morris's template
+  //--- code. qBin==4 is unphysical, qBin=5,6,7 are yet unused)
+  //
+  inline int qBin() const     {
+    return SiPixelRecHitQuality::thePacking.qBin( qualWord_ );
+  }
 
-#if 0  
-  inline void  setCotAlphaFromCluster(float x) const { cotAlphaFromCluster_ = x; }
-  inline void  setCotBetaFromCluster(float x)  const { cotBetaFromCluster_ = x; }
-  inline void  setProbabilityX(float x)        const { probabilityX_ = x; }
-  inline void  setProbabilityY(float x)        const { probabilityY_ = x; }
-  inline void  setQBin(float x)                const { qBin_  = x; }
-#endif
+  //--- Quality flags (true or false):
 
+  //--- The cluster is on the edge of the module, or straddles a dead ROC
+  inline bool isOnEdge() const     {
+    return SiPixelRecHitQuality::thePacking.isOnEdge( qualWord_ );
+  }
+  //--- The cluster contains bad pixels, or straddles bad column or two-column
+  inline bool hasBadPixels() const     {
+    return SiPixelRecHitQuality::thePacking.hasBadPixels( qualWord_ );
+  }
+  //--- The cluster spans two ROCS (and thus contains big pixels)
+  inline bool spansTwoROCs() const     {
+    return SiPixelRecHitQuality::thePacking.spansTwoROCs( qualWord_ );
+  }
+
+  
+  //--- Setters for the above
+  inline void setCotAlphaFromCluster( float cotalpha ) {
+    SiPixelRecHitQuality::thePacking.setCotAlphaFromCluster( cotalpha, qualWord_ );
+  }
+  inline void setCotBetaFromCluster ( float cotbeta ) {
+    SiPixelRecHitQuality::thePacking.setCotBetaFromCluster( cotbeta, qualWord_ );
+  }
+  inline void setProbabilityX( float prob ) {
+    SiPixelRecHitQuality::thePacking.setProbabilityX( prob, qualWord_ );
+  }
+  inline void setProbabilityY( float prob ) {
+    SiPixelRecHitQuality::thePacking.setProbabilityY( prob, qualWord_ );
+  }  
+  inline void setQBin( int qbin ) {
+    SiPixelRecHitQuality::thePacking.setQBin( qbin, qualWord_ );
+  }
+  inline void setIsOnEdge( bool flag ) {
+    SiPixelRecHitQuality::thePacking.setIsOnEdge( flag, qualWord_ );
+  }
+  inline void setHasBadPixels( bool flag ) {
+    SiPixelRecHitQuality::thePacking.setHasBadPixels( flag, qualWord_ );
+  }
+  inline void setSpansTwoROCs( bool flag ) {
+    SiPixelRecHitQuality::thePacking.setSpansTwoROCs( flag, qualWord_ );
+  }
 
 
 private:
