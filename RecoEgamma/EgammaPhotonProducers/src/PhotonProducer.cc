@@ -3,13 +3,9 @@
 #include <memory>
 
 // Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -17,6 +13,7 @@
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
+#include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
 
 
@@ -39,8 +36,12 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   endcapHitProducer_   = conf_.getParameter<std::string>("endcapHitProducer");
   barrelHitCollection_ = conf_.getParameter<std::string>("barrelHitCollection");
   endcapHitCollection_ = conf_.getParameter<std::string>("endcapHitCollection");
-  pixelSeedProducer_ = conf_.getParameter<std::string>("pixelSeedProducer");
-  vertexProducer_       = conf_.getParameter<std::string>("primaryVertexProducer");
+  hbheLabel_        = conf_.getParameter<std::string>("hbheModule");
+  hbheInstanceName_ = conf_.getParameter<std::string>("hbheInstance");
+  hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
+  maxHOverE_        = conf_.getParameter<double>("maxHOverE");
+  pixelSeedProducer_   = conf_.getParameter<std::string>("pixelSeedProducer");
+  vertexProducer_   = conf_.getParameter<std::string>("primaryVertexProducer");
   PhotonCollection_ = conf_.getParameter<std::string>("photonCollection");
 
   // Parameters for the position calculation:
@@ -108,12 +109,19 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   theEvent.getByLabel(endcapHitProducer_, endcapHitCollection_, endcapHitHandle);
   const EcalRecHitCollection *endcapRecHits = endcapHitHandle.product();
 
-  // get the geometry and topology from the event setup:
-  ESHandle<CaloGeometry> geoHandle;
-  theEventSetup.get<IdealGeometryRecord>().get(geoHandle);
-  const CaloSubdetectorGeometry *barrelGeometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  const CaloSubdetectorGeometry *endcapGeometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  const CaloSubdetectorGeometry *preshowerGeometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  // get the geometry from the event setup:
+  theEventSetup.get<IdealGeometryRecord>().get(theCaloGeom_);
+  const CaloSubdetectorGeometry *barrelGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  const CaloSubdetectorGeometry *endcapGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  const CaloSubdetectorGeometry *preshowerGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+
+  // Get HoverE
+  Handle<HBHERecHitCollection> hbhe;
+  HBHERecHitMetaCollection *mhbhe=0;
+  if (hOverEConeSize_ > 0.) {
+    theEvent.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
+    mhbhe=  new HBHERecHitMetaCollection(*hbhe);
+  }
 
   // Get ElectronPixelSeeds
   Handle<reco::ElectronPixelSeedCollection> pixelSeedHandle;
@@ -134,8 +142,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   int iSC=0; // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
-  fillPhotonCollection(scBarrelHandle,barrelClShpMap,barrelGeometry,preshowerGeometry,barrelRecHits,pixelSeeds,vtx,outputPhotonCollection,iSC);
-  fillPhotonCollection(scEndcapHandle,endcapClShpMap,endcapGeometry,preshowerGeometry,endcapRecHits,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scBarrelHandle,barrelClShpMap,barrelGeometry,preshowerGeometry,barrelRecHits,mhbhe,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scEndcapHandle,endcapClShpMap,endcapGeometry,preshowerGeometry,endcapRecHits,mhbhe,pixelSeeds,vtx,outputPhotonCollection,iSC);
 
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
@@ -150,6 +158,7 @@ void PhotonProducer::fillPhotonCollection(
 		   const CaloSubdetectorGeometry *geometry,
 		   const CaloSubdetectorGeometry *geometryES,
 		   const EcalRecHitCollection *hits,
+		   HBHERecHitMetaCollection *mhbhe,
 		   const reco::ElectronPixelSeedCollection& pixelSeeds,
 		   math::XYZPoint & vtx,
 		   reco::PhotonCollection & outputPhotonCollection, int& iSC) {
@@ -162,46 +171,70 @@ void PhotonProducer::fillPhotonCollection(
   int lSC=0; // reset local supercluster index
   for(aClus = scCollection.begin(); aClus != scCollection.end(); aClus++) {
 
-    //Get refs to SuperCluter and ClusterShape
+    // get SuperClusterRef
     reco::SuperClusterRef scRef(reco::SuperClusterRef(scHandle, lSC));
-    seedShpItr = clshpMap.find(aClus->seed());
-    assert(seedShpItr != clshpMap.end());
-    const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
 
-    // recalculate position of seed BasicCluster taking shower depth for unconverted photon
-    math::XYZPoint unconvPos = posCalculator_.Calculate_Location(aClus->seed()->getHitsByDetId(),hits,geometry,geometryES);
+    // calculate HoE
+    double HoE = hOverE(scRef,mhbhe);
 
-    // compute position of ECAL shower
-    double r9 = seedShapeRef->e3x3()/(aClus->rawEnergy()+aClus->preshowerEnergy());
-    math::XYZPoint caloPosition;
-    if (r9>0.93) {
-      caloPosition = unconvPos;
-    } else {
-      caloPosition = aClus->position();
-    }
+    // preselection
+    if (HoE<maxHOverE_) {
 
-    // does the SuperCluster have a matched pixel seed?
-    bool hasSeed = false;
-    for(pixelSeedItr = pixelSeeds.begin(); pixelSeedItr != pixelSeeds.end(); pixelSeedItr++) {
-      if (fabs(pixelSeedItr->superCluster()->eta() - aClus->eta()) < 0.0001 &&
-	  fabs(pixelSeedItr->superCluster()->phi() - aClus->phi()) < 0.0001) {
-	hasSeed=true;
-	break;
+      // get ClusterShapeRef
+      seedShpItr = clshpMap.find(aClus->seed());
+      assert(seedShpItr != clshpMap.end());
+      const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
+
+      // recalculate position of seed BasicCluster taking shower depth for unconverted photon
+      math::XYZPoint unconvPos = posCalculator_.Calculate_Location(aClus->seed()->getHitsByDetId(),hits,geometry,geometryES);
+
+      // compute position of ECAL shower
+      double r9 = seedShapeRef->e3x3()/(aClus->rawEnergy()+aClus->preshowerEnergy());
+      math::XYZPoint caloPosition;
+      if (r9>0.93) {
+	caloPosition = unconvPos;
+      } else {
+	caloPosition = aClus->position();
       }
+
+      // does the SuperCluster have a matched pixel seed?
+      bool hasSeed = false;
+      for(pixelSeedItr = pixelSeeds.begin(); pixelSeedItr != pixelSeeds.end(); pixelSeedItr++) {
+	if (fabs(pixelSeedItr->superCluster()->eta() - aClus->eta()) < 0.0001 &&
+	    fabs(pixelSeedItr->superCluster()->phi() - aClus->phi()) < 0.0001) {
+	  hasSeed=true;
+	  break;
+	}
+      }
+
+      // compute momentum vector of photon from primary vertex and cluster position
+      math::XYZVector direction = caloPosition - vtx;
+      math::XYZVector momentum = direction.unit() * aClus->energy();
+      const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
+
+      reco::Photon newCandidate(0, p4, unconvPos, scRef, seedShapeRef, HoE, hasSeed, vtx);
+      outputPhotonCollection.push_back(newCandidate);
+      iSC++;
     }
-
-    // compute momentum vector of photon from primary vertex and cluster position
-    math::XYZVector direction = caloPosition - vtx;
-    math::XYZVector momentum = direction.unit() * aClus->energy();
-    const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
-
-    reco::Photon newCandidate(0, p4, unconvPos, scRef, seedShapeRef, hasSeed, vtx);
-
-    outputPhotonCollection.push_back(newCandidate);
- 
-    iSC++;
     lSC++;
 
   }
 
+}
+
+double PhotonProducer::hOverE(const reco::SuperClusterRef & scRef,
+			      HBHERecHitMetaCollection *mhbhe){
+  double HoE=0;
+  if (mhbhe) {
+    CaloConeSelector sel(hOverEConeSize_, theCaloGeom_.product(), DetId::Hcal);
+    GlobalPoint pclu((*scRef).x(),(*scRef).y(),(*scRef).z());
+    double hcalEnergy = 0.;
+    std::auto_ptr<CaloRecHitMetaCollectionV> chosen=sel.select(pclu,*mhbhe);
+    for (CaloRecHitMetaCollectionV::const_iterator i=chosen->begin(); i!=chosen->end(); i++) {
+      hcalEnergy += i->energy();
+    }
+    HoE= hcalEnergy/(*scRef).energy();
+    LogDebug("") << "H/E : " << HoE;
+  }
+  return HoE;
 }
