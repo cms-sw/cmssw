@@ -1,7 +1,7 @@
 /*
  *
- *  $Date: 2007/12/04 17:05:03 $
- *  $Revision: 1.69 $
+ *  $Date: 2007/12/10 19:32:36 $
+ *  $Revision: 1.70 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -223,8 +223,9 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
       _ExpectedTowers[v]=99999;
     }
 
+    // note: these are the tower statuses handled at the moment - to be completed
     // staus==0:   tower expected;
-    // staus==9:   Synk error LV!, tower expected;
+    // staus==9:   Synk error LV1, tower expected;
     // staus==10:  Synk error BX, tower expected;
     // status==1, 2, 3, 4, 5:  tower not expected
     for (int u=1; u< (kTriggerTowersAndMem+1); u++)
