@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: VertexCompositeCandidate.h,v 1.2 2007/11/21 12:58:40 llista Exp $
+ * \version $Id: VertexCompositeCandidate.h,v 1.3 2007/11/30 13:16:16 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/VertexCompositeCandidateFwd.h"
@@ -28,13 +28,13 @@ namespace reco {
 			     const CovarianceMatrix & err, double chi2, double ndof,
 			     int pdgId = 0, int status = 0, bool integerCharge = true);
     /// constructor from values
-    VertexCompositeCandidate(const Particle & p) :
+    explicit VertexCompositeCandidate(const Particle & p) :
       CompositeCandidate(p), chi2_(0), ndof_(0) { }
      /// constructor from values
-    VertexCompositeCandidate(const Candidate & p) :
+    explicit VertexCompositeCandidate(const Candidate & p) :
       CompositeCandidate(p), chi2_(0), ndof_(0) { }
      /// constructor from values
-    VertexCompositeCandidate(const CompositeCandidate & p) :
+    explicit VertexCompositeCandidate(const CompositeCandidate & p) :
       CompositeCandidate(p), chi2_(0), ndof_(0) { }
     /// destructor
     virtual ~VertexCompositeCandidate();

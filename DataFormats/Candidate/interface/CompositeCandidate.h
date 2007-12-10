@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.24 2007/10/22 17:02:49 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.25 2007/11/30 14:03:26 llista Exp $
  *
  */
 
@@ -33,10 +33,10 @@ namespace reco {
 			int pdgId = 0, int status = 0, bool integerCharge = true ) :
       Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
     /// constructor from values
-    CompositeCandidate( const Particle & p ) :
+    explicit CompositeCandidate( const Particle & p ) :
       Candidate( p ) { }
     /// constructor from values
-    CompositeCandidate( const Candidate & p );
+    explicit CompositeCandidate( const Candidate & p );
     /// destructor
     virtual ~CompositeCandidate();
     /// returns a clone of the candidate

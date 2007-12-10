@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositePtrCandidate.h,v 1.21 2007/10/22 17:02:50 llista Exp $
+ * \version $Id: CompositePtrCandidate.h,v 1.1 2007/10/29 15:49:19 llista Exp $
  *
  */
 
@@ -34,7 +34,7 @@ namespace reco {
 			   int pdgId = 0, int status = 0, bool integerCharge = true ) :
       Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
     /// constructor from a particle
-    CompositePtrCandidate( const Particle & p ) : Candidate( p ) { }
+    explicit CompositePtrCandidate( const Particle & p ) : Candidate( p ) { }
     /// destructor
     virtual ~CompositePtrCandidate();
     /// returns a clone of the candidate
