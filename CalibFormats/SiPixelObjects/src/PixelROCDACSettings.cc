@@ -308,15 +308,17 @@ int PixelROCDACSettings::read(ifstream& in, const PixelROCName& rocid){
 	cout << "Will use a default value of 4."<<endl;
 	cout << "This message will only be printed out once"<<endl;
 	cout << "**********************************************"<<endl;
+	TempRange_=4;
 	first=false;
       }
       in >> tmp; WBC_=tmp;
-    }	
-    checkTag(tag,"TempRange",rocid);
-    in >> tmp; TempRange_=tmp;
-    in >> tag; 
-    checkTag(tag,"WBC",rocid);
-    in >> tmp; WBC_=tmp;
+    } else {	
+      checkTag(tag,"TempRange",rocid);
+      in >> tmp; TempRange_=tmp;
+      in >> tag; 
+      checkTag(tag,"WBC",rocid);
+      in >> tmp; WBC_=tmp;
+    }
     in >> tag; 
     checkTag(tag,"ChipContReg",rocid);
     in >> tmp; ChipContReg_=tmp;
