@@ -1,12 +1,19 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.2 2007/12/01 19:28:56 wittich Exp $
+// $Id: HLTScalers.h,v 1.3 2007/12/04 20:24:32 wittich Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.3  2007/12/04 20:24:32  wittich
+// - make hlt histograms variable width depending on path
+// - add strings for path names
+// - add int for nprocessed
+// - add L1 scaler locally derived on Kaori's suggestion
+//   + updates to cfi file for this, need to include unpacking of GT
+//
 // Revision 1.2  2007/12/01 19:28:56  wittich
 // - fix cfi file (debug -> verbose, HLT -> FU for TriggerResults  label)
 // - handle multiple beginRun for same run (don't call reset on DQM )
@@ -65,8 +72,11 @@ public:
 private:
   DaqMonitorBEInterface * dbe_;
   MonitorElement *scalers_;
+  MonitorElement *scalersException_;
+  MonitorElement *hltCorrelations_;
   MonitorElement *detailedScalers_;
   MonitorElement *l1scalers_;
+  MonitorElement *l1Correlations_;
   MonitorElement *nProc_;
   std::vector<MonitorElement*> hltPathNames_;
   edm::InputTag trigResultsSource_;

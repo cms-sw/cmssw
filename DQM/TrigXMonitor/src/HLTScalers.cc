@@ -1,6 +1,13 @@
-// $Id: HLTScalers.cc,v 1.4 2007/12/01 19:28:56 wittich Exp $
+// $Id: HLTScalers.cc,v 1.5 2007/12/04 20:24:33 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.5  2007/12/04 20:24:33  wittich
+// - make hlt histograms variable width depending on path
+// - add strings for path names
+// - add int for nprocessed
+// - add L1 scaler locally derived on Kaori's suggestion
+//   + updates to cfi file for this, need to include unpacking of GT
+//
 // Revision 1.4  2007/12/01 19:28:56  wittich
 // - fix cfi file (debug -> verbose, HLT -> FU for TriggerResults  label)
 // - handle multiple beginRun for same run (don't call reset on DQM )
@@ -45,7 +52,11 @@ using namespace edm;
 
 HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   dbe_(0),
-  scalers_(0), detailedScalers_(0), l1scalers_(0), nProc_(0),
+  scalers_(0), scalersException_(0),
+  hltCorrelations_(0),
+  detailedScalers_(0), l1scalers_(0), 
+  l1Correlations_(0),
+  nProc_(0),
   trigResultsSource_( ps.getParameter< edm::InputTag >("triggerResults")),
   l1GtDataSource_( ps.getParameter< edm::InputTag >("l1GtData")),
   resetMe_(true),
@@ -96,6 +107,10 @@ void HLTScalers::beginJob(const edm::EventSetup& c)
     // fixed - only for 128 algo bits right now
     l1scalers_ = dbe_->book1D("l1Scalers", "L1 scalers (locally derived)",
 			      128, -0.5, 127.5);
+    l1Correlations_ = dbe_->book2D("l1Correlations", "L1 scaler correlations"
+				   " (locally derived)", 
+				   128, -0.5, 127.5,
+				   128, -0.5, 127.5);
     // other ME's are now found on the first event of the new run, 
     // when we know more about the HLT configuration.
   
@@ -140,8 +155,15 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 				    maxModules, 0, maxModules-1);
     scalers_ = dbe_->book1D("hltScalers", "HLT scalers",
 			    npaths, -0.5, npaths-0.5);
+    scalersException_ = dbe_->book1D("hltExceptions", "HLT Exception scalers",
+			    npaths, -0.5, npaths-0.5);
+
+    hltCorrelations_ = dbe_->book2D("hltCorrelations", "HLT Scalers", 
+				    npaths, -0.5, npaths-0.5,
+				    npaths, -0.5, npaths-0.5);
 
     l1scalers_->Reset(); // should never have any effect?
+    l1Correlations_->Reset(); // should never have any effect?
     resetMe_ = false;
     // save path names in DQM-accessible format
     TriggerNames names(*hltResults);
@@ -156,8 +178,8 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
       MonitorElement *e = dbe_->bookString(pname, *j);
       hltPathNames_.push_back(e);  // I don't ever use these....
     }
-  }
-  int nm = 0;
+  } // end resetme_ - pseudo-end-run record
+
   for ( int i = 0; i < npath; ++i ) {
     if ( verbose_ ) {
       // state returns 0 on ready, 1 on accept, 2 on fail, 3 on exception.
@@ -165,12 +187,21 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
       std::cout << "i = " << i << ", result = " << hltResults->state(i)
 		<< ", index = " << hltResults->index(i) << std::endl;
     }
-    nm += hltResults->index(i);
     for ( unsigned int j = 0; j < hltResults->index(i); ++j ) {
       detailedScalers_->Fill(i,j);
     }
     if ( hltResults->state(i) == hlt::Pass) {
       scalers_->Fill(i);
+      // correlations
+      for ( int j = i + 1; j < npath; ++j ) {
+	if ( hltResults->state(j) == hlt::Pass ) {
+	  hltCorrelations_->Fill(i,j); // fill 
+	  hltCorrelations_->Fill(j,i);
+	}
+      }
+    }
+    else if ( hltResults->state(i) == hlt::Exception) {
+      scalersException_->Fill(i);
     }
   }
 
@@ -185,12 +216,17 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 			       << "with label " << l1GtDataSource_.label() ;
   }
   else {
-    DecisionWord gtDecisionWord = myGTReadoutRecord->decisionWord();
     // vector of bool
-    if ( ! gtDecisionWord.empty() > 0 ) { // if board not there this is zero
+    DecisionWord gtDecisionWord = myGTReadoutRecord->decisionWord();
+    if ( ! gtDecisionWord.empty() ) { // if board not there this is zero
       for ( int i = 0; i < 127; ++i ) {
 	if ( gtDecisionWord[i] ) {
 	  l1scalers_->Fill(i);
+	  for ( int j = i + 1; j < 127; ++j ) {
+	    if ( gtDecisionWord[j] )
+	      l1Correlations_->Fill(i,j);
+	      l1Correlations_->Fill(j,i);
+	  }
 	}
       }
     }
