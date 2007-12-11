@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.41 2007/12/05 17:05:21 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.42 2007/12/11 14:09:05 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -426,12 +426,16 @@ void SiStripConfigDb::closeDbConnection() {
     return;
   }
   openConnection_ = true;
-
+  
   try { 
     if ( factory_ ) { delete factory_; }
   } catch (...) { handleException( __func__, "Attempting to close database connection..." ); }
   factory_ = 0; 
-
+  
+  edm::LogVerbatim(mlConfigDb_) 
+    << "[SiStripConfigDb::" << __func__ << "]"
+    << " Closed connection to database...";
+  
 }
 
 // -----------------------------------------------------------------------------
