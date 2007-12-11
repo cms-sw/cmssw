@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.31 2007/11/28 18:51:27 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.32 2007/12/05 14:19:38 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -30,7 +30,7 @@
   - psu mapping
 */
 
-//#define USING_NEW_DATABASE_MODEL
+#define USING_NEW_DATABASE_MODEL
 
 #ifdef USING_NEW_DATABASE_MODEL
 namespace sistrip {
@@ -153,10 +153,11 @@ class SiStripConfigDb {
     uint32_t fedMinor_;
     uint32_t fecMajor_;
     uint32_t fecMinor_;
-    uint32_t dcuMajor_;
-    uint32_t dcuMinor_;
     uint32_t calMajor_;
     uint32_t calMinor_;
+    uint32_t dcuMajor_;
+    uint32_t dcuMinor_;
+    bool force_;
     std::string inputModuleXml_;
     std::string inputDcuInfoXml_;
     std::vector<std::string> inputFecXml_;

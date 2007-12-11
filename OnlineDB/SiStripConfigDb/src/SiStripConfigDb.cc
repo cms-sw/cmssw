@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.40 2007/12/05 14:19:38 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.41 2007/12/05 17:05:21 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -215,10 +215,11 @@ SiStripConfigDb::DbParams::DbParams() :
   fedMinor_(0),
   fecMajor_(0),
   fecMinor_(0),
-  dcuMajor_(0),
-  dcuMinor_(0),
   calMajor_(0),
   calMinor_(0),
+  dcuMajor_(0),
+  dcuMinor_(0),
+  force_(true),
   inputModuleXml_(""),
   inputDcuInfoXml_(""),
   inputFecXml_(),
@@ -253,10 +254,11 @@ void SiStripConfigDb::DbParams::reset() {
   fedMinor_ = 0;
   fecMajor_ = 0;
   fecMinor_ = 0;
-  dcuMajor_ = 0;
-  dcuMinor_ = 0;
   calMajor_ = 0;
   calMinor_ = 0;
+  dcuMajor_ = 0;
+  dcuMinor_ = 0;
+  force_ = true;
   inputModuleXml_ = "";
   inputDcuInfoXml_ = "";
   inputFecXml_ = vector<string>(1,"");
@@ -286,6 +288,7 @@ void SiStripConfigDb::DbParams::setParams( const edm::ParameterSet& pset ) {
   dcuMinor_ = pset.getUntrackedParameter<unsigned int>("DcuDetIdMinorVersion",0);
   calMajor_ = pset.getUntrackedParameter<unsigned int>("CalibMajorVersion",0);
   calMinor_ = pset.getUntrackedParameter<unsigned int>("CalibMinorVersion",0);
+  force_ = pset.getUntrackedParameter<bool>("ForceDcuDetIdVersions",true);
   inputModuleXml_ = pset.getUntrackedParameter<string>("InputModuleXml","");
   inputDcuInfoXml_ = pset.getUntrackedParameter<string>("InputDcuInfoXml",""); 
   inputFecXml_ = pset.getUntrackedParameter< vector<string> >( "InputFecXml", vector<string>(1,"") ); 
@@ -341,11 +344,13 @@ void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
      << " User/Passwd@Path          : " << user_ << "/" << passwd_ << "@" << path_ << endl
      << " Partition                 : " << partition_ << endl
      << " Run number                : " << runNumber_ << endl
-     << " Cabling major/minor vers  : " << cabMajor_ << "/" << cabMinor_ << endl
-     << " FED major/minor vers      : " << fedMajor_ << "/" << fedMinor_ << endl
-     << " FEC major/minor vers      : " << fecMajor_ << "/" << fecMinor_ << endl
-     << " DCU-DetId maj/min vers    : " << dcuMajor_ << "/" << dcuMinor_ << endl
-     << " Calibration maj/min vers  : " << calMajor_ << "/" << calMinor_ << endl;
+     << " Cabling major/minor vers  : " << cabMajor_ << "." << cabMinor_ << endl
+     << " FED major/minor vers      : " << fedMajor_ << "." << fedMinor_ << endl
+     << " FEC major/minor vers      : " << fecMajor_ << "." << fecMinor_ << endl
+     << " Calibration maj/min vers  : " << calMajor_ << "." << calMinor_ << endl
+     << " DCU-DetId maj/min vers    : " << dcuMajor_ << "." << dcuMinor_;
+  if ( force_ ) { ss << " (version not overridden by run number)"; }
+  ss << endl;
   // Input
   ss << " Input \"module.xml\" file   : " << inputModuleXml_ << endl
      << " Input \"dcuinfo.xml\" file  : " << inputDcuInfoXml_ << endl
@@ -651,14 +656,14 @@ void SiStripConfigDb::usingDatabase() {
 	dbParams_.fedMajor_ = run->getFedVersionMajorId();
 	dbParams_.fedMinor_ = run->getFedVersionMinorId();
 #ifdef USING_NEW_DATABASE_MODEL
-	dbParams_.dcuMajor_ = run->getDcuInfoVersionMajorId();
-	dbParams_.dcuMinor_ = run->getDcuInfoVersionMinorId();
+	if ( !dbParams_.force_ ) { //@@ check if forcing versions specified in .cfi
+	  dbParams_.dcuMajor_ = run->getDcuInfoVersionMajorId();
+	  dbParams_.dcuMinor_ = run->getDcuInfoVersionMinorId();
+	}
 #endif
-
-	//@@ need versioning for calibrations too!
 	std::stringstream ss;
 	ss << "[SiStripConfigDb::" << __func__ << "]"
-	   << " Versions overridden using values retrieved for specific run number:"
+	   << " Versions overridden using values retrieved for specific run number: "
 	   << std::endl << dbParams_;
 	edm::LogVerbatim(mlConfigDb_) << ss.str();
       } else {
@@ -669,7 +674,9 @@ void SiStripConfigDb::usingDatabase() {
     } else {
       edm::LogWarning(mlConfigDb_)
 	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " NULL pointer to TkRun!";
+	<< " NULL pointer to TkRun object!"
+	<< " Unable to retrieve versions for run number "
+	<< dbParams_.runNumber_;
     }
   }
   
