@@ -110,7 +110,7 @@ class EventTree(object):
           for branch in self._usedBranches.itervalues():
               branch.setIndex(self._index)
       def __getattr__(self, name):
-          return self.branch()
+          return self.branch(name)
       def __getitem__(self,key):
           if key <0 or key > self._tree.GetEntries():
               raise IndexError
