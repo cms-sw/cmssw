@@ -11,6 +11,7 @@
  * better estimation of vertex chi-squared etc. 
  */
 
+template <unsigned int N>
 class VertexSmoother {
 
 public:
@@ -21,7 +22,7 @@ public:
   /**
    *  Smoothing method
    */
-  virtual CachingVertex smooth(const CachingVertex & vertex) const = 0;
+  virtual CachingVertex<N> smooth(const CachingVertex<N> & vertex) const = 0;
 
   /**
    * Clone method 

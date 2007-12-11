@@ -5,6 +5,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToCartesian.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/Matrices.h"
 
 /**
  * Class to store the error matrix
@@ -21,7 +22,7 @@ public:
  KinematicParametersError()
  {vl = false;}
 
- KinematicParametersError(const AlgebraicSymMatrix& er):
+ KinematicParametersError(const AlgebraicSymMatrix77& er):
                              theCovMatrix(er)
  {vl = true;}
  
@@ -29,7 +30,7 @@ public:
  * access methods
  */ 
  
- AlgebraicSymMatrix matrix() const
+ AlgebraicSymMatrix77 matrix() const
  {return theCovMatrix;}
  
  
@@ -37,7 +38,7 @@ public:
  {return vl;}
 
 private:
- AlgebraicSymMatrix theCovMatrix;
+ AlgebraicSymMatrix77 theCovMatrix;
  bool vl;
 };
 #endif

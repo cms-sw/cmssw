@@ -46,7 +46,7 @@ public:
   /**
    * Mean (weight*position) matrix of the mixture
    */
-  AlgebraicVector weightTimesPosition() const;
+  AlgebraicVector3 weightTimesPosition() const;
 
   /**
    * The weight of this state. It will be the sum of the weights of the

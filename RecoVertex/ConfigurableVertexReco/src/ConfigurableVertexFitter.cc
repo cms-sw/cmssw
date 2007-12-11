@@ -49,38 +49,38 @@ ConfigurableVertexFitter * ConfigurableVertexFitter::clone() const
 }
 
 
-CachingVertex ConfigurableVertexFitter::vertex ( 
+CachingVertex<5> ConfigurableVertexFitter::vertex ( 
     const std::vector < reco::TransientTrack > & t ) const
 {
   return theFitter->vertex ( t );
 }
 
-CachingVertex ConfigurableVertexFitter::vertex(
+CachingVertex<5> ConfigurableVertexFitter::vertex(
   const vector<RefCountedVertexTrack> & tracks) const
 {
   return theFitter->vertex ( tracks );
 }
 
-CachingVertex ConfigurableVertexFitter::vertex(
+CachingVertex<5> ConfigurableVertexFitter::vertex(
   const vector<reco::TransientTrack> & tracks, const GlobalPoint& linPoint) const
 {
   return theFitter->vertex ( tracks, linPoint );
 }
 
-CachingVertex ConfigurableVertexFitter::vertex(
+CachingVertex<5> ConfigurableVertexFitter::vertex(
   const vector<reco::TransientTrack> & tracks, const GlobalPoint& priorPos,
   const GlobalError& priorError) const
 {
   return theFitter->vertex ( tracks, priorPos, priorError );
 }
 
-CachingVertex ConfigurableVertexFitter::vertex(
+CachingVertex<5> ConfigurableVertexFitter::vertex(
   const vector<reco::TransientTrack> & tracks, const reco::BeamSpot& beamSpot) const
 {
   return theFitter->vertex ( tracks, beamSpot );
 }
 
-CachingVertex ConfigurableVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks, 
+CachingVertex<5> ConfigurableVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks, 
   const GlobalPoint& priorPos, const GlobalError& priorError) const
 {
   return theFitter->vertex ( tracks, priorPos, priorError );

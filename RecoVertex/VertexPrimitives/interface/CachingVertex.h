@@ -6,13 +6,11 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalWeight.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
-#include "RecoVertex/VertexPrimitives/interface/RefCountedVertexTrack.h"
-// #include "RecoVertex/VertexPrimitives/interface/RefCountedVertexSeed.h"
-
-#include "RecoVertex/VertexPrimitives/interface/TrackMap.h"
-#include "RecoVertex/VertexPrimitives/interface/TrackToTrackMap.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexTrack.h"
 
 #include <vector>
 #include <map>
@@ -23,9 +21,17 @@ using namespace std;
  *  Provides access to temporary data to speed up the vertex update. 
  */
 
+
+template <unsigned int N>
 class CachingVertex {
 
 public:
+
+  typedef ReferenceCountingPointer<VertexTrack<N> > RefCountedVertexTrack;
+  typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicSymMatrixNN;
+  typedef ROOT::Math::SMatrix<double,N-2,N-2,ROOT::Math::MatRepSym<double,N-2> > AlgebraicSymMatrixMM;
+  typedef std::map<RefCountedVertexTrack, AlgebraicSymMatrixMM > TrackMap;
+  typedef std::map<RefCountedVertexTrack, TrackMap > TrackToTrackMap;
 
   /** Constructors
    */
@@ -35,7 +41,7 @@ public:
   CachingVertex(const GlobalPoint & pos, const GlobalWeight & posWeight, 
 		const vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
-  CachingVertex(const AlgebraicVector & weightTimesPosition, 
+  CachingVertex(const AlgebraicVector3 & weightTimesPosition, 
 		const GlobalWeight & posWeight, 
 		const vector<RefCountedVertexTrack> & tks, 
 		float totalChiSq);
@@ -49,7 +55,7 @@ public:
 		const vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
   CachingVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
-  		const AlgebraicVector & weightTimesPosition, 
+  		const AlgebraicVector3 & weightTimesPosition, 
 		const GlobalWeight & posWeight, 
 		const vector<RefCountedVertexTrack> & tks, 
 		float totalChiSq);
@@ -82,7 +88,7 @@ public:
   GlobalPoint position() const;
   GlobalError error() const;
   GlobalWeight weight() const;
-  AlgebraicVector weightTimesPosition() const;
+  AlgebraicVector3 weightTimesPosition() const;
   vector<RefCountedVertexTrack> tracks() const { return theTracks; }
   GlobalPoint priorPosition() const {return priorVertexState().position();}
   GlobalError priorError() const {return priorVertexState().error();}
@@ -94,13 +100,9 @@ public:
   float totalChiSquared() const { return theChiSquared; }
   float degreesOfFreedom() const;
 
-//   /** conversion to VertexSeed
-//    */
-//   RefCountedVertexSeed seedWithoutTracks() const;
-
   /** Track to track covariance
    */
-  AlgebraicMatrix tkToTkCovariance(const RefCountedVertexTrack t1, 
+  AlgebraicSymMatrixMM tkToTkCovariance(const RefCountedVertexTrack t1, 
 				   const RefCountedVertexTrack t2) const;
   bool tkToTkCovarianceIsAvailable() const { return theCovMapAvailable; }
 
@@ -122,5 +124,6 @@ private:
 
   bool theValid;
 };
+
 
 #endif

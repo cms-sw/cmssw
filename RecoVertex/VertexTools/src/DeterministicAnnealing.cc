@@ -11,7 +11,7 @@ namespace {
 }
 
 DeterministicAnnealing::DeterministicAnnealing ( float cutoff ) :
-  theIndex(0), theChi2cut ( cutoff*cutoff ), theIsAnnealed ( false )
+  theIndex(0), theCutoff ( cutoff ), theIsAnnealed ( false )
 {
   temperatures.push_back(256);
   temperatures.push_back(64);
@@ -22,7 +22,7 @@ DeterministicAnnealing::DeterministicAnnealing ( float cutoff ) :
 }
 
 DeterministicAnnealing::DeterministicAnnealing( const vector < float > & sched,
-     float cutoff ) : theIndex(0), theChi2cut ( cutoff*cutoff ), theIsAnnealed ( false )
+     float cutoff ) : theIndex(0), theCutoff ( cutoff ), theIsAnnealed ( false )
 {
   temperatures = sched;
 }
@@ -39,19 +39,9 @@ void DeterministicAnnealing::anneal()
 
 double DeterministicAnnealing::weight ( double chi2 ) const
 {
-  long double mphi = phi ( chi2 );
-  /*
+  double mphi = phi ( chi2 );
   if ( mphi < std::numeric_limits<double>::epsilon() ) return 0.;
-  return 1. / ( 1. + phi ( theChi2cut * theChi2cut ) / mphi );
-  */
-  // return mphi / ( mphi + phi ( theChi2cut ) );
-  long double newtmp = mphi / ( mphi + phi ( theChi2cut ) );
-  if ( !finite(newtmp ) )
-  {
-    if ( chi2 < theChi2cut ) newtmp=1.;
-    else newtmp=0.;
-  }
-  return newtmp;
+  return 1. / ( 1. + phi ( theCutoff * theCutoff ) / mphi );
 }
 
 void DeterministicAnnealing::resetAnnealing()
@@ -67,7 +57,7 @@ inline double DeterministicAnnealing::phi( double chi2 ) const
 
 double DeterministicAnnealing::cutoff() const
 {
-  return sqrt(theChi2cut);
+  return theCutoff;
 }
 
 double DeterministicAnnealing::currentTemp() const

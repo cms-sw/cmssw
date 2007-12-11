@@ -10,7 +10,8 @@
    *  filter algorithms after the vertex has been fit and the tracks refit.
    */
 
-class KalmanSmoothedVertexChi2Estimator:public VertexSmoothedChiSquaredEstimator {
+template <unsigned int N>
+class KalmanSmoothedVertexChi2Estimator:public VertexSmoothedChiSquaredEstimator<N> {
 
 public:
 
@@ -21,7 +22,7 @@ public:
    *  \param vertex is the final estimate of the vertex, with the refited tracks
    *  \return the smoothed vertex chi**2
    */
-  float estimate(const CachingVertex & vertex) const;
+  float estimate(const CachingVertex<N> & vertex) const;
    
   KalmanSmoothedVertexChi2Estimator * clone() const 
   {
@@ -30,7 +31,7 @@ public:
    
 private:
 
-  KVFHelper helper;
+  KVFHelper<N> helper;
 };
 
 #endif

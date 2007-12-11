@@ -19,20 +19,22 @@ namespace {
 }
 
 
-SequentialVertexFitter::SequentialVertexFitter(
+template <unsigned int N>
+SequentialVertexFitter<N>::SequentialVertexFitter(
   const LinearizationPointFinder & linP, 
-  const VertexUpdator & updator, const VertexSmoother & smoother,
-  const AbstractLTSFactory & ltsf ) : 
+  const VertexUpdator<N> & updator, const VertexSmoother<N> & smoother,
+  const AbstractLTSFactory<N> & ltsf ) : 
   theLinP(linP.clone()), theUpdator(updator.clone()), 
   theSmoother(smoother.clone()), theLTrackFactory ( ltsf.clone() )
 {
   setDefaultParameters();
 }
 
-SequentialVertexFitter::SequentialVertexFitter(
+template <unsigned int N>
+SequentialVertexFitter<N>::SequentialVertexFitter(
   const edm::ParameterSet& pSet, const LinearizationPointFinder & linP, 
-  const VertexUpdator & updator, const VertexSmoother & smoother,
-  const AbstractLTSFactory & ltsf) : 
+  const VertexUpdator<N> & updator, const VertexSmoother<N> & smoother,
+  const AbstractLTSFactory<N> & ltsf) : 
   thePSet(pSet), theLinP(linP.clone()), theUpdator(updator.clone()), 
   theSmoother(smoother.clone()), theLTrackFactory ( ltsf.clone() )
 {
@@ -40,7 +42,8 @@ SequentialVertexFitter::SequentialVertexFitter(
 }
 
 
-SequentialVertexFitter::SequentialVertexFitter(
+template <unsigned int N>
+SequentialVertexFitter<N>::SequentialVertexFitter(
   const SequentialVertexFitter & original)
 {
   thePSet = original.parameterSet();
@@ -53,7 +56,8 @@ SequentialVertexFitter::SequentialVertexFitter(
 }
 
 
-SequentialVertexFitter::~SequentialVertexFitter()
+template <unsigned int N>
+SequentialVertexFitter<N>::~SequentialVertexFitter()
 {
   delete theLinP;
   delete theUpdator;
@@ -62,21 +66,24 @@ SequentialVertexFitter::~SequentialVertexFitter()
 }
 
 
-void SequentialVertexFitter::readParameters()
+template <unsigned int N>
+void SequentialVertexFitter<N>::readParameters()
 {
   theMaxShift = thePSet.getParameter<double>("maxDistance"); //0.01
   theMaxStep = thePSet.getParameter<int>("maxNbrOfIterations"); //10
 }
 
-void SequentialVertexFitter::setDefaultParameters()
+template <unsigned int N>
+void SequentialVertexFitter<N>::setDefaultParameters()
 {
   thePSet.addParameter<double>("maxDistance", 0.01);
   thePSet.addParameter<int>("maxNbrOfIterations", 10); //10
   readParameters();
 }
 
-CachingVertex 
-SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) const
+template <unsigned int N>
+CachingVertex<N> 
+SequentialVertexFitter<N>::vertex(const vector<reco::TransientTrack> & tracks) const
 {
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
@@ -91,8 +98,9 @@ SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) cons
 }
 
 
-CachingVertex 
-SequentialVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks) const
+template <unsigned int N>
+CachingVertex<N> 
+SequentialVertexFitter<N>::vertex(const vector<RefCountedVertexTrack> & tracks) const
 {
   // Initial vertex state, with a very small weight matrix
   GlobalPoint linP = tracks[0]->linearizedTrack()->linearizationPoint();
@@ -106,8 +114,9 @@ SequentialVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks) con
 // Fit vertex out of a set of RecTracks. 
 // Uses the specified linearization point.
 //
-CachingVertex  
-SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks, 
+template <unsigned int N>
+CachingVertex<N>  
+SequentialVertexFitter<N>::vertex(const vector<reco::TransientTrack> & tracks, 
 			       const GlobalPoint& linPoint) const
 { 
   // Initial vertex state, with a very large error matrix
@@ -123,8 +132,9 @@ SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
    *  The specified BeamSpot will be used as priot, but NOT for the linearization.
    * The specified LinearizationPointFinder will be used to find the linearization point.
    */
-CachingVertex 
-SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
+template <unsigned int N>
+CachingVertex<N> 
+SequentialVertexFitter<N>::vertex(const vector<reco::TransientTrack> & tracks,
 			       const BeamSpot& beamSpot) const
 {
   VertexState beamSpotState(beamSpot);
@@ -152,7 +162,8 @@ SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
 // estimate of the vertex position. The error is used for the 
 // weight of the prior estimate.
 //
-CachingVertex SequentialVertexFitter::vertex(
+template <unsigned int N>
+CachingVertex<N> SequentialVertexFitter<N>::vertex(
   const vector<reco::TransientTrack> & tracks, 
   const GlobalPoint& priorPos,
   const GlobalError& priorError) const
@@ -166,7 +177,8 @@ CachingVertex SequentialVertexFitter::vertex(
 // Uses the position and error for the prior estimate of the vertex.
 // This position is not used to relinearize the tracks.
 //
-CachingVertex SequentialVertexFitter::vertex(
+template <unsigned int N>
+CachingVertex<N> SequentialVertexFitter<N>::vertex(
   const vector<RefCountedVertexTrack> & tracks, 
   const GlobalPoint& priorPos,
   const GlobalError& priorError) const
@@ -178,8 +190,9 @@ CachingVertex SequentialVertexFitter::vertex(
 
 // Construct a container of VertexTrack from a set of RecTracks.
 //
-vector<RefCountedVertexTrack> 
-SequentialVertexFitter::linearizeTracks(
+template <unsigned int N>
+vector<typename SequentialVertexFitter<N>::RefCountedVertexTrack> 
+SequentialVertexFitter<N>::linearizeTracks(
   const vector<reco::TransientTrack> & tracks, 
   const VertexState state) const
 {
@@ -201,8 +214,9 @@ SequentialVertexFitter::linearizeTracks(
 // and vertex state, from an existing set of VertexTrack, from which only the 
 // recTracks will be used.
 //
-vector<RefCountedVertexTrack> 
-SequentialVertexFitter::reLinearizeTracks(
+template <unsigned int N>
+vector<typename SequentialVertexFitter<N>::RefCountedVertexTrack> 
+SequentialVertexFitter<N>::reLinearizeTracks(
   const vector<RefCountedVertexTrack> & tracks, 
   const VertexState state) const
 {
@@ -210,7 +224,7 @@ SequentialVertexFitter::reLinearizeTracks(
   GlobalPoint linP = state.position();
   vector<RefCountedVertexTrack> finalTracks;
   finalTracks.reserve(tracks.size());
-  for(vector<RefCountedVertexTrack>::const_iterator i = tracks.begin(); 
+  for(typename vector<RefCountedVertexTrack>::const_iterator i = tracks.begin(); 
       i != tracks.end(); i++) {
     RefCountedLinearizedTrackState lTrData = 
     	  (**i).linearizedTrack()->stateWithNewLinearizationPoint(linP);
@@ -227,8 +241,9 @@ SequentialVertexFitter::reLinearizeTracks(
 
 // The method where the vertex fit is actually done!
 //
-CachingVertex 
-SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
+template <unsigned int N>
+CachingVertex<N> 
+SequentialVertexFitter<N>::fit(const vector<RefCountedVertexTrack> & tracks,
   			    const VertexState priorVertex,
 			    bool withPrior) const
 {
@@ -236,12 +251,12 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
   GlobalPoint priorVertexPosition = priorVertex.position();
   GlobalError priorVertexError = priorVertex.error();
   
-  CachingVertex returnVertex(priorVertexPosition,priorVertexError,initialTracks,0);
+  CachingVertex<N> returnVertex(priorVertexPosition,priorVertexError,initialTracks,0);
   if (withPrior) {
-    returnVertex = CachingVertex(priorVertexPosition,priorVertexError,
+    returnVertex = CachingVertex<N>(priorVertexPosition,priorVertexError,
     		priorVertexPosition,priorVertexError,initialTracks,0);
   }
-  CachingVertex initialVertex = returnVertex;
+  CachingVertex<N> initialVertex = returnVertex;
   vector<RefCountedVertexTrack> globalVTracks = tracks;
 
   // main loop through all the VTracks
@@ -250,13 +265,13 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
   GlobalPoint newPosition = priorVertexPosition;
   GlobalPoint previousPosition;
   do {
-    CachingVertex fVertex = initialVertex;
+    CachingVertex<N> fVertex = initialVertex;
     // make new linearized and vertex tracks for the next iteration
     if(step != 0) globalVTracks = reLinearizeTracks(tracks, 
     					returnVertex.vertexState());
 
     // update sequentially the vertex estimate
-    for (vector<RefCountedVertexTrack>::const_iterator i 
+    for (typename vector<RefCountedVertexTrack>::const_iterator i 
 	   = globalVTracks.begin(); i != globalVTracks.end(); i++) {
       fVertex = theUpdator->add(fVertex,*i);
     }
@@ -278,7 +293,7 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
     if (!validVertex) {
       // reset initial vertex position to (0,0,0) and force new iteration 
       // if number of steps not exceeded
-      fVertex = CachingVertex(GlobalPoint(0,0,0), fVertex.error(),
+      fVertex = CachingVertex<N>(GlobalPoint(0,0,0), fVertex.error(),
                               initialTracks, 0);
     }
 
@@ -295,13 +310,13 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
   if (!validVertex) {
     LogDebug("RecoVertex/SequentialVertexFitter") 
        << "Fitted position is invalid (out of tracker bounds or has NaN). Returned vertex is invalid\n";
-    return CachingVertex(); // return invalid vertex
+    return CachingVertex<N>(); // return invalid vertex
   }
 
   if (step >= theMaxStep) {
     LogDebug("RecoVertex/SequentialVertexFitter") 
        << "The maximum number of steps has been exceeded. Returned vertex is invalid\n";
-    return CachingVertex(); // return invalid vertex
+    return CachingVertex<N>(); // return invalid vertex
   }
 
   // smoothing
@@ -309,3 +324,6 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
 
   return returnVertex;
 }
+
+template class SequentialVertexFitter<5>;
+template class SequentialVertexFitter<6>;

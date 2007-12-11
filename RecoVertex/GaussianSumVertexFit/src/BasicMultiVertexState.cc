@@ -29,7 +29,7 @@ GlobalWeight BasicMultiVertexState::weight() const
 }
 
 
-AlgebraicVector BasicMultiVertexState::weightTimesPosition() const
+AlgebraicVector3 BasicMultiVertexState::weightTimesPosition() const
 {
   checkCombinedState();
   return theCombinedState.weightTimesPosition();

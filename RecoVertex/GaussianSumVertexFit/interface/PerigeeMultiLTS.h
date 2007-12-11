@@ -2,19 +2,21 @@
 #define PerigeeMultiLTS_H
 
 #include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
-#include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include <vector>
 
 /**
  * Multi-state version of PerigeeLinearizedTrackState
  */
 
-class PerigeeMultiLTS : public LinearizedTrackState {
+class PerigeeMultiLTS : public LinearizedTrackState<5> {
 
 
 public:
+
+  typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
   /** Friend class properly dealing with creation
    *  of reference-counted pointers to LinearizedTrack objects
@@ -46,67 +48,67 @@ public:
   /** Method returning the constant term of the Taylor expansion
    *  of the measurement equation for the collapsed track state
    */
-  AlgebraicVector constantTerm() const;
+  virtual const AlgebraicVectorN & constantTerm() const;
 
   /** Method returning the Position Jacobian from the Taylor expansion
    *  (Matrix A) for the collapsed track state
    */
-  AlgebraicMatrix positionJacobian() const;
+  virtual const AlgebraicMatrixN3 & positionJacobian() const;
 
   /** Method returning the Momentum Jacobian from the Taylor expansion
    *  (Matrix B) for the collapsed track state
    */
-  AlgebraicMatrix momentumJacobian() const;
+  virtual const AlgebraicMatrixNM & momentumJacobian() const;
 
   /** Method returning the parameters of the Taylor expansion for
    *  the collapsed track state
    */
-  AlgebraicVector parametersFromExpansion() const;
+  virtual const AlgebraicVectorN & parametersFromExpansion() const;
 
   /** Method returning the track state at the point of closest approach
    *  to the linearization point, in the transverse plane (a.k.a.
    *  transverse impact point),  for the collapsed track state
    */
-  TrajectoryStateClosestToPoint predictedState() const;
+  const TrajectoryStateClosestToPoint & predictedState() const;
 
   /** Method returning the parameters of the track state at the
    *  transverse impact point, for the collapsed track state
    */
-  AlgebraicVector predictedStateParameters() const;
+  AlgebraicVectorN predictedStateParameters() const;
 
   /** Method returning the momentum part of the parameters of the track state
    *  at the linearization point, for the collapsed track state
    */
-  virtual AlgebraicVector predictedStateMomentumParameters() const;
+  virtual AlgebraicVectorM predictedStateMomentumParameters() const;
 
   /** Method returning the weight matrix of the track state at the
    *  transverse impact point, for the collapsed track state
    */
-  AlgebraicSymMatrix predictedStateWeight() const;
+  AlgebraicSymMatrixNN predictedStateWeight() const;
 
   /** Method returning the covariance matrix of the track state at the
    *  transverse impact point, for the collapsed track state
    */
-  AlgebraicSymMatrix predictedStateError() const;
+  AlgebraicSymMatrixNN predictedStateError() const;
 
   /** Method returning the momentum covariance matrix of the track state at the
    *  transverse impact point, for the collapsed track state
    */
-  AlgebraicSymMatrix predictedStateMomentumError() const;
+  AlgebraicSymMatrixMM predictedStateMomentumError() const;
 
   TrackCharge charge() const {return theCharge;}
 
   bool hasError() const;
 
-  bool operator ==(LinearizedTrackState& other)const;
+  bool operator ==(LinearizedTrackState<5>& other)const;
 
   /** Creates the correct refitted state according to the results of the
    *  track refit.
    */
   virtual RefCountedRefittedTrackState createRefittedTrackState(
   	const GlobalPoint & vertexPosition,
-	const AlgebraicVector & vectorParameters,
-	const AlgebraicSymMatrix & covarianceMatrix) const;
+	const AlgebraicVectorM & vectorParameters,
+	const AlgebraicSymMatrixOO & covarianceMatrix) const;
 
   /**
    * The weight of this state. It will be the sum of the weights of the
@@ -119,7 +121,7 @@ public:
    * Vector of individual components in the mixture.
    */
 
-  virtual std::vector<ReferenceCountingPointer<LinearizedTrackState> > components()
+  virtual std::vector<ReferenceCountingPointer<LinearizedTrackState<5> > > components()
   				const {return ltComp;}
 
 private:

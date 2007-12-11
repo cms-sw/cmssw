@@ -1,8 +1,9 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanSmoothedVertexChi2Estimator.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
+// #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
 
 
-float KalmanSmoothedVertexChi2Estimator::estimate(const CachingVertex & vertex) const
+template <unsigned int N>
+float KalmanSmoothedVertexChi2Estimator<N>::estimate(const CachingVertex<N> & vertex) const
 {
 //initial vertex part
   float v_part = 0.;
@@ -13,12 +14,16 @@ float KalmanSmoothedVertexChi2Estimator::estimate(const CachingVertex & vertex) 
   }
  
 //vector of tracks part
-  vector<RefCountedVertexTrack> tracks = vertex.tracks();
+  typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
+  vector< RefCountedVertexTrack > tracks = vertex.tracks();
   float sum = 0.;
-  for(vector<RefCountedVertexTrack>::iterator i = tracks.begin(); i != tracks.end(); i++)
+  for(typename vector<RefCountedVertexTrack>::iterator i = tracks.begin(); i != tracks.end(); i++)
   {
-   sum += helper.trackParameterChi2((*i)->linearizedTrack(), (*i)->refittedState());
+   sum += (*i)->weight() * helper.trackParameterChi2((*i)->linearizedTrack(), (*i)->refittedState());
   }
-  returnChi = v_part + sum;
-  return returnChi;
+ returnChi = v_part + sum;
+ return returnChi;   
 }
+
+template class KalmanSmoothedVertexChi2Estimator<5>;
+template class KalmanSmoothedVertexChi2Estimator<6>;

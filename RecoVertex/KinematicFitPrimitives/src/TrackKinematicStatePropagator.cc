@@ -58,8 +58,8 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
 //in transverse plane to the given point
 
 //final parameters and covariance
-  AlgebraicVector par(7,0);
-  AlgebraicSymMatrix cov(7,0);
+  AlgebraicVector7 par;
+  AlgebraicSymMatrix77 cov;
     
 //initial parameters as class and vectors:  
   GlobalTrajectoryParameters inPar(state.globalPosition(),state.globalMomentum(), 
@@ -83,13 +83,13 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
   HelixPlaneCrossing::DirectionType pGen = planeCrossing.direction(s);
   pGen *= inMom.mag()/pGen.mag();
   GlobalVector nMomentum(pGen.x(),pGen.y(),pGen.z()); 
-  par(1) = nPosition.x();
-  par(2) = nPosition.y();
-  par(3) = nPosition.z();
-  par(4) = nMomentum.x();
-  par(5) = nMomentum.y();
-  par(6) = nMomentum.z();
-  par(7) = mass;
+  par(0) = nPosition.x();
+  par(1) = nPosition.y();
+  par(2) = nPosition.z();
+  par(3) = nMomentum.x();
+  par(4) = nMomentum.y();
+  par(5) = nMomentum.z();
+  par(6) = mass;
   
 //covariance matrix business  
 //elements of 7x7 covariance matrix responcible for the mass and
@@ -101,29 +101,29 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
   JacobianCartesianToCurvilinear cart2curv(inPar);
   JacobianCurvilinearToCartesian curv2cart(fPar);
   
-  AlgebraicMatrix ca2cu(6,7,0);
-  AlgebraicMatrix cu2ca(7,6,0);
-  ca2cu.sub(1,1,cart2curv.jacobian_old());
-  cu2ca.sub(1,1,curv2cart.jacobian_old());
-  ca2cu(6,7) = 1;  
-  cu2ca(7,6) = 1;
+  AlgebraicMatrix67 ca2cu;
+  AlgebraicMatrix76 cu2ca;
+  ca2cu.Place_at(cart2curv.jacobian(),0,0);
+  cu2ca.Place_at(curv2cart.jacobian(),0,0);
+  ca2cu(5,6) = 1;  
+  cu2ca(6,5) = 1;
 
 //now both transformation jacobians: cartesian to curvilinear and back are done
 //We transform matrix to curv frame, then propagate it and translate it back to
 //cartesian frame.  
-  cov = state.kinematicParametersError().matrix().similarity(ca2cu);
+  AlgebraicSymMatrix66 cov1 = ROOT::Math::Similarity(ca2cu, state.kinematicParametersError().matrix());
 
 //propagation jacobian
   AnalyticalCurvilinearJacobian prop(inPar,nPosition,nMomentum,s);
-  AlgebraicMatrix pr(6,6,0);
-  pr(6,6) = 1;
-  pr.sub(1,1,prop.jacobian_old());
-  
+  AlgebraicMatrix66 pr;
+  pr(5,5) = 1;
+  pr.Place_at(prop.jacobian(),0,0);
+
 //transportation
-  cov = cov.similarity(pr);
+  AlgebraicSymMatrix66 cov2 = ROOT::Math::Similarity(pr, cov1);
   
 //now geting back to 7-parametrization from curvilinear
-  cov = cov.similarity(cu2ca);
+  cov = ROOT::Math::Similarity(cu2ca, cov2);
   
 //return parameters as a kiematic state  
   KinematicParameters resPar(par);
@@ -135,10 +135,10 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
 	(const KinematicState& state, const GlobalPoint& referencePoint) const
 {
 //new parameters vector and covariance:
- AlgebraicVector par(7,0);
- AlgebraicSymMatrix cov(7,0);
+ AlgebraicVector7 par;
+ AlgebraicSymMatrix77 cov;
  
- AlgebraicVector inStatePar = state.kinematicParameters().vector();
+ AlgebraicVector7 inStatePar = state.kinematicParameters().vector();
  GlobalTrajectoryParameters inPar(state.globalPosition(),state.globalMomentum(), 
 		state.particleCharge(), state.magneticField());
  
@@ -164,13 +164,13 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
 
 //new parameters
  GlobalVector pPerigee = fState.momentum();
- par(1) = xPerigee.x();
- par(2) = xPerigee.y();	
- par(3) = xPerigee.z();	
- par(4) = pPerigee.x();	
- par(5) = pPerigee.y();	
- par(6) = pPerigee.z();	
- par(7) = inStatePar(7);
+ par(0) = xPerigee.x();
+ par(1) = xPerigee.y(); 
+ par(2) = xPerigee.z(); 
+ par(3) = pPerigee.x(); 
+ par(4) = pPerigee.y(); 
+ par(5) = pPerigee.z(); 
+ par(6) = inStatePar(7);
 
 //covariance matrix business:
 //everything lake it was before: jacobains are smart enouhg to 
@@ -178,32 +178,33 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
 
  GlobalTrajectoryParameters fPar(xPerigee, pPerigee, state.particleCharge(),
 				state.magneticField());
+
  JacobianCartesianToCurvilinear cart2curv(inPar);
  JacobianCurvilinearToCartesian curv2cart(fPar);
   
- AlgebraicMatrix ca2cu(6,7,0);
- AlgebraicMatrix cu2ca(7,6,0);
- ca2cu.sub(1,1,cart2curv.jacobian_old());
- cu2ca.sub(1,1,curv2cart.jacobian_old());
- ca2cu(6,7) = 1;  
- cu2ca(7,6) = 1;
+  AlgebraicMatrix67 ca2cu;
+  AlgebraicMatrix76 cu2ca;
+  ca2cu.Place_at(cart2curv.jacobian(),0,0);
+  cu2ca.Place_at(curv2cart.jacobian(),0,0);
+  ca2cu(5,6) = 1;  
+  cu2ca(6,5) = 1;
 
 //now both transformation jacobians: cartesian to curvilinear and back are done
 //We transform matrix to curv frame, then propagate it and translate it back to
 //cartesian frame.  
-  cov = state.kinematicParametersError().matrix().similarity(ca2cu);
+  AlgebraicSymMatrix66 cov1 = ROOT::Math::Similarity(ca2cu, state.kinematicParametersError().matrix());
 
 //propagation jacobian
   AnalyticalCurvilinearJacobian prop(inPar,xPerigee,pPerigee,s);
-  AlgebraicMatrix pr(6,6,0);
-  pr(6,6) = 1;
-  pr.sub(1,1,prop.jacobian_old());
+  AlgebraicMatrix66 pr;
+  pr(5,5) = 1;
+  pr.Place_at(prop.jacobian(),0,0);
   
 //transportation
-  cov = cov.similarity(pr);
+  AlgebraicSymMatrix66 cov2 = ROOT::Math::Similarity(pr, cov1);
   
 //now geting back to 7-parametrization from curvilinear
-  cov = cov.similarity(cu2ca);
+  cov = ROOT::Math::Similarity(cu2ca, cov2);
  
 //return parameters as a kiematic state  
  KinematicParameters resPar(par);

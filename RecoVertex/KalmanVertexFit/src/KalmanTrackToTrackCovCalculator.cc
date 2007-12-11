@@ -1,47 +1,63 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanTrackToTrackCovCalculator.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
-TrackToTrackMap KalmanTrackToTrackCovCalculator::operator() 
-	(const CachingVertex & vertex) const
+template <unsigned int N>
+typename CachingVertex<N>::TrackToTrackMap
+KalmanTrackToTrackCovCalculator<N>::operator() 
+	(const CachingVertex<N> & vertex) const
 {
-  TrackToTrackMap returnMap;
+  typedef ROOT::Math::SMatrix<double,N,3,ROOT::Math::MatRepStd<double,N,3> > AlgebraicMatrixN3;
+  typedef ROOT::Math::SMatrix<double,N,N-2,ROOT::Math::MatRepStd<double,N,N-2> > AlgebraicMatrixNM;
+  typedef ROOT::Math::SMatrix<double,N-2,3,ROOT::Math::MatRepStd<double,N-2,3> > AlgebraicMatrixM3;
+  typedef ROOT::Math::SMatrix<double,3,N-2,ROOT::Math::MatRepStd<double,3,N-2> > AlgebraicMatrix3M;
+  typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicSymMatrixNN;
+  typedef ROOT::Math::SMatrix<double,N-2,N-2,ROOT::Math::MatRepSym<double,N-2> > AlgebraicSymMatrixMM;
+  typedef ROOT::Math::SMatrix<double,N-2,N-2,ROOT::Math::MatRepStd<double,N-2,N-2> > AlgebraicMatrixMM;
+
+  typename CachingVertex<N>::TrackToTrackMap returnMap;
   int ifail = 0;
   vector<RefCountedVertexTrack> tracks = vertex.tracks();
 
 //vertex initial data needed
-  AlgebraicSymMatrix vertexC = vertex.error().matrix();
+  AlgebraicSymMatrix33 vertexC = vertex.error().matrix_new();
 
-  for(vector<RefCountedVertexTrack>::iterator i = tracks.begin(); 
+  for(typename vector<RefCountedVertexTrack>::iterator i = tracks.begin(); 
   	i != tracks.end(); i++)
   {        
-    AlgebraicMatrix leftA = (*i)->linearizedTrack()->positionJacobian();
-    AlgebraicMatrix leftB = (*i)->linearizedTrack()->momentumJacobian();
-    AlgebraicSymMatrix leftG = (*i)->linearizedTrack()->predictedStateWeight();
-    AlgebraicSymMatrix leftW = leftG.similarityT(leftB);
-    leftW.invert(ifail);
+    const AlgebraicMatrixN3 & leftA = (*i)->linearizedTrack()->positionJacobian();
+    const AlgebraicMatrixNM & leftB = (*i)->linearizedTrack()->momentumJacobian();
+    AlgebraicSymMatrixNN leftG = (*i)->linearizedTrack()->predictedStateWeight();
+    AlgebraicSymMatrixMM leftW = ROOT::Math::SimilarityT(leftB,leftG);
+
+    ifail = ! leftW.Invert();
     if(ifail != 0) throw VertexException
     	("KalmanTrackToTrackCovarianceCalculator::leftW matrix inversion failed");
-    AlgebraicMatrix leftPart = leftW * leftB.T() * leftG * leftA;
-    TrackMap internalMap;
-    for(vector<RefCountedVertexTrack>::iterator j = tracks.begin(); j != tracks.end(); j++)
+    AlgebraicMatrixM3 leftPart = leftW * (ROOT::Math::Transpose(leftB)) * leftG * leftA;
+    typename CachingVertex<N>::TrackMap internalMap;
+    for(typename vector<RefCountedVertexTrack>::iterator j = tracks.begin(); j != tracks.end(); j++)
     {
 
       if(*i < *j)
       {
 
-	AlgebraicMatrix rightA = (*j)->linearizedTrack()->positionJacobian();
-        AlgebraicMatrix rightB = (*j)->linearizedTrack()->momentumJacobian();
-        AlgebraicSymMatrix rightG = (*j)->linearizedTrack()->predictedStateWeight();
-	AlgebraicMatrix rightW = rightG.similarityT(rightB);
-        rightW.invert(ifail);
+	const AlgebraicMatrixN3 & rightA = (*j)->linearizedTrack()->positionJacobian();
+        const AlgebraicMatrixNM & rightB = (*j)->linearizedTrack()->momentumJacobian();
+        AlgebraicSymMatrixNN rightG = (*j)->linearizedTrack()->predictedStateWeight();
+        AlgebraicSymMatrixMM rightW = ROOT::Math::SimilarityT(rightB,rightG);
+
+        ifail = ! rightW.Invert();
+
         if(ifail != 0) throw VertexException
 	  ("KalmanTrackToTrackCovarianceCalculator::rightW matrix inversion failed");
-        AlgebraicMatrix rightPart = rightA.T() * rightG * rightB * rightW;
-	AlgebraicMatrix covariance  = leftPart * vertexC * rightPart;
-        internalMap[(*j)] = covariance;
+        AlgebraicMatrix3M rightPart = (ROOT::Math::Transpose(rightA)) * rightG * rightB * rightW;
+	AlgebraicMatrixMM covariance  = leftPart * vertexC * rightPart;
+        internalMap[(*j)] = AlgebraicSymMatrixMM(covariance.LowerBlock());
       }       
     }        
     returnMap[*i] = internalMap;
   }
   return returnMap;
 }
+
+template class KalmanTrackToTrackCovCalculator<5>;
+template class KalmanTrackToTrackCovCalculator<6>;

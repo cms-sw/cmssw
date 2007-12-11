@@ -3,12 +3,11 @@
 
 
 #include "RecoVertex/VertexPrimitives/interface/VertexTrackCompatibilityEstimator.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+//#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackUpdator.h"
-#include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
 #include "RecoVertex/KalmanVertexFit/interface/KVFHelper.h"
 
@@ -22,10 +21,15 @@
    * Can be used to identify outlying tracks.
    */
 
-class KalmanVertexTrackCompatibilityEstimator:public VertexTrackCompatibilityEstimator
+template <unsigned int N>
+class KalmanVertexTrackCompatibilityEstimator : public VertexTrackCompatibilityEstimator<N>
 {
 
 public:
+
+  typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
+  typedef typename VertexTrack<N>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
+  typedef typename VertexTrack<N>::RefCountedRefittedTrackState RefCountedRefittedTrackState;
 
   KalmanVertexTrackCompatibilityEstimator(){}
 
@@ -39,15 +43,15 @@ public:
    * \return The chi**2.
    */
 
-  virtual float estimate(const CachingVertex & vrt, const RefCountedVertexTrack track) const;
+  virtual float estimate(const CachingVertex<N> & vrt, const RefCountedVertexTrack track) const;
 
-  virtual float estimate(const CachingVertex & v, 
+  virtual float estimate(const CachingVertex<N> & v, 
 			 const RefCountedLinearizedTrackState track) const;
 
   virtual float estimate(const reco::Vertex & vertex, 
 			 const reco::TransientTrack & track) const;
 
-  virtual KalmanVertexTrackCompatibilityEstimator * clone() const
+  virtual KalmanVertexTrackCompatibilityEstimator<N> * clone() const
   {
     return new KalmanVertexTrackCompatibilityEstimator(* this);
   }
@@ -55,15 +59,14 @@ public:
 
 private:
 
-  float estimateFittedTrack(const CachingVertex & v, const RefCountedVertexTrack track) const;
-  float estimateNFittedTrack(const CachingVertex & v, const RefCountedVertexTrack track) const;  
-  float estimateDifference(const CachingVertex & more, const CachingVertex & less, 
+  float estimateFittedTrack(const CachingVertex<N> & v, const RefCountedVertexTrack track) const;
+  float estimateNFittedTrack(const CachingVertex<N> & v, const RefCountedVertexTrack track) const;  
+  float estimateDifference(const CachingVertex<N> & more, const CachingVertex<N> & less, 
                                                        const RefCountedVertexTrack track) const;
-  KalmanVertexUpdator updator;
-  KalmanVertexTrackUpdator trackUpdator;
-  LinearizedTrackStateFactory lTrackFactory;
-  VertexTrackFactory vTrackFactory;
-  KVFHelper helper;
+  KalmanVertexUpdator<N> updator;
+  KalmanVertexTrackUpdator<N> trackUpdator;
+  VertexTrackFactory<N> vTrackFactory;
+  KVFHelper<N> helper;
 
 };
 

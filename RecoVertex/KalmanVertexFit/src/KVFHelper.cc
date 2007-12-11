@@ -1,14 +1,16 @@
 #include "RecoVertex/KalmanVertexFit/interface/KVFHelper.h"
 using namespace std;
 
-double KVFHelper::vertexChi2(const CachingVertex & vertexA, 
-	const CachingVertex & vertexB) const
+template <unsigned int N>
+double KVFHelper<N>::vertexChi2(const CachingVertex<N> & vertexA, 
+	const CachingVertex<N> & vertexB) const
 {
   return vertexChi2(vertexA.vertexState(), vertexB.vertexState());
 }
 
 
-double KVFHelper::vertexChi2(const VertexState & vertexA,
+template <unsigned int N>
+double KVFHelper<N>::vertexChi2(const VertexState & vertexA,
 	const VertexState & vertexB) const
 {
 // cout <<"Start\n";
@@ -16,37 +18,47 @@ double KVFHelper::vertexChi2(const VertexState & vertexA,
   GlobalPoint fnPosition = vertexB.position();
 //   cout << inPosition<< fnPosition<<endl;
 
-  AlgebraicVector oldVertexPositionV(3);
-  oldVertexPositionV[0] = inPosition.x();
-  oldVertexPositionV[1] = inPosition.y();
-  oldVertexPositionV[2] = inPosition.z();
+  AlgebraicVector3 oldVertexPositionV;
+  oldVertexPositionV(0) = inPosition.x();
+  oldVertexPositionV(1) = inPosition.y();
+  oldVertexPositionV(2) = inPosition.z();
 
-  AlgebraicVector newVertexPositionV(3);
-  newVertexPositionV[0] = fnPosition.x();
-  newVertexPositionV[1] = fnPosition.y();
-  newVertexPositionV[2] = fnPosition.z();
+  AlgebraicVector3 newVertexPositionV;
+  newVertexPositionV(0) = fnPosition.x();
+  newVertexPositionV(1) = fnPosition.y();
+  newVertexPositionV(2) = fnPosition.z();
 
-  AlgebraicVector positionResidual = newVertexPositionV - oldVertexPositionV;
 
-  return vertexA.weight().matrix().similarity(positionResidual);
+  AlgebraicVector3 positionResidual = newVertexPositionV - oldVertexPositionV;
+
+  return ROOT::Math::Similarity(positionResidual, vertexA.weight().matrix_new());
 }
 
 
-float KVFHelper::trackParameterChi2(const RefCountedVertexTrack track) const
+template <unsigned int N>
+float KVFHelper<N>::trackParameterChi2(const RefCountedVertexTrack track) const
 {
   return trackParameterChi2(track->linearizedTrack(), track->refittedState());
 }
 
 
-float KVFHelper::trackParameterChi2(
+template <unsigned int N>
+float KVFHelper<N>::trackParameterChi2(
 	const RefCountedLinearizedTrackState linTrack,
 	const RefCountedRefittedTrackState refittedTrackState) const
 {
-  AlgebraicVector parameterResiduals = linTrack->predictedStateParameters() -
-  	linTrack->refittedParamFromEquation(refittedTrackState);
-  AlgebraicSymMatrix trackParametersWeight = linTrack->predictedStateWeight();
 
-  float lChi2 =trackParametersWeight.similarity(parameterResiduals);
+  typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicSymMatrixNN;
+  typedef ROOT::Math::SVector<double,N> AlgebraicVectorN;
+
+  AlgebraicVectorN parameterResiduals = linTrack->predictedStateParameters() -
+  	linTrack->refittedParamFromEquation(refittedTrackState);
+//   AlgebraicSymMatrixNN trackParametersWeight = linTrack->predictedStateWeight();
+
+//   float lChi2 = ROOT::Math::Similarity(parameterResiduals, trackParametersWeight);
+  float lChi2 = ROOT::Math::Similarity(parameterResiduals, linTrack->predictedStateWeight());
   return (lChi2);
 }
 
+template class KVFHelper<5>;
+template class KVFHelper<6>;

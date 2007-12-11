@@ -1,15 +1,16 @@
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
+#include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h"
 
 
-RefCountedLinearizedTrackState 
+LinearizedTrackStateFactory::RefCountedLinearizedTrackState 
 LinearizedTrackStateFactory::linearizedTrackState(const GlobalPoint & linP, 
 	const reco::TransientTrack & track, const TrajectoryStateOnSurface& tsos) const
 {
   return RefCountedLinearizedTrackState(
     new PerigeeLinearizedTrackState(linP, track, tsos ) );
 }
- 
-RefCountedLinearizedTrackState 
+
+LinearizedTrackStateFactory::RefCountedLinearizedTrackState 
 LinearizedTrackStateFactory::linearizedTrackState(const GlobalPoint & linP, 
   					const reco::TransientTrack & track) const
 {
@@ -17,9 +18,9 @@ LinearizedTrackStateFactory::linearizedTrackState(const GlobalPoint & linP,
     new PerigeeLinearizedTrackState(linP, track, track.impactPointState() ) );
 }
  
-RefCountedLinearizedTrackState
+LinearizedTrackStateFactory::RefCountedLinearizedTrackState
 LinearizedTrackStateFactory::linearizedTrackState
-				(LinearizedTrackState * lts) const
+				(LinearizedTrackState<5> * lts) const
 {
   return RefCountedLinearizedTrackState(lts);
 }    

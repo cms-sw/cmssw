@@ -113,9 +113,9 @@ vector < TransientVertex > MultiVertexReconstructor::vertices (
          << " vertices from " << trks.size() << " tracks." << endl;
   }
   vector < vector < TrackAndWeight > > rc = recover ( tmp, trks );
-  vector < CachingVertex > cvts = theFitter.vertices ( rc );
+  vector < CachingVertex<5> > cvts = theFitter.vertices ( rc );
   vector < TransientVertex > ret;
-  for ( vector< CachingVertex >::const_iterator i=cvts.begin(); 
+  for ( vector< CachingVertex<5> >::const_iterator i=cvts.begin(); 
         i!=cvts.end() ; ++i )
   {
     ret.push_back ( *i );
@@ -166,10 +166,10 @@ vector < TransientVertex > MultiVertexReconstructor::vertices (
          << " vertices from " << total.size() << " tracks." << endl;
   }
   vector < vector < TrackAndWeight > > rc = recover ( tmp, trks );
-  vector < CachingVertex > cvts = theFitter.vertices ( rc, primaries );
+  vector < CachingVertex<5> > cvts = theFitter.vertices ( rc, primaries );
    
   vector < TransientVertex > ret;
-  for ( vector< CachingVertex >::const_iterator i=cvts.begin(); 
+  for ( vector< CachingVertex<5> >::const_iterator i=cvts.begin(); 
         i!=cvts.end() ; ++i )
   {
     ret.push_back ( *i );

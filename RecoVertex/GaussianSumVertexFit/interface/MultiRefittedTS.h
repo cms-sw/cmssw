@@ -2,8 +2,8 @@
 #define MultiRefittedTS_H
 
 #include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
-#include "RecoVertex/VertexPrimitives/interface/RefCountedRefittedTrackState.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
 
 /**
  * Caching refitted state of the trajectory after the vertex fit is
@@ -13,9 +13,12 @@
 
 class Surface;
 
-class MultiRefittedTS : public RefittedTrackState {
+class MultiRefittedTS : public RefittedTrackState<5> {
 
 public:
+
+  typedef ReferenceCountingPointer<RefittedTrackState<5> > RefCountedRefittedTrackState;
+  typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
   /**
    *   Constructor with a reference surface, to be used to assemble the 
@@ -66,14 +69,14 @@ public:
    * multi-state, throws an exception.
    */
 
-  virtual AlgebraicVector  parameters() const;
+  virtual AlgebraicVectorN  parameters() const;
 
   /**
    * The covariance matrix. Not possible yet for a
    * multi-state, throws an exception.
    */
 
-  virtual AlgebraicSymMatrix  covariance() const;
+  virtual AlgebraicSymMatrixNN  covariance() const;
 
   /**
    * Position at which the momentum is defined. Not possible yet for a
@@ -88,11 +91,11 @@ public:
    * multi-state, throws an exception.
    */
 
-  virtual AlgebraicVector momentumVector() const;
+  virtual AlgebraicVectorM momentumVector() const;
 
   virtual double weight() const;
 
-  virtual std::vector<ReferenceCountingPointer<RefittedTrackState> > components() const
+  virtual std::vector<ReferenceCountingPointer<RefittedTrackState<5> > > components() const
   {
     return theComponents;
   }
@@ -105,7 +108,7 @@ public:
    * The current state is unchanged.
    */
 
-  virtual ReferenceCountingPointer<RefittedTrackState> stateWithNewWeight
+  virtual ReferenceCountingPointer<RefittedTrackState<5> > stateWithNewWeight
   	(const double newWeight) const;
 
 
@@ -114,7 +117,7 @@ private:
   void computeFreeTrajectoryState() const;
 
 
-  typedef std::vector<RefCountedRefittedTrackState> RTSvector;
+  typedef std::vector<RefCountedRefittedTrackState > RTSvector;
 
   mutable RTSvector theComponents;
   mutable bool totalWeightAvailable, ftsAvailable;

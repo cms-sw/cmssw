@@ -7,8 +7,8 @@ GsfVertexSmoother::GsfVertexSmoother(bool limit, const GsfVertexMerger * merger)
   limitComponents (limit), theMerger(merger->clone())
 {}
 
-CachingVertex
-GsfVertexSmoother::smooth(const CachingVertex & vertex) const
+CachingVertex<5>
+GsfVertexSmoother::smooth(const CachingVertex<5> & vertex) const
 {
 
   vector<RefCountedVertexTrack> tracks = vertex.tracks();
@@ -20,16 +20,16 @@ GsfVertexSmoother::smooth(const CachingVertex & vertex) const
   GlobalError priorVertexError(we*10000);
 
   vector<RefCountedVertexTrack> initialTracks;
-  CachingVertex fitVertex(priorVertexPosition,priorVertexError,initialTracks,0);
+  CachingVertex<5> fitVertex(priorVertexPosition,priorVertexError,initialTracks,0);
   //In case prior vertex was used.
   if (vertex.hasPrior()) {
     VertexState priorVertexState = vertex.priorVertexState();
-    fitVertex = CachingVertex(priorVertexState, priorVertexState,
+    fitVertex = CachingVertex<5>(priorVertexState, priorVertexState,
     		initialTracks,0);
   }
 
   // vertices from ascending fit
-  vector<CachingVertex> ascendingFittedVertices;
+  vector<CachingVertex<5> > ascendingFittedVertices;
   ascendingFittedVertices.reserve(numberOfTracks);
   ascendingFittedVertices.push_back(fitVertex);
 
@@ -44,10 +44,10 @@ GsfVertexSmoother::smooth(const CachingVertex & vertex) const
   // Initial vertex for descending fit
   priorVertexPosition = tracks[0]->linearizedTrack()->linearizationPoint();
   priorVertexError = GlobalError(we*10000);
-  fitVertex = CachingVertex(priorVertexPosition,priorVertexError,initialTracks,0);
+  fitVertex = CachingVertex<5>(priorVertexPosition,priorVertexError,initialTracks,0);
 
   // vertices from descending fit
-  vector<CachingVertex> descendingFittedVertices;
+  vector<CachingVertex<5> > descendingFittedVertices;
   descendingFittedVertices.reserve(numberOfTracks);
   descendingFittedVertices.push_back(fitVertex);
 
@@ -77,15 +77,15 @@ GsfVertexSmoother::smooth(const CachingVertex & vertex) const
     smoothedChi2 += thePair.second.second;
     newTracks.push_back( theVTFactory.vertexTrack((**i).linearizedTrack(),
   	vertex.vertexState(), thePair.first, thePair.second.second,
-	AlgebraicMatrix(), (**i).weight()) );
+	AlgebraicMatrix3M(), (**i).weight()) );
   }
 
   if  (vertex.hasPrior()) {
     smoothedChi2 += priorVertexChi2(vertex.priorVertexState(), vertex.vertexState());
-    return CachingVertex(vertex.priorVertexState(), vertex.vertexState(),
+    return CachingVertex<5>(vertex.priorVertexState(), vertex.vertexState(),
     		newTracks, smoothedChi2);
   } else {
-    return CachingVertex(vertex.vertexState(), newTracks, smoothedChi2);
+    return CachingVertex<5>(vertex.vertexState(), newTracks, smoothedChi2);
   }
 }
 
@@ -186,7 +186,7 @@ GsfVertexSmoother::createNewComponent(const VertexState & oldVertex,
   VertexState newVertex = kalmanVertexUpdator.positionUpdate(oldVertex,
 	linTrack, trackWeight, sign);
 
-  pair<RefCountedRefittedTrackState, AlgebraicMatrix> thePair = 
+  KalmanVertexTrackUpdator<5>::trackMatrixPair thePair = 
   	theVertexTrackUpdator.trackRefit(newVertex, linTrack);
 
   //Chi**2 contribution of the track component
@@ -210,9 +210,9 @@ GsfVertexSmoother::meanVertex(const VertexState & vertexA,
   {
     for (vector<VertexState>::iterator iB = vsCompB.begin(); iB!= vsCompB.end(); ++iB)
     {
-      AlgebraicSymMatrix newWeight = iA->weight().matrix() +
-				     iB->weight().matrix();
-      AlgebraicVector newWtP = iA->weightTimesPosition() +
+      AlgebraicSymMatrix33 newWeight = iA->weight().matrix_new() +
+				     iB->weight().matrix_new();
+      AlgebraicVector3 newWtP = iA->weightTimesPosition() +
       			       iB->weightTimesPosition();
       double newWeightInMixture = iA->weightInMixture() *
 				  iB->weightInMixture();

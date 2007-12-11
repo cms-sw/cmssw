@@ -236,10 +236,10 @@ void KineExample::printout(const RefCountedKinematicParticle& myParticle) const
 {
   cout << "Particle: \n";
 //accessing the reconstructed Bs meson parameters:
-  AlgebraicVector bs_par = myParticle->currentState().kinematicParameters().vector();
+  AlgebraicVector7 bs_par = myParticle->currentState().kinematicParameters().vector();
 
 //and their joint covariance matrix:
-  AlgebraicMatrix bs_er = myParticle->currentState().kinematicParametersError().matrix();
+  AlgebraicSymMatrix77 bs_er = myParticle->currentState().kinematicParametersError().matrix();
   cout << "Momentum at vertex: " << myParticle->currentState().globalMomentum ()<<endl;
   cout << "Parameters at vertex: " << myParticle->currentState().kinematicParameters().vector()<<endl;
 }

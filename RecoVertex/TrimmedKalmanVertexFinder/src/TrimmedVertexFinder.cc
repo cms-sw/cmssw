@@ -1,16 +1,13 @@
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/TrimmedVertexFinder.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexFitter.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexUpdator.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexTrackCompatibilityEstimator.h"
 #include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace reco;
 
 TrimmedVertexFinder::TrimmedVertexFinder(
-  const VertexFitter * vf, const VertexUpdator * vu, 
-  const VertexTrackCompatibilityEstimator * ve)
+  const VertexFitter<5> * vf, const VertexUpdator<5> * vu, 
+  const VertexTrackCompatibilityEstimator<5> * ve)
   : theFitter(vf->clone()), theUpdator(vu->clone()), 
     theEstimator(ve->clone()), theMinProb(0.05)
 {}
@@ -40,7 +37,7 @@ TrimmedVertexFinder::vertices(vector<TransientTrack> & tks)
   if (tks.size() < 2) return all;
 
   // prepare vertex tracks and initial vertex
-  CachingVertex vtx = theFitter->vertex(tks);
+  CachingVertex<5> vtx = theFitter->vertex(tks);
   if (!vtx.isValid()) {
     cout << "TrimmedVertexFinder::WARNING: initial vertex invalid"
 	 << endl << "vertex finding stops here." << endl;
@@ -134,8 +131,8 @@ TrimmedVertexFinder::vertices(vector<TransientTrack> & tks)
 }
 
 
-vector<RefCountedVertexTrack>::iterator 
-TrimmedVertexFinder::theWorst(const CachingVertex & vtx, 
+vector<TrimmedVertexFinder::RefCountedVertexTrack>::iterator 
+TrimmedVertexFinder::theWorst(const CachingVertex<5> & vtx, 
   vector<RefCountedVertexTrack> & vtxTracks, float cut) const
 {
 
@@ -150,7 +147,7 @@ TrimmedVertexFinder::theWorst(const CachingVertex & vtx,
     float chi2 = 0;
     try {
       // remove track from vertex
-      CachingVertex newV = theUpdator->remove(vtx, *itr);
+      CachingVertex<5> newV = theUpdator->remove(vtx, *itr);
       // compute compatibility
       chi2 = theEstimator->estimate(newV, *itr);
     }

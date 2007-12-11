@@ -1,7 +1,6 @@
 #include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h"
 #include "RecoVertex/VertexTools/interface/PerigeeRefittedTrackState.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
-#include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,7 +11,7 @@
 /** Method returning the constant term of the Taylor expansion
  *  of the measurement equation
  */
-AlgebraicVector PerigeeLinearizedTrackState::constantTerm() const
+const AlgebraicVector5 & PerigeeLinearizedTrackState::constantTerm() const
 {
   if (!jacobiansAvailable) computeJacobians();
   return theConstantTerm;
@@ -21,7 +20,7 @@ AlgebraicVector PerigeeLinearizedTrackState::constantTerm() const
 /**
  * Method returning the Position Jacobian (Matrix A)
  */
-AlgebraicMatrix PerigeeLinearizedTrackState::positionJacobian() const
+const AlgebraicMatrix53 & PerigeeLinearizedTrackState::positionJacobian() const
 {
   if (!jacobiansAvailable) computeJacobians();
   return thePositionJacobian;
@@ -30,7 +29,7 @@ AlgebraicMatrix PerigeeLinearizedTrackState::positionJacobian() const
 /**      
  * Method returning the Momentum Jacobian (Matrix B)
  */
-AlgebraicMatrix PerigeeLinearizedTrackState::momentumJacobian() const
+const AlgebraicMatrix53 & PerigeeLinearizedTrackState::momentumJacobian() const
 {
   if (!jacobiansAvailable) computeJacobians();
   return theMomentumJacobian;
@@ -38,7 +37,7 @@ AlgebraicMatrix PerigeeLinearizedTrackState::momentumJacobian() const
 
 /** Method returning the parameters of the Taylor expansion
  */
-AlgebraicVector PerigeeLinearizedTrackState::parametersFromExpansion() const
+const AlgebraicVector5 & PerigeeLinearizedTrackState::parametersFromExpansion() const
 {
   if (!jacobiansAvailable) computeJacobians();
   return theExpandedParams;
@@ -48,7 +47,7 @@ AlgebraicVector PerigeeLinearizedTrackState::parametersFromExpansion() const
  * Method returning the TrajectoryStateClosestToPoint at the point
  * of closest approch to the z-axis (a.k.a. transverse impact point)
  */      
-TrajectoryStateClosestToPoint PerigeeLinearizedTrackState::predictedState() const
+const TrajectoryStateClosestToPoint & PerigeeLinearizedTrackState::predictedState() const
 {
   if (!jacobiansAvailable) computeJacobians();
   return thePredState;
@@ -132,41 +131,41 @@ bool PerigeeLinearizedTrackState::hasError() const
   return thePredState.hasError();
 }
 
-AlgebraicVector PerigeeLinearizedTrackState::predictedStateParameters() const
+AlgebraicVector5 PerigeeLinearizedTrackState::predictedStateParameters() const
 {
   if (!jacobiansAvailable) computeJacobians();
-  return thePredState.perigeeParameters().vector_old();
+  return thePredState.perigeeParameters().vector();
 }
   
-AlgebraicVector PerigeeLinearizedTrackState::predictedStateMomentumParameters() const
+AlgebraicVector3 PerigeeLinearizedTrackState::predictedStateMomentumParameters() const
 {
   if (!jacobiansAvailable) computeJacobians();
-  AlgebraicVector momentum(3);
-  momentum[0] = thePredState.perigeeParameters().vector_old()[0];
+  AlgebraicVector3 momentum;
+  momentum[0] = thePredState.perigeeParameters().vector()(0);
   momentum[1] = thePredState.perigeeParameters().theta();
   momentum[2] = thePredState.perigeeParameters().phi();
   return momentum;
 }
   
-AlgebraicSymMatrix PerigeeLinearizedTrackState::predictedStateWeight() const
+AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateWeight() const
 {
   if (!jacobiansAvailable) computeJacobians();
-  return thePredState.perigeeError().weightMatrix_old();
+  return thePredState.perigeeError().weightMatrix();
 }
   
-AlgebraicSymMatrix PerigeeLinearizedTrackState::predictedStateError() const
+AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateError() const
 {
   if (!jacobiansAvailable) computeJacobians();
-  return thePredState.perigeeError().covarianceMatrix_old();
+  return thePredState.perigeeError().covarianceMatrix();
 } 
 
-AlgebraicSymMatrix PerigeeLinearizedTrackState::predictedStateMomentumError() const
+AlgebraicSymMatrix33 PerigeeLinearizedTrackState::predictedStateMomentumError() const
 {
   if (!jacobiansAvailable) computeJacobians();
-  return thePredState.perigeeError().covarianceMatrix_old().sub(1,3);
+  return thePredState.perigeeError().covarianceMatrix().Sub<AlgebraicSymMatrix33>(0,2);
 } 
 
-bool PerigeeLinearizedTrackState::operator ==(LinearizedTrackState& other)const
+bool PerigeeLinearizedTrackState::operator ==(LinearizedTrackState<5> & other)const
 {
   const PerigeeLinearizedTrackState* otherP = 
   	dynamic_cast<const PerigeeLinearizedTrackState*>(&other);
@@ -177,7 +176,7 @@ bool PerigeeLinearizedTrackState::operator ==(LinearizedTrackState& other)const
 }
 
 
-bool PerigeeLinearizedTrackState::operator ==(ReferenceCountingPointer<LinearizedTrackState>& other)const
+bool PerigeeLinearizedTrackState::operator ==(ReferenceCountingPointer<LinearizedTrackState<5> >& other)const
 {
   const PerigeeLinearizedTrackState* otherP = 
   	dynamic_cast<const PerigeeLinearizedTrackState*>(other.get());
@@ -188,7 +187,7 @@ bool PerigeeLinearizedTrackState::operator ==(ReferenceCountingPointer<Linearize
 }
 
 
-RefCountedLinearizedTrackState
+PerigeeLinearizedTrackState::RefCountedLinearizedTrackState
 PerigeeLinearizedTrackState::stateWithNewLinearizationPoint
       (const GlobalPoint & newLP) const
 {
@@ -196,11 +195,11 @@ PerigeeLinearizedTrackState::stateWithNewLinearizationPoint
  		new PerigeeLinearizedTrackState(newLP, track(), theTSOS));
 }
 
-RefCountedRefittedTrackState
+PerigeeLinearizedTrackState::RefCountedRefittedTrackState
 PerigeeLinearizedTrackState::createRefittedTrackState(
   	const GlobalPoint & vertexPosition, 
-	const AlgebraicVector & vectorParameters,
-	const AlgebraicSymMatrix & covarianceMatrix) const
+	const AlgebraicVector3 & vectorParameters,
+	const AlgebraicSymMatrix66 & covarianceMatrix) const
 {
   PerigeeConversions perigeeConversions;
   TrajectoryStateClosestToPoint refittedTSCP = 
@@ -209,7 +208,7 @@ PerigeeLinearizedTrackState::createRefittedTrackState(
   return RefCountedRefittedTrackState(new PerigeeRefittedTrackState(refittedTSCP));
 }
 
-std::vector< RefCountedLinearizedTrackState > 
+std::vector< PerigeeLinearizedTrackState::RefCountedLinearizedTrackState > 
 PerigeeLinearizedTrackState::components() const
 {
   std::vector<RefCountedLinearizedTrackState> result; result.reserve(1);
@@ -242,10 +241,9 @@ void PerigeeLinearizedTrackState::computeChargedJacobians() const
 
   // The track parameters at the expansion point
 
-  AlgebraicVector trackParameterFromExpansionPoint(5);
-  trackParameterFromExpansionPoint[0] = transverseCurvatureAtEP;
-  trackParameterFromExpansionPoint[1] = thetaAtEP;
-  trackParameterFromExpansionPoint[3] = 1/transverseCurvatureAtEP  - signTC * S;
+  theExpandedParams[0] = transverseCurvatureAtEP;
+  theExpandedParams[1] = thetaAtEP;
+  theExpandedParams[3] = 1/transverseCurvatureAtEP  - signTC * S;
   double phiFEP;
   if (std::abs(X)>std::abs(Y)) {
     double signX = (X>0.0? +1.0:-1.0);
@@ -256,70 +254,65 @@ void PerigeeLinearizedTrackState::computeChargedJacobians() const
       phiFEP = M_PI - phiFEP;
   }
   if (phiFEP>M_PI) phiFEP-= 2*M_PI;
-  trackParameterFromExpansionPoint[2] = phiFEP;
-  trackParameterFromExpansionPoint[4] = z_v - paramPt.z() - 
-  	(phiAtEP - trackParameterFromExpansionPoint[2]) / tan(thetaAtEP)/transverseCurvatureAtEP;
+  theExpandedParams[2] = phiFEP;
+  theExpandedParams[4] = z_v - paramPt.z() - 
+  	(phiAtEP - theExpandedParams[2]) / tan(thetaAtEP)/transverseCurvatureAtEP;
 		
   // The Jacobian: (all at the expansion point)
   // [i,j]
   // i = 0: rho , 1: theta, 2: phi_p, 3: epsilon, 4: z_p
   // j = 0: x_v, 1: y_v, 2: z_v
-  thePositionJacobian = AlgebraicMatrix(5,3,0);
 
-  thePositionJacobian[2][0] = - Y / (SS);
-  thePositionJacobian[2][1] = X / (SS);
-  thePositionJacobian[3][0] = - signTC * X / S;
-  thePositionJacobian[3][1] = - signTC * Y / S;
-  thePositionJacobian[4][0] = thePositionJacobian[2][0]/tan(thetaAtEP)/transverseCurvatureAtEP;
-  thePositionJacobian[4][1] = thePositionJacobian[2][1]/tan(thetaAtEP)/transverseCurvatureAtEP;
-  thePositionJacobian[4][2] = 1;
+  thePositionJacobian(2,0) = - Y / (SS);
+  thePositionJacobian(2,1) = X / (SS);
+  thePositionJacobian(3,0) = - signTC * X / S;
+  thePositionJacobian(3,1) = - signTC * Y / S;
+  thePositionJacobian(4,0) = thePositionJacobian(2,0)/tan(thetaAtEP)/transverseCurvatureAtEP;
+  thePositionJacobian(4,1) = thePositionJacobian(2,1)/tan(thetaAtEP)/transverseCurvatureAtEP;
+  thePositionJacobian(4,2) = 1;
 
   // [i,j]
   // i = 0: rho , 1: theta, 2: phi_p, 3: epsilon, 4: z_p
   // j = 0: rho, 1: theta, 2: phi_v
-  theMomentumJacobian = AlgebraicMatrix(5,3,0);
-  theMomentumJacobian[0][0] = 1;
-  theMomentumJacobian[1][1] = 1;
+  theMomentumJacobian(0,0) = 1;
+  theMomentumJacobian(1,1) = 1;
 
-  theMomentumJacobian[2][0] = -
+  theMomentumJacobian(2,0) = -
   	(X*cos(phiAtEP) + Y*sin(phiAtEP))/
 	(SS*transverseCurvatureAtEP*transverseCurvatureAtEP);
 
-  theMomentumJacobian[2][2] = (Y*cos(phiAtEP) - X*sin(phiAtEP)) / 
+  theMomentumJacobian(2,2) = (Y*cos(phiAtEP) - X*sin(phiAtEP)) / 
   	(SS*transverseCurvatureAtEP);
 
-  theMomentumJacobian[3][0] = 
+  theMomentumJacobian(3,0) = 
   	(signTC * (Y*cos(phiAtEP) - X*sin(phiAtEP)) / S - 1)/
 	(transverseCurvatureAtEP*transverseCurvatureAtEP);
   
-  theMomentumJacobian[3][2] = signTC *(X*cos(phiAtEP) + Y*sin(phiAtEP))/
+  theMomentumJacobian(3,2) = signTC *(X*cos(phiAtEP) + Y*sin(phiAtEP))/
   	(S*transverseCurvatureAtEP);
   
-  theMomentumJacobian[4][0] = (phiAtEP - trackParameterFromExpansionPoint[2]) /
+  theMomentumJacobian(4,0) = (phiAtEP - theExpandedParams[2]) /
   	tan(thetaAtEP)/(transverseCurvatureAtEP*transverseCurvatureAtEP)+
-	theMomentumJacobian[2][0] / tan(thetaAtEP)/transverseCurvatureAtEP;
+	theMomentumJacobian(2,0) / tan(thetaAtEP)/transverseCurvatureAtEP;
 
-  theMomentumJacobian[4][1] = (phiAtEP - trackParameterFromExpansionPoint[2]) *
+  theMomentumJacobian(4,1) = (phiAtEP - theExpandedParams[2]) *
   	(1 + 1/(tan(thetaAtEP)*tan(thetaAtEP)))/transverseCurvatureAtEP;
 
-  theMomentumJacobian[4][2] = (theMomentumJacobian[2][2] - 1) / 
+  theMomentumJacobian(4,2) = (theMomentumJacobian(2,2) - 1) / 
   				tan(thetaAtEP)/transverseCurvatureAtEP;
 
    // And finally the residuals:
 
-  AlgebraicVector expansionPoint(3);
-  expansionPoint[0] = thePredState.theState().position().x();
-  expansionPoint[1] = thePredState.theState().position().y();
-  expansionPoint[2] = thePredState.theState().position().z(); 
-  AlgebraicVector momentumAtExpansionPoint(3);
-  momentumAtExpansionPoint[0] = transverseCurvatureAtEP;  // Transverse Curv
-  momentumAtExpansionPoint[1] = thetaAtEP;
-  momentumAtExpansionPoint[2] = phiAtEP; 
+  AlgebraicVector3 expansionPoint;
+  expansionPoint(0) = thePredState.theState().position().x();
+  expansionPoint(1) = thePredState.theState().position().y();
+  expansionPoint(2) = thePredState.theState().position().z(); 
+  AlgebraicVector3 momentumAtExpansionPoint;
+  momentumAtExpansionPoint(0) = transverseCurvatureAtEP;  // Transverse Curv
+  momentumAtExpansionPoint(1) = thetaAtEP;
+  momentumAtExpansionPoint(2) = phiAtEP; 
 
-  theExpandedParams = trackParameterFromExpansionPoint;
-
-
-  theConstantTerm = AlgebraicVector( trackParameterFromExpansionPoint -
+  theConstantTerm = AlgebraicVector5( theExpandedParams -
   		  thePositionJacobian * expansionPoint -
   		  theMomentumJacobian * momentumAtExpansionPoint );
 
@@ -347,56 +340,51 @@ void PerigeeLinearizedTrackState::computeNeutralJacobians() const
 
   // The track parameters at the expansion point
 
-  AlgebraicVector trackParameterFromExpansionPoint(5);
-  trackParameterFromExpansionPoint[0] = 1 / ptAtEP;
-  trackParameterFromExpansionPoint[1] = thetaAtEP;
-  trackParameterFromExpansionPoint[2] = phiAtEP;
-  trackParameterFromExpansionPoint[3] = X*sin(phiAtEP) - Y*cos(phiAtEP);
-  trackParameterFromExpansionPoint[4] = z_v - paramPt.z() - 
+  theExpandedParams(0) = 1 / ptAtEP;
+  theExpandedParams(1) = thetaAtEP;
+  theExpandedParams(2) = phiAtEP;
+  theExpandedParams(3) = X*sin(phiAtEP) - Y*cos(phiAtEP);
+  theExpandedParams(4) = z_v - paramPt.z() - 
   	(X*cos(phiAtEP) + Y*sin(phiAtEP)) / tan(thetaAtEP);
 
   // The Jacobian: (all at the expansion point)
   // [i,j]
   // i = 0: rho = 1/pt , 1: theta, 2: phi_p, 3: epsilon, 4: z_p
   // j = 0: x_v, 1: y_v, 2: z_v
-  thePositionJacobian = AlgebraicMatrix(5,3,0);
 
-  thePositionJacobian[3][0] =   sin(phiAtEP);
-  thePositionJacobian[3][1] = - cos(phiAtEP);
-  thePositionJacobian[4][0] = - cos(phiAtEP)/tan(thetaAtEP);
-  thePositionJacobian[4][1] = - sin(phiAtEP)/tan(thetaAtEP);
-  thePositionJacobian[4][2] = 1;
+  thePositionJacobian(3,0) =   sin(phiAtEP);
+  thePositionJacobian(3,1) = - cos(phiAtEP);
+  thePositionJacobian(4,0) = - cos(phiAtEP)/tan(thetaAtEP);
+  thePositionJacobian(4,1) = - sin(phiAtEP)/tan(thetaAtEP);
+  thePositionJacobian(4,2) = 1;
 
   // [i,j]
   // i = 0: rho = 1/pt , 1: theta, 2: phi_p, 3: epsilon, 4: z_p
   // j = 0: rho = 1/pt , 1: theta, 2: phi_v
-  theMomentumJacobian = AlgebraicMatrix(5,3,0);
-  theMomentumJacobian[0][0] = 1;
-  theMomentumJacobian[1][1] = 1;
-  theMomentumJacobian[2][2] = 1;
 
-  theMomentumJacobian[3][2] = X*cos(phiAtEP) + Y*sin(phiAtEP);
+  theMomentumJacobian(0,0) = 1;
+  theMomentumJacobian(1,1) = 1;
+  theMomentumJacobian(2,2) = 1;
+
+  theMomentumJacobian(3,2) = X*cos(phiAtEP) + Y*sin(phiAtEP);
   
-  theMomentumJacobian[4][1] = theMomentumJacobian[3][2]*
+  theMomentumJacobian(4,1) = theMomentumJacobian(3,2)*
   	(1 + 1/(tan(thetaAtEP)*tan(thetaAtEP)));
 
-  theMomentumJacobian[4][2] = (X*sin(phiAtEP) - Y*cos(phiAtEP))/tan(thetaAtEP);
+  theMomentumJacobian(4,2) = (X*sin(phiAtEP) - Y*cos(phiAtEP))/tan(thetaAtEP);
 
    // And finally the residuals:
 
-  AlgebraicVector expansionPoint(3);
-  expansionPoint[0] = thePredState.theState().position().x();
-  expansionPoint[1] = thePredState.theState().position().y();
-  expansionPoint[2] = thePredState.theState().position().z(); 
-  AlgebraicVector momentumAtExpansionPoint(3);
-  momentumAtExpansionPoint[0] = 1 / ptAtEP;  // 
-  momentumAtExpansionPoint[1] = thetaAtEP;
-  momentumAtExpansionPoint[2] = phiAtEP; 
+  AlgebraicVector3 expansionPoint;
+  expansionPoint(0) = thePredState.theState().position().x();
+  expansionPoint(1) = thePredState.theState().position().y();
+  expansionPoint(2) = thePredState.theState().position().z(); 
+  AlgebraicVector3 momentumAtExpansionPoint;
+  momentumAtExpansionPoint(0) = 1 / ptAtEP;  // 
+  momentumAtExpansionPoint(1) = thetaAtEP;
+  momentumAtExpansionPoint(2) = phiAtEP; 
 
-  theExpandedParams = trackParameterFromExpansionPoint;
-
-
-  theConstantTerm = AlgebraicVector( trackParameterFromExpansionPoint -
+  theConstantTerm = AlgebraicVector5( theExpandedParams -
   		  thePositionJacobian * expansionPoint -
   		  theMomentumJacobian * momentumAtExpansionPoint );
 

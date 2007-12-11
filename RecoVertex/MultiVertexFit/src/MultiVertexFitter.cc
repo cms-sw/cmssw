@@ -26,6 +26,7 @@ namespace
   typedef MultiVertexFitter::TrackAndWeight TrackAndWeight;
   typedef MultiVertexFitter::TrackAndSeedToWeightMap TrackAndSeedToWeightMap;
   typedef MultiVertexFitter::SeedToWeightMap SeedToWeightMap;
+  typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
 
   int verbose()
   {
@@ -62,9 +63,9 @@ namespace
     };
   }*/
 
-  CachingVertex createSeedFromLinPt ( const GlobalPoint & gp )
+  CachingVertex<5> createSeedFromLinPt ( const GlobalPoint & gp )
   {
-    return CachingVertex ( gp, GlobalError (),
+    return CachingVertex<5> ( gp, GlobalError (),
                            vector<RefCountedVertexTrack> (), 0.0 );
   }
 
@@ -102,10 +103,10 @@ void MultiVertexFitter::createSeed( const vector < TransientTrack > & tracks )
 {
   if ( tracks.size() > 1 )
   {
-    CachingVertex vtx = createSeedFromLinPt (
+    CachingVertex<5> vtx = createSeedFromLinPt (
         theSeeder->getLinearizationPoint ( tracks ) );
     int snr= seedNr();
-    theVertexStates.push_back ( pair < int, CachingVertex > ( snr, vtx ) );
+    theVertexStates.push_back ( pair < int, CachingVertex<5> > ( snr, vtx ) );
     for ( vector< TransientTrack >::const_iterator track=tracks.begin();
           track!=tracks.end() ; ++track )
     {
@@ -153,7 +154,7 @@ void MultiVertexFitter::createSeed( const vector < TrackAndWeight > & tracks )
     RefCountedLinearizedTrackState lTrData = 
       theCache.linTrack ( pos, track->first );
 
-    VertexTrackFactory vTrackFactory;
+    VertexTrackFactory<5> vTrackFactory;
     RefCountedVertexTrack vTrData = vTrackFactory.vertexTrack(
       lTrData, realseed, weight );
     newTracks.push_back ( vTrData );
@@ -161,9 +162,9 @@ void MultiVertexFitter::createSeed( const vector < TrackAndWeight > & tracks )
 
   if ( newTracks.size() > 1 )
   {
-    CachingVertex vtx = KalmanVertexFitter().vertex ( newTracks );
+    CachingVertex<5> vtx = KalmanVertexFitter().vertex ( newTracks );
     int snr = seedNr();
-    theVertexStates.push_back ( pair < int, CachingVertex > ( snr, vtx ) );
+    theVertexStates.push_back ( pair < int, CachingVertex<5> > ( snr, vtx ) );
 
     // We initialise the weights with the original
     // user supplied weights.
@@ -218,14 +219,14 @@ void MultiVertexFitter::createSeed( const vector < TrackAndWeight > & tracks )
   };
 }
 
-vector < CachingVertex > MultiVertexFitter::vertices (
+vector < CachingVertex<5> > MultiVertexFitter::vertices (
     const vector < TransientVertex > & vtces,
     const vector < TransientTrack > & primaries )
 {
   // FIXME if vtces.size < 1 return sth that includes the primaries
   if ( vtces.size() < 1 )
   {
-    return vector < CachingVertex > ();
+    return vector < CachingVertex<5> > ();
   };
   vector < vector < TrackAndWeight > > bundles;
   for ( vector< TransientVertex >::const_iterator vtx=vtces.begin();
@@ -248,19 +249,19 @@ vector < CachingVertex > MultiVertexFitter::vertices (
   return vertices ( bundles, primaries );
 }
 
-vector < CachingVertex > MultiVertexFitter::vertices (
-    const vector < CachingVertex > & initials,
+vector < CachingVertex<5> > MultiVertexFitter::vertices (
+    const vector < CachingVertex<5> > & initials,
     const vector < TransientTrack > & primaries )
 {
   clear();
   createPrimaries ( primaries );
   // FIXME if initials size < 1 return sth that includes the primaries
   if (  initials.size() < 1 ) return initials;
-  for ( vector< CachingVertex >::const_iterator vtx=initials.begin();
+  for ( vector< CachingVertex<5> >::const_iterator vtx=initials.begin();
         vtx!=initials.end() ; ++vtx )
   {
     int snr = seedNr();
-    theVertexStates.push_back ( pair < int, CachingVertex >
+    theVertexStates.push_back ( pair < int, CachingVertex<5> >
         ( snr, *vtx ) );
     TransientVertex rvtx = *vtx;
     const vector < TransientTrack > & trks = rvtx.originalTracks();
@@ -280,14 +281,14 @@ vector < CachingVertex > MultiVertexFitter::vertices (
     };
   };
   #ifdef MVFHarvestingDebug
-  for ( vector< CachingVertex >::const_iterator i=theVertexStates.begin();
+  for ( vector< CachingVertex<5> >::const_iterator i=theVertexStates.begin();
         i!=theVertexStates.end() ; ++i )
     PrimitivesHarvester::file()->save(*i);
   #endif
   return fit();
 }
 
-vector < CachingVertex > MultiVertexFitter::vertices (
+vector < CachingVertex<5> > MultiVertexFitter::vertices (
     const vector < vector < TransientTrack > > & tracks,
     const vector < TransientTrack > & primaries )
 {
@@ -304,14 +305,14 @@ vector < CachingVertex > MultiVertexFitter::vertices (
     printSeeds();
   };
   #ifdef MVFHarvestingDebug
-  for ( vector< CachingVertex >::const_iterator i=theVertexStates.begin();
+  for ( vector< CachingVertex<5> >::const_iterator i=theVertexStates.begin();
         i!=theVertexStates.end() ; ++i )
     PrimitivesHarvester::file()->save(*i);
   #endif
   return fit();
 }
 
-vector < CachingVertex > MultiVertexFitter::vertices (
+vector < CachingVertex<5> > MultiVertexFitter::vertices (
     const vector < vector < TrackAndWeight > > & tracks,
     const vector < TransientTrack > & primaries )
 {
@@ -357,7 +358,7 @@ void MultiVertexFitter::updateWeights()
     cout << "[MultiVertexFitter] Start weight update." << endl;
   };
 
-  KalmanVertexTrackCompatibilityEstimator theComp;
+  KalmanVertexTrackCompatibilityEstimator<5> theComp;
   
   /** 
    *  add the primary only tracks to primary vertex only.
@@ -366,7 +367,7 @@ void MultiVertexFitter::updateWeights()
         trk!=thePrimaries.end() ; ++trk )
   {
     int seednr = theVertexStates[0].first;
-    CachingVertex seed = theVertexStates[0].second;
+    CachingVertex<5> seed = theVertexStates[0].second;
     double chi2 = theComp.estimate ( seed, theCache.linTrack ( seed.position(), *trk ) );     
     double weight = theAssComp->phi ( chi2 );
     theWeights[*trk][seednr]= weight; // FIXME maybe "hard" 1.0 or "soft" weight?
@@ -380,7 +381,7 @@ void MultiVertexFitter::updateWeights()
   {
     double tot_weight=theAssComp->phi ( theAssComp->cutoff() * theAssComp->cutoff() );
 
-    for ( vector < pair < int, CachingVertex > >::const_iterator 
+    for ( vector < pair < int, CachingVertex<5> > >::const_iterator 
           seed=theVertexStates.begin(); seed!=theVertexStates.end(); ++seed )
     {
       
@@ -397,7 +398,7 @@ void MultiVertexFitter::updateWeights()
     // (if we include the "cutoff", as well)
     if ( tot_weight > 0.0 )
     {
-      for ( vector < pair < int, CachingVertex > >::const_iterator 
+      for ( vector < pair < int, CachingVertex<5> > >::const_iterator 
             seed=theVertexStates.begin();
             seed!=theVertexStates.end(); ++seed )
       {
@@ -422,7 +423,7 @@ void MultiVertexFitter::updateWeights()
       cout << "[MultiVertexFitter] track found with no assignment - ";
       cout << "will assign uniformly." << endl;
       float w = .5 / (float) theVertexStates.size();
-      for ( vector < pair < int, CachingVertex > >::const_iterator seed=theVertexStates.begin();
+      for ( vector < pair < int, CachingVertex<5> > >::const_iterator seed=theVertexStates.begin();
             seed!=theVertexStates.end(); ++seed )
       {
         theWeights[*trk][seed->first]=w;
@@ -439,9 +440,9 @@ bool MultiVertexFitter::updateSeeds()
   // also trigger an updateWeights.
   // if the seeds dont move much we return true
 
-  vector < pair < int, CachingVertex > > newSeeds;
+  vector < pair < int, CachingVertex<5> > > newSeeds;
 
-  for ( vector< pair < int, CachingVertex > >::const_iterator seed=theVertexStates.begin();
+  for ( vector< pair < int, CachingVertex<5> > >::const_iterator seed=theVertexStates.begin();
         seed!=theVertexStates.end() ; ++seed )
   {
     // for each seed get the tracks with the right weights.
@@ -496,7 +497,7 @@ bool MultiVertexFitter::updateSeeds()
         RefCountedLinearizedTrackState lTrData =
           theCache.linTrack ( seed->second.position(), *track );
 
-        VertexTrackFactory vTrackFactory;
+        VertexTrackFactory<5> vTrackFactory;
         RefCountedVertexTrack vTrData = vTrackFactory.vertexTrack(
           lTrData, realseed, weight );
         newTracks.push_back ( vTrData );
@@ -511,7 +512,7 @@ bool MultiVertexFitter::updateSeeds()
       RefCountedLinearizedTrackState lTrData =
         theCache.linTrack ( seed->second.position(), *track );
 
-      VertexTrackFactory vTrackFactory;
+      VertexTrackFactory<5> vTrackFactory;
       RefCountedVertexTrack vTrData = vTrackFactory.vertexTrack(
         lTrData, realseed, weight );
       newTracks.push_back ( vTrData );
@@ -539,12 +540,12 @@ bool MultiVertexFitter::updateSeeds()
       {
         KalmanVertexFitter fitter;
         // warning! first track determines lin pt!
-        CachingVertex newVertex = fitter.vertex ( newTracks );
+        CachingVertex<5> newVertex = fitter.vertex ( newTracks );
         int snr = seedNr();
         double disp = ( newVertex.position() - seed->second.position() ).mag();
         if ( disp > max_disp ) max_disp = disp;
         newSeeds.push_back ( 
-            pair < int, CachingVertex > ( snr, newVertex ) );
+            pair < int, CachingVertex<5> > ( snr, newVertex ) );
       };
     } catch ( exception & e )
     {
@@ -560,7 +561,7 @@ bool MultiVertexFitter::updateSeeds()
   theWeights.clear();
   theVertexStates=newSeeds;
   #ifdef MVFHarvestingDebug
-  for ( vector< CachingVertex >::const_iterator i=theVertexStates.begin();
+  for ( vector< CachingVertex<5> >::const_iterator i=theVertexStates.begin();
         i!=theVertexStates.end() ; ++i )
     PrimitivesHarvester::file()->save(*i);
   #endif
@@ -580,7 +581,7 @@ bool MultiVertexFitter::updateSeeds()
 }
 
 // iterating over the fits
-vector < CachingVertex > MultiVertexFitter::fit()
+vector < CachingVertex<5> > MultiVertexFitter::fit()
 {
   if ( verbose() & 2 ) printWeights();
   int ctr=1;
@@ -602,8 +603,8 @@ vector < CachingVertex > MultiVertexFitter::fit()
     printWeights();
   };
 
-  vector < CachingVertex > ret;
-  for ( vector< pair < int, CachingVertex > >::const_iterator 
+  vector < CachingVertex<5> > ret;
+  for ( vector< pair < int, CachingVertex<5> > >::const_iterator 
         i=theVertexStates.begin(); i!=theVertexStates.end() ; ++i )
   {
     ret.push_back ( i->second );
@@ -615,7 +616,7 @@ vector < CachingVertex > MultiVertexFitter::fit()
 void MultiVertexFitter::printWeights ( const reco::TransientTrack & t ) const
 {
     // cout << "Trk " << t.id();
-    for ( vector < pair < int, CachingVertex > >::const_iterator seed=theVertexStates.begin();
+    for ( vector < pair < int, CachingVertex<5> > >::const_iterator seed=theVertexStates.begin();
           seed!=theVertexStates.end(); ++seed )
     {
       cout << "  -- Vertex[" << seed->first << "] with " << setw(12)
@@ -643,7 +644,7 @@ void MultiVertexFitter::printSeeds() const
 {
   cout << endl << "Seed table: " << endl << "=====================" << endl;
   /*
-  for ( vector < pair < int, CachingVertex > >::const_iterator seed=theVertexStates.begin();
+  for ( vector < pair < int, CachingVertex<5> > >::const_iterator seed=theVertexStates.begin();
         seed!=theVertexStates.end(); ++seed )
   {
     cout << "  Vertex[" << TransientVertexNamer().name(seed->second) << "] at "
@@ -659,7 +660,7 @@ void MultiVertexFitter::lostVertexClaimer()
 
   bool has_revived = false;
   // find out about total weight
-  for ( vector< pair < int, CachingVertex > >::const_iterator i=theVertexStates.begin();
+  for ( vector< pair < int, CachingVertex<5> > >::const_iterator i=theVertexStates.begin();
         i!=theVertexStates.end() ; ++i )
   {
     double totweight=0.;

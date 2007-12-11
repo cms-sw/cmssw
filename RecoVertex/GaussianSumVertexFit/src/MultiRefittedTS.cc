@@ -59,7 +59,7 @@ void MultiRefittedTS::computeFreeTrajectoryState() const
    *  (signed) transverse , longitudinal impact parameter)
    */
 
-AlgebraicVector MultiRefittedTS::parameters() const
+MultiRefittedTS::AlgebraicVectorN MultiRefittedTS::parameters() const
 {
   throw VertexException
     ("MultiRefittedTS::freeTrajectoryState(): Don't know how to do that yet...");
@@ -69,7 +69,7 @@ AlgebraicVector MultiRefittedTS::parameters() const
    * The covariance matrix
    */
 
-AlgebraicSymMatrix  MultiRefittedTS::covariance() const
+MultiRefittedTS::AlgebraicSymMatrixNN  MultiRefittedTS::covariance() const
 {
   throw VertexException
     ("MultiRefittedTS::freeTrajectoryState(): Don't know how to do that yet...");
@@ -90,7 +90,7 @@ GlobalPoint MultiRefittedTS::position() const
    * These are (signed transverse curvature, theta, phi)
    */
 
-AlgebraicVector MultiRefittedTS::momentumVector() const
+MultiRefittedTS::AlgebraicVectorM MultiRefittedTS::momentumVector() const
 {
   throw VertexException
     ("MultiRefittedTS::freeTrajectoryState(): Don't know how to do that yet...");
@@ -113,7 +113,7 @@ double MultiRefittedTS::weight() const
 }
 
 
-ReferenceCountingPointer<RefittedTrackState> 
+ReferenceCountingPointer<RefittedTrackState<5> > 
 MultiRefittedTS::stateWithNewWeight(const double newWeight) const
 {
   if (weight() < DBL_MIN) {

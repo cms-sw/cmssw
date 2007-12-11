@@ -10,7 +10,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableAnnealing.h"
 #include "RecoVertex/VertexTools/interface/DummyVertexSmoother.h"
-#include "RecoVertex/AdaptiveVertexFit/interface/KalmanVertexSmoother.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexSmoother.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
@@ -47,16 +47,16 @@ void ConfigurableAdaptiveFitter::configure(
   // ZeroLinearizationPointFinder linpt;
   // KalmanVertexFitter kvf;
   // GenericLinearizationPointFinder linpt ( kvf );
-  KalmanVertexUpdator updator;
+  KalmanVertexUpdator<5> updator;
   bool s=m.getParameter< bool >("smoothing");
-  VertexSmoother * smoother=0;
+  VertexSmoother<5> * smoother=0;
   if ( s )
   {
     smoother = new KalmanVertexSmoother ();
   } else {
-    smoother = new DummyVertexSmoother ();
+    smoother = new DummyVertexSmoother<5> ();
   }
-  KalmanVertexTrackCompatibilityEstimator estimator;
+  KalmanVertexTrackCompatibilityEstimator<5> estimator;
 
   if (theFitter) delete theFitter;
   AdaptiveVertexFitter * fitter = new AdaptiveVertexFitter ( ann, linpt, updator, estimator, *smoother );

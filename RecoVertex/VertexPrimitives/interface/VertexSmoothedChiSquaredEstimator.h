@@ -1,6 +1,8 @@
 #ifndef VertexSmoothedChiSquaredEstimator_H
 #define VertexSmoothedChiSquaredEstimator_H
 
+#include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
+
 /** \class VertexSmoothedChiSquaredEstimator
  *  Pure abstract base class for algorithms computing 
  *  a better estimation of vertex chi-squared after vertex fitting. 
@@ -8,18 +10,19 @@
  *  needed, hence the 2 vertices passed as argument in the method... 
  */
 
-class CachingVertex;
-
+template <unsigned int N>
 class VertexSmoothedChiSquaredEstimator {
 
 public:
 
+  typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
+
   VertexSmoothedChiSquaredEstimator() {}
   virtual ~VertexSmoothedChiSquaredEstimator() {}
 
-  virtual float estimate(const CachingVertex &) const = 0;
+  virtual float estimate(const CachingVertex<N> &) const = 0;
   
-  virtual VertexSmoothedChiSquaredEstimator * clone() const = 0; 
+  virtual VertexSmoothedChiSquaredEstimator<N> * clone() const = 0; 
   
 
 };

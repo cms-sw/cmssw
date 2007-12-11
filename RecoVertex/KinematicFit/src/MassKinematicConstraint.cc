@@ -48,7 +48,7 @@ pair<AlgebraicVector, AlgebraicVector> MassKinematicConstraint::value(const vect
  if(nStates == 0) throw VertexException("MassKinematicConstraint::empty vector of particles passed");
  if(nStates !=1) throw VertexException("MassKinematicConstraint::multiple state refit is not supported in this version");
  
- AlgebraicVector point = par.front()->currentState().kinematicParameters().vector();  
+ AlgebraicVector point = asHepVector<7>(par.front()->currentState().kinematicParameters().vector());
  AlgebraicVector vl(1,0);
  vl(1) = point(7) - mass;
  return pair<AlgebraicVector,AlgebraicVector>(vl,point);
@@ -60,7 +60,7 @@ pair<AlgebraicMatrix, AlgebraicVector> MassKinematicConstraint::derivative(const
  if(nStates == 0) throw VertexException("MassKinematicConstraint::empty vector of particles passed");
  if(nStates !=1) throw VertexException("MassKinematicConstraint::multiple state refit is not supported in this version");
 
- AlgebraicVector point = par.front()->currentState().kinematicParameters().vector();
+ AlgebraicVector point = asHepVector<7>(par.front()->currentState().kinematicParameters().vector());
  AlgebraicMatrix dr(1,7,0);
  dr(1,7) = 1;
  return pair<AlgebraicMatrix,AlgebraicVector>(dr,point);

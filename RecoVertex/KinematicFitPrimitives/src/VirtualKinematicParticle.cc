@@ -71,7 +71,8 @@ RefCountedKinematicParticle VirtualKinematicParticle::refittedParticle(const Kin
                                                                                                 propagator));
 }
 
-RefCountedLinearizedTrackState VirtualKinematicParticle::particleLinearizedTrackState(const GlobalPoint& point)const
+VirtualKinematicParticle::RefCountedLinearizedTrackState
+VirtualKinematicParticle::particleLinearizedTrackState(const GlobalPoint& point)const
 {
  VirtualKinematicParticle * cr = const_cast<VirtualKinematicParticle * >(this);
  RefCountedKinematicParticle lp = ReferenceCountingPointer<KinematicParticle>(cr);

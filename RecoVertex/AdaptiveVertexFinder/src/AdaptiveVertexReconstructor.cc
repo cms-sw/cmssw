@@ -3,7 +3,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoVertex/VertexTools/interface/DummyVertexSmoother.h"
-#include "RecoVertex/AdaptiveVertexFit/interface/KalmanVertexSmoother.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexSmoother.h"
 #include <algorithm>
 
 using namespace std;
@@ -100,23 +100,23 @@ AdaptiveVertexReconstructor::~AdaptiveVertexReconstructor()
 
 void AdaptiveVertexReconstructor::setupFitters ( float primcut, float seccut, bool smoothing )
 {
-  VertexSmoother * smoother ;
+  VertexSmoother<5> * smoother ;
   if ( smoothing )
   {
     smoother = new KalmanVertexSmoother();
   } else {
-    smoother = new DummyVertexSmoother();
+    smoother = new DummyVertexSmoother<5>();
   }
 
   if ( thePrimaryFitter ) delete thePrimaryFitter;
   if ( theSecondaryFitter ) delete theSecondaryFitter;
 
   thePrimaryFitter = new AdaptiveVertexFitter ( GeometricAnnealing ( primcut ), DefaultLinearizationPointFinder(),
-      KalmanVertexUpdator(), KalmanVertexTrackCompatibilityEstimator(), *smoother );
+      KalmanVertexUpdator<5>(), KalmanVertexTrackCompatibilityEstimator<5>(), *smoother );
   thePrimaryFitter->setWeightThreshold ( theWeightThreshold );
   // if the primary fails, sth is wrong, so here we set a threshold on the weight.
   theSecondaryFitter = new AdaptiveVertexFitter ( GeometricAnnealing ( seccut ), DefaultLinearizationPointFinder(),
-      KalmanVertexUpdator(), KalmanVertexTrackCompatibilityEstimator(), *smoother );
+      KalmanVertexUpdator<5>(), KalmanVertexTrackCompatibilityEstimator<5>(), *smoother );
   theSecondaryFitter->setWeightThreshold ( 0. );
   // need to set it or else we have 
   // unwanted exceptions to deal with.
@@ -237,6 +237,7 @@ vector<TransientVertex> AdaptiveVertexReconstructor::cleanUpVertices (
   vector < TransientVertex > ret;
   for ( vector< TransientVertex >::const_iterator i=old.begin(); i!=old.end() ; ++i )
   {
+   cout << "AVR vertex: "<< old.end() - i << i->position()<<i->positionError().matrix()<<endl;
     if (!(i->hasTrackWeight()))
     { // if we dont have track weights, we take the vtx
       ret.push_back ( *i );

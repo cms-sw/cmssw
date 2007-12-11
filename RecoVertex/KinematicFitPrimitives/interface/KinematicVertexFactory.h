@@ -47,7 +47,7 @@ public:
 /**
  * Direct conversion from caching vertex
  */
- RefCountedKinematicVertex vertex(const CachingVertex& vertex)
+ RefCountedKinematicVertex vertex(const CachingVertex<6>& vertex)
  {
   return  ReferenceCountingPointer<KinematicVertex>(new KinematicVertex(vertex)); 
  }

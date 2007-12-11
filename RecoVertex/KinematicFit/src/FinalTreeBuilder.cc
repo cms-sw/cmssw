@@ -18,15 +18,15 @@ FinalTreeBuilder::~FinalTreeBuilder()
  delete pFactory;
 }
 
-RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex& vtx, 
+RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx, 
                              vector<RefCountedKinematicParticle> input) const
 {
 //creating resulting kinematic particle
- AlgebraicVector par(7,0);
+ AlgebraicVector7 par;
  AlgebraicMatrix cov(7,7,0);
- par(1) = vtx.position().x();
- par(2) = vtx.position().y();
- par(3) = vtx.position().z();
+ par(0) = vtx.position().x();
+ par(1) = vtx.position().y();
+ par(2) = vtx.position().z();
  double en = 0.;
  int ch = 0; 
  
@@ -36,11 +36,11 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex& vtx,
  for(vector<RefCountedVertexTrack>::const_iterator i = refTracks.begin();i !=refTracks.end();++i)
  {
   KinematicRefittedTrackState * rs = dynamic_cast<KinematicRefittedTrackState *>(&(*((*i)->refittedState())));
-  AlgebraicVector f_mom = rs->kinematicMomentumVector();
+  AlgebraicVector4 f_mom = rs->kinematicMomentumVector();
+  par(3) += f_mom(0);
   par(4) += f_mom(1);
   par(5) += f_mom(2);
-  par(6) += f_mom(3);
-  en += sqrt(f_mom(1)*f_mom(1)+f_mom(2)*f_mom(2)+f_mom(3)*f_mom(3) + f_mom(4)*f_mom(4));  
+  en += sqrt(f_mom(1)*f_mom(1)+f_mom(2)*f_mom(2)+f_mom(3)*f_mom(3) + f_mom(0)*f_mom(0));  
   ch += (*i)->linearizedTrack()->charge();
   rStates.push_back(rs);
  } 
@@ -49,12 +49,12 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex& vtx,
  double differ = en*en - (par(4)*par(4)+par(5)*par(5)+par(6)*par(6));
  if(differ>0.)
  {
-  par(7) = sqrt(differ); 
+  par(6) = sqrt(differ); 
  }else{ 
   cout<<"warning! current precision does not allow to calculate the mass"<<endl;
   throw VertexException("warning! current precision does not allow to calculate the mass");
   
-  par(7) = 0.;
+  par(6) = 0.;
  }
 
 // covariance matrix calculation: momentum-momentum components part (4x4)
@@ -68,12 +68,12 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex& vtx,
  cov.sub(1,1,m_all);
 
 //covariance sym matrix 
- AlgebraicSymMatrix sCov(7,0);
+ AlgebraicSymMatrix77 sCov;
  for(int i = 1; i<8; i++)
  {
   for(int j = 1; j<8; j++)
   {
-   if(i<=j) sCov(i,j) = cov(i,j);
+   if(i<=j) sCov(i-1,j-1) = cov(i,j);
   }
  } 
  
@@ -109,10 +109,12 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex& vtx,
  for(j=input.begin(), i=refTracks.begin(); j !=input.end(), i !=refTracks.end();++j, ++i)
  {
   RefCountedLinearizedTrackState lT = (*i)->linearizedTrack();
-  RefCountedRefittedTrackState rS = (*i)->refittedState();
-  AlgebraicVector lPar = rS->parameters();
+  KinematicRefittedTrackState * rS= dynamic_cast<KinematicRefittedTrackState *>(&(*((*i)->refittedState())));
+
+//   RefCountedRefittedTrackState rS = (*i)->refittedState();
+  AlgebraicVector7 lPar = rS->kinematicParameters();
   KinematicParameters lkPar(lPar);
-  AlgebraicSymMatrix lCov = rS->covariance();
+  AlgebraicSymMatrix77 lCov = rS->kinematicParametersCovariance();
   KinematicParametersError lkCov(lCov);
   TrackCharge lch = lT->charge();
   KinematicState nState(lkPar,lkCov,lch, field);
@@ -140,7 +142,7 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex& vtx,
 //method returning the full covariance matrix
 //of new born kinematic particle
 AlgebraicMatrix FinalTreeBuilder::momentumPart(vector<KinematicRefittedTrackState *> rStates,
-                                               const CachingVertex& vtx, const AlgebraicVector& par)const
+                                               const CachingVertex<6>& vtx, const AlgebraicVector7& par)const
 { 
  vector<RefCountedVertexTrack> refTracks  = vtx.tracks();
  int size = rStates.size();
@@ -160,29 +162,29 @@ AlgebraicMatrix FinalTreeBuilder::momentumPart(vector<KinematicRefittedTrackStat
   jc_el(3,3) = 1.;
 
 //non-trival elements: mass correlations: 
-  AlgebraicVector l_Par = (*rs)->parameters();
-  double energy_local  = sqrt(l_Par(7)*l_Par(7) + l_Par(4)*l_Par(4) + l_Par(5)*l_Par(5) + l_Par(6)*l_Par(6));
+  AlgebraicVector7 l_Par = (*rs)->kinematicParameters();
+  double energy_local  = sqrt(l_Par(3)*l_Par(3) + l_Par(4)*l_Par(4) + l_Par(5)*l_Par(5) + l_Par(6)*l_Par(6));
 
-  double energy_global = sqrt(par(7)*par(7)+par(6)*par(6) + par(5)*par(5)+par(4)*par(4));
+  double energy_global = sqrt(par(3)*par(3)+par(6)*par(6) + par(5)*par(5)+par(4)*par(4));
   
-  jc_el(4,4) = energy_global*l_Par(7)/(par(7)*energy_local);
+  jc_el(4,4) = energy_global*l_Par(6)/(par(6)*energy_local);
   
-  jc_el(4,1) = ((energy_global*l_Par(4)/energy_local) - par(4))/par(7);
-  jc_el(4,2) = ((energy_global*l_Par(5)/energy_local) - par(5))/par(7);
-  jc_el(4,3) = ((energy_global*l_Par(6)/energy_local) - par(6))/par(7);
+  jc_el(4,1) = ((energy_global*l_Par(3)/energy_local) - par(3))/par(6);
+  jc_el(4,2) = ((energy_global*l_Par(4)/energy_local) - par(4))/par(6);
+  jc_el(4,3) = ((energy_global*l_Par(5)/energy_local) - par(5))/par(6);
   
   jac.sub(4,i_int*4+4,jc_el);
   
 //top left corner elements  
   if(i_int == 0)
   { 
-   cov.sub(1,1,(*rs)->covariance());
+   cov.sub(1,1,asHepMatrix<7>((*rs)->kinematicParametersCovariance()) );
   }else{
 //4-momentum corellatons: diagonal elements of the matrix
-   AlgebraicMatrix m_m_cov = (*rs)->covariance().sub(4,7);
+   AlgebraicMatrix m_m_cov = asHepMatrix<7>((*rs)->kinematicParametersCovariance()).sub(4,7);
 
 //position momentum and momentum position corellations
-   AlgebraicMatrix xpcov = (*rs)->covariance();  
+   AlgebraicMatrix xpcov = asHepMatrix<7>((*rs)->kinematicParametersCovariance());  
    AlgebraicMatrix p_x_cov(4,3);
    AlgebraicMatrix x_p_cov(3,4);
    
@@ -222,7 +224,7 @@ AlgebraicMatrix FinalTreeBuilder::momentumPart(vector<KinematicRefittedTrackStat
    {
     if(i_int < j_int)
     {
-     AlgebraicMatrix i_k_cov_m = vtx.tkToTkCovariance((*rt_i),(*rt_j));
+     AlgebraicMatrix i_k_cov_m = asHepMatrix<4,4>(vtx.tkToTkCovariance((*rt_i),(*rt_j)));
 //     cout<<"i_k_cov_m"<<i_k_cov_m <<endl;
      cov.sub(i_int*4 + 4, j_int*4 + 4,i_k_cov_m);
      cov.sub(j_int*4 + 4, i_int*4 + 4,i_k_cov_m);

@@ -18,9 +18,17 @@ class TrajectoryStateOnSurface;
 class Surface;
 class Propagator;
 
+template <unsigned int N>
 class RefittedTrackState : public ReferenceCounted {
 
 public:
+
+//   typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicMatrixN3;
+  typedef ROOT::Math::SVector<double,N> AlgebraicVectorN;
+  typedef ROOT::Math::SVector<double,N-2> AlgebraicVectorM;
+//   typedef ROOT::Math::SMatrix<double,N,3,ROOT::Math::MatRepStd<double,N,3> > AlgebraicMatrixN3;
+//   typedef ROOT::Math::SMatrix<double,N-2,3,ROOT::Math::MatRepStd<double,N-2,3> > AlgebraicMatrixM3;
+  typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicSymMatrixNN;
 
   virtual ~RefittedTrackState(){}
 
@@ -45,12 +53,12 @@ public:
   /**
    * Vector containing the refitted track parameters.
    */
-  virtual AlgebraicVector parameters() const = 0;
+  virtual AlgebraicVectorN parameters() const = 0;
 
   /**
    * The covariance matrix
    */
-  virtual AlgebraicSymMatrix covariance() const = 0;
+  virtual AlgebraicSymMatrixNN covariance() const = 0;
 
   /**
    * Position at which the momentum is defined.
@@ -61,7 +69,7 @@ public:
    * Vector containing the parameters describing the momentum as the vertex
    */
 
-  virtual AlgebraicVector momentumVector() const = 0;
+  virtual AlgebraicVectorM momentumVector() const = 0;
 
   /**
    *   The weight of this component in a mixture

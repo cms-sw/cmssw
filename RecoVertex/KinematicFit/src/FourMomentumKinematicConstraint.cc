@@ -72,7 +72,7 @@ pair<AlgebraicVector, AlgebraicVector> FourMomentumKinematicConstraint::value(co
  int nStates = par.size();
  if(nStates == 0) throw VertexException("FourMomentumKinematicConstraint::Empty vector of particles passed");
  if(nStates != 1) throw VertexException("FourMomentumKinematicConstraint::Multi particle refit is not supported in this version");
- AlgebraicVector pr = par.front()->currentState().kinematicParameters().vector();
+ AlgebraicVector pr = asHepVector<7>(par.front()->currentState().kinematicParameters().vector());
  AlgebraicVector vl(4,0);
  
  vl(1) = pr(4) - mm(1);
@@ -90,7 +90,7 @@ pair<AlgebraicMatrix, AlgebraicVector> FourMomentumKinematicConstraint::derivati
  if(nStates != 1) throw VertexException("FourMomentumKinematicConstraint::Multi particle refit is not supported in this version");
  AlgebraicMatrix dr(4,7,0);
  
- AlgebraicVector pr = par.front()->currentState().kinematicParameters().vector();
+ AlgebraicVector pr = asHepVector<7>(par.front()->currentState().kinematicParameters().vector());
  dr(1,4) = 1.;
  dr(2,5) = 1.;
  dr(3,6) = 1.;

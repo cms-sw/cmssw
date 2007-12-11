@@ -43,11 +43,11 @@ public:
 
 private:
 
-  KalmanVertexUpdator vertexUpdator;
-  KalmanVertexTrackUpdator theVertexTrackUpdator;
+  KalmanVertexUpdator<5> vertexUpdator;
+  KalmanVertexTrackUpdator<5> theVertexTrackUpdator;
 
   LinearizedTrackStateFactory theLTrackFactory;
-  VertexTrackFactory theVTrackFactory;
+  VertexTrackFactory<5> theVTrackFactory;
   TransientTrackFromFTSFactory ttFactory;
 
 };

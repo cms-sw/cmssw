@@ -3,18 +3,20 @@
 
 #include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
-// #include "CommonReco/CommonVertex/interface/ImpactPointMeasurement.h"
-// #include "CommonReco/CommonVertex/interface/ImpactPointMeasurementExtractor.h"
-#include "RecoVertex/VertexPrimitives/interface/RefCountedRefittedTrackState.h"
+#include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/PerigeeKinematicState.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicStateBuilder.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "DataFormats/CLHEP/interface/Migration.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/Matrices.h"
 
-class ParticleKinematicLinearizedTrackState : public LinearizedTrackState{
+class ParticleKinematicLinearizedTrackState : public LinearizedTrackState<6> {
 
 public:
  
  friend class ParticleKinematicLinearizedTrackStateFactory;
- 
+ typedef ReferenceCountingPointer<LinearizedTrackState<6> > RefCountedLinearizedTrackState;
+
  ParticleKinematicLinearizedTrackState()
  {jacobiansAvailable = false;}
  
@@ -22,7 +24,7 @@ public:
   * Returns a new linearized state with respect to a new linearization point.
   * A new object of the same type is returned, without change to the existing one.
   */ 
- virtual ReferenceCountingPointer<LinearizedTrackState> stateWithNewLinearizationPoint
+ virtual ReferenceCountingPointer<LinearizedTrackState<6> > stateWithNewLinearizationPoint
   	(const GlobalPoint & newLP) const; 
 	
  /**
@@ -34,21 +36,21 @@ public:
 /** Method returning the constant term of the Taylor expansion
  *  of measurement equation
  */
- AlgebraicVector constantTerm() const;
+ const AlgebraicVector6 & constantTerm() const;
 
 /** Method returning the Position Jacobian from the Taylor expansion 
  *  (Matrix A)
  */
- AlgebraicMatrix positionJacobian() const;
+ virtual const AlgebraicMatrix63 & positionJacobian() const;
 
 /** Method returning the Momentum Jacobian from the Taylor expansion 
  *  (Matrix B)
  */   
- AlgebraicMatrix momentumJacobian() const;
+ virtual const AlgebraicMatrix64 & momentumJacobian() const;
 
 /** Method returning the parameters of the Taylor expansion
  */
- AlgebraicVector parametersFromExpansion() const;
+ const AlgebraicVector6 & parametersFromExpansion() const;
 
 /** Method returning the track state at the point of closest approach 
  *  to the linearization point, in the transverse plane (a.k.a. 
@@ -58,27 +60,27 @@ public:
 /**
  * extended perigee predicted parameters
  */
- AlgebraicVector predictedStateParameters() const;
+ AlgebraicVector6 predictedStateParameters() const;
     
 /**
  * returns predicted 4-momentum in extended perigee parametrization
  */  
- AlgebraicVector predictedStateMomentumParameters() const; 
+ AlgebraicVectorM predictedStateMomentumParameters() const; 
 
 /**
  * 4x4 error matrix ofe xtended perigee mometum components
  */ 
- AlgebraicSymMatrix predictedStateMomentumError() const; 
+ AlgebraicSymMatrix44 predictedStateMomentumError() const; 
 
 /**
  * Full predicted weight matrix
  */  
- AlgebraicSymMatrix predictedStateWeight() const;
+ AlgebraicSymMatrix66 predictedStateWeight() const;
   
 /**
  * Full predicted error matrix
  */  
- AlgebraicSymMatrix predictedStateError() const; 
+ AlgebraicSymMatrix66 predictedStateError() const; 
 
 // /** 
 //  * Method returning the impact point measurement     
@@ -89,19 +91,19 @@ public:
  
  RefCountedKinematicParticle particle() const;
    
- bool operator ==(LinearizedTrackState& other)const;
+ bool operator ==(LinearizedTrackState<6>& other)const;
  
  bool hasError() const;
  
  RefCountedRefittedTrackState createRefittedTrackState(
                      const GlobalPoint & vertexPosition, 
-	             const AlgebraicVector & vectorParameters,
-	             const AlgebraicSymMatrix & covarianceMatrix)const; 
+		     const AlgebraicVectorM & vectorParameters,
+		     const AlgebraicSymMatrix77 & covarianceMatrix) const;
 		     
 		     
  double weightInMixture() const;
 
- std::vector<ReferenceCountingPointer<LinearizedTrackState> > components()
+ std::vector<ReferenceCountingPointer<LinearizedTrackState<6> > > components()
   									const;
  
  virtual reco::TransientTrack track() const;
@@ -139,10 +141,11 @@ private:
   
   mutable bool errorAvailable;
   mutable bool jacobiansAvailable;
-  mutable AlgebraicMatrix thePositionJacobian, theMomentumJacobian;
+  mutable AlgebraicMatrix63 thePositionJacobian;
+  mutable AlgebraicMatrix64 theMomentumJacobian;
   mutable PerigeeKinematicState thePredState;
-  mutable AlgebraicVector theConstantTerm;
-  mutable AlgebraicVector theExpandedParams;
+  mutable AlgebraicVector6 theConstantTerm;
+  mutable AlgebraicVector6 theExpandedParams;
   
   TrackCharge theCharge;
 //   ImpactPointMeasurementExtractor theIPMExtractor;

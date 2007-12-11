@@ -49,24 +49,23 @@ KinematicState
 TransientTrackKinematicStateBuilder::buildState(const FreeTrajectoryState & state, 
 	const ParticleMass& mass, float m_sigma) const
 { 
- AlgebraicVector par(7);
- AlgebraicSymMatrix cov(7,0);
- par(1) = state.position().x();
- par(2) = state.position().y();
- par(3) = state.position().z();
+ AlgebraicVector7 par;
+ AlgebraicSymMatrix77 cov;
+ par(0) = state.position().x();
+ par(1) = state.position().y();
+ par(2) = state.position().z();
       
 //getting the state of TransientTrack at the point
- par(4) = state.momentum().x();
- par(5) = state.momentum().y();
- par(6) = state.momentum().z();
- par(7) = mass;
+ par(3) = state.momentum().x();
+ par(4) = state.momentum().y();
+ par(5) = state.momentum().z();
+ par(6) = mass;
 
 //cartesian covariance matrix (x,y,z,p_x,p_y,p_z)
 //and mass-related components stays unchanged
  if(!state.hasCartesianError()) throw VertexException("KinematicStateClosestToPointBuilder:: FTS passed has no error matrix!");
- AlgebraicSymMatrix  cartCov = state.cartesianError().matrix_old();
- cov.sub(1,cartCov);
- cov(7,7) = m_sigma * m_sigma;
+ cov.Place_at(state.cartesianError().matrix(),0,0);
+ cov(6,6) = m_sigma * m_sigma;
 
 //making parameters & error
  KinematicParameters wPar(par);

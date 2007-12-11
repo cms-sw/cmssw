@@ -11,9 +11,12 @@
  *  (c.f. R. Fruewirth et.al., Comp.Phys.Comm 100 (1997) 1
  */
 
-class GsfVertexUpdator: public VertexUpdator {
+class GsfVertexUpdator: public VertexUpdator<5> {
 
 public:
+
+  typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
+  typedef VertexTrack<5>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
 
   GsfVertexUpdator(bool limit = false, const GsfVertexMerger * merger = 0);
 /**
@@ -21,7 +24,7 @@ public:
  *
  */
 
-   CachingVertex add(const CachingVertex & oldVertex,
+   CachingVertex<5> add(const CachingVertex<5> & oldVertex,
         const RefCountedVertexTrack track) const;
 
 /**
@@ -29,14 +32,14 @@ public:
  *
  */
 
-   CachingVertex remove(const CachingVertex & oldVertex,
+   CachingVertex<5> remove(const CachingVertex<5> & oldVertex,
         const RefCountedVertexTrack track) const;
 
 /**
  * Clone method
  */
 
-   VertexUpdator * clone() const
+   VertexUpdator<5> * clone() const
    {
     return new GsfVertexUpdator(* this);
    }
@@ -58,7 +61,7 @@ private:
 
   bool limitComponents;
   DeepCopyPointerByClone<GsfVertexMerger> theMerger;
-  KalmanVertexUpdator kalmanVertexUpdator;
+  KalmanVertexUpdator<5> kalmanVertexUpdator;
   GsfVertexWeightCalculator theWeightCalculator;
 };
 

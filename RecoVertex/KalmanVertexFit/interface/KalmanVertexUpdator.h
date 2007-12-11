@@ -8,18 +8,21 @@
  *  Vertex updator for the Kalman vertex filter.
  *  (c.f. R. Fruewirth et.al., Comp.Phys.Comm 96 (1996) 189
  */
-class KalmanVertexTrackCompatibilityEstimator;
 
-class KalmanVertexUpdator: public VertexUpdator {
+template <unsigned int N>
+class KalmanVertexUpdator: public VertexUpdator<N> {
 
 public:
+
+  typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
+  typedef typename VertexTrack<N>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
 
 /**
  *  Method to add a track to an existing CachingVertex
  *
  */
 
-   CachingVertex add(const CachingVertex & oldVertex,
+   CachingVertex<N> add(const CachingVertex<N> & oldVertex,
         const RefCountedVertexTrack track) const;
 
 /**
@@ -27,14 +30,14 @@ public:
  *
  */
 
-   CachingVertex remove(const CachingVertex & oldVertex,
+   CachingVertex<N> remove(const CachingVertex<N> & oldVertex,
         const RefCountedVertexTrack track) const;
 
 /**
  * Clone method
  */
 
-   VertexUpdator * clone() const
+   VertexUpdator<N> * clone() const
    {
     return new KalmanVertexUpdator(* this);
    }
@@ -42,7 +45,7 @@ public:
     /**
      * The methode which actually does the vertex update.
      */
-  CachingVertex update(const CachingVertex & oldVertex,
+  CachingVertex<N> update(const CachingVertex<N> & oldVertex,
                          const RefCountedVertexTrack track, float weight,
                          int sign ) const;
 
@@ -57,13 +60,23 @@ public:
 
 private:
 
+  typedef ROOT::Math::SVector<double,N> AlgebraicVectorN;
+  typedef ROOT::Math::SVector<double,N-2> AlgebraicVectorM;
+  typedef ROOT::Math::SMatrix<double,N,3,ROOT::Math::MatRepStd<double,N,3> > AlgebraicMatrixN3;
+  typedef ROOT::Math::SMatrix<double,N,N-2,ROOT::Math::MatRepStd<double,N,N-2> > AlgebraicMatrixNM;
+  typedef ROOT::Math::SMatrix<double,N-2,3,ROOT::Math::MatRepStd<double,N-2,3> > AlgebraicMatrixM3;
+  typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicSymMatrixNN;
+  typedef ROOT::Math::SMatrix<double,N+1,N+1,ROOT::Math::MatRepSym<double,N+1> > AlgebraicSymMatrixOO;
+  typedef ROOT::Math::SMatrix<double,N+1,N+1,ROOT::Math::MatRepStd<double,N+1,N+1> > AlgebraicMatrixOO;
+  typedef ROOT::Math::SMatrix<double,N-2,N-2,ROOT::Math::MatRepSym<double,N-2> > AlgebraicSymMatrixMM;
+
     /**
      * Calculates the chi**2 increment
      */
 
   float vertexPositionChi2(const VertexState& oldVertex,
                            const GlobalPoint& newVertexPosition) const;
-  KVFHelper helper;
+  KVFHelper<N> helper;
 
 };
 

@@ -14,7 +14,7 @@ KinematicVertex::KinematicVertex(const VertexState state, float totalChiSq,
  pVertex = 0;
 }
 
-KinematicVertex::KinematicVertex(const CachingVertex& vertex)                                              
+KinematicVertex::KinematicVertex(const CachingVertex<6>& vertex)                                              
 {
 // theVertexPosition = vertex.position();
 // theVPositionError = vertex.error();

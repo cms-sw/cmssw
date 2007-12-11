@@ -22,8 +22,8 @@ class ConfigurableTertiaryTracksVertexFinder : public VertexReconstructor {
 
   public:
 
-  ConfigurableTertiaryTracksVertexFinder(const VertexFitter * vf, 
-    const VertexUpdator * vu, const VertexTrackCompatibilityEstimator * ve);
+  ConfigurableTertiaryTracksVertexFinder(const VertexFitter<5> * vf, 
+    const VertexUpdator<5> * vu, const VertexTrackCompatibilityEstimator<5> * ve);
 
   virtual ~ConfigurableTertiaryTracksVertexFinder();
 

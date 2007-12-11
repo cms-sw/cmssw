@@ -1,4 +1,5 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicState.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/Matrices.h"
 
 KinematicState::KinematicState(const KinematicParameters& parameters,
 	const KinematicParametersError& error, const TrackCharge& charge,
@@ -16,7 +17,7 @@ bool KinematicState::operator==(const KinematicState& other) const
 }
 
 ParticleMass KinematicState::mass() const
-{return param.vector()(7);}
+{return param.vector()[6];}
 
 KinematicParameters KinematicState::kinematicParameters() const
 {return param;}
@@ -37,7 +38,8 @@ FreeTrajectoryState KinematicState::freeTrajectoryState() const
 {
  GlobalTrajectoryParameters globalPar(globalPosition(), globalMomentum(),
 	particleCharge(), theField);
- AlgebraicSymMatrix cError = kinematicParametersError().matrix().sub(1,6);
+ AlgebraicSymMatrix66 cError =
+	kinematicParametersError().matrix().Sub<AlgebraicSymMatrix66>(0,0);
  CartesianTrajectoryError cartError(cError);
 // cout<<"conversion called"<<endl;
 // cout<<"parameters::position"<<globalPosition()<<endl;

@@ -3,7 +3,7 @@
 
 #include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicState.h"
-#include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
+#include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
@@ -21,7 +21,9 @@ class KinematicTree;
 class KinematicParticle : public ReferenceCounted 
 {
 public:
- 
+
+  typedef ReferenceCountingPointer<LinearizedTrackState<6> > RefCountedLinearizedTrackState;
+
  friend class KinematicParticleVertexFitter;
  friend class KinematicTree;
 

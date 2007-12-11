@@ -42,10 +42,10 @@ namespace {
 AdaptiveVertexFitter::AdaptiveVertexFitter(
       const AnnealingSchedule & ann,
       const LinearizationPointFinder & linP,
-      const VertexUpdator & updator,
-      const VertexTrackCompatibilityEstimator & crit,
-      const VertexSmoother & smoother,
-      const AbstractLTSFactory & ltsf ) :
+      const VertexUpdator<5> & updator,
+      const VertexTrackCompatibilityEstimator<5> & crit,
+      const VertexSmoother<5> & smoother,
+      const AbstractLTSFactory<5> & ltsf ) :
     theNr(0),
     theLinP(linP.clone()), theUpdator( updator.clone()),
     theSmoother ( smoother.clone() ), theAssProbComputer( ann.clone() ),
@@ -103,7 +103,7 @@ void AdaptiveVertexFitter::setParameters ( const edm::ParameterSet & s )
   };
 }
 
-CachingVertex
+CachingVertex<5>
 AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) const
 {
   if ( tracks.size() < 2 )
@@ -126,7 +126,7 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) const
   return fit(vtContainer, seed, false);
 }
 
-CachingVertex
+CachingVertex<5>
 AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks) const
 {
   if ( tracks.size() < 2 )
@@ -145,7 +145,7 @@ AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks) const
 /** Fit vertex out of a set of reco::TransientTracks.
  *  Uses the specified linearization point.
  */
-CachingVertex
+CachingVertex<5>
 AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
                   const GlobalPoint& linPoint) const
 {
@@ -166,7 +166,7 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
  *  The specified BeamSpot will be used as priot, but NOT for the linearization.
  *  The specified LinearizationPointFinder will be used to find the linearization point.
  */
-CachingVertex 
+CachingVertex<5> 
 AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
 			       const reco::BeamSpot& beamSpot) const
 {
@@ -214,7 +214,7 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
  *   estimate of the vertex position. The error is used for the
  *   weight of the prior estimate.
  */
-CachingVertex AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
+CachingVertex<5> AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
                   const GlobalPoint& priorPos,
                   const GlobalError& priorError) const
 
@@ -233,7 +233,7 @@ CachingVertex AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & 
  *   Uses the position and error for the prior estimate of the vertex.
  *   This position is not used to relinearize the tracks.
  */
-CachingVertex AdaptiveVertexFitter::vertex(
+CachingVertex<5> AdaptiveVertexFitter::vertex(
                 const vector<RefCountedVertexTrack> & tracks,
                   const GlobalPoint& priorPos,
                   const GlobalError& priorError) const
@@ -254,7 +254,7 @@ CachingVertex AdaptiveVertexFitter::vertex(
  * This is to avoid that all tracks get the same weight when
  * using a very large initial error matrix.
  */
-vector<RefCountedVertexTrack>
+vector<AdaptiveVertexFitter::RefCountedVertexTrack>
 AdaptiveVertexFitter::linearizeTracks(const vector<reco::TransientTrack> & tracks,
                                       const VertexState & seed ) const
 {
@@ -285,10 +285,10 @@ AdaptiveVertexFitter::linearizeTracks(const vector<reco::TransientTrack> & track
  * and vertex seed, from an existing set of VertexTrack, from which only the
  * recTracks will be used.
  */
-vector<RefCountedVertexTrack>
+vector<AdaptiveVertexFitter::RefCountedVertexTrack>
 AdaptiveVertexFitter::reLinearizeTracks(
                                 const vector<RefCountedVertexTrack> & tracks,
-                                const CachingVertex & vertex ) const
+                                const CachingVertex<5> & vertex ) const
 {
   VertexState seed = vertex.vertexState();
   GlobalPoint linP = seed.position();
@@ -319,10 +319,10 @@ AdaptiveVertexFitter * AdaptiveVertexFitter::clone() const
   return new AdaptiveVertexFitter( * this );
 }
 
-vector<RefCountedVertexTrack>
+vector<AdaptiveVertexFitter::RefCountedVertexTrack>
 AdaptiveVertexFitter::reWeightTracks(
                     const vector<RefCountedLinearizedTrackState> & lTracks,
-                    const CachingVertex & vertex ) const
+                    const CachingVertex<5> & vertex ) const
 {
   VertexState seed = vertex.vertexState();
   theNr++;
@@ -330,7 +330,7 @@ AdaptiveVertexFitter::reWeightTracks(
   // GlobalPoint pos = seed.position();
 
   vector<RefCountedVertexTrack> finalTracks;
-  VertexTrackFactory vTrackFactory;
+  VertexTrackFactory<5> vTrackFactory;
   #ifdef STORE_WEIGHTS
   iter++;
   #endif
@@ -373,7 +373,7 @@ AdaptiveVertexFitter::reWeightTracks(
   return finalTracks;
 }
 
-vector<RefCountedVertexTrack>
+vector<AdaptiveVertexFitter::RefCountedVertexTrack>
 AdaptiveVertexFitter::weightTracks(
                     const vector<RefCountedLinearizedTrackState> & lTracks,
                     const VertexState & seed ) const
@@ -383,7 +383,7 @@ AdaptiveVertexFitter::weightTracks(
   GlobalPoint pos = seed.position();
 
   vector<RefCountedVertexTrack> finalTracks;
-  VertexTrackFactory vTrackFactory;
+  VertexTrackFactory<5> vTrackFactory;
   KalmanChiSquare computer;
   #ifdef STORE_WEIGHTS
   iter++;
@@ -430,10 +430,10 @@ AdaptiveVertexFitter::weightTracks(
  * accounting for vertex error, from an existing set of VertexTracks.
  * From these the LinearizedTracks will be reused.
  */
-vector<RefCountedVertexTrack>
+vector<AdaptiveVertexFitter::RefCountedVertexTrack>
 AdaptiveVertexFitter::reWeightTracks(
                             const vector<RefCountedVertexTrack> & tracks,
-                            const CachingVertex & seed) const
+                            const CachingVertex<5> & seed) const
 {
   vector<RefCountedLinearizedTrackState> lTracks;
   for(vector<RefCountedVertexTrack>::const_iterator i = tracks.begin();
@@ -450,7 +450,7 @@ AdaptiveVertexFitter::reWeightTracks(
  * The method where the vertex fit is actually done!
  */
 
-CachingVertex
+CachingVertex<5>
 AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
                           const VertexState & priorSeed,
                           bool withPrior) const
@@ -465,11 +465,11 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
   GlobalPoint priorVertexPosition = priorSeed.position();
   GlobalError priorVertexError = priorSeed.error();
 
-  CachingVertex returnVertex( priorVertexPosition,priorVertexError,
+  CachingVertex<5> returnVertex( priorVertexPosition,priorVertexError,
                               initialTracks,0);
   if (withPrior)
   {
-    returnVertex = CachingVertex(priorVertexPosition,priorVertexError,
+    returnVertex = CachingVertex<5>(priorVertexPosition,priorVertexError,
                     priorVertexPosition,priorVertexError,initialTracks,0);
   }
 
@@ -478,7 +478,7 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
   // main loop through all the VTracks
   int lpStep = 0; int step = 0;
 
-  CachingVertex initialVertex = returnVertex;
+  CachingVertex<5> initialVertex = returnVertex;
 
   GlobalPoint newPosition = priorVertexPosition;
   GlobalPoint previousPosition = newPosition;
@@ -491,7 +491,7 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
     ns_trks=0;
     if (debug() & 8) cout << "lin point convergence step " << lpStep;
     if (debug() & 8) cout << " vtx pos convergence step " << step << endl;
-    CachingVertex fVertex = initialVertex;
+    CachingVertex<5> fVertex = initialVertex;
     if ((previousPosition - newPosition).transverse() > theMaxLPShift)
     {
       if (debug() & 4) cout << "[AdaptiveVertexFitter] Relinearization." << endl;
@@ -563,6 +563,5 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
   m["pos"]="final";
   dataharvester::Writer::file("w.txt").save ( m );
   #endif
-
   return theSmoother->smooth( returnVertex );
 }

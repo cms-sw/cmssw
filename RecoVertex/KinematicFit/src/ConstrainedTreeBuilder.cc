@@ -1,5 +1,6 @@
 #include "RecoVertex/KinematicFit/interface/ConstrainedTreeBuilder.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "DataFormats/CLHEP/interface/Migration.h"
 
 ConstrainedTreeBuilder::ConstrainedTreeBuilder()
 {
@@ -65,8 +66,8 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(vector<RefCountedKinem
   for(int j = 1; j<8; j++)
   {if(i<=j) sCov(i,j) = cov(i,j);}
  }  
- KinematicParameters nP(par);
- KinematicParametersError nE(sCov);
+ KinematicParameters nP(asSVector<7>(par));
+ KinematicParametersError nE(asSMatrix<7>(sCov));
  
  KinematicState nState(nP,nE,charge, field);
  
@@ -197,15 +198,15 @@ AlgebraicMatrix ConstrainedTreeBuilder::momentumPart(vector<RefCountedKinematicP
   jc_el(3,3) = 1.;
 
 //non-trival elements: mass correlations: 
-  AlgebraicVector l_Par = (*rs)->currentState().kinematicParameters().vector();
-  double energy_local  = sqrt(l_Par(7)*l_Par(7) + l_Par(4)*l_Par(4) + l_Par(5)*l_Par(5) + l_Par(6)*l_Par(6));
+  AlgebraicVector7 l_Par = (*rs)->currentState().kinematicParameters().vector();
+  double energy_local  = sqrt(l_Par(6)*l_Par(6) + l_Par(3)*l_Par(3) + l_Par(4)*l_Par(4) + l_Par(5)*l_Par(5));
 
   double energy_global = sqrt(newPar(7)*newPar(7)+newPar(6)*newPar(6) + newPar(5)*newPar(5)+newPar(4)*newPar(4));
   
-  jc_el(4,4) = energy_global*l_Par(7)/(newPar(7)*energy_local);
-  jc_el(4,1) = ((energy_global*l_Par(4)/energy_local) - newPar(4))/newPar(7);
-  jc_el(4,2) = ((energy_global*l_Par(5)/energy_local) - newPar(5))/newPar(7);
-  jc_el(4,3) = ((energy_global*l_Par(6)/energy_local) - newPar(6))/newPar(7);
+  jc_el(4,4) = energy_global*l_Par(6)/(newPar(7)*energy_local);
+  jc_el(4,1) = ((energy_global*l_Par(3)/energy_local) - newPar(4))/newPar(7);
+  jc_el(4,2) = ((energy_global*l_Par(4)/energy_local) - newPar(5))/newPar(7);
+  jc_el(4,3) = ((energy_global*l_Par(5)/energy_local) - newPar(6))/newPar(7);
 
   jac_t.sub(4,il_int*4+4,jc_el);
   il_int++;

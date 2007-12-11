@@ -1,7 +1,7 @@
 #ifndef KinematicParameters_H
 #define KinematicParameters_H
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/Matrices.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
@@ -16,11 +16,14 @@
 class KinematicParameters{
 
 public:
+
+  typedef ROOT::Math::SVector<double,7> AlgebraicVector7;
+
   KinematicParameters():
               vl(false)
   {}
 
-  KinematicParameters(const AlgebraicVector& pr):
+  KinematicParameters(const AlgebraicVector7& pr):
                                 par(pr),vl(true)
   {}
 
@@ -28,7 +31,7 @@ public:
  * access methods
  */
 
-  AlgebraicVector vector() const
+  AlgebraicVector7 vector() const
   {return par;}
   
   GlobalVector momentum() const;
@@ -39,7 +42,7 @@ public:
   {return vl;}
 
 private:
-   AlgebraicVector par;
+   AlgebraicVector7 par;
    bool vl;
 };
 

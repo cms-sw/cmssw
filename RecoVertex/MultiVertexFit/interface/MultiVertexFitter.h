@@ -49,7 +49,7 @@ public:
    * \paramname primaries: supply tracks which are hard coded
    * to the primary vertex.
    */
-  std::vector < CachingVertex > vertices ( 
+  std::vector < CachingVertex<5> > vertices ( 
       const std::vector < std::vector < reco::TransientTrack > > &,
       const std::vector < reco::TransientTrack > & primaries =
        std::vector < reco::TransientTrack > () );
@@ -61,7 +61,7 @@ public:
    * \paramname primaries: supply tracks which are hard coded
    * to the primary vertex.
    */
-  std::vector < CachingVertex > vertices (
+  std::vector < CachingVertex<5> > vertices (
       const std::vector < std::vector < TrackAndWeight > > &,
       const std::vector < reco::TransientTrack > & primaries =
        std::vector < reco::TransientTrack > () );
@@ -71,20 +71,20 @@ public:
    * \paramname primaries: supply tracks which are hard coded
    * to the primary vertex.
    */
-  std::vector < CachingVertex > vertices (
-      const std::vector < CachingVertex > &,
+  std::vector < CachingVertex<5> > vertices (
+      const std::vector < CachingVertex<5> > &,
       const std::vector < reco::TransientTrack > & primaries =
        std::vector < reco::TransientTrack > () );
 
   /**
    *  Same as above.
    */
-  std::vector < CachingVertex > vertices ( const std::vector < TransientVertex > &,
+  std::vector < CachingVertex<5> > vertices ( const std::vector < TransientVertex > &,
      const std::vector < reco::TransientTrack > & primaries =
      std::vector < reco::TransientTrack > () );
 
 private:
-  std::vector < CachingVertex > fit();
+  std::vector < CachingVertex<5> > fit();
   void lostVertexClaimer();
   void updateWeights();
   bool updateSeeds();
@@ -101,10 +101,14 @@ private:
   void resetSeedNr();
 
 private:
+
+  typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
+  typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
+
   // vertex seeds. Come with a seed number
   // makes the weight table simpler, faster,
   // and more reliable (I hope)
-  std::vector < std::pair < int, CachingVertex > > theVertexStates;
+  std::vector < std::pair < int, CachingVertex<5> > > theVertexStates;
   int theVertexStateNr;
   float theReviveBelow;
   std::vector < reco::TransientTrack > theTracks;

@@ -2,6 +2,9 @@
 #include "RecoVertex/VertexTools/interface/PerigeeRefittedTrackState.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h"
+
+
 
 using namespace std;
 
@@ -13,11 +16,11 @@ PerigeeMultiLTS::PerigeeMultiLTS(const GlobalPoint & linP,
   //Extract the TSOS components:
 
   vector<TrajectoryStateOnSurface> tsosComp = theTSOS.components();
-  cout << "PerigeeMultiLTS components: "<<tsosComp.size()<<endl;
+  //cout << "PerigeeMultiLTS components: "<<tsosComp.size()<<endl;
   ltComp.reserve(tsosComp.size());
   for (vector<TrajectoryStateOnSurface>::iterator it = tsosComp.begin();
   	it != tsosComp.end(); it++) {
-  cout <<(*it).globalPosition()<<endl;
+  // cout <<(*it).globalPosition()<<endl;
     ltComp.push_back(theLTSfactory.linearizedTrackState(theLinPoint, theTrack, *it ));
   }
 
@@ -36,7 +39,7 @@ void PerigeeMultiLTS::prepareCollapsedState() const
 /** Method returning the constant term of the Taylor expansion
  *  of the measurement equation
  */
-AlgebraicVector PerigeeMultiLTS::constantTerm() const
+const AlgebraicVector5 & PerigeeMultiLTS::constantTerm() const
 {
   if (!collapsedStateAvailable) prepareCollapsedState();
   return collapsedStateLT->constantTerm();
@@ -45,7 +48,7 @@ AlgebraicVector PerigeeMultiLTS::constantTerm() const
 /**
  * Method returning the Position Jacobian (Matrix A)
  */
-AlgebraicMatrix PerigeeMultiLTS::positionJacobian() const
+const AlgebraicMatrix53 & PerigeeMultiLTS::positionJacobian() const
 {
   if (!collapsedStateAvailable) prepareCollapsedState();
   return collapsedStateLT->positionJacobian();
@@ -54,7 +57,7 @@ AlgebraicMatrix PerigeeMultiLTS::positionJacobian() const
 /**
  * Method returning the Momentum Jacobian (Matrix B)
  */
-AlgebraicMatrix PerigeeMultiLTS::momentumJacobian() const
+const AlgebraicMatrix53 & PerigeeMultiLTS::momentumJacobian() const
 {
   if (!collapsedStateAvailable) prepareCollapsedState();
   return collapsedStateLT->momentumJacobian();
@@ -62,7 +65,7 @@ AlgebraicMatrix PerigeeMultiLTS::momentumJacobian() const
 
 /** Method returning the parameters of the Taylor expansion
  */
-AlgebraicVector PerigeeMultiLTS::parametersFromExpansion() const
+const AlgebraicVector5 & PerigeeMultiLTS::parametersFromExpansion() const
 {
   if (!collapsedStateAvailable) prepareCollapsedState();
   return collapsedStateLT->parametersFromExpansion();
@@ -72,7 +75,7 @@ AlgebraicVector PerigeeMultiLTS::parametersFromExpansion() const
  * Method returning the TrajectoryStateClosestToPoint at the point
  * of closest approch to the z-axis (a.k.a. transverse impact point)
  */
-TrajectoryStateClosestToPoint PerigeeMultiLTS::predictedState() const
+const TrajectoryStateClosestToPoint & PerigeeMultiLTS::predictedState() const
 {
   if (!collapsedStateAvailable) prepareCollapsedState();
   const PerigeeLinearizedTrackState* otherP =
@@ -87,37 +90,37 @@ bool PerigeeMultiLTS::hasError() const
   return collapsedStateLT->hasError();
 }
 
-AlgebraicVector PerigeeMultiLTS::predictedStateParameters() const
+AlgebraicVector5 PerigeeMultiLTS::predictedStateParameters() const
 {
   if (!collapsedStateAvailable) prepareCollapsedState();
   return collapsedStateLT->predictedStateParameters();
 }
 
-AlgebraicVector PerigeeMultiLTS::predictedStateMomentumParameters() const
+AlgebraicVector3 PerigeeMultiLTS::predictedStateMomentumParameters() const
 {
   if (!collapsedStateAvailable) prepareCollapsedState();
   return collapsedStateLT->predictedStateMomentumParameters();
 }
 
-AlgebraicSymMatrix PerigeeMultiLTS::predictedStateWeight() const
+AlgebraicSymMatrix55 PerigeeMultiLTS::predictedStateWeight() const
 {
   if (!collapsedStateAvailable) prepareCollapsedState();
   return collapsedStateLT->predictedStateWeight() ;
 }
 
-AlgebraicSymMatrix PerigeeMultiLTS::predictedStateError() const
+AlgebraicSymMatrix55 PerigeeMultiLTS::predictedStateError() const
 {
   if (!collapsedStateAvailable) prepareCollapsedState();
   return collapsedStateLT-> predictedStateError();
 }
 
-AlgebraicSymMatrix PerigeeMultiLTS::predictedStateMomentumError() const
+AlgebraicSymMatrix33 PerigeeMultiLTS::predictedStateMomentumError() const
 {
   if (!collapsedStateAvailable) prepareCollapsedState();
   return collapsedStateLT->predictedStateMomentumError() ;
 }
 
-bool PerigeeMultiLTS::operator ==(LinearizedTrackState& other)const
+bool PerigeeMultiLTS::operator ==(LinearizedTrackState<5>& other)const
 {
   const PerigeeMultiLTS* otherP =
   	dynamic_cast<const PerigeeMultiLTS*>(&other);
@@ -128,7 +131,7 @@ bool PerigeeMultiLTS::operator ==(LinearizedTrackState& other)const
 }
 
 
-RefCountedLinearizedTrackState
+PerigeeMultiLTS::RefCountedLinearizedTrackState
 PerigeeMultiLTS::stateWithNewLinearizationPoint
 			(const GlobalPoint & newLP) const
 {
@@ -136,11 +139,11 @@ PerigeeMultiLTS::stateWithNewLinearizationPoint
   		new PerigeeMultiLTS(newLP, track(), theTSOS));
 }
 
-RefCountedRefittedTrackState
+PerigeeMultiLTS::RefCountedRefittedTrackState
 PerigeeMultiLTS::createRefittedTrackState(
   	const GlobalPoint & vertexPosition,
-	const AlgebraicVector & vectorParameters,
-	const AlgebraicSymMatrix & covarianceMatrix) const
+	const AlgebraicVectorM & vectorParameters,
+	const AlgebraicSymMatrixOO & covarianceMatrix) const
 {
   PerigeeConversions perigeeConversions;
   TrajectoryStateClosestToPoint refittedTSCP =

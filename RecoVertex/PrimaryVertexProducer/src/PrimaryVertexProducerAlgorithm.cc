@@ -168,11 +168,11 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 	     << nclu << "  tracks" << (*iclus).size() << endl;
 
 	std::cout << "cluster tracks " << std::endl;
-	for(vector<reco::TransientTrack>::const_iterator t=(*iclus).begin();
-	    t!=(*iclus).end(); ++t){
-	  std::cout << (*t).initialFreeState()
-		    << std::endl;
-	}
+// 	for(vector<reco::TransientTrack>::const_iterator t=(*iclus).begin();
+// 	    t!=(*iclus).end(); ++t){
+// 	  std::cout << (*t).initialFreeState()
+// 		    << std::endl;
+// 	}
       }
 
       if( fUseBeamConstraint &&((*iclus).size()>0) ){

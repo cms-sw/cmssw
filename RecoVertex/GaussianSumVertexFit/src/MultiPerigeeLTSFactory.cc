@@ -8,7 +8,7 @@
 // {
 // }
 
-RefCountedLinearizedTrackState 
+MultiPerigeeLTSFactory::RefCountedLinearizedTrackState 
 MultiPerigeeLTSFactory::linearizedTrackState(const GlobalPoint & linP, 
 	const reco::TransientTrack & track, const TrajectoryStateOnSurface& tsos) const
 {
@@ -16,7 +16,7 @@ MultiPerigeeLTSFactory::linearizedTrackState(const GlobalPoint & linP,
     new PerigeeMultiLTS(linP, track, tsos ) );
 }
  
-RefCountedLinearizedTrackState 
+MultiPerigeeLTSFactory::RefCountedLinearizedTrackState 
 MultiPerigeeLTSFactory::linearizedTrackState(const GlobalPoint & linP, 
 	const reco::TransientTrack & track) const
 {

@@ -4,9 +4,9 @@
 using namespace reco;
 
 ConfigurableTrimmedVertexFinder::ConfigurableTrimmedVertexFinder(
-  const VertexFitter * vf, 
-  const VertexUpdator * vu, 
-  const VertexTrackCompatibilityEstimator * ve) 
+  const VertexFitter<5> * vf, 
+  const VertexUpdator<5> * vu, 
+  const VertexTrackCompatibilityEstimator<5> * ve) 
   : theClusterFinder(vf, vu, ve), theVtxFitProbCut(0.01), 
     theTrackCompatibilityToPV(0.05), theTrackCompatibilityToSV(0.01), 
     theMaxNbOfVertices(0)

@@ -5,7 +5,6 @@
 // #include "CommonReco/GSFTools/interface/KeepingNonZeroWeightsMerger.h"
 // #include "TrackingTools/GsfTools/interface/LargestWeightsStateMerger.h"
 // #include "TrackingTools/GsfTools/interface/RCMultiGaussianState.h"
-#include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
@@ -47,20 +46,19 @@ GsfVertexMerger::GsfVertexMerger(const edm::ParameterSet& pSet)
 
 }
 
-CachingVertex GsfVertexMerger::merge(const CachingVertex & oldVertex) const
+CachingVertex<5> GsfVertexMerger::merge(const CachingVertex<5> & oldVertex) const
 {
   if (oldVertex.vertexState().components().size() <= maxComponents) 
   	return oldVertex;
-cout << "start merger :"<<oldVertex.vertexState().components().size()<<endl;
+
   VertexState newVertexState = merge(oldVertex.vertexState());
-cout << "end merger :"<<newVertexState.components().size()<<endl;
 
   if  (oldVertex.hasPrior()) {
-    return CachingVertex(oldVertex.priorPosition(), oldVertex.priorError(),
+    return CachingVertex<5>(oldVertex.priorPosition(), oldVertex.priorError(),
     		newVertexState.weightTimesPosition(), newVertexState.weight(),
 		oldVertex.tracks(), oldVertex.totalChiSquared());
   } else {
-    return CachingVertex(newVertexState, oldVertex.tracks(), 
+    return CachingVertex<5>(newVertexState, oldVertex.tracks(), 
     		oldVertex.totalChiSquared());
   }
 }

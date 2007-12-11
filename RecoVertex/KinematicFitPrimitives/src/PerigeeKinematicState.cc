@@ -13,20 +13,21 @@ PerigeeKinematicState::PerigeeKinematicState(const KinematicState& state, const 
  par  = conversions.extendedPerigeeFromKinematicParameters(state,pt);
    
 //creating the error
- AlgebraicSymMatrix err = state.kinematicParametersError().matrix();
+ AlgebraicSymMatrix77 err = state.kinematicParametersError().matrix();
 
 //making jacobian for curvilinear frame
  JacobianCartesianToCurvilinear jj(state.freeTrajectoryState().parameters());  
- AlgebraicMatrix ki2cu(6,7,0);
- ki2cu.sub(1,1,jj.jacobian_old());
- ki2cu(6,7) = 1.;
- AlgebraicMatrix cu2pe(6,6,0);
+ AlgebraicMatrix67 ki2cu;
+ ki2cu.Place_at(jj.jacobian(),0,0);
+ ki2cu(5,6) = 1.;
+ AlgebraicMatrix66 cu2pe;
  PerigeeConversions pc;
- cu2pe.sub(1,1,asHepMatrix(pc.jacobianCurvilinear2Perigee(state.freeTrajectoryState())));
- cu2pe(6,6) = 1.;
- cu2pe = cu2pe*ki2cu;
- err = err.similarity(cu2pe);
- cov = ExtendedPerigeeTrajectoryError(err);
+ cu2pe.Place_at(pc.jacobianCurvilinear2Perigee(state.freeTrajectoryState()),0,0);
+ cu2pe(5,5) = 1.;
+ AlgebraicMatrix67 jacobian = cu2pe*ki2cu;
+
+ cov = ExtendedPerigeeTrajectoryError(ROOT::Math::Similarity(jacobian, err));
+
 }
 
 /*

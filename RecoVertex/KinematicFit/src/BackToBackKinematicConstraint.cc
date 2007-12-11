@@ -1,5 +1,6 @@
 #include "RecoVertex/KinematicFit/interface/BackToBackKinematicConstraint.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "DataFormats/CLHEP/interface/Migration.h"
 
 pair<AlgebraicVector, AlgebraicVector> BackToBackKinematicConstraint::value(const AlgebraicVector& exPoint) const
 {
@@ -42,13 +43,13 @@ pair<AlgebraicVector, AlgebraicVector> BackToBackKinematicConstraint::value(cons
  int co = 0;
  for(vector<RefCountedKinematicParticle>::const_iterator i = par.begin(); i!=par.end(); i++)
  {
-  AlgebraicVector cPar = (*i)->currentState().kinematicParameters().vector();
-  for(int j = 1; j<8; j++){point((co-1)*7+j) = cPar(j);}
+  AlgebraicVector7 cPar = (*i)->currentState().kinematicParameters().vector();
+  for(int j = 1; j<8; j++){point((co-1)*7+j) = cPar(j-1);}
   co++;
  }
  AlgebraicVector vl(3,0);
- AlgebraicVector st1 = par[0]->currentState().kinematicParameters().vector();
- AlgebraicVector st2 = par[1]->currentState().kinematicParameters().vector();
+ AlgebraicVector st1 = asHepVector<7>(par[0]->currentState().kinematicParameters().vector());
+ AlgebraicVector st2 = asHepVector<7>(par[1]->currentState().kinematicParameters().vector());
  vl(1) = st1(4)+st2(4);
  vl(2) = st1(5)+st2(5);
  vl(3) = st1(6)+st2(6);
@@ -64,8 +65,8 @@ pair<AlgebraicMatrix, AlgebraicVector> BackToBackKinematicConstraint::derivative
  int co = 0;
  for(vector<RefCountedKinematicParticle>::const_iterator i = par.begin(); i!=par.end(); i++)
  {
-  AlgebraicVector cPar = (*i)->currentState().kinematicParameters().vector();
-  for(int j = 1; j<8; j++){point((co-1)*7+j) = cPar(j);}
+  AlgebraicVector7 cPar = (*i)->currentState().kinematicParameters().vector();
+  for(int j = 1; j<8; j++){point((co-1)*7+j) = cPar(j-1);}
   co++;
  }
  AlgebraicMatrix dr(3,14,0);

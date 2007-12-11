@@ -22,7 +22,7 @@ namespace
   }
 }
 
-RefCountedLinearizedTrackState LinTrackCache::linTrack
+LinTrackCache::RefCountedLinearizedTrackState LinTrackCache::linTrack
     ( const GlobalPoint & pos, const reco::TransientTrack & rt )
 {
   if ( theHasLinTrack[pos][rt] )

@@ -2,11 +2,11 @@
 #define PerigeeLinearizedTrackState_H
 
 #include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
-//#include "CommonDet/PatternPrimitives/interface/FreeTrajectoryState.h"
-// #include "CommonReco/CommonVertex/interface/ImpactPointMeasurement.h"
-// #include "CommonReco/CommonVertex/interface/ImpactPointMeasurementExtractor.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
+#include "Math/SMatrix.h"
+#include "DataFormats/CLHEP/interface/Migration.h"
 
 /** Calculates and stores the ImpactPointMeasurement of the
  *  impact point (point of closest approach in 3D) to the
@@ -29,7 +29,7 @@
  *  see Billoir et al. NIM in PR A311(1992) 139-150
  */
 
-class PerigeeLinearizedTrackState : public LinearizedTrackState{
+class PerigeeLinearizedTrackState : public LinearizedTrackState<5> {
 
 
 public:
@@ -38,6 +38,7 @@ public:
    *  of reference-counted pointers to LinearizedTrack objects
    */
   friend class LinearizedTrackStateFactory;
+  typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
   /**
    * Returns a new linearized state with respect to a new linearization point.
@@ -59,52 +60,52 @@ public:
   /** Method returning the constant term of the Taylor expansion
    *  of the measurement equation
    */
-  AlgebraicVector constantTerm() const;
+  const AlgebraicVector5 & constantTerm() const;
 
   /** Method returning the Position Jacobian from the Taylor expansion
    *  (Matrix A)
    */
-  AlgebraicMatrix positionJacobian() const;
+  const AlgebraicMatrix53 & positionJacobian() const;
 
   /** Method returning the Momentum Jacobian from the Taylor expansion
    *  (Matrix B)
    */
-  AlgebraicMatrix momentumJacobian() const;
+  const AlgebraicMatrix53 & momentumJacobian() const;
 
   /** Method returning the parameters of the Taylor expansion
    */
-  AlgebraicVector parametersFromExpansion() const;
+  const AlgebraicVector5 & parametersFromExpansion() const;
 
   /** Method returning the track state at the point of closest approach
    *  to the linearization point, in the transverse plane (a.k.a.
    *  transverse impact point).
    */
-  TrajectoryStateClosestToPoint predictedState() const;
+  const TrajectoryStateClosestToPoint & predictedState() const;
 
   /** Method returning the parameters of the track state at the
    *  transverse impact point.
    */
-  AlgebraicVector predictedStateParameters() const;
+  AlgebraicVector5 predictedStateParameters() const;
 
   /** Method returning the momentum part of the parameters of the track state
    *  at the linearization point.
    */
-  virtual AlgebraicVector predictedStateMomentumParameters() const;
+  virtual AlgebraicVector3 predictedStateMomentumParameters() const;
 
   /** Method returning the weight matrix of the track state at the
    *  transverse impact point.
    */
-  AlgebraicSymMatrix predictedStateWeight() const;
+  AlgebraicSymMatrix55 predictedStateWeight() const;
 
   /** Method returning the covariance matrix of the track state at the
    *  transverse impact point.
    */
-  AlgebraicSymMatrix predictedStateError() const;
+  AlgebraicSymMatrix55 predictedStateError() const;
 
   /** Method returning the momentum covariance matrix of the track state at the
    *  transverse impact point.
    */
-  AlgebraicSymMatrix predictedStateMomentumError() const;
+  AlgebraicSymMatrix33 predictedStateMomentumError() const;
 
 //   /** Method returning the impact point measurement
 //    */
@@ -114,22 +115,22 @@ public:
 
   bool hasError() const;
 
-  bool operator ==(LinearizedTrackState& other)const;
+  bool operator ==(LinearizedTrackState<5> & other)const;
 
-  bool operator ==(ReferenceCountingPointer<LinearizedTrackState>& other)const;
+  bool operator ==(ReferenceCountingPointer<LinearizedTrackState<5> >& other)const;
 
   /** Creates the correct refitted state according to the results of the
    *  track refit.
    */
   virtual RefCountedRefittedTrackState createRefittedTrackState(
   	const GlobalPoint & vertexPosition,
-	const AlgebraicVector & vectorParameters,
-	const AlgebraicSymMatrix & covarianceMatrix) const;
+	const AlgebraicVector3 & vectorParameters,
+	const AlgebraicSymMatrix66 & covarianceMatrix) const;
 
 
   virtual double weightInMixture() const {return theTSOS.weight();}
 
-  virtual std::vector<ReferenceCountingPointer<LinearizedTrackState> > components()
+  virtual std::vector<ReferenceCountingPointer<LinearizedTrackState<5> > > components()
   									const;
 
 
@@ -161,10 +162,10 @@ private:
   reco::TransientTrack theTrack;
 
   mutable bool jacobiansAvailable;
-  mutable AlgebraicMatrix thePositionJacobian, theMomentumJacobian;
+  mutable AlgebraicMatrix53 thePositionJacobian, theMomentumJacobian;
   mutable TrajectoryStateClosestToPoint thePredState;
-  mutable AlgebraicVector theConstantTerm;
-  mutable AlgebraicVector theExpandedParams;
+  mutable AlgebraicVector5 theConstantTerm;
+  mutable AlgebraicVector5 theExpandedParams;
 
 //   ImpactPointMeasurementExtractor theIPMExtractor;
   TSCPBuilderNoMaterial builder;

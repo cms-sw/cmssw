@@ -13,6 +13,9 @@ SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constra
 
   // Linearize tracks
 
+  typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
+  typedef VertexTrack<5>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
+
   RefCountedLinearizedTrackState lTrData 
       = theLTrackFactory.linearizedTrackState(priorPos, track);
   RefCountedVertexTrack vertexTrack =  theVTrackFactory.vertexTrack(lTrData,priorVertexState);
@@ -20,7 +23,7 @@ SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constra
   // Fit vertex
 
   vector<RefCountedVertexTrack> initialTracks;
-  CachingVertex vertex(priorVertexState,priorVertexState,initialTracks,0);
+  CachingVertex<5> vertex(priorVertexState,priorVertexState,initialTracks,0);
   vertex = vertexUpdator.add(vertex, vertexTrack);
   RefCountedVertexTrack nTrack = theVertexTrackUpdator.update(vertex, vertexTrack);
 

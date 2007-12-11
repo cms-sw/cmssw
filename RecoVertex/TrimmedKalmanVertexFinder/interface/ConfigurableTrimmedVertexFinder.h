@@ -44,9 +44,9 @@ class ConfigurableTrimmedVertexFinder : public VertexReconstructor {
 
 public:
 
-  ConfigurableTrimmedVertexFinder(const VertexFitter * vf, 
-				  const VertexUpdator * vu, 
-				  const VertexTrackCompatibilityEstimator * ve);
+  ConfigurableTrimmedVertexFinder(const VertexFitter<5> * vf, 
+				  const VertexUpdator<5> * vu, 
+				  const VertexTrackCompatibilityEstimator<5> * ve);
 
   virtual ~ConfigurableTrimmedVertexFinder() {}
 

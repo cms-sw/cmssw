@@ -47,7 +47,7 @@ public:
 /**
  * Direct transformation from caching vertex
  */			
- KinematicVertex(const CachingVertex& vertex);	
+ KinematicVertex(const CachingVertex<6>& vertex);	
  
  			   					
  virtual ~KinematicVertex();

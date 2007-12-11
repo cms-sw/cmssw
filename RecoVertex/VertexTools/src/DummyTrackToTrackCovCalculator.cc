@@ -1,14 +1,19 @@
 #include "RecoVertex/VertexTools/interface/DummyTrackToTrackCovCalculator.h"
 
 
-TrackToTrackMap 
-DummyTrackToTrackCovCalculator::operator() (const CachingVertex &) const
+template <unsigned int N>
+typename CachingVertex<N>::TrackToTrackMap 
+DummyTrackToTrackCovCalculator<N>::operator() (const CachingVertex<N> &) const
 {
-  return TrackToTrackMap();
+  return typename CachingVertex<N>::TrackToTrackMap();
 }
 
 
-DummyTrackToTrackCovCalculator * DummyTrackToTrackCovCalculator::clone() const
+template <unsigned int N>
+DummyTrackToTrackCovCalculator<N> * DummyTrackToTrackCovCalculator<N>::clone() const
 {
   return new DummyTrackToTrackCovCalculator(*this);
 }
+
+template class DummyTrackToTrackCovCalculator<5>;
+template class DummyTrackToTrackCovCalculator<6>;

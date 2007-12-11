@@ -33,7 +33,7 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
  int cst = 0;
  for(vector<KinematicState>::const_iterator i = lStates.begin(); i != lStates.end(); i++)
  {
-  AlgebraicVector lst_par = i->kinematicParameters().vector();
+  AlgebraicVector lst_par = asHepVector<7>(i->kinematicParameters().vector());
   for(int j = 1; j<lst_par.num_row()+1; j++)
   {d_a(3+7*cst+j) = lst_par(j);}
   cst++;
@@ -146,14 +146,14 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
   vector<KinematicState> ns;
   for(vector<KinematicState>::iterator i_st=lStates.begin(); i_st != lStates.end(); i_st++)
   {
-   AlgebraicVector newPar(7,0); 
-   for(int i =1; i<8; i++)
-   {newPar(i) = finPar(3 + i_int*7 + i);}
+   AlgebraicVector7 newPar; 
+   for(int i =0; i<7; i++)
+   {newPar(i) = finPar(4 + i_int*7 + i);}
   
    AlgebraicSymMatrix nCovariance = r_cov_sym.sub(4 + i_int*7, 10 + i_int*7);
    TrackCharge chl = i_st->particleCharge();
    KinematicParameters nrPar(newPar);
-   KinematicParametersError nrEr(nCovariance);
+   KinematicParametersError nrEr(asSMatrix<7>(nCovariance));
    KinematicState newState(nrPar,nrEr,chl, field);
    ns.push_back(newState);
    i_int++;

@@ -14,24 +14,27 @@
  *  Note that every fitter registers as a finder, also.
  */
 
-class ConfigurableVertexFitter : public VertexFitter
+class ConfigurableVertexFitter : public VertexFitter<5>
 {
   public:
+
+    typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
+
     ConfigurableVertexFitter ( const edm::ParameterSet & );
     ConfigurableVertexFitter ( const ConfigurableVertexFitter & o );
     ~ConfigurableVertexFitter();
 
     ConfigurableVertexFitter * clone () const;
 
-    CachingVertex vertex ( const std::vector < reco::TransientTrack > & t ) const;
-    CachingVertex vertex( const vector<RefCountedVertexTrack> & tracks) const;
-    CachingVertex vertex( const vector<reco::TransientTrack> & tracks, 
+    CachingVertex<5> vertex ( const std::vector < reco::TransientTrack > & t ) const;
+    CachingVertex<5> vertex( const vector<RefCountedVertexTrack> & tracks) const;
+    CachingVertex<5> vertex( const vector<reco::TransientTrack> & tracks, 
         const GlobalPoint& linPoint) const;
-    CachingVertex vertex( const vector<reco::TransientTrack> & tracks, 
+    CachingVertex<5> vertex( const vector<reco::TransientTrack> & tracks, 
         const GlobalPoint& priorPos, const GlobalError& priorError) const;
-    CachingVertex vertex( const vector<reco::TransientTrack> & tracks, 
+    CachingVertex<5> vertex( const vector<reco::TransientTrack> & tracks, 
                           const reco::BeamSpot& beamSpot) const;
-    CachingVertex vertex(const vector<RefCountedVertexTrack> & tracks, 
+    CachingVertex<5> vertex(const vector<RefCountedVertexTrack> & tracks, 
       const GlobalPoint& priorPos, const GlobalError& priorError) const;
 
   private:

@@ -9,7 +9,7 @@ public:
  ExtendedPerigeeTrajectoryError(): weightAvailable(false),vl(false)
  {}
 
- ExtendedPerigeeTrajectoryError(const AlgebraicSymMatrix& covariance):
+ ExtendedPerigeeTrajectoryError(const AlgebraicSymMatrix66& covariance):
                                cov(covariance),weightAvailable(false),
 			       vl(true)
  {}
@@ -25,16 +25,16 @@ public:
  bool weightIsAvailable() const
  {return weightAvailable;}
 
- const AlgebraicSymMatrix & covarianceMatrix()const
+ const AlgebraicSymMatrix66 & covarianceMatrix()const
  {return cov;}
  
- const AlgebraicSymMatrix & weightMatrix()const
+ const AlgebraicSymMatrix66 & weightMatrix()const
  {
   if(! weightIsAvailable())
   {
    int ifail;
 //   cout<<"weight is requested for covariance:"<<cov<<endl;
-   weight = cov.inverse(ifail);
+   weight = cov.Inverse(ifail);
    if(ifail != 0) throw VertexException("ExtendedPerigeeTrajectoryError::unable to invert covariance matrix"); 
    weightAvailable = true;
   }
@@ -44,8 +44,8 @@ public:
  }
  
 private:
- AlgebraicSymMatrix cov;
- mutable AlgebraicSymMatrix weight;
+ AlgebraicSymMatrix66 cov;
+ mutable AlgebraicSymMatrix66 weight;
  mutable bool weightAvailable;
  mutable bool vl;
 };

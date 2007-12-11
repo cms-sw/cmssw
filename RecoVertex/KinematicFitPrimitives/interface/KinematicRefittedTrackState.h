@@ -3,6 +3,7 @@
 
 #include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/PerigeeKinematicState.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/Matrices.h"
 
 
 /**
@@ -18,21 +19,33 @@
  * structure
  */
 
-class KinematicRefittedTrackState : public RefittedTrackState{
+class KinematicRefittedTrackState : public RefittedTrackState<6>{
 
 public:
+
+ typedef ReferenceCountingPointer<RefittedTrackState<6> > RefCountedRefittedTrackState;
 
  KinematicRefittedTrackState(const KinematicState& st);
 
 /**
+ * Access to Kinematic perigee parameters
+ */
+ AlgebraicVector6 parameters() const;
+  
+/**
+ * Kinmatic perigee covariance
+ */  
+ AlgebraicSymMatrix66 covariance() const ;
+
+/**
  * Access to Kinematic parameters
  */
- AlgebraicVector parameters() const;
+ AlgebraicVector7 kinematicParameters() const;
   
 /**
  * Kinmatic covariance
  */  
- AlgebraicSymMatrix covariance() const ;
+ AlgebraicSymMatrix77 kinematicParametersCovariance() const ;
 
 /**
  * FTS out of kinematic parameters
@@ -44,12 +57,12 @@ public:
 /**
  * Kinematic momentum vector
  */
- AlgebraicVector kinematicMomentumVector() const;
+ AlgebraicVector4 kinematicMomentumVector() const;
 
 /**
  * Perigee momentum vector
  */
- AlgebraicVector momentumVector() const;
+ AlgebraicVector4 momentumVector() const;
 
  TrajectoryStateOnSurface trajectoryStateOnSurface(const Surface & surface) const;
 
@@ -58,10 +71,10 @@ public:
 						   
  virtual double weight() const;
 
- virtual ReferenceCountingPointer<RefittedTrackState> stateWithNewWeight
+ virtual ReferenceCountingPointer<RefittedTrackState<6> > stateWithNewWeight
   	(const double newWeight) const;
 
- virtual std::vector< ReferenceCountingPointer<RefittedTrackState> > components() const;						   
+ virtual std::vector< ReferenceCountingPointer<RefittedTrackState<6> > > components() const;						   
 
  virtual reco::TransientTrack transientTrack() const;
 

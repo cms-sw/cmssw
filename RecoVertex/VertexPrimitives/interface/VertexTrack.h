@@ -1,9 +1,9 @@
 #ifndef VertexTrack_H
 #define VertexTrack_H
 
-#include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
+#include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
-#include "RecoVertex/VertexPrimitives/interface/RefCountedRefittedTrackState.h"
+#include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 /** Track information relative to a track-to-vertex association. 
@@ -11,9 +11,18 @@
  *  of the track to the seed position. 
  */
 
+template <unsigned int N>
 class VertexTrack : public ReferenceCounted {
 
 public:
+
+  typedef ROOT::Math::SVector<double,N> AlgebraicVectorN;
+  typedef ROOT::Math::SMatrix<double,N-2,N-2,ROOT::Math::MatRepStd<double,N-2,N-2> > AlgebraicMatrixMM;
+  typedef ROOT::Math::SMatrix<double,3,N-2,ROOT::Math::MatRepStd<double,3,N-2> > AlgebraicMatrix3M;
+
+  //typedef ReferenceCountingPointer<VertexTrack<N> > RefCountedVertexTrack;
+  typedef ReferenceCountingPointer<LinearizedTrackState<N> > RefCountedLinearizedTrackState;
+  typedef ReferenceCountingPointer<RefittedTrackState<N> > RefCountedRefittedTrackState;
 
   /** Constructor with the linearized track data, vertex seed and weight
    */     
@@ -35,7 +44,7 @@ public:
   VertexTrack(const RefCountedLinearizedTrackState lt, 
 	      const VertexState v, 
 	      float weight, const RefCountedRefittedTrackState & refittedState,
-	      float smoothedChi2, const AlgebraicMatrix & tVCov);
+	      float smoothedChi2, const AlgebraicMatrix3M & tVCov);
 
   /** Access methods
    */ 
@@ -65,7 +74,7 @@ public:
 
   /** Track to vertex covariance 
    */   
-  AlgebraicMatrix tkToVtxCovariance() const {
+  AlgebraicMatrix3M tkToVtxCovariance() const {
     if (!tkToVertexCovarianceAvailable()) {
       throw VertexException("VertexTrack::track to vertex covariance not available"); 
     }
@@ -75,14 +84,14 @@ public:
   /** Equality for finding a VertexTrack in a container
    *  Compares the RecTrack addresses
    */
-  bool operator==(const VertexTrack & data) const
+  bool operator==(const VertexTrack<N> & data) const
   {
     return ((*data.linearizedTrack()) == (*linearizedTrack()));
   }
 
   /** Method helping Kalman vertex fit
    */
-  AlgebraicVector refittedParamFromEquation() const;
+  AlgebraicVectorN refittedParamFromEquation() const;
  
 
 private:
@@ -93,8 +102,18 @@ private:
   bool stAvailable;
   bool covAvailable;
   RefCountedRefittedTrackState theRefittedState;
-  AlgebraicMatrix  tkTVCovariance;
+  AlgebraicMatrix3M  tkTVCovariance;
   float smoothedChi2_;
+};
+
+template <unsigned int N>
+class VertexTrackEqual {
+  public:
+    typedef ReferenceCountingPointer<VertexTrack<N> > RefCountedVertexTrack;
+    VertexTrackEqual( const RefCountedVertexTrack & t) : track_( t ) { }
+    bool operator()( const RefCountedVertexTrack & t ) const { return t->operator==(*track_);}
+  private:
+    const RefCountedVertexTrack & track_;
 };
 
 #endif

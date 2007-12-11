@@ -4,12 +4,12 @@
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateMerger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 
 /** 
  * Class which controls the reduction of vertex state components after
  * a GSF update.
  */
-class CachingVertex;
 class VertexState;
 
 class GsfVertexMerger {
@@ -18,7 +18,7 @@ public:
   GsfVertexMerger(const edm::ParameterSet& pSet);
   ~GsfVertexMerger() {}
 
-  CachingVertex merge(const CachingVertex & vertex) const;
+  CachingVertex<5> merge(const CachingVertex<5> & vertex) const;
 
   VertexState merge(const VertexState & vertex) const;
 

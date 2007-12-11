@@ -77,9 +77,9 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
  vector<KinematicState> inStates;
  for(vector<RefCountedKinematicParticle>::const_iterator i = prt.begin(); i!=prt.end(); i++)
  {
-  AlgebraicVector prPar = (*i)->stateAtPoint(linPoint).kinematicParameters().vector();
+  AlgebraicVector prPar = asHepVector<7>((*i)->stateAtPoint(linPoint).kinematicParameters().vector());
   for(int j = 1; j<8; j++){inPar(3 + 7*nSt + j) = prPar(j);}
-  AlgebraicSymMatrix l_cov  = (*i)->stateAtPoint(linPoint).kinematicParametersError().matrix();
+  AlgebraicSymMatrix l_cov  = asHepMatrix<7>((*i)->stateAtPoint(linPoint).kinematicParametersError().matrix());
   inCov.sub(4 + 7*nSt,4 + 7*nSt ,l_cov); 
   inStates.push_back((*i)->stateAtPoint(linPoint));
   ++nSt;

@@ -5,7 +5,7 @@
 #include "RecoVertex/VertexTools/interface/LinearizationPointFinder.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
 #include "RecoVertex/KinematicFit/interface/InputSort.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexFitter.h"
 
 /**
  * Class creating a kinematic particle out
@@ -56,8 +56,8 @@ private:
 		    
 //widely used common tools 
   //SequentialKinematicVertexFitter * fitter; use the default KalmanFilter instead!
-  KalmanVertexFitter * fitter;
+  VertexFitter<6> * fitter;
   LinearizationPointFinder * pointFinder; 
-  VertexTrackFactory * vFactory;
+  VertexTrackFactory<6> * vFactory;
 };
 #endif

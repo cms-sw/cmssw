@@ -14,7 +14,7 @@ vector < TransientVertex > ReconstructorFromFitter::vertices
   vector < TransientVertex > ret;
   // cout << "[ReconstructorFromFitter] debug: fitting without bs!" << endl; 
   try {
-    CachingVertex tmp = theFitter->vertex ( t );
+    CachingVertex<5> tmp = theFitter->vertex ( t );
     ret.push_back ( tmp );
   } catch ( exception & e ) {
     if ( verbose )
@@ -40,7 +40,7 @@ vector < TransientVertex > ReconstructorFromFitter::vertices
     cout << "[ReconstructorFromFitter] debug: fitting with s: " << s.BeamWidth() 
          << " sz=" << s.sigmaZ() << endl;
          */
-    CachingVertex tmp = theFitter->vertex ( t, s );
+    CachingVertex<5> tmp = theFitter->vertex ( t, s );
     ret.push_back ( tmp );
   } catch ( exception & e ) {
     if ( verbose )

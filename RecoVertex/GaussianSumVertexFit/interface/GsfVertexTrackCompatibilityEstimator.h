@@ -22,10 +22,12 @@
    * Can be used to identify outlying tracks.
    */
 
-class GsfVertexTrackCompatibilityEstimator:public VertexTrackCompatibilityEstimator
+class GsfVertexTrackCompatibilityEstimator:public VertexTrackCompatibilityEstimator<5>
 {
 
 public:
+
+  typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
 
   GsfVertexTrackCompatibilityEstimator(){}
 
@@ -39,9 +41,9 @@ public:
    * \return The chi**2.
    */
 
-  virtual float estimate(const CachingVertex & vrt, const RefCountedVertexTrack track) const;
+  virtual float estimate(const CachingVertex<5> & vrt, const RefCountedVertexTrack track) const;
 
-  virtual float estimate(const CachingVertex & v, 
+  virtual float estimate(const CachingVertex<5> & v, 
 			 const RefCountedLinearizedTrackState track) const;
 
   virtual float estimate(const reco::Vertex & vertex, 
@@ -55,13 +57,13 @@ public:
 
 private:
 
-  float estimateFittedTrack(const CachingVertex & v, const RefCountedVertexTrack track) const;
-  float estimateNFittedTrack(const CachingVertex & v, const RefCountedVertexTrack track) const;  
+  float estimateFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;
+  float estimateNFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;  
 
   GsfVertexUpdator updator;
 //   KalmanVertexTrackUpdator trackUpdator;
   MultiPerigeeLTSFactory lTrackFactory;
-  VertexTrackFactory vTrackFactory;
+  VertexTrackFactory<5> vTrackFactory;
 //   KVFHelper helper;
 
 };

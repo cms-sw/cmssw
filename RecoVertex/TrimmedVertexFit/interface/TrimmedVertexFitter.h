@@ -9,30 +9,33 @@
  *  Turn the TrimmedVertexFinder into a VertexFitter.
  */
 
-class TrimmedVertexFitter : public VertexFitter {
+class TrimmedVertexFitter : public VertexFitter<5> {
 
 public:
+
+  typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
+  typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
   TrimmedVertexFitter(const edm::ParameterSet & pSet);
 
   virtual ~TrimmedVertexFitter(){}
 
-  virtual CachingVertex vertex(const vector<reco::TransientTrack> & tracks) const;
+  virtual CachingVertex<5> vertex(const vector<reco::TransientTrack> & tracks) const;
 
-  virtual CachingVertex vertex(const vector<RefCountedVertexTrack> & tracks) const;
+  virtual CachingVertex<5> vertex(const vector<RefCountedVertexTrack> & tracks) const;
 
-  virtual CachingVertex vertex(const vector<reco::TransientTrack> & tracks,
+  virtual CachingVertex<5> vertex(const vector<reco::TransientTrack> & tracks,
   			const GlobalPoint& linPoint) const;
 
-  virtual CachingVertex vertex(const vector<reco::TransientTrack> & tracks,
+  virtual CachingVertex<5> vertex(const vector<reco::TransientTrack> & tracks,
   			const GlobalPoint& priorPos,
 			const GlobalError& priorError) const;
 
-  virtual CachingVertex vertex(const vector<RefCountedVertexTrack> & tracks,
+  virtual CachingVertex<5> vertex(const vector<RefCountedVertexTrack> & tracks,
 	 		const GlobalPoint& priorPos,
 			const GlobalError& priorError) const;
 
-  virtual CachingVertex vertex(const vector<reco::TransientTrack> & tracks,
+  virtual CachingVertex<5> vertex(const vector<reco::TransientTrack> & tracks,
 		const reco::BeamSpot& beamSpot) const;
 
 

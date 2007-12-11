@@ -7,9 +7,15 @@
    * Helper class to calculate chi2 increments for the Kalman Filter
    */
 
+template <unsigned int N>
 class KVFHelper {
 
 public:
+
+  typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
+  typedef typename VertexTrack<N>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
+  typedef typename VertexTrack<N>::RefCountedRefittedTrackState RefCountedRefittedTrackState;
+
 
   /**
    *  Methode which calculates the chi**2-increment due to the vertices
@@ -23,8 +29,8 @@ public:
   double vertexChi2(const VertexState & vertexA,
 	const VertexState & VertexB) const;
 
-  double vertexChi2(const CachingVertex & vertexA,
-	const CachingVertex & vertexB) const;
+  double vertexChi2(const CachingVertex<N> & vertexA,
+	const CachingVertex<N> & vertexB) const;
 
   /**
    *  Methode which calculates the chi**2 between the prior and the fitted

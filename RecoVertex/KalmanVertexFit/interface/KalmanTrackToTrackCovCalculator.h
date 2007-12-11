@@ -9,12 +9,15 @@
    * filter algorithms after the vertex has been fit and the tracks refit.
    */
 
-class KalmanTrackToTrackCovCalculator:public TrackToTrackCovCalculator
+template <unsigned int N>
+class KalmanTrackToTrackCovCalculator:public TrackToTrackCovCalculator<N>
 {
 
 public: 
  
- KalmanTrackToTrackCovCalculator() {}
+  typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
+
+  KalmanTrackToTrackCovCalculator() {}
 
   /**
    * Calculates all the track-to-track covariance matrices
@@ -23,7 +26,7 @@ public:
    * \return The map containing the covariance matrices.
    */
 
- TrackToTrackMap operator() (const CachingVertex & vertex) const;
+ typename CachingVertex<N>::TrackToTrackMap operator() (const CachingVertex<N> & vertex) const;
  
  KalmanTrackToTrackCovCalculator * clone() const
  {

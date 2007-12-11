@@ -8,13 +8,12 @@
  *  Returns empty TrackToTrackMap. 
  */
 
-class CachingVertex;
-
-class DummyTrackToTrackCovCalculator : public TrackToTrackCovCalculator {
+template <unsigned int N>
+class DummyTrackToTrackCovCalculator : public TrackToTrackCovCalculator<N> {
 
 public:
 
-  virtual TrackToTrackMap operator() (const CachingVertex &) const;
+  virtual typename CachingVertex<N>::TrackToTrackMap operator() (const CachingVertex<N> &) const;
   virtual DummyTrackToTrackCovCalculator * clone() const;
 
 };

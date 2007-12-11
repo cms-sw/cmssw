@@ -4,11 +4,10 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexFitter.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexUpdator.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexTrackCompatibilityEstimator.h"
 #include <vector>
-
-class VertexFitter;
-class VertexUpdator;
-class VertexTrackCompatibilityEstimator;
 
 /** Algorithm to find 0 or 1 cluster of tracks that are compatible 
  *  with a single vertex, among `remain`, the initial set of tracks. 
@@ -30,9 +29,12 @@ class TrimmedVertexFinder {
 
 public:
 
-  TrimmedVertexFinder(const VertexFitter * vf, 
-		      const VertexUpdator * vu, 
-		      const VertexTrackCompatibilityEstimator * ve);
+  typedef ReferenceCountingPointer<VertexTrack<5> > RefCountedVertexTrack;
+  typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
+
+  TrimmedVertexFinder(const VertexFitter<5> * vf, 
+		      const VertexUpdator<5> * vu, 
+		      const VertexTrackCompatibilityEstimator<5> * ve);
 
   /** Copy constructor, needed to handle copy of pointer data members correctly
    */
@@ -66,13 +68,13 @@ private:
   // returns vtxTracks.end() if all tracks are compatible
   //
   vector<RefCountedVertexTrack>::iterator theWorst(
-    const CachingVertex & vtx, 
+    const CachingVertex<5> & vtx, 
     std::vector<RefCountedVertexTrack> & vtxTracks, 
     float cut) const;
 
-  VertexFitter * theFitter;
-  VertexUpdator * theUpdator;
-  VertexTrackCompatibilityEstimator * theEstimator;
+  VertexFitter<5> * theFitter;
+  VertexUpdator<5> * theUpdator;
+  VertexTrackCompatibilityEstimator<5> * theEstimator;
   float theMinProb;
 
 };

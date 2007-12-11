@@ -13,7 +13,7 @@ GsfVertexFitter::GsfVertexFitter(const edm::ParameterSet& pSet,
   bool limitComponents_ = pSet.getParameter<bool>("limitComponents");
   bool useSmoothing = pSet.getParameter<bool>("smoothTracks");
 
-  VertexSmoother * theSmoother;
+  VertexSmoother<5> * theSmoother;
   DeepCopyPointerByClone<GsfVertexMerger> theMerger;
 
   if (limitComponents_) {
@@ -22,9 +22,9 @@ GsfVertexFitter::GsfVertexFitter(const edm::ParameterSet& pSet,
   }
 
   if (useSmoothing) theSmoother = new GsfVertexSmoother(limitComponents_, &*theMerger);
-    else theSmoother = new DummyVertexSmoother();
+    else theSmoother = new DummyVertexSmoother<5>();
 
-  theSequentialFitter = new SequentialVertexFitter(linP, 
+  theSequentialFitter = new SequentialVertexFitter<5>(linP, 
 	GsfVertexUpdator(limitComponents_, &*theMerger),
 	*theSmoother, MultiPerigeeLTSFactory());
   theSequentialFitter->setMaximumDistance(theMaxShift);

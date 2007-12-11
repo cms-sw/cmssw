@@ -7,11 +7,12 @@
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "Math/SMatrix.h"
+#include "DataFormats/CLHEP/interface/Migration.h"
 
-#include "RecoVertex/VertexPrimitives/interface/RefCountedRefittedTrackState.h"
+#include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
 #include <vector>
 
 /**
@@ -32,9 +33,21 @@
  *  (1996) 189-208).
  */
 
+template <unsigned int N>
 class LinearizedTrackState : public ReferenceCounted {
 
 public:
+
+  typedef ROOT::Math::SVector<double,N> AlgebraicVectorN;
+  typedef ROOT::Math::SVector<double,N-2> AlgebraicVectorM;
+  typedef ROOT::Math::SMatrix<double,N,3,ROOT::Math::MatRepStd<double,N,3> > AlgebraicMatrixN3;
+  typedef ROOT::Math::SMatrix<double,N,N-2,ROOT::Math::MatRepStd<double,N,N-2> > AlgebraicMatrixNM;
+  typedef ROOT::Math::SMatrix<double,N-2,3,ROOT::Math::MatRepStd<double,N-2,3> > AlgebraicMatrixM3;
+  typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicSymMatrixNN;
+  typedef ROOT::Math::SMatrix<double,N-2,N-2,ROOT::Math::MatRepSym<double,N-2> > AlgebraicSymMatrixMM;
+  typedef ROOT::Math::SMatrix<double,N+1,N+1,ROOT::Math::MatRepSym<double,N+1> > AlgebraicSymMatrixOO;
+
+  typedef ReferenceCountingPointer<RefittedTrackState<N> > RefCountedRefittedTrackState;
 
   virtual ~LinearizedTrackState(){}
 
@@ -42,7 +55,7 @@ public:
    * Returns a new linearized state with respect to a new linearization point.
    * A new object of the same type is returned, without change to the existing one.
    */
-  virtual  ReferenceCountingPointer<LinearizedTrackState> stateWithNewLinearizationPoint
+  virtual  ReferenceCountingPointer<LinearizedTrackState<N> > stateWithNewLinearizationPoint
     (const GlobalPoint & newLP) const = 0;
 
   /** Access methods
@@ -52,46 +65,46 @@ public:
   /** Method returning the constant term of the Taylor expansion
    *  of the measurement equation
    */
-  virtual AlgebraicVector constantTerm() const = 0;
+  virtual const AlgebraicVectorN & constantTerm() const = 0;
 
   /** Method returning the Position Jacobian from the Taylor expansion
    *  (Matrix A)
    */
-  virtual AlgebraicMatrix positionJacobian() const = 0;
+  virtual const AlgebraicMatrixN3 & positionJacobian() const = 0;
 
   /** Method returning the Momentum Jacobian from the Taylor expansion
    *  (Matrix B)
    */
-  virtual AlgebraicMatrix momentumJacobian() const = 0;
+  virtual const AlgebraicMatrixNM & momentumJacobian() const = 0;
 
   /** Method returning the parameters of the Taylor expansion
    */
-  virtual AlgebraicVector parametersFromExpansion() const = 0;
+  virtual const AlgebraicVectorN & parametersFromExpansion() const = 0;
 
   /** Method returning the parameters of the track state at the
    *  linearization point.
    */
-  virtual AlgebraicVector predictedStateParameters() const = 0;
+  virtual AlgebraicVectorN predictedStateParameters() const = 0;
 
   /** Method returning the momentum part of the parameters of the track state
    *  at the linearization point.
    */
-  virtual AlgebraicVector predictedStateMomentumParameters() const = 0;
+  virtual AlgebraicVectorM predictedStateMomentumParameters() const = 0;
 
   /** Method returning the weight matrix of the track state at the
    *  linearization point.
    */
-  virtual AlgebraicSymMatrix predictedStateWeight() const = 0;
+  virtual AlgebraicSymMatrixNN predictedStateWeight() const = 0;
 
   /** Method returning the momentum covariance matrix of the track state at the
    *  transverse impact point.
    */
-  virtual AlgebraicSymMatrix predictedStateMomentumError() const = 0;
+  virtual AlgebraicSymMatrixMM predictedStateMomentumError() const = 0;
 
   /** Method returning the covariance matrix of the track state at the
    *  linearization point.
    */
-  virtual AlgebraicSymMatrix predictedStateError() const = 0;
+  virtual AlgebraicSymMatrixNN predictedStateError() const = 0;
 
   virtual bool hasError() const = 0;
 
@@ -101,30 +114,38 @@ public:
    */
 //   virtual ImpactPointMeasurement impactPointMeasurement() const = 0;
 
-  virtual bool operator ==(LinearizedTrackState& other) const = 0;
+  virtual bool operator ==(LinearizedTrackState<N> & other) const = 0;
 
   /** Creates the correct refitted state according to the results of the
    *  track refit.
    */
   virtual RefCountedRefittedTrackState createRefittedTrackState(
   	const GlobalPoint & vertexPosition,
-	const AlgebraicVector & vectorParameters,
-	const AlgebraicSymMatrix & covarianceMatrix) const = 0;
+	const AlgebraicVectorM & vectorParameters,
+	const AlgebraicSymMatrixOO & covarianceMatrix) const = 0;
 
-  /** Method returning the parameters of the Taylor expansion evaluated with the 
+  /** Method returning the parameters of the Taylor expansion evaluated with the
    *  refitted state.
    */
-  virtual AlgebraicVector refittedParamFromEquation(
-	const RefCountedRefittedTrackState & theRefittedState) const;
+  virtual AlgebraicVectorN refittedParamFromEquation(
+	const RefCountedRefittedTrackState & theRefittedState) const
+{
+  AlgebraicVector3 vertexPosition;
+  vertexPosition(0) = theRefittedState->position().x();
+  vertexPosition(1) = theRefittedState->position().y();
+  vertexPosition(2) = theRefittedState->position().z();
+
+  return ( constantTerm() + 
+		       positionJacobian() * vertexPosition +
+		       momentumJacobian() * theRefittedState->momentumVector());
+}
 
   virtual double weightInMixture() const = 0;
 
-  virtual std::vector< ReferenceCountingPointer<LinearizedTrackState> > components() 
+  virtual std::vector< ReferenceCountingPointer<LinearizedTrackState<N> > > components()
   								const = 0;
 
   virtual reco::TransientTrack track() const = 0;
-
-
 
 };
 

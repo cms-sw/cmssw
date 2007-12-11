@@ -10,9 +10,13 @@
  * (distance, chi-squared, etc.)
  */
 
+template <unsigned int N>
 class VertexTrackCompatibilityEstimator {
  
 public:
+
+  typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
+  typedef typename VertexTrack<N>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
 
   VertexTrackCompatibilityEstimator(){}
   virtual ~VertexTrackCompatibilityEstimator(){}
@@ -20,19 +24,19 @@ public:
   /**
    * Methods giving back the compatibility estimation
    */
-  virtual float estimate(const CachingVertex & v, 
+  virtual float estimate(const CachingVertex<N> & v, 
 			 const RefCountedLinearizedTrackState track) const = 0;
 
   virtual float estimate(const reco::Vertex & v, 
 			 const reco::TransientTrack & track) const = 0;
 
   // obsolete ?
-  virtual float estimate(const CachingVertex & v, 
+  virtual float estimate(const CachingVertex<N> & v, 
 			 const RefCountedVertexTrack track) const = 0;
   /**
    * Clone method 
    */
-  virtual VertexTrackCompatibilityEstimator * clone() const = 0; 
+  virtual VertexTrackCompatibilityEstimator<N> * clone() const = 0; 
   
 };
 

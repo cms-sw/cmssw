@@ -7,8 +7,8 @@
 KalmanTrimmedVertexFinder::KalmanTrimmedVertexFinder() 
 {
   KalmanVertexFitter vf(false);
-  KalmanVertexUpdator vu;
-  KalmanVertexTrackCompatibilityEstimator ve;
+  KalmanVertexUpdator<5> vu;
+  KalmanVertexTrackCompatibilityEstimator<5> ve;
 
   theFinder = new ConfigurableTrimmedVertexFinder (&vf, &vu, &ve);
 }

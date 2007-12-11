@@ -136,9 +136,9 @@ vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(vector<RefCou
  int l_c=0;
  for(vector<RefCountedKinematicParticle>::const_iterator i = prt.begin(); i != prt.end(); i++)
  {
-  AlgebraicVector lp = (*i)->currentState().kinematicParameters().vector();
-  for(int j = 1; j != 8; j++){part(7*l_c + j) = lp(j);}
-  AlgebraicSymMatrix lc= (*i)->currentState().kinematicParametersError().matrix();
+  AlgebraicVector7 lp = (*i)->currentState().kinematicParameters().vector();
+  for(int j = 1; j != 8; j++){part(7*l_c + j) = lp(j-1);}
+  AlgebraicSymMatrix lc= asHepMatrix<7>((*i)->currentState().kinematicParametersError().matrix());
   cov.sub(7*l_c+1,lc);
   chi_in(l_c+1) = (*i)->chiSquared();
   ndf_in(l_c+1) = (*i)->degreesOfFreedom();
@@ -240,10 +240,10 @@ vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(vector<RefCou
  vector<RefCountedKinematicTree>::const_iterator tr = refTrees.begin();
  for(vector<RefCountedKinematicParticle>::const_iterator i = prt.begin(); i!= prt.end(); i++)
  {
-  AlgebraicVector lRefPar(7,0);
+  AlgebraicVector7 lRefPar;
   for(int k = 1; k<8 ; k++)
-  {lRefPar(k) = refPar((j-1)*7+k);}
-  AlgebraicSymMatrix lRefCovS = refCovS.sub((j-1)*7 +1,(j-1)*7+7);
+  {lRefPar(k-1) = refPar((j-1)*7+k);}
+  AlgebraicSymMatrix77 lRefCovS = asSMatrix<7>(refCovS.sub((j-1)*7 +1,(j-1)*7+7));
   
 //new refitted parameters and covariance  
   KinematicParameters param(lRefPar);
@@ -258,7 +258,7 @@ vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(vector<RefCou
   
 //replacing the  vertex with its refitted version
   GlobalPoint nvPos(param.vector()(1), param.vector()(2), param.vector()(3)); 
-  AlgebraicSymMatrix nvMatrix = er.matrix().sub(1,3);
+  AlgebraicSymMatrix nvMatrix = asHepMatrix<7>(er.matrix()).sub(1,3);
   GlobalError nvError(nvMatrix);
   VertexState vState(nvPos, nvError, 1.0);
   KinematicVertexFactory vFactory;

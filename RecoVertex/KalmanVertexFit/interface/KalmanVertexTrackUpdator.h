@@ -13,9 +13,14 @@
  *  using the Kalman filter algorithms.
  */
 
-class KalmanVertexTrackUpdator : public VertexTrackUpdator {
+template <unsigned int N>
+class KalmanVertexTrackUpdator : public VertexTrackUpdator<N> {
 
 public:
+
+  typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
+  typedef typename VertexTrack<N>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
+  typedef typename VertexTrack<N>::RefCountedRefittedTrackState RefCountedRefittedTrackState;
 
 
   /**
@@ -34,8 +39,21 @@ public:
    *		the track-to-vertex covariance.
    */
 
-  RefCountedVertexTrack update(const CachingVertex & vertex,
+  RefCountedVertexTrack update(const CachingVertex<N> & vertex,
                                RefCountedVertexTrack track) const;
+
+
+  /**
+   *  Clone method
+   */
+
+  KalmanVertexTrackUpdator<N> * clone() const
+  {
+    return new KalmanVertexTrackUpdator(*this);
+  }
+
+  typedef ROOT::Math::SMatrix<double,3,N-2,ROOT::Math::MatRepStd<double,3,N-2> > AlgebraicMatrix3M;
+  typedef std::pair< RefCountedRefittedTrackState, AlgebraicMatrix3M > trackMatrixPair; 
 
   /**
    *   Refit of the track with the vertex constraint.
@@ -44,23 +62,14 @@ public:
    *   \return	The refitted state with the track-to-vertex covariance.
    */
 
-  pair<RefCountedRefittedTrackState, AlgebraicMatrix> 
-	trackRefit(const VertexState & vertex,
-		RefCountedLinearizedTrackState linTrackState, float weight=1.0 ) const;
-
-  /**
-   *  Clone method
-   */
-
-  KalmanVertexTrackUpdator * clone() const
-  {
-    return new KalmanVertexTrackUpdator(*this);
-  }
+  trackMatrixPair trackRefit(const VertexState & vertex,
+		RefCountedLinearizedTrackState linTrackState) const;
 
 private:
-  VertexTrackFactory theVTFactory;
-  KVFHelper helper;
-  KalmanVertexUpdator updator;
+
+  VertexTrackFactory<N> theVTFactory;
+  KVFHelper<N> helper;
+  KalmanVertexUpdator<N> updator;
 };
 
 #endif

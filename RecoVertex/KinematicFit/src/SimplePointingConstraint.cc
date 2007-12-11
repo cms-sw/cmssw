@@ -47,7 +47,7 @@ pair<AlgebraicMatrix, AlgebraicVector> SimplePointingConstraint::derivative(cons
  if(nStates != 1) throw VertexException("PointingKinematicConstraint::Current version does not support the multistate refit");
  
  AlgebraicMatrix dr(2,7,0);
- AlgebraicVector lPoint = par.front()->currentState().kinematicParameters().vector();
+ AlgebraicVector lPoint = asHepVector<7>(par.front()->currentState().kinematicParameters().vector());
 
 //2x7 derivative matrix for given state  
  AlgebraicMatrix lDeriv = makeDerivative(lPoint).first;
@@ -63,7 +63,7 @@ pair<AlgebraicVector, AlgebraicVector> SimplePointingConstraint::value(const vec
  if(nStates == 0) throw VertexException("PointingKinematicConstraint::Empty vector of particles passed");
  if(nStates != 1) throw VertexException("PointingKinematicConstraint::Current version does not support the multistate refit");
  AlgebraicVector vl(2,0);
- AlgebraicVector lPoint = par.front()->currentState().kinematicParameters().vector();
+ AlgebraicVector lPoint = asHepVector<7>(par.front()->currentState().kinematicParameters().vector());
  vl(1) = makeValue(lPoint).first(1);
  vl(2) = makeValue(lPoint).first(2);
 // cout<<"Value returned: "<<vl<<endl;

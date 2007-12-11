@@ -92,8 +92,8 @@ GsfTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (t_tks.size() > 1) {
       //      KalmanVertexFitter kvf(kvfPSet);
       // For the analysis: compare to your SimVertex
-      TrackingVertex sv = getSimVertex(iEvent);
-      std::cout << "SimV Position: " << Vertex::Point(sv.position()) << "\n";
+//       TrackingVertex sv = getSimVertex(iEvent);
+//       std::cout << "SimV Position: " << Vertex::Point(sv.position()) << "\n";
 
       KalmanVertexFitter kvf;
       TransientVertex tv2 = kvf.vertex(t_tks);
@@ -105,14 +105,14 @@ GsfTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
-  edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-  iEvent.getByLabel("trackingtruth","TrackTruth",TPCollectionH);
-  const TrackingParticleCollection tPC = *(TPCollectionH.product());
+//   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
+//   iEvent.getByLabel("trackingtruth","TrackTruth",TPCollectionH);
+//   const TrackingParticleCollection tPC = *(TPCollectionH.product());
 //       reco::RecoToSimCollection recSimColl=associatorForParamAtPca->associateRecoToSim(tks,
 // 									      TPCollectionH,
 // 									      &iEvent);
 
-      tree->fill(tv, &sv, 0, 0.0);
+//       tree->fill(tv, &sv, 0, 0.0);
     }
     
   }

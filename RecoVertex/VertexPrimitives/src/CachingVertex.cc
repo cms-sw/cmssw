@@ -1,13 +1,13 @@
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
-#include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TTtoTTmap.h"
 #include <map>
 
 //to be removed
-CachingVertex::CachingVertex(const GlobalPoint & pos, 
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const GlobalPoint & pos, 
 			     const GlobalError & posErr, 
 			     const vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq) 
@@ -20,7 +20,8 @@ CachingVertex::CachingVertex(const GlobalPoint & pos,
 
 
 //to be removed
-CachingVertex::CachingVertex(const GlobalPoint & pos, 
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const GlobalPoint & pos, 
 			     const GlobalWeight & posWeight, 
 			     const vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq) 
@@ -32,7 +33,8 @@ CachingVertex::CachingVertex(const GlobalPoint & pos,
 
 
 //to be removed
-CachingVertex::CachingVertex(const AlgebraicVector & weightTimesPosition, 
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const AlgebraicVector3 & weightTimesPosition, 
 			     const GlobalWeight & posWeight, 
 			     const vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq)
@@ -42,7 +44,8 @@ CachingVertex::CachingVertex(const AlgebraicVector & weightTimesPosition,
     theValid(true)
 {}
 
-CachingVertex::CachingVertex(const VertexState & aVertexState, 
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const VertexState & aVertexState, 
 			     const vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq)
   : theVertexState(aVertexState),
@@ -52,7 +55,8 @@ CachingVertex::CachingVertex(const VertexState & aVertexState,
 {}
 
 
-CachingVertex::CachingVertex(const VertexState & aVertexState,
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const VertexState & aVertexState,
 			     const vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq, 
 			     const TrackToTrackMap & covMap)
@@ -64,7 +68,8 @@ CachingVertex::CachingVertex(const VertexState & aVertexState,
   if (theCovMap.empty()) theCovMapAvailable = false;
 }
 
-CachingVertex::CachingVertex(const VertexState & priorVertexState, 
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const VertexState & priorVertexState, 
 			     const VertexState & aVertexState, 
 			     const vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq)
@@ -75,7 +80,8 @@ CachingVertex::CachingVertex(const VertexState & priorVertexState,
 {}
 
 //to be removed
-CachingVertex::CachingVertex(const GlobalPoint & priorPos, 
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos, 
 			     const GlobalError & priorErr,
 			     const GlobalPoint & pos, 
 			     const GlobalError & posErr, 
@@ -89,7 +95,8 @@ CachingVertex::CachingVertex(const GlobalPoint & priorPos,
 
 
 //to be removed
-CachingVertex::CachingVertex(const GlobalPoint & priorPos,
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos,
 			     const GlobalError & priorErr, 
 			     const GlobalPoint & pos, 
 			     const GlobalWeight & posWeight, 
@@ -103,9 +110,10 @@ CachingVertex::CachingVertex(const GlobalPoint & priorPos,
 
 
 //to be removed
-CachingVertex::CachingVertex(const GlobalPoint & priorPos, 
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos, 
 			     const GlobalError & priorErr,
-			     const AlgebraicVector & weightTimesPosition, 
+			     const AlgebraicVector3 & weightTimesPosition, 
 			     const GlobalWeight & posWeight, 
 			     const vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq)
@@ -116,7 +124,8 @@ CachingVertex::CachingVertex(const GlobalPoint & priorPos,
 {}
 
 
-CachingVertex::CachingVertex(const VertexState & priorVertexState, 
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const VertexState & priorVertexState, 
   			     const VertexState & aVertexState,
 			     const vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq, 
@@ -129,54 +138,54 @@ CachingVertex::CachingVertex(const VertexState & priorVertexState,
   if (theCovMap.empty()) theCovMapAvailable = false;
 }
 
-CachingVertex::CachingVertex() 
+template <unsigned int N>
+CachingVertex<N>::CachingVertex() 
   : theChiSquared(-1), theNDF(0), theNDFAvailable(false), theTracks(),
     theCovMapAvailable(false), withPrior(false), 
     theValid(false)
 {}
 
-
-GlobalPoint CachingVertex::position() const 
+template <unsigned int N>
+GlobalPoint CachingVertex<N>::position() const 
 {
   return theVertexState.position();
 }
 
 
-GlobalError CachingVertex::error() const 
+template <unsigned int N>
+GlobalError CachingVertex<N>::error() const 
 {
   return theVertexState.error();
 }
 
 
-GlobalWeight CachingVertex::weight() const 
+template <unsigned int N>
+GlobalWeight CachingVertex<N>::weight() const 
 {
   return theVertexState.weight();
 }
 
 
-AlgebraicVector CachingVertex::weightTimesPosition() const 
+template <unsigned int N>
+AlgebraicVector3 CachingVertex<N>::weightTimesPosition() const 
 {
   return theVertexState.weightTimesPosition();
 }
 
 
-float CachingVertex::degreesOfFreedom() const 
+template <unsigned int N>
+float CachingVertex<N>::degreesOfFreedom() const 
 {
   if (!theNDFAvailable) computeNDF();
   return theNDF;
 }
 
 
-// RefCountedVertexSeed CachingVertex::seedWithoutTracks() const 
-// {
-//   return theVertexState.seedWithoutTracks();
-// }
-
-
-void CachingVertex::computeNDF() const 
+template <unsigned int N>
+void CachingVertex<N>::computeNDF() const 
 {
   theNDF = 0;
-  for (vector<RefCountedVertexTrack>::const_iterator itk = theTracks.begin(); 
+  for (typename vector<RefCountedVertexTrack>::const_iterator itk = theTracks.begin(); 
        itk != theTracks.end(); ++itk) {
     theNDF += (**itk).weight(); // adds up weights
   }
@@ -186,8 +195,9 @@ void CachingVertex::computeNDF() const
 }
 
 
-AlgebraicMatrix 
-CachingVertex::tkToTkCovariance(const RefCountedVertexTrack t1, 
+template <unsigned int N>
+typename CachingVertex<N>::AlgebraicSymMatrixMM
+CachingVertex<N>::tkToTkCovariance(const RefCountedVertexTrack t1, 
 				const RefCountedVertexTrack t2) const
 {
   if (!tkToTkCovarianceIsAvailable()) {
@@ -204,25 +214,25 @@ CachingVertex::tkToTkCovariance(const RefCountedVertexTrack t1,
       tr1 = t2;    
       tr2 = t1;
     }
-    TrackToTrackMap::const_iterator it = theCovMap.find(tr1);
+    typename TrackToTrackMap::const_iterator it = theCovMap.find(tr1);
     if (it !=  theCovMap.end()) {
       const TrackMap & tm = it->second;
-      TrackMap::const_iterator nit = tm.find(tr2);
+      typename TrackMap::const_iterator nit = tm.find(tr2);
       if (nit != tm.end()) {
 	return( nit->second);
       }
       else {
-	throw VertexException("CachingRecVertex::requested TkTkCovariance does not exist");
+	throw VertexException("CachingVertex::requested TkTkCovariance does not exist");
       }       
     }
     else {
-      throw VertexException("CachingRecVertex::requested TkTkCovariance does not exist");
+      throw VertexException("CachingVertex::requested TkTkCovariance does not exist");
     }     
   }
 }
 
-
-CachingVertex::operator TransientVertex() const
+template <unsigned int N>
+CachingVertex<N>::operator TransientVertex() const
 {
   //If the vertex is invalid, return an invalid TV !
   if (!isValid()) return TransientVertex();
@@ -237,7 +247,7 @@ CachingVertex::operator TransientVertex() const
   TTtoTTmap ttCovMap;
   // float theMinWeight = 0.5;
 
-  for (vector<RefCountedVertexTrack>::const_iterator i = theTracks.begin();
+  for (typename vector<RefCountedVertexTrack>::const_iterator i = theTracks.begin();
        i != theTracks.end(); ++i) {
     // discard tracks with too low weight
     // if ((**i).weight() < theMinWeight) continue;
@@ -249,7 +259,7 @@ CachingVertex::operator TransientVertex() const
 
     //Fill in the tk-to-tk covariance map
     if (theCovMapAvailable) {
-      for (vector<RefCountedVertexTrack>::const_iterator j = (i+1);
+      for (typename vector<RefCountedVertexTrack>::const_iterator j = (i+1);
 	   j != theTracks.end(); ++j) {
 	reco::TransientTrack t2((**j).linearizedTrack()->track());
 	if (t1 < t2) {
@@ -274,3 +284,8 @@ CachingVertex::operator TransientVertex() const
   if (!refTTVect.empty()) tv.refittedTracks(refTTVect);
   return tv;
 }
+
+
+
+template class CachingVertex<5>;
+template class CachingVertex<6>;

@@ -160,7 +160,7 @@ float TransientVertex::trackWeight(const TransientTrack & track) const {
 
 }
 
-AlgebraicMatrix
+AlgebraicMatrix33
 TransientVertex::tkToTkCovariance(const TransientTrack& t1, const TransientTrack& t2) const
 {
   if (!theCovMapAvailable) {

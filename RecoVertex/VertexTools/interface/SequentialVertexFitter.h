@@ -29,9 +29,15 @@
  */
 
 
-class SequentialVertexFitter : public VertexFitter {
+template <unsigned int N>
+class SequentialVertexFitter : public VertexFitter<N> {
 
 public:
+
+  typedef ReferenceCountingPointer<RefittedTrackState<N> > RefCountedRefittedTrackState;
+  typedef ReferenceCountingPointer<VertexTrack<N> > RefCountedVertexTrack;
+  typedef ReferenceCountingPointer<LinearizedTrackState<N> > RefCountedLinearizedTrackState;
+
 
   /**
    *   Reimplemented constructors to use any kind of
@@ -40,8 +46,8 @@ public:
    */
 
   SequentialVertexFitter(const LinearizationPointFinder & linP, 
-      const VertexUpdator & updator, const VertexSmoother & smoother,
-      const AbstractLTSFactory & ltsf = LinearizedTrackStateFactory());
+      const VertexUpdator<N> & updator, const VertexSmoother<N> & smoother,
+      const AbstractLTSFactory<N> & ltsf);
 
   /**
    *   Same as above, using a ParameterSet to set the convergence criteria
@@ -49,8 +55,8 @@ public:
 
   SequentialVertexFitter(const edm::ParameterSet& pSet,
       const LinearizationPointFinder & linP, 
-      const VertexUpdator & updator, const VertexSmoother & smoother,
-      const AbstractLTSFactory & ltsf = LinearizedTrackStateFactory());
+      const VertexUpdator<N> & updator, const VertexSmoother<N> & smoother,
+      const AbstractLTSFactory<N> & ltsf);
 
   /**
    * Copy constructor
@@ -85,7 +91,7 @@ public:
   * \param tracks The container of RecTracks to fit.
   * \return The fitted vertex
   */
-  virtual CachingVertex vertex(const std::vector<reco::TransientTrack> & tracks) const;
+  virtual CachingVertex<N> vertex(const std::vector<reco::TransientTrack> & tracks) const;
 
  /**
   * Method returning the fitted vertex, from a container of VertexTracks.
@@ -96,19 +102,19 @@ public:
   * \param tracks The container of VertexTracks to fit.
   * \return The fitted vertex
   */
-  virtual CachingVertex vertex(const std::vector<RefCountedVertexTrack> & tracks) const;
+  virtual CachingVertex<N> vertex(const std::vector<RefCountedVertexTrack> & tracks) const;
 
 
   /** Fit vertex out of a set of RecTracks. Uses the specified linearization point.
    */
-  virtual CachingVertex  vertex(const std::vector<reco::TransientTrack> & tracks, 
+  virtual CachingVertex<N>  vertex(const std::vector<reco::TransientTrack> & tracks, 
   		const GlobalPoint& linPoint) const;
 
   /** Fit vertex out of a set of TransientTracks. 
    *  The specified BeamSpot will be used as priot, but NOT for the linearization.
    * The specified LinearizationPointFinder will be used to find the linearization point.
    */
-  virtual CachingVertex vertex(const vector<reco::TransientTrack> & tracks,
+  virtual CachingVertex<N> vertex(const vector<reco::TransientTrack> & tracks,
 		const reco::BeamSpot& beamSpot) const;
 
 
@@ -117,7 +123,7 @@ public:
    *   estimate of the vertex position. The error is used for the 
    *   weight of the prior estimate.
    */
-  virtual CachingVertex vertex(const std::vector<reco::TransientTrack> & tracks, 
+  virtual CachingVertex<N> vertex(const std::vector<reco::TransientTrack> & tracks, 
   		const GlobalPoint& priorPos,
   		const GlobalError& priorError) const;
 
@@ -125,7 +131,7 @@ public:
    *   Uses the position and error for the prior estimate of the vertex.
    *   This position is not used to relinearize the tracks.
    */
-  virtual CachingVertex vertex(const std::vector<RefCountedVertexTrack> & tracks, 
+  virtual CachingVertex<N> vertex(const std::vector<RefCountedVertexTrack> & tracks, 
   		const GlobalPoint& priorPos,
   		const GlobalError& priorError) const;
 
@@ -141,7 +147,7 @@ public:
   * \param seed The VertexSeed to fit.
   * \return The fitted vertex
   */
-//  virtual CachingVertex vertex(const RefCountedVertexSeed seed) const;
+//  virtual CachingVertex<N> vertex(const RefCountedVertexSeed seed) const;
 
   /**
    * Access methods
@@ -149,10 +155,10 @@ public:
   const LinearizationPointFinder * linearizationPointFinder() const
   {return theLinP;}
 
-  const VertexUpdator * vertexUpdator() const
+  const VertexUpdator<N> * vertexUpdator() const
   {return theUpdator;}
 
-  const VertexSmoother * vertexSmoother() const
+  const VertexSmoother<N> * vertexSmoother() const
   {return theSmoother;}
 
   const float maxShift() const
@@ -168,7 +174,7 @@ public:
     return new SequentialVertexFitter(* this);
   }
 
-  const AbstractLTSFactory * linearizedTrackStateFactory() const 
+  const AbstractLTSFactory<N> * linearizedTrackStateFactory() const 
   { return theLTrackFactory;}
 
 protected:
@@ -190,7 +196,7 @@ private:
    *   \paraemter priorVertex The prior estimate of the vertex
    *   \return The fitted vertex
    */
-  CachingVertex fit(const std::vector<RefCountedVertexTrack> & tracks,
+  CachingVertex<N> fit(const std::vector<RefCountedVertexTrack> & tracks,
   	const VertexState priorVertex, bool withPrior) const;
 
   /**
@@ -238,11 +244,11 @@ private:
 
   edm::ParameterSet thePSet;
   LinearizationPointFinder*  theLinP;
-  VertexUpdator * theUpdator;
-  VertexSmoother * theSmoother;
-  const AbstractLTSFactory * theLTrackFactory;
+  VertexUpdator<N> * theUpdator;
+  VertexSmoother<N> * theSmoother;
+  const AbstractLTSFactory<N> * theLTrackFactory;
 //   LinearizedTrackStateFactoryAbstractLTSFactory theLTrackFactory;
-  VertexTrackFactory theVTrackFactory;
+  VertexTrackFactory<N> theVTrackFactory;
 
   // VertexSeedFactory theVSeedFactory;
 };

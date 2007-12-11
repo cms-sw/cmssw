@@ -1,33 +1,33 @@
 #include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
 // #include "Vertex/LinearizationPointFinders/interface/LMSLinearizationPointFinder.h"
 #include "RecoVertex/KinematicFit/interface/FinalTreeBuilder.h"
-// #include "RecoVertex/VertexTools/interface/SequentialVertexSmoother.h"
-// #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
-// #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackUpdator.h"
-// #include "RecoVertex/KalmanVertexFit/interface/KalmanSmoothedVertexChi2Estimator.h"
-// #include "RecoVertex/KalmanVertexFit/interface/KalmanTrackToTrackCovCalculator.h"
+#include "RecoVertex/VertexTools/interface/SequentialVertexSmoother.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackUpdator.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanSmoothedVertexChi2Estimator.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanTrackToTrackCovCalculator.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "RecoVertex/LinearizationPointFinders/interface/DefaultLinearizationPointFinder.h"
+#include "RecoVertex/VertexTools/interface/SequentialVertexFitter.h"
+#include "DataFormats/CLHEP/interface/Migration.h"
 
 KinematicParticleVertexFitter::KinematicParticleVertexFitter()
 { 
-  fitter = new KalmanVertexFitter(true);
-//FIXME
- pointFinder =  new DefaultLinearizationPointFinder();
- vFactory = new VertexTrackFactory();
-}
 
-// KinematicParticleVertexFitter::KinematicParticleVertexFitter(const LinearizationPointFinder&  finder)
-// { 
-//  pointFinder = finder.clone();
-//  vFactory = new VertexTrackFactory();
-//  KalmanVertexTrackUpdator kvtu;
-//  KalmanSmoothedVertexChi2Estimator est;
-//  KalmanTrackToTrackCovCalculator cl;
-//  SequentialVertexSmoother smoother(kvtu,est,cl);
-//  KalmanVertexUpdator updator; 
-//  fitter = new SequentialKinematicVertexFitter(updator, smoother);
-// }
+  pointFinder =  new DefaultLinearizationPointFinder();
+  vFactory = new VertexTrackFactory<6>();
+
+  KalmanVertexTrackUpdator<6> vtu;
+  KalmanSmoothedVertexChi2Estimator<6> vse;
+  KalmanTrackToTrackCovCalculator<6> covCalc;
+  SequentialVertexSmoother<6> smoother(vtu, vse, covCalc);
+  edm::ParameterSet pSet;
+  pSet.addParameter<double>("maxDistance", 0.01);
+  pSet.addParameter<int>("maxNbrOfIterations", 10); //10
+  fitter 
+    = new SequentialVertexFitter<6>(pSet, *pointFinder, KalmanVertexUpdator<6>(),
+				 smoother, ParticleKinematicLinearizedTrackStateFactory());
+}
 
 KinematicParticleVertexFitter::~KinematicParticleVertexFitter()
 {
@@ -38,6 +38,7 @@ KinematicParticleVertexFitter::~KinematicParticleVertexFitter()
  
 RefCountedKinematicTree KinematicParticleVertexFitter::fit(vector<RefCountedKinematicParticle> particles) const
 {
+ typedef ReferenceCountingPointer<VertexTrack<6> > RefCountedVertexTrack;
 //sorting the input 
  if(particles.size()<2) throw VertexException("KinematicParticleVertexFitter::input states are less than 2"); 
  InputSort iSort;
@@ -48,12 +49,11 @@ RefCountedKinematicTree KinematicParticleVertexFitter::fit(vector<RefCountedKine
  GlobalPoint linPoint = pointFinder->getLinearizationPoint(freeStates);
   
 // cout<<"Linearization point found"<<endl; 
-//creating VertexTracks to make vertex  
- vector<RefCountedVertexTrack> vTracks;
  
 //making initial veretx seed with lin point as position and a fake error
- AlgebraicSymMatrix we(3,1);
- GlobalError error(we*10000);
+ AlgebraicSymMatrix33 we;
+ we(0,0)=we(1,1)=we(2,2) = 10000.;
+ GlobalError error(we);
  VertexState state(linPoint, error);
  
 //vector of Vertex Tracks to fit
@@ -71,7 +71,7 @@ RefCountedKinematicTree KinematicParticleVertexFitter::fit(vector<RefCountedKine
 // 
 //  }
 
- CachingVertex vtx = fitter->vertex(ttf); 
+ CachingVertex<6> vtx = fitter->vertex(ttf); 
 
  FinalTreeBuilder tBuilder;
  return tBuilder.buildTree(vtx, newPart); 

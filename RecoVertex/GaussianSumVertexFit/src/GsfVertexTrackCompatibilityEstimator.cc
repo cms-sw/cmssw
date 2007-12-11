@@ -4,27 +4,29 @@
 #include <algorithm>
 using namespace reco;
 
-struct vT_find
-{
-  bool operator()(const CachingVertex & v, const RefCountedVertexTrack t)
-  {
-//initial tracks  
-    vector<RefCountedVertexTrack> tracks = v.tracks();
-    vector<RefCountedVertexTrack>::iterator pos 
-      = find_if(tracks.begin(), tracks.end(), VertexTrackEqual(t));
-    return (pos != tracks.end());
-  }
-}; 
+// template <unsigned int N>
+// struct vT_find
+// {
+//   typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
+//   bool operator()(const CachingVertex<5> & v, const RefCountedVertexTrack t)
+//   {
+// //initial tracks  
+//     vector<RefCountedVertexTrack> tracks = v.tracks();
+//     vector<RefCountedVertexTrack>::iterator pos 
+//       = find_if(tracks.begin(), tracks.end(), VertexTrackEqual(t));
+//     return (pos != tracks.end());
+//   }
+// }; 
  
  
 float 
-GsfVertexTrackCompatibilityEstimator::estimate(const CachingVertex & vertex,
+GsfVertexTrackCompatibilityEstimator::estimate(const CachingVertex<5> & vertex,
 			 const RefCountedVertexTrack tr) const
 {
 //checking if the track passed really belongs to the vertex
   vector<RefCountedVertexTrack> tracks = vertex.tracks();
   vector<RefCountedVertexTrack>::iterator pos 
-    = find_if(tracks.begin(), tracks.end(), VertexTrackEqual(tr));
+    = find_if(tracks.begin(), tracks.end(), VertexTrackEqual<5>(tr));
  if (pos != tracks.end()) {
    return estimateFittedTrack(vertex,*pos);
  } else {
@@ -34,7 +36,7 @@ GsfVertexTrackCompatibilityEstimator::estimate(const CachingVertex & vertex,
 
 
 float
-GsfVertexTrackCompatibilityEstimator::estimate(const CachingVertex & vertex, 
+GsfVertexTrackCompatibilityEstimator::estimate(const CachingVertex<5> & vertex, 
 			 const RefCountedLinearizedTrackState track) const
 {
   RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(track,
@@ -57,7 +59,7 @@ GsfVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex,
   RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
 
   vector<RefCountedVertexTrack> initialTracks(1, vertexTrack);
-  CachingVertex cachingVertex(linP, err, initialTracks,
+  CachingVertex<5> cachingVertex(linP, err, initialTracks,
   			    vertex.chi2());
   // FIXME: this should work also for tracks without a persistent ref.
 //   const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>(track.basicTransientTrack());
@@ -77,7 +79,7 @@ GsfVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex,
 
 float 
 GsfVertexTrackCompatibilityEstimator::estimateFittedTrack
-		(const CachingVertex & v, const RefCountedVertexTrack track) const
+		(const CachingVertex<5> & v, const RefCountedVertexTrack track) const
 {
   //remove track from the vertex using the vertex updator
   // Using the update instead of the remove methode, we can specify a weight which
@@ -94,11 +96,11 @@ GsfVertexTrackCompatibilityEstimator::estimateFittedTrack
 // method calculating track<-->vertex compatibility
 //with the track not belonging to vertex
 float GsfVertexTrackCompatibilityEstimator::estimateNFittedTrack
- 	(const CachingVertex & v, const RefCountedVertexTrack track) const
+ 	(const CachingVertex<5> & v, const RefCountedVertexTrack track) const
 {
   // Using the update instead of the add methode, we can specify a weight which
   // is different than then one which the vertex track has been defined with.
-  CachingVertex rVert = updator.add(v, track);
+  CachingVertex<5> rVert = updator.add(v, track);
   return (rVert.totalChiSquared()-v.totalChiSquared());
 }   
 
