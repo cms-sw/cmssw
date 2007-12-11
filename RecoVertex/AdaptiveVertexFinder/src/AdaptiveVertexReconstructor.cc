@@ -237,7 +237,6 @@ vector<TransientVertex> AdaptiveVertexReconstructor::cleanUpVertices (
   vector < TransientVertex > ret;
   for ( vector< TransientVertex >::const_iterator i=old.begin(); i!=old.end() ; ++i )
   {
-   cout << "AVR vertex: "<< old.end() - i << i->position()<<i->positionError().matrix()<<endl;
     if (!(i->hasTrackWeight()))
     { // if we dont have track weights, we take the vtx
       ret.push_back ( *i );
