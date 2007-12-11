@@ -371,7 +371,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::OrphanHandle<std::vector<Trajectory> > theRecoTrajectories = e.put(recoTrajectories);
   
   // Create and set the trajectory/track association map 
-  for ( unsigned index = 0; index < theRecoTracks->size(); ++index ) { 
+  for ( unsigned index = 0; index<nTracks; ++index ) { 
     edm::Ref<std::vector<Trajectory> > trajRef( theRecoTrajectories, index );
     edm::Ref<reco::TrackCollection>    tkRef( theRecoTracks, index );
     recoTrajTrackMap->insert(trajRef,tkRef);
