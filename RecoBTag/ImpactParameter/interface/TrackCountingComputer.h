@@ -18,6 +18,8 @@ class TrackCountingComputer : public JetTagComputer
      m_deltaR           = parameters.getParameter<double>("deltaR");
      m_cutMaxDecayLen   = parameters.getParameter<double>("maximumDecayLength"); //used
      m_cutMaxDistToAxis = parameters.getParameter<double>("maximumDistanceToJetAxis"); //used
+     m_cutPixelHits     = parameters.getParameter<int>("minimumNumberOfPixelHits");
+
   }
 
  
@@ -51,7 +53,8 @@ class TrackCountingComputer : public JetTagComputer
           for(std::vector<reco::TrackIPTagInfo::TrackIPData>::const_iterator it = impactParameters.begin(); it!=impactParameters.end(); ++it, i++)
            {
            if(   fabs(impactParameters[i].distanceToJetAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
-                 (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen        // max decay len
+                 (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen &&       // max decay len
+                 (*tracks[i]).hitPattern().numberOfValidPixelHits() >= m_cutPixelHits  //min # pix hits
              )
               {
                 if(m_deltaR <=0  || ROOT::Math::VectorUtil::DeltaR((*tkip.jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR)
@@ -69,6 +72,7 @@ class TrackCountingComputer : public JetTagComputer
    double m_deltaR;
    double  m_cutMaxDecayLen;
    double m_cutMaxDistToAxis;
+   int m_cutPixelHits;
 
 };
 
