@@ -5,6 +5,7 @@
 
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDCard.h"
 
+#include <cassert>
 #include <string>
 #include <sstream>
 
@@ -444,3 +445,30 @@ unsigned long long PixelFEDCard::enabledChannels() {
   channels += (Scntrl  & 0x1ffLL) << 27;
   return ~channels;  //bitwise complement to get enabled channels
 }
+
+bool PixelFEDCard::useChannel(unsigned int iChannel){
+  assert(iChannel>0&&iChannel<37);
+  return (enabledChannels()>>(iChannel-1))&0x1LL;
+} 
+
+void PixelFEDCard::setChannel(unsigned int iChannel, bool mode){
+  assert(iChannel>0&&iChannel<37);
+  long long mask=enabledChannels();
+  long long bit=0x1LL<<(iChannel-1);
+  if (mode) {
+    mask=mask|bit;
+  }
+  else{
+    bit=~bit;
+    mask=mask&bit;
+  }
+  mask=~mask;
+  Ncntrl=mask & 0x1ffLL;
+  mask=mask>>9;
+  NCcntrl=mask & 0x1ffLL;
+  mask=mask>>9;
+  SCcntrl=mask & 0x1ffLL;
+  mask=mask>>9;
+  Scntrl=mask & 0x1ffLL;
+ 
+}  

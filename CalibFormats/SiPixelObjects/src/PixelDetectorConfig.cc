@@ -8,9 +8,11 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <ios>
 #include <assert.h>
 
+using namespace std;
 using namespace pos;
 
 
@@ -84,6 +86,33 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
 	std::string module;
 	
 	in >> module;
+
+	if (module=="Rocs:") {
+	  //new format with list of ROCs.
+	  std::string line;
+	  getline(in,line);
+	  while (!in.eof()){
+	    istringstream instring(line);
+	    std::string rocname;
+	    instring >> rocname;
+	    PixelROCName roc(rocname);
+	    PixelModuleName module(rocname);
+	    if (!containsModule(module)) {
+	      modules_.push_back(module);
+	    }
+	    PixelROCStatus rocstatus;
+	    std::string status;
+	    instring >> status;
+	    while (!instring.eof()) {
+	      rocstatus.set(status);
+	      instring >>status;
+	    }
+	    rocs_[roc]=rocstatus;
+	    getline(in,line);
+	  }
+	  return;
+	}
+	
 
 	//std::cout << "Read module:"<<module<<std::endl;
 

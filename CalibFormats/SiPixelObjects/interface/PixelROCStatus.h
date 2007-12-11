@@ -29,6 +29,7 @@ namespace pos{
     void set(status stat);
     void clear(status stat);
     void set(status stat, bool mode);
+    void set(std::string stutus);
     bool get(status stat);
     
 

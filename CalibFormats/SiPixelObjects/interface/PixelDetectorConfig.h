@@ -18,6 +18,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelModuleName.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelHdwAddress.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelROCStatus.h"
 
 namespace pos{
   class PixelDetectorConfig: public PixelConfigBase {
@@ -46,6 +47,8 @@ namespace pos{
   private:
 
     std::vector<PixelModuleName> modules_;   
+
+    std::map<PixelROCName, PixelROCStatus> rocs_;
  
   };
 }

@@ -11,6 +11,14 @@ namespace pos{
   class PixelFEDCard : public PixelConfigBase{
 
   public:
+    
+    //Return true or false depending on if iChannel is used
+    //iChannel=1..36
+    bool useChannel(unsigned int iChannel);
+
+    //Set iChannel enable to mode
+    //iChannel=1..36
+    void setChannel(unsigned int iChannel, bool mode);
 
     // Constructor and destructor
     PixelFEDCard(); // empty
