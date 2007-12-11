@@ -6,7 +6,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 
-
 using namespace std;
 using namespace sistrip;
 
@@ -42,8 +41,6 @@ SiStripRawToClusters::~SiStripRawToClusters() {
 
 void SiStripRawToClusters::beginJob( const edm::EventSetup& setup) {
 
-  setup.get<SiStripRegionCablingRcd>().get(cabling_);
-  clusterizer_->eventSetup(setup);
 }
 
 void SiStripRawToClusters::endJob() {}
@@ -52,6 +49,8 @@ void SiStripRawToClusters::produce( edm::Event& event,const edm::EventSetup& set
   
   edm::Handle<FEDRawDataCollection> buffers;
   event.getByLabel( productLabel_, productInstance_, buffers ); 
+  setup.get<SiStripRegionCablingRcd>().get(cabling_);
+  clusterizer_->eventSetup(setup);
   boost::shared_ptr<LazyUnpacker> unpacker(new LazyUnpacker(*cabling_,*clusterizer_,*buffers));
   std::auto_ptr<LazyGetter> collection(new LazyGetter(unpacker));
   event.put(collection);
