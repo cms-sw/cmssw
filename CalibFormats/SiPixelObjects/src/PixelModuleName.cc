@@ -12,6 +12,7 @@
 
 #include <assert.h>
 
+using namespace std;
 using namespace pos;
 
 
@@ -19,7 +20,7 @@ PixelModuleName::PixelModuleName():
     id_(0)
 {}
 
-PixelModuleName::PixelModuleName(std::string modulename)
+PixelModuleName::PixelModuleName(string modulename)
 {
 
     parsename(modulename);
@@ -31,22 +32,22 @@ void PixelModuleName::setIdFPix(char np, char LR,int disk,
 
     id_=0;
 
-    //std::cout<<"PixelModuleName::setId subdet:"<<subdet<<std::endl; 
-    //std::cout<<"PixelModuleName::setId np:"<<np<<std::endl; 
-    //std::cout<<"PixelModuleName::setId LR:"<<LR<<std::endl; 
-    //std::cout<<"PixelModuleName::setId disk:"<<disk<<std::endl; 
+    //cout<<"PixelModuleName::setId subdet:"<<subdet<<endl; 
+    //cout<<"PixelModuleName::setId np:"<<np<<endl; 
+    //cout<<"PixelModuleName::setId LR:"<<LR<<endl; 
+    //cout<<"PixelModuleName::setId disk:"<<disk<<endl; 
 
     
     if (np=='p') id_=(id_|0x40000000);
-    //std::cout<<"PixelModuleName::setId 2 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //cout<<"PixelModuleName::setId 2 id_="<<hex<<id_<<dec<<endl; 
     if (LR=='I') id_=(id_|0x20000000);
-    //std::cout<<"PixelModuleName::setId 3 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //cout<<"PixelModuleName::setId 3 id_="<<hex<<id_<<dec<<endl; 
     id_=(id_|(disk<<8));
-    //std::cout<<"PixelModuleName::setId 4 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //cout<<"PixelModuleName::setId 4 id_="<<hex<<id_<<dec<<endl; 
     id_=(id_|(blade<<3));
-    //std::cout<<"PixelModuleName::setId 5 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //cout<<"PixelModuleName::setId 5 id_="<<hex<<id_<<dec<<endl; 
     id_=(id_|((panel-1)<<2));
-    //std::cout<<"PixelModuleName::setId 6 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //cout<<"PixelModuleName::setId 6 id_="<<hex<<id_<<dec<<endl; 
 
 }
 
@@ -57,34 +58,43 @@ void PixelModuleName::setIdBPix(char np, char LR,int sec,
 
     id_=0;
 
-    //std::cout<<"PixelModuleName::setIdBPix ladder:"<<ladder<<std::endl; 
-    //std::cout<<"PixelModuleName::setId np:"<<np<<std::endl; 
-    //std::cout<<"PixelModuleName::setId LR:"<<LR<<std::endl; 
-    //std::cout<<"PixelModuleName::setId disk:"<<disk<<std::endl; 
+    //cout<<"PixelModuleName::setIdBPix ladder:"<<ladder<<endl; 
+    //cout<<"PixelModuleName::setId np:"<<np<<endl; 
+    //cout<<"PixelModuleName::setId LR:"<<LR<<endl; 
+    //cout<<"PixelModuleName::setId disk:"<<disk<<endl; 
 
     
     id_=0x80000000;
 
     if (np=='p') id_=(id_|0x40000000);
-    //std::cout<<"PixelModuleName::setId 2 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //cout<<"PixelModuleName::setId 2 id_="<<hex<<id_<<dec<<endl; 
     if (LR=='I') id_=(id_|0x20000000);
-    //std::cout<<"PixelModuleName::setId 3 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //cout<<"PixelModuleName::setId 3 id_="<<hex<<id_<<dec<<endl; 
     id_=(id_|((sec-1)<<10));
-    //std::cout<<"PixelModuleName::setId 4 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //cout<<"PixelModuleName::setId 4 id_="<<hex<<id_<<dec<<endl; 
     if (HF=='F') id_=(id_|0x00000080);
 
     id_=(id_|(layer<<8));
-    //std::cout<<"PixelModuleName::setId 5 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //cout<<"PixelModuleName::setId 5 id_="<<hex<<id_<<dec<<endl; 
     id_=(id_|(ladder<<2));
-    //std::cout<<"PixelModuleName::setId 6 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //cout<<"PixelModuleName::setId 6 id_="<<hex<<id_<<dec<<endl; 
     id_=(id_|((module-1)));
-    //std::cout<<"PixelModuleName::setId 7 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //cout<<"PixelModuleName::setId 7 id_="<<hex<<id_<<dec<<endl; 
 
 }
 
+void PixelModuleName::check(bool check, const string& name){
 
+  if (check) return;
 
-void PixelModuleName::parsename(std::string name){
+  cout << "ERROR tried to parse string:'"<<name;
+  cout << "' as a module name. Will terminate."<<endl;
+
+  ::abort();
+
+}
+
+void PixelModuleName::parsename(string name){
 
    //
     // The name should be on the format
@@ -92,95 +102,95 @@ void PixelModuleName::parsename(std::string name){
     // FPix_BpR_D1_BLD1_PNL1
     //
 
-    //std::cout << "ROC name:"<<name<<std::endl;
+    //cout << "ROC name:"<<name<<endl;
 
-    assert(name[0]=='F'||name[0]=='B');
+    check(name[0]=='F'||name[0]=='B',name);
 
     if (name[0]=='F'){
-	assert(name[0]=='F');
-	assert(name[1]=='P');
-	assert(name[2]=='i');
-	assert(name[3]=='x');
-	assert(name[4]=='_');
-	assert(name[5]=='B');
-	assert((name[6]=='m')||(name[6]=='p'));
+	check(name[0]=='F',name);
+	check(name[1]=='P',name);
+	check(name[2]=='i',name);
+	check(name[3]=='x',name);
+	check(name[4]=='_',name);
+	check(name[5]=='B',name);
+	check((name[6]=='m')||(name[6]=='p'),name);
 	char np=name[6];
-	assert((name[7]=='I')||(name[7]=='O'));
+	check((name[7]=='I')||(name[7]=='O'),name);
 	char LR=name[7];
-	assert(name[8]=='_');
-	assert(name[9]=='D');
+	check(name[8]=='_',name);
+	check(name[9]=='D',name);
 	char digit[2]={0,0};
 	digit[0]=name[10];
 	int disk=atoi(digit);
-	assert(name[11]=='_');
-	assert(name[12]=='B');
-	assert(name[13]=='L');
-	assert(name[14]=='D');
-	assert(std::isdigit(name[15]));
+	check(name[11]=='_',name);
+	check(name[12]=='B',name);
+	check(name[13]=='L',name);
+	check(name[14]=='D',name);
+	check(isdigit(name[15]),name);
 	digit[0]=name[15];
 	int bld=atoi(digit);
 	unsigned int offset=0;
-	if (std::isdigit(name[16])){
+	if (isdigit(name[16])){
 	    digit[0]=name[16];
   	    bld=10*bld+atoi(digit);
 	    offset++;
 	}
 
-	assert(name[16+offset]=='_');
-	assert(name[17+offset]=='P');
-	assert(name[18+offset]=='N');
-	assert(name[19+offset]=='L');
-	assert(std::isdigit(name[20+offset]));
+	check(name[16+offset]=='_',name);
+	check(name[17+offset]=='P',name);
+	check(name[18+offset]=='N',name);
+	check(name[19+offset]=='L',name);
+	check(isdigit(name[20+offset]),name);
 	digit[0]=name[20+offset];
 	int pnl=atoi(digit);
     
 	setIdFPix(np,LR,disk,bld,pnl);
     }
     else{
-	assert(name[0]=='B');
-	assert(name[1]=='P');
-	assert(name[2]=='i');
-	assert(name[3]=='x');
-	assert(name[4]=='_');
-	assert(name[5]=='B');
-	assert((name[6]=='m')||(name[6]=='p'));
+	check(name[0]=='B',name);
+	check(name[1]=='P',name);
+	check(name[2]=='i',name);
+	check(name[3]=='x',name);
+	check(name[4]=='_',name);
+	check(name[5]=='B',name);
+	check((name[6]=='m')||(name[6]=='p'),name);
 	char np=name[6];
-	assert((name[7]=='I')||(name[7]=='O'));
+	check((name[7]=='I')||(name[7]=='O'),name);
 	char LR=name[7];
-	assert(name[8]=='_');
-	assert(name[9]=='S');
-	assert(name[10]=='E');
-	assert(name[11]=='C');
+	check(name[8]=='_',name);
+	check(name[9]=='S',name);
+	check(name[10]=='E',name);
+	check(name[11]=='C',name);
 	char digit[2]={0,0};
 	digit[0]=name[12];
 	int sec=atoi(digit);
-	assert(name[13]=='_');
-	assert(name[14]=='L');
-	assert(name[15]=='Y');
-	assert(name[16]=='R');
-	assert(std::isdigit(name[17]));
+	check(name[13]=='_',name);
+	check(name[14]=='L',name);
+	check(name[15]=='Y',name);
+	check(name[16]=='R',name);
+	check(isdigit(name[17]),name);
 	digit[0]=name[17];
 	int layer=atoi(digit);
-	assert(name[18]=='_');
-	assert(name[19]=='L');
-	assert(name[20]=='D');
-	assert(name[21]=='R');
-	assert(std::isdigit(name[22]));
+	check(name[18]=='_',name);
+	check(name[19]=='L',name);
+	check(name[20]=='D',name);
+	check(name[21]=='R',name);
+	check(isdigit(name[22]),name);
 	digit[0]=name[22];
 	int ladder=atoi(digit);
 	unsigned int offset=0;
-	if (std::isdigit(name[23])){
+	if (isdigit(name[23])){
 	    offset++;
 	    digit[0]=name[22+offset];
 	    ladder=10*ladder+atoi(digit);
 	}
-	assert(name[23+offset]=='H'||name[23+offset]=='F');
+	check(name[23+offset]=='H'||name[23+offset]=='F',name);
         char HF=name[23+offset];
-	assert(name[24+offset]=='_');
-	assert(name[25+offset]=='M');
-	assert(name[26+offset]=='O');
-	assert(name[27+offset]=='D');
-	assert(std::isdigit(name[28+offset]));
+	check(name[24+offset]=='_',name);
+	check(name[25+offset]=='M',name);
+	check(name[26+offset]=='O',name);
+	check(name[27+offset]=='D',name);
+	check(isdigit(name[28+offset]),name);
 	digit[0]=name[28+offset];
 	int module=atoi(digit);
 	setIdBPix(np,LR,sec,layer,ladder,HF,module);
@@ -188,9 +198,9 @@ void PixelModuleName::parsename(std::string name){
 
 }
 
-PixelModuleName::PixelModuleName(std::ifstream& s){
+PixelModuleName::PixelModuleName(ifstream& s){
 
-    std::string tmp;
+    string tmp;
 
     s >> tmp;
 
@@ -199,11 +209,11 @@ PixelModuleName::PixelModuleName(std::ifstream& s){
 }
     
 
-std::string PixelModuleName::modulename() const{
+string PixelModuleName::modulename() const{
 
-    std::string s;
+    string s;
 
-    std::ostringstream s1;
+    ostringstream s1;
 
     if (detsub()=='F') {
 	s1<<"FPix"; 
@@ -243,7 +253,7 @@ std::string PixelModuleName::modulename() const{
 
 
 
-std::ostream& pos::operator<<(std::ostream& s, const PixelModuleName& pixelroc){
+ostream& pos::operator<<(ostream& s, const PixelModuleName& pixelroc){
 
 
     // FPix_BpR_D1_BLD1_PNL1_PLQ1_ROC1

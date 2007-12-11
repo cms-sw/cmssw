@@ -18,42 +18,42 @@ using namespace pos;
 
 PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string> > &tableMat):PixelConfigBase("","",""){
 
- std::vector< std::string > ins = tableMat[0];
- std::map<std::string , int > colM;
- std::vector<std::string > colNames;
- colNames.push_back("PANEL_NAME");//0
+  std::vector< std::string > ins = tableMat[0];
+  std::map<std::string , int > colM;
+  std::vector<std::string > colNames;
+  colNames.push_back("PANEL_NAME");//0
+  
+  for(unsigned int c = 0 ; c < ins.size() ; c++){
+    for(unsigned int n=0; n<colNames.size(); n++){
+      if(tableMat[0][c] == colNames[n]){
+	colM[colNames[n]] = c;
+	break;
+      }
+    }
+  }//end for
+  for(unsigned int n=0; n<colNames.size(); n++){
+    if(colM.find(colNames[n]) == colM.end()){
+      std::cerr << "[PixelDetectorConfig::PixelDetectorConfig()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+      assert(0);
+    }
+  }
+  
 
-for(unsigned int c = 0 ; c < ins.size() ; c++){
-   for(unsigned int n=0; n<colNames.size(); n++){
-     if(tableMat[0][c] == colNames[n]){
-       colM[colNames[n]] = c;
-       break;
-     }
-   }
- }//end for
- for(unsigned int n=0; n<colNames.size(); n++){
-   if(colM.find(colNames[n]) == colM.end()){
-     std::cerr << "[PixelDetectorConfig::PixelDetectorConfig()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
-     assert(0);
-   }
- }
-	
+  modules_.clear();
+  std::string module= "";
+  for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
+    
 
-modules_.clear();
-std::string module= "";
-for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
+    if(tableMat[r][colM[colNames[0]]] != module){
+      module =tableMat[r][colM[colNames[0]]];
+      PixelModuleName moduleName(module);
+      modules_.push_back(moduleName);
+    }
+    
 
+  }//end for r
 
- if(tableMat[r][colM[colNames[0]]] != module){
- module =tableMat[r][colM[colNames[0]]];
- PixelModuleName moduleName(module);
- modules_.push_back(moduleName);
- }
-
-
-}//end for r
-
-std::cout<<"Number of Modules in Detector Configuration Class:"<<getNModules()<<std::endl;
+  std::cout<<"Number of Modules in Detector Configuration Class:"<<getNModules()<<std::endl;
 
 }//end constructor
 
@@ -89,26 +89,30 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
 
 	if (module=="Rocs:") {
 	  //new format with list of ROCs.
-	  std::string line;
-	  getline(in,line);
+	  std::string rocname;
+	  in >> rocname;
 	  while (!in.eof()){
-	    istringstream instring(line);
-	    std::string rocname;
-	    instring >> rocname;
+	    //cout << "Read rocname:"<<rocname<<endl;
 	    PixelROCName roc(rocname);
 	    PixelModuleName module(rocname);
 	    if (!containsModule(module)) {
 	      modules_.push_back(module);
 	    }
+	    std::string line;
+	    getline(in,line);
+	    //cout << "Read line:'"<<line<<"'"<<endl;
+	    istringstream instring(line);
 	    PixelROCStatus rocstatus;
 	    std::string status;
-	    instring >> status;
 	    while (!instring.eof()) {
-	      rocstatus.set(status);
-	      instring >>status;
+	      instring >> status;
+	      //cout << "Read status:"<<status<<endl;
+	      if (status!=""){
+		rocstatus.set(status);
+	      }
 	    }
 	    rocs_[roc]=rocstatus;
-	    getline(in,line);
+	    in >> rocname;
 	  }
 	  return;
 	}

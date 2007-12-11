@@ -61,6 +61,8 @@ namespace pos{
 
     void parsename(std::string name);
 
+    void check(bool check, const std::string& name);
+
     void setIdFPix(char np, char LR,int disk,
 		   int blade, int panel, int plaquet, int roc);
 

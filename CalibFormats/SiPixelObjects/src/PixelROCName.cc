@@ -13,6 +13,7 @@
 #include <assert.h>
 
 
+using namespace std;
 using namespace pos;
 
 PixelROCName::PixelROCName():
@@ -95,6 +96,18 @@ void PixelROCName::setIdBPix(char np, char LR,int sec,
 }
 
 
+void PixelROCName::check(bool check, const string& name){
+
+  if (check) return;
+
+  cout << "ERROR tried to parse string:'"<<name;
+  cout << "' as a ROC name. Will terminate."<<endl;
+
+  ::abort();
+
+}
+
+
 
 void PixelROCName::parsename(std::string name){
 
@@ -107,29 +120,29 @@ void PixelROCName::parsename(std::string name){
     
     //std::cout << "ROC name:"<<name<<std::endl;
 
-    assert(name[0]=='F'||name[0]=='B');
+    check(name[0]=='F'||name[0]=='B',name);
 
     if (name[0]=='F'){
-	assert(name[0]=='F');
-	assert(name[1]=='P');
-	assert(name[2]=='i');
-	assert(name[3]=='x');
-	assert(name[4]=='_');
-	assert(name[5]=='B');
-	assert((name[6]=='m')||(name[6]=='p'));
+	check(name[0]=='F',name);
+	check(name[1]=='P',name);
+	check(name[2]=='i',name);
+	check(name[3]=='x',name);
+	check(name[4]=='_',name);
+	check(name[5]=='B',name);
+	check((name[6]=='m')||(name[6]=='p'),name);
 	char np=name[6];
-	assert((name[7]=='I')||(name[7]=='O'));
+	check((name[7]=='I')||(name[7]=='O'),name);
 	char LR=name[7];
-	assert(name[8]=='_');
-	assert(name[9]=='D');
+	check(name[8]=='_',name);
+	check(name[9]=='D',name);
 	char digit[2]={0,0};
 	digit[0]=name[10];
 	int disk=atoi(digit);
-	assert(name[11]=='_');
-	assert(name[12]=='B');
-	assert(name[13]=='L');
-	assert(name[14]=='D');
-	assert(std::isdigit(name[15]));
+	check(name[11]=='_',name);
+	check(name[12]=='B',name);
+	check(name[13]=='L',name);
+	check(name[14]=='D',name);
+	check(std::isdigit(name[15]),name);
 	digit[0]=name[15];
 	int bld=atoi(digit);
 	unsigned int offset=0;
@@ -138,25 +151,25 @@ void PixelROCName::parsename(std::string name){
 	  bld=10*bld+atoi(digit);
 	    offset++;
 	}
-	assert(name[16+offset]=='_');
-	assert(name[17+offset]=='P');
-	assert(name[18+offset]=='N');
-	assert(name[19+offset]=='L');
-	assert(std::isdigit(name[20+offset]));
+	check(name[16+offset]=='_',name);
+	check(name[17+offset]=='P',name);
+	check(name[18+offset]=='N',name);
+	check(name[19+offset]=='L',name);
+	check(std::isdigit(name[20+offset]),name);
 	digit[0]=name[20+offset];
 	int pnl=atoi(digit);
-	assert(name[21+offset]=='_');
-	assert(name[22+offset]=='P');
-	assert(name[23+offset]=='L');
-	assert(name[24+offset]=='Q');
-	assert(std::isdigit(name[25+offset]));
+	check(name[21+offset]=='_',name);
+	check(name[22+offset]=='P',name);
+	check(name[23+offset]=='L',name);
+	check(name[24+offset]=='Q',name);
+	check(std::isdigit(name[25+offset]),name);
 	digit[0]=name[25+offset];
 	int plq=atoi(digit);
-	assert(name[26+offset]=='_');
-	assert(name[27+offset]=='R');
-	assert(name[28+offset]=='O');
-	assert(name[29+offset]=='C');
-	assert(std::isdigit(name[30+offset]));
+	check(name[26+offset]=='_',name);
+	check(name[27+offset]=='R',name);
+	check(name[28+offset]=='O',name);
+	check(name[29+offset]=='C',name);
+	check(std::isdigit(name[30+offset]),name);
 	digit[0]=name[30+offset];
 	int roc=atoi(digit);
 	if (name.size()==32+offset){
@@ -167,35 +180,35 @@ void PixelROCName::parsename(std::string name){
 	setIdFPix(np,LR,disk,bld,pnl,plq,roc);
     }
     else{
-	assert(name[0]=='B');
-	assert(name[1]=='P');
-	assert(name[2]=='i');
-	assert(name[3]=='x');
-	assert(name[4]=='_');
-	assert(name[5]=='B');
-	assert((name[6]=='m')||(name[6]=='p'));
+	check(name[0]=='B',name);
+	check(name[1]=='P',name);
+	check(name[2]=='i',name);
+	check(name[3]=='x',name);
+	check(name[4]=='_',name);
+	check(name[5]=='B',name);
+	check((name[6]=='m')||(name[6]=='p'),name);
 	char np=name[6];
-	assert((name[7]=='I')||(name[7]=='O'));
+	check((name[7]=='I')||(name[7]=='O'),name);
 	char LR=name[7];
-	assert(name[8]=='_');
-	assert(name[9]=='S');
-	assert(name[10]=='E');
-	assert(name[11]=='C');
+	check(name[8]=='_',name);
+	check(name[9]=='S',name);
+	check(name[10]=='E',name);
+	check(name[11]=='C',name);
 	char digit[2]={0,0};
 	digit[0]=name[12];
 	int sec=atoi(digit);
-	assert(name[13]=='_');
-	assert(name[14]=='L');
-	assert(name[15]=='Y');
-	assert(name[16]=='R');
-	assert(std::isdigit(name[17]));
+	check(name[13]=='_',name);
+	check(name[14]=='L',name);
+	check(name[15]=='Y',name);
+	check(name[16]=='R',name);
+	check(std::isdigit(name[17]),name);
 	digit[0]=name[17];
 	int layer=atoi(digit);
-	assert(name[18]=='_');
-	assert(name[19]=='L');
-	assert(name[20]=='D');
-	assert(name[21]=='R');
-	assert(std::isdigit(name[22]));
+	check(name[18]=='_',name);
+	check(name[19]=='L',name);
+	check(name[20]=='D',name);
+	check(name[21]=='R',name);
+	check(std::isdigit(name[22]),name);
 	digit[0]=name[22];
 	int ladder=atoi(digit);
 	unsigned int offset=0;
@@ -204,20 +217,20 @@ void PixelROCName::parsename(std::string name){
 	    digit[0]=name[22+offset];
 	    ladder=10*ladder+atoi(digit);
 	}
-	assert(name[23+offset]=='H'||name[23+offset]=='F');
+	check(name[23+offset]=='H'||name[23+offset]=='F',name);
         char HF=name[23+offset];
-	assert(name[24+offset]=='_');
-	assert(name[25+offset]=='M');
-	assert(name[26+offset]=='O');
-	assert(name[27+offset]=='D');
-	assert(std::isdigit(name[28+offset]));
+	check(name[24+offset]=='_',name);
+	check(name[25+offset]=='M',name);
+	check(name[26+offset]=='O',name);
+	check(name[27+offset]=='D',name);
+	check(std::isdigit(name[28+offset]),name);
 	digit[0]=name[28+offset];
 	int module=atoi(digit);
-	assert(name[29+offset]=='_');
-	assert(name[30+offset]=='R');
-	assert(name[31+offset]=='O');
-	assert(name[32+offset]=='C');
-	assert(std::isdigit(name[33+offset]));
+	check(name[29+offset]=='_',name);
+	check(name[30+offset]=='R',name);
+	check(name[31+offset]=='O',name);
+	check(name[32+offset]=='C',name);
+	check(std::isdigit(name[33+offset]),name);
 	digit[0]=name[33+offset];
 	int roc=atoi(digit);
 	if (name.size()==35+offset){

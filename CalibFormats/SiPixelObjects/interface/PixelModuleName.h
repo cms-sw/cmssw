@@ -68,6 +68,7 @@ namespace pos{
 		   int module);
 
     
+    void check(bool check, const std::string& name);
 
     //BPix_BpI_SEC1_LYR1_LDR3F_MOD1
 
