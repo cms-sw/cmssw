@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.9 2007/11/20 22:39:27 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.10 2007/11/28 18:52:03 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedConnections.cc,v $
 
@@ -115,7 +115,7 @@ void SiStripConfigDb::createFedConnections( const SiStripFecCabling& fec_cabling
     desc->setFedId( iconn->fedId() );
     desc->setFedChannel( iconn->fedCh() );
     desc->setFecHardwareId( "" ); //@@
-    desc->setCrateSlot( iconn->fecCrate() );
+    desc->setFecCrateSlot( iconn->fecCrate() );
     desc->setFecSlot( iconn->fecSlot() );
     desc->setRingSlot( iconn->fecRing() );
     desc->setCcuAddress( iconn->ccuAddr() );
