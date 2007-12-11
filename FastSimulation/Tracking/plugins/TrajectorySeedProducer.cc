@@ -59,6 +59,10 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
     throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
       << " WARNING : minRecHits does not have the proper size "
       << std::endl;
+  // Set the overall number hits to be checked
+  absMinRecHits = 0;
+  for ( unsigned ialgo=0; ialgo<minRecHits.size(); ++ialgo ) 
+    if ( minRecHits[ialgo] > absMinRecHits ) absMinRecHits = minRecHits[ialgo];
 
   // The smallest true impact parameters (d0 and z0) for a track candidate
   maxD0 = conf.getParameter<std::vector<double> >("maxD0");
@@ -314,6 +318,19 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     SiTrackerGSRecHit2DCollection::const_iterator iterRecHit2;
     SiTrackerGSRecHit2DCollection::const_iterator iterRecHit3;
 
+    // Check the number of layers crossed
+    unsigned numberOfRecHits = 0;
+    TrackerRecHit previousHit, currentHit;
+    for ( iterRecHit = theRecHitRangeIteratorBegin; 
+	  iterRecHit != theRecHitRangeIteratorEnd; 
+	  ++iterRecHit) { 
+      previousHit = currentHit;
+      currentHit = TrackerRecHit(&(*iterRecHit),theGeometry);
+      if ( currentHit.isOnTheSameLayer(previousHit) ) continue;
+      ++numberOfRecHits;
+      if ( numberOfRecHits == absMinRecHits ) break;
+    }
+
     // Loop on the successive seedings
     for ( unsigned int ialgo = 0; ialgo < seedingAlgo.size(); ++ialgo ) { 
 
@@ -322,11 +339,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
 
       // Request a minimum number of RecHits for the track to give a seed.
-      unsigned numberOfRecHits = 0;
-      for ( iterRecHit = theRecHitRangeIteratorBegin; 
-	    iterRecHit != theRecHitRangeIteratorEnd; 
-	    ++iterRecHit) ++numberOfRecHits;
-
 #ifdef FAMOS_DEBUG
       std::cout << "The number of RecHits = " << numberOfRecHits << std::endl;
 #endif
@@ -342,21 +354,24 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       ++nTracksWithD0Z0;
       
       std::vector<TrackerRecHit> theSeedHits(numberOfHits[ialgo],static_cast<TrackerRecHit>(TrackerRecHit()));
+      const TrackerRecHit& theSeedHits0 = theSeedHits[0];
+      const TrackerRecHit& theSeedHits1 = theSeedHits[1];
+      const TrackerRecHit& theSeedHits2 = theSeedHits[2];
       bool compatible = false;
       for ( iterRecHit1 = theRecHitRangeIteratorBegin; iterRecHit1 != theRecHitRangeIteratorEnd; ++iterRecHit1) {
 	theSeedHits[0] = TrackerRecHit(&(*iterRecHit1),theGeometry);
 #ifdef FAMOS_DEBUG
-	std::cout << "The first hit position = " << theSeedHits[0].globalPosition() << std::endl;
-	std::cout << "The first hit subDetId = " << theSeedHits[0].subDetId() << std::endl;
-	std::cout << "The first hit layer    = " << theSeedHits[0].layerNumber() << std::endl;
+	std::cout << "The first hit position = " << theSeedHits0.globalPosition() << std::endl;
+	std::cout << "The first hit subDetId = " << theSeedHits0.subDetId() << std::endl;
+	std::cout << "The first hit layer    = " << theSeedHits0.layerNumber() << std::endl;
 #endif
 
 	// Check if inside the requested detectors
-	bool isInside = theSeedHits[0].subDetId() < firstHitSubDetectors[ialgo][0];
+	bool isInside = theSeedHits0.subDetId() < firstHitSubDetectors[ialgo][0];
 	if ( isInside ) continue;
 
 	// Check if on requested detectors
-	bool isOndet =  theSeedHits[0].isOnRequestedDet(firstHitSubDetectors[ialgo]);
+	bool isOndet =  theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo]);
 	if ( !isOndet ) break;
 
 #ifdef FAMOS_DEBUG
@@ -365,28 +380,27 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	for ( iterRecHit2 = iterRecHit1+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
 	  theSeedHits[1] = TrackerRecHit(&(*iterRecHit2),theGeometry);
 #ifdef FAMOS_DEBUG
-	  std::cout << "The second hit position = " << theSeedHits[1].globalPosition() << std::endl;
-	  std::cout << "The second hit subDetId = " << theSeedHits[1].subDetId() << std::endl;
-	  std::cout << "The second hit layer    = " << theSeedHits[1].layerNumber() << std::endl;
+	  std::cout << "The second hit position = " << theSeedHits1.globalPosition() << std::endl;
+	  std::cout << "The second hit subDetId = " << theSeedHits1.subDetId() << std::endl;
+	  std::cout << "The second hit layer    = " << theSeedHits1.layerNumber() << std::endl;
 #endif
 
 	  // Check if inside the requested detectors
-	  isInside = theSeedHits[1].subDetId() < secondHitSubDetectors[ialgo][0];
+	  isInside = theSeedHits1.subDetId() < secondHitSubDetectors[ialgo][0];
 	  if ( isInside ) continue;
 
 	  // Check if on requested detectors
-	  isOndet =  theSeedHits[1].isOnRequestedDet(secondHitSubDetectors[ialgo]);
+	  isOndet =  theSeedHits1.isOnRequestedDet(secondHitSubDetectors[ialgo]);
 	  if ( !isOndet ) break;
 
 	  // Check if on the same layer as previous hit
-	  if ( !( theSeedHits[1].subDetId() > theSeedHits[0].subDetId() || 
-		  theSeedHits[1].layerNumber() > theSeedHits[0].layerNumber() ) ) continue;
+	  if ( theSeedHits1.isOnTheSameLayer(theSeedHits0) ) continue;
 
 #ifdef FAMOS_DEBUG
 	  std::cout << "Apparently the second hit is on the requested detector! " << std::endl;
 #endif
-	  GlobalPoint gpos1 = theSeedHits[0].globalPosition();
-	  GlobalPoint gpos2 = theSeedHits[1].globalPosition();
+	  GlobalPoint gpos1 = theSeedHits0.globalPosition();
+	  GlobalPoint gpos2 = theSeedHits1.globalPosition();
 	  //	  compatible = compatibleWithVertex(gpos1,gpos2,ialgo);
 	  compatible = compatibleWithBeamAxis(gpos1,gpos2,ialgo);
 #ifdef FAMOS_DEBUG
@@ -404,22 +418,21 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  for ( iterRecHit3 = iterRecHit2+1; iterRecHit3 != theRecHitRangeIteratorEnd; ++iterRecHit3) {
 	    theSeedHits[2] = TrackerRecHit(&(*iterRecHit3),theGeometry);
 #ifdef FAMOS_DEBUG
-	    std::cout << "The third hit position = " << theSeedHits[2].globalPosition() << std::endl;
-	    std::cout << "The third hit subDetId = " << theSeedHits[2].subDetId() << std::endl;
-	    std::cout << "The third hit layer    = " << theSeedHits[2].layerNumber() << std::endl;
+	    std::cout << "The third hit position = " << theSeedHits2.globalPosition() << std::endl;
+	    std::cout << "The third hit subDetId = " << theSeedHits2.subDetId() << std::endl;
+	    std::cout << "The third hit layer    = " << theSeedHits2.layerNumber() << std::endl;
 #endif
 
 	    // Check if inside the requested detectors
-	    isInside = theSeedHits[2].subDetId() < thirdHitSubDetectors[ialgo][0];
+	    isInside = theSeedHits2.subDetId() < thirdHitSubDetectors[ialgo][0];
 	    if ( isInside ) continue;
 	    
 	    // Check if on requested detectors
-	    isOndet =  theSeedHits[2].isOnRequestedDet(thirdHitSubDetectors[ialgo]);
+	    isOndet =  theSeedHits2.isOnRequestedDet(thirdHitSubDetectors[ialgo]);
 	    if ( !isOndet ) break;
 
 	    // Check if on the same layer as previous hit
-	    compatible = theSeedHits[2].subDetId() > theSeedHits[1].subDetId() || 
-	                 theSeedHits[2].layerNumber() > theSeedHits[1].layerNumber() ;
+	    compatible = !(theSeedHits2.isOnTheSameLayer(theSeedHits1));
 #ifdef FAMOS_DEBUG
 	    if ( compatible ) 
 	      std::cout << "Apparently the third hit is on the requested detector! " << std::endl;
@@ -440,6 +453,14 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       // There is no compatible seed for this track with this seeding algorithm 
       // Go to next algo
       if ( !compatible ) continue;
+
+      /*
+      // Save in a vector.
+      std::vector<TrackerRecHit> theSeedHits(numberOfHits[ialgo],static_cast<TrackerRecHit>(TrackerRecHit()));
+      theSeedHits[0] = theSeed0;
+      theSeedHits[1] = theSeed1;
+      if ( numberOfHits[ialgo] > 2 ) theSeedHits[2] = theSeed2;
+      */
 
 #ifdef FAMOS_DEBUG
       std::cout << "Preparing to create the TrajectorySeed" << std::endl;

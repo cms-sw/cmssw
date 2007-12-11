@@ -31,6 +31,9 @@ class TrackCandidateProducer : public edm::EDProducer
 
   edm::InputTag seedProducer;
   edm::InputTag hitProducer;
+  edm::InputTag trackProducer;
+  
+  unsigned int minNumberOfCrossedLayers;
 
   bool rejectOverlaps;
 

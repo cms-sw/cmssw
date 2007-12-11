@@ -62,6 +62,7 @@ class TrajectorySeedProducer : public edm::EDProducer
 
   bool seedCleaning;
   bool rejectOverlaps;
+  unsigned int absMinRecHits;
   std::vector<std::string> seedingAlgo;
   std::vector<unsigned int> numberOfHits;
   std::vector<unsigned int> firstHitSubDetectorNumber;
