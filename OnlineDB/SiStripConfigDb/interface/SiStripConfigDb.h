@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.32 2007/12/05 14:19:38 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.33 2007/12/11 14:08:25 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -30,7 +30,7 @@
   - psu mapping
 */
 
-#define USING_NEW_DATABASE_MODEL
+//#define USING_NEW_DATABASE_MODEL
 
 #ifdef USING_NEW_DATABASE_MODEL
 namespace sistrip {
