@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Scalers/interface/L1TriggerScalers.h"
 
 class ScalersProducer : public edm::EDProducer
 {
@@ -16,10 +17,20 @@ public:
     
     virtual void produce(edm::Event &, const edm::EventSetup &);
     
+  // BeginJob
+    virtual void beginJob(const edm::EventSetup & c);
+
+  // EndJob
+    virtual void endJob();
+    
     private:
     
     bool verbose_;
     unsigned char buffer [1024];
+    char * fileName;
+    int bytes;
+    int fd;
+    int ev;
     const L1TriggerScalers *previousTrig;
 };
 
