@@ -77,12 +77,12 @@ class SiPixelRecHitQuality {
     //
     inline float probabilityX( QualWordType qualWord ) const     {
       int raw = (qualWord >> probX_shift) & probX_mask;
-      float prob = pow(10.0, -raw * probX_units);
+      float prob = pow(10.0, (double)-raw * probX_units);
       return prob;
     }
     inline float probabilityY( QualWordType qualWord ) const     {
       int raw = (qualWord >> probY_shift) & probY_mask;
-      float prob = pow(10.0, -raw * probY_units);
+      float prob = pow(10.0, (double)-raw * probY_units);
       return prob;
     }
     //--- Charge `bin' (0,1,2,3 ~ charge, qBin==4 is unphysical, qBin=5,6,7 = unused)
