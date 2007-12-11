@@ -373,13 +373,13 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
         
 	std::vector<math::XYZPoint> trkPositionAtEcal = theEcalImpactPositionFinder_->find(  iPair->first, bcBarrelHandle );
 	matchingBC = theEcalImpactPositionFinder_->matchingBC();
-	std::cout  << " ConvertedPhotonProducer Barrel trkPositionAtEcal size " << trkPositionAtEcal.size() << " ref to matchingBC size " <<  matchingBC.size() << "\n";
+	/*
 	for ( unsigned int i=0; i< matchingBC.size(); ++i) {
           if (  matchingBC[i].isNull() )  std::cout << " This ref to BC is null: skipping " <<  "\n";
           else 
 	    std::cout << " BC energy " << matchingBC[i]->energy() <<  "\n";
 	}
-	
+	*/
 
 
 	//// loop over tracks in the pair  for creating a reference
@@ -591,7 +591,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
       outputConvPhotonCollection.push_back(newCandidate);
             
       if ( newCandidate.conversionVertex().isValid() ) 
-	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer theConversionVertex " <<  newCandidate.conversionVertex().position().x() << " " <<  newCandidate.conversionVertex().position().y() << " " <<  newCandidate.conversionVertex().position().z() << "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer theConversionVertex " <<  newCandidate.conversionVertex().position().x() << " " <<  newCandidate.conversionVertex().position().y() << " " <<  newCaniddate.conversionVertex().position().z() << "\n";
       
       
       
