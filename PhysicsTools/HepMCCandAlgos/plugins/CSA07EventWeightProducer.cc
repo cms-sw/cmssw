@@ -6,7 +6,6 @@
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "SimDataFormats/HepMCProduct/interface/AlpgenInfoProduct.h"
 #include "FWCore/Framework/interface/Run.h"
 #include <vector>
