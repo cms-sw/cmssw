@@ -21,7 +21,7 @@
 <lib name=Rint>
 <flags CXXFLAGS="-g">
 <export>
-  <lib name=PhysicsToolsFireworks>
+  <lib name=FireworksCore>
   <use name=DataFormats/Common>
   <use name=rootrflx>
 </export>
