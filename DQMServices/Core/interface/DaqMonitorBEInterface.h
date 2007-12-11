@@ -18,7 +18,6 @@
 class QCriterion;
 class MonitorElementRootFolder;
 class DQMTagHelper;
-class CollateMonitorElement;
 class TObject;
 
 namespace edm {
@@ -669,15 +668,6 @@ class DaqMonitorBEInterface: public StringUtil
     (dqm::me_util::rootDir & Dir, std::string name)=0;
 
   DQMTagHelper * tagHelper;
-  /// map of collation MEs (used to see if a ME is really a CME)
-  dqm::me_util::cme_map collate_map;
-  /// set of collation MEs
-  dqm::me_util::cme_set collate_set;
-  /// remove all CMEs
-  void removeCollates();
-  /// remove CME
-  void removeCollate(CollateMonitorElement * cme);
-  //
  private:
   /// use to printout warning when calling quality tests twice without
   /// having called resetMonitoringDiff, resetMonitorableDiff in between...
@@ -705,13 +695,6 @@ class DaqMonitorBEInterface: public StringUtil
   // this is really bad; unfortunately, gcc 3.2.3 won't let me define 
   // template classes, so I have to find a workaround for now
   // error: "...is not a template type" - christos May26, 2005
-  friend class CollateMonitorElement;
-  friend class CollateMET;
-  friend class CollateMERootH1;
-  friend class CollateMERootH2;
-  friend class CollateMERootH3;
-  friend class CollateMERootProf;
-  friend class CollateMERootProf2D;
 
   friend class edm::DQMHttpSource;
 };

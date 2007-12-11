@@ -1,5 +1,4 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 #include "DQMServices/Core/interface/DQMPatchVersion.h"
 
 #include <iostream>
@@ -459,32 +458,10 @@ void DaqMonitorBEInterface::checkAddedTags
     checkAddedFolder(added_path, Dir, put_here);
 }
 
-// remove all CMEs
-void DaqMonitorBEInterface::removeCollates()
-{
-  // empty collate_map first, to avoid 
-  // calling CME dtor a 2nd time in DaqMonitorROOTBackEnd::removeElement
-  collate_map.clear(); 
-
-  for(cmesIt it = collate_set.begin(); it != collate_set.end(); ++it)
-    delete (*it); // this also removes ME
-
-  collate_set.clear();
-}
-
-// remove CME
-void DaqMonitorBEInterface::removeCollate(CollateMonitorElement * cme)
-{
-  assert(cme);
-  collate_map.erase(cme->getMonitorElement());
-  collate_set.erase(cme);
-  delete cme;
-}
-
-// remove all contents from <pathname> from all subscribers, tags and CMEs
+// remove all contents from <pathname> from all subscribers and tags
 void DaqMonitorBEInterface::removeCopies(const string & pathname)
 {
-  // we will loop over Subscribers, Tags and CMEs
+  // we will loop over Subscribers and Tags
   // and remove contents from all directories <pathname>
   for(sdir_it subs = Subscribers.begin(); subs!= Subscribers.end(); ++subs)
     { // loop over all subscribers
@@ -503,21 +480,13 @@ void DaqMonitorBEInterface::removeCopies(const string & pathname)
       removeContents(dir);
    } // loop over all tags
 
-  for(cmesIt cme = collate_set.begin(); cme != collate_set.end(); ++cme)
-    { // loop over all CMEs
-      MonitorElementRootFolder* dir=getDirectory(pathname,(*cme)->contents_);
-      // skip CME is no such pathname
-      if(!dir)continue;
-      removeContents(dir);
-    } // loop over all CMEs
-
 }
 
 // remove Monitor Element <name> from all subscribers, tags and CME directories
 void DaqMonitorBEInterface::removeCopies(const string & pathname, 
 					 const string & name)
 {
-  // we will loop over Subscribers, Tags and CMEs
+  // we will loop over Subscribers and Tags
   // and remove <name> from all directories <pathname>
   
   for(sdir_it subs= Subscribers.begin(); subs != Subscribers.end(); ++subs)
@@ -528,9 +497,6 @@ void DaqMonitorBEInterface::removeCopies(const string & pathname,
     // loop over all tags
     remove(pathname, name, tag->second);
 
-  for(cmesIt cme = collate_set.begin(); cme != collate_set.end(); ++cme)
-    // loop over all CMEs
-    remove(pathname, name, (*cme)->contents_);
 }
 
 // remove Monitor Element <name> from <pathname> in <Dir>
