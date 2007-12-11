@@ -20,7 +20,7 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
   theTree = (TTree*)theFile->Get("CocoaDaq");
 
   nev = theTree->GetEntries(); // number of entries in Tree
-  std::cout << "CocoaDaqReaderRoot::CocoaDaqReaderRoot:  number of entries in Tree " << nev << std::endl;
+  if ( ALIUtils::debug >= 2) std::cout << "CocoaDaqReaderRoot::CocoaDaqReaderRoot:  number of entries in Tree " << nev << std::endl;
  
   nextEvent = 0;
 
@@ -29,6 +29,8 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
 
   // link pointer to Tree branch
   theTree->SetBranchAddress("CocoaDaq", &theEvent);  //  !! SHOULD BE CALLED Alignment_Cocoa
+
+  CocoaDaqReader::SetDaqReader( this );
 
 }
 
@@ -54,13 +56,15 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   // Loop over all events
   nb = theTree->GetEntry(nev);  // read in entire event
  
-   std::cout << "CocoaDaqReaderRoot reading event " << nev << " " << nb << std::endl;
+  if ( ALIUtils::debug >= 2) std::cout << "CocoaDaqReaderRoot reading event " << nev << " " << nb << std::endl;
   if( nb == 0 ) return 0; //end of file reached??
 
   // Every n events, dump one to screen
   if(nev%1 == 0) theEvent->DumpIt();
   
-  std::cout<<" CocoaDaqReaderRoot::ReadEvent "<< nev <<std::endl;
+  if ( ALIUtils::debug >= 2) std::cout<<" CocoaDaqReaderRoot::ReadEvent "<< nev <<std::endl;
+
+   if ( ALIUtils::debug >= 2) std::cout<<" CocoaDaqReaderRoot::ReadEvent npos2D "<< theEvent->GetNumPos2D() << " nCOPS " << theEvent->GetNumPosCOPS() << std::endl;
   
   for(int ii=0; ii<theEvent->GetNumPos2D(); ii++) {
     AliDaqPosition2D* pos2D = (AliDaqPosition2D*) theEvent->GetArray_Position2D()->At(ii);
@@ -71,7 +75,7 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   for(int ii=0; ii<theEvent->GetNumPosCOPS(); ii++) {
     AliDaqPositionCOPS* posCOPS = (AliDaqPositionCOPS*) theEvent->GetArray_PositionCOPS()->At(ii);
      measList.push_back( GetMeasFromPositionCOPS( posCOPS ) );
-     std::cout<<"COPS sensor "<<ii<<" has ID = "<<posCOPS->GetID()<< std::endl;
+     if ( ALIUtils::debug >= 2) std::cout<<"COPS sensor "<<ii<<" has ID = "<<posCOPS->GetID()<< std::endl;
      posCOPS->DumpIt("COPS"); 
  }
   for(int ii=0; ii<theEvent->GetNumTilt(); ii++) {
