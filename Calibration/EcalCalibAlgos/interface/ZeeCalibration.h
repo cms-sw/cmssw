@@ -14,7 +14,7 @@
      <Notes on implementation>
 */
 //
-// $Id: ZeeCalibration.h,v 1.1 2007/07/12 17:27:36 meridian Exp $
+// $Id: ZeeCalibration.h,v 1.2 2007/11/20 11:19:01 meridian Exp $
 //
 //
 
@@ -53,8 +53,8 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 // class declaration
 //
@@ -101,7 +101,7 @@ class ZeeCalibration : public edm::ESProducerLooper {
   double fEtaEndcapGood(double scEta) const;
 
   int ringNumberCorrector(int k);
-  double getEtaCorrection(const reco::PixelMatchGsfElectron*);
+  double getEtaCorrection(const reco::GsfElectron*);
 
   float calculateZMass(const std::pair<calib::CalibElectron*,calib::CalibElectron*>& aZCandidate);
   float calculateZEta(const std::pair<calib::CalibElectron*,calib::CalibElectron*>& aZCandidate);
@@ -110,10 +110,10 @@ class ZeeCalibration : public edm::ESProducerLooper {
   float calculateZPhi(const std::pair<calib::CalibElectron*,calib::CalibElectron*>& aZCandidate);
   float calculateZPt(const std::pair<calib::CalibElectron*,calib::CalibElectron*>& aZCandidate);
  
-  void fillEleInfo(std::vector<HepMC::GenParticle*>& a, std::map<HepMC::GenParticle*,const reco::PixelMatchGsfElectron*>& b);
+  void fillEleInfo(std::vector<HepMC::GenParticle*>& a, std::map<HepMC::GenParticle*,const reco::GsfElectron*>& b);
   void fillMCInfo(HepMC::GenParticle* mcele);
 
-  void fillMCmap(const std::vector<const reco::PixelMatchGsfElectron*>* electronCollection, const std::vector<HepMC::GenParticle*>& mcEle,std::map<HepMC::GenParticle*,const reco::PixelMatchGsfElectron*>& myMCmap);
+  void fillMCmap(const std::vector<const reco::GsfElectron*>* electronCollection, const std::vector<HepMC::GenParticle*>& mcEle,std::map<HepMC::GenParticle*,const reco::GsfElectron*>& myMCmap);
   //  void fillMCmap(const reco::ElectronCollection* electronCollection, const std::vector<HepMC::GenParticle*>& mcEle,std::map<HepMC::GenParticle*,const reco::Electron*>& myMCmap);
   
   float EvalDPhi(float Phi,float Phi_ref);

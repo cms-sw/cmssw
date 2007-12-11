@@ -6,7 +6,7 @@
 
 #include <vector>
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 
 
@@ -17,7 +17,7 @@ namespace calib
   public:
     
     CalibElectron();
-    CalibElectron(const reco::PixelMatchGsfElectron* ele ,const EcalRecHitCollection* theHits, const EcalRecHitCollection* theEEHits) : 
+    CalibElectron(const reco::GsfElectron* ele ,const EcalRecHitCollection* theHits, const EcalRecHitCollection* theEEHits) : 
       theElectron_(ele),
       theHits_(theHits), 
       theEEHits_(theEEHits) 

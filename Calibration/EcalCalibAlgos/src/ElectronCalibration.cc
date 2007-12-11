@@ -29,8 +29,8 @@
 #include <stdexcept>
 #include <vector>
 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 ElectronCalibration::ElectronCalibration(const edm::ParameterSet& iConfig)
 {
@@ -419,13 +419,13 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
    const EBRecHitCollection* hits = phits.product(); // get a ptr to the product
 
    // Get pixelElectrons
-   Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
+   Handle<reco::GsfElectronCollection> pElectrons;
    try {
      iEvent.getByLabel(electronLabel_, pElectrons);
    } catch ( cms::Exception &e ) {
      std::cerr << "Error! can't get the product ElectronCollection: " << std::endl;
    }
-  const reco::PixelMatchGsfElectronCollection* electronCollection = pElectrons.product();
+  const reco::GsfElectronCollection* electronCollection = pElectrons.product();
   read_events++;
   if(read_events%1000 ==0)cout << "read_events = " << read_events << endl;
   
@@ -438,9 +438,9 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
   ////////////////////////////////////////////////////////////////////////////////////////
   //                          START HERE....
   ///////////////////////////////////////////////////////////////////////////////////////
-  reco::PixelMatchGsfElectronCollection::const_iterator eleIt = electronCollection->begin();
+  reco::GsfElectronCollection::const_iterator eleIt = electronCollection->begin();
 
-  reco::PixelMatchGsfElectron highPtElectron;
+  reco::GsfElectron highPtElectron;
 
   float highestElePt=0.;
   bool found=false;

@@ -31,8 +31,8 @@
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -196,7 +196,7 @@ void ZeeCalibration::beginOfJob( const edm::EventSetup& iSetup )
 	  initCalibCoeff[k]=0.;	      
 	  for (unsigned int iid=0; iid<ringIds.size();++iid)
 	    {
-	      float miscalib=miscalibMap->get().getMap().find(ringIds[iid])->second;
+	      float miscalib=(*(miscalibMap->get().find(ringIds[iid])));
 	      initCalibCoeff[k]+=miscalib;
 	    }
 	  initCalibCoeff[k]/=(float)ringIds.size();
@@ -215,7 +215,7 @@ void ZeeCalibration::beginOfJob( const edm::EventSetup& iSetup )
       std::vector<DetId> ringIds = EcalRingCalibrationTools::getDetIdsInRing(k);
       for (unsigned int iid=0; iid<ringIds.size();++iid)
 	//	ical->setValue( ringIds[iid], 1. * initCalibCoeff[k] );
-	ical->setValue( ringIds[iid], miscalibMap->get().getMap().find(ringIds[iid])->second );
+	ical->setValue( ringIds[iid], (*(miscalibMap->get().find(ringIds[iid]))) );
     }
   
   read_events = 0;
@@ -265,7 +265,7 @@ ZeeCalibration::endOfJob() {
       if (EBDetId::validDetId(ieta,iphi))
 	{
 	  EBDetId ebid(ieta,iphi);
-	  barrelWriter->writeLine(ebid,ical->getMap().find(ebid.rawId())->second);
+	  barrelWriter->writeLine(ebid,(*(ical->getMap().find(ebid.rawId()))));
 	}
     }
   }
@@ -279,12 +279,12 @@ ZeeCalibration::endOfJob() {
       if (EEDetId::validDetId(iX,iY,1))
 	{
 	  EEDetId eeid(iX,iY,1);
-          endcapWriter->writeLine(eeid,ical->getMap().find(eeid.rawId())->second);
+          endcapWriter->writeLine(eeid,(*(ical->getMap().find(eeid.rawId()))));
 	}
       if (EEDetId::validDetId(iX,iY,-1))
 	{
 	  EEDetId eeid(iX,iY,-1);
-          endcapWriter->writeLine(eeid,ical->getMap().find(eeid.rawId())->second);
+          endcapWriter->writeLine(eeid,(*(ical->getMap().find(eeid.rawId()))));
 	}
       
     }
@@ -660,17 +660,17 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   if(  ( scCollection->size()+scIslandCollection->size() ) < 2) return kContinue;
 
   // Get Electrons
-  Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
+  Handle<reco::GsfElectronCollection> pElectrons;
   try {
     iEvent.getByLabel(electronProducer_, electronCollection_, pElectrons);
   } catch (std::exception& ex ) {
     std::cerr << "Error! can't get the product ElectronCollection "<< std::endl;
   }
-  const reco::PixelMatchGsfElectronCollection* electronCollection = pElectrons.product();
+  const reco::GsfElectronCollection* electronCollection = pElectrons.product();
 
   /*
   //reco-mc association map
-  std::map<HepMC::GenParticle*,const reco::PixelMatchGsfElectron*> myMCmap;
+  std::map<HepMC::GenParticle*,const reco::GsfElectron*> myMCmap;
   
     fillMCmap(&(*electronCollection),mcEle,myMCmap);
     
@@ -715,7 +715,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   
   h1_nEleReco_->Fill(electronCollection->size());
   
-  for(reco::PixelMatchGsfElectronCollection::const_iterator eleIt = electronCollection->begin();   eleIt != electronCollection->end(); eleIt++)
+  for(reco::GsfElectronCollection::const_iterator eleIt = electronCollection->begin();   eleIt != electronCollection->end(); eleIt++)
     {
       
       h1_recoElePt_->Fill(eleIt->pt());
@@ -1016,9 +1016,9 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
 	    
 	    //reco-mc association map - begin
 	    
-	    std::map<HepMC::GenParticle*,const reco::PixelMatchGsfElectron*> myMCmap;
+	    std::map<HepMC::GenParticle*,const reco::GsfElectron*> myMCmap;
 	    
-	    std::vector<const reco::PixelMatchGsfElectron*> dauElectronCollection;
+	    std::vector<const reco::GsfElectron*> dauElectronCollection;
 	    
 	    dauElectronCollection.push_back(zeeCandidates[myBestZ].first->getRecoElectron()  );
 	    dauElectronCollection.push_back(zeeCandidates[myBestZ].second->getRecoElectron()  );
@@ -1182,7 +1182,7 @@ ZeeCalibration::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop)
       
       for (unsigned int iid=0; iid<ringIds.size();++iid){
 
-	ical->setValue( ringIds[iid], ical->getMap().find(ringIds[iid])->second * optimizedCoefficients[ieta] );
+	ical->setValue( ringIds[iid], (*(ical->getMap().find(ringIds[iid]))) * optimizedCoefficients[ieta] );
       }    
 
     }
@@ -1685,12 +1685,12 @@ double ZeeCalibration::fEtaBarrelGood(double scEta) const{
 
 //////////////////////////////////new part
 
-void ZeeCalibration::fillMCmap(const std::vector<const reco::PixelMatchGsfElectron*>* electronCollection,const std::vector<HepMC::GenParticle*>& mcEle,std::map<HepMC::GenParticle*,const reco::PixelMatchGsfElectron*>& myMCmap)
+void ZeeCalibration::fillMCmap(const std::vector<const reco::GsfElectron*>* electronCollection,const std::vector<HepMC::GenParticle*>& mcEle,std::map<HepMC::GenParticle*,const reco::GsfElectron*>& myMCmap)
 {
   for (unsigned int i=0;i<mcEle.size();i++)
     {
       float minDR=0.1;
-      const reco::PixelMatchGsfElectron* myMatchEle=0;
+      const reco::GsfElectron* myMatchEle=0;
       for (unsigned int j=0;j<electronCollection->size();j++)
         {
           float dr=EvalDR(mcEle[i]->momentum().pseudoRapidity(),(*(*electronCollection)[j]).eta(),mcEle[i]->momentum().phi(),(*(*electronCollection)[j]).phi());
@@ -1700,7 +1700,7 @@ void ZeeCalibration::fillMCmap(const std::vector<const reco::PixelMatchGsfElectr
               minDR = dr;
             }
         }
-      myMCmap.insert(std::pair<HepMC::GenParticle*,const reco::PixelMatchGsfElectron*>(mcEle[i],myMatchEle));
+      myMCmap.insert(std::pair<HepMC::GenParticle*,const reco::GsfElectron*>(mcEle[i],myMatchEle));
       
     }
 }
@@ -1725,7 +1725,7 @@ float ZeeCalibration::EvalDPhi(float Phi,float Phi_ref)
   return (Phi - Phi_ref);
 }
 
-void ZeeCalibration::fillEleInfo( std::vector<HepMC::GenParticle*>& mcEle, std::map<HepMC::GenParticle*,const reco::PixelMatchGsfElectron*>& associationMap)
+void ZeeCalibration::fillEleInfo( std::vector<HepMC::GenParticle*>& mcEle, std::map<HepMC::GenParticle*,const reco::GsfElectron*>& associationMap)
 {
 
   for (unsigned int i=0;i<mcEle.size();i++)
@@ -1735,13 +1735,13 @@ void ZeeCalibration::fillEleInfo( std::vector<HepMC::GenParticle*>& mcEle, std::
       h_eleEffPhi_[0]->Fill(mcEle[i]->momentum().phi());
       h_eleEffPt_[0]->Fill(mcEle[i]->momentum().perp());
 
-      std::map<HepMC::GenParticle*,const reco::PixelMatchGsfElectron*>::const_iterator mIter = associationMap.find(mcEle[i]);
+      std::map<HepMC::GenParticle*,const reco::GsfElectron*>::const_iterator mIter = associationMap.find(mcEle[i]);
       if (mIter == associationMap.end() )
         continue;
     
       if((*mIter).second)
         {
-          const reco::PixelMatchGsfElectron* myEle=(*mIter).second;
+          const reco::GsfElectron* myEle=(*mIter).second;
       
 	  h_eleEffEta_[1]->Fill(fabs(mcEle[i]->momentum().pseudoRapidity()));
           h_eleEffPhi_[1]->Fill(mcEle[i]->momentum().phi());
@@ -1794,7 +1794,7 @@ int ZeeCalibration::ringNumberCorrector(int k)
 }
 
 
-double ZeeCalibration::getEtaCorrection(const reco::PixelMatchGsfElectron* ele){
+double ZeeCalibration::getEtaCorrection(const reco::GsfElectron* ele){
 
   double correction(1.);
 

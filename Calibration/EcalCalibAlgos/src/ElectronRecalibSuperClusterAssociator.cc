@@ -7,11 +7,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "Calibration/EcalCalibAlgos/interface/ElectronRecalibSuperClusterAssociator.h"
+
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include <iostream>
 
@@ -27,7 +29,7 @@ ElectronRecalibSuperClusterAssociator::ElectronRecalibSuperClusterAssociator(con
 #endif
 
   //register your products
-  produces<PixelMatchGsfElectronCollection>();
+  produces<GsfElectronCollection>();
   produces<SuperClusterCollection>();
   
   scProducer_ = iConfig.getParameter<std::string>("scProducer");
@@ -58,7 +60,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
   std::cout<< "ElectronRecalibSuperClusterAssociator::produce" << std::endl;
 #endif
   // Create the output collections   
-  std::auto_ptr<PixelMatchGsfElectronCollection> pOutEle(new PixelMatchGsfElectronCollection);
+  std::auto_ptr<GsfElectronCollection> pOutEle(new GsfElectronCollection);
   std::auto_ptr<SuperClusterCollection> pOutNewEndcapSC(new SuperClusterCollection);
 
   reco::SuperClusterRefProd rSC = e.getRefBeforePut<SuperClusterCollection>();
@@ -91,15 +93,15 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 #endif
 
   // Get Electrons
-  Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
+  Handle<reco::GsfElectronCollection> pElectrons;
   try {
     e.getByLabel(electronProducer_, electronCollection_, pElectrons);
   } catch (std::exception& ex ) {
     std::cerr << "Error! can't get the product ElectronCollection "<< std::endl;
   }
-  const reco::PixelMatchGsfElectronCollection* electronCollection = pElectrons.product();
+  const reco::GsfElectronCollection* electronCollection = pElectrons.product();
   
-  for(reco::PixelMatchGsfElectronCollection::const_iterator eleIt = electronCollection->begin(); eleIt != electronCollection->end(); eleIt++)
+  for(reco::GsfElectronCollection::const_iterator eleIt = electronCollection->begin(); eleIt != electronCollection->end(); eleIt++)
     {
       float DeltaRMineleSCbarrel(0.15); 
       float DeltaRMineleSCendcap(0.15); 
@@ -150,7 +152,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
        
       
       if(nearestSCbarrel && !nearestSCendcap){
-	reco::PixelMatchGsfElectron newEle(*eleIt);
+	reco::GsfElectron newEle(*eleIt);
 	newEle.setGsfTrack(eleIt->gsfTrack());
 	reco::SuperClusterRef scRef(reco::SuperClusterRef(pSuperClusters, iscRef));
 	newEle.setSuperCluster(scRef);
@@ -165,7 +167,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 #ifdef DEBUG
 	std::cout << "Starting Association is with EE superCluster "<< std::endl;
 #endif  
-	  reco::PixelMatchGsfElectron newEle(*eleIt);
+	  reco::GsfElectron newEle(*eleIt);
 	  newEle.setGsfTrack(eleIt->gsfTrack());
 	  float preshowerEnergy=eleIt->superCluster()->preshowerEnergy(); 
 #ifdef DEBUG
@@ -186,7 +188,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
     
       if(nearestSCbarrel && nearestSCendcap){
 	
-	reco::PixelMatchGsfElectron newEle(*eleIt);
+	reco::GsfElectron newEle(*eleIt);
         newEle.setGsfTrack(eleIt->gsfTrack());
 	
 	if(DeltaRMineleSCendcap>=DeltaRMineleSCbarrel)
