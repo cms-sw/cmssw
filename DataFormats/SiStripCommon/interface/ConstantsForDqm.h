@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForDqm.h,v 1.5 2007/07/11 11:13:59 bainbrid Exp $
+// Last commit: $Id: ConstantsForDqm.h,v 1.6 2007/12/11 16:38:12 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForDqm_H
 #define DataFormats_SiStripCommon_ConstantsForDqm_H
@@ -37,7 +37,7 @@ namespace sistrip {
   static const std::string baselineRms_       = "BaselineNoise";
   static const std::string pedsAndRawNoise_   = "PedsAndRawNoise";
   static const std::string residualsAndNoise_ = "ResidualsAndNoise";
-  static const std::string pedsAndCmSubNoise_ = "PedsAndCommonModeSubtractedNoise";
+  static const std::string pedsAndCmSubNoise_ = "PedsAndCMSubtractedNoise";
   static const std::string commonMode_        = "CommonMode";
   
   // ---------- Actions to be taken by web client ----------
