@@ -28,7 +28,7 @@ namespace calib
 
 
     std::vector< std::pair<int,float> > getCalibModulesWeights(TString calibtype);
-    const reco::PixelMatchGsfElectron* getRecoElectron() { return theElectron_; }
+    const reco::GsfElectron* getRecoElectron() { return theElectron_; }
     const EcalRecHitCollection* getRecHits() { return theHits_; }
     const EcalRecHitCollection* getEERecHits() { return theEEHits_; }
 
@@ -64,7 +64,7 @@ namespace calib
   private:
   
     //  VClusteringAlgo* theAlgo;
-    const reco::PixelMatchGsfElectron* theElectron_;
+    const reco::GsfElectron* theElectron_;
     
     const EcalRecHitCollection* theHits_;
     const EcalRecHitCollection* theEEHits_;
