@@ -5,6 +5,7 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
+#include <math.h>
 
 using namespace sistrip;
 
@@ -43,9 +44,13 @@ void PedestalsTask::book() {
   nbins = 256;
   for ( uint16_t ihisto = 0; ihisto < 2; ihisto++ ) { 
     
-    if      ( ihisto == 0 ) { extra_info = sistrip::pedsAndRawNoise_; } // "PedsAndRawNoise"; }
-    else if ( ihisto == 1 ) { extra_info = sistrip::residualsAndNoise_; } // "ResidualsAndNoise"; }
-    else { /**/ }
+    if      ( ihisto == 0 ) { 
+      extra_info = sistrip::pedsAndRawNoise_; 
+      peds_[ihisto].isProfile_ = true;
+    } else if ( ihisto == 1 ) { 
+      extra_info = sistrip::pedsAndCmSubNoise_; 
+      peds_[ihisto].isProfile_ = false;
+    } 
     
     title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 			       sistrip::PEDESTALS, 
@@ -143,14 +148,27 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
 //
 void PedestalsTask::update() {
   
-  // Pedestals and noise
+  // Pedestals 
   updateHistoSet( peds_[0] );
-  updateHistoSet( peds_[1] );
 
+  // Noise
+  HistoSet temp;
+  uint16_t bins = peds_[1].vNumOfEntries_.size();
+  temp.vNumOfEntries_.resize(bins,0);
+  temp.vSumOfContents_.resize(bins,0);
+  temp.vSumOfSquares_.resize(bins,0);
+  for ( uint16_t ii = 0; ii < bins; ++ii ) {
+    if ( peds_[1].vNumOfEntries_[ii] ) {
+      float mean = peds_[1].vSumOfContents_[ii] / temp.vNumOfEntries_[ii];
+      float spread = fabs( peds_[1].vSumOfSquares_[ii] / peds_[1].vNumOfEntries_[ii] - mean * mean );
+      spread = sqrt( spread );
+      temp.vNumOfEntries_[ii] = spread;
+    }
+  }    
+  updateHistoSet( temp );
+  
   // Common mode
   updateHistoSet( cm_[0] );
   updateHistoSet( cm_[1] );
-
+  
 }
-
-

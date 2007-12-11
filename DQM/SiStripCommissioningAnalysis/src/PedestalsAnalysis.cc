@@ -135,7 +135,7 @@ void PedestalsAnalysis::extract( const std::vector<TH1*>& histos ) {
     if ( title.extraInfo().find(sistrip::pedsAndRawNoise_) != std::string::npos ) {
       hPeds_.first = *ihis;
       hPeds_.second = (*ihis)->GetName();
-    } else if ( title.extraInfo().find(sistrip::residualsAndNoise_) != std::string::npos ) {
+    } else if ( title.extraInfo().find(sistrip::pedsAndCmSubNoise_) != std::string::npos ) {
       hNoise_.first = *ihis;
       hNoise_.second = (*ihis)->GetName();
     } else if ( title.extraInfo().find(sistrip::commonMode_) != std::string::npos ) {
@@ -186,7 +186,7 @@ void PedestalsAnalysis::analyse() {
 
   // Extract TProfile histograms
   TProfile* peds_histo = dynamic_cast<TProfile*>(hPeds_.first);
-  TProfile* noise_histo = dynamic_cast<TProfile*>(hNoise_.first);
+  TH1F* noise_histo = dynamic_cast<TH1F*>(hNoise_.first);
 
   // Checks on whether pedestals TProfile histo exists
   if ( !peds_histo ) {
@@ -239,13 +239,14 @@ void PedestalsAnalysis::analyse() {
 
       // Noise
       if ( noise_histo ) {
-	if ( noise_histo->GetBinEntries(strip+1) ) {
-	  noise_[iapv][istr] = noise_histo->GetBinError(strip+1);
+	//if ( noise_histo->GetBinEntries(strip+1) ) {
+	  //noise_[iapv][istr] = noise_histo->GetBinError(strip+1);
+	  noise_[iapv][istr] = noise_histo->GetBinContent(strip+1);
 	  n_sum += noise_[iapv][istr];
 	  n_sum2 += (noise_[iapv][istr] * noise_[iapv][istr]);
 	  if ( noise_[iapv][istr] > n_max ) { n_max = noise_[iapv][istr]; }
 	  if ( noise_[iapv][istr] < n_min ) { n_min = noise_[iapv][istr]; }
-	}
+	  //}
       }
 
     } // strip loop
