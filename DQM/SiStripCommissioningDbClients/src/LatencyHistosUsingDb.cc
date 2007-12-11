@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.7 2007/11/20 22:40:53 bainbrid Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.1 2007/12/11 16:09:57 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -87,13 +87,13 @@ void LatencyHistosUsingDb::uploadToConfigDb() {
 void LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices ) {
   
   // Obtain the latency from the analysis object
-  if(!data_.size() || !data_.begin()->second->isValid() ) {
+  if(!data_.size() || !data_.begin()->second.isValid() ) {
     edm::LogVerbatim(mlDqmClient_) 
       << "[LatencyHistosUsingDb::" << __func__ << "]"
       << " Updated NO Latency settings. No analysis result available !" ;
     return;
   }
-  uint16_t latency = uint16_t((data_.begin()->second->maximum()/(-25.))+0.5);
+  uint16_t latency = uint16_t((data_.begin()->second.maximum()/(-25.))+0.5);
   
   // Iterate through devices and update device descriptions
   uint16_t updated = 0;
@@ -110,12 +110,12 @@ void LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices 
     std::stringstream ss;
     ss << "[LatencyHistosUsingDb::" << __func__ << "]"
        << " Updating latency APV settings for crate/FEC/slot/ring/CCU/i2cAddr "
-       << addr.fecCrate() << "/"
-       << addr.fecSlot() << "/"
-       << addr.fecRing() << "/"
-       << addr.ccuAddr() << "/"
-       << addr.ccuChan() << "/"
-       << addr.i2cAddr()
+       << addr.fecCrate_ << "/"
+       << addr.fecSlot_ << "/"
+       << addr.fecRing_ << "/"
+       << addr.ccuAddr_ << "/"
+       << addr.ccuChan_ << "/"
+       << addr.i2cAddr_
        << " from "
        << static_cast<uint16_t>(desc->getLatency());
     desc->setLatency(latency);

@@ -11,6 +11,7 @@ class LatencyHistograms : public CommissioningHistograms {
 
  public:
   
+  LatencyHistograms( DaqMonitorBEInterface* );
   LatencyHistograms( MonitorUserInterface* );
   virtual ~LatencyHistograms();
   

@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.4 2007/05/24 15:59:44 bainbrid Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.1 2007/12/11 16:09:53 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
@@ -29,10 +29,10 @@ class FineDelayHistosUsingDb : public FineDelayHistograms, public CommissioningH
   
  private:
   
-  void update( SiStripConfigDb::DeviceDescriptions& );
-  
+  bool update( SiStripConfigDb::DeviceDescriptions& );
+
+  void update( SiStripConfigDb::FedDescriptions& );
   
 };
 
 #endif // DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
-

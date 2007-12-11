@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.11 2007/11/30 15:33:38 bainbrid Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.1 2007/12/11 16:09:57 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -13,9 +13,7 @@ using namespace sistrip;
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( MonitorUserInterface* mui,
 						const DbParams& params )
   : FineDelayHistograms( mui ),
-    CommissioningHistosUsingDb( params ),
-    uploadFecSettings_(true),
-    uploadFedSettings_(true)
+    CommissioningHistosUsingDb( params )
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
@@ -27,9 +25,7 @@ FineDelayHistosUsingDb::FineDelayHistosUsingDb( MonitorUserInterface* mui,
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( MonitorUserInterface* mui,
 						SiStripConfigDb* const db ) 
   : FineDelayHistograms( mui ),
-    CommissioningHistosUsingDb( db ),
-    uploadFecSettings_(true),
-    uploadFedSettings_(true)
+    CommissioningHistosUsingDb( db )
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
@@ -41,9 +37,7 @@ FineDelayHistosUsingDb::FineDelayHistosUsingDb( MonitorUserInterface* mui,
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( DaqMonitorBEInterface* bei,
 						SiStripConfigDb* const db ) 
   : FineDelayHistograms( bei ),
-    CommissioningHistosUsingDb( db ),
-    uploadFecSettings_(true),
-    uploadFedSettings_(true)
+    CommissioningHistosUsingDb( db )
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
@@ -70,8 +64,6 @@ void FineDelayHistosUsingDb::uploadToConfigDb() {
     return;
   }
   
-  if ( uploadFecSettings_ ) {
-
     // Retrieve and update PLL device descriptions
     const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( PLL ); 
     bool upload = update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
@@ -100,14 +92,6 @@ void FineDelayHistosUsingDb::uploadToConfigDb() {
 	<< " TEST only! No PLL settings will be uploaded to DB...";
     }
 
-  } else {
-    LogTrace(mlDqmClient_) 
-      << "[FineDelayHistosUsingDb::" << __func__ << "]"
-      << " No upload of PLL settings to DB, as defined by .cfg file!";
-  }
-  
-  if ( uploadFedSettings_ ) {
-
     // Update FED descriptions with new ticker thresholds
     const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
     update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
@@ -126,12 +110,6 @@ void FineDelayHistosUsingDb::uploadToConfigDb() {
 	<< "[FineDelayHistosUsingDb::" << __func__ << "]"
 	<< " TEST only! No FED ticker thresholds will be uploaded to DB...";
     }
-
-  } else {
-    LogTrace(mlDqmClient_) 
-      << "[FineDelayHistosUsingDb::" << __func__ << "]"
-      << " No Upload of FED ticker thresholds to DB, as defined by .cfg file!";
-  }
 
 }
 
@@ -278,6 +256,7 @@ bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
     << updated << " modules";
   return true;
     */
+  return false;
 }
 
 // -----------------------------------------------------------------------------

@@ -11,6 +11,7 @@ class FineDelayHistograms : public CommissioningHistograms {
 
  public:
   
+  FineDelayHistograms( DaqMonitorBEInterface* );
   FineDelayHistograms( MonitorUserInterface* );
   virtual ~FineDelayHistograms();
   

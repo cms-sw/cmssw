@@ -11,6 +11,17 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
+LatencyHistograms::LatencyHistograms( DaqMonitorBEInterface* bei ) 
+  : CommissioningHistograms( bei, sistrip::FINE_DELAY ),
+    factory_( new Factory )
+{
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[LatencyHistograms::" << __func__ << "]"
+       << " Constructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
 LatencyHistograms::LatencyHistograms( MonitorUserInterface* mui ) 
   : CommissioningHistograms( mui, sistrip::FINE_DELAY ),
     factory_( new Factory )
