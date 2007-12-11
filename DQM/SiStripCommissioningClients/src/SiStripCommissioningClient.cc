@@ -7,6 +7,7 @@
 #include "DQM/SiStripCommissioningClients/interface/FedTimingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/LatencyHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/FineDelayHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/CalibrationHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
@@ -220,6 +221,7 @@ void SiStripCommissioningClient::createHistograms( const sistrip::RunType& task 
   else if ( task == sistrip::OPTO_SCAN )          { histos_ = new OptoScanHistograms( mui_ ); }
   else if ( task == sistrip::VPSP_SCAN )          { histos_ = new VpspScanHistograms( mui_ ); }
   else if ( task == sistrip::PEDESTALS )          { histos_ = new PedestalsHistograms( mui_ ); }
+  else if ( task == sistrip::APV_LATENCY )        { histos_ = new LatencyHistograms( mui_ ); }
   else if ( task == sistrip::FINE_DELAY )         { histos_ = new FineDelayHistograms( mui_ ); }
   else if ( task == sistrip::CALIBRATION ||
             task == sistrip::CALIBRATION_DECO ||

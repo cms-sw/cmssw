@@ -16,6 +16,7 @@
 #include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
 #include "DQM/SiStripCommissioningSources/interface/DaqScopeModeTask.h"
+#include "DQM/SiStripCommissioningSources/interface/LatencyTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FineDelayTask.h"
 #include "DQM/SiStripCommissioningSources/interface/CalibrationTask.h"
 #include "DQM/SiStripCommissioningSources/interface/CalibrationScanTask.h"
@@ -884,6 +885,7 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
 	else if ( task_ == sistrip::VPSP_SCAN ) { tasks_[iconn->fedId()][iconn->fedCh()] = new VpspScanTask( dqm(), *iconn ); }
 	else if ( task_ == sistrip::PEDESTALS ) { tasks_[iconn->fedId()][iconn->fedCh()] = new PedestalsTask( dqm(), *iconn ); }
 	else if ( task_ == sistrip::DAQ_SCOPE_MODE ) { tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn ); }
+        else if ( task_ == sistrip::APV_LATENCY ) { tasks_[iconn->fedId()][iconn->fedCh()] = new LatencyTask( dqm(), *iconn ); }
         else if ( task_ == sistrip::FINE_DELAY ) { tasks_[iconn->fedId()][iconn->fedCh()] = new FineDelayTask( dqm(), *iconn ); }
         else if ( task_ == sistrip::CALIBRATION_SCAN || task_ == sistrip::CALIBRATION_SCAN_DECO ) { 
 	  tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationScanTask( dqm(), *iconn, task_, filename_.c_str(), setup ); }

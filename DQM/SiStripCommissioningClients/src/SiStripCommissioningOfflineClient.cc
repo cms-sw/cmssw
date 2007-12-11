@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.19 2007/09/19 12:08:39 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.20 2007/11/05 11:02:36 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -11,6 +11,7 @@
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/LatencyHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/FineDelayHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/CalibrationHistograms.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -400,6 +401,7 @@ void SiStripCommissioningOfflineClient::createCommissioningHistograms() {
   else if ( runType_ == sistrip::OPTO_SCAN )            { histos_ = new OptoScanHistograms(   mui_ ); }
   else if ( runType_ == sistrip::VPSP_SCAN )            { histos_ = new VpspScanHistograms(   mui_ ); }
   else if ( runType_ == sistrip::PEDESTALS )            { histos_ = new PedestalsHistograms(  mui_ ); }
+  else if ( runType_ == sistrip::APV_LATENCY )          { histos_ = new LatencyHistograms(  mui_ ); }
   else if ( runType_ == sistrip::FINE_DELAY )           { histos_ = new FineDelayHistograms(  mui_ ); }
   else if ( runType_ == sistrip::CALIBRATION      ||
             runType_ == sistrip::CALIBRATION_DECO ||
