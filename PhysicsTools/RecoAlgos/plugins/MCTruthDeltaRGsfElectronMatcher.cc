@@ -1,4 +1,4 @@
-/* \class MCTruthDeltaRPixelMatchGsfElectronMatcher
+/* \class MCTruthDeltaRGsfElectronMatcher
  *
  * Producer fo simple MC truth match map
  * based on DeltaR
@@ -13,8 +13,8 @@ typedef reco::modules::Matcher<
           reco::GsfElectronCollection, 
           reco::CandidateCollection, 
           helpers::MCTruthPairSelector<reco::GsfElectron> 
-        > MCTruthDeltaRPixelMatchGsfElectronMatcher;
+        > MCTruthDeltaRGsfElectronMatcher;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( MCTruthDeltaRPixelMatchGsfElectronMatcher );
+DEFINE_FWK_MODULE( MCTruthDeltaRGsfElectronMatcher );

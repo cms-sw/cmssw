@@ -10,9 +10,9 @@
 
 namespace reco {
   namespace modules {
-    typedef MCTruthCompositeMatcher<reco::GsfElectronCollection> MCTruthPixelMatchGsfElectronCompositeMatcher;
+    typedef MCTruthCompositeMatcher<reco::GsfElectronCollection> MCTruthMatchGsfElectronCompositeMatcher;
 
-DEFINE_FWK_MODULE( MCTruthPixelMatchGsfElectronCompositeMatcher );
+DEFINE_FWK_MODULE( MCTruthMatchGsfElectronCompositeMatcher );
 
   }
 }

@@ -1,4 +1,4 @@
-/* \class EtaPtMinPixelMatchGsfElectronSelector
+/* \class EtaPtMinGsfElectronSelector
  *
  * selects electron above a minumum pt cut
  *
@@ -19,6 +19,6 @@
              EtaRangeSelector,
              PtMinSelector
            >
-         > EtaPtMinPixelMatchGsfElectronSelector;
+         > EtaPtMinGsfElectronSelector;
 
-DEFINE_FWK_MODULE( EtaPtMinPixelMatchGsfElectronSelector );
+DEFINE_FWK_MODULE( EtaPtMinGsfElectronSelector );

@@ -1,6 +1,7 @@
-/* \class EtaPtMinPixelMatchGsfElectronSelector
+/* \class EtaPtMinGsfElectronFullCloneSelector
  *
  * selects electron above a minumum pt cut
+ * Also clones super cluster and track of selected electrons
  *
  * \author: Luca Lista, INFN
  *
@@ -12,13 +13,14 @@
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "PhysicsTools/RecoAlgos/interface/GsfElectronSelector.h"
 
  typedef SingleObjectSelector<
            reco::GsfElectronCollection,
            AndSelector<
-             EtaRangeSelector,
+	     EtaRangeSelector,
              PtMinSelector
            >
-         > EtaPtMinPixelMatchGsfElectronSelector;
+         > EtaPtMinGsfElectronFullCloneSelector;
 
-DEFINE_FWK_MODULE( EtaPtMinPixelMatchGsfElectronSelector );
+DEFINE_FWK_MODULE( EtaPtMinGsfElectronFullCloneSelector );

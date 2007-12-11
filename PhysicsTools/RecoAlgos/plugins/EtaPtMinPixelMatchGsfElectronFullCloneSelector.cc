@@ -11,12 +11,12 @@
 #include "PhysicsTools/UtilAlgos/interface/PtMinSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/EtaRangeSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
-#include "PhysicsTools/RecoAlgos/interface/PixelMatchGsfElectronSelector.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "PhysicsTools/RecoAlgos/interface/GsfElectronSelector.h"
 
  typedef SingleObjectSelector<
-           reco::PixelMatchGsfElectronCollection,
+           reco::GsfElectronCollection,
            AndSelector<
 	     EtaRangeSelector,
              PtMinSelector

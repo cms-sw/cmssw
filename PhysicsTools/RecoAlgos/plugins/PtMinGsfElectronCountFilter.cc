@@ -1,4 +1,4 @@
-/* \class PtMinPixelMatchGsfElectronCountFilter
+/* \class PtMinGsfElectronCountFilter
  *
  * Filters events if at least N electrons above 
  * a pt cut are present
@@ -15,6 +15,6 @@
 typedef ObjectCountFilter<
           reco::GsfElectronCollection, 
           PtMinSelector
-        > PtMinPixelMatchGsfElectronCountFilter;
+        > PtMinGsfElectronCountFilter;
 
-DEFINE_FWK_MODULE( PtMinPixelMatchGsfElectronCountFilter );
+DEFINE_FWK_MODULE( PtMinGsfElectronCountFilter );

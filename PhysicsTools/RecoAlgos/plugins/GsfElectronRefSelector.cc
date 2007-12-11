@@ -1,4 +1,4 @@
-/* \class PixelMatchGsfElectronRefSelector
+/* \class GsfElectronRefSelector
  *
  * Selects GsfElectron with a configurable string-based cut.
  * Saves clones of the selected GsfElectrons 
@@ -7,7 +7,7 @@
  *
  * usage:
  *
- * module bestPixelMatchGsfElectrons = PixelMatchGsfElectronRefSelector {
+ * module bestGsfElectrons = GsfElectronRefSelector {
  *   src = pixelMatchGsfElectron
  *   string cut = "pt > 20 & abs( eta ) < 2"
  * }
@@ -30,6 +30,6 @@
            reco::GsfElectronCollection, 
            StringCutObjectSelector<reco::GsfElectron>,
            reco::GsfElectronRefVector
-         > PixelMatchGsfElectronRefSelector;
+         > GsfElectronRefSelector;
 
-DEFINE_FWK_MODULE( PixelMatchGsfElectronRefSelector );
+DEFINE_FWK_MODULE( GsfElectronRefSelector );

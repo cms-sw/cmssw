@@ -1,7 +1,7 @@
 /* \class PixelMatchGsfElectronSelector
  *
- * Selects PixelMatchGsfElectron with a configurable string-based cut.
- * Saves clones of the selected PixelMatchGsfElectrons 
+ * Selects GsfElectron with a configurable string-based cut.
+ * Saves clones of the selected GsfElectrons 
  *
  * \author: Luca Lista, INFN
  *
@@ -23,12 +23,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
  typedef SingleObjectSelector<
-           reco::PixelMatchGsfElectronCollection, 
-           StringCutObjectSelector<reco::PixelMatchGsfElectron> 
+           reco::GsfElectronCollection, 
+           StringCutObjectSelector<reco::GsfElectron> 
          > PixelMatchGsfElectronSelector;
 
 DEFINE_FWK_MODULE( PixelMatchGsfElectronSelector );
