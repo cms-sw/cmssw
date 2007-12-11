@@ -2,6 +2,9 @@
   <class name="L1TriggerScalers"/>
   <class name="L1TriggerRates"/>
   <class name="LumiScalers"/>
+  <class name="std::vector<L1TriggerScalers>"/>
+  <class name="std::vector<L1TriggerRates>"/>
+  <class name="std::vector<LumiScalers>"/>
   <class name="edm::RefProd<L1TriggerScalers>"/>
   <class name="edm::RefProd<L1TriggerRates>"/>
   <class name="edm::RefProd<LumiScalers>"/>
