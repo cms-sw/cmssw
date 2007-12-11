@@ -2,9 +2,10 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
-<use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/Common>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/METReco>
 <use name=DataFormats/HLTReco>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/L1Trigger>
@@ -16,6 +17,7 @@
 <use name=Geometry/DTGeometry>
 <use name=Geometry/RPCGeometry>
 <use name=Geometry/Records>
+<use name=PhysicsTools/UtilAlgos>
 <use name=RecoMuon/TrackingTools>
 <use name=RecoMuon/GlobalTrackFinder>
 <use name=SimDataFormats/Track>
@@ -31,9 +33,10 @@
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/ServiceRegistry>
-   <use name=PhysicsTools/UtilAlgos>
    <use name=DataFormats/Candidate>
    <use name=DataFormats/Common>
+   <use name=DataFormats/JetReco>
+   <use name=DataFormats/METReco>
    <use name=DataFormats/HLTReco>
    <use name=DataFormats/L1GlobalTrigger>
    <use name=DataFormats/L1Trigger>
@@ -45,6 +48,7 @@
    <use name=Geometry/DTGeometry>
    <use name=Geometry/RPCGeometry>
    <use name=Geometry/Records>
+   <use name=PhysicsTools/UtilAlgos>
    <use name=RecoMuon/TrackingTools>
    <use name=RecoMuon/GlobalTrackFinder>
    <use name=SimDataFormats/Track>

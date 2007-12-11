@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Fri Dec  7 10:40:51 CET 2007
-// $Id: SlowHSCPFilter.cc,v 1.2 2007/12/11 12:20:27 querten Exp $
+// $Id: SlowHSCPFilter.cc,v 1.3 2007/12/11 12:37:48 querten Exp $
 //
 //
 
@@ -63,7 +63,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 
-#include "SUSYBSMAnalysis/HSCP/src/SlowHSCPFilter_MainFunctions.h"
+#include "SUSYBSMAnalysis/HSCP/interface/SlowHSCPFilter_MainFunctions.h"
 
 
 using namespace edm;
