@@ -8,7 +8,5 @@ DEFINE_SEAL_MODULE();
 #include "DataFormats/Scalers/interface/ScalersProducer.h" 
 DEFINE_ANOTHER_FWK_MODULE(ScalersProducer);
 
-#include "DataFormats/Scalers/interface/DummyDataReader.h" 
-DEFINE_ANOTHER_FWK_MODULE(DummyDataReader);
 
 
