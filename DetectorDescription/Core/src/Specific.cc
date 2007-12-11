@@ -45,27 +45,27 @@ Specific::Specific(const std::vector<DDPartSelection> & selections,
 void Specific::createPartSelections(const std::string & selString)
 {
 
-   std::vector<DDPartSelRegExpLevel> regv;
-   std::vector<DDPartSelection> temp;
-   DDTokenize2(selString,regv);
-   
-   if (!regv.size()) throw DDException("Could not evaluate the selection-std::string ->" + selString + "<-");
-   std::vector<DDPartSelRegExpLevel>::const_iterator it = regv.begin();
-   for (; it != regv.end(); ++it) {
-     std::vector<DDLogicalPart> lpv;
-     std::pair<bool,std::string> res = DDIsValid(it->ns_,it->nm_,lpv,doRegex_);
-     if (!res.first) 
-       throw DDException("Could not process q-name of a DDLogicalPart, reason:\n"+res.second);
-     
-     //edm::LogInfo ("Specific") << "call addSelectionLevel" << std::endl;
-     addSelectionLevel(lpv,it->copyno_,it->selectionType_,temp);
-   }
-   std::vector<DDPartSelection>::const_iterator iit = temp.begin();
-   for (; iit != temp.end(); ++iit) {
-     partSelections_.push_back(*iit);
-     //edm::LogInfo ("Specific") << *iit << std::endl;
-   }
-   
+  std::vector<DDPartSelRegExpLevel> regv;
+  std::vector<DDPartSelection> temp;
+  DDTokenize2(selString,regv);
+  
+  if (!regv.size()) throw DDException("Could not evaluate the selection-std::string ->" + selString + "<-");
+  std::vector<DDPartSelRegExpLevel>::const_iterator it = regv.begin();
+  for (; it != regv.end(); ++it) {
+    std::vector<DDLogicalPart> lpv;
+    std::pair<bool,std::string> res = DDIsValid(it->ns_,it->nm_,lpv,doRegex_);
+    if (!res.first) 
+      throw DDException("Could not process q-name of a DDLogicalPart, reason:\n"+res.second);
+    
+    //edm::LogInfo ("Specific") << "call addSelectionLevel" << std::endl;
+    addSelectionLevel(lpv,it->copyno_,it->selectionType_,temp);
+  }
+  std::vector<DDPartSelection>::const_iterator iit = temp.begin();
+  partSelections_.reserve(temp.size() + partSelections_.size());
+  for (; iit != temp.end(); ++iit) {
+    partSelections_.push_back(*iit);
+    //edm::LogInfo ("Specific") << *iit << std::endl;
+  } 
 }
 
 
