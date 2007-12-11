@@ -5,15 +5,15 @@
  * *
  *  State machine DQM Client for L1 Trigger. Owns a web interface.
  *
- *  $Date: 2007/04/23 16:04:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/30 13:37:37 $
+ *  $Revision: 1.3 $
  *  \author Lorenzo Agostino
   */
 
 
-#include "DQMServices/Components/interface/DQMBaseClient.h"
-#include "DQMServices/Components/interface/Updater.h"
-#include "DQMServices/Components/interface/UpdateObserver.h"
+#include "DQMServices/XdaqCollector/interface/DQMBaseClient.h"
+#include "DQMServices/XdaqCollector/interface/Updater.h"
+#include "DQMServices/XdaqCollector/interface/UpdateObserver.h"
 
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 
