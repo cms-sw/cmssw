@@ -16,12 +16,12 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:34 CEST 2006
-// $Id: SiStripHistoricInfoClient.h,v 1.8 2007/05/16 08:07:15 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.h,v 1.9 2007/11/26 11:36:47 gbruno Exp $
 //
 
-#include "DQMServices/Components/interface/DQMBaseClient.h"
-#include "DQMServices/Components/interface/Updater.h"
-#include "DQMServices/Components/interface/UpdateObserver.h"
+#include "DQMServices/XdaqCollector/interface/DQMBaseClient.h"
+#include "DQMServices/XdaqCollector/interface/Updater.h"
+#include "DQMServices/XdaqCollector/interface/UpdateObserver.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoWebInterface.h"
 

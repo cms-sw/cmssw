@@ -12,8 +12,7 @@ class SiStripWebInterface : public WebInterface
 {
  public:
  
-  enum SiStripActionType{NoAction=0, SubscribeAll=1, Summary=2, Collate=3,
-                         SaveData=4, 
+  enum SiStripActionType{NoAction=0, SubscribeAll=1, Summary=2, SaveData=3, 
                          PlotSingleModuleHistos=5, PlotGlobalHistos=6,
                          PlotHistogramFromPath=7, PlotTkMapHistogram=8,
                          PlotHistogramFromLayout=9};

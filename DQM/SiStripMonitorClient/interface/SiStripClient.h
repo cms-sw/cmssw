@@ -2,9 +2,9 @@
 #define _SiStripClient_h_
 
 
-#include "DQMServices/Components/interface/DQMBaseClient.h"
-#include "DQMServices/Components/interface/Updater.h"
-#include "DQMServices/Components/interface/UpdateObserver.h"
+#include "DQMServices/XdaqCollector/interface/DQMBaseClient.h"
+#include "DQMServices/XdaqCollector/interface/Updater.h"
+#include "DQMServices/XdaqCollector/interface/UpdateObserver.h"
 
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 
