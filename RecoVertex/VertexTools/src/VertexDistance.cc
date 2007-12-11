@@ -1,5 +1,4 @@
 #include "RecoVertex/VertexTools/interface/VertexDistance.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "FWCore/Utilities/interface/Exception.h"

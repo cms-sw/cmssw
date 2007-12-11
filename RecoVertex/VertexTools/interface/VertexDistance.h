@@ -3,10 +3,10 @@
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 /** \class VertexDistance
  *  Abstact class which defines a distance and compatibility between vertices.
