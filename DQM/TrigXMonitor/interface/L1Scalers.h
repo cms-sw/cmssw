@@ -23,7 +23,7 @@ public:
   void beginJob(const edm::EventSetup& c);
 
 //   /// Endjob
-//   void endJob(void);
+   void endJob(void);
   
   /// BeginRun
   void beginRun(const edm::Run& run, const edm::EventSetup& c);
@@ -46,12 +46,15 @@ public:
 
 private:
   DaqMonitorBEInterface * dbe_;
-  edm::InputTag triggerScalersSource_;
-  edm::InputTag triggerRatesSource_;
-  edm::InputTag lumiScalersSource_;
+  edm::InputTag scalersSource_;
+//  edm::InputTag triggerScalersSource_;
+//  edm::InputTag triggerRatesSource_;
+//  edm::InputTag lumiScalersSource_;
+  
+  std::string outputFile_;	//file name for ROOT ouput
   bool verbose_, monitorDaemon_;
   int nev_; // Number of events processed
-  const L1TriggerScalers *previousTrig;
+//  const L1TriggerScalers *previousTrig;
 
 
   MonitorElement * orbitNum;

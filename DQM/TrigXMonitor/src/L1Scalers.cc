@@ -14,7 +14,6 @@
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 #include "DataFormats/Common/interface/HLTenums.h"
-
 #include "DQM/TrigXMonitor/interface/L1Scalers.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -24,9 +23,10 @@ using namespace edm;
 
 L1Scalers::L1Scalers(const edm::ParameterSet &ps):
   dbe_(0),
-  triggerScalersSource_( ps.getParameter< edm::InputTag >("TriggerScalersResults")),
-  triggerRatesSource_( ps.getParameter< edm::InputTag >("TriggerRatesResults")),
-  lumiScalersSource_( ps.getParameter< edm::InputTag >("LumiScalersResults")),
+  scalersSource_( ps.getParameter< edm::InputTag >("scalersResults")),
+//  triggerScalersSource_( ps.getParameter< edm::InputTag >("TriggerScalersResults")),
+//  triggerRatesSource_( ps.getParameter< edm::InputTag >("TriggerRatesResults")),
+//  lumiScalersSource_( ps.getParameter< edm::InputTag >("LumiScalersResults")),
   verbose_(ps.getUntrackedParameter < bool > ("verbose", false)),
   monitorDaemon_(ps.getUntrackedParameter<bool>("MonitorDaemon", false))
 {
@@ -46,6 +46,24 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
     daemon.operator->(); // gross
     monitorDaemon_ = true;
   }
+
+  outputFile_ =
+      ps.getUntrackedParameter < std::string > ("outputFile", "");
+  if (outputFile_.size() != 0) {
+    std::cout << "L1T Monitoring histograms will be saved to " 
+	      << outputFile_ << std::endl;
+  }
+  else {
+    outputFile_ = "ScalersDQM.root";
+  }
+
+  bool disable =
+      ps.getUntrackedParameter < bool > ("disableROOToutput", false);
+  if (disable) {
+    outputFile_ = "";
+  }
+
+
   if (dbe_ ) {
     dbe_->setCurrentFolder("L1T/L1Scalers");
   }
@@ -88,6 +106,8 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
  startOrbit = dbe_->book1D("Start Orbit","Start Orbit",1000,0,1000);
  numOrbits = dbe_->book1D("Num Orbits","Num Orbits",1000,0,1000);
  
+
+ nev_=0;
 } 
 
 
@@ -111,37 +131,44 @@ void L1Scalers::beginJob(const edm::EventSetup& iSetup)
   return;
 }
 
+void L1Scalers::endJob(void)
+{
+if(outputFile_.size() != 0 && dbe_) dbe_->save(outputFile_);
+}
+
 void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 {
+nev_++;
+std::cout << "L1Scalers::analyze  event " << nev_ <<  std::endl;
 
 edm::Handle<L1TriggerScalersCollection> triggerScalers;
-  bool a = e.getByLabel(triggerScalersSource_, triggerScalers);
+  bool a = e.getByLabel(scalersSource_, triggerScalers);
   if ( !a ) {
     if ( verbose_ ) {
       std::cout << "L1Scalers::analyze: getByLabel failed with label " 
-                << triggerScalersSource_
+                << scalersSource_
                 << std::endl;;
     }
     return;
   }
 
 edm::Handle<L1TriggerRatesCollection> triggerRates;
-  bool b = e.getByLabel(triggerRatesSource_, triggerRates);
+  bool b = e.getByLabel(scalersSource_, triggerRates);
   if ( !b ) {
     if ( verbose_ ) {
       std::cout << "L1Scalers::analyze: getByLabel failed with label " 
-                << triggerScalersSource_
+                << scalersSource_
                 << std::endl;;
     }
     return;
   }
 
 edm::Handle<LumiScalersCollection> lumiScalers;
-  bool c = e.getByLabel(lumiScalersSource_, lumiScalers);
+  bool c = e.getByLabel(scalersSource_, lumiScalers);
   if ( !c ) {
     if ( verbose_ ) {
       std::cout << "L1Scalers::analyze: getByLabel failed with label " 
-                << lumiScalersSource_
+                << scalersSource_
                 << std::endl;;
     }
     return;
