@@ -99,7 +99,7 @@ void PedestalsAnalysis::reset() {
 void PedestalsAnalysis::extract( const std::vector<TH1*>& histos ) { 
 
   // Check
-  if ( histos.size() != 2 ) {
+  if ( histos.size() != 4 ) {
     edm::LogWarning(mlCommissioning_)
       << "[" << myName() << "::" << __func__ << "]"
       << " Unexpected number of histograms: " 

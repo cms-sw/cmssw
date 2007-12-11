@@ -38,37 +38,47 @@ void PedestalsTask::book() {
   uint16_t nbins;
   std::string title;
   std::string extra_info;
-
-  // Pedestals and noise histograms
   peds_.resize(2);
   nbins = 256;
-  for ( uint16_t ihisto = 0; ihisto < 2; ihisto++ ) { 
-    
-    if      ( ihisto == 0 ) { 
-      extra_info = sistrip::pedsAndRawNoise_; 
-      peds_[ihisto].isProfile_ = true;
-    } else if ( ihisto == 1 ) { 
-      extra_info = sistrip::pedsAndCmSubNoise_; 
-      peds_[ihisto].isProfile_ = false;
-    } 
-    
-    title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-			       sistrip::PEDESTALS, 
-			       sistrip::FED_KEY, 
-			       fedKey(),
-			       sistrip::LLD_CHAN, 
-			       connection().lldChannel(),
-			       extra_info ).title();
   
-    peds_[ihisto].histo_ = dqm()->bookProfile( title, title, 
-					       nbins, -0.5, nbins*1.-0.5,
-					       1025, 0., 1025. );
-    
-    peds_[ihisto].vNumOfEntries_.resize(nbins,0);
-    peds_[ihisto].vSumOfContents_.resize(nbins,0);
-    peds_[ihisto].vSumOfSquares_.resize(nbins,0);
-    
-  } 
+  // Pedestals histogram
+  extra_info = sistrip::pedsAndRawNoise_; 
+  peds_[0].isProfile_ = true;
+  
+  title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
+			     sistrip::PEDESTALS, 
+			     sistrip::FED_KEY, 
+			     fedKey(),
+			     sistrip::LLD_CHAN, 
+			     connection().lldChannel(),
+			     extra_info ).title();
+  
+  peds_[0].histo_ = dqm()->bookProfile( title, title, 
+					nbins, -0.5, nbins*1.-0.5,
+					1025, 0., 1025. );
+  
+  peds_[0].vNumOfEntries_.resize(nbins,0);
+  peds_[0].vSumOfContents_.resize(nbins,0);
+  peds_[0].vSumOfSquares_.resize(nbins,0);
+
+  // Noise histogram
+  extra_info = sistrip::pedsAndCmSubNoise_; 
+  peds_[1].isProfile_ = true; //@@ is actually 1d histo, but profile needed here
+  
+  title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
+			     sistrip::PEDESTALS, 
+			     sistrip::FED_KEY, 
+			     fedKey(),
+			     sistrip::LLD_CHAN, 
+			     connection().lldChannel(),
+			     extra_info ).title();
+  
+  peds_[1].histo_ = dqm()->book1D( title, title, 
+				   nbins, -0.5, nbins*1.-0.5 );
+  
+  peds_[1].vNumOfEntries_.resize(nbins,0);
+  peds_[1].vSumOfContents_.resize(nbins,0);
+  peds_[1].vSumOfSquares_.resize(nbins,0);
   
   // Common mode histograms
   cm_.resize(2);
@@ -153,16 +163,14 @@ void PedestalsTask::update() {
 
   // Noise
   HistoSet temp;
-  uint16_t bins = peds_[1].vNumOfEntries_.size();
-  temp.vNumOfEntries_.resize(bins,0);
-  temp.vSumOfContents_.resize(bins,0);
-  temp.vSumOfSquares_.resize(bins,0);
-  for ( uint16_t ii = 0; ii < bins; ++ii ) {
+  temp.histo_ = peds_[1].histo_;
+  temp.isProfile_ = false; //@@ it is actually 1d histo
+  temp.vNumOfEntries_.resize( peds_[1].vNumOfEntries_.size(), 0 );
+  for ( uint16_t ii = 0; ii < peds_[1].vNumOfEntries_.size(); ++ii ) {
     if ( peds_[1].vNumOfEntries_[ii] ) {
-      float mean = peds_[1].vSumOfContents_[ii] / temp.vNumOfEntries_[ii];
+      float mean = peds_[1].vSumOfContents_[ii] / peds_[1].vNumOfEntries_[ii];
       float spread = fabs( peds_[1].vSumOfSquares_[ii] / peds_[1].vNumOfEntries_[ii] - mean * mean );
-      spread = sqrt( spread );
-      temp.vNumOfEntries_[ii] = spread;
+      temp.vNumOfEntries_[ii] = sqrt( spread );
     }
   }    
   updateHistoSet( temp );
