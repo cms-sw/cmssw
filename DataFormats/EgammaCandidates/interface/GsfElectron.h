@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: GsfElectron.h,v 1.2 2007/12/10 21:01:16 futyand Exp $
+ * \version $Id: GsfElectron.h,v 1.4 2007/12/11 10:35:47 futyand Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: GsfElectron.h,v $
+// Revision 1.4  2007/12/11 10:35:47  futyand
+// revert HEAD to 18X version
+//
 // Revision 1.2  2007/12/10 21:01:16  futyand
 // add typedefs to allow PixelMatchGsfElectron and GsfElectron to be used interchangably for a transition period
 //
@@ -149,7 +152,7 @@ class GsfElectron : public RecoCandidate {
 
   //! get associated GsfTrack pointer
   reco::GsfTrackRef gsfTrack() const { return track_; } 
-  reco::TrackRef track() const {edm::LogWarning("GsfElectron")<<"!!!You are using the method 'track()' with a GsfElectron, which has a link to a GsfTrack, please use the method 'gsfTrack()' instead!!!";return TrackRef();} 
+  reco::TrackRef track() const {return TrackRef();} 
 
   //! number of related brem clusters
   int numberOfClusters() const {return superCluster_->clustersSize();}
