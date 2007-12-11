@@ -6,6 +6,7 @@
 #include <iostream>
 #include <typeinfo>
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondCore/PopCon/interface/LogReader.h"
 #include "FWCore/Framework/interface/ESHandle.h"
