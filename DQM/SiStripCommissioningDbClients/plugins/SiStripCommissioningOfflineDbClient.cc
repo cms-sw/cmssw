@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.4 2007/06/19 12:30:36 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.5 2007/07/13 14:17:35 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -10,6 +10,8 @@
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
+#include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
+#include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
@@ -97,10 +99,12 @@ void SiStripCommissioningOfflineDbClient::createCommissioningHistograms() {
   // Create corresponding "commissioning histograms" object 
   if ( runType_ == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::FED_CABLING ) { histos_ = new FedCablingHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::APV_TIMING ) { histos_ = new ApvTimingHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::OPTO_SCAN ) { histos_ = new OptoScanHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::VPSP_SCAN ) { histos_ = new VpspScanHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::PEDESTALS ) { histos_ = new PedestalsHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::APV_TIMING )  { histos_ = new ApvTimingHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::OPTO_SCAN )   { histos_ = new OptoScanHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::VPSP_SCAN )   { histos_ = new VpspScanHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::PEDESTALS )   { histos_ = new PedestalsHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::APV_LATENCY ) { histos_ = new LatencyHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::FINE_DELAY )  { histos_ = new FineDelayHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { histos_ = 0; }
   else if ( runType_ == sistrip::UNKNOWN_RUN_TYPE ) {
     histos_ = 0;
