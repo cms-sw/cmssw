@@ -43,18 +43,14 @@ namespace edm {
                     ParameterSet const& pset,
                     InputSourceDescription const& desc):
     InputSource(pset, desc),
-    initialized_(false),
     newRun_(true),
     newLumi_(true),
     ep_(),
-    lbp_(),
-    rp_(),
     processHistoryID_(),
     tc_(getTClass(typeid(SendEvent))),
     dest_(init_size),
     xbuf_(TBuffer::kRead, init_size),
-    runEndingFlag_(false),
-    noMoreEvents_(false)
+    runEndingFlag_(false)
   {
   }
 
@@ -159,50 +155,21 @@ namespace edm {
     psetRegistry->insertMapped(trigger_pset);
   }
 
-  void
-  StreamerInputSource::readAhead() {
-    if (limitReached() || noMoreEvents_ || runEndingFlag_) {
-      return;
-    }
-    if (ep_.get() != 0) {
-      return;
-    }
-    ep_ = read();
-    if (ep_.get() == 0) {
-      if (!runEndingFlag_) noMoreEvents_ = true;
-    } else {
-      noMoreEvents_ = runEndingFlag_ = false;
-    }
-  }
-
-  boost::shared_ptr<FileBlock>
-  StreamerInputSource::readFile_() {
-    if (!initialized_) {
-      initialized_ = true;
-    }
-    readAhead();
-    return boost::shared_ptr<FileBlock>(new FileBlock);
-  }
-
   boost::shared_ptr<RunPrincipal>
   StreamerInputSource::readRun_() {
     assert(newRun_);
-    assert(rp_);
-    boost::shared_ptr<RunPrincipal> result = rp_;
+    assert(runPrincipal());
     newRun_ = false;
-    readAhead();
-    return result;
+    return runPrincipal();
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
-  StreamerInputSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
+  StreamerInputSource::readLuminosityBlock_() {
     assert(!newRun_);
     assert(newLumi_);
-    assert(lbp_);
-    boost::shared_ptr<LuminosityBlockPrincipal> result = lbp_;
+    assert(luminosityBlockPrincipal());
     newLumi_ = false;
-    readAhead();
-    return result;
+    return luminosityBlockPrincipal();
   }
 
   std::auto_ptr<EventPrincipal>
@@ -211,23 +178,35 @@ namespace edm {
     assert(!newLumi_);
     assert(ep_.get() != 0);
     // This copy resets ep_.
-    std::auto_ptr<EventPrincipal> result = ep_;
-    readAhead();
-    return result;
+    return ep_;
   }
 
   InputSource::ItemType 
-  StreamerInputSource::getNextItemType() const {
-    if (!initialized_) {
-      return InputSource::IsFile;
-    } else if (noMoreEvents_) {
-      return InputSource::IsStop;
-    } else if (newRun_) {
-      return InputSource::IsRun;
-    } else if (newLumi_) {
-      return InputSource::IsLumi;
+  StreamerInputSource::getNextItemType() {
+    if (runEndingFlag_) {
+      return IsStop;
     }
-    return InputSource::IsEvent;
+    if(newRun_ && runPrincipal()) {
+      return IsRun;
+    }
+    if(newLumi_ && luminosityBlockPrincipal()) {
+      return IsLumi;
+    }
+    if (ep_.get() != 0) {
+      return IsEvent;
+    }
+    ep_ = read();
+    if (ep_.get() == 0) {
+      return IsStop;
+    } else {
+      runEndingFlag_ = false;
+    }
+    if(newRun_) {
+      return IsRun;
+    } else if(newLumi_) {
+      return IsLumi;
+    }
+    return IsEvent;
   }
 
   /**
@@ -321,30 +300,30 @@ namespace edm {
     }
 
     FDEBUG(5) << "Got event: " << sd->id_ << " " << sd->prods_.size() << std::endl;
-    if(!rp_ || rp_->run() != sd->id_.run()) {
+    if(!runPrincipal() || runPrincipal()->run() != sd->id_.run()) {
 	newRun_ = newLumi_ = true;
-	rp_ = boost::shared_ptr<RunPrincipal>(
+	setRunPrincipal(boost::shared_ptr<RunPrincipal>(
           new RunPrincipal(sd->id_.run(),
 			   sd->time_,
 			   Timestamp::invalidTimestamp(),
 			   productRegistry(),
-			   processConfiguration()));
-        lbp_.reset();
+			   processConfiguration())));
+        resetLuminosityBlockPrincipal();
     }
-    if(!lbp_ || lbp_->luminosityBlock() != eventView.lumi()) {
-      lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>(
+    if(!luminosityBlockPrincipal() || luminosityBlockPrincipal()->luminosityBlock() != eventView.lumi()) {
+      setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal>(
         new LuminosityBlockPrincipal(eventView.lumi(),
 				     sd->time_,
 				     Timestamp::invalidTimestamp(),
 				     productRegistry(),
-				     rp_,
-				     processConfiguration()));
-	newLumi_ = true;
+				     runPrincipal(),
+				     processConfiguration())));
+      newLumi_ = true;
     }
     std::auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
                                                    sd->time_,
                                                    productRegistry(),
-                                                   lbp_,
+                                                   luminosityBlockPrincipal(),
                                                    processConfiguration(),
                                                    true,
 						   EventAuxiliary::Any,

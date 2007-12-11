@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: TestRunLumiSource.cc,v 1.1 2007/11/22 16:23:28 wmtan Exp $
+$Id: TestRunLumiSource.cc,v 1.2 2007/12/03 00:44:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Integration/test/TestRunLumiSource.h"
@@ -34,7 +34,7 @@ namespace edm {
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
-  TestRunLumiSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
+  TestRunLumiSource::readLuminosityBlock_() {
     unsigned int run = runLumiEvent_[currentIndex_];
     unsigned int lumi = runLumiEvent_[currentIndex_ + 1];
     Timestamp ts = Timestamp(1);
@@ -46,6 +46,7 @@ namespace edm {
         new LuminosityBlockPrincipal(lumi,
 	    ts, Timestamp::invalidTimestamp(), productRegistry(), rp2, processConfiguration()));
 
+    currentIndex_ += 3;
     return luminosityBlockPrincipal;
   }
 
@@ -64,13 +65,15 @@ namespace edm {
 	    ts, Timestamp::invalidTimestamp(), productRegistry(), rp2, processConfiguration()));
 
     EventID id(run, event);
+    currentIndex_ += 3;
     std::auto_ptr<EventPrincipal> result(
 	new EventPrincipal(id, ts, productRegistry(), lbp2, processConfiguration(), false));
     return result;
   }
 
   InputSource::ItemType
-  TestRunLumiSource::getNextItemType() const {
+  TestRunLumiSource::getNextItemType() {
+    ItemType oldState = state();
 
     if (currentIndex_ + 2 >= runLumiEvent_.size()) {
       return InputSource::IsStop;
@@ -78,6 +81,7 @@ namespace edm {
     if (runLumiEvent_[currentIndex_] == 0) {
       return InputSource::IsStop;
     }
+    if (oldState == IsInvalid) return InputSource::IsFile;
     if (runLumiEvent_[currentIndex_ + 1] == 0) {
       return InputSource::IsRun;
     }

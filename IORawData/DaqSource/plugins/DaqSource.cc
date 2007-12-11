@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/11/28 18:01:39 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/12/03 00:43:40 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -43,7 +43,6 @@ namespace edm {
     , noMoreEvents_(false)
     , newRun_(true)
     , newLumi_(true)
-    , lbp_()
     , ep_() {
     produces<FEDRawDataCollection>();
     setTimestamp(Timestamp::beginOfTime());
@@ -77,10 +76,19 @@ namespace edm {
   ////////////////////////////////////////////////////////////////////////////////
   
   //______________________________________________________________________________
-  void DaqSource::readAhead(boost::shared_ptr<RunPrincipal> rp) {
-    assert(ep_.get() == 0);
-    if (limitReached()) {
-      return;
+  InputSource::ItemType 
+  DaqSource::getNextItemType() {
+    if (noMoreEvents_) {
+      return IsStop;
+    }
+    if (newRun_) {
+      return IsRun;
+    }
+    if (newLumi_ && luminosityBlockPrincipal()) {
+      return IsLumi;
+    }
+    if (ep_.get() != 0) {
+      return IsEvent;
     }
     if(reader_ == 0) {
       throw cms::Exception("LogicError")
@@ -99,36 +107,37 @@ namespace edm {
       // fillRawData() failed, clean up the fedCollection in case it was allocated!
       if (0 != fedCollection) delete fedCollection;
       noMoreEvents_ = true;
-      return;
+      return IsStop;
     }
     setTimestamp(tstamp);
     if(fakeLSid_ && luminosityBlockNumber_ != (eventId.event()/lumiSegmentSizeInEvents_ + 1)) {
 	luminosityBlockNumber_ = eventId.event()/lumiSegmentSizeInEvents_ + 1;
-	lbp_.reset();
+        newLumi_ = true;
+	resetLuminosityBlockPrincipal();
     }
 
     // Framework event numbers start at 1, not at zero.
     eventId = EventID(runNumber_, eventId.event() + 1);
 
-    std::cout << "BARF: " << rp->run() << " : " << luminosityBlockNumber_ << " : " << eventId.event() << std::endl;
+    std::cout << "BARF: " << runPrincipal()->run() << " : " << luminosityBlockNumber_ << " : " << eventId.event() << std::endl;
     std::cout << "BARF: " << eventId.run() << " : " << luminosityBlockNumber_ << " : " << eventId.event() << std::endl;
     
     // If there is no luminosity block principal, make one.
-    if (lbp_.get() == 0 || lbp_->luminosityBlock() != luminosityBlockNumber_) {
+    if (luminosityBlockPrincipal().get() == 0 || luminosityBlockPrincipal()->luminosityBlock() != luminosityBlockNumber_) {
       newLumi_ = true;
-      lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>(
+      setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal>(
         new LuminosityBlockPrincipal(luminosityBlockNumber_,
                                      timestamp(),
                                      Timestamp::invalidTimestamp(),
                                      productRegistry(),
-                                     rp,
-                                     processConfiguration()));
+                                     runPrincipal(),
+                                     processConfiguration())));
 
     }
     // make a brand new event
     ep_ = std::auto_ptr<EventPrincipal>(
 	new EventPrincipal(eventId, timestamp(),
-	productRegistry(), lbp_, processConfiguration(), true, EventAuxiliary::Data));
+	productRegistry(), luminosityBlockPrincipal(), processConfiguration(), true, EventAuxiliary::Data));
     
     // have fedCollection managed by a std::auto_ptr<>
     std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection);
@@ -138,6 +147,10 @@ namespace edm {
     e->put(bare_product);
     // The commit is needed to complete the "put" transaction.
     e->commit_();
+    if (newLumi_) {
+      return IsLumi;
+    }
+    return IsEvent;
   }
 
   void
@@ -146,7 +159,8 @@ namespace edm {
     newRun_ = newLumi_ = true;
     runNumber_ = r;
     noMoreEvents_ = false;
-    lbp_.reset();
+    resetLuminosityBlockPrincipal();
+    resetRunPrincipal();
   }
 
   boost::shared_ptr<RunPrincipal>
@@ -154,26 +168,23 @@ namespace edm {
     assert(newRun_);
     assert(!noMoreEvents_);
     newRun_ = false;
-    boost::shared_ptr<RunPrincipal> rp =
-	boost::shared_ptr<RunPrincipal>(
+    return boost::shared_ptr<RunPrincipal>(
 	new RunPrincipal(runNumber_,
 			 timestamp(),
 			 Timestamp::invalidTimestamp(),
 			 productRegistry(),
 			 processConfiguration()));
-   readAhead(rp);
-   return rp;
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
-  DaqSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
+  DaqSource::readLuminosityBlock_() {
     assert(!newRun_);
     assert(newLumi_);
     assert(!noMoreEvents_);
-    assert(lbp_);
+    assert(luminosityBlockPrincipal());
     assert(ep_.get() != 0);
     newLumi_ = false;
-    return  lbp_;
+    return luminosityBlockPrincipal();
   }
 
   std::auto_ptr<EventPrincipal>
@@ -184,20 +195,7 @@ namespace edm {
     assert(lbp);
     assert(ep_.get() != 0);
     std::auto_ptr<EventPrincipal> result = ep_;
-    readAhead(lbp->runPrincipalSharedPtr());
     return result;
-  }
-
-  InputSource::ItemType 
-  DaqSource::getNextItemType() const {
-    if (noMoreEvents_) {
-      return InputSource::IsStop;
-    } else if (newRun_) {
-      return InputSource::IsRun;
-    } else if (newLumi_) {
-      return InputSource::IsLumi;
-    }
-    return InputSource::IsEvent;
   }
 
   void

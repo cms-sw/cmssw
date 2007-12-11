@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.34 2007/11/30 07:06:30 wmtan Exp $
+$Id: InputSource.h,v 1.35 2007/12/03 00:40:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -66,13 +66,13 @@ namespace edm {
 #endif
   public:
     enum ItemType {
+	IsInvalid,
 	IsStop,
 	IsFile,
 	IsRun,
 	IsLumi,
 	IsEvent,
-	IsRepeat,
-	IsUnknown
+	IsRepeat
     };
 
     typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
@@ -82,7 +82,7 @@ namespace edm {
     /// Destructor
     virtual ~InputSource();
 
-    ItemType nextItemType() const;
+    ItemType nextItemType();
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null auto_ptr.
@@ -105,7 +105,10 @@ namespace edm {
     void skipEvents(int offset);
 
     /// Begin again at the first event
-    void rewind() {rewind_();}
+    void rewind() {
+      doneReadAhead_ = false;
+      rewind_();
+    }
 
     /// Wake up the input source
     void wakeUp() {wakeUp_();}
@@ -129,6 +132,7 @@ namespace edm {
     void repeat() {
       remainingEvents_ = maxEvents_;
       remainingLumis_ = maxLumis_;
+      doneReadAhead_ = false;
     }
 
     /// Accessor for maximum number of events to be read.
@@ -169,6 +173,12 @@ namespace edm {
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
 
+    /// Accessor for current run number
+    RunNumber_t run() const;
+
+    /// Accessor for current luminosity block number
+    LuminosityBlockNumber_t luminosityBlock() const;
+
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
 
@@ -177,17 +187,22 @@ namespace edm {
     void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
 
     ProductRegistry & productRegistryUpdate() const {return const_cast<ProductRegistry &>(*productRegistry_);}
-
-    bool limitReached() const {return remainingEvents_ == 0 || remainingLumis_ == 0;}
+    ItemType state() const{return state_;}
+    boost::shared_ptr<RunPrincipal> runPrincipal() const {return runPrincipal_;}
+    boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal() const {return lumiPrincipal_;}
+    void setRunPrincipal(boost::shared_ptr<RunPrincipal> rp) {runPrincipal_ = rp;}
+    void setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {lumiPrincipal_ = lbp;}
+    void resetRunPrincipal() {runPrincipal_.reset();}
+    void resetLuminosityBlockPrincipal() {lumiPrincipal_.reset();}
 
   private:
-
-    virtual ItemType getNextItemType() const = 0;
+    bool limitReached() const {return remainingEvents_ == 0 || remainingLumis_ == 0;}
+    virtual ItemType getNextItemType() = 0;
+    virtual boost::shared_ptr<RunPrincipal> readRun_() = 0;
+    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_() = 0;
     virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal>) = 0;
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const&);
     virtual boost::shared_ptr<FileBlock> readFile_();
-    virtual boost::shared_ptr<RunPrincipal> readRun_() = 0;
-    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<RunPrincipal>) = 0;
     virtual void skip(int);
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
@@ -211,6 +226,10 @@ namespace edm {
     boost::shared_ptr<ProductRegistry const> productRegistry_;
     bool const primary_;
     Timestamp time_;
+    mutable bool doneReadAhead_;
+    mutable ItemType state_;
+    mutable boost::shared_ptr<RunPrincipal>  runPrincipal_;
+    mutable boost::shared_ptr<LuminosityBlockPrincipal>  lumiPrincipal_;
   };
 }
 

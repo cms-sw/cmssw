@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.29 2007/08/02 21:00:35 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.30 2007/12/03 00:40:50 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,12 +32,10 @@ namespace edm {
     origEventID_(eventID_),
     luminosityBlock_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1)),
     origLuminosityBlockNumber_t_(luminosityBlock_),
-    noMoreEvents_(false),
     newRun_(true),
     newLumi_(true),
     eventSet_(false),
     ep_(0),
-    lbp_(),
     isRealData_(realData),
     eType_(EventAuxiliary::Any)
   { 
@@ -49,21 +47,8 @@ namespace edm {
   ConfigurableInputSource::~ConfigurableInputSource() {
   }
 
-  InputSource::ItemType 
-  ConfigurableInputSource::getNextItemType() const {
-    if (noMoreEvents_) {
-      return InputSource::IsStop;
-    } else if (newRun_) {
-      return InputSource::IsRun;
-    } else if (newLumi_) {
-      return InputSource::IsLumi;
-    }
-    return InputSource::IsEvent;
-  }
-
   boost::shared_ptr<RunPrincipal>
   ConfigurableInputSource::readRun_() {
-    assert(newRun_);
     Timestamp ts = Timestamp(presentTime_);
     boost::shared_ptr<RunPrincipal> runPrincipal(
         new RunPrincipal(eventID_.run(), ts, Timestamp::invalidTimestamp(), productRegistry(), processConfiguration()));
@@ -77,31 +62,22 @@ namespace edm {
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
-  ConfigurableInputSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
-    assert(!newRun_);
-    assert(newLumi_);
+  ConfigurableInputSource::readLuminosityBlock_() {
     Timestamp ts = Timestamp(presentTime_);
-    lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>(
+    boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal(
         new LuminosityBlockPrincipal(
-	    luminosityBlock_, ts, Timestamp::invalidTimestamp(), productRegistry(), rp, processConfiguration()));
-    LuminosityBlockPrincipal & lbp =
-       const_cast<LuminosityBlockPrincipal &>(*lbp_);
-    LuminosityBlock lb(lbp, moduleDescription());
+	    luminosityBlock_, ts, Timestamp::invalidTimestamp(), productRegistry(), runPrincipal(), processConfiguration()));
+    LuminosityBlock lb(*lumiPrincipal, moduleDescription());
     beginLuminosityBlock(lb);
     lb.commit_();
     newLumi_ = false;
-    readAhead();
-    return lbp_;
+    return lumiPrincipal;
   }
 
   std::auto_ptr<EventPrincipal>
   ConfigurableInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal>) {
-    assert(!newRun_);
-    assert(!newLumi_);
     assert(ep_.get() != 0);
-    std::auto_ptr<EventPrincipal> result = ep_;
-    readAhead();
-    return result;
+    return ep_;
   }
 
   std::auto_ptr<EventPrincipal>
@@ -111,8 +87,6 @@ namespace edm {
 	productRegistry(), lbp, processConfiguration(), isRealData_, eType_));
     Event e(*result, moduleDescription());
     if (!produce(e)) {
-      noMoreEvents_ = true;
-      lbp_.reset();
       return std::auto_ptr<EventPrincipal>(0); 
     }
     e.commit_();
@@ -139,6 +113,8 @@ namespace edm {
       numberEventsInThisRun_ = 0;
       numberEventsInThisLumi_ = 0;
       newRun_ = newLumi_ = true;
+      resetLuminosityBlockPrincipal();
+      resetRunPrincipal();
     }
   }
 
@@ -149,6 +125,7 @@ namespace edm {
       luminosityBlock_ = lb;
       numberEventsInThisLumi_ = 0;
       newLumi_ = true;
+      resetLuminosityBlockPrincipal();
     }
   }
 
@@ -160,17 +137,20 @@ namespace edm {
     numberEventsInThisRun_ = 0;
     numberEventsInThisLumi_ = 0;
     newRun_ = newLumi_ = true;
+    resetLuminosityBlockPrincipal();
+    resetRunPrincipal();
   }
     
 
-  void
-  ConfigurableInputSource::readAhead() {
-    assert(ep_.get() == 0);
-    assert(!newRun_);
-    assert(!newLumi_);
-    if (limitReached()) {
-      return;
+  InputSource::ItemType 
+  ConfigurableInputSource::getNextItemType() {
+    if (newRun_) {
+      return IsRun;
     }
+    if (newLumi_) {
+      return IsLumi;
+    }
+    if(ep_.get() != 0) return IsEvent;
     EventID oldEventID = eventID_;
     LuminosityBlockNumber_t oldLumi = luminosityBlock_;
     if (!eventSet_) {
@@ -178,29 +158,36 @@ namespace edm {
       eventSet_ = true;
     }
     if (eventID_ == EventID()) {
-      noMoreEvents_ = true;
       ep_.reset();
-      lbp_.reset();
-    } else if (oldEventID.run() != eventID_.run()) {
+      return IsStop;
+    }
+    if (oldEventID.run() != eventID_.run()) {
       //  New Run
-      newRun_ = newLumi_ = true;
       // reset these since this event is in the new run
       numberEventsInThisRun_ = 0;
       numberEventsInThisLumi_ = 0;
       luminosityBlock_ = origLuminosityBlockNumber_t_;
-    } else {
-      // Same Run
-      if (oldLumi != luminosityBlock_) {
-        // New Lumi
-        newLumi_ = true;
-        numberEventsInThisLumi_ = 0;
-      } else {
-        ++numberEventsInThisRun_;
-        ++numberEventsInThisLumi_;
-        ep_ = reallyReadEvent(lbp_);
-        eventSet_ = false;
-      }
+      newRun_ = newLumi_ = true;
+      resetLuminosityBlockPrincipal();
+      resetRunPrincipal();
+      return IsRun;
     }
+      // Same Run
+    if (oldLumi != luminosityBlock_) {
+      // New Lumi
+      numberEventsInThisLumi_ = 0;
+      newLumi_ = true;
+      resetLuminosityBlockPrincipal();
+      return IsLumi;
+    }
+    ++numberEventsInThisRun_;
+    ++numberEventsInThisLumi_;
+    ep_ = reallyReadEvent(luminosityBlockPrincipal());
+    if (ep_.get() == 0) {
+      return IsStop;
+    }
+    eventSet_ = false;
+    return IsEvent;
   }
 
   void

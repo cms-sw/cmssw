@@ -65,31 +65,22 @@ namespace edm {
 
     virtual boost::shared_ptr<RunPrincipal> readRun_();
 
-    virtual boost::shared_ptr<LuminosityBlockPrincipal>
-    readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp);
+    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
 
     virtual std::auto_ptr<EventPrincipal>
     readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
 
-    virtual boost::shared_ptr<FileBlock> readFile_();
+    virtual InputSource::ItemType getNextItemType();
 
-    void readAhead();
-
-    virtual InputSource::ItemType getNextItemType() const;
-
-    bool initialized_;
     bool newRun_;
     bool newLumi_;
     std::auto_ptr<EventPrincipal> ep_;
-    boost::shared_ptr<LuminosityBlockPrincipal> lbp_;
-    boost::shared_ptr<RunPrincipal> rp_;
 
     ProcessHistoryID processHistoryID_;
     TClass* tc_;
     std::vector<unsigned char> dest_;
     TBuffer xbuf_;
     bool runEndingFlag_;
-    bool noMoreEvents_;
 
     //Do not like these to be static, but no choice as deserializeRegistry() that sets it is a static memeber 
     static std::string processName_;

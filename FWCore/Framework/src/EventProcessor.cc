@@ -811,6 +811,14 @@ namespace edm {
       }
     }
 
+    if (!fb_) {
+      fb_ = beginInputFile();
+      if(!fb_) {
+        changeState(mInputExhausted);
+        toerror.succeeded();
+        return evtDesc;
+      }
+    }
     if(!rp) {
       //must be first time
       bool foundLumi = false;

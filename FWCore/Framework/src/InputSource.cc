@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.33 2007/11/30 07:06:31 wmtan Exp $
+$Id: InputSource.cc,v 1.34 2007/12/03 00:40:50 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -50,7 +50,11 @@ namespace edm {
       moduleDescription_(desc.moduleDescription_),
       productRegistry_(createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_)),
       primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")),
-      time_() {
+      time_(),
+      doneReadAhead_(false),
+      state_(IsInvalid),
+      runPrincipal_(),
+      lumiPrincipal_() {
     // Secondary input sources currently do not have a product registry.
     if (primary_) {
       assert(desc.productRegistry_ != 0);
@@ -68,11 +72,35 @@ namespace edm {
   InputSource::~InputSource() {}
 
   InputSource::ItemType
-  InputSource::nextItemType() const {
-    if (limitReached()) {
-      return IsStop;
+  InputSource::nextItemType() {
+    if (doneReadAhead_) {
+      return state_;
     }
-    return getNextItemType();
+    doneReadAhead_ = true;
+    ItemType oldState = state_;
+    if (limitReached()) {
+      state_ = IsStop;
+      lumiPrincipal_.reset();
+      runPrincipal_.reset();
+      return state_;
+    }
+    ItemType newState = getNextItemType();
+    if (newState == IsStop) {
+      state_ = IsStop;
+      lumiPrincipal_.reset();
+      runPrincipal_.reset();
+    } else if (newState == IsFile || oldState == IsInvalid) {
+      state_ = IsFile;
+    } else if (newState == IsRun || oldState == IsFile) {
+      setRunPrincipal(readRun_());
+      state_ = IsRun;
+    } else if (newState == IsLumi || oldState == IsRun) {
+      setLuminosityBlockPrincipal(readLuminosityBlock_());
+      state_ = IsLumi;
+    } else {
+      state_ = IsEvent;
+    }
+    return state_;
   }
 
   void
@@ -94,7 +122,10 @@ namespace edm {
 
   boost::shared_ptr<FileBlock>
   InputSource::readFile() {
+    assert(doneReadAhead_);
+    assert(state_ == IsFile);
     assert(!limitReached());
+    doneReadAhead_ = false;
     return readFile_();
   }
 
@@ -111,8 +142,11 @@ namespace edm {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of runs
     // (e.g. beginRun(), endRun())
+    assert(doneReadAhead_);
+    assert(state_ == IsRun);
     assert(!limitReached());
-    return readRun_();
+    doneReadAhead_ = false;
+    return runPrincipal_;
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
@@ -120,14 +154,19 @@ namespace edm {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of lumi blocks
     // (e.g. beginLuminosityBlock(), endLuminosityBlock())
+    assert(doneReadAhead_);
+    assert(state_ == IsLumi);
     assert(!limitReached());
-    return readLuminosityBlock_(rp);
+    doneReadAhead_ = false;
+    return lumiPrincipal_;
   }
 
   std::auto_ptr<EventPrincipal>
   InputSource::readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-
+    assert(doneReadAhead_);
+    assert(state_ == IsEvent);
     assert(!limitReached());
+    doneReadAhead_ = false;
 
     preRead();
     std::auto_ptr<EventPrincipal> result = readEvent_(lbp);
@@ -267,4 +306,16 @@ namespace edm {
 
   void
   InputSource::endJob() {}
+
+  RunNumber_t
+  InputSource::run() const {
+    assert(runPrincipal());
+    return runPrincipal()->run();
+  }
+
+  LuminosityBlockNumber_t
+  InputSource::luminosityBlock() const {
+    assert(luminosityBlockPrincipal());
+    return luminosityBlockPrincipal()->luminosityBlock();
+  }
 }

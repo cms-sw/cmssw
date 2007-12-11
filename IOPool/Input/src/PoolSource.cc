@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.72 2007/11/28 17:51:30 wmtan Exp $
+$Id: PoolSource.cc,v 1.73 2007/12/03 00:41:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -167,8 +167,8 @@ namespace edm {
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
-  PoolSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
-    return rootFile_->readLumi(primary() ? productRegistry() : rootFile_->productRegistry(), rp); 
+  PoolSource::readLuminosityBlock_() {
+    return rootFile_->readLumi(primary() ? productRegistry() : rootFile_->productRegistry(), runPrincipal()); 
   }
 
   // readEvent_() is responsible for creating, and setting up, the
@@ -204,16 +204,16 @@ namespace edm {
   }
 
   InputSource::ItemType
-  PoolSource::getNextItemType() const {
+  PoolSource::getNextItemType() {
     if (fileIter_ == fileCatalogItems().end()) {
-      return InputSource::IsStop;
+      return IsStop;
     }
     if (!initialized_) {
-      return InputSource::IsFile;
+      return IsFile;
     }
     FileIndex::EntryType entryType = rootFile_->getEntryType();
     if (entryType == FileIndex::kEvent) {
-      return InputSource::IsEvent;
+      return IsEvent;
     } else if (entryType == FileIndex::kLumi) {
       return InputSource::IsLumi;
     } else if (entryType == FileIndex::kRun) {
@@ -221,9 +221,9 @@ namespace edm {
     }
     assert(entryType == FileIndex::kEnd);
     if (fileIter_ + 1 == fileCatalogItems().end()) {
-      return InputSource::IsStop;
+      return IsStop;
     }
-    return InputSource::IsFile;
+    return IsFile;
   }
 
   // Rewind to before the first event that was read.
