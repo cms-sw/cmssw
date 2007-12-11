@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.5 2007/11/28 19:24:42 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.6 2007/11/30 09:41:28 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -151,7 +151,7 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
 	    conn->setFedId( ianal->second->fedKey().fedId() );
 	    conn->setFedChannel( ianal->second->fedKey().fedChannel() );
 	    conn->setFecHardwareId( "" ); //@@
-	    conn->setCrateSlot( addr.fecCrate_ - sistrip::FEC_CRATE_OFFSET );
+	    conn->setFecCrateSlot( addr.fecCrate_ - sistrip::FEC_CRATE_OFFSET );
 	    conn->setFecSlot( addr.fecSlot_ );
 	    conn->setRingSlot( addr.fecRing_ - sistrip::FEC_RING_OFFSET );
 	    conn->setCcuAddress( addr.ccuAddr_ );
