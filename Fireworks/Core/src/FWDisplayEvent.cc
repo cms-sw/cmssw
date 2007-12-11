@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.5 2007/12/06 22:28:37 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.6 2007/12/09 22:49:23 chrjones Exp $
 //
 
 // system include files
@@ -69,6 +69,12 @@ FWDisplayEvent::FWDisplayEvent() :
   m_physicsElements.push_back(0);
   m_physicsProxyBuilderNames.push_back("TracksProxy3DBuilder");
 
+  // register muons
+  m_physicsTypes.push_back("Muons");
+  m_physicsElements.push_back(0);
+  m_physicsProxyBuilderNames.push_back("MuonsProxy3DBuilder");
+
+   
   //create proxy builders
   Int_t error;
   TClass *baseClass = TClass::GetClass(typeid(FWDataProxyBuilder));
@@ -275,7 +281,16 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent)
 void
 FWDisplayEvent::draw(const fwlite::Event& iEvent) const
 {
-  //need to reset 
+  // FIXIT: vectors should be aligned a bit better than that
+  if ( m_physicsTypes.size() != m_physicsElements.size() ||
+       m_physicsElements.size() != m_physicsProxyBuilderNames.size() ||
+       m_physicsProxyBuilderNames.size() != m_builders.size() ) 
+     {
+	std::cout << "Vectors of proxy data have different size - fatal error" << std::endl;
+	return;
+     }
+   
+  //need to reset
   m_continueProcessingEvents = false;
   EnableButton advancedB(m_advanceButton);
 
@@ -283,18 +298,17 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
   if(0==gEve) {
     cout <<"Eve not initialized"<<endl;
   }
+   
+	
   {
     //while inside this scope, do not let
     // Eve do any redrawing
     TEveManager::TRedrawDisabler disableRedraw(gEve);
-
-    for(std::vector<boost::shared_ptr<FWDataProxyBuilder> >::const_iterator
-	  it = m_builders.begin();
-	it != m_builders.end();
-	++it) {
-      (*it)->build(&iEvent,
-		   &(m_physicsElements.front()));
-    }
+    
+    // build models
+    for ( unsigned int iProxy = 0; iProxy < m_builders.size(); ++iProxy )
+       m_builders[iProxy]->build( &iEvent, &(m_physicsElements[iProxy]) );
+     
     //setup the projection
     m_rhoPhiProjMgr->DestroyElements();
     m_rhoPhiProjMgr->ImportElements(m_geom);
