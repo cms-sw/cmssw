@@ -14,6 +14,7 @@
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>
+<use name=RecoTracker/TransientTrackingRecHit>
 <export>
   <use name=Alignment/CommonAlignmentAlgorithm>
   <use name=Alignment/TwoBodyDecay>

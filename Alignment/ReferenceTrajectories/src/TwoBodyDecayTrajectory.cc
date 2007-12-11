@@ -11,7 +11,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 
-
 TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryState& trajectoryState,
 						const ConstRecHitCollection & recHits,
 						const MagneticField* magField,

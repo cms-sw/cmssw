@@ -1,5 +1,5 @@
-#ifndef REFERENCE_TRAJECTORY_BASE_H
-#define REFERENCE_TRAJECTORY_BASE_H
+#ifndef Alignment_ReferenceTrajectories_ReferenceTrajectoryBase_H
+#define Alignment_ReferenceTrajectories_ReferenceTrajectoryBase_H
 
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
@@ -57,6 +57,7 @@
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 
 #include <vector>
 
@@ -99,6 +100,14 @@ public:
    */
   const AlgebraicVector& parameters() const { return theParameters; }
 
+  /** Returns the covariance matrix of the 'track'-parameters.
+   */
+  inline bool parameterErrorsAvailable() const { return theParamCovFlag; }
+
+  virtual void setParameterErrors( const AlgebraicSymMatrix& error ) { theParameterCov = error; }
+
+  inline const AlgebraicSymMatrix& parameterErrors() const { return theParameterCov; }
+
   /** Returns the Tsos at the surfaces of the hits, parallel to recHits()
    */
   const std::vector<TrajectoryStateOnSurface>& trajectoryStates() const { return theTsosVec; }
@@ -114,6 +123,10 @@ protected:
   explicit ReferenceTrajectoryBase(unsigned int nPar = 0, unsigned int nHits = 0);
 
   bool theValidityFlag;
+  bool theParamCovFlag;
+
+  unsigned int theNumberOfParameters;
+  unsigned int theNumberOfHits;
 
   std::vector<TrajectoryStateOnSurface> theTsosVec;
   TransientTrackingRecHit::ConstRecHitContainer theRecHits;
@@ -125,6 +138,8 @@ protected:
   AlgebraicSymMatrix  theTrajectoryPositionCov;
 
   AlgebraicVector     theParameters;
+  AlgebraicSymMatrix  theParameterCov;
+
   AlgebraicMatrix     theDerivatives;
 
   static const unsigned int nMeasPerHit = 2;

@@ -18,6 +18,10 @@ public:
   virtual const ReferenceTrajectoryCollection trajectories( const edm::EventSetup & setup,
 							    const ConstTrajTrackPairCollection & tracks ) const;
 
+  virtual const ReferenceTrajectoryCollection trajectories( const edm::EventSetup& setup,
+							    const ConstTrajTrackPairCollection& tracks,
+							    const ExternalPredictionCollection& external ) const;
+
   virtual ReferenceTrajectoryFactory* clone( void ) const { return new ReferenceTrajectoryFactory( *this ); }
 
 protected:

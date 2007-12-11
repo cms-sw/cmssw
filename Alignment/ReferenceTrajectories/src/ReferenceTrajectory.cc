@@ -28,6 +28,7 @@
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
 
+#include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
 
 
 //__________________________________________________________________________________
@@ -37,7 +38,8 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos
 					 &recHits, bool hitsAreReverse,
 					 const MagneticField *magField, 
 					 MaterialEffects materialEffects, double mass) 
-  : ReferenceTrajectoryBase(refTsos.localParameters().mixedFormatVector().kSize, recHits.size())
+  : ReferenceTrajectoryBase( refTsos.localParameters().mixedFormatVector().kSize,
+			     numberOfUsedRecHits(recHits) )
 {
   // no check against magField == 0
 
@@ -74,34 +76,37 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   MaterialEffectsUpdator *aMaterialEffectsUpdator = this->createUpdator(materialEffects, mass);
   if (!aMaterialEffectsUpdator) return false;
 
-  AlgebraicMatrix                 fullJacobian(parameters().num_row(), parameters().num_row());
+  AlgebraicMatrix                 fullJacobian(theNumberOfParameters, theNumberOfParameters);
   std::vector<AlgebraicMatrix>    allJacobians; 
-  allJacobians.reserve(recHits.size());
+  allJacobians.reserve(theNumberOfHits);
 
   TransientTrackingRecHit::ConstRecHitPointer  previousHitPtr;
   TrajectoryStateOnSurface                     previousTsos;
-  AlgebraicSymMatrix              previousChangeInCurvature(parameters().num_row(), 1);
+  AlgebraicSymMatrix              previousChangeInCurvature(theNumberOfParameters, 1);
   std::vector<AlgebraicSymMatrix> allCurvatureChanges; 
-  allCurvatureChanges.reserve(recHits.size());
+  allCurvatureChanges.reserve(theNumberOfHits);
 
   const LocalTrajectoryError zeroErrors(0., 0., 0., 0., 0.);
 
   std::vector<AlgebraicMatrix> allProjections;
-  allProjections.reserve(recHits.size());
+  allProjections.reserve(theNumberOfHits);
   std::vector<AlgebraicSymMatrix> allDeltaParameterCovs;
-  allDeltaParameterCovs.reserve(recHits.size());
+  allDeltaParameterCovs.reserve(theNumberOfHits);
 
-  TransientTrackingRecHit::ConstRecHitContainer::const_iterator itRecHit = recHits.begin();
-  for (unsigned int iRow = 0; itRecHit != recHits.end(); ++itRecHit, iRow += nMeasPerHit) { 
+  unsigned int iRow = 0;
+  TransientTrackingRecHit::ConstRecHitContainer::const_iterator itRecHit;
+  for ( itRecHit = recHits.begin(); itRecHit != recHits.end(); ++itRecHit ) { 
+
     const TransientTrackingRecHit::ConstRecHitPointer &hitPtr = *itRecHit;
+
+    if ( !useRecHit( hitPtr ) ) continue;
+
     theRecHits.push_back(hitPtr);
-    if (!hitPtr->isValid()) return false;
-    // GF FIXME: We have to care about invalid hits since also tracks with holes might be useful!
 
     if (0 == iRow) { 
       // compute the derivatives of the reference-track's parameters w.r.t. the initial ones
       // derivative of the initial reference-track parameters w.r.t. themselves is of course the identity 
-      fullJacobian = AlgebraicMatrix(parameters().num_row(), parameters().num_row(), 1);
+      fullJacobian = AlgebraicMatrix(theNumberOfParameters, theNumberOfParameters, 1);
       allJacobians.push_back(fullJacobian);
       theTsosVec.push_back(refTsos);
     } else {
@@ -110,9 +115,6 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
       if (!this->propagate(previousHitPtr->det()->surface(), previousTsos,
 			   hitPtr->det()->surface(), nextTsos,
 			   nextJacobian, magField)) {
-	edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectory::construct2"
-				  << "Propagation failed at hit " << iRow/nMeasPerHit
-				  << " => invalid trajectory";
 	return false; // stop if problem...
       }
 
@@ -128,30 +130,33 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     const TrajectoryStateOnSurface updatedTsos =
       aMaterialEffectsUpdator->updateState(tmpTsos, alongMomentum);
     previousChangeInCurvature[0][0] = updatedTsos.localParameters().signedInverseMomentum() 
-      / theTsosVec.back().localParameters().signedInverseMomentum();
+	/ theTsosVec.back().localParameters().signedInverseMomentum();
+    
+    // get multiple-scattering covariance-matrix
+    allDeltaParameterCovs.push_back( asHepMatrix<5>(updatedTsos.localError().matrix()) );
+
     allCurvatureChanges.push_back(previousChangeInCurvature);
+
+    // projection-matrix tsos-parameters -> measurement-coordinates
+    allProjections.push_back(hitPtr->projectionMatrix());
+
     // set start-parameters for next propagation. trajectory-state without error
     //  - no error propagation needed here.
     previousHitPtr = hitPtr;
     previousTsos   = TrajectoryStateOnSurface(updatedTsos.globalParameters(),
- 					      updatedTsos.surface(), beforeSurface);
-
-    // projection-matrix tsos-parameters -> measurement-coordinates
-    allProjections.push_back(hitPtr->projectionMatrix());
-    // get multiple-scattering covariance-matrix
-    allDeltaParameterCovs.push_back( asHepMatrix<5>(updatedTsos.localError().matrix()) );
+					      updatedTsos.surface(), beforeSurface);
 
     this->fillDerivatives(allProjections.back(), fullJacobian, iRow);
 
     AlgebraicVector mixedLocalParams = asHepVector<5>(theTsosVec.back().localParameters().mixedFormatVector());
     this->fillTrajectoryPositions(allProjections.back(), mixedLocalParams, iRow);
-
     this->fillMeasurementAndError(hitPtr, iRow, updatedTsos);
+
+    iRow += nMeasPerHit;
   } // end of loop on hits
 
   if (materialEffects != none) {
-    this->addMaterialEffectsCov(allJacobians, allProjections,
-				allCurvatureChanges, allDeltaParameterCovs);
+    this->addMaterialEffectsCov(allJacobians, allProjections, allCurvatureChanges, allDeltaParameterCovs);
   }
 
   if (refTsos.hasError()) {
@@ -162,6 +167,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   }
 
   delete aMaterialEffectsUpdator;
+
   return true;
 }
 
@@ -333,3 +339,27 @@ void ReferenceTrajectory::addMaterialEffectsCov(const std::vector<AlgebraicMatri
   theMeasurementsCov += materialEffectsCov;
 }
 
+
+unsigned int ReferenceTrajectory::numberOfUsedRecHits( const TransientTrackingRecHit::ConstRecHitContainer &recHits ) const
+{
+  unsigned int nUsedHits = 0;
+  TransientTrackingRecHit::ConstRecHitContainer::const_iterator itHit;
+  for ( itHit = recHits.begin(); itHit != recHits.end(); ++itHit ) if ( useRecHit( *itHit ) ) ++nUsedHits;
+  return nUsedHits;
+}
+
+
+bool ReferenceTrajectory::useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const
+{
+  if ( !hitPtr->isValid() )
+  {
+    return false;
+  }
+  else
+  {
+    const ProjectedRecHit2D* projectedHit = dynamic_cast< const ProjectedRecHit2D* >( hitPtr.get() );
+    if ( projectedHit != 0 ) return false;
+  }
+
+  return true;
+}

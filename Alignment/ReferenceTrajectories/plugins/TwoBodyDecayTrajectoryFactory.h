@@ -23,6 +23,10 @@ public:
   virtual const ReferenceTrajectoryCollection trajectories( const edm::EventSetup & setup,
 							    const ConstTrajTrackPairCollection & tracks ) const;
 
+  virtual const ReferenceTrajectoryCollection trajectories( const edm::EventSetup& setup,
+							    const ConstTrajTrackPairCollection& tracks,
+							    const ExternalPredictionCollection& external ) const;
+
   virtual TwoBodyDecayTrajectoryFactory* clone( void ) const { return new TwoBodyDecayTrajectoryFactory( *this ); }
 
 protected:

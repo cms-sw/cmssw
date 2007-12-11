@@ -107,6 +107,20 @@ TwoBodyDecayTrajectoryFactory::trajectories( const edm::EventSetup& setup,
 }
 
 
+const TrajectoryFactoryBase::ReferenceTrajectoryCollection
+TwoBodyDecayTrajectoryFactory::trajectories( const edm::EventSetup& setup,
+					     const ConstTrajTrackPairCollection& tracks,
+					     const ExternalPredictionCollection& external ) const
+{
+  ReferenceTrajectoryCollection trajectories;
+
+  edm::LogInfo( "Alignment" ) << "@SUB=TwoBodyDecayTrajectoryFactory::trajectories"
+			      << "Not implemented for the case of external predictions!!!.\n";
+
+  return trajectories;
+}
+
+
 bool TwoBodyDecayTrajectoryFactory::match( const TrajectoryStateOnSurface& state,
 					   const TransientTrackingRecHit::ConstRecHitPointer& recHit ) const
 {

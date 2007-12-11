@@ -21,12 +21,17 @@ public:
   typedef AlignmentAlgorithmBase::ConstTrajTrackPairCollection ConstTrajTrackPairCollection;
   typedef std::vector< ReferenceTrajectoryPtr > ReferenceTrajectoryCollection;
   typedef std::pair< TrajectoryStateOnSurface, TransientTrackingRecHit::ConstRecHitContainer > TrajectoryInput;
+  typedef std::vector< TrajectoryStateOnSurface > ExternalPredictionCollection;
 
   TrajectoryFactoryBase( const edm::ParameterSet & config );
   virtual ~TrajectoryFactoryBase( void );
 
   virtual const ReferenceTrajectoryCollection trajectories( const edm::EventSetup & setup,
 							    const ConstTrajTrackPairCollection & tracks ) const = 0;
+
+  virtual const ReferenceTrajectoryCollection trajectories( const edm::EventSetup& setup,
+							    const ConstTrajTrackPairCollection& tracks,
+							    const ExternalPredictionCollection& external ) const = 0;
 
   virtual TrajectoryFactoryBase* clone( void ) const = 0;
 

@@ -1,7 +1,6 @@
 #ifndef Alignment_ReferenceTrajectories_TwoBodyDecayTrajectory_h
 #define Alignment_ReferenceTrajectories_TwoBodyDecayTrajectory_h
 
-
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 #include "Alignment/ReferenceTrajectories/interface/TwoBodyDecayTrajectoryState.h"
 
