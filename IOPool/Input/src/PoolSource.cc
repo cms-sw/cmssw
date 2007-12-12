@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.73 2007/12/03 00:41:54 wmtan Exp $
+$Id: PoolSource.cc,v 1.74 2007/12/11 00:29:38 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -9,6 +9,7 @@ $Id: PoolSource.cc,v 1.73 2007/12/03 00:41:54 wmtan Exp $
 #include "FWCore/Catalog/interface/FileCatalog.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -21,7 +22,7 @@ $Id: PoolSource.cc,v 1.73 2007/12/03 00:41:54 wmtan Exp $
 namespace edm {
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
-    initialized_(false),
+    firstFile_(true),
     fileIterBegin_(fileCatalogItems().begin()),
     fileIter_(fileCatalogItems().end()),
     rootFile_(),
@@ -32,25 +33,29 @@ namespace edm {
     startAtLumi_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1U)),
     startAtEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1U)),
     eventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
-    forcedRunOffset_(0) {
+    skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
+    forcedRunOffset_(0),
+    setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0)) {
 
     std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     ClassFiller();
     if (primary()) {
-      fileIter_ = fileIterBegin_;
-      init(*fileIter_);
-      forcedRunOffset_ = rootFile_->setForcedRunOffset(
-			pset.getUntrackedParameter<unsigned int>("setRunNumber", 0));
-      if (forcedRunOffset_ < 0) {
-	RunNumber_t setRun = pset.getUntrackedParameter<unsigned int>("setRunNumber", 0);
-        throw cms::Exception("Configuration")
-          << "The value of the 'setRunNumber' parameter must not be\n"
-	  << "less than the first run number in the first input file.\n"
-          << "'setRunNumber' was " << setRun <<", while the first run was "
-	  << setRun - forcedRunOffset_ << ".\n";
+      for(fileIter_ = fileIterBegin_; fileIter_ != fileCatalogItems().end(); ++fileIter_) {
+        initFile(skipBadFiles_);
+	if (rootFile_) break;
       }
-      updateProductRegistry();
+      if (rootFile_) {
+        forcedRunOffset_ = rootFile_->setForcedRunOffset(setRun_);
+        if (forcedRunOffset_ < 0) {
+          throw cms::Exception("Configuration")
+            << "The value of the 'setRunNumber' parameter must not be\n"
+	    << "less than the first run number in the first input file.\n"
+            << "'setRunNumber' was " << setRun_ <<", while the first run was "
+	    << setRun_ - forcedRunOffset_ << ".\n";
+        }
+        updateProductRegistry();
+      }
     } else {
       Service<RandomNumberGenerator> rng;
       if (!rng.isAvailable()) {
@@ -66,29 +71,49 @@ namespace edm {
 
   void
   PoolSource::endJob() {
-    if (rootFile_ != 0) rootFile_->close(true);
+    if (rootFile_) {
+      rootFile_->close(true);
+      rootFile_.reset();
+    }
     delete flatDistribution_;
     flatDistribution_ = 0;
   }
 
   boost::shared_ptr<FileBlock>
   PoolSource::readFile_() {
-    if (!initialized_) {
+    if (firstFile_) {
       // The first input file has already been opened.
-      initialized_ = true;
+      firstFile_ = false;
     } else {
       if (!nextFile()) {
-	assert(0);
+      assert(0);
       }
+    }
+    if (!rootFile_) {
+      return boost::shared_ptr<FileBlock>(new FileBlock);
     }
     return rootFile_->createFileBlock();
   }
 
-  void PoolSource::init(FileCatalogItem const& file) {
+  void PoolSource::initFile(bool skipBadFiles) {
     TTree::SetMaxTreeSize(kMaxLong64);
-    rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(),
-	processConfiguration(), file.logicalFileName(),
-	startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, remainingEvents(), forcedRunOffset_));
+    boost::shared_ptr<TFile> filePtr;
+    try {
+      filePtr = boost::shared_ptr<TFile>(TFile::Open(fileIter_->fileName().c_str()));
+    } catch (cms::Exception) {
+      if (!skipBadFiles) throw;
+    }
+    if (filePtr && !filePtr->IsZombie()) {
+      rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog().url(),
+	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
+	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, remainingEvents(), forcedRunOffset_));
+    } else {
+      if (!skipBadFiles) {
+	throw edm::Exception(edm::errors::FatalRootError) <<
+	   "PoolSource::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
+      }
+      LogWarning("") << "Input file: " << fileIter_->fileName() << " was not found or could not be opened, and will be skipped.\n";
+    }
   }
 
   void PoolSource::updateProductRegistry() const {
@@ -104,7 +129,7 @@ namespace edm {
 
   bool PoolSource::nextFile() {
     // Account for events skipped in the file.
-    eventsToSkip_ = rootFile_->eventsToSkip();
+    if (rootFile_) eventsToSkip_ = rootFile_->eventsToSkip();
 
     if(fileIter_ != fileCatalogItems().end()) ++fileIter_;
     if(fileIter_ == fileCatalogItems().end()) {
@@ -115,11 +140,14 @@ namespace edm {
       }
     }
 
-    rootFile_->close(primary());
+    if (rootFile_) {
+      rootFile_->close(primary());
+      rootFile_.reset();
+    }
 
-    init(*fileIter_);
+    initFile(skipBadFiles_);
 
-    if (primary()) {
+    if (primary() && rootFile_) {
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
@@ -141,11 +169,14 @@ namespace edm {
     }
     --fileIter_;
 
-    rootFile_->close(primary());
+    if (rootFile_) {
+      rootFile_->close(primary());
+      rootFile_.reset();
+    }
 
-    init(*fileIter_);
+    initFile(false);
 
-    if (primary()) {
+    if (primary() && rootFile_) {
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
@@ -154,7 +185,7 @@ namespace edm {
         throw cms::Exception("MismatchedInput","PoolSource::previousEvent()") << mergeInfo;
       }
     }
-    rootFile_->setToLastEntry();
+    if (rootFile_) rootFile_->setToLastEntry();
     return true;
   }
 
@@ -208,18 +239,20 @@ namespace edm {
     if (fileIter_ == fileCatalogItems().end()) {
       return IsStop;
     }
-    if (!initialized_) {
+    if (firstFile_) {
       return IsFile;
     }
-    FileIndex::EntryType entryType = rootFile_->getEntryType();
-    if (entryType == FileIndex::kEvent) {
-      return IsEvent;
-    } else if (entryType == FileIndex::kLumi) {
-      return InputSource::IsLumi;
-    } else if (entryType == FileIndex::kRun) {
-      return InputSource::IsRun;
+    if (rootFile_) {
+      FileIndex::EntryType entryType = rootFile_->getEntryType();
+      if (entryType == FileIndex::kEvent) {
+        return IsEvent;
+      } else if (entryType == FileIndex::kLumi) {
+        return IsLumi;
+      } else if (entryType == FileIndex::kRun) {
+        return IsRun;
+      }
+      assert(entryType == FileIndex::kEnd);
     }
-    assert(entryType == FileIndex::kEnd);
     if (fileIter_ + 1 == fileCatalogItems().end()) {
       return IsStop;
     }
@@ -229,9 +262,12 @@ namespace edm {
   // Rewind to before the first event that was read.
   void
   PoolSource::rewind_() {
-    if (rootFile_ != 0) rootFile_->close(primary());
+    if (rootFile_) {
+	rootFile_->close(primary());
+	rootFile_.reset();
+    }
     fileIter_ = fileIterBegin_;
-    init(*fileIter_);    
+    initFile(skipBadFiles_);
   }
 
   // Rewind to the beginning of the current file
@@ -267,10 +303,12 @@ namespace edm {
   PoolSource::readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber) {
     unsigned int currentSeqNumber = fileIter_ - fileIterBegin_;
     if (currentSeqNumber != fileSeqNumber) {
-      if (rootFile_ != 0) rootFile_->close(primary());
+      if (rootFile_) {
+	rootFile_->close(primary());
+	rootFile_.reset();
+      }
       fileIter_ = fileIterBegin_ + fileSeqNumber;
-      rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog().url(),
-          processConfiguration(), fileIter_->logicalFileName(), 0U, 0U, 0U, 0U, -1, 0));
+      initFile(false);
     }
     rootFile_->setEntryAtEvent(id);
     for (int i = 0; i < number; ++i) {
@@ -288,11 +326,14 @@ namespace edm {
 
   void
   PoolSource::readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
+    skipBadFiles_ = false;
     while (eventsRemainingInFile_ < number) {
-      if (rootFile_ != 0) rootFile_->close(primary());
+      if (rootFile_) {
+	rootFile_->close(primary());
+	rootFile_.reset();
+      }
       fileIter_ = fileIterBegin_ + flatDistribution_->fireInt(fileCatalogItems().size());
-      rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog().url(),
-          processConfiguration(), fileIter_->logicalFileName(), 0U, 0U, 0U, 0U, -1, 0));
+      initFile(false);
       eventsRemainingInFile_ = rootFile_->eventTree().entries();
       rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));
     }

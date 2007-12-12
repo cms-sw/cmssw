@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.101 2007/12/03 00:41:54 wmtan Exp $
+$Id: RootFile.cc,v 1.102 2007/12/07 23:23:10 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -40,6 +40,7 @@ namespace edm {
 		     std::string const& catalogName,
 		     ProcessConfiguration const& processConfiguration,
 		     std::string const& logicalFileName,
+		     boost::shared_ptr<TFile> filePtr,
 		     RunNumber_t const& startAtRun,
 		     LuminosityBlockNumber_t const& startAtLumi,
 		     EventNumber_t const& startAtEvent,
@@ -50,7 +51,7 @@ namespace edm {
       logicalFile_(logicalFileName),
       catalog_(catalogName),
       processConfiguration_(processConfiguration),
-      filePtr_(file_.empty() ? 0 : TFile::Open(file_.c_str())),
+      filePtr_(filePtr),
       fileFormatVersion_(),
       fid_(),
       fileIndex_(),
@@ -80,8 +81,6 @@ namespace edm {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
-
-    open();
 
     // Set up buffers for registries.
     // Need to read to a temporary registry so we can do a translation of the BranchKeys.
@@ -190,6 +189,8 @@ namespace edm {
       fileIndexIter_ = fileIndex_.findPosition(startAtRun_, 0U, 0U);      
     }
     assert(fileIndexIter_ == fileIndexEnd_ || fileIndexIter_->getEntryType() == FileIndex::kRun);
+
+    reportOpened();
   }
 
   RootFile::~RootFile() {
@@ -322,11 +323,7 @@ namespace edm {
   }
 
   void
-  RootFile::open() {
-    if (filePtr_ == 0 || filePtr_->IsZombie()) {
-      throw cms::Exception("FileNotFound","RootFile::RootFile()")
-        << "File " << file_ << " was not found or could not be opened.\n";
-    }
+  RootFile::reportOpened() {
     // Report file opened.
     std::string const label = "source";
     std::string moduleName = "PoolSource";
@@ -336,6 +333,7 @@ namespace edm {
                catalog_,
                moduleName,
                label,
+	       fid_.fid(),
                eventTree_.branchNames()); 
   }
 

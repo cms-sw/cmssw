@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.46 2007/12/03 00:41:54 wmtan Exp $
+$Id: PoolSource.h,v 1.47 2007/12/11 00:29:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -58,13 +58,13 @@ namespace edm {
     virtual void readMany_(int number, EventPrincipalVector& result);
     virtual void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
     virtual void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
-    void init(FileCatalogItem const& file);
+    void initFile(bool skipBadFiles);
     void updateProductRegistry() const;
     bool nextFile();
     bool previousFile();
     void rewindFile();
 
-    bool initialized_;
+    bool firstFile_;
     std::vector<FileCatalogItem>::const_iterator fileIterBegin_;
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
@@ -76,7 +76,9 @@ namespace edm {
     LuminosityBlockNumber_t startAtLumi_;
     EventNumber_t startAtEvent_;
     unsigned int eventsToSkip_;
+    bool skipBadFiles_;
     int forcedRunOffset_;
+    RunNumber_t setRun_;
   }; // class PoolSource
   typedef PoolSource PoolRASource;
 }

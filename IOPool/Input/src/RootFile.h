@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.43 2007/12/03 00:41:54 wmtan Exp $
+$Id: RootFile.h,v 1.44 2007/12/07 23:23:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -41,6 +41,7 @@ namespace edm {
 		      std::string const& catalogName,
 		      ProcessConfiguration const& processConfiguration,
 		      std::string const& logicalFileName,
+		      boost::shared_ptr<TFile> filePtr,
 		      RunNumber_t const& startAtRun,
 		      LuminosityBlockNumber_t const& startAtLumi,
 		      EventNumber_t const& startAtEvent,
@@ -48,7 +49,7 @@ namespace edm {
 		      int remainingEvents,
 		      int forcedRunOffset);
     ~RootFile();
-    void open();
+    void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(
 	boost::shared_ptr<ProductRegistry const> pReg,
