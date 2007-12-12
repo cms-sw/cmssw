@@ -41,7 +41,9 @@ namespace edmtest
   CSCPedestalDBReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
   {
     using namespace edm::eventsetup;
-    // Context is not used.
+    std::ofstream DBPedestalFile("dbpeds.dat",std::ios::out);
+    int counter=0;
+
     std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
     std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
     edm::ESHandle<CSCDBPedestals> pPeds;
@@ -51,9 +53,8 @@ namespace edmtest
     std::vector<CSCDBPedestals::Item>::const_iterator it;
     
     for( it=myped->pedestals.begin();it!=myped->pedestals.end(); ++it ){
-      //no global variables
-	  //   counter++;
-	  //DBPedestalFile<<it->ped<<"  "<<it->rms<<std::endl;
+      counter++;
+      DBPedestalFile<<it->ped<<"  "<<it->rms<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCPedestalDBReadAnalyzer);
