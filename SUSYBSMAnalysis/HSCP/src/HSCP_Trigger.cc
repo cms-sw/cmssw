@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Wed Nov  7 17:30:40 CET 2007
-// $Id$
+// $Id: HSCP_Trigger.cc,v 1.1 2007/12/11 17:04:02 querten Exp $
 //
 //
 
@@ -106,14 +106,11 @@ class HSCP_Trigger : public edm::EDAnalyzer {
       bool HLTSumEtAbovePtThreshold(const reco::CaloMETCollection HLT_MET           ,double PtThreshold);
       bool HLTJetAbovePtThreshold  (const reco::CaloJetCollection HLT_Jets          ,double PtThreshold);
 
-      bool L1GlobalDecision      (Handle<L1GlobalTriggerReadoutRecord> L1GTRR);
-      bool L1GlobalDecision      (bool* TriggerBits);
-      bool L1InterestingPath     (int Path);
-      bool HLTGlobalDecision     (Handle<TriggerResults> HLTR);
-      bool HLTGlobalDecision     (bool* TriggerBits);
-      bool HLTInterestingPath    (int Path);
-//      bool IsL1ConditionTrue     (int Path,Handle<L1GlobalTriggerReadoutRecord> L1GTRR);
-       bool IsL1ConditionTrue(int Path, bool* TriggerBits);
+      bool L1GlobalDecision        (bool* TriggerBits);
+      bool HLTGlobalDecision       (bool* TriggerBits);
+      bool L1InterestingPath       (int Path);
+      bool HLTInterestingPath      (int Path);
+      bool IsL1ConditionTrue       (int Path, bool* TriggerBits);
 
 
       int ClosestHSCP            (double phi, double eta, double dRMax, const reco::CandidateCollection MC_Cand);
@@ -490,52 +487,48 @@ HSCP_Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
   try {iEvent.getByLabel("l1extraParticleMap",L1GTRR);} catch (...) {;}
-//  if (L1GTRR.isValid()) {
 
-	//Initialisation
-	if(!Init){
-		L1_NPath           = L1GTRR->decisionWord().size();
-		L1_Names	   = new std::string [L1_NPath];
-		L1_Accepted        = new unsigned int[L1_NPath];
-                L1_Rejected 	   = new unsigned int[L1_NPath];
-                L1_Error    	   = new unsigned int[L1_NPath];
-   		L1_Global_Accepted = 0;
-   		L1_Global_Rejected = 0;
-  		L1_Global_Error    = 0;
+  //Initialisation
+  if(!Init){
+	L1_NPath           = L1GTRR->decisionWord().size();
+	L1_Names	   = new std::string [L1_NPath];
+	L1_Accepted        = new unsigned int[L1_NPath];
+        L1_Rejected 	   = new unsigned int[L1_NPath];
+        L1_Error    	   = new unsigned int[L1_NPath];
+	L1_Global_Accepted = 0;
+	L1_Global_Rejected = 0;
+	L1_Global_Error    = 0;
 
-	        for(unsigned int i=0;i<L1_NPath;i++){
-        	        l1extra::L1ParticleMap::L1TriggerType type ( static_cast<l1extra::L1ParticleMap::L1TriggerType>(i) );
-                	L1_Names[i]    = l1extra::L1ParticleMap::triggerName(type);
-                	L1_Accepted[i] = 0; 
-	                L1_Rejected[i] = 0;
-        	        L1_Error[i]    = 0;
-        	} 
-	}
-
-
-        bool* L1_Trigger_Bits_tmp = new bool[L1_NPath];
-	for(unsigned int i=0;i<L1_NPath;i++){
-		if(i == l1extra::L1ParticleMap::kSingleMu7){
-			L1_Trigger_Bits_tmp[i] = L1MuonAbovePtThreshold(L1_Muons,7);			
-		}else if(i == l1extra::L1ParticleMap::kDoubleMu3){
-                        L1_Trigger_Bits_tmp[i] = L1TwoMuonAbovePtThreshold(L1_Muons,3);	
-		}else{
-			L1_Trigger_Bits_tmp[i] = L1GTRR->decisionWord()[i];
-		}
+        for(unsigned int i=0;i<L1_NPath;i++){
+       	        l1extra::L1ParticleMap::L1TriggerType type ( static_cast<l1extra::L1ParticleMap::L1TriggerType>(i) );
+               	L1_Names[i]    = l1extra::L1ParticleMap::triggerName(type);
+               	L1_Accepted[i] = 0; 
+                L1_Rejected[i] = 0;
+       	        L1_Error[i]    = 0;
+       	} 
+   }
 
 
+   bool* L1_Trigger_Bits_tmp = new bool[L1_NPath];
+   for(unsigned int i=0;i<L1_NPath;i++){
+	if(i == l1extra::L1ParticleMap::kSingleMu7){
+		L1_Trigger_Bits_tmp[i] = L1MuonAbovePtThreshold(L1_Muons,7);			
+	}else if(i == l1extra::L1ParticleMap::kDoubleMu3){
+                L1_Trigger_Bits_tmp[i] = L1TwoMuonAbovePtThreshold(L1_Muons,3);	
+	}else{
+		L1_Trigger_Bits_tmp[i] = L1GTRR->decisionWord()[i];
+        }
 
-                if(L1_Trigger_Bits_tmp[i] ){ L1_Accepted[i]++;
-                }else{                       L1_Rejected[i]++;}
-    	}
-        L1_Trigger_Bits.push_back(L1_Trigger_Bits_tmp);
+        if(L1_Trigger_Bits_tmp[i] ){ L1_Accepted[i]++;
+        }else{                       L1_Rejected[i]++;}
+   }
+   L1_Trigger_Bits.push_back(L1_Trigger_Bits_tmp);
 
-//	if(L1GlobalDecision(L1GTRR)){	L1_Global_Accepted++; 
-//	}else{			        L1_Global_Rejected++;}
 
-      if(L1GlobalDecision(L1_Trigger_Bits_tmp)){   L1_Global_Accepted++; 
-      }else{                                       L1_Global_Rejected++;}
-//  }
+  bool PassL1 = false;
+
+  if(L1GlobalDecision(L1_Trigger_Bits_tmp)){   L1_Global_Accepted++;  NEventsPassL1++; PassL1 = true;
+  }else{                                       L1_Global_Rejected++;}
 
 
   //TRIGGER HLT DECISIONS
@@ -544,54 +537,45 @@ HSCP_Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<TriggerResults> HLTR;
    InputTag tag("TriggerResults","","HLT");
    try {iEvent.getByLabel(tag,HLTR);} catch (...) {;}
-//   if (HLTR.isValid()) {
 
-
-        //Initialisation
-        if(!Init){
-                HLT_NPath          = HLTR->size();
-                HLT_Names           = new std::string [HLT_NPath];
-                HLT_WasRun          = new unsigned int[HLT_NPath];
-                HLT_Accepted        = new unsigned int[HLT_NPath];
-                HLT_Rejected        = new unsigned int[HLT_NPath];
-                HLT_Error           = new unsigned int[HLT_NPath];
-                HLT_Global_Accepted = 0;
-                HLT_Global_Rejected = 0;
-                HLT_Global_Error    = 0;
-
-		edm::TriggerNames triggerNames;
-		triggerNames.init(*HLTR);
-                for(unsigned int i=0;i<HLT_NPath;i++){
-                        HLT_Names[i]    = (triggerNames.triggerNames() )[i];
-	                HLT_WasRun[i]   = 0;
-        	        HLT_Accepted[i] = 0;
-                	HLT_Rejected[i] = 0;
-        	        HLT_Error[i]    = 0;
-	        }
-		Init = true;
-        }
-
-
-	bool* HLT_Trigger_Bits_tmp = new bool[HLT_NPath];
+   //Initialisation
+   if(!Init){
+        HLT_NPath           = HLTR->size();
+        HLT_Names           = new std::string [HLT_NPath];
+        HLT_WasRun          = new unsigned int[HLT_NPath];
+        HLT_Accepted        = new unsigned int[HLT_NPath];
+        HLT_Rejected        = new unsigned int[HLT_NPath];
+        HLT_Error           = new unsigned int[HLT_NPath];
+        HLT_Global_Accepted = 0;
+        HLT_Global_Rejected = 0;
+        HLT_Global_Error    = 0;
+	
+	edm::TriggerNames triggerNames;
+	triggerNames.init(*HLTR);
         for(unsigned int i=0;i<HLT_NPath;i++){
-                if(HLTR->wasrun(i) ){ HLT_WasRun  [i]++;}
-//                if(HLTR->accept(i)&&IsL1ConditionTrue(i,L1GTRR) ){ HLT_Accepted[i]++;}
-                if(HLTR->accept(i)&&IsL1ConditionTrue(i,L1_Trigger_Bits_tmp) ){ HLT_Accepted[i]++;}
-                else{                 HLT_Rejected[i]++;}
-                if(HLTR->error(i) ) { HLT_Error   [i]++;}
-
-                HLT_Trigger_Bits_tmp[i] = (HLTR->accept(i) && IsL1ConditionTrue(i,L1_Trigger_Bits_tmp));
+                HLT_Names[i]    = (triggerNames.triggerNames() )[i];
+                HLT_WasRun[i]   = 0;
+      	        HLT_Accepted[i] = 0;
+               	HLT_Rejected[i] = 0;
+       	        HLT_Error[i]    = 0;
         }
-        HLT_Trigger_Bits.push_back(HLT_Trigger_Bits_tmp);
+	Init = true;
+  }
 
-        if(HLTGlobalDecision(HLTR)){ HLT_Global_Accepted++;
-        }else{                       HLT_Global_Rejected++;}
-//   }
 
-  bool PassL1 = L1GlobalDecision(L1_Trigger_Bits_tmp);
+  bool* HLT_Trigger_Bits_tmp = new bool[HLT_NPath];
+  for(unsigned int i=0;i<HLT_NPath;i++){
+       HLT_Trigger_Bits_tmp[i] = HLTR->accept(i) && IsL1ConditionTrue(i,L1_Trigger_Bits_tmp);
 
-//  NEvents++;
-  if(PassL1) NEventsPassL1++;
+       if(HLTR->wasrun(i)        ){ HLT_WasRun  [i]++;}
+       if(HLT_Trigger_Bits_tmp[i]){ HLT_Accepted[i]++;}
+       else{                        HLT_Rejected[i]++;}
+       if(HLTR->error(i)         ){ HLT_Error   [i]++;}
+   }
+   HLT_Trigger_Bits.push_back(HLT_Trigger_Bits_tmp);
+
+  if(HLTGlobalDecision(HLT_Trigger_Bits_tmp)){ HLT_Global_Accepted++;
+  }else{                                       HLT_Global_Rejected++;}
 
 
   //PLOT DISTRIBUTION L1
@@ -687,7 +671,10 @@ HSCP_Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         if(abs(MC_Cand[i].pdgId())>10000 && MC_Cand[i].status()==1 && fabs(MC_Cand[i].eta())<=2.4){
 	               L1_Mu_RecoEff_Vs_eta_N->Fill(MC_Cand[i].eta());
 	               int I = ClosestL1Muon(MC_Cand[i].phi(), MC_Cand[i].eta(),0.3,L1_Muons);
-                       if( I>=0 && L1_Muons[I].pt()>=7) L1_Mu_RecoEff_Vs_eta_Distrib->Fill(MC_Cand[i].eta());
+		       if(I<0)continue;
+                       if(recoL1Muon[0]==(int)I && MinDt[0] >= DeltaTMax) continue;
+                       if(recoL1Muon[1]==(int)I && MinDt[1] >= DeltaTMax) continue;
+                       if(L1_Muons[I].pt()>=7) L1_Mu_RecoEff_Vs_eta_Distrib->Fill(MC_Cand[i].eta());
 	   if(PassL1 && IsL1ConditionTrue(47,L1_Trigger_Bits_tmp)){
 		       HLT_Mu_RecoEff_Vs_eta_N->Fill(MC_Cand[i].eta());		
                        int I = ClosestHLTMuon(MC_Cand[i].phi(), MC_Cand[i].eta(),0.3,HLT_Muons);
@@ -702,8 +689,11 @@ HSCP_Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(unsigned int i=0;i<MC_Cand.size();i++){
         if(abs(MC_Cand[i].pdgId())>10000 && MC_Cand[i].status()==1 && fabs(MC_Cand[i].eta())<=2.4){
                        L1_Mu_RecoEff_Vs_Beta_N->Fill( MC_Cand[i].p() / MC_Cand[i].energy() );
-                       int I = ClosestL1Muon(MC_Cand[i].phi(), MC_Cand[i].eta(),0.3,L1_Muons);
-                       if( I>=0 && L1_Muons[I].pt()>=7) L1_Mu_RecoEff_Vs_Beta_Distrib->Fill(MC_Cand[i].p() / MC_Cand[i].energy());
+                       int I = ClosestL1Muon(MC_Cand[i].phi(), MC_Cand[i].eta(),0.3,L1_Muons);		       
+                       if(I<0)continue;
+                       if(recoL1Muon[0]==(int)I && MinDt[0] >= DeltaTMax) continue;
+                       if(recoL1Muon[1]==(int)I && MinDt[1] >= DeltaTMax) continue;
+                       if(L1_Muons[I].pt()>=7) L1_Mu_RecoEff_Vs_Beta_Distrib->Fill(MC_Cand[i].p() / MC_Cand[i].energy());
            if(PassL1 && IsL1ConditionTrue(47,L1_Trigger_Bits_tmp)){
                        HLT_Mu_RecoEff_Vs_Beta_N->Fill(MC_Cand[i].p() / MC_Cand[i].energy());
                        int I = ClosestHLTMuon(MC_Cand[i].phi(), MC_Cand[i].eta(),0.3,HLT_Muons);
@@ -1049,21 +1039,6 @@ HSCP_Trigger::L1GlobalDecision(bool* TriggerBits)
    return false;
 }
 
-
-/*
-bool
-HSCP_Trigger::L1GlobalDecision(Handle<L1GlobalTriggerReadoutRecord> L1GTRR)
-{
-  if (L1GTRR.isValid()) {
-	for(unsigned int i=0;i<L1_NPath;i++)
-	{
-		if(L1InterestingPath(i) && L1GTRR->decisionWord()[i]) return true;
-	}
-  }
-  return false;
-}
-*/
-
 bool 
 HSCP_Trigger::L1InterestingPath(int Path)
 {
@@ -1096,8 +1071,6 @@ HSCP_Trigger::L1InterestingPath(int Path)
 
 
 
-
-
 bool
 HSCP_Trigger::HLTGlobalDecision(bool* TriggerBits)
 {
@@ -1108,21 +1081,7 @@ HSCP_Trigger::HLTGlobalDecision(bool* TriggerBits)
 }
 
 
-
 bool
-HSCP_Trigger::HLTGlobalDecision(Handle<TriggerResults> HLTR)
-{
-   if (HLTR.isValid()) {
-        for(unsigned int i=0;i<HLT_NPath;i++){                
-                if(HLTInterestingPath(i) && HLTR->accept(i)) return true;
-	}
-   }
-   return false;
-}
-
-
-bool
-//HSCP_Trigger::IsL1ConditionTrue(int Path,Handle<L1GlobalTriggerReadoutRecord> L1GTRR)
 HSCP_Trigger::IsL1ConditionTrue(int Path, bool* TriggerBits)
 {
         if(Path == 0  && TriggerBits[l1extra::L1ParticleMap::kSingleJet150]) return true;        	    //HLT1jet
@@ -1426,7 +1385,6 @@ HSCP_Trigger::ClosestHLTMuon(double phi, double eta, double dRMax, const  reco::
 }
 
 
-
 double
 DeltaR(double phi1, double eta1, double phi2, double eta2)
 {
@@ -1476,21 +1434,6 @@ ScaleAndComputeError(TH1D* Distrib, unsigned int N)
     Distrib->SetBinError  (i,err);
   }
 }
-
-
-char* LatexFormat(const char* txt)
-{
-  char* output = new char[255];
-  unsigned int j =0;
-  for(unsigned int i=0; j<250 && txt[i]!='\0' ; i++){
-     if(txt[i] == '_'){ output[j]='\\';j++;}   
-     output[j] = txt[i];
-     j++; 
-  }
-  output[j] = '\0';
-  return output;
-}
-
 
 
 
