@@ -678,6 +678,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (Trajectory& candidate, unsigned int nS
   // clear array of non-fitted hits
   //
   remainingHits.clear();
+  fittedTracks.clear();
   //
   // skip candidates which are not exceeding the seed size
   // (should not happen)
