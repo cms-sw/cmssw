@@ -28,7 +28,8 @@ class L1TriggerScalers
 
   enum 
   {
-    nL1Triggers      = 128
+    nL1Triggers          = 128,
+    nL1TestTriggers      = 64
   };
 
   L1TriggerScalers();
@@ -41,70 +42,74 @@ class L1TriggerScalers
   /// empty method (= false)
   bool empty() const { return false; }
 
-  /// get the data
+  // Data accessor methods
+  int version() const { return(version_);}
+
   unsigned int trigType() const            { return(trigType_);}
   unsigned int eventID() const             { return(eventID_);}
   unsigned int sourceID() const            { return(sourceID_);}
   unsigned int bunchNumber() const         { return(bunchNumber_);}
 
-  int version() const { return(version_);}
+  struct timespec collectionTimeSpecial() const
+  { return(collectionTimeSpecial_);}
+
+  unsigned int orbitNumber() const           
+  { return(orbitNumber_);}
+  unsigned int luminositySection() const           
+  { return(luminositySection_);}
+  unsigned int bunchCrossingErrors() const           
+  { return(bunchCrossingErrors_);}
 
   struct timespec collectionTimeSummary() const 
   { return(collectionTimeSummary_);}
 
-  unsigned long long triggerNumber() const         
+  unsigned int triggerNumber() const         
   { return(triggerNumber_);}
-
-  unsigned long long eventNumber() const           
+  unsigned int eventNumber() const           
   { return(eventNumber_);}
-
-  unsigned long long physicsL1Accepts() const      
-  { return(physicsL1Accepts_);}
-
-  unsigned long long physicsL1AcceptsRaw() const   
-  { return(physicsL1AcceptsRaw_);}
-
-  unsigned long long randomL1Accepts() const       
-  { return(randomL1Accepts_);}
-
-  unsigned long long calibrationL1Accepts() const  
-  { return(calibrationL1Accepts_);}
-
-  unsigned long long technicalTriggers() const 
-  { return(technicalTriggers_);}
-
-  unsigned long long orbitNumber() const           
-  { return(orbitNumber_);}
-
-  unsigned long long numberResets() const          
-  { return(numberResets_);}
+  unsigned int finalTriggersDistributed() const      
+  { return(finalTriggersDistributed_);}
+  unsigned int calibrationTriggers() const  
+  { return(calibrationTriggers_);}
+  unsigned int randomTriggers() const       
+  { return(randomTriggers_);}
+  unsigned int totalTestTriggers() const
+  { return(totalTestTriggers_);}
+  unsigned int finalTriggersGenerated() const   
+  { return(finalTriggersGenerated_);}
+  unsigned int finalTriggersInvalidBC() const   
+  { return(finalTriggersInvalidBC_);}
 
   unsigned long long deadTime() const              
   { return(deadTime_);}
-
+  unsigned long long lostFinalTriggers() const
+  { return(lostFinalTriggers_);}
   unsigned long long deadTimeActive() const        
   { return(deadTimeActive_);}
+  unsigned long long lostFinalTriggersActive() const
+  { return(lostFinalTriggersActive_);}
 
-  unsigned long long deadTimeActiveCalibration() const
-  { return(deadTimeActiveCalibration_);}
   unsigned long long deadTimeActivePrivate() const   
   { return(deadTimeActivePrivate_);}
   unsigned long long deadTimeActivePartition() const 
   { return(deadTimeActivePartition_);}
   unsigned long long deadTimeActiveThrottle() const
   { return(deadTimeActiveThrottle_);}
-  unsigned long long lostBunchCrossings() const
-  { return(lostBunchCrossings_);}
-
-  unsigned long long lostTriggers() const
-  { return(lostTriggers_);}
-
-  unsigned long long lostTriggersActive() const
-  { return(lostTriggersActive_);}
+  unsigned long long deadTimeActiveCalibration() const
+  { return(deadTimeActiveCalibration_);}
+  unsigned long long deadTimeActiveTimeSlot() const
+  { return(deadTimeActiveTimeSlot_);}
+  unsigned int numberResets() const          
+  { return(numberResets_);}
 
   struct timespec collectionTimeDetails() const
   { return(collectionTimeDetails_);}
-  std::vector<unsigned int> triggers() const   { return(triggers_);}
+
+  std::vector<unsigned int> triggers() const 
+  { return(triggers_);}
+
+  std::vector<unsigned int> testTriggers() const
+  { return(testTriggers_);}
 
   /// equality operator
   int operator==(const L1TriggerScalers& e) const { return false; }
@@ -113,34 +118,41 @@ class L1TriggerScalers
   int operator!=(const L1TriggerScalers& e) const { return false; }
 
 protected:
+  int version_;
+
   unsigned int trigType_;
   unsigned int eventID_;
   unsigned int sourceID_;
   unsigned int bunchNumber_;
 
-  int version_;
-  struct timespec collectionTimeSummary_;
-  unsigned long long triggerNumber_;
-  unsigned long long eventNumber_;
-  unsigned long long physicsL1Accepts_;
-  unsigned long long physicsL1AcceptsRaw_;
-  unsigned long long randomL1Accepts_;
-  unsigned long long calibrationL1Accepts_;
-  unsigned long long technicalTriggers_;
-  unsigned long long orbitNumber_;
-  unsigned long long numberResets_;
+  struct timespec    collectionTimeSpecial_;
+  unsigned int       orbitNumber_;
+  unsigned int       luminositySection_;
+  unsigned short     bunchCrossingErrors_;
+
+  struct timespec    collectionTimeSummary_;
+  unsigned int       triggerNumber_;
+  unsigned int       eventNumber_;
+  unsigned int       finalTriggersDistributed_;
+  unsigned int       calibrationTriggers_;
+  unsigned int       randomTriggers_;
+  unsigned int       totalTestTriggers_;
+  unsigned int       finalTriggersGenerated_;
+  unsigned int       finalTriggersInvalidBC_;
   unsigned long long deadTime_;
+  unsigned long long lostFinalTriggers_;
   unsigned long long deadTimeActive_;
-  unsigned long long deadTimeActiveCalibration_;
+  unsigned long long lostFinalTriggersActive_;
   unsigned long long deadTimeActivePrivate_;
   unsigned long long deadTimeActivePartition_;
   unsigned long long deadTimeActiveThrottle_;
-  unsigned long long lostBunchCrossings_;
-  unsigned long long lostTriggers_;
-  unsigned long long lostTriggersActive_;
+  unsigned long long deadTimeActiveCalibration_;
+  unsigned long long deadTimeActiveTimeSlot_;
+  unsigned int       numberResets_;
 
   struct timespec collectionTimeDetails_;
   std::vector<unsigned int> triggers_;
+  std::vector<unsigned int> testTriggers_;
 };
 
 

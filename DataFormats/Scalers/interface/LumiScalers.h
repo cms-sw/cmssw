@@ -47,20 +47,21 @@ class LumiScalers
   unsigned int bunchNumber() const         { return(bunchNumber_);}
 
   int version() const                      { return(version_);}
-  double normalization() const             { return(normalization_);}
-  double instantLumi() const               { return(instantLumi_);}
-  double instantLumiErr() const            { return(instantLumiErr_);}
-  double instantLumiQlty() const           { return(instantLumiQlty_);}
-  double instantETLumi() const             { return(instantETLumi_);}
-  double instantETLumiErr() const          { return(instantETLumiErr_);}
-  double instantETLumiQlty() const         { return(instantETLumiQlty_);}
-  std::vector<double> instantOccLumi() const      
+  struct timespec collectionTime() const   { return(collectionTime_);}
+  float normalization() const              { return(normalization_);}
+  float instantLumi() const                { return(instantLumi_);}
+  float instantLumiErr() const             { return(instantLumiErr_);}
+  unsigned char instantLumiQlty() const    { return(instantLumiQlty_);}
+  float instantETLumi() const              { return(instantETLumi_);}
+  float instantETLumiErr() const           { return(instantETLumiErr_);}
+  unsigned char instantETLumiQlty() const  { return(instantETLumiQlty_);}
+  std::vector<float> instantOccLumi() const      
   { return(instantOccLumi_);}
-  std::vector<double> instantOccLumiErr() const   
+  std::vector<float> instantOccLumiErr() const   
   { return(instantOccLumiErr_);}
-  std::vector<double> instantOccLumiQlty() const  
+  std::vector<unsigned char> instantOccLumiQlty() const  
   { return(instantOccLumiQlty_);}
-  std::vector<double> lumiNoise() const    { return(lumiNoise_);}
+  std::vector<float> lumiNoise() const    { return(lumiNoise_);}
   unsigned int sectionNumber() const       { return(sectionNumber_);}
   unsigned int startOrbit() const          { return(startOrbit_);}
   unsigned int numOrbits() const           { return(numOrbits_);}
@@ -79,17 +80,18 @@ protected:
   unsigned int bunchNumber_;
 
   int version_;
-  double normalization_;
-  double instantLumi_;
-  double instantLumiErr_;
-  double instantLumiQlty_;
-  double instantETLumi_;
-  double instantETLumiErr_;
-  double instantETLumiQlty_;
-  std::vector<double> instantOccLumi_;
-  std::vector<double> instantOccLumiErr_;
-  std::vector<double> instantOccLumiQlty_;
-  std::vector<double> lumiNoise_;
+  struct timespec collectionTime_;
+  float normalization_;
+  float instantLumi_;
+  float instantLumiErr_;
+  unsigned char instantLumiQlty_;
+  float instantETLumi_;
+  float instantETLumiErr_;
+  unsigned char instantETLumiQlty_;
+  std::vector<float> instantOccLumi_;
+  std::vector<float> instantOccLumiErr_;
+  std::vector<unsigned char> instantOccLumiQlty_;
+  std::vector<float> lumiNoise_;
   unsigned int sectionNumber_;
   unsigned int startOrbit_;
   unsigned int numOrbits_;

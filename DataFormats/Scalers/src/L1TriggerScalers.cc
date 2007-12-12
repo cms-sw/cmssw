@@ -11,26 +11,32 @@
 
 L1TriggerScalers::L1TriggerScalers():
   version_(0),
+  orbitNumber_(0),
+  luminositySection_(0),
+  bunchCrossingErrors_(0),
   triggerNumber_(0),
   eventNumber_(0),
-  physicsL1Accepts_(0),
-  physicsL1AcceptsRaw_(0),
-  randomL1Accepts_(0),
-  calibrationL1Accepts_(0),
-  technicalTriggers_(0),
-  orbitNumber_(0),
-  numberResets_(0),
+  finalTriggersDistributed_(0),
+  calibrationTriggers_(0),
+  randomTriggers_(0),
+  totalTestTriggers_(0),
+  finalTriggersGenerated_(0),
+  finalTriggersInvalidBC_(0),
   deadTime_(0),
+  lostFinalTriggers_(0),
   deadTimeActive_(0),
-  deadTimeActiveCalibration_(0),
+  lostFinalTriggersActive_(0),
   deadTimeActivePrivate_(0),
   deadTimeActivePartition_(0),
   deadTimeActiveThrottle_(0),
-  lostBunchCrossings_(0),
-  lostTriggers_(0),
-  lostTriggersActive_(0),
-  triggers_(nL1Triggers)
+  deadTimeActiveCalibration_(0),
+  deadTimeActiveTimeSlot_(0),
+  numberResets_(0),
+  triggers_(nL1Triggers),
+  testTriggers_(nL1TestTriggers)
 { 
+  collectionTimeSpecial_.tv_sec  = 0;
+  collectionTimeSpecial_.tv_nsec = 0;
   collectionTimeSummary_.tv_sec  = 0;
   collectionTimeSummary_.tv_nsec = 0;
   collectionTimeDetails_.tv_sec  = 0;
@@ -52,29 +58,39 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
   version_ = raw->version;
   if ( version_ == 1 )
   {
+    collectionTimeSpecial_.tv_sec 
+      = raw->trig.collectionTimeSpecial.tv_sec;
+    collectionTimeSpecial_.tv_nsec 
+      = raw->trig.collectionTimeSpecial.tv_nsec;
+    orbitNumber_               = raw->trig.ORBIT_NUMBER;
+    luminositySection_         = raw->trig.LUMINOSITY_SEGMENT;
+    bunchCrossingErrors_       = raw->trig.BC_ERRORS;
+
     collectionTimeSummary_.tv_sec 
       = raw->trig.collectionTimeSummary.tv_sec;
     collectionTimeSummary_.tv_nsec 
       = raw->trig.collectionTimeSummary.tv_nsec;
 
-    triggerNumber_             = raw->trig.TRIGNR_;
-    eventNumber_               = raw->trig.EVNR;
-    physicsL1Accepts_          = raw->trig.PHYS_L1A;
-    physicsL1AcceptsRaw_       = raw->trig.FINOR_;
-    randomL1Accepts_           = raw->trig.RNDM_L1A_;
-    calibrationL1Accepts_      = raw->trig.CAL_L1A_;
-    technicalTriggers_         = raw->trig.TECHTRIG_;
-    orbitNumber_               = raw->trig.ORBITNR;
-    numberResets_              = raw->trig.NR_RESETS_;
-    deadTime_                  = raw->trig.DEADT_;
-    deadTimeActive_            = raw->trig.DEADT_A;
-    deadTimeActiveCalibration_ = raw->trig.DEADT_CALIBR_A;
-    deadTimeActivePrivate_     = raw->trig.DEADT_PRIV_A;
-    deadTimeActivePartition_   = raw->trig.DEADT_PSTATUS_A;
-    deadTimeActiveThrottle_    = raw->trig.DEADT_THROTTLE_A;
-    lostBunchCrossings_        = raw->trig.LOST_BC_;
-    lostTriggers_              = raw->trig.LOST_TRIG_;
-    lostTriggersActive_        = raw->trig.LOST_TRIG_A;
+    triggerNumber_             = raw->trig.TRIGGER_NR;
+    eventNumber_               = raw->trig.EVENT_NR;
+    finalTriggersDistributed_  = raw->trig.FINOR_DISTRIBUTED;
+    calibrationTriggers_       = raw->trig.CAL_TRIGGER;
+    randomTriggers_            = raw->trig.RANDOM_TRIGGER;
+    totalTestTriggers_         = raw->trig.TEST_TRIGGER;
+
+    finalTriggersGenerated_    = raw->trig.FINOR_GENERATED;
+    finalTriggersInvalidBC_    = raw->trig.FINOR_IN_INVALID_BC;
+
+    deadTime_                  = raw->trig.DEADTIME;
+    lostFinalTriggers_         = raw->trig.LOST_FINOR;
+    deadTimeActive_            = raw->trig.DEADTIMEA;
+    lostFinalTriggersActive_   = raw->trig.LOST_FINORA;
+    deadTimeActivePrivate_     = raw->trig.PRIV_DEADTIMEA;
+    deadTimeActivePartition_   = raw->trig.PTCSTATUS_DEADTIMEA;
+    deadTimeActiveThrottle_    = raw->trig.THROTTLE_DEADTIMEA;
+    deadTimeActiveCalibration_ = raw->trig.CALIBRATION_DEADTIMEA;
+    deadTimeActiveTimeSlot_    = raw->trig.TIMESLOT_DEADTIMEA;
+    numberResets_              = raw->trig.NR_OF_RESETS;
 
     collectionTimeDetails_.tv_sec 
       = raw->trig.collectionTimeDetails.tv_sec;
@@ -83,6 +99,9 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
 
     for ( int i=0; i<ScalersRaw::N_L1_TRIGGERS_v1; i++)
     { triggers_.push_back( raw->trig.RATE_ALGO[i]);}
+
+    // for ( int i=0; i<ScalersRaw::N_L1_TEST_TRIGGERS_v1; i++)
+    // { testTriggers_.push_back( raw->trig.RATE_TECH[i]);}
   }
 }
 
@@ -108,39 +127,45 @@ std::ostream& operator<<(std::ostream& s,L1TriggerScalers const &c)
   horaHeaven = gmtime(&secondsToHeaven.tv_sec);
   strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
   sprintf(line, " CollectionTimeSummary: %s.%9.9d" , 
-	  zeitHeaven, (long int)secondsToHeaven.tv_nsec);
+	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
   s << line << std::endl;
 
   struct timespec secondsToHell= c.collectionTimeDetails();
   horaHell = gmtime(&secondsToHell.tv_sec);
   strftime(zeitHell, sizeof(zeitHell), "%Y.%m.%d %H:%M:%S", horaHell);
   sprintf(line, " CollectionTimeDetails: %s.%9.9d" , 
-	  zeitHell, (long int)secondsToHell.tv_nsec);
+	  zeitHell, (int)secondsToHell.tv_nsec);
   s << line << std::endl;
 
   sprintf(line,
-	  " TriggerNumber:     %15ld  EventNumber:              %15ld",
-	  (long int)c.triggerNumber(), (long int)c.eventNumber());
+	  " LuminositySection: %15d  BunchCrossingErrors:      %15d",
+	  c.luminositySection(), c.bunchCrossingErrors());
   s << line << std::endl;
 
   sprintf(line,
-	  " PhysicsL1Accepts:  %15ld  PhysicsL1AcceptsRaw:      %15ld",
-	  (long int)c.physicsL1Accepts(), (long int)c.physicsL1AcceptsRaw());
+	  " TriggerNumber:     %15d  EventNumber:              %15d",
+	  c.triggerNumber(), c.eventNumber());
   s << line << std::endl;
 
   sprintf(line,
-	  " RandomL1Accepts:   %15ld  CalibrationL1Accepts:     %15ld",
-	  (long int)c.randomL1Accepts(), (long int)c.calibrationL1Accepts());
+	  " TriggersDistrib:   %15d  TriggersGenerated:        %15d",
+	  c.finalTriggersDistributed(), 
+	  c.finalTriggersGenerated());
   s << line << std::endl;
 
   sprintf(line,
-	  " TechnicalTriggers: %15ld  OrbitNumber:              %15ld",
-	  (long int)c.technicalTriggers(), (long int)c.orbitNumber());
+	  " TriggersInvalidBC: %15d  CalibrationTriggers:     %15d",
+	  c.finalTriggersInvalidBC(), c.calibrationTriggers());
   s << line << std::endl;
 
   sprintf(line,
-	  " NumberResets:      %15ld  DeadTime:                 %15ld",
-	  (long int)c.numberResets(), (long int)c.deadTime());
+	  " TestTriggers:      %15d  RandomTriggers:          %15d",
+	  c.totalTestTriggers(), c.randomTriggers());
+  s << line << std::endl;
+
+  sprintf(line,
+	  " DeadTime:          %15d  DeadTimeActiveTimeSlot:  %15ld",
+	  c.numberResets(), (long int)c.deadTime());
   s << line << std::endl;
 
   sprintf(line,
@@ -151,22 +176,23 @@ std::ostream& operator<<(std::ostream& s,L1TriggerScalers const &c)
 
   sprintf(line,
 	  " LostTriggers:      %15ld  DeadTimeActivePartition:  %15ld",
-	  (long int)c.lostTriggers(), 
+	  (long int)c.lostFinalTriggers(), 
 	  (long int)c.deadTimeActivePartition());
   s << line << std::endl;
 
   sprintf(line,
 	  " LostTriggersActive:%15ld  DeadTimeActiveThrottle:   %15ld",
-	  (long int)c.lostTriggersActive(),
+	  (long int)c.lostFinalTriggersActive(),
 	  (long int)c.deadTimeActiveThrottle());
   s << line << std::endl;
 
   sprintf(line,
-	  " LostBunchCrossings:%15ld  DeadTimeActivePrivate:    %15ld",
-	  (long int)c.lostBunchCrossings(), 
+	  " NumberResets:      %15d  DeadTimeActivePrivate:    %15ld",
+	  c.numberResets(),
 	  (long int)c.deadTimeActivePrivate());
   s << line << std::endl;
 
+  s << "Physics Triggers" << std::endl;
   std::vector<unsigned int> triggers = c.triggers();
   int length = triggers.size() / 4;
   for ( int i=0; i<length; i++)
@@ -176,6 +202,19 @@ std::ostream& operator<<(std::ostream& s,L1TriggerScalers const &c)
 	    (i+length),     triggers[i+length], 
 	    (i+(length*2)), triggers[i+(length*2)], 
 	    (i+(length*3)), triggers[i+(length*3)]);
+    s << line << std::endl;
+  }
+
+  s << "Test Triggers" << std::endl;
+  std::vector<unsigned int> testTriggers = c.testTriggers();
+  length = testTriggers.size() / 4;
+  for ( int i=0; i<length; i++)
+  {
+    sprintf(line," %3.3d: %10d    %3.3d: %10d    %3.3d: %10d    %3.3d: %10d",
+	    i,              testTriggers[i], 
+	    (i+length),     testTriggers[i+length], 
+	    (i+(length*2)), testTriggers[i+(length*2)], 
+	    (i+(length*3)), testTriggers[i+(length*3)]);
     s << line << std::endl;
   }
   return s;

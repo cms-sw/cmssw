@@ -28,51 +28,74 @@ class ScalersRaw
   enum
   {
     N_L1_TRIGGERS_v1 = 128,
-    N_LUMI_OCC_v1 = 2,
-    SCALERS_FED_ID = 735
+    N_L1_TECHNICAL_TRIGGERS_v1 = 64,
+    N_LUMI_OCC_v1    = 2,
+    SCALERS_FED_ID   = 735
   };
 };
 
 struct TriggerScalersRaw_v1
 {
-  struct timespec collectionTimeSummary;
-  unsigned long long CAL_L1A_;
-  unsigned long long DEADT_;
-  unsigned long long DEADT_A;
-  unsigned long long DEADT_CALIBR_A;
-  unsigned long long DEADT_PRIV_A;
-  unsigned long long DEADT_PSTATUS_A;
-  unsigned long long DEADT_THROTTLE_A;
-  unsigned long long EVNR;
-  unsigned long long FINOR_;
-  unsigned long long LOST_BC_;
-  unsigned long long LOST_TRIG_;
-  unsigned long long LOST_TRIG_A;
-  unsigned long long NR_RESETS_;
-  unsigned long long ORBITNR;
-  unsigned long long PHYS_L1A;
-  unsigned long long RNDM_L1A_;
-  unsigned long long TECHTRIG_;
-  unsigned long long TRIGNR_;
+  struct timespec    collectionTimeSpecial;
+  unsigned int       ORBIT_NUMBER;          /* ORBITNR          */
+  unsigned int       LUMINOSITY_SEGMENT;
+  unsigned short     BC_ERRORS;            
 
-  struct timespec collectionTimeDetails;
-  unsigned int RATE_ALGO[ScalersRaw::N_L1_TRIGGERS_v1];
+  struct timespec    collectionTimeSummary;
+  unsigned int       TRIGGER_NR;            /* TRIGNR_          */
+  unsigned int       EVENT_NR;              /* EVNR             */
+  unsigned int       FINOR_DISTRIBUTED;     /* PHYS_L1A      ?? */
+  unsigned int       CAL_TRIGGER;           /* CAL_L1A_         */
+  unsigned int       RANDOM_TRIGGER;        /* RNDM_L1A_        */
+  unsigned int       TEST_TRIGGER;          /* TECHTRIG_        */
+  unsigned int       FINOR_GENERATED;       /* FINOR_        ?? */
+  unsigned int       FINOR_IN_INVALID_BC;   /* LOST_BC_      ?? */
+  unsigned long long DEADTIME;              /* DEADT_           */
+  unsigned long long LOST_FINOR;            /* LOST_TRIG_    ?? */
+  unsigned long long DEADTIMEA;             /* DEADT_A          */
+  unsigned long long LOST_FINORA;           /* LOST_TRIG_A   ?? */
+  unsigned long long PRIV_DEADTIMEA;        /* DEADT_PRIV_A     */
+  unsigned long long PTCSTATUS_DEADTIMEA;   /* DEADT_PSTATUS_A  */
+  unsigned long long THROTTLE_DEADTIMEA;    /* DEADT_THROTTLE_A */
+  unsigned long long CALIBRATION_DEADTIMEA; /* DEADT_CALIBR_A   */
+  unsigned long long TIMESLOT_DEADTIMEA;    /*                  */
+  unsigned int       NR_OF_RESETS;          /* NR_RESETS_       */
+
+  struct timespec    collectionTimeDetails;
+  unsigned int       RATE_ALGO[ScalersRaw::N_L1_TRIGGERS_v1];
 };
 
 struct LumiScalersRaw_v1
 {
-  double DeadtimeNormalization;
-  double Normalization;
-  double InstantLumi;
-  double InstantLumiErr;
-  double InstantLumiQlty;
-  double InstantETLumi;
-  double InstantETLumiErr;
-  double InstantETLumiQlty;
-  double InstantOccLumi[ScalersRaw::N_LUMI_OCC_v1];
-  double InstantOccLumiErr[ScalersRaw::N_LUMI_OCC_v1];
-  double InstantOccLumiQlty[ScalersRaw::N_LUMI_OCC_v1];
-  double lumiNoise[ScalersRaw::N_LUMI_OCC_v1];
+  struct timespec collectionTime;
+  float DeadtimeNormalization;
+  float Normalization;
+
+  float LumiFill;
+  float LumiRun;
+  float LiveLumiFill;
+  float LiveLumiRun;
+  float InstantLumi;
+  float InstantLumiErr;
+  unsigned char InstantLumiQlty;
+
+  float ETLumiFill;
+  float ETLumiRun;
+  float ETLiveLumiFill;
+  float ETLiveLumiRun;
+  float InstantETLumi;
+  float InstantETLumiErr;
+  unsigned char InstantETLumiQlty;
+
+  float OccLumiFill[ScalersRaw::N_LUMI_OCC_v1];
+  float OccLumiRun[ScalersRaw::N_LUMI_OCC_v1];
+  float OccLiveLumiFill[ScalersRaw::N_LUMI_OCC_v1];
+  float OccLiveLumiRun[ScalersRaw::N_LUMI_OCC_v1];
+  float InstantOccLumi[ScalersRaw::N_LUMI_OCC_v1];
+  float InstantOccLumiErr[ScalersRaw::N_LUMI_OCC_v1];
+  unsigned char InstantOccLumiQlty[ScalersRaw::N_LUMI_OCC_v1];
+  float lumiNoise[ScalersRaw::N_LUMI_OCC_v1];
+
   unsigned int sectionNumber;
   unsigned int startOrbit;
   unsigned int numOrbits;

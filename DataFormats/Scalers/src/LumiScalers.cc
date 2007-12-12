@@ -65,9 +65,17 @@ LumiScalers::~LumiScalers() { }
 /// Pretty-print operator for LumiScalers
 std::ostream& operator<<(std::ostream& s, const LumiScalers& c) 
 {
+  char zeit[128];
+  struct tm * hora;
+
   s << "LumiScalers    Version: " << c.version() << 
     "   SourceID: "<< c.sourceID() << std::endl;
   char line[128];
+
+  hora = gmtime(&c.collectionTime().tv_sec);
+  strftime(zeit, sizeof(zeit), "%Y.%m.%d %H:%M:%S", hora);
+  sprintf(line, " CollectionTime: %s.%9.9d", zeit, 
+	  (int)c.collectionTime().tv_nsec);
 
   sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 
 	  c.trigType(), c.eventID(), c.bunchNumber());
@@ -80,18 +88,18 @@ std::ostream& operator<<(std::ostream& s, const LumiScalers& c)
   sprintf(line," Normalization: %e", c.normalization());
   s << line << std::endl;
 
-  sprintf(line," InstantLumi:   %e   Err: %e    Qlty: %e",
+  sprintf(line," InstantLumi:   %e   Err: %e    Qlty: %d",
 	  c.instantLumi(), c.instantLumiErr(), c.instantLumiQlty());
   s << line << std::endl;
 
-  sprintf(line," InstantETLumi: %e   Err: %e    Qlty: %e",
+  sprintf(line," InstantETLumi: %e   Err: %e    Qlty: %d",
 	  c.instantETLumi(), c.instantETLumiErr(), c.instantETLumiQlty());
   s << line << std::endl;
 
   int length = c.instantOccLumi().size();
   for (int i=0; i<length; i++)
   {
-    sprintf(line," InstantOccLumi[%d]: %e  Err: %e  Qlty: %e",
+    sprintf(line," InstantOccLumi[%d]: %e  Err: %e  Qlty: %d",
 	    i, c.instantOccLumi()[i], c.instantOccLumiErr()[i], 
 	    c.instantOccLumiQlty()[i]);
     s << line << std::endl;

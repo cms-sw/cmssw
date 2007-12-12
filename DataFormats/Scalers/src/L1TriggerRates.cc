@@ -9,13 +9,15 @@
 
 L1TriggerRates::L1TriggerRates():
   version_(0),
+  deltaT_(0),
+  deltaTActive_(0),
   triggerNumberRate_(0.0),
   eventNumberRate_(0.0),
-  physicsL1AcceptsRate_(0.0),
-  physicsL1AcceptsRawRate_(0.0),
-  randomL1AcceptsRate_(0.0),
-  calibrationL1AcceptsRate_(0.0),
-  technicalTriggersRate_(0.0),
+  finalTriggersDistributedRate_(0.0),
+  finalTriggersGeneratedRate_(0.0),
+  randomTriggersRate_(0.0),
+  calibrationTriggersRate_(0.0),
+  totalTestTriggersRate_(0.0),
   orbitNumberRate_(0.0),
   numberResetsRate_(0.0),
   deadTimePercent_(0.0),
@@ -24,17 +26,19 @@ L1TriggerRates::L1TriggerRates():
   deadTimeActivePrivatePercent_(0.0),
   deadTimeActivePartitionPercent_(0.0),
   deadTimeActiveThrottlePercent_(0.0),
-  lostBunchCrossingsPercent_(0.0),
-  lostTriggersPercent_(0.0),
-  lostTriggersActivePercent_(0.0),
+  deadTimeActiveTimeSlotPercent_(0.0),
+  finalTriggersInvalidBCPercent_(0.0),
+  lostFinalTriggersPercent_(0.0),
+  lostFinalTriggersActivePercent_(0.0),
   triggersRate_(L1TriggerScalers::nL1Triggers),
+  testTriggersRate_(L1TriggerScalers::nL1TestTriggers),
   triggerNumberRunRate_(0.0),
   eventNumberRunRate_(0.0),
-  physicsL1AcceptsRunRate_(0.0),
-  physicsL1AcceptsRawRunRate_(0.0),
-  randomL1AcceptsRunRate_(0.0),
-  calibrationL1AcceptsRunRate_(0.0),
-  technicalTriggersRunRate_(0.0),
+  finalTriggersDistributedRunRate_(0.0),
+  finalTriggersGeneratedRunRate_(0.0),
+  randomTriggersRunRate_(0.0),
+  calibrationTriggersRunRate_(0.0),
+  totalTestTriggersRunRate_(0.0),
   orbitNumberRunRate_(0.0),
   numberResetsRunRate_(0.0),
   deadTimeRunPercent_(0.0),
@@ -43,10 +47,12 @@ L1TriggerRates::L1TriggerRates():
   deadTimeActivePrivateRunPercent_(0.0),
   deadTimeActivePartitionRunPercent_(0.0),
   deadTimeActiveThrottleRunPercent_(0.0),
-  lostBunchCrossingsRunPercent_(0.0),
-  lostTriggersRunPercent_(0.0),
-  lostTriggersActiveRunPercent_(0.0),
-  triggersRunRate_(L1TriggerScalers::nL1Triggers)
+  deadTimeActiveTimeSlotRunPercent_(0.0),
+  finalTriggersInvalidBCRunPercent_(0.0),
+  lostFinalTriggersRunPercent_(0.0),
+  lostFinalTriggersActiveRunPercent_(0.0),
+  triggersRunRate_(L1TriggerScalers::nL1Triggers),
+  testTriggersRunRate_(L1TriggerScalers::nL1TestTriggers)
 { 
   collectionTimeSummary_.tv_sec = 0;
   collectionTimeSummary_.tv_nsec = 0;
@@ -98,16 +104,16 @@ void L1TriggerRates::computeRates(const L1TriggerScalers t1,
 			  - (double)t1.triggerNumber()) / deltaT_;
     eventNumberRate_ = ((double)t2.eventNumber() 
 			- (double)t1.eventNumber()) / deltaT_;
-    physicsL1AcceptsRate_ = ((double)t2.physicsL1Accepts() 
-			     - (double)t1.physicsL1Accepts()) / deltaT_;
-    physicsL1AcceptsRawRate_ = ((double)t2.physicsL1AcceptsRaw() 
-	- (double)t1.physicsL1AcceptsRaw()) / deltaT_;
-    randomL1AcceptsRate_ = ((double)t2.randomL1Accepts() 
-			    - (double)t1.randomL1Accepts()) / deltaT_;
-    calibrationL1AcceptsRate_ = ((double)t2.calibrationL1Accepts() 
-				 - (double)t1.calibrationL1Accepts()) / deltaT_;
-    technicalTriggersRate_ = ((double)t2.technicalTriggers() 
-		     - (double)t1.technicalTriggers()) / deltaT_;
+    finalTriggersDistributedRate_ = ((double)t2.finalTriggersDistributed() 
+	      	     - (double)t1.finalTriggersDistributed()) / deltaT_;
+    finalTriggersGeneratedRate_ = ((double)t2.finalTriggersGenerated() 
+	- (double)t1.finalTriggersGenerated()) / deltaT_;
+    randomTriggersRate_ = ((double)t2.randomTriggers() 
+			    - (double)t1.randomTriggers()) / deltaT_;
+    calibrationTriggersRate_ = ((double)t2.calibrationTriggers() 
+				 - (double)t1.calibrationTriggers()) / deltaT_;
+    totalTestTriggersRate_ = ((double)t2.totalTestTriggers() 
+		     - (double)t1.totalTestTriggers()) / deltaT_;
     orbitNumberRate_ = ((double)t2.orbitNumber() 
 			- (double)t1.orbitNumber()) / deltaT_;
     numberResetsRate_ = ((double)t2.numberResets() 
@@ -125,12 +131,14 @@ void L1TriggerRates::computeRates(const L1TriggerScalers t1,
 				    - (double)t1.deadTimeActivePartition()) / deltaBCActive;
     deadTimeActiveThrottlePercent_ = 100.0 * ((double)t2.deadTimeActiveThrottle() 
 				   - (double)t1.deadTimeActiveThrottle()) / deltaBCActive;
-    lostBunchCrossingsPercent_ = 100.0 * ((double)t2.lostBunchCrossings() 
-			       - (double)t1.lostBunchCrossings()) / deltaBC;
-    lostTriggersPercent_ = 100.0 * ((double)t2.lostTriggers() 
-			 - (double)t1.lostTriggers()) / deltaBC;
-    lostTriggersActivePercent_ = 100.0 * ((double)t2.lostTriggersActive() 
-			       - (double)t1.lostTriggersActive()) / deltaBCActive;
+    deadTimeActiveTimeSlotPercent_ = 100.0 * ((double)t2.deadTimeActiveTimeSlot() 
+			     - (double)t1.deadTimeActiveTimeSlot()) / deltaBCActive;
+    finalTriggersInvalidBCPercent_ = 100.0 * ((double)t2.finalTriggersInvalidBC() 
+			       - (double)t1.finalTriggersInvalidBC()) / deltaBC;
+    lostFinalTriggersPercent_ = 100.0 * ((double)t2.lostFinalTriggers() 
+			 - (double)t1.lostFinalTriggers()) / deltaBC;
+    lostFinalTriggersActivePercent_ = 100.0 * ((double)t2.lostFinalTriggersActive() 
+			       - (double)t1.lostFinalTriggersActive()) / deltaBCActive;
 
     int length1 = t1.triggers().size();
     int length2 = t2.triggers().size();
@@ -143,6 +151,19 @@ void L1TriggerRates::computeRates(const L1TriggerScalers t1,
       double rate = ((double)triggers2[i] -
 		     (double)triggers1[i] ) / deltaT_;
       triggersRate_.push_back(rate);
+    }
+
+
+    length1 = t1.testTriggers().size();
+    length2 = t2.testTriggers().size();
+    ( length1 >= length2 ) ? minLength = length2 : minLength=length1;
+    std::vector<unsigned int> testTriggers1 = t1.testTriggers();
+    std::vector<unsigned int> testTriggers2 = t2.testTriggers();
+    for ( int i=0; i<minLength; i++)
+    {
+      double rate = ((double)testTriggers2[i] -
+		     (double)testTriggers1[i] ) / deltaT_;
+      testTriggersRate_.push_back(rate);
     }
   }
 }
@@ -168,11 +189,12 @@ void L1TriggerRates::computeRunRates(const L1TriggerScalers t)
 
     triggerNumberRunRate_ = (double)t.triggerNumber() / deltaTRun_;
     eventNumberRunRate_ = (double)t.eventNumber() / deltaTRun_;
-    physicsL1AcceptsRunRate_ = (double)t.physicsL1Accepts() / deltaTRun_;
-    physicsL1AcceptsRawRunRate_ = (double)t.physicsL1AcceptsRaw() / deltaTRun_;
-    randomL1AcceptsRunRate_ = (double)t.randomL1Accepts() / deltaTRun_;
-    calibrationL1AcceptsRunRate_ = (double)t.calibrationL1Accepts() / deltaTRun_;
-    technicalTriggersRunRate_ = (double)t.technicalTriggers() / deltaTRun_;
+    finalTriggersDistributedRunRate_ = (double)t.finalTriggersDistributed() 
+      / deltaTRun_;
+    finalTriggersGeneratedRunRate_ = (double)t.finalTriggersGenerated() / deltaTRun_;
+    randomTriggersRunRate_ = (double)t.randomTriggers() / deltaTRun_;
+    calibrationTriggersRunRate_ = (double)t.calibrationTriggers() / deltaTRun_;
+    totalTestTriggersRunRate_ = (double)t.totalTestTriggers() / deltaTRun_;
     orbitNumberRunRate_ = (double)t.orbitNumber() / deltaTRun_;
     numberResetsRunRate_ = (double)t.numberResets() / deltaTRun_;
     
@@ -182,9 +204,10 @@ void L1TriggerRates::computeRunRates(const L1TriggerScalers t)
     deadTimeActivePrivateRunPercent_ = 100.0 * (double)t.deadTimeActivePrivate() / deltaBCActive;
     deadTimeActivePartitionRunPercent_ = 100.0 * (double)t.deadTimeActivePartition() / deltaBCActive;
     deadTimeActiveThrottleRunPercent_ = 100.0 * (double)t.deadTimeActiveThrottle() / deltaBCActive;
-    lostBunchCrossingsRunPercent_ = 100.0 * (double)t.lostBunchCrossings() / deltaBC;
-    lostTriggersRunPercent_ = 100.0 * (double)t.lostTriggers() / deltaBC;
-    lostTriggersActiveRunPercent_ = 100.0 * (double)t.lostTriggersActive() / deltaBCActive;
+    deadTimeActiveTimeSlotRunPercent_ = 100.0 * (double)t.deadTimeActiveTimeSlot() / deltaBCActive;
+    finalTriggersInvalidBCRunPercent_ = 100.0 * (double)t.finalTriggersInvalidBC() / deltaBC;
+    lostFinalTriggersRunPercent_ = 100.0 * (double)t.lostFinalTriggers() / deltaBC;
+    lostFinalTriggersActiveRunPercent_ = 100.0 * (double)t.lostFinalTriggersActive() / deltaBCActive;
 
     int length = t.triggers().size();
     for ( int i=0; i<length; i++)
@@ -210,18 +233,18 @@ std::ostream& operator<<(std::ostream& s, const L1TriggerRates& c)
   s << line << std::endl;
 
   sprintf(line,
-	  " PhysicsL1Accepts:  %e  PhysicsL1AcceptsRaw:     %e",
-	  c.physicsL1AcceptsRate(), c.physicsL1AcceptsRawRate());
+	  " FinalTriggersDistributed:  %e  FinalTriggersGenerated:     %e",
+	  c.finalTriggersDistributedRate(), c.finalTriggersGeneratedRate());
   s << line << std::endl;
 
   sprintf(line,
-	  " RandomL1Accepts:   %e  CalibrationL1Accepts:    %e",
-	  c.randomL1AcceptsRate(), c.calibrationL1AcceptsRate());
+	  " RandomTriggers:   %e  CalibrationTriggers:    %e",
+	  c.randomTriggersRate(), c.calibrationTriggersRate());
   s << line << std::endl;
 
   sprintf(line,
-	  " TechnicalTriggers: %e  OrbitNumber:             %e",
-	  c.technicalTriggersRate(), c.orbitNumberRate());
+	  " TotalTestTriggers: %e  OrbitNumber:             %e",
+	  c.totalTestTriggersRate(), c.orbitNumberRate());
   s << line << std::endl;
 
   sprintf(line,
@@ -237,20 +260,25 @@ std::ostream& operator<<(std::ostream& s, const L1TriggerRates& c)
 
   sprintf(line,
 	  " LostTriggers:          %3.3f%%    DeadTimeActivePartition:    %3.3f%%",
-	  c.lostTriggersPercent(), 
+	  c.lostFinalTriggersPercent(), 
 	  c.deadTimeActivePartitionPercent());
   s << line << std::endl;
 
   sprintf(line,
 	  " LostTriggersActive:    %3.3f%%    DeadTimeActiveThrottle:     %3.3f%%",
-	  c.lostTriggersActivePercent(),
+	  c.lostFinalTriggersActivePercent(),
 	  c.deadTimeActiveThrottlePercent());
   s << line << std::endl;
 
   sprintf(line,
-	  " LostBunchCrossings:    %3.3f%%    DeadTimeActivePrivate:      %3.3f%%",
-	  c.lostBunchCrossingsPercent(), 
+	  " LostFinalTriggersInvalidBC:    %3.3f%%    DeadTimeActivePrivate:      %3.3f%%",
+	  c.finalTriggersInvalidBCPercent(), 
 	  c.deadTimeActivePrivatePercent());
+  s << line << std::endl;
+
+  sprintf(line,
+	  " DeadTimeActiveTimeSlot:      %3.3f%%",
+	  c.deadTimeActiveTimeSlotPercent());
   s << line << std::endl;
 
   std::vector<double> triggersRate = c.triggersRate();
@@ -262,6 +290,18 @@ std::ostream& operator<<(std::ostream& s, const L1TriggerRates& c)
 	    (i+length),     triggersRate[i+length], 
 	    (i+(length*2)), triggersRate[i+(length*2)], 
 	    (i+(length*3)), triggersRate[i+(length*3)]);
+    s << line << std::endl;
+  }
+
+  std::vector<double> testTriggersRate = c.testTriggersRate();
+  length = testTriggersRate.size() / 4;
+  for ( int i=0; i<length; i++)
+  {
+    sprintf(line," %3.3d:%e    %3.3d:%e    %3.3d:%e    %3.3d:%e",
+	    i,              testTriggersRate[i], 
+	    (i+length),     testTriggersRate[i+length], 
+	    (i+(length*2)), testTriggersRate[i+(length*2)], 
+	    (i+(length*3)), testTriggersRate[i+(length*3)]);
     s << line << std::endl;
   }
 
@@ -278,18 +318,19 @@ std::ostream& operator<<(std::ostream& s, const L1TriggerRates& c)
   s << line << std::endl;
 
   sprintf(line,
-	  " PhysicsL1Accepts:  %e  PhysicsL1AcceptsRaw:     %e",
-	  c.physicsL1AcceptsRunRate(), c.physicsL1AcceptsRawRunRate());
+	  " TriggersDistributed:  %e  TriggersGenerated:     %e",
+	  c.finalTriggersDistributedRunRate(), 
+	  c.finalTriggersGeneratedRunRate());
   s << line << std::endl;
 
   sprintf(line,
-	  " RandomL1Accepts:   %e  CalibrationL1Accepts:    %e",
-	  c.randomL1AcceptsRunRate(), c.calibrationL1AcceptsRunRate());
+	  " RandomTriggers:   %e  CalibrationTriggers:    %e",
+	  c.randomTriggersRunRate(), c.calibrationTriggersRunRate());
   s << line << std::endl;
 
   sprintf(line,
-	  " TechnicalTriggers: %e  OrbitNumber:             %e",
-	  c.technicalTriggersRunRate(), c.orbitNumberRunRate());
+	  " TotalTestTriggers: %e  OrbitNumber:             %e",
+	  c.totalTestTriggersRunRate(), c.orbitNumberRunRate());
   s << line << std::endl;
 
   sprintf(line,
@@ -305,20 +346,25 @@ std::ostream& operator<<(std::ostream& s, const L1TriggerRates& c)
 
   sprintf(line,
 	  " LostTriggers:          %3.3f%%    DeadTimeActivePartition:    %3.3f%%",
-	  c.lostTriggersRunPercent(), 
+	  c.lostFinalTriggersRunPercent(), 
 	  c.deadTimeActivePartitionRunPercent());
   s << line << std::endl;
 
   sprintf(line,
 	  " LostTriggersActive:    %3.3f%%    DeadTimeActiveThrottle:     %3.3f%%",
-	  c.lostTriggersActiveRunPercent(),
+	  c.lostFinalTriggersActiveRunPercent(),
 	  c.deadTimeActiveThrottleRunPercent());
   s << line << std::endl;
 
   sprintf(line,
-	  " LostBunchCrossings:    %3.3f%%    DeadTimeActivePrivate:      %3.3f%%",
-	  c.lostBunchCrossingsRunPercent(), 
+	  " FinalTriggersInvalidBC:    %3.3f%%    DeadTimeActivePrivate:      %3.3f%%",
+	  c.finalTriggersInvalidBCRunPercent(), 
 	  c.deadTimeActivePrivateRunPercent());
+  s << line << std::endl;
+
+  sprintf(line,
+	  " DeadTimeActiveTimeSlot:      %3.3f%%",
+	  c.deadTimeActiveTimeSlotRunPercent());
   s << line << std::endl;
 
   std::vector<double> triggersRunRate = c.triggersRunRate();
