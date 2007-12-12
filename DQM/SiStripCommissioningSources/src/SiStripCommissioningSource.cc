@@ -310,7 +310,8 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
               task_ == sistrip::CALIBRATION_SCAN_DECO ||
 	      task_ == sistrip::PEDESTALS ) {
     event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
-  } else if ( task_ == sistrip::FINE_DELAY ) {
+  } else if ( task_ == sistrip::APV_LATENCY ||
+	      task_ == sistrip::FINE_DELAY ) {
     event.getByLabel( inputModuleLabel_, "FineDelaySelection", raw );
   } else {
     std::stringstream ss;
