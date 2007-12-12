@@ -17,6 +17,7 @@
 
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=TrackingTools/PatternTools>
+<use name=Utilities/General>
 
 <export>
  <lib name=TrackingToolsRoadSearchHitAccess>
