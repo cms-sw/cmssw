@@ -10,6 +10,7 @@
 #include "RecoBTag/SoftLepton/interface/MuonTaggerNoIP.h"
 #include "RecoBTag/SoftLepton/interface/LeptonTaggerDistance.h"
 #include "RecoBTag/SoftLepton/interface/LeptonTaggerByPt.h"
+#include "RecoBTag/SoftLepton/interface/LeptonTaggerByIP.h"
 
 DEFINE_FWK_MODULE(SoftLepton);
 DEFINE_FWK_MODULE(SoftElectronProducer);
@@ -28,3 +29,6 @@ DEFINE_FWK_EVENTSETUP_MODULE(LeptonTaggerByDistanceESProducer);
 
 typedef JetTagComputerESProducer<LeptonTaggerByPt>      LeptonTaggerByPtESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(LeptonTaggerByPtESProducer);
+
+typedef JetTagComputerESProducer<LeptonTaggerByIP>      LeptonTaggerByIPESProducer;
+DEFINE_FWK_EVENTSETUP_MODULE(LeptonTaggerByIPESProducer);
