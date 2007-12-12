@@ -8,7 +8,7 @@
      Container class for one snapshot instance of a collection of 
      collated DQM objects
 
-   $Id: DQMInstance.h,v 1.1.2.3 2007/05/15 01:21:55 hcheung Exp $
+   $Id: DQMInstance.h,v 1.4 2007/06/11 10:04:58 badgett Exp $
 */
 
 #include <string>
@@ -20,7 +20,7 @@
 #include "FWCore/MessageService/interface/MessageServicePresence.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "PluginManager/PluginManager.h"
+//#include "PluginManager/PluginManager.h"
 
 #include "TFile.h"
 #include "TTimeStamp.h"
