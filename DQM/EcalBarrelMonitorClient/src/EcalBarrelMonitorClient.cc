@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/11/28 09:47:40 $
- * $Revision: 1.324 $
+ * $Date: 2007/12/04 08:51:18 $
+ * $Revision: 1.325 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -223,7 +223,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " verbose switch is OFF" << endl;
   }
 
-  // MonitorDaemon switch
+  // enableMonitorDaemon switch
 
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 

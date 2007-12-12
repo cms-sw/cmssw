@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/11/28 09:47:42 $
- * $Revision: 1.83 $
+ * $Date: 2007/12/04 08:51:21 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -226,7 +226,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     cout << " verbose switch is OFF" << endl;
   }
 
-  // MonitorDaemon switch
+  // enableMonitorDaemon switch
 
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 
