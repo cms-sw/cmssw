@@ -9,5 +9,6 @@
   <use name=FWCore/Framework>
   <use name=RelationalAccess>
   <use name=ObjectRelationalAccess>
+  <use name=DataSvc>
   <lib name=CondCoreDBCommon>
 </export>
