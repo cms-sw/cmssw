@@ -2,7 +2,6 @@
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TrajectoryState>
-//<use name=RecoTracker/Record>
 
 <export>
 	<lib name=TrackingToolsTrajectoryFiltering>
@@ -11,5 +10,4 @@
 	<use name=TrackingTools/PatternTools>
 	<use name=TrackingTools/TrajectoryParametrization>
 	<use name=TrackingTools/TrajectoryState>
-//	<use name=RecoTracker/Record>
 </export>
