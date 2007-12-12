@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.11 2006/11/17 01:03:53 case Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.12 2007/01/18 17:16:36 case Exp $
 //
 //
 
@@ -39,8 +39,8 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "DataSvc/RefException.h"
-#include "CoralBase/Exception.h"
+//#include "DataSvc/RefException.h"
+//#include "CoralBase/Exception.h"
 
 //
 // class decleration
