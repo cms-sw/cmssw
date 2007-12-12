@@ -120,4 +120,4 @@ void HcalPedestalCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 //}
 
 
-DEFINE_FWK_MODULE(HcalPedestalCheck);
+
