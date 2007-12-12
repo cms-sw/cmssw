@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.6 2007/10/19 11:44:24 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.7 2007/10/23 11:24:57 uberthon Exp $
 //
 //
 
@@ -44,7 +44,8 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
 
   std::string algo = iConfig.getParameter<std::string>("SeedAlgo");
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
-  if (algo=="FilteredSeed") matcher_= new SubSeedGenerator(pset.getParameter<std::string>("initialSeedProducer"),pset.getParameter<std::string>("initialSeedLabel"));
+  if (algo=="FilteredSeed") 
+    matcher_= new SubSeedGenerator(pset);
   else matcher_ = new ElectronPixelSeedGenerator(pset.getParameter<double>("ePhiMin1"),
 					    pset.getParameter<double>("ePhiMax1"),
 					    pset.getParameter<double>("pPhiMin1"),
@@ -55,7 +56,7 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
 					    pset.getParameter<double>("ZMax1"),
 					    pset.getParameter<double>("ZMin2"),
 					    pset.getParameter<double>("ZMax2"),
-                                            pset.getParameter<bool>("dynamicPhiRoad") );
+                                                 pset.getParameter<bool>("dynamicPhiRoad") );
 					      
  
  //  get labels from config'
