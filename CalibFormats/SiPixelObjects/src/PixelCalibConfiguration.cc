@@ -19,9 +19,9 @@ using namespace pos;
 PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
   PixelCalibBase(), PixelConfigBase("","","") {
 
-  _bufferData=false; 
+  _bufferData=true; 
   
-	channelListBuilt_ = false;
+  channelListBuilt_ = false;
 
     std::ifstream in(filename.c_str());
 
