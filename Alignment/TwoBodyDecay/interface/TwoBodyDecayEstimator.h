@@ -22,6 +22,8 @@ class TwoBodyDecayEstimator
 
 public:
 
+  typedef PerigeeLinearizedTrackState::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
+
   TwoBodyDecayEstimator( const edm::ParameterSet & config );
   virtual ~TwoBodyDecayEstimator( void ) {}
 

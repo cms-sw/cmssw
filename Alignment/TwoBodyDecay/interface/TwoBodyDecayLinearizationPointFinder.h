@@ -18,6 +18,8 @@ class TwoBodyDecayLinearizationPointFinder
 
 public:
 
+  typedef PerigeeLinearizedTrackState::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
+
   TwoBodyDecayLinearizationPointFinder( const edm::ParameterSet & config ) {}
 
   virtual ~TwoBodyDecayLinearizationPointFinder( void ) {}
