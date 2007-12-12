@@ -74,7 +74,7 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParamet
   float u2 = m2.x();
   float uerr2;
   float uProj = std::min( float(fabs( u1 - u2)), float(p.nstrips));
-  if((cl.amplitudes().size() - (uProj+3.5)) > 1)uerr2=cl.amplitudes().size() * cl.amplitudes().size() * (1./12.);
+  if((cl.amplitudes().size() - (uProj+2.5)) > 1)uerr2=cl.amplitudes().size() * cl.amplitudes().size() * (1./12.);
   else{
     //   float par1=38.07;
     //   float par2=0.3184; 
@@ -86,9 +86,9 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParamet
     
     //   uerr =(uProj-P1)*(uProj-P1)*(P2-P3)/(P1*P1)+P3;
     
-    const float P1=-0.341;
-    const float P2=0.916;
-    const float P3=0.283;
+    const float P1=-0.339;
+    const float P2=0.90;
+    const float P3=0.279;
     
     float uerr=P1*uProj*exp(-uProj*P2)+P3;
     uerr2=uerr*uerr;
