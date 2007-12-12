@@ -16,5 +16,6 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/ServiceRegistry>
   <use name=xerces-c>
+  <use name=DQM/EcalBarrelMonitorDbModule>
   <lib name=DQMEcalEndcapMonitorDbModule>
 </export>
