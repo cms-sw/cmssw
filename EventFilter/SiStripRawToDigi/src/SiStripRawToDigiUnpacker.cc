@@ -168,8 +168,13 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     }
     
     // Check to see if event is to be analyzed according to EventSummary
-    if ( !summary.valid() ) { continue; }
-
+    if ( !summary.valid() ) { 
+      LogTrace(mlRawToDigi_)
+	<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	<< " EventSummary is not valid: skipping...";
+      continue; 
+    }
+    
     // Retrive readout mode
     sistrip::FedReadoutMode mode = sistrip::UNDEFINED_FED_READOUT_MODE;
     try {
