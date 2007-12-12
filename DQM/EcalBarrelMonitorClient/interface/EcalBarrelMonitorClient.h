@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/11/08 15:43:50 $
- * $Revision: 1.87 $
+ * $Date: 2007/11/27 10:43:17 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -203,8 +203,6 @@ int last_update_;
  
 int last_run_;
  
-int last_jevt_;
-
 int unknowns_;
  
 TH1F* h_;

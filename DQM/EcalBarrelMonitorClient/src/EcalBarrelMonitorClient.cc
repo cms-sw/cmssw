@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/04 08:51:18 $
- * $Revision: 1.325 $
+ * $Date: 2007/12/12 11:13:58 $
+ * $Revision: 1.326 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -575,7 +575,6 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
 
   subrun_  = -1;
 
-  last_jevt_   = -1;
   last_update_ =  0;
 
   unknowns_ = 0;
@@ -771,7 +770,6 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   subrun_ = -1;
 
-  last_jevt_   = -1;
   last_update_ = 0;
 
 }
@@ -1335,13 +1333,9 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( ( jevt_ < 10 || ( jevt_ < 100 && jevt_ % 10 == 0 ) || ( jevt_ < 1000 && jevt_ % 100 == 0 ) || jevt_ % 1000 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
       cout << " RUN status = \"" << status_ << "\"" << endl;
-
       cout << "   CMS  run/event = " << run_ << "/" << evt_ << endl;
-
       cout << "   ECAL run/event = " << ecal_run << "/" << ecal_evt << endl;
-
       cout << "   ECAL location = " << location_ << endl;
-
       cout << "   ECAL run ( event ) type = " << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) << flush;
 
       if ( h_ ) {
@@ -1368,8 +1362,6 @@ void EcalBarrelMonitorClient::analyze(void){
     update = true;
 
     last_update_ = updates;
-
-    last_jevt_ = jevt_;
 
     if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
 
@@ -1559,35 +1551,6 @@ void EcalBarrelMonitorClient::analyze(void){
 
           forced_status_ = true;
           this->beginRun();
-
-        }
-
-      }
-
-    }
-
-  }
-
-  // too many 'running' states without updates (obsolete)
-
-  if ( status_ == "running" ) {
-
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
-
-      if ( ! forced_status_ ) {
-
-        if ( begin_run_ && ! end_run_ ) {
-
-          if ( ( jevt_ - last_jevt_ ) > 200 ) {
-
-            cout << endl;
-            cout << "Forcing endRun() ... NOW !" << endl;
-            cout << endl;
-
-            forced_status_ = true;
-            this->endRun();
-
-          }
 
         }
 
