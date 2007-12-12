@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2007/08/07 21:47:03 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/08/28 01:21:42 $
+ *  $Revision: 1.8 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *
@@ -20,8 +20,8 @@
 #include <DataFormats/TrackReco/interface/Track.h>
 
 // Electrons
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -41,7 +41,7 @@ HiggsToWW2LeptonsSkim::HiggsToWW2LeptonsSkim(const edm::ParameterSet& iConfig) :
   // Reconstructed objects
   recTrackLabel     = iConfig.getParameter<edm::InputTag>("RecoTrackLabel");
   theGLBMuonLabel   = iConfig.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
-  thePixelGsfELabel = iConfig.getParameter<edm::InputTag>("ElectronCollectionLabel");
+  theGsfELabel      = iConfig.getParameter<edm::InputTag>("ElectronCollectionLabel");
 
   singleTrackPtMin_ = iConfig.getParameter<double>("SingleTrackPtMin");
   diTrackPtMin_     = iConfig.getParameter<double>("DiTrackPtMin");
@@ -102,12 +102,12 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
 
   try {
     // Get the electron track collection from the event
-    edm::Handle<reco::PixelMatchGsfElectronCollection> pTracks;
+    edm::Handle<reco::GsfElectronCollection> pTracks;
 
-    event.getByLabel(thePixelGsfELabel.label(),pTracks);
-    const reco::PixelMatchGsfElectronCollection* eTracks = pTracks.product();
+    event.getByLabel(theGsfELabel.label(),pTracks);
+    const reco::GsfElectronCollection* eTracks = pTracks.product();
    
-    reco::PixelMatchGsfElectronCollection::const_iterator electrons;
+    reco::GsfElectronCollection::const_iterator electrons;
 
     // Loop over electron collections and count how many muons there are,
     // and how many are above threshold
@@ -122,36 +122,6 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
     //wrong reason for exception
     if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;
   }
-
-
-/*
- *  Don't use candidate merger for now which is flaky
- * try
- * {
- *   iEvent.getByLabel(trackLabel_, tracks);
- * }
- *
- * catch (...) 
- * {	
- *   edm::LogError("HiggsToWW2LeptonsSkim") << "FAILED to get Track Collection. ";
- *   return false;
- * }
- *
- * if ( tracks->empty() ) {
- *   return false;
- * }
- *
- * // at least one track above a pt threshold singleTrackPtMin 
- * // and at least 2 tracks above a pt threshold diTrackPtMin
- * for( size_t c = 0; c != tracks->size(); ++ c ) {
- *   CandidateRef cref( tracks, c );
- *   if ( cref->pt() > singleTrackPtMin_ && cref->eta() > etaMin_ && cref->eta() < etaMax_ ) accepted1 = true;
- *   if ( cref->pt() > diTrackPtMin_     && cref->eta() > etaMin_ && cref->eta() < etaMax_ )  nTrackOver2ndCut++;
- * }
- *
- */
-
-
 
 
   if ( accepted1 && nTrackOver2ndCut >= 2 ) accepted = true;

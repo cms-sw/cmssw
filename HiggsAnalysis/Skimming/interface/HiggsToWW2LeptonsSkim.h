@@ -6,8 +6,8 @@
  *  
  *  This class is an EDFilter choosing reconstructed di-tracks
  *
- *  $Date: 2007/05/31 16:52:02 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/08/03 01:42:38 $
+ *  $Revision: 1.2 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *
@@ -49,7 +49,7 @@ class HiggsToWW2LeptonsSkim : public edm::EDFilter {
   // Reco samples
   edm::InputTag recTrackLabel;
   edm::InputTag theGLBMuonLabel;
-  edm::InputTag thePixelGsfELabel;
+  edm::InputTag theGsfELabel;
 
 };
 #endif

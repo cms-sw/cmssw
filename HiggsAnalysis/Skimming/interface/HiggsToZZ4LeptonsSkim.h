@@ -56,7 +56,7 @@ class HiggsToZZ4LeptonsSkim : public edm::EDFilter {
   // Reco samples
   edm::InputTag recTrackLabel;
   edm::InputTag theGLBMuonLabel;
-  edm::InputTag thePixelGsfELabel;
+  edm::InputTag theGsfELabel;
 };
 
 #endif

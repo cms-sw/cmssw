@@ -18,8 +18,8 @@
 #include <DataFormats/TrackReco/interface/Track.h>
 
 // Electrons
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 // C++
 #include <iostream>
@@ -39,7 +39,7 @@ HiggsToZZ4LeptonsSkim::HiggsToZZ4LeptonsSkim(const edm::ParameterSet& pset) {
   // Reconstructed objects
   recTrackLabel      = pset.getParameter<edm::InputTag>("RecoTrackLabel");
   theGLBMuonLabel    = pset.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
-  thePixelGsfELabel  = pset.getParameter<edm::InputTag>("ElectronCollectionLabel");
+  theGsfELabel       = pset.getParameter<edm::InputTag>("ElectronCollectionLabel");
 
   // Minimum Pt for leptons for skimming
   muonMinPt          = pset.getParameter<double>("muonMinimumPt");
@@ -100,12 +100,12 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
 
   try {
     // Get the electron track collection from the event
-    edm::Handle<reco::PixelMatchGsfElectronCollection> pTracks;
+    edm::Handle<reco::GsfElectronCollection> pTracks;
 
-    event.getByLabel(thePixelGsfELabel.label(),pTracks);
-    const reco::PixelMatchGsfElectronCollection* eTracks = pTracks.product();
+    event.getByLabel(theGsfELabel.label(),pTracks);
+    const reco::GsfElectronCollection* eTracks = pTracks.product();
 
-    reco::PixelMatchGsfElectronCollection::const_iterator electrons;
+    reco::GsfElectronCollection::const_iterator electrons;
 
     // Loop over electron collections and count how many muons there are, 
     // and how many are above threshold
