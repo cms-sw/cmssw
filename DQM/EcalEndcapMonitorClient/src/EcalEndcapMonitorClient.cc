@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/12 11:13:59 $
- * $Revision: 1.85 $
+ * $Date: 2007/12/12 12:39:08 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -23,8 +23,6 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DQMServices/Core/interface/QTestStatus.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
@@ -236,14 +234,14 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     cout << " enableMonitorDaemon switch is OFF" << endl;
   }
 
-  // enableStateMachine switch
+  // enableUpdate switch
 
-  enableStateMachine_ = ps.getUntrackedParameter<bool>("enableStateMachine", false);
+  enableUpdate_ = ps.getUntrackedParameter<bool>("enableUpdate", false);
 
-  if ( enableStateMachine_ ) {
-    cout << " enableStateMachine switch is ON" << endl;
+  if ( enableUpdate_ ) {
+    cout << " enableUpdate switch is ON" << endl;
   } else {
-    cout << " enableStateMachine switch is OFF" << endl;
+    cout << " enableUpdate switch is OFF" << endl;
   }
 
   // prefix to ME paths
@@ -1284,15 +1282,8 @@ void EcalEndcapMonitorClient::analyze(void){
 
   if ( verbose_ ) cout << "EcalEndcapMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
-  // # of full monitoring cycles processed
-  int updates = mui_->getNumUpdates();
-
-  if ( enableStateMachine_ ) updates = -1;
-
-  if ( verbose_ ) cout << " updates = " << updates << endl;
-
   // update MEs (online mode)
-  if ( ! enableStateMachine_ ) {
+  if ( enableUpdate_ ) {
     mui_->doMonitoring();
   }
 
@@ -1301,96 +1292,91 @@ void EcalEndcapMonitorClient::analyze(void){
   MonitorElement* me;
   string s;
 
-  bool update = false;
+  sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/STATUS").c_str());
+  me = dbe_->get(histo);
+  if ( me ) {
+    s = me->valueString();
+    status_ = "unknown";
+    if ( s.substr(2,1) == "0" ) status_ = "begin-of-run";
+    if ( s.substr(2,1) == "1" ) status_ = "running";
+    if ( s.substr(2,1) == "2" ) status_ = "end-of-run";
+    if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+  }
 
-  if ( updates != last_update_ || updates == -1 || forced_update_ ) {
-
-    sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/STATUS").c_str());
-    me = dbe_->get(histo);
-    if ( me ) {
-      s = me->valueString();
-      status_ = "unknown";
-      if ( s.substr(2,1) == "0" ) status_ = "begin-of-run";
-      if ( s.substr(2,1) == "1" ) status_ = "running";
-      if ( s.substr(2,1) == "2" ) status_ = "end-of-run";
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-    }
-
-    if ( inputFile_.size() != 0 ) {
-      if ( ievt_ == 1 ) {
-        cout << endl;
-        cout << " Reading DQM from file, forcing 'begin-of-run'" << endl;
-        cout << endl;
-        status_ = "begin-of-run";
-      }
-    }
-
-    int ecal_run = -1;
-    sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/RUN").c_str());
-    me = dbe_->get(histo);
-    if ( me ) {
-      s = me->valueString();
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_run);
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-    }
-
-    int ecal_evt = -1;
-    sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVT").c_str());
-    me = dbe_->get(histo);
-    if ( me ) {
-      s = me->valueString();
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_evt);
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-    }
-
-    sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVTTYPE").c_str());
-    me = dbe_->get(histo);
-    h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
-
-    sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/RUNTYPE").c_str());
-    me = dbe_->get(histo);
-    if ( me ) {
-      s = me->valueString();
-      runtype_ = atoi(s.substr(2,s.size()-2).c_str());
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-    }
-
-    if ( ( jevt_ < 10 || ( jevt_ < 100 && jevt_ % 10 == 0 ) || ( jevt_ < 1000 && jevt_ % 100 == 0 ) || jevt_ % 1000 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
-
-      cout << " RUN status = \"" << status_ << "\"" << endl;
-      cout << "   CMS  run/event = " << run_ << "/" << evt_ << endl;
-      cout << "   ECAL run/event = " << ecal_run << "/" << ecal_evt << endl;
-      cout << "   ECAL location = " << location_ << endl;
-      cout << "   ECAL run ( event ) type = " << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) << flush;
-
-      if ( h_ ) {
-        if ( h_->GetEntries() != 0 ) {
-          cout << " ( " << flush;
-          for ( int i=0; i<int(runTypes_.size()); ++i ) {
-            if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(2+i) != 0 ) {
-              string s = runTypes_[i];
-              transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
-              cout << s << " ";
-            }
-          }
-          cout << ")" << flush;
-        }
-      }
+  if ( inputFile_.size() != 0 ) {
+    if ( ievt_ == 1 ) {
       cout << endl;
-
+      cout << " Reading DQM from file, forcing 'begin-of-run'" << endl;
+      cout << endl;
+      status_ = "begin-of-run";
     }
+  }
 
-    // if the run number from the Event is less than zero,
-    // use the run number from the ECAL DCC header
-    if ( run_ <= 0 ) run_ = ecal_run;
+  int ecal_run = -1;
+  sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/RUN").c_str());
+  me = dbe_->get(histo);
+  if ( me ) {
+    s = me->valueString();
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_run);
+    if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+  }
 
-    update = true;
+  int ecal_evt = -1;
+  sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVT").c_str());
+  me = dbe_->get(histo);
+  if ( me ) {
+    s = me->valueString();
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_evt);
+    if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+  }
 
-    last_update_ = updates;
+  sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVTTYPE").c_str());
+  me = dbe_->get(histo);
+  h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
-    if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
+  sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/RUNTYPE").c_str());
+  me = dbe_->get(histo);
+  if ( me ) {
+    s = me->valueString();
+    runtype_ = atoi(s.substr(2,s.size()-2).c_str());
+    if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+  }
+
+  bool update = ( jevt_ <   10                      ) ||
+                ( jevt_ <  100 && jevt_ %   10 == 0 ) ||
+                ( jevt_ < 1000 && jevt_ %  100 == 0 ) ||
+                (                 jevt_ % 1000 == 0 );
+ 
+  if ( update || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
+
+    cout << " RUN status = \"" << status_ << "\"" << endl;
+    cout << "   CMS  run/event = " << run_ << "/" << evt_ << endl;
+    cout << "   ECAL run/event = " << ecal_run << "/" << ecal_evt << endl;
+    cout << "   ECAL location = " << location_ << endl;
+    cout << "   ECAL run ( event ) type = " << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) << flush;
+
+    if ( h_ ) {
+      if ( h_->GetEntries() != 0 ) {
+        cout << " ( " << flush;
+        for ( int i=0; i<int(runTypes_.size()); ++i ) {
+          if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(2+i) != 0 ) {
+            string s = runTypes_[i];
+            transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
+            cout << s << " ";
+          }
+        }
+        cout << ")" << flush;
+      }
+    }
+    cout << endl;
 
   }
+
+  // if the run number from the Event is less than zero,
+  // use the run number from the ECAL DCC header
+  if ( run_ <= 0 ) run_ = ecal_run;
+
+  if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
 
   if ( status_ == "begin-of-run" ) {
 
@@ -1411,7 +1397,9 @@ void EcalEndcapMonitorClient::analyze(void){
 
     if ( begin_run_ && ! end_run_ ) {
 
-      if ( ( update && ( jevt_ < 3 || jevt_ % 100 == 0 ) ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
+      bool update = ( jevt_ < 3 || jevt_ % 100 == 0 );
+
+      if ( update || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
         for ( int i=0; i<int(clients_.size()); i++ ) {
           bool analyzed; analyzed = false;
@@ -1425,32 +1413,11 @@ void EcalEndcapMonitorClient::analyze(void){
         if ( status_ == "running" || status_ == "end-of-run" || forced_update_ ) {
 
           // update MEs [again, just to silence a warning]
-          if ( ! enableStateMachine_ ) {
+          if ( enableUpdate_ ) {
             mui_->doMonitoring();
           }
 
         }
-
-      }
-
-      if ( status_ == "end-of-run" || forced_update_ ) {
-
-        cout << endl;
-        switch ( dbe_->getStatus() ) {
-          case dqm::qstatus::ERROR:
-            cout << " Error(s)";
-            break;
-          case dqm::qstatus::WARNING:
-            cout << " Warning(s)";
-            break;
-          case dqm::qstatus::OTHER:
-            cout << " Some tests did not run;";
-            break;
-          default:
-            cout << " No problems";
-        }
-        cout << " reported after running the quality tests" << endl;
-        cout << endl;
 
       }
 
@@ -1497,7 +1464,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
   if ( status_ == "unknown" ) {
 
-    if ( update ) unknowns_++;
+    unknowns_++;
 
     if ( unknowns_ >= 50 ) {
 

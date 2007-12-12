@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/11/27 10:43:24 $
- * $Revision: 1.24 $
+ * $Date: 2007/12/12 12:39:06 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -184,7 +184,7 @@ EESummaryClient* summaryClient_;
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
  
-bool enableStateMachine_;
+bool enableUpdate_;
  
 std::string location_;
 int         runtype_;

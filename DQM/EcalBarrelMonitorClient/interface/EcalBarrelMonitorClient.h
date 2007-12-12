@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/11/27 10:43:17 $
- * $Revision: 1.88 $
+ * $Date: 2007/12/12 12:39:03 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -182,7 +182,7 @@ EBSummaryClient* summaryClient_;
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
  
-bool enableStateMachine_;
+bool enableUpdate_;
  
 std::string location_;
 int         runtype_;
