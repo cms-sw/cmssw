@@ -52,16 +52,14 @@ CSCscaAnalyzer::CSCscaAnalyzer(edm::ParameterSet const& conf) {
 	    value_adc[i][j][k][l][m]=0;
 	    value_adc_mean[i][j][k][l][m]=0.0;
 	    count_adc_mean[i][j][k][l][m]=0;
+	    count_adc[i][j][k][l][m]=0;
 	    div[i][j][k][l][m]=0.0;
+	    sum_weightSCAnr[i][j][k][l][m]=0.0;
 	  }
 	}
       }
     }
   }
-
-  //definition of histograms....
-
-  
 }
 
 void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
@@ -74,12 +72,6 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
   //counterzero=counterzero+1;
   //evt=(counterzero+1)/2;
   int conv_blk[16]={0,1,2,3,4,5,6,7,8,0,9,0,10,0,11,0};
-
-  /*  
-  if (NChambers !=0){
-    evt++;
-  }
-  */
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
@@ -101,10 +93,6 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
-	//exclude empty events with no DMB/CFEB data
-	if(dduData[iDDU].cscData().size()==0) continue;
-	if(dduData[iDDU].cscData().size() !=0) evt++;
-	
 	Nddu = dduData.size();
 	reportedChambers += dduData[iDDU].header().ncsc();
 	NChambers = cscData.size();
@@ -156,45 +144,27 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 		      maxStrip=strip;
 		    }
 		    adc = digis[i].getADCCounts();
+		    
 		    scaNr[iDDU][chamber][layer][strip] = scaNumber;
-		    std::cout<<"strip "<<strip<<"  "<<layer<<"  "<<chamber<<"  "<<iDDU<<" SCA nr "<<scaNumber<<std::endl;
-		    /*
-		    if(strip>=icfeb*16+1 && strip<=icfeb*16+16){
-		      value_adc[iDDU][chamber][layer][strip][scaNumber] = adc[itime];
-		      scaNr[iDDU][chamber][layer][strip] = scaNumber;
-		    }
-		    */
+		    //std::cout<<"strip11111 "<<strip<<"  "<<layer<<"  "<<chamber<<"  "<<iDDU<<" SCA nr "<<scaNumber<<std::endl;
 
 		    value_adc_mean[iDDU][chamber][layer][strip][scaNumber] += adc[itime];
+		    count_adc[iDDU][chamber][layer][strip][scaNumber]=1;
 		    count_adc_mean[iDDU][chamber][layer][strip][scaNumber] +=1;
+		    sum_weightSCAnr[iDDU][chamber][layer][strip][scaNumber] +=count_adc[iDDU][chamber][layer][strip][scaNumber] * scaNumber;
+		    //sum_weightedMean[iDDU][chamber][layer][strip][scaNumber] = sum_weightSCAnr[iDDU][chamber][layer][strip][scaNumber]/count_adc_mean[iDDU][chamber][layer][strip][scaNumber];
 		    
 		    div[iDDU][chamber][layer][strip][scaNumber]=value_adc_mean[iDDU][chamber][layer][strip][scaNumber]/count_adc_mean[iDDU][chamber][layer][strip][scaNumber];
 
 		    //std::cout<<"ADC mean "<<value_adc_mean[iDDU][chamber][layer][strip][scaNumber] <<"  "<<count_adc_mean[iDDU][chamber][layer][strip][scaNumber]<<std::endl;
 		  }
+		  //std::cout<<"strip1111 "<<scaNr[iDDU][chamber][layer][strip]<<std::endl;
 		}//8 timeslice
 	      }//layer
 	    }//CFEBs
 	  }//CFEB available
 	}//chamber
       
-	//???????????
-	/*
-	if((evt-1)%20==0){
-	  for(int iii=0;iii<DDU_sca;iii++){
-	    for(int ii=0; ii<CHAMBERS_sca; ii++){
-	      for(int jj=0; jj<LAYERS_sca; jj++){
-		for(int kk=0; kk<STRIPS_sca; kk++){
-		  for (int m=0;m<Number_sca;m++){
-		    value_adc_mean[iii][ii][jj][kk][m]=0.0;
-		  }
-		}
-	      }
-	    }
-	  }
-	}
-	*/
-
 	eventNumber++;
 	edm::LogInfo ("CSCscaAnalyzer")  << "end of event number " << eventNumber<<" and non-zero event "<<evt;
 	
@@ -295,21 +265,32 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
 	//int layer_id=chamber_num+layeriter+1;
 
 	for (int stripiter=0; stripiter<STRIPS_sca; stripiter++){
+	  //std::cout<<"strip2222 "<<scaNr[dduiter][cham][layeriter][stripiter]<<std::endl;
+	  //my_scaValue = scaNr[dduiter][cham][layeriter][stripiter];
+	  
+	  //calib_evt.scanumber=my_scaValue;
+	  //std::cout<<"strip2222 "<<stripiter<<"  "<<layeriter<<"  "<<cham<<"  "<<dduiter<<" SCA nr "<<scaNr[dduiter][cham][layeriter][stripiter]<<std::endl;
 	  for (int k=0;k<Number_sca;k++){
-	    my_scaValue = value_adc[dduiter][cham][layeriter][stripiter][k];
+	    //value_adc[dduiter][cham][layeriter][stripiter][k];
 	    //my_scaValueMean = value_adc_mean[dduiter][cham][layeriter][stripiter][k];
-	    my_scaValueMean = div[dduiter][cham][layeriter][stripiter][k];
+	    //my_scaValueMean = div[dduiter][cham][layeriter][stripiter][k];
+	    if(count_adc_mean[dduiter][cham][layeriter][stripiter][k] !=0){
+	      my_scaValue = sum_weightSCAnr[dduiter][cham][layeriter][stripiter][k]/count_adc_mean[dduiter][cham][layeriter][stripiter][k];
+	    }
+	    my_scaValueMean =value_adc_mean[dduiter][cham][layeriter][stripiter][k]/count_adc_mean[dduiter][cham][layeriter][stripiter][k];
+	    
 	    mySCAfile<<"  "<<myIndex-1<<"  "<<my_scaValueMean<<std::endl;
 	    counter++;
 	    myIndex = first_strip_index+counter-1;
-	    //std::cout<<"Ch "<<cham<<" Layer "<<layeriter<<" strip "<<stripiter<<" sca_nr "<<k<<" Mean ADC "<<my_scaValueMean <<std::endl;
+	    //std::cout<<"Ch "<<cham<<" Layer "<<layeriter<<" strip "<<stripiter<<" sca_nr "<<k<<" weighted SCAnr "<<my_scaValue <<std::endl;
 	    calib_evt.strip=stripiter;
 	    calib_evt.layer=layeriter;
 	    calib_evt.cham=cham;
 	    calib_evt.ddu=dduiter;
+
 	    calib_evt.scaMeanVal=my_scaValueMean;
-	    calib_evt.scanumber=scaNr[dduiter][cham][layeriter][stripiter];
-    
+	    calib_evt.scanumber=my_scaValue;
+
 	    calibtree.Fill();
 	  }
 	}
