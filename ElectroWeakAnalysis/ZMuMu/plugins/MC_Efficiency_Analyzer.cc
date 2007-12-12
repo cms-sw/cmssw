@@ -122,7 +122,7 @@ public:
 	    CandMatchMap::const_iterator i;  
 	    for(i = MuonsMap->begin(); i != MuonsMap->end(); i++ )  
 	      {
-		const Candidate & reco = * i -> key, &  mc =  * i -> val;
+		const Candidate/* & reco = * i -> key,*/ &  mc =  * i -> val;
 		if ((muCand1 == &mc) && (mc.pt()>ptcut_) && (abs(mc.eta()<etacut_)))
 		  {
 		    nMuMC++;
@@ -139,7 +139,7 @@ public:
 		CandMatchMap::const_iterator l;  		
 		for(l = TracksMap->begin(); l != TracksMap->end(); l++ )
 		  {
-		    const Candidate & Trkreco = * l -> key, &  Trkmc =  * l -> val;
+		    const Candidate /* & Trkreco = * l -> key, */ &  Trkmc =  * l -> val;
 		    if (( muCand1 == & Trkmc) && (Trkmc.pt()>ptcut_) && (abs(Trkmc.eta()<etacut_))) 
 		      {
 		        nMuMC++;
