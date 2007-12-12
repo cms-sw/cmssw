@@ -98,10 +98,10 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
       = raw->trig.collectionTimeDetails.tv_nsec;
 
     for ( int i=0; i<ScalersRaw::N_L1_TRIGGERS_v1; i++)
-    { triggers_.push_back( raw->trig.RATE_ALGO[i]);}
+    { triggers_.push_back( raw->trig.ALGO_RATE[i]);}
 
-    // for ( int i=0; i<ScalersRaw::N_L1_TEST_TRIGGERS_v1; i++)
-    // { testTriggers_.push_back( raw->trig.RATE_TECH[i]);}
+    for ( int i=0; i<ScalersRaw::N_L1_TEST_TRIGGERS_v1; i++)
+    { testTriggers_.push_back( raw->trig.TEST_RATE[i]);}
   }
 }
 
@@ -116,8 +116,10 @@ std::ostream& operator<<(std::ostream& s,L1TriggerScalers const &c)
   char line[128];
   char zeitHeaven[128];
   char zeitHell[128];
+  char zeitLimbo[128];
   struct tm * horaHeaven;
   struct tm * horaHell;
+  struct tm * horaLimbo;
 
   sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 
 	  c.trigType(), c.eventID(), c.bunchNumber());
@@ -137,6 +139,13 @@ std::ostream& operator<<(std::ostream& s,L1TriggerScalers const &c)
 	  zeitHell, (int)secondsToHell.tv_nsec);
   s << line << std::endl;
 
+  struct timespec secondsToLimbo= c.collectionTimeDetails();
+  horaLimbo = gmtime(&secondsToLimbo.tv_sec);
+  strftime(zeitLimbo, sizeof(zeitLimbo), "%Y.%m.%d %H:%M:%S", horaLimbo);
+  sprintf(line, " CollectionTimeDetails: %s.%9.9d" , 
+	  zeitLimbo, (int)secondsToLimbo.tv_nsec);
+  s << line << std::endl;
+
   sprintf(line,
 	  " LuminositySection: %15d  BunchCrossingErrors:      %15d",
 	  c.luminositySection(), c.bunchCrossingErrors());
@@ -148,23 +157,23 @@ std::ostream& operator<<(std::ostream& s,L1TriggerScalers const &c)
   s << line << std::endl;
 
   sprintf(line,
-	  " TriggersDistrib:   %15d  TriggersGenerated:        %15d",
+	  " TriggersDistributed:    %10d  TriggersGenerated:        %15d",
 	  c.finalTriggersDistributed(), 
 	  c.finalTriggersGenerated());
   s << line << std::endl;
 
   sprintf(line,
-	  " TriggersInvalidBC: %15d  CalibrationTriggers:     %15d",
+	  " TriggersInvalidBC: %15d  CalibrationTriggers:      %15d",
 	  c.finalTriggersInvalidBC(), c.calibrationTriggers());
   s << line << std::endl;
 
   sprintf(line,
-	  " TestTriggers:      %15d  RandomTriggers:          %15d",
+	  " TestTriggers:      %15d  RandomTriggers:           %15d",
 	  c.totalTestTriggers(), c.randomTriggers());
   s << line << std::endl;
 
   sprintf(line,
-	  " DeadTime:          %15d  DeadTimeActiveTimeSlot:  %15ld",
+	  " DeadTime:          %15d  DeadTimeActiveTimeSlot:   %15ld",
 	  c.numberResets(), (long int)c.deadTime());
   s << line << std::endl;
 

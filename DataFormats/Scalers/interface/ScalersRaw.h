@@ -27,10 +27,10 @@ class ScalersRaw
  public:
   enum
   {
-    N_L1_TRIGGERS_v1 = 128,
-    N_L1_TECHNICAL_TRIGGERS_v1 = 64,
-    N_LUMI_OCC_v1    = 2,
-    SCALERS_FED_ID   = 735
+    N_L1_TRIGGERS_v1      = 128,
+    N_L1_TEST_TRIGGERS_v1 = 64,
+    N_LUMI_OCC_v1         = 2,
+    SCALERS_FED_ID        = 735
   };
 };
 
@@ -62,7 +62,8 @@ struct TriggerScalersRaw_v1
   unsigned int       NR_OF_RESETS;          /* NR_RESETS_       */
 
   struct timespec    collectionTimeDetails;
-  unsigned int       RATE_ALGO[ScalersRaw::N_L1_TRIGGERS_v1];
+  unsigned int       ALGO_RATE[ScalersRaw::N_L1_TRIGGERS_v1];
+  unsigned int       TEST_RATE[ScalersRaw::N_L1_TEST_TRIGGERS_v1];
 };
 
 struct LumiScalersRaw_v1
@@ -79,18 +80,18 @@ struct LumiScalersRaw_v1
   float InstantLumiErr;
   unsigned char InstantLumiQlty;
 
-  float ETLumiFill;
-  float ETLumiRun;
-  float ETLiveLumiFill;
-  float ETLiveLumiRun;
+  float LumiETFill;
+  float LumiETRun;
+  float LiveLumiETFill;
+  float LiveLumiETRun;
   float InstantETLumi;
   float InstantETLumiErr;
   unsigned char InstantETLumiQlty;
 
-  float OccLumiFill[ScalersRaw::N_LUMI_OCC_v1];
-  float OccLumiRun[ScalersRaw::N_LUMI_OCC_v1];
-  float OccLiveLumiFill[ScalersRaw::N_LUMI_OCC_v1];
-  float OccLiveLumiRun[ScalersRaw::N_LUMI_OCC_v1];
+  float LumiOccFill[ScalersRaw::N_LUMI_OCC_v1];
+  float LumiOccRun[ScalersRaw::N_LUMI_OCC_v1];
+  float LiveLumiOccFill[ScalersRaw::N_LUMI_OCC_v1];
+  float LiveLumiOccRun[ScalersRaw::N_LUMI_OCC_v1];
   float InstantOccLumi[ScalersRaw::N_LUMI_OCC_v1];
   float InstantOccLumiErr[ScalersRaw::N_LUMI_OCC_v1];
   unsigned char InstantOccLumiQlty[ScalersRaw::N_LUMI_OCC_v1];

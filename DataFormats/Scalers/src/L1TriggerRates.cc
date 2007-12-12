@@ -228,27 +228,27 @@ std::ostream& operator<<(std::ostream& s, const L1TriggerRates& c)
   char line[128];
 
   sprintf(line,
-	  " TriggerNumber:     %e  EventNumber:             %e",
+	  " TriggerNumber:       %e  EventNumber:             %e",
 	  c.triggerNumberRate(), c.eventNumberRate());
   s << line << std::endl;
 
   sprintf(line,
-	  " FinalTriggersDistributed:  %e  FinalTriggersGenerated:     %e",
+	  " TriggersDistributed: %e  TriggersGenerated:     %e",
 	  c.finalTriggersDistributedRate(), c.finalTriggersGeneratedRate());
   s << line << std::endl;
 
   sprintf(line,
-	  " RandomTriggers:   %e  CalibrationTriggers:    %e",
+	  " RandomTriggers:      %e  CalibrationTriggers:    %e",
 	  c.randomTriggersRate(), c.calibrationTriggersRate());
   s << line << std::endl;
 
   sprintf(line,
-	  " TotalTestTriggers: %e  OrbitNumber:             %e",
+	  " TotalTestTriggers:   %e  OrbitNumber:             %e",
 	  c.totalTestTriggersRate(), c.orbitNumberRate());
   s << line << std::endl;
 
   sprintf(line,
-	  " NumberResets:      %e  DeadTime:                %3.3f%%",
+	  " NumberResets:        %e  DeadTime:                %3.3f%%",
 	  c.numberResetsRate(), c.deadTimePercent());
   s << line << std::endl;
 
@@ -271,13 +271,13 @@ std::ostream& operator<<(std::ostream& s, const L1TriggerRates& c)
   s << line << std::endl;
 
   sprintf(line,
-	  " LostFinalTriggersInvalidBC:    %3.3f%%    DeadTimeActivePrivate:      %3.3f%%",
+	  " TriggersInvalidBC:     %3.3f%%    DeadTimeActivePrivate:      %3.3f%%",
 	  c.finalTriggersInvalidBCPercent(), 
 	  c.deadTimeActivePrivatePercent());
   s << line << std::endl;
 
   sprintf(line,
-	  " DeadTimeActiveTimeSlot:      %3.3f%%",
+	  "                                   DeadTimeActiveTimeSlot:     %3.3f%%",
 	  c.deadTimeActiveTimeSlotPercent());
   s << line << std::endl;
 

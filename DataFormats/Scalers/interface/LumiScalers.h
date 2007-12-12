@@ -49,12 +49,33 @@ class LumiScalers
   int version() const                      { return(version_);}
   struct timespec collectionTime() const   { return(collectionTime_);}
   float normalization() const              { return(normalization_);}
+  float deadTimeNormalization() const  
+  { return(deadTimeNormalization_);}
+
+  float lumiFill() const                   { return(lumiFill_);}
+  float lumiRun() const                    { return(lumiRun_);}
+  float liveLumiFill() const               { return(liveLumiFill_);}
+  float liveLumiRun() const                { return(liveLumiRun_);}
   float instantLumi() const                { return(instantLumi_);}
   float instantLumiErr() const             { return(instantLumiErr_);}
   unsigned char instantLumiQlty() const    { return(instantLumiQlty_);}
+
+  float lumiETFill() const                 { return(lumiETFill_);}
+  float lumiETRun() const                  { return(lumiETRun_);}
+  float liveLumiETFill() const             { return(liveLumiETFill_);}
+  float liveLumiETRun() const              { return(liveLumiETRun_);}
   float instantETLumi() const              { return(instantETLumi_);}
   float instantETLumiErr() const           { return(instantETLumiErr_);}
   unsigned char instantETLumiQlty() const  { return(instantETLumiQlty_);}
+
+  std::vector<float> lumiOccFill() const      
+  { return(lumiOccFill_);}
+  std::vector<float> lumiOccRun() const      
+  { return(lumiOccRun_);}
+  std::vector<float> liveLumiOccFill() const      
+  { return(liveLumiOccFill_);}
+  std::vector<float> liveLumiOccRun() const      
+  { return(liveLumiOccRun_);}
   std::vector<float> instantOccLumi() const      
   { return(instantOccLumi_);}
   std::vector<float> instantOccLumiErr() const   
@@ -62,6 +83,7 @@ class LumiScalers
   std::vector<unsigned char> instantOccLumiQlty() const  
   { return(instantOccLumiQlty_);}
   std::vector<float> lumiNoise() const    { return(lumiNoise_);}
+
   unsigned int sectionNumber() const       { return(sectionNumber_);}
   unsigned int startOrbit() const          { return(startOrbit_);}
   unsigned int numOrbits() const           { return(numOrbits_);}
@@ -80,18 +102,38 @@ protected:
   unsigned int bunchNumber_;
 
   int version_;
+
   struct timespec collectionTime_;
+
   float normalization_;
+  float deadTimeNormalization_;
+
+  float lumiFill_;
+  float lumiRun_;
+  float liveLumiFill_;
+  float liveLumiRun_;
   float instantLumi_;
   float instantLumiErr_;
   unsigned char instantLumiQlty_;
+
+  float lumiETFill_;
+  float lumiETRun_;
+  float liveLumiETFill_;
+  float liveLumiETRun_;
   float instantETLumi_;
   float instantETLumiErr_;
+
   unsigned char instantETLumiQlty_;
+
+  std::vector<float> lumiOccFill_;
+  std::vector<float> lumiOccRun_;
+  std::vector<float> liveLumiOccFill_;
+  std::vector<float> liveLumiOccRun_;
   std::vector<float> instantOccLumi_;
   std::vector<float> instantOccLumiErr_;
   std::vector<unsigned char> instantOccLumiQlty_;
   std::vector<float> lumiNoise_;
+
   unsigned int sectionNumber_;
   unsigned int startOrbit_;
   unsigned int numOrbits_;

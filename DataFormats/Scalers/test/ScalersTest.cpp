@@ -22,12 +22,12 @@ char * fileName = "scalers.dat";
 
 int main(int argc, char** argv)
 {
-  unsigned char buffer [1024];
+  unsigned char buffer [sizeof(struct ScalersEventRecordRaw_v1)];
   int ctr = 0;
   int retcod;
   int bytes = 1;
-  int fd = open(fileName, O_RDONLY);
   const L1TriggerScalers *previousTrig = NULL;
+  int fd = open(fileName, O_RDONLY);
 
   if ( fd > 0 )
   {
@@ -58,15 +58,16 @@ int main(int argc, char** argv)
 
 	if ( ctr > 1 )
 	{
+	  const L1TriggerScalers *previousTrigSave = previousTrig;
 	  if ( previousTrig->orbitNumber() <
 	       trig->orbitNumber() )
 	  {
 	    L1TriggerRates rates(*previousTrig,*trig);
 	    std::cout << std::endl;
 	    std::cout << rates;
-	    delete(previousTrig);
 	    previousTrig = trig;
 	  }
+	  delete(previousTrigSave);
 	}
 	else
 	{
