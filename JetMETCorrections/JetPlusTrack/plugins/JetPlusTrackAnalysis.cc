@@ -289,7 +289,7 @@ void JetPlusTrackAnalysis::analyze(
              JetRecoEtaCorrected[NumRecoJetsCorrected] = (*jet).eta();
              JetRecoPhiCorrected[NumRecoJetsCorrected] = (*jet).phi();
 
-             cout<<" Calo jet "<<JetRecoEtCaloTower[NumRecoJetsCorrected]<<" Cor "<<JetRecoEtCorrected[NumRecoJetsCorrected]<<" Gen "<<JetGenEt[NumRecoJetsCorrected]<<endl;
+             if( JetRecoGenRecType[NumRecoJetsCorrected] > -1 )cout<<" Calo jet "<<JetRecoEtCaloTower[NumRecoJetsCorrected]<<" Cor "<<JetRecoEtCorrected[NumRecoJetsCorrected]<<" Gen "<<JetGenEt[NumRecoJetsCorrected]<<endl;
 
              NumRecoJetsCorrected++;
 
