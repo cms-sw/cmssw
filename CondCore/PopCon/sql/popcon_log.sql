@@ -24,6 +24,6 @@ CREATE TABLE p_con_execution_payload (
 
 
 ALTER TABLE p_con_execution ADD constraint p_con_execution_pk primary key (exec_id);
-ALTER TABLE p_con_execution ADD constraint p_con_execution_fk foreign key (obj_id) references p_con_payload_state (obj_id);
+ALTER TABLE p_con_execution ADD constraint p_con_execution_fk foreign key (obj_id) references p_con_payload_state (obj_id) on delete cascade;
 ALTER TABLE p_con_execution_payload ADD constraint p_con_execution_payload_pk primary key (pl_id);
-ALTER TABLE p_con_execution_payload ADD constraint p_con_execution_payload_fk foreign key (exec_id) references p_con_execution (exec_id);
+ALTER TABLE p_con_execution_payload ADD constraint p_con_execution_payload_fk foreign key (exec_id) references p_con_execution (exec_id) on delete cascade;
