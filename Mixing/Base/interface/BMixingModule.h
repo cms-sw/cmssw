@@ -53,8 +53,8 @@ namespace edm {
       virtual void setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;} //FIXME: LogWarning
       virtual void setSourceOffset (const unsigned int s) {std::cout << "BMixingModule::setSourceOffset must be overwritten!" << std::endl;}
       virtual void put(edm::Event &e) {;}
-      virtual void setEventStartInfo(edm::EventID &id,int fileNr,const unsigned int source) = 0; //to be set in CF
-      virtual void getEventStartInfo(edm::Event & e,const unsigned int source) = 0; //to be set locally
+      virtual void setEventStartInfo(edm::EventID &id,int fileNr,const unsigned int source) {;} //to be set in CF
+      virtual void getEventStartInfo(edm::Event & e,const unsigned int source) {;} //to be set locally
 
   protected:
       int bunchSpace_;
