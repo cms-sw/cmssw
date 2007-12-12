@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //	   Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiPixelOfflineClient.cc,v 1.2 2007/10/05 21:01:59 merkelp Exp $
+// $Id: SiPixelOfflineClient.cc,v 1.3 2007/10/19 14:37:13 merkelp Exp $
 //
 //
 
@@ -126,7 +126,7 @@ void SiPixelOfflineClient::beginJob( const edm::EventSetup& es_) {
   cout<<"barrelSumFreq_="<<barrelSumFreq_<<" , endcapSumFreq_="<<
         endcapSumFreq_<<" , tkMapFreq_="<<tkMapFreq_<<endl;
   
-  collFlag_ = parameters_.getUntrackedParameter<int>("CollationFlag",0);
+  //collFlag_ = parameters_.getUntrackedParameter<int>("CollationFlag",0);
   
   //tkMapCreator_ = new SiPixelTrackerMapCreator();
   //if(tkMapCreator_->readConfiguration()) tkMapFreq_ = tkMapCreator_->getFrequency();
@@ -135,10 +135,10 @@ void SiPixelOfflineClient::beginJob( const edm::EventSetup& es_) {
   sipixelWebInterface_->setupQTests();
   
   //Do collation:
-  if(collFlag_==0){
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Collate);
-    sipixelWebInterface_->performAction();
-  }
+  //if(collFlag_==0){
+  //  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Collate);
+  //  sipixelWebInterface_->performAction();
+  //}
   
   //if(verbose_) LogInfo("SiPixelOfflineClient") << "[beginJob] done";
 }
@@ -205,12 +205,12 @@ void SiPixelOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lb_,
   //}
   // Save ME's into a file: 
   //if (saveFreq_!=-1 && nevents_%saveFreq_==1){
-    ostringstream fname;
-    fname<<"SiPixelOfflineClient_"<<run_<<".root";
-    cout<<"Saving ME's in "<<fname.str()<<endl;
-    sipixelWebInterface_->setOutputFileName(fname.str());
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::SaveData);
-    sipixelWebInterface_->performAction();
+    //ostringstream fname;
+    //fname<<"SiPixelOfflineClient_"<<run_<<".root";
+    //cout<<"Saving ME's in "<<fname.str()<<endl;
+    //sipixelWebInterface_->setOutputFileName(fname.str());
+    //sipixelWebInterface_->setActionFlag(SiPixelWebInterface::SaveData);
+    //sipixelWebInterface_->performAction();
   //}  
 
   //if(verbose_) LogInfo("SiPixelOfflineClient") << "[endLuminosityBlock] done";

@@ -35,8 +35,7 @@ class SiPixelInformationExtractor {
  ~SiPixelInformationExtractor();
 
   void readModuleAndHistoList(	DaqMonitorBEInterface			* bei,
-                              	xgi::Output				* out,
-			      	bool					  coll_flag);
+                              	xgi::Output				* out);
   void plotSingleModuleHistos(	DaqMonitorBEInterface			* bei,
                               	std::multimap<std::string, std::string> & req_map);
   void plotHistosFromPath(      DaqMonitorBEInterface                   * bei,
@@ -49,16 +48,13 @@ class SiPixelInformationExtractor {
 			      	std::string				  theMEName);
   void readModuleHistoTree(   	DaqMonitorBEInterface			* bei, 
                               	std::string				& str_name, 
-			      	xgi::Output				* out, 
-			      	bool					  coll_flag);
+			      	xgi::Output				* out);
   void readSummaryHistoTree(  	DaqMonitorBEInterface			* bei, 
                               	std::string				& str_name, 
-			      	xgi::Output				* out, 
-			      	bool					  coll_flag);
+			      	xgi::Output				* out);
   void readAlarmTree(         	DaqMonitorBEInterface			* bei, 
                               	std::string				& str_name, 
-                              	xgi::Output				* out, 
-			      	bool					coll_flag);
+                              	xgi::Output				* out);
   void plotSingleHistogram(   	DaqMonitorBEInterface			* bei,
                               	std::multimap<std::string, std::string> & req_map);
   void readStatusMessage(     	DaqMonitorBEInterface			* bei, 
@@ -142,8 +138,7 @@ class SiPixelInformationExtractor {
   void selectImage(		std::string				& name, 
                                 dqm::qtests::QR_map                     & test_map);
   bool goToDir(                 DaqMonitorBEInterface                   * bei, 
-                                std::string                             & sname, 
-				bool                                      flg);
+                                std::string                             & sname);
   bool hasItem(                 std::multimap<std::string, std::string> & req_map,
 	                        std::string                               item_name);
   std::string getItemValue(     std::multimap<std::string, std::string> & req_map,

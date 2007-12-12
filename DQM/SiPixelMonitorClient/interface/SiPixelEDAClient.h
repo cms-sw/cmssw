@@ -48,8 +48,7 @@ protected:
                             edm::EventSetup const& context) ;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
                           edm::EventSetup const& c);
-  void saveAll(int irun, 
-               int ilumi);
+  //void saveAll(int irun,int ilumi);
 
 private:
 
@@ -63,11 +62,7 @@ private:
 
   int tkMapFrequency_;
   int summaryFrequency_;
-  int fileSaveFrequency_;
-  unsigned int collationFlag_;
   unsigned int staticUpdateFrequency_;
-
-  std::string outputFilePath_;
 
   SiPixelTrackerMapCreator* trackerMapCreator_;
   bool defaultPageCreated_;

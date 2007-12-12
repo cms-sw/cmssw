@@ -98,15 +98,15 @@ void SiPixelWebClient::onUpdate() const
   if (nUpdate == 0) mui_->subscribe("Collector/*");
 
   // Initial Collation of all Monitor Elements in all Sources:
-  if (nUpdate == 1){ 
-      webInterface_p->setActionFlag(SiPixelWebInterface::Collate);
-      seal::Callback action(seal::CreateCallback(webInterface_p, 
-			    &SiPixelWebInterface::performAction));
-      mui_->addCallback(action); 
-  }
+  //if (nUpdate == 1){ 
+  //    webInterface_p->setActionFlag(SiPixelWebInterface::Collate);
+  //    seal::Callback action(seal::CreateCallback(webInterface_p, 
+//			    &SiPixelWebInterface::performAction));
+   //   mui_->addCallback(action); 
+  //}
   
   // Initial Creation of Summary ME's: 
-  if (nUpdate == 2){ 
+  if (nUpdate == 1){ 
       webInterface_p->setActionFlag(SiPixelWebInterface::Summary);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));
@@ -114,10 +114,10 @@ void SiPixelWebClient::onUpdate() const
   }	 
 
   // Set Up Quality Tests once:
-  if (nUpdate == 3) webInterface_p->setupQTests();
+  if (nUpdate == 2) webInterface_p->setupQTests();
 
   // Initial Check of Quality Test Results:
-  if (nUpdate == 4){ 
+  if (nUpdate == 3){ 
       webInterface_p->setActionFlag(SiPixelWebInterface::QTestResult);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			    &SiPixelWebInterface::performAction));
@@ -169,12 +169,12 @@ void SiPixelWebClient::onUpdate() const
   }
 */  
   // Save ME's into a file: 
-  if (nUpdate%550 == 0) {
+/*  if (nUpdate%550 == 0) {
     webInterface_p->setOutputFileName("SiPixelWebClient.root");
     webInterface_p->setActionFlag(SiPixelWebInterface::SaveData);
     seal::Callback action(seal::CreateCallback(webInterface_p, 
 			  &SiPixelWebInterface::performAction));
     mui_->addCallback(action); 
   }  
-
+*/
 }

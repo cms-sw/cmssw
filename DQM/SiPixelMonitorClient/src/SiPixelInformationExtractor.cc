@@ -842,12 +842,11 @@ void SiPixelInformationExtractor::plotHistos(multimap<string,string>& req_map,
  *  This method 
  */
 void SiPixelInformationExtractor::readModuleAndHistoList(DaqMonitorBEInterface* bei, 
-                                                         xgi::Output * out, 
-							 bool coll_flag) {
+                                                         xgi::Output * out) {
 //cout<<"entering SiPixelInformationExtractor::readModuleAndHistoList"<<endl;
    std::map<std::string,std::string> hnames;
    std::vector<std::string> mod_names;
-   if (coll_flag)  bei->cd("Collector/Collated");
+   //if (coll_flag)  bei->cd("Collector/Collated");
    fillModuleAndHistoList(bei, mod_names, hnames);
    //for (std::vector<std::string>::iterator im = mod_names.begin();
    //     im != mod_names.end(); im++) cout<<"mod_names="<<*im<<endl;
@@ -873,7 +872,7 @@ void SiPixelInformationExtractor::readModuleAndHistoList(DaqMonitorBEInterface* 
    }
    *out << "</HistoList>" << endl;
    *out << "</ModuleAndHistoList>" << endl;
-   if (coll_flag)  bei->cd();
+   //if (coll_flag)  bei->cd();
 //cout<<"leaving SiPixelInformationExtractor::readModuleAndHistoList"<<endl;
 }
 
@@ -943,11 +942,10 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(DaqMonitorBEInterface *
  */
 void SiPixelInformationExtractor::readModuleHistoTree(DaqMonitorBEInterface* bei, 
                                                       string& str_name, 
-						      xgi::Output * out, 
-						      bool coll_flag) {
+						      xgi::Output * out) {
 //cout<<"entering  SiPixelInformationExtractor::readModuleHistoTree"<<endl;
   ostringstream modtree;
-  if (goToDir(bei, str_name, coll_flag)) {
+  if (goToDir(bei, str_name)) {
     modtree << "<form name=\"IMGCanvasItemsSelection\" "
             << "action=\"javascript:void%200\">" 
 	    << endl ;
@@ -1040,11 +1038,10 @@ void SiPixelInformationExtractor::printModuleHistoList(DaqMonitorBEInterface * b
  */
 void SiPixelInformationExtractor::readSummaryHistoTree(DaqMonitorBEInterface* bei, 
                                                        string& str_name, 
-						       xgi::Output * out, 
-						       bool coll_flag) {
+						       xgi::Output * out) {
 //cout<<"entering  SiPixelInformationExtractor::readSummaryHistoTree"<<endl;
   ostringstream sumtree;
-  if (goToDir(bei, str_name, coll_flag)) {
+  if (goToDir(bei, str_name)) {
     sumtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
     printSummaryHistoList(bei,sumtree);
     sumtree <<"</ul>" << endl;   
@@ -1134,11 +1131,10 @@ void SiPixelInformationExtractor::printSummaryHistoList(DaqMonitorBEInterface * 
  */
 void SiPixelInformationExtractor::readAlarmTree(DaqMonitorBEInterface* bei, 
                                                 string& str_name, 
-						xgi::Output * out, 
-						bool coll_flag){
+						xgi::Output * out){
 //cout<<"entering SiPixelInformationExtractor::readAlarmTree"<<endl;
   ostringstream alarmtree;
-  if (goToDir(bei, str_name, coll_flag)) {
+  if (goToDir(bei, str_name)) {
     alarmtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
     alarmCounter_=0;
     printAlarmList(bei,alarmtree);
@@ -1501,11 +1497,10 @@ const ostringstream&  SiPixelInformationExtractor::getNamedImage(std::string the
  *  This method 
  */
 bool SiPixelInformationExtractor::goToDir(DaqMonitorBEInterface* bei, 
-                                          string& sname, 
-					  bool flg){ 
+                                          string& sname){ 
 //cout<<"entering SiPixelInformationExtractor::goToDir"<<endl;
   bei->cd();
-  if(flg) bei->cd("Collector/Collated");
+  //if(flg) bei->cd("Collector/Collated");
   bei->cd(sname);
   string dirName = bei->pwd();
   if (dirName.find(sname) != string::npos) return true;

@@ -51,7 +51,6 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
 
   tkMapFrequency_   = -1;
   summaryFrequency_ = -1;
-  fileSaveFrequency_ = parameters.getUntrackedParameter<int>("FileSaveFrequency",50); 
 
   // instantiate Monitor UI without connecting to any monitoring server
   // (i.e. "standalone mode")
@@ -101,8 +100,8 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   //cout  << " Update Frequencies are " << tkMapFrequency_ << " " 
   //                                    << summaryFrequency_ << endl ;
 
-          collationFlag_ = parameters.getUntrackedParameter<int>("CollationtionFlag",0);
-         outputFilePath_ = parameters.getUntrackedParameter<string>("OutputFilePath",".");
+          //collationFlag_ = parameters.getUntrackedParameter<int>("CollationtionFlag",0);
+         //outputFilePath_ = parameters.getUntrackedParameter<string>("OutputFilePath",".");
   staticUpdateFrequency_ = parameters.getUntrackedParameter<int>("StaticUpdateFrequency",10);
  // trackerMapCreator_ = new SiPixelTrackerMapCreator();
 //  if (trackerMapCreator_->readConfiguration()) {
@@ -208,7 +207,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
 //
 // -- Save file
 //
-void SiPixelEDAClient::saveAll(int irun, int ilumi) {
+/*void SiPixelEDAClient::saveAll(int irun, int ilumi) {
 //  cout<<"Entering SiPixelEDAClient::saveAll: "<<endl;
 
   ostringstream fname;
@@ -223,7 +222,7 @@ void SiPixelEDAClient::saveAll(int irun, int ilumi) {
   sipixelWebInterface_->performAction();
 
 //  cout<<"...leaving SiPixelEDAClient::saveAll. "<<endl;
-}
+}*/
 //
 // -- Create default web page
 //

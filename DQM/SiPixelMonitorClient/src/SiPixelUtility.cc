@@ -211,7 +211,7 @@ int SiPixelUtility::computeHistoBin(string & module_path){
   for (vector<string>::const_iterator it = subDirVector.begin();
        it != subDirVector.end(); it++) {
     if((*it).find("Collector") != string::npos ||
-       (*it).find("Collated") != string::npos ||
+       //(*it).find("Collated") != string::npos ||
        (*it).find("FU") != string::npos ||
        (*it).find("Pixel") != string::npos ||
        (*it).find("Barrel") != string::npos ||

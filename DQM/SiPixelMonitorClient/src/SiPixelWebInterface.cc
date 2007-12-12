@@ -110,11 +110,11 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
   } else if (requestID == "CreateSummary") {	  // <-----------------
     theActionFlag = Summary;
 
-  } else if (requestID == "SaveToFile") {	  // <-----------------
-    theActionFlag = SaveData;
+  //} else if (requestID == "SaveToFile") {	  // <-----------------
+  //  theActionFlag = SaveData;
 
-  } else if (requestID == "CollateME") {	  // <-----------------
-    theActionFlag = Collate;
+  //} else if (requestID == "CollateME") {	  // <-----------------
+  //  theActionFlag = Collate;
 
   } else if (requestID == "CreateTkMap") {	  // <-----------------
     theActionFlag = CreateTkMap;
@@ -170,25 +170,22 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
 
   } else if (requestID == "SingleModuleHistoList") {
     theActionFlag = NoAction;
-    infoExtractor_->readModuleAndHistoList(bei, out, actionExecutor_->getCollationFlag() );    
+    infoExtractor_->readModuleAndHistoList(bei, out);    
 
   } else if (requestID == "ModuleHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readModuleHistoTree(bei, sname, out,
-                          actionExecutor_->getCollationFlag());    
+    infoExtractor_->readModuleHistoTree(bei, sname, out);    
 
   } else if (requestID == "SummaryHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readSummaryHistoTree(bei, sname, out,
-                           actionExecutor_->getCollationFlag());    
+    infoExtractor_->readSummaryHistoTree(bei, sname, out);    
 
   } else if (requestID == "AlarmList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readAlarmTree(bei, sname, out,
-                           actionExecutor_->getCollationFlag());    
+    infoExtractor_->readAlarmTree(bei, sname, out);    
 
   } else if (requestID == "ReadQTestStatus") {
     theActionFlag = NoAction;
@@ -243,7 +240,7 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
 
   } else if (requestID == "GetMEList") {
     theActionFlag = NoAction;
-    infoExtractor_->readModuleAndHistoList(bei, out, actionExecutor_->getCollationFlag() );    
+    infoExtractor_->readModuleAndHistoList(bei, out);    
 
   } else if (requestID == "periodicTrackerMapUpdate") {
    theActionFlag = NoAction;
@@ -348,11 +345,11 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
   } else if (requestID == "CreateSummary") {	  // <-----------------
     theActionFlag = Summary;
 
-  } else if (requestID == "SaveToFile") {	  // <-----------------
-    theActionFlag = SaveData;
+  //} else if (requestID == "SaveToFile") {	  // <-----------------
+  //  theActionFlag = SaveData;
 
-  } else if (requestID == "CollateME") {	  // <-----------------
-    theActionFlag = Collate;
+  //} else if (requestID == "CollateME") {	  // <-----------------
+  //  theActionFlag = Collate;
 
   } else if (requestID == "OpenTkMap") {
     std::string name = "TkMap";
@@ -363,22 +360,20 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
     theActionFlag = NoAction;    
   } else if (requestID == "SingleModuleHistoList") {
     theActionFlag = NoAction;
-    infoExtractor_->readModuleAndHistoList(bei, out, actionExecutor_->getCollationFlag() );    
+    infoExtractor_->readModuleAndHistoList(bei, out);    
   } else if (requestID == "ModuleHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
     cout<<"in EDARequest: structure name= "<<sname<<endl;
-    infoExtractor_->readModuleHistoTree(bei, sname, out, actionExecutor_->getCollationFlag());    
+    infoExtractor_->readModuleHistoTree(bei, sname, out);    
   } else if (requestID == "SummaryHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readSummaryHistoTree(bei, sname, out,
-                           actionExecutor_->getCollationFlag());    
+    infoExtractor_->readSummaryHistoTree(bei, sname, out);    
   } else if (requestID == "AlarmList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readAlarmTree(bei, sname, out,
-                           actionExecutor_->getCollationFlag());    
+    infoExtractor_->readAlarmTree(bei, sname, out);    
   } else if (requestID == "ReadQTestStatus") {
     theActionFlag = NoAction;
     string path = get_from_multimap(requestMap_, "Path");
@@ -430,7 +425,7 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
 
   } else if (requestID == "GetMEList") {
     theActionFlag = NoAction;
-    infoExtractor_->readModuleAndHistoList(bei, out, actionExecutor_->getCollationFlag() );    
+    infoExtractor_->readModuleAndHistoList(bei, out);    
 
   } else if (requestID == "periodicTrackerMapUpdate") {
    theActionFlag = NoAction;
@@ -524,12 +519,12 @@ void SiPixelWebInterface::performAction() {
   //    bei->subscribe("Collector/*");
       break;
     } 
-  case SiPixelWebInterface::Collate :
+  /*case SiPixelWebInterface::Collate :
     {
 //      cout << " SiPixelWebInterface::Collate " << endl;
       actionExecutor_->createCollation((*mui_p));
       break;
-    }
+    }*/
   case SiPixelWebInterface::CreateTkMap :
     {
      if (createTkMap()) {
@@ -560,13 +555,13 @@ void SiPixelWebInterface::performAction() {
       actionExecutor_->checkQTestResults(bei);
       break;
     }
-  case SiPixelWebInterface::SaveData :
+ /* case SiPixelWebInterface::SaveData :
     {
 //      cout << " Saving Monitoring Elements " << endl;
       //setOutputFileName("SiPixelWebClient.root");
       actionExecutor_->saveMEs(bei, fileName_);
       break;
-    }
+    }*/
   case SiPixelWebInterface::PlotSingleModuleHistos :
     {
 //      cout << " SiPixelWebInterface::PlotSingleModuleHistos " << endl;

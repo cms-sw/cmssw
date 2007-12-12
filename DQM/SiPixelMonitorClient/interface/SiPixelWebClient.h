@@ -1,7 +1,7 @@
 #ifndef _DQM_SiPixelMonitorClient_SiPixelWebClient_h_
 #define _DQM_SiPixelMonitorClient_SiPixelWebClient_h_
 
-#include "DQMServices/Components/interface/DQMBaseClient.h"
+#include "DQMServices/XdaqCollector/interface/DQMBaseClient.h"
 #include "DQMServices/Components/interface/Updater.h"
 #include "DQMServices/Components/interface/UpdateObserver.h"
 

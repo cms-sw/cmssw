@@ -19,7 +19,7 @@ SiPixelActionExecutor::SiPixelActionExecutor() {
   configParser_ = 0;
   configWriter_ = 0;
   qtHandler_ = 0;  
-  collationDone = false;
+  //collationDone = false;
 }
 //
 // --  Destructor
@@ -272,7 +272,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DaqMonitorBEInterface* bei,
     vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
-      if(bei->pwd()=="Collector/Collated" && (*it).find("FU")==0) continue;
+      //if(bei->pwd()=="Collector/Collated" && (*it).find("FU")==0) continue;
       if((bei->pwd()).find("Endcap")!=string::npos ||
          (bei->pwd()).find("AdditionalPixelErrors")!=string::npos) bei->goUp();
       bei->cd(*it);
@@ -501,7 +501,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DaqMonitorBEInterface* 
   string path_name = bei->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
   if ((dir_name.find("Collector") == 0) ||
-      (dir_name.find("Collated") == 0) ||
+      //(dir_name.find("Collated") == 0) ||
       (dir_name.find("FU") == 0) ||
       (dir_name.find("Pixel") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) ||
@@ -621,7 +621,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DaqMonitorBEInterface* 
   string path_name = bei->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
   if ((dir_name.find("Collector") == 0) ||
-      (dir_name.find("Collated") == 0) ||
+      //(dir_name.find("Collated") == 0) ||
       (dir_name.find("FU") == 0) ||
       (dir_name.find("Pixel") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) ||
@@ -839,8 +839,9 @@ void SiPixelActionExecutor::setupQTests(DaqMonitorBEInterface * bei) {
 
   bei->cd();
   //cout<<"COLLATION: "<<collationDone<<" in dir: "<<bei->pwd()<<endl;
-  if (collationDone) bei->cd("Collector/Collated/Pixel");
-  else bei->cd("Pixel");
+  //if (collationDone) bei->cd("Collector/Collated/Pixel");
+  //else
+  bei->cd("Pixel");
   
   string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
   if(!qtHandler_){
@@ -938,7 +939,7 @@ void SiPixelActionExecutor::checkQTestResults(DaqMonitorBEInterface * bei) {
 ////////////////////////////////////////////////////////////////////////////
 //
 //
-void SiPixelActionExecutor::createCollation(MonitorUserInterface * mui){
+/*void SiPixelActionExecutor::createCollation(MonitorUserInterface * mui){
  // cout<<"Entering SiPixelActionExecutor::createCollation in directory:"<<mui->pwd()<<endl;
   DaqMonitorBEInterface * bei = mui->getBEInterface();
   string currDir = bei->pwd();
@@ -990,7 +991,7 @@ void SiPixelActionExecutor::createCollation(MonitorUserInterface * mui){
   }
   collationDone = true;
  // cout<<"...leaving SiPixelActionExecutor::createCollation in directory:"<<mui->pwd()<<endl;
-}
+}*/
 
 
 void SiPixelActionExecutor::createLayout(DaqMonitorBEInterface * bei){
@@ -1053,9 +1054,8 @@ void SiPixelActionExecutor::fillLayout(DaqMonitorBEInterface * bei){
 // -- Save Monitor Elements in a file
 //      
 //void SiPixelActionExecutor::saveMEs(MonitorUserInterface* mui,
-void SiPixelActionExecutor::saveMEs(DaqMonitorBEInterface* bei, 
+/*void SiPixelActionExecutor::saveMEs(DaqMonitorBEInterface* bei, 
                                     string fname){
-  //cout<<"fname= "<<fname<<" , collationDone: "<<collationDone<<" , I am in "<<bei->pwd()<<endl;
   //DaqMonitorBEInterface * bei = mui->getBEInterface();
   if (collationDone) {
     //mui->save(fname,"Collector/Collated/SiPixel");
@@ -1068,7 +1068,7 @@ void SiPixelActionExecutor::saveMEs(DaqMonitorBEInterface* bei,
   //   mui->save(fname,mui->pwd(),90);
      bei->save(fname,bei->pwd(),90);
   }
-}
+}*/
 //
 // -- Get TkMap ME names
 //
