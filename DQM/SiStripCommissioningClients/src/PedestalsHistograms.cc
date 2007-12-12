@@ -83,15 +83,8 @@ void PedestalsHistograms::histoAnalysis( bool debug ) {
     data_[iter->first] = anal; 
     data_[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
-    if ( debug ) {
-      std::stringstream ss;
-      anal->print( ss, 1 ); 
-      anal->print( ss, 2 ); 
-      if ( anal->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
-      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
-      if ( !anal->getErrorCodes().empty() ) { 
-	errors[anal->getErrorCodes()[0]]++;
-      }
+    if ( !anal->getErrorCodes().empty() ) { 
+      errors[anal->getErrorCodes()[0]]++;
     }
     
   }
@@ -124,6 +117,22 @@ void PedestalsHistograms::histoAnalysis( bool debug ) {
       << " No histograms to analyze!";
   }
   
+}
+
+// -----------------------------------------------------------------------------	 
+/** */	 
+void PedestalsHistograms::printAnalyses() {
+  Analyses::iterator ianal = data_.begin();
+  Analyses::iterator janal = data_.end();
+  for ( ; ianal != janal; ++ianal ) { 
+    if ( ianal->second ) { 
+      std::stringstream ss;
+      ianal->second->print( ss, 1 ); 
+      ianal->second->print( ss, 2 ); 
+      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------

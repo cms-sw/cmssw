@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.h,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.h,v 1.4 2007/05/24 15:59:44 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H
@@ -23,7 +23,9 @@ class PedestalsHistosUsingDb : public PedestalsHistograms, public CommissioningH
 			  SiStripConfigDb* const );
   
   virtual ~PedestalsHistosUsingDb();
-
+ 
+  virtual void addDcuDetIds();
+ 
   virtual void uploadToConfigDb();
   
  private:

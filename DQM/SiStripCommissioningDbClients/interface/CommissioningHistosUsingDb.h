@@ -1,13 +1,15 @@
-// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.4 2007/05/24 15:59:44 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 
 #include <boost/cstdint.hpp>
 #include <string>
+#include <map>
 
 class SiStripConfigDb;
 class SiStripFedCabling;
+class CommissioningAnalysis;
 
 class CommissioningHistosUsingDb {
   
@@ -37,6 +39,9 @@ class CommissioningHistosUsingDb {
   inline void testOnly( bool );
   
  protected:
+
+  /** */
+  void addDcuDetId( CommissioningAnalysis* );
 
   /** */
   SiStripConfigDb* db_;

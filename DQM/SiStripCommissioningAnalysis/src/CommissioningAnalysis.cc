@@ -9,6 +9,8 @@ CommissioningAnalysis::CommissioningAnalysis( const uint32_t& key,
 					      const std::string& my_name ) 
   : fecKey_( SiStripFecKey(key) ),
     fedKey_(),
+    dcuId_(sistrip::invalid32_),
+    detId_(sistrip::invalid32_),
     myName_(my_name),
     errors_(VString(0,""))
 {;}
@@ -18,6 +20,8 @@ CommissioningAnalysis::CommissioningAnalysis( const uint32_t& key,
 CommissioningAnalysis::CommissioningAnalysis( const std::string& my_name ) 
   : fecKey_(),
     fedKey_(),
+    dcuId_(sistrip::invalid32_),
+    detId_(sistrip::invalid32_),
     myName_(my_name),
     errors_(VString(0,""))
 {;}
@@ -34,25 +38,49 @@ void CommissioningAnalysis::analysis( const std::vector<TH1*>& histos ) {
 // 
 void CommissioningAnalysis::header( std::stringstream& ss ) const { 
   ss << "[" << myName() << "] Monitorables:" << std::endl;
-  ss << " FecKey/FedKey               : 0x" 
-     << std::hex 
-     << std::setw(8) << std::setfill('0') << fecKey().key() << "/0x" 
-     << std::setw(8) << std::setfill('0') << fedKey().key() << std::endl
-     << std::dec
-     << " Crate/FEC/Ring/CCU/Mod/LLD  : " 
+
+  ss << " Crate/FEC/Ring/CCU/Mod/LLD     : " 
      << fecKey().fecCrate() << "/" 
      << fecKey().fecSlot() << "/" 
      << fecKey().fecRing() << "/" 
      << fecKey().ccuAddr() << "/" 
      << fecKey().ccuChan() << "/" 
-     << fecKey().lldChan() << std::endl
-     << " FedId/FeUnit/FeChan/FedChan : " 
+     << fecKey().lldChan() 
+     << std::endl;
+
+  ss << " FedId/FeUnit/FeChan/FedChannel : " 
      << fedKey().fedId() << "/" 
      << fedKey().feUnit() << "/" 
-     << fedKey().feChan() << "/";
-  if ( fedKey().fedChannel() != sistrip::invalid_ ) {
-    ss << fedKey().fedChannel() << std::endl;
-  } else { ss << "(invalid)" << std::endl; }
+     << fedKey().feChan() << "/"
+     << fedKey().fedChannel()
+     << std::endl;
+  // if ( fedKey().fedChannel() != sistrip::invalid_ ) { ss << fedKey().fedChannel(); }
+  // else { ss << "(invalid)"; }
+  // ss << std::endl;
+  
+  ss << " FecKey/Fedkey (hex)            : 0x" 
+     << std::hex 
+     << std::setw(8) << std::setfill('0') << fecKey().key() << "/0x" 
+     << std::setw(8) << std::setfill('0') << fedKey().key() 
+     << std::dec
+     << std::endl;
+  
+  ss << " DcuId (hex/dec)                : 0x" 
+     << std::hex 
+     << std::setw(8) << std::setfill('0') << dcuId_ 
+     << "/"
+     << std::dec
+     << std::setw(8) << std::setfill('0') << dcuId_ 
+     << std::endl;
+
+  ss << " DetId (hex/dec)                : 0x" 
+     << std::hex 
+     << std::setw(8) << std::setfill('0') << detId_ 
+     << "/"
+     << std::dec
+     << std::setw(8) << std::setfill('0') << detId_ 
+     << std::endl;
+
 }
 
 // ----------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.6 2007/07/13 14:18:43 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.7 2007/11/20 22:40:53 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -50,6 +50,14 @@ PedestalsHistosUsingDb::~PedestalsHistosUsingDb() {
   LogTrace(mlDqmClient_) 
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
     << " Destructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void PedestalsHistosUsingDb::addDcuDetIds() {
+  PedestalsHistograms::Analyses::iterator ianal = data_.begin();
+  PedestalsHistograms::Analyses::iterator janal = data_.end();
+  for ( ; ianal != janal; ++ianal ) { addDcuDetId( ianal->second ); }
 }
 
 // -----------------------------------------------------------------------------

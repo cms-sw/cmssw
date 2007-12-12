@@ -19,6 +19,7 @@
 #include <map>
 
 class MonitorElement;
+class CommissioningAnalysis;
 
 class CommissioningHistograms {
 
@@ -75,15 +76,25 @@ class CommissioningHistograms {
   
   /** */
   void extractHistograms( const std::vector<std::string>& );
+
   /** */
   void createCollations( const std::vector<std::string>& );
+
   /** */
   virtual void histoAnalysis( bool debug );
+
+  /** */
+  virtual void printAnalyses();
+  
   /** */
   virtual void createSummaryHisto( const sistrip::Monitorable&, 
 				   const sistrip::Presentation&, 
 				   const std::string& top_level_dir,
 				   const sistrip::Granularity& );
+  
+  /** */
+  virtual void addDcuDetIds();
+  
   /** */
   virtual void uploadToConfigDb();
   
@@ -132,7 +143,7 @@ class CommissioningHistograms {
   
   /** */
   void clearHistosMap();
-
+  
  private:
 
   // ---------- Protected data ----------

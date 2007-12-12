@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.20 2007/11/05 11:02:36 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.21 2007/12/11 14:16:24 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -354,6 +354,12 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   // Save client root file
   if ( histos_ ) { histos_->save( outputFileName_, runNumber_ ); }
   //if ( !clientHistos_ && histos_ ) { histos_->save( outputFileName_, runNumber_ ); }
+  
+  // Add DCUid and DetIds to analyses
+  if ( histos_ ) { histos_->addDcuDetIds(); }
+  
+  // Print analyses
+  if ( histos_ ) { histos_->printAnalyses(); }
   
   // Virtual method to trigger the database upload
   uploadToDb();

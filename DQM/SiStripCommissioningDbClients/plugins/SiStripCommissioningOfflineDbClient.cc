@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.5 2007/07/13 14:17:35 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.6 2007/12/11 16:09:55 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -97,14 +97,14 @@ void SiStripCommissioningOfflineDbClient::createCommissioningHistograms() {
   } 
   
   // Create corresponding "commissioning histograms" object 
-  if ( runType_ == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::FED_CABLING ) { histos_ = new FedCablingHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::APV_TIMING )  { histos_ = new ApvTimingHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::OPTO_SCAN )   { histos_ = new OptoScanHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::VPSP_SCAN )   { histos_ = new VpspScanHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::PEDESTALS )   { histos_ = new PedestalsHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::APV_LATENCY ) { histos_ = new LatencyHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::FINE_DELAY )  { histos_ = new FineDelayHistosUsingDb( mui_, db ); }
+  if      ( runType_ == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::FED_CABLING )  { histos_ = new FedCablingHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::APV_TIMING )   { histos_ = new ApvTimingHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::OPTO_SCAN )    { histos_ = new OptoScanHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::VPSP_SCAN )    { histos_ = new VpspScanHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::PEDESTALS )    { histos_ = new PedestalsHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::APV_LATENCY )  { histos_ = new LatencyHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::FINE_DELAY )   { histos_ = new FineDelayHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { histos_ = 0; }
   else if ( runType_ == sistrip::UNKNOWN_RUN_TYPE ) {
     histos_ = 0;

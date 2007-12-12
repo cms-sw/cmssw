@@ -650,6 +650,14 @@ void CommissioningHistograms::histoAnalysis( bool debug ) {
 
 // -----------------------------------------------------------------------------
 /** */
+void CommissioningHistograms::printAnalyses() {
+  LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " (Derived) implementation to come...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
 void CommissioningHistograms::createSummaryHisto( const sistrip::Monitorable& histo, 
 						  const sistrip::Presentation& type, 
 						  const std::string& directory,
@@ -657,6 +665,14 @@ void CommissioningHistograms::createSummaryHisto( const sistrip::Monitorable& hi
   LogTrace(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
     << " (Derived) implementation to come...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void CommissioningHistograms::addDcuDetIds() {
+  LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " (Derived) implementation to come..."; 
 }
 
 // -----------------------------------------------------------------------------

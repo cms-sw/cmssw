@@ -1,9 +1,11 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.4 2007/05/24 15:59:49 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAnalysis.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -104,6 +106,11 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
   cabling_ = new SiStripFedCabling();
   SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, 
 						 *cabling_ );
+  std::stringstream ss;
+  ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+     << " FED cabling:" << std::endl
+     << *cabling_;
+  LogTrace(mlDqmClient_) << ss.str();
   
 }
 
@@ -125,3 +132,72 @@ CommissioningHistosUsingDb::DbParams::DbParams() :
   major_(0),
   minor_(0) 
 {;}
+
+// -----------------------------------------------------------------------------
+/** */
+void CommissioningHistosUsingDb::addDcuDetId( CommissioningAnalysis* anal ) {
+  
+  if ( !cabling_ ) {
+    edm::LogWarning(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " NULL pointer to SiStripFedCabling object!";
+    return;
+  }
+  
+  if ( !anal ) {
+    edm::LogWarning(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " NULL pointer to CommissioningAnalysis object!";
+    return;
+  }
+  
+  SiStripFedKey fed_key = anal->fedKey();
+  SiStripFecKey fec_key = anal->fecKey();
+  
+  FedChannelConnection conn = cabling_->connection( fed_key.fedId(),
+						    fed_key.fedChannel() );
+  
+  SiStripFedKey fed( conn.fedId(),
+		     SiStripFedKey::feUnit( conn.fedCh() ),
+		     SiStripFedKey::feChan( conn.fedCh() ) );
+  
+  SiStripFecKey fec( conn.fecCrate(),
+		     conn.fecSlot(),
+		     conn.fecRing(),
+		     conn.ccuAddr(),
+		     conn.ccuChan(),
+		     conn.lldChannel() );
+  
+  if ( fed_key.path() != fed.path() ) {
+
+    std::stringstream ss;
+    ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+       << " Incompatible FED key retrieved from cabling!" << std::endl
+       << " FED key from analysis object  : " << fed_key.path() << std::endl
+       << " FED key from cabling object   : " << fed.path() << std::endl
+       << " FED id/ch from analysis object: " << fed_key.fedId() << "/" << fed_key.fedChannel() << std::endl
+       << " FED id/ch from cabling object : " << conn.fedId() << "/" << conn.fedCh();
+    edm::LogWarning(mlDqmClient_) << ss.str();
+
+  } else if ( fec_key.path() != fec.path() ) {
+
+    std::stringstream ss;
+    ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+       << " Incompatible FEC key retrieved from cabling!" << std::endl
+       << " FEC key from analysis object : " << fec_key.path() << std::endl
+       << " FEC key from cabling object  : " << fec.path();
+    edm::LogWarning(mlDqmClient_) << ss.str();
+
+  } else {
+
+    anal->dcuId( conn.dcuId() );
+    anal->detId( conn.detId() );
+    LogTrace(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " Updated CommissioningAnalysis object with"
+      << " DCU id " << conn.dcuId()
+      << " and DetId " << conn.detId();
+
+  }
+
+}
