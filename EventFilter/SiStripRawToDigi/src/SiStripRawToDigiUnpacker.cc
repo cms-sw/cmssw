@@ -167,6 +167,9 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       edm::LogWarning(mlRawToDigi_) << ss.str();
     }
     
+    // Check to see if event is to be analyzed according to EventSummary
+    if ( !summary.valid() ) { continue; }
+
     // Retrive readout mode
     sistrip::FedReadoutMode mode = sistrip::UNDEFINED_FED_READOUT_MODE;
     try {
