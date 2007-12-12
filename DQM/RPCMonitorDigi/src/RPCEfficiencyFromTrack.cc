@@ -270,11 +270,10 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	const FreeTrajectoryState* fState1 = &fS1; 
 	TrajectoryStateOnSurface tsosAtRoll = thePropagator->propagate(*fState1,rpcPlane1);
 	
-	if(tsosAtRoll.isValid()){
+	if(tsosAtRoll.isValid() && (rpcPlane1.bounds()).inside(tsosAtRoll.localPosition())){
 	  RPCDetId rollId = rollasociated->id();
 	  RPCGeomServ RPCname(rollId);
 	  std::string nameRoll = RPCname.name();
-	  
 	  
 	  if(rollId.region()==0){
 	    int first = nameRoll.find("W");
