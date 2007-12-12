@@ -36,7 +36,8 @@ SiStripRawToDigiUnpacker::SiStripRawToDigiUnpacker( int16_t appended_bytes,
   useFedKey_( using_fed_key ),
   fedEvent_(0),
   event_(0),
-  once_(true)
+  once_(true),
+  first_(true)
 {
   LogTrace(mlRawToDigi_)
     << "[SiStripRawToDigiUnpacker::"<<__func__<<"]"
@@ -94,7 +95,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     const FEDRawData& input = buffers.FEDData( static_cast<int>(*ifed) );
     
     // Some debug on FED buffer size
-    if ( event_ == 1 && input.data() ) {
+    if ( first_ && input.data() ) {
       std::stringstream ss;
       ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
 	 << " Found FED id " 
@@ -102,10 +103,12 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	 << " in FEDRawDataCollection"
 	 << " with non-zero pointer 0x" 
 	 << std::hex
-	 << std::setw(8) << std::setfill('0') << *(input.data())
+	 << std::setw(8) << std::setfill('0') 
+	 << reinterpret_cast<uint32_t*>( const_cast<uint8_t*>(input.data()))
 	 << std::dec
-	 << " and size (#char) " 
-	 << std::setw(5) << std::setfill(' ') << input.size();
+	 << " and size " 
+	 << std::setw(5) << std::setfill(' ') << input.size()
+	 << " chars";
       LogTrace(mlRawToDigi_) << ss.str();
     }	
     
@@ -160,7 +163,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       std::stringstream ss;
       ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
 	 << " EventSummary is not set correctly!"
-	 << " Missing information from \"trigger FED\" and DAQ registers!";
+	 << " Missing information from both \"trigger FED\" and \"DAQ registers\"!";
       edm::LogWarning(mlRawToDigi_) << ss.str();
     }
     
@@ -383,6 +386,8 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
   // Incrememt event counter
   event_++;
   
+  if ( first_ ) { first_ = false; }
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -477,7 +482,7 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
     uint32_t hsize = sizeof(TFHeaderDescription)/sizeof(uint32_t);
     uint32_t* head = &data_u32[hsize];
     summary.commissioningInfo( head, event );
-    summary.triggerFed( );
+    summary.triggerFed( triggerFedId_ );
     
   }
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.17 2007/10/23 22:18:55 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.18 2007/11/29 17:09:46 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
@@ -94,6 +94,8 @@ class SiStripRawToDigiUnpacker {
   uint32_t event_;
   
   bool once_;
+
+  bool first_;
 
 };
 
