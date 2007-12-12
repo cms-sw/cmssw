@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.h,v 1.1 2007/11/09 17:27:20 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.h,v 1.2 2007/11/19 12:17:46 fblekman Exp $
 //
 //
 
@@ -41,7 +41,6 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CalibFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
@@ -79,12 +78,15 @@ class SiPixelCalibDigiProducer : public edm::EDProducer {
       bool ignore_non_pattern_;
       
       edm::ESHandle<SiPixelCalibConfiguration> calib_; // keeps track of the calibration constants
-      edm::ESHandle<TrackerGeometry> geom_; // the tracker geometry
+      edm::ESHandle<TrackerGeometry> theGeometry_; // the tracker geometry
+      edm::ESHandle<SiPixelFedCablingMap> theCablingMap_;
 
       // worker variables
       std::map<uint32_t,std::vector<SiPixelCalibDigi> > intermediate_data_; // data container, copied over into the event every pattern_repeat_ events
       std::map<uint32_t,std::vector<std::pair<short, short> > > detPixelMap_;// map to keep track of which pixels are filled where in intermediate_data_
       uint32_t pattern_repeat_; // keeps track of when the pattern should change
+      std::map<uint32_t,uint32_t> detid_to_fedid_; // keeps track in which fed each detid is present.
+
       std::vector<std::pair<short,short> > currentpattern_;// keeps track of which pattern we are at
       std::pair<short,short> currentpair_;//worker class to keep track of pairs
 };
