@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/12 12:39:08 $
- * $Revision: 1.86 $
+ * $Date: 2007/12/12 14:46:50 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1409,15 +1409,6 @@ void EcalEndcapMonitorClient::analyze(void){
         }
 
         summaryClient_->analyze();
-
-        if ( status_ == "running" || status_ == "end-of-run" || forced_update_ ) {
-
-          // update MEs [again, just to silence a warning]
-          if ( enableUpdate_ ) {
-            mui_->doMonitoring();
-          }
-
-        }
 
       }
 
