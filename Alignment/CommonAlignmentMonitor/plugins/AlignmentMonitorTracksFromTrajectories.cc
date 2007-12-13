@@ -35,7 +35,6 @@
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h" 
 #include "DataFormats/Math/interface/Vector.h" 
 #include "DataFormats/Math/interface/Error.h" 
-#include "RecoVertex/VertexPrimitives/interface/TrackMap.h" 
 #include "RecoVertex/VertexPrimitives/interface/VertexTrack.h" 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 
