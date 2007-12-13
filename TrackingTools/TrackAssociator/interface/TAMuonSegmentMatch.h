@@ -16,5 +16,6 @@ class TAMuonSegmentMatch {
    float  segmentLocalErrorDyDz;
    float  segmentLocalErrorXDxDz;
    float  segmentLocalErrorYDyDz;
+   float  t0;
 };
 #endif

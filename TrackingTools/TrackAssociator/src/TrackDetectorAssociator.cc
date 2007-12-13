@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.25 2007/10/08 13:04:35 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.26 2007/10/09 02:38:18 dmytro Exp $
 //
 //
 
@@ -78,6 +78,7 @@
 #include "Utilities/Timing/interface/TimerStack.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
@@ -905,7 +906,31 @@ void TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
       // muonSegment.segmentLocalErrorYDyDz = segmentCovMatrix[3][1];
       muonSegment.segmentLocalErrorXDxDz = -999;
       muonSegment.segmentLocalErrorYDyDz = -999;
-
+      
+      // timing information
+      muonSegment.t0 = 0;
+      if ( const DTRecSegment4D* s = dynamic_cast<const DTRecSegment4D*>(segment) ) {
+        if ( (s->hasPhi()) && (s->hasZed()) ) {
+  	  int phiHits = s->phiSegment()->specificRecHits().size();
+	  int zHits = s->zSegment()->specificRecHits().size();
+	  int hits=0;
+	  double t0=0.;
+	  // TODO: cuts on hit numbers not optimized in any way yet...
+	  if (phiHits>5) {
+	    t0+=s->phiSegment()->t0()*phiHits;
+	    hits+=phiHits;
+//	    std::cout << " Phi t0: " << s->phiSegment()->t0() << " hits: " << phiHits << std::endl;
+	  }
+	  // the z segments seem to contain little useful information...
+//	  if (zHits>3) {
+//	    t0+=s->zSegment()->t0()*zHits;
+//	    hits+=zHits;
+//	    std::cout << "   Z t0: " << s->zSegment()->t0() << " hits: " << zHits << std::endl;
+//	  }
+	  if (hits) muonSegment.t0 = t0/hits;
+//	  std::cout << " --- t0: " << muonSegment.t0 << std::endl;
+        }
+      }
       matchedChamber.segments.push_back(muonSegment);
    }
 }
