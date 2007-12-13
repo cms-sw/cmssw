@@ -801,13 +801,14 @@ class _Schedule(object):
         self.labels = labels
     def dumpPython(self, options):
         result = "cms.Schedule("
-        first = True
-        for  label in self.labels:
-           if not first:
-              result += ", "
-           first = False
-           result += "process."+label
-        result += ")\n"
+        # might have to add the word 'process' to each'
+        newLabels = list()
+        if options.isCfg:
+            for label in self.labels:
+                newLabels.append('process.'+label)
+            result += ','.join(newLabels)
+        result += ')\n'
+
         return result
 
 
@@ -1869,8 +1870,8 @@ process RECO = {
    path p = {s&fii}
    sequence s = {foo,bar}
 }""")
-            self.assertEqual(str(t[0].p),'((foo*bar)+fii)')
-            self.assertEqual(str(t[0].s),'(foo*bar)')
+            self.assertEqual(str(t[0].p),'foo*bar+fii')
+            self.assertEqual(str(t[0].s),'foo*bar')
             t[0].dumpConfig()
 
             _allUsingLabels = set()
@@ -1890,8 +1891,8 @@ process RECO = {
    path p = {!s&!fii}
    sequence s = {foo,bar}
 }""")
-            self.assertEqual(str(t[0].p),'(~(foo*bar)+~fii)')
-            self.assertEqual(str(t[0].s),'(foo*bar)')
+            self.assertEqual(str(t[0].p),'~foo*bar+~fii')
+            self.assertEqual(str(t[0].s),'foo*bar')
             t[0].dumpConfig()
             
             s="""
@@ -2465,69 +2466,69 @@ process RECO = {
             self.checkRepr(t[0][1], 'cms.Path((a*b))')
             self.assertEqual(t[0][1].cfgRepr(), 'cms.Path((process.a*process.b))')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'(a*b)')
+            self.assertEqual(str(pth),'a*b')
             #print pth
 #            print t[0][1]
             t=path.parseString('path p = {a&b}')
             self.assertEqual(str(t[0][1]),'(a&b)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'(a+b)')
+            self.assertEqual(str(pth),'a+b')
 #            print t[0][1]
             t=path.parseString('path p = {a,b,c}')
             self.assertEqual(str(t[0][1]),'((a,b),c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((a*b)*c)')
+            self.assertEqual(str(pth),'a*b*c')
 #            print t[0][1]
             t=path.parseString('path p = {a&b&c}')
             self.assertEqual(str(t[0][1]),'((a&b)&c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((a+b)+c)')
+            self.assertEqual(str(pth),'a+b+c')
 #            print t[0][1]
             t=path.parseString('path p = {a&b,c}')
             self.assertEqual(str(t[0][1]),'(a&(b,c))')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'(a+(b*c))')
+            self.assertEqual(str(pth),'a+b*c')
 #            print t[0][1]
             t=path.parseString('path p = {a,b&c}')
             self.assertEqual(str(t[0][1]),'((a,b)&c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((a*b)+c)')
+            self.assertEqual(str(pth),'a*b+c')
 #            print t[0][1]
             t=path.parseString('path p = {(a,b)&c}')
             self.assertEqual(str(t[0][1]),'((a,b)&c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((a*b)+c)')
+            self.assertEqual(str(pth),'a*b+c')
 #            print t[0][1]
             t=path.parseString('path p = {(a&b),c}')
             self.assertEqual(str(t[0][1]),'((a&b),c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((a+b)*c)')
+            self.assertEqual(str(pth),'a+b*c')
 #            print t[0][1]
             t=path.parseString('path p = {a,(b&c)}')
             self.assertEqual(str(t[0][1]),'(a,(b&c))')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'(a*(b+c))')
+            self.assertEqual(str(pth),'a*b+c')
 #            print t[0][1]
             t=path.parseString('path p = {a&(b,c)}')
             self.assertEqual(str(t[0][1]),'(a&(b,c))')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'(a+(b*c))')
+            self.assertEqual(str(pth),'a+b*c')
 #            print t[0][1]
             p.d = cms.Sequence(p.a*p.b)
             t=path.parseString('path p = {d,c}')
             self.assertEqual(str(t[0][1]),'(d,c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((a*b)*c)')
+            self.assertEqual(str(pth),'a*b*c')
 #            print t[0][1]
             t=path.parseString('path p = {a&!b}')
             self.assertEqual(str(t[0][1]),'(a&!b)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'(a+~b)')
+            self.assertEqual(str(pth),'a+~b')
 #            print t[0][1]
             t=path.parseString('path p = {!a&!b&!c}')
             self.assertEqual(str(t[0][1]),'((!a&!b)&!c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((~a+~b)+~c)')
+            self.assertEqual(str(pth),'~a+~b+~c')
         @staticmethod
         def strip(value):
             """strip out whitespace & newlines"""

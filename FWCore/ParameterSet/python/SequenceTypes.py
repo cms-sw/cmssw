@@ -97,7 +97,7 @@ class _SequenceOpAids(_Sequenceable):
         self.__left = left
         self.__right = right
     def __str__(self):
-        return '('+str(self.__left)+'*'+str(self.__right) +')'
+        return str(self.__left)+'*'+str(self.__right)
     def dumpSequenceConfig(self):
         return '('+self.__left.dumpSequenceConfig()+','+self.__right.dumpSequenceConfig()+')'
     def _findDependencies(self,knownDeps,presentDeps):
@@ -133,7 +133,7 @@ class _SequenceOpFollows(_Sequenceable):
         self.__left = left
         self.__right = right
     def __str__(self):
-        return '('+str(self.__left)+'+'+str(self.__right) +')'
+        return str(self.__left)+'+'+str(self.__right)
     def dumpSequenceConfig(self):
         return '('+self.__left.dumpSequenceConfig()+'&'+self.__right.dumpSequenceConfig()+')'
     def _findDependencies(self,knownDeps,presentDeps):
@@ -195,3 +195,4 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
     def fillNamesList(self, l):
         for seq in self:
             seq.fillNamesList(l)
+
