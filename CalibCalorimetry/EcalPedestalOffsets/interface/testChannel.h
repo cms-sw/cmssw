@@ -5,8 +5,8 @@
  * \file testChannel.h
  * \class testChannel
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2007/12/12 08:28:10 $
- * $Revision: 1.2 $
+ * $Date: 2007/12/13 09:27:11 $
+ * $Revision: 1.3 $
  * \author P. Govoni (testChannel.govoni@cernNOSPAM.ch)
  *
 */
@@ -26,6 +26,9 @@
 
 #include "TROOT.h"
 #include "TStyle.h"
+
+#include "TH2.h"
+#include "TProfile.h"
 
 #include <memory>
 #include <iostream>
