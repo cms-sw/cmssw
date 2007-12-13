@@ -50,6 +50,41 @@ void PixelROCDACSettings::getDACs(vector<unsigned int>& dacs) const
     dacs.push_back(ChipContReg_);
 }
 
+// Added by Dario
+void PixelROCDACSettings::getDACs(std::map<std::string, unsigned int>& dacs) const
+{
+    dacs.clear();
+    dacs["Vdd"        ] = Vdd_        ;
+    dacs["Vana"       ] = Vana_       ;     
+    dacs["Vsf"        ] = Vsf_        ;      
+    dacs["Vcomp"      ] = Vcomp_      ;      
+    dacs["Vleak"      ] = Vleak_      ;      
+    dacs["VrgPr"      ] = VrgPr_      ;      
+    dacs["VwllPr"     ] = VwllPr_     ;     
+    dacs["VrgSh"      ] = VrgSh_      ;      
+    dacs["VwllSh"     ] = VwllSh_     ;     
+    dacs["VHldDel"    ] = VHldDel_    ;    
+    dacs["Vtrim"      ] = Vtrim_      ;      
+    dacs["VcThr"      ] = VcThr_      ;      
+    dacs["VIbiasbus"  ] = VIbias_bus_ ;
+    dacs["VIbiassf"   ] = VIbias_sf_  ; 
+    dacs["VOffsetOp"  ] = VOffsetOp_  ; 
+    dacs["VbiasOp"    ] = VbiasOp_    ;    
+    dacs["VOffsetRO"  ] = VOffsetRO_  ; 
+    dacs["VIon"       ] = VIon_       ;       
+    dacs["VIbiasPH"   ] = VIbias_PH_  ; 
+    dacs["VIbiasDAC"  ] = VIbias_DAC_ ;
+    dacs["VIbiasroc"  ] = VIbias_roc_ ;
+    dacs["VIColOr"    ] = VIColOr_    ;    
+    dacs["Vnpix"      ] = Vnpix_      ;      
+    dacs["VsumCol"    ] = VsumCol_    ;    
+    dacs["Vcal"       ] = Vcal_       ;       
+    dacs["CalDel"     ] = CalDel_     ;     
+    dacs["TempRange"  ] = TempRange_  ; 
+    dacs["WBC"        ] = WBC_        ;
+    dacs["ChipContReg"] = ChipContReg_;
+}
+
 void PixelROCDACSettings::setDAC(unsigned int dacaddress, unsigned int dacvalue) 
 {
 	switch (dacaddress) {
