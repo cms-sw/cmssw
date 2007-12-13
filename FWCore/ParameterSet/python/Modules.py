@@ -137,6 +137,7 @@ class Looper(_ConfigureComponent,_TypedParameterizable):
 if __name__ == "__main__":
     import unittest
     from Types import *
+    from SequenceTypes import *
     class TestModules(unittest.TestCase):
         def testEDAnalyzer(self):
             empty = EDAnalyzer("Empty")
@@ -153,7 +154,7 @@ if __name__ == "__main__":
             self.assertEqual(9, m.i.value())
             self.assertEqual(10, m.j.value())
             juicer = ESPrefer("JuiceProducer")
-            self.assertEqual(juicer.dumpPython("juicer"), "process.prefer(\"juicer\")")
+            self.assertEqual(juicer.dumpPythonAs("juicer"), "process.prefer(\"juicer\")")
 
         
         def testService(self):
@@ -163,5 +164,15 @@ if __name__ == "__main__":
             self.assertEqual(withParam.bar.value(), "it")
             self.assertEqual(empty.dumpPython(), "cms.Service(\"Empty\")\n")
             self.assertEqual(withParam.dumpPython(), "cms.Service(\"Parameterized\",\n    foo = cms.untracked.int32(1),\n    bar = cms.untracked.string(\'it\')\n)\n")
+        def testSequences(self):
+            m = EDProducer("MProducer")
+            n = EDProducer("NProducer")
+            m.setLabel("m")
+            n.setLabel("n")
+            s1 = Sequence(m*n)
+            options = PrintOptions()
+            print s1.dumpPython(options)
+
+
 
     unittest.main()
