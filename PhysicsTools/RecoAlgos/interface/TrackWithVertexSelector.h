@@ -13,15 +13,18 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-namespace reco { namespace modules {
-
 class TrackWithVertexSelector {
    public:
       explicit TrackWithVertexSelector(const edm::ParameterSet&);
       ~TrackWithVertexSelector();
-      bool operator()(const reco::Track &t, const edm::Event &iEvent) ;
+      bool operator()(const reco::Track &t, const edm::Event &iEvent) const ;
+      bool operator()(const reco::Track &t, const reco::VertexCollection &vtxs) const;
+      bool testTrack(const reco::Track &t) const ;
+      bool testVertices(const reco::Track &t, const reco::VertexCollection &vtxs) const ; 
    private:
       uint32_t numberOfValidHits_;
+      uint32_t numberOfValidPixelHits_;
+      uint32_t numberOfLostHits_;
       double   normalizedChi2_;
       double   ptMin_, ptMax_, etaMin_, etaMax_;
       double   dzMax_,   d0Max_;
@@ -32,9 +35,7 @@ class TrackWithVertexSelector {
       double        zetaVtx_, rhoVtx_;
 
       typedef math::XYZPoint Point;
-      bool testPoint(const Point &point, const Point &vtx) ;
+      bool testPoint(const Point &point, const Point &vtx) const ;
 };
-
-} }
 
 #endif

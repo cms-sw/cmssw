@@ -2,15 +2,19 @@
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelectorPlusEvent.h"
-#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
-#include "PhysicsTools/RecoAlgos/plugins/TrackWithVertexSelector.h"
+#include "PhysicsTools/RecoAlgos/interface/TrackWithVertexSelector.h"
+
+namespace reco { 
+  namespace modules {
 
 typedef ObjectSelector<
   SingleElementCollectionSelectorPlusEvent<
           reco::TrackCollection,
-          reco::modules::TrackWithVertexSelector,
+          ::TrackWithVertexSelector,
           reco::TrackRefVector 
           >
-  > TrackWithVertexRefSelectorProducer;
+  > TrackWithVertexRefSelector;
 
-DEFINE_FWK_MODULE(TrackWithVertexRefSelectorProducer);
+DEFINE_FWK_MODULE(TrackWithVertexRefSelector);
+
+} }
