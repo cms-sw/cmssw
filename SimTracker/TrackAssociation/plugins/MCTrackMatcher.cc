@@ -2,12 +2,13 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: MCTrackMatcher.cc,v 1.1 2007/10/24 13:52:10 llista Exp $
+ * \version $Id: MCTrackMatcher.cc,v 1.2 2007/11/12 15:13:05 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 namespace edm { class ParameterSet; }
 
@@ -20,6 +21,7 @@ class MCTrackMatcher : public edm::EDProducer {
   void produce( edm::Event& evt, const edm::EventSetup& es );
   std::string associator_;
   edm::InputTag tracks_, genParticles_;
+  typedef edm::Association<reco::GenParticleCollection> GenParticleMatch;
 };
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -30,13 +32,9 @@ class MCTrackMatcher : public edm::EDProducer {
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-// the following should be replaced by GenParticle for 1.8.x
-#include "DataFormats/Candidate/interface/Candidate.h"
 using namespace edm;
 using namespace std;
 using namespace reco;
-
-typedef edm::Association<reco::CandidateCollection> GenParticleMatch;
 
 MCTrackMatcher::MCTrackMatcher(const ParameterSet & p) :
   associator_(p.getParameter<string>("associator")),
@@ -55,10 +53,10 @@ void MCTrackMatcher::produce(Event& evt, const EventSetup& es) {
   evt.getByType(trackingParticles);
   Handle<vector<int> > barCodes;
   evt.getByLabel(genParticles_,barCodes );
-  Handle<CandidateCollection> genParticles;
+  Handle<GenParticleCollection> genParticles;
   evt.getByLabel(genParticles_, genParticles );
   RecoToSimCollection associations = associator->associateRecoToSim ( tracks, trackingParticles, & evt ); 
-  auto_ptr<GenParticleMatch> match(new GenParticleMatch(CandidateRefProd(genParticles)));
+  auto_ptr<GenParticleMatch> match(new GenParticleMatch(GenParticleRefProd(genParticles)));
   GenParticleMatch::Filler filler(*match);
   size_t n = tracks->size();
   vector<int> indices(n,-1);
