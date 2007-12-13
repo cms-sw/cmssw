@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2007/09/18 22:57:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/11/09 13:52:54 $
+ *  $Revision: 1.1 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -17,9 +17,9 @@ public:
   /// Constructors
   RecoTrackSelector() {}
   RecoTrackSelector ( double ptMin, double minRapidity, double maxRapidity,
-		      double tip, double lip, int minHit ) :
+		      double tip, double lip, int minHit, double maxChi2 ) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
-    tip_( tip ), lip_( lip ), minHit_( minHit ) { }
+    tip_( tip ), lip_( lip ), minHit_( minHit ), maxChi2_( maxChi2 ) { }
 
   /// Operator() performs the selection: e.g. if (recoTrackSelector(track)) {...}
   bool operator()( const reco::Track & t ) {
@@ -28,7 +28,8 @@ public:
        fabs(t.pt()) >= ptMin_ &&
        t.eta() >= minRapidity_ && t.eta() <= maxRapidity_ &&
        fabs(t.d0()) <= tip_ &&
-       fabs(t.dz()) <= lip_ );
+       fabs(t.dz()) <= lip_ &&
+       t.normalizedChi2()<=maxChi2_);
   }
 
 private:
@@ -38,6 +39,7 @@ private:
   double tip_;
   double lip_;
   int    minHit_;
+  double maxChi2_;
 
 };
 
@@ -55,7 +57,8 @@ namespace reco {
 	  cfg.getParameter<double>( "maxRapidity" ),
 	  cfg.getParameter<double>( "tip" ),
 	  cfg.getParameter<double>( "lip" ),
-	  cfg.getParameter<int>( "minHit" ) ); 
+	  cfg.getParameter<int>( "minHit" ), 
+	  cfg.getParameter<double>( "maxChi2" ) ); 
       }
     };
     
