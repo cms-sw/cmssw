@@ -46,7 +46,8 @@ public:
 
   // Runs the algorithm
   //  void run(const std::vector<PSimHit*> &input, DigiCollectionFP420 &output,StripGeomDetUnit *det,GlobalVector);
-  vector <HDigiFP420>  run(const std::vector<PSimHit> &input, G4ThreeVector, unsigned int, int);
+  vector <HDigiFP420>  run(const std::vector<PSimHit> &input, G4ThreeVector, unsigned int);
+  //vector <HDigiFP420>  run(const std::vector<PSimHit> &input, G4ThreeVector, unsigned int, int);
 
  private:
   int ndigis; 
@@ -79,7 +80,7 @@ public:
   //  bool peakMode; //  = false;
   bool noNoise; //  = false; 
   bool addNoisyPixels;//  = true ;
-  float tofCut;             // Cut on the particle TOF   = 100 or 50
+  float tofCut, elossCut;             // Cut on the particle TOF   = 100 or 50
   float theThreshold;          // ADC threshold   = 2
 
   double pitchX;          // pitchX

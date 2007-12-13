@@ -74,7 +74,7 @@ namespace cms
     //  FP420DigiMain * theFP420DigiMain;
     int numStrips;    // number of strips in the module
 
-    int sn0, pn0, verbosity;
+    int dn0, sn0, pn0, verbosity;
 
 
     std::vector<HDigiFP420> collector;
