@@ -426,17 +426,17 @@ class _IncludeNode(cms._ParameterTypeBase):
             cwd = os.getcwd()
             os.chdir(cmsswSrc)
             pythonDir = os.path.dirname(pythonName)
-            os.system("cvs co "+pythonDir)
+            #os.system("cvs co "+pythonDir)
             if not os.path.exists(pythonName):
                 # have to make it myself
                 if not os.path.exists(pythonDir):
                     print "Making " + pythonDir
                     os.makedirs(pythonDir)
+                    #os.system("scramv1 build")
                 f=open(pythonName, 'w')
                 f.write(dumpCff(self.filename))
                 f.close()
                 os.chdir(pythonDir)
-                os.system("scramv1 build") 
             os.chdir(cwd)
           
 
@@ -1359,6 +1359,8 @@ def dumpPython(d, options):
             replaces += prefix+repr(value)+"\n"
         elif isinstance(value,_ModuleSeries):
             sequences += prefix+key+" = "+value.dumpPython(options)+"\n"
+        elif isinstance(value, cms.ESPrefer):
+            others += value.dumpPythonAs(key)
         else:
             others += prefix+key+" = "+value.dumpPython(options)+"\n"
     return includes+"\n"+others+"\n"+sequences+"\n"+replaces
