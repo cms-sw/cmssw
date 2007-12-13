@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2007/06/13 07:00:09 $
- * $Revision: 1.18 $
+ * $Date: 2007/08/10 14:54:04 $
+ * $Revision: 1.19 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -20,11 +20,6 @@
 #include "DataFormats/Common/interface/EDProduct.h" 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-//#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-//#include "DQMServices/Core/interface/MonitorElement.h"
-//#include "DQMServices/UI/interface/MonitorUIRoot.h"
-
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
@@ -33,18 +28,11 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
 
-//#include "CalibCalorimetry/EcalDBInterface/interface/MonPedestalsDat.h"
-//#include "CalibCalorimetry/EcalDBInterface/interface/MonPNPedDat.h"
-
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-
-//#include "TROOT.h"
-//#include "TStyle.h"
-//#include "TFile.h"
 
 using namespace cms ;
 using namespace edm ;
