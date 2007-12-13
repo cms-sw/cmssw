@@ -49,13 +49,16 @@ namespace pos{
 		      unsigned int state) const; 
 
     //return vector of fed# and channels controlled by this fed supervisor
-    std::vector<std::pair<unsigned int,std::vector<unsigned int> > >& fedCardsAndChannels(unsigned int crate, PixelNameTranslation* translation, PixelFEDConfig* fedconfig) const;
+    std::vector<std::pair<unsigned int,std::vector<unsigned int> > >& fedCardsAndChannels(unsigned int crate, PixelNameTranslation* translation, PixelFEDConfig* fedconfig,PixelDetectorConfig* detconfig) const;
+
     std::map <unsigned int, std::set<unsigned int> > getFEDsAndChannels (PixelNameTranslation *translation);
     
     // Returns a std::set of FED crates that are used by this Calib object
     std::set <unsigned int> getFEDCrates(const PixelNameTranslation *translation, const PixelFEDConfig *fedconfig) const;
+
     // Returns a std::set of FEC crates that are used by this Calib object
     std::set <unsigned int> getFECCrates(const PixelNameTranslation *translation, const PixelFECConfig* fecconfig) const;
+
     // Returns a std::set of TKFEC crates that are used by this Calib object
     std::set <unsigned int> getTKFECCrates(const PixelPortcardMap *portcardmap, const std::map<std::string,PixelPortCardConfig*>& mapNamePortCard, const PixelTKFECConfig* tkfecconfig) const;
 

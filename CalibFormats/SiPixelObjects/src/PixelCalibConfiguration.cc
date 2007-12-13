@@ -642,17 +642,20 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 
 } 
 
-// This code breaks if it is called more than once with different crate numbers!
+// FIXME This code breaks if it is called more than once with different crate numbers!
 std::vector<std::pair<unsigned int, std::vector<unsigned int> > >& PixelCalibConfiguration::fedCardsAndChannels(unsigned int crate,
-												   PixelNameTranslation* translation,
-												   PixelFEDConfig* fedconfig) const{
+														PixelNameTranslation* translation,
+														PixelFEDConfig* fedconfig,
+														PixelDetectorConfig* detconfig) const{
 
     assert(rocAndModuleListsBuilt_);
     
     assert(rocs_.size()!=0);
 
     for(unsigned int i=0;i<rocs_.size();i++){
-	const PixelHdwAddress* hdw=translation->getHdwAddress(rocs_[i]);
+      PixelModuleName module(rocs_[i].rocname());
+      if (!detconfig->containsModule(module)) continue;
+      const PixelHdwAddress* hdw=translation->getHdwAddress(rocs_[i]);
 	assert(hdw!=0);
 	//std::cout << "ROC, fednumber:"<<rocs_[i]<<" "<<hdw->fednumber()
 	//	  << std::endl;
