@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <map>
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
 namespace pos{
