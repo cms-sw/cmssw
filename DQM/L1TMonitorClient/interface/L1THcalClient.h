@@ -30,6 +30,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include <TH1F.h>
+#include <TH2F.h>
 
 
 //#include "DQMServices/Core/interface/MonitorUserInterface.h"
