@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.7 2007/10/23 11:24:57 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.8 2007/12/12 08:51:06 sani Exp $
 //
 //
 
@@ -45,7 +45,8 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
   std::string algo = iConfig.getParameter<std::string>("SeedAlgo");
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
   if (algo=="FilteredSeed") 
-    matcher_= new SubSeedGenerator(pset);
+    //    matcher_= new SubSeedGenerator(pset);
+    matcher_= new SubSeedGenerator(pset.getParameter<std::string>("initialSeedProducer"),pset.getParameter<std::string>("initialSeedLabel"));
   else matcher_ = new ElectronPixelSeedGenerator(pset.getParameter<double>("ePhiMin1"),
 					    pset.getParameter<double>("ePhiMax1"),
 					    pset.getParameter<double>("pPhiMin1"),
