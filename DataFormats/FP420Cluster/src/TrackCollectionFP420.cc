@@ -45,8 +45,16 @@ void TrackCollectionFP420::put(TrackCollectionFP420::Range input, unsigned int s
     }
   }
 
-  inputRange.second = container_.size()-1;
-  //inputRange.second = container_.size();
+  // since we start from 0, then the last element will be size-1
+  if(container_.size() != 0) {
+    inputRange.second = container_.size()-1;
+  }
+  else {
+    inputRange.first = container_.size();
+    inputRange.second = container_.size();
+  }
+  //inputRange.second = container_.size()-1;
+  ////inputRange.second = container_.size();
 
 #ifdef mydigidebug
    std::cout <<"put: container_.size() = " << container_.size() << std::endl;
