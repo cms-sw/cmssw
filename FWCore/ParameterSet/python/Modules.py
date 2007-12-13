@@ -1,6 +1,6 @@
 from Mixins import _ConfigureComponent
 from Mixins import _Unlabelable, _Labelable
-from Mixins import _TypedParameterizable 
+from Mixins import _TypedParameterizable, PrintOptions
 from SequenceTypes import _Sequenceable
 
 from ExceptionHandling import *
@@ -63,6 +63,11 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
     def nameInProcessDesc_(self, myname):
        # the C++ parser can give it a name like "label@prefer".  Get rid of that.
        return "esprefer_" + self.type_() + "@" + myname.split('@')[0]
+    def dumpPythonAs(self, label, options=PrintOptions()):
+       name = self.moduleLabel_(label)
+       if name == '':
+          name = type_()
+       return options.indentation()+'process.prefer(\"'+name+'\")'
 
 class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable):
     """base class for classes which denote framework event based 'modules'"""
@@ -147,6 +152,8 @@ if __name__ == "__main__":
             m = EDProducer("DumbProducer", block, j = int32(10))
             self.assertEqual(9, m.i.value())
             self.assertEqual(10, m.j.value())
+            juicer = ESPrefer("JuiceProducer")
+            self.assertEqual(juicer.dumpPython("juicer"), "process.prefer(\"juicer\")")
 
         
         def testService(self):
