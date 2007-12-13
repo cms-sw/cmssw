@@ -16,9 +16,11 @@ namespace pos{
       assert(out.good());
 
       for (unsigned int i=0;i<configs.size();i++){
+/* 	std::cout << "key "<<i<<std::endl; */
 	out << "key "<<i<<std::endl;
 	configs[i].write(out);
 	out <<std::endl;
+/* 	std::cout <<std::endl; */
       }
 
 
@@ -110,6 +112,12 @@ namespace pos{
     unsigned int size(){ return configs.size(); }
 
     PixelConfig& operator[](unsigned int i) {return configs[i];}
+    
+    void reload(std::string filename)
+    {
+      configs.clear() ;
+      readfile(filename) ;
+    }
 
   private:
 
