@@ -6,9 +6,9 @@
                 DQM historic plots in 
  https://uimon.cern.ch/twiki/bin/view/CMS/DQMHistoricInfoPlots */
 
-#include "DQMServices/Components/interface/DQMBaseClient.h"
-#include "DQMServices/Components/interface/Updater.h"
-#include "DQMServices/Components/interface/UpdateObserver.h"
+#include "DQMServices/XdaqCollector/interface/DQMBaseClient.h"
+#include "DQMServices/XdaqCollector/interface/Updater.h"
+#include "DQMServices/XdaqCollector/interface/UpdateObserver.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQM/SiPixelHistoricInfoClient/interface/SiPixelHistoricInfoWebInterface.h"
 
@@ -22,7 +22,7 @@ public:
   SiPixelHistoricInfoClient(xdaq::ApplicationStub* stub);
 
   // implement the method that outputs the page with the widgets (declared in DQMBaseClient):
-  void general(xgi::Input* in, xgi::Output* out ) throw (xgi::exception::Exception);
+  void general(xgi::Input* in, xgi::Output* out) throw (xgi::exception::Exception);
 
   // the method which answers all HTTP requests of the form ".../Request?RequestID=..."
   void handleWebRequest(xgi::Input* in, xgi::Output* out);
