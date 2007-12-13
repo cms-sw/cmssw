@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: MCTrackMatcher.cc,v 1.2 2007/11/12 15:13:05 llista Exp $
+ * \version $Id: MCTrackMatcher.cc,v 1.3 2007/12/13 21:10:50 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -20,7 +20,7 @@ class MCTrackMatcher : public edm::EDProducer {
  private:
   void produce( edm::Event& evt, const edm::EventSetup& es );
   std::string associator_;
-  edm::InputTag tracks_, genParticles_;
+  edm::InputTag tracks_, genParticles_, trackingParticles_;
   typedef edm::Association<reco::GenParticleCollection> GenParticleMatch;
 };
 
@@ -39,7 +39,8 @@ using namespace reco;
 MCTrackMatcher::MCTrackMatcher(const ParameterSet & p) :
   associator_(p.getParameter<string>("associator")),
   tracks_(p.getParameter<InputTag>("tracks")),
-  genParticles_( p.getParameter<InputTag>("genParticles")) {
+  genParticles_( p.getParameter<InputTag>("genParticles")),
+  trackingParticles_( p.getParameter<InputTag>("trackingParticles")) {
   produces<GenParticleMatch>();
 }
 
@@ -50,7 +51,7 @@ void MCTrackMatcher::produce(Event& evt, const EventSetup& es) {
   Handle<TrackCollection> tracks;
   evt.getByLabel(tracks_, tracks);
   Handle<TrackingParticleCollection> trackingParticles;
-  evt.getByType(trackingParticles);
+  evt.getByLabel(trackingParticles_,trackingParticles);
   Handle<vector<int> > barCodes;
   evt.getByLabel(genParticles_,barCodes );
   Handle<GenParticleCollection> genParticles;
