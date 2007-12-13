@@ -52,6 +52,34 @@ def _validateLabelledList(params):
     return params
 
 
+class _DictAdapter(object):
+    def __init__(self,d, addSource=False):
+        """Lets a dictionary be looked up by attributes"""
+        #copy 'd' since we need to be able to lookup a 'source' by
+        # it's type to do replace but we do NOT want to add it by its
+        # type to the final Process
+        self.__dict__['d'] = d
+        if addSource and self.d.has_key('source'):
+            self.d[d['source'].type_()]=d['source']
+    def __setattr__(self,name,value):
+        self.d[name]=value
+    def __getattr__(self,name):
+        #print 'asked for '+name
+        return self.d[name]
+
+class _DictCopyAdapter(object):
+    def __init__(self,d):
+        #copy 'd' since we need to be able to lookup a 'source' by
+        # it's type to do replace but we do NOT want to add it by its
+        # type to the final Process
+        self.d = d.copy()
+        if self.d.has_key('source'):
+            self.d[d['source'].type_()]=d['source']
+    def __getattr__(self,name):
+        #print 'asked for '+name
+        return self.d[name]
+
+
 #setup a factory to open the file, we can redirect this for testing
 class _IncludeFile(file):
     def __init__(self,filename):
@@ -524,22 +552,32 @@ class _MakeFrom(object):
         global _fileStack
         label = toks[0][0]
         inc = toks[0][1]
+        
         try:
             values = _findAndHandleProcessBlockIncludes((inc,))
         except Exception, e:
             raise pp.ParseFatalException(s,loc,label+" contains the error "+str(e)
                                          +"\n from file "+_fileStack[-1])
-        #try to resolve any usings, but don't get upset if you can't.
-        try:
-            _findAndHandleProcessUsingBlock(values)
-        except Exception, e:
-            pass
-
+        values = self._tryUsingBlocks(values)
         d = dict(values)
         if label not in d:
             raise pp.ParseFatalException(s,loc,"the file "+inc.fileName+" does not contain a "+label
                                          +"\n from file "+_fileStack[-1])
         return d[label]
+
+    def _tryUsingBlocks(self, values):
+        # apply replaces to blocks before you do anything else
+        d = _DictAdapter(dict(values))
+        for key, node in values:
+            if isinstance(node, _ReplaceNode) \
+               and  isinstance(getattr(d,node.rootLabel()),cms.PSet):
+                node.do(d)
+        #try to resolve any usings, but don't get upset if you can't.
+        try:
+            _findAndHandleProcessUsingBlock(values)
+        except Exception, e:
+            pass
+        return values
 
 def _replaceKeywordWithType(s,loc,toks):
     type = toks[0][1].type_()
@@ -1109,20 +1147,7 @@ def _finalizeProcessFragment(values,usingLabels):
     try:
         #pset replaces must be done first since PSets can be used in a 'using'
         # statement so we want their changes to be reflected
-        class DictAdapter(object):
-            def __init__(self,d, addSource=False):
-                #copy 'd' since we need to be able to lookup a 'source' by
-                # it's type to do replace but we do NOT want to add it by its
-                # type to the final Process
-                self.__dict__['d'] = d
-                if addSource and self.d.has_key('source'):
-                    self.d[d['source'].type_()]=d['source']
-            def __setattr__(self,name,value):
-                self.d[name]=value
-            def __getattr__(self,name):
-                #print 'asked for '+name
-                return self.d[name]
-        adapted = DictAdapter(dict(d),True)
+        adapted = _DictAdapter(dict(d),True)
         #what order do we process replace and using directives?
         # running a test on the C++ cfg parser it appears replace
         # always happens before using
@@ -1141,8 +1166,8 @@ def _finalizeProcessFragment(values,usingLabels):
     # information
     #now we don't want 'source' to be added to 'd' but we do not want
     # copies either
-    adapted = DictAdapter(d)
-    pa = _ProcessAdapter(sequences,DictAdapter(dct))
+    adapted = _DictAdapter(d)
+    pa = _ProcessAdapter(sequences,_DictAdapter(dct))
     for label,obj in sequences.iteritems():
         if label not in dct:
             d[label]=obj.make(pa)
@@ -1231,18 +1256,7 @@ def _makeProcess(s,loc,toks):
                 del d[label]
         #pset replaces must be done first since PSets can be used in a 'using'
         # statement so we want their changes to be reflected
-        class DictAdapter(object):
-            def __init__(self,d):
-                #copy 'd' since we need to be able to lookup a 'source' by
-                # it's type to do replace but we do NOT want to add it by its
-                # type to the final Process
-                self.d = d.copy()
-                if self.d.has_key('source'):
-                    self.d[d['source'].type_()]=d['source']
-            def __getattr__(self,name):
-                #print 'asked for '+name
-                return self.d[name]
-        adapted = DictAdapter(d)
+        adapted = _DictCopyAdapter(d)
         #what order do we process replace and using directives?
         # running a test on the C++ cfg parser it appears replace
         # always happens before using
