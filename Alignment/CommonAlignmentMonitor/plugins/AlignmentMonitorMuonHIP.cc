@@ -12,7 +12,6 @@
 
 // system include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
-#include "FWCore/Framework/interface/EventSetup.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include <boost/cstdint.hpp> 
