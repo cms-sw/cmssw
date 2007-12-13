@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.5 2007/09/27 22:39:39 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.6 2007/10/06 00:43:34 dmytro Exp $
 //
 //
 
@@ -58,7 +58,8 @@ class MuonIdProducer : public edm::EDProducer {
    virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
-   void          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
+   void          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon& );
+   void          fillTime(   edm::Event&, const edm::EventSetup&, reco::Muon&);
    void          fillArbitrationInfo( reco::MuonCollection* );
    void          fillMuonIsolation( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
    void          init( edm::Event&, const edm::EventSetup& );

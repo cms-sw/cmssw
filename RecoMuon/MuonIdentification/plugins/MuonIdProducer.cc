@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.15 2007/10/09 02:38:52 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.16 2007/10/31 21:44:41 dmytro Exp $
 //
 //
 
@@ -25,6 +25,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -340,6 +341,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     if ( muon->track().get() == trackerMuon.track().get() ) {
 		newMuon = false;
 		muon->setMatches( trackerMuon.getMatches() );
+		muon->setTime( trackerMuon.getTime() );
 		muon->setCalEnergy( trackerMuon.getCalEnergy() );
 		muon->setType( muon->getType() | reco::Muon::TrackerMuon );
 		LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
@@ -416,6 +418,135 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    timers.pop();
    iEvent.put(outputMuons);
 }
+
+void MuonIdProducer::fillTime(edm::Event& iEvent, const edm::EventSetup& iSetup,
+			      reco::Muon& muon)
+{
+   using namespace edm;
+   
+   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+
+   std::vector <double> distance;
+   std::vector <double> freeT0;
+
+   // loop over chambers to collect timing information assuming it was filled
+   // earlier
+   const std::vector<reco::MuonChamberMatch>& chambers = muon.getMatches();
+	
+   for( std::vector<reco::MuonChamberMatch>::const_iterator chamber=chambers.begin(); 
+	chamber!=chambers.end(); ++chamber ) {
+
+      const GeomDet* geomDet = theTrackingGeometry->idToDet(chamber->id());
+
+      // loop over segments
+      for( std::vector<reco::MuonSegmentMatch>::const_iterator segment=chamber->segmentMatches.begin(); 
+	   segment!=chamber->segmentMatches.end(); ++segment ) {
+
+	 // check if segment is matched	       
+	 if (fabs(segment->x - chamber->x) > maxAbsDx_) continue;
+	 if (fabs(segment->y - chamber->y) > maxAbsDy_) continue;
+	    
+	 // if we have no t0 measurement in this segment - leave
+	 if (fabs(segment->t0)<1e-6) {
+	    LogTrace("MuonIdentification") << "have no t0 measurement in this segment, leave";
+	    break;
+	 }
+	 
+	 LocalPoint segmInChamber(segment->x,segment->y,0);
+	 double dist = geomDet->toGlobal(segmInChamber).mag();
+	 
+	 distance.push_back(dist);
+	 // full time offset
+	 freeT0.push_back(segment->t0+dist/30.);
+	 LogTrace("MuonIdentification") << "Segment t0: " << segment->t0 << " local 1/beta: " << 1.+segment->t0/dist*30. << std::endl;
+	 
+	 break;
+      }
+          
+   }
+
+        reco::MuonTime muonTime;
+        double invBeta = 0.;
+        double invBeta2 = 0.;
+        double localInvBeta;
+        double inOutVertexTime = 0.;
+        double inOutVertexTime2 = 0;
+        double outInVertexTime = 0.;
+        double outInVertexTime2 = 0;
+        int npoints = freeT0.size();
+
+        muonTime.nStations=npoints;
+	
+	if (npoints) {
+	
+	   for (int i=0;i<npoints;i++) {
+	      localInvBeta = freeT0[i]/distance[i]*30.;
+	      invBeta     += localInvBeta;
+	      invBeta2    += localInvBeta*localInvBeta;
+	      inOutVertexTime  += freeT0[i] - distance[i]/30.;
+	      inOutVertexTime2 += (freeT0[i]-distance[i]/30.)*(freeT0[i]-distance[i]/30.);
+	      outInVertexTime  += freeT0[i] + distance[i]/30.;
+	      outInVertexTime2 += (freeT0[i]+distance[i]/30.)*(freeT0[i]+distance[i]/30.);
+	   }
+	
+	   invBeta/=npoints;
+	   muonTime.inverseBeta=invBeta;                        
+	   muonTime.inverseBetaErr=sqrt(invBeta2/npoints-invBeta*invBeta);  
+	  
+	   inOutVertexTime /= npoints;
+	   outInVertexTime /= npoints;
+	   inOutVertexTime2 /= npoints;
+	   outInVertexTime2 /= npoints;
+	   if ( npoints == 1 || 
+		inOutVertexTime2 - inOutVertexTime*inOutVertexTime < outInVertexTime2 - outInVertexTime*outInVertexTime )
+	     {
+		muonTime.vertexTime = inOutVertexTime;
+		muonTime.vertexTimeErr = sqrt(inOutVertexTime2 - inOutVertexTime*inOutVertexTime);
+		muonTime.direction = reco::MuonTime::InsideOut;
+	     }
+	   else
+	     {
+		muonTime.vertexTime = outInVertexTime;
+		muonTime.vertexTimeErr = sqrt(outInVertexTime2 - outInVertexTime*outInVertexTime);
+		muonTime.direction = reco::MuonTime::OutsideIn;
+	     }
+	  
+	  // do the unconstrained caclucation, if we have at least two points
+	  if (npoints>1) {
+	    double s=0.,sx=0.,sy=0.,x,y;
+	    double sxx=0.,sxy=0.;
+            
+            for (int i=0; i<npoints; i++) {
+              x=distance[i]/30.;
+              y=freeT0[i];
+              sy+=y;
+              sxy+=x*y;
+              s+=1.;
+              sx+=x;
+              sxx+=x*x;
+//              LogTrace("MuonIdentification") << " FIT: x=" << x << " y= " << y << std::endl;
+            }
+
+            double d = s*sxx-sx*sx;
+            
+//            muonTime.freeTime = (sxx*sy- sx*sxy)/d;
+//            muonTime.freeTimeErr = sqrt(s/d);
+            muonTime.freeInverseBeta = (s*sxy - sx*sy)/d;	  
+            muonTime.freeInverseBetaErr = sqrt(sxx/d);	  
+	  }
+	} 
+
+        LogTrace("MuonIdentification") << "Global 1/beta: " << muonTime.inverseBeta << " +/- " << muonTime.inverseBetaErr
+                                       << "  # of points: " << muonTime.nStations <<std::endl;
+        LogTrace("MuonIdentification") << "  Free 1/beta: " << muonTime.freeInverseBeta << " +/- " << muonTime.freeInverseBetaErr<<std::endl;
+        LogTrace("MuonIdentification") << "  Vertex time: " << muonTime.vertexTime << " +/- " << muonTime.vertexTimeErr<<std::endl;
+        LogTrace("MuonIdentification") << "  direction: "   << muonTime.direction << std::endl;
+                                       
+        muon.setTime(muonTime);                                       
+}
+
+// End Timing part	
 
 bool MuonIdProducer::isGoodTrackerMuon( const reco::Muon& muon )
 {
@@ -494,6 +625,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	     matchedSegment.yErr = segment->segmentLocalErrorYY>0?sqrt(segment->segmentLocalErrorYY):0;
 	     matchedSegment.dXdZErr = segment->segmentLocalErrorDxDz>0?sqrt(segment->segmentLocalErrorDxDz):0;
 	     matchedSegment.dYdZErr = segment->segmentLocalErrorDyDz>0?sqrt(segment->segmentLocalErrorDyDz):0;
+	     matchedSegment.t0 = segment->t0;
 	     matchedSegment.mask = 0;
 	     // test segment
 	     bool matchedX = false;
@@ -509,11 +641,14 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	muonChamberMatches.push_back(matchedChamber);
      }
    aMuon.setMatches(muonChamberMatches);
+
    LogTrace("MuonIdentification") << "number of muon chambers: " << aMuon.getMatches().size() << "\n" 
      << "number of chambers with segments according to the associator requirements: " << 
      nubmerOfMatchesAccordingToTrackAssociator;
    LogTrace("MuonIdentification") << "number of segment matches with the producer requirements: " << 
      aMuon.numberOfMatches( reco::Muon::NoArbitration );
+   
+   fillTime( iEvent, iSetup, aMuon );
 }
 
 void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
