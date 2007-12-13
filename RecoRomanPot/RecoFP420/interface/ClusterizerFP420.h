@@ -61,7 +61,7 @@ namespace cms
     
     std::vector<ClusterNoiseFP420> noise;
     bool UseNoiseBadElectrodeFlagFromDB_;
-    int sn0, pn0;
+    int sn0, pn0, dn0;
     int verbosity;
   };
 }

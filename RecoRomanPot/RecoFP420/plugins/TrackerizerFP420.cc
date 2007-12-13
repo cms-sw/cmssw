@@ -104,6 +104,8 @@ namespace cms
     
     unsigned  int StID = 1111;
     toutput->putclear(inputRange,StID);
+    StID = 2222;
+    toutput->putclear(inputRange,StID);
     
     
     //                                                                                                                      !!!!!!   

@@ -20,7 +20,7 @@
 using namespace std;
 
 
-FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int sn, int pn):conf_(conf),sn0(sn),pn0(pn)  { 
+FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn, int pn):conf_(conf),dn0(dn),sn0(sn),pn0(pn)  { 
   
   verbosity         = conf_.getUntrackedParameter<int>("VerbosityLevel");
   ElectronPerADC_   = conf_.getParameter<double>("ElectronFP420PerAdc");
@@ -61,7 +61,7 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int sn, int pn
   //  sn0 = 4;
   //  pn0 = 9;
   if (verbosity > 1) {
-    std::cout << "FP420ClusterMain constructor: sn0 = " << sn0 << " pn0=" << pn0 << std::endl;
+    std::cout << "FP420ClusterMain constructor: sn0 = " << sn0 << " pn0=" << pn0 << " dn0=" << dn0 << std::endl;
     std::cout << "FP420ClusterMain constructor: ENC = " << ENC_ << std::endl;
     std::cout << " Thick300 = " << Thick300 << std::endl;
     std::cout << " BadElectrodeProbability = " << BadElectrodeProbability_ << std::endl;
@@ -134,173 +134,223 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
     
     bool first = true;
     // loop over detunits
-    for (int sector=1; sector<sn0; sector++) {
-      for (int zmodule=1; zmodule<pn0; zmodule++) {
-	for (int zside=1; zside<3; zside++) {
-	  int sScale = 2*(pn0-1);
-	  //	int det= 1;
-	  //      int index = CaloNumberingPacker::packCastorIndex(det,zside, sector, zmodule);
-	  //      int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
-	  // intindex is a continues numbering of FP420
-	  int zScale=2;  unsigned int detID = sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
-	  // int zScale=10;	unsigned int intindex = sScale*(sector - 1)+zScale*(zside - 1)+zmodule;
-	  if (verbosity > 0) {
-	    std::cout << " FP420ClusterMain:1 run loop   index no  iu = " << detID  << std::endl;
-	  }	  
-	  // Y:
-	  if (xytype ==1) {
-	    numStrips = numStripsY*numStripsYW;  
-	    moduleThickness = moduleThicknessY; 
-	    pitch= pitchY;
-	    ldrift = ldriftX;
-	  }
-	  // X:
-	  if (xytype ==2) {
-	    numStrips = numStripsX*numStripsXW;  
-	    moduleThickness = moduleThicknessX; 
-	    pitch= pitchX;
-	    ldrift = ldriftY;
-	  }
-	  
-	  
-	  //    for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); ++detunit_iterator ) {
-	  //      unsigned int detID = *detunit_iterator;
-	  ++number_detunits;
-	  
-	  //   .
-	  //   GET DIGI collection  !!!!
-	  //   .
-	  //	  const DigiCollectionFP420::Range digiRange = input->get(detID);
-	  DigiCollectionFP420::Range digiRange;
-	  	digiRange = input->get(detID);
-		//digiRange = input.get(detID);
-	  
-	  
-	  DigiCollectionFP420::ContainerIterator digiRangeIteratorBegin = digiRange.first;
-	  DigiCollectionFP420::ContainerIterator digiRangeIteratorEnd   = digiRange.second;
-	  
-	  if ( clusterMode_ == "ClusterProducerFP420" ) {
+    for (int det=1; det<dn0; det++) {
+      for (int sector=1; sector<sn0; sector++) {
+	for (int zmodule=1; zmodule<pn0; zmodule++) {
+	  for (int zside=1; zside<3; zside++) {
+	    int sScale = 2*(pn0-1), dScale = 2*(pn0-1)*(sn0-1);
+	    //	int det= 1;
+	    //      int index = CaloNumberingPacker::packCastorIndex(det,zside, sector, zmodule);
+	    //      int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
+	    // intindex is a continues numbering of FP420
+	    int zScale=2;  unsigned int detID = dScale*(det - 1)+sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
+	    // int zScale=10;	unsigned int intindex = sScale*(sector - 1)+zScale*(zside - 1)+zmodule;
+	    if (verbosity > 0) {
+	      std::cout << " FP420ClusterMain:1 run loop   index no  iu = " << detID  << std::endl;
+	    }	  
+	    // Y:
+	    if (xytype ==1) {
+	      numStrips = numStripsY*numStripsYW;  
+	      moduleThickness = moduleThicknessY; 
+	      pitch= pitchY;
+	      ldrift = ldriftX;
+	    }
+	    // X:
+	    if (xytype ==2) {
+	      numStrips = numStripsX*numStripsXW;  
+	      moduleThickness = moduleThicknessX; 
+	      pitch= pitchX;
+	      ldrift = ldriftY;
+	    }
 	    
-	    std::vector<ClusterFP420> collector;
-	    // 	    vector<ClusterFP420> collector;
 	    
-	    if (UseNoiseBadElectrodeFlagFromDB_==false){	  
+	    //    for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); ++detunit_iterator ) {
+	    //      unsigned int detID = *detunit_iterator;
+	    ++number_detunits;
+	    
+	    //   .
+	    //   GET DIGI collection  !!!!
+	    //   .
+	    //	  const DigiCollectionFP420::Range digiRange = input->get(detID);
+	    DigiCollectionFP420::Range digiRange;
+	    std::vector<HDigiFP420> dcollector;
+	    // if (dcollector.size()>0){
+	    if (verbosity > 0) {
+	      std::cout << " FP420ClusterMain:2 number_detunits = " << number_detunits  << std::endl;
+	    }	  
+	    digiRange = input->get(detID);
+	    //digiRange = input.get(detID);
+	    // }
+	    
+	    if (verbosity > 0) {
+	      std::cout << " FP420ClusterMain: input->get DONE " << std::endl;
+	    }	  
+	    
+	    DigiCollectionFP420::ContainerIterator sort_begin = digiRange.first;
+	    DigiCollectionFP420::ContainerIterator sort_end = digiRange.second;
+	    for ( ;sort_begin != sort_end; ++sort_begin ) {
+	      dcollector.push_back(*sort_begin);
+	    } // for
+	    if (dcollector.size()>0) {
 	      
-	      //Case of SingleValueNoise flags for all electrodes of a Detector
-	      
-	      
-	      //float noise = ENC_*ldrift/Thick300/ElectronPerADC_;//Noise is proportional to charge collection path 
-	      float noise = ENC_*moduleThickness/Thick300/ElectronPerADC_;//Noise is proportional to moduleThickness
-	      
-	      //vector<float> noiseVec(numElectrodes,noise);	    
-	      //Construct a ElectrodNoiseVector ( in order to be compliant with the DB access)
-	      ElectrodNoiseVector vnoise;
-	      ClusterNoiseFP420::ElectrodData theElectrodData;       	   
-	      
-	      for(int electrode=0; electrode < numStrips; ++electrode){
-		//   discard  randomly  bad  electrode with probability BadElectrodeProbability_
-		bool badFlag= RandFlat::shoot(1.) < BadElectrodeProbability_ ? true : false;
-		theElectrodData.setData(noise,badFlag);
-		vnoise.push_back(theElectrodData);// fill vector vnoise
-	      } // for
-	      
-	      //clusterizeDetUnit   or    clusterizeDetUnitPixels      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	      collector.clear();
-	      //	      std::vector<ClusterFP420> collector;
-	      //  collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise);
-	      collector = threeThreshold_->clusterizeDetUnitPixels(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise,xytype);
-	      
-	      
-	    } else {
-	      //Case of Noise and BadElectrode flags access from DB
-	      /*
-		const ElectrodNoiseVector& vnoise = electrodnoise->getElectrodNoiseVector(detID);
+	      DigiCollectionFP420::ContainerIterator digiRangeIteratorBegin = digiRange.first;
+	      DigiCollectionFP420::ContainerIterator digiRangeIteratorEnd   = digiRange.second;
+	      if (verbosity > 0) {
+		std::cout << " FP420ClusterMain: channel Begin = " << (digiRangeIteratorBegin)->channel()  << std::endl;
+		std::cout << " FP420ClusterMain: channel end = " << (digiRangeIteratorEnd-1)->channel()  << std::endl;
+	      }	    
+	      if (verbosity > 0) {
+		std::cout << " FP420ClusterMain:3 noise treatment  " << std::endl;
+	      }	  
+	      if ( clusterMode_ == "ClusterProducerFP420" ) {
 		
-		if (vnoise.size() <= 0) {
-		std::cout << "WARNING requested Noise Vector for detID " << detID << " that isn't in map " << std::endl; 
-		continue;
-		}
-		collector.clear();
-		collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise);
-	      */
-	      
-	      
-	    }// if (UseNoiseBadElectrodeFlagFromDB
-	    
-	    if (collector.size()>0){
-	      ClusterCollectionFP420::Range inputRange;
-	      inputRange.first = collector.begin();
-	      inputRange.second = collector.end();
-	      
-	      if ( first ) {
-		// use it only if ClusterCollectionFP420 is the ClusterCollection of one event, otherwise, do not use (loose 1st cl. of 1st event only)
-	      	first = false;
-		unsigned int detID0 = 0;
-		soutput->put(inputRange,detID0); // !!! put into adress 0 for detID which will not be used never
-	      } //if ( first ) 
-	      
-	      // !!! put
-	      soutput->put(inputRange,detID);
-	      
-	      number_localelectroderechits += collector.size();
-	    } // if
-	  }// if ( clusterMode
-	  if (verbosity > 0) {
-	    std::cout << "[FP420ClusterMain] execution in mode " << clusterMode_ << " generating " << number_localelectroderechits << " ClusterFP420s in " << number_detunits << " DetUnits." << std::endl; 
-	  }
-	  
+		std::vector<ClusterFP420> collector;
+		// 	    vector<ClusterFP420> collector;
+		
+		if (UseNoiseBadElectrodeFlagFromDB_==false){	  
+		  
+		  //Case of SingleValueNoise flags for all electrodes of a Detector
+		  
+		  
+		  //float noise = ENC_*ldrift/Thick300/ElectronPerADC_;//Noise is proportional to charge collection path 
+		  float noise = ENC_*moduleThickness/Thick300/ElectronPerADC_;//Noise is proportional to moduleThickness
+		  
+		  //vector<float> noiseVec(numElectrodes,noise);	    
+		  //Construct a ElectrodNoiseVector ( in order to be compliant with the DB access)
+		  ElectrodNoiseVector vnoise;
+		  ClusterNoiseFP420::ElectrodData theElectrodData;       	   
+		  
+		  if (verbosity > 0) {
+		    std::cout << " FP420ClusterMain:4 numStrips = " << numStrips  << std::endl;
+		  }	  
+		  for(int electrode=0; electrode < numStrips; ++electrode){
+		    //   discard  randomly  bad  electrode with probability BadElectrodeProbability_
+		    bool badFlag= RandFlat::shoot(1.) < BadElectrodeProbability_ ? true : false;
+		    theElectrodData.setData(noise,badFlag);
+		    vnoise.push_back(theElectrodData);// fill vector vnoise
+		  } // for
+		  
+		  if (verbosity > 0) {
+		    std::cout << " FP420ClusterMain:5 BadElectrodeProbability added " << std::endl;
+		  }	  
+		  //clusterizeDetUnit   or    clusterizeDetUnitPixels      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		  collector.clear();
+		  //	      std::vector<ClusterFP420> collector;
+		  //  collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise);
+		  //   if (dcollector.size()>0){
+		  collector = threeThreshold_->clusterizeDetUnitPixels(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise,xytype);
+		  //   }
+		  if (verbosity > 0) {
+		    std::cout << " FP420ClusterMain:6 threeThreshold OK " << std::endl;
+		  }	  
+		  
+		  
+		} else {
+		  //Case of Noise and BadElectrode flags access from DB
+		  /*
+		    const ElectrodNoiseVector& vnoise = electrodnoise->getElectrodNoiseVector(detID);
+		    
+		    if (vnoise.size() <= 0) {
+		    std::cout << "WARNING requested Noise Vector for detID " << detID << " that isn't in map " << std::endl; 
+		    continue;
+		    }
+		    collector.clear();
+		    collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise);
+		  */
+		  
+		  
+		}// if (UseNoiseBadElectrodeFlagFromDB
+		
+		if (collector.size()>0){
+		  ClusterCollectionFP420::Range inputRange;
+		  inputRange.first = collector.begin();
+		  inputRange.second = collector.end();
+		  
+		  if (verbosity > 0) {
+		    std::cout << " FP420ClusterMain:7 collector.size()>0 " << std::endl;
+		  }	  
+		  if ( first ) {
+		    // use it only if ClusterCollectionFP420 is the ClusterCollection of one event, otherwise, do not use (loose 1st cl. of 1st event only)
+		    first = false;
+		    unsigned int detID0 = 0;
+		    if (verbosity > 0) {
+		      std::cout << " FP420ClusterMain:8 first soutput->put " << std::endl;
+		    }	  
+		    soutput->put(inputRange,detID0); // !!! put into adress 0 for detID which will not be used never
+		  } //if ( first ) 
+		  
+		  // !!! put
+		  if (verbosity > 0) {
+		    std::cout << " FP420ClusterMain:9 soutput->put " << std::endl;
+		  }	  
+		  soutput->put(inputRange,detID);
+		  
+		  number_localelectroderechits += collector.size();
+		} // if (collector.size
+	      }// if ( clusterMode
+	      if (verbosity > 0) {
+		std::cout << "[FP420ClusterMain] execution in mode " << clusterMode_ << " generating " << number_localelectroderechits << " ClusterFP420s in " << number_detunits << " DetUnits." << std::endl; 
+	      }//if (verb
+	    }// if (dcollector.siz
+	  }//for
 	}//for
       }//for
     }//for
     
     if (verbosity > 0) {
       //     check of access to the collector:
-      for (int sector=1; sector<sn0; sector++) {
-	for (int zmodule=1; zmodule<pn0; zmodule++) {
-	  for (int zside=1; zside<3; zside++) {
-	    int sScale = 2*(pn0-1);
-	    int zScale=2;  unsigned int iu = sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
-	    // int zScale=10;	unsigned int intindex = sScale*(sector - 1)+zScale*(zside - 1)+zmodule;
-	    std::vector<ClusterFP420> collector;
-	    collector.clear();
-	    ClusterCollectionFP420::Range outputRange;
-	    outputRange = soutput->get(iu);
-	    // fill output in collector vector (for may be sorting? or other checks)
-	    ClusterCollectionFP420::ContainerIterator sort_begin = outputRange.first;
-	    ClusterCollectionFP420::ContainerIterator sort_end = outputRange.second;
-	    for ( ;sort_begin != sort_end; ++sort_begin ) {
-	      collector.push_back(*sort_begin);
-	    } // for
-	    std::cout <<" ===" << std::endl;
-	    std::cout <<" ===" << std::endl;
-	    std::cout <<"=======FP420ClusterMain:check of re-new collector size = " << collector.size() << std::endl;
-	    std::cout <<" ===" << std::endl;
-	    std::cout <<" ===" << std::endl;
-	    vector<ClusterFP420>::const_iterator simHitIter = collector.begin();
-	    vector<ClusterFP420>::const_iterator simHitIterEnd = collector.end();
-	    // loop in #clusters
-	    for (;simHitIter != simHitIterEnd; ++simHitIter) {
-	      const ClusterFP420 icluster = *simHitIter;
+      for (int det=1; det<dn0; det++) {
+	for (int sector=1; sector<sn0; sector++) {
+	  for (int zmodule=1; zmodule<pn0; zmodule++) {
+	    for (int zside=1; zside<3; zside++) {
+	      int sScale = 2*(pn0-1), dScale = 2*(pn0-1)*(sn0-1);
+	      int zScale=2;  unsigned int iu = dScale*(det - 1)+sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
+	      // int zScale=10;	unsigned int intindex = sScale*(sector - 1)+zScale*(zside - 1)+zmodule;
+	      std::vector<ClusterFP420> collector;
+	      collector.clear();
+	      ClusterCollectionFP420::Range outputRange;
+	      outputRange = soutput->get(iu);
+	      // fill output in collector vector (for may be sorting? or other checks)
+	      ClusterCollectionFP420::ContainerIterator sort_begin = outputRange.first;
+	      ClusterCollectionFP420::ContainerIterator sort_end = outputRange.second;
+	      for ( ;sort_begin != sort_end; ++sort_begin ) {
+		collector.push_back(*sort_begin);
+	      } // for
+	      std::cout <<" ===" << std::endl;
+	      std::cout <<" ===" << std::endl;
+	      std::cout <<" =========== FP420ClusterMain:check: iu= " << iu <<    " zside = " << zside << std::endl;
+	      std::cout <<"  ======renew collector size = " << collector.size() << std::endl;
+	      std::cout <<" ===" << std::endl;
+	      std::cout <<" ===" << std::endl;
+	      vector<ClusterFP420>::const_iterator simHitIter = collector.begin();
+	      vector<ClusterFP420>::const_iterator simHitIterEnd = collector.end();
+	      // loop in #clusters
+	      for (;simHitIter != simHitIterEnd; ++simHitIter) {
+		const ClusterFP420 icluster = *simHitIter;
+		//   if(icluster.amplitudes().size()>390) {
+		std::cout << " ===== size of cluster= " << icluster.amplitudes().size() << std::endl;
+		std::cout <<" ===" << std::endl;
+		std::cout << " ===== firstStrip = " << icluster.firstStrip() << "  barycenter = " << icluster.barycenter() << "  barycenterW = " << icluster.barycenterW() << std::endl;
+		std::cout <<" ===" << std::endl;
+		for(unsigned int i = 0; i < icluster.amplitudes().size(); i++ ) {
+		  std::cout <<  "i = " << i << "   amplitudes = "  << icluster.amplitudes()[i] << std::endl;
+		}// for ampl
+		std::cout <<" ===" << std::endl;
+		std::cout <<" ===" << std::endl;
+		std::cout <<" =======================" << std::endl;
+		//  }// if(icluster.amplitudes().size()>390
+	      }//for cl
 	      
-	      std::cout << "FP420ClusterMain:check: zside = " << zside << std::endl;
-	      std::cout << " firstStrip = " << icluster.firstStrip() << "  barycenter = " << icluster.barycenter() << std::endl;
-	      std::cout << " size of cluster= " << icluster.amplitudes().size() << std::endl;
-	      for(unsigned int i = 0; i < icluster.amplitudes().size(); i++ ) {
-		std::cout <<  "i = " << i << "   amplitudes = "  << icluster.amplitudes()[i] << std::endl;
-	      }
-	      std::cout <<" ===" << std::endl;
-	      std::cout <<" ===" << std::endl;
-	      std::cout <<" =======================" << std::endl;
-	    }
-	    /* 
-	       for (DigitalMapType::const_iterator i=collector.begin(); i!=collector.end(); i++) {
-	       std::cout << "DigitizerFP420:check: HDigiFP420::  " << std::endl;
-	       std::cout << " strip number is as (*i).first  = " << (*i).first << "  adc is in (*i).second  = " << (*i).second << std::endl;
-	       }
-	    */
-	    
-	    //==================================
-	    
+	      /* 
+		 for (DigitalMapType::const_iterator i=collector.begin(); i!=collector.end(); i++) {
+		 std::cout << "DigitizerFP420:check: HDigiFP420::  " << std::endl;
+		 std::cout << " strip number is as (*i).first  = " << (*i).first << "  adc is in (*i).second  = " << (*i).second << std::endl;
+		 }
+	      */
+	      
+	      //==================================
+	      
+	    }   // for
 	  }   // for
 	}   // for
       }   // for
@@ -308,8 +358,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
       //     end of check of access to the strip collection
       std::cout <<"=======            FP420ClusterMain:                    end of check     " << std::endl;
       
-    }
-    
+    }// if (verbosit
     
     
     

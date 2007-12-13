@@ -24,6 +24,7 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   
   verbosity   = conf_.getUntrackedParameter<int>("VerbosityLevel");
   trackMode_  =  conf_.getParameter<std::string>("TrackModeFP420");
+  dn0   = conf_.getParameter<int>("NumberFP420Detectors");
   sn0_ = conf_.getParameter<int>("NumberFP420Stations");
   pn0_ = conf_.getParameter<int>("NumberFP420SPlanes");
   zn0_ = conf_.getParameter<int>("NumberFP420SPTypes");
@@ -130,140 +131,145 @@ FP420TrackMain::~FP420TrackMain() {
 
 void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, std::auto_ptr<TrackCollectionFP420> &toutput )
 {
-
+  
   if ( validTrackerizer_ ) {
-
+    
     int number_detunits          = 0;
     int number_localelectroderechits = 0;
     /*
-    for (int sector=1; sector<sn0_; sector++) {
+      for (int sector=1; sector<sn0_; sector++) {
       for (int zmodule=1; zmodule<pn0_; zmodule++) {
-	for (int zside=1; zside<zn0_; zside++) {
-	  int sScale = 2*(pn0-1);
-	  //      int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
-	  // intindex is a continues numbering of FP420
-	  int zScale=2;  unsigned int detID = sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
-	  ClusterMap.clear();
-	  ClusterCollectionFP420::Range clusterRange;
-	  clusterRange = input.get(detID);
-	  ClusterCollectionFP420::ContainerIterator clusterRangeIteratorBegin = clusterRange.first;
-	  ClusterCollectionFP420::ContainerIterator clusterRangeIteratorEnd   = clusterRange.second;
-	  for ( ;sort_begin != sort_end; ++sort_begin ) {
-	    ClusterMap.push_back(*sort_begin);
-	  } // for
-	  
-	}//for
+      for (int zside=1; zside<zn0_; zside++) {
+      int sScale = 2*(pn0-1);
+      //      int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
+      // intindex is a continues numbering of FP420
+      int zScale=2;  unsigned int detID = sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
+      ClusterMap.clear();
+      ClusterCollectionFP420::Range clusterRange;
+      clusterRange = input.get(detID);
+      ClusterCollectionFP420::ContainerIterator clusterRangeIteratorBegin = clusterRange.first;
+      ClusterCollectionFP420::ContainerIterator clusterRangeIteratorEnd   = clusterRange.second;
+      for ( ;sort_begin != sort_end; ++sort_begin ) {
+      ClusterMap.push_back(*sort_begin);
+      } // for
+      
       }//for
-    }//for
-*/
+      }//for
+      }//for
+    */
     // get vector of detunit ids
     //    const std::vector<unsigned int> detIDs = input->detIDs();
     
-  // to be used in put (besause of 0 in track collection for: 1) 1st track and 2) case of no track)
+    // to be used in put (besause of 0 in track collection for: 1) 1st track and 2) case of no track)
     // ignore 0, but to save info for 1st track record it second time on place 1   .
-
-      bool first = true;
+    
+    bool first = true;
     // loop over detunits
-      //    for (int sector=1; sector<5; sector++) {
-	  ++number_detunits;
-	  int StID = 1111;
-	       std::vector<TrackFP420> collector;
-// 	    vector<TrackFP420> collector;
-		 collector.clear();
-
-	 // if ( trackMode_ == "TrackProducerMaxAmplitudeFP420") {
-	//	 collector = finderParameters_->trackFinderMaxAmplitude(input); //std::vector<TrackFP420> collector;
-	 // }// if ( trackMode
-	 // else if (trackMode_ == "TrackProducerMaxAmplitude2FP420" ) {
-	//	 collector = finderParameters_->trackFinderMaxAmplitude2(input); //
-	//  }// if ( trackMode
-	  /*
-	  else if (trackMode_ == "TrackProducerVar1FP420" ) {
-		 collector = finderParameters_->trackFinderVar1(input); //
-	  }// if ( trackMode
-	  else if (trackMode_ == "TrackProducerVar2FP420" ) {
-		 collector = finderParameters_->trackFinderVar2(input); //
-	  }// if ( trackMode
-*/
-	  if (trackMode_ == "TrackProducerSophisticatedFP420" ) {
-		 collector = finderParameters_->trackFinderSophisticated(input); //
-	  }// if ( trackMode
-
-
-	//  else if (trackMode_ == "TrackProducer3DFP420" ) {
-	//	 collector = finderParameters_->trackFinder3D(input); //
-	 // }// if ( trackMode
-
-	  //   if (collector.size()>0){
-		 TrackCollectionFP420::Range inputRange;
-		 inputRange.first = collector.begin();
-		 inputRange.second = collector.end();
-		 
-		 if ( first ) {
-		   // use it only if TrackCollectionFP420 is the TrackCollection of one event, otherwise, do not use (loose 1st cl. of 1st event only)
-		   first = false;
-		   unsigned int StID0 = 0;
-		   toutput->put(inputRange,StID0); // !!! put into adress 0 for detID which will not be used never
-		 } //if ( first ) 
-
-		 // !!! put                                        !!! put
-		 toutput->put(inputRange,StID);
-
-		 number_localelectroderechits += collector.size();
-		 //  } // if collector.size
-
-#ifdef mytrackdebug0
-	  std::cout << "FP420TrackMain: execution in mode " << trackMode_ << " generating " << number_localelectroderechits << " tracks in  " << number_detunits << " detectors" << std::endl; 
-#endif
-
-
-
-#ifdef mytrackdebug0
-  //     check of access to the collector:
-	  //	  std::vector<TrackFP420> collector;
+    for (int det=1; det<dn0; det++) {
+      ++number_detunits;
+      int StID = 1111;
+      if(det==2) StID = 2222;
+      std::vector<TrackFP420> collector;
+      // 	    vector<TrackFP420> collector;
+      collector.clear();
+      
+      // if ( trackMode_ == "TrackProducerMaxAmplitudeFP420") {
+      //	 collector = finderParameters_->trackFinderMaxAmplitude(input); //std::vector<TrackFP420> collector;
+      // }// if ( trackMode
+      // else if (trackMode_ == "TrackProducerMaxAmplitude2FP420" ) {
+      //	 collector = finderParameters_->trackFinderMaxAmplitude2(input); //
+      //  }// if ( trackMode
+      /*
+	else if (trackMode_ == "TrackProducerVar1FP420" ) {
+	collector = finderParameters_->trackFinderVar1(input); //
+	}// if ( trackMode
+	else if (trackMode_ == "TrackProducerVar2FP420" ) {
+	collector = finderParameters_->trackFinderVar2(input); //
+	}// if ( trackMode
+      */
+      if (trackMode_ == "TrackProducerSophisticatedFP420" ) {
+	collector = finderParameters_->trackFinderSophisticated(input,det); //
+      }// if ( trackMode
+      
+      
+      //  else if (trackMode_ == "TrackProducer3DFP420" ) {
+      //	 collector = finderParameters_->trackFinder3D(input); //
+      // }// if ( trackMode
+      
+      if (collector.size()>0){
+	TrackCollectionFP420::Range inputRange;
+	inputRange.first = collector.begin();
+	inputRange.second = collector.end();
+	
+	if ( first ) {
+	  // use it only if TrackCollectionFP420 is the TrackCollection of one event, otherwise, do not use (loose 1st cl. of 1st event only)
+	  first = false;
+	  unsigned int StID0 = 0;
+	  toutput->put(inputRange,StID0); // !!! put into adress 0 for detID which will not be used never
+	} //if ( first ) 
+	
+	// !!! put                                        !!! put
+	toutput->put(inputRange,StID);
+	
+	number_localelectroderechits += collector.size();
+      } // if collector.size
+    }//for det loop
+    
+    
+    if (verbosity > 0) {
+      std::cout << "FP420TrackMain: execution in mode " << trackMode_ << " generating " << number_localelectroderechits << " tracks in  " << number_detunits << " detectors" << std::endl; 
+    }
+    
+    
+    if (verbosity > 0) {
+      //     check of access to the collector:
+      // loop over detunits
+      for (int det=1; det<dn0; det++) {
+	int StID = 1111;
+	if(det==2) StID = 2222;
+	std::vector<TrackFP420> collector;
 	collector.clear();
 	TrackCollectionFP420::Range outputRange;
-	//	  int StID = 1111;
-	outputRange = toutput.get(StID);
-  // fill output in collector vector (for may be sorting? or other checks)
-  TrackCollectionFP420::ContainerIterator sort_begin = outputRange.first;
-  TrackCollectionFP420::ContainerIterator sort_end = outputRange.second;
-  for ( ;sort_begin != sort_end; ++sort_begin ) {
-    collector.push_back(*sort_begin);
-  } // for
- std::cout <<" ===" << std::endl;
- std::cout <<" ===" << std::endl;
- std::cout <<"=======FP420TrackMain:check of re-new collector size = " << collector.size() << std::endl;
- std::cout <<" ===" << std::endl;
- std::cout <<" ===" << std::endl;
-   vector<TrackFP420>::const_iterator simHitIter = collector.begin();
-   vector<TrackFP420>::const_iterator simHitIterEnd = collector.end();
-   // loop in #tracks
-   for (;simHitIter != simHitIterEnd; ++simHitIter) {
-     const TrackFP420 itrack = *simHitIter;
-     
- std::cout << "FP420TrackMain:check: nclusterx = " << itrack.nclusterx() << "  nclustery = " << itrack.nclustery() << std::endl;
- std::cout << "  ax = " << itrack.ax() << "  bx = " << itrack.bx() << std::endl;
- std::cout << "  ay = " << itrack.ay() << "  by = " << itrack.by() << std::endl;
- std::cout << " chi2x= " << itrack.chi2x() << " chi2y= " << itrack.chi2y() << std::endl;
-  std::cout <<" ===" << std::endl;
-  std::cout <<" ===" << std::endl;
-  std::cout <<" =======================" << std::endl;
-   }
-
-   //==================================
-
-  //     end of check of access to the strip collection
- std::cout <<"=======            FP420TrackMain:                    end of check     " << std::endl;
-
-#endif
-
-
-
-
-
+	outputRange = toutput->get(StID);
+	// fill output in collector vector (for may be sorting? or other checks)
+	TrackCollectionFP420::ContainerIterator sort_begin = outputRange.first;
+	TrackCollectionFP420::ContainerIterator sort_end = outputRange.second;
+	for ( ;sort_begin != sort_end; ++sort_begin ) {
+	  collector.push_back(*sort_begin);
+	} // for
+	std::cout <<" ===" << std::endl;
+	std::cout <<" ===" << std::endl;
+	std::cout <<"=======FP420TrackMain:check size = " << collector.size() << "  det = " << det << std::endl;
+	std::cout <<" ===" << std::endl;
+	std::cout <<" ===" << std::endl;
+	vector<TrackFP420>::const_iterator simHitIter = collector.begin();
+	vector<TrackFP420>::const_iterator simHitIterEnd = collector.end();
+	// loop in #tracks
+	for (;simHitIter != simHitIterEnd; ++simHitIter) {
+	  const TrackFP420 itrack = *simHitIter;
+	  
+	  std::cout << "FP420TrackMain:check: nclusterx = " << itrack.nclusterx() << "  nclustery = " << itrack.nclustery() << std::endl;
+	  std::cout << "  ax = " << itrack.ax() << "  bx = " << itrack.bx() << std::endl;
+	  std::cout << "  ay = " << itrack.ay() << "  by = " << itrack.by() << std::endl;
+	  std::cout << " chi2x= " << itrack.chi2x() << " chi2y= " << itrack.chi2y() << std::endl;
+	  std::cout <<" ===" << std::endl;
+	  std::cout <<" ===" << std::endl;
+	  std::cout <<" =======================" << std::endl;
+	}
+	
+	//==================================
+	
+	//     end of check of access to the strip collection
+	std::cout <<"=======            FP420TrackMain:                    end of check     " << std::endl;
+	
+      }//for det
+    }// if verbosity
+    
+    
+    
+    
   }// if ( validTrackerizer_
-
-
-
+  
+  
+  
 }

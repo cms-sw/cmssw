@@ -198,8 +198,8 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnitPixels( HDigiFP
   ibeg = iend = begin;
   std::vector<HDigiFP420> cluster_digis;  
   
-  // reserve 15 possible channels for one cluster
-  cluster_digis.reserve(15);
+  // reserve 25 possible channels for one cluster
+  cluster_digis.reserve(25);
   
   // reserve one third of digiRange for number of clusters
   std::vector<ClusterFP420> rhits; rhits.reserve( (end - begin)/3 + 1);
@@ -207,11 +207,19 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnitPixels( HDigiFP
   //  predicate(declare): take noise above seed_thr
   AboveSeed predicate(seedThresholdInNoiseSigma(),vnoise);
   
+  //Check if no channels with digis at all
+  /*
+  HDigiFP420Iter abeg, aend;  
+  abeg = begin; aend = end;
+  std::vector<HDigiFP420> a_digis;  
+  for ( ;abeg != aend; ++abeg ) {
+    a_digis.push_back(*abeg);
+  } // for
+  if (a_digis.size()<1) return rhits;;
+*/  
   //Check if channel is lower than vnoise.size()
   itest = end - 1;
-
   int vnoisesize = vnoise.size();
-  //  if (vnoise.size()<=itest->channel()) // old
   if (vnoisesize<=itest->channel()) 
     {
 //      std::cout <<  "WARNING for detid " << detid << " there will be a request for noise for channel seed" << itest->channel() << " but this detid has vnoise.size= " <<  vnoise.size() << "\nskip"<< std::endl;
@@ -234,39 +242,56 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnitPixels( HDigiFP
     iend = ihigh;
     itest = iend + 1;
     //    while ( itest != end && (itest->channel() - iend->channel() <= max_voids_ + 1 )) {
-    while ( itest != end && (difNarr(zside,itest,iend)<= max_voids_ + 1 ) && (difWide(zside,itest,iend)<= 1 ) ) {
+    while ( itest != end && (difNarr(zside,itest,iend)<= max_voids_ + 1 ) && (difWide(zside,itest,iend)<= 1) ) {
       float channelNoise = vnoise[itest->channel()].getNoise();
       bool IsBadChannel = vnoise[itest->channel()].getDisable();
       if (!IsBadChannel && itest->adc() >= static_cast<int>( channelThresholdInNoiseSigma() * channelNoise)) { 
 	iend = itest;
+#ifdef mycldebug1
+      std::cout << "=========================================================================== " << std::endl;
+      std::cout << "Right side: itest->adc()= " << itest->adc() << " channel_noise = " << static_cast<int>( channelThresholdInNoiseSigma() * channelNoise) << std::endl;
+#endif
       }
       ++itest;
     }
     //if the next digi after iend is an adjacent bad(!) digi then insert into candidate cluster
     itest=iend+1;
-    if ( itest != end && (difNarr(zside,itest,iend) == 1) && vnoise[itest->channel()].getDisable() ) {    
+    if ( itest != end && (difNarr(zside,itest,iend) == 1) && (difWide(zside,itest,iend)< 1) && vnoise[itest->channel()].getDisable() ) {    
+#ifdef mycldebug1
       std::cout << "Inserted bad electrode at the end edge iend->channel()= " << iend->channel() << " itest->channel() = " << itest->channel() << std::endl;
+#endif
       iend++;
     }
+#ifdef mycldebug1
+      std::cout << "Result of going to right side iend->channel()= " << iend->channel() << " itest->channel() = " << itest->channel() << std::endl;
+#endif
     
     // go to left side:
     ibeg = ihigh;
     itest = ibeg - 1;
     //  while ( itest >= begin && (ibeg->channel() - itest->channel() <= max_voids_ + 1 )) {
-    while ( itest >= begin && (difNarr(zside,ibeg,itest) <= max_voids_ + 1 ) && (difWide(zside,ibeg,itest) <= 1 ) ) {
+    while ( itest >= begin && (difNarr(zside,ibeg,itest) <= max_voids_ + 1 ) && (difWide(zside,ibeg,itest) <= 1) ) {
       float channelNoise = vnoise[itest->channel()].getNoise();  
       bool IsBadChannel = vnoise[itest->channel()].getDisable();
       if (!IsBadChannel && itest->adc() >= static_cast<int>( channelThresholdInNoiseSigma() * channelNoise)) { 
         ibeg = itest;
+#ifdef mycldebug1
+      std::cout << "Left side: itest->adc()= " << itest->adc() << " channel_noise = " << static_cast<int>( channelThresholdInNoiseSigma() * channelNoise) << std::endl;
+#endif
       }
       --itest;
     }
     //if the next digi after ibeg is an adjacent bad digi then insert into candidate cluster
     itest=ibeg-1;
-    if ( itest >= begin && (difNarr(zside,ibeg,itest) == 1) && vnoise[itest->channel()].getDisable() ) {    
+    if ( itest >= begin && (difNarr(zside,ibeg,itest) == 1) && (difWide(zside,ibeg,itest) <  1) && vnoise[itest->channel()].getDisable() ) {    
+#ifdef mycldebug1
       std::cout << "Inserted bad electrode at the begin edge ibeg->channel()= " << ibeg->channel() << " itest->channel() = " << itest->channel() << std::endl;
+#endif
       ibeg--;
     }
+#ifdef mycldebug1
+      std::cout << "Result of going to left side ibeg->channel()= " << ibeg->channel() << " itest->channel() = " << itest->channel() << std::endl;
+#endif
     //============================================================================================================
     
     
@@ -278,6 +303,9 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnitPixels( HDigiFP
     float sigmaNoise2=0;
     cluster_digis.clear();
     //    HDigiFP420Iter ilast=ibeg; // AZ
+#ifdef mycldebug1
+      std::cout << "check for consecutive digis ibeg->channel()= " << ibeg->channel() << " iend->channel() = " << iend->channel() << std::endl;
+#endif
     for (i=ibeg; i<=iend; ++i) {
       float channelNoise = vnoise[i->channel()].getNoise();  
       bool IsBadChannel = vnoise[i->channel()].getDisable();
@@ -289,21 +317,40 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnitPixels( HDigiFP
       //just check for consecutive digis
       // if (i!=ibeg && i->channel()-(i-1)->channel()!=1){
       //if (i!=ibeg && difNarr(zside,i,i-1) !=1 && difWide(zside,i,i-1) !=1){
-      if (i!=ibeg && (difNarr(zside,i,i-1) > 1 || difWide(zside,i,i-1) > 1)   ){
+
+#ifdef mycldebug1
+      std::cout << "difNarr(zside,i,i-1) = " << difNarr(zside,i,i-1)  << std::endl;
+      std::cout << "difWide(zside,i,i-1) = " << difWide(zside,i,i-1)  << std::endl;
+#endif
+
+      // in fact, no sense in this check, but still keep if something wrong is going:
+      //      if (i!=ibeg && (difNarr(zside,i,i-1) > 1 || difWide(zside,i,i-1) > 1)   ){
+      if (i!=ibeg && (difNarr(zside,i,i-1) > 1 && difWide(zside,i,i-1) > 1)   ){
 	//digits: *(i-1) and *i   are not consecutive(we asked !=1-> it means 2...),so  create an equivalent number of Digis with zero amp
 	for (int j=(i-1)->channel()+1;j<i->channel();++j){
+#ifdef mycldebug1
+      std::cout << "not consecutive digis: set HDigiFP420.adc_=0 : j = " << j  << std::endl;
+#endif
 	  cluster_digis.push_back(HDigiFP420(j,0)); //if not consecutive digis set HDigiFP420.adc_=0  
-	}
-      }
-      //
+	}//for
+      }//if
+
+
+
       if (!IsBadChannel && i->adc() >= static_cast<int>( channelThresholdInNoiseSigma()*channelNoise)) {
         charge += i->adc();
         sigmaNoise2 += channelNoise*channelNoise; // 
         cluster_digis.push_back(*i);// put into cluster_digis good i info
+#ifdef mycldebug1
+      std::cout << "put into cluster_digis good i info: i->channel() = " << i->channel()  << std::endl;
+#endif
       } else {
 	cluster_digis.push_back(HDigiFP420(i->channel(),0)); //if electrode bad or under threshold set HDigiFP420.adc_=0
-      }
-      //
+#ifdef mycldebug1
+      std::cout << "else if electrode bad or under threshold set HDigiFP420.adc_=0: i->channel() = " << i->channel()  << std::endl;
+#endif
+      }//if else
+
     }//for i++
     
     
@@ -318,6 +365,7 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnitPixels( HDigiFP
 				     cog, err));
 #ifdef mycldebug1
       std::cout << "Looking at cog and err  : cog " << cog << " err " << err  << std::endl;
+      std::cout << "=========================================================================== " << std::endl;
 #endif
     }
     

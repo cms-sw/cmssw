@@ -53,6 +53,7 @@ namespace cms
     trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
     
     verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
+    dn0   = conf_.getParameter<int>("NumberFP420Detectors");
     sn0   = conf_.getParameter<int>("NumberFP420Stations");
     pn0 = conf_.getParameter<int>("NumberFP420SPlanes");
     
@@ -61,7 +62,7 @@ namespace cms
       std::cout << "ClusterizerFP420: sn0=" << sn0 << " pn0=" << pn0 << std::endl;
     }
     
-    sClusterizerFP420_ = new FP420ClusterMain(conf_,sn0,pn0);
+    sClusterizerFP420_ = new FP420ClusterMain(conf_,dn0,sn0,pn0);
   }
   
   // Virtual destructor needed.
@@ -137,8 +138,14 @@ namespace cms
     try{
       //      iEvent.getByLabel( "FP420Digi" , digis);
       iEvent.getByLabel( trackerContainers[0] , input);
-    } catch(...){;}
-
+    } catch(const Exception&)
+      {
+	// in principal, should never happen, as it's taken care of by Framework
+	throw cms::Exception("InvalidReference")
+	  << "Invalid reference to DigiCollectionFP420 \n";
+      }
+    //  } catch(...){;}
+    
     if (verbosity > 0) {
       std::cout << "ClusterizerFP420: OK1" << std::endl;
     }
@@ -179,27 +186,29 @@ namespace cms
     
     //    put zero to container info from the beginning (important! because not any detID is updated with coming of new event     !!!!!!   
     // clean info of container from previous event
-    for (int sector=1; sector<sn0; sector++) {
-      for (int zmodule=1; zmodule<pn0; zmodule++) {
-	for (int zside=1; zside<3; zside++) {
-	  // zside here defines just Left or Right planes, not their type !!!
-	  //	  int sScale = 20;
-	  int sScale = 2*(pn0-1);
-	  //      int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
-	  // intindex is a continues numbering of FP420
-	  int zScale=2;  unsigned int detID = sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
-	  std::vector<ClusterFP420> collector;
-	  collector.clear();
-	  ClusterCollectionFP420::Range inputRange;
-	  inputRange.first = collector.begin();
-	  inputRange.second = collector.end();
-	  
-	  soutput->putclear(inputRange,detID);
-	  
+      for (int det=1; det<dn0; det++) {
+	for (int sector=1; sector<sn0; sector++) {
+	  for (int zmodule=1; zmodule<pn0; zmodule++) {
+	    for (int zside=1; zside<3; zside++) {
+	      // zside here defines just Left or Right planes, not their type !!!
+	      //	  int sScale = 20;
+	      int sScale = 2*(pn0-1), dScale = 2*(pn0-1)*(sn0-1);
+	      //      int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
+	      // intindex is a continues numbering of FP420
+	      int zScale=2;  unsigned int detID = dScale*(det - 1)+sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
+	      std::vector<ClusterFP420> collector;
+	      collector.clear();
+	      ClusterCollectionFP420::Range inputRange;
+	      inputRange.first = collector.begin();
+	      inputRange.second = collector.end();
+	      
+	      soutput->putclear(inputRange,detID);
+	      
+	    }//for
+	  }//for
 	}//for
       }//for
-    }//for
-    
+      
     
     //                                                                                                                      !!!!!!   
     // if we want to keep Cluster container/Collection for one event --->   uncomment the line below and vice versa

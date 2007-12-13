@@ -27,7 +27,7 @@ class FP420ClusterMain
  public:
   
 
-    FP420ClusterMain(const edm::ParameterSet& conf, int sn, int pn);
+    FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn, int pn);
   //  FP420ClusterMain();
 
   ~FP420ClusterMain();
@@ -80,6 +80,8 @@ class FP420ClusterMain
 
   float Thick300;
 
+ // Number of Detectors:
+   int dn0;
  // Number of Stations:
    int sn0;
  // Number of planes:

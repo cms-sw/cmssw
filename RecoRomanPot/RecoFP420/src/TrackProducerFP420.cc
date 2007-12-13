@@ -72,7 +72,7 @@ TrackProducerFP420::TrackProducerFP420(int asn0, int apn0, int azn0, double az42
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle<ClusterCollectionFP420> input){
+std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle<ClusterCollectionFP420> input, int det){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   std::vector<TrackFP420> rhits;
@@ -139,12 +139,12 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	for (int zside=zbeg; zside<zmax; zside++) {
 	  
 	  // index iu is a continues numbering of 3D detector of FP420 (detector ID)
-	  int sScale = 2*(pn0-1);
-	  int zScale=2;  unsigned int iu = sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
+	  int sScale = 2*(pn0-1), dScale = 2*(pn0-1)*(sn0-1);
+	  int zScale=2;  unsigned int iu = dScale*(det - 1)+sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
 	  //	unsigned int ii = sScale*(sector - 1)/2 + (zmodule - 1) + 1;
 
 	  //	  unsigned int ii = sScale*(sector - 1)/2 + (zmodule - 1) ; // 0-19   --> 20 items
-	  unsigned int ii = iu-1;// 0-29   --> 30 items
+	  unsigned int ii = iu-1-dScale*(det - 1);// 0-29   --> 30 items
 	  
 	  double kplane = -(pn0-1)/2 - 0.5  +  (zmodule-1); 
 	  
@@ -161,6 +161,11 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	  if(zside==2){
 	    zcurrent += (ZGapLDet+ZSiDetR/2)+ZSiPlane/2;
 	  }
+	  //   .
+	  //
+	  if(det == 2) zcurrent = -zcurrent;
+	  //
+	  //
 	  //   .
 	  // local - global systems with possible shift of every second plate:
 	  

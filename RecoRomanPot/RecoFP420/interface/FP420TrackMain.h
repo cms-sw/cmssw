@@ -41,6 +41,8 @@ class FP420TrackMain
   bool validTrackerizer_;
 
   int verbosity;
+ // Number of Detectors:
+ int dn0;
  // Number of Stations:
  int sn0_;
  // Number of planes:
