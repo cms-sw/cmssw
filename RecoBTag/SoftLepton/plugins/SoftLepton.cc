@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.9 2007/09/24 19:43:42 ratnik Exp $
+// $Id: SoftLepton.cc,v 1.10 2007/10/08 16:16:47 fwyzard Exp $
 
 
 #include <memory>
@@ -46,8 +46,8 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchElectron.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -171,12 +171,12 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       leptons.push_back(edm::RefToBase<reco::Track>( electron->track() ));
   } 
   else
-  // look for PixelMatchGsfElectrons
-  if (leptons_id = edm::findProductIDByLabel<reco::PixelMatchGsfElectronCollection>(iEvent, m_leptons), leptons_id.isValid())
+  // look for GsfElectrons
+  if (leptons_id = edm::findProductIDByLabel<reco::GsfElectronCollection>(iEvent, m_leptons), leptons_id.isValid())
   {
-    Handle<reco::PixelMatchGsfElectronCollection> h_electrons;
+    Handle<reco::GsfElectronCollection> h_electrons;
     iEvent.get(leptons_id, h_electrons);
-    for (reco::PixelMatchGsfElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
+    for (reco::GsfElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
       leptons.push_back(edm::RefToBase<reco::Track>( electron->gsfTrack() ));
   } 
   else
@@ -214,7 +214,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
   else
   {
-    throw edm::Exception(edm::errors::NotFound) << "Object " << m_leptons << " of type among (\"reco::ElectronCollection\", \"reco::PixelMatchElectronCollection\", \"reco::PixelMatchGsfElectronCollection\", \"reco::MuonCollection\", \"reco::GsfTrackCollection\", \"reco::TrackCollection\") not found";
+    throw edm::Exception(edm::errors::NotFound) << "Object " << m_leptons << " of type among (\"reco::ElectronCollection\", \"reco::PixelMatchElectronCollection\", \"reco::GsfElectronCollection\", \"reco::MuonCollection\", \"reco::GsfTrackCollection\", \"reco::TrackCollection\") not found";
   }
 
   // output collections
