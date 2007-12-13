@@ -119,9 +119,10 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       edm::OwnVector<TrackingRecHit>::const_iterator theLastSeedingRecHit = theSeedingRecHitRange.second;
 
       // Loop over the rechits
-      std::vector<const TrackingRecHit*> TripletHits;
-      for ( ; aSeedingRecHit!=theLastSeedingRecHit; ++aSeedingRecHit )  
-	TripletHits.push_back(aSeedingRecHit->clone());
+      std::vector<const TrackingRecHit*> TripletHits(3,static_cast<const TrackingRecHit*>(0));
+      for ( unsigned i=0; aSeedingRecHit!=theLastSeedingRecHit; ++i,++aSeedingRecHit )  
+	TripletHits[i] = &(*aSeedingRecHit);
+      //TripletHits.push_back(aSeedingRecHit->clone());  // Memory leak !
       
       // fitting the triplet
       ++nTriplets;
@@ -187,5 +188,11 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   e.put(tracks);
   
+  // Avoid a memory leak !
+  unsigned nRegions = regions.size();
+  for ( unsigned iRegions=0; iRegions<nRegions; ++iRegions ) {
+    delete regions[iRegions];
+  }
+
 }
 
