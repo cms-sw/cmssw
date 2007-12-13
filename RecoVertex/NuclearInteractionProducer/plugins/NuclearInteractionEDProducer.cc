@@ -50,7 +50,7 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
    /// Get the AssociationMap between seeds and primary trajectories
    edm::Handle<TrajectoryToSeedsMap>  nuclMapH;
-   iEvent.getByLabel("nuclearSeed", nuclMapH);
+   iEvent.getByLabel(seedsProducer_, nuclMapH);
    const TrajectoryToSeedsMap& nuclMap = *(nuclMapH.product());
 
    /// Get the secondary tracks
