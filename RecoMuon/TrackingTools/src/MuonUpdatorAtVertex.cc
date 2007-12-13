@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2007/05/28 13:22:21 $
- *  $Revision: 1.27 $
+ *  $Date: 2007/09/24 08:41:32 $
+ *  $Revision: 1.28 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -17,6 +17,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
