@@ -5,8 +5,8 @@
  * \file testChannel.h
  * \class testChannel
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2006/04/18 13:54:05 $
- * $Revision: 1.1 $
+ * $Date: 2007/12/12 08:28:10 $
+ * $Revision: 1.2 $
  * \author P. Govoni (testChannel.govoni@cernNOSPAM.ch)
  *
 */
@@ -23,21 +23,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-
-//#include "DQMServices/Core/interface/MonitorElement.h"
-//#include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-//#include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
-//#include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
-//#include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
-//#include "CalibCalorimetry/EcalDBInterface/interface/MonRunIOV.h"
-
-//#include "CalibCalorimetry/EcalDBInterface/interface/MonPedestalsDat.h"
-
-//#include "CalibCalorimetry/EcalDBInterface/interface/MonPNPedDat.h"
 
 #include "TROOT.h"
 #include "TStyle.h"
