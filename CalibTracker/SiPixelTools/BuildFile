@@ -19,7 +19,6 @@
 <use name=CalibFormats/SiPixelObjects>
 <use name=DQM/SiPixelCommon>
 <use name=DQMServices/Core>
-<!------- <flags EDM_PLUGIN=1> -------->
 <export>
    <lib name=CalibTrackerSiPixelTools>
    <use name=FWCore/Framework>
