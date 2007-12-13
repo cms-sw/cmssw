@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.12 2007/08/07 23:14:19 wmtan Exp $
+// $Id: EdmFileUtil.cpp,v 1.13 2007/08/20 23:21:34 wmtan Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -16,6 +16,7 @@
 #include <vector>
 #include <boost/program_options.hpp>
 #include "IOPool/Common/bin/CollUtil.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
@@ -51,8 +52,8 @@ int main(int argc, char* argv[]) {
 
   // What trees do we require for this to be a valid collection?
   std::vector<std::string> expectedTrees;
-  expectedTrees.push_back("MetaData");
-  expectedTrees.push_back("Events");
+  expectedTrees.push_back(edm::poolNames::metaDataTreeName());
+  expectedTrees.push_back(edm::poolNames::eventTreeName());
 
   boost::program_options::positional_options_description p;
   p.add("file", -1);
@@ -182,7 +183,7 @@ int main(int argc, char* argv[]) {
       if ( verbose ) std::cout << "ECU:: Found all expected trees\n"; 
       
       // Ok. How many events?
-      int nevts= edm::numEntries(tfile,"Events");
+      int nevts= edm::numEntries(tfile,edm::poolNames::eventTreeName());
       std::cout << tfile->GetName() << " ( " << nevts << " events, " 
 		<< tfile->GetSize() << " bytes )" << std::endl;
       
@@ -193,15 +194,20 @@ int main(int argc, char* argv[]) {
       
       // Print out each tree
       if ( vm.count("print") ) {
-	TTree *eventsTree=(TTree*)tfile->Get("Events");
+	TTree *eventsTree=(TTree*)tfile->Get(edm::poolNames::eventTreeName().c_str());
 	edm::printBranchNames(eventsTree);
       }
       
       if ( vm.count("printBranchDetails") ) {
-	TTree *printTree=(TTree*)tfile->Get("Events");
+	TTree *printTree=(TTree*)tfile->Get(edm::poolNames::eventTreeName().c_str());
 	edm::longBranchPrint(printTree);
       }
       
+      if ( vm.count("uuid") ) {
+	TTree *paramsTree=(TTree*)tfile->Get(edm::poolNames::metaDataTreeName().c_str());
+	edm::printUuids(paramsTree);
+      }
+
       // Print out event lists 
       if ( vm.count("events") ) {
 	bool listentries=false;  

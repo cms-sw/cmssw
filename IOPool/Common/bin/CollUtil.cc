@@ -1,7 +1,9 @@
 #include "IOPool/Common/bin/CollUtil.h"
 #include "TFile.h" 
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 //#include "DataFormats/Common/interface/EDProduct.h"
 
@@ -65,9 +67,9 @@ namespace edm {
     if ( tree != 0 ) {
 
       EventAuxiliary* evtAux_=0;
-      TBranch *evtAuxBr = tree->GetBranch("EventAuxiliary");
+      TBranch *evtAuxBr = tree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(InEvent).c_str());
 
-      tree->SetBranchAddress("EventAuxiliary",&evtAux_);
+      tree->SetBranchAddress(edm::BranchTypeToAuxiliaryBranchName(InEvent).c_str(),&evtAux_);
       Long64_t max= tree->GetEntries();
       for (Long64_t i = iLow; i <= iHigh && i < max; ++i) {
 	evtAuxBr->GetEntry(i);
@@ -97,8 +99,8 @@ namespace edm {
 //     if ( tree != 0 ) {
 
 //       EventAuxiliary* evtAux_=0;
-//       TBranch *evtAuxBr = tree->GetBranch("EventAuxiliary");
-//       tree->SetBranchAddress("EventAuxiliary",&evtAux_);
+//       TBranch *evtAuxBr = tree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(InEvent));
+//       tree->SetBranchAddress(edm::BranchTypeToAuxiliaryBranchName(InEvent),&evtAux_);
 //       Long64_t max= tree->GetEntries();
 //       int entrycounter = 0;
 //       for (Long64_t i=iLow; i <= iHigh && i < max; ++i) {
@@ -170,6 +172,15 @@ namespace edm {
     
   }
 
+  void printUuids(TTree *uuidTree) {
+    FileID fid;
+    FileID *fidPtr = &fid;
+    uuidTree->SetBranchAddress(poolNames::fileIdentifierBranchName().c_str(), &fidPtr);
+    uuidTree->GetEntry(0);
+
+    std::cout << "UUID: " << fid.fid() << std::endl;
+  }
+
   void printEventLists( std::string remainingEvents, int numevents, TFile *tfl, bool entryoption) {
     bool keepgoing=true;
     while ( keepgoing ) {
@@ -195,7 +206,7 @@ namespace edm {
 	iHigh= (int)atof(evtstr.substr(pos+1).c_str());
       }
       
-      //    edm::showEvents(tfile,"Events",vm["events"].as<std::string>());
+      //    edm::showEvents(tfile,edm::poolNames::eventTreeName(),vm["events"].as<std::string>());
       if ( iLow < 1 ) iLow=1;
       if ( iHigh > numevents ) iHigh=numevents;
       
@@ -203,9 +214,9 @@ namespace edm {
       iLow--;
       iHigh--;
       if(entryoption==false)
-	showEvents(tfl,"Events",iLow,iHigh);
+	showEvents(tfl,edm::poolNames::eventTreeName(),iLow,iHigh);
 //       else if(entryoption==true)
-// 	showEventsAndEntries(tfl,"Events",iLow,iHigh);
+// 	showEventsAndEntries(tfl,edm::poolNames::eventTreeName(),iLow,iHigh);
     }
     
   }
