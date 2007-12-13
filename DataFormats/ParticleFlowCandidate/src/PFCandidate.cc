@@ -98,6 +98,18 @@ void PFCandidate::setTrackRef(const reco::TrackRef& ref) {
     throw cms::Exception("InconsistentReference",
 			 err.c_str() );
   }
+
+  if( particleId_ == mu ) {
+    
+    if(  trackRef_ != muonRef_->track() ) {
+      string err;
+      err += "PFCandidate::setTrackRef: inconsistent track references!";
+      
+      throw cms::Exception("InconsistentReference",
+			   err.c_str() );
+    }    
+  }
+  trackRef_ = ref;
 }
 
 
