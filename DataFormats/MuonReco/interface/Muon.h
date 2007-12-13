@@ -10,13 +10,14 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.36 2007/09/27 22:50:52 dmytro Exp $
+ * \version $Id: Muon.h,v 1.37 2007/10/06 00:26:25 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
+#include "DataFormats/MuonReco/interface/MuonTime.h"
 
 namespace reco {
  
@@ -49,6 +50,13 @@ namespace reco {
     MuonEnergy getCalEnergy() const { return calEnergy_; }
     /// set energy deposition information
     void setCalEnergy( const MuonEnergy& calEnergy ) { calEnergy_ = calEnergy; energyValid_ = true; }
+    
+    /// timing information
+    bool isTimeValid() const { return timeValid_; }
+    /// get timing information
+    MuonTime getTime() const { return time_; }
+    /// set timing information
+    void setTime( const MuonTime& time ) { time_ = time; timeValid_ = true; }
      
     bool isMatchesValid() const { return matchesValid_; }
     /// get muon matching information
@@ -111,10 +119,11 @@ namespace reco {
     MuonEnergy calEnergy_;
     /// Information on matching between tracks and segments
     std::vector<MuonChamberMatch> muMatches_;
-    /// vector of references to traversed towers. Could be useful for
-    /// correcting the missing transverse energy.  
-    CaloTowerRefs traversedTowers_;
+    /// timing
+    MuonTime time_;
+     
     bool energyValid_;
+    bool timeValid_;
     bool matchesValid_;
     bool isolationValid_;
     /// muon hypothesis compatibility with observer calorimeter energy
@@ -172,7 +181,19 @@ namespace reco {
      float trackDyDzErr ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
      float trackDist    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
      float trackDistErr ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-
+     
+     float t0(int n=0) {
+	int i = 0;
+	for( std::vector<MuonChamberMatch>::const_iterator chamber = muMatches_.begin();
+	     chamber != muMatches_.end(); ++chamber )
+	  for ( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin();
+		segment != chamber->segmentMatches.end(); ++segment )
+	    {
+	       if (i==n) return segment->t0;
+	       ++i;
+	    }
+	return 0;
+     }
   };
 
 }
