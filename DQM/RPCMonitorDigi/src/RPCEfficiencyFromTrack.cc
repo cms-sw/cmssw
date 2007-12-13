@@ -150,7 +150,9 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
     for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
       if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
 	RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-
+	float ChLength=0.;
+	float ChWidth=0.;
+	int NRoll=0;
 	int reg=0;
 	int sec=0;
 	int whe=0;
@@ -160,8 +162,33 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  reg=rpcId.region();
 	  whe=rpcId.ring();
 	  sec=rpcId.sector();
+	  if(rpcId.region()==0){
+	    const RectangularStripTopology* topValue= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
+	    LocalPoint xmin = topValue->localPosition(0.);
+	    LocalPoint xmax = topValue->localPosition((float)(*r)->nstrips());
+	    float rsize = fabs( xmax.x()-xmin.x() )*0.5;
+	    float stripl = topValue->stripLength();
+	    ChLength+=rsize;
+	    ChWidth+=stripl;
+	  }
+	  NRoll++;
 	}
 
+	if(NRoll==2){
+	  ChLength=ChLength/2;
+	}
+	if(NRoll==4){
+	  ChWidth=ChWidth/2;
+	  ChLength=ChLength/2;
+	}
+	if(NRoll==3){
+	  ChLength=ChLength/3;
+	}
+	if(NRoll>4){
+	  ChWidth=ChWidth*2/(NRoll);
+	  ChLength=ChLength*2/(NRoll);
+	}
+	
 	//Barrel
 
 	if(track.innermostMeasurementState().isValid() && reg==0 && MeasureBarrel==true && whe==0 && (sec==10 || sec==11)){
@@ -170,7 +197,12 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  const FreeTrajectoryState& fS=tcp.theState();
 	  const FreeTrajectoryState* fState = &fS; 
 	  TrajectoryStateOnSurface tsos = thePropagator->propagate(*fState,*rpcPlane);
-	  if(tsos.isValid() && (rpcPlane->bounds()).inside(tsos.localPosition())){
+	  if(tsos.isValid() && 
+	     fabs(tsos.localPosition().z())<0.01 && 
+	     fabs(tsos.localPosition().x())<ChLength*0.5 && 
+	     fabs(tsos.localPosition().y())<ChWidth*0.5){
+
+	    std::cout<<"Roll "<<NRoll<<" Lenght "<<ChLength<<" width "<<ChWidth<<std::endl;
 	    std::vector< const RPCRoll*> rolhit = (ch->rolls());
 	    for(std::vector<const RPCRoll*>::const_iterator iteraRec = rolhit.begin();iteraRec != rolhit.end(); ++iteraRec){
 	      RPCDetId rollId=(*iteraRec)->id();
@@ -185,6 +217,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    }
 	    if(rollRec.size()==0){
 	      std::vector< const RPCRoll*> rolNohit = (ch->rolls());
+	      std::cout<<"No Roll Found with rec hit "<<NRoll<<" Lenght "<<ChLength<<" width "<<ChWidth<<std::endl;
 	      for(std::vector<const RPCRoll*>::const_iterator iteraR = rolNohit.begin();iteraR != rolNohit.end(); ++iteraR){
 		RPCDetId rollId=(*iteraR)->id();
 		const BoundPlane* rpcPlane1 = &((*iteraR)->surface());
@@ -459,7 +492,6 @@ void RPCEfficiencyFromTrack::endJob(){
   int id=0;
   for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
     id++;
-
     char detUnitLabel[128];
     char meIdRPC [128];
     char meIdTrack [128];
