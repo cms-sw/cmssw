@@ -4,7 +4,7 @@
 include "RecoLocalCalo/EcalRecProducers/data/getEcalConditions_frontier.cff"
 include "CalibCalorimetry/EcalLaserCorrection/data/ecalLaserCorrectionService.cfi"
 
-replace ecalConditions.connect="frontier://cms_conditions_data/CMS_COND_17X_ECAL" 
+replace ecalConditions.connect="frontier://Frontier/CMS_COND_17X_ECAL" 
 
 replace ecalConditions.toGet = {
     { string record = "EcalPedestalsRcd"
