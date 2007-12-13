@@ -197,12 +197,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  const FreeTrajectoryState& fS=tcp.theState();
 	  const FreeTrajectoryState* fState = &fS; 
 	  TrajectoryStateOnSurface tsos = thePropagator->propagate(*fState,*rpcPlane);
-	  if(tsos.isValid() && 
-	     fabs(tsos.localPosition().z())<0.01 && 
-	     fabs(tsos.localPosition().x())<ChLength*0.5 && 
-	     fabs(tsos.localPosition().y())<ChWidth*0.5){
-
-	    std::cout<<"Roll "<<NRoll<<" Lenght "<<ChLength<<" width "<<ChWidth<<std::endl;
+	  if(tsos.isValid() && fabs(tsos.localPosition().z())<0.01){
 	    std::vector< const RPCRoll*> rolhit = (ch->rolls());
 	    for(std::vector<const RPCRoll*>::const_iterator iteraRec = rolhit.begin();iteraRec != rolhit.end(); ++iteraRec){
 	      RPCDetId rollId=(*iteraRec)->id();
@@ -217,7 +212,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    }
 	    if(rollRec.size()==0){
 	      std::vector< const RPCRoll*> rolNohit = (ch->rolls());
-	      std::cout<<"No Roll Found with rec hit "<<NRoll<<" Lenght "<<ChLength<<" width "<<ChWidth<<std::endl;
 	      for(std::vector<const RPCRoll*>::const_iterator iteraR = rolNohit.begin();iteraR != rolNohit.end(); ++iteraR){
 		RPCDetId rollId=(*iteraR)->id();
 		const BoundPlane* rpcPlane1 = &((*iteraR)->surface());
@@ -241,7 +235,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    }
 	  }//TSOS RPC valid
 	}
-
+	
 	//EndCap
 	if(track.innermostMeasurementState().isValid() && reg!=0 && MeasureEndCap==true){
 	  const BoundPlane* rpcPlane = &(ch->surface());
@@ -291,153 +285,162 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
     }//End loop on Geometry
   }//End Roll Finder
 
-  if(read==true){
-    for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
-      reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
+
+  for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
+    reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
+    
+    for (std::vector<RPCDetId>::iterator iteraRoll = rollRec.begin();iteraRoll != rollRec.end(); iteraRoll++){
+      const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
+      const BoundPlane& rpcPlane1 = rollasociated->surface();
+      const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
+      LocalPoint xmin = top_->localPosition(0.);
+      LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
+      float rsize = fabs( xmax.x()-xmin.x() )*0.5;
+      float stripl = top_->stripLength();
+ 
+      TrajectoryStateClosestToPoint tcp1=track.impactPointTSCP();
+      const FreeTrajectoryState& fS1=tcp1.theState();
+      const FreeTrajectoryState* fState1 = &fS1;       
+
+      TrajectoryStateOnSurface tsosAtRoll = thePropagator->propagate(*fState1,rpcPlane1);
       
-      for (std::vector<RPCDetId>::iterator iteraRoll = rollRec.begin();iteraRoll != rollRec.end(); iteraRoll++){
-	const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
-	const BoundPlane& rpcPlane1 = rollasociated->surface();
-	TrajectoryStateClosestToPoint tcp1=track.impactPointTSCP();
-	const FreeTrajectoryState& fS1=tcp1.theState();
-	const FreeTrajectoryState* fState1 = &fS1; 
-	TrajectoryStateOnSurface tsosAtRoll = thePropagator->propagate(*fState1,rpcPlane1);
+      if(tsosAtRoll.isValid() 
+	 && fabs(tsosAtRoll.localPosition().z()) < 0.01 
+	 && fabs(tsosAtRoll.localPosition().x()) < rsize 
+	 && fabs(tsosAtRoll.localPosition().y()) < stripl*0.5 ){
+	RPCDetId rollId = rollasociated->id();
+	RPCGeomServ RPCname(rollId);
+	std::string nameRoll = RPCname.name();
 	
-	if(tsosAtRoll.isValid() && (rpcPlane1.bounds()).inside(tsosAtRoll.localPosition())){
-	  RPCDetId rollId = rollasociated->id();
-	  RPCGeomServ RPCname(rollId);
-	  std::string nameRoll = RPCname.name();
-	  
-	  if(rollId.region()==0){
-	    int first = nameRoll.find("W");
-	    int second = nameRoll.substr(first,nameRoll.npos).find("/");
-	    std::string wheel=nameRoll.substr(first,second);		
-	    first = nameRoll.find("/");
-	    second = nameRoll.substr(first,nameRoll.npos).rfind("/");
-	    std::string rpc=nameRoll.substr(first+1,second-1);		
-	    first = nameRoll.rfind("/");
-	    std::string partition=nameRoll.substr(first+1);
+	if(rollId.region()==0){
+	  int first = nameRoll.find("W");
+	  int second = nameRoll.substr(first,nameRoll.npos).find("/");
+	  std::string wheel=nameRoll.substr(first,second);		
+	  first = nameRoll.find("/");
+	  second = nameRoll.substr(first,nameRoll.npos).rfind("/");
+	  std::string rpc=nameRoll.substr(first+1,second-1);		
+	  first = nameRoll.rfind("/");
+	  std::string partition=nameRoll.substr(first+1);
 	    nameRoll=wheel+"_"+rpc+"_"+partition;
+	}
+	
+	_idList.push_back(nameRoll);
+	std::cout<<"RPC -- Candidate"<<nameRoll<<std::endl;
+	char detUnitLabel[128];
+	sprintf(detUnitLabel ,"%s",nameRoll.c_str());
+	sprintf(layerLabel ,"%s",nameRoll.c_str());
+	std::map<std::string, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(nameRoll);
+	if (meItr == meCollection.end()){
+	  meCollection[nameRoll] = bookDetUnitTrackEff(rollId);
+	}
+	std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
+	
+	totalcounter[0]++;
+	buff=counter[0];
+	buff[rollId]++;
+	counter[0]=buff;
+	
+	int stripPredicted = (int)(rollasociated->strip(tsosAtRoll.localPosition()));
+	double xextrap = tsosAtRoll.localPosition().x();
+	
+	sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
+	meMap[meIdTrack]->Fill(stripPredicted);
+	
+	
+	RPCRecHitCollection::range rpcRecHitRange = rpcHits->get(rollasociated->id());
+	RPCRecHitCollection::const_iterator recIt;
+	
+	bool anycoincidence=false;
+	std::vector<double> ResVec;
+	ResVec.clear();
+	std::vector<double> RecErr;
+	RecErr.clear();
+	std::vector<double> extrVec;
+	extrVec.clear();
+	std::vector<double> posVec;
+	posVec.clear();
+	std::vector<double> stripD;
+	stripD.clear();
+	std::vector<double> stripPr;
+	stripPr.clear();
+	
+	double res=0.;
+	
+	for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
+	  LocalPoint rhitlocal = (*recIt).localPosition();
+	  double rhitpos = rhitlocal.x();  
+	  double stripDetected = (int)(rollasociated->strip(rhitlocal));
+	  LocalError RecError = (*recIt).localPositionError();
+	  double sigmaRec = RecError.xx();
+	  res = (double)(xextrap - rhitpos);
+	  
+	  ResVec.push_back(res);		
+	  RecErr.push_back(sigmaRec);
+	  extrVec.push_back(xextrap);	
+	  posVec.push_back(rhitpos);	
+	  stripD.push_back(stripDetected);	
+	  stripPr.push_back(stripPredicted);
+	}
+	
+	int rpos=0;
+	
+	std::cout<<"Rec Found On "<<nameRoll<< "\t= "<<ResVec.size()<<std::endl;
+	
+	
+	if(ResVec.size()==1){
+	  res = ResVec[0];
+	  for(unsigned int rs=0;rs<ResVec.size();rs++){
+	    if(fabs(ResVec[rs]) < fabs(res)){
+	      res = ResVec[rs];
+	      rpos=rs;
+	    }
 	  }
 	  
-	  _idList.push_back(nameRoll);
-	  std::cout<<"RPC -- Candidate"<<nameRoll<<std::endl;
-	  char detUnitLabel[128];
-	  sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-	  sprintf(layerLabel ,"%s",nameRoll.c_str());
-	  std::map<std::string, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(nameRoll);
-	  if (meItr == meCollection.end()){
-	    meCollection[nameRoll] = bookDetUnitTrackEff(rollId);
-	  }
-	  std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
+	  std::cout<<"**********************************************"<<std::endl;
+	  std::cout<<"\t                                   "<<std::endl;
+	  std::cout<<"Point Extrapolated                   "<<extrVec[rpos]<<std::endl;
+	  std::cout<<"Real Point                           "<<posVec[rpos]<<std::endl;
+	  std::cout<<"**********************************************"<<std::endl;
+	  std::cout<<"Strip Extrapolated "<<stripPr[rpos]<<" Strip Detected "<<stripD[rpos]<<std::endl;
+	  std::cout<<"**********************************************"<<std::endl;
 	  
-	  totalcounter[0]++;
-	  buff=counter[0];
+	  sprintf(meIdRPC,"Residuals_%s",detUnitLabel);
+	  meMap[meIdRPC]->Fill(res);
+	  sprintf(meIdRPC,"Residuals_VS_RecPt_%s",detUnitLabel);
+	  meMap[meIdRPC]->Fill(tsosAtRoll.globalMomentum().perp(),res);
+	  
+	  hGlobalRes->Fill(res);
+	  hGlobalPull->Fill(res/RecErr[rpos]);
+	  hRecPt->Fill(tsosAtRoll.globalMomentum().perp());
+	  
+	  
+	  if(fabs(res)<maxRes){
+	    anycoincidence=true;
+	    std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<nameRoll<<std::endl;
+	  }
+	  else{
+	    anycoincidence=false;
+	    std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<nameRoll<<std::endl;
+	  }
+	}
+	
+	if(anycoincidence==true){
+	  totalcounter[1]++;
+	  buff=counter[1];
 	  buff[rollId]++;
-	  counter[0]=buff;
+	  counter[1]=buff;
 	  
-	  int stripPredicted = (int)(rollasociated->strip(tsosAtRoll.localPosition()));
-	  double xextrap = tsosAtRoll.localPosition().x();
+	  sprintf(meIdRPC,"RealDetectedOccupancy_%s",detUnitLabel);
+	  meMap[meIdRPC]->Fill(stripD[rpos]);
 	  
-	  sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
-	  meMap[meIdTrack]->Fill(stripPredicted);
-	  
-	  
-	  RPCRecHitCollection::range rpcRecHitRange = rpcHits->get(rollasociated->id());
-	  RPCRecHitCollection::const_iterator recIt;
-	  
-	  bool anycoincidence=false;
-	  std::vector<double> ResVec;
-	  ResVec.clear();
-	  std::vector<double> RecErr;
-	  RecErr.clear();
-	  std::vector<double> extrVec;
-	  extrVec.clear();
-	  std::vector<double> posVec;
-	  posVec.clear();
-	  std::vector<double> stripD;
-	  stripD.clear();
-	  std::vector<double> stripPr;
-	  stripPr.clear();
-	  
-	  double res=0.;
-	  
-	  for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
-	    LocalPoint rhitlocal = (*recIt).localPosition();
-	    double rhitpos = rhitlocal.x();  
-	    double stripDetected = (int)(rollasociated->strip(rhitlocal));
-	    LocalError RecError = (*recIt).localPositionError();
-	    double sigmaRec = RecError.xx();
-	    res = (double)(xextrap - rhitpos);
+	  sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
+	  meMap[meIdRPC]->Fill(stripPr[rpos]);
 	    
-	    ResVec.push_back(res);		
-	    RecErr.push_back(sigmaRec);
-	    extrVec.push_back(xextrap);	
-	    posVec.push_back(rhitpos);	
-	    stripD.push_back(stripDetected);	
-	    stripPr.push_back(stripPredicted);
-	  }
-	  
-	  int rpos=0;
-	  
-	  std::cout<<"Rec Found On "<<nameRoll<< "\t= "<<ResVec.size()<<std::endl;
-	  
-	  
-	  if(ResVec.size()==1){
-	    res = ResVec[0];
-	    for(unsigned int rs=0;rs<ResVec.size();rs++){
-	      if(fabs(ResVec[rs]) < fabs(res)){
-		res = ResVec[rs];
-		rpos=rs;
-	      }
-	    }
-	    
-	    std::cout<<"**********************************************"<<std::endl;
-	    std::cout<<"\t                                   "<<std::endl;
-	    std::cout<<"Point Extrapolated                   "<<extrVec[rpos]<<std::endl;
-	    std::cout<<"Real Point                           "<<posVec[rpos]<<std::endl;
-	    std::cout<<"**********************************************"<<std::endl;
-	    std::cout<<"Strip Extrapolated "<<stripPr[rpos]<<" Strip Detected "<<stripD[rpos]<<std::endl;
-	    std::cout<<"**********************************************"<<std::endl;
-	    
-	    sprintf(meIdRPC,"Residuals_%s",detUnitLabel);
-	    meMap[meIdRPC]->Fill(res);
-	    sprintf(meIdRPC,"Residuals_VS_RecPt_%s",detUnitLabel);
-	    meMap[meIdRPC]->Fill(tsosAtRoll.globalMomentum().perp(),res);
-	    
-	    hGlobalRes->Fill(res);
-	    hGlobalPull->Fill(res/RecErr[rpos]);
-	    hRecPt->Fill(tsosAtRoll.globalMomentum().perp());
-	    
-	    
-	    if(fabs(res)<maxRes){
-	      anycoincidence=true;
-	      std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<nameRoll<<std::endl;
-	    }
-	    else{
-	      anycoincidence=false;
-	      std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<nameRoll<<std::endl;
-	    }
-	  }
-	  
-	  if(anycoincidence==true){
-	    totalcounter[1]++;
-	    buff=counter[1];
-	    buff[rollId]++;
-	    counter[1]=buff;
-	    
-	    sprintf(meIdRPC,"RealDetectedOccupancy_%s",detUnitLabel);
-	    meMap[meIdRPC]->Fill(stripD[rpos]);
-	    
-	    sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
-	    meMap[meIdRPC]->Fill(stripPr[rpos]);
-	    
-	  }else{
-	    totalcounter[2]++;
-	    buff=counter[2];
-	    buff[rollId]++;
-	    counter[2]=buff;
-	  }
+	}else{
+	  totalcounter[2]++;
+	  buff=counter[2];
+	  buff[rollId]++;
+	  counter[2]=buff;
 	}
       }
     }
