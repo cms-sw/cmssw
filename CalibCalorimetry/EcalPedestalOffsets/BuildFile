@@ -11,6 +11,7 @@
 <use name=CondFormats/DataRecord>
 <use name=RecoLocalCalo/EcalRecAlgos>
 <use name=OnlineDB/EcalCondDB>
+<use name=Geometry/EcalMapping>
 <use name=oracle>
 <use name=clhep>
 
@@ -29,6 +30,7 @@
   <use name=DataFormats/EcalRawData>
   <use name=CondFormats/DataRecord>
   <use name=RecoLocalCalo/EcalRecAlgos>
+  <use name=Geometry/EcalMapping>
   <use name=oracle>
   <use name=clhep>
 </export>
