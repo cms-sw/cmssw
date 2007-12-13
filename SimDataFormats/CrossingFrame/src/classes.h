@@ -1,5 +1,4 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfo.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -13,8 +12,6 @@
 namespace {
 namespace {
  	CrossingFrame<PSimHit> dummy1;
-
- 	CrossingFramePlaybackInfo dummy0;
  	CrossingFrame<PCaloHit> dummy2;
  	CrossingFrame<SimTrack> dummy3;
  	CrossingFrame<SimVertex> dummy4;
@@ -27,7 +24,6 @@ namespace {
         std::vector<SimVertex> dummy13;
         std::vector<edm::HepMCProduct> dummy14;
 
-        edm::Wrapper<CrossingFramePlaybackInfo > dummy19;
         edm::Wrapper<CrossingFrame<PSimHit> > dummy20;
         edm::Wrapper<CrossingFrame<PCaloHit> > dummy21;
         edm::Wrapper<CrossingFrame<SimTrack> > dummy22;
