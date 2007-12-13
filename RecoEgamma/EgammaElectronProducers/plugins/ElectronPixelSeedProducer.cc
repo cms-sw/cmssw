@@ -45,8 +45,7 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
   std::string algo = iConfig.getParameter<std::string>("SeedAlgo");
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
   if (algo=="FilteredSeed") 
-    //    matcher_= new SubSeedGenerator(pset);
-    matcher_= new SubSeedGenerator(pset.getParameter<std::string>("initialSeedProducer"),pset.getParameter<std::string>("initialSeedLabel"));
+    matcher_= new SubSeedGenerator(pset);
   else matcher_ = new ElectronPixelSeedGenerator(pset.getParameter<double>("ePhiMin1"),
 					    pset.getParameter<double>("ePhiMax1"),
 					    pset.getParameter<double>("pPhiMin1"),
