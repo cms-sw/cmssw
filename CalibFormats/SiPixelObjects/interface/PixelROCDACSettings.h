@@ -38,6 +38,8 @@ namespace pos{
     void writeASCII(std::ostream& out) const;
 
     void getDACs(std::vector<unsigned int>& dacs) const;
+    void getDACs(std::map<std::string, unsigned int>& dacs) const;
+
     void setDAC(unsigned int dacaddress, unsigned int dacvalue);
 
     void checkTag(std::string tag, 
