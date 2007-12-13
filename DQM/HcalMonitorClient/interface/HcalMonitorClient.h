@@ -14,7 +14,6 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
