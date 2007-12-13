@@ -25,12 +25,16 @@ using namespace std;
 
 //#define mydigidebug2
 
+//HitDigitizerFP420::HitDigitizerFP420(float in,float inp,float inpx,float inpy){
+//HitDigitizerFP420::HitDigitizerFP420(float in,float inp,float inpx,float inpy,float ild,float ildx,float ildy){
 HitDigitizerFP420::HitDigitizerFP420(float in,float ild,float ildx,float ildy,float in0,float in2,float in3){
   moduleThickness =in; 
   double bz420 = in0; 
   double bzD2 =  in2; 
   double bzD3 =  in3;
-
+  //  double pitch =inp; 
+  //  double pitchX =inpx; 
+  //  double pitchY =inpy; 
   double ldrift =ild; 
   double ldriftX =ildx; 
   double ldriftY =ildy; 
@@ -38,6 +42,7 @@ HitDigitizerFP420::HitDigitizerFP420(float in,float ild,float ildx,float ildy,fl
   // Construct default classes
   //
   
+  //theCDividerFP420 = new ChargeDividerFP420(pitch);
   theCDividerFP420 = new ChargeDividerFP420(moduleThickness, bz420, bzD2, bzD3);
   
   depletionVoltage=20.0; //
@@ -126,7 +131,11 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit
   }
   // X:
   else if(zside == 2) {
-
+    //     chargePosition  = fabs(-numStrips/2. - ( int(middle.y()/pitch) +1.) );
+    //chargePosition  = fabs(int(middle.y()/pitch+0.5*(numStrips+1)) + 1.);
+    //      chargePosition  = fabs(int(middle.x()/pitch+0.5*(numStrips+1)) + 1.);
+    // local and global reference frames are rotated in 90 degree, so global X and local Y are collinear
+    //     chargePosition  = int(fabs(middle.y()/pitch + 0.5*numStrips + 1.));
     chargePosition = 0.5*(numStrips-1) + middley/pitch ;// charge in strip coord 0 - numStrips-1
     
     //  std::cout << " chargePosition    SiHitDi... = " << chargePosition                       << std::endl;

@@ -38,10 +38,6 @@ using namespace std;
 //#define CBOLTZ (1.38E-23)
 //#define e_SI (1.6E-19)
 
-//#define mydigidebug1
-
-
-
 
 
 FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
@@ -55,9 +51,9 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   thez420      = conf_.getParameter<double>("z420");
   thezD2      = conf_.getParameter<double>("zD2");
   thezD3      = conf_.getParameter<double>("zD3");
-
+  
   xytype=2;
-
+  
   if(verbosity>0) {
     std::cout << "FP420DigiMain theElectronPerADC=" << theElectronPerADC << " theThreshold=" << theThreshold << " noNoise=" << noNoise << std::endl;
   }
@@ -66,23 +62,25 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   Thick300 = 0.300;       // = 0.300 mm  normalized to 300micron Silicon
   //ENC= 2160.;             //          EquivalentNoiseCharge300um = 2160. + other sources of noise
   ENC= 960.;             //          EquivalentNoiseCharge300um = 2160. + other sources of noise
-
+  
   ldriftX = 0.050;        // in mm(zside=1)
   ldriftY = 0.050;        // in mm(zside=2)
   moduleThickness = 0.250; // mm(zside=1)(zside=2)
-
+  
   pitchY= 0.050;          // in mm(zside=1)
   pitchX= 0.050;          // in mm(zside=2)
   numStripsY = 201;        // Y plate number of strips:200*0.050=10mm (zside=1)
   numStripsX = 401;        // X plate number of strips:400*0.050=20mm (zside=2)
-
+  
   pitchYW= 0.400;          // in mm(zside=1)
   pitchXW= 0.400;          // in mm(zside=2)
   numStripsYW = 51;        // Y plate number of W strips:50 *0.400=20mm (zside=1) - W have ortogonal projection
   numStripsXW = 26;        // X plate number of W strips:25 *0.400=10mm (zside=2) - W have ortogonal projection
-
-  tofCut = 100.;           // Cut on the particle TOF   = 100 or 50
-
+  
+  //tofCut = 100.;           // Cut on the particle TOF   = 100 or 50
+  tofCut = 1350.;           // Cut on the particle TOF range  = 1380 - 1500
+  elossCut = 0.00003;           // Cut on the particle TOF   = 100 or 50
+  
   
   if(verbosity>0) {
     std::cout << "FP420DigiMain moduleThickness=" << moduleThickness << std::endl;
@@ -93,7 +91,7 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   theFP420NumberingScheme = new FP420NumberingScheme();
   
   float noiseRMS = ENC*moduleThickness/Thick300;
-
+  
   theZSuppressFP420 = new ZeroSuppressFP420(conf_,noiseRMS/theElectronPerADC); 
   thePileUpFP420 = new PileUpFP420();
   theDConverterFP420 = new DigiConverterFP420(theElectronPerADC);
@@ -111,7 +109,7 @@ FP420DigiMain::~FP420DigiMain(){
   delete theHitDigitizerFP420;
   delete thePileUpFP420;
   delete theDConverterFP420;
-
+  
 }
 
 
@@ -120,17 +118,18 @@ FP420DigiMain::~FP420DigiMain(){
 //  ------------------
 
 vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
-				       G4ThreeVector bfield, unsigned int iu, int sScale)  {
+				       G4ThreeVector bfield, unsigned int iu )  {
+  //				       G4ThreeVector bfield, unsigned int iu, int sScale)  {
   
-  // unpack from iu:
-  //  int  sScale = 20, zScale=2;
-  int  zScale=2;
-  int  sector = (iu-1)/sScale + 1 ;
-  int  zmodule = (iu - (sector - 1)*sScale - 1) /zScale + 1 ;
-  int  zside = iu - (sector - 1)*sScale - (zmodule - 1)*zScale ;
-  if(verbosity>10) {
-    std::cout << "FP420DigiMain xytype=" << xytype << " zside=" << zside << " zmodule=" << zmodule << " sector=" << sector << std::endl;
-  }
+  //  // unpack from iu:
+  //  //  int  sScale = 20, zScale=2;
+  //  int  zScale=2;
+  //  int  sector = (iu-1)/sScale + 1 ;
+  //  int  zmodule = (iu - (sector - 1)*sScale - 1) /zScale + 1 ;
+  //  int  zside = iu - (sector - 1)*sScale - (zmodule - 1)*zScale ;
+  //  if(verbosity>10) {
+  //    std::cout << "FP420DigiMain xytype=" << xytype << " zside=" << zside << " zmodule=" << zmodule << " sector=" << sector << std::endl;
+  //  }
   
   // Y:
   if (xytype ==1) {
@@ -156,7 +155,7 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
   int numPixels = numStrips*numStripsW;
   theGNoiseFP420 = new GaussNoiseFP420(numPixels,noiseRMS,theThreshold,addNoisyPixels);
   //  theGNoiseFP420 = new GaussNoiseFP420(numStrips,noiseRMS,theThreshold,addNoisyPixels);
-
+  
   
   
   
@@ -184,24 +183,26 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
     float   tof = ihit.tof();
     //ouble  losenergy = ihit.getEnergyLoss();
     //float   tof = ihit.getTof();
-#ifdef mydigidebug1
-    unsigned int unitID = ihit.getUnitID();
-    //      int det, zside, sector, zmodule;
-    //      FP420NumberingScheme::unpackFP420Index(unitID, det, zside, sector, zmodule);
-    //        int  sScale = 20;
-    // intindex is a continues numbering of FP420
-    //	  int zScale=2;  unsigned int intindex = sScale*(sector - 1)+zScale*(zmodule - 1)+zside; 
-    // int zScale=10;	unsigned int intindex = sScale*(sector - 1)+zScale*(zside - 1)+zmodule;
-    std::cout << " *******FP420DigiMain:                           intindex= " << iu << std::endl;
-    std::cout << " tof= " << tof << "  EnergyLoss= " << losenergy << std::endl;
-    std::cout << " EntryLocalP= " << ihit.getEntryLocalP() << std::endl;
-    std::cout << " ExitLocalP= " << ihit.getExitLocalP() << std::endl;
-    std::cout << " unitID= " << unitID << "  zside= " << zside << std::endl;
-    std::cout << " sector= " << sector << "  zmodule= " << zmodule << std::endl;
-    std::cout << "  bfield= " << bfield << std::endl;
-#endif
+    if(verbosity>0) {
+      unsigned int unitID = ihit.detUnitId();
+      //    //      int det, zside, sector, zmodule;
+      //    //      FP420NumberingScheme::unpackFP420Index(unitID, det, zside, sector, zmodule);
+      //    //        int  sScale = 20;
+      //    // intindex is a continues numbering of FP420
+      //    //	  int zScale=2;  unsigned int intindex = sScale*(sector - 1)+zScale*(zmodule - 1)+zside; 
+      //    // int zScale=10;	unsigned int intindex = sScale*(sector - 1)+zScale*(zside - 1)+zmodule;
+      std::cout << " *******FP420DigiMain:                           intindex= " << iu << std::endl;
+      std::cout << " tof= " << tof << "  EnergyLoss= " << losenergy  << "  pabs= " <<  ihit.pabs() << std::endl;
+      std::cout << " EntryLocalP x= " << ihit.entryPoint().x() << " EntryLocalP y= " << ihit.entryPoint().y() << std::endl;
+      std::cout << " ExitLocalP x= " << ihit.exitPoint().x() << " ExitLocalP y= " << ihit.exitPoint().y() << std::endl;
+      std::cout << " EntryLocalP z= " << ihit.entryPoint().z() << " ExitLocalP z= " << ihit.exitPoint().z() << std::endl;
+      std::cout << " unitID= " << unitID << "  xytype= " << xytype << " particleType= " << ihit.particleType() << " trackId= " << ihit.trackId() << std::endl;
+      //    std::cout << " sector= " << sector << "  zmodule= " << zmodule << std::endl;
+      std::cout << "  bfield= " << bfield << std::endl;
+    }
     
-    if ( abs(tof) < tofCut && losenergy>0) {
+    if ( tofCut < abs(tof) < (tofCut+200.) && losenergy > elossCut) {
+      //    if ( abs(tof) < tofCut && losenergy > elossCut) {
       // if ( losenergy>0) {
       
       //   zside = 1 - Y strips;   =2 - X strips;
@@ -210,9 +211,6 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
       
       
       
-#ifdef mydigidebug1
-      std::cout << " *******FP420DigiMain: start:PileUpFP420->add" << std::endl;
-#endif
       thePileUpFP420->add(_temp,ihit);
       
     }// if
@@ -223,39 +221,17 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
   } //for
   // main loop end (AZ) 
   
-#ifdef mydigidebug1
-  std::cout << "          " << std::endl;
-  std::cout << " *******FP420DigiMain: END of LOOP on HITs !!!!!!!" << std::endl;
-  std::cout << "          " << std::endl;
-  std::cout << "          " << std::endl;
-  std::cout << " *******FP420DigiMain: start:dumpSignal - return theMap" << std::endl;
-#endif
   PileUpFP420::signal_map_type theSignal = thePileUpFP420->dumpSignal();
-#ifdef mydigidebug1
-  std::cout << " *******FP420DigiMain: start:dumpLink - return theMapLink" << std::endl;
-#endif
   PileUpFP420::HitToDigisMapType theLink = thePileUpFP420->dumpLink();  
   
   
-#ifdef mydigidebug1
-  std::cout << " *******FP420DigiMain: start:afterNoise" << std::endl;
-#endif
-
-
-
   PileUpFP420::signal_map_type afterNoise;
   
   if (noNoise) {
-#ifdef mydigidebug1
-    std::cout << " *******FP420DigiMain: start:IFnoNoise    theSignal" << std::endl;
-#endif
     afterNoise = theSignal;
   } else {
-#ifdef mydigidebug1
-    std::cout << " *******FP420DigiMain: start:IFnoNoiseelse    addNoise" << std::endl;
-#endif
     afterNoise = theGNoiseFP420->addNoise(theSignal);
-//    add_noise();
+    //    add_noise();
   }
   
   //  if((pixelInefficiency>0) && (_signal.size()>0)) 
@@ -265,9 +241,6 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
   
   digis.clear();
   
-#ifdef mydigidebug1
-  std::cout << " *******FP420DigiMain: start:push_digis zside = " << zside << std::endl;
-#endif
   
   
   //                                                                                                                !!!!!
@@ -286,11 +259,11 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
 void FP420DigiMain::push_digis(const DigitalMapType& dm,
 			       const HitToDigisMapType& htd,
 			       const PileUpFP420::signal_map_type& afterNoise
-			       ){
-  
-#ifdef mydigidebug1
-  std::cout << " ****FP420DigiMain: push_digis start: do for loop dm.size()=" <<  dm.size() << std::endl;
-#endif
+			       )        {
+  //  
+  if(verbosity>0) {
+    std::cout << " ****FP420DigiMain: push_digis start: do for loop dm.size()=" <<  dm.size() << std::endl;
+  }
   
   
   digis.reserve(50); 
@@ -303,11 +276,11 @@ void FP420DigiMain::push_digis(const DigitalMapType& dm,
     digis.push_back( HDigiFP420( (*i).first, (*i).second));
     ndigis++; 
     // very useful check:
-#ifdef mydigidebug1
-    std::cout << " ****FP420DigiMain:push_digis:  ndigis = " << ndigis << std::endl;
-    std::cout << "push_digis: strip  = " << (*i).first << "  adc = " << (*i).second << std::endl;
+    if(verbosity>0) {
+      std::cout << " ****FP420DigiMain:push_digis:  ndigis = " << ndigis << std::endl;
+      std::cout << "push_digis: strip  = " << (*i).first << "  adc = " << (*i).second << std::endl;
+    }    
     
-#endif
   }
   
   ////////////////////////////det.specificReadout().addDigis( digis); // 
@@ -316,36 +289,36 @@ void FP420DigiMain::push_digis(const DigitalMapType& dm,
   // reworked to access the fraction of amplitude per simhit PSimHit
   //
   for ( HitToDigisMapType::const_iterator mi=htd.begin(); mi!=htd.end(); mi++) {
-#ifdef mydigidebug1
-    std::cout << " ****push_digis:first for:  (*mi).first = " << (*mi).first << std::endl;
-    std::cout << " if condition   = " << (*((const_cast<DigitalMapType * >(&dm))))[(*mi).first] << std::endl;
-#endif
-    //    if ((*((const_cast<DigitalMapType * >(&dm))))[(*mi).first] != 0){
-    if ((*((const_cast<DigitalMapType * >(&dm)))).find((*mi).first) != (*((const_cast<DigitalMapType * >(&dm)))).end() ){
-      //
-      // For each channel, sum up the signals from a simtrack
-      //
-      map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
-      for (vector < pair < const PSimHit*, Amplitude > >::const_iterator simul = 
-	     (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
-#ifdef mydigidebug1
-	std::cout << " ****push_digis:inside last for: (*simul).second= " << (*simul).second << std::endl;
-#endif
-	totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
-      } // for
-    }  // if
+  #ifdef mydigidebug1
+  std::cout << " ****push_digis:first for:  (*mi).first = " << (*mi).first << std::endl;
+  std::cout << " if condition   = " << (*((const_cast<DigitalMapType * >(&dm))))[(*mi).first] << std::endl;
+  #endif
+  //    if ((*((const_cast<DigitalMapType * >(&dm))))[(*mi).first] != 0){
+  if ((*((const_cast<DigitalMapType * >(&dm)))).find((*mi).first) != (*((const_cast<DigitalMapType * >(&dm)))).end() ){
+  //
+  // For each channel, sum up the signals from a simtrack
+  //
+  map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
+  for (vector < pair < const PSimHit*, Amplitude > >::const_iterator simul = 
+  (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
+  #ifdef mydigidebug1
+  std::cout << " ****push_digis:inside last for: (*simul).second= " << (*simul).second << std::endl;
+  #endif
+  totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
   } // for
-*/
-
-  /////////////////////////////////////////////////////////////////////////////////////////////
-         
-  // reworked to access the fraction of amplitude per simhit
+  }  // if
+  } // for
+  */
   
+  /////////////////////////////////////////////////////////////////////////////////////////////
+    
+    // reworked to access the fraction of amplitude per simhit
+    
     for ( HitToDigisMapType::const_iterator mi=htd.begin(); mi!=htd.end(); mi++) {
-      
+      //      
       if ((*((const_cast<DigitalMapType * >(&dm)))).find((*mi).first) != (*((const_cast<DigitalMapType * >(&dm)))).end() ){
 	// --- For each channel, sum up the signals from a simtrack
-	
+	//
 	map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
 	for (vector < pair < const PSimHit*, Amplitude > >::const_iterator simul =
 	       (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
@@ -359,28 +332,28 @@ void FP420DigiMain::push_digis(const DigitalMapType& dm,
 	
 	//--- digisimlink
 	for (map<const PSimHit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin();
-	     iter != totalAmplitudePerSimHit.end(); iter++){
-	  
-	  float threshold = 0.;
-	  if (totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1 >= threshold) {
-	    float fraction = totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1;
-	    
-	    //Noise fluctuation could make fraction>1. Unphysical, set it by hand.
-	    if(fraction >1.) fraction = 1.;
-	    
-	    link_coll.push_back(StripDigiSimLink( (*mi).first,   //channel
-						  ((*iter).first)->trackId(), //simhit
-						  fraction));    //fraction
-	  }//if
+	iter != totalAmplitudePerSimHit.end(); iter++){
+	
+	float threshold = 0.;
+	if (totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1 >= threshold) {
+	float fraction = totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1;
+	
+	//Noise fluctuation could make fraction>1. Unphysical, set it by hand.
+	if(fraction >1.) fraction = 1.;
+	
+	link_coll.push_back(StripDigiSimLink( (*mi).first,   //channel
+	((*iter).first)->trackId(), //simhit
+	fraction));    //fraction
+	}//if
 	}//for
-*/
-
+	*/
+	//
       }//if
     }//for
-    
-   
-  /////////////////////////////////////////////////////////////////////////////////////////////
-  
-  
-  
-}
+    //
+    //
+    /////////////////////////////////////////////////////////////////////////////////////////////
+      //      
+      //      
+      //      
+      }
