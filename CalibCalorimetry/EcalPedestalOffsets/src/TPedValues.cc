@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include "TGraphErrors.h"
-#include <cassert>
 
 void reset (double vett[256]) 
 {
@@ -200,7 +199,9 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
         else if (gain ==2) gainHuman =1;
         else               gainHuman =-1;
         sprintf (name,"XTL%d_GAIN%d",(xtl+1),gainHuman) ;      
-        graph.Write (name) ;
+        graph.GetXaxis()->SetTitle("DAC value");
+        graph.GetYaxis()->SetTitle("Average pedestal ADC");
+        graph.Write (name);
       } // loop over the gains
         // (loop over the crystals)
 
