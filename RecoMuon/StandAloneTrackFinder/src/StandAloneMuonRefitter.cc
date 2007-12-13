@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2007/05/11 18:28:25 $
- *  $Revision: 1.35 $
+ *  $Date: 2007/11/28 01:53:57 $
+ *  $Revision: 1.36 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -39,7 +39,7 @@ using namespace std;
 StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par,
 					       const MuonServiceProxy* service)
 :theService(service),
- useOverlappingChambers_(true)
+ theOverlappingChambersFlag(true)
 {
   // Fit direction
   string fitDirectionName = par.getParameter<string>("FitDirection");
@@ -269,7 +269,7 @@ StandAloneMuonRefitter::findBestMeasurements(const DetLayer * layer,
                                              const TrajectoryStateOnSurface & tsos)
 {
   std::vector<TrajectoryMeasurement> result;
-  if(useOverlappingChambers_ && layer->hasGroups())
+  if(theOverlappingChambersFlag && layer->hasGroups())
   {
     std::vector<TrajectoryMeasurementGroup> measurementGroups =
       theMeasurementExtractor->groupedMeasurements(layer, tsos, *propagator(), *estimator());

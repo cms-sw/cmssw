@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2007/01/18 13:29:26 $
- *  $Revision: 1.25 $
+ *  $Date: 2007/11/28 01:54:06 $
+ *  $Revision: 1.26 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -163,7 +163,7 @@ private:
   int rpcChambers;
 
   const MuonServiceProxy *theService;
-  bool useOverlappingChambers_;
+  bool theOverlappingChambersFlag;
 };
 #endif
 
