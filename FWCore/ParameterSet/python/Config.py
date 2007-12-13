@@ -353,11 +353,16 @@ class Process(object):
         config += "}\n"
         options.unindent()
         return config
-    def _dumpPythonList(self,items, options):
+    def _dumpPythonList(self, d, options):
         returnValue = ''
-        for name,item in items:
+        for name,item in d.iteritems():
             returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
         return returnValue
+    def _dumpPython(self, d, options):
+        result = ''
+        for name, value in d.iteritems():
+           result += value.dumpPythonAs(name,options)+'\n'
+        return result
     def dumpPython(self, options=PrintOptions()):
         """return a string containing the equivalent process defined using the configuration language"""
         result = "process = cms.Process(\""+self.__name+"\")\n\n"
@@ -365,41 +370,41 @@ class Process(object):
             result += "process.source = "+self.source_().dumpPython(options)
         if self.looper_():
             result += "process.looper = "+self.looper_().dumpPython()
-        result+=self._dumpPythonList(self.producers_().iteritems(), options)
-        result+=self._dumpPythonList(self.filters_().iteritems() , options)
-        result+=self._dumpPythonList(self.analyzers_().iteritems(), options)
-        result+=self._dumpPythonList(self.outputModules_().iteritems(), options)
-        result+=self._dumpPythonList(self.sequences_().iteritems(), options)
-        result+=self._dumpPythonList(self.paths_().iteritems(), options)
-        result+=self._dumpPythonList(self.endpaths_().iteritems(), options)
-        result+=self._dumpPythonList(self.services_().iteritems(), options)
-        result+=self._dumpPythonList(self.es_producers_().iteritems(), options)
-        result+=self._dumpPythonList(self.es_sources_().iteritems(), options)
-        result+=self._dumpPythonList(self.es_prefers_().iteritems(), options)
-        result+=self._dumpPythonList(self.psets.iteritems(), options)
-        result+=self._dumpPythonList(self.vpsets.iteritems(), options)
+        result+=self._dumpPythonList(self.producers_(), options)
+        result+=self._dumpPythonList(self.filters_() , options)
+        result+=self._dumpPythonList(self.analyzers_(), options)
+        result+=self._dumpPythonList(self.outputModules_(), options)
+        result+=self._dumpPythonList(self.sequences_(), options)
+        result+=self._dumpPythonList(self.paths_(), options)
+        result+=self._dumpPythonList(self.endpaths_(), options)
+        result+=self._dumpPythonList(self.services_(), options)
+        result+=self._dumpPythonList(self.es_producers_(), options)
+        result+=self._dumpPythonList(self.es_sources_(), options)
+        result+=self._dumpPython(self.es_prefers_(), options)
+        result+=self._dumpPythonList(self.psets, options)
+        result+=self._dumpPythonList(self.vpsets, options)
         if self.schedule:
             result += "process.schedule = "+self.schedule.dumpPython(options)
         return result
 
-    def insertOneInto(self, parameterSet, label, item):
+    def _insertOneInto(self, parameterSet, label, item):
         vitems = []
         if not item == None:
             newlabel = item.nameInProcessDesc_(label)
             vitems = [newlabel]
             item.insertInto(parameterSet, newlabel)
         parameterSet.addVString(True, label, vitems)
-    def insertManyInto(self, parameterSet, label, itemDict):
+    def _insertManyInto(self, parameterSet, label, itemDict):
         l = []
         for name,value in itemDict.iteritems():
           newLabel = value.nameInProcessDesc_(name)
           l.append(newLabel)
           value.insertInto(parameterSet, name)
         parameterSet.addVString(True, label, l)
-    def insertServices(self, processDesc, itemDict):
+    def _insertServices(self, processDesc, itemDict):
         for name,value in itemDict.iteritems():
            value.insertInto(processDesc)
-    def insertPaths(self, processDesc, processPSet):
+    def _insertPaths(self, processDesc, processPSet):
         scheduledPaths = []
         triggerPaths = []
         endpaths = []
@@ -437,16 +442,49 @@ class Process(object):
         all_modules.update(self.filters_())
         all_modules.update(self.analyzers_())
         all_modules.update(self.outputModules_())
-        self.insertManyInto(processPSet, "@all_modules", all_modules)
-        self.insertOneInto(processPSet,  "@all_sources", self.source_())
-        self.insertOneInto(processPSet,  "@all_loopers",   self.looper_())
-        self.insertManyInto(processPSet, "@all_esmodules", self.es_producers_())
-        self.insertManyInto(processPSet, "@all_essources", self.es_sources_())
-        self.insertManyInto(processPSet, "@all_esprefers", self.es_prefers_())
-        self.insertPaths(processDesc, processPSet)
-        self.insertServices(processDesc, self.services_())
+        self._insertManyInto(processPSet, "@all_modules", all_modules)
+        self._insertOneInto(processPSet,  "@all_sources", self.source_())
+        self._insertOneInto(processPSet,  "@all_loopers",   self.looper_())
+        self._insertManyInto(processPSet, "@all_esmodules", self.es_producers_())
+        self._insertManyInto(processPSet, "@all_essources", self.es_sources_())
+        self._insertManyInto(processPSet, "@all_esprefers", self.es_prefers_())
+        self._insertPaths(processDesc, processPSet)
+        self._insertServices(processDesc, self.services_())
         return processDesc
 
+    def prefer(self, esmodule):
+        """Prefer this ES source or producer.  The argument can
+           either be an object label, e.g., 
+             process.prefer(process.juicerProducer) (not supported yet)
+           or a name of an ESSource or ESProducer
+             process.prefer("juicer")
+           or a type of unnamed ESSource or ESProducer
+             process.prefer("JuicerProducer")"""
+        # see if this refers to a named ESProducer
+        if isinstance(esmodule, ESSource) or isinstance(esmodule, ESProducer):
+            raise RuntimeError("Syntax of process.prefer(process.esmodule) not supported yet")
+        elif self._findPreferred(esmodule, self.es_producers_()) or \
+                self._findPreferred(esmodule, self.es_sources_()):
+            pass
+        else:
+            raise RuntimeError("Cannot resolve prefer for "+repr(esmodule))
+
+    def _findPreferred(self, esname, d):
+        # is esname a name in the dictionary?
+        if esname in d:
+            self.__setattr__(esname, ESPrefer(d[esname].type_()))
+            return True
+        else:
+            # maybe it's an unnamed ESModule?
+            found = False
+            for name, value in d.iteritems():
+               if value.type_() == esname:
+                  if found:
+                      raise RuntimeError("More than one ES module for "+esname)
+                  found = True
+                  self.add_( ESPrefer(d[esname].type_()) )
+            return found
+         
 def include(fileName):
     """Parse a configuration file language file and return a 'module like' object"""
     from FWCore.ParameterSet.parseConfig import importConfig
@@ -648,6 +686,14 @@ if __name__=="__main__":
             p.p = Path(p.foos*p.bars)
             p.e = EndPath(p.out)
             p.add_(Service("MessageLogger"))
+
+        def testPrefers(self):
+            p = Process("Test")
+            p.add_(ESSource("ForceSource"))
+            p.juicer = ESProducer("JuicerProducer")
+            p.prefer("ForceSource")
+            p.prefer("juicer")
+
         def testFindDependencies(self):
             p = Process("test")
             p.a = EDProducer("MyProd")
