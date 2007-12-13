@@ -17,11 +17,11 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+#include "FastSimulation/Tracking/interface/FastTransientTrackingRecHit.h"
 
 #include "FastSimulation/Tracking/plugins/TrackCandidateProducer.h"
 
@@ -131,9 +131,15 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm:: Handle<std::vector<Trajectory> > theTrajectoryCollection;
   edm::Handle<TrajTrackAssociationCollection> theAssoMap;  
   bool isTrackCollection = e.getByLabel(trackProducer,theTrackCollection); 
+
+  unsigned nRecoHits = 0;
   if ( isTrackCollection ) { 
+    reco::TrackCollection::const_iterator aTrack = theTrackCollection->begin();
+    reco::TrackCollection::const_iterator lastTrack = theTrackCollection->end();
+    for ( ; aTrack!=lastTrack; ++aTrack ) nRecoHits+= aTrack->recHitsSize();
     e.getByLabel(trackProducer,theTrajectoryCollection);
     e.getByLabel(trackProducer,theAssoMap);
+    recoHits->reserve(nRecoHits); // This is to save some time at push_back.
   }
 
   // The track collection iterators.
@@ -152,7 +158,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     // Find the first hit of the Seed
     TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
     const SiTrackerGSRecHit2D * theFirstSeedingRecHit = 
-      dynamic_cast<const SiTrackerGSRecHit2D *> (&(*(theSeedingRecHitRange.first)));
+      (const SiTrackerGSRecHit2D*) (&(*(theSeedingRecHitRange.first)));
+    //  dynamic_cast<const SiTrackerGSRecHit2D *> (&(*(theSeedingRecHitRange.first)));
     TrackerRecHit theFirstSeedingTrackerRecHit(theFirstSeedingRecHit,theGeometry);
     // SiTrackerGSRecHit2DCollection::const_iterator theSeedingRecHitEnd = theSeedingRecHitRange.second;
 
@@ -169,13 +176,11 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     int recoTrackId = -1;
     reco::TrackRef aTrackRef;
     edm::Ref<std::vector<Trajectory> > aTrajectoryRef;
-    trackingRecHit_iterator aHit; 
     if ( isTrackCollection ) { 
       for ( ; anAssociation != lastAssociation && recoTrackId < simTrackId; ++anAssociation ) { 
 	aTrajectoryRef = anAssociation->key;
 	aTrackRef = anAssociation->val;
-	aHit = aTrackRef->recHitsBegin();
-	const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *> (aHit->get());
+	const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aTrackRef->recHitsBegin()->get());
 	recoTrackId = rechit->simtrackId();
 	// std::cout << "The Reco Track Id : " << recoTrackId << std::endl;
       }
@@ -189,9 +194,9 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       recoTracks->push_back(aRecoTrack);      
       
       // A copy of the hits
-      trackingRecHit_iterator lastHit = aRecoTrack.recHitsEnd();
-      for ( ; aHit != lastHit; ++aHit) {
-	TrackingRecHit *hit = (*aHit)->clone();
+      unsigned nh = aRecoTrack.recHitsSize();
+      for ( unsigned ih=0; ih<nh; ++ih ) {
+	TrackingRecHit *hit = aRecoTrack.recHit(ih)->clone();
 	recoHits->push_back(hit);
       }
 
@@ -270,10 +275,16 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
     // 1) Create the OwnWector of TrackingRecHits
     edm::OwnVector<TrackingRecHit> recHits;
-    for ( unsigned ih=0; ih<theTrackerRecHits.size(); ++ih ) {
-      TrackingRecHit* aTrackingRecHit = 
-	  GenericTransientTrackingRecHit::build(theTrackerRecHits[ih].geomDet(),
-						theTrackerRecHits[ih].hit())->hit()->clone();
+    unsigned nTrackerHits = theTrackerRecHits.size();
+    recHits.reserve(nTrackerHits); // To save some time at push_back
+    for ( unsigned ih=0; ih<nTrackerHits; ++ih ) {
+	TrackingRecHit* aTrackingRecHit = 
+	  FastTransientTrackingRecHit(theTrackerRecHits[ih].geomDet(),
+				      theTrackerRecHits[ih].hit()).hitPtr();
+	// This used to be (much slower) like that:	
+	// TrackingRecHit* aTrackingRecHit = 
+	//  GenericTransientTrackingRecHit::build(theTrackerRecHits[ih].geomDet(),
+        //                                        theTrackerRecHits[ih].hit())->hit()->clone();
       recHits.push_back(aTrackingRecHit);
 #ifdef FAMOS_DEBUG
       const DetId& detId = theTrackerRecHits[ih].hit()->geographicalId();      
@@ -345,9 +356,11 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // Create the track extras and add the references to the rechits
   unsigned hits=0;
-  for ( unsigned index = 0; index < recoTracks->size(); ++index ) { 
+  unsigned nTracks = recoTracks->size();
+  recoTrackExtras->reserve(nTracks); // To save some time at push_back
+  for ( unsigned index = 0; index < nTracks; ++index ) { 
     reco::TrackExtra aTrackExtra;
-    unsigned nHits = recoTracks->at(index).numberOfValidHits();
+    unsigned nHits = recoTracks->at(index).recHitsSize();
     for ( unsigned int ih=0; ih<nHits; ++ih) {
       aTrackExtra.add(TrackingRecHitRef(theRecoHits,hits++));
     }
@@ -358,7 +371,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::OrphanHandle<reco::TrackExtraCollection> theRecoTrackExtras = e.put(recoTrackExtras);
 
   // Add the reference to the track extra in the tracks
-  unsigned nTracks = recoTracks->size();
   for ( unsigned index = 0; index<nTracks; ++index ) { 
     const reco::TrackExtraRef theTrackExtraRef(theRecoTrackExtras,index);
     (recoTracks->at(index)).setExtra(theTrackExtraRef);

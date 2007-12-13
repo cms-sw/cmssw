@@ -21,7 +21,6 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
@@ -30,6 +29,7 @@
 
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
+#include "FastSimulation/Tracking/interface/FastTransientTrackingRecHit.h"
 //
 
 //for debug only 
@@ -454,14 +454,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       // Go to next algo
       if ( !compatible ) continue;
 
-      /*
-      // Save in a vector.
-      std::vector<TrackerRecHit> theSeedHits(numberOfHits[ialgo],static_cast<TrackerRecHit>(TrackerRecHit()));
-      theSeedHits[0] = theSeed0;
-      theSeedHits[1] = theSeed1;
-      if ( numberOfHits[ialgo] > 2 ) theSeedHits[2] = theSeed2;
-      */
-
 #ifdef FAMOS_DEBUG
       std::cout << "Preparing to create the TrajectorySeed" << std::endl;
 #endif
@@ -470,8 +462,12 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       edm::OwnVector<TrackingRecHit> recHits;
       for ( unsigned ih=0; ih<theSeedHits.size(); ++ih ) {
 	TrackingRecHit* aTrackingRecHit = 
-	  GenericTransientTrackingRecHit::build(theSeedHits[ih].geomDet(),
-						theSeedHits[ih].hit())->hit()->clone();
+	  FastTransientTrackingRecHit(theSeedHits[ih].geomDet(),
+				      theSeedHits[ih].hit()).hitPtr();
+	// This used to be liked that (much slower)
+	// TrackingRecHit* aTrackingRecHit = 
+	//  GenericTransientTrackingRecHit::build(theSeedHits[ih].geomDet(),
+	// 					  theSeedHits[ih].hit())->hit()->clone();
 	recHits.push_back(aTrackingRecHit);
       }
 #ifdef FAMOS_DEBUG
