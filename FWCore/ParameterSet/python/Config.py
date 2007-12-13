@@ -614,10 +614,10 @@ if __name__=="__main__":
             p.b = EDAnalyzer("YourAnalyzer")
             p.c = EDAnalyzer("OurAnalyzer")
             p.s = Sequence(p.a*p.b)
-            self.assertEqual(str(p.s),'(a*b)')
+            self.assertEqual(str(p.s),'a*b')
             self.assertEqual(p.s.label(),'s')
             path = Path(p.c+p.s)
-            self.assertEqual(str(path),'(c+(a*b))')
+            self.assertEqual(str(path),'c+a*b')
 
         def testPath(self):
             p = Process("test")
@@ -627,17 +627,17 @@ if __name__=="__main__":
             path = Path(p.a)
             path *= p.b
             path += p.c
-            self.assertEqual(str(path),'((a*b)+c)')
+            self.assertEqual(str(path),'a*b+c')
             path = Path(p.a*p.b+p.c)
-            self.assertEqual(str(path),'((a*b)+c)')
+            self.assertEqual(str(path),'a*b+c')
 #            path = Path(p.a)*p.b+p.c #This leads to problems with sequences
 #            self.assertEqual(str(path),'((a*b)+c)')
             path = Path(p.a+ p.b*p.c)
-            self.assertEqual(str(path),'(a+(b*c))')
+            self.assertEqual(str(path),'a+b*c')
             path = Path(p.a*(p.b+p.c))
-            self.assertEqual(str(path),'(a*(b+c))')
+            self.assertEqual(str(path),'a*b+c')
             path = Path(p.a*(p.b+~p.c)) 
-            self.assertEqual(str(path),'(a*(b+~c))')
+            self.assertEqual(str(path),'a*b+~c')
             p.es = ESProducer("AnESProducer")
             self.assertRaises(TypeError,Path,p.es)
 
