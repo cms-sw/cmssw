@@ -6,7 +6,7 @@
   
 BranchType: The type of a Branch (Event, LuminosityBlock, or Run)
 
-$Id: BranchType.h,v 1.6 2007/11/22 16:44:33 wmtan Exp $
+$Id: BranchType.h,v 1.7 2007/12/07 23:22:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 namespace edm {
@@ -18,44 +18,19 @@ namespace edm {
     NumBranchTypes
   };
 
-  inline
-  std::string BranchTypeToString(BranchType const& branchType) {
-    std::string st = ((branchType == InEvent) ? "Event" : ((branchType == InRun) ? "Run" : "LuminosityBlock"));
-    return st;
-  }
+  std::string const& BranchTypeToString(BranchType const& branchType);
 
-  inline
-  std::string BranchTypeToProductTreeName(BranchType const& branchType) {
-    return BranchTypeToString(branchType) + "s";
-  }
+  std::string const& BranchTypeToProductTreeName(BranchType const& branchType);
 
-  inline
-  std::string BranchTypeToMetaDataTreeName(BranchType const& branchType) {
-    return BranchTypeToString(branchType) + "MetaData";
-  }
+  std::string const& BranchTypeToMetaDataTreeName(BranchType const& branchType);
 
-  inline
-  std::string BranchTypeToAuxiliaryBranchName(BranchType const& branchType) {
-    return BranchTypeToString(branchType) + "Auxiliary";
-  }
+  std::string const& BranchTypeToAuxiliaryBranchName(BranchType const& branchType);
 
-  inline
-  std::string BranchTypeToAuxBranchName(BranchType const& branchType) {
-    return BranchTypeToString(branchType) + "Aux";
-  }
+  std::string const& BranchTypeToAuxBranchName(BranchType const& branchType);
 
-  inline
-  std::string BranchTypeToMajorIndexName(BranchType const& branchType) {
-    return BranchTypeToAuxiliaryBranchName(branchType) + ".id_.run_";
-  }
+  std::string const& BranchTypeToMajorIndexName(BranchType const& branchType);
 
-  inline
-  std::string BranchTypeToMinorIndexName(BranchType const& branchType) {
-    return (branchType == InEvent ? BranchTypeToAuxiliaryBranchName(branchType) + ".id_.event_" :
-           (branchType == InLumi ? BranchTypeToAuxiliaryBranchName(branchType) + ".id_.luminosityBlock_" :
-	    std::string()));
-
-  }
+  std::string const& BranchTypeToMinorIndexName(BranchType const& branchType);
 
   inline
   std::ostream&
@@ -66,62 +41,38 @@ namespace edm {
 
   namespace poolNames {
     // MetaData Tree (1 entry per file)
-    inline
-    std::string
-    metaDataTreeName() { return "MetaData"; }
+    std::string const& metaDataTreeName();
 
     // Branch on MetaData Tree
-    inline
-    std::string
-    productDescriptionBranchName() {return "ProductRegistry";}
+    std::string const& productDescriptionBranchName();
 
     // Branch on MetaData Tree
-    inline
-    std::string
-    parameterSetMapBranchName() {return "ParameterSetMap";}
+    std::string const& parameterSetMapBranchName();
 
     // Branch on MetaData Tree
-    inline
-    std::string
-    moduleDescriptionMapBranchName() {return "ModuleDescriptionMap";}
+    std::string const& moduleDescriptionMapBranchName();
 
     // Branch on MetaData Tree
-    inline
-    std::string
-    processHistoryMapBranchName() {return "ProcessHistoryMap";}
+    std::string const& processHistoryMapBranchName();
 
     // Branch on MetaData Tree
-    inline
-    std::string
-    processConfigurationMapBranchName() {return "ProcessConfigurationMap";}
+    std::string const& processConfigurationMapBranchName();
 
     // Branch on MetaData Tree
-    inline
-    std::string
-    fileFormatVersionBranchName() {return "FileFormatVersion";}
+    std::string const& fileFormatVersionBranchName();
 
     // Branch on MetaData Tree
-    inline
-    std::string
-    fileIdentifierBranchName() {return "FileIdentifier";}
+    std::string const& fileIdentifierBranchName();
 
     // Branch on MetaData Tree
-    inline
-    std::string
-    fileIndexBranchName() {return "FileIndex";}
+    std::string const& fileIndexBranchName();
 
     // Branch on MetaData Tree
-    inline
-    std::string
-    eventHistoryBranchName() {return "EventHistory";}
+    std::string const& eventHistoryBranchName();
 
-    inline
-    std::string
-    eventTreeName() {return BranchTypeToProductTreeName(InEvent);}
+    std::string const& eventTreeName();
 
-    inline
-    std::string
-    eventMetaDataTreeName() {return BranchTypeToMetaDataTreeName(InEvent);}
+    std::string const& eventMetaDataTreeName();
   }
 }
 #endif
