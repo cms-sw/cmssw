@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.3 2007/11/27 14:34:01 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.4 2007/12/12 12:29:19 fblekman Exp $
 //
 //
 
@@ -77,6 +77,7 @@ SiPixelCalibDigiProducer::SiPixelCalibDigiProducer(const edm::ParameterSet& iCon
   src_(iConfig.getParameter<edm::InputTag>("src")),
   iEventCounter_(0),
   ignore_non_pattern_(iConfig.getParameter<bool>("ignoreNonPattern")),
+  control_pattern_size_(iConfig.getParameter<bool>("checkPatternEachEvent")),
   conf_(iConfig)
 
 {
@@ -145,6 +146,10 @@ SiPixelCalibDigiProducer::fill(edm::Event& iEvent, const edm::EventSetup& iSetup
 // this is the function where we look in the maps to find the correct calibration digi container, after which the data is filled.
 void SiPixelCalibDigiProducer::fillPixel(uint32_t detid, short row, short col, short ipoint, short adc){
   //  std::cout << " in fillpixel()" << std::endl;
+    
+  if(control_pattern_size_)
+    if(!checkPixel(detid,row,col))
+      return;
   bool createnewdetid=false;
   bool createnewpixel=false;
   if(detPixelMap_.size()==0){ 			  
@@ -223,7 +228,7 @@ SiPixelCalibDigiProducer::clear(){
   // detPixelMap_ becomes bigger than intermedate_data_
   
   // shrink the detPixelMap_
-  uint32_t oldsize = detPixelMap_.size();
+  //  uint32_t oldsize = detPixelMap_.size();
   for(std::map<uint32_t,std::vector<std::pair<short, short> > >::const_iterator idet = detPixelMap_.begin(); idet!=detPixelMap_.end(); ++idet){
     while(detPixelMap_[idet->first].size()!=0){
       detPixelMap_[idet->first].erase(detPixelMap_[idet->first].end());
@@ -352,7 +357,7 @@ bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
     return true;
   //  std::cout << "now in checkpixel() " << std::endl;
   
-  uint32_t iroc;
+  //  uint32_t iroc;
   uint32_t fedid = detid_to_fedid_[detid];
 
   SiPixelFrameConverter formatter(theCablingMap_.product(),fedid);

@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.h,v 1.2 2007/11/19 12:17:46 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.h,v 1.3 2007/12/12 12:29:20 fblekman Exp $
 //
 //
 
@@ -72,10 +72,11 @@ class SiPixelCalibDigiProducer : public edm::EDProducer {
       // ----------member data ---------------------------
       edm::InputTag src_;
       uint32_t iEventCounter_;
+      bool ignore_non_pattern_;
+      bool control_pattern_size_;
       edm::ParameterSet conf_;
       std::string label_;
       std::string instance_;
-      bool ignore_non_pattern_;
       
       edm::ESHandle<SiPixelCalibConfiguration> calib_; // keeps track of the calibration constants
       edm::ESHandle<TrackerGeometry> theGeometry_; // the tracker geometry

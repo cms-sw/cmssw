@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.2 2007/12/06 17:04:58 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.3 2007/12/06 17:30:23 fblekman Exp $
 //
 //
 
@@ -50,7 +50,7 @@ class SiPixelGainCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
       virtual void calibrationSetup(const edm::EventSetup& iSetup);
       
       virtual void calibrationEnd();
-      virtual void newDetID(short detid);
+      virtual void newDetID(uint32_t detid);
   void fillDatabase();
 
       // ----------member data --------------------------- 
@@ -67,6 +67,6 @@ class SiPixelGainCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
   std::string  recordName_;
   bool appendMode_;
   SiPixelGainCalibration *theGainCalibrationDbInput_;
-//   SiPixelGainCalibrationService theGainCalibrationDbInputService_;
+  SiPixelGainCalibrationService theGainCalibrationDbInputService_;
 
 };

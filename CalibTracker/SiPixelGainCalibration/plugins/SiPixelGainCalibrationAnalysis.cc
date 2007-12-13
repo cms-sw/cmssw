@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.2 2007/12/06 17:04:57 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.3 2007/12/06 17:30:23 fblekman Exp $
 //
 //
 
@@ -31,9 +31,10 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   reject_badpoints_frac_(iConfig.getUntrackedParameter<double>("suppressZeroAndPlateausInFitFrac",0)),
   filldb_(iConfig.getUntrackedParameter<bool>("writeDatabase",false)),
   recordName_(conf_.getParameter<std::string>("record")),
-  appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true))
-  //  theGainCalibrationDbInput_(0),
-  //  theGainCalibrationDbInputService_(iConfig)
+  appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
+  theGainCalibrationDbInput_(0),
+  theGainCalibrationDbInputService_(iConfig),
+  bookkeeper_()
 {
   ::putenv("CORAL_AUTH_USER=me");
   ::putenv("CORAL_AUTH_PASSWORD=test");   
@@ -181,24 +182,26 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   slope = slope_numerator/slope_denominator;
   intercept = ypoints_mean-(slope*xpoints_mean); 
 
-  // numbering hard-coded in SiPixelGainCalibrationAnalysis::newDetID for now
   bookkeeper_[detid]["gain1d"]->Fill(slope);
   bookkeeper_[detid]["gain2d"]->Fill(ipix->col(),ipix->row(),slope);
   bookkeeper_[detid]["ped1d"]->Fill(intercept);
   bookkeeper_[detid]["ped2d"]->Fill(ipix->col(),ipix->row(),intercept);
+  std::cout << "leaving doFits" << std::endl;
   return true;
 }
 // ------------ method called to do fill new detids  ------------
 void 
-SiPixelGainCalibrationAnalysis::newDetID(short detid)
+SiPixelGainCalibrationAnalysis::newDetID(uint32_t detid)
 {
   setDQMDirectory(detid);
   std::string tempname=translateDetIdToString(detid);
+  //std::cout << "creating new histograms..."<< tempname << std::endl;
   bookkeeper_[detid]["gain1d"] = bookDQMHistogram1D("gain1d_"+tempname,"gain for "+tempname,100,0.,100.);
   bookkeeper_[detid]["gain2d"] = bookDQMHistoPlaquetteSummary2D("gain2d_"+tempname,"gain for "+tempname,detid);
   bookkeeper_[detid]["ped1d"] = bookDQMHistogram1D("pedestal1d_"+tempname,"pedestal for "+tempname,256,0.,256.);
   bookkeeper_[detid]["ped2d"] = bookDQMHistoPlaquetteSummary2D("pedestal2d_"+tempname,"pedestal for "+tempname,detid);
 
+  //std::cout << "leaving new detid" << std::endl;
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiPixelGainCalibrationAnalysis);
