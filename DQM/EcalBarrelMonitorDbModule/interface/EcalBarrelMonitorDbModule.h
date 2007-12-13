@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.h
  *
- * $Date: 2006/06/28 10:46:17 $
- * $Revision: 1.5 $
+ * $Date: 2007/11/13 13:20:49 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -17,11 +17,12 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <DQM/EcalBarrelMonitorDbModule/interface/MonitorElementsDb.h>
-
 #include <string>
 
 class DaqMonitorBEInterface;
+
+class MonitorElementsDb;
+class coral::ISessionProxy;
 
 class EcalBarrelMonitorDbModule: public edm::EDAnalyzer{
 

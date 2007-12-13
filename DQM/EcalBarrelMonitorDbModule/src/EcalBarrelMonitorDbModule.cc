@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  * 
- * $Date: 2007/04/05 13:56:45 $
- * $Revision: 1.8 $
+ * $Date: 2007/12/04 08:51:18 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -36,9 +36,9 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 
+#include <DQM/EcalBarrelMonitorDbModule/interface/MonitorElementsDb.h>
 
 #include <DQM/EcalBarrelMonitorDbModule/interface/EcalBarrelMonitorDbModule.h>
-
 
 EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps){
 
