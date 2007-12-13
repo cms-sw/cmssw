@@ -13,14 +13,17 @@ using namespace std;
 //#define mydigidebug10
 //#define mydigidebug11
 
-//static float const_ps1s2[3] =  {0.050,.0125,0.005};// pitch, sigma_1channel, sigma_2channels
-static float const_ps1s2[3] =  {0.050,.0139,0.0045};// pitch, sigma_1channel, sigma_2channels - Narrow
-static float constW_ps1s2[3] = {0.400,.0920,0.0280};// pitch, sigma_1channel, sigma_2channels - Wide
+//static float const_ps1s2[3] =  {0.050,.0139,0.0045};// pitch, sigma_1channel, sigma_2channels - Narrow
+//static float constW_ps1s2[3] = {0.400,.0920,0.0280};// pitch, sigma_1channel, sigma_2channels - Wide
+
+static float const_ps1s2[3] =  {0.050,.0135,0.0086};// pitch, sigma_1channel, sigma_2channels - Narrow
+static float constW_ps1s2[3] = {0.400,.1149,0.0648};// pitch, sigma_1channel, sigma_2channels - Wide
 
 // sense of zside here is X or Y type planes. Now we are working with X only, i.e. zside=2
 ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiFP420Range& range, 
 			    float & cog ,float & err ) :
-  detId_(detid), zside_(zside), firstStrip_(range.first->strip())
+  detId_(detid), firstStrip_(range.first->strip())
+//  detId_(detid), zside_(zside), firstStrip_(range.first->strip())
 {
   // For the range of strips in cluster assign adc(,its numbers i->strip()) calculate cog... 
   // strip   :    0-400 or 0-250
@@ -48,7 +51,7 @@ ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiF
 #endif
    /*
     /// check if digis consecutive: put amplitude=0 for 
-      if (i!=ibeg && (difNarr(zside_,i,i-1) > 1 || difWide(zside_,i,i-1) > 1)   ){
+      if (i!=ibeg && (difNarr(zside,i,i-1) > 1 || difWide(zside,i,i-1) > 1)   ){
     if (lastStrip>0 && i->strip() != lastStrip + 1) {
                  for (int j=0; j < i->strip()-(lastStrip+1); j++) {
 		   amplitudes_.push_back( 0);
@@ -63,14 +66,14 @@ ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiF
 #endif
 
     amplitudes_.push_back(amp);
-    if(zside_ == 1) {
+    if(zside == 1) {
       sumx += i->stripH()*amp;
       sumy += i->stripHW()*amp;
       suma += amp;
       sumxx += (i->stripH()) * (i->stripH()) * amp;
       sumyy += (i->stripHW()) * (i->stripHW()) * amp;
     }
-    else if(zside_ == 2) {
+    else if(zside == 2) {
       sumx += i->stripV()*amp;
       sumy += i->stripVW()*amp;
       suma += amp;
@@ -78,7 +81,7 @@ ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiF
       sumyy += (i->stripVW()) * (i->stripVW()) * amp;
     }
     else {
-      std::cout << " ClusterFP420: wrong zside_ = " << zside_ << std::endl;
+      std::cout << " ClusterFP420: wrong zside = " << zside << std::endl;
     }
 
 #ifdef mydigidebug11
@@ -88,7 +91,7 @@ ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiF
    std::cout << " current barycenter = " << (sumx / static_cast<float>(suma) )  << std::endl;
    std::cout << " current barycenterW= " << (sumy / static_cast<float>(suma) )  << std::endl;
 #endif
-  } //for
+  } //for i
 
 
   if(suma != 0) {
@@ -234,10 +237,10 @@ ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiF
 	}
 	else if(mysn0 == 3) {
 	  if(sector==2) {
-	    a = 0.0012+((0.0036-0.0012)/7.)*(mypn0-2); // 4 m 
+	    a = 0.0011+((0.0030-0.0011)/7.)*(mypn0-2); // 4 m 
 	      }
 	  else if(sector==3) {
-	    a = 0.0026+((0.0075-0.0026)/7.)*(mypn0-2); // 8 m 
+	    a = 0.0022+((0.0068-0.0022)/7.)*(mypn0-2); // 8 m 
 	      }
 	}
 	else if(mysn0 == 4) {
@@ -252,8 +255,10 @@ ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiF
 	      }
 	}
 
-	barycerror_+=a*a;
-	barycerrorW_+=a*a;
+	//	barycerror_+=a*a;
+	//	barycerrorW_+=a*a;
+	barycerror_+=a*a/const_ps1s2[0]/const_ps1s2[0];
+	barycerrorW_+=a*a/constW_ps1s2[0]/constW_ps1s2[0];
 
     /*
 
