@@ -60,24 +60,20 @@ private:
   MonitorElement * orbitNum;
   MonitorElement * trigNum;
   MonitorElement * eventNum;
-  MonitorElement * phyL1Acc;
-  MonitorElement * phyL1AccRaw;
-  MonitorElement * randL1Acc;
-  MonitorElement * techTrig;
+  MonitorElement * finalTrig;
+  MonitorElement * randTrig;
   MonitorElement * numberResets;
   MonitorElement * deadTime;
-  MonitorElement * lostTriggers;
+  MonitorElement * lostFinalTriggers;
 
   MonitorElement * trigNumRate;
   MonitorElement * eventNumRate;
-  MonitorElement * phyL1AccRate;
-  MonitorElement * phyL1AccRawRate;
-  MonitorElement * randL1AccRate;
-  MonitorElement * techTrigRate;
+  MonitorElement * finalTrigRate;
+  MonitorElement * randTrigRate;
   MonitorElement * orbitNumRate;
   MonitorElement * numberResetsRate;
   MonitorElement * deadTimePercent;
-  MonitorElement * lostTriggersPercent;
+  MonitorElement * lostFinalTriggersPercent;
   
 
   MonitorElement *  instLumi;

@@ -75,25 +75,21 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
  orbitNum = dbe_->book1D("Orbit Number","Orbit Number", 1000,0,1000);
  trigNum = dbe_->book1D("Trigger Number","trigger Number",1000,0,1000);
  eventNum = dbe_->book1D("event Number","event Number", 1000,0,1000);
- phyL1Acc = dbe_->book1D("PhysicsL1A","PhysicsL1A", 1000,0,1000);
- phyL1AccRaw = dbe_->book1D("PhysicsL1A raw","physicsL1A raw", 1000,0,1000);
- randL1Acc = dbe_->book1D("Random L1A","Random L1A", 1000,0,1000);
- techTrig = dbe_->book1D("technical Trigger","technical Trigger", 1000,0,1000);
+ finalTrig = dbe_->book1D("Final Triggers","Final Triggers", 1000,0,1000);
+ randTrig = dbe_->book1D("Random Triggers","Random Triggers", 1000,0,1000);
  numberResets = dbe_->book1D("Number Resets","Number Resets", 1000,0,1000);
  deadTime = dbe_->book1D("DeadTime","DeadTime", 1000,0,1000);
- lostTriggers = dbe_->book1D("Lost Trigger","LostTrigger", 1000,0,1000);
+ lostFinalTriggers = dbe_->book1D("Lost Final Trigger","Lost Final Trigger", 1000,0,1000);
  
  dbe_->setCurrentFolder("L1T/L1Scalers/L1TriggerRates");
  orbitNumRate = dbe_->book1D("Orbit Number Rate","Orbit Number Rate", 1000,0,1000);
  trigNumRate = dbe_->book1D("Trigger Number Rate","trigger Number Rate",1000,0,1000);
  eventNumRate = dbe_->book1D("event Number rate","event Number Rate", 1000,0,1000);
- phyL1AccRate = dbe_->book1D("PhysicsL1A Rate","PhysicsL1A Rate", 1000,0,1000);
- phyL1AccRawRate = dbe_->book1D("PhysicsL1A raw Rate","physicsL1A raw Rate", 1000,0,1000);
- randL1AccRate = dbe_->book1D("Random L1A Rate","Random L1A Rate", 1000,0,1000);
- techTrigRate = dbe_->book1D("technical Trigger Rate","technical Trigger Rate", 1000,0,1000);
+ finalTrigRate = dbe_->book1D("Final Trigger Rate","Final Trigger Rate", 1000,0,1000);
+ randTrigRate = dbe_->book1D("Random Trigger Rate","Random Trigger Rate", 1000,0,1000);
  numberResetsRate = dbe_->book1D("Number Resets Rate","Number Resets Rate", 1000,0,1000);
  deadTimePercent = dbe_->book1D("DeadTimepercent","DeadTimePercent", 1000,0,1000);
- lostTriggersPercent = dbe_->book1D("Lost Trigger Percent","LostTriggerpercent", 1000,0,1000);
+ lostFinalTriggersPercent = dbe_->book1D("Lost Final Trigger Percent","Lost Final Triggerpercent", 1000,0,1000);
 
  dbe_->setCurrentFolder("L1T/L1Scalers/LumiScalers");
  instLumi = dbe_->book1D("Instant Lumi","Instant Lumi",1000,0,1000);
@@ -180,13 +176,11 @@ edm::Handle<LumiScalersCollection> lumiScalers;
  orbitNum ->Fill(it->orbitNumber());
  trigNum ->Fill(it->triggerNumber());
  eventNum ->Fill(it->eventNumber());
- phyL1Acc ->Fill(it->physicsL1Accepts());
- phyL1AccRaw ->Fill(it->physicsL1AcceptsRaw());
- randL1Acc ->Fill(it->randomL1Accepts());
- techTrig ->Fill(it->technicalTriggers());
+ finalTrig ->Fill(it->finalTriggersDistributed());
+ randTrig ->Fill(it->randomTriggers());
  numberResets ->Fill(it->numberResets());
  deadTime ->Fill(it->deadTime());
- lostTriggers ->Fill(it->lostTriggers());
+ lostFinalTriggers ->Fill(it->lostFinalTriggers());
  }
 
  L1TriggerRatesCollection::const_iterator it2 = triggerRates->begin();
@@ -195,13 +189,11 @@ edm::Handle<LumiScalersCollection> lumiScalers;
  orbitNumRate ->Fill(it2->orbitNumberRate());
  trigNumRate ->Fill(it2->triggerNumberRate());
  eventNumRate ->Fill(it2->eventNumberRate());
- phyL1AccRate ->Fill(it2->physicsL1AcceptsRate());
- phyL1AccRawRate ->Fill(it2->physicsL1AcceptsRawRate());
- randL1AccRate ->Fill(it2->randomL1AcceptsRate());
- techTrigRate ->Fill(it2->technicalTriggersRate());
+ finalTrigRate ->Fill(it2->finalTriggersDistributedRate());
+ randTrigRate ->Fill(it2->randomTriggersRate());
  numberResetsRate ->Fill(it2->numberResetsRate());
  deadTimePercent ->Fill(it2->deadTimePercent());
- lostTriggersPercent ->Fill(it2->lostTriggersPercent());
+ lostFinalTriggersPercent ->Fill(it2->lostFinalTriggersPercent());
 }
   
  LumiScalersCollection::const_iterator it3 = lumiScalers->begin();
