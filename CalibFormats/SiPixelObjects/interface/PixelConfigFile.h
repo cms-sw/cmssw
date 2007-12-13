@@ -126,16 +126,22 @@ namespace pos{
       static int first=1;
     
       static PixelConfigList configs;
-
-      if (first) {
-	first=0;
-	directory=getenv("PIXELCONFIGURATIONBASE");
-      
-	std::string filename=directory+"/configurations.txt";
-      
-	configs.readfile(filename);
-
-      }
+    
+      directory=getenv("PIXELCONFIGURATIONBASE");
+      std::string filename=directory+"/configurations.txt";
+      if(!first)
+	{
+	  std::cout << "[pos::PixelConfigFile::getConfig()] Reloading configurations.txt"<< std::endl ;
+	  configs.reload(filename) ;
+	  std::cout << "[pos::PixelConfigFile::getConfig()] Size reloaded: " << configs.size() << std::endl ;
+	}
+      if (first) 
+	{
+	  first=0;
+	  std::cout << "[pos::PixelConfigFile::getConfig()] Reading configurations.txt"<< std::endl ;
+	  configs.readfile(filename);
+	  std::cout << "[pos::PixelConfigFile::getConfig()] Size read: " << configs.size() << std::endl ;
+	}
 
       return configs;
 
@@ -186,9 +192,9 @@ namespace pos{
     
       std::string dir=base.substr(slashpos+1);
     
-      //std::cout << "Extracted dir:"<<dir<<std::endl;
-      //std::cout << "Extracted base:"<<base<<std::endl;
-      //std::cout << "Extracted ext :"<<ext<<std::endl;
+/*       std::cout << "Extracted dir:"<<dir<<std::endl; */
+/*       std::cout << "Extracted base:"<<base<<std::endl; */
+/*       std::cout << "Extracted ext :"<<ext<<std::endl; */
     
       unsigned int version;
       int err=getConfig()[theKey].find(dir,version);   
@@ -498,7 +504,8 @@ namespace pos{
       do{
 	version++;
 	std::ostringstream s1;
-	s1 << version <<(char)(0);
+/* 	s1 << version <<(char)(0); */
+	s1 << version  ;
 	std::string strversion=s1.str();
 	dir=directory+strversion;
 	std::cout << "Will check for version:"<<dir<<std::endl;
@@ -512,7 +519,7 @@ namespace pos{
     template <class T>
     static int put(const T* object, std::string path){
       std::string dir;
-      int version=makeNewVersion(path,dir);				 
+      int version=makeNewVersion(path,dir);
       object->writeASCII(dir);
       return version;
     }
