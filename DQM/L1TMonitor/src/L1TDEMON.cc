@@ -454,14 +454,24 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     //correlations: store leading candidate
     if(type==4) continue; //exclude e-only cands
-    if(rnkv>=LeadCandVal[sid][2]) {
+    bool islead = false;
+    if(rnkv>LeadCandVal[sid][2])
+      islead = true;
+    else if (rnkv==LeadCandVal[sid][2]) {
+      if (phiv>LeadCandVal[sid][0]) 
+	islead = true;
+      else if (phiv==LeadCandVal[sid][0]) 
+	if (etav>LeadCandVal[sid][1]) 
+	  islead = true;
+    }
+    
+    if(islead) {
       LeadCandVal[sid][0] = phiv;
       LeadCandVal[sid][1] = etav;
       LeadCandVal[sid][2] = rnkv;
     }
     
   }//close loop over dedigi-cands
-
 
   ///correlations: fill histograms
   double wei=1.;
