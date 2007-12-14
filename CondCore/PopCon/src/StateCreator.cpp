@@ -74,6 +74,7 @@ void  popcon::StateCreator::initialize()
     return;
   try{
     session->open();
+    conHandler.connect(session);
   }catch(std::exception& er){
     //std::cerr<< " INITIALIZE EXCEPTION " <<er.what()<<std::endl;
     throw popcon::Exception(er.what());
