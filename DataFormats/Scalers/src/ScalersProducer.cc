@@ -1,8 +1,4 @@
-#include "DataFormats/Scalers/interface/L1TriggerScalers.h"
-#include "DataFormats/Scalers/interface/L1TriggerRates.h"
-#include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/ScalersProducer.h"
-#include "DataFormats/Scalers/interface/ScalersRaw.h"
 
 #include <iostream>
 #include <time.h>
