@@ -2,7 +2,7 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.28 2007/12/03 00:40:49 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.29 2007/12/11 00:25:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -39,8 +39,10 @@ namespace edm {
     void setEventNumber(EventNumber_t e) {
       RunNumber_t r = run();
       eventID_ = EventID(r, e);
+      eventSet_ = true;
     } 
     void setTime(TimeValue_t t) {presentTime_ = t;}
+    void reallyReadEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
 
   private:
     virtual InputSource::ItemType getNextItemType();
@@ -49,7 +51,6 @@ namespace edm {
     virtual void beginRun(Run &) {}
     virtual void beginLuminosityBlock(LuminosityBlock &) {}
     virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
-    std::auto_ptr<EventPrincipal> reallyReadEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
     virtual boost::shared_ptr<RunPrincipal> readRun_();
     virtual void skip(int offset);
@@ -73,6 +74,7 @@ namespace edm {
     LuminosityBlockNumber_t origLuminosityBlockNumber_t_;
     bool newRun_;
     bool newLumi_;
+    bool lumiSet_;
     bool eventSet_;
     std::auto_ptr<EventPrincipal> ep_;
     bool isRealData_;

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.30 2007/12/03 00:40:50 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.31 2007/12/11 00:25:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,6 +34,7 @@ namespace edm {
     origLuminosityBlockNumber_t_(luminosityBlock_),
     newRun_(true),
     newLumi_(true),
+    lumiSet_(false),
     eventSet_(false),
     ep_(0),
     isRealData_(realData),
@@ -80,17 +81,18 @@ namespace edm {
     return ep_;
   }
 
-  std::auto_ptr<EventPrincipal>
+  void
   ConfigurableInputSource::reallyReadEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
     std::auto_ptr<EventPrincipal> result(
 	new EventPrincipal(eventID_, Timestamp(presentTime_),
 	productRegistry(), lbp, processConfiguration(), isRealData_, eType_));
     Event e(*result, moduleDescription());
     if (!produce(e)) {
-      return std::auto_ptr<EventPrincipal>(0); 
+      ep_.reset(); 
+      return;
     }
     e.commit_();
-    return result;
+    ep_ = result;
   }
 
   void
@@ -106,6 +108,8 @@ namespace edm {
 
   void
   ConfigurableInputSource::setRun(RunNumber_t r) {
+    // No need to check for invalid (zero) run number,
+    // as this is a legitimate way of stopping the job.
     // Do nothing if the run is not changed.
     if (r != eventID_.run()) {
       eventID_ = EventID(r, zerothEvent_);
@@ -120,6 +124,10 @@ namespace edm {
 
   void
   ConfigurableInputSource::setLumi(LuminosityBlockNumber_t lb) {
+    // Protect against invalid lumi.
+    if (lb == LuminosityBlockNumber_t()) {
+	lb = origLuminosityBlockNumber_t_;
+    }
     // Do nothing if the lumi block is not changed.
     if (lb != luminosityBlock_) {
       luminosityBlock_ = lb;
@@ -127,6 +135,7 @@ namespace edm {
       newLumi_ = true;
       resetLuminosityBlockPrincipal();
     }
+    lumiSet_ = true;
   }
 
   void
@@ -145,6 +154,10 @@ namespace edm {
   InputSource::ItemType 
   ConfigurableInputSource::getNextItemType() {
     if (newRun_) {
+      if (eventID_.run() == RunNumber_t()) {
+        ep_.reset();
+        return IsStop;
+      }
       return IsRun;
     }
     if (newLumi_) {
@@ -154,10 +167,11 @@ namespace edm {
     EventID oldEventID = eventID_;
     LuminosityBlockNumber_t oldLumi = luminosityBlock_;
     if (!eventSet_) {
+      lumiSet_ = false;
       setRunAndEventInfo();
       eventSet_ = true;
     }
-    if (eventID_ == EventID()) {
+    if (eventID_.run() == RunNumber_t()) {
       ep_.reset();
       return IsStop;
     }
@@ -166,7 +180,11 @@ namespace edm {
       // reset these since this event is in the new run
       numberEventsInThisRun_ = 0;
       numberEventsInThisLumi_ = 0;
-      luminosityBlock_ = origLuminosityBlockNumber_t_;
+      // If the user did not explicitly set the luminosity block number,
+      // reset it back to the beginning.
+      if (!lumiSet_) {
+	luminosityBlock_ = origLuminosityBlockNumber_t_;
+      }
       newRun_ = newLumi_ = true;
       resetLuminosityBlockPrincipal();
       resetRunPrincipal();
@@ -182,7 +200,7 @@ namespace edm {
     }
     ++numberEventsInThisRun_;
     ++numberEventsInThisLumi_;
-    ep_ = reallyReadEvent(luminosityBlockPrincipal());
+    reallyReadEvent(luminosityBlockPrincipal());
     if (ep_.get() == 0) {
       return IsStop;
     }
