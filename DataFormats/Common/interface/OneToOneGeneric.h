@@ -1,32 +1,15 @@
 #ifndef Common_OneToOneGeneric_h
 #define Common_OneToOneGeneric_h
 #include "DataFormats/Common/interface/AssociationMapHelpers.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/RefToBaseProd.h"
+#include "DataFormats/Common/interface/MapRefViewTrait.h"
 #include <map>
 
 namespace edm {
-  namespace helper {
-    template<typename C>
-    struct MapRefViewTrait {
-      typedef Ref<C> ref_type;
-      typedef RefProd<C> refprod_type;
-    }; 
-    
-    template<typename T>
-    struct MapRefViewTrait<View<T> > {
-      typedef RefToBase<T> ref_type;
-      typedef RefToBaseProd<T> refprod_type;
-    }; 
-  }
-
   template<typename CKey, typename CVal, typename index = unsigned int,
     typename KeyRefProd = typename helper::MapRefViewTrait<CKey>::refprod_type, 
     typename ValRefProd = typename helper::MapRefViewTrait<CVal>::refprod_type, 
     typename KeyRef = typename helper::MapRefViewTrait<CKey>::ref_type, 
-    typename ValRef = typename helper::MapRefViewTrait<CVal>::ref_type >
+    typename ValRef = typename helper::MapRefViewTrait<CVal>::ref_type>
   class OneToOneGeneric {
     /// reference to "key" collection
     typedef KeyRefProd keyrefprod_type;
