@@ -7,6 +7,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
+#include "DataFormats/Scalers/interface/L1TriggerRates.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/Scalers/interface/ScalersRaw.h"
+
+
 
 class ScalersProducer : public edm::EDProducer
 {
@@ -26,7 +31,7 @@ public:
     private:
     
     bool verbose_;
-    unsigned char buffer [1024];
+    unsigned char buffer [sizeof(struct ScalersEventRecordRaw_v1)];
     char * fileName;
     int bytes;
     int fd;
