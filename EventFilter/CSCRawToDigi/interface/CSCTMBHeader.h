@@ -180,7 +180,7 @@ class CSCTMBHeader {
   void setEventInformation(const CSCDMBHeader &);
   CSCTMBHeader(const unsigned short * buf);
 
-  bool FirmwareVersion() const {return firmwareVersion;}
+  int FirmwareVersion() const {return firmwareVersion;}
   
 
   uint16_t BXNCount() const {
