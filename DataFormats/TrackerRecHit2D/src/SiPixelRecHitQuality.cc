@@ -15,9 +15,11 @@ SiPixelRecHitQuality::Packing::Packing()
   edge_width     = 1;
   bad_width      = 1;
   twoROC_width   = 1;
+  spare_width    = 2;
   
   if ( probX_width + probY_width + cotAlpha_width + cotBeta_width +
-       qBin_width  + edge_width  + bad_width      + twoROC_width 
+       qBin_width  + edge_width  + bad_width      + twoROC_width  +
+       spare_width
        != 32 ) {
     std::cout << std::endl << "Error in SiPixelRecHitQuality::Packing constructor:" 
 	      << "sum of field widths != 32" << std::endl;

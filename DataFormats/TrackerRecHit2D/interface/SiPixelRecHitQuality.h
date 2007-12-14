@@ -61,7 +61,7 @@ class SiPixelRecHitQuality {
     int           twoROC_shift;
     char          twoROC_width;
   
-
+    char spare_width;
 
     inline float cotAlphaFromCluster( QualWordType qualWord ) const     {
       int raw = (qualWord >> cotAlpha_shift) & cotAlpha_mask;
