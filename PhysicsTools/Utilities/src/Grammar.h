@@ -86,7 +86,8 @@ BOOST_SPIRIT_DEBUG_RULE(fun);
 	  CombinerSetter and_s( kAnd, self.cmbStack ), or_s( kOr, self.cmbStack ), not_s( kNot, self.cmbStack );
 	  FunctionSetter 
 	    abs_s( kAbs, self.funStack ), acos_s( kAcos, self.funStack ), asin_s( kAsin, self.funStack ),
-	    atan_s( kAtan, self.funStack ), atan2_s( kAtan, self.funStack ), cos_s( kCos, self.funStack ), 
+	    atan_s( kAtan, self.funStack ), atan2_s( kAtan, self.funStack ), chi2prob_s( kChi2Prob, self.funStack ), 
+            cos_s( kCos, self.funStack ), 
 	    cosh_s( kCosh, self.funStack ), exp_s( kExp, self.funStack ), log_s( kLog, self.funStack ), 
 	    log10_s( kLog10, self.funStack ), pow_s( kPow, self.funStack ), sin_s( kSin, self.funStack ), 
 	    sinh_s( kSinh, self.funStack ), sqrt_s( kSqrt, self.funStack ), tan_s( kTan, self.funStack ), 
@@ -115,7 +116,7 @@ BOOST_SPIRIT_DEBUG_RULE(fun);
 	    chseq_p( "sin" ) [ sin_s ] | chseq_p( "sinh" ) [ sinh_s ] | chseq_p( "sqrt" ) [ sqrt_s ] |
 	    chseq_p( "tan" ) [ tan_s ] | chseq_p( "tanh" ) [ tanh_s ];
 	  function2 = 
-	    chseq_p( "atan2" ) [ atan2_s ] | chseq_p( "pow" ) [ pow_s ];
+	    chseq_p( "atan2" ) [ atan2_s ] | chseq_p( "chi2prob" ) [ chi2prob_s ] | chseq_p( "pow" ) [ pow_s ];
 	  expression = 
 	    term >> * ( ( '+' >> term ) [ plus_s ] |
 			( '-' >> term ) [ minus_s ] );

@@ -2,6 +2,7 @@
 #include "PhysicsTools/Utilities/src/ExpressionUnaryOperator.h"
 #include "PhysicsTools/Utilities/src/ExpressionBinaryOperator.h"
 #include <cmath>
+#include <Math/DistFunc.h>
 #ifdef BOOST_SPIRIT_DEBUG 
 #include <string>
 #include <iostream>
@@ -14,6 +15,7 @@ namespace reco {
     struct asin_f { double operator()( double x ) const { return asin( x ); } };
     struct atan_f { double operator()( double x ) const { return atan( x ); } };
     struct atan2_f { double operator()( double x, double y ) const { return atan2( x, y ); } };
+    struct chi2prob_f { double operator()( double x, double y ) const { return ROOT::Math::chisquared_prob( x, y ); } };
     struct cos_f { double operator()( double x ) const { return cos( x ); } };
     struct cosh_f { double operator()( double x ) const { return cosh( x ); } };
     struct exp_f { double operator()( double x ) const { return exp( x ); } };
@@ -42,6 +44,7 @@ void ExpressionFunctionSetter::operator()( const char *, const char * ) const {
   case( kAsin  ) : funExp.reset( new ExpressionUnaryOperator <asin_f >( expStack_ ) ); break;
   case( kAtan  ) : funExp.reset( new ExpressionUnaryOperator <atan_f >( expStack_ ) ); break;
   case( kAtan2 ) : funExp.reset( new ExpressionBinaryOperator<atan2_f>( expStack_ ) ); break;
+  case( kChi2Prob):funExp.reset( new ExpressionBinaryOperator<chi2prob_f>( expStack_ ) ); break;
   case( kCos   ) : funExp.reset( new ExpressionUnaryOperator <cos_f  >( expStack_ ) ); break;
   case( kCosh  ) : funExp.reset( new ExpressionUnaryOperator <cosh_f >( expStack_ ) ); break;
   case( kExp   ) : funExp.reset( new ExpressionUnaryOperator <exp_f  >( expStack_ ) ); break;
