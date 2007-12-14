@@ -206,6 +206,9 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
     case StripSubdetector::TID:
       inLayer = ( z < 0 ) ? ntecc.front() : ptecc.front() ;
       break;
+    default:
+      edm::LogError(theCategory)<<"subdetectorid is not a tracker sub-dectector id. skipping.";
+      return;
     }
     compatible = inLayer->compatibleDets(inner,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator);
   }
@@ -280,6 +283,9 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
     case StripSubdetector::TEC:
       inLayer = *(blc.rbegin()+layerShift);
       break;
+    default:
+      edm::LogError(theCategory)<<"subdetectorid is not a tracker sub-dectector id. skipping.";
+      return;
     }
     compatible = inLayer->compatibleDets(outer,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator);
   }
@@ -334,7 +340,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
   const double epsilon = 0.5 ;//cm
   double barrel_half_length = blc.front()->specificSurface().bounds().length()/2. - epsilon;
 
-  double fz=fabs(z);
+  //  double fz=fabs(z);
   if (fabs(z-blc.front()->surface().position().z()) < barrel_half_length)
     { inLayer = blc.front(); }
   else 
@@ -393,7 +399,12 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
 	    //	 well your are in trouble here. just return empty
 	    return;}
 	}
-      }//switch
+	default:
+	{
+	edm::LogError(category)<<"Subdetector id is not a tracker sub-detector id.";
+	return;
+	}
+	}//switch
 
       compatible = (*layerIt)->compatibleDets(inner,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator);
     }//while
