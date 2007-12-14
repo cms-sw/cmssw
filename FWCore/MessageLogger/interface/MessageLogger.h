@@ -14,7 +14,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.24 2007/08/16 19:36:04 fischler Exp $
+// $Id: MessageLogger.h,v 1.25 2007/08/16 22:15:59 fischler Exp $
 //
 // =================================================
 // Change log
@@ -34,6 +34,23 @@
 //
 // 7 mf 8/7/07      Added GroupLogStatistics(category)
 //
+// 8 mf 12/12/07    Reworked LogDebug macro, LogDebug_class,, and similarly
+//		    for LogTrace, to avoid the need for the static dummy
+//		    objects.  This cures the use-of-thread-commands-after-
+//		    exit problem in programs that link but do not use the
+//		    MessageLogger.
+// 
+// 9  mf 12/12/07   Check for subtly terrible situation of copying and then
+//		    writing to a LogDebug_ object.  Also forbid copying any
+//		    of the ordinary LogXXX objects (since that implies either
+//		    copying a MessageSender, or having a stale copy available
+//		    to lose message contents).
+//
+// 10 mf 12/14/07   Moved the static free function onlyLowestDirectory
+//		    to a class member function of LogDebug_, changing
+//		    name to a more descriptive stripLeadingDirectoryTree.
+//		    Cures the 2600-copies-of-this-function complaint.
+//
 // =================================================
 
 // system include files
@@ -49,6 +66,8 @@
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"	// Change log 5
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/Utilities/interface/EDMException.h"		// Change log 8
+
 
 namespace edm  {
 
@@ -70,7 +89,8 @@ public:
     				      { if(ap.get()) (*ap) << f; return *this; }     
 private:
   std::auto_ptr<MessageSender> ap; 
-  
+  LogWarning( LogWarning const& );				// Change log 9
+   
 };  // LogWarning
 
 class LogError
@@ -92,6 +112,7 @@ public:
 
 private:
   std::auto_ptr<MessageSender> ap; 
+  LogError( LogError const& );	 				// Change log 9
 
 };  // LogError
 
@@ -114,10 +135,11 @@ public:
 
 private:
   std::auto_ptr<MessageSender> ap; 
+  LogSystem( LogSystem const& );				// Change log 9
 
 };  // LogSystem
 
-class LogInfo
+class LogInfo				
 {
 public:
   explicit LogInfo( std::string const & id ) 
@@ -136,9 +158,11 @@ public:
 
 private:
   std::auto_ptr<MessageSender> ap; 
+  LogInfo( LogInfo const& );					// Change log 9
   
 };  // LogInfo
 
+// verbatim version of LogInfo
 class LogVerbatim						// change log 2
 {
 public:
@@ -158,10 +182,12 @@ public:
 
 private:
   std::auto_ptr<MessageSender> ap; 
+  LogVerbatim( LogVerbatim const& );				// Change log 9
   
 };  // LogVerbaitm
 
-class LogPrint						// change log 3
+// verbatim version of LogWarning
+class LogPrint							// change log 3
 {
 public:
   explicit LogPrint( std::string const & id ) 
@@ -180,19 +206,13 @@ public:
 
 private:
   std::auto_ptr<MessageSender> ap; 
+  LogPrint( LogPrint const& );					// Change log 9
   
 };  // LogPrint
 
-static 
-std::string
-onlyLowestDirectory(const std::string & file) {
-  std::string::size_type lastSlash = file.find_last_of('/');
-  if (lastSlash == std::string::npos) return file;
-  if (lastSlash == file.size()-1)     return file;
-  return file.substr(lastSlash+1, file.size()-lastSlash-1);
-}
 
-class LogProblem					// change log 4
+// verbatim version of LogError
+class LogProblem						// change log 4
 {
 public:
   explicit LogProblem( std::string const & id ) 
@@ -211,10 +231,12 @@ public:
 
 private:
   std::auto_ptr<MessageSender> ap; 
+  LogProblem( LogProblem const& );				// Change log 9
 
 };  // LogProblem
 
-class LogAbsolute					// change log 4
+// verbatim version of LogSystem
+class LogAbsolute						// change log 4
 {
 public:
   explicit LogAbsolute( std::string const & id ) 
@@ -233,9 +255,13 @@ public:
 
 private:
   std::auto_ptr<MessageSender> ap; 
+  LogAbsolute( LogProblem const& );				// Change log 9
 
 };  // LogAbsolute
 
+std::string stripLeadingDirectoryTree(const std::string & file);
+
+// change log 10:  removed onlyLowestDirectory()
 
 void LogStatistics(); 
 
@@ -243,22 +269,42 @@ class LogDebug_
 {
 public:
   explicit LogDebug_( std::string const & id, std::string const & file, int line ) 
-    : ap( new MessageSender(ELsuccess,id) )
-  { *this << " " << onlyLowestDirectory(file) << ":" << line << "\n"; }
-							// change log 1
+    : ap( new MessageSender(ELsuccess,id) ), debugEnabled(true) // Change log 8	
+  { *this 
+          << " " 						// change log 1
+	  << stripLeadingDirectoryTree(file) 			// Change log 10
+	  << ":" << line << "\n"; }
+								
+  explicit LogDebug_()  : ap(), debugEnabled(false) {}		// Change log 8	
   template< class T >
     LogDebug_ & 
-    operator<< (T const & t)  { (*ap) << t; return *this; }
+    operator<< (T const & t)  
+    { if (!debugEnabled) return *this;				// Change log 8
+      if (ap.get()) (*ap) << t; 
+      else throw edm::Exception
+       (edm::errors::LogicError,"operator << to stale copied LogDebug_ object"); 
+      return *this; }
   LogDebug_ & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    				      { (*ap) << f; return *this; }
+    { if (!debugEnabled) return *this;				// Change log 8
+      if (ap.get()) (*ap) << f; 
+      else throw edm::Exception
+       (edm::errors::LogicError,"operator << to stale copied LogDebug_ object"); 
+      return *this; }
   LogDebug_ & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    				      { (*ap) << f; return *this; }     
+    { if (!debugEnabled) return *this;				// Change log 8
+      if (ap.get()) (*ap) << f; 
+      else throw edm::Exception
+       (edm::errors::LogicError,"operator << to stale copied LogDebug_ object"); 
+      return *this; }
+			   // Change log 8:  The tests for ap.get() being null 
 
 private:
   std::auto_ptr<MessageSender> ap; 
-
+  bool debugEnabled;
+  std::string stripLeadingDirectoryTree (const std::string & file) const;
+  								// change log 10
 };  // LogDebug_
 
 class LogTrace_
@@ -266,20 +312,37 @@ class LogTrace_
 public:
   explicit LogTrace_( std::string const & id ) 
     : ap( new MessageSender(ELsuccess,id,true) )
+    , debugEnabled(true) 					// Change log 8
   {  }
+  explicit LogTrace_()  : ap(), debugEnabled(false) {}		// Change log 8	
   template< class T >
     LogTrace_ & 
-    operator<< (T const & t)  { (*ap) << t; return *this; }
+    operator<< (T const & t)  
+    { if (!debugEnabled) return *this;				// Change log 8
+      if (ap.get()) (*ap) << t; 
+      else throw edm::Exception
+       (edm::errors::LogicError,"operator << to stale copied LogTrace_ object"); 
+      return *this; }
   LogTrace_ & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    			      { (*ap) << f; return *this; }
+    { if (!debugEnabled) return *this;				// Change log 8
+      if (ap.get()) (*ap) << f; 
+      else throw edm::Exception
+       (edm::errors::LogicError,"operator << to stale copied LogTrace_ object"); 
+      return *this; }
   LogTrace_ & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    			      { (*ap) << f; return *this; }     
-
+    { if (!debugEnabled) return *this;				// Change log 8
+      if (ap.get()) (*ap) << f; 
+      else throw edm::Exception
+       (edm::errors::LogicError,"operator << to stale copied LogTrace_ object"); 
+      return *this; }
+			   // Change log 8:  The tests for ap.get() being null 
+ 
 private:
   std::auto_ptr<MessageSender> ap; 
-
+  bool debugEnabled;
+  
 };  // LogTrace_
 
 extern LogDebug_ dummyLogDebugObject_;
@@ -325,14 +388,16 @@ public:
 #else
 #define LogDebug(id)                                 \
   ( !edm::MessageDrop::instance()->debugEnabled )    \
-    ?  edm::dummyLogDebugObject_                     \
+    ?  edm::LogDebug_()                              \
     :  edm::LogDebug_(id, __FILE__, __LINE__)
 #define LogTrace(id)                                 \
   ( !edm::MessageDrop::instance()->debugEnabled )    \
-    ?  edm::dummyLogTraceObject_                     \
+    ?  edm::LogTrace_()                              \
     :  edm::LogTrace_(id)
 #endif
 #undef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
 							// change log 1, 2
+							// change log 8 using
+							// default ctors
 #endif  // MessageLogger_MessageLogger_h
 

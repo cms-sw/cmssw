@@ -23,6 +23,13 @@ u5	Tests reset versus no reset behavior when multiple statistics
 	summaries are triggered.  (That is, if untracked bool reset = true 
 	then the next time statistics are triggered, they start from having
 	been cleared the last time the sumary was sent out.)
+	---------- UnitTestClient_B
+
+u9	Tests behavior when using the official MessageLogger.cfi.
+	---------- UnitTestClient_G
+
+u10	Use of  extensionless filenames
+	---------- UnitTestClient_C
 
 u11	reportEvery, and some overall defaults
 	overall defaults regarding reportEvery
@@ -35,9 +42,20 @@ u11	reportEvery, and some overall defaults
 	reportEvery and limits interacting with each other
 	---------- UnitTestClient_F
 	
+u12	Tests the placeholder feature. 
+	---------- UnitTestClient_A
+
+u13	Tests LogVerbatim and LogTrace
+	---------- UnitTestClient_H
+
 u14	Message suppression by severity and by module.  For example,
 	suppressInfo = { "sendSomeMessages", "source" }
 	Does not test suppressInfo = "*" or any excludeModule or such.
+	---------- UnitTestClient_I
+
+u15	LogVerbatim and LogTrace; also whether isInfoEnalbled() works
+	when it is enabled.  
+	---------- UnitTestClient_H
 
 	
 <This Atlas is not yet complete; will add to it.>

@@ -53,6 +53,11 @@ MessageSender::~MessageSender()
     }
   catch ( ... )
     {
-      // nothing to do.
+      // nothing to do
+      
+      // for test that removal of thread-involved static works, 
+      // simply throw here, then run in trivial_main in totalview
+      // and Next or Step so that the exception would be detected.
+      // That test has been done 12/14/07.
     }
 }
