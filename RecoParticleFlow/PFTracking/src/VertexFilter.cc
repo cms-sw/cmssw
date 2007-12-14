@@ -171,7 +171,20 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for ( unsigned index = 0; index < selTracks->size(); ++index ) { 
 
     unsigned hits=0;
-    reco::TrackExtra aTrackExtra;
+
+    TrackExtra aTrackExtra(selTracks->at(index).outerPosition(),
+			   selTracks->at(index).outerMomentum(),
+			   selTracks->at(index).outerOk(),
+			   selTracks->at(index).innerPosition(),
+			   selTracks->at(index).innerMomentum(),
+			   selTracks->at(index).innerOk(),
+			   selTracks->at(index).outerStateCovariance(),
+			   selTracks->at(index).outerDetId(),
+			   selTracks->at(index).innerStateCovariance(),
+			   selTracks->at(index).innerDetId(),
+			   selTracks->at(index).seedDirection(),
+			   selTracks->at(index).seedRef());
+
     unsigned nHits = selTracks->at(index).numberOfValidHits();
     for ( unsigned int ih=0; ih<nHits; ++ih) {
       aTrackExtra.add(TrackingRecHitRef(theRecoHits,hits++));
