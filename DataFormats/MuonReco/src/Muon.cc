@@ -27,7 +27,8 @@ bool Muon::overlap( const Candidate & c ) const {
 	   ( checkOverlap( track(), o->track() ) ||
 	     checkOverlap( standAloneMuon(), o->standAloneMuon() ) ||
 	     checkOverlap( combinedMuon(), o->combinedMuon() ) ||
-	     checkOverlap( superCluster(), o->superCluster() ) ) 
+	     checkOverlap( standAloneMuon(), o->track() ) ||
+	     checkOverlap( combinedMuon(), o->track() ) )
 	   );
 }
 
