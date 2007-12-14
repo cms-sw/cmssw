@@ -126,11 +126,20 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
   if ( nHitInChamber < 3 ) return segmentInChamber;
 
   LayerIndex layerIndex( nHitInChamber );
-  
+
+  unsigned nLayers = 0;
+  int old_layer = -1;   
   for ( unsigned int i = 0; i < nHitInChamber; i++ ) {    
-    layerIndex[i] = rechits[i]->cscDetId().layer();
+    int this_layer = rechits[i]->cscDetId().layer();
+    layerIndex[i] = this_layer;
+    if ( this_layer != old_layer ) {
+      old_layer = this_layer;
+      nLayers++;   
+    }
   }
   
+  if ( nLayers < 3 ) return segmentInChamber;
+
   double z1 = theChamber->layer(1)->position().z();
   double z6 = theChamber->layer(6)->position().z();
   
@@ -148,7 +157,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
   }
 
   // Showering muon
-  if ( preClustering && int(nHitInChamber) > nHitsPerClusterIsShower ) {
+  if ( preClustering && int(nHitInChamber) > nHitsPerClusterIsShower && nLayers > 5 ) {
     CSCSegment segShower = showering_->showerSeg(theChamber, rechits);
     segmentInChamber.push_back(segShower);
     return segmentInChamber;
