@@ -272,7 +272,7 @@ void popcon::StateCreator::getStoredStatusData()
     query->addToOutputList( "P_CON_PAYLOAD_STATE.PAYLOAD_SIZE","PS");
     query->addToOutputList( "P_CON_PAYLOAD_STATE.EXCEPT_DESCRIPTION","ED");
     query->addToOutputList( "P_CON_PAYLOAD_STATE.MANUAL_OVERRIDE","MO");
-    query->addToTableList("P_CON_PAYLOAD_STATE","");
+    query->addToTableList("P_CON_PAYLOAD_STATE","cps");
     coral::AttributeList conditionData;
     conditionData.extend<std::string>( "oname" );
     conditionData[ "oname" ].data<std::string>() = nfo.object_name;
