@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2006/10/10 16:32:23 $
+ * last update: $Date: 2007/12/11 13:53:37 $
  * by         : $Author: ewidl $
  *
  *  Class implementing the reference trajectory of a single charged
@@ -31,6 +31,7 @@
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 class TrajectoryStateOnSurface;
 class MagneticField;
@@ -53,11 +54,11 @@ public:
 		      bool hitsAreReverse,
 		      const MagneticField *magField,
 		      MaterialEffects materialEffects = combined, 
-		      double mass = 0.10565836); // FIXME: ugly hard coded muon mass
+		      PropagationDirection propDir = alongMomentum,
+		      double mass = 0.10565836);
   virtual ~ReferenceTrajectory() {}
 
-  virtual ReferenceTrajectory* clone() const
-    { return new ReferenceTrajectory(*this); }
+  virtual ReferenceTrajectory* clone() const { return new ReferenceTrajectory(*this); }
 
 protected:
 
@@ -66,9 +67,9 @@ protected:
   /** internal method to calculate members
    */
   virtual bool construct(const TrajectoryStateOnSurface &referenceTsos, 
-		 const TransientTrackingRecHit::ConstRecHitContainer &recHits,
-		 double mass, MaterialEffects materialEffects,
-		 const MagneticField *magField);
+			 const TransientTrackingRecHit::ConstRecHitContainer &recHits,
+			 double mass, MaterialEffects materialEffects,
+			 const PropagationDirection propDir, const MagneticField *magField);
 
   /** internal method to get apropriate updator
    */
@@ -77,32 +78,32 @@ protected:
   /** internal method to calculate jacobian
    */
   virtual bool propagate(const BoundPlane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
-		 const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian,
-		 const MagneticField *magField) const;
+			 const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian,
+			 const PropagationDirection propDir, const MagneticField *magField) const;
   
   /** internal method to fill measurement and error matrix for hit iRow/2
    */
   virtual void fillMeasurementAndError(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr,
-			       unsigned int iRow,
-			       const TrajectoryStateOnSurface &updatedTsos);
+				       unsigned int iRow,
+				       const TrajectoryStateOnSurface &updatedTsos);
 
   /** internal method to fill derivatives for hit iRow/2
    */
   virtual void fillDerivatives(const AlgebraicMatrix &projection,
-		       const AlgebraicMatrix &fullJacobian, unsigned int iRow);
+			       const AlgebraicMatrix &fullJacobian, unsigned int iRow);
 
   /** internal method to fill the trajectory positions for hit iRow/2
    */
   virtual void fillTrajectoryPositions(const AlgebraicMatrix &projection, 
-			       const AlgebraicVector &mixedLocalParams, 
-			       unsigned int iRow);
+				       const AlgebraicVector &mixedLocalParams, 
+				       unsigned int iRow);
 
   /** internal method to add material effects to measurments covariance matrix
    */
   virtual void addMaterialEffectsCov(const std::vector<AlgebraicMatrix> &allJacobians, 
-			     const std::vector<AlgebraicMatrix> &allProjections,
-			     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
-			     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs);
+				     const std::vector<AlgebraicMatrix> &allProjections,
+				     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
+				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs);
 
   unsigned int numberOfUsedRecHits( const TransientTrackingRecHit::ConstRecHitContainer &recHits ) const;
 

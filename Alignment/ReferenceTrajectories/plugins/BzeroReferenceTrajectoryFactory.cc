@@ -38,8 +38,8 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
     // set the flag for reversing the RecHits to false, since they are already in the correct order.
     trajectories.push_back( ReferenceTrajectoryPtr( new BzeroReferenceTrajectory( input.first, input.second, 
 										  false, magneticField.product(),
-										  theMaterialEffects, theMass,
-										  theMomentumEstimate ) ) );
+										  materialEffects(), propagationDirection(),
+										  theMass, theMomentumEstimate ) ) );
     ++itTracks;
   }
 
@@ -78,8 +78,8 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
     {
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
       ReferenceTrajectoryPtr refTraj( new BzeroReferenceTrajectory( *itExternal, input.second, false,
-								    magneticField.product(), theMaterialEffects,
-								    theMass, theMomentumEstimate ) );
+								    magneticField.product(), materialEffects(),
+								    propagationDirection(), theMass, theMomentumEstimate ) );
 
       AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
       refTraj->setParameterErrors( externalParamErrors );
@@ -89,8 +89,8 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
     {
       trajectories.push_back( ReferenceTrajectoryPtr( new BzeroReferenceTrajectory( input.first, input.second, 
 										    false, magneticField.product(),
-										    theMaterialEffects, theMass,
-										    theMomentumEstimate ) ) );
+										    materialEffects(), propagationDirection(),
+										    theMass, theMomentumEstimate ) ) );
     }
 
     ++itTracks;

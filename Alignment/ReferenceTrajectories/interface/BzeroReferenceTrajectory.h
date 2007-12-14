@@ -48,7 +48,8 @@ public:
 			   const TransientTrackingRecHit::ConstRecHitContainer &recHits,
 			   bool hitsAreReverse,
 			   const MagneticField *magField,
-			   MaterialEffects materialEffects = combined, 
+			   MaterialEffects materialEffects = combined,
+			   PropagationDirection propDir = alongMomentum,
 			   double mass = 0.10565836,
 			   double momentumEstimate = 1.3 );
 

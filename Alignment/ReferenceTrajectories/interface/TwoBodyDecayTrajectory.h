@@ -17,6 +17,7 @@ public:
 			  const ConstRecHitCollection & recHits,
 			  const MagneticField* magField,
 			  MaterialEffects materialEffects = combined,
+			  PropagationDirection propDir = alongMomentum,
 			  bool hitsAreReverse = false,
 			  bool useRefittedState = true,
 			  bool constructTsosWithErrors = false );
@@ -38,6 +39,7 @@ private:
 		  const ConstRecHitCollection & recHits,
 		  const MagneticField* field,
 		  MaterialEffects materialEffects,
+		  PropagationDirection propDir,
 		  bool useRefittedState,
 		  bool constructTsosWithErrors );
 

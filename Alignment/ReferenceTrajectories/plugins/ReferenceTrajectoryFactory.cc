@@ -34,9 +34,9 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
   { 
     TrajectoryInput input = this->innermostStateAndRecHits( *itTracks );
     // set the flag for reversing the RecHits to false, since they are already in the correct order.
-    trajectories.push_back( ReferenceTrajectoryPtr( new ReferenceTrajectory( input.first, input.second, 
-									     false, magneticField.product(),
-									     theMaterialEffects, theMass ) ) );
+    trajectories.push_back( ReferenceTrajectoryPtr( new ReferenceTrajectory( input.first, input.second, false,
+									     magneticField.product(), materialEffects(),
+									     propagationDirection(), theMass ) ) );
     ++itTracks;
   }
 
@@ -72,9 +72,9 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
     if ( (*itExternal).isValid() )
     {
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
-      ReferenceTrajectoryPtr refTraj( new ReferenceTrajectory( *itExternal, input.second,
-							       false, magneticField.product(),
-							       theMaterialEffects, theMass ) );
+      ReferenceTrajectoryPtr refTraj( new ReferenceTrajectory( *itExternal, input.second, false,
+							       magneticField.product(), materialEffects(),
+							       propagationDirection(), theMass ) );
 
       AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
       refTraj->setParameterErrors( externalParamErrors );
@@ -82,9 +82,9 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
     }
     else
     {
-      trajectories.push_back( ReferenceTrajectoryPtr( new ReferenceTrajectory( input.first, input.second, 
-									       false, magneticField.product(),
-									       theMaterialEffects, theMass ) ) );
+      trajectories.push_back( ReferenceTrajectoryPtr( new ReferenceTrajectory( input.first, input.second, false,
+									       magneticField.product(), materialEffects(),
+									       propagationDirection(), theMass ) ) );
     }
 
     ++itTracks;

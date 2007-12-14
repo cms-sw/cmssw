@@ -15,6 +15,7 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryStat
 						const ConstRecHitCollection & recHits,
 						const MagneticField* magField,
 						MaterialEffects materialEffects,
+						PropagationDirection propDir,
 						bool hitsAreReverse,
 						bool useRefittedState,
 						bool constructTsosWithErrors )
@@ -38,12 +39,12 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryStat
       fwdRecHits.second.push_back( *itRecHits );
     }
 
-    theValidityFlag = this->construct( trajectoryState, fwdRecHits, magField, materialEffects,
+    theValidityFlag = this->construct( trajectoryState, fwdRecHits, magField, materialEffects, propDir,
 				       useRefittedState, constructTsosWithErrors );
   }
   else
   {
-    theValidityFlag = this->construct( trajectoryState, recHits, magField, materialEffects,
+    theValidityFlag = this->construct( trajectoryState, recHits, magField, materialEffects, propDir,
 				       useRefittedState, constructTsosWithErrors );
   }
 }
@@ -58,6 +59,7 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
 					const ConstRecHitCollection& recHits,
 					const MagneticField* field,
 					MaterialEffects materialEffects,
+					PropagationDirection propDir,
 					bool useRefittedState,
 					bool constructTsosWithErrors )
 {
@@ -70,7 +72,7 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   //
 
   // construct a trajectory (hits should be already in correct order)
-  ReferenceTrajectory trajectory1( tsos.first, recHits.first, false, field, materialEffects, mass );
+  ReferenceTrajectory trajectory1( tsos.first, recHits.first, false, field, materialEffects, propDir, mass );
 
   // check if construction of trajectory was successful
   if ( !trajectory1.isValid() ) return false;
@@ -82,7 +84,7 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   // second track
   //
 
-  ReferenceTrajectory trajectory2( tsos.second, recHits.second, false, field, materialEffects, mass );
+  ReferenceTrajectory trajectory2( tsos.second, recHits.second, false, field, materialEffects, propDir, mass );
 
   if ( !trajectory2.isValid() ) return false;
 

@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2007/06/13 14:37:29 $
+//  last update: $Date: 2007/12/11 13:53:40 $
 //  by         : $Author: ewidl $
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
@@ -14,7 +14,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
@@ -37,7 +36,9 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos
 					 const TransientTrackingRecHit::ConstRecHitContainer
 					 &recHits, bool hitsAreReverse,
 					 const MagneticField *magField, 
-					 MaterialEffects materialEffects, double mass) 
+					 MaterialEffects materialEffects,
+					 PropagationDirection propDir,
+					 double mass) 
   : ReferenceTrajectoryBase( refTsos.localParameters().mixedFormatVector().kSize,
 			     numberOfUsedRecHits(recHits) )
 {
@@ -52,9 +53,9 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos
 	 it != recHits.rend(); ++it) {
       fwdRecHits.push_back(*it);
     }
-    theValidityFlag = this->construct(refTsos, fwdRecHits, mass, materialEffects, magField);
+    theValidityFlag = this->construct(refTsos, fwdRecHits, mass, materialEffects, propDir, magField);
   } else {
-    theValidityFlag = this->construct(refTsos, recHits, mass, materialEffects, magField);
+    theValidityFlag = this->construct(refTsos, recHits, mass, materialEffects, propDir, magField);
   }
 }
 
@@ -71,7 +72,7 @@ ReferenceTrajectory::ReferenceTrajectory( unsigned int nPar, unsigned int nHits 
 bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos, 
 				    const TransientTrackingRecHit::ConstRecHitContainer &recHits,
 				    double mass, MaterialEffects materialEffects,
-				    const MagneticField *magField)
+				    const PropagationDirection propDir, const MagneticField *magField)
 {
   MaterialEffectsUpdator *aMaterialEffectsUpdator = this->createUpdator(materialEffects, mass);
   if (!aMaterialEffectsUpdator) return false;
@@ -114,7 +115,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
       TrajectoryStateOnSurface nextTsos;
       if (!this->propagate(previousHitPtr->det()->surface(), previousTsos,
 			   hitPtr->det()->surface(), nextTsos,
-			   nextJacobian, magField)) {
+			   nextJacobian, propDir, magField)) {
 	return false; // stop if problem...
       }
 
@@ -195,10 +196,10 @@ ReferenceTrajectory::createUpdator(MaterialEffects materialEffects, double mass)
 
 bool ReferenceTrajectory::propagate(const BoundPlane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
 				    const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian,
-				    const MagneticField *magField) const
+				    const PropagationDirection propDir, const MagneticField *magField) const
 {
   // propagate to next layer
-  AnalyticalPropagator aPropagator(magField);
+  AnalyticalPropagator aPropagator(magField, propDir);
   const std::pair<TrajectoryStateOnSurface, double> tsosWithPath =
     aPropagator.propagateWithPath(previousTsos, newSurface);
 

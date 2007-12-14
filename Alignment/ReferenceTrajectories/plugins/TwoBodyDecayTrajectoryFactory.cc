@@ -93,8 +93,8 @@ TwoBodyDecayTrajectoryFactory::trajectories( const edm::EventSetup& setup,
     // set the flag for reversing the RecHits to false, since they are already in the correct order.
     trajectories.push_back( ReferenceTrajectoryPtr( new TwoBodyDecayTrajectory( trajectoryState, recHits,
 										magneticField.product(),
-										theMaterialEffects, false,
-										theUseRefittedStateFlag,
+										materialEffects(), propagationDirection(),
+										false, theUseRefittedStateFlag,
 										theConstructTsosWithErrorsFlag ) ) );
   }
   else

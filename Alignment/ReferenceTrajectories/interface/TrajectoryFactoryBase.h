@@ -6,6 +6,8 @@
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+
 /// Base class for factories producing reference trajectories, i.e. instances of classes deriving from
 /// ReferenceTrajectoryBase, from a TrajTrackPairCollection.
 
@@ -35,14 +37,21 @@ public:
 
   virtual TrajectoryFactoryBase* clone( void ) const = 0;
 
+  inline const MaterialEffects materialEffects( void ) const { return theMaterialEffects; }
+  inline const PropagationDirection propagationDirection( void ) const { return thePropDir; }
+
 protected:
 
   virtual const TrajectoryInput innermostStateAndRecHits( const ConstTrajTrackPair & track ) const;
   virtual const Trajectory::DataContainer orderedTrajectoryMeasurements( const Trajectory & trajectory ) const;
 
+private:
+
   const MaterialEffects materialEffects( const std::string & strME ) const;
+  const PropagationDirection propagationDirection( const std::string & strPD ) const;
 
   MaterialEffects theMaterialEffects;
+  PropagationDirection thePropDir;
   bool theUseInvalidHits;
 };
 

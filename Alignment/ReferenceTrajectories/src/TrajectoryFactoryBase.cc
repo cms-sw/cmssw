@@ -3,30 +3,21 @@
 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 
+#include <iostream>
+
 TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config )
 {
   const std::string strMaterialEffects = config.getParameter< std::string >( "MaterialEffects" );
   theMaterialEffects = this->materialEffects( strMaterialEffects );
+
+  const std::string strPropagationDirection = config.getParameter< std::string >( "PropagationDirection" );
+  thePropDir = this->propagationDirection( strPropagationDirection );
+
   theUseInvalidHits = config.getParameter< bool >( "UseInvalidHits" );
 }
 
 
 TrajectoryFactoryBase::~TrajectoryFactoryBase( void ) {}
-
-
-const TrajectoryFactoryBase::MaterialEffects TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
-{
-  if ( strME == "MultipleScattering" ) return ReferenceTrajectoryBase::multipleScattering;
-  if ( strME == "EnergyLoss" ) return ReferenceTrajectoryBase::energyLoss;
-  if ( strME == "Combined" ) return ReferenceTrajectoryBase::combined;
-  if ( strME == "None" ) return ReferenceTrajectoryBase::none;
-
-  edm::LogError("Alignment") << "@SUB=TrajectoryFactoryBase::materialEffects" 
-                             << "Unknown parameter \'" << strME 
-                             << "\'. I use \'Combined\' instead.";
-
-  return ReferenceTrajectoryBase::combined;
-}
 
 
 const TrajectoryFactoryBase::TrajectoryInput
@@ -38,6 +29,9 @@ TrajectoryFactoryBase::innermostStateAndRecHits( const ConstTrajTrackPair & trac
   Trajectory::DataContainer trajectoryMeasurements 
     = this->orderedTrajectoryMeasurements( *track.first );
   Trajectory::DataContainer::iterator itM = trajectoryMeasurements.begin();
+
+  std::cout << "first measurement: r = " << trajectoryMeasurements.front().predictedState().globalPosition().perp() << std:: endl
+	    << "last measurement: r = " << trajectoryMeasurements.back().predictedState().globalPosition().perp() << std:: endl;
 
   // get the innermost valid state
   while ( itM != trajectoryMeasurements.end() )
@@ -62,11 +56,7 @@ TrajectoryFactoryBase::innermostStateAndRecHits( const ConstTrajTrackPair & trac
 const Trajectory::DataContainer TrajectoryFactoryBase::orderedTrajectoryMeasurements( const Trajectory & trajectory ) const
 {
   const PropagationDirection dir = trajectory.direction();
-  const bool hitsAreReverse = (dir == oppositeToMomentum ? true : false);
-  if (hitsAreReverse == false && dir != alongMomentum) {
-    edm::LogError("Alignment") << "$SUB=TrajectoryFactoryBase::orderedTrajectoryMeasurements"
-                               << "Trajectory neither along nor opposite to momentum.";
-  }
+  const bool hitsAreReverse = ( dir == thePropDir ? false : true );
 
   const Trajectory::DataContainer & original = trajectory.measurements();
 
@@ -82,4 +72,33 @@ const Trajectory::DataContainer TrajectoryFactoryBase::orderedTrajectoryMeasurem
   }
 
   return original;
+}
+
+
+const TrajectoryFactoryBase::MaterialEffects TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
+{
+  if ( strME == "MultipleScattering" ) return ReferenceTrajectoryBase::multipleScattering;
+  if ( strME == "EnergyLoss" ) return ReferenceTrajectoryBase::energyLoss;
+  if ( strME == "Combined" ) return ReferenceTrajectoryBase::combined;
+  if ( strME == "None" ) return ReferenceTrajectoryBase::none;
+
+  edm::LogError("Alignment") << "@SUB=TrajectoryFactoryBase::materialEffects" 
+                             << "Unknown parameter \'" << strME 
+                             << "\'. I use \'Combined\' instead.";
+
+  return ReferenceTrajectoryBase::combined;
+}
+
+
+const PropagationDirection TrajectoryFactoryBase::propagationDirection( const std::string & strPD ) const
+{
+  if ( strPD == "oppositeToMomentum" ) return oppositeToMomentum;
+  if ( strPD == "alongMomentum" ) return alongMomentum;
+  if ( strPD == "anyDirection" ) return anyDirection;
+
+  edm::LogError("Alignment") << "@SUB=TrajectoryFactoryBase::propagationDirection" 
+                             << "Unknown parameter \'" << strPD 
+                             << "\'. I use \'anyDirection\' instead.";
+
+  return anyDirection;
 }
