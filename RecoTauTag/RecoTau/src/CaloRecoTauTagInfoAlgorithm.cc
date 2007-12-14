@@ -96,34 +96,28 @@ BasicClusterRefVector CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters(E
     if(thepropagTrackECALSurfContactPoint.z()!=0.) thepropagTracksECALSurfContactPoints.push_back(thepropagTrackECALSurfContactPoint);
   }
   
-  BasicClusterRefVector theBasicClusters;  
-  Handle<BasicClusterCollection> theBarrelBCCollection;
-  theEvent.getByLabel("islandBasicClusters","islandBarrelBasicClusters",theBarrelBCCollection);
-  for(unsigned int i_BC=0;i_BC!=theBarrelBCCollection->size();i_BC++) { 
-    math::XYZPoint aCaloJetFakePosition((*theCaloJet).px(),(*theCaloJet).py(),(*theCaloJet).pz());
-    try{
-      BasicClusterRef theBasicClusterRef(theBarrelBCCollection,i_BC);    
-      if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE){
-	theBasicClusters.push_back(theBasicClusterRef);
-      }
-    }catch(cms::Exception& theexception) {
-      continue;
-    }
-  }  
+  math::XYZPoint aCaloJetFakePosition((*theCaloJet).px(),(*theCaloJet).py(),(*theCaloJet).pz());
+    
+  BasicClusterRefVector theBasicClusters; 
   
-  Handle<BasicClusterCollection> theEndcapBCCollection;
-  theEvent.getByLabel("islandBasicClusters","islandEndcapBasicClusters",theEndcapBCCollection);
-  for(unsigned int j_BC=0;j_BC!=theEndcapBCCollection->size();j_BC++) { 
-    math::XYZPoint aCaloJetFakePosition((*theCaloJet).px(),(*theCaloJet).py(),(*theCaloJet).pz());
-    try{
-      BasicClusterRef theBasicClusterRef(theEndcapBCCollection,j_BC);    
-      if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE){
-	theBasicClusters.push_back(theBasicClusterRef);
-      }
-    }catch(cms::Exception& theexception) {
-      continue;
-    }
-  }  
+  double ECALcorner_tantheta=ECALBounds::barrel_innerradius()/ECALBounds::barrel_halfLength();
+  if (fabs((*theCaloJet).pt()/(*theCaloJet).pz())>ECALcorner_tantheta){ 
+    Handle<BasicClusterCollection> theBarrelBCCollection;
+    theEvent.getByLabel("islandBasicClusters","islandBarrelBasicClusters",theBarrelBCCollection);
+    for(unsigned int i_BC=0;i_BC!=theBarrelBCCollection->size();i_BC++) { 
+      BasicClusterRef theBasicClusterRef(theBarrelBCCollection,i_BC);    
+      if (theBasicClusterRef.isNull()) continue;  
+      if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE) theBasicClusters.push_back(theBasicClusterRef);
+    }  
+  }else{    
+    Handle<BasicClusterCollection> theEndcapBCCollection;
+    theEvent.getByLabel("islandBasicClusters","islandEndcapBasicClusters",theEndcapBCCollection);
+    for(unsigned int j_BC=0;j_BC!=theEndcapBCCollection->size();j_BC++) { 
+      BasicClusterRef theBasicClusterRef(theEndcapBCCollection,j_BC); 
+      if (theBasicClusterRef.isNull()) continue;  
+      if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE) theBasicClusters.push_back(theBasicClusterRef);
+    }  
+  }
   
   BasicClusterRefVector theNeutralBasicClusters=theBasicClusters;  
   BasicClusterRefVector::iterator kmatchedBasicCluster;
