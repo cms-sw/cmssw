@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2007/09/04 02:54:19 $
- * $Revision: 1.5 $
+ * $Date: 2007/09/27 16:55:39 $
+ * $Revision: 1.6 $
  * \author P. Wittich
  *
  */
@@ -85,7 +85,7 @@ L1TRCT::L1TRCT(const ParameterSet & ps) :
 
 
   if (dbe != NULL) {
-    dbe->setCurrentFolder("L1TMonitor/L1TRCT");
+    dbe->setCurrentFolder("L1T/L1TRCT");
   }
 
 
@@ -105,13 +105,13 @@ void L1TRCT::beginJob(const EventSetup & c)
   dbe = Service < DaqMonitorBEInterface > ().operator->();
 
   if (dbe) {
-    dbe->setCurrentFolder("L1TMonitor/L1TRCT");
-    dbe->rmdir("L1TMonitor/L1TRCT");
+    dbe->setCurrentFolder("L1T/L1TRCT");
+    dbe->rmdir("L1T/L1TRCT");
   }
 
 
   if (dbe) {
-    dbe->setCurrentFolder("L1TMonitor/L1TRCT");
+    dbe->setCurrentFolder("L1T/L1TRCT");
 
     rctIsoEmEtEtaPhi_ =
 	dbe->book2D("RctIsoEmEtEtaPhi", "ISO EM E_{T}", PHIBINS, PHIMIN,

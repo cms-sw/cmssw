@@ -22,7 +22,7 @@
   <lib name=RecoEgammaEgammaPhotonProducers>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
-  <use name=DataFormats/EgammaCandidates
+  <use name=DataFormats/EgammaCandidates>
   <use name=DataFormats/TrajectorySeed>
   <use name=DataFormats/Common>
   <use name=DataFormats/Math>

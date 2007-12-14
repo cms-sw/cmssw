@@ -5,6 +5,7 @@
 //
  
 #include "CalibFormats/SiPixelObjects/interface/PixelTTCciConfig.h"
+#include <cassert>
   
 using namespace pos;
  

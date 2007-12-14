@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.4 2007/05/16 22:57:45 hcheung Exp $
+   $Id: SMProxyServer.h,v 1.5 2007/06/30 16:08:58 hcheung Exp $
 */
 
 #include <string>
@@ -80,6 +80,8 @@ namespace stor {
     
 ////////////////////////////////////////////////////////////////////////////////
    private:  
+    void checkDirectoryOK(std::string dir);
+
     void defaultWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void css(xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception)
@@ -105,6 +107,7 @@ namespace stor {
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
 
     evf::StateMachine fsm_;
+    std::string reasonForFailedState_;
 
     edm::AssertHandler *ah_;
     edm::service::MessageServicePresence theMessageServicePresence;

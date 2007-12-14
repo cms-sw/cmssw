@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.42 2007/09/18 18:06:47 chrjones Exp $
+$Id: OutputModule.cc,v 1.44 2007/10/15 15:15:22 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -375,6 +375,12 @@ namespace edm {
   OutputModule::currentContext() const
   {
     return current_context_;
+  }
+
+  ModuleDescription const&
+  OutputModule::description() const
+  {
+    return moduleDescription_;
   }
 
   bool OutputModule::selected(BranchDescription const& desc) const

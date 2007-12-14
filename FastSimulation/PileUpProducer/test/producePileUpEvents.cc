@@ -1,5 +1,5 @@
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+//#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -15,7 +15,7 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
-#include "FastSimulation/Event/interface/FSimVertex.h"
+//#include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimDataFormats/PileUpEvents/interface/PUEvent.h"
 

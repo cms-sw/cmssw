@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2007/09/19 17:07:29 $
- * $Revision: 1.12 $
+ * $Date: 2007/10/09 11:14:56 $
+ * $Revision: 1.13 $
  * \authors:
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
@@ -268,23 +268,6 @@ void DTNoiseTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup 
     }
   }
   
-  //if (updates%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
-  //  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
-  //    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTNoiseTest.root"));
-  //}
-
-}
-
-
-
-void DTNoiseTest::endRun(){
-
-  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
-    stringstream runNumber; runNumber << run;
-    string rootFile = "DTNoiseTest_" + runNumber.str() + ".root";
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
-  }
-
 }
 
 

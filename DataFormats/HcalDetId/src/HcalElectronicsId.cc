@@ -15,7 +15,7 @@ HcalElectronicsId::HcalElectronicsId(int fiberChan, int fiberIndex, int spigot, 
 }
 
 HcalElectronicsId::HcalElectronicsId(int slbChan, int slbSite, int spigot, int dccid, int crate, int slot, int tb) {
-  hcalElectronicsId_=(slbChan&0x3) | (((slbSite-1)&0x7)<<2) |
+  hcalElectronicsId_=(slbChan&0x3) | (((slbSite)&0x7)<<2) |
     ((spigot&0xF)<<5) | ((dccid&0x1F)<<9);
   hcalElectronicsId_|=((tb&0x1)<<19) | ((slot&0x1f)<<14) | ((crate&0x3f)<<20);
   hcalElectronicsId_|=0x02000000;

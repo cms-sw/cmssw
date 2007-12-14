@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.5 2007/06/12 08:23:35 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.6 2007/07/04 08:39:13 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -64,7 +64,6 @@ void OptoScanHistosUsingDb::uploadToConfigDb() {
   }
 
   // Update LLD descriptions with new bias/gain settings
-  db_->resetDeviceDescriptions();
   const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions(); 
   update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
   if ( !test_ ) { 

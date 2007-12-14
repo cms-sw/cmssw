@@ -1,10 +1,13 @@
 <use name=DataFormats/GeometrySurface>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/ParticleFlowReco>
+<use name=DataFormats/TrackCandidate>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/TrackingRecHit>
+<use name=DataFormats/TrajectorySeed>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/PluginManager>
 <use name=FWCore/Utilities>
 <use name=FastSimulation/Event>
 <use name=FastSimulation/Particle>
@@ -13,6 +16,7 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
+<use name=RecoParticleFlow/PFAlgo>
 <use name=RecoParticleFlow/PFBlockAlgo>
 <use name=RecoParticleFlow/PFClusterTools>
 <use name=RecoTracker/TrackProducer>
@@ -22,4 +26,12 @@
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TrajectoryState>
 <flags EDM_PLUGIN=1>
-
+<export>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=RecoParticleFlow/PFBlockAlgo>
+  <use name=RecoTracker/TrackProducer>
+  <use name=TrackingTools/GeomPropagators>
+  <use name=TrackingTools/TrajectoryState>
+  <lib name=RecoParticleFlowPFBlockProducer>
+</export>

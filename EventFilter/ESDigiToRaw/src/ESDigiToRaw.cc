@@ -36,7 +36,8 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
   run_number_ = ev.id().run();
   orbit_number_ = counter_ / BXMAX;
   bx_ = (counter_ % BXMAX);
-  lv1_ = counter_;
+  //lv1_ = counter_;
+  lv1_ = ev.id().event();
   counter_++;
 
   ESDataFormatter_->setRunNumber(run_number_);

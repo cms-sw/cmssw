@@ -157,7 +157,7 @@ void HitPairGeneratorFromLayerPair::
     float phiErr = nSigmaPhi * sqrt(recHit->globalPositionError().phierr(hitPos)); 
     float dphi = deltaPhi( hitPos.perp(), hitPos.z(), hitPos.perp()*phiErr);   
     float phiHit = hitPos.phi();
-    std::cout<<"hit pairs generator dphi:"<<dphi<<std::endl;
+    //std::cout<<"hit pairs generator dphi:"<<dphi<<std::endl;
     vector<const TrackingRecHit*> innerCandid = innerSortedHits.hits(phiHit-dphi,phiHit+dphi);
     const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), *oh,iSetup);
     if(!checkRZ) continue;

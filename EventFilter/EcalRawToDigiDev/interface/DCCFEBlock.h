@@ -59,9 +59,9 @@ class DCCFEBlock : public DCCDataBlockPrototype {
     uint bx_;
     uint l1_;
     
-    short * xtalGains_;	 
-    std::auto_ptr<EcalTrigTowerDetIdCollection> * invalidTTIds_;
-    std::auto_ptr<EcalTrigTowerDetIdCollection> * invalidBlockLengths_;
+    short * xtalGains_;
+    std::auto_ptr<EcalElectronicsIdCollection> * invalidTTIds_;
+    std::auto_ptr<EcalElectronicsIdCollection> * invalidBlockLengths_;
 	 
    
 		

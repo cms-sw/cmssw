@@ -66,6 +66,9 @@ cmsRun --parameter-set ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_2.cfg || die 'Failur
 # Merge files
 #---------------------------
 
-edmFastMerge -i file:${INPUT_1} file:${INPUT_2} -j ${LOCAL_TMP_DIR}/FrameworkJobReport.xml -o ${LOCAL_TMP_DIR}/EdmFastMerge_out.root || die 'Failure using edmFastMerge' $?
-
+edmFastMerge -i file:${INPUT_1} file:${INPUT_2} -j ${LOCAL_TMP_DIR}/TestFastMergeFJR.xml -o ${LOCAL_TMP_DIR}/EdmFastMerge_out.root || die 'Failure using edmFastMerge' $?
+#need to filter items in job report which always change
+grep -v "<GUID>" $LOCAL_TEST_DIR/proper_fjr_output | grep -v "<PFN>" > $LOCAL_TMP_DIR/proper_fjr_output
+grep -v "<GUID>" $LOCAL_TMP_DIR/TestFastMergeFJR.xml | grep -v "<PFN>" > $LOCAL_TMP_DIR/TestFastMergeFJR_filtered.xml
+diff $LOCAL_TMP_DIR/proper_fjr_output $LOCAL_TMP_DIR/TestFastMergeFJR_filtered.xml || die 'output framework job report is wrong' $?
 

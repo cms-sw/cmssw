@@ -1,6 +1,7 @@
 <Flags EDM_PLUGIN=1>
 <export>
  <use name=SimG4Core/Physics>
+ <use name=SimG4Core/PhysicsLists>
  <use name=SimG4Core/G4gflash>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/MessageLogger>
@@ -10,6 +11,7 @@
 </export>
 
 <use name=SimG4Core/Physics>
+<use name=SimG4Core/PhysicsLists>
 <use name=SimG4Core/G4gflash>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>

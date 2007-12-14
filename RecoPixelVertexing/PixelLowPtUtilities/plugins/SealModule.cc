@@ -2,16 +2,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_SEAL_MODULE();
 
-// Producers
+// Producer
 #include "PixelTrackProducerWithZPos.h"
 DEFINE_ANOTHER_FWK_MODULE(PixelTrackProducerWithZPos);
-
-#include "PixelVertexProducerMedian.h"
-DEFINE_ANOTHER_FWK_MODULE(PixelVertexProducerMedian);
-
-// Remover
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/SiPixelRecHitRemover.h"
-DEFINE_ANOTHER_FWK_MODULE(SiPixelRecHitRemover);
 
 // Region
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"

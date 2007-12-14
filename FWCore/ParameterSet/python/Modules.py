@@ -150,5 +150,7 @@ if __name__ == "__main__":
             withParam = Service("Parameterized",foo=untracked(int32(1)), bar = untracked(string("it")))
             self.assertEqual(withParam.foo.value(), 1)
             self.assertEqual(withParam.bar.value(), "it")
+            self.assertEqual(empty.dumpPython(), "cms.Service(\"Empty\")\n")
+            self.assertEqual(withParam.dumpPython(), "cms.Service(\"Parameterized\",\n    foo = cms.untracked.int32(1),\n    bar = cms.untracked.string(\'it\')\n)\n")
 
     unittest.main()

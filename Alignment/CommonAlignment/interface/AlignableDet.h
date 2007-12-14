@@ -2,6 +2,7 @@
 #define Alignment_CommonAlignment_AlignableDet_h
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
+#include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
 /// An AlignableComposite that has AlignableDetUnits as direct component.
 
@@ -15,6 +16,12 @@ public:
   
   /// Destructor
   virtual ~AlignableDet();
+  
+  /// Return vector of components
+  virtual std::vector<Alignable*> components() const ;
+
+  /// Return given AlignableDetUnit
+  AlignableDetUnit &detUnit(int i);
 
   /// Set alignment position error of this and all components to given error
   virtual void setAlignmentPositionError(const AlignmentPositionError& ape);
@@ -30,6 +37,10 @@ public:
   /// resulting from a rotation in the local reference frame
   virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
 
+
+  /// Alignable object identifier
+  virtual int alignableObjectId () const { return AlignableObjectId::AlignableDet; }
+
   /// Return vector of alignment data
   virtual Alignments* alignments() const;
 
@@ -38,8 +49,15 @@ public:
 
 private:
 
+  /// Container of components
+  std::vector<AlignableDetUnit*> theDetUnits ;
+
   AlignmentPositionError* theAlignmentPositionError;
 
 };
 
+
+
+
 #endif // ALIGNABLE_DET_H
+

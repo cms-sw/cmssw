@@ -563,13 +563,13 @@ void SiStripMonitorTrack::fillModMEs(const SiStripClusterInfo* cluster,TString n
     int PGVposCounter = cluster->firstStrip() - cluster->rawdigiAmplitudesL().size() - cluster->maxPos();
     for (int i= int(conf_.getParameter<edm::ParameterSet>("TProfileClusterPGV").getParameter<double>("xmin"));i<PGVposCounter;++i)
       fillME(iModME->second.ClusterPGV, i,0.);
-    for (std::vector<short>::const_iterator it=cluster->rawdigiAmplitudesL().begin();it<cluster->rawdigiAmplitudesL().end();++it) {
+    for (std::vector<float>::const_iterator it=cluster->rawdigiAmplitudesL().begin();it<cluster->rawdigiAmplitudesL().end();++it) {
       fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
     }
     for (std::vector<uint16_t>::const_iterator it=cluster->stripAmplitudes().begin();it<cluster->stripAmplitudes().end();++it) {
       fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
     }
-    for (std::vector<short>::const_iterator it=cluster->rawdigiAmplitudesR().begin();it<cluster->rawdigiAmplitudesR().end();++it) {
+    for (std::vector<float>::const_iterator it=cluster->rawdigiAmplitudesR().begin();it<cluster->rawdigiAmplitudesR().end();++it) {
       fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
     }
     for (int i= PGVposCounter;i<int(conf_.getParameter<edm::ParameterSet>("TProfileClusterPGV").getParameter<double>("xmax"));++i)
@@ -640,4 +640,6 @@ std::vector<std::pair<const TrackingRecHit*,float> > SiStripMonitorTrack::Separa
   } // end loop on rechits
   return (hitangleassociation);
 }
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripMonitorTrack);
 

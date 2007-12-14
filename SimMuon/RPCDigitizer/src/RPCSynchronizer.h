@@ -15,6 +15,12 @@
 #include<vector>
 #include<stdlib.h>
 
+#include "CLHEP/config/CLHEP.h"
+#include "CLHEP/Random/Random.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/RandPoissonQ.h"
+
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
@@ -29,6 +35,12 @@ namespace edm{
   class ParameterSet;
 }
 
+namespace CLHEP {
+  class RandGaussianQ;
+  class RandPoissonQ;
+  class RandFlat;
+}
+
 class RPCSynchronizer
 {
  public:
@@ -37,7 +49,6 @@ class RPCSynchronizer
   float getReadOutTime(const RPCDetId& rpcDetId);
   void setReadOutTime(const RPCGeometry*);
   int getSimHitBx(const PSimHit*);
-  int getDigiBx(const PSimHit*, int, int);
 
   /// sets geometry
   void setGeometry(const RPCGeometry * geom) {theGeometry = geom;}
@@ -58,5 +69,11 @@ class RPCSynchronizer
   bool file;
   bool cosmics;
   std::fstream* infile;
+
+  CLHEP::HepRandomEngine* rndEngine;
+  CLHEP::RandGaussQ *gaussian_;
+  CLHEP::RandPoissonQ *poissonDistribution_;
+  CLHEP::RandFlat *flatDistribution_;
+
 };
 #endif

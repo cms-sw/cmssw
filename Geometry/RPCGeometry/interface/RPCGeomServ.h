@@ -10,6 +10,7 @@ class RPCGeomServ{
   virtual ~RPCGeomServ();
   virtual std::string name();
   virtual int eta_partition(); 
+  virtual int segment();
   virtual bool inverted();
   virtual bool zpositive();
   virtual bool aclockwise();

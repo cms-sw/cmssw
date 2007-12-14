@@ -10,7 +10,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CLHEP/Random/RandGauss.h"
-#include "CondTools/SiPixel/test/SiPixelCondObjBuilder.h"
 
 using namespace std;
 

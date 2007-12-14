@@ -4,27 +4,66 @@
 #include <map>
 #include <string>
 
-#include "Alignment/CommonAlignment/interface/StructureType.h"
-
+/// Type Identifier of Alignable objects (Det's, Rod's etc.).
 /// Allows conversion between type and name, and vice-versa
 class AlignableObjectId 
 {
 
 public:
   
-  /// Constructor (create maps)
+  /// Constructor (defines names)
   AlignableObjectId();
 
-  typedef std::map<align::StructureType, std::string> MapEnumType;
-  typedef std::map<std::string, align::StructureType> ReverseMapEnumType;
-  typedef std::pair<align::StructureType, std::string> PairEnumType;
-  typedef std::pair<std::string, align::StructureType> PairEnumReverseType;
+  enum AlignableObjectIdType 
+	{ 
+	  invalid                    =  0,
+	  AlignableDetUnit,
+	  AlignableDet,
+	  AlignableRod,
+	  AlignableBarrelLayer,
+	  AlignableHalfBarrel,       // 5
+	  AlignablePetal,
+	  AlignableEndcapLayer,
+	  AlignableEndcap,
+	  AlignableTIDRing,
+	  AlignableTIDLayer,         // 10
+	  AlignableTID,
+	  AlignablePixelHalfBarrelLayer,
+	  AlignablePixelHalfBarrel,
+
+	  // Forward pixel
+	  Panel,
+	  Blade,           // 15
+	  HalfDisk,
+	  HalfCylinder,
+	  PixelEndcap,
+
+	  AlignableTracker,
+	  
+	  AlignableDTBarrel              = 20,
+	  AlignableDTWheel,
+	  AlignableDTStation,
+	  AlignableDTChamber,
+	  AlignableDTSuperLayer,
+	  AlignableDTLayer,          // 25
+	  AlignableCSCEndcap,
+	  AlignableCSCStation,
+	  AlignableCSCChamber,
+	  AlignableCSCLayer,
+	  AlignableMuon
+	  
+	};
+  
+  typedef std::map<AlignableObjectIdType, std::string> MapEnumType;
+  typedef std::map<std::string, AlignableObjectIdType> ReverseMapEnumType;
+  typedef std::pair<AlignableObjectIdType, std::string> PairEnumType;
+  typedef std::pair<std::string, AlignableObjectIdType> PairEnumReverseType;
 
   /// Convert name to type
-  const align::StructureType nameToType( const std::string& name ) const;
+  const AlignableObjectIdType nameToType( const std::string& name ) const;
 
   /// Convert type to name
-  const std::string& typeToName( align::StructureType type ) const;
+  const std::string& typeToName( const int type ) const;
 
 private:
   MapEnumType theMap;

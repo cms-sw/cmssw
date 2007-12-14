@@ -44,7 +44,7 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*  geom ,
 		   const HepTransform3D&   tr ,
 		   const DetId&            id     )
 {
-   if( geom->parMgr()     == 0 ) geom->allocatePar( 10, pv.size() ) ;
+   if( geom->parMgr()     == 0 ) geom->allocatePar( 2, pv.size() ) ;
 
 
    std::vector<float> vv ;

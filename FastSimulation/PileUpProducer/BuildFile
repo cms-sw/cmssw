@@ -1,10 +1,6 @@
-<use name=FWCore/ParameterSet>
-<use name=FWCore/Utilities>
-<use name=FastSimDataFormats/PileUpEvents>
 <use name=FastSimulation/Event>
 <use name=FastSimulation/Particle>
-<use name=FastSimulation/Utilities>
-<use name=rootcore>
+<use name=hepmc>
 <export>
   <lib name=FastSimulationPileUpProducer>
 </export>

@@ -1,6 +1,7 @@
-// Last commit: $Id: SiStripDigiToRaw.cc,v 1.21 2007/06/14 18:41:07 pwing Exp $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.23 2007/10/20 14:19:46 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
+#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
@@ -57,10 +58,6 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
 
     for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
     
-      LogDebug("DigiToRaw") 
-	<< "[SiStripDigiToRaw::createFedBuffers] Processing FED id " 
-	<< *ifed;
-      
       raw_data.clear(); raw_data.resize( strips_per_fed, 0 );
       
       const std::vector<FedChannelConnection>& conns = cabling->connections(*ifed);
@@ -140,6 +137,18 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
       generator.getBuffer( ints );
       if ( creator ) { delete creator; }
 
+      //@@ THIS IS TEMPORARY FIX SO THAT DAQ WORKS. CONCERNS 32-BIT WORD SWAPPING
+      FEDRawData temp( fedrawdata );
+      uint32_t* temp_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( temp.data() ) );
+      uint32_t* fedrawdata_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( fedrawdata.data() ) );
+      uint16_t iter = 0; 
+      while ( iter < fedrawdata.size() / sizeof(uint32_t) ) {
+	fedrawdata_u32[iter] = temp_u32[iter+1];
+	fedrawdata_u32[iter+1] = temp_u32[iter];
+	iter+=2;
+      }
+      
+      //@@ OVERWRITE HEADER AND TRAILER FOR DAQ
       FEDHeader header( fedrawdata.data() );
       header.set( fedrawdata.data(), 0, event.id().event(), 0, *ifed );
       

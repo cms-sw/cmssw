@@ -5,8 +5,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "FWCore/Framework/interface/Event.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -45,20 +43,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-
-
-class TransientTrackFromFTSFactory {
- public:
-
-    reco::TransientTrack build (const FreeTrajectoryState & fts) const;
-    reco::TransientTrack build (const FreeTrajectoryState & fts,
-        const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-};
-
-#include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/RecHitRemover.h"
 
 #include <vector>
 
@@ -111,64 +96,32 @@ void PixelTrackProducerWithZPos::beginJob(const edm::EventSetup& es)
   std::string  cleanerName = cleanerPSet.getParameter<std::string>("ComponentName");
   theCleaner = PixelTrackCleanerFactory::get()->create( cleanerName, cleanerPSet);
 
-  // Get transient track builder
-  edm::ParameterSet regionPSet = regfactoryPSet.getParameter<edm::ParameterSet>("RegionPSet");
-  theUseFoundVertices = regionPSet.getParameter<bool>("useFoundVertices");
-  thePtMin            = regionPSet.getParameter<double>("ptMin");
-  theOriginRadius     = regionPSet.getParameter<double>("originRadius");
-
-  if(theUseFoundVertices)
-  {
-  edm::ESHandle<TransientTrackBuilder> builder;
-  es.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-  theTTBuilder = builder.product();
-  }
 }
 
 /*****************************************************************************/
-pair<float,float> PixelTrackProducerWithZPos::refitWithVertex
-  (const reco::Track & recTrack,
-   const reco::VertexCollection* vertices)
+/*
+SiPixelRecHitCollection PixelTrackProducerWithZPos::getHits
+  (const edm::Event& ev)
 {
-  TransientTrack theTransientTrack = theTTBuilder->build(recTrack);
+  edm::Handle<SiPixelRecHitCollection> pixelHits;
+  edm::InputTag hitCollectionLabel = theConfig.getParameter<edm::InputTag>("HitCollectionLabel");
+  ev.getByLabel(hitCollectionLabel, pixelHits);
+  const SiPixelRecHitCollection* thePixelHits = pixelHits.product();
+  
+  // Remove hits belonging to already found tracks (no or yes, if yes,
+  // which?)
+  SiPixelRecHitCollection freeHits;
 
-  // If there are vertices found
-  if(vertices->size() > 0)
+  if(theConfig.getParameter<bool>("removeHitsOnTracks"))
   {
-    float dzmin = -1.;
-    const reco::Vertex * closestVertex = 0;
-
-    // Look for the closest vertex in z
-    for(reco::VertexCollection::const_iterator
-        vertex = vertices->begin(); vertex!= vertices->end(); vertex++)
-    {
-      float dz = fabs(recTrack.vertex().z() - vertex->position().z());
-      if(vertex == vertices->begin() || dz < dzmin)
-      { dzmin = dz ; closestVertex = &(*vertex); }
-    }
-
-
-    // Get vertex position and error matrix
-    GlobalPoint vertexPosition(closestVertex->position().x(),
-                               closestVertex->position().y(),
-                               closestVertex->position().z());
-
-    float beamSize = 15e-4; // 15 um
-    GlobalError vertexError(beamSize*beamSize, 0,
-                            beamSize*beamSize, 0,
-                            0,closestVertex->covariance(2,2));
-
-    // Refit track with vertex constraint
-    SingleTrackVertexConstraint stvc;
-    pair<TransientTrack, float> result =
-      stvc.constrain(theTransientTrack, vertexPosition, vertexError);
-
-    return pair<float,float>(result.first.impactPointTSCP().pt(),
-                             result.second);
+    RecHitRemover theRecHitRemover(theConfig);
+    freeHits = theRecHitRemover.getFreeHits(ev);
   }
-  else
-    return pair<float,float>(recTrack.pt(), -9999);
+  else freeHits = *thePixelHits;
+
+  return freeHits;
 }
+*/
 
 /*****************************************************************************/
 void PixelTrackProducerWithZPos::produce
@@ -179,16 +132,6 @@ void PixelTrackProducerWithZPos::produce
             << "]" << std::endl;
   
   TracksWithRecHits tracks;
-
-  // Get vertices
-  const reco::VertexCollection* vertices;
-
-  if(theUseFoundVertices)
-  {
-  edm::Handle<reco::VertexCollection> vertexCollection;
-  ev.getByType(vertexCollection);
-  vertices = vertexCollection.product();
-  }
 
   typedef std::vector<TrackingRegion* > Regions;
   typedef Regions::const_iterator IR;
@@ -221,25 +164,6 @@ void PixelTrackProducerWithZPos::produce
       { 
         delete track; 
         continue; 
-      }
-
-      if(track->pt() < thePtMin ||
-         track->d0() > theOriginRadius)
-      {
-        delete track; 
-        continue; 
-      }
-
-      if (theUseFoundVertices)
-      {
-        float ptv  = refitWithVertex(*track,vertices).first;
-        float chi2 = refitWithVertex(*track,vertices).second;
-
-        if(chi2/3 > 10.)
-        {
-          delete track; 
-          continue; 
-        }
       }
   
       // add tracks 

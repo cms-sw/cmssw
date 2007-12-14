@@ -1,11 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.89 2007/10/09 17:46:36 wmtan Exp $
+$Id: RootFile.cc,v 1.91 2007/10/09 19:41:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
 
 
-#include "IOPool/Common/interface/FileIdentifier.h"
+#include "FWCore/Catalog/interface/FileIdentifier.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"

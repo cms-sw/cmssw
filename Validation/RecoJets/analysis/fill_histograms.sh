@@ -1,13 +1,9 @@
 #!/bin/bash
 for input in $*
   do
-    if [ -z `echo $input | grep -o '^/store'` ]
-    then full_file='file:'$input
-    else full_file=$input
-    fi
     if [ -n "$input_file" ] 
-    then input_file=$input_file", '"$full_file"'"
-    else input_file="'"$full_file"'"
+    then input_file=$input_file", 'file:"$input"'"
+    else input_file="'file:"$input"'"
     fi
 done
 echo input_file: $input_file

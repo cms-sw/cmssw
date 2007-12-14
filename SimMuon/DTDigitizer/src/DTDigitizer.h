@@ -6,8 +6,8 @@
  *  The parametrisation function in DTDriftTimeParametrization 
  *  from P.G.Abia, J.Puerta is used in all cases where it is applicable. 
  *
- *  $Date: 2006/06/01 09:08:32 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/03/07 19:17:38 $
+ *  $Revision: 1.8 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -19,6 +19,11 @@
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 #include <vector>
+
+namespace CLHEP {
+  class RandGaussQ;
+  class RandFlat;
+}
 
 class DTLayer;
 class PSimHit;
@@ -105,5 +110,9 @@ class DTDigitizer : public edm::EDProducer {
   // Ideal model. Used for debug
   bool IdealModel;
   float theConstVDrift;  
+
+  // the random generator
+  CLHEP::RandGaussQ* theGaussianDistribution;
+  CLHEP::RandFlat* theFlatDistribution;
 };
 #endif

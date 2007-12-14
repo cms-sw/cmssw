@@ -38,6 +38,9 @@ namespace pos{
 
     PixelCalibConfiguration(std::string filename="");
 
+    // This must be run before using commands that require the ROC list.
+    void buildROCAndModuleLists(PixelNameTranslation* translation);
+
     void nextFECState(PixelFECConfigInterface* pixelFEC,
 		      PixelDetectorConfig* detconfig,
 		      PixelNameTranslation* trans, 
@@ -54,7 +57,7 @@ namespace pos{
     // Returns a std::set of TKFEC crates that are used by this Calib object
     std::set <unsigned int> getTKFECCrates(const PixelPortcardMap *portcardmap, const std::map<std::string,PixelPortCardConfig*>& mapNamePortCard, const PixelTKFECConfig* tkfecconfig) const;
 
-    unsigned int nROC() const { return nROC_; }
+    unsigned int nROC() const { assert(rocAndModuleListsBuilt_); return nROC_; }
     unsigned int nPixelPatterns() const { return rows_.size()*cols_.size(); }
     unsigned int nTriggersPerPattern() const { return ntrigger_; }
     unsigned int nScanPoints(unsigned int iscan) const { return (dacs_[iscan].last()-dacs_[iscan].first())/dacs_[iscan].step()+1; }    
@@ -66,7 +69,7 @@ namespace pos{
       }
       return points;
     }
-    unsigned int nConfigurations() const {return nPixelPatterns()*nScanPoints()*nROC();}
+    unsigned int nConfigurations() const { assert(rocAndModuleListsBuilt_); return nPixelPatterns()*nScanPoints()*nROC();}
     unsigned int nTriggersTotal() const {return nConfigurations()*nTriggersPerPattern();}
 
     unsigned int scanValue(unsigned int iscan, unsigned int state) const;
@@ -91,8 +94,8 @@ namespace pos{
 
     const std::vector<std::vector<unsigned int> > &columnList() const {return cols_;}
     const std::vector<std::vector<unsigned int> > &rowList() const {return rows_;}
-    const std::vector<PixelROCName>& rocList() const {return rocs_;}
-    const std::set <PixelModuleName>& moduleList(){return modules_;}
+    const std::vector<PixelROCName>& rocList() const {assert(rocAndModuleListsBuilt_); return rocs_;}
+    const std::set <PixelModuleName>& moduleList(){assert(rocAndModuleListsBuilt_); return modules_;}
 
     virtual std::string mode() {return mode_;}
 
@@ -124,7 +127,8 @@ namespace pos{
     mutable std::vector<PixelROCName> rocs_;
     std::set <PixelModuleName> modules_;
     std::map <PixelModuleName,unsigned int> countROC_;
-    bool roclistfromconfig_;
+    bool rocAndModuleListsBuilt_;
+    std::vector<std::string> rocListInstructions_;
 
     mutable std::vector<std::pair<unsigned int, std::vector<unsigned int> > > fedCardsAndChannels_;
 

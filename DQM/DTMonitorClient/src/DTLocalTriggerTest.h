@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/06/19 09:38:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/11/12 17:59:01 $
+ *  $Revision: 1.7 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -33,6 +33,8 @@
 class DTChamberId;
 class DTGeometry;
 class TH1F;
+class TH2F;
+class TH1D;
 
 class DTLocalTriggerTest: public edm::EDAnalyzer{
 
@@ -58,6 +60,9 @@ protected:
   /// Book the new MEs (for each sector)
   void bookSectorHistos(int wheel, int sector, std::string folder, std::string htype );
 
+  /// Book the new MEs (for each wheel)
+  void bookWheelHistos(int wheel, std::string folder, std::string htype );
+
   /// Book the new MEs (for each chamber)
   void bookChambHistos(DTChamberId chambId, std::string htype );
 
@@ -65,7 +70,19 @@ protected:
   std::pair<float,float> phiRange(const DTChamberId& id);
 
   /// Compute efficiency plots
-  void makeEfficiencyME(TH1F* numerator, TH1F* denominator, MonitorElement* result);
+  void makeEfficiencyME(TH1D* numerator, TH1D* denominator, MonitorElement* result);
+
+  /// Compute 2D efficiency plots
+  void makeEfficiencyME2D(TH2F* numerator, TH2F* denominator, MonitorElement* result);
+
+  /// Convert ME to Histogram fo type T
+  template <class T>  T* getHisto(MonitorElement* me);
+
+  /// Set labels to wheel plots (Phi)
+  void setLabelPh(MonitorElement* me);
+
+  /// Set labels to theta plots (Theta)
+  void setLabelTh(MonitorElement* me); 
 
   /// Get the ME name
   std::string getMEName(std::string histoTag, std::string subfolder, const DTChamberId & chambid);
@@ -75,8 +92,6 @@ protected:
   /// DQM Client Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
-  /// Save the plots into a file
-  void endRun();
 
 
  private:
@@ -92,7 +107,9 @@ protected:
   std::string hwSource;
   edm::ESHandle<DTGeometry> muonGeom;
   std::map<int,std::map<std::string,MonitorElement*> >      secME;
+  std::map<int,std::map<std::string,MonitorElement*> >      whME;
   std::map<uint32_t,std::map<std::string,MonitorElement*> > chambME;
+
 
 };
 

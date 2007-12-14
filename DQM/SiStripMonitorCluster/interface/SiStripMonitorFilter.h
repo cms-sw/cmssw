@@ -20,6 +20,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
+class DaqMonitorBEInterface;
 
 class SiStripMonitorFilter : public edm::EDAnalyzer {
    public:

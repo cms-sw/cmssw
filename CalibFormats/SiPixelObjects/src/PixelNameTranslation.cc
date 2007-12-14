@@ -355,6 +355,9 @@ std::vector<PixelROCName> PixelNameTranslation::getROCsFromModule(const PixelMod
 
 	std::vector<PixelROCName> returnThis;
 
+	// Return empty vector if this module was not found in the configuration.
+	if ( hdwAddresses == 0 ) return returnThis;
+
 	for ( std::vector<PixelHdwAddress>::const_iterator hdwAddress_itr = hdwAddresses->begin(); hdwAddress_itr != hdwAddresses->end(); ++hdwAddress_itr)
 	{
 		unsigned int fednumber = (*hdwAddress_itr).fednumber();

@@ -11,8 +11,8 @@
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2007/08/14 15:07:37 $
- * $Revision: 1.7 $
+ * $Date: 2007/08/14 15:18:31 $
+ * $Revision: 1.8 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -95,10 +95,10 @@ public :
   void setInvalidChIdsCollection( std::auto_ptr<EBDetIdCollection>                    * x )
   { invalidChIds_           = x; }
  
-  void setInvalidTTIdsCollection( std::auto_ptr<EcalTrigTowerDetIdCollection>         * x )
+  void setInvalidTTIdsCollection( std::auto_ptr<EcalElectronicsIdCollection>         * x )
   { invalidTTIds_           = x; }
- 
-  void setInvalidBlockLengthsCollection( std::auto_ptr<EcalTrigTowerDetIdCollection>  * x )
+
+  void setInvalidBlockLengthsCollection( std::auto_ptr<EcalElectronicsIdCollection>  * x )
   { invalidBlockLengths_    = x; }
  
   void setPnDiodeDigisCollection( std::auto_ptr<EcalPnDiodeDigiCollection>            * x )
@@ -153,11 +153,11 @@ public :
   
   std::auto_ptr<EBDetIdCollection>            * invalidChIdsCollection()
   { return invalidChIds_;          }
-      
-  std::auto_ptr<EcalTrigTowerDetIdCollection> * invalidTTIdsCollection()
+
+  std::auto_ptr<EcalElectronicsIdCollection> * invalidTTIdsCollection()
   { return invalidTTIds_;          }  
   
-  std::auto_ptr<EcalTrigTowerDetIdCollection> * invalidBlockLengthsCollection()
+  std::auto_ptr< EcalElectronicsIdCollection> * invalidBlockLengthsCollection()
   { return invalidBlockLengths_;   }
      
   std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemTtIdsCollection()
@@ -200,9 +200,8 @@ protected :
   std::auto_ptr<EBDetIdCollection>                    * invalidChIds_;
   std::auto_ptr<EBSrFlagCollection>                   * ebSrFlags_;
   std::auto_ptr<EESrFlagCollection>                   * eeSrFlags_;
-  std::auto_ptr<EcalTrigTowerDetIdCollection> * invalidTTIds_;
-  std::auto_ptr<EcalTrigTowerDetIdCollection> * invalidBlockLengths_; 
-  
+  std::auto_ptr<EcalElectronicsIdCollection>          * invalidTTIds_;
+  std::auto_ptr<EcalElectronicsIdCollection>          * invalidBlockLengths_; 
   
   std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemTtIds_ ;
   std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemBlockSizes_ ;

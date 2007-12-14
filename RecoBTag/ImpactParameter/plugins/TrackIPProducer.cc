@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.7 2007/10/05 09:26:35 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.10 2007/10/24 09:07:32 fwyzard Exp $
 //
 //
 
@@ -162,7 +162,7 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         int ind =0;
         for (TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) {
              const Track & track = **itTrack;
-     	     const TransientTrack & transientTrack = builder->build(&(**itTrack));
+             const TransientTrack & transientTrack = builder->build(&(**itTrack));
 /*         cout << " pt " <<  track.pt() <<
                  " d0 " <<  fabs(track.d0()) <<
                  " #hit " <<    track.hitPattern().numberOfValidHits()<<
@@ -187,10 +187,11 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          TrackIPTagInfo::TrackIPData trackIp;
          trackIp.ip3d=IPTools::signedImpactParameter3D(transientTrack,direction,*pv).second;
          trackIp.ip2d=IPTools::signedTransverseImpactParameter(transientTrack,direction,*pv).second;
-         trackIp.closestToJetAxis=IPTools::closestApproachToJet(transientTrack.impactPointState(), *pv, direction,transientTrack.field()).globalPosition();
+         TrajectoryStateOnSurface closest = IPTools::closestApproachToJet(transientTrack.impactPointState(), *pv, direction,transientTrack.field());
+         if(closest.isValid())  trackIp.closestToJetAxis=closest.globalPosition();
          //TODO:cross check if it is the same using other methods
          trackIp.distanceToJetAxis=IPTools::jetTrackDistance(transientTrack,direction,*pv).second.value();
-         //TODO: fill distance,point to first track!!
+       
          significanceMap.insert(pair<float,int>(trackIp.ip3d.significance(), ind++) ); 
 
          ipData.push_back(trackIp);
@@ -220,17 +221,17 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         int second=last->second;
        
         for(int n=0;n< ipData.size();n++)
-	{
+        {
                int use;
                if(n==first) use = second; else use = first;
                TrajectoryStateOnSurface trackState1 =  builder->build(selectedTracks[n]).impactPointState();
                TrajectoryStateOnSurface trackState2 =  builder->build(selectedTracks[use]).impactPointState();
                std::pair<GlobalPoint,GlobalPoint> points = minDist.points(trackState1,trackState2);
                float distance = ( points.first - points.second ).mag();
-	       ipData[n].closestToFirstTrack=points.first;
+               ipData[n].closestToFirstTrack=points.first;
                ipData[n].distanceToFirstTrack=distance;
 
-	}
+        }
        }
        TrackIPTagInfo tagInfo(ipData,prob2D,prob3D,selectedTracks,
                               edm::Ref<JetTracksAssociationCollection>(jetTracksAssociation,i),

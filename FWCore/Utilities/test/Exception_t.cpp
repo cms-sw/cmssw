@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <assert.h>
 
 using namespace cms;
 using namespace std;

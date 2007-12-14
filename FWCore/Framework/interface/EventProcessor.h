@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.43 2007/08/09 00:02:19 wmtan Exp $
+$Id: EventProcessor.h,v 1.44 2007/08/09 18:59:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -263,6 +263,9 @@ namespace edm {
     /// Return the trigger report information on paths,
     /// modules-in-path, modules-in-endpath, and modules.
     void getTriggerReport(TriggerReport& rep) const;      
+
+    /// Clears counters used by trigger report.
+    void clearCounters();
 
     //------------------------------------------------------------------
     //

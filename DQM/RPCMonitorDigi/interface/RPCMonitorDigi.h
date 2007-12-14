@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2006/10/14 14:31:09 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/12 22:37:14 $
+ *  $Revision: 1.6 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -31,9 +31,9 @@ class RPCDetId;
 
 class RPCMonitorDigi : public edm::EDAnalyzer {
    public:
-	explicit RPCMonitorDigi( const edm::ParameterSet& );
+	explicit RPCMonitorDigi( const edm::ParameterSet&);
 	~RPCMonitorDigi();
-   
+	
 	virtual void analyze( const edm::Event&, const edm::EventSetup& );
 
 	virtual void beginJob(edm::EventSetup const&);
@@ -54,6 +54,11 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
         MonitorElement * GlobalZXHitCoordinates;
         MonitorElement * GlobalZPhiHitCoordinates;
         
+	MonitorElement * ClusterSize_for_Barrel;
+        MonitorElement * ClusterSize_for_EndcapForward;
+        MonitorElement * ClusterSize_for_EndcapBackward;
+	MonitorElement * ClusterSize_for_BarrelandEndcaps;
+        
 	std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
         std::map<std::pair<int,int>, std::map<std::string, MonitorElement*> >  meWheelDisk;
 	
@@ -61,6 +66,9 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	bool saveRootFile;
 	int  saveRootFileEventsInterval;
 	std::string RootFileName;
+	bool dqmshifter;
+	bool dqmexpert;
+	bool dqmsuperexpert;
 	std::string GlobalHistogramsFolder;
 	std::map<uint32_t,bool> foundHitsInChamber;
 };

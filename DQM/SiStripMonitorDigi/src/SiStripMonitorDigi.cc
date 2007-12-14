@@ -3,7 +3,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.20 2007/06/08 14:50:53 dkcira Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.21 2007/06/08 15:44:36 dkcira Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "TH1F.h"
@@ -22,18 +22,25 @@
 #include "DQMServices/Core/interface/MonitorElementT.h"
 
 //--------------------------------------------------------------------------------------------
-SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dbe_(edm::Service<DaqMonitorBEInterface>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), calculate_strip_occupancy(false), reset_each_run(false) {}
+SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dbe_(edm::Service<DaqMonitorBEInterface>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), calculate_strip_occupancy(false), reset_each_run(false), m_cacheID_(0) {}
 SiStripMonitorDigi::~SiStripMonitorDigi() {}
 
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::beginRun(const edm::Run&, const edm::EventSetup&){
-  if(reset_each_run){ // reset histograms at beginning of each new run
-    for(std::map<uint32_t, ModMEs>::const_iterator idet = DigiMEs.begin(); idet!= DigiMEs.end(); idet++ ){
-     ResetME( (idet->second).NumberOfDigis );
-     ResetME( (idet->second).ADCsHottestStrip );
-     ResetME( (idet->second).ADCsCoolestStrip );
-     ResetME( (idet->second).DigiADCs );
-     ResetME( (idet->second).StripOccupancy );
+void SiStripMonitorDigi::beginRun(const edm::Run& run, const edm::EventSetup& es){
+
+  if (show_mechanical_structure_view) {
+    unsigned long long cacheID = es.get<SiStripDetCablingRcd>().cacheIdentifier();
+    if (m_cacheID_ != cacheID) {
+      m_cacheID_ = cacheID;       
+      edm::LogInfo("SiStripMonitorDigi") <<"SiStripMonitorDigi::beginRun: " 
+					 << " Creating MEs for new Cabling ";     
+      createMEs(es);
+    } 
+  } else if (reset_each_run) {
+    edm::LogInfo("SiStripMonitorDigi") <<"SiStripMonitorDigi::beginRun: " 
+				       << " Resetting MEs ";        
+    for (std::map<uint32_t, ModMEs >::const_iterator idet = DigiMEs.begin() ; idet!=DigiMEs.end() ; idet++) {
+      ResetModuleMEs(idet->first);
     }
   }
 }
@@ -58,16 +65,20 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
    edm::LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"CalculateStripOccupancy = "<<calculate_strip_occupancy;
    edm::LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ResetMEsEachRun = "<<reset_each_run;
 
+ }
+//--------------------------------------------------------------------------------------------
+void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
+
   if ( show_mechanical_structure_view ){
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
     edm::ESHandle<SiStripDetCabling> tkmechstruct;
     es.get<SiStripDetCablingRcd>().get(tkmechstruct);
-
+    
     // get list of active detectors from SiStripDetCabling
     std::vector<uint32_t> activeDets; 
     activeDets.clear(); // just in case
     tkmechstruct->addActiveDetectorsRawIds(activeDets);
-
+    
     std::vector<uint32_t> SelectedDetIds;
     if(select_all_detectors){
       // select all detectors if appropriate flag is set,  for example for the mtcc
@@ -77,21 +88,21 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
       SiStripSubStructure substructure;
 //      substructure.getTIBDetectors(activeDets, SelectedDetIds, 1, 1, 1, 1); // this adds rawDetIds to SelectedDetIds
       substructure.getTIBDetectors(activeDets, SelectedDetIds, 2, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
-//      substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 2, 0);    // this adds rawDetIds to SelectedDetIds
-//      substructure.getTIDDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
-//      substructure.getTECDetectors(activeDets, SelectedDetIds, 1, 2, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
+      //      substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 2, 0);    // this adds rawDetIds to SelectedDetIds
+      //      substructure.getTIDDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
+      //      substructure.getTECDetectors(activeDets, SelectedDetIds, 1, 2, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
     }
 
-     // remove any eventual zero elements - there should be none, but just in case
-     for(std::vector<uint32_t>::iterator idets = SelectedDetIds.begin(); idets != SelectedDetIds.end(); idets++){
-       if(*idets == 0) SelectedDetIds.erase(idets);
-     }
-
-     // use SistripHistoId for producing histogram id (and title)
-     SiStripHistoId hidmanager;
-     // create SiStripFolderOrganizer
-     SiStripFolderOrganizer folder_organizer;
-
+    // remove any eventual zero elements - there should be none, but just in case
+    for(std::vector<uint32_t>::iterator idets = SelectedDetIds.begin(); idets != SelectedDetIds.end(); idets++){
+      if(*idets == 0) SelectedDetIds.erase(idets);
+    }
+    
+    // use SistripHistoId for producing histogram id (and title)
+    SiStripHistoId hidmanager;
+    // create SiStripFolderOrganizer
+    SiStripFolderOrganizer folder_organizer;
+    
     // loop over detectors and book MEs
     edm::LogInfo("SiStripTkDQM|SiStripMonitorDigi")<<"nr. of SelectedDetIds:  "<<SelectedDetIds.size();
     for(std::vector<uint32_t>::const_iterator detid_iterator = SelectedDetIds.begin(); detid_iterator!=SelectedDetIds.end(); detid_iterator++){
@@ -99,10 +110,13 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
       std::string hid;
       // set appropriate folder using SiStripFolderOrganizer
       folder_organizer.setDetectorFolder(*detid_iterator); // pass the detid to this method
-//      // create ADCs per strip
-//      std::string hid = hidmanager.createHistoId("ADCsPerStrip_detector", *detid_iterator);
-//      local_me = dbe_->book2D(hid, hid, 20,-0.5,767.5, 20,-0.5,255.5);
-//      ADCsPerStrip.insert( pair<uint32_t, MonitorElement*>(*detid_iterator,local_me) );
+
+      if (reset_each_run) ResetModuleMEs(*detid_iterator);
+
+      //      // create ADCs per strip
+      //      std::string hid = hidmanager.createHistoId("ADCsPerStrip_detector", *detid_iterator);
+      //      local_me = dbe_->book2D(hid, hid, 20,-0.5,767.5, 20,-0.5,255.5);
+      //      ADCsPerStrip.insert( pair<uint32_t, MonitorElement*>(*detid_iterator,local_me) );
       // create Digis per detector - not too useful - maybe can remove later
       hid = hidmanager.createHistoId("NumberOfDigis","det",*detid_iterator);
       local_modmes.NumberOfDigis = dbe_->book1D(hid, hid, 21, -0.5, 20.5); dbe_->tag(local_modmes.NumberOfDigis, *detid_iterator);
@@ -137,7 +151,6 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
     }
   }
 }
-
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   using namespace edm;
@@ -250,6 +263,16 @@ void SiStripMonitorDigi::ResetME(MonitorElement* me){
     TH1F * root_ob = dynamic_cast<TH1F *> (ob->operator->());
     if(root_ob)root_ob->Reset();
   }
+}
+//--------------------------------------------------------------------------------------------
+void SiStripMonitorDigi::ResetModuleMEs(uint32_t idet){
+  std::map<uint32_t, ModMEs >::iterator pos = DigiMEs.find(idet);
+  ModMEs mod_me = pos->second;
+  ResetME( mod_me.NumberOfDigis );
+  ResetME( mod_me.ADCsHottestStrip );
+  ResetME( mod_me.ADCsCoolestStrip );
+  ResetME( mod_me.DigiADCs );
+  ResetME( mod_me.StripOccupancy );
 }
 
 //define this as a plug-in

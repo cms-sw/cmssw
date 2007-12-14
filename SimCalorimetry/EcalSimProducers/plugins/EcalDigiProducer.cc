@@ -147,25 +147,25 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   bool isEB = true;
   event.getByLabel("mix",barrelHitsName,crossingFrame);
   MixCollection<PCaloHit> * EBHits = 0 ;
-  try {
-    EBHits = new MixCollection<PCaloHit>(crossingFrame.product());
-  } catch ( cms::Exception &e ) { isEB = false; }
+  // try {
+  EBHits = new MixCollection<PCaloHit>(crossingFrame.product());
+  // } catch ( cms::Exception &e ) { isEB = false; }
   if ( ! EBHits->inRegistry() || theBarrelDets.size() == 0 ) isEB = false;
   
   bool isEE = true;
   event.getByLabel("mix",endcapHitsName,crossingFrame);
   MixCollection<PCaloHit> * EEHits = 0 ;
-  try {
-    EEHits = new MixCollection<PCaloHit>(crossingFrame.product());
-  } catch ( cms::Exception &e ) { isEE = false; }
+  // try {
+  EEHits = new MixCollection<PCaloHit>(crossingFrame.product());
+  // } catch ( cms::Exception &e ) { isEE = false; }
   if ( ! EEHits->inRegistry() || theEndcapDets.size() == 0 ) isEE = false;
 
   bool isES = true;
   event.getByLabel("mix",preshowerHitsName,crossingFrame);
   MixCollection<PCaloHit> * ESHits = 0 ;
-  try {
-    ESHits = new MixCollection<PCaloHit>(crossingFrame.product());
-  } catch ( cms::Exception &e ) { isES = false; }
+  // try {
+  ESHits = new MixCollection<PCaloHit>(crossingFrame.product());
+  // } catch ( cms::Exception &e ) { isES = false; }
   if ( ! ESHits->inRegistry() || theESDets.size() == 0 ) isES = false;
 
   // Step B: Create empty output

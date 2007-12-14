@@ -26,10 +26,8 @@ using std::ios;
 const int TextToRaw::EVT_MAX_SIZE;
 
 TextToRaw::TextToRaw(const edm::ParameterSet& iConfig) :
-  fedId_(iConfig.getUntrackedParameter<int>("fedId", 745)),
   filename_(iConfig.getUntrackedParameter<string>("filename", "slinkOutput.txt")),
-  fileEventOffset_(iConfig.getUntrackedParameter<int>("FileEventOffset", 0)),
-  nevt_(0)
+  fedId_(iConfig.getUntrackedParameter<int>("fedId", 745))
 {
   edm::LogInfo("TextToDigi") << "Reading ASCII dump from " << filename_ << endl;
 
@@ -48,46 +46,12 @@ TextToRaw::~TextToRaw()
 }
 
 
-
-/// Append empty digi collection
-void TextToRaw::putEmptyDigi(edm::Event& iEvent) {
-  std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
-  //FEDRawData& feddata=rawColl->FEDData(fedId_);
-  //feddata.data()[0] = 0;
-  iEvent.put(rawColl);
-}
-
-
 // ------------ method called to produce the data  ------------
 void
 TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
-   
-  // Skip event if required
-  if (nevt_ < fileEventOffset_){
-    putEmptyDigi(iEvent);
-    nevt_++;
-    return;
-  } else if (nevt_==0 && fileEventOffset_<0) {
-    string line;
-    //skip first fileEventOffset input crossings 
-    for(int i=0; i<abs(fileEventOffset_); i++) {
-      int iline=0;
-      while (getline(file_, line) && !line.empty()) {
-	iline++;
-	if(iline>=EVT_MAX_SIZE)       
-	  throw cms::Exception("TextToRawEventSizeOverflow")
-	    << "TextToRaw::produce() : "
-	    << " read too many lines (" << iline << ": " << line << ")" 
-	    << ", maximum event size is " << EVT_MAX_SIZE
-	    << std::endl;
-      }
-    }
-  }
-  
-  nevt_++;
-  
+   using namespace edm;
+
    // read file
    string line;
    int i=0; // count 32-bit words

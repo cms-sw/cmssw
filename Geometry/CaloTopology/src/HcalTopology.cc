@@ -1,6 +1,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include <cmath>
 #include <iostream>
+#include <cassert>
 
 
 static const int IPHI_MAX=72;

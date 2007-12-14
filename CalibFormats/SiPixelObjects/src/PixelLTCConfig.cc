@@ -5,7 +5,8 @@
 //
  
 #include "CalibFormats/SiPixelObjects/interface/PixelLTCConfig.h"
-   
+#include <cassert>   
+
 using namespace pos;
 
 PixelLTCConfig::PixelLTCConfig(std::string filename):

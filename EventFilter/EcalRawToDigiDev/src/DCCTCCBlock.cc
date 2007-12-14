@@ -50,7 +50,7 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
 	  <<"\n Synchronization error for TCC block in event "<<event_->l1A()
 	  <<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
 	  <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
-	  <<"\n TCC block skiped ...";
+	  <<"\n TCC block skipped ...";
 	
 	//Note : add to error collection ?	
 	updateEventPointers();
@@ -67,7 +67,7 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
       edm::LogWarning("EcalRawToDigiDevTCC")
         <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
         <<"\n Number of time samples is "<<nTSamples_<<" while "<<expTriggerTSamples<<" is expected"
-        <<"\n TCC block skiped..."<<endl;
+        <<"\n TCC block skipped..."<<endl;
 		
        //Note : add to error collection ?
 	   updateEventPointers();		 

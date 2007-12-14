@@ -6,11 +6,14 @@
 /// concrete class for ROOT-based I/O of Alignment parameters, correlations 
 ///  and Alignable positions. Derived from AlignmentIO
 ///
-///  $Date: 2006/11/30 09:56:03 $
-///  $Revision: 1.3 $
+///  $Date: 2006/10/19 14:20:59 $
+///  $Revision: 1.2 $
 /// (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIO.h"
+
+class Alignable;
+class AlignmentParameters;
 
 
 class AlignmentIORoot : public AlignmentIO
@@ -19,47 +22,47 @@ class AlignmentIORoot : public AlignmentIO
   public:
 
   /// write AlignmentParameters 
-  void writeAlignmentParameters (const align::Alignables& alivec, 
+  void writeAlignmentParameters (const Alignables& alivec, 
 				 const char* filename, int iter, bool validCheck, int& ierr );
 
   /// read AlignmentParameters 
-  align::Parameters readAlignmentParameters (const align::Alignables& alivec, 
+  Parameters readAlignmentParameters (const Alignables& alivec, 
 				      const char* filename, int iter, int& ierr);
 
   /// write RigidBodyAlignmentParameters as applied on top of original positions
-  void writeOrigRigidBodyAlignmentParameters (const align::Alignables& alivec, const char* filename,
+  void writeOrigRigidBodyAlignmentParameters (const Alignables& alivec, const char* filename,
 					      int iter, bool validCheck, int& ierr);
 
   /// write Correlations 
-  void writeCorrelations (const align::Correlations& cormap, 
+  void writeCorrelations (const Correlations& cormap, 
 			  const char* filename, int iter, bool validCheck, int& ierr);
 
   /// read Correlations 
-  align::Correlations readCorrelations (const align::Alignables& alivec, 
+  Correlations readCorrelations (const Alignables& alivec, 
 				 const char* filename, int iter, int& ierr);
   
   /// write Alignable current absolute positions 
-  void writeAlignableAbsolutePositions (const align::Alignables& alivec, 
+  void writeAlignableAbsolutePositions (const Alignables& alivec, 
 					const char* filename, int iter, bool validCheck, int& ierr);
   
   /// read Alignable current absolute positions 
-  AlignablePositions readAlignableAbsolutePositions (const align::Alignables& alivec,
+  AlignablePositions readAlignableAbsolutePositions (const Alignables& alivec,
 						     const char* filename, int iter, int& ierr);
   
   /// write Alignable original (before misalignment) absolute positions 
-  void writeAlignableOriginalPositions (const align::Alignables& alivec, 
+  void writeAlignableOriginalPositions (const Alignables& alivec, 
 					const char* filename, int iter, bool validCheck, int& ierr);
   
   /// read Alignable original (before misalignment) absolute positions 
-  AlignablePositions readAlignableOriginalPositions (const align::Alignables& alivec,
+  AlignablePositions readAlignableOriginalPositions (const Alignables& alivec,
 						     const char* filename, int iter, int& ierr);
   
   /// write Alignable relative positions (shift,rotation) 
-  void writeAlignableRelativePositions (const align::Alignables& alivec, 
+  void writeAlignableRelativePositions (const Alignables& alivec, 
 					const char* filename, int iter, bool validCheck, int& ierr);
   
   /// read Alignable relative positions (shift,rotation) 
-  AlignableShifts readAlignableRelativePositions (const align::Alignables& alivec,
+  AlignableShifts readAlignableRelativePositions (const Alignables& alivec,
 						  const char* filename, int iter, int& ierr);
 
 };

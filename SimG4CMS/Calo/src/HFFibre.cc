@@ -42,11 +42,6 @@ HFFibre::HFFibre(const DDCompactView & cpv) {
     lambLim[1] = static_cast<int>(nvec[1]);
     edm::LogInfo("HFShower") << "HFFibre: Limits on lambda " << lambLim[0]
 			     << " and " << lambLim[1];
-  } else {
-    edm::LogError("HFShower") << "HFFibre : cannot match " << value << " to " 
-			      << attribute;
-    throw cms::Exception("Unknown", "HFFibre")
-      << "cannot match " << value << " to " << attribute <<"\n";
   }
 }
 

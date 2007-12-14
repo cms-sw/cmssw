@@ -342,21 +342,22 @@ MuonRPCDetLayerGeometryBuilder::makeBarrelRods(vector<const GeomDet *> & geomDet
 bool MuonRPCDetLayerGeometryBuilder::isFront(const RPCDetId & rpcId)
 {
   // ME1/2 is always in back
-  if(rpcId.station() == 1 && rpcId.ring() == 2)  return false;
+  //  if(rpcId.station() == 1 && rpcId.ring() == 2)  return false;
 
   bool result = false;
-  // 20 degree rings are a little weird
+  // 20 degree rings are a little weird! not anymore from 17x
   if(rpcId.ring() == 1 && rpcId.station() > 1)
   {
+    // RE1/2 RE1/3
     /* goes (sector) (subsector)
-    1 1 back
-    1 2 front
-    1 3 front
-    2 1 front
-    2 2 back
-    2 3 back
+    1 1 back   // front 
+    1 2 front  // back
+    1 3 front  // front
+    2 1 front  // back
+    2 2 back   // from
+    2 3 back   // back
     */
-    result = (rpcId.subsector() != 1);
+    result = (rpcId.subsector() != 2);
     if(rpcId.sector()%2 == 0) result = !result;
     return result;
   }

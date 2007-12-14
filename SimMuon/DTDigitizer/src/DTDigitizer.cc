@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/09/05 16:39:34 $
- *  $Revision: 1.30 $
+ *  $Date: 2007/09/06 12:29:22 $
+ *  $Revision: 1.31 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -104,10 +104,21 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
     theConstVDrift = conf_.getParameter<double>("IdealModelConstantDriftVelocity"); // 55 um/ns
   else theConstVDrift = 55.;
 
+  // get random engine
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "RandomNumberGeneratorService for DTDigitizer missing in cfg file";
+  }
+  theGaussianDistribution = new CLHEP::RandGaussQ(rng->getEngine()); 
+  theFlatDistribution = new CLHEP::RandFlat(rng->getEngine(), 0, 1); 
 }
 
 // Destructor
-DTDigitizer::~DTDigitizer(){}
+DTDigitizer::~DTDigitizer(){
+  delete theGaussianDistribution;
+  delete theFlatDistribution;
+}
 
 // method called to produce the data
 void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
@@ -407,14 +418,8 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
 
   // Apply a Gaussian smearing to account for electronic effects (cf. 2004 TB analysis)
   // The width of the Gaussian can be configured with the "Smearing" parameter
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "RandomNumberGeneratorService for DTDigitizer missing in cfg file";
-  }
-  CLHEP::RandGauss gaussDistribution(rng->getEngine()); 
 
-  double u = gaussDistribution.shoot(0.,smearing);
+  double u = theGaussianDistribution->fire(0.,smearing);
   time += u;
 
   if (debug) cout << "  drift time = " << time << endl;
@@ -427,19 +432,11 @@ float DTDigitizer::asymGausSmear(double mean, double sigmaLeft, double sigmaRigh
   double f = sigmaLeft/(sigmaLeft+sigmaRight);
   double t;
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "RandomNumberGeneratorService for DTDigitizer missing in cfg file";
-  }
-  CLHEP::RandFlat flatDistribution(rng->getEngine(), 0, 1); 
-  CLHEP::RandGauss gaussDistribution(rng->getEngine()); 
-
-  if (flatDistribution.fire() <= f) {
-    t = gaussDistribution.shoot(mean,sigmaLeft);
+  if (theFlatDistribution->fire() <= f) {
+    t = theGaussianDistribution->fire(mean,sigmaLeft);
     t = mean - fabs(t - mean);
   } else {
-    t = gaussDistribution.shoot(mean,sigmaRight);
+    t = theGaussianDistribution->fire(mean,sigmaRight);
     t = mean + fabs(t - mean);
   }
   return static_cast<float>(t);

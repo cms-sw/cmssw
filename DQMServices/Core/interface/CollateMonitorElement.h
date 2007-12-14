@@ -9,6 +9,7 @@
 #include <vector>
 
 class MonitorElementRootFolder;
+class DaqMonitorBEInterface;
 
 /** The base class for the collation of Monitor Elements
  */

@@ -25,14 +25,16 @@
  *
  *  Initial Implementation based on Kurt's ConsumerPipe
  *  We can think about a common class later...
- *  $Id$
+ *  $Id: DQMConsumerPipe.h,v 1.3 2007/05/16 22:53:44 hcheung Exp $
  */
 
 #include <string>
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
+#include "EventFilter/StorageManager/interface/SMCurlInterface.h"
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
+#include "curl/curl.h"
 
 namespace stor
 {
@@ -57,6 +59,9 @@ namespace stor
     void clearQueue();
 
   private:
+
+    CURL* han_;
+    struct curl_slist *headers_;
     // characteristics of the consumer
     uint32 consumerId_;
     std::string consumerName_;

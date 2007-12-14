@@ -22,7 +22,7 @@ namespace reco {
     /// electric charge type
     typedef int Charge;
     /// Lorentz vector
-    typedef math::PtEtaPhiMLorentzVector LorentzVector;
+    typedef math::XYZTLorentzVector LorentzVector;
     /// point in the space
     typedef math::XYZPoint Point;
     /// point in the space
@@ -49,44 +49,44 @@ namespace reco {
     /// four-momentum Lorentz vector
     const LorentzVector & p4() const { return p4_; }
     /// spatial momentum vector
-    Vector momentum() const { cache(); return p4Cache_.Vect(); }
+    Vector momentum() const { return p4_.Vect(); }
     /// boost vector to boost a Lorentz vector 
     /// to the particle center of mass system
     Vector boostToCM() const { return p4_.BoostToCM(); }
     /// magnitude of momentum vector
-    double p() const { cache(); return p4Cache_.P(); }
+    double p() const { return p4_.P(); }
     /// energy
-    double energy() const { cache(); return p4Cache_.E(); }  
+    double energy() const { return p4_.E(); }  
     /// transverse energy
-    double et() const { cache(); return p4Cache_.Et(); }  
+    double et() const { return p4_.Et(); }  
     /// mass
-    double mass() const { return p4_.M(); }
+    double mass() const { cache(); return p4Cache_.M(); }
     /// mass squared
-    double massSqr() const { return p4_.M2(); }
+    double massSqr() const { cache(); return p4Cache_.M2(); }
     /// transverse mass
-    double mt() const { return p4_.Mt(); }
+    double mt() const { cache(); return p4Cache_.Mt(); }
     /// transverse mass squared
-    double mtSqr() const { return p4_.Mt2(); }
+    double mtSqr() const { cache(); return p4Cache_.Mt2(); }
     /// x coordinate of momentum vector
-    double px() const { cache(); return p4Cache_.Px(); }
+    double px() const { return p4_.Px(); }
     /// y coordinate of momentum vector
-    double py() const { cache(); return p4Cache_.Py(); }
+    double py() const { return p4_.Py(); }
     /// z coordinate of momentum vector
-    double pz() const { cache(); return p4Cache_.Pz(); }
+    double pz() const { return p4_.Pz(); }
     /// transverse momentum
-    double pt() const { return p4_.Pt(); }
+    double pt() const { cache(); return p4Cache_.Pt(); }
     /// momentum azimuthal angle
     double phi() const { cache(); return p4Cache_.Phi(); }
     /// momentum polar angle
     double theta() const { return p4_.Theta(); }
     /// momentum pseudorapidity
-    double eta() const { return p4_.Eta(); }
+    double eta() const { cache(); return p4Cache_.Eta(); }
     /// repidity
-    double rapidity() const { return p4_.Rapidity(); }
+    double rapidity() const { cache(); return p4Cache_.Rapidity(); }
     /// repidity
-    double y() const { return p4_.Rapidity(); }
+    double y() const { cache(); return p4Cache_.Rapidity(); }
     /// set 4-momentum
-    void setP4( const LorentzVector & p4 ) { p4_ = p4; }
+    void setP4( const LorentzVector & p4 ) { cacheFixed_ = false; p4_ = p4; }
     /// vertex position
     const Point & vertex() const { return vertex_; }
     /// x coordinate of vertex position
@@ -119,7 +119,7 @@ namespace reco {
     int status_;
     /// THE FOLLOWING SHOULD BE CHANGED IN 1.7.0
     /// internal cache type for polar coordinates
-    typedef math::XYZTLorentzVector LorentzVectorCache;
+    typedef math::PtEtaPhiMLorentzVector LorentzVectorCache;
     /// internal cache for p4
     mutable LorentzVectorCache p4Cache_;
     /// has cache been set?

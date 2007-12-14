@@ -16,7 +16,7 @@
 //
 // Original Author:  dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorRawData.h,v 1.1 2007/06/01 17:19:26 dutta Exp $
+// $Id: SiStripMonitorRawData.h,v 1.2 2007/08/24 19:58:36 dutta Exp $
 //
 
 // system include files
@@ -42,22 +42,27 @@ class DaqMonitorBEInterface;
 class SiStripDetCabling;
 
 class SiStripMonitorRawData : public edm::EDAnalyzer {
-   public:
-      explicit SiStripMonitorRawData(const edm::ParameterSet&);
-      ~SiStripMonitorRawData();
-
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const&) ;
-      virtual void endJob() ;
-      
-   
+ public:
+  explicit SiStripMonitorRawData(const edm::ParameterSet&);
+  ~SiStripMonitorRawData();
+  
+  virtual void beginJob(edm::EventSetup const&) ;
+  virtual void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  virtual void endJob() ;
+  
+  
  private:
-       MonitorElement* BadFedNumber;
+  MonitorElement* BadFedNumber;
+  
+  DaqMonitorBEInterface* dbe_;
+  edm::ParameterSet conf_;
+  edm::ESHandle< SiStripDetCabling > detcabling;
+  std::vector<uint32_t> SelectedDetIds;
 
-       DaqMonitorBEInterface* dbe_;
-       edm::ParameterSet conf_;
-       edm::ESHandle< SiStripDetCabling > detcabling;
-       std::vector<uint32_t> SelectedDetIds;
+  unsigned long long m_cacheID_;
+
 };
 
 #endif

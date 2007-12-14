@@ -162,7 +162,7 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 	  updateHit(currentHit);
 	} else {
         
-	  posGlobal = aSpot->GetPosition();
+	  posGlobal = aSpot->GetEnergySpot()->GetPosition();
 	  // Reset entry point for new primary
 	  if (currentID.trackID() != previousID.trackID()) {
 	    entrancePoint  = aSpot->GetPosition();
@@ -557,12 +557,16 @@ void CaloSD::update(const EndOfTrack * trk) {
     const TrackContainer * trksForThisEvent = m_trackManager->trackContainer();
     if (trksForThisEvent != NULL) {
       int it = (int)(trksForThisEvent->size()) - 1;
-      LogDebug("CaloSim") << "CaloSD: get track " << it << " from "
-                          << "Container of size " << trksForThisEvent->size();
       if (it >= 0) {
         TrackWithHistory * trkH = (*trksForThisEvent)[it];
-        LogDebug("CaloSim") << " with ID " << trkH->trackID();
+        LogDebug("CaloSim") << "CaloSD: get track " << it << " from "
+			    << "Container of size " << trksForThisEvent->size()
+			    << " with ID " << trkH->trackID();
         if (trkH->trackID() == (unsigned int)(id)) tkMap[id] = trkH;
+      } else {
+	LogDebug("CaloSim") << "CaloSD: get track " << it << " from "
+			    << "Container of size " << trksForThisEvent->size()
+			    << " with no ID";
       }
     }
   }

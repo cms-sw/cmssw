@@ -6,6 +6,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
 #include <iostream>
+#include <cassert>
 
 using std::vector;
 using std::cout;

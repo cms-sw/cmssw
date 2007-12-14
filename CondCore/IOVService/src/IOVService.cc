@@ -1,10 +1,10 @@
 #include "CondCore/IOVService/interface/IOVService.h"
+//#include "CondCore/DBCommon/interface/PoolStorageManager.h"
 #include "IOVServiceImpl.h"
 #include "IOVIteratorImpl.h"
 #include "IOVEditorImpl.h"
-cond::IOVService::IOVService( cond::PoolTransaction& pooldb,
-			      cond::TimeType timetype ):
-  m_pooldb(&pooldb),
+cond::IOVService::IOVService( cond::PoolStorageManager& pooldb,cond::TimeType timetype ):
+  m_pooldb(pooldb),
   m_impl(new cond::IOVServiceImpl(pooldb,timetype)){
 }
 cond::IOVService::~IOVService(){
@@ -34,15 +34,15 @@ cond::IOVService::deleteAll( bool withPayload ){
 }
 cond::IOVIterator* 
 cond::IOVService::newIOVIterator( const std::string& token ){
-  return new cond::IOVIteratorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill());
+  return new cond::IOVIteratorImpl( m_pooldb,token,m_impl->globalSince(),m_impl->globalTill());
 }
 cond::IOVEditor* 
 cond::IOVService::newIOVEditor( const std::string& token ){
-  return new cond::IOVEditorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill());
+  return new cond::IOVEditorImpl( m_pooldb,token,m_impl->globalSince(),m_impl->globalTill());
 }
 cond::IOVEditor* 
 cond::IOVService::newIOVEditor( ){
-  return new cond::IOVEditorImpl( *m_pooldb,"",m_impl->globalSince(),m_impl->globalTill());
+  return new cond::IOVEditorImpl( m_pooldb,"",m_impl->globalSince(),m_impl->globalTill());
 }
 cond::TimeType 
 cond::IOVService::timeType() const{
@@ -57,7 +57,7 @@ cond::IOVService::globalTill() const{
   return m_impl->globalTill();
 }
 std::string 
-cond::IOVService::exportIOVWithPayload( cond::PoolTransaction& destDB,
+cond::IOVService::exportIOVWithPayload( cond::PoolStorageManager& destDB,
 					const std::string& iovToken,
 					const std::string& payloadObjectName ){
   return m_impl->exportIOVWithPayload( destDB,
@@ -65,7 +65,7 @@ cond::IOVService::exportIOVWithPayload( cond::PoolTransaction& destDB,
 				payloadObjectName); 
 }
 std::string
-cond::IOVService::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
+cond::IOVService::exportIOVRangeWithPayload( cond::PoolStorageManager& destDB,
 					     const std::string& iovToken,
 					     cond::Time_t since,
 					     cond::Time_t till,

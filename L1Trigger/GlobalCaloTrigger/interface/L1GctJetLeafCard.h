@@ -39,7 +39,9 @@ public:
   typedef L1GctUnsignedInt<   L1GctEtHad::kEtHadNBits     > etHadType;
   typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissNBits    > etMissType;
   typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissPhiNBits > etMissPhiType;
-  typedef L1GctTwosComplement< L1GctEtMiss::kEtMissNBits  > etComponentType;
+
+  enum { etComponentSize=L1GctEtMiss::kEtMissNBits+1 };
+  typedef L1GctTwosComplement<etComponentSize> etComponentType;
 
   //Construtors/destructor
   L1GctJetLeafCard(int id, int iphi, jetFinderType jfType = tdrJetFinder);

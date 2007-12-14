@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing a "get data into RAM"
  *  functionality for DIGIs, to simulate online FF running/timimg.
  *
- *  $Date: 2007/05/02 07:02:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/08 15:56:01 $
+ *  $Revision: 1.3 $
  *
  *  \author various
  *
@@ -72,8 +72,10 @@ class HLTGetDigi : public edm::EDAnalyzer {
   bool getL1Calo_ ; 
   bool getGctEmDigis_ ; 
   bool getGctJetDigis_ ; 
+  bool getGctJetCounts_ ; 
   bool getGctEtDigis_ ; 
-  bool getGtRecords_ ; 
+  bool getGtEvmRR_ ; 
+  bool getGtObjectMap_ ; 
   bool getGtRR_ ; 
   bool getGmtCands_ ; 
   bool getGmtRC_ ; 

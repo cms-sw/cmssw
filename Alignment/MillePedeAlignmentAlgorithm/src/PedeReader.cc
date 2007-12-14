@@ -3,14 +3,13 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.6 $
- *  $Date: 2007/07/12 17:32:39 $
+ *  $Revision: 1.5 $
+ *  $Date: 2007/06/21 17:01:30 $
  *  (last update by $Author: flucke $)
  */
 
 #include "PedeReader.h"
 #include "PedeSteerer.h"
-#include "PedeLabeler.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -128,17 +127,16 @@ bool PedeReader::readIfSameLine(std::ifstream &aStream, T &outValue) const
 Alignable* PedeReader::setParameter(unsigned int paramLabel,
                                     unsigned int bufLength, float *buf) const
 {
-  Alignable *alignable = mySteerer.labels().alignableFromLabel(paramLabel);
+  Alignable *alignable = mySteerer.alignableFromLabel(paramLabel);
   if (alignable) {
     AlignmentParameters *params = this->checkAliParams(alignable);
     MillePedeVariables *userParams = // static cast ensured by previous checkAliParams
       static_cast<MillePedeVariables*>(params->userVariables());
-    // might overwrite (?):
-    userParams->setLabel(mySteerer.labels().alignableLabelFromLabel(paramLabel));
+    userParams->setLabel(mySteerer.alignableLabelFromLabel(paramLabel)); // might overwrite...
 
     AlgebraicVector parVec(params->parameters());
     AlgebraicSymMatrix covMat(params->covariance());
-    const unsigned int paramNum = mySteerer.labels().paramNumFromLabel(paramLabel);
+    const unsigned int paramNum = mySteerer.paramNumFromLabel(paramLabel);
 
     userParams->setAllDefault(paramNum);
     const double cmsToPede = mySteerer.cmsToPedeFactor(paramNum);
@@ -190,7 +188,7 @@ AlignmentParameters* PedeReader::checkAliParams(Alignable *alignable) const
 
     edm::LogInfo("Alignment") << "@SUB=PedeReader::checkAliParams"
                               << "Build RigidBodyAlignmentParameters for alignable with label "
-                              << mySteerer.labels().alignableLabel(alignable);
+                              << mySteerer.alignableLabel(alignable);
     alignable->setAlignmentParameters(params); // transferred memory responsibility
   }
   
@@ -198,7 +196,7 @@ AlignmentParameters* PedeReader::checkAliParams(Alignable *alignable) const
   if (!dynamic_cast<MillePedeVariables*>(params->userVariables())) {
     edm::LogInfo("Alignment") << "@SUB=PedeReader::checkAliParams"
                               << "Add user variables for alignable with label " 
-                              << mySteerer.labels().alignableLabel(alignable);
+                              << mySteerer.alignableLabel(alignable);
     params->setUserVariables(new MillePedeVariables(params->size()));
   }
   

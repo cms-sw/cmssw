@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.12 2007/09/07 19:37:25 smaruyam Exp $
+// $Id: FastL1Region.h,v 1.13 2007/09/07 23:02:46 smaruyam Exp $
 //
 
 // user include files
@@ -228,7 +228,8 @@ corrJetEt2(double et, double eta);
 
 // EM correction from ORCA for cmsim 133
 double 
-corrEmEt(double et, double eta);
+corrEmEt(double et, int eta);
+//corrEmEt(double et, double eta);
 
 double 
 RCTEnergyTrunc(double et, double Resol = 1., double thres = 1024.);

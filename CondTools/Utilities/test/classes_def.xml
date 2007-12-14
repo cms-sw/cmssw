@@ -7,7 +7,9 @@
   <class name="CondCachedIter<SiPixelGainCalibration>"/>    
   <class name="CondCachedIter<SiStripFedCabling>"/>   
   <class name="CondCachedIter<DTReadOutMapping>"/>   
- 
+  
+  <class name="CondCachedIter<mySiStripNoises>"/>
+   
   <class name="CondIter<Pedestals>"/>
   <class name="CondIter<EcalPedestals>"/>
 

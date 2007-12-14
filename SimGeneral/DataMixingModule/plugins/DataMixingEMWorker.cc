@@ -132,7 +132,7 @@ namespace edm
 	 
 #ifdef DEBUG	 
          LogDebug("DataMixingEMWorker") << "processed EERecHit with rawId: "
-				      << it->id() << "\n"
+				      << it->id().rawId() << "\n"
 				      << " rechit energy: " << it->energy();
 #endif
 
@@ -163,7 +163,7 @@ namespace edm
 	 
 #ifdef DEBUG	 
          LogDebug("DataMixingEMWorker") << "processed ESRecHit with rawId: "
-				      << it->id() << "\n"
+				      << it->id().rawId() << "\n"
 				      << " rechit energy: " << it->energy();
 #endif
 
@@ -202,7 +202,7 @@ namespace edm
 	 
 #ifdef DEBUG	 
 	 LogDebug("DataMixingEMWorker") << "processed EBRecHit with rawId: "
-				      << it->id() << "\n"
+				      << it->id().rawId() << "\n"
 				      << " rechit energy: " << it->energy();
 #endif
        }
@@ -231,7 +231,7 @@ namespace edm
 	 
 #ifdef DEBUG	 
 	 LogDebug("DataMixingEMWorker") << "processed EERecHit with rawId: "
-				      << it->id() << "\n"
+				      << it->id().rawId() << "\n"
 				      << " rechit energy: " << it->energy();
 #endif
        }
@@ -260,7 +260,7 @@ namespace edm
 	 
 #ifdef DEBUG	 
 	 LogDebug("DataMixingEMWorker") << "processed ESRecHit with rawId: "
-				      << it->id() << "\n"
+				      << it->id().rawId() << "\n"
 				      << " rechit energy: " << it->energy();
 #endif
        }

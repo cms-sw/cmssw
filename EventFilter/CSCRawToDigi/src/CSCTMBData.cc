@@ -1,7 +1,7 @@
 /** \class CSCTMBData
  *
- *  $Date: 2007/9/25 20:15:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/09/25 14:52:38 $
+ *  $Revision: 1.17 $
  *  \author A. Tumanov - Rice
  */
 
@@ -94,7 +94,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   }
 
   int MaxSizeRPC = 1+Ntbins*2*4+1;
-  int MaxSizeScope = 5;
+  //int MaxSizeScope = 5;
   int e0bLine =-1;
   switch (firmwareVersion) {
   case 2007:

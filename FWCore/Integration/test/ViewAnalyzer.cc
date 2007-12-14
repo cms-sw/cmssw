@@ -66,6 +66,20 @@ namespace edmtest
     testProductWithBaseClass(e, "ovsimple");
     testRefVector(e, "intvecrefvec");
     testRefToBaseVector(e, "intvecreftbvec");
+    
+    //See if InputTag works
+    {
+      edm::InputTag tag("intvec","");
+      edm::Handle<edm::View<int> > hInt;
+      e.getByLabel(tag,hInt);
+      assert(hInt.isValid());
+    }
+    {
+      edm::InputTag tag("intvec","","TEST");
+      edm::Handle<edm::View<int> > hInt;
+      e.getByLabel(tag,hInt);
+      assert(hInt.isValid());
+    }
   }
 
   template <class P, class V>

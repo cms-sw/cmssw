@@ -15,14 +15,14 @@ class RPCGeometry;
 namespace CLHEP {
   class HepRandomEngine;
   class RandFlat;
+  class RandPoissonQ;
 }
-
 
 class RPCSimTriv : public RPCSim
 {
  public:
   RPCSimTriv(const edm::ParameterSet& config);
-  ~RPCSimTriv(){}
+  ~RPCSimTriv();
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits,
@@ -32,8 +32,6 @@ class RPCSimTriv : public RPCSim
  private:
   void init(){};
 
-  CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandFlat* flatDistribution;
   RPCSynchronizer* _rpcSync;
 
   int N_hits;
@@ -41,5 +39,8 @@ class RPCSimTriv : public RPCSim
   double rate;
   double gate;
 
+  CLHEP::HepRandomEngine* rndEngine;
+  CLHEP::RandFlat* flatDistribution;
+  CLHEP::RandPoissonQ *poissonDistribution_;
 };
 #endif

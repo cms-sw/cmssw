@@ -13,8 +13,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/08/17 15:10:26 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/31 22:18:21 $
+ *  $Revision: 1.5 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -76,6 +76,7 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 using namespace std;
 using namespace edm;
@@ -247,7 +248,13 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
       refit[2] = ( refitted2.empty() )? 0 : &(*refitted2.begin());
       refit[3] = ( refitted3.empty() )? 0 : &(*refitted3.begin());
 
-      finalTrajectory = new MuonCandidate(new Trajectory(*chooseTrajectory(refit, theMuonHitsOption)), (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*(*it)->trackerTrajectory()));
+      const Trajectory * chosenTrajectory = chooseTrajectory(refit, theMuonHitsOption);
+      if (chosenTrajectory){
+	finalTrajectory = new MuonCandidate(new Trajectory(*chosenTrajectory), (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*(*it)->trackerTrajectory()));
+      }
+      else{
+	edm::LogError(theCategory)<<"could not choose a valid trajectory. skipping the muon. no final trajectory.";
+      }
 
       if ( finalTrajectory ) {
         refittedResult.push_back(finalTrajectory);
@@ -316,7 +323,7 @@ GlobalTrajectoryBuilderBase::chooseRegionalTrackerTracks(const TrackCand& staCan
 
   vector<TrackCand> result;
 
-  float deltaR = 1.0;
+  double deltaR_max = 1.0;
 
   vector<TrackCand>::const_iterator is;
   for ( is = tkTs.begin(); is != tkTs.end(); ++is ) {
@@ -324,13 +331,13 @@ GlobalTrajectoryBuilderBase::chooseRegionalTrackerTracks(const TrackCand& staCan
 //    bool inEtaRange = etaRange.inside(is->second->eta());
 //    bool inPhiRange = (fabs(Geom::Phi<float>(is->second->phi()) - Geom::Phi<float>(regionOfInterest.direction().phi())) < phiMargin.right() ) ? true : false ;
 
-    double deltaEta = regionOfInterest.direction().eta() - is->second->eta();
-    double deltaPhi = regionOfInterest.direction().phi() - is->second->phi();
-    double deltaR_tmp = sqrt( deltaEta*deltaEta + deltaPhi*deltaPhi );
+    double deltaR_tmp = deltaR( static_cast<double>(regionOfInterest.direction().eta()),
+				static_cast<double>(regionOfInterest.direction().phi()),
+is->second->eta(), is->second->phi());
 
     //for each trackCand in region, add trajectory and add to result
     //if( inEtaRange && inPhiRange ) {
-    if(deltaR_tmp < deltaR) {
+    if(deltaR_tmp < deltaR_max) {
       TrackCand tmpCand = TrackCand(*is);
       LogTrace(theCategory) << "Adding Traj to Tk";
       addTraj(tmpCand);
@@ -703,21 +710,23 @@ const Trajectory* GlobalTrajectoryBuilderBase::chooseTrajectory(const std::vecto
 
   } else if (muonHitsOption == 5) {
 
-    double prob2 = ( t[2] ) ? trackProbability(*t[2]) : 0.0;
-    double prob3 = ( t[3] ) ? trackProbability(*t[3]) : 0.0; 
+    double prob[4];
+    int chosen=3;
+    for (int i=0;i<4;i++) 
+      prob[i] = (t[i]) ? trackProbability(*t[i]) : 0.0; 
 
-    if ( t[2] ) {
-      result = t[2];
-      if ( t[3] && ( (prob2 - prob3) > 0.9 )  ) {
-         result = t[3]; 
-         LogTrace(theCategory) << "PMR"; 
-      } else LogTrace(theCategory) << "FMS";
-    } else 
-      if ( t[3] ) { result = t[3]; LogTrace(theCategory) << "PMR"; }
-        else 
-        if ( t[1] ) { result = t[1]; LogTrace(theCategory) << "GMR"; }
-          else
-          if ( t[0] ) { result = t[0]; LogTrace(theCategory) << "TO "; }
+    if(!t[3])
+      if (t[2]) chosen=2; else
+        if (t[1]) chosen=1; else
+          if (t[0]) chosen=0;
+
+    if ( t[0] && t[3] && ((prob[3]-prob[0]) > 48.) ) chosen=0;
+    if ( t[0] && t[1] && ((prob[1]-prob[0]) < 3.) ) chosen=1;
+    if ( t[2] && ((prob[chosen]-prob[2]) > 9.) ) chosen=2;
+    
+    LogTrace(theCategory) << "Chosen Trajectory " << chosen;
+    
+    result=t[chosen];
   }
   else {
     LogTrace(theCategory) << "Wrong Hits Option in Choosing Trajectory ";

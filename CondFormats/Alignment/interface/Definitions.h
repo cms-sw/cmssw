@@ -5,12 +5,10 @@
  *
  *  Namespace for common type definitions used in alignment.
  *
- *  $Date: 2007/04/09 00:26:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/03 15:59:58 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
-
-#include <boost/cstdint.hpp>
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
@@ -23,7 +21,6 @@
 
 namespace align
 {
-  typedef uint32_t ID;
   typedef double Scalar;
 
   typedef   TkRotation<Scalar>            RotationType;

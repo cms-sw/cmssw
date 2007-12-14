@@ -327,6 +327,7 @@ void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
   nbTakeReceived_.value_++;
   bool eventComplete=resourceTable_->buildResource(bufRef);
   if (eventComplete&&doDropEvents_) resourceTable_->dropEvent();
+  
 }
 
 

@@ -42,9 +42,8 @@ class HiggsToZZ4LeptonsPreFilter : public edm::EDFilter {
  private:
   int evt, ikept;
   
-
   bool debug;
-
+  int leptonFlavour;
 };
 
 #endif

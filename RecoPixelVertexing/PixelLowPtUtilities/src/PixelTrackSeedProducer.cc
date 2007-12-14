@@ -28,6 +28,12 @@ PixelTrackSeedProducer::~PixelTrackSeedProducer()
 void PixelTrackSeedProducer::produce
   (edm::Event& ev, const edm::EventSetup& es)
 {
+   // Get reconstructed pixel tracks
+//  edm::Handle<reco::TrackCollection> recCollection;
+//  ev.getByType(recCollection); !!!!
+
+//  ev.getByLabel("pixelLowPtTracksWithZPos",recCollection);
+//  const reco::TrackCollection* recTracks = recCollection.product();
   std::cerr << "[Triplet seeder]" << std::endl;
 
   PixelTrackSeedGenerator thePixelTrackSeedGenerator(es);
@@ -51,12 +57,11 @@ void PixelTrackSeedProducer::produce
     {
       TrajectorySeed theSeed = thePixelTrackSeedGenerator.seed(*track);
   
-/*
+if(0)
       edm::LogVerbatim("PixelLowPtUtilities")
         << "n pixel and seed hits : " 
         << track->recHitsSize() << " , " << theSeed.nHits()
         << "  pt = " << track->pt(); 
-*/
 
       if(theSeed.nHits() >= 2)
         result->push_back(theSeed);

@@ -16,11 +16,9 @@ public:
   explicit SiStripGainFromAsciiFile(const edm::ParameterSet&);
   ~SiStripGainFromAsciiFile();
 
-  void algoAnalyze(const edm::Event & event, const edm::EventSetup& iSetup);
-
 private:
 
-  SiStripApvGain * getNewObject(){return obj;}
+  SiStripApvGain * getNewObject();
 
 private:
 
@@ -36,8 +34,6 @@ private:
   float referenceValue_;
   edm::FileInPath fp_;
 
-  SiStripApvGain * obj;
-      
   __gnu_cxx::hash_map< unsigned int,FibersGain>  GainsMap;
   //std::map< unsigned int,FibersGain>  GainsMap;
 

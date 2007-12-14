@@ -35,7 +35,7 @@ namespace pos{
 
     void writeBinary(std::ofstream& out) const;
 
-    void writeASCII(std::ofstream& out) const;
+    void writeASCII(std::ostream& out) const;
 
     void getDACs(std::vector<unsigned int>& dacs) const;
     void setDAC(unsigned int dacaddress, unsigned int dacvalue);

@@ -166,7 +166,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			trackData.push_back(IndexedTrackData());
 			tracks.push_back(trackBuilder->build(trackRef));
 
-			trackData.back().first = i;
+			trackData.back().first = indices[i];
 
 			// select tracks for SV fit
 

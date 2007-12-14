@@ -197,8 +197,6 @@ void ApvTimingAnalysis::analyse() {
   }
   float baseline_rms = sqrt( fabs( mean2 - mean*mean ) ); 
 
-  //LogTrace(mlTest_) << "TEST1 size: " << edges.size();
-
   // Find rising edges (derivative across two bins > threshold) 
   std::map<uint16_t,float> edges;
   for ( uint16_t ibin = 1; ibin < nbins-1; ibin++ ) {
@@ -214,13 +212,12 @@ void ApvTimingAnalysis::analyse() {
     addErrorCode(sistrip::noRisingEdges_);
     return;
   }
-
-    
   
   // Iterate through "edges" map
-  bool found = false;
   uint16_t max_derivative_bin = sistrip::invalid_;
   float max_derivative = -1.*sistrip::invalid_;
+
+  bool found = false;
   std::map<uint16_t,float>::iterator iter = edges.begin();
   while ( !found && iter != edges.end() ) {
 
@@ -249,34 +246,25 @@ void ApvTimingAnalysis::analyse() {
 
     }
 
-    //LogTrace(mlTest_) << "TEST 1";
-
     // Break from loop if tick mark found
     if ( valid ) { found = true; }
     else {
-      //LogTrace(mlTest_) << "TEST 3";
       max_derivative = -1.*sistrip::invalid_;
       max_derivative_bin = sistrip::invalid_;
-      //LogTrace(mlTest_) << "TEST 4 : size: " << edges.size();
       //edges.erase(iter);
-      //LogTrace(mlTest_) << "TEST 5";
       addErrorCode(sistrip::rejectedCandidate_);
-      //LogTrace(mlTest_) << "TEST 6";
     }
-    //LogTrace(mlTest_) << "TEST 7";
-    
-    iter++;
+
+    iter++; // next candidate
+
   }
   
-  
-  //LogTrace(mlTest_) << "TEST2 size: " << edges.size();
-  //for ( std::map<uint16_t,float>::iterator jter = edges.begin(); jter != edges.end(); jter++ ) {
-  //LogTrace(mlTest_) << "TEST2 : " << jter->first << " " << jter->second;
-  //}
-  
-  // Record time monitorable
+  // Record time monitorable and check tick mark height
   if ( max_derivative_bin <= sistrip::valid_ ) {
     time_ = max_derivative_bin * 25. / 24.;
+    if ( height_ < ApvTimingAnalysis::tickMarkHeightThreshold_ ) { 
+      addErrorCode(sistrip::tickMarkBelowThresh_);      
+    }
   } else {
     addErrorCode(sistrip::missingTickMark_);
   }
@@ -310,6 +298,16 @@ void ApvTimingAnalysis::refTime( const float& time ) {
   // Calculate delay required to synchronise with this adjusted sampling position
   delay_ = ( refTime_ + adjustment ) - time_; 
 
+  // Check reference time
+  if ( refTime_ < 0. || refTime_ > sistrip::valid_ ) { 
+    addErrorCode(sistrip::invalidRefTime_);
+  }
+  
+  // Check delay is valid
+  if ( delay_ < 0. || delay_ > sistrip::valid_ ) { 
+    addErrorCode(sistrip::invalidDelayTime_);
+  }
+
 }
 
 // ----------------------------------------------------------------------------
@@ -328,11 +326,13 @@ uint32_t ApvTimingAnalysis::frameFindingThreshold() const {
 // 
 bool ApvTimingAnalysis::isValid() const {
   return ( time_    < sistrip::valid_ &&
-	   refTime_ < sistrip::valid_ &&
+	   refTime_ < sistrip::valid_ && 
+	   // ( !synchronized_ || refTime_ < sistrip::valid_ ) && //@@ ignore validity if not synchronized (ie, set)
 	   delay_   < sistrip::valid_ &&
 	   height_  < sistrip::valid_ && 
 	   base_    < sistrip::valid_ &&
-	   peak_    < sistrip::valid_ );
+	   peak_    < sistrip::valid_ &&
+	   getErrorCodes().empty() );
 } 
 
 // ----------------------------------------------------------------------------
@@ -348,8 +348,8 @@ void ApvTimingAnalysis::print( std::stringstream& ss, uint32_t not_used ) {
      << " Time of tick mark rising edge        [ns] : " << time_ << std::endl 
     //<< " Error on time of rising edge         [ns] : " << error_ << std::endl
      << " Sampling point of last tick mark     [ns] : " << sampling << std::endl 
-     << " Delay required to synchronise        [ns] : " << delay_ << std::endl 
      << " Adjusted sampling point of last tick [ns] : " << adjust << std::endl 
+     << " Delay required to synchronise        [ns] : " << delay_ << std::endl 
      << " Tick mark height                    [ADC] : " << height_ << std::endl
      << " Baseline level                      [ADC] : " << base_ << std::endl 
      << " Tick mark top                       [ADC] : " << peak_ << std::endl 
@@ -368,47 +368,3 @@ void ApvTimingAnalysis::print( std::stringstream& ss, uint32_t not_used ) {
   ss << std::endl;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-  // RootAnalyzer implementation (not used by default)
-
-  if ( false ) {
-    float maxdev = -9999;
-    float mindev = 9999;
-    int ideriv = 1;
-    int idevmin = 1;
-    for ( int is = 10; is < histo->GetNbinsX()-10 ; is++ ) {
-      float deriv = (histo->GetBinContent(is+1)-histo->GetBinContent(is-1));
-      if ( deriv > maxdev ) {
-	maxdev=deriv;
-	ideriv=is;
-      }
-      if ( deriv < mindev ) {
-	mindev=deriv;
-	idevmin=is;
-      }
-    }
-    
-    if ( maxdev > 10. ) {
-      deriv_bin = ideriv;
-      baseline = histo->GetBinContent(ideriv-10);
-      tickmark = histo->GetBinContent(ideriv+10);
-    } else {
-      deriv_bin = 0;
-      baseline = 0;
-      tickmark = 0;
-    }
-  }
-
-*/

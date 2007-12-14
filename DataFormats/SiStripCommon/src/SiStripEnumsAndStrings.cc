@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.12 2007/07/11 11:13:59 bainbrid Exp $
+// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.13 2007/09/06 21:38:13 delaer Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 
@@ -81,6 +81,34 @@ sistrip::RunType SiStripEnumsAndStrings::runType( const std::string& run_type ) 
   else if ( run_type == "DAQ_SCOPE_MODE" ) { return sistrip::DAQ_SCOPE_MODE; }
   else if ( run_type == "PHYSICS" ) { return sistrip::PHYSICS; }
   else if ( run_type == "UNDEFINED" ) { return sistrip::UNDEFINED_RUN_TYPE; }
+  else { return sistrip::UNKNOWN_RUN_TYPE; }
+}
+
+// -----------------------------------------------------------------------------
+// 
+sistrip::RunType SiStripEnumsAndStrings::runType( const uint16_t& run_type ) {
+  if      ( run_type ==  1 ) { return sistrip::PHYSICS; }
+  else if ( run_type ==  2 ) { return sistrip::PEDESTALS; }
+  else if ( run_type ==  3 ) { return sistrip::CALIBRATION; }
+  else if ( run_type ==  4 ) { return sistrip::OPTO_SCAN; }
+  else if ( run_type ==  5 ) { return sistrip::APV_TIMING; }
+  else if ( run_type ==  6 ) { return sistrip::APV_LATENCY; }
+  else if ( run_type ==  7 ) { return sistrip::FINE_DELAY_PLL; }
+  else if ( run_type ==  8 ) { return sistrip::FINE_DELAY_TTC; }
+  else if ( run_type == 10 ) { return sistrip::MULTI_MODE; }
+  else if ( run_type == 11 ) { return sistrip::FED_CABLING; }
+  else if ( run_type == 12 ) { return sistrip::FED_TIMING; }
+  else if ( run_type == 13 ) { return sistrip::FED_CABLING; }
+  else if ( run_type == 14 ) { return sistrip::VPSP_SCAN; }
+  else if ( run_type == 15 ) { return sistrip::DAQ_SCOPE_MODE; }
+  else if ( run_type == 16 ) { return sistrip::QUITE_FAST_CABLING; }
+  else if ( run_type == 17 ) { return sistrip::FINE_DELAY; } //@@ layer
+  else if ( run_type == 18 ) { return sistrip::PHYSICS_ZS; }
+  else if ( run_type == 19 ) { return sistrip::CALIBRATION_SCAN; }
+  else if ( run_type == 20 ) { return sistrip::CALIBRATION_SCAN_DECO; }
+  else if ( run_type == 21 ) { return sistrip::FAST_CABLING; }
+  else if ( run_type == 33 ) { return sistrip::CALIBRATION_DECO; }
+  else if ( run_type == sistrip::invalid_ ) { return sistrip::UNDEFINED_RUN_TYPE; }
   else { return sistrip::UNKNOWN_RUN_TYPE; }
 }
 

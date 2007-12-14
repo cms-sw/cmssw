@@ -57,11 +57,13 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
 						       const SiStripRecHitMatcher*  hitMatcher,
 						       const TrackerGeometry*  trackerGeom,
 						       const GeometricSearchTracker* geometricSearchTracker,
-						       const SiStripDetCabling *stripCabling,
-						       const SiStripNoises *stripNoises,
+						       const SiStripQuality *stripQuality,
+                                                       int   qualityFlags,
+                                                       int   qualityDebugFlags,
 						       const SiStripRegionCabling * stripRegionCabling,
 						       bool isRegional):
-  MeasurementTracker(conf,pixelCPE,stripCPE,hitMatcher,trackerGeom,geometricSearchTracker,stripCabling,stripNoises,isRegional)
+  MeasurementTracker(conf,pixelCPE,stripCPE,hitMatcher,trackerGeom,geometricSearchTracker,
+        stripQuality,qualityFlags,qualityDebugFlags,isRegional)
   , category_("OnDemandMeasurementTracker")
   , StayPacked_(true)
   , StripOnDemand_(true)

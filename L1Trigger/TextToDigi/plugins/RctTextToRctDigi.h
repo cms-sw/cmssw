@@ -14,7 +14,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: RctTextToRctDigi.h,v 1.2 2007/05/08 15:01:12 nuno Exp $
+// $Id: RctTextToRctDigi.h,v 1.1 2007/04/19 22:27:20 tapper Exp $
 //
 //
 
@@ -54,8 +54,8 @@ class RctTextToRctDigi : public edm::EDProducer {
   /// Name out input file
   std::string m_textFileName;
 
-  /// Number of events to be offset wrt input
-  int m_fileEventOffset;
+  /// Number of events to skip at the start of the file
+  int m_skipEvents;
 
   /// Event counter
   int m_nevt;

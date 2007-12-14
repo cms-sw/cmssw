@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalOnlineClient.h
  *
- * $Date: 2007/08/17 09:05:11 $
- * $Revision: 1.4 $
+ * $Date: 2007/11/13 13:20:51 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,14 +20,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
+
+class MonitorElement;
+class MonitorUserInterface;
+class DaqMonitorBEInterface;
+class EcalCondDBInterface;
+class RunIOV;
+class MonRunIOV;
 
 class EEPedestalOnlineClient : public EEClient {
 
@@ -71,7 +71,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
+void htmlOutput(int run, std::string htmlDir, std::string htmlName);
 
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
@@ -86,20 +86,17 @@ int ievt_;
 int jevt_;
 
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
 bool enableMonitorDaemon_;
 
-string prefixME_;
+std::string prefixME_;
 
-vector<int> superModules_;
+std::vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
-
-MEContentsProf2DWithinRangeROOT* qth03_[18];
 
 MonitorElement* meh03_[18];
 
@@ -116,8 +113,6 @@ MonitorElement* mer03_[18];
 float expectedMean_;
 float discrepancyMean_;
 float RMSThreshold_;
-
-MEContentsTH2FWithinRangeROOT* qtg03_[36];
 
 };
 

@@ -3,7 +3,8 @@
 <use name=rootcore>
 <use name=zlib>
 <use name=boost>
-<flags LDFLAGS="-lTMVA">
+<use name=roottmva>
+
 <export>
   <use name=CondFormats/PhysicsToolsObjects>
   <use name=zlib>
