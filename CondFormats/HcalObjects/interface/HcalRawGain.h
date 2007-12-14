@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store raw Gain values
 $Author: ratnikov
-$Date: 2007/01/09 22:49:20 $
-$Revision: 1.3 $
+$Date: 2007/12/10 18:38:20 $
+$Revision: 1.4 $
 */
 #include <boost/cstdint.hpp>
 
@@ -30,14 +30,10 @@ class HcalRawGain {
     mVoltage (fVoltage),
     mStatus (int (fStatus)) {}
 
-    // because of an oracle digestion problem with uint32_t 
-    // use unsigned long long
-    // uint32_t rawId () const {return mId;}
-  unsigned long long rawId () const {return mId;}
+  uint32_t rawId () const {return mId;}
 
  private:
-  unsigned long long mId;
-  //  uint32_t mId;
+  uint32_t mId;
   float mValue;
   float mError;
   float mVoltage;

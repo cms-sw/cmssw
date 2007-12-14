@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store PedestalWidth values 4xCapId
 $Author: ratnikov
-$Date: 2007/01/09 22:49:20 $
-$Revision: 1.6 $
+$Date: 2007/12/10 18:37:30 $
+$Revision: 1.7 $
 */
 #include <boost/cstdint.hpp>
 
@@ -26,17 +26,13 @@ class HcalPedestalWidth {
   HcalPedestalWidth (int fId = 0);
   void setSigma (int fCapId1, int fCapId2, float fSigma);
 
-    // because of an oracle digestion problem with uint32_t 
-    // use unsigned long long
-  //  uint32_t rawId () const {return mId;}
-  unsigned long long rawId () const {return mId;}
+  uint32_t rawId () const {return mId;}
 
   // produces pedestal noise in assumption of near correlations and small variations
   void makeNoise (unsigned fFrames, const double* fGauss, double* fNoise) const;
 
  private:
-  //  uint32_t mId;
-  unsigned long long mId;
+  uint32_t mId;
   float mSigma00;
   float mSigma10;
   float mSigma11;
