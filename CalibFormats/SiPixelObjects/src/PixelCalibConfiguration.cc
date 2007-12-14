@@ -471,9 +471,16 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 
   int mode=-1;
 
-  if (modeName=="maskAllPixel"||modeName=="")  mode=0;
-  if (modeName=="useAllPixel")  mode=1;
+  if (modeName=="maskAllPixel")  mode=0;
+  if (modeName=="useAllPixel"||modeName=="")  mode=1;
   if (modeName=="default")  mode=2;
+
+  static bool first=true;
+
+  if (first) {
+    cout << "PixelCalibConfiguration::nextFECState mode="<<mode<<endl;
+    first=false;
+  }
   
   if (mode==-1) {
     cout << "In Pxielcalibconfiguration: ScanMode="<<modeName
@@ -883,8 +890,6 @@ void PixelCalibConfiguration::enablePixels(PixelFECConfigInterface* pixelFEC,
 					   pos::PixelROCTrimBits* trims, 
 					   PixelHdwAddress theROC) const{
 
-  //std::cout << "irows, icols:"<<irows<<" "<<icols<<std::endl;
-
   for (unsigned int irow=0;irow<rows_[irows].size();irow++){
     for (unsigned int icol=0;icol<cols_[icols].size();icol++){
       /*	    std::cout << "Will turn on pixel col="
@@ -895,7 +900,8 @@ void PixelCalibConfiguration::enablePixels(PixelFECConfigInterface* pixelFEC,
 
       //if masks==0 always enable pixel
       if (masks==0||
-	  masks->mask(cols_[icols][icol],rows_[irows][irow])) bits&=0x80;
+	  masks->mask(cols_[icols][icol],rows_[irows][irow])) bits|=0x80;
+
       pixelFEC->progpix(theROC.mfec(),
 			theROC.mfecchannel(),
 			theROC.hubaddress(),
@@ -911,7 +917,6 @@ void PixelCalibConfiguration::enablePixels(PixelFECConfigInterface* pixelFEC,
 void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
 			      unsigned int irows, unsigned int icols,
 			      PixelHdwAddress theROC) const{
-
 
 	for (unsigned int irow=0;irow<rows_[irows].size();irow++){
 	    for (unsigned int icol=0;icol<cols_[icols].size();icol++){
@@ -934,7 +939,7 @@ void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
 
 void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
 					    PixelHdwAddress theROC) const{
-  
+
   //FIXME This should be done with more efficient commands!
   for (unsigned int row=0;row<80;row++){
     for (unsigned int col=0;col<52;col++){
