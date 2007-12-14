@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/10 16:26:41 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/12/12 14:48:38 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -77,14 +77,23 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
 
   LogDebug("") << "Using process name: '" << pn_ <<"'";
   std::cout    << "Using process name: '" << pn_ <<"'" << std::endl;
-  for (trigger::size_type i=0; i!=collectionTags_.size(); ++i) {
-    LogTrace("") << "Collections requested " << i << " " << collectionTags_[i].encode();
-    std::cout    << "Collections requested " << i << " " << collectionTags_[i].encode() << std::endl;
+
+  const trigger::size_type nc(collectionTags_.size());
+  LogTrace("") << "Number of collections requested " << nc;
+  std::cout    << "Number of collections requested " << nc << std::endl;
+  for (trigger::size_type i=0; i!=nc; ++i) {
+    LogTrace("") << i << " " << collectionTags_[i].encode();
+    std::cout    << i << " " << collectionTags_[i].encode() << std::endl;
   }
-  for (trigger::size_type i=0; i!=filterTags_.size(); ++i) {
-    LogTrace("") << "Filters requested     " << i << " " << filterTags_[i].encode();
-    std::cout    << "Filters requested     " << i << " " << filterTags_[i].encode() << std::endl;
+
+  const trigger::size_type nf(filterTags_.size());
+  LogTrace("") << "Number of filters requested " << nf;
+  std::cout    << "Number of filters requested " << nf << std::endl;
+  for (trigger::size_type i=0; i!=nf; ++i) {
+    LogTrace("") << i << " " << filterTags_[i].encode();
+    std::cout    << i << " " << filterTags_[i].encode() << std::endl;
   }
+
   produces<trigger::TriggerEvent>();
 
 }
