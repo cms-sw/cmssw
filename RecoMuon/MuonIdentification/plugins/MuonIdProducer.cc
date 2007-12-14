@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.16 2007/10/31 21:44:41 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.17 2007/12/13 07:38:58 dmytro Exp $
 //
 //
 
@@ -498,19 +498,12 @@ void MuonIdProducer::fillTime(edm::Event& iEvent, const edm::EventSetup& iSetup,
 	   outInVertexTime /= npoints;
 	   inOutVertexTime2 /= npoints;
 	   outInVertexTime2 /= npoints;
-	   if ( npoints == 1 || 
-		inOutVertexTime2 - inOutVertexTime*inOutVertexTime < outInVertexTime2 - outInVertexTime*outInVertexTime )
-	     {
-		muonTime.vertexTime = inOutVertexTime;
-		muonTime.vertexTimeErr = sqrt(inOutVertexTime2 - inOutVertexTime*inOutVertexTime);
-		muonTime.direction = reco::MuonTime::InsideOut;
-	     }
-	   else
-	     {
-		muonTime.vertexTime = outInVertexTime;
-		muonTime.vertexTimeErr = sqrt(outInVertexTime2 - outInVertexTime*outInVertexTime);
-		muonTime.direction = reco::MuonTime::OutsideIn;
-	     }
+	   
+	   muonTime.timeAtIpInOut = inOutVertexTime;
+	   muonTime.timeAtIpInOutErr = sqrt(inOutVertexTime2 - inOutVertexTime*inOutVertexTime);
+	   
+	   muonTime.timeAtIpOutIn = outInVertexTime;
+	   muonTime.timeAtIpOutInErr = sqrt(outInVertexTime2 - outInVertexTime*outInVertexTime);
 	  
 	  // do the unconstrained caclucation, if we have at least two points
 	  if (npoints>1) {
@@ -540,8 +533,9 @@ void MuonIdProducer::fillTime(edm::Event& iEvent, const edm::EventSetup& iSetup,
         LogTrace("MuonIdentification") << "Global 1/beta: " << muonTime.inverseBeta << " +/- " << muonTime.inverseBetaErr
                                        << "  # of points: " << muonTime.nStations <<std::endl;
         LogTrace("MuonIdentification") << "  Free 1/beta: " << muonTime.freeInverseBeta << " +/- " << muonTime.freeInverseBetaErr<<std::endl;
-        LogTrace("MuonIdentification") << "  Vertex time: " << muonTime.vertexTime << " +/- " << muonTime.vertexTimeErr<<std::endl;
-        LogTrace("MuonIdentification") << "  direction: "   << muonTime.direction << std::endl;
+        LogTrace("MuonIdentification") << "  Vertex time (in-out): " << muonTime.timeAtIpInOut << " +/- " << muonTime.timeAtIpInOutErr<<std::endl;
+        LogTrace("MuonIdentification") << "  Vertex time (out-in): " << muonTime.timeAtIpOutIn << " +/- " << muonTime.timeAtIpOutInErr<<std::endl;
+        LogTrace("MuonIdentification") << "  direction: "   << muonTime.direction() << std::endl;
                                        
         muon.setTime(muonTime);                                       
 }
