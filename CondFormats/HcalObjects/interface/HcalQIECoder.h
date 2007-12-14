@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store QIE coder parameters for one channel
 $Author: ratnikov
-$Date: 2007/12/10 18:38:05 $
-$Revision: 1.6 $
+$Date: 2007/12/14 13:32:04 $
+$Revision: 1.7 $
 */
 #include <boost/cstdint.hpp>
 
@@ -33,6 +33,7 @@ class HcalQIECoder {
   void setSlope (unsigned fCapId, unsigned fRange, float fValue);
 
   uint32_t rawId () const {return mId;}
+#endif
 
  private:
   uint32_t mId;
