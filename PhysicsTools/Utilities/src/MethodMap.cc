@@ -19,6 +19,7 @@ void MethodMap::fill( const Type & t, bool fillBase ) {
     retTypeMap[ "unsigned short" ] = uShortType;
     retTypeMap[ "long" ] = longType;
     retTypeMap[ "unsigned long" ] = uLongType;
+    retTypeMap[ "size_t" ] = uLongType;
     retTypeMap[ "char" ] = charType;
     retTypeMap[ "unsigned char" ] = uCharType;
     retTypeMap[ "bool" ] = boolType;
@@ -40,12 +41,15 @@ void MethodMap::fill( const Type & t, bool fillBase ) {
     string methodName = mem.Name();
     if ( methodName.substr( 0, 2 ) == "__" ) continue;
     std::map<string, retType>::const_iterator f = retTypeMap.find( memberReturnType( mem ) );
+    //cout << "  Looking for " << memberReturnType( mem ) << " for " << methodName.c_str() << endl;
     if ( f == retTypeMap.end() ) continue;
     map_[ methodName ] = make_pair( mem, f->second );
   }
   for( Base_Iterator b = t.Base_Begin(); b != t.Base_End(); ++ b ) {
     fill( b->ToType(), true );
   }
+  //cout << "TypeID::className: "  << t.Name() << endl;
+  //print(cout);
 }
 
 void MethodMap::print( std::ostream & out ) const{
