@@ -36,6 +36,11 @@ public:
   
   std::vector<TransientVertex> 
     vertices(const std::vector<reco::TransientTrack> &, const reco::BeamSpot & ) const; 
+  
+  std::vector<TransientVertex> 
+    vertices(const std::vector<reco::TransientTrack> & primaries,
+             const std::vector<reco::TransientTrack> & tracks, 
+             const reco::BeamSpot & ) const; 
 
   virtual AdaptiveVertexReconstructor * clone() const {
     return new AdaptiveVertexReconstructor( * this );
@@ -46,8 +51,9 @@ private:
    *  the actual fit to avoid code duplication
    */
   std::vector<TransientVertex> 
-    vertices( const std::vector<reco::TransientTrack> &, const reco::BeamSpot &,
-              bool usespot ) const; 
+    vertices( const std::vector<reco::TransientTrack> & primaries,
+              const std::vector<reco::TransientTrack> & trks,
+              const reco::BeamSpot &, bool has_primaries, bool usespot ) const; 
 
   /**
    *  contrary to what its name has you believe, ::erase removes all
@@ -65,7 +71,8 @@ private:
 
   /** setup the vertex fitters.
    */
-  void setupFitters ( float primcut, float seccut, bool smoothing );
+  void setupFitters ( float primcut, float primT, float primr,
+      float seccut, float secT, float secr, bool smoothing );
 
   TransientVertex cleanUp ( const TransientVertex & old ) const;
 

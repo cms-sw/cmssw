@@ -69,7 +69,9 @@ void AdaptiveVertexReconstructor::erase (
     float w ) const
 {
   /*
-   * Erase tracks that are in newvtx from remainingtrks */
+   * Erase tracks that are in newvtx from remainingtrks 
+   * But erase only if trackweight > w
+   */
   const vector < reco::TransientTrack > & origtrks = newvtx.originalTracks();
   bool erased=false;
   for ( vector< reco::TransientTrack >::const_iterator i=origtrks.begin();
@@ -89,7 +91,7 @@ AdaptiveVertexReconstructor::AdaptiveVertexReconstructor(
   thePrimaryFitter ( 0 ), theSecondaryFitter ( 0 ),
        theMinWeight( min_weight ), theWeightThreshold ( 0.001 )
 {
-  setupFitters ( primcut, seccut, smoothing );
+  setupFitters ( primcut, 256., 0.25, seccut, 256., 0.25, smoothing );
 }
 
 AdaptiveVertexReconstructor::~AdaptiveVertexReconstructor()
@@ -98,7 +100,9 @@ AdaptiveVertexReconstructor::~AdaptiveVertexReconstructor()
   if ( theSecondaryFitter ) delete theSecondaryFitter;
 }
 
-void AdaptiveVertexReconstructor::setupFitters ( float primcut, float seccut, bool smoothing )
+void AdaptiveVertexReconstructor::setupFitters ( float primcut, 
+    float primT, float primr, float seccut, float secT,
+    float secr, bool smoothing )
 {
   VertexSmoother<5> * smoother ;
   if ( smoothing )
@@ -111,12 +115,17 @@ void AdaptiveVertexReconstructor::setupFitters ( float primcut, float seccut, bo
   if ( thePrimaryFitter ) delete thePrimaryFitter;
   if ( theSecondaryFitter ) delete theSecondaryFitter;
 
-  thePrimaryFitter = new AdaptiveVertexFitter ( GeometricAnnealing ( primcut ), DefaultLinearizationPointFinder(),
+  /*
+  edm::LogError ("AdaptiveVertexReconstructor" )
+    << "Tini and r are hardcoded now!";
+    */
+  thePrimaryFitter = new AdaptiveVertexFitter ( GeometricAnnealing ( primcut, primT, primr ), DefaultLinearizationPointFinder(),
       KalmanVertexUpdator<5>(), KalmanVertexTrackCompatibilityEstimator<5>(), *smoother );
   thePrimaryFitter->setWeightThreshold ( theWeightThreshold );
   // if the primary fails, sth is wrong, so here we set a threshold on the weight.
-  theSecondaryFitter = new AdaptiveVertexFitter ( GeometricAnnealing ( seccut ), DefaultLinearizationPointFinder(),
-      KalmanVertexUpdator<5>(), KalmanVertexTrackCompatibilityEstimator<5>(), *smoother );
+  theSecondaryFitter = new AdaptiveVertexFitter ( GeometricAnnealing ( seccut, secT, secr ), DefaultLinearizationPointFinder(),
+      KalmanVertexUpdator<5>(), 
+      KalmanVertexTrackCompatibilityEstimator<5>(), *smoother );
   theSecondaryFitter->setWeightThreshold ( 0. );
   // need to set it or else we have 
   // unwanted exceptions to deal with.
@@ -130,10 +139,20 @@ AdaptiveVertexReconstructor::AdaptiveVertexReconstructor( const edm::ParameterSe
   float primcut = 2.0;
   float seccut = 6.0;
   bool smoothing=false;
+  // float primT = 4096.;
+  // float primr = 0.125;
+  float primT = 256.;
+  float primr = 0.25;
+  float secT = 256.;
+  float secr = 0.25;
   
   try {
     primcut =  m.getParameter<double>("primcut");
+    primT =  m.getParameter<double>("primT");
+    primr =  m.getParameter<double>("primr");
     seccut =  m.getParameter<double>("seccut");
+    secT =  m.getParameter<double>("secT");
+    secr =  m.getParameter<double>("secr");
     theMinWeight = m.getParameter<double>("minweight");
     theWeightThreshold = m.getParameter<double>("weightthreshold");
     smoothing =  m.getParameter<bool>("smoothing");
@@ -141,25 +160,35 @@ AdaptiveVertexReconstructor::AdaptiveVertexReconstructor( const edm::ParameterSe
     edm::LogError ("AdaptiveVertexReconstructor") << e.what();
   }
 
-  setupFitters ( primcut, seccut, smoothing );
+  setupFitters ( primcut, primT, primr, seccut, secT, secr, smoothing );
 }
 
 vector<TransientVertex> 
     AdaptiveVertexReconstructor::vertices(const vector<reco::TransientTrack> & t, 
         const reco::BeamSpot & s ) const
 {
-  return vertices ( t,s, true );
+  return vertices ( vector<reco::TransientTrack>(), t, s, false, true );
 }
+
+vector<TransientVertex> 
+    AdaptiveVertexReconstructor::vertices(const vector<reco::TransientTrack> & primaries,
+       const vector<reco::TransientTrack > & tracks, const reco::BeamSpot & s ) const
+{
+  return vertices ( primaries, tracks, s, true, true );
+}
+
 
 vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
     const vector<reco::TransientTrack> & tracks ) const
 {
-  return vertices ( tracks, reco::BeamSpot() , false );
+  return vertices ( vector<reco::TransientTrack>(), tracks, reco::BeamSpot(), 
+                    false, false );
 }
 
 vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
+    const vector<reco::TransientTrack> & primaries,
     const vector<reco::TransientTrack> & tracks,
-    const reco::BeamSpot & s, bool usespot ) const
+    const reco::BeamSpot & s, bool has_primaries, bool usespot ) const
 {
   vector < TransientVertex > ret;
   set < reco::TransientTrack > remainingtrks;
@@ -190,6 +219,11 @@ vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
       copy(remainingtrks.begin(), remainingtrks.end(), back_inserter(fittrks));
 
       TransientVertex tmpvtx;
+      if ( (ret.size() == 0) && has_primaries )
+      {
+        // add the primaries to the fitted tracks.
+        copy ( primaries.begin(), primaries.end(), back_inserter(fittrks) );
+      }
       if ( (ret.size() == 0) && usespot )
       {
         tmpvtx=fitter->vertex ( fittrks, s );
@@ -223,7 +257,7 @@ vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
       // cout << "[AdaptiveVertexReconstructor] erased" << endl;
       n_tracks = remainingtrks.size();
     };
-  } catch ( VertexException & e ) {
+  } catch ( VertexException & v ) {
     // Will catch all (not enough significant tracks exceptions.
     // in this case, the iteration can safely terminate.
   };
