@@ -23,6 +23,11 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelFECConfigInterface.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelModuleName.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelModuleName.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelMaskBase.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelTrimBase.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelROCTrimBits.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDACScanRange.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelPortcardMap.h"
@@ -45,7 +50,9 @@ namespace pos{
 
     void nextFECState(PixelFECConfigInterface* pixelFEC,
 		      PixelDetectorConfig* detconfig,
-		      PixelNameTranslation* trans, 
+		      PixelNameTranslation* trans,
+		      std::map<pos::PixelModuleName,pos::PixelMaskBase*>* masks,
+		      std::map<pos::PixelModuleName,pos::PixelTrimBase*>* trims,
 		      unsigned int state) const; 
 
     //return vector of fed# and channels controlled by this fed supervisor
@@ -164,10 +171,17 @@ namespace pos{
 
     void enablePixels(PixelFECConfigInterface* pixelFEC,
 		      unsigned int irows, unsigned int icols,
+		      pos::PixelROCMaskBits* masks,
+		      pos::PixelROCTrimBits* trims,	
 		      PixelHdwAddress theROC) const;
+
     void disablePixels(PixelFECConfigInterface* pixelFEC,
 		       unsigned int irows, unsigned int icols,
 		       PixelHdwAddress theROC) const;
+
+    void disablePixels(PixelFECConfigInterface* pixelFEC,
+		       PixelHdwAddress theROC) const;
+
     mutable std::vector<int> old_irows;
     mutable std::vector<int> old_icols;
 

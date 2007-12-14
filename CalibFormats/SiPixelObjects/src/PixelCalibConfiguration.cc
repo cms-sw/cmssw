@@ -461,70 +461,103 @@ unsigned int PixelCalibConfiguration::scanCounter(unsigned int iscan,
 
 
 void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
-			     PixelDetectorConfig* detconfig,
-			     PixelNameTranslation* trans,
-			     unsigned int state) const {
+					   PixelDetectorConfig* detconfig,
+					   PixelNameTranslation* trans,
+					   std::map<pos::PixelModuleName,pos::PixelMaskBase*>* masks,
+					   std::map<pos::PixelModuleName,pos::PixelTrimBase*>* trims,
+					   unsigned int state) const {
 
-    pixelFEC->fecDebug(1);
+  std::string modeName=parameterValue("ScanMode");
 
-    //unsigned long version=0;
-    //pixelFEC->getversion(&version);
-    //std::cout<<"mfec firmware version:"<<version<<std::endl;
+  int mode=-1;
 
-    assert(rocAndModuleListsBuilt_);
+  if (modeName=="maskAllPixel"||modeName=="")  mode=0;
+  if (modeName=="useAllPixel")  mode=1;
+  if (modeName=="default")  mode=2;
+  
+  if (mode==-1) {
+    cout << "In Pxielcalibconfiguration: ScanMode="<<modeName
+	 << " not understood."<<endl;
+    ::abort();
+  }
+  
+  pixelFEC->fecDebug(1);
+
+  //unsigned long version=0;
+  //pixelFEC->getversion(&version);
+  //std::cout<<"mfec firmware version:"<<version<<std::endl;
+
+  assert(rocAndModuleListsBuilt_);
     
-    assert(state<nConfigurations());
+  assert(state<nConfigurations());
 
-    unsigned int i_ROC=state/(cols_.size()*rows_.size()*
-                               nScanPoints());
+  unsigned int i_ROC=state/(cols_.size()*rows_.size()*
+			    nScanPoints());
 
-    unsigned int i_row=(state-i_ROC*cols_.size()*rows_.size()*
-                        nScanPoints())/
-      (cols_.size()*nScanPoints());
+  unsigned int i_row=(state-i_ROC*cols_.size()*rows_.size()*
+		      nScanPoints())/
+    (cols_.size()*nScanPoints());
 
-    unsigned int i_col=(state-i_ROC*cols_.size()*rows_.size()*
-                                     nScanPoints()-
-			i_row*cols_.size()*nScanPoints())/
-      (nScanPoints());
+  unsigned int i_col=(state-i_ROC*cols_.size()*rows_.size()*
+		      nScanPoints()-
+		      i_row*cols_.size()*nScanPoints())/
+    (nScanPoints());
 
 
-    std::vector<unsigned int> dacvalues;
+  std::vector<unsigned int> dacvalues;
 
-    unsigned int first_scan=true;
+  unsigned int first_scan=true;
 
-    for (unsigned int i=0;i<dacs_.size();i++){
-      dacvalues.push_back(scanValue(i,state));
-      if (scanCounter(i,state)!=0) first_scan=false;
+  for (unsigned int i=0;i<dacs_.size();i++){
+    dacvalues.push_back(scanValue(i,state));
+    if (scanCounter(i,state)!=0) first_scan=false;
+  }
+
+  assert(i_row<rows_.size());
+  assert(i_col<cols_.size());
+
+  if (state==0&&(mode==0||mode==1)) {
+
+    for(unsigned int i=0;i<rocs_.size();i++){
+      const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
+
+      assert(hdwadd!=0);
+      PixelHdwAddress theROC=*hdwadd;
+          
+      //Turn off all pixels
+      disablePixels(pixelFEC, theROC);
+
     }
+   
+  }
 
-    assert(i_row<rows_.size());
-    assert(i_col<cols_.size());
 
-    if (first_scan){
+  if (first_scan){
 
-      if (state!=0){
+    if (state!=0){
 
-	unsigned int statetmp=state-1;
+      unsigned int statetmp=state-1;
 	
-	unsigned int i_ROC=statetmp/(cols_.size()*rows_.size()*
-				  nScanPoints());
+      unsigned int i_ROC=statetmp/(cols_.size()*rows_.size()*
+				   nScanPoints());
 
-	unsigned int i_row=(statetmp-i_ROC*cols_.size()*rows_.size()*
-			    nScanPoints())/
-	  (cols_.size()*nScanPoints());
+      unsigned int i_row=(statetmp-i_ROC*cols_.size()*rows_.size()*
+			  nScanPoints())/
+	(cols_.size()*nScanPoints());
 
-	unsigned int i_col=(statetmp-i_ROC*cols_.size()*rows_.size()*
-                                     nScanPoints()-
-			    i_row*cols_.size()*nScanPoints())/
-	  (nScanPoints());
+      unsigned int i_col=(statetmp-i_ROC*cols_.size()*rows_.size()*
+			  nScanPoints()-
+			  i_row*cols_.size()*nScanPoints())/
+	(nScanPoints());
 
 
-	assert(i_row<rows_.size());
-	assert(i_col<cols_.size());
+      assert(i_row<rows_.size());
+      assert(i_col<cols_.size());
 
+      if (mode!=2){
 	for(unsigned int i=0;i<rocs_.size();i++){
 	  const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
-
+	  
 	  // std::cout << "Got Hdwadd" << std::endl;
 
 	  assert(hdwadd!=0);
@@ -535,110 +568,124 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 	  disablePixels(pixelFEC, i_row, i_col, theROC);
 
 	}
-
       }
     }
+  }
     
-    for(unsigned int i=0;i<rocs_.size();i++){
+  for(unsigned int i=0;i<rocs_.size();i++){
 
-      //	std::cout << "Will configure roc:"<<rocs_[i] << std::endl;
+    //	std::cout << "Will configure roc:"<<rocs_[i] << std::endl;
 
-      const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
+    const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
 
-      // std::cout << "Got Hdwadd" << std::endl;
+    // std::cout << "Got Hdwadd" << std::endl;
 
-      assert(hdwadd!=0);
-      PixelHdwAddress theROC=*hdwadd;
+    assert(hdwadd!=0);
+    PixelHdwAddress theROC=*hdwadd;
         
-      if (singleROC_&&theROC.fedrocnumber()!=i_ROC) continue;
+    if (singleROC_&&theROC.fedrocnumber()!=i_ROC) continue;
 
-	//	std::cout << "Will call progdac for vcal:"<< vcal << std::endl;
-
-        for (unsigned int i=0;i<dacs_.size();i++){
-          pixelFEC->progdac(theROC.mfec(),
-                            theROC.mfecchannel(),
-                            theROC.hubaddress(),
-                            theROC.portaddress(),
-                            theROC.rocid(),
-                            dacs_[i].dacchannel(),
-                            dacvalues[i],_bufferData);
-          //          std::cout << "Will set dac "<<dacchannel_[i]
-          //          <<" to "<<dacvalues[i]<<std::endl;
-        }
-
-        //std::cout << "Will set Vcal="<<vcal_<<std::endl;
-        //
-	//pixelFEC->progdac(theROC.mfec(),
-	//		  theROC.mfecchannel(),
-	//		  theROC.hubaddress(),
-	//		  theROC.portaddress(),
-	//		  theROC.rocid(),
-	//		  25,
-	//		  vcal_);
-        //
-
-	//	std::cout << "Done with progdac" << std::endl;
-	if (first_scan){
-
-          //std::cout << "Will enable pixels!" <<std::endl;
-	    enablePixels(pixelFEC, i_row, i_col, theROC);
-	    //            std::cout << "Will do a clrcal on roc:"<<theROC.rocid()<<std::endl;
-
-            //FIXME!!!!
-	    //TODO retrieve ROC control register from configuration
-	    //range is controlled here by one bit, but rest must match config
-	    //bit 0 on/off= 20/40 MHz speed; bit 1 on/off=disabled/enable; bit 3=Vcal range
-	    int range=0;  //MUST replace this line with desired control register setting
-	    if (highVCalRange_) range|=0x4;  //turn range bit on
-	    else range&=0x3;                 //turn range bit off
-
-
-	    pixelFEC->progdac(theROC.mfec(),
-			      theROC.mfecchannel(),
-			      theROC.hubaddress(),
-			      theROC.portaddress(),
-			      theROC.rocid(),
-			      0xfd,
-			      range,_bufferData);
-
-	    pixelFEC->clrcal(theROC.mfec(),
-			     theROC.mfecchannel(),
-			     theROC.hubaddress(),
-			     theROC.portaddress(),
-			     theROC.rocid(),_bufferData);
-            
-	    unsigned int nrow=rows_[i_row].size();
-	    unsigned int ncol=cols_[i_col].size();
-	    unsigned int nmax=std::max(nrow,ncol);
-            if (nrow==0||ncol==0) nmax=0;
-	    for (unsigned int n=0;n<nmax;n++){
-		unsigned int irow=n;
-		unsigned int icol=n;
-		if (irow>=nrow) irow=nrow-1;
-		if (icol>=ncol) icol=ncol-1;
-		unsigned int row=rows_[i_row][irow];
-		unsigned int col=cols_[i_col][icol];
-		/*		std::cout << "Will do a calpix on roc, col, row:"
-			  <<theROC.rocid()<<" "<<col<<" "<<row<<std::endl;
-		*/
-
-		pixelFEC->calpix(theROC.mfec(),
-				 theROC.mfecchannel(),
-				 theROC.hubaddress(),
-				 theROC.portaddress(),
-				 theROC.rocid(),
-				 col,
-				 row,
-				 1,_bufferData);
-	    }
-	}
-    }
-
-    if (_bufferData) {
-      pixelFEC->qbufsend();
-    }
+    //	std::cout << "Will call progdac for vcal:"<< vcal << std::endl;
     
-    return;
+    for (unsigned int ii=0;ii<dacs_.size();ii++){
+      pixelFEC->progdac(theROC.mfec(),
+			theROC.mfecchannel(),
+			theROC.hubaddress(),
+			theROC.portaddress(),
+			theROC.rocid(),
+			dacs_[ii].dacchannel(),
+			dacvalues[ii],_bufferData);
+      //          std::cout << "Will set dac "<<dacchannel_[i]
+      //          <<" to "<<dacvalues[i]<<std::endl;
+    }
+
+    //std::cout << "Will set Vcal="<<vcal_<<std::endl;
+    //
+    //pixelFEC->progdac(theROC.mfec(),
+    //		  theROC.mfecchannel(),
+    //		  theROC.hubaddress(),
+    //		  theROC.portaddress(),
+    //		  theROC.rocid(),
+    //		  25,
+    //		  vcal_);
+    //
+
+    //	std::cout << "Done with progdac" << std::endl;
+    if (first_scan){
+
+      if (mode!=2){
+
+	//FIXME This is very inefficient
+	PixelModuleName module(rocs_[i].rocname());
+	
+	PixelMaskBase* moduleMasks=(*masks)[module];
+	PixelTrimBase* moduleTrims=(*trims)[module];
+
+	PixelROCMaskBits* rocMasks=moduleMasks->getMaskBits(rocs_[i]);
+	PixelROCTrimBits* rocTrims=moduleTrims->getTrimBits(rocs_[i]);
+
+	if (mode==1) rocMasks=0;
+
+	//std::cout << "Will enable pixels!" <<std::endl;
+	enablePixels(pixelFEC, i_row, i_col, rocMasks, rocTrims, theROC);
+
+      }
+
+      //FIXME!!!!
+      //TODO retrieve ROC control register from configuration
+      //range is controlled here by one bit, but rest must match config
+      //bit 0 on/off= 20/40 MHz speed; bit 1 on/off=disabled/enable; bit 3=Vcal range
+      int range=0;  //MUST replace this line with desired control register setting
+      if (highVCalRange_) range|=0x4;  //turn range bit on
+      else range&=0x3;                 //turn range bit off
+      
+
+      pixelFEC->progdac(theROC.mfec(),
+			theROC.mfecchannel(),
+			theROC.hubaddress(),
+			theROC.portaddress(),
+			theROC.rocid(),
+			0xfd,
+			range,_bufferData);
+      
+      pixelFEC->clrcal(theROC.mfec(),
+		       theROC.mfecchannel(),
+		       theROC.hubaddress(),
+		       theROC.portaddress(),
+		       theROC.rocid(),_bufferData);
+            
+      unsigned int nrow=rows_[i_row].size();
+      unsigned int ncol=cols_[i_col].size();
+      unsigned int nmax=std::max(nrow,ncol);
+      if (nrow==0||ncol==0) nmax=0;
+      for (unsigned int n=0;n<nmax;n++){
+	unsigned int irow=n;
+	unsigned int icol=n;
+	if (irow>=nrow) irow=nrow-1;
+	if (icol>=ncol) icol=ncol-1;
+	unsigned int row=rows_[i_row][irow];
+	unsigned int col=cols_[i_col][icol];
+	/*		std::cout << "Will do a calpix on roc, col, row:"
+			<<theROC.rocid()<<" "<<col<<" "<<row<<std::endl;
+	*/
+	
+	pixelFEC->calpix(theROC.mfec(),
+			 theROC.mfecchannel(),
+			 theROC.hubaddress(),
+			 theROC.portaddress(),
+			 theROC.rocid(),
+			 col,
+			 row,
+			 1,_bufferData);
+      }
+    }
+  }
+
+  if (_bufferData) {
+    pixelFEC->qbufsend();
+  }
+  
+  return;
 
 } 
 
@@ -830,31 +877,35 @@ std::ostream& pos::operator<<(std::ostream& s, const PixelCalibConfiguration& ca
 
 
 void PixelCalibConfiguration::enablePixels(PixelFECConfigInterface* pixelFEC,
-			      unsigned int irows, unsigned int icols,
-			      PixelHdwAddress theROC) const{
+					   unsigned int irows, 
+					   unsigned int icols,
+					   pos::PixelROCMaskBits* masks,
+					   pos::PixelROCTrimBits* trims, 
+					   PixelHdwAddress theROC) const{
 
   //std::cout << "irows, icols:"<<irows<<" "<<icols<<std::endl;
 
-    for (unsigned int irow=0;irow<rows_[irows].size();irow++){
-	for (unsigned int icol=0;icol<cols_[icols].size();icol++){
-	  /*	    std::cout << "Will turn on pixel col="
-		      <<cols_[icols][icol]
-		      <<" row="<<rows_[irows][irow]<<std::endl;
-	  */
-	    pixelFEC->progpix(theROC.mfec(),
-			      theROC.mfecchannel(),
-			      theROC.hubaddress(),
-			      theROC.portaddress(),
-			      theROC.rocid(),
-			      cols_[icols][icol],
-			      rows_[irows][irow],
-			      0x80,_bufferData);
-	}
+  for (unsigned int irow=0;irow<rows_[irows].size();irow++){
+    for (unsigned int icol=0;icol<cols_[icols].size();icol++){
+      /*	    std::cout << "Will turn on pixel col="
+		    <<cols_[icols][icol]
+		    <<" row="<<rows_[irows][irow]<<std::endl;
+      */
+      unsigned int bits=trims->trim(cols_[icols][icol],rows_[irows][irow]);
+
+      //if masks==0 always enable pixel
+      if (masks==0||
+	  masks->mask(cols_[icols][icol],rows_[irows][irow])) bits&=0x80;
+      pixelFEC->progpix(theROC.mfec(),
+			theROC.mfecchannel(),
+			theROC.hubaddress(),
+			theROC.portaddress(),
+			theROC.rocid(),
+			cols_[icols][icol],
+			rows_[irows][irow],
+			bits,_bufferData);
     }
-
-
-    //std::cout << "Done"<<std::endl;
-
+  }  
 }
 
 void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
@@ -878,6 +929,25 @@ void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
 				  0x0,_bufferData);
 	    }
 	}
+}
+
+
+void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
+					    PixelHdwAddress theROC) const{
+  
+  //FIXME This should be done with more efficient commands!
+  for (unsigned int row=0;row<80;row++){
+    for (unsigned int col=0;col<52;col++){
+      pixelFEC->progpix(theROC.mfec(),
+			theROC.mfecchannel(),
+			theROC.hubaddress(),
+			theROC.portaddress(),
+			theROC.rocid(),
+			col,
+			row,
+			0x0,_bufferData);
+    }
+  }
 }
 
 std::string PixelCalibConfiguration::parameterValue(std::string parameterName) const
