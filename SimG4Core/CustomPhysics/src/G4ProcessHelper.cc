@@ -1,5 +1,5 @@
-#include"CLHEP/Random/RandFlat.h"
 #include"G4ParticleTable.hh" 
+#include "Randomize.hh"
 
 #include<iostream>
 #include<fstream>
@@ -172,7 +172,7 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
       NumberOfNucleons += NbOfAtomsPerVolume[elm]*(*theElementVector)[elm]->GetN();
     }
 
-  if(RandFlat::shoot()<NumberOfProtons/NumberOfNucleons)
+  if(G4UniformRand()<NumberOfProtons/NumberOfNucleons)
     {
       theReactionMap = &pReactionMap;
       theTarget = theProton;
@@ -267,7 +267,7 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   G4int i;
   while(!selected && tries < 100){
     i=0;
-    G4double dice = RandFlat::shoot();
+    G4double dice = G4UniformRand();
     //    edm::LogInfo("")<<"What's the dice?"<<dice<<G4endl;
     while(dice>Probabilities[i] && std::abs(i)<theReactionProductList.size()){
       //      edm::LogInfo("")<<"i: "<<i<<G4endl;
@@ -281,7 +281,7 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
       selected = true;
     } else {
       // 2 -> 3 processes require a phase space lookup
-      if (PhaseSpace(theReactionProductList[i],aDynamicParticle)>RandFlat::shoot()) selected = true;
+      if (PhaseSpace(theReactionProductList[i],aDynamicParticle)>G4UniformRand()) selected = true;
       //selected = true;
     }
     //    double suppressionfactor=0.5;
@@ -293,7 +293,7 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
 	edm::LogInfo("")<<"Suggested particle "<<particleTable->FindParticle(theReactionProductList[i][0])->GetParticleName()
 	      <<" has charge "<<particleTable->FindParticle(theReactionProductList[i][0])->GetPDGCharge()<<G4endl;
 	*/
-	if(RandFlat::shoot()<suppressionfactor) selected = false;
+	if(G4UniformRand()<suppressionfactor) selected = false;
       }
     tries++;
     //    edm::LogInfo("")<<"Tries: "<<tries<<G4endl;

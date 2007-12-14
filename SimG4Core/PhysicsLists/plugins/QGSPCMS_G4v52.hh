@@ -1,5 +1,7 @@
 #ifndef SimG4Core_PhysicsLists_QGSPCMS_G4v52_H
 #define SimG4Core_PhysicsLists_QGSPCMS_G4v52_H
+#include "SimG4Core/PhysicsLists/interface/G4Version.h"
+#ifndef G4V9
  
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,6 +13,7 @@ public:
 		const edm::ParameterSet & p);
 };
  
+#endif
 #endif
 
 

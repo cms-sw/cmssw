@@ -1,7 +1,7 @@
 /*
  * \file EcalPreshowerRecHitsValidation.cc
  *
- * $Date: 2006/10/17 09:56:12 $
+ * $Date: 2006/10/26 08:33:11 $
  * \author C. Rovelli
  *
  */
@@ -148,25 +148,25 @@ void EcalPreshowerRecHitsValidation::endJob(){
 void EcalPreshowerRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   
   Handle<ESRecHitCollection> EcalRecHitES;
-  try {
-    e.getByLabel( ESrechitCollection_, EcalRecHitES);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalPreshowerRecHitTaskError") << "Error! can't get the product " << ESrechitCollection_.label() << ":" << ESrechitCollection_.instance();
-  }
+  // try {
+  e.getByLabel( ESrechitCollection_, EcalRecHitES);
+  // } catch ( cms::Exception& ex ) {
+  //  edm::LogError("EcalPreshowerRecHitTaskError") << "Error! can't get the product " << ESrechitCollection_.label() << ":" << ESrechitCollection_.instance();
+  // }
 
   Handle<EERecHitCollection> EcalRecHitEE;
-  try {
-    e.getByLabel( EErechitCollection_, EcalRecHitEE);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EErechitCollection_.label() << ":" << EErechitCollection_.instance();
-  }
+  // try {
+  e.getByLabel( EErechitCollection_, EcalRecHitEE);
+  // } catch ( cms::Exception& ex ) {
+  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EErechitCollection_.label() << ":" << EErechitCollection_.instance();
+  // }
   
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
-  try {
-    e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
-  }
+  // try {
+  e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
+  // } catch ( cms::Exception& ex ) {
+  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
+  // }
 
 
 

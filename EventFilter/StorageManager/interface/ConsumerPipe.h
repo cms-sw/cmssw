@@ -23,7 +23,7 @@
  *   isIdle() will return false since the consumer has moved from the idle
  *   to the disconnected state.)
  *
- * $Id$
+ * $Id: ConsumerPipe.h,v 1.6 2007/05/16 22:53:44 hcheung Exp $
  */
 
 #include <string>
@@ -32,8 +32,10 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "EventFilter/StorageManager/interface/SMCurlInterface.h"
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
+#include "curl/curl.h"
 
 namespace stor
 {
@@ -58,6 +60,9 @@ namespace stor
     void clearQueue();
 
   private:
+
+    CURL* han_;
+    struct curl_slist *headers_;
     // characteristics of the consumer
     uint32 consumerId_;
     std::string consumerName_;

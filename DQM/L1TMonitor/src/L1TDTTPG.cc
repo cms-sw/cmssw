@@ -1,11 +1,16 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2007/07/26 09:37:09 $
- * $Revision: 1.11 $
+ * $Date: 2007/08/15 18:56:25 $
+ * $Revision: 1.12 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTPG.cc,v $
+ * Revision 1.12  2007/08/15 18:56:25  berryhil
+ *
+ *
+ * split histograms by bx; add Maiken's bx classifier plots
+ *
  * Revision 1.11  2007/07/26 09:37:09  berryhil
  *
  *
@@ -82,7 +87,7 @@ L1TDTTPG::L1TDTTPG(const ParameterSet& ps)
 
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TDTTPG");
+    dbe->setCurrentFolder("L1T/L1TDTTPG");
   }
 
 
@@ -102,14 +107,14 @@ void L1TDTTPG::beginJob(const EventSetup& c)
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TDTTPG");
-    dbe->rmdir("L1TMonitor/L1TDTTPG");
+    dbe->setCurrentFolder("L1T/L1TDTTPG");
+    dbe->rmdir("L1T/L1TDTTPG");
   }
 
 
   if ( dbe ) 
     {
-      dbe->setCurrentFolder("L1TMonitor/L1TDTTPG");
+      dbe->setCurrentFolder("L1T/L1TDTTPG");
 
 
    //hist1[0]

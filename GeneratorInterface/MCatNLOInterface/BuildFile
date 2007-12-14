@@ -8,6 +8,8 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep>
 <use name=hepmc>
+<use name=f77compiler>
+
 <flags EDM_PLUGIN=1>
 <export>
  <lib name=GeneratorInterfaceMCatNLOInterface>
@@ -23,5 +25,3 @@
  <use name=hepmc>
 </export>
 
-<lib name=g2c></lib>
-<lib name=m></lib>

@@ -19,16 +19,6 @@ class SiPixelCalibConfiguration
   
  public :
 
-  struct RowPatternStruct{
-     short first;
-     short second;
-  };
-
-  struct ColPatternStruct{
-     short first;
-     short second;
-  };
-
   SiPixelCalibConfiguration() {;}
   SiPixelCalibConfiguration(const pos::PixelCalibConfiguration &fancyConfig);
 
@@ -42,11 +32,11 @@ class SiPixelCalibConfiguration
   std::vector<std::string> ROCIds() const { return fROCIds;}
   void  setROCIds(const std::vector<std::string> & in) { fROCIds = in; }
 
-  std::vector<RowPatternStruct > RowPattern() const { return fRowPattern;}
-  void  setRowPattern(const std::vector<RowPatternStruct> & in) { fRowPattern = in; }
+  std::vector<short> RowPattern() const { return fRowPattern;}
+  void  setRowPattern(const std::vector<short> & in) { fRowPattern = in; }
 
-  std::vector<ColPatternStruct> ColumnPattern() const { return fColumnPattern;}
-  void  setColumnPattern(const std::vector<ColPatternStruct> & in) { fColumnPattern = in; }
+  std::vector<short> ColumnPattern() const { return fColumnPattern;}
+  void  setColumnPattern(const std::vector<short> & in) { fColumnPattern = in; }
 
   const std::vector<short> VCalValues() const { return fVCalValues;}
   void  setVCalValues(const std::vector< short> & in) { fVCalValues = in; }
@@ -61,19 +51,21 @@ class SiPixelCalibConfiguration
   // new access methods
   short vcalForEvent(const uint32_t & eventnumber) const;
   short vcalIndexForEvent(const uint32_t & eventnumber) const;
-  ColPatternStruct columnPatternForEvent(const uint32_t & eventnumber) const;
-  RowPatternStruct rowPatternForEvent(const uint32_t & eventnumber) const;
+  std::vector<short> columnPatternForEvent(const uint32_t & eventnumber) const;
+  std::vector<short> rowPatternForEvent(const uint32_t & eventnumber) const;
   uint32_t nextPatternChangeForEvent(const uint32_t & eventnumber) const;
   uint32_t expectedTotalEvents () const;
   uint32_t  patternSize() const {return fNTriggers*fVCalValues.size();}
-  uint32_t nPatterns() const {return fColumnPattern.size()*fRowPattern.size();}
+  uint32_t nPatterns() const {return nRowPatterns()*nColumnPatterns();}
+  uint32_t nColumnPatterns() const ;
+  uint32_t nRowPatterns() const ;
 
  private :
 
   short                             fNTriggers;//
   std::vector<std::string>             fROCIds;// can be replaced by  shorts I suppose....
-  std::vector<RowPatternStruct>        fRowPattern;//
-  std::vector<ColPatternStruct>        fColumnPattern;//
+  std::vector<short>        fRowPattern;//
+  std::vector<short>        fColumnPattern;//
   std::vector<short>                fVCalValues;//
 };
 

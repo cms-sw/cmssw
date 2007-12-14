@@ -1,7 +1,9 @@
+<use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=boost>
 <export>
 <lib name=CalibTrackerSiStripCommon>
+   <use name=FWCore/Framework>
    <use name=FWCore/MessageLogger>
    <use name=boost>
 </export>

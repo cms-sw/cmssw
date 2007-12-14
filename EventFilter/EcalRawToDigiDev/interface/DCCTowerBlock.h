@@ -36,7 +36,6 @@ class DCCTowerBlock : public DCCFEBlock {
     std::auto_ptr<EBDigiCollection>     * digis_;
     
     EBDetId                             * pDetId_;
-    EBDataFrame                         * pDFId_;
 
     std::auto_ptr<EBDetIdCollection>    * invalidGains_;  
     std::auto_ptr<EBDetIdCollection>    * invalidGainsSwitch_ ;

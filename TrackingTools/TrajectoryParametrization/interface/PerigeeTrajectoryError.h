@@ -3,6 +3,7 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
+#include "DataFormats/Math/interface/Error.h"
 
 /**
  *  Class providing access to the <i> Perigee</i> parameters of a trajectory.

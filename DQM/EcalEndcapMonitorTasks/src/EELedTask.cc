@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2007/08/16 14:26:08 $
- * $Revision: 1.6 $
+ * $Date: 2007/11/20 08:52:47 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -91,49 +91,75 @@ void EELedTask::setup(void){
 
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EELDT shape %s A", Numbers::sEE(i+1).c_str());
-      meShapeMapA_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapA_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapA_[i]->setAxisTitle("channel", 1);
+      meShapeMapA_[i]->setAxisTitle("sample", 2);
+      meShapeMapA_[i]->setAxisTitle("amplitude", 3);
       dbe_->tag(meShapeMapA_[i], i+1);
       sprintf(histo, "EELDT amplitude %s A", Numbers::sEE(i+1).c_str());
       meAmplMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplMapA_[i]->setAxisTitle("ix", 1);
+      meAmplMapA_[i]->setAxisTitle("iy", 2);
       dbe_->tag(meAmplMapA_[i], i+1);
       sprintf(histo, "EELDT timing %s A", Numbers::sEE(i+1).c_str());
       meTimeMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+      meTimeMapA_[i]->setAxisTitle("ix", 1);
+      meTimeMapA_[i]->setAxisTitle("iy", 2);
       dbe_->tag(meTimeMapA_[i], i+1);
       sprintf(histo, "EELDT amplitude over PN %s A", Numbers::sEE(i+1).c_str());
       meAmplPNMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplPNMapA_[i]->setAxisTitle("ix", 1);
+      meAmplPNMapA_[i]->setAxisTitle("iy", 2);
       dbe_->tag(meAmplPNMapA_[i], i+1);
 
       sprintf(histo, "EELDT shape %s B", Numbers::sEE(i+1).c_str());
-      meShapeMapB_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapB_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapB_[i]->setAxisTitle("channel", 1);
+      meShapeMapB_[i]->setAxisTitle("sample", 2);
+      meShapeMapB_[i]->setAxisTitle("amplitude", 3);
       dbe_->tag(meShapeMapB_[i], i+1);
       sprintf(histo, "EELDT amplitude %s B", Numbers::sEE(i+1).c_str());
       meAmplMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplMapB_[i]->setAxisTitle("ix", 1);
+      meAmplMapB_[i]->setAxisTitle("iy", 2);
       dbe_->tag(meAmplMapB_[i], i+1);
       sprintf(histo, "EELDT timing %s B", Numbers::sEE(i+1).c_str());
       meTimeMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+      meTimeMapB_[i]->setAxisTitle("ix", 1);
+      meTimeMapB_[i]->setAxisTitle("iy", 2);
       dbe_->tag(meTimeMapB_[i], i+1);
       sprintf(histo, "EELDT amplitude over PN %s B", Numbers::sEE(i+1).c_str());
       meAmplPNMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplPNMapB_[i]->setAxisTitle("ix", 1);
+      meAmplPNMapB_[i]->setAxisTitle("iy", 2);
       dbe_->tag(meAmplPNMapB_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG01_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG01_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG01_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG01_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG01_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG01_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG01_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG16_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG16_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG16_[i]->setAxisTitle("channel", 1);
+      mePnAmplMapG16_[i]->setAxisTitle("amplitude", 2);
       dbe_->tag(mePnAmplMapG16_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG16_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG16_[i]->setAxisTitle("channel", 1);
+      mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
       dbe_->tag(mePnPedMapG16_[i], i+1);
     }
 
@@ -205,10 +231,9 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
-  try {
+  Handle<EcalRawDataCollection> dcchs;
 
-    Handle<EcalRawDataCollection> dcchs;
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -226,7 +251,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EELedTask") << EcalRawDataCollection_ << " not available";
 
@@ -238,10 +263,9 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EEDigiCollection> digis;
 
-    Handle<EEDigiCollection> digis;
-    e.getByLabel(EEDigiCollection_, digis);
+  if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
     int need = digis->size();
     LogDebug("EELedTask") << "event " << ievt_ << " digi collection size " << need;
@@ -264,6 +288,9 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
+      if ( dccMap[ism].getRtHalf() != 3 &&
+           dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
+
       LogDebug("EELedTask") << " det id = " << id;
       LogDebug("EELedTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
@@ -281,13 +308,17 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
         if ( sample.gainId() == 2 ) gain = 1./ 6.;
         if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
-        if ( ix < 6 || iy > 10 ) {
+        if ( dccMap[ism].getRtHalf() == 1 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 1 ) ) {
 
           meShapeMap = meShapeMapA_[ism-1];
 
-        } else {
+        } else if ( dccMap[ism].getRtHalf() == 2 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 2 ) ) {
 
           meShapeMap = meShapeMapB_[ism-1];
+
+        } else {
+
+          LogWarning("EELedTask") << " RtHalf = " << dccMap[ism].getRtHalf();
 
         }
 
@@ -300,7 +331,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EELedTask") << EEDigiCollection_ << " not available";
 
@@ -314,10 +345,9 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
     adcB[i] = 0.;
   }
 
-  try {
+  Handle<EcalPnDiodeDigiCollection> pns;
 
-    Handle<EcalPnDiodeDigiCollection> pns;
-    e.getByLabel(EcalPnDiodeDigiCollection_, pns);
+  if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
 
     int nep = pns->size();
     LogDebug("EELedTask") << "event " << ievt_ << " pns collection size " << nep;
@@ -326,6 +356,8 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
+
+      if ( id.iEcalSubDetectorId() != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -358,7 +390,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
         float xval = float(adc);
 
-        if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+        if ( mePNPed ) mePNPed->Fill(num - 0.5, 0.5, xval);
 
         xvalped = xvalped + xval;
 
@@ -390,23 +422,22 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
         mePN = mePnAmplMapG16_[ism-1];
       }
 
-      if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
+      if ( mePN ) mePN->Fill(num - 0.5, 0.5, xvalmax);
 
       if ( num == 1 ) adcA[ism-1] = xvalmax;
       if ( num == 6 ) adcB[ism-1] = xvalmax;
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EELedTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 
-  try {
+  Handle<EcalUncalibratedRecHitCollection> hits;
 
-    Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EELedTask") << "event " << ievt_ << " hits collection size " << neh;
@@ -432,6 +463,9 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
+      if ( dccMap[ism].getRtHalf() != 3 &&
+           dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
+
       LogDebug("EELedTask") << " det id = " << id;
       LogDebug("EELedTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
@@ -439,17 +473,21 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
 
-      if ( ix < 6 || iy > 10 ) {
+      if ( dccMap[ism].getRtHalf() == 1 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 1 ) ) {
 
         meAmplMap = meAmplMapA_[ism-1];
         meTimeMap = meTimeMapA_[ism-1];
         meAmplPNMap = meAmplPNMapA_[ism-1];
 
-      } else {
+      } else if ( dccMap[ism].getRtHalf() == 2 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 2 ) ) {
 
         meAmplMap = meAmplMapB_[ism-1];
         meTimeMap = meTimeMapB_[ism-1];
         meAmplPNMap = meAmplPNMapB_[ism-1];
+
+      } else {
+
+        LogWarning("EELedTask") << " RtHalf = " << dccMap[ism].getRtHalf();
 
       }
 
@@ -470,13 +508,17 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       float wval = 0.;
 
-      if ( ix < 6 || iy > 10 ) {
+      if ( dccMap[ism].getRtHalf() == 1 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 1 ) ) {
 
         if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
 
-      } else {
+      } else if ( dccMap[ism].getRtHalf() == 2 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 2 ) ) {
 
         if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
+
+      } else {
+
+        LogWarning("EELedTask") << " RtHalf = " << dccMap[ism].getRtHalf();
 
       }
 
@@ -486,7 +528,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EELedTask") << EcalUncalibratedRecHitCollection_ << " not available";
 

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "TGraphErrors.h"
+#include <cassert>
 
 void reset (double vett[256]) 
 {

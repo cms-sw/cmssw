@@ -18,6 +18,7 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include <map>
 #include <vector>
@@ -35,6 +36,7 @@ class GluedGeomDet;
 
 class MeasurementTracker : public MeasurementDetSystem {
 public:
+   enum QualityFlags { BadModules=1, BadAPVFibers=2, BadStrips=4 };
 
   MeasurementTracker(const edm::ParameterSet&              conf,
 		     const PixelClusterParameterEstimator* pixelCPE,
@@ -42,8 +44,9 @@ public:
 		     const SiStripRecHitMatcher*  hitMatcher,
 		     const TrackerGeometry*  trackerGeom,
 		     const GeometricSearchTracker* geometricSearchTracker,
-		     const SiStripDetCabling *stripCabling,
-		     const SiStripNoises *stripNoises,
+                     const SiStripQuality *quality,
+                     int   qualityFlags,
+                     int   qualityDebugFlags,
 		     bool  isRegional=false);
 
   virtual ~MeasurementTracker();
@@ -87,7 +90,7 @@ public:
   const SiStripRecHitMatcher*           theHitMatcher;
   const TrackerGeometry*                theTrackerGeom;
   const GeometricSearchTracker*         theGeometricSearchTracker;
-  mutable SiStripNoises*                dummyStripNoises;  // not const
+  const SiStripQuality*                 theStripQuality;
 
   bool isRegional_;
 
@@ -104,8 +107,7 @@ public:
 
   void addStripDets( const TrackingGeometry::DetContainer& dets) const;
 
-  void initializeStripStatus (const SiStripDetCabling *stripCabling) const;
-  void initializeStripNoises (const SiStripNoises *stripNoises) const;
+  void initializeStripStatus (const SiStripQuality *stripQuality, int qualityFlags, int qualityDebugFlags) const;
 };
 
 #endif

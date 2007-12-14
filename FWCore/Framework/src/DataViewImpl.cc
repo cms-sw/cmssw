@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.20 2007/06/29 03:43:21 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.21 2007/07/09 07:29:51 llista Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -135,6 +135,25 @@ namespace edm {
 {
   edm::Selector sel(edm::ModuleLabelSelector(label) &&
                     edm::ProductInstanceNameSelector(productInstanceName));
+  
+  int n = dbk_.getMatchingSequence(typeID,
+				   sel,
+				   results,
+				   stopIfProcessHasMatch);
+  return n;
+}
+
+int 
+DataViewImpl::getMatchingSequenceByLabel_(TypeID const& typeID,
+                                          std::string const& label,
+                                          std::string const& productInstanceName,
+                                          std::string const& processName,
+                                          BasicHandleVec& results,
+                                          bool stopIfProcessHasMatch) const
+{
+  edm::Selector sel(edm::ModuleLabelSelector(label) &&
+                    edm::ProductInstanceNameSelector(productInstanceName) &&
+                    edm::ProcessNameSelector(processName) );
   
   int n = dbk_.getMatchingSequence(typeID,
 				   sel,

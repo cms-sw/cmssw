@@ -12,9 +12,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/07/10 03:05:52 $
-// $Revision: 1.12 $
+// $Author: burkett $
+// $Date: 2007/08/16 23:44:30 $
+// $Revision: 1.14 $
 //
 
 #include <string>
@@ -79,7 +79,7 @@ class RoadSearchTrackCandidateMakerAlgorithm
 
   //  bool chooseStartingLayers( RoadSearchCloud::RecHitVector& recHits, int layer0,
   bool chooseStartingLayers( std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >& RecHitsByLayer,
-			     int layer0,
+			     std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilyr0,
 			     const std::multimap<int, const DetLayer*>& layer_map,
 			     std::set<const DetLayer*>& good_layers,
 			     std::vector<const DetLayer*>& middle_layers ,
@@ -134,10 +134,9 @@ class RoadSearchTrackCandidateMakerAlgorithm
   TrajectoryStateTransform* theTransformer;
   TrajectoryCleanerBySharedHits* theTrajectoryCleaner;
 
-    const DetLayer* layers[128];
     bool lstereo[128];
-    int nhits_l[128];
-    int nlayers ;
+    //int nhits_l[128];
+
 
 };
 

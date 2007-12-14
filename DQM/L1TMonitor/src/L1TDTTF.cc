@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2007/08/27 16:39:18 $
- * $Revision: 1.5 $
+ * $Date: 2007/09/28 07:50:41 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  */
@@ -52,7 +52,7 @@ L1TDTTF::L1TDTTF(const ParameterSet& ps)
 
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TDTTF");
+    dbe->setCurrentFolder("L1T/L1TDTTF");
   }
 
 
@@ -72,14 +72,14 @@ void L1TDTTF::beginJob(const EventSetup& c)
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TDTTF");
-    dbe->rmdir("L1TMonitor/L1TDTTF");
+    dbe->setCurrentFolder("L1T/L1TDTTF");
+    dbe->rmdir("L1T/L1TDTTF");
   }
 
 
   if ( dbe ) 
   {
-    dbe->setCurrentFolder("L1TMonitor/L1TDTTF");
+    dbe->setCurrentFolder("L1T/L1TDTTF");
     
     dttfetavalue[1] = dbe->book1D("DTTF_eta_value", 
        "DTTF eta value", 100, -2.5, 2.5 ) ;

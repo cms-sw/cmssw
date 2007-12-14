@@ -6,6 +6,7 @@
 <use name=herwig>
 <use name=lhapdf>
 <use name=jimmy>
+<use name=f77compiler>
 <flags EDM_PLUGIN=1>
 <export>
  <lib name=GeneratorInterfacePomwigInterface>
@@ -19,7 +20,5 @@
  <use name=jimmy>
 </export>
 
- <lib name=g2c></lib>
- <lib name=m></lib>
 
 

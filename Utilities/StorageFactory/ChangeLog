@@ -1,3 +1,8 @@
+2007-11-01  Shahzad Muzaffar <Shahzad.Muzaffar@cern.ch>
+
+	* plugins/RFIOStorageMaker.cc: Fixed for cases where the file url
+	also has ":" in them e.g. host:/path.
+
 2007-09-17  Shahzad Muzaffar <Shahzad.Muzaffar@cern.ch>
 
 	* *: Cleanup. Moved all storage makers types in to plugins directory

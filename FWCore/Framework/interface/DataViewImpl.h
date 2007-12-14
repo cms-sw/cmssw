@@ -81,7 +81,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.31 2007/08/14 18:54:07 wmtan Exp $
+$Id: DataViewImpl.h,v 1.32 2007/10/05 21:59:24 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -159,6 +159,10 @@ namespace edm {
     bool 	 
     getByLabel(InputTag const& tag, Handle<PROD>& result) const; 	 
 
+    template <typename ELEMENT> 	 
+    bool 	 
+    getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const; 	 
+    
     template <typename PROD>
     void 
     getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
@@ -270,6 +274,14 @@ namespace edm {
     getMatchingSequenceByLabel_(TypeID const& typeID,
                                 std::string const& label,
                                 std::string const& productInstanceName,
+                                BasicHandleVec& results,
+                                bool stopIfProcessHasMatch) const;
+
+    int 
+    getMatchingSequenceByLabel_(TypeID const& typeID,
+                                std::string const& label,
+                                std::string const& productInstanceName,
+                                std::string const& processName,
                                 BasicHandleVec& results,
                                 bool stopIfProcessHasMatch) const;
     
@@ -566,6 +578,52 @@ namespace edm {
     return true;
   }
 
+  template <typename ELEMENT>
+    bool
+    DataViewImpl::getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const
+  {
+    result.clear();
+    if (tag.process().empty()) {
+      return getByLabel(tag.label(), tag.instance(), result);
+    } else {
+      TypeID typeID(typeid(ELEMENT));
+      
+      BasicHandleVec bhv;
+      int nFound = getMatchingSequenceByLabel_(typeID,
+                                               tag.label(),
+                                               tag.instance(),
+                                               tag.process(),
+                                               bhv,
+                                               true);
+      
+      if (nFound == 0) {
+        boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
+        *whyFailed
+          << "getByLabel: Found zero products matching all criteria\n"
+          << "Looking for sequence of type: " << typeID << "\n"
+          << "Looking for module label: " << tag.label() << "\n"
+          << "Looking for productInstanceName: " << tag.instance() << "\n"
+          << "Looking for processName: "<<tag.process() <<"\n";
+        Handle<View<ELEMENT> > temp(whyFailed);
+        result.swap(temp);
+        return false;
+      }
+      if (nFound > 1) {
+        throw edm::Exception(edm::errors::ProductNotFound)
+        << "getByLabel: Found more than one product matching all criteria\n"
+	<< "Looking for sequence of type: " << typeID << "\n"
+        << "Looking for module label: " << tag.label() << "\n"
+        << "Looking for productInstanceName: " << tag.instance() << "\n"
+        << "Looking for processName: "<<tag.process() <<"\n";
+      }
+      
+      fillView_(bhv[0], result);
+      return true;
+    }
+    return false;
+  }
+  
+  
   template <typename ELEMENT>
   void
   DataViewImpl::fillView_(BasicHandle & bh,

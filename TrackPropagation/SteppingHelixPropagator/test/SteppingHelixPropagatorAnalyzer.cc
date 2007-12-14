@@ -17,7 +17,7 @@
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.14 2007/04/30 20:37:57 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.15 2007/05/10 17:40:34 slava77 Exp $
 //
 //
 
@@ -298,7 +298,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
       }
       continue;
     }
-    Hep3Vector p3T = tracksCI->momentum().vect();
+    Hep3Vector p3T(tracksCI->momentum().x(), tracksCI->momentum().y(), tracksCI->momentum().z());
     if (p3T.mag()< 2.) continue;
 
     int vtxInd = tracksCI->vertIndex();
@@ -307,7 +307,10 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     if (vtxInd < 0){
       std::cout<<"Track with no vertex, defaulting to (0,0,0)"<<std::endl;      
     } else {
-      r3T = (*simVertices)[vtxInd].position().vect()*0.1; 
+      r3T = Hep3Vector((*simVertices)[vtxInd].position().x(), 
+		       (*simVertices)[vtxInd].position().y(),
+		       (*simVertices)[vtxInd].position().z());
+      //      r3T *= 0.1;  don't need this anymore (changed some time before 15X)
       //seems to be stored in mm --> convert to cm
     }
     AlgebraicSymMatrix66 covT = AlgebraicMatrixID(); 

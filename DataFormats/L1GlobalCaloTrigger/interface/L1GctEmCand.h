@@ -26,10 +26,10 @@ public:
   L1GctEmCand();
 
   /// construct from raw data, no source - used in GT
-  L1GctEmCand(uint16_t data, bool iso);
+  L1GctEmCand(uint16_t rawData, bool iso);
 
   /// construct from raw data with source - used in GCT unpacker
-  L1GctEmCand(uint16_t data, bool iso, uint16_t block, uint16_t index, int16_t bx);
+  L1GctEmCand(uint16_t rawData, bool iso, uint16_t block, uint16_t index, int16_t bx);
 
   /// construct from rank, eta, phi, isolation - used in GCT emulator
   /// eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
@@ -86,8 +86,7 @@ public:
                                                       || (this->empty() && c.empty())); }
 
   /// inequality operator
-  int operator!=(const L1GctEmCand& c) const { return ((m_data!=c.raw() || m_iso!=c.isolated())
-                                                     && (!this->empty() || !c.empty())); }
+  int operator!=(const L1GctEmCand& c) const { return !(*this == c); }
 
  private:
 

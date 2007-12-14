@@ -26,23 +26,33 @@ MessageSender::MessageSender( ELseverityLevel const & sev,
 }
 
 
+// This destructor must not be permitted to throw. A
+// boost::thread_resoruce_error is thrown at static destruction time,
+// if the MessageLogger library is loaded -- even if it is not used.
 MessageSender::~MessageSender()
 {
-  //std::cout << "MessageSender dtor; ErrorObj at: " << errorobj_p << '\n';
+  try 
+    {
+      //std::cout << "MessageSender dtor; ErrorObj at: " << errorobj_p << '\n';
 
-  // surrender ownership of our ErrorObj, transferring ownership
-  // (via the intermediate MessageLoggerQ) to the MessageLoggerScribe
-  // that will (a) route the message text to its destination(s)
-  // and will then (b) dispose of the ErrorObj
-
-  MessageDrop * drop = MessageDrop::instance();
-  if (drop) {
-    errorobj_p->setModule(drop->moduleName);
-    errorobj_p->setContext(drop->runEvent);
-  } 
+      // surrender ownership of our ErrorObj, transferring ownership
+      // (via the intermediate MessageLoggerQ) to the MessageLoggerScribe
+      // that will (a) route the message text to its destination(s)
+      // and will then (b) dispose of the ErrorObj
+      
+      MessageDrop * drop = MessageDrop::instance();
+      if (drop) {
+	errorobj_p->setModule(drop->moduleName);
+	errorobj_p->setContext(drop->runEvent);
+      } 
 #ifdef TRACE_DROP
-  if (!drop) std::cerr << "MessageSender::~MessageSender() - Null drop pointer \n";
+      if (!drop) std::cerr << "MessageSender::~MessageSender() - Null drop pointer \n";
 #endif
-
-  MessageLoggerQ::MLqLOG(errorobj_p);
+      
+      MessageLoggerQ::MLqLOG(errorobj_p);
+    }
+  catch ( ... )
+    {
+      // nothing to do.
+    }
 }

@@ -16,7 +16,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id$
+// $Id: SiStripQualityRcd.h,v 1.1 2007/10/08 16:46:22 giordano Exp $
 //
 
 #include "boost/mpl/vector.hpp"
@@ -25,7 +25,8 @@
 #include "CondFormats/DataRecord/interface/SiStripBadFiberRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripBadChannelRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripBadStripRcd.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 
-class SiStripQualityRcd : public edm::eventsetup::DependentRecordImplementation<SiStripQualityRcd, boost::mpl::vector<SiStripBadModuleRcd, SiStripBadFiberRcd, SiStripBadChannelRcd, SiStripBadStripRcd> > {};
+class SiStripQualityRcd : public edm::eventsetup::DependentRecordImplementation<SiStripQualityRcd, boost::mpl::vector<SiStripBadModuleRcd, SiStripBadFiberRcd, SiStripBadChannelRcd, SiStripBadStripRcd, SiStripDetCablingRcd> > {};
 
 #endif

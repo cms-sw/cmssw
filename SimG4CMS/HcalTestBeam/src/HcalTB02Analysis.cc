@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun May 21 10:14:34 CEST 2006
-// $Id: HcalTB02Analysis.cc,v 1.2 2006/11/13 10:32:15 sunanda Exp $
+// $Id: HcalTB02Analysis.cc,v 1.3 2007/03/08 00:19:50 sunanda Exp $
 //
   
 // system include files
@@ -27,6 +27,10 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/RandGaussQ.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4SDManager.hh"
 #include "G4VProcess.hh"
@@ -83,6 +87,16 @@ void HcalTB02Analysis::update(const BeginOfEvent * evt) {
 }
 
 void HcalTB02Analysis::update(const EndOfEvent * evt) {
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "HcalTB02Analysis requires the RandomNumberGeneratorService\n"
+      << "which is not present in the configuration file. "
+      << "You must add the service\n in the configuration file or "
+      << "remove the modules that require it.";
+  }
+  CLHEP::RandGaussQ  randGauss(rng->getEngine());
 
   // Look for the Hit Collection
   LogDebug("HcalTBSim") << "HcalTB02Analysis::Fill event " 
@@ -185,7 +199,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 	SEnergy += ETot;
 	TowerEne[(int)phi][(int)eta] += ETot;
 
-	TowerEneCF[(int)phi][(int)eta] += ETot*(1.+ 0.1*RandGauss::shoot() );
+	TowerEneCF[(int)phi][(int)eta] += ETot*(1.+ 0.1*randGauss.fire() );
 	double dR=0.08727*std::sqrt( (eta-8.)*(eta-8.) + (phi-3.)*(phi-3.) );
 	EnRing[(int)(dR/0.01)] += ETot;
       }
@@ -204,16 +218,16 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
     for (int iphi=0 ; iphi<8; iphi++) {
       for (int jeta=0 ; jeta<18; jeta++) {
 	
-	//SEnergyN += TowerEneCF[iphi][jeta] + 3.2*RandGauss::shoot(); // LHEP
-	SEnergyN += TowerEneCF[iphi][jeta] + 3.*RandGauss::shoot(); // QGSP
+	//SEnergyN += TowerEneCF[iphi][jeta] + 3.2*randGauss.fire(); // LHEP
+	SEnergyN += TowerEneCF[iphi][jeta] + 3.*randGauss.fire(); // QGSP
 
 	//double dR=0.08727*sqrt( (jeta-8.)*(jeta-8.)+(iphi-3.)*(iphi-3.) );
 	//cout.testOut << " phi= " << iphi << " eta= " << jeta 
 	//	     << " TowerEne[iphi,jeta]= " << TowerEne[iphi][jeta] 
 	//	     << "dR= "  << dR << endl;
 	
-      	//double Rand = 3.2*RandGauss::shoot(); // LHEP
-      	double Rand = 3.*RandGauss::shoot(); // QGSP
+      	//double Rand = 3.2*randGauss.fire(); // LHEP
+      	double Rand = 3.*randGauss.fire(); // QGSP
 	
 	if ( (iphi>=0) && (iphi<7) ) {
 	  if ( (jeta>=5) && (jeta<12) ) {
@@ -331,12 +345,12 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 	  if ( (jcol>0) && (jcol<6) ) {
 		    
 	    xE5x5Matrix += xCrysEne[irow][jcol];
-	    xE5x5MatrixN += xCrysEne[irow][jcol] + 108.5*RandGauss::shoot();
+	    xE5x5MatrixN += xCrysEne[irow][jcol] + 108.5*randGauss.fire();
 		    
 	    if ( (irow>1) && (irow<5) ) {
 	      if ( (jcol>1) && (jcol<5) ) {		
 		xE3x3Matrix += xCrysEne[irow][jcol];
-		xE3x3MatrixN += xCrysEne[irow][jcol] +108.5*RandGauss::shoot();
+		xE3x3MatrixN += xCrysEne[irow][jcol] +108.5*randGauss.fire();
 	      }    
 	    }
 	  }

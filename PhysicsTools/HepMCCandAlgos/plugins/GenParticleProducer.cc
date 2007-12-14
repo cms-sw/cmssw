@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticle
  *
- * \version $Id: GenParticleProducer.cc,v 1.3 2007/09/12 11:10:26 llista Exp $
+ * \version $Id: GenParticleProducer.cc,v 1.4 2007/09/14 09:54:48 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -169,6 +169,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
           const HepMC::GenParticle * mother = * motherIt;
 	  size_t m = barcodes.find( mother->barcode() )->second;
           cands[ m ].addDaughter( GenParticleRef( ref, d ) );  
+          cands[ d ].addMother( GenParticleRef( ref, m ) );  
         }
       }
     }

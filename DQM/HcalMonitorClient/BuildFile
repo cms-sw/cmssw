@@ -13,6 +13,10 @@
 <use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
 <use name=CalibCalorimetry/HcalAlgos>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
+<use name=xerces-c>
+
 <export>
  <lib name=DQMHcalMonitorClient>
  <use name=boost>
@@ -29,4 +33,7 @@
  <use name=DQMServices/WebComponents>
  <use name=DQMServices/ClientConfig>
  <use name=CalibCalorimetry/HcalAlgos>
+ <use name=Geometry/CaloGeometry>
+ <use name=Geometry/CaloEventSetup>
+<use name=xerces-c>
 </export>

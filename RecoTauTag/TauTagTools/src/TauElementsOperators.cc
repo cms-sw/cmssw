@@ -22,8 +22,8 @@ TFormula TauElementsOperators::computeConeSizeTFormula(const string& ConeSizeFor
   //    replace "E"  by TFormula variable "x"
   //            "ET"                      "y"
   string ConeSizeFormulaStr = ConeSizeFormula;
-  replaceSubStr(ConeSizeFormulaStr,"E","x");
   replaceSubStr(ConeSizeFormulaStr,"ET","y");
+  replaceSubStr(ConeSizeFormulaStr,"E","x");
   TFormula ConeSizeTFormula;
   ConeSizeTFormula.SetName("ConeSize");
   ConeSizeTFormula.SetTitle(ConeSizeFormulaStr.data()); // the function definition is actually stored in the "Title" data-member of the TFormula object

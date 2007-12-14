@@ -4,20 +4,19 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2007/04/05 13:56:46 $
- * $Revision: 1.12 $
+ * $Date: 2007/11/13 13:20:50 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
 */
 
-#include <string>
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+class MonitorElement;
+class DaqMonitorBEInterface;
 
 class EBBeamHodoTask: public edm::EDAnalyzer{
 

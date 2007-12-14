@@ -24,6 +24,7 @@ class RPCGeometry;
 namespace CLHEP {
   class HepRandomEngine;
   class RandFlat;
+  class RandPoissonQ;
 }
 
 class RPCSimAverage : public RPCSim
@@ -64,6 +65,6 @@ class RPCSimAverage : public RPCSim
 
   CLHEP::HepRandomEngine* rndEngine;
   CLHEP::RandFlat* flatDistribution;
-
+  CLHEP::RandPoissonQ *poissonDistribution_;
 };
 #endif

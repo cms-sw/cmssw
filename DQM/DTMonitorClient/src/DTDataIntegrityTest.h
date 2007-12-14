@@ -5,8 +5,8 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2007/08/06 09:57:04 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/09/20 10:31:52 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN TO
  *   
  */
@@ -50,9 +50,6 @@ protected:
 
   /// DQM Client Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-
-  /// Save the plots into a file
-  void endRun();
 
 
 private:

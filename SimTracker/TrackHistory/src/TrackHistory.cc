@@ -40,7 +40,7 @@ bool TrackHistory::traceSimHistory(TrackingParticleRef tpr, int depth)
   {
     std::cout << "Particle " << tpr->pdgId() << " has a GenParicle image." << std::endl;
     for (TrackingParticle::genp_iterator hepT = tpr->genParticle_begin(); hepT !=  tpr->genParticle_end(); ++hepT)
-      std::cout << "  HepMC Momentum :" << (*hepT)->momentum() << (*hepT)->pdg_id() << std::endl;
+      std::cout << "  HepMC Momentum :" << (*hepT)->momentum().mag() << (*hepT)->pdg_id() << std::endl;
       
     traceGenHistory(&(**(tpr->genParticle_begin())));
     return true;

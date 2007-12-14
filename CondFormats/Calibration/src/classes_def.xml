@@ -24,6 +24,16 @@
  <class name="BlobComplexObjects"/>
  <class name="std::vector<BlobComplexObjects>"/>
  <class name="BlobComplex"/>
-
- <class pattern="*iterator*"/>
+ <class name="__gnu_cxx::__normal_iterator<const unsigned int*,std::vector<unsigned int> >"/>
+ <class name="__gnu_cxx::__normal_iterator<unsigned int*,std::vector<unsigned int> >"/>
+ <class name="__gnu_cxx::__normal_iterator<const BlobComplexObjects*,std::vector<BlobComplexObjects> >"/>
+ <class name="__gnu_cxx::__normal_iterator<BlobComplexObjects*,std::vector<BlobComplexObjects> >"/>
+ <class name="__gnu_cxx::__normal_iterator<const BlobComplexContent*,std::vector<BlobComplexContent> >"/>
+ <class name="__gnu_cxx::__normal_iterator<BlobComplexContent*,std::vector<BlobComplexContent> > "/>
+ <class name="__gnu_cxx::__normal_iterator<const BlobComplexData*,std::vector<BlobComplexData> >"/>
+ <class name="__gnu_cxx::__normal_iterator<BlobComplexData*,std::vector<BlobComplexData> >"/>
+ <class name="__gnu_cxx::__normal_iterator<const CalibHistogram*,std::vector<CalibHistogram> >"/>
+ <class name="__gnu_cxx::__normal_iterator<CalibHistogram*,std::vector<CalibHistogram> >"/>
+ <class name="__gnu_cxx::__normal_iterator<const float*,std::vector<float> > "/>
+ <class name="__gnu_cxx::__normal_iterator<float*,std::vector<float> >"/>
 </lcgdict>   

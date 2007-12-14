@@ -17,6 +17,9 @@ int CSCChamberMap::dbIndex(const CSCDetId& id ) const {
   int ic = id.chamber();
   //  int il = id.layer(); // zero for parent chamber
 
+  // ME1a must be reset to ME11
+  if ( ( is == 1 ) && ( ir == 4 ) ) ir=1;
+
   return ie*100000 + is*10000 + ir*1000 + ic*10;
 }
 

@@ -297,7 +297,8 @@ bool FastFedCablingAnalysis::isValid() const {
 	   range_ < sistrip::valid_ && 
 	   midRange_ < sistrip::valid_ && 
 	   max_ < sistrip::valid_ && 
-	   min_ < sistrip::valid_ );
+	   min_ < sistrip::valid_ &&
+	   getErrorCodes().empty() );
 } 
 
 // ----------------------------------------------------------------------------

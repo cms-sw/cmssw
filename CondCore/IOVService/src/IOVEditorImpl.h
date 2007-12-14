@@ -1,13 +1,13 @@
 #ifndef CondCore_IOVService_IOVEditorImpl_h
 #define CondCore_IOVService_IOVEditorImpl_h
 #include "CondCore/IOVService/interface/IOVEditor.h"
-#include "CondCore/DBCommon/interface/TypedRef.h"
+#include "CondCore/DBCommon/interface/Ref.h"
 namespace cond{
-  class PoolTransaction;
+  class PoolStorageManager;
   class IOV;
   class IOVEditorImpl : virtual public cond::IOVEditor{
   public:
-    explicit IOVEditorImpl( cond::PoolTransaction& pooldb,
+    explicit IOVEditorImpl( cond::PoolStorageManager& pooldb,
 			    const std::string& token,
 			    cond::Time_t globalSince, 
 			    cond::Time_t globalTill);
@@ -27,12 +27,12 @@ namespace cond{
     }
   private:
     void init();
-    cond::PoolTransaction* m_pooldb;
+    cond::PoolStorageManager& m_pooldb;
     std::string m_token;
     cond::Time_t m_globalSince;
     cond::Time_t m_globalTill;
     bool m_isActive;
-    cond::TypedRef<cond::IOV> m_iov;
+    cond::Ref<cond::IOV> m_iov;
   };
 }//ns cond
 #endif

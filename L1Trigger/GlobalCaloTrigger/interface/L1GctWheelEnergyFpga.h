@@ -5,6 +5,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 
@@ -31,7 +32,7 @@ class L1GctWheelEnergyFpga : public L1GctProcessor
 public:
         /// typedefs for energy values in fixed numbers of bits
         typedef L1GctUnsignedInt< L1GctEtTotal::kEtTotalNBits   > etTotalType;
-        typedef L1GctTwosComplement< L1GctEtMiss::kEtMissNBits  > etComponentType;
+        typedef L1GctJetLeafCard::etComponentType etComponentType;
 
         /// Max number of leaf card pointers
         static const unsigned int MAX_LEAF_CARDS;

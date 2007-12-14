@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.13 2007/09/24 10:09:05 friis Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.14 2007/10/02 18:37:28 fblekman Exp $
 //
 //
 
@@ -441,7 +441,7 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
        TString titlechi21d = detstring;
        titlechi21d+=" #chi^{2} / NDOF in all pixels";
        TString titlechi2prob1d = detstring;
-       titlechi2prob1d+=" #chi^{2} probability [P(#chi^{2],NDOF) ] in all pixels";
+       titlechi2prob1d+=" #chi^{2} probability [P(#chi^{2},NDOF) ] in all pixels";
        TString titlechi22d = detstring;
        titlechi22d+=" #chi^{2} / NDOF";
        summaries1D_pedestal_[detid]=therootfileservice_->make<TH1F>(titleped1d.Data(),titleped1d.Data(),256,0,256);

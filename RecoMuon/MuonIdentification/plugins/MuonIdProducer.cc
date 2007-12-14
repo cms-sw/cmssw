@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.14 2007/10/06 01:00:42 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.15 2007/10/09 02:38:52 dmytro Exp $
 //
 //
 
@@ -288,6 +288,13 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      for ( reco::MuonTrackLinksCollection::const_iterator links = linkCollectionHandle_->begin();
 	   links != linkCollectionHandle_->end(); ++links )
        {
+	  if ( links->trackerTrack().isNull() ||
+	       links->standAloneTrack().isNull() ||
+	       links->globalTrack().isNull() ) 
+	    {
+	       edm::LogWarning("MuonIdentification") << "Global muon links to constituent tracks are invalid. There should be no such object. Muon is skipped.";
+	       continue;
+	    }
 	  // check if this muon is already in the list
 	  bool newMuon = true;
 	  for ( reco::MuonCollection::const_iterator muon = outputMuons->begin();

@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.1 2006/12/22 12:22:15 bainbrid Exp $
-// Latest tag:  $Name: TIF_190307 $
+// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.2 2007/03/19 13:23:07 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripNoiseBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripNoiseBuilderFromDb.h"
@@ -76,7 +76,7 @@ SiStripNoises* SiStripNoiseBuilderFromDb::makeNoise() {
       buildNoise( db_, det_cabling, *noise );
       
       // Call virtual method that writes FED cabling object to conditions DB
-      writeNoiseToCondDb( *noise );
+      //writeNoiseToCondDb( *noise );
       
     } else {
       edm::LogWarning(mlESSources_)
@@ -131,6 +131,7 @@ void SiStripNoiseBuilderFromDb::buildNoise( SiStripConfigDb* const db,
     
     // Ignore NULL DetIds
     if ( !(*det_id) ) { continue; }
+    if ( *det_id == sistrip::invalid32_ ) { continue; }
     
     // Iterate through connections for given DetId and fill peds container
     vector<int16_t> noi;

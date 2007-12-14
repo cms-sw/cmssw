@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 class VertexFilter : public edm::EDProducer {
  public:
   explicit VertexFilter(const edm::ParameterSet&);

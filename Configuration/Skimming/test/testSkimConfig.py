@@ -57,21 +57,22 @@ def extractUsedOutputs(process):
 ##########################
 if __name__ == "__main__":
 
-    if len(sys.argv) != 2:
-        print "usage: testSkimConfig <filename>"
+    if len(sys.argv) < 2:
+        print "usage: testSkimConfig <filenames>"
 
-    print "Checking skim config file", sys.argv[1]
+    for scriptName in sys.argv[1:]:      
+        print "Checking skim config file", scriptName
 
-    process = cms.include(sys.argv[1])
-    #print "+ python parseable"
+        process = cms.include(scriptName)
+        #print "+ python parseable"
     
-    print "checking", len (process._Process__outputmodules), "output modules"
-    for outputModuleName in process._Process__outputmodules:
-        print "  ", outputModuleName
-        outputModule = getattr(process, outputModuleName)
-        checkOutputModuleConfig(outputModule)
+        print "checking", len (process._Process__outputmodules), "output modules"
+        for outputModuleName in process._Process__outputmodules:
+            print "  ", outputModuleName
+            outputModule = getattr(process, outputModuleName)
+            checkOutputModuleConfig(outputModule)
 
-    usedOutputs = extractUsedOutputs(process)
-    print "Actually used (the algorithm to fing that out isn't properly tested so far!)", len(usedOutputs)
-    for module in usedOutputs:
-        print "  ", module.label()
+        usedOutputs = extractUsedOutputs(process)
+        print "Actually used: ", len(usedOutputs)
+        for module in usedOutputs:
+            print "  ", module.label()

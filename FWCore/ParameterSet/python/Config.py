@@ -289,7 +289,10 @@ class Process(object):
             if name == item.type_():
                 name = ''
             else:
-                name = ' '+name
+                # python sometimes gives '@'-suffixes, to allow
+                # multiple names.  Remove these for .cfg  
+                name = ' '+name.split('@')[0]
+                #name = ' '+name
             returnValue +=options.indentation()+typeName+name+' = '+item.dumpConfig(options)
         return returnValue
     def dumpConfig(self, options=PrintOptions()):
@@ -628,6 +631,14 @@ if __name__=="__main__":
             self.assertEqual(s[0],p.path1)
             self.assertEqual(s[1],p.path2)
             p.schedule = s
+
+        def testUsing(self):
+            p = Process('test')
+            p.block = PSet(a = int32(1))
+            p.modu = EDAnalyzer('Analyzer', p.block, b = int32(2))
+            self.assertEqual(p.modu.a.value(),1)
+            self.assertEqual(p.modu.b.value(),2)
+
         def testExamples(self):
             p = Process("Test")
             p.source = Source("PoolSource",fileNames = untracked(string("file:reco.root")))

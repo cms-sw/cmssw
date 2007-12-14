@@ -3,6 +3,10 @@
 #include "SimG4Core/GFlash/interface/GflashMediaMap.h"
 #include "GFlashEnergySpot.hh"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/RandGamma.h"
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
 #include "Randomize.hh"
 
@@ -27,6 +31,16 @@ GflashCalorimeterNumber GflashHadronShowerProfile::getCalorimeterNumber(const G4
 
 void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fastTrack)
 {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "GflashHadronShowerProfile requires RandomNumberGeneratorService\n"
+      << "which is not present in the configuration file. "
+      << "You must add the service\n in the configuration file or "
+      << "remove the modules that require it.";
+  }
+  CLHEP::RandGaussQ  randGauss(rng->getEngine());
+
   // This methods is based on the fortran code GFSHOW originally written by 
   // S. Peters and G. Grindhammer (also see NIM A290 (1990) 469-488)
   //
@@ -63,7 +77,7 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   
   G4double varianceLateral = 0.;
   G4double rShower = 0.;
-  G4double rGauss = G4RandGauss::shoot();
+  G4double rGauss = randGauss.fire();
 
   // 2.2  Compute rotation matrix around particle direction 
   // to convert shower reference into detector reference:
@@ -268,6 +282,16 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 
 void GflashHadronShowerProfile::loadParameters(G4double einc)
 {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "GflashHadronShowerProfile requires RandomNumberGeneratorService\n"
+      << "which is not present in the configuration file. "
+      << "You must add the service\n in the configuration file or "
+      << "remove the modules that require it.";
+  }
+  CLHEP::RandGaussQ  randGauss(rng->getEngine());
+
   // C++ version of gfinha
   // Initialization of longitudinal and lateral parameters for 
   // hadronic showers. Simulation of the intrinsic fluctuations
@@ -383,7 +407,7 @@ void GflashHadronShowerProfile::loadParameters(G4double einc)
   }
 
   double normalZ[Gflash::NXN];
-  for (int i = 0; i < dimX; i++) normalZ[i] = G4RandGauss::shoot(); 
+  for (int i = 0; i < dimX; i++) normalZ[i] = randGauss.fire(); 
 
   for (int i = 0; i < dimX; i++) {
     double Sum = 0.;
@@ -414,7 +438,7 @@ void GflashHadronShowerProfile::loadParameters(G4double einc)
 
   G4double febss;
   febss = (0.471 * std::exp(-.958 * std::log(einc+1.20)))
-        + (0.257 * std::exp(-.803 * std::log(einc+1.20)))*G4RandGauss::shoot();
+        + (0.257 * std::exp(-.803 * std::log(einc+1.20)))*randGauss.fire();
   febss = std::min(1.0,febss);
   febss = std::max(0.0,febss);
 
@@ -497,6 +521,15 @@ void GflashHadronShowerProfile::doCholeskyReduction(double **vv, double **cc, co
 
 void GflashHadronShowerProfile::samplingFluctuation(G4double &de, G4double einc){
 
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "GflashHadronShowerProfile requires RandomNumberGeneratorService\n"
+      << "which is not present in the configuration file. "
+      << "You must add the service\n in the configuration file or "
+      << "remove the modules that require it.";
+  }
+  CLHEP::RandGamma  randGamma(rng->getEngine());
   G4double spot[Gflash::NDET];
 
   for(G4int i = 0 ; i < Gflash::NDET ; i++) {
@@ -507,6 +540,6 @@ void GflashHadronShowerProfile::samplingFluctuation(G4double &de, G4double einc)
   G4double ein = de * (energyToDeposit/einc);
 
   de = (ein > 0 ) ?  
-    RandGamma::shoot(ein/spot[jCalorimeter],1.0)*spot[jCalorimeter] : ein;
+    randGamma.fire(ein/spot[jCalorimeter],1.0)*spot[jCalorimeter] : ein;
 }
 

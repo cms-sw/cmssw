@@ -26,11 +26,11 @@
 
 
 
- <Constant name="Up_Min_Base_Signal_Side_1G" value="(284.4+418.4)*mm-2*(13*mm / tan(30))"/>
- <Constant name="Up_Min_Base_Signal_Side_2G" value="(454.5+315.5)*mm-2*(13*mm / tan(30))"/>
- <Constant name="Up_Min_Base_Signal_Side_3G" value="(343.6+486.9)*mm-2*(13*mm / tan(30))"/>
- <Constant name="Up_Min_Base_Signal_Side_4G" value="(377.6+526)*mm-2*(13*mm / tan(30))"/>
- <Constant name="Up_Min_Base_Signal_Side_5G" value="(419.1+571.8)*mm-2*(13*mm / tan(30))"/>
+ <Constant name="Up_Min_Base_Signal_Side_1G" value="(284.4+418.4)*mm-2*(13*mm / tan(30*deg))"/>
+ <Constant name="Up_Min_Base_Signal_Side_2G" value="(454.5+315.5)*mm-2*(13*mm / tan(30*deg))"/>
+ <Constant name="Up_Min_Base_Signal_Side_3G" value="(343.6+486.9)*mm-2*(13*mm / tan(30*deg))"/>
+ <Constant name="Up_Min_Base_Signal_Side_4G" value="(377.6+526)*mm-2*(13*mm / tan(30*deg))"/>
+ <Constant name="Up_Min_Base_Signal_Side_5G" value="(419.1+571.8)*mm-2*(13*mm / tan(30*deg))"/>
 
 
 <Constant name="Low_Min_Base_Signal_Side_1G" value="235*mm+2*([TR_h_Signal_Side_1G]*mm*tan(30*deg))"/>
@@ -39,11 +39,13 @@
 <Constant name="Low_Min_Base_Signal_Side_4G" value="269.6*mm+2*([TR_h_Signal_Side_4G]*mm*tan(30*deg))"/>
 <Constant name="Low_Min_Base_Signal_Side_5G" value="262.1*mm+2*([TR_h_Signal_Side_5G]*mm*tan(30*deg))"/>
 
- <Constant name="Max_Base_Signal_Side_1G" value="2*(576.9*mm*sin(30*deg))+235*mm"/>
- <Constant name="Max_Base_Signal_Side_2G" value="2*(632.6*mm*sin(30*deg))+246.5*mm"/>
- <Constant name="Max_Base_Signal_Side_3G" value="2*(682.6*mm*sin(30*deg))+256.9*mm"/>
- <Constant name="Max_Base_Signal_Side_4G" value="2*(743*mm*sin(30*deg))+269.6*mm"/>
- <Constant name="Max_Base_Signal_Side_5G" value="2*(799.8*mm*sin(30*deg))+262.1*mm"/>
+
+ <Constant name="Max_Base_Signal_Side_1G" value="338.9*mm + 465.1*mm"/>
+ <Constant name="Max_Base_Signal_Side_2G" value="370.1*mm + 501.2*mm"/>
+ <Constant name="Max_Base_Signal_Side_3G" value="398.1*mm + 533.6*mm"/>
+ <Constant name="Max_Base_Signal_Side_4G" value="432.1*mm + 572.7*mm"/>
+ <Constant name="Max_Base_Signal_Side_5G" value="454.5*mm + 599.5*mm"/>
+
 
  <Constant name="TR_Max_Base_Signal_Side_1G" value="61*mm"/>
  <Constant name="TR_Max_Base_Signal_Side_2G" value="64*mm"/>
@@ -206,11 +208,11 @@
  <Constant name="Frame4_Min_Base_4G" value="(148.4)*mm"/>
  <Constant name="Frame4_Min_Base_5G" value="(152.7)*mm"/>
 
- <Constant name="Frame4_h_1G" value="0.6*cm"/>
- <Constant name="Frame4_h_2G" value="0.6*cm"/>
- <Constant name="Frame4_h_3G" value="0.6*cm"/>
- <Constant name="Frame4_h_4G" value="0.6*cm"/>
- <Constant name="Frame4_h_5G" value="0.6*cm"/>
+ <Constant name="Frame4_h_1G" value="0.75*cm"/>
+ <Constant name="Frame4_h_2G" value="0.75*cm"/>
+ <Constant name="Frame4_h_3G" value="0.75*cm"/>
+ <Constant name="Frame4_h_4G" value="0.75*cm"/>
+ <Constant name="Frame4_h_5G" value="0.75*cm"/>
 
 
 
@@ -254,6 +256,12 @@
  <Constant name="Frame5R_h_3G" value="23*mm"/> 
  <Constant name="Frame5R_h_4G" value="23*mm"/> 
  <Constant name="Frame5R_h_5G" value="23*mm"/> 
+
+ <Constant name="Frame5R_h_1P" value="23*mm"/> 
+ <Constant name="Frame5R_h_2P" value="23*mm"/> 
+ <Constant name="Frame5R_h_3P" value="23*mm"/> 
+ <Constant name="Frame5R_h_4P" value="23*mm"/> 
+ <Constant name="Frame5R_h_5P" value="23*mm"/> 
 
  <Constant name="GAS_MAX_base_1G" value="689*mm"/>
  <Constant name="GAS_MAX_base_2G" value="750.8*mm"/>
@@ -486,13 +494,7 @@
  <Constant name="Low_Min_Base_Signal_SideR_4P" value="198.6*mm+([TR_h_Signal_Side_4P]*tan(30*deg))"/>
  <Constant name="Low_Min_Base_Signal_SideR_5P" value="212*mm+([TR_h_Signal_Side_5P]*tan(30*deg))"/>
  
- <Constant name="Max_Base_Signal_Side_1P" value="235*mm+2*(387.5*mm*tan(30*deg))"/>
- <Constant name="Max_Base_Signal_Side_2P" value="246.5*mm+2*(443.8*mm*tan(30*deg))"/>
- <Constant name="Max_Base_Signal_Side_3P" value="256.9*mm+2*(470*mm*tan(30*deg))"/>
- <Constant name="Max_Base_Signal_Side_4P" value="269.6*mm+2*(530*mm*tan(30*deg))"/>
- <Constant name="Max_Base_Signal_Side_5P" value="292.1*mm+2*(617*mm*tan(30*deg))"/>
- 
- 
+
  <Constant name="Max_Base_Signal_SideL_1P" value="274.2*mm"/>
  <Constant name="Max_Base_Signal_SideL_2P" value="309.5*mm"/>
  <Constant name="Max_Base_Signal_SideL_3P" value="326.9*mm"/>
@@ -504,6 +506,13 @@
  <Constant name="Max_Base_Signal_SideR_3P" value="458.2*mm"/>
  <Constant name="Max_Base_Signal_SideR_4P" value="507.5*mm"/>
  <Constant name="Max_Base_Signal_SideR_5P" value="568.3*mm"/>
+
+ <Constant name="Max_Base_Signal_Side_1P" value="[Max_Base_Signal_SideL_1P]+[Max_Base_Signal_SideR_1P]"/>
+ <Constant name="Max_Base_Signal_Side_2P" value="[Max_Base_Signal_SideL_2P]+[Max_Base_Signal_SideR_2P]"/>
+ <Constant name="Max_Base_Signal_Side_3P" value="[Max_Base_Signal_SideL_3P]+[Max_Base_Signal_SideR_3P]"/>
+ <Constant name="Max_Base_Signal_Side_4P" value="[Max_Base_Signal_SideL_4P]+[Max_Base_Signal_SideR_4P]"/>
+ <Constant name="Max_Base_Signal_Side_5P" value="[Max_Base_Signal_SideL_5P]+[Max_Base_Signal_SideR_5P]"/>
+
  
  <Constant name="Up_Signal_Side_alpL_1P" value="atan(([Max_Base_Signal_SideL_1P]/2.-[Up_Min_Base_Signal_SideL_1P]/2.)/[Up_Height_Signal_SideL_1P])"/>
  <Constant name="Up_Signal_Side_alpL_2P" value="atan(([Max_Base_Signal_SideL_2P]/2.-[Up_Min_Base_Signal_SideL_2P]/2.)/[Up_Height_Signal_SideL_2P])"/>
@@ -568,6 +577,7 @@
  <Constant name="Corna_dx_3P" value="[Up_Height_Signal_Side_3P]/sin(30*deg)"/>
  <Constant name="Corna_dx_4P" value="[Up_Height_Signal_Side_4P]/sin(30*deg)"/>
  <Constant name="Corna_dx_5P" value="[Up_Height_Signal_Side_5P]/sin(30*deg)"/>
+
  <!-- HV side -->
  <Constant name="Corna_dyL_1P" value="[Diagonale_1P] - ([Low_Height_Signal_SideL_1P]+[TR_h_Signal_Side_1P])/sin(60*deg) "/>
  <Constant name="Corna_dyL_2P" value="632.5*mm - ([Low_Height_Signal_SideL_2P]+[TR_h_Signal_Side_2P])/sin(60*deg) "/>
@@ -727,7 +737,7 @@
  
  <Constant name="Frame3L_Max_Base_1P" value="(387.5*mm-[Frame5L_h_1P])/sin(60*deg)-20*mm + [Frame3L_h_1P]*tan(30*deg)"/>
  <Constant name="Frame3L_Max_Base_2P" value="(443.8*mm-[Frame5L_h_2P])/sin(60*deg)-20*mm + [Frame3L_h_2P]*tan(30*deg)"/>
- <Constant name="Frame3L_Max_Base_3P" value="(387.5*mm-[Frame5L_h_3P])/sin(60*deg)-20*mm + [Frame3L_h_3P]*tan(30*deg)"/>
+ <Constant name="Frame3L_Max_Base_3P" value="(470*mm-[Frame5L_h_3P])/sin(60*deg)-20*mm + [Frame3L_h_3P]*tan(30*deg)"/>
  <Constant name="Frame3L_Max_Base_4P" value="(530*mm-[Frame5L_h_4P])/sin(60*deg)-20*mm + [Frame3L_h_4P]*tan(30*deg)"/>
  <Constant name="Frame3L_Max_Base_5P" value="(613*mm-[Frame5L_h_5P])/sin(60*deg)-20*mm + [Frame3L_h_5P]*tan(30*deg)"/>
  
@@ -764,11 +774,11 @@
  <Constant name="Frame4_Min_Base_4P" value="(148.4)*mm"/>
  <Constant name="Frame4_Min_Base_5P" value="(152.7)*mm"/>
  
- <Constant name="Frame4_h_1P" value="6*mm"/>
- <Constant name="Frame4_h_2P" value="6*mm"/>
- <Constant name="Frame4_h_3P" value="6*mm"/>
- <Constant name="Frame4_h_4P" value="6*mm"/>
- <Constant name="Frame4_h_5P" value="6*mm"/>
+ <Constant name="Frame4_h_1P" value="0.75*cm"/>
+ <Constant name="Frame4_h_2P" value="0.75*cm"/>
+ <Constant name="Frame4_h_3P" value="0.75*cm"/>
+ <Constant name="Frame4_h_4P" value="0.75*cm"/>
+ <Constant name="Frame4_h_5P" value="0.75*cm"/>
  
 
  <Constant name="Frame5L_Max_Base_1P" value="[Frame5L_Min_Base_1P]+([Frame5L_h_1P]/cos(30*deg)/2.)*mm"/> 
@@ -788,7 +798,12 @@
  <Constant name="Frame5L_h_3P" value="23*mm"/> 
  <Constant name="Frame5L_h_4P" value="23*mm"/>  
  <Constant name="Frame5L_h_5P" value="23*mm"/> 
- 
+
+ <Constant name="Frame5R_h_1P" value="23*mm"/> 
+ <Constant name="Frame5R_h_2P" value="23*mm"/> 
+ <Constant name="Frame5R_h_3P" value="23*mm"/> 
+ <Constant name="Frame5R_h_4P" value="23*mm"/>  
+ <Constant name="Frame5R_h_5P" value="23*mm"/> 
  
  <Constant name="Frame5R_Max_Base_1P" value="[Frame5R_Min_Base_1P]+([Frame5R_h_1P]/cos(30*deg)/2.)*mm"/>
  <Constant name="Frame5R_Max_Base_2P" value="[Frame5R_Min_Base_2P]+([Frame5R_h_2P]/cos(30*deg)/2.)*mm"/>
@@ -1013,8 +1028,6 @@
    
   
   <!-- Air -->
-  <Tubs name="TotemT1" rMin="11.8*cm" rMax="1.02263*m" dz="1.57524*m" startPhi="0*deg"
-   deltaPhi="360*deg"/>
 
   
   <!-- 
@@ -1024,18 +1037,17 @@
   <!-- Air -->
 
 
-  
-  <Tubs name="CSC_for_TotemT1_Plane_0_0" rMin="140.735*mm" rMax="83.4799*cm" dz="2.16*cm" startPhi="40*deg" 
+    <Tubs name="CSC_for_TotemT1_Plane_0_0" rMin="130.2*mm" rMax="74.598*cm" dz="2.16*cm" startPhi="40*deg" 
    deltaPhi="100*deg"/>
-    <Tubs name="CSC_for_TotemT1_Plane_1_0" rMin="118.17*mm" rMax="81.69*cm" dz="2.16*cm" startPhi="40*deg"
+    <Tubs name="CSC_for_TotemT1_Plane_1_0" rMin="130.*mm" rMax="81.2*cm" dz="2.16*cm" startPhi="40*deg"
    deltaPhi="100*deg"/>
-   <Tubs name="CSC_for_TotemT1_Plane_2_0" rMin="118.17*mm" rMax="87.72*cm" dz="2.16*cm" startPhi="40*deg"
+   <Tubs name="CSC_for_TotemT1_Plane_2_0" rMin="140.17*mm" rMax="87.29*cm" dz="2.16*cm" startPhi="40*deg"
    deltaPhi="100*deg"/>
-   <Tubs name="CSC_for_TotemT1_Plane_3_0" rMin="118.17*mm" rMax="93.76*cm" dz="2.16*cm" startPhi="40*deg"
+   <Tubs name="CSC_for_TotemT1_Plane_3_0" rMin="150.17*mm" rMax="95.3*cm" dz="2.16*cm" startPhi="40*deg"
    deltaPhi="100*deg"/>
-   <Tubs name="CSC_for_TotemT1_Plane_4_0" rMin="118.17*mm" rMax="101.4*cm" dz="2.16*cm" startPhi="40*deg"
+   <Tubs name="CSC_for_TotemT1_Plane_4_0" rMin="160.17*mm" rMax="100.9*cm" dz="2.16*cm" startPhi="40*deg"
    deltaPhi="100*deg"/>
- 
+
   <!-- Copper - signal side       -->
   <Trd1 name="Up_CSC_for_TotemT1_Plane_0_0_0" dz="[Up_Height_Signal_Side_1G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Copper_Thick]/2."
    dx1="[Max_Base_Signal_Side_1G]/2." dx2="[Up_Min_Base_Signal_Side_1G]/2."/>
@@ -1098,14 +1110,14 @@
   
   
   <Trapezoid name="Frame3R_CSC_for_TotemT1_Plane_0_0_5" dz="[Frame_Thick]/2." alp1="30*deg"
-   tl1="[Frame3R_Max_Base_1G]/2." bl1="[Frame3R_Min_Base_1G]/2." h1="[Frame3R_h_1G]/2." alp2="30*deg" tl2="[Frame3R_Max_Base_1G]/2."
-   bl2="[Frame3R_Min_Base_1G]/2." h2="[Frame3R_h_1G]/2." phi="0*deg" theta="0*deg"/> 
+   tl1="[Frame3R_Max_Base_1G]/2.-7.0*mm" bl1="[Frame3R_Min_Base_1G]/2.-7.0*mm" h1="[Frame3R_h_1G]/2." alp2="30*deg" tl2="[Frame3R_Max_Base_1G]/2.-7.0*mm"
+   bl2="[Frame3R_Min_Base_1G]/2.-7.0*mm" h2="[Frame3R_h_1G]/2." phi="0*deg" theta="0*deg"/> 
 
-  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_0_0_5" dz="[Frame_Thick]/2." alp1="-30*deg" bl1="[Frame3L_Min_Base_1G]/2."
-   tl1="[Frame3L_Max_Base_1G]/2." h1="[Frame3L_h_1G]/2." alp2="-30*deg" bl2="[Frame3L_Min_Base_1G]/2." tl2="[Frame3L_Max_Base_1G]/2." h2="[Frame3L_h_1G]/2"
+  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_0_0_5" dz="[Frame_Thick]/2." alp1="-30*deg" bl1="[Frame3L_Min_Base_1G]/2.-7.0*mm"
+   tl1="[Frame3L_Max_Base_1G]/2.-7.0*mm" h1="[Frame3L_h_1G]/2." alp2="-30*deg" bl2="[Frame3L_Min_Base_1G]/2.-7.0*mm" tl2="[Frame3L_Max_Base_1G]/2.-7.0*mm" h2="[Frame3L_h_1G]/2"
    phi="0*deg" theta="0*deg"/>
  
-  <Box dx="[Frame4_Max_Base_1G]/2." dy="[Frame_Thick]/2." dz="[Frame4_h_1G]/2." name="Frame4_CSC_for_TotemT1_Plane_0_0_5"/> 
+  <Box dx="[Frame4_Max_Base_1G]/2.-0.07*mm" dy="[Frame_Thick]/2." dz="[Frame4_h_1G]/2." name="Frame4_CSC_for_TotemT1_Plane_0_0_5"/> 
   
 
   <Trapezoid name="Frame5L_CSC_for_TotemT1_Plane_0_0_5" dz="[Frame_Thick]/2." alp1="16.36*deg"
@@ -1153,7 +1165,7 @@
    <Translation x="-(([GAS_Up_min_base_1G]/2.+[GAS_Up_Height_L_1G]*(([GAS_MAX_base_1G]-[GAS_Up_min_base_1G])/4./[GAS_Up_Height_L_1G]))/2.+([GAS_Up_min_base_1G]/2.+[GAS_Up_Height_R_1G]*(([GAS_MAX_base_1G]-[GAS_Up_min_base_1G])/4./[GAS_Up_Height_R_1G]))/2.)" 
     y="( -[GAS_Low_Height_L_1G]-[GAS_Up_Height_L_1G]/2 +[GAS_Low_Height_R_1G]+[GAS_Up_Height_R_1G]/2)"  z="0*mm"/>
   </UnionSolid>
-  
+ 
   
   
   <UnionSolid name="Internal_CSC_for_TotemT1_Plane_0_0_5">
@@ -1170,9 +1182,9 @@
   <!-- Copper: HV side -->
  
   
-  <Trd1 name="Up_CSC_for_TotemT1_Plane_0_0_6" dz="[Up_Height_Signal_Side_1G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Epoxy_Thick]/2."
+  <Trd1 name="Up_CSC_for_TotemT1_Plane_0_0_6" dz="[Up_Height_Signal_Side_1G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Copper_Thick]/2."
    dx1="[Max_Base_Signal_Side_1G]/2.-0.5*cm" dx2="[Up_Min_Base_Signal_Side_1G]/2.-0.5*cm"/>
-  <Trd1 name="Low_CSC_for_TotemT1_Plane_0_0_6" dz="[Low_Height_Signal_Side_1G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Epoxy_Thick]/2."
+  <Trd1 name="Low_CSC_for_TotemT1_Plane_0_0_6" dz="[Low_Height_Signal_Side_1G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Copper_Thick]/2."
    dx1="[Low_Min_Base_Signal_Side_1G]/2.-0.5*cm" dx2="[Max_Base_Signal_Side_1G]/2.-0.5*cm"/>
   
   <Trapezoid name="Trap6L_CSC_for_TotemT1_Plane_0_0_6" dz="[PCB_Copper_Thick]/2." alp1="-16.3895*deg"
@@ -1219,7 +1231,7 @@
   
   ***************************************************************************************************
    
-    TENDIFILO !
+  TENDIFILO  (WIREHOLDER)
    
    ***************************************************************************************************
   
@@ -1227,16 +1239,16 @@
  
 
     
-  <Trapezoid name="Tendifilo_2R_0_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_R_1G]/2." bl2="[Tendifilo2_dy_R_1G]/2." dz="[Tendifilo2_dx_1G]/2." h1="[Tendifilo2_dz_1G]/2."
+  <Trapezoid name="Tendifilo_2R_0_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_R_1G]/2." bl2="[Tendifilo2_dy_R_1G]/2." dz="[Tendifilo2_dx_1G]/2.-1*mm" h1="[Tendifilo2_dz_1G]/2."
    h2="[Tendifilo2_dz_1G]/2." tl1="[Tendifilo2_dy_R_1G]/2." tl2="[Tendifilo2_dy_R_1G]/2." phi="0*deg" theta="-30*deg" />
-   <Trapezoid name="Tendifilo_1R_0_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_R_1G]/2." bl2="[Tendifilo1_dy_R_1G]/2." dz="[Tendifilo1_dx_1G]/2." h1="[Tendifilo1_dz_1G]/2."
+   <Trapezoid name="Tendifilo_1R_0_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_R_1G]/2." bl2="[Tendifilo1_dy_R_1G]/2." dz="[Tendifilo1_dx_1G]/2.-1*mm" h1="[Tendifilo1_dz_1G]/2."
    h2="[Tendifilo1_dz_1G]/2." tl1="[Tendifilo1_dy_R_1G]/2." tl2="[Tendifilo1_dy_R_1G]/2." phi="0*deg" theta="30*deg"  />
   
       
-  <Trapezoid name="Tendifilo_2L_0_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_L_1G]/2." bl2="[Tendifilo2_dy_L_1G]/2." dz="[Tendifilo2_dx_1G]/2." h1="[Tendifilo2_dz_1G]/2."
+  <Trapezoid name="Tendifilo_2L_0_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_L_1G]/2." bl2="[Tendifilo2_dy_L_1G]/2." dz="[Tendifilo2_dx_1G]/2.-1*mm" h1="[Tendifilo2_dz_1G]/2."
    h2="[Tendifilo2_dz_1G]/2." tl1="[Tendifilo2_dy_L_1G]/2." tl2="[Tendifilo2_dy_L_1G]/2." phi="0*deg" theta="30*deg" />
-   <Trapezoid name="Tendifilo_1L_0_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_L_1G]/2." bl2="[Tendifilo1_dy_L_1G]/2." dz="[Tendifilo1_dx_1G]/2." h1="[Tendifilo1_dz_1G]/2."
-   h2="[Tendifilo1_dz_1G]/2." tl1="[Tendifilo1_dy_L_1G]/2." tl2="[Tendifilo1_dy_L_1G]/2." phi="0*deg" theta="-30*deg"  />
+   <Trapezoid name="Tendifilo_1L_0_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_L_1G]/2.-1*mm" bl2="[Tendifilo1_dy_L_1G]/2.-1*mm" dz="[Tendifilo1_dx_1G]/2.-1*mm" h1="[Tendifilo1_dz_1G]/2."
+   h2="[Tendifilo1_dz_1G]/2." tl1="[Tendifilo1_dy_L_1G]/2.-1*mm" tl2="[Tendifilo1_dy_L_1G]/2.-1*mm" phi="0*deg" theta="-30*deg"  />
   
   
 
@@ -1308,14 +1320,14 @@
   
   
   <Trapezoid name="Frame3R_CSC_for_TotemT1_Plane_1_0_5" dz="[Frame_Thick]/2." alp1="30*deg"
-   tl1="[Frame3R_Max_Base_2G]/2." bl1="[Frame3R_Min_Base_2G]/2." h1="[Frame3R_h_2G]/2." alp2="30*deg" tl2="[Frame3R_Max_Base_2G]/2."
-   bl2="[Frame3R_Min_Base_2G]/2." h2="[Frame3R_h_2G]/2." phi="0*deg" theta="0*deg"/> 
+   tl1="[Frame3R_Max_Base_2G]/2.-7.0*mm" bl1="[Frame3R_Min_Base_2G]/2.-7.0*mm" h1="[Frame3R_h_2G]/2." alp2="30*deg" tl2="[Frame3R_Max_Base_2G]/2.-7.0*mm"
+   bl2="[Frame3R_Min_Base_2G]/2.-7.0*mm" h2="[Frame3R_h_2G]/2." phi="0*deg" theta="0*deg"/> 
 
-  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_1_0_5" dz="[Frame_Thick]/2." alp1="-30*deg" bl1="[Frame3L_Min_Base_2G]/2."
-   tl1="[Frame3L_Max_Base_2G]/2." h1="[Frame3L_h_2G]/2." alp2="-30*deg" bl2="[Frame3L_Min_Base_2G]/2." tl2="[Frame3L_Max_Base_2G]/2." h2="[Frame3L_h_2G]/2"
+  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_1_0_5" dz="[Frame_Thick]/2." alp1="-30*deg" bl1="[Frame3L_Min_Base_2G]/2.-7.0*mm"
+   tl1="[Frame3L_Max_Base_2G]/2.-7.0*mm" h1="[Frame3L_h_2G]/2." alp2="-30*deg" bl2="[Frame3L_Min_Base_2G]/2.-7.0*mm" tl2="[Frame3L_Max_Base_2G]/2.-7.0*mm" h2="[Frame3L_h_2G]/2"
    phi="0*deg" theta="0*deg"/>
  
-  <Box dx="[Frame4_Max_Base_2G]/2." dy="[Frame_Thick]/2." dz="[Frame4_h_2G]/2." name="Frame4_CSC_for_TotemT1_Plane_1_0_5"/> 
+  <Box dx="[Frame4_Max_Base_2G]/2.-0.07*mm" dy="[Frame_Thick]/2." dz="[Frame4_h_2G]/2." name="Frame4_CSC_for_TotemT1_Plane_1_0_5"/> 
   
  
   
@@ -1383,9 +1395,9 @@
   <!-- Copper: HV side -->
  
   
-  <Trd1 name="Up_CSC_for_TotemT1_Plane_1_0_6" dz="[Up_Height_Signal_Side_2G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Epoxy_Thick]/2."
+  <Trd1 name="Up_CSC_for_TotemT1_Plane_1_0_6" dz="[Up_Height_Signal_Side_2G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Copper_Thick]/2."
    dx1="[Max_Base_Signal_Side_2G]/2.-0.5*cm" dx2="[Up_Min_Base_Signal_Side_2G]/2.-0.5*cm"/>
-  <Trd1 name="Low_CSC_for_TotemT1_Plane_1_0_6" dz="[Low_Height_Signal_Side_2G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Epoxy_Thick]/2."
+  <Trd1 name="Low_CSC_for_TotemT1_Plane_1_0_6" dz="[Low_Height_Signal_Side_2G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Copper_Thick]/2."
    dx1="[Low_Min_Base_Signal_Side_2G]/2.-0.5*cm" dx2="[Max_Base_Signal_Side_2G]/2.-0.5*cm"/>
   
   <Trapezoid name="Trap6L_CSC_for_TotemT1_Plane_1_0_6" dz="[PCB_Copper_Thick]/2." alp1="-16.3895*deg"
@@ -1440,15 +1452,15 @@
  
   
   
-  <Trapezoid name="Tendifilo_2R_1_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_R_2G]/2." bl2="[Tendifilo2_dy_R_2G]/2." dz="[Tendifilo2_dx_2G]/2." h1="[Tendifilo2_dz_2G]/2."
+  <Trapezoid name="Tendifilo_2R_1_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_R_2G]/2." bl2="[Tendifilo2_dy_R_2G]/2." dz="[Tendifilo2_dx_2G]/2.-1.6*mm" h1="[Tendifilo2_dz_2G]/2."
    h2="[Tendifilo2_dz_2G]/2." tl1="[Tendifilo2_dy_R_2G]/2." tl2="[Tendifilo2_dy_R_2G]/2." phi="0*deg" theta="-30*deg" />
-   <Trapezoid name="Tendifilo_1R_1_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_R_2G]/2." bl2="[Tendifilo1_dy_R_2G]/2." dz="[Tendifilo1_dx_2G]/2." h1="[Tendifilo1_dz_2G]/2."
+   <Trapezoid name="Tendifilo_1R_1_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_R_2G]/2." bl2="[Tendifilo1_dy_R_2G]/2." dz="[Tendifilo1_dx_2G]/2.-1.6*mm" h1="[Tendifilo1_dz_2G]/2."
    h2="[Tendifilo1_dz_2G]/2." tl1="[Tendifilo1_dy_R_2G]/2." tl2="[Tendifilo1_dy_R_2G]/2." phi="0*deg" theta="30*deg"  />
   
-    <Trapezoid name="Tendifilo_2L_1_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_L_2G]/2." bl2="[Tendifilo2_dy_L_2G]/2." dz="[Tendifilo2_dx_2G]/2." h1="[Tendifilo2_dz_2G]/2."
+    <Trapezoid name="Tendifilo_2L_1_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_L_2G]/2." bl2="[Tendifilo2_dy_L_2G]/2." dz="[Tendifilo2_dx_2G]/2.-1.6*mm" h1="[Tendifilo2_dz_2G]/2."
    h2="[Tendifilo2_dz_2G]/2." tl1="[Tendifilo2_dy_L_2G]/2." tl2="[Tendifilo2_dy_L_2G]/2." phi="0*deg" theta="30*deg" />
-   <Trapezoid name="Tendifilo_1L_1_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_L_2G]/2." bl2="[Tendifilo1_dy_L_2G]/2." dz="[Tendifilo1_dx_2G]/2." h1="[Tendifilo1_dz_2G]/2."
-   h2="[Tendifilo1_dz_2G]/2." tl1="[Tendifilo1_dy_L_2G]/2." tl2="[Tendifilo1_dy_L_2G]/2." phi="0*deg" theta="-30*deg"  />
+   <Trapezoid name="Tendifilo_1L_1_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_L_2G]/2.-2.5*mm" bl2="[Tendifilo1_dy_L_2G]/2.-2.5*mm" dz="[Tendifilo1_dx_2G]/2.-1.6*mm" h1="[Tendifilo1_dz_2G]/2."
+   h2="[Tendifilo1_dz_2G]/2." tl1="[Tendifilo1_dy_L_2G]/2.-2.5*mm" tl2="[Tendifilo1_dy_L_2G]/2.-2.5*mm" phi="0*deg" theta="-30*deg"  />
   
   
 
@@ -1521,14 +1533,14 @@
   
   
   <Trapezoid name="Frame3R_CSC_for_TotemT1_Plane_2_0_5" dz="[Frame_Thick]/2." alp1="30*deg"
-   tl1="[Frame3R_Max_Base_3G]/2." bl1="[Frame3R_Min_Base_3G]/2." h1="[Frame3R_h_3G]/2." alp2="30*deg" tl2="[Frame3R_Max_Base_3G]/2."
-   bl2="[Frame3R_Min_Base_3G]/2." h2="[Frame3R_h_3G]/2." phi="0*deg" theta="0*deg"/> 
+   tl1="[Frame3R_Max_Base_3G]/2.-7.0*mm" bl1="[Frame3R_Min_Base_3G]/2.-7.0*mm" h1="[Frame3R_h_3G]/2." alp2="30*deg" tl2="[Frame3R_Max_Base_3G]/2.-7.0*mm"
+   bl2="[Frame3R_Min_Base_3G]/2.-7.0*mm" h2="[Frame3R_h_3G]/2." phi="0*deg" theta="0*deg"/> 
 
-  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_2_0_5" dz="[Frame_Thick]/2." alp1="-30*deg" bl1="[Frame3L_Min_Base_3G]/2."
-   tl1="[Frame3L_Max_Base_3G]/2." h1="[Frame3L_h_3G]/2." alp2="-30*deg" bl2="[Frame3L_Min_Base_3G]/2." tl2="[Frame3L_Max_Base_3G]/2." h2="[Frame3L_h_3G]/2"
+  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_2_0_5" dz="[Frame_Thick]/2." alp1="-30*deg" bl1="[Frame3L_Min_Base_3G]/2.-7.0*mm"
+   tl1="[Frame3L_Max_Base_3G]/2.-7.0*mm" h1="[Frame3L_h_3G]/2." alp2="-30*deg" bl2="[Frame3L_Min_Base_3G]/2.-7.0*mm" tl2="[Frame3L_Max_Base_3G]/2.-7.0*mm" h2="[Frame3L_h_3G]/2"
    phi="0*deg" theta="0*deg"/>
  
-  <Box dx="[Frame4_Max_Base_3G]/2." dy="[Frame_Thick]/2." dz="[Frame4_h_3G]/2." name="Frame4_CSC_for_TotemT1_Plane_2_0_5"/> 
+  <Box dx="[Frame4_Max_Base_3G]/2.-0.07*mm" dy="[Frame_Thick]/2." dz="[Frame4_h_3G]/2." name="Frame4_CSC_for_TotemT1_Plane_2_0_5"/> 
   
   
   
@@ -1597,9 +1609,9 @@
   <!-- Copper: HV side -->
  
   
-  <Trd1 name="Up_CSC_for_TotemT1_Plane_2_0_6" dz="[Up_Height_Signal_Side_3G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Epoxy_Thick]/2."
+  <Trd1 name="Up_CSC_for_TotemT1_Plane_2_0_6" dz="[Up_Height_Signal_Side_3G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Copper_Thick]/2."
    dx1="[Max_Base_Signal_Side_3G]/2.-0.5*cm" dx2="[Up_Min_Base_Signal_Side_3G]/2.-0.5*cm"/>
-  <Trd1 name="Low_CSC_for_TotemT1_Plane_2_0_6" dz="[Low_Height_Signal_Side_3G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Epoxy_Thick]/2."
+  <Trd1 name="Low_CSC_for_TotemT1_Plane_2_0_6" dz="[Low_Height_Signal_Side_3G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Copper_Thick]/2."
    dx1="[Low_Min_Base_Signal_Side_3G]/2.-0.5*cm" dx2="[Max_Base_Signal_Side_3G]/2.-0.5*cm"/>
   
   <Trapezoid name="Trap6L_CSC_for_TotemT1_Plane_2_0_6" dz="[PCB_Copper_Thick]/2." alp1="-16.3895*deg"
@@ -1654,17 +1666,17 @@
  
   
   
-  <Trapezoid name="Tendifilo_2R_2_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_R_3G]/2." bl2="[Tendifilo2_dy_R_3G]/2." dz="[Tendifilo2_dx_3G]/2." h1="[Tendifilo2_dz_3G]/2."
+  <Trapezoid name="Tendifilo_2R_2_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_R_3G]/2." bl2="[Tendifilo2_dy_R_3G]/2." dz="[Tendifilo2_dx_3G]/2.-3.1*mm" h1="[Tendifilo2_dz_3G]/2."
    h2="[Tendifilo2_dz_3G]/2." tl1="[Tendifilo2_dy_R_3G]/2." tl2="[Tendifilo2_dy_R_3G]/2." phi="0*deg" theta="-30*deg" />
-   <Trapezoid name="Tendifilo_1R_2_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_R_3G]/2." bl2="[Tendifilo1_dy_R_3G]/2." dz="[Tendifilo1_dx_3G]/2." h1="[Tendifilo1_dz_3G]/2."
+   <Trapezoid name="Tendifilo_1R_2_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_R_3G]/2." bl2="[Tendifilo1_dy_R_3G]/2." dz="[Tendifilo1_dx_3G]/2.-3.1*mm" h1="[Tendifilo1_dz_3G]/2."
    h2="[Tendifilo1_dz_3G]/2." tl1="[Tendifilo1_dy_R_3G]/2." tl2="[Tendifilo1_dy_R_3G]/2." phi="0*deg" theta="30*deg"  />
   
   
   
-  <Trapezoid name="Tendifilo_2L_2_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_L_3G]/2." bl2="[Tendifilo2_dy_L_3G]/2." dz="[Tendifilo2_dx_3G]/2." h1="[Tendifilo2_dz_3G]/2."
+  <Trapezoid name="Tendifilo_2L_2_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_L_3G]/2." bl2="[Tendifilo2_dy_L_3G]/2." dz="[Tendifilo2_dx_3G]/2.-3.1*mm" h1="[Tendifilo2_dz_3G]/2."
    h2="[Tendifilo2_dz_3G]/2." tl1="[Tendifilo2_dy_L_3G]/2." tl2="[Tendifilo2_dy_L_3G]/2." phi="0*deg" theta="30*deg" />
-   <Trapezoid name="Tendifilo_1L_2_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_L_3G]/2." bl2="[Tendifilo1_dy_L_3G]/2." dz="[Tendifilo1_dx_3G]/2." h1="[Tendifilo1_dz_3G]/2."
-   h2="[Tendifilo1_dz_3G]/2." tl1="[Tendifilo1_dy_L_3G]/2." tl2="[Tendifilo1_dy_L_3G]/2." phi="0*deg" theta="-30*deg"  />
+   <Trapezoid name="Tendifilo_1L_2_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_L_3G]/2.-2.6*mm" bl2="[Tendifilo1_dy_L_3G]/2.-2.6*mm" dz="[Tendifilo1_dx_3G]/2.-3.1*mm" h1="[Tendifilo1_dz_3G]/2."
+   h2="[Tendifilo1_dz_3G]/2." tl1="[Tendifilo1_dy_L_3G]/2.-2.6*mm" tl2="[Tendifilo1_dy_L_3G]/2.-2.6*mm" phi="0*deg" theta="-30*deg"  />
   
   
 
@@ -1736,13 +1748,13 @@
   
   
   <Trapezoid name="Frame3R_CSC_for_TotemT1_Plane_3_0_5" dz="[Frame_Thick]/2." alp1="30*deg"
-   tl1="[Frame3R_Max_Base_4G]/2." bl1="[Frame3R_Min_Base_4G]/2." h1="[Frame3R_h_4G]/2." alp2="30*deg" tl2="[Frame3R_Max_Base_4G]/2."
-   bl2="[Frame3R_Min_Base_4G]/2." h2="[Frame3R_h_4G]/2." phi="0*deg" theta="0*deg"/> 
-  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_3_0_5" dz="[Frame_Thick]/2." alp1="-30*deg" bl1="[Frame3L_Min_Base_4G]/2."
-   tl1="[Frame3L_Max_Base_4G]/2." h1="[Frame3L_h_4G]/2." alp2="-30*deg" bl2="[Frame3L_Min_Base_4G]/2." tl2="[Frame3L_Max_Base_4G]/2." h2="[Frame3L_h_4G]/2"
+   tl1="[Frame3R_Max_Base_4G]/2.-7.0*mm" bl1="[Frame3R_Min_Base_4G]/2.-7.0*mm" h1="[Frame3R_h_4G]/2." alp2="30*deg" tl2="[Frame3R_Max_Base_4G]/2.-7.0*mm"
+   bl2="[Frame3R_Min_Base_4G]/2.-7.0*mm" h2="[Frame3R_h_4G]/2." phi="0*deg" theta="0*deg"/> 
+  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_3_0_5" dz="[Frame_Thick]/2." alp1="-30*deg" bl1="[Frame3L_Min_Base_4G]/2.-7.0*mm"
+   tl1="[Frame3L_Max_Base_4G]/2.-7.0*mm" h1="[Frame3L_h_4G]/2." alp2="-30*deg" bl2="[Frame3L_Min_Base_4G]/2.-7.0*mm" tl2="[Frame3L_Max_Base_4G]/2.-7.0*mm" h2="[Frame3L_h_4G]/2"
    phi="0*deg" theta="0*deg"/>
  
-  <Box dx="[Frame4_Max_Base_4G]/2." dy="[Frame_Thick]/2." dz="[Frame4_h_4G]/2." name="Frame4_CSC_for_TotemT1_Plane_3_0_5"/> 
+  <Box dx="[Frame4_Max_Base_4G]/2.-0.07*mm" dy="[Frame_Thick]/2." dz="[Frame4_h_4G]/2." name="Frame4_CSC_for_TotemT1_Plane_3_0_5"/> 
   
  
   
@@ -1808,9 +1820,9 @@
   <!-- Copper: HV side -->
  
   
-  <Trd1 name="Up_CSC_for_TotemT1_Plane_3_0_6" dz="[Up_Height_Signal_Side_4G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Epoxy_Thick]/2."
+  <Trd1 name="Up_CSC_for_TotemT1_Plane_3_0_6" dz="[Up_Height_Signal_Side_4G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Copper_Thick]/2."
    dx1="[Max_Base_Signal_Side_4G]/2.-0.5*cm" dx2="[Up_Min_Base_Signal_Side_4G]/2.-0.5*cm"/>
-  <Trd1 name="Low_CSC_for_TotemT1_Plane_3_0_6" dz="[Low_Height_Signal_Side_4G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Epoxy_Thick]/2."
+  <Trd1 name="Low_CSC_for_TotemT1_Plane_3_0_6" dz="[Low_Height_Signal_Side_4G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Copper_Thick]/2."
    dx1="[Low_Min_Base_Signal_Side_4G]/2.-0.5*cm" dx2="[Max_Base_Signal_Side_4G]/2.-0.5*cm"/>
   
   <Trapezoid name="Trap6L_CSC_for_TotemT1_Plane_3_0_6" dz="[PCB_Copper_Thick]/2." alp1="-16.3895*deg"
@@ -1865,17 +1877,17 @@
  
   
   
-  <Trapezoid name="Tendifilo_2R_3_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_R_4G]/2." bl2="[Tendifilo2_dy_R_4G]/2." dz="[Tendifilo2_dx_4G]/2." h1="[Tendifilo2_dz_4G]/2."
+  <Trapezoid name="Tendifilo_2R_3_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_R_4G]/2." bl2="[Tendifilo2_dy_R_4G]/2." dz="[Tendifilo2_dx_4G]/2.-3*mm" h1="[Tendifilo2_dz_4G]/2."
    h2="[Tendifilo2_dz_4G]/2." tl1="[Tendifilo2_dy_R_4G]/2." tl2="[Tendifilo2_dy_R_4G]/2." phi="0*deg" theta="-30*deg" />
-   <Trapezoid name="Tendifilo_1R_3_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_R_4G]/2." bl2="[Tendifilo1_dy_R_4G]/2." dz="[Tendifilo1_dx_4G]/2." h1="[Tendifilo1_dz_4G]/2."
+   <Trapezoid name="Tendifilo_1R_3_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_R_4G]/2." bl2="[Tendifilo1_dy_R_4G]/2." dz="[Tendifilo1_dx_4G]/2.-3*mm" h1="[Tendifilo1_dz_4G]/2."
    h2="[Tendifilo1_dz_4G]/2." tl1="[Tendifilo1_dy_R_4G]/2." tl2="[Tendifilo1_dy_R_4G]/2." phi="0*deg" theta="30*deg"  />
   
   
   
-  <Trapezoid name="Tendifilo_2L_3_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_L_4G]/2." bl2="[Tendifilo2_dy_L_4G]/2." dz="[Tendifilo2_dx_4G]/2." h1="[Tendifilo2_dz_4G]/2."
+  <Trapezoid name="Tendifilo_2L_3_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_L_4G]/2." bl2="[Tendifilo2_dy_L_4G]/2." dz="[Tendifilo2_dx_4G]/2.-3*mm" h1="[Tendifilo2_dz_4G]/2."
    h2="[Tendifilo2_dz_4G]/2." tl1="[Tendifilo2_dy_L_4G]/2." tl2="[Tendifilo2_dy_L_4G]/2." phi="0*deg" theta="30*deg" />
-   <Trapezoid name="Tendifilo_1L_3_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_L_4G]/2." bl2="[Tendifilo1_dy_L_4G]/2." dz="[Tendifilo1_dx_4G]/2." h1="[Tendifilo1_dz_4G]/2."
-   h2="[Tendifilo1_dz_4G]/2." tl1="[Tendifilo1_dy_L_4G]/2." tl2="[Tendifilo1_dy_L_4G]/2." phi="0*deg" theta="-30*deg"  />
+   <Trapezoid name="Tendifilo_1L_3_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_L_4G]/2.-3*mm" bl2="[Tendifilo1_dy_L_4G]/2.-3*mm" dz="[Tendifilo1_dx_4G]/2.-3*mm" h1="[Tendifilo1_dz_4G]/2."
+   h2="[Tendifilo1_dz_4G]/2." tl1="[Tendifilo1_dy_L_4G]/2.-3*mm" tl2="[Tendifilo1_dy_L_4G]/2.-3*mm" phi="0*deg" theta="-30*deg"  />
   
   
  
@@ -1949,15 +1961,15 @@
   
   
   <Trapezoid name="Frame3R_CSC_for_TotemT1_Plane_4_0_5" dz="[Frame_Thick]/2." alp1="30*deg"
-   tl1="[Frame3R_Max_Base_5G]/2." bl1="[Frame3R_Min_Base_5G]/2." h1="[Frame3R_h_5G]/2." alp2="30*deg" tl2="[Frame3R_Max_Base_5G]/2."
-   bl2="[Frame3R_Min_Base_5G]/2." h2="[Frame3R_h_5G]/2." phi="0*deg" theta="0*deg"/> 
+   tl1="[Frame3R_Max_Base_5G]/2.-7.0*mm" bl1="[Frame3R_Min_Base_5G]/2.-7.0*mm" h1="[Frame3R_h_5G]/2." alp2="30*deg" tl2="[Frame3R_Max_Base_5G]/2.-7.0*mm"
+   bl2="[Frame3R_Min_Base_5G]/2.-7.0*mm" h2="[Frame3R_h_5G]/2." phi="0*deg" theta="0*deg"/> 
   
   
-  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_4_0_5" dz="[Frame_Thick]/2." alp1="-30*deg" bl1="[Frame3L_Min_Base_5G]/2."
-   tl1="[Frame3L_Max_Base_5G]/2." h1="[Frame3L_h_5G]/2." alp2="-30*deg" bl2="[Frame3L_Min_Base_5G]/2." tl2="[Frame3L_Max_Base_5G]/2." h2="[Frame3L_h_5G]/2"
+  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_4_0_5" dz="[Frame_Thick]/2." alp1="-30*deg" bl1="[Frame3L_Min_Base_5G]/2.-7.0*mm"
+   tl1="[Frame3L_Max_Base_5G]/2.-7.0*mm" h1="[Frame3L_h_5G]/2." alp2="-30*deg" bl2="[Frame3L_Min_Base_5G]/2.-7.0*mm" tl2="[Frame3L_Max_Base_5G]/2.-7.0*mm" h2="[Frame3L_h_5G]/2"
    phi="0*deg" theta="0*deg"/>
  
-  <Box dx="[Frame4_Max_Base_5G]/2." dy="[Frame_Thick]/2." dz="[Frame4_h_5G]/2." name="Frame4_CSC_for_TotemT1_Plane_4_0_5"/> 
+  <Box dx="[Frame4_Max_Base_5G]/2.-0.07*mm" dy="[Frame_Thick]/2." dz="[Frame4_h_5G]/2." name="Frame4_CSC_for_TotemT1_Plane_4_0_5"/> 
   
   
   <Trapezoid name="Frame5L_CSC_for_TotemT1_Plane_4_0_5" dz="[Frame_Thick]/2." alp1="16.36*deg"
@@ -2024,9 +2036,9 @@
   <!-- Copper: HV side -->
  
   
-  <Trd1 name="Up_CSC_for_TotemT1_Plane_4_0_6" dz="[Up_Height_Signal_Side_5G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Epoxy_Thick]/2."
+  <Trd1 name="Up_CSC_for_TotemT1_Plane_4_0_6" dz="[Up_Height_Signal_Side_5G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Copper_Thick]/2."
    dx1="[Max_Base_Signal_Side_5G]/2.-0.5*cm" dx2="[Up_Min_Base_Signal_Side_5G]/2.-0.5*cm"/>
-  <Trd1 name="Low_CSC_for_TotemT1_Plane_4_0_6" dz="[Low_Height_Signal_Side_5G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Epoxy_Thick]/2."
+  <Trd1 name="Low_CSC_for_TotemT1_Plane_4_0_6" dz="[Low_Height_Signal_Side_5G]/2." dy1="[PCB_Copper_Thick]/2." dy2="[PCB_Copper_Thick]/2."
    dx1="[Low_Min_Base_Signal_Side_5G]/2.-0.5*cm" dx2="[Max_Base_Signal_Side_5G]/2.-0.5*cm"/>
   
   <Trapezoid name="Trap6L_CSC_for_TotemT1_Plane_4_0_6" dz="[PCB_Copper_Thick]/2." alp1="-16.3895*deg"
@@ -2082,32 +2094,32 @@
  
 
   
-  <Trapezoid name="Tendifilo_2R_4_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_R_5G]/2." bl2="[Tendifilo2_dy_R_5G]/2." dz="[Tendifilo2_dx_5G]/2." h1="[Tendifilo2_dz_5G]/2."
+  <Trapezoid name="Tendifilo_2R_4_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_R_5G]/2." bl2="[Tendifilo2_dy_R_5G]/2." dz="[Tendifilo2_dx_5G]/2.-3*mm" h1="[Tendifilo2_dz_5G]/2."
    h2="[Tendifilo2_dz_5G]/2." tl1="[Tendifilo2_dy_R_5G]/2." tl2="[Tendifilo2_dy_R_5G]/2." phi="0*deg" theta="-30*deg" />
-   <Trapezoid name="Tendifilo_1R_4_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_R_5G]/2." bl2="[Tendifilo1_dy_R_5G]/2." dz="[Tendifilo1_dx_5G]/2." h1="[Tendifilo1_dz_5G]/2."
+   <Trapezoid name="Tendifilo_1R_4_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_R_5G]/2." bl2="[Tendifilo1_dy_R_5G]/2." dz="[Tendifilo1_dx_5G]/2.-3*mm" h1="[Tendifilo1_dz_5G]/2."
    h2="[Tendifilo1_dz_5G]/2." tl1="[Tendifilo1_dy_R_5G]/2." tl2="[Tendifilo1_dy_R_5G]/2." phi="0*deg" theta="30*deg"  />
   
    
-  <Trapezoid name="Tendifilo_2L_4_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_L_5G]/2." bl2="[Tendifilo2_dy_L_5G]/2." dz="[Tendifilo2_dx_5G]/2." h1="[Tendifilo2_dz_5G]/2."
+  <Trapezoid name="Tendifilo_2L_4_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_dy_L_5G]/2." bl2="[Tendifilo2_dy_L_5G]/2." dz="[Tendifilo2_dx_5G]/2.-3*mm" h1="[Tendifilo2_dz_5G]/2."
    h2="[Tendifilo2_dz_5G]/2." tl1="[Tendifilo2_dy_L_5G]/2." tl2="[Tendifilo2_dy_L_5G]/2." phi="0*deg" theta="30*deg" />
-   <Trapezoid name="Tendifilo_1L_4_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_L_5G]/2." bl2="[Tendifilo1_dy_L_5G]/2." dz="[Tendifilo1_dx_5G]/2." h1="[Tendifilo1_dz_5G]/2."
-   h2="[Tendifilo1_dz_5G]/2." tl1="[Tendifilo1_dy_L_5G]/2." tl2="[Tendifilo1_dy_L_5G]/2." phi="0*deg" theta="-30*deg"  />
+   <Trapezoid name="Tendifilo_1L_4_0_0" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_dy_L_5G]/2.-3*mm" bl2="[Tendifilo1_dy_L_5G]/2.-3*mm" dz="[Tendifilo1_dx_5G]/2.-3*mm" h1="[Tendifilo1_dz_5G]/2."
+   h2="[Tendifilo1_dz_5G]/2." tl1="[Tendifilo1_dy_L_5G]/2.-3*mm" tl2="[Tendifilo1_dy_L_5G]/2.-3*mm" phi="0*deg" theta="-30*deg"  />
   
   
  
  <!-- Air -->
- 
-  
-  <Tubs name="CSC_for_TotemT1_Plane_0_5" rMin="140.735*mm" rMax="83.4799*cm" dz="2.512*cm" startPhi="40*deg" deltaPhi="100*deg"/>
-  <Tubs name="CSC_for_TotemT1_Plane_1_5" rMin="118.17*mm" rMax="81.69*cm" dz="2.512*cm" startPhi="40*deg"
+     <Tubs name="CSC_for_TotemT1_Plane_0_5" rMin="130.2*mm" rMax="74.598*cm" dz="2.16*cm" startPhi="40*deg" 
    deltaPhi="100*deg"/>
-  <Tubs name="CSC_for_TotemT1_Plane_2_5" rMin="118.17*mm" rMax="87.72*cm" dz="2.512*cm" startPhi="40*deg"
+    <Tubs name="CSC_for_TotemT1_Plane_1_5" rMin="130.*mm" rMax="83.45*cm" dz="2.16*cm" startPhi="40*deg"
    deltaPhi="100*deg"/>
-  <Tubs name="CSC_for_TotemT1_Plane_3_5" rMin="118.17*mm" rMax="93.76*cm" dz="2.512*cm" startPhi="40*deg"
+   <Tubs name="CSC_for_TotemT1_Plane_2_5" rMin="140.17*mm" rMax="89.49*cm" dz="2.16*cm" startPhi="40*deg"
    deltaPhi="100*deg"/>
-  <Tubs name="CSC_for_TotemT1_Plane_4_5" rMin="118.17*mm" rMax="101.4*cm" dz="2.512*cm" startPhi="40*deg"
+   <Tubs name="CSC_for_TotemT1_Plane_3_5" rMin="150.17*mm" rMax="95.3*cm" dz="2.16*cm" startPhi="40*deg"
    deltaPhi="100*deg"/>
-  
+   <Tubs name="CSC_for_TotemT1_Plane_4_5" rMin="160.17*mm" rMax="100.9*cm" dz="2.16*cm" startPhi="40*deg"
+   deltaPhi="100*deg"/>
+
+
 <!-- #################### PIANO 1 #################-->
   
   <!-- Copper - signal side       QUANTO E' SPESSO IL RAME??? -->
@@ -2174,17 +2186,17 @@
 
   
   <Trapezoid name="Frame3R_CSC_for_TotemT1_Plane_0_5_5" dz="[Frame_Thick_1P]/2." alp1="[Frame3R_alp_1P]"
-   tl1="[Frame3R_Max_Base_1P]/2." bl1="[Frame3R_Min_Base_1P]/2." h1="[Frame3R_h_1P]/2." alp2="[Frame3R_alp_1P]" tl2="[Frame3R_Max_Base_1P]/2."
-   bl2="[Frame3R_Min_Base_1P]/2." h2="[Frame3R_h_1P]/2." phi="0*deg" theta="0*deg"/> 
+   tl1="[Frame3R_Max_Base_1P]/2.-7.0*mm" bl1="[Frame3R_Min_Base_1P]/2.-7.0*mm" h1="[Frame3R_h_1P]/2." alp2="[Frame3R_alp_1P]" tl2="[Frame3R_Max_Base_1P]/2.-7.0*mm"
+   bl2="[Frame3R_Min_Base_1P]/2.-7.0*mm" h2="[Frame3R_h_1P]/2." phi="0*deg" theta="0*deg"/> 
 
   
   
   
-  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_0_5_5" dz="[Frame_Thick_1P]/2." alp1="-[Frame3L_alp_1P]" bl1="[Frame3L_Min_Base_1P]/2."
-   tl1="[Frame3L_Max_Base_1P]/2." h1="[Frame3L_h_1P]/2." alp2="-[Frame3L_alp_1P]" bl2="[Frame3L_Min_Base_1P]/2." tl2="[Frame3L_Max_Base_1P]/2." h2="[Frame3L_h_1P]/2."
+  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_0_5_5" dz="[Frame_Thick_1P]/2." alp1="-[Frame3L_alp_1P]" bl1="[Frame3L_Min_Base_1P]/2.-7.0*mm"
+   tl1="[Frame3L_Max_Base_1P]/2.-7.0*mm" h1="[Frame3L_h_1P]/2." alp2="-[Frame3L_alp_1P]" bl2="[Frame3L_Min_Base_1P]/2.-7.0*mm" tl2="[Frame3L_Max_Base_1P]/2.-7.0*mm" h2="[Frame3L_h_1P]/2."
    phi="0*deg" theta="0*deg"/>
   
-  <Box dx="[Frame4_Max_Base_1P]/2." dy="[Frame_Thick_1P]/2." dz="[Frame4_h_1P]/2." name="Frame4_CSC_for_TotemT1_Plane_0_5_5"/> 
+  <Box dx="[Frame4_Max_Base_1P]/2.-0.07*mm" dy="[Frame_Thick_1P]/2." dz="[Frame4_h_1P]/2." name="Frame4_CSC_for_TotemT1_Plane_0_5_5"/> 
   
   <Trapezoid name="Frame5L_CSC_for_TotemT1_Plane_0_5_5" dz="[Frame_Thick_1P]/2." alp1="16.36*deg"
    tl1="[Frame5L_Max_Base_1P]/2." bl1="[Frame5L_Min_Base_1P]/2." h1="[Frame5L_h_1P]/2." alp2="16.36*deg" tl2="[Frame5L_Max_Base_1P]/2."
@@ -2346,14 +2358,14 @@
   
 
   
-  <Trapezoid name="Tendifilo_2R" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_R_dy_1P]/2." bl2="[Tendifilo2_R_dy_1P]/2." dz="[Tendifilo2_R_dx_1P]/2." h1="[Tendifilo2_R_dz_1P]/2."
+  <Trapezoid name="Tendifilo_2R" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_R_dy_1P]/2." bl2="[Tendifilo2_R_dy_1P]/2." dz="[Tendifilo2_R_dx_1P]/2.-3*mm" h1="[Tendifilo2_R_dz_1P]/2."
    h2="[Tendifilo2_R_dz_1P]/2." tl1="[Tendifilo2_R_dy_1P]/2." tl2="[Tendifilo2_R_dy_1P]/2." phi="0*deg" theta="30*deg" />
-  <Trapezoid name="Tendifilo_1R" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_R_dy_1P]/2." bl2="[Tendifilo1_R_dy_1P]/2." dz="[Tendifilo1_R_dx_1P]/2." h1="[Tendifilo1_R_dz_1P]/2."
+  <Trapezoid name="Tendifilo_1R" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_R_dy_1P]/2." bl2="[Tendifilo1_R_dy_1P]/2." dz="[Tendifilo1_R_dx_1P]/2.-3*mm" h1="[Tendifilo1_R_dz_1P]/2."
    h2="[Tendifilo1_R_dz_1P]/2." tl1="[Tendifilo1_R_dy_1P]/2." tl2="[Tendifilo1_R_dy_1P]/2." phi="0*deg" theta="-30*deg"  />
   
-  <Trapezoid name="Tendifilo_2L" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_L_dy_1P]/2." bl2="[Tendifilo2_L_dy_1P]/2." dz="[Tendifilo2_L_dx_1P]/2." h1="[Tendifilo2_L_dz_1P]/2."
+  <Trapezoid name="Tendifilo_2L" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_L_dy_1P]/2." bl2="[Tendifilo2_L_dy_1P]/2." dz="[Tendifilo2_L_dx_1P]/2.-3*mm" h1="[Tendifilo2_L_dz_1P]/2."
    h2="[Tendifilo2_L_dz_1P]/2." tl1="[Tendifilo2_L_dy_1P]/2." tl2="[Tendifilo2_L_dy_1P]/2." phi="0*deg" theta="-30*deg" />
-  <Trapezoid name="Tendifilo_1L" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_L_dy_1P]/2." bl2="[Tendifilo1_L_dy_1P]/2." dz="[Tendifilo1_L_dx_1P]/2." h1="[Tendifilo1_L_dz_1P]/2."
+  <Trapezoid name="Tendifilo_1L" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_L_dy_1P]/2." bl2="[Tendifilo1_L_dy_1P]/2." dz="[Tendifilo1_L_dx_1P]/2.-3*mm" h1="[Tendifilo1_L_dz_1P]/2."
    h2="[Tendifilo1_L_dz_1P]/2." tl1="[Tendifilo1_L_dy_1P]/2." tl2="[Tendifilo1_L_dy_1P]/2." phi="0*deg" theta="30*deg"  />
   
 <!--####################  PIANO 2  #################-->
@@ -2408,8 +2420,8 @@
    tl1="[TR_Max_Base_Signal_Side_2P]/2." bl1="[TR_Min_Base_Signal_Side_2P]/2." h1="[TR_h_Signal_Side_2P]/2." alp2="16.3895*deg" tl2="[TR_Max_Base_Signal_Side_2P]/2."
    bl2="[TR_Min_Base_Signal_Side_2P]/2." h2="[TR_h_Signal_Side_2P]/2." phi="0*deg" theta="0*deg"/>
   
-  <Box dx="[Corna_dx_2P]/2." dy="[Corna_dy_2P]/2." dz="[Nomex_Thick_2P]/2." name="CornaR_CSC_for_TotemT1_Plane_1_5_2"/>
-  <Box dx="[Corna_dx_2P]/2." dy="[Corna_dy_2P]/2." dz="[Nomex_Thick_2P]/2." name="CornaL_CSC_for_TotemT1_Plane_1_5_2"/>
+  <Box dx="[Corna_dx_2P]/2.-1*mm" dy="[Corna_dy_2P]/2.-1*mm" dz="[Nomex_Thick_2P]/2." name="CornaR_CSC_for_TotemT1_Plane_1_5_2"/>
+  <Box dx="[Corna_dx_2P]/2.-1*mm" dy="[Corna_dy_2P]/2.-1*mm" dz="[Nomex_Thick_2P]/2." name="CornaL_CSC_for_TotemT1_Plane_1_5_2"/>
   
   <Trd1 name="Frame1_CSC_for_TotemT1_Plane_1_5_5" dz="[Frame1_Height_2P]/2." dy1="[Frame_Thick_2P]/2." dy2="[Frame_Thick_2P]/2." dx1="[Frame1_BMAX_2P]/2." dx2="[Frame1_bmin_2P]/2." />
   
@@ -2424,21 +2436,21 @@
   
   
   <Trapezoid name="Frame3R_CSC_for_TotemT1_Plane_1_5_5" dz="[Frame_Thick_2P]/2." alp1="[Frame3R_alp_2P]"
-   tl1="[Frame3R_Max_Base_2P]/2." bl1="[Frame3R_Min_Base_2P]/2." h1="[Frame3R_h_2P]/2." alp2="[Frame3R_alp_2P]" tl2="[Frame3R_Max_Base_2P]/2."
-   bl2="[Frame3R_Min_Base_2P]/2." h2="[Frame3R_h_2P]/2." phi="0*deg" theta="0*deg"/> 
+   tl1="[Frame3R_Max_Base_2P]/2.-7.0*mm" bl1="[Frame3R_Min_Base_2P]/2.-7.0*mm" h1="[Frame3R_h_2P]/2." alp2="[Frame3R_alp_2P]" tl2="[Frame3R_Max_Base_2P]/2.-7.0*mm"
+   bl2="[Frame3R_Min_Base_2P]/2.-7.0*mm" h2="[Frame3R_h_2P]/2." phi="0*deg" theta="0*deg"/> 
   
   
   
   
-  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_1_5_5" dz="[Frame_Thick_2P]/2." alp1="-[Frame3L_alp_2P]" bl1="[Frame3L_Min_Base_2P]/2."
-   tl1="[Frame3L_Max_Base_2P]/2." h1="[Frame3L_h_2P]/2." alp2="-[Frame3L_alp_2P]" bl2="[Frame3L_Min_Base_2P]/2." tl2="[Frame3L_Max_Base_2P]/2." h2="[Frame3L_h_2P]/2."
+  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_1_5_5" dz="[Frame_Thick_2P]/2." alp1="-[Frame3L_alp_2P]" bl1="[Frame3L_Min_Base_2P]/2.-7.0*mm"
+   tl1="[Frame3L_Max_Base_2P]/2.-7.0*mm" h1="[Frame3L_h_2P]/2." alp2="-[Frame3L_alp_2P]" bl2="[Frame3L_Min_Base_2P]/2.-7.0*mm" tl2="[Frame3L_Max_Base_2P]/2.-7.0*mm" h2="[Frame3L_h_2P]/2."
    phi="0*deg" theta="0*deg"/>
   
-  <Box dx="[Frame4_Max_Base_2P]/2." dy="[Frame_Thick_2P]/2." dz="[Frame4_h_2P]/2." name="Frame4_CSC_for_TotemT1_Plane_1_5_5"/> 
+  <Box dx="[Frame4_Max_Base_2P]/2.-0.07*mm" dy="[Frame_Thick_2P]/2." dz="[Frame4_h_2P]/2." name="Frame4_CSC_for_TotemT1_Plane_1_5_5"/> 
   
   <Trapezoid name="Frame5L_CSC_for_TotemT1_Plane_1_5_5" dz="[Frame_Thick_2P]/2." alp1="16.36*deg"
-   tl1="[Frame5L_Max_Base_2P]/2." bl1="[Frame5L_Min_Base_2P]/2." h1="[Frame5L_h_2P]/2." alp2="16.36*deg" tl2="[Frame5L_Max_Base_2P]/2."
-   bl2="[Frame5L_Min_Base_2P]/2." h2="[Frame5L_h_2P]/2." phi="0*deg" theta="0*deg"/> 
+   tl1="[Frame5L_Max_Base_2P]/2.-6.999*mm" bl1="[Frame5L_Min_Base_2P]/2.-6.999*mm" h1="[Frame5L_h_2P]/2." alp2="16.36*deg" tl2="[Frame5L_Max_Base_2P]/2.-6.999*mm"
+   bl2="[Frame5L_Min_Base_2P]/2.-6.999*mm" h2="[Frame5L_h_2P]/2." phi="0*deg" theta="0*deg"/> 
   
   <Trapezoid name="Frame5R_CSC_for_TotemT1_Plane_1_5_5" dz="[Frame_Thick_2P]/2." alp1="-16.36*deg"
    tl1="[Frame5R_Max_Base_2P]/2." bl1="[Frame5R_Min_Base_2P]/2." h1="[Frame5R_h_2P]/2." alp2="-16.36*deg" tl2="[Frame5R_Max_Base_2P]/2."
@@ -2529,8 +2541,8 @@
    bl2="[TR_Min_Base_Signal_Side_2P]/2." h2="[TR_h_Signal_Side_2P]/2." phi="0*deg" theta="0*deg"/>
   
   
-  <Box dx="[Corna_dxR_2P]/2." dy="[Corna_dyR_2P]/2." dz="[PCB_Copper_Thick_2P]/2." name="CornaR_CSC_for_TotemT1_Plane_1_5_6"/>
-  <Box dx="[Corna_dx_2P]/2." dy="[Corna_dy_2P]/2." dz="[PCB_Copper_Thick_2P]/2." name="CornaL_CSC_for_TotemT1_Plane_1_5_6"/>
+  <Box dx="[Corna_dxR_2P]/2.-1*mm" dy="[Corna_dyR_2P]/2.-1*mm" dz="[PCB_Copper_Thick_2P]/2." name="CornaR_CSC_for_TotemT1_Plane_1_5_6"/>
+  <Box dx="[Corna_dx_2P]/2.-1*mm" dy="[Corna_dy_2P]/2.-1*mm" dz="[PCB_Copper_Thick_2P]/2." name="CornaL_CSC_for_TotemT1_Plane_1_5_6"/>
   
   
 
@@ -2560,8 +2572,8 @@
    tl1="[TR_Max_Base_Signal_Side_2P]/2." bl1="[TR_Min_Base_Signal_Side_2P]/2." h1="[TR_h_Signal_Side_2P]/2." alp2="16.3895*deg" tl2="[TR_Max_Base_Signal_Side_2P]/2."
    bl2="[TR_Min_Base_Signal_Side_2P]/2." h2="[TR_h_Signal_Side_2P]/2." phi="0*deg" theta="0*deg"/>
   
-  <Box dx="[Corna_dxR_2P]/2." dy="[Corna_dyR_2P]/2." dz="[PCB_Epoxy_Thick_2P]/2." name="CornaR_CSC_for_TotemT1_Plane_1_5_7"/>
-  <Box dx="[Corna_dx_2P]/2." dy="[Corna_dy_2P]/2." dz="[PCB_Epoxy_Thick_2P]/2." name="CornaL_CSC_for_TotemT1_Plane_1_5_7"/>
+  <Box dx="[Corna_dxR_2P]/2.-1*mm" dy="[Corna_dyR_2P]/2.-1*mm" dz="[PCB_Epoxy_Thick_2P]/2." name="CornaR_CSC_for_TotemT1_Plane_1_5_7"/>
+  <Box dx="[Corna_dx_2P]/2.-1*mm" dy="[Corna_dy_2P]/2.-1*mm" dz="[PCB_Epoxy_Thick_2P]/2." name="CornaL_CSC_for_TotemT1_Plane_1_5_7"/>
   
   
   <!-- Nomex_honeycomb HV side-->
@@ -2593,19 +2605,19 @@
    bl2="[TR_Min_Base_Signal_Side_2P]/2." h2="[TR_h_Signal_Side_2P]/2." phi="0*deg" theta="0*deg"/>
   
   
-  <Box dx="[Corna_dxR_2P]/2." dy="[Corna_dyR_2P]/2." dz="[Nomex_Thick_2P]/2." name="CornaR_CSC_for_TotemT1_Plane_1_5_8"/>
-  <Box dx="[Corna_dx_2P]/2." dy="[Corna_dy_2P]/2." dz="[Nomex_Thick_2P]/2." name="CornaL_CSC_for_TotemT1_Plane_1_5_8"/>
+  <Box dx="[Corna_dxR_2P]/2.-1*mm" dy="[Corna_dyR_2P]/2.-1*mm" dz="[Nomex_Thick_2P]/2." name="CornaR_CSC_for_TotemT1_Plane_1_5_8"/>
+  <Box dx="[Corna_dx_2P]/2.-1*mm" dy="[Corna_dy_2P]/2.-1*mm" dz="[Nomex_Thick_2P]/2." name="CornaL_CSC_for_TotemT1_Plane_1_5_8"/>
   
   
   
-  <Trapezoid name="Tendifilo_2R_1" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_R_dy_2P]/2." bl2="[Tendifilo2_R_dy_2P]/2." dz="[Tendifilo2_R_dx_2P]/2." h1="[Tendifilo2_R_dz_2P]/2."
+  <Trapezoid name="Tendifilo_2R_1" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_R_dy_2P]/2." bl2="[Tendifilo2_R_dy_2P]/2." dz="[Tendifilo2_R_dx_2P]/2.-2*mm" h1="[Tendifilo2_R_dz_2P]/2."
    h2="[Tendifilo2_R_dz_2P]/2." tl1="[Tendifilo2_R_dy_2P]/2." tl2="[Tendifilo2_R_dy_2P]/2." phi="0*deg" theta="30*deg" />
-  <Trapezoid name="Tendifilo_1R_1" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_R_dy_2P]/2." bl2="[Tendifilo1_R_dy_2P]/2." dz="[Tendifilo1_R_dx_2P]/2." h1="[Tendifilo1_R_dz_2P]/2."
-   h2="[Tendifilo1_R_dz_2P]/2." tl1="[Tendifilo1_R_dy_2P]/2." tl2="[Tendifilo1_R_dy_2P]/2." phi="0*deg" theta="-30*deg"  />
+  <Trapezoid name="Tendifilo_1R_1" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_R_dy_2P]/2.-1.5*mm" bl2="[Tendifilo1_R_dy_2P]/2.-1.5*mm" dz="[Tendifilo1_R_dx_2P]/2.-2*mm" h1="[Tendifilo1_R_dz_2P]/2."
+   h2="[Tendifilo1_R_dz_2P]/2." tl1="[Tendifilo1_R_dy_2P]/2.-1.5*mm" tl2="[Tendifilo1_R_dy_2P]/2.-1.5*mm" phi="0*deg" theta="-30*deg"  />
   
-  <Trapezoid name="Tendifilo_2L_1" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_L_dy_2P]/2." bl2="[Tendifilo2_L_dy_2P]/2." dz="[Tendifilo2_L_dx_2P]/2." h1="[Tendifilo2_L_dz_2P]/2."
+  <Trapezoid name="Tendifilo_2L_1" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_L_dy_2P]/2." bl2="[Tendifilo2_L_dy_2P]/2." dz="[Tendifilo2_L_dx_2P]/2.-2*mm" h1="[Tendifilo2_L_dz_2P]/2."
    h2="[Tendifilo2_L_dz_2P]/2." tl1="[Tendifilo2_L_dy_2P]/2." tl2="[Tendifilo2_L_dy_2P]/2." phi="0*deg" theta="-30*deg" />
-  <Trapezoid name="Tendifilo_1L_1" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_L_dy_2P]/2." bl2="[Tendifilo1_L_dy_2P]/2." dz="[Tendifilo1_L_dx_2P]/2." h1="[Tendifilo1_L_dz_2P]/2."
+  <Trapezoid name="Tendifilo_1L_1" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_L_dy_2P]/2." bl2="[Tendifilo1_L_dy_2P]/2." dz="[Tendifilo1_L_dx_2P]/2.-2*mm" h1="[Tendifilo1_L_dz_2P]/2."
    h2="[Tendifilo1_L_dz_2P]/2." tl1="[Tendifilo1_L_dy_2P]/2." tl2="[Tendifilo1_L_dy_2P]/2." phi="0*deg" theta="30*deg"  />
   
   
@@ -2679,17 +2691,17 @@
   
   
   <Trapezoid name="Frame3R_CSC_for_TotemT1_Plane_2_5_5" dz="[Frame_Thick_3P]/2." alp1="[Frame3R_alp_3P]"
-   tl1="[Frame3R_Max_Base_3P]/2." bl1="[Frame3R_Min_Base_3P]/2." h1="[Frame3R_h_3P]/2." alp2="[Frame3R_alp_3P]" tl2="[Frame3R_Max_Base_3P]/2."
-   bl2="[Frame3R_Min_Base_3P]/2." h2="[Frame3R_h_3P]/2." phi="0*deg" theta="0*deg"/> 
+   tl1="[Frame3R_Max_Base_3P]/2.-7.0*mm" bl1="[Frame3R_Min_Base_3P]/2.-7.0*mm" h1="[Frame3R_h_3P]/2." alp2="[Frame3R_alp_3P]" tl2="[Frame3R_Max_Base_3P]/2.-7.0*mm"
+   bl2="[Frame3R_Min_Base_3P]/2.-7.0*mm" h2="[Frame3R_h_3P]/2." phi="0*deg" theta="0*deg"/> 
   
   
   
   
-  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_2_5_5" dz="[Frame_Thick_3P]/2." alp1="-[Frame3L_alp_3P]" bl1="[Frame3L_Min_Base_3P]/2."
-   tl1="[Frame3L_Max_Base_3P]/2." h1="[Frame3L_h_3P]/2." alp2="-[Frame3L_alp_3P]" bl2="[Frame3L_Min_Base_3P]/2." tl2="[Frame3L_Max_Base_3P]/2." h2="[Frame3L_h_3P]/2."
+  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_2_5_5" dz="[Frame_Thick_3P]/2." alp1="-[Frame3L_alp_3P]" bl1="[Frame3L_Min_Base_3P]/2.-7.*mm"
+   tl1="[Frame3L_Max_Base_3P]/2.-7.*mm" h1="[Frame3L_h_3P]/2." alp2="-[Frame3L_alp_3P]" bl2="[Frame3L_Min_Base_3P]/2.-7.*mm" tl2="[Frame3L_Max_Base_3P]/2.-7.*mm" h2="[Frame3L_h_3P]/2."
    phi="0*deg" theta="0*deg"/>
   
-  <Box dx="[Frame4_Max_Base_3P]/2." dy="[Frame_Thick_3P]/2." dz="[Frame4_h_3P]/2." name="Frame4_CSC_for_TotemT1_Plane_2_5_5"/> 
+  <Box dx="[Frame4_Max_Base_3P]/2.-0.07*mm" dy="[Frame_Thick_3P]/2." dz="[Frame4_h_3P]/2." name="Frame4_CSC_for_TotemT1_Plane_2_5_5"/> 
   
   <Trapezoid name="Frame5L_CSC_for_TotemT1_Plane_2_5_5" dz="[Frame_Thick_3P]/2." alp1="16.36*deg"
    tl1="[Frame5L_Max_Base_3P]/2." bl1="[Frame5L_Min_Base_3P]/2." h1="[Frame5L_h_3P]/2." alp2="16.36*deg" tl2="[Frame5L_Max_Base_3P]/2."
@@ -2853,14 +2865,14 @@
   
   
   
-  <Trapezoid name="Tendifilo_2R_2" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_R_dy_3P]/2." bl2="[Tendifilo2_R_dy_3P]/2." dz="[Tendifilo2_R_dx_3P]/2." h1="[Tendifilo2_R_dz_3P]/2."
+  <Trapezoid name="Tendifilo_2R_2" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_R_dy_3P]/2." bl2="[Tendifilo2_R_dy_3P]/2." dz="[Tendifilo2_R_dx_3P]/2.-2.5*mm" h1="[Tendifilo2_R_dz_3P]/2."
    h2="[Tendifilo2_R_dz_3P]/2." tl1="[Tendifilo2_R_dy_3P]/2." tl2="[Tendifilo2_R_dy_3P]/2." phi="0*deg" theta="30*deg" />
-  <Trapezoid name="Tendifilo_1R_2" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_R_dy_3P]/2." bl2="[Tendifilo1_R_dy_3P]/2." dz="[Tendifilo1_R_dx_3P]/2." h1="[Tendifilo1_R_dz_3P]/2."
-   h2="[Tendifilo1_R_dz_3P]/2." tl1="[Tendifilo1_R_dy_3P]/2." tl2="[Tendifilo1_R_dy_3P]/2." phi="0*deg" theta="-30*deg"  />
+  <Trapezoid name="Tendifilo_1R_2" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_R_dy_3P]/2.-1*mm" bl2="[Tendifilo1_R_dy_3P]/2.-1*mm" dz="[Tendifilo1_R_dx_3P]/2.-2.5*mm" h1="[Tendifilo1_R_dz_3P]/2."
+   h2="[Tendifilo1_R_dz_3P]/2." tl1="[Tendifilo1_R_dy_3P]/2.-1*mm" tl2="[Tendifilo1_R_dy_3P]/2.-1*mm" phi="0*deg" theta="-30*deg"  />
   
-  <Trapezoid name="Tendifilo_2L_2" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_L_dy_3P]/2." bl2="[Tendifilo2_L_dy_3P]/2." dz="[Tendifilo2_L_dx_3P]/2." h1="[Tendifilo2_L_dz_3P]/2."
+  <Trapezoid name="Tendifilo_2L_2" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_L_dy_3P]/2." bl2="[Tendifilo2_L_dy_3P]/2." dz="[Tendifilo2_L_dx_3P]/2.-2.5*mm" h1="[Tendifilo2_L_dz_3P]/2."
    h2="[Tendifilo2_L_dz_3P]/2." tl1="[Tendifilo2_L_dy_3P]/2." tl2="[Tendifilo2_L_dy_3P]/2." phi="0*deg" theta="-30*deg" />
-  <Trapezoid name="Tendifilo_1L_2" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_L_dy_3P]/2." bl2="[Tendifilo1_L_dy_3P]/2." dz="[Tendifilo1_L_dx_3P]/2." h1="[Tendifilo1_L_dz_3P]/2."
+  <Trapezoid name="Tendifilo_1L_2" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_L_dy_3P]/2." bl2="[Tendifilo1_L_dy_3P]/2." dz="[Tendifilo1_L_dx_3P]/2.-2.5*mm" h1="[Tendifilo1_L_dz_3P]/2."
    h2="[Tendifilo1_L_dz_3P]/2." tl1="[Tendifilo1_L_dy_3P]/2." tl2="[Tendifilo1_L_dy_3P]/2." phi="0*deg" theta="30*deg"  />
   
 <!-- ############## PIANO 4 ##########-->
@@ -2896,8 +2908,8 @@
    tl1="[TR_Max_Base_Signal_Side_4P]/2." bl1="[TR_Min_Base_Signal_Side_4P]/2." h1="[TR_h_Signal_Side_4P]/2." alp2="16.3895*deg" tl2="[TR_Max_Base_Signal_Side_4P]/2."
    bl2="[TR_Min_Base_Signal_Side_4P]/2." h2="[TR_h_Signal_Side_4P]/2." phi="0*deg" theta="0*deg"/>
   
-  <Box dx="[Corna_dx_4P]/2." dy="[Corna_dy_4P]/2." dz="[PCB_Epoxy_Thick_4P]/2." name="CornaR_CSC_for_TotemT1_Plane_3_5_1"/>
-  <Box dx="[Corna_dx_4P]/2." dy="[Corna_dy_4P]/2." dz="[PCB_Epoxy_Thick_4P]/2." name="CornaL_CSC_for_TotemT1_Plane_3_5_1"/>
+  <Box dx="[Corna_dx_4P]/2.-1*mm" dy="[Corna_dy_4P]/2.-1*mm" dz="[PCB_Epoxy_Thick_4P]/2." name="CornaR_CSC_for_TotemT1_Plane_3_5_1"/>
+  <Box dx="[Corna_dx_4P]/2.-1*mm" dy="[Corna_dy_4P]/2.-1*mm" dz="[PCB_Epoxy_Thick_4P]/2." name="CornaL_CSC_for_TotemT1_Plane_3_5_1"/>
   
   <!-- Nomex_honeycomb -->
   <Trd1 name="Up_CSC_for_TotemT1_Plane_3_5_2" dz="[Up_Height_Signal_Side_4P]/2." dy1="[Nomex_Thick_4P]/2." dy2="[Nomex_Thick_4P]/2."
@@ -2913,8 +2925,8 @@
    tl1="[TR_Max_Base_Signal_Side_4P]/2." bl1="[TR_Min_Base_Signal_Side_4P]/2." h1="[TR_h_Signal_Side_4P]/2." alp2="16.3895*deg" tl2="[TR_Max_Base_Signal_Side_4P]/2."
    bl2="[TR_Min_Base_Signal_Side_4P]/2." h2="[TR_h_Signal_Side_4P]/2." phi="0*deg" theta="0*deg"/>
   
-  <Box dx="[Corna_dx_4P]/2." dy="[Corna_dy_4P]/2." dz="[Nomex_Thick_4P]/2." name="CornaR_CSC_for_TotemT1_Plane_3_5_2"/>
-  <Box dx="[Corna_dx_4P]/2." dy="[Corna_dy_4P]/2." dz="[Nomex_Thick_4P]/2." name="CornaL_CSC_for_TotemT1_Plane_3_5_2"/>
+  <Box dx="[Corna_dx_4P]/2.-1*mm" dy="[Corna_dy_4P]/2.-1*mm" dz="[Nomex_Thick_4P]/2." name="CornaR_CSC_for_TotemT1_Plane_3_5_2"/>
+  <Box dx="[Corna_dx_4P]/2.-1*mm" dy="[Corna_dy_4P]/2.-1*mm" dz="[Nomex_Thick_4P]/2." name="CornaL_CSC_for_TotemT1_Plane_3_5_2"/>
   
   <Trd1 name="Frame1_CSC_for_TotemT1_Plane_3_5_5" dz="[Frame1_Height_4P]/2." dy1="[Frame_Thick_4P]/2." dy2="[Frame_Thick_4P]/2." dx1="[Frame1_BMAX_4P]/2." dx2="[Frame1_bmin_4P]/2." />
   
@@ -2929,17 +2941,17 @@
   
   
   <Trapezoid name="Frame3R_CSC_for_TotemT1_Plane_3_5_5" dz="[Frame_Thick_4P]/2." alp1="[Frame3R_alp_4P]"
-   tl1="[Frame3R_Max_Base_4P]/2." bl1="[Frame3R_Min_Base_4P]/2." h1="[Frame3R_h_4P]/2." alp2="[Frame3R_alp_4P]" tl2="[Frame3R_Max_Base_4P]/2."
-   bl2="[Frame3R_Min_Base_4P]/2." h2="[Frame3R_h_4P]/2." phi="0*deg" theta="0*deg"/> 
+   tl1="[Frame3R_Max_Base_4P]/2.-7.0*mm" bl1="[Frame3R_Min_Base_4P]/2.-7.0*mm" h1="[Frame3R_h_4P]/2." alp2="[Frame3R_alp_4P]" tl2="[Frame3R_Max_Base_4P]/2.-7.0*mm"
+   bl2="[Frame3R_Min_Base_4P]/2.-7.0*mm" h2="[Frame3R_h_4P]/2." phi="0*deg" theta="0*deg"/> 
   
   
   
   
-  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_3_5_5" dz="[Frame_Thick_4P]/2." alp1="-[Frame3L_alp_4P]" bl1="[Frame3L_Min_Base_4P]/2."
-   tl1="[Frame3L_Max_Base_4P]/2." h1="[Frame3L_h_4P]/2." alp2="-[Frame3L_alp_4P]" bl2="[Frame3L_Min_Base_4P]/2." tl2="[Frame3L_Max_Base_4P]/2." h2="[Frame3L_h_4P]/2."
+  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_3_5_5" dz="[Frame_Thick_4P]/2." alp1="-[Frame3L_alp_4P]" bl1="[Frame3L_Min_Base_4P]/2.-7.0*mm"
+   tl1="[Frame3L_Max_Base_4P]/2.-7.0*mm" h1="[Frame3L_h_4P]/2." alp2="-[Frame3L_alp_4P]" bl2="[Frame3L_Min_Base_4P]/2.-7.0*mm" tl2="[Frame3L_Max_Base_4P]/2.-7.0*mm" h2="[Frame3L_h_4P]/2."
    phi="0*deg" theta="0*deg"/>
   
-  <Box dx="[Frame4_Max_Base_4P]/2." dy="[Frame_Thick_4P]/2." dz="[Frame4_h_4P]/2." name="Frame4_CSC_for_TotemT1_Plane_3_5_5"/> 
+  <Box dx="[Frame4_Max_Base_4P]/2.-0.07*mm" dy="[Frame_Thick_4P]/2." dz="[Frame4_h_4P]/2." name="Frame4_CSC_for_TotemT1_Plane_3_5_5"/> 
   
   <Trapezoid name="Frame5L_CSC_for_TotemT1_Plane_3_5_5" dz="[Frame_Thick_4P]/2." alp1="16.36*deg"
    tl1="[Frame5L_Max_Base_4P]/2." bl1="[Frame5L_Min_Base_4P]/2." h1="[Frame5L_h_4P]/2." alp2="16.36*deg" tl2="[Frame5L_Max_Base_4P]/2."
@@ -3035,7 +3047,7 @@
   
   
   <Box dx="[Corna_dxR_4P]/2." dy="[Corna_dyR_4P]/2." dz="[PCB_Copper_Thick_4P]/2." name="CornaR_CSC_for_TotemT1_Plane_3_5_6"/>
-  <Box dx="[Corna_dx_4P]/2." dy="[Corna_dy_4P]/2." dz="[PCB_Copper_Thick_4P]/2." name="CornaL_CSC_for_TotemT1_Plane_3_5_6"/>
+  <Box dx="[Corna_dx_4P]/2.-0.1*mm" dy="[Corna_dy_4P]/2.-0.1*mm" dz="[PCB_Copper_Thick_4P]/2." name="CornaL_CSC_for_TotemT1_Plane_3_5_6"/>
   
   
   
@@ -3065,8 +3077,8 @@
    tl1="[TR_Max_Base_Signal_Side_4P]/2." bl1="[TR_Min_Base_Signal_Side_4P]/2." h1="[TR_h_Signal_Side_4P]/2." alp2="16.3895*deg" tl2="[TR_Max_Base_Signal_Side_4P]/2."
    bl2="[TR_Min_Base_Signal_Side_4P]/2." h2="[TR_h_Signal_Side_4P]/2." phi="0*deg" theta="0*deg"/>
   
-  <Box dx="[Corna_dxR_4P]/2." dy="[Corna_dyR_4P]/2." dz="[PCB_Epoxy_Thick_4P]/2." name="CornaR_CSC_for_TotemT1_Plane_3_5_7"/>
-  <Box dx="[Corna_dx_4P]/2." dy="[Corna_dy_4P]/2." dz="[PCB_Epoxy_Thick_4P]/2." name="CornaL_CSC_for_TotemT1_Plane_3_5_7"/>
+  <Box dx="[Corna_dxR_4P]/2.-1*mm" dy="[Corna_dyR_4P]/2.-1*mm" dz="[PCB_Epoxy_Thick_4P]/2." name="CornaR_CSC_for_TotemT1_Plane_3_5_7"/>
+  <Box dx="[Corna_dx_4P]/2.-1*mm" dy="[Corna_dy_4P]/2.-1*mm" dz="[PCB_Epoxy_Thick_4P]/2." name="CornaL_CSC_for_TotemT1_Plane_3_5_7"/>
   
   
   <!-- Nomex_honeycomb HV side-->
@@ -3098,19 +3110,19 @@
    bl2="[TR_Min_Base_Signal_Side_4P]/2." h2="[TR_h_Signal_Side_4P]/2." phi="0*deg" theta="0*deg"/>
   
   
-  <Box dx="[Corna_dxR_4P]/2." dy="[Corna_dyR_4P]/2." dz="[Nomex_Thick_4P]/2." name="CornaR_CSC_for_TotemT1_Plane_3_5_8"/>
-  <Box dx="[Corna_dx_4P]/2." dy="[Corna_dy_4P]/2." dz="[Nomex_Thick_4P]/2." name="CornaL_CSC_for_TotemT1_Plane_3_5_8"/>
+  <Box dx="[Corna_dxR_4P]/2.-1*mm" dy="[Corna_dyR_4P]/2.-1*mm" dz="[Nomex_Thick_4P]/2." name="CornaR_CSC_for_TotemT1_Plane_3_5_8"/>
+  <Box dx="[Corna_dx_4P]/2.-1*mm" dy="[Corna_dy_4P]/2.-1*mm" dz="[Nomex_Thick_4P]/2." name="CornaL_CSC_for_TotemT1_Plane_3_5_8"/>
   
   
   
-  <Trapezoid name="Tendifilo_2R_3" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_R_dy_4P]/2." bl2="[Tendifilo2_R_dy_4P]/2." dz="[Tendifilo2_R_dx_4P]/2." h1="[Tendifilo2_R_dz_4P]/2."
+  <Trapezoid name="Tendifilo_2R_3" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_R_dy_4P]/2." bl2="[Tendifilo2_R_dy_4P]/2." dz="[Tendifilo2_R_dx_4P]/2.-3*mm" h1="[Tendifilo2_R_dz_4P]/2."
    h2="[Tendifilo2_R_dz_4P]/2." tl1="[Tendifilo2_R_dy_4P]/2." tl2="[Tendifilo2_R_dy_4P]/2." phi="0*deg" theta="30*deg" />
-  <Trapezoid name="Tendifilo_1R_3" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_R_dy_4P]/2." bl2="[Tendifilo1_R_dy_4P]/2." dz="[Tendifilo1_R_dx_4P]/2." h1="[Tendifilo1_R_dz_4P]/2."
+  <Trapezoid name="Tendifilo_1R_3" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_R_dy_4P]/2." bl2="[Tendifilo1_R_dy_4P]/2." dz="[Tendifilo1_R_dx_4P]/2.-3*mm" h1="[Tendifilo1_R_dz_4P]/2."
    h2="[Tendifilo1_R_dz_4P]/2." tl1="[Tendifilo1_R_dy_4P]/2." tl2="[Tendifilo1_R_dy_4P]/2." phi="0*deg" theta="-30*deg"  />
   
-  <Trapezoid name="Tendifilo_2L_3" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_L_dy_4P]/2." bl2="[Tendifilo2_L_dy_4P]/2." dz="[Tendifilo2_L_dx_4P]/2." h1="[Tendifilo2_L_dz_4P]/2."
+  <Trapezoid name="Tendifilo_2L_3" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_L_dy_4P]/2." bl2="[Tendifilo2_L_dy_4P]/2." dz="[Tendifilo2_L_dx_4P]/2.-3*mm" h1="[Tendifilo2_L_dz_4P]/2."
    h2="[Tendifilo2_L_dz_4P]/2." tl1="[Tendifilo2_L_dy_4P]/2." tl2="[Tendifilo2_L_dy_4P]/2." phi="0*deg" theta="-30*deg" />
-  <Trapezoid name="Tendifilo_1L_3" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_L_dy_4P]/2." bl2="[Tendifilo1_L_dy_4P]/2." dz="[Tendifilo1_L_dx_4P]/2." h1="[Tendifilo1_L_dz_4P]/2."
+  <Trapezoid name="Tendifilo_1L_3" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_L_dy_4P]/2." bl2="[Tendifilo1_L_dy_4P]/2." dz="[Tendifilo1_L_dx_4P]/2.-3*mm" h1="[Tendifilo1_L_dz_4P]/2."
    h2="[Tendifilo1_L_dz_4P]/2." tl1="[Tendifilo1_L_dy_4P]/2." tl2="[Tendifilo1_L_dy_4P]/2." phi="0*deg" theta="30*deg"  />
   
   
@@ -3180,17 +3192,15 @@
   
   
   <Trapezoid name="Frame3R_CSC_for_TotemT1_Plane_4_5_5" dz="[Frame_Thick_5P]/2." alp1="[Frame3R_alp_5P]"
-   tl1="[Frame3R_Max_Base_5P]/2." bl1="[Frame3R_Min_Base_5P]/2." h1="[Frame3R_h_5P]/2." alp2="[Frame3R_alp_5P]" tl2="[Frame3R_Max_Base_5P]/2."
-   bl2="[Frame3R_Min_Base_5P]/2." h2="[Frame3R_h_5P]/2." phi="0*deg" theta="0*deg"/> 
+   tl1="[Frame3R_Max_Base_5P]/2.-7.0*mm" bl1="[Frame3R_Min_Base_5P]/2.-7.0*mm" h1="[Frame3R_h_5P]/2." alp2="[Frame3R_alp_5P]" tl2="[Frame3R_Max_Base_5P]/2.-7.0*mm"
+   bl2="[Frame3R_Min_Base_5P]/2.-7.0*mm" h2="[Frame3R_h_5P]/2." phi="0*deg" theta="0*deg"/> 
   
   
-  
-  
-  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_4_5_5" dz="[Frame_Thick_5P]/2." alp1="-[Frame3L_alp_5P]" bl1="[Frame3L_Min_Base_5P]/2."
-   tl1="[Frame3L_Max_Base_5P]/2." h1="[Frame3L_h_5P]/2." alp2="-[Frame3L_alp_5P]" bl2="[Frame3L_Min_Base_5P]/2." tl2="[Frame3L_Max_Base_5P]/2." h2="[Frame3L_h_5P]/2."
+  <Trapezoid name="Frame3L_CSC_for_TotemT1_Plane_4_5_5" dz="[Frame_Thick_5P]/2." alp1="-[Frame3L_alp_5P]" bl1="[Frame3L_Min_Base_5P]/2.-7.0*mm"
+   tl1="[Frame3L_Max_Base_5P]/2.-7.0*mm" h1="[Frame3L_h_5P]/2." alp2="-[Frame3L_alp_5P]" bl2="[Frame3L_Min_Base_5P]/2.-7.0*mm" tl2="[Frame3L_Max_Base_5P]/2.-7.0*mm" h2="[Frame3L_h_5P]/2."
    phi="0*deg" theta="0*deg"/>
   
-  <Box dx="[Frame4_Max_Base_5P]/2." dy="[Frame_Thick_5P]/2." dz="[Frame4_h_5P]/2." name="Frame4_CSC_for_TotemT1_Plane_4_5_5"/> 
+  <Box dx="[Frame4_Max_Base_5P]/2.-0.07*mm" dy="[Frame_Thick_5P]/2." dz="[Frame4_h_5P]/2." name="Frame4_CSC_for_TotemT1_Plane_4_5_5"/> 
   
   <Trapezoid name="Frame5L_CSC_for_TotemT1_Plane_4_5_5" dz="[Frame_Thick_5P]/2." alp1="16.36*deg"
    tl1="[Frame5L_Max_Base_5P]/2." bl1="[Frame5L_Min_Base_5P]/2." h1="[Frame5L_h_5P]/2." alp2="16.36*deg" tl2="[Frame5L_Max_Base_5P]/2."
@@ -3355,14 +3365,14 @@
   
   
   
-  <Trapezoid name="Tendifilo_2R_4" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_R_dy_5P]/2." bl2="[Tendifilo2_R_dy_5P]/2." dz="[Tendifilo2_R_dx_5P]/2." h1="[Tendifilo2_R_dz_5P]/2."
+  <Trapezoid name="Tendifilo_2R_4" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_R_dy_5P]/2." bl2="[Tendifilo2_R_dy_5P]/2." dz="[Tendifilo2_R_dx_5P]/2.-2*mm" h1="[Tendifilo2_R_dz_5P]/2."
    h2="[Tendifilo2_R_dz_5P]/2." tl1="[Tendifilo2_R_dy_5P]/2." tl2="[Tendifilo2_R_dy_5P]/2." phi="0*deg" theta="30*deg" />
-  <Trapezoid name="Tendifilo_1R_4" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_R_dy_5P]/2." bl2="[Tendifilo1_R_dy_5P]/2." dz="[Tendifilo1_R_dx_5P]/2." h1="[Tendifilo1_R_dz_5P]/2."
+  <Trapezoid name="Tendifilo_1R_4" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_R_dy_5P]/2." bl2="[Tendifilo1_R_dy_5P]/2." dz="[Tendifilo1_R_dx_5P]/2.-2*mm" h1="[Tendifilo1_R_dz_5P]/2."
    h2="[Tendifilo1_R_dz_5P]/2." tl1="[Tendifilo1_R_dy_5P]/2." tl2="[Tendifilo1_R_dy_5P]/2." phi="0*deg" theta="-30*deg"  />
   
-  <Trapezoid name="Tendifilo_2L_4" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_L_dy_5P]/2." bl2="[Tendifilo2_L_dy_5P]/2." dz="[Tendifilo2_L_dx_5P]/2." h1="[Tendifilo2_L_dz_5P]/2."
+  <Trapezoid name="Tendifilo_2L_4" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo2_L_dy_5P]/2." bl2="[Tendifilo2_L_dy_5P]/2." dz="[Tendifilo2_L_dx_5P]/2.-2*mm" h1="[Tendifilo2_L_dz_5P]/2."
    h2="[Tendifilo2_L_dz_5P]/2." tl1="[Tendifilo2_L_dy_5P]/2." tl2="[Tendifilo2_L_dy_5P]/2." phi="0*deg" theta="-30*deg" />
-  <Trapezoid name="Tendifilo_1L_4" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_L_dy_5P]/2." bl2="[Tendifilo1_L_dy_5P]/2." dz="[Tendifilo1_L_dx_5P]/2." h1="[Tendifilo1_L_dz_5P]/2."
+  <Trapezoid name="Tendifilo_1L_4" alp1="0*deg" alp2="0*deg" bl1="[Tendifilo1_L_dy_5P]/2." bl2="[Tendifilo1_L_dy_5P]/2." dz="[Tendifilo1_L_dx_5P]/2.-2*mm" h1="[Tendifilo1_L_dz_5P]/2."
    h2="[Tendifilo1_L_dz_5P]/2." tl1="[Tendifilo1_L_dy_5P]/2." tl2="[Tendifilo1_L_dy_5P]/2." phi="0*deg" theta="30*deg"  />
   
 
@@ -3375,10 +3385,7 @@
 
  
  <LogicalPartSection label="totemt1.xml">
-  <LogicalPart name="TotemT1" category="unspecified">
-   <rSolid name="TotemT1"/>
-   <rMaterial name="materials:Air"/>
-  </LogicalPart>
+
 
 <!-- singola CSC-->
   <LogicalPart name="CSC_for_TotemT1_Plane_0_0" category="unspecified">
@@ -5839,14 +5846,14 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_0_0"/>
    <rChild name="totemt1:Frame1_CSC_for_TotemT1_Plane_0_0_5"/>
    <rRotation name="totemRotations:RTOT1"/>
-   <Translation x="0*fm" y="[Init_AA_from_Beam_1G]+[GAS_Low_Height_L_1G]+[GAS_Up_Height_L_1G]+[Frame1_Height_1G]/2." z="[Pos_5]"/>
+   <Translation x="0*fm" y="0.1*mm+[Init_AA_from_Beam_1G]+[GAS_Low_Height_L_1G]+[GAS_Up_Height_L_1G]+[Frame1_Height_1G]/2." z="[Pos_5]"/>
   </PosPart>
   
   <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_0_0"/>
    <rChild name="totemt1:Frame2L_CSC_for_TotemT1_Plane_0_0_5"/>
    <rRotation name="totemRotations:RTOT26"/> 
-   <Translation x="([Frame1_BMAX_1G]/2. + [Frame2L_cen_x_1G])" y="[Init_AA_from_Beam_1G]  + 531.1*mm - [Frame5L_h_1G] - [Frame2R_cen_y_1G] -[Frame1_Height_1G] " z="[Pos_5]"/>
+   <Translation x="([Frame1_BMAX_1G]/2. + [Frame2L_cen_x_1G])" y="-0.4*mm+[Init_AA_from_Beam_1G]  + 531.1*mm - [Frame5L_h_1G] - [Frame2L_cen_y_1G] -[Frame1_Height_1G] " z="[Pos_5]"/>
   </PosPart>
   
     
@@ -5855,7 +5862,7 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_0_0"/>
    <rChild name="totemt1:Frame2R_CSC_for_TotemT1_Plane_0_0_5"/>
 <rRotation name="totemRotations:RTOT27"/>
-   <Translation x="-(([Frame1_BMAX_1G]/2.) + [Frame2R_cen_x_1G])" y="[Init_AA_from_Beam_1G]  + 531.1*mm - [Frame5R_h_1G] - [Frame2R_cen_y_1G] -[Frame1_Height_1G]" z="[Pos_5]"/>
+   <Translation x="-(([Frame1_BMAX_1G]/2.) + [Frame2R_cen_x_1G])" y="-0.4*mm+[Init_AA_from_Beam_1G]  + 531.1*mm - [Frame5R_h_1G] - [Frame2R_cen_y_1G] -[Frame1_Height_1G]" z="[Pos_5]"/>
 
 </PosPart>
   
@@ -5865,7 +5872,7 @@
    <rChild name="totemt1:Frame3R_CSC_for_TotemT1_Plane_0_0_5"/>
    <rRotation name="rotations:RM1340"/>
   
-   <Translation x="-(cos(60*deg)*[Frame3R_Min_Base_1G]/2.- 4.0*mm / cos(30*deg) + [Frame4_Min_Base_1G]/2.+[Frame5R_Max_Base_1G])" 
+   <Translation x="-1*mm-(cos(60*deg)*[Frame3R_Min_Base_1G]/2.- 4.0*mm / cos(30*deg) + [Frame4_Min_Base_1G]/2.+[Frame5R_Max_Base_1G])" 
     y="sin(60*deg)*[Frame3R_Min_Base_1G]/2. + [Init_AA_from_Beam_1G]" z="[Pos_5]"/>
   </PosPart>
   
@@ -6248,14 +6255,14 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_1_0"/>
    <rChild name="totemt1:Frame1_CSC_for_TotemT1_Plane_1_0_5"/>
    <rRotation name="totemRotations:RTOT1"/>
-   <Translation x="0*fm" y="[Init_AA_from_Beam_2G]+[GAS_Low_Height_L_2G]+[GAS_Up_Height_L_2G]+[Frame1_Height_2G]/2." z="[Pos_5]"/>
+   <Translation x="0*fm" y="0.1*mm+[Init_AA_from_Beam_2G]+[GAS_Low_Height_L_2G]+[GAS_Up_Height_L_2G]+[Frame1_Height_2G]/2." z="[Pos_5]"/>
   </PosPart>
   
   <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_1_0"/>
    <rChild name="totemt1:Frame2L_CSC_for_TotemT1_Plane_1_0_5"/>
    <rRotation name="totemRotations:RTOT26"/> 
-   <Translation x="([Frame1_BMAX_2G]/2. + [Frame2L_cen_x_2G])" y="[Init_AA_from_Beam_2G]  + 578.9*mm - [Frame5L_h_2G] - [Frame2R_cen_y_2G] -[Frame1_Height_2G] " z="[Pos_5]"/>
+   <Translation x="([Frame1_BMAX_2G]/2. + [Frame2L_cen_x_2G])" y="-0.4*mm+[Init_AA_from_Beam_2G]  + 578.9*mm - [Frame5L_h_2G] - [Frame2L_cen_y_2G] -[Frame1_Height_2G] " z="[Pos_5]"/>
   </PosPart>
   
     
@@ -6264,7 +6271,7 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_1_0"/>
    <rChild name="totemt1:Frame2R_CSC_for_TotemT1_Plane_1_0_5"/>
 <rRotation name="totemRotations:RTOT27"/>
-   <Translation x="-(([Frame1_BMAX_2G]/2.) + [Frame2R_cen_x_2G])" y="[Init_AA_from_Beam_2G]  + 578.9*mm - [Frame5R_h_2G] - [Frame2R_cen_y_2G] -[Frame1_Height_2G]" z="[Pos_5]"/>
+   <Translation x="-(([Frame1_BMAX_2G]/2.) + [Frame2R_cen_x_2G])" y="-0.4*mm+[Init_AA_from_Beam_2G]  + 578.9*mm - [Frame5R_h_2G] - [Frame2R_cen_y_2G] -[Frame1_Height_2G]" z="[Pos_5]"/>
 </PosPart>
   
   
@@ -6273,7 +6280,7 @@
    <rChild name="totemt1:Frame3R_CSC_for_TotemT1_Plane_1_0_5"/>
    <rRotation name="rotations:RM1340"/>
   
-   <Translation x="-(cos(60*deg)*[Frame3R_Min_Base_2G]/2.- 4.0*mm / cos(30*deg) + [Frame4_Min_Base_2G]/2.+[Frame5R_Max_Base_2G])" 
+   <Translation x="-1*mm-(cos(60*deg)*[Frame3R_Min_Base_2G]/2.- 4.0*mm / cos(30*deg) + [Frame4_Min_Base_2G]/2.+[Frame5R_Max_Base_2G])" 
     y="sin(60*deg)*[Frame3R_Min_Base_2G]/2. + [Init_AA_from_Beam_2G]" z="[Pos_5]"/>
   </PosPart>
   
@@ -6649,14 +6656,14 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_2_0"/>
    <rChild name="totemt1:Frame1_CSC_for_TotemT1_Plane_2_0_5"/>
    <rRotation name="totemRotations:RTOT1"/>
-   <Translation x="0*fm" y="[Init_AA_from_Beam_3G]+[GAS_Low_Height_L_3G]+[GAS_Up_Height_L_3G]+[Frame1_Height_3G]/2." z="[Pos_5]"/>
+   <Translation x="0*fm" y="0.1*mm+[Init_AA_from_Beam_3G]+[GAS_Low_Height_L_3G]+[GAS_Up_Height_L_3G]+[Frame1_Height_3G]/2." z="[Pos_5]"/>
   </PosPart>
   
   <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_2_0"/>
    <rChild name="totemt1:Frame2L_CSC_for_TotemT1_Plane_2_0_5"/>
    <rRotation name="totemRotations:RTOT26"/> 
-   <Translation x="([Frame1_BMAX_3G]/2. + [Frame2L_cen_x_3G])" y="[Init_AA_from_Beam_3G]  + 622.3*mm - [Frame5L_h_3G] - [Frame2R_cen_y_3G] -[Frame1_Height_3G] " z="[Pos_5]"/>
+   <Translation x="([Frame1_BMAX_3G]/2. + [Frame2L_cen_x_3G])" y="[Init_AA_from_Beam_3G]  + 622.3*mm - [Frame5L_h_3G] - [Frame2L_cen_y_3G] -[Frame1_Height_3G] " z="[Pos_5]"/>
   </PosPart>
   
     
@@ -6674,7 +6681,7 @@
    <rChild name="totemt1:Frame3R_CSC_for_TotemT1_Plane_2_0_5"/>
    <rRotation name="rotations:RM1340"/>
   
-   <Translation x="-(cos(60*deg)*[Frame3R_Min_Base_3G]/2.- 4.0*mm / cos(30*deg) + [Frame4_Min_Base_3G]/2.+[Frame5R_Max_Base_3G])" 
+   <Translation x="-1.6*mm-(cos(60*deg)*[Frame3R_Min_Base_3G]/2.- 4.0*mm / cos(30*deg) + [Frame4_Min_Base_3G]/2.+[Frame5R_Max_Base_3G])" 
     y="sin(60*deg)*[Frame3R_Min_Base_3G]/2. + [Init_AA_from_Beam_3G]" z="[Pos_5]"/>
   </PosPart>
   
@@ -7044,14 +7051,14 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_3_0"/>
    <rChild name="totemt1:Frame1_CSC_for_TotemT1_Plane_3_0_5"/>
    <rRotation name="totemRotations:RTOT1"/>
-   <Translation x="0*fm" y="[Init_AA_from_Beam_4G]+[GAS_Low_Height_L_4G]+[GAS_Up_Height_L_4G]+[Frame1_Height_4G]/2." z="[Pos_5]"/>
+   <Translation x="0*fm" y="0.3*mm+[Init_AA_from_Beam_4G]+[GAS_Low_Height_L_4G]+[GAS_Up_Height_L_4G]+[Frame1_Height_4G]/2." z="[Pos_5]"/>
   </PosPart>
   
   <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_3_0"/>
    <rChild name="totemt1:Frame2L_CSC_for_TotemT1_Plane_3_0_5"/>
    <rRotation name="totemRotations:RTOT26"/> 
-   <Translation x="([Frame1_BMAX_4G]/2. + [Frame2L_cen_x_4G])" y="[Init_AA_from_Beam_4G]  + 674.5*mm - [Frame5L_h_4G] - [Frame2R_cen_y_4G] -[Frame1_Height_4G] " z="[Pos_5]"/>
+   <Translation x="([Frame1_BMAX_4G]/2. + [Frame2L_cen_x_4G])" y="-0.4*mm+[Init_AA_from_Beam_4G]  + 674.5*mm - [Frame5L_h_4G] - [Frame2L_cen_y_4G] -[Frame1_Height_4G] " z="[Pos_5]"/>
   </PosPart>
   
     
@@ -7060,7 +7067,7 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_3_0"/>
    <rChild name="totemt1:Frame2R_CSC_for_TotemT1_Plane_3_0_5"/>
 <rRotation name="totemRotations:RTOT27"/>
-   <Translation x="-(([Frame1_BMAX_4G]/2.) + [Frame2R_cen_x_4G])" y="[Init_AA_from_Beam_4G]  + 674.5*mm - [Frame5R_h_4G] - [Frame2R_cen_y_4G] -[Frame1_Height_4G]" z="[Pos_5]"/>
+   <Translation x="-(([Frame1_BMAX_4G]/2.) + [Frame2R_cen_x_4G])" y="-0.4*mm+[Init_AA_from_Beam_4G]  + 674.5*mm - [Frame5R_h_4G] - [Frame2R_cen_y_4G] -[Frame1_Height_4G]" z="[Pos_5]"/>
 </PosPart>
   
   
@@ -7441,14 +7448,14 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
    <rChild name="totemt1:Frame1_CSC_for_TotemT1_Plane_4_0_5"/>
    <rRotation name="totemRotations:RTOT1"/>
-   <Translation x="0*fm" y="[Init_AA_from_Beam_5G]+[GAS_Low_Height_L_5G]+[GAS_Up_Height_L_5G]+[Frame1_Height_5G]/2." z="[Pos_5]"/>
+   <Translation x="0*fm" y="0.1*mm+[Init_AA_from_Beam_5G]+[GAS_Low_Height_L_5G]+[GAS_Up_Height_L_5G]+[Frame1_Height_5G]/2." z="[Pos_5]"/>
   </PosPart>
   
   <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
    <rChild name="totemt1:Frame2L_CSC_for_TotemT1_Plane_4_0_5"/>
    <rRotation name="totemRotations:RTOT26"/> 
-   <Translation x="([Frame1_BMAX_5G]/2. + [Frame2L_cen_x_5G])" y="[Init_AA_from_Beam_5G]  + 713*mm - [Frame5L_h_5G] - [Frame2R_cen_y_5G] -[Frame1_Height_5G] " z="[Pos_5]"/>
+   <Translation x="([Frame1_BMAX_5G]/2. + [Frame2L_cen_x_5G])" y="-0.4*mm+[Init_AA_from_Beam_5G]  + 713*mm - [Frame5L_h_5G] - [Frame2L_cen_y_5G] -[Frame1_Height_5G] " z="[Pos_5]"/>
   </PosPart>
   
     
@@ -7457,7 +7464,7 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
    <rChild name="totemt1:Frame2R_CSC_for_TotemT1_Plane_4_0_5"/>
 <rRotation name="totemRotations:RTOT27"/>
-   <Translation x="-(([Frame1_BMAX_5G]/2.) + [Frame2R_cen_x_5G])" y="[Init_AA_from_Beam_5G]  + 713*mm - [Frame5R_h_5G] - [Frame2R_cen_y_5G] -[Frame1_Height_5G]" z="[Pos_5]"/>
+   <Translation x="-(([Frame1_BMAX_5G]/2.) + [Frame2R_cen_x_5G])" y="-0.4*mm+[Init_AA_from_Beam_5G]  + 713*mm - [Frame5R_h_5G] - [Frame2R_cen_y_5G] -[Frame1_Height_5G]" z="[Pos_5]"/>
 </PosPart>
   
   
@@ -7933,14 +7940,14 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_0_5"/>
    <rChild name="totemt1:Frame1_CSC_for_TotemT1_Plane_0_5_5"/>
    <rRotation name="totemRotations:RTOT1"/>
-   <Translation x="0*fm" y="[Init_AA_from_Beam_1P]+[GAS_Low_Height_L_1P]+[GAS_Up_Height_L_1P]+[Frame1_Height_1P]/2." z="[Pos_0_0_5_1P]"/>
+   <Translation x="0*fm" y="0.1*mm+[Init_AA_from_Beam_1P]+[GAS_Low_Height_L_1P]+[GAS_Up_Height_L_1P]+[Frame1_Height_1P]/2." z="[Pos_0_0_5_1P]"/>
   </PosPart>
  
   <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_0_5"/>
    <rChild name="totemt1:Frame2L_CSC_for_TotemT1_Plane_0_5_5"/>
    <rRotation name="totemRotations:RTOT26"/> 
-   <Translation x="([Frame1_BMAX_1P]/2. + [Frame2L_cen_x_1P])" y="[Init_AA_from_Beam_1P]  + [AltezzaFrame_1P] - [Frame5L_h_1P] - [Frame2R_cen_y_1P] -[Frame1_Height_1P] " z="[Pos_0_0_5_1P]"/>
+   <Translation x="([Frame1_BMAX_1P]/2. + [Frame2L_cen_x_1P])" y="-2.4*mm+[Init_AA_from_Beam_1P]  + [AltezzaFrame_1P] - [Frame5L_h_1P] - [Frame2L_cen_y_1P] -[Frame1_Height_1P] " z="[Pos_0_0_5_1P]"/>
    </PosPart>
   
 
@@ -7949,7 +7956,7 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_0_5"/>
    <rChild name="totemt1:Frame2R_CSC_for_TotemT1_Plane_0_5_5"/>
 <rRotation name="totemRotations:RTOT27"/>
-   <Translation x="-(([Frame1_BMAX_1P]/2.) + [Frame2R_cen_x_1P])" y="[Init_AA_from_Beam_1P]  +[AltezzaFrame_1P] - [Frame5R_h_1P] - [Frame2R_cen_y_1P] -[Frame1_Height_1P]" z="[Pos_0_0_5_1P]"/>
+   <Translation x="-(([Frame1_BMAX_1P]/2.) + [Frame2R_cen_x_1P])" y="-2.4*mm+[Init_AA_from_Beam_1P]  +[AltezzaFrame_1P] - [Frame5R_h_1P] - [Frame2R_cen_y_1P] -[Frame1_Height_1P]" z="[Pos_0_0_5_1P]"/>
    
   </PosPart>
   
@@ -8637,14 +8644,14 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_1_5"/>
    <rChild name="totemt1:Frame1_CSC_for_TotemT1_Plane_1_5_5"/>
    <rRotation name="totemRotations:RTOT1"/>
-   <Translation x="0*fm" y="[Init_AA_from_Beam_2P]+[GAS_Low_Height_L_2P]+[GAS_Up_Height_L_2P]+[Frame1_Height_2P]/2." z="[Pos_0_0_5_2P]"/>
+   <Translation x="0*fm" y="0.1*mm+[Init_AA_from_Beam_2P]+[GAS_Low_Height_L_2P]+[GAS_Up_Height_L_2P]+[Frame1_Height_2P]/2." z="[Pos_0_0_5_2P]"/>
   </PosPart>
   
   <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_1_5"/>
    <rChild name="totemt1:Frame2L_CSC_for_TotemT1_Plane_1_5_5"/>
    <rRotation name="totemRotations:RTOT26"/> 
-   <Translation x="([Frame1_BMAX_2P]/2. + [Frame2L_cen_x_2P])" y="[Init_AA_from_Beam_2P]  + [AltezzaFrame_2P] - [Frame5L_h_2P] - [Frame2R_cen_y_2P] -[Frame1_Height_2P] " z="[Pos_0_0_5_2P]"/>
+   <Translation x="([Frame1_BMAX_2P]/2. + [Frame2L_cen_x_2P])" y="-1.4*mm+[Init_AA_from_Beam_2P]  + [AltezzaFrame_2P] - [Frame5L_h_2P] - [Frame2L_cen_y_2P] -[Frame1_Height_2P] " z="[Pos_0_0_5_2P]"/>
    </PosPart>
   
   
@@ -8656,7 +8663,7 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_1_5"/>
    <rChild name="totemt1:Frame2R_CSC_for_TotemT1_Plane_1_5_5"/>
 <rRotation name="totemRotations:RTOT27"/>
-   <Translation x="-(([Frame1_BMAX_2P]/2.) + [Frame2R_cen_x_2P])" y="[Init_AA_from_Beam_2P]  +[AltezzaFrame_2P] - [Frame5R_h_2P] - [Frame2R_cen_y_2P] -[Frame1_Height_2P]" z="[Pos_0_0_5_2P]"/>
+   <Translation x="-(([Frame1_BMAX_2P]/2.) + [Frame2R_cen_x_2P])" y="-1.4*mm+[Init_AA_from_Beam_2P]  +[AltezzaFrame_2P] - [Frame5R_h_2P] - [Frame2R_cen_y_2P] -[Frame1_Height_2P]" z="[Pos_0_0_5_2P]"/>
    
   </PosPart>
   
@@ -8665,7 +8672,7 @@
    <rChild name="totemt1:Frame3R_CSC_for_TotemT1_Plane_1_5_5"/>
    <rRotation name="rotations:RM1340"/>
    
-   <Translation x="-((cos(60*deg)*[Frame3R_Min_Base_2P]/2.- 4.0*mm / cos(30*deg) + [Frame4_Min_Base_2P]/2.+[Frame5R_Max_Base_2P]))" y="sin(60*deg)*[Frame3R_Min_Base_2P]/2. + [Init_AA_from_Beam_2P]" z="[Pos_0_0_5_2P]"/>
+   <Translation x="-1*mm-((cos(60*deg)*[Frame3R_Min_Base_2P]/2.- 4.0*mm / cos(30*deg) + [Frame4_Min_Base_2P]/2.+[Frame5R_Max_Base_2P]))" y="sin(60*deg)*[Frame3R_Min_Base_2P]/2. + [Init_AA_from_Beam_2P]" z="[Pos_0_0_5_2P]"/>
   </PosPart>
   
 
@@ -9060,28 +9067,28 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_1_5"/>
    <rChild name="totemt1:Tendifilo_2R_1"/>
    <rRotation name="totemRotations:rot_Tendifilo2L"/>
-   <Translation x="-([GAS_Low_min_base_2P]/2.+([GAS_Low_Height_R_2P]/2.)*tan(30*deg)+[Tendifilo2_R_dx_2P]/2.)"  y="[Init_AA_from_Beam_2P]+[GAS_Low_Height_R_2P]/2." z="[Pos_0_0_5_2P]"/>
+   <Translation x="-([GAS_Low_min_base_2P]/2.+([GAS_Low_Height_R_2P]/2.)*tan(30*deg)+[Tendifilo2_R_dx_2P]/2./cos(30*deg))"  y="[Init_AA_from_Beam_2P]+[GAS_Low_Height_R_2P]/2." z="[Pos_0_0_5_2P]"/>
    </PosPart>
    
    <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_1_5"/>
    <rChild name="totemt1:Tendifilo_1R_1"/>
    <rRotation name="totemRotations:rot_Tendifilo1L"/>
-   <Translation x="-([GAS_Up_min_base_2P]/2.+([GAS_Up_Height_R_2P]/2.)*tan(30*deg)+[Tendifilo1_R_dx_2P]/2.)" y="[Init_AA_from_Beam_2P]+[GAS_Low_Height_R_2P]+[GAS_Up_Height_R_2P]/2." z="[Pos_0_0_5_2P]"/>
+   <Translation x="-([GAS_Up_min_base_2P]/2.+([GAS_Up_Height_R_2P]/2.)*tan(30*deg)+[Tendifilo1_R_dx_2P]/2./cos(30*deg))" y="[Init_AA_from_Beam_2P]+[GAS_Low_Height_R_2P]+[GAS_Up_Height_R_2P]/2." z="[Pos_0_0_5_2P]"/>
   </PosPart>
   
    <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_1_5"/>
    <rChild name="totemt1:Tendifilo_2L_1"/>
    <rRotation name="totemRotations:rot_Tendifilo2R"/>
-   <Translation x="([GAS_Low_min_base_2P]/2.+([GAS_Low_Height_L_2P]/2.)*tan(30*deg)+[Tendifilo2_L_dx_2P]/2.)" y="[Init_AA_from_Beam_2P]+[GAS_Low_Height_L_2P]/2." z="[Pos_0_0_5_2P]"/>
+   <Translation x="([GAS_Low_min_base_2P]/2.+([GAS_Low_Height_L_2P]/2.)*tan(30*deg)+[Tendifilo2_L_dx_2P]/2./cos(30*deg))" y="[Init_AA_from_Beam_2P]+[GAS_Low_Height_L_2P]/2." z="[Pos_0_0_5_2P]"/>
   </PosPart>
   
    <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_1_5"/>
    <rChild name="totemt1:Tendifilo_1L_1"/>
    <rRotation name="totemRotations:rot_Tendifilo1R"/>
-   <Translation x="([GAS_Up_min_base_2P]/2.+([GAS_Up_Height_L_2P]/2.)*tan(30*deg)+[Tendifilo1_L_dx_2P]/2.)" y="[Init_AA_from_Beam_2P]+[GAS_Low_Height_L_2P]+[GAS_Up_Height_L_2P]/2." z="[Pos_0_0_5_2P]"/>
+   <Translation x="([GAS_Up_min_base_2P]/2.+([GAS_Up_Height_L_2P]/2.)*tan(30*deg)+[Tendifilo1_L_dx_2P]/2./cos(30*deg))" y="[Init_AA_from_Beam_2P]+[GAS_Low_Height_L_2P]+[GAS_Up_Height_L_2P]/2." z="[Pos_0_0_5_2P]"/>
    </PosPart>
   
    
@@ -9342,14 +9349,14 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_2_5"/>
    <rChild name="totemt1:Frame1_CSC_for_TotemT1_Plane_2_5_5"/>
    <rRotation name="totemRotations:RTOT1"/>
-   <Translation x="0*fm" y="[Init_AA_from_Beam_3P]+[GAS_Low_Height_L_3P]+[GAS_Up_Height_L_3P]+[Frame1_Height_3P]/2." z="[Pos_0_0_5_3P]"/>
+   <Translation x="0*fm" y="0.1*mm+[Init_AA_from_Beam_3P]+[GAS_Low_Height_L_3P]+[GAS_Up_Height_L_3P]+[Frame1_Height_3P]/2." z="[Pos_0_0_5_3P]"/>
   </PosPart>
   
   <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_2_5"/>
    <rChild name="totemt1:Frame2L_CSC_for_TotemT1_Plane_2_5_5"/>
    <rRotation name="totemRotations:RTOT26"/> 
-   <Translation x="([Frame1_BMAX_3P]/2. + [Frame2L_cen_x_3P])" y="[Init_AA_from_Beam_3P]  + [AltezzaFrame_3P] - [Frame5L_h_3P] - [Frame2R_cen_y_3P] -[Frame1_Height_3P] " z="[Pos_0_0_5_3P]"/>
+   <Translation x="([Frame1_BMAX_3P]/2. + [Frame2L_cen_x_3P])" y="-1.4*mm+[Init_AA_from_Beam_3P]  + [AltezzaFrame_3P] - [Frame5L_h_3P] - [Frame2L_cen_y_3P] -[Frame1_Height_3P] " z="[Pos_0_0_5_3P]"/>
    </PosPart>
   
   
@@ -9361,7 +9368,7 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_2_5"/>
    <rChild name="totemt1:Frame2R_CSC_for_TotemT1_Plane_2_5_5"/>
 <rRotation name="totemRotations:RTOT27"/>
-   <Translation x="-(([Frame1_BMAX_3P]/2.) + [Frame2R_cen_x_3P])" y="[Init_AA_from_Beam_3P]  +[AltezzaFrame_3P] - [Frame5R_h_3P] - [Frame2R_cen_y_3P] -[Frame1_Height_3P]" z="[Pos_0_0_5_3P]"/>
+   <Translation x="-(([Frame1_BMAX_3P]/2.) + [Frame2R_cen_x_3P])" y="-1.4*mm+[Init_AA_from_Beam_3P]  +[AltezzaFrame_3P] - [Frame5R_h_3P] - [Frame2R_cen_y_3P] -[Frame1_Height_3P]" z="[Pos_0_0_5_3P]"/>
    
   </PosPart>
   
@@ -9380,7 +9387,7 @@
    <rChild name="totemt1:Frame3L_CSC_for_TotemT1_Plane_2_5_5"/>
    <rRotation name="rotations:RM1335"/>
    
-   <Translation x="(cos(60*deg)*[Frame3L_Min_Base_3P]/2.- 4.0*mm / cos(22.8735*deg) + [Frame4_Min_Base_3P]/2.+[Frame5L_Max_Base_3P])" y="sin(60*deg)*[Frame3L_Min_Base_3P]/2. + [Init_AA_from_Beam_3P]" z="[Pos_0_0_5_3P]"/>
+   <Translation x="(cos(60*deg)*[Frame3L_Min_Base_3P]/2.- 4.0*mm / cos(22.8735*deg) + [Frame4_Min_Base_3P]/2.+[Frame5L_Max_Base_3P])" y="-1*mm+sin(60*deg)*[Frame3L_Min_Base_3P]/2. + [Init_AA_from_Beam_3P]" z="[Pos_0_0_5_3P]"/>
 
   </PosPart>
   
@@ -9765,28 +9772,28 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_2_5"/>
    <rChild name="totemt1:Tendifilo_2R_2"/>
    <rRotation name="totemRotations:rot_Tendifilo2L"/>
-   <Translation x="-([GAS_Low_min_base_3P]/2.+([GAS_Low_Height_R_3P]/2.)*tan(30*deg)+[Tendifilo2_R_dx_3P]/2.)"  y="[Init_AA_from_Beam_3P]+[GAS_Low_Height_R_3P]/2." z="[Pos_0_0_5_3P]"/>
+   <Translation x="-([GAS_Low_min_base_3P]/2.+([GAS_Low_Height_R_3P]/2.)*tan(30*deg)+[Tendifilo2_R_dx_3P]/2./cos(30*deg))"  y="[Init_AA_from_Beam_3P]+[GAS_Low_Height_R_3P]/2." z="[Pos_0_0_5_3P]"/>
    </PosPart>
    
    <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_2_5"/>
    <rChild name="totemt1:Tendifilo_1R_2"/>
    <rRotation name="totemRotations:rot_Tendifilo1L"/>
-   <Translation x="-([GAS_Up_min_base_3P]/2.+([GAS_Up_Height_R_3P]/2.)*tan(30*deg)+[Tendifilo1_R_dx_3P]/2.)" y="[Init_AA_from_Beam_3P]+[GAS_Low_Height_R_3P]+[GAS_Up_Height_R_3P]/2." z="[Pos_0_0_5_3P]"/>
+   <Translation x="-([GAS_Up_min_base_3P]/2.+([GAS_Up_Height_R_3P]/2.)*tan(30*deg)+[Tendifilo1_R_dx_3P]/2./cos(30*deg))" y="[Init_AA_from_Beam_3P]+[GAS_Low_Height_R_3P]+[GAS_Up_Height_R_3P]/2." z="[Pos_0_0_5_3P]"/>
   </PosPart>
   
    <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_2_5"/>
    <rChild name="totemt1:Tendifilo_2L_2"/>
    <rRotation name="totemRotations:rot_Tendifilo2R"/>
-   <Translation x="([GAS_Low_min_base_3P]/2.+([GAS_Low_Height_L_3P]/2.)*tan(30*deg)+[Tendifilo2_L_dx_3P]/2.)" y="[Init_AA_from_Beam_3P]+[GAS_Low_Height_L_3P]/2." z="[Pos_0_0_5_3P]"/>
+   <Translation x="([GAS_Low_min_base_3P]/2.+([GAS_Low_Height_L_3P]/2.)*tan(30*deg)+[Tendifilo2_L_dx_3P]/2./cos(30*deg))" y="[Init_AA_from_Beam_3P]+[GAS_Low_Height_L_3P]/2." z="[Pos_0_0_5_3P]"/>
   </PosPart>
   
    <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_2_5"/>
    <rChild name="totemt1:Tendifilo_1L_2"/>
    <rRotation name="totemRotations:rot_Tendifilo1R"/>
-   <Translation x="([GAS_Up_min_base_3P]/2.+([GAS_Up_Height_L_3P]/2.)*tan(30*deg)+[Tendifilo1_L_dx_3P]/2.)" y="[Init_AA_from_Beam_3P]+[GAS_Low_Height_L_3P]+[GAS_Up_Height_L_3P]/2." z="[Pos_0_0_5_3P]"/>
+   <Translation x="([GAS_Up_min_base_3P]/2.+([GAS_Up_Height_L_3P]/2.)*tan(30*deg)+[Tendifilo1_L_dx_3P]/2./cos(30*deg))" y="[Init_AA_from_Beam_3P]+[GAS_Low_Height_L_3P]+[GAS_Up_Height_L_3P]/2." z="[Pos_0_0_5_3P]"/>
    </PosPart>
   
   
@@ -10046,14 +10053,14 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_3_5"/>
    <rChild name="totemt1:Frame1_CSC_for_TotemT1_Plane_3_5_5"/>
    <rRotation name="totemRotations:RTOT1"/>
-   <Translation x="0*fm" y="[Init_AA_from_Beam_4P]+[GAS_Low_Height_L_4P]+[GAS_Up_Height_L_4P]+[Frame1_Height_4P]/2." z="[Pos_0_0_5_4P]"/>
+   <Translation x="0*fm" y="0.3*mm+[Init_AA_from_Beam_4P]+[GAS_Low_Height_L_4P]+[GAS_Up_Height_L_4P]+[Frame1_Height_4P]/2." z="[Pos_0_0_5_4P]"/>
   </PosPart>
   
   <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_3_5"/>
    <rChild name="totemt1:Frame2L_CSC_for_TotemT1_Plane_3_5_5"/>
    <rRotation name="totemRotations:RTOT26"/> 
-   <Translation x="([Frame1_BMAX_4P]/2. + [Frame2L_cen_x_4P])" y="[Init_AA_from_Beam_4P]  + [AltezzaFrame_4P] - [Frame5L_h_4P] - [Frame2R_cen_y_4P] -[Frame1_Height_4P] " z="[Pos_0_0_5_4P]"/>
+   <Translation x="([Frame1_BMAX_4P]/2. + [Frame2L_cen_x_4P])" y="-0.8*mm+[Init_AA_from_Beam_4P]  + [AltezzaFrame_4P] - [Frame5L_h_4P] - [Frame2L_cen_y_4P] -[Frame1_Height_4P] " z="[Pos_0_0_5_4P]"/>
    </PosPart>
   
   
@@ -10065,7 +10072,7 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_3_5"/>
    <rChild name="totemt1:Frame2R_CSC_for_TotemT1_Plane_3_5_5"/>
 <rRotation name="totemRotations:RTOT27"/>
-   <Translation x="-(([Frame1_BMAX_4P]/2.) + [Frame2R_cen_x_4P])" y="[Init_AA_from_Beam_4P]  +[AltezzaFrame_4P] - [Frame5R_h_4P] - [Frame2R_cen_y_4P] -[Frame1_Height_4P]" z="[Pos_0_0_5_4P]"/>
+   <Translation x="-(([Frame1_BMAX_4P]/2.) + [Frame2R_cen_x_4P])" y="-0.8*mm+[Init_AA_from_Beam_4P]  +[AltezzaFrame_4P] - [Frame5R_h_4P] - [Frame2R_cen_y_4P] -[Frame1_Height_4P]" z="[Pos_0_0_5_4P]"/>
    
   </PosPart>
   
@@ -10469,28 +10476,28 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_3_5"/>
    <rChild name="totemt1:Tendifilo_2R_3"/>
    <rRotation name="totemRotations:rot_Tendifilo2L"/>
-   <Translation x="-([GAS_Low_min_base_4P]/2.+([GAS_Low_Height_R_4P]/2.)*tan(30*deg)+[Tendifilo2_R_dx_4P]/2.)"  y="[Init_AA_from_Beam_4P]+[GAS_Low_Height_R_4P]/2." z="[Pos_0_0_5_4P]"/>
+   <Translation x="-([GAS_Low_min_base_4P]/2.+([GAS_Low_Height_R_4P]/2.)*tan(30*deg)+[Tendifilo2_R_dx_4P]/2./cos(30*deg))"  y="[Init_AA_from_Beam_4P]+[GAS_Low_Height_R_4P]/2." z="[Pos_0_0_5_4P]"/>
    </PosPart>
    
    <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_3_5"/>
    <rChild name="totemt1:Tendifilo_1R_3"/>
    <rRotation name="totemRotations:rot_Tendifilo1L"/>
-   <Translation x="-([GAS_Up_min_base_4P]/2.+([GAS_Up_Height_R_4P]/2.)*tan(30*deg)+[Tendifilo1_R_dx_4P]/2.)" y="[Init_AA_from_Beam_4P]+[GAS_Low_Height_R_4P]+[GAS_Up_Height_R_4P]/2." z="[Pos_0_0_5_4P]"/>
+   <Translation x="-([GAS_Up_min_base_4P]/2.+([GAS_Up_Height_R_4P]/2.)*tan(30*deg)+[Tendifilo1_R_dx_4P]/2./cos(30*deg))" y="[Init_AA_from_Beam_4P]+[GAS_Low_Height_R_4P]+[GAS_Up_Height_R_4P]/2." z="[Pos_0_0_5_4P]"/>
   </PosPart>
   
    <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_3_5"/>
    <rChild name="totemt1:Tendifilo_2L_3"/>
    <rRotation name="totemRotations:rot_Tendifilo2R"/>
-   <Translation x="([GAS_Low_min_base_4P]/2.+([GAS_Low_Height_L_4P]/2.)*tan(30*deg)+[Tendifilo2_L_dx_4P]/2.)" y="[Init_AA_from_Beam_4P]+[GAS_Low_Height_L_4P]/2." z="[Pos_0_0_5_4P]"/>
+   <Translation x="([GAS_Low_min_base_4P]/2.+([GAS_Low_Height_L_4P]/2.)*tan(30*deg)+[Tendifilo2_L_dx_4P]/2./cos(30*deg))" y="[Init_AA_from_Beam_4P]+[GAS_Low_Height_L_4P]/2." z="[Pos_0_0_5_4P]"/>
   </PosPart>
   
    <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_3_5"/>
    <rChild name="totemt1:Tendifilo_1L_3"/>
    <rRotation name="totemRotations:rot_Tendifilo1R"/>
-   <Translation x="([GAS_Up_min_base_4P]/2.+([GAS_Up_Height_L_4P]/2.)*tan(30*deg)+[Tendifilo1_L_dx_4P]/2.)" y="[Init_AA_from_Beam_4P]+[GAS_Low_Height_L_4P]+[GAS_Up_Height_L_4P]/2." z="[Pos_0_0_5_4P]"/>
+   <Translation x="([GAS_Up_min_base_4P]/2.+([GAS_Up_Height_L_4P]/2.)*tan(30*deg)+[Tendifilo1_L_dx_4P]/2./cos(30*deg))" y="[Init_AA_from_Beam_4P]+[GAS_Low_Height_L_4P]+[GAS_Up_Height_L_4P]/2." z="[Pos_0_0_5_4P]"/>
    </PosPart>
   
    
@@ -10751,14 +10758,14 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_4_5"/>
    <rChild name="totemt1:Frame1_CSC_for_TotemT1_Plane_4_5_5"/>
    <rRotation name="totemRotations:RTOT1"/>
-   <Translation x="0*fm" y="[Init_AA_from_Beam_5P]+[GAS_Low_Height_L_5P]+[GAS_Up_Height_L_5P]+[Frame1_Height_5P]/2." z="[Pos_0_0_5_5P]"/>
+   <Translation x="0*fm" y="0.1*mm+[Init_AA_from_Beam_5P]+[GAS_Low_Height_L_5P]+[GAS_Up_Height_L_5P]+[Frame1_Height_5P]/2." z="[Pos_0_0_5_5P]"/>
   </PosPart>
   
   <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_4_5"/>
    <rChild name="totemt1:Frame2L_CSC_for_TotemT1_Plane_4_5_5"/>
    <rRotation name="totemRotations:RTOT26"/> 
-   <Translation x="([Frame1_BMAX_5P]/2. + [Frame2L_cen_x_5P])" y="[Init_AA_from_Beam_5P]  + [AltezzaFrame_5P] - [Frame5L_h_5P] - [Frame2R_cen_y_5P] -[Frame1_Height_5P] " z="[Pos_0_0_5_5P]"/>
+   <Translation x="([Frame1_BMAX_5P]/2. + [Frame2L_cen_x_5P])" y="-0.8*mm+[Init_AA_from_Beam_5P]  + [AltezzaFrame_5P] - [Frame5L_h_5P] - [Frame2L_cen_y_5P] -[Frame1_Height_5P] " z="[Pos_0_0_5_5P]"/>
    </PosPart>
   
   
@@ -10770,7 +10777,7 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_4_5"/>
    <rChild name="totemt1:Frame2R_CSC_for_TotemT1_Plane_4_5_5"/>
 <rRotation name="totemRotations:RTOT27"/>
-   <Translation x="-(([Frame1_BMAX_5P]/2.) + [Frame2R_cen_x_5P])" y="[Init_AA_from_Beam_5P]  +[AltezzaFrame_5P] - [Frame5R_h_5P] - [Frame2R_cen_y_5P] -[Frame1_Height_5P]" z="[Pos_0_0_5_5P]"/>
+   <Translation x="-(([Frame1_BMAX_5P]/2.) + [Frame2R_cen_x_5P])" y="-0.8*mm+[Init_AA_from_Beam_5P]  +[AltezzaFrame_5P] - [Frame5R_h_5P] - [Frame2R_cen_y_5P] -[Frame1_Height_5P]" z="[Pos_0_0_5_5P]"/>
    
   </PosPart>
   
@@ -11175,28 +11182,28 @@
    <rParent name="totemt1:CSC_for_TotemT1_Plane_4_5"/>
    <rChild name="totemt1:Tendifilo_2R_4"/>
    <rRotation name="totemRotations:rot_Tendifilo2L"/>
-   <Translation x="-([GAS_Low_min_base_5P]/2.+([GAS_Low_Height_R_5P]/2.)*tan(30*deg)+[Tendifilo2_R_dx_5P]/2.)"  y="[Init_AA_from_Beam_5P]+[GAS_Low_Height_R_5P]/2." z="[Pos_0_0_5_5P]"/>
+   <Translation x="-([GAS_Low_min_base_5P]/2.+([GAS_Low_Height_R_5P]/2.)*tan(30*deg)+[Tendifilo2_R_dx_5P]/2./cos(30*deg))"  y="[Init_AA_from_Beam_5P]+[GAS_Low_Height_R_5P]/2." z="[Pos_0_0_5_5P]"/>
    </PosPart>
    
    <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_4_5"/>
    <rChild name="totemt1:Tendifilo_1R_4"/>
    <rRotation name="totemRotations:rot_Tendifilo1L"/>
-   <Translation x="-([GAS_Up_min_base_5P]/2.+([GAS_Up_Height_R_5P]/2.)*tan(30*deg)+[Tendifilo1_R_dx_5P]/2.)" y="[Init_AA_from_Beam_5P]+[GAS_Low_Height_R_5P]+[GAS_Up_Height_R_5P]/2." z="[Pos_0_0_5_5P]"/>
+   <Translation x="-([GAS_Up_min_base_5P]/2.+([GAS_Up_Height_R_5P]/2.)*tan(30*deg)+[Tendifilo1_R_dx_5P]/2./cos(30*deg))" y="[Init_AA_from_Beam_5P]+[GAS_Low_Height_R_5P]+[GAS_Up_Height_R_5P]/2." z="[Pos_0_0_5_5P]"/>
   </PosPart>
   
    <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_4_5"/>
    <rChild name="totemt1:Tendifilo_2L_4"/>
    <rRotation name="totemRotations:rot_Tendifilo2R"/>
-   <Translation x="([GAS_Low_min_base_5P]/2.+([GAS_Low_Height_L_5P]/2.)*tan(30*deg)+[Tendifilo2_L_dx_5P]/2.)" y="[Init_AA_from_Beam_5P]+[GAS_Low_Height_L_5P]/2." z="[Pos_0_0_5_5P]"/>
+   <Translation x="([GAS_Low_min_base_5P]/2.+([GAS_Low_Height_L_5P]/2.)*tan(30*deg)+[Tendifilo2_L_dx_5P]/2./cos(30*deg))" y="[Init_AA_from_Beam_5P]+[GAS_Low_Height_L_5P]/2." z="[Pos_0_0_5_5P]"/>
   </PosPart>
   
    <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_4_5"/>
    <rChild name="totemt1:Tendifilo_1L_4"/>
    <rRotation name="totemRotations:rot_Tendifilo1R"/>
-   <Translation x="([GAS_Up_min_base_5P]/2.+([GAS_Up_Height_L_5P]/2.)*tan(30*deg)+[Tendifilo1_L_dx_5P]/2.)" y="[Init_AA_from_Beam_5P]+[GAS_Low_Height_L_5P]+[GAS_Up_Height_L_5P]/2." z="[Pos_0_0_5_5P]"/>
+   <Translation x="([GAS_Up_min_base_5P]/2.+([GAS_Up_Height_L_5P]/2.)*tan(30*deg)+[Tendifilo1_L_dx_5P]/2./cos(30*deg))" y="[Init_AA_from_Beam_5P]+[GAS_Low_Height_L_5P]+[GAS_Up_Height_L_5P]/2." z="[Pos_0_0_5_5P]"/>
    </PosPart>
   
 

@@ -4,15 +4,12 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id$
+ * $Id: ConsumerPipe.cc,v 1.11 2007/10/14 14:24:48 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
-#include "EventFilter/StorageManager/interface/SMCurlInterface.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "curl/curl.h"
 
 // keep this for debugging
 //#include "IOPool/Streamer/interface/DumpTools.h"
@@ -37,6 +34,8 @@ boost::mutex ConsumerPipe::rootIdLock_;
 ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
                            int activeTimeout, int idleTimeout,
                            boost::shared_ptr<edm::ParameterSet> parameterSet):
+  han_(curl_easy_init()),
+  headers_(),
   consumerName_(name),consumerPriority_(priority),
   requestParamSet_(parameterSet),
   pushEventFailures_(0)
@@ -53,6 +52,26 @@ ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
   boost::mutex::scoped_lock scopedLockForRootId(rootIdLock_);
   consumerId_ = rootId_;
   rootId_++;
+
+  if(han_==0)
+  {
+    edm::LogError("ConsumerPipe") << "Could not create curl handle";
+    std::cout << "Could not create curl handle" << std::endl;
+    // throw exception here when we can make the SM go to a fail state from
+    // another thread
+  } else {
+    headers_ = curl_slist_append(headers_, "Content-Type: application/octet-stream");
+    headers_ = curl_slist_append(headers_, "Content-Transfer-Encoding: binary");
+    // Avoid the Expect: 100 continue automatic header that gives a 2 sec delay
+    // for pthttp but we don't need the Expect: 100 continue anyway
+    headers_ = curl_slist_append(headers_, "Expect:");
+    setopt(han_, CURLOPT_HTTPHEADER, headers_);
+    setopt(han_, CURLOPT_URL, consumerName_.c_str());
+    setopt(han_, CURLOPT_WRITEFUNCTION, func);
+    // debug options
+    //setopt(han_,CURLOPT_VERBOSE, 1);
+    //setopt(han_,CURLOPT_TCP_NODELAY, 1);
+  }
 }
 
 /**
@@ -62,6 +81,8 @@ ConsumerPipe::~ConsumerPipe()
 {
   FDEBUG(5) << "Executing destructor for consumer pipe with ID = " <<
     consumerId_ << std::endl;
+  curl_slist_free_all(headers_);
+  curl_easy_cleanup(han_);
 }
 
 /**
@@ -173,7 +194,9 @@ void ConsumerPipe::putEvent(boost::shared_ptr< std::vector<char> > bufPtr)
   // if a push mode consumer actually push the event out to SMProxyServer
   if(pushMode_) {
     bool success = pushEvent();
+    // update the time of the most recent successful transaction
     if(!success) ++pushEventFailures_;
+    else lastEventRequestTime_ = time(NULL);
   }
 }
 
@@ -213,32 +236,38 @@ bool ConsumerPipe::pushEvent()
   stor::ReadData data;
 
   data.d_.clear();
-  CURL* han = curl_easy_init();
-  if(han==0)
+  // check if curl handle was obtained (at ctor) if not try again
+  if(han_==0)
   {
-    edm::LogError("pushEvent") << "Could not create curl handle";
-    return false;
+    han_ = curl_easy_init();
+    if(han_==0)
+    {
+      edm::LogError("pushEvent") << "Could not create curl handle";
+      return false;
+    }
+    headers_ = curl_slist_append(headers_, "Content-Type: application/octet-stream");
+    headers_ = curl_slist_append(headers_, "Content-Transfer-Encoding: binary");
+    // Avoid the Expect: 100 continue automatic header that gives a 2 sec delay
+    headers_ = curl_slist_append(headers_, "Expect:");
+    setopt(han_, CURLOPT_HTTPHEADER, headers_);
+    setopt(han_, CURLOPT_URL, consumerName_.c_str());
+    setopt(han_, CURLOPT_WRITEFUNCTION, func);
   }
-  // set the standard http request options
-  setopt(han,CURLOPT_URL,consumerName_.c_str());
-  setopt(han,CURLOPT_WRITEFUNCTION,func);
-  setopt(han,CURLOPT_WRITEDATA,&data);
+
+  setopt(han_,CURLOPT_WRITEDATA,&data);
 
   // build the event message
   EventMsgView msgView(&(*latestEvent_)[0]);
 
   // add the request message as a http post
-  setopt(han, CURLOPT_POSTFIELDS, msgView.startAddress());
-  setopt(han, CURLOPT_POSTFIELDSIZE, msgView.size());
-  struct curl_slist *headers=NULL;
-  headers = curl_slist_append(headers, "Content-Type: application/octet-stream");
-  headers = curl_slist_append(headers, "Content-Transfer-Encoding: binary");
-  setopt(han, CURLOPT_HTTPHEADER, headers);
+  setopt(han_, CURLOPT_POSTFIELDS, msgView.startAddress());
+  setopt(han_, CURLOPT_POSTFIELDSIZE, msgView.size());
 
-  // send the HTTP POST, read the reply, and cleanup before going on
-  CURLcode messageStatus = curl_easy_perform(han);
-  curl_slist_free_all(headers);
-  curl_easy_cleanup(han);
+  // send the HTTP POST, read the reply
+  // explicitly close connection when using pthttp transport or sometimes it hangs
+  // because somtimes curl does not see that the connection was closed and tries to reuse it
+  setopt(han_,CURLOPT_FORBID_REUSE, 1);
+  CURLcode messageStatus = curl_easy_perform(han_);
 
   if(messageStatus!=0)
   {

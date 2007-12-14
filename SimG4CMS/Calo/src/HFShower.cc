@@ -37,7 +37,7 @@ HFShower::HFShower(const DDCompactView & cpv, edm::ParameterSet const & p) :
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
  
-  bool dodet=fv.firstChild();
+  bool dodet = fv.firstChild();
   std::vector<G4String> tmp;
   while (dodet) {
     const DDSolid & sol  = fv.logicalPart().solid();

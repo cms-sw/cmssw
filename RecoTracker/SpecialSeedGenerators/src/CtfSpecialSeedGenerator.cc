@@ -124,7 +124,8 @@ void CtfSpecialSeedGenerator::beginJob(const edm::EventSetup& iSetup){
 							  propagatorAlongHandle.product(),
 							  propagatorOppositeHandle.product(),
 							  charges,
-							  setMomentum);
+							  setMomentum,
+						          conf_.getParameter<double>("ErrorRescaling"));
 	double p = 1;
         if (setMomentum) {
                 p = conf_.getParameter<double>("SeedMomentum");

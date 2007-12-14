@@ -7,7 +7,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -19,28 +19,11 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
 #include "DataFormats/VZero/interface/VZero.h"
 #include "DataFormats/VZero/interface/VZeroFwd.h"
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-
-class TransientTrackFromFTSFactory {
- public:
-
-    reco::TransientTrack build (const FreeTrajectoryState & fts) const;
-    reco::TransientTrack build (const FreeTrajectoryState & fts,
-        const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-};
-
-#include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
 
 #include <fstream>
 
@@ -50,7 +33,7 @@ using namespace std;
 class EventPlotter
 {
   public:
-    EventPlotter(const edm::EventSetup& es, string& trackCollectionLabel);
+    EventPlotter(const edm::EventSetup& es);
     ~EventPlotter();
     void printEvent(const edm::Event& ev);
 
@@ -60,14 +43,9 @@ GlobalVector& n2, ofstream& outFile, int charge);
     void getGlobal(const PSimHit& simHit, GlobalPoint& p, GlobalVector& v, bool& isPixel);
     void printSimTracks(const TrackingParticleCollection* simTracks);
     void printRecTracks(const reco::TrackCollection* recTracks,
-                        const vector<Trajectory>*    recTrajes,
-                        const reco::VertexCollection* vertices);
-    pair<float,float> refitWithVertex (const reco::Track & recTrack,
-                                       const reco::VertexCollection* vertices);
-
+                        const vector<Trajectory>*    recTrajes);
     void printPixelRecHit
-      (const SiPixelRecHit * recHit, ofstream& pixelDetUnits,
-                                     ofstream& pixelHits);
+      (const SiPixelRecHit * recHit, ofstream& pixelDetUnits);
     void printPixelRecHits(const edm::Event& ev);
 
     void printStripRecHit
@@ -81,9 +59,6 @@ GlobalVector& n2, ofstream& outFile, int charge);
 
     const TrackerGeometry* theTracker;
     const MagneticField* theMagField;
-    const TransientTrackBuilder * theTTBuilder;
-
-    string trackCollectionLabel;
 };
 
 #endif

@@ -237,7 +237,10 @@ namespace evf {
     sem_t                           buildSem_;
     sem_t                           sendSem_;
     sem_t                           rqstSem_;
-    
+
+    // logic
+    bool init_;
+
   
     //
     // static member data

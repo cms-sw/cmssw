@@ -31,6 +31,7 @@ namespace pos{
   const std::string k_DACName_VsumCol="VsumCol";
   const std::string k_DACName_Vcal="Vcal";
   const std::string k_DACName_CalDel="CalDel";
+  const std::string k_DACName_TempRange="TempRange";
   const std::string k_DACName_WBC="WBC";
   const std::string k_DACName_ChipContReg="ChipContReg";
 
@@ -60,10 +61,9 @@ namespace pos{
   const unsigned int k_DACAddress_VsumCol=24;
   const unsigned int k_DACAddress_Vcal=25;
   const unsigned int k_DACAddress_CalDel=26;
+  const unsigned int k_DACAddress_TempRange=27;
   const unsigned int k_DACAddress_WBC=254;
   const unsigned int k_DACAddress_ChipContReg=253;
-
-
 }
 
 

@@ -1,3 +1,5 @@
+#ifndef _FedTrackerMap_h_
+#define _FedTrackerMap_h_
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -45,5 +47,5 @@ class FedTrackerMap : public TrackerMap {
   ifstream * jsfile;
   float minvalue,maxvalue;
 };
-
+#endif
 

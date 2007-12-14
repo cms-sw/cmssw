@@ -18,19 +18,26 @@
 class L1GctEtMiss {
  public:
 
+  /*! To match the RAW format, EtMiss is on bits 11:0, Overflow flag on bit 12,
+   *  and Phi is on bits 22:16.  All other bits will be be zero. */
   enum numberOfBits {
     kEtMissNBits    = 12,
     kEtMissOFlowBit = 1 << kEtMissNBits,
     kEtMissMaxValue = kEtMissOFlowBit - 1,
-    kEtMissPhiShift = kEtMissNBits + 1,
+    kEtMissPhiShift = 16,
     kEtMissPhiNBits = 7,
     kETMissPhiMask  = (1 << kEtMissPhiNBits) - 1,
-    kEtMissPhiNBins = 72
+    kEtMissPhiNBins = 72,
+    kRawCtorMask    = (kETMissPhiMask << kEtMissPhiShift) | kEtMissOFlowBit | kEtMissMaxValue
   };
 
   L1GctEtMiss();
-  L1GctEtMiss(uint32_t data);
+  
+  /// For use with raw data from the unpacker.
+  L1GctEtMiss(uint32_t rawData);
+  
   L1GctEtMiss(unsigned et, unsigned phi, bool oflow);
+
   virtual ~L1GctEtMiss();
 
   /// name method

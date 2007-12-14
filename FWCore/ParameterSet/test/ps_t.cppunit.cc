@@ -1,11 +1,12 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.9 2006/10/25 21:57:56 wmtan Exp $
+ * $Id: ps_t.cppunit.cc,v 1.10 2007/06/19 21:38:23 rpw Exp $
  */
 
 #include <algorithm>
 #include <iostream>
 #include <limits>
 #include <string>
+#include <assert.h>
 
 #include <cppunit/extensions/HelperMacros.h>
 

@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.16 2007/09/14 09:53:42 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.17 2007/09/21 14:12:58 llista Exp $
  *
  */
 
@@ -44,7 +44,7 @@ namespace reco {
     /// last daughter iterator
     virtual iterator end();
     /// number of daughters
-    virtual size_t numberOfDaughters() const;
+    virtual size_type numberOfDaughters() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
     virtual const Candidate * daughter( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
@@ -62,9 +62,9 @@ namespace reco {
     /// set daughters product ID
     void resetDaughters( const edm::ProductID & id ) { dau = daughters( id ); }
     /// number of mothers (zero or one in most of but not all the cases)
-    virtual size_t numberOfMothers() const;
+    virtual size_type numberOfMothers() const;
     /// return pointer to mother
-    virtual const Candidate * mother( unsigned int i = 0 ) const;
+    virtual const Candidate * mother( size_type i = 0 ) const;
 
   private:
     /// const iterator implementation

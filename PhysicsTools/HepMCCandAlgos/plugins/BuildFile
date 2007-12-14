@@ -10,14 +10,17 @@
 
 <library file=GenEventWeightProducer.cc>
   <use name=SimDataFormats/HepMCProduct>
+  <use name=DataFormats/WrappedStdDictionaries>
 </library>
 
 <library file=GenEventProcIDProducer.cc>
   <use name=SimDataFormats/HepMCProduct>
+  <use name=DataFormats/WrappedStdDictionaries>
 </library>
 
 <library file=GenEventScaleProducer.cc>
   <use name=SimDataFormats/HepMCProduct>
+  <use name=DataFormats/WrappedStdDictionaries>
 </library>
 
 <library file=FastGenParticleCandidateProducer.cc>

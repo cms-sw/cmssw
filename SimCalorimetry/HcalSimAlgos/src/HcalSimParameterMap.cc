@@ -17,22 +17,23 @@ HcalSimParameterMap::HcalSimParameterMap() :
                    217., 5, 
                    10, 5, true, true,
                    1, std::vector<double>(16, 217.)),
-  theHFParameters1(1., 5.917,
-		   2.84 , -4,
-		   6, 4, false),
-  theHFParameters2(1., 4.354,
-		   2.09 , -4,
-		   6, 4, false),
+  theHFParameters1(6., 2.79,
+		   1/0.278 , -4,
+		   true),
+  theHFParameters2(6., 2.06,
+		   1/0.267 , -4,
+		   true),
   theZDCParameters(1., 4.3333,
 		   2.09 , -4,
 		   6, 4, false)
 {
 }
 /*
-  CaloSimParameters(double photomultiplierGain, double amplifierGain,
+  CaloSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog,
                  double samplingFactor, double timePhase,
                  int readoutFrameSize, int binOfMaximum,
-                 bool doPhotostatistics)
+                 bool doPhotostatistics, bool syncPhase=true);
+
 */
 
 HcalSimParameterMap::HcalSimParameterMap(const edm::ParameterSet & p)
@@ -69,4 +70,6 @@ void HcalSimParameterMap::setDbService(const HcalDbService * dbService)
   theHBParameters.setDbService(dbService);
   theHEParameters.setDbService(dbService);
   theHOParameters.setDbService(dbService);
+  theHFParameters1.setDbService(dbService);
+  theHFParameters2.setDbService(dbService);
 }

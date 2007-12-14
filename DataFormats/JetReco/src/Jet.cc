@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.15 2007/08/20 17:53:31 fedor Exp $
+// $Id: Jet.cc,v 1.16 2007/09/20 21:04:59 fedor Exp $
 
 #include <sstream>
 #include "DataFormats/Math/interface/deltaR.h"
@@ -19,7 +19,7 @@ namespace {
       const double R_BARREL = 0.5*(143.+407.); // 1/2(EBrin+HOrout) from CaloTowerHardcodeGeometryLoader
       const double Z_ENDCAP = 0.5*(320.+568.); // 1/2(EEz+HEz)
       const double R_FORWARD = Z_ENDCAP / sqrt (cosh(3.)*cosh(3.0) -1.); // eta=3
-      const double Z_FORWARD = 1100.+0.5*165,;
+      const double Z_FORWARD = 1100.+0.5*165.;
       const double ETA_MAX = 5.2;
       const double Z_BIG = 1.e5;
       

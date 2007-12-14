@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/05/22 07:02:32 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/09/19 17:43:00 $
+ *  $Revision: 1.4 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -72,9 +72,6 @@ protected:
 
   /// DQM Client Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-
-  /// Save the plots into a file
-  void endRun();
 
 
 

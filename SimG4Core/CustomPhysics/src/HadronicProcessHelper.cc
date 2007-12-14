@@ -1,5 +1,4 @@
-
-#include "CLHEP/Random/RandFlat.h"
+#include "Randomize.hh"
 #include "G4ParticleTable.hh" 
 
 #include <iostream>
@@ -137,7 +136,7 @@ HadronicProcessHelper::ReactionProduct HadronicProcessHelper::finalState(const G
     }
   
   //random decision of the target
-  if(RandFlat::shoot()<numberOfProtons/numberOfNucleons)
+  if(G4UniformRand()<numberOfProtons/numberOfNucleons)
     { //target is a proton
       m_reactionMap = &m_protonReactionMap;
       target = m_proton;
@@ -227,13 +226,13 @@ HadronicProcessHelper::ReactionProduct HadronicProcessHelper::finalState(const G
   size_t i;
   while(!selected && tries < 100){
     i=0;
-    G4double dice = RandFlat::shoot();
+    G4double dice = G4UniformRand();
     //select the process using the dice
     while(dice>probabilities[i] && i<numberOfReactions)  i++;
 
     if(twoToThreeFlag[i]) {
       // 2 -> 3 processes require a phase space lookup
-      if (m_phaseSpace(goodReactionProductList[i],incidentDynamicParticle,target)>RandFlat::shoot()) selected = true;
+      if (m_phaseSpace(goodReactionProductList[i],incidentDynamicParticle,target)>G4UniformRand()) selected = true;
     } else {
       // 2 -> 2 processes are chosen immediately
       selected = true;

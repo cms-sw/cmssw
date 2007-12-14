@@ -258,6 +258,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
   //   }
   
 #ifdef DBG_GCTB
+  vector<const DetLayer*> & nl = stateAndLayers.second;
   #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
   #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
   //B.M. TkLayerName layerName;
@@ -317,7 +318,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       //
       vector<TM> measurements(is->measurements());
       if ( !theAlwaysUseInvalid && is!=segments.begin() && measurements.size()==1 && 
-	   !measurements.front().recHit()->isValid() )  break;
+	   (measurements.front().recHit()->getType() == TrackingRecHit::missing) )  break;
       //
       // create new candidate
       //

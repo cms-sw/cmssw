@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/10/04 08:39:55 $
- * $Revision: 1.14 $
+ * $Date: 2007/11/15 08:09:35 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -11,9 +11,7 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <iomanip>
-#include <bitset>
 
 #include "TStyle.h"
 #include "TGraph.h"
@@ -24,18 +22,20 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
 
@@ -48,9 +48,6 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
-
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
@@ -62,7 +59,7 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
-  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
+  for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -70,38 +67,49 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps){
     int ism = superModules_[i];
 
     h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
     i01_[ism-1] = 0;
+    i02_[ism-1] = 0;
     j01_[ism-1] = 0;
+    j02_[ism-1] = 0;
+
     l01_[ism-1] = 0;
     m01_[ism-1] = 0;
     n01_[ism-1] = 0;
 
-    h02_[ism-1] = 0;
-    i02_[ism-1] = 0;
-    j02_[ism-1] = 0;
-    
-
     meh01_[ism-1] = 0;
+    meh02_[ism-1] = 0;
     mei01_[ism-1] = 0;
+    mei02_[ism-1] = 0;
     mej01_[ism-1] = 0;
+    mej02_[ism-1] = 0;
+
     mel01_[ism-1] = 0;
     mem01_[ism-1] = 0;
     men01_[ism-1] = 0;
-    
-    meh02_[ism-1] = 0;
-    mei02_[ism-1] = 0;
-    mej02_[ism-1] = 0;
 
-
-//     for (int j = 0; j < 34 ; j++) {
-
+//     for (int j=0; j<34; j++) {
+//
 //       k01_[ism-1][j] = 0;
 //       k02_[ism-1][j] = 0;
-
+//
 //       mek01_[ism-1][j] = 0;
 //       mek02_[ism-1][j] = 0;
-
+//
 //     }
+
+    me_h01_[ism-1] = 0;
+    me_h02_[ism-1] = 0;
+    for (int j=0; j<2; j++) {
+      me_i01_[ism-1][j] = 0;
+      me_i02_[ism-1][j] = 0;
+      me_n01_[ism-1][j] = 0;
+    }
+    for (int j=0; j<6; j++) {
+      me_j01_[ism-1][j] = 0;
+      me_j02_[ism-1][j] = 0;
+      me_m01_[ism-1][j] = 0;
+    }
 
   }
 
@@ -157,6 +165,87 @@ void EETriggerTowerClient::endRun(void) {
 
 void EETriggerTowerClient::setup(void) {
 
+  Char_t histo[200];
+
+  dbe_->setCurrentFolder( "EcalEndcap/EETriggerTowerClient" );
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( me_h01_[ism-1] ) dbe_->removeElement( me_h01_[ism-1]->getName() );
+    sprintf(histo, "EETTT Et map Real Digis %s", Numbers::sEE(ism).c_str());
+    me_h01_[ism-1] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50., 256, 0., 256., "s");
+    me_h01_[ism-1]->setAxisTitle("ix", 1);
+    me_h01_[ism-1]->setAxisTitle("iy", 2);
+    if ( me_h02_[ism-1] ) dbe_->removeElement( me_h02_[ism-1]->getName() );
+    sprintf(histo, "EETTT Et map Emulated Digis %s", Numbers::sEE(ism).c_str());
+    me_h02_[ism-1] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50., 256, 0., 256., "s");
+    me_h02_[ism-1]->setAxisTitle("ix", 1);
+    me_h02_[ism-1]->setAxisTitle("iy", 2);
+    for (int j=0; j<2; j++) {
+      if ( me_i01_[ism-1][j] ) dbe_->removeElement( me_i01_[ism-1][j]->getName() );
+      sprintf(histo, "EETTT FineGrainVeto Real Digis Flag %d %s", j, Numbers::sEE(ism).c_str());
+      me_i01_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      me_i01_[ism-1][j]->setAxisTitle("ix", 1);
+      me_i01_[ism-1][j]->setAxisTitle("iy", 2);
+      if ( me_i02_[ism-1][j] ) dbe_->removeElement( me_i02_[ism-1][j]->getName() );
+      sprintf(histo, "EETTT FineGrainVeto Emulated Digis Flag %d %s", j, Numbers::sEE(ism).c_str());
+      me_i02_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      me_i02_[ism-1][j]->setAxisTitle("ix", 1);
+      me_i02_[ism-1][j]->setAxisTitle("iy", 2);
+      if ( me_n01_[ism-1][j] ) dbe_->removeElement( me_n01_[ism-1][j]->getName() );
+      sprintf(histo, "EETTT EmulFineGrainVetoError Flag %d %s", j, Numbers::sEE(ism).c_str());
+      me_n01_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      me_n01_[ism-1][j]->setAxisTitle("ix", 1);
+      me_n01_[ism-1][j]->setAxisTitle("iy", 2);
+    }
+    for (int j=0; j<6; j++) {
+      string bits;
+      if ( j == 0 ) bits = "Bit 000";
+      if ( j == 1 ) bits = "Bit 001";
+      if ( j == 2 ) bits = "Bit 011";
+      if ( j == 3 ) bits = "Bit 100";
+      if ( j == 4 ) bits = "Bit 101";
+      if ( j == 5 ) bits = "Bits 110+111";
+      if ( me_j01_[ism-1][j] ) dbe_->removeElement( me_j01_[ism-1][j]->getName() );
+      sprintf(histo, "EETTT Flags Real Digis %s %s", bits.c_str(), Numbers::sEE(ism).c_str());
+      me_j01_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      me_j01_[ism-1][j]->setAxisTitle("ix", 1);
+      me_j01_[ism-1][j]->setAxisTitle("iy", 2);
+      if ( me_j02_[ism-1][j] ) dbe_->removeElement( me_j02_[ism-1][j]->getName() );
+      sprintf(histo, "EETTT Flags Emulated Digis %s %s", bits.c_str(), Numbers::sEE(ism).c_str());
+      me_j02_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      me_j02_[ism-1][j]->setAxisTitle("ix", 1);
+      me_j02_[ism-1][j]->setAxisTitle("iy", 2);
+      if ( me_m01_[ism-1][j] ) dbe_->removeElement( me_m01_[ism-1][j]->getName() );
+      sprintf(histo, "EETTT EmulFlagError %s %s", bits.c_str(), Numbers::sEE(ism).c_str());
+      me_m01_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      me_m01_[ism-1][j]->setAxisTitle("ix", 1);
+      me_m01_[ism-1][j]->setAxisTitle("iy", 2);
+    }
+
+  }
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+    
+    int ism = superModules_[i];
+
+    me_h01_[ism-1]->Reset();
+    me_h02_[ism-1]->Reset();
+    for (int j=0; j<2; j++) {
+      me_i01_[ism-1][j]->Reset();
+      me_i02_[ism-1][j]->Reset();
+      me_n01_[ism-1][j]->Reset();
+    }
+    for (int j=0; j<6; j++) {
+      me_j01_[ism-1][j]->Reset();
+      me_j02_[ism-1][j]->Reset();
+      me_m01_[ism-1][j]->Reset();
+    }
+
+  }
+
 }
 
 void EETriggerTowerClient::cleanup(void) {
@@ -167,10 +256,10 @@ void EETriggerTowerClient::cleanup(void) {
 
     if ( cloneME_ ) {
       if ( h01_[ism-1] ) delete h01_[ism-1];
-      if ( i01_[ism-1] ) delete i01_[ism-1];
-      if ( j01_[ism-1] ) delete j01_[ism-1];
       if ( h02_[ism-1] ) delete h02_[ism-1];
+      if ( i01_[ism-1] ) delete i01_[ism-1];
       if ( i02_[ism-1] ) delete i02_[ism-1];
+      if ( j01_[ism-1] ) delete j01_[ism-1];
       if ( j02_[ism-1] ) delete j02_[ism-1];
       if ( l01_[ism-1] ) delete l01_[ism-1];
       if ( m01_[ism-1] ) delete m01_[ism-1];
@@ -178,42 +267,70 @@ void EETriggerTowerClient::cleanup(void) {
     }
 
     h01_[ism-1] = 0;
-    i01_[ism-1] = 0;
-    j01_[ism-1] = 0;
-
     h02_[ism-1] = 0;
+    i01_[ism-1] = 0;
     i02_[ism-1] = 0;
+    j01_[ism-1] = 0;
     j02_[ism-1] = 0;
+
     l01_[ism-1] = 0;
     m01_[ism-1] = 0;
     n01_[ism-1] = 0;
 
     meh01_[ism-1] = 0;
+    meh02_[ism-1] = 0;
     mei01_[ism-1] = 0;
+    mei02_[ism-1] = 0;
     mej01_[ism-1] = 0;
+    mej02_[ism-1] = 0;
+
     mel01_[ism-1] = 0;
     mem01_[ism-1] = 0;
     men01_[ism-1] = 0;
 
-    meh02_[ism-1] = 0;
-    mei02_[ism-1] = 0;
-    mej02_[ism-1] = 0;
-
-
-//     for ( int j = 0; j < 34 ; j++ ) {
-
+//     for (int j=0; j<34; j++) {
+//
 //       if ( cloneME_ ) {
 //         if ( k01_[ism-1][j] ) delete k01_[ism-1][j];
 //         if ( k02_[ism-1][j] ) delete k02_[ism-1][j];
 //       }
-
+//
 //       k01_[ism-1][j] = 0;
 //       k02_[ism-1][j] = 0;
-
+//
 //       mek01_[ism-1][j] = 0;
 //       mek02_[ism-1][j] = 0;
-
+//
 //     }
+
+  }
+
+  dbe_->setCurrentFolder( "EcalEndcap/EETriggerTowerClient" );
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( me_h01_[ism-1] ) dbe_->removeElement( me_h01_[ism-1]->getName() );
+    me_h01_[ism-1] = 0;
+    if ( me_h02_[ism-1] ) dbe_->removeElement( me_h02_[ism-1]->getName() );
+    me_h02_[ism-1] = 0;
+    for (int j=0; j<2; j++) {
+      if ( me_i01_[ism-1][j] ) dbe_->removeElement( me_i01_[ism-1][j]->getName() );
+      me_i01_[ism-1][j] = 0;
+      if ( me_i02_[ism-1][j] ) dbe_->removeElement( me_i02_[ism-1][j]->getName() );
+      me_i02_[ism-1][j] = 0;
+      if ( me_n01_[ism-1][j] ) dbe_->removeElement( me_n01_[ism-1][j]->getName() );
+      me_n01_[ism-1][j] = 0;
+    }
+    for (int j=0; j<6; j++) {
+      if ( me_j01_[ism-1][j] ) dbe_->removeElement( me_j01_[ism-1][j]->getName() );
+      me_j01_[ism-1][j] = 0;
+      if ( me_j02_[ism-1][j] ) dbe_->removeElement( me_j02_[ism-1][j]->getName() );
+      me_j02_[ism-1][j] = 0;
+      if ( me_m01_[ism-1][j] ) dbe_->removeElement( me_m01_[ism-1][j]->getName() );
+      me_m01_[ism-1][j] = 0;
+    }
 
   }
 
@@ -257,15 +374,15 @@ void EETriggerTowerClient::subscribe( const char* nameext,
     mui_->subscribe(histo, ism);
 
     if(!emulated) {
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulError %s %s", folder, nameext, Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulError %s", folder, Numbers::sEE(ism).c_str());
       mui_->subscribe(histo, ism);
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFlagError %s %s", folder, nameext, Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFlagError %s", folder, Numbers::sEE(ism).c_str());
       mui_->subscribe(histo, ism);
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFineGrainVetoError %s %s", folder, nameext, Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFineGrainVetoError %s", folder, Numbers::sEE(ism).c_str());
       mui_->subscribe(histo, ism);
     }
 
-//     for (int j = 0; j < 34 ; j++) {
+//     for (int j=0; j<34; j++) {
 //       sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R %s TT%02d", ism, j+1);
 //       mui_->subscribe(histo, ism);
 //       sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T %s TT%02d", ism, j+1);
@@ -303,13 +420,15 @@ void EETriggerTowerClient::subscribeNew( const char* nameext,
     mui_->subscribeNew(histo, ism);
 
     if(!emulated) {
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFlagError %s %s", folder, nameext, Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulError %s", folder, Numbers::sEE(ism).c_str());
       mui_->subscribeNew(histo, ism);
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFineGrainVetoError %s %s", folder, nameext, Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFlagError %s", folder, Numbers::sEE(ism).c_str());
+      mui_->subscribeNew(histo, ism);
+      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFineGrainVetoError %s", folder, Numbers::sEE(ism).c_str());
       mui_->subscribeNew(histo, ism);
     }
 
-//     for (int j = 0; j < 34 ; j++) {
+//     for (int j=0; j<34; j++) {
 //       sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T %s TT%02d", ism, j+1);
 //       mui_->subscribeNew(histo, ism);
 //       sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R %s TT%02d", ism, j+1);
@@ -350,15 +469,15 @@ void EETriggerTowerClient::unsubscribe( const char* nameext,
     mui_->unsubscribe(histo, ism);
 
     if(!emulated) {
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulError %s %s", folder, nameext, Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulError %s", folder, Numbers::sEE(ism).c_str());
       mui_->unsubscribe(histo, ism);
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFlagError %s %s", folder, nameext, Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFlagError %s", folder, Numbers::sEE(ism).c_str());
       mui_->unsubscribe(histo, ism);
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFineGrainVetoError %s %s", folder, nameext, Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFineGrainVetoError %s", folder, Numbers::sEE(ism).c_str());
       mui_->unsubscribe(histo, ism);
     }
 
-//     for (int j = 0; j < 34 ; j++) {
+//     for (int j=0; j<34; j++) {
 //       sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T %s TT%02d", ism, j+1);
 //       mui_->subscribe(histo, ism);
 //       sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R %s TT%02d", ism, j+1);
@@ -376,20 +495,21 @@ void EETriggerTowerClient::softReset(void){
     int ism = superModules_[i];
 
     if ( meh01_[ism-1] ) dbe_->softReset(meh01_[ism-1]);
+    if ( meh02_[ism-1] ) dbe_->softReset(meh02_[ism-1]);
     if ( mei01_[ism-1] ) dbe_->softReset(mei01_[ism-1]);
+    if ( mei02_[ism-1] ) dbe_->softReset(mei02_[ism-1]);
     if ( mej01_[ism-1] ) dbe_->softReset(mej01_[ism-1]);
+    if ( mej02_[ism-1] ) dbe_->softReset(mej02_[ism-1]);
+
     if ( mel01_[ism-1] ) dbe_->softReset(mel01_[ism-1]);
     if ( mem01_[ism-1] ) dbe_->softReset(mem01_[ism-1]);
     if ( men01_[ism-1] ) dbe_->softReset(men01_[ism-1]);
-    if ( meh02_[ism-1] ) dbe_->softReset(meh02_[ism-1]);
-    if ( mei02_[ism-1] ) dbe_->softReset(mei02_[ism-1]);
-    if ( mej02_[ism-1] ) dbe_->softReset(mej02_[ism-1]);
 
-//     for (int j = 0; j < 34 ; j++) {
-
+//     for (int j=0; j<34; j++) {
+//
 //       if ( mek01_[ism-1][j] ) dbe_->softReset(mek01_[ism-1][j]);
 //       if ( mek02_[ism-1][j] ) dbe_->softReset(mek02_[ism-1][j]);
-
+//
 //     }
 
   }
@@ -427,12 +547,10 @@ void EETriggerTowerClient::analyze(const char* nameext,
     me = dbe_->get(histo);
     if(!emulated) {
       h01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, h01_[ism-1] );
-      if(h01_[ism-1]) h01_[ism-1]->SetEntries(1.+h01_[ism-1]->GetEntries());
       meh01_[ism-1] = me;
     }
     else {
       h02_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, h02_[ism-1] );
-      if(h02_[ism-1]) h02_[ism-1]->SetEntries(1.+h02_[ism-1]->GetEntries());
       meh02_[ism-1] = me;
     }
 
@@ -440,12 +558,10 @@ void EETriggerTowerClient::analyze(const char* nameext,
     me = dbe_->get(histo);
     if(!emulated) {
       i01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
-      if(i01_[ism-1])  i01_[ism-1]->SetEntries(1.+i01_[ism-1]->GetEntries());
       mei01_[ism-1] = me;
     }
     else {
       i02_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i02_[ism-1] );
-      if(i02_[ism-1])  i02_[ism-1]->SetEntries(1.+i02_[ism-1]->GetEntries());
       mei02_[ism-1] = me;
     }
 
@@ -453,49 +569,117 @@ void EETriggerTowerClient::analyze(const char* nameext,
     me = dbe_->get(histo);
     if(!emulated) {
       j01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
-      if(j01_[ism-1])  j01_[ism-1]->SetEntries(1.+j01_[ism-1]->GetEntries());
       mej01_[ism-1] = me;
     }
     else {
       j02_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j02_[ism-1] );
-      if(j02_[ism-1])  j02_[ism-1]->SetEntries(1.+j02_[ism-1]->GetEntries());
       mej02_[ism-1] = me;
     }
 
     if(!emulated) {
-      sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT EmulError %s %s").c_str(), folder, nameext, Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT EmulError %s").c_str(), folder, Numbers::sEE(ism).c_str());
       me = dbe_->get(histo);
       l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
-      if(l01_[ism-1])  l01_[ism-1]->SetEntries(1.+l01_[ism-1]->GetEntries());
       mel01_[ism-1] = me;
-      
-      sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT EmulFlagError %s %s").c_str(), folder, nameext, Numbers::sEE(ism).c_str());
+
+      sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT EmulFlagError %s").c_str(), folder, Numbers::sEE(ism).c_str());
       me = dbe_->get(histo);
       m01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, m01_[ism-1] );
-      if(m01_[ism-1])  m01_[ism-1]->SetEntries(1.+m01_[ism-1]->GetEntries());
       mem01_[ism-1] = me;
 
-      sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT EmulFineGrainVetoError %s %s").c_str(), folder, nameext, Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT EmulFineGrainVetoError %s").c_str(), folder, Numbers::sEE(ism).c_str());
       me = dbe_->get(histo);
       n01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, n01_[ism-1] );
-      if(n01_[ism-1])  n01_[ism-1]->SetEntries(1.+n01_[ism-1]->GetEntries());
       men01_[ism-1] = me;
-      
+
     }
 
-//     for (int j = 0; j < 34 ; j++) {
-
+//     for (int j=0; j<34; j++) {
+//
 //       sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T %s TT%02d").c_str(), ism, j+1);
 //       me = dbe_->get(histo);
 //       k01_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
 //       mek01_[ism-1][j] = me;
-
+//
 //       sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R %s TT%02d").c_str(), ism, j+1);
 //       me = dbe_->get(histo);
 //       k02_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
 //       mek02_[ism-1][j] = me;
-
+//
 //     }
+
+    me_h01_[ism-1]->Reset();
+    me_h02_[ism-1]->Reset();
+    for (int j=0; j<2; j++) {
+      me_i01_[ism-1][j]->Reset();
+      me_i02_[ism-1][j]->Reset();
+      me_n01_[ism-1][j]->Reset();
+    }
+    for (int j=0; j<6; j++) {
+      me_j01_[ism-1][j]->Reset();
+      me_j02_[ism-1][j]->Reset();
+      me_m01_[ism-1][j]->Reset();
+    }
+
+    for (int ix = 1; ix <= 50; ix++) {
+      for (int iy = 1; iy <= 50; iy++) {
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        for (int j = 1; j <= 256; j++) {
+          if ( h01_[ism-1] ) me_h01_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h01_[ism-1]->GetBinContent(ix, iy, j));
+          if ( h02_[ism-1] ) me_h02_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h02_[ism-1]->GetBinContent(ix, iy, j));
+        }
+        for (int j=0; j<2; j++) {
+          if ( i01_[ism-1] ) me_i01_[ism-1][j]->Fill(jx-0.5, jy-0.5, i01_[ism-1]->GetBinContent(ix, iy, j+1));
+          if ( i02_[ism-1] ) me_i02_[ism-1][j]->Fill(jx-0.5, jy-0.5, i02_[ism-1]->GetBinContent(ix, iy, j+1));
+          if ( n01_[ism-1] ) me_n01_[ism-1][j]->Fill(jx-0.5, jy-0.5, n01_[ism-1]->GetBinContent(ix, iy, j+1));
+        }
+        for (int j=0; j<6; j++) {
+          if ( j == 0 ) {
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+1));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+1));
+            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+1));
+          }
+          if ( j == 1 ) {
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+1));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+1));
+            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+1));
+          }
+          if ( j == 2 ) {
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
+            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
+          }
+          if ( j == 3 ) {
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
+            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
+          }
+          if ( j == 4 ) {
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
+            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
+          }
+          if ( j == 5 ) {
+            if ( j01_[ism-1] ) {
+              me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
+              me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+3));
+            }
+            if ( j02_[ism-1] ) {
+              me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
+              me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+3));
+            }
+            if ( m01_[ism-1] ) {
+              me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
+              me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+3));
+            }
+          }
+        }
+
+      }
+    }
 
   }
 
@@ -505,7 +689,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EETriggerTowerClient html output ..." << std::endl;
 
-  std::ofstream htmlFile[37];
+  std::ofstream htmlFile[19];
 
   htmlFile[0].open((htmlDir + htmlName).c_str());
 
@@ -533,7 +717,8 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile[0] << "<hr>" << std::endl;
   htmlFile[0] << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile[0] << "<td bgcolor=white><a href=""#" << superModules_[i] << ">"
+    htmlFile[0] << "<td bgcolor=white><a href=""#"
+                << Numbers::sEE(superModules_[i]).c_str() << ">"
                 << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile[0] << std::endl << "</table>" << std::endl;
@@ -565,7 +750,6 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   TCanvas* cMe3 = new TCanvas("cMe3", "Temp", int(0.9*csize), int(0.9*csize));
 
   TH2F* obj2f;
-  TH3F* obj3f;
   TProfile2D* obj2p;
 
   // Loop on endcap supermodules
@@ -609,17 +793,19 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMe2->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
-      obj2f->SetMinimum(0);
-      obj2f->GetXaxis()->SetLabelSize(0.02);
-      obj2f->GetYaxis()->SetLabelSize(0.02);
-      obj2f->GetZaxis()->SetLabelSize(0.02);
       cMe2->SetGridx();
       cMe2->SetGridy();
+      obj2f->GetXaxis()->SetLabelSize(0.02);
+      obj2f->GetXaxis()->SetTitleSize(0.02);
+      obj2f->GetYaxis()->SetLabelSize(0.02);
+      obj2f->GetYaxis()->SetTitleSize(0.02);
+      obj2f->GetZaxis()->SetLabelSize(0.02);
+      obj2f->SetMinimum(0);
       obj2f->Draw("colz");
-      int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
-      int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
-      int y1 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+0.);
-      int y2 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+50.);
+      int x1 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+0.);
+      int x2 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+50.);
+      int y1 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+0.);
+      int y2 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+50.);
       labelGrid.GetXaxis()->SetRange(x1, x2);
       labelGrid.GetYaxis()->SetRange(y1, y2);
       labelGrid.Draw("text,same");
@@ -643,14 +829,25 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     // ---------------------------  Et plots
 
-    for(int iemu=0;iemu<2;iemu++) {
+    for(int iemu=0; iemu<2; iemu++) {
 
       imgName[iemu] = "";
 
-      obj3f = (iemu+1==1) ? h01_[ism-1] : h02_[ism-1];
+      obj2p = 0;
+      switch ( iemu ) {
+        case 0:
+          obj2p = UtilsClient::getHisto<TProfile2D*>( me_h01_[ism-1] );
+          break;
+        case 1:
+          obj2p = UtilsClient::getHisto<TProfile2D*>( me_h02_[ism-1] );
+          break;
+        default:
+          break;
+      }
 
-      if ( obj3f ) {
-        meName[iemu] = obj3f->GetName();
+      if ( obj2p ) {
+
+        meName[iemu] = obj2p->GetName();
 
         for ( unsigned int i = 0; i < meName[iemu].size(); i++ ) {
           if ( meName[iemu].substr(i, 1) == " " )  {
@@ -661,27 +858,21 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName[iemu] = meName[iemu] + ".png";
         imgMeName[iemu] = htmlDir + imgName[iemu];
 
-        obj2p = obj3f->Project3DProfile("yx");
-
         cMe1->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(10, pCol4);
-
-        std::string projname(obj2p->GetName());
-        string::size_type loc = projname.find( "_pyx", 0 );
-        projname.replace( loc, projname.length(), "");
-        obj2p->SetTitle(projname.c_str());
-
         cMe1->SetGridx();
         cMe1->SetGridy();
         obj2p->GetXaxis()->SetLabelSize(0.02);
+        obj2p->GetXaxis()->SetTitleSize(0.02);
         obj2p->GetYaxis()->SetLabelSize(0.02);
+        obj2p->GetYaxis()->SetTitleSize(0.02);
         obj2p->GetZaxis()->SetLabelSize(0.02);
         obj2p->Draw("colz");
-        int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
-        int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
-        int y1 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+0.);
-        int y2 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+50.);
+        int x1 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+0.);
+        int x2 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+50.);
+        int y1 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+0.);
+        int y2 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+50.);
         labelGrid.GetXaxis()->SetRange(x1, x2);
         labelGrid.GetYaxis()->SetRange(y1, y2);
         labelGrid.Draw("text,same");
@@ -695,7 +886,6 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         cMe1->Update();
         cMe1->SaveAs(imgMeName[iemu].c_str());
-        delete obj2p;
       }
     }
 
@@ -741,19 +931,30 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     int counter = 0;
 
-    for ( int j=1; j<8; j++ ) {
+    for (int j=0; j<6; j++) {
 
-      for(int iemu=0;iemu<3;iemu++) {
+      for(int iemu=0; iemu<3; iemu++) {
 
         imgName[iemu] = "";
 
-        if( iemu==0 ) obj3f = m01_[ism-1];
-        else if( iemu==1 ) obj3f = j01_[ism-1];
-        else if( iemu==2 ) obj3f = j02_[ism-1];
+        obj2f = 0;
+        switch ( iemu ) {
+          case 0:
+            obj2f = UtilsClient::getHisto<TH2F*>( me_m01_[ism-1][j] );
+            break;
+          case 1:
+            obj2f = UtilsClient::getHisto<TH2F*>( me_j01_[ism-1][j] );
+            break;
+          case 2:
+            obj2f = UtilsClient::getHisto<TH2F*>( me_j02_[ism-1][j] );
+            break;
+          default:
+            break;
+        }
 
-        if ( obj3f ) {
+        if ( obj2f ) {
 
-          meName[iemu] = obj3f->GetName();
+          meName[iemu] = obj2f->GetName();
 
           for ( unsigned int i = 0; i < meName[iemu].size(); i++ ) {
             if ( meName[iemu].substr(i, 1) == " " )  {
@@ -761,47 +962,27 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
             }
           }
 
-          if ( j == 3 ) continue;   //  010 bits combination is not used
-          counter++;
-          if ( j < 7 ) {
-            imgName[iemu] = meName[iemu] + "_" + char(47+j) + ".png";
-            obj3f->GetZaxis()->SetRange( j, j );
-          }
-          else {
-            imgName[iemu] = meName[iemu] + "_6-7.png";
-            obj3f->GetZaxis()->SetRange( j, j+1 );
-          }
+          imgName[iemu] = meName[iemu] + ".png";
           imgMeName[iemu] = htmlDir + imgName[iemu];
 
-          obj2f = (TH2F*) obj3f->Project3D( "yx" );
+          counter++;
 
           cMe2->cd();
           gStyle->SetOptStat(" ");
           gStyle->SetPalette(10, pCol4);
-          obj2f->SetMinimum(0);
-          obj2f->GetXaxis()->SetLabelSize(0.02);
-          obj2f->GetYaxis()->SetLabelSize(0.02);
-          obj2f->GetZaxis()->SetLabelSize(0.02);
           cMe2->SetGridx();
           cMe2->SetGridy();
-
-          std::stringstream title;
-          std::string emustring;
-          if (iemu==0) emustring = "Errors ";
-          else if(iemu==1) emustring = "Real Digis ";
-          else if(iemu==2) emustring = "Emulated Digis ";
-          if ( j < 7 ) {
-            title << "EETTT Flags " << emustring << Numbers::sEE(ism).c_str() << ", bit " << bitset<3>(j-1);
-          } else {
-            title << "EETTT Flags " << emustring << Numbers::sEE(ism).c_str() << " bits 110+111";
-          }
-          obj2f->SetTitle( title.str().c_str() );
-
+          obj2f->GetXaxis()->SetLabelSize(0.02);
+          obj2f->GetXaxis()->SetTitleSize(0.02);
+          obj2f->GetYaxis()->SetLabelSize(0.02);
+          obj2f->GetYaxis()->SetTitleSize(0.02);
+          obj2f->GetZaxis()->SetLabelSize(0.02);
+          obj2f->SetMinimum(0);
           obj2f->Draw("colz");
-          int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
-          int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
-          int y1 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+0.);
-          int y2 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+50.);
+          int x1 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+0.);
+          int x2 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+50.);
+          int y1 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+0.);
+          int y2 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+50.);
           labelGrid.GetXaxis()->SetRange(x1, x2);
           labelGrid.GetYaxis()->SetRange(y1, y2);
           labelGrid.Draw("text,same");
@@ -816,10 +997,9 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           cMe2->Update();
           cMe2->SaveAs(imgMeName[iemu].c_str());
 
-          delete obj2f;
-
           htmlFile[ism] << "<td><img src=\"" << imgName[iemu] << "\"></td>" << std::endl;
           if ( counter%3 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl;
+
         }
       }
     }
@@ -836,19 +1016,30 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile[ism] << "<tr align=\"center\">" << std::endl;
 
 
-    for ( int j=1; j<=2; j++ ) {
+    for (int j=0; j<2; j++) {
 
-      for(int iemu=0;iemu<3;iemu++) {
+      for(int iemu=0; iemu<3; iemu++) {
 
         imgName[iemu] = "";
 
-        if( iemu==0 ) obj3f = n01_[ism-1];
-        else if( iemu==1 ) obj3f = i01_[ism-1];
-        else if( iemu==2 ) obj3f = i02_[ism-1];
+        obj2f = 0;
+        switch ( iemu ) {
+          case 0:
+            obj2f = UtilsClient::getHisto<TH2F*>( me_n01_[ism-1][j] );
+            break;
+          case 1:
+            obj2f = UtilsClient::getHisto<TH2F*>( me_i01_[ism-1][j] );
+            break;
+          case 2:
+            obj2f = UtilsClient::getHisto<TH2F*>( me_i02_[ism-1][j] );
+            break;
+          default:
+            break;
+        }
 
-        if ( obj3f ) {
+        if ( obj2f ) {
 
-          meName[iemu] = obj3f->GetName();
+          meName[iemu] = obj2f->GetName();
 
           for ( unsigned int i = 0; i < meName[iemu].size(); i++ ) {
             if ( meName[iemu].substr(i, 1) == " " )  {
@@ -856,36 +1047,25 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
             }
           }
 
-          imgName[iemu] = meName[iemu] + "_" + char(47+j) + ".png";
+          imgName[iemu] = meName[iemu] + ".png";
           imgMeName[iemu] = htmlDir + imgName[iemu];
-
-          obj3f->GetZaxis()->SetRange( j, j );
-
-          obj2f = (TH2F*) obj3f->Project3D( "yx" );
 
           cMe2->cd();
           gStyle->SetOptStat(" ");
           gStyle->SetPalette(10, pCol4);
-          obj2f->SetMinimum(0);
-          obj2f->GetXaxis()->SetLabelSize(0.02);
-          obj2f->GetYaxis()->SetLabelSize(0.02);
-          obj2f->GetZaxis()->SetLabelSize(0.02);
           cMe2->SetGridx();
           cMe2->SetGridy();
-
-          std::stringstream title;
-          std::string emustring;
-          if (iemu==0) emustring = "Errors ";
-          else if(iemu==1) emustring = "Real Digis ";
-          else if(iemu==2) emustring = "Emulated Digis ";
-          title << "EETTT FineGrainVeto " << emustring << Numbers::sEE(ism).c_str() << ", FineGrainVeto = " << j-1;
-          obj2f->SetTitle( title.str().c_str() );
-
+          obj2f->GetXaxis()->SetLabelSize(0.02);
+          obj2f->GetXaxis()->SetTitleSize(0.02);
+          obj2f->GetYaxis()->SetLabelSize(0.02);
+          obj2f->GetYaxis()->SetTitleSize(0.02);
+          obj2f->GetZaxis()->SetLabelSize(0.02);
+          obj2f->SetMinimum(0);
           obj2f->Draw("colz");
-          int x1 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+0.);
-          int x2 = labelGrid.GetXaxis()->FindBin(Numbers::ix0EE(ism)+50.);
-          int y1 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+0.);
-          int y2 = labelGrid.GetYaxis()->FindBin(Numbers::iy0EE(ism)+50.);
+          int x1 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+0.);
+          int x2 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+50.);
+          int y1 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+0.);
+          int y2 = labelGrid.GetYaxis()->FindFixBin(Numbers::iy0EE(ism)+50.);
           labelGrid.GetXaxis()->SetRange(x1, x2);
           labelGrid.GetYaxis()->SetRange(y1, y2);
           labelGrid.Draw("text,same");
@@ -899,7 +1079,6 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
           }
           cMe2->Update();
           cMe2->SaveAs(imgMeName[iemu].c_str());
-          delete obj2f;
 
           htmlFile[ism] << "<td><img src=\"" << imgName[iemu] << "\"></td>" << std::endl;
         }
@@ -915,27 +1094,27 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     //     htmlFile[ism] << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
     //     htmlFile[ism] << "cellpadding=\"10\" align=\"center\"> " << std::endl;
     //     htmlFile[ism] << "<tr align=\"center\">" << std::endl;
-
-    //     for ( int j=0; j<34; j++ ) {
-
+    //
+    //     for (int j=0; j<34; j++) {
+    //
     //       TH1F* obj1f1 = k01_[ism-1][j];
     //       TH1F* obj1f2 = k02_[ism-1][j];
-
+    //
     //       if ( obj1f1 ) {
-
+    //
     //         imgName[iemu] = "";
-
+    //
     //         meName[iemu] = obj1f1->GetName();
-
+    //
     //         for ( unsigned int i = 0; i < meName[iemu].size(); i++ ) {
     //           if ( meName[iemu].substr(i, 1) == " " )  {
     //             meName[iemu].replace(i, 1 ,"_" );
     //           }
     //         }
-
+    //
     //         imgName[iemu] = meName[iemu] + ".png";
     //         imgMeName[iemu] = htmlDir + imgName[iemu];
-
+    //
     //         cMe3->cd();
     //         gStyle->SetOptStat("euomr");
     //         if ( obj1f2 ) {
@@ -946,7 +1125,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     //         gStyle->SetStatW( gStyle->GetStatW() * 1.5 );
     //         obj1f1->Draw();
     //         cMe3->Update();
-
+    //
     //         if ( obj1f2 ) {
     //           gStyle->SetStatY( gStyle->GetStatY() - 1.25*gStyle->GetStatH() );
     //           gStyle->SetStatTextColor( kRed );
@@ -957,16 +1136,16 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     //           gStyle->SetStatY( gStyle->GetStatY() + 1.25*gStyle->GetStatH() );
     //           gStyle->SetStatTextColor( kBlack );
     //         }
-
+    //
     //         gStyle->SetStatW( gStyle->GetStatW() / 1.5 );
     //         cMe3->SaveAs(imgMeName[iemu].c_str());
-
+    //
     //         htmlFile[ism] << "<td><img src=\"" << imgName[iemu] << "\"></td>" << std::endl;
-
+    //
     //       }
-
+    //
     //       if ( (j+1)%4 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl;
-
+    //
     //     }
 
     htmlFile[ism] << "</tr>" << std::endl << "</table>" << std::endl;

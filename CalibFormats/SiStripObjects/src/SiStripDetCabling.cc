@@ -3,7 +3,7 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.8 2007/05/16 08:22:28 dkcira Exp $
+// $Id: SiStripDetCabling.cc,v 1.12 2007/11/16 10:45:44 giordano Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,6 +31,15 @@ SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : full
       if(have_fed_id){ // these apvpairs are seen from the readout
 	// there can be at most 6 APVs on one DetId: 0,1,2,3,4,5
         int which_apv_pair = iconn->apvPairNumber(); // APVPair (0,1) for 512 strips and (0,1,2) for 768 strips
+	
+	// patch needed to take into account invalid detids or apvPairs
+	if( iconn->detId()==0 ||  
+	    iconn->detId() == sistrip::invalid32_ ||  
+	    iconn->apvPairNumber() == sistrip::invalid_  ||
+	    iconn->nApvPairs() == sistrip::invalid_ ) {
+	  continue;
+	}
+
 	if(iconn->i2cAddr(0)) vector_of_connected_apvs.push_back(2*which_apv_pair + 0); // first apv of the pair
 	if(iconn->i2cAddr(1)) vector_of_connected_apvs.push_back(2*which_apv_pair + 1); // second apv of the pair
       }
@@ -78,16 +87,13 @@ SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : full
 }
 
 //---- add to certain connections
-void SiStripDetCabling::addDevices(const FedChannelConnection & conn, std::map< uint32_t, std::vector<FedChannelConnection> >& chosen_connections_ ){
-// separate method in case need to add devices/cabling after object already constructed
-  const uint32_t& fedchannelconnection_detid = conn.detId(); // detId of FedChannelConnection that is looped over
-  // is this detid already in the map?
-  map< uint32_t, vector<FedChannelConnection> >::iterator detcabl_it = chosen_connections_.find(fedchannelconnection_detid);
-  if( ! (detcabl_it==chosen_connections_.end()) ){      // is already in map -- DKwarn : add constistency checks here for example agreement with already existing dcuId?
-    ( detcabl_it->second ).push_back(conn); // add one FedChannelConnection to vector mapped to this detid
-  }else{                                      // is not in map, create vector with 1 element and put into map
-    vector<FedChannelConnection> local_fedchannelconnection; local_fedchannelconnection.push_back(conn);
-    chosen_connections_[fedchannelconnection_detid] = local_fedchannelconnection;
+void SiStripDetCabling::addDevices( const FedChannelConnection& conn, 
+				    std::map< uint32_t, std::vector<FedChannelConnection> >& conns ){
+  if ( conn.detId() && conn.detId() != sistrip::invalid32_ &&  // check for valid detid
+       conn.apvPairNumber() != sistrip::invalid_ ) {           // check for valid apv pair number
+    if ( conn.apvPairNumber() >= conns[conn.detId()].size() )  // check cached vector size is sufficient
+      conns[conn.detId()].resize( conn.apvPairNumber()+1 );    // if not, resize
+    conns[conn.detId()][conn.apvPairNumber()] = conn;          // add latest connection object
   }
 }
 
@@ -146,7 +152,10 @@ const FedChannelConnection& SiStripDetCabling::getConnection( uint32_t det_id, u
 const unsigned int SiStripDetCabling::getDcuId( uint32_t det_id ) const{
   const vector<FedChannelConnection>& fcconns = getConnections( det_id );
   if(fcconns.size()!=0) {
-     return ( fcconns.at(0) ).dcuId(); // get dcuId of first element - when you build check this consistency
+    // patch needed to take into account the possibility that the first component of fcconns is invalid
+    for(size_t i=0;i<fcconns.size();++i)       
+      if (fcconns.at(i).detId() != sistrip::invalid32_ && fcconns.at(i).detId() != 0 )
+	return ( fcconns.at(i) ).dcuId(); // get dcuId of first element - when you build check this consistency
   }
   // default if none of the above is fulfilled
   unsigned int default_zero_value = 0;
@@ -157,7 +166,10 @@ const unsigned int SiStripDetCabling::getDcuId( uint32_t det_id ) const{
 const uint16_t SiStripDetCabling::nApvPairs(uint32_t det_id) const{
  const vector<FedChannelConnection>& fcconns = getConnections( det_id );
  if(fcconns.size()!=0) {
-  return( fcconns.at(0).nApvPairs()); // nr of apvpairs for associated module
+   // patch needed to take into account the possibility that the first component of fcconns is invalid
+   for(size_t i=0;i<fcconns.size();++i)       
+     if (fcconns.at(i).nApvPairs() != sistrip::invalid_)
+       return fcconns.at(i).nApvPairs(); // nr of apvpairs for associated module
  }else{
    return 0;
  }
@@ -191,17 +203,17 @@ void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vecto
     vector<int> new_apv_vector = conn_it->second;
     std::map<uint32_t, std::vector<int> >::iterator it = map_to_add_to.find(new_detid);
     if( it == map_to_add_to.end() ){ // detid does not exist in map, add new entry
-         std::sort(new_apv_vector.begin(),new_apv_vector.end()); // not very efficient sort, time consuming?
-         map_to_add_to.insert(std::make_pair(new_detid,new_apv_vector));
+      std::sort(new_apv_vector.begin(),new_apv_vector.end()); // not very efficient sort, time consuming?
+      map_to_add_to.insert(std::make_pair(new_detid,new_apv_vector));
     }else{                    // detid exists already, add to its vector - if its not there already . . .
       vector<int> existing_apv_vector = it->second;
       for(std::vector<int>::iterator inew = new_apv_vector.begin(); inew != new_apv_vector.end(); inew++ ){
         bool there_already = false;
         for(std::vector<int>::iterator iold = existing_apv_vector.begin(); iold != existing_apv_vector.end(); iold++){
-           if (*iold == *inew){
-              there_already = true;
-              break; // leave the loop
-           }
+	  if (*iold == *inew){
+	    there_already = true;
+	    break; // leave the loop
+	  }
         }
         if( ! there_already ){
           existing_apv_vector.push_back(*inew);   
@@ -238,5 +250,19 @@ void SiStripDetCabling::getActiveDetectorsContiguousIds(std::map<uint32_t, unsig
   }
 }
 
+bool SiStripDetCabling::IsConnected(const uint32_t& det_id) const {
+  return IsInMap(det_id,connected_);
+}
+
+bool SiStripDetCabling::IsDetected(const uint32_t& det_id) const {
+  return IsInMap(det_id,detected_);
+}
+bool SiStripDetCabling::IsUndetected(const uint32_t& det_id) const{
+  return IsInMap(det_id,undetected_);
+}
+bool SiStripDetCabling::IsInMap(const uint32_t& det_id, const std::map<uint32_t, std::vector<int> > & map) const{
+  std::map< uint32_t, std::vector<int> >::const_iterator it=map.find(det_id);
+  return (it!=map.end());
+}
 
 EVENTSETUP_DATA_REG(SiStripDetCabling);

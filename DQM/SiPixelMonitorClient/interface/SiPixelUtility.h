@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiPixel Quality Tests
  * 
- *  $Date: 2007/02/01 16:44:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/29 14:22:52 $
+ *  $Revision: 1.3 $
  *  \author Petra Merkel
   */
 
@@ -14,7 +14,10 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include "TH1.h"
+#include "TPaveText.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 class SiPixelUtility
 {
@@ -25,11 +28,20 @@ class SiPixelUtility
  static int getMEList(std::string name, std::string& dir_path, std::vector<std::string>& me_names);
 
  static void split(const std::string& str, std::vector<std::string>& tokens, 
-             const std::string& delimiters=" ");
+                   const std::string& delimiters=" ");
  static void getStatusColor(int    status, int& rval, int&gval, int& bval);
  static void getStatusColor(int    status, int& icol, std::string& tag);
  static void getStatusColor(double status, int& rval, int&gval, int& bval);
  static int  getStatus(MonitorElement* me);
+ 
+ static int computeHistoBin(std::string& module_path);
+ static int computeErrorCode(DaqMonitorBEInterface * bei, std::string& module_path);
+ static int computeErrorCode(int status);
+ static void fillPaveText(TPaveText* pave, std::map<std::string,std::pair<int,double> > messages); 
+ static void createStatusLegendMessages(std::map<std::string,std::pair<int,double> >& messages);
+ static std::map<std::string,std::string> sourceCodeMap();
+ static void setDrawingOption(TH1* hist,float xlow=-1.,float xhigh=-1.);
+ static std::vector<std::string> getQTestNameList(MonitorElement* me);
  
 };
 

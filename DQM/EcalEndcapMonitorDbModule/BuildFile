@@ -1,6 +1,4 @@
-<flags EDM_PLUGIN=1>
 <use name=CoralBase>
-<use name=DQMServices/Core>
 <use name=DQMServices/Daemon>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
@@ -11,13 +9,12 @@
 <use name=RelationalAccess>
 <use name=rootcore>
 <use name=xerces-c>
+<use name=DQM/EcalBarrelMonitorDbModule>
 <export>
-  <use name=DQMServices/Core>
-  <use name=DQMServices/Daemon>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
-  <use name=RelationalAccess>
+  <use name=FWCore/ServiceRegistry>
   <use name=xerces-c>
   <lib name=DQMEcalEndcapMonitorDbModule>
 </export>

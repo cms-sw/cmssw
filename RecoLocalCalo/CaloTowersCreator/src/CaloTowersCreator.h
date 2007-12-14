@@ -15,8 +15,8 @@
 
 /** \class CaloTowersCreator
   *  
-  * $Date: 2007/03/31 18:38:51 $
-  * $Revision: 1.2 $
+  * $Date: 2006/08/17 15:23:34 $
+  * $Revision: 1.6 $
   * \author J. Mans - Minnesota
   */
 class CaloTowersCreator : public edm::EDProducer {
@@ -27,9 +27,6 @@ public:
   double EBEScale, EEEScale, HBEScale, HESEScale;
   double HEDEScale, HOEScale, HF1EScale, HF2EScale;
 private:
-
-  static const std::vector<double>& getGridValues();
-
   CaloTowersCreationAlgo algo_;
   edm::InputTag hbheLabel_,hoLabel_,hfLabel_;
   std::vector<edm::InputTag> ecalLabels_;

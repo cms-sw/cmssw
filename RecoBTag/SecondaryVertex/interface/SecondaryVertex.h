@@ -5,6 +5,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+namespace reco {
+
 class SecondaryVertex : public reco::Vertex {
     public:
 	SecondaryVertex() {}
@@ -31,5 +33,7 @@ class SecondaryVertex : public reco::Vertex {
 	Measurement1D dist2d_;
 	Measurement1D dist3d_;
 };
+
+} // namespace reco
 
 #endif // RecoBTag_SecondaryVertex_SecondaryVertex_h

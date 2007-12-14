@@ -160,9 +160,12 @@ void CSCGeometryBuilderFromDDD::buildEndcaps( boost::shared_ptr<CSCGeometry> the
 
     std::vector<float> gtran( 3 );
 // MEC: first pass conversion to ROOT::Math take or modify as you will..
-     gtran[0] = (float) 1.0 * (fv->translation().X() / cm);
-     gtran[1] = (float) 1.0 * (fv->translation().Y() / cm);
-     gtran[2] = (float) 1.0 * (fv->translation().Z() / cm);
+    gtran[0] = (float) 1.0 * (fv->translation().X() / cm);
+    gtran[1] = (float) 1.0 * (fv->translation().Y() / cm);
+    gtran[2] = (float) 1.0 * (fv->translation().Z() / cm);
+
+    LogTrace(myName) << myName << ": gtran[0]=" << gtran[0] << ", gtran[1]=" << 
+        gtran[1] << ", gtran[2]=" << gtran[2];
 
 // MEC: Other option on final pass ROOT::Math 
     //    std::vector<double> dblgtran( 3 );
@@ -229,7 +232,7 @@ void CSCGeometryBuilderFromDDD::buildEndcaps( boost::shared_ptr<CSCGeometry> the
 	  LogTrace(myName) << myName  << " \t" << wg.consecutiveGroups[i] << "\t\t" << wg.wiresInEachGroup[i] ;
 	}
       } else {
-	LogTrace(myName) << myName  << ": DDD is MISSING SpecPars for wire groups" ;
+	LogTrace(myName) << myName  << ": missing  specpars for wire groups" ;
       }
       LogTrace(myName) << myName << ": end of wire group info. " ;
 
@@ -238,6 +241,17 @@ void CSCGeometryBuilderFromDDD::buildEndcaps( boost::shared_ptr<CSCGeometry> the
       int jstation = detid.station();
       int jring    = detid.ring();
       int jchamber = detid.chamber();
+      int jlayer   = detid.layer();
+
+      LogTrace(myName) << myName << ":_z_ E" << jendcap << " S" << jstation << " R" << jring << 
+        " C" << jchamber << " L" << jlayer << 
+	" gx=" << gtran[0] << ", gy=" << gtran[1] << ", gz=" << gtran[2] <<
+        " thickness=" << fpar[2]*2.;
+   
+      if ( jlayer == 0 ) { // Can only build chambers if we're filtering them
+
+      LogTrace(myName) << myName  << ":_z_ frame=" << fupar[31]/10. << 
+        " gap=" << fupar[32]/10. << " panel=" << fupar[33]/10. << " offset=" << fupar[34]/10.;
 
       // Are we going to apply centre-to-intersection offsets, even if values exist in the specs file?
       if ( !theGeometry->centreTIOffsets() ) fupar[30] = 0.;  // reset to zero if flagged 'off'
@@ -265,10 +279,11 @@ void CSCGeometryBuilderFromDDD::buildEndcaps( boost::shared_ptr<CSCGeometry> the
         buildChamber (theGeometry, detid, fpar, fupar, gtran, grmat, wg );
       }
 
+      } // if filtering chambers
+
     doAll = fv->next();
   }
 
-  //@@ DEAD  return theGeometry;  
 }
 
 void CSCGeometryBuilderFromDDD::buildChamber (  
@@ -355,7 +370,7 @@ void CSCGeometryBuilderFromDDD::buildChamber (
     float frameThickness     = fupar[31]/10.; // mm -> cm
     float gapThickness       = fupar[32]/10.; // mm -> cm
     float panelThickness     = fupar[33]/10.; // mm -> cm
-    float distAverageAGVtoAF = fupar[34]/10.; // mm -> cm
+    float zAverageAGVtoAF    = fupar[34]/10.; // mm -> cm
 
     float layerThickness = gapThickness; // consider the layer to be the gas gap
     float layerSeparation = gapThickness + panelThickness; // centre-to-centre of neighbouring layers
@@ -363,15 +378,19 @@ void CSCGeometryBuilderFromDDD::buildChamber (
     float chamberThickness = 7.*panelThickness + 6.*gapThickness + 2.*frameThickness ; // chamber frame thickness
     float hChamberThickness = chamberThickness/2.; // @@ should match value returned from DDD directly
 
-    // distAverageAGVtoAF is offset between centre of chamber (AF) and (L1+L6)/2 (average AGVs) 
-    float centreChamberToFirstLayer = 2.5 * layerSeparation + distAverageAGVtoAF ; // local z wrt chamber centre
-   
-   // Now z of wires in layer 1 = z_s1 = centreChamberToFirstLayer;; // layer 1 is at most +ve local z
-   //     z of wires in layer N = z_sN = z_s1 - (N-1)*layerSeparation; 
-   //     z of strips  in layer N = z_sN = z_sN + gapThickness/2.; @@ BEWARE: need to check if it should be '-gapThickness/2' !
+    // zAverageAGVtoAF is offset between centre of chamber (AF) and (L1+L6)/2 (average AGVs) 
+    // where AF = AluminumFrame and AGV=ActiveGasVolume (volume names in DDD).
+    // It is signed based on global z values: zc - (zl1+zl6)/2
 
-   // Set dimensions of trapezoidal chamber volume 
-   // N.B. apothem is 4th in fpar but 3rd in ctor 
+    // Local z values w.r.t. AF...
+    //     z of wires in layer 1 = z_w1 = +/- zAverageAGVtoAF + 2.5*layerSeparation; // layer 1 is at most +ve local z
+    // The sign in '+/-' depends on relative directions of local and global z. 
+    // It is '-' if they are the same direction, and '+' if opposite directions.
+    //     z of wires in layer N   = z_wN = z_w1 - (N-1)*layerSeparation; 
+    //     z of strips in layer N  = z_sN = z_wN + gapThickness/2.; @@ BEWARE: need to check if it should be '-gapThickness/2' !
+
+    // Set dimensions of trapezoidal chamber volume 
+    // N.B. apothem is 4th in fpar but 3rd in ctor 
 
     // hChamberThickness and fpar[2] should be the same - but using the above value at least shows
     // how chamber structure works
@@ -379,7 +398,7 @@ void CSCGeometryBuilderFromDDD::buildChamber (
     //    TrapezoidalPlaneBounds* bounds =  new TrapezoidalPlaneBounds( fpar[0], fpar[1], fpar[3], fpar[2] ); 
     TrapezoidalPlaneBounds* bounds =  new TrapezoidalPlaneBounds( fpar[0], fpar[1], fpar[3], hChamberThickness ); 
 
-   // Centre of chamber in z is specified in DDD
+    // Centre of chamber in z is specified in DDD
     Surface::PositionType aVec( gtran[0], gtran[1], gtran[2] ); 
 
     BoundPlane::BoundPlanePointer plane = BoundPlane::build(aVec, aRot, bounds); 
@@ -402,10 +421,12 @@ void CSCGeometryBuilderFromDDD::buildChamber (
     // we need to adjust sign of offset appropriately...
     int localZwrtGlobalZ = +1;
     if ( (jend==1 && jstat<3 ) || ( jend==2 && jstat>2 ) ) localZwrtGlobalZ = -1;
+    int globalZ = +1;
+    if ( jend == 2 ) globalZ = -1;
 
-    LogTrace(myName) << myName << ": layerSeparation=" << layerSeparation << ", distAverageAGVtoAF=" 
-                     << distAverageAGVtoAF << ", centreChamberToFirstLayer=" 
-		     << centreChamberToFirstLayer << ", localZwrtGlobalZ=" << localZwrtGlobalZ
+    LogTrace(myName) << myName << ": layerSeparation=" << layerSeparation
+                     << ", zAF-zAverageAGV="  << zAverageAGVtoAF
+		     << ", localZwrtGlobalZ=" << localZwrtGlobalZ
 		     << ", gtran[2]=" << gtran[2] ;
 
     for ( short j = 1; j <= 6; ++j ) {
@@ -426,7 +447,8 @@ void CSCGeometryBuilderFromDDD::buildChamber (
         // Build appropriate BoundPlane, based on parent chamber, with gas gap as thickness
 
 	// centre of chamber is at global z = gtran[2]
-	float zlayer = gtran[2] + localZwrtGlobalZ*( centreChamberToFirstLayer - (j-1)*layerSeparation );
+	// centre of layer j=1 is 2.5 layerSeparations from average AGV, hence centre of layer w.r.t. AF
+	float zlayer = gtran[2] - globalZ*zAverageAGVtoAF + localZwrtGlobalZ*(3.5-j)*layerSeparation;
 
         BoundSurface::RotationType chamberRotation = chamber->surface().rotation();
         BoundPlane::PositionType layerPosition( gtran[0], gtran[1], zlayer );

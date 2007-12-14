@@ -200,7 +200,7 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 	// <site name="FNAL">
 	//   <event-data>
 	//     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
-	//     <rfiotype value="castor">
+	//     <rfiotype value="castor"/>
 	//   </event-data>
 	//   <calib-data>
 	//     <catalog url="trivialcatalog_file:/x/y/z.xml"/>

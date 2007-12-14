@@ -31,6 +31,5 @@
   <use name=FWCore/Utilities>
   <use name=boost>
   <use name=rootcore>
-  <flags LDFLAGS="-lXMLIO">
   <flags EDM_PLUGIN=1>
 </library>

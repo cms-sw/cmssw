@@ -122,10 +122,10 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainSwitchStayErrors");
   produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
-  
+
   // Integrity Errors
-  produces<EcalTrigTowerDetIdCollection>("EcalIntegrityTTIdErrors");
-  produces<EcalTrigTowerDetIdCollection>("EcalIntegrityBlockSizeErrors");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors");
  
   // Mem channels' integrity
   produces<EcalElectronicsIdCollection>("EcalIntegrityMemTtIdErrors");
@@ -236,13 +236,13 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
    // create the collection for EE tpgs
   std::auto_ptr<EcalTrigPrimDigiCollection> productEETps(new EcalTrigPrimDigiCollection);
   theUnpacker_->setEETpsCollection(&productEETps);
-  
+
   // create the collection for invalid TTIds
-  std::auto_ptr<EcalTrigTowerDetIdCollection> productInvalidTTIds(new EcalTrigTowerDetIdCollection);
+  std::auto_ptr<EcalElectronicsIdCollection> productInvalidTTIds(new EcalElectronicsIdCollection);
   theUnpacker_->setInvalidTTIdsCollection(&productInvalidTTIds);
   
   // create the collection for invalid BlockLengths
-  std::auto_ptr<EcalTrigTowerDetIdCollection> productInvalidBlockLengths(new EcalTrigTowerDetIdCollection);
+  std::auto_ptr<EcalElectronicsIdCollection> productInvalidBlockLengths(new EcalElectronicsIdCollection);
   theUnpacker_->setInvalidBlockLengthsCollection(&productInvalidBlockLengths);
 
   // MEMs Collections
@@ -319,6 +319,8 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
       e.put(productInvalidGainsSwitch, "EcalIntegrityGainSwitchErrors");
       e.put(productInvalidGainsSwitchStay, "EcalIntegrityGainSwitchStayErrors");
       e.put(productInvalidChIds, "EcalIntegrityChIdErrors");
+      e.put(productInvalidTTIds,"EcalIntegrityTTIdErrors");
+      e.put(productInvalidBlockLengths,"EcalIntegrityBlockSizeErrors");
       e.put(productPnDiodeDigis);
     }
     if(memUnpacking_){
@@ -334,8 +336,6 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
     if(tccUnpacking_){
       e.put(productEBTps,"EBTT"); //note change the name
       e.put(productEETps,"EETT"); //note change the name
-      e.put(productInvalidTTIds,"EcalIntegrityTTIdErrors");
-      e.put(productInvalidBlockLengths,"EcalIntegrityBlockSizeErrors");
     }
   }
   

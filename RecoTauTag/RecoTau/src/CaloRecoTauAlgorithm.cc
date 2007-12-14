@@ -10,24 +10,24 @@ CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const ParameterSet& iConfig) : Transi
   
   MatchingConeMetric_                 = iConfig.getParameter<string>("MatchingConeMetric");
   MatchingConeSizeFormula_            = iConfig.getParameter<string>("MatchingConeSizeFormula");
-  MatchingConeVariableSize_min_       = iConfig.getParameter<double>("MatchingConeVariableSize_min");
-  MatchingConeVariableSize_max_       = iConfig.getParameter<double>("MatchingConeVariableSize_max");
+  MatchingConeSize_min_               = iConfig.getParameter<double>("MatchingConeSize_min");
+  MatchingConeSize_max_               = iConfig.getParameter<double>("MatchingConeSize_max");
   TrackerSignalConeMetric_            = iConfig.getParameter<string>("TrackerSignalConeMetric");
   TrackerSignalConeSizeFormula_       = iConfig.getParameter<string>("TrackerSignalConeSizeFormula");
-  TrackerSignalConeVariableSize_min_  = iConfig.getParameter<double>("TrackerSignalConeVariableSize_min");
-  TrackerSignalConeVariableSize_max_  = iConfig.getParameter<double>("TrackerSignalConeVariableSize_max");
+  TrackerSignalConeSize_min_          = iConfig.getParameter<double>("TrackerSignalConeSize_min");
+  TrackerSignalConeSize_max_          = iConfig.getParameter<double>("TrackerSignalConeSize_max");
   TrackerIsolConeMetric_              = iConfig.getParameter<string>("TrackerIsolConeMetric"); 
   TrackerIsolConeSizeFormula_         = iConfig.getParameter<string>("TrackerIsolConeSizeFormula"); 
-  TrackerIsolConeVariableSize_min_    = iConfig.getParameter<double>("TrackerIsolConeVariableSize_min");
-  TrackerIsolConeVariableSize_max_    = iConfig.getParameter<double>("TrackerIsolConeVariableSize_max");
+  TrackerIsolConeSize_min_            = iConfig.getParameter<double>("TrackerIsolConeSize_min");
+  TrackerIsolConeSize_max_            = iConfig.getParameter<double>("TrackerIsolConeSize_max");
   ECALSignalConeMetric_               = iConfig.getParameter<string>("ECALSignalConeMetric");
   ECALSignalConeSizeFormula_          = iConfig.getParameter<string>("ECALSignalConeSizeFormula");    
-  ECALSignalConeVariableSize_min_     = iConfig.getParameter<double>("ECALSignalConeVariableSize_min");
-  ECALSignalConeVariableSize_max_     = iConfig.getParameter<double>("ECALSignalConeVariableSize_max");
+  ECALSignalConeSize_min_             = iConfig.getParameter<double>("ECALSignalConeSize_min");
+  ECALSignalConeSize_max_             = iConfig.getParameter<double>("ECALSignalConeSize_max");
   ECALIsolConeMetric_                 = iConfig.getParameter<string>("ECALIsolConeMetric");
   ECALIsolConeSizeFormula_            = iConfig.getParameter<string>("ECALIsolConeSizeFormula");      
-  ECALIsolConeVariableSize_min_       = iConfig.getParameter<double>("ECALIsolConeVariableSize_min");
-  ECALIsolConeVariableSize_max_       = iConfig.getParameter<double>("ECALIsolConeVariableSize_max");
+  ECALIsolConeSize_min_               = iConfig.getParameter<double>("ECALIsolConeSize_min");
+  ECALIsolConeSize_max_               = iConfig.getParameter<double>("ECALIsolConeSize_max");
   
   AreaMetric_recoElements_maxabsEta_  = iConfig.getParameter<double>("AreaMetric_recoElements_maxabsEta");
 }
@@ -43,7 +43,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const CaloTauTagInfoRef
   
   CaloTauElementsOperators myCaloTauElementsOperators(myCaloTau);
   TFormula myMatchingConeSizeTFormula=myCaloTauElementsOperators.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
-  double myMatchingConeSize=myCaloTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeVariableSize_min_,MatchingConeVariableSize_max_);
+  double myMatchingConeSize=myCaloTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeSize_min_,MatchingConeSize_max_);
   TrackRef myleadTk=myCaloTauElementsOperators.leadTk(MatchingConeMetric_,myMatchingConeSize,LeadTrack_minPt_);
   double myCaloTau_refInnerPosition_x=0.;
   double myCaloTau_refInnerPosition_y=0.;
@@ -72,13 +72,13 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const CaloTauTagInfoRef
     }
 
     TFormula myTrackerSignalConeSizeTFormula=myCaloTauElementsOperators.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
-    double myTrackerSignalConeSize=myCaloTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeVariableSize_min_,TrackerSignalConeVariableSize_max_);
+    double myTrackerSignalConeSize=myCaloTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeSize_min_,TrackerSignalConeSize_max_);
     TFormula myTrackerIsolConeSizeTFormula=myCaloTauElementsOperators.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
-    double myTrackerIsolConeSize=myCaloTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeVariableSize_min_,TrackerIsolConeVariableSize_max_);     	
+    double myTrackerIsolConeSize=myCaloTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_);     	
     TFormula myECALSignalConeSizeTFormula=myCaloTauElementsOperators.computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
-    double myECALSignalConeSize=myCaloTauElementsOperators.computeConeSize(myECALSignalConeSizeTFormula,ECALSignalConeVariableSize_min_,ECALSignalConeVariableSize_max_);
+    double myECALSignalConeSize=myCaloTauElementsOperators.computeConeSize(myECALSignalConeSizeTFormula,ECALSignalConeSize_min_,ECALSignalConeSize_max_);
     TFormula myECALIsolConeSizeTFormula=myCaloTauElementsOperators.computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
-    double myECALIsolConeSize=myCaloTauElementsOperators.computeConeSize(myECALIsolConeSizeTFormula,ECALIsolConeVariableSize_min_,ECALIsolConeVariableSize_max_);     	
+    double myECALIsolConeSize=myCaloTauElementsOperators.computeConeSize(myECALIsolConeSizeTFormula,ECALIsolConeSize_min_,ECALIsolConeSize_max_);     	
 
     TrackRefVector mySignalTks;
     if (UseTrackLeadTrackDZconstraint_) mySignalTks=myCaloTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ);

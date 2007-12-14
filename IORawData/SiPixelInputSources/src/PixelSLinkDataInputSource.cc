@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id: PixelSLinkDataInputSource.cc,v 1.10 2007/09/07 14:41:33 fblekman Exp $
+// $Id: PixelSLinkDataInputSource.cc,v 1.11 2007/09/12 12:30:28 fblekman Exp $
 //
 //
 
@@ -33,7 +33,8 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& ps
 							      const edm::InputSourceDescription& desc) :
   ExternalInputSource(pset,desc),
   m_fedid(pset.getUntrackedParameter<int>("fedid")),
-  m_fileindex(0)
+  m_fileindex(0),
+  m_runnumber(pset.getUntrackedParameter<int>("runNumber",-1))
 {
   produces<FEDRawDataCollection>();
 
@@ -60,6 +61,21 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& ps
   storage.reset(StorageFactory::get()->open(currentfilename.c_str()));
   // (throw if storage is 0)
 
+  // check run number by opening up data file...
+  
+  seal::Storage & temp_file = *storage;
+  unsigned long long data;
+  IOSize n = temp_file.read((char*)&data,8);
+  //  setRunNumber(m_runnumber);
+  if((data >> 60) != 0x5){ 
+    uint32_t runnum = data;
+    if(m_runnumber!=-1)
+      edm::LogInfo("") << "WARNING: observed run number encoded in S-Link dump. Overwriting run number as defined in .cfg file!!! Run number now set to " << runnum << " (was " << m_runnumber << ")";
+    m_runnumber=runnum;
+    int n=temp_file.read((char*)&data,8);
+  } 
+  if(m_runnumber!=0)
+    setRunNumber(m_runnumber); 
 }
     
 PixelSLinkDataInputSource::~PixelSLinkDataInputSource() {
@@ -68,7 +84,7 @@ PixelSLinkDataInputSource::~PixelSLinkDataInputSource() {
 }
 
 bool PixelSLinkDataInputSource::produce(edm::Event& event) {
-  
+ 
   seal::Storage & m_file = *storage;
 
   // create product (raw data)
@@ -79,13 +95,18 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
 
   std::vector<unsigned long long> buffer;
   IOSize n = m_file.read((char*)&data,8);
+  //std::cout  << " first data: " <<  data  << std::endl;
+   
+  // now actually get run number from data...
+  // checks on possibility of event number before the event header
   
+ 
   if (n==0) {
     edm::LogInfo("") << "End of input file" ;
     return false;
   }
 
-
+  
   unsigned int count=0;
     
   while ((data >> 60) != 0x5){
@@ -94,13 +115,16 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
       edm::LogWarning("") << "Expected to find header, but read: 0x"
 			  << std::hex<<data<<std::dec ;
     }
+   
     count++;
     n=m_file.read((char*)&data,8);
+    
     if (n!=8) {
       edm::LogInfo("") << "End of input file" ;
       return false;
     }
   }
+ 
 
   if (count>0) {
     edm::LogWarning("")<<"Had to read "<<count<<" words before finding header!"<<std::endl;

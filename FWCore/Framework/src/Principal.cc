@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.15 2007/09/29 03:50:43 wmtan Exp $
+  $Id: Principal.cc,v 1.16 2007/10/05 21:57:44 chrjones Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -32,7 +32,7 @@ namespace edm {
     store_(rtrv),
     size_(0)
   {
-    if (processHistoryID_ != ProcessHistoryID()) {
+    if (processHistoryID_.isValid()) {
       ProcessHistoryRegistry& history(*ProcessHistoryRegistry::instance());
       assert(history.notEmpty());
       bool found = history.getMapped(processHistoryID_, *processHistoryPtr_);

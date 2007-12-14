@@ -6,6 +6,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
+#include "CondFormats/Calibration/interface/mySiStripNoises.h"
 
 
 #include "CondCore/Utilities/interface/CondCachedIter.h"
@@ -32,6 +33,8 @@ CondCachedIter<SiStripFedCabling> dummy5;
 
 CondCachedIter<DTReadOutMapping> dummy6;
 
+
+CondCachedIter<mySiStripNoises> dummy9;
 
 
 CondIter<Pedestals> dummy7;

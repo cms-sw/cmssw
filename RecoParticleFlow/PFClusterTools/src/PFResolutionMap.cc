@@ -3,7 +3,6 @@
 #include <sstream>
 #include <algorithm>
 #include <functional>
-#include <stdexcept>
 
 using namespace std;
 
@@ -67,7 +66,9 @@ PFResolutionMap::PFResolutionMap(const char* name, unsigned nbinseta,
 //   } 
 // }
 
-PFResolutionMap::PFResolutionMap(const char* name, const char* mapfile) { 
+PFResolutionMap::PFResolutionMap(const char* name, const char* mapfile) 
+throw (string) 
+try {
   
   SetTitle(mapfile);
   GetXaxis()->SetTitle("#eta");
@@ -75,10 +76,12 @@ PFResolutionMap::PFResolutionMap(const char* name, const char* mapfile) {
   if( ! ReadMapFile(mapfile) ) {
     string err = "PFResolutionMap::PFResolutionMap : cannot read file ";
     err += mapfile;
-    throw invalid_argument(err);
+    throw err;
   }
 }
-
+catch(string) {
+}
+  
 
 bool PFResolutionMap::WriteMapFile(const char* mapfile) {
 

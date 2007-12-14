@@ -13,5 +13,4 @@
         <class name="CombinedTauTagCalibration"/>
         <class name="CombinedTauTagCalibration::Entry"/>
         <class name="std::vector<CombinedTauTagCalibration::Entry>"/>      
-  <class pattern="*iterator*"/>
 </lcgdict>   

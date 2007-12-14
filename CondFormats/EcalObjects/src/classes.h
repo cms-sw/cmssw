@@ -10,7 +10,6 @@ namespace{
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 namespace {
   EcalPedestals pedmap;
-  std::vector<EcalPedestal> v_ped;
 }
 
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -18,7 +17,6 @@ namespace {
 namespace {
   namespace {
     EcalWeightXtalGroups gg;
-    std::vector<EcalXtalGroupId> groupmap;
   }
 }
 
@@ -45,7 +43,6 @@ namespace {
 namespace {
   namespace {
     EcalGainRatios gainratios;
-    std::vector<EcalMGPAGainRatio> ratiomap;
   }
 }
 
@@ -53,7 +50,6 @@ namespace {
 namespace {
   namespace {
     EcalIntercalibConstants intercalib;
-    std::vector<EcalIntercalibConstant> intermap;
   }
 }
 
@@ -78,7 +74,6 @@ namespace {
 namespace {
   namespace {
     EcalChannelStatus channelStatus;
-    std::vector<EcalChannelStatusCode> statusMap;
   }
 }
 
@@ -86,15 +81,14 @@ namespace {
 namespace {
   namespace {
     EcalLaserAlphas laserAplhas;
-    std::vector<EcalLaserAlpha> laserAlphaMap;
   }
 }
 
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 namespace {
   namespace {
-    std::vector<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> laser_map;
-    std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp> time_map ;
+     EcalLaserAPDPNRatios laser_map;
+     std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp> time_map ;
   }
 }
 
@@ -102,7 +96,6 @@ namespace {
 namespace {
   namespace {
     EcalLaserAPDPNRatiosRef laserAPDPNRatiosRef;
-    std::vector<EcalLaserAPDPNref> laserAPDPNRatiosRefMap;
   }
 }
 

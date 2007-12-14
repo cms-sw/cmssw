@@ -7,22 +7,22 @@ C...Sets values of commonblock variables.
       SUBROUTINE SLHAGIVE(CHIN)
       implicit none 
 *
-      character *80 SLHAFILE
+      character *512 SLHAFILE
             
       common /SLHAPAR/SLHAFILE
       save   /SLHAPAR/
 ***
       integer IER
       character *(*) chin
-      character *40 inam 
-      character *80 STRIN
+      character *60 inam 
+      character *512 STRIN
 ****
 
        Inam = 'SLHAFILE ='
         call TXRSTR2(inam, chin, strin, ier) 
 C	print*,'IER', ier
          if(ier.ne.1) then
-           read(strin(1:80),*) SLHAFILE 
+           read(strin(1:512),*) SLHAFILE 
          endif
 
 
@@ -37,7 +37,7 @@ C	print*,'IER', ier
            
       implicit none
  
-      character *80 SLHAFILE
+      character *512 SLHAFILE
       common /SLHAPAR/SLHAFILE
       save   /SLHAPAR/ 
     

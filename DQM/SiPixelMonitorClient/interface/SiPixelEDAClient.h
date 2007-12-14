@@ -21,7 +21,7 @@
 class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class SiPixelWebInterface;
-class TrackerMapCreator;
+class SiPixelTrackerMapCreator;
  
 class SiPixelEDAClient: public edm::EDAnalyzer, public evf::ModuleWeb{
 
@@ -69,7 +69,7 @@ private:
 
   std::string outputFilePath_;
 
-  TrackerMapCreator* trackerMapCreator_;
+  SiPixelTrackerMapCreator* trackerMapCreator_;
   bool defaultPageCreated_;
 };
 

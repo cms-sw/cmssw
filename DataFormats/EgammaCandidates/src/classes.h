@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.17 2007/07/31 15:20:03 ratnik Exp $
+// $Id: classes.h,v 1.19 2007/09/23 11:37:00 futyand Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -110,5 +110,20 @@ namespace {
     edm::reftobase::Holder<reco::Candidate, reco::PhotonRef> rb2;
     edm::reftobase::Holder<reco::Candidate, reco::SiStripElectronRef> rb3;
     edm::reftobase::Holder<reco::Candidate, reco::ConvertedPhotonRef> rb4;
+
+    edm::reftobase::Holder<reco::Candidate, reco::PixelMatchGsfElectronRef> rb11;
+    edm::reftobase::RefHolder<reco::PixelMatchGsfElectronRef> rb12;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::PixelMatchGsfElectronRefVector> rb13;
+    edm::reftobase::RefVectorHolder<reco::PixelMatchGsfElectronRefVector> rb14;
+
+    edm::reftobase::Holder<reco::Candidate, reco::PhotonRef> rb21;
+    edm::reftobase::RefHolder<reco::PhotonRef> rb22;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::PhotonRefVector> rb23;
+    edm::reftobase::RefVectorHolder<reco::PhotonRefVector> rb24;
+
+    edm::reftobase::Holder<reco::Candidate, reco::ConvertedPhotonRef> rb31;
+    edm::reftobase::RefHolder<reco::ConvertedPhotonRef> rb32;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::ConvertedPhotonRefVector> rb33;
+    edm::reftobase::RefVectorHolder<reco::ConvertedPhotonRefVector> rb34;
   }
 }

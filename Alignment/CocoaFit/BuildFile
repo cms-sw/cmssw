@@ -2,11 +2,13 @@
  <use name=Alignment/CocoaModel> 
  <use name=Alignment/CocoaAnalysis>
  <use name=Alignment/CocoaDaq>
+ <use name=FWCore/Utilities>
  <use name=CLHEP>
  <use name=meschach>
 
 <export>
  <lib name=AlignmentCocoaFit>
  <use name=Alignment/CocoaUtilities> 
+ <use name=FWCore/Utilities>
 </export>
 

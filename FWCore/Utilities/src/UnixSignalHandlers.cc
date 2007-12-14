@@ -13,9 +13,9 @@ namespace edm {
 
 //--------------------------------------------------------------
 
-    extern "C" {
-      volatile bool shutdown_flag = false;
+    volatile bool shutdown_flag = false;
 
+    extern "C" {
       void ep_sigusr2(int,siginfo_t*,void*)
       {
 	FDEBUG(1) << "in sigusr2 handler\n";

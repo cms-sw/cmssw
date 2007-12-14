@@ -45,8 +45,8 @@ void PedestalsHistograms::histoAnalysis( bool debug ) {
 
   // Some initialisation
   uint16_t valid = 0;
-  HistosMap::const_iterator iter = 0;
-  Analyses::iterator ianal = 0;
+  HistosMap::const_iterator iter;
+  Analyses::iterator ianal;
   std::map<std::string,uint16_t> errors;
 
   // Clear map holding analysis objects
