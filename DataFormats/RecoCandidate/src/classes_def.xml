@@ -67,6 +67,11 @@
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::RecoChargedCandidateRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::RecoChargedCandidateRefVector>" />
 
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::RecoStandAloneMuonCandidateRef>" />
+  <class name="edm::reftobase::RefHolder<reco::RecoStandAloneMuonCandidateRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::RecoStandAloneMuonCandidateRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::RecoStandAloneMuonCandidateRefVector>" />
+
   <class name="edm::reftobase::Holder<reco::Candidate, reco::RecoEcalCandidateRef>" />
   <class name="edm::reftobase::RefHolder<reco::RecoEcalCandidateRef>" />
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::RecoEcalCandidateRefVector>" />
