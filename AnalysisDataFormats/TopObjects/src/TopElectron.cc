@@ -1,5 +1,5 @@
 //
-// $Id: TopEletron.cc,v 1.2 2007/10/16 15:13:56 jlamb Exp $
+// $Id: TopElectron.cc,v 1.2 2007/10/17 15:46:59 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TopElectron.h"
@@ -37,6 +37,11 @@ double TopElectron::getLeptonID() const {
   return leptonID_;
 }
 
+/// return the "robust cuts-based" electron id
+double TopElectron::getElectronIDRobust() const {
+  return electronIDRobust_;
+}
+
 /// return tracker isolation as calc. by Egamma POG producer
 double TopElectron::getEgammaTkIso() const {
   return egammaTkIso_;
@@ -72,6 +77,11 @@ void TopElectron::setCaloIso(double caloIso) {
 /// method to set the lepton ID discriminator
 void TopElectron::setLeptonID(double id) {
   leptonID_ = id;
+}
+
+/// method to set the "robust cuts-based" electron id
+void TopElectron::setElectronIDRobust(double id) {
+  electronIDRobust_ = id;
 }
 
 /// methods to set the isolation from the Egamma POG's producer

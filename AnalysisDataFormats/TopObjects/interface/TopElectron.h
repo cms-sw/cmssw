@@ -1,5 +1,5 @@
 //
-// $Id: TopElectron.h,v 1.2 2007/10/04 23:55:08 lowette Exp $
+// $Id: TopElectron.h,v 1.3 2007/10/16 15:13:55 jlamb Exp $
 //
 
 #ifndef TopObjects_TopElectron_h
@@ -13,7 +13,7 @@
    store and retrieve the high-level additional information.
 
   \author   Steven Lowette
-  \version  $Id: TopElectron.h,v 1.2 2007/10/04 23:55:08 lowette Exp $
+  \version  $Id: TopElectron.h,v 1.3 2007/10/16 15:13:55 jlamb Exp $
 */
 
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
@@ -38,6 +38,7 @@ class TopElectron : public TopLepton<TopElectronType> {
     double getTrackIso() const;
     double getCaloIso() const;
     double getLeptonID() const;
+    double getElectronIDRobust() const;
     double getEgammaTkIso() const;
     int getEgammaTkNumIso() const;
     double getEgammaEcalIso() const;
@@ -49,6 +50,7 @@ class TopElectron : public TopLepton<TopElectronType> {
     void setTrackIso(double trackIso);
     void setCaloIso(double caloIso);
     void setLeptonID(double id);
+    void setElectronIDRobust(double id);
     void setEgammaTkIso(double tkIso);
     void setEgammaTkNumIso(int tkNumIso);
     void setEgammaEcalIso(double ecalIso);
@@ -61,6 +63,7 @@ class TopElectron : public TopLepton<TopElectronType> {
     double trackIso_;
     double caloIso_;
     double leptonID_;
+    double electronIDRobust_;
     double egammaTkIso_;
     int egammaTkNumIso_;
     double egammaEcalIso_;
