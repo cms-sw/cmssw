@@ -20,6 +20,8 @@ namespace pos{
     //iChannel=1..36
     void setChannel(unsigned int iChannel, bool mode);
 
+    void restoreBaselinAndChannelMasks();
+
     // Constructor and destructor
     PixelFEDCard(); // empty
     PixelFEDCard(std::string filename); // create from files
@@ -57,6 +59,10 @@ namespace pos{
     //These bits turn off(1) and on(0) channels
     int Ncntrl,NCcntrl,SCcntrl,Scntrl;
 
+    //The values as read from file so that they can be restored after
+    //calibration
+    int Ncntrl_original,NCcntrl_original,SCcntrl_original,Scntrl_original;
+
      //Bits (1st 8) used to mask TBM trailer bits
     int N_TBMmask,NC_TBMmask,SC_TBMmask,S_TBMmask;
     
@@ -83,6 +89,12 @@ namespace pos{
 
     //Control and data Regs for setting Baseline Adjustment
     int Nbaseln,NCbaseln,SCbaseln,Sbaseln;
+
+    //The values as read from file so that they can be restored after
+    //calibration
+    int Nbaseln_original,NCbaseln_original,SCbaseln_original,
+        Sbaseln_original;
+
 
     //VME base address 
     unsigned long FEDBASE_0, fedNumber;

@@ -267,6 +267,17 @@ PixelFEDCard::PixelFEDCard(string fileName):
     printf("Special Random testDAC mode (on = 0x1, off=0x0):%x\n",SpecialDac);
    
   fclose(infile);
+
+  Ncntrl_original=Ncntrl;
+  NCcntrl_original=NCcntrl;
+  SCcntrl_original=SCcntrl;
+  Scntrl_original=Scntrl;
+
+  Nbaseln_original=Nbaseln;
+  NCbaseln_original=NCbaseln;
+  SCbaseln_original=SCbaseln;
+  Sbaseln_original=Sbaseln;
+
   return;
 }
 
@@ -472,3 +483,18 @@ void PixelFEDCard::setChannel(unsigned int iChannel, bool mode){
   Scntrl=mask & 0x1ffLL;
  
 }  
+
+void PixelFEDCard::restoreBaselinAndChannelMasks(){
+
+  Ncntrl=Ncntrl_original;
+  NCcntrl=NCcntrl_original;
+  SCcntrl=SCcntrl_original;
+  Scntrl=Scntrl_original;
+
+  Nbaseln=Nbaseln_original;
+  NCbaseln=NCbaseln_original;
+  SCbaseln=SCbaseln_original;
+  Sbaseln=Sbaseln_original;
+
+
+}
