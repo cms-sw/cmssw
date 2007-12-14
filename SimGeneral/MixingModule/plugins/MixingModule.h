@@ -33,7 +33,6 @@
 #include <vector>
 #include <string>
 
-class CrossingFramePlaybackInfo;
 
 namespace edm
 {
@@ -50,9 +49,9 @@ namespace edm
       virtual void beginJob(edm::EventSetup const&iSetup);
 
       // limits for tof to be considered for trackers
-      static const int lowTrackTof; //nsec
-      static const int highTrackTof;
-      static const int limHighLowTof;
+        static const int lowTrackTof; //nsec
+        static const int highTrackTof;
+        static const int limHighLowTof;
  
     private:
       virtual void put(edm::Event &e) ;
@@ -60,10 +59,7 @@ namespace edm
       virtual void addSignals(const edm::Event &e); 
       virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId);
       virtual void setBcrOffset();
-      virtual void setSourceOffset(const unsigned int s);
       virtual void getSubdetectorNames();
-      virtual void setEventStartInfo(edm::EventID&, int, const unsigned int s); // set in CF-s
-      virtual void getEventStartInfo(edm::Event & e, const unsigned int s); // fill in in base class
 
       // internally used information : subdetectors present in input
       std::vector<std::string> simHitSubdetectors_;
@@ -80,7 +76,7 @@ namespace edm
       CrossingFrame<SimVertex> *cfVertices_;
       CrossingFrame<HepMCProduct> *cfHepMC_;
 
-      CrossingFramePlaybackInfo *playbackInfo_;
+      //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 
       Selector * sel_;
       std::string label_;

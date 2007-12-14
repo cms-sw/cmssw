@@ -11,7 +11,10 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfo.h"
+//#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+//#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+//#include "SimDataFormats/Track/interface/SimTrack.h"
+//#include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "MixingModule.h"
 
 const int  edm::MixingModule::lowTrackTof = -36; 
@@ -26,7 +29,7 @@ namespace edm
 
   // Constructor 
   MixingModule::MixingModule(const edm::ParameterSet& ps) : BMixingModule(ps),
-							    playbackInfo_(0),label_(ps.getParameter<std::string>("Label"))
+							    label_(ps.getParameter<std::string>("Label"))
 
   {
     // get the subdetector names
@@ -43,16 +46,17 @@ namespace edm
     // declare the product to produce
     for (unsigned int ii=0;ii<simHitSubdetectors_.size();ii++) {
       produces<CrossingFrame<PSimHit> > (simHitSubdetectors_[ii]);
+      //      cfSimHits_[simHitSubdetectors_[ii]]=new CrossingFrame<PSimHit>(minBunch(),maxBunch(),bunchSpace_,simHitSubdetectors_[ii]);
     }
     for (unsigned int ii=0;ii<caloSubdetectors_.size();ii++) {
       produces<CrossingFrame<PCaloHit> > (caloSubdetectors_[ii]);
+      //      cfCaloHits_[caloSubdetectors_[ii]]=new CrossingFrame<PCaloHit>(minBunch(),maxBunch(),bunchSpace_,caloSubdetectors_[ii]);
     }
     produces<CrossingFrame<SimTrack> >();
+    //    cfTracks_=new CrossingFrame<SimTrack>(minBunch(),maxBunch(),bunchSpace_,std::string(" "));
     produces<CrossingFrame<SimVertex> >();
+    //    cfVertices_=new CrossingFrame<SimVertex>(minBunch(),maxBunch(),bunchSpace_,std::string(" "));
     produces<CrossingFrame<edm::HepMCProduct> >();
-    
-    //
-    produces<CrossingFramePlaybackInfo>();  //FIXME: dependent on existence of rndmstore?
   }
 
   void MixingModule::getSubdetectorNames() {
@@ -64,23 +68,23 @@ namespace edm
       // See FWCore/Framework/interface/BranchDescription.h
       // BranchDescription contains all the information for the product.
       edm::BranchDescription desc = it->second;
-      if (!desc.friendlyClassName_.compare(0,9,"PCaloHits")) {
+      if (!desc.friendlyClassName_.compare(0,8,"PCaloHit")) {
 	caloSubdetectors_.push_back(desc.productInstanceName_);
-	LogInfo("Constructor") <<"Adding calo container "<<desc.productInstanceName_ <<" for mixing";
+	LogInfo("Constructor") <<"Adding calo container "<<desc.productInstanceName_ <<" for pileup treatment";
       }
-      else if (!desc.friendlyClassName_.compare(0,8,"PSimHits") && desc.productInstanceName_.compare(0,11,"TrackerHits")) {
+      else if (!desc.friendlyClassName_.compare(0,7,"PSimHit") && desc.productInstanceName_.compare(0,11,"TrackerHits")) {
 	simHitSubdetectors_.push_back(desc.productInstanceName_);
 	nonTrackerPids_.push_back(desc.productInstanceName_);
-        LogInfo("MixingModule") <<"Adding non tracker simhit container "<<desc.productInstanceName_ <<" for mixing";
+        LogInfo("MixingModule") <<"Adding non tracker simhit container "<<desc.productInstanceName_ <<" for pileup treatment";
       }
-      else if (!desc.friendlyClassName_.compare(0,8,"PSimHits") && !desc.productInstanceName_.compare(0,11,"TrackerHits")) {
+      else if (!desc.friendlyClassName_.compare(0,7,"PSimHit") && !desc.productInstanceName_.compare(0,11,"TrackerHits")) {
 	simHitSubdetectors_.push_back(desc.productInstanceName_);
 	// here we store the tracker subdetector name  for low and high part
 	int slow=(desc.productInstanceName_).find("LowTof");
 	int iend=(desc.productInstanceName_).size();
-        if (slow>0) {
+	if (slow>0) {
  	  trackerHighLowPids_.push_back(desc.productInstanceName_.substr(0,iend-6));
-	  LogInfo("MixingModule") <<"Adding tracker simhit container "<<desc.productInstanceName_.substr(0,iend-6) <<" for mixing";
+	  LogInfo("MixingModule") <<"Adding tracker simhit container "<<desc.productInstanceName_.substr(0,iend-6) <<" for pileup treatment";
         }
       }
     }
@@ -90,18 +94,14 @@ namespace edm
 
   void MixingModule::createnewEDProduct() {
     for (unsigned int ii=0;ii<simHitSubdetectors_.size();ii++) {
-      cfSimHits_[simHitSubdetectors_[ii]]=new CrossingFrame<PSimHit>(minBunch_,maxBunch_,bunchSpace_,simHitSubdetectors_[ii]);
+      cfSimHits_[simHitSubdetectors_[ii]]=new CrossingFrame<PSimHit>(minBunch(),maxBunch(),bunchSpace_,simHitSubdetectors_[ii]);
     }
     for (unsigned int ii=0;ii<caloSubdetectors_.size();ii++) {
-      cfCaloHits_[caloSubdetectors_[ii]]=new CrossingFrame<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,caloSubdetectors_[ii]);
+      cfCaloHits_[caloSubdetectors_[ii]]=new CrossingFrame<PCaloHit>(minBunch(),maxBunch(),bunchSpace_,caloSubdetectors_[ii]);
     }
-
-    cfTracks_=new CrossingFrame<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(" "));
-    cfVertices_=new CrossingFrame<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(" "));
-    cfHepMC_=new CrossingFrame<edm::HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(" "));
-
-    playbackInfo_=new CrossingFramePlaybackInfo(); //FIXME: dependent on existence of rndmstore?
-
+    cfTracks_=new CrossingFrame<SimTrack>(minBunch(),maxBunch(),bunchSpace_,std::string(" "));
+    cfVertices_=new CrossingFrame<SimVertex>(minBunch(),maxBunch(),bunchSpace_,std::string(" "));
+    cfHepMC_=new CrossingFrame<edm::HepMCProduct>(minBunch(),maxBunch(),bunchSpace_,std::string(" "));
   }
  
 
@@ -174,7 +174,7 @@ namespace edm
 
   void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr) {
   
-    LogDebug("MixingModule") <<"\n===============> adding objects from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+    LogDebug("MixingModule") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
     // SimHits
     // we have to treat tracker/non tracker  containers separately, prepare a global map
@@ -194,7 +194,7 @@ namespace edm
       if (simhits) {
 	if (simhits->size()) {
 	  cfSimHits_[(*it)]->addPileups(bcr,simhits,eventNr);
-	  LogDebug("MixingModule") <<"For "<<(*it)<<", "<<simhits->size()<<"  Simhits added";
+	  LogDebug("MixingModule") <<"For "<<(*it)<<", "<<simhits->size()<<" pileup Simhits added";
 	}
       }
     }
@@ -205,7 +205,7 @@ namespace edm
       const std::string subdetlow=(*itstr)+"LowTof";
 
       // do not read branches if clearly outside of tof bounds (and verification is asked for, default)
-      // add HighTof simhits to high and low signals
+      // add HighTof pileup to high and low signals
       float tof = bcr*cfSimHits_[subdethigh]->getBunchSpace();
       if ( !checktof_ || ((limHighLowTof +tof ) <= highTrackTof)) { 
 
@@ -213,15 +213,15 @@ namespace edm
 	if (simhitshigh) {
 	  cfSimHits_[subdethigh]->addPileups(bcr,simhitshigh,eventNr,0,checktof_);
 	  cfSimHits_[subdetlow]->addPileups(bcr,simhitshigh,eventNr,0,checktof_);
-	  LogDebug("MixingModule") <<"For "<<subdethigh<<" + "<<subdetlow<<", "<<simhitshigh->size()<<" Hits added to high+low";
+	  LogDebug("MixingModule") <<"For "<<subdethigh<<" + "<<subdetlow<<", "<<simhitshigh->size()<<" pup Hits added to high+low";
 	}
       }
 
-      // add LowTof simhits to high and low signals
+      // add LowTof pileup to high and low signals
       if (  !checktof_ || ((tof+limHighLowTof) >= lowTrackTof && tof <= highTrackTof)) {     
 	const std::vector<PSimHit> * simhitslow = simproducts[subdetlow];
 	if (simhitslow) {
-	  LogDebug("MixingModule") <<"For "<<subdethigh<<" + "<<subdetlow<<", "<<simhitslow->size()<<" Hits added to high+low";
+	  LogDebug("MixingModule") <<"For "<<subdethigh<<" + "<<subdetlow<<", "<<simhitslow->size()<<" pup Hits added to high+low";
 	  cfSimHits_[subdethigh]->addPileups(bcr,simhitslow,eventNr,0,checktof_);
 	  cfSimHits_[subdetlow]->addPileups(bcr,simhitslow,eventNr,0,checktof_);
 	}
@@ -235,22 +235,22 @@ namespace edm
     for (int ii=0;ii<sc;ii++) {
       edm::BranchDescription desc = resultcalo[ii].provenance()->product();
       if (resultcalo[ii].product()->size()) {
-	LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
+	LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" pileup Calohits added";
 	cfCaloHits_[desc.productInstanceName_]->addPileups(bcr,resultcalo[ii].product(),eventNr);
       }
     }
-
+ 
     //     //tracks and vertices
     std::vector<edm::Handle<std::vector<SimTrack> > > result_t;
     e->getMany((*sel_),result_t);
     int str=result_t.size();
     if (str>1) LogWarning("MixingModule") <<"Too many SimTrack containers, should be only one!";
-    LogDebug("MixingModule") <<result_t[0].product()->size()<<"  Simtracks added, eventNr "<<eventNr;
     if (str>0) {
+      LogDebug("MixingModule") <<result_t[0].product()->size()<<" pileup Simtracks added, eventNr "<<eventNr;
       if (result_t[0].isValid()) {
 	cfTracks_->addPileups(bcr,result_t[0].product(),eventNr,vertexoffset);
       }
-      else  LogWarning("MixingModule") <<"Invalid simtracks!";
+      else  LogWarning("MixingModule") <<"Invalid simtracks in pileup";
     }
 
     std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
@@ -258,11 +258,11 @@ namespace edm
     int sv=result_v.size();
     if (sv>1) LogWarning("MixingModule") <<"Too many SimVertex containers, should be only one!"; 
     if (sv>0) {
-      LogDebug("MixingModule") <<result_v[0].product()->size()<<"  Simvertices added";
+      LogDebug("MixingModule") <<result_v[0].product()->size()<<" pileup Simvertices added";
       if (result_v[0].isValid()) {
 	cfVertices_->addPileups(bcr,result_v[0].product(),eventNr);
       }
-      else  LogWarning("MixingModule") <<"Invalid simvertices!";
+      else  LogWarning("MixingModule") <<"Invalid simvertices in signal";
       vertexoffset+=result_v[0].product()->size();
     }
 
@@ -273,7 +273,7 @@ namespace edm
     int smc=result_v.size();
     if (smc>1) LogWarning("MixingModule") <<"Too many HepMCProducts, should be only one!"; 
     if (smc>0) {
-      LogDebug("MixingModule") <<"  HepMCProduct added";
+      LogDebug("MixingModule") <<" pileup HepMCProduct added";
       std::vector<edm::HepMCProduct> vec;
       vec.push_back(*(result_mc[0].product()));
       cfHepMC_->addPileups(bcr,&vec,eventNr);
@@ -290,22 +290,6 @@ namespace edm
     cfTracks_->setBcrOffset();
     cfVertices_->setBcrOffset();
     cfHepMC_->setBcrOffset();
-  }
-
-  void MixingModule::setEventStartInfo(edm::EventID& id, int fileNr, const unsigned int s) {
-   playbackInfo_->setEventStartInfo(id,fileNr,s); //FIXME: make dependent of rndmstore esistent?
-  }
-
-  void MixingModule::setSourceOffset(const unsigned int is) {
-    for (unsigned int ii=0;ii<simHitSubdetectors_.size();ii++) {
-      cfSimHits_[simHitSubdetectors_[ii]]->setSourceOffset(is);
-    }
-    for (unsigned int ii=0;ii<caloSubdetectors_.size();ii++) {
-      cfCaloHits_[caloSubdetectors_[ii]]->setSourceOffset(is);
-    }
-    cfTracks_->setSourceOffset(is);
-    cfVertices_->setSourceOffset(is);
-    cfHepMC_->setSourceOffset(is);
   }
 
   void MixingModule::put(edm::Event &e) {
@@ -330,27 +314,6 @@ namespace edm
       std::auto_ptr<CrossingFrame<edm::HepMCProduct> > pOut(cfHepMC_);
       e.put(pOut);
     }
+  }
 
-    if (playbackInfo_) {
-      std::auto_ptr<CrossingFramePlaybackInfo> pOut(playbackInfo_);
-      e.put(pOut);
-    }
-  }
-  void MixingModule::getEventStartInfo(edm::Event & e, const unsigned int s) {
-    // set event start info in BMixingModule
-    id_=EventID(0,0);
-    fileNr_=-1;
-    if (playback_) {
- 
-      edm::Handle<CrossingFramePlaybackInfo>  playbackInfo_H;
-      bool got;
-      got=e.get((*sel_), playbackInfo_H);
-      if (got) {
-	id_=playbackInfo_H->getStartEventId(s);
-	fileNr_=playbackInfo_H->getStartFileNr(s); 
-      }else{
-	LogWarning("MixingModule")<<"\n\nAttention: No CrossingFramePlaybackInfo on the input file, but playback option set!!!!!!!\nAttention: Job is executed without playback, please change the input file if you really want playback!!!!!!!";
-      }
-    }
-  }
-}//edm
+} //edm
