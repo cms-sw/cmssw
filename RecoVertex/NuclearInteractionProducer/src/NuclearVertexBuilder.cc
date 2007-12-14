@@ -22,7 +22,7 @@ void NuclearVertexBuilder::build( const reco::TrackRef& primTrack, const reco::T
             TransientVertex tv = AVF.vertex(transientTracks); 
             the_vertex = reco::Vertex(tv);
          }
-         catch(cms::Exception& exception){
+         catch(VertexException& exception){
             // AdaptivevertexFitter does not work 
             // Try here a simple intersection between the primary track
             // and the longer secondary track
