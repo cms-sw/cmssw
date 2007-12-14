@@ -14,13 +14,13 @@ TPedValues::TPedValues (double RMSmax, int bestPedestal) :
   m_bestPedestal (bestPedestal) ,
   m_RMSmax (RMSmax) 
 {
-  LogDebug ("EBPedOffset") << "entering TPedValues ctor ..." ;
+  LogDebug ("EcalPedOffset") << "entering TPedValues ctor ..." ;
 }
 
 
 TPedValues::TPedValues (const TPedValues & orig) 
 {
-  LogDebug ("EBPedOffset") << "entering TPedValues copyctor ..." ;
+  LogDebug ("EcalPedOffset") << "entering TPedValues copyctor ..." ;
   m_bestPedestal = orig.m_bestPedestal ;
   m_RMSmax = orig.m_RMSmax ;
 
@@ -45,24 +45,24 @@ void TPedValues::insert (const int gainId,
 //  assert (gainId < 4) ;
   if (gainId <= 0 || gainId >= 4)
     {
-      edm::LogWarning ("EBPedOffset") << "WARNING : TPedValues : gainId " << gainId
-                                      << " does not exist, entry skipped" ;
+      edm::LogWarning ("EcalPedOffset") << "WARNING : TPedValues : gainId " << gainId
+                                        << " does not exist, entry skipped" ;
       return ;    
     }
 //  assert (crystal > 0) ;
 //  assert (crystal <= 1700) ;
   if (crystal <= 0 || crystal > 1700)
     {
-      edm::LogWarning ("EBPedOffset") << "WARNING : TPedValues : crystal " << crystal
-                                      << " does not exist, entry skipped" ;
+      edm::LogWarning ("EcalPedOffset") << "WARNING : TPedValues : crystal " << crystal
+                                        << " does not exist, entry skipped" ;
       return ;    
     }
 //  assert (DAC >= 0) ; 
 //  assert (DAC < 256) ;
   if (DAC < 0 || DAC >= 256)
     {
-      edm::LogWarning ("EBPedOffset") << "WARNING : TPedValues : DAC value " << DAC
-                                      << " is out range, entry skipped" ;
+      edm::LogWarning ("EcalPedOffset") << "WARNING : TPedValues : DAC value " << DAC
+                                        << " is out range, entry skipped" ;
       return ;    
     }
   m_entries[gainId-1][crystal-1][DAC].insert (pedestal) ;
@@ -108,11 +108,11 @@ TPedResult TPedValues::terminate (const int & DACstart, const int & DACend) cons
 	    else if (gainId ==3) gainHuman =1;
 	    else                 gainHuman =-1;
 	    
-	    edm::LogWarning ("EBPedOffset") << " TPedValues :  channel: " << (crystal+1)
-					    << " gain: " << gainHuman
-					    << " has offset set to: " << dummyBestDAC << "."
-					    << " The maximum expected value is: " << DACend 
-					    << " (need be corrected by hand? Look at plots)";
+	    edm::LogWarning ("EcalPedOffset") << " TPedValues :  channel: " << (crystal+1)
+					      << " gain: " << gainHuman
+					      << " has offset set to: " << dummyBestDAC << "."
+					      << " The maximum expected value is: " << DACend 
+					      << " (need be corrected by hand? Look at plots)";
 	  }
 	  
         } // loop over crystals
