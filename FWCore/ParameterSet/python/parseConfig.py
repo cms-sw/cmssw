@@ -1347,6 +1347,7 @@ def dumpPython(d, options):
     replaces = ''
     others = ''
     sequences = ''
+    schedules = ''
     prefix = ''
     if options.isCfg:
         prefix = 'process.'
@@ -1360,11 +1361,13 @@ def dumpPython(d, options):
             replaces += prefix+repr(value)+"\n"
         elif isinstance(value,_ModuleSeries):
             sequences += prefix+key+" = "+value.dumpPython(options)+"\n"
+        elif isinstance(value,_Schedule):
+            schedules += prefix+key+" = "+value.dumpPython(options)+"\n"
         elif isinstance(value, cms.ESPrefer):
             others += value.dumpPythonAs(key)
         else:
             others += prefix+key+" = "+value.dumpPython(options)+"\n"
-    return includes+"\n"+others+"\n"+sequences+"\n"+replaces
+    return includes+"\n"+others+"\n"+sequences+"\n"+schedules+"\n"+replaces
 
 class _ConfigReturn(object):
     def __init__(self,d):
