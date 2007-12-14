@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.h,v 1.18 2007/10/16 15:16:30 jlamb Exp $
+// $Id: TopElectronProducer.h,v 1.19 2007/10/25 17:37:44 jlamb Exp $
 //
 
 #ifndef TopObjectProducers_TopElectronProducer_h
@@ -14,7 +14,7 @@
    and calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopElectronProducer.h,v 1.18 2007/10/16 15:16:30 jlamb Exp $
+  \version  $Id: TopElectronProducer.h,v 1.19 2007/10/25 17:37:44 jlamb Exp $
 */
 
 
@@ -88,6 +88,8 @@ class TopElectronProducer : public edm::EDProducer {
     edm::InputTag towerSrc_;
     bool          addElecID_;
     edm::InputTag elecIDSrc_;
+    bool          addElecIDRobust_;
+    edm::InputTag elecIDRobustSrc_;
     bool          addLRValues_;
     std::string   electronLRFile_;
     bool          addEgammaIso_;

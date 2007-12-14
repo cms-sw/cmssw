@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.cc,v 1.27 2007/10/25 17:37:45 jlamb Exp $
+// $Id: TopElectronProducer.cc,v 1.28 2007/10/29 17:51:54 jlamb Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -43,6 +43,9 @@ TopElectronProducer::TopElectronProducer(const edm::ParameterSet & iConfig) {
   // electron ID configurables
   addElecID_        = iConfig.getParameter<bool>         ( "addElectronID" );
   elecIDSrc_        = iConfig.getParameter<edm::InputTag>( "electronIDSource" );
+  addElecIDRobust_  = iConfig.getParameter<bool>         ( "addElectronIDRobust" );
+  elecIDRobustSrc_  = iConfig.getParameter<edm::InputTag>( "electronIDRobustSource" );
+  
   // likelihood ratio configurables
   addLRValues_      = iConfig.getParameter<bool>         ( "addLRValues" );
   electronLRFile_   = iConfig.getParameter<std::string>  ( "electronLRFile" );
@@ -114,6 +117,8 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   // prepare ID extraction
   edm::Handle<reco::ElectronIDAssociationCollection> elecIDs;
   if (addElecID_) iEvent.getByLabel(elecIDSrc_, elecIDs);
+  edm::Handle<reco::ElectronIDAssociationCollection> elecIDRobusts;
+  if (addElecIDRobust_) iEvent.getByLabel(elecIDRobustSrc_, elecIDRobusts);
   
   // prepare LR calculation
   if(addLRValues_) {
@@ -147,6 +152,9 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     // add electron ID info
     if (addElecID_) {
       anElectron.setLeptonID(electronID(electronsHandle, elecIDs, e));
+    }
+    if (addElecIDRobust_) {
+      anElectron.setElectronIDRobust(electronID(electronsHandle, elecIDRobusts, e));
     }
     // add lepton LR info
     if (addLRValues_) {
@@ -264,6 +272,7 @@ double TopElectronProducer::electronID(const edm::Handle<std::vector<TopElectron
   const reco::ElectronIDRef& id = elecID->val;
   return id->cutBasedDecision();
 }
+
 
 //fill the TopElectron with the isolation quantities calculated by the egamma producers
 void TopElectronProducer::setEgammaIso(TopElectron &anElectron,
