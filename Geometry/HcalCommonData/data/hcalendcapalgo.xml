@@ -31,7 +31,6 @@
     <Numeric name="Sector"      value="18"/>
     <Numeric name="SectorTot"   value="18"/>
     <Numeric name="Endcap"      value="2"/>
-    <Numeric name="Nose"        value="1"/>
     <String name="RotHalf"      value="180D"/>
     <String name="RotNameSpace" value="hcalrotations"/>
     <Numeric name="ZFront"      value="3919.5*mm"/>
@@ -81,6 +80,9 @@
     </Vector>
     <Vector name="TrimRight"     type="numeric" nEntries="6">
        1.5*mm,  1.5*mm,  0.5*mm,  0.5*mm,  0.5*mm,  0.5*mm
+    </Vector>
+    <Vector name="EquipModule"   type="numeric" nEntries="6">
+       1,  1,  1,  1,  1,  1
     </Vector>
     <Vector name="LayerN"        type="numeric" nEntries="6">
        1,  1,  1,  5,  6,  6
