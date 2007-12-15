@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/12 18:36:28 $
- * $Revision: 1.329 $
+ * $Date: 2007/12/15 10:01:21 $
+ * $Revision: 1.330 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1196,17 +1196,11 @@ void EcalBarrelMonitorClient::subscribe(void){
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: subscribe" << endl;
 
-  mui_->subscribe("*/FU0_is_done");
-  mui_->subscribe("*/FU0_is_dead");
-
   mui_->subscribe("*/EcalBarrel/*");
 
 }
 
 void EcalBarrelMonitorClient::subscribeNew(void){
-
-  mui_->subscribeNew("*/FU0_is_done");
-  mui_->subscribeNew("*/FU0_is_dead");
 
   mui_->subscribeNew("*/EcalBarrel/*");
 
@@ -1215,9 +1209,6 @@ void EcalBarrelMonitorClient::subscribeNew(void){
 void EcalBarrelMonitorClient::unsubscribe(void) {
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: unsubscribe" << endl;
-
-  mui_->unsubscribe("*/FU0_is_done");
-  mui_->unsubscribe("*/FU0_is_dead");
 
   mui_->unsubscribe("*/EcalBarrel/*");
 
@@ -1497,58 +1488,6 @@ void EcalBarrelMonitorClient::analyze(void){
 
           forced_status_ = true;
           this->beginRun();
-
-        }
-
-      }
-
-    }
-
-  }
-
-  // missing 'end-of-run' state, use the 'FU_is_done' ME
-
-  if ( status_ == "running" ) {
-
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
-
-      if ( begin_run_ && ! end_run_ ) {
-
-        me = dbe_->get("Collector/FU0_is_done");
-        if ( me ) {
-
-          cout << endl;
-          cout << " Source FU0 is done, issuing endRun() ... " << endl;
-          cout << endl;
-
-          forced_status_ = false;
-          this->endRun();
-
-        }
-
-      }
-
-    }
-
-  }
-
-  // missing 'end-of-run' state, use the 'FU_is_dead' ME
-
-  if ( status_ == "running" ) {
-
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
-
-      if ( begin_run_ && ! end_run_ ) {
-
-        me = dbe_->get("Collector/FU0_is_dead");
-        if ( me ) {
-
-          cout << endl;
-          cout << " Source FU0 is dead, issuing endRun() ... " << endl;
-          cout << endl;
-
-          forced_status_ = false;
-          this->endRun();
 
         }
 
