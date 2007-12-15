@@ -19,7 +19,7 @@ class DDHCalEndcapAlgo : public DDAlgorithm {
   int         getNsectors()                const {return nsectors;}
   int         getNsectortot()              const {return nsectortot;}
   int         getEndcaps()                 const {return nEndcap;}
-  int         getNose()                    const {return nNose;}
+  int         equipModule(unsigned int i)  const {return eModule[i];}
 
   double      getZFront()                  const {return zFront;}
   double      getZEnd()                    const {return zEnd;}
@@ -107,7 +107,7 @@ private:
   int                      nsectors;      //Number of potenital straight edges
   int                      nsectortot;    //Number of straight edges (actual)
   int                      nEndcap;       //Number of endcaps
-  int                      nNose;         //Nose to be present (?)
+  std::vector<int>         eModule;       //Modules to be present in part i (?)
   std::string              rotHalf;       //Rotation matrix for half
   std::string              rotns;         //Name space for rotation
   std::string              rotation;      //Rotation matrix to place in mother

@@ -83,7 +83,6 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
   nsectors      = int (nArgs["Sector"]);
   nsectortot    = int (nArgs["SectorTot"]);
   nEndcap       = int (nArgs["Endcap"]);
-  nNose         = int (nArgs["Nose"]);
   rotHalf       = sArgs["RotHalf"];
   rotns         = sArgs["RotNameSpace"];
 
@@ -108,8 +107,8 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
 
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo debug: General material " 
 		       << genMaterial << "\tSectors "  << nsectors << ",  " 
-		       << nsectortot << "\tEndcaps " << nEndcap << "\tNose " 
-		       << nNose << "\tRotation matrix for half " << rotns 
+		       << nsectortot << "\tEndcaps " << nEndcap  
+		       << "\tRotation matrix for half " << rotns 
 		       << ":" << rotHalf << "\n\tzFront " << zFront << " zEnd "
 		       << zEnd << " ziNose " << ziNose << " ziL0Nose " 
 		       << ziL0Nose << " ziBody " << ziBody  << " ziL0Body " 
@@ -149,6 +148,7 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
   thick         = vArgs["ModuleThick"];
   trimLeft      = vArgs["TrimLeft"]; 
   trimRight     = vArgs["TrimRight"]; 
+  eModule       = dbl_to_int(vArgs["EquipModule"]);
   layerN        = dbl_to_int(vArgs["LayerN"]);
   layerN0       = dbl_to_int(vArgs["LayerN0"]);
   layerN1       = dbl_to_int(vArgs["LayerN1"]);
@@ -161,7 +161,8 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
 			 << modType[i] << " Sections " << sectionModule[i] 
 			 << " thickness of absorber/air " << thick[i] 
 			 << " trim " << trimLeft[i] << ", " << trimRight[i] 
-			 << " Layers " << layerN[i];
+			 << " equip module " << eModule[i] << " with "
+			 << layerN[i] << " layers";
     if (i == 0) {
       for (j = 0; j < layerN[i]; j++) {
 	LogDebug("HCalGeom") << "\t " << layerN0[j] << "/" << layerN0[j+1];
@@ -515,7 +516,7 @@ void DDHCalEndcapAlgo::constructInsideSector(DDLogicalPart sector) {
     DDName matname(DDSplit(getModMat(i)).first, DDSplit(getModMat(i)).second); 
     DDMaterial matter(matname);
     
-    if (getNose()>0 || i>0) {
+    if (equipModule(i)>0) {
       int nsec = getSectionModule(i);
 
       //!!!!!!!!!!!!!!!!!Should be zero. And removed as soon as
