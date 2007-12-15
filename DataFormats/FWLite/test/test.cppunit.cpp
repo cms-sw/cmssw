@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: test.cppunit.cpp,v 1.2 2007/05/16 16:48:33 chrjones Exp $
+$Id: test.cppunit.cpp,v 1.3 2007/10/09 18:04:39 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -17,6 +17,7 @@ $Id: test.cppunit.cpp,v 1.2 2007/05/16 16:48:33 chrjones Exp $
 #include "TChain.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/TestHelper.h"
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -178,13 +179,13 @@ void testRefInROOT::testTwoGoodFiles()
   TFile file("good.root");
   std::cout <<" file :" << &file<<" gFile: "<<gFile<<std::endl;
   
-  TTree* events = dynamic_cast<TTree*>(file.Get("Events"));
+  TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName()));
   
   testTree(events);
   std::cout <<"working on second file"<<std::endl;
   TFile file2("good2.root");
   std::cout <<" file2 :"<< &file2<<" gFile: "<<gFile<<std::endl;
-  events = dynamic_cast<TTree*>(file2.Get("Events"));
+  events = dynamic_cast<TTree*>(file2.Get(edm::poolNames::eventTreeName()));
   
   testTree(events);
    */
@@ -194,7 +195,7 @@ void testRefInROOT::testTwoGoodFiles()
 void testRefInROOT::testGoodChain()
 {
   /*
-  TChain eventChain("Events");
+  TChain eventChain(edm::poolNames::eventTreeName());
   eventChain.Add("good.root");
   eventChain.Add("good2.root");
 
@@ -217,7 +218,7 @@ void testRefInROOT::testGoodChain()
 /*
 void testRefInROOT::failChainWithMissingFile()
 {
-  TChain eventChain("Events");
+  TChain eventChain(edm::poolNames::eventTreeName());
   eventChain.Add("good.root");
   eventChain.Add("thisFileDoesNotExist.root");
   

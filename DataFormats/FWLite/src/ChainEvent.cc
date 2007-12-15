@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.2 2007/06/28 23:32:47 wmtan Exp $
+// $Id: ChainEvent.cc,v 1.3 2007/10/30 14:23:17 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "DataFormats/FWLite/interface/ChainEvent.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "TFile.h"
 #include "TTree.h"
 
@@ -44,7 +45,7 @@ namespace fwlite {
         it!=itEnd;
         ++it) {
       file_ = boost::shared_ptr<TFile>(TFile::Open(it->c_str()));
-      TTree* tree = dynamic_cast<TTree*>(file_->Get("Events"));
+      TTree* tree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::eventTreeName().c_str()));
       if(0==tree) {
         throw cms::Exception("NotEdmFile")<<"The file "<<*it<<" has no 'Events' TTree and therefore is not an EDM ROOT file";
       }

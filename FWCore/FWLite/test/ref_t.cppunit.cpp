@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.14 2007/10/09 18:04:45 chrjones Exp $
+$Id: ref_t.cppunit.cpp,v 1.15 2007/10/22 19:55:26 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -16,6 +16,7 @@ $Id: ref_t.cppunit.cpp,v 1.14 2007/10/09 18:04:45 chrjones Exp $
 #include "TChain.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/TestHelper.h"
 
 static char* gArgV = 0;
@@ -149,7 +150,7 @@ static void testTree(TTree* events) {
 void testRefInROOT::testOneGoodFile()
 {
    TFile file("good.root");
-   TTree* events = dynamic_cast<TTree*>(file.Get("Events"));
+   TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
    
    testTree(events);
 }
@@ -157,7 +158,7 @@ void testRefInROOT::testOneGoodFile()
 void testRefInROOT::failOneBadFile()
 {
   TFile file("thisFileDoesNotExist.root");
-  TTree* events = dynamic_cast<TTree*>(file.Get("Events"));
+  TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
   
   testTree(events);
 }
@@ -168,13 +169,13 @@ void testRefInROOT::testTwoGoodFiles()
   TFile file("good.root");
   std::cout <<" file :" << &file<<" gFile: "<<gFile<<std::endl;
   
-  TTree* events = dynamic_cast<TTree*>(file.Get("Events"));
+  TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
   
   testTree(events);
   std::cout <<"working on second file"<<std::endl;
   TFile file2("good2.root");
   std::cout <<" file2 :"<< &file2<<" gFile: "<<gFile<<std::endl;
-  events = dynamic_cast<TTree*>(file2.Get("Events"));
+  events = dynamic_cast<TTree*>(file2.Get(edm::poolNames::eventTreeName().c_str()));
   
   testTree(events);
 }
@@ -182,7 +183,7 @@ void testRefInROOT::testTwoGoodFiles()
 
 void testRefInROOT::testGoodChain()
 {
-  TChain eventChain("Events");
+  TChain eventChain(edm::poolNames::eventTreeName().c_str());
   eventChain.Add("good.root");
   eventChain.Add("good_delta5.root");
 
@@ -211,7 +212,7 @@ void testRefInROOT::testGoodChain()
 /*
 void testRefInROOT::failChainWithMissingFile()
 {
-  TChain eventChain("Events");
+  TChain eventChain(edm::poolNames::eventTreeName().c_str());
   eventChain.Add("good.root");
   eventChain.Add("thisFileDoesNotExist.root");
   
@@ -235,7 +236,7 @@ void testRefInROOT::failChainWithMissingFile()
 void testRefInROOT::failDidNotCallGetEntryForEvents()
 {
   TFile file("good.root");
-  TTree* events = dynamic_cast<TTree*>(file.Get("Events"));
+  TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
   CPPUNIT_ASSERT(events !=0);
   
   /*

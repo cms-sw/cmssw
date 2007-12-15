@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.11 2007/10/30 14:27:39 chrjones Exp $
+// $Id: Event.cc,v 1.12 2007/12/07 23:22:53 wmtan Exp $
 //
 
 // system include files
@@ -94,7 +94,7 @@ private:
     //got this logic from IOPool/Input/src/RootFile.cc
     
     if(fileVersion_ >= 3 ) {
-      auxBranch_ = eventTree_->GetBranch("EventAuxiliary");
+      auxBranch_ = eventTree_->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
       if(0==auxBranch_) {
         throw cms::Exception("NoEventAuxilliary")<<"The TTree "
         <<edm::poolNames::eventTreeName()
@@ -103,7 +103,7 @@ private:
       auxBranch_->SetAddress(&pAux_);
     } else {
       pOldAux_ = new edm::EventAux();
-      auxBranch_ = eventTree_->GetBranch("EventAux");
+      auxBranch_ = eventTree_->GetBranch(edm::BranchTypeToAuxBranchName(edm::InEvent).c_str());
       if(0==auxBranch_) {
         throw cms::Exception("NoEventAux")<<"The TTree "
           <<edm::poolNames::eventTreeName()

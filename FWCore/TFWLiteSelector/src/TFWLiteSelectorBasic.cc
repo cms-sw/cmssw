@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.30 2007/09/06 21:09:23 chrjones Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.31 2007/09/07 23:14:51 chrjones Exp $
 //
 
 // system include files
@@ -246,7 +246,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
    if(everythingOK_) {
       edm::EventAuxiliary aux;
       edm::EventAuxiliary* pAux= &aux;
-      TBranch* branch = m_->tree_->GetBranch("EventAuxiliary");
+      TBranch* branch = m_->tree_->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
 
       branch->SetAddress(&pAux);
       //provBranch->SetAddress(&pProv);
