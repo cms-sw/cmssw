@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/11/13 14:05:25 $
- * $Revision: 1.59 $
+ * $Date: 2007/11/29 19:07:49 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -127,15 +127,11 @@ void EBBeamCaloClient::beginRun(void){
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EBBeamCaloClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBBeamCaloClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -144,8 +140,6 @@ void EBBeamCaloClient::endJob(void) {
 void EBBeamCaloClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBBeamCaloClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -343,219 +337,6 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   }
 
   return status;
-
-}
-
-void EBBeamCaloClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EBBeamCaloClient: subscribe" << endl;
-
-  Char_t histo[200];
-
-  for (int i = 0; i < cryInArray_ ; i++){
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile cry %01d", i+1);
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 cry %01d", i+1);
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains cry %01d", i+1);
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry %01d", i+1);
-    mui_->subscribe(histo);
-    // sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry %01d", i+1);
-    //mui_->subscribe(histo);
-    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry %01d", i+1);
-    //mui_->subscribe(histo);
-    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry %01d", i+1);
-    //mui_->subscribe(histo);
-    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry %01d", i+1);
-    //mui_->subscribe(histo);
-  }
-
-  //     for(int u=0; u< 1701;u++){
-  //       sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EnergyHistos/EBBCT rec Ene sum 3x3 cry: %04d",u);
-  //          mui_->subscribe(histo);
-  //       sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EnergyHistos/EBBCT rec Energy1 cry: %04d",u);
-  //          mui_->subscribe(histo);
-  //     }
-
-
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals");
-  mui_->subscribe(histo);
-  //  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals table moving");
-  //mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT all needed crystals readout");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals number");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec Ene sum 3x3");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec Ene sum 3x3 table moving");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystal on beam");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystal with maximum rec energy");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT table is moving");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystals done");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystal in beam vs event");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals errors");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single crystal");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the 3x3 array");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT number of entries");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT energy deposition in the 3x3");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT E1 in the max cry");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT Desynchronization vs step");
-  mui_->subscribe(histo);
-
-}
-
-void EBBeamCaloClient::subscribeNew(void){
-
-  Char_t histo[200];
-
-  for (int i = 0; i < cryInArray_ ; i++){
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile cry %01d", i+1);
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 cry %01d", i+1);
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains cry %01d", i+1);
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry %01d", i+1);
-    mui_->subscribe(histo);
-    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry %01d", i+1);
-    //mui_->subscribe(histo);
-    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry %01d", i+1);
-    //mui_->subscribe(histo);
-    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry %01d", i+1);
-    //mui_->subscribe(histo);
-    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry %01d", i+1);
-    //mui_->subscribe(histo);
-  }
-
-  //     for(int u=0; u< 1701;u++){
-  //       sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EnergyHistos/EBBCT rec Ene sum 3x3 cry: %04d",u);
-  //          mui_->subscribe(histo);
-  //       sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EnergyHistos/EBBCT rec Energy1 cry: %04d",u);
-  //          mui_->subscribe(histo);
-  //     }
-
-
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals");
-  mui_->subscribe(histo);
-  // sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals table moving");
-  //mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT all needed crystals readout");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals number");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec Ene sum 3x3");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec Ene sum 3x3 table moving");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystal on beam");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystal with maximum rec energy");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT table is moving");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystals done");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystal in beam vs event");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals errors");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single crystal");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the 3x3 array");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT number of entries");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT energy deposition in the 3x3");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT E1 in the max cry");
-  mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT Desynchronization vs step");
-  mui_->subscribe(histo);
-}
-
-void EBBeamCaloClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EBBeamCaloClient: unsubscribe" << endl;
-
-  Char_t histo[200];
-
-  for (int i = 0; i < cryInArray_ ; i++){
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile cry %01d", i+1);
-    mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 cry %01d", i+1);
-    mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains cry %01d", i+1);
-    mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry %01d", i+1);
-    mui_->unsubscribe(histo);
-    // sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry %01d", i+1);
-    //mui_->unsubscribe(histo);
-    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry %01d", i+1);
-    //mui_->unsubscribe(histo);
-    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry %01d", i+1);
-    //mui_->unsubscribe(histo);
-    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry %01d", i+1);
-    //mui_->unsubscribe(histo);
-  }
-
-  //     for(int u=0; u< 1701;u++){
-  //       sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EnergyHistos/EBBCT rec Ene sum 3x3 cry: %04d",u);
-  //          mui_->unsubscribe(histo);
-  //       sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EnergyHistos/EBBCT rec Energy1 cry: %04d",u);
-  //          mui_->unsubscribe(histo);
-  //     }
-
-
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals");
-  mui_->unsubscribe(histo);
-  //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals table moving");
-  //mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT all needed crystals readout");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals number");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec Ene sum 3x3");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec Ene sum 3x3 table moving");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystal on beam");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystal with maximum rec energy");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT table is moving");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystals done");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystal in beam vs event");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals errors");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single crystal");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the 3x3 array");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT number of entries");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT energy deposition in the 3x3");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT E1 in the max cry");
-  mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT Desynchronization vs step");
-  mui_->unsubscribe(histo);
 
 }
 

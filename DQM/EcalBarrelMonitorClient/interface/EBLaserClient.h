@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/11/14 10:31:39 $
- * $Revision: 1.66 $
+ * $Date: 2007/11/27 10:43:17 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  *
 */
@@ -39,11 +39,6 @@ EBLaserClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBLaserClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// softReset
 void softReset(void);

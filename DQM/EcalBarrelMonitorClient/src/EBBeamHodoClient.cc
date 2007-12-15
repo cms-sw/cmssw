@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2007/11/09 17:36:44 $
- * $Revision: 1.44 $
+ * $Date: 2007/11/13 14:05:25 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -122,15 +122,11 @@ void EBBeamHodoClient::beginRun(void){
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EBBeamHodoClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBBeamHodoClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -216,8 +212,6 @@ void EBBeamHodoClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBBeamHodoClient: endRun, jevt = " << jevt_ << endl;
 
-  this->unsubscribe();
-
   this->cleanup();
 
 }
@@ -239,232 +233,6 @@ bool EBBeamHodoClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   bool status = true;
 
   return status;
-
-}
-
-void EBBeamHodoClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EBBeamHodoClient: subscribe" << endl;
-
-  int smId = 1;
-
-  Char_t histo[200];
-
-  for (int i=0; i<4; i++) {
-
-    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT occup %s %02d", Numbers::sEB(smId).c_str(), i+1);
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT raw %s %02d", Numbers::sEB(smId).c_str(), i+1);
-    mui_->subscribe(histo);
-
-  }
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX rec %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY rec %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosYX rec %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloX %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloY %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualX %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualY %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC rec %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC-Calo vs Cry %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Missing Collections %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs Y %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs X %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY Hodo-Calo %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax TDC-Calo %s", Numbers::sEB(smId).c_str());
-  mui_->subscribe(histo);
-
-}
-
-void EBBeamHodoClient::subscribeNew(void){
-
-  Char_t histo[200];
-
-  int smId = 1;
-
-  for (int i=0; i<4; i++) {
-
-    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT occup %s, %02d", Numbers::sEB(smId).c_str(), i+1);
-    mui_->subscribeNew(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT raw %s, %02d", Numbers::sEB(smId).c_str(), i+1);
-    mui_->subscribeNew(histo);
-
-  }
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX rec %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY rec %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosYX rec %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloX %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloY %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualX %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualY %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC rec %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC-Calo vs Cry %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Missing Collections %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs Y %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs X %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY Hodo-Calo %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax TDC-Calo %s", Numbers::sEB(smId).c_str());
-  mui_->subscribeNew(histo);
-
-}
-
-void EBBeamHodoClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EBBeamHodoClient: unsubscribe" << endl;
-
-  Char_t histo[200];
-
-  int smId = 1;
-
-  for (int i=0; i<4; i++) {
-
-    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT occup %s, %02d", Numbers::sEB(smId).c_str(), i+1);
-    mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT raw %s, %02d", Numbers::sEB(smId).c_str(), i+1);
-    mui_->unsubscribe(histo);
-
-  }
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX rec %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY rec %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosYX rec %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloX %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloY %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualX %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualY %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC rec %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC-Calo vs Cry %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Missing Collections %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs Y %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs X %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY Hodo-Calo %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax TDC-Calo %s", Numbers::sEB(smId).c_str());
-  mui_->unsubscribe(histo);
 
 }
 

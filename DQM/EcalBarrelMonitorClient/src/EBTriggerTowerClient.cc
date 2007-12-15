@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/11/14 21:40:59 $
- * $Revision: 1.75 $
+ * $Date: 2007/11/15 08:09:30 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -137,15 +137,11 @@ void EBTriggerTowerClient::beginRun(void) {
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EBTriggerTowerClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBTriggerTowerClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -154,8 +150,6 @@ void EBTriggerTowerClient::endJob(void) {
 void EBTriggerTowerClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBTriggerTowerClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -339,150 +333,6 @@ bool EBTriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, M
   bool status = true;
 
   return status;
-
-}
-
-void EBTriggerTowerClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EBTriggerTowerClient: subscribe" << endl;
-
-  subscribe( "Real Digis",
-             "EBTriggerTowerTask", false);
-
-  subscribe( "Emulated Digis",
-             "EBTriggerTowerTask/Emulated", true);
-
-}
-
-void EBTriggerTowerClient::subscribe( const char* nameext,
-                                      const char* folder,
-                                      bool emulated ) {
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/%s/EBTTT Et map %s %s", folder, nameext, Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/%s/EBTTT FineGrainVeto %s %s", folder, nameext, Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/%s/EBTTT Flags %s %s", folder, nameext, Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-    if(!emulated) {
-      sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulError %s", folder, Numbers::sEB(ism).c_str());
-      mui_->subscribe(histo, ism);
-      sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFlagError %s", folder, Numbers::sEB(ism).c_str());
-      mui_->subscribe(histo, ism);
-      sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFineGrainVetoError %s", folder, Numbers::sEB(ism).c_str());
-      mui_->subscribe(histo, ism);
-    }
-
-//     for (int j=0; j<68; j++) {
-//       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et R %s TT%02d", ism, j+1);
-//       mui_->subscribe(histo, ism);
-//       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et T %s TT%02d", ism, j+1);
-//       mui_->subscribe(histo, ism);
-//     }
-
-  }
-
-}
-
-void EBTriggerTowerClient::subscribeNew(void){
-
-  subscribeNew( "Real Digis",
-                "EBTriggerTowerTask", false );
-
-  subscribeNew( "Emulated Digis",
-                "EBTriggerTowerTask/Emulated", true );
-
-}
-
-void EBTriggerTowerClient::subscribeNew( const char* nameext,
-                                         const char* folder,
-                                         bool emulated ) {
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/%s/EBTTT Et map %s %s", folder, nameext, Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/%s/EBTTT FineGrainVeto %s %s", folder, nameext, Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/%s/EBTTT Flags %s %s", folder, nameext, Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-    if(!emulated) {
-      sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulError %s", folder, Numbers::sEB(ism).c_str());
-      mui_->subscribeNew(histo, ism);
-      sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFlagError %s", folder, Numbers::sEB(ism).c_str());
-      mui_->subscribeNew(histo, ism);
-      sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFineGrainVetoError %s", folder, Numbers::sEB(ism).c_str());
-      mui_->subscribeNew(histo, ism);
-    }
-
-//     for (int j=0; j<68; j++) {
-//       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et T %s TT%02d", ism, j+1);
-//       mui_->subscribeNew(histo, ism);
-//       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et R %s TT%02d", ism, j+1);
-//       mui_->subscribeNew(histo, ism);
-//     }
-
-  }
-
-}
-
-void EBTriggerTowerClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EBTriggerTowerClient: unsubscribe" << endl;
-
-  unsubscribe( "Real Digis",
-               "EBTriggerTowerTask", false );
-
-  unsubscribe( "Emulated Digis",
-               "EBTriggerTowerTask/Emulated", true);
-
-}
-
-void EBTriggerTowerClient::unsubscribe( const char* nameext,
-                                        const char* folder,
-                                        bool emulated ) {
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/%s/EBTTT Et map %s %s", folder, nameext, Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/%s/EBTTT FineGrainVeto %s %s", folder, nameext, Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/%s/EBTTT Flags %s %s", folder, nameext, Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-    if(!emulated) {
-      sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulError %s", folder, Numbers::sEB(ism).c_str());
-      mui_->unsubscribe(histo, ism);
-      sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFlagError %s", folder, Numbers::sEB(ism).c_str());
-      mui_->unsubscribe(histo, ism);
-      sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFineGrainVetoError %s", folder, Numbers::sEB(ism).c_str());
-      mui_->unsubscribe(histo, ism);
-    }
-
-//     for (int j=0; j<68; j++) {
-//       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et T %s TT%02d", ism, j+1);
-//       mui_->subscribe(histo, ism);
-//       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et R %s TT%02d", ism, j+1);
-//       mui_->subscribe(histo, ism);
-//     }
-
-  }
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/11/15 14:32:17 $
- * $Revision: 1.88 $
+ * $Date: 2007/11/16 11:05:48 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  *
 */
@@ -105,15 +105,11 @@ void EBSummaryClient::beginRun(void){
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EBSummaryClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBSummaryClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -122,8 +118,6 @@ void EBSummaryClient::endJob(void) {
 void EBSummaryClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBSummaryClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -274,22 +268,6 @@ bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
   bool status = true;
 
   return status;
-
-}
-
-void EBSummaryClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EBSummaryClient: subscribe" << endl;
-
-}
-
-void EBSummaryClient::subscribeNew(void){
-
-}
-
-void EBSummaryClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EBSummaryClient: unsubscribe" << endl;
 
 }
 

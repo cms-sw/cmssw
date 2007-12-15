@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2007/11/13 14:05:36 $
- * $Revision: 1.26 $
+ * $Date: 2007/11/29 19:07:49 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -103,15 +103,11 @@ void EECosmicClient::beginRun(void){
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EECosmicClient::endJob(void) {
 
   if ( verbose_ ) cout << "EECosmicClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -120,8 +116,6 @@ void EECosmicClient::endJob(void) {
 void EECosmicClient::endRun(void) {
 
   if ( verbose_ ) cout << "EECosmicClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -260,67 +254,6 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
   }
 
   return status;
-
-}
-
-void EECosmicClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EECosmicClient: subscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Sel/EECT energy sel %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Cut/EECT energy cut %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo);
-
-  }
-
-}
-
-void EECosmicClient::subscribeNew(void){
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Sel/EECT energy sel %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo);
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Cut/EECT energy cut %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo);
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo);
-
-  }
-
-}
-
-void EECosmicClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EECosmicClient: unsubscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Sel/EECT energy sel %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Cut/EECT energy cut %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo);
-
-  }
 
 }
 

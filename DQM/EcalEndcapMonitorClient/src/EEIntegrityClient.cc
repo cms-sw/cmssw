@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/11/13 14:05:36 $
- * $Revision: 1.40 $
+ * $Date: 2007/11/29 19:07:49 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -132,15 +132,11 @@ void EEIntegrityClient::beginRun(void){
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EEIntegrityClient::endJob(void) {
 
   if ( verbose_ ) cout << "EEIntegrityClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -149,8 +145,6 @@ void EEIntegrityClient::endJob(void) {
 void EEIntegrityClient::endRun(void) {
 
   if ( verbose_ ) cout << "EEIntegrityClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -691,130 +685,6 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   }
 
   return status;
-
-}
-
-void EEIntegrityClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EEIntegrityClient: subscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT occupancy %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT MEM occupancy %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/EEIT DCC size error");
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-  }
-
-}
-
-void EEIntegrityClient::subscribeNew(void){
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT occupancy %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT MEM occupancy %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/EEIT DCC size error");
-    mui_->subscribeNew(histo);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-  }
-
-}
-
-void EEIntegrityClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EEIntegrityClient: unsubscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT occupancy %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT MEM occupancy %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/EEIT DCC size error");
-    mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-  }
 
 }
 

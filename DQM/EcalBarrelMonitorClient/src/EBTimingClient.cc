@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/11/10 08:08:27 $
- * $Revision: 1.53 $
+ * $Date: 2007/11/13 14:05:30 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -116,15 +116,11 @@ void EBTimingClient::beginRun(void){
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EBTimingClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBTimingClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -133,8 +129,6 @@ void EBTimingClient::endJob(void) {
 void EBTimingClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBTimingClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -309,55 +303,6 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
   }
 
   return status;
-
-}
-
-void EBTimingClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EBTimingClient: subscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-  }
-
-}
-
-void EBTimingClient::subscribeNew(void){
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-  }
-
-}
-
-void EBTimingClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EBTimingClient: unsubscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-  }
 
 }
 

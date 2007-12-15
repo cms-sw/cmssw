@@ -4,8 +4,8 @@
 /*
  * \file EEBeamCaloClient.h
  *
- * $Date: 2007/11/13 13:20:50 $
- * $Revision: 1.6 $
+ * $Date: 2007/11/27 10:43:23 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -38,11 +38,6 @@ EEBeamCaloClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EEBeamCaloClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// softReset
 void softReset(void);

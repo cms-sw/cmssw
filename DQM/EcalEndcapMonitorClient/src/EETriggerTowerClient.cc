@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/11/15 08:09:35 $
- * $Revision: 1.41 $
+ * $Date: 2007/11/29 19:07:50 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -139,15 +139,11 @@ void EETriggerTowerClient::beginRun(void) {
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EETriggerTowerClient::endJob(void) {
 
   if ( verbose_ ) cout << "EETriggerTowerClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -156,8 +152,6 @@ void EETriggerTowerClient::endJob(void) {
 void EETriggerTowerClient::endRun(void) {
 
   if ( verbose_ ) cout << "EETriggerTowerClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -341,150 +335,6 @@ bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, M
   bool status = true;
 
   return status;
-
-}
-
-void EETriggerTowerClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EETriggerTowerClient: subscribe" << endl;
-
-  subscribe( "Real Digis",
-             "EETriggerTowerTask", false);
-
-  subscribe( "Emulated Digis",
-             "EETriggerTowerTask/Emulated", true);
-
-}
-
-void EETriggerTowerClient::subscribe( const char* nameext,
-                                      const char* folder,
-                                      bool emulated ) {
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalEndcap/%s/EETTT Et map %s %s", folder, nameext, Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/%s/EETTT FineGrainVeto %s %s", folder, nameext, Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/%s/EETTT Flags %s %s", folder, nameext, Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-    if(!emulated) {
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulError %s", folder, Numbers::sEE(ism).c_str());
-      mui_->subscribe(histo, ism);
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFlagError %s", folder, Numbers::sEE(ism).c_str());
-      mui_->subscribe(histo, ism);
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFineGrainVetoError %s", folder, Numbers::sEE(ism).c_str());
-      mui_->subscribe(histo, ism);
-    }
-
-//     for (int j=0; j<34; j++) {
-//       sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R %s TT%02d", ism, j+1);
-//       mui_->subscribe(histo, ism);
-//       sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T %s TT%02d", ism, j+1);
-//       mui_->subscribe(histo, ism);
-//     }
-
-  }
-
-}
-
-void EETriggerTowerClient::subscribeNew(void){
-
-  subscribeNew( "Real Digis",
-                "EETriggerTowerTask", false );
-
-  subscribeNew( "Emulated Digis",
-                "EETriggerTowerTask/Emulated", true );
-
-}
-
-void EETriggerTowerClient::subscribeNew( const char* nameext,
-                                         const char* folder,
-                                         bool emulated ) {
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalEndcap/%s/EETTT Et map %s %s", folder, nameext, Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/%s/EETTT FineGrainVeto %s %s", folder, nameext, Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/%s/EETTT Flags %s %s", folder, nameext, Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-    if(!emulated) {
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulError %s", folder, Numbers::sEE(ism).c_str());
-      mui_->subscribeNew(histo, ism);
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFlagError %s", folder, Numbers::sEE(ism).c_str());
-      mui_->subscribeNew(histo, ism);
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFineGrainVetoError %s", folder, Numbers::sEE(ism).c_str());
-      mui_->subscribeNew(histo, ism);
-    }
-
-//     for (int j=0; j<34; j++) {
-//       sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T %s TT%02d", ism, j+1);
-//       mui_->subscribeNew(histo, ism);
-//       sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R %s TT%02d", ism, j+1);
-//       mui_->subscribeNew(histo, ism);
-//     }
-
-  }
-
-}
-
-void EETriggerTowerClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EETriggerTowerClient: unsubscribe" << endl;
-
-  unsubscribe( "Real Digis",
-               "EETriggerTowerTask", false );
-
-  unsubscribe( "Emulated Digis",
-               "EETriggerTowerTask/Emulated", true);
-
-}
-
-void EETriggerTowerClient::unsubscribe( const char* nameext,
-                                        const char* folder,
-                                        bool emulated ) {
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalEndcap/%s/EETTT Et map %s %s", folder, nameext, Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/%s/EETTT FineGrainVeto %s %s", folder, nameext, Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/%s/EETTT Flags %s %s", folder, nameext, Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-    if(!emulated) {
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulError %s", folder, Numbers::sEE(ism).c_str());
-      mui_->unsubscribe(histo, ism);
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFlagError %s", folder, Numbers::sEE(ism).c_str());
-      mui_->unsubscribe(histo, ism);
-      sprintf(histo, "*/EcalEndcap/%s/EETTT EmulFineGrainVetoError %s", folder, Numbers::sEE(ism).c_str());
-      mui_->unsubscribe(histo, ism);
-    }
-
-//     for (int j=0; j<34; j++) {
-//       sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T %s TT%02d", ism, j+1);
-//       mui_->subscribe(histo, ism);
-//       sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R %s TT%02d", ism, j+1);
-//       mui_->subscribe(histo, ism);
-//     }
-
-  }
 
 }
 

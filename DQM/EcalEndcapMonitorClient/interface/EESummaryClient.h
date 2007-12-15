@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2007/11/13 13:20:51 $
- * $Revision: 1.10 $
+ * $Date: 2007/11/27 10:43:24 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -38,11 +38,6 @@ EESummaryClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EESummaryClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// softReset
 void softReset(void);

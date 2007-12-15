@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/14 10:31:41 $
- * $Revision: 1.39 $
+ * $Date: 2007/11/29 19:07:49 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -175,15 +175,11 @@ void EELedClient::beginRun(void){
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EELedClient::endJob(void) {
 
   if ( verbose_ ) cout << "EELedClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -192,8 +188,6 @@ void EELedClient::endJob(void) {
 void EELedClient::endRun(void) {
 
   if ( verbose_ ) cout << "EELedClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -741,136 +735,6 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
   }
 
   return status;
-
-}
-
-void EELedClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EELedClient: subscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s A", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s A", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s B", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s B", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s A", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s B", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-  }
-
-}
-
-void EELedClient::subscribeNew(void){
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s A", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s A", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s B", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s B", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s A", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s B", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-  }
-
-}
-
-void EELedClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EELedClient: unsubscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s A", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s A", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s B", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s B", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s A", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s B", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-  }
 
 }
 

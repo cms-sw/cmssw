@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityClient.h
  *
- * $Date: 2007/11/13 13:20:51 $
- * $Revision: 1.7 $
+ * $Date: 2007/11/27 10:43:24 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -40,11 +40,6 @@ EEIntegrityClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EEIntegrityClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// softReset
 void softReset(void);

@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/11/10 14:09:08 $
- * $Revision: 1.42 $
+ * $Date: 2007/11/13 14:05:25 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -115,15 +115,11 @@ void EBClusterClient::beginRun(void){
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EBClusterClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBClusterClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -132,8 +128,6 @@ void EBClusterClient::endJob(void) {
 void EBClusterClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBClusterClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -209,217 +203,6 @@ bool EBClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
   bool status = true;
 
   return status;
-
-}
-
-void EBClusterClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EBClusterClient: subscribe" << endl;
-
-  Char_t histo[200];
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy map");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number map");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET map");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size map");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy projection eta");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy projection phi");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number projection eta");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number projection phi");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET projection eta");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET projection phi");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size projection eta");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size projection phi");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC energy");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC size");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC number");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s1s9");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s9s25");
-  mui_->subscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass");
-  mui_->subscribe(histo);
-
-}
-
-void EBClusterClient::subscribeNew(void){
-
-  Char_t histo[200];
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy map");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET map");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number map");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size map");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy projection eta");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy projection phi");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number projection eta");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number projection phi");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET projection eta");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET projection phi");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size projection eta");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size projection phi");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC energy");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC size");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC number");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s1s9");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s9s25");
-  mui_->subscribeNew(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass");
-  mui_->subscribeNew(histo);
-
-}
-
-void EBClusterClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EBClusterClient: unsubscribe" << endl;
-
-  Char_t histo[200];
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy map");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET map");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number map");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size map");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy projection eta");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy projection phi");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number projection eta");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number projection phi");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET projection eta");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET projection phi");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size projection eta");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size projection phi");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC energy");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC size");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid SC number");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s1s9");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid s9s25");
-  mui_->unsubscribe(histo);
-
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass");
-  mui_->unsubscribe(histo);
 
 }
 

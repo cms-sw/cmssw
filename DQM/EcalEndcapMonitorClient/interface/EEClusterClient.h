@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2007/11/13 13:20:50 $
- * $Revision: 1.9 $
+ * $Date: 2007/11/27 10:43:24 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -41,11 +41,6 @@ EEClusterClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EEClusterClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// softReset
 void softReset(void);

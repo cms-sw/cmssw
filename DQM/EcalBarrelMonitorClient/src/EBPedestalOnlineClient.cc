@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/11/09 19:51:43 $
- * $Revision: 1.107 $
+ * $Date: 2007/11/13 14:05:29 $
+ * $Revision: 1.108 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -114,15 +114,11 @@ void EBPedestalOnlineClient::beginRun(void){
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EBPedestalOnlineClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBPedestalOnlineClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -131,8 +127,6 @@ void EBPedestalOnlineClient::endJob(void) {
 void EBPedestalOnlineClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBPedestalOnlineClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -303,55 +297,6 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
   }
 
   return status;
-
-}
-
-void EBPedestalOnlineClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EBPedestalOnlineClient: subscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-  }
-
-}
-
-void EBPedestalOnlineClient::subscribeNew(void){
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-  }
-
-}
-
-void EBPedestalOnlineClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EBPedestalOnlineClient: unsubscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-  }
 
 }
 

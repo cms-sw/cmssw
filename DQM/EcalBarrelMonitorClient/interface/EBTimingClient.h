@@ -4,8 +4,8 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2007/11/13 13:20:49 $
- * $Revision: 1.11 $
+ * $Date: 2007/11/27 10:43:17 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -39,11 +39,6 @@ EBTimingClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBTimingClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// softReset
 void softReset(void);

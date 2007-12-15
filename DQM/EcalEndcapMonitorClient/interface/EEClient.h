@@ -1,11 +1,11 @@
-// $Id: EEClient.h,v 1.3 2007/11/27 10:43:24 dellaric Exp $
+// $Id: EEClient.h,v 1.4 2007/12/15 10:11:52 dellaric Exp $
 
 /*!
   \file EEClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.3 $
-  \date $Date: 2007/11/27 10:43:24 $
+  \version $Revision: 1.4 $
+  \date $Date: 2007/12/15 10:11:52 $
 */
 
 
@@ -23,7 +23,7 @@ class EEClient {
 
  public:
 
-  /*! \fn virtual void unsubscribe(void)
+  /*! \fn virtual void softReset(void)
     \brief softReset Monitoring Elements
   */
   virtual void softReset(void)  = 0;

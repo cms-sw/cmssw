@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/11/10 14:09:09 $
- * $Revision: 1.165 $
+ * $Date: 2007/11/13 14:05:29 $
+ * $Revision: 1.166 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -164,15 +164,11 @@ void EBPedestalClient::beginRun(void){
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EBPedestalClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBPedestalClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -181,8 +177,6 @@ void EBPedestalClient::endJob(void) {
 void EBPedestalClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBPedestalClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -630,124 +624,6 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   }
 
   return status;
-
-}
-
-void EBPedestalClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EBPedestalClient: subscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum %s G06", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum %s G06", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-  }
-
-}
-
-void EBPedestalClient::subscribeNew(void){
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum %s G06", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum %s G06", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-  }
-
-}
-
-void EBPedestalClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EBPedestalClient: unsubscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum %s G01", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum %s G06", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum %s G12", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum %s G01", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum %s G06", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum %s G12", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-  }
 
 }
 

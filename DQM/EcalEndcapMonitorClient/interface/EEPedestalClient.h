@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalClient.h
  *
- * $Date: 2007/11/13 13:20:51 $
- * $Revision: 1.9 $
+ * $Date: 2007/11/27 10:43:24 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -40,11 +40,6 @@ EEPedestalClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EEPedestalClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// softReset
 void softReset(void);

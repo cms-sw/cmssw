@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/11/13 14:05:29 $
- * $Revision: 1.169 $
+ * $Date: 2007/11/14 10:31:40 $
+ * $Revision: 1.170 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -149,15 +149,11 @@ void EBTestPulseClient::beginRun(void){
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EBTestPulseClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBTestPulseClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -166,8 +162,6 @@ void EBTestPulseClient::endJob(void) {
 void EBTestPulseClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBTestPulseClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -626,112 +620,6 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   }
 
   return status;
-
-}
-
-void EBTestPulseClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EBTestPulseClient: subscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape %s G06", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-  }
-
-}
-
-void EBTestPulseClient::subscribeNew(void){
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape %s G06", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-  }
-
-}
-
-void EBTestPulseClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EBTestPulseClient: unsubscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    unsigned int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude %s G01", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape %s G01", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape %s G06", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape %s G12", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-  }
 
 }
 

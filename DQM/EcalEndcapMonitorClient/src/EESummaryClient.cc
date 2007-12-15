@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/16 11:05:49 $
- * $Revision: 1.59 $
+ * $Date: 2007/11/23 09:28:55 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  *
 */
@@ -126,15 +126,11 @@ void EESummaryClient::beginRun(void){
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EESummaryClient::endJob(void) {
 
   if ( verbose_ ) cout << "EESummaryClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -143,8 +139,6 @@ void EESummaryClient::endJob(void) {
 void EESummaryClient::endRun(void) {
 
   if ( verbose_ ) cout << "EESummaryClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -457,22 +451,6 @@ bool EESummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
   bool status = true;
 
   return status;
-
-}
-
-void EESummaryClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EESummaryClient: subscribe" << endl;
-
-}
-
-void EESummaryClient::subscribeNew(void){
-
-}
-
-void EESummaryClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EESummaryClient: unsubscribe" << endl;
 
 }
 

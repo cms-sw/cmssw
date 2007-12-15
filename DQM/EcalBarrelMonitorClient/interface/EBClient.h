@@ -1,11 +1,11 @@
-// $Id: EBClient.h,v 1.11 2007/11/27 10:43:17 dellaric Exp $
+// $Id: EBClient.h,v 1.12 2007/12/15 10:11:51 dellaric Exp $
 
 /*!
   \file EBClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.11 $
-  \date $Date: 2007/11/27 10:43:17 $
+  \version $Revision: 1.12 $
+  \date $Date: 2007/12/15 10:11:51 $
 */
 
 
@@ -23,7 +23,7 @@ class EBClient {
 
  public:
 
-  /*! \fn virtual void unsubscribe(void)
+  /*! \fn virtual void softReset(void)
     \brief softReset Monitoring Elements
   */
   virtual void softReset(void)  = 0;

@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2007/11/14 10:31:41 $
- * $Revision: 1.9 $
+ * $Date: 2007/11/27 10:43:24 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -39,11 +39,6 @@ EELedClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EELedClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// softReset
 void softReset(void);

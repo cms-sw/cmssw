@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2007/11/08 15:43:50 $
- * $Revision: 1.86 $
+ * $Date: 2007/11/13 14:05:25 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -101,15 +101,11 @@ void EBCosmicClient::beginRun(void){
 
   this->setup();
 
-  this->subscribe();
-
 }
 
 void EBCosmicClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBCosmicClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -118,8 +114,6 @@ void EBCosmicClient::endJob(void) {
 void EBCosmicClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBCosmicClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -249,67 +243,6 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
   }
 
   return status;
-
-}
-
-void EBCosmicClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EBCosmicClient: subscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum %s", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo);
-
-  }
-
-}
-
-void EBCosmicClient::subscribeNew(void){
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo);
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo);
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum %s", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo);
-
-  }
-
-}
-
-void EBCosmicClient::unsubscribe(void){
-
-  if ( verbose_ ) cout << "EBCosmicClient: unsubscribe" << endl;
-
-  Char_t histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum %s", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo);
-
-  }
 
 }
 

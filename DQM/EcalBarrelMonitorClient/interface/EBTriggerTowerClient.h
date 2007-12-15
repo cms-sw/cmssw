@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2007/11/14 11:49:39 $
- * $Revision: 1.21 $
+ * $Date: 2007/11/27 10:43:17 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -40,11 +40,6 @@ EBTriggerTowerClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBTriggerTowerClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// softReset
 void softReset(void);
@@ -82,10 +77,7 @@ inline int getEvtPerRun() { return jevt_; }
 
 private:
 
- void subscribe(const char* nameext, const char* folder, bool emulated);
- void subscribeNew(const char* nameext, const char* folder, bool emulated);
- void unsubscribe(const char* nameext, const char* folder, bool emulated);
- void analyze(const char* nameext, const char* folder, bool emulated);
+void analyze(const char* nameext, const char* folder, bool emulated);
 
 int ievt_;
 int jevt_;

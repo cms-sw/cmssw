@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2007/11/13 13:20:49 $
- * $Revision: 1.33 $
+ * $Date: 2007/11/27 10:43:17 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -40,11 +40,6 @@ EBPedestalOnlineClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBPedestalOnlineClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// softReset
 void softReset(void);

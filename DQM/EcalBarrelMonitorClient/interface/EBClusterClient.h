@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2007/11/13 13:20:49 $
- * $Revision: 1.16 $
+ * $Date: 2007/11/27 10:43:17 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -41,11 +41,6 @@ EBClusterClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBClusterClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// softReset
 void softReset(void);

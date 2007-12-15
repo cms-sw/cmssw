@@ -4,8 +4,8 @@
 /*
  * \file EELaserClient.h
  *
- * $Date: 2007/11/14 10:31:41 $
- * $Revision: 1.11 $
+ * $Date: 2007/11/27 10:43:24 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -39,11 +39,6 @@ EELaserClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EELaserClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 /// softReset
 void softReset(void);
