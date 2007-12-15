@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/12 14:46:50 $
- * $Revision: 1.87 $
+ * $Date: 2007/12/12 18:36:26 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1224,11 +1224,7 @@ void EcalEndcapMonitorClient::subscribe(void){
   mui_->subscribe("*/FU0_is_done");
   mui_->subscribe("*/FU0_is_dead");
 
-  mui_->subscribe("*/EcalEndcap/EcalInfo/STATUS");
-  mui_->subscribe("*/EcalEndcap/EcalInfo/RUN");
-  mui_->subscribe("*/EcalEndcap/EcalInfo/EVT");
-  mui_->subscribe("*/EcalEndcap/EcalInfo/EVTTYPE");
-  mui_->subscribe("*/EcalEndcap/EcalInfo/RUNTYPE");
+  mui_->subscribe("*/EcalEndcap/*");
 
 }
 
@@ -1237,11 +1233,7 @@ void EcalEndcapMonitorClient::subscribeNew(void){
   mui_->subscribeNew("*/FU0_is_done");
   mui_->subscribeNew("*/FU0_is_dead");
 
-  mui_->subscribeNew("*/EcalEndcap/EcalInfo/STATUS");
-  mui_->subscribeNew("*/EcalEndcap/EcalInfo/RUN");
-  mui_->subscribeNew("*/EcalEndcap/EcalInfo/EVT");
-  mui_->subscribeNew("*/EcalEndcap/EcalInfo/EVTTYPE");
-  mui_->subscribeNew("*/EcalEndcap/EcalInfo/RUNTYPE");
+  mui_->subscribeNew("*/EcalEndcap/*");
 
 }
 
@@ -1252,11 +1244,7 @@ void EcalEndcapMonitorClient::unsubscribe(void) {
   mui_->unsubscribe("*/FU0_is_done");
   mui_->unsubscribe("*/FU0_is_dead");
 
-  mui_->unsubscribe("*/EcalEndcap/EcalInfo/STATUS");
-  mui_->unsubscribe("*/EcalEndcap/EcalInfo/RUN");
-  mui_->unsubscribe("*/EcalEndcap/EcalInfo/EVT");
-  mui_->unsubscribe("*/EcalEndcap/EcalInfo/EVTTYPE");
-  mui_->unsubscribe("*/EcalEndcap/EcalInfo/RUNTYPE");
+  mui_->unsubscribe("*/EcalEndcap/*");
 
 }
 
@@ -1598,15 +1586,6 @@ void EcalEndcapMonitorClient::analyze(void){
   // END: run-time fixes for missing state transitions
 
   this->subscribeNew();
-
-  for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool subscribed; subscribed = false;
-    for ( EECIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !subscribed ) { subscribed = true; clients_[i]->subscribeNew(); }
-    }
-  }
-
-  summaryClient_->subscribeNew();
 
 }
 

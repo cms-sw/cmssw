@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/12 14:46:48 $
- * $Revision: 1.328 $
+ * $Date: 2007/12/12 18:36:28 $
+ * $Revision: 1.329 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1199,11 +1199,7 @@ void EcalBarrelMonitorClient::subscribe(void){
   mui_->subscribe("*/FU0_is_done");
   mui_->subscribe("*/FU0_is_dead");
 
-  mui_->subscribe("*/EcalBarrel/EcalInfo/STATUS");
-  mui_->subscribe("*/EcalBarrel/EcalInfo/RUN");
-  mui_->subscribe("*/EcalBarrel/EcalInfo/EVT");
-  mui_->subscribe("*/EcalBarrel/EcalInfo/EVTTYPE");
-  mui_->subscribe("*/EcalBarrel/EcalInfo/RUNTYPE");
+  mui_->subscribe("*/EcalBarrel/*");
 
 }
 
@@ -1212,11 +1208,7 @@ void EcalBarrelMonitorClient::subscribeNew(void){
   mui_->subscribeNew("*/FU0_is_done");
   mui_->subscribeNew("*/FU0_is_dead");
 
-  mui_->subscribeNew("*/EcalBarrel/EcalInfo/STATUS");
-  mui_->subscribeNew("*/EcalBarrel/EcalInfo/RUN");
-  mui_->subscribeNew("*/EcalBarrel/EcalInfo/EVT");
-  mui_->subscribeNew("*/EcalBarrel/EcalInfo/EVTTYPE");
-  mui_->subscribeNew("*/EcalBarrel/EcalInfo/RUNTYPE");
+  mui_->subscribeNew("*/EcalBarrel/*");
 
 }
 
@@ -1227,11 +1219,7 @@ void EcalBarrelMonitorClient::unsubscribe(void) {
   mui_->unsubscribe("*/FU0_is_done");
   mui_->unsubscribe("*/FU0_is_dead");
 
-  mui_->unsubscribe("*/EcalBarrel/EcalInfo/STATUS");
-  mui_->unsubscribe("*/EcalBarrel/EcalInfo/RUN");
-  mui_->unsubscribe("*/EcalBarrel/EcalInfo/EVT");
-  mui_->unsubscribe("*/EcalBarrel/EcalInfo/EVTTYPE");
-  mui_->unsubscribe("*/EcalBarrel/EcalInfo/RUNTYPE");
+  mui_->unsubscribe("*/EcalBarrel/*");
 
 }
 
@@ -1573,15 +1561,6 @@ void EcalBarrelMonitorClient::analyze(void){
   // END: run-time fixes for missing state transitions
 
   this->subscribeNew();
-
-  for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool subscribed; subscribed = false;
-    for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !subscribed ) { subscribed = true; clients_[i]->subscribeNew(); }
-    }
-  }
-
-  summaryClient_->subscribeNew();
 
 }
 
