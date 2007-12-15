@@ -415,18 +415,21 @@ class _IncludeNode(cms._ParameterTypeBase):
             return "import "+self.pythonModuleName()+"\nprocess.extend("+self.pythonModuleName()+")\n"
         else:
             return "from "+self.pythonModuleName()+" import *"
-    def createIfNeeded(self):
+    def createFile(self, overwrite):
         import os
         import os.path
         pythonName = self.pythonFileName()
         cmsswSrc = os.path.expandvars("$CMSSW_BASE/src/")
         cmsswReleaseSrc = os.path.expandvars("$CMSSW_RELEASE_BASE/src/")
-        if not os.path.exists(cmsswSrc+pythonName) and not os.path.exists(cmsswReleaseSrc+pythonName):
+        if overwrite or (not os.path.exists(cmsswSrc+pythonName) and \
+                         not os.path.exists(cmsswReleaseSrc+pythonName)):
             # need to check out my own version
             cwd = os.getcwd()
             os.chdir(cmsswSrc)
             pythonDir = os.path.dirname(pythonName)
             #os.system("cvs co "+pythonDir)
+            if overwrite and os.path.exists(pythonName):
+                os.remove(pythonName)
             if not os.path.exists(pythonName):
                 # have to make it myself
                 if not os.path.exists(pythonDir):
@@ -1353,7 +1356,7 @@ def dumpPython(d, options):
         prefix = 'process.'
     for key,value in d:
         if isinstance(value,_IncludeNode):
-            value.createIfNeeded()
+            value.createFile(False)
             includes += value.dumpPython(options)+"\n"
         elif isinstance(value,_ReplaceNode):
             if options.isCfg:
@@ -1364,7 +1367,7 @@ def dumpPython(d, options):
         elif isinstance(value,_Schedule):
             schedules += prefix+key+" = "+value.dumpPython(options)+"\n"
         elif isinstance(value, cms.ESPrefer):
-            others += value.dumpPythonAs(key)
+            others += value.dumpPythonAs(key, options)
         else:
             others += prefix+key+" = "+value.dumpPython(options)+"\n"
     return includes+"\n"+others+"\n"+sequences+"\n"+schedules+"\n"+replaces
