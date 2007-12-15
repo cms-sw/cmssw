@@ -28,7 +28,7 @@ uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID
     int etaR  = id.etaR;
     int phi   = id.phis;
     HcalSubdetector subdet =  (HcalSubdetector)(id.subdet);
-    if (phi > 4) { // HB2 
+    if (subdet == HcalBarrel && phi > 4) { // HB2 
       if (etaR > 4 && etaR < 10)
 	index = HcalDetId(subdet,id.lay,id.phis,1).rawId();
     } else { // HB1
