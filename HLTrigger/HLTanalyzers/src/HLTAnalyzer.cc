@@ -25,20 +25,19 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   ht_         = conf.getParameter< std::string > ("ht");
   calotowers_ = conf.getParameter< std::string > ("calotowers");
 
-  Electron_    = conf.getParameter< std::string > ("Electron");
-  Photon_    = conf.getParameter< std::string > ("Photon");
-  muon_    = conf.getParameter< std::string > ("muon");
+  Electron_   = conf.getParameter< std::string > ("Electron");
+  Photon_     = conf.getParameter< std::string > ("Photon");
+  muon_       = conf.getParameter< std::string > ("muon");
 
-  mctruth_   = conf.getParameter< std::string > ("mctruth");
-//   hltobj_    = conf.getParameter< std::string > ("hltobj");
-
-  l1extramc_ = conf.getParameter< std::string > ("l1extramc");
-
+  mctruth_    = conf.getParameter< std::string > ("mctruth");
+  genEventScale_ = conf.getParameter< std::string > ("genEventScale");
+  l1extramc_  = conf.getParameter< std::string > ("l1extramc");
+  hltresults_ = conf.getParameter< std::string > ("hltresults");
 //  particleMapSource_ = conf.getParameter< std::string > ("particleMapSource");
   particleMapSource_="";
 
-  ecalDigisLabel_ = conf.getParameter<std::string> ("ecalDigisLabel");
-  hcalDigisLabel_ = conf.getParameter<std::string> ("hcalDigisLabel");
+  //ecalDigisLabel_ = conf.getParameter<std::string> ("ecalDigisLabel");
+  //hcalDigisLabel_ = conf.getParameter<std::string> ("hcalDigisLabel");
 
   errCnt=0;
 
@@ -81,67 +80,97 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   // To get information from the event setup, you must request the "Record"
   // which contains it and then extract the object you need
-  edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<IdealGeometryRecord>().get(geometry);
+  //edm::ESHandle<CaloGeometry> geometry;
+  //iSetup.get<IdealGeometryRecord>().get(geometry);
 
   // These declarations create handles to the types of records that you want
   // to retrieve from event "iEvent".
-  edm::Handle<CaloJetCollection>  recjets;
-  edm::Handle<GenJetCollection>  genjets;
-  edm::Handle<CaloTowerCollection> caloTowers;
-  edm::Handle<CaloMETCollection> recmet;
-  edm::Handle<GenMETCollection> genmet;
-  edm::Handle<METCollection> ht;
-  edm::Handle<edm::HepMCProduct> hepmcHandle;
-  edm::Handle<CandidateCollection> mctruth;
-  edm::Handle<ElectronCollection> Electron;
-  edm::Handle<PhotonCollection> Photon;
-  edm::Handle<MuonCollection> muon;
+  edm::Handle<CaloJetCollection>  recjets,recjetsDummy;
+  edm::Handle<GenJetCollection>  genjets,genjetsDummy;
+  edm::Handle<CaloTowerCollection> caloTowers,caloTowersDummy;
+  edm::Handle<CaloMETCollection> recmet, recmetDummy;
+  edm::Handle<GenMETCollection> genmet,genmetDummy;
+  edm::Handle<METCollection> ht,htDummy;
+  // edm::Handle<edm::HepMCProduct> hepmcHandle;
+  edm::Handle<CandidateCollection> mctruth,mctruthDummy;
+  edm::Handle< double > genEventScale;
+  edm::Handle<ElectronCollection> Electron, ElectronDummy;
+  edm::Handle<PhotonCollection> Photon, PhotonDummy;
+  edm::Handle<MuonCollection> muon,muonDummy;
 //   edm::Handle<HLTFilterObjectWithRefs> hltobj;
-  edm::Handle<edm::TriggerResults> hltresults;
-  edm::Handle<l1extra::L1EmParticleCollection> l1extemi,l1extemn;
-  edm::Handle<l1extra::L1MuonParticleCollection> l1extmu;
-  edm::Handle<l1extra::L1JetParticleCollection> l1extjetc,l1extjetf,l1exttaujet;
-  edm::Handle<l1extra::L1EtMissParticle> l1extmet;
+  edm::Handle<edm::TriggerResults> hltresults,hltresultsDummy;
+  edm::Handle<l1extra::L1EmParticleCollection> l1extemi,l1extemn,l1extemiDummy,l1extemnDummy;
+  edm::Handle<l1extra::L1MuonParticleCollection> l1extmu, l1extmuDummy;
+  edm::Handle<l1extra::L1JetParticleCollection> l1extjetc,l1extjetf,l1exttaujet,l1extjetcDummy,l1extjetfDummy,l1exttaujetDummy;
+  edm::Handle<l1extra::L1EtMissParticle> l1extmet, l1extmetDummy;
 //edm::Handle<l1extra::L1ParticleMapCollection> l1mapcoll;
-  edm::Handle<EcalTrigPrimDigiCollection> ecal;
-  edm::Handle<HcalTrigPrimDigiCollection> hcal;
+//  edm::Handle<EcalTrigPrimDigiCollection> ecal;
+//  edm::Handle<HcalTrigPrimDigiCollection> hcal;
+
+  
+  // ccla double pthat = *genEventScale;
 
 
   // Extract Data objects (event fragments)
-  // make sure to catch exceptions if they don't exist...
+  //Jets and Missing ET
+  iEvent.getByLabel(recjets_,recjets);
+  iEvent.getByLabel(genjets_,genjets);
+  iEvent.getByLabel(recmet_,recmet);
+  iEvent.getByLabel (genmet_,genmet);
+  iEvent.getByLabel(calotowers_,caloTowers);
+  iEvent.getByLabel(ht_,ht);
+  // Egamma
+  iEvent.getByLabel(Electron_,Electron);
+  iEvent.getByLabel(Photon_,Photon);
+  // Muons
+  iEvent.getByLabel(muon_,muon);
+  // HLT 
+  iEvent.getByLabel(hltresults_,hltresults);
+  //  L1 Extra Info
+  iEvent.getByLabel(l1extramc_,l1extemi);
+  iEvent.getByLabel(l1extramc_,l1extemn);
+  iEvent.getByLabel(l1extramc_,l1extmu);
+  iEvent.getByLabel(l1extramc_,"Central",l1extjetc);
+  iEvent.getByLabel(l1extramc_,"Forward",l1extjetf);
+  iEvent.getByLabel(l1extramc_,"Tau",l1exttaujet);
+  iEvent.getByLabel(l1extramc_,l1extmet);
+  // MC info
+  iEvent.getByLabel(genEventScale_, genEventScale );
+  iEvent.getByLabel(mctruth_,mctruth);
+  // iEvent.getByLabel("VtxSmeared", "", hepmcHandle);  no longer used
+
+  // check the objects...
   string errMsg("");
-  try {iEvent.getByLabel(recjets_,recjets);} catch (...) { errMsg=errMsg + "  -- No RecJets";}
-  try {iEvent.getByLabel(recmet_,recmet);} catch (...) {errMsg=errMsg + "  -- No RecMET";}
-  try {iEvent.getByLabel(calotowers_,caloTowers);} catch (...) {errMsg=errMsg + "  -- No CaloTowers";}
-  try {iEvent.getByLabel (genjets_,genjets);} catch (...) { errMsg=errMsg + "  -- No GenJets";}
-  try {iEvent.getByLabel (ht_,ht);} catch (...) { errMsg=errMsg + "  -- No HT";}
-  try {iEvent.getByLabel (genmet_,genmet);} catch (...) { errMsg=errMsg + "  -- No GenMet";}
-  try {iEvent.getByLabel(Electron_,Electron);} catch (...) { errMsg=errMsg + "  -- No Candidate Electrons";}
-  try {iEvent.getByLabel(Photon_,Photon);} catch (...) { errMsg=errMsg + "  -- No Candidate Photons";}
-  try {iEvent.getByLabel(muon_,muon);} catch (...) { errMsg=errMsg + "  -- No Candidate Muons";}
-//   try {iEvent.getByLabel(hltobj_,hltobj);} catch (...) { errMsg=errMsg + "  -- No HLTOBJ";}
-  try {iEvent.getByType(hltresults);} catch (...) { errMsg=errMsg + "  -- No HLTRESULTS";}
-  try {iEvent.getByLabel(l1extramc_,l1extemi);} catch (...) { errMsg=errMsg + "  -- No Isol. L1Em objects";}
-  try {iEvent.getByLabel(l1extramc_,l1extemn);} catch (...) { errMsg=errMsg + "  -- No Non-isol. L1Em objects";}
-  try {iEvent.getByLabel(l1extramc_,l1extmu);} catch (...) { errMsg=errMsg + "  -- No L1Mu objects";}
-  try {iEvent.getByLabel(l1extramc_,"Central",l1extjetc);} catch (...) { errMsg=errMsg + "  -- No central L1Jet objects";}
-  try {iEvent.getByLabel(l1extramc_,"Forward",l1extjetf);} catch (...) { errMsg=errMsg + "  -- No forward L1Jet objects";}
-  try {iEvent.getByLabel(l1extramc_,"Tau",l1exttaujet);} catch (...) { errMsg=errMsg + "  -- No L1Jet-Tau objects";}
-  try {iEvent.getByLabel(l1extramc_,l1extmet);} catch (...) { errMsg=errMsg + "  -- No L1EtMiss object";}
+  if (! recjets.isValid()    ) { errMsg=errMsg + "  -- No RecJets"; recjets = recjetsDummy;}
+  if (! genjets.isValid()    ) { errMsg=errMsg + "  -- No GenJets"; genjets=genjetsDummy;}
+  if (! recmet.isValid()     ) { errMsg=errMsg + "  -- No RecMET"; recmet = recmetDummy;}
+  if (! genmet.isValid()     ) { errMsg=errMsg + "  -- No GenMet"; genmet=genmetDummy;}
+  if (! caloTowers.isValid() ) { errMsg=errMsg + "  -- No CaloTowers"; caloTowers=caloTowersDummy;}
+  if (! ht.isValid()         ) { errMsg=errMsg + "  -- No HT"; ht = htDummy;}
+  if (! Electron.isValid()   ) { errMsg=errMsg + "  -- No Candidate Electrons"; Electron=ElectronDummy;}
+
+  if (! Photon.isValid()     ) { errMsg=errMsg + "  -- No Candidate Photons"; Photon=PhotonDummy;}
+  if (! muon.isValid()       ) { errMsg=errMsg + "  -- No Candidate Muons"; muon=muonDummy;}
+
+  if (! hltresults.isValid() ) { errMsg=errMsg + "  -- No HLTRESULTS"; hltresults=hltresultsDummy;}
+
+  if (! l1extemi.isValid()   ) { errMsg=errMsg + "  -- No Isol. L1Em objects"; l1extemi = l1extemiDummy;}
+  if (! l1extemn.isValid()   ) { errMsg=errMsg + "  -- No Non-isol. L1Em objects"; l1extemn = l1extemnDummy;}
+  if (! l1extmu.isValid()    ) { errMsg=errMsg + "  -- No L1Mu objects"; l1extmu = l1extmuDummy;}
+  if (! l1extjetc.isValid()  ) { errMsg=errMsg + "  -- No central L1Jet objects"; l1extjetc = l1extjetcDummy;}
+  if (! l1extjetf.isValid()  ) { errMsg=errMsg + "  -- No forward L1Jet objects"; l1extjetf = l1extjetfDummy;}
+  if (! l1exttaujet.isValid()) { errMsg=errMsg + "  -- No L1Jet-Tau objects"; l1exttaujet = l1exttaujetDummy;}
+  if (! l1extmet.isValid()   ) { errMsg=errMsg + "  -- No L1EtMiss object"; l1extmet = l1extmetDummy;}
 //try {iEvent.getByLabel(particleMapSource_,l1mapcoll );} catch (...) { errMsg=errMsg + "  -- No L1 Map Collection";}
 
-  try {iEvent.getByLabel(mctruth_,mctruth);} catch (...) { errMsg=errMsg + "  -- No Gen Particles";}
+  if (! mctruth.isValid()    ) { errMsg=errMsg + "  -- No Gen Particles"; mctruth = mctruthDummy;}
 
-  try {iEvent.getByLabel(ecalDigisLabel_,ecal);} catch (...) { errMsg=errMsg + "  -- No ECAL TriggPrim";}
-  try {iEvent.getByLabel(hcalDigisLabel_,hcal);} catch (...) { errMsg=errMsg + "  -- No HCAL TriggPrim";}
 
-  HepMC::GenEvent hepmc;
-  try {
-//     iEvent.getByLabel("VtxSmeared", "", hepmcHandle);
-    iEvent.getByLabel("source", "", hepmcHandle);
-    hepmc = hepmcHandle->getHepMCData(); 
-  } catch (...) { errMsg=errMsg + "  -- No MC truth"; }
+  //HepMC::GenEvent hepmc,hepmcDummy;
+  //if (hepmcHandle.isValid()){
+  //  hepmc = hepmcHandle->getHepMCData(); 
+  //} else                       { errMsg=errMsg + "  -- No MCTruth"; hepmc = hepmcDummy;}
+
 
   if ((errMsg != "") && (errCnt < errMax())){
     errCnt=errCnt+1;
@@ -152,15 +181,15 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
       std::cout << errMsg << std::endl;    
     }
   }
-
   // run the analysis, passing required event fragments
-  jet_analysis_.analyze(*recjets,*genjets, *recmet,*genmet, *ht, *caloTowers, *geometry, HltTree);
-  elm_analysis_.analyze(*Electron, *Photon, *geometry, HltTree);
-  muon_analysis_.analyze(*muon, *geometry, HltTree);
-  mct_analysis_.analyze(*mctruth,hepmc,HltTree);
+  jet_analysis_.analyze(*recjets,*genjets, *recmet,*genmet, *ht, *caloTowers, HltTree);
+  elm_analysis_.analyze(*Electron, *Photon, HltTree);
+  muon_analysis_.analyze(*muon, HltTree);
+  mct_analysis_.analyze(*mctruth,*genEventScale,HltTree);
   hlt_analysis_.analyze(/**hltobj,*/*hltresults,*l1extemi,*l1extemn,*l1extmu,*l1extjetc,*l1extjetf,*l1exttaujet,*l1extmet,/* *l1mapcoll, */HltTree);
-
+  // std::cout << " Ending Event Analysis" << std::endl;
   // After analysis, fill the variables tree
+  m_file->cd();
   HltTree->Fill();
 
 }

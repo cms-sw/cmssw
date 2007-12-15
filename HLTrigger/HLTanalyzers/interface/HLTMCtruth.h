@@ -32,7 +32,8 @@ public:
 
   /** Analyze the Data */
   void analyze(const CandidateCollection& mctruth,
-	       const HepMC::GenEvent hepmc,
+	       //const HepMC::GenEvent hepmc,
+	       const double pthat,
 	       TTree* tree);
 
 private:
@@ -41,7 +42,7 @@ private:
   float *mcvx, *mcvy, *mcvz, *mcpt, *mceta, *mcphi;
   int *mcpid;
   int nmcpart,nmu3,nab,nbb;
-  float pthat;
+  float pthatf;
   // input variables
   bool _Monte,_Debug;
 

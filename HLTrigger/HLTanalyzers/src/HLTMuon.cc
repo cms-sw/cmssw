@@ -50,7 +50,6 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
 /* **Analyze the event** */
 void HLTMuon::analyze(const MuonCollection& Muon,
-		      const CaloGeometry& geom,
 		      TTree* HltTree) {
 
   //std::cout << " Beginning HLTMuon " << std::endl;

@@ -65,7 +65,6 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 /* **Analyze the event** */
 void HLTEgamma::analyze(const ElectronCollection& Electron,
 			const PhotonCollection& Photon,
-			const CaloGeometry& geom,
 			TTree* HltTree) {
 
   //std::cout << " Beginning HLTEgamma " << std::endl;

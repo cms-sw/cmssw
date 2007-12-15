@@ -50,7 +50,6 @@ public:
 	       const GenMETCollection& gmets,
 	       const METCollection& ht,
 	       const CaloTowerCollection& caloTowers,
-	       const CaloGeometry& geom,
 	       TTree* tree);
 
 private:

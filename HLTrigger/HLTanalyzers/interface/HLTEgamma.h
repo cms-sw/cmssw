@@ -41,7 +41,6 @@ public:
   /** Analyze the Data */
   void analyze(const reco::ElectronCollection& electron,
 	       const reco::PhotonCollection& photon,
-	       const CaloGeometry& geom,
 	       TTree* tree);
 
 private:
