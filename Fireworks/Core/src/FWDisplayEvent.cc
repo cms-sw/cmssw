@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.6 2007/12/09 22:49:23 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.7 2007/12/11 07:17:50 dmytro Exp $
 //
 
 // system include files
@@ -52,6 +52,7 @@
 FWDisplayEvent::FWDisplayEvent() :
   m_continueProcessingEvents(false),
   m_waitForUserAction(true),
+  m_code(0),
   m_rhoPhiProjMgr(0)
 
 {
@@ -140,13 +141,18 @@ FWDisplayEvent::FWDisplayEvent() :
 	}
 	TString icondir(Form("%s/icons/",gSystem->Getenv("ROOTSYS")));
 	
-	m_advanceButton= new TGPictureButton(hf,
-			 gClient->GetPicture(icondir+"GoForward.gif"));
+	m_homeButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"GoHome.gif"));
+	hf->AddFrame(m_homeButton);
+	m_homeButton->Connect("Clicked()", "FWDisplayEvent", this, "goHome()");
+	 
+	m_advanceButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"GoForward.gif"));
 	hf->AddFrame(m_advanceButton);
-	m_advanceButton->Connect("Clicked()",
-				 "FWDisplayEvent",
-				 this,
-				 "continueProcessingEvents()");
+	m_advanceButton->Connect("Clicked()", "FWDisplayEvent", this, "goForward()");
+	
+	m_backwardButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"GoBack.gif"));
+	hf->AddFrame(m_backwardButton);
+	m_backwardButton->Connect("Clicked()", "FWDisplayEvent", this, "goBack()");
+	
       }
       frmMain->AddFrame(hf);
 
@@ -229,6 +235,27 @@ FWDisplayEvent::continueProcessingEvents()
 }
 
 void
+FWDisplayEvent::goForward()
+{
+  m_continueProcessingEvents = true;
+  m_code = 1;
+}
+
+void
+FWDisplayEvent::goBack()
+{
+  m_continueProcessingEvents = true;
+  m_code = -1;
+}
+
+void
+FWDisplayEvent::goHome()
+{
+  m_continueProcessingEvents = true;
+  m_code = -2;
+}
+
+void
 FWDisplayEvent::waitForUserAction()
 {
   m_waitForUserAction = true;
@@ -271,14 +298,14 @@ namespace {
   };
 
 }
-void
+int
 FWDisplayEvent::draw(const fwlite::Event& iEvent)
 {
   const FWDisplayEvent* c = this;
-  c->draw(iEvent);
+  return c->draw(iEvent);
 }
 
-void
+int
 FWDisplayEvent::draw(const fwlite::Event& iEvent) const
 {
   // FIXIT: vectors should be aligned a bit better than that
@@ -287,12 +314,14 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
        m_physicsProxyBuilderNames.size() != m_builders.size() ) 
      {
 	std::cout << "Vectors of proxy data have different size - fatal error" << std::endl;
-	return;
+	return 0;
      }
    
   //need to reset
   m_continueProcessingEvents = false;
+  EnableButton homeB(m_homeButton);
   EnableButton advancedB(m_advanceButton);
+  EnableButton backwardB(m_backwardButton);
 
   using namespace std;
   if(0==gEve) {
@@ -329,6 +358,7 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
     //gSystem->ProcessEvents();
     gSystem->DispatchOneEvent(kFALSE);
   }
+  return m_code;
 }
 
 //

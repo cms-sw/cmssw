@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.2 2007/12/06 20:18:43 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.3 2007/12/09 22:49:23 chrjones Exp $
 //
 
 // system include files
@@ -45,16 +45,19 @@ class FWDisplayEvent
       virtual ~FWDisplayEvent();
 
       // ---------- const member functions ---------------------
-      void draw(const fwlite::Event& ) const;
+      int draw(const fwlite::Event& ) const;
 
       bool waitingForUserAction() const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       void continueProcessingEvents();
+      void goForward();
+      void goBack();
+      void goHome();
       void waitForUserAction();
       void doNotWaitForUserAction();
-      void draw(const fwlite::Event& );
+      int draw(const fwlite::Event& );
 
    private:
       FWDisplayEvent(const FWDisplayEvent&); // stop default
@@ -69,11 +72,19 @@ class FWDisplayEvent
 
       mutable bool m_continueProcessingEvents;
       mutable bool m_waitForUserAction;
-
+      mutable int  m_code; // respond code for the control loop
+      //  1 - move forward
+      // -1 - move backward
+      //  0 - do nothing
+      // -2 - start over
+      // -3 - stop event loop 
+      
       TEveElement* m_geom;
       TEveProjectionManager* m_rhoPhiProjMgr;
 
+      TGPictureButton* m_homeButton;
       TGPictureButton* m_advanceButton;
+      TGPictureButton* m_backwardButton;
 
       std::vector<boost::shared_ptr<FWDataProxyBuilder> > m_builders;
 };
