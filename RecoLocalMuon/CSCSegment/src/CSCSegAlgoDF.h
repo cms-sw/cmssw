@@ -42,7 +42,6 @@
 #include <vector>
 
 class CSCSegAlgoPreClustering;
-class CSCSegAlgoHitPruning;
 class CSCSegAlgoShowering;
 
 class CSCSegAlgoDF : public CSCSegmentAlgorithm {
@@ -99,6 +98,12 @@ private:
    * Flag hits on segment as used
    */
   void flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber);
+ 
+  /** 
+   * Prune bad segment from the worse hit based on residuals
+   */
+  void pruneFromResidual();
+
 	
   /// Utility functions 	
   bool isHitNearSegment(const CSCRecHit2D* h) const;
@@ -138,9 +143,9 @@ private:
   float tanPhiMax;
   float tanThetaMax;
   float chi2Max;
+  float maxRatioResidual;
 
   CSCSegAlgoPreClustering* preCluster_;
-  CSCSegAlgoHitPruning* hitPruning_;
   CSCSegAlgoShowering* showering_;
 
 };
