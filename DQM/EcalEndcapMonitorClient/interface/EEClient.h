@@ -1,11 +1,11 @@
-// $Id: EEClient.h,v 1.2 2007/08/09 14:36:54 dellaric Exp $
+// $Id: EEClient.h,v 1.3 2007/11/27 10:43:24 dellaric Exp $
 
 /*!
   \file EEClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.2 $
-  \date $Date: 2007/08/09 14:36:54 $
+  \version $Revision: 1.3 $
+  \date $Date: 2007/11/27 10:43:24 $
 */
 
 
@@ -22,21 +22,6 @@ class MonRunIOV;
 class EEClient {
 
  public:
-
-  /*! \fn virtual void subscribe(void)
-    \brief Subscribe to Monitoring Elements
-  */
-  virtual void subscribe(void)    = 0;
-
-  /*! \fn virtual void subscribeNew(void)
-    \brief Subscribe to Monitoring Elements
-  */
-  virtual void subscribeNew(void) = 0;
-
-  /*! \fn virtual void unsubscribe(void)
-    \brief Unsubscribe to Monitoring Elements
-  */
-  virtual void unsubscribe(void)  = 0;
 
   /*! \fn virtual void unsubscribe(void)
     \brief softReset Monitoring Elements
