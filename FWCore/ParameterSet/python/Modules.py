@@ -67,7 +67,11 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
        name = self.moduleLabel_(label)
        if name == '':
           name = type_()
-       return options.indentation()+'process.prefer(\"'+name+'\")'
+       if options.isCfg:
+           return options.indentation()+'process.prefer(\"'+name+'\")'
+       else:
+           # use the base class Module
+           return options.indentation()+'es_prefer_'+name+' = '+self.dumpPython(options)
 
 class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable):
     """base class for classes which denote framework event based 'modules'"""
