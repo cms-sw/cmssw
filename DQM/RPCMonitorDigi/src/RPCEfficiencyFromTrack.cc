@@ -114,36 +114,7 @@ RPCEfficiencyFromTrack::~RPCEfficiencyFromTrack()
   fOutputFile->Close();
 }
 
-class DTStationIndex{
-public: 
-  DTStationIndex():_region(0),_wheel(0),_sector(0),_station(0){}
-  DTStationIndex(int region, int wheel, int sector, int station) : 
-    _region(region),
-    _wheel(wheel),
-    _sector(sector),
-    _station(station){}
-  ~DTStationIndex(){}
-  int region() const {return _region;}
-  int wheel() const {return _wheel;}
-  int sector() const {return _sector;}
-  int station() const {return _station;}
-  bool operator<(const DTStationIndex& dtind) const{
-    if(dtind.region()!=this->region())
-      return dtind.region()<this->region();
-    else if(dtind.wheel()!=this->wheel())
-      return dtind.wheel()<this->wheel();
-    else if(dtind.sector()!=this->sector())
-      return dtind.sector()<this->sector();
-    else if(dtind.station()!=this->station())
-      return dtind.station()<this->station();
-    return false;
-  }
-private:
-  int _region;
-  int _wheel;
-  int _sector;
-  int _station; 
-};
+
 
 void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   char layerLabel[128];
@@ -169,12 +140,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   Handle<reco::TrackCollection> staTracks;
   iEvent.getByLabel(TjInput, staTracks);
 
-  edm::ESHandle<DTGeometry> dtGeo;
-  iSetup.get<MuonGeometryRecord>().get(dtGeo);
-
-  edm::Handle<DTRecSegment4DCollection> all4DSegments;
-  iEvent.getByLabel("dt4DSegments", all4DSegments);
-
   reco::TrackCollection::const_iterator staTrack;
 
   ESHandle<Propagator> prop;
@@ -188,6 +153,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
     reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
+    rollRec.clear();
     for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
       if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
 	RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );
@@ -204,7 +170,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
 	//Barrel
 
-	if(track.innermostMeasurementState().isValid() && reg==0 && MeasureBarrel==true && whe==0 && (sec==10 || sec==11)){
+	if(track.innermostMeasurementState().isValid() && reg==0 && MeasureBarrel==true && whe==ringSelection){
 	  const BoundPlane* rpcPlane = &(ch->surface());
 	  TrajectoryStateClosestToPoint tcp=track.impactPointTSCP();
 	  const FreeTrajectoryState& fS=tcp.theState();
@@ -254,7 +220,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  const FreeTrajectoryState& fS=tcp.theState();
 	  const FreeTrajectoryState* fState = &fS; 
 	  TrajectoryStateOnSurface tsos = thePropagator->propagate(*fState,*rpcPlane);
-	  if(tsos.isValid() && (rpcPlane->bounds()).inside(tsos.localPosition())){
+	  if(tsos.isValid() && fabs(tsos.localPosition().z())<0.01){
 	    std::vector< const RPCRoll*> rolhit = (ch->rolls());
 	    for(std::vector<const RPCRoll*>::const_iterator iteraRec = rolhit.begin();iteraRec != rolhit.end(); ++iteraRec){
 	      RPCDetId rollId=(*iteraRec)->id();
@@ -288,16 +254,12 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		}
 	      }
 	    }
-	  }//TSOS RPC valid
-	}//End Roll Finder
-      }//End casting 
-    }//End loop on Geometry
-  }//End Roll Finder
+	  }
+	}
+      }
+    }
 
-
-  for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
-    reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
-    
+    //Efficiency
     for (std::vector<RPCDetId>::iterator iteraRoll = rollRec.begin();iteraRoll != rollRec.end(); iteraRoll++){
       const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
       const BoundPlane& rpcPlane1 = rollasociated->surface();
@@ -306,7 +268,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
       LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
       float rsize = fabs( xmax.x()-xmin.x() )*0.5;
       float stripl = top_->stripLength();
- 
+      
       TrajectoryStateClosestToPoint tcp1=track.impactPointTSCP();
       const FreeTrajectoryState& fS1=tcp1.theState();
       const FreeTrajectoryState* fState1 = &fS1;       
@@ -334,7 +296,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	}
 	
 	_idList.push_back(nameRoll);
-	std::cout<<"RPC -- Candidate"<<nameRoll<<std::endl;
 	char detUnitLabel[128];
 	sprintf(detUnitLabel ,"%s",nameRoll.c_str());
 	sprintf(layerLabel ,"%s",nameRoll.c_str());
@@ -392,10 +353,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	}
 	
 	int rpos=0;
-	
-	std::cout<<"Rec Found On "<<nameRoll<< "\t= "<<ResVec.size()<<std::endl;
-	
-	
 	if(ResVec.size()==1){
 	  res = ResVec[0];
 	  for(unsigned int rs=0;rs<ResVec.size();rs++){
@@ -403,16 +360,8 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	      res = ResVec[rs];
 	      rpos=rs;
 	    }
-	  }
-	  
-	  std::cout<<"**********************************************"<<std::endl;
-	  std::cout<<"\t                                   "<<std::endl;
-	  std::cout<<"Point Extrapolated                   "<<extrVec[rpos]<<std::endl;
-	  std::cout<<"Real Point                           "<<posVec[rpos]<<std::endl;
-	  std::cout<<"**********************************************"<<std::endl;
-	  std::cout<<"Strip Extrapolated "<<stripPr[rpos]<<" Strip Detected "<<stripD[rpos]<<std::endl;
-	  std::cout<<"**********************************************"<<std::endl;
-	  
+	  }	  
+
 	  sprintf(meIdRPC,"Residuals_%s",detUnitLabel);
 	  meMap[meIdRPC]->Fill(res);
 	  sprintf(meIdRPC,"Residuals_VS_RecPt_%s",detUnitLabel);
@@ -458,6 +407,8 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
     }
   }
 }
+
+
 
 void RPCEfficiencyFromTrack::beginJob(const edm::EventSetup&)
 {
