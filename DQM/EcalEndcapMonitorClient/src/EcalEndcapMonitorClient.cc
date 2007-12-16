@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/16 20:34:38 $
- * $Revision: 1.91 $
+ * $Date: 2007/12/16 21:37:45 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -373,9 +373,6 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]           = "PEDESTAL";
 
   // clients' constructors
-
-  clients_.reserve(12);
-  clientsNames_.reserve(12);
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Integrity" ) != enabledClients_.end() ) {
 

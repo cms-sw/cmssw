@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/16 20:34:35 $
- * $Revision: 1.332 $
+ * $Date: 2007/12/16 21:37:44 $
+ * $Revision: 1.333 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -370,9 +370,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]           = "PEDESTAL";
 
   // clients' constructors
-
-  clients_.reserve(12);
-  clientsNames_.reserve(12);
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Integrity" ) != enabledClients_.end() ) {
 
