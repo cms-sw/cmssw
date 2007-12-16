@@ -36,7 +36,6 @@ echo ""
 echo "Options:"
 echo ""
 echo "      -p|--path_file        file_path       path to the data to be analyzed (default is /data/ecalod-22/daq-data/)"
-echo "      -d|--data_file        file_name       data file to be analyzed"
 echo ""
 echo "      -f|--first_ev         f_ev            first (as written to file) event that will be analyzed; default is 1"
 echo "      -l|--last_ev          l_ev            last  (as written to file) event that will be analyzed; default is 9999"
@@ -46,7 +45,6 @@ echo "      -eb|--ieb_id          ieb_id          selects sm barrel id; you must
 echo "      -cry|--cryDigi        ic              digis from channel ic will be shown"
 echo "      -tt|--Tower           tt              digis from channel whole tower tt will be shown; For EE it referts ot Chanles from DCC, also called as Super Crystal" 
 echo "      -pn|--pnDigi          pd_id           digis from pn number pd_id will be shown"
-echo "      -tp|--trigPrimDigi    0-1             trigger primitive digis will be shown; default is 0"
 
 echo ""
 echo ""
@@ -61,19 +59,17 @@ data_file="none"
 cfg_path="$conf_dir"
 
 
-ieb="EB+01";
-fed=628;
+ieb="none";
+fed=-1;
 
 
-cry_ic=1;
+cry_ic=-1;
 tt_id=-1;
 cryString="false";
 towerString="false";
-fedString="false"
-ebString="false"
-
-pn_num=1;
 pnString="false";
+
+pn_num=-1;
 
 trpr=0;
 
@@ -88,10 +84,6 @@ last_event=9999
 
       -p|--path_file)
                 data_path="$2"
-                ;;
-
-      -d|--data_file)
-                data_file="$2"
                 ;;
 
 
@@ -110,12 +102,10 @@ last_event=9999
 
       -fed|--fed)
 	        fed="$2"
-		fedString="true"
 		;;
 
       -eb|--ieb_id)
                 ieb="$2"
-		ebString="true"
                 ;;
 
       -cry|--cryDigi)
@@ -131,11 +121,7 @@ last_event=9999
 
       -pn|--pnDigi)
                 pn_num="$2"
-                pnString="true";
-                ;;
-
-      -tp|--trigPrimDigi)
-                trpr="$2"
+		pnString="true"
                 ;;
 
 
@@ -143,6 +129,9 @@ last_event=9999
     shift       # Verifica la serie successiva di parametri.
 
 done
+
+data_file=${data_path##*/} 
+extension=${data_file##*.}
 
 echo ""
 echo ""
@@ -191,47 +180,38 @@ include "EventFilter/EcalRawToDigiDev/data/EcalUnpackerData.cfi"
 # if getting data from a .root pool file
        source = PoolSource {
                untracked uint32 skipEvents = $first_event
-               untracked vstring fileNames = { 'file:$data_path$data_file' }
+               #untracked vstring fileNames = { 'file:$data_path$data_file' }
+               untracked vstring fileNames = { 'file:$data_path' }
            untracked bool   debugFlag     = true
           }
 
   untracked PSet maxEvents = {untracked int32 input = $last_event}
 
+  include "CaloOnlineTools/EcalTools/data/ecalDigiDisplay.cfi"
 
-     module digi = EcalDigiDisplay{
 
-        # selection on sm number in the barrel (1... 36; 1 with tb unpacker)
+        # selection on sm number in the barrel and DCC in Endcap with 
+        # FED id [601-654]   or
+        # ECAL numbering { EE_02,..,EB-15,..,EB+07,..,EE+09 }
         # if not specified or value set to -1, no selection will be applied
-        #untracked int32 ieb_id     = 1
-        untracked vint32 requestedFeds  = {$fed}
-        untracked vstring requestedEbs  = {"$ieb"}
-
-        untracked bool cryDigi      = $cryString
-        untracked bool ttDigi       = $towerString
-        untracked bool pnDigi       = $pnString
-        untracked bool tpDigi       = $tpString
-        untracked bool fedIsGiven   = $fedString
-        untracked bool ebIsGiven    = $ebString
-
-        untracked int32 mode           = $mode
- 
-         # if mode is 1 specify these parameters
-	 untracked int32 numChannel     = $cry_ic
-	 untracked int32 numPN          = $pn_num
-
-         # if mode is 2 specify these otherparameters
-	 untracked vint32  listChannels = { $cry_ic }
-         untracked vint32  listTowers = { $tt_id }
-	 untracked vint32  listPns = { $pn_num }
       
-         string ebDigiCollection = 'ebDigis' 
-         string eeDigiCollection = 'eeDigis'
-         string digiProducer     = 'ecalEBunpacker'
-        }
-     
+     replace ecalDigiDisplay.requestedFeds = {$fed}
+     replace ecalDigiDisplay.requestedEbs  = {$ieb}
+
+     replace ecalDigiDisplay.cryDigi  = $cryString     
+     replace ecalDigiDisplay.ttDigi   = $towerString
+     replace ecalDigiDisplay.pnDigi   = $pnString
+
+     replace ecalDigiDisplay.mode     = $mode    
+     replace ecalDigiDisplay.numChannel   = $cry_ic    
+     replace ecalDigiDisplay.numPN        = $pn_num    
+     replace ecalDigiDisplay.listChannels = { $cry_ic }    
+     replace ecalDigiDisplay.listPns      = { $pn_num }    
+
+
      module counter = AsciiOutputModule{}
 
-     path p      = {ecalEBunpacker, digi}
+     path p      = {ecalEBunpacker, ecalDigiDisplay}
 
      endpath end = { counter }
 
@@ -254,8 +234,8 @@ echo ""
 echo ""
 echo ""
 echo "-------------------------------------------------------------------------------------------------------------------------"
-echo "digi dump completed. To see the results edit:"
-echo $log_dir$data_file".$$.digi"
+echo "digi dump completed. To see the results edit: 
+echo  "$log_dir$data_file".$$.digi"
 echo "-------------------------------------------------------------------------------------------------------------------------"
 echo ""
 echo ""
