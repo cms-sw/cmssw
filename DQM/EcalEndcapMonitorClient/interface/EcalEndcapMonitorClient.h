@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/12/12 12:39:06 $
- * $Revision: 1.25 $
+ * $Date: 2007/12/12 14:46:49 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -114,7 +114,7 @@ inline std::string getRunType( void )  { return( runtype_ == -1 ? "UNKNOWN" : ru
 inline std::vector<std::string> getRunTypes( void ) { return( runTypes_ ); }
 
 inline const std::vector<EEClient*> getClients() { return( clients_ ); }
-inline const std::vector<std::string> getClientNames() { return( clientNames_ ); }
+inline const std::vector<std::string> getClientsNames() { return( clientsNames_ ); }
 
 inline RunIOV getRunIOV() { return( runiov_ ); }
 inline MonRunIOV getMonIOV() { return( moniov_ ); }
@@ -173,11 +173,11 @@ std::vector<int> superModules_;
 
 std::vector<std::string> enabledClients_;
 
-typedef std::multimap<EEClient*,int> EECIMMap; 
-EECIMMap chb_;
+std::multimap<EEClient*,int> clientsRuns_;
 std::vector<std::string> runTypes_;
 std::vector<EEClient*> clients_; 
-std::vector<std::string> clientNames_; 
+std::vector<std::string> clientsNames_; 
+std::map<std::string,int> clientsStatus_;
 
 EESummaryClient* summaryClient_;
 

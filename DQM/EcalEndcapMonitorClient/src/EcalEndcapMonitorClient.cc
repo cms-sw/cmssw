@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/15 10:01:33 $
- * $Revision: 1.89 $
+ * $Date: 2007/12/15 11:46:23 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -84,32 +84,6 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   cout << endl;
   cout << " *** Ecal Endcap Generic Monitor Client ***" << endl;
   cout << endl;
-
-  // Set runTypes
-
-  runTypes_.resize( 22 );
-  for ( unsigned int i=0; i<runTypes_.size(); ++i ) runTypes_[i] =  "UNKNOWN";
-  runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
-  runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAM";
-  runTypes_[EcalDCCHeaderBlock::BEAMH2]                 = "BEAM";
-  runTypes_[EcalDCCHeaderBlock::MTCC]                   = "PHYSICS";
-  runTypes_[EcalDCCHeaderBlock::LASER_STD]              = "LASER";
-  runTypes_[EcalDCCHeaderBlock::LED_STD]                = "LED";
-  runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]         = "TEST_PULSE";
-  runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]           = "PEDESTAL";
-  runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN]   = "PEDESTAL-OFFSET";
-
-  runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL]         = "COSMIC";
-  runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL]         = "PHYSICS";
-  runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]          = "COSMIC";
-  runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL]          = "PHYSICS";
-  runTypes_[EcalDCCHeaderBlock::LASER_GAP]              = "LASER";
-  runTypes_[EcalDCCHeaderBlock::LED_GAP]                = "LED";
-  runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP]          = "TEST_PULSE";
-  runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]           = "PEDESTAL";
-
-  clients_.clear();
-  clientNames_.clear();
 
   // DQM ROOT input file
 
@@ -270,7 +244,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   }
 
-  // Server switch
+  // enableServer switch
 
   enableServer_ = ps.getUntrackedParameter<bool>("enableServer", false);
   serverPort_   = ps.getUntrackedParameter<int>("serverPort", 9900);
@@ -373,188 +347,229 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     }
   }
 
+  // set runTypes
+
+  runTypes_.resize( 22 );
+  for ( unsigned int i=0; i<runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
+
+  runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAM";
+  runTypes_[EcalDCCHeaderBlock::BEAMH2]                 = "BEAM";
+  runTypes_[EcalDCCHeaderBlock::MTCC]                   = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::LASER_STD]              = "LASER";
+  runTypes_[EcalDCCHeaderBlock::LED_STD]                = "LED";
+  runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]         = "TEST_PULSE";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]           = "PEDESTAL";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN]   = "PEDESTAL-OFFSET";
+
+  runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL]         = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL]         = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]          = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL]          = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::LASER_GAP]              = "LASER";
+  runTypes_[EcalDCCHeaderBlock::LED_GAP]                = "LED";
+  runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP]          = "TEST_PULSE";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]           = "PEDESTAL";
+
   // clients' constructors
+
+  clients_.clear();
+  clientsNames_.clear();
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Integrity" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EEIntegrityClient(ps) );
-    clientNames_.push_back( "Integrity" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsNames_.push_back( "Integrity" );
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Cosmic" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EECosmicClient(ps) );
-    clientNames_.push_back( "Cosmic" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsNames_.push_back( "Cosmic" );
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Laser" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EELaserClient(ps) );
-    clientNames_.push_back( "Laser" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsNames_.push_back( "Laser" );
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Pedestal" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EEPedestalClient(ps) );
-    clientNames_.push_back( "Pedestal" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsNames_.push_back( "Pedestal" );
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "PedestalOnline" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EEPedestalOnlineClient(ps) );
-    clientNames_.push_back( "PedestalOnline" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsNames_.push_back( "PedestalOnline" );
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "TestPulse" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EETestPulseClient(ps) );
-    clientNames_.push_back( "TestPulse" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsNames_.push_back( "TestPulse" );
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "BeamCalo" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EEBeamCaloClient(ps) );
-    clientNames_.push_back( "BeamCalo" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsNames_.push_back( "BeamCalo" );
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "BeamHodo" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EEBeamHodoClient(ps) );
-    clientNames_.push_back( "BeamHodo" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsNames_.push_back( "BeamHodo" );
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "TriggerTower" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EETriggerTowerClient(ps) );
-    clientNames_.push_back( "TriggerTower" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsNames_.push_back( "TriggerTower" );
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Cluster" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EEClusterClient(ps) );
-    clientNames_.push_back( "Cluster" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsNames_.push_back( "Cluster" );
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Timing" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EETimingClient(ps) );
-    clientNames_.push_back( "Timing" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-//    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-//    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
-//    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsNames_.push_back( "Timing" );
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+//    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+//    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+//    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-//    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-//    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-//    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
-//    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+//    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+//    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+//    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+//    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
   }
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Led" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EELedClient(ps) );
-    clientNames_.push_back( "Led" );
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsNames_.push_back( "Led" );
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LED_STD ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(multimap<EEClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
 
   }
 
+  // define status bits
+
+  clientsStatus_.insert(map<string,int>::value_type( "Integrity",       0 ));
+  clientsStatus_.insert(map<string,int>::value_type( "Cosmic",          1 ));
+  clientsStatus_.insert(map<string,int>::value_type( "Laser",           2 ));
+  clientsStatus_.insert(map<string,int>::value_type( "Pedestal",        3 ));
+  clientsStatus_.insert(map<string,int>::value_type( "PedestalOnline",  4 ));
+  clientsStatus_.insert(map<string,int>::value_type( "TestPulse",       5 ));
+  clientsStatus_.insert(map<string,int>::value_type( "BeamCalo",        6 ));
+  clientsStatus_.insert(map<string,int>::value_type( "BeamHodo",        7 ));
+  clientsStatus_.insert(map<string,int>::value_type( "TriggerTower",    8 ));
+  clientsStatus_.insert(map<string,int>::value_type( "Cluster",         9 ));
+  clientsStatus_.insert(map<string,int>::value_type( "Timing",         10 ));
+  clientsStatus_.insert(map<string,int>::value_type( "Led",            11 ));
   summaryClient_ = new EESummaryClient(ps);
 
   summaryClient_->setFriends(clients_);
@@ -676,9 +691,12 @@ void EcalEndcapMonitorClient::beginRun(void){
 
   for ( int i=0; i<int(clients_.size()); i++ ) {
     clients_[i]->cleanup();
-    bool started; started = false;
-    for ( EECIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !started ) { started = true; clients_[i]->beginRun(); }
+    bool done = false;
+    for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+      if ( runtype_ != -1 && runtype_ == (*j).second && !done ) {
+        done = true;
+        clients_[i]->beginRun();
+      }
     }
   }
 
@@ -764,6 +782,7 @@ void EcalEndcapMonitorClient::endRun(void) {
   if ( subrun_ != -1 ) {
 
     this->writeDb();
+
     this->endRunDb();
 
   }
@@ -775,9 +794,12 @@ void EcalEndcapMonitorClient::endRun(void) {
   }
 
   for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool ended; ended = false;
-    for ( EECIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !ended ) { ended = true; clients_[i]->endRun(); }
+    bool done = false;
+    for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+      if ( runtype_ != -1 && runtype_ == (*j).second && !done ) {
+        done = true;
+        clients_[i]->endRun();
+      }
     }
   }
 
@@ -1056,27 +1078,28 @@ void EcalEndcapMonitorClient::writeDb(void) {
   int taskl = 0x0;
   int tasko = 0x0;
 
-  for ( int j = 0; j<int(clients_.size()); ++j ) {
-    bool written; written = false;
-    for ( EECIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-      if ( h_ && h_->GetBinContent(2+(*k).second) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
-        if ( clientNames_[j] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 ) continue;
-        if ( clientNames_[j] == "Led" && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 ) continue;
-        written = true;
-        taskl |= 0x1 << j;
+  for ( int i=0; i<int(clients_.size()); i++ ) {
+    bool done = false;
+    map<string,int>::iterator k = clientsStatus_.find(clientsNames_[i]);
+    for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+      if ( h_ && h_->GetBinContent(2+(*j).second) != 0 && runtype_ != -1 && runtype_ == (*j).second && !done ) {
+        if ( clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 ) continue;
+        if ( clientsNames_[i] == "Led" && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 ) continue;
+        done = true;
+        taskl |= 0x1 << (*k).second;
         cout << endl;
-        cout << " Writing " << clientNames_[j] << " results to DB " << endl;
+        cout << " Writing " << clientsNames_[i] << " results to DB " << endl;
         cout << endl;
-        if ( clients_[j]->writeDb(econn, &runiov_, &moniov_) ) {
-          tasko |= 0x1 << j;
+        if ( clients_[i]->writeDb(econn, &runiov_, &moniov_) ) {
+          tasko |= 0x1 << (*k).second;
         } else {
-          tasko |= 0x0 << j;
+          tasko |= 0x0 << (*k).second;
         }
       }
     }
-    if ( ((taskl >> j) & 0x1) ) {
+    if ( ((taskl >> (*k).second) & 0x1) ) {
       cout << endl;
-      cout << " Task output for " << clientNames_[j] << " = " << ((tasko >> j) & 0x1) << endl;
+      cout << " Task output for " << clientsNames_[i] << " = " << ((tasko >> (*k).second) & 0x1) << endl;
       cout << endl;
     }
   }
@@ -1242,9 +1265,12 @@ void EcalEndcapMonitorClient::unsubscribe(void) {
 void EcalEndcapMonitorClient::softReset(void) {
 
   for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool done; done = false;
-    for ( EECIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !done ) { done = true; clients_[i]->softReset(); }
+    bool done = false;
+    for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+      if ( runtype_ != -1 && runtype_ == (*j).second && !done ) {
+        done = true;
+        clients_[i]->softReset();
+      }
     }
   }
 
@@ -1337,7 +1363,7 @@ void EcalEndcapMonitorClient::analyze(void){
     if ( h_ ) {
       if ( h_->GetEntries() != 0 ) {
         cout << " ( " << flush;
-        for ( int i=0; i<int(runTypes_.size()); ++i ) {
+        for ( int i=0; i<int(runTypes_.size()); i++ ) {
           if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(2+i) != 0 ) {
             string s = runTypes_[i];
             transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
@@ -1381,9 +1407,12 @@ void EcalEndcapMonitorClient::analyze(void){
       if ( update || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
         for ( int i=0; i<int(clients_.size()); i++ ) {
-          bool analyzed; analyzed = false;
-          for ( EECIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-            if ( runtype_ != -1 && runtype_ == (*j).second && !analyzed ) { analyzed = true; clients_[i]->analyze(); }
+          bool done = false;
+          for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+            if ( runtype_ != -1 && runtype_ == (*j).second && !done ) {
+              done = true;
+              clients_[i]->analyze();
+            }
           }
         }
 
@@ -1585,16 +1614,16 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ){
 
   string htmlName;
 
-  for ( int j = 0; j<int(clients_.size()); ++j ) {
-    bool written; written = false;
-    for ( EECIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-      if ( h_ && h_->GetBinContent(2+(*k).second) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
-        if ( clientNames_[j] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 ) continue;
-        if ( clientNames_[j] == "Led" && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 ) continue;
-        written = true;
-        htmlName = "EE" + clientNames_[j] + "Client.html";
-        clients_[j]->htmlOutput(run_, htmlDir, htmlName);
-        htmlFile << "<li><a href=\"" << htmlName << "\">Data " << clientNames_[j] << "</a></li>" << endl;
+  for ( int i=0; i<int(clients_.size()); i++ ) {
+    bool done = false;
+    for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+      if ( h_ && h_->GetBinContent(2+(*j).second) != 0 && runtype_ != -1 && runtype_ == (*j).second && !done ) {
+        if ( clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 ) continue;
+        if ( clientsNames_[i] == "Led" && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 ) continue;
+        done = true;
+        htmlName = "EE" + clientsNames_[i] + "Client.html";
+        clients_[i]->htmlOutput(run_, htmlDir, htmlName);
+        htmlFile << "<li><a href=\"" << htmlName << "\">Data " << clientsNames_[i] << "</a></li>" << endl;
       }
     }
   }
@@ -1725,11 +1754,11 @@ void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
        << "<table border=1>"
        << "<tr><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th>" << endl;
   const vector<EEClient*> clients = this->getClients();
-  const vector<string> clientNames = this->getClientNames();
+  const vector<string> clientsNames = this->getClientsNames();
   for( unsigned int i=0; i<clients.size(); i++ ) {
     if ( clients[i] != 0 ) {
       if ( i%2 == 0 ) *out << "<tr>";
-      *out << "<td>" << clientNames[i]
+      *out << "<td>" << clientsNames[i]
            << "</td><td align=right>" << clients[i]->getEvtPerJob()
            << "</td><td align=right>" << clients[i]->getEvtPerRun() << endl;
     }

@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/12/12 12:39:03 $
- * $Revision: 1.89 $
+ * $Date: 2007/12/12 14:46:46 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -113,7 +113,7 @@ inline std::string getRunType( void ) { return( runtype_ == -1 ? "UNKNOWN" : run
 inline std::vector<std::string> getRunTypes( void ) { return( runTypes_ ); }
 
 inline const std::vector<EBClient*>  getClients() { return( clients_ ); }
-inline const std::vector<std::string> getClientNames() { return( clientNames_ ); }
+inline const std::vector<std::string> getClientsNames() { return( clientsNames_ ); }
 
 inline RunIOV getRunIOV() { return( runiov_ ); }
 inline MonRunIOV getMonIOV() { return( moniov_ ); }
@@ -171,11 +171,11 @@ std::vector<int> superModules_;
 
 std::vector<std::string> enabledClients_;
 
-typedef std::multimap<EBClient*,int> EBCIMMap; 
-EBCIMMap chb_;
+std::multimap<EBClient*,int> clientsRuns_; 
 std::vector<std::string> runTypes_;
 std::vector<EBClient*> clients_; 
-std::vector<std::string> clientNames_; 
+std::vector<std::string> clientsNames_; 
+std::map<std::string,int> clientsStatus_;
 
 EBSummaryClient* summaryClient_;
 
