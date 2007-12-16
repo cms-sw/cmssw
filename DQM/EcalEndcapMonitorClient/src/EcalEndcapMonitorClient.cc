@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/16 21:37:45 $
- * $Revision: 1.92 $
+ * $Date: 2007/12/16 22:16:34 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -348,9 +348,9 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     }
   }
 
-  // set runTypes
+  // set runTypes (use resize() on purpose!)
 
-  runTypes_.reserve(22);
+  runTypes_.resize(22);
   for ( unsigned int i=0; i<runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
 
   runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
@@ -373,6 +373,9 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]           = "PEDESTAL";
 
   // clients' constructors
+
+  clients_.reserve(12);
+  clientsNames_.reserve(12);
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Integrity" ) != enabledClients_.end() ) {
 
@@ -1078,26 +1081,25 @@ void EcalEndcapMonitorClient::writeDb(void) {
 
   for ( int i=0; i<int(clients_.size()); i++ ) {
     bool done = false;
-    map<string,int>::iterator k = clientsStatus_.find(clientsNames_[i]);
     for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && h_->GetBinContent(2+(*j).second) != 0 && runtype_ != -1 && runtype_ == (*j).second && !done ) {
         if ( clientsNames_[i] == "Laser" && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 ) continue;
         if ( clientsNames_[i] == "Led" && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 ) continue;
         done = true;
-        taskl |= 0x1 << (*k).second;
+        taskl |= 0x1 << clientsStatus_[clientsNames_[i]];
         cout << endl;
         cout << " Writing " << clientsNames_[i] << " results to DB " << endl;
         cout << endl;
         if ( clients_[i]->writeDb(econn, &runiov_, &moniov_) ) {
-          tasko |= 0x1 << (*k).second;
+          tasko |= 0x1 << clientsStatus_[clientsNames_[i]];
         } else {
-          tasko |= 0x0 << (*k).second;
+          tasko |= 0x0 << clientsStatus_[clientsNames_[i]];
         }
       }
     }
-    if ( ((taskl >> (*k).second) & 0x1) ) {
+    if ( ((taskl >> clientsStatus_[clientsNames_[i]]) & 0x1) ) {
       cout << endl;
-      cout << " Task output for " << clientsNames_[i] << " = " << ((tasko >> (*k).second) & 0x1) << endl;
+      cout << " Task output for " << clientsNames_[i] << " = " << ((tasko >> clientsStatus_[clientsNames_[i]]) & 0x1) << endl;
       cout << endl;
     }
   }
