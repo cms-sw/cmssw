@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2007/08/16 19:59:39 $
- *  $Revision: 1.28 $
+ *  $Date: 2007/11/08 21:55:41 $
+ *  $Revision: 1.29 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -374,6 +374,21 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 //     }
 //     else {
 //       LogTrace(metname) <<" Smoothing failed.";
+       LogTrace(metname) <<"first "<< myTraj->firstMeasurement().updatedState()
+                        <<"\n last "<<myTraj->lastMeasurement().updatedState();
+       if ( myTraj->direction() == alongMomentum ) LogTrace(metname)<<"along";
+       else if (myTraj->direction() == oppositeToMomentum ) LogTrace(metname)<<"opposite";
+       else LogTrace(metname)<<"anyDirection";
+
+       if ( ( myTraj->direction() == alongMomentum && 
+              (myTraj->firstMeasurement().updatedState().globalPosition().y() 
+              < myTraj->lastMeasurement().updatedState().globalPosition().y()))
+           || (myTraj->direction() == oppositeToMomentum && 
+              (myTraj->firstMeasurement().updatedState().globalPosition().y() 
+              > myTraj->lastMeasurement().updatedState().globalPosition().y())) ) {
+           LogTrace(metname)<<"reverse trajectory direction";
+           reverseTrajectoryDirection(*myTraj); 
+       }
        trajL.push_back(myTraj);
 //     }
   }
@@ -653,6 +668,20 @@ void CosmicMuonTrajectoryBuilder::reverseTrajectory(Trajectory& traj) const {
   }
   traj = newTraj;
 
+}
+
+void CosmicMuonTrajectoryBuilder::reverseTrajectoryDirection(Trajectory& traj) const {
+   if ( traj.direction() == anyDirection ) return;
+   PropagationDirection newDir = (traj.direction() == alongMomentum)? oppositeToMomentum : alongMomentum;
+   Trajectory newTraj(traj.seed(), newDir);
+   std::vector<TrajectoryMeasurement> meas = traj.measurements();
+
+   for (std::vector<TrajectoryMeasurement>::const_iterator itm = meas.begin();
+         itm != meas.end(); ++itm) {
+      newTraj.push(*itm);
+   }
+
+   traj = newTraj;
 }
 
 void CosmicMuonTrajectoryBuilder::updateTrajectory(Trajectory& traj, const MuonRecHitContainer& hits) {
