@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2007/11/29 14:13:46 $
- * $Revision: 1.1 $
+ * $Date: 2007/12/16 14:46:24 $
+ * $Revision: 1.2 $
  * \author Keti Kaadze
  * \author G. Franzoni
  *
@@ -231,7 +231,6 @@ void EcalDigiDisplay::analyze( const edm::Event & e, const  edm::EventSetup& c) 
     edm::LogError("EcalDigiUnpackerModule") << "PNs were not found!";
   }
 
-  std::cout << "BLAH : pns " << pnDigisFound << std::endl;
   //=============================
   //Call for funcitons
   //=============================
