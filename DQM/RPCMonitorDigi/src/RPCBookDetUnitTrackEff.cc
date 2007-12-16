@@ -91,7 +91,7 @@ std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackE
 
   sprintf(meId,"2DRPCEfficiency_%s",detUnitLabel);
   sprintf(meTitle,"2DRPCEfficiency_for_%s",layerLabel);
-  meMap[meId] = dbe->book2D(meId, meTitle, 201, -100.5, 100.5,201,-100.5,100.5);
+  meMap[meId] = dbe->book2D(meId, meTitle, 401, -200.5, 200.5,201,-100.5,100.5);
 
 
   return meMap;
