@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/16 22:16:34 $
- * $Revision: 1.93 $
+ * $Date: 2007/12/16 22:37:23 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -350,7 +350,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   // set runTypes (use resize() on purpose!)
 
-  runTypes_.resize(22);
+  runTypes_.resize(30);
   for ( unsigned int i=0; i<runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
 
   runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
