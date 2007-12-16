@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/11/13 14:05:35 $
- * $Revision: 1.26 $
+ * $Date: 2007/12/15 11:34:32 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -57,6 +57,11 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
 
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+
+  // vector of selected Super Modules (Defaults to all 18).
+  superModules_.reserve(18);
+  for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
+  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   hBC1D_[0] = 0;
   hBC1D_[1] = 0;

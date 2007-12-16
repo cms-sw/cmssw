@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/15 11:46:23 $
- * $Revision: 1.90 $
+ * $Date: 2007/12/16 20:34:38 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -262,6 +262,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 18).
 
+  superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
 
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
@@ -349,7 +350,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   // set runTypes
 
-  runTypes_.resize( 22 );
+  runTypes_.reserve(22);
   for ( unsigned int i=0; i<runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
 
   runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
@@ -373,8 +374,8 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   // clients' constructors
 
-  clients_.clear();
-  clientsNames_.clear();
+  clients_.reserve(12);
+  clientsNames_.reserve(12);
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Integrity" ) != enabledClients_.end() ) {
 

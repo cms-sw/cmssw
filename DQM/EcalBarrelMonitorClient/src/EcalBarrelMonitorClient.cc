@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/15 11:46:22 $
- * $Revision: 1.331 $
+ * $Date: 2007/12/16 20:34:35 $
+ * $Revision: 1.332 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -261,6 +261,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // vector of selected Super Modules (Defaults to all 36).
 
+  superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
 
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
@@ -348,8 +349,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // set runTypes
 
-  runTypes_.clear();
-  runTypes_.resize( 22 );
+  runTypes_.reserve(22);
   for ( unsigned int i=0; i<runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
 
   runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
@@ -371,8 +371,8 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // clients' constructors
 
-  clients_.clear();
-  clientsNames_.clear();
+  clients_.reserve(12);
+  clientsNames_.reserve(12);
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Integrity" ) != enabledClients_.end() ) {
 
