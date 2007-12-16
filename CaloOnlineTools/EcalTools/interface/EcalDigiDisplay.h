@@ -1,14 +1,3 @@
-/**
- * \file EcalDigiDisplay.h 
- * dummy module  for the test of  DaqFileInputService
- *   
- * 
- * $Date: 2007/11/29 14:14:23 $
- * $Revision: 1.1 $
- * \author: 
- *
- */
-
 #ifndef ECALRAWTODIGI_ECALDIGIDISPLAY_h
 #define ECALRAWTODIGI_ECALDIGIDISPLAY_h
 
@@ -37,9 +26,9 @@ class EcalDigiDisplay : public edm::EDAnalyzer {
   virtual void endJob();
   
  protected:
-  void readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode);
+  void readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode, bool cryIsGiven);
   void readEEDigis (edm::Handle<EEDigiCollection> digis, int Mode);
-  void readPNDigis (edm::Handle<EcalPnDiodeDigiCollection> PNs, int Mode);
+  void readPNDigis (edm::Handle<EcalPnDiodeDigiCollection> PNs, int Mode, bool pn);
   
   EcalFedMap* fedMap;
 
@@ -51,13 +40,10 @@ class EcalDigiDisplay : public edm::EDAnalyzer {
   std::vector<std::string> requestedEbs_;
 
   bool inputIsOk;
-  bool tpDigi;
   bool cryDigi;
   bool ttDigi;
   bool pnDigi;
-  bool fedIsGiven;
-  bool ebIsGiven;
-    
+  
   //Mode is set 1 or 2
   int mode;
  
