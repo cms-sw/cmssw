@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2007/11/27 10:43:24 $
- * $Revision: 1.10 $
+ * $Date: 2007/12/15 11:34:30 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -94,14 +94,14 @@ std::vector<int> superModules_;
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
-TH1F* hBC1D_[3];
-TProfile2D* hProfMap_[3][2];
-TProfile* hProfMapProjR_[3][2];
-TProfile* hProfMapProjPhi_[3][2];
-TH2F* hOccMap_[2];
-TH1F* hOccMapProjR_[2];
-TH1F* hOccMapProjPhi_[2];
-TH1F* hSC1D_[3]; 
+TH1F* h01_[3];
+TProfile2D* h04_[3][2];
+TProfile* h02ProjR_[3][2];
+TProfile* h02ProjPhi_[3][2];
+TH2F* h03_[2];
+TH1F* h03ProjR_[2];
+TH1F* h03ProjPhi_[2];
+TH1F* i01_[3]; 
 TH1F* s01_[3];
 
 };
