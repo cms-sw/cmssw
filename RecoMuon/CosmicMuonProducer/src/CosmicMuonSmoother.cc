@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2007/08/16 20:00:23 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/08/16 20:35:09 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -36,7 +36,8 @@ CosmicMuonSmoother::CosmicMuonSmoother(const ParameterSet& par, const MuonServic
   theUpdator     = new KFUpdator;
   theUtilities   = new CosmicMuonUtilities; 
   theEstimator   = new Chi2MeasurementEstimator(200.0);
-  thePropagatorName = par.getParameter<string>("Propagator");
+  thePropagatorAlongName = par.getParameter<string>("PropagatorAlong");
+  thePropagatorOppositeName = par.getParameter<string>("PropagatorOpposite");
 
   category_ = "Muon|RecoMuon|CosmicMuon|CosmicMuonSmoother";
 
@@ -157,10 +158,10 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
       LogTrace(category_)<< "Error: invalid hit.";
       continue;
     }
-    predTsos = propagator()->propagate(currTsos, (**ihit).det()->surface());
+    predTsos = propagatorAlong()->propagate(currTsos, (**ihit).det()->surface());
 
     if ( !predTsos.isValid() ) {
-       predTsos = theUtilities->stepPropagate(currTsos, (*ihit), *propagator());
+       predTsos = theUtilities->stepPropagate(currTsos, (*ihit), *propagatorAlong());
     }
     if ( !predTsos.isValid() ) {
       //return vector<Trajectory>();
@@ -259,10 +260,10 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
   for ( vector<TrajectoryMeasurement>::reverse_iterator itm = avtm.rbegin() + 1; 
         itm != avtm.rend() - 1; ++itm ) {
 
-    predTsos = propagator()->propagate(currTsos,(*itm).recHit()->det()->surface());
+    predTsos = propagatorOpposite()->propagate(currTsos,(*itm).recHit()->det()->surface());
 
     if ( !predTsos.isValid() ) {
-       predTsos = theUtilities->stepPropagate(currTsos, (*itm).recHit(), *propagator());
+       predTsos = theUtilities->stepPropagate(currTsos, (*itm).recHit(), *propagatorOpposite());
     }
 
     if ( !predTsos.isValid() ) {
@@ -308,7 +309,7 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
   }
 
   // last smoothed TrajectoryMeasurement is last filtered
-  predTsos = propagator()->propagate(currTsos, avtm.front().recHit()->det()->surface());
+  predTsos = propagatorOpposite()->propagate(currTsos, avtm.front().recHit()->det()->surface());
   
   if ( !predTsos.isValid() ){
     LogTrace(category_)<< "Error: last predict TSOS failed, use original one. ";
