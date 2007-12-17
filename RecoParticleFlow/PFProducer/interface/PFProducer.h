@@ -36,11 +36,7 @@ class PFProducer : public edm::EDProducer {
 
  private:
 
-  /// module label for retrieving input collection of PFBlocks 
-  std::string blocksModuleLabel_;
-
-  /// instance name for retrieving input collection of PFBlocks  
-  std::string blocksInstanceName_;
+  edm::InputTag  inputTagBlocks_;
 
   /// verbose ?
   bool   verbose_;

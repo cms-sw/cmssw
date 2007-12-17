@@ -3,6 +3,8 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 
+#include <sstream>
+
 using namespace std;
 
 using namespace boost;
@@ -16,14 +18,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
  
 
   // use configuration file to setup input/output collection names
-  blocksModuleLabel_ 
-    = iConfig.getUntrackedParameter<string>
-    ("BlocksModuleLabel","particleFlowBlock");
-
-  blocksInstanceName_ 
-    = iConfig.getUntrackedParameter<string>
-    ("BlocksInstanceName","");  
-
+  inputTagBlocks_ 
+    = iConfig.getParameter<InputTag>("blocks");
 
   // register products
   produces<reco::PFCandidateCollection>();
@@ -108,26 +104,19 @@ void PFProducer::produce(Event& iEvent,
   
 
   // get the collection of blocks 
-  
-  
-
-  
 
   Handle< reco::PFBlockCollection > blocks;
-  try{      
-    LogDebug("PFBlock")<<"getting blocks"<<endl;
-    iEvent.getByLabel( blocksModuleLabel_, 
-		       blocksInstanceName_, 
-		       blocks );      
 
-  } catch (cms::Exception& err) { 
-    LogError("PFProducer")<<err
-			  <<" cannot get collection "
-			  <<blocksModuleLabel_<<":"
-			  <<blocksInstanceName_
-			  <<endl;
+  LogDebug("PFBlock")<<"getting blocks"<<endl;
+  bool found = iEvent.getByLabel( inputTagBlocks_, blocks );  
+
+  if(!found ) {
+
+    ostringstream err;
+    err<<"cannot find blocks: "<<inputTagBlocks_;
+    LogError("PFSimParticleProducer")<<err.str()<<endl;
     
-    throw;
+    throw cms::Exception( "MissingProduct", err.str());
   }
 
   
