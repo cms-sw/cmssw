@@ -5,17 +5,20 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include <sstream>
+
+using namespace edm;
+using namespace std;
 
 PFClusterShapeProducer::PFClusterShapeProducer(const edm::ParameterSet & ps)
 {
   shapesLabel_ = ps.getParameter<std::string>("PFClusterShapesLabel");
 
-  clustersLabel_ = ps.getParameter<std::string>("PFClustersLabel");
-  clustersProducer_ = ps.getParameter<std::string>("PFClustersProducer");
-
-  rechitsLabel_ = ps.getParameter<std::string>("PFRechitsLabel");
-  rechitsProducer_ = ps.getParameter<std::string>("PFRechitsProducer");
-
+  inputTagPFClustersECAL_ 
+    = ps.getParameter<InputTag>("PFClustersECAL");
+  inputTagPFRecHitsECAL_ 
+    = ps.getParameter<InputTag>("PFRecHitsECAL");
+  
   csAlgo_p = new PFClusterShapeAlgo(ps.getParameter<bool>("useFractions"),
 				    ps.getParameter<double>("W0"));
 
@@ -71,40 +74,34 @@ edm::Handle<reco::PFClusterCollection>
 PFClusterShapeProducer::getClusterCollection(edm::Event & evt)
 {
   edm::Handle<reco::PFClusterCollection> handle;
-  try 
-    {
-      evt.getByLabel(clustersProducer_, clustersLabel_, handle);
-      if (!handle.isValid())
-	{
-	  edm::LogError("PFClusterShapeProducerError") << ("Could not get a handle on the PFClusters");
-	  exit(-1);
-	}
-    }
-  catch (cms::Exception & ex)
-    {
-      edm::LogError("PFClusterShapeProducerError") << ("Could not get a handle on the PFClusters");
-    }
+  
+  bool found = evt.getByLabel(inputTagPFClustersECAL_, handle);
+  if (!found) {
+    ostringstream err;
+    err<<"cannot find clusters: "<<inputTagPFClustersECAL_;
+    LogError("PFSimParticleProducer")<<err.str()<<endl;
+    
+    throw cms::Exception( "MissingProduct", err.str());
+  }
 
   return handle;
 }
+
+
 
 edm::Handle<reco::PFRecHitCollection>
 PFClusterShapeProducer::getRecHitCollection(edm::Event & evt)
 {
   edm::Handle<reco::PFRecHitCollection> handle;
-  try 
-    {
-      evt.getByLabel(rechitsProducer_, rechitsLabel_, handle);
-      if (!handle.isValid())
-	{
-	  edm::LogError("PFClusterShapeProducerError") << ("Could not get a handle on the PF Rechits");
-	  exit(-1);
-	}
-    }
-  catch (cms::Exception & ex)
-    {
-      edm::LogError("PFClusterShapeProducerError") << ("Could not get a handle on the PFClusters");
-    }
+
+  bool found = evt.getByLabel(inputTagPFRecHitsECAL_, handle);
+  if (!found) {
+    ostringstream err;
+    err<<"cannot find rechits: "<<inputTagPFRecHitsECAL_;
+    LogError("PFSimParticleProducer")<<err.str()<<endl;
+    
+    throw cms::Exception( "MissingProduct", err.str());
+  }
 
   return handle;
 }

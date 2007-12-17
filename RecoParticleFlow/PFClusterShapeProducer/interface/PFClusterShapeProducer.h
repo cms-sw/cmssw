@@ -43,10 +43,9 @@ class PFClusterShapeProducer : public edm::EDProducer
  private:
 
   std::string shapesLabel_;
-  std::string clustersLabel_;
-  std::string rechitsLabel_ ;
-  std::string clustersProducer_;
-  std::string rechitsProducer_; 
+ 
+  edm::InputTag  inputTagPFClustersECAL_;
+  edm::InputTag  inputTagPFRecHitsECAL_;
 
   PFClusterShapeAlgo * csAlgo_p;
 
