@@ -530,7 +530,7 @@ unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector
     {
       cellindex = (unsigned)(random_->flatShoot()*ncells);
       cellhashedindex = thecells[cellindex];
-      if(hcalRecHits_[cellhashedindex]>0.) // new cell
+      if(hcalRecHits_[cellhashedindex]==0.) // new cell
 	{
 	 hcalRecHits_[cellhashedindex]=myGT->shoot();
 	 theHits.push_back(cellhashedindex);
