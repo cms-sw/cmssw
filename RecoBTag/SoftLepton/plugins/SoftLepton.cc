@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.10 2007/10/08 16:16:47 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.11 2007/12/13 13:49:22 fwyzard Exp $
 
 
 #include <memory>
@@ -57,9 +57,8 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
-#include "RecoBTag/BTagTools/interface/SignedTransverseImpactParameter.h"
-#include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
 #include "SoftLepton.h"
 
 using namespace std;
@@ -247,10 +246,6 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
     const std::vector<edm::RefToBase<reco::Track> > & leptons,
     const reco::Vertex              & primaryVertex
 ) const {
-
-  SignedImpactParameter3D         sip3D;
-  SignedTransverseImpactParameter sip2D;
-
   reco::SoftLeptonTagInfo info;
   info.setJetRef( jet );
 
@@ -269,8 +264,8 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
     properties.axisRefinement = m_refineJetAxis;
 
     const reco::TransientTrack transientTrack = m_transientTrackBuilder->build(*lepton);
-    properties.sip2d    = sip2D.apply( transientTrack, jetAxis, primaryVertex ).second.significance();
-    properties.sip3d    = sip3D.apply( transientTrack, jetAxis, primaryVertex ).second.significance();
+    properties.sip2d    = IPTools::signedTransverseImpactParameter( transientTrack, jetAxis, primaryVertex ).second.significance();
+    properties.sip3d    = IPTools::signedImpactParameter3D( transientTrack, jetAxis, primaryVertex ).second.significance();
     properties.deltaR   = DeltaR( lepton_momentum, axis );
     properties.ptRel    = Perp( lepton_momentum, axis );
     properties.etaRel   = relativeEta( lepton_momentum, axis );

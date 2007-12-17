@@ -17,12 +17,12 @@
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
   <use name=FWCore/Utilities>
-  <use name=RecoBTag/BTagTools>
   <use name=RecoBTag/SoftLepton>
   <use name=RecoBTau/JetTagComputer>
   <use name=RecoCaloTools/MetaCollections>
   <use name=RecoCaloTools/Selectors>
   <use name=RecoVertex/PrimaryVertexProducer>
+  <use name=TrackingTools/IPTools>
   <use name=TrackingTools/Records>
   <use name=TrackingTools/TrackAssociator>
   <use name=TrackingTools/TransientTrack>
