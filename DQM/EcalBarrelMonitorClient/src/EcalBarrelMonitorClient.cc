@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/17 08:18:38 $
- * $Revision: 1.337 $
+ * $Date: 2007/12/17 08:26:22 $
+ * $Revision: 1.338 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -352,22 +352,22 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   runTypes_.resize(30);
   for ( unsigned int i=0; i<runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
 
-  runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
-  runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAM";
-  runTypes_[EcalDCCHeaderBlock::BEAMH2]                 = "BEAM";
-  runTypes_[EcalDCCHeaderBlock::MTCC]                   = "PHYSICS";
-  runTypes_[EcalDCCHeaderBlock::LASER_STD]              = "LASER";
-  runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]         = "TEST_PULSE";
-  runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]           = "PEDESTAL";
-  runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN]   = "PEDESTAL-OFFSET";
+  runTypes_[EcalDCCHeaderBlock::COSMIC]               = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::BEAMH4]               = "BEAM";
+  runTypes_[EcalDCCHeaderBlock::BEAMH2]               = "BEAM";
+  runTypes_[EcalDCCHeaderBlock::MTCC]                 = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::LASER_STD]            = "LASER";
+  runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]       = "TEST_PULSE";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]         = "PEDESTAL";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN] = "PEDESTAL-OFFSET";
 
-  runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL]         = "COSMIC";
-  runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL]         = "PHYSICS";
-  runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]          = "COSMIC";
-  runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL]          = "PHYSICS";
-  runTypes_[EcalDCCHeaderBlock::LASER_GAP]              = "LASER";
-  runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP]          = "TEST_PULSE";
-  runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]           = "PEDESTAL";
+  runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL]       = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL]       = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]        = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL]        = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::LASER_GAP]            = "LASER";
+  runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP]        = "TEST_PULSE";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]         = "PEDESTAL";
 
   // clients' constructors
 
