@@ -108,6 +108,7 @@ struct ScalersEventRecordRaw_v1
   int version;
   struct TriggerScalersRaw_v1 trig;
   struct LumiScalersRaw_v1    lumi;
+  unsigned int filler;
   unsigned long long trailer;
 };
 
