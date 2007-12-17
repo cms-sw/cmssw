@@ -130,6 +130,19 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         iEvent.put(filterObject);
         return gtDecision;
 
+    } else {
+        
+        // by convention, "L1GlobalDecision" logical expression means global decision
+        if (m_l1SeedsLogicalExpression == "L1GlobalDecision") {
+
+            // return the full L1GlobalTriggerObjectMapRecord in filter format FIXME
+            iEvent.put(filterObjectOLD);
+            iEvent.put(filterObject);
+            
+            return true;
+
+        }
+        
     }
 
     // TODO FIXME temporary
