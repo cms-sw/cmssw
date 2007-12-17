@@ -4,8 +4,8 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2007/03/02 12:16:55 $
- * by         : $Author: fronga $
+ * last update: $Date: 2007/12/11 13:53:37 $
+ * by         : $Author: ewidl $
  *
  * Base class for reference 'trajectories' of single- or multiparticles
  * stated.
@@ -104,7 +104,7 @@ public:
    */
   inline bool parameterErrorsAvailable() const { return theParamCovFlag; }
 
-  virtual void setParameterErrors( const AlgebraicSymMatrix& error ) { theParameterCov = error; }
+  void setParameterErrors( const AlgebraicSymMatrix& error ) { theParameterCov = error; }
 
   inline const AlgebraicSymMatrix& parameterErrors() const { return theParameterCov; }
 
@@ -125,7 +125,6 @@ protected:
   bool theValidityFlag;
   bool theParamCovFlag;
 
-  unsigned int theNumberOfParameters;
   unsigned int theNumberOfHits;
 
   std::vector<TrajectoryStateOnSurface> theTsosVec;

@@ -1,9 +1,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 
-#include <iostream>
 
 TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config )
 {
@@ -14,6 +16,7 @@ TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config )
   thePropDir = this->propagationDirection( strPropagationDirection );
 
   theUseInvalidHits = config.getParameter< bool >( "UseInvalidHits" );
+  theUseProjectedHits = config.getParameter< bool >( "UseProjectedHits" );
 }
 
 
@@ -30,9 +33,6 @@ TrajectoryFactoryBase::innermostStateAndRecHits( const ConstTrajTrackPair & trac
     = this->orderedTrajectoryMeasurements( *track.first );
   Trajectory::DataContainer::iterator itM = trajectoryMeasurements.begin();
 
-  std::cout << "first measurement: r = " << trajectoryMeasurements.front().predictedState().globalPosition().perp() << std:: endl
-	    << "last measurement: r = " << trajectoryMeasurements.back().predictedState().globalPosition().perp() << std:: endl;
-
   // get the innermost valid state
   while ( itM != trajectoryMeasurements.end() )
   {
@@ -45,7 +45,7 @@ TrajectoryFactoryBase::innermostStateAndRecHits( const ConstTrajTrackPair & trac
   while ( itM != trajectoryMeasurements.end() )
   {
     TransientTrackingRecHit::ConstRecHitPointer aRecHit = ( *itM ).recHit();
-    if ( theUseInvalidHits || aRecHit->isValid() ) result.second.push_back( aRecHit );
+    if ( useRecHit( aRecHit ) ) result.second.push_back( aRecHit );
     ++itM;
   }
 
@@ -56,7 +56,7 @@ TrajectoryFactoryBase::innermostStateAndRecHits( const ConstTrajTrackPair & trac
 const Trajectory::DataContainer TrajectoryFactoryBase::orderedTrajectoryMeasurements( const Trajectory & trajectory ) const
 {
   const PropagationDirection dir = trajectory.direction();
-  const bool hitsAreReverse = ( dir == thePropDir ? false : true );
+  const bool hitsAreReverse = ( ( dir == thePropDir || thePropDir == anyDirection ) ? false : true );
 
   const Trajectory::DataContainer & original = trajectory.measurements();
 
@@ -75,6 +75,22 @@ const Trajectory::DataContainer TrajectoryFactoryBase::orderedTrajectoryMeasurem
 }
 
 
+bool TrajectoryFactoryBase::useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const
+{
+  bool useHit = true;
+
+  if ( !( theUseInvalidHits || hitPtr->isValid() ) ) useHit = false;
+
+  if ( !theUseProjectedHits )
+  {
+    const ProjectedRecHit2D* projectedHit = dynamic_cast< const ProjectedRecHit2D* >( hitPtr.get() );
+    if ( projectedHit != 0 ) useHit = false;
+  }
+
+  return useHit;
+}
+
+
 const TrajectoryFactoryBase::MaterialEffects TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
 {
   if ( strME == "MultipleScattering" ) return ReferenceTrajectoryBase::multipleScattering;
@@ -82,11 +98,8 @@ const TrajectoryFactoryBase::MaterialEffects TrajectoryFactoryBase::materialEffe
   if ( strME == "Combined" ) return ReferenceTrajectoryBase::combined;
   if ( strME == "None" ) return ReferenceTrajectoryBase::none;
 
-  edm::LogError("Alignment") << "@SUB=TrajectoryFactoryBase::materialEffects" 
-                             << "Unknown parameter \'" << strME 
-                             << "\'. I use \'Combined\' instead.";
-
-  return ReferenceTrajectoryBase::combined;
+  throw cms::Exception("BadConfig")
+    << "[TrajectoryFactoryBase::materialEffects] Unknown parameter: " << strME;
 }
 
 
@@ -96,9 +109,6 @@ const PropagationDirection TrajectoryFactoryBase::propagationDirection( const st
   if ( strPD == "alongMomentum" ) return alongMomentum;
   if ( strPD == "anyDirection" ) return anyDirection;
 
-  edm::LogError("Alignment") << "@SUB=TrajectoryFactoryBase::propagationDirection" 
-                             << "Unknown parameter \'" << strPD 
-                             << "\'. I use \'anyDirection\' instead.";
-
-  return anyDirection;
+  throw cms::Exception("BadConfig")
+    << "[TrajectoryFactoryBase::propagationDirection] Unknown parameter: " << strPD;
 }

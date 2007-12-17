@@ -2,7 +2,7 @@
 
 ReferenceTrajectoryBase::ReferenceTrajectoryBase(unsigned int nPar, unsigned int nHits)
   : theValidityFlag(false), theParamCovFlag(false),
-    theNumberOfParameters( nPar ), theNumberOfHits( nHits ),
+    theNumberOfHits( nHits ),
     theTsosVec(), theRecHits(),
     theMeasurements(nMeasPerHit * nHits), theMeasurementsCov(nMeasPerHit * nHits, 0),
     theTrajectoryPositions(nMeasPerHit * nHits), 

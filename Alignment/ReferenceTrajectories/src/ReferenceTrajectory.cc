@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2007/12/11 13:53:40 $
+//  last update: $Date: 2007/12/14 16:50:24 $
 //  by         : $Author: ewidl $
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
@@ -26,8 +26,6 @@
 #include "TrackingTools/MaterialEffects/interface/MultipleScatteringUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
-
-#include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
 
 
 //__________________________________________________________________________________
@@ -77,13 +75,13 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   MaterialEffectsUpdator *aMaterialEffectsUpdator = this->createUpdator(materialEffects, mass);
   if (!aMaterialEffectsUpdator) return false;
 
-  AlgebraicMatrix                 fullJacobian(theNumberOfParameters, theNumberOfParameters);
+  AlgebraicMatrix                 fullJacobian(theParameters.num_row(), theParameters.num_row());
   std::vector<AlgebraicMatrix>    allJacobians; 
   allJacobians.reserve(theNumberOfHits);
 
   TransientTrackingRecHit::ConstRecHitPointer  previousHitPtr;
   TrajectoryStateOnSurface                     previousTsos;
-  AlgebraicSymMatrix              previousChangeInCurvature(theNumberOfParameters, 1);
+  AlgebraicSymMatrix              previousChangeInCurvature(theParameters.num_row(), 1);
   std::vector<AlgebraicSymMatrix> allCurvatureChanges; 
   allCurvatureChanges.reserve(theNumberOfHits);
 
@@ -107,7 +105,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     if (0 == iRow) { 
       // compute the derivatives of the reference-track's parameters w.r.t. the initial ones
       // derivative of the initial reference-track parameters w.r.t. themselves is of course the identity 
-      fullJacobian = AlgebraicMatrix(theNumberOfParameters, theNumberOfParameters, 1);
+      fullJacobian = AlgebraicMatrix(theParameters.num_row(), theParameters.num_row(), 1);
       allJacobians.push_back(fullJacobian);
       theTsosVec.push_back(refTsos);
     } else {
@@ -352,15 +350,5 @@ unsigned int ReferenceTrajectory::numberOfUsedRecHits( const TransientTrackingRe
 
 bool ReferenceTrajectory::useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const
 {
-  if ( !hitPtr->isValid() )
-  {
-    return false;
-  }
-  else
-  {
-    const ProjectedRecHit2D* projectedHit = dynamic_cast< const ProjectedRecHit2D* >( hitPtr.get() );
-    if ( projectedHit != 0 ) return false;
-  }
-
-  return true;
+  return hitPtr->isValid();
 }

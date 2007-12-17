@@ -47,12 +47,16 @@ protected:
 
 private:
 
+  bool useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const;
+
   const MaterialEffects materialEffects( const std::string & strME ) const;
   const PropagationDirection propagationDirection( const std::string & strPD ) const;
 
   MaterialEffects theMaterialEffects;
   PropagationDirection thePropDir;
+
   bool theUseInvalidHits;
+  bool theUseProjectedHits;
 };
 
 
