@@ -158,8 +158,9 @@ class PFClusterProducer : public edm::EDProducer {
   
 
   // ----------access to event data
-  std::string ecalRecHitsEBModuleLabel_;
-  std::string ecalRecHitsEBProductInstanceName_;
+/*   std::string ecalRecHitsEBModuleLabel_; */
+/*   std::string ecalRecHitsEBProductInstanceName_; */
+  edm::InputTag    inputTagEcalRecHitsEB_;
   std::string ecalRecHitsEEModuleLabel_;
   std::string ecalRecHitsEEProductInstanceName_;
   std::string ecalRecHitsESModuleLabel_;

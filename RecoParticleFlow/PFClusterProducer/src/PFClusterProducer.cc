@@ -208,12 +208,15 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   // access to the collections of rechits from the various detectors:
 
   
-  ecalRecHitsEBModuleLabel_ = 
-    iConfig.getUntrackedParameter<string>("ecalRecHitsEBModuleLabel",
-					  "ecalRecHit");
-  ecalRecHitsEBProductInstanceName_ = 
-    iConfig.getUntrackedParameter<string>("ecalRecHitsEBProductInstanceName",
-					  "EcalRecHitsEB");
+//   ecalRecHitsEBModuleLabel_ = 
+//     iConfig.getUntrackedParameter<string>("ecalRecHitsEBModuleLabel",
+// 					  "ecalRecHit");
+//   ecalRecHitsEBProductInstanceName_ = 
+//     iConfig.getUntrackedParameter<string>("ecalRecHitsEBProductInstanceName",
+// 					  "EcalRecHitsEB");
+
+  inputTagEcalRecHitsEB_ = 
+    iConfig.getParameter<InputTag>("ecalRecHitsEB");
   
   ecalRecHitsEEModuleLabel_ = 
     iConfig.getUntrackedParameter<string>("ecalRecHitsEEModuleLabel",
@@ -439,9 +442,11 @@ void PFClusterProducer::createEcalRecHits(vector<reco::PFRecHit>& rechits,
 
   edm::Handle<EcalRecHitCollection> rhcHandle;
   try {
-    iEvent.getByLabel(ecalRecHitsEBModuleLabel_, 
-		      ecalRecHitsEBProductInstanceName_, 
-		      rhcHandle);
+    bool found = iEvent.getByLabel(inputTagEcalRecHitsEB_, 
+				   rhcHandle);
+    
+    assert(found);
+
     if (!(rhcHandle.isValid())) {
       edm::LogError("PFClusterProducer")
 	<<"could not get a handle on EcalRecHitsEB!"<<endl;
