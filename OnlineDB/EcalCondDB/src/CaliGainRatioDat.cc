@@ -2,81 +2,79 @@
 #include <string>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
-#include "OnlineDB/EcalCondDB/interface/CaliCrystalIntercalDat.h"
+#include "OnlineDB/EcalCondDB/interface/CaliGainRatioDat.h"
 #include "OnlineDB/EcalCondDB/interface/CaliTag.h"
 #include "OnlineDB/EcalCondDB/interface/CaliIOV.h"
 
 using namespace std;
 using namespace oracle::occi;
 
-CaliCrystalIntercalDat::CaliCrystalIntercalDat()
+CaliGainRatioDat::CaliGainRatioDat()
 {
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;
 
-  m_cali = 0;
-  m_caliRMS = 0;
-  m_numEvents = 0;
+  m_g1_g12 = 0;
+  m_g6_g12 = 0;
   m_taskStatus = false;
 }
 
 
 
-CaliCrystalIntercalDat::~CaliCrystalIntercalDat()
+CaliGainRatioDat::~CaliGainRatioDat()
 {
 }
 
 
 
-void CaliCrystalIntercalDat::prepareWrite()
+void CaliGainRatioDat::prepareWrite()
   throw(runtime_error)
 {
   this->checkConnection();
   
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO cali_crystal_intercal_dat (iov_id, logic_id, "
-			"cali, cali_rms, num_events, task_status) "
+    m_writeStmt->setSQL("INSERT INTO cali_gain_ratio_dat (iov_id, logic_id, "
+			"g1_g6, g6_g12, task_status) "
 			"VALUES (:iov_id, :logic_id, "
-			":3, :4, :5, :6)");
+			":3, :4, :5)");
   } catch (SQLException &e) {
-    throw(runtime_error("CaliCrystalIntercalDat::prepareWrite():  "+e.getMessage()));
+    throw(runtime_error("CaliGainRatioDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
-void CaliCrystalIntercalDat::writeDB(const EcalLogicID* ecid, const CaliCrystalIntercalDat* item, CaliIOV* iov)
+void CaliGainRatioDat::writeDB(const EcalLogicID* ecid, const CaliGainRatioDat* item, CaliIOV* iov)
   throw(runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
   
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("CaliCrystalIntercalDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(runtime_error("CaliGainRatioDat::writeDB:  IOV not in DB")); }
   
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("CaliCrystalIntercalDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(runtime_error("CaliGainRatioDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
     m_writeStmt->setInt(2, logicID);
     
-    m_writeStmt->setFloat(3, item->getCali() );
-    m_writeStmt->setFloat(4, item->getCaliRMS() );
-    m_writeStmt->setInt(5, item->getNumEvents() );
-    m_writeStmt->setInt(6, item->getTaskStatus() );
+    m_writeStmt->setFloat(3, item->getG1G12() );
+    m_writeStmt->setFloat(4, item->getG6G12() );
+    m_writeStmt->setInt(5, item->getTaskStatus() );
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("CaliCrystalIntercalDat::writeDB():  "+e.getMessage()));
+    throw(runtime_error("CaliGainRatioDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
-void CaliCrystalIntercalDat::fetchData(std::map< EcalLogicID, CaliCrystalIntercalDat >* fillMap, CaliIOV* iov)
+void CaliGainRatioDat::fetchData(std::map< EcalLogicID, CaliGainRatioDat >* fillMap, CaliIOV* iov)
   throw(runtime_error)
 {
   this->checkConnection();
@@ -85,22 +83,22 @@ void CaliCrystalIntercalDat::fetchData(std::map< EcalLogicID, CaliCrystalInterca
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("CaliCrystalIntercalDat::writeDB:  IOV not in DB")); 
+    //  throw(runtime_error("CaliGainRatioDat::writeDB:  IOV not in DB")); 
     return;
   }
   
   try {
     
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-		 "d.cali, d.cali_rms, d.num_events, d.task_status "
-		 "FROM channelview cv JOIN cali_crystal_intercal_dat d "
+		 "d.g1_g6, d.g6_g12, d.task_status "
+		 "FROM channelview cv JOIN cali_gain_ratio_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
     m_readStmt->setInt(1, iovID);
     ResultSet* rset = m_readStmt->executeQuery();
     
-    std::pair< EcalLogicID, CaliCrystalIntercalDat > p;
-    CaliCrystalIntercalDat dat;
+    std::pair< EcalLogicID, CaliGainRatioDat > p;
+    CaliGainRatioDat dat;
     while(rset->next()) {
       p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
@@ -109,27 +107,26 @@ void CaliCrystalIntercalDat::fetchData(std::map< EcalLogicID, CaliCrystalInterca
 			     rset->getInt(5),        // id3
 			     rset->getString(6));    // maps_to
       
-      dat.setCali( rset->getFloat(7) );
-      dat.setCaliRMS( rset->getFloat(8) );
-      dat.setNumEvents( rset->getInt(9) );
-      dat.setTaskStatus( rset->getInt(10) );
+      dat.setG1G12( rset->getFloat(7) );
+      dat.setG6G12( rset->getFloat(8) );
+      dat.setTaskStatus( rset->getInt(9) );
       
       p.second = dat;
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("CaliCrystalIntercalDat::fetchData():  "+e.getMessage()));
+    throw(runtime_error("CaliGainRatioDat::fetchData():  "+e.getMessage()));
   }
 }
 
-void CaliCrystalIntercalDat::writeArrayDB(const std::map< EcalLogicID, CaliCrystalIntercalDat >* data, CaliIOV* iov)
+void CaliGainRatioDat::writeArrayDB(const std::map< EcalLogicID, CaliGainRatioDat >* data, CaliIOV* iov)
   throw(runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("CaliCrystalIntercalDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(runtime_error("CaliGainRatioDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size();
@@ -137,39 +134,35 @@ void CaliCrystalIntercalDat::writeArrayDB(const std::map< EcalLogicID, CaliCryst
   int* iovid_vec= new int[nrows];
   float* xx= new float[nrows];
   float* yy= new float[nrows];
-  int* tt= new int[nrows];
   int* st= new int[nrows];
 
   ub2* ids_len= new ub2[nrows];
   ub2* iov_len= new ub2[nrows];
   ub2* x_len= new ub2[nrows];
   ub2* y_len= new ub2[nrows];
-  ub2* tt_len= new ub2[nrows];
   ub2* st_len= new ub2[nrows];
 
   const EcalLogicID* channel;
-  const CaliCrystalIntercalDat* dataitem;
+  const CaliGainRatioDat* dataitem;
   int count=0;
-  typedef map< EcalLogicID, CaliCrystalIntercalDat >::const_iterator CI;
+  typedef map< EcalLogicID, CaliGainRatioDat >::const_iterator CI;
   for (CI p = data->begin(); p != data->end(); ++p) {
     channel = &(p->first);
     int logicID = channel->getLogicID();
-    if (!logicID) { throw(runtime_error("CaliCrystalIntercalDat::writeArrayDB:  Bad EcalLogicID")); }
+    if (!logicID) { throw(runtime_error("CaliGainRatioDat::writeArrayDB:  Bad EcalLogicID")); }
     ids[count]=logicID;
     iovid_vec[count]=iovID;
 
     dataitem = &(p->second);
     // dataIface.writeDB( channel, dataitem, iov);
-    float x=dataitem->getCali();
-    float y=dataitem->getCaliRMS();
-    int xtt=dataitem->getNumEvents();
+    float x=dataitem->getG1G12();
+    float y=dataitem->getG6G12();
     int statu=dataitem->getTaskStatus();
 
 
 
     xx[count]=x;
     yy[count]=y;
-    tt[count]=xtt;
     st[count]=statu;
 
 
@@ -178,7 +171,6 @@ void CaliCrystalIntercalDat::writeArrayDB(const std::map< EcalLogicID, CaliCryst
 
     x_len[count]=sizeof(xx[count]);
     y_len[count]=sizeof(yy[count]);
-    tt_len[count]=sizeof(tt[count]);
     st_len[count]=sizeof(st[count]);
 
     count++;
@@ -190,8 +182,7 @@ void CaliCrystalIntercalDat::writeArrayDB(const std::map< EcalLogicID, CaliCryst
     m_writeStmt->setDataBuffer(2, (dvoid*)ids, OCCIINT, sizeof(ids[0]), ids_len );
     m_writeStmt->setDataBuffer(3, (dvoid*)xx, OCCIFLOAT , sizeof(xx[0]), x_len );
     m_writeStmt->setDataBuffer(4, (dvoid*)yy, OCCIFLOAT , sizeof(yy[0]), y_len );
-    m_writeStmt->setDataBuffer(5, (dvoid*)tt, OCCIINT , sizeof(tt[0]), tt_len );
-    m_writeStmt->setDataBuffer(6, (dvoid*)st, OCCIINT , sizeof(st[0]), st_len );
+    m_writeStmt->setDataBuffer(5, (dvoid*)st, OCCIINT , sizeof(st[0]), st_len );
 
 
     m_writeStmt->executeArrayUpdate(nrows);
@@ -201,18 +192,16 @@ void CaliCrystalIntercalDat::writeArrayDB(const std::map< EcalLogicID, CaliCryst
     delete [] xx;
     delete [] yy;
     delete [] st;
-    delete [] tt;
 
     delete [] ids_len;
     delete [] iov_len;
     delete [] x_len;
     delete [] y_len;
-    delete [] tt_len;
     delete [] st_len;
 
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
+    throw(runtime_error("CaliGainRatio::writeArrayDB():  "+e.getMessage()));
   }
 }
