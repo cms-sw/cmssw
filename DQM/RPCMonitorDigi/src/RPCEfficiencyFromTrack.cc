@@ -243,7 +243,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
       }
     }
     
-
     //Efficiency
     for (std::vector<RPCDetId>::iterator iteraRoll = rollRec.begin();iteraRoll != rollRec.end(); iteraRoll++){
       const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
@@ -300,7 +299,9 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	
 	sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
 	meMap[meIdTrack]->Fill(stripPredicted);
-	
+
+	sprintf(meIdRPC,"PredictedImpactPoint_%s",detUnitLabel);
+	meMap[meIdRPC]->Fill(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y());
 	
 	RPCRecHitCollection::range rpcRecHitRange = rpcHits->get(rollasociated->id());
 	RPCRecHitCollection::const_iterator recIt;
@@ -386,8 +387,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  meMap[meIdRPC]->Fill(stripPr[rpos]);
 	    
 	}else{
-	  sprintf(meIdRPC,"2DRPC_InEfficiency_%s",detUnitLabel);
-	  meMap[meIdRPC]->Fill(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y());
+
 
 	  totalcounter[2]++;
 	  buff=counter[2];
