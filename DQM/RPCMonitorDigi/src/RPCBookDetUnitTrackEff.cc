@@ -93,5 +93,9 @@ std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackE
   sprintf(meTitle,"2DRPCEfficiency_for_%s",layerLabel);
   meMap[meId] = dbe->book2D(meId, meTitle, 401, -200.5, 200.5,201,-100.5,100.5);
 
+  sprintf(meId,"2DRPC_InEfficiency_%s",detUnitLabel);
+  sprintf(meTitle,"2DRPC_InEfficiency_for_%s",layerLabel);
+  meMap[meId] = dbe->book2D(meId, meTitle, 401, -200.5, 200.5,201,-100.5,100.5);
+
   return meMap;
 }
