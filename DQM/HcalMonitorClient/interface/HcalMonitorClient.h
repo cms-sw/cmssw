@@ -83,7 +83,10 @@ public:
 
   /// Create reports
   void report(bool update);
-  
+
+  /// Generate error summary
+  void errorSummary();
+
   /// Create tests
   void createTests(void);
 

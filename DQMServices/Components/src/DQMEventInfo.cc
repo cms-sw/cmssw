@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2007/11/21 00:19:12 $
- * $Revision: 1.8 $
- * $Author: wfisher $
+ * $Date: 2007/11/21 20:44:43 $
+ * $Revision: 1.9 $
+ * $Author: ameyer $
  *
  */
 
@@ -32,7 +32,9 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   
   parameters_ = ps;
   pEvent_ = 0;
+  evtRateCount_ = 0;
   gettimeofday(&currentTime_,NULL);
+  lastAvgTime_ = currentTime_;
   
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
 
@@ -40,6 +42,10 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   string subsystemname = parameters_.getUntrackedParameter<string>("subSystemFolder", "YourSubsystem") ;
   string currentfolder = subsystemname + "/" +  eventinfofolder ;
   cout << "currentfolder " << currentfolder << endl;
+
+  evtRateWindow_ = parameters_.getUntrackedParameter<double>("eventRateWindow", 5.0);
+  if(evtRateWindow_<=0) evtRateWindow_=1.0;
+  cout << "Event Rate averaged over " << evtRateWindow_ << " minutes" << endl;
 
   dbe_->setCurrentFolder(currentfolder) ;
 
@@ -58,6 +64,8 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   processTimeStamp_->Fill(-1);
   processEvents_ = dbe_->bookInt("processedEvents");
   processEvents_->Fill(pEvent_);
+  processEventRate_ = dbe_->bookInt("procesEventRate");
+  processEventRate_->Fill(-1); 
   nUpdates_= dbe_->bookInt("processUpdates");
   nUpdates_->Fill(-1);
   
@@ -84,9 +92,11 @@ void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
   runId_->Fill(e.id().run());
   lumisecId_->Fill(e.luminosityBlock());
   eventId_->Fill(e.id().event());
-  eventTimeStamp_->Fill(e.time().value());
+  unsigned int ts_lo = (e.time().value()&0xFFFFFFFF);
+  eventTimeStamp_->Fill(ts_lo);
 
   pEvent_++;
+  evtRateCount_++;
   processEvents_->Fill(pEvent_);
 
   lastUpdateTime_=currentTime_;
@@ -94,6 +104,13 @@ void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
   processTimeStamp_->Fill(getUTCtime(&currentTime_));
   processLatency_->Fill(getUTCtime(&lastUpdateTime_,&currentTime_));
 
+  float time = getUTCtime(&currentTime_,&lastAvgTime_);
+  if(time>=(evtRateWindow_*60.0)){
+    processEventRate_->Fill(evtRateCount_*60.0/time);
+    lastAvgTime_ = currentTime_;    
+  }
+
+  return;
 }
 
 double DQMEventInfo::getUTCtime(timeval* a, timeval* b){

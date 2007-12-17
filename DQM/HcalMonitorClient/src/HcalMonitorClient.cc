@@ -415,6 +415,8 @@ void HcalMonitorClient::analyze(){
   if( dead_client_ )       dead_client_->analyze(); 
   if( tp_client_ )         tp_client_->analyze(); 
 
+  errorSummary();
+
   return;
 }
 
@@ -454,11 +456,20 @@ void HcalMonitorClient::report(bool doUpdate) {
   if( hot_client_ ) hot_client_->report();
   if( dead_client_ ) dead_client_->report();
   if( tp_client_ ) tp_client_->report();
-  
 
+  errorSummary();
+
+  //create html output if specified...
+  if( baseHtmlDir_.size() != 0 && ievt_>0) htmlOutput();
+
+  return;
+}
+
+void HcalMonitorClient::errorSummary(){
+  
   ///Collect test summary information
-  map<string, vector<QReport*> > errE, errW, errO;
   int nTests=0;
+  map<string, vector<QReport*> > errE, errW, errO;
   if( hot_client_ )        hot_client_->getTestResults(nTests,errE,errW,errO);
   if( dead_client_ )       dead_client_->getTestResults(nTests,errE,errW,errO);
   if( led_client_ )        led_client_->getTestResults(nTests,errE,errW,errO);
@@ -467,21 +478,18 @@ void HcalMonitorClient::report(bool doUpdate) {
   if( digi_client_ )       digi_client_->getTestResults(nTests,errE,errW,errO);
   if( rechit_client_ )     rechit_client_->getTestResults(nTests,errE,errW,errO);
   if( dataformat_client_ ) dataformat_client_->getTestResults(nTests,errE,errW,errO);
-
+  
   //For now, report the fraction of good tests....
   float errorSummary = 1.0;
   if(nTests>0) errorSummary = 1.0 - (float(errE.size())+float(errW.size()))/float(nTests);
-    
+  
   cout << "Hcal DQM Error Summary ("<< errorSummary <<"): "<< nTests << " tests, "<<errE.size() << " errors, " <<errW.size() << " warnings, "<< errO.size() << " others" << endl;
-
+  
   char meTitle[256];
   sprintf(meTitle,"%sEventInfo/errorSummary",rootFolder_.c_str() );
   MonitorElement* me = dbe_->get(meTitle);
   if(me) me->Fill(errorSummary);
-
-  //create html output if specified...
-  if( baseHtmlDir_.size() != 0 && ievt_>0) htmlOutput();
-
+  
   return;
 }
 
