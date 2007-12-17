@@ -31,25 +31,19 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   
 
   // use configuration file to setup input/output collection names
-  recTrackModuleLabel_ 
-    = iConfig.getUntrackedParameter<string>
-    ("RecTrackModuleLabel","particleFlowTrack");
+  inputTagRecTracks_ 
+    = iConfig.getParameter<InputTag>("RecTracks");
 
-  pfClusterModuleLabel_ 
-    = iConfig.getUntrackedParameter<string>
-    ("PFClusterModuleLabel","particleFlowCluster");  
 
-  pfClusterECALInstanceName_ 
-    = iConfig.getUntrackedParameter<string>
-    ("PFClusterECALInstanceName","ECAL");  
+  inputTagPFClustersECAL_ 
+    = iConfig.getParameter<InputTag>("PFClustersECAL");
 
-  pfClusterHCALInstanceName_ 
-    = iConfig.getUntrackedParameter<string>
-    ("PFClusterHCALInstanceName","HCAL");  
+  inputTagPFClustersHCAL_ 
+    = iConfig.getParameter<InputTag>("PFClustersHCAL");
 
-  pfClusterPSInstanceName_ 
-    = iConfig.getUntrackedParameter<string>
-    ("PFClusterPSInstanceName","PS");  
+  inputTagPFClustersPS_ 
+    = iConfig.getParameter<InputTag>("PFClustersPS");
+
 
 
   verbose_ = 
@@ -159,66 +153,43 @@ void PFBlockProducer::produce(Event& iEvent,
   // get rectracks
   
   Handle< reco::PFRecTrackCollection > recTracks;
-  try{      
-    // LogDebug("PFBlockProducer")<<"get HCAL clusters"<<endl;
-    iEvent.getByLabel(recTrackModuleLabel_.c_str(), "", recTracks);
+  
+  // LogDebug("PFBlockProducer")<<"get HCAL clusters"<<endl;
+  bool found = iEvent.getByLabel(inputTagRecTracks_, recTracks);
     
-  } catch (cms::Exception& err) { 
-    LogError("PFBlockProducer")<<err
-			       <<" cannot get collection "
-			       <<"particleFlowBlock"<<":"
-			       <<""
-			       <<endl;
-  }
+  if(!found )
+    LogError("PFBlockProducer")<<" cannot get rectracks: "
+			       <<inputTagRecTracks_<<endl;
   
   
   // get ECAL, HCAL and PS clusters
   
   
   Handle< reco::PFClusterCollection > clustersECAL;
-  try{      
-    // LogDebug("PFBlockProducer")<<"get ECAL clusters"<<endl;
-    iEvent.getByLabel(pfClusterModuleLabel_, pfClusterECALInstanceName_, 
-		      clustersECAL);      
-  } 
-  catch (cms::Exception& err) { 
-    LogError("PFBlockProducer")<<err
-			       <<" cannot get collection "
-			       <<pfClusterModuleLabel_<<":"
-			       <<pfClusterECALInstanceName_
-			       <<endl;
-  }
-  
+  found = iEvent.getByLabel(inputTagPFClustersECAL_, 
+			    clustersECAL);      
+  if(!found )
+    LogError("PFBlockProducer")<<" cannot get ECAL clusters: "
+			       <<inputTagPFClustersECAL_<<endl;
+    
   
   Handle< reco::PFClusterCollection > clustersHCAL;
-  try{      
-    // LogDebug("PFBlockProducer")<<"get HCAL clusters"<<endl;
-    iEvent.getByLabel(pfClusterModuleLabel_, pfClusterHCALInstanceName_, 
-		      clustersHCAL);
+  found = iEvent.getByLabel(inputTagPFClustersHCAL_, 
+			    clustersHCAL);      
+  if(!found )
+    LogError("PFBlockProducer")<<" cannot get HCAL clusters: "
+			       <<inputTagPFClustersHCAL_<<endl;
     
-  } catch (cms::Exception& err) { 
-    LogError("PFBlockProducer")<<err
-			       <<" cannot get collection "
-			       <<pfClusterModuleLabel_<<":"
-			       <<pfClusterHCALInstanceName_
-			       <<endl;
-  }
-    
-
-
 
   Handle< reco::PFClusterCollection > clustersPS;
-  try{      
-    //       LogDebug("PFBlockProducer")<<"get PS clusters"<<endl;
-    iEvent.getByLabel(pfClusterModuleLabel_, pfClusterPSInstanceName_, 
-		      clustersPS);
-  } catch (cms::Exception& err) { 
-    LogError("PFBlockProducer")<<err
-			       <<" cannot get collection "
-			       <<pfClusterModuleLabel_<<":"
-			       <<pfClusterPSInstanceName_
-			       <<endl;
-  }
+  found = iEvent.getByLabel(inputTagPFClustersPS_, 
+			    clustersPS);      
+  if(!found )
+    LogError("PFBlockProducer")<<" cannot get PS clusters: "
+			       <<inputTagPFClustersPS_<<endl;
+    
+  
+
   
   
   pfBlockAlgo_.setInput( recTracks, 

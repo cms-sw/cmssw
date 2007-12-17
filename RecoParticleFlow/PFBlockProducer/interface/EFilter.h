@@ -41,6 +41,8 @@ class EFilter : public edm::EDFilter {
 /*   FSimEvent* mySimEvent; */
   // std::string hepMCModuleLabel_;
 
+  edm::InputTag  inputTagParticles_;
+
   double minE_;
   double maxE_;
   double minEt_;

@@ -46,23 +46,11 @@ class PFBlockProducer : public edm::EDProducer {
 
   
 
-  /// module label for retrieving input rec tracks, see PFSimParticleProducer
-  std::string recTrackModuleLabel_;
-
-  /// module label for retrieving PFClusters
-  std::string pfClusterModuleLabel_;
-
-  /// instance name for retrieving ECAL PFClusters
-  std::string pfClusterECALInstanceName_;
-
-  /// instance name for retrieving HCAL PFClusters
-  std::string pfClusterHCALInstanceName_;
-
-  /// instance name for retrieving PS PFClusters
-  std::string pfClusterPSInstanceName_;
-
-  /// module label for retrieving input simtrack and simvertex
-/*   std::string simModuleLabel_;   */
+  edm::InputTag   inputTagRecTracks_;
+  edm::InputTag   inputTagPFClustersECAL_;
+  edm::InputTag   inputTagPFClustersHCAL_;
+  edm::InputTag   inputTagPFClustersPS_;
+  
 
   /// verbose ?
   bool   verbose_;

@@ -50,8 +50,7 @@ class PFSimParticleProducer : public edm::EDProducer {
     
 
   /// module label for retrieving input simtrack and simvertex
-  std::string simModuleLabel_;  
-
+  edm::InputTag  inputTagSim_;  
 
   // parameters for retrieving true particles information --
 

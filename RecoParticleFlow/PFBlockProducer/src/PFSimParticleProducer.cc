@@ -60,9 +60,8 @@ PFSimParticleProducer::PFSimParticleProducer(const edm::ParameterSet& iConfig)
     iConfig.getUntrackedParameter<bool>("process_Particles",true);
     
 
-  simModuleLabel_ 
-    = iConfig.getUntrackedParameter<string>
-    ("SimModuleLabel","g4SimHits");
+  inputTagSim_ 
+    = iConfig.getParameter<InputTag>("sim");
 
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
@@ -101,194 +100,205 @@ PFSimParticleProducer::beginJob(const edm::EventSetup & es)
 
 
 void PFSimParticleProducer::produce(Event& iEvent, 
-			 const EventSetup& iSetup) 
+				    const EventSetup& iSetup) 
 {
   
   LogDebug("PFSimParticleProducer")<<"START event: "<<iEvent.id().event()
-			<<" in run "<<iEvent.id().run()<<endl;
+				   <<" in run "<<iEvent.id().run()<<endl;
   
   
-   
+  
   // deal with true particles 
   if( processParticles_) {
 
-    try {
-      auto_ptr< reco::PFSimParticleCollection > 
-	pOutputPFSimParticleCollection(new reco::PFSimParticleCollection ); 
+    auto_ptr< reco::PFSimParticleCollection > 
+      pOutputPFSimParticleCollection(new reco::PFSimParticleCollection ); 
 
-      Handle<vector<SimTrack> > simTracks;
-      iEvent.getByLabel(simModuleLabel_,simTracks);
-      Handle<vector<SimVertex> > simVertices;
-      iEvent.getByLabel(simModuleLabel_,simVertices);
-
-      //     for(unsigned it = 0; it<simTracks->size(); it++ ) {
-      //       cout<<"\t track "<< (*simTracks)[it]<<" "
-      // 	  <<(*simTracks)[it].momentum().vect().perp()<<" "
-      // 	  <<(*simTracks)[it].momentum().e()<<endl;
-      //     }
-
-      mySimEvent->fill( *simTracks, *simVertices );
+    Handle<vector<SimTrack> > simTracks;
+    bool found = iEvent.getByLabel(inputTagSim_,simTracks);
+    if(!found) {
+      LogError("PFSimParticleProducer")
+	<<"cannot find sim tracks: "<<inputTagSim_<<endl;
+      return;
+    }
       
-      if(verbose_) 
-	mySimEvent->print();
-
-      // const std::vector<FSimTrack>& fsimTracks = *(mySimEvent->tracks() );
-      for(unsigned i=0; i<mySimEvent->nTracks(); i++) {
     
-	const FSimTrack& fst = mySimEvent->track(i);
+    
+    Handle<vector<SimVertex> > simVertices;
+    found = iEvent.getByLabel(inputTagSim_,simVertices);
+    if(!found) {
+      LogError("PFSimParticleProducer")
+	<<"cannot find sim vertices: "<<inputTagSim_<<endl;
+      return;
+    }
 
-	int motherId = -1;
-	if( ! fst.noMother() ) // a mother exist
-	  motherId = fst.mother().id();
+      
 
-	reco::PFSimParticle particle(  fst.charge(), 
-				       fst.type(), 
-				       fst.id(), 
-				       motherId,
-				       fst.daughters() );
+    //     for(unsigned it = 0; it<simTracks->size(); it++ ) {
+    //       cout<<"\t track "<< (*simTracks)[it]<<" "
+    // 	  <<(*simTracks)[it].momentum().vect().perp()<<" "
+    // 	  <<(*simTracks)[it].momentum().e()<<endl;
+    //     }
+
+    mySimEvent->fill( *simTracks, *simVertices );
+      
+    if(verbose_) 
+      mySimEvent->print();
+
+    // const std::vector<FSimTrack>& fsimTracks = *(mySimEvent->tracks() );
+    for(unsigned i=0; i<mySimEvent->nTracks(); i++) {
+    
+      const FSimTrack& fst = mySimEvent->track(i);
+
+      int motherId = -1;
+      if( ! fst.noMother() ) // a mother exist
+	motherId = fst.mother().id();
+
+      reco::PFSimParticle particle(  fst.charge(), 
+				     fst.type(), 
+				     fst.id(), 
+				     motherId,
+				     fst.daughters() );
 
 
-	const FSimVertex& originVtx = fst.vertex();
+      const FSimVertex& originVtx = fst.vertex();
 
-	math::XYZPoint          posOrig( originVtx.position().x(), 
-					 originVtx.position().y(), 
-					 originVtx.position().z() );
+      math::XYZPoint          posOrig( originVtx.position().x(), 
+				       originVtx.position().y(), 
+				       originVtx.position().z() );
 
-	math::XYZTLorentzVector momOrig( fst.momentum().px(), 
-					 fst.momentum().py(), 
-					 fst.momentum().pz(), 
-					 fst.momentum().e() );
+      math::XYZTLorentzVector momOrig( fst.momentum().px(), 
+				       fst.momentum().py(), 
+				       fst.momentum().pz(), 
+				       fst.momentum().e() );
+      reco::PFTrajectoryPoint 
+	pointOrig(-1, 
+		  reco::PFTrajectoryPoint::ClosestApproach,
+		  posOrig, momOrig);
+
+      // point 0 is origin vertex
+      particle.addPoint(pointOrig);
+    
+
+      if( ! fst.noEndVertex() ) {
+	const FSimVertex& endVtx = fst.endVertex();
+	
+	math::XYZPoint          posEnd( endVtx.position().x(), 
+					endVtx.position().y(), 
+					endVtx.position().z() );
+	//       cout<<"end vertex : "
+	// 	  <<endVtx.position().x()<<" "
+	// 	  <<endVtx.position().y()<<endl;
+	
+	math::XYZTLorentzVector momEnd;
+	
 	reco::PFTrajectoryPoint 
-	  pointOrig(-1, 
-		    reco::PFTrajectoryPoint::ClosestApproach,
-		    posOrig, momOrig);
-
-	// point 0 is origin vertex
-	particle.addPoint(pointOrig);
-    
-
-	if( ! fst.noEndVertex() ) {
-	  const FSimVertex& endVtx = fst.endVertex();
+	  pointEnd( -1, 
+		    reco::PFTrajectoryPoint::BeamPipeOrEndVertex,
+		    posEnd, momEnd);
 	
-	  math::XYZPoint          posEnd( endVtx.position().x(), 
-					  endVtx.position().y(), 
-					  endVtx.position().z() );
-	  //       cout<<"end vertex : "
-	  // 	  <<endVtx.position().x()<<" "
-	  // 	  <<endVtx.position().y()<<endl;
-	
-	  math::XYZTLorentzVector momEnd;
-	
-	  reco::PFTrajectoryPoint 
-	    pointEnd( -1, 
-		      reco::PFTrajectoryPoint::BeamPipeOrEndVertex,
-		      posEnd, momEnd);
-	
-	  particle.addPoint(pointEnd);
-	}
-	else { // add a dummy point
-	  reco::PFTrajectoryPoint dummy;
-	  particle.addPoint(dummy); 
-	}
-
-
-	if( fst.onLayer1() ) { // PS layer1
-	  const RawParticle& rp = fst.layer1Entrance();
-      
-	  math::XYZPoint posLayer1( rp.x(), rp.y(), rp.z() );
-	  math::XYZTLorentzVector momLayer1( rp.px(), rp.py(), rp.pz(), rp.e() );
-	  reco::PFTrajectoryPoint layer1Pt(-1, reco::PFTrajectoryPoint::PS1, 
-					   posLayer1, momLayer1);
-	
-	  particle.addPoint( layer1Pt ); 
-
-	  // extrapolate to cluster depth
-	}
-	else { // add a dummy point
-	  reco::PFTrajectoryPoint dummy;
-	  particle.addPoint(dummy); 
-	}
-
-	if( fst.onLayer2() ) { // PS layer2
-	  const RawParticle& rp = fst.layer2Entrance();
-      
-	  math::XYZPoint posLayer2( rp.x(), rp.y(), rp.z() );
-	  math::XYZTLorentzVector momLayer2( rp.px(), rp.py(), rp.pz(), rp.e() );
-	  reco::PFTrajectoryPoint layer2Pt(-1, reco::PFTrajectoryPoint::PS2, 
-					   posLayer2, momLayer2);
-	
-	  particle.addPoint( layer2Pt ); 
-
-	  // extrapolate to cluster depth
-	}
-	else { // add a dummy point
-	  reco::PFTrajectoryPoint dummy;
-	  particle.addPoint(dummy); 
-	}
-
-	if( fst.onEcal() ) {
-	  const RawParticle& rp = fst.ecalEntrance();
-	
-	  math::XYZPoint posECAL( rp.x(), rp.y(), rp.z() );
-	  math::XYZTLorentzVector momECAL( rp.px(), rp.py(), rp.pz(), rp.e() );
-	  reco::PFTrajectoryPoint ecalPt(-1, 
-					 reco::PFTrajectoryPoint::ECALEntrance, 
-					 posECAL, momECAL);
-	
-	  particle.addPoint( ecalPt ); 
-
-	  // extrapolate to cluster depth
-	}
-	else { // add a dummy point
-	  reco::PFTrajectoryPoint dummy;
-	  particle.addPoint(dummy); 
-	}
-	
-	// add a dummy point for ECAL Shower max
+	particle.addPoint(pointEnd);
+      }
+      else { // add a dummy point
 	reco::PFTrajectoryPoint dummy;
 	particle.addPoint(dummy); 
-
-	if( fst.onHcal() ) {
-
-	  const RawParticle& rpin = fst.hcalEntrance();
-	
-	  math::XYZPoint posHCALin( rpin.x(), rpin.y(), rpin.z() );
-	  math::XYZTLorentzVector momHCALin( rpin.px(), rpin.py(), rpin.pz(), 
-					     rpin.e() );
-	  reco::PFTrajectoryPoint hcalPtin(-1, 
-					   reco::PFTrajectoryPoint::HCALEntrance,
-					   posHCALin, momHCALin);
-	
-	  particle.addPoint( hcalPtin ); 
-
-
-	  // 	const RawParticle& rpout = fst.hcalExit();
-	
-	  // 	math::XYZPoint posHCALout( rpout.x(), rpout.y(), rpout.z() );
-	  // 	math::XYZTLorentzVector momHCALout( rpout.px(), rpout.py(), rpout.pz(),
-	  //  					    rpout.e() );
-	  // 	reco::PFTrajectoryPoint 
-	  // 	  hcalPtout(0, reco::PFTrajectoryPoint::HCALEntrance, 
-	  // 		    posHCAL, momHCAL);
-	
-	  // 	particle.addPoint( hcalPtout ); 	
-	}
-	else { // add a dummy point
-	  reco::PFTrajectoryPoint dummy;
-	  particle.addPoint(dummy); 
-	}
-          
-	pOutputPFSimParticleCollection->push_back( particle );
       }
+
+
+      if( fst.onLayer1() ) { // PS layer1
+	const RawParticle& rp = fst.layer1Entrance();
       
-      iEvent.put(pOutputPFSimParticleCollection);
+	math::XYZPoint posLayer1( rp.x(), rp.y(), rp.z() );
+	math::XYZTLorentzVector momLayer1( rp.px(), rp.py(), rp.pz(), rp.e() );
+	reco::PFTrajectoryPoint layer1Pt(-1, reco::PFTrajectoryPoint::PS1, 
+					 posLayer1, momLayer1);
+	
+	particle.addPoint( layer1Pt ); 
+
+	// extrapolate to cluster depth
+      }
+      else { // add a dummy point
+	reco::PFTrajectoryPoint dummy;
+	particle.addPoint(dummy); 
+      }
+
+      if( fst.onLayer2() ) { // PS layer2
+	const RawParticle& rp = fst.layer2Entrance();
+      
+	math::XYZPoint posLayer2( rp.x(), rp.y(), rp.z() );
+	math::XYZTLorentzVector momLayer2( rp.px(), rp.py(), rp.pz(), rp.e() );
+	reco::PFTrajectoryPoint layer2Pt(-1, reco::PFTrajectoryPoint::PS2, 
+					 posLayer2, momLayer2);
+	
+	particle.addPoint( layer2Pt ); 
+
+	// extrapolate to cluster depth
+      }
+      else { // add a dummy point
+	reco::PFTrajectoryPoint dummy;
+	particle.addPoint(dummy); 
+      }
+
+      if( fst.onEcal() ) {
+	const RawParticle& rp = fst.ecalEntrance();
+	
+	math::XYZPoint posECAL( rp.x(), rp.y(), rp.z() );
+	math::XYZTLorentzVector momECAL( rp.px(), rp.py(), rp.pz(), rp.e() );
+	reco::PFTrajectoryPoint ecalPt(-1, 
+				       reco::PFTrajectoryPoint::ECALEntrance, 
+				       posECAL, momECAL);
+	
+	particle.addPoint( ecalPt ); 
+
+	// extrapolate to cluster depth
+      }
+      else { // add a dummy point
+	reco::PFTrajectoryPoint dummy;
+	particle.addPoint(dummy); 
+      }
+	
+      // add a dummy point for ECAL Shower max
+      reco::PFTrajectoryPoint dummy;
+      particle.addPoint(dummy); 
+
+      if( fst.onHcal() ) {
+
+	const RawParticle& rpin = fst.hcalEntrance();
+	
+	math::XYZPoint posHCALin( rpin.x(), rpin.y(), rpin.z() );
+	math::XYZTLorentzVector momHCALin( rpin.px(), rpin.py(), rpin.pz(), 
+					   rpin.e() );
+	reco::PFTrajectoryPoint hcalPtin(-1, 
+					 reco::PFTrajectoryPoint::HCALEntrance,
+					 posHCALin, momHCALin);
+	
+	particle.addPoint( hcalPtin ); 
+
+
+	// 	const RawParticle& rpout = fst.hcalExit();
+	
+	// 	math::XYZPoint posHCALout( rpout.x(), rpout.y(), rpout.z() );
+	// 	math::XYZTLorentzVector momHCALout( rpout.px(), rpout.py(), rpout.pz(),
+	//  					    rpout.e() );
+	// 	reco::PFTrajectoryPoint 
+	// 	  hcalPtout(0, reco::PFTrajectoryPoint::HCALEntrance, 
+	// 		    posHCAL, momHCAL);
+	
+	// 	particle.addPoint( hcalPtout ); 	
+      }
+      else { // add a dummy point
+	reco::PFTrajectoryPoint dummy;
+	particle.addPoint(dummy); 
+      }
+          
+      pOutputPFSimParticleCollection->push_back( particle );
     }
-    catch(cms::Exception& err) { 
-      LogError("PFSimParticleProducer")<<err.what()<<endl;
-    }
+    
+    iEvent.put(pOutputPFSimParticleCollection);
   }
 
+  
   LogDebug("PFSimParticleProducer")<<"STOP event: "<<iEvent.id().event()
-			<<" in run "<<iEvent.id().run()<<endl;
+				   <<" in run "<<iEvent.id().run()<<endl;
 }
 
