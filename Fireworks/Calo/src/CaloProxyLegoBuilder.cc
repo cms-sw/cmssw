@@ -25,7 +25,7 @@ void CaloProxyLegoBuilder::build(const fwlite::Event* iEvent, TObject** product)
    
    if( ! stack ) {
       stack =  new THStack("LegoStack","Calo tower lego plot");
-      stack->SetMaximum(1000); // 1 TeV
+      stack->SetMaximum(100); // 100 GeV
       *product = stack;
       // lets use index numbers for now.
       // http://ecal-od-software.web.cern.ch/ecal-od-software/documents/documents/cal_newedm_roadmap_v1_0.pdf
