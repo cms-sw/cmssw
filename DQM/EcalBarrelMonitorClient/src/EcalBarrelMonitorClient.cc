@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/16 22:54:56 $
- * $Revision: 1.336 $
+ * $Date: 2007/12/17 08:18:38 $
+ * $Revision: 1.337 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -933,9 +933,14 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   // end - setup the RunIOV (on behalf of the DAQ)
 
-  string st = runiov_.getRunTag().getRunTypeDef().getRunType();
-  if ( st == "UNKNOWN" ) runtype_ = -1;
-  else for ( unsigned int i=0; i<runTypes_.size(); i++ ) if ( st == runTypes_[i] ) runtype_ = i;
+  string rt = runiov_.getRunTag().getRunTypeDef().getRunType();
+  if ( rt == "UNKNOWN" ) {
+    runtype_ = -1;
+  } else {
+    for ( unsigned int i=0; i<runTypes_.size(); i++ ) {
+      if ( rt == runTypes_[i] ) runtype_ = i;
+    }
+  }
 
   cout << endl;
   cout << "=============RunIOV:" << endl;
@@ -1075,7 +1080,10 @@ void EcalBarrelMonitorClient::writeDb(void) {
     }
     if ( ((taskl >> clientsStatus_[clientsNames_[i]]) & 0x1) ) {
       cout << endl;
-      cout << " Task output for " << clientsNames_[i] << " = " << ((tasko >> clientsStatus_[clientsNames_[i]]) & 0x1) << endl;
+      cout << " Task output for "
+           << clientsNames_[i]
+           << " = "
+           << ((tasko >> clientsStatus_[clientsNames_[i]]) & 0x1) << endl;
       cout << endl;
     }
   }
