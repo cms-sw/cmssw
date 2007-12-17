@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.29 2007/10/15 13:29:35 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.30 2007/10/19 11:44:55 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -53,9 +53,9 @@ ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(float iephimin1, float ie
 			                               float ipphimin2, float ipphimax2,
 						       float izmin1, float izmax1,
 						       float izmin2, float izmax2,
-                                                       bool idynamicphiroad)
+                                                       bool idynamicphiroad, double SCEtCut)
  : ephimin1(iephimin1), ephimax1(iephimax1), pphimin1(ipphimin1), pphimax1(ipphimax1), pphimin2(ipphimin2),	
-   pphimax2(ipphimax2),zmin1(izmin1),zmax1(izmax1),zmin2(izmin2),zmax2(izmax2),dynamicphiroad(idynamicphiroad),
+   pphimax2(ipphimax2),zmin1(izmin1),zmax1(izmax1),zmin2(izmin2),zmax2(izmax2),dynamicphiroad(idynamicphiroad),SCEtCut_(SCEtCut),
    myMatchEle(0), myMatchPos(0),theUpdator(0), thePropagator(0), theMeasurementTracker(0), 
    theNavigationSchool(0), theSetup(0), pts_(0)
 {
@@ -107,7 +107,7 @@ void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setu
     // Find the seeds
     recHits_.clear();
     LogDebug ("run") << "new cluster, calling seedsFromThisCluster";
-    seedsFromThisCluster(theClusB,out) ;
+    if (theClusB->energy()/cosh(theClusB->eta())>SCEtCut_)    seedsFromThisCluster(theClusB,out) ;
   }
 
   LogDebug ("run") << ": For event "<<e.id();

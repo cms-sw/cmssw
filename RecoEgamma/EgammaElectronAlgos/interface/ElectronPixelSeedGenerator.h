@@ -50,8 +50,9 @@ public:
 			  float izmax1,
 			  float izmin2,
 			  float izmax2,
-			  bool  idynamicphiroad
-			  );
+			  bool  idynamicphiroad,
+			  double SCEtCut
+			  ); 
 
   ~ElectronPixelSeedGenerator();
 
@@ -70,6 +71,7 @@ public:
   float pphimin2, pphimax2;
   float zmin1, zmax1, zmin2, zmax2;
   bool dynamicphiroad;
+  double SCEtCut_;
   
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;

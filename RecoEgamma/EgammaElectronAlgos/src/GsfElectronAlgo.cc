@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.56 2007/10/24 10:23:19 uberthon Exp $
+// $Id: GsfElectronAlgo.cc,v 1.1 2007/12/08 15:16:05 futyand Exp $
 //
 //
 
@@ -84,12 +84,12 @@ GsfElectronAlgo::GsfElectronAlgo(const edm::ParameterSet& conf,
                                                double maxEOverPBarrel, double maxEOverPEndcaps, 
                                                double minEOverPBarrel, double minEOverPEndcaps,
                                                double hOverEConeSize, double maxHOverE, 
-                                               double maxDeltaEta, double maxDeltaPhi, double Etcut,
+                                               double maxDeltaEta, double maxDeltaPhi, 
 					       bool highPtPresel, double highPtMin):  
   maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps), 
   minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps), 
   hOverEConeSize_(hOverEConeSize), maxHOverE_(maxHOverE), 
-  maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi), EtCut_(Etcut),
+  maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi),
   highPtPreselection_(highPtPresel), highPtMin_(highPtMin)
 {   
  // this is the new version allowing to configurate the algo
@@ -251,7 +251,6 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus)
 
   // pt min
   LogDebug("") << "pT : " << vtxMom_.perp();
-  if (Et< EtCut_)   return false;
 
   // E/p cut
   LogDebug("") << "E/p : " << clus.energy()/vtxMom_.mag();

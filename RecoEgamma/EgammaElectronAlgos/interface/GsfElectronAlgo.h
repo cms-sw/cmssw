@@ -41,7 +41,7 @@ public:
                          double maxEOverPBarrel, double maxEOverPEndcaps, 
                          double minEOverPBarrel, double minEOverPEndcaps,
                          double hOverEConeSize, double maxHOverE, 
-                         double maxDeltaEta, double maxDeltaPhi, double EtCut,
+                         double maxDeltaEta, double maxDeltaPhi, 
 			 bool highPtPresel, double highPtMin);
 
   ~GsfElectronAlgo();
@@ -108,9 +108,6 @@ public:
   // position to the supercluster
   double maxDeltaPhi_;
 
-  // min pT
-  double EtCut_;
-  
   // high pt preselection parameters
   bool highPtPreselection_;
   double highPtMin_;
