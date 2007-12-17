@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.7 $
- *  $Date: 2007/08/31 17:24:28 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.8 $
+ *  $Date: 2007/12/04 23:55:27 $
+ *  (last update by $Author: ratnik $)
  */
 
 #include "PedeReader.h"
@@ -29,8 +29,9 @@
 const unsigned int PedeReader::myMaxNumValPerParam = 5;
 
 //__________________________________________________________________________________________________
-PedeReader::PedeReader(const edm::ParameterSet &config, const PedeSteerer &steerer) 
-  : mySteerer(steerer)
+PedeReader::PedeReader(const edm::ParameterSet &config, const PedeSteerer &steerer,
+		       const PedeLabeler &labels) 
+  : mySteerer(steerer), myLabels(labels)
 {
   std::string pedeResultFile(config.getUntrackedParameter<std::string>("fileDir"));
   if (pedeResultFile.empty()) pedeResultFile = steerer.directory(); // includes final '/'
@@ -47,7 +48,7 @@ PedeReader::PedeReader(const edm::ParameterSet &config, const PedeSteerer &steer
 }
 
 //__________________________________________________________________________________________________
-bool PedeReader::read(std::vector<Alignable*> &alignables)
+bool PedeReader::read(std::vector<Alignable*> &alignables, bool setUserVars)
 {
   alignables.clear();
   myPedeResult.seekg(0, std::ios::beg); // back to start
@@ -69,7 +70,7 @@ bool PedeReader::read(std::vector<Alignable*> &alignables)
       if (!this->readIfSameLine<float>(myPedeResult, buffer[bufferPos])) break;
     }
 
-    Alignable *alignable = this->setParameter(paramLabel, bufferPos, buffer);
+    Alignable *alignable = this->setParameter(paramLabel, bufferPos, buffer, setUserVars);
     if (!alignable) {
       isAllOk = false;  // or error?
       continue;
@@ -125,44 +126,46 @@ bool PedeReader::readIfSameLine(std::ifstream &aStream, T &outValue) const
 
 //__________________________________________________________________________________________________
 Alignable* PedeReader::setParameter(unsigned int paramLabel,
-                                    unsigned int bufLength, float *buf) const
+                                    unsigned int bufLength, float *buf, bool setUserVars) const
 {
-  Alignable *alignable = mySteerer.labels().alignableFromLabel(paramLabel);
+  Alignable *alignable = myLabels.alignableFromLabel(paramLabel);
   if (alignable) {
-    AlignmentParameters *params = this->checkAliParams(alignable);
+    AlignmentParameters *params = this->checkAliParams(alignable, setUserVars);
     MillePedeVariables *userParams = // static cast ensured by previous checkAliParams
-      static_cast<MillePedeVariables*>(params->userVariables());
-    // might overwrite (?):
-    userParams->setLabel(mySteerer.labels().alignableLabelFromLabel(paramLabel));
+      (setUserVars ? static_cast<MillePedeVariables*>(params->userVariables()) : 0);
+    if (userParams) userParams->setLabel(myLabels.alignableLabelFromLabel(paramLabel));
 
     AlgebraicVector parVec(params->parameters());
     AlgebraicSymMatrix covMat(params->covariance());
-    const unsigned int paramNum = mySteerer.labels().paramNumFromLabel(paramLabel);
+    const unsigned int paramNum = myLabels.paramNumFromLabel(paramLabel);
 
-    userParams->setAllDefault(paramNum);
+    if (userParams) userParams->setAllDefault(paramNum);
     const double cmsToPede = mySteerer.cmsToPedeFactor(paramNum);
 
     switch (bufLength) {
     case 5: // global correlation
-      userParams->globalCor()[paramNum] = buf[4]; // no break
+      if (userParams) userParams->globalCor()[paramNum] = buf[4]; // no break
     case 4: // uncertainty
-      userParams->sigma()[paramNum] = buf[3] / cmsToPede;
-      covMat[paramNum][paramNum] = userParams->sigma()[paramNum] * userParams->sigma()[paramNum];
+      if (userParams) userParams->sigma()[paramNum] = buf[3] / cmsToPede;
+      covMat[paramNum][paramNum] = buf[3]*buf[3] / (cmsToPede*cmsToPede);
       // no break;
     case 3: // difference to start value
-      userParams->diffBefore()[paramNum] = buf[2] / cmsToPede; // no break
+      if (userParams) userParams->diffBefore()[paramNum] = buf[2] / cmsToPede;
+      // no break
     case 2: 
       parVec[paramNum] = buf[0] / cmsToPede * mySteerer.parameterSign(); // parameter
-      userParams->parameter()[paramNum] = parVec[paramNum]; // duplicate in millepede parameters
-      userParams->preSigma()[paramNum] = buf[1];  // presigma given, probably means fixed
-      if (!userParams->isFixed(paramNum)) {
-        userParams->preSigma()[paramNum] /= cmsToPede;
-        if (bufLength == 2) {
-          edm::LogError("Alignment") << "@SUB=PedeReader::setParameter"
-                                     << "Param " << paramLabel << " (from "
-                                     << typeid(*alignable).name() << ") without result!";
-          userParams->isValid()[paramNum] = false;
-        }
+      if (userParams) {
+	userParams->parameter()[paramNum] = parVec[paramNum]; // duplicate in millepede parameters
+	userParams->preSigma()[paramNum] = buf[1];  // presigma given, probably means fixed
+	if (!userParams->isFixed(paramNum)) {
+	  userParams->preSigma()[paramNum] /= cmsToPede;
+	  if (bufLength == 2) {
+	    edm::LogError("Alignment") << "@SUB=PedeReader::setParameter"
+				       << "Param " << paramLabel << " (from "
+				       << typeid(*alignable).name() << ") without result!";
+	    userParams->isValid()[paramNum] = false;
+	  }
+	}
       }
       break;
     case 0:
@@ -179,7 +182,7 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
 }
 
 //__________________________________________________________________________________________________
-AlignmentParameters* PedeReader::checkAliParams(Alignable *alignable) const
+AlignmentParameters* PedeReader::checkAliParams(Alignable *alignable, bool createUserVars) const
 {
   // first check that we have parameters
   AlignmentParameters *params = alignable->alignmentParameters();
@@ -189,15 +192,15 @@ AlignmentParameters* PedeReader::checkAliParams(Alignable *alignable) const
 
     edm::LogInfo("Alignment") << "@SUB=PedeReader::checkAliParams"
                               << "Build RigidBodyAlignmentParameters for alignable with label "
-                              << mySteerer.labels().alignableLabel(alignable);
+                              << myLabels.alignableLabel(alignable);
     alignable->setAlignmentParameters(params); // transferred memory responsibility
   }
   
-  // now check that we have user parameters of correct type:
-  if (!dynamic_cast<MillePedeVariables*>(params->userVariables())) {
+  // now check that we have user parameters of correct type if requested:
+  if (createUserVars && !dynamic_cast<MillePedeVariables*>(params->userVariables())) {
     edm::LogInfo("Alignment") << "@SUB=PedeReader::checkAliParams"
                               << "Add user variables for alignable with label " 
-                              << mySteerer.labels().alignableLabel(alignable);
+                              << myLabels.alignableLabel(alignable);
     params->setUserVariables(new MillePedeVariables(params->size()));
   }
   

@@ -3,12 +3,13 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.18 $
- *  $Date: 2007/10/11 16:13:20 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.19 $
+ *  $Date: 2007/12/04 23:55:27 $
+ *  (last update by $Author: ratnik $)
  */
 
 #include "PedeSteerer.h"
+#include "PedeLabeler.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -25,12 +26,13 @@
 // for 'type identification' as Alignable
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+// GF doubts the need of these includes from include checker campaign:
 #include <FWCore/Framework/interface/EventSetup.h> 
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h> 
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h> 
 #include <DataFormats/GeometrySurface/interface/LocalError.h> 
 #include <Geometry/DTGeometry/interface/DTLayer.h> 
-
+// end of doubt
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -43,10 +45,10 @@
 #include <TMath.h>
 
 PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
-			 AlignmentParameterStore *store,
+			 AlignmentParameterStore *store, const PedeLabeler *labels,
                          const edm::ParameterSet &config, const std::string &defaultDir,
 			 bool noSteerFiles) :
-  myParameterStore(store), myLabels(aliTracker, aliMuon), myConfig(config),
+  myParameterStore(store), myLabels(labels), myConfig(config),
   myDirectory(myConfig.getUntrackedParameter<std::string>("fileDir")),
   myNoSteerFiles(noSteerFiles),
   myParameterSign(myConfig.getUntrackedParameter<int>("parameterSign")),
@@ -249,8 +251,8 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
     }
     std::ofstream &file = *filePtr;
 
-    const unsigned int aliLabel = myLabels.alignableLabel(ali);
-    file << myLabels.parameterLabel(aliLabel, iParam) << "  " 
+    const unsigned int aliLabel = myLabels->alignableLabel(ali);
+    file << myLabels->parameterLabel(aliLabel, iParam) << "  " 
          << fixAt * this->cmsToPedeFactor(iParam) << " -1.0";
     if (0) { // debug
       const GlobalPoint position(ali->globalPosition());
@@ -447,8 +449,8 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
 	if (0) aConstr << "* Taken out of hierarchy: "; // conflict with !aConstr.str().empty()
 	else continue;
       }
-      const unsigned int aliLabel = myLabels.alignableLabel(aliSubComp);
-      const unsigned int paramLabel = myLabels.parameterLabel(aliLabel, compParNum);
+      const unsigned int aliLabel = myLabels->alignableLabel(aliSubComp);
+      const unsigned int paramLabel = myLabels->parameterLabel(aliLabel, compParNum);
       // FIXME: multiply by cmsToPedeFactor(subcomponent)/cmsToPedeFactor(mother) (or vice a versa?)
       aConstr << paramLabel << "    " << factors[iParam];
       if (true) { // debug
@@ -466,7 +468,7 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
 	const TrackerAlignableId aliId;
 	file << "\n* Nr. " << iConstr << " of a '"
 	     << objId.typeToName(ali->alignableObjectId()) << "' (label "
-	     << myLabels.alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
+	     << myLabels->alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
 	     << "), layer " << aliId.typeAndLayerFromDetId(ali->id()).second
 	     << ", position " << ali->globalPosition()
 	     << ", r = " << ali->globalPosition().perp();
@@ -555,8 +557,8 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
         filePtr = this->createSteerFile(fileName, true);
         (*filePtr) << "* Presigma values for active parameters: \nParameter\n";
       }
-      const unsigned int aliLabel = myLabels.alignableLabel(*iAli);
-      (*filePtr) << myLabels.parameterLabel(aliLabel, iParam) << "   0.   " 
+      const unsigned int aliLabel = myLabels->alignableLabel(*iAli);
+      (*filePtr) << myLabels->parameterLabel(aliLabel, iParam) << "   0.   " 
                  << presigmas[iParam] * fabs(this->cmsToPedeFactor(iParam)) 
 		 << "  ! for a " << aliObjId.typeToName((*iAli)->alignableObjectId()) << '\n';
       ++nPresiParam;
