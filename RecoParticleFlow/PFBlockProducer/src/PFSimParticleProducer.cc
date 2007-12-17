@@ -48,6 +48,7 @@
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 
 #include <set>
+#include <sstream>
 
 using namespace std;
 using namespace edm;
@@ -117,9 +118,12 @@ void PFSimParticleProducer::produce(Event& iEvent,
     Handle<vector<SimTrack> > simTracks;
     bool found = iEvent.getByLabel(inputTagSim_,simTracks);
     if(!found) {
-      LogError("PFSimParticleProducer")
-	<<"cannot find sim tracks: "<<inputTagSim_<<endl;
-      return;
+
+      ostringstream err;
+      err<<"cannot find sim tracks: "<<inputTagSim_;
+      LogError("PFSimParticleProducer")<<err.str()<<endl;
+      
+      throw cms::Exception( "MissingProduct", err.str());
     }
       
     
