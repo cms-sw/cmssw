@@ -105,7 +105,7 @@ void popcon::StateCreator::storeStatusData()
     return;
   cond::CoralTransaction& coraldb=conHandler.getConnection(m_connect)->coralTransaction();
   try{	
-    coraldb.start(true);
+    coraldb.start(false);
     coral::ITable& mytable=coraldb.coralSessionProxy().nominalSchema().tableHandle("P_CON_PAYLOAD_STATE");
     coral::ITableDataEditor& editor = mytable.dataEditor();
     
