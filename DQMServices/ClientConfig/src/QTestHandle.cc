@@ -2,8 +2,8 @@
  *
  *  Implementation of  QTestHandle
  *
- *  $Date: 2007/09/06 13:21:57 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/11/07 14:48:01 $
+ *  $Revision: 1.5 $
  *  \author Ilaria Segoni
  */
 
@@ -62,7 +62,6 @@ void QTestHandle::attachTests(DaqMonitorBEInterface * bei){
 	          itr != mapMeToTests.end();++itr){   
 	    
 		std::string meName=itr->first;
-//		bei->subscribe(meName);
 		std::vector<std::string> tests=itr->second;
 		for(std::vector<std::string>::iterator testsItr=tests.begin(); 
 			testsItr!=tests.end(); ++testsItr){

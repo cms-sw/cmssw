@@ -139,9 +139,6 @@ class DaqMonitorBEInterface: public StringUtil
 
   // ---------------------------------------------------------------
   
-  /// cycle through all monitoring objects, draw one at time
-  virtual void drawAll(void) = 0;
-  
   /// get list of subdirectories of current directory
   virtual std::vector<std::string> getSubdirs(void) const = 0;
   /// get list of (non-dir) MEs of current directory
