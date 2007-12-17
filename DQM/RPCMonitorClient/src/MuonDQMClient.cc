@@ -2,8 +2,8 @@
  *
  *  Implementation of  MuonDQMClient
  *
- *  $Date: 2006/07/20 16:17:46 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/09/14 15:00:28 $
+ *  $Revision: 1.6 $
  *  \author Ilaria Segoni
  */
 
@@ -12,7 +12,7 @@
 #include "DQM/RPCMonitorClient/interface/MuonDQMClient.h"
 #include "DQM/RPCMonitorClient/interface/DQMClientDefineDebug.h"
 
-#include "DQMServices/ClientConfig/interface/SubscriptionHandle.h"
+// #include "DQMServices/ClientConfig/interface/SubscriptionHandle.h"
 #include "DQMServices/ClientConfig/interface/QTestHandle.h"
 
 
@@ -32,7 +32,7 @@ MuonDQMClient::MuonDQMClient(xdaq::ApplicationStub *stub)
 	qtestsConfigured=false;
 	meListConfigured=false;
 	
-	subscriber=new SubscriptionHandle;
+	// subscriber=new SubscriptionHandle;
 	qtHandler=new QTestHandle;
 }
 
@@ -64,7 +64,7 @@ void MuonDQMClient::configure(){
 	meListConfigured=false;
 	qtestsConfigured=false;
 
-	if(!subscriber->getMEList("MESubscriptionList.xml")) meListConfigured=true; 
+	// if(!subscriber->getMEList("MESubscriptionList.xml")) meListConfigured=true; 
 	if(!qtHandler->configureTests("QualityTests.xml",mui_->getBEInterface())) qtestsConfigured=true; 
 }
 
@@ -73,7 +73,7 @@ void MuonDQMClient::newRun(){
 	
 	///ME's subscription
 	if(meListConfigured) {
-		subscriber->makeSubscriptions(mui_);
+	//	subscriber->makeSubscriptions(mui_);
 	}else{
 		logFile << "Cannot subscribe to ME's, error occurred in configuration." << std::endl;		
 	}
@@ -95,7 +95,7 @@ void MuonDQMClient::onUpdate() const{
 	std::vector<std::string> uplist;
 	mui_->getBEInterface()->getUpdatedContents(uplist);
 	
-	if(meListConfigured) subscriber->updateSubscriptions(mui_);
+	// if(meListConfigured) subscriber->updateSubscriptions(mui_);
 	if(qtestsConfigured){	
 		
 		if(webInterface_p->globalQTStatusRequest()) 

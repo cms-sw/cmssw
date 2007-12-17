@@ -5,8 +5,8 @@
  * *
  *  State machine DQM Client for Muons. Owns a web interface.
  *
- *  $Date: 2006/05/08 12:26:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/17 17:10:54 $
+ *  $Revision: 1.4 $
  *  \author Ilaria Segoni
   */
 
@@ -24,7 +24,7 @@
 #include <iostream>
 #include <fstream>
 
-class SubscriptionHandle;
+// class SubscriptionHandle;
 class QTestHandle;
 
 class MuonDQMClient : public DQMBaseClient, 
@@ -69,7 +69,7 @@ private:
   /// MuonDQMClient has a web interface:  
   MuonWebInterface * webInterface_p;
 
-  SubscriptionHandle *subscriber;
+  //  SubscriptionHandle *subscriber;
   QTestHandle * qtHandler;
   
   bool qtestsConfigured;
