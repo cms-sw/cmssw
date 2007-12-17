@@ -4,6 +4,10 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#define NBINS (100)
+#define LOWBIN (-2500)
+#define HIGHBIN (0)
+
 // -----------------------------------------------------------------------------
 //
 std::map<std::string, CommissioningTask::HistoSet> LatencyTask::timingMap_;
@@ -12,9 +16,7 @@ std::map<std::string, CommissioningTask::HistoSet> LatencyTask::timingMap_;
 //
 LatencyTask::LatencyTask( DaqMonitorBEInterface* dqm,
 			      const FedChannelConnection& conn ) :
-  CommissioningTask( dqm, conn, "LatencyTask" ),
-  dummy_(),
-  timing_(dummy_)
+  CommissioningTask( dqm, conn, "LatencyTask" ),timing_(0)
 {
   LogDebug("Commissioning") << "[LatencyTask::LatencyTask] Constructing object...";
 }
@@ -36,28 +38,29 @@ void LatencyTask::book() {
   std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					 sistrip::APV_LATENCY, 
   					 sistrip::DET_KEY, 
-					 connection().detId(),
+					 0,//connection().detId(),
 					 sistrip::TRACKER, 
 					 0 ).title(); 
   // look if such an histogram is already booked
   if(timingMap_.find(title)!=timingMap_.end()) {
     // if already booked, use it
-    timing_ = timingMap_[title];
+    LogDebug("Commissioning") << "[LatencyTask::book] using existing histogram.";
   } else {
     // if not, book it
     timingMap_[title] = HistoSet();
-    timing_ = timingMap_[title];
-    int nBins = 100;
-    timing_.histo_ = dqm()->bookProfile( title, title,    // name and title
-  				         nBins, -2500, 0,   // binning + range
+    int nBins = NBINS;
+    LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram.";
+    timingMap_[title].histo_ = dqm()->bookProfile( title, title,    // name and title
+  				         nBins, LOWBIN, HIGHBIN,   // binning + range
 				         100, 0., -1. );  // Y range : automatic
   
-    timing_.vNumOfEntries_.resize(nBins,0);
-    timing_.vSumOfContents_.resize(nBins,0);
-    timing_.vSumOfSquares_.resize(nBins,0);
+    timingMap_[title].vNumOfEntries_.resize(nBins,0);
+    timingMap_[title].vSumOfContents_.resize(nBins,0);
+    timingMap_[title].vSumOfSquares_.resize(nBins,0);
   }
+  timing_ = &(timingMap_[title]);
+  LogDebug("Commissioning") << "Binning is " << timing_->vNumOfEntries_.size();
   LogDebug("Commissioning") << "[LatencyTask::book] done";
-  
 }
 
 // -----------------------------------------------------------------------------
@@ -66,19 +69,23 @@ void LatencyTask::fill( const SiStripEventSummary& summary,
 			  const edm::DetSet<SiStripRawDigi>& digis ) {
   LogDebug("Commissioning") << "[LatencyTask::fill]";
   // retrieve the delay from the EventSummary
-  float delay = const_cast<SiStripEventSummary&>(summary).latency()*(-25);
-  float correctedDelay = delay;
+  uint32_t delay = const_cast<SiStripEventSummary&>(summary).latency();
+  float correctedDelay = 0.;
   LogDebug("Commissioning") << "[LatencyTask::fill]; the delay is " << delay;
   // loop on the strips to find the (maybe) non-zero digi
   for(unsigned int strip=0;strip<digis.data.size();strip++) {
     if(digis.data[strip].adc()!=0) {
       // apply the TOF correction
-      correctedDelay = delay - (digis.data[strip].adc()>>8)/10.;
+      float tof = (digis.data[strip].adc()>>8)/10.;
+      correctedDelay = delay*(-25.) - tof;
       if((digis.data[strip].adc()>>8)==255) continue; // skip hit if TOF is in overflow
+      // compute the bin
+      int bin = int((correctedDelay-LOWBIN)/((HIGHBIN-LOWBIN)/NBINS));
       LogDebug("Commissioning") << "[LatencyTask::fill]; using a hit with value " << ( digis.data[strip].adc()&0xff )
-                                << " at corrected delay of " << correctedDelay;
-      updateHistoSet( timing_,int(correctedDelay),digis.data[strip].adc()&0xff);
-      break;
+                                << " at corrected delay of " << correctedDelay
+				<< " in bin " << bin << "  (tof is " << tof << "( since adc = " << digis.data[strip].adc() << "))";
+      updateHistoSet( *timing_,bin,digis.data[strip].adc()&0xff);
+      //break;
     }
   }
 }
@@ -87,6 +94,6 @@ void LatencyTask::fill( const SiStripEventSummary& summary,
 //
 void LatencyTask::update() {
   LogDebug("Commissioning") << "[LatencyTask::update]";
-  updateHistoSet( timing_ );
+  updateHistoSet( *timing_ );
 }
 
