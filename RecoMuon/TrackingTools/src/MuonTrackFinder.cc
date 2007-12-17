@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2007/04/12 08:48:07 $
- *  $Revision: 1.35 $
+ *  $Date: 2007/09/06 17:39:02 $
+ *  $Revision: 1.36 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -71,7 +71,7 @@ void MuonTrackFinder::load(const CandidateContainer& muonCands,
 
 // reconstruct trajectories
 edm::OrphanHandle<reco::TrackCollection>
-MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds,
+MuonTrackFinder::reconstruct(const edm::Handle<edm::View<TrajectorySeed> >& seeds,
 			     edm::Event& event){
   
   const string metname = "Muon|RecoMuon|MuonTrackFinder";
@@ -82,15 +82,18 @@ MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds,
   
   // Trajectory container
   TrajectoryContainer muonTrajectories;
-  
+  TrajectorySeedCollection::size_type nSeed = 0;
   // reconstruct the trajectory
-  for(TrajectorySeedCollection::const_iterator seed = seeds->begin();
-      seed != seeds->end(); seed++){
+  edm::View<TrajectorySeed>::const_iterator seed;
+  for(seed = seeds->begin();
+      seed != seeds->end(); ++seed, ++nSeed){
     LogTrace(metname)<<"+++ New Seed +++"<<endl;
     TrajectoryContainer muonTrajs_temp = theTrajBuilder->trajectories(*seed);
-    for(TrajectoryContainer::const_iterator it = muonTrajs_temp.begin(); 
-	it != muonTrajs_temp.end(); it++) 
+    for(TrajectoryContainer::iterator it = muonTrajs_temp.begin(); 
+	it != muonTrajs_temp.end(); ++it){
+      (*it)->setSeedRef(seeds->refAt(nSeed));
       muonTrajectories.push_back(*it); 
+    }
   }
   
   // clean the clone traj

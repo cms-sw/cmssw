@@ -4,8 +4,8 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2007/02/01 17:57:59 $
- *  $Revision: 1.22 $
+ *  $Date: 2007/09/06 17:39:01 $
+ *  $Revision: 1.23 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -43,7 +43,7 @@ class MuonTrackFinder {
     virtual ~MuonTrackFinder();
   
     /// reconstruct standalone tracks starting from a collection of seeds
-    edm::OrphanHandle<reco::TrackCollection> reconstruct(const edm::Handle<TrajectorySeedCollection>&,
+    edm::OrphanHandle<reco::TrackCollection> reconstruct(const edm::Handle<edm::View<TrajectorySeed> >&,
 							 edm::Event&);
 
     /// reconstruct global tracks starting from a collection of

@@ -7,8 +7,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2007/03/07 13:20:54 $
- *   $Revision: 1.8 $
+ *   $Date: 2007/03/23 20:55:23 $
+ *   $Revision: 1.9 $
  *
  *   \author  A.Everett, R.Bellan, J. Alcaraz
  *
@@ -21,8 +21,8 @@
 #include "RecoMuon/L2MuonSeedGenerator/src/L2MuonSeedGenerator.h"
 
 // Data Formats 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeed.h"
+#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -77,7 +77,7 @@ L2MuonSeedGenerator::L2MuonSeedGenerator(const edm::ParameterSet& iConfig) :
   // the estimator
   theEstimator = new Chi2MeasurementEstimator(10000.);
 
-  produces<TrajectorySeedCollection>(); 
+  produces<L2MuonTrajectorySeedCollection>(); 
 }
 
 // destructor
@@ -91,7 +91,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   const std::string metname = "Muon|RecoMuon|L2MuonSeedGenerator";
   MuonPatternRecoDumper debug;
 
-  auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
+  auto_ptr<L2MuonTrajectorySeedCollection> output(new L2MuonTrajectorySeedCollection());
   
   // Muon particles and GMT readout collection
   edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle;
@@ -103,7 +103,9 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   LogTrace(metname) << "Number of muons " << muColl->size() << endl;
   
   L1MuonParticleCollection::const_iterator it;
-  for(it = muColl->begin(); it != muColl->end(); it++) {
+  L1MuonParticleRef::key_type l1ParticleIndex = 0;
+
+  for(it = muColl->begin(); it != muColl->end(); ++it,++l1ParticleIndex) {
     
     const L1MuGMTExtendedCand muonCand = (*it).gmtMuonCand();
     unsigned int quality = 0;
@@ -269,9 +271,11 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	  PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
 	  
 	  edm::OwnVector<TrackingRecHit> container;
-	  TrajectorySeed* seed = new TrajectorySeed(*seedTSOS,container,alongMomentum);
 	  
-	  output->push_back(*seed);
+	  L2MuonTrajectorySeed* l2seed = new L2MuonTrajectorySeed(*seedTSOS,container,alongMomentum,
+								  L1MuonParticleRef(muColl,l1ParticleIndex));
+	  
+	  output->push_back(*l2seed);
 	}
       }
     } 

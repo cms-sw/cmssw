@@ -2,7 +2,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/L1Trigger>
-<use name=DataFormats/TrajectorySeed>
+<use name=DataFormats/MuonSeed>
 <use name=DataFormats/TrajectoryState>
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=TrackingTools/TrajectoryParametrization>

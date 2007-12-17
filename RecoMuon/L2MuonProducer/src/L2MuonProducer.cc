@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2007/03/13 10:26:11 $
- *   $Revision: 1.20 $
+ *   $Date: 2007/09/07 13:32:59 $
+ *   $Revision: 1.21 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -33,6 +33,7 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
@@ -92,7 +93,7 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
   
   // Take the seeds container
   LogTrace(metname)<<"Taking the seeds: "<<theSeedCollectionLabel.label()<<endl;
-  Handle<TrajectorySeedCollection> seeds; 
+  Handle<View<TrajectorySeed> > seeds; 
   event.getByLabel(theSeedCollectionLabel,seeds);
 
   // Update the services

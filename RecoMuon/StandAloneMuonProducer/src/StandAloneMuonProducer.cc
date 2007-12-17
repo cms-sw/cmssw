@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2007/03/20 15:57:44 $
- *   $Revision: 1.26 $
+ *   $Date: 2007/09/07 13:32:59 $
+ *   $Revision: 1.27 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -29,7 +29,8 @@
 // Input and output collection
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/Common/interface/Handle.h"
+//#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -90,7 +91,7 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
 
   // Take the seeds container
   LogTrace(metname)<<"Taking the seeds: "<<theSeedCollectionLabel.label()<<endl;
-  Handle<TrajectorySeedCollection> seeds; 
+  Handle<View<TrajectorySeed> > seeds; 
   event.getByLabel(theSeedCollectionLabel,seeds);
 
   // Update the services
