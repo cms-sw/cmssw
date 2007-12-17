@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/16 22:36:55 $
- * $Revision: 1.335 $
+ * $Date: 2007/12/16 22:54:56 $
+ * $Revision: 1.336 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -378,22 +378,22 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBIntegrityClient(ps) );
     clientsNames_.push_back( "Integrity" );
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
@@ -401,11 +401,11 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBCosmicClient(ps) );
     clientsNames_.push_back( "Cosmic" );
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
 
   }
 
@@ -413,16 +413,16 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBLaserClient(ps) );
     clientsNames_.push_back( "Laser" );
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
 
   }
 
@@ -430,9 +430,9 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBPedestalClient(ps) );
     clientsNames_.push_back( "Pedestal" );
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
 
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
@@ -440,21 +440,21 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBPedestalOnlineClient(ps) );
     clientsNames_.push_back( "PedestalOnline" );
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
@@ -462,9 +462,9 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBTestPulseClient(ps) );
     clientsNames_.push_back( "TestPulse" );
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
 
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
   }
 
@@ -472,8 +472,8 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBBeamCaloClient(ps) );
     clientsNames_.push_back( "BeamCalo" );
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
   }
 
@@ -481,8 +481,8 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBBeamHodoClient(ps) );
     clientsNames_.push_back( "BeamHodo" );
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
   }
 
@@ -490,15 +490,15 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBTriggerTowerClient(ps) );
     clientsNames_.push_back( "TriggerTower" );
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
 
   }
 
@@ -506,12 +506,12 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBClusterClient(ps) );
     clientsNames_.push_back( "Cluster" );
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
 
   }
 
@@ -519,34 +519,34 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     clients_.push_back( new EBTimingClient(ps) );
     clientsNames_.push_back( "Timing" );
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-//    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-//    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+//    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+//    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
-    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-//    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-//    clientsRuns_.insert(multimap<EBClient*,int>::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+//    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+//    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
   }
 
   // define status bits
 
-  clientsStatus_.insert(map<string,int>::value_type( "Integrity",       0 ));
-  clientsStatus_.insert(map<string,int>::value_type( "Cosmic",          1 ));
-  clientsStatus_.insert(map<string,int>::value_type( "Laser",           2 ));
-  clientsStatus_.insert(map<string,int>::value_type( "Pedestal",        3 ));
-  clientsStatus_.insert(map<string,int>::value_type( "PedestalOnline",  4 ));
-  clientsStatus_.insert(map<string,int>::value_type( "TestPulse",       5 ));
-  clientsStatus_.insert(map<string,int>::value_type( "BeamCalo",        6 ));
-  clientsStatus_.insert(map<string,int>::value_type( "BeamHodo",        7 ));
-  clientsStatus_.insert(map<string,int>::value_type( "TriggerTower",    8 ));
-  clientsStatus_.insert(map<string,int>::value_type( "Cluster",         9 ));
-  clientsStatus_.insert(map<string,int>::value_type( "Timing",         10 ));
-  clientsStatus_.insert(map<string,int>::value_type( "Led",            11 ));
+  clientsStatus_.insert(pair<string,int>( "Integrity",       0 ));
+  clientsStatus_.insert(pair<string,int>( "Cosmic",          1 ));
+  clientsStatus_.insert(pair<string,int>( "Laser",           2 ));
+  clientsStatus_.insert(pair<string,int>( "Pedestal",        3 ));
+  clientsStatus_.insert(pair<string,int>( "PedestalOnline",  4 ));
+  clientsStatus_.insert(pair<string,int>( "TestPulse",       5 ));
+  clientsStatus_.insert(pair<string,int>( "BeamCalo",        6 ));
+  clientsStatus_.insert(pair<string,int>( "BeamHodo",        7 ));
+  clientsStatus_.insert(pair<string,int>( "TriggerTower",    8 ));
+  clientsStatus_.insert(pair<string,int>( "Cluster",         9 ));
+  clientsStatus_.insert(pair<string,int>( "Timing",         10 ));
+  clientsStatus_.insert(pair<string,int>( "Led",            11 ));
 
   summaryClient_ = new EBSummaryClient(ps);
 
