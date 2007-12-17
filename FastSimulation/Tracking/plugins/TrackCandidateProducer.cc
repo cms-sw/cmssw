@@ -359,8 +359,22 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   unsigned nTracks = recoTracks->size();
   recoTrackExtras->reserve(nTracks); // To save some time at push_back
   for ( unsigned index = 0; index < nTracks; ++index ) { 
-    reco::TrackExtra aTrackExtra;
-    unsigned nHits = recoTracks->at(index).recHitsSize();
+    //reco::TrackExtra aTrackExtra;
+    reco::Track& aTrack = recoTracks->at(index);
+    reco::TrackExtra aTrackExtra(aTrack.outerPosition(),
+				 aTrack.outerMomentum(),
+				 aTrack.outerOk(),
+				 aTrack.innerPosition(),
+				 aTrack.innerMomentum(),
+				 aTrack.innerOk(),
+				 aTrack.outerStateCovariance(),
+				 aTrack.outerDetId(),
+				 aTrack.innerStateCovariance(),
+				 aTrack.innerDetId(),
+				 aTrack.seedDirection(),
+				 aTrack.seedRef());
+
+    unsigned nHits = aTrack.recHitsSize();
     for ( unsigned int ih=0; ih<nHits; ++ih) {
       aTrackExtra.add(TrackingRecHitRef(theRecoHits,hits++));
     }
