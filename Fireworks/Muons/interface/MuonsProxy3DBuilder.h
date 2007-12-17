@@ -13,7 +13,7 @@ class MuonsProxy3DBuilder : public FWDataProxyBuilder
  public:
    MuonsProxy3DBuilder();
    virtual ~MuonsProxy3DBuilder();
-   virtual void build(const fwlite::Event* iEvent, TEveElementList** oList);
+   virtual void build(const fwlite::Event* iEvent, TObject** product);
  private:
    DetIdToMatrix detIdToMatrix_;
 };

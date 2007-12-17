@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id$
+// $Id: TracksProxy3DBuilder.C,v 1.1 2007/12/09 22:49:23 chrjones Exp $
 //
 
 // system include files
@@ -52,7 +52,7 @@ class TracksProxy3DBuilder : public FWDataProxyBuilder
 
       // ---------- member functions ---------------------------
       virtual void build(const fwlite::Event* iEvent,
-			 TEveElementList** oList)
+			 TObject** product)
   {
     std::cout <<"build called"<<std::endl;
     fwlite::Handle<reco::TrackCollection> tracks;
@@ -61,11 +61,18 @@ class TracksProxy3DBuilder : public FWDataProxyBuilder
     if(0 == tracks.ptr() ) {
       std::cout <<"failed to get Tracks"<<std::endl;
     }
-    
-    if(0 == *oList) {
-      TEveTrackList* tlist =  new TEveTrackList("Tracks");
-      *oList =tlist;
-      (*oList)->SetMainColor(Color_t(3));
+   
+    //since we created it, we know the type (would like to do this better)
+    TEveTrackList* tlist = dynamic_cast<TEveTrackList*>(*product);
+    if ( !tlist && *product ) {
+       std::cout << "incorrect type" << std::endl;
+       return;
+    }
+       
+    if(0 == tlist) {
+      tlist =  new TEveTrackList("Tracks");
+      *product = tlist;
+      tlist->SetMainColor(Color_t(3));
       TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
       //units are kG
       rnrStyle->SetMagField( -4.0*10.);
@@ -73,12 +80,10 @@ class TracksProxy3DBuilder : public FWDataProxyBuilder
       rnrStyle->SetMaxR(120.0);
       rnrStyle->SetMaxZ(300.0);
       
-      gEve->AddElement(*oList);
+      gEve->AddElement(tlist);
     } else {
-      (*oList)->DestroyElements();
+      tlist->DestroyElements();
     }
-    //since we created it, we know the type (would like to do this better)
-    TEveTrackList* tlist = dynamic_cast<TEveTrackList*>(*oList);
     
     TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
     
@@ -97,8 +102,8 @@ class TracksProxy3DBuilder : public FWDataProxyBuilder
       t.sign = it->charge();
       
       TEveTrack* trk = new TEveTrack(&t,rnrStyle);
-      trk->SetMainColor((*oList)->GetMainColor());
-      gEve->AddElement(trk,(*oList));
+      trk->SetMainColor(tlist->GetMainColor());
+      gEve->AddElement(trk,tlist);
       //cout << it->px()<<" "
       //   <<it->py()<<" "
       //   <<it->pz()<<endl;

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.7 2007/12/11 07:17:50 dmytro Exp $
+// $Id: FWDisplayEvent.cc,v 1.8 2007/12/15 21:14:31 dmytro Exp $
 //
 
 // system include files
@@ -37,6 +37,8 @@
 #include "Fireworks/Core/interface/FWDisplayEvent.h"
 #include "Fireworks/Core/interface/FWDataProxyBuilder.h"
 #include "DataFormats/FWLite/interface/Event.h"
+#include "THStack.h"
+#include "TCanvas.h"
 
 //
 // constants, enums and typedefs
@@ -53,7 +55,9 @@ FWDisplayEvent::FWDisplayEvent() :
   m_continueProcessingEvents(false),
   m_waitForUserAction(true),
   m_code(0),
-  m_rhoPhiProjMgr(0)
+  m_geom(0),
+  m_rhoPhiProjMgr(0),
+  m_legoCanvas(0)
 
 {
   const char* cmspath = gSystem->Getenv("CMSSW_BASE");
@@ -65,7 +69,8 @@ FWDisplayEvent::FWDisplayEvent() :
   macPath += "/src/Fireworks/Core/macros";
   gROOT->SetMacroPath(macPath.c_str());  
 
-  //will eventually get this info from the configuration
+/*
+   //will eventually get this info from the configuration
   m_physicsTypes.push_back("Tracks");
   m_physicsElements.push_back(0);
   m_physicsProxyBuilderNames.push_back("TracksProxy3DBuilder");
@@ -74,43 +79,9 @@ FWDisplayEvent::FWDisplayEvent() :
   m_physicsTypes.push_back("Muons");
   m_physicsElements.push_back(0);
   m_physicsProxyBuilderNames.push_back("MuonsProxy3DBuilder");
+*/
 
-   
-  //create proxy builders
-  Int_t error;
-  TClass *baseClass = TClass::GetClass(typeid(FWDataProxyBuilder));
-  assert(baseClass !=0);
-
-  for(std::vector<std::string>::iterator itBuilderName=
-	m_physicsProxyBuilderNames.begin();
-      itBuilderName !=m_physicsProxyBuilderNames.end();
-      ++itBuilderName) {
-    //does the class already exist?
-    TClass *c = TClass::GetClass(itBuilderName->c_str());
-    if(0==c) {
-      //try to load a macro of that name
-      
-      //How can I tell if this succeeds or failes? error and value are always 0!
-      // I could not make the non-compiled mechanism to work without seg-faults
-      Int_t value = gROOT->LoadMacro(((*itBuilderName)+".C+").c_str(),&error);
-      c = TClass::GetClass(itBuilderName->c_str());
-      if(0==c ) {
-	std::cerr <<"failed to find "<<*itBuilderName<<std::endl;
-	continue;
-      }
-    }
-    FWDataProxyBuilder* builder=0;
-    void* inst = c->New();
-    builder = reinterpret_cast<FWDataProxyBuilder*>(c->DynamicCast(baseClass,inst));
-    if(0==builder) {
-      std::cerr<<"conversion to FWDataProxyBuilder failed"<<std::endl;
-      continue;
-    }
-    m_builders.push_back(boost::shared_ptr<FWDataProxyBuilder>(builder));
-  }
-
-
-  //These are only needed temporarilty to work around a problem which 
+  // These are only needed temporarilty to work around a problem which 
   // Matevz has patched in a later version of the code
   TApplication::NeedGraphicsLibs();
   gApplication->InitializeGraphics();
@@ -152,6 +123,10 @@ FWDisplayEvent::FWDisplayEvent() :
 	m_backwardButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"GoBack.gif"));
 	hf->AddFrame(m_backwardButton);
 	m_backwardButton->Connect("Clicked()", "FWDisplayEvent", this, "goBack()");
+	 
+	m_stopButton= new TGPictureButton(hf, gClient->GetPicture(icondir+"StopLoading.gif"));
+	hf->AddFrame(m_stopButton);
+	m_stopButton->Connect("Clicked()", "FWDisplayEvent", this, "stop()");
 	
       }
       frmMain->AddFrame(hf);
@@ -188,20 +163,26 @@ FWDisplayEvent::FWDisplayEvent() :
   re->UseNodeTrans();
   gEve->AddGlobalElement(re,gL);
   */
-  TFile f("tracker.root");
-  if(not f.IsOpen()) {
+   
+   // FIXME: something is wrong with losing geomtry when file is closed or 
+   // some other files are opened.
+   /*
+   TFile* f = TFile::Open("tracker.root");
+  if(not f->IsOpen()) {
     std::cerr <<"failed to open 'tracker.root'"<<std::endl;
     throw std::runtime_error("Failed to open 'tracker.root' geometry file");
   }
-  TEveGeoShapeExtract* gse = dynamic_cast<TEveGeoShapeExtract*>(f.Get("Tracker"));
+  TEveGeoShapeExtract* gse = dynamic_cast<TEveGeoShapeExtract*>(f->Get("Tracker"));
   TEveGeoShape* gsre = TEveGeoShape::ImportShapeExtract(gse,0);
-  f.Close();
+  f->Close();
   m_geom = gsre;
-
+    */
   //kTRUE tells it to reset the camera so we see everything 
   gEve->Redraw3D(kTRUE);  
 
-  gSystem->ProcessEvents();
+   m_legoCanvas = gEve->AddCanvasTab("legoCanvas");
+   
+   gSystem->ProcessEvents();
 }
 
 // FWDisplayEvent::FWDisplayEvent(const FWDisplayEvent& rhs)
@@ -228,10 +209,42 @@ FWDisplayEvent::~FWDisplayEvent()
 //
 // member functions
 //
-void
-FWDisplayEvent::continueProcessingEvents()
+
+void FWDisplayEvent::registerProxyBuilder(std::string type, std::string proxyBuilderName)
 {
-  m_continueProcessingEvents = true;
+   FWModelProxy proxy;
+   proxy.type = type;
+   proxy.builderName = proxyBuilderName;
+   
+   //create proxy builders
+   Int_t error;
+   TClass *baseClass = TClass::GetClass(typeid(FWDataProxyBuilder));
+   assert(baseClass !=0);
+
+   //does the class already exist?
+   TClass *c = TClass::GetClass( proxy.builderName.c_str() );
+   if(0==c) {
+      //try to load a macro of that name
+      
+      //How can I tell if this succeeds or failes? error and value are always 0!
+      // I could not make the non-compiled mechanism to work without seg-faults
+      Int_t value = gROOT->LoadMacro( (proxy.builderName+".C+").c_str(), &error );
+      c = TClass::GetClass( proxy.builderName.c_str() );
+      if(0==c ) {
+	 std::cerr <<"failed to find "<< proxy.builderName << std::endl;
+	 return;
+      }
+   }
+   FWDataProxyBuilder* builder = 0;
+   void* inst = c->New();
+   builder = reinterpret_cast<FWDataProxyBuilder*>(c->DynamicCast(baseClass,inst));
+   if(0==builder) {
+      std::cerr<<"conversion to FWDataProxyBuilder failed"<<std::endl;
+      return;
+   }
+   proxy.builder = boost::shared_ptr<FWDataProxyBuilder>(builder);
+   
+   m_modelProxies.push_back( proxy );
 }
 
 void
@@ -253,6 +266,13 @@ FWDisplayEvent::goHome()
 {
   m_continueProcessingEvents = true;
   m_code = -2;
+}
+
+void
+FWDisplayEvent::stop()
+{
+  m_continueProcessingEvents = true;
+  m_code = -3;
 }
 
 void
@@ -308,20 +328,12 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent)
 int
 FWDisplayEvent::draw(const fwlite::Event& iEvent) const
 {
-  // FIXIT: vectors should be aligned a bit better than that
-  if ( m_physicsTypes.size() != m_physicsElements.size() ||
-       m_physicsElements.size() != m_physicsProxyBuilderNames.size() ||
-       m_physicsProxyBuilderNames.size() != m_builders.size() ) 
-     {
-	std::cout << "Vectors of proxy data have different size - fatal error" << std::endl;
-	return 0;
-     }
-   
   //need to reset
   m_continueProcessingEvents = false;
   EnableButton homeB(m_homeButton);
   EnableButton advancedB(m_advanceButton);
   EnableButton backwardB(m_backwardButton);
+  EnableButton stopB(m_stopButton);
 
   using namespace std;
   if(0==gEve) {
@@ -334,19 +346,61 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
     // Eve do any redrawing
     TEveManager::TRedrawDisabler disableRedraw(gEve);
     
-    // build models
-    for ( unsigned int iProxy = 0; iProxy < m_builders.size(); ++iProxy )
-       m_builders[iProxy]->build( &iEvent, &(m_physicsElements[iProxy]) );
+     // build models
+     for ( std::vector<FWModelProxy>::iterator proxy = m_modelProxies.begin();
+	   proxy != m_modelProxies.end(); ++proxy )
+       proxy->builder->build( &iEvent, &(proxy->product) );
      
-    //setup the projection
-    m_rhoPhiProjMgr->DestroyElements();
-    m_rhoPhiProjMgr->ImportElements(m_geom);
-    for(std::vector<TEveElementList*>::iterator it = m_physicsElements.begin();
-	it != m_physicsElements.end();
-	++it) {
-      m_rhoPhiProjMgr->ImportElements(*it);
-    }
-
+     // R-Phi projections
+     
+     // setup the projection
+     // each projection knows what model proxies it needs
+     // NOTE: this should be encapsulated and made configurable 
+     //       somewhere else.
+     m_rhoPhiProjMgr->DestroyElements();
+     
+	  
+     // FIXME - standard way of loading geomtry failed
+     // ----------- from here 
+     if ( ! m_geom ) {
+	TFile f("tracker.root");
+	if(not f.IsOpen()) {
+	   std::cerr <<"failed to open 'tracker.root'"<<std::endl;
+	   throw std::runtime_error("Failed to open 'tracker.root' geometry file");
+	}
+	TEveGeoShapeExtract* gse = dynamic_cast<TEveGeoShapeExtract*>(f.Get("Tracker"));
+	TEveGeoShape* gsre = TEveGeoShape::ImportShapeExtract(gse,0);
+	f.Close();
+	m_geom = gsre;
+     }
+     // ---------- to here
+     
+     m_rhoPhiProjMgr->ImportElements(m_geom);
+     for ( std::vector<FWModelProxy>::iterator proxy = m_modelProxies.begin();
+	   proxy != m_modelProxies.end(); ++proxy ) 
+       {
+	  if ( proxy->builderName == "TracksProxy3DBuilder" ||
+	       proxy->builderName == "MuonsProxy3DBuilder"  ) 
+	    {
+	       TEveElementList* list = dynamic_cast<TEveElementList*>(proxy->product);
+	       m_rhoPhiProjMgr->ImportElements(list);
+	    }
+       }
+     
+     // LEGO
+     for ( std::vector<FWModelProxy>::iterator proxy = m_modelProxies.begin();
+	   proxy != m_modelProxies.end(); ++proxy ) 
+       {
+	  if ( proxy->builderName == "CaloProxyLegoBuilder" ) 
+	    {
+	       THStack* stack = dynamic_cast<THStack*>(proxy->product);
+	       m_legoCanvas->cd();
+	       stack->Draw("lego1");
+	       m_legoCanvas->Modified();
+	       m_legoCanvas->Update();
+	    }
+       }
+     
     //At the end of this scope, redrawing will be enabled
   }
   
@@ -355,8 +409,8 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
   while(not gROOT->IsInterrupted() and
 	m_waitForUserAction and 
 	not m_continueProcessingEvents) {
-    //gSystem->ProcessEvents();
-    gSystem->DispatchOneEvent(kFALSE);
+     // gSystem->ProcessEvents();
+     gSystem->DispatchOneEvent(kFALSE);
   }
   return m_code;
 }

@@ -20,16 +20,21 @@ MuonsProxy3DBuilder::~MuonsProxy3DBuilder()
 {
 }
 
-void MuonsProxy3DBuilder::build(const fwlite::Event* iEvent, TEveElementList** oList)
+void MuonsProxy3DBuilder::build(const fwlite::Event* iEvent, TObject** product)
 {
-   if(0 == *oList) {
-      TEveElementList* tlist =  new TEveElementList("Muons","trackerMuons",true);
-      *oList = tlist;
-      (*oList)->SetMainColor(Color_t(kRed));
-      
-      gEve->AddElement(*oList);
+   TEveElementList* tList = dynamic_cast<TEveElementList*>(*product);
+   if ( !tList && *product ) {
+      std::cout << "incorrect type" << std::endl;
+      return;
+   }
+
+   if(0 == tList) {
+      tList =  new TEveElementList("Muons","trackerMuons",true);
+      *product = tList;
+      tList->SetMainColor(Color_t(kRed));
+      gEve->AddElement(tList);
    } else {
-      (*oList)->DestroyElements();
+      tList->DestroyElements();
    }
    
    // ATTN: I was not able to keep the propagators in memory, 
@@ -73,7 +78,7 @@ void MuonsProxy3DBuilder::build(const fwlite::Event* iEvent, TEveElementList** o
 	TEveElementList* muonList = new TEveElementList(s.str().c_str());
 	   
 	TEveTrack* innerTrack = new TEveTrack( &innerRecTrack, innerPropagator );
-	innerTrack->SetMainColor( (*oList)->GetMainColor() );
+	innerTrack->SetMainColor( tList->GetMainColor() );
 	TEveTrack* outerTrack = 0;
 	innerTrack->MakeTrack();
 	muonList->AddElement( innerTrack );
@@ -95,13 +100,14 @@ void MuonsProxy3DBuilder::build(const fwlite::Event* iEvent, TEveElementList** o
 	   outerRecTrack.P = TEveVector(scale*(vx2-vx1), scale*(vy2-vy1),scale*(vz2-vz1));
 	   outerRecTrack.sign = innerRecTrack.sign;
 	   outerTrack = new TEveTrack( &outerRecTrack, outerPropagator );
-	   outerTrack->SetMainColor( (*oList)->GetMainColor() );
+	   outerTrack->SetMainColor( tList->GetMainColor() );
 	   std::cout << "\tpx " << outerRecTrack.P.x << " py " << outerRecTrack.P.y << " pz " << outerRecTrack.P.z
 	     << " vx " << outerRecTrack.V.x << " vy " << outerRecTrack.V.y << " vz " << outerRecTrack.V.z
 	     << " sign " << outerRecTrack.sign << std::endl;
 	   muonList->AddElement( outerTrack );
 	}
-   
+	
+	
 	// add muon segments
 	const std::vector<reco::MuonChamberMatch>& matches = muon->getMatches();
 	Double_t localTrajectoryPoint[3];
@@ -155,7 +161,7 @@ void MuonsProxy3DBuilder::build(const fwlite::Event* iEvent, TEveElementList** o
 	     }
 	  }
 	if ( ! matches.empty() ) muonList->AddElement( segmentSet );
-	gEve->AddElement( muonList, *oList );
+	gEve->AddElement( muonList, tList );
 	if (outerTrack) outerTrack->MakeTrack();
      }
 }

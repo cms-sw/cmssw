@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.3 2007/12/09 22:49:23 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.4 2007/12/15 21:14:31 dmytro Exp $
 //
 
 // system include files
@@ -32,10 +32,22 @@ class TEveElement;
 class TEveElementList;
 class TGPictureButton;
 class FWDataProxyBuilder;
+class TObject;
+class TCanvas;
 
 namespace fwlite {
   class Event;
 }
+
+struct FWModelProxy
+{
+   std::string                             type;
+   std::string                             builderName;
+   boost::shared_ptr<FWDataProxyBuilder>   builder;
+   TObject*                                product; //owned by builder
+   FWModelProxy():product(0){}
+};
+
 
 class FWDisplayEvent
 {
@@ -51,13 +63,14 @@ class FWDisplayEvent
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      void continueProcessingEvents();
       void goForward();
       void goBack();
       void goHome();
+      void stop();
       void waitForUserAction();
       void doNotWaitForUserAction();
       int draw(const fwlite::Event& );
+      void registerProxyBuilder(std::string, std::string);
 
    private:
       FWDisplayEvent(const FWDisplayEvent&); // stop default
@@ -65,10 +78,7 @@ class FWDisplayEvent
       const FWDisplayEvent& operator=(const FWDisplayEvent&); // stop default
 
       // ---------- member data --------------------------------
-      mutable std::vector<std::string> m_physicsTypes;
-      mutable std::vector<TEveElementList*> m_physicsElements;
-      std::vector<std::string> m_physicsProxyBuilderNames;
-      //mutable TEveTrackList* m_tracks;
+      mutable std::vector<FWModelProxy> m_modelProxies;
 
       mutable bool m_continueProcessingEvents;
       mutable bool m_waitForUserAction;
@@ -79,14 +89,16 @@ class FWDisplayEvent
       // -2 - start over
       // -3 - stop event loop 
       
-      TEveElement* m_geom;
+      mutable TEveElement* m_geom;
       TEveProjectionManager* m_rhoPhiProjMgr;
 
       TGPictureButton* m_homeButton;
       TGPictureButton* m_advanceButton;
       TGPictureButton* m_backwardButton;
-
-      std::vector<boost::shared_ptr<FWDataProxyBuilder> > m_builders;
+      TGPictureButton* m_stopButton;
+   
+      // stuff for lego plot view
+      mutable TCanvas* m_legoCanvas;
 };
 
 
