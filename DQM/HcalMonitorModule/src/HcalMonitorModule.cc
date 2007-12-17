@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/11/21 20:45:14 $
- * $Revision: 1.44 $
+ * $Date: 2007/11/28 11:49:15 $
+ * $Revision: 1.45 $
  * \author W Fisher
  *
 */
@@ -314,6 +314,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       for(unsigned int f=0; f<feds.size(); f++){
 	meFEDS_->Fill(feds[f]);    
       }
+      if(ledMon_) ledMon_->reset();
       fedsListed_ = true;
     }
   } catch(exception& ex){ rawOK_=false;};

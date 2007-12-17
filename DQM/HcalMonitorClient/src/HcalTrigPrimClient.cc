@@ -137,29 +137,31 @@ void HcalTrigPrimClient::getHistograms(){
 
   if(!dbe_) return;
 
-  tpCount_ = getHisto("# TP Digis", process_, dbe_, debug_,cloneME_);
-  tpCountThr_ = getHisto("# TP Digis over Threshold", process_, dbe_, debug_,cloneME_);
-  tpSize_ = getHisto("TP Size", process_, dbe_, debug_,cloneME_);  
+  tpCount_ = getHisto("TrigPrimMonitor/# TP Digis", process_, dbe_, debug_,cloneME_);
+  assert(tpCount_!=NULL);
+
+  tpCountThr_ = getHisto("TrigPrimMonitor/# TP Digis over Threshold", process_, dbe_, debug_,cloneME_);
+  tpSize_ = getHisto("TrigPrimMonitor/TP Size", process_, dbe_, debug_,cloneME_);  
   char name[150];      
   for (int i=0; i<10; i++) {
-    sprintf(name,"TP Spectrum sample %d",i);
+    sprintf(name,"TrigPrimMonitor/TP Spectrum sample %d",i);
     tpSpectrum_[i]= getHisto(name, process_, dbe_, debug_,cloneME_);
   }
-  tpSpectrumAll_ = getHisto("Full TP Spectrum", process_, dbe_, debug_,cloneME_);
-  tpETSumAll_ = getHisto("TP ET Sum", process_, dbe_, debug_,cloneME_);
-  tpSOI_ET_ = getHisto("TP SOI ET", process_, dbe_, debug_,cloneME_);  
-  OCC_ETA_ = getHisto("TrigPrim Eta Occupancy Map",process_, dbe_, debug_,cloneME_);  
-  OCC_PHI_ = getHisto("TrigPrim Phi Occupancy Map",process_, dbe_, debug_,cloneME_);  
-  OCC_ELEC_VME_ = getHisto2("TrigPrim VME Occupancy Map",process_, dbe_, debug_,cloneME_);  
-  OCC_ELEC_DCC_ = getHisto2("TrigPrim Spigot Occupancy Map",process_, dbe_, debug_,cloneME_);  
-  OCC_MAP_GEO_ = getHisto2("TrigPrim Geo Occupancy Map",process_, dbe_, debug_,cloneME_);  
-  OCC_MAP_SLB_ = getHisto2("TrigPrim SLB Occupancy Map",process_, dbe_, debug_,cloneME_);  
-  OCC_MAP_THR_ = getHisto2("TrigPrim Geo Threshold Map",process_, dbe_, debug_,cloneME_);  
-  EN_ETA_ = getHisto("TrigPrim Eta Energy Map",process_, dbe_, debug_,cloneME_);  
-  EN_PHI_ = getHisto("TrigPrim Phi Energy Map",process_, dbe_, debug_,cloneME_);  
-  EN_ELEC_VME_ = getHisto2("TrigPrim VME Energy Map",process_, dbe_, debug_,cloneME_);  
-  EN_ELEC_DCC_ = getHisto2("TrigPrim Spigot Energy Map",process_, dbe_, debug_,cloneME_);  
-  EN_MAP_GEO_ = getHisto2("TrigPrim Geo Energy Map",process_, dbe_, debug_,cloneME_);  
+  tpSpectrumAll_ = getHisto("TrigPrimMonitor/Full TP Spectrum", process_, dbe_, debug_,cloneME_);
+  tpETSumAll_ = getHisto("TrigPrimMonitor/TP ET Sum", process_, dbe_, debug_,cloneME_);
+  tpSOI_ET_ = getHisto("TrigPrimMonitor/TP SOI ET", process_, dbe_, debug_,cloneME_);  
+  OCC_ETA_ = getHisto("TrigPrimMonitor/TrigPrim Eta Occupancy Map",process_, dbe_, debug_,cloneME_);  
+  OCC_PHI_ = getHisto("TrigPrimMonitor/TrigPrim Phi Occupancy Map",process_, dbe_, debug_,cloneME_);  
+  OCC_ELEC_VME_ = getHisto2("TrigPrimMonitor/TrigPrim VME Occupancy Map",process_, dbe_, debug_,cloneME_);  
+  OCC_ELEC_DCC_ = getHisto2("TrigPrimMonitor/TrigPrim Spigot Occupancy Map",process_, dbe_, debug_,cloneME_);  
+  OCC_MAP_GEO_ = getHisto2("TrigPrimMonitor/TrigPrim Geo Occupancy Map",process_, dbe_, debug_,cloneME_);  
+  OCC_MAP_SLB_ = getHisto2("TrigPrimMonitor/TrigPrim SLB Occupancy Map",process_, dbe_, debug_,cloneME_);  
+  OCC_MAP_THR_ = getHisto2("TrigPrimMonitor/TrigPrim Geo Threshold Map",process_, dbe_, debug_,cloneME_);  
+  EN_ETA_ = getHisto("TrigPrimMonitor/TrigPrim Eta Energy Map",process_, dbe_, debug_,cloneME_);  
+  EN_PHI_ = getHisto("TrigPrimMonitor/TrigPrim Phi Energy Map",process_, dbe_, debug_,cloneME_);  
+  EN_ELEC_VME_ = getHisto2("TrigPrimMonitor/TrigPrim VME Energy Map",process_, dbe_, debug_,cloneME_);  
+  EN_ELEC_DCC_ = getHisto2("TrigPrimMonitor/TrigPrim Spigot Energy Map",process_, dbe_, debug_,cloneME_);  
+  EN_MAP_GEO_ = getHisto2("TrigPrimMonitor/TrigPrim Geo Energy Map",process_, dbe_, debug_,cloneME_);  
 
   return;
 }
