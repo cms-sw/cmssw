@@ -22,9 +22,8 @@ LatencyAnalysis::LatencyAnalysis( const uint32_t& key )
 {
    peak_fitter_ = new TF1("peak_fitter",fpeak_convoluted,-2500,0,5);
    peak_fitter_->FixParameter(0,0);
-   peak_fitter_->SetParLimits(1,-10,10);
-   peak_fitter_->SetParLimits(2,0,200);
-   peak_fitter_->SetParLimits(3,5,100);
+   peak_fitter_->SetParLimits(1,0,2500);
+   peak_fitter_->SetParLimits(2,0,20);
    peak_fitter_->FixParameter(3,50);
    peak_fitter_->SetParLimits(4,0,50);
    peak_fitter_->SetParameters(0.,1250,10,50,10);
@@ -39,9 +38,8 @@ LatencyAnalysis::LatencyAnalysis()
 {
    peak_fitter_ = new TF1("peak_fitter",fpeak_convoluted,-2500,0,5);
    peak_fitter_->FixParameter(0,0);
-   peak_fitter_->SetParLimits(1,-10,10);
-   peak_fitter_->SetParLimits(2,0,200);
-   peak_fitter_->SetParLimits(3,5,100);
+   peak_fitter_->SetParLimits(1,0,2500);
+   peak_fitter_->SetParLimits(2,0,20);
    peak_fitter_->FixParameter(3,50);
    peak_fitter_->SetParLimits(4,0,50);
    peak_fitter_->SetParameters(0.,1250,10,50,10);
@@ -62,9 +60,8 @@ void LatencyAnalysis::reset() {
   max_ = sistrip::invalid_;
   histo_ = Histo(0,"");
   peak_fitter_->FixParameter(0,0);
-  peak_fitter_->SetParLimits(1,-10,10);
-  peak_fitter_->SetParLimits(2,0,200);
-  peak_fitter_->SetParLimits(3,5,100);
+  peak_fitter_->SetParLimits(1,0,2500);
+  peak_fitter_->SetParLimits(2,0,20);
   peak_fitter_->FixParameter(3,50);
   peak_fitter_->SetParLimits(4,0,50);
   peak_fitter_->SetParameters(0.,1250,10,50,10);

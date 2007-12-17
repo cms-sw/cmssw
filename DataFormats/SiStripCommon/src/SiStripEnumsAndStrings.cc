@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.13 2007/09/06 21:38:13 delaer Exp $
+// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.14 2007/11/29 17:08:04 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 
@@ -55,12 +55,12 @@ sistrip::RunType SiStripEnumsAndStrings::runType( const std::string& run_type ) 
   else if ( run_type.find( sistrip::optoScan_ ) != std::string::npos ) { return sistrip::OPTO_SCAN; }
   else if ( run_type.find( sistrip::vpspScan_ ) != std::string::npos ) { return sistrip::VPSP_SCAN; }
   else if ( run_type.find( sistrip::pedestals_ ) != std::string::npos ) { return sistrip::PEDESTALS; }
-  else if ( run_type.find( sistrip::fineDelay_ ) != std::string::npos ) { return sistrip::APV_LATENCY; }
+  else if ( run_type.find( sistrip::fineDelay_ ) != std::string::npos ) { return sistrip::FINE_DELAY; }
   else if ( run_type.find( sistrip::calibrationP_ ) != std::string::npos ) { return sistrip::CALIBRATION; }
   else if ( run_type.find( sistrip::calibrationScanP_ ) != std::string::npos ) { return sistrip::CALIBRATION_SCAN; }
   else if ( run_type.find( sistrip::calibrationD_ ) != std::string::npos ) { return sistrip::CALIBRATION_DECO; }
   else if ( run_type.find( sistrip::calibrationScanD_ ) != std::string::npos ) { return sistrip::CALIBRATION_SCAN_DECO; }
-  else if ( run_type.find( sistrip::apvLatency_ ) != std::string::npos ) { return sistrip::FINE_DELAY; }
+  else if ( run_type.find( sistrip::apvLatency_ ) != std::string::npos ) { return sistrip::APV_LATENCY; }
   else if ( run_type.find( sistrip::daqScopeMode_ ) != std::string::npos ) { return sistrip::DAQ_SCOPE_MODE; }
   else if ( run_type.find( sistrip::physics_ ) != std::string::npos ) { return sistrip::PHYSICS; }
   else if ( run_type.find( sistrip::undefinedRunType_ ) != std::string::npos ) { return sistrip::UNDEFINED_RUN_TYPE; }
