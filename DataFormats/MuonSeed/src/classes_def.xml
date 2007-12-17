@@ -1,0 +1,17 @@
+<lcgdict>
+      <class name="L2MuonTrajectorySeed" />
+      <class name="edm::RefToBase<L2MuonTrajectorySeed>"/>
+      <class name="edm::reftobase::BaseHolder<L2MuonTrajectorySeed>" />
+      <class name="edm::reftobase::IndirectHolder<L2MuonTrajectorySeed>" />
+    
+      <class name="std::vector<L2MuonTrajectorySeed>" />
+      <class name="edm::Wrapper<std::vector<L2MuonTrajectorySeed> >" />
+      <class name="edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >"/>
+      <class name="edm::RefProd<std::vector<L2MuonTrajectorySeed> >"/>
+      <class name="edm::RefVector<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >"/>
+      <class name="edm::RefVectorIterator<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >"/>
+      <class pattern="std::iterator<*edm::Ref*L2MuonTrajectorySeed*>"/>
+    
+      <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>
+      <class name="edm::reftobase::Holder<L2MuonTrajectorySeed,edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>
+</lcgdict>
