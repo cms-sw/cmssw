@@ -197,10 +197,10 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
     }
   } else if (!dirOppositeXORisInOutTrackBarrel &&  !dirOppositeXORisInOutTrackFWD){
     if ( signZmomentumXORdir ) {
-      wellInside( ftsWithoutErrors, dir, theNegInnerLayers, result);
+      wellInside( ftsWithoutErrors, dir, thePosInnerLayers, result);
     }
     else {
-      wellInside( ftsWithoutErrors, dir, thePosInnerLayers, result);
+      wellInside( ftsWithoutErrors, dir, theNegInnerLayers, result);
     }
   } else if (!dirOppositeXORisInOutTrackBarrel && dirOppositeXORisInOutTrackFWD){
       wellInside(ftsWithoutErrors, dir, theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), result);	
