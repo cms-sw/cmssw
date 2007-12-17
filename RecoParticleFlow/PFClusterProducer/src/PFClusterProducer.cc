@@ -208,54 +208,29 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   // access to the collections of rechits from the various detectors:
 
   
-//   ecalRecHitsEBModuleLabel_ = 
-//     iConfig.getUntrackedParameter<string>("ecalRecHitsEBModuleLabel",
-// 					  "ecalRecHit");
-//   ecalRecHitsEBProductInstanceName_ = 
-//     iConfig.getUntrackedParameter<string>("ecalRecHitsEBProductInstanceName",
-// 					  "EcalRecHitsEB");
-
   inputTagEcalRecHitsEB_ = 
     iConfig.getParameter<InputTag>("ecalRecHitsEB");
+
+  inputTagEcalRecHitsEE_ = 
+    iConfig.getParameter<InputTag>("ecalRecHitsEE");
   
-  ecalRecHitsEEModuleLabel_ = 
-    iConfig.getUntrackedParameter<string>("ecalRecHitsEEModuleLabel",
-					  "ecalRecHit");
-  ecalRecHitsEEProductInstanceName_ = 
-    iConfig.getUntrackedParameter<string>("ecalRecHitsEEProductInstanceName",
-					  "EcalRecHitsEE");
+  inputTagEcalRecHitsES_ = 
+    iConfig.getParameter<InputTag>("ecalRecHitsES");
   
-  ecalRecHitsESModuleLabel_ = 
-    iConfig.getUntrackedParameter<string>("ecalRecHitsESModuleLabel",
-					  "ecalRecHit");
-  ecalRecHitsESProductInstanceName_ = 
-    iConfig.getUntrackedParameter<string>("ecalRecHitsESProductInstanceName",
-					  "EcalRecHitsES");
-  
-  
-  hcalRecHitsHBHEModuleLabel_ = 
-    iConfig.getUntrackedParameter<string>("hcalRecHitsHBHEModuleLabel",
-					  "hbhereco");
-  hcalRecHitsHBHEProductInstanceName_ = 
-    iConfig.getUntrackedParameter<string>("hcalRecHitsHBHEProductInstanceName",
-					  "");
+
+  inputTagHcalRecHitsHBHE_ =
+    iConfig.getParameter<InputTag>("hcalRecHitsHBHE");
     
-  caloTowersModuleLabel_ = 
-    iConfig.getUntrackedParameter<string>("caloTowersModuleLabel",
-					  "towerMaker");
-  caloTowersProductInstanceName_ = 
-    iConfig.getUntrackedParameter<string>("caloTowersProductInstanceName",
-					  "");
-    
+ 
+  inputTagCaloTowers_ = 
+    iConfig.getParameter<InputTag>("caloTowers");
+   
+
     
   // produce PFRecHits yes/no
   produceRecHits_ = 
     iConfig.getUntrackedParameter<bool>("produce_RecHits", false );
 
-//   if ( produceRecHits_ )
-//     std::cout << "<PFClusterProducer::PFClusterProducer>: will produce PFRecHits." << std::endl;
-//   else
-//     std::cout << "<PFClusterProducer::PFClusterProducer>: will not produce any PFRecHits !" << std::endl;
 
   //register products
   if(produceRecHits_) {
@@ -441,73 +416,61 @@ void PFClusterProducer::createEcalRecHits(vector<reco::PFRecHit>& rechits,
   // get the ecalBarrel rechits
 
   edm::Handle<EcalRecHitCollection> rhcHandle;
-  try {
-    bool found = iEvent.getByLabel(inputTagEcalRecHitsEB_, 
-				   rhcHandle);
-    
-    assert(found);
 
-    if (!(rhcHandle.isValid())) {
-      edm::LogError("PFClusterProducer")
-	<<"could not get a handle on EcalRecHitsEB!"<<endl;
-      return;
-    }
-      
+
+  bool found = iEvent.getByLabel(inputTagEcalRecHitsEB_, 
+				 rhcHandle);
+  
+  if(!found) {
+    edm::LogError("PFClusterProducer")
+      <<"could not find rechits "<<inputTagEcalRecHitsEB_<<endl;
+  }
+  else {
+    assert( rhcHandle.isValid() );
+    
     // process ecal ecalBarrel rechits
     for(unsigned i=0; i<rhcHandle->size(); i++) {
       
       const EcalRecHit& erh = (*rhcHandle)[i];
       const DetId& detid = erh.detid();
       double energy = erh.energy();
-
+      
       if(energy < clusterAlgoECAL_.threshBarrel() ) continue;
-
-
-      //C replace this by a 
-      //C addEcalRecHit(blabla, rechits, idSortedRecHits)
-      //C this function will push_back the rechit in the rechits vector, 
-      //C and insert it in the idSortedRecHits map:
-      //C key: detId - value: index in rechits vector
-
-
+          
+      
       reco::PFRecHit *pfrh = createEcalRecHit(detid, energy,  
 					      PFLayer::ECAL_BARREL,
 					      ecalBarrelGeometry);
-
+      
       if( !pfrh ) continue; // problem with this rechit. skip it
-
+      
       rechits.push_back( *pfrh );
       delete pfrh;
       idSortedRecHits.insert( make_pair(detid.rawId(), rechits.size()-1 ) ); 
     }      
   }
-  catch ( cms::Exception& ex ) {
-    edm::LogError("PFClusterProducerError")
-      <<"Error! can't get the ecal barrel rechits "<<ex.what()<<endl;
-    return;
-  }
+
 
 
   //C proceed as for the barrel
   // process ecal endcap rechits
 
-  try {
-    iEvent.getByLabel(ecalRecHitsEEModuleLabel_,
-		      ecalRecHitsEEProductInstanceName_,
-		      rhcHandle);
-    if (!(rhcHandle.isValid())) {
-      LogError("PFClusterProducer")
-	<<"could not get a handle on EcalRecHitsEE!"<<endl;
-      return;
-    }
+  found = iEvent.getByLabel(inputTagEcalRecHitsEE_,
+			    rhcHandle);
+  
+  if(!found) {
+    edm::LogError("PFClusterProducer")
+      <<"could not find rechits "<<inputTagEcalRecHitsEE_<<endl;
+  }
+  else {
+    assert( rhcHandle.isValid() );
     
-    // cout<<"process endcap rechits"<<endl;
     for(unsigned i=0; i<rhcHandle->size(); i++) {
       
       const EcalRecHit& erh = (*rhcHandle)[i];
       const DetId& detid = erh.detid();
       double energy = erh.energy();
-     
+      
       if(energy < clusterAlgoECAL_.threshEndcap() ) continue;
 
       
@@ -520,11 +483,6 @@ void PFClusterProducer::createEcalRecHits(vector<reco::PFRecHit>& rechits,
       delete pfrh;
       idSortedRecHits.insert( make_pair(detid.rawId(), rechits.size()-1 ) ); 
     }
-  }
-  catch ( cms::Exception& ex ) {
-    edm::LogError("PFClusterProducerError")
-      <<"Error! can't get the EE rechits "<<ex.what()<<endl;
-    return;
   }
 
 
@@ -588,36 +546,41 @@ void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
     const CaloSubdetectorGeometry *caloTowerGeometry = 0; 
     // = geometry_->getSubdetectorGeometry(id)
 
-    try {
-      // get calotowers
-      iEvent.getByLabel(caloTowersModuleLabel_,
-			caloTowersProductInstanceName_,
-			caloTowers);
+    // get calotowers
+    bool found = iEvent.getByLabel(inputTagCaloTowers_,
+				   caloTowers);
 
+    if(!found) {
+      edm::LogError("PFClusterProducer")
+	<<"could not find calotowers "<<inputTagCaloTowers_<<endl;
+    }
+    else {
+      assert( caloTowers.isValid() );
+      
       // create rechits
       typedef CaloTowerCollection::const_iterator ICT;
-
+      
       for(ICT ict=caloTowers->begin(); ict!=caloTowers->end();ict++) {
-
+	  
 	const CaloTower& ct = (*ict);
-
+	  
 	//C	
- 	if(!caloTowerGeometry) 
+	if(!caloTowerGeometry) 
 	  caloTowerGeometry = geoHandle->getSubdetectorGeometry(ct.id());
 	  
 	// get the hadronic energy.
 	double energy = ct.hadEnergy();
 	if( energy < 1e-9 ) continue;  
-	 
-	
-
+	  
+	  
+	  
 	// the layer will be taken from the first constituent. 
 	// all thresholds for ECAL must be set to very high values !!!
 	assert( ct.constituentsSize() );	  
 	const HcalDetId& detid = ct.constituent(0);
 	  
 	reco::PFRecHit* pfrh = 0;
-
+	  
 	switch( detid.subdet() ) {
 	case HcalBarrel:
 	  if(energy > clusterAlgoHCAL_.threshBarrel() ) {
@@ -642,7 +605,7 @@ void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
 	    <<"CaloTower constituent: unknown layer : "
 	    <<detid.subdet()<<endl;
 	} 
-
+	  
 	if(pfrh) { 
 	  rechits.push_back( *pfrh );
 	  delete pfrh;
@@ -650,22 +613,17 @@ void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
 					    rechits.size()-1 ) ); 
 	}
       }
-      
-      
+	
+	
       // do navigation 
       for(unsigned i=0; i<rechits.size(); i++ ) {
-	
+	  
 	findRecHitNeighboursCT( rechits[i], 
 				idSortedRecHits, 
 				caloTowerTopology);
-
+	  
       }
-    }
-    catch ( cms::Exception& ex ) {
-      edm::LogError("PFClusterProducerError")
-	<<"Error! can't get the CaloTowers "<<ex.what()<<endl;
-      return;
-    }
+    }   
   }
   else { // clustering is not done on CaloTowers but on HCAL rechits.
        
@@ -676,20 +634,17 @@ void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
     // HCAL rechits 
     //    vector<edm::Handle<HBHERecHitCollection> > hcalHandles;  
     edm::Handle<HBHERecHitCollection>  hcalHandle;  
-    try {
 
-      // retry this:
-      //       iEvent.getByLabel(hcalRecHitsHBHEModuleLabel_,
-      // 			hcalRecHitsHBHEProductInstanceName_,
-      // 			hcalHandles);
-      // instead of this:
-      iEvent.getByLabel(hcalRecHitsHBHEModuleLabel_, 
-			hcalRecHitsHBHEProductInstanceName_, 
-			hcalHandle );
+    
+    bool found = iEvent.getByLabel(inputTagHcalRecHitsHBHE_, 
+				   hcalHandle );
 
-
-//       for(unsigned ih=0; ih<hcalHandles.size(); ih++) {
-// 	const edm::Handle<HBHERecHitCollection>& handle = hcalHandles[ih];
+    if(!found) {
+      edm::LogError("PFClusterProducer")
+	<<"could not find rechits "<<inputTagHcalRecHitsHBHE_<<endl;
+    }
+    else {
+      assert( hcalHandle.isValid() );
       
       const edm::Handle<HBHERecHitCollection>& handle = hcalHandle;
       for(unsigned irechit=0; irechit<handle->size(); irechit++) {
@@ -698,7 +653,7 @@ void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
 	double energy = hit.energy();
 	
 	reco::PFRecHit* pfrh = 0;
-	  
+	
 
 	const HcalDetId& detid = hit.detid();
 	switch( detid.subdet() ) {
@@ -731,7 +686,7 @@ void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
 					    rechits.size()-1 ) ); 
 	}
       }
-  
+      
       
       // do navigation:
       for(unsigned i=0; i<rechits.size(); i++ ) {
@@ -741,16 +696,9 @@ void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
 			      *hcalBarrelGeometry, 
 			      hcalTopology,
 			      *hcalEndcapGeometry);
-      }
-      // }      
-    } catch (...) {
-      LogError("PFClusterProducer")
-	<<"could not get handles on HBHERecHits! "
-	<<hcalRecHitsHBHEModuleLabel_<<"/"
-	<<hcalRecHitsHBHEProductInstanceName_<< endl;
-      return;
-    }
-  }
+      } // loop for navigation
+    }  // endif hcal rechits were found
+  } // endif clustering on rechits in hcal
 }
 
 
@@ -777,15 +725,16 @@ void PFClusterProducer::createPSRecHits(vector<reco::PFRecHit>& rechits,
   Handle< EcalRecHitCollection >   pRecHits;
 
 
-  try {
-    iEvent.getByLabel(ecalRecHitsESModuleLabel_,
-		      ecalRecHitsESProductInstanceName_,
-		      pRecHits);
-    if (!(pRecHits.isValid())) {
-      LogError("PFClusterProducer")
-	<<"could not get a handle on preshower rechits!"<<endl;
-      return;
-    }
+
+  bool found = iEvent.getByLabel(inputTagEcalRecHitsES_,
+				 pRecHits);
+
+  if(!found) {
+    edm::LogError("PFClusterProducer")
+      <<"could not find rechits "<<inputTagEcalRecHitsES_<<endl;
+  }
+  else {
+    assert( pRecHits.isValid() );
 
     const EcalRecHitCollection& psrechits = *( pRecHits.product() );
     typedef EcalRecHitCollection::const_iterator IT;
@@ -845,14 +794,7 @@ void PFClusterProducer::createPSRecHits(vector<reco::PFRecHit>& rechits,
       idSortedRecHits.insert( make_pair(detid.rawId(), rechits.size()-1 ) );   
     }
   }
-  catch ( cms::Exception& ex ) {
-    edm::LogError("PFClusterProducer") 
-      <<"Error! can't get the preshower rechits. module: "
-      <<ecalRecHitsESModuleLabel_
-      <<", product instance: "<<ecalRecHitsESProductInstanceName_
-      <<endl;
-  }
-    
+
   // do navigation
   for(unsigned i=0; i<rechits.size(); i++ ) {
     
