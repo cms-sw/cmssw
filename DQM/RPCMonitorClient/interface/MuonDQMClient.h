@@ -5,15 +5,15 @@
  * *
  *  State machine DQM Client for Muons. Owns a web interface.
  *
- *  $Date: 2006/05/04 10:27:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/08 12:26:41 $
+ *  $Revision: 1.3 $
  *  \author Ilaria Segoni
   */
 
 
-#include "DQMServices/Components/interface/DQMBaseClient.h"
-#include "DQMServices/Components/interface/Updater.h"
-#include "DQMServices/Components/interface/UpdateObserver.h"
+#include "DQMServices/XdaqCollector/interface/DQMBaseClient.h"
+#include "DQMServices/XdaqCollector/interface/Updater.h"
+#include "DQMServices/XdaqCollector/interface/UpdateObserver.h"
 
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 
