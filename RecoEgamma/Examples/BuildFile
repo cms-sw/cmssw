@@ -10,6 +10,8 @@
 <use name=MagneticField/Records>
 <use name=RecoEgamma/EgammaElectronProducers>
 <use name=RecoEgamma/EgammaMCTools>
+<use name=PhysicsTools/UtilAlgos>
+<use name=FWCore/ServiceRegistry>
 <use name=hepmc> 
 <use name=clhep>
 <use name=root>
@@ -27,6 +29,8 @@
    <use name=MagneticField/Records>
    <use name=RecoEgamma/EgammaElectronProducers>
    <use name=RecoEgamma/EgammaMCTools>
+   <use name=PhysicsTools/UtilAlgos>
+   <use name=FWCore/ServiceRegistry>
    <use name=hepmc> 
    <use name=clhep>
    <use name=root>
