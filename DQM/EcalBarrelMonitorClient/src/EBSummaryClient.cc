@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/12/18 14:23:49 $
- * $Revision: 1.93 $
+ * $Date: 2007/12/18 15:56:02 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  *
 */
@@ -957,6 +957,7 @@ void EBSummaryClient::analyze(void){
   // The global-summary
   // right now a summary of Integrity and PO
   int nGlobalErrors = 0;
+  int nValidChannels = 0;
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
@@ -984,6 +985,7 @@ void EBSummaryClient::analyze(void){
 
         meGlobalSummary_->setBinContent( ipx, iex, xval );
 
+	if ( xval > -1 ) ++nValidChannels;
 	if ( xval == 0 ) ++nGlobalErrors;
 
       }
@@ -991,7 +993,7 @@ void EBSummaryClient::analyze(void){
     }
   }
 
-  float errorSummary = 1.0 - float(nGlobalErrors)/(1700. * 36.);
+  float errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
   
   MonitorElement* me = dbe_->get("EcalBarrel/EventInfo/errorSummary");
   if (me) me->Fill(errorSummary);
