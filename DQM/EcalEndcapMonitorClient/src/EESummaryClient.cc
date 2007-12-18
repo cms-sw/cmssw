@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/12/18 13:58:06 $
- * $Revision: 1.63 $
+ * $Date: 2007/12/18 14:23:50 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  *
 */
@@ -1086,6 +1086,8 @@ void EESummaryClient::analyze(void){
 
   // The global-summary
   // right now a summary of Integrity and PO
+  int nGlobalErrors = 0;
+  int nValidChannels = 0;
   for ( int jx = 1; jx <= 100; jx++ ) {
     for ( int jy = 1; jy <= 100; jy++ ) {
 
@@ -1113,6 +1115,9 @@ void EESummaryClient::analyze(void){
 
         meGlobalSummary_[0]->setBinContent( jx, jy, xval );
 
+	if ( xval > -1 ) ++nValidChannels;
+	if ( xval == 0 ) ++nGlobalErrors;
+
       }
 
       if(meIntegrity_[1] && mePedestalOnline_[1]) {
@@ -1139,12 +1144,15 @@ void EESummaryClient::analyze(void){
 
         meGlobalSummary_[1]->setBinContent( jx, jy, xval );
 
+	if ( xval > -1 ) ++nValidChannels;
+	if ( xval == 0 ) ++nGlobalErrors;
+
       }
 
     }
   }
 
-   float errorSummary = 1.0;
+   float errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
    
    MonitorElement* me = dbe_->get("EcalEndcap/EventInfo/errorSummary");
    if (me) me->Fill(errorSummary);
