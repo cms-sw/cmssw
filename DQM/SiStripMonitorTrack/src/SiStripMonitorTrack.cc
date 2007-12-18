@@ -71,13 +71,9 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   //cluster input
   e.getByLabel( ClusterInfo_src_, dsv_SiStripClusterInfo);
   e.getByLabel( Cluster_src_,     dsv_SiStripCluster);    
-  try {
-    e.getByLabel(Track_src_, trackCollection);
-  } catch ( cms::Exception& er ) {
-    LogTrace("SiStripMonitorTrack")<<"caught std::exception "<<er.what()<<std::endl;
-    tracksCollection_in_EventTree=false;
-  } catch ( ... ) {
-    LogTrace("SiStripMonitorTrack")<<" funny error " <<std::endl;
+  e.getByLabel(Track_src_, trackCollection);
+  if (trackCollection.isValid()){
+    LogTrace("SiStripMonitorTrack")<<" Track Collection is not valid !!" <<std::endl;
     tracksCollection_in_EventTree=false;
   }
   
