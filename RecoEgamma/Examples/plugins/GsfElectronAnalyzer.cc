@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronAnalyzer.cc,v 1.10 2007/11/09 16:28:10 charlot Exp $
+// $Id: GsfElectronAnalyzer.cc,v 1.1 2007/12/08 15:23:00 futyand Exp $
 //
 //
 
@@ -331,6 +331,180 @@ GsfElectronAnalyzer::endJob(){
     if (h_ele_fbremVsEta_mean->GetBinContent(ibin)>0.) xOverX0 = -log(h_ele_fbremVsEta_mean->GetBinContent(ibin));
     h_ele_xOverX0VsEta->SetBinContent(ibin,xOverX0);
   }
+
+  // mc truth  
+
+  h_mcNum->Write();
+  h_eleNum->Write();
+  h_gamNum->Write();
+    
+  // rec event
+  
+  histNum_->Write();
+  
+  // mc  
+  h_simEta->Write();
+  h_simAbsEta->Write();
+  h_simP->Write();
+  h_simPt->Write();
+
+  // ctf tracks
+  h_ctf_foundHitsVsEta->Write();
+  h_ctf_lostHitsVsEta->Write();
+  
+  // all electrons  
+  h_ele_vertexPt_all->Write();
+  h_ele_vertexEta_all->Write();
+
+  // matched electrons
+  h_ele_charge->Write();
+  h_ele_chargeVsEta->Write();
+  h_ele_chargeVsPhi->Write();
+  h_ele_chargeVsPt->Write();
+  h_ele_vertexP->Write();
+  h_ele_vertexPt->Write();
+  h_ele_vertexPtVsEta->Write();
+  h_ele_vertexPtVsPhi->Write();
+  h_ele_simPt_matched->Write();
+  h_ele_vertexEta->Write();
+  h_ele_vertexEtaVsPhi->Write();
+  h_ele_simAbsEta_matched->Write();
+  h_ele_simEta_matched->Write();
+  h_ele_vertexPhi->Write();
+  h_ele_vertexX->Write();
+  h_ele_vertexY ->Write();
+  h_ele_vertexZ->Write();
+  h_ele_vertexTIP->Write();
+  h_ele_vertexTIPVsEta->Write();
+  h_ele_vertexTIPVsPhi->Write();
+  h_ele_vertexTIPVsPt->Write();
+  h_ele_PoPtrue->Write();
+  h_ele_PoPtrueVsEta ->Write();
+  h_ele_PoPtrueVsPhi->Write();
+  h_ele_PoPtrueVsPt->Write();
+  h_ele_PoPtrue_barrel ->Write();
+  h_ele_PoPtrue_endcaps->Write();
+  h_ele_EtaMnEtaTrue->Write();
+  h_ele_EtaMnEtaTrueVsEta ->Write();
+  h_ele_EtaMnEtaTrueVsPhi->Write();
+  h_ele_EtaMnEtaTrueVsPt->Write();
+  h_ele_PhiMnPhiTrue ->Write();
+  h_ele_PhiMnPhiTrue2 ->Write();
+  h_ele_PhiMnPhiTrueVsEta->Write();
+  h_ele_PhiMnPhiTrueVsPhi->Write();
+  h_ele_PhiMnPhiTrueVsPt->Write();
+
+  // matched electron, superclusters
+  histSclEn_->Write();
+  histSclEoEtrue_barrel->Write();
+  histSclEoEtrue_endcaps->Write();
+  histSclEt_->Write();
+  histSclEtVsEta_->Write();
+  histSclEtVsPhi_->Write();
+  histSclEtaVsPhi_ ->Write();
+  histSclEta_->Write();
+  histSclPhi_->Write();
+
+  // matched electron, gsf tracks
+  h_ele_foundHits->Write();
+  h_ele_foundHitsVsEta->Write();
+  h_ele_foundHitsVsPhi->Write();
+  h_ele_foundHitsVsPt->Write();
+  h_ctf_foundHits->Write();
+  h_ele_lostHits->Write();
+  h_ele_lostHitsVsEta->Write();
+  h_ele_lostHitsVsPhi->Write();
+  h_ele_lostHitsVsPt->Write();
+  h_ele_chi2 ->Write();
+  h_ele_chi2VsEta ->Write();
+  h_ele_chi2VsPhi ->Write();
+  h_ele_chi2VsPt->Write();
+  h_ele_PinMnPout->Write();
+  h_ele_PinMnPout_mode->Write();
+  h_ele_PinMnPoutVsEta_mode->Write();
+  h_ele_PinMnPoutVsPhi_mode->Write();
+  h_ele_PinMnPoutVsPt_mode->Write();
+  h_ele_PinMnPoutVsE_mode->Write();
+  h_ele_PinMnPoutVsChi2_mode->Write();
+  h_ele_outerP ->Write();
+  h_ele_outerP_mode->Write();
+  h_ele_outerPVsEta_mode->Write();
+  h_ele_outerPt->Write();
+  h_ele_outerPt_mode ->Write();
+  h_ele_outerPtVsEta_mode->Write();
+  h_ele_outerPtVsPhi_mode->Write();
+  h_ele_outerPtVsPt_mode->Write();
+  
+  // matched electrons, matching 
+  h_ele_EoP ->Write();
+  h_ele_EoPVsEta ->Write();
+  h_ele_EoPVsPhi->Write();
+  h_ele_EoPVsE->Write();
+  h_ele_EoPout->Write();
+  h_ele_EoPoutVsEta->Write();
+  h_ele_EoPoutVsPhi->Write();
+  h_ele_EoPoutVsE ->Write();
+  h_ele_dEtaSc_propVtx->Write();
+  h_ele_dEtaScVsEta_propVtx->Write();
+  h_ele_dEtaScVsPhi_propVtx->Write();
+  h_ele_dEtaScVsPt_propVtx ->Write();
+  h_ele_dPhiSc_propVtx->Write();
+  h_ele_dPhiScVsEta_propVtx ->Write();
+  h_ele_dPhiScVsPhi_propVtx->Write();
+  h_ele_dPhiScVsPt_propVtx->Write();
+  h_ele_dEtaCl_propOut->Write();
+  h_ele_dEtaClVsEta_propOut->Write();
+  h_ele_dEtaClVsPhi_propOut->Write();
+  h_ele_dEtaClVsPt_propOut->Write();
+  h_ele_dPhiCl_propOut->Write();
+  h_ele_dPhiClVsEta_propOut->Write();
+  h_ele_dPhiClVsPhi_propOut->Write();
+  h_ele_dPhiClVsPt_propOut->Write();
+  
+  h_ele_HoE->Write();
+  h_ele_HoEVsEta->Write();
+  h_ele_HoEVsPhi->Write();
+  h_ele_HoEVsE->Write();
+ 
+  // classes  
+  h_ele_classes->Write();
+  h_ele_eta->Write();
+  h_ele_eta_golden->Write();
+  h_ele_eta_bbrem->Write();
+  h_ele_eta_narrow->Write();
+  h_ele_eta_shower->Write();
+  h_ele_PinVsPoutGolden_mode->Write();
+  h_ele_PinVsPoutShowering0_mode->Write();
+  h_ele_PinVsPoutShowering1234_mode->Write();
+  h_ele_PinVsPoutGolden_mean->Write();
+  h_ele_PinVsPoutShowering0_mean->Write();
+  h_ele_PinVsPoutShowering1234_mean->Write();
+  h_ele_PtinVsPtoutGolden_mode->Write();
+  h_ele_PtinVsPtoutShowering0_mode->Write();
+  h_ele_PtinVsPtoutShowering1234_mode->Write();
+  h_ele_PtinVsPtoutGolden_mean->Write();
+  h_ele_PtinVsPtoutShowering0_mean->Write();
+  h_ele_PtinVsPtoutShowering1234_mean->Write();
+  histSclEoEtrueGolden_barrel->Write();
+  histSclEoEtrueGolden_endcaps->Write();
+  histSclEoEtrueShowering0_barrel->Write();
+  histSclEoEtrueShowering0_endcaps->Write();
+  histSclEoEtrueShowering1234_barrel->Write();
+  histSclEoEtrueShowering1234_endcaps->Write();
+
+  // fbrem
+  h_ele_fbremVsEta_mode->Write();
+  h_ele_fbremVsEta_mean->Write();
+  h_ele_etaEff->Write();
+  h_ele_absetaEff->Write();
+  h_ele_ptEff->Write();
+  h_ele_etaEff_all->Write();
+  h_ele_ptEff_all->Write();
+  h_ele_eta_goldenFrac->Write();
+  h_ele_eta_bbremFrac->Write();
+  h_ele_eta_narrowFrac->Write();
+  h_ele_eta_showerFrac->Write();
+  h_ele_xOverX0VsEta->Write();
   
 }
 
