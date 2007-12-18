@@ -49,39 +49,34 @@ namespace popcon{
       //moved the code from endJob, as DBOutput service doesn't commit after the end of analyze !!!!!
       if(m_debug) std::cerr << "Destructor begins\n";	
 	
-      try{
-	if (!fixed || corrupted){	
-	  if(m_debug)
-	    std::cerr << "Corrupted | unfixed state | problem with PopCon DB\n";
-	  lgr->finalizeExecution(logMsg);
-	}else{ //ok 
-	  if(m_debug)
-	    std::cerr << "OK, finalizing the log\n";
-	  lgr->finalizeExecution(logMsg);
-	  stc->generateStatusData();
-	  stc->storeStatusData();
-	  if(m_debug)
-	    std::cerr << "Deleting stc\n";	
-	  delete stc;
-	}	  
-	lgr->unlock();
-	
-	}catch(std::exception& e){
-	  std::cerr << "Exception caught in destructor: "<< e.what();
-	}
-	
-	if (m_handler_object != 0){
-	  if(m_debug)
-	    std::cerr << "Deleting the source handler\n";	
-	  delete m_handler_object;
-	}
+      if (!fixed || corrupted){	
 	if(m_debug)
-	  std::cerr << "Deleting lgr\n";	
+	  std::cerr << "Corrupted | unfixed state | problem with PopCon DB\n";
+	lgr->finalizeExecution(logMsg);
+      }else{ //ok 
+	if(m_debug)
+	  std::cerr << "OK, finalizing the log\n";
+	lgr->finalizeExecution(logMsg);
+	stc->generateStatusData();
+	stc->storeStatusData();
+	if(m_debug)
+	  std::cerr << "Deleting stc\n";	
+	delete stc;
+	}	  
+      lgr->unlock();
+      
+      if (m_handler_object != 0){
+	if(m_debug)
+	  std::cerr << "Deleting the source handler\n";	
+	delete m_handler_object;
+      }
+      if(m_debug)
+	std::cerr << "Deleting lgr\n";	
 	delete lgr;
 	
 	if(m_debug)
 	  std::cerr << "Destructor ends\n";	
-      }
+    }
     private:
     //state management
     StateCreator* stc;
