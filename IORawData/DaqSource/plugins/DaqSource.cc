@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/12/03 00:43:40 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/12/11 00:32:37 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -118,9 +118,6 @@ namespace edm {
 
     // Framework event numbers start at 1, not at zero.
     eventId = EventID(runNumber_, eventId.event() + 1);
-
-    std::cout << "BARF: " << runPrincipal()->run() << " : " << luminosityBlockNumber_ << " : " << eventId.event() << std::endl;
-    std::cout << "BARF: " << eventId.run() << " : " << luminosityBlockNumber_ << " : " << eventId.event() << std::endl;
     
     // If there is no luminosity block principal, make one.
     if (luminosityBlockPrincipal().get() == 0 || luminosityBlockPrincipal()->luminosityBlock() != luminosityBlockNumber_) {
