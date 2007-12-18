@@ -22,6 +22,7 @@ class JetBProbabilityComputer : public JetTagComputer
      m_nbTracks         = parameters.getParameter<unsigned int>("numberOfBTracks");
      m_cutMaxDecayLen   = parameters.getParameter<double>("maximumDecayLength");
      m_cutMaxDistToAxis = parameters.getParameter<double>("maximumDistanceToJetAxis");
+     m_cutPixelHits     = parameters.getParameter<int>("minimumNumberOfPixelHits");
   }
  
   float discriminator(const reco::BaseTagInfo & ti) const 
@@ -43,7 +44,8 @@ class JetBProbabilityComputer : public JetTagComputer
           for(std::vector<float>::const_iterator it = allProbabilities.begin(); it!=allProbabilities.end(); ++it, i++)
            {
             if(   fabs(impactParameters[i].distanceToJetAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
-                 (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen        // max decay len
+                 (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen &&        // max decay len
+	         (*tracks[i]).hitPattern().numberOfValidPixelHits() >= m_cutPixelHits 
              )
             {
     // Use only positive(or negative) tracks for B
@@ -113,10 +115,11 @@ double jetProbability( const std::vector<float> & v ) const
    int m_ipType;
    double m_deltaR;
    int m_trackSign;
+   int m_cutPixelHits;
    unsigned int m_nbTracks;
    double  m_cutMaxDecayLen;
    double m_cutMaxDistToAxis;
-
+  
 };
 
 #endif // ImpactParameter_JetBProbabilityComputer_h
