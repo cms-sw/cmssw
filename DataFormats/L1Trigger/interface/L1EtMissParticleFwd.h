@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 14:28:43 EDT 2006
-// $Id: L1EtMissParticleFwd.h,v 1.1 2006/08/02 14:09:29 wsun Exp $
+// $Id: L1EtMissParticleFwd.h,v 1.2 2007/04/02 08:03:13 wsun Exp $
 //
 
 // system include files
@@ -35,6 +35,7 @@ namespace l1extra {
 
    typedef edm::Ref< L1EtMissParticleCollection > L1EtMissParticleRef ;
    typedef edm::RefVector< L1EtMissParticleCollection > L1EtMissParticleRefVector ;
+   typedef std::vector< L1EtMissParticleRef > L1EtMissParticleVectorRef ;
 }
 
 #endif
