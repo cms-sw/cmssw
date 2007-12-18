@@ -94,6 +94,10 @@ namespace pos{
       return scanCounter(iScan(dac),state);
     }
 
+    unsigned int numberOfScanVariables() const {return dacs_.size();}
+
+    std::string scanName(unsigned int iscan) const {return dacs_[iscan].name();}
+
     double scanValueMin(unsigned int iscan) const {return dacs_[iscan].first();}
     double scanValueMin(std::string dac) const {return scanValueMin(iScan(dac));}
     double scanValueMax(unsigned int iscan) const {return dacs_[iscan].first()+

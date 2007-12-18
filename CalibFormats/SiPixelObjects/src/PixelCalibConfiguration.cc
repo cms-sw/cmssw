@@ -60,6 +60,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 	     mode_=="ClockPhaseCalibration"||
 	     mode_=="TemperatureCalibration"||
 	     mode_=="ThresholdCalDelayFIFO1"||
+	     mode_=="2DEfficiencyScan"||
              mode_=="ThresholdCalDelay");
       in >>tmp;
     } else {
@@ -487,6 +488,8 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 	 << " not understood."<<endl;
     ::abort();
   }
+
+  bool changedWBC=false;
   
   pixelFEC->fecDebug(1);
 
@@ -602,22 +605,10 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 			theROC.rocid(),
 			dacs_[ii].dacchannel(),
 			dacvalues[ii],_bufferData);
-      //          std::cout << "Will set dac "<<dacchannel_[i]
-      //          <<" to "<<dacvalues[i]<<std::endl;
+
+      if (dacs_[ii].dacchannel()==254) changedWBC=true;
     }
 
-    //std::cout << "Will set Vcal="<<vcal_<<std::endl;
-    //
-    //pixelFEC->progdac(theROC.mfec(),
-    //		  theROC.mfecchannel(),
-    //		  theROC.hubaddress(),
-    //		  theROC.portaddress(),
-    //		  theROC.rocid(),
-    //		  25,
-    //		  vcal_);
-    //
-
-    //	std::cout << "Done with progdac" << std::endl;
     if (first_scan){
 
       if (mode!=2){
@@ -691,7 +682,19 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
   if (_bufferData) {
     pixelFEC->qbufsend();
   }
-  
+
+  if (changedWBC){
+    for(unsigned int i=0;i<rocs_.size();i++){
+      const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
+      assert(hdwadd!=0);
+      PixelHdwAddress theROC=*hdwadd; 
+      pixelFEC->rocreset(theROC.mfec(),
+			 theROC.mfecchannel(),
+			 14,                    //FIXME hardcode for Channel A
+			 theROC.hubaddress());
+    }
+  }
+
   return;
 
 } 
