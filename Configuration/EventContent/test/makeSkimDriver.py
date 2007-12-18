@@ -62,7 +62,7 @@ print metaconfig_content
 
 
 # and now execute!
-command='cmsRun /afs/cern.ch/user/d/dpiparo/scratch0/CMSSW_releases/CMSSW_1_7_0_pre13/src/Configuration/EventContent/test_py/makeSkim.py'
+command='cmsRun ./makeSkim.py'
 print _green('\nAnd now run %s ...\n' %command)
 os.environ['PYTHONPATH']+=':./' # to find the metaconfig..
 os.system(command)
