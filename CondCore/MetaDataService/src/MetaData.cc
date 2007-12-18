@@ -24,7 +24,10 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
     try{
       this->createTable( cond::MetaDataNames::metadataTable() );
     }catch( const coral::TableAlreadyExistingException& er ){
+      //must ignore this exception!!
       //std::cout<<"table alreay existing, not creating a new one"<<std::endl;
+    }catch( const std::exception& er ){
+      throw cond::Exception(std::string("MetaData::addMapping error: ")+er.what());
     }
     coral::ITable& mytable=m_coraldb.nominalSchema().tableHandle(cond::MetaDataNames::metadataTable());
     coral::AttributeList rowBuffer;
@@ -34,6 +37,7 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
     rowBuffer[cond::MetaDataNames::tokenColumn()].data<std::string>()=iovtoken;
     dataEditor.insertRow( rowBuffer );
   }catch( const coral::DuplicateEntryInUniqueKeyException& er ){
+    ///do not remove ! must ignore this exception!!!
     throw cond::MetaDataDuplicateEntryException("addMapping",name);
   }catch(std::exception& er){
     throw cond::Exception(std::string("MetaData::replaceToken error: ")+er.what());
@@ -58,6 +62,7 @@ bool cond::MetaData::replaceToken(const std::string& name, const std::string& ne
     condition+="= :oldTag";
     dataEditor.updateRows( setClause, condition, inputData );
   }catch( coral::DuplicateEntryInUniqueKeyException& er ){
+    ///do not remove ! must ignore this exception!!!
     throw cond::MetaDataDuplicateEntryException("MetaData::replaceToken",name);
   }catch(std::exception& er){
     throw cond::Exception(std::string("MetaData::replaceToken error: ")+er.what());
@@ -80,10 +85,10 @@ const std::string cond::MetaData::getToken( const std::string& name ){
       iovtoken=row[ cond::MetaDataNames::tokenColumn() ].data<std::string>();
     }
   }catch(const coral::TableNotExistingException& er){
+    ///must ignore this exception!!!
     //m_coraldb.commit();
     return "";
   }catch(const std::exception& er){
-
     throw cond::Exception( std::string("MetaData::getToken error: ")+er.what() );
   }
   return iovtoken;
@@ -113,6 +118,7 @@ bool cond::MetaData::hasTag( const std::string& name ) const{
     if( cursor.next() ) result=true;
     cursor.close();
   }catch(const coral::TableNotExistingException& er){
+    ///do not remove ! must ignore this exception!!!
     return false;
   }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::hasTag: " )+er.what() );
@@ -132,6 +138,7 @@ void cond::MetaData::listAllTags( std::vector<std::string>& result ) const{
     }
     cursor.close();
   }catch(const coral::TableNotExistingException& er){
+    ///do not remove ! must ignore this exception!!!
     return;
   }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::listAllTag: " )+er.what() );
@@ -144,6 +151,7 @@ void cond::MetaData::deleteAllEntries(){
     coral::ITableDataEditor& dataEditor = table.dataEditor();
     dataEditor.deleteRows( "",emptybinddata ); 
   }catch(const coral::TableNotExistingException& er){
+    ///do not remove ! must ignore this exception!!!
     return;
   }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::deleteAllEntries: " )+er.what() );
@@ -160,6 +168,7 @@ void cond::MetaData::deleteEntryByToken( const std::string& token ){
     dataEditor.deleteRows(whereClause,deletecondition ); 
     return;
   }catch(const coral::TableNotExistingException& er){
+    ///do not remove ! must ignore this exception!!!
     return;
   }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::deleteEntryByToken: " )+er.what() );
@@ -175,6 +184,7 @@ void cond::MetaData::deleteEntryByTag( const std::string& tag ){
     coral::ITableDataEditor& dataEditor = table.dataEditor();
     dataEditor.deleteRows(whereClause,deletecondition ); 
   }catch(const coral::TableNotExistingException& er){
+    ///do not remove ! must ignore this exception!!!
     return;
   }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::deleteEntryByTag: " )+er.what() );
