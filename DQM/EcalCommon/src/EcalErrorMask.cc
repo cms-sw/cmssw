@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.12 2007/11/13 14:05:34 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.13 2007/12/04 08:51:21 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.12 $
-  \date $Date: 2007/11/13 14:05:34 $
+  \version $Revision: 1.13 $
+  \date $Date: 2007/12/04 08:51:21 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -434,6 +434,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 //---------------------------------------------------------------------------------------------
 
 std::string EcalErrorMask::sEB( int sm ) {
+
   if( sm > 18 ) sm = 18-sm;
   std::ostringstream s;
   s << "EB" << std::setw(3) << std::setfill('0')
@@ -450,6 +451,7 @@ std::string EcalErrorMask::sEB( int sm ) {
 //---------------------------------------------------------------------------------------------
 
 std::string EcalErrorMask::sEE( int sm ) {
+
   if( sm > 9 ) sm = 9-sm;
   std::ostringstream s;
   s << "EE" << std::setw(3) << std::setfill('0')
@@ -566,6 +568,7 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
   }
 
   f.close();
+
 }
 
 //---------------------------------------------------------------------------------------------
@@ -582,6 +585,7 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
       eConn->fetchValidDataSet( &EcalErrorMask::mapCrystalErrors_, &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << "RunCrystalErrorsDat ";
     } catch ( std::runtime_error &e ) {
+      std::cout << "(not found) ";
       throw( std::runtime_error( e.what() ) );
     }
 
@@ -592,25 +596,25 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
       eConn->fetchValidDataSet( &EcalErrorMask::mapTTErrors_,      &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << " RunTTErrorsDat ";
     } catch ( std::runtime_error &e ) {
-//      throw( std::runtime_error( e.what() ) );
+      std::cout << "(not found) ";
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapPNErrors_,      &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << " RunPNErrorsDat ";
     } catch ( std::runtime_error &e ) {
-//      throw( std::runtime_error( e.what() ) );
+      std::cout << "(not found) ";
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemChErrors_,   &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << " RunMemChErrorsDat ";
     } catch ( std::runtime_error &e ) {
-//      throw( std::runtime_error( e.what() ) );
+      std::cout << "(not found) ";
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemTTErrors_,   &validIOV, &runTag, runIOV->getRunNumber() );
       std::cout << " RunMemTTErrorsDat ";
     } catch ( std::runtime_error &e ) {
-//      throw( std::runtime_error( e.what() ) );
+      std::cout << "(not found) ";
     }
 */
 
@@ -620,6 +624,7 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
       eConn->fetchValidDataSet( &EcalErrorMask::mapCrystalErrors_, &validIOV, location, runIOV->getRunNumber() );
       std::cout << "RunCrystalErrorsDat ";
     } catch ( std::runtime_error &e ) {
+      std::cout << "(not found) ";
       throw( std::runtime_error( e.what() ) );
     }
 
@@ -630,26 +635,28 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
       eConn->fetchValidDataSet( &EcalErrorMask::mapTTErrors_,      &validIOV, location, runIOV->getRunNumber() );
       std::cout << " RunTTErrorsDat ";
     } catch ( std::runtime_error &e ) {
-//      throw( std::runtime_error( e.what() ) );
+      std::cout << "(not found) ";
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapPNErrors_,      &validIOV, location, runIOV->getRunNumber() );
       std::cout << " RunPNErrorsDat ";
     } catch ( std::runtime_error &e ) {
-//      throw( std::runtime_error( e.what() ) );
+      std::cout << "(not found) ";
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemChErrors_,   &validIOV, location, runIOV->getRunNumber() );
       std::cout << " RunMemChErrorsDat ";
     } catch ( std::runtime_error &e ) {
-//      throw( std::runtime_error( e.what() ) );
+      std::cout << "(not found) ";
     }
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemTTErrors_,   &validIOV, location, runIOV->getRunNumber() );
       std::cout << " RunMemTTErrorsDat ";
     } catch ( std::runtime_error &e ) {
-//      throw( std::runtime_error( e.what() ) );
+      std::cout << "(not found) ";
     }
+
+    std::cout << std::endl;
 
   }
 
@@ -657,24 +664,20 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
 
 //---------------------------------------------------------------------------------------------
 
-void EcalErrorMask::writeDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( std::runtime_error ) {
+void EcalErrorMask::writeDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) {
 
   if( eConn ) {
 
-    try {
-      if (EcalErrorMask::mapCrystalErrors_.size() != 0 )
-        eConn->insertDataSet( &EcalErrorMask::mapCrystalErrors_, runIOV );
-      if (EcalErrorMask::mapTTErrors_.size() != 0 )
-        eConn->insertDataSet( &EcalErrorMask::mapTTErrors_,      runIOV );
-      if (EcalErrorMask::mapPNErrors_.size() != 0 )
-        eConn->insertDataSet( &EcalErrorMask::mapPNErrors_,      runIOV );
-      if (EcalErrorMask::mapMemChErrors_.size() != 0 )
-        eConn->insertDataSet( &EcalErrorMask::mapMemChErrors_,   runIOV );
-      if (EcalErrorMask::mapMemTTErrors_.size() != 0 )
-        eConn->insertDataSet( &EcalErrorMask::mapMemTTErrors_,   runIOV );
-    } catch ( std::runtime_error &e ) {
-      throw( std::runtime_error( e.what() ) );
-    }
+    if (EcalErrorMask::mapCrystalErrors_.size() != 0 )
+      eConn->insertDataSet( &EcalErrorMask::mapCrystalErrors_, runIOV );
+    if (EcalErrorMask::mapTTErrors_.size() != 0 )
+      eConn->insertDataSet( &EcalErrorMask::mapTTErrors_,      runIOV );
+    if (EcalErrorMask::mapPNErrors_.size() != 0 )
+      eConn->insertDataSet( &EcalErrorMask::mapPNErrors_,      runIOV );
+    if (EcalErrorMask::mapMemChErrors_.size() != 0 )
+      eConn->insertDataSet( &EcalErrorMask::mapMemChErrors_,   runIOV );
+    if (EcalErrorMask::mapMemTTErrors_.size() != 0 )
+      eConn->insertDataSet( &EcalErrorMask::mapMemTTErrors_,   runIOV );
 
   }
 
@@ -684,70 +687,56 @@ void EcalErrorMask::writeDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw(
 
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
-  //if( !done_ ) {
-  //throw( std::runtime_error( "Input file not read" ) );
-  //return;
-  //}
   fillMap->clear();
   *fillMap = EcalErrorMask::mapCrystalErrors_;
   return;
+
 }
 
 //---------------------------------------------------------------------------------------------
 
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
-  //if( !done_ ) {
-  //throw( std::runtime_error( "Input file not read" ) );
-  //return;
-  //}
   fillMap->clear();
   *fillMap = EcalErrorMask::mapTTErrors_;
   return;
+
 }
 
 //---------------------------------------------------------------------------------------------
 
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
-  //if( !done_ ) {
-  //throw( std::runtime_error( "Input file not read" ) );
-  //return;
-  //}
   fillMap->clear();
   *fillMap = EcalErrorMask::mapPNErrors_;
   return;
+
 }
 
 //---------------------------------------------------------------------------------------------
 
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
-  //if( !done_ ) {
-  //throw( std::runtime_error( "Input file not read" ) );
-  //return;
-  //}
   fillMap->clear();
   *fillMap = EcalErrorMask::mapMemChErrors_;
   return;
+
 }
 
 //---------------------------------------------------------------------------------------------
 
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
-  //if( !done_ ) {
-  //throw( std::runtime_error( "Input file not read" ) );
-  //return;
-  //}
   fillMap->clear();
   *fillMap = EcalErrorMask::mapMemTTErrors_;
   return;
+
 }
 
 //---------------------------------------------------------------------------------------------
 
 void EcalErrorMask::clearComments_( char* line ) {
+
   // It looks for "#" and replaces it with "\0"...
   regex_t rec;
   regmatch_t pmc;
@@ -761,13 +750,16 @@ void EcalErrorMask::clearComments_( char* line ) {
   }
 
   regfree( &rec );
+
 }
 
 //---------------------------------------------------------------------------------------------
 
 void EcalErrorMask::clearFinalBlanks_( char* line ) {
+
   // From end of string, find last ' ' or '\t' (tab) and replace it with '\0'
   int i;
   for( i=strlen(line)-1; i>=0 && (line[i]==' '||line[i]=='\t'); i-- );
   if( line[i+1]  == ' ' || line[i+1] == '\t' ) line[i+1] = '\0';
+
 }

@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.h,v 1.4 2007/10/23 07:09:46 dellaric Exp $
+// $Id: EcalErrorMask.h,v 1.5 2007/11/13 14:05:33 dellaric Exp $
 
 /*!
   \file EcalErrorMask.h
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.4 $
-  \date $Date: 2007/10/23 07:09:46 $
+  \version $Revision: 1.5 $
+  \date $Date: 2007/11/13 14:05:33 $
 */
 
 #ifndef EcalErrorMask_H
@@ -34,7 +34,7 @@ class EcalErrorMask {
   static void writeFile( std::string outFile ) throw( std::runtime_error );
 
   static void readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( std::runtime_error );
-  static void writeDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( std::runtime_error );
+  static void writeDB( EcalCondDBInterface* eConn, RunIOV* runIOV );
 
   static void fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) throw( std::runtime_error );
   static void fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap ) throw( std::runtime_error );
