@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id$
+// $Id: HFAnalyzer.cc,v 1.1 2007/11/19 17:08:16 yilmaz Exp $
 //
 //
 
@@ -71,12 +71,9 @@ class HFAnalyzer : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-   double eta;
-   double eFwd;
-   double eHF;
-   int nColl;
-   int nPart;
-   float b;
+   int nbins_;
+   string src_;
+   std::vector<double> vHF;
 
    TH1 *eHistHF;
    edm::Service<TFileService> fs;
@@ -96,6 +93,8 @@ class HFAnalyzer : public edm::EDAnalyzer {
 HFAnalyzer::HFAnalyzer(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
+   src_ = iConfig.getUntrackedParameter<string>("signal","hfreco");
+   nbins_ = iConfig.getUntrackedParameter<int>("nBins",20);
 
 }
 
@@ -122,33 +121,17 @@ HFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace HepMC;
 
    //Reset energy calculation
-   eHF = 0;
+   double eHF = 0;
 
    Handle<HFRecHitCollection> hits;
-   iEvent.getByLabel("hfreco",hits);
+   iEvent.getByLabel(src_,hits);
    for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
       const HFRecHit & tower = (*hits)[ ihit ];
       eHF = eHF + tower.energy();
    }
 
-   /////////////////////////////////
-
-   Handle<HepMCProduct> hepmc;
-   iEvent.getByLabel("source",hepmc);
-   const GenEvent *ev = hepmc->GetEvent();
-   HeavyIon *hi;
-   hi = ev->heavy_ion();
-
-   nColl = hi->Ncoll();
-   nPart = hi->Npart_proj() + hi->Npart_targ();
-   b = hi->impact_parameter();
-
    eHistHF->Fill(eHF);
-  
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
+   vHF.push_back(eHF);
 }
 
 
@@ -156,39 +139,35 @@ HFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 HFAnalyzer::beginJob(const edm::EventSetup&)
 {
-   eHistHF = fs->make<TH1D>("eHistHF","HF Energy",100000,0.,500000.);
+   eHistHF = fs->make<TH1D>("eHistHF","HF Energy",500,0.,500000.);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 HFAnalyzer::endJob() {
 
-CentralityTable* cent =  new CentralityTable();
-cent->m_table.reserve(20);
+   CentralityTable* cent =  new CentralityTable();
+   cent->m_table.reserve(nbins_);
 
-   double I = eHistHF->GetEntries();
-   for(int j=0; j<20; j++){
-      double f = 0;
-      for(int in = eHistHF->GetNbinsX(); in>0; in--){
-         f = f + eHistHF->GetBinContent(in);
-         if((f/I)>=0.05*(j+1)){
-            double bin = eHistHF->GetBinLowEdge(in);
-            cout<<"Centrality Bin:"<<in<<";Lower Cut:"<<bin<<endl;
-       
-            CentralityTable::Bins newvalues;
-            newvalues.hf_low_cut  = bin;
-            newvalues.n_part_mean = 0;
-            newvalues.n_part_var  = 0;
-            newvalues.n_coll_mean = 0;
-            newvalues.n_coll_var  = 0;
-            newvalues.b_mean      = 0;
-            newvalues.b_var       = 0;
+   std::sort(vHF.begin(),vHF.end());
+   double nev = vHF.size();
 
-            cent->m_table.push_back(newvalues);
+   std::cout<<" Number of Events : "<<nev<<std::endl;
 
-            break;
-         }
-      }
+   for(int j=0; j<nbins_; j++){
+      double bin = vHF[(size_t)nev*0.05*(nbins_-1-j)];
+      cout<<"Centrality Bin : "<<j<<";Lower Cut on HF energy : "<<bin<<endl;
+      
+      CentralityTable::Bins newvalues;
+      newvalues.hf_low_cut  = bin;
+      newvalues.n_part_mean = 0;
+      newvalues.n_part_var  = 0;
+      newvalues.n_coll_mean = 0;
+      newvalues.n_coll_var  = 0;
+      newvalues.b_mean      = 0;
+      newvalues.b_var       = 0;
+      
+      cent->m_table.push_back(newvalues);
    }
 
    // OUTPUT DATA
@@ -200,6 +179,6 @@ cent->m_table.reserve(20);
        pool->appendSinceTime<CentralityTable>( cent, pool->currentTime(), "HeavyIonRcd" );
 
 }
-
+ 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HFAnalyzer);

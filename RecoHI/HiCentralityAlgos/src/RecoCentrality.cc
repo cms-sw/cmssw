@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Jun 14 06:49:13 EDT 2007
-// $Id$
+// $Id: RecoCentrality.cc,v 1.1 2007/11/19 17:08:16 yilmaz Exp $
 //
 //
 
@@ -73,7 +73,6 @@ RecoCentrality::RecoCentrality(const edm::ParameterSet& iConfig)
    produces<Centrality>( "hfBasedCent" );
 }
 
-
 RecoCentrality::~RecoCentrality()
 {
 }
@@ -96,7 +95,6 @@ RecoCentrality::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    double ncsigma =  0;
    double b       =  0;
    double bsigma  =  0;
-
    
    Handle<HFRecHitCollection> hits;
    iEvent.getByLabel(src_,hits);

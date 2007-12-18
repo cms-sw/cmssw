@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id$
+// $Id: CentAnalyzer.cc,v 1.1 2007/11/19 17:08:16 yilmaz Exp $
 //
 //
 
@@ -75,13 +75,11 @@ class CentAnalyzer : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-   double eta;
-   double eFwd;
-   double eHF;
-   double bin[20];
-   int nColl;
-   int nPart;
-   float b;
+   string src_;
+   string hepmcsrc_;
+   string particlesrc_;
+   bool doGenLevel_;
+   int nbins_;
 
    TNtuple *nTup;
    TH1D *eHistE;
@@ -110,6 +108,10 @@ edm::Service<TFileService> fs;
 CentAnalyzer::CentAnalyzer(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
+   src_ = iConfig.getUntrackedParameter<string>("signal","hfreco");
+   hepmcsrc_ = iConfig.getUntrackedParameter<string>("hepMCsource","source");
+   particlesrc_ = iConfig.getUntrackedParameter<string>("particleSource","genParticleCandidates");
+   doGenLevel_ = iConfig.getUntrackedParameter<bool>("doGenLevel",0);
 
 }
 
@@ -136,24 +138,26 @@ CentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace HepMC;
 
    //Reset energy calculation
-   eFwd = 0;
-   eHF = 0;
+   double eFwd = 0;
+   double eHF = 0;
   
-   Handle<CandidateCollection> genParticles;
-   iEvent.getByLabel("genParticleCandidates", genParticles);
-   for( size_t ipar = 0; ipar < genParticles->size(); ++ ipar ) {
-      const Candidate & p = (*genParticles)[ ipar ];
-      eta = p.eta();
- 
-      // APPLY SELECTION HERE /////////////
-      
-      if((p.numberOfDaughters() == 0) && (eta*eta <25.) && (eta*eta >9.)){ 
-         eFwd = eFwd + p.energy();
-      }
-   }     
+   if(doGenLevel_){
+      Handle<CandidateCollection> genParticles;
+      iEvent.getByLabel(particlesrc_, genParticles);
+      for( size_t ipar = 0; ipar < genParticles->size(); ++ ipar ) {
+	 const Candidate & p = (*genParticles)[ ipar ];
+	 double eta = p.eta();
+	 
+	 // APPLY SELECTION HERE /////////////
+	 
+	 if((p.numberOfDaughters() == 0) && (eta*eta <25.) && (eta*eta >9.)){ 
+	    eFwd = eFwd + p.energy();
+	 }
+      }     
+   }
 
    Handle<HFRecHitCollection> hits;
-   iEvent.getByLabel("hfreco",hits);
+   iEvent.getByLabel(src_,hits);
    for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
       const HFRecHit & rechit = (*hits)[ ihit ];
       eHF = eHF + rechit.energy();
@@ -163,14 +167,14 @@ CentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    /////////////////////////////////
 
    Handle<HepMCProduct> hepmc;
-   iEvent.getByLabel("source",hepmc);
+   iEvent.getByLabel(hepmcsrc_,hepmc);
    const GenEvent *ev = hepmc->GetEvent();
    HeavyIon *hi;
    hi = ev->heavy_ion();
 
-   nColl = hi->Ncoll();
-   nPart = hi->Npart_proj() + hi->Npart_targ();
-   b = hi->impact_parameter();
+   int nColl = hi->Ncoll();
+   int nPart = hi->Npart_proj() + hi->Npart_targ();
+   float b = hi->impact_parameter();
 
    eHistE->Fill(eFwd);
   
@@ -182,9 +186,7 @@ CentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    eHistHF->Fill(eHF);
    nTup->Fill(eFwd,eHF,nColl,nPart,b);
 
-   cout<<"values extracted"<<endl;
-   cout<<"size = "<<(*hfinput).m_table.size()<<endl;
-   for(int ie = 1; ie<20; ++ie){
+   for(int ie = 1; ie<nbins_; ++ie){
       double Emax = (*hfinput).m_table[ie-1].hf_low_cut;
       double Emin = (*hfinput).m_table[ie].hf_low_cut;
       if(eHF>Emin && eHF<Emax){
@@ -216,11 +218,17 @@ CentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 CentAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
-   nTup = fs->make<TNtuple>("nTup","Super Ntuple eFwd","eFwd:eHF:nColl:nPart:b");
-   eHistE = fs->make<TH1D>("eHistE","Forward Particles Energy",800,0.,500000.);
-   eHistHF = fs->make<TH1D>("eHistHF","HF Energy",100000,0.,500000.);
 
-for(int i=0; i<20; ++i){
+   iSetup.get<HeavyIonRcd>().get(hfinput);
+   nbins_ =  (*hfinput).m_table.size();
+
+   cout<<"Centrality Values are being determined for "<<nbins_<<" HF energy bins of equal cross section."<<endl;
+
+   nTup = fs->make<TNtuple>("nTup","Super Ntuple eFwd","eFwd:eHF:nColl:nPart:b");
+   eHistE = fs->make<TH1D>("eHistE","Forward Particles Energy",200,0.,500000.);
+   eHistHF = fs->make<TH1D>("eHistHF","HF Energy",200,0.,500000.);
+
+for(int i=0; i<nbins_; ++i){
 TString npname(Form("NpartHist%d",i));
 TString ncname(Form("NcollHist%d",i));
 TString bname(Form("BHist%d",i));
@@ -233,7 +241,6 @@ NcollHist.push_back(NcHist);
 BHist.push_back(Bist);
 }
 
-iSetup.get<HeavyIonRcd>().get(hfinput);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -243,9 +250,9 @@ CentAnalyzer::endJob() {
 ofstream text("NcutTest.txt");
 
 CentralityTable CT;
-CT.m_table.reserve(20);
+CT.m_table.reserve(nbins_);
 
-   for(int j=0; j<20; j++){
+   for(int j=0; j<nbins_; j++){
       CentralityTable::Bins newCuts; 
             newCuts.hf_low_cut  = (*hfinput).m_table[j].hf_low_cut;
             newCuts.n_part_mean = NpartHist[j]->GetMean();
