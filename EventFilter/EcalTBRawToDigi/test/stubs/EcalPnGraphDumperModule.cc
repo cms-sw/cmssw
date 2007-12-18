@@ -3,8 +3,8 @@
  * module dumping TGraph with 50 data frames from Pn Diodes
  *   
  * 
- * $Date: 2007/05/09 18:55:12 $
- * $Revision: 1.1 $
+ * $Date: 2007/06/13 13:55:32 $
+ * $Revision: 1.2 $
  * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  * \author J. Haupt
@@ -144,16 +144,14 @@ void EcalPnGraphDumperModule::analyze( const edm::Event & e, const  edm::EventSe
   eventCounter++;
   if (!inputIsOk) return;
 
-  // retrieving crystal data from Event
-  edm::Handle<EBDigiCollection>  digis;
-  e.getByLabel("ecalEBunpacker", "ebDigis", digis);
-
   // retrieving crystal PN diodes from Event
   edm::Handle<EcalPnDiodeDigiCollection>  PNs;
   e.getByLabel("ecalEBunpacker", PNs);
 
 
   // getting the list of all the Pns which will be dumped on TGraph
+  // - listPns is the list as given by the user
+  // - numPn is number of Pn's for which graphs are required
   std::vector<int>::iterator pn_it;
   for ( pn_it = listPns.begin();  pn_it != listPns.end() ; pn_it++  )
     {
@@ -166,11 +164,15 @@ void EcalPnGraphDumperModule::analyze( const edm::Event & e, const  edm::EventSe
 	  listAllPns.push_back ( ipn_c ) ;
       }
     }
+  
+  // loop over all the available PN digis and make graphs for those which have been chosen by the user
   for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end();
         ++pnItr )  {
     {
       int ipn = (*pnItr).id().iPnId();    
       int ieb    = EcalPnDiodeDetId((*pnItr).id()).iDCCId();
+
+      // selecting based on DCCId
       if (ieb != ieb_id) return;
       
       // selecting desired Pns only
@@ -179,7 +181,7 @@ void EcalPnGraphDumperModule::analyze( const edm::Event & e, const  edm::EventSe
       if (iPnIter == listAllPns.end()) { continue; }
 	    
 
-      for ( int i=0; i< (*pnItr).size() ; ++i ) {
+      for ( int i=0; i< (*pnItr).size() && i<50 ; ++i ) {
 	ordinate[i] = (*pnItr).sample(i).adc();
       }
 	    
