@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/10/06 09:32:23 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/10/06 16:48:07 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -52,7 +52,7 @@ L1TrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get hold of L1GlobalReadoutRecord
   Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
-  try {iEvent.getByLabel(l1GTReadoutRecTag_,L1GTRR);} catch (...) {;}
+  iEvent.getByLabel(l1GTReadoutRecTag_,L1GTRR);
   if (L1GTRR.isValid()) {
     const unsigned int n(L1GTRR->decisionWord().size());
     // initialisation
