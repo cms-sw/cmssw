@@ -520,38 +520,33 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
     // energy sums
     if (listETM.size() || listETT.size() || listHTT.size()) {
-        edm::Handle<l1extra::L1EtMissParticle> l1EnergySums;
+        edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
         iEvent.getByLabel(m_l1CollectionsTag.label(), l1EnergySums);
 
         for (std::list<int>::const_iterator itObj = listETM.begin();
                 itObj != listETM.end(); ++itObj) {
 
-            ref = edm::RefToBase<reco::Candidate>(l1extra::L1EtMissParticleRefProd(l1EnergySums));
+            ref = edm::RefToBase<reco::Candidate>(l1extra::L1EtMissParticleRef(l1EnergySums, *itObj));
             filterObjectOLD->putParticle(ref);
-	    filterObject->addObject(trigger::TriggerL1ETM,l1extra::L1EtMissParticleRefProd(l1EnergySums));
-	    // FIXME: RefProd!
-
+	    filterObject->addObject(trigger::TriggerL1ETM,l1extra::L1EtMissParticleRef(l1EnergySums, *itObj));
         }
 
         for (std::list<int>::const_iterator itObj = listETT.begin();
                 itObj != listETT.end(); ++itObj) {
 
-            ref = edm::RefToBase<reco::Candidate>(l1extra::L1EtMissParticleRefProd(l1EnergySums));
+            ref = edm::RefToBase<reco::Candidate>(l1extra::L1EtMissParticleRef(l1EnergySums, *itObj));
             filterObjectOLD->putParticle(ref);
-	    filterObject->addObject(trigger::TriggerL1ETT,l1extra::L1EtMissParticleRefProd(l1EnergySums));
-	    // FIXME: RefProd!
-
+	    filterObject->addObject(trigger::TriggerL1ETT,l1extra::L1EtMissParticleRef(l1EnergySums, *itObj));
         }
 
         for (std::list<int>::const_iterator itObj = listHTT.begin();
                 itObj != listHTT.end(); ++itObj) {
 
-            ref = edm::RefToBase<reco::Candidate>(l1extra::L1EtMissParticleRefProd(l1EnergySums));
+            ref = edm::RefToBase<reco::Candidate>(l1extra::L1EtMissParticleRef(l1EnergySums, *itObj));
             filterObjectOLD->putParticle(ref);
-	    filterObject->addObject(trigger::TriggerL1HTT,l1extra::L1EtMissParticleRefProd(l1EnergySums));
-	    // FIXME: RefProd!
-
+	    filterObject->addObject(trigger::TriggerL1HTT,l1extra::L1EtMissParticleRef(l1EnergySums, *itObj));
         }
+
     }
 
 
