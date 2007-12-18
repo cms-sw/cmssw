@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:54 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:13:20 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -123,7 +123,6 @@ int DTConfigHandler::get( int cfgId, DTConfigData*& obj ) {
   else {
     DTConfigToken token;
     if ( refSet->ptr()->get( cfgId, token ) == 0 ) {
-      try {
 	std::string actualToken( token.ref );
         int actualId = token.id;
         if ( ( actualToken == std::string( "dummyToken" ) ) &&
@@ -147,22 +146,6 @@ int DTConfigHandler::get( int cfgId, DTConfigData*& obj ) {
         while ( d_iter != d_iend ) cachedByteNumber += ( *d_iter++ ).size();
 
         return -1;
-      } catch ( const pool::Exception& er ) {
-        std::string error( "caught pool::Exception while reading " );
-        std::cout << error + er.what() << std::endl;
-        obj = 0;
-        return 1;
-      } catch ( const std::exception& er ) {
-        std::string error ( "caught std::exception while reading " );
-        std::cout << error + er.what() << std::endl;
-        obj = 0;
-        return 2;
-      } catch ( ... ) {
-        std::string error ( "caught unknown exception while reading " );
-        std::cout << error << std::endl;
-        obj = 0;
-        return 99;
-      }
     }
     else {
       obj = 0;
@@ -281,13 +264,8 @@ std::string DTConfigHandler::clone( DTDBSession* newSession,
                                          *newSession->poolDB(), newToken );
   std::cout << "look for existing list pointer..." << std::endl;
   DTConfigList* rn = 0;
-  try {
     rn = setRef->ptr();
     std::cout << "existing list pointer got " << rn << std::endl;
-  }
-  catch ( cond::RefException condRefExc ) {
-    std::cout << "no existing list got" << std::endl;
-  }
   bool containerMissing = ( rn == 0 );
   if ( containerMissing ) rn = new DTConfigList( rs->version() );
 
