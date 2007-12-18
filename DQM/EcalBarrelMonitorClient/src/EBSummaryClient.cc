@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/12/18 12:58:24 $
- * $Revision: 1.91 $
+ * $Date: 2007/12/18 13:58:04 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  *
 */
@@ -987,6 +987,11 @@ void EBSummaryClient::analyze(void){
 
     }
   }
+
+   float errorSummary = 1.0;
+
+   MonitorElement* me = dbe_->get("EcalBarrel/EventInfo/errorSummary");
+   if (me) me->Fill(errorSummary);
 
 }
 

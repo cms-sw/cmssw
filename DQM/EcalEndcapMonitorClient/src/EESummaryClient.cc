@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/12/18 13:00:03 $
- * $Revision: 1.62 $
+ * $Date: 2007/12/18 13:58:06 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  *
 */
@@ -1143,6 +1143,11 @@ void EESummaryClient::analyze(void){
 
     }
   }
+
+   float errorSummary = 1.0;
+   
+   MonitorElement* me = dbe_->get("EcalEndcap/EventInfo/errorSummary");
+   if (me) me->Fill(errorSummary);
 
 }
 
