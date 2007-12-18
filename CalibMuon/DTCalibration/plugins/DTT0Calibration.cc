@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/08/02 13:20:18 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/09/11 13:30:05 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
@@ -77,6 +77,8 @@ DTT0Calibration::DTT0Calibration(const edm::ParameterSet& pset) {
 
   nevents=0;
   eventsForLayerT0 = pset.getParameter<unsigned int>("eventsForLayerT0");
+  eventsForWireT0 = pset.getParameter<unsigned int>("eventsForWireT0");
+  tpPeakWidth = pset.getParameter<double>("tpPeakWidth");
 }
 
 // Destructor
@@ -184,17 +186,36 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 	  }
 	}
 
+	//Check the tzero has reasonable value
 	if(abs(hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin()) - t0) > 100){
 	  if(debug)
 	    cout<<"digi skipped because t0 per sector "<<hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())<<endl;
 	  continue;
 	}
 
-	nDigiPerWire[wireId] = nDigiPerWire[wireId] + 1;
-	theAbsoluteT0PerWire[wireId] = theAbsoluteT0PerWire[wireId] + t0;
-	theSigmaT0PerWire[wireId] = theSigmaT0PerWire[wireId] + (t0*t0);
-
-
+	//Use second bunch of events to compute a t0 reference per wire
+	if(nevents< (eventsForLayerT0 + eventsForWireT0)){
+	  if(!nDigiPerWire_ref[wireId]){
+	    mK_ref[wireId] = 0;
+	  }
+	  nDigiPerWire_ref[wireId] = nDigiPerWire_ref[wireId] + 1;
+	  mK_ref[wireId] = mK_ref[wireId] + (t0-mK_ref[wireId])/nDigiPerWire_ref[wireId];
+	}
+	//Use last all the remaining events to compute the mean and sigma t0 per wire
+	else if(nevents>(eventsForLayerT0 + eventsForWireT0)){
+	  if(abs(t0-mK_ref[wireId]) > tpPeakWidth)
+	    continue;
+	  if(!nDigiPerWire[wireId]){
+	    theAbsoluteT0PerWire[wireId] = 0;
+	    qK[wireId] = 0;
+	    mK[wireId] = 0;
+	  }
+	  nDigiPerWire[wireId] = nDigiPerWire[wireId] + 1;
+	  theAbsoluteT0PerWire[wireId] = theAbsoluteT0PerWire[wireId] + t0;
+	  //theSigmaT0PerWire[wireId] = theSigmaT0PerWire[wireId] + (t0*t0);
+	  qK[wireId] = qK[wireId] + ((nDigiPerWire[wireId]-1)*(t0-mK[wireId])*(t0-mK[wireId])/nDigiPerWire[wireId]);
+	  mK[wireId] = mK[wireId] + (t0-mK[wireId])/nDigiPerWire[wireId];
+	}
       }//end if(nevents>1000)
     }//end loop on digi
   }//end loop on layer
@@ -276,9 +297,9 @@ void DTT0Calibration::endJob() {
       theRelativeT0PerWire[(*wiret0).first] = t0 - hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin());
       cout<<"Wire "<<(*wiret0).first<<" has    t0 "<<t0<<"(absolute) "<<theRelativeT0PerWire[(*wiret0).first]<<"(relative)";
 
-      theSigmaT0PerWire[(*wiret0).first] = ((theSigmaT0PerWire[(*wiret0).first] / nDigiPerWire[(*wiret0).first]) - t0*t0);
+      //theSigmaT0PerWire[(*wiret0).first] = sqrt((theSigmaT0PerWire[(*wiret0).first] / nDigiPerWire[(*wiret0).first]) - t0*t0);
+      theSigmaT0PerWire[(*wiret0).first] = sqrt(qK[(*wiret0).first]/nDigiPerWire[(*wiret0).first]);
       cout<<"    sigma "<<theSigmaT0PerWire[(*wiret0).first]<<endl;
-
     }
     else{
       cout<<"[DTT0Calibration] ERROR: no digis in wire "<<(*wiret0).first<<endl;
