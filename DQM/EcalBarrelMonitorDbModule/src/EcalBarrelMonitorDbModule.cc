@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  * 
- * $Date: 2007/12/04 08:51:18 $
- * $Revision: 1.9 $
+ * $Date: 2007/12/13 09:52:12 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -145,8 +145,6 @@ void EcalBarrelMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
     std::cerr << "CORAL Exception : " << e.what() << std::endl;
   } catch (std::exception& e) {
     std::cerr << "Standard C++ exception : " << e.what() << std::endl;
-  } catch (...) {
-    std::cerr << "Exception caught (...)" << std::endl;
   }
 
   if ( htmlDir_.size() != 0 ) {
