@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/12/15 11:34:25 $
- * $Revision: 1.22 $
+ * $Date: 2007/12/18 12:58:23 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -98,15 +98,24 @@ std::vector<EBClient*> clients_;
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
-MonitorElement* meIntegrity_, *meIntegrityErr_;
-MonitorElement* meOccupancy_, *meOccupancy1DSummary_;
-MonitorElement* mePedestalOnline_, *mePedestalOnlineErr_;
-MonitorElement* meLaserL1_, *meLaserL1Err_;
-MonitorElement* meLaserL1PN_, *meLaserL1PNErr_;
-MonitorElement* mePedestal_, *mePedestalErr_;
-MonitorElement* mePedestalPN_, *mePedestalPNErr_;
-MonitorElement* meTestPulse_, *meTestPulseErr_;
-MonitorElement* meTestPulsePN_, *meTestPulsePNErr_;
+MonitorElement* meIntegrity_;
+MonitorElement* meIntegrityErr_;
+MonitorElement* meOccupancy_;
+MonitorElement* meOccupancy1D_;
+MonitorElement* mePedestalOnline_;
+MonitorElement* mePedestalOnlineErr_;
+MonitorElement* meLaserL1_;
+MonitorElement* meLaserL1Err_;
+MonitorElement* meLaserL1PN_;
+MonitorElement* meLaserL1PNErr_;
+MonitorElement* mePedestal_;
+MonitorElement* mePedestalErr_;
+MonitorElement* mePedestalPN_;
+MonitorElement* mePedestalPNErr_;
+MonitorElement* meTestPulse_;
+MonitorElement* meTestPulseErr_;
+MonitorElement* meTestPulsePN_;
+MonitorElement* meTestPulsePNErr_;
 
 MonitorElement* meCosmic_;
 MonitorElement* meTiming_;

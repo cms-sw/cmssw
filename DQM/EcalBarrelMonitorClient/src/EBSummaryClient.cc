@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/12/15 11:34:27 $
- * $Revision: 1.90 $
+ * $Date: 2007/12/18 12:58:24 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  *
 */
@@ -82,7 +82,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
 
   // summary errors
   meIntegrityErr_       = 0;
-  meOccupancy1DSummary_ = 0;
+  meOccupancy1D_        = 0;
   mePedestalOnlineErr_  = 0;
   meLaserL1Err_         = 0;
   meLaserL1PNErr_       = 0;
@@ -160,11 +160,11 @@ void EBSummaryClient::setup(void) {
   meOccupancy_->setAxisTitle("jphi", 1);
   meOccupancy_->setAxisTitle("jeta", 2);
 
-  if ( meOccupancy1DSummary_ ) dbe_->removeElement( meOccupancy1DSummary_->getName() );
-  sprintf(histo, "EBOT occupancy 1D summary");
-  meOccupancy1DSummary_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  if ( meOccupancy1D_ ) dbe_->removeElement( meOccupancy1D_->getName() );
+  sprintf(histo, "EBOT occupancy summary 1D");
+  meOccupancy1D_ = dbe_->book1D(histo, histo, 36, 1, 37);
   for (int i = 0; i < 36; i++) {
-    meOccupancy1DSummary_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    meOccupancy1D_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
   if ( mePedestalOnline_ ) dbe_->removeElement( mePedestalOnline_->getName() );
@@ -303,8 +303,8 @@ void EBSummaryClient::cleanup(void) {
   if ( meOccupancy_ ) dbe_->removeElement( meOccupancy_->getName() );
   meOccupancy_ = 0;
 
-  if ( meOccupancy1DSummary_ ) dbe_->removeElement( meOccupancy1DSummary_->getName() );
-  meOccupancy1DSummary_ = 0;
+  if ( meOccupancy1D_ ) dbe_->removeElement( meOccupancy1D_->getName() );
+  meOccupancy1D_ = 0;
 
   if ( mePedestalOnline_ ) dbe_->removeElement( mePedestalOnline_->getName() );
   mePedestalOnline_ = 0;
@@ -425,7 +425,7 @@ void EBSummaryClient::analyze(void){
   meIntegrity_->setEntries( 0 );
   meIntegrityErr_->Reset();
   meOccupancy_->setEntries( 0 );
-  meOccupancy1DSummary_->Reset();
+  meOccupancy1D_->Reset();
   mePedestalOnline_->setEntries( 0 );
   mePedestalOnlineErr_->Reset();
 
@@ -527,7 +527,7 @@ void EBSummaryClient::analyze(void){
               }
 
               meOccupancy_->setBinContent( ipx, iex, xval );
-	      if ( xval != 0 ) meOccupancy1DSummary_->Fill( ism, xval );
+	      if ( xval != 0 ) meOccupancy1D_->Fill( ism, xval );
 
             }
 

@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/12/15 11:34:34 $
- * $Revision: 1.61 $
+ * $Date: 2007/12/18 13:00:03 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */
@@ -103,7 +103,7 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
 
   // summary errors
   meIntegrityErr_       = 0;
-  meOccupancy1DSummary_ = 0;
+  meOccupancy1D_        = 0;
   mePedestalOnlineErr_  = 0;
   meLaserL1Err_         = 0;
   meLaserL1PNErr_       = 0;
@@ -195,11 +195,11 @@ void EESummaryClient::setup(void) {
   meOccupancy_[1]->setAxisTitle("ix", 1);
   meOccupancy_[1]->setAxisTitle("iy", 2);
 
-  if ( meOccupancy1DSummary_ ) dbe_->removeElement( meOccupancy1DSummary_->getName() );
-  sprintf(histo, "EEIT occupancy 1D summary");
-  meOccupancy1DSummary_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  if ( meOccupancy1D_ ) dbe_->removeElement( meOccupancy1D_->getName() );
+  sprintf(histo, "EEIT occupancy summary 1D");
+  meOccupancy1D_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
-    meOccupancy1DSummary_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    meOccupancy1D_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
   if ( mePedestalOnline_[0] ) dbe_->removeElement( mePedestalOnline_[0]->getName() );
@@ -454,8 +454,8 @@ void EESummaryClient::cleanup(void) {
   if ( meOccupancy_[1] ) dbe_->removeElement( meOccupancy_[1]->getName() );
   meOccupancy_[1] = 0;
 
-  if ( meOccupancy1DSummary_ ) dbe_->removeElement( meOccupancy1DSummary_->getName() );
-  meOccupancy1DSummary_ = 0;
+  if ( meOccupancy1D_ ) dbe_->removeElement( meOccupancy1D_->getName() );
+  meOccupancy1D_ = 0;
 
   if ( mePedestalOnline_[0] ) dbe_->removeElement( mePedestalOnline_[0]->getName() );
   mePedestalOnline_[0] = 0;
@@ -647,7 +647,7 @@ void EESummaryClient::analyze(void){
   meIntegrityErr_->Reset();
   meOccupancy_[0]->setEntries( 0 );
   meOccupancy_[1]->setEntries( 0 );
-  meOccupancy1DSummary_->Reset();
+  meOccupancy1D_->Reset();
   mePedestalOnline_[0]->setEntries( 0 );
   mePedestalOnline_[1]->setEntries( 0 );
   mePedestalOnlineErr_->Reset();
@@ -759,7 +759,7 @@ void EESummaryClient::analyze(void){
                 if ( xval != 0 ) meOccupancy_[1]->setBinContent( jx, jy, xval );
               }
 
-	      meOccupancy1DSummary_->Fill( ism, xval );
+	      meOccupancy1D_->Fill( ism, xval );
 
             }
 
