@@ -210,6 +210,8 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 
 void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
+  using namespace reco;
+
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
 				 << "Analyzing new event" << "\n"
 				 << "====================================================\n" << "\n";
@@ -233,7 +235,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //
       //get collections from the event
       //
-      edm::Handle<reco::TrackCollection> trackCollection;
+      edm::Handle<View<Track> > trackCollection;
       event.getByLabel(label[www], trackCollection);
       
       //associate tracks
@@ -261,9 +263,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	h_etaSIM[w]->Fill(tp->momentum().eta());
 	h_vertposSIM[w]->Fill(sqrt(tp->vertex().perp2()));
 
-	std::vector<std::pair<edm::Ref<reco::TrackCollection>, double> > rt;
+	std::vector<std::pair<RefToBase<Track>, double> > rt;
 	if(simRecColl.find(tp) != simRecColl.end()){
-	  rt = simRecColl[tp];
+	  rt = (std::vector<std::pair<RefToBase<Track>, double> >) simRecColl[tp];
 	  if (rt.size()!=0) {
 	    ats++;
 	    edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st 
@@ -309,8 +311,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 					 << ": " << trackCollection->size() << "\n";
       int at=0;
       int rT=0;
-      for(reco::TrackCollection::size_type i=0; i<trackCollection->size(); ++i){
-	edm::Ref<reco::TrackCollection> track(trackCollection, i);
+      for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
+	RefToBase<Track> track(trackCollection, i);
 	rT++;
 
 	std::vector<std::pair<TrackingParticleRef, double> > tp;

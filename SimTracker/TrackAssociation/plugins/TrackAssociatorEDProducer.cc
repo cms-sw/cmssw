@@ -1,7 +1,7 @@
 //
 // Original Author:  Stefano Magni
 //         Created:  Fri Mar  9 10:52:11 CET 2007
-// $Id$
+// $Id: TrackAssociatorEDProducer.cc,v 1.1 2007/10/26 15:08:05 cerati Exp $
 //
 //
 
@@ -74,7 +74,7 @@ TrackAssociatorEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    Handle<TrackingParticleCollection>  TPCollection ;
    iEvent.getByLabel(label_tp, TPCollection);
      
-   Handle<reco::TrackCollection> trackCollection;
+   Handle<edm::View<reco::Track> > trackCollection;
    iEvent.getByLabel (label_tr, trackCollection );
 
    //associate tracks

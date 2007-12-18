@@ -29,6 +29,7 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/OneToValue.h"
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
+#include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
 
 namespace {
   namespace {
@@ -67,17 +68,15 @@ namespace {
     edm::Wrapper<reco::FitResultCollection> wfr1;
     edm::Wrapper<reco::TrackCandidateAssociation> tca1;
 
+    reco::SimToRecoCollection ii3;
+    reco::SimToRecoCollection::const_iterator itii3;
     edm::Wrapper<reco::SimToRecoCollection > ii2;
-    reco::SimToRecoAssociation ii3;
-    reco::SimToRecoAssociationRef ii4;
-    reco::SimToRecoAssociationRefProd ii5;
-    reco::SimToRecoAssociationRefVector ii6;
+    edm::helpers::KeyVal<TrackingParticleRefProd, edm::View<reco::Track> > ij2;
 
+    reco::RecoToSimCollection jj3;
+    reco::RecoToSimCollection::const_iterator  itjj3;
     edm::Wrapper<reco::RecoToSimCollection > jj2;
-    reco::RecoToSimAssociation jj3;
-    reco::RecoToSimAssociationRef jj4;
-    reco::RecoToSimAssociationRefProd jj5;
-    reco::RecoToSimAssociationRefVector jj6;
+    edm::helpers::KeyVal<edm::View<reco::Track>, TrackingParticleRefProd> ij3;
           
     edm::reftobase::Holder<reco::Candidate, reco::RecoChargedCandidateRef> rbc1;
     edm::reftobase::RefHolder<reco::RecoChargedCandidateRef> rbc2;
