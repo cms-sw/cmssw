@@ -133,14 +133,9 @@ void SiStripQualityHotStripIdentifier::algoAnalyze(const edm::Event& e, const ed
       
   edm::Handle<reco::TrackCollection> trackCollection;
   if(tracksCollection_in_EventTree){
-    try{
-      e.getByLabel(Track_src_, trackCollection);
-    } catch ( cms::Exception& er ) {
-      edm::LogError("SiStripQualityHotStripIdentifier")<<" [SiStripQualityHotStripIdentifier::algoAnalyze] missing trackCollection with label " << Track_src_ << " " << er.what()<<std::endl;
-      tracksCollection_in_EventTree=false;
-    } catch ( ... ) {
-      edm::LogError("SiStripQualityHotStripIdentifier")<<" [SiStripQualityHotStripIdentifier::algoAnalyze] missing trackCollection with label " << Track_src_ << std::endl;
-      tracksCollection_in_EventTree=false;
+    e.getByLabel(Track_src_, trackCollection);
+    if(!trackCollection.isValid()){
+      edm::LogError("SiStripQualityHotStripIdentifier")<<" [SiStripQualityHotStripIdentifier::algoAnalyze] missing trackCollection with label " << Track_src_ <<std::endl;
     }
   }
 
