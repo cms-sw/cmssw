@@ -51,12 +51,8 @@ cond::GenericRef::containerName() const{
 }
 void 
 cond::GenericRef::markWrite(const std::string& container){
-  try{
-    m_place->setContainerName(container);
-    m_data.markWrite(*m_place);
-  }catch( const pool::Exception& er){
-    throw cond::RefException("markWrite",er.what());
-  }
+  m_place->setContainerName(container);
+  m_data.markWrite(*m_place);
 }
 void 
 cond::GenericRef::markUpdate(){

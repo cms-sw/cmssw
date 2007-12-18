@@ -20,15 +20,7 @@ namespace cond{
 			 const std::string& className,
 			 const std::string& containerName,
 			 int pkcolumnValue){
-    try {  
-      seal::SharedLibrary::load( "lib" + dictLib + ".so" );
-    }catch ( seal::SharedLibraryError *error){
-      throw cond::Exception(std::string("TokenBuilder::set failed loading dictionary ")+error->explainSelf());
-    }catch (const pool::Exception &e){
-      throw cond::Exception(std::string("TokenBuilder::set failed loading dictionary")+e.what());
-    }catch (...){
-      throw cond::Exception(std::string("TokenBuilder::set failed loading dictionary"));
-    }
+    seal::SharedLibrary::load( "lib" + dictLib + ".so" );
     ROOT::Reflex::Type myclass=ROOT::Reflex::Type::ByName(className);
     m_token->setDb(fid);
     m_token->setClassID(pool::DbReflex::guid(myclass));
