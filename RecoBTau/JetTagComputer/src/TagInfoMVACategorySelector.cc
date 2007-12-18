@@ -38,15 +38,7 @@ TagInfoMVACategorySelector::~TagInfoMVACategorySelector()
 int TagInfoMVACategorySelector::findCategory(
 			const TaggingVariableList &taggingVariables) const
 {
-	int index;
-
-	// taggingVariables are not correctly sorted for get() (CombinedSV...)
-	try {
-		index = (int)taggingVariables.get(categoryVariable);
-	} catch(edm::Exception e) {
-		// variable is not present. Screw that.
-		return -1;
-	}
+	int index = (int)taggingVariables.get(categoryVariable, -1);
 
 	if (index < 0 || (unsigned int)index >= categoryLabels.size())
 		return -1;
