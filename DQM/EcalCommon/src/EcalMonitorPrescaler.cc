@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.4 2007/11/27 15:00:42 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.5 2007/12/04 08:51:21 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.4 $
-  \date $Date: 2007/11/27 15:00:42 $
+  \version $Revision: 1.5 $
+  \date $Date: 2007/12/04 08:51:21 $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -73,10 +73,9 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
     if ( count_ % clusterPrescaleFactor_ == 0 ) status = true;
   }
 
-  try {
+  Handle<EcalRawDataCollection> dcchs;
 
-    Handle<EcalRawDataCollection> dcchs;
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -105,7 +104,7 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
 
     }
 
-  } catch ( exception &e ) {
+  } else {
 
     LogWarning("EcalMonitorPrescaler") << EcalRawDataCollection_ << " not available";
 
