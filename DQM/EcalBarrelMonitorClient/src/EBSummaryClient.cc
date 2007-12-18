@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/11/16 11:05:48 $
- * $Revision: 1.89 $
+ * $Date: 2007/12/15 11:34:27 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  *
 */
@@ -63,6 +63,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
+  // summary maps
   meIntegrity_      = 0;
   meOccupancy_      = 0;
   mePedestalOnline_ = 0;
@@ -78,6 +79,17 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   meTiming_         = 0;
   meTriggerTowerEt_        = 0;
   meTriggerTowerEmulError_ = 0;
+
+  // summary errors
+  meIntegrityErr_       = 0;
+  meOccupancy1DSummary_ = 0;
+  mePedestalOnlineErr_  = 0;
+  meLaserL1Err_         = 0;
+  meLaserL1PNErr_       = 0;
+  mePedestalErr_        = 0;
+  mePedestalPNErr_      = 0;
+  meTestPulseErr_       = 0;
+  meTestPulsePNErr_     = 0;
 
 }
 
@@ -135,11 +147,25 @@ void EBSummaryClient::setup(void) {
   meIntegrity_->setAxisTitle("jphi", 1);
   meIntegrity_->setAxisTitle("jeta", 2);
 
+  if ( meIntegrityErr_ ) dbe_->removeElement( meIntegrityErr_->getName() );
+  sprintf(histo, "EBIT integrity quality errors summary");
+  meIntegrityErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  for (int i = 0; i < 36; i++) {
+    meIntegrityErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
+
   if ( meOccupancy_ ) dbe_->removeElement( meOccupancy_->getName() );
   sprintf(histo, "EBOT occupancy summary");
   meOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   meOccupancy_->setAxisTitle("jphi", 1);
   meOccupancy_->setAxisTitle("jeta", 2);
+
+  if ( meOccupancy1DSummary_ ) dbe_->removeElement( meOccupancy1DSummary_->getName() );
+  sprintf(histo, "EBOT occupancy 1D summary");
+  meOccupancy1DSummary_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  for (int i = 0; i < 36; i++) {
+    meOccupancy1DSummary_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
 
   if ( mePedestalOnline_ ) dbe_->removeElement( mePedestalOnline_->getName() );
   sprintf(histo, "EBPOT pedestal quality summary G12");
@@ -147,17 +173,38 @@ void EBSummaryClient::setup(void) {
   mePedestalOnline_->setAxisTitle("jphi", 1);
   mePedestalOnline_->setAxisTitle("jeta", 2);
 
+  if ( mePedestalOnlineErr_ ) dbe_->removeElement( mePedestalOnlineErr_->getName() );
+  sprintf(histo, "EBPOT pedestal quality errors summary G12");
+  mePedestalOnlineErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  for (int i = 0; i < 36; i++) {
+    mePedestalOnlineErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
+
   if ( meLaserL1_ ) dbe_->removeElement( meLaserL1_->getName() );
   sprintf(histo, "EBLT laser quality summary L1");
   meLaserL1_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   meLaserL1_->setAxisTitle("jphi", 1);
   meLaserL1_->setAxisTitle("jeta", 2);
 
+  if ( meLaserL1Err_ ) dbe_->removeElement( meLaserL1Err_->getName() );
+  sprintf(histo, "EBLT laser quality errors summary L1");
+  meLaserL1Err_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  for (int i = 0; i < 36; i++) {
+    meLaserL1Err_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
+  
   if ( meLaserL1PN_ ) dbe_->removeElement( meLaserL1PN_->getName() );
   sprintf(histo, "EBLT PN laser quality summary L1");
   meLaserL1PN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meLaserL1PN_->setAxisTitle("jphi", 1);
   meLaserL1PN_->setAxisTitle("jeta", 2);
+
+  if ( meLaserL1PNErr_ ) dbe_->removeElement( meLaserL1PNErr_->getName() );
+  sprintf(histo, "EBLT PN laser quality errors summary L1");
+  meLaserL1PNErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  for (int i = 0; i < 36; i++) {
+    meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
 
   if( mePedestal_ ) dbe_->removeElement( mePedestal_->getName() );
   sprintf(histo, "EBPT pedestal quality summary");
@@ -165,11 +212,25 @@ void EBSummaryClient::setup(void) {
   mePedestal_->setAxisTitle("jphi", 1);
   mePedestal_->setAxisTitle("jeta", 2);
 
+  if( mePedestalErr_ ) dbe_->removeElement( mePedestalErr_->getName() );
+  sprintf(histo, "EBPT pedestal quality errors summary");
+  mePedestalErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  for (int i = 0; i < 36; i++) {
+    mePedestalErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
+
   if( mePedestalPN_ ) dbe_->removeElement( mePedestalPN_->getName() );
   sprintf(histo, "EBPT PN pedestal quality summary");
   mePedestalPN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
   mePedestalPN_->setAxisTitle("jphi", 1);
   mePedestalPN_->setAxisTitle("jeta", 2);
+
+  if( mePedestalPNErr_ ) dbe_->removeElement( mePedestalPNErr_->getName() );
+  sprintf(histo, "EBPT PN pedestal quality errors summary");
+  mePedestalPNErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  for (int i = 0; i < 36; i++) {
+    mePedestalPNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
 
   if( meTestPulse_ ) dbe_->removeElement( meTestPulse_->getName() );
   sprintf(histo, "EBTPT test pulse quality summary");
@@ -177,11 +238,25 @@ void EBSummaryClient::setup(void) {
   meTestPulse_->setAxisTitle("jphi", 1);
   meTestPulse_->setAxisTitle("jeta", 2);
 
+  if( meTestPulseErr_ ) dbe_->removeElement( meTestPulseErr_->getName() );
+  sprintf(histo, "EBTPT test pulse quality errors summary");
+  meTestPulseErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  for (int i = 0; i < 36; i++) {
+    meTestPulseErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
+
   if( meTestPulsePN_ ) dbe_->removeElement( meTestPulsePN_->getName() );
   sprintf(histo, "EBTPT PN test pulse quality summary");
   meTestPulsePN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meTestPulsePN_->setAxisTitle("jphi", 1);
   meTestPulsePN_->setAxisTitle("jeta", 2);
+
+  if( meTestPulsePNErr_ ) dbe_->removeElement( meTestPulsePNErr_->getName() );
+  sprintf(histo, "EBTPT PN test pulse quality errors summary");
+  meTestPulsePNErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  for (int i = 0; i < 36; i++) {
+    meTestPulsePNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  }
 
   if( meCosmic_ ) dbe_->removeElement( meCosmic_->getName() );
   sprintf(histo, "EBCT cosmic summary");
@@ -222,29 +297,56 @@ void EBSummaryClient::cleanup(void) {
   if ( meIntegrity_ ) dbe_->removeElement( meIntegrity_->getName() );
   meIntegrity_ = 0;
 
+  if ( meIntegrityErr_ ) dbe_->removeElement( meIntegrityErr_->getName() );
+  meIntegrityErr_ = 0;
+
   if ( meOccupancy_ ) dbe_->removeElement( meOccupancy_->getName() );
   meOccupancy_ = 0;
+
+  if ( meOccupancy1DSummary_ ) dbe_->removeElement( meOccupancy1DSummary_->getName() );
+  meOccupancy1DSummary_ = 0;
 
   if ( mePedestalOnline_ ) dbe_->removeElement( mePedestalOnline_->getName() );
   mePedestalOnline_ = 0;
 
+  if ( mePedestalOnlineErr_ ) dbe_->removeElement( mePedestalOnlineErr_->getName() );
+  mePedestalOnlineErr_ = 0;
+
   if ( meLaserL1_ ) dbe_->removeElement( meLaserL1_->getName() );
   meLaserL1_ = 0;
+
+  if ( meLaserL1Err_ ) dbe_->removeElement( meLaserL1Err_->getName() );
+  meLaserL1Err_ = 0;
 
   if ( meLaserL1PN_ ) dbe_->removeElement( meLaserL1PN_->getName() );
   meLaserL1PN_ = 0;
 
+  if ( meLaserL1PNErr_ ) dbe_->removeElement( meLaserL1PNErr_->getName() );
+  meLaserL1PNErr_ = 0;
+
   if ( mePedestal_ ) dbe_->removeElement( mePedestal_->getName() );
   mePedestal_ = 0;
+
+  if ( mePedestalErr_ ) dbe_->removeElement( mePedestalErr_->getName() );
+  mePedestalErr_ = 0;
 
   if ( mePedestalPN_ ) dbe_->removeElement( mePedestalPN_->getName() );
   mePedestalPN_ = 0;
 
+  if ( mePedestalPNErr_ ) dbe_->removeElement( mePedestalPNErr_->getName() );
+  mePedestalPNErr_ = 0;
+
   if ( meTestPulse_ ) dbe_->removeElement( meTestPulse_->getName() );
   meTestPulse_ = 0;
 
+  if ( meTestPulseErr_ ) dbe_->removeElement( meTestPulseErr_->getName() );
+  meTestPulseErr_ = 0;
+
   if ( meTestPulsePN_ ) dbe_->removeElement( meTestPulsePN_->getName() );
   meTestPulsePN_ = 0;
+
+  if ( meTestPulsePNErr_ ) dbe_->removeElement( meTestPulsePNErr_->getName() );
+  meTestPulsePNErr_ = 0;
 
   if ( meCosmic_ ) dbe_->removeElement( meCosmic_->getName() );
   meCosmic_ = 0;
@@ -319,16 +421,26 @@ void EBSummaryClient::analyze(void){
     }
   }
 
+
   meIntegrity_->setEntries( 0 );
+  meIntegrityErr_->Reset();
   meOccupancy_->setEntries( 0 );
+  meOccupancy1DSummary_->Reset();
   mePedestalOnline_->setEntries( 0 );
+  mePedestalOnlineErr_->Reset();
 
   meLaserL1_->setEntries( 0 );
+  meLaserL1Err_->Reset();
   meLaserL1PN_->setEntries( 0 );
+  meLaserL1PNErr_->Reset();
   mePedestal_->setEntries( 0 );
+  mePedestalErr_->Reset();
   mePedestalPN_->setEntries( 0 );
+  mePedestalPNErr_->Reset();
   meTestPulse_->setEntries( 0 );
+  meTestPulseErr_->Reset();
   meTestPulsePN_->setEntries( 0 );
+  meTestPulsePNErr_->Reset();
 
   meCosmic_->setEntries( 0 );
   meTiming_->setEntries( 0 );
@@ -393,6 +505,8 @@ void EBSummaryClient::analyze(void){
 
               meIntegrity_->setBinContent( ipx, iex, xval );
 
+	      if( xval == 0 ) meIntegrityErr_->Fill( ism );
+
             }
 
             h2 = ebic->h_[ism-1];
@@ -413,6 +527,7 @@ void EBSummaryClient::analyze(void){
               }
 
               meOccupancy_->setBinContent( ipx, iex, xval );
+	      if ( xval != 0 ) meOccupancy1DSummary_->Fill( ism, xval );
 
             }
 
@@ -438,6 +553,8 @@ void EBSummaryClient::analyze(void){
               }
 
               mePedestalOnline_->setBinContent( ipx, iex, xval );
+	      
+	      if ( xval == 0 ) mePedestalOnlineErr_->Fill( ism ); 
 
             }
 
@@ -464,6 +581,7 @@ void EBSummaryClient::analyze(void){
 
               if ( me->getEntries() != 0 ) {
                 meLaserL1_->setBinContent( ipx, iex, xval );
+		if ( xval == 0 ) meLaserL1Err_->Fill( ism );
               }
 
             }
@@ -517,6 +635,7 @@ void EBSummaryClient::analyze(void){
 
               if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
                 mePedestal_->setBinContent( ipx, iex, xval );
+		if ( xval == 0 ) mePedestalErr_->Fill( ism );
               }
 
             }
@@ -570,6 +689,7 @@ void EBSummaryClient::analyze(void){
 
               if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
                 meTestPulse_->setBinContent( ipx, iex, xval );
+		if( xval == 0 ) meTestPulseErr_->Fill( ism );
               }
 
             }
@@ -739,6 +859,7 @@ void EBSummaryClient::analyze(void){
 
               if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
                 mePedestalPN_->setBinContent( ipx, iex, xval );
+		if( xval == 0 ) mePedestalPNErr_->Fill( ism );
               }
 
             }
@@ -791,6 +912,7 @@ void EBSummaryClient::analyze(void){
 
               if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
                 meTestPulsePN_->setBinContent( ipx, iex, xval );
+		if ( xval == 0 ) meTestPulsePNErr_->Fill ( ism );
               }
 
             }
@@ -818,6 +940,7 @@ void EBSummaryClient::analyze(void){
 
               if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
                 meLaserL1PN_->setBinContent( ipx, iex, xval );
+		if ( xval == 0 ) meLaserL1PNErr_->Fill( ism );
               }
 
             }

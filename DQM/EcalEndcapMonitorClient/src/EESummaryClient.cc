@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/11/23 09:28:55 $
- * $Revision: 1.60 $
+ * $Date: 2007/12/15 11:34:34 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -66,6 +66,7 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
+  // summary maps 
   meIntegrity_[0]      = 0;
   meIntegrity_[1]      = 0;
   meOccupancy_[0]      = 0;
@@ -99,6 +100,19 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   meTriggerTowerEt_[1]        = 0;
   meTriggerTowerEmulError_[0] = 0;
   meTriggerTowerEmulError_[1] = 0;
+
+  // summary errors
+  meIntegrityErr_       = 0;
+  meOccupancy1DSummary_ = 0;
+  mePedestalOnlineErr_  = 0;
+  meLaserL1Err_         = 0;
+  meLaserL1PNErr_       = 0;
+  meLedErr_             = 0;
+  meLedPNErr_           = 0;
+  mePedestalErr_        = 0;
+  mePedestalPNErr_      = 0;
+  meTestPulseErr_       = 0;
+  meTestPulsePNErr_     = 0;
 
 }
 
@@ -162,6 +176,13 @@ void EESummaryClient::setup(void) {
   meIntegrity_[1]->setAxisTitle("ix", 1);
   meIntegrity_[1]->setAxisTitle("iy", 2);
 
+  if ( meIntegrityErr_ ) dbe_->removeElement( meIntegrityErr_->getName() );
+  sprintf(histo, "EEIT integrity quality errors summary");
+  meIntegrityErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    meIntegrityErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
+
   if ( meOccupancy_[0] ) dbe_->removeElement( meOccupancy_[0]->getName() );
   sprintf(histo, "EEOT EE - occupancy summary");
   meOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
@@ -174,6 +195,13 @@ void EESummaryClient::setup(void) {
   meOccupancy_[1]->setAxisTitle("ix", 1);
   meOccupancy_[1]->setAxisTitle("iy", 2);
 
+  if ( meOccupancy1DSummary_ ) dbe_->removeElement( meOccupancy1DSummary_->getName() );
+  sprintf(histo, "EEIT occupancy 1D summary");
+  meOccupancy1DSummary_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    meOccupancy1DSummary_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
+
   if ( mePedestalOnline_[0] ) dbe_->removeElement( mePedestalOnline_[0]->getName() );
   sprintf(histo, "EEPOT EE - pedestal quality summary G12");
   mePedestalOnline_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
@@ -185,6 +213,13 @@ void EESummaryClient::setup(void) {
   mePedestalOnline_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   mePedestalOnline_[1]->setAxisTitle("ix", 1);
   mePedestalOnline_[1]->setAxisTitle("iy", 2);
+
+  if ( mePedestalOnlineErr_ ) dbe_->removeElement( mePedestalOnlineErr_->getName() );
+  sprintf(histo, "EEIT pedestal quality errors summary G12");
+  mePedestalOnlineErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    mePedestalOnlineErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
 
   if ( meLaserL1_[0] ) dbe_->removeElement( meLaserL1_[0]->getName() );
   sprintf(histo, "EELT EE - laser quality summary L1");
@@ -210,6 +245,20 @@ void EESummaryClient::setup(void) {
   meLaserL1PN_[1]->setAxisTitle("ix", 1);
   meLaserL1PN_[1]->setAxisTitle("iy", 2);
 
+  if ( meLaserL1Err_ ) dbe_->removeElement( meLaserL1Err_->getName() );
+  sprintf(histo, "EEIT laser quality errors summary L1");
+  meLaserL1Err_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    meLaserL1Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
+
+  if ( meLaserL1PNErr_ ) dbe_->removeElement( meLaserL1PNErr_->getName() );
+  sprintf(histo, "EEIT PN laser quality errors summary L1");
+  meLaserL1PNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
+
   if ( meLed_[0] ) dbe_->removeElement( meLed_[0]->getName() );
   sprintf(histo, "EELDT EE - led quality summary");
   meLed_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
@@ -233,6 +282,20 @@ void EESummaryClient::setup(void) {
   meLedPN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meLedPN_[1]->setAxisTitle("ix", 1);
   meLedPN_[1]->setAxisTitle("iy", 2);
+
+  if ( meLedErr_ ) dbe_->removeElement( meLedErr_->getName() );
+  sprintf(histo, "EEIT led quality errors summary");
+  meLedErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    meLedErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
+
+  if ( meLedPNErr_ ) dbe_->removeElement( meLedPNErr_->getName() );
+  sprintf(histo, "EEIT PN led quality errors summary");
+  meLedPNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    meLedPNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
 
   if( mePedestal_[0] ) dbe_->removeElement( mePedestal_[0]->getName() );
   sprintf(histo, "EEPT EE - pedestal quality summary");
@@ -258,6 +321,20 @@ void EESummaryClient::setup(void) {
   mePedestalPN_[1]->setAxisTitle("ix", 1);
   mePedestalPN_[1]->setAxisTitle("iy", 2);
 
+  if ( mePedestalErr_ ) dbe_->removeElement( mePedestalErr_->getName() );
+  sprintf(histo, "EEIT pedestal quality errors summary");
+  mePedestalErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    mePedestalErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
+
+  if ( mePedestalPNErr_ ) dbe_->removeElement( mePedestalPNErr_->getName() );
+  sprintf(histo, "EEIT PN pedestal quality errors summary");
+  mePedestalPNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    mePedestalPNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
+
   if( meTestPulse_[0] ) dbe_->removeElement( meTestPulse_[0]->getName() );
   sprintf(histo, "EETPT EE - test pulse quality summary");
   meTestPulse_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
@@ -281,6 +358,20 @@ void EESummaryClient::setup(void) {
   meTestPulsePN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meTestPulsePN_[1]->setAxisTitle("ix", 1);
   meTestPulsePN_[1]->setAxisTitle("iy", 2);
+
+  if ( meTestPulseErr_ ) dbe_->removeElement( meTestPulseErr_->getName() );
+  sprintf(histo, "EEIT test pulse quality errors summary");
+  meTestPulseErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    meTestPulseErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
+
+  if ( meTestPulsePNErr_ ) dbe_->removeElement( meTestPulsePNErr_->getName() );
+  sprintf(histo, "EEIT PN test pulse quality errors summary");
+  meTestPulsePNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    meTestPulsePNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
 
   if( meCosmic_[0] ) dbe_->removeElement( meCosmic_[0]->getName() );
   sprintf(histo, "EECT EE - quality summary");
@@ -354,11 +445,17 @@ void EESummaryClient::cleanup(void) {
   if ( meIntegrity_[1] ) dbe_->removeElement( meIntegrity_[1]->getName() );
   meIntegrity_[1] = 0;
 
+  if ( meIntegrityErr_ ) dbe_->removeElement( meIntegrityErr_->getName() );
+  meIntegrityErr_ = 0;
+
   if ( meOccupancy_[0] ) dbe_->removeElement( meOccupancy_[0]->getName() );
   meOccupancy_[0] = 0;
 
   if ( meOccupancy_[1] ) dbe_->removeElement( meOccupancy_[1]->getName() );
   meOccupancy_[1] = 0;
+
+  if ( meOccupancy1DSummary_ ) dbe_->removeElement( meOccupancy1DSummary_->getName() );
+  meOccupancy1DSummary_ = 0;
 
   if ( mePedestalOnline_[0] ) dbe_->removeElement( mePedestalOnline_[0]->getName() );
   mePedestalOnline_[0] = 0;
@@ -366,11 +463,17 @@ void EESummaryClient::cleanup(void) {
   if ( mePedestalOnline_[1] ) dbe_->removeElement( mePedestalOnline_[1]->getName() );
   mePedestalOnline_[1] = 0;
 
+  if ( mePedestalOnlineErr_ ) dbe_->removeElement( mePedestalOnlineErr_->getName() );
+  mePedestalOnlineErr_ = 0;
+
   if ( meLaserL1_[0] ) dbe_->removeElement( meLaserL1_[0]->getName() );
   meLaserL1_[0] = 0;
 
   if ( meLaserL1_[1] ) dbe_->removeElement( meLaserL1_[1]->getName() );
   meLaserL1_[1] = 0;
+
+  if ( meLaserL1Err_ ) dbe_->removeElement( meLaserL1Err_->getName() );
+  meLaserL1Err_ = 0;
 
   if ( meLaserL1PN_[0] ) dbe_->removeElement( meLaserL1PN_[0]->getName() );
   meLaserL1PN_[0] = 0;
@@ -378,11 +481,17 @@ void EESummaryClient::cleanup(void) {
   if ( meLaserL1PN_[1] ) dbe_->removeElement( meLaserL1PN_[1]->getName() );
   meLaserL1PN_[1] = 0;
 
+  if ( meLaserL1PNErr_ ) dbe_->removeElement( meLaserL1PNErr_->getName() );
+  meLaserL1PNErr_ = 0;
+
   if ( meLed_[0] ) dbe_->removeElement( meLed_[0]->getName() );
   meLed_[0] = 0;
 
   if ( meLed_[1] ) dbe_->removeElement( meLed_[1]->getName() );
   meLed_[1] = 0;
+
+  if ( meLedErr_ ) dbe_->removeElement( meLedErr_->getName() );
+  meLedErr_ = 0;
 
   if ( meLedPN_[0] ) dbe_->removeElement( meLedPN_[0]->getName() );
   meLedPN_[0] = 0;
@@ -390,11 +499,17 @@ void EESummaryClient::cleanup(void) {
   if ( meLedPN_[1] ) dbe_->removeElement( meLedPN_[1]->getName() );
   meLedPN_[1] = 0;
 
+  if ( meLedPNErr_ ) dbe_->removeElement( meLedPNErr_->getName() );
+  meLedPNErr_ = 0;
+
   if ( mePedestal_[0] ) dbe_->removeElement( mePedestal_[0]->getName() );
   mePedestal_[0] = 0;
 
   if ( mePedestal_[1] ) dbe_->removeElement( mePedestal_[1]->getName() );
   mePedestal_[1] = 0;
+
+  if ( mePedestalErr_ ) dbe_->removeElement( mePedestalErr_->getName() );
+  mePedestalErr_ = 0;
 
   if ( mePedestalPN_[0] ) dbe_->removeElement( mePedestalPN_[0]->getName() );
   mePedestalPN_[0] = 0;
@@ -402,17 +517,26 @@ void EESummaryClient::cleanup(void) {
   if ( mePedestalPN_[1] ) dbe_->removeElement( mePedestalPN_[1]->getName() );
   mePedestalPN_[1] = 0;
 
+  if ( mePedestalPNErr_ ) dbe_->removeElement( mePedestalPNErr_->getName() );
+  mePedestalPNErr_ = 0;
+
   if ( meTestPulse_[0] ) dbe_->removeElement( meTestPulse_[0]->getName() );
   meTestPulse_[0] = 0;
 
   if ( meTestPulse_[1] ) dbe_->removeElement( meTestPulse_[1]->getName() );
   meTestPulse_[1] = 0;
 
+  if ( meTestPulseErr_ ) dbe_->removeElement( meTestPulseErr_->getName() );
+  meTestPulseErr_ = 0;
+
   if ( meTestPulsePN_[0] ) dbe_->removeElement( meTestPulsePN_[0]->getName() );
   meTestPulsePN_[0] = 0;
 
   if ( meTestPulsePN_[1] ) dbe_->removeElement( meTestPulsePN_[1]->getName() );
   meTestPulsePN_[1] = 0;
+
+  if ( meTestPulsePNErr_ ) dbe_->removeElement( meTestPulsePNErr_->getName() );
+  meTestPulsePNErr_ = 0;
 
   if ( meCosmic_[0] ) dbe_->removeElement( meCosmic_[0]->getName() );
   meCosmic_[0] = 0;
@@ -520,27 +644,38 @@ void EESummaryClient::analyze(void){
 
   meIntegrity_[0]->setEntries( 0 );
   meIntegrity_[1]->setEntries( 0 );
+  meIntegrityErr_->Reset();
   meOccupancy_[0]->setEntries( 0 );
   meOccupancy_[1]->setEntries( 0 );
+  meOccupancy1DSummary_->Reset();
   mePedestalOnline_[0]->setEntries( 0 );
   mePedestalOnline_[1]->setEntries( 0 );
+  mePedestalOnlineErr_->Reset();
 
   meLaserL1_[0]->setEntries( 0 );
   meLaserL1_[1]->setEntries( 0 );
+  meLaserL1Err_->Reset();
   meLaserL1PN_[0]->setEntries( 0 );
   meLaserL1PN_[1]->setEntries( 0 );
+  meLaserL1PNErr_->Reset();
   meLed_[0]->setEntries( 0 );
   meLed_[1]->setEntries( 0 );
+  meLedErr_->Reset();
   meLedPN_[0]->setEntries( 0 );
   meLedPN_[1]->setEntries( 0 );
+  meLedPNErr_->Reset();
   mePedestal_[0]->setEntries( 0 );
   mePedestal_[1]->setEntries( 0 );
+  mePedestalErr_->Reset();
   mePedestalPN_[0]->setEntries( 0 );
   mePedestalPN_[1]->setEntries( 0 );
+  mePedestalPNErr_->Reset();
   meTestPulse_[0]->setEntries( 0 );
   meTestPulse_[1]->setEntries( 0 );
+  meTestPulseErr_->Reset();
   meTestPulsePN_[0]->setEntries( 0 );
   meTestPulsePN_[1]->setEntries( 0 );
+  meTestPulsePNErr_->Reset();
 
   meCosmic_[0]->setEntries( 0 );
   meCosmic_[1]->setEntries( 0 );
@@ -605,8 +740,10 @@ void EESummaryClient::analyze(void){
               if ( ism >= 1 && ism <= 9 ) {
                 if ( Numbers::validEE(ism, 101 - jx, jy) ) meIntegrity_[0]->setBinContent( jx, jy, xval );
               } else {
-                if ( Numbers::validEE(ism, jx, jy) )meIntegrity_[1]->setBinContent( jx, jy, xval );
+                if ( Numbers::validEE(ism, jx, jy) ) meIntegrity_[1]->setBinContent( jx, jy, xval );
               }
+
+	      if ( xval == 0 ) meIntegrityErr_->Fill( ism );
 
             }
 
@@ -621,6 +758,8 @@ void EESummaryClient::analyze(void){
               } else {
                 if ( xval != 0 ) meOccupancy_[1]->setBinContent( jx, jy, xval );
               }
+
+	      meOccupancy1DSummary_->Fill( ism, xval );
 
             }
 
@@ -639,6 +778,8 @@ void EESummaryClient::analyze(void){
               } else {
                 if ( Numbers::validEE(ism, jx, jy) ) mePedestalOnline_[1]->setBinContent( jx, jy, xval );
               }
+
+	      if ( xval == 0 ) mePedestalOnlineErr_->Fill( ism );
 
             }
 
@@ -662,6 +803,8 @@ void EESummaryClient::analyze(void){
                 }
               }
 
+	      if ( xval == 0 ) meLaserL1Err_->Fill( ism );
+
             }
 
           }
@@ -683,6 +826,8 @@ void EESummaryClient::analyze(void){
                   if ( Numbers::validEE(ism, jx, jy) ) meLed_[1]->setBinContent( jx, jy, xval );
                 }
               }
+
+	      if ( xval == 0 ) meLedErr_->Fill( ism );
 
             }
 
@@ -732,6 +877,8 @@ void EESummaryClient::analyze(void){
                 }
               }
 
+	      if ( xval == 0 ) mePedestalErr_->Fill( ism );
+
             }
 
           }
@@ -779,6 +926,8 @@ void EESummaryClient::analyze(void){
                   if ( Numbers::validEE(ism, jx, jy) ) meTestPulse_[1]->setBinContent( jx, jy, xval );
                 }
               }
+
+	      if ( xval == 0 ) meTestPulseErr_->Fill( ism );
 
             }
 

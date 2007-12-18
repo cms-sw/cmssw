@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2007/11/27 10:43:24 $
- * $Revision: 1.11 $
+ * $Date: 2007/12/15 11:34:31 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -98,17 +98,17 @@ std::vector<EEClient*> clients_;
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
-MonitorElement* meIntegrity_[2];
-MonitorElement* meOccupancy_[2];
-MonitorElement* mePedestalOnline_[2];
-MonitorElement* meLaserL1_[2];
-MonitorElement* meLaserL1PN_[2];
-MonitorElement* meLed_[2];
-MonitorElement* meLedPN_[2];
-MonitorElement* mePedestal_[2];
-MonitorElement* mePedestalPN_[2];
-MonitorElement* meTestPulse_[2];
-MonitorElement* meTestPulsePN_[2];
+MonitorElement* meIntegrity_[2], *meIntegrityErr_;
+MonitorElement* meOccupancy_[2], *meOccupancy1DSummary_;
+MonitorElement* mePedestalOnline_[2], *mePedestalOnlineErr_;
+MonitorElement* meLaserL1_[2], *meLaserL1Err_;
+MonitorElement* meLaserL1PN_[2], *meLaserL1PNErr_;
+MonitorElement* meLed_[2], *meLedErr_;
+MonitorElement* meLedPN_[2], *meLedPNErr_;
+MonitorElement* mePedestal_[2], *mePedestalErr_;
+MonitorElement* mePedestalPN_[2], *mePedestalPNErr_;
+MonitorElement* meTestPulse_[2], *meTestPulseErr_;
+MonitorElement* meTestPulsePN_[2], *meTestPulsePNErr_;
 
 MonitorElement* meCosmic_[2];
 MonitorElement* meTiming_[2];

@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/11/27 10:43:17 $
- * $Revision: 1.21 $
+ * $Date: 2007/12/15 11:34:25 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -98,15 +98,15 @@ std::vector<EBClient*> clients_;
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
-MonitorElement* meIntegrity_;
-MonitorElement* meOccupancy_;
-MonitorElement* mePedestalOnline_;
-MonitorElement* meLaserL1_;
-MonitorElement* meLaserL1PN_;
-MonitorElement* mePedestal_;
-MonitorElement* mePedestalPN_;
-MonitorElement* meTestPulse_;
-MonitorElement* meTestPulsePN_;
+MonitorElement* meIntegrity_, *meIntegrityErr_;
+MonitorElement* meOccupancy_, *meOccupancy1DSummary_;
+MonitorElement* mePedestalOnline_, *mePedestalOnlineErr_;
+MonitorElement* meLaserL1_, *meLaserL1Err_;
+MonitorElement* meLaserL1PN_, *meLaserL1PNErr_;
+MonitorElement* mePedestal_, *mePedestalErr_;
+MonitorElement* mePedestalPN_, *mePedestalPNErr_;
+MonitorElement* meTestPulse_, *meTestPulseErr_;
+MonitorElement* meTestPulsePN_, *meTestPulsePNErr_;
 
 MonitorElement* meCosmic_;
 MonitorElement* meTiming_;
