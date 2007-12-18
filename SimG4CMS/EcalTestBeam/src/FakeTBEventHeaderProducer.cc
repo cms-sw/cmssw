@@ -1,7 +1,7 @@
 /*
  * \file FakeTBEventHeaderProducer.cc
  *
- * $Id: FakeTBEventHeaderProducer.cc,v 1.3 2007/01/19 09:58:08 fabiocos Exp $
+ * $Id: FakeTBEventHeaderProducer.cc,v 1.4 2007/10/31 09:32:27 crovelli Exp $
  *
  */
 
@@ -30,13 +30,14 @@ FakeTBEventHeaderProducer::~FakeTBEventHeaderProducer()
   // get the vertex information from the event
 
   const PEcalTBInfo* theEcalTBInfo=0;
-  // try {
   edm::Handle<PEcalTBInfo> EcalTBInfo;
   event.getByLabel(ecalTBInfoLabel_,EcalTBInfo);
-  theEcalTBInfo = EcalTBInfo.product(); 
-  //  }
-  // catch ( std::exception& ex ) { }
-
+  if (EcalTBInfo.isValid()){
+    theEcalTBInfo = EcalTBInfo.product(); 
+  } else {
+    edm::LogError("FakeTBEventHeaderProducer") << "Error! can't get the product " << ecalTBInfoLabel_.c_str() ;
+  }
+  
   if (!theEcalTBInfo)
     return;
   
