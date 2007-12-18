@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <functional>
+#include <ext/functional>
 using namespace std;
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -171,26 +173,33 @@ void TaggingVariableList::insert( const TaggingVariableList & list ) {
 }
 
 TaggingValue TaggingVariableList::get( TaggingVariableName tag ) const {
-  if (! checkTag( tag ))
+  range r = getRange(tag);
+  if (r.first == r.second)
     throw edm::Exception( edm::errors::InvalidReference )
                   << "TaggingVariable " << tag << " is not present in the collection";
-  
-  return lower_bound( m_list.begin(), m_list.end(), tag, TaggingVariableCompare() )->second;
+  return r.first->second;
 }
 
-vector<TaggingValue> TaggingVariableList::getList( TaggingVariableName tag ) const {
-  if (! checkTag( tag ))
+TaggingValue TaggingVariableList::get( TaggingVariableName tag, TaggingValue defaultValue ) const {
+  range r = getRange(tag);
+  if ( r.first == r.second )
+    return defaultValue;
+  return r.first->second;
+}
+
+std::vector<TaggingValue> TaggingVariableList::getList( TaggingVariableName tag, bool throwOnEmptyList ) const {
+  using namespace __gnu_cxx;
+  range r = getRange( tag );
+  if ( throwOnEmptyList && r.first == r.second )
     throw edm::Exception( edm::errors::InvalidReference )
                   << "TaggingVariable " << tag << " is not present in the collection";
-  
-  vector<TaggingValue> list;
-  pair< vector<TaggingVariable>::const_iterator, vector<TaggingVariable>::const_iterator > range = 
-    equal_range(m_list.begin(), m_list.end(), tag, TaggingVariableCompare() );
-  
-  for (vector<TaggingVariable>::const_iterator i = range.first; i != range.second; i++)
-    list.push_back( i->second );
-
+  vector<TaggingValue> list( r.second - r.first );
+  transform( r.first, r.second, list.begin(), select2nd< TaggingVariable >() );
   return list;
+}
+
+TaggingVariableList::range TaggingVariableList::getRange( TaggingVariableName tag ) const {
+  return equal_range( m_list.begin(), m_list.end(), tag, TaggingVariableCompare() );
 }
 
 } // namespace reco

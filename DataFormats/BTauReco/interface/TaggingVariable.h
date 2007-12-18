@@ -130,6 +130,7 @@ namespace reco {
      *  STL-like accessors 
      */
     typedef std::vector < TaggingVariable >::const_iterator const_iterator;
+    typedef std::pair < const_iterator, const_iterator > range;
     size_t size() const { return m_list.size(); }
     const_iterator begin() const { return m_list.begin(); }
     const_iterator end() const { return m_list.end(); }
@@ -154,7 +155,10 @@ namespace reco {
     }
     
     TaggingValue get( TaggingVariableName tag ) const;
-    std::vector<TaggingValue> getList( TaggingVariableName tag ) const;
+    TaggingValue get( TaggingVariableName tag, TaggingValue defaultValue ) const;
+    std::vector<TaggingValue> getList( TaggingVariableName tag, bool throwOnEmptyList = true ) const;
+
+    range getRange( TaggingVariableName tag ) const;
 
     TaggingValue operator[]( TaggingVariableName tag ) const {
       return get( tag );
