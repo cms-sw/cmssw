@@ -34,8 +34,8 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
   using namespace edm;
   using namespace std;
   
-
-  CaloJetCollection * jetCollection = new CaloJetCollection;
+  CaloJetCollection* myJetCollection = new CaloJetCollection;
+  CaloJetCollection * jetCollection =new CaloJetCollection;
   CaloJetCollection * jetCollectionTmp = new CaloJetCollection;
   IsolatedTauTagInfoCollection * extendedCollection = new IsolatedTauTagInfoCollection;
   IsolatedTauTagInfoCollection * allExtendedCollection = new IsolatedTauTagInfoCollection;
@@ -57,15 +57,15 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
       allExtendedCollection->push_back(*(i)); //to  be used in HLT Analyzers ...
       if(useInHLTOpen) {
 	const CaloJet* pippo = dynamic_cast<const CaloJet*>((i->jet().get()));
-	jetCollectionTmp->push_back(*pippo );
+	jetCollectionTmp->push_back(*pippo);
 	extendedCollection->push_back(*(i)); //to  be used later
-	delete pippo;
+	//	delete pippo;
       }else{
 	if(discriminator > 0) {
 	  const CaloJet* pippo = dynamic_cast<const CaloJet*>((i->jet().get()));
-	  jetCollectionTmp->push_back(*pippo );
+	  jetCollectionTmp->push_back(*pippo);
 	  extendedCollection->push_back(*(i)); //to  be used later
-	  delete pippo;
+	  // delete pippo;
 	}
       }
     }
@@ -77,7 +77,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
     VertexCollection::const_iterator myVertex = vertices->begin();
 
     for(;myVertex!= vertices->end();myVertex++){
-      CaloJetCollection* myJetCollection = new CaloJetCollection();
+      
 
       IsolatedTauTagInfoCollection::const_iterator myIsolJet = extendedCollection->begin();
       int taggedJets=0;
@@ -91,7 +91,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	    taggedJets++;
 	    const CaloJet* pippo = dynamic_cast<const CaloJet*>(myIsolJet->jet().get());
 	    myJetCollection->push_back(*pippo);
-	    delete pippo;
+	    //	    delete pippo;
 	  }
       }
       //check if we have at least 2 jets from the same vertex
@@ -103,7 +103,8 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	}
     }
   }else{// no Vertex constraint is used 
-    jetCollection = jetCollectionTmp;
+    
+jetCollection = jetCollectionTmp;
   }
 
 
@@ -114,9 +115,8 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
   
   iEvent.put(extColl);
   iEvent.put(selectedTaus);
-
-  delete jetCollection;
-  delete jetCollectionTmp;
+  if(!useVertex) delete myJetCollection;
+  if(useVertex) delete jetCollectionTmp;
   delete extendedCollection;
- delete allExtendedCollection ;
+
 }
