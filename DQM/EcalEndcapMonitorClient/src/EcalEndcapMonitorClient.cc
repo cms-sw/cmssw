@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/17 08:26:23 $
- * $Revision: 1.97 $
+ * $Date: 2007/12/17 08:30:31 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1695,7 +1695,11 @@ void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
     cgicc::CgiEnvironment cgie(in);
     path = cgie.getPathInfo() + "?" + cgie.getQueryString();
 
-  } catch (exception &e) { }
+  } catch (exception &e) {
+
+    cerr << "Standard C++ exception : " << e.what() << endl;
+
+  }
 
   *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict)            << endl;
   *out << cgicc::html().set("lang", "en").set("dir","ltr")           << endl;

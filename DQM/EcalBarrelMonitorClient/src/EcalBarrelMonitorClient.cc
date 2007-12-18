@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/17 08:26:22 $
- * $Revision: 1.338 $
+ * $Date: 2007/12/17 08:30:30 $
+ * $Revision: 1.339 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1669,7 +1669,11 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
     cgicc::CgiEnvironment cgie(in);
     path = cgie.getPathInfo() + "?" + cgie.getQueryString();
 
-  } catch (exception &e) { }
+  } catch (exception &e) {
+
+    cerr << "Standard C++ exception : " << e.what() << endl;
+
+  }
 
   *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict)            << endl;
   *out << cgicc::html().set("lang", "en").set("dir","ltr")           << endl;
