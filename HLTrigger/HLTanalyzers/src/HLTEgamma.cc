@@ -63,18 +63,18 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 }
 
 /* **Analyze the event** */
-void HLTEgamma::analyze(const ElectronCollection& Electron,
+void HLTEgamma::analyze(const PixelMatchGsfElectronCollection& Electron,
 			const PhotonCollection& Photon,
 			TTree* HltTree) {
 
   //std::cout << " Beginning HLTEgamma " << std::endl;
 
   if (&Electron) {
-    ElectronCollection myelectrons;
+    PixelMatchGsfElectronCollection myelectrons;
     myelectrons=Electron;
     nele = myelectrons.size();
     std::sort(myelectrons.begin(),myelectrons.end(),EtGreater());
-    typedef ElectronCollection::const_iterator ceiter;
+    typedef PixelMatchGsfElectronCollection::const_iterator ceiter;
     int iel=0;
     for (ceiter i=myelectrons.begin(); i!=myelectrons.end(); i++) {
       elpt[iel] = i->pt();

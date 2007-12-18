@@ -94,7 +94,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   // edm::Handle<edm::HepMCProduct> hepmcHandle;
   edm::Handle<CandidateCollection> mctruth,mctruthDummy;
   edm::Handle< double > genEventScale;
-  edm::Handle<ElectronCollection> Electron, ElectronDummy;
+  edm::Handle<PixelMatchGsfElectronCollection> Electron, ElectronDummy;
   edm::Handle<PhotonCollection> Photon, PhotonDummy;
   edm::Handle<MuonCollection> muon,muonDummy;
 //   edm::Handle<HLTFilterObjectWithRefs> hltobj;
@@ -127,8 +127,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   // HLT 
   iEvent.getByLabel(hltresults_,hltresults);
   //  L1 Extra Info
-  iEvent.getByLabel(l1extramc_,l1extemi);
-  iEvent.getByLabel(l1extramc_,l1extemn);
+  iEvent.getByLabel(l1extramc_,"Isolated",l1extemi);
+  iEvent.getByLabel(l1extramc_,"NonIsolated",l1extemn);
   iEvent.getByLabel(l1extramc_,l1extmu);
   iEvent.getByLabel(l1extramc_,"Central",l1extjetc);
   iEvent.getByLabel(l1extramc_,"Forward",l1extjetf);
