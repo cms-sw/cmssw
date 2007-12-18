@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.21 2007/12/11 14:16:24 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.22 2007/12/12 15:06:06 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -22,6 +22,9 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#include <sys/types.h>
+#include <dirent.h>
+#include <errno.h>
 #include "TProfile.h"
 
 #define DO_SUMMARY
@@ -33,11 +36,11 @@ using namespace sistrip;
 SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm::ParameterSet& pset ) 
   : mui_( new MonitorUIRoot() ),
     histos_(0),
-    inputFiles_( pset.getUntrackedParameter< std::vector<std::string> >( "InputRootFiles", std::vector<std::string>() ) ),
+    //inputFiles_( pset.getUntrackedParameter< std::vector<std::string> >( "InputRootFiles", std::vector<std::string>() ) ),
     outputFileName_( pset.getUntrackedParameter<std::string>( "OutputRootFile", "" ) ),
     collateHistos_( pset.getUntrackedParameter<bool>( "CollateHistos", true ) ),
     analyzeHistos_( pset.getUntrackedParameter<bool>( "AnalyzeHistos", true ) ),
-    xmlFile_( pset.getUntrackedParameter<std::string>( "SummaryPlotXmlFile", "" ) ),
+    xmlFile_( pset.getUntrackedParameter<std::string>( "SummaryXmlFile", "" ) ),
     createSummaryPlots_( false ),
     clientHistos_( false ), 
     uploadToDb_( false ), 
@@ -49,6 +52,10 @@ SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm:
   edm::LogVerbatim(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Constructing object...";
+  setInputFiles( inputFiles_,
+		 pset.getUntrackedParameter<std::string>( "FilePath" ),
+		 pset.getUntrackedParameter<uint32_t>("RunNumber"), 
+		 collateHistos_ );
 }
 
 // -----------------------------------------------------------------------------
@@ -443,3 +450,64 @@ void SiStripCommissioningOfflineClient::endJob() {
     << " WARNING: No access to doSummary() method! >>> Inform expert! <<<";
 #endif
 }
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripCommissioningOfflineClient::setInputFiles( std::vector<std::string>& files,
+						       const std::string path,
+						       uint32_t run_number, 
+						       bool collate_histos ) {
+  
+  // Stuff
+  std::string runStr;
+  char buffer[256];
+  sprintf( buffer, "%d", run_number );
+  runStr = buffer;
+  std::string nameStr = "";
+  if ( !collate_histos ) { nameStr = "SiStripCommissioningClient_"; }
+  else { nameStr = "SiStripCommissioningSource_"; }
+
+  // Open directory
+  DIR* dp;
+  struct dirent* dirp;
+  if ( (dp = opendir(path.c_str())) == NULL ) {
+    edm::LogWarning(mlDqmClient_) 
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Error locating directory \"" << path
+      << "\". No such directory!";
+    return;
+  }
+
+  // Find compatible files
+  while ( (dirp = readdir(dp)) != NULL ) {
+    std::string fileName(dirp->d_name);
+    bool goodName = ( fileName.find(nameStr) != std::string::npos );
+    bool goodRun  = ( fileName.find(runStr) != std::string::npos );
+    bool rootFile = ( fileName.find(".root") != std::string::npos );
+    //bool rootFile = ( fileName.rfind(".root",5) == fileName.size()-5 );
+    if ( goodName && goodRun && rootFile ) {
+      std::string entry = path;
+      entry += "/";
+      entry += fileName;
+      files.push_back(entry);
+    }
+  }
+  closedir(dp);
+
+  // Some debug  
+  if ( !collate_histos && files.size() > 1 ) {
+    std::stringstream ss;
+    ss << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+       << " Found more than one client file!";
+    std::vector<std::string>::const_iterator ifile = files.begin();
+    std::vector<std::string>::const_iterator jfile = files.end();
+    for ( ; ifile != jfile; ++ifile ) { ss << std::endl << *ifile; }
+    edm::LogWarning(mlDqmClient_) << ss.str();
+  } else if ( files.empty() ) {
+    edm::LogWarning(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << "No input files found!" ;
+  }
+
+}
+

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.4 2007/06/19 12:29:21 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.5 2007/07/13 13:51:10 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
 #define DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
@@ -44,6 +44,7 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
   virtual void createCommissioningHistograms();
   virtual void testUploadToDb() {;}
   virtual void uploadToDb() {;}
+  virtual void setInputFiles( std::vector<std::string>&, const std::string, uint32_t, bool );
 
  protected:
 
