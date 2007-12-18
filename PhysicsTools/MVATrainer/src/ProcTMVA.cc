@@ -218,7 +218,7 @@ Calibration::VarProcessor *ProcTMVA::getCalibration() const
 		size = os.end() - os.begin();
 		calib->store.resize(size);
 		std::memcpy(&calib->store.front(), os.begin(), size);
-	} catch(...) {
+	} catch(const XMLException &e) {
 		delete[] buffer;
 		throw;
 	}

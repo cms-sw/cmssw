@@ -136,14 +136,14 @@ void ProcCategory::configure(DOMElement *elem)
 					range.min = XMLDocument::readAttribute<double>(elem, "min");
 					range.hasMin = true;
 					sLimits[i].insert(range.min);
-				} catch(...) {
+				} catch(const XMLException &e) {
 					range.hasMin = false;
 				}
 				try {
 					range.max = XMLDocument::readAttribute<double>(elem, "max");
 					range.hasMax = true;
 					sLimits[i].insert(range.max);
-				} catch(...) {
+				} catch(const XMLException &e) {
 					range.hasMax = false;
 				}
 

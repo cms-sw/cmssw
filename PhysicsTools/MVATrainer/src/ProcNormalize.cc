@@ -124,7 +124,7 @@ void ProcNormalize::configure(DOMElement *elem)
 			pdf.range.max = XMLDocument::readAttribute<double>(
 								elem, "upper");
 			pdf.iteration = ITER_FILL;
-		} catch(...) {
+		} catch(const XMLException &e) {
 			pdf.iteration = ITER_EMPTY;
 		}
 
@@ -256,7 +256,7 @@ bool ProcNormalize::load()
 	try {
 		xml = std::auto_ptr<XMLDocument>(new XMLDocument(
 				trainer->trainFileName(this, "xml")));
-	} catch(...) {
+	} catch(const XMLException &e) {
 		return false;
 	}
 

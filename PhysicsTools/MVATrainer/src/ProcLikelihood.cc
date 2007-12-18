@@ -123,7 +123,7 @@ void ProcLikelihood::configure(DOMElement *elem)
 								elem, "bias");
 				bias.push_back(globalBias);
 				doGivenBias = true;
-			} catch(...) {
+			} catch(const XMLException &e) {
 				doGivenBias = false;
 			}
 
@@ -218,7 +218,7 @@ void ProcLikelihood::configure(DOMElement *elem)
 								elem, "upper");
 			pdf.background.range = pdf.signal.range;
 			pdf.iteration = ITER_FILL;
-		} catch(...) {
+		} catch(const XMLException &e) {
 			pdf.iteration = ITER_EMPTY;
 		}
 
@@ -481,7 +481,7 @@ bool ProcLikelihood::load()
 	try {
 		xml = std::auto_ptr<XMLDocument>(new XMLDocument(
 				trainer->trainFileName(this, "xml")));
-	} catch(...) {
+	} catch(const XMLException &e) {
 		return false;
 	}
 

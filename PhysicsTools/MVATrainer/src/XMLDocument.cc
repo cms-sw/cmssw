@@ -39,7 +39,7 @@ XMLDocument::XercesPlatform::XercesPlatform()
 	if (!instances++) {
 		try {
 			XMLPlatformUtils::Initialize();
-		} catch(...) {
+		} catch(const XMLException &e) {
 			throw cms::Exception("XMLDocument")
 				<< "XMLPlatformUtils::Initialize failed."
 				<< std::endl;
@@ -85,7 +85,7 @@ XMLDocument::~XMLDocument()
 				new LocalFileFormatTarget(fileName.c_str()));
 
 		writer->writeNode(target.get(), *doc);
-	} catch(...) {
+	} catch(const XMLException &e) {
 		std::remove(fileName.c_str());
 		throw;
 	}
@@ -113,10 +113,12 @@ void XMLDocument::openForRead(const std::string &fileName)
 		throw cms::Exception("XMLDocument")
 			<< "XML parser reported DOM error no. "
 			<< (unsigned long)e.getCode()
-			<< "." << std::endl;
-	} catch(...) {
+			<< ": " << XMLSimpleStr(e.getMessage()) << "."
+			<< std::endl;
+	} catch(const SAXException &e) {
 		throw cms::Exception("XMLDocument")
-			<< "XML parser reported an unknown error."
+			<< "XML parser reported: "
+			<< XMLSimpleStr(e.getMessage()) << "."
 			<< std::endl;
 	}
 

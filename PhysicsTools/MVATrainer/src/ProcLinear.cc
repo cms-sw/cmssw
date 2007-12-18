@@ -127,7 +127,7 @@ bool ProcLinear::load()
 	try {
 		xml = std::auto_ptr<XMLDocument>(new XMLDocument(
 				trainer->trainFileName(this, "xml")));
-	} catch(...) {
+	} catch(const XMLException &e) {
 		return false;
 	}
 
