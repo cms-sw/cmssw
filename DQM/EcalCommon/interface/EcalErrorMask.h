@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.h,v 1.5 2007/11/13 14:05:33 dellaric Exp $
+// $Id: EcalErrorMask.h,v 1.6 2007/12/18 13:30:42 dellaric Exp $
 
 /*!
   \file EcalErrorMask.h
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2007/11/13 14:05:33 $
+  \version $Revision: 1.6 $
+  \date $Date: 2007/12/18 13:30:42 $
 */
 
 #ifndef EcalErrorMask_H
@@ -36,11 +36,11 @@ class EcalErrorMask {
   static void readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( std::runtime_error );
   static void writeDB( EcalCondDBInterface* eConn, RunIOV* runIOV );
 
-  static void fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) throw( std::runtime_error );
-  static void fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap ) throw( std::runtime_error );
-  static void fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMap ) throw( std::runtime_error );
-  static void fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fillMap ) throw( std::runtime_error );
-  static void fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap ) throw( std::runtime_error );
+  static void fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap );
+  static void fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap );
+  static void fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMap );
+  static void fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fillMap );
+  static void fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap );
 
  private:
 

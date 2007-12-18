@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.13 2007/12/04 08:51:21 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.14 2007/12/18 13:30:42 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.13 $
-  \date $Date: 2007/12/04 08:51:21 $
+  \version $Revision: 1.14 $
+  \date $Date: 2007/12/18 13:30:42 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -44,8 +44,8 @@ std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_;
 void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySyntax ) throw( std::runtime_error ) {
 
   if( done_ ) {
-      throw( std::runtime_error( "Input File already read." ) );
-      return;
+    throw( std::runtime_error( "Input File already read." ) );
+    return;
   }
 
   done_ = true;
@@ -61,8 +61,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 
   std::fstream f( inFile.c_str(), std::ios::in );
   if( f.fail() ) {
-    std::string s = "Error accessing input file " + inFile;
-    throw( std::runtime_error( s ) );
+    throw( std::runtime_error( "Error accessing input file " + inFile ) );
     return;
   }
 
@@ -477,16 +476,14 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::cout << outFile << " already exists. Should I replace it? [y/n] ";
     std::string yesno; std::cin >> yesno;
     if( yesno == "n" ) {
-      std::string s = outFile + " left unchanged.";
-      throw( std::runtime_error( s ) );
+      throw( std::runtime_error( outFile + " left unchanged." ) );
       return;
     }
   }
 
   std::fstream f( outFile.c_str(), std::ios::out );
   if( f.fail() ) {
-    std::string s = "Error accessing output file " + outFile;
-    throw( std::runtime_error( s ) );
+    throw( std::runtime_error( "Error accessing output file " + outFile ) );
     return;
   }
 
@@ -685,7 +682,7 @@ void EcalErrorMask::writeDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) {
 
 //---------------------------------------------------------------------------------------------
 
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) throw( std::runtime_error ) {
+void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) {
 
   fillMap->clear();
   *fillMap = EcalErrorMask::mapCrystalErrors_;
@@ -695,7 +692,7 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* f
 
 //---------------------------------------------------------------------------------------------
 
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
+void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap ) {
 
   fillMap->clear();
   *fillMap = EcalErrorMask::mapTTErrors_;
@@ -705,7 +702,7 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMa
 
 //---------------------------------------------------------------------------------------------
 
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMap ) throw( std::runtime_error ) {
+void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMap ) {
 
   fillMap->clear();
   *fillMap = EcalErrorMask::mapPNErrors_;
@@ -715,7 +712,7 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMa
 
 //---------------------------------------------------------------------------------------------
 
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fillMap ) throw( std::runtime_error ) {
+void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fillMap ) {
 
   fillMap->clear();
   *fillMap = EcalErrorMask::mapMemChErrors_;
@@ -725,7 +722,7 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fil
 
 //---------------------------------------------------------------------------------------------
 
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
+void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap ) {
 
   fillMap->clear();
   *fillMap = EcalErrorMask::mapMemTTErrors_;
