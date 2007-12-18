@@ -1,11 +1,11 @@
-// $Id: MonitorXMLParser.h,v 1.3 2006/06/19 16:00:55 benigno Exp $
+// $Id: MonitorXMLParser.h,v 1.4 2006/06/28 10:46:17 benigno Exp $
 
 /*!
   \file MonitorXMLParser.h
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2006/06/19 16:00:55 $
+  \version $Revision: 1.4 $
+  \date $Date: 2006/06/28 10:46:17 $
 */
 
 #ifndef MonitorXMLParser_h
@@ -98,6 +98,7 @@ public:
   ~TagNames() throw(){
     
     try{
+
       xercesc::XMLString::release( &TAG_DBE ) ;
       xercesc::XMLString::release( &TAG_ME ) ;
       xercesc::XMLString::release( &TAG_1D ) ;
