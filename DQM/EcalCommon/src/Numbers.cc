@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.36 2007/12/04 09:44:40 dellaric Exp $
+// $Id: Numbers.cc,v 1.37 2007/12/15 17:41:51 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.36 $
-  \date $Date: 2007/12/04 09:44:40 $
+  \version $Revision: 1.37 $
+  \date $Date: 2007/12/15 17:41:51 $
 */
 
 #include <sstream>
@@ -45,12 +45,16 @@ void Numbers::initGeometry( const edm::EventSetup& setup ) {
   Numbers::init = true;
 
   try {
+
     edm::ESHandle< EcalElectronicsMapping > handle;
     setup.get< EcalMappingRcd >().get(handle);
     Numbers::map = handle.product();
     std::cout << "done." << std::endl;
+
   } catch ( cms::Exception &e ) {
+
     std::cout << "not available." << std::endl;
+
   }
   std::cout << std::endl;
 
@@ -74,23 +78,20 @@ int Numbers::iEB( const int ism ) throw( std::runtime_error ) {
 
 //-------------------------------------------------------------------------
 
-std::string Numbers::sEB( const int ism  ) throw( std::runtime_error ) {
+std::string Numbers::sEB( const int ism  ) {
 
-  try {
-    int ieb = Numbers::iEB( ism );
-    std::ostringstream s;
-    s << "EB" << std::setw(3) << std::setfill('0')
-      << std::setiosflags( std::ios::showpos )
-      << std::setiosflags( std::ios::internal )
-      << ieb
-      << std::resetiosflags( std::ios::showpos )
-      << std::resetiosflags( std::ios::internal )
-      << std::ends;
-    return( s.str() );
-  } catch( std::runtime_error &e ) {
-    throw( std::runtime_error( e.what() ) );
-  }
-  
+  int ieb = Numbers::iEB( ism );
+
+  std::ostringstream s;
+  s << "EB" << std::setw(3) << std::setfill('0')
+    << std::setiosflags( std::ios::showpos )
+    << std::setiosflags( std::ios::internal )
+    << ieb
+    << std::resetiosflags( std::ios::showpos )
+    << std::resetiosflags( std::ios::internal )
+    << std::ends;
+  return( s.str() );
+
 }
 
 //-------------------------------------------------------------------------
@@ -127,23 +128,20 @@ int Numbers::iEE( const int ism ) throw( std::runtime_error ) {
 
 //-------------------------------------------------------------------------
 
-std::string Numbers::sEE( const int ism  ) throw( std::runtime_error ) {
+std::string Numbers::sEE( const int ism  ) {
 
-  try {
-    int iee = Numbers::iEE( ism );
-    std::ostringstream s;
-    s << "EE" << std::setw(3) << std::setfill('0')
-      << std::setiosflags( std::ios::showpos )
-      << std::setiosflags( std::ios::internal )
-      << iee
-      << std::resetiosflags( std::ios::showpos )
-      << std::resetiosflags( std::ios::internal )
-      << std::ends;
-    return( s.str() );
-  } catch( std::runtime_error &e ) {
-    throw( std::runtime_error( e.what() ) );
-  }
-  
+  int iee = Numbers::iEE( ism );
+
+  std::ostringstream s;
+  s << "EE" << std::setw(3) << std::setfill('0')
+    << std::setiosflags( std::ios::showpos )
+    << std::setiosflags( std::ios::internal )
+    << iee
+    << std::resetiosflags( std::ios::showpos )
+    << std::resetiosflags( std::ios::internal )
+    << std::ends;
+  return( s.str() );
+
 }
 
 //-------------------------------------------------------------------------
@@ -175,9 +173,11 @@ int Numbers::iSM( const int ism, const int subdet ) throw( std::runtime_error ) 
     throw( std::runtime_error( s.str() ) );
 
   } else {
+
     std::ostringstream s;
     s << "Invalid subdetector: subdet = " << subdet;
     throw( std::runtime_error( s.str() ) );
+
   }
 
 }
@@ -226,9 +226,11 @@ int Numbers::iSM( const EEDetId& id ) throw( std::runtime_error ) {
     throw( std::runtime_error( s.str() ) );
 
   } else {
+
     std::ostringstream s;
     s << "ECAL Geometry not available";
     throw( std::runtime_error( s.str() ) );
+
   }
 
 }
@@ -269,9 +271,11 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
       throw( std::runtime_error( s.str() ) );
 
     } else {
+
       std::ostringstream s;
       s << "Invalid subdetector: subdet = " << subdet;
       throw( std::runtime_error( s.str() ) );
+
     }
   }
 
@@ -363,12 +367,17 @@ int Numbers::iTT( const int ism, const int subdet, const int i1, const int i2 ) 
       EEDetId id(i1, i2, iz, EEDetId::XYMODE);
 
       if( Numbers::map ) {
+
         EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
+
         return( eid.towerId() );
+
       } else {
+
         std::ostringstream s;
         s << "ECAL Geometry not available";
         throw( std::runtime_error( s.str() ) );
+
       }
 
     }
@@ -376,9 +385,11 @@ int Numbers::iTT( const int ism, const int subdet, const int i1, const int i2 ) 
     return( -1 );
 
   } else {
+
     std::ostringstream s;
     s << "Invalid subdetector: subdet = " << subdet;
     throw( std::runtime_error( s.str() ) );
+
   }
 
 }
@@ -406,9 +417,11 @@ int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
       throw( std::runtime_error( s.str() ) );
 
     } else {
+
       std::ostringstream s;
       s << "Invalid subdetector: subdet = " << subdet;
       throw( std::runtime_error( s.str() ) );
+
     }
   }
 
@@ -426,9 +439,11 @@ std::vector<DetId> Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std:
     return( Numbers::map->ttConstituents( itcc, itt ) );
 
   } else {
+
     std::ostringstream s;
     s << "ECAL Geometry not available";
     throw( std::runtime_error( s.str() ) );
+
   }
 
 }
@@ -477,9 +492,11 @@ std::vector<DetId> Numbers::crystals( const EcalElectronicsId& id ) throw( std::
     return( Numbers::map->dccTowerConstituents( idcc, itt ) );
 
   } else {
+
     std::ostringstream s;
     s << "ECAL Geometry not available";
     throw( std::runtime_error( s.str() ) );
+
   }
 
 }
@@ -535,15 +552,21 @@ int Numbers::icEE( const int ism, const int ix, const int iy ) {
     EEDetId id(ix, iy, iz, EEDetId::XYMODE);
 
     if( Numbers::map ) {
+
       EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
+
       int vfe = eid.towerId();
       int strip = eid.stripId();
       int channel = eid.xtalId();
+
       return ( (vfe-1)*25 + (strip-1)*5 + channel );
+
     } else {
+
       std::ostringstream s;
       s << "ECAL Geometry not available";
       throw( std::runtime_error( s.str() ) );
+
     }
 
   }
