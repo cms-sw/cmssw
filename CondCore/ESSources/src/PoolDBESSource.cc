@@ -106,7 +106,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
    */
-  try{
   std::string blobstreamerName("");
   if( iConfig.exists("BlobStreamerName") ){
     blobstreamerName=iConfig.getUntrackedParameter<std::string>("BlobStreamerName");
@@ -244,9 +243,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     */
   }
   this->fillRecordToIOVInfo();
-  }catch(const std::exception& er){
-    throw cond::Exception(er.what());
-  }
 }
 PoolDBESSource::~PoolDBESSource()
 {
@@ -390,39 +386,33 @@ PoolDBESSource::fillRecordToIOVInfo(){
   std::map< std::string, cond::TagMetadata >::iterator it;
   std::map< std::string, cond::TagMetadata >::iterator itbeg=m_tagCollection.begin();
   std::map< std::string, cond::TagMetadata >::iterator itend=m_tagCollection.end();
-  try{
-    for( it=itbeg;it!=itend;++it ){
-      std::string recordname=it->second.recordname;
-      std::string objectname=it->second.objectname;
-      std::string proxyname=buildName(recordname,objectname);
-      cond::IOVInfo iovInfo;
-      iovInfo.tag=it->first;
-      iovInfo.pfn=it->second.pfn;
-      iovInfo.label=it->second.labelname;
-      iovInfo.timetype=it->second.timetype;
-      cond::Connection* connection=conHandler.getConnection(iovInfo.pfn);
-      cond::CoralTransaction& coraldb=connection->coralTransaction();
-      cond::MetaData metadata(coraldb);
-      coraldb.start(true);
-      iovInfo.token=metadata.getToken(iovInfo.tag);
-      coraldb.commit();
-      if( iovInfo.token.empty() ){
-	throw cond::Exception("PoolDBESSource::fillrecordToIOVInfo: tag "+iovInfo.tag+std::string(" has empty iov token") );
-      }
- 
-      std::map<std::string,std::vector<cond::IOVInfo> >::iterator pos=m_proxyToIOVInfo.find(proxyname);
-      if( pos!= m_proxyToIOVInfo.end() ){
-	pos->second.push_back(iovInfo);
-      }else{
-       	std::vector<cond::IOVInfo> infos;
-	infos.push_back(iovInfo);
-	m_proxyToIOVInfo.insert(std::make_pair<std::string,std::vector<cond::IOVInfo> >(proxyname,infos));
-      }
+  for( it=itbeg;it!=itend;++it ){
+    std::string recordname=it->second.recordname;
+    std::string objectname=it->second.objectname;
+    std::string proxyname=buildName(recordname,objectname);
+    cond::IOVInfo iovInfo;
+    iovInfo.tag=it->first;
+    iovInfo.pfn=it->second.pfn;
+    iovInfo.label=it->second.labelname;
+    iovInfo.timetype=it->second.timetype;
+    cond::Connection* connection=conHandler.getConnection(iovInfo.pfn);
+    cond::CoralTransaction& coraldb=connection->coralTransaction();
+    cond::MetaData metadata(coraldb);
+    coraldb.start(true);
+    iovInfo.token=metadata.getToken(iovInfo.tag);
+    coraldb.commit();
+    if( iovInfo.token.empty() ){
+      throw cond::Exception("PoolDBESSource::fillrecordToIOVInfo: tag "+iovInfo.tag+std::string(" has empty iov token") );
     }
-  }catch(const cond::Exception&e ){
-    throw e;
-  }catch(const std::exception&e ){
-    throw e;
+    
+    std::map<std::string,std::vector<cond::IOVInfo> >::iterator pos=m_proxyToIOVInfo.find(proxyname);
+    if( pos!= m_proxyToIOVInfo.end() ){
+      pos->second.push_back(iovInfo);
+    }else{
+      std::vector<cond::IOVInfo> infos;
+      infos.push_back(iovInfo);
+      m_proxyToIOVInfo.insert(std::make_pair<std::string,std::vector<cond::IOVInfo> >(proxyname,infos));
+    }
   }
 }
 std::string
