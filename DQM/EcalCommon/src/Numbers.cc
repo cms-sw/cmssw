@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.38 2007/12/18 09:49:20 dellaric Exp $
+// $Id: Numbers.cc,v 1.39 2007/12/18 11:09:52 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.38 $
-  \date $Date: 2007/12/18 09:49:20 $
+  \version $Revision: 1.39 $
+  \date $Date: 2007/12/18 11:09:52 $
 */
 
 #include <sstream>
@@ -21,6 +21,8 @@
 #include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
 #include <DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h>
 #include <DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h>
+
+#include "FWCore/Framework/interface/NoRecordException.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
@@ -52,11 +54,12 @@ void Numbers::initGeometry( const edm::EventSetup& setup ) {
 
     std::cout << "done." << std::endl;
 
-  } catch ( cms::Exception &e ) {
+  } catch ( edm::eventsetup::NoRecordException< EcalMappingRcd > &e ) {
 
-    std::cout << "not available." << std::endl;
+    std::cout << "NOT done." << std::endl;
 
   }
+
   std::cout << std::endl;
 
 }
