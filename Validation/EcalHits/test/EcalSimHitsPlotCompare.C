@@ -264,6 +264,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     
     Ecal->cd(3); 
     if (meEEzmCrystals_ && newmeEEzmCrystals_) {
+      gPad->SetLogy();
       meEEzmCrystals_   ->Draw();
       newmeEEzmCrystals_->Draw("same");
       myPV->PVCompute(meEEzmCrystals_, newmeEEzmCrystals_, te);
@@ -414,6 +415,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
 
     Ecal->cd(1);
     if ( meEBhitEnergy_ && newmeEBhitEnergy_){
+      gPad->SetLogy();
       meEBhitEnergy_   ->Draw();
       newmeEBhitEnergy_->Draw("same");
       myPV->PVCompute(meEBhitEnergy_, newmeEBhitEnergy_, te);
@@ -421,6 +423,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
 
     Ecal->cd(2);
     if ( meEEzpHitEnergy_ && newmeEEzpHitEnergy_){
+      gPad->SetLogy();
       meEEzpHitEnergy_   ->Draw();
       newmeEEzpHitEnergy_->Draw("same");
       myPV->PVCompute(meEEzpHitEnergy_, newmeEEzpHitEnergy_, te);
@@ -428,6 +431,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
 
     Ecal->cd(3);
     if ( meEEzmHitEnergy_ && newmeEEzmHitEnergy_){
+      gPad->SetLogy();
       meEEzmHitEnergy_   ->Draw();
       newmeEEzmHitEnergy_->Draw("same");
       myPV->PVCompute(meEEzmHitEnergy_, newmeEEzmHitEnergy_, te);
@@ -488,6 +492,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     
     TCanvas *Ecal1 = new TCanvas("Ecal1","Ecal1",800,1000);
     if ( meEBe1_ && newmeEBe1_){ 
+      gPad->SetLogy();
       meEBe1_   ->Draw();
       newmeEBe1_->Draw("same");
       myPV->PVCompute(meEBe1_, newmeEBe1_, te);
@@ -496,6 +501,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     
     TCanvas *Ecal4 = new TCanvas("Ecal4","Ecal4",800,1000);
     if ( meEBe4_ && newmeEBe4_){ 
+      gPad->SetLogy();
       meEBe4_   ->Draw();
       newmeEBe4_->Draw("same");
       myPV->PVCompute(meEBe4_, newmeEBe4_, te);
@@ -504,6 +510,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     
     TCanvas *Ecal9 = new TCanvas("Ecal9","Ecal9",800,1000);
     if ( meEBe9_ && newmeEBe9_){ 
+      gPad->SetLogy();
       meEBe9_   ->Draw();
       newmeEBe9_->Draw("same");
       myPV->PVCompute(meEBe9_, newmeEBe9_, te);
@@ -512,6 +519,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
 
     TCanvas *Ecal16 = new TCanvas("Ecal16","Ecal16",800,1000);
     if ( meEBe16_ && newmeEBe16_){ 
+      gPad->SetLogy();
       meEBe16  _ ->Draw();
       newmeEBe16_->Draw("same");
       myPV->PVCompute(meEBe16_, newmeEBe16_, te);
@@ -520,6 +528,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     
     TCanvas * Ecal25 = new TCanvas("Ecal25","Ecal25",800,1000);
     if ( meEBe25_ && newmeEBe25_){ 
+      gPad->SetLogy();
       meEBe25_   ->Draw();
       newmeEBe25_->Draw("same");
       myPV->PVCompute(meEBe25_, newmeEBe25_, te);
@@ -581,6 +590,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
 
     TCanvas *Ecal1 = new TCanvas("Ecal1","Ecal1",800,1000);
     if ( meEEe1_ && newmeEEe1_){ 
+      gPad->SetLogy();
       meEEe1_   ->Draw();
       newmeEEe1_->Draw("same");
       myPV->PVCompute(meEEe1_, newmeEEe1_, te);
@@ -589,6 +599,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
 
     TCanvas *Ecal4 = new TCanvas("Ecal4","Ecal4",800,1000);
     if ( meEEe4_ && newmeEEe4_){ 
+      gPad->SetLogy();
       meEEe4_   ->Draw();
       newmeEEe4_->Draw("same");
       myPV->PVCompute(meEEe4_, newmeEEe4_, te);
@@ -597,6 +608,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     
     TCanvas *Ecal9 = new TCanvas("Ecal9","Ecal9",800,1000);
     if ( meEEe9_ && newmeEEe9_){ 
+      gPad->SetLogy();
       meEEe9_   ->Draw();
       newmeEEe9_->Draw("same");
       myPV->PVCompute(meEEe9_, newmeEEe9_, te);
@@ -605,6 +617,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     
     TCanvas *Ecal16 = new TCanvas("Ecal16","Ecal16",800,1000);
     if ( meEEe16_ && newmeEEe16_){ 
+      gPad->SetLogy();
       meEEe16  _ ->Draw();
       newmeEEe16_->Draw("same");
       myPV->PVCompute(meEEe16_, newmeEEe16_, te);
@@ -613,6 +626,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     
     TCanvas *Ecal25 = new TCanvas("Ecal25","Ecal25",800,1000);
     if ( meEEe25_ && newmeEEe25_){ 
+      gPad->SetLogy();
       meEEe25 _  ->Draw();
       newmeEEe25_->Draw("same");
       myPV->PVCompute(meEEe25_, newmeEEe25_, te);
@@ -870,6 +884,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     
     TCanvas *ESHits1zp = new TCanvas("ESHits1zp","ESHits1zp",800,1000);
     if ( meESHits1zp_ && newmeESHits1zp_ ){
+      gPad->SetLogy();
       meESHits1zp_   ->Draw();
       newmeESHits1zp_->Draw("same");
       myPV->PVCompute(meESHits1zp_, newmeESHits1zp_, te);
@@ -878,6 +893,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     
     TCanvas *ESHits2zp = new TCanvas("ESHits2zp","ESHits2zp",800,1000);
     if ( meESHits2zp_ && newmeESHits2zp_ ){
+      gPad->SetLogy();
       meESHits2zp_   ->Draw();
       newmeESHits2zp_->Draw("same");
       myPV->PVCompute(meESHits2zp_, newmeESHits2zp_, te);
@@ -886,6 +902,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     
     TCanvas *ESHits1zm = new TCanvas("ESHits1zm","ESHits1zm",800,1000);
     if ( meESHits1zm_ && newmeESHits1zm_ ){
+      gPad->SetLogy();
       meESHits1zm_   ->Draw();
       newmeESHits1zm_->Draw("same");
       myPV->PVCompute(meESHits1zm_, newmeESHits1zm_, te);
@@ -894,6 +911,7 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     
     TCanvas *ESHits2zm = new TCanvas("ESHits2zm","ESHits2zm",800,1000);
     if ( meESHits2zm_ && newmeESHits2zm_ ){
+      gPad->SetLogy();
       meESHits2zm_   ->Draw();
       newmeESHits2zm_->Draw("same");
       myPV->PVCompute(meESHits2zm_, newmeESHits2zm_, te);
