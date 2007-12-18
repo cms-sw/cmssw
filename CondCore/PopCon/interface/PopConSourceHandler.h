@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
+//#include <iostream>
 //#include <typeinfo>
 #include "CondCore/PopCon/interface/IOVPair.h"
 #include "CondCore/PopCon/interface/OfflineDBInterface.h"
@@ -35,9 +35,9 @@ namespace popcon
     unsigned int getSinceForTag(const std::string& tag){
       return (m_db_iface->getSpecificTagInfo(tag)).last_since;
     }
+
     std::vector<std::pair<T*, popcon::IOVPair> >* returnData(){
       this->getNewObjects();
-      std::cout << "Source Handler returns data\n";
       return this->m_to_transfer;
     }
     

@@ -1,5 +1,5 @@
-#ifndef PROTO_O2O_ANALYZER_H
-#define PROTO_O2O_ANALYZER_H
+#ifndef POPCON_POPCONANALYZER_H
+#define POPCON_POPCONANALYZER_H
 //
 // Original Author:  Marcin BOGUSZ
 //         Created:  Tue Jul  3 10:48:22 CEST 2007
@@ -103,9 +103,6 @@ namespace popcon{
     virtual void beginJob(const edm::EventSetup& es){	
       if(m_debug) std::cerr << "Begin Job\n"; 
       try{
-	std::cout<<"popcon_db "<<m_popcon_db<<std::endl;
-	std::cout<<"offline_connection "<<m_offline_connection<<std::endl;
-	std::cout<<"payload name "<<m_payload_name<<std::endl;
 	lgr = new Logger(m_popcon_db, m_offline_connection, m_payload_name,m_debug);
 	//lock the run (other instances of analyzer of the same typename will be blocked till the end of execution)
 	lgr->lock();
@@ -164,7 +161,7 @@ namespace popcon{
     //Therefore this code is stripped of DBOutput service, state management etc.	
     virtual void analyze(const edm::Event& evt, const edm::EventSetup& est){
       if(m_debug) std::cerr << "Analyze Begins\n"; 
-      try{
+      //try{
 	if(greenLight){
 	  //create source handling object, pass the eventsetup reference
 	  initSource(evt,est);
@@ -183,10 +180,10 @@ namespace popcon{
 	    std::cout << "PopConDBOutputService - nothing to write \n"; }
 	}
 	if(m_debug)  std::cerr << "Analyze Ends\n"; 
-      }catch(std::exception& e){
-	std::cerr << "Analyzer Exception\n";
-	std::cerr << e.what() << std::endl; 
-      }
+	//}catch(std::exception& e){
+	//std::cerr << "Analyzer Exception\n";
+	//std::cerr << e.what() << std::endl; 
+	//}
     }
     
     virtual void endJob(){	
