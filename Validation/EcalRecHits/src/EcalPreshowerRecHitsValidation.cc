@@ -1,7 +1,7 @@
 /*
  * \file EcalPreshowerRecHitsValidation.cc
  *
- * $Date: 2006/10/26 08:33:11 $
+ * $Date: 2007/11/02 09:14:54 $
  * \author C. Rovelli
  *
  */
@@ -146,36 +146,38 @@ void EcalPreshowerRecHitsValidation::endJob(){
 }
 
 void EcalPreshowerRecHitsValidation::analyze(const Event& e, const EventSetup& c){
-  
-  Handle<ESRecHitCollection> EcalRecHitES;
-  // try {
-  e.getByLabel( ESrechitCollection_, EcalRecHitES);
-  // } catch ( cms::Exception& ex ) {
-  //  edm::LogError("EcalPreshowerRecHitTaskError") << "Error! can't get the product " << ESrechitCollection_.label() << ":" << ESrechitCollection_.instance();
-  // }
 
+  const ESRecHitCollection *ESRecHit;
+  Handle<ESRecHitCollection> EcalRecHitES;
+  e.getByLabel( ESrechitCollection_, EcalRecHitES);
+  if (EcalRecHitES.isValid()) {
+    ESRecHit = EcalRecHitES.product ();
+  } else {
+    edm::LogError("EcalPreshowerRecHitTaskError") << "Error! can't get the product " << ESrechitCollection_.label() << ":" << ESrechitCollection_.instance();
+  }
+
+  const EERecHitCollection *EERecHit;
   Handle<EERecHitCollection> EcalRecHitEE;
-  // try {
   e.getByLabel( EErechitCollection_, EcalRecHitEE);
-  // } catch ( cms::Exception& ex ) {
-  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EErechitCollection_.label() << ":" << EErechitCollection_.instance();
-  // }
-  
+  if (EcalRecHitEE.isValid()){   
+    EERecHit = EcalRecHitEE.product ();  
+  } else {
+    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EErechitCollection_.label() << ":" << EErechitCollection_.instance();
+  }
+
+  const EEUncalibratedRecHitCollection *EEUncalibRecHit;
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
-  // try {
   e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
-  // } catch ( cms::Exception& ex ) {
-  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
-  // }
+  if (EcalUncalibRecHitEE.isValid()) {
+    EEUncalibRecHit = EcalUncalibRecHitEE.product() ;
+  } else {
+    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
+  }
 
 
 
   // ---------------------- 
   // loop over RecHits
-  const ESRecHitCollection *ESRecHit = EcalRecHitES.product ();
-  const EERecHitCollection *EERecHit = EcalRecHitEE.product ();
-  const EEUncalibratedRecHitCollection *EEUncalibRecHit = EcalUncalibRecHitEE.product() ;
-
   // multiplicities
   int mult_tot       = 0;
   int mult_zp1st     = 0;

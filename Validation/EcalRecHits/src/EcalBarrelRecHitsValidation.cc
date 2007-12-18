@@ -1,7 +1,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2007/11/02 09:14:54 $
+ * $Date: 2007/11/08 20:45:44 $
  * \author C. Rovelli
  *
  */
@@ -139,34 +139,30 @@ void EcalBarrelRecHitsValidation::endJob(){
 }
 
 void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
-  
+
+  const EBDigiCollection *EBDigi;
   Handle< EBDigiCollection > EcalDigiEB;
-  // try {
   e.getByLabel( EBdigiCollection_, EcalDigiEB);
-  // } catch ( cms::Exception& ex ) {
-  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Digis " << std::endl;
-  //}
+  if (EcalDigiEB.isValid()) {
+    EBDigi = EcalDigiEB.product();    
+  } else {
+    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Digis " << std::endl;
+  }
   
+  const EBUncalibratedRecHitCollection *EBUncalibRecHit;
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
-  // try {
   e.getByLabel( EBuncalibrechitCollection_, EcalUncalibRecHitEB);
-  // } catch ( cms::Exception& ex ) {
-  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.label() << ":" << EBuncalibrechitCollection_.instance() ;
-  // }
+  if (EcalUncalibRecHitEB.isValid()) {
+    EBUncalibRecHit = EcalUncalibRecHitEB.product();
+  } else {
+    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.label() << ":" << EBuncalibrechitCollection_.instance() ;
+  }
 
   edm::ESHandle<EcalPedestals> ecalPeds; 
-  // try {
   c.get<EcalPedestalsRcd>().get(ecalPeds);
-  // } catch ( cms::Exception& ex ) {
-  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Ecal pedestals" << std::endl;
-  //}
-
 
   // ---------------------- 
   // loop over UncalibRecHits
-  const EBDigiCollection *EBDigi = EcalDigiEB.product();
-  const EBUncalibratedRecHitCollection *EBUncalibRecHit = EcalUncalibRecHitEB.product();
-  
   for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EBUncalibRecHit->begin(); uncalibRecHit != EBUncalibRecHit->end() ; ++uncalibRecHit)
     {
       EBDetId EBid = EBDetId(uncalibRecHit->id());

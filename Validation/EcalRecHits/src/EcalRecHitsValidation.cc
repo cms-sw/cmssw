@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2007/09/06 14:18:46 $
+ * $Date: 2007/11/02 09:14:54 $
  * \author C. Rovelli
  *
 */
@@ -122,46 +122,55 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   
   Handle<HepMCProduct> MCEvt;                   
   bool skipMC = false;
-  // try {
   e.getByLabel(HepMCLabel, MCEvt);  
-  // } catch ( cms::Exception &e ) { skipMC = true; }
+  if (!MCEvt.isValid()) { skipMC = true; }
 
   edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
 
+  const EBUncalibratedRecHitCollection *EBUncalibRecHit;
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
-  // try {
   e.getByLabel( EBuncalibrechitCollection_, EcalUncalibRecHitEB);
-  // } catch ( cms::Exception& ex ) {
-  // edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.label() << ":" << EBuncalibrechitCollection_.instance();
-  //}
+  if (EcalUncalibRecHitEB.isValid()){
+    EBUncalibRecHit = EcalUncalibRecHitEB.product() ;    
+  } else {
+    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.label() << ":" << EBuncalibrechitCollection_.instance();
+  }
 
+  const EEUncalibratedRecHitCollection *EEUncalibRecHit;
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
-  // try {
   e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
-  //} catch ( cms::Exception& ex ) {
-  // edm::LogError("EcalRecHitdTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
-  //}
+  if (EcalUncalibRecHitEE.isValid()){ 
+    EEUncalibRecHit = EcalUncalibRecHitEE.product () ;
+  } else {
+    edm::LogError("EcalRecHitdTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
+  }
 
+  const EBRecHitCollection *EBRecHit;
   Handle<EBRecHitCollection> EcalRecHitEB;
-  //  try {
   e.getByLabel( EBrechitCollection_, EcalRecHitEB);
-  // } catch ( cms::Exception& ex ) {
-  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBrechitCollection_.label() << ":" << EBrechitCollection_.instance();
-  //}
+  if (EcalRecHitEB.isValid()){ 
+    EBRecHit = EcalRecHitEB.product();
+  } else {
+    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBrechitCollection_.label() << ":" << EBrechitCollection_.instance();
+  }
 
+  const EERecHitCollection *EERecHit;
   Handle<EERecHitCollection> EcalRecHitEE;
-  //try {
   e.getByLabel( EErechitCollection_, EcalRecHitEE);
-  //} catch ( cms::Exception& ex ) {
-  // edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EErechitCollection_.label() << ":" << EErechitCollection_.instance();
-  //}
+  if (EcalRecHitEE.isValid()){
+    EERecHit = EcalRecHitEE.product ();
+  } else {
+    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EErechitCollection_.label() << ":" << EErechitCollection_.instance();
+  }
 
+  const ESRecHitCollection *ESRecHit;
   Handle<ESRecHitCollection> EcalRecHitES;
-  //  try {
   e.getByLabel( ESrechitCollection_, EcalRecHitES);
-  //} catch ( cms::Exception& ex ) {
-  //  edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << ESrechitCollection_.label() << ":" << ESrechitCollection_.instance();
-  //}
+  if (EcalRecHitES.isValid()) {
+    ESRecHit = EcalRecHitES.product ();      
+  } else {
+    edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << ESrechitCollection_.label() << ":" << ESrechitCollection_.instance();
+  }
 
 
   // ---------------------- 
@@ -213,8 +222,6 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   
 
   // 2) loop over RecHits 
-  const EBUncalibratedRecHitCollection *EBUncalibRecHit = EcalUncalibRecHitEB.product() ;
-  const EBRecHitCollection *EBRecHit = EcalRecHitEB.product();
   for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EBUncalibRecHit->begin(); uncalibRecHit != EBUncalibRecHit->end() ; ++uncalibRecHit)
     {
       EBDetId EBid = EBDetId(uncalibRecHit->id());
@@ -265,8 +272,6 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
 
   // 2) loop over RecHits
-  const EEUncalibratedRecHitCollection *EEUncalibRecHit = EcalUncalibRecHitEE.product () ;
-  const EERecHitCollection *EERecHit = EcalRecHitEE.product ();
   for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin(); uncalibRecHit != EEUncalibRecHit->end(); ++uncalibRecHit)
     {
       EEDetId EEid = EEDetId(uncalibRecHit->id());
@@ -315,7 +320,6 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
 
   // 2) loop over RecHits
-  const ESRecHitCollection *ESRecHit = EcalRecHitES.product ();  
   for (EcalRecHitCollection::const_iterator recHit = ESRecHit->begin(); recHit != ESRecHit->end(); ++recHit)
     {
       ESDetId ESid = ESDetId(recHit->id());

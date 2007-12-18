@@ -1,7 +1,7 @@
 /*
  * \file EcalEndcapRecHitsValidation.cc
  *
- * $Date: 2007/11/02 09:14:54 $
+ * $Date: 2007/11/08 20:45:45 $
  * \author C. Rovelli
  *
  */
@@ -134,32 +134,29 @@ void EcalEndcapRecHitsValidation::endJob(){
 
 void EcalEndcapRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
+  const EEDigiCollection *EEDigi;
   Handle< EEDigiCollection > EcalDigiEE;
-  // try {
   e.getByLabel( EEdigiCollection_, EcalDigiEE);
-  // } catch ( cms::Exception& ex ) {
-  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Digis " ;
-  // }
-
+  if (EcalDigiEE.isValid()) { 
+    EEDigi = EcalDigiEE.product(); 
+  } else { 
+    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Digis " ;
+  }
+  
+  const EEUncalibratedRecHitCollection *EEUncalibRecHit;
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
-  // try {
   e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
-  // } catch ( cms::Exception& ex ) {
-  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
-  // }
-
+  if (EcalUncalibRecHitEE.isValid()) {
+    EEUncalibRecHit = EcalUncalibRecHitEE.product() ;
+  } else {
+    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
+  }
+  
   edm::ESHandle<EcalPedestals> ecalPeds; 
-  // try {
   c.get<EcalPedestalsRcd>().get(ecalPeds);
-  // } catch ( cms::Exception& ex ) {
-  //  edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Ecal pedestals";
-  // }
 
   // ---------------------- 
   // loop over UncalibRecHits
-  const EEDigiCollection *EEDigi = EcalDigiEE.product();
-  const EEUncalibratedRecHitCollection *EEUncalibRecHit = EcalUncalibRecHitEE.product() ;
-  
   for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin(); uncalibRecHit != EEUncalibRecHit->end() ; ++uncalibRecHit)
     {
       EEDetId EEid = EEDetId(uncalibRecHit->id());
