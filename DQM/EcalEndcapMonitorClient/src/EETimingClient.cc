@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/11/29 19:07:49 $
- * $Revision: 1.42 $
+ * $Date: 2007/12/15 11:34:34 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -289,6 +289,12 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           t.setTimingMean(mean01);
           t.setTimingRMS(rms01);
+
+//          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ix, iy )) % 3 == 1 ) {
+//            t.setTaskStatus(true);
+//          } else {
+//            t.setTaskStatus(false);
+//          }
 
           status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
 
