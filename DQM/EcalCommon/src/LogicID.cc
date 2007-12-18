@@ -1,11 +1,11 @@
-// $Id: LogicID.cc,v 1.3 2007/12/18 13:13:50 dellaric Exp $
+// $Id: LogicID.cc,v 1.4 2007/12/18 13:18:07 dellaric Exp $
 
 /*!
   \file LogicID.cc
   \brief Cache logicID vector from database
   \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2007/12/18 13:13:50 $
+  \version $Revision: 1.4 $
+  \date $Date: 2007/12/18 13:18:07 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -53,14 +53,12 @@ EcalLogicID LogicID::getEcalLogicID( std::string name, int id1, int id2  ) throw
       return( IDmap_[ name ][ 0 ] );
     }
     else {
-      std::string s = "Unknown 'name': " + name;
-      throw( std::runtime_error( s ) );
+      throw( std::runtime_error( "Unknown 'name': " + name ) );
       return( EcalLogicID( std::string( "" ), EcalLogicID::NULLID ) );
     }
   }
   else {
-    std::string s = "LogicID static object not yet initialized.";
-    throw( std::runtime_error( s ) );
+    throw( std::runtime_error( "LogicID static object not yet initialized." ) );
     return ( EcalLogicID( std::string( "" ), EcalLogicID::NULLID ) );
   }
 
