@@ -59,11 +59,13 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	const CaloJet* pippo = dynamic_cast<const CaloJet*>((i->jet().get()));
 	jetCollectionTmp->push_back(*pippo );
 	extendedCollection->push_back(*(i)); //to  be used later
+	delete pippo;
       }else{
 	if(discriminator > 0) {
 	  const CaloJet* pippo = dynamic_cast<const CaloJet*>((i->jet().get()));
 	  jetCollectionTmp->push_back(*pippo );
 	  extendedCollection->push_back(*(i)); //to  be used later
+	  delete pippo;
 	}
       }
     }
@@ -89,6 +91,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	    taggedJets++;
 	    const CaloJet* pippo = dynamic_cast<const CaloJet*>(myIsolJet->jet().get());
 	    myJetCollection->push_back(*pippo);
+	    delete pippo;
 	  }
       }
       //check if we have at least 2 jets from the same vertex
@@ -112,5 +115,8 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.put(extColl);
   iEvent.put(selectedTaus);
 
-
+  delete jetCollection;
+  delete jetCollectionTmp;
+  delete extendedCollection;
+ delete allExtendedCollection ;
 }
