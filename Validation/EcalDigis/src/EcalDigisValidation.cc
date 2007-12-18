@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2007/09/06 14:08:52 $
- * $Revision: 1.23 $
+ * $Date: 2007/11/02 08:59:10 $
+ * $Revision: 1.24 $
  * \author F. Cossutti
  *
 */
@@ -149,9 +149,8 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
   Handle<ESDigiCollection> EcalDigiES;
   
   bool skipMC = false;
-  // try {
   e.getByLabel(HepMCLabel, MCEvt);
-  // } catch ( cms::Exception &e ) { skipMC = true; }
+  if (!MCEvt.isValid()) { skipMC = true; }
   e.getByLabel(g4InfoLabel,SimTk);
   e.getByLabel(g4InfoLabel,SimVtx);
 
@@ -160,28 +159,34 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
   const ESDigiCollection* ESdigis =0;
 
   bool isBarrel = true;
-  // try {
   e.getByLabel( EBdigiCollection_, EcalDigiEB );
-  EBdigis = EcalDigiEB.product();
-  LogDebug("DigiInfo") << "total # EBdigis: " << EBdigis->size() ;
-  if ( EBdigis->size() == 0 ) isBarrel = false;
-  // } catch ( cms::Exception &e ) { isBarrel = false; }
+  if (EcalDigiEB.isValid()) {
+    EBdigis = EcalDigiEB.product();
+    LogDebug("DigiInfo") << "total # EBdigis: " << EBdigis->size() ;
+    if ( EBdigis->size() == 0 ) isBarrel = false;
+  } else {
+    isBarrel = false; 
+  }
   
   bool isEndcap = true;
-  // try {
   e.getByLabel( EEdigiCollection_, EcalDigiEE );
-  EEdigis = EcalDigiEE.product();
-  LogDebug("DigiInfo") << "total # EEdigis: " << EEdigis->size() ;
-  if ( EEdigis->size() == 0 ) isEndcap = false;
-  // } catch ( cms::Exception &e ) { isEndcap = false; }
-
+  if (EcalDigiEE.isValid()) {  
+    EEdigis = EcalDigiEE.product();
+    LogDebug("DigiInfo") << "total # EEdigis: " << EEdigis->size() ;
+    if ( EEdigis->size() == 0 ) isEndcap = false;
+  } else {
+    isEndcap = false; 
+  }
+  
   bool isPreshower = true;
-  // try {
   e.getByLabel( ESdigiCollection_, EcalDigiES );
-  ESdigis = EcalDigiES.product();
-  LogDebug("DigiInfo") << "total # ESdigis: " << ESdigis->size() ;
-  if ( ESdigis->size() == 0 ) isPreshower = false;
-  // } catch ( cms::Exception &e ) { isPreshower = false; }
+  if (EcalDigiES.isValid()) {
+    ESdigis = EcalDigiES.product();
+    LogDebug("DigiInfo") << "total # ESdigis: " << ESdigis->size() ;
+    if ( ESdigis->size() == 0 ) isPreshower = false;
+  } else { 
+    isPreshower = false; 
+  }
 
   theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
   theSimVertexes.insert(theSimVertexes.end(),SimVtx->begin(),SimVtx->end());
