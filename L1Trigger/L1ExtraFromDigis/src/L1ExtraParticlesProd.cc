@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.15 2007/10/12 23:26:58 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.16 2007/12/18 03:31:13 wsun Exp $
 //
 //
 
@@ -452,17 +452,17 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 				       phi,
 				       0. ) ;
 
-      auto_ptr< L1EtMissParticle > etMissParticle(
-	 new L1EtMissParticle( p4,
-			       etTot,
-			       etHad,
-			       RefProd< L1GctEtMiss >( hwEtMiss ),
-			       RefProd< L1GctEtTotal >( hwEtTot ),
-			       RefProd< L1GctEtHad >( hwEtHad )
-	    ) ) ;
+//       auto_ptr< L1EtMissParticle > etMissParticle(
+// 	 new L1EtMissParticle( p4,
+// 			       etTot,
+// 			       etHad,
+// 			       RefProd< L1GctEtMiss >( hwEtMiss ),
+// 			       RefProd< L1GctEtTotal >( hwEtTot ),
+// 			       RefProd< L1GctEtHad >( hwEtHad )
+// 	    ) ) ;
 
-      OrphanHandle< L1EtMissParticle > etMissHandle =
-	iEvent.put( etMissParticle ) ;
+//       OrphanHandle< L1EtMissParticle > etMissHandle =
+// 	iEvent.put( etMissParticle ) ;
 
       auto_ptr< L1EtMissParticleCollection > etMissColl(
 	 new L1EtMissParticleCollection );
