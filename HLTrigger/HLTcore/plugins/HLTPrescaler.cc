@@ -3,8 +3,8 @@
  *  
  *  See header file for documentation.
  *
- *  $Date: 2007/08/02 21:52:06 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/08/11 23:21:57 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -30,15 +30,12 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& ps) :
   count_ = o_;     // event offset
 
   // get prescale service
-  try {
-    if(edm::Service<edm::service::PrescaleService>().isAvailable()) {
-      ps_ = edm::Service<edm::service::PrescaleService>().operator->();
-    } else {
-      LogDebug("HLTPrescaler ") << "non available service edm::service::PrescaleService.";
-    }
-  }
-  catch(...) {
-    LogDebug("HLTPrescaler ") << "exception getting service edm::service::PrescaleService.";
+  if(edm::Service<edm::service::PrescaleService>().isAvailable()) {
+    // isAvailable() throws only if the entire service system is not available
+    ps_ = edm::Service<edm::service::PrescaleService>().operator->();
+  } else {
+    LogDebug("HLTPrescaler ") << "non available service edm::service::PrescaleService.";
+    ps_ = 0;
   }
 
   if (ps_==0) {
