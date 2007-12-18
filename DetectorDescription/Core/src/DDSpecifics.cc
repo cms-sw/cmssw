@@ -31,28 +31,22 @@ DDSpecifics::DDSpecifics(const DDName & name,
 			 bool doRegex)
  : DDBase<DDName,Specific*>()
 {
-   try {
-     prep_ = StoreT::instance().create(name, new Specific(partSelections,svalues,doRegex));   
-     typedef std::vector<std::pair<DDLogicalPart,std::pair<DDPartSelection*,DDsvalues_type*> > > strange_type;
-     strange_type v;
-     rep().updateLogicalPart(v);
-     strange_type::iterator it = v.begin();
-     for(; it != v.end(); ++it) {
-       if (it->first.isDefined().second) {
-         it->first.addSpecifics(it->second);
-         DCOUT('C', "add specifics to LP: partsel=" << *(it->second.first) );
-       }
-       else {
-	 std::string serr("Definition of LogicalPart missing! name=");
-	 serr+= std::string(it->first.ddname());
-         throw DDException(serr);
-       }
-     }
-   } catch(const DDException & e) {
-     edm::LogError("DDSpecifics") << "DDException: \"" << e.what() << "\"" << std::endl;
-     edm::LogError("DDSpecifics") << " in Specifics name=" << name << std::endl;
-     edm::LogError("DDSpecifics") << "<=========" << std::endl;
-   }
+  prep_ = StoreT::instance().create(name, new Specific(partSelections,svalues,doRegex));   
+  typedef std::vector<std::pair<DDLogicalPart,std::pair<DDPartSelection*,DDsvalues_type*> > > strange_type;
+  strange_type v;
+  rep().updateLogicalPart(v);
+  strange_type::iterator it = v.begin();
+  for(; it != v.end(); ++it) {
+    if (it->first.isDefined().second) {
+      it->first.addSpecifics(it->second);
+      DCOUT('C', "add specifics to LP: partsel=" << *(it->second.first) );
+    }
+    else {
+      std::string serr("Definition of LogicalPart missing! name=");
+      serr+= std::string(it->first.ddname());
+      throw DDException(serr);
+    }
+  }
 } 
     
 

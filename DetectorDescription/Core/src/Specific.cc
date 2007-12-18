@@ -15,25 +15,13 @@ Specific::Specific(const std::vector<std::string>& selections,
                    const DDsvalues_type & specs,
 		    bool doRegex)
  : specifics_(specs), 
-   //selections_(selections), 
    partSelections_(0), 
    valid_(false),
    doRegex_(doRegex)			
 {
   std::vector<std::string>::const_iterator it = selections.begin();
   for(; it != selections.end(); ++it) {
-    try {
-      createPartSelections(*it);
-      //DDPartSelection partsel(*it);
-      //partSelections_.push_back(partsel);
-    }   
-    catch(DDException & ex) {
-      edm::LogError("Specific") << "=========>" << std::endl;
-      edm::LogError("Specific") << "DC: Exception:" << std::endl << ex << std::endl;
-      edm::LogError("Specific") << "SpecPar will be ignored for the following selection-std::string:" << std::endl;      
-      edm::LogError("Specific") << *it << std::endl;
-      //throw ex;
-    }  
+    createPartSelections(*it);
   }
 }
 
@@ -51,21 +39,28 @@ void Specific::createPartSelections(const std::string & selString)
   
   if (!regv.size()) throw DDException("Could not evaluate the selection-std::string ->" + selString + "<-");
   std::vector<DDPartSelRegExpLevel>::const_iterator it = regv.begin();
+  std::pair<bool,std::string> res;
   for (; it != regv.end(); ++it) {
     std::vector<DDLogicalPart> lpv;
-    std::pair<bool,std::string> res = DDIsValid(it->ns_,it->nm_,lpv,doRegex_);
-    if (!res.first) 
-      throw DDException("Could not process q-name of a DDLogicalPart, reason:\n"+res.second);
-    
+    res = DDIsValid(it->ns_,it->nm_,lpv,doRegex_);
+    if (!res.first) {
+      std::string msg("Could not process q-name of a DDLogicalPart, reason:\n"+res.second);
+      msg+="\nSpecPar selection is:\n" + selString + "\n";
+      //throw DDException("Could not process q-name of a DDLogicalPart, reason:\n"+res.second);
+      edm::LogError("Specific") << msg;
+      break; //EXIT for loop
+    }
     //edm::LogInfo ("Specific") << "call addSelectionLevel" << std::endl;
     addSelectionLevel(lpv,it->copyno_,it->selectionType_,temp);
   }
-  std::vector<DDPartSelection>::const_iterator iit = temp.begin();
-  partSelections_.reserve(temp.size() + partSelections_.size());
-  for (; iit != temp.end(); ++iit) {
-    partSelections_.push_back(*iit);
-    //edm::LogInfo ("Specific") << *iit << std::endl;
-  } 
+  if ( res.first ) { // i.e. it wasn't "thrown" out of the loop
+    std::vector<DDPartSelection>::const_iterator iit = temp.begin();
+    partSelections_.reserve(temp.size() + partSelections_.size());
+    for (; iit != temp.end(); ++iit) {
+      partSelections_.push_back(*iit);
+      //edm::LogInfo ("Specific") << *iit << std::endl;
+    } 
+  }
 }
 
 

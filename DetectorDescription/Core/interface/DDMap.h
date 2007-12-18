@@ -41,20 +41,10 @@ public:
    const dd_map_type & values() const { return rep(); }
    
    //! returns the value on position pos; does not check boundaries!
-   const double & operator[](const std::string & name) const throw (DDException) { 
-       const dd_map_type & r(rep());
-       try { 
-         return r[name]; 
-       }
-       catch(const DDException & e) {
-	 std::string msg = std::string(e.what()) 
-                         + std::string(" called from DDMap::operator[], name=") 
-                         + ddname().ns() 
-                         + std::string(":")
-	                 + ddname().name();
-         throw DDException(msg);
-       }
-    }
+   const double & operator[](const std::string & name) const throw (DDException) {
+     const dd_map_type & r(rep()); 
+     return r[name];
+   } 
    
    //! read-only iterator pointing to the begin of the stored values
    value_type::const_iterator mapBegin() const { return rep().begin(); }
@@ -62,7 +52,5 @@ public:
    //! read-only iterator poining one place after the stored values
    value_type::const_iterator mapEnd() const { return rep().end(); }
    
-   //! convert to a std::vector<double>
-   //operator dd_map_type() const { return rep(); }
 };
 #endif // DD_DDMap_h

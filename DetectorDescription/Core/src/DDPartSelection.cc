@@ -268,7 +268,6 @@ void DDTokenize2(const std::string & sel, std::vector<DDPartSelRegExpLevel> & pa
 {
   static SpecParParser parser;
   DDI::Singleton<DDSelLevelCollector>::instance().path(&path);
-  //Singleton<DDSelLevelCollector>::instance().reset();
   bool result = parse(sel.c_str(), parser).full;
   if (!result) {
     edm::LogError("DDPartSelection") << "DDTokenize2() error in parsing of " << sel << std::endl;
@@ -283,28 +282,22 @@ void DDTokenize2(const std::string & sel, std::vector<DDPartSelRegExpLevel> & pa
 void DDTokenize(const std::string & sel, std::vector<DDPartSelRegExpLevel> &  path)
 {
 
-try{
+
   static bool isInit(false);
   static std::vector<std::string> tokens;
   if(!isInit) {
     // initialize with valid tokens
     tokens.push_back("/"); 
-    tokens.push_back("//");    // order similar tokens by length!
-    //tokens.push_back("/*");  // these special tokens are hard coded!
-    //tokens.push_back("//*"); //   (which is not very good - like the rest of this code)
+    tokens.push_back("//");
     tokens.push_back("[");
     tokens.push_back("]");
   }
   std::string s = sel;
-  // std::string::iterator it = s.begin();
   std::string::size_type st = std::string::npos;
   std::string::size_type cu = 0;
-  //bool go(true);
-  //--std::vector<int> toksVec;
   std::vector<std::string> toksVec;
   std::vector<std::string> textVec;
   std::string tkn, txt;
-  //DCOUT_V('C',"Debug DDPartSelectorImpl::tokenize(std::string s): s=" << s);
   bool braceOpen(false);
   /*
     the following code should decompose a selection std::string into 2 std::vectors,
@@ -336,7 +329,6 @@ try{
     else
      tkn=""; 
     txt = s.substr(cu,st);
-    //--toksVec.push_back(tokenmap[tkn]);
     toksVec.push_back(tkn);
     textVec.push_back(txt);
     if (braceOpen) {
@@ -407,17 +399,9 @@ try{
     if ( *tk_it == "//" && tx_it->size()) {
       ++tk_it;
       if ( tk_it != toksVec.end() && *tk_it != "[" && *tk_it != "]") {
-        //DDLogicalPart aLp;
-	//std::pair<bool,std::string> r = DDIsValid(*tx_it,aLp);	
-	//if (r.first) {
 	std::pair<std::string,std::string> p(DDSplit(*tx_it));
           path.push_back(DDPartSelRegExpLevel(p.second,p.first,0,ddanylogp));
-	//}  
-	//else {
-	//  throw DDException(std::string("PartSelector-ERROR: " + sel + "\n  " + r.second)); 
-	//}  
 	DCOUT_V('C', "--anylogp: " << *tx_it << std::endl);
-        //++tk_it;
         ++tx_it;
         continue;
       }	
@@ -430,32 +414,15 @@ try{
       ++tk_it;
       if ( tk_it == toksVec.end() - 1 ) {
         DCOUT_V('C', "--childlogp: " << *tx_it << std::endl);
-        //DDLogicalPart aLp;
-	//std::pair<bool,std::string> r = DDIsValid(*tx_it,aLp);	
-	//if (r.first) {
 	std::pair<std::string,std::string> p(DDSplit(*tx_it));
           path.push_back(DDPartSelRegExpLevel(p.second,p.first,0,ddchildlogp));
-        //  path.push_back(DDPartSelectionLevel(aLp,0,ddchildlogp));
-	//}  
-	//else {
-	//  throw DDException(std::string("PartSelector-ERROR: " + sel + "\n  " + r.second));
-	  // path.push_back(DDPartSelectionLevel(aLp.redir(),0,ddunknown)); 
-	//}  
 	++tx_it;   
 	continue;
       }
       if ( *tk_it == "/" || *tk_it=="//") {
         DCOUT_V('C', "--childlogp: " << *tx_it << std::endl);
-	//DDLogicalPart aLp;
-	//std::pair<bool,std::string> r = DDIsValid(*tx_it,aLp);
-	//if (r.first) {
 	std::pair<std::string,std::string> p(DDSplit(*tx_it));
           path.push_back(DDPartSelRegExpLevel(p.second,p.first,0,ddchildlogp));
-        //  path.push_back(DDPartSelectionLevel(aLp,0,ddchildlogp));
-	//}  
-	//else {
-	//  throw DDException(std::string("PartSelector-ERROR: " + sel + "\n  " + r.second));
-	//}  
 	++tx_it;
 	continue;
       }
@@ -475,18 +442,9 @@ try{
 	}  
         ++tx_it;
 	++tk_it;
-	//DDLogicalPart aLp;
-	//std::pair<bool,std::string> r = DDIsValid(*(tx_it-1),aLp);	
-	//if (r.first) {
 	std::pair<std::string,std::string> p(DDSplit(*(tx_it-1)));
           path.push_back(DDPartSelRegExpLevel(p.second,p.first,atoi(tx_it->c_str()),ddanyposp));
-        //  path.push_back(DDPartSelectionLevel(aLp,atoi(tx_it->c_str()),ddanyposp));
-	//}  
-	//else {
-   	//  throw DDException(std::string("PartSelector-ERROR: " + sel + "\n  " + r.second));
-	//}  
 	DCOUT_V('C', "--anyposp: " << *tx_it << " " << atoi(tx_it->c_str()) << std::endl);
-        //++tk_it;
         ++tx_it;
 	++tx_it;
         continue;
@@ -500,16 +458,9 @@ try{
       ++tk_it;
       if ( tk_it != toksVec.end() && *tk_it=="[" ) {
         DCOUT_V('C', "--childposp: " << *tx_it << " " << *tk_it << *(tx_it+1) << std::endl);
-        //DDLogicalPart aLp;
-	//std::pair<bool,std::string> r = DDIsValid(*tx_it,aLp);	
-	//if (r.first) {
 	std::pair<std::string,std::string> p(DDSplit(*tx_it));
           path.push_back(DDPartSelRegExpLevel(p.second,p.first,atoi((tx_it+1)->c_str()),ddchildposp));
-        //  path.push_back(DDPartSelectionLevel(aLp,atoi((tx_it+1)->c_str()),ddchildposp));
-	//}  
-	//else {
-	// throw DDException(std::string("PartSelector-ERROR: " + sel + "\n  " + r.second));
-	//}  
+
 	++tx_it;
 
 	++tx_it;
@@ -517,7 +468,7 @@ try{
 	if (tk_it != toksVec.end() && *tk_it != "]") 
 	  break;
 	++tk_it;
-	++tx_it; //++tx_it;  
+	++tx_it;
 	continue;  
       }
     }
@@ -531,15 +482,6 @@ try{
   if (tmp==ddunknown || tmp==ddanynode || tmp==ddanychild ) 
         throw DDException(std::string("PartSelector: last element in selection std::string in ") + sel + 
 	                  std::string("\nmust address a distinct LogicalPart or PosPart!") );
-
-  
-}//try
-catch (DDException & e) {
-  throw;
-}
-catch (...) {
- throw DDException( std::string("PartSelector: SYNTAX error in:\n") + sel);
-}    
 }
 
 

@@ -17,6 +17,16 @@ DDFilter::~DDFilter()
 // =======================================================================
 // =======================================================================
 
+/** Mike Case 2007x12x18
+ * Important note:  The removal of throwing and catchine a DDException is
+ * based more on "what is" rather than the ideal.  We have managed to force
+ * users to put all SpecPar types and filters at the end of the set of XML
+ * files.  Therefore a DDValue of the XML syntax "[myvar]-2*[myothervar]"
+ * will have a correctly evaluated number and valid doubles by the time this
+ * code is ever run.  What will happen now, is possibly a crash if someone mis-
+ * identifies their variables to the DD.  I use edm::LogWarning to attempt to catch
+ * one type of such problems.
+ **/
 
 namespace {
 
@@ -50,20 +60,26 @@ namespace {
   {
     DDsvalues_type::const_iterator it = find(sv,crit.nameVal_.id());
     if (it == sv.end()) return false;
-    switch (crit.comp_) {
-    case DDSpecificsFilter::equals: case DDSpecificsFilter::matches:
-      return (crit.nameVal_.doubles() == it->second.doubles() );
-    case DDSpecificsFilter::not_equals: case DDSpecificsFilter::not_matches:
-      return (crit.nameVal_.doubles() != it->second.doubles() );
-    case DDSpecificsFilter::smaller_equals:
-      return ( it->second.doubles() <= crit.nameVal_.doubles() );
-    case DDSpecificsFilter::smaller:
-      return ( it->second.doubles() < crit.nameVal_.doubles() );
-    case DDSpecificsFilter::bigger_equals:
-      return ( it->second.doubles() >= crit.nameVal_.doubles() );
-    case DDSpecificsFilter::bigger:	 
-      return ( it->second.doubles() > crit.nameVal_.doubles() );
-      return false;
+    if (it->second.isEvaluated() ) {
+      switch (crit.comp_) {
+      case DDSpecificsFilter::equals: case DDSpecificsFilter::matches:
+	return (crit.nameVal_.doubles() == it->second.doubles() );
+      case DDSpecificsFilter::not_equals: case DDSpecificsFilter::not_matches:
+	return (crit.nameVal_.doubles() != it->second.doubles() );
+      case DDSpecificsFilter::smaller_equals:
+	return ( it->second.doubles() <= crit.nameVal_.doubles() );
+      case DDSpecificsFilter::smaller:
+	return ( it->second.doubles() < crit.nameVal_.doubles() );
+      case DDSpecificsFilter::bigger_equals:
+	return ( it->second.doubles() >= crit.nameVal_.doubles() );
+      case DDSpecificsFilter::bigger:	 
+	return ( it->second.doubles() > crit.nameVal_.doubles() );
+      default:
+	return false;
+      }
+    } else {
+      edm::LogWarning("DD:Filter") << "Attempt to access a DDValue as doubles but DDValue is NOT Evaluated!" 
+				   << crit.nameVal_.name();
     }
     return false;
   }		 
@@ -175,7 +191,11 @@ namespace {
       
       // go through all DDValues of the current specific.     
       for (;  it != (**spit).end(); ++it) {
-	
+	if ( !it->second.isEvaluated() ) {
+	  edm::LogWarning("DD:Filter") << "(nm) Attempt to access a DDValue as doubles but DDValue is NOT Evaluated!" 
+				       << crit.nameVal_.name();
+	  continue; // go on to next one, do not attempt to acess doubles()
+	}
 	size_t ci = 0; // criteria values index
 	size_t si = 0; // specs values index
 	// compare all the crit values to all the specs values when the name matches.
@@ -307,14 +327,7 @@ bool DDSpecificsFilter::accept_impl(const DDExpandedView & node) const
 	  locres = sfs_compare(*it,sv); 
 	}
 	else { // merged specifics & compare doubles
-	  try { // could fail, if un-evaluated DDValues are encountered
-	    locres = sfd_compare(*it,sv);
-	  }
-	  catch (const DDException & e) {
-	    edm::LogError("DDFilter") << "DDException:" << std::endl;
-	    edm::LogError("DDFilter") << "DDSpecificsFilter failed to compare specifics of node " << node.logicalPart().name() << std::endl;
-	    edm::LogError("DDFilter") << e << std::endl;
-	  }
+	  locres = sfd_compare(*it,sv);
 	}
       }
       else {

@@ -20,8 +20,6 @@ class DDCompactView;
   of the DDD objects.
   
   <br>
-  DDStreamer thorows DDException if anything goes wrong, and possibly a standard exception
-  if something unexpected goes wrong 
   
   <br>
   \code
@@ -29,30 +27,14 @@ class DDCompactView;
   #include<fstream>
   std::ofstream file("pers.txt");
   DDStreamer streamer(file);
-  try{
-    streamer.write();
-  }
-  catch(DDException & e) {
-   //...
-  }
-  catch(...) {
-   //...
-  } 
+  streamer.write();
   
   
   // reading:
   #include<fstream>
   std::ifstream file("pers.txt");
   DDStreamer streamer(filer);
-  try{
-    streamer.read();
-  }
-  catch(DDException & e) {
-   //...
-  }
-  catch(...) {
-   //...
-  } 
+  streamer.read();
   \endcode
   
 */

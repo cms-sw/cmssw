@@ -135,29 +135,22 @@ void DDStreamer::write(std::ostream & os)
 {
   o_=&os;
   std::streamsize prec(os.precision());
-  try {
-    os << std::setprecision(26) << std::scientific;
-    names_write();
-    vars_write();  
-    
-    materials_write();
-    solids_write();
-    parts_write();
-
-    pos_write();
-    specs_write();
-
-    rots_write();    
-    //os << DDI::Singleton<DDName::IdToName>::instance().size() << std::endl;
-    //names_write();
-    os << resetiosflags((std::ios_base::fmtflags)0);
-    os << std::setprecision(prec);
-  }
-  catch(...) {
-    edm::LogError("DDStreamer") << "DDStreamer::write() - unexpected exception!" << std::endl;
-    os << resetiosflags((std::ios_base::fmtflags)0);
-    os << std::setprecision(prec);
-  }
+  os << std::setprecision(26) << std::scientific;
+  names_write();
+  vars_write();  
+  
+  materials_write();
+  solids_write();
+  parts_write();
+  
+  pos_write();
+  specs_write();
+  
+  rots_write();    
+  //os << DDI::Singleton<DDName::IdToName>::instance().size() << std::endl;
+  //names_write();
+  os << resetiosflags((std::ios_base::fmtflags)0);
+  os << std::setprecision(prec);
 }
 
 
@@ -165,25 +158,16 @@ void DDStreamer::read(std::istream & is)
 {
 
   i_=&is;
-  try {
-     names_read();
-     vars_read();
-
-     materials_read();
-     solids_read();
-     parts_read();
-    
-      pos_read();
-      specs_read();
-     rots_read();        
-  }
-  catch(const DDException & e) {
-    edm::LogError("DDStreamer") << "DDStreamer::read() - something went wrong:" << std::endl << e << std::endl;
-    throw e;
-  }
-  catch(...) {
-    edm::LogError("DDStreamer") << "DDStreamer::read() - unexpected exception!" << std::endl;  
-  }
+  names_read();
+  vars_read();
+  
+  materials_read();
+  solids_read();
+  parts_read();
+  
+  pos_read();
+  specs_read();
+  rots_read();        
 }
 
 
