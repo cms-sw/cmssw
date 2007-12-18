@@ -199,9 +199,12 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			// most likely the following problem:
 			// fewer than two significant tracks (w > 0.001)
 			// note that if this catch is removed,
-			// CMSSW can fail on valid events...
-			// validation can check if the the TagInfo collection
-			// contains anything at all
+			// CMSSW would reject valid events...
+			// last time I looked the fitter called by
+			// the reconstructor might run into this situation
+			// which I have no control of - this is a problem
+			// that should be rectified in the vertex code
+			// before removing this catch
 		}
 
 		// identify most probable SV
