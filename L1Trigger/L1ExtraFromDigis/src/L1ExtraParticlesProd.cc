@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.14 2007/09/26 02:45:32 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.15 2007/10/12 23:26:58 wsun Exp $
 //
 //
 
@@ -93,6 +93,7 @@ L1ExtraParticlesProd::L1ExtraParticlesProd(const edm::ParameterSet& iConfig)
    produces< L1JetParticleCollection >( "Tau" ) ;
    produces< L1MuonParticleCollection >() ;
    produces< L1EtMissParticle >() ;
+   produces< L1EtMissParticleCollection >() ;
 
    //now do what ever other initialization is needed
 }
@@ -461,7 +462,22 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	    ) ) ;
 
       OrphanHandle< L1EtMissParticle > etMissHandle =
-	 iEvent.put( etMissParticle ) ;
+	iEvent.put( etMissParticle ) ;
+
+      auto_ptr< L1EtMissParticleCollection > etMissColl(
+	 new L1EtMissParticleCollection );
+
+      etMissColl->push_back(
+	 L1EtMissParticle( p4,
+			   etTot,
+			   etHad,
+			   RefProd< L1GctEtMiss >( hwEtMiss ),
+			   RefProd< L1GctEtTotal >( hwEtTot ),
+			   RefProd< L1GctEtHad >( hwEtHad )
+			   ) ) ;
+
+      OrphanHandle< L1EtMissParticleCollection > etMissCollHandle =
+	 iEvent.put( etMissColl ) ;
    }
 }
 

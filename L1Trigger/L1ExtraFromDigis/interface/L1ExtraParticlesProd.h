@@ -13,7 +13,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:13:51 EDT 2006
-// $Id: L1ExtraParticlesProd.h,v 1.4 2007/09/27 23:08:00 ratnik Exp $
+// $Id: L1ExtraParticlesProd.h,v 1.5 2007/10/12 23:26:54 wsun Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 // forward declarations
 class L1CaloGeometry ;
