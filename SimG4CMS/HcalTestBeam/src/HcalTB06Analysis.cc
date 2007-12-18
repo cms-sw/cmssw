@@ -4,11 +4,11 @@
 // Class  :     HcalTB06Analysis
 //
 // Implementation:
-//     Main analysis class for Hcal Test Beam 2004 Analysis
+//     Main analysis class for Hcal Test Beam 2006 Analysis
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB06Analysis.cc,v 1.3 2007/03/08 00:19:50 sunanda Exp $
+// $Id: HcalTB06Analysis.cc,v 1.4 2007/11/20 12:42:04 fabiocos Exp $
 //
   
 // system include files
@@ -67,7 +67,7 @@ HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet &p): histo(0) {
   beamline_RM->rotateZ(-beamPhi);
   beamline_RM->rotateY(-beamThet);
  
-  edm::LogInfo("HcalTBSim") << "HcalTB04:: Initialised as observer of BeginOf"
+  edm::LogInfo("HcalTBSim") << "HcalTB06:: Initialised as observer of BeginOf"
 			    << "Job/BeginOfRun/BeginOfEvent/G4Step/EndOfEvent"
 			    << " with Parameter values:\n \tbeamOffset = " 
 			    << beamOffset << "\ticeta = " << iceta 
