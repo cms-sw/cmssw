@@ -2,6 +2,7 @@
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 CondBasicIter::CondBasicIter(){
     ioviterator = 0;
     pooldb = 0;
@@ -72,47 +73,40 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
         putenv(const_cast<char*>(passenv.c_str()));
     }
     
-    try{
-      cond::Connection myconnection(connect,-1);
-      session->open();
-      myconnection.connect(session);
-      cond::CoralTransaction& coraldb=myconnection.coralTransaction();
-      cond::MetaData metadata_svc(coraldb);
-      std::string token;
-      coraldb.start(true);
-      token=metadata_svc.getToken(tag);
-      coraldb.commit();
-      int test = 0;
-      if (!pooldb) {
-	pooldb = &(myconnection.poolTransaction());
+    cond::Connection myconnection(connect,-1);
+    session->open();
+    myconnection.connect(session);
+    cond::CoralTransaction& coraldb=myconnection.coralTransaction();
+    cond::MetaData metadata_svc(coraldb);
+    std::string token;
+    coraldb.start(true);
+    token=metadata_svc.getToken(tag);
+    coraldb.commit();
+    int test = 0;
+    if (!pooldb) {
+      pooldb = &(myconnection.poolTransaction());
 	test = 1;
-      }
-      
-      cond::IOVService iovservice(*pooldb);
-      //-----------------------------------------
-      if (ioviterator) {
-	delete ioviterator;
-	ioviterator = 0;
-      }
-      //-----------------------------------------
-      
-      ioviterator=iovservice.newIOVIterator(token);
-      
-      if (test==1){
-	pooldb->start(true);
-      }
-      payloadContainer=iovservice.payloadContainerName(token); 
-    }catch(cond::Exception& er){
-        std::cout<<er.what()<<std::endl;
-    }catch(std::exception& er){
-      std::cout<<er.what()<<std::endl;
     }
+    
+    cond::IOVService iovservice(*pooldb);
+    //-----------------------------------------
+    if (ioviterator) {
+      delete ioviterator;
+      ioviterator = 0;
+    }
+    //-----------------------------------------
+    
+    ioviterator=iovservice.newIOVIterator(token);
+      
+    if (test==1){
+      pooldb->start(true);
+    }
+    payloadContainer=iovservice.payloadContainerName(token); 
     delete session;
     
     //---- inizializer
     iter_Min = 0;
-    iter_Max = 0;   
-    
+    iter_Max = 0;      
 }
 
 void CondBasicIter::setRange(unsigned int min,unsigned int max){
@@ -148,7 +142,7 @@ void CondBasicIter::setRange(int min,int max){
     }
     else throw 1;
   }catch(int) {
-    std::cout << "Not possible: Minimum > Maximum" <<std::endl;
+    throw cond::Exception("Not possible: Minimum > Maximum");
   }
 }
 
