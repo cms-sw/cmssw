@@ -13,7 +13,7 @@
 //
 // Original Author:  Carsten Noeding
 //         Created:  Mon Mar 19 13:51:22 CDT 2007
-// $Id$
+// $Id: RoadSearchEventFilter.cc,v 1.1 2007/03/31 08:46:35 noeding Exp $
 //
 //
 
@@ -45,23 +45,19 @@ RoadSearchEventFilter::~RoadSearchEventFilter()
 bool
 RoadSearchEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //using namespace edm;
-
    bool result = true; 
 
    const TrajectorySeedCollection *rsSeedCollection = 0;
-   try {
-     edm::Handle<TrajectorySeedCollection> rsSeedHandle;
-     iEvent.getByLabel(seedCollectionLabel_,rsSeedHandle);
+   edm::Handle<TrajectorySeedCollection> rsSeedHandle;
+
+   iEvent.getByLabel(seedCollectionLabel_,rsSeedHandle);
+
+   if( rsSeedHandle.isValid() ){
      rsSeedCollection = rsSeedHandle.product();
+   } else {
+     throw cms::Exception("CorruptData")
+       << "RoadSearchEventFilter requires collection reco::TrajectorySeedCollection with label " << seedCollectionLabel_ << "\n";
    }
-   catch (edm::Exception const& x) {
-     if ( x.categoryCode() == edm::errors::ProductNotFound ) {
-       if ( x.history().size() == 1 ) {
-	 edm::LogWarning("RoadSearchEventFilter") << "Collection reco::TrajectorySeedCollection with label " << seedCollectionLabel_ << " cannot be found.";
-	}
-      }
-    }
 
    if (rsSeedCollection->size() > numberOfSeeds_) {
      result=false;
