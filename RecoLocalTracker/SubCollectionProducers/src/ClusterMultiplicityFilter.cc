@@ -7,7 +7,7 @@
 //
 // Original Author:  Carsten Noeding
 //         Created:  Mon Mar 19 13:51:22 CDT 2007
-// $Id: ClusterMultiplicityFilter.cc,v 1.1 2007/03/31 08:46:35 noeding Exp $
+// $Id: ClusterMultiplicityFilter.cc,v 1.2 2007/09/17 19:56:34 noeding Exp $
 //
 //
 
@@ -42,19 +42,14 @@ bool ClusterMultiplicityFilter::filter(edm::Event& iEvent, const edm::EventSetup
   bool result = true;
 
   const edm::DetSetVector<SiStripCluster> *clusters = 0;
-  try {
-    edm::Handle<edm::DetSetVector<SiStripCluster> > clusterHandle;
-    iEvent.getByLabel(clusterCollectionLabel_,clusterHandle);
-    clusters = clusterHandle.product();
-  }
-  catch (edm::Exception const& x) {
-    if ( x.categoryCode() == edm::errors::ProductNotFound ) {
-      if ( x.history().size() == 1 ) {
-	edm::LogWarning("ClusterMultiplicityFilter") << "Collection <edm::DetSetVector<SiStripCluster> with label " << clusterCollectionLabel_ << " cannot be found.";
-      }
-    }
+  edm::Handle<edm::DetSetVector<SiStripCluster> > clusterHandle;
+  iEvent.getByLabel(clusterCollectionLabel_,clusterHandle);
+  if (!clusterHandle.isValid()) {
+    edm::LogWarning("ClusterMultiplicityFilter") << "Collection <edm::DetSetVector<SiStripCluster> with label " << clusterCollectionLabel_ << " cannot be found.";
+    return false;
   }
 
+  clusters = clusterHandle.product();
   const edm::DetSetVector<SiStripCluster>& input = *clusters;
 
   unsigned int totalClusters = 0;
