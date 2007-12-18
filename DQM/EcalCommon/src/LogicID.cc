@@ -1,11 +1,11 @@
-// $Id: LogicID.cc,v 1.1 2007/05/02 09:10:59 benigno Exp $
+// $Id: LogicID.cc,v 1.2 2007/05/02 09:51:37 benigno Exp $
 
 /*!
   \file LogicID.cc
   \brief Cache logicID vector from database
   \author B. Gobbo 
-  \version $Revision: 1.1 $
-  \date $Date: 2007/05/02 09:10:59 $
+  \version $Revision: 1.2 $
+  \date $Date: 2007/05/02 09:51:37 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -16,18 +16,14 @@ std::map< std::string, std::vector<EcalLogicID> > LogicID::IDmap_;
 
 //-------------------------------------------------------------------------
 
-void LogicID::init( EcalCondDBInterface* eConn ) throw( std::runtime_error ) {
+void LogicID::init( EcalCondDBInterface* eConn ) {
 
-  try {
-    IDmap_[ "EB_crystal_number" ] = eConn->getEcalLogicIDSet( "EB_crystal_number", 1, 36,  1, 1700 );
-    IDmap_[ "EB_mem_channel" ]    = eConn->getEcalLogicIDSet( "EB_mem_channel",    1, 36,  1,   50 );
-    IDmap_[ "EB_trigger_tower" ]  = eConn->getEcalLogicIDSet( "EB_trigger_tower",  1, 36,  1,   68 );
-    IDmap_[ "EB_LM_PN" ]          = eConn->getEcalLogicIDSet( "EB_LM_PN",          1, 36,  0,    9 );
-    IDmap_[ "EB_mem_TT" ]         = eConn->getEcalLogicIDSet( "EB_mem_TT",         1, 36, 69,   70 );
-    IDmap_[  "ECAL" ].push_back( eConn->getEcalLogicID( "ECAL" ) );
-  } catch ( std::runtime_error &e ) {
-    throw( std::runtime_error( e.what() ) );
-  }
+  IDmap_[ "EB_crystal_number" ] = eConn->getEcalLogicIDSet( "EB_crystal_number", 1, 36,  1, 1700 );
+  IDmap_[ "EB_mem_channel" ]    = eConn->getEcalLogicIDSet( "EB_mem_channel",    1, 36,  1,   50 );
+  IDmap_[ "EB_trigger_tower" ]  = eConn->getEcalLogicIDSet( "EB_trigger_tower",  1, 36,  1,   68 );
+  IDmap_[ "EB_LM_PN" ]          = eConn->getEcalLogicIDSet( "EB_LM_PN",          1, 36,  0,    9 );
+  IDmap_[ "EB_mem_TT" ]         = eConn->getEcalLogicIDSet( "EB_mem_TT",         1, 36, 69,   70 );
+  IDmap_[  "ECAL" ].push_back( eConn->getEcalLogicID( "ECAL" ) );
 
   init_ = true;
 
