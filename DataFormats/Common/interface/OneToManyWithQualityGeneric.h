@@ -28,7 +28,7 @@ namespace edm {
     /// values reference collection type
     typedef std::vector<std::pair<ValRef, Q> > val_type;
     /// insert key type
-    typedef edm::Ref<CKey> key_type;
+    typedef KeyRef key_type;
     /// insert val type
     typedef std::pair<ValRef, Q> data_type;
     /// index type
