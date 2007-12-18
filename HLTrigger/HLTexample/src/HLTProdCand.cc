@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/11/09 16:01:13 $
- *  $Revision: 1.43 $
+ *  $Date: 2007/12/04 16:41:34 $
+ *  $Revision: 1.46 $
  *
  *  \author Martin Grunewald
  *
@@ -100,7 +100,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // exist already
    int njets(-1);
    edm::Handle<GenJetCollection> mcjets;
-   try {iEvent.getByLabel(jetsTag_,mcjets);} catch (...) {;}
+   iEvent.getByLabel(jetsTag_,mcjets);
    if (mcjets.isValid()) njets=mcjets->size();
    LogDebug("") << "MC-truth jets found: " << njets;
    for (int i=0; i<njets; i++) {
@@ -112,7 +112,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    int nmets(-1);
    edm::Handle<GenMETCollection> mcmets;
-   try {iEvent.getByLabel(metsTag_,mcmets);} catch(...) {;}
+   iEvent.getByLabel(metsTag_,mcmets);
    if (mcmets.isValid()) nmets=mcmets->size();
    LogDebug("") << "MC-truth mets found: " << nmets;
    for (int i=0; i<nmets; i++) {

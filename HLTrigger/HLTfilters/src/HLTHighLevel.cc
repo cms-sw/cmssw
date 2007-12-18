@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/07/12 08:50:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/08/02 23:30:46 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -61,7 +61,7 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of TriggerResults Object
    Handle<TriggerResults> trh;
-   try {iEvent.getByLabel(inputTag_,trh);} catch(...) {;}
+   iEvent.getByLabel(inputTag_,trh);
    if (trh.isValid()) {
      LogDebug("") << "TriggerResults found, number of HLT paths: " << trh->size();
    } else {

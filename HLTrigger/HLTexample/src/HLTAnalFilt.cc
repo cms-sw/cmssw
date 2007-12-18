@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/06/15 14:42:30 $
- *  $Revision: 1.22 $
+ *  $Date: 2007/12/09 11:30:43 $
+ *  $Revision: 1.23 $
  *
  *  \author Martin Grunewald
  *
@@ -62,7 +62,7 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of requested filter object
    Handle<HLTFilterObjectWithRefs> ref;
-   try {iEvent.getByLabel(inputTag_,ref);} catch(...) {;}
+   iEvent.getByLabel(inputTag_,ref);
    if (ref.isValid()) {
      const unsigned int n(ref->size());
      LogDebug("") << inputTag_.encode() + " Size = " << n;
@@ -106,7 +106,7 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
    // get hold of requested filter object
    Handle<TriggerFilterObjectWithRefs> ref;
-   try {iEvent.getByLabel(inputTag_,ref);} catch(...) {;}
+   iEvent.getByLabel(inputTag_,ref);
    if (ref.isValid()) {
      LogDebug("") << inputTag_.encode() + " Size = g/e/m/j/C/M/H "
                   << ref->photonIds().size() << " "
