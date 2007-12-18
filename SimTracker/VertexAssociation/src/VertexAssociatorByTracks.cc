@@ -72,26 +72,20 @@ VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
 
     for (reco::Vertex::trackRef_iterator recoDaughter = vertex->tracks_begin();
          recoDaughter != vertex->tracks_end(); ++recoDaughter) {
-      try {
-        TrackRef tr = recoDaughter->castTo<TrackRef>();
-        if (trackAssocResult[tr].size() > 0) {
-          std::vector<std::pair<TrackingParticleRef, double> > tpV = trackAssocResult[tr];
+      TrackRef tr = recoDaughter->castTo<TrackRef>();
+      if (trackAssocResult[tr].size() > 0) {
+        std::vector<std::pair<TrackingParticleRef, double> > tpV = trackAssocResult[tr];
 
-          // Loop over TrackingParticles associated with reco::Track
+        // Loop over TrackingParticles associated with reco::Track
 
-          for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator match = tpV.begin();
-               match != tpV.end(); ++match) {
-            // ... and keep count of it's parent vertex
-            TrackingParticleRef tp = match->first;
-  //          double trackFraction = match->second;
-            TrackingVertexRef   tv = tp->parentVertex();
-            ++tVCount[tv]; // Count matches to this reco:Vertex for this TrackingVertex
-          }
+        for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator match = tpV.begin();
+             match != tpV.end(); ++match) {
+          // ... and keep count of it's parent vertex
+          TrackingParticleRef tp = match->first;
+//          double trackFraction = match->second;
+          TrackingVertexRef   tv = tp->parentVertex();
+          ++tVCount[tv]; // Count matches to this reco:Vertex for this TrackingVertex
         }
-      } catch ( edm::Exception& e ) {
-        edm::LogWarning("SimTracker/VertexAssociation")
-          << "Exception while comparing reco::Vertex/TrackingVertex tracks: "
-          << e.what() << endl;
       }
     }
 
