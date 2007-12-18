@@ -24,6 +24,8 @@ class MonTimingTTDat : public IDataItem {
   inline void setTimingRMS(float rms) { m_timingRMS = rms; }
   inline float getTimingRMS() const { return m_timingRMS; }
   
+  inline void setTaskStatus(bool status) { m_taskStatus = status; }
+  inline bool getTaskStatus() const { return m_taskStatus; }
 
  private:
   void prepareWrite() 
@@ -41,7 +43,7 @@ class MonTimingTTDat : public IDataItem {
   // User data
   float m_timingMean;
   float m_timingRMS;
- 
+  bool m_taskStatus;  
   
 };
 

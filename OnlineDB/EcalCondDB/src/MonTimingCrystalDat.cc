@@ -18,6 +18,7 @@ MonTimingCrystalDat::MonTimingCrystalDat()
 
   m_timingMean = 0;
   m_timingRMS = 0;
+  m_taskStatus=0;
  }
 
 
@@ -36,9 +37,9 @@ void MonTimingCrystalDat::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO mon_timing_crystal_dat (iov_id, logic_id, "
-			"timing_mean, timing_rms ) "
+			"timing_mean, timing_rms , task_status ) "
 			"VALUES (:iov_id, :logic_id, "
-			":timing_mean, :timing_rms )");
+			":timing_mean, :timing_rms, :task_status )");
   } catch (SQLException &e) {
     throw(runtime_error("MonTimingCrystalDat::prepareWrite():  "+e.getMessage()));
   }
@@ -64,6 +65,7 @@ void MonTimingCrystalDat::writeDB(const EcalLogicID* ecid, const MonTimingCrysta
 
     m_writeStmt->setFloat(3, item->getTimingMean() );
     m_writeStmt->setFloat(4, item->getTimingRMS() );
+    m_writeStmt->setInt(5, item->getTaskStatus() );
 
 
     m_writeStmt->executeUpdate();
@@ -90,7 +92,7 @@ void MonTimingCrystalDat::fetchData(std::map< EcalLogicID, MonTimingCrystalDat >
   try {
 
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-		 "d.timing_mean, d.timing_rms "
+		 "d.timing_mean, d.timing_rms, d.task_status "
 		 "FROM channelview cv JOIN mon_timing_crystal_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
@@ -109,6 +111,8 @@ void MonTimingCrystalDat::fetchData(std::map< EcalLogicID, MonTimingCrystalDat >
 
       dat.setTimingMean( rset->getFloat(7) );
       dat.setTimingRMS( rset->getFloat(8) );
+      dat.setTaskStatus( rset->getInt(9) );
+
 
       p.second = dat;
       fillMap->insert(p);
@@ -135,11 +139,15 @@ void MonTimingCrystalDat::writeArrayDB(const std::map< EcalLogicID, MonTimingCry
   int* iovid_vec= new int[nrows];
   float* xx= new float[nrows];
   float* yy= new float[nrows];
+  int* st= new int[nrows];
+
 
   ub2* ids_len= new ub2[nrows];
   ub2* iov_len= new ub2[nrows];
   ub2* x_len= new ub2[nrows];
   ub2* y_len= new ub2[nrows];
+  ub2* st_len= new ub2[nrows];
+
 
   const EcalLogicID* channel;
   const MonTimingCrystalDat* dataitem;
@@ -156,15 +164,20 @@ void MonTimingCrystalDat::writeArrayDB(const std::map< EcalLogicID, MonTimingCry
 	// dataIface.writeDB( channel, dataitem, iov);
 	float x=dataitem->getTimingMean();
 	float y=dataitem->getTimingRMS();
+	int statu=dataitem->getTaskStatus();
 
 	xx[count]=x;
 	yy[count]=y;
+	st[count]=statu;
+
+
 
 	ids_len[count]=sizeof(ids[count]);
 	iov_len[count]=sizeof(iovid_vec[count]);
 	
 	x_len[count]=sizeof(xx[count]);
 	y_len[count]=sizeof(yy[count]);
+	st_len[count]=sizeof(st[count]);
 
 	count++;
      }
@@ -175,18 +188,21 @@ void MonTimingCrystalDat::writeArrayDB(const std::map< EcalLogicID, MonTimingCry
     m_writeStmt->setDataBuffer(2, (dvoid*)ids, OCCIINT, sizeof(ids[0]), ids_len );
     m_writeStmt->setDataBuffer(3, (dvoid*)xx, OCCIFLOAT , sizeof(xx[0]), x_len );
     m_writeStmt->setDataBuffer(4, (dvoid*)yy, OCCIFLOAT , sizeof(yy[0]), y_len );
-
+    m_writeStmt->setDataBuffer(5, (dvoid*)st, OCCIINT , sizeof(st[0]), st_len );
+ 
     m_writeStmt->executeArrayUpdate(nrows);
 
     delete [] ids;
     delete [] iovid_vec;
     delete [] xx;
     delete [] yy;
+    delete [] st;
 
     delete [] ids_len;
     delete [] iov_len;
     delete [] x_len;
     delete [] y_len;
+    delete [] st_len;
 
   } catch (SQLException &e) {
     throw(runtime_error("MonTimingCrystalDat::writeArrayDB():  "+e.getMessage()));
