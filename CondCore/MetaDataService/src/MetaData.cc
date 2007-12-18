@@ -36,9 +36,7 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
   }catch( const coral::DuplicateEntryInUniqueKeyException& er ){
     throw cond::MetaDataDuplicateEntryException("addMapping",name);
   }catch(std::exception& er){
-    throw cond::Exception(er.what());
-  }catch(...){
-    throw cond::Exception( "MetaData::addMapping Could not commit the transaction" );
+    throw cond::Exception(std::string("MetaData::replaceToken error: ")+er.what());
   }
   return true;
 }
@@ -62,9 +60,7 @@ bool cond::MetaData::replaceToken(const std::string& name, const std::string& ne
   }catch( coral::DuplicateEntryInUniqueKeyException& er ){
     throw cond::MetaDataDuplicateEntryException("MetaData::replaceToken",name);
   }catch(std::exception& er){
-    throw cond::Exception(er.what());
-  }catch(...){
-    throw cond::Exception( "MetaData::replaceToken Could not commit the transaction" );
+    throw cond::Exception(std::string("MetaData::replaceToken error: ")+er.what());
   }
   return true;
 }
@@ -89,9 +85,6 @@ const std::string cond::MetaData::getToken( const std::string& name ){
   }catch(const std::exception& er){
 
     throw cond::Exception( std::string("MetaData::getToken error: ")+er.what() );
-  }catch(...){
- 
-    throw cond::Exception( "MetaData::getToken: unknow exception" );
   }
   return iovtoken;
 }
@@ -123,8 +116,6 @@ bool cond::MetaData::hasTag( const std::string& name ) const{
     return false;
   }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::hasTag: " )+er.what() );
-  }catch(...){
-    throw cond::Exception( "MetaData::hasTag: unknown exception ");
   }
   return result;
 }
@@ -144,8 +135,6 @@ void cond::MetaData::listAllTags( std::vector<std::string>& result ) const{
     return;
   }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::listAllTag: " )+er.what() );
-  }catch(...){
-    throw cond::Exception( "MetaData::listAllTag: unknown exception ");
   }
 }
 void cond::MetaData::deleteAllEntries(){
@@ -158,8 +147,6 @@ void cond::MetaData::deleteAllEntries(){
     return;
   }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::deleteAllEntries: " )+er.what() );
-  }catch(...){
-    throw cond::Exception( "MetaData::deleteAllEntries: unknown exception ");
   }
 }
 void cond::MetaData::deleteEntryByToken( const std::string& token ){
@@ -176,8 +163,6 @@ void cond::MetaData::deleteEntryByToken( const std::string& token ){
     return;
   }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::deleteEntryByToken: " )+er.what() );
-  }catch(...){
-    throw cond::Exception( "MetaData::deleteEntryByToken: unknown exception ");
   }
 }
 void cond::MetaData::deleteEntryByTag( const std::string& tag ){
@@ -193,7 +178,5 @@ void cond::MetaData::deleteEntryByTag( const std::string& tag ){
     return;
   }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::deleteEntryByTag: " )+er.what() );
-  }catch(...){
-    throw cond::Exception( "MetaData::deleteEntryByTag: unknown exception ");
   }
 }
