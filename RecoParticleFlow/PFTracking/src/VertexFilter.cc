@@ -15,14 +15,22 @@
 
 
 
-VertexFilter::VertexFilter(const edm::ParameterSet& iConfig):
-  conf_(iConfig)
+VertexFilter::VertexFilter(const edm::ParameterSet& iConfig)
 {
+
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
   produces<std::vector<Trajectory> >();
   produces<TrajTrackAssociationCollection>();
+
+  tkTag  = iConfig.getParameter<edm::InputTag>("recTracks");
+  vtxTag = iConfig.getParameter<edm::InputTag>("recVertices");
+  
+  minhits = iConfig.getParameter<int>("MinHits");
+  distz = iConfig.getParameter<double>("DistZFromVertex");
+  distrho = iConfig.getParameter<double>("DistRhoFromVertex");
+  chi_cut = iConfig.getParameter<double>("ChiCut");
 
 }
 
@@ -58,91 +66,92 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<TrackExtraCollection>();
   TrackingRecHitRefProd rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
 
-
-
   Handle<std::vector<Trajectory> > TrajectoryCollection;
   Handle<TrajTrackAssociationCollection> assoMap;
   Handle<VertexCollection> vtxCollection;
   
-
-  InputTag tkTag             = conf_.getParameter<InputTag>("recTracks");
-  InputTag vtxTag            = conf_.getParameter<InputTag>("recVertices");
-  
-  int minhits = conf_.getParameter<int>("MinHits");
-  float distz = conf_.getParameter<double>("DistZFromVertex");
-  float distrho = conf_.getParameter<double>("DistRhoFromVertex");
-  float chi_cut = conf_.getParameter<double>("ChiCut");
-
   Handle<TrackCollection> tkCollection;  
   iEvent.getByLabel( tkTag, tkCollection);
-  TrackCollection  tC = *(tkCollection.product());
+  const reco::TrackCollection*  tC = tkCollection.product();
   TrackCollection::const_iterator itxc;
-  
-
-
-  
-  
+  TrackCollection::const_iterator firstTrack = tC->begin();
+  TrackCollection::const_iterator lastTrack = tC->end();
+  unsigned tCsize = tC->size();
+    
   iEvent.getByLabel(tkTag,TrajectoryCollection);
   iEvent.getByLabel(tkTag,assoMap);
 
-
-
-  VertexCollection::const_iterator ivxc;
   iEvent.getByLabel( vtxTag            , vtxCollection);
-  const VertexCollection  vxC = *(vtxCollection.product()); 
+  const reco::VertexCollection*  vxC = vtxCollection.product(); 
+  VertexCollection::const_iterator ivxc;
+  VertexCollection::const_iterator firstVertex = vxC->begin();
+  VertexCollection::const_iterator lastVertex = vxC->end();
+  unsigned vxCsize = vxC->size();
 
-  float z_lead=0;
-  if(vxC.size()==0){
-    float pt_lead=0;
-    float chi_lead=1000000;
-    int nhit_lead=0;
-    for(itxc=tC.begin();itxc!=tC.end();++itxc){
-      if ((nhit_lead>6) && ((*itxc).found()<6))continue;
+  float z_lead=0.;
+  unsigned sizeMax = 0;
+  if(vxCsize==0){
+    float pt_lead=0.;
+    float chi_lead=1000000.;
+    unsigned nhit_lead=0;
+    for( itxc=firstTrack; itxc!=lastTrack;++itxc){
+      unsigned foundHits = itxc->recHitsSize();
+      sizeMax += foundHits;
+      if ( nhit_lead>6 && foundHits<6 )continue;
       
-      if ((nhit_lead<6) && ((*itxc).found()>6)){
-	z_lead=(*itxc).vertex().z();pt_lead=(*itxc).pt();
-	chi_lead=(*itxc).normalizedChi2();nhit_lead=(*itxc).found();
+      if ( nhit_lead<6 && foundHits>6 ){
+	z_lead=itxc->vertex().z();
+	pt_lead=itxc->pt();
+	chi_lead=itxc->normalizedChi2();
+	nhit_lead=foundHits;
 	continue;
       }  
-      if ((chi_lead<10) && ((*itxc).normalizedChi2()>10))	continue;
-      if ((chi_lead>10) && ((*itxc).normalizedChi2()<10)){
-	z_lead=(*itxc).vertex().z();pt_lead=(*itxc).pt();
-	chi_lead=(*itxc).normalizedChi2();nhit_lead=(*itxc).found();
+      if ( chi_lead<10. && itxc->normalizedChi2()>10. )	continue;
+      if ( chi_lead>10. && itxc->normalizedChi2()<10. ){
+	z_lead=itxc->vertex().z();
+	pt_lead=itxc->pt();
+	chi_lead=itxc->normalizedChi2();
+	nhit_lead=foundHits;
 	continue;
       }
       
-      if(pt_lead<(*itxc).pt()){
-	z_lead=(*itxc).vertex().z();pt_lead=(*itxc).pt();
-	chi_lead=(*itxc).normalizedChi2();nhit_lead=(*itxc).found(); 
+      if(pt_lead<itxc->pt()){
+	z_lead=itxc->vertex().z();
+	pt_lead=itxc->pt();
+	chi_lead=itxc->normalizedChi2();
+	nhit_lead=foundHits; 
       }
     }
   }
   
-  for(TrajTrackAssociationCollection::const_iterator it = assoMap->begin();
-      it != assoMap->end(); ++it){
+  selHits->reserve(sizeMax);
+  TrajTrackAssociationCollection::const_iterator it = assoMap->begin();
+  TrajTrackAssociationCollection::const_iterator lastAssoc = assoMap->end();
+  for( ; it != lastAssoc; ++it ) {
     const Ref<vector<Trajectory> > traj = it->key;
     const reco::TrackRef itc = it->val;
-    math::XYZPoint gp1=(*itc).vertex();
+    math::XYZPoint gp1=itc->vertex();
     bool hasAVertex=false;
+    unsigned foundHits = itc->recHitsSize();
  
-    for (ivxc= vxC.begin();ivxc!=vxC.end();ivxc++){
-      math::XYZPoint  gp2=(*ivxc).position();
+    for (ivxc=firstVertex ;ivxc!=lastVertex;ivxc++){
+      math::XYZPoint gp2=ivxc->position();
       math::XYZVector dgp=gp2-gp1;
        
-     if ((gp1.Rho()<distrho) &&
-	  (fabs(dgp.Z())<distz)     &&
-	  ((*itc).found()>=minhits) &&
-	  ((*itc).chi2()<chi_cut)) hasAVertex=true;
+      if ( gp1.Rho()<distrho &&
+	   fabs(dgp.Z())<distz    &&
+	   foundHits>=minhits &&
+	   itc->chi2()<chi_cut ) hasAVertex=true;
     }
    
 
 
-    if((vxC.size()==0)&&(tC.size()>0)){
+    if( vxCsize==0 && tCsize>0 ){
       
-      if ((gp1.Rho()<distrho) &&	
-	  (fabs(gp1.Z()-z_lead)<distz)     &&
-	  ((*itc).found()>=minhits) &&
-	  ((*itc).chi2()<chi_cut)) hasAVertex=true;
+      if ( gp1.Rho()<distrho  &&	
+	   fabs(gp1.Z()-z_lead)<distz     &&
+	   foundHits>=minhits &&
+	   itc->chi2()<chi_cut ) hasAVertex=true;
       
     }
     
@@ -156,10 +165,7 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       trackingRecHit_iterator lasthit =(*itc).recHitsEnd();
       for (; irhit!=lasthit; ++irhit)
 	selHits->push_back((*irhit)->clone() );
-      
-    
- 
- 
+          
     }
 
   }
@@ -168,24 +174,28 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   OrphanHandle<TrackingRecHitCollection> theRecoHits = iEvent.put(selHits );
   
   //PUT TRACK EXTRA IN THE EVENT
-  for ( unsigned index = 0; index < selTracks->size(); ++index ) { 
+  unsigned nTracks = selTracks->size();
+  selTrackExtras->reserve(nTracks);
+  for ( unsigned index = 0; index<nTracks; ++index ) { 
 
     unsigned hits=0;
 
-    TrackExtra aTrackExtra(selTracks->at(index).outerPosition(),
-			   selTracks->at(index).outerMomentum(),
-			   selTracks->at(index).outerOk(),
-			   selTracks->at(index).innerPosition(),
-			   selTracks->at(index).innerMomentum(),
-			   selTracks->at(index).innerOk(),
-			   selTracks->at(index).outerStateCovariance(),
-			   selTracks->at(index).outerDetId(),
-			   selTracks->at(index).innerStateCovariance(),
-			   selTracks->at(index).innerDetId(),
-			   selTracks->at(index).seedDirection(),
-			   selTracks->at(index).seedRef());
+    reco::Track& aTrack = selTracks->at(index);
+    TrackExtra aTrackExtra(aTrack.outerPosition(),
+			   aTrack.outerMomentum(),
+			   aTrack.outerOk(),
+			   aTrack.innerPosition(),
+			   aTrack.innerMomentum(),
+			   aTrack.innerOk(),
+			   aTrack.outerStateCovariance(),
+			   aTrack.outerDetId(),
+			   aTrack.innerStateCovariance(),
+			   aTrack.innerDetId(),
+			   aTrack.seedDirection(),
+			   aTrack.seedRef());
 
-    unsigned nHits = selTracks->at(index).numberOfValidHits();
+    //unsigned nHits = aTrack.numberOfValidHits();
+    unsigned nHits = aTrack.recHitsSize();
     for ( unsigned int ih=0; ih<nHits; ++ih) {
       aTrackExtra.add(TrackingRecHitRef(theRecoHits,hits++));
     }
@@ -194,7 +204,6 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //CORRECT REF TO TRACK
   OrphanHandle<TrackExtraCollection> theRecoTrackExtras = iEvent.put(selTrackExtras); 
-  unsigned nTracks = selTracks->size();
   for ( unsigned index = 0; index<nTracks; ++index ) { 
     const reco::TrackExtraRef theTrackExtraRef(theRecoTrackExtras,index);
     (selTracks->at(index)).setExtra(theTrackExtraRef);
@@ -205,7 +214,8 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   OrphanHandle<vector<Trajectory> > theRecoTrajectories = iEvent.put(outputTJ);
 
   //TRACKS<->TRAJECTORIES MAP 
-  for ( unsigned index = 0; index < theRecoTracks->size(); ++index ) { 
+  nTracks = theRecoTracks->size();
+  for ( unsigned index = 0; index<nTracks; ++index ) { 
     Ref<vector<Trajectory> > trajRef( theRecoTrajectories, index );
     Ref<TrackCollection>    tkRef( theRecoTracks, index );
     trajTrackMap->insert(trajRef,tkRef);
