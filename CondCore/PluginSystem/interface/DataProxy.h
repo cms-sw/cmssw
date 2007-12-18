@@ -37,19 +37,13 @@ template< class RecordT, class DataT >
   protected:
   virtual const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) {
     DataT* result=0;
-    try{
-      //std::cout<<"DataT make "<<std::endl;
-      cond::PoolTransaction& pooldb=m_connection->poolTransaction();
-      pooldb.start(true);      
-      pool::Ref<DataT> mydata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
-      result=mydata.ptr();
-      m_data.copyShallow(mydata);
-      pooldb.commit();
-    }catch( const cond::Exception& er ){
-      throw er;
-    }catch( const std::exception& er ){
-      throw cond::Exception( er.what() );
-    }
+    //std::cout<<"DataT make "<<std::endl;
+    cond::PoolTransaction& pooldb=m_connection->poolTransaction();
+    pooldb.start(true);      
+    pool::Ref<DataT> mydata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
+    result=mydata.ptr();
+    m_data.copyShallow(mydata);
+    pooldb.commit();
     if(!result){
       throw cond::Exception("DataProxy::make: null result");
     }
