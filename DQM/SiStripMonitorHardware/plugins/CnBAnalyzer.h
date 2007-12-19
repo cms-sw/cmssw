@@ -165,7 +165,7 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   void histoNaming( const std::vector<uint16_t>& fed_ids, const int& runNumber );
 
   void createRootFedHistograms( const int& runNumber );
-  void createDetailedFedHistograms( uint16_t fed_id, const int& runNumber );
+  void createDetailedFedHistograms( const uint16_t& fed_id, const int& runNumber );
 
   // The first and last valid FedID for the Tracker
   std::pair<int,int> fedIdBoundaries_;
@@ -176,11 +176,17 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   MonitorElement* fedFreeze_;
   MonitorElement* fedBx_;
 
+  // Trend plots
+  MonitorElement* totalChannels_;
+  MonitorElement* faultyChannels_;
+
   // Monitor Elements per FED
   std::map<int, MonitorElement* > feOverFlow_;
   std::map<int, MonitorElement* > feAPVAddr_;
   std::map<int, MonitorElement* > chanErrUnlock_;
   std::map<int, MonitorElement* > chanErrOOS_;
   std::map<int, MonitorElement* > badApv_;
+
+  std::map<int, bool> foundFeds_;
   
 };
