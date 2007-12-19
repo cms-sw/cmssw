@@ -175,7 +175,6 @@ void SolidsForOnline::beginJob( const edm::EventSetup& iSetup ) {
 	
       case ddpseudotrap:
 	{
-	  try{
 	  DDPseudoTrap pseudoTrap(solid);
 	  
 	  ptrapOS<<pseudoTrap.name() <<",";
@@ -184,18 +183,10 @@ void SolidsForOnline::beginJob( const edm::EventSetup& iSetup ) {
 		 <<pseudoTrap.y2() <<","<<pseudoTrap.radius()<<","
 		 <<pseudoTrap.atMinusZ()
 		 << std::endl;
-	  }
-	  catch(DDException& ddexcept){
-	    //catch(...){
-	    // std::cout<<solid.shape()<<std::endl;
-	    //std::cout<<"You're trapped"<<std::endl;
-	    std::cout<<ddexcept<<std::endl;
-	    //std::cout<<ddexcept<<std::endl;
-
-	  }
+	  
 	  break;
 	}
-
+	
       case ddtubs:
 	{
 	  //same as ddtrunctubs, Tube element is simply a Tube Section 
