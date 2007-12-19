@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2007/11/28 01:54:06 $
- *  $Revision: 1.26 $
+ *  $Date: 2007/12/13 15:16:08 $
+ *  $Revision: 1.27 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -111,8 +111,6 @@ private:
 
   std::vector<TrajectoryMeasurement>
   findBestMeasurements(const DetLayer * layer, const TrajectoryStateOnSurface & tsos);
-  // just holds the measurements in memory for the above method
-  std::vector<TrajectoryMeasurement> theMeasurementCache;
   
   /// the trajectory state on the last available surface
   TrajectoryStateOnSurface theLastUpdatedTSOS;
