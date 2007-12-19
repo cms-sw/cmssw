@@ -174,8 +174,8 @@ untracked PSet maxEvents = {untracked int32 input = $last_event}
 
 $input_module
 
-#module ecalUncalibHit = ecalMaxSampleUncalibRecHit from "RecoLocalCalo/EcalRecProducers/data/ecalMaxSampleUncalibRecHit.cfi"
-module ecalUncalibHit = ecalFixedAlphaBetaFitUncalibRecHit from "RecoLocalCalo/EcalRecProducers/data/ecalFixedAlphaBetaFitUncalibRecHit.cfi"
+module ecalUncalibHit = ecalMaxSampleUncalibRecHit from "RecoLocalCalo/EcalRecProducers/data/ecalMaxSampleUncalibRecHit.cfi"
+#module ecalUncalibHit = ecalFixedAlphaBetaFitUncalibRecHit from "RecoLocalCalo/EcalRecProducers/data/ecalFixedAlphaBetaFitUncalibRecHit.cfi"
      replace ecalUncalibHit.EBdigiCollection = ecalEBunpacker:ebDigis
      replace ecalUncalibHit.EEdigiCollection = ecalEBunpacker:eeDigis
 
