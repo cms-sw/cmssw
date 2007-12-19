@@ -10,15 +10,13 @@
 
 namespace reco {
 
-  template <class T1, class T2>
-  T1 deltaR2 (T1 eta1, T2 phi1, T1 eta2, T2 phi2) {
-    T1 deta = eta1 - eta2;
-    T2 dphi = deltaPhi(phi1, phi2);
+  inline double deltaR2(double eta1, double phi1, double eta2, double phi2) {
+    double deta = eta1 - eta2;
+    double dphi = deltaPhi(phi1, phi2);
     return deta*deta + dphi*dphi;
   }
   
-  template <class T1, class T2>
-  T1 deltaR (T1 eta1, T2 phi1, T1 eta2, T2 phi2) {
+  inline double deltaR(double eta1, double phi1, double eta2, double phi2) {
     return sqrt(deltaR2 (eta1, phi1, eta2, phi2));
   }
   
