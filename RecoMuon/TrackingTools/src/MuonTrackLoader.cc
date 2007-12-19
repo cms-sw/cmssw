@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/09/07 21:18:23 $
- *  $Revision: 1.54 $
+ *  $Date: 2007/10/24 15:53:52 $
+ *  $Revision: 1.55 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -312,7 +312,13 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
 
   OrphanHandle<reco::TrackCollection> trackerTracks;
-  if(thePutTkTrackFlag) trackerTracks = loadTracks(trackerTrajs, event, theL2SeededTkLabel, theSmoothTkTrackFlag);
+  if(thePutTkTrackFlag) {
+    trackerTracks = loadTracks(trackerTrajs, event, theL2SeededTkLabel, theSmoothTkTrackFlag);
+  } else {
+    for (TrajectoryContainer::iterator it = trackerTrajs.begin(); it != trackerTrajs.end(); ++it) {
+        delete *it;
+    }
+  }
 
   
   reco::MuonTrackLinksCollection::iterator links = trackLinksCollection->begin();

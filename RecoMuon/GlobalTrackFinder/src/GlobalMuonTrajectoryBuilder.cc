@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/12/10 19:03:41 $
- *  $Revision: 1.111 $
+ *  $Date: 2007/12/10 19:54:57 $
+ *  $Revision: 1.112 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -122,7 +122,15 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   // match tracker tracks to muon track
   vector<TrackCand> trackerTracks = trackMatcher()->match(staCand, regionalTkTracks);
   LogInfo(category) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
-  if ( trackerTracks.empty() ) return CandidateContainer();
+  if ( trackerTracks.empty() ) {
+    if ( staCandIn.first == 0) delete staCand.first;
+    if ( !theTkTrajsAvailableFlag ) {
+        for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
+            delete (*is).first;   
+        }
+    }
+    return CandidateContainer();
+  }
 
   // build a combined tracker-muon MuonCandidate
   //
@@ -140,6 +148,12 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
 
   if ( tkTrajs.empty() )  {
     LogTrace(category) << "tkTrajs empty";
+    if ( staCandIn.first == 0) delete staCand.first;
+    if ( !theTkTrajsAvailableFlag ) {
+        for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
+            delete (*is).first;   
+        }
+    }
     return CandidateContainer();
   }
 
@@ -148,6 +162,11 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
 
   // free memory
   if ( staCandIn.first == 0) delete staCand.first;
+  if ( !theTkTrajsAvailableFlag ) {
+    for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
+      delete (*is).first;   
+    }
+  }
 
   for( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); ++it) {
     if ( (*it)->trajectory() ) delete (*it)->trajectory();
@@ -156,11 +175,6 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   }
   tkTrajs.clear();  
 
-  if ( !theTkTrajsAvailableFlag ) {
-    for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
-      delete (*is).first;   
-    }
-  }
 
   return result;
   
