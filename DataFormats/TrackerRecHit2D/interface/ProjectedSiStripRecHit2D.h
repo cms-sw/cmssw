@@ -23,11 +23,15 @@ public:
     std::vector<const TrackingRecHit*> rechits(1,&originalHit_);
     return rechits;
   }
+  virtual std::vector<TrackingRecHit*> recHits() {
+    std::vector<TrackingRecHit*> rechits(1,&originalHit_);
+    return rechits;
+  }
 
 
 private:
 
-  const SiStripRecHit2D originalHit_;
+  SiStripRecHit2D originalHit_;
 
 };
 

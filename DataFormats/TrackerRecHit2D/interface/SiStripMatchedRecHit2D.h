@@ -21,6 +21,8 @@ class SiStripMatchedRecHit2D : public BaseSiTrackerRecHit2DLocalPos{
 
   virtual std::vector<const TrackingRecHit*> recHits() const; 
 
+  virtual std::vector<TrackingRecHit*> recHits(); 
+
     
  private:
   SiStripRecHit2D componentMono_,componentStereo_;

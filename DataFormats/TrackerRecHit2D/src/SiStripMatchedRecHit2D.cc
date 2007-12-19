@@ -32,4 +32,12 @@ SiStripMatchedRecHit2D::recHits()const {
   return rechits;
 }
 
+std::vector<TrackingRecHit*>
+SiStripMatchedRecHit2D::recHits() {
+  std::vector<TrackingRecHit*> rechits(2);
+  rechits[0]=&componentMono_;
+  rechits[1]=&componentStereo_;
+  return rechits;
+}
+
 
