@@ -1,42 +1,28 @@
-//CMSSW Framework and related headers
+// CMSSW Framework and related headers
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"  
 #include "FWCore/Framework/interface/EventSetup.h"
+
+// Data Formats
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-
+// Condition Formats
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 
-
-#include"boost/cstdint.hpp"
-#include<memory>
-#include<cstdlib>
-#include<iostream>
-#include<vector>
-#include<sstream>
-#include<string>
-#include<algorithm>
-#include<iomanip>
-
-#include <numeric>
-#include <ostream>
-#include <iterator>
-
-//#include"Fed9UUtils.hh"
-#include "DQM/SiStripMonitorHardware/interface/Fed9UDebugEvent.hh"
-
-//DQM headers as well as the service header
+// DQM headers as well as the service header
 #include"DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include"DQMServices/Core/interface/MonitorElement.h"
 #include"FWCore/ServiceRegistry/interface/Service.h"
+
+#include <iostream>
+#include <vector>
+#include <map>
+#include <sstream>
+#include <string>
 
 // BinCounter 
 #include "DQM/SiStripMonitorHardware/interface/BinCounters.h"
@@ -50,10 +36,13 @@ class CnBAnalyzer : public edm::EDAnalyzer {
 
  private:
   
-  Fed9U::Fed9UDebugEvent* fedEvent_ ; // from the header file - fed event variable
-  void beginJob(const edm::EventSetup&) ;
+  void beginJob(const edm::EventSetup&);
   void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob() ;      
+  void endJob();
+
+  // A data structure to record
+  // the found FEDs
+  std::map<uint16_t, bool> foundFeds;
 
   // event counter
   int eventCounter;
@@ -70,27 +59,27 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   DaqMonitorBEInterface * dbe;
 
   // vector for APV error and accomanying binCounters
-  vector<MonitorElement*> ApveErr; //indexes APV Error Histograms with FedId #
-  vector<BinCounters*> ApveErrCount; //indexes APV Error BinCounters with FedId #
+  vector<MonitorElement*> ApveErr;   // Indexes APV Error Histograms with FedId #
+  vector<BinCounters*> ApveErrCount; // Indexes APV Error BinCounters with FedId #
 
   // vector for fe majority apv error checking
-  vector<MonitorElement*> FeMajApvErr; //indexes APV Error Histograms with FedId #
-  vector<BinCounters*> FeMajApvErrCount; //indexes APV Error BinCounters with FedId #
+  vector<MonitorElement*> FeMajApvErr;   // Indexes APV Error Histograms with FedId #
+  vector<BinCounters*> FeMajApvErrCount; // Indexes APV Error BinCounters with FedId #
 
   // vector to hold the FE Synch Out Packet Values
   vector<vector<unsigned long> > FsopLong;
   vector<uint16_t> FsopShort; 
 	
   // vectors for FEFPGA APVErrorB<APV0> status bits
-  vector<vector<vector<MonitorElement*> > > FiberStatusBits; //indexes Histograms with FedId # per FE FPGA
-  vector<vector<vector<BinCounters*> > > FiberStatusBitCount; //indexes BinCounters with FedId # per FEFPGA
+  vector<vector<vector<MonitorElement*> > > FiberStatusBits;  // Indexes Histograms with FedId # per FE FPGA
+  vector<vector<vector<BinCounters*> > > FiberStatusBitCount; // Indexes BinCounters with FedId # per FEFPGA
 
   // fiber wrong header error histograms
-  vector<vector<MonitorElement*> > FiberWHApv; //indexes Histograms with FedId # per Fiber
-  vector<MonitorElement*> FeWHApv; //indexes APV Error Histograms with FedId # per FPGA
-  vector<MonitorElement*> FeLKErr; //indexes LK Error Histograms with FedId # per FPGA
-  vector<MonitorElement*> FeSYErr; //indexes SY Error Histograms with FedId # per FPGA
-  vector<MonitorElement*> FeRWHErr; //indexes RAW wrong header Error Histograms with FedId # per FPGA
+  vector<vector<MonitorElement*> > FiberWHApv; // Indexes Histograms with FedId # per Fiber
+  vector<MonitorElement*> FeWHApv;  // Indexes APV Error Histograms with FedId # per FPGA
+  vector<MonitorElement*> FeLKErr;  // Indexes LK Error Histograms with FedId # per FPGA
+  vector<MonitorElement*> FeSYErr;  // Indexes SY Error Histograms with FedId # per FPGA
+  vector<MonitorElement*> FeRWHErr; // Indexes RAW wrong header Error Histograms with FedId # per FPGA
 
   // ME for the preliminary check of APV address accross feds (Mersi Plot 1)
   // for now write addreses to the histo and check to see that its a flat line 
@@ -113,16 +102,14 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   // ME Cumulative number of address errors per FED 
   MonitorElement * CumNumber;
   MonitorElement * CumNumber1;
-  MonitorElement * CumNumber2;//lock per fed
-  MonitorElement * CumNumber3;//sych per fed
-  MonitorElement * CumNumber4;//raw header error per fed
+  MonitorElement * CumNumber2; // Lock per fed
+  MonitorElement * CumNumber3; // Sych per fed
+  MonitorElement * CumNumber4; // Raw header error per fed
 	
   // Set to 0 for buffer and non zero for FRL - SLINK readout - compensates for additional DQA headers, etc.
   // (K. Hahn request)
 	
   int swapOn_;
-  int dump_;
-  int wordNumber_;
 
   int garb_;
 
@@ -131,7 +118,7 @@ class CnBAnalyzer : public edm::EDAnalyzer {
 
   // Histogram presentation variables	
 	
-  int percent_; // gives us percent readout
+  int percent_; // Gives us percent readout
   int N; // the modulo parameter
 
   // ApveError % 
@@ -143,16 +130,16 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   // Name of output file
   string fileName_;
 
-  // Nick's function
-  bool getBit(int bitNumber, Fed9U::u32 FsopLongHi, Fed9U::u32 FsopLongLow, Fed9U::u16 FsopShort);
+  // Nick's functioxb
+
   MonitorElement * goodAPVsPerEvent_;
   int APVProblemCounter_;
 
   // for Steve
   // for the Out of Synch Per Fed Per Event
-  vector<MonitorElement*>  OosPerFed;
+  vector<MonitorElement*> OosPerFed;
 
-  // vector of addresses to get median valur for "golden address" which should match the apve address
+  // vector of addresses to get median value for "golden address" which should match the apve address
   vector<uint16_t> feMedianAddr;
   uint16_t medianAddr; 	
 
@@ -173,14 +160,27 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   std::vector<uint16_t> fedIds_;
   vector<vector<MonitorElement*> > errors;
 
-  bool useCabling_;
-
   bool firstEvent_;
 
   void histoNaming( const std::vector<uint16_t>& fed_ids, const int& runNumber );
 
+  void createRootFedHistograms( const int& runNumber );
+  void createDetailedFedHistograms( uint16_t fed_id, const int& runNumber );
+
   // The first and last valid FedID for the Tracker
   std::pair<int,int> fedIdBoundaries_;
+  int totalNumberOfFeds_;
 
+  // Generic Monitor Elements
+  MonitorElement* fedGenericErrors_;
+  MonitorElement* fedFreeze_;
+  MonitorElement* fedBx_;
+
+  // Monitor Elements per FED
+  std::map<int, MonitorElement* > feOverFlow_;
+  std::map<int, MonitorElement* > feAPVAddr_;
+  std::map<int, MonitorElement* > chanErrUnlock_;
+  std::map<int, MonitorElement* > chanErrOOS_;
+  std::map<int, MonitorElement* > badApv_;
+  
 };
-

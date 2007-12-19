@@ -1,7 +1,12 @@
 #include "DQM/SiStripMonitorHardware/plugins/CnBAnalyzer.h"
-
-#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DQM/SiStripMonitorHardware/interface/Fed9UEventAnalyzer.hh"
+
+
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+
 
 // This is the maximum number of histogrammed FEDs
 // If the number of FEDs exceeds this limit we have a crash
@@ -9,13 +14,13 @@
 #define N_MAX_FEDUS (N_MAX_FEDS * 8)
 
 CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) :
-  ApveErr(N_MAX_FEDS),          // initialze APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
+  ApveErr(N_MAX_FEDS),          // initialize APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
   ApveErrCount(N_MAX_FEDS),     // initialize the BinCounters vector (for flexibility of presentation, % failure, etc.)
-  FeMajApvErr(N_MAX_FEDS),      // initialze APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
-  FeWHApv(N_MAX_FEDS),          // initialze APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
-  FeLKErr(N_MAX_FEDS),          // initialze APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
-  FeSYErr(N_MAX_FEDS),          // initialze APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
-  FeRWHErr(N_MAX_FEDS),         // initialze APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
+  FeMajApvErr(N_MAX_FEDS),      // initialize APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
+  FeWHApv(N_MAX_FEDS),          // initialize APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
+  FeLKErr(N_MAX_FEDS),          // initialize APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
+  FeSYErr(N_MAX_FEDS),          // initialize APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
+  FeRWHErr(N_MAX_FEDS),         // initialize APVE Error Histogram vector (N_MAX_FEDS FEDS Max)
   OosPerFed(N_MAX_FEDS),        // sets the size of the oos per fer per event histogram
   FeMajApvErrCount(N_MAX_FEDS), // initialize the BinCounters vector (for flexibility of presentation, % failure, etc.)
   FsopLong( 2,vector<unsigned long>(8) ),
@@ -30,25 +35,20 @@ CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) :
   FiberStatusBitCount( 8, vector<vector<BinCounters*> >(6,vector<BinCounters*>(N_MAX_FEDS)) ),//counter variable for errors/event# precnt.
   feMedianAddr(N_MAX_FEDUS),
   //fenumbers(N_MAX_FEDS)
-  fedIds_(),
-  firstEvent_(true),
-  bc(N_MAX_FEDS),    //counts the bits baby
-  errors( N_MAX_FEDS, vector<MonitorElement*>(8) )
-  //useCabling_( iConfig.getUntrackedParameter<bool>("UseCabling",false) )
+  firstEvent_(true), // To be removed
+  bc(N_MAX_FEDS)    //counts the bits baby//  
 {
-  fedEvent_ = new Fed9U::Fed9UDebugEvent(); // new intialization - new = dynamic 
+  // fedEvent_ = new Fed9U::Fed9UDebugEvent(); // new intialization - new = dynamic 
   
-  // get hold of back-end interfaec
+  // get hold of back-end interface
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   
   //parameters for working with slink and dumping the hex buffer
   swapOn_ = iConfig.getUntrackedParameter<int>("swapOn");
-  dump_ = iConfig.getUntrackedParameter<int>("dump");
-  wordNumber_ = iConfig.getUntrackedParameter<int>("wordNumber");
-  percent_ = iConfig.getUntrackedParameter<int>("percent");
+  //   percent_ = iConfig.getUntrackedParameter<int>("percent");
   fileName_ = iConfig.getUntrackedParameter<string>("rootFile");
-  garb_ = iConfig.getUntrackedParameter<int>("garb");
-  useCabling_= iConfig.getUntrackedParameter<bool>("UseCabling"); 
+  //   garb_ = iConfig.getUntrackedParameter<int>("garb");
+  //   useCabling_= iConfig.getUntrackedParameter<bool>("UseCabling"); 
   runNumber_ = iConfig.getUntrackedParameter<int>("runNumber");  
   
   N = iConfig.getUntrackedParameter<int>("N");
@@ -94,12 +94,14 @@ CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) :
   // valid FedIds for the tracker
   fedIdBoundaries_ = fedNum.getSiStripFEDIds();
 
+  totalNumberOfFeds_ = fedIdBoundaries_.second - fedIdBoundaries_.first + 1;
+
 }
 
 CnBAnalyzer::~CnBAnalyzer(){
 
   //delete dynamical vars;
-  delete fedEvent_;
+  //   delete fedEvent_;
 	
   // go to top directory
   dbe->cd();
@@ -108,785 +110,183 @@ CnBAnalyzer::~CnBAnalyzer(){
 }
 
 void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-  int goodFibers = 0;
   int goodAPVs = 0;
-  int nFi = 0;
 
   eventCounter;
 
   using namespace edm;
   using namespace std;
 
-  //	std::cout<<setfill('0'); //set for formatting
+  // To keep track of counting of feds
+  vector<int> fednumbers; // Vector of fedIDs for event loop
+  vector<int> fen;        // Vector of feEnabled bits for ascertaining address error
 
-  //Fed9U::Fed9UDebugEvent::EnableDebug(true);
-
-  //theres got to be a better way
-  int feCtr = 0; //counts number of fe fpgas	
-  int tmpCtr = 0; //
-  BinCounters inv8; //invokes a function that reverses the bit order of a number
-
-  //to keep track of counting of feds
-  vector<int> fednumbers; //vector of fed ids for event loop
-  vector<int> fen; //vector of feEnabled bits for ascertaining address error
-
-  stringstream ss; 
-  stringstream ssi; // for the apv err part
   // Retrieve FED raw data ("source" label is now fixed by fwk)
   edm::Handle<FEDRawDataCollection> buffers;
-  iEvent.getByType( buffers ); 
+  iEvent.getByType( buffers );
 
-  // Retrieve FED cabling
-  if ( firstEvent_ ) {
-    firstEvent_ = false;
+  // Looking for all possible FED ids and placing them
+  // in a nice vector
 
-    // build fed ids vector
-    fedIds_.clear();
-    if ( useCabling_ ) {
-      edm::ESHandle<SiStripFedCabling> cabling;
-      iSetup.get<SiStripFedCablingRcd>().get( cabling );
-      vector<uint16_t>::const_iterator ifed = cabling->feds().begin();
-      for ( ; ifed != cabling->feds().end(); ifed++ ) { fedIds_.push_back( *ifed ); }
-    } else { 
-      for ( uint16_t ifed = 0; ifed < N_MAX_FEDS; ifed++ ) {
-	// TODO: remove this 152. Use at least a define!
-	if ( buffers->FEDData( static_cast<int>(ifed) ).size() >= 152 ) {
-	  fedIds_.push_back(ifed);
-	}
-      }
-      // create histos
-      histoNaming( fedIds_ , runNumber_);
+  fedIds_.clear();
+  for ( uint16_t ifed = fedIdBoundaries_.first ; ifed <= fedIdBoundaries_.second; ifed++ ) {
+    // TODO: remove this 152. Use at least a define!
+    if ( buffers->FEDData( static_cast<int>(ifed) ).size() >= 152 ) {
+      fedIds_.push_back(ifed);
     }
-      
   }
-    
-  // Retrieve FED ids from cabling map and iterate through 
-  vector<uint16_t>::const_iterator ifed = fedIds_.begin();
+
+  LogInfo("FEDBuffer") << "Number of Tracker Fed Buffers:" << fedIds_.size();
+  LogInfo("FEDBuffer") << "EVENTNUMB" << iEvent.id().event();
+
+
+  /**************************/
+  /*                        */
+  /* Main cycle over FEDs   */
+  /*                        */
+  /**************************/
+
+  // Counter for total number of enabled
+  // channels in this event
   uint16_t total_enabled_channels = 0;
 
-  std::cout<< "FEDIDSIZE"<<fedIds_.size()<<std::endl;
+  // Retrieve FED all found fedIds  and iterate through 
+  vector<uint16_t>::const_iterator ifed;
 
-  std::cout<< "EVENTNUMB"<<iEvent.id().event()<<std::endl;
-
-
-  //XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  for ( ; ifed != fedIds_.end(); ifed++ ) {
+  for (ifed = fedIds_.begin() ; ifed != fedIds_.end(); ifed++ ) {
     
-    // Retrieve FED raw data for given FED ..there is is :)      
+    // Retrieve FED raw data for given FED... there it is :)      
     const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
     Fed9U::u32* data_u32 = 0;
     Fed9U::u32  size_u32 = 0;
     
     data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( input.data() ) );
-    size_u32 = static_cast<Fed9U::u32>( input.size() / 4 ); 
+    size_u32 = static_cast<Fed9U::u32>( input.size() / 4 );
     
-    if(data_u32 == NULL){ std::cerr<<"data_u32 is NULL !!"<<std::endl; continue; }
-	
-    //ignores buffers of zero size (container (fed ID) is present but contains nothing) 
-    if(!size_u32) { /*ifed++;*/ continue;} // loops back if non zero, increments ifed iterator to next container 
+    Fed9UEventAnalyzer myEventAnalyzer(fedIdBoundaries_, swapOn_);
 
+    // The Initialize function is true if we have a good
+    // non-corrupted tracker buffer
+    if (myEventAnalyzer.Initialize(data_u32, size_u32)) {
+      // The Fed9UErrorCondition structure may cointain all the relevant
+      // errors specific to the event
+      Fed9UErrorCondition thisFedEventErrs;
 
-    // SM
-    FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(data_u32));
+      // The actual checkout of the buffer:
+      thisFedEventErrs = myEventAnalyzer.Analyze();
 
-    // Let's check that the header is not malformed
-    //       if ( ! fedHeader.check() ) {
-    // 	std::cerr << "ERROR: The FED header is corrupt" << std::endl;
-    // 	continue; // TODO: how an exception here?
-    //       }
-
-    // Here we also check that the FEDid corresponds to a tracker one
-    int thisFedId=fedHeader.sourceID();
-    int myId= (int(data_u32[0])>>8)&0xFFF;
-    std::cerr << "myfedid (swapon) " << myId << std::endl;
-    std::cerr << "FEDIDFEDIDFEDID " << thisFedId << " *************** " << std::endl;
-
-    if ( (thisFedId<fedIdBoundaries_.first) || (thisFedId>fedIdBoundaries_.second) ) {
-      std::cerr << "WARNING: This is not a Tracker FED" << std::endl;
-      continue; // TODO: This is not a Tracker FED
+      total_enabled_channels += thisFedEventErrs.totalChannels;
     }
 
 
-    //adjusts the buffer pointers for the DAQ header and trailer present when FRLs are running
-    //additonally preforms "flipping" of the bytes in the buffer
-    if(swapOn_){ 
-	
-      Fed9U::u32 temp1,temp2;
-		
-      //32 bit word swapping for the real FED buffers	
-      for(unsigned int i = 0; i < (size_u32 - 1); i+=2){
-	
-	temp1 = *(data_u32+i);
-	temp2 = *(data_u32+i+1);
-	*(data_u32+i) = temp2;
-	*(data_u32+i+1) = temp1;
-		
-      }
-    }
-    
-    //dumps a specified number of 32 bit words to the screen prior ot initalization
-    if(dump_){
-      std::cerr<<"BUFFERD FED NUMBER "<<dec<<*ifed<<"For EVT "<<iEvent.id().event()<<std::endl;
-      for(int i = 0; i<wordNumber_; i++) // prints out the specified number of 32 bit words
-	{
-	  setiosflags(ios::left);
-	  std::cerr<<setw(2);
-	  std::cerr<<"64 Bit Word # "<<" "<<dec<<i<<" "
-		   <<hex<<(data_u32[2*i] & 0xFFFFFFFF)<<" "
-		   <<(data_u32[(2*i + 1)] & 0xFFFFFFFF)<<" "
-		   <<std::endl;
-	  //std::cerr<<"data_u32 word # "<<" "<<i<<" "<<hex<<data_u32[i]<<std::endl;
-	}
-      
-    }
-
-
-    try{
-      fedEvent_->Init( data_u32, 0, size_u32 ); // initialize the fedEvent with offset for slink
-    } catch(...) {
-      // TODO: catch only our exceptions here.
-      std::cerr << "AAAAAAARRRRRRRRRRGGGGGGGGGHHHHHHHHHH: this should not happen!" << std::endl;
-      continue;
-    }
-    total_enabled_channels += fedEvent_->totalChannels(); 
-    
-    
-    /*
-    //listed in order of appearance in event formats paper : reads out the entire first line on pg. 6
-    edm::LogInfo("FedId ") << *ifed;
-    edm::LogInfo("First Byte Reserved -> $ED ") << static_cast<uint16_t>(fedEvent_->getSpecialFirstByte() );
-    edm::LogInfo("Hdr Format ") << static_cast<uint16_t>(fedEvent_->getSpecialHeaderFormat() );
-    edm::LogInfo("Tracker Event Type ") << static_cast<uint16_t>(fedEvent_->getSpecialTrackerEventType() );
-    edm::LogInfo("APVE Address " ) << static_cast<uint16_t>(fedEvent_->getSpecialApvEmulatorAddress() );
-    edm::LogInfo("APV Address Error ") << static_cast<uint16_t>(fedEvent_->getSpecialApvAddressError() );
-
-
-    std::cout<<" INVERSIONTEST "<<inv8.invert8(221)<<std::endl;
-
-    std::cout<<dec<<"FEE FOR FED # "<<*ifed<<" is "<<static_cast<uint16_t>(fedEvent_->getSpecialFeEnableReg() )<<std::endl;
-    edm::LogInfo("FE Enable Register ") << static_cast<uint16_t>(fedEvent_->getSpecialFeEnableReg() );
-    */
-
-    //	feEnable = static_cast<uint16_t>(fedEvent_->getSpecialFeEnableReg() ) ;
-    /*
-
-    edm::LogInfo("FE Overflow Register (fixed at 0) ") << static_cast<uint16_t>(fedEvent_->getSpecialFeOverflowReg() );
-
-
-    edm::LogInfo("FE FED Status Register ") << static_cast<uint16_t>(fedEvent_->getSpecialFedStatusRegister() );
-
-    //testing for 4/13/07
-    */
-    FsopLong[0][7]= static_cast<unsigned long>(fedEvent_->getFSOP_8_1() );
-    FsopLong[1][7]= static_cast<unsigned long>(fedEvent_->getFSOP_8_2() );
-    FsopShort[7]= static_cast<uint16_t>(fedEvent_->getFSOP_8_3() );
-
-    //      	edm::LogInfo("FE FSOP 8_1") << static_cast<unsigned long>(fedEvent_->getFSOP_8_1() );
-    //      	edm::LogInfo("FE FSOP 8_2") << static_cast<unsigned long>(fedEvent_->getFSOP_8_2() ); 
-    //	edm::LogInfo("FE FSOP 8_3") << static_cast<uint16_t>(fedEvent_->getFSOP_8_3() );
-	
-    std::cout<<"LAST"<<static_cast<uint16_t>(fedEvent_->getFSOP_8_3() )<<std::endl;
-
-    edm::LogInfo("FE 8 LENGTH") << static_cast<uint16_t>(fedEvent_->getFLEN_8() );
-    edm::LogInfo("BESR") << static_cast<unsigned long>(fedEvent_->getBESR() );
-    //edm::LogInfo("FE BESR2") << static_cast<unsigned long>(fedEvent_->getBESR_2() );
-	
-    FsopLong[0][6]= static_cast<unsigned long>(fedEvent_->getFSOP_7_1() );
-    FsopLong[1][6]= static_cast<unsigned long>(fedEvent_->getFSOP_7_2() );
-    FsopShort[6]= static_cast<uint16_t>(fedEvent_->getFSOP_7_3() );
-
-
-    /*
-
-    edm::LogInfo("FE FSOP 7_1") << static_cast<unsigned long>(fedEvent_->getFSOP_7_1() );
-    edm::LogInfo("FE FSOP 7_2") << static_cast<unsigned long>(fedEvent_->getFSOP_7_2() ); 
-    edm::LogInfo("FE FSOP 7_3") << static_cast<uint16_t>(fedEvent_->getFSOP_7_3() );
-
-    edm::LogInfo("FE 7 LENGTH") << static_cast<uint16_t>(fedEvent_->getFLEN_7() );
-    edm::LogInfo("RESERVED 5") << static_cast<unsigned long>(fedEvent_->getRES_5() );
-    */
-    FsopLong[0][5]= static_cast<unsigned long>(fedEvent_->getFSOP_6_1() );
-    FsopLong[1][5]= static_cast<unsigned long>(fedEvent_->getFSOP_6_2() );
-    FsopShort[5]= static_cast<uint16_t>(fedEvent_->getFSOP_6_3() );
-    	
-    /*
-      edm::LogInfo("FE FSOP 6_1") << static_cast<unsigned long>(fedEvent_->getFSOP_6_1() );
-      edm::LogInfo("FE FSOP 6_2") << static_cast<unsigned long>(fedEvent_->getFSOP_6_2() ); 
-      edm::LogInfo("FE FSOP 6_3") << static_cast<uint16_t>(fedEvent_->getFSOP_6_3() );
-
-
-      edm::LogInfo("FE 6 LENGTH") << static_cast<uint16_t>(fedEvent_->getFLEN_6() );
-      edm::LogInfo("RESERVED 4") << static_cast<unsigned long>(fedEvent_->getRES_4() );
-    */	
-    FsopLong[0][4]= static_cast<unsigned long>(fedEvent_->getFSOP_5_1() );
-    FsopLong[1][4]= static_cast<unsigned long>(fedEvent_->getFSOP_5_2() );
-    FsopShort[4]= static_cast<uint16_t>(fedEvent_->getFSOP_5_3() );
- 
-    /*
-      edm::LogInfo("FE FSOP 5_1") << static_cast<unsigned long>(fedEvent_->getFSOP_5_1() );
-      edm::LogInfo("FE FSOP 5_2") << static_cast<unsigned long>(fedEvent_->getFSOP_5_2() ); 
-      edm::LogInfo("FE FSOP 5_3") << static_cast<uint16_t>(fedEvent_->getFSOP_5_3() );
-
-
-      edm::LogInfo("FE 5 LENGTH") << static_cast<uint16_t>(fedEvent_->getFLEN_5() );
-      edm::LogInfo("RESERVED 3") << static_cast<unsigned long>(fedEvent_->getRES_3() );
-    */
-    FsopLong[0][3]= static_cast<unsigned long>(fedEvent_->getFSOP_4_1() );
-    FsopLong[1][3]= static_cast<unsigned long>(fedEvent_->getFSOP_4_2() );
-    FsopShort[3]= static_cast<uint16_t>(fedEvent_->getFSOP_4_3() );
-
-    /*  
-    	edm::LogInfo("FE FSOP 4_1") << static_cast<unsigned long>(fedEvent_->getFSOP_4_1() );
-      	edm::LogInfo("FE FSOP 4_2") << static_cast<unsigned long>(fedEvent_->getFSOP_4_2() ); 
-	edm::LogInfo("FE FSOP 4_3") << static_cast<uint16_t>(fedEvent_->getFSOP_4_3() );
-
-
-	edm::LogInfo("FE 4 LENGTH") << static_cast<uint16_t>(fedEvent_->getFLEN_4() );
-      	edm::LogInfo("RESERVED 2") << static_cast<unsigned long>(fedEvent_->getRES_2() );
-    */
-    FsopLong[0][2]= static_cast<unsigned long>(fedEvent_->getFSOP_3_1() );
-    FsopLong[1][2]= static_cast<unsigned long>(fedEvent_->getFSOP_3_2() );
-    FsopShort[2]= static_cast<uint16_t>(fedEvent_->getFSOP_3_3() );
+  } // end of the for ifed loop
   
-    /*
-      edm::LogInfo("FE FSOP 3_1") << static_cast<unsigned long>(fedEvent_->getFSOP_3_1() );
-      edm::LogInfo("FE FSOP 3_2") << static_cast<unsigned long>(fedEvent_->getFSOP_3_2() ); 
-      edm::LogInfo("FE FSOP 3_3") << static_cast<uint16_t>(fedEvent_->getFSOP_3_3() );
-
-
-      edm::LogInfo("FE 3 LENGTH") << static_cast<uint16_t>(fedEvent_->getFLEN_3() );
-      edm::LogInfo("RESERVED 1") << static_cast<unsigned long>(fedEvent_->getRES_1() );
-    */
-    FsopLong[0][1]= static_cast<unsigned long>(fedEvent_->getFSOP_2_1() );
-    FsopLong[1][1]= static_cast<unsigned long>(fedEvent_->getFSOP_2_2() );
-    FsopShort[1]= static_cast<uint16_t>(fedEvent_->getFSOP_2_3() );
-      	
-    /*
-      edm::LogInfo("FE FSOP 2_1") << static_cast<unsigned long>(fedEvent_->getFSOP_2_1() );
-      edm::LogInfo("FE FSOP 2_2") << static_cast<unsigned long>(fedEvent_->getFSOP_2_2() ); 
-      edm::LogInfo("FE FSOP 2_3") << static_cast<uint16_t>(fedEvent_->getFSOP_2_3() );
-
-
-      edm::LogInfo("FE 2 LENGTH") << static_cast<uint16_t>(fedEvent_->getFLEN_2() );
-      edm::LogInfo("DAQ REGISTER 2") << static_cast<unsigned long>(fedEvent_->getDAQ_2() );
-    */
-    FsopLong[0][0]= static_cast<unsigned long>(fedEvent_->getFSOP_1_1() );
-    FsopLong[1][0]= static_cast<unsigned long>(fedEvent_->getFSOP_1_2() );
-    FsopShort[0]= static_cast<uint16_t>(fedEvent_->getFSOP_1_3() );
-  
-    /*
-      edm::LogInfo("FE FSOP 1_1") << static_cast<unsigned long>(fedEvent_->getFSOP_1_1() );
-      edm::LogInfo("FE FSOP 1_2") << static_cast<unsigned long>(fedEvent_->getFSOP_1_2() ); 
-      edm::LogInfo("FE FSOP 1_3") << static_cast<uint16_t>(fedEvent_->getFSOP_1_3() );
-
-
-      edm::LogInfo("FE 1 LENGTH") << static_cast<uint16_t>(fedEvent_->getFLEN_1() );
-      edm::LogInfo("DAQ REGISTER 1") << static_cast<unsigned long>(fedEvent_->getDAQ_1() );
-	
-    */
-    if( garb_ ){	
-      feEnable = static_cast<uint16_t>(fedEvent_->getSpecialFeEnableReg() ) ;
-      fen.push_back( static_cast<uint16_t>(fedEvent_->getSpecialFeEnableReg() ) );
-    }
-    else{
-      feEnable = inv8.invert8(static_cast<uint16_t>(fedEvent_->getSpecialFeEnableReg() ) );
-      fen.push_back( inv8.invert8(static_cast<uint16_t>(fedEvent_->getSpecialFeEnableReg() ) )  );
-    }
-    //the DQM Plotting-mapping portion++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
-    string f = "FED #";
-    //keeps track of feds
-    ss << *ifed;
-    fedCounter++; //counter to keep track of the total number of feds in loop
-    fednumbers.push_back(*ifed);
-
-    //for 2D plot bin setting ... what is the deal with the naming on this ?
-    //oosFedEvent->setBinLabel(fedCounter, ss.str(),2);
-
-
-    //APV Address Error Histogram Filling	
-    //Count the number of errors on an Event by Event basis	
-    ApveErrCount[*ifed]->setBinCounters( inv8.invert8( static_cast<uint16_t>(fedEvent_->getSpecialApvAddressError()) ) );
-	
-    //APV Error Histo filled every N events and updated as a percent
-    if(percent_){
-	
-      if(iEvent.id().event() % N == 0){
-	for(int i = 0; i<8 ; i++){
-	  if( 0x1 & (feEnable >> i) ){
-	    apveErrorPercent = ((float)ApveErrCount[*ifed]->getBinCounters(i) / (float)iEvent.id().event());
-	    ApveErr[*ifed]->setBinContent(i+1, apveErrorPercent);
-	  }
-	}
-      }
-				
-    }
-    //APV Error Histo per Event-------------------------------------------------------------------------------------------
-    else{	
-			
-      for(int i = 0; i < 8; i++){
-	if( 0x1 & (feEnable >> i) ){
-	  if( (0x1 & ( inv8.invert8( static_cast<uint16_t>(fedEvent_->getSpecialApvAddressError())  ) >> i)) == 0){
-	    ApveErr[*ifed]->Fill(i) ;
-	  }
-	}
-      }
-
-    }
-    //------------------------------------------------------------------------------------------------------------
-
-    //Fiber Status Histos per Event  
-
-
-	
-    //XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    //takes into account frame synch out packet bits 0 - 31
-
-    int problemsSeen = 0;
-
-    for(int fpga = 0; fpga < 8 ; fpga++){
-      if( 0x1 & (feEnable >> fpga) ){
-	feCtr++; //increment the front end std::couter var
-
-	int feErr = 0;
-	int lkErr = 0;
-	int syErr = 0;
-	int rfeErr = 0;
-
-	// Nicks logic for getting subset in synch and locked---------..------------------------------------------
-	for (int fi=0; fi<12; fi++) {
-	  bool APV1Error = !getBit(fi*6,FsopLong[0][fpga],FsopLong[1][fpga],FsopShort[fpga]);
-	  bool APV1WrongAdd = !getBit(fi*6+1,FsopLong[0][fpga],FsopLong[1][fpga],FsopShort[fpga]);
-	  bool APV2Error = !getBit(fi*6+2,FsopLong[0][fpga],FsopLong[1][fpga],FsopShort[fpga]);
-	  bool APV2WrongAdd = !getBit(fi*6+3,FsopLong[0][fpga],FsopLong[1][fpga],FsopShort[fpga]);
-	  bool outOfSync = !getBit(fi*6+4,FsopLong[0][fpga],FsopLong[1][fpga],FsopShort[fpga]);
-	  bool unlocked = !getBit(fi*6+5,FsopLong[0][fpga],FsopLong[1][fpga],FsopShort[fpga]);
-	  bool APV1Bad = (APV1WrongAdd );
-	  bool APV2Bad = (APV2WrongAdd );
-	  bool fiberBad = (outOfSync || unlocked);
-          bool anyError = APV1Error || APV1WrongAdd || APV2Error || APV2WrongAdd || fiberBad;
-	  if (anyError) {
-	    problemsSeen++;
-	    feErr++;
-	    errors[*ifed][fpga]->Fill(fi);
-	    std::cout << "EVT#" << iEvent.id().event() << " FED#" << *ifed << " FE#" << fpga << " Fiber#" << fi << " Status Word: ";
-	    std::cout << "\tAPV1 Error? " << (APV1Error?"Yes":"No");
-	    std::cout << "\tAPV1 Bad Address? " << (APV1WrongAdd?"Yes":"No");
-	    std::cout << "\tAPV2 Error? " << (APV2Error?"Yes":"No");
-	    std::cout << "\tAPV2 Bad Address? " << (APV2WrongAdd?"Yes":"No");
-	    std::cout << "\tOut Of Sync? " << (outOfSync?"Yes":"No");
-	    std::cout << "\tFiber Not Locked?\t" << (unlocked?"Yes":"No");
-	    std::cout << std::endl;
-	  }
-          if ( (!fiberBad) && (APV1Bad || APV2Bad) ) {
-            FiberWHApv[*ifed][fpga]->Fill(fi);
-          }
-	  nFi++;
-	  if ((!unlocked) && (!outOfSync)) {
-	    goodFibers++;
-	    if ( !APV1WrongAdd) goodAPVs++;
-	    if ( !APV2WrongAdd) goodAPVs++;
-	  }
-	}//fiber loop----------------------------------------------------------------------------------------------
-
-	//counter for the number of wrong headers
-	WHError[*ifed][fpga] = feErr;	
-
-	//FE Address verification portion--------------------------------------------------------------------------- 
-	//fill the matrix of FE addresses for all FE FPGAs ---------------------------------------------------------
-	feMajorAddress[*ifed][fpga] = (FsopShort[fpga]>>8);		
-
-	//		std::cout<<" VECADDS1 " <<" fed no: "<<*ifed<<" "<<feMajorAddress[*ifed][fpga]<<std::endl;
-	//----------------------------------------------------------------------------------------------------------
-	//all fes on one plot as in the plot # one from Mersi-------------------------------------------------------
-	//set the bin contents every N events(all for now)----------------------------------------------------------
-	AddCheck0->setBinContent( feCtr, (FsopShort[fpga]>>8) ); 
-	
-	feMedianAddr[feCtr]= (FsopShort[fpga]>>8);
-	//----------------------------------------------------------------------------------------------------------
-
-	for(int i = 31; i >= 0; i--){
-	  //block describing the 0 - 31 bits of what we have going on
-	  // (for humans Fill( n +1 ) where (n+1) = Fiber Number------	
-	  if( ( 0x1 & (FsopLong[1][fpga] >> i) ) == 0 ){
-				
-	    if ( !( i%6 ) ){//APV Error B - APV 0
-	      FiberStatusBits[fpga][0][*ifed]->Fill( i/6 );
-	    }
-	    if( !( (i-1)%6 ) ){//Wrong Header B APV 0
-	      FiberStatusBits[fpga][1][*ifed]->Fill( ((i-1)/6) );
-	      badApvCounter++;
-	      rfeErr++;
-	    }
-	    if( !( (i-2)%6 ) && i <= 26 ){//APV Error B APV 1
-	      FiberStatusBits[fpga][2][*ifed]->Fill( ((i-2)/6) );
-	    }
-	    if( !( (i-3)%6 ) && i <= 27 ){//Wrong Header B APV 1
-	      FiberStatusBits[fpga][3][*ifed]->Fill( ((i-3)/6) );
-	      badApvCounter++;
-	      rfeErr++;
-	    } 
-	    if( !( (i-4)%6 ) && i <= 28 ){//Out Of Synch B
-	      FiberStatusBits[fpga][4][*ifed]->Fill( ((i-4)/6) );
-	      goodApvCounter += 2;
-	      oos += 2;
-	      syErr++;
-	      //oosFedEvent->Fill(fedCounter,iEvent.id().event()); 
-	      //oosFedEvent->Fill(iEvent.id().event(),fedCounter); 
-	    }
-	    if( !( (i-5)%6 ) && i <= 29){//Lock
-	      FiberStatusBits[fpga][5][*ifed]->Fill( ((i-5)/6) );
-	      nolock +=2;
-	      lkErr++;
-	    }
-	  }	
-	  //--------------------------------------------------------------------------------------------------------
-	  //block describing the 32 - 64 bits of what we have going on----------------------------------------------	
-	  if( ( 0x1 & (FsopLong[0][fpga] >> i) ) == 0 ){
-	    if ( !( (i-4)%6 ) && i<=28 ){//APV Error B - APV 0
-	      FiberStatusBits[fpga][0][*ifed]->Fill( 6 + ((i-4)/6) );
-	    }
-	    if( !( (i-5)%6 ) && i<= 29){//Wrong Header B APV 0
-	      FiberStatusBits[fpga][1][*ifed]->Fill( 6 + ((i-5)/6) );
-	      badApvCounter++;
-	      rfeErr++;
-	    }
-	    if( !( i%6 ) ){//APV Error B APV 1
-	      FiberStatusBits[fpga][2][*ifed]->Fill( 5 + (i/6) );
-	    }
-	    if( ! ((i-1)%6) ){//Wrong Header B APV1
-	      FiberStatusBits[fpga][3][*ifed]->Fill( 5 + ((i-1)/6) );
-	      badApvCounter++;
-	      rfeErr++;
-	    } 
-	    if( !( (i-2)%6 ) && i <= 26 ){//Out of Synch
-	      FiberStatusBits[fpga][4][*ifed]->Fill( 5 + ((i-2)/6) );
-	      goodApvCounter += 2;
-	      oos += 2;
-	      syErr++;
-	      //oosFedEvent->Fill(fedCounter,iEvent.id().event()); 
-	      //oosFedEvent->Fill(iEvent.id().event(),fedCounter); 
-	    }
-	    if( !( (i-3)%6 ) && i <= 27 ){//Lock
-	      FiberStatusBits[fpga][5][*ifed]->Fill( 5 + ((i-3)/6) );
-	      nolock +=2;
-	      lkErr++;
-	    }
-	  }	
-	  //-------------------------------------------------------------------------------------------------------
-	}
-	
-	for(int i = 7; i >= 0; i--){
-	  if( ( 0x1 & (FsopShort[fpga] >> i) ) == 0 ){
-	    if( i == 2 ){//APV Error B APV 0
-	      FiberStatusBits[fpga][0][*ifed]->Fill( 11 );
-	    }
-	    if( i == 3 ){//Wrong Header B APV 0
-	      FiberStatusBits[fpga][1][*ifed]->Fill( 11 );
-	      badApvCounter++;
-	      rfeErr++;
-	    }
-	    if( i == 4 ){//APV Error B APV 1
-	      FiberStatusBits[fpga][2][*ifed]->Fill( 11 );
-	    }
-	    if( i == 5 ){//Wrong Header B APV 1
-	      FiberStatusBits[fpga][3][*ifed]->Fill( 11 );
-	      badApvCounter++;
-	      rfeErr++;
-	    }
-	    if( i == 6 ){//Out of Synch
-	      FiberStatusBits[fpga][4][*ifed]->Fill( 11 );
-	      goodApvCounter += 2;
-	      oos += 2;
-	      syErr++;
-	      //oosFedEvent->Fill(iEvent.id().event(),fedCounter); 
-	    }
-	    if( i == 7 ){//Lock
-	      FiberStatusBits[fpga][5][*ifed]->Fill( 11 );
-	      nolock +=2;
-	      lkErr++;
-	    }
-	    if( i == 0 ){//Out of Synch Fib 11
-	      FiberStatusBits[fpga][4][*ifed]->Fill( 10 );
-	      goodApvCounter += 2;
-	      oos += 2;
-	      syErr++;
-	      //oosFedEvent->Fill(iEvent.id().event(),fedCounter); 
-	    }
-	    if( i == 1 ){//Lock Fib 11
-	      FiberStatusBits[fpga][5][*ifed]->Fill( 10 );
-	      nolock +=2;
-	      lkErr++;
-	    }
-	
-	  }
-	}
-	
-	//matrices for raw header, synch and lock errors
-
-	LKError[*ifed][fpga] = lkErr;	
-	SYError[*ifed][fpga] = syErr;	
-	RWHError[*ifed][fpga] = rfeErr;	
-
-
-      }//if FE conditonal loop
-    }//for FE fpga loop 
-		
-    //XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    //for the fed id # , plot the # of oos instances
-
-    OosPerFed[*ifed]->Fill( iEvent.id().event(), oos   );
-	
-		
-    //reporting the majority APV address of the FED
-
-    std::cout<<dec<<" FED NUMBER : "<<*ifed<<" CTR "<<feCtr<<" # FE enabled : "<<(feCtr - tmpCtr)<<" FEDKTR "<<fedCounter<<std::endl;
-    std::cout<<dec<<" CTR: "<<feCtr<<std::endl;
-    std::cout<<dec<<"For EVT "<<iEvent.id().event()<<std::endl;
-    //	std::cout<<dec<<" Mapping "<<*ifed<<" to Bin No "<< fedCtr <<std::endl;
-    tmpCtr = feCtr;
-    std::cout<<std::endl;
-
-    //XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    //--------------------------------------------------------------------------------------------------------
-
-    //"clears" the stream FED ID stream that is....
-    ss.str(" ");
-    //reset fed counter
-    //	fedCtr = 0;
-
-    //end of DQM plotting portion+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-  } // end of the for "ifed" 4 loop***************************************************************************
-  ///Nicks histo good apv action------------------------------------------------------------------------------
-  int nAPVs = goodFibers*2;
-  double goodAPVper = (double(nAPVs - goodAPVs)) / double(nAPVs) * double(100);
-  //std::cout << "Event: " << iEvent.id().event() << " Percentage of APVs which are on good fibers but have bad addresses: " << goodAPVper << std::endl;
-  goodAPVsPerEvent_->setBinContent(iEvent.id().event(),double(100)-goodAPVper);
-  std::cout << "Total enabled channels = " << nFi << '\t' << "Total good channels = " << goodFibers << std::endl;
-  APVProblemCounter_ += (nAPVs - goodAPVs);
-
-
-  std::cout<<"GPRNUM"<<(double(100)-goodAPVper)<<" for event "<<iEvent.id().event()<<std::endl;
-
-
-  apvPrct.push_back(  double(100)-goodAPVper   ); // for the end job mode , etc.
-
-  //Per Event-------------------------------------------------------------------------------------------------
-
-  std::cout << "Num of APVs: " << 2*total_enabled_channels <<std::endl;
-
-  //Debug Stuff.......
-
-  feMedianAddr.resize(feCtr); // resizes the vector to the number of FE FPGAs enabled
-
-  sort(feMedianAddr.begin(), feMedianAddr.end());
-	
-  std::cout << "MIDLOC" << (feCtr / 2) << " " << " feCtr: " << feCtr << " vector.size "
-	    << feMedianAddr.size() <<" evtnumber : " << iEvent.id().event() << std::endl;	
-	
-  std::cout<<"ENUM"<<iEvent.id().event()<<std::endl;
-  medianAddr = feMedianAddr[(feCtr / 2)];
-	
-  std::cout<<"MEDADDR"<<medianAddr<<std::endl;	
-  /*
-    for(int i = 0; i < feCtr; i++){
-    std::cout<<"VK# "<<" "<<i<<" "<<feMedianAddr[i]<<std::endl;
-    }
-  */
-  for(int i = 0; i < feCtr; i++){
-    if(feMedianAddr[i] == medianAddr){
-      goodFe++;
-    }
-  }
-  std::cout<<" GF "<<goodFe<<std::endl;
-  std::cout<<" COU "<<feCtr<<std::endl;
-
-  if(feCtr != 0 ){
-    prct = ( double(goodFe) / double(feCtr) );
-    std::cout<<" PRCT "<< prct <<" for : "<<iEvent.id().event()<<std::endl;
-  }
-  //Sets up the % FEs ok per event plot
-
-  if(prct){
-
-    if(iEvent.id().event() < 1001){
-      AddConstPerEvent->setBinContent(iEvent.id().event() , prct );
-    }
-  }
-  //Plot # 3 Portion
-
-  int tempn; //variable sotrage for fed number from vector
-  int tempfen; //variable sotrage for feEnabled number from vector
-
-  //More Debug Stuff-------------------------------------------------------------------------------------------
-  /*
-    for(int i = 0; i < fenumbers.size(); i++){
-    tempn = fenumbers[i];
-    std::cout<<" NUMBERING " <<tempn<<std::endl;
-    }
-    for(int i = 0; i < fenumbers.size(); i++){
-    tempfen = fen[i];
-    std::cout<<" FENUMBERING " <<tempfen<<std::endl;
-    }
-	
-
-    vector<uint16_t>::const_iterator ifed2 = cabling->feds().begin();
-
-    std::cout<<" PRELIM1 "<<std::endl;
-
-    for ( ; ifed2 != cabling->feds().end(); ifed2++ ) {
-
-    std::cout<<" PRELIM2 "<<std::endl;
-
-    std::cout<<"LOWFEEN"<<feEnable<<std::endl;
-  */
-
-  //out of synch 2 d plot
-
-
-
-
-
-  //apparently working version of the median address error plots analogy to APVE plots---------------------------
-
-
-
-
-  stringstream fss; 
-
-  for(int i = 0; i < fednumbers.size(); i++){
-	
-    fss <<	fednumbers[i];
-
-    tempn = fednumbers[i];
-		
-    tempfen = fen[i]; //front end enabled
-
-    CumNumber->setBinLabel(i+1, fss.str());
-    CumNumber1->setBinLabel(i+1, fss.str());
-    CumNumber2->setBinLabel(i+1, fss.str());
-    CumNumber3->setBinLabel(i+1, fss.str());
-    CumNumber4->setBinLabel(i+1, fss.str());
-
-
-
-    for(int fpga = 0; fpga < 8 ; fpga++){
-
-      if( 0x1 & (tempfen >> fpga) ){
-	std::cout<<" VECADDS2 " <<" fed no: "<<tempn<<" "<<feMajorAddress[tempn][fpga]<<std::endl;
-	std::cout<<" WHERRS "<<" fed no: "<<tempn<<" fpga no :"<<fpga<<WHError[tempn][fpga]<<std::endl;
-	std::cout<<" LKERRS "<<" fed no: "<<tempn<<" fpga no :"<<fpga<<LKError[tempn][fpga]<<std::endl;
-	std::cout<<" SYERRS "<<" fed no: "<<tempn<<" fpga no :"<<fpga<<SYError[tempn][fpga]<<std::endl;
-	std::cout<<" RWHERRS "<<" fed no: "<<tempn<<" fpga no :"<<fpga<<RWHError[tempn][fpga]<<std::endl;
-	if( WHError[tempn][fpga] != 0){
-	  CumNumber1->Fill(i);	                
-	  FeWHApv[tempn]->Fill(fpga);
-	}					 
-	if( LKError[tempn][fpga] != 0){
-	  CumNumber2->Fill(i);	                
-	  FeLKErr[tempn]->Fill(fpga);
-	}					 
-	if( SYError[tempn][fpga] != 0){
-	  CumNumber3->Fill(i);	                
-	  FeSYErr[tempn]->Fill(fpga);
-	}					 
-	if( RWHError[tempn][fpga] != 0){
-	  CumNumber4->Fill(i);	                
-	  FeRWHErr[tempn]->Fill(fpga);
-	}					 
-					
-	if( feMajorAddress[tempn][fpga] != medianAddr  ){
-	  std::cout<<" FILLED "<<tempn<<std::endl;
-	  CumNumber->Fill(i); 
-	  FeMajApvErr[tempn]->Fill(fpga) ;
-	}
-   
-			
-      }
-    }
-
-
-	
-
-    fss.str(" ");
-
-
-  }//fed numbering loop
-
-  //APVs in synch PRCTS + Low and High and MODE Calc-----------------------------------------------------------------
-
-  double apvperct = 0;
-  double apvperct1 = 0;
-  double apvperct2 = 0;
-  int normalize = 0;
-  int normalize2 = 0;
-
-  normalize = ( badApvCounter - goodApvCounter);//basically out of synch bit set 
-  normalize2 = ( badApvCounter -  nolock); 
-
-  std::cout<<"NRML"<<normalize<<" for event # "<<iEvent.id().event()<<std::endl;
-  std::cout<<"NRML2"<<normalize2<<" for event # "<<iEvent.id().event()<<std::endl;
-  std::cout<<"BIZZY"<<badApvCounter<<" for event # "<<iEvent.id().event()<<std::endl;
-  std::cout<<"GIZZY"<<goodApvCounter<<" for event # "<<iEvent.id().event()<<std::endl;
-
-	
-  apvperct = 100.0*( ( double(2*total_enabled_channels) - double( badApvCounter ) ) / double(2*total_enabled_channels) ); 	
-  apvperct2 = 100.0*( ( double(2*total_enabled_channels) - double( normalize2 ) ) / double(2*total_enabled_channels) ); 	
-  apvperct1 = 100.0*( ( double(2*total_enabled_channels) - double( normalize ) ) / double(2*total_enabled_channels) ); 	
-	
-  std::cout<<" APVPRCT "<<apvperct<<" EvT "<<iEvent.id().event()<<std::endl;
-  std::cout<<" NOLOCK "<<nolock<<" EvT "<<iEvent.id().event()<<std::endl;
-  std::cout<<" BADAPVCOUNTER "<<badApvCounter<<" EvT "<<iEvent.id().event()<<std::endl;
-
-  //	apvPrct.push_back(goodAPVper); // for the end job mode , etc.
-	
-	
-	
-
-  if(iEvent.id().event() < 1001){
-    ApvAddConstPerEvent->setBinContent(iEvent.id().event() , apvperct  );
-    ApvAddConstPerEvent1->setBinContent(iEvent.id().event() , apvperct1  );
-    ApvAddConstPerEvent2->setBinContent(iEvent.id().event() , apvperct2  );
-    NoLock->setBinContent(iEvent.id().event() , nolock  );
-    BadHead->setBinContent(iEvent.id().event() , badApvCounter  );
-    NoSynch->setBinContent(iEvent.id().event() , oos  );
-  }
-
-  //-------------------------------------------------------------------------------------------------------------
-  //feMedianAddr.clear(); does not seem to be necessary
-  feCtr = 0; // reset this puppy to 0 for good measure
-  tmpCtr = 0;
-  goodFe = 0;
-  badApvCounter = 0;
-  nolock = 0;
-  goodApvCounter = 0;
-  oos = 0;
-}//End of the Event Loop ("analyze function" Called once per event
+} // End of the Event Loop ("analyze function" called once per event)
 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
 CnBAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
-
-  if ( useCabling_ ) {
-
-    // Retrieve FED cabling
-    vector<uint16_t> fed_ids;
-
-    //Retrieve FED ids from cabling map and iterate through 
-    edm::ESHandle<SiStripFedCabling> cabling;
-    iSetup.get<SiStripFedCablingRcd>().get( cabling );
-
-    vector<uint16_t>::const_iterator ifed = cabling->feds().begin();
-    for ( ; ifed != cabling->feds().end(); ifed++ ) { fed_ids.push_back( *ifed ); }
-
-    histoNaming( fed_ids, 23 ); // default value set for now
-
-  } 
   
+  // This will be the list of fund (and histogrammed) fedIds.
+  
+  //   if ( useCabling_ ) {
+  
+  //     // Retrieve FED cabling
+  //     vector<uint16_t> fed_ids;
+  
+  //     //Retrieve FED ids from cabling map and iterate through 
+  //     edm::ESHandle<SiStripFedCabling> cabling;
+  //     iSetup.get<SiStripFedCablingRcd>().get( cabling );
+  
+  //     vector<uint16_t>::const_iterator ifed = cabling->feds().begin();
+  //     for ( ; ifed != cabling->feds().end(); ifed++ ) { fed_ids.push_back( *ifed ); }
+  
+  //     histoNaming( fed_ids, 23 ); // default value set for now
+  
+  //   } 
+  
+  createRootFedHistograms(runNumber_);
+
 }
 
+// The following method should be called in place of histoNaming.
+// at the job initialization by beginJob()
+void CnBAnalyzer::createRootFedHistograms( const int& runNumber ) {
+
+  uint16_t fedId;
+
+  dbe->setCurrentFolder("");
+
+
+  // This Histogram will be filled with 
+  // problemsSeen / totalChannels
+  fedGenericErrors_ = dbe->book1D( "Fed Generic Errors","Fed Generic Errors vs. FED #",
+				  totalNumberOfFeds_,
+				  fedIdBoundaries_.first  - 0.5,
+				  fedIdBoundaries_.second + 0.5 );
+
+
+  // bool internalFreeze
+  fedFreeze_ = dbe->book1D( "Fed Freeze","Fed Freeze vs. FED #",
+			   totalNumberOfFeds_,
+			   fedIdBoundaries_.first  - 0.5,
+			   fedIdBoundaries_.second + 0.5 );
+
+  // bool bxError
+  fedBx_ = dbe->book1D( "Fed Bx Error","Fed Bx Error vs. FED #",
+		       totalNumberOfFeds_,
+		       fedIdBoundaries_.first  - 0.5,
+		       fedIdBoundaries_.second + 0.5 );
+
+  // Directories and data structures are created for all ppossible FEDs
+  // It will be up to the client to look only at the sensible plots.
+  for (fedId = fedIdBoundaries_.first; fedId<=fedIdBoundaries_.second; fedId++ ) {
+    createDetailedFedHistograms(fedId, runNumber);
+  }
+}
+
+void CnBAnalyzer::createDetailedFedHistograms( uint16_t fed_id, const int& runNumber ) {
+
+  stringstream  fedNumber;
+  fedNumber << fed_id;
+  string f = "FED #"; 
+
+  dbe->setCurrentFolder(f+fedNumber.str());
+
+  // All the following histograms are such that thay can be plot together
+  // In fact the boundaries of the plots are 1, 192 (or actually 0.5, 192,5)
+  // They have a different binning, though, which reflect the granularity of the system.
+
+  // When filling these plots one can access directly the bin (for example feOverFlow, bin number 8
+  // to address the front-end unit number 8) or one can make use of the x axis, which correspond
+  // to the APV index (1, 192).
+    
+  
+  //   bool feOverflow[8];
+  feOverFlow_[fed_id] = dbe->book1D( "FedUnit Overflow","FedUnit Overflow for FED #"+fedNumber.str(),
+			    8, 0.5, 192.5 );
+
+  //   bool apvAddressError[8];
+  feAPVAddr_[fed_id] = dbe->book1D( "APV Address error","FedUnit APV Address error for FED #"+fedNumber.str(),
+			   8, 0.5, 192.5 );
+
+  // Channel[96]
+  chanErrUnlock_[fed_id] =  dbe->book1D( "Unlock error", "Unlocked Fiber error for FED#"+fedNumber.str(),
+			  96, 0.5, 192.5);
+  chanErrOOS_[fed_id] =  dbe->book1D( "OOS error", "OutOfSynch Fiber error for FED#"+fedNumber.str(),
+			  96, 0.5, 192.5);
+
+  // apv[96*2]
+  badApv_[fed_id] =  dbe->book1D( "Bad APV error", "Bad APV error for FED#"+fedNumber.str(),
+				  192, 0.5, 192.5);
+  
+
+}
+
+
+// OBSOLETE
 // ------------ method called once each job just before starting event loop  ------------
 void 
 CnBAnalyzer::histoNaming( const vector<uint16_t>& fed_ids, const int& runNumber ) {
@@ -920,7 +320,7 @@ CnBAnalyzer::histoNaming( const vector<uint16_t>& fed_ids, const int& runNumber 
     ss<< *ifed;
 
     //Monitoring Hisotgram Declarations and Setup
-    //-------------------------------------------------------------------------------------------------------------------------
+    //-------------------------------------------------
     //APV Address Error Histograms
     dbe->setCurrentFolder( f+ss.str()+"/Errors per FPGA" );
     ApveErr[*ifed] = dbe->book1D( "APVE Address Error","APVE Address Error FED#"+ss.str() , 8, 0, 8 );
@@ -956,7 +356,7 @@ CnBAnalyzer::histoNaming( const vector<uint16_t>& fed_ids, const int& runNumber 
 	for(int k = 0; k < 12; k++){
 	  ssii << k+1;
 	  FiberWHApv[*ifed][i]->setBinLabel( k+1, "Fiber #"+ssii.str() );
-          errors[*ifed][i]->setBinLabel( k+1, "Fiber #"+ssii.str() );
+	  errors[*ifed][i]->setBinLabel( k+1, "Fiber #"+ssii.str() );
 	  FiberStatusBits[i][j][*ifed]->setBinLabel( k+1, "Fiber #"+ssii.str() );
 	  ssii.str(" ");
 	}
@@ -1035,46 +435,35 @@ CnBAnalyzer::endJob() {
   dbe->save(fileName_);
 	
 
-  int sz = apvPrct.size();
+  //   int sz = apvPrct.size();
 
-  std::cout<<" SIZZY "<<sz<<std::endl;
+  //   std::cout<<" SIZZY "<<sz<<std::endl;
 
-  sort(apvPrct.begin(), apvPrct.end());
-  std::cout<<" MIZZY "<<apvPrct[sz - 1]<<std::endl;
-  std::cout<<" LIZZY "<<apvPrct[0]<<std::endl;
+  //   sort(apvPrct.begin(), apvPrct.end());
+  //   std::cout<<" MIZZY "<<apvPrct[sz - 1]<<std::endl;
+  //   std::cout<<" LIZZY "<<apvPrct[0]<<std::endl;
 
-  map<double,int> m1;
-  for(pi = apvPrct.begin(); pi != apvPrct.end(); pi++)
-    {
-      m1[*pi]++;
-    }
-  int prevHighCount = 0;
-  float answer =0 ;
-  for(std::map<double,int>::iterator i = m1.begin(); i != m1.end(); i++){
-    if((*i).second > prevHighCount){
-      prevHighCount = (*i).second;
-      answer = (*i).first;
-    }
-  }
+  //   map<double,int> m1;
+  //   for(pi = apvPrct.begin(); pi != apvPrct.end(); pi++)
+  //     {
+  //       m1[*pi]++;
+  //     }
+  //   int prevHighCount = 0;
+  //   float answer =0 ;
+  //   for(std::map<double,int>::iterator i = m1.begin(); i != m1.end(); i++){
+  //     if((*i).second > prevHighCount){
+  //       prevHighCount = (*i).second;
+  //       answer = (*i).first;
+  //     }
+  //   }
 
 
 
-  std::cout << " MOOZY " << answer << std::endl;
+  //   std::cout << " MOOZY " << answer << std::endl;
 
 
 
 }
 
-bool
-CnBAnalyzer::getBit(int bitNumber, Fed9U::u32 FsopLongHi, Fed9U::u32 FsopLongLow, Fed9U::u16 FsopShort) {
-  unsigned char result = 0;
-  if (bitNumber<32)
-    result = (FsopLongLow >> bitNumber) & 0x1;
-  if ( bitNumber>=32 && bitNumber<64 )
-    result = (FsopLongHi >> (bitNumber-32)) & 0x1;
-  if ( bitNumber>=64 && bitNumber <80)
-    result = (FsopShort >> (bitNumber-64)) & 0x1;
-  return (result != 0x0);
-}
 
 

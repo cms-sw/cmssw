@@ -1,14 +1,17 @@
 <library file="*.cc" name=DQMSiStripMonitorHardwarePlugins>
+  <use name=FWCore/MessageLogger>
+  <use name=DataFormats/FEDRawData>
+
+
+
   <use name=DQMServices/Core>
   <use name=DQM/SiStripMonitorHardware>
   <use name=EventFilter/SiStripRawToDigi>
   <use name=Foundation/PluginManager>
-  <use name=DataFormats/FEDRawData>
   <use name=CondFormats/SiStripObjects>
   <use name=CondFormats/DataRecord>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
-  <use name=FWCore/MessageLogger>
   <use name=boost>
   <use name=FWCore/Utilities>
   <use name=Utilities/Timing>

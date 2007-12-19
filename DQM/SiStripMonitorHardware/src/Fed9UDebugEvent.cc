@@ -1,129 +1,102 @@
-   #include "DQM/SiStripMonitorHardware/interface/Fed9UDebugEvent.hh"
+#include "DQM/SiStripMonitorHardware/interface/Fed9UDebugEvent.hh"
 
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_8_1(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+8, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_8_2(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+12, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFLEN_8(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+16, true) & 0xFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getBESR(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+18, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFSOP_8_3(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+22, true) & 0xFFFF);
-   }
+Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP(unsigned int word, unsigned int FENumber) {
+  // TODO: check FENumber to be 0-7
+  // Word should be 0-2
+  switch ( word ) {  
+  case 0 : 
+    return (d_buffer.getu32(d_SPECIAL_OFF+136-16-(16*FENumber), true) & 0xFFFFFFFF); 
+    break;
+  case 1 :
+    return (d_buffer.getu32(d_SPECIAL_OFF+140-16-(16*FENumber), true) & 0xFFFFFFFF);
+    break;
+  case 2 :
+    return (d_buffer.getu32(d_SPECIAL_OFF+150-16-(16*FENumber), true) & 0xFFFF);
+    break;
+  default : 
+    return 0;
+  }
+}
 
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_7_1(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+24, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_7_2(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+28, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFLEN_7(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+32, true) & 0xFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getRES_5(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+34, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFSOP_7_3(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+38, true) & 0xFFFF);
-   }
+// This retrieves the Front-End buffer length for a given FEUnit
+Fed9U::u16 Fed9U::Fed9UDebugEvent::getFLEN(unsigned int FENumber) {
+  // TODO: check FENumber to be 0-7
+  return (d_buffer.getu16(d_SPECIAL_OFF+144-16-(16*FENumber), true) & 0xFFFF);
+}
 
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_6_1(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+40, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_6_2(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+44, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFLEN_6(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+48, true) & 0xFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getRES_4(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+50, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFSOP_6_3(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+54, true) & 0xFFFF);
-   }
+// BackEnd Status Register
+Fed9U::u32 Fed9U::Fed9UDebugEvent::getBESR() const {
+  return (d_buffer.getu32(d_SPECIAL_OFF+18, true) & 0xFFFFFFFF);
+}
 
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_5_1(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+56, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_5_2(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+60, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFLEN_5(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+64, true) & 0xFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getRES_3(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+66, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFSOP_5_3(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+70, true) & 0xFFFF);
-   }
+// This retreives one of the five reserved words (now unused)
+Fed9U::u32 Fed9U::Fed9UDebugEvent::getRES(unsigned int WordNumber) {
+  // TODO: check WordNumber to be 0-4
+  return (d_buffer.getu32(d_SPECIAL_OFF+114-16-(16*WordNumber), true) & 0xFFFFFFFF);
+}
 
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_4_1(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+72, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_4_2(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+76, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFLEN_4(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+80, true) & 0xFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getRES_2(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+82, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFSOP_4_3(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+86, true) & 0xFFFF);
-   }
+// This retreives one of the two DAQ registers
+Fed9U::u32 Fed9U::Fed9UDebugEvent::getDAQ(unsigned int DaqRegisterNumber) {
+  // TODO: check DaqRegisterNumber to be 0-1
+  return (d_buffer.getu32(d_SPECIAL_OFF+146-16-(16*DaqRegisterNumber), true) & 0xFFFFFFFF);
+}
 
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_3_1(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+88, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_3_2(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+92, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFLEN_3(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+96, true) & 0xFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getRES_1(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+98, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFSOP_3_3(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+102, true) & 0xFFFF);
-   }
+bool Fed9U::Fed9UDebugEvent::getAPV1Error(unsigned int fpga,unsigned int fiber) {
+  return (!getBitFSOP(fiber*6,fpga));
+}
 
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_2_1(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+104, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_2_2(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+108, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFLEN_2(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+112, true) & 0xFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getDAQ_2(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+114, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFSOP_2_3(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+118, true) & 0xFFFF);
-   }
+bool Fed9U::Fed9UDebugEvent::getAPV1WrongHeader(unsigned int fpga,unsigned int fiber) {
+  return (!getBitFSOP(fiber*6+1,fpga));
+}
 
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_1_1(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+120, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getFSOP_1_2(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+124, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFLEN_1(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+128, true) & 0xFFFF);
-   }
-   Fed9U::u32 Fed9U::Fed9UDebugEvent::getDAQ_1(void) const {
-      return (d_buffer.getu32(d_SPECIAL_OFF+130, true) & 0xFFFFFFFF);
-   }
-   Fed9U::u16 Fed9U::Fed9UDebugEvent::getFSOP_1_3(void) const {
-      return (d_buffer.getu16(d_SPECIAL_OFF+134, true) & 0xFFFF);
-   }
+bool Fed9U::Fed9UDebugEvent::getAPV2Error(unsigned int fpga,unsigned int fiber) {
+  return (!getBitFSOP(fiber*6+2,fpga));
+}
+
+bool Fed9U::Fed9UDebugEvent::getAPV2WrongHeader(unsigned int fpga,unsigned int fiber) {
+  return (!getBitFSOP(fiber*6+3,fpga));
+}
+
+bool Fed9U::Fed9UDebugEvent::getOutOfSync(unsigned int fpga,unsigned int fiber) {
+  return (!getBitFSOP(fiber*6+4,fpga));
+}
+
+bool Fed9U::Fed9UDebugEvent::getUnlocked(unsigned int fpga,unsigned int fiber) {
+  return (!getBitFSOP(fiber*6+5,fpga));
+}
+
+bool Fed9U::Fed9UDebugEvent::getFeEnabled(unsigned int fpga) {
+  return (((getSpecialFeEnableReg()>>(7-fpga))&0x1)==0x1);
+}
+
+bool Fed9U::Fed9UDebugEvent::getFeOverflow(unsigned int fpga) {
+  return (((getSpecialFeOverflowReg()>>(7-fpga))&0x1)==0x1);
+}
+
+Fed9U::u16 Fed9U::Fed9UDebugEvent::getFeMajorAddress(unsigned int fpga) {
+  return ((getFSOP(2,fpga)>>8)&0xFF);
+}
+
+bool Fed9U::Fed9UDebugEvent::getInternalFreeze() {
+  return (((getBESR()>>1)&0x1)==0x1);
+}
+
+bool Fed9U::Fed9UDebugEvent::getBXError() {
+  return (((getBESR()>>5)&0x1)==0x1);
+}
+ 
+
+bool Fed9U::Fed9UDebugEvent::getBitFSOP(unsigned int bitNumber, unsigned int fpga) {
+  unsigned char result = 0;
+
+  if (bitNumber<32)
+    // FsopLongLo
+    result = (getFSOP(1,fpga) >> bitNumber) & 0x1;
+  if ( bitNumber>=32 && bitNumber<64 )
+    // FsopLongHi
+    result = (getFSOP(0,fpga) >> (bitNumber-32)) & 0x1;
+  if ( bitNumber>=64 && bitNumber <80)
+    // FsopShort
+    result = (getFSOP(2,fpga) >> (bitNumber-64)) & 0x1;
+  return (result != 0x0);
+}
