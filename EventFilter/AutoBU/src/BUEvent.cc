@@ -73,7 +73,7 @@ BUEvent::~BUEvent()
 //______________________________________________________________________________
 void BUEvent::initialize(unsigned int evtNumber)
  {
-   evtNumber_=evtNumber;
+   evtNumber_=evtNumber & 0xFFFFFF; // 24 bits only available in the FED headers
    evtSize_=0;
    nFed_=0;
  }
