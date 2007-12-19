@@ -2,6 +2,8 @@
 #include <vector>
 #include <memory>
 
+#include <boost/filesystem.hpp>
+
 #include <xercesc/dom/DOM.hpp>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -122,16 +124,12 @@ void *ProcLinear::requestObject(const std::string &name) const
 
 bool ProcLinear::load()
 {
-	std::auto_ptr<XMLDocument> xml;
-
-	try {
-		xml = std::auto_ptr<XMLDocument>(new XMLDocument(
-				trainer->trainFileName(this, "xml")));
-	} catch(const XMLException &e) {
+	std::string filename = trainer->trainFileName(this, "xml");
+	if (!boost::filesystem::exists(filename.c_str()))
 		return false;
-	}
 
-	DOMElement *elem = xml->getRootNode();
+	XMLDocument xml(filename);
+	DOMElement *elem = xml.getRootNode();
 	if (std::strcmp(XMLSimpleStr(elem->getNodeName()), "ProcLinear") != 0)
 		throw cms::Exception("ProcLinear")
 			<< "XML training data file has bad root node."

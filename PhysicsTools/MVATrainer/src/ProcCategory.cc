@@ -132,20 +132,19 @@ void ProcCategory::configure(DOMElement *elem)
 				elem = static_cast<DOMElement*>(rangeNode);
 
 				Range range;
-				try {
+				if (XMLDocument::hasAttribute(elem, "min")) {
 					range.min = XMLDocument::readAttribute<double>(elem, "min");
 					range.hasMin = true;
 					sLimits[i].insert(range.min);
-				} catch(const XMLException &e) {
+				} else
 					range.hasMin = false;
-				}
-				try {
+
+				if (XMLDocument::hasAttribute(elem, "max")) {
 					range.max = XMLDocument::readAttribute<double>(elem, "max");
 					range.hasMax = true;
 					sLimits[i].insert(range.max);
-				} catch(const XMLException &e) {
+				} else
 					range.hasMax = false;
-				}
 
 				box.ranges.push_back(range);
 				i++;

@@ -41,8 +41,9 @@ XMLDocument::XercesPlatform::XercesPlatform()
 			XMLPlatformUtils::Initialize();
 		} catch(const XMLException &e) {
 			throw cms::Exception("XMLDocument")
-				<< "XMLPlatformUtils::Initialize failed."
-				<< std::endl;
+				<< "XMLPlatformUtils::Initialize failed "
+				   "because of: "
+				<< XMLSimpleStr(e.getMessage()) << std::endl;
 		}
 	}
 }
@@ -85,7 +86,7 @@ XMLDocument::~XMLDocument()
 				new LocalFileFormatTarget(fileName.c_str()));
 
 		writer->writeNode(target.get(), *doc);
-	} catch(const XMLException &e) {
+	} catch(...) {
 		std::remove(fileName.c_str());
 		throw;
 	}
@@ -178,6 +179,13 @@ static bool isBool(std::string value)
 static const char *makeBool(bool value)
 {
 	return value ? "true" : "false";
+}
+
+bool XMLDocument::hasAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
+                               const char *name)
+{
+	XMLUniStr uniName(name);
+	return elem->hasAttribute(uniName);
 }
 
 template<>

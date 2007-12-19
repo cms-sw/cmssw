@@ -7,6 +7,8 @@
 #include <string>
 #include <memory>
 
+#include <boost/filesystem.hpp>
+
 #include <xercesc/dom/DOM.hpp>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -117,15 +119,14 @@ void ProcLikelihood::configure(DOMElement *elem)
 					<< "Config tag general needs to come "
 					   "first." << std::endl;
 
-			try {
+			if (XMLDocument::hasAttribute(elem, "bias")) {
 				double globalBias =
 					XMLDocument::readAttribute<double>(
 								elem, "bias");
 				bias.push_back(globalBias);
 				doGivenBias = true;
-			} catch(const XMLException &e) {
+			} else
 				doGivenBias = false;
-			}
 
 			doCategoryBias = XMLDocument::readAttribute<bool>(
 						elem, "category_bias", false);
@@ -209,7 +210,8 @@ void ProcLikelihood::configure(DOMElement *elem)
 		pdf.smooth = XMLDocument::readAttribute<unsigned int>(
 							elem, "smooth", 0);
 
-		try {
+		if (XMLDocument::hasAttribute(elem, "lower") &&
+		    XMLDocument::hasAttribute(elem, "upper")) {
 			pdf.signal.range.min =
 				XMLDocument::readAttribute<double>(
 								elem, "lower");
@@ -218,9 +220,8 @@ void ProcLikelihood::configure(DOMElement *elem)
 								elem, "upper");
 			pdf.background.range = pdf.signal.range;
 			pdf.iteration = ITER_FILL;
-		} catch(const XMLException &e) {
+		} else
 			pdf.iteration = ITER_EMPTY;
-		}
 
 		for(unsigned int i = 0; i < nCategories; i++)
 			pdfs.push_back(pdf);
@@ -476,16 +477,12 @@ static void xmlParsePDF(ProcLikelihood::PDF &pdf, DOMElement *elem)
 
 bool ProcLikelihood::load()
 {
-	std::auto_ptr<XMLDocument> xml;
-
-	try {
-		xml = std::auto_ptr<XMLDocument>(new XMLDocument(
-				trainer->trainFileName(this, "xml")));
-	} catch(const XMLException &e) {
+	std::string filename = trainer->trainFileName(this, "xml");
+	if (!boost::filesystem::exists(filename.c_str()))
 		return false;
-	}
 
-	DOMElement *elem = xml->getRootNode();
+	XMLDocument xml(filename);
+	DOMElement *elem = xml.getRootNode();
 	if (std::strcmp(XMLSimpleStr(elem->getNodeName()),
 	                             "ProcLikelihood") != 0)
 		throw cms::Exception("ProcLikelihood")

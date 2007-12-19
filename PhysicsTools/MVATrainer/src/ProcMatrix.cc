@@ -3,6 +3,8 @@
 #include <vector>
 #include <memory>
 
+#include <boost/filesystem.hpp>
+
 #include <xercesc/dom/DOM.hpp>
 
 #include <TMatrixD.h>
@@ -170,16 +172,12 @@ void *ProcMatrix::requestObject(const std::string &name) const
 
 bool ProcMatrix::load()
 {
-	std::auto_ptr<XMLDocument> xml;
-
-	try {
-		xml = std::auto_ptr<XMLDocument>(new XMLDocument(
-				trainer->trainFileName(this, "xml")));
-	} catch(const XMLException &e) {
+	std::string filename = trainer->trainFileName(this, "xml");
+	if (!boost::filesystem::exists(filename.c_str()))
 		return false;
-	}
 
-	DOMElement *elem = xml->getRootNode();
+	XMLDocument xml(filename);
+	DOMElement *elem = xml.getRootNode();
 	if (std::strcmp(XMLSimpleStr(elem->getNodeName()), "ProcMatrix") != 0)
 		throw cms::Exception("ProcMatrix")
 			<< "XML training data file has bad root node."

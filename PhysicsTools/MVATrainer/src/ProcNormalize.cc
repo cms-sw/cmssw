@@ -7,6 +7,8 @@
 #include <string>
 #include <memory>
 
+#include <boost/filesystem.hpp>
+
 #include <xercesc/dom/DOM.hpp>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -118,15 +120,15 @@ void ProcNormalize::configure(DOMElement *elem)
 				<< "Filling neither background nor signal "
 				   "in config." << std::endl;
 
-		try {
+		if (XMLDocument::hasAttribute(elem, "lower") &&
+		    XMLDocument::hasAttribute(elem, "upper")) {
 			pdf.range.min = XMLDocument::readAttribute<double>(
 								elem, "lower");
 			pdf.range.max = XMLDocument::readAttribute<double>(
 								elem, "upper");
 			pdf.iteration = ITER_FILL;
-		} catch(const XMLException &e) {
+		} else
 			pdf.iteration = ITER_EMPTY;
-		}
 
 		pdfs.push_back(pdf);
 	}
@@ -251,16 +253,12 @@ void ProcNormalize::trainEnd()
 
 bool ProcNormalize::load()
 {
-	std::auto_ptr<XMLDocument> xml;
-
-	try {
-		xml = std::auto_ptr<XMLDocument>(new XMLDocument(
-				trainer->trainFileName(this, "xml")));
-	} catch(const XMLException &e) {
+	std::string filename = trainer->trainFileName(this, "xml");
+	if (!boost::filesystem::exists(filename.c_str()))
 		return false;
-	}
 
-	DOMElement *elem = xml->getRootNode();
+	XMLDocument xml(filename);
+	DOMElement *elem = xml.getRootNode();
 	if (std::strcmp(XMLSimpleStr(elem->getNodeName()),
 	                             "ProcNormalize") != 0)
 		throw cms::Exception("ProcNormalize")
