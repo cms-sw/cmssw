@@ -19,6 +19,11 @@ public:
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const {
     return originalHit().sharesInput(other,what);
   }
+  virtual std::vector<const TrackingRecHit*> recHits() const{
+    std::vector<const TrackingRecHit*> rechits(1,&originalHit_);
+    return rechits;
+  }
+
 
 private:
 

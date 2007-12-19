@@ -23,3 +23,13 @@ SiStripMatchedRecHit2D::sharesInput( const TrackingRecHit* other,
 	    stereoHit()->sharesInput( otherMatched->stereoHit(),what));
   }
 }
+
+std::vector<const TrackingRecHit*>
+SiStripMatchedRecHit2D::recHits()const {
+  std::vector<const TrackingRecHit*> rechits(2);
+  rechits[0]=&componentMono_;
+  rechits[1]=&componentStereo_;
+  return rechits;
+}
+
+

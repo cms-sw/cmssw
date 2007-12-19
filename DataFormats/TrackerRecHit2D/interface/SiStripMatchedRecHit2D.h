@@ -18,8 +18,10 @@ class SiStripMatchedRecHit2D : public BaseSiTrackerRecHit2DLocalPos{
   virtual SiStripMatchedRecHit2D * clone() const {return new SiStripMatchedRecHit2D( * this); }
  
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
- 
-  
+
+  virtual std::vector<const TrackingRecHit*> recHits() const; 
+
+    
  private:
   SiStripRecHit2D componentMono_,componentStereo_;
 };
