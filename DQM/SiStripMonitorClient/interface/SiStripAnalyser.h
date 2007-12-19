@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/12/03 15:45:14 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/12/06 19:02:39 $
+ *  $Revision: 1.16 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -74,8 +74,7 @@ private:
 
   void createFedTrackerMap();
 
-  DaqMonitorBEInterface* dbe_;
-  MonitorUserInterface* mui_;
+  DaqMonitorBEInterface* bei_;
 
   SiStripWebInterface* sistripWebInterface_;
 

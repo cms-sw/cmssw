@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.12 2007/09/09 18:33:18 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.13 2007/10/20 08:51:37 dutta Exp $
 //
 //
 
@@ -39,8 +39,7 @@ using edm::LogInfo;
 */
 SiStripOfflineDQM::SiStripOfflineDQM( const edm::ParameterSet &roPARAMETER_SET)
   : bVERBOSE_( roPARAMETER_SET.getUntrackedParameter<bool>( "bVerbose")),
-    bSAVE_IN_FILE_( roPARAMETER_SET.getUntrackedParameter<bool>( "bOutputMEsInRootFile")),
-    oOUT_FILE_NAME_( roPARAMETER_SET.getUntrackedParameter<std::string>( "oOutputFile")),
+    bCreateSummary_(false),
     oActionExecutor_() {
 
   // Create MessageSender
@@ -61,9 +60,8 @@ SiStripOfflineDQM::~SiStripOfflineDQM() {
 *   Event Setup object
 */
 void SiStripOfflineDQM::beginJob( const edm::EventSetup &roEVENT_SETUP) {
-  // Essential: creates some object that are used in createSummary
-  oActionExecutor_.readConfiguration();
-  oActionExecutor_.setupQTests( poBei_);
+  // Essential: reads xml file to get the histogram names to create summary
+  if (oActionExecutor_.readConfiguration()) bCreateSummary_ = true;
 
   if( bVERBOSE_) {
     LogInfo( "SiStripOfflineDQM") << "[beginJob] done";
@@ -85,14 +83,16 @@ void SiStripOfflineDQM::analyze( const edm::Event      &roEVENT,
     LogInfo( "SiStripOfflineDQM") << "[analyze] done";
   }
 }
-
-
+void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
+  if (bCreateSummary_) { 
+    oActionExecutor_.createSummary( poBei_);
+  }
+}
 void SiStripOfflineDQM::endJob() {
   if( bVERBOSE_) {
     LogInfo( "SiStripOfflineDQM") << "[endJob] start";
   }
 
-  poBei_->runQTests();
 
   LogInfo( "SiStripOfflineDQM")
     << "Summary";
@@ -114,11 +114,6 @@ void SiStripOfflineDQM::endJob() {
   LogInfo( "SiStripOfflineDQM")
     << oActionExecutor_.getQTestSummaryXMLLite( poBei_);
 
-  oActionExecutor_.createSummary( poBei_);
-
-  if( bSAVE_IN_FILE_) {
-    oActionExecutor_.saveMEs( poBei_, oOUT_FILE_NAME_);
-  }
 
   if( bVERBOSE_) {
     LogInfo( "SiStripOfflineDQM") << "[endJob] done";

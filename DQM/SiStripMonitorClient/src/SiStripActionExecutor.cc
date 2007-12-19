@@ -63,33 +63,3 @@ void SiStripActionExecutor::createSummary(DaqMonitorBEInterface* bei) {
   bei->cd();
   summaryCreator_->createSummary(bei);
 }
-//
-// -- Setup Quality Tests 
-//
-void SiStripActionExecutor::setupQTests(DaqMonitorBEInterface* bei) {
-  bei->cd();
-  string localPath = string("DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml");
-  if (!qtHandler_) {
-    qtHandler_ = new QTestHandle();
-  }
-  if(!qtHandler_->configureTests(edm::FileInPath(localPath).fullPath(),bei)){
-    cout << " Setting Up Quality Tests " << endl;
-    qtHandler_->attachTests(bei);			
-    bei->cd();
-  } else {
-    cout << " Problem to Set Up Quality Tests " << endl;
-  }
-}
-//
-// -- Save Monitor Elements in a file
-//      
-void SiStripActionExecutor::saveMEs(DaqMonitorBEInterface* bei, string fname){
-   bei->save(fname,bei->pwd(),90);
-}
-//
-// -- Get TkMap ME names
-//
-//int SiStripActionExecutor::getTkMapMENames(std::vector<std::string>& names) {
-//  int nval = tkMapCreator_->getMENames(names);
-//  return nval;
-//}

@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/12/06 19:02:48 $
- * $Revision: 1.21 $
+ * $Date: 2007/12/10 20:54:15 $
+ * $Revision: 1.22 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -11,7 +11,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripAnalyser.h"
 
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -80,14 +79,11 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
 
 
   // get back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  bei_ = Service<DaqMonitorBEInterface>().operator->();
 
-  // instantiate Monitor UI without connecting to any monitoring server
-  // (i.e. "standalone mode")
-  mui_ = new MonitorUIRoot();
 
   // instantiate web interface
-  sistripWebInterface_ = new SiStripWebInterface("dummy", "dummy", &mui_);
+  sistripWebInterface_ = new SiStripWebInterface(bei_);
   trackerMapCreator_ = 0;
   
 }
@@ -177,8 +173,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   // -- Create TrackerMap  according to the frequency
   if (tkMapFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%tkMapFrequency_ == 0) {
     cout << " Creating Tracker Map " << endl;
-    trackerMapCreator_->create(tkMapPSet_, fedCabling_, dbe_);
-    sistripWebInterface_->setTkMapFlag(true);
+    trackerMapCreator_->create(tkMapPSet_, fedCabling_, bei_);
   }
   // Create predefined plots
   if (staticUpdateFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%staticUpdateFrequency_  == 0) {
