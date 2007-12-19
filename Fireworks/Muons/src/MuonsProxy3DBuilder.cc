@@ -65,6 +65,7 @@ void MuonsProxy3DBuilder::build(const fwlite::Event* iEvent, TObject** product)
    unsigned int index(0);
    for ( reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon, ++index )
      {
+	if ( muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration) < 2 ) continue;
 	innerRecTrack.P = TEveVector( muon->p4().px(), muon->p4().py(), muon->p4().pz() );
 	innerRecTrack.V = TEveVector( muon->vertex().x(), muon->vertex().y(), muon->vertex().z() );
 	innerRecTrack.sign = muon->charge();
