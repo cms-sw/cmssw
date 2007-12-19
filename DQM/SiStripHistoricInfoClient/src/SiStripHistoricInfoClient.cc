@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.17 2007/09/12 09:55:51 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.18 2007/11/26 11:36:47 gbruno Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -262,27 +262,18 @@ void SiStripHistoricInfoClient::writeToDB() const {
   bool appendMode_ = false;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( mydbservice.isAvailable() ){
-    try{
-
-      unsigned long long tillTime;
-      if ( appendMode_){
-        tillTime = mydbservice->currentTime();
-      } else {
-        tillTime = mydbservice->endOfTime();
-      }
-      std::cout<<"SiStripHistoricInfoClient::writeToDB tillTime = " << tillTime << std::endl;
-
-      if( mydbservice->isNewTagRequest("SiStripPerformanceSummaryRcd") ){
-        mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");      
-      } else {
-        mydbservice->appendSinceTime<SiStripPerformanceSummary>(pSummary_,mydbservice->currentTime(),"SiStripPerformanceSummaryRcd");      
-      }
-    }catch(const cond::Exception& er){
-      std::cout<<"error SiStripHistoricInfoClient::writeToDB "<<er.what()<<std::endl;
-    }catch(const std::exception& er){
-      std::cout<<"ERROR SiStripHistoricInfoClient::writeToDB caught std::exception "<<er.what()<<std::endl;
-    }catch(...){
-      std::cout<<"ERROR SiStripHistoricInfoClient::writeToDB strange error"<<std::endl;
+    unsigned long long tillTime;
+    if ( appendMode_){
+      tillTime = mydbservice->currentTime();
+    } else {
+      tillTime = mydbservice->endOfTime();
+    }
+    std::cout<<"SiStripHistoricInfoClient::writeToDB tillTime = " << tillTime << std::endl;
+    
+    if( mydbservice->isNewTagRequest("SiStripPerformanceSummaryRcd") ){
+      mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");      
+    } else {
+      mydbservice->appendSinceTime<SiStripPerformanceSummary>(pSummary_,mydbservice->currentTime(),"SiStripPerformanceSummaryRcd");      
     }
   }else{
     std::cout<<"ERROR SiStripHistoricInfoClient::writeToDB PoolDBOutputService is unavailable"<<std::endl;

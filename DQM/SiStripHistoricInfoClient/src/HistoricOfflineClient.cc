@@ -115,18 +115,10 @@ void HistoricOfflineClient::writeToDB(const edm::Run& run) const {
   //now write SiStripPerformanceSummary data in DB
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( mydbservice.isAvailable() ){
-    try{
-      if( mydbservice->isNewTagRequest("SiStripPerformanceSummaryRcd") ){
-        mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");
-      } else {
-        mydbservice->appendSinceTime<SiStripPerformanceSummary>(pSummary_,mydbservice->currentTime(),"SiStripPerformanceSummaryRcd");
-      }
-    }catch(const cond::Exception& er){
-      edm::LogError("writeToDB")<<er.what()<<std::endl;
-    }catch(const std::exception& er){
-      edm::LogError("writeToDB")<<"caught std::exception "<<er.what()<<std::endl;
-    }catch(...){
-      edm::LogError("writeToDB")<<"Funny error"<<std::endl;
+    if( mydbservice->isNewTagRequest("SiStripPerformanceSummaryRcd") ){
+      mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");
+    } else {
+      mydbservice->appendSinceTime<SiStripPerformanceSummary>(pSummary_,mydbservice->currentTime(),"SiStripPerformanceSummaryRcd");
     }
   }else{
     edm::LogError("writeToDB")<<"Service is unavailable"<<std::endl;
@@ -142,18 +134,10 @@ void HistoricOfflineClient::writeToDB(edm::EventID evid, edm::Timestamp evtime) 
   //now write SiStripPerformanceSummary data in DB
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( mydbservice.isAvailable() ){
-    try{
-      if( mydbservice->isNewTagRequest("SiStripPerformanceSummaryRcd") ){
-	mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");      
-      } else {
-	mydbservice->appendSinceTime<SiStripPerformanceSummary>(pSummary_,mydbservice->currentTime(),"SiStripPerformanceSummaryRcd");
-      }
-    }catch(const cond::Exception& er){
-      edm::LogError("writeToDB")<<er.what()<<std::endl;
-    }catch(const std::exception& er){
-      edm::LogError("writeToDB")<<"caught std::exception "<<er.what()<<std::endl;
-    }catch(...){
-      edm::LogError("writeToDB")<<"Funny error"<<std::endl;
+    if( mydbservice->isNewTagRequest("SiStripPerformanceSummaryRcd") ){
+      mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");      
+    } else {
+      mydbservice->appendSinceTime<SiStripPerformanceSummary>(pSummary_,mydbservice->currentTime(),"SiStripPerformanceSummaryRcd");
     }
   }else{
     edm::LogError("writeToDB")<<"Service is unavailable"<<std::endl;
