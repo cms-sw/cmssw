@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/10/24 15:53:52 $
- *  $Revision: 1.55 $
+ *  $Date: 2007/12/19 16:23:35 $
+ *  $Revision: 1.56 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -494,7 +494,7 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   reco::TrackExtra trackExtra(outpos, outmom, true, inpos, inmom, true,
                               outerTSOS.curvilinearError(), outerId,
                               innerTSOS.curvilinearError(), innerId,
-			      trajectory.direction());
+			      trajectory.direction(),trajectory.seedRef());
   
   return trackExtra;
  
