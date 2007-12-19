@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.56 2007/09/20 17:11:39 tomalini Exp $
+ * \version $Id: TrackBase.h,v 1.57 2007/10/24 08:30:07 elmer Exp $
  *
  */
 
@@ -79,7 +79,7 @@ namespace reco {
     typedef unsigned int index;
     
     /// default constructor
-    TrackBase() { }
+    TrackBase();
     /// constructor from fit parameters and error matrix
     TrackBase( double chi2, double ndof, const Point & referencePoint,
 	       const Vector & momentum, int charge, const CovarianceMatrix &);
