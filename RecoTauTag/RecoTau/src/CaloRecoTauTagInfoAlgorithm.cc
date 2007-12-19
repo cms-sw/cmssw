@@ -96,13 +96,6 @@ BasicClusterRefVector CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters(E
     if(thepropagTrackECALSurfContactPoint.z()!=0.) thepropagTracksECALSurfContactPoints.push_back(thepropagTrackECALSurfContactPoint);
   }
   
-<<<<<<< CaloRecoTauTagInfoAlgorithm.cc
-  BasicClusterRefVector theBasicClusters;  
-  Handle<BasicClusterCollection> theBarrelBCCollection;
-  theEvent.getByLabel("islandBasicClusters","islandBarrelBasicClusters",theBarrelBCCollection);
-  for(unsigned int i_BC=0;i_BC!=theBarrelBCCollection->size();i_BC++) { 
-    math::XYZPoint aCaloJetFakePosition((*theCaloJet).px(),(*theCaloJet).py(),(*theCaloJet).pz());
-=======
   math::XYZPoint aCaloJetFakePosition((*theCaloJet).px(),(*theCaloJet).py(),(*theCaloJet).pz());
     
   BasicClusterRefVector theBasicClusters; 
@@ -112,32 +105,7 @@ BasicClusterRefVector CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters(E
     Handle<BasicClusterCollection> theBarrelBCCollection;
     theEvent.getByLabel("islandBasicClusters","islandBarrelBasicClusters",theBarrelBCCollection);
     for(unsigned int i_BC=0;i_BC!=theBarrelBCCollection->size();i_BC++) { 
->>>>>>> 1.6
       BasicClusterRef theBasicClusterRef(theBarrelBCCollection,i_BC);    
-<<<<<<< CaloRecoTauTagInfoAlgorithm.cc
-      if(theBasicClusterRef.isNonnull()){
-      if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE){
-	theBasicClusters.push_back(theBasicClusterRef);
-      }
-      }else{
-      continue;
-    }
-  }  
-  
-  Handle<BasicClusterCollection> theEndcapBCCollection;
-  theEvent.getByLabel("islandBasicClusters","islandEndcapBasicClusters",theEndcapBCCollection);
-  for(unsigned int j_BC=0;j_BC!=theEndcapBCCollection->size();j_BC++) { 
-    math::XYZPoint aCaloJetFakePosition((*theCaloJet).px(),(*theCaloJet).py(),(*theCaloJet).pz());
-      BasicClusterRef theBasicClusterRef(theEndcapBCCollection,j_BC);    
-      if(theBasicClusterRef.isNonnull()){
-      if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE){
-	theBasicClusters.push_back(theBasicClusterRef);
-      }
-      }else{
-      continue;
-    }
-  }  
-=======
       if (theBasicClusterRef.isNull()) continue;  
       if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE) theBasicClusters.push_back(theBasicClusterRef);
     }  
@@ -150,7 +118,6 @@ BasicClusterRefVector CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters(E
       if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE) theBasicClusters.push_back(theBasicClusterRef);
     }  
   }
->>>>>>> 1.6
   
   BasicClusterRefVector theNeutralBasicClusters=theBasicClusters;  
   BasicClusterRefVector::iterator kmatchedBasicCluster;
