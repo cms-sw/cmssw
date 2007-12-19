@@ -35,7 +35,7 @@ std::string GeometryConfiguration::getSchemaLocation() const {
 /// Return a flag whether to do xml validation or not.
 bool GeometryConfiguration::doValidation() const {
   LogDebug("GeometryConfiguration") << " the doValidation() method not valid for this DDLDocumentProvider" << std::endl;
-  return true;
+  return false;
 }
 
 /// Return a list of files as a vector of strings.
