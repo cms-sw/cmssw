@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2007/11/28 01:53:57 $
- *  $Revision: 1.36 $
+ *  $Date: 2007/12/13 15:16:09 $
+ *  $Revision: 1.37 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -236,12 +236,10 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
     // FIXME: uncomment this line!!
     // if(!bestMeasurement && firstTime) break;
 
-    if(!bestMeasurements.empty()) 
-    {
+    if(!bestMeasurements.empty()) {
       bool added = false;
       for(std::vector<TrajectoryMeasurement>::const_iterator tmItr = bestMeasurements.begin();
-          tmItr != bestMeasurements.end(); ++tmItr)
-      {
+          tmItr != bestMeasurements.end(); ++tmItr){
         added |= update(*layer, &(*tmItr), trajectory);
         lastTSOS = theLastUpdatedTSOS;
       }
@@ -255,43 +253,48 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
     // container. FIXME!!! I want to carefully check this!!!!!
     else{
       LogTrace(metname)<<"No best measurement found"<<endl;
-      if (!theMeasurementCache.empty()){
-	LogTrace(metname)<<"but the #of measurement is "<<theMeasurementCache.size()<<endl;
-        lastTSOS = theMeasurementCache.front().predictedState();
-      }
+      //       if (!theMeasurementCache.empty()){
+      // 	LogTrace(metname)<<"but the #of measurement is "<<theMeasurementCache.size()<<endl;
+      //         lastTSOS = theMeasurementCache.front().predictedState();
+      //       }
     }
   } // loop over layers
 }
 
 
 std::vector<TrajectoryMeasurement>
-StandAloneMuonRefitter::findBestMeasurements(const DetLayer * layer,
-                                             const TrajectoryStateOnSurface & tsos)
-{
+StandAloneMuonRefitter::findBestMeasurements(const DetLayer* layer,
+                                             const TrajectoryStateOnSurface& tsos){
+
+  const std::string metname = "Muon|RecoMuon|StandAloneMuonRefitter";
+
   std::vector<TrajectoryMeasurement> result;
-  if(theOverlappingChambersFlag && layer->hasGroups())
-  {
+  std::vector<TrajectoryMeasurement> measurements;
+
+  if(theOverlappingChambersFlag && layer->hasGroups()){
+    
     std::vector<TrajectoryMeasurementGroup> measurementGroups =
       theMeasurementExtractor->groupedMeasurements(layer, tsos, *propagator(), *estimator());
+
     for(std::vector<TrajectoryMeasurementGroup>::const_iterator tmGroupItr = measurementGroups.begin();
-        tmGroupItr != measurementGroups.end(); ++tmGroupItr)
-    {
-      theMeasurementCache = tmGroupItr->measurements();
-      const TrajectoryMeasurement * best 
-        = bestMeasurementFinder()->findBestMeasurement(theMeasurementCache,  propagator());
-      if(best) {
-        result.push_back( *best );
-      }
+        tmGroupItr != measurementGroups.end(); ++tmGroupItr){
+    
+      measurements = tmGroupItr->measurements();
+      LogTrace(metname) << "Number of Trajectory Measurement: " << measurements.size();
+      
+      const TrajectoryMeasurement* bestMeasurement 
+	= bestMeasurementFinder()->findBestMeasurement(measurements,  propagator());
+      
+      if(bestMeasurement) result.push_back(*bestMeasurement);
     }
-  }
-  else 
-  {
-    theMeasurementCache = theMeasurementExtractor->measurements(layer, tsos, *propagator(), *estimator());
-    const TrajectoryMeasurement * best
-      = bestMeasurementFinder()->findBestMeasurement(theMeasurementCache,  propagator());
-    if(best) {
-      result.push_back( *best );
-    }
+  } 
+  else{
+    measurements = theMeasurementExtractor->measurements(layer, tsos, *propagator(), *estimator());
+    LogTrace(metname) << "Number of Trajectory Measurement: " << measurements.size();
+    const TrajectoryMeasurement* bestMeasurement 
+      = bestMeasurementFinder()->findBestMeasurement(measurements,  
+						     propagator());
+    if(bestMeasurement) result.push_back(*bestMeasurement);
   }
   return result;
 }
