@@ -5,8 +5,8 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2007/04/12 13:21:14 $
-//   $Revision: 1.8 $
+//   $Date: 2007/10/05 17:09:03 $
+//   $Revision: 1.9 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -402,10 +402,10 @@ void L1MuGMTPSB::printCSC() const {
 //
 void L1MuGMTPSB::getCalo(edm::Event& e) {
   
-  try {
-    edm::Handle<L1CaloRegionCollection> calocoll_h;
-    //  e.getByLabel("L1RCTRegionSumsEmCands",calocoll_h);
-    e.getByType(calocoll_h);
+  edm::Handle<L1CaloRegionCollection> calocoll_h;
+  e.getByLabel(L1MuGMTConfig::getMipIsoInputTag(),calocoll_h);
+  if(calocoll_h.isValid())
+  {
     L1CaloRegionCollection const* regions = calocoll_h.product();
     L1CaloRegionCollection::const_iterator iter;
 
@@ -427,7 +427,7 @@ void L1MuGMTPSB::getCalo(edm::Event& e) {
       //                                     << (*iter).quiet() << " "
       //                                     << (*iter).mip();
     }
-  } catch (...) {
+  } else {
     edm::LogVerbatim("GMT_PSB_info") << " Calorimeter MIP/QUIET bits not found in the Event ";
   }
   

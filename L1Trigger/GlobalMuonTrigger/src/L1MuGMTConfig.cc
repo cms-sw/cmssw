@@ -5,8 +5,8 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2007/09/06 13:50:37 $
-//   $Revision: 1.7 $
+//   $Date: 2007/10/05 17:09:03 $
+//   $Revision: 1.8 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -83,6 +83,7 @@ L1MuGMTConfig::L1MuGMTConfig(const edm::ParameterSet& ps) {
   m_CSCInputTag  = m_ps->getParameter<edm::InputTag>("CSCCandidates");
   m_RPCbInputTag = m_ps->getParameter<edm::InputTag>("RPCbCandidates");
   m_RPCfInputTag = m_ps->getParameter<edm::InputTag>("RPCfCandidates");
+  m_MipIsoInputTag = m_ps->getParameter<edm::InputTag>("MipIsoData");
 
   m_debug = true;
   m_dbgLevel = m_ps->getUntrackedParameter<int>("Debug",0);
@@ -318,6 +319,7 @@ edm::InputTag L1MuGMTConfig::m_DTInputTag = edm::InputTag();
 edm::InputTag L1MuGMTConfig::m_CSCInputTag = edm::InputTag();
 edm::InputTag L1MuGMTConfig::m_RPCbInputTag = edm::InputTag();
 edm::InputTag L1MuGMTConfig::m_RPCfInputTag = edm::InputTag();
+edm::InputTag L1MuGMTConfig::m_MipIsoInputTag = edm::InputTag();
 int   L1MuGMTConfig::m_dbgLevel = 0;
 bool  L1MuGMTConfig::m_debug = false;
 int   L1MuGMTConfig::m_BxMin = -4;

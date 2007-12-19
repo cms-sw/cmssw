@@ -4,8 +4,8 @@
  *  Configuration parameters for L1GlobalMuonTrigger.
 */
 //
-//   $Date: 2007/09/06 13:50:37 $
-//   $Revision: 1.7 $
+//   $Date: 2007/10/05 17:09:03 $
+//   $Revision: 1.8 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -95,6 +95,7 @@ class L1MuGMTConfig {
     static edm::InputTag getCSCInputTag()  { return m_CSCInputTag; }
     static edm::InputTag getRPCbInputTag() { return m_RPCbInputTag; }
     static edm::InputTag getRPCfInputTag() { return m_RPCfInputTag; }
+    static edm::InputTag getMipIsoInputTag() { return m_MipIsoInputTag; }
 
     static bool Debug() { return m_debug; }
     static bool Debug(int level) { return ( m_debug && m_dbgLevel >= level ); }
@@ -190,6 +191,7 @@ class L1MuGMTConfig {
     static edm::InputTag m_CSCInputTag;
     static edm::InputTag m_RPCbInputTag;
     static edm::InputTag m_RPCfInputTag;
+    static edm::InputTag m_MipIsoInputTag;
 
     static bool m_debug;     // debug flag 
     static int  m_dbgLevel;  // debug level
