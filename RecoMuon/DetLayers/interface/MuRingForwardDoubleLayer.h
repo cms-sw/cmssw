@@ -4,8 +4,8 @@
 /** \class MuRingForwardDoubleLayer
  *  A plane composed two layers of disks. Represents forward muon CSC stations.
  *
- *  $Date: 2007/05/22 17:10:27 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/06/14 23:41:07 $
+ *  $Revision: 1.1 $
  *  \author R. Wilkinson
  *
  */
@@ -35,7 +35,7 @@ class MuRingForwardDoubleLayer : public RingedForwardLayer {
   
   virtual const std::vector<const GeometricSearchDet*>& components() const {return theComponents;}
 
-  bool frontIsCloserTo(const TrajectoryStateOnSurface&tsos) const;
+  bool isInsideOut(const TrajectoryStateOnSurface&tsos) const;
 
   // tries closest layer first
   virtual std::pair<bool, TrajectoryStateOnSurface>
