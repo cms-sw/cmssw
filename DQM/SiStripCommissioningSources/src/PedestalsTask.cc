@@ -3,7 +3,10 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "DQM/SiStripCommon/interface/UpdateTProfile.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TProfile.h"
 #include <algorithm>
 #include <math.h>
 
@@ -63,7 +66,7 @@ void PedestalsTask::book() {
 
   // Noise histogram
   extra_info = sistrip::pedsAndCmSubNoise_; 
-  peds_[1].isProfile_ = true; //@@ is actually 1d histo, but profile needed here
+  peds_[1].isProfile_ = true;
   
   title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 			     sistrip::PEDESTALS, 
@@ -73,8 +76,11 @@ void PedestalsTask::book() {
 			     connection().lldChannel(),
 			     extra_info ).title();
   
-  peds_[1].histo_ = dqm()->book1D( title, title, 
-				   nbins, -0.5, nbins*1.-0.5 );
+//   peds_[1].histo_ = dqm()->book1D( title, title, 
+// 				   nbins, -0.5, nbins*1.-0.5 );
+  peds_[1].histo_ = dqm()->bookProfile( title, title, 
+   					nbins, -0.5, nbins*1.-0.5,
+   					1025, 0., 1025. );
   
   peds_[1].vNumOfEntries_.resize(nbins,0);
   peds_[1].vSumOfContents_.resize(nbins,0);
@@ -160,23 +166,22 @@ void PedestalsTask::update() {
   
   // Pedestals 
   updateHistoSet( peds_[0] );
-
-  // Noise
-  HistoSet temp;
-  temp.histo_ = peds_[1].histo_;
-  temp.isProfile_ = false; //@@ it is actually 1d histo
-  temp.vNumOfEntries_.resize( peds_[1].vNumOfEntries_.size(), 0 );
+  
+  // Noise (cannot use HistoSet directly, as want to plot noise as "contents", not "error")
+  TProfile* histo = ExtractTObject<TProfile>().extract( peds_[1].histo_ );
   for ( uint16_t ii = 0; ii < peds_[1].vNumOfEntries_.size(); ++ii ) {
-    if ( peds_[1].vNumOfEntries_[ii] ) {
-      float mean = peds_[1].vSumOfContents_[ii] / peds_[1].vNumOfEntries_[ii];
-      float spread = fabs( peds_[1].vSumOfSquares_[ii] / peds_[1].vNumOfEntries_[ii] - mean * mean );
-      temp.vNumOfEntries_[ii] = sqrt( spread );
+    float entries =  peds_[1].vNumOfEntries_[ii];
+    if ( entries > 0. ) {
+      float mean   = peds_[1].vSumOfContents_[ii] / peds_[1].vNumOfEntries_[ii];
+      float spread = sqrt( fabs( peds_[1].vSumOfSquares_[ii] / peds_[1].vNumOfEntries_[ii] - mean * mean ) );
+      float error  = 0; // sqrt(entries) / entries;
+      UpdateTProfile::setBinContent( histo, ii+1, entries, spread, error );
     }
-  }    
-  updateHistoSet( temp );
+  }
   
   // Common mode
   updateHistoSet( cm_[0] );
   updateHistoSet( cm_[1] );
   
 }
+
