@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.42 2007/12/11 14:09:05 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.43 2007/12/11 19:36:13 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -228,7 +228,8 @@ SiStripConfigDb::DbParams::DbParams() :
   outputModuleXml_("/tmp/module.xml"),
   outputDcuInfoXml_("/tmp/dcuinfo.xml"),
   outputFecXml_("/tmp/fec.xml"),
-  outputFedXml_("/tmp/fed.xml")
+  outputFedXml_("/tmp/fed.xml"),
+  tnsAdmin_("")
 {
   reset();
 }
@@ -268,6 +269,7 @@ void SiStripConfigDb::DbParams::reset() {
   outputDcuInfoXml_ = "";
   outputFecXml_ = "";
   outputFedXml_ = "";
+  tnsAdmin_ = "";
 }
 
 // -----------------------------------------------------------------------------
@@ -298,6 +300,7 @@ void SiStripConfigDb::DbParams::setParams( const edm::ParameterSet& pset ) {
   outputDcuInfoXml_ = pset.getUntrackedParameter<string>("OutputDcuInfoXml","/tmp/dcuinfo.xml");
   outputFecXml_ = pset.getUntrackedParameter<string>( "OutputFecXml", "/tmp/fec.xml" );
   outputFedXml_ = pset.getUntrackedParameter<string>( "OutputFedXml", "/tmp/fed.xml" );
+  tnsAdmin_ = pset.getUntrackedParameter<string>( "TNS_ADMIN", "" );
 }
 
 // -----------------------------------------------------------------------------
@@ -549,6 +552,17 @@ void SiStripConfigDb::usingDatabase() {
       << " TNS_ADMIN is not set!"
       << " Trying to use /afs and setting to: \"" 
       << tns_admin << "\"";
+  }
+
+  // Retrieve TNS_ADMIN from .cfg file and override
+  if ( !dbParams_.tnsAdmin_.empty() ) {
+    std::stringstream ss;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " Overriding TNS_ADMIN value using cfg file!"
+       << " Original value was \"" << tns_admin
+       << "\"! New value is \"" << dbParams_.tnsAdmin_ << "\"!";
+    tns_admin = dbParams_.tnsAdmin_;
+    edm::LogWarning(mlConfigDb_) << ss.str();
   }
   
   // Remove trailing slash and set TNS_ADMIN

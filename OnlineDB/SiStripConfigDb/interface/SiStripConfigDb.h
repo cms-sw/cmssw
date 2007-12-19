@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.35 2007/12/11 17:01:32 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.36 2007/12/11 17:03:57 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -167,6 +167,7 @@ class SiStripConfigDb {
     std::string outputDcuInfoXml_;
     std::string outputFecXml_;
     std::string outputFedXml_;
+    std::string tnsAdmin_;
   };
   
   /** Class that holds addresses that uniquely identify a hardware
