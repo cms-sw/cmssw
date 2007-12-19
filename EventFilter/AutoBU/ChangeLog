@@ -1,5 +1,10 @@
 2007-11-28  Marco Zanetti  <marco.zanetti@cern.ch>
 		
+	* tag V00-06-03
+	* reduce to 24 the number of bits available for eventID (in BUEvent::initialize() )
+
+2007-11-28  Marco Zanetti  <marco.zanetti@cern.ch>
+		
 	* tag V00-06-02
 	* added possibility to overwrite event number in the fed headers. 
 	This requires anyway the event number to be properly set in the GT payload
