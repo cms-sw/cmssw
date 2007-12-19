@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: CollHandle.h,v 1.1 2007/05/21 15:59:17 pgras Exp $
  */
 
 #ifndef EcalDigis_CollHandle_h
@@ -47,19 +47,13 @@ public:
    * @param event the EDM event the collection must be retrieved from.
    */
   void read(const edm::Event& event){
-    try{
-      edm::Handle<T> hColl;
-      event.getByLabel(tag_, hColl);
-      currentColl_ = &(*hColl);
-    } catch(edm::Exception& e){//ignores the product-not-found exceptions
-      if(failIfNotFound_
-	 || (e.categoryCode() != edm::errors::ProductNotFound)){
-	throw;
-      }
-      if(!notFoundAlreadyWarned_){//warning logged only once
-	edm::LogWarning("ProductNoFound") << tag_ << " product was not found!";
-	notFoundAlreadyWarned_ = true;
-      }
+
+    edm::Handle<T> hColl;
+    event.getByLabel(tag_, hColl);
+    if(hColl.isValid()) { 
+      currentColl_ = &(*hColl); 
+    } else {
+      edm::LogWarning("ProductNoFound") << tag_ << " product was not found!";
       currentColl_ = &emptyColl_;
     }
   }
