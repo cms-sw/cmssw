@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.h,v 1.5 2007/06/19 12:30:27 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.h,v 1.6 2007/07/13 14:17:10 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H
@@ -24,6 +24,8 @@ class ApvTimingHistosUsingDb : public ApvTimingHistograms, public CommissioningH
 			  SiStripConfigDb* const );
 
   virtual ~ApvTimingHistosUsingDb();
+ 
+  virtual void addDcuDetIds();
 
   virtual void uploadToConfigDb();
 

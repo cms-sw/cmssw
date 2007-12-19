@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.10 2007/11/28 16:59:32 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.11 2007/11/30 15:33:38 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -56,6 +56,14 @@ ApvTimingHistosUsingDb::~ApvTimingHistosUsingDb() {
   LogTrace(mlDqmClient_) 
     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
     << " Destructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void ApvTimingHistosUsingDb::addDcuDetIds() {
+  ApvTimingHistograms::Analyses::iterator ianal = data_.begin();
+  ApvTimingHistograms::Analyses::iterator janal = data_.end();
+  for ( ; ianal != janal; ++ianal ) { addDcuDetId( ianal->second ); }
 }
 
 // -----------------------------------------------------------------------------

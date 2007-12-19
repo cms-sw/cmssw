@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.h,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.h,v 1.4 2007/05/24 15:59:44 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_VpspScanHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_VpspScanHistosUsingDb_H
@@ -23,6 +23,8 @@ class VpspScanHistosUsingDb : public VpspScanHistograms, public CommissioningHis
 			 SiStripConfigDb* const );
 
   virtual ~VpspScanHistosUsingDb();
+ 
+  virtual void addDcuDetIds();
 
   virtual void uploadToConfigDb();
   

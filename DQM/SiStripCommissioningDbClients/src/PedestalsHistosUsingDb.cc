@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.7 2007/11/20 22:40:53 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.8 2007/12/12 15:06:19 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -131,9 +131,9 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 	// Iterate through APVs and strips
 	for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
 	  for ( uint16_t istr = 0; istr < iter->second->peds()[iapv].size(); istr++ ) { 
-
+	    
 	    static float high_threshold = 5.;
-	    static float low_threshold  = 5.;
+	    static float low_threshold  = 2.;
 	    static bool  disable_strip  = false;
 	    Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( iter->second->peds()[iapv][istr] ), 
 					       high_threshold, 
@@ -142,7 +142,7 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 					       disable_strip );
 	    Fed9U::Fed9UAddress addr( ichan, iapv, istr );
 	    (*ifed)->getFedStrips().setStrip( addr, data );
-
+	    
 	  }
 	}
 	updated++;

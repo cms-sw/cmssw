@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.7 2007/07/13 14:22:41 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.8 2007/11/20 22:40:53 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -49,6 +49,14 @@ VpspScanHistosUsingDb::~VpspScanHistosUsingDb() {
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistosUsingDb::" << __func__ << "]"
     << " Destructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void VpspScanHistosUsingDb::addDcuDetIds() {
+  VpspScanHistograms::Analyses::iterator ianal = data_.begin();
+  VpspScanHistograms::Analyses::iterator janal = data_.end();
+  for ( ; ianal != janal; ++ianal ) { addDcuDetId( ianal->second ); }
 }
 
 // -----------------------------------------------------------------------------

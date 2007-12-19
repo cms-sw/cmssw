@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.h,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.h,v 1.4 2007/05/24 15:59:44 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H
@@ -24,6 +24,8 @@ class OptoScanHistosUsingDb : public OptoScanHistograms, public CommissioningHis
 			 SiStripConfigDb* const );
 
   virtual ~OptoScanHistosUsingDb();
+ 
+  virtual void addDcuDetIds();
 
   virtual void uploadToConfigDb();
   

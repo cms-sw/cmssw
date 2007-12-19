@@ -1,4 +1,4 @@
-// Last commit: $Id: FedCablingHistosUsingDb.cc,v 1.7 2007/11/28 19:24:43 bainbrid Exp $
+// Last commit: $Id: FedCablingHistosUsingDb.cc,v 1.8 2007/12/11 17:27:12 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FedCablingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -49,6 +49,14 @@ FedCablingHistosUsingDb::~FedCablingHistosUsingDb() {
   LogTrace(mlDqmClient_)
     << "[FedCablingHistosUsingDb::" << __func__ << "]"
     << " Destructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void FedCablingHistosUsingDb::addDcuDetIds() {
+  FedCablingHistograms::Analyses::iterator ianal = data_.begin();
+  FedCablingHistograms::Analyses::iterator janal = data_.end();
+  for ( ; ianal != janal; ++ianal ) { addDcuDetId( ianal->second ); }
 }
 
 // -----------------------------------------------------------------------------

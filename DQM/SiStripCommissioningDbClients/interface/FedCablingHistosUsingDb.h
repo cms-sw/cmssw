@@ -1,4 +1,4 @@
-// Last commit: $Id: FedCablingHistosUsingDb.h,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
+// Last commit: $Id: FedCablingHistosUsingDb.h,v 1.4 2007/05/24 15:59:44 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FedCablingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FedCablingHistosUsingDb_H
@@ -24,6 +24,8 @@ class FedCablingHistosUsingDb : public FedCablingHistograms, public Commissionin
 			   SiStripConfigDb* const );
 
   virtual ~FedCablingHistosUsingDb();
+ 
+  virtual void addDcuDetIds();
   
   virtual void uploadToConfigDb();
   

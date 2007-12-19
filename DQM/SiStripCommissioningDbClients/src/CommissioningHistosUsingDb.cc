@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.4 2007/05/24 15:59:49 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.5 2007/12/12 15:06:19 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -172,6 +172,7 @@ void CommissioningHistosUsingDb::addDcuDetId( CommissioningAnalysis* anal ) {
 
     std::stringstream ss;
     ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+       << " Cannot set DCU and DetId values in commissioning analysis object!" << std::endl
        << " Incompatible FED key retrieved from cabling!" << std::endl
        << " FED key from analysis object  : " << fed_key.path() << std::endl
        << " FED key from cabling object   : " << fed.path() << std::endl
@@ -183,6 +184,7 @@ void CommissioningHistosUsingDb::addDcuDetId( CommissioningAnalysis* anal ) {
 
     std::stringstream ss;
     ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+       << " Cannot set DCU and DetId values in commissioning analysis object!" << std::endl
        << " Incompatible FEC key retrieved from cabling!" << std::endl
        << " FEC key from analysis object : " << fec_key.path() << std::endl
        << " FEC key from cabling object  : " << fec.path();
@@ -192,12 +194,14 @@ void CommissioningHistosUsingDb::addDcuDetId( CommissioningAnalysis* anal ) {
 
     anal->dcuId( conn.dcuId() );
     anal->detId( conn.detId() );
-    LogTrace(mlDqmClient_) 
-      << "[CommissioningHistosUsingDb::" << __func__ << "]"
-      << " Updated CommissioningAnalysis object with"
-      << " DCU id " << conn.dcuId()
-      << " and DetId " << conn.detId();
+
+//     LogTrace(mlDqmClient_) 
+//       << "[CommissioningHistosUsingDb::" << __func__ << "]"
+//       << " Updated CommissioningAnalysis object with"
+//       << " DCU id " << conn.dcuId()
+//       << " and DetId " << conn.detId();
 
   }
 
 }
+

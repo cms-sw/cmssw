@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.6 2007/07/04 08:39:13 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.7 2007/11/20 22:40:53 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -49,6 +49,14 @@ OptoScanHistosUsingDb::~OptoScanHistosUsingDb() {
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistosUsingDb::" << __func__ << "]"
     << " Destructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void OptoScanHistosUsingDb::addDcuDetIds() {
+  OptoScanHistograms::Analyses::iterator ianal = data_.begin();
+  OptoScanHistograms::Analyses::iterator janal = data_.end();
+  for ( ; ianal != janal; ++ianal ) { addDcuDetId( ianal->second ); }
 }
 
 // -----------------------------------------------------------------------------
