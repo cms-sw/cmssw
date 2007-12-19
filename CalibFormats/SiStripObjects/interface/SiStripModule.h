@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripModule.h,v 1.9 2007/03/28 09:11:51 bainbrid Exp $
+// Last commit: $Id: SiStripModule.h,v 1.10 2007/05/15 13:20:12 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_SiStripModule_H
 #define CalibFormats_SiStripObjects_SiStripModule_H
@@ -42,12 +42,23 @@ class SiStripModule {
   /** Pair containing FED id/channel. */
   typedef std::pair<uint16_t,uint16_t> PairOfU16;
   
-  /** Pair containing FED id/channel. */
-  typedef PairOfU16 FedChannel;
-
+  /** Struct containing FED crate/slot/id/channel. */
+  //typedef PairOfU16 FedChannel;
+  class FedChannel {
+  public:
+    uint16_t fedCrate_;
+    uint16_t fedSlot_;
+    uint16_t fedId_;
+    uint16_t fedCh_;
+    FedChannel( const uint16_t& crate, const uint16_t& slot, const uint16_t& id, const uint16_t& ch ) : 
+      fedCrate_(crate), fedSlot_(slot), fedId_(id), fedCh_(ch) {;}
+    FedChannel() : fedCrate_(0), fedSlot_(0), fedId_(0), fedCh_(0) {;}
+  };
+  
+  
   /** Map between LLD channel and FED channel */
   typedef std::map< uint16_t, FedChannel > FedCabling;
-
+  
   // ---------- Control structure ----------
   
   inline const uint16_t& fecCrate() const;
@@ -61,7 +72,7 @@ class SiStripModule {
   inline const SiStripFecKey& key() const;
   
   // ---------- APV devices ----------
-
+  
   /** Returns I2C addresses of active ("found") APVs. */
   std::vector<uint16_t> activeApvs() const;
   
@@ -76,18 +87,18 @@ class SiStripModule {
 
   /** Add APV to module using I2C address (32->37). */
   void addApv( const uint16_t& apv_address );
-
+  
   // ---------- Other hybrid devices ----------
   
   /** Identifies whether the DCU device is active ("found") or not. */
   inline const uint16_t& dcu() const;
-
+  
   /** Identifies whether the MUX device is active ("found") or not. */
   inline const uint16_t& mux() const;
-
+  
   /** Identifies whether the PLL device is active ("found") or not. */
   inline const uint16_t& pll() const;
-
+  
   /** Identifies whether the LLD device is active ("found") or not. */
   inline const uint16_t& lld() const;
 
@@ -95,13 +106,13 @@ class SiStripModule {
   
   /** Returns DCU id for this module. */
   inline const uint32_t& dcuId() const;
-
+  
   /** Returns LLD channel (1->3) for given APV pair (0->1 or 0->2). */
   uint16_t lldChannel( const uint16_t& apv_pair_num ) const;
-
+  
   /** Set DCU id for this module. */
   inline void dcuId( const uint32_t& dcu_id );
-
+  
   // ---------- Detector information ----------
   
   /** Returns unique (geometry-based) identifier for this module. */
@@ -109,7 +120,7 @@ class SiStripModule {
   
   /** Returns APV pair (0->1 or 0->2) for given LLD channel (1->3). */
   uint16_t apvPairNumber( const uint16_t& lld_channel ) const;
-
+  
   /** Returns number of APV pairs for this module. */
   inline const uint16_t& nApvPairs() const;
   
@@ -170,9 +181,7 @@ class SiStripModule {
   uint32_t detId_;
   uint16_t nApvPairs_;
   
-  /** FED cabling: 
-      KEY = LLD channel (APV pair footprint position)
-      DATA = FedId + FedCh */
+  /** KEY = LLD channel, DATA = FedId + FedCh */
   FedCabling cabling_;
   uint16_t length_;
   

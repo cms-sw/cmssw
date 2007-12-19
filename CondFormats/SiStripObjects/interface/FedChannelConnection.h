@@ -86,12 +86,24 @@ class FedChannelConnection {
 
   /** Returns Laser Driver channel (1->3) for this channel. */
   uint16_t lldChannel() const;
+
+  /** Returns FED crate for this channel. */
+  inline const uint16_t& fedCrate() const;
+  
+  /** Returns FED slot for this channel. */
+  inline const uint16_t& fedSlot() const;
   
   /** Returns FED id for this channel. */
   inline const uint16_t& fedId() const;
-
+  
   /** Returns FED id for this channel. */
   inline const uint16_t& fedCh() const;
+
+  /** Sets FED crate for this channel. */
+  inline void fedCrate( uint16_t& fed_crate );
+
+  /** Sets FED slot for this channel. */
+  inline void fedSlot( uint16_t& fed_slot );
 
   /** Sets FED id for this channel. */
   inline void fedId( uint16_t& fed_id );
@@ -159,6 +171,8 @@ class FedChannelConnection {
   uint16_t nApvPairs_;
 
   // FED
+  uint16_t fedCrate_;
+  uint16_t fedSlot_;
   uint16_t fedId_;
   uint16_t fedCh_;
   uint16_t length_;
@@ -195,12 +209,17 @@ uint16_t FedChannelConnection::nDetStrips() const { return 256*nApvPairs_; }
 const uint16_t& FedChannelConnection::nApvPairs() const { return nApvPairs_; }
 uint16_t FedChannelConnection::nApvs() const { return 2*nApvPairs(); }
 
+const uint16_t& FedChannelConnection::fedCrate() const { return fedCrate_; }
+const uint16_t& FedChannelConnection::fedSlot() const { return fedSlot_; }
 const uint16_t& FedChannelConnection::fedId() const { return fedId_; }
 const uint16_t& FedChannelConnection::fedCh() const { return fedCh_; }
+
 const uint16_t& FedChannelConnection::fiberLength() const { return length_; }
 
 void FedChannelConnection::fedId( uint16_t& fed_id ) { fedId_ = fed_id; }
 void FedChannelConnection::fedCh( uint16_t& fed_ch ) { fedCh_ = fed_ch; }
+void FedChannelConnection::fedCrate( uint16_t& fed_crate ) { fedCrate_ = fed_crate; }
+void FedChannelConnection::fedSlot( uint16_t& fed_slot ) { fedSlot_ = fed_slot; }
 
 #endif // CondFormats_SiStripObjects_FedChannelConnection_H
 

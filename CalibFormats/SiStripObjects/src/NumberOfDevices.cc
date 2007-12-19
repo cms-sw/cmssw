@@ -1,4 +1,4 @@
-// Last commit: $Id: NumberOfDevices.cc,v 1.8 2007/03/28 09:13:33 bainbrid Exp $
+// Last commit: $Id: NumberOfDevices.cc,v 1.9 2007/05/24 15:19:11 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
 #include <iomanip>
@@ -20,6 +20,8 @@ void NumberOfDevices::clear() {
   nApvPairs2_ = 0; 
   nApvPairs3_ = 0;
   nApvPairsX_ = 0;
+  nFedCrates_ = 0;
+  nFedSlots_ = 0;
   nFedIds_ = 0;
   nFedChans_ = 0;
   nDcus_ = 0;
@@ -44,6 +46,8 @@ void NumberOfDevices::print( std::stringstream& ss ) const {
      << "  DET ids      : " << nDetIds_ << std::endl
      << "  APV pairs    : " << nApvPairs_ << std::endl
      << "  APVs         : " << nApvs_ << std::endl
+     << "  FED crates   : " << nFedCrates_ << std::endl
+     << "  FED slots    : " << nFedSlots_ << std::endl
      << "  FED ids      : " << nFedIds_ << std::endl
      << "  FED channels : " << nFedChans_ << std::endl
      << "  Number of APV pairs (0/1/2/3/>3) per module     : " 

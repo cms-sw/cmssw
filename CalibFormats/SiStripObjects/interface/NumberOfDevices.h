@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: NumberOfDevices.h,v 1.5 2007/03/21 09:54:20 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_NumberOfDevices_H
 #define CalibFormats_SiStripObjects_NumberOfDevices_H
@@ -28,6 +28,7 @@ class NumberOfDevices {
   uint32_t nApvPairs0_, nApvPairsX_;                 // Number of APVs per module (0,unknown)
   uint32_t nApvPairs1_, nApvPairs2_, nApvPairs3_;    // Number of APVs per module (1->3)
   uint32_t nDetIds_, nApvPairs_;                     // Geometry
+  uint32_t nFedCrates_, nFedSlots_;                  // FED
   uint32_t nFedIds_, nFedChans_;                     // FED
   uint32_t nDcus_, nMuxes_, nPlls_, nLlds_;          // Ancilliary devices
 

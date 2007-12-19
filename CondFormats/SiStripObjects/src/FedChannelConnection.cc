@@ -34,13 +34,15 @@ FedChannelConnection::FedChannelConnection( const uint16_t& fec_crate,
   dcuId_(dcu_id), 
   detId_(det_id), 
   nApvPairs_(pairs), 
+  fedCrate_(sistrip::invalid_),
+  fedSlot_(sistrip::invalid_),
   fedId_(fed_id), 
   fedCh_(fed_ch), 
   length_(length),
   dcu0x00_(dcu), 
   mux0x43_(mux), 
   pll0x44_(pll), 
-  lld0x60_(lld) 
+  lld0x60_(lld)
 {;}
 
 // -----------------------------------------------------------------------------
@@ -56,13 +58,15 @@ FedChannelConnection::FedChannelConnection() :
   dcuId_(sistrip::invalid32_), 
   detId_(sistrip::invalid32_), 
   nApvPairs_(sistrip::invalid_), 
+  fedCrate_(sistrip::invalid_),
+  fedSlot_(sistrip::invalid_),
   fedId_(sistrip::invalid_), 
   fedCh_(sistrip::invalid_), 
   length_(sistrip::invalid_),
   dcu0x00_(false), 
   mux0x43_(false), 
   pll0x44_(false), 
-  lld0x60_(false) 
+  lld0x60_(false)
 {;}
 
 // -----------------------------------------------------------------------------
@@ -136,29 +140,31 @@ uint16_t FedChannelConnection::apvPairNumber() const {
 // 
 void FedChannelConnection::print( std::stringstream& ss ) const {
   ss << " [FedChannelConnection::" << __func__ << "]" << std::endl
-     << " FedId/FedCh               : "
+     << " FedCrate/FedSlot/FedId/FedCh : "
+     << fedCrate() << "/"
+     << fedSlot() << "/"
      << fedId() << "/"
      << fedCh() << std::endl
-     << " Crate/FEC/Ring/CCU/Module : "
+     << " Crate/FEC/Ring/CCU/Module    : "
      << fecCrate() << "/"
      << fecSlot() << "/"
      << fecRing() << "/"
      << ccuAddr() << "/"
      << ccuChan() << std::endl
-     << " DcuId/DetId               : "
+     << " DcuId/DetId                  : "
      << std::hex
      << "0x" << std::setfill('0') << std::setw(8) << dcuId() << "/"
      << "0x" << std::setfill('0') << std::setw(8) << detId() << std::endl
      << std::dec
-     << " LldChan/APV0/APV1         : "
+     << " LldChan/APV0/APV1            : "
      << lldChannel() << "/" 
      << i2cAddr(0) << "/"
      << i2cAddr(1) << std::endl
-     << " pairNumber/nPairs/nStrips : "
+     << " pairNumber/nPairs/nStrips    : "
      << apvPairNumber() << "/"
      << nApvPairs() << "/"
      << 256*nApvPairs() << std::endl
-     << " DCU/MUX/PLL/LLD found     : "
+     << " DCU/MUX/PLL/LLD found        : "
      << std::boolalpha
      << dcu() << "/"
      << mux() << "/"
