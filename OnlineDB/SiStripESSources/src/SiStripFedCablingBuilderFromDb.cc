@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.39 2007/11/28 17:03:23 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.40 2007/12/11 16:32:48 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -292,6 +292,12 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
 			       dcu_id, det_id, npairs,
 			       fed_id, fed_ch,
 			       length );
+#ifdef USING_NEW_DATABASE_MODEL
+    uint16_t fed_crate = static_cast<uint16_t>( (*ifed)->getFedCrateSlot() );
+    uint16_t fed_slot = static_cast<uint16_t>( (*ifed)->getFedSlot() );
+    conn.fedCrate( fed_crate );
+    conn.fedSlot( fed_slot );
+#endif
     fec_cabling.addDevices( conn );
   }
   
@@ -505,7 +511,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
   vector<uint16_t>::iterator ifed = fed_ids.begin();
   uint16_t fed_ch = 0;
 
-  // ---------- Assign "dummy" FED ids/chans to constructed modules ----------
+  // ---------- Assign "dummy" FED crates/slots/ids/chans to constructed modules ----------
 
   edm::LogVerbatim(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
@@ -548,7 +554,10 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
 	      
 	      // Set "dummy" FED id and channel
 	      pair<uint16_t,uint16_t> addr = imod->activeApvPair( imod->lldChannel(ipair) );
-	      pair<uint16_t,uint16_t> fed_channel = pair<uint16_t,uint16_t>( *ifed, fed_ch );
+	      SiStripModule::FedChannel fed_channel( (*ifed)/16+1, // 16 FEDs per crate, numbering starts from 1
+						     (*ifed)%16+2, // FED slot starts from 2
+						     *ifed, 
+						     fed_ch );
 	      const_cast<SiStripModule&>(*imod).fedCh( addr.first, fed_channel );
 	      ifed++;
 	      
@@ -603,6 +612,10 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
 				 3, // npairs
 				 *ifed, 
 				 fed_ch );
+      uint16_t fed_crate = (*ifed)/16+1; // 16 FEDs per crate, numbering starts from 1
+      uint16_t fed_slot  = (*ifed)%16+2; // FED slot starts from 2
+      temp.fedCrate( fed_crate );
+      temp.fedSlot( fed_slot );
       fec_cabling.addDevices( temp );
       ifed++;
       
@@ -758,7 +771,10 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDetIds( SiStripConfigDb*
 	    if ( 96-fed_ch < imod->nApvPairs() ) { fed_id++; fed_ch = 0; } // move to next FED
 	    for ( uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++ ) {
 	      pair<uint16_t,uint16_t> addr = imod->activeApvPair( (*imod).lldChannel(ipair) );
-	      SiStripModule::FedChannel fed_channel = SiStripModule::FedChannel( fed_id, fed_ch );
+	      SiStripModule::FedChannel fed_channel( fed_id/16+1, // 16 FEDs per crate, numbering starts from 1
+						     fed_id%16+2, // FED slot starts from 2
+						     fed_id, 
+						     fed_ch );
 	      const_cast<SiStripModule&>(*imod).fedCh( addr.first, fed_channel );
 	      fed_ch++;
 	    }
