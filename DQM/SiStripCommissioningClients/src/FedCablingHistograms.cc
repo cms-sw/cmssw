@@ -80,12 +80,6 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
     anal->analysis( profs );
     data_[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
-    if ( debug ) {
-      std::stringstream ss;
-      anal->print( ss ); 
-      if ( anal->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); }
-      else { edm::LogWarning(mlDqmClient_) << ss.str(); }
-    }
     
   }
   
@@ -102,6 +96,21 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
       << " No histograms to analyze!";
   }
   
+}
+
+// -----------------------------------------------------------------------------	 
+/** */	 
+void FedCablingHistograms::printAnalyses() {
+  Analyses::iterator ianal = data_.begin();
+  Analyses::iterator janal = data_.end();
+  for ( ; ianal != janal; ++ianal ) { 
+    if ( ianal->second ) { 
+      std::stringstream ss;
+      ianal->second->print( ss ); 
+      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------

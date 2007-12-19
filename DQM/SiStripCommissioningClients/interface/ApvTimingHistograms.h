@@ -21,6 +21,9 @@ class ApvTimingHistograms : public CommissioningHistograms {
   
   /** */
   void histoAnalysis( bool debug );
+
+  /** */
+  void printAnalyses();
   
   /** */
   void createSummaryHisto( const sistrip::Monitorable&,

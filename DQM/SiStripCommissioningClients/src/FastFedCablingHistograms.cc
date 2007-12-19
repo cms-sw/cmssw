@@ -82,16 +82,10 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
     anal->analysis( profs );
     data_[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
-    if ( debug ) {
-      std::stringstream ss;
-      anal->print( ss ); 
-      if ( anal->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
-      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
-      if ( !anal->getErrorCodes().empty() ) { 
-	errors[anal->getErrorCodes()[0]]++;
-      }
+    if ( !anal->getErrorCodes().empty() ) { 
+      errors[anal->getErrorCodes()[0]]++;
     }
-    
+
   }
   
   if ( !histos().empty() ) {
@@ -122,6 +116,21 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
       << " No histograms to analyze!";
   }
   
+}
+
+// -----------------------------------------------------------------------------	 
+/** */	 
+void FastFedCablingHistograms::printAnalyses() {
+  Analyses::iterator ianal = data_.begin();
+  Analyses::iterator janal = data_.end();
+  for ( ; ianal != janal; ++ianal ) { 
+    if ( ianal->second ) { 
+      std::stringstream ss;
+      ianal->second->print( ss ); 
+      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------

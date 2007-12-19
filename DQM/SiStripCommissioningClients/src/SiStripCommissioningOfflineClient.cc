@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.22 2007/12/12 15:06:06 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.23 2007/12/18 09:24:51 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -17,6 +17,7 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <boost/cstdint.hpp>
 #include <iostream>
 #include <iomanip>
@@ -40,7 +41,7 @@ SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm:
     outputFileName_( pset.getUntrackedParameter<std::string>( "OutputRootFile", "" ) ),
     collateHistos_( pset.getUntrackedParameter<bool>( "CollateHistos", true ) ),
     analyzeHistos_( pset.getUntrackedParameter<bool>( "AnalyzeHistos", true ) ),
-    xmlFile_( pset.getUntrackedParameter<std::string>( "SummaryXmlFile", "" ) ),
+    xmlFile_( (pset.getUntrackedParameter<edm::FileInPath>( "SummaryXmlFile", edm::FileInPath() )).fullPath() ),
     createSummaryPlots_( false ),
     clientHistos_( false ), 
     uploadToDb_( false ), 

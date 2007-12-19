@@ -151,14 +151,8 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
   for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
     ianal->second->refTime( time_max ); 
     if ( ianal->second->isValid() ) { valid++; }
-    if ( debug ) {
-      std::stringstream ss;
-      ianal->second->print( ss ); 
-      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); }
-      else { edm::LogWarning(mlDqmClient_) << ss.str(); }
-      if ( !ianal->second->getErrorCodes().empty() ) { 
-	errors[ianal->second->getErrorCodes()[0]]++;
-      }
+    if ( !ianal->second->getErrorCodes().empty() ) { 
+      errors[ianal->second->getErrorCodes()[0]]++;
     }
   }
 
@@ -203,6 +197,21 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
       << " No histograms to analyze!";
   }
   
+}
+
+// -----------------------------------------------------------------------------	 
+/** */	 
+void ApvTimingHistograms::printAnalyses() {
+  Analyses::iterator ianal = data_.begin();
+  Analyses::iterator janal = data_.end();
+  for ( ; ianal != janal; ++ianal ) { 
+    if ( ianal->second ) { 
+      std::stringstream ss;
+      ianal->second->print( ss ); 
+      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------

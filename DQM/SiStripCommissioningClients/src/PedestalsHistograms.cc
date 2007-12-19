@@ -73,14 +73,14 @@ void PedestalsHistograms::histoAnalysis( bool debug ) {
     for ( ; ihis != iter->second.end(); ihis++ ) {
       TProfile* prof = ExtractTObject<TProfile>().extract( (*ihis)->me_ );
       if ( prof ) { profs.push_back(prof); }
-      TH1F* his = ExtractTObject<TH1F>().extract( (*ihis)->me_ );
-      if ( his ) { profs.push_back(his); }
+      //@@ Common mode histos?...
+      //TH1F* his = ExtractTObject<TH1F>().extract( (*ihis)->me_ );
+      //if ( his ) { profs.push_back(his); }
     }
     
     // Perform histo analysis
     PedestalsAnalysis* anal = new PedestalsAnalysis( iter->first );
     anal->analysis( profs );
-    data_[iter->first] = anal; 
     data_[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
     if ( !anal->getErrorCodes().empty() ) { 

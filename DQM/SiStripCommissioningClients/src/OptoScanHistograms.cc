@@ -80,19 +80,8 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
     anal->analysis( profs );
     data_[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
-    if ( debug ) {
-      std::stringstream ss;
-      if ( 1 ) {
-	anal->print( ss, anal->gain() ); 
-      } else {
-	ss << " Gain setting " << anal->gain() << " is optimum setting!" << std::endl;
-	for ( uint16_t igain = 0; igain < 4; ++igain ) { anal->print( ss, igain ); }
-      }
-      if ( anal->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); }
-      else { edm::LogWarning(mlDqmClient_) << ss.str(); }
-      if ( !anal->getErrorCodes().empty() ) { 
-	errors[anal->getErrorCodes()[0]]++;
-      }
+    if ( !anal->getErrorCodes().empty() ) { 
+      errors[anal->getErrorCodes()[0]]++;
     }
     
   }
@@ -138,6 +127,25 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
       << " No histograms to analyze!";
   }
   
+}
+
+// -----------------------------------------------------------------------------	 
+/** */
+void OptoScanHistograms::printAnalyses() {
+  Analyses::iterator ianal = data_.begin();
+  Analyses::iterator janal = data_.end();
+  for ( ; ianal != janal; ++ianal ) { 
+    if ( ianal->second ) { 
+      std::stringstream ss;
+      if ( true ) { ianal->second->print( ss, ianal->second->gain() ); }
+      else {
+	ss << " Gain setting " << ianal->second->gain() << " is optimum setting!" << std::endl;
+	for ( uint16_t igain = 0; igain < 4; ++igain ) { ianal->second->print( ss, igain ); }
+      }
+      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); 
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
