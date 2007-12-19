@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/11/28 11:49:15 $
- * $Revision: 1.45 $
+ * $Date: 2007/12/17 18:07:27 $
+ * $Revision: 1.46 $
  * \author W Fisher
  *
 */
@@ -15,6 +15,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   cout << " *** Hcal Monitor Module ***" << endl;
   cout << endl;
   
+  m_logFile.open("HcalMonitorModule.log");
+
   irun_=0; ilumisec_=0; ievent_=0; itime_=0;
   actonLS_=false;
   meStatus_=0;  meRunType_=0;
@@ -157,6 +159,8 @@ HcalMonitorModule::~HcalMonitorModule(){
   if(rhMon_!=NULL) { delete rhMon_; rhMon_=NULL; }
   if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
   delete evtSel_; evtSel_ = NULL;
+
+  m_logFile.close();
 
 }
 

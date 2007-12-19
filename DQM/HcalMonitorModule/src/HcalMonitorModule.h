@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2007/11/21 20:45:14 $
- * $Revision: 1.22 $
+ * $Date: 2007/11/28 11:49:16 $
+ * $Revision: 1.23 $
  * \author W. Fisher
  *
 */
@@ -170,6 +170,8 @@ public:
   
   edm::ESHandle<HcalDbService> conditions_;
   const HcalElectronicsMap*    readoutMap_;
+
+  ofstream m_logFile;
 
 };
 
