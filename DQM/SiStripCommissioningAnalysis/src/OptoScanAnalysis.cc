@@ -362,11 +362,7 @@ void OptoScanAnalysis::analyse() {
     zeroLight_[igain] = zero_light_level;
     uint16_t bin_number = static_cast<uint16_t>( threshold_[igain] / 0.45 ); 
     if ( bin_number < noise_contents.size() ) { linkNoise_[igain] = noise_contents[bin_number]; }
-    else { 
-      edm::LogWarning(mlCommissioning_) 
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unexpected bin number for noise histogram.";
-    }
+    else { addErrorCode(sistrip::unexpectedBinNumber_); }
     
     // Calculate tick mark height
     if ( low_params.b_ <= sistrip::maximum_ &&
@@ -463,15 +459,7 @@ void OptoScanAnalysis::print( std::stringstream& ss, uint32_t gain ) {
 }
 
 
-
-
-
-// ---------- DEPRECATED METHODS ----------
-// ---------- DEPRECATED METHODS ----------
-// ---------- DEPRECATED METHODS ----------
-
-
-
+// ---------- DEPRECATED METHODS BELOW ----------
 
 
 // ----------------------------------------------------------------------------

@@ -156,21 +156,21 @@ void VpspScanAnalysis::deprecated() {
   std::vector<uint16_t> monitorables;
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
     
+    monitorables.clear();
+    monitorables.resize( 7, sistrip::invalid_ );
+
     histos.clear();
     histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(histos_[iapv].first) ) );
     
     if ( !histos[0] ) {
-      edm::LogWarning(mlCommissioning_)
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " NULL pointer to VPSP histo for APV" << iapv;
+      addErrorCode(sistrip::nullPtr_);
       continue;
     }
     
-    monitorables.clear();
-
-    if ( 0 ) { anal( histos, monitorables ); }
+    if ( false ) { anal( histos, monitorables ); }
     else {
 
+      // Find "top" plateau
       int first = sistrip::invalid_;
       float top = -1. * sistrip::invalid_;;
       for ( int k = 5; k < 55; k++ ) {
@@ -180,8 +180,15 @@ void VpspScanAnalysis::deprecated() {
 	  top = histos[0]->GetBinContent(k); 
 	}
       }
-      if ( top < -1. * sistrip::valid_ ) { top = sistrip::invalid_; }
-
+      if ( top < -1. * sistrip::valid_ ) { top = sistrip::invalid_; } //@@ just want +ve invalid number here
+      if ( top > 1. * sistrip::valid_ ) { 
+	addErrorCode(sistrip::noTopPlateau_);
+	continue;
+      } 
+      monitorables[5] = static_cast<uint16_t>(top);
+      monitorables[3] = first;
+	
+      // Find "bottom" plateau
       int last = sistrip::invalid_;
       float bottom = 1. * sistrip::invalid_;
       for ( int k = 55; k > 5; k-- ) {
@@ -191,31 +198,41 @@ void VpspScanAnalysis::deprecated() {
 	  bottom = histos[0]->GetBinContent(k); 
 	}
       }
-	
-      float opt = 1. * sistrip::invalid_;
-      if ( bottom < 1. * sistrip::valid_ &&
-	   top < 1. * sistrip::valid_ ) { 
-	opt = bottom + ( top - bottom ) * 1./3.; 
-      }
+      if ( bottom > 1. * sistrip::valid_ ) {
+	addErrorCode(sistrip::noBottomPlateau_);
+	continue;
+      } 
+      monitorables[6] = static_cast<uint16_t>(bottom);
+      monitorables[4] = last;
+      
+      // Set optimum baseline level
+      float opt = bottom + ( top - bottom ) * 1./3.; 
+      monitorables[1] = static_cast<uint16_t>(opt);
+      
+      // Find optimum VPSP setting 
       uint16_t vpsp = sistrip::invalid_;
       if ( opt < 1. * sistrip::valid_ ) {
 	uint16_t ivpsp = 5; 
 	for ( ; ivpsp < 55; ivpsp++ ) { 
 	  if ( histos[0]->GetBinContent(ivpsp) < opt ) { break; }
 	}
-	if ( ivpsp != 54 ) { vpsp = ivpsp; }
+	if ( ivpsp != 54 ) { 
+	  vpsp = ivpsp; 
+	  monitorables[0] = vpsp;
+	}
+	else { 
+	  addErrorCode(sistrip::noVpspSetting_); 
+	  continue;
+	}
+	
+      } else { 
+	addErrorCode(sistrip::noBaselineLevel_); 
+      	continue;
       }
       
-      monitorables.push_back(vpsp);
-      monitorables.push_back(static_cast<uint16_t>(opt));
-      monitorables.push_back(sistrip::invalid_);
-      monitorables.push_back(first);
-      monitorables.push_back(last);
-      monitorables.push_back(static_cast<uint16_t>(top));
-      monitorables.push_back(static_cast<uint16_t>(bottom));
-
     }
     
+    // Set analysis results for both APVs
     vpsp_[iapv]        = monitorables[0];
     adcLevel_[iapv]    = monitorables[1];
     fraction_[iapv]    = monitorables[2];

@@ -98,36 +98,25 @@ void PedestalsAnalysis::reset() {
 // 
 void PedestalsAnalysis::extract( const std::vector<TH1*>& histos ) { 
 
-  // Check
+  // Check number of histograms
   if ( histos.size() != 4 ) {
-    edm::LogWarning(mlCommissioning_)
-      << "[" << myName() << "::" << __func__ << "]"
-      << " Unexpected number of histograms: " 
-      << histos.size();
+    addErrorCode(sistrip::numberOfHistos_);
   }
   
   // Extract FED key from histo title
   if ( !histos.empty() ) { extractFedKey( histos.front() ); }
   
-  // Extract
+  // Extract histograms
   std::vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
-    // Check pointer
-    if ( !(*ihis) ) {
-      edm::LogWarning(mlCommissioning_) 
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " NULL pointer to histogram!";
-      continue;
-    }
+    // Check for NULL pointer
+    if ( !(*ihis) ) { continue; }
     
     // Check run type
     SiStripHistoTitle title( (*ihis)->GetName() );
     if ( title.runType() != sistrip::PEDESTALS ) {
-      edm::LogWarning(mlCommissioning_) 
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unexpected commissioning task: "
-	<< SiStripEnumsAndStrings::runType(title.runType());
+      addErrorCode(sistrip::unexpectedTask_);
       continue;
     }
     
@@ -141,9 +130,7 @@ void PedestalsAnalysis::extract( const std::vector<TH1*>& histos ) {
     } else if ( title.extraInfo().find(sistrip::commonMode_) != std::string::npos ) {
       //@@ something here for CM plots?
     } else { 
-      edm::LogWarning(mlCommissioning_)
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unexpected 'extra info': " << title.extraInfo();
+      addErrorCode(sistrip::unexpectedExtraInfo_);
     }
     
   }
@@ -154,53 +141,36 @@ void PedestalsAnalysis::extract( const std::vector<TH1*>& histos ) {
 // 
 void PedestalsAnalysis::analyse() {
 
-  // Checks on whether pedestals histo exists and if binning is correct
-  if ( hPeds_.first ) {
-    if ( hPeds_.first->GetNbinsX() != 256 ) {
-      edm::LogWarning(mlCommissioning_) 
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unexpected number of bins for 'peds and raw noise' histogram: "
-	<< hPeds_.first->GetNbinsX();
-    }
-  } else { 
-    edm::LogWarning(mlCommissioning_)
-      << "[" << myName() << "::" << __func__ << "]"
-      << " NULL pointer to 'peds and raw noise' histogram!";
+  if ( !hPeds_.first ) {
+    addErrorCode(sistrip::nullPtr_);
+    return;
+  }
+
+  if ( !hNoise_.first ) {
+    addErrorCode(sistrip::nullPtr_);
     return;
   }
   
-  // Checks on whether noise histo exists and if binning is correct
-  if ( hNoise_.first ) {
-    if ( hNoise_.first->GetNbinsX() != 256 ) {
-      edm::LogWarning(mlCommissioning_) 
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unexpected number of bins for 'residuals and noise' histogram: "
-	<< hNoise_.first->GetNbinsX();
-    }
-  } else {
-    edm::LogWarning(mlCommissioning_)
-      << "[" << myName() << "::" << __func__ << "]"
-      << " NULL pointer to 'residuals and noise' histogram!";
-    return;
-  }
-
-  // Extract TProfile histograms
   TProfile* peds_histo = dynamic_cast<TProfile*>(hPeds_.first);
-  TH1F* noise_histo = dynamic_cast<TH1F*>(hNoise_.first);
-
-  // Checks on whether pedestals TProfile histo exists
+  TProfile* noise_histo = dynamic_cast<TProfile*>(hNoise_.first);
+  
   if ( !peds_histo ) {
-    edm::LogWarning(mlCommissioning_) 
-      << "[" << myName() << "::" << __func__ << "]"
-      << " NULL pointer to 'peds and raw noise' TProfile histogram!";
+    addErrorCode(sistrip::nullPtr_);
     return;
   }
 
-  // Checks on whether noise TProfile histo exists
   if ( !noise_histo ) {
-    edm::LogWarning(mlCommissioning_) 
-      << "[" << myName() << "::" << __func__ << "]"
-      << " NULL pointer to 'residuals and noise' TProfile histogram!";
+    addErrorCode(sistrip::nullPtr_);
+    return;
+  }
+
+  if ( peds_histo->GetNbinsX() != 256 ) {
+    addErrorCode(sistrip::numberOfBins_);
+    return;
+  }
+
+  if ( noise_histo->GetNbinsX() != 256 ) {
+    addErrorCode(sistrip::numberOfBins_);
     return;
   }
   
@@ -239,16 +209,15 @@ void PedestalsAnalysis::analyse() {
 
       // Noise
       if ( noise_histo ) {
-	//if ( noise_histo->GetBinEntries(strip+1) ) {
-	  //noise_[iapv][istr] = noise_histo->GetBinError(strip+1);
+	if ( noise_histo->GetBinEntries(strip+1) ) {
 	  noise_[iapv][istr] = noise_histo->GetBinContent(strip+1);
 	  n_sum += noise_[iapv][istr];
 	  n_sum2 += (noise_[iapv][istr] * noise_[iapv][istr]);
 	  if ( noise_[iapv][istr] > n_max ) { n_max = noise_[iapv][istr]; }
 	  if ( noise_[iapv][istr] < n_min ) { n_min = noise_[iapv][istr]; }
-	  //}
+	}
       }
-
+      
     } // strip loop
     
     // Calc mean and rms for peds
