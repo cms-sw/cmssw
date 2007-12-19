@@ -33,6 +33,8 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
+using namespace std;
+
 
 //#include "DQMServices/Core/interface/MonitorUserInterface.h"
 //
