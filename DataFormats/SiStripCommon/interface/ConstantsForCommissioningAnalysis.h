@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.6 2007/11/30 15:40:40 bainbrid Exp $
+// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.7 2007/12/03 16:39:33 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
 #define DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
@@ -17,6 +17,7 @@ namespace sistrip {
   static const std::string numberOfHistos_      = "UnexpectedNumberOfHistograms";
   static const std::string nullPtr_             = "NullPointerToHistogram";
   static const std::string numberOfBins_        = "UnexpectedNumberOfHistogramBins";
+  static const std::string unexpectedBinNumber_ = "UnexpectedBinNumber";
   static const std::string noEntries_           = "NoEntriesInHistogramBin";
   static const std::string unexpectedTask_      = "UnexpectedTaskInHistoTitle";
   static const std::string unexpectedExtraInfo_ = "UnexpectedExtraInfoInHistoTitle";
@@ -46,6 +47,13 @@ namespace sistrip {
   
   static const std::string optoScanAnalysis_      = "OptoScanAnalysis";
   static const std::string invalidZeroLightLevel_ = "InvalidZeroLightLevel";
+
+  // ---------- VPSP scan ----------
+
+  static const std::string noTopPlateau_    = "CannotFindTopPlateau";
+  static const std::string noBottomPlateau_ = "CannotFindBottomPlateau";
+  static const std::string noVpspSetting_   = "InvalidZeroLightLevel";
+  static const std::string noBaselineLevel_ = "InvalidZeroLightLevel";
 
 }
 
