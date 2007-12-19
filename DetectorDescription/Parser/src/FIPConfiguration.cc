@@ -87,58 +87,23 @@ int FIPConfiguration::readConfig(const std::string& filename)
 
   // Set the parser to use the handler for the configuration file.
   // This makes sure the Parser is initialized and gets a handle to it.
-  // Set these to the flags for the configuration file.
-  //parser_->getXMLParser()->setFeature(StrX("http://xml.org/sax/features/validation"),true);   // optional
-  //parser_->getXMLParser()->setFeature(StrX("http://xml.org/sax/features/namespaces"),true);   // optional
-  //if (parser_->getXMLParser()->getFeature(StrX("http://xml.org/sax/features/validation")) == true)
-  // parser_->getXMLParser()->setFeature(StrX("http://apache.org/xml/features/validation/dynamic"), true);
-  std::cout << " about to set handler" << std::endl;
   parser_->getXMLParser()->setContentHandler(&configHandler_);
-  std::cout << " done set handler" << std::endl;
+  edm::FileInPath fp(filename);
+  // config file
   std::string absoluteFileName (filename);
-  std::cout << " absoluteFileName initialized. " << absoluteFileName << std::endl;
-  try {
-    edm::FileInPath fp(filename);
-    absoluteFileName = fp.fullPath();
-    std::cout << "in try..." << fp.fullPath() << std::endl;
-  } catch ( const edm::Exception& e ) {
-    std::string msg = e.what();
-    msg += " caught in readConfig... \nERROR: Could not locate configuration for DetectorDescription " + filename;
-    std::cout << msg << std::endl;
-    throw DDException(msg);
+  absoluteFileName = fp.fullPath();
+  parser_->getXMLParser()->parse(absoluteFileName.c_str());
+  const std::vector<std::string>& vURLs = configHandler_.getURLs();
+  const std::vector<std::string>& vFiles = configHandler_.getFileNames();
+  size_t maxInd = vFiles.size();
+  size_t ind = 0;
+  // ea. file listed in the config
+  for(; ind < maxInd ; ++ind) {
+    edm::FileInPath fp(vURLs[ind] + "/" + vFiles[ind]);
+    //    std::cout << "FileInPath says..." << fp.fullPath() << std::endl;
+    files_.push_back(fp.fullPath());
+    urls_.push_back("");
   }
-  std::cout << "Absolute file name is: " << absoluteFileName << std::endl;
-  try {
-    parser_->getXMLParser()->parse(absoluteFileName.c_str());
-  }
-  catch (const XMLException& toCatch) {
-    std::cout << "\nXMLException: parsing '" << absoluteFileName << "'\n"
-	 << "Exception message is: \n"
-	 << std::string(StrX(toCatch.getMessage()).localForm()) << "\n" ;
-    return -1;
-  }
-  catch (...)
-    {
-      std::cout << "\nUnexpected exception during parsing: '" << absoluteFileName << "'\n";
-      return 4;
-    }
-  try {
-    const std::vector<std::string>& vURLs = configHandler_.getURLs();
-    const std::vector<std::string>& vFiles = configHandler_.getFileNames();
-    size_t maxInd = vFiles.size();
-    size_t ind = 0;
-    for(; ind < maxInd ; ++ind) {
-      edm::FileInPath fp(vURLs[ind] + "/" + vFiles[ind]);
-      std::cout << "FileInPath says..." << fp.fullPath() << std::endl;
-      files_.push_back(fp.fullPath());
-      urls_.push_back("");
-    }
-  } catch ( const edm::Exception& e ) {
-    std::cout << "Caught edm::Exception " << e.what() << std::endl;
-  } catch ( ... ) {
-    std::cout << "Caught ... exception " << std::endl;
-  }
-
 
   //   std::vector<std::string> fnames = configHandler_.getFileNames();
   //   std::cout << "there are " << fnames.size() << " files." << std::endl;

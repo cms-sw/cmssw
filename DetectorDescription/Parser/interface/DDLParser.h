@@ -64,7 +64,7 @@ class DDLParser
   typedef std::map< int, std::pair<std::string, std::string> > FileNameHolder;
   static DDLParser* instance();
 
-  // MEC: EDMProto temporary? But we need it for 
+  // MEC: EDMProto temporary? Check later.
   static void setInstance( DDLParser* p );
 
   /// unique (and default) constructor

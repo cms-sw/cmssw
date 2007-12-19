@@ -64,7 +64,7 @@ DDLParser::~DDLParser()
 }
 
 /// Constructor initializes XMLPlatformUtils (as required by Xerces.
-DDLParser::DDLParser( )  : nFiles_(0) //, handler_(0) (seal::Context* )
+DDLParser::DDLParser( )  : nFiles_(0)
 { 
   // Initialize the XML4C2 system
 
@@ -86,16 +86,8 @@ DDLParser::DDLParser( )  : nFiles_(0) //, handler_(0) (seal::Context* )
 
   SAX2Parser_  = XMLReaderFactory::createXMLReader();
 
-  // FIX: Temporarily set validation and namespaces to false always.
-  //      Due to ignorance, I did not realize that once set, these can not be
-  //      changed for a SAX2XMLReader.  I need to re-think the use of SAX2Parser.
-  //   SAX2Parser_->setFeature(StrX("http://xml.org/sax/features/validation").xmlChForm(), false);   // optional
-  //   SAX2Parser_->setFeature(StrX("http://xml.org/sax/features/namespaces").xmlChForm(), false);   // optional
   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, false);   // optional
   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);   // optional
-  //  SAX2Parser_->setFeature(StrX("http://apache.org/xml/properties/scannerName"), XMLString::transcode("SGXMLScanner"));
-  //was not the problem, IGXML was fine!  SAX2Parser_->setProperty(XMLUni::fgXercesScannerName, (void *)XMLUni::fgSGXMLScanner);
-
   // Specify other parser features, e.g.
   //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
 
@@ -255,26 +247,28 @@ void DDLParser::dumpFileList(ostream& co) {
     co << it->second.second << std::endl;
 }
 
-// FIX: CLEAN THIS UP!
 int DDLParser::parse(const DDLDocumentProvider& dp)
 {
   //  edm::LogInfo ("DDLParser") << "Start Parsing.  Validation is set to " << dp.doValidation() << "." << std::endl;
   edm::LogInfo ("DDLParser") << "Start Parsing.  Validation is set off for the time being." << std::endl;
   // prep for pass 1 through DDD XML
-  if (dp.doValidation())
-    { 
-      DCOUT_V('P', "WARNING:  PARSER VALIDATION IS TURNED OFF REGARDLESS OF <Schema... ELEMENT");
-//       SAX2Parser_->setProperty(StrX("http://apache.org/xml/properties/schema/external-schemaLocation"),XMLString::transcode(tch));
-//       SAX2Parser_->setFeature(StrX("http://xml.org/sax/features/validation"), true);   // optional
-//       SAX2Parser_->setFeature(StrX("http://xml.org/sax/features/namespaces"), true);   // optional
-//       SAX2Parser_->setFeature(StrX("http://apache.org/xml/features/validation/dynamic"), true);
-    }
-  else
-    {
-//       SAX2Parser_->setFeature(StrX("http://xml.org/sax/features/validation"), false);   // optional
-//       SAX2Parser_->setFeature(StrX("http://xml.org/sax/features/namespaces"), false);   // optional
-//       SAX2Parser_->setFeature(StrX("http://apache.org/xml/features/validation/dynamic"), false);
-    }
+//   // Since this block does nothing for CMSSW right now, I have taken it all out
+//   This clean-up involves interface changes such as the removal of doValidation() everywhere (OR NOT 
+//   if I decide to keep it for other testing reasons.)
+   if (dp.doValidation())
+     { 
+//       DCOUT_V('P', "WARNING:  PARSER VALIDATION IS TURNED OFF REGARDLESS OF <Schema... ELEMENT");
+  SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, true);
+  SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
+//       //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, true);
+     }
+   else
+//     {
+  SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, false);
+  SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);
+//       //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
+
+//     }
 
   //  This need be only done once, so might as well to it here.
   size_t fileIndex = 0;
@@ -342,13 +336,6 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 //     // FIX use this after DEPRECATED stuff removed:    throw(DDException("See XML Exception above"));
 //     return -1;
 //   }
-//   catch (DDException& e) {
-//     edm::LogInfo ("DDLParser") << "unexpected: " << std::endl;
-//     edm::LogInfo ("DDLParser") << e << std::endl;
-//     // FIX use this after DEPRECATED stuff removed    throw(e);
-//     return 4;
-//   }
-//  delete t;
   // PASS 2:
 
   DCOUT('P', "DDLParser::parse(): PASS2: Just before setting Xerces content and error handlers... ");
@@ -378,13 +365,6 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 	  LogDebug ("DDLParser") << "Completed parsing file " << namePair.second << std::endl;
 	}
 //     }
-//   catch (DDException& e) {
-//     std::string s(e.what());
-//     s+="\n\t see above:  DDLParser::parse  Exception " ;
-//     edm::LogError ("DDLParser") << s << std::endl;
-//     return -1;
-//     //    throw(e);
-//   }
 //   catch (const XMLException& toCatch) {
 //     edm::LogError ("DDLParser") << "\nPASS2: XMLException while processing files... \n"
 // 	 << "Exception message is: \n"
@@ -392,8 +372,6 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 //     XMLPlatformUtils::Terminate();
 //     return -1;
 //   }
-//   delete t;
-  // FIX remove after DEPRECATED stuff removed
   return 0;
 }
 
@@ -419,16 +397,6 @@ void DDLParser::parseFile(const int& numtoproc)
 // 	    + "Exception message is: \n"
 // 	    + std::string(StrX(toCatch.getMessage()).localForm()) + "\n";
 // 	  throw(DDException(e));
-// 	}
-//       catch (DDException& e)
-// 	{
-// 	  std::string s(e.what());
-// 	  s += "\nERROR: Unexpected exception during parsing: '"
-// 	    + currFileName_ + "'\n"
-// 	    + "Exception message is shown above.\n";
-// 	  throw(DDException(e));
-// 	} catch (...) {
-// 	  edm::LogError ("DDLParser") << "Another un-caught exception!" << endl;
 // 	}
     }
   else
