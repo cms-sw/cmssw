@@ -7,12 +7,13 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 #include "boost/spirit/core.hpp"
 #include "boost/spirit/utility/grammar_def.hpp"
 #include <functional>
+#include "PhysicsTools/Utilities/src/MethodMap.h"
 #include "PhysicsTools/Utilities/src/ExpressionNumberSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionVarSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionFunctionSetter.h"
@@ -41,10 +42,12 @@ namespace reco {
       mutable SelectorStack selStack;
       mutable CombinerStack cmbStack;
       mutable FunctionStack funStack;
-      Grammar( const MethodMap& methods, SelectorPtr & sel ) :
-	methods_( methods ), sel_( & sel ), expr_( & dummyExpr_ ) { }
-      Grammar( const MethodMap& methods, ExpressionPtr & expr ) :
-	methods_( methods ), sel_( & dummySel_ ), expr_( & expr ) { }
+      template<typename T>
+      Grammar(SelectorPtr & sel, const T *) :
+	methods_(reco::MethodMap::methods<T>()), sel_(& sel), expr_(& dummyExpr_) { }
+      template<typename T>
+      Grammar(ExpressionPtr & expr, const T*) :
+	methods_(reco::MethodMap::methods<T>()), sel_(& dummySel_), expr_(& expr) { }
       template <typename ScannerT>
       struct definition : 
 	public boost::spirit::grammar_def<boost::spirit::rule<ScannerT>, 
