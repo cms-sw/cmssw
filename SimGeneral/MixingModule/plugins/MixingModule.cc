@@ -162,7 +162,7 @@ namespace edm
     //HepMC - we are creating a dummy vector, to have the same storage (MixCollection!) + interfaces
     std::vector<edm::Handle<edm::HepMCProduct> > result_mc;
     e.getMany((*sel_),result_mc);
-    int smc=result_v.size();
+    int smc=result_mc.size();
     if (smc>1) LogWarning("MixingModule") << " Found "<<smc<<" HepMCProducte in signal file, only first one will be stored!!!!!!";
     if (smc>0) {
       LogDebug("MixingModule") <<" adding signal HepMCProduct";
@@ -270,7 +270,7 @@ namespace edm
     //HepMC - we are creating a dummy vector, to have the same interfaces
     std::vector<edm::Handle<edm::HepMCProduct> > result_mc;
     e->getMany((*sel_),result_mc);
-    int smc=result_v.size();
+    int smc=result_mc.size();
     if (smc>1) LogWarning("MixingModule") <<"Too many HepMCProducts, should be only one!"; 
     if (smc>0) {
       LogDebug("MixingModule") <<"  HepMCProduct added";
