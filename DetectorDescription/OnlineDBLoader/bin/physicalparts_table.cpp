@@ -28,8 +28,6 @@ int main(int argc, char *argv[])
   TimeMe t("main()");
 
   //DDAlgoInit();
-try { // DDD Prototype can throw DDException defined in DetectorDescription/Core/interface/DDException.h
-  
   // Initialize a DDL Schema aware parser for DDL-documents
   // (DDL ... Detector Description Language)
   cout << "initialize DDL parser" << endl;
@@ -123,10 +121,5 @@ try { // DDD Prototype can throw DDException defined in DetectorDescription/Core
   return 0;
   
 }
-catch (DDException& e) // DDD-Exceptions are simple string for the Prototype
-{
-   cerr << "DDD-PROBLEM:" << endl 
-        << e << endl;
-}  
 
 }
