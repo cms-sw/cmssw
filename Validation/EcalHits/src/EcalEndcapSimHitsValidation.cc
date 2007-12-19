@@ -275,11 +275,13 @@ float EcalEndcapSimHitsValidation::energyInMatrixEE(int nCellInX, int nCellInY,
   
   for (int ix=startX; ix<startX+nCellInX; ix++) {
     for (int iy=startY; iy<startY+nCellInY; iy++) {
-      
       uint32_t index ;
-      try {
+      
+      if(EEDetId::validDetId(ix,iy,centralZ)) {
         index = EEDetId(ix,iy,centralZ).rawId();
-      } catch ( cms::Exception &e ) { continue ; }
+      }
+      else { continue; }
+
       totalEnergy   += themap[index];
       ncristals     += 1;
     }
@@ -309,9 +311,11 @@ bool  EcalEndcapSimHitsValidation::fillEEMatrix(int nCellInX, int nCellInY,
       for( int iy = startY; iy < startY + nCellInY; iy++ ) {
 
         uint32_t index ;
-        try {
+
+	if(EEDetId::validDetId(ix,iy,CentralZ)) {
           index = EEDetId(ix,iy,CentralZ).rawId();
-        } catch ( cms::Exception &e ) { continue ; }
+	}
+	else { continue; }
         fillmap[i++] = themap[index];
       }
    }

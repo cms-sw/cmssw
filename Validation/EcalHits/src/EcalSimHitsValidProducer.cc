@@ -462,10 +462,12 @@ bool  EcalSimHitsValidProducer::fillEEMatrix(int nCellInEta, int nCellInPhi,
 
       for( int iphi = startPhi; iphi < startPhi + nCellInPhi; iphi++ ) {
         uint32_t index;
-        try {
+
+	if (EEDetId::validDetId(ieta, iphi,CentralZ)) {
           index = EEDetId( ieta, iphi,CentralZ).rawId();
-        } catch (  cms::Exception &e  ) { continue; } // } catch (std::runtime_error &e ) { continue; }
-          fillmap[i++] = themap[index];
+        } else { continue; }
+	
+	fillmap[i++] = themap[index];
       }
    }
    uint32_t  centerid = getUnitWithMaxEnergy(themap);
@@ -563,9 +565,10 @@ float EcalSimHitsValidProducer::energyInEEMatrix(int nCellInX, int nCellInY,
     for (int iy=startY; iy<startY+nCellInY; iy++) {
 
       uint32_t index ;
-      try {
+      if (EEDetId::validDetId(ix, iy,centralZ)) {
         index = EEDetId(ix,iy,centralZ).rawId();
-      } catch (  cms::Exception &e  ) { continue; } //} catch ( std::runtime_error &e ) { continue ; }
+      } else { continue; }
+
       totalEnergy   += themap[index];
       ncristals     += 1;
 
