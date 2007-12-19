@@ -90,6 +90,8 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
   // Retrieve FED ids from cabling map and iterate through 
   std::vector<uint16_t>::const_iterator ifed = cabling.feds().begin();
   for ( ; ifed != cabling.feds().end(); ifed++ ) {
+
+    //if ( *ifed == triggerFedId_ ) { continue; }
     
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers.FEDData( static_cast<int>(*ifed) );
@@ -119,14 +121,14 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       edm::LogVerbatim(mlRawToDigi_) << ss.str();
     }
     
-    // Locate start of FED buffer within raw data
+    // Handle 32-bit swapped data (and locate start of FED buffer within raw data)
     FEDRawData output; 
     locateStartOfFedBuffer( *ifed, input, output );
     
     // Recast data to suit Fed9UEvent
     Fed9U::u32* data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
     Fed9U::u32  size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
-    
+
     // Check on FEDRawData pointer
     if ( !data_u32 ) {
       edm::LogWarning(mlRawToDigi_)
@@ -638,8 +640,7 @@ void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* cons
   }
   
   // If FED DAQ registers contain info, update (and possibly overwrite) EventSummary 
-  if ( daq1 != 0 && daq1 != sistrip::invalid32_ &&
-       daq2 != 0 && daq2 != sistrip::invalid32_ ) {
+  if ( daq1 != 0 && daq1 != sistrip::invalid32_ ) {
     
     summary.triggerFed( triggerFedId_ );
     summary.fedReadoutMode( mode );
@@ -654,7 +655,7 @@ void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* cons
       once_ = false;
     }
     
-  } 
+  }
   
 }
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.1 2007/04/24 16:58:58 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.2 2007/06/14 18:53:37 pwing Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiModule.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -58,6 +58,23 @@ SiStripRawToDigiModule::~SiStripRawToDigiModule() {
 }
 
 // -----------------------------------------------------------------------------
+/** */
+void SiStripRawToDigiModule::beginJob( const edm::EventSetup& setup ) {
+  edm::ESHandle<SiStripFedCabling> cabling;
+  setup.get<SiStripFedCablingRcd>().get( cabling );
+  cabling_ = new SiStripFedCabling( *cabling );
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripRawToDigiModule::endJob() {
+  if ( cabling_ ) { 
+    delete cabling_; 
+    cabling_ = 0; 
+  }
+}
+
+// -----------------------------------------------------------------------------
 /** 
     Retrieves cabling map from EventSetup and FEDRawDataCollection
     from Event, creates a DetSetVector of SiStrip(Raw)Digis, uses the
@@ -73,10 +90,6 @@ void SiStripRawToDigiModule::produce( edm::Event& event,
     << event.id().run() << "/"
     << event.id().event();
   
-  // Retrieve FED cabling
-  edm::ESHandle<SiStripFedCabling> cabling;
-  setup.get<SiStripFedCablingRcd>().get( cabling );
-
   // Retrieve FED raw data (by label, which is "source" by default)
   edm::Handle<FEDRawDataCollection> buffers;
   event.getByLabel( label_, instance_, buffers ); 
@@ -92,7 +105,7 @@ void SiStripRawToDigiModule::produce( edm::Event& event,
   edm::DetSetVector<SiStripDigi>* zs = new edm::DetSetVector<SiStripDigi>();
 
   // Create digis
-  if ( rawToDigi_ ) { rawToDigi_->createDigis( *cabling,*buffers,*summary,*sm,*vr,*pr,*zs ); }
+  if ( rawToDigi_ ) { rawToDigi_->createDigis( *cabling_,*buffers,*summary,*sm,*vr,*pr,*zs ); }
   
   // Create auto_ptr's of digi products
   std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm_dsv(sm);
