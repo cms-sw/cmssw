@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.6 2007/11/15 15:10:34 uberthon Exp $
+// $Id: TestMix.cc,v 1.8 2007/12/14 17:59:28 uberthon Exp $
 //
 //
 
@@ -219,11 +219,9 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // test case 0
   std::cout<<"\n[ Testing abnormal conditions case 0]Should be all ok: registry: "<<all_trackhits->inRegistry()<<" size: "<<all_trackhits->size()<<std::endl;
 
-						// test case 1
-						MixCollection<PSimHit> * col21=0;
-						try {
-						  col21=new MixCollection<PSimHit>(cf_simhit.product(),std::pair<int,int>(-10,20));
-						} catch ( cms::Exception &e ) { std::cout<<" [Testing abnormal conditions case2] exception bad runrange ok "<<std::endl; }
-
+ // test case 1
+  std::cout<<"\n[ Testing abnormal conditions case 1] Should throw an exception " <<std::endl;
+  MixCollection<PSimHit> * col21=0;
+    col21=new MixCollection<PSimHit>(cf_simhit.product(),std::pair<int,int>(-10,20));
 }
 
