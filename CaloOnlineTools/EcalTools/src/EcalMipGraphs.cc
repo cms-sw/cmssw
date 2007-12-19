@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.9 2007/12/05 13:32:29 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.10 2007/12/05 13:37:09 scooper Exp $
 //
 //
 
@@ -228,15 +228,15 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     result = find(maskedChannels_.begin(), maskedChannels_.end(), hashedIndex);
     if  (result != maskedChannels_.end())
     {
-      LogWarning("EcalMipGraphs") << "skipping uncalRecHit for channel: " << ic << " with amplitude " << ampli ;
+      LogWarning("EcalMipGraphs") << "skipping uncalRecHit for channel: " << ic << " in fed: " << FEDid << " with amplitude " << ampli ;
       continue;
     } 
     
     if(ampli > threshold_ && !givenSeedCry_)
     {
       // only produce output if no seed cry is given by user and amplitude makes cut
-      LogWarning("EcalMipGraphs") << "channel: " << ic << "  ampli: " << ampli << " jitter " << jitter
-        << " Event: " << ievt << " FED: " << FEDid;
+      LogWarning("EcalMipGraphs") << "channel: " << ic <<  " in fed: " << FEDid <<  "  ampli: " << ampli << " jitter " << jitter
+        << " Event: " << ievt;
     }
     
     if(hashedIndex == givenSeedCry_ || (!givenSeedCry_ && ampli > threshold_))
