@@ -118,6 +118,8 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 	edm::Handle<TrackIPTagInfoCollection> trackIPTagInfos;
 	event.getByLabel(trackIPTagInfoLabel, trackIPTagInfos);
 
+	ConfigurableVertexReconstructor vertexReco(vtxRecoPSet);
+
 	// result secondary vertices
 
 	std::auto_ptr<SecondaryVertexTagInfoCollection>
@@ -146,66 +148,49 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 		const std::vector<TrackIPTagInfo::TrackIPData> &ipData =
 					iterJets->impactParameterData();
 
-		// build transient tracks
+		// build transient tracks used for vertex reconstruction
 
-		std::vector<TransientTrack> tracks;
+		std::vector<TransientTrack> fitTracks;
 		for(unsigned int i = 0; i < indices.size(); i++) {
 			typedef SecondaryVertexTagInfo::IndexedTrackData IndexedTrackData;
 
 			const TrackRef &trackRef = trackRefs[i];
 
 			trackData.push_back(IndexedTrackData());
-			tracks.push_back(trackBuilder->build(trackRef));
-
 			trackData.back().first = indices[i];
 
 			// select tracks for SV fit
 
-			trackData.back().second.svStatus =
-				trackSelector(*trackRef, ipData[i], *jetRef)
-					? SecondaryVertexTagInfo::TrackData::trackUsedForVertexFit
-					: SecondaryVertexTagInfo::TrackData::trackSelected;
+			if (trackSelector(*trackRef, ipData[i], *jetRef)) {
+				fitTracks.push_back(
+					trackBuilder->build(trackRef));
+				trackData.back().second.svStatus =
+					SecondaryVertexTagInfo::TrackData::trackUsedForVertexFit;
+			} else
+				trackData.back().second.svStatus =
+					SecondaryVertexTagInfo::TrackData::trackSelected;
 		}
 
-		// try to fit vertex
+		// perform actual vertex finding
+
+		std::vector<TransientVertex> fittedSVs =
+					vertexReco.vertices(fitTracks);
+
+		// build combined SV information and filter
 
 		std::vector<SecondaryVertex> SVs;
-		try {
-			ConfigurableVertexReconstructor vertexReco(vtxRecoPSet);
+		SVBuilder svBuilder(pv, jetDir, withPVError);
+		std::remove_copy_if(boost::make_transform_iterator(
+		                    	fittedSVs.begin(), svBuilder),
+		                    boost::make_transform_iterator(
+		                    	fittedSVs.end(), svBuilder),
+		                    std::back_inserter(SVs),
+		                    SVFilter(vertexFilter, pv, jetDir));
 
-			// give fitter the selected tracks
+		// clean up now unneeded collections
 
-			std::vector<reco::TransientTrack> fitTracks;
-			for(unsigned int i = 0; i < trackData.size(); i++)
-				if (trackData[i].second.usedForVertexFit())
-					fitTracks.push_back(tracks[i]);
-
-			// perform fit
-
-			std::vector<TransientVertex> fittedSVs;
-			fittedSVs = vertexReco.vertices(fitTracks);
-
-			// build combined SV information and filter
-
-			SVBuilder svBuilder(pv, jetDir, withPVError);
-			std::remove_copy_if(boost::make_transform_iterator(
-			                    	fittedSVs.begin(), svBuilder),
-			                    boost::make_transform_iterator(
-			                    	fittedSVs.end(), svBuilder),
-			                    std::back_inserter(SVs),
-			                    SVFilter(vertexFilter,
-			                             pv, jetDir));
-		} catch(VertexException e) {
-			// most likely the following problem:
-			// fewer than two significant tracks (w > 0.001)
-			// note that if this catch is removed,
-			// CMSSW would reject valid events...
-			// last time I looked the fitter called by
-			// the reconstructor might run into this situation
-			// which I have no control of - this is a problem
-			// that should be rectified in the vertex code
-			// before removing this catch
-		}
+		fitTracks.clear();
+		fittedSVs.clear();
 
 		// identify most probable SV
 
