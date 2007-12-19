@@ -12,6 +12,7 @@ TmModule::TmModule(int idc, int ring, int layer){
  notused=true;
  histNumber=0;
  red=-1;
+ capvids="";
 }
 TmModule::~TmModule(){
 }

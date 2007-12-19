@@ -13,6 +13,7 @@ class TmModule  {
   int count;	
   std::string text;
   std::string name;
+  std::string capvids;
   int histNumber;
   int getId(){return idModule; }
   int getKey(){return layer*100000+ring*1000+idModule; }

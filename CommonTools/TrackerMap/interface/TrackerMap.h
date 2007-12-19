@@ -29,6 +29,8 @@ class TrackerMap {
   void init();
   void drawModule(TmModule * mod, int key, int layer, bool total, std::ofstream * file);
   void print(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
+  void printall(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
+  void printlayers(bool print_total=true,float minval=0., float maxval=0.,std::string s="layer");
   void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap.svg",int width=1500, int height=800);
   void save_as_fedtrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="fed_svgmap.svg",int width=1500, int height=800);
   void drawApvPair( int crate, int numfed_incrate, bool total, TmApvPair* apvPair,std::ofstream * file,bool useApvPairValue);
@@ -134,27 +136,31 @@ class TrackerMap {
   }   
   double  xdpixel(double x){
     double res;
-    res= ((x-xmin)/(xmax-xmin)*xsize)+ix;
+    if(saveAsSingleLayer)res= ((x-xmin)/(xmax-xmin)*xsize);
+    else res= ((x-xmin)/(xmax-xmin)*xsize)+ix;
     return res;
   }
   double  ydpixel(double y){
     double res;
     double y1;
     y1 = (y-ymin)/(ymax-ymin);
-    if(nlay>30)   res= 2*ysize - (y1*2*ysize)+iy;
-    else res= ysize - (y1*ysize)+iy;
+    if(nlay>30)   res= 2*ysize - (y1*2*ysize);
+    else res= ysize - (y1*ysize);
+    if(!saveAsSingleLayer) res=res+iy;
     return res;
   }
   double  xdpixelc(double x){
     double res;
-    res= ((x-xmin)/(xmax-xmin)*xsize)+ix;
+    if(saveAsSingleLayer)res= ((x-xmin)/(xmax-xmin)*xsize);
+    else res= ((x-xmin)/(xmax-xmin)*xsize)+ix;
     return res;
   }
   double  ydpixelc(double y){
     double res;
     double y1;
     y1 = (y-ymin)/(ymax-ymin);
-     res= 2*ysize - (y1*2*ysize)+iy;
+     if(saveAsSingleLayer)res= 2*ysize - (y1*2*ysize);
+     else res= 2*ysize - (y1*2*ysize)+iy;
     return res;
   }
    void defcwindow(int num_crate){
@@ -315,6 +321,7 @@ void defwindow(int num_lay){
  protected:
   int nlay;
   int ncrate;
+  int ncrates;
   double xmin,xmax,ymin,ymax;
   int xsize,ysize,ix,iy;
   bool posrel;
@@ -329,6 +336,7 @@ void defwindow(int num_lay){
  private:
   
   float oldz;
+  bool saveAsSingleLayer;
 };
 #endif
 
