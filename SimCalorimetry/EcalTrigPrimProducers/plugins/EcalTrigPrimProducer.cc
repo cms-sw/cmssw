@@ -50,31 +50,24 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
   bool famos = ps_.getParameter<bool>("Famos");
 
   //get  binOfMax
-  try {
-    binOfMaximum_=0;
-    edm::Service<edm::ConstProductRegistry> reg;
-    // Loop over provenance of products in registry.
-    for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
-	 it != reg->productList().end(); ++it) {
-      edm::BranchDescription desc = it->second;
-      if (desc.friendlyClassName().find("EBDigiCollection")==0  &&
-	  desc.moduleLabel()==label_ ) {
-	edm::ParameterSet result = getParameterSet(desc.psetID());
-        binOfMaximum_=result.getParameter<int>("binOfMaximum");
-	break;
-      }
+  binOfMaximum_=0;
+  edm::Service<edm::ConstProductRegistry> reg;
+  // Loop over provenance of products in registry.
+  for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
+       it != reg->productList().end(); ++it) {
+    edm::BranchDescription desc = it->second;
+    if (desc.friendlyClassName().find("EBDigiCollection")==0  &&
+	desc.moduleLabel()=="ecalUnsuppressedDigis") {
+      edm::ParameterSet result = getParameterSet(desc.psetID());
+      binOfMaximum_=result.getParameter<int>("binOfMaximum");
+      edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer is using binOfMaximum found in ProductRegistry :  "<<binOfMaximum_;//FIXME
+      break;
     }
-  }
-  catch(cms::Exception& e) {
-    // segv in case product was found but not parameter..
-    //FIXME: something wrong, binOfMaximum comes from somewhere else
-    edm::LogWarning("EcalTPG")<<"Could not find parameter binOfMaximum in  product registry for EBDigiCollection, had to set binOfMaximum by  Hand";
-    binOfMaximum_=6;
   }
 
   if (binOfMaximum_==0) {
     binOfMaximum_=6;
-    edm::LogWarning("EcalTPG")<<"Could not find product registry of EBDataFramesSorted, had to set the following parameters by Hand:  binOfMaximum="<<binOfMaximum_;
+    edm::LogWarning("EcalTPG")<<"Could not find product registry of EBDigiCollection (label ecalUnsuppressedDigis), had to set the following parameters by Hand:  binOfMaximum="<<binOfMaximum_;
   }
 
   algo_ = new EcalTrigPrimFunctionalAlgo(setup,binOfMaximum_,tcpFormat_,barrelOnly_,debug_,famos);
@@ -82,7 +75,6 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
                         ps_.getParameter<double>("TTFHighEnergyEB"),
                         ps_.getParameter<double>("TTFLowEnergyEE"),
                         ps_.getParameter<double>("TTFHighEnergyEE"));
-  edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer will use  binOfMaximum:  "<<binOfMaximum_;//FIXME
 }
 
 EcalTrigPrimProducer::~EcalTrigPrimProducer()
@@ -108,20 +100,18 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
   bool endcap=true;
   if (barrelOnly_) endcap=false;
 
-  try{e.getByLabel(label_,instanceNameEB_,ebDigis);}
-  catch(cms::Exception &e) {
+  if (!e.getByLabel(label_,instanceNameEB_,ebDigis)) {
     barrel=false;
     edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with producer "<<label_<<" and label "<<instanceNameEB_<<"!!!";
   }
   if (!barrelOnly_) {
-    try{e.getByLabel(label_,instanceNameEE_,eeDigis);}
-    catch(cms::Exception &e) {
+    if (!e.getByLabel(label_,instanceNameEE_,eeDigis)) {
       endcap=false;
       edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with producer "<<label_<<" and label "<<instanceNameEE_<<"!!!";
     }
   }
   if (!barrel && !endcap) {
-    throw cms::Exception(" ProductNotFound") <<"No EBDataFrames(EEDataFrames) with producer "<<label_<<" and label "<<instanceNameEB_<< "found in input!!\n";
+    throw cms::Exception(" ProductNotFound") <<"No EBDataFrames(EEDataFrames) with producer "<<label_<<" and label "<<instanceNameEB_<<" found in input!!\n";
   }
 
   if (!barrelOnly_)   LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EBDataFrames "<<ebDigis.product()->size()<<", Number of EEDataFrames "<<eeDigis.product()->size() ;
