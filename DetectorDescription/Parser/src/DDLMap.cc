@@ -116,7 +116,7 @@ void DDLMap::processElement (const std::string& name, const std::string& nmspace
   
   pMap.clear();
 
-  parse_info<> info = boost::spirit::parse(tTextToParse.c_str(), mapGrammar, space_p);
+  parse_info<> info = boost::spirit::parse(tTextToParse.c_str(), mapGrammar >> end_p, space_p);
   if (!info.full)
     {
       errorOut("Does not conform to name=value, name=value... etc. of ddl Map element.");
