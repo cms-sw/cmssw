@@ -10,8 +10,8 @@
  *  The evaluation is made (in hard-code way) with the granularity = 1. Where
  *  the granularity is the one defined in the MuonTrajectoyUpdatorClass.
  *
- *  $Date: 2006/08/31 18:24:17 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/09/04 17:11:01 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -40,12 +40,10 @@ public:
    /// return the Tm with the best chi2: no cut applied.
   TrajectoryMeasurement* findBestMeasurement(std::vector<TrajectoryMeasurement>& measC,
 					     const Propagator* propagator);
-
-  /// OLD ORCA algo. Reported for timing comparison pourpose
-  /// Will be removed after the comparison!
-  TrajectoryMeasurement* findBestMeasurement_OLD(std::vector<TrajectoryMeasurement>& measC,
-						 const Propagator* propagator);
   
+  std::pair<double,int> lookAtSubRecHits(TrajectoryMeasurement* measurement,
+					 const Propagator* propagator);
+
   const MeasurementEstimator* estimator() const { return theEstimator;}
 
 protected:

@@ -7,8 +7,8 @@
  *  The evaluation is made (in hard-code way) with the granularity = 1. Where
  *  the granularity is the one defined in the MuonTrajectoyUpdatorClass.
  *
- *  $Date: 2007/02/16 13:32:12 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/04/27 14:55:16 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -74,39 +74,11 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 
     TransientTrackingRecHit::ConstRecHitPointer muonRecHit = (*measurement)->recHit();
     
-    unsigned int npts=0;
-    double thisChi2 = 0.;
-    
-    // ask for the 2D-segments/2D-rechit
-    TransientTrackingRecHit::ConstRecHitContainer rhits_list = muonRecHit->transientHits();
+    // FIXME!! FIXME !! FIXME !!
+    pair<double,int> chi2Info = lookAtSubRecHits(*measurement, propagator);
 
-    LogTrace(metname)<<"Number of rechits in the measurement rechit: "<<rhits_list.size()<<endl;
-    
-    // loop over them
-    for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit = rhits_list.begin(); 
-	 rhit!= rhits_list.end(); rhit++ ) {
-      if ((*rhit)->isValid() ) {
-	LogTrace(metname)<<"Rechit dimension: "<<(*rhit)->dimension()<<endl;
-	npts+=(*rhit)->dimension();
-	  
-	TrajectoryStateOnSurface predState;
-
-	if (!( (*rhit)->geographicalId() == (*muonRecHit).geographicalId() ) ){
-	  predState = propagator->propagate(*(*measurement)->predictedState().freeState(),
-					      (*rhit)->det()->surface()); 
-	}
-	else predState = (*measurement)->predictedState();  
-	  
-	if ( predState.isValid() ) { 
-	  std::pair<bool,double> sing_chi2 = estimator()->estimate( predState, *((*rhit).get()));
-	  thisChi2 += sing_chi2.second ;
-	  LogTrace(metname) << " sing_chi2: "
-			    << sing_chi2.second;
-	}
-      }
-    }
-    double chi2PerNDoF = thisChi2/npts;
-    LogTrace(metname) << " The eeasurement has a chi2/npts " << chi2PerNDoF << " with dof = " << npts
+    double chi2PerNDoF = chi2Info.first/chi2Info.second;
+    LogTrace(metname) << " The measurement has a chi2/npts " << chi2PerNDoF << " with dof = " << chi2Info.second
 		      << " \n Till now the best chi2 is " << minChi2PerNDoF;
     
     if ( chi2PerNDoF && chi2PerNDoF<minChi2PerNDoF ) {
@@ -119,93 +91,45 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
   return bestMeasurement;
 }
 
-// TO BE fixxed with the new transient Hits() method.
-// OLD ORCA algo. Reported for timing comparison pourpose
-// Will be removed after the comparison!
-TrajectoryMeasurement* 
-MuonBestMeasurementFinder::findBestMeasurement_OLD(std::vector<TrajectoryMeasurement>& measC,
-						   const Propagator* propagator){
 
+pair<double,int> MuonBestMeasurementFinder::lookAtSubRecHits(TrajectoryMeasurement* measurement,
+							     const Propagator* propagator){
+  
   const std::string metname = "Muon|RecoMuon|MuonBestMeasurementFinder";
 
-  TrajectoryMeasurement* theMeas=0;
-  vector<TrajectoryMeasurement>::iterator meas;
+  unsigned int npts=0;
+  double thisChi2 = 0.;
 
-  // consider only valid TM
-  int NumValidMeas=0;
-  for ( meas = measC.begin(); 
-	meas!= measC.end(); meas++ ) {
-    if ((*meas).recHit()->isValid()) {
-      NumValidMeas++;
-      theMeas = &(*meas);
-    }
-  }
+  TransientTrackingRecHit::ConstRecHitPointer muonRecHit = measurement->recHit();
 
-  // If we have just one (or zero) valid meas, return it at once 
-  // (or return null meas)
-  if(NumValidMeas<=1) {
-    LogTrace(metname) << "MuonBestMeasurement: just " << NumValidMeas
-		      << " valid meas ";
-    return theMeas;
-  }
-
-  double minChi2PerNDoF=1.E6;
-  // if there are more than one valid meas, then sort them.
-  for ( meas = measC.begin(); meas!= measC.end(); meas++ ) {
-
-    TransientTrackingRecHit::ConstRecHitPointer measRH= (*meas).recHit();
-    
-    if ( measRH->isValid() ) {
-      unsigned int npts=0;
-      double thisChi2 = 0.;
-
-      // ask for the segments
-      TransientTrackingRecHit::ConstRecHitContainer rhits_list = measRH->transientHits();
+  
+  // ask for the 2D-segments/2D-rechit
+  TransientTrackingRecHit::ConstRecHitContainer rhits_list = muonRecHit->transientHits();
+  
+  LogTrace(metname)<<"Number of rechits in the measurement rechit: "<<rhits_list.size()<<endl;
+  
+  // loop over them
+  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit = rhits_list.begin(); 
+       rhit!= rhits_list.end(); ++rhit)
+    if ((*rhit)->isValid() ) {
+      LogTrace(metname)<<"Rechit dimension: "<<(*rhit)->dimension()<<endl;
+      npts+=(*rhit)->dimension();
       
-      // loop over them
-      for (TransientTrackingRecHit::RecHitContainer::const_iterator rhit = rhits_list.begin(); 
-           rhit!= rhits_list.end(); rhit++ ) {
-        if ((*rhit)->isValid() ) {
-          npts+=(*rhit)->dimension();
-	  
-          TrajectoryStateOnSurface predState;
-
-	  // FIXME
-   	  // was (! *rhit == measRH)
-	  if (!( (*rhit)->geographicalId() ==
-		 (*measRH).geographicalId() ) ) {
-	    predState = propagator->propagate(*(*meas).predictedState().freeState(),
-					      (*rhit)->det()->surface()); 
-	       // FIXME was (*rhit).det().detUnits()[0]->specificSurface()
-	  }
-	  else {
-	    predState = (*meas).predictedState();  
-	  }
-	  
-          if ( predState.isValid() ) { 
-            std::pair<bool,double> sing_chi2 = estimator()->estimate( predState, *((*rhit).get()));
-            thisChi2 += sing_chi2.second ;
-            LogTrace(metname) << " sing_chi2: "
-			      << sing_chi2.second;
-          }
-        }
+      TrajectoryStateOnSurface predState;
+      
+      if (!( (*rhit)->geographicalId() == muonRecHit->geographicalId() ) ){
+	predState = propagator->propagate(*measurement->predictedState().freeState(),
+					  (*rhit)->det()->surface()); 
       }
-      double chi2PerNDoF = thisChi2/npts;
-      LogTrace(metname) << " --> chi2/npts " << chi2PerNDoF << "/" << npts
-			<< " best chi2=" << minChi2PerNDoF;
-
-      if ( chi2PerNDoF && chi2PerNDoF<minChi2PerNDoF ) {
-        minChi2PerNDoF = chi2PerNDoF;	
-        theMeas = &(*meas);
+      else predState = measurement->predictedState();  
+      
+      if ( predState.isValid() ) { 
+	std::pair<bool,double> sing_chi2 = estimator()->estimate( predState, *((*rhit).get()));
+	thisChi2 += sing_chi2.second ;
+	LogTrace(metname) << " single incremental chi2: " << sing_chi2.second;
       }
     }
-    else {
-      LogTrace(metname) << "MuonBestMeasurement Invalid Meas";
-    }
-  }
-
-  return theMeas;
- 
+  
+  pair<double,int> result = pair<double,int>(thisChi2,npts);
+  return result;
 }
-
-
