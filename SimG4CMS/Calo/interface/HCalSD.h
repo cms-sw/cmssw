@@ -22,6 +22,8 @@
 
 class DDCompactView;
 class DDFilteredView;
+class G4LogicalVolume;
+class G4Material;
 class G4Step;
 
 class HCalSD : public CaloSD {
@@ -31,47 +33,53 @@ public:
   HCalSD(G4String , const DDCompactView &, SensitiveDetectorCatalog &,
 	 edm::ParameterSet const &, const SimTrackManager*);
   virtual ~HCalSD();
-  virtual bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
-  virtual double   getEnergyDeposit(G4Step* );
-  virtual uint32_t setDetUnitId(G4Step* step);
-  void             setNumberingScheme(HcalNumberingScheme* scheme);
+  virtual bool                  ProcessHits(G4Step * , G4TouchableHistory * );
+  virtual double                getEnergyDeposit(G4Step* );
+  virtual uint32_t              setDetUnitId(G4Step* step);
+  void                          setNumberingScheme(HcalNumberingScheme* );
 
 protected:
 
-  virtual void     initRun();
+  virtual void                  initRun();
 
 private:    
 
-  uint32_t              setDetUnitId(int, G4ThreeVector, int, int);
-  std::vector<double>   getDDDArray(const std::string&, const DDsvalues_type&);
-  std::vector<G4String> getNames(DDFilteredView&);
-  bool                  isItHF(G4Step *);
-  bool                  isItHF(G4String);
-  bool                  isItFibre(G4String);
-  bool                  isItPMT(G4String);
-  bool                  isItScintillator(G4String);
-  void                  getFromLibrary(G4Step * step);
-  void                  hitForFibre(G4Step * step);
-  void                  getFromParam(G4Step * step);
-  void                  getHitPMT(G4Step * step);
-  int                   setTrackID(G4Step * step);
+  uint32_t                      setDetUnitId(int, G4ThreeVector, int, int);
+  std::vector<double>           getDDDArray(const std::string&, 
+					    const DDsvalues_type&);
+  std::vector<G4String>         getNames(DDFilteredView&);
+  bool                          isItHF(G4Step *);
+  bool                          isItHF(G4String);
+  bool                          isItFibre(G4LogicalVolume*);
+  bool                          isItFibre(G4String);
+  bool                          isItPMT(G4LogicalVolume*);
+  bool                          isItScintillator(G4Material*);
+  void                          getFromLibrary(G4Step * step);
+  void                          hitForFibre(G4Step * step);
+  void                          getFromParam(G4Step * step);
+  void                          getHitPMT(G4Step * step);
+  int                           setTrackID(G4Step * step);
 
-  HcalNumberingFromDDD* numberingFromDDD;
-  HcalNumberingScheme*  numberingScheme;
-  HFShowerLibrary *     showerLibrary;
-  HFShower *            hfshower;
-  HFShowerParam *       showerParam;
-  HFShowerPMT *         showerPMT;
-  bool                  useBirk;
-  double                birk1, birk2, betaThr;
-  bool                  useHF, useShowerLibrary, useParam, usePMTHit;
-  G4int                 mumPDG, mupPDG; 
-  std::vector<double>   layer0wt;
-  std::vector<G4String> hfNames;
-  std::vector<int>      hfLevels;
-  std::vector<G4String> fibreNames;
-  std::vector<G4String> matNames;
-  std::vector<G4String> pmtNames;
+  HcalNumberingFromDDD*         numberingFromDDD;
+  HcalNumberingScheme*          numberingScheme;
+  HFShowerLibrary *             showerLibrary;
+  HFShower *                    hfshower;
+  HFShowerParam *               showerParam;
+  HFShowerPMT *                 showerPMT;
+  bool                          useBirk;
+  double                        birk1, birk2, betaThr;
+  bool                          useHF, useShowerLibrary, useParam, usePMTHit;
+  G4int                         mumPDG, mupPDG; 
+  std::vector<double>           layer0wt;
+  std::vector<G4LogicalVolume*> hfLV;
+  std::vector<G4String>         hfNames;
+  std::vector<int>              hfLevels;
+  std::vector<G4LogicalVolume*> fibreLV;
+  std::vector<G4String>         fibreNames;
+  std::vector<G4String>         matNames;
+  std::vector<G4Material*>      materials;
+  std::vector<G4LogicalVolume*> pmtLV;
+  std::vector<G4String>         pmtNames;
 
 };
 

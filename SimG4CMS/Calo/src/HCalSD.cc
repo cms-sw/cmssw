@@ -14,6 +14,8 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "G4LogicalVolumeStore.hh"
+#include "G4LogicalVolume.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4ParticleTable.hh"
@@ -73,6 +75,9 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     scheme = new HcalNumberingScheme();
   setNumberingScheme(scheme);
 
+  const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
+  std::vector<G4LogicalVolume *>::const_iterator lvcite;
+  G4LogicalVolume* lv;
   std::string attribute, value;
   if (useHF) {
     if (useParam) showerParam = new HFShowerParam(name, cpv, p);
@@ -97,10 +102,19 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 			    << " = " << value << " has " << hfNames.size()
 			    << " elements";
     for (unsigned int i=0; i<hfNames.size(); i++) {
+      G4String namv = hfNames[i];
+      lv            = 0;
+      for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
+	if ((*lvcite)->GetName() == namv) {
+	  lv = (*lvcite);
+	  break;
+	}
+      hfLV.push_back(lv);
       int level = static_cast<int>(temp[i]);
       hfLevels.push_back(level);
       edm::LogInfo("HcalSim") << "HCalSD:  HF[" << i << "] = " << hfNames[i]
-			      << " at level " << hfLevels[i];
+			      << " LV " << hfLV[i] << " at level " 
+			      << hfLevels[i];
     }
   
     // HF Fibre volume names
@@ -113,8 +127,18 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     fibreNames = getNames(fv1);
     edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
 			    << " = " << value << ":";
-    for (unsigned int i=0; i<fibreNames.size(); i++)
-      edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << fibreNames[i];
+    for (unsigned int i=0; i<fibreNames.size(); i++) {
+      G4String namv = fibreNames[i];
+      lv            = 0;
+      for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
+	if ((*lvcite)->GetName() == namv) {
+	  lv = (*lvcite);
+	  break;
+	}
+      fibreLV.push_back(lv);
+      edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << fibreNames[i]
+			      << " LV " << fibreLV[i];
+    }
   
     // HF PMT volume names
     value     = "HFPMT";
@@ -127,8 +151,18 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute
 			    << " = " << value << " have " << pmtNames.size()
 			    << " entries";
-    for (unsigned int i=0; i<pmtNames.size(); i++)
-      edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << pmtNames[i];
+    for (unsigned int i=0; i<pmtNames.size(); i++) {
+      G4String namv = pmtNames[i];
+      lv            = 0;
+      for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
+	if ((*lvcite)->GetName() == namv) {
+	  lv = (*lvcite);
+	  break;
+	}
+      pmtLV.push_back(lv);
+      edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << pmtNames[i]
+			      << " LV " << pmtLV[i];
+    }
     if (pmtNames.size() > 0) showerPMT = new HFShowerPMT (name, cpv, p);
   }
 
@@ -148,6 +182,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   for (unsigned int it=0; it<layer0wt.size(); it++)
     edm::LogInfo("HcalSim") << "HCalSD: [" << it << "] " << layer0wt[it];
 
+  const G4MaterialTable * matTab = G4Material::GetMaterialTable();
+  std::vector<G4Material*>::const_iterator matite;
   while (dodet) {
     const DDLogicalPart & log = fv2.logicalPart();
     G4String namx = DDSplit(log.name()).first;
@@ -156,7 +192,16 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
       bool notIn = true;
       for (unsigned int i=0; i<matNames.size(); i++)
 	if (namx == matNames[i]) notIn = false;
-      if (notIn) matNames.push_back(namx);
+      if (notIn) {
+	matNames.push_back(namx);
+	G4Material* mat;
+	for (matite = matTab->begin(); matite != matTab->end(); matite++) 
+	  if ((*matite)->GetName() == namx) {
+	    mat = (*matite);
+	    break;
+	  }
+	materials.push_back(mat);
+      }
     }
     dodet = fv2.next();
   }
@@ -164,7 +209,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   edm::LogInfo("HcalSim") << "HCalSD: Material names for " << attribute 
 			  << " = " << name << ":";
   for (unsigned int i=0; i<matNames.size(); i++)
-    edm::LogInfo("HcalSim") << "HCalSD: (" << i << ") " << matNames[i];
+    edm::LogInfo("HcalSim") << "HCalSD: (" << i << ") " << matNames[i]
+			    << " pointer " << materials[i];
 
   mumPDG = mupPDG = 0;
 }
@@ -186,8 +232,9 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   if (aStep == NULL) {
     return true;
   } else {
-    G4String nameVolume = 
-      aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
+    G4LogicalVolume* lv = 
+      aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
+    G4String nameVolume = lv->GetName();
     if (isItHF(aStep)) {
       G4int parCode =aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
       if (useParam) {
@@ -205,7 +252,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
                               << aStep->GetTrack()->GetTrackID()
                               <<" (" << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
           getFromLibrary(aStep);
-        } else if (isItFibre(nameVolume)) {
+        } else if (isItFibre(lv)) {
           LogDebug("HcalSim") << "HCalSD: Hit at Fibre in " << nameVolume 
                               << " for Track " 
                               << aStep->GetTrack()->GetTrackID()
@@ -213,7 +260,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
           hitForFibre(aStep);
         }
       }
-    } else if (isItPMT(nameVolume)) {
+    } else if (isItPMT(lv)) {
       LogDebug("HcalSim") << "HCalSD: Hit from PMT parametrization from " 
                           <<  nameVolume << " for Track " 
                           << aStep->GetTrack()->GetTrackID() << " ("
@@ -265,7 +312,7 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
   double weight0 = weight;
   if (useBirk) {
     G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
-    if (isItScintillator(mat->GetName()))
+    if (isItScintillator(mat))
       weight *= getAttenuation(aStep, birk1, birk2);
   }
   LogDebug("HcalSim") << "HCalSD: Detector " << det+3 << " Depth " << depth
@@ -362,12 +409,13 @@ std::vector<G4String> HCalSD::getNames(DDFilteredView& fv) {
 }
 
 bool HCalSD::isItHF (G4Step * aStep) {
+
   const G4VTouchable* touch    = aStep->GetPreStepPoint()->GetTouchable();
   int levels = ((touch->GetHistoryDepth())+1);
   for (unsigned int it=0; it < hfNames.size(); it++) {
     if (levels >= hfLevels[it]) {
-      G4String name = touch->GetVolume(levels-hfLevels[it])->GetName();
-      if (name == hfNames[it]) return true;
+      G4LogicalVolume* lv = touch->GetVolume(levels-hfLevels[it])->GetLogicalVolume();
+      if (lv == hfLV[it]) return true;
     }
   }
   return false;
@@ -381,6 +429,14 @@ bool HCalSD::isItHF (G4String name) {
   return false;
 }
 
+bool HCalSD::isItFibre (G4LogicalVolume* lv) {
+
+  std::vector<G4LogicalVolume*>::const_iterator ite = fibreLV.begin();
+  for (; ite != fibreLV.end(); ite++) 
+    if (lv == *ite) return true;
+  return false;
+}
+
 bool HCalSD::isItFibre (G4String name) {
 
   std::vector<G4String>::const_iterator it = fibreNames.begin();
@@ -389,19 +445,19 @@ bool HCalSD::isItFibre (G4String name) {
   return false;
 }
 
-bool HCalSD::isItPMT (G4String name) {
+bool HCalSD::isItPMT (G4LogicalVolume* lv) {
 
-  std::vector<G4String>::const_iterator it = pmtNames.begin();
-  for (; it != pmtNames.end(); it++) 
-    if (name == *it) return true;
+  std::vector<G4LogicalVolume*>::const_iterator ite = pmtLV.begin();
+  for (; ite != pmtLV.end(); ite++) 
+    if (lv == *ite) return true;
   return false;
 }
 
-bool HCalSD::isItScintillator (G4String name) {
+bool HCalSD::isItScintillator (G4Material* mat) {
 
-  std::vector<G4String>::const_iterator it = matNames.begin();
-  for (; it != matNames.end(); it++) 
-    if (name == *it) return true;
+  std::vector<G4Material*>::const_iterator ite = materials.begin();
+  for (; ite != materials.end(); ite++) 
+    if (mat == *ite) return true;
   return false;
 }
 

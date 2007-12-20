@@ -16,6 +16,7 @@
 
 class SimTrackManager;
 class BeginOfEvent;
+class G4LogicalVolume;
 class G4Step;
 
 class CaloTrkProcessing : public SensitiveCaloDetector, 
@@ -49,15 +50,17 @@ private:
 
   struct Detector {
     Detector() {}
-    std::string              name;
-    int                      level;
-    std::vector<std::string> fromDets; 
-    std::vector<int>         fromLevels;
+    std::string                   name;
+    G4LogicalVolume*              lv;
+    int                           level;
+    std::vector<std::string>      fromDets; 
+    std::vector<G4LogicalVolume*> fromDetL;
+    std::vector<int>              fromLevels;
   };
   
   // Utilities to get detector levels during a step
   int                      detLevels(const G4VTouchable*) const;
-  std::string              detName(const G4VTouchable*, int) const;
+  G4LogicalVolume*         detLV(const G4VTouchable*, int) const;
   void                     detectorLevel(const G4VTouchable*, int&, int*,
 					 G4String*) const;
 

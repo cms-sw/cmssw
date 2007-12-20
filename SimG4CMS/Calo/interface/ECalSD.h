@@ -17,6 +17,7 @@
 #include <map>
 
 class EcalBaseNumber;
+class G4LogicalVolume;
 
 class ECalSD : public CaloSD {
 
@@ -25,23 +26,23 @@ public:
   ECalSD(G4String, const DDCompactView &, SensitiveDetectorCatalog &, 
 	 edm::ParameterSet const &, const SimTrackManager*);
   virtual ~ECalSD();
-  virtual double getEnergyDeposit(G4Step*);
-  virtual uint32_t setDetUnitId(G4Step* step);
-  void setNumberingScheme(EcalNumberingScheme* scheme);
+  virtual double                    getEnergyDeposit(G4Step*);
+  virtual uint32_t                  setDetUnitId(G4Step*);
+  void                              setNumberingScheme(EcalNumberingScheme*);
 
 private:    
 
-  void   initMap(G4String, const DDCompactView &);
-  double curve_LY(G4String& , G4StepPoint* ); 
-  double crystalLength(G4String);
-  void getBaseNumber(const G4Step* aStep); 
-  EcalNumberingScheme *numberingScheme;
-  bool                 useWeight;
-  bool                 useBirk;
-  double               birk1, birk2;
-  double               slopeLY;
-  std::map<G4String,double> lengthMap;
-  EcalBaseNumber       theBaseNumber;
+  void                              initMap(G4String, const DDCompactView &);
+  double                            curve_LY(G4Step*); 
+  double                            crystalLength(G4LogicalVolume*);
+  void                              getBaseNumber(const G4Step*); 
+  EcalNumberingScheme *             numberingScheme;
+  bool                              useWeight;
+  bool                              useBirk;
+  double                            birk1, birk2;
+  double                            slopeLY;
+  std::map<G4LogicalVolume*,double> xtalLMap;
+  EcalBaseNumber                    theBaseNumber;
 };
 
 #endif // ECalSD_h

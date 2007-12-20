@@ -16,6 +16,8 @@
 
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
 
+#include "G4LogicalVolumeStore.hh"
+#include "G4LogicalVolume.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4VProcess.hh"
@@ -100,7 +102,7 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
       }
     }
     if (useWeight) {
-      weight *= curve_LY(nameVolume, preStepPoint);
+      weight *= curve_LY(aStep);
       if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2);
     }
     double edep   = aStep->GetTotalEnergyDeposit() * weight;
@@ -135,36 +137,50 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
   fv.addFilter(filter);
   fv.firstChild();
 
+  const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
+  std::vector<G4LogicalVolume *>::const_iterator lvcite;
   bool dodet=true;
   while (dodet) {
     const DDSolid & sol  = fv.logicalPart().solid();
     const std::vector<double> & paras = sol.parameters();
     G4String name = DDSplit(sol.name()).first;
+    G4LogicalVolume* lv=0;
+    for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
+      if ((*lvcite)->GetName() == name) {
+	lv = (*lvcite);
+	break;
+      }
     LogDebug("EcalSim") << "ECalSD::initMap (for " << sd << "): Solid " << name
 			<< " Shape " << sol.shape() << " Parameter 0 = " 
-			<< paras[0];
+			<< paras[0] << " Logical Volume " << lv;
     if (sol.shape() == ddtrap) {
       double dz = 2*paras[0];
-      lengthMap.insert(std::pair<G4String,double>(name,dz));
+      xtalLMap.insert(std::pair<G4LogicalVolume*,double>(lv,dz));
     }
     dodet = fv.next();
   }
   LogDebug("EcalSim") << "ECalSD: Length Table for " << attribute << " = " 
 		      << sd << ":";   
-  std::map<G4String,double>::const_iterator it = lengthMap.begin();
+  std::map<G4LogicalVolume*,double>::const_iterator ite = xtalLMap.begin();
   int i=0;
-  for (; it != lengthMap.end(); it++, i++) {
-    LogDebug("EcalSim") << " " << i << " " << it->first << " L = " 
-			<< it->second;
+  for (; ite != xtalLMap.end(); ite++, i++) {
+    G4String name = "Unknown";
+    if (ite->first != 0) name = (ite->first)->GetName();
+    LogDebug("EcalSim") << " " << i << " " << ite->first << " " << name 
+			<< " L = " << ite->second;
   }
 }
 
-double ECalSD::curve_LY(G4String& nameVolume, G4StepPoint* stepPoint) {
+double ECalSD::curve_LY(G4Step* aStep) {
+
+  G4StepPoint*     stepPoint = aStep->GetPreStepPoint();
+  G4LogicalVolume* lv        = stepPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
+  G4String         nameVolume= lv->GetName();
 
   double weight = 1.;
   G4ThreeVector  localPoint = setToLocal(stepPoint->GetPosition(),
 					 stepPoint->GetTouchable());
-  double crlength = crystalLength(nameVolume);
+  double crlength = crystalLength(lv);
   double dapd = 0.5 * crlength - localPoint.z();
   if (dapd >= -0.1 || dapd <= crlength+0.1) {
     if (dapd <= 100.)
@@ -184,11 +200,11 @@ double ECalSD::curve_LY(G4String& nameVolume, G4StepPoint* stepPoint) {
   return weight;
 }
 
-double ECalSD::crystalLength(G4String name) {
+double ECalSD::crystalLength(G4LogicalVolume* lv) {
 
-  double length = 230.;
-  std::map<G4String,double>::const_iterator it = lengthMap.find(name);
-  if (it != lengthMap.end()) length = it->second;
+  double length= 230.;
+  std::map<G4LogicalVolume*,double>::const_iterator ite = xtalLMap.find(lv);
+  if (ite != xtalLMap.end()) length = ite->second;
   return length;
 }
 
@@ -202,9 +218,9 @@ void ECalSD::getBaseNumber(const G4Step* aStep) {
   if ( theSize > 1 ) {
     for (int ii = 0; ii < theSize ; ii++) {
       theBaseNumber.addLevel(touch->GetVolume(ii)->GetName(),touch->GetReplicaNumber(ii));
-      LogDebug("EcalSim") << "ECalSD::getBaseNumber(): Adding level " << ii 
-			  << ": " << touch->GetVolume(ii)->GetName() << "[" 
-			  << touch->GetReplicaNumber(ii) << "]";
+      LogDebug("EcalSim") << "ECalSD::getBaseNumber(): Adding level " << ii
+                          << ": " << touch->GetVolume(ii)->GetName() << "["
+                          << touch->GetReplicaNumber(ii) << "]";
     }
   }
 
