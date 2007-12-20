@@ -25,23 +25,17 @@ TwoBodyDecayFitter::~TwoBodyDecayFitter( void ) {}
 const TwoBodyDecay TwoBodyDecayFitter::estimate( const vector< reco::TransientTrack >& tracks,
 						 const TwoBodyDecayVirtualMeasurement& vm ) const
 {
-  try
-  {
-    // get geometrical linearization point
-    GlobalPoint linVertex = theVertexFinder->getLinearizationPoint( tracks );
+  // get geometrical linearization point
+  GlobalPoint linVertex = theVertexFinder->getLinearizationPoint( tracks );
 
-    // create linearized track states
-    vector< RefCountedLinearizedTrackState > linTracks;
-    linTracks.push_back( theLinTrackStateFactory.linearizedTrackState( linVertex, tracks[0] ) );
-    linTracks.push_back( theLinTrackStateFactory.linearizedTrackState( linVertex, tracks[1] ) );
+  // create linearized track states
+  vector< RefCountedLinearizedTrackState > linTracks;
+  linTracks.push_back( theLinTrackStateFactory.linearizedTrackState( linVertex, tracks[0] ) );
+  linTracks.push_back( theLinTrackStateFactory.linearizedTrackState( linVertex, tracks[1] ) );
 
-    // get full linearization point (geomatrical & kinematical)
-    const TwoBodyDecayParameters linPoint = theLinPointFinder->getLinearizationPoint( linTracks, vm.primaryMass(), vm.secondaryMass() );
+  // get full linearization point (geomatrical & kinematical)
+  const TwoBodyDecayParameters linPoint = theLinPointFinder->getLinearizationPoint( linTracks, vm.primaryMass(), vm.secondaryMass() );
 
-    // make the fit
-    return theEstimator->estimate( linTracks, linPoint, vm );
-  }
-  catch (...) {}
-
-  return TwoBodyDecay();
+  // make the fit
+  return theEstimator->estimate( linTracks, linPoint, vm );
 }
