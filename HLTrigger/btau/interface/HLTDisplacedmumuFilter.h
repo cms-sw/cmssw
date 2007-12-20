@@ -47,6 +47,13 @@ class HLTDisplacedmumuFilter : public HLTFilter {
 // 		edm::ParameterSet conf_;
 		int nevent_;
 		int ntrigger_;
+		double maxEta_;
+		double minPt_;
+		double minPtPair_;
+		double minInvMass_;
+		double maxInvMass_;
+		int chargeOpt_;
+		bool fastAccept_;
 		double minLxySignificance_;
 		double maxNormalisedChi2_;
 		double minCosinePointingAngle_;
