@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory Safronov
 //         Created:  Thu Jun  7 17:21:58 MSD 2007
-// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.2 2007/10/08 13:22:25 safronov Exp $
+// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.3 2007/10/08 13:28:45 safronov Exp $
 //
 //
 
@@ -45,7 +45,7 @@
 #include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidateFwd.h"
 
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/Framework/interface/produce_helpers.h"
 
@@ -100,23 +100,37 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
   Handle<EcalRecHitCollection> ecalEE;
   iEvent.getByLabel(EErecHitCollectionLabel_,ecalEE);
 
-  Handle<reco::HLTFilterObjectWithRefs> l1trigobj;
+  Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
   iEvent.getByLabel(hltGTseedlabel_, l1trigobj);
+
+  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
+  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;
+
+  l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
+  l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
    
   double ptTriggered=-10;
   double etaTriggered=-100;
   double phiTriggered=-100;
 
-  for (unsigned int p=0; p<l1trigobj->size(); p++)
-	{
-	const RefToBase<reco::Candidate> l1objref=l1trigobj->getParticleRef(p);
-	if (l1objref.get()->pt()>ptTriggered)
-		{
-		ptTriggered=l1objref.get()->pt(); 
-		phiTriggered=l1objref.get()->phi();
-		etaTriggered=l1objref.get()->eta();
-		}
-	}  
+  for (unsigned int p=0; p<l1tauobjref.size(); p++)
+        {
+        if (l1tauobjref[p]->pt()>ptTriggered)
+                {
+                ptTriggered=l1tauobjref[p]->pt();
+                phiTriggered=l1tauobjref[p]->phi();
+                etaTriggered=l1tauobjref[p]->eta();
+                }
+        }
+  for (unsigned int p=0; p<l1jetobjref.size(); p++)
+        {
+        if (l1jetobjref[p]->pt()>ptTriggered)
+                {
+                ptTriggered=l1jetobjref[p]->pt();
+                phiTriggered=l1jetobjref[p]->phi();
+                etaTriggered=l1jetobjref[p]->eta();
+                }
+        }
 
   reco::EcalIsolatedParticleCandidateCollection * eipcCollection=new reco::EcalIsolatedParticleCandidateCollection;
 

@@ -20,9 +20,8 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 ///
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
-//#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -60,7 +59,7 @@ IsolatedPixelTrackCandidateProducer::~IsolatedPixelTrackCandidateProducer() {
 void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 
   using namespace edm;
-   using namespace l1extra;
+  using namespace l1extra;
 
   reco::IsolatedPixelTrackCandidateCollection * trackCollection=new reco::IsolatedPixelTrackCandidateCollection;
 
@@ -78,9 +77,6 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
 
   l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
   l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
-
-//  edm::Handle<reco::HLTFilterObjectWithRefs> l1trigobj;
-//  theEvent.getByLabel(hltGTseedlabel_, l1trigobj);
 
   double ptTriggered=-10;
   double etaTriggered=-100;
