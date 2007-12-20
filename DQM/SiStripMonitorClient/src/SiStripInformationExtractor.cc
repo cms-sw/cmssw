@@ -559,10 +559,10 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   for (vector<MonitorElement*>::const_iterator it = me_list.begin();
        it != me_list.end(); it++) {
     idir++;
-    int istat =  SiStripUtility::getStatus((*it));
+    int istat =  SiStripUtility::getMEStatus((*it));
     string tag;
     int icol;
-    SiStripUtility::getStatusColor(istat, icol, tag);
+    SiStripUtility::getMEStatusColor(istat, icol, tag);
 
     TProfile* prof = ExtractTObject<TProfile>().extract((*it));
     TH1F* hist1 = ExtractTObject<TH1F>().extract((*it));
@@ -653,10 +653,10 @@ void SiStripInformationExtractor::plotHisto(multimap<string,string>& req_map,
   gStyle->SetOptStat("emruo");
   gStyle->SetStatFontSize(0.05);
 
-  int istat =  SiStripUtility::getStatus(me);
+  int istat =  SiStripUtility::getMEStatus(me);
   string tag;
   int icol;
-  SiStripUtility::getStatusColor(istat, icol, tag);
+  SiStripUtility::getMEStatusColor(istat, icol, tag);
 
   float xlow = -1.0;
   float xhigh = -1.0;

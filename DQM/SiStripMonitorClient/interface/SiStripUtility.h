@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiStrip Quality Tests
  * 
- *  $Date: 2006/08/01 18:14:27 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/11/29 23:26:29 $
+ *  $Revision: 1.4 $
  *  \author Suchandra Dutta
   */
 
@@ -27,9 +27,9 @@ class SiStripUtility
 
  static void split(const std::string& str, std::vector<std::string>& tokens, 
              const std::string& delimiters=" ");
- static void getStatusColor(int status, int& rval, int&gval, int& bval);
- static void getStatusColor(int status, int& icol, std::string& tag);
- static int getStatus(MonitorElement* me);
+ static void getMEStatusColor(int status, int& rval, int&gval, int& bval);
+ static void getMEStatusColor(int status, int& icol, std::string& tag);
+ static int getMEStatus(MonitorElement* me);
 };
 
 #endif
