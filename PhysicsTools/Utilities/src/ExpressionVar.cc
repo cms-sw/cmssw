@@ -4,12 +4,12 @@
 using namespace reco::parser;
 using namespace ROOT::Reflex;
 
-double ExpressionVar::value( const Object & o ) const {
+double ExpressionVar::value(const Object & o) const {
   using namespace method;
-  Object ro = method_.first.Invoke( o );
+  Object ro = method_.Invoke(o);
   void * addr = ro.Address();
   double ret = 0;
-  switch( method_.second ) {
+  switch(retType_) {
   case(doubleType) : ret = * static_cast<double         *>(addr); break;
   case(floatType ) : ret = * static_cast<float          *>(addr); break;
   case(intType   ) : ret = * static_cast<int            *>(addr); break;
@@ -23,8 +23,8 @@ double ExpressionVar::value( const Object & o ) const {
   case(boolType  ) : ret = * static_cast<bool           *>(addr); break;
   default:
     throw edm::Exception(edm::errors::Configuration)
-      << "parser error: method \"" << method_.first.Name() 
-      << "\" return type is \"" << method_.first.TypeOf().Name() 
+      << "parser error: method \"" << method_.Name() 
+      << "\" return type is \"" << method_.TypeOf().Name() 
       << "\" which is not convertible to double\n";
   };
   return ret;

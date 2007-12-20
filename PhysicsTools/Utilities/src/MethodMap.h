@@ -6,14 +6,13 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 #include "PhysicsTools/Utilities/src/TypeCode.h"
 #include <Reflex/Type.h>
 #include <Reflex/Member.h>
 #include <typeinfo>
-#include <iosfwd>
 #include <string>
 #include <map>
 
@@ -27,7 +26,7 @@ namespace reco {
     template<typename T>
     const static MethodMap & methods() {
       static MethodMap map;
-      if( map.size() == 0 ) map.fill( ROOT::Reflex::Type::ByTypeInfo( typeid( T ) ) );
+      if(map.size() == 0) map.fill(ROOT::Reflex::Type::ByTypeInfo(typeid(T)));
       return map;
     }
     
@@ -36,20 +35,13 @@ namespace reco {
     const_iterator find( const container::key_type & k ) const { return map_.find( k ); }
     const_iterator begin() const { return map_.begin(); }
     const_iterator end() const { return map_.end(); }
-    void print( std::ostream & ) const;
 
   private:
     MethodMap() { }
     void fill( const ROOT::Reflex::Type &, bool fillBase = false );
-    static std::string memberReturnType( const ROOT::Reflex::Member & mem );
     ROOT::Reflex::Type type_;
     container map_;
   };
-}
-
-inline std::ostream & operator << ( std::ostream & out, const reco::MethodMap & m ) {
-  m.print( out );
-  return out;
 }
 
 #endif

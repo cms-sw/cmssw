@@ -11,18 +11,17 @@
  *
  */
 #include "PhysicsTools/Utilities/src/ExpressionStack.h"
+#include "Reflex/Type.h"
 
 namespace reco {
-  class MethodMap;
-
   namespace parser {
     struct ExpressionVarSetter {
-      ExpressionVarSetter( ExpressionStack & stack, const reco::MethodMap & methods ) : 
-	stack_( stack ), methods_( methods ) { }
-      void operator()( const char *, const char * ) const;
+      ExpressionVarSetter(ExpressionStack & stack, const ROOT::Reflex::Type & type) : 
+	stack_(stack), type_(type) { }
+      void operator()(const char *, const char *) const;
     private:
       ExpressionStack & stack_;
-      const MethodMap & methods_;
+      ROOT::Reflex::Type type_;
     };
   }
 }

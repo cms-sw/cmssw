@@ -7,13 +7,12 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
  */
 #include "boost/spirit/core.hpp"
 #include "boost/spirit/utility/grammar_def.hpp"
 #include <functional>
-#include "PhysicsTools/Utilities/src/MethodMap.h"
 #include "PhysicsTools/Utilities/src/ExpressionNumberSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionVarSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionFunctionSetter.h"
@@ -27,12 +26,13 @@
 #include "PhysicsTools/Utilities/src/ExpressionSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionBinaryOperatorSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionUnaryOperatorSetter.h"
+#include "Reflex/Type.h"
 // #include "PhysicsTools/Utilities/src/Abort.h"
 
 namespace reco {
   namespace parser {    
     struct Grammar : public boost::spirit::grammar<Grammar> {
-      const MethodMap & methods_;
+      ROOT::Reflex::Type type_;
       SelectorPtr dummySel_;
       ExpressionPtr dummyExpr_;
       SelectorPtr * sel_; 
@@ -43,11 +43,11 @@ namespace reco {
       mutable CombinerStack cmbStack;
       mutable FunctionStack funStack;
       template<typename T>
-      Grammar(SelectorPtr & sel, const T *) :
-	methods_(reco::MethodMap::methods<T>()), sel_(& sel), expr_(& dummyExpr_) { }
+      Grammar(SelectorPtr & sel, const T *) : 
+	type_(ROOT::Reflex::Type::ByTypeInfo(typeid(T))), sel_(& sel), expr_(& dummyExpr_) { }
       template<typename T>
-      Grammar(ExpressionPtr & expr, const T*) :
-	methods_(reco::MethodMap::methods<T>()), sel_(& dummySel_), expr_(& expr) { }
+      Grammar(ExpressionPtr & expr, const T*) : 
+	type_(ROOT::Reflex::Type::ByTypeInfo(typeid(T))), sel_(& dummySel_), expr_(& expr) { }
       template <typename ScannerT>
       struct definition : 
 	public boost::spirit::grammar_def<boost::spirit::rule<ScannerT>, 
@@ -79,7 +79,7 @@ BOOST_SPIRIT_DEBUG_RULE(cut);
 BOOST_SPIRIT_DEBUG_RULE(fun);
 #endif	  
 	  ExpressionNumberSetter number_s( self.exprStack );
-	  ExpressionVarSetter var_s( self.exprStack, self.methods_ );
+	  ExpressionVarSetter var_s( self.exprStack, self.type_ );
 	  ComparisonSetter<less_equal<double> > less_equal_s( self.cmpStack );
 	  ComparisonSetter<less<double> > less_s( self.cmpStack );
 	  ComparisonSetter<equal_to<double> > equal_to_s( self.cmpStack );
