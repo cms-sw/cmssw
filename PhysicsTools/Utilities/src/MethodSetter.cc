@@ -2,7 +2,6 @@
 #include "PhysicsTools/Utilities/src/returnType.h"
 #include "PhysicsTools/Utilities/src/findMethod.h"
 #include <string>
-#include <iostream>
 using namespace reco::parser;
 using namespace std;
 using namespace ROOT::Reflex;
@@ -15,9 +14,7 @@ void MethodSetter::operator()(const char * begin, const char * end) const {
 
   Type type = typeStack_.back();
   ROOT::Reflex::Member mem = reco::findMethod(type, methodName);
-  cerr << ">>> adding to stack member: " << mem.Name() << endl;
   methStack_.push_back(MethodInvoker(mem));
   Type retType = reco::returnType(mem);
-  cerr << ">>> adding to stack member return type : " << retType.Name() << endl;
   typeStack_.push_back(retType);
 }

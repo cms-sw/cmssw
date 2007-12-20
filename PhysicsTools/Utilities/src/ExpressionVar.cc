@@ -1,7 +1,6 @@
 #include "PhysicsTools/Utilities/src/ExpressionVar.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Object.h"
-#include <iostream>
 using namespace reco::parser;
 using namespace ROOT::Reflex;
 using namespace std;
@@ -18,8 +17,6 @@ double ExpressionVar::value(const Object & o) const {
   Object ro = o;
   for(vector<MethodInvoker>::const_iterator m = methods_.begin();
       m != methods_.end(); ++m) {
-    cerr << ">>> invoking method " << m->method().Name() 
-	 << " on object of type " << ro.TypeOf().Name() << endl;
     ro = m->value(ro);
   }
   void * addr = ro.Address();
