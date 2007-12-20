@@ -27,7 +27,6 @@
 <use name=clhep>
 <use name=rootmath>
 <flags EDM_PLUGIN="1">
-<flags CXXFLAGS="-g -O0">
 <export>
   <lib name=FastSimulationCaloRecHitsProducer>
 </export>

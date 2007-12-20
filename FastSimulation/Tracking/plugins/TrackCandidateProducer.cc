@@ -26,6 +26,7 @@
 #include "FastSimulation/Tracking/plugins/TrackCandidateProducer.h"
 
 #include <vector>
+#include <map>
 //
 
 //for debug only 
@@ -60,8 +61,15 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
   // The minimum number of crossed layers
   minNumberOfCrossedLayers = conf.getParameter<unsigned int>("MinNumberOfCrossedLayers");
 
+  // The maximum number of crossed layers
+  maxNumberOfCrossedLayers = conf.getParameter<unsigned int>("MaxNumberOfCrossedLayers");
+
   // Reject overlapping hits?
-  rejectOverlaps = conf.getParameter<bool>("overlapCleaning");
+  rejectOverlaps = conf.getParameter<bool>("OverlapCleaning");
+
+  // Reject tracks with several seeds ?
+  // Typically don't do that at HLT for electrons, but do it otherwise
+  seedCleaning = conf.getParameter<bool>("SeedCleaning");
 
 }
 
@@ -100,6 +108,11 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   std::cout << " TrackCandidateProducer produce init " << std::endl;
 #endif
 
+  // Useful typedef's to avoid retyping
+  typedef std::pair<reco::TrackRef,edm::Ref<std::vector<Trajectory> > > TrackPair;
+  typedef std::map<unsigned,TrackPair> TrackMap;
+
+  // The produced objects
   std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
   std::auto_ptr<reco::TrackCollection> recoTracks(new reco::TrackCollection);    
   std::auto_ptr<TrackingRecHitCollection> recoHits(new TrackingRecHitCollection);
@@ -108,7 +121,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   std::auto_ptr<TrajTrackAssociationCollection> recoTrajTrackMap( new TrajTrackAssociationCollection() );
   
   // Get the seeds
-  edm::Handle<TrajectorySeedCollection> theSeeds;
+  // edm::Handle<TrajectorySeedCollection> theSeeds;
+  edm::Handle<edm::View<TrajectorySeed> > theSeeds;
   e.getByLabel(seedProducer,theSeeds);
 
   // No seed -> output an empty track collection
@@ -145,50 +159,95 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // The track collection iterators.
   TrajTrackAssociationCollection::const_iterator anAssociation;  
   TrajTrackAssociationCollection::const_iterator lastAssociation;
+  TrackMap theTrackMap;
   if ( isTrackCollection ) { 
     anAssociation = theAssoMap->begin();
     lastAssociation = theAssoMap->end();
+#ifdef FAMOS_DEBUG
+    std::cout << "List of tracks already reconstructed " << std::endl;
+#endif
+    // Build the map of correspondance between reco tracks and sim tracks
+    for ( ; anAssociation != lastAssociation; ++anAssociation ) { 
+      edm::Ref<std::vector<Trajectory> > aTrajectoryRef = anAssociation->key;
+      reco::TrackRef aTrackRef = anAssociation->val;
+      const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aTrackRef->recHitsBegin()->get());
+      unsigned recoTrackId = rechit->simtrackId();
+#ifdef FAMOS_DEBUG
+      std::cout << recoTrackId << " ";
+#endif
+      theTrackMap[recoTrackId] = TrackPair(aTrackRef,aTrajectoryRef);
+    }
+#ifdef FAMOS_DEBUG
+    std::cout << std::endl;
+#endif
   }
 
   // Loop over the seeds
+  int currentTrackId = -1;
+  /*
   TrajectorySeedCollection::const_iterator aSeed = theSeeds->begin();
   TrajectorySeedCollection::const_iterator lastSeed = theSeeds->end();
   for ( ; aSeed!=lastSeed; ++aSeed ) { 
+    // The first hit of the seed  and its simtrack id
+  */
+  /* */
+  unsigned seed_size = theSeeds->size(); 
+  for (unsigned seednr = 0; seednr < seed_size; ++seednr){
 
+    // The seed
+    const BasicTrajectorySeed* aSeed = &((*theSeeds)[seednr]);
+  /* */
     // Find the first hit of the Seed
     TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
     const SiTrackerGSRecHit2D * theFirstSeedingRecHit = 
       (const SiTrackerGSRecHit2D*) (&(*(theSeedingRecHitRange.first)));
-    //  dynamic_cast<const SiTrackerGSRecHit2D *> (&(*(theSeedingRecHitRange.first)));
+
     TrackerRecHit theFirstSeedingTrackerRecHit(theFirstSeedingRecHit,theGeometry);
     // SiTrackerGSRecHit2DCollection::const_iterator theSeedingRecHitEnd = theSeedingRecHitRange.second;
 
     // The SimTrack id associated to that recHit
     int simTrackId = theFirstSeedingRecHit->simtrackId();
     // std::cout << "The Sim Track Id : " << simTrackId << std::endl;
+    // std::cout << "The Current Track Id : " << currentTrackId << std::endl;
     // const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
 
+    // Don't consider seeds belonging to a track already considered 
+    // (Equivalent to seed cleaning)
+    if ( seedCleaning && currentTrackId == simTrackId ) continue;
+    currentTrackId = simTrackId;
+    
     // A vector of TrackerRecHits belonging to the track and the number of crossed layers
     std::vector<TrackerRecHit> theTrackerRecHits;
     unsigned theNumberOfCrossedLayers = 0;
  
     // Check if the track has already been reconstructed
-    int recoTrackId = -1;
-    reco::TrackRef aTrackRef;
-    edm::Ref<std::vector<Trajectory> > aTrajectoryRef;
-    if ( isTrackCollection ) { 
+    /*
+      reco::TrackRef aTrackRef;
+      edm::Ref<std::vector<Trajectory> > aTrajectoryRef;
+      int recoTrackId = -1;
+      if ( isTrackCollection ) { 
       for ( ; anAssociation != lastAssociation && recoTrackId < simTrackId; ++anAssociation ) { 
-	aTrajectoryRef = anAssociation->key;
-	aTrackRef = anAssociation->val;
-	const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aTrackRef->recHitsBegin()->get());
-	recoTrackId = rechit->simtrackId();
-	// std::cout << "The Reco Track Id : " << recoTrackId << std::endl;
+      aTrajectoryRef = anAssociation->key;
+      aTrackRef = anAssociation->val;
+      const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aTrackRef->recHitsBegin()->get());
+      recoTrackId = rechit->simtrackId();
+      // std::cout << "The Reco Track Id : " << recoTrackId << std::endl;
+      } 
       }
-    }
+    */
 
     // The track has indeed been reconstructed already -> Save the pertaining info
-    if ( isTrackCollection && recoTrackId == simTrackId ) { 
-      
+    // if ( isTrackCollection && recoTrackId == simTrackId ) { 
+    TrackMap::const_iterator theTrackIt = theTrackMap.find(simTrackId);
+    if ( isTrackCollection && theTrackIt != theTrackMap.end() ) { 
+
+#ifdef FAMOS_DEBUG
+      std::cout << "Track " << simTrackId << " already reconstructed -> copy it" << std::endl;
+#endif      
+      // The track and trajectroy references
+      reco::TrackRef aTrackRef = theTrackIt->second.first;
+      edm::Ref<std::vector<Trajectory> > aTrajectoryRef = theTrackIt->second.second;
+
       // A copy of the track
       reco::Track aRecoTrack(*aTrackRef);
       recoTracks->push_back(aRecoTrack);      
@@ -206,6 +265,9 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     // The track was not saved -> create a track candidate.
     } else { 
       
+#ifdef FAMOS_DEBUG
+      std::cout << "Track " << simTrackId << " will return a track candidate" << std::endl;
+#endif
       // Get all the rechits associated to this track
       SiTrackerGSRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
       SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
@@ -219,6 +281,9 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    iterRecHit != theRecHitRangeIteratorEnd; 
 	    ++iterRecHit) {
 	
+	// Check the number of crossed layers
+	if ( theNumberOfCrossedLayers >= maxNumberOfCrossedLayers ) continue;
+
 	// Get current and previous rechits
 	thePreviousRecHit = theCurrentRecHit;
 	theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry);
@@ -269,6 +334,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
 	  }
 	}
+
       }
     // End of loop over the track rechits
     }
@@ -305,8 +371,12 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     // Check the number of crossed layers
     if ( theNumberOfCrossedLayers < minNumberOfCrossedLayers ) continue;
 
-    // Create a track Candidate .
-    TrackCandidate newTrackCandidate(recHits, *aSeed, aSeed->startingState());
+    // Create a track Candidate (now with the reference to the seed!) .
+    TrackCandidate 
+      newTrackCandidate(recHits, 
+			*aSeed, 
+			aSeed->startingState(), 
+			edm::RefToBase<TrajectorySeed>(theSeeds,seednr));
     // std::cout << "Track kept for later fit!" << std::endl;
     
 #ifdef FAMOS_DEBUG
