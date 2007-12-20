@@ -6,13 +6,14 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.10 2007/08/16 02:53:15 elmer Exp $
+// $Id: Memory.cc,v 1.11 2007/10/12 15:35:24 elmer Exp $
 //
 
 #include "FWCore/Services/src/Memory.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/MallocOpts.h"
 
 #include <malloc.h>
 #include <sstream>
@@ -26,6 +27,7 @@
 
 namespace edm {
   namespace service {
+
 
     struct linux_proc {
       int pid; // %d
@@ -192,6 +194,35 @@ namespace edm {
       //  iReg.watchPreModule(this,
       //       &SimpleMemoryCheck::preModule);
 
+      typedef edm::MallocOpts::opt_type opt_type;
+      edm::MallocOptionSetter& mopts = edm::getGlobalOptionSetter();
+      
+      opt_type 
+	p_mmap_max=iPS.getUntrackedParameter<opt_type>("M_MMAP_MAX",-1),
+	p_trim_thr=iPS.getUntrackedParameter<opt_type>("M_TRIM_THRESHOLD",-1),
+	p_top_pad=iPS.getUntrackedParameter<opt_type>("M_TOP_PAD",-1),
+	p_mmap_thr=iPS.getUntrackedParameter<opt_type>("M_MMAP_THRESHOLD",-1);
+	  
+      if(p_mmap_max>=0) mopts.set_mmap_max(p_mmap_max);
+      if(p_trim_thr>=0) mopts.set_trim_thr(p_trim_thr);
+      if(p_top_pad>=0) mopts.set_top_pad(p_top_pad);
+      if(p_mmap_thr>=0) mopts.set_mmap_thr(p_mmap_thr);
+
+      mopts.adjustMallocParams();
+
+      if(mopts.hasErrors())
+	{
+	  LogWarning("MemoryCheck") 
+	    << "ERROR: Problem with setting malloc options\n"
+	    << mopts.error_message(); 
+	}
+
+      if(iPS.getUntrackedParameter<bool>("dump",false)==true)
+        {
+	  edm::MallocOpts mo = mopts.get();
+	  LogWarning("MemoryCheck") 
+	    << "Malloc options: " << mo << "\n";
+        }
     }
 
     SimpleMemoryCheck::~SimpleMemoryCheck()
