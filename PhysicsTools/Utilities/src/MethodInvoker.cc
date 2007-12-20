@@ -17,15 +17,20 @@ Object MethodInvoker::value(const Object & o) const {
   Type retType = ret.TypeOf();
   if(retType.IsReference()) {
     cerr << ">>> return type is a reference to " << retType.Name() << endl;
-    while(retType.IsTypedef()||retType.IsReference()||retType.IsPointer()) retType = retType.ToType();
+    cerr << ">>> typedef: " << retType.IsTypedef() 
+	 << " ref: " << retType.IsReference() 
+	 << " ptr: " <<retType.IsPointer()<< endl;
+    while(retType.IsTypedef()) {
+      retType = retType.ToType();
+      cerr << ">>> now type is " << retType.Name() << ", is reference: " << 
+	retType.IsReference() << endl;
+    }
     //    retType = Type::ByName(retType.Name());
-    cerr << ">>> now type is " << retType.Name() << ", is reference: " << 
-      retType.IsReference() << endl;
    ret = Object(retType, addr);
   }
   if(retType.IsPointer()) {
     cerr << ">>> return type is a pointer to " << retType.Name() << endl; 
-    while(retType.IsTypedef()||retType.IsReference()||retType.IsPointer()) retType = retType.ToType();
+    while(retType.IsTypedef()) retType = retType.ToType();
     //    retType = Type::ByName(retType.Name());
     cerr << ">>> now type is " << retType.Name() << ", is pointer: " << 
       retType.IsPointer() << endl;
