@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducer.h,v 1.6 2006/09/12 12:38:23 werdmann Exp $
+// $Id: PrimaryVertexProducer.h,v 1.7 2006/09/29 11:26:57 werdmann Exp $
 //
 //
 
@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducerAlgorithm.h"
 
@@ -45,7 +46,7 @@ public:
 
   // access to config
   edm::ParameterSet config() const { return theConfig; }
-  std::string trackLabel() const;
+  edm::InputTag trackLabel;
   
 private:
   // ----------member data ---------------------------

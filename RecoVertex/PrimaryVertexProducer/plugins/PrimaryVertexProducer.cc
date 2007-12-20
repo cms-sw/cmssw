@@ -35,6 +35,8 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
     << "Initializing PV producer " << "\n";
   fVerbose=conf.getUntrackedParameter<bool>("verbose", false);
 
+  trackLabel = conf.getParameter<edm::InputTag>("TrackLabel");
+  
   //  produces<VertexCollection>("PrimaryVertex");
   produces<reco::VertexCollection>();
 
@@ -90,7 +92,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // get RECO tracks from the event
     // `tks` can be used as a ptr to a reco::TrackCollection
     edm::Handle<reco::TrackCollection> tks;
-    iEvent.getByLabel(trackLabel(), tks);
+    iEvent.getByLabel(trackLabel, tks);
 
 
     // interface RECO tracks to vertex reconstruction
@@ -161,12 +163,6 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   //  iEvent.put(result, "PrimaryVertex");
   iEvent.put(result);
   
-}
-
-
-std::string PrimaryVertexProducer::trackLabel() const
-{
-  return config().getParameter<std::string>("TrackLabel");
 }
 
 
