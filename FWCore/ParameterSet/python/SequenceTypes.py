@@ -54,7 +54,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def dumpConfig(self, options):
         return '{'+self._seq.dumpSequenceConfig()+'}\n'
     def dumpPython(self, options):
-        return repr(self)
+        return 'cms.'+type(self).__name__+'('+self._seq.dumpSequencePython()+')\n'
     def __repr__(self):
         return "cms."+type(self).__name__+'('+str(self._seq)+')\n'
     def copy(self):
@@ -100,6 +100,8 @@ class _SequenceOpAids(_Sequenceable):
         return str(self.__left)+'*'+str(self.__right)
     def dumpSequenceConfig(self):
         return '('+self.__left.dumpSequenceConfig()+','+self.__right.dumpSequenceConfig()+')'
+    def dumpSequencePython(self):
+        return '('+self.__left.dumpSequencePython()+'*'+self.__right.dumpSequencePython()+')'
     def _findDependencies(self,knownDeps,presentDeps):
         #do left first and then right since right depends on left
         self.__left._findDependencies(knownDeps,presentDeps)
@@ -119,6 +121,8 @@ class _SequenceNegation(_Sequenceable):
         return '~%s' %self.__operand
     def dumpSequenceConfig(self):
         return '!%s' %self.__operand.dumpSequenceConfig()
+    def dumpSequencePython(self):
+        return '~%s' %self.__operand.dumpSequencePython()
     def _findDependencies(self,knownDeps, presentDeps):
         self.__operand._findDependencies(knownDeps, presentDeps)
     def fillNamesList(self, l):
@@ -136,6 +140,8 @@ class _SequenceOpFollows(_Sequenceable):
         return str(self.__left)+'+'+str(self.__right)
     def dumpSequenceConfig(self):
         return '('+self.__left.dumpSequenceConfig()+'&'+self.__right.dumpSequenceConfig()+')'
+    def dumpSequencePython(self):
+        return '('+self.__left.dumpSequencePython()+'+'+self.__right.dumpSequencePython()+')'
     def _findDependencies(self,knownDeps,presentDeps):
         oldDepsL = presentDeps.copy()
         oldDepsR = presentDeps.copy()
@@ -196,3 +202,33 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         for seq in self:
             seq.fillNamesList(l)
 
+if __name__=="__main__":
+    import unittest
+    class DummyModule(_Sequenceable):
+        def __init__(self,name):
+            self._name = name
+        def __str__(self):
+            return self._name
+        def dumpSequenceConfig(self):
+            return self._name
+        def dumpSequencePython(self):
+            return 'process.'+self._name
+    class TestModuleCommand(unittest.TestCase):
+        def setUp(self):
+            """Nothing to do """
+            print 'testing'
+        def testDumpPython(self):
+            a = DummyModule("a")
+            b = DummyModule('b')
+            p = Path((a*b))
+            self.assertEqual(p.dumpPython(None),"cms.Path((process.a*process.b))\n")
+            p2 = Path((b+a))
+            self.assertEqual(p2.dumpPython(None),"cms.Path((process.b+process.a))\n")
+            c = DummyModule('c')
+            p3 = Path(c*(a+b))
+            self.assertEqual(p3.dumpPython(None),"cms.Path((process.c*(process.a+process.b)))\n")
+            
+    
+    unittest.main()
+
+        

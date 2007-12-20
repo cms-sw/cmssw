@@ -384,7 +384,8 @@ class Process(object):
         result+=self._dumpPythonList(self.psets, options)
         result+=self._dumpPythonList(self.vpsets, options)
         if self.schedule:
-            result += "process.schedule = "+self.schedule.dumpPython(options)
+            pathNames = ['process.'+p.label() for p in self.schedule]
+            result +='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         return result
 
     def _insertOneInto(self, parameterSet, label, item):
@@ -597,11 +598,39 @@ if __name__=="__main__":
         def testProcessDumpConfig(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
-            p.paths = Path(p.a)
+            p.p = Path(p.a)
             p.s = Sequence(p.a)
             p.p2 = Path(p.s)
-            p.dumpConfig()
-            p.dumpPython()
+            p.schedule = Schedule(p.p2,p.p)
+            d=p.dumpConfig()
+            self.assertEqual(d,
+"""process test = {
+    module a = MyAnalyzer { 
+    }
+    sequence s = {a}
+    path p = {a}
+    path p2 = {s}
+    schedule = {p2,p}
+}
+""")
+            d=p.dumpPython()
+            self.assertEqual(d,
+"""process = cms.Process("test")
+
+process.a = cms.EDAnalyzer("MyAnalyzer")
+
+
+process.s = cms.Sequence(process.a)
+
+
+process.p = cms.Path(process.a)
+
+
+process.p2 = cms.Path(process.s)
+
+
+process.schedule = cms.Schedule(process.p2,process.p)
+""")
             
         def testSecSource(self):
             p = Process('test')
