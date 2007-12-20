@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.5 2007/02/15 22:38:06 wdd Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.6 2007/03/06 19:38:38 wmtan Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -449,10 +449,8 @@ RandomNumberGeneratorService::restoreState(const edm::Event& iEvent) {
 
   Handle<std::vector<RandomEngineState> > states;
 
-  try {
     iEvent.getByLabel(restoreStateLabel_, states);
-  }
-  catch (const edm::Exception&) {
+    if(!states.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
       << "The RandomNumberGeneratorService is trying to restore\n"
       << "the state of the random engines by reading an object from\n"
