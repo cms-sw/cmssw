@@ -11,7 +11,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 15:29:14 EST 2005
-// $Id: recordGetImplementation.icc,v 1.8 2006/06/06 20:59:20 chrjones Exp $
+// $Id: recordGetImplementation.icc,v 1.9 2006/08/31 23:26:24 wmtan Exp $
 //
 
 // system include files
@@ -21,40 +21,56 @@
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 #include "FWCore/Framework/interface/NoProxyException.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
+#include <iostream>
+
 
 namespace edm {
    namespace eventsetup {
-template <typename T>
-template < typename DataT > 
-void 
-EventSetupRecordImplementation<T>::getImplementation(DataT const *& iData ,
-                                                     const char* iName,
-                                                     const ComponentDescription*& iDesc) const 
-{
-   DataKey dataKey(DataKey::makeTypeTag<DataT>(),
-               iName,
-               DataKey::kDoNotCopyMemory);
-   
-   const DataProxyTemplate<T, DataT>* proxy = 
-      static_cast<const DataProxyTemplate<T, DataT>* >(this->find(dataKey));
-   
-   const DataT* hold = 0;
-   if(0 != proxy) {
-      // add data key to the stack
-      //DAExceptionStackEntry stackEntry(d_key);
-      
-      hold = proxy->get(static_cast<const T&>(*this), dataKey);
-      iDesc = proxy->providerDescription();
-   } else {
-      // add durable data key to the stack in order to catch it
-      //DAExceptionStackEntry stackEntry(d_key,DAExceptionStackEntry::kUseDurable)
-      ;
-      
-      throw NoProxyException<DataT>(*this, dataKey);
-   }
-   iData = hold;
-}
-
+      template <typename T>
+      template < typename DataT > 
+      void 
+      EventSetupRecordImplementation<T>::getImplementation(DataT const *& iData ,
+							   const char* iName,
+							   const ComponentDescription*& iDesc) const 
+      {
+	 DataKey dataKey(DataKey::makeTypeTag<DataT>(),
+			 iName,
+			 DataKey::kDoNotCopyMemory);
+	 
+	 const DataProxyTemplate<T, DataT>* proxy = 
+	    static_cast<const DataProxyTemplate<T, DataT>* >(this->find(dataKey));
+	 
+	 const DataT* hold = 0;
+	 
+	 if(0!=proxy) {
+	    try{
+	       hold = proxy->get(static_cast<const T&>(*this), dataKey);
+	       iDesc = proxy->providerDescription();
+	       
+	    } catch(cms::Exception& e) {
+	       e<<"cms::Exception going through EventSetup component "
+		<<proxy->providerDescription()->type_
+		<<"/\""<<proxy->providerDescription()->label_<<"\"\n"
+		<<"  while making data "<< dataKey.type().name()<<"/\""<<iName
+		<<" in record \""<<this->key().type().name()<<"\"\n";
+	       throw;
+	       
+	    } catch(std::exception& e){
+	       cms::Exception changedException("StdException");
+	       changedException
+		  << "std::exception going through EventSetup component "
+		  <<proxy->providerDescription()->type_<<"/\""<<proxy->providerDescription()->label_<<"\"\n"
+		  <<"  while making data "<< dataKey.type().name()<<"/\""<<iName<<" in record \""<<this->key().type().name()<<"\"\n"
+		  <<"  Previous information:\n  \"" << e.what()<<"\"\n";
+	       throw changedException;
+	       
+	    }
+	 }else{
+	    throw NoProxyException<DataT>(*this, dataKey);
+	 }
+	 iData = hold;
+      }
    }
 }
 #endif
