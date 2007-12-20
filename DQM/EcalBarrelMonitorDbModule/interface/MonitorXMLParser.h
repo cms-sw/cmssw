@@ -1,11 +1,11 @@
-// $Id: MonitorXMLParser.h,v 1.4 2006/06/28 10:46:17 benigno Exp $
+// $Id: MonitorXMLParser.h,v 1.5 2007/12/18 11:26:38 dellaric Exp $
 
 /*!
   \file MonitorXMLParser.h
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: 1.4 $
-  \date $Date: 2006/06/28 10:46:17 $
+  \version $Revision: 1.5 $
+  \date $Date: 2007/12/18 11:26:38 $
 */
 
 #ifndef MonitorXMLParser_h
@@ -120,10 +120,30 @@ public:
       xercesc::XMLString::release( &ATTR_ARG ) ;
       xercesc::XMLString::release( &ATTR_ALIAS ) ;
 
-    }catch( ... ){
-      std::cerr << "Unknown exception encountered in TagNames dtor" << std::endl ;
+    }catch( xercesc::XMLException& e ){
+   
+      char* message = xercesc::XMLString::transcode( e.getMessage() );
+   
+      std::ostringstream buf ;
+      buf << "Error parsing file: " << message << std::flush;
+   
+      xercesc::XMLString::release( &message );
+   
+      throw( std::runtime_error( buf.str() ) );
+   
+    }catch( const xercesc::DOMException& e ){
+   
+      char* message = xercesc::XMLString::transcode( e.getMessage() );
+   
+      std::ostringstream buf;
+      buf << "Encountered DOM Exception: " << message << std::flush;
+   
+      xercesc::XMLString::release( &message );
+   
+      throw( std::runtime_error( buf.str() ) );
+   
     }
-	
+
   } 
 
 }; // class TagNames
