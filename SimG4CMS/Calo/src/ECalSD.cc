@@ -112,7 +112,8 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
 }
 
 uint32_t ECalSD::setDetUnitId(G4Step * aStep) { 
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(getBaseNumber(aStep)));
+  getBaseNumber(aStep);
+  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(theBaseNumber));
 }
 
 void ECalSD::setNumberingScheme(EcalNumberingScheme* scheme) {
@@ -191,19 +192,20 @@ double ECalSD::crystalLength(G4String name) {
   return length;
 }
 
-EcalBaseNumber ECalSD::getBaseNumber(const G4Step* aStep) const {
+void ECalSD::getBaseNumber(const G4Step* aStep) {
 
-  EcalBaseNumber aBaseNumber;
+  theBaseNumber.reset();
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  aBaseNumber.setSize(touch->GetHistoryDepth()+1);
+  int theSize = touch->GetHistoryDepth()+1;
+  if ( theBaseNumber.getCapacity() < theSize ) theBaseNumber.setSize(theSize);
   //Get name and copy numbers
-  if (touch->GetHistoryDepth() > 0) {
-    for (int ii = 0; ii <= touch->GetHistoryDepth() ; ii++) {
-      aBaseNumber.addLevel(touch->GetVolume(ii)->GetName(),touch->GetReplicaNumber(ii));
+  if ( theSize > 1 ) {
+    for (int ii = 0; ii < theSize ; ii++) {
+      theBaseNumber.addLevel(touch->GetVolume(ii)->GetName(),touch->GetReplicaNumber(ii));
       LogDebug("EcalSim") << "ECalSD::getBaseNumber(): Adding level " << ii 
 			  << ": " << touch->GetVolume(ii)->GetName() << "[" 
 			  << touch->GetReplicaNumber(ii) << "]";
     }
   }
-  return aBaseNumber;
+
 }

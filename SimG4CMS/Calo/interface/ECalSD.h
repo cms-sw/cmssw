@@ -34,13 +34,14 @@ private:
   void   initMap(G4String, const DDCompactView &);
   double curve_LY(G4String& , G4StepPoint* ); 
   double crystalLength(G4String);
-  EcalBaseNumber getBaseNumber(const G4Step* aStep) const; 
+  void getBaseNumber(const G4Step* aStep); 
   EcalNumberingScheme *numberingScheme;
   bool                 useWeight;
   bool                 useBirk;
   double               birk1, birk2;
   double               slopeLY;
   std::map<G4String,double> lengthMap;
+  EcalBaseNumber       theBaseNumber;
 };
 
 #endif // ECalSD_h
