@@ -186,6 +186,8 @@ class _Labelable(object):
         return str(self.__label)
     def dumpSequenceConfig(self):
         return str(self.__label)
+    def dumpSequencePython(self):
+        return 'process.'+str(self.__label)
     def _findDependencies(self,knownDeps,presentDeps):
         #print 'in labelled'
         myDeps=knownDeps.get(self.label(),None)
@@ -253,7 +255,8 @@ class _ValidatingListBase(list):
     def __init__(self,*arg,**args):        
         super(_ValidatingListBase,self).__init__(arg)
         if not self._isValid(iter(self)):
-            raise TypeError("wrong types added to "+str(type(self)))
+            raise TypeError("wrong types ("+','.join([str(type(value)) for value in iter(self)])+
+                            ") added to "+str(type(self)))
     def __setitem__(self,key,value):
         if isinstance(key,slice):
             if not self._isValid(value):
