@@ -1,6 +1,6 @@
 #include "HLTrigger/btau/interface/GetJetsFromHLTobject.h"
 
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include "DataFormats/Common/interface/RefVector.h"
@@ -8,7 +8,6 @@
 GetJetsFromHLTobject::GetJetsFromHLTobject(const edm::ParameterSet& iConfig) :
   m_jets( iConfig.getParameter<edm::InputTag>("jets") )
 {
-  //produces<reco::CaloJetRefVector>();
   produces<reco::CaloJetCollection>();
 }
 
@@ -25,15 +24,12 @@ GetJetsFromHLTobject::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace reco;
    std::auto_ptr<reco::CaloJetCollection> jets( new reco::CaloJetCollection() );
 
-   Handle<reco::HLTFilterObjectWithRefs> hltObject;
+   Handle<trigger::TriggerFilterObjectWithRefs> hltObject;
    iEvent.getByLabel(m_jets, hltObject);
-   for (size_t i = 0; i < hltObject->size(); i++) {
-     const Candidate * candidate = hltObject->getParticleRef(i).get();
-     const CaloJet * jet = dynamic_cast<const reco::CaloJet *>(candidate);
-     if (jet)
-       jets->push_back(*jet);
-     // else 
-     //   cerr << ...
+   std::vector<reco::CaloJetRef> refs;
+   hltObject->getObjects( trigger::TriggerBJet, refs );
+   for (size_t i = 0; i < refs.size(); i++) {
+     jets->push_back(* refs[i]);
    }
    
    iEvent.put(jets);
