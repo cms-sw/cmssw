@@ -6,9 +6,10 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.1 $
  *
  */
+#include "PhysicsTools/Utilities/src/TypeCode.h"
 #include <Reflex/Type.h>
 #include <Reflex/Member.h>
 #include <typeinfo>
@@ -17,20 +18,9 @@
 #include <map>
 
 namespace reco {
-  namespace method {
-    enum retType { 
-      doubleType = 0, floatType,
-      intType, uIntType,
-      charType, uCharType,
-      shortType, uShortType, 
-      longType, uLongType, 
-      boolType
-    };
-  }
-
   class MethodMap {
   public:
-    typedef std::pair<ROOT::Reflex::Member, method::retType> method_t;
+    typedef std::pair<ROOT::Reflex::Member, method::TypeCode> method_t;
     typedef std::map<std::string, method_t> container;
     typedef container::const_iterator const_iterator;
     
@@ -40,7 +30,7 @@ namespace reco {
       if( map.size() == 0 ) map.fill( ROOT::Reflex::Type::ByTypeInfo( typeid( T ) ) );
       return map;
     }
-
+    
     size_t size() { return map_.size(); }
     const ROOT::Reflex::Type & type() const { return type_; }
     const_iterator find( const container::key_type & k ) const { return map_.find( k ); }

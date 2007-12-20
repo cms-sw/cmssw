@@ -9,7 +9,7 @@ using namespace reco;
 void MethodMap::fill( const Type & t, bool fillBase ) {
   using namespace method;
   if ( ! fillBase ) type_ = t;
-  static std::map<string, method::retType> retTypeMap;
+  static std::map<string, method::TypeCode> retTypeMap;
   if ( retTypeMap.size() == 0 ) {
     retTypeMap[ "double" ] = doubleType;
     retTypeMap[ "float" ] = floatType;
@@ -40,7 +40,7 @@ void MethodMap::fill( const Type & t, bool fillBase ) {
     if ( ! mem.TypeOf().IsConst() ) continue;
     string methodName = mem.Name();
     if ( methodName.substr( 0, 2 ) == "__" ) continue;
-    std::map<string, retType>::const_iterator f = retTypeMap.find( memberReturnType( mem ) );
+    std::map<string, TypeCode>::const_iterator f = retTypeMap.find( memberReturnType( mem ) );
     //cout << "  Looking for " << memberReturnType( mem ) << " for " << methodName.c_str() << endl;
     if ( f == retTypeMap.end() ) continue;
     map_[ methodName ] = make_pair( mem, f->second );
