@@ -86,8 +86,8 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   auto_ptr<VertexCollection> vertexCollection(new VertexCollection());
 
-  static int counter(0);
-  ++counter;
+  //static int counter(0);
+  //++counter;
   //  cout << "+++++++++ HLTmmkFilter> Event " << counter << endl;
 
   // -- get jpsi collection and retain muon candidate pointers
