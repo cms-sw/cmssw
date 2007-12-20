@@ -1,8 +1,8 @@
 /**
  * \file testChannel.cc
  *
- * $Date: 2007/04/23 07:41:33 $
- * $Revision: 1.6 $
+ * $Date: 2007/08/10 14:54:18 $
+ * $Revision: 1.7 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
@@ -66,9 +66,9 @@ void testChannel::analyze (Event const& event,
    // get the headers
    // (one header for each supermodule)
    edm::Handle<EcalRawDataCollection> DCCHeaders ;
-   try {
-     event.getByLabel (m_headerProducer, DCCHeaders) ;
-   } catch ( std::exception& ex ) {
+   event.getByLabel (m_headerProducer, DCCHeaders) ;
+   if(!DCCHeaders.isValid())
+   {
      edm::LogError ("testChannel") << "Error! can't get the product " 
                                    << m_headerProducer.c_str () ;
    }
@@ -89,9 +89,8 @@ void testChannel::analyze (Event const& event,
    // get the digis
    // (one digi for each crystal)
    Handle<EBDigiCollection> pDigis;
-   try {
-     event.getByLabel (m_digiProducer, pDigis) ;
-   } catch ( std::exception& ex ) 
+   event.getByLabel (m_digiProducer, pDigis) ;
+   if(!pDigis.isValid())
    {
      edm::LogError ("testChannel") << "Error! can't get the product " 
                                    << m_digiCollection.c_str () ;

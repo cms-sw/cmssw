@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2007/12/13 23:13:04 $
- * $Revision: 1.1 $
+ * $Date: 2007/12/13 23:16:01 $
+ * $Revision: 1.2 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -105,14 +105,8 @@ void EcalPedOffset::analyze (Event const& event,
 
   // get the headers
   // (one header for each supermodule)
-  // TODO: recommended behavior here
   edm::Handle<EcalRawDataCollection> DCCHeaders;
-  try {
-    event.getByLabel (m_headerProducer, DCCHeaders);
-  } catch ( std::exception& ex ) {
-    edm::LogError ("EcalPedOffset") << "Error! can't get the product " 
-      << m_headerProducer.c_str();
-  }
+  event.getByLabel(m_headerProducer, DCCHeaders);
 
   std::map <int,int> DACvalues;
 
@@ -127,18 +121,15 @@ void EcalPedOffset::analyze (Event const& event,
     EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
     int FEDid = 600+headerItr->id();
     DACvalues[FEDid] = settings.ped_offset;
-    //std::cout << "Inserting DAC value of " << settings.ped_offset << " for FEDid " << FEDid << std::endl;
   }
 
   bool barrelDigisFound = true;
   bool endcapDigisFound = true;
   // get the barrel digis
   // (one digi for each crystal)
-  // TODO: fix this behavior
   Handle<EBDigiCollection> barrelDigis;
-  try {
-    event.getByLabel (m_digiProducer, m_barrelDigiCollection, barrelDigis);
-  } catch ( std::exception& ex ) 
+  event.getByLabel(m_digiProducer, m_barrelDigiCollection, barrelDigis);
+  if(!barrelDigis.isValid())
   {
     edm::LogError ("EcalPedOffset") << "Error! can't get the product " 
       << m_barrelDigiCollection.c_str();
@@ -146,11 +137,9 @@ void EcalPedOffset::analyze (Event const& event,
   }
   // get the endcap digis
   // (one digi for each crystal)
-  // TODO: fix this behavior
   Handle<EEDigiCollection> endcapDigis;
-  try {
-    event.getByLabel (m_digiProducer, m_endcapDigiCollection, endcapDigis);
-  } catch ( std::exception& ex ) 
+  event.getByLabel(m_digiProducer, m_endcapDigiCollection, endcapDigis);
+  if(!endcapDigis.isValid())
   {
     edm::LogError ("EcalPedOffset") << "Error! can't get the product " 
       << m_endcapDigiCollection.c_str();
@@ -163,6 +152,7 @@ void EcalPedOffset::analyze (Event const& event,
     readDACs(endcapDigis, DACvalues);
   if(!barrelDigisFound && !endcapDigisFound)
     edm::LogError ("EcalPedOffset") << "No digis found in the event!";
+  
 }
 
 
@@ -202,9 +192,6 @@ void EcalPedOffset::readDACs(edm::Handle<EBDigiCollection> pDigis,
           crystalId,
           DACvalues[FEDid],
           ((EBDataFrame)(*itdigi)).sample(iSample).adc());
-//      if(itdigi->sample(iSample).adc()==0)
-//        LogDebug("EcalPedOffset") << "Barrel digis.  Gain:" << gainId << " cry:"
-//          << crystalId << " DAC:" << DACvalues[FEDid] << " ZERO PEDESTAL.";
     }
     
   } //end loop over digis
@@ -248,9 +235,6 @@ void EcalPedOffset::readDACs(edm::Handle<EEDigiCollection> pDigis,
           crystalId,
           DACvalues[FEDid],
           ((EBDataFrame)(*itdigi)).sample(iSample).adc());
-//      if(itdigi->sample(iSample).adc()==0)
-//        LogDebug("EcalPedOffset") << "Endcap digis.  Gain:" << gainId << " cry:"
-//          << crystalId << " DAC:" << DACvalues[FEDid] << " ZERO PEDESTAL.";
     }
     
   } //end loop over digis
