@@ -29,6 +29,11 @@
 #include "xoap/domutils.h"
 #include "xoap/Method.h"
 
+#include "cgicc/CgiDefs.h"
+#include "cgicc/Cgicc.h"
+#include "cgicc/HTMLClasses.h"
+
+#include <signal.h>
 #include <iostream>
 #include <sstream>
 
@@ -53,9 +58,10 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , resourceTable_(0)
   , wlMonitoring_(0)
   , asMonitoring_(0)
+  , wlWatching_(0)
+  , asWatching_(0)
   , instance_(0)
   , runNumber_(0)
-  , nbShmClients_(0)
   , deltaT_(0.0)
   , deltaNbInput_(0)
   , deltaNbOutput_(0)
@@ -82,6 +88,8 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , nbDataErrors_(0)
   , nbCrcErrors_(0)
   , segmentationMode_(false)
+  , nbClients_(0)
+  , clientPrcIds_("")
   , nbRawCells_(32)
   , nbRecoCells_(8)
   , nbDqmCells_(8)
@@ -97,6 +105,8 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , smClassName_("StorageManager")
   , smInstance_(0)
   , monSleepSec_(1)
+  , watchSleepSec_(10)
+  , timeOutSec_(30)
   , reasonForFailed_("")
   , nbAllocateSent_(0)
   , nbTakeReceived_(0)
@@ -140,7 +150,9 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
       xgi::bind(this,&evf::FUResourceBroker::webPageRequest,name);
     }
   }
+  xgi::bind(this,&evf::FUResourceBroker::customWebPage,"customWebPage");
   
+
   // allocate i2o memery pool
   string i2oPoolName=sourceId_+"_i2oPool";
   try {
@@ -211,6 +223,7 @@ bool FUResourceBroker::enabling(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_, "Start enabling ...");
     startMonitoringWorkLoop();
+    startWatchingWorkLoop();
     resourceTable_->resetCounters();
     resourceTable_->startDiscardWorkLoop();
     resourceTable_->startSendDataWorkLoop();
@@ -404,7 +417,8 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
   gui_->monInfoSpace()->lock();
 
   if (e.type()=="urn:xdata-event:ItemGroupRetrieveEvent") {
-    nbShmClients_     =resourceTable_->nbShmClients();
+    nbClients_        =resourceTable_->nbClients();
+    clientPrcIds_     =resourceTable_->clientPrcIdsAsString();
     nbAllocatedEvents_=resourceTable_->nbAllocated();
     nbPendingRequests_=resourceTable_->nbPending();
     nbReceivedEvents_ =resourceTable_->nbCompleted();
@@ -497,8 +511,6 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   deltaOutputSumOfSizes_.value_=nbOutputSumOfSizes-nbOutputLastSumOfSizes_;
   nbOutputLastSumOfSizes_=nbOutputSumOfSizes;
   
-  //gui_->monInfoSpace()->unlock();
-  
   if (nbProcessed!=0)
     ratio_=(double)nbOutput/(double)nbProcessed;
   else
@@ -556,6 +568,64 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
     
 
 //______________________________________________________________________________
+void FUResourceBroker::startWatchingWorkLoop() throw (evf::Exception)
+{
+  try {
+    wlWatching_=
+      toolbox::task::getWorkLoopFactory()->getWorkLoop(sourceId_+"Watching",
+						       "waiting");
+    if (!wlWatching_->isActive()) wlWatching_->activate();
+    asWatching_=toolbox::task::bind(this,&FUResourceBroker::watching,
+				    sourceId_+"Watching");
+    wlWatching_->submit(asWatching_);
+  }
+  catch (xcept::Exception& e) {
+    string msg = "Failed to start workloop 'Watching'.";
+    XCEPT_RETHROW(evf::Exception,msg,e);
+  }
+}
+
+
+//______________________________________________________________________________
+bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
+{
+  if (0==resourceTable_) return false;
+  
+  vector<pid_t> prcids=resourceTable_->clientPrcIds();
+  for (UInt_t i=0;i<prcids.size();i++) {
+    pid_t pid   =prcids[i];
+    int   status=kill(pid,0);
+    if (status!=0) {
+      LOG4CPLUS_ERROR(log_,"EP prc "<<pid<<" died, send raw data to err stream.");
+      resourceTable_->handleErrorEvent(pid);
+      // TODO: ship raw data to SM!
+    }
+  }
+  
+  resourceTable_->lockShm();
+  vector<pid_t>  evt_prcids =resourceTable_->cellPrcIds();
+  vector<UInt_t> evt_numbers=resourceTable_->cellEvtNumbers();
+  vector<time_t> evt_tstamps=resourceTable_->cellTimeStamps(); 
+  resourceTable_->unlockShm();
+  time_t tcurr = time(0);
+  for (UInt_t i=0;i<evt_tstamps.size();i++) {
+    pid_t  pid   =evt_prcids[i];
+    UInt_t evt   =evt_numbers[i];
+    time_t tstamp=evt_tstamps[i]; if (tstamp==0) continue;
+    double tdiff =difftime(tcurr,tstamp);
+    if (tdiff>timeOutSec_) {
+      LOG4CPLUS_ERROR(log_,"evt "<<evt<<" timed out, "<<"kill prc "<<pid);
+      kill(pid,9);
+    }
+  }
+  
+  ::sleep(watchSleepSec_.value_);
+  
+  return true;
+}
+    
+
+//______________________________________________________________________________
 void FUResourceBroker::exportParameters()
 {
   assert(0!=gui_);
@@ -565,7 +635,6 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorParam("instance",                 &instance_);
   gui_->addMonitorParam("runNumber",                &runNumber_);
   gui_->addMonitorParam("stateName",                 fsm_.stateName());
-  gui_->addMonitorParam("nbShmClients",             &nbShmClients_);
 
   gui_->addMonitorParam("deltaT",                   &deltaT_);
   gui_->addMonitorParam("deltaNbInput",             &deltaNbInput_);
@@ -596,6 +665,9 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorCounter("nbCrcErrors",            &nbCrcErrors_);
 
   gui_->addStandardParam("segmentationMode",        &segmentationMode_);
+  gui_->addStandardParam("nbClients",               &nbClients_);
+  gui_->addStandardParam("clientPrcIds",            &clientPrcIds_);
+  gui_->addStandardParam("nbRawCells",              &nbRawCells_);
   gui_->addStandardParam("nbRawCells",              &nbRawCells_);
   gui_->addStandardParam("nbRecoCells",             &nbRecoCells_);
   gui_->addStandardParam("nbDqmCells",              &nbDqmCells_);
@@ -612,6 +684,8 @@ void FUResourceBroker::exportParameters()
   gui_->addStandardParam("smClassName",             &smClassName_);
   gui_->addStandardParam("smInstance",              &smInstance_);
   gui_->addStandardParam("monSleepSec",             &monSleepSec_);
+  gui_->addStandardParam("watchSleepSec",           &watchSleepSec_);
+  gui_->addStandardParam("timeOutSec",              &timeOutSec_);
   gui_->addStandardParam("foundRcmsStateListener",   fsm_.foundRcmsStateListener());
   gui_->addStandardParam("reasonForFailed",         &reasonForFailed_);
   
@@ -681,6 +755,113 @@ double FUResourceBroker::deltaT(const struct timeval *start,
   
   return ((double)sec) + ((double)usec) / 1000000.0;
 }
+
+
+
+//______________________________________________________________________________
+void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
+  throw (xgi::exception::Exception)
+{
+  using namespace cgicc;
+  
+  *out<<"<html>"<<endl;
+  gui_->htmlHead(in,out,sourceId_);
+  *out<<"<body>"<<endl;
+  gui_->htmlHeadline(in,out);
+
+  if (0!=resourceTable_) {
+    vector<pid_t> client_prc_ids = resourceTable_->clientPrcIds();
+    *out<<table().set("frame","void").set("rules","rows")
+                 .set("class","modules").set("width","250")<<endl
+	<<tr()<<th("Client Processes").set("colspan","3")<<tr()<<endl
+	<<tr()
+	<<th("client").set("align","left")
+	<<th("process id").set("align","center")
+	<<th("status").set("align","center")
+	<<tr()
+	<<endl;
+    for (UInt_t i=0;i<client_prc_ids.size();i++) {
+
+      pid_t pid   =client_prc_ids[i];
+      int   status=kill(pid,0);
+
+      stringstream ssi;      ssi<<i+1;
+      stringstream sspid;    sspid<<pid;
+      stringstream ssstatus; ssstatus<<status;
+      
+      string bg_status = (status==0) ? "#00ff00" : "ff0000";
+      *out<<tr()
+	  <<td(ssi.str()).set("align","left")
+	  <<td(sspid.str()).set("align","center")
+	  <<td(ssstatus.str()).set("align","center").set("bgcolor",bg_status)
+	  <<tr()<<endl;
+    }
+    *out<<table()<<endl;
+    *out<<"<br><br>"<<endl;
+
+    resourceTable_->lockShm();
+    vector<string> states      = resourceTable_->cellStates();
+    vector<UInt_t> evt_numbers = resourceTable_->cellEvtNumbers();
+    vector<pid_t>  prc_ids     = resourceTable_->cellPrcIds();
+    vector<time_t> time_stamps = resourceTable_->cellTimeStamps();
+    resourceTable_->unlockShm();
+
+    *out<<table().set("frame","void").set("rules","rows")
+                 .set("class","modules").set("width","500")<<endl
+	<<tr()<<th("Shared Memory Cells").set("colspan","6")<<tr()<<endl
+	<<tr()
+	<<th("cell").set("align","left")
+	<<th("state").set("align","center")
+	<<th("event").set("align","center")
+	<<th("process id").set("align","center")
+	<<th("timestamp").set("align","center")
+	<<th("time").set("align","center")
+	<<tr()
+	<<endl;
+    for (UInt_t i=0;i<states.size();i++) {
+      string state=states[i];
+      UInt_t evt   = evt_numbers[i];
+      pid_t  pid   = prc_ids[i];
+      time_t tstamp= time_stamps[i];
+      double tdiff = difftime(time(0),tstamp);
+      
+      stringstream ssi;      ssi<<i;
+      stringstream ssevt;    if (evt!=0xffffffff) ssevt<<evt; else ssevt<<" - ";
+      stringstream sspid;    if (pid!=0) sspid<<pid; else sspid<<" - ";
+      stringstream sststamp; if (tstamp!=0) sststamp<<tstamp; else sststamp<<" - ";
+      stringstream sstdiff;  if (tstamp!=0) sstdiff<<tdiff; else sstdiff<<" - ";
+      
+      string bg_state = "#ffffff";
+      if (state=="RAWWRITING"||state=="RAWWRITTEN"||
+	  state=="RAWREADING"||state=="RAWREAD")
+	bg_state="#99CCff";
+      else if (state=="PROCESSING")
+	bg_state="#ff0000";
+      else if (state=="PROCESSED"||state=="RECOWRITING"||state=="RECOWRITTEN")
+	bg_state="#CCff99";
+      else if (state=="SENDING")
+	bg_state="#00FF33";
+      else if (state=="SENT")
+	bg_state="#006633";
+      else if (state=="DISCARDING")
+	bg_state="#FFFF00";
+      
+      *out<<tr()
+	  <<td(ssi.str()).set("align","left")
+	  <<td(state).set("align","center").set("bgcolor",bg_state)
+	  <<td(ssevt.str()).set("align","center")
+	  <<td(sspid.str()).set("align","center")
+	  <<td(sststamp.str()).set("align","center")
+	  <<td(sstdiff.str()).set("align","center")
+	  <<tr()<<endl;
+    }
+    *out<<table()<<endl;
+
+    
+  }
+  *out<<"</body>"<<endl<<"</html>"<<endl;
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -15,6 +15,8 @@
 #include "toolbox/task/WorkLoop.h"
 #include "toolbox/BSem.h"
 
+#include <sys/types.h>
+#include <string>
 #include <vector>
 #include <queue>
 
@@ -73,6 +75,7 @@ namespace evf {
     void   dropEvent();
     
     // dump event to ascii file
+    void   handleErrorEvent(pid_t pid);
     void   dumpEvent(evf::FUShmRawCell* cell);
     
     // send empty events to notify clients to shutdown
@@ -101,9 +104,7 @@ namespace evf {
     
     // various counters
     UInt_t   nbResources()        const { return resources_.size(); }
-    //UInt_t   nbFreeSlots()        const { return shmBuffer_->nbRawCellsToWrite(); }
     UInt_t   nbFreeSlots()        const { return freeResourceIds_.size(); }
-    UInt_t   nbShmClients()       const;
     UInt_t   nbAllocated()        const { return nbAllocated_; }
     UInt_t   nbPending()          const { return nbPending_; }
     UInt_t   nbCompleted()        const { return nbCompleted_; }
@@ -122,6 +123,16 @@ namespace evf {
     UInt_t   inputSumOfSizes()    const { return inputSumOfSizes_; }
     UInt_t   outputSumOfSizes()   const { return outputSumOfSizes_; }
     
+    // information about (raw) shared memory cells
+    UInt_t                   nbClients()            const;
+    std::vector<pid_t>       clientPrcIds()         const;
+    std::string              clientPrcIdsAsString() const;
+    std::vector<std::string> cellStates()           const;
+    std::vector<UInt_t>      cellEvtNumbers()       const;
+    std::vector<pid_t>       cellPrcIds()           const;
+    std::vector<time_t>      cellTimeStamps()       const;
+    
+
     
     //
     // helpers
@@ -148,9 +159,10 @@ namespace evf {
     
     bool   isLastMessageOfEvent(MemRef_t* bufRef);
     
-    void   lock()   { lock_.take(); }
-    void   unlock() { lock_.give(); }
-    
+    void   lock()      { lock_.take(); }
+    void   unlock()    { lock_.give(); }
+    void   lockShm()   { shmBuffer_->lock(); }
+    void   unlockShm() { shmBuffer_->unlock(); }
 
   private:
     //

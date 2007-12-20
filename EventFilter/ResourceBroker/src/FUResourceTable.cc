@@ -15,6 +15,7 @@
 
 
 #include <fstream>
+#include <sstream>
 #include <iomanip>
 #include <unistd.h>
 
@@ -305,17 +306,20 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
     
     UInt_t count=0;
     while (count<10) {
-      if (shmBuffer_->nbClients()==0) {
+      if (shmBuffer_->nClients()==0&&
+	  FUShmBuffer::shm_nattch(shmBuffer_->shmid())==1) {
 	isReadyToShutDown_ = true;
 	break;
       }
       else {
-	LOG4CPLUS_DEBUG(log_,"FUResourceTable: Wait for all clients to detach, "
-			<<"nbClients="<<shmBuffer_->nbClients()<<" ("<<++count<<")");
+	LOG4CPLUS_DEBUG(log_,"FUResourceTable: Wait for all clients to detach,"
+			<<" nClients="<<shmBuffer_->nClients()
+			<<" nattch="<<FUShmBuffer::shm_nattch(shmBuffer_->shmid())
+			<<" ("<<++count<<")");
 	::sleep(1);
       }
     }
-
+    
   }
   
   return reschedule;
@@ -454,6 +458,28 @@ void FUResourceTable::dropEvent()
 
 
 //______________________________________________________________________________
+void FUResourceTable::handleErrorEvent(pid_t pid)
+{
+  lockShm();
+  vector<pid_t> pids=cellPrcIds();
+  unlockShm();
+  UInt_t index=pids.size();
+  for (UInt_t i=0;i<pids.size();i++) {
+    if (pid==pids[i]) { index=i; break; }
+  }
+  
+  if (index<pids.size()) {
+    evt::State_t state = shmBuffer_->evtState(index);
+    if (state==evt::RAWREADING||state==evt::RAWREAD) {
+      shmBuffer_->setEvtState(index,evt::PROCESSING);
+    }
+    shmBuffer_->scheduleRawCellForDiscard(index);
+  }
+  shmBuffer_->removeClientPrcId(pid);
+}
+
+
+//______________________________________________________________________________
 void FUResourceTable::dumpEvent(FUShmRawCell* cell)
 {
   ostringstream oss; oss<<"/tmp/evt"<<cell->evtNumber()<<".dump";
@@ -494,10 +520,19 @@ void FUResourceTable::halt()
 //______________________________________________________________________________
 void FUResourceTable::shutDownClients()
 {
-  nbClientsToShutDown_ = nbShmClients();
+  nbClientsToShutDown_ = nbClients();
   isReadyToShutDown_   = false;
   
-  if (nbClientsToShutDown_==0) shmBuffer_->scheduleRawEmptyCellForDiscard();
+  if (nbClientsToShutDown_==0) {
+    //    if (FUShmBuffer::shm_nattch(shmBuffer_->shmid())==1) {
+    //shmBuffer_->writeRecoEmptyEvent();
+    //shmBuffer_->writeDqmEmptyEvent();
+    //isReadyToShutDown_=true;
+    //}
+    //else {
+    shmBuffer_->scheduleRawEmptyCellForDiscard();
+    //}
+  }
   else {
     UInt_t n=nbClientsToShutDown_;
     for (UInt_t i=0;i<n;++i) shmBuffer_->writeRawEmptyEvent();
@@ -539,18 +574,101 @@ void FUResourceTable::resetCounters()
 
 
 //______________________________________________________________________________
-UInt_t FUResourceTable::nbShmClients() const
+UInt_t FUResourceTable::nbClients() const
 {
   UInt_t result(0);
+  if (0!=shmBuffer_) result=shmBuffer_->nClients();
+  return result;
+}
+
+
+//______________________________________________________________________________
+vector<pid_t> FUResourceTable::clientPrcIds() const
+{
+  vector<pid_t> result;
   if (0!=shmBuffer_) {
-    UInt_t nbClients=shmBuffer_->nbClients();
-    if (nbClients>0&&nbClients%3)
-      cout<<"FUResourceTable::nbShmClients() WARNING: wrong estimate!"<<endl;
-    result=nbClients/3;
+    UInt_t n=nbClients();
+    for (UInt_t i=0;i<n;i++) result.push_back(shmBuffer_->clientPrcId(i));
   }
   return result;
 }
 
+
+//______________________________________________________________________________
+string FUResourceTable::clientPrcIdsAsString() const
+{
+  stringstream ss;
+  if (0!=shmBuffer_) {
+    UInt_t n=nbClients();
+    for (UInt_t i=0;i<n;i++) {
+      if (i>0) ss<<",";
+      ss<<shmBuffer_->clientPrcId(i);
+    }
+  }
+  return ss.str();
+}
+
+
+//______________________________________________________________________________
+vector<string> FUResourceTable::cellStates() const
+{
+  vector<string> result;
+  if (0!=shmBuffer_) {
+    UInt_t n=nbResources();
+    for (UInt_t i=0;i<n;i++) {
+      evt::State_t state=shmBuffer_->evtState(i);
+      if      (state==evt::EMPTY)      result.push_back("EMPTY");
+      else if (state==evt::RAWWRITING) result.push_back("RAWWRITING");
+      else if (state==evt::RAWWRITTEN) result.push_back("RAWWRITTEN");
+      else if (state==evt::RAWREADING) result.push_back("RAWREADING");
+      else if (state==evt::RAWREAD)    result.push_back("RAWREAD");
+      else if (state==evt::PROCESSING) result.push_back("PROCESSING");
+      else if (state==evt::PROCESSED)  result.push_back("PROCESSED");
+      else if (state==evt::RECOWRITING)result.push_back("RECOWRITING");
+      else if (state==evt::RECOWRITTEN)result.push_back("RECOWRITTEN");
+      else if (state==evt::SENDING)    result.push_back("SENDING");
+      else if (state==evt::SENT)       result.push_back("SENT");
+      else if (state==evt::DISCARDING) result.push_back("DISCARDING");
+    }
+  }
+  return result;
+}
+
+
+//______________________________________________________________________________
+vector<UInt_t> FUResourceTable::cellEvtNumbers() const
+{
+  vector<UInt_t> result;
+  if (0!=shmBuffer_) {
+    UInt_t n=nbResources();
+    for (UInt_t i=0;i<n;i++) result.push_back(shmBuffer_->evtNumber(i));
+  }
+  return result;
+}
+
+
+//______________________________________________________________________________
+vector<pid_t> FUResourceTable::cellPrcIds() const
+{
+  vector<pid_t> result;
+  if (0!=shmBuffer_) {
+    UInt_t n=nbResources();
+    for (UInt_t i=0;i<n;i++) result.push_back(shmBuffer_->evtPrcId(i));
+  }
+  return result;
+}
+
+
+//______________________________________________________________________________
+vector<time_t> FUResourceTable::cellTimeStamps() const
+{
+  vector<time_t> result;
+  if (0!=shmBuffer_) {
+    UInt_t n=nbResources();
+    for (UInt_t i=0;i<n;i++) result.push_back(shmBuffer_->evtTimeStamp(i));
+  }
+  return result;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////

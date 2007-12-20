@@ -1,3 +1,13 @@
+2007-12-20  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-08-00
+	* based on EventFilter/ShmBuffer V00-05-00
+	* add 'watching' workloop: detect dead EP processes and kill EP
+	processes if an event is being processed longer than 30s
+	* use ShmBuffer process id to account for the number of client EPs
+	* add custom webpage which displays client process status and shm
+	cell status
+
 2007-11-30  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-07-08

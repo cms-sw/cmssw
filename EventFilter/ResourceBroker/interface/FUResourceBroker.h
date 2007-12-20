@@ -77,6 +77,8 @@ namespace evf {
     // Hyper DAQ web page(s) [see Utilities/WebGUI]
     void webPageRequest(xgi::Input *in,xgi::Output *out)
       throw (xgi::exception::Exception);
+    void customWebPage(xgi::Input *in,xgi::Output *out)
+      throw (xgi::exception::Exception);
     
     // xdata::ActionListener callback(s)
     void actionPerformed(xdata::Event& e);
@@ -84,6 +86,10 @@ namespace evf {
     // calculate monitoring information in separate thread
     void startMonitoringWorkLoop() throw (evf::Exception);
     bool monitoring(toolbox::task::WorkLoop* wl);
+    
+    // watch the state of the shm buffer in a separate thread
+    void startWatchingWorkLoop() throw (evf::Exception);
+    bool watching(toolbox::task::WorkLoop* wl);
     
     
   private:
@@ -125,6 +131,10 @@ namespace evf {
     toolbox::task::WorkLoop *wlMonitoring_;      
     toolbox::task::ActionSignature *asMonitoring_;
     
+    // workloop / action signature for watching
+    toolbox::task::WorkLoop *wlWatching_;      
+    toolbox::task::ActionSignature *asWatching_;
+    
     // application identifier
     std::string              sourceId_;
     
@@ -133,7 +143,7 @@ namespace evf {
     xdata::String            class_;
     xdata::UnsignedInteger32 instance_;
     xdata::UnsignedInteger32 runNumber_;
-    xdata::UnsignedInteger32 nbShmClients_;
+
     
     xdata::Double            deltaT_;
     xdata::UnsignedInteger32 deltaNbInput_;
@@ -168,6 +178,8 @@ namespace evf {
     
     // standard parameters
     xdata::Boolean           segmentationMode_;
+    xdata::UnsignedInteger32 nbClients_;
+    xdata::String            clientPrcIds_;
     xdata::UnsignedInteger32 nbRawCells_;
     xdata::UnsignedInteger32 nbRecoCells_;
     xdata::UnsignedInteger32 nbDqmCells_;
@@ -186,6 +198,8 @@ namespace evf {
     xdata::UnsignedInteger32 smInstance_;
     
     xdata::UnsignedInteger32 monSleepSec_;
+    xdata::UnsignedInteger32 watchSleepSec_;
+    xdata::UnsignedInteger32 timeOutSec_;
     
     xdata::String            reasonForFailed_;
     
