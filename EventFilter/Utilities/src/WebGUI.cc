@@ -41,6 +41,7 @@ WebGUI::WebGUI(xdaq::Application* app,StateMachine* fsm)
   , largeAppIcon_("/rubuilder/fu/images/fu64x64.gif")
   , smallAppIcon_("/rubuilder/fu/images/fu32x32.gif")
   , smallDbgIcon_("/rubuilder/bu/images/debug32x32.gif")
+  , smallCtmIcon_("/rubuilder/bu/images/debug32x32.gif")
   , hyperDAQIcon_("/hyperdaq/images/HyperDAQ.jpg")
 {
   // initialize application information
@@ -94,7 +95,7 @@ void WebGUI::defaultWebPage(Input_t *in,Output_t *out) throw (WebGUI::XgiExcepti
   *out<<"<html>"<<endl;
   htmlHead(in,out,sourceId_);
   *out<<body()<<endl;
-  htmlHeadline(in,out,urn_+"/debugWebPage",smallDbgIcon_);
+  htmlHeadline(in,out);
   *out<<"<table cellpadding=\"25\"><tr valign=\"top\"><td>"<<endl;
   htmlTable(in,out,"Standard Parameters",standardParams_);
   *out<<"</td><td>"<<endl;
@@ -113,7 +114,7 @@ void WebGUI::debugWebPage(Input_t *in,Output_t *out) throw (WebGUI::XgiException
   *out<<"<html>"<<endl;
   htmlHead(in,out,sourceId_+" [DEBUG]");
   *out<<body()<<endl;
-  htmlHeadline(in,out,urn_+"/defaultWebPage",smallAppIcon_);
+  htmlHeadline(in,out);
   *out<<"<table cellpadding=\"25\"><tr valign=\"top\"><td>"<<endl;
   htmlTable(in,out,"Debug Parameters",debugParams_);
   *out<<"</td></tr></table>"<<endl;
@@ -371,7 +372,7 @@ void WebGUI::htmlHead(Input_t *in,Output_t* out,CString_t& pageTitle)
 
 
 //______________________________________________________________________________
-void WebGUI::htmlHeadline(Input_t *in,Output_t *out,CString_t& link,CString_t& icon)
+void WebGUI::htmlHeadline(Input_t *in,Output_t *out)
 {
   string stateName=fsm_->stateName()->toString();
   
@@ -392,8 +393,24 @@ void WebGUI::htmlHeadline(Input_t *in,Output_t *out,CString_t& link,CString_t& i
       <<td()<<endl
       <<td().set("width","32")<<td() 
       <<td().set("width","32")
-      <<a().set("href",link)
-      <<img().set("align","middle").set("src",icon)
+      <<a().set("href",urn_+"/defaultWebPage")
+      <<img().set("align","middle").set("src",smallAppIcon_)
+             .set("alt","Debug")   .set("width","32")
+             .set("height","32")   .set("border","")
+      <<a()
+      <<td()<<endl
+      <<td().set("width","32")<<td() 
+      <<td().set("width","32")
+      <<a().set("href",urn_+"/debugWebPage")
+      <<img().set("align","middle").set("src",smallDbgIcon_)
+             .set("alt","Debug")   .set("width","32")
+             .set("height","32")   .set("border","")
+      <<a()
+      <<td()<<endl
+      <<td().set("width","32")<<td() 
+      <<td().set("width","32")
+      <<a().set("href",urn_+"/customWebPage")
+      <<img().set("align","middle").set("src",smallCtmIcon_)
              .set("alt","Debug")   .set("width","32")
              .set("height","32")   .set("border","")
       <<a()

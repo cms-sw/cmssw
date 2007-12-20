@@ -77,6 +77,12 @@ namespace evf {
     void setHyperDAQIcon(CString_t& icon) { hyperDAQIcon_=icon; }
     
 
+    void htmlTable(Input_t*in,Output_t*out,
+		   CString_t& title,const ParamVec_t& params);
+    void htmlHead(Input_t*in,Output_t*out,CString_t& pageTitle);
+    void htmlHeadline(Input_t*in,Output_t*out);
+
+
   private:
     //
     // private member functions
@@ -86,12 +92,6 @@ namespace evf {
     bool isMonitorParam(CString_t& name);
     void updateParams();
 
-    void htmlTable(Input_t*in,Output_t*out,
-		   CString_t& title,const ParamVec_t& params);
-    void htmlHead(Input_t*in,Output_t*out,
-		  CString_t& pageTitle);
-    void htmlHeadline(Input_t*in,Output_t*out,
-		      CString_t& link,CString_t& icon);
     
     
   private:
@@ -124,6 +124,7 @@ namespace evf {
     std::string            largeAppIcon_;
     std::string            smallAppIcon_;
     std::string            smallDbgIcon_;
+    std::string            smallCtmIcon_;
     std::string            hyperDAQIcon_;
 
   };
