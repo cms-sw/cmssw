@@ -52,10 +52,10 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 
   if ( tracks.size() != external.size() )
   {
-    edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectoryFactory::trajectories"
-			      << "Inconsistent input:" << std::endl
-			      << "\tnumber of tracks = " << tracks.size()
-			      << "\tnumber of external predictions = " << external.size() << std::endl;
+    edm::LogInfo("ReferenceTrajectories") << "@SUB=ReferenceTrajectoryFactory::trajectories"
+					  << "Inconsistent input:\n"
+					  << "\tnumber of tracks = " << tracks.size()
+					  << "\tnumber of external predictions = " << external.size();
     return trajectories;
   }
 

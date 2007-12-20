@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2007/12/17 12:12:28 $
+ * last update: $Date: 2007/12/18 14:58:01 $
  * by         : $Author: ewidl $
  *
  * Base class for reference 'trajectories' of single- or multiparticles
@@ -104,7 +104,7 @@ public:
    */
   inline bool parameterErrorsAvailable() const { return theParamCovFlag; }
 
-  inline void setParameterErrors( const AlgebraicSymMatrix& error ) { theParameterCov = error; theParameterCovFlag = true; }
+  inline void setParameterErrors( const AlgebraicSymMatrix& error ) { theParameterCov = error; theParamCovFlag = true; }
 
   inline const AlgebraicSymMatrix& parameterErrors() const { return theParameterCov; }
 

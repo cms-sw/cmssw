@@ -31,6 +31,11 @@ public:
 
 protected:
 
+  const ReferenceTrajectoryCollection constructTrajectories( const ConstTrajTrackPairCollection& tracks,
+							     const TwoBodyDecay& tbd,
+							     const MagneticField* magField,
+							     bool setParameterErrors ) const;
+
   bool match( const TrajectoryStateOnSurface& state,
 	      const TransientTrackingRecHit::ConstRecHitPointer& recHit ) const;
     
