@@ -16,13 +16,14 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.4 2007/12/15 21:14:31 dmytro Exp $
+// $Id: FWDisplayEvent.h,v 1.5 2007/12/17 00:33:29 dmytro Exp $
 //
 
 // system include files
 #include <vector>
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include "Rtypes.h"
 // user include files
 
 // forward declarations
@@ -71,7 +72,11 @@ class FWDisplayEvent
       void doNotWaitForUserAction();
       int draw(const fwlite::Event& );
       void registerProxyBuilder(std::string, std::string);
-
+      
+      void DynamicCoordinates();
+      void exec3event(int event, int x, int y, TObject *selected);
+      void pixel2wc(const Int_t PixelX, const Int_t PixelY, 
+		    Double_t& WCX, Double_t& WCY, const Double_t WCZ = 0);
    private:
       FWDisplayEvent(const FWDisplayEvent&); // stop default
 
@@ -99,6 +104,7 @@ class FWDisplayEvent
    
       // stuff for lego plot view
       mutable TCanvas* m_legoCanvas;
+      void drawLego() const;
 };
 
 

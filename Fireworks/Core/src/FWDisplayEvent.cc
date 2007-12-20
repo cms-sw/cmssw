@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.8 2007/12/15 21:14:31 dmytro Exp $
+// $Id: FWDisplayEvent.cc,v 1.9 2007/12/17 00:33:30 dmytro Exp $
 //
 
 // system include files
@@ -39,6 +39,9 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "THStack.h"
 #include "TCanvas.h"
+#include "TVirtualHistPainter.h"
+#include "TH2F.h"
+#include "TView.h"
 
 //
 // constants, enums and typedefs
@@ -181,7 +184,13 @@ FWDisplayEvent::FWDisplayEvent() :
   gEve->Redraw3D(kTRUE);  
 
    m_legoCanvas = gEve->AddCanvasTab("legoCanvas");
-   
+   // one way of connecting event processing function to a canvas
+   // m_legoCanvas->AddExec("ex", "FWDisplayEvent::DynamicCoordinates()");
+
+   // use Qt messaging mechanism
+   m_legoCanvas->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)","FWDisplayEvent", this,
+			 "exec3event(Int_t,Int_t,Int_t,TObject*)");
+
    gSystem->ProcessEvents();
 }
 
@@ -388,20 +397,8 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
        }
      
      // LEGO
-     for ( std::vector<FWModelProxy>::iterator proxy = m_modelProxies.begin();
-	   proxy != m_modelProxies.end(); ++proxy ) 
-       {
-	  if ( proxy->builderName == "CaloProxyLegoBuilder" ) 
-	    {
-	       THStack* stack = dynamic_cast<THStack*>(proxy->product);
-	       m_legoCanvas->cd();
-	       stack->Draw("lego1");
-	       m_legoCanvas->Modified();
-	       m_legoCanvas->Update();
-	    }
-       }
-     
-    //At the end of this scope, redrawing will be enabled
+     drawLego();
+     //At the end of this scope, redrawing will be enabled
   }
   
   //check for input at least once
@@ -415,6 +412,132 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
   return m_code;
 }
 
+void FWDisplayEvent::drawLego() const
+{
+    // do not let Eve do any redrawing
+   TEveManager::TRedrawDisabler disableRedraw(gEve);
+
+   for ( std::vector<FWModelProxy>::iterator proxy = m_modelProxies.begin();
+	 proxy != m_modelProxies.end(); ++proxy ) 
+     {
+	if ( proxy->builderName == "CaloProxyLegoBuilder" ) 
+	  {
+	     if ( TList* list = dynamic_cast<TList*>(proxy->product) )
+	       if ( THStack* stack = dynamic_cast<THStack*>(list->FindObject("LegoStack") ) ) {
+		  bool firstDraw = (stack->GetHistogram()==0);
+		  m_legoCanvas->cd();
+		  stack->Draw("lego1 fb bb");
+		        // default parameters
+		  if ( firstDraw ) {
+		     stack->GetHistogram()->GetXaxis()->SetRangeUser(-1.74,1.74); // zoomed in default view
+		     stack->GetHistogram()->GetXaxis()->SetTitle("#eta");
+		     stack->GetHistogram()->GetYaxis()->SetTitle("#phi");
+		     stack->GetHistogram()->GetXaxis()->SetLabelSize(0.03);
+		     stack->GetHistogram()->GetXaxis()->SetTickLength(0.02);
+		     stack->GetHistogram()->GetXaxis()->SetTitleOffset(1.2);
+		     stack->GetHistogram()->GetYaxis()->SetLabelSize(0.03);
+		     stack->GetHistogram()->GetYaxis()->SetTickLength(0.02);
+		     stack->GetHistogram()->GetYaxis()->SetTitleOffset(1.2);
+		     stack->GetHistogram()->GetZaxis()->SetTitle("Et, [GeV]");
+		     stack->GetHistogram()->GetZaxis()->SetLabelSize(0.03);
+		     stack->GetHistogram()->GetZaxis()->SetTickLength(0.02); 
+		  }
+		  stack->Draw("lego1 fb bb");
+		  m_legoCanvas->Modified();
+		  m_legoCanvas->Update();
+	       }
+	  }
+     }
+}
+
+
 //
 // static member functions
 //
+
+void FWDisplayEvent::DynamicCoordinates()
+{
+   // Buttons.h
+   int event = gPad->GetEvent();
+   if (event != kButton1Down) return;
+   std::cout << "Event: " << event << std::endl;
+   gPad->GetCanvas()->FeedbackMode(kTRUE);
+   
+   int px = gPad->GetEventX();
+   int py = gPad->GetEventY();
+   std::cout << px << "   " << py << std::endl;
+}
+ 
+void FWDisplayEvent::exec3event(int event, int x, int y, TObject *selected)
+{
+   // Two modes of tower selection is supported:
+   // - selection based on the base of a tower (point with z=0)
+   // - project view of a tower (experimental)
+   bool projectedMode = true;
+   TCanvas *c = (TCanvas *) gTQSender;
+   if (event == kButton2Down) {
+      printf("Canvas %s: event=%d, x=%d, y=%d, selected=%s\n", c->GetName(),
+	     event, x, y, selected->IsA()->GetName());
+      THStack* stack = dynamic_cast<THStack*>(gPad->GetPrimitive("LegoStack"));
+      if ( ! stack) return;
+      TH2F* ecal = dynamic_cast<TH2F*>(stack->GetHists()->FindObject("ecalLego"));
+      TH2F* hcal = dynamic_cast<TH2F*>(stack->GetHists()->FindObject("hcalLego"));
+      // TH2F* h = dynamic_cast<TH2F*>(selected);
+      if ( ecal && hcal ){
+	 double zMax = 0.001;
+	 if ( projectedMode ) zMax = stack->GetMaximum();
+	 int selectedXbin(0), selectedYbin(0);
+	 double selectedX(0), selectedY(0), selectedZ(0), selectedECAL(0), selectedHCAL(0);
+	 
+	 // scan non-zero z 
+	 int oldx(0), oldy(0);
+	 for ( double z = 0; z<zMax; z+=1) {
+	    Double_t wcX,wcY;
+	    pixel2wc(x,y,wcX,wcY,z);
+	    int xbin = stack->GetXaxis()->FindFixBin(wcX);
+	    int ybin = stack->GetYaxis()->FindFixBin(wcY);
+	    if (oldx == xbin && oldy == ybin) continue;
+	    oldx = xbin; 
+	    oldy = ybin;
+	    if ( xbin > stack->GetXaxis()->GetNbins() || ybin > stack->GetYaxis()->GetNbins() ) continue;
+	    double content = ecal->GetBinContent(xbin,ybin)+hcal->GetBinContent(xbin,ybin);
+	    if ( z <= content ) {
+	       selectedXbin = xbin;
+	       selectedYbin = ybin;
+	       selectedX = wcX;
+	       selectedY = wcY;
+	       selectedZ = z;
+	       selectedECAL = ecal->GetBinContent(xbin,ybin);
+	       selectedHCAL = hcal->GetBinContent(xbin,ybin);
+	    }
+	 }
+	 if ( selectedXbin > 0 && selectedYbin>0 )
+	   std::cout << "x=" << selectedX << ", y=" << selectedY << ", z=" << selectedZ << 
+	   ", xbin=" << selectedXbin << ", ybin=" << selectedYbin << ", Et (total, em, had): " <<  
+	   selectedECAL+selectedHCAL << ", " << selectedECAL << ", " << selectedHCAL << std::endl;
+      }
+      /*
+	TObject* obj = gPad->GetPrimitive("overLego");
+      if ( ! obj ) return;
+      if ( TH2F* h = dynamic_cast<TH2F*>(obj) )	{
+	 h->SetBinContent(
+      */
+   }
+   
+}
+
+void FWDisplayEvent::pixel2wc(const Int_t pixelX, const Int_t pixelY, 
+			      Double_t& wcX, Double_t& wcY, const Double_t wcZ)
+{
+   // we need to make Pixel to NDC to WC transformation with the following constraint:
+   // - Pixel only gives 2 coordinates, so we don't know z coordinate in NDC
+   // - We know that in WC z has specific value (depending on what we want to use as 
+   //   a selection point. In the case of the base of each bin, z(wc) = 0
+   // we need to solve some simple linear equations to get what we need
+   Double_t ndcX, ndcY;
+   ((TPad *)gPad)->AbsPixeltoXY( pixelX, pixelY, ndcX, ndcY); // Pixel to NDC
+   Double_t* m = gPad->GetView()->GetTback(); // NDC to WC matrix
+   double part1 = wcZ-m[11]-m[8]*ndcX-m[9]*ndcY;
+   wcX = m[3] + m[0]*ndcX + m[1]*ndcY + m[2]/m[10]*part1;
+   wcY = m[7] + m[4]*ndcX + m[5]*ndcY + m[6]/m[10]*part1;
+}
