@@ -1,4 +1,4 @@
-#include "PhysicsTools/Utilities/interface/MethodMap.h"
+#include "PhysicsTools/Utilities/src/MethodMap.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <Reflex/Base.h>
 #include <iostream>

@@ -1,6 +1,6 @@
 #include "PhysicsTools/Utilities/src/ExpressionVarSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionVar.h"
-#include "PhysicsTools/Utilities/interface/MethodMap.h"
+#include "PhysicsTools/Utilities/src/MethodMap.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <string>
 #include <iostream>
