@@ -278,6 +278,13 @@ class _ValidatingListBase(list):
         if not self._isValid(x):
             raise TypeError("wrong type being extended to this container")
         super(_ValidatingListBase,self).extend(x)
+    def __add__(self,rhs):
+        if not self._isValid(rhs):
+            raise TypeError("wrong type being added to this container")
+        import copy
+        value = copy.copy(self)
+        value.extend(rhs)
+        return value
     def insert(self,i,x):
         if not self._itemIsValid(x):
             raise TypeError("wrong type being inserted to this container")
@@ -313,15 +320,43 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         return self.dumpPython()
     def dumpPython(self, options=PrintOptions()):
         result = self.pythonTypeName()+"("
-        first = True
-        for value in iter(self):
-            if not first:
-                result+=', '
-            result+=self.pythonValueForItem(value, options)
-            first = False
+        if len(self)<255:
+            result+=','.join((self.pythonValueForItem(v,options) for v in iter(self)))
+        else:
+            result = '('
+            start = 0
+            l=list()
+            while(start < len(self)):
+                v=self.pythonTypeName()+'('
+                v+=','.join((self.pythonValueForItem(v,options) for v in self[start:start+255]))
+                v+=')'
+                l.append(v)
+                start+=255
+            result+='+'.join(l)
+            pass
         result += ')'
         return result
     @staticmethod
     def _itemsFromStrings(strings,converter):
         return (converter(x).value() for x in strings)
 
+if __name__ == "__main__":
+
+    import unittest
+    class TestList(_ValidatingParameterListBase):
+        def _itemIsValid(self,item):
+            return True
+    class testMixins(unittest.TestCase):
+        def testLargeList(self):
+            #lists larger than 255 entries can not be initialized
+            #using the constructor
+            args = [i for i in xrange(0,300)]
+            
+            t = TestList(*args)
+            pdump= t.dumpPython()
+            class cms(object):
+                def __init__(self):
+                    self.TestList = TestList
+            pythonized = eval( pdump, globals(),{'cms':cms()} )
+            self.assertEqual(t,pythonized)
+    unittest.main()
