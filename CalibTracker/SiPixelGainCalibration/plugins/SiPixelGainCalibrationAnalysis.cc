@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.3 2007/12/06 17:30:23 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.4 2007/12/13 11:00:46 fblekman Exp $
 //
 //
 
@@ -101,9 +101,6 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
   if(!mydbservice.isAvailable() ){
     edm::LogError("db service unavailable");
     return;
-  } else { edm::LogInfo("DB service OK"); }
-
-  try{
     if( mydbservice->isNewTagRequest(recordName_) ){
       mydbservice->createNewIOV<SiPixelGainCalibration>(
 							theGainCalibrationDbInput_, mydbservice->endOfTime(),recordName_);
@@ -113,12 +110,6 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
     }
     edm::LogInfo(" --- all OK");
   } 
-  catch(const cond::Exception& er){
-    edm::LogError("SiPixelCondObjBuilder")<<er.what()<<std::endl;
-  } 
-  catch(const std::exception& er){
-    edm::LogError("SiPixelCondObjBuilder")<<" caught std::error of type " << er.what() << std::endl;
-  }
 }
 // ------------ method called to do fits to all objects available  ------------
 bool
