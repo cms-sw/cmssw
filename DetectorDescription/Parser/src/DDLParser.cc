@@ -71,13 +71,13 @@ DDLParser::DDLParser( )  : nFiles_(0)
   // in cleaning up try-catch blocks 2007-06-26 I decided to remove
   // this because of CMSSW rules. but keep the commented way I used to
   // do it...
-//   try
+//   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
 //     {
       XMLPlatformUtils::Initialize();
       AlgoInit();
 //     }
 
-//   catch (const XMLException& toCatch)
+//   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch)
 //     {
 //       std::string e("\nDDLParser(): Error during initialization! Message:");
 //       e += std::string(StrX(toCatch.getMessage()).localForm()) + std::string ("\n");
@@ -180,14 +180,14 @@ bool DDLParser::parseOneFile(const std::string& fullname) //, const std::string&
   // in cleaning up try-catch blocks 2007-06-26 I decided to remove
   // this because of CMSSW rules. but keep the commented way I used to
   // do it...
-//       try
+//       DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
 //         {
           SAX2Parser_->setContentHandler(expHandler_);
           LogDebug ("DDLParser") << "ParseOneFile() Parsing: " << fileNames_[fIndex].second << std::endl;
           parseFile ( fIndex );
 
 //         }
-//       catch (const XMLException& toCatch) {
+//       DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch) {
 //         edm::LogError ("DDLParser") << "\nDDLParser::ParseOneFile, PASS1: XMLException while processing files... \n"
 //              << "Exception message is: \n"
 //              << StrX(toCatch.getMessage()) << "\n" ;
@@ -199,7 +199,7 @@ bool DDLParser::parseOneFile(const std::string& fullname) //, const std::string&
 
       DCOUT_V('P', "DDLParser::ParseOneFile(): PASS2: Just before setting Xerces content and error handlers... ");
 
-//       try
+//       DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
 //         {
 
       SAX2Parser_->setContentHandler(fileHandler_);
@@ -208,7 +208,7 @@ bool DDLParser::parseOneFile(const std::string& fullname) //, const std::string&
       parsed_[fIndex] = true;
 
 //         }
-//       catch (const XMLException& toCatch) {
+//       DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch) {
 //         edm::LogError ("DDLParser") << "\nDDLParser::ParseOneFile, PASS2: XMLException while processing files... \n"
 //              << "Exception message is: \n"
 //              << StrX(toCatch.getMessage()) << "\n" ;
@@ -315,7 +315,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
   // in cleaning up try-catch blocks 2007-06-26 I decided to remove
   // this because of CMSSW rules. but keep the commented way I used to
   // do it...
-//   try
+//   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
 //     {
       SAX2Parser_->setContentHandler(expHandler_);
       for (size_t i = 0; i < fileNames_.size(); ++i)
@@ -328,7 +328,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 	}
       expHandler_->dumpElementTypeCounter();
 //     }
-//   catch (const XMLException& toCatch) {
+//   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch) {
 //     edm::LogInfo ("DDLParser") << "\nPASS1: XMLException while processing files... \n"
 // 	 << "Exception message is: \n"
 // 	 << StrX(toCatch.getMessage()) << "\n" ;
@@ -343,7 +343,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
   // in cleaning up try-catch blocks 2007-06-26 I decided to remove
   // this because of CMSSW rules. but keep the commented way I used to
   // do it...
-//   try
+//   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
 //     {
       SAX2Parser_->setContentHandler(fileHandler_);
 
@@ -365,7 +365,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 	  LogDebug ("DDLParser") << "Completed parsing file " << namePair.second << std::endl;
 	}
 //     }
-//   catch (const XMLException& toCatch) {
+//   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch) {
 //     edm::LogError ("DDLParser") << "\nPASS2: XMLException while processing files... \n"
 // 	 << "Exception message is: \n"
 // 	 << StrX(toCatch.getMessage()) << "\n" ;
@@ -385,12 +385,12 @@ void DDLParser::parseFile(const int& numtoproc)
   // in cleaning up try-catch blocks 2007-06-26 I decided to remove
   // this because of CMSSW rules. but keep the commented way I used to
   // do it...
-//       try
+//       DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
 // 	{
 	  currFileName_ = fname;
 	  SAX2Parser_->parse(currFileName_.c_str());
 // 	}
-//       catch (const XMLException& toCatch)
+//       DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch)
 // 	{
 // 	  std::string e("\nWARNING: DDLParser::parseFile, File: '");
 // 	  e += currFileName_ + "'\n"
