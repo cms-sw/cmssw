@@ -33,21 +33,26 @@ namespace reco {
 	
 	/// reference to a tau jet
 	virtual l1extra::L1JetParticleRef l1TauJet() const;
-
+	
+	/// tau jet eta
 	double eta() const {return eta_; }
 	
+	/// tau jet phi
 	double phi() const {return phi_; }
 
+        /// ECAL energy in the inner cone around tau jet
 	double energyIn() const {return enIn_; }
-
-	/// total ecal energy in smaller cone around the candidate
+	
+	/// ECAL energy in the outer cone around tau jet
 	double energyOut() const {return enOut_;}
-	/// total ecal energy in bigger cone around the candidate
+
+	/// number of ECAL hits in the inner cone around tau jet
 	int nHitIn() const {return nhitIn_;}
 
+	/// number of ECAL hits in the outer cone around tau jet
 	int nHitOut() const {return nhitOut_;}
 	
-	/// set refrence to BasicCluster component
+	/// set reference to l1 tau jet
 	void setL1TauJet( const l1extra::L1JetParticleRef & l1tau ) { l1tau_ = l1tau; }
 	
 
