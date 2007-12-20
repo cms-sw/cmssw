@@ -202,15 +202,19 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 
       short  chStatus(*it);
       
+      // not issuiung messages for regular cases
       if(chStatus == CH_DISABLED ||
 	 chStatus == CH_SUPPRESS) 
 	{continue;}
       
+      // issuiung messages for problematic cases, even though handled by the DCC
       else if( chStatus == CH_TIMEOUT || chStatus == CH_HEADERERR || chStatus == CH_LINKERR )
 	{
-	  edm::LogWarning("EcalRawToDigiDev") << "In fed: " << fedId_ << " the DCC channel: " << chNumber 
+	  edm::LogWarning("EcalRawToDigiDev") << "In fed: " << fedId_ << " at LV1: " << l1_
+					      << " the DCC channel: " << chNumber 
 					      << " has channel status: " << chStatus 
-					      << " and is not being unpacked at event: " << l1_;
+					      << " and is not being unpacked";
+	  continue;
 	}
       
       
