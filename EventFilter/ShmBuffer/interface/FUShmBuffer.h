@@ -62,14 +62,19 @@ namespace evf {
     
     int            shmid()       const { return shmid_; }
     int            semid()       const { return semid_; }
-    unsigned int   nbClients();
-
+    unsigned int   nClients()    const { return nClients_; }
+    
     evt::State_t   evtState(unsigned int index);
     dqm::State_t   dqmState(unsigned int index);
     
+    unsigned int   evtNumber(unsigned int index);
+    pid_t          evtPrcId(unsigned int index);
+    time_t         evtTimeStamp(unsigned int index);
+    pid_t          clientPrcId(unsigned int index);
+    
     int            nbRawCellsToWrite()  const;
     int            nbRawCellsToRead()   const;
-
+    
     FUShmRawCell*  rawCellToWrite();
     FUShmRawCell*  rawCellToRead();
     FUShmRecoCell* recoCellToRead();
@@ -182,14 +187,22 @@ namespace evf {
     void           postDqmIndexToRead(unsigned int index);
     
     unsigned int   indexForEvtNumber(unsigned int evtNumber);
-    unsigned int   evtNumber(unsigned int index);
-    
+
+  public:
     bool           setEvtState(unsigned int index,evt::State_t state);
+  private:
+    bool           setDqmState(unsigned int index,dqm::State_t state);
     bool           setEvtDiscard(unsigned int index,unsigned int discard);
     int            incEvtDiscard(unsigned int index);
     bool           setEvtNumber(unsigned int index,unsigned int evtNumber);
-    bool           setDqmState(unsigned int index,dqm::State_t state);
+    bool           setEvtPrcId(unsigned int index,pid_t prcId);
+    bool           setEvtTimeStamp(unsigned int index,time_t timeStamp);
     
+    bool           setClientPrcId(pid_t prcId);
+  public:
+    bool           removeClientPrcId(pid_t prcId);
+
+  private:
     FUShmRawCell*  rawCell(unsigned int iCell);
     FUShmRecoCell* recoCell(unsigned int iCell);
     FUShmDqmCell*  dqmCell(unsigned int iCell);
@@ -204,9 +217,11 @@ namespace evf {
     void           sem_init(int isem,int value);
     void           sem_wait(int isem);
     void           sem_post(int isem);
-
+    
+  public:
     void           lock()             { sem_wait(0); }
     void           unlock()           { sem_post(0); }
+  private:
     void           waitRawWrite()     { sem_wait(1); }
     void           postRawWrite()     { sem_post(1); }
     void           waitRawRead()      { sem_wait(2); }
@@ -258,7 +273,13 @@ namespace evf {
     unsigned int evtStateOffset_;
     unsigned int evtDiscardOffset_;
     unsigned int evtNumberOffset_;
+    unsigned int evtPrcIdOffset_;
+    unsigned int evtTimeStampOffset_;
     unsigned int dqmStateOffset_;
+
+    unsigned int nClients_;
+    unsigned int nClientsMax_;
+    unsigned int clientPrcIdOffset_;
     
     unsigned int nRawCells_;
     unsigned int rawCellPayloadSize_;

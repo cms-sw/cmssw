@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 // FUShmBuffer
 // -----------
@@ -9,6 +9,7 @@
 
 #include "EventFilter/ShmBuffer/interface/FUShmBuffer.h"
 
+#include <unistd.h>
 #include <iostream>
 #include <string>
 #include <cassert>
@@ -40,6 +41,8 @@ FUShmBuffer::FUShmBuffer(bool         segmentationMode,
 			 unsigned int recoCellSize,
 			 unsigned int dqmCellSize)
   : segmentationMode_(segmentationMode)
+  , nClients_(0)
+  , nClientsMax_(16)
   , nRawCells_(nRawCells)
   , rawCellPayloadSize_(rawCellSize)
   , nRecoCells_(nRecoCells)
@@ -89,11 +92,23 @@ FUShmBuffer::FUShmBuffer(bool         segmentationMode,
   addr=(void*)((unsigned int)this+evtNumberOffset_);
   new (addr) unsigned int[nRawCells_];
   
-  dqmStateOffset_=evtNumberOffset_+nRawCells_*sizeof(unsigned int);
+  evtPrcIdOffset_=evtNumberOffset_+nRawCells_*sizeof(unsigned int);
+  addr=(void*)((unsigned int)this+evtPrcIdOffset_);
+  new (addr) pid_t[nRawCells_];
+  
+  evtTimeStampOffset_=evtPrcIdOffset_+nRawCells_*sizeof(pid_t);
+  addr=(void*)((unsigned int)this+evtTimeStampOffset_);
+  new (addr) time_t[nRawCells_];
+  
+  dqmStateOffset_=evtTimeStampOffset_+nRawCells_*sizeof(time_t);
   addr=(void*)((unsigned int)this+dqmStateOffset_);
   new (addr) dqm::State_t[nDqmCells_];
   
-  rawCellOffset_=dqmStateOffset_+nDqmCells_*sizeof(dqm::State_t);
+  clientPrcIdOffset_=dqmStateOffset_+nDqmCells_*sizeof(dqm::State_t);
+  addr=(void*)((unsigned int)this+clientPrcIdOffset_);
+  new (addr) pid_t[nClientsMax_];
+
+  rawCellOffset_=dqmStateOffset_+nClientsMax_*sizeof(pid_t);
   
   if (segmentationMode_) {
     recoCellOffset_=rawCellOffset_+nRawCells_*sizeof(key_t);
@@ -231,6 +246,8 @@ void FUShmBuffer::reset()
     setEvtState(i,evt::EMPTY);
     setEvtDiscard(i,0);
     setEvtNumber(i,0xffffffff);
+    setEvtPrcId(i,0);
+    setEvtTimeStamp(i,0);
   }
 
   for (unsigned int i=0;i<nDqmCells_;i++) setDqmState(i,dqm::EMPTY);
@@ -238,10 +255,12 @@ void FUShmBuffer::reset()
 
 
 //______________________________________________________________________________
-unsigned int FUShmBuffer::nbClients()
-{
+/*
+  unsigned int FUShmBuffer::nbClients()
+  {
   return FUShmBuffer::shm_nattch(shmid_)-1;
-}
+  }
+*/
 
 
 //______________________________________________________________________________
@@ -280,7 +299,10 @@ FUShmRawCell* FUShmBuffer::rawCellToRead()
   FUShmRawCell* cell=rawCell(iCell);
   evt::State_t  state=evtState(iCell);
   assert(state==evt::RAWWRITTEN||state==evt::EMPTY);
-  if (state==evt::RAWWRITTEN) setEvtState(iCell,evt::RAWREADING);
+  if (state==evt::RAWWRITTEN) {
+    setEvtPrcId(iCell,getpid());
+    setEvtState(iCell,evt::RAWREADING);
+  }
   return cell;
 }
 
@@ -346,6 +368,7 @@ void FUShmBuffer::finishReadingRawCell(FUShmRawCell* cell)
   assert(state==evt::RAWREADING);
   setEvtState(cell->index(),evt::RAWREAD);
   setEvtState(cell->index(),evt::PROCESSING);
+  setEvtTimeStamp(cell->index(),time(0));
   if (segmentationMode_) shmdt(cell);
 }
 
@@ -436,6 +459,8 @@ void FUShmBuffer::releaseRawCell(FUShmRawCell* cell)
   setEvtState(cell->index(),evt::EMPTY);
   setEvtDiscard(cell->index(),0);
   setEvtNumber(cell->index(),0xffffffff);
+  setEvtPrcId(cell->index(),0);
+  setEvtTimeStamp(cell->index(),0);
   cell->clear();
   postRawIndexToWrite(cell->index());
   if (segmentationMode_) shmdt(cell);
@@ -498,6 +523,9 @@ void FUShmBuffer::scheduleRawEmptyCellForDiscard(FUShmRawCell* cell)
     rawDiscardIndex_=cell->index();
     setEvtState(cell->index(),evt::EMPTY);
     setEvtNumber(cell->index(),0xffffffff);
+    setEvtPrcId(cell->index(),0);
+    setEvtTimeStamp(cell->index(),0);
+    removeClientPrcId(getpid());
     if (segmentationMode_) shmdt(cell);
     postRawDiscarded();
   }
@@ -523,7 +551,6 @@ bool FUShmBuffer::writeRecoEventData(unsigned int   runNumber,
   evt::State_t state=evtState(rawCellIndex);
   assert(state==evt::PROCESSING||state==evt::RECOWRITING);
   setEvtState(rawCellIndex,evt::RECOWRITING);
-  //setEvtDiscard(rawCellIndex,2);
   incEvtDiscard(rawCellIndex);
   cell->writeEventData(rawCellIndex,runNumber,evtNumber,data,dataSize);
   setEvtState(rawCellIndex,evt::RECOWRITTEN);
@@ -742,6 +769,8 @@ FUShmBuffer* FUShmBuffer::getShmBuffer()
   cout<<"FUShmBuffer::getShmBuffer(): shared memory buffer RETRIEVED."<<endl;
   cout<<"                             segmentationMode="<<segmentationMode<<endl;
   
+  buffer->setClientPrcId(getpid());
+
   return buffer;
 }
 
@@ -1106,16 +1135,6 @@ evt::State_t FUShmBuffer::evtState(unsigned int index)
 
 
 //______________________________________________________________________________
-unsigned int FUShmBuffer::evtNumber(unsigned int index)
-{
-  assert(index<nRawCells_);
-  unsigned int *pevt=(unsigned int*)((unsigned int)this+evtNumberOffset_);
-  pevt+=index;
-  return *pevt;
-}
-
-
-//______________________________________________________________________________
 dqm::State_t FUShmBuffer::dqmState(unsigned int index)
 {
   assert(index<nDqmCells_);
@@ -1126,10 +1145,63 @@ dqm::State_t FUShmBuffer::dqmState(unsigned int index)
 
 
 //______________________________________________________________________________
+unsigned int FUShmBuffer::evtNumber(unsigned int index)
+{
+  assert(index<nRawCells_);
+  unsigned int *pevt=(unsigned int*)((unsigned int)this+evtNumberOffset_);
+  pevt+=index;
+  return *pevt;
+}
+
+
+//______________________________________________________________________________
+pid_t FUShmBuffer::evtPrcId(unsigned int index)
+{
+  assert(index<nRawCells_);
+  pid_t *prcid=(pid_t*)((unsigned int)this+evtPrcIdOffset_);
+  prcid+=index;
+  return *prcid;
+}
+
+
+//______________________________________________________________________________
+time_t FUShmBuffer::evtTimeStamp(unsigned int index)
+{
+  assert(index<nRawCells_);
+  time_t *ptstmp=(time_t*)((unsigned int)this+evtTimeStampOffset_);
+  ptstmp+=index;
+  return *ptstmp;
+}
+
+
+//______________________________________________________________________________
+pid_t FUShmBuffer::clientPrcId(unsigned int index)
+{
+  assert(index<nClientsMax_);
+  pid_t *prcid=(pid_t*)((unsigned int)this+clientPrcIdOffset_);
+  prcid+=index;
+  return *prcid;
+}
+
+
+//______________________________________________________________________________
 bool FUShmBuffer::setEvtState(unsigned int index,evt::State_t state)
 {
   assert(index<nRawCells_);
   evt::State_t *pstate=(evt::State_t*)((unsigned int)this+evtStateOffset_);
+  pstate+=index;
+  lock();
+  *pstate=state;
+  unlock();
+  return true;
+}
+
+
+//______________________________________________________________________________
+bool FUShmBuffer::setDqmState(unsigned int index,dqm::State_t state)
+{
+  assert(index<nDqmCells_);
+  dqm::State_t *pstate=(dqm::State_t*)((unsigned int)this+dqmStateOffset_);
   pstate+=index;
   lock();
   *pstate=state;
@@ -1180,14 +1252,56 @@ bool FUShmBuffer::setEvtNumber(unsigned int index,unsigned int evtNumber)
 
 
 //______________________________________________________________________________
-bool FUShmBuffer::setDqmState(unsigned int index,dqm::State_t state)
+bool FUShmBuffer::setEvtPrcId(unsigned int index,pid_t prcId)
 {
-  assert(index<nDqmCells_);
-  dqm::State_t *pstate=(dqm::State_t*)((unsigned int)this+dqmStateOffset_);
-  pstate+=index;
+  assert(index<nRawCells_);
+  pid_t* prcid=(pid_t*)((unsigned int)this+evtPrcIdOffset_);
+  prcid+=index;
   lock();
-  *pstate=state;
+  *prcid=prcId;
   unlock();
+  return true;
+}
+
+
+//______________________________________________________________________________
+bool FUShmBuffer::setEvtTimeStamp(unsigned int index,time_t timeStamp)
+{
+  assert(index<nRawCells_);
+  time_t *ptstmp=(time_t*)((unsigned int)this+evtTimeStampOffset_);
+  ptstmp+=index;
+  lock();
+  *ptstmp=timeStamp;
+  unlock();
+  return true;
+}
+
+
+//______________________________________________________________________________
+bool FUShmBuffer::setClientPrcId(pid_t prcId)
+{
+  assert(nClients_<nClientsMax_);
+  pid_t *prcid=(pid_t*)((unsigned int)this+clientPrcIdOffset_);
+  for (unsigned int i=0;i<nClients_;i++) {
+    if ((*prcid)==prcId) return false;
+    prcid++;
+  }
+  nClients_++;
+  *prcid=prcId;
+  return true;
+}
+
+
+//______________________________________________________________________________
+bool FUShmBuffer::removeClientPrcId(pid_t prcId)
+{
+  pid_t *prcid=(pid_t*)((unsigned int)this+clientPrcIdOffset_);
+  unsigned int iClient(0);
+  while (iClient<=nClients_&&(*prcid)!=prcId) { prcid++; iClient++; }
+  assert(iClient!=nClients_);
+  pid_t* next=prcid; next++;
+  while (iClient<nClients_-1) { *prcid=*next; prcid++; next++; }
+  nClients_--;
   return true;
 }
 
