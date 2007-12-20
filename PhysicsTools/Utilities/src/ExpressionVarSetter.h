@@ -7,21 +7,27 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted to Reflex by Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 #include "PhysicsTools/Utilities/src/ExpressionStack.h"
-#include "Reflex/Type.h"
+#include "PhysicsTools/Utilities/src/MethodStack.h"
+#include "PhysicsTools/Utilities/src/TypeStack.h"
 
 namespace reco {
   namespace parser {
     struct ExpressionVarSetter {
-      ExpressionVarSetter(ExpressionStack & stack, const ROOT::Reflex::Type & type) : 
-	stack_(stack), type_(type) { }
+      ExpressionVarSetter(ExpressionStack & exprStack, 
+			  MethodStack & methStack, 
+			  TypeStack & typeStack) : 
+	exprStack_(exprStack), 
+	methStack_(methStack),
+	typeStack_(typeStack) { }
       void operator()(const char *, const char *) const;
     private:
-      ExpressionStack & stack_;
-      ROOT::Reflex::Type type_;
+      ExpressionStack & exprStack_;
+      MethodStack & methStack_;
+      TypeStack & typeStack_;
     };
   }
 }

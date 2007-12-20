@@ -20,19 +20,20 @@
 #include "PhysicsTools/Utilities/src/BinarySelectorSetter.h"
 #include "PhysicsTools/Utilities/src/TrinarySelectorSetter.h"
 #include "PhysicsTools/Utilities/src/CombinerStack.h"
+#include "PhysicsTools/Utilities/src/MethodStack.h"
+#include "PhysicsTools/Utilities/src/TypeStack.h"
 #include "PhysicsTools/Utilities/src/CombinerSetter.h"
 #include "PhysicsTools/Utilities/src/FunctionSetter.h"
 #include "PhysicsTools/Utilities/src/CutSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionBinaryOperatorSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionUnaryOperatorSetter.h"
-#include "Reflex/Type.h"
+#include "PhysicsTools/Utilities/src/MethodSetter.h"
 // #include "PhysicsTools/Utilities/src/Abort.h"
 
 namespace reco {
   namespace parser {    
     struct Grammar : public boost::spirit::grammar<Grammar> {
-      ROOT::Reflex::Type type_;
       SelectorPtr dummySel_;
       ExpressionPtr dummyExpr_;
       SelectorPtr * sel_; 
@@ -42,19 +43,25 @@ namespace reco {
       mutable SelectorStack selStack;
       mutable CombinerStack cmbStack;
       mutable FunctionStack funStack;
+      mutable MethodStack methStack;
+      mutable TypeStack typeStack;
       template<typename T>
       Grammar(SelectorPtr & sel, const T *) : 
-	type_(ROOT::Reflex::Type::ByTypeInfo(typeid(T))), sel_(& sel), expr_(& dummyExpr_) { }
+	sel_(& sel), expr_(& dummyExpr_) { 
+	typeStack.push_back(ROOT::Reflex::Type::ByTypeInfo(typeid(T)));
+      }
       template<typename T>
       Grammar(ExpressionPtr & expr, const T*) : 
-	type_(ROOT::Reflex::Type::ByTypeInfo(typeid(T))), sel_(& dummySel_), expr_(& expr) { }
+	sel_(& dummySel_), expr_(& expr) { 
+	typeStack.push_back(ROOT::Reflex::Type::ByTypeInfo(typeid(T)));
+      }
       template <typename ScannerT>
       struct definition : 
 	public boost::spirit::grammar_def<boost::spirit::rule<ScannerT>, 
 					  boost::spirit::same, 
 					  boost::spirit::same>{  
 	typedef boost::spirit::rule<ScannerT> rule;
-	rule number, var, term, power, factor, function1, function2, expression, 
+	rule number, var, method, term, power, factor, function1, function2, expression, 
 	  comparison_op, binary_comp, trinary_comp,
 	  logical_combiner, logical_expression, logical_factor, logical_term,
 	  cut, fun;
@@ -78,18 +85,20 @@ BOOST_SPIRIT_DEBUG_RULE(logical_combiner);
 BOOST_SPIRIT_DEBUG_RULE(cut);
 BOOST_SPIRIT_DEBUG_RULE(fun);
 #endif	  
-	  ExpressionNumberSetter number_s( self.exprStack );
-	  ExpressionVarSetter var_s( self.exprStack, self.type_ );
-	  ComparisonSetter<less_equal<double> > less_equal_s( self.cmpStack );
-	  ComparisonSetter<less<double> > less_s( self.cmpStack );
-	  ComparisonSetter<equal_to<double> > equal_to_s( self.cmpStack );
-	  ComparisonSetter<greater_equal<double> > greater_equal_s( self.cmpStack );
-	  ComparisonSetter<greater<double> > greater_s( self.cmpStack );
-	  ComparisonSetter<not_equal_to<double> > not_equal_to_s( self.cmpStack );
-	  CombinerSetter and_s( kAnd, self.cmbStack ), or_s( kOr, self.cmbStack ), not_s( kNot, self.cmbStack );
+	  ExpressionNumberSetter number_s(self.exprStack);
+	  ExpressionVarSetter var_s(self.exprStack, self.methStack, self.typeStack);
+	  MethodSetter method_s(self.methStack, self.typeStack);
+	  ComparisonSetter<less_equal<double> > less_equal_s(self.cmpStack);
+	  ComparisonSetter<less<double> > less_s(self.cmpStack);
+	  ComparisonSetter<equal_to<double> > equal_to_s(self.cmpStack);
+	  ComparisonSetter<greater_equal<double> > greater_equal_s(self.cmpStack);
+	  ComparisonSetter<greater<double> > greater_s(self.cmpStack);
+	  ComparisonSetter<not_equal_to<double> > not_equal_to_s(self.cmpStack);
+	  CombinerSetter and_s(kAnd, self.cmbStack), or_s(kOr, self.cmbStack), not_s(kNot, self.cmbStack);
 	  FunctionSetter 
 	    abs_s( kAbs, self.funStack ), acos_s( kAcos, self.funStack ), asin_s( kAsin, self.funStack ),
-	    atan_s( kAtan, self.funStack ), atan2_s( kAtan, self.funStack ), chi2prob_s( kChi2Prob, self.funStack ), 
+	    atan_s( kAtan, self.funStack ), atan2_s( kAtan, self.funStack ), 
+	    chi2prob_s( kChi2Prob, self.funStack ), 
             cos_s( kCos, self.funStack ), 
 	    cosh_s( kCosh, self.funStack ), exp_s( kExp, self.funStack ), log_s( kLog, self.funStack ), 
 	    log10_s( kLog10, self.funStack ), pow_s( kPow, self.funStack ), sin_s( kSin, self.funStack ), 
@@ -111,7 +120,9 @@ BOOST_SPIRIT_DEBUG_RULE(fun);
 	  number = 
 	    real_p [ number_s ];
 	  var = 
-	    ( alpha_p >> * alnum_p ) [ var_s ];
+	    ( alpha_p >> * alnum_p ) [ method_s ];
+	  method = 
+	    ( var >> * ( ( ch_p('.') >> var ) ) ) [ var_s ];
 	  function1 = 
 	    chseq_p( "abs" ) [ abs_s ] | chseq_p( "acos" ) [ acos_s ] | chseq_p( "asin" ) [ asin_s ] |
 	    chseq_p( "atan" ) [ atan_s ] | chseq_p( "cos" ) [ cos_s ] | chseq_p( "cosh" ) [ cosh_s ] |
@@ -132,7 +143,7 @@ BOOST_SPIRIT_DEBUG_RULE(fun);
 	    number | 
 	    ( function1 >> ch_p( '(' ) >> expression >> ch_p( ')' ) ) [ fun_s ] |
 	    ( function2 >> ch_p( '(' ) >> expression >> ch_p( ',') >> expression >> ch_p( ')' ) ) [ fun_s ] |
-	    var | 
+	    method | 
 	    '(' >> expression >> ')' |   
 	    ( '-' >> factor ) [ negate_s ] |
 	    ( '+' >> factor );

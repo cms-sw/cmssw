@@ -7,20 +7,18 @@
 #include <iostream>
 using namespace reco::parser;
 using namespace std;
+using namespace ROOT::Reflex;
 
 void ExpressionVarSetter::operator()(const char * begin, const char* end) const {
-  string methodName(begin, end);
-  string::size_type endOfExpr = methodName.find_last_of(' ');
-  if(endOfExpr != string::npos)
-    methodName.erase(endOfExpr, methodName.size());
-#ifdef BOOST_SPIRIT_DEBUG 
-  BOOST_SPIRIT_DEBUG_OUT << "pushing variable: " << methodName << endl;
-#endif
-  ROOT::Reflex::Member mem = reco::findMethod(type_, methodName);
-  method::TypeCode retType = reco::returnTypeCode(mem);
+  cerr << ">>> creating expression" << endl;
+  Type type = typeStack_.back();
+  method::TypeCode retType = reco::typeCode(type);
   if(retType == method::invalid)
-    throw edm::Exception(edm::errors::Configuration)
-      << "method \"" << mem.Name() 
-      << "\" return type is not convertible to double\n";
-  stack_.push_back(boost::shared_ptr<ExpressionBase>(new ExpressionVar(mem, retType)));
+    throw  edm::Exception(edm::errors::Configuration)
+      << "member " << methStack_.back().method().Name() << " has an invalid return type: \"" 
+      <<  methStack_.back().method().TypeOf().Name() << "\"\n";
+  cerr << ">>> methods: " << methStack_.size() << endl;
+  exprStack_.push_back(boost::shared_ptr<ExpressionBase>(new ExpressionVar(methStack_, retType)));
+  methStack_.clear();
+  typeStack_.resize(1);
 }

@@ -1,20 +1,27 @@
 #include "PhysicsTools/Utilities/src/ExpressionVar.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Object.h"
+#include <iostream>
 using namespace reco::parser;
 using namespace ROOT::Reflex;
+using namespace std;
 
-ExpressionVar::ExpressionVar(const ROOT::Reflex::Member & method, method::TypeCode retType) : 
-  method_(method), retType_(retType) { 
+ExpressionVar::ExpressionVar(const vector<MethodInvoker>& methods, method::TypeCode retType) : 
+  methods_(methods), retType_(retType) { 
   if(retType == method::invalid)
     throw edm::Exception(edm::errors::Configuration)
-      << "method \"" << method.Name() 
-      << "\" return type is not convertible to double\n";
+      << "ExpressionVar: invalid return type\n";
 }
 
 double ExpressionVar::value(const Object & o) const {
   using namespace method;
-  Object ro = method_.Invoke(o);
+  Object ro = o;
+  for(vector<MethodInvoker>::const_iterator m = methods_.begin();
+      m != methods_.end(); ++m) {
+    cerr << ">>> invoking method " << m->method().Name() 
+	 << " on object of type " << ro.TypeOf().Name() << endl;
+    ro = m->value(ro);
+  }
   void * addr = ro.Address();
   double ret = 0;
   switch(retType_) {
@@ -31,8 +38,8 @@ double ExpressionVar::value(const Object & o) const {
   case(boolType  ) : ret = * static_cast<bool           *>(addr); break;
   default:
     throw edm::Exception(edm::errors::Configuration)
-      << "parser error: method \"" << method_.Name() 
-      << "\" return type is \"" << method_.TypeOf().Name() 
+      << "parser error: method \"" << methods_.back().method().Name() 
+      << "\" return type is \"" << methods_.back().method().TypeOf().Name() 
       << "\" which is not convertible to double\n";
   };
   return ret;
