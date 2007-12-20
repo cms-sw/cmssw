@@ -4,6 +4,7 @@
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/ESSample.h"
+#include "CLHEP/Random/RandGeneral.h"
 
 #include <vector>
 #include "TFile.h"
@@ -23,7 +24,7 @@ class ESElectronicsSimFast
   void setMIPADC (const double MIPADC);
   void setMIPkeV (const double MIPkeV);
 
-  virtual void analogToDigital(const CaloSamples& cs, ESDataFrame& df, bool wasEmpty, double* refHistos, double hInf, double hSup, double hBin) const;
+  virtual void analogToDigital(const CaloSamples& cs, ESDataFrame& df, bool wasEmpty, CLHEP::RandGeneral *histoDistribution, double hInf, double hSup, double hBin) const;
   
   void digitalToAnalog(const ESDataFrame& df, CaloSamples& cs) const; 
 
@@ -40,7 +41,7 @@ class ESElectronicsSimFast
     double MIPkeV_;
 
     std::vector<ESSample> standEncode(const CaloSamples& timeframe) const;
-    std::vector<ESSample> fastEncode(const CaloSamples& timeframe, double* refHistos, double hInf, double hSup, double hBin) const;
+    std::vector<ESSample> fastEncode(const CaloSamples& timeframe, CLHEP::RandGeneral *histoDistribution, double hInf, double hSup, double hBin) const;
 
     double decode(const ESSample & sample, const DetId & detId) const;
 

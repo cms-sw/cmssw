@@ -53,11 +53,11 @@ void ESElectronicsSimFast::setMIPkeV (const double MIPkeV)
   return ;
 }
 
-void ESElectronicsSimFast::analogToDigital(const CaloSamples& cs, ESDataFrame& df, bool wasEmpty, double* refHistos, double hInf, double hSup, double hBin) const 
+void ESElectronicsSimFast::analogToDigital(const CaloSamples& cs, ESDataFrame& df, bool wasEmpty, CLHEP::RandGeneral *histoDistribution, double hInf, double hSup, double hBin) const 
 {
   std::vector<ESSample> essamples;
   if (!wasEmpty) essamples = standEncode(cs);
-  if ( wasEmpty) essamples = fastEncode(cs, refHistos, hInf, hSup, hBin);
+  if ( wasEmpty) essamples = fastEncode(cs, histoDistribution, hInf, hSup, hBin);
   
   df.setSize(cs.size());
   for(int i=0; i<df.size(); i++) {
@@ -130,27 +130,17 @@ ESElectronicsSimFast::standEncode(const CaloSamples& timeframe) const
 
 
 std::vector<ESSample>
-ESElectronicsSimFast::fastEncode(const CaloSamples& timeframe, double* refHistos, double hInf, double hSup, double hBin) const
+ESElectronicsSimFast::fastEncode(const CaloSamples& timeframe, CLHEP::RandGeneral *histoDistribution, double hInf, double hSup, double hBin) const
 {
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "ESElectroncSimFast requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
-
-  double hBin2 = hBin*hBin;
-  double hBin3 = hBin*hBin*hBin;
-  CLHEP::RandGeneral histoDistribution(rng->getEngine(), refHistos, (int)hBin3, 0);      
-
   std::vector<ESSample> results;
   results.reserve(timeframe.size());
 
   int bin[3]; 
+  double hBin2 = hBin*hBin;
+  double hBin3 = hBin*hBin*hBin;
   double width = (hSup - hInf)/hBin;  
 
-  double thisRnd  = histoDistribution.fire();  
+  double thisRnd  = histoDistribution->fire();  
   int thisRndCell = (hBin3)*(thisRnd)/width;  
   bin[2] = (thisRndCell/hBin2);                              // sample2 - bin [0,N-1]
   bin[1] = ((thisRndCell - hBin2*bin[2])/hBin);              // sample1

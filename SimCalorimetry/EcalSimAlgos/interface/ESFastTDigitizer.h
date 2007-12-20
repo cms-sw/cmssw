@@ -13,6 +13,7 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
+#include "CLHEP/Random/RandGeneral.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandFlat.h"
 #include <gsl/gsl_sf_erf.h>
@@ -44,11 +45,11 @@ class ESFastTDigitizer
   
   /// doesn't delete the pointers passed in 
   // ~ESFastTDigitizer() { delete refHistos_; }
-  ~ESFastTDigitizer() {}
+  ~ESFastTDigitizer() { delete histoDistribution_; }
   
   /// taking reference histos
   void readHistosFromFile( ) {
-    
+
     m_histofile = new ifstream (edm::FileInPath(refFile_).fullPath().c_str());
     if (m_histofile == 0){ 
       throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
@@ -87,6 +88,18 @@ class ESFastTDigitizer
 	thisBin++;
       }
     }
+
+    // creating the reference distribution to extract random numbers
+    edm::Service<edm::RandomNumberGenerator> rng;   
+    if ( ! rng.isAvailable()) {
+      throw cms::Exception("Configuration")
+	<< "ESFastTDigitizer requires the RandomNumberGeneratorService\n"
+	"which is not present in the configuration file.  You must add the service\n"
+	"in the configuration file or remove the modules that require it.";
+    }
+    CLHEP::HepRandomEngine& engine = rng->getEngine();
+    histoDistribution_ = new CLHEP::RandGeneral(engine, refHistos_, histoBin3, 0);
+
     m_histofile->close();
     delete m_histofile;
   }
@@ -172,7 +185,7 @@ class ESFastTDigitizer
 	// either we have a signal or we need to generate noise samples 	  
 	  
 	ESDataFrame digi(*idItr);
-	theElectronicsSim->analogToDigital(*analogSignal , digi, wasEmpty, refHistos_, histoInf_, histoSup_, histoBin_);	
+	theElectronicsSim->analogToDigital(*analogSignal , digi, wasEmpty, histoDistribution_, histoInf_, histoSup_, histoBin_);	
 	output.push_back(digi);  
 	if (needToDeleteSignal) delete analogSignal;
       }
@@ -209,6 +222,8 @@ class ESFastTDigitizer
   double  histoBin_;
   double  histoInf_;
   double  histoSup_;
+
+  CLHEP::RandGeneral *histoDistribution_;
 };
 
 #endif
