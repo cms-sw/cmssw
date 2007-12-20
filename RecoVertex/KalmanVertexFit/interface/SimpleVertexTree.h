@@ -4,7 +4,7 @@
 #include <string>
 
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "RecoVertex/KalmanVertexFit/test/VertexFitterResult.h"
+#include "RecoVertex/KalmanVertexFit/interface/VertexFitterResult.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 

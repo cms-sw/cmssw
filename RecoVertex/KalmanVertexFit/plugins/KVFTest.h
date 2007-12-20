@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: KVFTest.h,v 1.3 2006/10/31 16:52:03 speer Exp $
+// $Id: KVFTest.h,v 1.1 2007/04/24 07:43:15 tboccali Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "RecoVertex/KalmanVertexFit/test/SimpleVertexTree.h"
+#include "RecoVertex/KalmanVertexFit/interface/SimpleVertexTree.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include <TFile.h>
 
