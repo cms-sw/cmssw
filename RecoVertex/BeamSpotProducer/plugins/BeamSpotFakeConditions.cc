@@ -34,16 +34,18 @@ private:
 	void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,const edm::IOVSyncValue &syncValue,edm::ValidityInterval &oValidity);
 	edm::FileInPath xmlCalibration;
 	bool usedummy;
+	std::string BeamType;
 	
 };
 
 BeamSpotFakeConditions::BeamSpotFakeConditions(const edm::ParameterSet &params) :
 	
 	//xmlCalibration(params.getParameter<edm::FileInPath>("xmlCalibration") ), //disable until xml writer is fixed
-	usedummy(params.getParameter<bool>("UseDummy") ) {
-	
-	setWhatProduced(this);
-	findingRecord<BeamSpotObjectsRcd>();
+	usedummy(params.getParameter<bool>("UseDummy") ),
+	BeamType(params.getParameter<std::string>("BeamType") ) {
+		
+		setWhatProduced(this);
+		findingRecord<BeamSpotObjectsRcd>();
 }
 
 BeamSpotFakeConditions::~BeamSpotFakeConditions(){}
@@ -58,11 +60,67 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 	else {
 
 		BeamSpotObjects *adummy = new BeamSpotObjects();
-		adummy->SetPosition(0.,0.,0.);
-		adummy->SetSigmaZ(7.55);
-		adummy->Setdxdz(0.);
-		adummy->Setdydz(0.);
-		adummy->SetBeamWidth(15.e-4);
+
+		// we are going to use the truth values defined at the generator stage,
+		// see IOMC/EventVertexGenerators/data
+		
+		if ( BeamType == "SimpleGaussian" ) {
+			adummy->SetPosition(0.,0.,0.);
+			adummy->SetSigmaZ(7.55);
+			adummy->Setdxdz(0.);
+			adummy->Setdydz(0.);
+			adummy->SetBeamWidth(15.e-4);
+		}
+
+		else if ( BeamType == "EarlyCollision" ) {
+			adummy->SetPosition(0.0322,0.,0.);
+			adummy->SetSigmaZ(7.55);
+			adummy->Setdxdz(0.);
+			adummy->Setdydz(0.);
+			adummy->SetBeamWidth(31.7e-4);
+		}
+
+		else if ( BeamType == "NominalCollision" ) {
+			adummy->SetPosition(0.05,0.,0.);
+			adummy->SetSigmaZ(7.55);
+			adummy->Setdxdz(140.e-6);
+			adummy->Setdydz(0.);
+			adummy->SetBeamWidth(16.6e-4);
+		}
+		// extreme cases
+		else if ( BeamType == "NominalCollision1" ) {
+			adummy->SetPosition(0.05,0.025,0.);
+			adummy->SetSigmaZ(7.55);
+			adummy->Setdxdz(0.);
+			adummy->Setdydz(0.);
+			adummy->SetBeamWidth(16.6e-4);
+		}
+		
+		else if ( BeamType == "NominalCollision2" ) {
+			adummy->SetPosition(0.05,0.025,0.);
+			adummy->SetSigmaZ(7.55);
+			adummy->Setdxdz(140.e-6);
+			adummy->Setdydz(0.);
+			adummy->SetBeamWidth(16.6e-4);
+		}
+
+		else if ( BeamType == "NominalCollision3" ) {
+			adummy->SetPosition(0.1,0.025,0.);
+			adummy->SetSigmaZ(7.55);
+			adummy->Setdxdz(0.);
+			adummy->Setdydz(0.);
+			adummy->SetBeamWidth(16.6e-4);
+		}
+
+		else if ( BeamType == "NominalCollision4" ) {
+			adummy->SetPosition(0.2,0.025,0.);
+			adummy->SetSigmaZ(7.55);
+			adummy->Setdxdz(0.);
+			adummy->Setdydz(0.);
+			adummy->SetBeamWidth(16.6e-4);
+		}
+
+		
 		return ReturnType(adummy);
 	}
   
