@@ -419,7 +419,7 @@ void EcalElectronicsMapper::fillMaps(){
     }//close loop over sm ids in the EB
     // Fill EE arrays (Todo : waiting SC correction)
     
-     else{
+    else{
 	 
 	std::vector<uint> * pTCCIds = mapSmIdToTccIds_[smId];
 	std::vector<uint>::iterator it;
@@ -428,9 +428,8 @@ void EcalElectronicsMapper::fillMaps(){
 			
           uint tccId = *it;
 			
-	  for(uint feChannel =1; feChannel <= 68; feChannel++){
-			  
-	    try{
+	  for(uint feChannel =1; feChannel <= numChannelsInDcc[smId-1]; feChannel++){
+
 		 // Builds Ecal Trigger Tower Det Id 
 	       EcalTrigTowerDetId ttDetId = mappingBuilder_->getTrigTowerDetId(tccId, feChannel);
 	       ttDetIds_[tccId-1][feChannel-1] = new EcalTrigTowerDetId(ttDetId.rawId());
@@ -439,19 +438,13 @@ void EcalElectronicsMapper::fillMaps(){
                for(uint i=0;i<numbTriggerTSamples_;i++){
                  tp->setSample( i, EcalTriggerPrimitiveSample(0) );
                }
-
+	       
                ttTPIds_[tccId-1][feChannel-1]  = tp;
-			
-	     }catch(cms::Exception){
-	       //cout<<"\n Unable to build EE trigger tower det id, smId = "<<smId<<" tccId = "<<tccId<<" feChannel = "<<feChannel<<endl;
-             }
+
 	  }
         }
-	   
-      for(uint feChannel = 1; feChannel <= 68; feChannel++){
-			 
-			
-	try{
+
+	for(uint feChannel = 1; feChannel <= numChannelsInDcc[smId-1]; feChannel++){
 		
 	  //EcalSCDetIds
           EcalScDetId scDetId = mappingBuilder_->getEcalScDetId(smId,feChannel);
@@ -471,15 +464,21 @@ void EcalElectronicsMapper::fillMaps(){
           EEDetId * detId = new EEDetId((*it).rawId());
           xtalDetIds_[smId-1][feChannel-1][stripId-1][xtalId-1] = detId;
           
-	}// close loop over tower constituents 	
-				 
-       }catch(cms::Exception){}
-      }// close loop over  FE Channels		
-		 
-   }// closing loop over sm ids in EE
+	}// close loop over tower constituents
+	  
+	}// close loop over  FE Channels		
+	
+    }// closing loop over sm ids in EE
 	
   }
   
 
 }
 
+// number of readout channels (TT in EB, SC in EE) in a DCC
+const uint  EcalElectronicsMapper::numChannelsInDcc[NUMB_SM] = {34,32,33,33,32,34,33,34,33,    // EE -
+								68,68,68,68,68,68,68,68,68,68, // EB-
+								68,68,68,68,68,68,68,68,
+								68,68,68,68,68,68,68,68,68,68, // EB+
+								68,68,68,68,68,68,68,68,
+								34,32,33,33,32,34,33,34,33};   // EE+

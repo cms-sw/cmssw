@@ -9,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2007/10/19 14:36:16 $
- * $Revision: 1.8 $
+ * $Date: 2007/11/01 02:48:22 $
+ * $Revision: 1.9 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -178,8 +178,9 @@ private:
   
   uint ebTccBlockLength_, eeTccBlockLength_;
 
+  static const uint numChannelsInDcc[NUMB_SM];
 
-
+    
   // ARRAYS OF DetId  
   DetId                     * xtalDetIds_[NUMB_SM][NUMB_FE][NUMB_STRIP][NUMB_XTAL];
   EcalScDetId               * scDetIds_[NUMB_SM][NUMB_FE];
