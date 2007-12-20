@@ -4,6 +4,14 @@
 using namespace reco::parser;
 using namespace ROOT::Reflex;
 
+ExpressionVar::ExpressionVar(const ROOT::Reflex::Member & method, method::TypeCode retType) : 
+  method_(method), retType_(retType) { 
+  if(retType == method::invalid)
+    throw edm::Exception(edm::errors::Configuration)
+      << "method \"" << method.Name() 
+      << "\" return type is not convertible to double\n";
+}
+
 double ExpressionVar::value(const Object & o) const {
   using namespace method;
   Object ro = method_.Invoke(o);
