@@ -147,10 +147,9 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
     // get L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    try {
-        iEvent.getByLabel(m_l1GtDaqInputTag.label(), gtReadoutRecord);
-    } catch (...) {
-
+    iEvent.getByLabel(m_l1GtDaqInputTag.label(), gtReadoutRecord);
+    
+    if (!gtReadoutRecord.isValid()) {
         m_nErrors++;
 
         LogDebug("L1GtTrigReport")
