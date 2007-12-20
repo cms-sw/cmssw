@@ -51,6 +51,9 @@ void SeedCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
    ev.getByLabel(SeedPairCollectionName_,SeedPairList);
    ev.getByLabel(SeedTripletCollectionName_,SeedTripletList);
 
+   //std::cout << "=== collection triplets: " << SeedTripletList->size() << std::endl;
+   //std::cout << "=== collection pairs: " << SeedPairList->size() << std::endl;
+
    for(TrajectorySeedCollection::const_iterator ItTriplet = SeedTripletList->begin(); ItTriplet != SeedTripletList->end(); ItTriplet++) {
      const TrajectorySeed & SEED = *ItTriplet;
      (*result).push_back(SEED);
