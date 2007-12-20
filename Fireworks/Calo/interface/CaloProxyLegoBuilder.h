@@ -16,6 +16,7 @@ class CaloProxyLegoBuilder : public FWDataProxyBuilder
    virtual void build(const fwlite::Event* iEvent, TObject** product);
  private:
    double deltaR( double, double, double, double );
+   unsigned int m_legoRebinFactor;
 };
 
 #endif
