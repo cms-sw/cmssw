@@ -20,7 +20,9 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 ///
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
+//#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -68,8 +70,17 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
   edm::Handle<l1extra::L1JetParticleCollection> l1eTauJets;
   theEvent.getByLabel(l1eTauJetsSource_,l1eTauJets);
 
-  edm::Handle<reco::HLTFilterObjectWithRefs> l1trigobj;
+  Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
   theEvent.getByLabel(hltGTseedlabel_, l1trigobj);
+
+  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
+  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;
+
+  l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
+  l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
+
+//  edm::Handle<reco::HLTFilterObjectWithRefs> l1trigobj;
+//  theEvent.getByLabel(hltGTseedlabel_, l1trigobj);
 
   double ptTriggered=-10;
   double etaTriggered=-100;
@@ -78,16 +89,25 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
   bool restj=false;
   bool resj=false;
 
-  for (unsigned int p=0; p<l1trigobj->size(); p++)
+  for (unsigned int p=0; p<l1tauobjref.size(); p++)
 	{
-	const edm::RefToBase<reco::Candidate> l1objref=l1trigobj->getParticleRef(p);
-	if (l1objref.get()->pt()>ptTriggered)
+	if (l1tauobjref[p]->pt()>ptTriggered)
 		{
-		ptTriggered=l1objref.get()->pt(); 
-		phiTriggered=l1objref.get()->phi();
-		etaTriggered=l1objref.get()->eta();
+		ptTriggered=l1tauobjref[p]->pt(); 
+		phiTriggered=l1tauobjref[p]->phi();
+		etaTriggered=l1tauobjref[p]->eta();
 		}
 	}
+  for (unsigned int p=0; p<l1jetobjref.size(); p++)
+        {
+        if (l1jetobjref[p]->pt()>ptTriggered)
+                {
+                ptTriggered=l1jetobjref[p]->pt();
+                phiTriggered=l1jetobjref[p]->phi();
+                etaTriggered=l1jetobjref[p]->eta();
+                }
+        }
+
 
   double minPtTrack_=5;
   double drMaxL1Track_=tauAssocCone_;

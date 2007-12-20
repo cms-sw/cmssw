@@ -18,10 +18,7 @@
 //#include "DataFormats/Common/interface/Provenance.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 
 
