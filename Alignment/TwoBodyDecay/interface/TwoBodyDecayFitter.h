@@ -36,6 +36,10 @@ public:
   virtual const TwoBodyDecay estimate( const std::vector< reco::TransientTrack >& tracks,
 				       const TwoBodyDecayVirtualMeasurement& vm ) const;
 
+  virtual const TwoBodyDecay estimate( const std::vector< reco::TransientTrack >& tracks,
+				       const std::vector< TrajectoryStateOnSurface >& tsos,
+				       const TwoBodyDecayVirtualMeasurement& vm ) const;
+
   inline const TwoBodyDecayLinearizationPointFinder* linearizationPointFinder( void ) const { return theLinPointFinder.operator->(); }
   inline const TwoBodyDecayEstimator* estimator( void ) const { return theEstimator.operator->(); }
   inline const LinearizationPointFinder* vertexFinder( void ) const { return theVertexFinder.operator->(); }
