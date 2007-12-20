@@ -178,7 +178,7 @@ EcalElectronicsMapper::~EcalElectronicsMapper(){
  
 }
 
-void EcalElectronicsMapper::setEcalElectronicsMapping( EcalElectronicsMapping * m){
+void EcalElectronicsMapper::setEcalElectronicsMapping(const EcalElectronicsMapping * m){
   mappingBuilder_= m;
   fillMaps();
 

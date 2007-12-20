@@ -9,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2007/11/01 02:48:22 $
- * $Revision: 1.9 $
+ * $Date: 2007/12/20 20:29:27 $
+ * $Revision: 1.10 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -52,7 +52,7 @@ public:
   ~EcalElectronicsMapper();
 
 
-  void setEcalElectronicsMapping(EcalElectronicsMapping *); 
+  void setEcalElectronicsMapping(const EcalElectronicsMapping *); 
 
 
   /**
@@ -125,8 +125,8 @@ public:
 
   uint getSMId(uint aDCCId) const;
   
- 
-  EcalElectronicsMapping * mapping(){return mappingBuilder_;} 
+  
+  const EcalElectronicsMapping * mapping(){return mappingBuilder_;} 
   
   /**
    * Print current map
@@ -188,7 +188,7 @@ private:
   EcalElectronicsId         * ttEleIds_[NUMB_TCC][NUMB_FE];
   EcalTriggerPrimitiveDigi  * ttTPIds_[NUMB_TCC][NUMB_FE];
   EcalSrFlag                * srFlags_[NUMB_SM][NUMB_FE];
-  EcalElectronicsMapping    * mappingBuilder_;
+  const EcalElectronicsMapping    * mappingBuilder_;
   
 
 };
