@@ -58,14 +58,10 @@ bool HeavyChHiggsToTauNuSkim::filter(edm::Event& iEvent, const edm::EventSetup& 
   nEvents++;
 
   Handle<IsolatedTauTagInfoCollection> tauTagL3Handle;
-  try {
-    iEvent.getByLabel(hltTauLabel, tauTagL3Handle);
-  }
-        
-  catch (const edm::Exception& e) {
-    //wrong reason for exception
-    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;
-  }
+  iEvent.getByLabel(hltTauLabel, tauTagL3Handle);
+
+  if ( !tauTagL3Handle.isValid() ) return false;
+
 
   Jet theTau;
   double maxEt = 0;
@@ -87,14 +83,9 @@ bool HeavyChHiggsToTauNuSkim::filter(edm::Event& iEvent, const edm::EventSetup& 
   // jets
 	
   Handle<CaloJetCollection> jetHandle;	
-  try {
-    iEvent.getByLabel(jetLabel,jetHandle);
-  }
-
-  catch (const edm::Exception& e) {
-    //wrong reason for exception
-    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;
-  }
+  iEvent.getByLabel(jetLabel,jetHandle);
+  
+  if ( !jetHandle.isValid() ) return false;
 	
   bool accepted = false;
 	

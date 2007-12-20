@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2007/08/28 01:21:42 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/12/12 16:08:51 $
+ *  $Revision: 1.9 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *
@@ -77,11 +77,12 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
 
   using reco::TrackCollection;
 
-  try {
   // Get the muon track collection from the event
-    edm::Handle<reco::TrackCollection> muTracks;
-    event.getByLabel(theGLBMuonLabel.label(), muTracks);
+  edm::Handle<reco::TrackCollection> muTracks;
+  event.getByLabel(theGLBMuonLabel.label(), muTracks);
   
+  if ( muTracks.isValid() ) {
+
     reco::TrackCollection::const_iterator muons;
 
     // Loop over muon collections and count how many muons there are,
@@ -93,18 +94,16 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
       }
     }
   } 
-  catch (const edm::Exception& e) {
-    //wrong reason for exception
-    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;
-  }
 
   // Now look at electrons:
 
-  try {
-    // Get the electron track collection from the event
-    edm::Handle<reco::GsfElectronCollection> pTracks;
+  // Get the electron track collection from the event
+  edm::Handle<reco::GsfElectronCollection> pTracks;
 
-    event.getByLabel(theGsfELabel.label(),pTracks);
+  event.getByLabel(theGsfELabel.label(),pTracks);
+
+  if ( pTracks.isValid() ) {
+
     const reco::GsfElectronCollection* eTracks = pTracks.product();
    
     reco::GsfElectronCollection::const_iterator electrons;
@@ -117,10 +116,6 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
         if ( electrons->pt() > diTrackPtMin_ ) nTrackOver2ndCut++;
       }
     }
-  }
-  catch (const edm::Exception& e) {
-    //wrong reason for exception
-    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;
   }
 
 

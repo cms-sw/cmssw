@@ -73,12 +73,14 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
 
   // Look at photons:
 
-  try {
-    // Get the photon collection from the event
-    edm::Handle<reco::PhotonCollection> photonHandle;
+  // Get the photon collection from the event
+  edm::Handle<reco::PhotonCollection> photonHandle;
 
-    event.getByLabel(thePhotonLabel.label(),photonHandle);
-    const reco::PhotonCollection* phoCollection = photonHandle.product();
+  event.getByLabel(thePhotonLabel.label(),photonHandle);
+
+  if ( photonHandle.isValid() ) {
+  
+  const reco::PhotonCollection* phoCollection = photonHandle.product();
 
     reco::PhotonCollection::const_iterator photons;
 
@@ -91,11 +93,6 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
       float et_p = photons->et(); 
       if ( et_p > photon1MinPt) nPhotons++;
     }
-  }
-  
-  catch (const edm::Exception& e) {
-    //wrong reason for exception
-    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;
   }
   
   // Make decision:

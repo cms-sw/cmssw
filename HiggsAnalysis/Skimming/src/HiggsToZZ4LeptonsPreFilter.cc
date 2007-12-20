@@ -70,9 +70,9 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
   // get gen particle candidates 
   Handle<CandidateCollection> genCandidates;
 
-  try {
-    event.getByLabel("genParticleCandidates", genCandidates);
+  event.getByLabel("genParticleCandidates", genCandidates);
 
+  if ( genCandidates.isValid() ) {
 
   int nElec = 0;
   int nMuon = 0;
@@ -109,12 +109,6 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
     if ( leptonFlavour == 3 && TwoETwoM ) keepEvent = true;    
 
   }
-
-  catch(const edm::Exception& e) {
-    //wrong reason for exception
-    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;    
-  }
-
 
   if (keepEvent ) ikept++;
 

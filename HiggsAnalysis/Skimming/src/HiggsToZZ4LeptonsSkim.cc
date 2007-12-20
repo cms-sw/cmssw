@@ -76,11 +76,12 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
 
   // First look at muons:
 
-  try {
   // Get the muon track collection from the event
-    edm::Handle<reco::TrackCollection> muTracks;
-    event.getByLabel(theGLBMuonLabel.label(), muTracks);
-    
+  edm::Handle<reco::TrackCollection> muTracks;
+  event.getByLabel(theGLBMuonLabel.label(), muTracks);
+
+  if ( muTracks.isValid() ) {  
+  
     reco::TrackCollection::const_iterator muons;
         
     // Loop over muon collections and count how many muons there are, 
@@ -90,19 +91,15 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
     }  
   } 
   
-  catch (const edm::Exception& e) {
-    //wrong reason for exception
-    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;    
-  }
-
-
   // Now look at electrons:
 
-  try {
-    // Get the electron track collection from the event
-    edm::Handle<reco::GsfElectronCollection> pTracks;
+  // Get the electron track collection from the event
+  edm::Handle<reco::GsfElectronCollection> pTracks;
 
-    event.getByLabel(theGsfELabel.label(),pTracks);
+  event.getByLabel(theGsfELabel.label(),pTracks);
+
+  if ( pTracks.isValid() ) {  
+
     const reco::GsfElectronCollection* eTracks = pTracks.product();
 
     reco::GsfElectronCollection::const_iterator electrons;
@@ -115,11 +112,6 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
     }
   }
 
-  catch(const edm::Exception& e) {
-    //wrong reason for exception
-    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;    
-  }
-  
   // Make decision:
   if ( nLeptons >= nLeptonMin) keepEvent = true;
 
