@@ -629,8 +629,8 @@ void BU::exportParameters()
   gui_->addStandardParam("replay",            &replay_);
   gui_->addStandardParam("overwriteEvtId",    &overwriteEvtId_);
   gui_->addStandardParam("crc",               &crc_);
-  gui_->addStandardParam("firstEvent_",       &firstEvent_);
-  gui_->addStandardParam("queueSize_",        &queueSize_);
+  gui_->addStandardParam("firstEvent",        &firstEvent_);
+  gui_->addStandardParam("queueSize",         &queueSize_);
   gui_->addStandardParam("eventBufferSize",   &eventBufferSize_);
   gui_->addStandardParam("msgBufferSize",     &msgBufferSize_);
   gui_->addStandardParam("fedSizeMax",        &fedSizeMax_);

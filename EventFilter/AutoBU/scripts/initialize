@@ -78,7 +78,8 @@ foreach $param (@ARGV) {
     elsif ($PBfile   eq "fillme")    { $PBfile  =$param; }
     elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme"; }
     elsif ($param    eq "-drop")     { $doEP=0;$doSM=0;$doDQM=0;}
-    elsif ($param    eq "-noSM")     { $doSM=0;$doDQM=0; }
+    #elsif ($param    eq "-noSM")     { $doSM=0;$doDQM=0; }
+    elsif ($param    eq "-noSM")     { $doSM=0; }
     elsif ($param    eq "-noDQM")    { $doDQM=0; }
     else { die ("Unknown parameter $param!\n"); }
 }
@@ -447,9 +448,10 @@ sub makeCfgFu
     $result = $result . "  source = DaqSource\n";
     $result = $result . "  {\n";
     $result = $result . "    untracked string          readerPluginName    = \"FUShmReader\"\n";
-    $result = $result . "    untracked uint32          evtsPerLS           = 10\n";
+    $result = $result . "    untracked uint32          evtsPerLS           = 100\n";
     $result = $result . "  }\n\n";
     $result = $result . "  // paths\n";
+    $result = $result . "  path p0 = { errorInjector }\n";
     $result = $result . "  path p1 = { m1, a1 }\n";
     $result = $result . "  path p2 = { m2, a2 }\n";
     $result = $result . "  path p3 = { m3, a3 }\n";
@@ -483,6 +485,8 @@ sub makeCfgFu
     $result = $result . "    untracked int32 lumiSectionInterval     =     30\n";
     $result = $result . "  }\n\n";
     
+    $result = $result . "  service = ModuleWebRegistry {}\n\n";
+    
     $result = $result . "  // modules\n\n";
     $result = $result . "  module m1 = StreamThingProducer\n";
     $result = $result . "  {\n";
@@ -511,6 +515,8 @@ sub makeCfgFu
     $result = $result . "  {\n";
     $result = $result . "    string product_to_get = \"m3\"\n";
     $result = $result . "  }\n\n";
+
+    $result = $result . "  module errorInjector = ExceptionGenerator{}\n\n";
 
     if ($doDQM) {
 	$result = $result . "  module dqm = SMDQMSourceExample{}\n\n";

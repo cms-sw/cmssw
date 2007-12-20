@@ -1,3 +1,9 @@
+2007-12-20  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-04
+	* add ExceptionGenerator to configuration setup by
+	scripts/initialize (requires EventFilter/Utilties V00-13-14)
+
 2007-11-28  Marco Zanetti  <marco.zanetti@cern.ch>
 		
 	* tag V00-06-03
