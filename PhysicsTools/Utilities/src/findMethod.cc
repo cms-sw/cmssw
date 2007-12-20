@@ -1,14 +1,24 @@
 #include "PhysicsTools/Utilities/src/findMethod.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "Reflex/Base.h"
+#include <iostream>
 using namespace ROOT::Reflex;
 using namespace std;
 
 namespace reco {
   Member findMethod(const Type & type, const string & name) {
     if (! type)  
-      throw edm::Exception(edm::errors::ProductNotFound)
-	<< "TypeID::className: No dictionary for class " << type.Name() << '\n';
+      throw edm::Exception(edm::errors::Configuration)
+	<< "no dictionary for class " << type.Name() << '\n';
     Member mem = type.FunctionMemberByName(name);
+    if(! mem) {
+      for(Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++ b)
+	if(mem = findMethod(b->ToType(), name)) break;
+    }
+    if(!mem) {
+      throw edm::Exception(edm::errors::Configuration)
+	<< "member " << name << " not found in class"  << type.Name() << "\n";        
+    }
     checkMethod(type, mem);
     return mem;
   }
