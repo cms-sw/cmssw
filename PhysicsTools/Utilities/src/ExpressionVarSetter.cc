@@ -18,5 +18,9 @@ void ExpressionVarSetter::operator()(const char * begin, const char* end) const 
 #endif
   ROOT::Reflex::Member mem = reco::findMethod(type_, methodName);
   method::TypeCode retType = reco::returnTypeCode(mem);
+  if(retType == method::invalid)
+    throw edm::Exception(edm::errors::Configuration)
+      << "method \"" << mem.Name() 
+      << "\" return type is not convertible to double\n";
   stack_.push_back(boost::shared_ptr<ExpressionBase>(new ExpressionVar(mem, retType)));
 }
