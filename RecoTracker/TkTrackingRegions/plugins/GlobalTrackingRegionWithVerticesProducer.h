@@ -44,9 +44,12 @@ public:
       ev.getByLabel(vertexCollName,vertexCollection);
       //  ev.getByLabel("pixelVertices",vertexCollection);
 
+      //std::cout << "=== DEBUG, vertexCollection->size(): " << vertexCollection->size() << std::endl;
+
       if(vertexCollection->size() > 0) {
 	for(reco::VertexCollection::const_iterator iV=vertexCollection->begin(); iV != vertexCollection->end() ; iV++) {
 	  //	std::cerr << " [TrackProducer] using vertex at z=" << iV->z() << std::endl;
+	  //std::cout << "=== DEBUG, iV->zError(): " << iV->zError() << std::endl;
 	  double theOriginZPos_       = iV->z();
 	  double theOriginHalfLength_; 
 	  if(!theUseFixedError) {
