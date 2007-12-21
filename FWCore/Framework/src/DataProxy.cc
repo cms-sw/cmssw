@@ -8,13 +8,14 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:49:19 EST 2005
-// $Id: DataProxy.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
+// $Id: DataProxy.cc,v 1.4 2005/12/16 02:58:27 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 
 
 //
@@ -25,13 +26,19 @@ namespace edm {
 //
 // static data member definitions
 //
-
+static
+const ComponentDescription*
+dummyDescription()
+{
+   static ComponentDescription s_desc;
+   return &s_desc;
+}     
 //
 // constructors and destructor
 //
 DataProxy::DataProxy() :
    cacheIsValid_(false),
-   description_(0)
+   description_(dummyDescription())
 {
 }
 
