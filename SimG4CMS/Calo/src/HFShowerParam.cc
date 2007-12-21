@@ -16,11 +16,11 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
-			     edm::ParameterSet const & p) {
+			     edm::ParameterSet const & p) : fibre(0) {
 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
-  cFibre                  = c_light*(m_HF.getParameter<double>("CFibre"));
   pePerGeV                = m_HF.getUntrackedParameter<double>("PEPerGeV",.25);
+  edm::LogInfo("HFShower") << "HFShowerParam:: P.E. per GeV " << pePerGeV;
   
   G4String attribute = "ReadOutName";
   G4String value     = name;
@@ -46,9 +46,13 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
     throw cms::Exception("Unknown", "HFShowerParam")
       << "cannot match " << attribute << " to " << name <<"\n";
   }
+  
+  fibre = new HFFibre(name, cpv, p);
 }
 
-HFShowerParam::~HFShowerParam() {}
+HFShowerParam::~HFShowerParam() {
+  if (fibre) delete fibre;
+}
 
 std::vector<double> HFShowerParam::getHits(G4Step * aStep) {
 
@@ -80,17 +84,17 @@ std::vector<double> HFShowerParam::getHits(G4Step * aStep) {
     if (edep > 0) {
       edep         *= 0.5*pePerGeV;
       double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-      double zFibre = gpar[1]-zz;
-      if (zFibre < 0) zFibre = 0;
-      double time = zFibre / cFibre; // remaining part
 
-      hit.depth = 1;
-      hit.time  = tSlice+time;
+      double time = fibre->tShift(hitPoint,1); // remaining part
+      hit.depth   = 1;
+      hit.time    = tSlice+time;
       edeps.push_back(edep);
       hits.push_back(hit);
       if (zz >= gpar[0]) {
-	edeps.push_back(edep);
+	time      = fibre->tShift(hitPoint,2);
 	hit.depth = 2;
+	hit.time  = tSlice+time;
+	edeps.push_back(edep);
 	hits.push_back(hit);
       }
       track->SetTrackStatus(fStopAndKill);

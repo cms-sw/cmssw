@@ -17,17 +17,16 @@
 #include "Randomize.hh"
 #include "CLHEP/Units/PhysicalConstants.h"
 
-HFShower::HFShower(const DDCompactView & cpv, edm::ParameterSet const & p) : 
-  cherenkov(0), fibre(0) {
+HFShower::HFShower(std::string & name, const DDCompactView & cpv, 
+		   edm::ParameterSet const & p) : cherenkov(0), fibre(0) {
 
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   //static SimpleConfigurable<double> cf1(0.5, "HFShower:CFibre");
   //static SimpleConfigurable<float>  pPr(0.7268,"VCalShowerLibrary:ProbMax");
-  cFibre           = c_light*(m_HF.getParameter<double>("CFibre"));
   probMax          = m_HF.getParameter<double>("ProbMax");
 
-  edm::LogInfo("HFShower") << "HFShower:: Speed of light in fibre " << cFibre
-			   << " m/ns  Maximum probability cut off " << probMax;
+  edm::LogInfo("HFShower") << "HFShower:: Maximum probability cut off " 
+			   << probMax;
 
   G4String attribute = "Volume";
   G4String value     = "HFFibre";
@@ -57,7 +56,7 @@ HFShower::HFShower(const DDCompactView & cpv, edm::ParameterSet const & p) :
   }
 
   cherenkov = new HFCherenkov(p);
-  fibre     = new HFFibre(cpv);
+  fibre     = new HFFibre(name, cpv, p);
 
   nHit      = 0;
   clearHits();
@@ -103,6 +102,8 @@ int HFShower::getHits(G4Step * aStep) {
     GetTopTransform().TransformPoint(globalPos);
   G4ThreeVector     localMom     = preStepPoint->GetTouchable()->GetHistory()->
     GetTopTransform().TransformAxis(momentumDir);
+  int               depth    = 
+    (preStepPoint->GetTouchable()->GetReplicaNumber(0))%10;
 
   double u        = localMom.x();
   double v        = localMom.y();
@@ -110,10 +111,11 @@ int HFShower::getHits(G4Step * aStep) {
   double zCoor    = localPos.z();
   double zFibre   = (fibreLength(name)-zCoor);
   double tSlice   = (aStep->GetPostStepPoint()->GetGlobalTime());
+  double time     = fibre->tShift(globalPos, depth);
 
   LogDebug("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor 
 		       << " " << fibreLength(name) << " " << zFibre << " Time "
-		       << tSlice  << " " << zFibre/cFibre 
+		       << tSlice  << " " << time 
 		       << "\n                  Direction " << momentumDir 
 		       << " Local " << localMom;
  
@@ -131,7 +133,6 @@ int HFShower::getHits(G4Step * aStep) {
 			 << (r1 <= exp(-p*zFibre) && r2 <= probMax);
     if (r1 <= exp(-p*zFibre) && r2 <= probMax) {
       nHit++;
-      double time = zFibre / cFibre; // remaining part
       wlHit.push_back(wavelength[i]);
       timHit.push_back(tSlice+time);
     }

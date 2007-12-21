@@ -195,7 +195,7 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
       << "cannot match " << attribute << " to " << name <<"\n";
   }
   
-  fibre = new HFFibre(cpv);
+  fibre = new HFFibre(name, cpv, p);
   emPDG = epPDG = gammaPDG = 0;
   pi0PDG = etaPDG = nuePDG = numuPDG = nutauPDG= 0;
   anuePDG= anumuPDG = anutauPDG = geantinoPDG = 0;

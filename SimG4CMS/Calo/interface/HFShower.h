@@ -22,7 +22,8 @@ class HFShower {
 
 public:    
 
-  HFShower(const DDCompactView & cpv, edm::ParameterSet const & p);
+  HFShower(std::string & name, const DDCompactView & cpv, 
+	   edm::ParameterSet const & p);
   virtual ~HFShower();
   int                        getHits(G4Step * aStep);
   double                     getTSlice(int i);
@@ -37,7 +38,6 @@ private:
   HFCherenkov*               cherenkov;
   HFFibre*                   fibre;
 
-  double                     cFibre;
   double                     probMax;
   std::map<G4String,double>  fibreDz2;
 

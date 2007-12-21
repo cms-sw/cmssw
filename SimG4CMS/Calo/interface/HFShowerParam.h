@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "SimG4CMS/Calo/interface/HFFibre.h"
 
 #include "G4ThreeVector.hh"
 
@@ -42,7 +43,8 @@ private:
 
 private:    
 
-  double                pePerGeV, cFibre;
+  HFFibre*              fibre;
+  double                pePerGeV;
   std::vector<double>   gpar;
   std::vector<Hit>      hits;
 };
