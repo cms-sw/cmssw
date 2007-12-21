@@ -175,29 +175,29 @@ void HcalHitValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
   edm::Handle<PHcalValidInfoNxN>      infoNxN;
   edm::Handle<PHcalValidInfoJets>     infoJets;
 
-  bool getHits = true;
+  bool getHits = false;
   if (checkHit_) {
-    try { e.getByLabel(g4Label,hcalHits,hitsHcal); } 
-    catch ( cms::Exception &e ) { getHits = false; }
-  } else { getHits = false;}
+    e.getByLabel(g4Label,hcalHits,hitsHcal); 
+    if (hitsHcal.isValid()) getHits = true;
+  }
 
-  bool getLayer = true;
+  bool getLayer = false;
   if (checkLay_) {
-    try { e.getByLabel(g4Label,layerInfo,infoLayer); }
-    catch ( cms::Exception &e ) { getLayer = false; }
-  } else { getLayer = false;}
+    e.getByLabel(g4Label,layerInfo,infoLayer);
+    if (infoLayer.isValid()) getLayer = true;
+  }
 
-  bool getNxN = true;
+  bool getNxN = false;
   if (checkNxN_) {
-    try { e.getByLabel(g4Label,nxNInfo,infoNxN); }
-    catch ( cms::Exception &e ) { getNxN = false; }
-  } else { getNxN = false;}
+    e.getByLabel(g4Label,nxNInfo,infoNxN);
+    if (infoNxN.isValid()) getNxN = true;
+  }
 
-  bool getJets = true;
+  bool getJets = false;
   if (checkJet_) {
-    try { e.getByLabel(g4Label,jetsInfo,infoJets); }
-    catch ( cms::Exception &e ) { getJets = false; }
-  } else { getJets = false; }
+    e.getByLabel(g4Label,jetsInfo,infoJets);
+    if (infoJets.isValid()) getJets = true;
+  }
 
   LogDebug("HcalHitValid") << "HcalValidation: Input flags Hits " << getHits 
 			   << ", Layer " << getLayer << ", NxN " << getNxN
