@@ -1,5 +1,5 @@
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringX0Data.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "TH2.h"
@@ -15,21 +15,16 @@ using namespace std;
 MultipleScatteringX0Data::MultipleScatteringX0Data()
   : theFile(0), theData(0)
 {
-  string filename;
-  try {
-    filename = fileName(); 
-    theFile = new TFile(filename.c_str(),"READ");
-  } 
-  catch (...) {
-    cout <<" MultipleScatteringX0Data, no input file found"<<endl;
-  }
+  string filename = fileName(); 
+  theFile = new TFile(filename.c_str(),"READ");
   if (theFile) {
     theData = dynamic_cast<TH2F*> (theFile->GetKey("h100")->ReadObj());
   }
   if (!theData)  {
-    cout << " ** MultipleScatteringX0Data ** file: "
+    throw cms::Exception("Data not found")  
+         << " ** MultipleScatteringX0Data ** file: "
          << filename 
-         <<" <-- no data found!!!"<<endl;
+         <<" <-- no data found!!!";
   }
 }
 
@@ -38,9 +33,6 @@ MultipleScatteringX0Data::~MultipleScatteringX0Data()
   if(theFile) {
     theFile->Close();
     delete theFile;
-  }
-  if (theData){
-    delete theData;
   }
 }
 
