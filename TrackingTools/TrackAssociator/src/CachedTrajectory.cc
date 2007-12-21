@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.13.4.1 2007/10/08 10:28:18 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.14 2007/10/08 11:23:34 dmytro Exp $
 //
 //
 
@@ -50,7 +50,9 @@ void CachedTrajectory::propagateForward(SteppingHelixStateInfo& state, float dis
 	try {
 	   state = shp->propagate(state, *target);
 	}
-	catch(...){
+	catch(cms::Exception &ex){
+           edm::LogWarning("TrackAssociator") << 
+                "Caught exception " << ex.category() << ": " << ex.explainSelf();
 	   edm::LogWarning("TrackAssociator") << "An exception is caught during the track propagation\n"
 	     << state.momentum().x() << ", " << state.momentum().y() << ", " << state.momentum().z();
 	   state = SteppingHelixStateInfo();
@@ -202,7 +204,9 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
 	try { 
 	   state = shp->propagate(fullTrajectory_[closestPointOnLeft], *plane);
 	}
-	catch(...){
+	catch(cms::Exception &ex){
+           edm::LogWarning("TrackAssociator") << 
+                "Caught exception " << ex.category() << ": " << ex.explainSelf();
 	   edm::LogWarning("TrackAssociator") << "An exception is caught during the track propagation\n"
 	     << state.momentum().x() << ", " << state.momentum().y() << ", " << state.momentum().z();
 	   return TrajectoryStateOnSurface();
