@@ -1,5 +1,5 @@
-#ifndef Common_AssociationVector_h
-#define Common_AssociationVector_h
+#ifndef DataFormats_Common_AssociationVector_h
+#define DataFormats_Common_AssociationVector_h
 /* class edm::AssociationVector<CKey, CVal>
  *
  * adds to a std::vector<CVal> a edm::RefProd<CKey>, in such a way
@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.24 $
+ * \version $Revision: 1.25 $
  */
 
 #include "FWCore/Utilities/interface/EDMException.h"

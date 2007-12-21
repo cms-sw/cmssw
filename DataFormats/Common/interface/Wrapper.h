@@ -1,11 +1,11 @@
-#ifndef Common_Wrapper_h
-#define Common_Wrapper_h
+#ifndef DataFormats_Common_Wrapper_h
+#define DataFormats_Common_Wrapper_h
 
 /*----------------------------------------------------------------------
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.22 2007/10/22 19:49:39 chrjones Exp $
+$Id: Wrapper.h,v 1.23 2007/11/06 20:15:50 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 

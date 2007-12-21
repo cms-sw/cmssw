@@ -1,5 +1,5 @@
-#ifndef Common_DetSetVectorNew_H
-#define Common_DetSetVectorNew_H
+#ifndef DataFormats_Common_DetSetVectorNew_h
+#define DataFormats_Common_DetSetVectorNew_h
 
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/Common/interface/traits.h"
@@ -413,5 +413,5 @@ namespace edmNew {
   
 }
 
-#endif // Common_DataFrameContainer
+#endif
   

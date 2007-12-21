@@ -1,5 +1,5 @@
-#ifndef Common_OneToOneGeneric_h
-#define Common_OneToOneGeneric_h
+#ifndef DataFormats_Common_OneToOneGeneric_h
+#define DataFormats_Common_OneToOneGeneric_h
 #include "DataFormats/Common/interface/AssociationMapHelpers.h"
 #include "DataFormats/Common/interface/MapRefViewTrait.h"
 #include <map>

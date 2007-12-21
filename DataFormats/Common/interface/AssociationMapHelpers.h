@@ -1,12 +1,12 @@
-#ifndef Common_AssociationMapKeyVal_h
-#define Common_AssociationMapKeyVal_h
+#ifndef DataFormats_Common_AssociationMapKeyVal_h
+#define DataFormats_Common_AssociationMapKeyVal_h
 /*
  *
  * helper classes for AssociationMap
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMapHelpers.h,v 1.1 2006/09/15 07:30:50 llista Exp $
+ * $Id: AssociationMapHelpers.h,v 1.2 2007/01/23 00:25:52 wmtan Exp $
  *
  */
 #include "FWCore/Utilities/interface/EDMException.h"

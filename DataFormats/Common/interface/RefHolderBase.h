@@ -1,8 +1,8 @@
-#ifndef Common_RefHolderBase_h
-#define Common_RefHolderBase_h
+#ifndef DataFormats_Common_RefHolderBase_h
+#define DataFormats_Common_RefHolderBase_h
 /* \class edm::reftobase::Base
  *
- * $Id: RefHolderBase.h,v 1.5 2007/09/17 14:15:21 llista Exp $
+ * $Id: RefHolderBase.h,v 1.6 2007/11/29 13:48:13 llista Exp $
  *
  */
 #include "Reflex/Type.h"

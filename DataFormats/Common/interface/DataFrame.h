@@ -1,5 +1,5 @@
-#ifndef Common_DATAFRAME_H
-#define Common_DATAFRAME_H
+#ifndef DataFormats_Common_DataFrame_h
+#define DataFormats_Common_DataFrame_h
 
 namespace edm {
 
@@ -73,4 +73,4 @@ namespace edm {
   };
 }
 
-#endif // Common_DATAFRAME_H
+#endif // DataFormats_Common_DataFrame_h

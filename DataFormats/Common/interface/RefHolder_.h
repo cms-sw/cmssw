@@ -1,5 +1,5 @@
-#ifndef Common_RefHolder__h
-#define Common_RefHolder__h
+#ifndef DataFormats_Common_RefHolder__h
+#define DataFormats_Common_RefHolder__h
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "Reflex/Object.h"

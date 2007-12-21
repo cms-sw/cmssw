@@ -1,5 +1,5 @@
-#ifndef Common_EDProductGetter_h
-#define Common_EDProductGetter_h
+#ifndef DataFormats_Common_EDProductGetter_h
+#define DataFormats_Common_EDProductGetter_h
 // -*- C++ -*-
 //
 // Package:     EDProduct
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:31 EST 2005
-// $Id: EDProductGetter.h,v 1.3 2007/01/23 00:25:52 wmtan Exp $
+// $Id: EDProductGetter.h,v 1.4 2007/03/04 04:59:58 wmtan Exp $
 //
 
 // system include files

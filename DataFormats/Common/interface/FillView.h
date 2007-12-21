@@ -1,12 +1,12 @@
-#ifndef Common_FillView_h
-#define Common_FillView_h
+#ifndef DataFormats_Common_FillView_h
+#define DataFormats_Common_FillView_h
 
 /*----------------------------------------------------------------------
   
 Several fillView function templates, to provide View support for 
 Standard Library containers.
 
-$Id: FillView.h,v 1.7 2007/10/02 10:48:30 llista Exp $
+$Id: FillView.h,v 1.8 2007/10/22 18:52:37 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 

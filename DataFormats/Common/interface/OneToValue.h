@@ -1,5 +1,5 @@
-#ifndef Common_OneToValue_h
-#define Common_OneToValue_h
+#ifndef DataFormats_Common_OneToValue_h
+#define DataFormats_Common_OneToValue_h
 #include "DataFormats/Common/interface/AssociationMapHelpers.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"

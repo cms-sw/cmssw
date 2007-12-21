@@ -1,5 +1,5 @@
-#ifndef Common_DetSet2RangeMap_H
-#define Common_DetSet2RangeMap_H
+#ifndef DataFormats_Common_DetSet2RangeMap_h
+#define DataFormats_Common_DetSet2RangeMap_h
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/RangeMap.h"
@@ -41,4 +41,4 @@ namespace edmNew {
 
 }
  
-#endif // Common_DetSet2RangeMap_H
+#endif // DataFormats_Common_DetSet2RangeMap_h

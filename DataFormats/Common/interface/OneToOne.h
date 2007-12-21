@@ -1,5 +1,5 @@
-#ifndef Common_OneToOne_h
-#define Common_OneToOne_h
+#ifndef DataFormats_Common_OneToOne_h
+#define DataFormats_Common_OneToOne_h
 #include "DataFormats/Common/interface/OneToOneGeneric.h"
 
 namespace edm {

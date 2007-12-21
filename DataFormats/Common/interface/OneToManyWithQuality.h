@@ -1,5 +1,5 @@
-#ifndef Common_OneToManyWithQuality_h
-#define Common_OneToManyWithQuality_h
+#ifndef DataFormats_Common_OneToManyWithQuality_h
+#define DataFormats_Common_OneToManyWithQuality_h
 #include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
 
 namespace edm {

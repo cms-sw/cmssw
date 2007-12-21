@@ -1,5 +1,5 @@
-#ifndef Common_MapRefViewTrait_h
-#define Common_MapRefViewTrait_h
+#ifndef DataFormats_Common_MapRefViewTrait_h
+#define DataFormats_Common_MapRefViewTrait_h
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefToBase.h"

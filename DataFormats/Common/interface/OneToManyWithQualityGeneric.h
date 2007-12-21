@@ -1,5 +1,5 @@
-#ifndef Common_OneToManyWithQualityGeneric_h
-#define Common_OneToManyWithQualityGeneric_h
+#ifndef DataFormats_Common_OneToManyWithQualityGeneric_h
+#define DataFormats_Common_OneToManyWithQualityGeneric_h
 #include "DataFormats/Common/interface/AssociationMapHelpers.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"

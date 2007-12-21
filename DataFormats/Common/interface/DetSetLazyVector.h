@@ -1,5 +1,5 @@
-#ifndef Common_DetSetLazyVector_h
-#define Common_DetSetLazyVector_h
+#ifndef DataFormats_Common_DetSetLazyVector_h
+#define DataFormats_Common_DetSetLazyVector_h
 
 /*----------------------------------------------------------------------
   
@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetLazyVector.h,v 1.7 2007/01/17 00:19:11 wmtan Exp $
+$Id: DetSetLazyVector.h,v 1.8 2007/01/19 04:31:17 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

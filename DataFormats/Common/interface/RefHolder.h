@@ -1,5 +1,5 @@
-#ifndef Common_RefHolder_h
-#define Common_RefHolder_h
+#ifndef DataFormats_Common_RefHolder_h
+#define DataFormats_Common_RefHolder_h
 #include "DataFormats/Common/interface/RefHolder_.h"
 
 #include "DataFormats/Common/interface/IndirectVectorHolder.h"

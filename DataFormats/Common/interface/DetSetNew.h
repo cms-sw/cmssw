@@ -1,5 +1,5 @@
-#ifndef Common_DetSetNew_H
-#define Common_DetSetNew_H
+#ifndef DataFormats_Common_DetSetNew_h
+#define DataFormats_Common_DetSetNew_h
 
 namespace edmNew {
   //  FIXME move it elsewhere....
@@ -89,4 +89,4 @@ namespace edmNew {
   };
 }
 
-#endif // Common_DetSet_H
+#endif // DataFormats_Common_DetSet_h

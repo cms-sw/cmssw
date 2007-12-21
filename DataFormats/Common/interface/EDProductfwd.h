@@ -1,11 +1,11 @@
-#ifndef Common_EDProductfwd_h
-#define Common_EDProductfwd_h
+#ifndef DataFormats_Common_EDProductfwd_h
+#define DataFormats_Common_EDProductfwd_h
 
 /*----------------------------------------------------------------------
   
 Forward declarations of types in the EDM.
 
-$Id: EDProductfwd.h,v 1.13 2007/06/20 15:52:50 paterno Exp $
+$Id: EDProductfwd.h,v 1.14 2007/07/09 07:28:49 llista Exp $
 
 ----------------------------------------------------------------------*/
 #include "boost/shared_ptr.hpp"

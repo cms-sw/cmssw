@@ -1,11 +1,11 @@
-#ifndef Common_traits_h
-#define Common_traits_h
+#ifndef DataFormats_Common_traits_h
+#define DataFormats_Common_traits_h
 
 /*----------------------------------------------------------------------
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.14 2007/03/27 16:16:36 paterno Exp $
+$Id: traits.h,v 1.15 2007/10/22 19:46:14 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 

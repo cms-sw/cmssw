@@ -1,12 +1,12 @@
-#ifndef Common_RefVectorIterator_h
-#define Common_RefVectorIterator_h
+#ifndef DataFormats_Common_RefVectorIterator_h
+#define DataFormats_Common_RefVectorIterator_h
 
 /*----------------------------------------------------------------------
   
 RefVectorIterator: An iterator for a RefVector
 
 
-$Id: RefVectorIterator.h,v 1.6 2006/12/04 19:02:31 chrjones Exp $
+$Id: RefVectorIterator.h,v 1.7 2007/07/09 07:28:50 llista Exp $
 
 ----------------------------------------------------------------------*/
 

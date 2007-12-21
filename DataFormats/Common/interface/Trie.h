@@ -1,5 +1,5 @@
-#ifndef   DataFormat_Common_Trie_H_
-# define  DataFormat_Common_Trie_H_
+#ifndef DataFormats_Common_Trie_h
+#define DataFormats_Common_Trie_h
 /*
 ** 
 ** 
@@ -707,4 +707,4 @@ void edm::Trie<T>::display(std::ostream &os)
     _initialNode->display(os, 0, 0);
 }
 
-#endif	 //  DataFormat_Common_Trie_H_
+#endif	 //  DataFormats_Common_Trie_h

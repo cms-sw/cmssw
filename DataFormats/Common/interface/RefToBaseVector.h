@@ -1,10 +1,10 @@
-#ifndef Common_RefToBaseVector_h
-#define Common_RefToBaseVector_h
+#ifndef DataFormats_Common_RefToBaseVector_h
+#define DataFormats_Common_RefToBaseVector_h
 /**\class RefToBaseVector
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseVector.h,v 1.14 2007/09/20 11:28:20 llista Exp $
+ * $Id: RefToBaseVector.h,v 1.15 2007/10/02 10:48:30 llista Exp $
  *
  */
 

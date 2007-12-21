@@ -1,5 +1,5 @@
-#ifndef Common_CloningPtr_h
-#define Common_CloningPtr_h
+#ifndef DataFormats_Common_CloningPtr_h
+#define DataFormats_Common_CloningPtr_h
 // -*- C++ -*-
 //
 // Package:     Common
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:43:29 EDT 2006
-// $Id: CloningPtr.h,v 1.2 2006/08/10 23:34:53 wmtan Exp $
+// $Id: CloningPtr.h,v 1.3 2007/01/23 00:25:52 wmtan Exp $
 //
 
 // system include files

@@ -1,12 +1,12 @@
-#ifndef Common_AssociationMap_h
-#define Common_AssociationMap_h
+#ifndef DataFormats_Common_AssociationMap_h
+#define DataFormats_Common_AssociationMap_h
 /** \class edm::AssociationMap
  *
  * one-to-many or one-to-one associative map using EDM references
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.33 2007/01/23 00:25:52 wmtan Exp $
+ * $Id: AssociationMap.h,v 1.36 2007/03/22 13:11:17 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefVector.h"

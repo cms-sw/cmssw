@@ -1,5 +1,5 @@
-#ifndef Common_HLTPathStatus_h
-#define Common_HLTPathStatus_h
+#ifndef DataFormats_Common_HLTPathStatus_h
+#define DataFormats_Common_HLTPathStatus_h
 
 /** \class edm::HLTPathStatus
  *
@@ -21,8 +21,8 @@
  *
  *  Note that n is limited, due to packing, to at most 2^(16-2)=16384.
  *
- *  $Date: 2007/01/23 00:25:52 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/06 12:54:47 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -67,4 +67,4 @@ namespace edm
   };
 }
 
-#endif // Common_HLTPathStatus_h
+#endif // DataFormats_Common_HLTPathStatus_h

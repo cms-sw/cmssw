@@ -1,5 +1,5 @@
-#ifndef Common_CloneTrait
-#define Common_CloneTrait
+#ifndef DataFormats_Common_CloneTrait_h
+#define DataFormats_Common_CloneTrait_h
 #include "DataFormats/Common/interface/CopyPolicy.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/View.h"

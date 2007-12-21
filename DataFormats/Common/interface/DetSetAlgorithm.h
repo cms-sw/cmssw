@@ -1,5 +1,5 @@
-#ifndef Common_DetSetAlgorithm_H
-#define Common_DetSetAlgorithm_H
+#ifndef DataFormats_Common_DetSetAlgorithm_h
+#define DataFormats_Common_DetSetAlgorithm_h
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include <boost/ref.hpp>
@@ -54,4 +54,4 @@ namespace edmNew {
 }
 
 
-#endif //  Common_DetSetAlgorithm_H
+#endif //  DataFormats_Common_DetSetAlgorithm_h

@@ -1,5 +1,5 @@
-#ifndef Common_DetSetVector_h
-#define Common_DetSetVector_h
+#ifndef DataFormats_Common_DetSetVector_h
+#define DataFormats_Common_DetSetVector_h
 
 /*----------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.18 2007/05/24 16:35:46 paterno Exp $
+$Id: DetSetVector.h,v 1.19 2007/07/09 07:28:49 llista Exp $
 
 ----------------------------------------------------------------------*/
 

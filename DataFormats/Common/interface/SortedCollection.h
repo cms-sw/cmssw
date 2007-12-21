@@ -1,5 +1,5 @@
-#ifndef Common_SortedCollection_h
-#define Common_SortedCollection_h
+#ifndef DataFormats_Common_SortedCollection_h
+#define DataFormats_Common_SortedCollection_h
 
 /*----------------------------------------------------------------------
   
@@ -23,7 +23,7 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.11 2007/05/24 16:35:46 paterno Exp $
+$Id: SortedCollection.h,v 1.12 2007/07/09 07:28:50 llista Exp $
 
 ----------------------------------------------------------------------*/
 

@@ -1,6 +1,6 @@
-#ifndef Common_OwnVector_h
-#define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.33 2007/09/12 13:42:59 llista Exp $
+#ifndef DataFormats_Common_OwnVector_h
+#define DataFormats_Common_OwnVector_h
+// $Id: OwnVector.h,v 1.34 2007/10/02 17:04:14 chrjones Exp $
 
 #include <algorithm>
 #include <functional>
