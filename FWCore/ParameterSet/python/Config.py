@@ -49,7 +49,7 @@ class Process(object):
         self.__dict__['_Process__outputmodules'] = {}
         self.__dict__['_Process__paths'] = DictTypes.SortedKeysDict()    # have to keep the order
         self.__dict__['_Process__endpaths'] = DictTypes.SortedKeysDict() # of definition
-        self.__dict__['_Process__sequences'] = {}
+        self.__dict__['_Process__sequences'] = DictTypes.SortedKeysDict() #keep order for dumpPython
         self.__dict__['_Process__services'] = {}
         self.__dict__['_Process__essources'] = {}
         self.__dict__['_Process__esproducers'] = {}
@@ -600,6 +600,7 @@ if __name__=="__main__":
             p.a = EDAnalyzer("MyAnalyzer")
             p.p = Path(p.a)
             p.s = Sequence(p.a)
+            p.r = Sequence(p.s)
             p.p2 = Path(p.s)
             p.schedule = Schedule(p.p2,p.p)
             d=p.dumpConfig()
@@ -608,6 +609,7 @@ if __name__=="__main__":
     module a = MyAnalyzer { 
     }
     sequence s = {a}
+    sequence r = {s}
     path p = {a}
     path p2 = {s}
     schedule = {p2,p}
@@ -621,6 +623,9 @@ process.a = cms.EDAnalyzer("MyAnalyzer")
 
 
 process.s = cms.Sequence(process.a)
+
+
+process.r = cms.Sequence(process.s)
 
 
 process.p = cms.Path(process.a)
