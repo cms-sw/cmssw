@@ -41,7 +41,7 @@ class EcalRegionCabling {
   
   ~EcalRegionCabling();
   //  const EcalElectronicsMapper * mapper() const { return &mapper_;}
-  EcalElectronicsMapping * mapping() const  { return const_cast<EcalElectronicsMapping*>(&mapping_);} //FIXME please
+  const EcalElectronicsMapping * mapping() const  { return &mapping_;} 
 
   template <class T>  void updateEcalRefGetterWithElementIndex(edm::RefGetter<T> & refgetter,
 							       const edm::Handle< edm::LazyGetter<T> >& lazygetter,
