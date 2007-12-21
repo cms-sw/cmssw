@@ -76,14 +76,9 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					   std::vector<DetGroup> & result) const {
   vector<DetGroup> closestResult;
   SubTurbineCrossings  crossings; 
-  try{
-    crossings = computeCrossings( tsos, prop.propagationDirection());
-  }
-  catch(DetLayerException& err){
-    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in PixelForwardLayer::groupedCompatibleDets:" 
-    //	 << err.what() ;
-    return;
-  }
+  crossings = computeCrossings( tsos, prop.propagationDirection());
+  if(! crossings.isValid()) return;  
+
   typedef CompatibleDetToGroupAdder Adder;
   Adder::add( *theComps[theBinFinder.binIndex(crossings.closestIndex)], 
 	     tsos, prop, est, closestResult);
