@@ -23,6 +23,12 @@ This package contains standard configuration fragments (*.cff) for most common u
 
 \subsection additional Additional Files
 
+- \b Random Seeds include: currently, seeds are given for physics events generation or read-in (source) and 
+  detector simulation 
+ - SimulationRandomNumberGeneratorSeeds.cff: seeds for source, vertex smearing, Geant4-based simulation of
+ particles interactions with CMS detector materials, modeling of mixing, and modeling of electronics response 
+ for all CMS detector subsystems.
+
 - \b Vertex includes: in order to allow an easy configuration of the Vertex Smearing, 4 Configuration Fragments are provided. The user is supposed to include one and only one among:
  - VtxSmearedNoSmear.cff: disables vertex smearing. Actually, it smears, but by fractions of a micron.
  - VtxSmearedGauss.cff: vertex smearing as in ORCA. On the transverse plane, 15 um gaussian smearing. Longitudinally (z), 5.3 cm gaussian smearing. This is the \b ADVICED option
@@ -41,9 +47,26 @@ This package contains standard configuration fragments (*.cff) for most common u
  - MixingStartUpLumiPileUp_OnSel.cff: piles up 2.0 events on average (Poisson statistics), IN-TIME PU (for OnSel/HLT studies)
  - StandardFragment_OnSel.cff: Configuration fragment for GEN-SIM i.e. VtxSmeared and GEANT simulation only.
 
-\subsection seq Simulation Sequences
+\subsection simseq Simulation Sequences
 
-(to be filled)
+- \b simulation: this is the only default for CMSSW Simulation. Requires setup of random seeds for all components
+ in play (see above). Consists of the following:
+
+ \subsubsection psim psim = { VtxSmeared & g4SimHits }
+ Includes modeling of the IR spread (see details above) and full-scale Geant4-based simulation of particles passage 
+ through CMS detector, in the presence of the magnetic field. CMS detector description and magnetic field record are 
+ included in the configuration together with the simulation module (SimG4Core/Configuration/data/SimG4Core.cff)
+ 
+ \subsubsection pdigi pdigi = { mix, doAllDigi, trackingParticles }
+ Includes modeling of pileup (see details above), detector electronics responce for all detector subsystems, and
+ association of generator particles and vertices with Geant4-simulated tracks and vertices.
+ Specifically, modeling of detector electronics response is composed of 3 (sub)sequences:
+ 
+ \subsubsubsection: doAllFigi doAllDigi = { trDigi & calDigi & muonDigi }
+ Includes digitization of Tracker Pixels and Tracker Strips (SimTracker/Configuration/data/SimTracker.cff), 
+ of the ECAL Barrel and EndCap, HCAL HB, HE, HO (SimCalorimetry/Configuration/data/SimCalorimetry.cff), and
+ of the Muon DT, CSC and RPC (SimMuon/Configuration/data/SimMuon.cff). All included configuration fragments
+ contain required geometry setup for a given detector subsystem.
 
 \subsection seq1 Reconstruction Sequences
 
