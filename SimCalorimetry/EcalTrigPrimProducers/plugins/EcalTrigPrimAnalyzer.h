@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.h,v 1.3 2007/06/14 17:00:44 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.h,v 1.4 2007/09/25 15:56:25 uberthon Exp $
 //
 //
 
@@ -42,6 +42,7 @@ class EcalTrigPrimAnalyzer : public edm::EDAnalyzer {
 
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
    private:
 
   // for histos of nr of hits

@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon, Stephanie Baffioni, Pascal Paganini
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.cc,v 1.4 2007/06/14 17:00:44 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.cc,v 1.5 2007/09/25 15:56:25 uberthon Exp $
 //
 //
 
@@ -234,3 +234,16 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
 
 }
 
+void
+EcalTrigPrimAnalyzer::endJob(){
+  for (unsigned int i=0;i<2;++i) {
+    ecal_et_[i]->Write();
+    ecal_tt_[i]->Write();
+    ecal_fgvb_[i]->Write();
+  }
+  if (recHits_) {
+    hTPvsRechit_->Write();
+    hTPoverRechit_->Write();
+  }
+}
+  
