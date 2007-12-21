@@ -75,11 +75,6 @@ void PixelTracksProducer::beginJob(const edm::EventSetup& es) {}
 void 
 PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {        
   
-  unsigned nTriplets = 0;
-  unsigned nFilterTracks = 0;
-  unsigned nPixelTracks = 0;
-  // unsigned nCleanedTracks = 0;
-  
   std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);    
   std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
   std::auto_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection);
@@ -122,10 +117,8 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       std::vector<const TrackingRecHit*> TripletHits(3,static_cast<const TrackingRecHit*>(0));
       for ( unsigned i=0; aSeedingRecHit!=theLastSeedingRecHit; ++i,++aSeedingRecHit )  
 	TripletHits[i] = &(*aSeedingRecHit);
-      //TripletHits.push_back(aSeedingRecHit->clone());  // Memory leak !
       
       // fitting the triplet
-      ++nTriplets;
       reco::Track* track = theFitter->run(es, TripletHits, region);
       
       // decide if track should be skipped according to filter 
@@ -133,11 +126,9 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	delete track; 
 	continue; 
       }
-      ++nFilterTracks;
       
       // add tracks 
       pixeltracks.push_back(TrackWithRecHits(track, TripletHits));
-      ++nPixelTracks;
       
     }
   }
@@ -164,17 +155,21 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   for (int k = 0; k < nTracks; ++k) {
 
-    reco::TrackExtra* theTrackExtra = new reco::TrackExtra();
+    // reco::TrackExtra* theTrackExtra = new reco::TrackExtra();
+    reco::TrackExtra theTrackExtra;
     
     //fill the TrackExtra with TrackingRecHitRef
-    unsigned int nHits = tracks->at(k).numberOfValidHits();
+    // unsigned int nHits = tracks->at(k).numberOfValidHits();
+    unsigned nHits = 3; // We are dealing with triplets!
     for(unsigned int i = 0; i < nHits; ++i) {
-      theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
-      cc++;
+      theTrackExtra.add(TrackingRecHitRef(ohRH,cc++));
+      //theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
+      //cc++;
     }
     
-    trackExtras->push_back(*theTrackExtra);
-    delete theTrackExtra;
+    trackExtras->push_back(theTrackExtra);
+    //trackExtras->push_back(*theTrackExtra);
+    //delete theTrackExtra;
   }
   
   edm::OrphanHandle<reco::TrackExtraCollection> ohTE = e.put(trackExtras);

@@ -44,6 +44,13 @@ FastTrackMerger::FastTrackMerger(const edm::ParameterSet& conf)
   // Only the tracks!
   tracksOnly = conf.getUntrackedParameter<bool>("SaveTracksOnly",false);
 
+  // optional pT cut
+  double pTMin = conf.getUntrackedParameter<bool>("pTMin",0.);
+  pTMin2 = pTMin*pTMin;
+
+  // optional nHit cut
+  minHits = conf.getUntrackedParameter<unsigned>("minHits",0);
+
   if ( !tracksOnly ) { 
     produces<reco::TrackExtraCollection>();
     produces<TrackingRecHitCollection>();
@@ -98,7 +105,6 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
       removeTracks.insert(recoTrackId);      
     }      
   }
-  
 
   // Then the tracks to be added
   std::set<unsigned> alreadyAddedTracks;
@@ -152,12 +158,18 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 #ifdef FAMOS_DEBUG
 	std::cout << recoTrackId << " ";
 #endif
+
+	// Ignore tracks with too small a pT
+	if ( aTrack->innerMomentum().Perp2() < pTMin2 ) continue;
+	
+	// Ignore tracks with too small a pT
+	if ( aTrack->recHitsSize() < minHits ) continue;
 	
 	// A copy of the track + save the transient reference to the track extra reference
 	reco::Track aRecoTrack(*aTrack);
 	// const reco::TrackExtraRef theTrackExtraRef(*theTrackExtraCollection,index);
 	// if ( isTrackExtraCollection ) aRecoTrack.setExtra(theTrackExtraRef);
-	recoTracks->push_back(aRecoTrack);      
+	recoTracks->push_back(aRecoTrack);
 	
       }
       
@@ -208,6 +220,12 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 #ifdef FAMOS_DEBUG
 	std::cout << recoTrackId << " ";
 #endif
+	
+	// Ignore tracks with too small a pT
+	if ( aTrackRef->innerMomentum().Perp2() < pTMin2 ) continue;
+
+	// Ignore tracks with too small a pT
+	if ( aTrackRef->recHitsSize() < minHits ) continue;
 	
 	// A copy of the track
 	reco::Track aRecoTrack(*aTrackRef);

@@ -29,6 +29,8 @@ class FastTrackMerger : public edm::EDProducer
   std::vector<edm::InputTag> trackProducers;
   std::vector<edm::InputTag> removeTrackProducers;
   bool tracksOnly;
+  double pTMin2;
+  unsigned minHits;
 
 };
 
