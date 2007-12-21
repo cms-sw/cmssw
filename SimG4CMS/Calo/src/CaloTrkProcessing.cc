@@ -17,7 +17,7 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 
-#define ddebug
+//#define ddebug
 
 CaloTrkProcessing::CaloTrkProcessing(G4String name, 
 				     const DDCompactView & cpv,
