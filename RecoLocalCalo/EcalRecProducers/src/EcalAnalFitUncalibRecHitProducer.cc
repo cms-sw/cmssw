@@ -1,9 +1,9 @@
 /** \class EcalAnalFitUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes with the analytical fit method
  *
-  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.14 2007/08/06 14:47:45 innocent Exp $
-  *  $Date: 2007/08/06 14:47:45 $
-  *  $Revision: 1.14 $
+  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.15 2007/09/27 10:14:21 ferriff Exp $
+  *  $Date: 2007/09/27 10:14:21 $
+  *  $Revision: 1.15 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -65,22 +65,26 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
    const EBDigiCollection* EBdigis =0;
    const EEDigiCollection* EEdigis =0;
    
-   try {
+   if ( EBdigiCollection_.label() != "" && EBdigiCollection_.instance() != "" ) {
      evt.getByLabel( EBdigiCollection_, pEBDigis);
      //evt.getByLabel( digiProducer_, pEBDigis);
-     EBdigis = pEBDigis.product(); // get a ptr to the produc
-     edm::LogInfo("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: total # EBdigis: " << EBdigis->size() ;
-   } catch (...) {
-     //     edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
+     if (pEBDigis.isValid()) {
+             EBdigis = pEBDigis.product(); // get a ptr to the produc
+             edm::LogInfo("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: total # EBdigis: " << EBdigis->size() ;
+     } else {
+             edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_;
+     }
    }
 
-   try {
-     evt.getByLabel( EEdigiCollection_, pEEDigis);
-     //evt.getByLabel( digiProducer_, pEEDigis);
-     EEdigis = pEEDigis.product(); // get a ptr to the product
-     edm::LogInfo("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: total # EEdigis: " << EEdigis->size() ;
-   } catch (...) {
-     //     edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EEdigiCollection_.c_str() ;
+   if ( EEdigiCollection_.label() != "" && EEdigiCollection_.instance() != "" ) {
+           evt.getByLabel( EEdigiCollection_, pEEDigis);
+           //evt.getByLabel( digiProducer_, pEEDigis);
+           if (pEEDigis.isValid()) {
+                   EEdigis = pEEDigis.product(); // get a ptr to the product
+                   edm::LogInfo("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: total # EEdigis: " << EEdigis->size() ;
+           } else {
+                   edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EEdigiCollection_;
+           }
    }
 
    // Gain Ratios
@@ -215,4 +219,3 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
    evt.put( EBuncalibRechits, EBhitCollection_ );
    evt.put( EEuncalibRechits, EEhitCollection_ );
 }
-

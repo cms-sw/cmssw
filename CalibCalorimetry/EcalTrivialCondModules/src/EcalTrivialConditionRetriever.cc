@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.21 2007/09/27 10:00:26 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.22 2007/10/13 15:22:10 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -451,34 +451,22 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      try
-	{
-	  EBDetId ebid(ieta,iphi);
-	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-	  ical->setValue( ebid, laserAlphaMean_ + r*laserAlphaSigma_ );
-	}
-      catch (...)
-	{
-	}
+            EBDetId ebid(ieta,iphi);
+            double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+            ical->setValue( ebid, laserAlphaMean_ + r*laserAlphaSigma_ );
     }
   }
 
    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
      for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
        // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-       try 
- 	{
- 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
- 	  EEDetId eedetidpos(iX,iY,1);
-	  ical->setValue( eedetidpos, laserAlphaMean_ + r*laserAlphaSigma_ );
+             double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+             EEDetId eedetidpos(iX,iY,1);
+             ical->setValue( eedetidpos, laserAlphaMean_ + r*laserAlphaSigma_ );
 
- 	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
- 	  EEDetId eedetidneg(iX,iY,-1);
- 	  ical->setValue( eedetidneg, laserAlphaMean_ + r1*laserAlphaSigma_ );
- 	}
-       catch (...)
- 	{
- 	}
+             double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+             EEDetId eedetidneg(iX,iY,-1);
+             ical->setValue( eedetidneg, laserAlphaMean_ + r1*laserAlphaSigma_ );
      }
    }
   
@@ -493,23 +481,15 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef( const EcalLaserAP
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      try
- 	{
  	  EBDetId ebid(ieta,iphi);
 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  ical->setValue( ebid, laserAPDPNRefMean_ + r*laserAPDPNRefSigma_ );
- 	}
-      catch (...)
- 	{
- 	}
     }
   }
 
    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
      for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
        // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-       try 
- 	{
  	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  EEDetId eedetidpos(iX,iY,1);
 	  ical->setValue( eedetidpos, laserAPDPNRefMean_ + r*laserAPDPNRefSigma_ );
@@ -517,10 +497,6 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef( const EcalLaserAP
  	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  EEDetId eedetidneg(iX,iY,-1);
  	  ical->setValue( eedetidneg, laserAPDPNRefMean_ + r1*laserAPDPNRefSigma_ );
- 	}
-      catch (...)
- 	{
- 	}
      }
    }
   
@@ -536,8 +512,6 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      try
-   	{
   	  EBDetId ebid(ieta,iphi);
 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
 
@@ -545,18 +519,12 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
 	  pairAPDPN.p1 = laserAPDPNMean_ + r*laserAPDPNSigma_;
 	  pairAPDPN.p2 = laserAPDPNMean_ + r*laserAPDPNSigma_;
 	  ical->setValue( ebid, pairAPDPN );
-  	}
-      catch (...)
-  	{
-  	}
      }
   }
 
    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
      for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
        // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-       try 
- 	{
  	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  EEDetId eedetidpos(iX,iY,1);
 
@@ -571,11 +539,6 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
  	  pairAPDPN.p1 = laserAPDPNMean_ + r1*laserAPDPNSigma_;
  	  pairAPDPN.p2 = laserAPDPNMean_ + r1*laserAPDPNSigma_;
  	  ical->setValue( eedetidneg, pairAPDPN );
-
- 	}
-       catch (...)
- 	{
- 	}
      }
    }
 
