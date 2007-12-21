@@ -59,7 +59,7 @@ fed=-1;
 Pn_ipn=-1;
 pnsString="false";
 
-numPn=1
+numPn=9
 
 first_event=1
 last_event=9999
