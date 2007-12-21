@@ -26,7 +26,7 @@ PFTrackTransformer::PFTrackTransformer(){
   LogInfo("PFTrackTransformer")<<"PFTrackTransformer built";
 
   PFGeometry pfGeometry;
-  onlyprop_=true;
+  onlyprop_=false;
 }
 
 PFTrackTransformer::~PFTrackTransformer(){
@@ -124,8 +124,8 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 					 math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.mag())));
     }
   }
-  
-   bool isBelowPS=false; 
+
+  bool isBelowPS=false; 
    theOutParticle.propagateToPreshowerLayer1(false);
    if(theOutParticle.getSuccess()!=0)
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
