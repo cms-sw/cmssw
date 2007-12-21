@@ -50,6 +50,7 @@ class SecondaryVertexProducer : public edm::EDProducer {
 	const edm::InputTag		trackIPTagInfoLabel;
 	TrackIPTagInfo::SortCriteria	sortCriterium;
 	TrackSelector			trackSelector;
+	bool				useBeamConstraint;
 	edm::ParameterSet		vtxRecoPSet;
 	bool				withPVError;
 	VertexFilter			vertexFilter;
@@ -61,6 +62,7 @@ SecondaryVertexProducer::SecondaryVertexProducer(
 	trackIPTagInfoLabel(params.getParameter<edm::InputTag>("trackIPTagInfos")),
 	sortCriterium(TrackSorting::getCriterium(params.getParameter<std::string>("trackSort"))),
 	trackSelector(params.getParameter<edm::ParameterSet>("trackSelection")),
+	useBeamConstraint(params.getParameter<bool>("useBeamConstraint")),
 	vtxRecoPSet(params.getParameter<edm::ParameterSet>("vertexReco")),
 	withPVError(params.getParameter<bool>("usePVError")),
 	vertexFilter(params.getParameter<edm::ParameterSet>("vertexCuts")),
@@ -118,6 +120,10 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 	edm::Handle<TrackIPTagInfoCollection> trackIPTagInfos;
 	event.getByLabel(trackIPTagInfoLabel, trackIPTagInfos);
 
+	edm::Handle<BeamSpot> beamSpot;
+	if (useBeamConstraint)
+		event.getByType(beamSpot);
+
 	ConfigurableVertexReconstructor vertexReco(vtxRecoPSet);
 
 	// result secondary vertices
@@ -159,7 +165,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			trackData.push_back(IndexedTrackData());
 			trackData.back().first = indices[i];
 
-			// select tracks for SV fit
+			// select tracks for SV finder
 
 			if (trackSelector(*trackRef, ipData[i], *jetRef)) {
 				fitTracks.push_back(
@@ -173,8 +179,11 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 		// perform actual vertex finding
 
-		std::vector<TransientVertex> fittedSVs =
-					vertexReco.vertices(fitTracks);
+		std::vector<TransientVertex> fittedSVs;
+		if (useBeamConstraint)
+			fittedSVs = vertexReco.vertices(fitTracks, *beamSpot);
+		else
+			fittedSVs = vertexReco.vertices(fitTracks);
 
 		// build combined SV information and filter
 
@@ -192,7 +201,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 		fitTracks.clear();
 		fittedSVs.clear();
 
-		// identify most probable SV
+		// sort SVs by importance
 
 		std::vector<unsigned int> vtxIndices = vertexSorting(SVs);
 
