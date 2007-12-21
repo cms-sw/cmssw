@@ -123,7 +123,8 @@ class SiPixelInformationExtractor {
                                 std::string                               theName);
   void plotHistos(              std::multimap<std::string, std::string> & req_map, 
                                 std::vector<MonitorElement*>              me_list);
-  void plotHisto(               MonitorElement                          * theMe,
+  void plotHisto(               DaqMonitorBEInterface 			* bei, 
+                                MonitorElement                          * theMe,
                                 std::string                               theName,
 				std::string 				  canvasW,
 				std::string 				  canvasH);

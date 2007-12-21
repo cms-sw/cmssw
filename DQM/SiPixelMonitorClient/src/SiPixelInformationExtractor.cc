@@ -12,6 +12,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "TText.h"
 #include "TROOT.h"
@@ -27,6 +28,9 @@
 #include "TAxis.h"
 #include "TPaveLabel.h"
 #include "Rtypes.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TProfile.h"
 
 #include <qstring.h>
 #include <qregexp.h>
@@ -46,6 +50,7 @@ SiPixelInformationExtractor::SiPixelInformationExtractor() {
     " Creating SiPixelInformationExtractor " << "\n" ;
   
   canvas_ = new TCanvas("PlotCanvas", "Plot Canvas"); 
+  readReference_ = false;
 }
 
 //------------------------------------------------------------------------------
@@ -419,7 +424,7 @@ void SiPixelInformationExtractor::plotTkMapHisto(DaqMonitorBEInterface * bei,
 //	<< " --> "
 //	<< (*it)->getName() 
 //	<< endl ;
-   plotHisto(*it, theMEName,"800","800") ;
+   plotHisto(bei,*it, theMEName,"800","800") ;
   }
     
 }
@@ -460,7 +465,8 @@ std::string  SiPixelInformationExtractor::getMEType(MonitorElement * theMe)
 //============================================================================================================
 // --  Plot Selected Monitor Elements
 // 
-void SiPixelInformationExtractor::plotHisto(MonitorElement * theMe, 
+void SiPixelInformationExtractor::plotHisto(DaqMonitorBEInterface * bei,
+                                            MonitorElement * theMe, 
                                             std::string      theMEName,
 					    std::string      canvasW,
 					    std::string      canvasH) 
@@ -517,11 +523,28 @@ void SiPixelInformationExtractor::plotHisto(MonitorElement * theMe,
     int istat =  SiPixelUtility::getStatus(theMe);
 	
     TH1F* histoME = ExtractTObject<TH1F>().extract(theMe);
-    //cout << "theMEName: " << theMEName << endl;
     string var = theMEName.substr(theMEName.find_last_of("/")+1);
-    //cout << "var: " << var << endl;
+
+    //add reference histos here:
+    if (!readReference_) {
+      string localPath = string("DQM/SiPixelMonitorClient/scripts/Reference.root");
+      bei->open(edm::FileInPath(localPath).fullPath(), false, "", "Reference");
+      readReference_ = true;
+    }	
+    std::string refMEName = "Reference/" + theMEName;
+    MonitorElement * refMe = bei->get(refMEName);
+    if(refMe){
+      TH1 * hist1_ref = ExtractTObject<TH1>().extract(refMe);
+      if(hist1_ref && histoME && histoME->GetEntries()>0){
+        hist1_ref->SetLineColor(4); //blue
+	hist1_ref->SetTitle("reference");
+	histoME->SetLineColor(1); //black
+	histoME->Draw();
+	hist1_ref->DrawNormalized("same", histoME->GetEntries());
+      }
+    }
     
-    //cout<<"istat="<<istat<<endl;
+    
     if(istat!=0){
       string tag;
       int icol;
@@ -1429,7 +1452,7 @@ const ostringstream&  SiPixelInformationExtractor::getIMGCImage(DaqMonitorBEInte
 	  << theFullPath
 	  << endl ;
    }
-   plotHisto(theME, theFullPath, canvasW, canvasH) ;
+   plotHisto(bei,theME, theFullPath, canvasW, canvasH) ;
    return getNamedImage(theFullPath) ;   
 }
 
@@ -2106,7 +2129,6 @@ void SiPixelInformationExtractor::setCanvasMessage(const string& error_string) {
  *
  *  This method 
  */
-//void SiPixelInformationExtractor::plotHistosFromPath(MonitorUserInterface * mui, 
 void SiPixelInformationExtractor::plotHistosFromPath(DaqMonitorBEInterface * bei, 
                                                      std::multimap<std::string, std::string>& req_map){
 
@@ -2115,7 +2137,6 @@ void SiPixelInformationExtractor::plotHistosFromPath(DaqMonitorBEInterface * bei
        << ACPlain 
        << " Enter" 
        << endl ;
-  //DaqMonitorBEInterface * bei = mui->getBEInterface();
   vector<string> item_list;  
   getItemList(req_map,"Path", item_list);
   
@@ -2137,7 +2158,6 @@ void SiPixelInformationExtractor::plotHistosFromPath(DaqMonitorBEInterface * bei
     string path_name = (*it);
     if (path_name.size() == 0) continue;
     
-  //  MonitorElement* me = mui->get(path_name);
     MonitorElement* me = bei->get(path_name);
 
     if (me) me_list.push_back(me);
