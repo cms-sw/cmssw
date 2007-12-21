@@ -130,10 +130,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	if(ok) cont++;
       }catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
-      }catch ( std::exception & e){
-	edm::LogError("TrackProducer") << "Genexception2: " << e.what() <<"\n";      
-      }catch (...){
-	edm::LogError("TrackProducer") << "Genexception: \n";
+        throw;
       }
     }
   edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
@@ -193,10 +190,7 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 	if(ok) cont++;
       }catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
-      }catch ( std::exception & e){
-	edm::LogError("TrackProducer") << "Genexception2: " << e.what() <<"\n";      
-      }catch (...){
-	edm::LogError("TrackProducer") << "Genexception: \n";
+        throw;
       }
     }
   edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
@@ -269,12 +263,9 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 	//=====  the hits are in the same order as they were in the track::extra.        
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof,theT->seedRef());
 	if(ok) cont++;
-      }catch ( CMSexception & e){
+      } catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
-      }catch ( std::exception & e){
-	edm::LogError("TrackProducer") << "Genexception2: " << e.what() <<"\n";      
-      }catch (...){
-	edm::LogError("TrackProducer") << "Genexception: \n";
+        throw;
       }
     }
   edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
