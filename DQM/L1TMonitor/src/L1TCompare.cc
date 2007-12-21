@@ -1,9 +1,14 @@
 /*
  * \file L1TCompare.cc
- * $Id: L1TCompare.cc,v 1.6 2007/11/19 15:08:22 lorenzo Exp $
+ * $Id: L1TCompare.cc,v 1.7 2007/12/21 17:41:20 berryhil Exp $
  * \author P. Wittich
  * \brief Compare different parts of the trigger chain (e.g., RCT-GCT )
  * $Log: L1TCompare.cc,v $
+ * Revision 1.7  2007/12/21 17:41:20  berryhil
+ *
+ *
+ * try/catch removal
+ *
  * Revision 1.6  2007/11/19 15:08:22  lorenzo
  * changed top folder name
  *
@@ -41,6 +46,7 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 // Ecal
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -253,7 +259,8 @@ void L1TCompare::analyze(const Event & e, const EventSetup & c)
   edm::Handle < L1JetParticleCollection > l1eCenJets;
   edm::Handle < L1JetParticleCollection > l1eForJets;
   edm::Handle < L1JetParticleCollection > l1eTauJets;
-  edm::Handle < L1EtMissParticle > l1eEtMiss;
+  //  edm::Handle < L1EtMissParticle > l1eEtMiss;
+  edm::Handle < L1EtMissParticleCollection > l1eEtMiss;
   // RCT
   edm::Handle < L1CaloEmCollection > em; // collection of L1CaloEmCands
   edm::Handle < L1CaloRegionCollection > rctEmRgn;
