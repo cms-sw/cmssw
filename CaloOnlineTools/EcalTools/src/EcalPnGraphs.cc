@@ -2,8 +2,8 @@
  * module dumping TGraph with 50 data frames from Pn Diodes
  *   
  * 
- * $Date: 2007/06/13 13:55:32 $
- * $Revision: 1.2 $
+ * $Date: 2007/12/21 13:08:22 $
+ * $Revision: 1.1 $
  * \author K. Kaadze
  * \author G. Franzoni 
  *
@@ -34,10 +34,8 @@ EcalPnGraphs::EcalPnGraphs(const edm::ParameterSet& ps){
 //=============================================================================
 
   digiProducer_     = ps.getParameter<std::string>("digiProducer");
-
   fileName = ps.getUntrackedParameter<std::string >("fileName", std::string("toto") );
 
-  //  ieb_id   = ps.getUntrackedParameter< int >("ieb_id", 1);
   first_Pn = 0;
 
   listPns = ps.getUntrackedParameter<std::vector<int> >("listPns", std::vector<int>());
@@ -92,15 +90,20 @@ EcalPnGraphs::EcalPnGraphs(const edm::ParameterSet& ps){
   }
 
   //Check with Pns
-  std::vector<int>::iterator intIter;
-  for (intIter = listPns.begin(); intIter != listPns.end(); intIter++)  {  
-    if ( ((*intIter) < 1) ||  (10 < (*intIter)) )       {  
-      std::cout << "[EcalPnGraphs] pn number : " << (*intIter) << " found in listPns. "
-		<< " Valid range is 1-10. Returning." << std::endl;
-      inputIsOk = false;
-      return;
+  if ( listPns[0] != -1 ) { 
+    std::vector<int>::iterator intIter;
+    for (intIter = listPns.begin(); intIter != listPns.end(); intIter++)  {  
+      if ( ((*intIter) < 1) ||  (10 < (*intIter)) )       {  
+	std::cout << "[EcalPnGraphs] pn number : " << (*intIter) << " found in listPns. "
+		  << " Valid range is 1-10. Returning." << std::endl;
+	inputIsOk = false;
+	return;
+      }
+      if (!   first_Pn )   first_Pn = (*intIter);	
     }
-    if (!   first_Pn )   first_Pn = (*intIter);	
+  } else {
+    listPns.clear();
+    listPns.push_back(5); 
   }
   
   // setting the abcissa array once for all
