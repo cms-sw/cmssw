@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/14 08:58:56 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/12/21 08:51:49 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -157,18 +157,17 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        const std::string& label(fobs_[ifob].provenance()->moduleLabel());
        ids_.clear();
        keys_.clear();
-       cout << "Filling: " << fobs_[ifob].provenance()->moduleLabel() << endl;
-       fillFilterObjects(label+"_0",fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());
-       fillFilterObjects(label+"_1",fobs_[ifob]->electronIds() ,fobs_[ifob]->electronRefs());
-       fillFilterObjects(label+"_2",fobs_[ifob]->muonIds()     ,fobs_[ifob]->muonRefs());
-       fillFilterObjects(label+"_3",fobs_[ifob]->jetIds()      ,fobs_[ifob]->jetRefs());
-       fillFilterObjects(label+"_4",fobs_[ifob]->compositeIds(),fobs_[ifob]->compositeRefs());
-       fillFilterObjects(label+"_5",fobs_[ifob]->metIds()      ,fobs_[ifob]->metRefs());
-       fillFilterObjects(label+"_6",fobs_[ifob]->htIds()       ,fobs_[ifob]->htRefs());
-       fillFilterObjects(label+"_7",fobs_[ifob]->l1emIds()     ,fobs_[ifob]->l1emRefs());
-       fillFilterObjects(label+"_8",fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
-       fillFilterObjects(label+"_9",fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
-       fillFilterObjects(label+"_A",fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
+       fillFilterObjects(label+" 0",fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());
+       fillFilterObjects(label+" 1",fobs_[ifob]->electronIds() ,fobs_[ifob]->electronRefs());
+       fillFilterObjects(label+" 2",fobs_[ifob]->muonIds()     ,fobs_[ifob]->muonRefs());
+       fillFilterObjects(label+" 3",fobs_[ifob]->jetIds()      ,fobs_[ifob]->jetRefs());
+       fillFilterObjects(label+" 4",fobs_[ifob]->compositeIds(),fobs_[ifob]->compositeRefs());
+       fillFilterObjects(label+" 5",fobs_[ifob]->metIds()      ,fobs_[ifob]->metRefs());
+       fillFilterObjects(label+" 6",fobs_[ifob]->htIds()       ,fobs_[ifob]->htRefs());
+       fillFilterObjects(label+" 7",fobs_[ifob]->l1emIds()     ,fobs_[ifob]->l1emRefs());
+       fillFilterObjects(label+" 8",fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
+       fillFilterObjects(label+" 9",fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
+       fillFilterObjects(label+" A",fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
        product->addFilter(fobs_[ifob].provenance()->moduleLabel(),ids_,keys_);
      }
    }
