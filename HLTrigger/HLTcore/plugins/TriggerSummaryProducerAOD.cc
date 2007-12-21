@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/12 14:48:38 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/12/14 08:58:56 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -154,19 +154,21 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    /// fill the filter objects
    for (size_type ifob=0; ifob!=nfob; ++ifob) {
      if (mask_[ifob]) {
+       const std::string& label(fobs_[ifob].provenance()->moduleLabel());
        ids_.clear();
        keys_.clear();
-       fillFilterObjects(fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());
-       fillFilterObjects(fobs_[ifob]->electronIds() ,fobs_[ifob]->electronRefs());
-       fillFilterObjects(fobs_[ifob]->muonIds()     ,fobs_[ifob]->muonRefs());
-       fillFilterObjects(fobs_[ifob]->jetIds()      ,fobs_[ifob]->jetRefs());
-       fillFilterObjects(fobs_[ifob]->compositeIds(),fobs_[ifob]->compositeRefs());
-       fillFilterObjects(fobs_[ifob]->metIds()      ,fobs_[ifob]->metRefs());
-       fillFilterObjects(fobs_[ifob]->htIds()       ,fobs_[ifob]->htRefs());
-       fillFilterObjects(fobs_[ifob]->l1emIds()     ,fobs_[ifob]->l1emRefs());
-       fillFilterObjects(fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
-       fillFilterObjects(fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
-       fillFilterObjects(fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
+       cout << "Filling: " << fobs_[ifob].provenance()->moduleLabel() << endl;
+       fillFilterObjects(label+"_0",fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());
+       fillFilterObjects(label+"_1",fobs_[ifob]->electronIds() ,fobs_[ifob]->electronRefs());
+       fillFilterObjects(label+"_2",fobs_[ifob]->muonIds()     ,fobs_[ifob]->muonRefs());
+       fillFilterObjects(label+"_3",fobs_[ifob]->jetIds()      ,fobs_[ifob]->jetRefs());
+       fillFilterObjects(label+"_4",fobs_[ifob]->compositeIds(),fobs_[ifob]->compositeRefs());
+       fillFilterObjects(label+"_5",fobs_[ifob]->metIds()      ,fobs_[ifob]->metRefs());
+       fillFilterObjects(label+"_6",fobs_[ifob]->htIds()       ,fobs_[ifob]->htRefs());
+       fillFilterObjects(label+"_7",fobs_[ifob]->l1emIds()     ,fobs_[ifob]->l1emRefs());
+       fillFilterObjects(label+"_8",fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
+       fillFilterObjects(label+"_9",fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
+       fillFilterObjects(label+"_A",fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
        product->addFilter(fobs_[ifob].provenance()->moduleLabel(),ids_,keys_);
      }
    }
@@ -210,7 +212,7 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
 }
 
 template <typename C>
-void TriggerSummaryProducerAOD::fillFilterObjects(const trigger::Vids& ids, const std::vector<edm::Ref<C> >& refs) {
+void TriggerSummaryProducerAOD::fillFilterObjects(std::string label, const trigger::Vids& ids, const std::vector<edm::Ref<C> >& refs) {
 
   /// this routine takes a vector of Ref<C>s and determines the
   /// corresponding vector of keys (i.e., indices) into the
@@ -225,7 +227,11 @@ void TriggerSummaryProducerAOD::fillFilterObjects(const trigger::Vids& ids, cons
   const size_type n(ids.size());
   for (size_type i=0; i!=n; ++i) {
     const ProductID pid(refs[i].id());
-    assert(offset_.find(pid)!=offset_.end()); // else unknown pid
+    //assert(offset_.find(pid)!=offset_.end()); // else unknown pid
+    if (offset_.find(pid)==offset_.end()) {
+      offset_[pid]=0;
+      cout << "#### Error in fillFilterObject: "+label+" - unknown pid!" << endl;
+    }
     keys_.push_back(offset_[pid]+refs[i].key());
     ids_.push_back(ids[i]);
   }
