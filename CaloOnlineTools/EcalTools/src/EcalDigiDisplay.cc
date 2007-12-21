@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2007/12/16 14:46:24 $
- * $Revision: 1.2 $
+ * $Date: 2007/12/16 15:48:05 $
+ * $Revision: 1.3 $
  * \author Keti Kaadze
  * \author G. Franzoni
  *
@@ -66,17 +66,19 @@ EcalDigiDisplay::EcalDigiDisplay(const edm::ParameterSet& ps) {
   bool ebIsGiven  = false;  
   // FEDs and EBs
   if ( requestedFeds_[0] != -1 ) {
-    // edm::LogInfo("EcalDigiDisplay") << "FED id is given! Goining to beginJob! ";
+    edm::LogInfo("EcalDigiDisplay") << "FED id is given! Goining to beginJob! ";
     fedIsGiven = true;
   }else {
     if ( requestedEbs_[0] !="none" ) {
       ebIsGiven = true;
       //EB id is given and convert to FED id
       requestedFeds_.clear();
+      fedMap = new EcalFedMap();
       for (std::vector<std::string>::const_iterator ebItr = requestedEbs_.begin(); 
 	   ebItr!= requestedEbs_.end();  ++ebItr) {
 	requestedFeds_.push_back(fedMap->getFedFromSlice(*ebItr));
       }
+      delete fedMap;
     } else {
       //Select all FEDs in the Event
       for ( int i=601; i<655; ++i){
@@ -274,14 +276,15 @@ void EcalDigiDisplay::readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode
     
     //Check if Mode is set 1 or 2 
     if ( Mode ==1 ) {
+      std::cout << "111: " << std::endl;
       edm::LogInfo("EcalDigiDisplay") << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDisplay]  digi cry collection size " << digis->size();
       edm::LogInfo("EcalDigiDisplay") << "                       [EcalDigiDisplay]  dumping first " << numChannel << " crystals\n";
       //It will break if all required digis are dumpped
-      if( (dumpDigiCounter++) >= numChannel) break;     
+      if( (dumpDigiCounter++) >= numChannel) break;  
     } else if  ( Mode==2 ) {
       int ic = EBDetId((*digiItr).id()).ic();
       int tt = EBDetId((*digiItr).id()).tower().iTT();
-      
+      std::cout << "222: " << std::endl;     
       std::vector<int>::iterator icIterCh;
       std::vector<int>::iterator icIterTt;
       icIterCh = find(listChannels.begin(), listChannels.end(), ic);
@@ -294,10 +297,9 @@ void EcalDigiDisplay::readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode
       inputIsOk = false;
       return;
     }
-    
     std::cout << "FEDID: " << FEDid << std::endl;
     std::cout << "Tower: " << EBDetId((*digiItr).id()).tower().iTT()
-              <<" ic-cry: " 
+	      <<" ic-cry: " 
 	      << EBDetId((*digiItr).id()).ic() << " i-phi: " 
 	      << EBDetId((*digiItr).id()).iphi() << " j-eta: " 
 	      << EBDetId((*digiItr).id()).ieta() << std::endl;
