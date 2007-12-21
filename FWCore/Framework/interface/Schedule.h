@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.33 2007/11/12 23:57:48 wmtan Exp $
+  $Id: Schedule.h,v 1.34 2007/11/30 07:06:31 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -113,7 +113,7 @@ namespace edm {
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef boost::shared_ptr<Worker> WorkerPtr;
     typedef boost::shared_ptr<ActivityRegistry> ActivityRegistryPtr;
-    typedef std::set<Worker*> AllWorkers;
+    typedef std::vector<Worker*> AllWorkers;
     typedef std::vector<OutputWorker*> AllOutputWorkers;
 
     typedef std::vector<Worker*> Workers;
@@ -250,6 +250,8 @@ namespace edm {
     void fillEndPath(int bitpos, std::string const& name);
 
     void limitOutput();
+
+    void addToAllWorkers(Worker* w);
 
     ParameterSet        pset_;
     WorkerRegistry*     worker_reg_;

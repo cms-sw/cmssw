@@ -160,7 +160,7 @@ namespace edm {
       results_inserter_ = makeInserter(pset_, tns.getTriggerPSet(), 
 				       processName_,
 				       preg, actions, results_);
-      all_workers_.insert(results_inserter_.get());
+      addToAllWorkers(results_inserter_.get());
     }
 
     TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
@@ -209,7 +209,7 @@ namespace edm {
 	  if (dynamic_cast<ProducerWorker*>(newWorker)) {
 	    unscheduled_->addWorker(newWorker);
 	    //add to list so it gets reset each new event
-	    all_workers_.insert(newWorker);
+            addToAllWorkers(newWorker);
 	  } else {
 	    //not a producer so should be marked as not used
 	    shouldBeUsedLabels.push_back(*itLabel);
@@ -428,7 +428,7 @@ namespace edm {
       Path p(bitpos,name,tmpworkers,trptr,pset_,*act_table_,act_reg_,false);
       trig_paths_.push_back(p);
     }
-    all_workers_.insert(holder.begin(),holder.end());
+    for_all(holder, boost::bind(&edm::Schedule::addToAllWorkers, this, _1));
   }
 
   void Schedule::fillEndPath(int bitpos, std::string const& name) {
@@ -463,7 +463,7 @@ namespace edm {
       Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,act_reg_,true);
       end_paths_.push_back(p);
     }
-    all_workers_.insert(holder.begin(), holder.end());
+    for_all(holder, boost::bind(&edm::Schedule::addToAllWorkers, this, _1));
   }
 
   void Schedule::endJob() {
@@ -953,5 +953,8 @@ namespace edm {
     endpath_results_->reset();
   }
 
+  void
+  Schedule::addToAllWorkers(Worker* w) {
+    if (!search_all(all_workers_, w)) all_workers_.push_back(w);
+  }
 }
-
