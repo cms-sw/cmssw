@@ -80,10 +80,26 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
       layer.useMatchedRecHits = true; 
       layer.useRPhiRecHits = true;
       layer.useStereoRecHits = true;
-      try { layer.pixelHitProducer = cfgLayer.getParameter<string>("HitProducer"); } catch(...) { layer.usePixelHitProducer = false; }
-      try { layer.matchedRecHits = cfgLayer.getParameter<edm::InputTag>("matchedRecHits"); } catch(...) { layer.useMatchedRecHits = false; }
-      try { layer.rphiRecHits = cfgLayer.getParameter<edm::InputTag>("rphiRecHits"); } catch(...) { layer.useRPhiRecHits = false; }
-      try { layer.stereoRecHits= cfgLayer.getParameter<edm::InputTag>("stereoRecHits"); } catch(...) { layer.useStereoRecHits = false; }
+      if (cfgLayer.exists("HitProducer")) {
+          layer.pixelHitProducer = cfgLayer.getParameter<string>("HitProducer"); 
+      }else{
+          layer.usePixelHitProducer = false;
+      }
+      if (cfgLayer.exists("matchedRecHits")) {
+          layer.matchedRecHits = cfgLayer.getParameter<edm::InputTag>("matchedRecHits"); 
+      }else{
+          layer.useMatchedRecHits = false;
+      }
+      if (cfgLayer.exists("rphiRecHits")) {
+          layer.rphiRecHits = cfgLayer.getParameter<edm::InputTag>("rphiRecHits"); 
+      }else{
+          layer.useRPhiRecHits = false;
+      }
+      if (cfgLayer.exists("stereoRecHits")) {
+          layer.stereoRecHits= cfgLayer.getParameter<edm::InputTag>("stereoRecHits"); 
+      }else{
+          layer.useStereoRecHits = false;
+      }
 
       layer.hitBuilder  = cfgLayer.getParameter<string>("TTRHBuilder");
 
@@ -121,11 +137,7 @@ edm::ParameterSet SeedingLayerSetsBuilder::layerConfig(const std::string & nameL
    
   for (string::size_type iEnd=nameLayer.size(); iEnd > 0; --iEnd) {
     string name = nameLayer.substr(0,iEnd);
-    try {
-       result = cfg.getParameter<edm::ParameterSet>(name);
-       return result;
-    } 
-    catch (...) { } 
+    if (cfg.exists(name)) return cfg.getParameter<edm::ParameterSet>(name);
   } 
   cout <<"configuration for layer: "<<nameLayer<<" not found, job will probably crash!"<<endl;
   return result;
