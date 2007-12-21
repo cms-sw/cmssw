@@ -43,7 +43,6 @@ echo "      -m|--mode             mode            dimping mode, options 1 or 2; 
 echo "      -fed|--fed_id         fed_id         select FED id (601...654); default is all"
 echo "      -eb|--ieb_id          ieb_id          selects sm barrel id; you must enter following way: EE-09 / EB-07 / EB+15 / EE+04 / ; default is all"
 echo "      -cry|--cryDigi        ic              digis from channel ic will be shown"
-echo "      -crys|--cryDigi       ics             digis from list of channels ics will be shown"
 echo "      -tt|--Tower           tt              digis from channel whole tower tt will be shown; For EE it referts ot Chanles from DCC, also called as Super Crystal" 
 echo "      -pn|--pnDigi          pd_id           digis from pn number pd_id will be shown"
 
@@ -65,7 +64,6 @@ fed=-1;
 
 
 cry_ic=-1;
-crys_ic=-1;
 tt_id=-1;
 cryString="false";
 towerString="false";
@@ -112,11 +110,6 @@ while [ $# -gt 0 ]; do    # FinchÅÈ ci sono parametri . . .
 	
 	-cry|--cryDigi)
 	    cry_ic="$2"
-	    cryString="true"
-	    ;;
-	
-	-crys|--cryDigi)
-	    crys_ic="$2"
 	    cryString="true"
 	    ;;
 	
@@ -212,8 +205,8 @@ include "EventFilter/EcalRawToDigiDev/data/EcalUnpackerData.cfi"
      replace ecalDigiDisplay.mode     = $mode    
      replace ecalDigiDisplay.numChannel   = $cry_ic    
      replace ecalDigiDisplay.numPN        = $pn_num    
-     replace ecalDigiDisplay.listChannels = { ${crys_ic} }    
-     replace ecalDigiDisplay.listPns      = { ${pn_num} }    
+     replace ecalDigiDisplay.listChannels = { $cry_ic }    
+     replace ecalDigiDisplay.listPns      = { $pn_num }    
 
 
      module counter = AsciiOutputModule{}
