@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2007/08/01 19:40:11 $
-// $Revision: 1.3 $
+// $Author: dlange $
+// $Date: 2007/10/27 21:41:56 $
+// $Revision: 1.4 $
 //
 
 #include <memory>
@@ -83,38 +83,27 @@ namespace cms
     // if both input lists don't exist, will issue 2 warnings and generate an empty output collection
     //
     const reco::TrackCollection *TC1 = 0;
-    try {
-      edm::Handle<reco::TrackCollection> trackCollection1;
-      e.getByLabel(trackProducer1, trackCollection1);
+    static const reco::TrackCollection s_empty1, s_empty2;
+    edm::Handle<reco::TrackCollection> trackCollection1;
+    e.getByLabel(trackProducer1, trackCollection1);
+    if (trackCollection1.isValid()) {
       TC1 = trackCollection1.product();
       //std::cout << "1st collection " << trackProducer1 << " has "<< TC1->size() << " tracks" << std::endl ;
-    }
-    catch (edm::Exception const& x) {
-      if ( x.categoryCode() == edm::errors::ProductNotFound ) {
-	if ( x.history().size() == 1 ) {
-          static const reco::TrackCollection s_empty;
-          TC1 = &s_empty;
-          edm::LogWarning("SimpleTrackListMerger") << "1st TrackCollection " << trackProducer1 << " not found; will only clean 2nd TrackCollection " << trackProducer2 ;
-	}
-      }
+    } else {
+      TC1 = &s_empty1;
+      edm::LogWarning("SimpleTrackListMerger") << "1st TrackCollection " << trackProducer1 << " not found; will only clean 2nd TrackCollection " << trackProducer2 ;
     }
     const reco::TrackCollection tC1 = *TC1;
 
     const reco::TrackCollection *TC2 = 0;
-    try {
-      edm::Handle<reco::TrackCollection> trackCollection2;
-      e.getByLabel(trackProducer2, trackCollection2);
+    edm::Handle<reco::TrackCollection> trackCollection2;
+    e.getByLabel(trackProducer2, trackCollection2);
+    if (trackCollection2.isValid()) {
       TC2 = trackCollection2.product();
       //std::cout << "2nd collection " << trackProducer2 << " has "<< TC2->size() << " tracks" << std::endl ;
-    }
-    catch (edm::Exception const& x) {
-      if ( x.categoryCode() == edm::errors::ProductNotFound ) {
-	if ( x.history().size() == 1 ) {
-          static const reco::TrackCollection s_empty;
-          TC2 = &s_empty;
-          edm::LogWarning("SimpleTrackListMerger") << "2nd TrackCollection " << trackProducer2 << " not found; will only clean 1st TrackCollection " << trackProducer1 ;
-	}
-      }
+    } else {
+        TC2 = &s_empty2;
+        edm::LogWarning("SimpleTrackListMerger") << "2nd TrackCollection " << trackProducer2 << " not found; will only clean 1st TrackCollection " << trackProducer1 ;
     }
     const reco::TrackCollection tC2 = *TC2;
 
