@@ -26,7 +26,8 @@ private:
 
 //  edm::ParameterSet theConfig;
   float maxD0Sig_, minPt_;
-
+  int minSiHits_, minPxHits_;
+  float maxNormChi2_;
 };
 
 #endif

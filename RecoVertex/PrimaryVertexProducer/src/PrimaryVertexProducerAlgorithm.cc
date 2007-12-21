@@ -70,7 +70,7 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
   // initialization of vertex finder algorithm
   // theFinder should not perform any track selection
   // theTrackFilter does it
-  theFinder.setPtCut(0.);
+  theFinder.setPtCut(conf.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("minPt"));
   float minTrackCompatibilityToMainVertex 
     = conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<double>("minTrackCompatibilityToMainVertex");
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
