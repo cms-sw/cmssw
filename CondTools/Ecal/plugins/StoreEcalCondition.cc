@@ -42,7 +42,6 @@ void StoreEcalCondition::endJob() {
 
   bool toAppend=false;
   for (unsigned int i=0;i<objectName_.size();i++) {
-    try{
       cond::Time_t newTime;
       
       if ( mydbservice->isNewTagRequest( objectName_[i]+std::string("Rcd") ) ) {
@@ -101,21 +100,9 @@ void StoreEcalCondition::endJob() {
       
 
       //      writeToLogFile(objectName_[i], inpFileName_[i], since_[i]);
-
-    } catch(cond::Exception &e) {
-      writeToLogFileResults("finished with exception\n");
-      edm::LogError("StoreEcalCondition")<< e.what() ;
-    } catch(std::exception &e) {
-      writeToLogFileResults("finished with exception\n");
-      edm::LogError("StoreEcalCondition")<< e.what() ;
-    } catch(...) {
-      writeToLogFileResults("finished with exception\n");
-      edm::LogError("StoreEcalCondition") << "Unknown exception" ;
-    }
+      writeToLogFileResults("finished OK\n");
+      edm::LogInfo("StoreEcalCondition") << "Finished endJob" << endl;
   }
-
-  writeToLogFileResults("finished OK\n");
-  edm::LogInfo("StoreEcalCondition") << "Finished endJob" << endl;
 }
 
 
