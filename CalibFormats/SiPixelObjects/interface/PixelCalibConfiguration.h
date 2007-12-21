@@ -1,5 +1,5 @@
-#ifndef PixelCalib_h
-#define PixelCalib_h
+#ifndef PixelCalibConfiguration_h
+#define PixelCalibConfiguration_h
 //
 // This class inplement the steps
 // that are used in a scan over

@@ -131,16 +131,16 @@ namespace pos{
       std::string filename=directory+"/configurations.txt";
       if(!first)
 	{
-	  //std::cout << "[pos::PixelConfigFile::getConfig()] Reloading configurations.txt"<< std::endl ;
+//	  std::cout << "[pos::PixelConfigFile::getConfig()] Reloading configurations.txt"<< std::endl ;
 	  configs.reload(filename) ;
-	  //std::cout << "[pos::PixelConfigFile::getConfig()] Size reloaded: " << configs.size() << std::endl ;
+//	  std::cout << "[pos::PixelConfigFile::getConfig()] Size reloaded: " << configs.size() << std::endl ;
 	}
       if (first) 
 	{
 	  first=0;
-	  //std::cout << "[pos::PixelConfigFile::getConfig()] Reading configurations.txt"<< std::endl ;
+//	  std::cout << "[pos::PixelConfigFile::getConfig()] Reading configurations.txt"<< std::endl ;
 	  configs.readfile(filename);
-	  //std::cout << "[pos::PixelConfigFile::getConfig()] Size read: " << configs.size() << std::endl ;
+//	  std::cout << "[pos::PixelConfigFile::getConfig()] Size read: " << configs.size() << std::endl ;
 	}
 
       return configs;
@@ -192,9 +192,9 @@ namespace pos{
     
       std::string dir=base.substr(slashpos+1);
     
-/*       std::cout << "Extracted dir:"<<dir<<std::endl; */
-/*       std::cout << "Extracted base:"<<base<<std::endl; */
-/*       std::cout << "Extracted ext :"<<ext<<std::endl; */
+//      std::cout << "Extracted dir:"<<dir<<std::endl;
+//      std::cout << "Extracted base:"<<base<<std::endl;
+//      std::cout << "Extracted ext :"<<ext<<std::endl;
     
       unsigned int version;
       int err=getConfig()[theKey].find(dir,version);   
