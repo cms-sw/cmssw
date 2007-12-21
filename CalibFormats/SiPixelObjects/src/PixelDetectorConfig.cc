@@ -11,6 +11,7 @@
 #include <sstream>
 #include <ios>
 #include <assert.h>
+#include <stdio.h>
 
 using namespace std;
 using namespace pos;
@@ -284,8 +285,11 @@ void PixelDetectorConfig::writeASCII(std::string dir) const {
   if (dir!="") dir+="/";
   std::string filename=dir+"detectconfig.dat";
 
-  std::ofstream out(filename.c_str());
-
+  std::ofstream out(filename.c_str(), std::ios_base::out) ;
+  if(!out) {
+    std::cout << "[PixelDetectorConfig::writeASCII()] Could not open file " << filename << " for write" << std::endl ;
+    exit(1);
+  }
   std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
 
   for (;imodule!=modules_.end();++imodule) {

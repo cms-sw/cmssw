@@ -46,12 +46,13 @@ PixelDACSettings::PixelDACSettings(std::string filename):
 	    
 	    PixelROCName rocid(in);
 
-	    //std::cout << "DAC setting ROC id:"<<rocid<<std::endl;
+//	    std::cout << "[PixelDACSettings::PixelDACSettings()] DAC setting ROC id:"<<rocid<<std::endl;
 	    
 	    PixelROCDACSettings tmp;
 
 	    tmp.read(in,rocid);
 	    
+//	    std::cout << "[PixelDACSettings::PixelDACSettings()] DACSetting: " << std::endl << tmp << std::endl ;
 	    dacsettings_.push_back(tmp);
 	    
 	    in >> tag;
@@ -211,10 +212,10 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
   {
   
    PixelROCDACSettings tmp2 = dacsettings_[w];
-   std::cout<<tmp2<<std::endl;
+//   std::cout<<tmp2<<std::endl;
   }   
-  std::cout<<"Number of ROCs in the PixelDACSettings::PixelDACSettings(vector <vector<string> >):"<<dacsettings_.size()<<std::endl; 
-
+//  std::cout<<"Number of ROCs in the PixelDACSettings::PixelDACSettings(vector <vector<string> >):"<<dacsettings_.size()<<std::endl; 
+//  std::cout << "[PixelDACSettings::PixelDACSettings(std::vector)] before end of constructor" << std::endl ;
 }//end PDSMatrix constructor
 //end added by Umesh
 PixelROCDACSettings PixelDACSettings::getDACSettings(int ROCId) const {

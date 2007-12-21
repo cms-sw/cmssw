@@ -213,7 +213,7 @@ string PixelModuleName::modulename() const{
 
     string s;
 
-    ostringstream s1;
+    std::ostringstream s1;
 
     if (detsub()=='F') {
 	s1<<"FPix"; 
