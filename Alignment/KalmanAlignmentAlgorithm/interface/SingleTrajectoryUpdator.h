@@ -1,6 +1,7 @@
 #ifndef Alignment_KalmanAlignmentAlgorithm_SingleTrajectoryUpdator_h
 #define Alignment_KalmanAlignmentAlgorithm_SingleTrajectoryUpdator_h
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
 
@@ -30,6 +31,11 @@ public:
 private:
 
   bool checkCovariance( const AlgebraicSymMatrix& cov ) const;
+
+  unsigned int theMinNumberOfHits;
+  double theExtraWeight;
+  double theExternalPredictionWeight;
+  bool theCovCheckFlag;
 };
 
 
