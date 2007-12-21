@@ -26,6 +26,15 @@
 #include "DataFormats/EcalRecHit/interface/RefGetter.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
+//additionnal stuff to be more precise with candidates
+//#include "MagneticField/Engine/interface/MagneticField.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include <FWCore/Framework/interface/EventSetup.h>
+
 class EcalRawToRecHitRoI : public edm::EDProducer {
 
   typedef edm::LazyGetter<EcalRecHit> EcalRecHitLazyGetter;
@@ -108,33 +117,36 @@ public:
 	    double epsilon;
         };
 	/// process on collection of L1Jets
-        void Jet_OneL1JetCollection(const edm::Handle< l1extra::L1JetParticleCollection > jetColl,
+	void Jet_OneL1JetCollection(const edm::Handle< l1extra::L1JetParticleCollection > jetColl,
                                     const JetJobPSet & jjpset,
                                     std::vector<int> & feds);
 	/// what drive the job on L1Jet collection
 	std::vector< JetJobPSet > JetSource_;
 
-	///Candidate-inheriting objects part flag
+	///Candidate-versatile objects part flag
 	bool Candidate_;
 	/// class to drive the job on Candidate-inheriting object
 	class CandJobPSet : public CalUnpackJobPSet {
 	public:
-	  CandJobPSet(edm::ParameterSet &cfg) : CalUnpackJobPSet(cfg), epsilon(0.01) {}
-	    ~CandJobPSet(){}
-	    double epsilon;
+	  enum CTYPE { view, candidate, chargedcandidate, l1muon, l1jet };
+	  CandJobPSet(edm::ParameterSet &cfg);
+	  ~CandJobPSet(){}
+	  double epsilon;
+	  bool bePrecise;
+	  std::string propagatorNameToBePrecise;
+	  CTYPE cType;
 	};
-	/// process one collection of Candidate-inheriting objects
-	void OneCandCollection(const edm::Handle< edm::View< reco::Candidate > >Coll,
-			       const CandJobPSet & cjpset,
-			       std::vector<int> & feds);
+	/// process one collection of Candidate-versatile objects
+	template <typename CollectionType> void OneCandCollection(const edm::Event& e,
+								  const edm::EventSetup& es,
+								  const CandJobPSet & cjpset,
+								  std::vector<int> & feds);
+
 	/// what drives the job from candidate
 	std::vector< CandJobPSet > CandSource_;
 
 	///if all need to be done
 	bool All_;
-
-	///output
-	std::string OutputLabel_;
 
 	/// actually fill the vector with FED numbers
 	void ListOfFEDS(double etaLow, double etaHigh, double phiLow,
@@ -146,14 +158,67 @@ public:
 	  std::vector<int>::iterator n_end = std::unique(FEDs.begin(),FEDs.end());
 	  FEDs.erase(n_end,FEDs.end());}
 	std::string dumpFEDs(const std::vector<int>& FEDs);
-	/*        void notDone(const std::vector<int> & DONE,std::vector<int> & FEDs){
-		  std::vector<int>::iterator it= FEDs.begin();
-		  while(it!=FEDs.end()){
-		  if (std::find(DONE.begin(),DONE.end(), *it)==DONE.end()) it++;
-		  else it=FEDs.erase(it);}
-		  }
-	*/
 };
+
+template <typename CollectionType> void EcalRawToRecHitRoI::OneCandCollection(const edm::Event& e,
+									      const edm::EventSetup& es,
+									      const CandJobPSet & cjpset,
+									      std::vector<int> & feds){
+  const std::string category ="EcalRawToRecHit|Cand";
+  
+  edm::Handle<CollectionType> candColl;
+  e.getByLabel(cjpset.Source, candColl);
+  if (candColl.failedToGet()) {edm::LogError(category)<<"could not get: "<<cjpset.Source<<" of type: "<<cjpset.cType; return;}
+
+  typename CollectionType::const_iterator it = candColl->begin();
+  typename CollectionType::const_iterator end= candColl->end();
+
+  StateOnTrackerBound * onBounds=0;
+  edm::ESHandle<Propagator> propH;
+  if (cjpset.bePrecise){
+    //      grab a propagator from ES
+    es.get<TrackingComponentsRecord>().get(cjpset.propagatorNameToBePrecise, propH);
+    //      make the extrapolator object
+    onBounds = new StateOnTrackerBound(propH.product());
+  }
+  
+  for (; it!=end;++it){
+    double pt    =  it->pt();
+    double eta   =  it->eta();
+    double phi   =  it->phi();
+    if (cjpset.bePrecise){
+      //      starting FTS
+      GlobalPoint point(it->vx(),it->vy(),it->vz());
+      GlobalVector vector(it->px(),it->py(),it->pz());
+
+      if (point.mag()==0 && vector.mag()==0){
+	edm::LogWarning(category)<<" state of candidate is not valid. skipping.";
+	continue;
+      }
+
+      FreeTrajectoryState fts(point, vector, it->charge(), propH->magneticField());
+      //      final TSOS
+      TrajectoryStateOnSurface out = (*onBounds)(fts);
+      if (out.isValid()){
+	vector=out.globalMomentum();
+	point=out.globalPosition();
+	//      be more precise
+	pt= vector.perp();
+	eta= point.eta();
+	phi= point.phi();
+      }
+      else{edm::LogError(category)<<"I tried to be precise, but propagation failed. from:\n"<<fts;
+	continue;}
+    }
+    
+    LogDebug(category)<<" here is a candidate Seed  with (eta,phi) = " 
+		      <<eta << " " << phi << " and pt " << pt;
+    if (pt < cjpset.Ptmin) continue;
+    
+    ListOfFEDS(eta, eta, phi-cjpset.epsilon, phi+cjpset.epsilon, cjpset.regionEtaMargin, cjpset.regionPhiMargin,feds);
+  }
+  if(cjpset.bePrecise){delete onBounds;}
+}
 
 #endif
 

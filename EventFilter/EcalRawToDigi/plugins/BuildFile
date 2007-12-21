@@ -8,6 +8,10 @@
 <use name=DataFormats/Common>
 <use name=RecoEcal/EgammaCoreTools>
 
+<use name=TrackingTools/Records>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/TrajectoryState>
+
 <library file="*.cc" name=EventFilterEcalRawToDigiPlugins>
 	<flags EDM_PLUGIN=1>
 </library>

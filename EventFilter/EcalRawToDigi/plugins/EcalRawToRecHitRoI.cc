@@ -1,7 +1,6 @@
 
 //#include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
 #include "EventFilter/EcalRawToDigi/plugins/EcalRawToRecHitRoI.h"
@@ -36,7 +35,8 @@
 //candidate stuff
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/View.h"
-
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCablingRecord.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"
@@ -47,17 +47,34 @@
 
 using namespace l1extra;
 
-
+EcalRawToRecHitRoI::CandJobPSet::CandJobPSet(edm::ParameterSet &cfg) : CalUnpackJobPSet(cfg) {
+  epsilon = cfg.getParameter<double>("epsilon");
+  bePrecise = cfg.getParameter<bool>("bePrecise");
+  if (bePrecise){ propagatorNameToBePrecise = cfg.getParameter<std::string>("propagatorNameToBePrecise");}
+  else propagatorNameToBePrecise="";
+  std::string type = cfg.getParameter<std::string>("cType");
+  if (type == "view"){cType=view;}
+  else if (type == "candidate"){cType=candidate;}
+  else if (type == "chargedcandidate"){cType=chargedcandidate;}
+  else if (type == "l1muon"){cType=l1muon;}
+  else if (type == "l1jet"){cType=l1jet;}
+  else {
+    edm::LogError("EcalRawToRecHitRoI")<<"\n\n could not interpret the cType: "<<type
+				       <<"\n using edm::View< reco::Candidate > by default. expect your trigger path to be slow !\n\n";
+    cType=view;}
+}
 
 
 EcalRawToRecHitRoI::EcalRawToRecHitRoI(const edm::ParameterSet& pset) :
-  EGamma_(false), Muon_(false), Jet_(false), Candidate_(false){
+  EGamma_(false), Muon_(false), Jet_(false), Candidate_(false), All_(false){
+  const std::string category = "EcalRawToRecHit|RoI";
 
   sourceTag_=pset.getParameter<edm::InputTag>("sourceTag");
 
   std::string type = pset.getParameter<std::string>("type");
 
   if (type.find("candidate")!=std::string::npos){
+    LogDebug(category)<<"configured for candidate-versatile input.";
     Candidate_ = true;
     std::vector<edm::ParameterSet> emPSet =  pset.getParameter<std::vector<edm::ParameterSet> >("CandJobPSet");
     for (std::vector<edm::ParameterSet>::iterator iepset = emPSet.begin(); iepset!=emPSet.end();++iepset){
@@ -66,12 +83,14 @@ EcalRawToRecHitRoI::EcalRawToRecHitRoI(const edm::ParameterSet& pset) :
   }
   
   if (type.find("muon")!=std::string::npos){
+    LogDebug(category)<<"configured for L1MuonParticleCollection input.";
     Muon_ = true;
     edm::ParameterSet ps = pset.getParameter<edm::ParameterSet>("MuJobPSet");
     MuonSource_ = MuJobPSet(ps);
   }
   
   if (type.find("egamma")!=std::string::npos){
+    LogDebug(category)<<"configured for L1EMParticleCollection input.";
     EGamma_ = true;
     std::vector<edm::ParameterSet> emPSet =  pset.getParameter<std::vector<edm::ParameterSet> >("EmJobPSet");
     for (std::vector<edm::ParameterSet>::iterator iepset = emPSet.begin(); iepset!=emPSet.end();++iepset){
@@ -80,6 +99,7 @@ EcalRawToRecHitRoI::EcalRawToRecHitRoI(const edm::ParameterSet& pset) :
   }
   
   if (type.find("jet")!=std::string::npos){
+    LogDebug(category)<<"configured for L1JetParticleCollection input.";
     Jet_ =true;
     std::vector<edm::ParameterSet> jetPSet = pset.getParameter<std::vector<edm::ParameterSet> >("JetJobPSet");
     for (std::vector<edm::ParameterSet>::iterator ijpset = jetPSet.begin(); ijpset!=jetPSet.end();++ijpset){
@@ -88,11 +108,12 @@ EcalRawToRecHitRoI::EcalRawToRecHitRoI(const edm::ParameterSet& pset) :
   }
 
   if (type.find("all")!=std::string::npos){
+    LogDebug(category)<<"configured for ALL feds unpacking";
     All_ = true;
   }
 
-  if (!All_ && !Muon_ && !EGamma_ && !Jet_){
-    edm::LogError("EcalRawToRecHitRoI")<<"I have no specified type of work."
+  if (!All_ && !Muon_ && !EGamma_ && !Jet_ && !Candidate_){
+    edm::LogError(category)<<"I have no specified type of work."
 				       <<"\nI will produce empty list of FEDs."
 				       <<"\nI will produce an empty EcalRecHitRefGetter."
 				       <<"\n I am sure you don't want that.";
@@ -151,7 +172,7 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
 
  if (Candidate_) { Cand(e, iSetup, feds); }
 
- if ( !EGamma_ && !Muon_ && ! Jet_)  {   for (int i=1; i <= 54; feds.push_back(i++)){} }
+ if (All_)  {   for (int i=1; i <= 54; feds.push_back(i++)){} }
  
  uint nf = feds.size();
  for (uint i=0; i <nf; feds[i++]+=first_fed) {}
@@ -191,45 +212,46 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
  LogDebug(category)<<"refGetter loaded."
 				<< watcher.lap();
 }
-
-void EcalRawToRecHitRoI::OneCandCollection(const edm::Handle<edm::View< reco::Candidate > >Coll,
-					       const CandJobPSet & cjpset,
-					       std::vector<int> & feds){
-  const std::string category ="EcalRawToRecHit|Cand";
-  edm::View< reco::Candidate >::const_iterator it = Coll->begin();
-  for (; it!= Coll->end();++it){
-    double pt    =  (*it).pt();
-    double eta   =  (*it).eta();
-    double phi   =  (*it).phi();
-    
-    LogDebug(category)<<" here is a L1 muon Seed  with (eta,phi) = " 
-		      <<eta << " " << phi << " and pt " << pt;
-    if (pt < cjpset.Ptmin) continue;
-    
-    ListOfFEDS(eta, eta, phi-cjpset.epsilon, phi+cjpset.epsilon, cjpset.regionEtaMargin, cjpset.regionPhiMargin,feds);
-  }
-}
  
 void EcalRawToRecHitRoI::Cand(edm::Event& e, const edm::EventSetup& es , std::vector<int> & FEDs) {
   const std::string category ="EcalRawToRecHit|Cand";
   
-  edm::Handle< edm::View< reco::Candidate > > candColl;
   uint nc=CandSource_.size();
   for (uint ic=0;ic!=nc;++ic){
-    e.getByLabel(CandSource_[ic].Source, candColl);
-    //    if (!candColl.isValid()){edm::LogError(category)<<" viewed candidate collection: "<<CandSource_[ic].Source<<" is not valid."; continue;}
-    
-    OneCandCollection(candColl, CandSource_[ic], FEDs);
+    switch (CandSource_[ic].cType){
+    case CandJobPSet::view :
+      OneCandCollection< edm::View<reco::Candidate> >(e, es, CandSource_[ic], FEDs);
+      break;
+      
+    case CandJobPSet::candidate :
+      OneCandCollection<reco::CandidateCollection>(e, es, CandSource_[ic], FEDs);
+      break;
+
+    case CandJobPSet::chargedcandidate :
+      OneCandCollection<reco::RecoChargedCandidateCollection>(e, es, CandSource_[ic], FEDs);
+      break;
+
+    case CandJobPSet::l1muon :
+      OneCandCollection<L1MuonParticleCollection>(e, es, CandSource_[ic], FEDs);
+      break;
+
+    case CandJobPSet::l1jet :
+      OneCandCollection<L1JetParticleCollection>(e, es, CandSource_[ic], FEDs);
+      break;
+      
+    default:
+      edm::LogError(category)<<"cType not recognised: "<<CandSource_[ic].cType;
+    }
   }
-  
+
   unique(FEDs);
   LogDebug(category)<<"unpack FED\n"<<dumpFEDs(FEDs);
 }
 
 void EcalRawToRecHitRoI::Egamma_OneL1EmCollection(const edm::Handle< l1extra::L1EmParticleCollection > emColl,
-						      const EmJobPSet &ejpset,
-                                                      const edm::ESHandle<L1CaloGeometry> & l1CaloGeom,
-                                                      std::vector<int> & FEDs){
+						  const EmJobPSet &ejpset,
+						  const edm::ESHandle<L1CaloGeometry> & l1CaloGeom,
+						  std::vector<int> & FEDs){
   const   std::string category = "EcalRawToRecHit|Egamma";
   for( l1extra::L1EmParticleCollection::const_iterator emItr = emColl->begin();
        emItr != emColl->end() ;++emItr ){
@@ -302,8 +324,8 @@ void EcalRawToRecHitRoI::Muon(edm::Event& e, const edm::EventSetup& es, std::vec
 }
  
 void EcalRawToRecHitRoI::Jet_OneL1JetCollection(const edm::Handle< l1extra::L1JetParticleCollection > jetColl,
-						    const JetJobPSet & jjpset,
-						    std::vector<int> & feds){
+						const JetJobPSet & jjpset,
+						std::vector<int> & feds){
   const std::string category ="EcalRawToRecHit|Jet";
   for (L1JetParticleCollection::const_iterator it=jetColl->begin(); it != jetColl->end(); it++) {
     double pt    =  it -> pt();
@@ -392,10 +414,7 @@ void EcalRawToRecHitRoI::ListOfFEDS(double etaLow, double etaHigh, double phiLow
 
   const EcalEtaPhiRegion ecalregion(etaLow,etaHigh,phiMinus,phiPlus);
 
-  std::vector<int> feds = TheMapping -> GetListofFEDs(ecalregion);
-  LogDebug(category)<<"unpack fed:\n"<<dumpFEDs(feds);
+  TheMapping -> GetListofFEDs(ecalregion, FEDs);
+  LogDebug(category)<<"unpack fed:\n"<<dumpFEDs(FEDs);
 
-  //insert the result into collection
-  FEDs.insert(FEDs.end(), feds.begin(), feds.end());
-  //FIXME, the mapping should do that for you !
 }
