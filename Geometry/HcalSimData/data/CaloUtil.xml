@@ -75,6 +75,32 @@
    <Parameter name="attl"     value="0.3839422E-03/cm"/>
    <Parameter name="lambLim"  value="300.0"/>
    <Parameter name="lambLim"  value="600.0"/>
+   <Parameter name="LongFL"   value="227.9925651*cm"/>
+   <Parameter name="LongFL"   value="237.1215213*cm"/>
+   <Parameter name="LongFL"   value="241.7005445*cm"/>
+   <Parameter name="LongFL"   value="256.47981*cm"/>
+   <Parameter name="LongFL"   value="266.7540042*cm"/>
+   <Parameter name="LongFL"   value="275.987715*cm"/>
+   <Parameter name="LongFL"   value="276.9823529*cm"/>
+   <Parameter name="LongFL"   value="284.9889299*cm"/>
+   <Parameter name="LongFL"   value="286.3065327*cm"/>
+   <Parameter name="LongFL"   value="290.4779412*cm"/>
+   <Parameter name="LongFL"   value="290.5*cm"/>
+   <Parameter name="LongFL"   value="292.0*cm"/>
+   <Parameter name="LongFL"   value="295.5*cm"/>
+   <Parameter name="ShortFL"  value="206.0*cm"/>
+   <Parameter name="ShortFL"  value="211.8810861*cm"/>
+   <Parameter name="ShortFL"  value="220.3822464*cm"/>
+   <Parameter name="ShortFL"  value="235.5520581*cm"/>
+   <Parameter name="ShortFL"  value="245.6204691*cm"/>
+   <Parameter name="ShortFL"  value="253.9086538*cm"/>
+   <Parameter name="ShortFL"  value="255.0117647*cm"/>
+   <Parameter name="ShortFL"  value="263.0073529*cm"/>
+   <Parameter name="ShortFL"  value="264.3480392*cm"/>
+   <Parameter name="ShortFL"  value="268.5*cm"/>
+   <Parameter name="ShortFL"  value="268.5*cm"/>
+   <Parameter name="ShortFL"  value="270.0*cm"/>
+   <Parameter name="ShortFL"  value="273.5*cm"/>
   </SpecPar>  
   <SpecPar name="hffibre">
    <PartSelector path="//HFFibre.*" />
