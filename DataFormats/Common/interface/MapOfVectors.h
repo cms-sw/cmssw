@@ -1,5 +1,5 @@
-#ifndef Common_MapOfVectors_H
-#define Common_MapOfVectors_H
+#ifndef DataFormats_Common_MapOfVectors_h
+#define DataFormats_Common_MapOfVectors_h
 
 #include <vector>
 #include <map>
@@ -134,6 +134,17 @@ namespace edm {
       return const_iterator(m_keys.end(),m_offsets.begin()+m_keys.size(),m_data);
     }
 
+    void swap(MapOfVectors& other) {
+      m_keys.swap(other.m_keys);
+      m_offsets.swap(other.m_offsets);
+      m_data.swap(other.m);
+    }
+
+    MapOfVectors& operator=(MapOfVectors const& rhs) {
+      MapOfVectors temp(rhs);
+      this->swap(temp);
+      return *this;
+    }
 
   private:
     std::vector<K> m_keys;
@@ -142,7 +153,14 @@ namespace edm {
 
   };
 
+  // Free swap function
+  template <typename K, typename T>
+  inline
+  void
+  swap(MapOfVectors<K, T>& lhs, MapOfVectors<K, T>& rhs) {
+    lhs.swap(rhs);
+  }
 
 }
 
-#endif // Common_MapOfVectors_H
+#endif // DatFormats_Common_MapOfVectors_h

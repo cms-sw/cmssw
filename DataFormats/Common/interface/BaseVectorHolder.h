@@ -1,10 +1,10 @@
-#ifndef Common_BaseVectorHolder_h
-#define Common_BaseVectorHolder_h
+#ifndef DataFormats_Common_BaseVectorHolder_h
+#define DataFormats_Common_BaseVectorHolder_h
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
   namespace reftobase {
-    template <class T>
+    template <typename T>
     class BaseVectorHolder {
     public:
       typedef size_t       size_type;
@@ -23,6 +23,7 @@ namespace edm {
       virtual void clear() = 0;
       virtual ProductID id() const = 0;
       virtual EDProductGetter const* productGetter() const = 0;
+      void swap(BaseVectorHolder& other) {} // nothing to swap
 
       // the following structure is public 
       // to allow reflex dictionary to compile
@@ -163,6 +164,13 @@ namespace edm {
       virtual const void * product() const = 0;
     };
 
+    // Free swap function
+    template <typename T>
+    inline
+    void
+    swap(BaseVectorHolder<T>& lhs, BaseVectorHolder<T>& rhs) {
+      lhs.swap(rhs);
+    }
   }
 }
 

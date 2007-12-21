@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:49:27 EDT 2007
-// $Id$
+// $Id: PtrVectorBase.cc,v 1.1 2007/11/06 20:17:47 chrjones Exp $
 //
 
 // system include files
@@ -29,16 +29,11 @@ namespace edm {
 //
 
 //
-// constructors and destructor
+// constructor and destructor
 //
   PtrVectorBase::PtrVectorBase()
   {
   }
-
-// PtrVectorBase::PtrVectorBase(const PtrVectorBase& rhs)
-// {
-//    // do actual copying here;
-// }
 
   PtrVectorBase::~PtrVectorBase()
   {
@@ -47,18 +42,19 @@ namespace edm {
 //
 // assignment operators
 //
-// const PtrVectorBase& PtrVectorBase::operator=(const PtrVectorBase& rhs)
-// {
-//   //An exception safe implementation is
-//   PtrVectorBase temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
 //
+
+  /// swap
+  void
+  PtrVectorBase::swap(PtrVectorBase& other){
+    core_.swap(other.core_);
+    indicies_.swap(other.indicies_);
+    cachedItems_.swap(other.cachedItems_);
+  }
+
   void 
   PtrVectorBase::push_back_base(key_type iKey, 
                                 const void* iData,

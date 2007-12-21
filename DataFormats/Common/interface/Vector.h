@@ -1,6 +1,6 @@
-#ifndef Common_Vector_h
-#define Common_Vector_h
-// $Id: Vector.h,v 1.32 2007/08/01 08:45:08 llista Exp $
+#ifndef DataFormats_Common_Vector_h
+#define DataFormats_Common_Vector_h
+// $Id: Vector.h,v 1.1 2007/09/12 13:42:59 llista Exp $
 
 #include <algorithm>
 #include <functional>
@@ -100,11 +100,10 @@ namespace edm {
   
   template<typename T>
   inline Vector<T> & Vector<T>::operator=(const Vector<T> & o) {
-    data_ = o.data_;
-    fixup_ = o.fixup_;
+    Vector<T> temp(o);
+    this->swap(temp);
     return *this;
   }
-  
   template<typename T>
   inline typename Vector<T>::iterator Vector<T>::begin() {
     fixup();

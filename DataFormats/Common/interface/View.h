@@ -1,5 +1,5 @@
-#ifndef Common_View_h
-#define Common_View_h
+#ifndef DataFormats_Common_View_h
+#define DataFormats_Common_View_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -14,7 +14,7 @@ EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.3 2007/09/20 09:52:59 llista Exp $
+// $Id: View.h,v 1.4 2007/10/02 20:39:31 chrjones Exp $
 //
 
 #include <vector>
@@ -47,6 +47,7 @@ namespace edm
     ViewBase();
     ViewBase(ViewBase const&);
     virtual ViewBase* doClone() const = 0;    
+    void swap(ViewBase& other) {} // Nothing to swap
   };
 
   //------------------------------------------------------------------
@@ -67,7 +68,7 @@ namespace edm
   //------------------------------------------------------------------
 
 
-  template <class T>
+  template <typename T>
   class View : public ViewBase
   {
     typedef std::vector<T const*>  seq_t;
@@ -100,6 +101,8 @@ namespace edm
     virtual ~View();
 
     void swap(View& other);
+
+    View& operator=(View const& rhs);
 
     size_type capacity() const;
 
@@ -143,25 +146,25 @@ namespace edm
   };
 
   // Associated free functions (same as for std::vector)
-  template <class T> bool operator==(View<T> const&, View<T> const&);
-  template <class T> bool operator!=(View<T> const&, View<T> const&);
-  template <class T> bool operator< (View<T> const&, View<T> const&);
-  template <class T> bool operator<=(View<T> const&, View<T> const&);
-  template <class T> bool operator> (View<T> const&, View<T> const&);
-  template <class T> bool operator>=(View<T> const&, View<T> const&);
+  template <typename T> bool operator==(View<T> const&, View<T> const&);
+  template <typename T> bool operator!=(View<T> const&, View<T> const&);
+  template <typename T> bool operator< (View<T> const&, View<T> const&);
+  template <typename T> bool operator<=(View<T> const&, View<T> const&);
+  template <typename T> bool operator> (View<T> const&, View<T> const&);
+  template <typename T> bool operator>=(View<T> const&, View<T> const&);
 
   //------------------------------------------------------------------
   // Implementation of View<T>
   //------------------------------------------------------------------
 
-  template <class T>
+  template <typename T>
   inline
   View<T>::View() : 
     items_(),
     refs_()
   { }
 
-  template <class T>
+  template <typename T>
   View<T>::View(std::vector<void const*> const& pointers,
 		helper_vector_ptr const& helpers) : 
     items_(),
@@ -184,20 +187,21 @@ namespace edm
     }
   }
 
-  template <class T>
+  template <typename T>
   View<T>::~View() 
   { }
 
-  template <class T>
+  template <typename T>
   inline
   void
   View<T>::swap(View& other)
   {
-    swap(items_, other.items_);
-    swap(refs_, other.refs_);
+    this->ViewBase::swap(other);
+    items_.swap(other.items_);
+    refs_.swap(other.refs_);
   }
 
-  template <class T>
+  template <typename T>
   inline
   typename  View<T>::size_type 
   View<T>::capacity() const 
@@ -205,7 +209,7 @@ namespace edm
     return items_.capacity();
   }
 
-  template <class T>
+  template <typename T>
   inline
   typename View<T>::const_iterator 
   View<T>::begin() const 
@@ -213,7 +217,7 @@ namespace edm
     return items_.begin();
   }
 
-  template <class T>
+  template <typename T>
   inline
   typename View<T>::const_iterator 
   View<T>::end() const
@@ -221,7 +225,7 @@ namespace edm
     return items_.end();
   }
 
-  template <class T>
+  template <typename T>
   inline
   typename View<T>::const_reverse_iterator 
   View<T>::rbegin() const
@@ -229,7 +233,7 @@ namespace edm
     return items_.rbegin();
   }
 
-  template <class T>
+  template <typename T>
   inline
   typename View<T>::const_reverse_iterator
   View<T>::rend() const
@@ -237,7 +241,7 @@ namespace edm
     return items_.rend();
   }
 
-  template <class T>
+  template <typename T>
   inline
   typename View<T>::size_type
   View<T>::size() const 
@@ -245,7 +249,7 @@ namespace edm
     return items_.size();
   }
 
-  template <class T>
+  template <typename T>
   inline
   typename View<T>::size_type
   View<T>::max_size() const
@@ -253,7 +257,7 @@ namespace edm
     return items_.max_size();
   }
 
-  template <class T>
+  template <typename T>
   inline
   bool 
   View<T>::empty() const 
@@ -261,7 +265,7 @@ namespace edm
     return items_.empty();
   }
 
-  template <class T>
+  template <typename T>
   inline
   typename View<T>::const_reference 
   View<T>::at(size_type pos) const
@@ -269,7 +273,7 @@ namespace edm
     return *items_.at(pos);
   }
 
-  template <class T>
+  template <typename T>
   inline
   typename View<T>::const_reference 
   View<T>::operator[](size_type pos) const
@@ -277,7 +281,7 @@ namespace edm
     return *items_[pos];
   }
 
-  template <class T>
+  template <typename T>
   inline
   RefToBase<T> 
   View<T>::refAt(size_type i) const
@@ -285,7 +289,7 @@ namespace edm
     return refs_[i];
   }
 
-  template <class T>
+  template <typename T>
   inline
   typename View<T>::const_reference 
   View<T>::front() const
@@ -293,7 +297,7 @@ namespace edm
     return *items_.front();
   }
 
-  template <class T>
+  template <typename T>
   inline
   typename View<T>::const_reference
   View<T>::back() const
@@ -301,7 +305,7 @@ namespace edm
     return *items_.back();
   }
 
-  template <class T>
+  template <typename T>
   inline
   void
   View<T>::pop_back()
@@ -309,13 +313,13 @@ namespace edm
     items_.pop_back();
   }
 
-  template <class T>
+  template <typename T>
   inline 
   ProductID 
   View<T>::id() const {
     return refs_.id();
   }
-  template <class T>
+  template <typename T>
   inline
   EDProductGetter const* 
   View<T>::productGetter() const {
@@ -323,7 +327,7 @@ namespace edm
   }
 
   // The following is for testing only.
-  template <class T>
+  template <typename T>
   inline
   void
   View<T>::fill_from_range(T* first, T* last, View& output)
@@ -333,14 +337,23 @@ namespace edm
       output.items_[i] = first;
   }
 
-  template <class T>
+  template <typename T>
   ViewBase*
   View<T>::doClone() const
   {
     return new View(*this);
   }
 
-  template <class T>
+  template <typename T>
+  inline
+  View<T>&
+  View<T>::operator=(View<T> const& rhs) {
+    View<T> temp(rhs);
+    this->swap(temp);
+    return *this;
+  }
+
+  template <typename T>
   inline
   bool
   operator== (View<T> const& lhs, View<T> const& rhs)
@@ -350,7 +363,7 @@ namespace edm
       std::equal(lhs.begin(), lhs.end(), rhs.begin());
   }
 
-  template <class T>
+  template <typename T>
   inline
   bool 
   operator!=(View<T> const& lhs, View<T> const& rhs)
@@ -358,7 +371,7 @@ namespace edm
     return !(lhs==rhs);
   }
 
-  template <class T>
+  template <typename T>
   inline 
   bool 
   operator< (View<T> const& lhs, View<T> const& rhs)
@@ -368,7 +381,7 @@ namespace edm
 				   rhs.begin(), rhs.end());
   }
 
-  template <class T> 
+  template <typename T> 
   inline
   bool
   operator<=(View<T> const& lhs, View<T> const& rhs)
@@ -376,20 +389,26 @@ namespace edm
     return !(rhs<lhs);
   }
 
-  template <class T> 
+  template <typename T> 
   inline 
   bool operator> (View<T> const& lhs, View<T> const& rhs)
   {
     return rhs<lhs;
   }
 
-  template <class T>
+  template <typename T>
   inline
   bool operator>=(View<T> const& lhs, View<T> const& rhs)
   {
     return !(lhs<rhs);
   }
 
+  // Free swap function
+  template <typename T>
+  inline
+  void swap(View<T>& lhs, View<T>& rhs) {
+    lhs.swap(rhs);
+  }
 }
 
 #endif

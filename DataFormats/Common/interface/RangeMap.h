@@ -1,5 +1,5 @@
-#ifndef Common_RangeMap_h
-#define Common_RangeMap_h
+#ifndef DataFormats_Common_RangeMap_h
+#define DataFormats_Common_RangeMap_h
 /* \class edm::RangeMap
  *
  * Generic container storing objects arranged according 
@@ -16,9 +16,9 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision: 1.32 $
+ * \version $Revision: 1.33 $
  *
- * $Id: RangeMap.h,v 1.32 2007/01/19 04:31:18 wmtan Exp $
+ * $Id: RangeMap.h,v 1.33 2007/01/23 00:25:52 wmtan Exp $
  *
  */
 #include <map>
@@ -187,6 +187,9 @@ namespace edm {
     /// swap member function
     void swap(RangeMap<ID, C, P> & other);
 
+    /// copy assignment
+    RangeMap& operator=(RangeMap const& rhs);
+
   private:
     /// stored collection
     C collection_;
@@ -200,6 +203,15 @@ namespace edm {
   RangeMap<ID, C, P>::swap(RangeMap<ID, C, P> & other) {
     collection_.swap(other.collection_);
     map_.swap(other.map_);
+  }
+
+  template <typename ID, typename C, typename P>
+  inline
+  RangeMap<ID, C, P>&
+  RangeMap<ID, C, P>::operator=(RangeMap<ID, C, P> const& rhs) {
+    RangeMap<ID, C, P> temp(rhs);
+    this->swap(temp);
+    return *this;
   }
 
   // free swap function

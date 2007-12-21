@@ -1,5 +1,5 @@
-#ifndef Common_DetSetRefVector_h
-#define Common_DetSetRefVector_h
+#ifndef DataFormats_Common_DetSetRefVector_h
+#define DataFormats_Common_DetSetRefVector_h
 
 /*----------------------------------------------------------------------
   
@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetRefVector.h,v 1.7 2007/01/17 00:19:11 wmtan Exp $
+$Id: DetSetRefVector.h,v 1.8 2007/01/19 04:31:17 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -46,7 +46,7 @@ namespace edm {
 
   //------------------------------------------------------------
   // Forward declarations
-  template <class T, class C> class DetSetRefVector;
+  template <typename T, typename C> class DetSetRefVector;
 
   //------------------------------------------------------------
   // Helper function, to regularize throwing of exceptions.
@@ -77,7 +77,7 @@ namespace edm {
   }
   
   //allow comparison of edm::Ref<...> to the det_it_type.  This allows searching without dereferencing the edm::Ref
-  template <class T, class C=DetSetVector<T> >
+  template <typename T, typename C=DetSetVector<T> >
     struct CompareRefDetSet {
     typedef Ref<C, DetSet<T>, refhelper::FindDetSetForDetSetVector<T,C> > ref_type; 
       bool operator()(const ref_type& iRef, det_id_type iId) {
@@ -88,7 +88,7 @@ namespace edm {
       }
     };
 
-  template <class T, class C=DetSetVector<T> >
+  template <typename T, typename C=DetSetVector<T> >
   class DetSetRefVector 
   {
     /// DetSetVector requires that T objects can be compared with
@@ -133,7 +133,7 @@ namespace edm {
 
     void swap(DetSetRefVector& other);
 
-    //    DetSetVector& operator=(DetSetVector const& rhs);
+    DetSetRefVector& operator=(DetSetRefVector const& rhs);
 
     /// Return true if we contain no DetSets.
     bool empty() const;
@@ -169,15 +169,23 @@ namespace edm {
 
   };
 
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   void
-  DetSetRefVector<T,C>::swap(DetSetRefVector<T,C>& other) 
-  {
+  DetSetRefVector<T,C>::swap(DetSetRefVector<T,C>& other) {
     sets_.swap(other.sets_);
   }
 
-  template <class T, class C>
+  template <typename T, typename C>
+  inline
+  DetSetRefVector<T ,C>&
+  DetSetRefVector<T, C>::operator=(DetSetRefVector<T,C> const& rhs) {
+    DetSetRefVector<T, C> temp(rhs);
+    this->swap(temp);
+    return *this;
+  }
+
+  template <typename T, typename C>
   inline
   bool
   DetSetRefVector<T,C>::empty() const 
@@ -185,7 +193,7 @@ namespace edm {
     return sets_.empty();
   }
 
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   typename DetSetRefVector<T,C>::size_type
   DetSetRefVector<T,C>::size() const
@@ -193,7 +201,7 @@ namespace edm {
     return sets_.size();
   }
 
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   typename DetSetRefVector<T,C>::const_iterator
   DetSetRefVector<T,C>::find(det_id_type id) const
@@ -210,7 +218,7 @@ namespace edm {
     return p.first;
   }
 
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   typename DetSetRefVector<T,C>::const_reference
   DetSetRefVector<T,C>::operator[](det_id_type i) const 
@@ -222,7 +230,7 @@ namespace edm {
     return *it;
   }
 
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   typename DetSetRefVector<T,C>::const_iterator
   DetSetRefVector<T,C>::begin() const
@@ -230,7 +238,7 @@ namespace edm {
     return sets_.begin();
   }
 
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   typename DetSetRefVector<T,C>::const_iterator
   DetSetRefVector<T,C>::end() const
@@ -239,17 +247,16 @@ namespace edm {
   }
 
   // Free swap function
-  template <class T, class C>
+  template <typename T, typename C>
   inline
   void
-  swap(DetSetRefVector<T,C>& a, DetSetRefVector<T,C>& b) 
-  {
+  swap(DetSetRefVector<T, C>& a, DetSetRefVector<T, C>& b) {
     a.swap(b);
   }
 
 #if ! GCC_PREREQUISITE(3,4,4)
   // Has swap function
-  template <class T, class C>
+  template <typename T, typename C>
   struct has_swap<edm::DetSetRefVector<T,C> > {
     static bool const value = true;
   };

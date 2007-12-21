@@ -1,5 +1,5 @@
-#ifndef Common_RefVectorHolder_h
-#define Common_RefVectorHolder_h
+#ifndef DataFormats_Common_RefVectorHolder_h
+#define DataFormats_Common_RefVectorHolder_h
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -15,6 +15,8 @@ namespace edm {
       RefVectorHolder() { }
       RefVectorHolder( const REFV & refs ) : refs_( refs ) { }
       virtual ~RefVectorHolder() { }
+      void swap(RefVectorHolder& other);
+      RefVectorHolder& operator=(RefVectorHolder const& rhs);
       virtual bool empty() const;
       virtual size_type size() const;
       virtual void clear();
@@ -80,52 +82,83 @@ namespace edm {
     // implementations for RefVectorHolder<REFV>
     //
 
+    template <typename REFV>
+    inline
+    void RefVectorHolder<REFV>::swap(RefVectorHolder<REFV>& other) {
+      this->RefVectorHolderBase::swap(other);
+      refs_.swap(other.refs_);
+    }
+
+    template <typename REFV>
+    inline
+    RefVectorHolder<REFV>& RefVectorHolder<REFV>::operator=(RefVectorHolder<REFV> const& rhs) {
+      RefVectorHolder<REFV> temp(rhs);
+      this->swap(temp);
+      return *this;
+    }
+
     template<typename REFV>
+    inline
     bool RefVectorHolder<REFV>::empty() const {
       return refs_.empty();
     }
 
     template<typename REFV>
+    inline
     typename RefVectorHolder<REFV>::size_type RefVectorHolder<REFV>::size() const {
       return refs_.size();
     }
     
     template<typename REFV>
+    inline
     void RefVectorHolder<REFV>::clear() {
       return refs_.clear();
     }
 
     template<typename REFV>
+    inline
     void RefVectorHolder<REFV>::reserve( size_type n ) {
       typename REFV::size_type s = n;
       refs_.reserve( s );
     }
 
     template<typename REFV>
+    inline
     ProductID RefVectorHolder<REFV>::id() const {
       return refs_.id();
     }
 
     template<typename REFV>
+    inline
     EDProductGetter const* RefVectorHolder<REFV>::productGetter() const {
       return refs_.productGetter();
     }
 
     template<typename REFV>
+    inline
     RefVectorHolder<REFV> * RefVectorHolder<REFV>::clone() const {
       return new RefVectorHolder<REFV>( * this );
     }
 
     template<typename REFV>
+    inline
     RefVectorHolder<REFV> * RefVectorHolder<REFV>::cloneEmpty() const {
       return new RefVectorHolder<REFV>( id() );
     }
 
     template<typename REFV>
+    inline
     void RefVectorHolder<REFV>::setRefs( const REFV & refs ) {
       refs_ = refs;
     }
     
+    // Free swap function
+    template <typename REFV>
+    inline
+    void
+    swap(RefVectorHolder<REFV>& lhs, RefVectorHolder<REFV>& rhs) {
+      lhs.swap(rhs);
+    }
   }
 }
 

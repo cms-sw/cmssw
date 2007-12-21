@@ -1,5 +1,5 @@
-#ifndef Common_RefVectorHolderBase_h
-#define Common_RefVectorHolderBase_h
+#ifndef DataFormats_Common_RefVectorHolderBase_h
+#define DataFormats_Common_RefVectorHolderBase_h
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Type.h"
@@ -11,6 +11,7 @@ namespace edm {
       virtual ~RefVectorHolderBase() {}
       typedef size_t size_type;
       typedef RefHolderBase value_type;
+      void swap(RefVectorHolderBase& other) {} // nothing to swap
       virtual bool empty() const = 0;
       virtual size_type size() const = 0;
       virtual void clear() = 0;
@@ -161,6 +162,12 @@ namespace edm {
     RefToBase<T> RefVectorHolderBase::getRef( size_t idx ) const {
       boost::shared_ptr<reftobase::RefHolderBase> rb = refBase(idx);
       return RefToBase<T>( rb );
+    }
+
+    // Free swap function
+    inline
+    void swap(RefVectorHolderBase& lhs, RefVectorHolderBase& rhs) {
+      lhs.swap(rhs);
     }
 
   }

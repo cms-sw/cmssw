@@ -1,5 +1,5 @@
-#ifndef Common_IndirectVectorHolder_h
-#define Common_IndirectVectorHolder_h
+#ifndef DataFormats_Common_IndirectVectorHolder_h
+#define DataFormats_Common_IndirectVectorHolder_h
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 #include "DataFormats/Common/interface/IndirectHolder.h"
@@ -7,7 +7,7 @@
 namespace edm {
   namespace reftobase {
 
-    template <class T>
+    template <typename T>
     class IndirectVectorHolder : public BaseVectorHolder<T> {
     public:
       typedef BaseVectorHolder<T>                base_type;
@@ -89,83 +89,92 @@ namespace edm {
       }
     };
 
-    template <class T>
+    template <typename T>
     IndirectVectorHolder<T>::IndirectVectorHolder() : helper_( 0 ) { }
 
-    template <class T>
+    template <typename T>
     IndirectVectorHolder<T>::IndirectVectorHolder(boost::shared_ptr<RefVectorHolderBase> p) :
       helper_(p->clone()) { }
 
-    template <class T>
+    template <typename T>
     IndirectVectorHolder<T>::IndirectVectorHolder(RefVectorHolderBase * p) :
       helper_(p) { }
 
-    template <class T>
+    template <typename T>
     IndirectVectorHolder<T>::IndirectVectorHolder( const IndirectVectorHolder & other ) :
       helper_( other.helper_->clone() ) { }
 
-    template <class T>
+    template <typename T>
     IndirectVectorHolder<T>::~IndirectVectorHolder() { 
       delete helper_;
     }
 
-    template <class T>
+    template <typename T>
+    inline void IndirectVectorHolder<T>::swap(IndirectVectorHolder& other) {
+      this->BaseVectorHolder<T>::swap(other);
+      std::swap(helper_, other.helper_);
+    }
+
+    template <typename T>
     inline IndirectVectorHolder<T>& 
-    IndirectVectorHolder<T>::operator= (IndirectVectorHolder const& rhs) {
+    IndirectVectorHolder<T>::operator=(IndirectVectorHolder const& rhs) {
       IndirectVectorHolder temp(rhs);
       swap(temp);
       return *this;
     }
 
-    template <class T>
-    inline void IndirectVectorHolder<T>::swap(IndirectVectorHolder& other) {
-      std::swap(helper_, other.helper_);
-    }
-
-    template <class T>
+    template <typename T>
     BaseVectorHolder<T>* 
     IndirectVectorHolder<T>::clone() const {
       return new IndirectVectorHolder<T>(*this);
     }
     
-    template <class T>
+    template <typename T>
     BaseVectorHolder<T>* 
     IndirectVectorHolder<T>::cloneEmpty() const {
       return new IndirectVectorHolder<T>( helper_->cloneEmpty() );
     }
 
-    template <class T>
+    template <typename T>
     ProductID
     IndirectVectorHolder<T>::id() const {
       return helper_->id();
     }
 
-    template <class T>
+    template <typename T>
     EDProductGetter const* IndirectVectorHolder<T>::productGetter() const {
       return helper_->productGetter();
     }
 
-    template <class T>
+    template <typename T>
     bool IndirectVectorHolder<T>::empty() const {
       return helper_->empty();
     }
 
-    template <class T>
+    template <typename T>
     typename IndirectVectorHolder<T>::size_type IndirectVectorHolder<T>::size() const {
       return helper_->size();
     }
 
-    template <class T>
+    template <typename T>
     void IndirectVectorHolder<T>::clear() {
       return helper_->clear();
     }
 
-    template <class T>
+    template <typename T>
     typename IndirectVectorHolder<T>::base_ref_type const IndirectVectorHolder<T>::at(size_type idx) const {
       return helper_ ? helper_->template getRef<T>( idx ) : typename IndirectVectorHolder<T>::base_ref_type();
     }
 
+    // Free swap function
+    template <typename T>
+    inline
+    void swap(IndirectVectorHolder<T>& lhs, IndirectVectorHolder<T>& rhs) {
+      lhs.swap(rhs);
+    }
   }
 }
 
 #endif
+
+

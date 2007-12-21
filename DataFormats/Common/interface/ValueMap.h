@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ValueMap.h,v 1.9 2007/11/06 15:16:57 llista Exp $
+ * \version $Id: ValueMap.h,v 1.10 2007/11/07 10:25:13 llista Exp $
  *
  */
 
@@ -101,6 +101,18 @@ namespace edm {
     typedef std::vector<std::pair<ProductID, offset> > id_offset_vector;
 
     ValueMap() { }
+
+    void swap(ValueMap& other) {
+      values_.swap(other.values_);
+      ids_.swap(other.ids_);
+    }
+
+    ValueMap& operator=(ValueMap const& rhs) {
+      ValueMap temp(rhs);
+      this->swap(temp);
+      return *this;
+    }
+
     template<typename RefKey>
     value_type operator[](const RefKey & r) const {
       return get(r.id(), r.key());
@@ -158,14 +170,21 @@ namespace edm {
 
     friend class helper::Filler<ValueMap<T> >;
   }; 
-  
-}
 
-template<typename T>
-inline  edm::ValueMap<T> operator+( const edm::ValueMap<T> & a1,
-				    const edm::ValueMap<T> & a2 ) {
-  edm::ValueMap<T> a = a1;
-  a += a2;
-  return a;
+  template<typename T>
+  inline ValueMap<T> operator+( const ValueMap<T> & a1,
+				    const ValueMap<T> & a2 ) {
+    ValueMap<T> a = a1;
+    a += a2;
+    return a;
+  }
+
+  // Free swap function
+  template <typename T>
+  inline
+  void swap(ValueMap<T>& lhs, ValueMap<T>& rhs) {
+    lhs.swap(rhs);
+  }
+
 }
 #endif

@@ -1,6 +1,6 @@
 #ifndef DataFormats_Common_IDVectorMap_h
 #define DataFormats_Common_IDVectorMap_h
-// $Id: IDVectorMap.h,v 1.9 2007/01/23 00:25:52 wmtan Exp $
+// $Id: IDVectorMap.h,v 1.10 2007/06/14 04:56:29 wmtan Exp $
 #include <map>
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
@@ -167,7 +167,8 @@ namespace edm {
     id_iterator id_begin() const { return id_iterator(map_.begin()); }
     id_iterator id_end() const { return id_iterator(map_.end()); }
     size_t id_size() const { return map_.size(); }
-    void swap (IDVectorMap<ID, C, P> & other);
+    void swap (IDVectorMap & other);
+    IDVectorMap& operator=(IDVectorMap const& rhs);
   private:
     C collection_;
     map map_;
@@ -179,6 +180,15 @@ namespace edm {
   IDVectorMap<ID, C, P>::swap(IDVectorMap<ID, C, P> & other) {
     collection_.swap(other.collection_);
     map_.swap(other.map_);
+  }
+
+  template <typename ID, typename C, typename P>
+  inline
+  IDVectorMap<ID, C, P>&
+  IDVectorMap<ID, C, P>::operator=(IDVectorMap<ID, C, P> const& rhs) {
+    IDVectorMap<ID, C, P> temp(rhs);
+    this->swap(temp);
+    return *this;
   }
 
   // free swap function

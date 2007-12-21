@@ -1,5 +1,5 @@
-#ifndef Common_BaseHolder_h
-#define Common_BaseHolder_h
+#ifndef DataFormats_Common_BaseHolder_h
+#define DataFormats_Common_BaseHolder_h
 
 namespace edm {
   class RefHolderBase;
@@ -17,12 +17,14 @@ namespace edm {
     // collection from code that can not know about that type.
     // 
     //------------------------------------------------------------------
-    template <class T>
+    template <typename T>
     class BaseHolder {
     public:
       BaseHolder();
       virtual ~BaseHolder();
       virtual BaseHolder<T>* clone() const = 0;
+
+      void swap(BaseHolder&);
 
       // Return the address of the element to which the hidden Ref
       // refers.
@@ -67,17 +69,17 @@ namespace edm {
     // Implementation of BaseHolder<T>
     //------------------------------------------------------------------
 
-    template <class T>
+    template <typename T>
     BaseHolder<T>::BaseHolder() 
     { }
 
-    template <class T>
+    template <typename T>
     BaseHolder<T>::BaseHolder(BaseHolder const& other)
     {
       // Nothing to do.
     }
 
-    template <class T>
+    template <typename T>
     BaseHolder<T>&
     BaseHolder<T>::operator= (BaseHolder<T> const& other)
     {
@@ -85,12 +87,25 @@ namespace edm {
       return *this;
     }
 
-    template <class T>
+    template <typename T>
     BaseHolder<T>::~BaseHolder()
     {
       // nothing to do.
     }
 
+    template <typename T>
+    void
+    BaseHolder<T>::swap(BaseHolder<T>& other) {
+      // nothing to do.
+    }
+
+    // Free swap function
+    template <typename T>
+    inline
+    void
+    swap(BaseHolder<T>& lhs, BaseHolder<T>& rhs) {
+      lhs.swap(rhs);
+    }
   }
 }
 

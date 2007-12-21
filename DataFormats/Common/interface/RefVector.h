@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.32 2007/10/22 18:55:40 chrjones Exp $
+$Id: RefVector.h,v 1.33 2007/11/10 05:39:46 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -127,6 +127,9 @@ namespace edm {
     /// Swap two vectors.
     void swap(RefVector<C, T, F> & other);
 
+    /// Copy assignment.
+    RefVector& operator=(RefVector const& rhs);
+
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,		 
 		  helper_vector& helpers) const;
@@ -140,6 +143,15 @@ namespace edm {
   void
   RefVector<C, T, F>::swap(RefVector<C, T, F> & other) {
     refVector_.swap(other.refVector_);
+  }
+
+  template <typename C, typename T, typename F>
+  inline
+  RefVector<C, T, F>&
+  RefVector<C, T, F>::operator=(RefVector<C, T, F> const& rhs) {
+    RefVector<C, T, F> temp(rhs);
+    this->swap(temp);
+    return *this;
   }
 
   template <typename C, typename T, typename F>

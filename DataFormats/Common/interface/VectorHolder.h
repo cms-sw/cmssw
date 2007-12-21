@@ -1,5 +1,5 @@
-#ifndef Common_VectorHolder_h
-#define Common_VectorHolder_h
+#ifndef DataFormats_Common_VectorHolder_h
+#define DataFormats_Common_VectorHolder_h
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
 #include "DataFormats/Common/interface/Holder.h"
 
@@ -32,6 +32,15 @@ namespace edm {
       void clear() { refVector_.clear(); }
       ProductID id() const { return refVector_.id(); } 
       EDProductGetter const* productGetter() const { return refVector_.productGetter(); }
+      void swap(VectorHolder& other) { 
+	this->BaseVectorHolder<T>::swap(other);
+	refVector_.swap(other.refVector_);
+      }
+      VectorHolder& operator=(VectorHolder const& rhs) {
+        VectorHolder temp(rhs);
+        this->swap(temp);
+        return *this;
+      }
 
       const_iterator begin() const { 
 	return const_iterator( new const_iterator_imp_specific( refVector_.begin() ) ); 
@@ -91,6 +100,14 @@ namespace edm {
 	typename ref_vector_type::const_iterator i;
       };
     };
+
+    // Free swap function
+    template <typename T, typename REFV>
+    inline
+    void
+    swap(VectorHolder<T, REFV>& lhs, VectorHolder<T, REFV>& rhs) {
+      lhs.swap(rhs);
+    }
   }
 }
 

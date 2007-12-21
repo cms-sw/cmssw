@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:26:45 EDT 2007
-// $Id: PtrVectorBase.h,v 1.1 2007/11/06 20:17:46 chrjones Exp $
+// $Id: PtrVectorBase.h,v 1.2 2007/11/10 05:39:46 wmtan Exp $
 //
 
 // system include files
@@ -77,8 +77,13 @@ namespace edm {
     void reserve(size_type n) {indicies_.reserve(n); cachedItems_.reserve(n);}
     
     void setProductGetter(EDProductGetter* iGetter) const { core_.setProductGetter(iGetter); }
+
   protected:
     PtrVectorBase();
+
+    /// swap
+    void swap(PtrVectorBase& other);
+
     void push_back_base(key_type iKey, 
                         const void* iData,
                         const ProductID& iID,
@@ -93,7 +98,7 @@ namespace edm {
       return cachedItems_.end();
     }
     
-    template< class TPtr>
+    template<typename TPtr>
     TPtr makePtr(unsigned long iIndex) const {
       getProduct_();
       return TPtr(this->id(),
@@ -101,7 +106,7 @@ namespace edm {
                   iIndex);
     }
     
-    template< class TPtr>
+    template<typename TPtr>
     TPtr makePtr(const std::vector<const void*>::const_iterator iIt) const {
       getProduct_();
       return TPtr(this->id(),
@@ -110,9 +115,6 @@ namespace edm {
     }
     
   private:
-    //PtrVectorBase(const PtrVectorBase&); // stop default
-    
-    //const PtrVectorBase& operator=(const PtrVectorBase&); // stop default
     void getProduct_() const;
     virtual const std::type_info& typeInfo() const=0;
     // ---------- member data --------------------------------
@@ -121,8 +123,6 @@ namespace edm {
     std::vector<key_type> indicies_;
     mutable std::vector<const void*> cachedItems_;
   };
-  
 }
 
 #endif
-

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:26:50 EDT 2007
-// $Id$
+// $Id: PtrVector.h,v 1.1 2007/11/06 20:17:45 chrjones Exp $
 //
 
 // system include files
@@ -132,7 +132,7 @@ namespace edm {
                            iPtr.productGetter());
     }
 
-    template< class U>
+    template<typename U>
     void push_back(const Ptr<U>& iPtr) {
       //check that types are assignable
       BOOST_STATIC_ASSERT( (boost::is_base_of<T, U>::value) );
@@ -141,7 +141,17 @@ namespace edm {
                            iPtr.id(),
                            iPtr.productGetter());
     }
+
+    void swap(PtrVector& other) {
+      this->PtrVectorBase::swap(other);
+    }
     
+    PtrVector& operator=(PtrVector const& rhs) {
+      PtrVector temp(rhs);
+      this->swap(temp);
+      return *this;
+    }
+
   private:
     
     //const PtrVector& operator=(const PtrVector&); // stop default
@@ -154,5 +164,12 @@ namespace edm {
     
   };
   
+  // Free swap function
+  template <typename T>
+  inline
+  void
+  swap(PtrVector<T>& lhs, PtrVector<T>& rhs) {
+    lhs.swap(rhs);
+  }
 }
 #endif
