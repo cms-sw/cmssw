@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2007/09/28 08:52:46 $
- * $Revision: 1.8 $
+ * $Date: 2007/12/03 14:24:09 $
+ * $Revision: 1.11 $
  * \author J. Berryhill
  *
  */
@@ -136,12 +136,9 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 
 
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
-
-
-  try {
   e.getByLabel(csctfSource_,pCollection);
-  }
-  catch (...) {
+  
+  if (!pCollection.isValid()) {
     edm::LogInfo("L1TCSCTF") << "can't find L1MuGMTReadoutCollection with label "
 			       << csctfSource_.label() ;
     return;

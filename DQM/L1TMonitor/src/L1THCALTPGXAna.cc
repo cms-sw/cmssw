@@ -1,11 +1,17 @@
 /*
  * \file L1THCALTPGXAna.cc
  *
- * $Date: 2007/12/04 14:33:48 $
- * $Revision: 1.3 $
+ * $Date: 2007/12/05 14:03:19 $
+ * $Revision: 1.4 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPGXAna.cc,v $
+ * Revision 1.4  2007/12/05 14:03:19  berryhil
+ *
+ *
+ * full functioning hcal tpg analyzer
+ * reorganized tpg plots in subfolders
+ *
  * Revision 1.3  2007/12/04 14:33:48  berryhil
  *
  *
@@ -276,12 +282,9 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
   if(verbose_) std::cout << "L1THCALTPGXAna: analyze...." << std::endl;
 
   edm::Handle<HcalTrigPrimDigiCollection> hcalTpgs;
-
-  try 
-    {
-      iEvent.getByLabel(hcaltpgSource_, hcalTpgs);
-    }
-  catch (...) 
+  iEvent.getByLabel(hcaltpgSource_, hcalTpgs);
+    
+  if (!hcalTpgs.isValid())
     {
       edm::LogInfo("L1THCALTPGXAna") << "can't find HCAL TPG's with label "
 				     << hcaltpgSource_.label() ;
@@ -290,11 +293,10 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
 
   Handle<HBHERecHitCollection> hbhe_rec;
   
-  try
-    {
-      iEvent.getByLabel(hbherecoSource_, hbhe_rec);
-    }
-  catch (...)
+  
+  iEvent.getByLabel(hbherecoSource_, hbhe_rec);
+   
+  if (!hbhe_rec.isValid())
     {
       edm::LogInfo("L1THCALTPGXAna") << "can't find hbhe rec hits's with label "
                                      << hbherecoSource_.label() ;
@@ -302,12 +304,9 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
     }
 
   Handle<HFRecHitCollection> hf_rec;
-
-  try
-    {
-      iEvent.getByLabel(hfrecoSource_, hf_rec);
-    }
-  catch (...)
+  iEvent.getByLabel(hfrecoSource_, hf_rec);
+    
+   if (!hf_rec.isValid())
     {
       edm::LogInfo("L1THCALTPGXAna") << "can't find hf rec hits's with label "
                                      << hfrecoSource_.label() ;

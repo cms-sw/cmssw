@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2007/09/28 08:52:46 $
- * $Revision: 1.6 $
+ * $Date: 2007/11/19 15:08:22 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
  *
  */
@@ -136,12 +136,9 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
 
 
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
-
-
-  try {
   e.getByLabel(rpctfSource_,pCollection);
-  }
-  catch (...) {
+  
+  if (!pCollection.isValid()) {
     edm::LogInfo("L1TRPCTF") << "can't find L1MuGMTReadoutCollection with label "
 			       << rpctfSource_.label() ;
     return;

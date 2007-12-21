@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2007/09/27 16:55:39 $
- * $Revision: 1.6 $
+ * $Date: 2007/11/19 15:08:22 $
+ * $Revision: 1.7 $
  * \author P. Wittich
  *
  */
@@ -207,10 +207,10 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   bool doEm = true; 
   bool doHd = true;
 
-  try {
-    e.getByLabel(rctSource_,rgn);
-  }
-  catch (...) {
+  
+  e.getByLabel(rctSource_,rgn);
+ 
+  if (!rgn.isValid()) {
     edm::LogInfo("L1TRCT") << "can't find L1CaloRegionCollection with label "
 			       << rctSource_.label() ;
     doHd = false;
@@ -240,10 +240,10 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
     }
   }
 
-  try {
-    e.getByLabel(rctSource_,em);
-  }
-  catch (...) {
+  
+  e.getByLabel(rctSource_,em);
+  
+  if (!em.isValid()) {
     edm::LogInfo("L1TRCT") << "can't find L1CaloEmCollection with label "
 			       << rctSource_.label() ;
     doEm = false;

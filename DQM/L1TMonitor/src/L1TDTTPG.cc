@@ -1,11 +1,14 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2007/08/15 18:56:25 $
- * $Revision: 1.12 $
+ * $Date: 2007/11/19 15:08:22 $
+ * $Revision: 1.13 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTPG.cc,v $
+ * Revision 1.13  2007/11/19 15:08:22  lorenzo
+ * changed top folder name
+ *
  * Revision 1.12  2007/08/15 18:56:25  berryhil
  *
  *
@@ -326,11 +329,9 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
   if(verbose_) cout << "L1TDTTPG: analyze...." << endl;
 
   edm::Handle<L1MuDTChambPhContainer > myL1MuDTChambPhContainer;  
-
-  try {
-    e.getByLabel(dttpgSource_,myL1MuDTChambPhContainer);
-  }
-  catch (...) {
+  e.getByLabel(dttpgSource_,myL1MuDTChambPhContainer);
+  
+  if (!myL1MuDTChambPhContainer.isValid()) {
     edm::LogInfo("L1TDTTPG") << "can't find L1MuDTChambPhContainer with label "
 			     << dttpgSource_.label() ;
     return;
@@ -339,10 +340,9 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
     myL1MuDTChambPhContainer->getContainer();
 
   edm::Handle<L1MuDTChambThContainer > myL1MuDTChambThContainer;  
-  try {
-    e.getByLabel(dttpgSource_,myL1MuDTChambThContainer);
-  }
-  catch (...) {
+  e.getByLabel(dttpgSource_,myL1MuDTChambThContainer);
+  
+  if (!myL1MuDTChambThContainer.isValid()) {
     edm::LogInfo("L1TDTTPG") << "can't find L1MuDTChambThContainer with label "
 			     << dttpgSource_.label() ;
     edm::LogInfo("L1TDTTPG") << "if this fails try to add DATA to the process name." ;
@@ -512,14 +512,13 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
 
   edm::Handle<L1MuDTTrackContainer > myL1MuDTTrackContainer;
 
-  try {
+  
     std::string trstring;
     trstring = dttpgSource_.label()+":"+"DATA"+":"+dttpgSource_.process();
     edm::InputTag trInputTag(trstring);
-  e.getByLabel(trInputTag,myL1MuDTTrackContainer);
-  //  e.getByType(myL1MuDTTrackContainer);
-  }
-  catch (...) {
+    e.getByLabel(trInputTag,myL1MuDTTrackContainer);
+
+  if (!myL1MuDTTrackContainer.isValid()) {
     edm::LogInfo("L1TDTTPG") << "can't find L1MuDTTrackContainer with label "
                                << dttpgSource_.label() ;
     return;

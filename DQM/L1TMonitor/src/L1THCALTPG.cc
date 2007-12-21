@@ -1,11 +1,16 @@
 /*
  * \file L1THCALTPG.cc
  *
- * $Date: 2007/11/19 15:08:22 $
- * $Revision: 1.6 $
+ * $Date: 2007/12/05 16:48:53 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPG.cc,v $
+ * Revision 1.7  2007/12/05 16:48:53  berryhil
+ *
+ *
+ * plug in L1THCALTPG, L1TECALTPG, L1TGCT, L1TRCT, GCTMonitor
+ *
  * Revision 1.6  2007/11/19 15:08:22  lorenzo
  * changed top folder name
  *
@@ -146,12 +151,9 @@ void L1THCALTPG::analyze(const Event& e, const EventSetup& c)
   if(verbose_) std::cout << "L1THCALTPG: analyze...." << std::endl;
 
   edm::Handle<HcalTrigPrimDigiCollection> hcalTpgs;
-
-  try {
-        e.getByLabel(hcaltpgSource_, hcalTpgs);
-    //     e.getByType(hcalTpgs);
-  }
-  catch (...) {
+  e.getByLabel(hcaltpgSource_, hcalTpgs);
+  
+  if (!hcalTpgs.isValid()) {
     edm::LogInfo("L1THCALTPG") << "can't find HCAL TPG's with label "
 			       << hcaltpgSource_.label() ;
     return;

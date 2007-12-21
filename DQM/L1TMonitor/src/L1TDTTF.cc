@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2007/09/28 07:50:41 $
- * $Revision: 1.6 $
+ * $Date: 2007/11/19 15:08:22 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
  *
  */
@@ -136,12 +136,9 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
 
 
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
-
-
-  try {
   e.getByLabel(dttfSource_,pCollection);
-  }
-  catch (...) {
+  
+  if (!pCollection.isValid()) {
     edm::LogInfo("L1TDTTF") << "can't find L1MuGMTReadoutCollection with label "
 			       << dttfSource_.label() ;
     return;

@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2007/09/27 23:01:28 $
- * $Revision: 1.14 $
+ * $Date: 2007/11/19 15:08:22 $
+ * $Revision: 1.15 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.15  2007/11/19 15:08:22  lorenzo
+ * changed top folder name
+ *
  * Revision 1.14  2007/09/27 23:01:28  ratnik
  * QA campaign: fixes to compensate includes cleanup in  DataFormats/L1Trigger
  *
@@ -297,7 +300,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // HW works.
   bool doJet = true;
   bool doEm = true;
-  try {
+  
     // observed in emulator data
       e.getByLabel(gctSource_.label(), "cenJets", l1CenJets);
       e.getByLabel(gctSource_.label(), "forJets", l1ForJets);
@@ -306,23 +309,59 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       e.getByLabel(gctSource_, l1EtMiss);
       e.getByLabel(gctSource_, l1EtHad);
       e.getByLabel(gctSource_, l1EtTotal);
-   }
-   catch (...) {
-     edm::LogInfo("L1TGCT") << " Could not find one of the requested data JET"
-       " elements, label was " << gctSource_.label() ;
+   
+   if (!l1CenJets.isValid())  {
+     edm::LogInfo("L1TGCT") << " Could not find l1CenJets"
+       ", label was " << gctSource_.label() ;
      doJet = false;
    }
-  
+   
+   if (!l1ForJets.isValid())  {
+     edm::LogInfo("L1TGCT") << " Could not find l1ForJets"
+       ", label was " << gctSource_.label() ;
+     doJet = false;
+   }
+   
+   if (!l1TauJets.isValid())  {
+     edm::LogInfo("L1TGCT") << " Could not find l1TauJets"
+       ", label was " << gctSource_.label() ;
+     doJet = false;
+   }
+   
+   if (!l1EtMiss.isValid())  {
+     edm::LogInfo("L1TGCT") << " Could not find l1EtMiss"
+       ", label was " << gctSource_.label() ;
+     doJet = false;
+   }
+     
+   if (!l1EtHad.isValid())  {
+     edm::LogInfo("L1TGCT") << " Could not find l1EtHad"
+       ", label was " << gctSource_.label() ;
+     doJet = false;
+   }
+   
+   if (!l1EtTotal.isValid())  {
+     edm::LogInfo("L1TGCT") << " Could not find l1EtTotal"
+       ", label was " << gctSource_.label() ;
+     doJet = false;
+   }
+
   // EM data
-  try {
+  
     e.getByLabel(gctSource_.label(), "isoEm", l1IsoEm);
     e.getByLabel(gctSource_.label(), "nonIsoEm", l1NonIsoEm);
-  }
-  catch (...) {
-    edm::LogInfo("L1TGCT") << " Could not find one of the requested EM data "
+  
+  if (!l1IsoEm.isValid()) {
+    edm::LogInfo("L1TGCT") << " Could not find l1IsoEm "
       " elements, label was " << gctSource_.label() ;
     doEm = false;
   }
+  if (!l1NonIsoEm.isValid()) {
+    edm::LogInfo("L1TGCT") << " Could not find l1NonIsoEm "
+      " elements, label was " << gctSource_.label() ;
+    doEm = false;
+  }
+
   if ( (! doEm) && (! doJet) ) {
     if (  verbose_ )
       std::cout << "L1TGCT: Bailing, didn't find squat."<<std::endl;

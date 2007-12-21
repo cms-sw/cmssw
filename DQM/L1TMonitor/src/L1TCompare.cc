@@ -1,9 +1,12 @@
 /*
  * \file L1TCompare.cc
- * $Id: L1TCompare.cc,v 1.5 2007/09/27 22:58:15 ratnik Exp $
+ * $Id: L1TCompare.cc,v 1.6 2007/11/19 15:08:22 lorenzo Exp $
  * \author P. Wittich
  * \brief Compare different parts of the trigger chain (e.g., RCT-GCT )
  * $Log: L1TCompare.cc,v $
+ * Revision 1.6  2007/11/19 15:08:22  lorenzo
+ * changed top folder name
+ *
  * Revision 1.5  2007/09/27 22:58:15  ratnik
  * QA campaign: fixes to compensate includes cleanup in  DataFormats/L1Trigger
  *
@@ -260,32 +263,39 @@ void L1TCompare::analyze(const Event & e, const EventSetup & c)
   edm::Handle <L1GctEmCandCollection> gctIsoEmCands;
   edm::Handle <L1GctEmCandCollection> gctNonIsoEmCands;
 
-  try {
-    e.getByLabel(rctSource_,em);
-  }
-  catch (...) {
+  
+  e.getByLabel(rctSource_,em);
+  
+  if (!em.isValid()) {
     edm::LogInfo("L1TCompare") << "can't find L1CaloEmCollection with label "
 			       << rctSource_.label() ;
     return;
   }
 
-  try {
-    e.getByLabel(rctSource_,rctEmRgn);
-  }
-  catch (...) {
+  
+  e.getByLabel(rctSource_,rctEmRgn);
+  
+  if (!rctEmRgn.isValid()) {
     edm::LogInfo("L1TCompare") << "can't find "
 			       << "L1CaloRegionCollection with label "
 			       << rctSource_.label() ;
     return;
   }
 
-  // should get rid of this try/catch?
-  try {
-    e.getByLabel(gctSource_.label(),"cenJets", gctCenJets);
-    e.getByLabel(gctSource_.label(), "isoEm", gctIsoEmCands);
-    e.getByLabel(gctSource_.label(), "nonIsoEm", gctNonIsoEmCands);
+  
+  e.getByLabel(gctSource_.label(),"cenJets", gctCenJets);
+  e.getByLabel(gctSource_.label(), "isoEm", gctIsoEmCands);
+  e.getByLabel(gctSource_.label(), "nonIsoEm", gctNonIsoEmCands);
+  
+  if (!gctCenJets.isValid()) {
+    std::cerr << "L1TGCT: could not find one of the classes?" << std::endl;
+    return;
   }
-  catch (...) {
+ if (!gctIsoEmCands.isValid()) {
+    std::cerr << "L1TGCT: could not find one of the classes?" << std::endl;
+    return;
+  }
+ if (!gctNonIsoEmCands.isValid()) {
     std::cerr << "L1TGCT: could not find one of the classes?" << std::endl;
     return;
   }
@@ -383,10 +393,9 @@ void L1TCompare::analyze(const Event & e, const EventSetup & c)
 
   // ECAL TPG's to RCT EM 
   edm::Handle < EcalTrigPrimDigiCollection > eTP;
-  try {
-    e.getByLabel(ecalTpgSource_,eTP);
-  }
-  catch (...) {
+  e.getByLabel(ecalTpgSource_,eTP);
+  
+  if (!eTP.isValid()) {
     edm::LogInfo("L1TCompare") 
       << "can't find EcalTrigPrimCollection with label "
       << ecalTpgSource_.label() ;

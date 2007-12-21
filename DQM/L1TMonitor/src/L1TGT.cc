@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2007/08/31 06:31:45 $
- * $Revision: 1.10 $
+ * $Date: 2007/11/19 15:08:22 $
+ * $Revision: 1.11 $
  * \author J. Berryhill
  *
  */
@@ -129,11 +129,9 @@ void L1TGT::analyze(const Event& e, const EventSetup& c)
   //	}
 
      Handle<L1GlobalTriggerReadoutRecord> myGTReadoutRecord;
-
-     try {
-      e.getByLabel(gtSource_,myGTReadoutRecord);
-     }
-     catch (...) {
+     e.getByLabel(gtSource_,myGTReadoutRecord);
+     
+     if (!myGTReadoutRecord.isValid()) {
      edm::LogInfo("L1TGT") << "can't find L1GlobalTriggerReadoutRecord with label "
 			       << gtSource_.label() ;
      return;

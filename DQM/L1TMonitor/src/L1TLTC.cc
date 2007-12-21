@@ -1,8 +1,8 @@
 /*
  * \file L1TLTC.cc
  *
- * $Date: 2007/06/27 14:16:53 $
- * $Revision: 1.3 $
+ * $Date: 2007/11/19 15:08:22 $
+ * $Revision: 1.4 $
  * \author J. Berryhill
  *
  */
@@ -109,12 +109,9 @@ void L1TLTC::analyze(const Event& e, const EventSetup& c)
   nev_++; 
   if(verbose_) cout << "L1TLTC: analyze...." << endl;
   Handle< LTCDigiCollection > digis ;
-
-
-  try {
   e.getByType(digis);
-  }
-  catch (...) {
+  
+  if (!digis.isValid()) {
     edm::LogInfo("L1TLTC") << "can't find LTCDigiCollection ";
     return;
   }

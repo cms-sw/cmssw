@@ -1,13 +1,16 @@
 /*
  * \file L1TECALTPG.cc
  *
- * $Date: 2007/08/29 14:02:47 $
- * $Revision: 1.6 $
+ * $Date: 2007/11/19 15:08:22 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
  *
  * - initial version stolen from GCTMonnitor (thanks!) (wittich 02/07)
  *
  * $Log: L1TECALTPG.cc,v $
+ * Revision 1.7  2007/11/19 15:08:22  lorenzo
+ * changed top folder name
+ *
  * Revision 1.6  2007/08/29 14:02:47  wittich
  * split into barrel and endcap
  *
@@ -174,19 +177,17 @@ void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
   // Get the ECAL TPGs
   edm::Handle < EcalTrigPrimDigiCollection > eeTP;
   edm::Handle < EcalTrigPrimDigiCollection > ebTP;
+  e.getByLabel(ecaltpgSourceB_,ebTP);
+  e.getByLabel(ecaltpgSourceE_,eeTP);
 
-  try {
-    e.getByLabel(ecaltpgSourceE_,ebTP);
-  }
-  catch (...) {
+  if (!eeTP.isValid()) 
+  {
     edm::LogInfo("L1TECALTPG") << "can't find EcalTrigPrimCollection with "
       " endcap label " << ecaltpgSourceE_.label() ;
     return;
-  }
-  try {
-    e.getByLabel(ecaltpgSourceE_,eeTP);
-  }
-  catch (...) {
+  }  
+  if (!ebTP.isValid()) 
+  {
     edm::LogInfo("L1TECALTPG") << "can't find EcalTrigPrimCollection with "
       " barrel label " << ecaltpgSourceB_.label() ;
     return;

@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2007/11/05 09:13:33 $
- * $Revision: 1.9 $
+ * $Date: 2007/11/19 15:08:22 $
+ * $Revision: 1.10 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -177,12 +177,9 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
 
 
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
-
-
-  try {
-    e.getByLabel(gmtSource_,pCollection);
-  }
-  catch (...) {
+  e.getByLabel(gmtSource_,pCollection);
+  
+  if (!pCollection.isValid()) {
     edm::LogInfo("L1TGMT") << "can't find L1MuGMTReadoutCollection with label "
     << gmtSource_.label() ;
     return;
