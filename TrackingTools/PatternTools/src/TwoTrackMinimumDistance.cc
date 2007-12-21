@@ -122,7 +122,11 @@ TwoTrackMinimumDistance::pointsHelixHelix(const GlobalTrajectoryParameters & sta
   try {
     ini = theIniAlgo.trajectoryParameters ( sta, stb );
   }
-  catch (...) { // yes. this may fail.
+  catch (cms::Exception &ex) { // yes. this may fail.
+    if (ex.category() != "TrackingTools/PatternTools") {
+        edm::LogError("TrackingTools/PatternTools") << "Caught exception " << ex.category() << ": " << ex.explainSelf() << ". Rethrowing.";
+        throw;
+    }
     edm::LogWarning ( "TwoTrackMinimumDistance" ) << "Computation HelixHelix::CAIR failed.";
     if ( theModus == SlowMode ) { // we can still try ttmd here.
       if ( !(theTTMDhh.calculate ( sta, stb, .0001 )) ) return theTTMDhh.points();
