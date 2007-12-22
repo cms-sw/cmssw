@@ -4,6 +4,7 @@
 #include "DataFormats/MuonReco/interface/Direction.h"
 #include "TrackSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -47,21 +48,22 @@ MuIsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eve
   deposit.setVeto( veto(muonDir) );
   deposit.addMuonEnergy(muon.pt());
 
-  Handle<TrackCollection> tracksH;
+  Handle<View<Track> > tracksH;
   event.getByLabel(theTrackCollectionTag, tracksH);
-  const TrackCollection tracks = *(tracksH.product());
-  LogTrace(metname)<<"***** TRACK COLLECTION SIZE: "<<tracks.size();
+  //  const TrackCollection tracks = *(tracksH.product());
+  LogTrace(metname)<<"***** TRACK COLLECTION SIZE: "<<tracksH->size();
 
   double vtx_z = muon.vz();
   LogTrace(metname)<<"***** Muon vz: "<<vtx_z;
   TrackSelector selection(TrackSelector::Range(vtx_z-theDiff_z, vtx_z+theDiff_z),
        theDiff_r, muonDir, theDR_Max);
-  TrackCollection sel_tracks = selection(tracks);
-  LogTrace(metname)<<"all tracks: "<<tracks.size()<<" selected: "<<sel_tracks.size();
+  TrackSelector::result_type sel_tracks = selection(*tracksH);
+  LogTrace(metname)<<"all tracks: "<<tracksH->size()<<" selected: "<<sel_tracks.size();
 
   
-  TrackCollection::const_iterator tk;
-  for (tk = sel_tracks.begin(); tk != sel_tracks.end(); tk++) {
+  TrackSelector::result_type::const_iterator tkI = sel_tracks.begin();
+  for (; tkI != sel_tracks.end(); ++tkI) {
+    const reco::Track* tk = *tkI;
     LogTrace(metname) << "This track has: pt= " << tk->pt() << ", eta= " 
         << tk->eta() <<", phi= "<<tk->phi();
     Direction dirTrk(tk->eta(), tk->phi());
