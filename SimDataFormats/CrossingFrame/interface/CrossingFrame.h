@@ -9,9 +9,9 @@
  *
  * \version   1st Version July 2005
  * \version   2nd Version Sep 2005
+ * \version   3rd Version Nov 2007
  *
  ************************************************************/
-
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,6 +20,7 @@
 #include <string>
 #include <iostream>
 #include <utility>
+#include <algorithm>
 
 template <class T> 
 class CrossingFrame 
@@ -28,10 +29,14 @@ class CrossingFrame
  public:
   // con- and destructors
 
-  CrossingFrame():  firstCrossing_(0), lastCrossing_(0), bunchSpace_(75),subdet_(""),idFirstPileup_(0,0),pileupFileNr_(0) {;}
+  CrossingFrame():  firstCrossing_(0), lastCrossing_(0), bunchSpace_(75),subdet_("") {;}
   CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet );
 
   ~CrossingFrame() {;}
+
+  void swap(CrossingFrame& other);
+
+  CrossingFrame& operator=(CrossingFrame const& rhs);
 
   void addSignals(const std::vector<T> * vec,edm::EventID id);
 
@@ -42,7 +47,7 @@ class CrossingFrame
     pileupOffsetsBcr_.push_back(pileups_.size());
   }
   void setSourceOffset(const unsigned int s) {
-    pileupOffsetsSource_[s].push_back(pileups_.size());
+    pileupOffsetsSource_[s].push_back(pileups_.size());//FIXME: timing
   }
 
   //getters
@@ -68,6 +73,7 @@ class CrossingFrame
   static const int limHighLowTof;
 					    
  private:
+  // please update the swap() function below if any data members are added.
   // general information
   int firstCrossing_;
   int lastCrossing_;
@@ -79,22 +85,56 @@ class CrossingFrame
   edm::EventID idFirstPileup_;   // EventId fof the first pileup event used for this signal event
   unsigned int pileupFileNr_;    // ordinal number of the pileup file this event was in
 
+  static const unsigned int maxNbSources =4 ;
+
   // signal
   std::vector<T>  signals_; 
 
   //pileup
   std::vector<T>  pileups_;  
   std::vector<unsigned int> pileupOffsetsBcr_;
-  std::vector<unsigned int> pileupOffsetsSource_[4]; //one per source
+  std::vector<unsigned int> pileupOffsetsSource_[maxNbSources]; //one per source
 };
 
 //==============================================================================
 //                              implementations
 //==============================================================================
+
 template <class T> 
-CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet),idFirstPileup_(0,0),pileupFileNr_(0) {
+CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet) {
   //FIXME: should we force around 0 or so??
   pileupOffsetsBcr_.reserve(-firstCrossing_+lastCrossing_+1);
+}
+
+template <typename T>
+inline
+void
+CrossingFrame<T>::swap(CrossingFrame<T>& other) {
+  std::swap(firstCrossing_, other.firstCrossing_);
+  std::swap(lastCrossing_, other.lastCrossing_);
+  std::swap(bunchSpace_, other.bunchSpace_);
+  subdet_.swap(other.subdet_);
+  std::swap(id_, other.id_);
+  std::swap(idFirstPileup_, other.idFirstPileup_);
+  std::swap(pileupFileNr_, other.pileupFileNr_);
+  signals_.swap(other.signals_);
+  pileups_.swap(other.pileups_);
+  pileupOffsetsBcr_.swap(other.pileupOffsetsBcr_);
+  for (std::vector<unsigned int> *p = pileupOffsetsSource_,
+				 *po = other.pileupOffsetsSource_;
+				 p < pileupOffsetsSource_ + maxNbSources;
+				 ++p, ++po) {
+    p->swap(*po);
+  }
+}
+
+template <typename T>
+inline
+CrossingFrame<T>&
+CrossingFrame<T>::operator=(CrossingFrame<T> const& rhs) {
+  CrossingFrame<T> temp(rhs);
+  this->swap(temp);
+  return *this;
 }
 
 template <class T> 
@@ -116,21 +156,13 @@ void CrossingFrame<T>::print(int level) const {
 template <class T> 
 int  CrossingFrame<T>::getSourceType(unsigned int ip) const {
   // decide to which source belongs object with index ip in the pileup vector
-  // pileup=0, beam halo=1, cosmics =2
-  int ipos= getBunchCrossing(ip)-firstCrossing_; //starts at 0
-  // case pileup
-  if (pileupOffsetsSource_[0].size()>0 ) {
-    if (pileupOffsetsSource_[1].size()>0) {
-      if (ip<(pileupOffsetsSource_[1])[ipos]) return 0;
+  // pileup=0, cosmics=1, beam halo+ =2, beam halo- =3
+  unsigned int bcr= getBunchCrossing(ip)-firstCrossing_; //starts at 0
+
+    for (unsigned int i=0;i<maxNbSources-1;++i) {
+      if (ip>=(pileupOffsetsSource_[i])[bcr] && ip <(pileupOffsetsSource_[i+1])[bcr]) return i;
     }
-    else if (pileupOffsetsSource_[2].size()>0 ) {
-      if ( ip<(pileupOffsetsSource_[2])[ipos]) return 0;
-    } else return 0;
-  }
-  if (pileupOffsetsSource_[1].size()>0 ) {
-    if (pileupOffsetsSource_[2].size()>0 && ip<(pileupOffsetsSource_[2])[ipos]) return 1;
-  }
-  return 2;
+    return maxNbSources-1;
 }
 
 template <class T>   
@@ -141,6 +173,15 @@ int CrossingFrame<T>::getBunchCrossing(unsigned int ip) const {
     }
     if (ip<pileups_.size()) return lastCrossing_;
     else return 999;
+}
+
+
+// Free swap function
+template <typename T>
+inline
+void
+swap(CrossingFrame<T>& lhs, CrossingFrame<T>& rhs) {
+  lhs.swap(rhs);
 }
 
 #include<iosfwd>
