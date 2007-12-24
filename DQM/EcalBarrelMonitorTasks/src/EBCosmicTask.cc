@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/11/09 19:15:51 $
- * $Revision: 1.79 $
+ * $Date: 2007/12/04 08:24:08 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  *
 */
@@ -46,7 +46,7 @@ EBCosmicTask::EBCosmicTask(const ParameterSet& ps){
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 36; i++) {
     meCutMap_[i] = 0;
     meSelMap_[i] = 0;
     meSpectrumMap_[i] = 0;
@@ -79,7 +79,7 @@ void EBCosmicTask::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask");
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBCT energy cut %s", Numbers::sEB(i+1).c_str());
       meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       meCutMap_[i]->setAxisTitle("ieta", 1);
@@ -87,7 +87,7 @@ void EBCosmicTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBCT energy sel %s", Numbers::sEB(i+1).c_str());
       meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       meSelMap_[i]->setAxisTitle("ieta", 1);
@@ -95,7 +95,7 @@ void EBCosmicTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBCT energy spectrum %s", Numbers::sEB(i+1).c_str());
       meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
       meSpectrumMap_[i]->setAxisTitle("energy (GeV)", 1);
@@ -113,19 +113,19 @@ void EBCosmicTask::cleanup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask");
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       if ( meCutMap_[i] ) dbe_->removeElement( meCutMap_[i]->getName() );
       meCutMap_[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       if ( meSelMap_[i] ) dbe_->removeElement( meSelMap_[i]->getName() );
       meSelMap_[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       if ( meSpectrumMap_[i] ) dbe_->removeElement( meSpectrumMap_[i]->getName() );
       meSpectrumMap_[i] = 0;
     }

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/11/10 14:09:10 $
- * $Revision: 1.70 $
+ * $Date: 2007/12/04 08:24:08 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  *
 */
@@ -47,7 +47,7 @@ EBPedestalTask::EBPedestalTask(const ParameterSet& ps){
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 36; i++) {
     mePedMapG01_[i] = 0;
     mePedMapG06_[i] = 0;
     mePedMapG12_[i] = 0;
@@ -88,7 +88,7 @@ void EBPedestalTask::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask");
 
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPT pedestal %s G01", Numbers::sEB(i+1).c_str());
       mePedMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       mePedMapG01_[i]->setAxisTitle("ieta", 1);
@@ -107,7 +107,7 @@ void EBPedestalTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPT pedestal %s G06", Numbers::sEB(i+1).c_str());
       mePedMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       mePedMapG06_[i]->setAxisTitle("ieta", 1);
@@ -126,7 +126,7 @@ void EBPedestalTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPT pedestal %s G12", Numbers::sEB(i+1).c_str());
       mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       mePedMapG12_[i]->setAxisTitle("ieta", 1);
@@ -147,7 +147,7 @@ void EBPedestalTask::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/PN");
 
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/PN/Gain01");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs pedestal %s G01", Numbers::sEB(i+1).c_str());
       mePnPedMapG01_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG01_[i]->setAxisTitle("channel", 1);
@@ -156,7 +156,7 @@ void EBPedestalTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/PN/Gain16");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs pedestal %s G16", Numbers::sEB(i+1).c_str());
       mePnPedMapG16_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG16_[i]->setAxisTitle("channel", 1);

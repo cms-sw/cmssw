@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/11/09 15:24:06 $
- * $Revision: 1.24 $
+ * $Date: 2007/12/04 08:24:08 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -45,7 +45,7 @@ EBTimingTask::EBTimingTask(const ParameterSet& ps){
 
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 36; i++) {
     meTimeMap_[i] = 0;
   }
 
@@ -75,7 +75,7 @@ void EBTimingTask::setup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
 
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
       meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       meTimeMap_[i]->setAxisTitle("ieta", 1);

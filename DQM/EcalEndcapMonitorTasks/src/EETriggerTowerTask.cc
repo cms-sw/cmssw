@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/11/14 11:18:07 $
- * $Revision: 1.16 $
+ * $Date: 2007/12/04 08:24:09 $
+ * $Revision: 1.17 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -163,7 +163,7 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
   string emulFineGrainVetoErrorName = "EETTT EmulFineGrainVetoError";
   string emulFlagErrorName = "EETTT EmulFlagError";
 
-  for (int i = 0; i < 18 ; i++) {
+  for (int i = 0; i < 18; i++) {
 
     string etMapNameSM = etMapName;
     etMapNameSM += " " + Numbers::sEE(i+1);

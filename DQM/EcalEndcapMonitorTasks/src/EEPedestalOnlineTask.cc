@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2007/11/09 15:24:09 $
- * $Revision: 1.12 $
+ * $Date: 2007/12/04 08:24:09 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -45,7 +45,7 @@ EEPedestalOnlineTask::EEPedestalOnlineTask(const ParameterSet& ps){
 
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
 
-  for (int i = 0; i < 18 ; i++) {
+  for (int i = 0; i < 18; i++) {
     mePedMapG12_[i] = 0;
   }
 
@@ -76,7 +76,7 @@ void EEPedestalOnlineTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
-    for (int i = 0; i < 18 ; i++) {
+    for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPOT pedestal %s G12", Numbers::sEE(i+1).c_str());
       mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       mePedMapG12_[i]->setAxisTitle("ix", 1);

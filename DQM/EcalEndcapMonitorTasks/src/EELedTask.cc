@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2007/11/20 08:52:47 $
- * $Revision: 1.18 $
+ * $Date: 2007/12/04 08:24:09 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -48,7 +48,7 @@ EELedTask::EELedTask(const ParameterSet& ps){
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
-  for (int i = 0; i < 18 ; i++) {
+  for (int i = 0; i < 18; i++) {
     meShapeMapA_[i] = 0;
     meAmplMapA_[i] = 0;
     meTimeMapA_[i] = 0;
@@ -89,7 +89,7 @@ void EELedTask::setup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EELedTask");
 
-    for (int i = 0; i < 18 ; i++) {
+    for (int i = 0; i < 18; i++) {
       sprintf(histo, "EELDT shape %s A", Numbers::sEE(i+1).c_str());
       meShapeMapA_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapA_[i]->setAxisTitle("channel", 1);
@@ -136,7 +136,7 @@ void EELedTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
+    for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG01_[i]->setAxisTitle("channel", 1);
@@ -150,7 +150,7 @@ void EELedTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
+    for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG16_[i]->setAxisTitle("channel", 1);
@@ -174,7 +174,7 @@ void EELedTask::cleanup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EELedTask");
 
-    for (int i = 0; i < 18 ; i++) {
+    for (int i = 0; i < 18; i++) {
       if ( meShapeMapA_[i] )  dbe_->removeElement( meShapeMapA_[i]->getName() );
       meShapeMapA_[i] = 0;
       if ( meAmplMapA_[i] ) dbe_->removeElement( meAmplMapA_[i]->getName() );
@@ -195,7 +195,7 @@ void EELedTask::cleanup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
+    for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG01_[i] ) dbe_->removeElement( mePnAmplMapG01_[i]->getName() );
       mePnAmplMapG01_[i] = 0;
       if ( mePnPedMapG01_[i] ) dbe_->removeElement( mePnPedMapG01_[i]->getName() );
@@ -203,7 +203,7 @@ void EELedTask::cleanup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EELedTask/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
+    for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG16_[i] ) dbe_->removeElement( mePnAmplMapG16_[i]->getName() );
       mePnAmplMapG16_[i] = 0;
       if ( mePnPedMapG16_[i] ) dbe_->removeElement( mePnPedMapG16_[i]->getName() );

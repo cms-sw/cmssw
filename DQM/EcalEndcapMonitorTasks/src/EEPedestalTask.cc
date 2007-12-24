@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2007/11/10 14:09:13 $
- * $Revision: 1.22 $
+ * $Date: 2007/12/04 08:24:09 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -47,7 +47,7 @@ EEPedestalTask::EEPedestalTask(const ParameterSet& ps){
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
 
-  for (int i = 0; i < 18 ; i++) {
+  for (int i = 0; i < 18; i++) {
     mePedMapG01_[i] = 0;
     mePedMapG06_[i] = 0;
     mePedMapG12_[i] = 0;
@@ -88,7 +88,7 @@ void EEPedestalTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain01");
-    for (int i = 0; i < 18 ; i++) {
+    for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPT pedestal %s G01", Numbers::sEE(i+1).c_str());
       mePedMapG01_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       mePedMapG01_[i]->setAxisTitle("ix", 1);
@@ -107,7 +107,7 @@ void EEPedestalTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain06");
-    for (int i = 0; i < 18 ; i++) {
+    for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPT pedestal %s G06", Numbers::sEE(i+1).c_str());
       mePedMapG06_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       mePedMapG06_[i]->setAxisTitle("ix", 1);
@@ -126,7 +126,7 @@ void EEPedestalTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain12");
-    for (int i = 0; i < 18 ; i++) {
+    for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPT pedestal %s G12", Numbers::sEE(i+1).c_str());
       mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       mePedMapG12_[i]->setAxisTitle("ix", 1);
@@ -147,7 +147,7 @@ void EEPedestalTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN");
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN/Gain01");
-    for (int i = 0; i < 18 ; i++) {
+    for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
       mePnPedMapG01_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG01_[i]->setAxisTitle("channel", 1);
@@ -156,7 +156,7 @@ void EEPedestalTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN/Gain16");
-    for (int i = 0; i < 18 ; i++) {
+    for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
       mePnPedMapG16_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG16_[i]->setAxisTitle("channel", 1);

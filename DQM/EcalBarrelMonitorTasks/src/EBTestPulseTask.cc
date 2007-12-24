@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/11/10 14:09:10 $
- * $Revision: 1.84 $
+ * $Date: 2007/12/04 08:24:08 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -49,7 +49,7 @@ EBTestPulseTask::EBTestPulseTask(const ParameterSet& ps){
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 36; i++) {
     meShapeMapG01_[i] = 0;
     meAmplMapG01_[i] = 0;
     meShapeMapG06_[i] = 0;
@@ -90,7 +90,7 @@ void EBTestPulseTask::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask");
 
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain01");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBTPT shape %s G01", Numbers::sEB(i+1).c_str());
       meShapeMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG01_[i]->setAxisTitle("channel", 1);
@@ -105,7 +105,7 @@ void EBTestPulseTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain06");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBTPT shape %s G06", Numbers::sEB(i+1).c_str());
       meShapeMapG06_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG06_[i]->setAxisTitle("channel", 1);
@@ -120,7 +120,7 @@ void EBTestPulseTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain12");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBTPT shape %s G12", Numbers::sEB(i+1).c_str());
       meShapeMapG12_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG12_[i]->setAxisTitle("channel", 1);
@@ -137,7 +137,7 @@ void EBTestPulseTask::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN");
 
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN/Gain01");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G01", Numbers::sEB(i+1).c_str());
       mePnAmplMapG01_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG01_[i]->setAxisTitle("channel", 1);
@@ -151,7 +151,7 @@ void EBTestPulseTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN/Gain16");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G16", Numbers::sEB(i+1).c_str());
       mePnAmplMapG16_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG16_[i]->setAxisTitle("channel", 1);
@@ -176,7 +176,7 @@ void EBTestPulseTask::cleanup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask");
 
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain01");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       if ( meShapeMapG01_[i] ) dbe_->removeElement( meShapeMapG01_[i]->getName() );
       meShapeMapG01_[i] = 0;
       if ( meAmplMapG01_[i] ) dbe_->removeElement( meAmplMapG01_[i]->getName() );
@@ -184,7 +184,7 @@ void EBTestPulseTask::cleanup(void){
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain06");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       if ( meShapeMapG06_[i] ) dbe_->removeElement( meShapeMapG06_[i]->getName() );
       meShapeMapG06_[i] = 0;
       if ( meAmplMapG06_[i] ) dbe_->removeElement( meAmplMapG06_[i]->getName() );
@@ -192,7 +192,7 @@ void EBTestPulseTask::cleanup(void){
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain12");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       if ( meShapeMapG12_[i] ) dbe_->removeElement( meShapeMapG12_[i]->getName() );
       meShapeMapG12_[i] = 0;
       if ( meAmplMapG12_[i] ) dbe_->removeElement( meAmplMapG12_[i]->getName() );
@@ -202,7 +202,7 @@ void EBTestPulseTask::cleanup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN");
 
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN/Gain01");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       if ( mePnAmplMapG01_[i] ) dbe_->removeElement( mePnAmplMapG01_[i]->getName() );
       mePnAmplMapG01_[i] = 0;
       if ( mePnPedMapG01_[i] ) dbe_->removeElement( mePnPedMapG01_[i]->getName() );
@@ -210,7 +210,7 @@ void EBTestPulseTask::cleanup(void){
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN/Gain16");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       if ( mePnAmplMapG16_[i] ) dbe_->removeElement( mePnAmplMapG16_[i]->getName() );
       mePnAmplMapG16_[i] = 0;
       if ( mePnPedMapG16_[i] ) dbe_->removeElement( mePnPedMapG16_[i]->getName() );

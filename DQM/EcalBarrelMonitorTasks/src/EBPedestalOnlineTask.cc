@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2007/11/09 15:24:06 $
- * $Revision: 1.27 $
+ * $Date: 2007/12/04 08:24:08 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -45,7 +45,7 @@ EBPedestalOnlineTask::EBPedestalOnlineTask(const ParameterSet& ps){
 
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 36; i++) {
     mePedMapG12_[i] = 0;
   }
 
@@ -76,7 +76,7 @@ void EBPedestalOnlineTask::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
 
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask/Gain12");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPOT pedestal %s G12", Numbers::sEB(i+1).c_str());
       mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       mePedMapG12_[i]->setAxisTitle("ieta", 1);

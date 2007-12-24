@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/11/14 11:18:06 $
- * $Revision: 1.51 $
+ * $Date: 2007/12/04 08:24:08 $
+ * $Revision: 1.52 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -163,7 +163,7 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
   string emulFineGrainVetoErrorName = "EBTTT EmulFineGrainVetoError";
   string emulFlagErrorName = "EBTTT EmulFlagError";
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 36; i++) {
 
     string etMapNameSM = etMapName;
     etMapNameSM += " " + Numbers::sEB(i+1);
