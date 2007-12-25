@@ -18,6 +18,7 @@
 // user include files
 #include "FastSimulation/EgammaElectronAlgos/plugins/ElectronGSPixelSeedProducer.h"
 #include "FastSimulation/EgammaElectronAlgos/interface/ElectronGSPixelSeedGenerator.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/SubSeedGenerator.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -37,17 +38,29 @@
 ElectronGSPixelSeedProducer::ElectronGSPixelSeedProducer(const edm::ParameterSet& iConfig)
 {
 
-  matcher_ = new ElectronGSPixelSeedGenerator(iConfig.getParameter<double>("ePhiMin1"),
-					      iConfig.getParameter<double>("ePhiMax1"),
-					      iConfig.getParameter<double>("pPhiMin1"),
-					      iConfig.getParameter<double>("pPhiMax1"),
-					      iConfig.getParameter<double>("pPhiMin2"),
-					      iConfig.getParameter<double>("pPhiMax2"),
-					      iConfig.getParameter<double>("ZMin1"),
-					      iConfig.getParameter<double>("ZMax1"),
-					      iConfig.getParameter<double>("ZMin2"),
-					      iConfig.getParameter<double>("ZMax2"),
-					      iConfig.getParameter<bool>("dynamicPhiRoad") );
+  std::string algo = iConfig.getParameter<std::string>("SeedAlgo");
+  edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
+
+  /* This will wait for V00-09-01 in 18X / 20X ?
+   if (algo=="FilteredSeed") 
+     matcher_= 
+     new SubSeedGenerator(pset);
+   else
+  */
+   matcher_ = 
+     new ElectronGSPixelSeedGenerator(pset.getParameter<double>("ePhiMin1"),
+				      pset.getParameter<double>("ePhiMax1"),
+				      pset.getParameter<double>("pPhiMin1"),
+				      pset.getParameter<double>("pPhiMax1"),
+				      pset.getParameter<double>("pPhiMin2"),
+				      pset.getParameter<double>("pPhiMax2"),
+				      pset.getParameter<double>("ZMin1"),
+				      pset.getParameter<double>("ZMax1"),
+				      pset.getParameter<double>("ZMin2"),
+				      pset.getParameter<double>("ZMax2"),
+				      pset.getParameter<bool>("dynamicPhiRoad"),
+				      pset.getParameter<double>("SCEtCut"),
+				      iConfig.getParameter<double>("pTMin"));
 					      
   matcher_->setup(true); //always set to offline in our case!
  
@@ -59,6 +72,7 @@ ElectronGSPixelSeedProducer::ElectronGSPixelSeedProducer(const edm::ParameterSet
 
   //register your products
   produces<reco::ElectronPixelSeedCollection>();
+
 }
 
 

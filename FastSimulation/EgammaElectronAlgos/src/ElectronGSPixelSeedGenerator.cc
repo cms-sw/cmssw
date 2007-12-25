@@ -54,7 +54,9 @@ ElectronGSPixelSeedGenerator::ElectronGSPixelSeedGenerator(
   float iphimin2, float iphimax2,
   float izmin1, float izmax1,
   float izmin2, float izmax2,
-  bool idynamicphiroad)
+  bool idynamicphiroad,
+  double SCEtCut,
+  double pTMin)
   : 
   ephimin1(iephimin1), ephimax1(iephimax1), 
   pphimin1(ipphimin1), pphimax1(ipphimax1), 
@@ -62,6 +64,8 @@ ElectronGSPixelSeedGenerator::ElectronGSPixelSeedGenerator(
   zmin1(izmin1), zmax1(izmax1),
   zmin2(izmin2), zmax2(izmax2),
   dynamicphiroad(idynamicphiroad),
+  SCEtCut_(SCEtCut),
+  pTMin2(pTMin*pTMin),
   myGSPixelMatcher(0),
   theMode_(unknown), 
   theUpdator(0), thePropagator(0), 
@@ -165,7 +169,7 @@ void  ElectronGSPixelSeedGenerator::run(
     SiTrackerGSRecHit2DCollection::const_iterator iterRecHit2;
 
     // Request a minimum pT for the sim track
-    if ( theSimTrack.momentum().perp2() < 1.0 ) continue;
+    if ( theSimTrack.momentum().perp2() < pTMin2 ) continue;
 
     // Request a minimum number of RecHits (total and in the pixel detector)
     unsigned numberOfRecHits = 0;
@@ -225,7 +229,8 @@ void  ElectronGSPixelSeedGenerator::run(
       
       // Find the pixel seeds (actually only the best one is returned)
       LogDebug ("run") << "new cluster, calling addAseedFromThisCluster";
-      addASeedToThisCluster(theClusB,thePixelRecHits,myPixelSeeds[i]);
+      if (theClusB->energy()/cosh(theClusB->eta())>SCEtCut_)    
+	addASeedToThisCluster(theClusB,thePixelRecHits,myPixelSeeds[i]);
       
     }
 

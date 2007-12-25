@@ -59,7 +59,9 @@ public:
 			       float izmax1,
 			       float izmin2,
 			       float izmax2,
-			       bool  idynamicphiroad
+			       bool  idynamicphiroad,
+			       double SCEtCut,
+			       double pTMin
 			       );
 
   ~ElectronGSPixelSeedGenerator();
@@ -89,6 +91,8 @@ public:
   float phimin2, phimax2;
   float zmin1, zmax1, zmin2, zmax2;
   bool dynamicphiroad;
+  double SCEtCut_;
+  double pTMin2;
   
   GSPixelHitMatcher *myGSPixelMatcher;
   mode theMode_;
