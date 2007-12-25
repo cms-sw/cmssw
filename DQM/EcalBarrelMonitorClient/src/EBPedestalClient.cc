@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/12/15 11:34:27 $
- * $Revision: 1.167 $
+ * $Date: 2007/12/25 09:50:27 $
+ * $Revision: 1.168 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -458,7 +458,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << "(ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
@@ -484,7 +484,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << "(ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "G01 (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
             cout << "G06 (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
@@ -552,7 +552,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << "(ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
     UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
     UtilsClient::printBadChannels(meg05_[ism-1], i02_[ism-1]);
@@ -573,7 +573,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEB(ism) << "(ism=" << ism << ")" << endl;
+          cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
           cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
           cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
