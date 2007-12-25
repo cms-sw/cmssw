@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/11/29 19:07:49 $
- * $Revision: 1.41 $
+ * $Date: 2007/12/15 11:34:33 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -289,7 +289,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " SM=" << ism << endl;
+    cout << " " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
     cout << endl;
 
     if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
@@ -364,7 +364,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
 
             cout << "(" << ix << "," << iy << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << endl;
 
@@ -458,7 +458,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( ixt == 1 && iyt == 1 ) {
 
-            cout << "Preparing dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
 
             cout << "(" << ixt << "," << iyt << ") " << num00 << " " << num05 << " " << num06 << endl;
 
@@ -619,7 +619,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( ixt == 1 ) {
 
-          cout << "Preparing dataset for SM=" << ism << endl;
+          cout << "Preparing dataset for " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
 
           cout << "(" << ixt <<  ") " << num09 << " " << num10 << endl;
 

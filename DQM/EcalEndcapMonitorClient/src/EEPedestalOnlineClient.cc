@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/11/29 19:07:49 $
- * $Revision: 1.40 $
+ * $Date: 2007/12/15 11:34:34 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -240,7 +240,7 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
     int ism = superModules_[i];
 
-    cout << " SM=" << ism << endl;
+    cout << " " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
@@ -267,7 +267,7 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
 
             cout << "G12 (" << ix << "," << iy << ") " << num03  << " " << mean03 << " " << rms03  << endl;
 

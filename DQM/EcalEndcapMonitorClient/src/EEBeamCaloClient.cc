@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2007/11/29 19:07:49 $
- * $Revision: 1.22 $
+ * $Date: 2007/12/15 11:34:32 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -254,7 +254,7 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " SM=" << ism << endl;
+    cout << " " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
 
     const float n_min_tot = 1000.;
 
@@ -295,7 +295,7 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
           if ( ie == 1 && ip == 1 ) {
 	//if ( mean01 !=0) {
 
-            cout << "Preparing dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
 
             cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
             cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;

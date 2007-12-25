@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/12/15 11:34:28 $
- * $Revision: 1.55 $
+ * $Date: 2007/12/18 13:00:47 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -241,7 +241,7 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
     int ism = superModules_[i];
 
-    cout << " SM=" << ism << endl;
+    cout << " " << Numbers::sEB(ism) << "(ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
@@ -261,7 +261,7 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Preparing dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for " << Numbers::sEB(ism) << "(ism=" << ism << ")" << endl;
 
             cout << "crystal (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
 

@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/11/29 19:07:49 $
- * $Revision: 1.49 $
+ * $Date: 2007/12/15 11:34:34 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -395,7 +395,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " SM=" << ism << endl;
+    cout << " " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg01_[ism-1], ha01_[ism-1]);
@@ -428,7 +428,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
             cout << "G01 (" << ix << "," << iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
             cout << "G06 (" << ix << "," << iy << ") " << num02 << " " << mean02 << " " << rms02 << endl;
             cout << "G12 (" << ix << "," << iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
@@ -557,7 +557,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " SM=" << ism << endl;
+    cout << " " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
@@ -585,7 +585,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for SM=" << ism << endl;
+          cout << "Preparing dataset for " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
 
           cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << num03 << " " << mean03 << " " << rms03 << endl;
           cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << num04 << " " << mean04 << " " << rms04 << endl;

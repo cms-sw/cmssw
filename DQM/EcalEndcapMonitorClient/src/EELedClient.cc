@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/11/29 19:07:49 $
- * $Revision: 1.40 $
+ * $Date: 2007/12/15 11:34:33 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -288,13 +288,13 @@ void EELedClient::setup(void) {
     mepnprms05_[ism-1]->setAxisTitle("rms", 1);
 
     if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
-    sprintf(histo, "EELDT led shape A %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EELDT led shape A %s", Numbers::sEE(ism).c_str());
     me_hs01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
     me_hs01_[ism-1]->setAxisTitle("sample", 1);
     me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
 
     if ( me_hs05_[ism-1] ) dbe_->removeElement( me_hs05_[ism-1]->getName() );
-    sprintf(histo, "EELDT led shape B %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EELDT led shape B %s", Numbers::sEE(ism).c_str());
     me_hs05_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
     me_hs05_[ism-1]->setAxisTitle("sample", 1);
     me_hs05_[ism-1]->setAxisTitle("amplitude", 2);
@@ -496,7 +496,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
     int ism = superModules_[i];
 
-    cout << " SM=" << ism << endl;
+    cout << " " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
@@ -536,7 +536,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
 
             cout << " A (" << ix << "," << iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
 
@@ -577,7 +577,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
 
             cout << " B (" << ix << "," << iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
 
@@ -639,7 +639,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
     int ism = superModules_[i];
 
-    cout << " SM=" << ism << endl;
+    cout << " " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
@@ -677,7 +677,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for SM=" << ism << endl;
+          cout << "Preparing dataset for " << Numbers::sEE(ism) << "(ism=" << ism << ")" << endl;
 
           cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
           cout << "PNs (" << i << ") G16 " << num09  << " " << mean09 << " " << rms09  << endl;
