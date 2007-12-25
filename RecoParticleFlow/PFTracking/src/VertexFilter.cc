@@ -176,9 +176,9 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //PUT TRACK EXTRA IN THE EVENT
   unsigned nTracks = selTracks->size();
   selTrackExtras->reserve(nTracks);
-  for ( unsigned index = 0; index<nTracks; ++index ) { 
+  unsigned hits=0;
 
-    unsigned hits=0;
+  for ( unsigned index = 0; index<nTracks; ++index ) { 
 
     reco::Track& aTrack = selTracks->at(index);
     TrackExtra aTrackExtra(aTrack.outerPosition(),
