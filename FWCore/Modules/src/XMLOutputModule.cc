@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug  4 20:45:44 EDT 2006
-// $Id: XMLOutputModule.cc,v 1.9 2007/09/10 20:23:27 wmtan Exp $
+// $Id: XMLOutputModule.cc,v 1.10 2007/09/13 20:16:26 paterno Exp $
 //
 
 // system include files
@@ -264,9 +264,6 @@ static void printDataMembers(std::ostream& oStream,
       std::cout <<iIndent<<itMember->Name()<<" <exception caught("
       <<iEx.what()<<")>\n";
     }
-    catch(...) {
-      std::cout <<iIndent<<itMember->Name()<<"<unknown exception caught>"<<"\n";
-    }
   }
 }
 
@@ -355,8 +352,9 @@ static bool printAsContainer(std::ostream& oStream,
       //std::cout <<"invoked 'at'"<<std::endl;
       try {
         printObject(oStream,kObjectOpen,kObjectClose,contained,indexIndent,iIndentDelta);
-      }catch(...) {
-        std::cout <<iIndent<<"<exception caught>"<<"\n";
+      }catch(std::exception& iEx) {
+        std::cout <<iIndent<<" <exception caught("
+        <<iEx.what()<<")>\n";
       }
     }
     oStream <<iIndent<<kContainerClose<<std::endl;

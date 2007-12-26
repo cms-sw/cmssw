@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.24 2007/08/08 03:41:43 chrjones Exp $
+// $Id: EventContentAnalyzer.cc,v 1.25 2007/11/07 07:12:22 wmtan Exp $
 //
 //
 
@@ -179,9 +179,6 @@ static void printObject(const std::string& iName,
 	edm::LogAbsolute("EventContent") <<indent<<itMember->Name()<<" <exception caught("
 		  <<iEx.what()<<")>\n";
       }
-      catch(...) {
-	edm::LogAbsolute("EventContent") <<indent<<itMember->Name()<<"<unknown exception caught>"<<"\n";
-      }
    }
 }
 
@@ -212,8 +209,9 @@ static bool printAsContainer(const std::string& iName,
          //edm::LogAbsolute("EventContent") <<"invoked 'at'"<<std::endl;
          try {
             printObject(sizeS.str(),contained,indexIndent,iIndentDelta);
-         }catch(...) {
-            edm::LogAbsolute("EventContent") <<iIndent<<"<exception caught>"<<"\n";
+         }catch(std::exception& iEx) {
+	   edm::LogAbsolute("EventContent") <<indexIndent<<iName<<" <exception caught("
+		  <<iEx.what()<<")>\n";
          }
       }
       return true;
