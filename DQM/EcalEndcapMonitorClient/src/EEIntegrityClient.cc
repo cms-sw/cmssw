@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/12/25 09:50:23 $
- * $Revision: 1.43 $
+ * $Date: 2007/12/25 10:08:27 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1104,6 +1104,8 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
+  int pCol5[10];
+  for ( int i = 0; i < 10; i++ ) pCol5[i] = 501+i;
 
   TH2S labelGrid("labelGrid","label grid", 100, -2., 98., 100, -2., 98.);
   for ( short j=0; j<400; j++ ) {
@@ -1335,7 +1337,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cMe->cd();
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette(10, pCol4);
+        gStyle->SetPalette(10, pCol5);
         cMe->SetGridx();
         cMe->SetGridy();
         obj2f->GetXaxis()->SetLabelSize(0.02);
@@ -1478,7 +1480,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cMeMem->cd();
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette(10, pCol4);
+        gStyle->SetPalette(10, pCol5);
         obj2f->SetMinimum(0.0);
         obj2f->Draw("colz");
         if ( iCanvas < 9 ){

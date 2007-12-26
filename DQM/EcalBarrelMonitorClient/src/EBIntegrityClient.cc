@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/12/25 09:50:27 $
- * $Revision: 1.174 $
+ * $Date: 2007/12/25 10:08:34 $
+ * $Revision: 1.175 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1063,6 +1063,8 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
+  int pCol5[10];
+  for ( int i = 0; i < 10; i++ ) pCol5[i] = 501+i;
 
   TH2C dummy1( "dummy1", "dummy1 for sm", 85, 0, 85, 20, 0, 20 );
   for ( short i=0; i<68; i++ ) {
@@ -1270,7 +1272,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cMe->cd();
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette(10, pCol4);
+        gStyle->SetPalette(10, pCol5);
         obj2f->GetXaxis()->SetNdivisions(17);
         obj2f->GetYaxis()->SetNdivisions(4);
         cMe->SetGridx();
@@ -1394,7 +1396,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cMeMem->cd();
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette(10, pCol4);
+        gStyle->SetPalette(10, pCol5);
         obj2f->SetMinimum(0.0);
         obj2f->Draw("colz");
         if ( iCanvas < 9 ){
