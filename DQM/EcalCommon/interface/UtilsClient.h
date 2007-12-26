@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.6 2007/12/26 14:18:25 dellaric Exp $
+// $Id: UtilsClient.h,v 1.7 2007/12/26 15:02:06 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.6 $
-  \date $Date: 2007/12/26 14:18:25 $
+  \version $Revision: 1.7 $
+  \date $Date: 2007/12/26 15:02:06 $
 */
 
 #ifndef UtilsClient_H
@@ -115,7 +115,7 @@ class UtilsClient {
                   << std::endl;
       }
     }
-    std::cout << std::endl;
+    if ( title ) std::cout << std::endl;
     return;
   }
 
