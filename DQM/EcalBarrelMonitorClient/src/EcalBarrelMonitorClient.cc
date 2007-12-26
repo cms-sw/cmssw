@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/18 11:09:51 $
- * $Revision: 1.340 $
+ * $Date: 2007/12/25 17:40:35 $
+ * $Revision: 1.341 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1086,7 +1086,6 @@ void EcalBarrelMonitorClient::writeDb(void) {
       }
     }
     if ( ((taskl >> clientsStatus_[clientsNames_[i]]) & 0x1) ) {
-      cout << endl;
       cout << " Task output for "
            << clientsNames_[i]
            << " = "
