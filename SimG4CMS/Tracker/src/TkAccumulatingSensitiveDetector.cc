@@ -177,7 +177,6 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfTrack *bot){
   edm::LogInfo("TrackerSimInfo") <<" -> process creator pointer "<<gTrack->GetCreatorProcess();
   if (gTrack->GetCreatorProcess())
     edm::LogInfo("TrackerSimInfo")<<" -> PROCESS CREATOR : "<<gTrack->GetCreatorProcess()->GetProcessName();
-
 #endif
 
 
@@ -185,9 +184,9 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfTrack *bot){
   //Position
   //
   const G4ThreeVector pos = gTrack->GetPosition();
-  LogDebug("TrackerSimDebug")<<" ENERGY MeV "<<gTrack->GetKineticEnergy()<<" Energy Cut" << energyCut;
-  LogDebug("TrackerSimDebug")<<" TOTAL ENERGY "<<gTrack->GetTotalEnergy();
-  LogDebug("TrackerSimDebug")<<" WEIGHT "<<gTrack->GetWeight();
+  //LogDebug("TrackerSimDebug")<<" ENERGY MeV "<<gTrack->GetKineticEnergy()<<" Energy Cut" << energyCut;
+  //LogDebug("TrackerSimDebug")<<" TOTAL ENERGY "<<gTrack->GetTotalEnergy();
+  //LogDebug("TrackerSimDebug")<<" WEIGHT "<<gTrack->GetWeight();
 
   //
   // Check if in Tracker Volume
@@ -200,9 +199,9 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfTrack *bot){
 
     if (gTrack->GetKineticEnergy() > energyCut){
       TrackInformation* info = getOrCreateTrackInformation(gTrack);
-      LogDebug("TrackerSimDebug")<<" POINTER "<<info;
-      LogDebug("TrackerSimDebug")<<" track inside the tracker selected for STORE";
-      LogDebug("TrackerSimDebug")<<"Track ID (persistent track) = "<<gTrack->GetTrackID();
+      //LogDebug("TrackerSimDebug")<<" POINTER "<<info;
+      //LogDebug("TrackerSimDebug")<<" track inside the tracker selected for STORE";
+      //LogDebug("TrackerSimDebug")<<"Track ID (persistent track) = "<<gTrack->GetTrackID();
 
       info->storeTrack(true);
     }
@@ -212,9 +211,9 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfTrack *bot){
     if (gTrack->GetKineticEnergy() > energyHistoryCut){
       TrackInformation* info = getOrCreateTrackInformation(gTrack);
       info->putInHistory();
-      LogDebug("TrackerSimDebug")<<" POINTER "<<info;
-      LogDebug("TrackerSimDebug")<<" track inside the tracker selected for HISTORY";
-      LogDebug("TrackerSimDebug")<<"Track ID (history track) = "<<gTrack->GetTrackID();
+      //LogDebug("TrackerSimDebug")<<" POINTER "<<info;
+      //LogDebug("TrackerSimDebug")<<" track inside the tracker selected for HISTORY";
+      //LogDebug("TrackerSimDebug")<<"Track ID (history track) = "<<gTrack->GetTrackID();
     }
     
   }
