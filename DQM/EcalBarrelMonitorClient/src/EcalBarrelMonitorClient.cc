@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/26 15:52:41 $
- * $Revision: 1.342 $
+ * $Date: 2007/12/26 16:01:28 $
+ * $Revision: 1.343 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -340,7 +340,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   for( int i=0; i<10; i++ ) {
     TColor* color = gROOT->GetColor( 501+i );
     if ( ! color ) color = new TColor( 501+i, 0, 0, 0, "");
-    color->SetRGB( ecdqm::rgb2[i][2], 0, 0 );
+    color->SetRGB( ecdqm::rgb2[i][1], 0, ecdqm::rgb2[i][1] );
   }
 
   // set runTypes (use resize() on purpose!)
