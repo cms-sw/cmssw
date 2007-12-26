@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.5 2007/11/06 08:05:20 dellaric Exp $
+// $Id: UtilsClient.h,v 1.6 2007/12/26 14:18:25 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2007/11/06 08:05:20 $
+  \version $Revision: 1.6 $
+  \date $Date: 2007/12/26 14:18:25 $
 */
 
 #ifndef UtilsClient_H
@@ -79,29 +79,10 @@ class UtilsClient {
                 << std::endl;
       return;
     }
+    bool title = false;
+    TProfile2D* hj = dynamic_cast<TProfile2D*>(const_cast<T*>(hi));
     int kx = -1;
     int ky = -1;
-    int problems = 0;
-    for ( int ix=1; ix <= me->getNbinsX(); ix++ ) {
-      for ( int iy=1; iy <= me->getNbinsY(); iy++ ) {
-        int jx = ix * hi->GetNbinsX() / me->getNbinsX();
-        int jy = iy * hi->GetNbinsY() / me->getNbinsY();
-        if ( jx == kx && jy == ky ) continue;
-        kx = jx;
-        ky = jy;
-        if ( no_zeros ) {
-          if ( hi->GetBinContent(hi->GetBin(jx, jy)) != 0 ) problems++;
-        } else {
-          if ( int(me->getBinContent( ix, iy )) % 3 == 0 ) problems++;
-        }
-      }
-    }
-    if ( problems == 0 ) return;
-    std::cout << " Channels failing \"" << me->getName() << "\""
-              << " (" << hi->GetName() << ") "
-              << std::endl;
-    std::cout << std::endl;
-    TProfile2D* hj = dynamic_cast<TProfile2D*>(const_cast<T*>(hi));
     for ( int ix = 1; ix <= me->getNbinsX(); ix++ ) {
       for ( int iy = 1; iy <= me->getNbinsY(); iy++ ) {
         int jx = ix * hi->GetNbinsX() / me->getNbinsX();
@@ -113,6 +94,12 @@ class UtilsClient {
           if ( hi->GetBinContent(hi->GetBin(jx, jy)) == 0 ) continue;
         } else {
           if ( int(me->getBinContent( ix, iy )) % 3 != 0 ) continue;
+        }
+        if ( ! title ) {
+          std::cout << " Channels failing \"" << me->getName() << "\""
+                    << " (" << hi->GetName() << ") "
+                    << std::endl << std::endl;
+          title = true;
         }
         std::cout << " ("
                   << hi->GetXaxis()->GetBinUpEdge(jx)
