@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/25 17:40:49 $
- * $Revision: 1.100 $
+ * $Date: 2007/12/26 15:52:42 $
+ * $Revision: 1.101 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1100,7 +1100,6 @@ void EcalEndcapMonitorClient::writeDb(void) {
         if ( clientsNames_[i] == "Led" && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 ) continue;
         done = true;
         taskl |= 0x1 << clientsStatus_[clientsNames_[i]];
-        cout << endl;
         cout << " Writing " << clientsNames_[i] << " results to DB " << endl;
         cout << endl;
         if ( clients_[i]->writeDb(econn, &runiov_, &moniov_) ) {
