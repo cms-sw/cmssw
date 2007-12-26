@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.4 2007/10/24 13:49:25 dellaric Exp $
+// $Id: UtilsClient.h,v 1.5 2007/11/06 08:05:20 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.4 $
-  \date $Date: 2007/10/24 13:49:25 $
+  \version $Revision: 1.5 $
+  \date $Date: 2007/11/06 08:05:20 $
 */
 
 #ifndef UtilsClient_H
@@ -79,11 +79,20 @@ class UtilsClient {
                 << std::endl;
       return;
     }
+    int kx = -1;
+    int ky = -1;
     int problems = 0;
     for ( int ix=1; ix <= me->getNbinsX(); ix++ ) {
       for ( int iy=1; iy <= me->getNbinsY(); iy++ ) {
-        if ( int(me->getBinContent( ix, iy )) % 3 == 0 ) {
-          problems++;
+        int jx = ix * hi->GetNbinsX() / me->getNbinsX();
+        int jy = iy * hi->GetNbinsY() / me->getNbinsY();
+        if ( jx == kx && jy == ky ) continue;
+        kx = jx;
+        ky = jy;
+        if ( no_zeros ) {
+          if ( hi->GetBinContent(hi->GetBin(jx, jy)) != 0 ) problems++;
+        } else {
+          if ( int(me->getBinContent( ix, iy )) % 3 == 0 ) problems++;
         }
       }
     }
@@ -93,8 +102,6 @@ class UtilsClient {
               << std::endl;
     std::cout << std::endl;
     TProfile2D* hj = dynamic_cast<TProfile2D*>(const_cast<T*>(hi));
-    int kx = -1;
-    int ky = -1;
     for ( int ix = 1; ix <= me->getNbinsX(); ix++ ) {
       for ( int iy = 1; iy <= me->getNbinsY(); iy++ ) {
         int jx = ix * hi->GetNbinsX() / me->getNbinsX();
@@ -102,23 +109,23 @@ class UtilsClient {
         if ( jx == kx && jy == ky ) continue;
         kx = jx;
         ky = jy;
-        if ( int(me->getBinContent( ix, iy )) % 3 == 0 ) {
-          if ( no_zeros ) {
-            if ( hi->GetBinContent(hi->GetBin(jx, jy)) == 0 ) continue;
-          }
-          std::cout << " ("
-                    << hi->GetXaxis()->GetBinUpEdge(jx)
-                    << ", "
-                    << hi->GetYaxis()->GetBinUpEdge(jy);
-          if ( hj )
-          std::cout << ", "
-                    << hj->GetBinEntries(hj->GetBin(jx, jy));
-          std::cout << ") = "
-                    << hi->GetBinContent(hi->GetBin(jx, jy))
-                    << " +- "
-                    << hi->GetBinError(hi->GetBin(jx, jy))
-                    << std::endl;
+        if ( no_zeros ) {
+          if ( hi->GetBinContent(hi->GetBin(jx, jy)) == 0 ) continue;
+        } else {
+          if ( int(me->getBinContent( ix, iy )) % 3 != 0 ) continue;
         }
+        std::cout << " ("
+                  << hi->GetXaxis()->GetBinUpEdge(jx)
+                  << ", "
+                  << hi->GetYaxis()->GetBinUpEdge(jy);
+        if ( hj )
+        std::cout << ", "
+                  << hj->GetBinEntries(hj->GetBin(jx, jy));
+        std::cout << ") = "
+                  << hi->GetBinContent(hi->GetBin(jx, jy))
+                  << " +- "
+                  << hi->GetBinError(hi->GetBin(jx, jy))
+                  << std::endl;
       }
     }
     std::cout << std::endl;
