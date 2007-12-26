@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/11/28 09:47:42 $
- * $Revision: 1.27 $
+ * $Date: 2007/12/04 08:24:08 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -332,7 +332,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       dccMap[dcch.id()] = dcch;
 
-      meEEDCC_->Fill(Numbers::iSM( dcch, EcalEndcap )+0.5);
+      if ( meEEDCC_ ) meEEDCC_->Fill(Numbers::iSM( dcch, EcalEndcap )+0.5);
 
       if ( ! fixedRunNumber_ ) runNumber_ = dcch.getRunNumber();
 
@@ -359,7 +359,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       const EcalTBEventHeader* evtHeader = pEvtH.product();
 
-      meEEDCC_->Fill(1+0.5);
+      if ( meEEDCC_ ) meEEDCC_->Fill(1+0.5);
 
       if ( ! fixedRunNumber_ ) runNumber_ = evtHeader->runNumber();
 
@@ -371,7 +371,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     } else {
 
-      LogWarning("EcalEndcapMonitorModule") << EcalTBEventHeader_ << " not available, TOO!";
+      LogWarning("EcalEndcapMonitorModule") << EcalTBEventHeader_ << " not available";
 
     }
 

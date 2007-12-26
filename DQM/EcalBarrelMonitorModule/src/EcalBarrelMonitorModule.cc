@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/11/28 09:47:40 $
- * $Revision: 1.153 $
+ * $Date: 2007/12/04 08:24:07 $
+ * $Revision: 1.154 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -332,7 +332,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       dccMap[dcch.id()] = dcch;
 
-      meEBDCC_->Fill(Numbers::iSM( dcch, EcalBarrel )+0.5);
+      if ( meEBDCC_ ) meEBDCC_->Fill(Numbers::iSM( dcch, EcalBarrel )+0.5);
 
       if ( ! fixedRunNumber_ ) runNumber_ = dcch.getRunNumber();
 
@@ -359,7 +359,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       const EcalTBEventHeader* evtHeader = pEvtH.product();
 
-      meEBDCC_->Fill(1+0.5);
+      if ( meEBDCC_ ) meEBDCC_->Fill(1+0.5);
 
       if ( ! fixedRunNumber_ ) runNumber_ = evtHeader->runNumber();
 
@@ -371,7 +371,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     } else {
 
-      LogWarning("EcalBarrelMonitorModule") << EcalTBEventHeader_ << " not available, TOO!";
+      LogWarning("EcalBarrelMonitorModule") << EcalTBEventHeader_ << " not available";
 
     }
 
