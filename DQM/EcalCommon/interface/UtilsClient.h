@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.7 2007/12/26 15:02:06 dellaric Exp $
+// $Id: UtilsClient.h,v 1.8 2007/12/26 15:40:52 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.7 $
-  \date $Date: 2007/12/26 15:02:06 $
+  \version $Revision: 1.8 $
+  \date $Date: 2007/12/26 15:40:52 $
 */
 
 #ifndef UtilsClient_H
@@ -84,11 +84,12 @@ class UtilsClient {
     int kx = -1;
     int ky = -1;
     for ( int ix = 1; ix <= me->getNbinsX(); ix++ ) {
+      int jx = ix * hi->GetNbinsX() / me->getNbinsX();
+      if ( jx == kx ) continue;
+      kx = jx;
       for ( int iy = 1; iy <= me->getNbinsY(); iy++ ) {
-        int jx = ix * hi->GetNbinsX() / me->getNbinsX();
         int jy = iy * hi->GetNbinsY() / me->getNbinsY();
-        if ( jx == kx && jy == ky ) continue;
-        kx = jx;
+        if ( jy == ky ) continue;
         ky = jy;
         if ( no_zeros ) {
           if ( hi->GetBinContent(hi->GetBin(jx, jy)) == 0 ) continue;
