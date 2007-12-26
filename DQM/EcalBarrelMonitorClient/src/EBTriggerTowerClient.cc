@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/11/15 08:09:30 $
- * $Revision: 1.76 $
+ * $Date: 2007/12/15 11:34:28 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -332,6 +332,25 @@ bool EBTriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, M
 
   bool status = true;
 
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+    cout << endl;
+
+    UtilsClient::printBadChannels(mel01_[ism-1], UtilsClient::getHisto<TH2F*>(mel01_[ism-1]), true);
+
+    for (int j=0; j<2; j++) {
+      UtilsClient::printBadChannels(me_n01_[ism-1][j], UtilsClient::getHisto<TH2F*>(me_n01_[ism-1][j]), true);
+    }
+
+    for (int j=0; j<6; j++) {
+      UtilsClient::printBadChannels(me_m01_[ism-1][j], UtilsClient::getHisto<TH2F*>(me_m01_[ism-1][j]), true);
+    }
+
+  }
+
   return status;
 
 }
@@ -576,6 +595,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
+  int pCol5[10];
+  for ( int i = 0; i < 10; i++ ) pCol5[i] = 501+i;
 
   TH2C dummy( "dummy", "dummy for sm", 17, 0., 17., 4, 0., 4. );
   for ( int i = 0; i < 68; i++ ) {
@@ -635,7 +656,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       cMe2->cd();
       gStyle->SetOptStat(" ");
-      gStyle->SetPalette(10, pCol4);
+      gStyle->SetPalette(10, pCol5);
       cMe2->SetGridx();
       cMe2->SetGridy();
       obj2f->GetXaxis()->SetNdivisions(17);
@@ -778,7 +799,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
           cMe2->cd();
           gStyle->SetOptStat(" ");
-          gStyle->SetPalette(10, pCol4);
+          if (iemu == 0 ) gStyle->SetPalette(10, pCol5);
+          if (iemu == 1 || iemu == 2) gStyle->SetPalette(10, pCol4);
           cMe2->SetGridx();
           cMe2->SetGridy();
           obj2f->GetXaxis()->SetNdivisions(17);
@@ -844,7 +866,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
           cMe2->cd();
           gStyle->SetOptStat(" ");
-          gStyle->SetPalette(10, pCol4);
+          if (iemu == 0 ) gStyle->SetPalette(10, pCol5);
+          if (iemu == 1 || iemu == 2) gStyle->SetPalette(10, pCol4);
           cMe2->SetGridx();
           cMe2->SetGridy();
           obj2f->GetXaxis()->SetNdivisions(17);

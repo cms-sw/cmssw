@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/11/29 19:07:50 $
- * $Revision: 1.42 $
+ * $Date: 2007/12/15 11:34:34 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -334,6 +334,25 @@ bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, M
 
   bool status = true;
 
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+    cout << endl;
+
+    UtilsClient::printBadChannels(mel01_[ism-1], UtilsClient::getHisto<TH2F*>(mel01_[ism-1]), true);
+
+    for (int j=0; j<2; j++) {
+      UtilsClient::printBadChannels(me_n01_[ism-1][j], UtilsClient::getHisto<TH2F*>(me_n01_[ism-1][j]), true);
+    }
+
+    for (int j=0; j<6; j++) {
+      UtilsClient::printBadChannels(me_m01_[ism-1][j], UtilsClient::getHisto<TH2F*>(me_m01_[ism-1][j]), true);
+    }
+
+  }
+
   return status;
 
 }
@@ -581,6 +600,8 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
+  int pCol5[10];
+  for ( int i = 0; i < 10; i++ ) pCol5[i] = 501+i;
 
   TH2S labelGrid("labelGrid","label grid", 100, -2., 98., 100, -2., 98.);
   for ( short j=0; j<400; j++ ) {
@@ -642,7 +663,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       cMe2->cd();
       gStyle->SetOptStat(" ");
-      gStyle->SetPalette(10, pCol4);
+      gStyle->SetPalette(10, pCol5);
       cMe2->SetGridx();
       cMe2->SetGridy();
       obj2f->GetXaxis()->SetLabelSize(0.02);
@@ -819,7 +840,8 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
           cMe2->cd();
           gStyle->SetOptStat(" ");
-          gStyle->SetPalette(10, pCol4);
+          if (iemu == 0 ) gStyle->SetPalette(10, pCol5);
+          if (iemu == 1 || iemu == 2) gStyle->SetPalette(10, pCol4);
           cMe2->SetGridx();
           cMe2->SetGridy();
           obj2f->GetXaxis()->SetLabelSize(0.02);
@@ -902,7 +924,8 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
           cMe2->cd();
           gStyle->SetOptStat(" ");
-          gStyle->SetPalette(10, pCol4);
+          if (iemu == 0 ) gStyle->SetPalette(10, pCol5);
+          if (iemu == 1 || iemu == 2) gStyle->SetPalette(10, pCol4);
           cMe2->SetGridx();
           cMe2->SetGridy();
           obj2f->GetXaxis()->SetLabelSize(0.02);
