@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/12/18 14:23:50 $
- * $Revision: 1.64 $
+ * $Date: 2007/12/18 15:56:21 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  *
 */
@@ -754,9 +754,13 @@ void EESummaryClient::analyze(void){
               float xval = h2->GetBinContent( ix, iy );
 
               if ( ism >= 1 && ism <= 9 ) {
-                if ( xval != 0 ) meOccupancy_[0]->setBinContent( jx, jy, xval );
+                if ( xval != 0 ) {
+                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meOccupancy_[0]->setBinContent( jx, jy, xval );
+                }
               } else {
-                if ( xval != 0 ) meOccupancy_[1]->setBinContent( jx, jy, xval );
+                if ( xval != 0 ) {
+                  if ( Numbers::validEE(ism, jx, jy) ) meOccupancy_[1]->setBinContent( jx, jy, xval );
+                }
               }
 
 	      meOccupancy1D_->Fill( ism, xval );
@@ -942,9 +946,13 @@ void EESummaryClient::analyze(void){
               float xval = h2d->GetBinContent( ix, iy );
 
               if ( ism >= 1 && ism <= 9 ) {
-                if ( xval != 0 ) meCosmic_[0]->setBinContent( jx, jy, xval );
+                if ( xval != 0 ) {
+                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meCosmic_[0]->setBinContent( jx, jy, xval );
+                }
               } else {
-                if ( xval != 0 ) meCosmic_[1]->setBinContent( jx, jy, xval );
+                if ( xval != 0 ) {
+                  if ( Numbers::validEE(ism, jx, jy) ) meCosmic_[1]->setBinContent( jx, jy, xval );
+                }
               }
 
             }
@@ -991,9 +999,13 @@ void EESummaryClient::analyze(void){
               if(xval!=0) hasRealDigi = true;
 
               if ( ism >= 1 && ism <= 9 ) {
-                if ( xval != 0 ) meTriggerTowerEt_[0]->setBinContent( jx, jy, xval );
+                if ( xval != 0 ) {
+                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meTriggerTowerEt_[0]->setBinContent( jx, jy, xval );
+                }
               } else {
-                if ( xval != 0 ) meTriggerTowerEt_[1]->setBinContent( jx, jy, xval );
+                if ( xval != 0 ) {
+                  if ( Numbers::validEE(ism, jx, jy) ) meTriggerTowerEt_[1]->setBinContent( jx, jy, xval );
+                }
               }
 
             }
@@ -1013,9 +1025,9 @@ void EESummaryClient::analyze(void){
               if ( xval == 2 ) continue;
 
               if ( ism >= 1 && ism <= 9 ) {
-                meTriggerTowerEmulError_[0]->setBinContent( jx, jy, xval );
+                if ( Numbers::validEE(ism, 101 - jx, jy) ) meTriggerTowerEmulError_[0]->setBinContent( jx, jy, xval );
               } else {
-                meTriggerTowerEmulError_[1]->setBinContent( jx, jy, xval );
+                if ( Numbers::validEE(ism, jx, jy) ) meTriggerTowerEmulError_[1]->setBinContent( jx, jy, xval );
               }
 
             }
