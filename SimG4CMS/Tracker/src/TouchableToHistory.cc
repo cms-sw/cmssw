@@ -99,23 +99,30 @@ TouchableToHistory::Nav_Story TouchableToHistory::getNavStory(DDFilteredView& i)
 }
 
 TouchableToHistory::Nav_Story TouchableToHistory::touchableToNavStory(const G4VTouchable *v) {
+  static G4String tobinactive("TOBInactive");
   Nav_Story temp;
+#ifdef DEBUG    
   std::vector<int> debugint;
   std::vector<std::string> debugstring;
+#endif
   int levels = v->GetHistoryDepth();
   
   for (int k=0; k<=levels; k++){
-    if (v->GetVolume(k)->GetLogicalVolume()->GetName() != "TOBInactive") {
+    if (v->GetVolume(k)->GetLogicalVolume()->GetName() != tobinactive) {
       temp.push_back(
 		     std::pair<int,std::string>
 		     (v->GetVolume(k)->GetCopyNo(),
 		      v->GetVolume(k)->GetLogicalVolume()->GetName()));
+#ifdef DEBUG    
       debugint.push_back(v->GetVolume(k)->GetCopyNo());
       debugstring.push_back(v->GetVolume(k)->GetLogicalVolume()->GetName());
+#endif
     }
   }
+#ifdef DEBUG    
   // LogDebug("TrackerSimDebugNumbering")<<" G4 TouchableToHistory "<< debugint;
   for(u_int32_t jj=0;jj<debugstring.size();jj++)LogDebug("TrackerSimDebugNumbering")<<" "<<debugstring[jj];
+#endif
   return temp;
 }
 
