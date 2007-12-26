@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Association.h,v 1.4 2007/11/06 15:16:57 llista Exp $
+ * \version $Id: Association.h,v 1.5 2007/11/07 10:25:13 llista Exp $
  *
  */
 
@@ -59,6 +59,15 @@ namespace edm {
     bool empty() const { return base::empty(); }
     void clear() { base::clear(); }
     refprod_type ref() const { return ref_; }
+    void swap(Association& other) {
+      this->ValueMap<int>::swap(other);
+      ref_.swap(other.ref_);
+    }
+    Association& operator=(Association const& rhs) {
+      Association temp(rhs);
+      this->swap(temp);
+      return *this;
+    }
 
     class Filler : public helper::Filler<Association<C> > {
       typedef helper::Filler<Association<C> > base;
@@ -91,14 +100,19 @@ namespace edm {
     friend class helper::Filler<Association<C> >;
   }; 
   
-}
+  // Free swap function
+  template <typename C>
+  inline void swap(Association<C>& lhs, Association<C>& rhs) {
+    lhs.swap(rhs);
+  }
 
-template<typename C>
-inline  edm::Association<C> operator+( const edm::Association<C> & a1,
-				       const edm::Association<C> & a2 ) {
-  edm::Association<C> a = a1;
-  a += a2;
-  return a;
+  template<typename C>
+  inline  Association<C> operator+( const Association<C> & a1,
+				       const Association<C> & a2 ) {
+    Association<C> a = a1;
+    a += a2;
+    return a;
+  }
 }
 
 #endif
