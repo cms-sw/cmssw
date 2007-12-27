@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.8 2007/12/26 15:40:52 dellaric Exp $
+// $Id: UtilsClient.h,v 1.9 2007/12/26 18:21:41 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.8 $
-  \date $Date: 2007/12/26 15:40:52 $
+  \version $Revision: 1.9 $
+  \date $Date: 2007/12/26 18:21:41 $
 */
 
 #ifndef UtilsClient_H
@@ -92,7 +92,7 @@ class UtilsClient {
         if ( jy == ky ) continue;
         ky = jy;
         if ( no_zeros ) {
-          if ( hi->GetBinContent(hi->GetBin(jx, jy)) == 0 ) continue;
+          if ( hi->GetBinContent(hi->GetBin(jx, jy)) <= 0 ) continue;
         } else {
           if ( int(me->getBinContent( ix, iy )) % 3 != 0 ) continue;
         }
