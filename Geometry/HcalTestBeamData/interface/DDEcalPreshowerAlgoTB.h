@@ -16,9 +16,9 @@ public:
 		  const DDStringArguments & sArgs,
 		  const DDStringVectorArguments & vsArgs);
   void execute();
-  std::string getMaterial(unsigned int i)   const {return materials_[i];}
 
 private:
+  std::string getMaterial(unsigned int i)   const {return materials_[i];}
   void doLayers();
   void doWedges();    
   void doSens();
@@ -34,8 +34,7 @@ private:
   std::vector<double> micromodulesx;
   std::vector<double> micromodulesy;
   std::string   idNameSpace; //Namespace of this and ALL sub-parts
-  double waf_intra_col_sep, waf_inter_col_sep, waf_active, wedge_length, wedge_offset, zwedge_ceramic_diff, ywedge_ceramic_diff, absorbx, absorby, trabsorbx, trabsorby; 
-  double xoffset, yoffset;
+  double waf_intra_col_sep, waf_inter_col_sep, waf_active, wedge_length, wedge_offset, zwedge_ceramic_diff, ywedge_ceramic_diff, absorbx, absorby, trabsorbx, trabsorby, ScndplaneXshift, ScndplaneYshift, TotSFXshift, TotSFYshift;
   int go;
 };
 

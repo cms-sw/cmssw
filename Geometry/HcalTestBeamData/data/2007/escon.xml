@@ -10,13 +10,13 @@
   <Constant name="NMAT_PRESH" value="19"/>
   <Constant name="waf_intra_col_sep" value="6.35*cm"/>
   <Constant name="waf_inter_col_sep" value="0.03*cm"/>
-  <Constant name="wedge_width" value="5.8*cm"/>
+  <Constant name="wedge_width" value="6.24*cm"/>
   <Constant name="wedge_length" value="5.2*cm"/>
   <Constant name="wedge_front_thick" value="0.2*cm"/>
   <Constant name="wedge_back_thick" value="0.545*cm"/>
   <Constant name="waf_overlap" value="0.2*cm"/>
   <Constant name="waf_width" value="6.3*cm"/>
-  <Constant name="waf_thick" value="0.031*cm"/>
+  <Constant name="waf_thick" value="0.032*cm"/>
   <Constant name="ceramic_length" value="10*cm"/>
   <Constant name="ceramic_thick" value="0.06*cm"/>
   <Constant name="elec_thick" value="0.15*cm"/>
