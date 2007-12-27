@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/12/25 10:08:35 $
- * $Revision: 1.169 $
+ * $Date: 2007/12/27 15:00:44 $
+ * $Revision: 1.170 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -458,7 +458,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
@@ -484,7 +484,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "G01 (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
             cout << "G06 (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
@@ -552,7 +552,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
     UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
     UtilsClient::printBadChannels(meg05_[ism-1], i02_[ism-1]);
@@ -573,7 +573,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
+          cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
           cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
           cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
@@ -1109,7 +1109,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-             << Numbers::sEB(superModules_[i]).c_str() << ">"
+             << Numbers::sEB(superModules_[i]) << ">"
              << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
@@ -1537,8 +1537,8 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-             << Numbers::sEB(ism).c_str() << """></a><strong>"
-             << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
+             << Numbers::sEB(ism) << """></a><strong>"
+             << Numbers::sEB(ism) << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

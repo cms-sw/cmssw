@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2007/12/25 10:08:29 $
- * $Revision: 1.45 $
+ * $Date: 2007/12/27 15:01:57 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -471,7 +471,7 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
@@ -504,7 +504,7 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "G01 (" << ix << "," << iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
             cout << "G06 (" << ix << "," << iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
@@ -574,7 +574,7 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
@@ -596,7 +596,7 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
           cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
           cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
@@ -1159,7 +1159,7 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-             << Numbers::sEE(superModules_[i]).c_str() << ">"
+             << Numbers::sEE(superModules_[i]) << ">"
              << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
@@ -1637,8 +1637,8 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-             << Numbers::sEE(ism).c_str() << """></a><strong>"
-             << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
+             << Numbers::sEE(ism) << """></a><strong>"
+             << Numbers::sEE(ism) << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

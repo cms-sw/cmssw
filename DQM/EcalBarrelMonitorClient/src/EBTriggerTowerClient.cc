@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/12/26 13:36:32 $
- * $Revision: 1.78 $
+ * $Date: 2007/12/27 15:00:45 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -336,7 +336,7 @@ bool EBTriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, M
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(mel01_[ism-1], UtilsClient::getHisto<TH2F*>(mel01_[ism-1]), true);
@@ -582,7 +582,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile[0] << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile[0] << "<td bgcolor=white><a href=""#"
-                << Numbers::sEB(superModules_[i]).c_str() << ">"
+                << Numbers::sEB(superModules_[i]) << ">"
                 << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile[0] << std::endl << "</table>" << std::endl;
@@ -625,8 +625,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     if ( i>0 ) htmlFile[0] << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile[0] << "<hr>" << std::endl;
     htmlFile[0] << "<h3><a name="""
-                << Numbers::sEB(ism).c_str() << """></a><strong>"
-                << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
+                << Numbers::sEB(ism) << """></a><strong>"
+                << Numbers::sEB(ism) << "</strong></h3>" << endl;
 
 
     // ---------------------------  Emulator Error
@@ -725,8 +725,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile[0] << "<br>" << std::endl;
 
     std::stringstream subpage;
-    subpage << htmlName.substr( 0, htmlName.find( ".html" ) ) << "_" << Numbers::sEB(ism).c_str() << ".html" << std::ends;
-    htmlFile[0] << "<a href=\"" << subpage.str().c_str() << "\">" << Numbers::sEB(ism).c_str() << " details</a><br>" << std::endl;
+    subpage << htmlName.substr( 0, htmlName.find( ".html" ) ) << "_" << Numbers::sEB(ism) << ".html" << std::ends;
+    htmlFile[0] << "<a href=\"" << subpage.str().c_str() << "\">" << Numbers::sEB(ism) << " details</a><br>" << std::endl;
     htmlFile[0] << "<hr>" << std::endl;
 
     htmlFile[ism].open((htmlDir + subpage.str()).c_str());
@@ -737,7 +737,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile[ism] << "<head>  " << std::endl;
     htmlFile[ism] << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << std::endl;
     htmlFile[ism] << " http-equiv=\"content-type\">  " << std::endl;
-    htmlFile[ism] << "  <title>Monitor:TriggerTowerTask output " << Numbers::sEB(ism).c_str()  << "</title> " << std::endl;
+    htmlFile[ism] << "  <title>Monitor:TriggerTowerTask output " << Numbers::sEB(ism) << "</title> " << std::endl;
     htmlFile[ism] << "</head>  " << std::endl;
     htmlFile[ism] << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
     htmlFile[ism] << "<body>  " << std::endl;
@@ -749,7 +749,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile[ism] << " style=\"color: rgb(0, 0, 153);\">TRIGGER TOWER</span></h3> " << std::endl;
     htmlFile[ism] << "<h3>SM:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
     htmlFile[ism] << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
-    htmlFile[ism] << " style=\"color: rgb(0, 0, 153);\">" << Numbers::sEB(ism).c_str() << "</span></h3>" << std::endl;
+    htmlFile[ism] << " style=\"color: rgb(0, 0, 153);\">" << Numbers::sEB(ism) << "</span></h3>" << std::endl;
     htmlFile[ism] << "<hr>" << std::endl;
 
     // ---------------------------  Flag bits plots

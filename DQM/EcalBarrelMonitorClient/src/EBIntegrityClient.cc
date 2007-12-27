@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/12/26 18:18:48 $
- * $Revision: 1.176 $
+ * $Date: 2007/12/27 15:00:44 $
+ * $Revision: 1.177 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -278,7 +278,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
@@ -346,7 +346,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << endl;
 
@@ -430,7 +430,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( iet == 1 && ipt == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "(" << iet << "," << ipt << ") " << num00 << " " << num05 << " " << num06 << endl;
 
@@ -591,7 +591,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( iet == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
+          cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
           cout << "(" << iet <<  ") " << num09 << " " << num10 << endl;
 
@@ -1050,7 +1050,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-             << Numbers::sEB(superModules_[i]).c_str() << ">"
+             << Numbers::sEB(superModules_[i]) << ">"
              << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
@@ -1423,8 +1423,8 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-             << Numbers::sEB(ism).c_str() << """></a><strong>"
-             << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
+             << Numbers::sEB(ism) << """></a><strong>"
+             << Numbers::sEB(ism) << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\"> " << endl;
     htmlFile << "<tr align=\"left\">" << endl;

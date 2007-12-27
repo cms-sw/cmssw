@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/12/26 18:18:50 $
- * $Revision: 1.45 $
+ * $Date: 2007/12/27 15:01:56 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -289,7 +289,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
@@ -364,7 +364,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "(" << ix << "," << iy << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << endl;
 
@@ -458,7 +458,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( ixt == 1 && iyt == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "(" << ixt << "," << iyt << ") " << num00 << " " << num05 << " " << num06 << endl;
 
@@ -619,7 +619,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( ixt == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
           cout << "(" << ixt <<  ") " << num09 << " " << num10 << endl;
 
@@ -1091,7 +1091,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-             << Numbers::sEE(superModules_[i]).c_str() << ">"
+             << Numbers::sEE(superModules_[i]) << ">"
              << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
@@ -1507,8 +1507,8 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-             << Numbers::sEE(ism).c_str() << """></a><strong>"
-             << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
+             << Numbers::sEE(ism) << """></a><strong>"
+             << Numbers::sEE(ism) << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\"> " << endl;
     htmlFile << "<tr align=\"left\">" << endl;

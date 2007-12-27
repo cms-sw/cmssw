@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/12/25 10:08:27 $
- * $Revision: 1.61 $
+ * $Date: 2007/12/27 15:01:56 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1030,7 +1030,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
@@ -1100,7 +1100,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "L1A (" << ix << "," << iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
 
@@ -1141,7 +1141,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "L1B (" << ix << "," << iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
 
@@ -1180,7 +1180,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "L2A (" << ix << "," << iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
 
@@ -1221,7 +1221,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "L2B (" << ix << "," << iy << ") " << num11 << " " << mean11 << " " << rms11 << endl;
 
@@ -1260,7 +1260,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "L3A (" << ix << "," << iy << ") " << num05 << " " << mean05 << " " << rms05 << endl;
 
@@ -1301,7 +1301,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "L3B (" << ix << "," << iy << ") " << num13 << " " << mean13 << " " << rms13 << endl;
 
@@ -1340,7 +1340,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "L4A (" << ix << "," << iy << ") " << num07 << " " << mean07 << " " << rms07 << endl;
 
@@ -1381,7 +1381,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "L4B (" << ix << "," << iy << ") " << num15 << " " << mean15 << " " << rms15 << endl;
 
@@ -1449,7 +1449,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
@@ -1516,7 +1516,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
           cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
           cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
@@ -1562,7 +1562,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
           cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
           cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
@@ -1608,7 +1608,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
           cout << "PNs (" << i << ") L3 G01 " << num03  << " " << mean03 << " " << rms03  << endl;
           cout << "PNs (" << i << ") L3 G16 " << num11  << " " << mean11 << " " << rms11  << endl;
@@ -1654,7 +1654,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
+          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
           cout << "PNs (" << i << ") L4 G01 " << num04  << " " << mean04 << " " << rms04  << endl;
           cout << "PNs (" << i << ") L4 G16 " << num12  << " " << mean12 << " " << rms12  << endl;
@@ -3127,7 +3127,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#"
-             << Numbers::sEE(superModules_[i]).c_str() << ">"
+             << Numbers::sEE(superModules_[i]) << ">"
              << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
@@ -4066,8 +4066,8 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
-             << Numbers::sEE(ism).c_str() << """></a><strong>"
-             << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
+             << Numbers::sEE(ism) << """></a><strong>"
+             << Numbers::sEE(ism) << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
