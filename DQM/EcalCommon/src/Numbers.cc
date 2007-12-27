@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.39 2007/12/18 11:09:52 dellaric Exp $
+// $Id: Numbers.cc,v 1.40 2007/12/18 13:10:40 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.39 $
-  \date $Date: 2007/12/18 11:09:52 $
+  \version $Revision: 1.40 $
+  \date $Date: 2007/12/18 13:10:40 $
 */
 
 #include <sstream>
@@ -92,8 +92,7 @@ std::string Numbers::sEB( const int ism  ) {
     << std::setiosflags( std::ios::internal )
     << ieb
     << std::resetiosflags( std::ios::showpos )
-    << std::resetiosflags( std::ios::internal )
-    << std::ends;
+    << std::resetiosflags( std::ios::internal );
   return( s.str() );
 
 }
@@ -142,8 +141,7 @@ std::string Numbers::sEE( const int ism  ) {
     << std::setiosflags( std::ios::internal )
     << iee
     << std::resetiosflags( std::ios::showpos )
-    << std::resetiosflags( std::ios::internal )
-    << std::ends;
+    << std::resetiosflags( std::ios::internal );
   return( s.str() );
 
 }
