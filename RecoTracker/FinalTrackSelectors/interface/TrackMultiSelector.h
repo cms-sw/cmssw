@@ -8,7 +8,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: TrackMultiSelector.h,v 1.1 2007/12/13 12:57:23 gpetrucc Exp $
+ * $Id: TrackMultiSelector.h,v 1.1 2007/12/21 15:51:29 gpetrucc Exp $
  *
  */
 
@@ -40,7 +40,7 @@ namespace reco { namespace modules {
                 std::pair<double,double> pt;
                 std::pair<uint32_t,uint32_t>   vhits, lhits;
                 std::pair<double,double> chi2n;
-                double d0, dz;
+                double d0, dz,d0Rel,dzRel;
 
                 explicit Block(const edm::ParameterSet & cfg) ;
                 private:
@@ -59,7 +59,8 @@ namespace reco { namespace modules {
             /// return class, or -1 if rejected
             short select ( const reco::Track &tk, const std::vector<Point> &points);
             void selectVertices ( const reco::VertexCollection &vtxs, std::vector<Point> &points);
-            inline bool testVtx ( const Point &pca, const std::vector<Point> &points, const Block &cut);
+            inline bool testVtx ( const Point &pca, double d0Err,double dzErr,
+				  const std::vector<Point> &points, const Block &cut);
             /// source collection label
             edm::InputTag src_;
             edm::InputTag vertices_;
