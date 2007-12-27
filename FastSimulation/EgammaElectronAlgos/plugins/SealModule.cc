@@ -9,7 +9,6 @@
 //#include "PixelMatchElectronProducer.h"
 //#include "PixelMatchGsfElectronProducer.h"
 //#include "TrackProducerWithSeedAssoc.h"
-#include "FastSimulation/EgammaElectronAlgos/plugins/GSGsfTrackCandidateMaker.h"
 //#include "CkfTrackCandidateMakerWithSeedAssoc.h"
 //#include "CkfTrajectoryBuilderWithSeedAssocESProducer.h"
 
@@ -25,4 +24,3 @@ DEFINE_ANOTHER_FWK_MODULE(ElectronGSPixelSeedProducer);
 //DEFINE_ANOTHER_FWK_MODULE(PixelMatchGsfElectronProducer);
 //DEFINE_ANOTHER_FWK_MODULE(TrackProducerWithSeedAssoc);
 //DEFINE_ANOTHER_FWK_MODULE(GsfTrackProducerWithSeedAssoc);
-DEFINE_ANOTHER_FWK_MODULE(GSGsfTrackCandidateMaker);
