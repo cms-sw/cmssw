@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.9 2007/12/26 18:21:41 dellaric Exp $
+// $Id: UtilsClient.h,v 1.10 2007/12/27 13:28:13 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.9 $
-  \date $Date: 2007/12/26 18:21:41 $
+  \version $Revision: 1.10 $
+  \date $Date: 2007/12/27 13:28:13 $
 */
 
 #ifndef UtilsClient_H
@@ -62,13 +62,13 @@ class UtilsClient {
     return ret;
   }
 
-  /*! \fn template<class T> static void printBadChannels( const MonitorElement* me, const T* hi, no_zeros = false )
+  /*! \fn template<class T> static void printBadChannels( const MonitorElement* me, const T* hi, positive_only = false )
       \brief Print the bad channels
       \param me monitor element
       \param h1 histogram
-      \param no_zeros disable logging of empty channels
+      \param positive_only enable logging of channels with positive content, only
    */
-  template<class T> static void printBadChannels( const MonitorElement* me, const T* hi, bool no_zeros = false ) {
+  template<class T> static void printBadChannels( const MonitorElement* me, const T* hi, bool positive_only = false ) {
     if ( ! me ) {
       std::cout << "printBadChannels() failed, NULL pointer to MonitorElement !"
                 << std::endl;
@@ -91,7 +91,7 @@ class UtilsClient {
         int jy = iy * hi->GetNbinsY() / me->getNbinsY();
         if ( jy == ky ) continue;
         ky = jy;
-        if ( no_zeros ) {
+        if ( positive_only ) {
           if ( hi->GetBinContent(hi->GetBin(jx, jy)) <= 0 ) continue;
         } else {
           if ( int(me->getBinContent( ix, iy )) % 3 != 0 ) continue;
