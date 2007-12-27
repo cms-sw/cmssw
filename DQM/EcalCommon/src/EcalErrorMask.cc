@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.14 2007/12/18 13:30:42 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.15 2007/12/18 13:35:45 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.14 $
-  \date $Date: 2007/12/18 13:30:42 $
+  \version $Revision: 1.15 $
+  \date $Date: 2007/12/18 13:35:45 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -22,6 +22,8 @@
 #include <CondTools/Ecal/interface/EcalErrorDictionary.h>
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
+#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 
@@ -114,7 +116,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 
     if( !(sm >= 1 && sm <= 36) ) {
       std::ostringstream os;
-      os << "line " << linecount << " --> SM must be a number between 1 and 36, or between 1 and 18: " << sm << std::ends;
+      os << "line " << linecount << " --> SM must be a number between 1 and 36, or between 1 and 18: " << sm;
       if( verifySyntax ) {
 	std::cerr << os.str() << std::endl;
 	nerrors++;
@@ -130,7 +132,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       int ic; is >> ic;
       if( ic < 1 || ic > 1700 ) {
 	std::ostringstream os;
-	os << "line " << linecount << " --> IC must be a number between 1 and 1700: " << ic << std::ends;
+	os << "line " << linecount << " --> IC must be a number between 1 and 1700: " << ic;
 	if( verifySyntax ) {
 	  std::cerr << os.str() << std::endl;
 	  nerrors++;
@@ -151,7 +153,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       }
       if( bitmask == 0 ) {
 	std::ostringstream os;
-	os << "line " << linecount << " --> This Short Description was not found in the Dictionary: " << shortDesc << std::ends;
+	os << "line " << linecount << " --> This Short Description was not found in the Dictionary: " << shortDesc;
 	if( verifySyntax ) {
 	  std::cerr << os.str() << std::endl;
 	  nerrors++;
@@ -183,7 +185,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       int it; is >> it;
       if( it < 1 || it > 68 ) {
 	std::ostringstream os;
-	os << "line " << linecount << " --> IT must be a number between 1 and 68: " << it << std::ends;
+	os << "line " << linecount << " --> IT must be a number between 1 and 68: " << it;
 	if( verifySyntax ) {
 	  std::cerr << os.str() << std::endl;
 	  nerrors++;
@@ -204,7 +206,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       }
       if( bitmask == 0 ) {
 	std::ostringstream os;
-	os << "line " << linecount << " --> This Short Description was not found in the Dictionary:" << shortDesc << std::ends;
+	os << "line " << linecount << " --> This Short Description was not found in the Dictionary:" << shortDesc;
 	if( verifySyntax ) {
 	  std::cerr << os.str() << std::endl;
 	  nerrors++;
@@ -236,7 +238,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       int ic; is >> ic;
       if( ic < 1 || ic > 10 ) {
 	std::ostringstream os;
-	os << "line " << linecount << " --> IC must be a number between 1 and 10: " << ic << std::ends;
+	os << "line " << linecount << " --> IC must be a number between 1 and 10: " << ic;
 	if( verifySyntax ) {
 	  std::cerr << os.str() << std::endl;
 	  nerrors++;
@@ -257,7 +259,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       }
       if( bitmask == 0 ) {
 	std::ostringstream os;
-	os << "line " << linecount << " --> This Short Description was not found in the Dictionary: " << shortDesc << std::ends;
+	os << "line " << linecount << " --> This Short Description was not found in the Dictionary: " << shortDesc;
 	if( verifySyntax ) {
 	  std::cerr << os.str() << std::endl;
 	  nerrors++;
@@ -289,7 +291,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       int ic; is >> ic;
       if( ic < 1 || ic > 50 ) {
 	std::ostringstream os;
-	os << "line " << linecount << " --> IC must be a number between 1 and 50: " << ic << std::ends;
+	os << "line " << linecount << " --> IC must be a number between 1 and 50: " << ic;
 	if( verifySyntax ) {
 	  std::cerr << os.str() << std::endl;
 	  nerrors++;
@@ -310,7 +312,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       }
       if( bitmask == 0 ) {
 	std::ostringstream os;
-	os << "line " << linecount << " --> This Short Description was not found in the Dictionary: " << shortDesc << std::ends;
+	os << "line " << linecount << " --> This Short Description was not found in the Dictionary: " << shortDesc;
 	if( verifySyntax ) {
 	  std::cerr << os.str() << std::endl;
 	  nerrors++;
@@ -342,7 +344,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       int it; is >> it;
       if( it < 69 || it > 70 ) {
 	std::ostringstream os;
-	os << "line " << linecount << " --> IT must be 69 or 70: " << it << std::ends;
+	os << "line " << linecount << " --> IT must be 69 or 70: " << it;
 	if( verifySyntax ) {
 	  std::cerr << os.str() << std::endl;
 	  nerrors++;
@@ -363,7 +365,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       }
       if( bitmask == 0 ) {
 	std::ostringstream os;
-	os << "line " << linecount << " --> This Short Description was not found in the Dictionary: " << shortDesc << std::ends;
+	os << "line " << linecount << " --> This Short Description was not found in the Dictionary: " << shortDesc;
 	if( verifySyntax ) {
 	  std::cerr << os.str() << std::endl;
 	  nerrors++;
@@ -393,7 +395,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
     }
     else {
       std::ostringstream os;
-      os << "line " << linecount << " --> Wrong Table Name: " << s << std::ends;
+      os << "line " << linecount << " --> Wrong Table Name: " << s;
       if( verifySyntax ) {
 	std::cerr << os.str() << std::endl;
 	nerrors++;
@@ -427,40 +429,6 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 
   f.close();
   return;
-
-}
-
-//---------------------------------------------------------------------------------------------
-
-std::string EcalErrorMask::sEB( int sm ) {
-
-  if( sm > 18 ) sm = 18-sm;
-  std::ostringstream s;
-  s << "EB" << std::setw(3) << std::setfill('0')
-    << std::setiosflags( std::ios::showpos )
-    << std::setiosflags( std::ios::internal )
-    << sm
-    << std::resetiosflags( std::ios::showpos )
-    << std::resetiosflags( std::ios::internal )
-    << std::ends;
-  return( s.str() );
-
-}
-
-//---------------------------------------------------------------------------------------------
-
-std::string EcalErrorMask::sEE( int sm ) {
-
-  if( sm > 9 ) sm = 9-sm;
-  std::ostringstream s;
-  s << "EE" << std::setw(3) << std::setfill('0')
-    << std::setiosflags( std::ios::showpos )
-    << std::setiosflags( std::ios::internal )
-    << sm
-    << std::resetiosflags( std::ios::showpos )
-    << std::resetiosflags( std::ios::internal )
-    << std::ends;
-  return( s.str() );
 
 }
 
@@ -503,8 +471,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
-//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << Numbers::sEB(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << Numbers::sEE(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -517,8 +485,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << it << " " << errors[j].shortDesc << std::endl;
-//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm).c_str() << " " << it << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << Numbers::sEB(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << Numbers::sEE(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -531,8 +499,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
-//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << Numbers::sEB(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << Numbers::sEE(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -545,8 +513,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
-//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm).c_str() << " " << ic << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << Numbers::sEB(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << Numbers::sEE(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -559,8 +527,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm).c_str() << " " << it << " " << errors[j].shortDesc << std::endl;
-//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm).c_str() << " " << it << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << Numbers::sEB(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << Numbers::sEE(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
     }
   }
 
