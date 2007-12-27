@@ -126,14 +126,9 @@ namespace cms{
       edm::Handle<uint16_t> filterWord;
       edm::Handle<reco::TrackInfoTrackAssociationCollection> tkiTkAssCollection;
       std::vector<const SiStripCluster*> vPSiStripCluster;
-<<<<<<< ClusterAnalysis.h
-
-      //      edm::Service<TFileService> fFile;
-=======
 
       edm::Service<TFileService> fFile;
->>>>>>> 1.6
-      
+
       std::map<std::pair<std::string,uint32_t>,bool> DetectedLayers;
 
       TFile* fFile;

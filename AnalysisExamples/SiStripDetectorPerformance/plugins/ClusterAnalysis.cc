@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/12/07 12:36:45 $
- * $Revision: 1.8 $
+ * $Date: 2007/12/27 12:21:31 $
+ * $Revision: 1.9 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007 & Susy Borgia 15/11/07
@@ -88,7 +88,6 @@ namespace cms{
     TFileDirectory Tracks = fFile->mkdir("Tracks");
     TFileDirectory Layer = fFile->mkdir("Layer");
 
-<<<<<<< ClusterAnalysis.cc
     const edm::ParameterSet mapSet = conf_.getParameter<edm::ParameterSet>("MapFlag");
     if( mapSet.getParameter<bool>("Map_ClusOccOn") ){
       tkMap_ClusOcc[0]=new TrackerMap( "ClusterOccupancy_onTrack" );
@@ -97,13 +96,6 @@ namespace cms{
     }  
     if( mapSet.getParameter<bool>("Map_InvHit") ) 
       tkInvHit=new TrackerMap("Invalid_Hit");
-=======
-    tkMap_ClusOcc[0]=new TrackerMap( "ClusterOccupancy_onTrack" );
-    tkMap_ClusOcc[1]=new TrackerMap( "ClusterOccupancy_offTrack" );
-    tkMap_ClusOcc[2]=new TrackerMap( "ClusterOccupancy_All" );
-    
-    //    tkInvHit=new TrackerMap("Invalid_Hit");
->>>>>>> 1.8
 
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     // get list of active detectors from SiStripDetCabling 
@@ -448,7 +440,7 @@ namespace cms{
     }    
 
     //TkMap->Save() and Print()
-<<<<<<< ClusterAnalysis.cc
+
     const edm::ParameterSet mapSett = conf_.getParameter<edm::ParameterSet>("MapFlag");
     if( mapSett.getParameter<bool>("Map_ClusOccOn") ){
       tkMap_ClusOcc[0]->save(true,0,0,"ClusterOccupancyMap_onTrack.png");
@@ -459,26 +451,12 @@ namespace cms{
       tkMap_ClusOcc[1]->print(true,0,0,"ClusterOccupancyMap_offTrack");   
       tkMap_ClusOcc[2]->print(true,0,0,"ClusterOccupancyMap_All");
     }
-=======
-    tkMap_ClusOcc[0]->save(true,0,0,"ClusterOccupancyMap_onTrack.png");
-    tkMap_ClusOcc[1]->save(true,0,0,"ClusterOccupancyMap_offTrack.png");
-    tkMap_ClusOcc[2]->save(true,0,0,"ClusterOccupancyMap_All.png");
-    
-    tkMap_ClusOcc[0]->print(true,0,0,"ClusterOccupancyMap_onTrack");   
-    tkMap_ClusOcc[1]->print(true,0,0,"ClusterOccupancyMap_offTrack");   
-    tkMap_ClusOcc[2]->print(true,0,0,"ClusterOccupancyMap_All");
-    
->>>>>>> 1.8
 
-<<<<<<< ClusterAnalysis.cc
     if( mapSett.getParameter<bool>("Map_InvHit")) {
       tkInvHit->save(true,0,0,"Inv_Hit_map.png");
       tkInvHit->print(true,0,0,"Inv_Hit_map");
     }
-=======
-    //    tkInvHit->save(true,0,0,"Inv_Hit_map.png");
-    //    tkInvHit->print(true,0,0,"Inv_Hit_map");
->>>>>>> 1.8
+    
   }  
   //------------------------------------------------------------------------------------------
 
@@ -507,40 +485,19 @@ namespace cms{
     e.getByLabel( ClusterInfo_src_, dsv_SiStripClusterInfo);
     e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
     
-<<<<<<< ClusterAnalysis.cc
-    
     e.getByLabel(Track_src_, trackCollection);
     if(trackCollection.isValid()){
     }else{
       edm::LogError("ClusterAnalysis")<<"trackCollection not found "<<std::endl;
-=======
-    try{
-      e.getByLabel(Track_src_, trackCollection);
-    } catch ( cms::Exception& er ) {
-      edm::LogError("ClusterAnalysis")<<"caught std::exception "<<er.what()<<std::endl;
-      tracksCollection_in_EventTree=false;
-    } catch ( ... ) {
-      edm::LogError("ClusterAnalysis")<<" funny error " <<std::endl;
->>>>>>> 1.8
       tracksCollection_in_EventTree=false;
     }
     
     edm::InputTag TkiTag = conf_.getParameter<edm::InputTag>( "TrackInfo" );  
-<<<<<<< ClusterAnalysis.cc
     
     e.getByLabel(TkiTag,tkiTkAssCollection); 
     if(tkiTkAssCollection.isValid()){
     }else{
       edm::LogError("ClusterAnalysis")<<"trackInfo not found "<<std::endl;
-=======
-    try{
-      e.getByLabel(TkiTag,tkiTkAssCollection); 
-    } catch ( cms::Exception& er ) {
-      edm::LogError("ClusterAnalysis")<<"caught std::exception "<<er.what()<<std::endl;
-      trackAssociatorCollection_in_EventTree=false;
-    } catch ( ... ) {
-      edm::LogError("ClusterAnalysis")<<" funny error " <<std::endl;
->>>>>>> 1.8
       trackAssociatorCollection_in_EventTree=false;
     }
     
@@ -671,36 +628,18 @@ namespace cms{
 	}     
       }  
       reco::TrackInfo::TrajectoryInfo::const_iterator iter;
-<<<<<<< ClusterAnalysis.cc
+
       for(iter=trackinforef->trajStateMap().begin();iter!=trackinforef->trajStateMap().end();iter++){
 	
 	//trajectory local direction and position on detector
 	LocalVector statedirection=(trackinforef->stateOnDet(Updated,(*iter).first)->parameters()).momentum();
-	
-=======
-            
-      for(iter=trackinforef->trajStateMap().begin();iter!=trackinforef->trajStateMap().end();iter++){
-         
-	//trajectory local direction and position on detector
-	LocalVector statedirection;
-
->>>>>>> 1.8
 	LocalPoint  stateposition=(trackinforef->stateOnDet(Updated,(*iter).first)->parameters()).position();
-<<<<<<< ClusterAnalysis.cc
        	
 	std::stringstream ss;
 	ss <<"LocalMomentum: "<<statedirection
 	   <<"\nLocalPosition: "<<stateposition
 	   << "\nLocal x-z plane angle: "<<atan2(statedirection.x(),statedirection.z());
-	
-=======
-       	
-	std::stringstream ss;
-	ss <<"LocalMomentum initialized: "<<statedirection
-	   <<"\nLocalPosition: "<<stateposition
-	   << "\nLocal x-z plane angle: "<<atan2(statedirection.x(),statedirection.z());
-		
->>>>>>> 1.8
+
 	if(trackinforef->type((*iter).first)==Matched){ // get the direction for the components
 	  
 	  const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>(&(*(iter)->first));
@@ -715,13 +654,8 @@ namespace cms{
 	    ss<<"\nLocalMomentum (stereo): "<<trackinforef->localTrackMomentumOnStereo(Updated,(*iter).first);
 	  }
 	}
-<<<<<<< ClusterAnalysis.cc
- 	else if (trackinforef->type((*iter).first)==Projected){//one should be 0
- 	  ss<<"\nProjected recHit found"<< std::endl;
-=======
 	else if (trackinforef->type((*iter).first)==Projected){//one should be 0
 	  ss<<"\nProjected recHit found"<< std::endl;
->>>>>>> 1.8
 	  const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>(&(*(iter)->first));
 	  if(phit!=0){
 	    //mono side
@@ -735,41 +669,18 @@ namespace cms{
 	}
 	else {
 	  const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(&(*(iter)->first));
-<<<<<<< ClusterAnalysis.cc
 	  if(hit!=0){
 	    ss<<"\nSingle recHit found"<< std::endl;	  
 	    statedirection=(trackinforef->stateOnDet(Updated,(*iter).first)->parameters()).momentum();
 	    if(statedirection.mag() != 0) RecHitInfo(hit,statedirection,trackref);
-=======
-	  if(hit->isValid()){
-	    ss<<"\nSingle recHit found"<< std::endl;	  
-	    statedirection=(trackinforef->stateOnDet(Updated,(*iter).first)->parameters()).momentum();
-	    if(statedirection.mag() != 0) RecHitInfo(hit,statedirection,trackref);
->>>>>>> 1.8
-       
-<<<<<<< ClusterAnalysis.cc
+
 	  }
  	}
 	LogTrace("TrackInfoAnalyzerExample") <<ss.str() << std::endl;
-=======
-	  }
-	}
-	LogTrace("TrackInfoAnalyzerExample") <<ss.str() << std::endl;
->>>>>>> 1.8
       }
     }
   }
-<<<<<<< ClusterAnalysis.cc
-=======
 
-  void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref ){
-
-    if(!tkrecHit->isValid()){
-    LogTrace("ClusterAnalysis") <<"\t\t Invalid Hit " << std::endl;
-    return;  
-  }
->>>>>>> 1.8
-  
   void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref ){
     
     if(!tkrecHit->isValid()){
@@ -807,22 +718,12 @@ namespace cms{
       LogTrace("ClusterAnalysis") << "NULL hit" << std::endl;
     }	  
   }
-  //  if(tkrecHit->getType() == TrackingRecHit::inactive){
-  //    LogTrace("ClusterAnalysis") << "inactive rechit found on detid " << detid << std::endl;
-  //    tkInvHit->fill(detid,1);
-  //  } 
-  
   
   //------------------------------------------------------------------------
   
   void ClusterAnalysis::AllClusters(){
-<<<<<<< ClusterAnalysis.cc
-    LogTrace("ClusterAnalysis") << "Executing AllClusters" << std::endl;
-    
-=======
-    LogTrace("ClusterAnalysis") << "Executing AllClusters" << std::endl;
 
->>>>>>> 1.8
+    LogTrace("ClusterAnalysis") << "Executing AllClusters" << std::endl;
     //Loop on Dets
     edm::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin();
     for (; DSViter!=dsv_SiStripCluster->end();DSViter++){
@@ -959,17 +860,12 @@ namespace cms{
       iflag=2;
     
     NClus[SubDet_enum][iflag]++;
-<<<<<<< ClusterAnalysis.cc
+
     LogTrace("ClusterAnalysis") << "NClus on detid = " << detid << " " << flag << " is " << NClus[SubDet_enum][iflag] << std::endl;
     //    TrackerMap filling for each flag
     const edm::ParameterSet _mapSet = conf_.getParameter<edm::ParameterSet>("MapFlag");
     if( _mapSet.getParameter<bool>("Map_ClusOccOn") )
       tkMap_ClusOcc[iflag]->fill(detid,1);
-=======
-    LogTrace("ClusterAnalysis") << "NClus on detid = " << detid << " " << flag << " is " << NClus[SubDet_enum][iflag] << std::endl;
-    //    TrackerMap filling for each flag
-    tkMap_ClusOcc[iflag]->fill(detid,1);
->>>>>>> 1.8
 
     std::stringstream ss;
     const_cast<SiStripClusterInfo*>(cluster)->print(ss);
@@ -1328,15 +1224,10 @@ namespace cms{
       
       
       unsigned int nstrips = _StripGeomDetUnit->specificTopology().nstrips();
-<<<<<<< ClusterAnalysis.cc
-      LogTrace("fillPedNoise") << "nstrips " << nstrips << " for module " << detid << std::endl;  
-=======
-      
->>>>>>> 1.8
+
       //&&&&&&&&&&&&&&
       // Retrieve information for the module
       //&&&&&&&&&&&&&&&&&&     
-<<<<<<< ClusterAnalysis.cc
       char cdetid[128];
       sprintf(cdetid,"%d",detid);
       char aname[128];
@@ -1359,7 +1250,6 @@ namespace cms{
       }
       
       TString appString=TString(SubStr);
-=======
        char cdetid[128];
        sprintf(cdetid,"%d",detid);
        char aname[128];
@@ -1380,27 +1270,9 @@ namespace cms{
  	TECDetId b(detid);
  	sprintf(SubStr,"_SingleDet_%d_TEC_%d_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued(),b.stereo());
        }
->>>>>>> 1.8
       
-<<<<<<< ClusterAnalysis.cc
-      fFile->cd();fFile->cd(cdetid);
-      
-      name="DBPedestals"+appString;
-      TH1F* pPed = new TH1F(name,name,nstrips,-0.5,nstrips-0.5);
-      Hlist->Add(pPed);
-      
-      name="DBNoise"+appString;
-      TH1F* pNoi = new TH1F(name,name,nstrips,-0.5,nstrips-0.5);
-      Hlist->Add(pNoi);
-      
-      name="DBBadStrips"+appString;
-      TH1F* pBad = new TH1F(name,name,nstrips,-0.5,nstrips-0.5);
-      Hlist->Add(pBad);
-      
-=======
        TString appString=TString(SubStr);
 
->>>>>>> 1.8
       SiStripNoises::Range noiseRange = noiseHandle->getRange(detid);
       SiStripPedestals::Range pedRange = pedestalHandle->getRange(detid);
 
