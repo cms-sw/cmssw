@@ -126,11 +126,17 @@ namespace cms{
       edm::Handle<uint16_t> filterWord;
       edm::Handle<reco::TrackInfoTrackAssociationCollection> tkiTkAssCollection;
       std::vector<const SiStripCluster*> vPSiStripCluster;
+<<<<<<< ClusterAnalysis.h
+
+      //      edm::Service<TFileService> fFile;
+=======
 
       edm::Service<TFileService> fFile;
+>>>>>>> 1.6
       
       std::map<std::pair<std::string,uint32_t>,bool> DetectedLayers;
 
+      TFile* fFile;
       TString name;
       edm::ParameterSet Parameters;
 
@@ -140,6 +146,11 @@ namespace cms{
       int32_t psfilemode_;    
 
       THashList* Hlist;
+      std::string ClusOccMap_on_;
+      std::string ClusOccMap_off_;
+      std::string ClusOccMap_All_; 
+      std::string Inv_Hit_; 
+
       TrackerMap* tkMap_ClusOcc[3];//0 for onTrack, 1 for offTrack, 2 for All
       TrackerMap* tkInvHit;      
       int runNb;
