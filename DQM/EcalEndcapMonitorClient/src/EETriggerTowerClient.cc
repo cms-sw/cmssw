@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/12/27 15:01:57 $
- * $Revision: 1.45 $
+ * $Date: 2007/12/27 16:16:13 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -766,8 +766,8 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile[0] << "<br>" << std::endl;
 
     std::stringstream subpage;
-    subpage << htmlName.substr( 0, htmlName.find( ".html" ) ) << "_" << Numbers::sEE(ism) << ".html" << std::ends;
-    htmlFile[0] << "<a href=\"" << subpage.str().c_str() << "\">" << Numbers::sEE(ism) << " details</a><br>" << std::endl;
+    subpage << htmlName.substr( 0, htmlName.find( ".html" ) ) << "_" << Numbers::sEE(ism) << ".html";
+    htmlFile[0] << "<a href=\"" << subpage.str() << "\">" << Numbers::sEE(ism) << " details</a><br>" << std::endl;
     htmlFile[0] << "<hr>" << std::endl;
 
     htmlFile[ism].open((htmlDir + subpage.str()).c_str());

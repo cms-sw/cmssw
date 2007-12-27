@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/12/27 15:00:45 $
- * $Revision: 1.79 $
+ * $Date: 2007/12/27 16:15:19 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -725,8 +725,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile[0] << "<br>" << std::endl;
 
     std::stringstream subpage;
-    subpage << htmlName.substr( 0, htmlName.find( ".html" ) ) << "_" << Numbers::sEB(ism) << ".html" << std::ends;
-    htmlFile[0] << "<a href=\"" << subpage.str().c_str() << "\">" << Numbers::sEB(ism) << " details</a><br>" << std::endl;
+    subpage << htmlName.substr( 0, htmlName.find( ".html" ) ) << "_" << Numbers::sEB(ism) << ".html";
+    htmlFile[0] << "<a href=\"" << subpage.str() << "\">" << Numbers::sEB(ism) << " details</a><br>" << std::endl;
     htmlFile[0] << "<hr>" << std::endl;
 
     htmlFile[ism].open((htmlDir + subpage.str()).c_str());
