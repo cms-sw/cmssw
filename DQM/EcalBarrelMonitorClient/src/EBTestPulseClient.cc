@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/12/25 09:50:28 $
- * $Revision: 1.172 $
+ * $Date: 2007/12/25 10:08:35 $
+ * $Revision: 1.173 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -382,7 +382,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg01_[ism-1], ha01_[ism-1]);
@@ -408,7 +408,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
             cout << "G01 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
             cout << "G06 (" << ie << "," << ip << ") " << num02 << " " << mean02 << " " << rms02 << endl;
             cout << "G12 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
@@ -535,7 +535,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
@@ -563,7 +563,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+          cout << "Preparing dataset for " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
 
           cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << num03 << " " << mean03 << " " << rms03 << endl;
           cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << num04 << " " << mean04 << " " << rms04 << endl;

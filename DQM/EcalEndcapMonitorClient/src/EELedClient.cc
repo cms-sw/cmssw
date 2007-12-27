@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/12/25 09:50:24 $
- * $Revision: 1.42 $
+ * $Date: 2007/12/25 10:08:29 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -496,7 +496,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
@@ -536,7 +536,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
 
             cout << " A (" << ix << "," << iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
 
@@ -577,7 +577,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
 
             cout << " B (" << ix << "," << iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
 
@@ -639,7 +639,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
@@ -677,7 +677,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+          cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
 
           cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
           cout << "PNs (" << i << ") G16 " << num09  << " " << mean09 << " " << rms09  << endl;

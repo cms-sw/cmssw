@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2007/12/25 09:50:23 $
- * $Revision: 1.29 $
+ * $Date: 2007/12/25 10:08:27 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -162,7 +162,7 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
 
     const float n_min_tot = 1000.;
     const float n_min_bin = 10.;
@@ -209,7 +209,7 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           if ( ix == 1 && iy == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEE(ism).c_str() << " (ism=" << ism << ")" << endl;
 
             cout << "Sel (" << ix << "," << iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
             cout << "Cut (" << ix << "," << iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;

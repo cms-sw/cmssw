@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/12/25 10:08:34 $
- * $Revision: 1.175 $
+ * $Date: 2007/12/26 18:18:48 $
+ * $Revision: 1.176 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -278,7 +278,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
     cout << endl;
 
     if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
@@ -346,7 +346,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
 
             cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << endl;
 
@@ -430,7 +430,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( iet == 1 && ipt == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
 
             cout << "(" << iet << "," << ipt << ") " << num00 << " " << num05 << " " << num06 << endl;
 
@@ -591,7 +591,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( iet == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+          cout << "Preparing dataset for " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
 
           cout << "(" << iet <<  ") " << num09 << " " << num10 << endl;
 

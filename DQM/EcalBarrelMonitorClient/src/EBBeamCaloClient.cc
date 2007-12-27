@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/12/25 09:50:27 $
- * $Revision: 1.62 $
+ * $Date: 2007/12/25 10:08:34 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -254,7 +254,7 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+    cout << " " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
 
     const float n_min_tot = 1000.;
 
@@ -295,7 +295,7 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
           if ( ie == 1 && ip == 1 ) {
 	//if ( mean01 !=0) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+            cout << "Preparing dataset for " << Numbers::sEB(ism).c_str() << " (ism=" << ism << ")" << endl;
 
             cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
             cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;
