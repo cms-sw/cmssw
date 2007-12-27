@@ -3,6 +3,15 @@
 
 DEFINE_SEAL_MODULE();
 
+#include <DQM/EcalBarrelMonitorTasks/interface/EBBeamHodoTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EBBeamHodoTask);
+
+#include <DQM/EcalBarrelMonitorTasks/interface/EBBeamCaloTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EBBeamCaloTask);
+
+#include <DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EBClusterTask);
+
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBCosmicTask);
 
@@ -24,17 +33,8 @@ DEFINE_ANOTHER_FWK_MODULE(EBPedestalTask);
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBTestPulseTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBBeamHodoTask.h>
-DEFINE_ANOTHER_FWK_MODULE(EBBeamHodoTask);
-
-#include <DQM/EcalBarrelMonitorTasks/interface/EBBeamCaloTask.h>
-DEFINE_ANOTHER_FWK_MODULE(EBBeamCaloTask);
-
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTriggerTowerTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBTriggerTowerTask);
-
-#include <DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h>
-DEFINE_ANOTHER_FWK_MODULE(EBClusterTask);
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTimingTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBTimingTask);

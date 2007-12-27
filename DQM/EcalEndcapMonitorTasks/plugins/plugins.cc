@@ -3,6 +3,15 @@
 
 DEFINE_SEAL_MODULE();
 
+#include <DQM/EcalEndcapMonitorTasks/interface/EEBeamHodoTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EEBeamHodoTask);
+
+#include <DQM/EcalEndcapMonitorTasks/interface/EEBeamCaloTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EEBeamCaloTask);
+
+#include <DQM/EcalEndcapMonitorTasks/interface/EEClusterTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EEClusterTask);
+
 #include <DQM/EcalEndcapMonitorTasks/interface/EECosmicTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EECosmicTask);
 
@@ -27,17 +36,8 @@ DEFINE_ANOTHER_FWK_MODULE(EEPedestalTask);
 #include <DQM/EcalEndcapMonitorTasks/interface/EETestPulseTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EETestPulseTask);
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEBeamHodoTask.h>
-DEFINE_ANOTHER_FWK_MODULE(EEBeamHodoTask);
-
-#include <DQM/EcalEndcapMonitorTasks/interface/EEBeamCaloTask.h>
-DEFINE_ANOTHER_FWK_MODULE(EEBeamCaloTask);
-
 #include <DQM/EcalEndcapMonitorTasks/interface/EETriggerTowerTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EETriggerTowerTask);
-
-#include <DQM/EcalEndcapMonitorTasks/interface/EEClusterTask.h>
-DEFINE_ANOTHER_FWK_MODULE(EEClusterTask);
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EETimingTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EETimingTask);
