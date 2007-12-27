@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/12/26 10:34:57 $
- * $Revision: 1.66 $
+ * $Date: 2007/12/27 15:10:22 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  *
 */
@@ -2472,9 +2472,9 @@ void EESummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
       int y1 = (B0+B1)/2 - int(C0*sin(M_PI/2+3*2*M_PI/9-j*2*M_PI/9));
       int y2 = (B0+B1)/2 - int(C1*sin(M_PI/2+3*2*M_PI/9-j*2*M_PI/9));
       int y3 = (B0+B1)/2 - int(C1*sin(M_PI/2+3*2*M_PI/9-i*2*M_PI/9));
-      hf << "<area title=\"" << Numbers::sEE(superModules_[sm]).c_str()
+      hf << "<area title=\"" << Numbers::sEE(superModules_[sm])
          << "\" shape=\"poly\" href=\"" << refhtml[mapname]
-         << "#" << Numbers::sEE(superModules_[sm]).c_str()
+         << "#" << Numbers::sEE(superModules_[sm])
          << "\" coords=\"" << x0 << ", " << y0 << ", "
                            << x1 << ", " << y1 << ", "
                            << x2 << ", " << y2 << ", "
@@ -2497,9 +2497,9 @@ void EESummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
       int y1 = (B0+B1)/2 - int(C0*sin(M_PI/2-3*2*M_PI/9+j*2*M_PI/9));
       int y2 = (B0+B1)/2 - int(C1*sin(M_PI/2-3*2*M_PI/9+j*2*M_PI/9));
       int y3 = (B0+B1)/2 - int(C1*sin(M_PI/2-3*2*M_PI/9+i*2*M_PI/9));
-      hf << "<area title=\"" << Numbers::sEE(superModules_[sm]).c_str()
+      hf << "<area title=\"" << Numbers::sEE(superModules_[sm])
          << "\" shape=\"poly\" href=\"" << refhtml[mapname]
-         << "#" << Numbers::sEE(superModules_[sm]).c_str()
+         << "#" << Numbers::sEE(superModules_[sm])
          << "\" coords=\"" << x0 << ", " << y0 << ", "
                            << x1 << ", " << y1 << ", "
                            << x2 << ", " << y2 << ", "
