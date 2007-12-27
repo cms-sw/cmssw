@@ -68,7 +68,7 @@ public:
 	       const l1extra::L1JetParticleCollection& l1extjetc,
 	       const l1extra::L1JetParticleCollection& l1extjetf,
 	       const l1extra::L1JetParticleCollection& l1exttaujet,
-	       const l1extra::L1EtMissParticle& l1extmet,
+	       const l1extra::L1EtMissParticleCollection& l1extmet,
 //	       const l1extra::L1ParticleMapCollection& l1mapcoll,
 	       TTree* tree);
 

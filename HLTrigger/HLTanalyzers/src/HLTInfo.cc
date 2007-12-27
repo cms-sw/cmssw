@@ -129,7 +129,7 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
 		      const l1extra::L1JetParticleCollection& L1ExtJetC,
 		      const l1extra::L1JetParticleCollection& L1ExtJetF,
 		      const l1extra::L1JetParticleCollection& L1ExtTau,
-		      const l1extra::L1EtMissParticle& L1ExtMet,
+		      const l1extra::L1EtMissParticleCollection& L1ExtMet,
 //		      const l1extra::L1ParticleMapCollection& L1MapColl,
 		      TTree* HltTree) {
 
@@ -317,10 +317,10 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
   }
 
   if (&L1ExtMet) {
-    met = L1ExtMet.energy();
-    metphi = L1ExtMet.phi();
-    mettot = L1ExtMet.etTotal();
-    methad = L1ExtMet.etHad();
+    met = L1ExtMet.begin()->energy();
+    metphi = L1ExtMet.begin()->phi();
+    mettot = L1ExtMet.begin()->etTotal();
+    methad = L1ExtMet.begin()->etHad();
   }
   else {
     if (_Debug) std::cout << "%HLTInfo -- No L1 MET object" << std::endl;

@@ -102,7 +102,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<l1extra::L1EmParticleCollection> l1extemi,l1extemn,l1extemiDummy,l1extemnDummy;
   edm::Handle<l1extra::L1MuonParticleCollection> l1extmu, l1extmuDummy;
   edm::Handle<l1extra::L1JetParticleCollection> l1extjetc,l1extjetf,l1exttaujet,l1extjetcDummy,l1extjetfDummy,l1exttaujetDummy;
-  edm::Handle<l1extra::L1EtMissParticle> l1extmet, l1extmetDummy;
+  edm::Handle<l1extra::L1EtMissParticleCollection> l1extmet, l1extmetDummy;
 //edm::Handle<l1extra::L1ParticleMapCollection> l1mapcoll;
 //  edm::Handle<EcalTrigPrimDigiCollection> ecal;
 //  edm::Handle<HcalTrigPrimDigiCollection> hcal;
