@@ -131,7 +131,6 @@ namespace cms{
 
       std::map<std::pair<std::string,uint32_t>,bool> DetectedLayers;
 
-      TFile* fFile;
       TString name;
       edm::ParameterSet Parameters;
 

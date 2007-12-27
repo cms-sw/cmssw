@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/12/27 12:21:31 $
- * $Revision: 1.9 $
+ * $Date: 2007/12/27 13:15:24 $
+ * $Revision: 1.10 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007 & Susy Borgia 15/11/07
@@ -1250,28 +1250,6 @@ namespace cms{
       }
       
       TString appString=TString(SubStr);
-       char cdetid[128];
-       sprintf(cdetid,"%d",detid);
-       char aname[128];
-       sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
-       char SubStr[128];
-    
-       SiStripDetId a(detid);
-       if ( a.subdetId() == 3 ){
- 	TIBDetId b(detid);
- 	sprintf(SubStr,"_SingleDet_%d_TIB_%d_%d_%d_%d",detid,b.layer(),b.string()[0],b.string()[1],b.glued());
-       } else if ( a.subdetId() == 4 ) {
- 	TIDDetId b(detid);
- 	sprintf(SubStr,"_SingleDet_%d_TID_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued());
-       } else if ( a.subdetId() == 5 ) {
- 	TOBDetId b(detid);
- 	sprintf(SubStr,"_SingleDet_%d_TOB_%d_%d_%d_%d",detid,b.layer(),b.rod()[0],b.rod()[1],b.glued());
-       } else if ( a.subdetId() == 6 ) {
- 	TECDetId b(detid);
- 	sprintf(SubStr,"_SingleDet_%d_TEC_%d_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued(),b.stereo());
-       }
-      
-       TString appString=TString(SubStr);
 
       SiStripNoises::Range noiseRange = noiseHandle->getRange(detid);
       SiStripPedestals::Range pedRange = pedestalHandle->getRange(detid);
