@@ -1,11 +1,13 @@
  <use name=Alignment/CocoaUtilities>
  <use name=Alignment/CocoaModel>
  <use name=CLHEP>
+ <use name=rootcore>
  <use name=meschach>
- <use name=CondFormats/OptAlignObjects>
  
 <export>
  <lib name=AlignmentCocoaAnalysis>
  <use name=Alignment/CocoaModel>
+ <use name=rootcore>
 </export>
 
+ 
