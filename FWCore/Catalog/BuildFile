@@ -2,11 +2,9 @@
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
 <use name=FileCatalog>
-<use name=POOLCore>
 <use name=boost>
 <export>
   <use name=FileCatalog>
-  <use name=POOLCore>
   <lib name=FWCoreCatalog>
 </export>
 

@@ -1,11 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.102 2007/12/07 23:23:10 wmtan Exp $
+$Id: RootFile.cc,v 1.103 2007/12/12 22:05:22 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
 
 
-#include "FWCore/Catalog/interface/FileIdentifier.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -314,7 +314,7 @@ namespace edm {
       fileFormatVersion_.value_ = 0;
     }
     if (!fid_.isValid()) {
-      fid_ = FileID(createFileIdentifier());
+      fid_ = FileID(createGlobalIdentifier());
     }
     assert(eventTree_.isValid());
     if (fileIndex_.empty()) {

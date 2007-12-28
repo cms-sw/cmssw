@@ -1,9 +1,9 @@
-// $Id: RootOutputFile.cc,v 1.32 2007/12/05 00:12:29 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.33 2007/12/07 23:23:11 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
 
-#include "FWCore/Catalog/interface/FileIdentifier.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
@@ -84,7 +84,7 @@ namespace edm {
     // Don't split metadata tree.
     metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
 
-    fid_ = FileID(createFileIdentifier());
+    fid_ = FileID(createGlobalIdentifier());
 
     // Register the output file with the JobReport service
     // and get back the token for it.
