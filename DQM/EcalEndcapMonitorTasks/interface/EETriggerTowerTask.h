@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2007/10/04 08:39:54 $
- * $Revision: 1.5 $
+ * $Date: 2007/11/13 13:20:52 $
+ * $Revision: 1.6 $
  * \author C. Bernet
  *
 */
@@ -121,6 +121,9 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
   
   /// debug output root file. if empty, no output file created.
   std::string   outputFile_;
+
+  bool enableCleanup_;
+
 };
 
 #endif

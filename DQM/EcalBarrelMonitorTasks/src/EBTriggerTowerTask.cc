@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/12/04 08:24:08 $
- * $Revision: 1.52 $
+ * $Date: 2007/12/24 19:20:56 $
+ * $Revision: 1.53 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -29,11 +29,9 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-
 const int EBTriggerTowerTask::nTTEta = 17;
 const int EBTriggerTowerTask::nTTPhi = 4;
 const int EBTriggerTowerTask::nSM = 36;
-
 
 EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
 
@@ -67,14 +65,15 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   str<<"Module label for producer of REAL     digis: "<<realCollection_<<endl;
   str<<"Module label for producer of EMULATED digis: "<<emulCollection_<<endl;
 
-  LogDebug("EBTriggerTowerTask")<<str.str()<<endl;
-}
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  LogDebug("EBTriggerTowerTask")<<str.str()<<endl;
+
+}
 
 EBTriggerTowerTask::~EBTriggerTowerTask(){
 
 }
-
 
 void EBTriggerTowerTask::reserveArray( array1& array ) {
 
@@ -98,7 +97,6 @@ void EBTriggerTowerTask::beginJob(const EventSetup& c){
   }
 
 }
-
 
 void EBTriggerTowerTask::setup(void){
 
@@ -127,12 +125,10 @@ void EBTriggerTowerTask::setup(void){
   }
 }
 
-
 void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 				const char* nameext,
 				const char* folder,
 				bool emulated ) {
-
 
   array1*  meEtMap = &meEtMapReal_;
   array1*  meVeto = &meVetoReal_;
@@ -144,11 +140,9 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
     meFlags= &meFlagsEmul_;
   }
 
-
   assert(dbe);
 
   dbe->setCurrentFolder(folder);
-
 
   static const unsigned namesize = 200;
 
@@ -242,8 +236,9 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 
 }
 
-
 void EBTriggerTowerTask::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   DaqMonitorBEInterface* dbe = 0;
 
@@ -252,26 +247,23 @@ void EBTriggerTowerTask::cleanup(void) {
 
   if ( dbe ) {
 
-    if( !outputFile_.empty() )
-      dbe->save( outputFile_.c_str() );
+    if( !outputFile_.empty() ) dbe->save( outputFile_.c_str() );
 
     dbe->rmdir( "EcalBarrel/EBTriggerTowerTask" );
+
   }
 
   init_ = false;
 
 }
 
-
-
-
 void EBTriggerTowerTask::endJob(void){
 
   LogInfo("EBTriggerTowerTask") << "analyzed " << ievt_ << " events";
 
   if ( init_ ) this->cleanup();
-}
 
+}
 
 void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 

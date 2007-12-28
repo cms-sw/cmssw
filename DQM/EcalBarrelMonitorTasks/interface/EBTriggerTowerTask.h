@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2007/07/19 11:48:49 $
- * $Revision: 1.9 $
+ * $Date: 2007/11/13 13:20:50 $
+ * $Revision: 1.10 $
  * \author C. Bernet
  *
 */
@@ -121,6 +121,9 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   
   /// debug output root file. if empty, no output file created.
   std::string   outputFile_;
+
+  bool enableCleanup_;
+
 };
 
 #endif

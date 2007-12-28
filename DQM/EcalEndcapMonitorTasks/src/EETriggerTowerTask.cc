@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/12/04 08:24:09 $
- * $Revision: 1.17 $
+ * $Date: 2007/12/24 19:20:55 $
+ * $Revision: 1.18 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -29,11 +29,9 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-
 const int EETriggerTowerTask::nTTEta = 20;
 const int EETriggerTowerTask::nTTPhi = 20;
 const int EETriggerTowerTask::nSM = 18;
-
 
 EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
 
@@ -67,14 +65,15 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   str<<"Module label for producer of REAL     digis: "<<realCollection_<<endl;
   str<<"Module label for producer of EMULATED digis: "<<emulCollection_<<endl;
 
-  LogDebug("EETriggerTowerTask")<<str.str()<<endl;
-}
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  LogDebug("EETriggerTowerTask")<<str.str()<<endl;
+
+}
 
 EETriggerTowerTask::~EETriggerTowerTask(){
 
 }
-
 
 void EETriggerTowerTask::reserveArray( array1& array ) {
 
@@ -98,7 +97,6 @@ void EETriggerTowerTask::beginJob(const EventSetup& c){
   }
 
 }
-
 
 void EETriggerTowerTask::setup(void){
 
@@ -127,12 +125,10 @@ void EETriggerTowerTask::setup(void){
   }
 }
 
-
 void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 				const char* nameext,
 				const char* folder,
 				bool emulated ) {
-
 
   array1*  meEtMap = &meEtMapReal_;
   array1*  meVeto = &meVetoReal_;
@@ -144,11 +140,9 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
     meFlags= &meFlagsEmul_;
   }
 
-
   assert(dbe);
 
   dbe->setCurrentFolder(folder);
-
 
   static const unsigned namesize = 200;
 
@@ -242,8 +236,9 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 
 }
 
-
 void EETriggerTowerTask::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   DaqMonitorBEInterface* dbe = 0;
 
@@ -252,26 +247,23 @@ void EETriggerTowerTask::cleanup(void) {
 
   if ( dbe ) {
 
-    if( !outputFile_.empty() )
-      dbe->save( outputFile_.c_str() );
+    if( !outputFile_.empty() ) dbe->save( outputFile_.c_str() );
 
     dbe->rmdir( "EcalEndcap/EETriggerTowerTask" );
+
   }
 
   init_ = false;
 
 }
 
-
-
-
 void EETriggerTowerTask::endJob(void){
 
   LogInfo("EETriggerTowerTask") << "analyzed " << ievt_ << " events";
 
   if ( init_ ) this->cleanup();
-}
 
+}
 
 void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
