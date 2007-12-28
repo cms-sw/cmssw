@@ -16,6 +16,7 @@
 #include "Alignment/CocoaUtilities/interface/ALIFileOut.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include "Alignment/CocoaModel/interface/DeviationsFromFileSensor2D.h"
+#include "Alignment/CocoaAnalysis/interface/NtupleManager.h"
 #include "Alignment/CocoaAnalysis/interface/FittedEntriesManager.h"
 #include "Alignment/CocoaAnalysis/interface/FittedEntriesSet.h"
 #ifdef COCOA_VIS
@@ -99,6 +100,9 @@ void Fit::startFit()
 { 
   //  Model::setCocoaStatus( COCOA_InitFit );
 
+  NtupleManager* NTmgr = NtupleManager::getInstance();
+  NTmgr->BookNtuple();
+
   ALIuint nEvent = 0;
   ALIUtils::setFirstTime( 1 );
 
@@ -118,6 +122,8 @@ void Fit::startFit()
     FittedEntriesManager* FEmgr = FittedEntriesManager::getInstance();
     FEmgr->MakeHistos();
   }
+
+  NTmgr->WriteNtuple();
 
 }
 
@@ -245,9 +251,14 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
        FittedEntriesManager::getInstance()->AddFittedEntriesSet( new FittedEntriesSet( AtWAMatrix ) );
     }
     
-     //--- Print chi2 with final parameter values
-    GetSChi2(1);
- 
+    NtupleManager* ntupleMgr = NtupleManager::getInstance();
+    ntupleMgr->InitNtuple();
+    ntupleMgr->FillChi2();
+    ntupleMgr->FillOptObjects(AtWAMatrix);
+    ntupleMgr->FillMeasurements();
+    ntupleMgr->FillFitParameters(AtWAMatrix);
+    ntupleMgr->FillNtupleTree();
+
     //- only if not stopped in worsening quality state        if(ALIUtils::report >= 0) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
     
     /*-      std::vector< OpticalObject* >::iterator voite;
@@ -843,8 +854,42 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
 
   double fit_quality = GetSChi2(1);
 
-  double fit_quality_cut = thePreviousIterationFitQuality - fit_quality;
+  //---------- Calculate DS = Variable to recognize convergence (distance to minimum)
+  ALIMatrix* DatMatrix = new ALIMatrix( *DaMatrix );
+  //  delete DaMatrix; //op
+  DatMatrix->transpose();
+  if(ALIUtils::debug >= 5) DatMatrix->Dump("DatMatrix");
+  //op  ALIMatrix* DSMat = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix * *PDMatrix);
+  ALIMatrix* DSMat = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix * *yfMatrix);
+  ALIMatrix* DSMattemp = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix);
+  if(ALIUtils::debug >= 5) DSMattemp->Dump("DSMattempMatrix=Dat*At*W");
+  ALIMatrix* DSMattemp2 = new ALIMatrix(*AtMatrix * *WMatrix * *yfMatrix);
+  if(ALIUtils::debug >= 5) DSMattemp2->Dump("DSMattempMatrix2=At*W*yf");
+  ALIMatrix* DSMattemp3 = new ALIMatrix(*AtMatrix * *WMatrix);
+  if(ALIUtils::debug >= 5) DSMattemp3->Dump("DSMattempMatrix3=At*W");
+  if(ALIUtils::debug >= 5) AtMatrix->Dump("AtMatrix");
+  /*  for( int ii = 0; ii < DatMatrix->NoColumns(); ii++ ){
+    std::cout << ii << " DS term " << (*DatMatrix)(0,ii) * (*DSMattemp2)(ii,0) << std::endl;
+    }*/
+  //  delete AtMatrix; //op
+  //  delete WMatrix; //op
 
+  //op  if(ALIUtils::debug >= 5) (*PDMatrix).Dump("PDMatrix");
+  if(ALIUtils::debug >= 5) (*yfMatrix).Dump("yfMatrix");
+  if(ALIUtils::debug >= 5) DSMat->Dump("DSMatrix final");
+  //  delete yfMatrix; //op
+
+  ALIdouble fit_quality_cut = (*DSMat)(0,0);  
+  //-  ALIdouble fit_quality_cut =fabs( (*DSMat)(0,0) );  
+  delete DSMat;
+  if(ALIUtils::debug >= 0) std::cout << theNoFitIterations << " Fit quality predicted improvement in distance to minimum is = " << fit_quality_cut << std::endl;
+  if( ALIUtils::report >= 2 ) {
+    ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
+    fileout << theNoFitIterations << " Fit quality predicted improvement in distance to minimum is = " << fit_quality_cut << std::endl;
+  }
+
+  //-  double fit_quality_cut = thePreviousIterationFitQuality - fit_quality;
+  //- double fit_quality_cut = fit_quality;
   
   //----- Check quality 
   time_t now;
@@ -1368,28 +1413,6 @@ ALIint Fit::findEntryFitPosition( const ALIstring& opto_name, const ALIstring& e
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
 {
-  if( !isFirst ) {
-    double fit_quality_cut = thePreviousIterationFitQuality - fit_quality;
-    
-    if(ALIUtils::debug >= 0) { 
-      std::cout << std::endl << "Fit iteration " << theNoFitIterations << " ..." << std::endl;
-      std::cout << theNoFitIterations << " Chi2 improvement in this iteration = " << fit_quality_cut << std::endl;
-    }
-    if( ALIUtils::report >= 1 ) {
-      ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
-      fileout << std::endl << "Fit iteration " << theNoFitIterations << " ..." << std::endl;
-      fileout << theNoFitIterations << " Chi2 improvement in this iteration = " << fit_quality_cut << std::endl;
-    }
-  }
-
-  //---- Print chi2
-  if(ALIUtils::debug >= 0) std::cout << theNoFitIterations << " Chi2 after iteration = " << fit_quality << std::endl;
-  if( ALIUtils::report >= 1 ) {
-    //--------- Get report file handler
-    ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
-    fileout << theNoFitIterations << " Chi2 after iteration = " << fit_quality << std::endl;
-  }
-  
   double chi2meas = 0; 
   double chi2cal = 0;
   ALIint nMeas = 0, nUnk = 0;
@@ -1429,6 +1452,28 @@ void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
   if( ALIUtils::debug >= 3) std::cout << " quality Chi2 (no correlations) " << chi2meas+chi2cal << " " << chi2meas << " " << chi2cal << std::endl;
 
 
+  if( !isFirst ) {
+    //    double fit_quality_change = thePreviousIterationFitQuality - fit_quality;
+    
+    if(ALIUtils::debug >= 0) { 
+      std::cout << std::endl << "Fit iteration " << theNoFitIterations << " ..." << std::endl;
+      //      std::cout << theNoFitIterations << " Chi2 improvement in this iteration = " << fit_quality_change << std::endl;
+    }
+    if( ALIUtils::report >= 1 ) {
+      ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
+      fileout << std::endl << "Fit iteration " << theNoFitIterations << " ..." << std::endl;
+      //      fileout << theNoFitIterations << " Chi2 improvement in this iteration = " << fit_quality_change << std::endl;
+    }
+  }
+
+  //---- Print chi2
+  if(ALIUtils::debug >= 0) std::cout << theNoFitIterations << " Chi2 after iteration = " << fit_quality << std::endl;
+  if( ALIUtils::report >= 1 ) {
+    //--------- Get report file handler
+    ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
+    fileout << theNoFitIterations << " Chi2 after iteration = " << fit_quality << std::endl;
+  }
+  
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
