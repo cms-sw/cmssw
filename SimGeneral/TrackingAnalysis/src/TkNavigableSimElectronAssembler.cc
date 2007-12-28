@@ -2,7 +2,6 @@
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingDataPrint.h"
 
 using namespace std;
 
@@ -10,18 +9,18 @@ using namespace std;
  *  tracks to the container and hides the segments.
  */
 
-TkNavigableSimElectronAssembler::ElectronList 
+TkNavigableSimElectronAssembler::ElectronList
 TkNavigableSimElectronAssembler::assemble (TrackPtrContainer& allTracks) const
 {
   //
-  // Create lists of electron tracks and non-electron tracks 
+  // Create lists of electron tracks and non-electron tracks
   // (use lists for constant time removal, see below)
   //
   TrackList tracks(allTracks.begin(), allTracks.end());
   TrackList electronTracks(electronFilter(tracks));
-//  std::cout << "TkNavigableSimElectronAssembler: found " 
-//	    << electronTracks.size() 
-// 	    << " electron segments" << std::endl;
+//  std::cout << "TkNavigableSimElectronAssembler: found "
+//          << electronTracks.size()
+//          << " electron segments" << std::endl;
   if ( electronTracks.empty() ) return ElectronList();
   //
   // build assembled tracks
@@ -36,11 +35,11 @@ TkNavigableSimElectronAssembler::assemble (TrackPtrContainer& allTracks) const
     electronTracks.pop_front();
     trackSegments.clear();
     trackSegments.push_back(startSegment);
-//    std::cout << "Starting assembly with segment at " << *startSegment 
+//    std::cout << "Starting assembly with segment at " << *startSegment
 //              << std::endl;
-// 	 << " (p=" << startSegment->momentum().mag() 
-// 	 << ",r_vtx=";
-//     if ( startSegment->vertex() )  
+//       << " (p=" << startSegment->momentum().mag()
+//       << ",r_vtx=";
+//     if ( startSegment->vertex() )
 //       std::cout << startSegment->vertex()->position().perp();
 //     std::cout << ",&vtx=" << startSegment->vertex() << ")" << std::endl;
     //
@@ -48,27 +47,27 @@ TkNavigableSimElectronAssembler::assemble (TrackPtrContainer& allTracks) const
     //
     searchInwards(electronTracks, startSegment, trackSegments);
 //    std::cout << "nb segments after inward search " << trackSegments.size()
-//	      << std::endl;
+//            << std::endl;
     //
     // add segments after current segment
     //
     searchOutwards(electronTracks, startSegment, trackSegments);
 //    std::cout << "nb segments after outward search " << trackSegments.size()
-//	      << std::endl;
+//            << std::endl;
     //
     // store list of segments
     //
     electrons.push_back(trackSegments);
   }
-  
+
   return electrons;
 }
 
 
 void
 TkNavigableSimElectronAssembler::searchInwards (TrackList& electronTracks,
-						const TrackPtr startSegment,
-						TrackList& trackSegments) const
+                                                const TrackPtr startSegment,
+                                                TrackList& trackSegments) const
 {
 
   TrackPtr currentSegment(startSegment);
@@ -80,12 +79,12 @@ TkNavigableSimElectronAssembler::searchInwards (TrackList& electronTracks,
     currentSegment = nextSegment;
 //     EncodedSimTrackId packedId(nextSegment->id());
 //     if ( packedId.bunch()!=startId.bunch() ||
-// 	 packedId.eventInBunch()!=startId.eventInBunch() )
+//       packedId.eventInBunch()!=startId.eventInBunch() )
 //       std::cout << "*** inconsistency in bunch / event number! ***" << std::endl;
-//     std::cout << "Adding parent at " << nextSegment 
-// 	 << " (p=" << nextSegment->momentum().mag() 
-// 	 << ",r_vtx=";
-//     if ( nextSegment->vertex() )  
+//     std::cout << "Adding parent at " << nextSegment
+//       << " (p=" << nextSegment->momentum().mag()
+//       << ",r_vtx=";
+//     if ( nextSegment->vertex() )
 //       std::cout << nextSegment->vertex()->position().perp();
 //     std::cout << ",&vtx=" << nextSegment->vertex() << ")" << std::endl;
   }
@@ -93,13 +92,13 @@ TkNavigableSimElectronAssembler::searchInwards (TrackList& electronTracks,
 
 
 const TkNavigableSimElectronAssembler::TrackPtr
-TkNavigableSimElectronAssembler::findParent (const TrackingParticle& track) 
-  const 
+TkNavigableSimElectronAssembler::findParent (const TrackingParticle& track)
+  const
 {
   //
   // verify Bremsstrahlung
   //
-  std::pair<const TrackPtr, const TrackPtr> segmentPair 
+  std::pair<const TrackPtr, const TrackPtr> segmentPair
     = checkVertex(track.parentVertex().get());
   //
   return segmentPair.first;
@@ -108,8 +107,8 @@ TkNavigableSimElectronAssembler::findParent (const TrackingParticle& track)
 
 void
 TkNavigableSimElectronAssembler::searchOutwards (TrackList& electronTracks,
-						 const TrackPtr startSegment,
-						 TrackList& trackSegments) 
+                                                 const TrackPtr startSegment,
+                                                 TrackList& trackSegments)
   const
 {
 //   EncodedSimTrackId startId(startSegment->id());
@@ -120,38 +119,38 @@ TkNavigableSimElectronAssembler::searchOutwards (TrackList& electronTracks,
     currentSegment = nextSegment;
 //     EncodedSimTrackId packedId(nextSegment->id());
 //     if ( packedId.bunch()!=startId.bunch() ||
-// 	 packedId.eventInBunch()!=startId.eventInBunch() )
+//       packedId.eventInBunch()!=startId.eventInBunch() )
 //       std::cout << "*** inconsistency in bunch / event number! ***" << std::endl;
-//     std::cout << "Adding child at " << nextSegment 
-// 	 << " (p=" << nextSegment->momentum().mag() 
-// 	 << ",r_vtx=";
-//     if ( nextSegment->vertex() )  
+//     std::cout << "Adding child at " << nextSegment
+//       << " (p=" << nextSegment->momentum().mag()
+//       << ",r_vtx=";
+//     if ( nextSegment->vertex() )
 //       std::cout << nextSegment->vertex()->position().perp();
 //     std::cout << ",&vtx=" << nextSegment->vertex() << ")" << std::endl;
   }
 }
 
 
-const TkNavigableSimElectronAssembler::TrackPtr 
-TkNavigableSimElectronAssembler::findChild (const TrackingParticle& track) 
-  const 
+const TkNavigableSimElectronAssembler::TrackPtr
+TkNavigableSimElectronAssembler::findChild (const TrackingParticle& track)
+  const
 {
   //
   // verify bremsstrahlung
   //
-  
-  // for 131 
-  //  std::pair<TrackPtr, TrackPtr> segmentPair 
+
+  // for 131
+  //  std::pair<TrackPtr, TrackPtr> segmentPair
   //    = checkVertex(track.decayVertex().get());
   //  std::pair<TrackPtr, TrackPtr> result(0,0);
 
   TrackingVertexRefVector decayVertices = track.decayVertices();
-  if ( decayVertices.empty() ) { 
+  if ( decayVertices.empty() ) {
 //    std::cout << "Decay vertex is null " << std::endl;
     return 0;
   }
-  
-  std::pair<TrackPtr, TrackPtr> segmentPair 
+
+  std::pair<TrackPtr, TrackPtr> segmentPair
     //    = checkVertex(&(*track.decayVertices().at(0)));
     = checkVertex( &(*decayVertices.at(0)) );
   //
@@ -163,8 +162,8 @@ TkNavigableSimElectronAssembler::findChild (const TrackingParticle& track)
  *  one outgoing electron + 0 or 1 outgoing photons.
  *  \return if bremsstrahlung: pointers to electrons, otherwise 0/0
  */
-std::pair<TkNavigableSimElectronAssembler::TrackPtr, 
-	  TkNavigableSimElectronAssembler::TrackPtr>
+std::pair<TkNavigableSimElectronAssembler::TrackPtr,
+          TkNavigableSimElectronAssembler::TrackPtr>
 TkNavigableSimElectronAssembler::checkVertex (const TrackingVertex* vertex) const
 {
   std::pair<TrackPtr, TrackPtr> result(0,0);
@@ -182,8 +181,8 @@ TkNavigableSimElectronAssembler::checkVertex (const TrackingVertex* vertex) cons
     return result;
   }
   if ( abs( (**parents.begin()).pdgId()) != 11 ) {
-//    std::cout << "Found parent track of type " 
-//	      << (**parents.begin()).pdgId() << " at vertex" << std::endl;
+//    std::cout << "Found parent track of type "
+//            << (**parents.begin()).pdgId() << " at vertex" << std::endl;
     return result;
   }
   //
@@ -194,7 +193,7 @@ TkNavigableSimElectronAssembler::checkVertex (const TrackingVertex* vertex) cons
   int nPhoton(0);
 //   std::cout << "Types at vertex =";
   for ( TrackingVertex::tp_iterator it=vertex->daughterTracks_begin();
-	it!=vertex->daughterTracks_end(); it++ ) {
+        it!=vertex->daughterTracks_end(); it++ ) {
 //     std::cout << " " << (*it).pdgId();
     if ( abs((**it).pdgId()) == 11 ) {
       // accept only one electron in list of secondaries
@@ -206,13 +205,13 @@ TkNavigableSimElectronAssembler::checkVertex (const TrackingVertex* vertex) cons
     else if ( (**it).pdgId() == 22 ) {
       nPhoton++;
       if ( nPhoton>1 ) {
-//	std::cout << "Found several photons at vertex" << std::endl;
-	return result;
+//      std::cout << "Found several photons at vertex" << std::endl;
+        return result;
       }
     }
     else {
-//      std::cout << std::endl << "Found track of type " 
-//		<< (**parents.begin()).pdgId() << " at vertex" << std::endl;
+//      std::cout << std::endl << "Found track of type "
+//              << (**parents.begin()).pdgId() << " at vertex" << std::endl;
       return result;
     }
   }
@@ -241,8 +240,8 @@ TkNavigableSimElectronAssembler::electronFilter (TrackList& allTracks) const
   TrackList electrons;
   TrackList others;
 
-  for ( TrackList::iterator it = allTracks.begin(); 
-	it != allTracks.end(); it++ ) {
+  for ( TrackList::iterator it = allTracks.begin();
+        it != allTracks.end(); it++ ) {
     if ( abs((**it).pdgId())==11 ) {
       electrons.push_back(*it);
       //      allTracks.erase(it);
@@ -262,7 +261,7 @@ TkNavigableSimElectronAssembler::electronFilter (TrackList& allTracks) const
  */
 /*
 TrackingParticleRef TkNavigableSimElectronAssembler::findInitialSegmentRef(
-  const TrackPtr& firstSegment) const 
+  const TrackPtr& firstSegment) const
 {
   TrackingVertexRef startV = (*firstSegment).parentVertex();
 
@@ -271,15 +270,15 @@ TrackingParticleRef TkNavigableSimElectronAssembler::findInitialSegmentRef(
        it != daughters.end(); it++) {
     TrackingParticleRef d = (*it);
 
-    // TrackingParticles pointed to by firstSegment and one of vertex 
+    // TrackingParticles pointed to by firstSegment and one of vertex
     // daughters match ?
     // comparison temporarily done through Geant track ID and type
     // should be done through edm::Ref
     TrackingParticle::g4t_iterator gTkf = (*firstSegment).g4Track_begin();
     TrackingParticle::g4t_iterator gTkd = (*d.get()).g4Track_begin();
 
-    if ( ( (*gTkf).trackId() == (*gTkd).trackId() ) 
-	 && ( (*gTkf).type() == (*gTkd).type() ) ) {
+    if ( ( (*gTkf).trackId() == (*gTkd).trackId() )
+         && ( (*gTkf).type() == (*gTkd).type() ) ) {
       return d;
     }
   }

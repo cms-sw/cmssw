@@ -8,3 +8,6 @@ DEFINE_ANOTHER_FWK_MODULE(TrackingTruthProducer);
 
 #include "SimGeneral/TrackingAnalysis/interface/TrackingElectronProducer.h"
 DEFINE_ANOTHER_FWK_MODULE(TrackingElectronProducer);
+
+#include "SimGeneral/TrackingAnalysis/interface/MergedTruthProducer.h"
+DEFINE_ANOTHER_FWK_MODULE(MergedTruthProducer);

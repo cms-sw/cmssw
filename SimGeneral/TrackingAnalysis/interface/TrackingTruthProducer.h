@@ -26,8 +26,10 @@ private:
   double                   volumeZ_;
   bool                     discardOutVolume_;
   bool                     discardHitsFromDeltas_;
-  std::string		   simHitLabel_;		   
-  
+  std::string              simHitLabel_;
+
+  std::string MessageCategory_;
+
 };
 
 #endif

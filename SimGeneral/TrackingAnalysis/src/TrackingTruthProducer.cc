@@ -32,8 +32,6 @@ typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >   GenVertexRef;
 typedef math::XYZTLorentzVectorD    LorentzVector;
 
-string MessageCategory = "TrackingTruthProducer";
-
 TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
   produces<TrackingVertexCollection>();
   produces<TrackingParticleCollection>();
@@ -47,13 +45,14 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
   volumeZ_               = conf_.getParameter<double>("volumeZ");
   discardOutVolume_      = conf_.getParameter<bool>("discardOutVolume");
   discardHitsFromDeltas_ = conf_.getParameter<bool>("DiscardHitsFromDeltas");
+  MessageCategory_       = "TrackingTruthProducer";
 
-  edm::LogInfo (MessageCategory) << "Setting up TrackingTruthProducer";
-  edm::LogInfo (MessageCategory) << "Vertex distance cut set to " << distanceCut_  << " mm";
-  edm::LogInfo (MessageCategory) << "Volume radius set to "       << volumeRadius_ << " mm";
-  edm::LogInfo (MessageCategory) << "Volume Z      set to "       << volumeZ_      << " mm";
-  edm::LogInfo (MessageCategory) << "Discard out of volume? "     << discardOutVolume_;
-  edm::LogInfo (MessageCategory) << "Discard Hits from Deltas? "  << discardHitsFromDeltas_;
+  edm::LogInfo (MessageCategory_) << "Setting up TrackingTruthProducer";
+  edm::LogInfo (MessageCategory_) << "Vertex distance cut set to " << distanceCut_  << " mm";
+  edm::LogInfo (MessageCategory_) << "Volume radius set to "       << volumeRadius_ << " mm";
+  edm::LogInfo (MessageCategory_) << "Volume Z      set to "       << volumeZ_      << " mm";
+  edm::LogInfo (MessageCategory_) << "Discard out of volume? "     << discardOutVolume_;
+  edm::LogInfo (MessageCategory_) << "Discard Hits from Deltas? "  << discardHitsFromDeltas_;
 
 }
 
@@ -68,18 +67,18 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   for (vector<string>::const_iterator source = dataLabels_.begin(); source != dataLabels_.end(); ++source) {
     foundHepMC = event.getByLabel(*source,hepMC);
     if (foundHepMC) {
-      edm::LogInfo (MessageCategory) << "Using HepMC source " << *source;
+      edm::LogInfo (MessageCategory_) << "Using HepMC source " << *source;
       break;
     }
   }
 
   if (!foundHepMC) {
-    edm::LogWarning (MessageCategory) << "No HepMC source found";
+    edm::LogWarning (MessageCategory_) << "No HepMC source found";
     return;
   }
   const edm::HepMCProduct *mcp = hepMC.product();
   if (mcp == 0) {
-    edm::LogWarning (MessageCategory) << "Null HepMC pointer";
+    edm::LogWarning (MessageCategory_) << "Null HepMC pointer";
     return;
   }
   const HepMC::GenEvent *genEvent = mcp -> GetEvent();
@@ -165,7 +164,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     for (hitItr iHit  = simTrack_hit.lower_bound(trackId);
                 iHit != simTrack_hit.upper_bound(trackId); ++iHit) {
       PSimHit hit = iHit->second;
-      float pratio = hit.pabs()/theMomentum.P();     
+      float pratio = hit.pabs()/theMomentum.P();
 
 // Discard hits from delta rays if requested
 
@@ -255,8 +254,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
         nearestVertex = iTrkVtx;
         indexTV = tmpTV;
       }
-    }    
-    
+    }
+
 
 // If outside cutoff, create another TrackingVertex, set nearestVertex to it
 
@@ -328,21 +327,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     }
   }
 
-  edm::LogInfo(MessageCategory) << "TrackingTruthProducer found "  << tVC -> size()
+  edm::LogInfo(MessageCategory_) << "TrackingTruthProducer found "  << tVC -> size()
                                 << " unique vertices and " << tPC -> size() << " tracks.";
-
-  /*
-  //DEBUG
-  for (TrackingParticleCollection::const_iterator t = tPC -> begin(); t != tPC -> end(); ++t) {
-  cout << "T.P.   Track mass, Momentum, q , ID, & Event # "
-  << t -> mass()  << " "
-  << t -> p4()    << " " << t -> charge() << " "
-  << t -> pdgId() << " "
-  << t -> eventId().bunchCrossing() << "." << t -> eventId().event() << endl;
-  cout << " Hits for this track: " << t -> trackPSimHit().size() << endl;
-  }
-  */
-
 
 // Put TrackingParticles and TrackingVertices in event
   event.put(tPC);

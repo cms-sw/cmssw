@@ -10,4 +10,4 @@ std::ostream& operator<<(std::ostream & os , EncodedTruthId& id) {
                     << id.event()         << ","
                     << id.index()         << ")";
 }
-  
+
