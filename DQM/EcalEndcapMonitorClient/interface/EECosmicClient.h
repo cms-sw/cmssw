@@ -4,8 +4,8 @@
 /*
  * \file EECosmicClient.h
  *
- * $Date: 2007/11/27 10:43:24 $
- * $Revision: 1.8 $
+ * $Date: 2007/12/15 11:34:30 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -87,6 +87,8 @@ bool verbose_;
 bool enableMonitorDaemon_;
 
 std::string prefixME_;
+
+bool enableCleanup_;
 
 std::vector<int> superModules_;
 

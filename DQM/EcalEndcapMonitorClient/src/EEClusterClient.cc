@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/12/16 21:37:45 $
- * $Revision: 1.28 $
+ * $Date: 2007/12/16 21:58:21 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -52,8 +52,11 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
-  // MonitorDaemon switch
+  // enableMonitorDaemon_ switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // enableCleanup_ switch
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -142,6 +145,8 @@ void EEClusterClient::setup(void) {
 }
 
 void EEClusterClient::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   if ( cloneME_ ) {
     if ( h01_[0] ) delete h01_[0];

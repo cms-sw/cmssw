@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2007/11/27 10:43:17 $
- * $Revision: 1.17 $
+ * $Date: 2007/12/15 11:34:18 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -86,6 +86,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+bool enableCleanup_;
 
 std::string prefixME_;
 

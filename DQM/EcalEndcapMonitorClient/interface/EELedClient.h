@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2007/11/27 10:43:24 $
- * $Revision: 1.10 $
+ * $Date: 2007/12/15 11:34:31 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -84,6 +84,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+bool enableCleanup_;
 
 std::string prefixME_;
 

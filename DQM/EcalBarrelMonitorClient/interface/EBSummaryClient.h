@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/12/18 12:58:23 $
- * $Revision: 1.23 $
+ * $Date: 2007/12/18 13:58:03 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -88,6 +88,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+bool enableCleanup_;
 
 std::string prefixME_;
 

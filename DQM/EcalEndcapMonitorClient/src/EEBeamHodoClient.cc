@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2007/11/13 14:05:35 $
- * $Revision: 1.13 $
+ * $Date: 2007/12/15 11:34:32 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -49,8 +49,11 @@ EEBeamHodoClient::EEBeamHodoClient(const ParameterSet& ps){
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
-  // MonitorDaemon switch
+  // enableMonitorDaemon_ switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // enableCleanup_ switch
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -223,6 +226,8 @@ void EEBeamHodoClient::setup(void) {
 }
 
 void EEBeamHodoClient::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   dbe_->setCurrentFolder( "EcalEndcap/EEBeamHodoClient" );
 

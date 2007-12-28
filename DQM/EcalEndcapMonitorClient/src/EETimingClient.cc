@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/12/27 15:01:57 $
- * $Revision: 1.47 $
+ * $Date: 2007/12/27 16:16:13 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  *
 */
@@ -53,8 +53,11 @@ EETimingClient::EETimingClient(const ParameterSet& ps){
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
-  // MonitorDaemon switch
+  // enableMonitorDaemon_ switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // enableCleanup_ switch
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -202,6 +205,8 @@ void EETimingClient::setup(void) {
 }
 
 void EETimingClient::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 

@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2007/12/27 15:01:56 $
- * $Revision: 1.27 $
+ * $Date: 2007/12/27 16:16:13 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -50,8 +50,11 @@ EEBeamCaloClient::EEBeamCaloClient(const ParameterSet& ps){
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
-  // MonitorDaemon switch
+  // enableMonitorDaemon_ switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // enableCleanup_ switch
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -181,6 +184,7 @@ void EEBeamCaloClient::setup(void) {
 }
 
 void EEBeamCaloClient::cleanup(void) {
+  if ( ! enableCleanup_ ) return;
   if ( cloneME_ ) {
     for(int u=0;u<cryInArray_;u++){
       if(hBGains_[u]) delete hBGains_[u];

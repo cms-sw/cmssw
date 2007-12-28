@@ -4,8 +4,8 @@
 /*
  * \file EETimingClient.h
  *
- * $Date: 2007/11/27 10:43:24 $
- * $Revision: 1.8 $
+ * $Date: 2007/12/15 11:34:31 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -84,6 +84,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+bool enableCleanup_;
 
 std::string prefixME_;
 

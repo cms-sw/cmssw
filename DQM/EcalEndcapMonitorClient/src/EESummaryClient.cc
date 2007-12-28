@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/12/27 18:56:42 $
- * $Revision: 1.71 $
+ * $Date: 2007/12/27 18:59:00 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -55,8 +55,11 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
-  // MonitorDaemon switch
+  // enableMonitorDaemon_ switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // enableCleanup_ switch
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -436,6 +439,8 @@ void EESummaryClient::setup(void) {
 }
 
 void EESummaryClient::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   dbe_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
 

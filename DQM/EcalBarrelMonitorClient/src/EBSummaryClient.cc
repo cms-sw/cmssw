@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/12/27 15:10:20 $
- * $Revision: 1.97 $
+ * $Date: 2007/12/27 16:23:25 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  *
 */
@@ -52,8 +52,11 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
-  // MonitorDaemon switch
+  // enableMonitorDaemon_ switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // enableCleanup_ switch
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -291,6 +294,8 @@ void EBSummaryClient::setup(void) {
 }
 
 void EBSummaryClient::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   dbe_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
 

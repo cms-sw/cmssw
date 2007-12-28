@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/12/12 14:46:46 $
- * $Revision: 1.90 $
+ * $Date: 2007/12/16 20:34:34 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -129,6 +129,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+bool enableCleanup_;
 
 std::string clientName_;
 

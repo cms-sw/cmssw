@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/12/27 15:00:44 $
- * $Revision: 1.204 $
+ * $Date: 2007/12/27 16:15:19 $
+ * $Revision: 1.205 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -61,8 +61,11 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
-  // MonitorDaemon switch
+  // enableMonitorDaemon_ switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // enableCleanup_ switch
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -722,6 +725,8 @@ void EBLaserClient::setup(void) {
 }
 
 void EBLaserClient::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 

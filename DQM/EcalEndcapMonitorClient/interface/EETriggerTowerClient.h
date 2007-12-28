@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerClient.h
  *
- * $Date: 2007/11/27 10:43:24 $
- * $Revision: 1.12 $
+ * $Date: 2007/12/15 11:34:31 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -87,6 +87,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+bool enableCleanup_;
 
 std::string prefixME_;
 

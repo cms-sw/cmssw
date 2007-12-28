@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/26 19:19:11 $
- * $Revision: 1.345 $
+ * $Date: 2007/12/28 11:03:40 $
+ * $Revision: 1.346 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -205,6 +205,14 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " enableMonitorDaemon switch is ON" << endl;
   } else {
     cout << " enableMonitorDaemon switch is OFF" << endl;
+  }
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  if ( enableCleanup_ ) {
+    cout << " enableCleanup switch is ON" << endl;
+  } else {
+    cout << " enableCleanup switch is OFF" << endl;
   }
 
   // enableUpdate switch
@@ -844,6 +852,8 @@ void EcalBarrelMonitorClient::setup(void) {
 }
 
 void EcalBarrelMonitorClient::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   if ( cloneME_ ) {
     if ( h_ ) delete h_;

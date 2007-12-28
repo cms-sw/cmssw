@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2007/12/15 11:34:30 $
- * $Revision: 1.11 $
+ * $Date: 2007/12/16 21:58:17 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -86,6 +86,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+bool enableCleanup_;
 
 std::string prefixME_;
 

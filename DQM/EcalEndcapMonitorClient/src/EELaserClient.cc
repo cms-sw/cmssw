@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/12/27 15:01:56 $
- * $Revision: 1.62 $
+ * $Date: 2007/12/27 16:16:13 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -62,8 +62,11 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
-  // MonitorDaemon switch
+  // enableMonitorDaemon_ switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // enableCleanup_ switch
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -735,6 +738,8 @@ void EELaserClient::setup(void) {
 }
 
 void EELaserClient::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 

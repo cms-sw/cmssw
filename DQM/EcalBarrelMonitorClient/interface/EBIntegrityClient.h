@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2007/11/27 10:43:17 $
- * $Revision: 1.54 $
+ * $Date: 2007/12/15 11:34:25 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -85,6 +85,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+bool enableCleanup_;
 
 std::string prefixME_;
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/26 19:19:13 $
- * $Revision: 1.104 $
+ * $Date: 2007/12/28 11:03:42 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -206,6 +206,16 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     cout << " enableMonitorDaemon switch is ON" << endl;
   } else {
     cout << " enableMonitorDaemon switch is OFF" << endl;
+  }
+
+  // enableCleanup_ switch
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  if ( enableCleanup_ ) {
+    cout << " enableCleanup switch is ON" << endl;
+  } else {
+    cout << " enableCleanup switch is OFF" << endl;
   }
 
   // enableUpdate switch
@@ -868,6 +878,8 @@ void EcalEndcapMonitorClient::setup(void) {
 }
 
 void EcalEndcapMonitorClient::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   if ( cloneME_ ) {
     if ( h_ ) delete h_;

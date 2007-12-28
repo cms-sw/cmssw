@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2007/12/18 13:00:02 $
- * $Revision: 1.13 $
+ * $Date: 2007/12/18 13:58:05 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -88,6 +88,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+bool enableCleanup_;
 
 std::string prefixME_;
 

@@ -4,8 +4,8 @@
 /*
  * \file EEBeamHodoClient.h
  *
- * $Date: 2007/11/27 10:43:23 $
- * $Revision: 1.7 $
+ * $Date: 2007/12/15 11:34:30 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -83,6 +83,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+bool enableCleanup_;
 
 std::string prefixME_;
 

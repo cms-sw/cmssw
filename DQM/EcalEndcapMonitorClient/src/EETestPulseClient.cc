@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/12/27 15:01:57 $
- * $Revision: 1.53 $
+ * $Date: 2007/12/27 16:16:13 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -56,8 +56,11 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps){
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
-  // MonitorDaemon switch
+  // enableMonitorDaemon_ switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // enableCleanup_ switch
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -304,6 +307,8 @@ void EETestPulseClient::setup(void) {
 }
 
 void EETestPulseClient::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 

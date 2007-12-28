@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/11/13 14:05:25 $
- * $Revision: 1.43 $
+ * $Date: 2007/12/15 11:34:26 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -51,8 +51,11 @@ EBClusterClient::EBClusterClient(const ParameterSet& ps){
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
-  // MonitorDaemon switch
+  // enableMonitorDaemon_ switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // enableCleanup_ switch
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -140,6 +143,8 @@ void EBClusterClient::setup(void) {
 }
 
 void EBClusterClient::cleanup(void) {
+
+  if ( ! enableCleanup_ ) return;
 
   if ( cloneME_ ) {
     if ( h01_[0] ) delete h01_[0];
