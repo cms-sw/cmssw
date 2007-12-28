@@ -18,7 +18,6 @@
 #include "Alignment/CocoaModel/interface/MeasurementCOPS.h"
 #include "Alignment/CocoaModel/interface/MeasurementDiffEntry.h"
 #include "Alignment/CocoaModel/interface/CocoaDaqReaderText.h"
-#include "Alignment/CocoaModel/interface/CocoaDaqReaderRoot.h"
 //t#include "Alignment/CocoaModel/interface/MeasurementDiffAngle.h"
 //t#include "Alignment/CocoaModel/interface/MeasurementCentreEntry.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
@@ -451,8 +450,6 @@ void Model::readSystemDescription()
 	  Measurement::only1Time = wordlist[3]; 
 	  //-      std::cout << " setting Measurement::only1" <<  Measurement::only1 << std::endl;
 	}
-      } else if ( measType == ALIstring("measurements_from_file_ROOT") || measType == ALIstring("@measurements_from_file") ) {
-	new CocoaDaqReaderRoot( wordlist[1] );
       } else if ( wordlist[0] == ALIstring("correlations_from_file") || wordlist[0] == ALIstring("@correlations_from_file") ) {
 	ErrorCorrelationMgr::getInstance()->readFromReportFile( wordlist[1] );
       } else if ( wordlist[0] == ALIstring("copy_measurements") || wordlist[0] == ALIstring("@copy_measurements") ) {
