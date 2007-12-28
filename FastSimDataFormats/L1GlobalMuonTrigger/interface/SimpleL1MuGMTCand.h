@@ -39,6 +39,15 @@ class SimpleL1MuGMTCand : public L1MuGMTExtendedCand {
     /// convert a FSimTrack into a SimpleL1MuGMTCand (L1MuGMTExtendedCand)
     SimpleL1MuGMTCand(const SimTrack*);
 
+    /// The same as above, but without relying on internal tables (safer)
+    SimpleL1MuGMTCand(const SimTrack* p,
+		      unsigned etaIndex, 
+		      unsigned phiIndex,
+		      unsigned pTIndex,
+		      float etaValue,
+		      float phiValue,
+		      float pTValue);    
+
     /// destructor
     virtual ~SimpleL1MuGMTCand();
 

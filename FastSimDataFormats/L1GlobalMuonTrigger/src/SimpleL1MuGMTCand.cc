@@ -4,6 +4,9 @@
 // Fast Simulation headers
 #include "SimDataFormats/Track/interface/SimTrack.h"
 
+// The muon scales
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+
 //CMSSW headers 
 
 // STL headers 
@@ -41,7 +44,7 @@ SimpleL1MuGMTCand::SimpleL1MuGMTCand(const SimpleL1MuGMTCand* mu) :
   setPtPacked(m_pt & 31);
 }
 
-SimpleL1MuGMTCand::SimpleL1MuGMTCand(const SimTrack* p) {
+SimpleL1MuGMTCand::SimpleL1MuGMTCand(const SimTrack* p) { 
   //  setMomentum(p->momentum());
   LorentzVector toBeRemoved(p->momentum().x(),p->momentum().y(),p->momentum().z(),p->momentum().t());
   setMomentum(toBeRemoved);
@@ -50,10 +53,51 @@ SimpleL1MuGMTCand::SimpleL1MuGMTCand(const SimTrack* p) {
   m_quality = 7;
   setQuality(m_quality);
   m_rank = 0;
-  setEta(myMomentum.eta());
-  setPhi(myMomentum.phi());
+  setEta(myMomentum.Eta());
+  setPhi(myMomentum.Phi());
   setCharge(int(p->charge()));
-  setPt(std::sqrt(myMomentum.perp2()));
+  setPt(myMomentum.Pt());
+  setBx(0);
+  if ( fabs(myMomentum.eta()) > 1.20 ) 
+    setFwdBit(1);
+  else
+    setFwdBit(0);
+  setRPCBit(0);
+
+}
+
+SimpleL1MuGMTCand::SimpleL1MuGMTCand(const SimTrack* p,
+				     unsigned etaIndex, 
+				     unsigned phiIndex,
+				     unsigned pTIndex,
+				     float etaValue,
+				     float phiValue,
+				     float pTValue) { 
+  //  setMomentum(p->momentum());
+  LorentzVector toBeRemoved(p->momentum().x(),p->momentum().y(),p->momentum().z(),p->momentum().t());
+  setMomentum(toBeRemoved);
+  m_name = "FastL1MuCand";
+  m_empty = false;
+  m_quality = 7;
+  setQuality(m_quality);
+  m_rank = 0;
+  m_phi=phiIndex;
+  setPhiPacked(phiIndex);
+  setPhiValue(phiValue);
+  m_eta=etaIndex;
+  setEtaPacked(etaIndex);
+  setEtaValue(etaValue);
+  setCharge(int(p->charge()));
+  m_pt = pTIndex;
+  setPtPacked(pTIndex);
+  setPtValue(pTValue);
+  m_smearedPt = myMomentum.Pt();
+  setBx(0);
+  if ( fabs(myMomentum.eta()) > 1.20 ) 
+    setFwdBit(1);
+  else
+    setFwdBit(0);
+  setRPCBit(0);
 
 }
 
