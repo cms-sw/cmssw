@@ -7,6 +7,7 @@
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 
@@ -111,10 +112,16 @@ namespace edm {
 
     FDEBUG(10) << "StreamerInputSource::mergeWithRegistry :"<<processName<<std::endl; 
 
-    edm::ProcessHistory ph;
+    // NOTE: The process history of the events is NOT preserved by the streamer, except for the process name
+    // of the process that created them.  So, except for the process name, the rest of the process configuration
+    // is default constructed.
+
+    ProcessHistory ph;
     ph.reserve(1);
-    ph.push_back(edm::ProcessConfiguration(processName, ParameterSetID(), ReleaseVersion(), PassID()));
-    edm::ProcessHistoryRegistry::instance()->insertMapped(ph);
+    ProcessConfiguration pc;
+    pc.processName_ = processName;
+    ph.push_back(pc);
+    ProcessHistoryRegistry::instance()->insertMapped(ph);
     setProcessHistoryID(ph.id());
 
   }
