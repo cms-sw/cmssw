@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.19 2007/03/07 16:12:30 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.20 2007/09/27 15:01:01 ewv Exp $
  *
  */
 
@@ -21,6 +21,8 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 class TrackingVertex {
+
+  friend std::ostream& operator<< (std::ostream& s, const TrackingVertex & tv);
 
  public:
 
@@ -60,9 +62,11 @@ class TrackingVertex {
   void addGenVertex(    const GenVertexRef&       );
   void addDaughterTrack(const TrackingParticleRef&);
   void addParentTrack(  const TrackingParticleRef&);
+  void clearDaughterTracks();
+  void clearParentTracks();
 
 // Getters for RefVectors
-  const std::vector<SimVertex>            g4Vertices() const;
+  const std::vector<SimVertex>        g4Vertices() const;
   const GenVertexRefVector           genVertices() const;
   const TrackingParticleRefVector   sourceTracks() const;
   const TrackingParticleRefVector daughterTracks() const;

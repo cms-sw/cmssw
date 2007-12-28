@@ -1,7 +1,10 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+//#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexFwd.h"
 
 typedef std::vector<TrackingVertex>                TrackingVertexCollection;
 typedef edm::Ref<TrackingVertexCollection>         TrackingVertexRef;
+typedef edm::RefVector<TrackingVertexCollection>   TrackingVertexRefVector;
+typedef TrackingVertexRefVector::iterator          tv_iterator;
 
 TrackingParticle::TrackingParticle( char q, const LorentzVector & p4, const Point & vtx,
                                     double t, const int pdgId, const EncodedEventId eventId) :
@@ -60,6 +63,14 @@ void TrackingParticle::addDecayVertex(const TrackingVertexRef &ref){
     decayVertices_.push_back(ref); // Restored for 1.4
 }
 
+void TrackingParticle::clearParentVertex() {
+  parentVertex_ = TrackingVertexRef();
+}
+
+void TrackingParticle::clearDecayVertices() {
+  decayVertices_.clear();
+}
+
 void TrackingParticle::setMatchedHit(const int &hitnumb) {
   matchedHit_ = hitnumb;
 }
@@ -67,4 +78,33 @@ void TrackingParticle::setMatchedHit(const int &hitnumb) {
 void TrackingParticle::setVertex(const Point & vtx, double t){
   t_ = t;
   reco::Particle::setVertex(vtx);
+}
+
+std::ostream& operator<< (std::ostream& s, const TrackingParticle & tp) {
+
+  // Compare momenta from sources
+  s << "TP momentum, q, ID, & Event #: "
+    << tp.p4()                      << " " << tp.charge() << " "   << tp.pdgId() << " "
+    << tp.eventId().bunchCrossing() << "." << tp.eventId().event() << std::endl;
+  s << " Hits for this track: " << tp.trackPSimHit().size() << std::endl;
+
+  for (TrackingParticle::genp_iterator hepT = tp.genParticle_begin(); hepT !=  tp.genParticle_end(); ++hepT) {
+    s << " HepMC Track Momentum " << (*hepT)->momentum() << std::endl;
+  }
+
+  for (TrackingParticle::g4t_iterator g4T = tp.g4Track_begin(); g4T !=  tp.g4Track_end(); ++g4T) {
+    s << " Geant Track Momentum  " << g4T->momentum() << std::endl;
+    s << " Geant Track ID & type " << g4T->trackId() << " " << g4T->type() << std::endl;
+    if (g4T->type() !=  tp.pdgId()) {
+      s << " Mismatch b/t TrackingParticle and Geant types" << std::endl;
+    }
+  }
+  // Loop over decay vertices
+  s << " TP Vertex " << tp.vertex() << std::endl;
+  s << " Source vertex: " << tp.parentVertex()->position() << std::endl;
+  for (tv_iterator iTV = tp.decayVertices_begin(); iTV != tp.decayVertices_end(); ++iTV) {
+    s << " Decay vertices:      " << (**iTV).position() << std::endl;
+  }
+
+  return s;
 }

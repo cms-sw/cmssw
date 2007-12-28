@@ -35,6 +35,15 @@ void TrackingVertex::addParentTrack(const TrackingParticleRef &ref){
   sourceTracks_.push_back(ref);
 }
 
+void TrackingVertex::clearDaughterTracks() {
+  daughterTracks_.clear();
+}
+
+void TrackingVertex::clearParentTracks() {
+  sourceTracks_.clear();
+}
+
+
 // Iterators over vertices and tracks
 
 TrackingVertex::genv_iterator TrackingVertex::genVertices_begin() const { return genVertices_.begin(); }
@@ -53,3 +62,43 @@ const std::vector<SimVertex>    TrackingVertex::g4Vertices()     const { return 
 const GenVertexRefVector        TrackingVertex::genVertices()    const { return  genVertices_;    }
 const TrackingParticleRefVector TrackingVertex::sourceTracks()   const { return  sourceTracks_;   }
 const TrackingParticleRefVector TrackingVertex::daughterTracks() const { return  daughterTracks_; }
+
+std::ostream& operator<< (std::ostream& s, const TrackingVertex & v) {
+
+  using std::endl;
+  typedef        GenVertexRefVector::iterator                  genv_iterator;
+  typedef    std::vector<SimVertex>::const_iterator            g4v_iterator;
+  typedef TrackingParticleRefVector::iterator                  tp_iterator;
+  typedef       std::vector<SimTrack>::const_iterator             g4t_iterator;
+
+  s << "Vertex Position & Event #" << v.position() << " " << v.eventId().bunchCrossing() << "." << v.eventId().event() << endl;
+  s << " Associated with " << v.daughterTracks().size() << " tracks" << endl;
+  for (genv_iterator genV = v.genVertices_begin(); genV != v.genVertices_end(); ++genV) {
+    s << " HepMC vertex position " << (*(*genV)).position() << endl;
+  }
+
+  for (g4v_iterator g4V = v.g4Vertices_begin(); g4V != v.g4Vertices_end(); ++g4V) {
+    s << " Geant vertex position " << (*g4V).position() << endl;
+    // Probably empty all the time, currently
+  }
+
+  // Loop over daughter track(s)
+  for (tp_iterator iTP = v.daughterTracks_begin(); iTP != v.daughterTracks_end(); ++iTP) {
+    s << " Daughter starts:      " << (*(*iTP)).vertex();
+    for (g4t_iterator g4T  = (*(*iTP)).g4Track_begin(); g4T != (*(*iTP)).g4Track_end(); ++g4T) {
+      s << " p " << g4T->momentum();
+    }
+    s << endl;
+  }
+
+  // Loop over source track(s) (can be multiple since vertices are collapsed)
+  for (tp_iterator iTP = v.sourceTracks_begin(); iTP != v.sourceTracks_end(); ++iTP) {
+    s << " Source   starts: " << (*(*iTP)).vertex();
+    for (g4t_iterator g4T  = (*iTP)->g4Track_begin(); g4T != (*iTP)->g4Track_end(); ++g4T) {
+      s << ", p " <<  g4T ->momentum();
+    }
+    s << endl;
+  }
+  return s;
+}
+

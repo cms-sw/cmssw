@@ -19,7 +19,10 @@ namespace HepMC {
 class TrackingVertex;
 
 class TrackingParticle : public reco::Particle {
-public:
+
+  friend std::ostream& operator<< (std::ostream& s, const TrackingParticle & tp);
+
+ public:
   /// reference to HepMC::GenParticle
   typedef edm::RefVector<edm::HepMCProduct, HepMC::GenParticle > GenParticleRefVector;
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle >       GenParticleRef;
@@ -63,6 +66,8 @@ public:
   void addPSimHit(const PSimHit&);
   void setParentVertex(const TrackingVertexRef&);
   void  addDecayVertex(const TrackingVertexRef&);
+  void clearParentVertex();
+  void clearDecayVertices();
   void setMatchedHit(const int&);
   void setVertex(const Point & vtx, double t);
 
@@ -79,7 +84,7 @@ public:
 //  TrackingVertexRef decayVertex() const { return decayVertex_; } // Removed in 1.4
   int matchedHit() const {return matchedHit_;}
 
-private:
+ private:
   /// production time
   double t_;
   /// PDG identifier, signal source, crossing number
@@ -100,6 +105,7 @@ private:
   TrackingVertexRef       parentVertex_;
   TrackingVertexRefVector  decayVertices_; // Re-instated in 1.4.0
 //  TrackingVertexRef  decayVertex_;       // Removed in 1.4.0
+
 };
 
 #endif // SimDataFormats_TrackingParticle_H
