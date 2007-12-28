@@ -41,7 +41,11 @@ static void printHistory(const edm::ProcessHistory& iHist)
    for (edm::ProcessHistory::const_iterator itH = iHist.begin(), itHEnd = iHist.end();
        itH != itHEnd;
        ++itH) {
-      std::cout << indent <<itH->processName()<<" '"<<itH->passID()<<"' '"<<itH->releaseVersion()<<"' ("<<itH->parameterSetID()<<")"<<std::endl;
+      std::cout << indent << itH->processName() << " '"
+			  << itH->processGUID() << "' '"
+			  << itH->passID() << "' '"
+			  << itH->releaseVersion() << "' ("
+			  << itH->parameterSetID() << ")" << std::endl;
      indent += indentDelta;
    }
 }
@@ -53,8 +57,12 @@ static void printHistory(const HistoryNode& iNode, const std::string& iIndent = 
   for (HistoryNode::const_iterator itH = iNode.begin(), itHEnd = iNode.end();
       itH != itHEnd;
       ++itH) {
-    std::cout << indent <<itH->config_.processName()<<" '"<<itH->config_.passID()<<"' '"<<itH->config_.releaseVersion()
-    <<"' ["<<itH->simpleId_<<"] "<<" ("<<itH->config_.parameterSetID()<<")"<<std::endl;
+    std::cout << indent << itH->config_.processName() << " '"
+			<< itH->config_.processGUID() << "' '"
+			<< itH->config_.passID() << "' '"
+			<< itH->config_.releaseVersion() << "' ["
+			<< itH->simpleId_ << "] " << " ("
+			<< itH->config_.parameterSetID() << ")" << std::endl;
     printHistory(*itH, indent+indentDelta);
   }
 }
