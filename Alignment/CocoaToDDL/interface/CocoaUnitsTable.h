@@ -1,50 +1,5 @@
 //
-// ********************************************************************
-// * DISCLAIMER                                                       *
-// *                                                                  *
-// * The following disclaimer summarizes all the specific disclaimers *
-// * of contributors to this software. The specific disclaimers,which *
-// * govern, are listed with their locations in:                      *
-// *   http://cern.ch/geant4/license                                  *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.                                                             *
-// *                                                                  *
-// * This  code  implementation is the  intellectual property  of the *
-// * GEANT4 collaboration.                                            *
-// * By copying,  distributing  or modifying the Program (or any work *
-// * based  on  the Program)  you indicate  your  acceptance of  this *
-// * statement, and all its terms.                                    *
-// ********************************************************************
-//
-//
-// $Id: CocoaUnitsTable.h,v 1.2 2006/04/11 20:03:40 argiro Exp $
-// GEANT4 tag $Name: V00-00-07 $
-//
-// 
-// -----------------------------------------------------------------
-//
-//      ------------------- class CocoaUnitsTable -----------------
-//
-// 17-05-98: first version, M.Maire
-// 13-10-98: Units and symbols printed in fixed length, M.Maire
-// 18-01-00: BestUnit for three vector, M.Maire
-// 06-03-01: Migrated to STL vectors, G.Cosmo
-//
-// Class description:
-//
-// This class maintains a table of Units.
-// A Unit has a name, a symbol, a value and belong to a category (i.e. its
-// dimensional definition): Length, Time, Energy, etc...
-// The Units are grouped by category. The TableOfUnits is a list of categories.
-// The class G4BestUnit allows to convert automaticaly a physical quantity
-// from its internal value into the most appropriate Unit of the same category.
-//
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+// This class is copied from G4UnitsTable
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 #ifndef CocoaUnitsTable_HH
