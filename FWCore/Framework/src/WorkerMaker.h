@@ -54,7 +54,7 @@ namespace edm {
     md.parameterSetID_ = conf.id();
     md.moduleName_ = conf.template getParameter<std::string>("@module_type");
     md.moduleLabel_ = conf.template getParameter<std::string>("@module_label");
-    md.processConfiguration_ = ProcessConfiguration(p.processName_, procParams.id(), p.releaseVersion_, p.passID_); 
+    md.processConfiguration_ = ProcessConfiguration(p.processName_, p.processGUID_, procParams.id(), p.releaseVersion_, p.passID_); 
 
     std::auto_ptr<Worker> worker;
     try {

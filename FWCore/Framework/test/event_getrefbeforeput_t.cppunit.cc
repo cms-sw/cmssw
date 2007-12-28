@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: event_getrefbeforeput_t.cppunit.cc,v 1.14 2007/08/07 22:10:55 wmtan Exp $
+$Id: event_getrefbeforeput_t.cppunit.cc,v 1.15 2007/08/08 21:51:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -15,6 +15,7 @@ $Id: event_getrefbeforeput_t.cppunit.cc,v 1.14 2007/08/07 22:10:55 wmtan Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -54,7 +55,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   preg->setProductIDs();
   edm::EventID col(1L, 1L);
   edm::Timestamp fakeTime;
-  edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  edm::ProcessConfiguration pc("PROD", edm::createGlobalIdentifier(), edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(col.run(), fakeTime, fakeTime, pregc, pc));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, fakeTime, fakeTime, pregc, rp, pc));
@@ -107,7 +108,7 @@ void testEventGetRefBeforePut::getRefTest() {
   preg->setProductIDs();
   edm::EventID col(1L, 1L);
   edm::Timestamp fakeTime;
-  edm::ProcessConfiguration pc(processName, edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  edm::ProcessConfiguration pc(processName, edm::createGlobalIdentifier(), edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(col.run(), fakeTime, fakeTime, pregc, pc));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, fakeTime, fakeTime, pregc, rp, pc));

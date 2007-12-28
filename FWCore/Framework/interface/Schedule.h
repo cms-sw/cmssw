@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.34 2007/11/30 07:06:31 wmtan Exp $
+  $Id: Schedule.h,v 1.35 2007/12/21 21:37:05 wdd Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -121,6 +121,7 @@ namespace edm {
     typedef std::vector<WorkerInPath> PathWorkers;
 
     Schedule(ParameterSet const& processDesc,
+	     std::string const& processGUID,
 	     edm::service::TriggerNamesService& tns,
 	     WorkerRegistry& wregistry,
 	     ProductRegistry& pregistry,
@@ -258,6 +259,7 @@ namespace edm {
     ProductRegistry*    prod_reg_;
     ActionTable*        act_table_;
     std::string         processName_;
+    std::string         processGUID_;
     ActivityRegistryPtr act_reg_;
 
     State state_;

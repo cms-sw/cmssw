@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.23 2007/08/08 21:51:28 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.24 2007/10/05 22:00:38 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -11,6 +11,7 @@ $Id: generichandle_t.cppunit.cc,v 1.23 2007/08/08 21:51:28 wmtan Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -60,7 +61,7 @@ void testGenericHandle::failgetbyLabelTest() {
 
   edm::EventID id;
   edm::Timestamp time;
-  edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  edm::ProcessConfiguration pc("PROD", edm::createGlobalIdentifier(), edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> preg(new edm::ProductRegistry);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(id.run(), time, time, preg, pc));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, time, time, preg, rp, pc));
@@ -133,7 +134,7 @@ void testGenericHandle::getbyLabelTest() {
 
   edm::EventID col(1L, 1L);
   edm::Timestamp fakeTime;
-  edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  edm::ProcessConfiguration pc("PROD", edm::createGlobalIdentifier(), edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(col.run(), fakeTime, fakeTime, pregc, pc));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, fakeTime, fakeTime, pregc, rp, pc));

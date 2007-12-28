@@ -68,4 +68,6 @@
  <class name="std::pair<edm::Hash<1>,edm::ParameterSetBlob>"/>
  <class name="edm::Hash<3>"/>
  <class name="std::set<edm::Hash<3> >"/>
+ <class name="std::map<edm::Hash<3>,edm::ProcessConfiguration>"/>
+ <class name="std::pair<edm::Hash<3>,edm::ProcessConfiguration>"/>
 </lcgdict>

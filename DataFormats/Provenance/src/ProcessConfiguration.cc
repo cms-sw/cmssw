@@ -6,7 +6,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ProcessConfiguration.cc,v 1.1 2007/03/04 04:48:10 wmtan Exp $
+$Id: ProcessConfiguration.cc,v 1.2 2007/06/28 23:30:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -28,6 +28,7 @@ namespace edm {
   std::ostream&
   operator<< (std::ostream& os, ProcessConfiguration const& pc) {
     os << pc.processName_ << ' ' 
+       << pc.processGUID_ << ' '
        << pc.parameterSetID_ << ' '
        << pc.releaseVersion_ << ' '
        << pc.passID_;

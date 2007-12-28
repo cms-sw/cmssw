@@ -13,7 +13,10 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -30,13 +33,15 @@ namespace {
   struct dictionary {
   std::pair<edm::BranchKey, edm::BranchDescription> dummyPairBranch;
   std::map<edm::Hash<0>, edm::ModuleDescription> dummyMapMod;
-  std::map<edm::Hash<2>, edm::ProcessHistory> dummyMapProc;
   std::map<edm::Hash<1>, edm::ParameterSetBlob> dummyMapParam;
+  std::map<edm::Hash<2>, edm::ProcessHistory> dummyMapProcH;
+  std::map<edm::Hash<3>, edm::ProcessConfiguration> dummyMapProcC;
   std::set<edm::Hash<1> > dummySetParam;
   std::set<edm::Hash<3> > dummySetProcessDesc;
   std::pair<edm::Hash<0>, edm::ModuleDescription> dummyPairMod;
-  std::pair<edm::Hash<2>, edm::ProcessHistory> dummyPairProc;
   std::pair<edm::Hash<1>, edm::ParameterSetBlob> dummyPairParam;
+  std::pair<edm::Hash<2>, edm::ProcessHistory> dummyPairProcH;
+  std::pair<edm::Hash<3>, edm::ProcessConfiguration> dummyPairProcC;
   std::vector<edm::ProductID> dummyVectorProductID;
   std::vector<std::basic_string<char> > dummyVectorString;
   std::set<std::basic_string<char> > dummySetString;
