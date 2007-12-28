@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.9 2007/10/15 19:12:15 aperrott Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.10 2007/10/23 15:43:52 pjanot Exp $
 //
 //
 
@@ -30,7 +30,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
 
 // Fast Simulation headers
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
@@ -41,8 +40,8 @@
 
 // L1
 #include "FastSimDataFormats/L1GlobalMuonTrigger/interface/SimpleL1MuGMTCand.h"
-#include "FastSimulation/ParamL3MuonProducer/interface/FML1EfficiencyHandler.h"
-#include "FastSimulation/ParamL3MuonProducer/interface/FML1PtSmearer.h"
+#include "FastSimulation/Muons/interface/FML1EfficiencyHandler.h"
+#include "FastSimulation/Muons/interface/FML1PtSmearer.h"
 
 // L3
 #include "FastSimulation/ParamL3MuonProducer/interface/FML3EfficiencyHandler.h"

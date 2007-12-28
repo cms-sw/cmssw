@@ -15,7 +15,7 @@
 //
 //  Author:  Andrea Perrotta
 // Created:  Wed May 02 12:37:24 CET 2007
-// $Id: ParamL3MuonProducer.h,v 1.4 2007/06/13 13:53:50 pjanot Exp $
+// $Id: ParamL3MuonProducer.h,v 1.5 2007/10/01 14:37:32 aperrott Exp $
 //
 
 
@@ -50,7 +50,6 @@ namespace edm {
 // Data Formats
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 //

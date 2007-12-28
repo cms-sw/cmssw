@@ -52,7 +52,8 @@ bool FMGLfromL3EfficiencyHandler::kill(const SimTrack & aTrack) {
   //  if ( aTrack.isARecHit(i) ) ++seed;
   //if ( seed < 0 ) return false;
 
-  double myEffEta=0. , myCorrection=1. , myEff;
+  double myEffEta=0. ,  myEff;
+  // double myCorrection=1.;
 
   // Eta dependence : 
   double eta = fabs(aTrack.momentum().eta());
