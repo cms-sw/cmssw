@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/26 18:36:26 $
- * $Revision: 1.103 $
+ * $Date: 2007/12/26 19:19:13 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -341,7 +341,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   for( int i=0; i<10; i++ ) {
     TColor* color = gROOT->GetColor( 501+i );
     if ( ! color ) color = new TColor( 501+i, 0, 0, 0, "");
-    color->SetRGB( ecdqm::rgb2[i][1], ecdqm::rgb2[i][1], ecdqm::rgb2[i][1] );
+    color->SetRGB( ecdqm::rgb2[i][1], 0, 0 );
   }
 
   // set runTypes (use resize() on purpose!)
