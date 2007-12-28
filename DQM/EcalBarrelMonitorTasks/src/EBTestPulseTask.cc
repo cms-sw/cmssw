@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/12/04 08:24:08 $
- * $Revision: 1.85 $
+ * $Date: 2007/12/24 19:20:55 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -42,7 +42,7 @@ EBTestPulseTask::EBTestPulseTask(const ParameterSet& ps){
   // get hold of back-end interface
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");

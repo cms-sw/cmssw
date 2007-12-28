@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2007/11/09 17:36:45 $
- * $Revision: 1.16 $
+ * $Date: 2007/12/04 08:24:08 $
+ * $Revision: 1.17 $
  * \author A. Ghezzi
  *
  */
@@ -43,7 +43,7 @@ EEBeamCaloTask::EEBeamCaloTask(const ParameterSet& ps){
   // get hold of back-end interface
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");

@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/11/10 12:43:03 $
- * $Revision: 1.36 $
+ * $Date: 2007/12/04 08:24:08 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -51,7 +51,7 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   // get hold of back-end interface
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // parameters...
   BasicClusterCollection_ = ps.getParameter<edm::InputTag>("BasicClusterCollection");

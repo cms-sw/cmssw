@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2007/11/07 07:07:59 $
- * $Revision: 1.27 $
+ * $Date: 2007/12/04 08:24:08 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -42,7 +42,7 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
   // get hold of back-end interface
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");

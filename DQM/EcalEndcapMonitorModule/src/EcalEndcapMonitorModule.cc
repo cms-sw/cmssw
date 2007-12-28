@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/12/04 08:24:08 $
- * $Revision: 1.28 $
+ * $Date: 2007/12/26 13:39:41 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -86,7 +86,7 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
     }
   }
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   if ( enableCleanup_ ) {
     LogInfo("EcalBarrelMonitor") << " enableCleanup switch is ON";

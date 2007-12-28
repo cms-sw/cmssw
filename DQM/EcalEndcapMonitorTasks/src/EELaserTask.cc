@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2007/12/04 08:24:09 $
- * $Revision: 1.29 $
+ * $Date: 2007/12/24 19:20:55 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -41,7 +41,7 @@ EELaserTask::EELaserTask(const ParameterSet& ps){
   // get hold of back-end interface
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");

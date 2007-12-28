@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2007/12/04 08:24:08 $
- * $Revision: 1.11 $
+ * $Date: 2007/12/04 08:51:22 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -44,7 +44,7 @@ EEBeamHodoTask::EEBeamHodoTask(const ParameterSet& ps){
   // get hold of back-end interface
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
