@@ -13,7 +13,7 @@
 // Original Author:  Andrea Perrotta
 // Modifications: Patrick Janot.
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: FastL1MuonProducer.cc,v 1.10 2007/10/23 15:43:52 pjanot Exp $
+// $Id: FastL1MuonProducer.cc,v 1.1 2007/12/28 21:00:27 pjanot Exp $
 //
 //
 
@@ -302,12 +302,6 @@ void FastL1MuonProducer::loadL1Muons(L1MuonCollection & c ,
     rc.setGMTCand(nr,aMuon);
     // Find the regional eta index
     double etaPilePoil = mySimpleL1MuonCands[nr]->getMomentum().Eta();
-    double phiPilePoil = mySimpleL1MuonCands[nr]->getMomentum().Phi();
-    double ptPilePoil = mySimpleL1MuonCands[nr]->getMomentum().Pt();
-    std::cout << "Eta/phi/pt = " 
-	      << etaPilePoil << " " 
-	      << phiPilePoil << " " 
-	      << ptPilePoil << std::endl; 
 
     nr++;
     unsigned typeRPC=0;
