@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2007/12/28 17:32:05 $
- * $Revision: 1.7 $
+ * $Date: 2007/12/29 13:33:34 $
+ * $Revision: 1.8 $
  * \author C. Bernet
  *
 */
@@ -76,8 +76,7 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
 
 
   /// book monitor elements for real, or emulated digis
-  void setup( DaqMonitorBEInterface* dbe,
-	      const char* nameext,
+  void setup( const char* nameext,
 	      const char* folder, 
 	      bool emulated);
   

@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/12/28 17:32:06 $
- * $Revision: 1.19 $
+ * $Date: 2007/12/29 13:33:35 $
+ * $Revision: 1.20 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -130,8 +130,6 @@ void EETriggerTowerTask::setup( const char* nameext,
     meVeto = &meVetoEmul_;
     meFlags= &meFlagsEmul_;
   }
-
-  assert(dbe);
 
   dbe_->setCurrentFolder(folder);
 

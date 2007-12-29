@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/12/28 17:32:05 $
- * $Revision: 1.54 $
+ * $Date: 2007/12/29 13:33:33 $
+ * $Revision: 1.55 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -130,8 +130,6 @@ void EBTriggerTowerTask::setup( const char* nameext,
     meVeto = &meVetoEmul_;
     meFlags= &meFlagsEmul_;
   }
-
-  assert(dbe);
 
   dbe_->setCurrentFolder(folder);
 
