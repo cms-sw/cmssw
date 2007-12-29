@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/28 20:07:53 $
- * $Revision: 1.107 $
+ * $Date: 2007/12/29 09:05:11 $
+ * $Revision: 1.108 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -869,8 +869,12 @@ void EcalEndcapMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, con
   cout << "Standard beginLuminosityBlock() for run " << l.id().run() << endl;
   cout << endl;
 
-  forced_update_ = true;
-  this->analyze();
+  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+    forced_update_ = true;
+    this->analyze();
+
+  }
 
 }
 
@@ -880,8 +884,12 @@ void EcalEndcapMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const
   cout << "Standard endLuminosityBlock() for run " << l.id().run() << endl;
   cout << endl;
 
-  forced_update_ = true;
-  this->analyze();
+  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+    forced_update_ = true;
+    this->analyze();
+
+  }
 
 }
 
