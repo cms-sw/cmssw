@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/29 09:59:02 $
- * $Revision: 1.352 $
+ * $Date: 2007/12/29 10:23:03 $
+ * $Revision: 1.353 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -282,7 +282,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   cout << endl;
 
-  // vector of enabled Clients (Defaults to standard ones)
+  // vector of enabled Clients (defaults)
 
   enabledClients_.push_back("Integrity");
   enabledClients_.push_back("PedestalOnline");
@@ -804,12 +804,12 @@ void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
   cout << "Standard endRun() for run " << r.id().run() << endl;
   cout << endl;
 
-  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+  forced_update_ = true;
+  this->analyze();
 
-    forced_update_ = true;
-    this->analyze();
+  if ( ! mergeRuns_ ) {
 
-    if ( ! mergeRuns_ ) {
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
       if ( begin_run_ && ! end_run_ ) {
 
