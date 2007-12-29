@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/29 12:58:57 $
- * $Revision: 1.355 $
+ * $Date: 2007/12/29 14:06:12 $
+ * $Revision: 1.356 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -803,8 +803,19 @@ void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
   if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
-    forced_update_ = true;
-    this->analyze();
+    if ( ! mergeRuns_ ) {
+
+      forced_update_ = true;
+      this->analyze();
+
+      if ( begin_run_ && ! end_run_ ) {
+
+        forced_status_ = false;
+        this->endRun();
+
+      }
+
+    }
 
   }
 
