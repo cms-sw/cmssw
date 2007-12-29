@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.15 2007/12/18 13:35:45 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.16 2007/12/27 16:38:50 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.15 $
-  \date $Date: 2007/12/18 13:35:45 $
+  \version $Revision: 1.16 $
+  \date $Date: 2007/12/27 16:38:50 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -46,7 +46,7 @@ std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_;
 void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySyntax ) throw( std::runtime_error ) {
 
   if( done_ ) {
-    throw( std::runtime_error( "Input File already read." ) );
+    throw( std::runtime_error( "already done." ) );
     return;
   }
 
