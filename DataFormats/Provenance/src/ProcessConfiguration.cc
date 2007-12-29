@@ -28,7 +28,6 @@ namespace edm {
   std::ostream&
   operator<< (std::ostream& os, ProcessConfiguration const& pc) {
     os << pc.processName_ << ' ' 
-       << pc.processGUID_ << ' '
        << pc.parameterSetID_ << ' '
        << pc.releaseVersion_ << ' '
        << pc.passID_;
