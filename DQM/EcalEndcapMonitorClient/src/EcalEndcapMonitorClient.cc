@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/29 09:47:14 $
- * $Revision: 1.110 $
+ * $Date: 2007/12/29 09:59:01 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -730,28 +730,9 @@ void EcalEndcapMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   cout << endl;
 
   run_ = r.id().run();
-
   evt_ = -1;
 
   jevt_ = 0;
-
-  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
-
-    forced_update_ = true;
-    this->analyze();
-
-    if ( ! mergeRuns_ ) {
-
-      if ( ! begin_run_ ) {
-
-        forced_status_ = false;
-        this->beginRun();
-
-      }
-
-    }
-
-  }
 
 }
 
@@ -1614,7 +1595,6 @@ void EcalEndcapMonitorClient::analyze(const Event &e, const EventSetup &c) {
   Numbers::initGeometry(c);
 
   run_ = e.id().run();
-
   evt_ = e.id().event();
 
   this->analyze();
