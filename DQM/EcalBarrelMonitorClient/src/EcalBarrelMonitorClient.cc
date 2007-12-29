@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/29 10:32:05 $
- * $Revision: 1.354 $
+ * $Date: 2007/12/29 12:58:57 $
+ * $Revision: 1.355 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -659,6 +659,8 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
 
   this->subscribe();
 
+  Numbers::initGeometry(c);
+
 }
 
 void EcalBarrelMonitorClient::beginRun(void){
@@ -704,21 +706,6 @@ void EcalBarrelMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   run_ = r.id().run();
 
   jevt_ = 0;
-
-  if ( ! mergeRuns_ ) {
-
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
-
-      if ( ! begin_run_ ) {
-
-        forced_status_ = false;
-        this->beginRun();
-
-      }
-
-    }
-
-  }
 
 }
 
@@ -814,21 +801,10 @@ void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
   cout << "Standard endRun() for run " << r.id().run() << endl;
   cout << endl;
 
-  if ( ! mergeRuns_ ) {
+  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
-
-      forced_update_ = true;
-      this->analyze();
-
-      if ( begin_run_ && ! end_run_ ) {
-
-        forced_status_ = false;
-        this->endRun();
-
-      }
-
-    }
+    forced_update_ = true;
+    this->analyze();
 
   }
 
@@ -1356,6 +1332,12 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
   }
 
+  // if the run number from the Event is less than zero,
+  // use the run number from the ECAL DCC header
+  if ( run_ <= 0 ) run_ = ecal_run;
+
+  if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
+
   bool update = ( jevt_ <   10                      ) ||
                 ( jevt_ <  100 && jevt_ %   10 == 0 ) ||
                 ( jevt_ < 1000 && jevt_ %  100 == 0 ) ||
@@ -1385,12 +1367,6 @@ void EcalBarrelMonitorClient::analyze(void){
     cout << endl;
 
   }
-
-  // if the run number from the Event is less than zero,
-  // use the run number from the ECAL DCC header
-  if ( run_ <= 0 ) run_ = ecal_run;
-
-  if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
 
   if ( status_ == "begin-of-run" ) {
 
@@ -1567,8 +1543,6 @@ void EcalBarrelMonitorClient::analyze(void){
 }
 
 void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
-
-  Numbers::initGeometry(c);
 
   run_ = e.id().run();
   evt_ = e.id().event();
