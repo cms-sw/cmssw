@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/29 10:23:03 $
- * $Revision: 1.353 $
+ * $Date: 2007/12/29 10:32:05 $
+ * $Revision: 1.354 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -344,7 +344,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     if ( ! color ) color = new TColor( 401+i, 0, 0, 0, "");
     color->SetRGB( ecdqm::rgb2[i][0], ecdqm::rgb2[i][1], ecdqm::rgb2[i][2] );
   }
-  
+
   for( int i=0; i<10; i++ ) {
     TColor* color = gROOT->GetColor( 501+i );
     if ( ! color ) color = new TColor( 501+i, 0, 0, 0, "");
@@ -605,8 +605,6 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
 
   subrun_  = -1;
 
-  last_update_ =  0;
-
   unknowns_ = 0;
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: beginJob" << endl;
@@ -704,9 +702,23 @@ void EcalBarrelMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   cout << endl;
 
   run_ = r.id().run();
-  evt_ = -1;
 
   jevt_ = 0;
+
+  if ( ! mergeRuns_ ) {
+
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+      if ( ! begin_run_ ) {
+
+        forced_status_ = false;
+        this->beginRun();
+
+      }
+
+    }
+
+  }
 
 }
 
@@ -794,8 +806,6 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   subrun_ = -1;
 
-  last_update_ = 0;
-
 }
 
 void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
@@ -804,12 +814,12 @@ void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
   cout << "Standard endRun() for run " << r.id().run() << endl;
   cout << endl;
 
-  forced_update_ = true;
-  this->analyze();
-
   if ( ! mergeRuns_ ) {
 
     if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+      forced_update_ = true;
+      this->analyze();
 
       if ( begin_run_ && ! end_run_ ) {
 
@@ -829,13 +839,6 @@ void EcalBarrelMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, con
   cout << endl;
   cout << "Standard beginLuminosityBlock() for run " << l.id().run() << endl;
   cout << endl;
-
-  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
-
-    forced_update_ = true;
-    this->analyze();
-
-  }
 
 }
 

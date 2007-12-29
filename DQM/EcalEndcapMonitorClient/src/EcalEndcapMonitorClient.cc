@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/29 10:23:02 $
- * $Revision: 1.112 $
+ * $Date: 2007/12/29 10:32:05 $
+ * $Revision: 1.113 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -347,7 +347,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     if ( ! color ) color = new TColor( 401+i, 0, 0, 0, "");
     color->SetRGB( ecdqm::rgb2[i][0], ecdqm::rgb2[i][1], ecdqm::rgb2[i][2] );
   }
-  
+
   for( int i=0; i<10; i++ ) {
     TColor* color = gROOT->GetColor( 501+i );
     if ( ! color ) color = new TColor( 501+i, 0, 0, 0, "");
@@ -589,6 +589,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   clientsStatus_.insert(pair<string,int>( "Cluster",         9 ));
   clientsStatus_.insert(pair<string,int>( "Timing",         10 ));
   clientsStatus_.insert(pair<string,int>( "Led",            11 ));
+
   summaryClient_ = new EESummaryClient(ps);
 
   summaryClient_->setFriends(clients_);
@@ -630,8 +631,6 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
   last_run_ = -1;
 
   subrun_  = -1;
-
-  last_update_ =  0;
 
   unknowns_ = 0;
 
@@ -730,9 +729,23 @@ void EcalEndcapMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   cout << endl;
 
   run_ = r.id().run();
-  evt_ = -1;
 
   jevt_ = 0;
+
+  if ( ! mergeRuns_ ) {
+
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+      if ( ! begin_run_ ) {
+
+        forced_status_ = false;
+        this->beginRun();
+
+      }
+
+    }
+
+  }
 
 }
 
@@ -820,8 +833,6 @@ void EcalEndcapMonitorClient::endRun(void) {
 
   subrun_ = -1;
 
-  last_update_ = 0;
-
 }
 
 void EcalEndcapMonitorClient::endRun(const Run& r, const EventSetup& c) {
@@ -830,12 +841,12 @@ void EcalEndcapMonitorClient::endRun(const Run& r, const EventSetup& c) {
   cout << "Standard endRun() for run " << r.id().run() << endl;
   cout << endl;
 
-  forced_update_ = true;
-  this->analyze();
-
   if ( ! mergeRuns_ ) {
 
     if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+      forced_update_ = true;
+      this->analyze();
 
       if ( begin_run_ && ! end_run_ ) {
 
@@ -855,13 +866,6 @@ void EcalEndcapMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, con
   cout << endl;
   cout << "Standard beginLuminosityBlock() for run " << l.id().run() << endl;
   cout << endl;
-
-  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
-
-    forced_update_ = true;
-    this->analyze();
-
-  }
 
 }
 
