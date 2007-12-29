@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/12/24 19:20:55 $
- * $Revision: 1.86 $
+ * $Date: 2007/12/28 17:00:46 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -77,6 +77,8 @@ void EBTestPulseTask::beginJob(const EventSetup& c){
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask");
     dbe_->rmdir("EcalBarrel/EBTestPulseTask");
   }
+
+  Numbers::initGeometry(c);
 
 }
 
@@ -232,8 +234,6 @@ void EBTestPulseTask::endJob(void){
 }
 
 void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
-
-  Numbers::initGeometry(c);
 
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;

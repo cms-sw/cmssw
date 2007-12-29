@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/12/24 19:20:55 $
- * $Revision: 1.99 $
+ * $Date: 2007/12/28 17:00:46 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  *
 */
@@ -116,6 +116,8 @@ void EBLaserTask::beginJob(const EventSetup& c){
     dbe_->setCurrentFolder("EcalBarrel/EBLaserTask");
     dbe_->rmdir("EcalBarrel/EBLaserTask");
   }
+
+  Numbers::initGeometry(c);
 
 }
 
@@ -618,8 +620,6 @@ void EBLaserTask::endJob(void){
 }
 
 void EBLaserTask::analyze(const Event& e, const EventSetup& c){
-
-  Numbers::initGeometry(c);
 
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;

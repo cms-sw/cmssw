@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2007/12/04 08:24:08 $
- * $Revision: 1.28 $
+ * $Date: 2007/12/28 17:00:46 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -67,6 +67,8 @@ void EBOccupancyTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalBarrel/EBOccupancyTask");
   }
 
+  Numbers::initGeometry(c);
+
 }
 
 void EBOccupancyTask::setup(void){
@@ -122,8 +124,6 @@ void EBOccupancyTask::endJob(void) {
 }
 
 void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
-
-  Numbers::initGeometry(c);
 
   if ( ! init_ ) this->setup();
 

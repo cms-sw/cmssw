@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/12/24 19:20:55 $
- * $Revision: 1.18 $
+ * $Date: 2007/12/28 17:00:47 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -66,6 +66,8 @@ void EECosmicTask::beginJob(const EventSetup& c){
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask");
     dbe_->rmdir("EcalEndcap/EECosmicTask");
   }
+
+  Numbers::initGeometry(c);
 
 }
 
@@ -145,8 +147,6 @@ void EECosmicTask::endJob(void){
 }
 
 void EECosmicTask::analyze(const Event& e, const EventSetup& c){
-
-  Numbers::initGeometry(c);
 
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;

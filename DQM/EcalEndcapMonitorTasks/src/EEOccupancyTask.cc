@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2007/12/04 08:24:09 $
- * $Revision: 1.14 $
+ * $Date: 2007/12/28 17:00:47 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -67,6 +67,8 @@ void EEOccupancyTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalEndcap/EEOccupancyTask");
   }
 
+  Numbers::initGeometry(c);
+
 }
 
 void EEOccupancyTask::setup(void){
@@ -122,8 +124,6 @@ void EEOccupancyTask::endJob(void) {
 }
 
 void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
-
-  Numbers::initGeometry(c);
 
   if ( ! init_ ) this->setup();
 

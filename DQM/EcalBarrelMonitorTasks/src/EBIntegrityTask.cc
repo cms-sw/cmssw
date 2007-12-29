@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/12/24 19:20:55 $
- * $Revision: 1.55 $
+ * $Date: 2007/12/28 17:00:46 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
  */
@@ -82,6 +82,8 @@ void EBIntegrityTask::beginJob(const EventSetup& c){
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask");
     dbe_->rmdir("EcalBarrel/EBIntegrityTask");
   }
+
+  Numbers::initGeometry(c);
 
 }
 
@@ -291,8 +293,6 @@ void EBIntegrityTask::endJob(void){
 }
 
 void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
-
-  Numbers::initGeometry(c);
 
   if ( ! init_ ) this->setup();
 

@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2007/12/04 08:24:08 $
- * $Revision: 1.17 $
+ * $Date: 2007/12/28 17:00:46 $
+ * $Revision: 1.18 $
  * \author A. Ghezzi
  *
  */
@@ -100,12 +100,15 @@ EEBeamCaloTask::~EEBeamCaloTask(){
 void EEBeamCaloTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
+
   profileArranged_ = false;
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EEBeamCaloTask");
     dbe_->rmdir("EcalEndcap/EEBeamCaloTask");
   }
+
+  Numbers::initGeometry(c);
 
 }
 
@@ -363,8 +366,6 @@ void EEBeamCaloTask::endJob(void){
 }
 
 void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
-
-  Numbers::initGeometry(c);
 
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;

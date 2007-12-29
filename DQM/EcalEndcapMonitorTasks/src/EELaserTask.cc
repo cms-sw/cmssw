@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2007/12/24 19:20:55 $
- * $Revision: 1.30 $
+ * $Date: 2007/12/28 17:00:47 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -116,6 +116,8 @@ void EELaserTask::beginJob(const EventSetup& c){
     dbe_->setCurrentFolder("EcalEndcap/EELaserTask");
     dbe_->rmdir("EcalEndcap/EELaserTask");
   }
+
+  Numbers::initGeometry(c);
 
 }
 
@@ -618,8 +620,6 @@ void EELaserTask::endJob(void){
 }
 
 void EELaserTask::analyze(const Event& e, const EventSetup& c){
-
-  Numbers::initGeometry(c);
 
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;

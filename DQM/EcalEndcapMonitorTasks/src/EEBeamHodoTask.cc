@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2007/12/04 08:51:22 $
- * $Revision: 1.12 $
+ * $Date: 2007/12/28 17:00:46 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -98,14 +98,16 @@ void EEBeamHodoTask::beginJob(const EventSetup& c){
 
   ievt_  = 0;
 
+  LV1_ = 0;
+  cryInBeamCounter_ =0;
+  resetNow_                =false;
+
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EEBeamHodoTask");
     dbe_->rmdir("EcalEndcap/EEBeamHodoTask");
   }
 
-  LV1_ = 0;
-  cryInBeamCounter_ =0;
-  resetNow_                =false;
+  Numbers::initGeometry(c);
 
 }
 
@@ -293,8 +295,6 @@ void EEBeamHodoTask::endJob(void){
 }
 
 void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
-
-  Numbers::initGeometry(c);
 
   bool enable = false;
   Handle<EcalTBEventHeader> pHeader;

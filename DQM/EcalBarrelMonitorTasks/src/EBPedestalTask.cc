@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/12/24 19:20:55 $
- * $Revision: 1.72 $
+ * $Date: 2007/12/28 17:00:46 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  *
 */
@@ -75,6 +75,8 @@ void EBPedestalTask::beginJob(const EventSetup& c){
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask");
     dbe_->rmdir("EcalBarrel/EBPedestalTask");
   }
+
+  Numbers::initGeometry(c);
 
 }
 
@@ -234,8 +236,6 @@ void EBPedestalTask::endJob(void){
 }
 
 void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
-
-  Numbers::initGeometry(c);
 
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;

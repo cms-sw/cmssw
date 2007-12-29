@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2007/12/24 19:20:55 $
- * $Revision: 1.29 $
+ * $Date: 2007/12/28 17:00:46 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -64,6 +64,8 @@ void EBPedestalOnlineTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalBarrel/EBPedestalOnlineTask");
   }
 
+  Numbers::initGeometry(c);
+
 }
 
 void EBPedestalOnlineTask::setup(void){
@@ -116,8 +118,6 @@ void EBPedestalOnlineTask::endJob(void){
 }
 
 void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
-
-  Numbers::initGeometry(c);
 
   if ( ! init_ ) this->setup();
 

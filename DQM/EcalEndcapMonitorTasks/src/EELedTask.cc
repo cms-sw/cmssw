@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2007/12/24 19:20:55 $
- * $Revision: 1.20 $
+ * $Date: 2007/12/28 17:00:47 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -77,6 +77,8 @@ void EELedTask::beginJob(const EventSetup& c){
     dbe_->setCurrentFolder("EcalEndcap/EELedTask");
     dbe_->rmdir("EcalEndcap/EELedTask");
   }
+
+  Numbers::initGeometry(c);
 
 }
 
@@ -225,8 +227,6 @@ void EELedTask::endJob(void){
 }
 
 void EELedTask::analyze(const Event& e, const EventSetup& c){
-
-  Numbers::initGeometry(c);
 
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
