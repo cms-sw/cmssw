@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/29 09:05:11 $
- * $Revision: 1.108 $
+ * $Date: 2007/12/29 09:18:16 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -728,6 +728,10 @@ void EcalEndcapMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   cout << endl;
   cout << "Standard beginRun() for run " << r.id().run() << endl;
   cout << endl;
+
+  run_ = r.id().run();
+
+  evt_ = 0;
 
   if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
