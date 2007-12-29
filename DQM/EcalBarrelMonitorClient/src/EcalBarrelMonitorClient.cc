@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/29 09:18:16 $
- * $Revision: 1.350 $
+ * $Date: 2007/12/29 09:47:15 $
+ * $Revision: 1.351 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -705,7 +705,9 @@ void EcalBarrelMonitorClient::beginRun(const Run& r, const EventSetup& c) {
 
   run_ = r.id().run();
 
-  evt_ = 0;
+  evt_ = -1;
+
+  jevt_ = 0;
 
   if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
