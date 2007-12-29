@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/28 17:21:28 $
- * $Revision: 1.347 $
+ * $Date: 2007/12/28 20:07:54 $
+ * $Revision: 1.348 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -839,10 +839,22 @@ void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
 void EcalBarrelMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
 
+  cout << endl;
+  cout << "Standard beginLuminosityBlock() for run " << l.id().run() << endl;
+  cout << endl;
+
+  forced_update_ = true;
+  this->analyze();
+
 }
 
 void EcalBarrelMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
 
+  cout << endl;
+  cout << "Standard endLuminosityBlock() for run " << l.id().run() << endl;
+  cout << endl;
+
+  forced_update_ = true;
   this->analyze();
 
 }
