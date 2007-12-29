@@ -19,7 +19,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include "FWCore/Framework/interface/EventProcessor.h"
@@ -305,7 +304,6 @@ namespace edm {
   shared_ptr<InputSource> 
   makeInput(ParameterSet const& params,
 	    EventProcessor::CommonParams const& common,
-	    std::string const& processGUID,
 	    ProductRegistry& preg,
             ActivityRegistry& areg)
   {
@@ -325,7 +323,7 @@ namespace edm {
       // There is no module label for the unnamed input source, so 
       // just use "source".
       md.moduleLabel_ = "source";
-      md.processConfiguration_ = ProcessConfiguration(common.processName_, processGUID,
+      md.processConfiguration_ = ProcessConfiguration(common.processName_,
 				params.id(), getReleaseVersion(), getPassID());
 
       sourceSpecified = true;
@@ -551,7 +549,6 @@ namespace edm {
     schedule_(),
     esp_(),
     act_table_(),
-    processGUID_(createGlobalIdentifier()),
     state_(sInit),
     event_loop_(),
     state_lock_(),
@@ -589,7 +586,6 @@ namespace edm {
     schedule_(),
     esp_(),
     act_table_(),
-    processGUID_(createGlobalIdentifier()),
     state_(sInit),
     event_loop_(),
     state_lock_(),
@@ -627,7 +623,6 @@ namespace edm {
     schedule_(),
     esp_(),
     act_table_(),
-    processGUID_(createGlobalIdentifier()),
     state_(sInit),
     event_loop_(),
     state_lock_(),
@@ -706,10 +701,9 @@ namespace edm {
     fillEventSetupProvider(*esp_, *parameterSet, common);
     looper_ = fillLooper(*esp_, *parameterSet, common);
      
-    input_= makeInput(*parameterSet, common, processGUID_, preg_,*actReg_);
+    input_= makeInput(*parameterSet, common, preg_,*actReg_);
     schedule_ = std::auto_ptr<Schedule>
       (new Schedule(*parameterSet,
-		    processGUID_,
 		    ServiceRegistry::instance().get<TNS>(),
 		    wreg_,
 		    preg_,

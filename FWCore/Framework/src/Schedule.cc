@@ -68,17 +68,16 @@ namespace edm {
     makeInserter(ParameterSet const& proc_pset,
 		 ParameterSet const& trig_pset,
 		 std::string const& proc_name,
-		 std::string const& proc_GUID,
 		 ProductRegistry& preg,
 		 ActionTable& actions,
 		 Schedule::TrigResPtr trptr) {
 
-      WorkerParams work_args(proc_pset,trig_pset,preg,actions,proc_name,proc_GUID);
+      WorkerParams work_args(proc_pset,trig_pset,preg,actions,proc_name);
       ModuleDescription md;
       md.parameterSetID_ = trig_pset.id();
       md.moduleName_ = "TriggerResultInserter";
       md.moduleLabel_ = "TriggerResults";
-      md.processConfiguration_ = ProcessConfiguration(proc_name, proc_GUID, proc_pset.id(), getReleaseVersion(), getPassID());
+      md.processConfiguration_ = ProcessConfiguration(proc_name, proc_pset.id(), getReleaseVersion(), getPassID());
 
       std::auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,trptr));
 
@@ -114,7 +113,6 @@ namespace edm {
   // -----------------------------
 
   Schedule::Schedule(ParameterSet const& proc_pset,
-		     std::string const& processGUID,
 		     edm::service::TriggerNamesService& tns,
 		     WorkerRegistry& wreg,
 		     ProductRegistry& preg,
@@ -125,7 +123,6 @@ namespace edm {
     prod_reg_(&preg),
     act_table_(&actions),
     processName_(tns.getProcessName()),
-    processGUID_(processGUID),
     act_reg_(areg),
     state_(Ready),
     trig_name_list_(tns.getTrigPaths()),
@@ -161,7 +158,7 @@ namespace edm {
     if (hasPath) {
       // the results inserter stands alone
       results_inserter_ = makeInserter(pset_, tns.getTriggerPSet(), 
-				       processName_, processGUID_,
+				       processName_,
 				       preg, actions, results_);
       addToAllWorkers(results_inserter_.get());
     }
@@ -207,8 +204,7 @@ namespace edm {
 	  ParameterSet workersParams(proc_pset.getParameter<ParameterSet>(*itLabel));
 	  WorkerParams params(proc_pset, workersParams,
 			      *prod_reg_, *act_table_,
-			      processName_, processGUID_,
-			      getReleaseVersion(), getPassID());
+			      processName_, getReleaseVersion(), getPassID());
 	  Worker* newWorker(wreg.getWorker(params));
 	  if (dynamic_cast<ProducerWorker*>(newWorker)) {
 	    unscheduled_->addWorker(newWorker);
@@ -397,7 +393,7 @@ namespace edm {
 	  "\"\n please check spelling or remove that label from the path.";
       }
       WorkerParams params(pset_, modpset, *prod_reg_, *act_table_,
-			  processName_, processGUID_, getReleaseVersion(), getPassID());
+			  processName_, getReleaseVersion(), getPassID());
       WorkerInPath w(worker_reg_->getWorker(params), filterAction);
       tmpworkers.push_back(w);
     }

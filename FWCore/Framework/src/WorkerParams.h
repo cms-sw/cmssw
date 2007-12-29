@@ -24,26 +24,23 @@ namespace edm
   {
     WorkerParams(): 
       procPset_(0), pset_(0),reg_(0),actions_(0),
-      processName_(),processGUID_(),releaseVersion_(),passID_() { }
+      processName_(),releaseVersion_(),passID_() { }
 
     WorkerParams(ParameterSet const& procPset,
 		 ParameterSet const& pset,
 		 ProductRegistry& reg,
 		 ActionTable& actions,
 		 std::string const& processName,
-		 std::string const& processGUID,
 		 std::string releaseVersion=getReleaseVersion(),
 		 std::string passID=getPassID()):
       procPset_(&procPset),pset_(&pset),reg_(&reg),actions_(&actions),
-      processName_(processName), processGUID_(processGUID),
-      releaseVersion_(releaseVersion),passID_(passID) { }
+      processName_(processName),releaseVersion_(releaseVersion),passID_(passID) { }
 
     ParameterSet const* procPset_;
     ParameterSet const* pset_;
     ProductRegistry* reg_;
     ActionTable* actions_;
     std::string processName_;
-    std::string processGUID_;
     ReleaseVersion releaseVersion_;
     PassID passID_;
   };

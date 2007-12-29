@@ -369,7 +369,6 @@ namespace edm {
     std::auto_ptr<Schedule>                       schedule_;
     std::auto_ptr<eventsetup::EventSetupProvider> esp_;    
     ActionTable                                   act_table_;
-    std::string                                   processGUID_;
 
     volatile event_processor::State               state_;
     boost::shared_ptr<boost::thread>              event_loop_;

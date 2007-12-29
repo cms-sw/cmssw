@@ -33,7 +33,6 @@ $Id: eventprincipal_t.cppunit.cc,v 1.48 2007/10/05 21:58:17 chrjones Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 class test_ep: public CppUnit::TestFixture 
 {
@@ -103,7 +102,7 @@ test_ep::fake_single_module_process(std::string const& tag,
 					  processName);
   
   edm::ProcessConfiguration* result = 
-    new edm::ProcessConfiguration(processName, edm::createGlobalIdentifier(), processParams.id(), release, pass);
+    new edm::ProcessConfiguration(processName, processParams.id(), release, pass);
   processConfigurations_[tag] = result;
   return result;
 }
