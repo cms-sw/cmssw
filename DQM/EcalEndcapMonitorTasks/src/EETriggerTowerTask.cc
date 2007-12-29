@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/12/24 19:20:55 $
- * $Revision: 1.18 $
+ * $Date: 2007/12/28 17:32:06 $
+ * $Revision: 1.19 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -36,6 +36,9 @@ const int EETriggerTowerTask::nSM = 18;
 EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
 
   init_ = false;
+
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
@@ -86,15 +89,12 @@ void EETriggerTowerTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
-    dbe->rmdir("EcalEndcap/EETriggerTowerTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
+    dbe_->rmdir("EcalEndcap/EETriggerTowerTask");
   }
+
+  Numbers::initGeometry(c);
 
 }
 
@@ -102,21 +102,13 @@ void EETriggerTowerTask::setup(void){
 
   init_ = true;
 
+  if ( dbe_ ) {
+    // dbe_->showDirStructure();
 
-//   DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  DaqMonitorBEInterface* dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    // dbe->showDirStructure();
-
-    setup( dbe,
-	   "Real Digis",
+    setup( "Real Digis",
 	   "EcalEndcap/EETriggerTowerTask", false );
 
-    setup( dbe,
-	   "Emulated Digis",
+    setup( "Emulated Digis",
 	   "EcalEndcap/EETriggerTowerTask/Emulated", true);
   }
   else {
@@ -125,8 +117,7 @@ void EETriggerTowerTask::setup(void){
   }
 }
 
-void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
-				const char* nameext,
+void EETriggerTowerTask::setup( const char* nameext,
 				const char* folder,
 				bool emulated ) {
 
@@ -142,7 +133,7 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 
   assert(dbe);
 
-  dbe->setCurrentFolder(folder);
+  dbe_->setCurrentFolder(folder);
 
   static const unsigned namesize = 200;
 
@@ -162,36 +153,36 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
     string etMapNameSM = etMapName;
     etMapNameSM += " " + Numbers::sEE(i+1);
 
-    (*meEtMap)[i] = dbe->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
+    (*meEtMap)[i] = dbe_->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
 				50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 				50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 				256, 0, 256.);
     (*meEtMap)[i]->setAxisTitle("ix", 1);
     (*meEtMap)[i]->setAxisTitle("iy", 2);
-    dbe->tag((*meEtMap)[i], i+1);
+    dbe_->tag((*meEtMap)[i], i+1);
 
     string  fineGrainVetoNameSM = fineGrainVetoName;
     fineGrainVetoNameSM += " " + Numbers::sEE(i+1);
 
-    (*meVeto)[i] = dbe->book3D(fineGrainVetoNameSM.c_str(),
+    (*meVeto)[i] = dbe_->book3D(fineGrainVetoNameSM.c_str(),
 			       fineGrainVetoNameSM.c_str(),
 			       50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 			       50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 			       2, 0., 2.);
     (*meVeto)[i]->setAxisTitle("ix", 1);
     (*meVeto)[i]->setAxisTitle("iy", 2);
-    dbe->tag((*meVeto)[i], i+1);
+    dbe_->tag((*meVeto)[i], i+1);
 
     string  flagsNameSM = flagsName;
     flagsNameSM += " " + Numbers::sEE(i+1);
 
-    (*meFlags)[i] = dbe->book3D(flagsNameSM.c_str(), flagsNameSM.c_str(),
+    (*meFlags)[i] = dbe_->book3D(flagsNameSM.c_str(), flagsNameSM.c_str(),
 				50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 				50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 				8, 0., 8.);
     (*meFlags)[i]->setAxisTitle("ix", 1);
     (*meFlags)[i]->setAxisTitle("iy", 2);
-    dbe->tag((*meFlags)[i], i+1);
+    dbe_->tag((*meFlags)[i], i+1);
 
 
     if(!emulated) {
@@ -199,37 +190,37 @@ void EETriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
       string  emulErrorNameSM = emulErrorName;
       emulErrorNameSM += " " + Numbers::sEE(i+1);
 
-      meEmulError_[i] = dbe->book2D(emulErrorNameSM.c_str(),
+      meEmulError_[i] = dbe_->book2D(emulErrorNameSM.c_str(),
 				    emulErrorNameSM.c_str(),
 				    50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 				    50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50. );
       meEmulError_[i]->setAxisTitle("ix", 1);
       meEmulError_[i]->setAxisTitle("iy", 2);
-      dbe->tag(meEmulError_[i], i+1);
+      dbe_->tag(meEmulError_[i], i+1);
 
       string  emulFineGrainVetoErrorNameSM = emulFineGrainVetoErrorName;
       emulFineGrainVetoErrorNameSM += " " + Numbers::sEE(i+1);
 
-      meVetoEmulError_[i] = dbe->book3D(emulFineGrainVetoErrorNameSM.c_str(),
+      meVetoEmulError_[i] = dbe_->book3D(emulFineGrainVetoErrorNameSM.c_str(),
 					  emulFineGrainVetoErrorNameSM.c_str(),
 					  50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 					  50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 					  8, 0., 8.);
       meVetoEmulError_[i]->setAxisTitle("ix", 1);
       meVetoEmulError_[i]->setAxisTitle("iy", 2);
-      dbe->tag(meVetoEmulError_[i], i+1);
+      dbe_->tag(meVetoEmulError_[i], i+1);
 
       string  emulFlagErrorNameSM = emulFlagErrorName;
       emulFlagErrorNameSM += " " + Numbers::sEE(i+1);
 
-      meFlagEmulError_[i] = dbe->book3D(emulFlagErrorNameSM.c_str(),
+      meFlagEmulError_[i] = dbe_->book3D(emulFlagErrorNameSM.c_str(),
 					  emulFlagErrorNameSM.c_str(),
 					  50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 					  50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 					  8, 0., 8.);
       meFlagEmulError_[i]->setAxisTitle("ix", 1);
       meFlagEmulError_[i]->setAxisTitle("iy", 2);
-      dbe->tag(meFlagEmulError_[i], i+1);
+      dbe_->tag(meFlagEmulError_[i], i+1);
 
     }
   }
@@ -240,16 +231,11 @@ void EETriggerTowerTask::cleanup(void) {
 
   if ( ! enableCleanup_ ) return;
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( dbe_ ) {
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+    if( !outputFile_.empty() ) dbe_->save( outputFile_.c_str() );
 
-  if ( dbe ) {
-
-    if( !outputFile_.empty() ) dbe->save( outputFile_.c_str() );
-
-    dbe->rmdir( "EcalEndcap/EETriggerTowerTask" );
+    dbe_->rmdir( "EcalEndcap/EETriggerTowerTask" );
 
   }
 
@@ -266,8 +252,6 @@ void EETriggerTowerTask::endJob(void){
 }
 
 void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
-
-  Numbers::initGeometry(c);
 
   if ( ! init_ ) this->setup();
 

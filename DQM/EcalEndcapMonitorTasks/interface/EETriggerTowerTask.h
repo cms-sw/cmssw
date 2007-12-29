@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2007/11/13 13:20:52 $
- * $Revision: 1.6 $
+ * $Date: 2007/12/28 17:32:05 $
+ * $Revision: 1.7 $
  * \author C. Bernet
  *
 */
@@ -112,6 +112,7 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
 
   /// not sure this is necessary
   bool init_;
+  DaqMonitorBEInterface* dbe_;
 
   /// to find the input collection of real digis 
   edm::InputTag  realCollection_;
