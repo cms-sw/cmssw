@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2007/12/29 13:33:34 $
- * $Revision: 1.8 $
+ * $Date: 2007/12/29 13:35:22 $
+ * $Revision: 1.9 $
  * \author C. Bernet
  *
 */
@@ -109,8 +109,10 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
   array1 meVetoEmulError_;
   array1 meFlagEmulError_;
 
-  /// not sure this is necessary
+  /// init flag
   bool init_;
+
+  /// DQM back-end interface
   DaqMonitorBEInterface* dbe_;
 
   /// to find the input collection of real digis 
