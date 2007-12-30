@@ -61,6 +61,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 	     mode_=="TemperatureCalibration"||
 	     mode_=="ThresholdCalDelayFIFO1"||
 	     mode_=="2DEfficiencyScan"||
+	     mode_=="CalDelCalibration"||
              mode_=="ThresholdCalDelay");
       in >>tmp;
     } else {
