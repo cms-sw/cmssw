@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/12/29 14:06:12 $
- * $Revision: 1.356 $
+ * $Date: 2007/12/29 14:53:44 $
+ * $Revision: 1.357 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -175,16 +175,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " cloneME switch is ON" << endl;
   } else {
     cout << " cloneME switch is OFF" << endl;
-  }
-
-  // enableExit switch
-
-  enableExit_ = ps.getUntrackedParameter<bool>("enableExit", false);
-
-  if ( enableExit_ ) {
-    cout << " enableExit switch is ON" << endl;
-  } else {
-    cout << " enableExit switch is OFF" << endl;
   }
 
   // verbosity switch
@@ -604,8 +594,6 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
   last_run_ = -1;
 
   subrun_  = -1;
-
-  unknowns_ = 0;
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: beginJob" << endl;
 
@@ -1454,24 +1442,6 @@ void EcalBarrelMonitorClient::analyze(void){
   }
 
   // BEGIN: run-time fixes for missing state transitions
-
-  // too many 'unknown' states
-
-  if ( status_ == "unknown" ) {
-
-    unknowns_++;
-
-    if ( unknowns_ >= 50 ) {
-
-      cout << endl;
-      cout << "Too many 'unknown' states ..." << endl;
-      cout << endl;
-
-      if ( enableExit_ ) throw exception();
-
-    }
-
-  }
 
   // run number transition
 

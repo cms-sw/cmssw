@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/12/28 17:21:27 $
- * $Revision: 1.92 $
+ * $Date: 2007/12/29 12:58:55 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -199,11 +199,7 @@ bool forced_status_;
  
 bool forced_update_;
 
-bool enableExit_;
- 
 int last_run_;
- 
-int unknowns_;
  
 TH1F* h_;
 
