@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/12/27 16:23:25 $
- * $Revision: 1.98 $
+ * $Date: 2007/12/28 17:21:28 $
+ * $Revision: 1.99 $
  * \author G. Della Ricca
  *
 */
@@ -509,8 +509,7 @@ void EBSummaryClient::analyze(void){
               }
 
               meIntegrity_->setBinContent( ipx, iex, xval );
-
-	      if( xval == 0 ) meIntegrityErr_->Fill( ism );
+              if( xval == 0 ) meIntegrityErr_->Fill( ism );
 
             }
 
@@ -532,7 +531,7 @@ void EBSummaryClient::analyze(void){
               }
 
               meOccupancy_->setBinContent( ipx, iex, xval );
-	      if ( xval != 0 ) meOccupancy1D_->Fill( ism, xval );
+              if ( xval != 0 ) meOccupancy1D_->Fill( ism, xval );
 
             }
 
@@ -558,8 +557,7 @@ void EBSummaryClient::analyze(void){
               }
 
               mePedestalOnline_->setBinContent( ipx, iex, xval );
-	      
-	      if ( xval == 0 ) mePedestalOnlineErr_->Fill( ism ); 
+              if ( xval == 0 ) mePedestalOnlineErr_->Fill( ism ); 
 
             }
 
@@ -586,7 +584,7 @@ void EBSummaryClient::analyze(void){
 
               if ( me->getEntries() != 0 ) {
                 meLaserL1_->setBinContent( ipx, iex, xval );
-		if ( xval == 0 ) meLaserL1Err_->Fill( ism );
+                if ( xval == 0 ) meLaserL1Err_->Fill( ism );
               }
 
             }
@@ -640,7 +638,7 @@ void EBSummaryClient::analyze(void){
 
               if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
                 mePedestal_->setBinContent( ipx, iex, xval );
-		if ( xval == 0 ) mePedestalErr_->Fill( ism );
+                if ( xval == 0 ) mePedestalErr_->Fill( ism );
               }
 
             }
@@ -694,7 +692,7 @@ void EBSummaryClient::analyze(void){
 
               if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
                 meTestPulse_->setBinContent( ipx, iex, xval );
-		if( xval == 0 ) meTestPulseErr_->Fill( ism );
+                if( xval == 0 ) meTestPulseErr_->Fill( ism );
               }
 
             }
@@ -864,7 +862,7 @@ void EBSummaryClient::analyze(void){
 
               if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
                 mePedestalPN_->setBinContent( ipx, iex, xval );
-		if( xval == 0 ) mePedestalPNErr_->Fill( ism );
+                if( xval == 0 ) mePedestalPNErr_->Fill( ism );
               }
 
             }
@@ -917,7 +915,7 @@ void EBSummaryClient::analyze(void){
 
               if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
                 meTestPulsePN_->setBinContent( ipx, iex, xval );
-		if ( xval == 0 ) meTestPulsePNErr_->Fill ( ism );
+                if ( xval == 0 ) meTestPulsePNErr_->Fill ( ism );
               }
 
             }
@@ -945,7 +943,7 @@ void EBSummaryClient::analyze(void){
 
               if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
                 meLaserL1PN_->setBinContent( ipx, iex, xval );
-		if ( xval == 0 ) meLaserL1PNErr_->Fill( ism );
+                if ( xval == 0 ) meLaserL1PNErr_->Fill( ism );
               }
 
             }
@@ -990,8 +988,8 @@ void EBSummaryClient::analyze(void){
 
         meGlobalSummary_->setBinContent( ipx, iex, xval );
 
-	if ( xval > -1 ) ++nValidChannels;
-	if ( xval == 0 ) ++nGlobalErrors;
+        if ( xval > -1 ) ++nValidChannels;
+        if ( xval == 0 ) ++nGlobalErrors;
 
       }
 
