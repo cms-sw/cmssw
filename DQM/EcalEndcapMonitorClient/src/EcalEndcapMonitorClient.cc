@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/12/29 14:53:44 $
- * $Revision: 1.116 $
+ * $Date: 2007/12/30 08:34:36 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -818,10 +818,10 @@ void EcalEndcapMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
   if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
-    if ( ! mergeRuns_ ) {
+    forced_update_ = true;
+    this->analyze();
 
-      forced_update_ = true;
-      this->analyze();
+    if ( ! mergeRuns_ ) {
 
       if ( begin_run_ && ! end_run_ ) {
 
