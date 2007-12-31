@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootDelayedReader.cc,v 1.16 2007/10/06 04:06:42 wmtan Exp $
+$Id: RootDelayedReader.cc,v 1.17 2007/10/09 07:10:40 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
@@ -7,6 +7,7 @@ $Id: RootDelayedReader.cc,v 1.16 2007/10/06 04:06:42 wmtan Exp $
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "DataFormats/Common/interface/EDProduct.h"
+#include "TROOT.h"
 #include "TClass.h"
 #include "TBranch.h"
 

@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.33 2007/12/07 23:23:11 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.34 2007/12/28 20:07:32 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -26,6 +26,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"
 #include "TClass.h"
