@@ -3,8 +3,8 @@
  *  Implements a chamber in the context of Drift Tube Survey Measurements  
  *  and calculates displacements and rotations for it.
  *
- *  $Date: 2007/04/17 07:45:02 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/06 01:53:28 $
+ *  $Revision: 1.3 $
  *  \author Pablo Martinez Ruiz del Arbol
  */
 
@@ -14,7 +14,7 @@
 
 
 #include "TMatrixD.h" 
-
+#include <vector>
 
 class DTSurveyChamber {
   
