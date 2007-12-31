@@ -16,6 +16,6 @@ void cond::ObjectRelationalMappingUtility::listMappings( std::vector<std::string
 bool cond::ObjectRelationalMappingUtility::existsMapping(const std::string& version){
   return m_mappingutil->existsMapping(version);
 }
-void cond::ObjectRelationalMappingUtility::removeMapping(const std::string& version, bool removeDataTables){
-  m_mappingutil->removeMapping(version,removeDataTables);
+void cond::ObjectRelationalMappingUtility::removeMapping(const std::string& version){
+  m_mappingutil->removeMapping(version);
 }

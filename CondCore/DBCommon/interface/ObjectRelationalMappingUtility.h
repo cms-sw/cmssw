@@ -21,8 +21,8 @@ namespace cond{
 
     bool existsMapping(const std::string& version);
 
-    void removeMapping(const std::string& version, 
-		       bool removeDataTables=false);
+    void removeMapping(const std::string& version);
+
   private:
     pool::ObjectRelationalMappingUtilities* m_mappingutil;
   };
