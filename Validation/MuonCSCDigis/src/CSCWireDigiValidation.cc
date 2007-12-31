@@ -38,9 +38,8 @@ void CSCWireDigiValidation::analyze(const edm::Event&e, const edm::EventSetup&)
 {
   edm::Handle<CSCWireDigiCollection> wires;
 
-  try {
-    e.getByLabel(theInputTag, wires);
-  } catch (...) {
+  e.getByLabel(theInputTag, wires);
+  if (!wires.isValid()) {
     edm::LogError("CSCDigiDump") << "Cannot get wires by label " << theInputTag.encode();
   }
 

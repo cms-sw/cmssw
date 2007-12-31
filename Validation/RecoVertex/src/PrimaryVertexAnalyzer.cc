@@ -450,7 +450,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
   Handle<HepMCProduct> evtMC;
   /* 
  try{
-    iEvent.getByLabel("VtxSmeared",evtMC);
+     iEvent.getByLabel("VtxSmeared",evtMC);
     MC=true;
     if(verbose_){
       std::cout << "VtxSmeared HepMCProduct found"<< std::endl;
@@ -472,18 +472,18 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
     }
   }
  */
-      try{
-      iEvent.getByLabel("source",evtMC);
-      if(verbose_){
-        std::cout << "source HepMCProduct found"<< std::endl;
-      }
-      MC=true;
-    }catch(const Exception&) {
-      MC=false;
-      if(verbose_){
-        std::cout << "no HepMCProduct found"<< std::endl;
-      }
+  iEvent.getByLabel("source",evtMC);
+  if (!evtMC.isValid()) {
+    MC=false;
+    if(verbose_){
+      std::cout << "no HepMCProduct found"<< std::endl;
     }
+  } else {
+    if(verbose_){
+      std::cout << "source HepMCProduct found"<< std::endl;
+    }
+    MC=true;
+  }
 
   /*
   if(evtMC->GetEvent()->signal_process_vertex()){

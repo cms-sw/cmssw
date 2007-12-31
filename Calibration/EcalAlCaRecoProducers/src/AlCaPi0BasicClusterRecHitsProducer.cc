@@ -56,9 +56,8 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
 
   Handle<EBRecHitCollection> barrelRecHitsHandle;
 
-  try {
-    iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
-  } catch ( std::exception& ex ) {
+  iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
+  if (!barrelRecHitsHandle.isValid()) {
     LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product!" << std::endl;
   }
 

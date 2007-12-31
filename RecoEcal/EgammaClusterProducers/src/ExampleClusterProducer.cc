@@ -42,9 +42,8 @@ ExampleClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   Handle< EcalRecHitCollection > pRecHits;
 
   // fetch the product
-  try {
-    evt.getByLabel( hitProducer_, hitCollection_, pRecHits);
-  } catch ( cms::Exception& ex ) {
+  evt.getByLabel( hitProducer_, hitCollection_, pRecHits);
+  if (!pRecHits.isValid()) {
     edm::LogError("ExampleClusterProducerError") << "Error! can't get the product " << hitCollection_.c_str() ;
   }
 

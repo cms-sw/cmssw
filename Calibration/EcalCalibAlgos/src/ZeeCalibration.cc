@@ -610,18 +610,16 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   
   // Get EBRecHits
   Handle<EBRecHitCollection> phits;
-  try {
-    iEvent.getByLabel( rechitProducer_, rechitCollection_, phits);
-  } catch (std::exception& ex) {
+  iEvent.getByLabel( rechitProducer_, rechitCollection_, phits);
+  if (!phits.isValid()) {
     std::cerr << "Error! can't get the product EBRecHitCollection " << std::endl;
   }
   const EBRecHitCollection* hits = phits.product(); // get a ptr to the product
 
   // Get EERecHits
   Handle<EERecHitCollection> ephits;
-  try {
-    iEvent.getByLabel( erechitProducer_, erechitCollection_, ephits);
-  } catch (std::exception& ex) {
+  iEvent.getByLabel( erechitProducer_, erechitCollection_, ephits);
+  if (!ephits.isValid()) {
     std::cerr << "Error! can't get the product EERecHitCollection " << std::endl;
   }
   const EERecHitCollection* ehits = ephits.product(); // get a ptr to the product
@@ -629,9 +627,8 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   
   //Get Hybrid SuperClusters
   Handle<reco::SuperClusterCollection> pSuperClusters;
-  try {
-    iEvent.getByLabel(scProducer_, scCollection_, pSuperClusters);
-  } catch (std::exception& ex ) {
+  iEvent.getByLabel(scProducer_, scCollection_, pSuperClusters);
+  if (!pSuperClusters.isValid()) {
     std::cerr << "Error! can't get the product SuperClusterCollection "<< std::endl;
   }
   const reco::SuperClusterCollection* scCollection = pSuperClusters.product();
@@ -646,9 +643,8 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   
   //Get Island SuperClusters
   Handle<reco::SuperClusterCollection> pIslandSuperClusters;
-  try {
-    iEvent.getByLabel(scIslandProducer_, scIslandCollection_, pIslandSuperClusters);
-  } catch (std::exception& ex ) {
+  iEvent.getByLabel(scIslandProducer_, scIslandCollection_, pIslandSuperClusters);
+  if (!pIslandSuperClusters.isValid()) {
     std::cerr << "Error! can't get the product IslandSuperClusterCollection "<< std::endl;
   }
   const reco::SuperClusterCollection* scIslandCollection = pIslandSuperClusters.product();
@@ -661,9 +657,8 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // Get Electrons
   Handle<reco::GsfElectronCollection> pElectrons;
-  try {
-    iEvent.getByLabel(electronProducer_, electronCollection_, pElectrons);
-  } catch (std::exception& ex ) {
+  iEvent.getByLabel(electronProducer_, electronCollection_, pElectrons);
+  if (!pElectrons.isValid()) {
     std::cerr << "Error! can't get the product ElectronCollection "<< std::endl;
   }
   const reco::GsfElectronCollection* electronCollection = pElectrons.product();

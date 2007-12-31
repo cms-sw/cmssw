@@ -433,14 +433,13 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   if(imc != 0) { 
 
   edm::Handle<edm::HepMCProduct> evtMC;
-  try{
-    //  ev.getByLabel("VtxSmeared",evtMC);
-    ev.getByLabel("source",evtMC);
+  //  ev.getByLabel("VtxSmeared",evtMC);
+  ev.getByLabel("source",evtMC);
+  if (!evtMC.isValid()) {
+    std::cout << "no HepMCProduct found" << std::endl;    
+  } else {
     MC=true;
     //    std::cout << "*** source HepMCProduct found"<< std::endl;
-  }
-  catch( char * str ) {
-    std::cout << "no HepMCProduct found"<<str<< std::endl;    
   }  
 
   // MC particle with highest pt is taken as a direction reference  

@@ -126,17 +126,11 @@ void SuperClusterProducer::produceSuperclustersForECALPart(edm::Event& evt,
 void SuperClusterProducer::getClusterRefVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_, reco::BasicClusterRefVector *clusterRefVector_p)
 {  
   edm::Handle<reco::BasicClusterCollection> bccHandle;
-  try
+
+  evt.getByLabel(clusterProducer_, clusterCollection_, bccHandle);
+  if (!(bccHandle.isValid()))
     {
-      evt.getByLabel(clusterProducer_, clusterCollection_, bccHandle);
-      if (!(bccHandle.isValid()))
-	{
-	  edm::LogError("SuperClusterProducerError") << "could not get a handle on the BasicCluster Collection!";
-	  clusterRefVector_p = 0;
-	}
-    } 
-  catch ( cms::Exception& ex )
-    {
+      edm::LogError("SuperClusterProducerError") << "could not get a handle on the BasicCluster Collection!";
       edm::LogError("SuperClusterProducerError") << "Error! can't get the product " << clusterCollection_.c_str(); 
       clusterRefVector_p = 0;
     }

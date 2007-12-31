@@ -64,12 +64,12 @@ void EcalTBHodoscopeRawInfoDumper::analyze(const edm::Event& e, const edm::Event
   // Get input
    edm::Handle<EcalTBHodoscopeRawInfo> ecalRawHodoscope;  
    const EcalTBHodoscopeRawInfo* hodoscopeRawInfo = 0;
-   try {
-     //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
-     e.getByLabel( rawInfoProducer_, ecalRawHodoscope);
-     hodoscopeRawInfo = ecalRawHodoscope.product();
-   } catch ( std::exception& ex ) {
+   //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
+   e.getByLabel( rawInfoProducer_, ecalRawHodoscope);
+   if (!ecalRawHodoscope.isValid()) {
      edm::LogError("EcalTBHodoscopeRecInfoError") << "Error! can't get the product " << rawInfoCollection_.c_str() ;
+   } else {
+     hodoscopeRawInfo = ecalRawHodoscope.product();
    }
 
    if (hodoscopeRawInfo)

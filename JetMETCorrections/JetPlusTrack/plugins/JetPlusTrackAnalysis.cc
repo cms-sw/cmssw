@@ -180,79 +180,89 @@ void JetPlusTrackAnalysis::analyze(
 //  Generated jet
    NumGenJets = 0;
    int icode = -1;
-     try {
-        edm::Handle<reco::GenJetCollection> jets;
-        iEvent.getByLabel(mInputJetsGen, jets);
-       reco::GenJetCollection::const_iterator jet = jets->begin ();
-       if(jets->size() > 0 )
+   {
+   edm::Handle<reco::GenJetCollection> jets;
+   iEvent.getByLabel(mInputJetsGen, jets);
+   if (!jets.isValid()) {
+     // can't find it!
+     if (!allowMissingInputs_) {
+       *jets;  // will throw the proper exception
+     }
+   } else {
+     reco::GenJetCollection::const_iterator jet = jets->begin ();
+     if(jets->size() > 0 )
        {
          for (; jet != jets->end (); jet++)
-         {
-            if( NumGenJets < 4 )
-            {
-// Find the parton and associated jet
-              double dphi1 = fabs((*jet).phi()-phi[0]);
-              if(dphi1 > 4.*atan(1.)) dphi1 = 8.*atan(1.) - dphi1;
-              double dphi2 = fabs((*jet).phi()-phi[1]);
-              if(dphi2 > 4.*atan(1.)) dphi2 = 8.*atan(1.) - dphi2;
-              double deta1 = (*jet).eta()-eta[0];
-              double deta2 = (*jet).eta()-eta[1];
-              double dr1 = sqrt(dphi1*dphi1+deta1*deta1);
-              double dr2 = sqrt(dphi2*dphi2+deta2*deta2); 
-              if(dr1 < 0.5 || dr2 < 0.5) {
-              JetGenEt[NumGenJets] = (*jet).et();
-              JetGenEta[NumGenJets] = (*jet).eta();
-              JetGenPhi[NumGenJets] = (*jet).phi();
-              cout<<" Associated jet: Phi, eta gen "<< JetGenPhi[NumGenJets]<<" "<< JetGenEta[NumGenJets]<<endl;
-
-              if(dr1 < 0.5) icode = 0;
-              if(dr2 < 0.5) icode = 1;
-              JetGenCode[NumGenJets] = icode;
-    cout<<" Gen jet "<<NumGenJets<<" "<<JetGenEt[NumGenJets]<<" "<<JetGenEta[NumGenJets]<<" "<<JetGenPhi[NumGenJets]<<" "<<JetGenCode[NumGenJets]<<endl;
-              NumGenJets++;
-             } 
-           }
-         }
+	   {
+	     if( NumGenJets < 4 )
+	       {
+		 // Find the parton and associated jet
+		 double dphi1 = fabs((*jet).phi()-phi[0]);
+		 if(dphi1 > 4.*atan(1.)) dphi1 = 8.*atan(1.) - dphi1;
+		 double dphi2 = fabs((*jet).phi()-phi[1]);
+		 if(dphi2 > 4.*atan(1.)) dphi2 = 8.*atan(1.) - dphi2;
+		 double deta1 = (*jet).eta()-eta[0];
+		 double deta2 = (*jet).eta()-eta[1];
+		 double dr1 = sqrt(dphi1*dphi1+deta1*deta1);
+		 double dr2 = sqrt(dphi2*dphi2+deta2*deta2); 
+		 if(dr1 < 0.5 || dr2 < 0.5) {
+		   JetGenEt[NumGenJets] = (*jet).et();
+		   JetGenEta[NumGenJets] = (*jet).eta();
+		   JetGenPhi[NumGenJets] = (*jet).phi();
+		   cout<<" Associated jet: Phi, eta gen "<< JetGenPhi[NumGenJets]<<" "<< JetGenEta[NumGenJets]<<endl;
+		   
+		   if(dr1 < 0.5) icode = 0;
+		   if(dr2 < 0.5) icode = 1;
+		   JetGenCode[NumGenJets] = icode;
+		   cout<<" Gen jet "<<NumGenJets<<" "<<JetGenEt[NumGenJets]<<" "<<JetGenEta[NumGenJets]<<" "<<JetGenPhi[NumGenJets]<<" "<<JetGenCode[NumGenJets]<<endl;
+		   NumGenJets++;
+		 } 
+	       }
+	   }
        }
-     } catch (std::exception& e) { // can't find it!
-       if (!allowMissingInputs_) throw e;
-     }
-
+   }
+   }
 
 // CaloJets
 
     NumRecoJetsCaloTower = 0;
-     try {
-        edm::Handle<reco::CaloJetCollection> jets;
-        iEvent.getByLabel(mInputJetsCaloTower, jets);
-        reco::CaloJetCollection::const_iterator jet = jets->begin ();
+    {
+    edm::Handle<reco::CaloJetCollection> jets;
+    iEvent.getByLabel(mInputJetsCaloTower, jets);
+    if (!jets.isValid()) {
+      // can't find it!
+      if (!allowMissingInputs_) {cout<<"CaloTowers are missed "<<endl; 
+	*jets;  // will throw the proper exception
+      }
+    } else {
+      reco::CaloJetCollection::const_iterator jet = jets->begin ();
+      
+      cout<<" Size of jets "<<jets->size()<<endl;
+      
+      if(jets->size() > 0 )
+	{
+	  for (; jet != jets->end (); jet++)
+	    {
+	      
+	      if( NumRecoJetsCaloTower < 4 )
+		{
+		  
+		  // Association with gen jet
+		  
+		  JetRecoEtCaloTower[NumRecoJetsCaloTower] = (*jet).et();
+		  JetRecoEtaCaloTower[NumRecoJetsCaloTower] = (*jet).eta();
+		  JetRecoPhiCaloTower[NumRecoJetsCaloTower] = (*jet).phi();
+		  cout<<" Phi, eta gen "<< JetRecoPhiCaloTower[NumRecoJetsCaloTower]<<" "<< JetRecoEtaCaloTower[NumRecoJetsCaloTower]<<endl;
+		  JetRecoGenRecType[NumRecoJetsCaloTower] = -1;
+		  JetRecoGenPartonType[NumRecoJetsCaloTower] = -1;
+		  NumRecoJetsCaloTower++;
+		  
+		}
+	    }
+	}
+    }
+    }
 
-        cout<<" Size of jets "<<jets->size()<<endl;
-
-       if(jets->size() > 0 )
-       {
-         for (; jet != jets->end (); jet++)
-         {
-
-            if( NumRecoJetsCaloTower < 4 )
-            {
-
-// Association with gen jet
-
-             JetRecoEtCaloTower[NumRecoJetsCaloTower] = (*jet).et();
-             JetRecoEtaCaloTower[NumRecoJetsCaloTower] = (*jet).eta();
-             JetRecoPhiCaloTower[NumRecoJetsCaloTower] = (*jet).phi();
-           cout<<" Phi, eta gen "<< JetRecoPhiCaloTower[NumRecoJetsCaloTower]<<" "<< JetRecoEtaCaloTower[NumRecoJetsCaloTower]<<endl;
-             JetRecoGenRecType[NumRecoJetsCaloTower] = -1;
-             JetRecoGenPartonType[NumRecoJetsCaloTower] = -1;
-             NumRecoJetsCaloTower++;
-
-            }
-         }
-       }
-     } catch (std::exception& e) { // can't find it!
-       if (!allowMissingInputs_) {cout<<"CaloTowers are missed "<<endl; throw e;}
-     }
      if( NumRecoJetsCaloTower > 0 && NumGenJets > 0 )
      {
        for(int iii=0; iii<NumRecoJetsCaloTower; iii++)
@@ -273,34 +283,36 @@ void JetPlusTrackAnalysis::analyze(
 
 // JetPlusTrack correction
      NumRecoJetsCorrected = 0;
-     try {
-        edm::Handle<reco::CaloJetCollection> jets;
-        iEvent.getByLabel(mInputJetsCorrected, jets);
-        reco::CaloJetCollection::const_iterator jet = jets->begin ();
-
-        cout<<" Size of jets "<<jets->size()<<endl;
-       if(jets->size() > 0 )
-       {
-         for (; jet != jets->end (); jet++)
-         {
-            if( NumRecoJetsCorrected < 4 )
-            {
-             JetRecoEtCorrected[NumRecoJetsCorrected] = (*jet).et();
-             JetRecoEtaCorrected[NumRecoJetsCorrected] = (*jet).eta();
-             JetRecoPhiCorrected[NumRecoJetsCorrected] = (*jet).phi();
-
-             if( JetRecoGenRecType[NumRecoJetsCorrected] > -1 )cout<<" Calo jet "<<JetRecoEtCaloTower[NumRecoJetsCorrected]<<" Cor "<<JetRecoEtCorrected[NumRecoJetsCorrected]<<" Gen "<<JetGenEt[NumRecoJetsCorrected]<<endl;
-
-             NumRecoJetsCorrected++;
-
-            }
-         }
+     {
+     edm::Handle<reco::CaloJetCollection> jets;
+     iEvent.getByLabel(mInputJetsCorrected, jets);
+     if (!jets.isValid()) {
+       // can't find it!
+       if (!allowMissingInputs_) {cout<<"JetPlusTrack CaloTowers are missed "<<endl; 
+	 *jets;  // will throw the proper exception
        }
+     } else {
+       reco::CaloJetCollection::const_iterator jet = jets->begin ();
 
-      } catch (std::exception& e) { // can't find it!
-       if (!allowMissingInputs_) {cout<<"JetPlusTrack CaloTowers are missed "<<endl; throw e;}
-      }
-     
+       cout<<" Size of jets "<<jets->size()<<endl;
+       if(jets->size() > 0 )
+	 {
+	   for (; jet != jets->end (); jet++)
+	     {
+	       if( NumRecoJetsCorrected < 4 )
+		 {
+		   JetRecoEtCorrected[NumRecoJetsCorrected] = (*jet).et();
+		   JetRecoEtaCorrected[NumRecoJetsCorrected] = (*jet).eta();
+		   JetRecoPhiCorrected[NumRecoJetsCorrected] = (*jet).phi();
+		   
+		   if( JetRecoGenRecType[NumRecoJetsCorrected] > -1 )cout<<" Calo jet "<<JetRecoEtCaloTower[NumRecoJetsCorrected]<<" Cor "<<JetRecoEtCorrected[NumRecoJetsCorrected]<<" Gen "<<JetGenEt[NumRecoJetsCorrected]<<endl;
+		   
+		   NumRecoJetsCorrected++;
+		 }
+	     }
+	 }
+     }
+     }
 
 
 // CaloTowers from RecHits
@@ -316,84 +328,90 @@ void JetPlusTrackAnalysis::analyze(
     JetRecoEtRecHit[jjj] = 0.;
 
     for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
-    try {
-
+      {
       edm::Handle<EcalRecHitCollection> ec;
       iEvent.getByLabel(*i,ec);
-
-// EcalBarrel = 1, EcalEndcap = 2
-       for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
-                                                recHit != (*ec).end(); ++recHit)
-       {
-
-         GlobalPoint pos = geo->getPosition(recHit->detid());
-         double deta = pos.eta() - JetRecoEtaCaloTower[jjj];
-         double dphi = fabs(pos.phi() - JetRecoPhiCaloTower[jjj]); 
-         if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-         double dr = sqrt(dphi*dphi + deta*deta);
-         double dphi_empty = fabs(pos.phi()+4.*atan(1.) - JetRecoPhiCaloTower[jjj]);
-         if(dphi_empty > 4.*atan(1.)) dphi_empty = 8.*atan(1.) - dphi_empty;
-         double dr_empty = sqrt(dphi_empty*dphi_empty + deta*deta);
-
-
-         if(dr<mCone)
-         {
-//       cout<<" Ecal digis "<<jjj<<" "<<JetRecoEtCaloTower[jjj]<<" "<<JetRecoEtaCaloTower[jjj]<<" "<<JetRecoPhiCaloTower[jjj]<<" "<<(*recHit).energy()<<endl;
-//       cout<<" Ecal detid "<<pos.eta()<<" "<<pos.phi()<<" "<<dr<<" JetRecoEtRecHit[jjj]  "<<JetRecoEtRecHit[jjj]<<endl;
+      if (!ec.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) {cout<<" Ecal rechits are missed "<<endl; 
+	  *ec;  // will throw the proper exception
+	}
+      } else {
+	// EcalBarrel = 1, EcalEndcap = 2
+	for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
+	    recHit != (*ec).end(); ++recHit)
+	  {
+	    
+	    GlobalPoint pos = geo->getPosition(recHit->detid());
+	    double deta = pos.eta() - JetRecoEtaCaloTower[jjj];
+	    double dphi = fabs(pos.phi() - JetRecoPhiCaloTower[jjj]); 
+	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	    double dr = sqrt(dphi*dphi + deta*deta);
+	    double dphi_empty = fabs(pos.phi()+4.*atan(1.) - JetRecoPhiCaloTower[jjj]);
+	    if(dphi_empty > 4.*atan(1.)) dphi_empty = 8.*atan(1.) - dphi_empty;
+	    double dr_empty = sqrt(dphi_empty*dphi_empty + deta*deta);
+	    
+	    
+	    if(dr<mCone)
+	      {
+		//       cout<<" Ecal digis "<<jjj<<" "<<JetRecoEtCaloTower[jjj]<<" "<<JetRecoEtaCaloTower[jjj]<<" "<<JetRecoPhiCaloTower[jjj]<<" "<<(*recHit).energy()<<endl;
+		//       cout<<" Ecal detid "<<pos.eta()<<" "<<pos.phi()<<" "<<dr<<" JetRecoEtRecHit[jjj]  "<<JetRecoEtRecHit[jjj]<<endl;
             JetRecoEtRecHit[jjj] = JetRecoEtRecHit[jjj] + (*recHit).energy();
-//            cout<<" New Ecal energy "<<(*recHit).energy()<<endl;
-         }
-         if(dr_empty<mCone)
-         {
-         empty_jet_energy_ecal = empty_jet_energy_ecal + (*recHit).energy();
-         
-         }
-        }
-
-    } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) {cout<<" Ecal rechits are missed "<<endl; throw e;}
-    }
-     iecal++;
+	    //            cout<<" New Ecal energy "<<(*recHit).energy()<<endl;
+	      }
+	    if(dr_empty<mCone)
+	      {
+		empty_jet_energy_ecal = empty_jet_energy_ecal + (*recHit).energy();         
+	      }
+	  }
+      }
+      }
+      iecal++;
     }
 //        cout<<" Additional ECAL "<<jjj<<" "<<JetRecoEtRecHit[jjj]<<" Eta "<<JetRecoEtaCaloTower[jjj]<<endl;
    }
 // Hcal Barrel and endcap for isolation
    double empty_jet_energy_hcal = 0.;
-    try {
-      edm::Handle<HBHERecHitCollection> hbhe;
-      iEvent.getByLabel(hbhelabel_,hbhe);
-     for(int jjj=0; jjj<NumRecoJetsCaloTower; jjj++)
-     {
-
-      for(HBHERecHitCollection::const_iterator hbheItr = (*hbhe).begin();
-                                              hbheItr != (*hbhe).end(); ++hbheItr)
-      {
-        DetId id = (hbheItr)->detid();
-        GlobalPoint pos = geo->getPosition(hbheItr->detid());
-         double deta = pos.eta() - JetRecoEtaCaloTower[jjj];
-         double dphi = fabs(pos.phi() - JetRecoPhiCaloTower[jjj]);
-         if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-         double dr = sqrt(dphi*dphi + deta*deta);
-         double dphi_empty = fabs(pos.phi()+4.*atan(1.) - JetRecoPhiCaloTower[jjj]);
-         if(dphi_empty > 4.*atan(1.)) dphi_empty = 8.*atan(1.) - dphi_empty;
-         double dr_empty = sqrt(dphi_empty*dphi_empty + deta*deta);
-
-         if(dr<mCone)
-         {
-//           cout<<" HCAL JetRecoEtRecHit[jjj]  "<<JetRecoEtRecHit[jjj]<<endl;
-           JetRecoEtRecHit[jjj] = JetRecoEtRecHit[jjj] + (*hbheItr).energy();
-         }
-         if(dr_empty<mCone)
-         {
-         empty_jet_energy_hcal = empty_jet_energy_hcal + (*hbheItr).energy();
-         }
-      }
-        cout<<" Additional HCAL energy "<<jjj<<" "<<JetRecoEtRecHit[jjj]<<" "<<JetRecoEtaCaloTower[jjj]<<" "<<JetRecoEtaCaloTower[jjj]<<endl;
+   {
+   edm::Handle<HBHERecHitCollection> hbhe;
+   iEvent.getByLabel(hbhelabel_,hbhe);
+   if (!hbhe.isValid()) {
+     // can't find it!
+     cout<<" Exception in hbhe "<<endl;
+     if (!allowMissingInputs_) {
+       *hbhe;  // will throw the proper exception
      }
-    } catch (std::exception& iEvent) { // can't find it!
-      cout<<" Exception in hbhe "<<endl;
-      if (!allowMissingInputs_) throw iEvent;
-    }
+   } else {
+     for(int jjj=0; jjj<NumRecoJetsCaloTower; jjj++)
+       {	 
+	 for(HBHERecHitCollection::const_iterator hbheItr = (*hbhe).begin();
+	     hbheItr != (*hbhe).end(); ++hbheItr)
+	   {
+	     DetId id = (hbheItr)->detid();
+	     GlobalPoint pos = geo->getPosition(hbheItr->detid());
+	     double deta = pos.eta() - JetRecoEtaCaloTower[jjj];
+	     double dphi = fabs(pos.phi() - JetRecoPhiCaloTower[jjj]);
+	     if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	     double dr = sqrt(dphi*dphi + deta*deta);
+	     double dphi_empty = fabs(pos.phi()+4.*atan(1.) - JetRecoPhiCaloTower[jjj]);
+	     if(dphi_empty > 4.*atan(1.)) dphi_empty = 8.*atan(1.) - dphi_empty;
+	     double dr_empty = sqrt(dphi_empty*dphi_empty + deta*deta);
+	     
+	     if(dr<mCone)
+	       {
+		 //           cout<<" HCAL JetRecoEtRecHit[jjj]  "<<JetRecoEtRecHit[jjj]<<endl;
+		 JetRecoEtRecHit[jjj] = JetRecoEtRecHit[jjj] + (*hbheItr).energy();
+	       }
+	     if(dr_empty<mCone)
+	       {
+		 empty_jet_energy_hcal = empty_jet_energy_hcal + (*hbheItr).energy();
+	       }
+	   }
+	 cout<<" Additional HCAL energy "<<jjj<<" "<<JetRecoEtRecHit[jjj]<<" "<<JetRecoEtaCaloTower[jjj]<<" "<<JetRecoEtaCaloTower[jjj]<<endl;
+       }
+   }
+   }
+
 //  }
        EcalEmpty[0] = empty_jet_energy_ecal;
        HcalEmpty[0] = empty_jet_energy_hcal;

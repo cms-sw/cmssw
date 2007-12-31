@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu May 25 11:10:50 CDT 2006
-// $Id: PhotonCorrectionProducer.cc,v 1.17 2007/10/06 20:16:06 futyand Exp $
+// $Id: PhotonCorrectionProducer.cc,v 1.18 2007/12/10 21:13:05 futyand Exp $
 //
 
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCorrectionProducer.h"
@@ -71,36 +71,26 @@ PhotonCorrectionProducer::~PhotonCorrectionProducer()
 void PhotonCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   edm::Handle<reco::PhotonCollection> photonHandle;
-  try
-    {
-      evt.getByLabel(photonProducer_, photonCollection_, photonHandle);    
-    } 
-  catch (cms::Exception&ex)
-    {
-      edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product "<<photonCollection_.c_str();
-    }
-
+  evt.getByLabel(photonProducer_, photonCollection_, photonHandle);    
+  if (!photonHandle.isValid()) {
+    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product "<<photonCollection_.c_str();
+  }
   
   const reco::PhotonCollection& photonCollection = *(photonHandle.product());
   std::auto_ptr<reco::PhotonCollection> photon_ap(new reco::PhotonCollection);
 
   edm::Handle<reco::BasicClusterShapeAssociationCollection> barrelClShpHandle;
-  try{
-    evt.getByLabel(barrelClusterShapeMapProducer_, barrelClusterShapeMapCollection_, barrelClShpHandle);
-    }
-  catch (cms::Exception&ex)
-    {
-      edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product "<<barrelClusterShapeMapCollection_.c_str();
-    }
+
+  evt.getByLabel(barrelClusterShapeMapProducer_, barrelClusterShapeMapCollection_, barrelClShpHandle);
+  if (!barrelClShpHandle.isValid()) {
+    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product "<<barrelClusterShapeMapCollection_.c_str();
+  }
 
   edm::Handle<reco::BasicClusterShapeAssociationCollection> endcapClShpHandle;
-  try{
-    evt.getByLabel(endcapClusterShapeMapProducer_, endcapClusterShapeMapCollection_, endcapClShpHandle);
-    }
-  catch (cms::Exception&ex)
-    {
-      edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product "<<endcapClusterShapeMapCollection_.c_str();
-    }
+  evt.getByLabel(endcapClusterShapeMapProducer_, endcapClusterShapeMapCollection_, endcapClShpHandle);
+  if (!endcapClShpHandle.isValid()) {
+    edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product "<<endcapClusterShapeMapCollection_.c_str();
+  }
 
   for (reco::PhotonCollection::const_iterator ph = photonCollection.begin(); ph != photonCollection.end(); ph++)
     {

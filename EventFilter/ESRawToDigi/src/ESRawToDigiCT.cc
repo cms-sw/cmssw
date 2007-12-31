@@ -42,9 +42,8 @@ void ESRawToDigiCT::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // Input
   Handle<FEDRawDataCollection> rawdata;
-  try {
-    e.getByLabel(label_, instanceName_, rawdata);
-  } catch ( cms::Exception &e ) { 
+  e.getByLabel(label_, instanceName_, rawdata);
+  if (!rawdata.isValid()) {
     LogDebug("") << "ESRawToDigiCT : Error! can't get rawdata!" << std::endl;
   }
   

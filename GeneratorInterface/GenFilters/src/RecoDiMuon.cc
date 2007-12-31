@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter choosing reconstructed di-muons
  *
- *  $Date: 2007/03/28 14:04:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/30 13:57:02 $
+ *  $Revision: 1.2 $
  *
  *  \author Chang Liu  -  Purdue University
  *
@@ -57,13 +57,8 @@ bool RecoDiMuon::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Handle<reco::TrackCollection> muons;
 
-  try
-  {
-    iEvent.getByLabel(muonLabel_, muons);
-  }
-
-  catch (...) 
-  {	
+  iEvent.getByLabel(muonLabel_, muons);
+  if (!muons.isValid()) {
     edm::LogError("RecoDiMuon") << "FAILED to get Muon Track Collection. ";
     return false;
   }

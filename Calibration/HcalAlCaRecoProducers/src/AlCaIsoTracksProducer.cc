@@ -108,35 +108,38 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::auto_ptr<HBHERecHitCollection> miniHBHERecHitCollection(new HBHERecHitCollection);
     std::vector<edm::InputTag>::const_iterator i;
     for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
-    try {
-      
       edm::Handle<EcalRecHitCollection> ec;
       iEvent.getByLabel(*i,ec);
-
-       for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
-                                                recHit != (*ec).end(); ++recHit)
-       {
-           miniEcalRecHitCollection->push_back(*recHit);
-       }
-    } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) { 
-         cout<<" No ECAL input "<<endl;
-         throw e;
-	 }
+      if (!ec.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) { 
+	  cout<<" No ECAL input "<<endl;
+	  *ec;  // will throw the proper exception
+	}
+      } else {
+	for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
+	    recHit != (*ec).end(); ++recHit)
+	  {
+	    miniEcalRecHitCollection->push_back(*recHit);
+	  }
+      }      
     }
-    }
-    try {
 
-      edm::Handle<HBHERecHitCollection> hbhe;
-      iEvent.getByLabel(hbheLabel_,hbhe);
+    edm::Handle<HBHERecHitCollection> hbhe;
+    iEvent.getByLabel(hbheLabel_,hbhe);
+    if (!hbhe.isValid()) {
+      // can't find it!
+      if (!allowMissingInputs_) {cout<<" No HCAL input "<<endl;
+	*hbhe;  // will throw the proper exception
+      }
+    } else {
       const HBHERecHitCollection Hithbhe = *(hbhe.product());
-  for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
+      for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
         {
-         miniHBHERecHitCollection->push_back(*hbheItr);    
+	  miniHBHERecHitCollection->push_back(*hbheItr);    
         }
-  } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) {cout<<" No HCAL input "<<endl;throw e;}
-  }
+    }
+
 // =================================================================================
 
    
@@ -144,10 +147,12 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    iSetup.get<IdealGeometryRecord>().get(pG);
    geo = pG.product();
    edm::Handle<reco::TrackCollection> trackCollection;
-   try {
    iEvent.getByLabel(m_inputTrackLabel,trackCollection);
-   } catch (cms::Exception& e) { // can't find it!
-        if (!allowMissingInputs_) {std::cout<<" No Tracks in event "<<std::endl; throw e;}
+   if (!trackCollection.isValid()) {
+     // can't find it!
+     if (!allowMissingInputs_) {std::cout<<" No Tracks in event "<<std::endl; 
+       *trackCollection;  // will throw the proper exception
+     }
    }
    
 
@@ -345,18 +350,22 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     if(outputTColl->size() > 0)
     {
 //   Take HO collection
-     try {
       edm::Handle<HORecHitCollection> ho;
       iEvent.getByLabel(hoLabel_,ho);
-      const HORecHitCollection Hitho = *(ho.product());
+      if (!ho.isValid()) {
+	// can't find it!
+        if (!allowMissingInputs_) {std::cout<<" No HO collection "<<std::endl; 
+	  *ho;  // will throw the proper exception
+	}
+      } else {
+	const HORecHitCollection Hitho = *(ho.product());
         for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
-        {
-             outputHOColl->push_back(*hoItr);
-        }
-     } catch (cms::Exception& e) { // can't find it!
-        if (!allowMissingInputs_) {std::cout<<" No HO collection "<<std::endl; throw e;}
-     }
+	  {
+	    outputHOColl->push_back(*hoItr);
+	  }
+      }
     }
+
 //   std::cout<<" Size of IsoTrk collections "<<outputHColl->size()<<" "<<outputEColl->size()<<
 //   " "<<outputTColl->size()<<" "<<outputHOColl->size()<<std::endl;
 

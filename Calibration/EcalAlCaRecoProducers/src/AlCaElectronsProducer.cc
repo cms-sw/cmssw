@@ -48,25 +48,26 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
 
   // Get GSFElectrons
   Handle<reco::GsfElectronCollection> pElectrons;
-  try {
-      iEvent.getByLabel(electronLabel_, pElectrons);
-    } catch (...) {
+  iEvent.getByLabel(electronLabel_, pElectrons);
+  if (!pElectrons.isValid()) {
       edm::LogError ("reading") << electronLabel_ << " not found" ; 
 //      std::cerr << "[AlCaElectronsProducer]" << electronLabel_ << " not found" ; 
       return ;
-    }
+  }
+
   const reco::GsfElectronCollection * electronCollection = 
      pElectrons.product();
   
   // get RecHits
   Handle<EBRecHitCollection> barrelRecHitsHandle;
   bool barrelIsFull = true ;
-  try {
-      iEvent.getByLabel(ebRecHitsLabel_,barrelRecHitsHandle);
-    } catch (...) {
+
+  iEvent.getByLabel(ebRecHitsLabel_,barrelRecHitsHandle);
+  if (!barrelRecHitsHandle.isValid()) {
       edm::LogError ("reading") << ebRecHitsLabel_ << " not found" ; 
       barrelIsFull = false ;
-    }
+  }
+
   const EBRecHitCollection * barrelHitsCollection = 0 ;
   if (barrelIsFull)  
     barrelHitsCollection = barrelRecHitsHandle.product () ;
@@ -74,12 +75,13 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
   // get RecHits
   Handle<EERecHitCollection> endcapRecHitsHandle;
   bool endcapIsFull = true ;
-  try {
-      iEvent.getByLabel(eeRecHitsLabel_,endcapRecHitsHandle);
-    } catch (...) {
+
+  iEvent.getByLabel(eeRecHitsLabel_,endcapRecHitsHandle);
+  if (!endcapRecHitsHandle.isValid()) {
       edm::LogError ("reading") << eeRecHitsLabel_ << " not found" ; 
       endcapIsFull = false ;
     }
+
   const EERecHitCollection * endcapHitsCollection = 0 ;
   if (endcapIsFull)  
     endcapHitsCollection = endcapRecHitsHandle.product () ;

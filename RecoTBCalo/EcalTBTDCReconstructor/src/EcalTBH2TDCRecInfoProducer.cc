@@ -50,13 +50,12 @@ void EcalTBH2TDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& e
   edm::Handle<HcalTBTiming> ecalRawTDC;  
   const HcalTBTiming* ecalTDCRawInfo = 0;
   
-  try {
-    //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
-    e.getByLabel( rawInfoProducer_, ecalRawTDC);
+  //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
+  e.getByLabel( rawInfoProducer_, ecalRawTDC);
+  if (ecalRawTDC.isValid()) {
     ecalTDCRawInfo = ecalRawTDC.product();
-  } catch ( std::exception& ex ) {
-    //     edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << rawInfoCollection_.c_str() ;
   }
+
   
   if (! ecalTDCRawInfo )
     {
@@ -68,13 +67,11 @@ void EcalTBH2TDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& e
   // Get input
   edm::Handle<HcalTBTriggerData> triggerData;  
   const HcalTBTriggerData* h2TriggerData = 0;
-  try {
-    //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
-    e.getByLabel(triggerDataProducer_, triggerData);
+  //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
+  e.getByLabel(triggerDataProducer_, triggerData);
+  if (triggerData.isValid()) {
     h2TriggerData = triggerData.product();
-  } catch ( std::exception& ex ) {
-    //     edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << triggerDataCollection_.c_str() ;
-   }
+  }
   
   if (! h2TriggerData )
     {

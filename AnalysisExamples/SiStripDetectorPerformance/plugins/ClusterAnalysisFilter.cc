@@ -28,11 +28,11 @@ namespace cms
     e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
 
     bool TrackNumberSelector_Decision_;
-    try{
-      e.getByLabel( Track_src_, trackCollection);
-      TrackNumberSelector_Decision_ =TrackNumberSelector();
-    } catch ( ... ) {
+    e.getByLabel( Track_src_, trackCollection);
+    if (!trackCollection.isValid()) {
       TrackNumberSelector_Decision_ = true;
+    } else {
+      TrackNumberSelector_Decision_ =TrackNumberSelector();
     }
 
     bool TriggerSelector_Decision_;

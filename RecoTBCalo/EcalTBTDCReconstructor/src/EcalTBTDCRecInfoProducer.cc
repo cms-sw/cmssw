@@ -61,12 +61,10 @@ void EcalTBTDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& es)
    edm::Handle<EcalTBTDCRawInfo> ecalRawTDC;  
    const EcalTBTDCRawInfo* ecalTDCRawInfo = 0;
 
-   try {
-     //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
-     e.getByLabel( rawInfoProducer_, ecalRawTDC);
+   //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
+   e.getByLabel( rawInfoProducer_, ecalRawTDC);
+   if (ecalRawTDC.isValid()) {
      ecalTDCRawInfo = ecalRawTDC.product();
-   } catch ( std::exception& ex ) {
-     //     edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << rawInfoCollection_.c_str() ;
    }
 
    if (! ecalTDCRawInfo )
@@ -83,12 +81,10 @@ void EcalTBTDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& es)
    // Get input
    edm::Handle<EcalTBEventHeader> tbEventHeader;  
    const EcalTBEventHeader* ecalEventHeader = 0;
-   try {
-     //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
-     e.getByLabel( eventHeaderProducer_, tbEventHeader);
+   //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
+   e.getByLabel( eventHeaderProducer_, tbEventHeader);
+   if (tbEventHeader.isValid()) {
      ecalEventHeader = tbEventHeader.product();
-   } catch ( std::exception& ex ) {
-     //     edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << eventHeaderCollection_.c_str() ;
    }
    
    if (! ecalEventHeader )

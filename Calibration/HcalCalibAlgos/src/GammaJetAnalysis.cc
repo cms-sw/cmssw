@@ -228,13 +228,15 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   vector<HepMC::GenParticle*> theGenPartAll;
   map<HepMC::GenParticle*,int> theGenPartPair;
   
-  try {
-    Handle< HepMCProduct > EvtHandle;
-    iEvent.getByLabel( "source", EvtHandle ) ;
-    
-    
-
-
+  Handle< HepMCProduct > EvtHandle;
+  iEvent.getByLabel( "source", EvtHandle ) ;
+  if (!EvtHandle.isValid()) {
+    // can't find it!
+    if (!allowMissingInputs_) {
+      cout<<" Missed generator information "<<endl;
+      *EvtHandle;  // will throw the proper exception
+    }	
+  } else {
          const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
 
          // take only 1st vertex for now - it's been tested only of PGuns...
@@ -258,11 +260,6 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		
          } // cycle on particles
       } // Evt exist
-  } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) {
-        cout<<" Missed generator information "<<endl;
-        throw e;
-    }	
   }
   
   cout<<" We filled theGenPart "<<endl;
@@ -356,43 +353,42 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     NumRecoJets = 0;
     
     for (ic=mInputCalo.begin(); ic!=mInputCalo.end(); ic++) {
-     try {
        
-       edm::Handle<reco::CaloJetCollection> jets;
-       iEvent.getByLabel(*ic, jets);
-       reco::CaloJetCollection::const_iterator jet = jets->begin ();
-       cout<<" Size of Calo jets "<<jets->size()<<endl;
-        jettype++;
-       
-        
-       
-       if(jets->size() > 0 )
-       {
-         int ij = 0;
-         for (; jet != jets->end (); jet++) 
-         {
-//            cout<<*ic<<" "<<" et "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()<<endl;
-	    ij++;
-	    if(ij<4) (*myout_jet)<<jettype<<" "<<reco<<" "<<ij<<" "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()
-	    <<" "<<iEvent.id().event()<<endl;
-	    jetexist = ij;
-	    if( NumRecoJets < 8 )
-	    {
-	     JetRecoEt[NumRecoJets] = (*jet).et();
-	     JetRecoEta[NumRecoJets] = (*jet).eta();
-	     JetRecoPhi[NumRecoJets] = (*jet).phi();
-	     JetRecoType[NumRecoJets] = jettype;
-	     NumRecoJets++;
-	    }
-         }
-       }
-     } catch (cms::Exception& e) { // can't find it!
-       if (!allowMissingInputs_) {
-         cout<< " Calojets are missed "<<endl;
-         throw e;
+      edm::Handle<reco::CaloJetCollection> jets;
+      iEvent.getByLabel(*ic, jets);
+      if (!jets.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) {
+	  cout<< " Calojets are missed "<<endl;
+	  *jets;  // will throw the proper exception
         } 	 
-     }
-   }
+      } else {
+	reco::CaloJetCollection::const_iterator jet = jets->begin ();
+	cout<<" Size of Calo jets "<<jets->size()<<endl;
+        jettype++;
+                     
+	if(jets->size() > 0 )
+	  {
+	    int ij = 0;
+	    for (; jet != jets->end (); jet++) 
+	      {
+		//            cout<<*ic<<" "<<" et "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()<<endl;
+		ij++;
+		if(ij<4) (*myout_jet)<<jettype<<" "<<reco<<" "<<ij<<" "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()
+				     <<" "<<iEvent.id().event()<<endl;
+		jetexist = ij;
+		if( NumRecoJets < 8 )
+		  {
+		    JetRecoEt[NumRecoJets] = (*jet).et();
+		    JetRecoEta[NumRecoJets] = (*jet).eta();
+		    JetRecoPhi[NumRecoJets] = (*jet).phi();
+		    JetRecoType[NumRecoJets] = jettype;
+		    NumRecoJets++;
+		  }
+	      }
+	  }
+      }
+    }
    
      cout<<" We filled CaloJet part "<<endl;
      
@@ -405,10 +401,15 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     NumGenJets = 0;
     
     for (ic=mInputGen.begin(); ic!=mInputGen.end(); ic++) {
-     try {
-  
-       edm::Handle<reco::GenJetCollection> jets;
-       iEvent.getByLabel(*ic, jets);
+      edm::Handle<reco::GenJetCollection> jets;
+      iEvent.getByLabel(*ic, jets);
+      if (!jets.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) {
+	  cout<<" Generator jets are missed "<<endl; 
+	  *jets;  // will throw the proper exception
+	}
+      } else {
        reco::GenJetCollection::const_iterator jet = jets->begin ();
        cout<<" Size of Gen jets "<<jets->size()<<endl;
        jettype++;
@@ -435,13 +436,8 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
          }
        }
-     } catch (cms::Exception& e) { // can't find it!
-       if (!allowMissingInputs_) {
-         cout<<" Generator jets are missed "<<endl; 
-         throw e;
-       }	 
-     }
-   }
+      }
+    }
      cout<<" We filled GenJet part "<<endl;
    
      if( jetexist < 0 ) (*myout_jet)<<jetexist<<" "<<reco<<" "<<etlost
@@ -454,59 +450,59 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     vector<CaloRecHit> theRecHits;
       
     for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
-    try {
-      
+
       edm::Handle<EcalRecHitCollection> ec;
       iEvent.getByLabel(*i,ec);
-      
-       for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
+      if (!ec.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) {
+	  cout<<" Ecal collection is missed "<<endl;
+	  *ec;  // will throw the proper exception
+	} 
+      } else {
+	for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
                                                 recHit != (*ec).end(); ++recHit)
-       {
-// EcalBarrel = 1, EcalEndcap = 2
+	  {
+	    // EcalBarrel = 1, EcalEndcap = 2
 
-	 GlobalPoint pos = geo->getPosition(recHit->detid());
-         theRecHits.push_back(*recHit);
-
-	 if( (*recHit).energy()> ecut[recHit->detid().subdetId()-1][0] ) (*myout_ecal)<<recHit->detid().subdetId()<<" "<<(*recHit).energy()<<" "<<pos.phi()<<" "<<pos.eta()
-	 <<" "<<iEvent.id().event()<<endl;
-	     
-       } 
-      
-    } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) {
-      cout<<" Ecal collection is missed "<<endl;
-      throw e;
-     } 
-    }
+	    GlobalPoint pos = geo->getPosition(recHit->detid());
+	    theRecHits.push_back(*recHit);
+	    
+	    if( (*recHit).energy()> ecut[recHit->detid().subdetId()-1][0] ) (*myout_ecal)<<recHit->detid().subdetId()<<" "<<(*recHit).energy()<<" "<<pos.phi()<<" "<<pos.eta()
+											 <<" "<<iEvent.id().event()<<endl;
+	    
+	  } 
+      }
     }
 
      cout<<" Fill EcalRecHits "<<endl;
 
 //  cout<<" Start to get hbhe "<<endl;
 // Hcal Barrel and endcap for isolation  
-    try {
-      edm::Handle<HBHERecHitCollection> hbhe;
-      iEvent.getByLabel(hbheLabel_,hbhe);
-      
-//      (*myout_hcal)<<(*hbhe).size()<<endl;
-  for(HBHERecHitCollection::const_iterator hbheItr = (*hbhe).begin();
-  
-      hbheItr != (*hbhe).end(); ++hbheItr)
-      {
-        DetId id = (hbheItr)->detid();
-	GlobalPoint pos = geo->getPosition(hbheItr->detid());
-	(*myout_hcal)<<id.subdetId()<<" "<<(*hbheItr).energy()<<" "<<pos.phi()<<
-	" "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
-        theRecHits.push_back(*hbheItr);
-	
-      }
-    } catch (cms::Exception& e) { // can't find it!
-      cout<<" Exception in hbhe "<<endl;
-      if (!allowMissingInputs_) {
-        cout<<" HBHE collection is missed "<<endl;
-        throw e;
-      }	
-    }
+     edm::Handle<HBHERecHitCollection> hbhe;
+     iEvent.getByLabel(hbheLabel_,hbhe);
+     if (!hbhe.isValid()) {
+       // can't find it!
+       cout<<" Exception in hbhe "<<endl;
+       if (!allowMissingInputs_) {
+	 cout<<" HBHE collection is missed "<<endl;
+	 *hbhe;  // will throw the proper exception
+       }
+     } else {
+       //      (*myout_hcal)<<(*hbhe).size()<<endl;
+       for(HBHERecHitCollection::const_iterator hbheItr = (*hbhe).begin();
+	   
+	   hbheItr != (*hbhe).end(); ++hbheItr)
+	 {
+	   DetId id = (hbheItr)->detid();
+	   GlobalPoint pos = geo->getPosition(hbheItr->detid());
+	   (*myout_hcal)<<id.subdetId()<<" "<<(*hbheItr).energy()<<" "<<pos.phi()<<
+	     " "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
+	   theRecHits.push_back(*hbheItr);
+	   
+	 }
+     }
+     
 //  }
   cout<<" Fill HBHE part "<<endl;
  
@@ -519,12 +515,19 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
  jetexist = -100; 
  int barrel = 1;
  NumRecoGamma = 0;
- 
- try {
+
+ {
  int ij = 0;
-  // Get island super clusters after energy correction
-  Handle<reco::SuperClusterCollection> pCorrectedIslandBarrelSuperClusters;
-  iEvent.getByLabel(correctedIslandBarrelSuperClusterProducer_, correctedIslandBarrelSuperClusterCollection_, pCorrectedIslandBarrelSuperClusters);
+ // Get island super clusters after energy correction
+ Handle<reco::SuperClusterCollection> pCorrectedIslandBarrelSuperClusters;
+ iEvent.getByLabel(correctedIslandBarrelSuperClusterProducer_, correctedIslandBarrelSuperClusterCollection_, pCorrectedIslandBarrelSuperClusters);
+ if (!pCorrectedIslandBarrelSuperClusters.isValid()) {
+   // can't find it!
+   if (!allowMissingInputs_) {
+     cout<<" Ecal barrel clusters are missed "<<endl;
+     *pCorrectedIslandBarrelSuperClusters;  // will throw the proper exception
+   }
+ } else {
   const reco::SuperClusterCollection* correctedIslandBarrelSuperClusters = pCorrectedIslandBarrelSuperClusters.product();
   // loop over the super clusters and fill the histogram
   for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandBarrelSuperClusters->begin();
@@ -604,22 +607,25 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        jetexist = ij;
     } //vet  
   } // number of superclusters
-  } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) {
-       cout<<" Ecal barrel clusters are missed "<<endl;
-       throw e;
-    }   
-  }
+ }
+ }
 
    cout<<" Fill Barrel Clausters "<<endl;
 
   barrel = 2;
-  
-  try {
-  int ij = 0;
-  // Get island super clusters after energy correction
-  Handle<reco::SuperClusterCollection> pCorrectedIslandEndcapSuperClusters;
-  iEvent.getByLabel(correctedIslandEndcapSuperClusterProducer_, correctedIslandEndcapSuperClusterCollection_, pCorrectedIslandEndcapSuperClusters);
+{  
+int ij = 0;
+// Get island super clusters after energy correction
+Handle<reco::SuperClusterCollection> pCorrectedIslandEndcapSuperClusters;
+iEvent.getByLabel(correctedIslandEndcapSuperClusterProducer_, correctedIslandEndcapSuperClusterCollection_, pCorrectedIslandEndcapSuperClusters);
+
+if (!pCorrectedIslandEndcapSuperClusters.isValid()) {
+  // can't find it!
+  if (!allowMissingInputs_) {
+    cout<<" Ecal endcap clusters are missed "<<endl;
+    *pCorrectedIslandEndcapSuperClusters;  // will throw the proper exception
+  } 
+ } else {
   const reco::SuperClusterCollection* correctedIslandEndcapSuperClusters = pCorrectedIslandEndcapSuperClusters.product();
   
   // loop over the super clusters and fill the histogram
@@ -693,13 +699,8 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     } // vet							   
   } // superclusters
   // ----- hybrid 
-  } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) {
-     cout<<" Ecal endcap clusters are missed "<<endl;
-     throw e;
-    } 
-  }
-  
+ }
+ }
     cout<<" Fill Endcap Clausters "<<endl;
  
     double ecluslost = -100.1;
@@ -709,10 +710,15 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //  }
 //  if (!hoLabel_.empty()) {
 // Load HORecHits
-    try {
-      edm::Handle<HORecHitCollection> ho;
-      iEvent.getByLabel(hoLabel_,ho);
-      
+edm::Handle<HORecHitCollection> ho;
+iEvent.getByLabel(hoLabel_,ho);
+if (!ho.isValid()) {
+  // can't find it!
+  if (!allowMissingInputs_) {
+    cout<<" HO collection is missed "<<endl;
+    *ho;  // will throw the proper exception
+  }	
+ } else {
 //      (*myout_hcal)<<(*ho).size()<<endl;
       
   for(HORecHitCollection::const_iterator hoItr = (*ho).begin();
@@ -724,35 +730,34 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	<<" "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
 
       }
-    } catch (cms::Exception& e) { // can't find it!
-      if (!allowMissingInputs_) {
-         cout<<" HO collection is missed "<<endl;
-        throw e;
-      }	
-    }
-    cout<<" Fill HO "<<endl;
+ }
+ 
+   cout<<" Fill HO "<<endl;
     
 // Load HFRecHits
-    try {
-      edm::Handle<HFRecHitCollection> hf;
-      iEvent.getByLabel(hfLabel_,hf);
-      
-//      (*myout_hcal)<<(*hf).size()<<endl;
+
+edm::Handle<HFRecHitCollection> hf;
+iEvent.getByLabel(hfLabel_,hf);
+
+if (!hf.isValid()) {
+  // can't find it!
+  if (!allowMissingInputs_) {
+    cout<<" HF collection is missed "<<endl;
+    *hf;  // will throw the proper exception
+  }
+ } else {
+  //      (*myout_hcal)<<(*hf).size()<<endl;
   for(HFRecHitCollection::const_iterator hfItr = (*hf).begin();
       hfItr != (*hf).end(); ++hfItr)
-      {  
-         DetId id = (hfItr)->detid();
-	GlobalPoint pos = geo->getPosition(hfItr->detid());
-	(*myout_hcal)<<id.subdetId()<<" "<<(*hfItr).energy()<<" "<<pos.phi()
-	<<" "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
-
-      }
-    } catch (cms::Exception& e) { // can't find it!
-      if (!allowMissingInputs_) {
-        cout<<" HF collection is missed "<<endl;
-        throw e;
-      }	
+    {  
+      DetId id = (hfItr)->detid();
+      GlobalPoint pos = geo->getPosition(hfItr->detid());
+      (*myout_hcal)<<id.subdetId()<<" "<<(*hfItr).energy()<<" "<<pos.phi()
+		   <<" "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
+      
     }
+ }
+
 //  }
     cout<<" Fill HF "<<endl;
 

@@ -78,20 +78,26 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const HFRecHitCollection*  HFRecHits = 0;
   const HORecHitCollection*  HORecHits = 0;
 
- try {
-    iEvent.getByLabel(hbheLabel_,HBHERecHitsHandle);
-    HBHERecHits = HBHERecHitsHandle.product(); // get a ptr to the product
-
-    iEvent.getByLabel(hoLabel_,HORecHitsHandle);
-    HORecHits = HORecHitsHandle.product(); // get a ptr to the product
-
-    iEvent.getByLabel(hfLabel_,HFRecHitsHandle);
-    HFRecHits = HFRecHitsHandle.product(); // get a ptr to the product
-
-  } catch ( std::exception& ex ) {
+  iEvent.getByLabel(hbheLabel_,HBHERecHitsHandle);
+  if (!HBHERecHitsHandle.isValid()) {
     LogDebug("") << "HcalREcHitRecalib: Error! can't get product!" << std::endl;
+  } else {
+    HBHERecHits = HBHERecHitsHandle.product(); // get a ptr to the product
   }
 
+  iEvent.getByLabel(hoLabel_,HORecHitsHandle);
+  if (!HORecHitsHandle.isValid()) {
+    LogDebug("") << "HcalREcHitRecalib: Error! can't get product!" << std::endl;
+  } else {
+    HORecHits = HORecHitsHandle.product(); // get a ptr to the product
+  }
+
+  iEvent.getByLabel(hfLabel_,HFRecHitsHandle);
+  if (!HFRecHitsHandle.isValid()) {
+    LogDebug("") << "HcalREcHitRecalib: Error! can't get product!" << std::endl;
+  } else {
+    HFRecHits = HFRecHitsHandle.product(); // get a ptr to the product
+  }
 
 
 //     iEvent.getByLabel(HBHEHitsProducer_,HBHEHits_,HBHERecHitsHandle);

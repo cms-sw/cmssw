@@ -103,44 +103,54 @@ void CaloRecHitCandidateProducer::produce( edm::Event & fEvent, const edm::Event
   // set Output
   auto_ptr<CandidateCollection> output ( new CandidateCollection );
   // get and process Inputs
-  try {
-    edm::Handle<HBHERecHitCollection> hbhe;
-    fEvent.getByLabel(mHBHELabel,hbhe);
+  edm::Handle<HBHERecHitCollection> hbhe;
+  fEvent.getByLabel(mHBHELabel,hbhe);
+  if (!hbhe.isValid()) {
+    // can't find it!
+    if (!mAllowMissingInputs) {
+      *hbhe;  // will throw the proper exception
+    }
+  } else {
     processHits (hbhe, *this, *geometry, *topology, &*output);
-  } catch (std::exception& e) { // can't find it!
-    if (!mAllowMissingInputs) throw e;
   }
 
   if (mUseHO) {
-    try {
-      edm::Handle<HORecHitCollection> ho;
-      fEvent.getByLabel(mHOLabel,ho);
+    edm::Handle<HORecHitCollection> ho;
+    fEvent.getByLabel(mHOLabel,ho);
+    if (!ho.isValid()) {
+      // can't find it!
+      if (!mAllowMissingInputs) {
+	*ho;  // will throw the proper exception	
+      }
+    } else {
       processHits (ho, *this, *geometry, *topology, &*output);
-    } catch (std::exception& e) { // can't find it!
-      if (!mAllowMissingInputs) throw e;
     }
   }
 
-  try {
-    edm::Handle<HFRecHitCollection> hf;
-    fEvent.getByLabel(mHFLabel,hf);
+  edm::Handle<HFRecHitCollection> hf;
+  fEvent.getByLabel(mHFLabel,hf);
+  if (!hf.isValid()) {
+    // can't find it!
+    if (!mAllowMissingInputs) {
+      *hf;  // will throw the proper exception
+    }
+  } else {
     processHits (hf, *this, *geometry, *topology, &*output);
-  } catch (std::exception& e) { // can't find it!
-    if (!mAllowMissingInputs) throw e;
   }
 
-  try {
-    std::vector<edm::InputTag>::const_iterator i;
-    for (i=mEcalLabels.begin(); i!=mEcalLabels.end(); i++) {
-      edm::Handle<EcalRecHitCollection> ec;
-      fEvent.getByLabel(*i,ec);
+  std::vector<edm::InputTag>::const_iterator i;
+  for (i=mEcalLabels.begin(); i!=mEcalLabels.end(); i++) {
+    edm::Handle<EcalRecHitCollection> ec;
+    fEvent.getByLabel(*i,ec);
+    if (!ec.isValid()) {
+      // can't find it!
+      if (!mAllowMissingInputs) {
+	*ec;  // will throw the proper exception
+      }
+    } else {
       processHits (ec, *this, *geometry, *topology, &*output);
     }
-  } catch (std::exception& e) { // can't find it!
-    if (!mAllowMissingInputs) throw e;
   }
-
-
   fEvent.put(output);
 }
 

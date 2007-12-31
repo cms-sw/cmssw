@@ -450,27 +450,25 @@ ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // Get EBRecHits
   edm::Handle<EBRecHitCollection> EBphits;
-   try {
-     iEvent.getByLabel( EBrecHitLabel_, EBphits);
-   } catch (std::exception& ex  ) {
+  iEvent.getByLabel( EBrecHitLabel_, EBphits);
+  if (!EBphits.isValid()) {
      std::cerr << "Error! can't get the product EBRecHitCollection: " << std::endl;
-   }
+  }
    const EBRecHitCollection* EBhits = EBphits.product(); // get a ptr to the product
 
    // Get EERecHits
    edm::Handle<EERecHitCollection> EEphits;
-   try {
-     iEvent.getByLabel( EErecHitLabel_, EEphits);
-   } catch (std::exception& ex  ) {
+
+   iEvent.getByLabel( EErecHitLabel_, EEphits);
+   if (!EEphits.isValid()) {
      std::cerr << "Error! can't get the product EERecHitCollection: " << std::endl;
    }
    const EERecHitCollection* EEhits = EEphits.product(); // get a ptr to the product
 
   // Get pixelElectrons
    edm::Handle<reco::GsfElectronCollection> pElectrons;
-  try {
-    iEvent.getByLabel(electronLabel_, pElectrons);
-   } catch (std::exception& ex  ) {
+   iEvent.getByLabel(electronLabel_, pElectrons);
+   if (!pElectrons.isValid()) {
      std::cerr << "Error! can't get the product ElectronCollection: " << std::endl;
    }
   const reco::GsfElectronCollection* electronCollection = pElectrons.product();

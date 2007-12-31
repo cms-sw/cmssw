@@ -376,25 +376,29 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   const HORecHitCollection *HORecHits;
   const HFRecHitCollection *HFRecHits;
 
-  try {
-
-    edm::Handle<HBHERecHitCollection> HBHERecHitsHandle;
-    iEvent.getByLabel(hBHERecHitsLabel_,HBHERecHitsHandle);
-    HBHERecHits = HBHERecHitsHandle.product();
-                                                                                                                                                             
-    edm::Handle<HORecHitCollection> HORecHitsHandle;
-    iEvent.getByLabel(hORecHitsLabel_,HORecHitsHandle);
-    HORecHits = HORecHitsHandle.product();
-
-    edm::Handle<HFRecHitCollection> HFRecHitsHandle;
-    iEvent.getByLabel(hFRecHitsLabel_,HFRecHitsHandle);
-    HFRecHits = HFRecHitsHandle.product();
-                                                                                                                                                             
-  } catch (...) {
-                                                                                                                                                             
+  edm::Handle<HBHERecHitCollection> HBHERecHitsHandle;
+  iEvent.getByLabel(hBHERecHitsLabel_,HBHERecHitsHandle);
+  if (!HBHERecHitsHandle.isValid()) {
     edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Handle, Aborting Task "
-         << "HCALRecHitAnalyzer::analyze!\n"; return;
-
+			       << "HCALRecHitAnalyzer::analyze!\n"; return;
+  } else {
+    HBHERecHits = HBHERecHitsHandle.product();
+  }
+  edm::Handle<HORecHitCollection> HORecHitsHandle;
+  iEvent.getByLabel(hORecHitsLabel_,HORecHitsHandle);
+  if (!HORecHitsHandle.isValid()) {
+    edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Handle, Aborting Task "
+			       << "HCALRecHitAnalyzer::analyze!\n"; return;
+  } else {
+    HORecHits = HORecHitsHandle.product();
+  }
+  edm::Handle<HFRecHitCollection> HFRecHitsHandle;
+  iEvent.getByLabel(hFRecHitsLabel_,HFRecHitsHandle);
+  if (!HFRecHitsHandle.isValid()) {
+    edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Handle, Aborting Task "
+			       << "HCALRecHitAnalyzer::analyze!\n"; return;
+  } else {
+    HFRecHits = HFRecHitsHandle.product();
   }
 
   // ==========================================================

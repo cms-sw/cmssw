@@ -214,20 +214,16 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   const CaloTowerCollection *towerCollection;
 
-  try {
-
-    edm::Handle<reco::CandidateCollection> to;
-    iEvent.getByLabel(caloTowersLabel_,to);
+  edm::Handle<reco::CandidateCollection> to;
+  iEvent.getByLabel(caloTowersLabel_,to);
+  if (!to.isValid()) {
+    edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Handle, Aborting METTask/"
+			       << "CaloTowerAnalyzer::analyze!"; return;
+  } else {
     const CandidateCollection *towers = (CandidateCollection *)to.product();
     reco::CandidateCollection::const_iterator tower = towers->begin();
     edm::Ref<CaloTowerCollection> towerRef = tower->get<CaloTowerRef>();
     towerCollection = towerRef.product();
-
-  } catch (...) {
-
-    edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Handle, Aborting METTask/"
-                          << "CaloTowerAnalyzer::analyze!"; return;
-
   }
 
   // ==========================================================

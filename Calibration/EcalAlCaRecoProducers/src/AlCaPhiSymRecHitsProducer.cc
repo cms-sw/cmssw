@@ -35,10 +35,13 @@ AlCaPhiSymRecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   Handle<EBRecHitCollection> barrelRecHitsHandle;
   Handle<EERecHitCollection> endcapRecHitsHandle;
 
-  try {
-    iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
-    iEvent.getByLabel(ecalHitsProducer_,endcapHits_,endcapRecHitsHandle);
-  } catch ( std::exception& ex ) {
+  iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
+  if (!barrelRecHitsHandle.isValid()) {
+    LogDebug("") << "AlCaPhiSymRecHitsProducer: Error! can't get product!" << std::endl;
+  }
+
+  iEvent.getByLabel(ecalHitsProducer_,endcapHits_,endcapRecHitsHandle);
+  if (!endcapRecHitsHandle.isValid()) {
     LogDebug("") << "AlCaPhiSymRecHitsProducer: Error! can't get product!" << std::endl;
   }
 

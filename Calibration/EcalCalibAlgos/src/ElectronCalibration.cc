@@ -411,20 +411,21 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
    
    // Get EBRecHits
    Handle<EBRecHitCollection> phits;
-   try {
-     iEvent.getByLabel( recHitLabel_, phits);
-   } catch ( cms::Exception &e ) {
+   iEvent.getByLabel( recHitLabel_, phits);
+   if (!phits.isValid()) {
      std::cerr << "Error! can't get the product EBRecHitCollection: " << std::endl;
    }
+
    const EBRecHitCollection* hits = phits.product(); // get a ptr to the product
 
    // Get pixelElectrons
    Handle<reco::GsfElectronCollection> pElectrons;
-   try {
-     iEvent.getByLabel(electronLabel_, pElectrons);
-   } catch ( cms::Exception &e ) {
+
+   iEvent.getByLabel(electronLabel_, pElectrons);
+   if (!pElectrons.isValid()) {
      std::cerr << "Error! can't get the product ElectronCollection: " << std::endl;
    }
+
   const reco::GsfElectronCollection* electronCollection = pElectrons.product();
   read_events++;
   if(read_events%1000 ==0)cout << "read_events = " << read_events << endl;

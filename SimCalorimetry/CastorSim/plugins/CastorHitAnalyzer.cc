@@ -32,15 +32,12 @@ namespace CastorHitAnalyzerImpl {
 
 void CastorHitAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& c) {
   edm::Handle<edm::PCaloHitContainer> hits;
-  try{
-    hitReadoutName_ = "CASTORHITS";
-    e.getByLabel("g4SimHits",hitReadoutName_, hits);
-
-  } catch(...){;}
-  
-  castorAnalyzer_.fillHits(*hits);
-
-  CastorHitAnalyzerImpl::analyze<CastorRecHitCollection>(e, castorAnalyzer_);
+  hitReadoutName_ = "CASTORHITS";
+  e.getByLabel("g4SimHits",hitReadoutName_, hits);
+  if (hits.isValid()) {
+    castorAnalyzer_.fillHits(*hits);
+    CastorHitAnalyzerImpl::analyze<CastorRecHitCollection>(e, castorAnalyzer_);
+  }
 }
 
 

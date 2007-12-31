@@ -68,9 +68,8 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 
   //Get Hybrid SuperClusters
   Handle<reco::SuperClusterCollection> pSuperClusters;
-  try {
-    e.getByLabel(scProducer_, scCollection_, pSuperClusters);
-  } catch (std::exception& ex ) {
+  e.getByLabel(scProducer_, scCollection_, pSuperClusters);
+  if (!pSuperClusters.isValid()) {
     std::cerr << "Error! can't get the product SuperClusterCollection "<< std::endl;
   }
   const reco::SuperClusterCollection* scCollection = pSuperClusters.product();
@@ -81,9 +80,8 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
   
   //Get Island SuperClusters
   Handle<reco::SuperClusterCollection> pIslandSuperClusters;
-  try {
-    e.getByLabel(scIslandProducer_, scIslandCollection_, pIslandSuperClusters);
-  } catch (std::exception& ex ) {
+  e.getByLabel(scIslandProducer_, scIslandCollection_, pIslandSuperClusters);
+  if (!pIslandSuperClusters.isValid()) {
     std::cerr << "Error! can't get the product IslandSuperClusterCollection "<< std::endl;
   }
   const reco::SuperClusterCollection* scIslandCollection = pIslandSuperClusters.product();
@@ -94,9 +92,8 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 
   // Get Electrons
   Handle<reco::GsfElectronCollection> pElectrons;
-  try {
-    e.getByLabel(electronProducer_, electronCollection_, pElectrons);
-  } catch (std::exception& ex ) {
+  e.getByLabel(electronProducer_, electronCollection_, pElectrons);
+  if (!pElectrons.isValid()) {
     std::cerr << "Error! can't get the product ElectronCollection "<< std::endl;
   }
   const reco::GsfElectronCollection* electronCollection = pElectrons.product();

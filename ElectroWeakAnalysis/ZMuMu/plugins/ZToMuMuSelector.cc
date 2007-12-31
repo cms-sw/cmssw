@@ -60,37 +60,34 @@ bool ZToMuMuSelector::filter (Event & ev, const EventSetup &) {
       //          if the collection is not present
 
       Handle<TrackCollection> muonCollection;
-      try {
-            ev.getByLabel(muonTag_, muonCollection);
-      } catch (...) {
-            LogTrace("") << ">>> Muon collection does not exist !!!";
-            return false;
+
+      ev.getByLabel(muonTag_, muonCollection);
+      if (!muonCollection.isValid()) {
+	LogTrace("") << ">>> Muon collection does not exist !!!";
+	return false;
       }
 
       Handle<reco::MuIsoAssociationMap> isoMap;
-      try {
-            ev.getByLabel(isoTag_, isoMap);
-      } catch (...) {
-            LogTrace("") << ">>> ISO Muon collection does not exist !!!";
-            return false;
+      ev.getByLabel(isoTag_, isoMap);
+      if (!isoMap.isValid()) {
+	LogTrace("") << ">>> ISO Muon collection does not exist !!!";
+	return false;
       }
 
       Handle<TrackCollection> trackerCollection;
       Handle<reco::MuIsoAssociationMap> isoTrackerMap;
       if (!onlyGlobalMuons_) {
-            try {
-                  ev.getByLabel(trackerTag_, trackerCollection);
-            } catch (...) {
-                  LogTrace("") << ">>> Tracker collection does not exist !!!";
-                  return false;
-            }
-
-            try {
-                  ev.getByLabel(isoTrackerTag_, isoTrackerMap);
-            } catch (...) {
-                  LogTrace("") << ">>> ISO Tracker collection does not exist !!!";
-                  return false;
-            }
+	ev.getByLabel(trackerTag_, trackerCollection);
+	if (!trackerCollection.isValid()) {
+	  LogTrace("") << ">>> Tracker collection does not exist !!!";
+	  return false;
+	}
+	
+	ev.getByLabel(isoTrackerTag_, isoTrackerMap);
+	if (!isoTrackerMap.isValid()) {
+	  LogTrace("") << ">>> ISO Tracker collection does not exist !!!";
+	  return false;
+	}
       }
 
       unsigned int npairs = 0;

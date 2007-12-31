@@ -178,25 +178,17 @@ void EgammaSuperClusters::beginJob(edm::EventSetup const&)
 void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup& es )
 {
   	edm::Handle<reco::SuperClusterCollection> pHybridBarrelSuperClusters;
- 	try
-	{
-		evt.getByLabel(hybridBarrelSuperClusterCollection_, pHybridBarrelSuperClusters);
-  	}
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
-			<< hybridBarrelSuperClusterCollection_.label();
+	evt.getByLabel(hybridBarrelSuperClusterCollection_, pHybridBarrelSuperClusters);
+	if (!pHybridBarrelSuperClusters.isValid()) {
+	  edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
+					       << hybridBarrelSuperClusterCollection_.label();
   	}
 
   	edm::Handle<reco::BasicClusterShapeAssociationCollection> pHybridBarrelClusterShapeAssociation;
- 	try
-	{
-		evt.getByLabel(hybridBarrelClusterShapeAssociation_, pHybridBarrelClusterShapeAssociation);
-  	}
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
-			<< hybridBarrelClusterShapeAssociation_.label();
+	evt.getByLabel(hybridBarrelClusterShapeAssociation_, pHybridBarrelClusterShapeAssociation);
+	if (!pHybridBarrelClusterShapeAssociation.isValid()) {
+	  edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
+					       << hybridBarrelClusterShapeAssociation_.label();
   	}
 
   	const reco::SuperClusterCollection* hybridBarrelSuperClusters = pHybridBarrelSuperClusters.product();
@@ -216,25 +208,17 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
   	}
 
   	edm::Handle<reco::SuperClusterCollection> pIslandBarrelSuperClusters;
-  	try
-	{
-		evt.getByLabel(islandBarrelSuperClusterCollection_, pIslandBarrelSuperClusters);
- 	}
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
-			<< islandBarrelSuperClusterCollection_.label();
+	evt.getByLabel(islandBarrelSuperClusterCollection_, pIslandBarrelSuperClusters);
+	if (!pIslandBarrelSuperClusters.isValid()) {
+	  edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
+					       << islandBarrelSuperClusterCollection_.label();
   	}
 
   	edm::Handle<reco::BasicClusterShapeAssociationCollection> pIslandBarrelClusterShapeAssociation;
- 	try
-	{
-		evt.getByLabel(islandBarrelClusterShapeAssociation_, pIslandBarrelClusterShapeAssociation);
-  	}
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
-			<< islandBarrelClusterShapeAssociation_.label();
+	evt.getByLabel(islandBarrelClusterShapeAssociation_, pIslandBarrelClusterShapeAssociation);
+	if (!pIslandBarrelClusterShapeAssociation.isValid()) {
+	  edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
+					       << islandBarrelClusterShapeAssociation_.label();
   	}
 
   	const reco::SuperClusterCollection* islandBarrelSuperClusters = pIslandBarrelSuperClusters.product();
@@ -254,25 +238,17 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
   	}
 
   	edm::Handle<reco::SuperClusterCollection> pIslandEndcapSuperClusters;
-  	try
-	{
-		evt.getByLabel(islandEndcapSuperClusterCollection_, pIslandEndcapSuperClusters);
-  	}
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
-			<< islandEndcapSuperClusterCollection_.label();
+	evt.getByLabel(islandEndcapSuperClusterCollection_, pIslandEndcapSuperClusters);
+	if (!pIslandEndcapSuperClusters.isValid()) {
+	  edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
+					       << islandEndcapSuperClusterCollection_.label();
   	}
 
   	edm::Handle<reco::BasicClusterShapeAssociationCollection> pIslandEndcapClusterShapeAssociation;
- 	try
-	{
-		evt.getByLabel(islandEndcapClusterShapeAssociation_, pIslandEndcapClusterShapeAssociation);
-  	}
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
-			<< islandEndcapClusterShapeAssociation_.label();
+	evt.getByLabel(islandEndcapClusterShapeAssociation_, pIslandEndcapClusterShapeAssociation);
+	if (!pIslandEndcapClusterShapeAssociation.isValid()) {
+	  edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
+					       << islandEndcapClusterShapeAssociation_.label();
   	}
 
   	const reco::SuperClusterCollection* islandEndcapSuperClusters = pIslandEndcapSuperClusters.product();
@@ -292,14 +268,10 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
   	}
 
  	edm::Handle<edm::HepMCProduct> pMCTruth ;
- 	try
-	{
-		evt.getByLabel(MCTruthCollection_, pMCTruth);
-  	}
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
-			<< MCTruthCollection_.label();
+	evt.getByLabel(MCTruthCollection_, pMCTruth);
+	if (!pMCTruth.isValid()) {
+	  edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
+					       << MCTruthCollection_.label();
   	}
 
 	const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();

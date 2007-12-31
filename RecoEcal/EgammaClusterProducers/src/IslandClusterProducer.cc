@@ -112,23 +112,16 @@ const EcalRecHitCollection * IslandClusterProducer::getCollection(edm::Event& ev
                                                                   const std::string& hitCollection_)
 {
   edm::Handle<EcalRecHitCollection> rhcHandle;
-  try
+  evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
+  if (!(rhcHandle.isValid())) 
     {
-      evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
-      if (!(rhcHandle.isValid())) 
-	{
-	  std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
-	  return 0;
-	}
-    }
-  catch ( cms::Exception& ex ) 
-    {
+      std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
       edm::LogError("IslandClusterProducerError") << "Error! can't get the product " << hitCollection_.c_str() ;
       return 0;
-    }
-  return rhcHandle.product();
+    } else {
+    return rhcHandle.product();
+  }
 }
-
 
 void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
                                                const std::string& hitProducer,

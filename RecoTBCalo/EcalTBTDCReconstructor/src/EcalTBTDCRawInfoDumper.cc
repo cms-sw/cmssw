@@ -42,13 +42,14 @@ void EcalTBTDCRawInfoDumper::analyze(const edm::Event& e, const edm::EventSetup&
   // Get input
   edm::Handle<EcalTBTDCRawInfo> ecalRawTDC;  
   const EcalTBTDCRawInfo* tdcRawInfo = 0;
-  try {
-    //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
-    e.getByLabel( rawInfoProducer_, ecalRawTDC);
-    tdcRawInfo = ecalRawTDC.product();
-  } catch ( std::exception& ex ) {
+  //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
+  e.getByLabel( rawInfoProducer_, ecalRawTDC);
+  if (!ecalRawTDC.isValid()) {
     edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << rawInfoCollection_.c_str() ;
+  } else {
+    tdcRawInfo = ecalRawTDC.product();
   }
+
   
   if (tdcRawInfo)
     {

@@ -118,63 +118,69 @@ MinBias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
   
   if (!hbheLabel_.empty()) {
-    try {
-      edm::Handle<HBHERecHitCollection> hbhe;
-      iEvent.getByLabel(hbheLabel_,hbhe);
-  for(HBHERecHitCollection::const_iterator hbheItr = (*hbhe).begin();
-      hbheItr != (*hbhe).end(); ++hbheItr)
-      {
-        DetId id = (hbheItr)->detid();
-	if( (*hbheItr).energy() > 0. ) cout<<" Energy = "<<(*hbheItr).energy()<<endl;
-	theFillDetMap0[id] = theFillDetMap0[id]+ 1.;
-        theFillDetMap1[id] = theFillDetMap1[id]+(*hbheItr).energy();
-	theFillDetMap2[id] = theFillDetMap2[id]+pow((*hbheItr).energy(),2);
-	theFillDetMap3[id] = theFillDetMap3[id]+pow((*hbheItr).energy(),3);
-	theFillDetMap4[id] = theFillDetMap4[id]+pow((*hbheItr).energy(),4);
+    edm::Handle<HBHERecHitCollection> hbhe;
+    iEvent.getByLabel(hbheLabel_,hbhe);
+    if (!hbhe.isValid()) {
+      // can't find it!
+      if (!allowMissingInputs_) {
+	*hbhe;  // will throw the proper exception      
       }
-      
-    } catch (std::exception& iEvent) { // can't find it!
-      if (!allowMissingInputs_) throw iEvent;
+    } else {
+      for(HBHERecHitCollection::const_iterator hbheItr = (*hbhe).begin();
+	  hbheItr != (*hbhe).end(); ++hbheItr)
+	{
+	  DetId id = (hbheItr)->detid();
+	  if( (*hbheItr).energy() > 0. ) cout<<" Energy = "<<(*hbheItr).energy()<<endl;
+	  theFillDetMap0[id] = theFillDetMap0[id]+ 1.;
+	  theFillDetMap1[id] = theFillDetMap1[id]+(*hbheItr).energy();
+	  theFillDetMap2[id] = theFillDetMap2[id]+pow((*hbheItr).energy(),2);
+	  theFillDetMap3[id] = theFillDetMap3[id]+pow((*hbheItr).energy(),3);
+	  theFillDetMap4[id] = theFillDetMap4[id]+pow((*hbheItr).energy(),4);
+	}
     }
   }
 
   if (!hoLabel_.empty()) {
-    try {
-      edm::Handle<HORecHitCollection> ho;
-      iEvent.getByLabel(hoLabel_,ho);
-  for(HORecHitCollection::const_iterator hoItr = (*ho).begin();
-      hoItr != (*ho).end(); ++hoItr)
-      {
-        DetId id = (hoItr)->detid();
-	theFillDetMap0[id] = theFillDetMap0[id]+ 1.;
-        theFillDetMap1[id] = theFillDetMap1[id]+(*hoItr).energy();
-	theFillDetMap2[id] = theFillDetMap2[id]+pow((*hoItr).energy(),2);
-	theFillDetMap3[id] = theFillDetMap3[id]+pow((*hoItr).energy(),3);
-	theFillDetMap4[id] = theFillDetMap4[id]+pow((*hoItr).energy(),4);
+    edm::Handle<HORecHitCollection> ho;
+    iEvent.getByLabel(hoLabel_,ho);
+    if (!ho.isValid()) {
+      // can't find it!
+      if (!allowMissingInputs_) {
+	*ho;  // will throw the proper exception
       }
-      
-    } catch (std::exception& iEvent) { // can't find it!
-      if (!allowMissingInputs_) throw iEvent;
+  } else {
+      for(HORecHitCollection::const_iterator hoItr = (*ho).begin();
+	  hoItr != (*ho).end(); ++hoItr)
+	{
+	  DetId id = (hoItr)->detid();
+	  theFillDetMap0[id] = theFillDetMap0[id]+ 1.;
+	  theFillDetMap1[id] = theFillDetMap1[id]+(*hoItr).energy();
+	  theFillDetMap2[id] = theFillDetMap2[id]+pow((*hoItr).energy(),2);
+	  theFillDetMap3[id] = theFillDetMap3[id]+pow((*hoItr).energy(),3);
+	  theFillDetMap4[id] = theFillDetMap4[id]+pow((*hoItr).energy(),4);
+	}
     }
   }
 
   if (!hfLabel_.empty()) {
-    try {
-      edm::Handle<HFRecHitCollection> hf;
-      iEvent.getByLabel(hfLabel_,hf);
-  for(HFRecHitCollection::const_iterator hfItr = (*hf).begin();
-      hfItr != (*hf).end(); ++hfItr)
-      {  
-         DetId id = (hfItr)->detid();
-	 theFillDetMap0[id] = theFillDetMap0[id]+ 1.;
-         theFillDetMap1[id] = theFillDetMap1[id]+(*hfItr).energy();
-	 theFillDetMap2[id] = theFillDetMap2[id]+pow((*hfItr).energy(),2);
-         theFillDetMap3[id] = theFillDetMap3[id]+pow((*hfItr).energy(),3);
-	 theFillDetMap4[id] = theFillDetMap4[id]+pow((*hfItr).energy(),4);
+    edm::Handle<HFRecHitCollection> hf;
+    iEvent.getByLabel(hfLabel_,hf);
+    if (!hf.isValid()) {
+      // can't find it!
+      if (!allowMissingInputs_) {
+	*hf;  // will throw the proper exception
       }
-      
-    } catch (std::exception& iEvent) { // can't find it!
-      if (!allowMissingInputs_) throw iEvent;
+  } else {
+      for(HFRecHitCollection::const_iterator hfItr = (*hf).begin();
+	  hfItr != (*hf).end(); ++hfItr)
+	{  
+	  DetId id = (hfItr)->detid();
+	  theFillDetMap0[id] = theFillDetMap0[id]+ 1.;
+	  theFillDetMap1[id] = theFillDetMap1[id]+(*hfItr).energy();
+	  theFillDetMap2[id] = theFillDetMap2[id]+pow((*hfItr).energy(),2);
+	  theFillDetMap3[id] = theFillDetMap3[id]+pow((*hfItr).energy(),3);
+	  theFillDetMap4[id] = theFillDetMap4[id]+pow((*hfItr).energy(),4);
+	}
     }
   }
   

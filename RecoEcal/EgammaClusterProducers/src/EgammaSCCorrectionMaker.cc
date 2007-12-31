@@ -64,23 +64,21 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
    
   // Get raw SuperClusters from the event    
   Handle<reco::SuperClusterCollection> pRawSuperClusters;
-  try { 
-    evt.getByLabel(sCInputProducer_, sCInputCollection_, pRawSuperClusters);
-  } catch ( cms::Exception& ex ) {
+  evt.getByLabel(sCInputProducer_, sCInputCollection_, pRawSuperClusters);
+  if (!pRawSuperClusters.isValid()) {
     edm::LogError("EgammaSCCorrectionMakerError") 
       << "Error! can't get the rawSuperClusters " 
       << sCInputCollection_.c_str() ;
-  }    
+  }
   
   // Get the RecHits from the event
   Handle<EcalRecHitCollection> pRecHits;
-  try { 
-    evt.getByLabel(rHInputProducer_, rHInputCollection_, pRecHits);
-  } catch ( cms::Exception& ex ) {
+  evt.getByLabel(rHInputProducer_, rHInputCollection_, pRecHits);
+  if (!pRecHits.isValid()) {
     edm::LogError("EgammaSCCorrectionMakerError") 
       << "Error! can't get the RecHits " 
       << rHInputCollection_.c_str() ;
-  }    
+  }
   
   // Create a pointer to the RecHits and raw SuperClusters
   const EcalRecHitCollection *hitCollection = pRecHits.product();

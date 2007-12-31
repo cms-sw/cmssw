@@ -60,22 +60,22 @@ void KVFTest::endJob() {
 void
 KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-
-
-  try {
-    edm::LogInfo("RecoVertex/KVFTest") 
-      << "Reconstructing event number: " << iEvent.id() << "\n";
+  edm::LogInfo("RecoVertex/KVFTest") 
+    << "Reconstructing event number: " << iEvent.id() << "\n";
     
-    // get RECO tracks from the event
-    // `tks` can be used as a ptr to a reco::TrackCollection
-    edm::Handle<reco::TrackCollection> tks;
-    iEvent.getByLabel(trackLabel_, tks);
-
+  // get RECO tracks from the event
+  // `tks` can be used as a ptr to a reco::TrackCollection
+  edm::Handle<reco::TrackCollection> tks;
+  iEvent.getByLabel(trackLabel_, tks);
+  if (!tks.isValid()) {
+    edm::LogInfo("RecoVertex/KVFTest") 
+      << "Exception during event number: " << iEvent.id()
+      << "\n";
+  } else {
     edm::LogInfo("RecoVertex/KVFTest") 
       << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
     cout << "got " << (*tks).size() << " tracks " << endl;
-
+    
     // Transform Track to TransientTrack
 
     //get the builder:
@@ -97,26 +97,22 @@ KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       // For the analysis: compare to your SimVertex
       TrackingVertex sv = getSimVertex(iEvent);
-  edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-  iEvent.getByLabel("trackingtruth","TrackTruth",TPCollectionH);
-  const TrackingParticleCollection tPC = *(TPCollectionH.product());
-      reco::RecoToSimCollection recSimColl=associatorForParamAtPca->associateRecoToSim(tks,
-									      TPCollectionH,
-									      &iEvent);
-
-      tree->fill(tv, &sv, &recSimColl);
+      edm::Handle<TrackingParticleCollection>  TPCollectionH ;
+      iEvent.getByLabel("trackingtruth","TrackTruth",TPCollectionH);
+      if (!TPCollectionH.isValid()) {
+	edm::LogInfo("RecoVertex/KVFTest") 
+	  << "Exception during event number: " << iEvent.id() 
+	  << "\n";
+      } else {
+	const TrackingParticleCollection tPC = *(TPCollectionH.product());
+	reco::RecoToSimCollection recSimColl=associatorForParamAtPca->associateRecoToSim(tks,
+											 TPCollectionH,
+											 &iEvent);    
+	tree->fill(tv, &sv, &recSimColl);
+      }
     }
-    
-  }
-
-  catch (std::exception & err) {
-    edm::LogInfo("RecoVertex/KVFTest") 
-      << "Exception during event number: " << iEvent.id() 
-      << "\n" << err.what() << "\n";
-  }
-
+  }  
 }
-
 
 //Returns the first vertex in the list.
 

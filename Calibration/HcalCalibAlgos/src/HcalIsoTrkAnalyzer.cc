@@ -15,7 +15,7 @@
 // Original Author:  Andrey Pozdnyakov
 //                   ... and Sergey Petrushanko (all lines between M+ and M-)
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.3 2007/09/18 13:27:42 ratnik Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.4 2007/10/10 06:18:25 dlange Exp $
 //
 //
 
@@ -521,9 +521,14 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      
       
       nHORecHits=0;
-      try {
-	Handle<HORecHitCollection> ho;
-	iEvent.getByLabel(hoLabel_,ho);
+      Handle<HORecHitCollection> ho;
+      iEvent.getByLabel(hoLabel_,ho);
+      if (!ho.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) {
+	  *ho;  // will throw the proper exception
+	}
+      } else {
 	const HORecHitCollection Hitho = *(ho.product());
 	for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
 	  {
@@ -552,9 +557,8 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      nHORecHits++;
 	    }
 	  }
-      } catch (cms::Exception& e) { // can't find it!
-	if (!allowMissingInputs_) throw e;
       }
+
       //  cout<<" HO is done "<<endl; 
       
       if(m_histoFlag==1)  {CalibTree -> Fill();}

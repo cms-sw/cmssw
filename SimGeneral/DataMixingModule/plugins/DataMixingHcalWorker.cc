@@ -77,13 +77,12 @@ namespace edm
 
    const HBHERecHitCollection*  HBHERecHits = 0;
 
-   try {
-     e.getByLabel( HBHErechitCollection_, pHBHERecHits);
+   e.getByLabel( HBHErechitCollection_, pHBHERecHits);
+   if (pHBHERecHits.isValid()) {
      HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HBHE rechits: " << HBHERecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (HBHERecHits)
@@ -109,13 +108,12 @@ namespace edm
 
    const HORecHitCollection*  HORecHits = 0;
 
-   try {
-     e.getByLabel( HOrechitCollection_, pHORecHits);
+   e.getByLabel( HOrechitCollection_, pHORecHits);
+   if (pHORecHits.isValid()) {
      HORecHits = pHORecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HO rechits: " << HORecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (HORecHits)
@@ -141,13 +139,12 @@ namespace edm
 
    const HFRecHitCollection*  HFRecHits = 0;
 
-   try {
-     e.getByLabel( HFrechitCollection_, pHFRecHits);
+   e.getByLabel( HFrechitCollection_, pHFRecHits);
+   if (pHFRecHits.isValid()) {
      HFRecHits = pHFRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HF rechits: " << HFRecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (HFRecHits)
@@ -173,13 +170,12 @@ namespace edm
 
    const ZDCRecHitCollection*  ZDCRecHits = 0;
 
-   try {
-     e.getByLabel( ZDCrechitCollection_, pZDCRecHits);
+   e.getByLabel( ZDCrechitCollection_, pZDCRecHits);
+   if (pZDCRecHits.isValid()) {
      ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # ZDC rechits: " << ZDCRecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (ZDCRecHits)
@@ -212,13 +208,12 @@ namespace edm
    Handle< HBHERecHitCollection > pHBHERecHits;
    const HBHERecHitCollection*  HBHERecHits = 0;
 
-   try {
-     e->getByLabel( HBHErechitCollection_, pHBHERecHits);
+   e->getByLabel( HBHErechitCollection_, pHBHERecHits);
+   if (pHBHERecHits.isValid()) {
      HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HEHB rechits: " << HBHERecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (HBHERecHits)
@@ -241,13 +236,12 @@ namespace edm
    Handle< HORecHitCollection > pHORecHits;
    const HORecHitCollection*  HORecHits = 0;
 
-   try {
-     e->getByLabel( HOrechitCollection_, pHORecHits);
+   e->getByLabel( HOrechitCollection_, pHORecHits);
+   if (pHORecHits.isValid()) {
      HORecHits = pHORecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HO rechits: " << HORecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (HORecHits)
@@ -271,13 +265,12 @@ namespace edm
    Handle< HFRecHitCollection > pHFRecHits;
    const HFRecHitCollection*  HFRecHits = 0;
 
-   try {
-     e->getByLabel( HFrechitCollection_, pHFRecHits);
+   e->getByLabel( HFrechitCollection_, pHFRecHits);
+   if (pHFRecHits.isValid()) {
      HFRecHits = pHFRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HF rechits: " << HFRecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (HFRecHits)
@@ -301,13 +294,12 @@ namespace edm
    Handle< ZDCRecHitCollection > pZDCRecHits;
    const ZDCRecHitCollection*  ZDCRecHits = 0;
 
-   try {
-     e->getByLabel( ZDCrechitCollection_, pZDCRecHits);
+   e->getByLabel( ZDCrechitCollection_, pZDCRecHits);
+   if (pZDCRecHits.isValid()) {
      ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # ZDC rechits: " << ZDCRecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (ZDCRecHits)

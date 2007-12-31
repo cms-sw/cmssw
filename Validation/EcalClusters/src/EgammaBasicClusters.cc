@@ -110,15 +110,11 @@ void EgammaBasicClusters::beginJob(edm::EventSetup const&)
 void EgammaBasicClusters::analyze( const edm::Event& evt, const edm::EventSetup& es )
 {
   	edm::Handle<reco::BasicClusterCollection> pHybridBarrelBasicClusters;
-	try
-	{
-		evt.getByLabel(hybridBarrelBasicClusterCollection_, pHybridBarrelBasicClusters);
-  	}
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaBasicClusters") << "Error! can't get collection with label " 
-			<< hybridBarrelBasicClusterCollection_.label();
-  	}
+	evt.getByLabel(hybridBarrelBasicClusterCollection_, pHybridBarrelBasicClusters);
+	if (!pHybridBarrelBasicClusters.isValid()) {
+	  edm::LogError("EgammaBasicClusters") << "Error! can't get collection with label " 
+					       << hybridBarrelBasicClusterCollection_.label();
+	}
 
   	const reco::BasicClusterCollection* hybridBarrelBasicClusters = pHybridBarrelBasicClusters.product();
   	hist_HybridEB_BC_Size_->Fill(hybridBarrelBasicClusters->size());
@@ -133,14 +129,11 @@ void EgammaBasicClusters::analyze( const edm::Event& evt, const edm::EventSetup&
   	}
 
   	edm::Handle<reco::BasicClusterCollection> pIslandBarrelBasicClusters;
- 	try
-	{
-		evt.getByLabel(islandBarrelBasicClusterCollection_, pIslandBarrelBasicClusters);
-  	}
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaBasicClusters") << "Error! can't get collection with label " 
-			<< islandBarrelBasicClusterCollection_.label();
+	evt.getByLabel(islandBarrelBasicClusterCollection_, pIslandBarrelBasicClusters);
+	if (!pIslandBarrelBasicClusters.isValid()) {
+	  edm::LogError("EgammaBasicClusters") << "Error! can't get collection with label " 
+					       << islandBarrelBasicClusterCollection_.label();
+
   	}
 
   	const reco::BasicClusterCollection* islandBarrelBasicClusters = pIslandBarrelBasicClusters.product();
@@ -156,14 +149,11 @@ void EgammaBasicClusters::analyze( const edm::Event& evt, const edm::EventSetup&
   	}
 
   	edm::Handle<reco::BasicClusterCollection> pIslandEndcapBasicClusters;
-  	try
-	{
-		evt.getByLabel(islandEndcapBasicClusterCollection_, pIslandEndcapBasicClusters);
-  	}
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaBasicClusters") << "Error! can't get collection with label " 
-			<< islandEndcapBasicClusterCollection_.label();
+
+	evt.getByLabel(islandEndcapBasicClusterCollection_, pIslandEndcapBasicClusters);
+	if (!pIslandEndcapBasicClusters.isValid()) {
+	  edm::LogError("EgammaBasicClusters") << "Error! can't get collection with label " 
+					       << islandEndcapBasicClusterCollection_.label();
   	}
 
   	const reco::BasicClusterCollection* islandEndcapBasicClusters = pIslandEndcapBasicClusters.product();

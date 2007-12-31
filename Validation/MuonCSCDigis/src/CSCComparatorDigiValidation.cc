@@ -42,13 +42,15 @@ void CSCComparatorDigiValidation::analyze(const edm::Event&e, const edm::EventSe
   edm::Handle<CSCComparatorDigiCollection> comparators;
   edm::Handle<CSCStripDigiCollection> stripDigis;
 
-  try {
-    e.getByLabel(theInputTag, comparators);
-    e.getByLabel(theStripDigiInputTag, stripDigis);
-  } catch (...) {
+  e.getByLabel(theInputTag, comparators);
+  if (!comparators.isValid()) {
     edm::LogError("CSCDigiDump") << "Cannot get comparators by label " << theInputTag.encode();
   }
-
+  e.getByLabel(theStripDigiInputTag, stripDigis);
+  if (!stripDigis.isValid()) {
+    edm::LogError("CSCDigiDump") << "Cannot get comparators by label " << theInputTag.encode();
+  }
+  
   unsigned nDigisPerEvent = 0;
 
   for (CSCComparatorDigiCollection::DigiRangeIterator j=comparators->begin(); j!=comparators->end(); j++) {

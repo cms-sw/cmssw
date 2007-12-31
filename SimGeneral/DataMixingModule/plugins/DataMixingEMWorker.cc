@@ -81,13 +81,12 @@ namespace edm
 
    const EBRecHitCollection*  EBRecHits = 0;
 
-   try {
-     e.getByLabel( EBrechitCollection_, pEBRecHits);
+   e.getByLabel( EBrechitCollection_, pEBRecHits);
+   if (pEBRecHits.isValid()) {
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (EBRecHits)
@@ -113,13 +112,12 @@ namespace edm
 
    const EERecHitCollection*  EERecHits = 0;
 
-   try {
-     e.getByLabel( EErechitCollection_, pEERecHits);
+   e.getByLabel( EErechitCollection_, pEERecHits);
+   if (pEERecHits.isValid()) {
      EERecHits = pEERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (EERecHits)
@@ -144,13 +142,12 @@ namespace edm
 
    const ESRecHitCollection*  ESRecHits = 0;
 
-   try {
-     e.getByLabel( ESrechitCollection_, pESRecHits);
+   e.getByLabel( ESrechitCollection_, pESRecHits);
+   if (pESRecHits.isValid()) {
      ESRecHits = pESRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (ESRecHits)
@@ -183,13 +180,12 @@ namespace edm
    Handle< EBRecHitCollection > pEBRecHits;
    const EBRecHitCollection*  EBRecHits = 0;
 
-   try {
-     e->getByLabel( EBrechitCollection_, pEBRecHits);
+   e->getByLabel( EBrechitCollection_, pEBRecHits);
+   if (pEBRecHits.isValid()) {
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (EBRecHits)
@@ -212,13 +208,12 @@ namespace edm
    Handle< EERecHitCollection > pEERecHits;
    const EERecHitCollection*  EERecHits = 0;
 
-   try {
-     e->getByLabel( EErechitCollection_, pEERecHits);
+   e->getByLabel( EErechitCollection_, pEERecHits);
+   if (pEERecHits.isValid()) {
      EERecHits = pEERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (EERecHits)
@@ -241,13 +236,12 @@ namespace edm
    Handle< ESRecHitCollection > pESRecHits;
    const ESRecHitCollection*  ESRecHits = 0;
 
-   try {
-     e->getByLabel( ESrechitCollection_, pESRecHits);
+   e->getByLabel( ESrechitCollection_, pESRecHits);
+   if (pESRecHits.isValid()) {
      ESRecHits = pESRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
 #endif
-   } catch (...) {
    }
  
    if (ESRecHits)

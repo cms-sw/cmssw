@@ -41,11 +41,8 @@ void CSCStripDigiValidation::analyze(const edm::Event& e,
                                      const edm::EventSetup&)
 {
   edm::Handle<CSCStripDigiCollection> strips;
-
-  try
-  {
-    e.getByLabel(theInputTag, strips);
-  } catch (...) {
+  e.getByLabel(theInputTag, strips);
+  if (!strips.isValid()) {
     edm::LogError("CSCDigiValidation") << "Cannot get strips by label " 
                                        << theInputTag.encode();
   }

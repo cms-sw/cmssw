@@ -119,28 +119,29 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Retrieve!
   // ==========================================================
 
-  try {
-
-    
-    // Get Generated MET
-    edm::Handle<CaloMETCollection> calo;
-    iEvent.getByLabel(inputCaloMETLabel_, calo);
-    const CaloMETCollection *calometcol = calo.product();
-    calomet = &(calometcol->front());
-    
-    // Get Generated MET
-    edm::Handle<GenMETCollection> gen;
-    iEvent.getByLabel(inputGenMETLabel_, gen);
-    const GenMETCollection *genmetcol = gen.product();
-    genmet = &(genmetcol->front());
-    
-  } catch (...) {
-
+  // Get Generated MET
+  edm::Handle<CaloMETCollection> calo;
+  iEvent.getByLabel(inputCaloMETLabel_, calo);
+  if (!calo.isValid()) {
     edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task";
     edm::LogInfo("OutputInfo") << " MET Task cannot continue...!";
     return;
-
+  } else {
+    const CaloMETCollection *calometcol = calo.product();
+    calomet = &(calometcol->front());
   }
+
+  // Get Generated MET
+  edm::Handle<GenMETCollection> gen;
+  iEvent.getByLabel(inputGenMETLabel_, gen);
+  if (!gen.isValid()) {
+    edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task";
+    edm::LogInfo("OutputInfo") << " MET Task cannot continue...!";
+    return;
+  } else {
+    const GenMETCollection *genmetcol = gen.product();
+    genmet = &(genmetcol->front());
+  }    
 
   // ==========================================================
   // Analyze!

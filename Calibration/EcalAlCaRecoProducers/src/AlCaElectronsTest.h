@@ -144,10 +144,15 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
             << iEvent.id () << std::endl ;
 
   //PG get the collections  
-  try {
-      // get Barrel RecHits
-      Handle<EBRecHitCollection> barrelRecHitsHandle ;
-      iEvent.getByLabel (m_barrelAlCa, barrelRecHitsHandle) ;
+  // get Barrel RecHits
+  Handle<EBRecHitCollection> barrelRecHitsHandle ;
+  iEvent.getByLabel (m_barrelAlCa, barrelRecHitsHandle) ;
+  if (!barrelRecHitsHandle.isValid()) {
+      std::cerr << "[AlCaElectronsTest] caught std::exception "
+                << " in rertieving " << m_barrelAlCa 
+                << std::endl ;
+      return ;
+  } else {
       const EBRecHitCollection* barrelHitsCollection = barrelRecHitsHandle.product () ;
       //PG fill the histo with the maximum
       EcalRecHit barrelMax = getMaximum (barrelHitsCollection) ;
@@ -166,17 +171,17 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
           barrelMaxId.ieta (), 
           barrelMaxId.iphi ()
         ) ;
-    } catch (std::exception& ce) {
-      std::cerr << "[AlCaElectronsTest] caught std::exception "
-                << " in rertieving " << m_barrelAlCa 
-                << ce.what () << std::endl ;
-      return ;
-    }
+  }
   
-  try {
-      // get Endcap RecHits
-      Handle<EERecHitCollection> endcapRecHitsHandle ;
-      iEvent.getByLabel (m_endcapAlCa,endcapRecHitsHandle) ;
+  // get Endcap RecHits
+  Handle<EERecHitCollection> endcapRecHitsHandle ;
+  iEvent.getByLabel (m_endcapAlCa,endcapRecHitsHandle) ;
+  if (!endcapRecHitsHandle.isValid()) {
+      std::cerr << "[AlCaElectronsTest] caught std::exception " 
+                << " in rertieving " << m_endcapAlCa 
+                << std::endl ;
+      return ;
+  } else {
       const EERecHitCollection* endcapHitsCollection = endcapRecHitsHandle.product () ;
       //PG fill the histo with the maximum
       EcalRecHit endcapMax = getMaximum (endcapHitsCollection) ;
@@ -195,13 +200,7 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
           endcapMaxId.ix (), 
           endcapMaxId.iy ()
         ) ;
-    } catch (std::exception& ce) {
-      std::cerr << "[AlCaElectronsTest] caught std::exception " 
-                << " in rertieving " << m_endcapAlCa 
-                << ce.what () << std::endl ;
-      return ;
-    }
-
+  }
 }
 
 

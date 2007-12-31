@@ -341,18 +341,14 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   L1CSCSPStatusDigiCollection_    const* ctf_sta_data(new L1CSCSPStatusDigiCollection_);
   L1CSCSPStatusDigiCollection_    const* ctf_sta_emul(new L1CSCSPStatusDigiCollection_);
   if(m_doSys[CTF]) {
-    try{
-      iEvent.getByLabel(m_DEsource[CTF][2],ctf_trk_data_);
-      iEvent.getByLabel(m_DEsource[CTF][3],ctf_trk_emul_);
-    } catch(...) {}
+    iEvent.getByLabel(m_DEsource[CTF][2],ctf_trk_data_);
+    iEvent.getByLabel(m_DEsource[CTF][3],ctf_trk_emul_);
     //note: unpacker different label: MounL1CSCTrackCollection
     iEvent.getByLabel(m_DEsource[CTF][0].label(),"CSC",ctf_data);
     iEvent.getByLabel(m_DEsource[CTF][1].label(),"CSC",ctf_emul);
     //note: unpacker only
-    try {
-      iEvent.getByLabel(m_DEsource[CTF][0].label(),"MuonL1CSCStatusDigiCollection",ctf_sta_data_);
-      iEvent.getByLabel(m_DEsource[CTF][1].label(),"MuonL1CSCStatusDigiCollection",ctf_sta_emul_);
-    } catch(...) {}
+    iEvent.getByLabel(m_DEsource[CTF][0].label(),"MuonL1CSCStatusDigiCollection",ctf_sta_data_);
+    iEvent.getByLabel(m_DEsource[CTF][1].label(),"MuonL1CSCStatusDigiCollection",ctf_sta_emul_);
   }
   if(ctf_sta_data_.isValid())
     ctf_sta_data = &(ctf_sta_data_->second);
@@ -673,10 +669,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(dorawdata) {
     edm::Handle<FEDRawDataCollection> raw_fedcoll_data;
     edm::Handle<FEDRawDataCollection> raw_fedcoll_emul;
-    try {
-      iEvent.getByLabel(m_FEDsource[0], raw_fedcoll_data);
-      iEvent.getByLabel(m_FEDsource[1], raw_fedcoll_emul);
-    } catch(...) {}  
+    iEvent.getByLabel(m_FEDsource[0], raw_fedcoll_data);
+    iEvent.getByLabel(m_FEDsource[1], raw_fedcoll_emul);
     bool rawval=true;
     rawval &= raw_fedcoll_data.isValid();
     rawval &= raw_fedcoll_emul.isValid();

@@ -13,7 +13,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: miscalibExample.cc,v 1.3 2006/10/27 01:35:17 wmtan Exp $
+// $Id: miscalibExample.cc,v 1.4 2007/09/07 20:05:44 ratnik Exp $
 //
 //
 
@@ -138,9 +138,8 @@ miscalibExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
  // Get hybrid super clusters after energy correction
  
   Handle<reco::SuperClusterCollection> pCorrectedHybridSuperClusters;
-  try {
-    iEvent.getByLabel(correctedHybridSuperClusterProducer_, correctedHybridSuperClusterCollection_, pCorrectedHybridSuperClusters);
-  } catch ( cms::Exception& ex ) {
+  iEvent.getByLabel(correctedHybridSuperClusterProducer_, correctedHybridSuperClusterCollection_, pCorrectedHybridSuperClusters);
+  if (!pCorrectedHybridSuperClusters.isValid()) {
     LogError("EgammaSimpleAnalyzer") << "Error! can't get collection with label " << correctedHybridSuperClusterCollection_.c_str() ;
   }
   const reco::SuperClusterCollection* correctedHybridSuperClusters = pCorrectedHybridSuperClusters.product();

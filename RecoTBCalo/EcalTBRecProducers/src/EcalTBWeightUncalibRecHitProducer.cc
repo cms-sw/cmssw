@@ -1,13 +1,13 @@
 /** \class EcalTBWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.10 2007/08/09 09:21:34 innocent Exp $
-  *  $Date: 2007/08/09 09:21:34 $
-  *  $Revision: 1.10 $
+  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.11 2007/10/01 22:42:50 ferriff Exp $
+  *  $Date: 2007/10/01 22:42:50 $
+  *  $Revision: 1.11 $
   *
   *  $Alex Zabi$
-  *  $Date: 2007/08/09 09:21:34 $
-  *  $Revision: 1.10 $
+  *  $Date: 2007/10/01 22:42:50 $
+  *  $Revision: 1.11 $
   *  Modification to detect first sample to switch gain.
   *  used for amplitude recontruction at high energy
   *  Add TDC convention option (P. Meridiani)
@@ -72,15 +72,15 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
    Handle< EBDigiCollection > pEBDigis;
    const EBDigiCollection* EBdigis =0;
    
-   try {
-     //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
-     evt.getByLabel( digiProducer_, pEBDigis);
+   //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
+   evt.getByLabel( digiProducer_, pEBDigis);
+   if (!pEBDigis.isValid()) {
+     edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
+   } else {
      EBdigis = pEBDigis.product(); // get a ptr to the produc
 #ifdef DEBUG
      LogDebug("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size() ;
 #endif
-   } catch ( std::exception& ex ) {
-     edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
    }
 
    if (!EBdigis)
@@ -89,15 +89,11 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
    Handle< EcalTBTDCRecInfo > pRecTDC;
    const EcalTBTDCRecInfo* recTDC =0;
 
-   try 
-     {
-       //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
-       evt.getByLabel( tdcRecInfoProducer_, tdcRecInfoCollection_, pRecTDC);
-       recTDC = pRecTDC.product(); // get a ptr to the product
-     } 
-   catch ( std::exception& ex ) 
-     {
-     }
+   //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
+   evt.getByLabel( tdcRecInfoProducer_, tdcRecInfoCollection_, pRecTDC);
+   if (pRecTDC.isValid()) {
+     recTDC = pRecTDC.product(); // get a ptr to the product
+   } 
 
    // fetch map of groups of xtals
    edm::ESHandle<EcalWeightXtalGroups> pGrp;

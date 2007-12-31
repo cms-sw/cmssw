@@ -630,10 +630,13 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event,
   Handle<EBRecHitCollection> barrelRecHitsHandle;
   Handle<EERecHitCollection> endcapRecHitsHandle;
 
-  try {
-    event.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
-    event.getByLabel(ecalHitsProducer_,endcapHits_,endcapRecHitsHandle);
-  } catch ( std::exception& ex ) {
+  event.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
+  if (!barrelRecHitsHandle.isValid()) {
+    LogDebug("") << "PhiSymmetryCalibration: Error! can't get product!" << std::endl;
+  }
+
+  event.getByLabel(ecalHitsProducer_,endcapHits_,endcapRecHitsHandle);
+  if (!endcapRecHitsHandle.isValid()) {
     LogDebug("") << "PhiSymmetryCalibration: Error! can't get product!" << std::endl;
   }
 

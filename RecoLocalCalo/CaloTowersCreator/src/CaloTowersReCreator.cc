@@ -71,12 +71,16 @@ void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.begin(); // clear the internal buffer
   
   // Step A/C: Get Inputs and process (repeatedly)
-  try {
-    edm::Handle<CaloTowerCollection> calt;
-    e.getByLabel(caloLabel_,calt);
+  edm::Handle<CaloTowerCollection> calt;
+  e.getByLabel(caloLabel_,calt);
+
+  if (!calt.isValid()) {
+    // can't find it!
+    if (!allowMissingInputs_) {
+      *calt;  // will throw the proper exception
+    }
+  } else {
     algo_.process(*calt);
-  } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
   }
 
   // Step B: Create empty output

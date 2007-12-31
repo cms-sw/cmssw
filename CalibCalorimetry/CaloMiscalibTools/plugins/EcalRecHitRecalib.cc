@@ -48,14 +48,18 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const EBRecHitCollection*  EBRecHits = 0;
   const EERecHitCollection*  EERecHits = 0; 
  
-  try {
-    iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
-    EBRecHits = barrelRecHitsHandle.product(); // get a ptr to the product
-
-    iEvent.getByLabel(ecalHitsProducer_,endcapHits_,endcapRecHitsHandle);
-    EERecHits = endcapRecHitsHandle.product(); // get a ptr to the product
-  } catch ( std::exception& ex ) {
+  iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
+  if (!barrelRecHitsHandle.isValid()) {
     LogDebug("") << "EcalREcHitMiscalib: Error! can't get product!" << std::endl;
+  } else {
+    EBRecHits = barrelRecHitsHandle.product(); // get a ptr to the product
+  }
+
+  iEvent.getByLabel(ecalHitsProducer_,endcapHits_,endcapRecHitsHandle);
+  if (!endcapRecHitsHandle.isValid()) {
+    LogDebug("") << "EcalREcHitMiscalib: Error! can't get product!" << std::endl;
+  } else {
+    EERecHits = endcapRecHitsHandle.product(); // get a ptr to the product
   }
 
   //Create empty output collections

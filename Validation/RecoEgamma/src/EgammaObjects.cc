@@ -246,12 +246,8 @@ void EgammaObjects::analyze( const edm::Event& evt, const edm::EventSetup& es )
 void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup& es )
 {
   edm::Handle<reco::PhotonCollection> pPhotons;
-  try
-  {
-    evt.getByLabel(RecoCollection_, pPhotons);
-  }
-  catch ( cms::Exception& ex )
-  {
+  evt.getByLabel(RecoCollection_, pPhotons);
+  if (!pPhotons.isValid()) {
     edm::LogError("EgammaObjects") << "Error! can't get collection with label " << RecoCollection_.label();
   }
 
@@ -290,12 +286,8 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
     }      
 
   edm::Handle<edm::HepMCProduct> pMCTruth ;
-  try
-  {
-    evt.getByLabel(MCTruthCollection_, pMCTruth);
-  }
-  catch ( cms::Exception& ex )
-  {
+  evt.getByLabel(MCTruthCollection_, pMCTruth);
+  if (!pMCTruth.isValid()) {
     edm::LogError("EgammaObjects") << "Error! can't get collection with label " << MCTruthCollection_.label();
   }
 
@@ -416,12 +408,8 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
 void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSetup& es )
 {
   edm::Handle<reco::GsfElectronCollection> pElectrons;
-  try
-  {
-    evt.getByLabel(RecoCollection_, pElectrons);
-  }
-  catch ( cms::Exception& ex )
-  {
+  evt.getByLabel(RecoCollection_, pElectrons);
+  if (!pElectrons.isValid()) {
     edm::LogError("DOEPlotsProducerElectrons") << "Error! can't get collection with label " << RecoCollection_.label();
   }
 
@@ -460,12 +448,8 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
     }      
 
   edm::Handle<edm::HepMCProduct> pMCTruth ;
-  try
-  {
-    evt.getByLabel(MCTruthCollection_, pMCTruth);
-  }
-  catch ( cms::Exception& ex )
-  {
+  evt.getByLabel(MCTruthCollection_, pMCTruth);
+  if (!pMCTruth.isValid()) {
     edm::LogError("DOEPlotsProducerElectrons") << "Error! can't get collection with label " << MCTruthCollection_.label();
   }
   
