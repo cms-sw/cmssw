@@ -1,7 +1,7 @@
-#include "../interface/HistoMgr.h"
+#include "Validation/MuonHits/interface/HistoMgr.h"
 #include "TFile.h"
 #include <iostream>
-
+#include <math.h>
 
 HistoMgr* HistoMgr::theInstance = 0;
 
