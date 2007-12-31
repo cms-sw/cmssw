@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.34 2007/12/03 00:40:50 wmtan Exp $
+$Id: InputSource.cc,v 1.35 2007/12/11 00:25:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -14,6 +14,7 @@ $Id: InputSource.cc,v 1.34 2007/12/03 00:40:50 wmtan Exp $
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 namespace edm {
@@ -50,6 +51,7 @@ namespace edm {
       moduleDescription_(desc.moduleDescription_),
       productRegistry_(createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_)),
       primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")),
+      processGUID_(primary_ ? createGlobalIdentifier() : std::string()),
       time_(),
       doneReadAhead_(false),
       state_(IsInvalid),

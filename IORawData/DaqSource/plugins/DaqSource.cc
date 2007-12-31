@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/12/11 00:32:37 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/12/18 21:29:03 $
+ *  $Revision: 1.14 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -133,7 +133,7 @@ namespace edm {
     }
     // make a brand new event
     ep_ = std::auto_ptr<EventPrincipal>(
-	new EventPrincipal(eventId, timestamp(),
+	new EventPrincipal(eventId, processGUID(), timestamp(),
 	productRegistry(), luminosityBlockPrincipal(), processConfiguration(), true, EventAuxiliary::Data));
     
     // have fedCollection managed by a std::auto_ptr<>

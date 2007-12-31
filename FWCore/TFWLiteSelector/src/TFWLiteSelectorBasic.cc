@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.31 2007/09/07 23:14:51 chrjones Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.32 2007/12/15 00:24:26 wmtan Exp $
 //
 
 // system include files
@@ -270,7 +270,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	 boost::shared_ptr<edm::ProductRegistry const> reg(m_->reg_);
 	 boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(aux.run(), aux.time(), aux.time(), reg, pc));
 	 boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, aux.time(), aux.time(), reg, rp, pc));
-	 edm::EventPrincipal ep(aux.id(), aux.time(), reg, lbp, pc, true,
+	 edm::EventPrincipal ep(aux.id(), aux.processGUID(), aux.time(), reg, lbp, pc, true,
 				edm::EventAuxiliary::Any,
                                 edm::EventPrincipal::invalidBunchXing,
 				edm::EventPrincipal::invalidStoreNumber,

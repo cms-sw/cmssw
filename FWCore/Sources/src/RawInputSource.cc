@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.16 2007/12/03 00:41:05 wmtan Exp $
+$Id: RawInputSource.cc,v 1.17 2007/12/11 00:28:07 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Sources/interface/RawInputSource.h"
@@ -77,7 +77,7 @@ namespace edm {
   RawInputSource::makeEvent(EventID & eventId, Timestamp const& tstamp) {
     eventId = EventID(runNumber_, eventId.event());
     ep_ = std::auto_ptr<EventPrincipal>(
-	new EventPrincipal(eventId, tstamp,
+	new EventPrincipal(eventId, processGUID(), tstamp,
 	productRegistry(), luminosityBlockPrincipal(), processConfiguration(), true, EventAuxiliary::Data));
     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
     return e;

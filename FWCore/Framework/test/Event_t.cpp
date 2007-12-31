@@ -3,7 +3,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.24 2007/10/05 22:00:13 chrjones Exp $
+$Id: Event_t.cpp,v 1.25 2007/11/07 08:35:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -39,6 +39,7 @@ $Id: Event_t.cpp,v 1.24 2007/10/05 22:00:13 chrjones Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 using namespace edm;
@@ -336,12 +337,14 @@ void testEvent::setUp()
   // look up the object.
 
   boost::shared_ptr<ProductRegistry const> preg = boost::shared_ptr<ProductRegistry const>(availableProducts_);
+  std::string uuid = createGlobalIdentifier();
   Timestamp time = make_timestamp();
   EventID id = make_id();
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
   boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(id.run(), time, time, preg, pc));
   boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(1, time, time, preg, rp, pc));
   principal_  = new EventPrincipal(id,
+				   uuid,
 				   time,
 				   preg,
                                    lbp,

@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: event_getrefbeforeput_t.cppunit.cc,v 1.15 2007/08/08 21:51:28 wmtan Exp $
+$Id: event_getrefbeforeput_t.cppunit.cc,v 1.17 2007/12/29 00:28:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -15,11 +15,12 @@ $Id: event_getrefbeforeput_t.cppunit.cc,v 1.15 2007/08/08 21:51:28 wmtan Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 //#include "FWCore/Framework/interface/Selector.h"
-#include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -53,12 +54,13 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::ProductRegistry *preg = new edm::ProductRegistry;
   preg->setProductIDs();
   edm::EventID col(1L, 1L);
+  std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(col.run(), fakeTime, fakeTime, pregc, pc));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, fakeTime, fakeTime, pregc, rp, pc));
-  edm::EventPrincipal ep(col, fakeTime, pregc, lbp, pc, true);
+  edm::EventPrincipal ep(col, uuid, fakeTime, pregc, lbp, pc, true);
   try {
      edm::ModuleDescription modDesc;
      modDesc.moduleName_ = "Blah";
@@ -106,12 +108,13 @@ void testEventGetRefBeforePut::getRefTest() {
   preg->addProduct(product);
   preg->setProductIDs();
   edm::EventID col(1L, 1L);
+  std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc(processName, edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(col.run(), fakeTime, fakeTime, pregc, pc));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, fakeTime, fakeTime, pregc, rp, pc));
-  edm::EventPrincipal ep(col, fakeTime, pregc, lbp, pc, true);
+  edm::EventPrincipal ep(col, uuid, fakeTime, pregc, lbp, pc, true);
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {

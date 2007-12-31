@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: TestRunLumiSource.cc,v 1.2 2007/12/03 00:44:18 wmtan Exp $
+$Id: TestRunLumiSource.cc,v 1.3 2007/12/11 00:34:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Integration/test/TestRunLumiSource.h"
@@ -67,7 +67,7 @@ namespace edm {
     EventID id(run, event);
     currentIndex_ += 3;
     std::auto_ptr<EventPrincipal> result(
-	new EventPrincipal(id, ts, productRegistry(), lbp2, processConfiguration(), false));
+	new EventPrincipal(id, processGUID(), ts, productRegistry(), lbp2, processConfiguration(), false));
     return result;
   }
 

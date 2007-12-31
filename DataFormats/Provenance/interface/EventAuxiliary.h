@@ -29,17 +29,20 @@ namespace edm
     EventAuxiliary() :
 	processHistoryID_(),
 	id_(),
+        processGUID_(),
 	time_(),
 	luminosityBlock_(),
 	isRealData_(false), 
 	experimentType_(Any),
 	bunchCrossing_(invalidBunchXing),
         storeNumber_(invalidStoreNumber) {}
-    EventAuxiliary(EventID const& theId, Timestamp const& theTime, LuminosityBlockNumber_t lb,
+    EventAuxiliary(EventID const& theId, std::string const& theProcessGUID, Timestamp const& theTime,
+		   LuminosityBlockNumber_t lb,
                    bool isReal, ExperimentType eType = Any,
 		   int bunchXing = invalidBunchXing, int storeNumber = invalidStoreNumber) :
 	processHistoryID_(),
 	id_(theId),
+        processGUID_(theProcessGUID),
 	time_(theTime),
 	luminosityBlock_(lb),
 	isRealData_(isReal),
@@ -50,6 +53,7 @@ namespace edm
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
     EventID const& id() const {return id_;}
+    std::string const& processGUID() const {return processGUID_;}
     Timestamp const& time() const {return time_;}
     LuminosityBlockNumber_t const& luminosityBlock() const {return luminosityBlock_;}
     EventNumber_t event() const {return id_.event();}
@@ -64,6 +68,8 @@ namespace edm
     mutable ProcessHistoryID processHistoryID_;
     // Event ID
     EventID id_;
+    // Globally unique process ID of process that created event.
+    std::string processGUID_;
     // Time from DAQ
     Timestamp time_;
     // Associated Luminosity Block identifier

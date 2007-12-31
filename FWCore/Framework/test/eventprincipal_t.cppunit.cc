@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.48 2007/10/05 21:58:17 chrjones Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.50 2007/12/29 00:28:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <map>
@@ -33,6 +33,7 @@ $Id: eventprincipal_t.cppunit.cc,v 1.48 2007/10/05 21:58:17 chrjones Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 class test_ep: public CppUnit::TestFixture 
 {
@@ -176,11 +177,12 @@ void test_ep::setUp()
 
     edm::ProcessConfiguration* process = processConfigurations_[tag];
     assert(process);
+    std::string uuid = edm::createGlobalIdentifier();
     edm::Timestamp now(1234567UL);
     boost::shared_ptr<edm::ProductRegistry const> preg = boost::shared_ptr<edm::ProductRegistry const>(pProductRegistry_);
     boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(eventID_.run(), now, now, preg, *process));
     boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, now, now, preg, rp, *process));
-    pEvent_  = new edm::EventPrincipal(eventID_, now, preg, lbp, *process, true);
+    pEvent_  = new edm::EventPrincipal(eventID_, uuid, now, preg, lbp, *process, true);
     pEvent_->put(product, provenance);
   }
   CPPUNIT_ASSERT(pEvent_->size() == 1);

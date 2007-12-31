@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.103 2007/12/12 22:05:22 wmtan Exp $
+$Id: RootFile.cc,v 1.104 2007/12/28 20:08:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -483,6 +483,7 @@ namespace edm {
     // We're not done ... so prepare the EventPrincipal
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
                 eventID(),
+		eventAux_.processGUID(),
 		eventAux_.time(), pReg,
 		lbp, processConfiguration_,
 		eventAux_.isRealData(),

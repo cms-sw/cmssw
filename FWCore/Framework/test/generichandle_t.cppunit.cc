@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.24 2007/10/05 22:00:38 chrjones Exp $
+$Id: generichandle_t.cppunit.cc,v 1.26 2007/12/29 00:28:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -11,11 +11,12 @@ $Id: generichandle_t.cppunit.cc,v 1.24 2007/10/05 22:00:38 chrjones Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -60,11 +61,12 @@ void testGenericHandle::failgetbyLabelTest() {
 
   edm::EventID id;
   edm::Timestamp time;
+  std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> preg(new edm::ProductRegistry);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(id.run(), time, time, preg, pc));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, time, time, preg, rp, pc));
-  edm::EventPrincipal ep(id, time, preg, lbp, pc, true);
+  edm::EventPrincipal ep(id, uuid, time, preg, lbp, pc, true);
   edm::GenericHandle h("edmtest::DummyProduct");
   bool didThrow=true;
   try {
@@ -133,11 +135,12 @@ void testGenericHandle::getbyLabelTest() {
 
   edm::EventID col(1L, 1L);
   edm::Timestamp fakeTime;
+  std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(col.run(), fakeTime, fakeTime, pregc, pc));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, fakeTime, fakeTime, pregc, rp, pc));
-  edm::EventPrincipal ep(col, fakeTime, pregc, lbp, pc, true);
+  edm::EventPrincipal ep(col, uuid, fakeTime, pregc, lbp, pc, true);
 
   std::auto_ptr<edm::Provenance> pprov(new edm::Provenance(product, edm::BranchEntryDescription::Success));
   ep.put(pprod, pprov);

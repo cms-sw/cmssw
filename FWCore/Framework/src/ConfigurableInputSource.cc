@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.31 2007/12/11 00:25:54 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.32 2007/12/14 21:39:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -84,7 +84,7 @@ namespace edm {
   void
   ConfigurableInputSource::reallyReadEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
     std::auto_ptr<EventPrincipal> result(
-	new EventPrincipal(eventID_, Timestamp(presentTime_),
+	new EventPrincipal(eventID_, processGUID(), Timestamp(presentTime_),
 	productRegistry(), lbp, processConfiguration(), isRealData_, eType_));
     Event e(*result, moduleDescription());
     if (!produce(e)) {

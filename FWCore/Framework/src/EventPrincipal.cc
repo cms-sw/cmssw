@@ -8,6 +8,7 @@
 
 namespace edm {
   EventPrincipal::EventPrincipal(EventID const& id,
+	std::string const& processGUID,
 	Timestamp const& time,
 	boost::shared_ptr<ProductRegistry const> reg,
         boost::shared_ptr<LuminosityBlockPrincipal> lbp,
@@ -19,7 +20,7 @@ namespace edm {
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, hist, rtrv),
-	  aux_(id, time, lbp->luminosityBlock(), isReal, eType, bunchXing, storeNumber),
+	  aux_(id, processGUID, time, lbp->luminosityBlock(), isReal, eType, bunchXing, storeNumber),
 	  luminosityBlockPrincipal_(lbp),
 	  unscheduledHandler_() {
 	  }
