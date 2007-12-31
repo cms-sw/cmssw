@@ -11,6 +11,7 @@
 #include "TPolyLine.h"
 #include "TStyle.h"
 #include "TColor.h"
+#include "TROOT.h"
 
 using namespace std;
 
