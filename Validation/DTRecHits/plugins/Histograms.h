@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2007/06/18 15:29:13 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/10/25 11:58:37 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -14,10 +14,11 @@
 #include "TH2F.h"
 #include "TFile.h"
 #include "TString.h"
+#include "TMath.h"
 
 #include <string>
 #include <iostream>
-
+#include <math.h>
 
 //---------------------------------------------------------------------------------------
 /// A set of histograms of residuals and pulls for 1D RecHits
