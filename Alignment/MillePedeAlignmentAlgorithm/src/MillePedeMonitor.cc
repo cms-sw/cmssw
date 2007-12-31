@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.10 $
- *  $Date: 2007/07/12 17:32:39 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.11 $
+ *  $Date: 2007/12/04 23:55:26 $
+ *  (last update by $Author: ratnik $)
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
@@ -26,6 +26,7 @@
 #include <TProfile2D.h>
 #include <TFile.h>
 #include <TDirectory.h>
+#include <TMath.h>
 
 typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
 
