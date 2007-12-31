@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronAnalyzer.cc,v 1.1 2007/12/08 15:23:00 futyand Exp $
+// $Id: GsfElectronAnalyzer.cc,v 1.2 2007/12/18 14:15:55 charlot Exp $
 //
 //
 
@@ -35,6 +35,7 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include <iostream>
+#include "TMath.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH1I.h"

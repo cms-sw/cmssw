@@ -16,12 +16,13 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:52:45 EDT 2006
-// $Id: SiStripElectronAnalyzer.h,v 1.1 2007/03/22 16:12:25 futyand Exp $
+// $Id: SiStripElectronAnalyzer.h,v 1.1 2007/07/05 10:34:46 charlot Exp $
 //
 
 // system include files
 #include <memory>
 #include <map>
+#include <math.h>
 
 // user include files
 
