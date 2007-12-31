@@ -1,5 +1,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripPulseShape.h"
 #include <TF1.h>
+#include <TMath.h>
 
 double fpeak(double *x, double *par)
     {
