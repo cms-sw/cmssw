@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/10/08 14:36:54 $
-//   $Revision: 1.16 $
+//   $Date: 2007/11/12 14:36:33 $
+//   $Revision: 1.17 $
 //
 //   Modifications:
 //
@@ -45,6 +45,7 @@
 #include "TPaveLabel.h"
 #include "TPostScript.h"
 #include "TStyle.h"
+#include "TROOT.h"
 
 using namespace std;
 
