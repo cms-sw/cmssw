@@ -2,8 +2,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include "TROOT.h"
 #include "TString.h"
 #include "TRandom2.h"
+#include "TMath.h"
 
 #include <sstream>
 
