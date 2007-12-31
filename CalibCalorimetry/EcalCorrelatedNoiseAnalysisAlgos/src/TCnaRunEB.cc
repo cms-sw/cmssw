@@ -9,6 +9,7 @@
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEBNumbering.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TCnaParameters.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TCnaRunEB.h"
+#include <math.h>
 
 R__EXTERN TCnaRootFile *gCnaRootFile;
 
@@ -145,7 +146,7 @@ ClassImp(TCnaRunEB)
 //     //
 //     // Original Author:  Bernard Fabbro
 //     //         Created:  Fri Jun  2 10:27:01 CEST 2006
-//     // $Id$
+//     // $Id: TCnaRunEB.cc,v 1.2 2007/07/12 12:29:26 fabbro Exp $
 //     //
 //     //
 //     
@@ -232,7 +233,7 @@ ClassImp(TCnaRunEB)
 //
 //     // Original Author:  Bernard Fabbro
 //     //         Created:  Fri Jun  2 10:27:01 CEST 2006
-//     // $Id$
+//     // $Id: TCnaRunEB.cc,v 1.2 2007/07/12 12:29:26 fabbro Exp $
 //     //
 //     //          Update:  02/10/2006  
 //     

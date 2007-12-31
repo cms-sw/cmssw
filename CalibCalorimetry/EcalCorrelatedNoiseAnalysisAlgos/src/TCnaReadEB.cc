@@ -5,6 +5,7 @@
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TCnaReadEB.h"
 
 #include "TSystem.h"
+#include <math.h>
 
 R__EXTERN TCnaRootFile *gCnaRootFile;
 
