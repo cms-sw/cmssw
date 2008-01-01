@@ -4,6 +4,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripFedIdListReader.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 #include <vector>
@@ -101,7 +102,8 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::makeFedCabling() {
               }
 	      
               std::pair<uint16_t,uint16_t> addr = imod->activeApvPair( imod->lldChannel(ipair) );
-              std::pair<uint16_t,uint16_t> fed_channel = std::pair<uint16_t,uint16_t>( *ifed, fed_ch );
+	      //              std::pair<uint16_t,uint16_t> fed_channel = std::pair<uint16_t,uint16_t>( *ifed, fed_ch );
+              SiStripModule::FedChannel fed_channel(icrate->fecCrate(), ifec->fecSlot(), *ifed, fed_ch);
               const_cast<SiStripModule&>(*imod).fedCh( addr.first, fed_channel );
               ifed++;
 	      
