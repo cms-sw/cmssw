@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.h,v 1.8 2007/12/27 16:38:49 dellaric Exp $
+// $Id: EcalErrorMask.h,v 1.9 2008/01/01 16:26:05 dellaric Exp $
 
 /*!
   \file EcalErrorMask.h
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.8 $
-  \date $Date: 2007/12/27 16:38:49 $
+  \version $Revision: 1.9 $
+  \date $Date: 2008/01/01 16:26:05 $
 */
 
 #ifndef EcalErrorMask_H
@@ -56,9 +56,6 @@ class EcalErrorMask {
 
   static void clearComments_( char* line );
   static void clearFinalBlanks_( char* line );
-
-  static std::string sEB( int sm );
-  static std::string sEE( int sm );
 
 };
 
