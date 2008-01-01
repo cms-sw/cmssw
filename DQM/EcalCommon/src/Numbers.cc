@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.40 2007/12/18 13:10:40 dellaric Exp $
+// $Id: Numbers.cc,v 1.41 2007/12/27 15:58:02 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.40 $
-  \date $Date: 2007/12/18 13:10:40 $
+  \version $Revision: 1.41 $
+  \date $Date: 2007/12/27 15:58:02 $
 */
 
 #include <sstream>
@@ -285,7 +285,7 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSM( const EcalElectronicsId& id ) {
+int Numbers::iSM( const EcalElectronicsId& id ) throw( std::runtime_error ) {
 
   int idcc = id.dccId();
 
@@ -306,7 +306,7 @@ int Numbers::iSM( const EcalElectronicsId& id ) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSM( const EcalPnDiodeDetId& id ) {
+int Numbers::iSM( const EcalPnDiodeDetId& id ) throw( std::runtime_error ) {
 
   int idcc = id.iDCCId();
 
@@ -327,7 +327,7 @@ int Numbers::iSM( const EcalPnDiodeDetId& id ) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSM( const EcalDCCHeaderBlock& id, const int subdet ) {
+int Numbers::iSM( const EcalDCCHeaderBlock& id, const int subdet ) throw( std::runtime_error ) {
 
   int idcc = id.id();
 
@@ -452,7 +452,7 @@ std::vector<DetId> Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std:
 
 //-------------------------------------------------------------------------
 
-int Numbers::RtHalf(const EBDetId& id) throw( std::runtime_error ) {
+int Numbers::RtHalf(const EBDetId& id) {
 
   int ic = id.ic();
   int ie = (ic-1)/20 + 1;
@@ -466,7 +466,7 @@ int Numbers::RtHalf(const EBDetId& id) throw( std::runtime_error ) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::RtHalf(const EEDetId& id) throw( std::runtime_error ) {
+int Numbers::RtHalf(const EEDetId& id) {
 
   int ix = id.ix();
 
@@ -542,7 +542,7 @@ int Numbers::icEB( const int ism, const int ie, const int ip ) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::icEE( const int ism, const int ix, const int iy ) {
+int Numbers::icEE( const int ism, const int ix, const int iy ) throw( std::runtime_error ) {
 
   int iz = 0;
 

@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.17 2007/11/14 09:54:04 dellaric Exp $
+// $Id: Numbers.h,v 1.18 2007/12/18 09:49:19 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.17 $
-  \date $Date: 2007/11/14 09:54:04 $
+  \version $Revision: 1.18 $
+  \date $Date: 2007/12/18 09:49:19 $
 */
 
 #ifndef Numbers_H
@@ -51,11 +51,11 @@ class Numbers {
 
   static int iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 
-  static int iSM( const EcalElectronicsId& id );
+  static int iSM( const EcalElectronicsId& id ) throw( std::runtime_error );
 
-  static int iSM( const EcalPnDiodeDetId& id );
+  static int iSM( const EcalPnDiodeDetId& id ) throw( std::runtime_error );
 
-  static int iSM( const EcalDCCHeaderBlock& id, const int subdet );
+  static int iSM( const EcalDCCHeaderBlock& id, const int subdet ) throw( std::runtime_error );
 
   static int iTT( const int ism, const int subdet, const int i1, const int i2 ) throw( std::runtime_error );
 
@@ -67,15 +67,15 @@ class Numbers {
 
   static int icEB( const int ism, const int ix, const int iy );
 
-  static int icEE( const int ism, const int ix, const int iy );
+  static int icEE( const int ism, const int ix, const int iy ) throw( std::runtime_error );
 
   static std::vector<DetId> crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 
   static std::vector<DetId> crystals( const EcalElectronicsId& id ) throw( std::runtime_error );
 
-  static int RtHalf(const EBDetId& id) throw( std::runtime_error );
+  static int RtHalf(const EBDetId& id);
 
-  static int RtHalf(const EEDetId& id) throw( std::runtime_error );
+  static int RtHalf(const EEDetId& id);
 
   static int ix0EE( const int ism );
 
