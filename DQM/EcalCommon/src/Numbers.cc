@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.41 2007/12/27 15:58:02 dellaric Exp $
+// $Id: Numbers.cc,v 1.42 2008/01/01 15:49:05 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.41 $
-  \date $Date: 2007/12/27 15:58:02 $
+  \version $Revision: 1.42 $
+  \date $Date: 2008/01/01 15:49:05 $
 */
 
 #include <sstream>
@@ -382,9 +382,11 @@ int Numbers::iTT( const int ism, const int subdet, const int i1, const int i2 ) 
 
       }
 
-    }
+    } else {
 
-    return( -1 );
+      return( -1 );
+
+    }
 
   } else {
 
@@ -526,9 +528,11 @@ int Numbers::indexEE( const int ism, const int ix, const int iy ){
 
     return( id.hashedIndex() );
 
-  }
+  } else {
 
-  return( -1 );
+    return( -1 );
+
+  }
 
 }
 
@@ -571,9 +575,11 @@ int Numbers::icEE( const int ism, const int ix, const int iy ) throw( std::runti
 
     }
 
-  }
+  } else {
 
-  return( -1 );
+    return( -1 );
+
+  }
 
 }
 
