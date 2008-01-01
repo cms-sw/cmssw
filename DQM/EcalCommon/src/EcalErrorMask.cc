@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.18 2008/01/01 16:26:07 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.19 2008/01/01 16:26:58 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.18 $
-  \date $Date: 2008/01/01 16:26:07 $
+  \version $Revision: 1.19 $
+  \date $Date: 2008/01/01 16:26:58 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -438,7 +438,16 @@ std::string EcalErrorMask::sEB( int sm ) {
 
   if( sm > 18 ) sm = 18-sm;
 
-  return Numbers::sEB(sm);
+  std::ostringstream s;
+
+  s << "EB" << std::setw(3) << std::setfill('0')
+    << std::setiosflags( std::ios::showpos )
+    << std::setiosflags( std::ios::internal )
+    << sm
+    << std::resetiosflags( std::ios::showpos )
+    << std::resetiosflags( std::ios::internal );
+
+  return( s.str() );
 
 }
 
@@ -448,7 +457,16 @@ std::string EcalErrorMask::sEE( int sm ) {
 
   if( sm > 9 ) sm = 9-sm;
 
-  return Numbers::sEE(sm);
+  std::ostringstream s;
+
+  s << "EE" << std::setw(3) << std::setfill('0')
+    << std::setiosflags( std::ios::showpos )
+    << std::setiosflags( std::ios::internal )
+    << sm
+    << std::resetiosflags( std::ios::showpos )
+    << std::resetiosflags( std::ios::internal );
+
+  return( s.str() );
 
 }
 
