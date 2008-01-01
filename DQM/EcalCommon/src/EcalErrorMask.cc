@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.16 2007/12/27 16:38:50 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.17 2007/12/29 10:53:10 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.16 $
-  \date $Date: 2007/12/27 16:38:50 $
+  \version $Revision: 1.17 $
+  \date $Date: 2007/12/29 10:53:10 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -41,7 +41,7 @@ std::map<EcalLogicID, RunPNErrorsDat>      EcalErrorMask::mapPNErrors_;
 std::map<EcalLogicID, RunMemChErrorsDat>   EcalErrorMask::mapMemChErrors_;
 std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_;
 
-//---------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 
 void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySyntax ) throw( std::runtime_error ) {
 
@@ -432,7 +432,27 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 
 }
 
-//---------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
+
+std::string EcalErrorMask::sEB( int sm ) {
+
+  if( sm > 18 ) sm = 18-sm;
+
+  return Numbers::sEB(ism);
+
+}
+
+//----------------------------------------------------------------------------------
+
+std::string EcalErrorMask::sEE( int sm ) {
+
+  if( sm > 9 ) sm = 9-sm;
+
+  return Numbers::sEE(ism);
+
+}
+
+//----------------------------------------------------------------------------------
 
 void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error ) {
 
@@ -471,8 +491,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      if(sm >= 1 && sm <= 36) f << type << " " << Numbers::sEB(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
-//      if(sm >= 1 && sm <= 18) f << type << " " << Numbers::sEE(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -485,8 +505,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      if(sm >= 1 && sm <= 36) f << type << " " << Numbers::sEB(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
-//      if(sm >= 1 && sm <= 18) f << type << " " << Numbers::sEE(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -499,8 +519,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      if(sm >= 1 && sm <= 36) f << type << " " << Numbers::sEB(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
-//      if(sm >= 1 && sm <= 18) f << type << " " << Numbers::sEE(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -513,8 +533,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      if(sm >= 1 && sm <= 36) f << type << " " << Numbers::sEB(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
-//      if(sm >= 1 && sm <= 18) f << type << " " << Numbers::sEE(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -527,8 +547,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      if(sm >= 1 && sm <= 36) f << type << " " << Numbers::sEB(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
-//      if(sm >= 1 && sm <= 18) f << type << " " << Numbers::sEE(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
+      if(sm >= 1 && sm <= 36) f << type << " " << EcalErrorMask::sEB(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
+//      if(sm >= 1 && sm <= 18) f << type << " " << EcalErrorMask::sEE(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -536,7 +556,7 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
 
 }
 
-//---------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 
 void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( std::runtime_error ) {
 
@@ -627,7 +647,7 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
 
 }
 
-//---------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 
 void EcalErrorMask::writeDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) {
 
@@ -648,7 +668,7 @@ void EcalErrorMask::writeDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) {
 
 }
 
-//---------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) {
 
@@ -658,7 +678,7 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* f
 
 }
 
-//---------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap ) {
 
@@ -668,7 +688,7 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMa
 
 }
 
-//---------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMap ) {
 
@@ -678,7 +698,7 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMa
 
 }
 
-//---------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fillMap ) {
 
@@ -688,7 +708,7 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fil
 
 }
 
-//---------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap ) {
 
@@ -698,7 +718,7 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fil
 
 }
 
-//---------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 
 void EcalErrorMask::clearComments_( char* line ) {
 
@@ -718,7 +738,7 @@ void EcalErrorMask::clearComments_( char* line ) {
 
 }
 
-//---------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 
 void EcalErrorMask::clearFinalBlanks_( char* line ) {
 
