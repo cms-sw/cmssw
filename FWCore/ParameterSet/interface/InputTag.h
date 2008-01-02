@@ -18,11 +18,14 @@ namespace edm {
     InputTag(const std::string & s);
     std::string encode() const;
 
-    std::string label()    const {return label_;} 
-    std::string instance() const {return instance_;}
-    ///an empty string means find the most recently produced product with the label and instance
-    std::string process() const {return process_;} 
+    const std::string & label()    const {return label_;} 
+    const std::string & instance() const {return instance_;}
+    ///an empty string means find the most recently produced 
+    ///product with the label and instance
+    const std::string & process() const {return process_;} 
     
+    bool operator==(const InputTag & tag) const;
+
   private:
     std::string label_;
     std::string instance_;

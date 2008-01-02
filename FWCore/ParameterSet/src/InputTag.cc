@@ -39,13 +39,30 @@ namespace edm {
   }
 
 
+  bool InputTag::operator==(const InputTag & tag) const
+  {
+    return (label_ == tag.label_)  
+        && (instance_ == tag.instance_)
+        && (process_ == tag.process_);
+  }
+
+
   std::string InputTag::encode() const
   {
     //NOTE: since the encoding gets used to form the configuration hash I did not want
     // to change it so that not specifying a process would cause two colons to appear in the
     // encoding and thus not being backwards compatible
     static const std::string separator(":");
-    return label_ + separator + instance_+(process_.empty()?std::string():(separator+process_));
+    std::string result = label_;
+    if(!instance_.empty() || !process_.empty())
+    {
+      result += separator + instance_;
+    }
+    if(!process_.empty())
+    {
+      result += separator + process_;
+    }
+    return result;
   }
 
   std::ostream& operator<<(std::ostream& ost, const edm::InputTag & tag)
