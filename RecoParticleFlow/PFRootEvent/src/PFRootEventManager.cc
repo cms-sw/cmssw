@@ -1,8 +1,6 @@
 
 
-//#include "FWCore/Framework/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
-//#include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "DataFormats/Math/interface/Point3D.h"
@@ -13,10 +11,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
-// #include "RecoParticleFlow/PFBlockAlgo/interface/PFBlockAlgo.h"
 #include "RecoParticleFlow/PFBlockAlgo/interface/PFGeometry.h"
-// #include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
-
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
 
@@ -30,12 +25,12 @@
 
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
-#include <TFile.h>
-#include <TTree.h>
-#include <TBranch.h>
-#include <TCutG.h>
-#include <TVector3.h>
-// #include <TDatabasePDG.h>
+#include "TFile.h"
+#include "TTree.h"
+#include "TBranch.h"
+#include "TCutG.h"
+#include "TVector3.h"
+#include "TROOT.h"
 
 #include <iostream>
 #include <vector>

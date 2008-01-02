@@ -1,9 +1,10 @@
 #include "RecoParticleFlow/PFRootEvent/interface/ResidualFitter.h"
 
 #include <iostream>
-#include <TCanvas.h>
-#include <TH2.h>
-#include <TF1.h>
+#include "TCanvas.h"
+#include "TH2.h"
+#include "TF1.h"
+#include "TDirectory.h"
 
 #include <string>
 
