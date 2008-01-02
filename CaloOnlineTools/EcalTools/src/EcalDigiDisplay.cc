@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2007/12/16 15:48:05 $
- * $Revision: 1.3 $
+ * $Date: 2007/12/21 10:00:04 $
+ * $Revision: 1.4 $
  * \author Keti Kaadze
  * \author G. Franzoni
  *
@@ -48,9 +48,6 @@ EcalDigiDisplay::EcalDigiDisplay(const edm::ParameterSet& ps) {
   pnDigi      = ps.getUntrackedParameter<bool>("pnDigi");
    
   mode           = ps.getUntrackedParameter<int>("mode");
-  numChannel     = ps.getUntrackedParameter<int>("numChannel");
-  numPN          = ps.getUntrackedParameter<int>("numPN");
-
   listChannels   = ps.getUntrackedParameter<std::vector<int> >("listChannels");
   listTowers     = ps.getUntrackedParameter<std::vector<int> >("listTowers");
   listPns        = ps.getUntrackedParameter<std::vector<int> >("listPns");
@@ -236,55 +233,51 @@ void EcalDigiDisplay::analyze( const edm::Event & e, const  edm::EventSetup& c) 
   //=============================
   //Call for funcitons
   //=============================
-  if ( ebDigisFound )
-    readEBDigis(eb_digis, mode, cryDigi);
-  if ( eeDigisFound )
-    readEEDigis(ee_digis, mode);
-  if ( !(ebDigisFound || eeDigisFound) ) {
-    edm::LogWarning("EcalDigiUnpackerModule") << "No Digis were found! Returning..";
-    return;
+  if ( cryDigi || ttDigi ) {
+    if ( ebDigisFound )
+      readEBDigis(eb_digis, mode);
+    if ( eeDigisFound )
+      readEEDigis(ee_digis, mode);
+    if ( !(ebDigisFound || eeDigisFound) ) {
+      edm::LogWarning("EcalDigiUnpackerModule") << "No Digis were found! Returning..";
+      return;
+    }
   }
-  
-  
-  if (pnDigisFound )
-    readPNDigis(pn_digis, mode, pnDigi);
+  if ( pnDigi ) {
+    if (pnDigisFound )
+      readPNDigis(pn_digis, mode);
+  }
 }
 
 ///////////////////////////////////
 // FUNCTIONS
 //////////////////////////////////
 
-void EcalDigiDisplay::readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode, bool cry) {
+void EcalDigiDisplay::readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode) {
 
   EcalElectronicsMapping* theMapping    = new EcalElectronicsMapping();
-  int dumpDigiCounter = 0;
-  
-  if ( !cry ) {
-    Mode = 1;
-    numChannel = 1700;
-  }
 
   for ( EBDigiCollection::const_iterator digiItr= digis->begin();digiItr != digis->end(); 
 	++digiItr ) {		
-    //Make sure that digis are form right SM
+
     EBDetId detId = EBDetId((*digiItr).id());
     EcalElectronicsId elecId = theMapping->getElectronicsId(detId);
 
     int FEDid = elecId.dccId() + 600;
     std::vector<int>::iterator fedIter = find(requestedFeds_.begin(), requestedFeds_.end(), FEDid); 
     if (fedIter ==  requestedFeds_.end()) continue;
-    
+
+    int ic = EBDetId((*digiItr).id()).ic();
+    int tt = EBDetId((*digiItr).id()).tower().iTT();
+
     //Check if Mode is set 1 or 2 
     if ( Mode ==1 ) {
-      std::cout << "111: " << std::endl;
       edm::LogInfo("EcalDigiDisplay") << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDisplay]  digi cry collection size " << digis->size();
-      edm::LogInfo("EcalDigiDisplay") << "                       [EcalDigiDisplay]  dumping first " << numChannel << " crystals\n";
+      edm::LogInfo("EcalDigiDisplay") << "                       [EcalDigiDisplay]  dumping first " << listChannels[0] << " crystals\n";
       //It will break if all required digis are dumpped
-      if( (dumpDigiCounter++) >= numChannel) break;  
+      if( ic  > listChannels[0]) continue;  
     } else if  ( Mode==2 ) {
-      int ic = EBDetId((*digiItr).id()).ic();
-      int tt = EBDetId((*digiItr).id()).tower().iTT();
-      std::cout << "222: " << std::endl;     
+
       std::vector<int>::iterator icIterCh;
       std::vector<int>::iterator icIterTt;
       icIterCh = find(listChannels.begin(), listChannels.end(), ic);
@@ -308,7 +301,7 @@ void EcalDigiDisplay::readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode
       EBDataFrame df( *digiItr );
       if (!(i%3)  )  std::cout << "\n\t";
       std::cout << "sId: " << (i+1) << " " <<  df.sample(i) << "\t";
-    }       
+    } 
     std::cout << " " << std::endl;
   }
   delete theMapping;
@@ -365,15 +358,10 @@ void EcalDigiDisplay::readEEDigis (edm::Handle<EEDigiCollection> digis, int Mode
   delete theMapping;
 }
 
-void EcalDigiDisplay::readPNDigis(edm::Handle<EcalPnDiodeDigiCollection> PNs, int Mode, bool pn ) {
+void EcalDigiDisplay::readPNDigis(edm::Handle<EcalPnDiodeDigiCollection> PNs, int Mode) {
 
   int pnDigiCounter = 0;
-  
-  if ( !pn ) {
-    Mode = 1;
-    numPN = 10;
-  }
-  
+
   //Loop over PN digis
   for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
     EcalPnDiodeDetId pnDetId = EcalPnDiodeDetId((*pnItr).id());
@@ -385,15 +373,14 @@ void EcalDigiDisplay::readPNDigis(edm::Handle<EcalPnDiodeDigiCollection> PNs, in
     
     if ( Mode == 1) {
       edm::LogInfo("EcalDigiDisplay") << "\n\n^^^^^^^^^^^^^^^^^^ EcalDigiDisplay  digi PN collection.  Size: " << PNs->size();
-      edm::LogInfo("EcalDigiDisplay") << "                       [EcalDigiDisplay]  dumping first " << numPN << " PNs ";
+      edm::LogInfo("EcalDigiDisplay") << "                       [EcalDigiDisplay]  dumping first " << listPns[0] << " PNs ";
       
-      if ( (pnDigiCounter++) >= numPN ) break;
+      if ( (pnDigiCounter++) >= listPns[0] ) break;
     } else if ( Mode == 2) {
       edm::LogInfo("EcalDigiDisplay") << "\n\n^^^^^^^^^^^^^^^^^^ EcalDigiDisplay  digi PN collection.  Size: " << PNs->size();
       
       // Check that we look at PN from the given list
       std::vector<int>::iterator pnIter;
-      //std::cout << "BLAH: " << listPns.size() << std::endl; 
       pnIter = find(listPns.begin(), listPns.end(), pnNum);
       if (pnIter == listPns.end())  continue; 
     } else {
