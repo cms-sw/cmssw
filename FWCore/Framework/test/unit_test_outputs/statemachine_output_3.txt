@@ -15,7 +15,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 1/1
 	writeLumi 1/1
@@ -41,7 +41,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	beginLumi 2/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 2/1
 	writeLumi 2/1
@@ -67,7 +67,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	beginLumi 1/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
 	writeLumi 1/2
@@ -99,7 +99,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 1/1
 	writeLumi 1/1
@@ -125,7 +125,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	beginLumi 2/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 2/1
 	writeLumi 2/1
@@ -151,7 +151,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	beginLumi 1/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
 	writeLumi 1/2
@@ -183,7 +183,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 1/1
 	writeLumi 1/1
@@ -209,7 +209,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	beginLumi 2/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 2/1
 	writeLumi 2/1
@@ -235,7 +235,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	beginLumi 1/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
 	writeLumi 1/2
@@ -267,7 +267,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 1/1
 	writeLumi 1/1
@@ -293,7 +293,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginLumi 2/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 2/1
 	writeLumi 2/1
@@ -319,7 +319,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginLumi 1/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
 	writeLumi 1/2
@@ -351,7 +351,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -369,7 +369,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	beginLumi 2/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -387,7 +387,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	beginLumi 1/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
 	endRun 1
@@ -415,7 +415,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -433,7 +433,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	beginLumi 2/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -451,7 +451,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	beginLumi 1/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
 	endRun 1
@@ -479,7 +479,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -497,7 +497,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	beginLumi 2/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -515,7 +515,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	beginLumi 1/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
 	endRun 1
@@ -543,7 +543,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -561,7 +561,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginLumi 2/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -579,7 +579,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginLumi 1/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
 	endRun 1

@@ -15,15 +15,15 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 1/1
 	writeLumi 1/1
@@ -49,11 +49,11 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 1/1
 	writeLumi 1/1
@@ -79,8 +79,12 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
-    *** nextItemType: Stop 1 ***
+	shouldWeStop
+    *** nextItemType: Event ***
+    *** shouldWeStop will return true this event ***
+	readEvent
+	processEvent
+	shouldWeStop
 	endLumi 1/1
 	writeLumi 1/1
 	deleteLumiFromCache 1/1
@@ -93,6 +97,10 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
+The state machine reports it has been terminated
+    *** nextItemType: Event ***
+The state machine reports it has been terminated
+    *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
 Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
@@ -111,15 +119,15 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 1/1
 	writeLumi 1/1
@@ -145,11 +153,11 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 1/1
 	writeLumi 1/1
@@ -175,8 +183,12 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
-    *** nextItemType: Stop 1 ***
+	shouldWeStop
+    *** nextItemType: Event ***
+    *** shouldWeStop will return true this event ***
+	readEvent
+	processEvent
+	shouldWeStop
 	endLumi 1/1
 	writeLumi 1/1
 	deleteLumiFromCache 1/1
@@ -189,6 +201,10 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
+The state machine reports it has been terminated
+    *** nextItemType: Event ***
+The state machine reports it has been terminated
+    *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
 Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
@@ -207,15 +223,15 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 1/1
 	writeLumi 1/1
@@ -241,11 +257,11 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 1/1
 	writeLumi 1/1
@@ -271,8 +287,12 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
-    *** nextItemType: Stop 1 ***
+	shouldWeStop
+    *** nextItemType: Event ***
+    *** shouldWeStop will return true this event ***
+	readEvent
+	processEvent
+	shouldWeStop
 	endLumi 1/1
 	writeLumi 1/1
 	deleteLumiFromCache 1/1
@@ -285,6 +305,10 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
+The state machine reports it has been terminated
+    *** nextItemType: Event ***
+The state machine reports it has been terminated
+    *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
 Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
@@ -303,15 +327,15 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 1/1
 	writeLumi 1/1
@@ -337,11 +361,11 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	endLumi 1/1
 	writeLumi 1/1
@@ -367,8 +391,12 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
-    *** nextItemType: Stop 1 ***
+	shouldWeStop
+    *** nextItemType: Event ***
+    *** shouldWeStop will return true this event ***
+	readEvent
+	processEvent
+	shouldWeStop
 	endLumi 1/1
 	writeLumi 1/1
 	deleteLumiFromCache 1/1
@@ -381,6 +409,10 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
+The state machine reports it has been terminated
+    *** nextItemType: Event ***
+The state machine reports it has been terminated
+    *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
 Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
@@ -399,15 +431,15 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -421,11 +453,11 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -439,8 +471,12 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
-    *** nextItemType: Stop 1 ***
+	shouldWeStop
+    *** nextItemType: Event ***
+    *** shouldWeStop will return true this event ***
+	readEvent
+	processEvent
+	shouldWeStop
 	endLumi 1/1
 	endRun 1
 	respondToCloseInputFile
@@ -449,6 +485,10 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
+The state machine reports it has been terminated
+    *** nextItemType: Event ***
+The state machine reports it has been terminated
+    *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
 Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
@@ -467,15 +507,15 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -489,11 +529,11 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -507,8 +547,12 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
-    *** nextItemType: Stop 1 ***
+	shouldWeStop
+    *** nextItemType: Event ***
+    *** shouldWeStop will return true this event ***
+	readEvent
+	processEvent
+	shouldWeStop
 	endLumi 1/1
 	endRun 1
 	respondToCloseInputFile
@@ -517,6 +561,10 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
+The state machine reports it has been terminated
+    *** nextItemType: Event ***
+The state machine reports it has been terminated
+    *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
 Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
@@ -535,15 +583,15 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -557,11 +605,11 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -575,8 +623,12 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
-    *** nextItemType: Stop 1 ***
+	shouldWeStop
+    *** nextItemType: Event ***
+    *** shouldWeStop will return true this event ***
+	readEvent
+	processEvent
+	shouldWeStop
 	endLumi 1/1
 	endRun 1
 	respondToCloseInputFile
@@ -585,6 +637,10 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
+The state machine reports it has been terminated
+    *** nextItemType: Event ***
+The state machine reports it has been terminated
+    *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
 Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
@@ -603,15 +659,15 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginLumi 1/1
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -625,11 +681,11 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -643,8 +699,12 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: Event ***
 	readEvent
 	processEvent
-	writeEvent
-    *** nextItemType: Stop 1 ***
+	shouldWeStop
+    *** nextItemType: Event ***
+    *** shouldWeStop will return true this event ***
+	readEvent
+	processEvent
+	shouldWeStop
 	endLumi 1/1
 	endRun 1
 	respondToCloseInputFile
@@ -653,4 +713,8 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
+The state machine reports it has been terminated
+    *** nextItemType: Event ***
+The state machine reports it has been terminated
+    *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated

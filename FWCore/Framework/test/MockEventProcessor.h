@@ -2,7 +2,7 @@
 #define FWCore_Framework_MockEventProcessor_h
 
 /*
-$Id$
+$Id: MockEventProcessor.h,v 1.1 2007/12/10 22:54:19 wdd Exp $
 
 Version of the Event Processor used for tests of
 the state machine and other tests.
@@ -26,7 +26,7 @@ namespace edm
                        bool handleEmptyRuns,
                        bool handleEmptyLumis);
 
-    virtual void runToCompletion();
+    virtual StatusCode runToCompletion();
 
     virtual void readFile();
     virtual void closeInputFile();
@@ -40,15 +40,15 @@ namespace edm
 
     virtual void startingNewLoop();
     virtual bool endOfLoop();
-    virtual void rewind();
+    virtual void rewindInput();
     virtual void prepareForNextLoop();
     virtual void writeCache();
     virtual bool shouldWeCloseOutput();
 
     virtual void doErrorStuff();
 
-    virtual void beginRun(int run);
-    virtual void endRun(int run);
+    virtual void smBeginRun(int run);
+    virtual void smEndRun(int run);
 
     virtual void beginLumi(int run, int lumi);
     virtual void endLumi(int run, int lumi);
@@ -62,7 +62,7 @@ namespace edm
 
     virtual void readEvent();
     virtual void processEvent();
-    virtual void writeEvent();
+    virtual bool shouldWeStop();
 
   private:
     std::string mockData_;
@@ -76,6 +76,7 @@ namespace edm
 
     bool shouldWeCloseOutput_;
     bool shouldWeEndLoop_;
+    bool shouldWeStop_;
   };
 }
 

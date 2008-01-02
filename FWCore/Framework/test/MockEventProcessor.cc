@@ -1,6 +1,6 @@
 
 /*
-$Id$
+$Id: MockEventProcessor.cc,v 1.1 2007/12/10 22:54:19 wdd Exp $
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
@@ -35,10 +35,12 @@ namespace edm {
     handleEmptyRuns_(handleEmptyRuns),
     handleEmptyLumis_(handleEmptyLumis),
     shouldWeCloseOutput_(true),
-    shouldWeEndLoop_(true)  {
+    shouldWeEndLoop_(true),
+    shouldWeStop_(false)  {
   }
 
-  void MockEventProcessor::runToCompletion() {
+  edm::MockEventProcessor::StatusCode
+  MockEventProcessor::runToCompletion() {
     statemachine::Machine myMachine(this,
                                     filemode_,
                                     handleEmptyRuns_,
@@ -65,18 +67,29 @@ namespace edm {
         myMachine.process_event( statemachine::Lumi(t.value) );
       }
       else if (ch == 'e') {
-       output_ << "    *** nextItemType: Event ***\n";
+        output_ << "    *** nextItemType: Event ***\n";
+        // a special value for test purposes only
+        if (t.value == 7) {
+          shouldWeStop_ = true;
+          output_ << "    *** shouldWeStop will return true this event ***\n";
+        }
+        else {
+          shouldWeStop_ = false;
+        }
         myMachine.process_event( statemachine::Event() );
       }
       else if (ch == 'f') {
         output_ << "    *** nextItemType: File " << t.value << " ***\n";
+        // a special value for test purposes only
         if (t.value == 0) shouldWeCloseOutput_ = false;
         else shouldWeCloseOutput_ = true;
         myMachine.process_event( statemachine::File() );
       }
       else if (ch == 's') {
         output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
-        shouldWeEndLoop_ = t.value;
+        // a special value for test purposes only
+        if (t.value == 0) shouldWeEndLoop_ = false;
+        else shouldWeEndLoop_ = true;
         myMachine.process_event( statemachine::Stop() );
       }
       else if (ch == 'x') {
@@ -132,7 +145,7 @@ namespace edm {
     return shouldWeEndLoop_;
   }
 
-  void MockEventProcessor::rewind() {
+  void MockEventProcessor::rewindInput() {
     output_ << "\trewind\n";
   }
 
@@ -153,11 +166,11 @@ namespace edm {
     output_ << "\tdoErrorStuff\n";
   }
 
-  void MockEventProcessor::beginRun(int run) {
+  void MockEventProcessor::smBeginRun(int run) {
     output_ << "\tbeginRun " << run << "\n";
   }
 
-  void MockEventProcessor::endRun(int run) {
+  void MockEventProcessor::smEndRun(int run) {
     output_ << "\tendRun " << run << "\n";
   }
 
@@ -203,7 +216,8 @@ namespace edm {
     output_ << "\tprocessEvent\n";
   }
 
-  void MockEventProcessor::writeEvent() {
-    output_ << "\twriteEvent\n";
+  bool MockEventProcessor::shouldWeStop() {
+    output_ << "\tshouldWeStop\n";
+    return shouldWeStop_;
   }
 }

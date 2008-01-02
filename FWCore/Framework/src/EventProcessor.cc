@@ -50,6 +50,8 @@
 #include "FWCore/Framework/interface/EDLooperHelper.h"
 #include "FWCore/Framework/interface/EDLooper.h"
 
+#include "FWCore/Framework/src/EPStates.h"
+
 using boost::shared_ptr;
 using edm::serviceregistry::ServiceLegacy; 
 using edm::serviceregistry::kOverlapIsError;
@@ -57,6 +59,7 @@ using edm::serviceregistry::kOverlapIsError;
 namespace edm {
 
   namespace event_processor {
+
     class StateSentry
     {
     public:
@@ -154,6 +157,36 @@ namespace edm {
     private:
       EventProcessor* ep_;
       bool success_;
+    };
+
+    class MachineSentry {
+    public:
+      MachineSentry(statemachine::Machine* m) : m_(m)  { }
+      ~MachineSentry() {
+        try {
+          if (!m_->terminated()) {
+            m_->process_event(statemachine::Stop());
+            // Two stops are needed if there is a looper running
+            if (!m_->terminated()) {
+              m_->process_event(statemachine::Stop());
+            }
+          }
+	}
+        catch (cms::Exception& e) {
+          printCmsException(e);
+        }
+        catch (std::bad_alloc& e) {
+          printBadAllocException();
+        }
+        catch (std::exception& e) {
+          printStdException(e);
+        }
+        catch (...) {
+          printUnknownException();
+        }
+      }
+    private:
+      statemachine::Machine* m_;
     };
   }
 
@@ -1676,4 +1709,207 @@ namespace edm {
     FDEBUG(2) << "asyncRun ending ......................\n";
   }
 
+
+  edm::EventProcessor::StatusCode
+  EventProcessor::runToCompletion() {
+
+    StateSentry toerror(this);
+    changeState(mRunCount);
+    StatusCode returnCode = epSuccess;
+
+    // make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+
+    statemachine::Machine machine(this,
+                                  statemachine::SPARSE,
+                                  true,
+                                  true);
+
+    machine.initiate();
+
+    {
+      // Guarantees the machine will be terminated on exit.
+      MachineSentry machineSentry(&machine);
+
+      InputSource::ItemType itemType;
+
+      while (itemType = input_->nextItemType()) {
+
+        std::cout << "itemType = " << itemType << "\n";
+
+        {
+          boost::mutex::scoped_lock sl(usr2_lock);
+          if (edm::shutdown_flag) {
+            changeState(mShutdownSignal);
+            returnCode = epSignal;
+            machine.process_event(statemachine::Stop());
+            // Two stops are needed if there is a looper running
+            if (!machine.terminated()) {
+              machine.process_event(statemachine::Stop());
+            }
+            break;
+	  }
+        }
+
+        if (itemType == InputSource::IsStop) {
+          machine.process_event(statemachine::Stop());
+        }
+        else if (itemType == InputSource::IsFile) {
+          machine.process_event(statemachine::File());
+        }
+        else if (itemType == InputSource::IsRun) {
+          machine.process_event(statemachine::Run(input_->run()));
+        }
+        else if (itemType == InputSource::IsLumi) {
+          machine.process_event(statemachine::Lumi(input_->luminosityBlock()));
+        }
+        else if (itemType == InputSource::IsEvent) {
+          machine.process_event(statemachine::Event());
+        }
+        if (machine.terminated()) {
+	  std::cout << "The state machine reports it has been terminated\n";
+          changeState(mInputExhausted);
+          break;
+        }
+      }  // End of loop over state machine events
+    } // End of machine sentry scope, stops machine on exceptions
+
+    changeState(mFinished);
+    toerror.succeeded();
+    return returnCode;
+  }
+
+  void EventProcessor::readFile() {
+    std::cout << " \treadFile\n";
+    input_->readFile();
+  }
+
+  void EventProcessor::closeInputFile() {
+    std::cout << "\tcloseInputFile\n";
+  }
+
+  void EventProcessor::openOutputFiles() {
+    std::cout << "\topenOutputFiles\n";
+  }
+
+  void EventProcessor::closeOutputFiles() {
+    std::cout << "\tcloseOutputFiles\n";
+  }
+
+  void EventProcessor::respondToOpenInputFile() {
+    std::cout << "\trespondToOpenInputFile\n";
+  }
+
+  void EventProcessor::respondToCloseInputFile() {
+    std::cout << "\trespondToCloseInputFile\n";
+  }
+
+  void EventProcessor::respondToOpenOutputFiles() {
+    std::cout << "\trespondToOpenOutputFiles\n";
+  }
+
+  void EventProcessor::respondToCloseOutputFiles() {
+    std::cout << "\trespondToCloseOutputFiles\n";
+  }
+
+  void EventProcessor::startingNewLoop() {
+    std::cout << "\tstartingNewLoop\n";
+  }
+
+  bool EventProcessor::endOfLoop() {
+    std::cout << "\tendOfLoop\n";
+    return true;
+  }
+
+  void EventProcessor::rewindInput() {
+    std::cout << "\trewind\n";
+  }
+
+  void EventProcessor::prepareForNextLoop() {
+    std::cout << "\tprepareForNextLoop\n";
+  }
+
+  void EventProcessor::writeCache() {
+    std::cout << "\twriteCache\n";
+  }
+
+  bool EventProcessor::shouldWeCloseOutput() {
+    std::cout << "\tshouldWeCloseOutput\n";
+    return true;
+  }
+
+  void EventProcessor::doErrorStuff() {
+    std::cout << "\tdoErrorStuff\n";
+  }
+
+  void EventProcessor::smBeginRun(int run) {
+    std::cout << "\tbeginRun " << run << "\n";
+  }
+
+  void EventProcessor::smEndRun(int run) {
+    std::cout << "\tendRun " << run << "\n";
+  }
+
+  void EventProcessor::beginLumi(int run, int lumi) {
+    IOVSyncValue ts(EventID(sm_lbp_->run(),0), sm_lbp_->beginTime());
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
+    schedule_->runOneEvent(*sm_lbp_, es, BranchActionBegin);
+    std::cout << "\tbeginLumi " << run << "/" << lumi << "\n";
+  }
+
+  void EventProcessor::endLumi(int run, int lumi) {
+    input_->doFinishLumi(*sm_lbp_);
+    IOVSyncValue ts(EventID(sm_lbp_->run(),EventID::maxEventNumber()), sm_lbp_->endTime());
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
+    schedule_->runOneEvent(*sm_lbp_, es, BranchActionEnd);
+    std::cout << "\tendLumi " << run << "/" << lumi << "\n";
+  }
+
+  int EventProcessor::readAndCacheRun() {
+    sm_rp_ = input_->readRun();
+    std::cout << "\treadAndCacheRun " << "\n";
+    return sm_rp_->run();
+  }
+
+  int EventProcessor::readAndCacheLumi() {
+    sm_lbp_ = input_->readLuminosityBlock(sm_rp_);
+    std::cout << "\treadAndCacheLumi " << "\n";
+    return sm_lbp_->luminosityBlock();
+  }
+
+  void EventProcessor::writeRun(int run) {
+    std::cout << "\twriteRun " << run << "\n";
+  }
+
+  void EventProcessor::deleteRunFromCache(int run) {
+    std::cout << "\tdeleteRunFromCache " << run << "\n";
+  }
+
+  void EventProcessor::writeLumi(int run, int lumi) {
+    std::cout << "\twriteLumi " << run << "/" << lumi << "\n";
+  }
+
+  void EventProcessor::deleteLumiFromCache(int run, int lumi) {
+    std::cout << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
+  }
+
+  void EventProcessor::readEvent() {
+    CallPrePost holder(*actReg_);
+    sm_evp_ = input_->readEvent(sm_lbp_);
+
+    std::cout << "\treadEvent\n";
+  }
+
+  void EventProcessor::processEvent() {
+    IOVSyncValue ts(sm_evp_->id(), sm_evp_->time());
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
+    schedule_->runOneEvent(*sm_evp_, es, BranchActionEvent);
+
+    std::cout << "\tprocessEvent\n";
+  }
+
+  bool EventProcessor::shouldWeStop() {
+    std::cout << "\tshouldWeStop\n";
+    return schedule_->terminate();
+  }
 }

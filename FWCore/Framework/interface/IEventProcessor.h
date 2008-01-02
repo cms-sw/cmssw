@@ -2,7 +2,7 @@
 #define FWCore_Framework_IEventProcessor_h
 
 /*
-$Id$
+$Id: IEventProcessor.h,v 1.1 2007/12/10 22:54:18 wdd Exp $
 
 Abstract base class for Event Processors
 
@@ -18,9 +18,24 @@ namespace edm
   class IEventProcessor {
   public:
 
+    // Status codes:
+    //   0     successful completion
+    //   1     exception of unknown type caught
+    //   2     everything else
+    //   3     signal received
+    //   4     input complete
+    //   5     call timed out
+    //   6     input count complete
+    enum Status { epSuccess=0, epException=1, epOther=2, epSignal=3,
+                  epInputComplete=4, epTimedOut=5, epCountComplete=6 };
+
+    // Eventually, we might replace StatusCode with a class. This
+    // class should have an automatic conversion to 'int'.
+    typedef Status StatusCode ;
+
     virtual ~IEventProcessor();
 
-    virtual void runToCompletion() = 0;
+    virtual StatusCode runToCompletion() = 0;
 
     virtual void readFile() = 0;
     virtual void closeInputFile() = 0;
@@ -34,15 +49,15 @@ namespace edm
 
     virtual void startingNewLoop() = 0;
     virtual bool endOfLoop() = 0;
-    virtual void rewind() = 0;
+    virtual void rewindInput() = 0;
     virtual void prepareForNextLoop() = 0;
     virtual void writeCache() = 0;
     virtual bool shouldWeCloseOutput() = 0;
 
     virtual void doErrorStuff() = 0;
 
-    virtual void beginRun(int run) = 0;
-    virtual void endRun(int run) = 0;
+    virtual void smBeginRun(int run) = 0;
+    virtual void smEndRun(int run) = 0;
 
     virtual void beginLumi(int run, int lumi) = 0;
     virtual void endLumi(int run, int lumi) = 0;
@@ -56,7 +71,7 @@ namespace edm
 
     virtual void readEvent() = 0;
     virtual void processEvent() = 0;
-    virtual void writeEvent() = 0;
+    virtual bool shouldWeStop() = 0;
   };
 }
 

@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.47 2007/11/29 17:28:16 wmtan Exp $
+$Id: EventProcessor.h,v 1.49 2007/12/29 00:28:56 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -44,6 +44,7 @@ $Id: EventProcessor.h,v 1.47 2007/11/29 17:28:16 wmtan Exp $
 #include "boost/thread/thread.hpp"
 #include "boost/utility.hpp"
 
+#include "FWCore/Framework/interface/IEventProcessor.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
@@ -83,27 +84,11 @@ namespace edm {
     class InputFileSentry;
   }
     
-  class EventProcessor : private boost::noncopyable
+  class EventProcessor : public IEventProcessor, private boost::noncopyable
   {
     // ------------ friend classes and functions ----------------
 
   public:
-
-    // Status codes:
-    //   0     successful completion
-    //   1     exception of unknown type caught
-    //   2     everything else
-    //   3     signal received
-    //   4     input complete
-    //   5     call timed out
-    //   6     input count complete
-    enum Status { epSuccess=0, epException=1, epOther=2, epSignal=3,
-		  epInputComplete=4, epTimedOut=5, epCountComplete=6 };
-
-    // Eventually, we might replace StatusCode with a class. This
-    // class should have an automatic conversion to 'int'.
-    typedef Status StatusCode ;
-
 
     /// The input string contains the entire contents of a
     /// configuration file. Uses default constructed ServiceToken, so
@@ -306,6 +291,46 @@ namespace edm {
       int maxLumisInput_;
     }; // struct CommonParams
 
+    // These classes work with the boost statemachine
+
+    virtual StatusCode runToCompletion();
+
+    virtual void readFile();
+    virtual void closeInputFile();
+    virtual void openOutputFiles();
+    virtual void closeOutputFiles();
+
+    virtual void respondToOpenInputFile();
+    virtual void respondToCloseInputFile();
+    virtual void respondToOpenOutputFiles();
+    virtual void respondToCloseOutputFiles();
+
+    virtual void startingNewLoop();
+    virtual bool endOfLoop();
+    virtual void rewindInput();
+    virtual void prepareForNextLoop();
+    virtual void writeCache();
+    virtual bool shouldWeCloseOutput();
+
+    virtual void doErrorStuff();
+
+    virtual void smBeginRun(int run);
+    virtual void smEndRun(int run);
+
+    virtual void beginLumi(int run, int lumi);
+    virtual void endLumi(int run, int lumi);
+
+    virtual int readAndCacheRun();
+    virtual int readAndCacheLumi();
+    virtual void writeRun(int run);
+    virtual void deleteRunFromCache(int run);
+    virtual void writeLumi(int run, int lumi);
+    virtual void deleteLumiFromCache(int run, int lumi);
+
+    virtual void readEvent();
+    virtual void processEvent();
+    virtual bool shouldWeStop();
+
   private:
     //------------------------------------------------------------------
     //
@@ -387,6 +412,11 @@ namespace edm {
     boost::shared_ptr<RunPrincipal>               rp_;
     boost::shared_ptr<LuminosityBlockPrincipal>   lbp_;
     boost::shared_ptr<EDLooper>                   looper_;
+
+    boost::shared_ptr<FileBlock>                  sm_fb_;
+    boost::shared_ptr<RunPrincipal>               sm_rp_;
+    boost::shared_ptr<LuminosityBlockPrincipal>   sm_lbp_;
+    std::auto_ptr<EventPrincipal>               sm_evp_;
 
     friend class EDLooperHelper;
     friend class event_processor::StateSentry;

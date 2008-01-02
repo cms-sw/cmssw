@@ -23,7 +23,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	beginLumi 2/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Lumi 3 ***
 	endLumi 2/2
 	writeLumi 2/2
@@ -77,7 +77,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	beginLumi 2/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Lumi 3 ***
 	endLumi 2/2
 	writeLumi 2/2
@@ -135,7 +135,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	beginLumi 2/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Lumi 3 ***
 	endLumi 2/2
 	writeLumi 2/2
@@ -193,7 +193,7 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginLumi 2/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Lumi 3 ***
 	endLumi 2/2
 	writeLumi 2/2
@@ -247,7 +247,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	beginLumi 2/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Lumi 3 ***
 	endLumi 2/2
 	readAndCacheLumi 3
@@ -287,7 +287,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	beginLumi 2/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Lumi 3 ***
 	endLumi 2/2
 	readAndCacheLumi 3
@@ -331,7 +331,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	beginLumi 2/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Lumi 3 ***
 	endLumi 2/2
 	readAndCacheLumi 3
@@ -375,7 +375,7 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginLumi 2/2
 	readEvent
 	processEvent
-	writeEvent
+	shouldWeStop
     *** nextItemType: Lumi 3 ***
 	endLumi 2/2
 	readAndCacheLumi 3

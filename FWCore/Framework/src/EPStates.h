@@ -2,7 +2,7 @@
 #define Framework_EPStates_h
 
 /*
-$Id$
+$Id: EPStates.h,v 1.1 2007/12/10 22:54:19 wdd Exp $
 
 The state machine that controls the processing of runs, luminosity
 blocks, events, and loops is implemented using the boost statechart
@@ -359,7 +359,7 @@ namespace statemachine {
       sc::custom_reaction< File > > reactions;
 
     sc::result react( const File & file);
-    void readAndProcessAndWriteEvent();
+    void readAndProcessEvent();
     void markNonEmpty();
   private:
     edm::IEventProcessor & ep_;

@@ -1,5 +1,5 @@
 
-// $Id$
+// $Id: EPStates.cc,v 1.1 2007/12/10 22:54:19 wdd Exp $
 
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
@@ -32,7 +32,7 @@ namespace statemachine {
   }
 
   void Machine::rewindAndPrepareForNextLoop(const Restart & restart) {
-    ep_->rewind();
+    ep_->rewindInput();
     ep_->prepareForNextLoop();
   }
 
@@ -203,12 +203,12 @@ namespace statemachine {
 
   void HandleRuns::beginRun(int run) {
     beginRunCalled_ = true;
-    ep_.beginRun(run);
+    ep_.smBeginRun(run);
   }
 
   void HandleRuns::endRun(int run) {
     beginRunCalled_ = false;
-    ep_.endRun(run);
+    ep_.smEndRun(run);
   }
 
   void HandleRuns::finalizeRun(const Run &) {
@@ -470,7 +470,7 @@ namespace statemachine {
     my_base(ctx),
     ep_(context< Machine >().ep())
   { 
-    readAndProcessAndWriteEvent();
+    readAndProcessEvent();
     checkInvariant();
   }
 
@@ -496,11 +496,11 @@ namespace statemachine {
     return forward_event();
   }
 
-  void HandleEvent::readAndProcessAndWriteEvent() {
+  void HandleEvent::readAndProcessEvent() {
     markNonEmpty();
     ep_.readEvent();
     ep_.processEvent();
-    ep_.writeEvent();
+    if (ep_.shouldWeStop()) post_event(Stop());
   }
 
   void HandleEvent::markNonEmpty() {
