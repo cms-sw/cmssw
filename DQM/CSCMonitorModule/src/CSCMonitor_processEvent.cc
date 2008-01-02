@@ -1,4 +1,5 @@
 #include "DQM/CSCMonitorModule/interface/CSCMonitor.h"
+#include <math.h>
 
 void CSCMonitor::process(CSCDCCExaminer * examiner, CSCDCCEventData * dccData )
 {
