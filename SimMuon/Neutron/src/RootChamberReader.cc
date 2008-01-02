@@ -1,6 +1,7 @@
 #include "SimMuon/Neutron/src/RootChamberReader.h"
 #include "SimMuon/Neutron/src/RootSimHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TClonesArray.h"
 using namespace std;
 
 RootChamberReader::RootChamberReader()
