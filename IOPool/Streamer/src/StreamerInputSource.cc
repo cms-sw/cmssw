@@ -239,7 +239,7 @@ namespace edm {
     
     TClass* desc = getTClass(typeid(SendJobHeader));
 
-    TBuffer xbuf(TBuffer::kRead, initView.descLength(),
+    RootBuffer xbuf(TBuffer::kRead, initView.descLength(),
                  (char*)initView.descData(),kFALSE);
     RootDebug tracer(10,10);
     std::auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));

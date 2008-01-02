@@ -1,7 +1,7 @@
 #ifndef IOPool_Streamer_StreamerOutputModule_h
 #define IOPool_Streamer_StreamerOutputModule_h
 
-// $Id: StreamerOutputModule.h,v 1.30 2007/09/13 20:16:27 paterno Exp $
+// $Id: StreamerOutputModule.h,v 1.31 2007/09/20 20:46:53 wmtan Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -34,8 +34,6 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include "FWCore/Utilities/interface/Digest.h"
-
-#include "TBuffer.h"
 
 #include <memory>
 #include <string>

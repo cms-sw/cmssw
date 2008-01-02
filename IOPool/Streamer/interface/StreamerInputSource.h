@@ -8,6 +8,16 @@
  * framework objects (e.g. ProductRegistry and EventPrincipal)
  */
 
+
+#include "RVersion.h"
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
+#include "TBufferFile.h"
+typedef TBufferFile RootBuffer;
+#else
+#include "TBuffer.h"
+typedef TBuffer RootBuffer;
+#endif
+
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -15,7 +25,6 @@
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
-#include "TBuffer.h"
 #include <vector>
 
 class InitMsgView;
@@ -79,7 +88,7 @@ namespace edm {
     ProcessHistoryID processHistoryID_;
     TClass* tc_;
     std::vector<unsigned char> dest_;
-    TBuffer xbuf_;
+    RootBuffer xbuf_;
     bool runEndingFlag_;
 
     //Do not like these to be static, but no choice as deserializeRegistry() that sets it is a static memeber 

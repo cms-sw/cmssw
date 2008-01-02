@@ -62,7 +62,7 @@ namespace edm
                   << std::endl;
       }
 
-    TBuffer rootbuf(TBuffer::kWrite,initMessage.bufferSize(),
+    RootBuffer rootbuf(TBuffer::kWrite,initMessage.bufferSize(),
                     initMessage.dataAddress(),kFALSE);
 
     RootDebug tracer(10,10);
