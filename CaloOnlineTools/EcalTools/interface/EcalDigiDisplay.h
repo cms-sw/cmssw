@@ -26,9 +26,9 @@ class EcalDigiDisplay : public edm::EDAnalyzer {
   virtual void endJob();
   
  protected:
-  void readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode, bool cryIsGiven);
+  void readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode);
   void readEEDigis (edm::Handle<EEDigiCollection> digis, int Mode);
-  void readPNDigis (edm::Handle<EcalPnDiodeDigiCollection> PNs, int Mode, bool pn);
+  void readPNDigis (edm::Handle<EcalPnDiodeDigiCollection> PNs, int Mode);
   
   EcalFedMap* fedMap;
 
@@ -44,14 +44,8 @@ class EcalDigiDisplay : public edm::EDAnalyzer {
   bool ttDigi;
   bool pnDigi;
   
-  //Mode is set 1 or 2
   int mode;
  
-  //For Mode 1
-  int numChannel;
-  int numPN;
-
-  //For Mode 2
   std::vector<int> listChannels;
   std::vector<int> listTowers;
   std::vector<int> listPns;
