@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v3.40)
+//  SiPixelTemplate.h (v3.42)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -13,6 +13,8 @@
 //  Fill template arrays in single calls to this object
 //  Add qmin to the template
 //  Add qscale to match charge scales
+//  Small improvement to x-chisquare interpolation
+//  Enlarge SiPixelTemplateStore to accommodate larger templates and increased alpha acceptance (reduce PT threshold to ~200 MeV)
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -24,8 +26,8 @@
 #ifndef SiPixelTemplate_h
 #define SiPixelTemplate_h 1
 
-#include <vector>
-#include <cassert>
+#include<vector>
+
 
 struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a single set of track angles 
   int runnum;              //!< number of pixelav run used to generate this entry 
@@ -95,8 +97,8 @@ struct SiPixelTemplateHeader {           //!< template header structure
 struct SiPixelTemplateStore { //!< template storage structure 
   SiPixelTemplateHeader head;
   SiPixelTemplateEntry entby[60];     //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px 
-  SiPixelTemplateEntry entbx[5][7];   //!< 7 Barrel x templates spanning alpha angles from -225mRad to +225mRad in each of 5 slices
-  SiPixelTemplateEntry entfy[3];      //!< 3 FPix y templates spanning cluster lengths from 0.45px to 0.95px 
+  SiPixelTemplateEntry entbx[5][9];   //!< 9 Barrel x templates spanning alpha angles from -350mRad to +350mRad in each of 5 slices
+  SiPixelTemplateEntry entfy[5];      //!< 5 FPix y templates spanning cluster lengths from 0.20px to 1.20px 
   SiPixelTemplateEntry entfx[2][9];   //!< 9 FPix x templates spanning alpha angles from 75mRad to 675mRad in each of 2 slices
 } ;
 
