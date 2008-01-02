@@ -49,7 +49,7 @@ class Process(object):
         self.__dict__['_Process__outputmodules'] = {}
         self.__dict__['_Process__paths'] = DictTypes.SortedKeysDict()    # have to keep the order
         self.__dict__['_Process__endpaths'] = DictTypes.SortedKeysDict() # of definition
-        self.__dict__['_Process__sequences'] = DictTypes.SortedKeysDict() #keep order for dumpPython
+        self.__dict__['_Process__sequences'] = {}
         self.__dict__['_Process__services'] = {}
         self.__dict__['_Process__essources'] = {}
         self.__dict__['_Process__esproducers'] = {}
@@ -358,6 +358,44 @@ class Process(object):
         for name,item in d.iteritems():
             returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
         return returnValue
+    def _sequencesInDependencyOrder(self):
+        #for each sequence, see what other sequences it depends upon
+        returnValue=DictTypes.SortedKeysDict()
+        class SequenceVisitor(object):
+            def __init__(self,d):
+                self.deps = d
+            def enter(self,visitee):
+                if isinstance(visitee,Sequence):
+                    d.append(visitee)
+                pass
+            def leave(self,visitee):
+                pass
+        dependencies = {}
+        for label,seq in self.sequences.iteritems():
+            d = []
+            v = SequenceVisitor(d)
+            seq.visit(v)
+            dependencies[label]=(seq,d)
+        resolvedDependencies=True
+        #keep looping until we can no longer get rid of all dependencies
+        # if that happens it means we have circular dependencies
+        while resolvedDependencies:
+            resolvedDependencies = (0 != len(dependencies))
+            oldDeps = dict(dependencies)
+            for label,(seq,deps) in oldDeps.iteritems():
+                if len(deps)==0:
+                    resolvedDependencies=True
+                    returnValue[label]=seq
+                    #remove this as a dependency for all other sequences
+                    del dependencies[label]
+                    for lb2,(seq2,deps2) in dependencies.iteritems():
+                        while deps2.count(seq):
+                            deps2.remove(seq)
+        if len(dependencies):
+            raise RuntimeError("circular sequence dependency discovered \n"+
+                               ",".join([label for label,junk in dependencies.iteritems()]))
+        return returnValue
+                
     def _dumpPython(self, d, options):
         result = ''
         for name, value in d.iteritems():
@@ -374,7 +412,7 @@ class Process(object):
         result+=self._dumpPythonList(self.filters_() , options)
         result+=self._dumpPythonList(self.analyzers_(), options)
         result+=self._dumpPythonList(self.outputModules_(), options)
-        result+=self._dumpPythonList(self.sequences_(), options)
+        result+=self._dumpPythonList(self._sequencesInDependencyOrder(), options)
         result+=self._dumpPythonList(self.paths_(), options)
         result+=self._dumpPythonList(self.endpaths_(), options)
         result+=self._dumpPythonList(self.services_(), options)
@@ -636,7 +674,47 @@ process.p2 = cms.Path(process.s)
 
 process.schedule = cms.Schedule(process.p2,process.p)
 """)
-            
+            #Reverse order of 'r' and 's'
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.p = Path(p.a)
+            p.r = Sequence(p.a)
+            p.s = Sequence(p.r)
+            p.p2 = Path(p.r)
+            p.schedule = Schedule(p.p2,p.p)
+            d=p.dumpConfig()
+            self.assertEqual(d,
+"""process test = {
+    module a = MyAnalyzer { 
+    }
+    sequence s = {r}
+    sequence r = {a}
+    path p = {a}
+    path p2 = {r}
+    schedule = {p2,p}
+}
+""")
+            d=p.dumpPython()
+            self.assertEqual(d,
+"""process = cms.Process("test")
+
+process.a = cms.EDAnalyzer("MyAnalyzer")
+
+
+process.r = cms.Sequence(process.a)
+
+
+process.s = cms.Sequence(process.r)
+
+
+process.p = cms.Path(process.a)
+
+
+process.p2 = cms.Path(process.r)
+
+
+process.schedule = cms.Schedule(process.p2,process.p)
+""")            
         def testSecSource(self):
             p = Process('test')
             p.a = SecSource("MySecSource")
