@@ -1,11 +1,16 @@
 /*
  * \file L1THCALTPGXAna.cc
  *
- * $Date: 2007/12/05 14:03:19 $
- * $Revision: 1.4 $
+ * $Date: 2007/12/21 17:41:21 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPGXAna.cc,v $
+ * Revision 1.5  2007/12/21 17:41:21  berryhil
+ *
+ *
+ * try/catch removal
+ *
  * Revision 1.4  2007/12/05 14:03:19  berryhil
  *
  *
@@ -37,6 +42,7 @@
 #include "DQM/L1TMonitor/interface/L1THCALTPGXAna.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 //#include "DQM/L1TMonitor/interface/hcal_root_prefs.h"
+#include "TMath.h"
 
 using namespace edm;
 

@@ -1,13 +1,14 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2007/11/19 15:08:22 $
- * $Revision: 1.11 $
+ * $Date: 2007/12/21 17:41:20 $
+ * $Revision: 1.12 $
  * \author J. Berryhill
  *
  */
 
 #include "DQM/L1TMonitor/interface/L1TGT.h"
+#include <math.h>
 
 using namespace std;
 using namespace edm;
