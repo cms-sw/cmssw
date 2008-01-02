@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/12/27 16:15:19 $
- * $Revision: 1.65 $
+ * $Date: 2007/12/28 17:21:28 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <math.h>
 
 #include "TStyle.h"
 

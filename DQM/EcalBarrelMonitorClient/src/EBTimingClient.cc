@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/12/27 16:15:19 $
- * $Revision: 1.60 $
+ * $Date: 2007/12/28 17:21:28 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <math.h>
 
 #include "TStyle.h"
 

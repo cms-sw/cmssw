@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/12/15 11:34:26 $
- * $Revision: 1.44 $
+ * $Date: 2007/12/28 17:21:28 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -12,6 +12,7 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
+#include <math.h>
 
 #include "TStyle.h"
 #include "TGaxis.h"
