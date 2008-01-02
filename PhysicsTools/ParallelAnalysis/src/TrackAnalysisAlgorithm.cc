@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include <TCanvas.h>
+#include <TList.h>
 #include <TH1.h>
 #include <iostream>
 using namespace examples;
