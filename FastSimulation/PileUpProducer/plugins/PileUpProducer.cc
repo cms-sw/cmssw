@@ -17,6 +17,7 @@
 #include "TRandom3.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TROOT.h"
 
 #include <iostream>
 #include <memory>
