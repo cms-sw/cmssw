@@ -17,7 +17,15 @@ class _Sequenceable(object):
             return lookuptable[id(self)]
         except:
             raise KeyError("no "+str(type(self))+" with id "+str(id(self))+" found")
-
+    def isOperation(self):
+        """Returns True if the object is an operator (e.g. *,+ or !) type"""
+        return False
+    def _visitSubNodes(self,visitor):
+        pass
+    def visitNode(self,visitor):
+        visitor.enter(self)
+        self._visitSubNodes(visitor)
+        visitor.leave(self)
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     """Base class for classes which define a sequence of modules"""
     def __init__(self,*arg, **argv):
@@ -90,6 +98,12 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         l = []
         self.fillNamesList(l)
         parameterSet.addVString(True, myname, l)
+    def visit(self,visitor):
+        """Passes to visitor's 'enter' and 'leave' method each item describing the module sequence.
+        If the item contains 'sub' items then visitor will see those 'sub' items between the
+        item's 'enter' and 'leave' calls.
+        """
+        self._seq.visitNode(visitor)
 
 class _SequenceOpAids(_Sequenceable):
     """Used in the expression tree for a sequence as a stand in for the ',' operator"""
@@ -111,7 +125,11 @@ class _SequenceOpAids(_Sequenceable):
     def fillNamesList(self, l):
         self.__left.fillNamesList(l)
         self.__right.fillNamesList(l)
-
+    def isOperation(self):
+        return True
+    def _visitSubNodes(self,visitor):
+        self.__left.visitNode(visitor)        
+        self.__right.visitNode(visitor)
 
 class _SequenceNegation(_Sequenceable):
     """Used in the expression tree for a sequence as a stand in for the '!' operator"""
@@ -129,6 +147,10 @@ class _SequenceNegation(_Sequenceable):
         l.append(self.__str__())
     def _clonesequence(self, lookuptable):
         return type(self)(self.__operand._clonesequence(lookuptable))
+    def isOperation(self):
+        return True
+    def _visitSubNodes(self,visitor):
+        self.__operand.visitNode(visitor)
 
 
 class _SequenceOpFollows(_Sequenceable):
@@ -155,6 +177,11 @@ class _SequenceOpFollows(_Sequenceable):
     def fillNamesList(self, l):
         self.__left.fillNamesList(l)
         self.__right.fillNamesList(l)
+    def isOperation(self):
+        return True
+    def _visitSubNodes(self,visitor):
+        self.__left.visitNode(visitor)        
+        self.__right.visitNode(visitor)
 
 
 
@@ -185,6 +212,8 @@ class Sequence(_ModuleSequenceType,_Sequenceable):
             lookuptable[id(self)]=clone
             lookuptable[id(clone)]=clone
         return lookuptable[id(self)]
+    def _visitSubNodes(self,visitor):
+        self.visit(visitor)
 
 
 class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
@@ -227,7 +256,48 @@ if __name__=="__main__":
             c = DummyModule('c')
             p3 = Path(c*(a+b))
             self.assertEqual(p3.dumpPython(None),"cms.Path((process.c*(process.a+process.b)))\n")
+        def testVisitor(self):
+            class TestVisitor(object):
+                def __init__(self, enters, leaves):
+                    self._enters = enters
+                    self._leaves = leaves
+                def enter(self,visitee):
+                    #print visitee
+                    if self._enters[0] != visitee:
+                        raise RuntimeError("wrong node ("+str(visitee)+") on 'enter'")
+                    else:
+                        self._enters = self._enters[1:]
+                def leave(self,visitee):
+                    if self._leaves[0] != visitee:
+                        raise RuntimeError("wrong node ("+str(visitee)+") on 'leave'\n expected ("+str(self._leaves[0])+")")
+                    else:
+                        self._leaves = self._leaves[1:]
+            a = DummyModule("a")
+            b = DummyModule('b')
+            multAB = a*b
+            p = Path(multAB)
+            t = TestVisitor(enters=[multAB,a,b],
+                            leaves=[a,b,multAB])
+            p.visit(t)
+
+            plusAB = a+b
+            p = Path(plusAB)
+            t = TestVisitor(enters=[plusAB,a,b],
+                            leaves=[a,b,plusAB])
+            p.visit(t)
             
+            s=Sequence(plusAB)
+            c=DummyModule("c")
+            multSC = s*c
+            p=Path(multSC)
+            t=TestVisitor(enters=[multSC,s,plusAB,a,b,c],
+                          leaves=[a,b,plusAB,s,c,multSC])
+            p.visit(t)
+            
+            notA= ~a
+            p=Path(notA)
+            t=TestVisitor(enters=[notA,a],leaves=[a,notA])
+            p.visit(t)
     
     unittest.main()
 
