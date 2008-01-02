@@ -1,5 +1,6 @@
 #include <DQM/HcalMonitorClient/interface/HcalPedestalClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
+#include <math.h>
 
 HcalPedestalClient::HcalPedestalClient(){}
 
