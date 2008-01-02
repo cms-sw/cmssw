@@ -63,6 +63,7 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
 
   hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
                                    ps.getParameter<int>("step"),
+				   ps.getParameter<bool>("dynamicPhiRoad"),
                                    ps.getParameter<double>("ethresh"),
                                    ps.getParameter<double>("eseed"),
                                    ps.getParameter<double>("ewing"),
