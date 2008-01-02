@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommon/interface/UpdateTProfile.h"
 #include <iostream>
+#include <math.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
