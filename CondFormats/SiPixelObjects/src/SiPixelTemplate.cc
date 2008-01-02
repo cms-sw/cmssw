@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.cc  Version 3.40 
+//  SiPixelTemplate.cc  Version 3.42 
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -13,6 +13,8 @@
 //  Fill template arrays in single calls to this object
 //  Add qmin to the template
 //  Add qscale to match charge scales
+//  Small improvement to x-chisquare interpolation
+//  Enlarge SiPixelTemplateStore to accommodate larger templates and increased alpha acceptance (reduce PT threshold to ~200 MeV)
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -51,31 +53,31 @@ bool SiPixelTemplate::pushfile(int filenum)
     
     // Local variables 
     int i, j, k;
-    const char *tempfile;
-    char title[80];
+	const char *tempfile;
+	char title[80];
     char c;
-    const int code_version={8};
-    
-    
-    
-    //  Create a filename for this run 
-    
-    //std::ostringstream tout;
-    //tout << "template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
-    //std::string tempf = tout.str();
-    //tempfile = tempf.c_str();
+	const int code_version={8};
+	
 
-    std::ostringstream tout;
-    tout << "RecoLocalTracker/SiPixelRecHits/data/template_summary_zp" 
-	 << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
-    std::string tempf = tout.str();
-    
-    std::cout << "tempf = " << tempf << std::endl;
-    edm::FileInPath file( tempf.c_str() );
-    tempfile = (file.fullPath()).c_str();
-    std::cout << "tempfile = " << tempfile << std::endl;
-    
-//  open the template file 
+
+//  Create a filename for this run 
+
+ //std::ostringstream tout;
+ //tout << "template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
+ //std::string tempf = tout.str();
+ //tempfile = tempf.c_str();
+	
+ std::ostringstream tout;
+ tout << "RecoLocalTracker/SiPixelRecHits/data/template_summary_zp" 
+      << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
+ std::string tempf = tout.str();
+ 
+ std::cout << "tempf = " << tempf << std::endl;
+ edm::FileInPath file( tempf.c_str() );
+ tempfile = (file.fullPath()).c_str();
+ std::cout << "tempfile = " << tempfile << std::endl;
+ 
+ //  open the template file 
 
  std::ifstream in_file(tempfile, std::ios::in);
  
@@ -908,12 +910,20 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 							
 	      pxgsig[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entfx[iylow][ilow].xgsig[i] + xxratio*thePixelTemp[index_id].entfx[iylow][ihigh].xgsig[i])
 		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entfx[iyhigh][ilow].xgsig[i] + xxratio*thePixelTemp[index_id].entfx[iyhigh][ihigh].xgsig[i]);
-	  														
-	      pchi2xavg[i]=((1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].chi2xavg[i] + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].chi2xavg[i]);
-		  if(thePixelTemp[index_id].entfx[imaxx][imidy].chi2xavg[i] != 0.) {pchi2xavg[i]=pchi2xavg[i]/thePixelTemp[index_id].entfx[imaxx][imidy].chi2xavg[i]*chi2xavg[i];}
+//
+//  Try new interpolation scheme
+//	  														
+//	      pchi2xavg[i]=((1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].chi2xavg[i] + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].chi2xavg[i]);
+//		  if(thePixelTemp[index_id].entfx[imaxx][imidy].chi2xavg[i] != 0.) {pchi2xavg[i]=pchi2xavg[i]/thePixelTemp[index_id].entfx[imaxx][imidy].chi2xavg[i]*chi2xavg[i];}
+//							
+//	      pchi2xmin[i]=((1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].chi2xmin[i] + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].chi2xmin[i]);
+//		  if(thePixelTemp[index_id].entfx[imaxx][imidy].chi2xmin[i] != 0.) {pchi2xmin[i]=pchi2xmin[i]/thePixelTemp[index_id].entfx[imaxx][imidy].chi2xmin[i]*chi2xmin[i];}
+//		  
+	      pchi2xavg[i]=((1. - xxratio)*thePixelTemp[index_id].entfx[iyhigh][ilow].chi2xavg[i] + xxratio*thePixelTemp[index_id].entfx[iyhigh][ihigh].chi2xavg[i]);
+		  if(thePixelTemp[index_id].entfx[iyhigh][imidy].chi2xavg[i] != 0.) {pchi2xavg[i]=pchi2xavg[i]/thePixelTemp[index_id].entfx[iyhigh][imidy].chi2xavg[i]*chi2xavg[i];}
 							
-	      pchi2xmin[i]=((1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].chi2xmin[i] + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].chi2xmin[i]);
-		  if(thePixelTemp[index_id].entfx[imaxx][imidy].chi2xmin[i] != 0.) {pchi2xmin[i]=pchi2xmin[i]/thePixelTemp[index_id].entfx[imaxx][imidy].chi2xmin[i]*chi2xmin[i];}
+	      pchi2xmin[i]=((1. - xxratio)*thePixelTemp[index_id].entfx[iyhigh][ilow].chi2xmin[i] + xxratio*thePixelTemp[index_id].entfx[iyhigh][ihigh].chi2xmin[i]);
+		  if(thePixelTemp[index_id].entfx[iyhigh][imidy].chi2xmin[i] != 0.) {pchi2xmin[i]=pchi2xmin[i]/thePixelTemp[index_id].entfx[iyhigh][imidy].chi2xmin[i]*chi2xmin[i];}
 		  
 	      for(j=0; j<6 ; ++j) {
 	         pxflparll[i][j] = thePixelTemp[index_id].entfx[iylow][ilow].xflpar[i][j];
@@ -1210,12 +1220,20 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 							
 	      pxgsig[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entbx[iylow][ilow].xgsig[i] + xxratio*thePixelTemp[index_id].entbx[iylow][ihigh].xgsig[i])
 		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entbx[iyhigh][ilow].xgsig[i] + xxratio*thePixelTemp[index_id].entbx[iyhigh][ihigh].xgsig[i]);
-	  														
-	      pchi2xavg[i]=((1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].chi2xavg[i] + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].chi2xavg[i]);
-		  if(thePixelTemp[index_id].entbx[imaxx][imidy].chi2xavg[i] != 0.) {pchi2xavg[i]=pchi2xavg[i]/thePixelTemp[index_id].entbx[imaxx][imidy].chi2xavg[i]*chi2xavg[i];}
+//
+//  Try new interpolation scheme
+//	  															  														
+//	      pchi2xavg[i]=((1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].chi2xavg[i] + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].chi2xavg[i]);
+//		  if(thePixelTemp[index_id].entbx[imaxx][imidy].chi2xavg[i] != 0.) {pchi2xavg[i]=pchi2xavg[i]/thePixelTemp[index_id].entbx[imaxx][imidy].chi2xavg[i]*chi2xavg[i];}
+//							
+//	      pchi2xmin[i]=((1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].chi2xmin[i] + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].chi2xmin[i]);
+//		  if(thePixelTemp[index_id].entbx[imaxx][imidy].chi2xmin[i] != 0.) {pchi2xmin[i]=pchi2xmin[i]/thePixelTemp[index_id].entbx[imaxx][imidy].chi2xmin[i]*chi2xmin[i];}
+		  
+	      pchi2xavg[i]=((1. - xxratio)*thePixelTemp[index_id].entbx[iyhigh][ilow].chi2xavg[i] + xxratio*thePixelTemp[index_id].entbx[iyhigh][ihigh].chi2xavg[i]);
+		  if(thePixelTemp[index_id].entbx[iyhigh][imidy].chi2xavg[i] != 0.) {pchi2xavg[i]=pchi2xavg[i]/thePixelTemp[index_id].entbx[iyhigh][imidy].chi2xavg[i]*chi2xavg[i];}
 							
-	      pchi2xmin[i]=((1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].chi2xmin[i] + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].chi2xmin[i]);
-		  if(thePixelTemp[index_id].entbx[imaxx][imidy].chi2xmin[i] != 0.) {pchi2xmin[i]=pchi2xmin[i]/thePixelTemp[index_id].entbx[imaxx][imidy].chi2xmin[i]*chi2xmin[i];}
+	      pchi2xmin[i]=((1. - xxratio)*thePixelTemp[index_id].entbx[iyhigh][ilow].chi2xmin[i] + xxratio*thePixelTemp[index_id].entbx[iyhigh][ihigh].chi2xmin[i]);
+		  if(thePixelTemp[index_id].entbx[iyhigh][imidy].chi2xmin[i] != 0.) {pchi2xmin[i]=pchi2xmin[i]/thePixelTemp[index_id].entbx[iyhigh][imidy].chi2xmin[i]*chi2xmin[i];}
 		  
 	      for(j=0; j<6 ; ++j) {
 	         pxflparll[i][j] = thePixelTemp[index_id].entbx[iylow][ilow].xflpar[i][j];
