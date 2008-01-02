@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
+#include "RecoEcal/EgammaCoreTools/interface/BremRecoveryPhiRoadAlgo.h"
 #include <vector>
 #include <set>
 
@@ -31,9 +32,14 @@ class HybridClusterAlgo
   double eb_st;
 
   //Number of steps in phi that the Hybrid algorithm will take
-  //when clustering.  Remember, uses phi_steps in positive direction
-  //and then phi_steps in negative direction.
-  int phi_steps;
+  //when clustering.  Remember, uses phiSteps_ in positive direction
+  //and then phiSteps_ in negative direction.
+  int phiSteps_;
+  double et25(EcalBarrelNavigator &navigator, 
+                const EcalRecHitCollection *hits, 
+                const CaloSubdetectorGeometry *geometry);
+  bool dynamicPhiRoad_;
+  BremRecoveryPhiRoadAlgo *phiRoadAlgo_;
 
   //Threshold for basic cluster.
   double Ethres;
@@ -78,12 +84,19 @@ class HybridClusterAlgo
 
   //The real constructor
   HybridClusterAlgo(double eb_str, 
-		    int step, 
+		    int step,
+		    bool dynamicPhiRoad,
 		    double ethresh, 
 		    double eseed,
 		    double ewing,
                 const PositionCalc& posCalculator,
 		    DebugLevel debugLevel = pINFO);
+
+  // destructor
+  ~HybridClusterAlgo() 
+  {
+     if (dynamicPhiRoad_) delete phiRoadAlgo_;
+  } 
 
   //Hand over the map, the geometry, and I'll hand you back clusters.
   void makeClusters(const EcalRecHitCollection*,
