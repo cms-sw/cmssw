@@ -45,8 +45,8 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
 
   // Initialize template store, Pixelav 125V simulation as
   // thePixelTemp[1]
-  templ_.pushfile(2);
-  
+  templ_.pushfile(4);
+
   // Initialize template store, CMSSW simulation w/ reduced difusion
   // as thePixelTemp[2]
   //templ_.pushfile(401);
@@ -90,7 +90,8 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   setTheDet( det );
 
   //int ierr;   //!< return status
-  int ID = 2; //!< picks the third entry from the template store, namely 401
+  int ID = 4; //!< picks the third entry from the template store
+
   bool fpix;  //!< barrel(false) or forward(true)
   if ( thePart == GeomDetEnumerators::PixelBarrel )   
     fpix = false;    // no, it's not forward -- it's barrel
