@@ -39,8 +39,8 @@ echo "      -p|--path_file        file_path       path to the data to be analyze
 echo ""
 echo "      -f|--first_ev         f_ev            first (as written to file) event that will be analyzed; default is 1"
 echo "      -l|--last_ev          l_ev            last  (as written to file) event that will be analyzed; default is 9999"
-echo "      -m|--mode             mode            dimping mode, options 1 or 2;  default is 1"
-echo "      -fed|--fed_id         fed_id         select FED id (601...654); default is all"
+echo "      -m|--mode             mode            dimping mode, options 1 or 2;  default is 2"
+echo "      -fed|--fed_id         fed_id          select FED id (601...654); if non is provided default is all"
 echo "      -eb|--ieb_id          ieb_id          selects sm barrel id; you must enter following way: EE-09 / EB-07 / EB+15 / EE+04 / ; default is all"
 echo "      -cry|--cryDigi        ic              digis from channel ic will be shown"
 echo "      -tt|--Tower           tt              digis from channel whole tower tt will be shown; For EE it referts ot Chanles from DCC, also called as Super Crystal" 
@@ -73,7 +73,7 @@ pn_num=-1;
 
 trpr=0;
 
-mode=1
+mode=2
 first_event=1
 last_event=9999
 
@@ -116,7 +116,6 @@ while [ $# -gt 0 ]; do    # FinchÅÈ ci sono parametri . . .
 	-tt|--triggerTower)
 	    tt_id="$2"
 	    towerString="true"
-	    cryString="true"
 	    ;;
 	
 	-pn|--pnDigi)
@@ -203,9 +202,8 @@ include "EventFilter/EcalRawToDigiDev/data/EcalUnpackerData.cfi"
      replace ecalDigiDisplay.pnDigi   = $pnString
 
      replace ecalDigiDisplay.mode     = $mode    
-     replace ecalDigiDisplay.numChannel   = $cry_ic    
-     replace ecalDigiDisplay.numPN        = $pn_num    
      replace ecalDigiDisplay.listChannels = { $cry_ic }    
+     replace ecalDigiDisplay.listTowers = { $tt_id }    
      replace ecalDigiDisplay.listPns      = { $pn_num }    
 
 
