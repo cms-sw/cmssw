@@ -27,6 +27,7 @@ class HcalPedestal;
 class HcalDbService;
 class HcalQIEShape;
 class HcalQIECoder;
+class TFile;
 
 class HcalLedAnalysis{
   

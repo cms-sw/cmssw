@@ -8,7 +8,8 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPedestalAnalysis.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
-#include <TFile.h>
+#include "TFile.h"
+#include <math.h>
 
 //
 // Michal Szleper, Mar 30, 2007

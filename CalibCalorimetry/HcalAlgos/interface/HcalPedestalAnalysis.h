@@ -35,6 +35,7 @@ class HcalPedestalWidths;
 class HcalDbService;
 class HcalQIEShape;
 class HcalQIECoder;
+class TFile;
 
 class HcalPedestalAnalysis{
   
