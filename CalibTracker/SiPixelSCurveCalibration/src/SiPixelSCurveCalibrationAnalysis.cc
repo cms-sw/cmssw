@@ -1,4 +1,5 @@
 #include "CalibTracker/SiPixelSCurveCalibration/interface/SiPixelSCurveCalibrationAnalysis.h"
+#include "TMath.h"
 
 //initialize static members
 std::vector<float> SiPixelSCurveCalibrationAnalysis::efficiencies_(0);
