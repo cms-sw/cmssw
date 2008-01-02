@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2007/12/27 16:16:13 $
- * $Revision: 1.28 $
+ * $Date: 2007/12/28 17:21:29 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <math.h>
 
 #include "TStyle.h"
 

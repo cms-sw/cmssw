@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/12/28 17:21:30 $
- * $Revision: 1.73 $
+ * $Date: 2007/12/30 19:29:19 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  *
 */
@@ -11,6 +11,7 @@
 #include <iostream>
 #include <iomanip>
 #include <map>
+#include <math.h>
 
 #include "TStyle.h"
 #include "TGraph.h"

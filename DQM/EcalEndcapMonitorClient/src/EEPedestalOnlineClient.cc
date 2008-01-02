@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/12/27 16:16:13 $
- * $Revision: 1.45 $
+ * $Date: 2007/12/28 17:21:30 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <math.h>
 
 #include "TStyle.h"
 #include "TGraph.h"
