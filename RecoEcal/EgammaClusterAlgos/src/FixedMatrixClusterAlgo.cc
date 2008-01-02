@@ -8,9 +8,6 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
-
 // Return a vector of clusters from a collection of EcalRecHits:
 //
 std::vector<reco::BasicCluster> FixedMatrixClusterAlgo::makeClusters(
