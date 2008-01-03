@@ -31,10 +31,25 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 	LogDebug("CSCFileReader|ctor")<<"Started ...";
 	// Below some data members are recycled for both cases: RUIs and FUs
 	//  this is ok as long as eighter of RUI or FU are are provided in .cfg (not both)
+	nActiveRUIs = 0;
+	nActiveFUs  = 0;
+	for(int unit=0; unit<nRUIs; unit++){
+		std::ostringstream ruiName, fuName;
+		ruiName<<"RUI"<<(unit<10?"0":"")<<unit<<std::ends;
+		fuName <<"FU" <<unit<<std::ends;
+		std::vector<std::string> ruiFiles = pset.getUntrackedParameter< std::vector<std::string> >(ruiName.str().c_str(),std::vector<std::string>(0));
+		std::vector<std::string> fuFiles  = pset.getUntrackedParameter< std::vector<std::string> >(fuName.str().c_str(),std::vector<std::string>(0));
+		if( ruiFiles.begin() != ruiFiles.end() ) nActiveRUIs++;
+		if( fuFiles.begin()  != fuFiles.end()  ) nActiveFUs++;
+	}
+	if( nActiveFUs && nActiveRUIs )
+		throw cms::Exception("CSCFileReader|configuration")<<"RUIs and FUs in conflict: either RUI or FU may be defined at a time, not both";
+	if( !nActiveFUs && !nActiveRUIs )
+		throw cms::Exception("CSCFileReader|configuration")<<"Module lacks configuration";
+
 
 	// Get list of RUI input files from .cfg file
-	nActiveRUIs = 0;
-	for(int rui=0; rui<nRUIs; rui++){
+	for(int rui=0; rui<nRUIs && !nActiveFUs; rui++){
 		std::ostringstream name;
 		name<<"RUI"<<(rui<10?"0":"")<<rui<<std::ends;
 
@@ -47,7 +62,7 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 			try {
 				RUI[rui].open(currentFile[rui]->c_str());
 			} catch ( std::runtime_error err ){
-				throw cms::Exception("InputFileMissing ")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
+				throw cms::Exception("CSCFileReader")<<"InputFileMissing: "<<err.what()<<" (errno="<<errno<<")";
 			}
 			nActiveRUIs++;
 		}
@@ -61,8 +76,7 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 	}
 
 	// Get list of FU input files from .cfg file
-	nActiveFUs = 0;
-	for(int fu=0; fu<nFUs; fu++){
+	for(int fu=0; fu<nFUs && !nActiveRUIs; fu++){
 		std::ostringstream name;
 		name<<"FU"<<fu<<std::ends;
 
@@ -75,7 +89,7 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 			try {
 				FU[fu].open(currentFile[fu]->c_str());
 			} catch ( std::runtime_error err ){
-				throw cms::Exception("InputFileMissing ")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
+				throw cms::Exception("CSCFileReader")<<"InputFileMissing: "<<err.what()<<" (errno="<<errno<<")";
 			}
 			nActiveFUs++;
 		}
@@ -84,10 +98,9 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 		FU[fu].reject(FileReaderDCC::DCCoversize|FileReaderDCC::FFFF|FileReaderDCC::Unknown);
 		// Do not select anything in particular
 		FU[fu].select(0);
-	}
 
-	if( nActiveFUs && nActiveRUIs )
-		throw cms::Exception("RUIs and FUs in conflict")<<"CSCFileReader: either RUI or FU may be defined at a time, not both";
+		currentL1A[fu] = -1;
+	}
 
 	if( nActiveRUIs && !nActiveFUs ){
 		// Assign RUIs to FEDs
@@ -135,14 +148,14 @@ int CSCFileReader::readRUI(int rui, const unsigned short* &buf, size_t &length){
 		try {
 			length = RUI[rui].next(buf);
 		} catch ( std::runtime_error err ){
-			throw cms::Exception("EndOfStream")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
+			throw cms::Exception("CSCFileReader|reading")<<"EndOfStream: "<<err.what()<<" (errno="<<errno<<")";
 		}
 		if( length==0 ){ // end of file, try next one
 			if( ++currentFile[rui] != fileNames[rui].end() ){
 				try {
 					RUI[rui].open(currentFile[rui]->c_str());
 				} catch ( std::runtime_error err ){
-					throw cms::Exception("InputFileMissing")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
+					throw cms::Exception("CSCFileReader|reading")<<"InputFileMissing: "<<err.what()<<" (errno="<<errno<<")";
 				}
 			} else return -1;
 		}
@@ -156,14 +169,14 @@ int CSCFileReader::readFU(int fu, const unsigned short* &buf, size_t &length){
 		try {
 			length = FU[fu].next(buf);
 		} catch ( std::runtime_error err ){
-			throw cms::Exception("EndOfStream")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
+			throw cms::Exception("CSCFileReader|reading")<<"EndOfStream: "<<err.what()<<" (errno="<<errno<<")";
 		}
 		if( length==0 ){ // end of file, try next one
 			if( ++currentFile[fu] != fileNames[fu].end() ){
 				try {
 					FU[fu].open(currentFile[fu]->c_str());
 				} catch ( std::runtime_error err ){
-					throw cms::Exception("InputFileMissing")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
+					throw cms::Exception("CSCFileReader|reading")<<"InputFileMissing: "<<err.what()<<" (errno="<<errno<<")";
 				}
 			} else return -1;
 		}
@@ -212,7 +225,7 @@ int CSCFileReader::buildEventFromRUIs(FEDRawDataCollection *data){
 			for(std::list<unsigned int>::const_iterator rui=fed->second.begin(); rui!=fed->second.end(); rui++){
 //cout<<"Event:"<<eventNumber<<"  FED:"<<fed->first<<"  RUI:"<<*(fed->second.begin())<<" currL1A:"<<currentL1A[*rui]<<endl;
 				if( currentL1A[*rui]==eventNumber ){
-					if(dccCur-dccBuf+length[*rui]>=200000*nRUIs+8) throw cms::Exception("OutOfBuffer")<<"CSCFileReader: Event size exceeds maximal size allowed!";
+					if(dccCur-dccBuf+length[*rui]>=200000*nRUIs+8) throw cms::Exception("CSCFileReader|eventBuffer")<<"OutOfBuffer: Event size exceeds maximal size allowed!";
 					memcpy(dccCur,buf[*rui],length[*rui]*sizeof(unsigned short));
 					dccCur += length[*rui];
 				}
@@ -265,7 +278,7 @@ int CSCFileReader::nextEventFromFUs(FEDRawDataCollection *data){
 	enum {Header=1,Trailer=2};
 	unsigned int eventStatus  = 0;
 	for(int dduRecord=0; dduRecord<=tfDDUnumber; dduRecord++){
-		unsigned long long word_0, word_1, word_2;
+		unsigned long long word_0=0, word_1=0, word_2=0;
 		size_t dduWordCount = 0;
 		while( !end && dduWordCount<fuEventSize[readyToGo] ){
 			unsigned long long *dduWord = start;

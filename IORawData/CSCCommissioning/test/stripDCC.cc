@@ -23,8 +23,10 @@ int main(int argc, char *argv[]){
 	}
 	const unsigned short *buf=0;
 	size_t length=0;
-	while( (length=reader.next(buf))!=0 ) fwrite(buf,2,length,out);
-
+	int nEvents=0;
+	while( (length=reader.next(buf))!=0 ){ fwrite(buf,2,length,out); nEvents++; }
 	fclose(out);
+
+	printf("nEvents=%d\n",nEvents);
 	return 0;
 }
