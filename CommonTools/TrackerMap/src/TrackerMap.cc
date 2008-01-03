@@ -28,13 +28,11 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
   title=" ";
   jsfilename="CommonTools/TrackerMap/data/trackermap.txt";
   infilename="CommonTools/TrackerMap/data/tracker.dat";
-  saveAsSingleLayer=false;
   if(tkmapPset.exists("trackermaptxtPath")){
   jsfilename=tkmapPset.getUntrackedParameter<std::string>("trackermaptxtPath","")+"trackermap.txt";
   cout << jsfilename << endl;
   infilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"tracker.dat";
   cout << infilename << endl;
-  ncrates=0;
   enableFedProcessing=tkmapPset.getUntrackedParameter<bool>("loadFedCabling",false);
   } else cout << "no parameters found" << endl;
 
@@ -68,27 +66,22 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
 	  if(num_conn==1){
 	    if(fedMap[iconn->fedId()]==0){num_crate=num_board/18+1;fedMap[iconn->fedId()]=num_crate;num_board++;}
           }
-	  apvpair = new TmApvPair(key,num_crate);
+	  apvpair = new TmApvPair(key);
 	  apvpair->mod=imod;
           apvpair->mpos=iconn->apvPairNumber();
 	  apvMap[key] = apvpair;	
           apvModuleMap.insert(make_pair(iconn->detId(),apvpair));
-          stringstream s;
-          iconn->print(s);  
-          apvpair->text=s.str();
 	}
     }
   }
-  ncrates=num_crate;
   cout << num_crate << " crates used "<< endl;
 //Now add APv information to module name
     std::map<int , TmModule *>::iterator i_mod;
     for( i_mod=imoduleMap.begin();i_mod !=imoduleMap.end(); i_mod++){
       TmModule *  mod= i_mod->second;
       if(mod!=0) {
-       ostringstream outs,outs1;
+       ostringstream outs;
        outs << " connected to ";
-       outs1 << "(";
 
       int idmod=mod->idex;
        int nchan=0;
@@ -98,15 +91,12 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
        TmApvPair* apvpair = pos->second;
        if(apvpair!=0){
        outs << apvpair->mpos << " " <<apvpair->getFedId() << "/"<<apvpair->getFedCh()<<" ";
-       outs1 << apvpair->idex+apvpair->crate*1000000<<",";
       nchan++;
     }
 
   }
        outs<< "("<<nchan<<")";
       mod->name=mod->name + outs.str(); 
-      string s = outs1.str(); s.erase(s.end()-1,s.end());
-      mod->capvids=s+")";
   }
   }
 }
@@ -119,8 +109,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset) {
   title=" ";
   jsfilename="CommonTools/TrackerMap/data/trackermap.txt";
   infilename="CommonTools/TrackerMap/data/tracker.dat";
-  enableFedProcessing=false;ncrates=0;
-  saveAsSingleLayer=false;
+  enableFedProcessing=false;
   if(tkmapPset.exists("trackermaptxtPath")){
   jsfilename=tkmapPset.getUntrackedParameter<std::string>("trackermaptxtPath","")+"trackermap.txt";
   cout << jsfilename << endl;
@@ -137,7 +126,6 @@ TrackerMap::TrackerMap(string s,int xsize1,int ysize1) {
   jsfilename="CommonTools/TrackerMap/data/trackermap.txt";
   infilename="CommonTools/TrackerMap/data/tracker.dat";
   enableFedProcessing=false; 
-  saveAsSingleLayer=false;
  init();
 }
 
@@ -299,10 +287,10 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
   
   if(mod->count > 0)
     if(temporary_file) *svgfile << red << " " << green << " " << blue << " "; else
- *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" capvids=\""<<mod->capvids<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" points=\"";
+ *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" points=\"";
   else
     if(temporary_file) *svgfile << 255 << " " << 255 << " " << 255 << " "; else
-    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" capvids=\""<<mod->capvids<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"white\" points=\"";
+    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\"  onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"white\" points=\"";
   if(temporary_file) *svgfile << np << " ";
   for(int k=0;k<np;k++){
     if(temporary_file)*svgfile << xd[k] << " " << yd[k] << " " ; else
@@ -314,7 +302,7 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
   if(mod->green>255)mod->green=255;
   if(mod->blue>255)mod->blue=255;
     if(temporary_file) *svgfile << mod->red << " " << mod->green << " " << mod->blue << " "; else
-    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" capvids=\""<<mod->capvids<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"rgb("<<mod->red<<","<<mod->green<<","<<mod->blue<<")\" points=\"";
+    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"rgb("<<mod->red<<","<<mod->green<<","<<mod->blue<<")\" points=\"";
   if(temporary_file) *svgfile << np << " ";
   for(int k=0;k<np;k++){
     if(temporary_file)*svgfile << xd[k] << " " << yd[k] << " " ; else
@@ -512,8 +500,6 @@ void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, Tm
   
   char buffer [20];
   sprintf(buffer,"%X",apvPair->mod->idex);
-  string s = apvPair->mod->name;
-  s.erase(s.begin()+s.find("connected"),s.end());
 
   if(useApvPairValue){ 
     if(apvPair->red < 0){ //use count to compute color
@@ -523,18 +509,15 @@ void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, Tm
 	green=(color>>8)&0xFF;
 	blue=(color)&0xFF;
 	if(!print_total)apvPair->value=apvPair->value*apvPair->count;//restore mod->value
-	if(temporary_file)*svgfile << red << " " << green << " " << blue << " ";
-           else *svgfile <<"<svg:polygon detid=\""<<apvPair->idex<<"\" count=\""<<apvPair->count <<"\" value=\""<<apvPair->value<<"\" id=\""<<apvPair->idex+crate*1000000<<"\" cmodid=\""<<apvPair->mod->getKey()<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"Fed/Ch "<<apvPair->getFedId()<<"/"<<apvPair->getFedCh()<<" connected to "<<s<<" Id "<<buffer<<" \" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" points=\"";
+	*svgfile << red << " " << green << " " << blue << " ";
       } else {
-        if(temporary_file)*svgfile << 255 << " " << 255 << " " << 255 << " ";
-         else *svgfile <<"<svg:polygon detid=\""<<apvPair->idex<<"\" count=\""<<apvPair->count <<"\" value=\""<<apvPair->value<<"\" id=\""<<apvPair->idex+crate*1000000<<"\"  cmodid=\""<<apvPair->mod->getKey()<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"Fed/Ch "<<apvPair->getFedId()<<"/"<<apvPair->getFedCh()<<" connected to "<<s<<" Id "<<buffer<<" \" fill=\"white\" points=\"";
+        *svgfile << 255 << " " << 255 << " " << 255 << " ";
       }
     } else {//color defined with fillc
       if(apvPair->red>255)apvPair->red=255;
       if(apvPair->green>255)apvPair->green=255;
       if(apvPair->blue>255)apvPair->blue=255;
-      if(temporary_file)*svgfile << apvPair->red << " " << apvPair->green << " " << apvPair->blue << " ";
-         else *svgfile <<"<svg:polygon detid=\""<<apvPair->idex<<"\" count=\""<<apvPair->count <<"\" value=\""<<apvPair->value<<"\" id=\""<<apvPair->idex+crate*1000000<<"\" cmodid=\""<<apvPair->mod->getKey()<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"Fed/Ch "<<apvPair->getFedId()<<"/"<<apvPair->getFedCh()<<" connected to "<<s<<" Id "<<buffer<<" \" fill=\"rgb("<<apvPair->red<<","<<apvPair->green<<","<<apvPair->blue<<")\" points=\"";
+      *svgfile << apvPair->red << " " << apvPair->green << " " << apvPair->blue << " ";
     }
   }else{
     if(apvPair->mod->red < 0){ //use count to compute color
@@ -543,27 +526,22 @@ void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, Tm
 	red=(color>>16)&0xFF;
 	green=(color>>8)&0xFF;
 	blue=(color)&0xFF;
-	if(temporary_file)*svgfile << red << " " << green << " " << blue << " ";
-           else *svgfile <<"<svg:polygon detid=\""<<apvPair->idex<<"\" count=\""<<apvPair->count <<"\" value=\""<<apvPair->value<<"\" id=\""<<apvPair->idex+crate*1000000<<"\" cmodid=\""<<apvPair->mod->getKey()<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"Fed/Ch "<<apvPair->getFedId()<<"/"<<apvPair->getFedCh()<<" connected to "<<s<<" Id "<<buffer<<" \" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" points=\"";
+	*svgfile << red << " " << green << " " << blue << " ";
       } else {
-        if(temporary_file)*svgfile << 255 << " " << 255 << " " << 255 << " ";
-         else *svgfile <<"<svg:polygon detid=\""<<apvPair->idex<<"\" count=\""<<apvPair->count <<"\" value=\""<<apvPair->value<<"\" id=\""<<apvPair->idex+crate*1000000<<"\"  cmodid=\""<<apvPair->mod->getKey()<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"Fed/Ch "<<apvPair->getFedId()<<"/"<<apvPair->getFedCh()<<" connected to "<<s<<" Id "<<buffer<<" \" fill=\"white\" points=\"";
+        *svgfile << 255 << " " << 255 << " " << 255 << " ";
       }
     } else {//color defined with fillc
       if(apvPair->mod->red>255)apvPair->mod->red=255;
       if(apvPair->mod->green>255)apvPair->mod->green=255;
       if(apvPair->mod->blue>255)apvPair->mod->blue=255;
-      if(temporary_file)*svgfile << apvPair->mod->red << " " << apvPair->mod->green << " " << apvPair->mod->blue << " ";
-         else *svgfile <<"<svg:polygon detid=\""<<apvPair->idex<<"\" count=\""<<apvPair->count <<"\" value=\""<<apvPair->value<<"\" id=\""<<apvPair->idex+crate*1000000<<"\" cmodid=\""<<apvPair->mod->getKey()<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"Fed/Ch "<<apvPair->getFedId()<<"/"<<apvPair->getFedCh()<<" connected to "<<s<<" Id "<<buffer<<" \" fill=\"rgb("<<apvPair->mod->red<<","<<apvPair->mod->green<<","<<apvPair->mod->blue<<")\" points=\"";
+      *svgfile << apvPair->mod->red << " " << apvPair->mod->green << " " << apvPair->mod->blue << " ";
     }
   }
-  if(temporary_file)*svgfile << np << " ";
+  *svgfile << np << " ";
   for(int k=0;k<np;k++){
-    if(temporary_file)*svgfile << xd[k] << " " << yd[k] << " " ; 
-      else *svgfile << xd[k] << "," << yd[k] << " " ;
+    *svgfile << xd[k] << " " << yd[k] << " " ; 
   }
-  if(temporary_file)*svgfile << endl;
-     else *svgfile <<"\" />" <<endl;
+  *svgfile << endl;
 }
 
 void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
@@ -572,11 +550,11 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
   filetype.erase(0,filetype.find(".")+1);
   outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
   temporary_file=true;
-  if(filetype=="xml")temporary_file=false;
+
   ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".coor";
-  if(temporary_file)savefile = new ofstream(outs.str().c_str(),ios::out);
+  savefile = new ofstream(outs.str().c_str(),ios::out);
   std::map<int , TmApvPair *>::iterator i_apv;
   std::map<int , int>::iterator i_fed;
   //Decide if we must use Module or ApvPair value
@@ -622,21 +600,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	}
     }
   }
-  for (int crate=1; crate < (ncrates+1); crate++){
-    if(!temporary_file){
-      saveAsSingleLayer=true;
-      ostringstream outs;
-    outs << outputfilename<<"crate" <<crate<< ".xml";
-    savefile = new ofstream(outs.str().c_str(),ios::out);
-    *savefile << "<?xml version=\"1.0\" standalone=\"no\"?>"<<endl;
-    *savefile << "<svg xmlns=\"http://www.w3.org/2000/svg\""<<endl;
-    *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\""<<endl;
-    *savefile << "xmlns:xlink=\"http://www.w3.org/1999/xlink\" >"<<endl;
-    *savefile << "<script type=\"text/ecmascript\" xlink:href=\"crate.js\" />"<<endl;
-    *savefile << "<svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0  500 500\" width=\"700\" height=\"700\" onload=\"TrackerCrate.init()\">"<<endl;
-    *savefile << "<rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"700\" height=\"700\" />"<<endl;
-    *savefile << "<g id=\"crate\" transform=\" translate(150,500) rotate(270) scale(1.,1.)\"  > "<<endl;
-         }
+  for (int crate=1; crate < 25; crate++){
     ncrate=crate;
     defcwindow(ncrate);
     int numfed_incrate=0;
@@ -656,12 +620,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	}
       }
     }
-   if(!temporary_file){
-    *savefile << "</g> </svg> <text id=\"currentElementText\" x=\"40\" y=\"30\"> - </text> </svg>" << endl;
-    savefile->close();
-     saveAsSingleLayer=false;
-      }
-    }
+  }
   if(!print_total && !useApvPairValue){
 //Restore module value
     for( i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
@@ -675,8 +634,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     }
 }
   
-  if(temporary_file){
-    if(printflag)drawPalette(savefile);
+  if(printflag)drawPalette(savefile);
   savefile->close(); 
 
   const char * command1;
@@ -757,8 +715,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     delete pline;
   
   
-}//if(temporary_file)
-}//if(enabledFedProcessing)
+}
 }
 
 //print in svg format tracker map
@@ -1035,193 +992,4 @@ int TrackerMap::getcolor(float value,int palette){
          red = 255; blue=0;green=255-green;  
         } 
    return(blue|(green<<8)|(red<<16));
-}
-void TrackerMap::printall(bool print_total, float minval, float maxval, string outputfilename){
-//Copy interface
-  std::ofstream * ofilename;
-  std::ifstream * ifilename;
-  std::ostringstream ofname;
-  std::string ifname;
-  string line;
-  ifname="CommonTools/TrackerMap/data/viewer.xhtml";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
-  ofname << outputfilename << "viewer.xhtml";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
-*ofilename <<"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\""<<endl;
-*ofilename <<"    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"<<endl;
-*ofilename <<"<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">"<<endl;
-*ofilename <<"  <head>"<<endl;
-*ofilename <<"    <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />"<<endl;
-*ofilename <<"    <title>TrackerMap Viewer</title>"<<endl;
-*ofilename <<"    <link rel=\"stylesheet\" type=\"text/css\" href=\""<<outputfilename<<"viewer.css\" />"<<endl;
-*ofilename <<"    <script type=\"text/javascript\" src=\""<<outputfilename<<"viewer.js\">"<<endl;
-*ofilename <<"    </script>"<<endl;
-*ofilename <<"    <script type=\"text/javascript\">"<<endl;
-*ofilename <<"    //<![CDATA["<<endl;
-*ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<endl;
-  while (getline( *ifilename, line )) { *ofilename << line << endl; }
-  ofname.str("");
-  ifname="CommonTools/TrackerMap/data/viewer.css";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
-  ofname << outputfilename << "viewer.css";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
-  while (getline( *ifilename, line )) { *ofilename << line << endl; }
-  ofname.str("");
-  ifname="CommonTools/TrackerMap/data/viewer.js";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
-  ofname << outputfilename << "viewer.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
-  while (getline( *ifilename, line )) { *ofilename << line << endl; }
-  ofname.str("");
-  ifname="CommonTools/TrackerMap/data/crate.js";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
-  ofname <<  "crate.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
-  while (getline( *ifilename, line )) { *ofilename << line << endl; }
-  ofname.str("");
-  ifname="CommonTools/TrackerMap/data/layer.js";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
-  ofname <<  "layer.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
-  while (getline( *ifilename, line )) { *ofilename << line << endl; }
-  ofname.str("");
-  ifname="CommonTools/TrackerMap/data/null.png";
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
-  ofname <<  "null.png";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
-  while (getline( *ifilename, line )) { *ofilename << line << endl; }
-  
-    ostringstream outs,outs1,outs2;
-    outs << outputfilename<<".png";
-save(true,0.,0.,outs.str(),3000,1600);
-temporary_file=false;
-printlayers(true,0.,0.,outputfilename);
-
-//Now print a text file for each layer 
-  ofstream * txtfile;
-for (int layer=1; layer < 44; layer++){
-    ostringstream outs;
-    outs << outputfilename <<"layer"<<layer<< ".html";
-    txtfile = new ofstream(outs.str().c_str(),ios::out);
-    *txtfile << "<html><head></head> <body>" << endl;
-    for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
-      for (int module=1;module<200;module++) {
-        int key=layer*100000+ring*1000+module;
-        TmModule * mod = smoduleMap[key];
-	if(mod !=0 && !mod->notInUse()){
-            int idmod=mod->idex;
-            int nchan=0;
-            *txtfile  << "<a name="<<idmod<<"><pre>"<<endl;
-             multimap<const int, TmApvPair*>::iterator pos;
-             for (pos = apvModuleMap.lower_bound(idmod);
-                pos != apvModuleMap.upper_bound(idmod); ++pos) {
-               TmApvPair* apvpair = pos->second;
-               if(apvpair!=0){
-                   nchan++;
-                   *txtfile  <<  apvpair->text << endl;
-                    }
-
-                    }
-                   *txtfile  << "</pre><h3>"<< mod->name<<"</h3>"<<endl;
-                  }
-                }
-                }
-    *txtfile << "</body></html>" << endl;
-    txtfile->close();
-                }
-if(enableFedProcessing){
-    outs1 << outputfilename<<"fed.png";
-save_as_fedtrackermap(true,0.,0.,outs1.str(),3000,1600);
-    outs2 << outputfilename<<".xml";
-save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
-//And a text file for each crate 
-  std::map<int , int>::iterator i_fed;
-  ofstream * txtfile;
-  for (int crate=1; crate < (ncrates+1); crate++){
-    ostringstream outs;
-    outs << outputfilename <<"crate"<<crate<< ".html";
-    txtfile = new ofstream(outs.str().c_str(),ios::out);
-    *txtfile << "<html><head></head> <body>" << endl;
-    for (i_fed=fedMap.begin();i_fed != fedMap.end(); i_fed++){
-      if(i_fed->second == crate){
-	int fedId = i_fed->first;
-	for (int nconn=0;nconn<96;nconn++){
-	  int key = fedId*1000+nconn; 
-	  TmApvPair *  apvPair= apvMap[key];
-	  if(apvPair !=0){
-            int idmod=apvPair->idex;
-            *txtfile  << "<a name="<<idmod<<"><pre>"<<endl;
-            *txtfile  <<  apvPair->text << endl;
-            ostringstream outs;
-            outs << "fedchannel "  <<apvPair->getFedId() << "/"<<apvPair->getFedCh()<<" connects to module  " << apvPair->mod->idex ;
-            *txtfile  << "</pre><h3>"<< outs.str()<<"</h3>"<<endl;
-             }
-          }
-      }
-      }
-    *txtfile << "</body></html>" << endl;
-    txtfile->close();
-                }
-  }
-}
-void TrackerMap::printlayers(bool print_total, float minval, float maxval, string outputfilename){
-  ofstream * xmlfile;
-saveAsSingleLayer=true;
-if(!print_total){
-    for (int layer=1; layer < 44; layer++){
-      for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
-	for (int module=1;module<200;module++) {
-	  int key=layer*100000+ring*1000+module;
-	  TmModule * mod = smoduleMap[key];
-	  if(mod !=0 && !mod->notInUse()){
-	    mod->value = mod->value / mod->count;
-	  }
-	}
-      }
-    }
-  }
-  if(minvalue>=maxvalue){
-    minvalue=9999999.;
-    maxvalue=-9999999.;
-    for (int layer=1; layer < 44; layer++){
-      for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
-	for (int module=1;module<200;module++) {
-	  int key=layer*100000+ring*1000+module;
-	  TmModule * mod = smoduleMap[key];
-	  if(mod !=0 && !mod->notInUse()){
-	    if (minvalue > mod->value)minvalue=mod->value;
-	    if (maxvalue < mod->value)maxvalue=mod->value;
-	  }
-	}
-      }
-    }
-  }
-for (int layer=1; layer < 44; layer++){
-    ostringstream outs;
-    outs << outputfilename <<"layer"<<layer<< ".xml";
-    xmlfile = new ofstream(outs.str().c_str(),ios::out);
-    *xmlfile << "<?xml version=\"1.0\" standalone=\"no\"?>"<<endl;
-    *xmlfile << "<svg xmlns=\"http://www.w3.org/2000/svg\""<<endl;
-    *xmlfile << "xmlns:svg=\"http://www.w3.org/2000/svg\""<<endl;
-    *xmlfile << "xmlns:xlink=\"http://www.w3.org/1999/xlink\" >"<<endl;
-    *xmlfile << "<script type=\"text/ecmascript\" xlink:href=\"layer.js\" />"<<endl;
-    *xmlfile << "<svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0  500 500\" width=\"700\" height=\"700\" onload=\"TrackerLayer.init()\">"<<endl;
-    if(layer<31)*xmlfile << "<g id=\"layer\" transform=\" translate(0,400) rotate(270) scale(1.,2.)\"  > "<<endl;
-    else *xmlfile << "<g id=\"layer\" transform=\" translate(0,400) rotate(270) scale(1.,1.)\"  > "<<endl;
-    *xmlfile << "<rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"700\" height=\"700\" />"<<endl;
-    nlay=layer;
-    defwindow(nlay);
-    for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
-      for (int module=1;module<200;module++) {
-        int key=layer*100000+ring*1000+module;
-        TmModule * mod = smoduleMap[key];
-	if(mod !=0 && !mod->notInUse()){
-          drawModule(mod,key,layer,print_total,xmlfile);
-        }
-      }
-    }
-    *xmlfile << "</g> </svg> <text id=\"currentElementText\" x=\"40\" y=\"30\"> - </text> </svg>" << endl;
-    xmlfile->close();
-  }
-saveAsSingleLayer=false;
 }
