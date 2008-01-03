@@ -1,7 +1,8 @@
 // PFJet.cc
 // Fedor Ratnikov UMd
-// $Id: PFJet.cc,v 1.4 2007/05/19 04:26:35 fedor Exp $
+// $Id: PFJet.cc,v 1.5 2007/09/20 21:04:59 fedor Exp $
 #include <sstream>
+#include <typeinfo>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -31,25 +32,24 @@ PFJet::PFJet (const LorentzVector& fP4,
     m_specific (fSpecific)
 {}
 
-reco::PFBlockRef PFJet::getPFBlock (const reco::Candidate* fConstituent) {
-  if (fConstituent) {
-    const PFCandidate* candidate = dynamic_cast <const PFCandidate*> (fConstituent);
-    if (candidate) {
-      throw cms::Exception("Not implemented") << "PFJet::getPFBlock is not implemented";
-    }
-    else {
-      throw cms::Exception("Invalid Constituent") << "PFJet constituent is not of PFCandidate type";
-    }
+const reco::PFCandidate& PFJet::getPFCandidate (const reco::Candidate& fConstituent) {
+  const reco::Candidate& base = fConstituent.hasMasterClone () ? *(fConstituent.masterClone()) : fConstituent;
+  try {
+    const PFCandidate& candidate = dynamic_cast <const PFCandidate&> (base);
+    return candidate;
   }
-  return PFBlockRef ();
+  catch (std::bad_cast e) {
+    throw cms::Exception("Invalid Constituent") << "PFJet constituent is not of PFCandidate type."
+						<< "Actual type is " << typeid (base).name();
+  }
 }
 
-reco::PFBlockRef PFJet::getConstituent (unsigned fIndex) const {
-  return getPFBlock (daughter (fIndex));
+const reco::PFCandidate& PFJet::getConstituent (unsigned fIndex) const {
+  return getPFCandidate (*(daughter (fIndex)));
 }
 
-std::vector <PFBlockRef> PFJet::getConstituents () const {
-  std::vector <PFBlockRef> result;
+std::vector <reco::PFCandidate> PFJet::getConstituents () const {
+  std::vector <reco::PFCandidate> result;
   for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getConstituent (i));
   return result;
 }

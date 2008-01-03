@@ -10,12 +10,13 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.10 2007/08/24 17:35:23 fedor Exp $
+  * \version   $Id: PFJet.h,v 1.11 2007/09/20 21:04:43 fedor Exp $
  ************************************************************/
 
 
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 
 namespace reco {
@@ -87,11 +88,11 @@ class PFJet : public Jet {
 
  
   /// convert generic constituent to specific type
-  static reco::PFBlockRef getPFBlock (const reco::Candidate* fConstituent);
+  static const reco::PFCandidate& getPFCandidate (const reco::Candidate& fConstituent);
   /// get specific constituent
-  reco::PFBlockRef getConstituent (unsigned fIndex) const;
+  const reco::PFCandidate& getConstituent (unsigned fIndex) const;
   /// get all constituents
-  std::vector <reco::PFBlockRef> getConstituents () const;
+  std::vector <reco::PFCandidate> getConstituents () const;
   
   // block accessors
   
