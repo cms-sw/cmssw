@@ -36,11 +36,11 @@ namespace cms
     }
 
     bool TriggerSelector_Decision_;
-    try{
-      e.getByType(ltcdigis);
-      TriggerSelector_Decision_=TriggerSelector();
-    } catch ( ... ) {
+    e.getByType(ltcdigis);
+    if (!ltcdigis.isValid()) {
       TriggerSelector_Decision_=true;
+    } else {
+      TriggerSelector_Decision_=TriggerSelector();
     }
 
     bool ClusterNumberSelector_Decision_=ClusterNumberSelector();

@@ -145,11 +145,17 @@ void JetPlusTrackAnalysis::analyze(
   float pt[2],eta[2],phi[2];
   int parton[2];
   int tagparton;
-  try {
   cout<<" Try to take HepMCProduct "<<endl;
-    edm::Handle< edm::HepMCProduct >  EvtHandles ;
-    iEvent.getByType( EvtHandles ) ;
+  edm::Handle< edm::HepMCProduct >  EvtHandles ;
+  iEvent.getByType( EvtHandles ) ;
 
+//NR==================================================
+
+  if (!EvtHandles.isValid()) {
+    // can't find it!
+    if (!allowMissingInputs_) {cout<<" GenParticles are missed "<<endl;}
+    *EvtHandles;  // will throw the proper exception
+  } else {
          const HepMC::GenEvent* Evt = EvtHandles->GetEvent() ;
 
         int ihep = 0; 
@@ -174,8 +180,6 @@ void JetPlusTrackAnalysis::analyze(
              ihep++;
 //             NumPart = ihep;
          }
-  } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) {cout<<" GenParticles are missed "<<endl; throw e;}
   }
 //  Generated jet
    NumGenJets = 0;

@@ -16,15 +16,14 @@ CastorDigiAnalyzer::CastorDigiAnalyzer(edm::ParameterSet const& conf)
 namespace CastorDigiAnalyzerImpl {
   template<class Collection>
   void analyze(edm::Event const& e, CastorDigiStatistics & statistics) {
-    try {
-      edm::Handle<Collection> digis;
-      e.getByType(digis);
+    edm::Handle<Collection> digis;
+    e.getByType(digis);
+    if (!digis.isValid()) {
+      edm::LogError("CastorDigiAnalyzer") << "Could not find Castor Digi Container ";
+    } else {
       for(unsigned i = 0; i < digis->size(); ++i) {
         statistics.analyze((*digis)[i]);
       }
-    }
-    catch (...) {
-      edm::LogError("CastorDigiAnalyzer") << "Could not find Castor Digi Container ";
     }
   }
 }

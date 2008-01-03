@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/12/19 19:02:23 $
- * $Revision: 1.47 $
+ * $Date: 2007/12/31 18:43:08 $
+ * $Revision: 1.48 $
  * \author W Fisher
  *
 */
@@ -307,10 +307,16 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // try to get raw data and unpacker report
   edm::Handle<FEDRawDataCollection> rawraw;  
-  try{e.getByType(rawraw);} catch(exception& ex){ rawOK_=false;};           
+  e.getByType(rawraw);
+  if (!rawraw.isValid()) {
+    rawOK_=false;
+  }
   edm::Handle<HcalUnpackerReport> report;  
-  try{
-    e.getByType(report);
+
+  e.getByType(report);
+  if (!report.isValid()) {
+    rawOK_=false;
+  } else {
     if(!fedsListed_){
       const std::vector<int> feds =  (*report).getFedsUnpacked();    
       for(unsigned int f=0; f<feds.size(); f++){
@@ -318,7 +324,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       }
       fedsListed_ = true;
     }
-  } catch(exception& ex){ rawOK_=false;};
+  }
   
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
