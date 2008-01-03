@@ -102,8 +102,10 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::makeFedCabling() {
               }
 	      
               std::pair<uint16_t,uint16_t> addr = imod->activeApvPair( imod->lldChannel(ipair) );
-	      //              std::pair<uint16_t,uint16_t> fed_channel = std::pair<uint16_t,uint16_t>( *ifed, fed_ch );
-              SiStripModule::FedChannel fed_channel(icrate->fecCrate(), ifec->fecSlot(), *ifed, fed_ch);
+	      SiStripModule::FedChannel fed_channel( (*ifed)/16+1, // 16 FEDs per crate, numbering starts from 1
+                                                     (*ifed)%16+2, // FED slot starts from 2
+                                                     *ifed,
+                                                     fed_ch );
               const_cast<SiStripModule&>(*imod).fedCh( addr.first, fed_channel );
               ifed++;
 	      
