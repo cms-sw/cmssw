@@ -13,11 +13,9 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  10/8/07
-// $Id: AlignmentMonitorSurvey.h,v 1.1.2.1 2007/11/26 11:55:56 cklae Exp $
+// $Id: AlignmentMonitorSurvey.h,v 1.2 2007/11/26 12:07:34 cklae Exp $
 
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
-
-class TTree;
 
 class AlignmentMonitorSurvey:
   public AlignmentMonitorBase
@@ -30,17 +28,6 @@ class AlignmentMonitorSurvey:
 
   virtual void event(const edm::EventSetup&,
 		     const ConstTrajTrackPairCollection&) {}
-
-  virtual void afterAlignment(const edm::EventSetup&);
-	
-  private:
-
-  TTree* m_tree;
-
-  align::ID m_ID;
-  align::StructureType m_level;
-
-  double m_par[6];
 };
 
 #endif

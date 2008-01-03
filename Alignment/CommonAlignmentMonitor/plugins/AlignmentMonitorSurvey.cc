@@ -1,7 +1,6 @@
 #include "Alignment/CommonAlignment/interface/SurveyResidual.h"
 
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentMonitorSurvey.h"
-#include "TObject.h" 
 
 AlignmentMonitorSurvey::AlignmentMonitorSurvey(const edm::ParameterSet& cfg)
   :AlignmentMonitorBase(cfg)
@@ -10,15 +9,17 @@ AlignmentMonitorSurvey::AlignmentMonitorSurvey(const edm::ParameterSet& cfg)
 
 void AlignmentMonitorSurvey::book()
 {
-  m_tree = static_cast<TTree*>(add("/iterN/", new TTree("survey", "")));
+  align::ID id;
+  align::StructureType level;
 
-  m_tree->Branch("id"   , &m_ID   , "id/i");
-  m_tree->Branch("level", &m_level, "level/I");
-  m_tree->Branch("par"  , &m_par  , "par[6]/D");
-}
+  double par[6]; // survey residual
 
-void AlignmentMonitorSurvey::afterAlignment(const edm::EventSetup&)
-{
+  TTree* tree = static_cast<TTree*>(add("/iterN/", new TTree("survey", "")));
+
+  tree->Branch("id"   , &id   , "id/i");
+  tree->Branch("level", &level, "level/I");
+  tree->Branch("par"  , &par  , "par[6]/D");
+
   const align::Alignables& all = pStore()->alignables();
 
   const unsigned int nAlignable = all.size();
@@ -27,23 +28,23 @@ void AlignmentMonitorSurvey::afterAlignment(const edm::EventSetup&)
   {
     const Alignable* ali = all[i];
 
-    m_ID = ali->id();
+    id = ali->id();
 
     for ( const Alignable* mom = ali; mom->mother() != 0; mom = mom->mother() )
     {
-      m_level = mom->alignableObjectId();	
+      level = mom->alignableObjectId();	
 
-      SurveyResidual resid(*ali, m_level, true);
+      SurveyResidual resid(*ali, level, true);
       AlgebraicVector resParams = resid.sensorResidual();
 			
-      m_par[0] = resParams[0];
-      m_par[1] = resParams[1];
-      m_par[2] = resParams[2];
-      m_par[3] = resParams[3];
-      m_par[4] = resParams[4];
-      m_par[5] = resParams[5];
+      par[0] = resParams[0];
+      par[1] = resParams[1];
+      par[2] = resParams[2];
+      par[3] = resParams[3];
+      par[4] = resParams[4];
+      par[5] = resParams[5];
 		
-      m_tree->Fill();
+      tree->Fill();
     }
   }
 }
