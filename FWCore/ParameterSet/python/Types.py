@@ -150,7 +150,11 @@ class string(_SimpleParameterTypeBase):
         """only used for cfg-parsing"""
         return string(value)
     def insertInto(self, parameterSet, myname):
-        parameterSet.addString(self.isTracked(), myname, self.value())
+        value = self.value()
+        #  doesn't seem to handle \0 correctly
+        if value == '\0':
+            value = ''
+        parameterSet.addString(self.isTracked(), myname, value)
 
 class InputTag(_ParameterTypeBase):
     def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
@@ -487,6 +491,8 @@ if __name__ == "__main__":
             s=string('\0')
             self.assertEqual(s.value(),'\0')
             self.assertEqual(s.configValue(),"'\\0'")
+            s2=string('')
+            self.assertEqual(s2.value(),'')
         def testUntracked(self):
             p=untracked(int32(1))
             self.assertRaises(TypeError,untracked,(1),{})
