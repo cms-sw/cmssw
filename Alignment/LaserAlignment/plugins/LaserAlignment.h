@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2007/10/11 09:19:37 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/12/04 23:51:42 $
+ *  $Revision: 1.9 $
  *  \author Maarten Thomas
  */
 
@@ -34,6 +34,8 @@
 // ROOT
 #include "TH1.h"
 #include "TObject.h"
+class TFile;
+class TH1D;
 
 #include <iostream>
 

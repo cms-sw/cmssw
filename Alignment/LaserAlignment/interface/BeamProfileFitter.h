@@ -4,8 +4,8 @@
 /** \class BeamProfileFitter
  *  Fitting laser profiles from the beams in the Laser Alignment System
  *
- *  $Date: 2007/04/12 15:10:26 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/06/11 14:44:27 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 
@@ -22,6 +22,7 @@
 // ROOT headers
 #include "TVector3.h"
 #include "TSpectrum.h"
+class TH1D;
 
 #include <string>
 

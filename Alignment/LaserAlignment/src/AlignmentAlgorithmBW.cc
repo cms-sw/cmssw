@@ -1,8 +1,8 @@
 /** \file AlignmentAlgorithmBW.cc
  *  Implementation of Bruno Wittmer's alignment algorithm for the Laser Alignment System
  *
- *  $Date: 2007/06/11 14:44:27 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/10/11 09:19:38 $
+ *  $Revision: 1.9 $
  *  \author Maarten Thomas
  */
 
@@ -10,6 +10,7 @@
 #include "TMatrixT.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <math.h>
 
 AlignmentAlgorithmBW::AlignmentAlgorithmBW()
 {
