@@ -73,6 +73,25 @@ private:
   double                   dohmAuxL;           //DOHM AUXiliary Length
   std::string              dohmAuxMaterial;    //DOHM AUXiliary Material
 
+  std::string              pillarMaterial;     //Pillar Material
+
+  double                   fwIntPillarDz;      //Internal pillar parameters
+  double                   fwIntPillarDPhi;
+  std::vector<double>      fwIntPillarZ;
+  std::vector<double>      fwIntPillarPhi;
+  double                   bwIntPillarDz;
+  double                   bwIntPillarDPhi;
+  std::vector<double>      bwIntPillarZ;
+  std::vector<double>      bwIntPillarPhi;
+
+  double                   fwExtPillarDz;      //External pillar parameters
+  double                   fwExtPillarDPhi;
+  std::vector<double>      fwExtPillarZ;  
+  std::vector<double>      fwExtPillarPhi;
+  double                   bwExtPillarDz;
+  double                   bwExtPillarDPhi;
+  std::vector<double>      bwExtPillarZ;  
+  std::vector<double>      bwExtPillarPhi;
 };
 
 #endif

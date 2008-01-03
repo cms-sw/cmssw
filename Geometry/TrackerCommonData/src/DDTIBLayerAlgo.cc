@@ -109,7 +109,65 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
     if (dohmListBW[i]>0.) LogDebug("TIBGeom") << "DOHM Primary at BW Position " << dohmListBW[i];
     if (dohmListBW[i]<0.) LogDebug("TIBGeom") << "DOHM Aux     at BW Position " << -dohmListBW[i];
   }
-  
+
+  //Pillar Material
+  pillarMaterial        = sArgs["PillarMaterial"];
+
+  // Internal Pillar Parameters
+  fwIntPillarDz         = nArgs["FWIntPillarDz"];
+  fwIntPillarDPhi       = nArgs["FWIntPillarDPhi"];
+  fwIntPillarZ          = vArgs["FWIntPillarZ"];
+  fwIntPillarPhi        = vArgs["FWIntPillarPhi"];
+  bwIntPillarDz         = nArgs["BWIntPillarDz"];
+  bwIntPillarDPhi       = nArgs["BWIntPillarDPhi"];
+  bwIntPillarZ          = vArgs["BWIntPillarZ"];
+  bwIntPillarPhi        = vArgs["BWIntPillarPhi"];
+  LogDebug("TIBGeom") << "FW Internal Pillar [Dz, DPhi] " 
+		      << fwIntPillarDz << ", " 
+		      << fwIntPillarDPhi; 
+  for (unsigned int i=0; i<fwIntPillarZ.size(); i++) {
+    if( fwIntPillarPhi[i]>0. ) { 
+      LogDebug("TIBGeom") << " at positions [z, phi] " 
+			  << fwIntPillarZ[i] << " " << fwIntPillarPhi[i];
+    }
+  }
+  LogDebug("TIBGeom") << "BW Internal Pillar [Dz, DPhi] " 
+		      << bwIntPillarDz << ", " 
+		      << bwIntPillarDPhi; 
+  for (unsigned int i=0; i<bwIntPillarZ.size(); i++) {
+    if( bwIntPillarPhi[i]>0. ) { 
+      LogDebug("TIBGeom") << " at positions [z, phi] " 
+			  << bwIntPillarZ[i] << " " << bwIntPillarPhi[i];
+    }
+  }
+
+  // External Pillar Parameters
+  fwExtPillarDz         = nArgs["FWExtPillarDz"];
+  fwExtPillarDPhi       = nArgs["FWExtPillarDPhi"];
+  fwExtPillarZ          = vArgs["FWExtPillarZ"];
+  fwExtPillarPhi        = vArgs["FWExtPillarPhi"];
+  bwExtPillarDz         = nArgs["BWExtPillarDz"];
+  bwExtPillarDPhi       = nArgs["BWExtPillarDPhi"];
+  bwExtPillarZ          = vArgs["BWExtPillarZ"];
+  bwExtPillarPhi        = vArgs["BWExtPillarPhi"];
+  LogDebug("TIBGeom") << "FW External Pillar [Dz, DPhi] " 
+		      << fwExtPillarDz << ", " 
+		      << fwExtPillarDPhi; 
+  for (unsigned int i=0; i<fwExtPillarZ.size(); i++) {
+    if( fwExtPillarPhi[i]>0. ) { 
+      LogDebug("TIBGeom") << " at positions [z, phi] " 
+			  << fwExtPillarZ[i] << " " << fwExtPillarPhi[i];
+    }
+  }
+  LogDebug("TIBGeom") << "BW External Pillar [Dz, DPhi] " 
+		      << bwExtPillarDz << ", " 
+		      << bwExtPillarDPhi; 
+  for (unsigned int i=0; i<bwExtPillarZ.size(); i++) {
+    if( bwExtPillarPhi[i]>0. ) { 
+      LogDebug("TIBGeom") << " at positions [z, phi] " 
+			  << bwExtPillarZ[i] << " " << bwExtPillarPhi[i];
+    }
+  }
 }
 
 void DDTIBLayerAlgo::execute() {
@@ -403,7 +461,7 @@ void DDTIBLayerAlgo::execute() {
 
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dohmCarrierDz, 
 			       dohmCarrierRin, dohmCarrierRout, 
-			       dohmCarrierPhiOff, 180.*deg-dohmCarrierPhiOff);
+			       dohmCarrierPhiOff, 180.*deg-2.*dohmCarrierPhiOff);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of "
 		      << dohmCarrierMaterial << " from "
@@ -533,6 +591,94 @@ void DDTIBLayerAlgo::execute() {
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
 			<< dohmCarrier.name() << " positioned in " << parent().name() << " at "
 			<< tran << " with " << rotation;
+    
+  }
+
+  ////// PILLARS
+
+  for (int j = 0; j<4; j++) {
+    
+    matname = DDName(DDSplit(pillarMaterial).first, DDSplit(pillarMaterial).second);
+    DDMaterial pillarMat(matname);
+    std::vector<double> pillarZ;
+    std::vector<double> pillarPhi;
+    double pillarDz; 
+    double pillarDPhi; 
+    double pillarRin;
+    double pillarRout;
+    
+    switch (j){
+    case 0:
+      name = idName + "FWIntPillar";
+      pillarZ    = fwIntPillarZ;
+      pillarPhi  = fwIntPillarPhi;
+      pillarRin  = MFRingInR;
+      pillarRout = MFRingInR + MFRingT;
+      pillarDz   = fwIntPillarDz;
+      pillarDPhi = fwIntPillarDPhi;
+      break;
+    case 1:
+      name = idName + "BWIntPillar";
+      pillarZ    = bwIntPillarZ;
+      pillarPhi  = bwIntPillarPhi;
+      pillarRin  = MFRingInR;
+      pillarRout = MFRingInR + MFRingT;
+      pillarDz   = bwIntPillarDz;
+      pillarDPhi = bwIntPillarDPhi;
+      break;
+    case 2:
+      name = idName + "FWExtPillar";
+      pillarZ    = fwExtPillarZ;
+      pillarPhi  = fwExtPillarPhi;
+      pillarRin  = MFRingOutR - MFRingT;
+      pillarRout = MFRingOutR;
+      pillarDz   = fwExtPillarDz;
+      pillarDPhi = fwExtPillarDPhi;
+      break;
+    case 3:
+      name = idName + "BWExtPillar";
+      pillarZ    = bwExtPillarZ;
+      pillarPhi  = bwExtPillarPhi;
+      pillarRin  = MFRingOutR - MFRingT;
+      pillarRout = MFRingOutR;
+      pillarDz   = bwExtPillarDz;
+      pillarDPhi = bwExtPillarDPhi;
+      break;
+    }
+    
+    
+    solid = DDSolidFactory::tubs(DDName(name, idNameSpace), pillarDz, 
+				 pillarRin, pillarRout, 
+				 -pillarDPhi, 2.*pillarDPhi);
+    
+    DDLogicalPart Pillar(name,DDMaterial(pillarMat),solid);
+    
+    LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+			<< DDName(name, idNameSpace) << " Tubs made of "
+			<< pillarMat << " from "
+			<< -pillarDPhi << " to " 
+			<< pillarDPhi << " with Rin "
+			<< pillarRin << " Rout " << pillarRout << " ZHalf "  
+			<< pillarDz;
+    
+    DDTranslation pillarTran;
+    DDRotation pillarRota;
+    int pillarReplica = 0;
+    for (unsigned int i=0; i<pillarZ.size(); i++) {
+      if( pillarPhi[i]>0. ) {
+	
+	pillarTran = DDTranslation(0., 0., pillarZ[i]);
+	pillarRota = DDanonymousRot(DDcreateRotationMatrix(90.*deg, pillarPhi[i], 90.*deg, 90.*deg+pillarPhi[i], 0., 0.));
+	
+	DDpos (Pillar, parent(), i, pillarTran, pillarRota);
+	LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
+			    << Pillar.name() << " positioned in " << parent().name() << " at "
+			    << pillarTran << " with " << pillarRota << " copy number " << pillarReplica;
+	
+	pillarReplica++;
+      }
+
+    }
     
   }
 
