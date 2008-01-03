@@ -1,4 +1,7 @@
-$Id: HISTORY,v 1.8 2007/11/12 06:19:14 narsky Exp $
+$Id: HISTORY,v 1.9 2007/12/01 01:29:44 narsky Exp $
+
+03.01.2007 narsky V00-05-00
+    Included a LinkDef.h for SprRootAdapter to generate the rootcint dictionary.
 
 11.30.2007 narsky V00-04-00
     Bringing up-to-date with Sourceforge SPR-07-07-02.
