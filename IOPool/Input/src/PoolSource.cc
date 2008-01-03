@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.74 2007/12/11 00:29:38 wmtan Exp $
+$Id: PoolSource.cc,v 1.75 2007/12/12 22:05:22 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -243,7 +243,7 @@ namespace edm {
       return IsFile;
     }
     if (rootFile_) {
-      FileIndex::EntryType entryType = rootFile_->getEntryType();
+      FileIndex::EntryType entryType = rootFile_->getEntryTypeSkippingDups();
       if (entryType == FileIndex::kEvent) {
         return IsEvent;
       } else if (entryType == FileIndex::kLumi) {

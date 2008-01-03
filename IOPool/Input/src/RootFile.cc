@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.104 2007/12/28 20:08:18 wmtan Exp $
+$Id: RootFile.cc,v 1.105 2007/12/31 22:43:59 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -254,6 +254,22 @@ namespace edm {
   RootFile::getEntryType() const {
     if (fileIndexIter_ == fileIndexEnd_) {
       return FileIndex::kEnd;
+    }
+    return fileIndexIter_->getEntryType();
+  }
+
+  // Temporary KLUDGE until we can properly merge runs and lumis across files
+  // This KLUDGE skips duplicate run or lumi entries.
+  FileIndex::EntryType
+  RootFile::getEntryTypeSkippingDups() {
+    if (fileIndexIter_ == fileIndexEnd_) {
+      return FileIndex::kEnd;
+    }
+    if (fileIndexIter_->event_ == 0 && fileIndexIter_ != fileIndexBegin_) {
+      if ((fileIndexIter_-1)->run_ == fileIndexIter_->run_ && (fileIndexIter_-1)->lumi_ == fileIndexIter_->lumi_) {
+	++fileIndexIter_;
+	return getEntryTypeSkippingDups();
+      } 
     }
     return fileIndexIter_->getEntryType();
   }

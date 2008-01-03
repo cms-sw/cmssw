@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.44 2007/12/07 23:23:10 wmtan Exp $
+$Id: RootFile.h,v 1.45 2007/12/12 22:05:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -90,6 +90,7 @@ namespace edm {
     int setForcedRunOffset(RunNumber_t const& forcedRunNumber);
     bool nextEventEntry() {return eventTree_.next();}
     FileIndex::EntryType getEntryType() const;
+    FileIndex::EntryType getEntryTypeSkippingDups();
 
   private:
     bool setIfFastClonable(int remainingEvents) const;
