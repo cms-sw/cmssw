@@ -42,6 +42,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
 
 #include "TH1F.h"
+class TFile;
 
 //
 // class declaration
