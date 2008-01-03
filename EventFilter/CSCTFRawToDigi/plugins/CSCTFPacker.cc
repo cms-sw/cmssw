@@ -65,7 +65,10 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 			int sector  = (*csc).first.triggerSector()-1 + ( (*csc).first.endcap()==1 ? 0 : 6 );
 			int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
 			int tbin = lct->getBX() - (central_lct_bx-central_sp_bx); // Shift back to hardware BX window definition
-
+			if( tbin>6 || tbin<0 ){
+				edm::LogError("CSCTFPacker|analyze")<<" LCT's BX="<<tbin<<" is out of 0-6 window";
+				continue;
+			}
 			int fpga    = ( subSector ? subSector-1 : station+1 );
 ///std::cout<<"Front data station: "<<station<<"  sector: "<<sector<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<cscId<<"  fpga: "<<fpga<<" LCT_qual="<<lct->getQuality()<<" LCT_strip="<<lct->getStrip()<<" LCT_wire="<<lct->getKeyWG()<<std::endl;
 
@@ -120,59 +123,65 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 		}
 	}
 
-
-	edm::Handle<L1CSCTrackCollection> tracks;
-	e.getByLabel(trackProducer.label(),trackProducer.instance(),tracks);
-
 	CSCSP_SPblock spDataRecord[12][7][3]; // Up to 3 tracks in sector X and tbin Y
 	bzero(&spDataRecord,sizeof(spDataRecord));
-	int nTrk[7]={0,0,0,0,0,0,0};
+	int nTrk[12][7];
+	bzero(&nTrk,sizeof(nTrk));
 
-	for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk!=tracks->end(); trk++){
-		int sector = 6*(trk->first.endcap()-1)+trk->first.sector()-1;
-		int tbin   = trk->first.BX() + central_sp_bx; // Shift back to hardware BX window definition
-///std::cout<<"Track["<<nTrk[tbin]<<"]  sector: "<<sector<<" tbin: "<<tbin<<std::endl;
-		if( tbin>6 ){
-			edm::LogError("CSCTFPacker|analyze")<<" Track's BX="<<tbin<<" is out of 0-6 window";
-			continue;
-		}
-		spDataRecord[sector][tbin][nTrk[tbin]].phi_       = trk->first.phi_packed();
-		spDataRecord[sector][tbin][nTrk[tbin]].sign_      =(trk->first.ptLUTAddress()>>20)&0x1;
-		spDataRecord[sector][tbin][nTrk[tbin]].front_rear = 0; // not necessary
-		spDataRecord[sector][tbin][nTrk[tbin]].charge_    = trk->first.chargeValue(); //
-		spDataRecord[sector][tbin][nTrk[tbin]].eta_       = trk->first.eta_packed();
+	edm::Handle<L1CSCTrackCollection> tracks;
+	if( trackProducer.label() != "null" ){
+		e.getByLabel(trackProducer.label(),trackProducer.instance(),tracks);
 
-		spDataRecord[sector][tbin][nTrk[tbin]].halo_      = trk->first.finehalo_packed();
-		spDataRecord[sector][tbin][nTrk[tbin]].se         = 0; // dummy
-		spDataRecord[sector][tbin][nTrk[tbin]].deltaPhi12_= trk->first.ptLUTAddress()&0xFF;
-		spDataRecord[sector][tbin][nTrk[tbin]].deltaPhi23_=(trk->first.ptLUTAddress()>>8)&0xF;
-		spDataRecord[sector][tbin][nTrk[tbin]].bxn0_      = 0; //dummy
-		spDataRecord[sector][tbin][nTrk[tbin]].bc0_       = 0; //dummy
-
-		spDataRecord[sector][tbin][nTrk[tbin]].me1_id     = trk->first.me1ID();
-		spDataRecord[sector][tbin][nTrk[tbin]].me2_id     = trk->first.me2ID();
-		spDataRecord[sector][tbin][nTrk[tbin]].me3_id     = trk->first.me3ID();
-		spDataRecord[sector][tbin][nTrk[tbin]].me4_id     = trk->first.me4ID();
-		spDataRecord[sector][tbin][nTrk[tbin]].mb_id      = trk->first.mb1ID();
-		spDataRecord[sector][tbin][nTrk[tbin]].ms_id      = 0; // don't care
-
-		spDataRecord[sector][tbin][nTrk[tbin]].me1_tbin   = 0; // Unknown !
-		spDataRecord[sector][tbin][nTrk[tbin]].me2_tbin   = 0; // Unknown !
-		spDataRecord[sector][tbin][nTrk[tbin]].me3_tbin   = 0; // Unknown !
-		spDataRecord[sector][tbin][nTrk[tbin]].me4_tbin   = 0; // Unknown !
-		spDataRecord[sector][tbin][nTrk[tbin]].mb_tbin    = 0; // Unknown !
-
-		spDataRecord[sector][tbin][nTrk[tbin]].id_ = nTrk[tbin]+1; // for later use
-
-		nTrk[tbin]++;
-		switch(nTrk[tbin]){
-			case 1: meDataHeader[sector][tbin].mode1 = (trk->first.ptLUTAddress()>>16)&0xF; break;
-			case 2: meDataHeader[sector][tbin].mode2 = (trk->first.ptLUTAddress()>>16)&0xF; break;
-			case 3: meDataHeader[sector][tbin].mode3 = (trk->first.ptLUTAddress()>>16)&0xF; break;
-			default:
-				edm::LogInfo("More than 3 tracks from one SP in the BX");
+		for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk!=tracks->end(); trk++){
+			int sector = 6*(trk->first.endcap()-1)+trk->first.sector()-1;
+			int tbin   = trk->first.BX() + central_sp_bx; // Shift back to hardware BX window definition
+//std::cout<<"Track["<<nTrk[sector][tbin]<<"]  sector: "<<sector<<" tbin: "<<tbin<<std::endl;
+			if( tbin>6 || tbin<0 ){
+				edm::LogError("CSCTFPacker|analyze")<<" Track's BX="<<tbin<<" is out of 0-6 window";
 				continue;
-				break;
+			}
+			if( sector<0 || sector>11 ){
+				edm::LogError("CSCTFPacker|analyze")<<" Track's sector="<<sector<<" is out of range";
+				continue;
+			}
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].phi_       = trk->first.phi_packed();
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].sign_      =(trk->first.ptLUTAddress()>>20)&0x1;
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].front_rear = 0; // not necessary
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].charge_    = trk->first.chargeValue(); //
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].eta_       = trk->first.eta_packed();
+
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].halo_      = trk->first.finehalo_packed();
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].se         = 0; // dummy
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].deltaPhi12_= trk->first.ptLUTAddress()&0xFF;
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].deltaPhi23_=(trk->first.ptLUTAddress()>>8)&0xF;
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].bxn0_      = 0; //dummy
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].bc0_       = 0; //dummy
+
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].me1_id     = trk->first.me1ID();
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].me2_id     = trk->first.me2ID();
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].me3_id     = trk->first.me3ID();
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].me4_id     = trk->first.me4ID();
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_id      = trk->first.mb1ID();
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].ms_id      = 0; // don't care
+
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].me1_tbin   = 0; // Unknown !
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].me2_tbin   = 0; // Unknown !
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].me3_tbin   = 0; // Unknown !
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].me4_tbin   = 0; // Unknown !
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_tbin    = 0; // Unknown !
+
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].id_ = nTrk[sector][tbin]+1; // for later use
+
+			nTrk[sector][tbin]++;
+			switch(nTrk[sector][tbin]){
+				case 1: meDataHeader[sector][tbin].mode1 = (trk->first.ptLUTAddress()>>16)&0xF; break;
+				case 2: meDataHeader[sector][tbin].mode2 = (trk->first.ptLUTAddress()>>16)&0xF; break;
+				case 3: meDataHeader[sector][tbin].mode3 = (trk->first.ptLUTAddress()>>16)&0xF; break;
+				default:
+					edm::LogInfo("More than 3 tracks from one SP in the BX");
+					continue;
+					break;
+			}
 		}
 	}
 
@@ -193,6 +202,10 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	header.csr_dfc |= ( zeroSuppression ? 0x8 : 0x0 );
 	header.csr_dfc |= 0x7F0; // All FPGAs are active
 	header.skip     = 0;
+	header.sp_ersv  = 2; // Format version with block of counters
+
+	CSCSPCounters counters;
+	bzero(&counters,sizeof(counters));
 
 	CSCSPTrailer trailer;
 	bzero(&trailer,sizeof(trailer));
@@ -209,6 +222,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	trailer.trailer_mark_10= 0xE;
 
 	unsigned short spDDUrecord[700*12], *pos=spDDUrecord; // max length
+	bzero(&spDDUrecord,sizeof(spDDUrecord));
 	int eventNumber = e.id().event();
 	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0xFFFF&eventNumber; *pos++ = 0x5000|(eventNumber>>16);
 	*pos++ = 0x0000; *pos++ = 0x8000; *pos++ = 0x0001; *pos++ = 0x8000;
@@ -219,6 +233,8 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 		header.sp_trigger_sector = sector+1;
 		memcpy(pos,&header,16);
 		pos+=8;
+		memcpy(pos,&counters,8);
+		pos+=4;
 
 		for(int tbin=0; tbin<nTBINs; tbin++){
 				memcpy(pos,&meDataHeader[sector][tbin],16);

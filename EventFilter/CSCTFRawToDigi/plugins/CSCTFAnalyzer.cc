@@ -2,9 +2,14 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 #include <strings.h>
 #include <errno.h>
 #include <iostream>
+#include <iomanip>
 
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
@@ -17,6 +22,19 @@ CSCTFAnalyzer::CSCTFAnalyzer(const edm::ParameterSet &conf):edm::EDAnalyzer(){
 }
 
 void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
+/*	edm::Handle<FEDRawDataCollection> rawdata;
+	e.getByLabel("source","",rawdata);
+
+	const FEDRawData& fedData = rawdata->FEDData(750);
+	if( fedData.size()==0 ) return;
+	unsigned short *data = (unsigned short *)fedData.data();
+	unsigned int    size = fedData.size()/2;
+	std::cout<<"New event:"<<std::endl;
+	for(unsigned i=0; i<size/4; i++)
+		std::cout<<std::hex<<" "<<std::setw(6)<<data[i*4+0]<<" "<<std::setw(6)<<data[i*4+1]<<" "<<std::setw(6)<<data[i*4+2]<<" "<<std::setw(6)<<data[i*4+3]<<std::dec<<std::endl;
+	std::cout<<"End of event"<<std::endl;
+	return;
+*/
 	if( statusProducer.label() != "null" ){
 		edm::Handle<L1CSCStatusDigiCollection> status;
 		e.getByLabel(statusProducer.label(),statusProducer.instance(),status);
@@ -50,7 +68,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 			}
 
 			edm::LogInfo("CSCTFAnalyzer|print") << "  Front data   endcap: "<<(*csc).first.endcap()<<"  station: "<<(station+1)<<"  sector: "<<(sector+1)<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<(cscId+1)<<"  fpga: "<<(fpga+1)<<" "<<
-				"LCT(qual="<<lct->getQuality()<<",wg="<<lct->getKeyWG()<<",strip="<<lct->getStrip()<<")";
+				"LCT(vp="<<lct->isValid()<<",qual="<<lct->getQuality()<<",wg="<<lct->getKeyWG()<<",strip="<<lct->getStrip()<<")";
 		}
 	}
 

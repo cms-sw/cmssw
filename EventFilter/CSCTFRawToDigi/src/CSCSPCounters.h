@@ -17,6 +17,8 @@ private:
 	unsigned orbit_counter_high : 15; //
 	unsigned zero_4             : 1;  //
 
+	friend class CSCTFPacker;
+
 public:
 	bool check(void) const throw() {
 		return zero_1 !=0 || zero_2 !=0 || zero_3 !=0 || zero_4 !=0 ;
