@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/11/27 12:26:32 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/11/28 14:31:59 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <string>
+#include <math.h>
 
 #include "TFile.h"
 #include "TCanvas.h"
