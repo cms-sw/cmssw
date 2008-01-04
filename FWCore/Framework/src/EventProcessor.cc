@@ -1164,7 +1164,7 @@ namespace edm {
       fb = input_->readFile();
     }
     if(fb) {
-      schedule_->beginInputFile(*fb);
+      schedule_->openOutputFiles(*fb);
     }
     return fb;
   }
@@ -1207,7 +1207,7 @@ namespace edm {
   EventProcessor::endLuminosityBlock(LuminosityBlockPrincipal *lbp) {
     {
       // CallPrePost holder(*actReg_);
-      input_->doFinishLumi(*lbp);
+      input_->doEndLumi(*lbp);
     }
     IOVSyncValue ts(EventID(lbp->run(),EventID::maxEventNumber()), lbp->endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
@@ -1223,7 +1223,7 @@ namespace edm {
   EventProcessor::endRun(RunPrincipal *rp) {
     {
       // CallPrePost holder(*actReg_);
-      input_->doFinishRun(*rp);
+      input_->doEndRun(*rp);
     }
     IOVSyncValue ts(EventID(rp->run(), EventID::maxEventNumber()), rp->endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);      
@@ -1780,77 +1780,104 @@ namespace edm {
   }
 
   void EventProcessor::readFile() {
+    // IMPLEMENTATION: OK
     std::cout << " \treadFile\n";
-    input_->readFile();
+    fb_ = input_->readFile();
   }
 
   void EventProcessor::closeInputFile() {
+    // IMPLEMENTATION: NOT DONE
     std::cout << "\tcloseInputFile\n";
   }
 
   void EventProcessor::openOutputFiles() {
+    // IMPLEMENTATION: OK
+    schedule_->openOutputFiles(*fb_);
     std::cout << "\topenOutputFiles\n";
   }
 
   void EventProcessor::closeOutputFiles() {
+    // IMPLEMENTATION: NOT DONE
     std::cout << "\tcloseOutputFiles\n";
   }
 
   void EventProcessor::respondToOpenInputFile() {
+    // IMPLEMENTATION: NOT DONE
     std::cout << "\trespondToOpenInputFile\n";
   }
 
   void EventProcessor::respondToCloseInputFile() {
+    // IMPLEMENTATION: NOT DONE
     std::cout << "\trespondToCloseInputFile\n";
   }
 
   void EventProcessor::respondToOpenOutputFiles() {
+    // IMPLEMENTATION: NOT DONE
     std::cout << "\trespondToOpenOutputFiles\n";
   }
 
   void EventProcessor::respondToCloseOutputFiles() {
+    // IMPLEMENTATION: NOT DONE
     std::cout << "\trespondToCloseOutputFiles\n";
   }
 
   void EventProcessor::startingNewLoop() {
+    // IMPLEMENTATION: NOT KNOWN
     std::cout << "\tstartingNewLoop\n";
   }
 
   bool EventProcessor::endOfLoop() {
+    // IMPLEMENTATION: NOT KNOWN
     std::cout << "\tendOfLoop\n";
     return true;
   }
 
   void EventProcessor::rewindInput() {
+    // IMPLEMENTATION: NOT KNOWN
     std::cout << "\trewind\n";
   }
 
   void EventProcessor::prepareForNextLoop() {
+    // IMPLEMENTATION: NOT KNOWN
     std::cout << "\tprepareForNextLoop\n";
   }
 
   void EventProcessor::writeCache() {
+    // IMPLEMENTATION: NOT KNOWN
     std::cout << "\twriteCache\n";
   }
 
   bool EventProcessor::shouldWeCloseOutput() {
+    // IMPLEMENTATION: NOT KNOWN
     std::cout << "\tshouldWeCloseOutput\n";
     return true;
   }
 
   void EventProcessor::doErrorStuff() {
+    // IMPLEMENTATION: NOT KNOWN
     std::cout << "\tdoErrorStuff\n";
   }
 
   void EventProcessor::smBeginRun(int run) {
+    // IMPLEMENTATION: OK
+    IOVSyncValue ts(EventID(sm_rp_->run(),0), sm_rp_->beginTime());
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
+    schedule_->runOneEvent(*sm_rp_, es, BranchActionBegin);
     std::cout << "\tbeginRun " << run << "\n";
   }
 
   void EventProcessor::smEndRun(int run) {
+    // IMPLEMENTATION: OK BUT
+    // Output modules need rework
+    input_->doEndRun(*sm_rp_);
+    IOVSyncValue ts(EventID(sm_rp_->run(),EventID::maxEventNumber()), sm_rp_->endTime());
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
+    schedule_->runOneEvent(*sm_rp_, es, BranchActionEnd);
     std::cout << "\tendRun " << run << "\n";
   }
 
   void EventProcessor::beginLumi(int run, int lumi) {
+    // IMPLEMENTATION: OK
     IOVSyncValue ts(EventID(sm_lbp_->run(),0), sm_lbp_->beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(*sm_lbp_, es, BranchActionBegin);
@@ -1858,7 +1885,9 @@ namespace edm {
   }
 
   void EventProcessor::endLumi(int run, int lumi) {
-    input_->doFinishLumi(*sm_lbp_);
+    // IMPLEMENTATION: OK BUT
+    // Output modules need rework
+    input_->doEndLumi(*sm_lbp_);
     IOVSyncValue ts(EventID(sm_lbp_->run(),EventID::maxEventNumber()), sm_lbp_->endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(*sm_lbp_, es, BranchActionEnd);
@@ -1866,34 +1895,41 @@ namespace edm {
   }
 
   int EventProcessor::readAndCacheRun() {
+    // IMPLEMENTATION: OK, but cacheing needs rework.
     sm_rp_ = input_->readRun();
     std::cout << "\treadAndCacheRun " << "\n";
     return sm_rp_->run();
   }
 
   int EventProcessor::readAndCacheLumi() {
+    // IMPLEMENTATION: OK, but cacheing needs rework.
     sm_lbp_ = input_->readLuminosityBlock(sm_rp_);
     std::cout << "\treadAndCacheLumi " << "\n";
     return sm_lbp_->luminosityBlock();
   }
 
   void EventProcessor::writeRun(int run) {
+    // IMPLEMENTATION: NOT DONE
     std::cout << "\twriteRun " << run << "\n";
   }
 
   void EventProcessor::deleteRunFromCache(int run) {
+    // IMPLEMENTATION: NOT DONE
     std::cout << "\tdeleteRunFromCache " << run << "\n";
   }
 
   void EventProcessor::writeLumi(int run, int lumi) {
+    // IMPLEMENTATION: NOT DONE
     std::cout << "\twriteLumi " << run << "/" << lumi << "\n";
   }
 
   void EventProcessor::deleteLumiFromCache(int run, int lumi) {
+    // IMPLEMENTATION: NOT DONE
     std::cout << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 
   void EventProcessor::readEvent() {
+    // IMPLEMENTATION: OK
     CallPrePost holder(*actReg_);
     sm_evp_ = input_->readEvent(sm_lbp_);
 
@@ -1901,6 +1937,7 @@ namespace edm {
   }
 
   void EventProcessor::processEvent() {
+    // IMPLEMENTATION: OK
     IOVSyncValue ts(sm_evp_->id(), sm_evp_->time());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(*sm_evp_, es, BranchActionEvent);
@@ -1909,6 +1946,7 @@ namespace edm {
   }
 
   bool EventProcessor::shouldWeStop() {
+    // IMPLEMENTATION: OK
     std::cout << "\tshouldWeStop\n";
     return schedule_->terminate();
   }
