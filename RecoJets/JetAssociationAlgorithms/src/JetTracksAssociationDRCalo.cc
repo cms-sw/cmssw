@@ -1,6 +1,6 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRCalo.cc,v 1.3 2007/09/19 18:02:40 fedor Exp $
+// $Id: JetTracksAssociationDRCalo.cc,v 1.4 2007/09/24 20:59:58 fedor Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
 
@@ -40,13 +40,10 @@ namespace {
   {
     GlobalPoint trackPosition (fTrack.vx(), fTrack.vy(), fTrack.vz()); // reference point
     GlobalVector trackMomentum (fTrack.px(), fTrack.py(), fTrack.pz()); // reference momentum
-    try {
-      if (fTrack.extra().product ()) { // use outer point information, if available
-	trackPosition =  GlobalPoint (fTrack.outerX(), fTrack.outerY(), fTrack.outerZ());
-	trackMomentum = GlobalVector (fTrack.outerPx(), fTrack.outerPy(), fTrack.outerPz());
-      }
+    if (fTrack.extra().product ()) { // use outer point information, if available
+      trackPosition =  GlobalPoint (fTrack.outerX(), fTrack.outerY(), fTrack.outerZ());
+      trackMomentum = GlobalVector (fTrack.outerPx(), fTrack.outerPy(), fTrack.outerPz());
     }
-    catch (...) {}
 //     std::cout << "propagateTrackToCalo-> start propagating track"
 // 	      << " x/y/z: " << trackPosition.x() << '/' << trackPosition.y() << '/' << trackPosition.z()
 // 	      << ", pt/eta/phi: " << trackMomentum.perp() << '/' << trackMomentum.eta() << '/' << trackMomentum.barePhi()
