@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.62 2007/12/03 00:40:49 wmtan Exp $
+$Id: OutputModule.h,v 1.63 2007/12/07 23:23:05 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -189,7 +189,7 @@ namespace edm {
     virtual void endRun(RunPrincipal const& r) = 0;
     virtual void beginLuminosityBlock(LuminosityBlockPrincipal const& lb){}
     virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb) = 0;
-    virtual void beginInputFile(FileBlock const& fb) {}
+    virtual void openFile(FileBlock const& fb) {}
     virtual void endInputFile(FileBlock const& fb) {}
 
     virtual bool isFileOpen() const { return true; }

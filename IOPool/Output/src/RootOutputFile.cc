@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.34 2007/12/28 20:07:32 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.35 2007/12/31 10:21:19 elmer Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -117,9 +117,9 @@ namespace edm {
   }
 
 
-  void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastCloneThisOne) {
+  void RootOutputFile::openFile(FileBlock const& fb, bool fastCloneThisOne) {
     currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastCloneThisOne;
-    eventTree_.beginInputFile(currentlyFastCloning_);
+    eventTree_.openFile(currentlyFastCloning_);
     if (currentlyFastCloning_) {
       eventTree_.fastCloneTree(fb.tree(), fb.metaTree());
     }

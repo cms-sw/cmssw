@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.37 2007/11/22 16:53:49 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.38 2007/12/07 23:23:11 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -39,7 +39,7 @@ namespace edm {
   private:
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
-    virtual void beginInputFile(FileBlock const& fb);
+    virtual void openFile(FileBlock const& fb);
     virtual void endInputFile(FileBlock const& fb);
     virtual void write(EventPrincipal const& e);
     virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb);

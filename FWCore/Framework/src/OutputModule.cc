@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.49 2007/11/30 07:06:31 wmtan Exp $
+$Id: OutputModule.cc,v 1.50 2007/12/07 23:23:05 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -356,7 +356,7 @@ namespace edm {
 
   void OutputModule::doBeginInputFile(FileBlock const& fb)
   {
-    beginInputFile(fb);
+    openFile(fb);
   }
 
   void OutputModule::doEndInputFile(FileBlock const& fb)

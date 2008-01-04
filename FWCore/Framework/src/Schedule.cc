@@ -833,10 +833,10 @@ namespace edm {
     for_all(all_output_workers_, boost::bind(&OutputWorker::openNewFileIfNeeded, _1));
   }
 
-  void Schedule::beginInputFile(FileBlock & fb) {
+  void Schedule::openOutputFiles(FileBlock & fb) {
     for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
       it != itEnd; ++it) {
-	(*it)->beginInputFile(fb); 
+	(*it)->openFile(fb); 
       }
   }
 

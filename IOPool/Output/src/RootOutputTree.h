@@ -5,7 +5,7 @@
 
 RootOutputTree.h // used by ROOT output modules
 
-$Id: RootOutputTree.h,v 1.10 2007/11/22 16:53:49 wmtan Exp $
+$Id: RootOutputTree.h,v 1.11 2007/11/29 18:03:20 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -113,7 +113,7 @@ namespace edm {
       if (metaTree_->GetNbranches() != 0) metaTree_->SetEntries(-1);
     }
 
-    void beginInputFile(bool fastCloning) {currentlyFastCloning_ = fastCloning;}
+    void openFile(bool fastCloning) {currentlyFastCloning_ = fastCloning;}
 
   private:
     static void fillTTree(TTree *tree, std::vector<TBranch *> const& branches);

@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.29 2007/11/30 07:06:31 wmtan Exp $
+$Id: OutputWorker.cc,v 1.30 2007/12/03 00:40:50 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -35,7 +35,7 @@ namespace edm {
   }
 
   void
-  OutputWorker::beginInputFile(FileBlock const& fb) {
+  OutputWorker::openFile(FileBlock const& fb) {
     mod_->doBeginInputFile(fb);
   }
 

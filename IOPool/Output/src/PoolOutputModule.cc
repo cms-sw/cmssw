@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.93 2007/11/30 07:06:32 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.94 2007/12/07 23:23:11 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -44,7 +44,7 @@ namespace edm {
     pset.getUntrackedParameter<ParameterSet>("dataset", ParameterSet());
   }
 
-  void PoolOutputModule::beginInputFile(FileBlock const& fb) {
+  void PoolOutputModule::openFile(FileBlock const& fb) {
     fileBlock_ = const_cast<FileBlock *>(&fb);
     if (!isFileOpen()) {
       if (fb.tree() == 0) {
@@ -57,7 +57,7 @@ namespace edm {
                             (remainingEvents() < 0 || remainingEvents() >= fb.tree()->GetEntries()) &&
                             (remainingLuminosityBlocks() < 0 ||
                              fb.lumiTree() != 0 && remainingLuminosityBlocks() >= fb.lumiTree()->GetEntries());
-    rootFile_->beginInputFile(fb, fastCloneThisOne);
+    rootFile_->openFile(fb, fastCloneThisOne);
   }
 
   void PoolOutputModule::endInputFile(FileBlock const& fb) {
