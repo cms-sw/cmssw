@@ -236,16 +236,21 @@ class Process(object):
     def _placeService(self,typeName,mod):
         self.__services[typeName]=mod
         self.__dict__[typeName]=mod
+    def load(self, moduleName):
+        module = __import__(moduleName)
+        import sys
+        self.extend(sys.modules[moduleName])
     def extend(self,other,items=()):
         """Look in other and find types which we can use"""
         seqs = dict()
         labelled = dict()
         for name in dir(other):
             item = getattr(other,name)
-            if isinstance(item,_ModuleSequenceType):
+            if name == "source":
+                self.__setattr__(name,item)
+            elif isinstance(item,_ModuleSequenceType):
                 seqs[name]=item
-                continue
-            if isinstance(item,_Labelable):
+            elif isinstance(item,_Labelable):
                 self.__setattr__(name,item)
                 labelled[name]=item
                 try:
@@ -253,8 +258,9 @@ class Process(object):
                 except:
                     item.setLabel(name)
                 continue
-            if isinstance(item,_Unlabelable):
+            elif isinstance(item,_Unlabelable):
                 self.add_(item)
+                
         #now create a sequence which uses the newly made items
         for name in seqs.iterkeys():
             seq = seqs[name]
