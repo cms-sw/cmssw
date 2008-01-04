@@ -154,12 +154,27 @@ class _TypedParameterizable(_Parameterizable):
             options.unindent()
         config += options.indentation()+'}\n'
         return config
+
     def dumpPython(self, options=PrintOptions()):
         result = "cms."+str(type(self).__name__)+"(\""+self.type_()+"\""
-        if len(self.parameters()) > 0:
-            result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation()
-        result += ")\n" 
+        nparam = len(self.parameters())
+        if nparam == 0:
+            result += ")\n"
+        elif nparam < 256:
+            result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation() + ")\n"
+        else:
+            # too big.  Need to dump externally
+            result += ")\n" + self.dumpPythonAttributes("FIX-THIS", options)
         return result
+
+    def dumpPythonAttributes(self, myname, options):
+        """ dumps the object with all attributes declared after the constructor"""
+        result = ""
+        for name in self.parameterNames_():
+            param = self.__dict__[name]
+            result += options.indentation() + myname + "." + name + " = " + param.dumpPython(options) + "\n"
+        return result
+
     def nameInProcessDesc_(self, myname):
         return myname;
     def moduleLabel_(self, myname):
