@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/12/28 17:00:46 $
- * $Revision: 1.38 $
+ * $Date: 2007/12/29 13:38:56 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -199,7 +199,7 @@ void EBClusterTask::setup(void){
     meSCSiz_->setAxisTitle("cluster size", 1);
 
     sprintf(histo, "EBCLT hybrid s1s9");
-    mes1s9_ = dbe_->book1D(histo, histo, 50, 0., 1.);
+    mes1s9_ = dbe_->book1D(histo, histo, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
 
     sprintf(histo, "EBCLT hybrid s9s25");
