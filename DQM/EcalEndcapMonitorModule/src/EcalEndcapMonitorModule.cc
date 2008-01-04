@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/12/28 17:02:21 $
- * $Revision: 1.30 $
+ * $Date: 2008/01/04 10:25:40 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -44,6 +44,7 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+  EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
 
   cout << endl;
   cout << " *** Ecal Endcap Generic Monitor ***" << endl;
@@ -116,8 +117,11 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
 
   meEEDCC_ = 0;
 
-  meEEdigi_ = 0;
-  meEEhits_ = 0;
+  for (int i = 0; i < 2; i++) {
+    meEEdigis_[i] = 0;
+    meEEhits_[i] = 0;
+    meEEtpdigis_[i] = 0;
+  }
 
   for (int i = 0; i < 18; i++) {
     meEvent_[i] = 0;
@@ -207,9 +211,26 @@ void EcalEndcapMonitorModule::setup(void){
       meEEDCC_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    meEEdigi_ = dbe_->book1D("EEMM digi", "EEMM digi", 100, 0., 13299.);
+    meEEdigis_[0] = dbe_->book1D("EEMM digis number", "EEMM digis number", 100, 0., 13299.);
 
-    meEEhits_ = dbe_->book1D("EEMM hits", "EEMM hits", 100, 0., 13299.);
+    meEEdigis_[1] = dbe_->bookProfile("EEMM digis number profile", "EEMM digis number profile", 18, 1, 19., 850, 0., 8501., "s");
+    for (int i = 0; i < 18; i++) {
+      meEEdigis_[1]->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+    meEEhits_[0] = dbe_->book1D("EEMM hits number", "EEMM hits number", 100, 0., 13299.);
+
+    meEEhits_[1] = dbe_->bookProfile("EEMM hits number profile", "EEMM hits number profile", 18, 1, 19., 850, 0., 8501., "s");
+    for (int i = 0; i < 18; i++) {
+      meEEhits_[1]->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+    meEEtpdigis_[0] = dbe_->book1D("EEMM TP digis number", "EEMM TP digis number", 100, 0., 597.);
+
+    meEEtpdigis_[1] = dbe_->bookProfile("EEMM TP digis number profile", "EEMM TP digis number profile", 18, 1, 19., 34, 0., 35., "s");
+    for (int i = 0; i < 18; i++) {
+      meEEtpdigis_[1]->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
 
     if ( enableEventDisplay_ ) {
       dbe_->setCurrentFolder("EcalEndcap/EcalEvent");
@@ -253,11 +274,18 @@ void EcalEndcapMonitorModule::cleanup(void){
     if ( meEEDCC_ ) dbe_->removeElement( meEEDCC_->getName() );
     meEEDCC_ = 0;
 
-    if ( meEEdigi_ ) dbe_->removeElement( meEEdigi_->getName() );
-    meEEdigi_ = 0;
+    for (int i = 0; i < 2; i++) {
 
-    if ( meEEhits_ ) dbe_->removeElement( meEEhits_->getName() );
-    meEEhits_ = 0;
+      if ( meEEdigis_[i] ) dbe_->removeElement( meEEdigis_[i]->getName() );
+      meEEdigis_[i] = 0;
+
+      if ( meEEhits_[i] ) dbe_->removeElement( meEEhits_[i]->getName() );
+      meEEhits_[i] = 0;
+
+      if ( meEEtpdigis_[i] ) dbe_->removeElement( meEEtpdigis_[i]->getName() );
+      meEEtpdigis_[i] = 0;
+
+    }
 
     if ( enableEventDisplay_ ) {
 
@@ -409,7 +437,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     int need = digis->size();
     LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " digi collection size " << need;
 
-    if ( meEEdigi_ ) meEEdigi_->Fill(float(need));
+    int counter[18] = { 0 };
+
+    if ( meEEdigis_[0] ) meEEdigis_[0]->Fill(float(need));
 
     for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -421,10 +451,18 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
+      counter[ism-1]++;
+
       if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
       LogDebug("EcalEndcapMonitor") << " det id = " << id;
       LogDebug("EcalEndcapMonitor") << " sm, ix, iy " << ism << " " << ix << " " << iy;
+
+    }
+
+    for (int i = 0; i < 18; i++) {
+
+      if ( meEEdigis_[1] ) meEEdigis_[1]->Fill(i+1+0.5, counter[i]);
 
     }
 
@@ -441,7 +479,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     int neeh = hits->size();
     LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " hits collection size " << neeh;
 
-    if ( meEEhits_ ) meEEhits_->Fill(float(neeh));
+    if ( meEEhits_[0] ) meEEhits_[0]->Fill(float(neeh));
+
+    int counter[18] = { 0 };
 
     for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
@@ -452,6 +492,8 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
       int iy = id.iy();
 
       int ism = Numbers::iSM( id );
+
+      counter[ism-1]++;
 
       if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
@@ -475,9 +517,52 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
+    for (int i = 0; i < 18; i++) {
+
+      if ( meEEhits_[1] ) meEEhits_[1]->Fill(i+1+0.5, counter[i]);
+
+    } 
+
   } else {
 
     LogWarning("EcalEndcapMonitorModule") << EcalUncalibratedRecHitCollection_ << " not available";
+
+  }
+
+  Handle<EcalTrigPrimDigiCollection> tpdigis;
+
+  if ( e.getByLabel(EcalTrigPrimDigiCollection_, tpdigis) ) {
+
+    int neetpd = 0;
+    int counter[18] = { 0 };
+
+    for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = tpdigis->begin();
+          tpdigiItr != tpdigis->end(); ++tpdigiItr ) {
+
+      EcalTriggerPrimitiveDigi data = (*tpdigiItr);
+      EcalTrigTowerDetId idt = data.id();
+  
+      if ( idt.subDet() != EcalEndcap ) continue;
+
+      int ismt = Numbers::iSM( idt );
+
+      neetpd++;
+      counter[ismt-1]++;
+
+    }
+
+    LogDebug("EcalEndcapMonitor") << "event " << ievt_ << " TP digi collection size " << neetpd;
+    if ( meEEtpdigis_[0] ) meEEtpdigis_[0]->Fill(float(neetpd));
+
+    for (int i = 0; i < 18; i++) {
+
+      if ( meEEtpdigis_[1] ) meEEtpdigis_[1]->Fill(i+1+0.5, counter[i]);
+
+    } 
+
+  } else {
+
+    LogWarning("EcalEndcapMonitorModule") << EcalTrigPrimDigiCollection_ << " not available";
 
   }
 

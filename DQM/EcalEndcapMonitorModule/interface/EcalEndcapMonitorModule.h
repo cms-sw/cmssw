@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2007/11/13 13:20:51 $
- * $Revision: 1.7 $
+ * $Date: 2007/11/27 10:43:26 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -61,6 +61,7 @@ edm::InputTag EcalTBEventHeader_;
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EEDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
+edm::InputTag EcalTrigPrimDigiCollection_;
 
 bool verbose_;
 
@@ -82,8 +83,9 @@ MonitorElement* meEvtType_;
 
 MonitorElement* meEEDCC_;
 
-MonitorElement* meEEdigi_;
-MonitorElement* meEEhits_;
+MonitorElement* meEEdigis_[2];
+MonitorElement* meEEhits_[2];
+MonitorElement* meEEtpdigis_[2];
 
 MonitorElement* meEvent_[18];
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/12/28 17:02:01 $
- * $Revision: 1.156 $
+ * $Date: 2008/01/04 10:25:39 $
+ * $Revision: 1.157 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -44,6 +44,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+  EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
 
   cout << endl;
   cout << " *** Ecal Barrel Generic Monitor ***" << endl;
@@ -116,8 +117,11 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   meEBDCC_ = 0;
 
-  meEBdigi_ = 0;
-  meEBhits_ = 0;
+  for (int i = 0; i < 2; i++) {
+    meEBdigis_[i] = 0;
+    meEBhits_[i] = 0;
+    meEBtpdigis_[i] = 0;
+  }
 
   for (int i = 0; i < 36; i++) {
     meEvent_[i] = 0;
@@ -207,9 +211,26 @@ void EcalBarrelMonitorModule::setup(void){
       meEBDCC_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
-    meEBdigi_ = dbe_->book1D("EBMM digi", "EBMM digi", 100, 0., 61201.);
+    meEBdigis_[0] = dbe_->book1D("EBMM digis number", "EBMM digis number", 100, 0., 61201.);
 
-    meEBhits_ = dbe_->book1D("EBMM hits", "EBMM hits", 100, 0., 61201.);
+    meEBdigis_[1] = dbe_->bookProfile("EBMM digis number profile", "EBMM digis number profile", 36, 1, 37., 1700, 0., 1701., "s");
+    for (int i = 0; i < 36; i++) {
+      meEBdigis_[1]->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    meEBhits_[0] = dbe_->book1D("EBMM hits number", "EBMM hits number", 100, 0., 61201.);
+
+    meEBhits_[1] = dbe_->bookProfile("EBMM hits number profile", "EBMM hits number profile", 36, 1, 37., 1700, 0., 1701., "s");
+    for (int i = 0; i < 36; i++) {
+      meEBhits_[1]->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    meEBtpdigis_[0] = dbe_->book1D("EBMM TP digis number", "EBMM TP digis number", 100, 0., 2449.);
+
+    meEBtpdigis_[1] = dbe_->bookProfile("EBMM TP digis number profile", "EBMM TP digis number profile", 36, 1, 37., 68, 0., 69., "s");
+    for (int i = 0; i < 36; i++) {
+      meEBtpdigis_[1]->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
 
     if ( enableEventDisplay_ ) {
       dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
@@ -253,11 +274,18 @@ void EcalBarrelMonitorModule::cleanup(void){
     if ( meEBDCC_ ) dbe_->removeElement( meEBDCC_->getName() );
     meEBDCC_ = 0;
 
-    if ( meEBdigi_ ) dbe_->removeElement( meEBdigi_->getName() );
-    meEBdigi_ = 0;
+    for (int i = 0; i < 2; i++) {
 
-    if ( meEBhits_ ) dbe_->removeElement( meEBhits_->getName() );
-    meEBhits_ = 0;
+      if ( meEBdigis_[i] ) dbe_->removeElement( meEBdigis_[i]->getName() );
+      meEBdigis_[i] = 0;
+
+      if ( meEBhits_[i] ) dbe_->removeElement( meEBhits_[i]->getName() );
+      meEBhits_[i] = 0;
+
+      if ( meEBtpdigis_[i] ) dbe_->removeElement( meEBtpdigis_[i]->getName() );
+      meEBtpdigis_[i] = 0;
+
+    }
 
     if ( enableEventDisplay_ ) {
 
@@ -406,10 +434,12 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EBDigiCollection_, digis) ) {
 
+    int counter[36] = { 0 };
+
     int nebd = digis->size();
     LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " digi collection size " << nebd;
 
-    if ( meEBdigi_ ) meEBdigi_->Fill(float(nebd));
+    if ( meEBdigis_[0] ) meEBdigis_[0]->Fill(float(nebd));
 
     for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -422,8 +452,16 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
+      counter[ism-1]++;
+
       LogDebug("EcalBarrelMonitor") << " det id = " << id;
       LogDebug("EcalBarrelMonitor") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
+
+    }
+
+    for (int i = 0; i < 36; i++) {
+
+      if ( meEBdigis_[1] ) meEBdigis_[1]->Fill(i+1+0.5, counter[i]);
 
     }
 
@@ -440,7 +478,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     int nebh = hits->size();
     LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " hits collection size " << nebh;
 
-    if ( meEBhits_ ) meEBhits_->Fill(float(nebh));
+    if ( meEBhits_[0] ) meEBhits_[0]->Fill(float(nebh));
+
+    int counter[36] = { 0 };
 
     for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
@@ -452,6 +492,8 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       int ip = (ic-1)%20 + 1;
 
       int ism = Numbers::iSM( id );
+
+      counter[ism-1]++;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -473,9 +515,52 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
+    for (int i = 0; i < 36; i++) {
+
+      if ( meEBhits_[1] ) meEBhits_[1]->Fill(i+1+0.5, counter[i]);
+
+    }
+
   } else {
 
     LogWarning("EcalBarrelMonitorModule") << EcalUncalibratedRecHitCollection_ << " not available";
+
+  }
+
+  Handle<EcalTrigPrimDigiCollection> tpdigis;
+
+  if ( e.getByLabel(EcalTrigPrimDigiCollection_, tpdigis) ) {
+
+    int nebtpd = 0;
+    int counter[36] = { 0 };
+
+    for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = tpdigis->begin();
+          tpdigiItr != tpdigis->end(); ++tpdigiItr ) {
+
+      EcalTriggerPrimitiveDigi data = (*tpdigiItr);
+      EcalTrigTowerDetId idt = data.id();
+
+      if ( idt.subDet() != EcalBarrel ) continue;
+
+      int ismt = Numbers::iSM( idt );
+
+      nebtpd++;
+      counter[ismt-1]++;
+
+    }
+
+    LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " TP digi collection size " << nebtpd;
+    if ( meEBtpdigis_[0] ) meEBtpdigis_[0]->Fill(float(nebtpd));
+
+    for (int i = 0; i < 36; i++) {
+
+      if ( meEBtpdigis_[1] ) meEBtpdigis_[1]->Fill(i+1+0.5, counter[i]);
+
+    }
+
+  } else {
+
+    LogWarning("EcalBarrelMonitorModule") << EcalTrigPrimDigiCollection_ << " not available";
 
   }
 

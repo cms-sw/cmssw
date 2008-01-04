@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2007/11/13 13:20:49 $
- * $Revision: 1.45 $
+ * $Date: 2007/11/27 10:43:20 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  *
 */
@@ -61,6 +61,7 @@ edm::InputTag EcalTBEventHeader_;
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EBDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
+edm::InputTag EcalTrigPrimDigiCollection_;
 
 bool verbose_;
 
@@ -82,8 +83,9 @@ MonitorElement* meEvtType_;
 
 MonitorElement* meEBDCC_;
 
-MonitorElement* meEBdigi_;
-MonitorElement* meEBhits_;
+MonitorElement* meEBdigis_[2];
+MonitorElement* meEBhits_[2];
+MonitorElement* meEBtpdigis_[2];
 
 MonitorElement* meEvent_[36];
 
