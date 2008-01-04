@@ -10,7 +10,7 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.11 2007/09/20 21:04:43 fedor Exp $
+  * \version   $Id: PFJet.h,v 1.12 2008/01/03 22:41:22 fedor Exp $
  ************************************************************/
 
 
@@ -88,11 +88,11 @@ class PFJet : public Jet {
 
  
   /// convert generic constituent to specific type
-  static const reco::PFCandidate& getPFCandidate (const reco::Candidate& fConstituent);
+  static const reco::PFCandidate* getPFCandidate (const reco::Candidate* fConstituent);
   /// get specific constituent
-  const reco::PFCandidate& getConstituent (unsigned fIndex) const;
+  const reco::PFCandidate* getConstituent (unsigned fIndex) const;
   /// get all constituents
-  std::vector <reco::PFCandidate> getConstituents () const;
+  std::vector <const reco::PFCandidate*> getConstituents () const;
   
   // block accessors
   
