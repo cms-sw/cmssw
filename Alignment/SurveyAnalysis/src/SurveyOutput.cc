@@ -1,14 +1,12 @@
 #include <sstream>
 
-#include "TNtupleD.h"
+#include "TNtuple.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 // #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyOutput.h"
-
-using namespace align;
 
 SurveyOutput::SurveyOutput(const std::vector<Alignable*>& alignables,
 			   const std::string& fileName):
@@ -23,7 +21,7 @@ void SurveyOutput::write(unsigned int iter)
 
   o << 't' << iter;
 
-  TNtupleD* nt = new TNtupleD(o.str().c_str(), "", "id:x:y:z:a:b:g");
+  TNtuple* nt = new TNtuple(o.str().c_str(), "", "x:y:z:a:b:g");
 
   unsigned int N = theAlignables.size();
 
@@ -33,9 +31,9 @@ void SurveyOutput::write(unsigned int iter)
 
     const align::GlobalVector& shifts = ali->displacement();
 
-    EulerAngles angles = toAngles( ali->rotation() );
+    align::EulerAngles angles = align::toAngles( ali->rotation() );
 
-    nt->Fill( ali->id(), shifts.x(), shifts.y(), shifts.z(),
+    nt->Fill( shifts.x(), shifts.y(), shifts.z(),
 	      angles(1), angles(2), angles(3) );
 //     const AlgebraicVector& pars = ali->alignmentParameters()->parameters();
 
