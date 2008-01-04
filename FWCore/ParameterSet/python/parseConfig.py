@@ -412,7 +412,8 @@ class _IncludeNode(cms._ParameterTypeBase):
         return self.pythonFileRoot().replace('/','.').replace('.data.','.')
     def dumpPython(self, options=PrintOptions()):
         if options.isCfg: 
-            return "import "+self.pythonModuleName()+"\nprocess.extend("+self.pythonModuleName()+")\n"
+            #return "import "+self.pythonModuleName()+"\nprocess.extend("+self.pythonModuleName()+")\n"
+            return "process.load(\"" + self.pythonModuleName() + "\")\n"
         else:
             return "from "+self.pythonModuleName()+" import *"
     def createFile(self, overwrite):
