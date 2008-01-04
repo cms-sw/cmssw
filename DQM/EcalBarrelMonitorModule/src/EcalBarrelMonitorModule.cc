@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/12/26 13:39:41 $
- * $Revision: 1.155 $
+ * $Date: 2007/12/28 17:02:01 $
+ * $Revision: 1.156 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -442,28 +442,28 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     if ( meEBhits_ ) meEBhits_->Fill(float(nebh));
 
-    if ( enableEventDisplay_ ) {
+    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+      EcalUncalibratedRecHit hit = (*hitItr);
+      EBDetId id = hit.id();
 
-        EcalUncalibratedRecHit hit = (*hitItr);
-        EBDetId id = hit.id();
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-        int ic = id.ic();
-        int ie = (ic-1)/20 + 1;
-        int ip = (ic-1)%20 + 1;
+      int ism = Numbers::iSM( id );
 
-        int ism = Numbers::iSM( id );
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-        float xie = ie - 0.5;
-        float xip = ip - 0.5;
+      LogDebug("EcalBarrelMonitor") << " det id = " << id;
+      LogDebug("EcalBarrelMonitor") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
-        LogDebug("EcalBarrelMonitor") << " det id = " << id;
-        LogDebug("EcalBarrelMonitor") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
+      float xval = hit.amplitude();
 
-        float xval = hit.amplitude();
+      LogDebug("EcalBarrelMonitor") << " hit amplitude " << xval;
 
-        LogDebug("EcalBarrelMonitor") << " hit amplitude " << xval;
+      if ( enableEventDisplay_ ) {
 
         if ( xval >= 10 ) {
           if ( meEvent_[ism-1] ) meEvent_[ism-1]->Fill(xie, xip, xval);

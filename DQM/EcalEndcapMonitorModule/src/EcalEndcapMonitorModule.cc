@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/12/26 13:39:41 $
- * $Revision: 1.29 $
+ * $Date: 2007/12/28 17:02:21 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -443,29 +443,29 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     if ( meEEhits_ ) meEEhits_->Fill(float(neeh));
 
-    if ( enableEventDisplay_ ) {
+    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+      EcalUncalibratedRecHit hit = (*hitItr);
+      EEDetId id = hit.id();
 
-        EcalUncalibratedRecHit hit = (*hitItr);
-        EEDetId id = hit.id();
+      int ix = id.ix();
+      int iy = id.iy();
 
-        int ix = id.ix();
-        int iy = id.iy();
+      int ism = Numbers::iSM( id );
 
-        int ism = Numbers::iSM( id );
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-        if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
-        float xix = ix - 0.5;
-        float xiy = iy - 0.5;
+      LogDebug("EcalEndcapMonitor") << " det id = " << id;
+      LogDebug("EcalEndcapMonitor") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
-        LogDebug("EcalEndcapMonitor") << " det id = " << id;
-        LogDebug("EcalEndcapMonitor") << " sm, ix, iy " << ism << " " << ix << " " << iy;
+      float xval = hit.amplitude();
 
-        float xval = hit.amplitude();
+      LogDebug("EcalEndcapMonitor") << " hit amplitude " << xval;
 
-        LogDebug("EcalEndcapMonitor") << " hit amplitude " << xval;
+      if ( enableEventDisplay_ ) {
 
         if ( xval >= 10 ) {
           if ( meEvent_[ism-1] ) meEvent_[ism-1]->Fill(xix, xiy, xval);
