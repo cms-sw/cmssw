@@ -1059,6 +1059,7 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
 *ofilename <<"    <script type=\"text/javascript\">"<<endl;
 *ofilename <<"    //<![CDATA["<<endl;
 *ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<endl;
+*ofilename <<"    var ncrates=" <<ncrates << ";"<<endl;
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
   ifname="CommonTools/TrackerMap/data/viewer.css";
