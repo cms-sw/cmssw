@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2007/12/29 13:35:22 $
- * $Revision: 1.9 $
+ * $Date: 2007/12/30 13:36:34 $
+ * $Revision: 1.10 $
  * \author C. Bernet
  *
 */
@@ -116,13 +116,13 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
   DaqMonitorBEInterface* dbe_;
 
   /// to find the input collection of real digis 
-  edm::InputTag  realCollection_;
+  edm::InputTag realCollection_;
 
   /// to find the input collection of emulated digis
-  edm::InputTag  emulCollection_;
+  edm::InputTag emulCollection_;
   
   /// debug output root file. if empty, no output file created.
-  std::string   outputFile_;
+  std::string outputFile_;
 
   bool enableCleanup_;
 

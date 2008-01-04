@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/12/29 13:33:33 $
- * $Revision: 1.55 $
+ * $Date: 2007/12/29 13:36:30 $
+ * $Revision: 1.56 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -68,9 +68,9 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   str<<"Module label for producer of REAL     digis: "<<realCollection_<<endl;
   str<<"Module label for producer of EMULATED digis: "<<emulCollection_<<endl;
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
   LogDebug("EBTriggerTowerTask")<<str.str()<<endl;
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
 }
 
@@ -306,14 +306,17 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
   LogDebug("EBTriggerTowerTask")<<"processing "<<meEtMap[0]->getName()<<endl;
 
   ostringstream  str;
-  typedef EcalTrigPrimDigiCollection::const_iterator ID;
-  for ( ID tpdigiItr = digis->begin();
+  for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin();
 	tpdigiItr != digis->end(); ++tpdigiItr ) {
 
     EcalTriggerPrimitiveDigi data = (*tpdigiItr);
     EcalTrigTowerDetId idt = data.id();
 
     if ( idt.subDet() != EcalBarrel ) continue;
+
+    int ismt = Numbers::iSM( idt );
+
+    int itt = Numbers::iTT( idt );
 
     int iet = abs(idt.ieta());
     int ipt = idt.iphi();
@@ -326,10 +329,6 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
     // phi_tower: SM-local phi runs opposite to global in EB+
     if ( idt.zside() > 0 ) ipt = 5 - ipt;
-
-    int ismt = Numbers::iSM( idt );
-
-    int itt = Numbers::iTT( idt );
 
     float xiet = iet+0.5;
     float xipt = ipt+0.5;
@@ -355,7 +354,7 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
 
     if( compDigis.isValid() ) {
-      ID compDigiItr = compDigis->find( idt.rawId() );
+      EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( idt.rawId() );
 
       bool good = true;
       bool goodFlag = true;

@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/12/29 13:33:35 $
- * $Revision: 1.20 $
+ * $Date: 2007/12/29 13:36:32 $
+ * $Revision: 1.21 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -68,9 +68,9 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   str<<"Module label for producer of REAL     digis: "<<realCollection_<<endl;
   str<<"Module label for producer of EMULATED digis: "<<emulCollection_<<endl;
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
   LogDebug("EETriggerTowerTask")<<str.str()<<endl;
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
 }
 
@@ -306,8 +306,7 @@ EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
   LogDebug("EETriggerTowerTask")<<"processing "<<meEtMap[0]->getName()<<endl;
 
   ostringstream  str;
-  typedef EcalTrigPrimDigiCollection::const_iterator ID;
-  for ( ID tpdigiItr = digis->begin();
+  for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin();
 	tpdigiItr != digis->end(); ++tpdigiItr ) {
 
     EcalTriggerPrimitiveDigi data = (*tpdigiItr);
@@ -354,7 +353,7 @@ EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
 
     if( compDigis.isValid() ) {
-      ID compDigiItr = compDigis->find( idt.rawId() );
+      EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( idt.rawId() );
 
       bool good = true;
       bool goodFlag = true;
