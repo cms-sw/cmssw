@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/01/04 16:01:03 $
- * $Revision: 1.32 $
+ * $Date: 2008/01/04 16:23:30 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -66,6 +66,13 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
   // this should come from the EcalEndcap event header
   runType_ = ps.getUntrackedParameter<int>("runType", -1);
   evtType_ = runType_;
+
+  fixedRunType_ = false;
+  if ( runType_ != -1 ) fixedRunType_ = true;
+
+  if ( fixedRunType_) {
+    LogInfo("EcalBarrelMonitor") << " using fixed Run Type = " << runType_ << endl;
+  }
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -315,8 +322,6 @@ void EcalEndcapMonitorModule::endJob(void) {
   if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(evtNumber_);
 
-  if ( meRunType_ ) meRunType_->Fill(runType_);
-
   // this should give enough time to meStatus_ to reach the Collector,
   // and then hopefully the Client, and to allow the Client to complete
 
@@ -366,17 +371,15 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       if ( meEEDCC_ ) meEEDCC_->Fill(Numbers::iSM( dcch, EcalEndcap )+0.5);
 
-      if ( ! fixedRunNumber_ ) runNumber_ = dcch.getRunNumber();
+      if ( ! fixedRunNumber_ ) {
+        runNumber_ = dcch.getRunNumber();
+      }
 
       evtNumber_ = dcch.getLV1();
 
-      if ( dcch.getRunType() != -1 ) runType_ = dcch.getRunType();
-
-      if ( dcch.getRunType() != -1 ) evtType_ = dcch.getRunType();
-
-      if ( evtType_ < 0 || evtType_ > 22 ) {
-        LogWarning("EcalEndcapMonitor") << "Unknown event type = " << evtType_;
-        evtType_ = -1;
+      if ( ! fixedRunType_ ) {
+        runType_ = dcch.getRunType();
+        evtType_ = runType_;
       }
 
     }
@@ -393,15 +396,18 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       const EcalTBEventHeader* evtHeader = pEvtH.product();
 
-      if ( meEEDCC_ ) meEEDCC_->Fill(1+0.5);
+      if ( meEEDCC_ ) meEEDCC_->Fill(18+1+0.5);
 
-      if ( ! fixedRunNumber_ ) runNumber_ = evtHeader->runNumber();
+      if ( ! fixedRunNumber_ ) {
+        runNumber_ = evtHeader->runNumber();
+      }
 
       evtNumber_ = evtHeader->eventNumber();
 
-      runType_ = EcalDCCHeaderBlock::BEAMH4;
-
-      evtType_ = EcalDCCHeaderBlock::BEAMH4;
+      if ( ! fixedRunType_ ) {
+        runType_ = EcalDCCHeaderBlock::BEAMH4;
+        evtType_ = runType_;
+      }
 
     } else {
 
@@ -409,6 +415,15 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
+  }
+
+  if ( meRunType_ ) meRunType_->Fill(runType_);
+
+  if ( evtType_ >= 0 && evtType_ <= 22 ) {
+    if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
+  } else {
+    LogWarning("EcalEndcapMonitor") << "Unknown event type = " << evtType_ << " at event: " << ievt_;
+    if ( meEvtType_ ) meEvtType_->Fill( -1 );
   }
 
   if ( ievt_ == 1 ) {
@@ -422,9 +437,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(evtNumber_);
-
-  if ( meRunType_ ) meRunType_->Fill(runType_);
-  if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
 
   // this should give enough time to all the MEs to reach the Collector,
   // and then hopefully the Client, even for short runs
@@ -527,7 +539,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       if ( meEEhits_[1] ) meEEhits_[1]->Fill(i+1+0.5, counter[i]);
 
-    } 
+    }
 
   } else {
 
@@ -547,7 +559,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       EcalTriggerPrimitiveDigi data = (*tpdigiItr);
       EcalTrigTowerDetId idt = data.id();
-  
+
       if ( idt.subDet() != EcalEndcap ) continue;
 
       int ismt = Numbers::iSM( idt );
@@ -564,7 +576,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       if ( meEEtpdigis_[1] ) meEEtpdigis_[1]->Fill(i+1+0.5, counter[i]);
 
-    } 
+    }
 
   } else {
 

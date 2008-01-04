@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2007/11/27 10:43:20 $
- * $Revision: 1.46 $
+ * $Date: 2008/01/04 16:01:01 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -47,13 +47,15 @@ void cleanup(void);
 
 private:
 
-int runType_;
-int evtType_;
-
 int runNumber_;
 int evtNumber_;
 
+int runType_;
+int evtType_;
+
 bool fixedRunNumber_;
+
+bool fixedRunType_;
 
 int ievt_;
 
