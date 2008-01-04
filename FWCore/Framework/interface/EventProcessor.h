@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.49 2007/12/29 00:28:56 wmtan Exp $
+$Id: EventProcessor.h,v 1.50 2008/01/02 23:52:40 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -413,7 +413,6 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal>   lbp_;
     boost::shared_ptr<EDLooper>                   looper_;
 
-    boost::shared_ptr<FileBlock>                  sm_fb_;
     boost::shared_ptr<RunPrincipal>               sm_rp_;
     boost::shared_ptr<LuminosityBlockPrincipal>   sm_lbp_;
     std::auto_ptr<EventPrincipal>               sm_evp_;

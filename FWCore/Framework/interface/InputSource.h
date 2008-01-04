@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.36 2007/12/11 00:25:52 wmtan Exp $
+$Id: InputSource.h,v 1.37 2007/12/31 22:43:56 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -170,8 +170,8 @@ namespace edm {
     void doEndJob();
 
     /// Called by framework when events are exhausted.
-    void doFinishLumi(LuminosityBlockPrincipal& lbp);
-    void doFinishRun(RunPrincipal& rp);
+    void doEndLumi(LuminosityBlockPrincipal& lbp);
+    void doEndRun(RunPrincipal& rp);
 
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}

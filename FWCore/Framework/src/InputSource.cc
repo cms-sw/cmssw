@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.35 2007/12/11 00:25:54 wmtan Exp $
+$Id: InputSource.cc,v 1.36 2007/12/31 22:43:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -278,7 +278,7 @@ namespace edm {
   }
 
   void
-  InputSource::doFinishRun(RunPrincipal& rp) {
+  InputSource::doEndRun(RunPrincipal& rp) {
     rp.setEndTime(time_);
     Run run(rp, moduleDescription());
     endRun(run);
@@ -286,7 +286,7 @@ namespace edm {
   }
 
   void
-  InputSource::doFinishLumi(LuminosityBlockPrincipal & lbp) {
+  InputSource::doEndLumi(LuminosityBlockPrincipal & lbp) {
     lbp.setEndTime(time_);
     LuminosityBlock lb(lbp, moduleDescription());
     endLuminosityBlock(lb);
