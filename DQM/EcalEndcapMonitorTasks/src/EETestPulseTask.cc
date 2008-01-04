@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/12/28 17:00:47 $
- * $Revision: 1.27 $
+ * $Date: 2007/12/29 13:38:55 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -243,6 +243,9 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
+
+      if ( ! ( dcch.id() >=  1 && dcch.id() <=  9 ) &&
+           ! ( dcch.id() >= 46 && dcch.id() <= 54 ) ) continue;
 
       int ism = Numbers::iSM( dcch, EcalEndcap );
 

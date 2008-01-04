@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2007/12/28 17:00:46 $
- * $Revision: 1.47 $
+ * $Date: 2007/12/29 13:38:56 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -326,12 +326,12 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
-    int nebc = dcchs->size();
-    LogDebug("EBBeamHodoTask") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
-
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
+
+      if ( ! ( dcch.id() >= 10 && dcch.id() <= 27 ) &&
+           ! ( dcch.id() >= 28 && dcch.id() <= 45 ) ) continue;
 
       if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4
 	   || dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2  ) enable = true;

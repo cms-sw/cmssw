@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/01/04 10:25:39 $
- * $Revision: 1.157 $
+ * $Date: 2008/01/04 16:00:57 $
+ * $Revision: 1.158 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -348,12 +348,16 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
-    int nebc = dcchs->size();
-    LogDebug("EcalBarrelMonitor") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
+    int nebc = 0;
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
+
+      if ( ! ( dcch.id() >= 10 && dcch.id() <= 27 ) &&
+           ! ( dcch.id() >= 28 && dcch.id() <= 45 ) ) continue;
+
+      nebc++;
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
       if ( i != dccMap.end() ) continue;
@@ -376,6 +380,8 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       }
 
     }
+
+    LogDebug("EcalBarrelMonitor") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
 
   } else {
 

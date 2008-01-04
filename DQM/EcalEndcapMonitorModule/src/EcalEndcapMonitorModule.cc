@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/01/04 10:25:40 $
- * $Revision: 1.31 $
+ * $Date: 2008/01/04 16:01:03 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -348,12 +348,16 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
-    int neec = dcchs->size();
-    LogDebug("EcalEndcapMonitor") << "event: " << ievt_ << " DCC headers collection size: " << neec;
+    int neec = 0;
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
+
+      if ( ! ( dcch.id() >=  1 && dcch.id() <=  9 ) &&
+           ! ( dcch.id() >= 46 && dcch.id() <= 54 ) ) continue;
+
+      neec++;
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
       if ( i != dccMap.end() ) continue;
@@ -376,6 +380,8 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
       }
 
     }
+
+    LogDebug("EcalEndcapMonitor") << "event: " << ievt_ << " DCC headers collection size: " << neec;
 
   } else {
 
