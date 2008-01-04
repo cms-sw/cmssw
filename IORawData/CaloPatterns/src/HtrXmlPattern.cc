@@ -57,8 +57,10 @@ HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iSetup.get<HcalDbRecord>().get( pSetup );
    const HcalElectronicsMap* readoutMap=pSetup->getHcalMapping();
    
-   try {
-     iEvent.getManyByType(hbhe);
+   iEvent.getManyByType(hbhe);
+   if (hbhe.empty()) {
+     cout << "No HB/HE Digis." << endl;
+   } else {
      std::vector<edm::Handle<HBHEDigiCollection> >::iterator i;
      for (i=hbhe.begin(); i!=hbhe.end(); i++) {
        const HBHEDigiCollection& c=*(*i);
@@ -76,12 +78,12 @@ HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
        if (m_sets_to_show!=0) cout << "HB/HE count: " << count << endl;
      }
-   } catch (...) {
-     cout << "No HB/HE Digis." << endl;
-   }
+  }
   
-   try {
-     iEvent.getManyByType(hf);
+   iEvent.getManyByType(hf);
+   if (hf.empty()) {
+     cout << "No HF Digis." << endl;
+  } else {
      std::vector<edm::Handle<HFDigiCollection> >::iterator i;
      for (i=hf.begin(); i!=hf.end(); i++) {
        const HFDigiCollection& c=*(*i);
@@ -99,12 +101,12 @@ HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
        if (m_sets_to_show!=0) cout << "HF    count: " << count << endl;
      }
-   } catch (...) {
-     cout << "No HF Digis." << endl;
-   }
+  }
    
-   try {
-     iEvent.getManyByType(ho);
+   iEvent.getManyByType(ho);
+   if (ho.empty()) {
+     cout << "No HO Digis." << endl;
+  } else {
      std::vector<edm::Handle<HODigiCollection> >::iterator i;
      for (i=ho.begin(); i!=ho.end(); i++) {
        const HODigiCollection& c=*(*i);
@@ -122,9 +124,7 @@ HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
        if (m_sets_to_show!=0) cout << "HO    count: " << count << endl;
      }
-   } catch (...) {
-     cout << "No HO Digis." << endl;
-   }
+  }
 
    cout << endl;    
 
