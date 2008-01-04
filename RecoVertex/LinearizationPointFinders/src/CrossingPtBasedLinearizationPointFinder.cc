@@ -163,16 +163,11 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useAllTracks(
         for ( std::vector<reco::TransientTrack>::const_iterator y=x+1;
                 y!=end; ++y )
         {
-            try
-            {
                 std::pair < GlobalPoint, GlobalPoint > pts = ttmd.points
                                                         ( (*x).impactPointState(), (*y).impactPointState() );
                 std::pair < GlobalPoint , float > v ( ( pts.second + pts.first ) / 2. ,
                                                  ( pts.second - pts.first ).mag() );
                 vgp.push_back( v );
-            }
-            catch (...)
-            {}
             ; // If sth goes wrong, we just dont add. Who cares?
         }
     }
@@ -235,8 +230,6 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
     if ( tracks.size() < 2 )
         throw LinPtException
         ("CrossingPtBasedLinPtFinder: too few tracks given.");
-    try
-    {
         std::vector < PointAndDistance > vgp;
         if ( theNPairs == -1 )
         {
@@ -297,18 +290,11 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
             else
             { // No DistanceMatrix available
                 TwoTrackMinimumDistance ttmd;
-                try
-                {
                     pair < GlobalPoint, GlobalPoint > pts = ttmd.points
                                                             ( rt1.impactPointState(), rt2.impactPointState() );
                     PointAndDistance v ( ( pts.second + pts.first ) / 2. ,
                                          ( pts.second - pts.first ).mag() );
                     vgp.push_back( v );
-                }
-                catch (...)
-                { // If sth goes wrong, we just dont add. Who cares?
-                    //        cout << "[CrossingPtBasedLinearizationPointFinder] ttmd failed?" << endl;
-                }
             }
             if ( ( t_first + t_interval ) < lim )
             {
@@ -345,8 +331,6 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
             return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );
         }
         return find ( vgp );
-    }
-    catch (...){}
     
     return GlobalPoint(0.,0.,0.); // if nothing else, then return 0,0,0
 }

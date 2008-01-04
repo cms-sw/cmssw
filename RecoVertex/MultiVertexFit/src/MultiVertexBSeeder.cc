@@ -168,12 +168,8 @@ namespace {
     GlobalError ge;
     if ( kalmanfit )
     {
-      try {
         TransientVertex v = KalmanVertexFitter().vertex ( trks );
         gp=v.position();
-      } catch ( ... ) {
-        edm::LogWarning("MultiVertexBSeeder") << "pseudo vtx fit failed.";
-      };
     }
     TransientVertex ret = TransientVertex ( gp, ge, trks, -1. );
     TransientVertex::TransientTrackToFloatMap mp;
@@ -193,11 +189,9 @@ namespace {
   /* TransientVertex kalmanVertexFit ( const Cluster1D < reco::TransientTrack > & src )
   {
     KalmanVertexFitter fitter;
-    try {
       vector < const reco::TransientTrack * > trkptrs=src.tracks();
       vector < reco::TransientTrack > trks = convert ( trkptrs );
       return fitter.vertex ( trks );
-    } catch ( ... ) {};
     return TransientVertex();
   }*/
 }
