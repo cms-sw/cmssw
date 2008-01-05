@@ -16,6 +16,7 @@
 #include <string>
 #include "TFile.h"
 #include "TTree.h"
+#include "TROOT.h"
 
 NuclearInteractionSimulator::NuclearInteractionSimulator(
   std::vector<double>& pionEnergies,
