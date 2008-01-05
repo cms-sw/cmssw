@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.42 2008/01/01 15:49:05 dellaric Exp $
+// $Id: Numbers.cc,v 1.43 2008/01/01 16:13:26 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.42 $
-  \date $Date: 2008/01/01 15:49:05 $
+  \version $Revision: 1.43 $
+  \date $Date: 2008/01/01 16:13:26 $
 */
 
 #include <sstream>
@@ -125,6 +125,65 @@ int Numbers::iEE( const int ism ) throw( std::runtime_error ) {
 
   std::ostringstream s;
   s << "Wrong SM id determination: iSM = " << ism;
+  throw( std::runtime_error( s.str() ) );
+
+}
+
+//-------------------------------------------------------------------------
+
+EcalSubdetector Numbers::subDet( const EBDetId& id ) {
+
+  return( id.subdet() );
+
+}
+
+//-------------------------------------------------------------------------
+
+EcalSubdetector Numbers::subDet( const EEDetId& id ) {
+
+  return( id.subdet() );
+
+}
+
+//-------------------------------------------------------------------------
+
+EcalSubdetector Numbers::subDet( const EcalTrigTowerDetId& id ) {
+
+  return( id.subDet() );
+
+}
+
+//-------------------------------------------------------------------------
+
+EcalSubdetector Numbers::subDet( const EcalElectronicsId& id ) {
+
+  return( id.subdet() );
+
+}
+
+//-------------------------------------------------------------------------
+
+EcalSubdetector Numbers::subDet( const EcalPnDiodeDetId& id ) {
+
+  return( id.iEcalSubDetectorId() );
+
+}
+
+//-------------------------------------------------------------------------
+
+EcalSubdetector Numbers::subDet( const EcalDCCHeaderBlock& id ) throw( std::runtime_error ) {
+
+  // EE-
+  if ( dcch.id() >=  1 && dcch.id() <=  9 ) return( EcalEndcap );
+
+  // EB-/EB+
+  if ( dcch.id() >= 10 && dcch.id() <= 45 ) return( EcalBarrel);
+
+  // EE+
+  if ( dcch.id() >= 46 && dcch.id() <= 54 ) return( EcalEndcap );
+
+  std::ostringstream s;
+  s << "Wrong DCC id: dcc = " << idcc;
   throw( std::runtime_error( s.str() ) );
 
 }
@@ -260,7 +319,7 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   } else {
 
-    int subdet = id.subDet();
+    int subdet = Numbers::subDet( id );
 
     if( subdet == EcalBarrel ) {
 
@@ -408,7 +467,7 @@ int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   } else {
 
-    int subdet = id.subDet();
+    int subdet = Numbers::subDet( id );
 
     if( subdet == EcalBarrel ) {
 

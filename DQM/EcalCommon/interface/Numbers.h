@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.18 2007/12/18 09:49:19 dellaric Exp $
+// $Id: Numbers.h,v 1.19 2008/01/01 15:49:04 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.18 $
-  \date $Date: 2007/12/18 09:49:19 $
+  \version $Revision: 1.19 $
+  \date $Date: 2008/01/01 15:49:04 $
 */
 
 #ifndef Numbers_H
@@ -42,6 +42,18 @@ class Numbers {
   static int iEE( const int ism ) throw( std::runtime_error );
 
   static std::string sEE( const int ism );
+
+  static EcalSubdetector subDet( const EBDetId& id );
+
+  static EcalSubdetector subDet( const EEDetId& id );
+
+  static EcalSubdetector subDet( const EcalTrigTowerDetId& id );
+
+  static EcalSubdetector subDet( const EcalElectronicsId& id );
+
+  static EcalSubdetector subDet( const EcalPnDiodeDetId& id );
+
+  static EcalSubdetector subDet( const EcalDCCHeaderBlock& id ) throw( std::runtime_error );
 
   static int iSM( const int ism, const int subdet ) throw( std::runtime_error );
 
