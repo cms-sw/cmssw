@@ -18,6 +18,7 @@
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorTrack.h"
 
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
+#include "TMath.h"
 
 static const uint16_t _NUM_SISTRIP_SUBDET_ = 4;
 static TString SubDet[_NUM_SISTRIP_SUBDET_]={"TIB","TID","TOB","TEC"};
