@@ -5,8 +5,8 @@
  *
  * RPC Synchronization Monitoring Class
  *
- *  $Date: 2006/11/15 15:08:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/12 22:37:14 $
+ *  $Revision: 1.3 $
  *
  * \author Piotr Traczyk (SINS)
  *
@@ -26,6 +26,7 @@
 
 #include <string>
 #include <map>
+#include <math.h>
 
 struct timing{
 
