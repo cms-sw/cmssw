@@ -31,7 +31,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
-
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
@@ -41,11 +40,14 @@ IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const e
    
   l1eTauJetsSource_=config.getUntrackedParameter<edm::InputTag>("L1eTauJetsSource");
   tauAssocCone_=config.getParameter<double>("tauAssociationCone"); 
+  tauUnbiasCone_ = config.getParameter<double>("tauUnbiasCone");
   pixelTracksSource_=config.getUntrackedParameter<edm::InputTag>("PixelTracksSource");
   pixelIsolationConeSize_=config.getParameter<double>("PixelIsolationConeSize");
   hltGTseedlabel_=config.getUntrackedParameter<edm::InputTag>("L1GTSeedLabel");
   l1GtObjectMapSource_ = config.getUntrackedParameter<edm::InputTag> ("L1GtObjectMapSource");
-
+  ecalFilterLabel_ = config.getUntrackedParameter<edm::InputTag>("ecalFilterLabel");
+  
+  
   // Register the product
   produces< reco::IsolatedPixelTrackCandidateCollection >();
 
@@ -69,72 +71,80 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
   edm::Handle<l1extra::L1JetParticleCollection> l1eTauJets;
   theEvent.getByLabel(l1eTauJetsSource_,l1eTauJets);
 
-  Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
-  theEvent.getByLabel(hltGTseedlabel_, l1trigobj);
-
-  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
-  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;
-
-  l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
-  l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
+  /*
+  bool l2yes=false;
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFiltObj;
+  if (theEvent.getByLabel(ecalFilterLabel_,PrevFiltObj)) l2yes=true;
+  else l2yes=false;
+  */
 
   double ptTriggered=-10;
   double etaTriggered=-100;
   double phiTriggered=-100;
-
+  
+  Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
+  theEvent.getByLabel(hltGTseedlabel_, l1trigobj);
+  
+  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
+  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;
+  
+  l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
+  l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
+  
   bool restj=false;
   bool resj=false;
-
+  
   for (unsigned int p=0; p<l1tauobjref.size(); p++)
+    {
+      if (l1tauobjref[p]->pt()>ptTriggered)
 	{
-	if (l1tauobjref[p]->pt()>ptTriggered)
-		{
-		ptTriggered=l1tauobjref[p]->pt(); 
-		phiTriggered=l1tauobjref[p]->phi();
-		etaTriggered=l1tauobjref[p]->eta();
-		}
+	  ptTriggered=l1tauobjref[p]->pt(); 
+	  phiTriggered=l1tauobjref[p]->phi();
+	  etaTriggered=l1tauobjref[p]->eta();
 	}
+    }
+  
   for (unsigned int p=0; p<l1jetobjref.size(); p++)
-        {
-        if (l1jetobjref[p]->pt()>ptTriggered)
-                {
-                ptTriggered=l1jetobjref[p]->pt();
-                phiTriggered=l1jetobjref[p]->phi();
-                etaTriggered=l1jetobjref[p]->eta();
-                }
-        }
-
-
+    {
+      if (l1jetobjref[p]->pt()>ptTriggered)
+	{
+	  ptTriggered=l1jetobjref[p]->pt();
+	  phiTriggered=l1jetobjref[p]->phi();
+	  etaTriggered=l1jetobjref[p]->eta();
+	}
+    }
+  
   double minPtTrack_=5;
   double drMaxL1Track_=tauAssocCone_;
-
+  
   int ntr=0;
   
   //loop to select isolated tracks
   for (reco::TrackCollection::const_iterator track=pixelTracks->begin(); 
        track!=pixelTracks->end(); track++) {
-
     if(track->pt()<minPtTrack_) continue;
-
+    
     //selected tracks should match L1 taus
-
+    
     bool tmatch=false;
 
+    l1extra::L1JetParticleCollection::const_iterator selj;
     for (l1extra::L1JetParticleCollection::const_iterator tj=l1eTauJets->begin(); tj!=l1eTauJets->end(); tj++) {
-
-       //select taus not matched to triggered L1 jet
+      
+      //select taus not matched to triggered L1 jet
       double dPhi=fabs(tj->phi()-phiTriggered);
       if (dPhi>3.1415926535) dPhi=2*3.1415926535-dPhi;
       double R=sqrt(dPhi*dPhi+pow(tj->eta()-etaTriggered,2));
-      if (R<1) continue;
-	      
+      if (R<tauUnbiasCone_) continue;
+      
       //select tracks matched to tau
       if(ROOT::Math::VectorUtil::DeltaR(track->momentum(),tj->momentum()) > drMaxL1Track_) continue;
-	
+      
+      selj=tj;
       tmatch=true;
-
+      
     } //loop over L1 tau
-
+    
     //calculate isolation
     double maxPt=0;
     double sumPt=0;
@@ -147,17 +157,16 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
 	if(track2->pt()>maxPt) maxPt=track2->pt();
       }
     }
-
+    
     if (tmatch&&maxPt<5)
       {
-	reco::IsolatedPixelTrackCandidate 
-	newCandidate(reco::TrackRef(pixelTracks,track-pixelTracks->begin()),restj, resj, maxPt,sumPt);
-        trackCollection->push_back(newCandidate);
-        ntr++;
+	reco::IsolatedPixelTrackCandidate newCandidate(reco::TrackRef(pixelTracks,track-pixelTracks->begin()), l1extra::L1JetParticleRef(l1eTauJets,selj-l1eTauJets->begin()), maxPt, sumPt);
+	trackCollection->push_back(newCandidate);
+	ntr++;
       }
-
+    
   }//loop over pixel tracks
-
+  
   // put the product in the event
   std::auto_ptr< reco::IsolatedPixelTrackCandidateCollection > outCollection(trackCollection);
   theEvent.put(outCollection);

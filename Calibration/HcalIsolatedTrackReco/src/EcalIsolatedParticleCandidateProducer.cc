@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory Safronov
 //         Created:  Thu Jun  7 17:21:58 MSD 2007
-// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.3 2007/10/08 13:28:45 safronov Exp $
+// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.4 2007/12/20 16:36:51 safronov Exp $
 //
 //
 
@@ -42,8 +42,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "Calibration/HcalIsolatedTrackReco/interface/EcalIsolatedParticleCandidateProducer.h"
-#include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidate.h"
-#include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidateFwd.h"
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
@@ -62,7 +60,7 @@ EcalIsolatedParticleCandidateProducer::EcalIsolatedParticleCandidateProducer(con
   EErecHitCollectionLabel_=conf.getUntrackedParameter<edm::InputTag>("EErecHitCollectionLabel");
 
    //register your products
-   produces< reco::EcalIsolatedParticleCandidateCollection >();
+  produces< reco::IsolatedPixelTrackCandidateCollection >();
 
 }
 
@@ -87,18 +85,26 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
  
   using namespace edm;
 
+//  std::cout<<"get tau"<<std::endl;
+
   Handle<l1extra::L1JetParticleCollection> l1Taus;
   iEvent.getByLabel(l1tausource_,l1Taus);
+
+//  std::cout<<"get geom"<<std::endl;
 
   ESHandle<CaloGeometry> pG;
   iSetup.get<IdealGeometryRecord>().get(pG);
   geo = pG.product();
+
+//  std::cout<<" get ec rechit"<<std::endl;
 
   Handle<EcalRecHitCollection> ecalEB;
   iEvent.getByLabel(EBrecHitCollectionLabel_,ecalEB);
 
   Handle<EcalRecHitCollection> ecalEE;
   iEvent.getByLabel(EErecHitCollectionLabel_,ecalEE);
+
+//  std::cout<<"get l1 trig obj"<<std::endl;
 
   Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
   iEvent.getByLabel(hltGTseedlabel_, l1trigobj);
@@ -112,6 +118,8 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
   double ptTriggered=-10;
   double etaTriggered=-100;
   double phiTriggered=-100;
+
+//  std::cout<<"find highest pT triggered obj"<<std::endl;
 
   for (unsigned int p=0; p<l1tauobjref.size(); p++)
         {
@@ -132,7 +140,9 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
                 }
         }
 
-  reco::EcalIsolatedParticleCandidateCollection * eipcCollection=new reco::EcalIsolatedParticleCandidateCollection;
+  reco::IsolatedPixelTrackCandidateCollection * iptcCollection=new reco::IsolatedPixelTrackCandidateCollection;
+
+//  std::cout<<"loop over l1taus"<<std::endl;
 
   for (l1extra::L1JetParticleCollection::const_iterator tit=l1Taus->begin(); tit!=l1Taus->end(); tit++)
 	{
@@ -144,6 +154,7 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
 	int nhitIn=0;
 	double OutEnergy=0;
 	double InEnergy=0;
+//	std::cout<<" loops over rechits"<<std::endl;
 	for (EcalRecHitCollection::const_iterator eItr=ecalEB->begin(); eItr!=ecalEB->end(); eItr++)
 		{
 		double phiD, R;
@@ -201,8 +212,9 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
                         }
 
                 }
-	reco::EcalIsolatedParticleCandidate newca(tit->eta(), tit->phi(), InEnergy, OutEnergy, nhitIn, nhitOut);
-        eipcCollection->push_back(newca);	
+//	std::cout<<"create and push_back candidate"<<std::endl;
+	reco::IsolatedPixelTrackCandidate newca(l1extra::L1JetParticleRef(l1Taus,tit-l1Taus->begin()), InEnergy, OutEnergy, nhitIn, nhitOut);
+        iptcCollection->push_back(newca);	
 	}
 
 
@@ -210,7 +222,8 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
   //Use the ExampleData to create an ExampleData2 which 
   // is put into the Event
   
-  std::auto_ptr<reco::EcalIsolatedParticleCandidateCollection> pOut(eipcCollection);
+//  std::cout<<"put cand into event"<<std::endl;
+  std::auto_ptr<reco::IsolatedPixelTrackCandidateCollection> pOut(iptcCollection);
   iEvent.put(pOut);
 
 }

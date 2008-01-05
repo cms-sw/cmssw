@@ -11,7 +11,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidate.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 //
 // class decleration
 //
