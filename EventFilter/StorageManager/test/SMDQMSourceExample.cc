@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: SMDQMSourceExample.cc,v 1.4 2007/04/26 01:04:36 hcheung Exp $
+  $Id: SMDQMSourceExample.cc,v 1.5 2007/08/18 06:04:58 hcheung Exp $
 
 */
 
@@ -18,6 +18,7 @@
 // system include files
 #include <memory>
 #include <iostream>
+#include <math.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
