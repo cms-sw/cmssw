@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/01/04 15:23:04 $
- * $Revision: 1.57 $
+ * $Date: 2008/01/05 09:34:56 $
+ * $Revision: 1.58 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -312,7 +312,7 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
     EcalTriggerPrimitiveDigi data = (*tpdigiItr);
     EcalTrigTowerDetId idt = data.id();
 
-    if ( Numbers::subDet( id ) != EcalBarrel ) continue;
+    if ( Numbers::subDet( idt ) != EcalBarrel ) continue;
 
     int ismt = Numbers::iSM( idt );
 
