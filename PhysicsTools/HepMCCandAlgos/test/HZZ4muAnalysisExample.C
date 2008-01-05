@@ -12,7 +12,7 @@
 //   gSystem->Load("libFWCoreFWLite") ;
 //   AutoLibraryLoader::enable() ;
    
-   TFile* f = new TFile("pythiaH190ZZ4mu.root") ;
+   TFile* f = new TFile("../../../Configuration/Examples/data/pythiaH190ZZ4mu.root") ;
    
    TTree* tevt = f->Get("Events") ;
    
