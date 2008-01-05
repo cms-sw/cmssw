@@ -13,13 +13,14 @@
 //
 // Original Author:  Phillip R. Dudero
 //         Created:  Tue Jan 16 21:11:37 CST 2007
-// $Id: HcalQLPlotAnalAlgos.cc,v 1.1 2007/02/12 05:38:42 dudero Exp $
+// $Id: HcalQLPlotAnalAlgos.cc,v 1.3 2007/05/22 18:50:30 dudero Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <math.h>
 
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
