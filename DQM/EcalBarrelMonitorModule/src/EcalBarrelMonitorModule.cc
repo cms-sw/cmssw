@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/01/04 16:23:20 $
- * $Revision: 1.159 $
+ * $Date: 2008/01/04 19:05:03 $
+ * $Revision: 1.160 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -359,8 +359,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      if ( ! ( dcch.id() >= 10 && dcch.id() <= 27 ) &&
-           ! ( dcch.id() >= 28 && dcch.id() <= 45 ) ) continue;
+      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
 
       nebc++;
 
@@ -558,7 +557,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       EcalTriggerPrimitiveDigi data = (*tpdigiItr);
       EcalTrigTowerDetId idt = data.id();
 
-      if ( idt.subDet() != EcalBarrel ) continue;
+      if ( Numbers::subDet( idt ) != EcalBarrel ) continue;
 
       int ismt = Numbers::iSM( idt );
 

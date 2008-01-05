@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/12/29 13:36:32 $
- * $Revision: 1.21 $
+ * $Date: 2008/01/04 15:23:01 $
+ * $Revision: 1.22 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -312,7 +312,7 @@ EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
     EcalTriggerPrimitiveDigi data = (*tpdigiItr);
     EcalTrigTowerDetId idt = data.id();
 
-    if ( idt.subDet() != EcalEndcap ) continue;
+    if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
     int ismt = Numbers::iSM( idt );
 

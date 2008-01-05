@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/12/28 17:00:47 $
- * $Revision: 1.22 $
+ * $Date: 2007/12/29 13:38:55 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
  */
@@ -439,7 +439,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      if ( id.subdet() != EcalEndcap ) continue;
+      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -477,7 +477,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      if ( id.subdet() != EcalEndcap ) continue;
+      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -515,7 +515,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      if ( id.subdet() != EcalEndcap ) continue;
+      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -540,7 +540,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      if ( id.subdet() != EcalEndcap ) continue;
+      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -565,7 +565,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      if ( id.subdet() != EcalEndcap ) continue;
+      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 
@@ -597,7 +597,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      if ( id.subdet() != EcalEndcap ) continue;
+      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 

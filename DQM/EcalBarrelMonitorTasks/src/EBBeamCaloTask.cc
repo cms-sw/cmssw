@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2007/12/29 13:38:56 $
- * $Revision: 1.57 $
+ * $Date: 2008/01/04 16:23:49 $
+ * $Revision: 1.58 $
  * \author A. Ghezzi
  *
  */
@@ -378,8 +378,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      if ( ! ( dcch.id() >= 10 && dcch.id() <= 27 ) &&
-           ! ( dcch.id() >= 28 && dcch.id() <= 45 ) ) continue;
+      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
 
       if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
            dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2 ) enable = true;

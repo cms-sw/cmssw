@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/12/29 13:38:56 $
- * $Revision: 1.74 $
+ * $Date: 2008/01/04 16:23:49 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  *
 */
@@ -248,8 +248,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      if ( ! ( dcch.id() >= 10 && dcch.id() <= 27 ) &&
-           ! ( dcch.id() >= 28 && dcch.id() <= 45 ) ) continue;
+      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
 
       int ism = Numbers::iSM( dcch, EcalBarrel );
 
@@ -433,7 +432,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
 
-      if ( id.iEcalSubDetectorId() != EcalBarrel ) continue;
+      if ( Numbers::subDet( id ) != EcalBarrel ) continue;
 
       int ism = Numbers::iSM( id );
 

@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/12/29 13:38:55 $
- * $Revision: 1.28 $
+ * $Date: 2008/01/04 16:23:39 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -244,8 +244,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      if ( ! ( dcch.id() >=  1 && dcch.id() <=  9 ) &&
-           ! ( dcch.id() >= 46 && dcch.id() <= 54 ) ) continue;
+      if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( dcch, EcalEndcap );
 
@@ -402,7 +401,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
 
-      if ( id.iEcalSubDetectorId() != EcalEndcap ) continue;
+      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( id );
 

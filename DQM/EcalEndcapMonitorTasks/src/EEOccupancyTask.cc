@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2007/12/28 17:00:47 $
- * $Revision: 1.15 $
+ * $Date: 2007/12/29 13:38:55 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -182,7 +182,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
 
-      if ( id.iEcalSubDetectorId() != EcalEndcap ) continue;
+      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
       int   ism   = Numbers::iSM( id );
 

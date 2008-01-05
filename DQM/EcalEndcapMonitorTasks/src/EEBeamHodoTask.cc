@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2007/12/29 13:38:55 $
- * $Revision: 1.14 $
+ * $Date: 2008/01/04 16:23:38 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -330,8 +330,7 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      if ( ! ( dcch.id() >=  1 && dcch.id() <=  9 ) &&
-           ! ( dcch.id() >= 46 && dcch.id() <= 54 ) ) continue;
+      if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
 
       if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4
 	   || dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2  ) enable = true;

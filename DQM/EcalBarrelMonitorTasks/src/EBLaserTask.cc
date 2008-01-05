@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/12/29 13:38:56 $
- * $Revision: 1.101 $
+ * $Date: 2008/01/04 16:23:49 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  *
 */
@@ -632,8 +632,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      if ( ! ( dcch.id() >= 10 && dcch.id() <= 27 ) &&
-           ! ( dcch.id() >= 28 && dcch.id() <= 45 ) ) continue;
+      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
 
       int ism = Numbers::iSM( dcch, EcalBarrel );
 
@@ -756,7 +755,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
 
-      if ( id.iEcalSubDetectorId() != EcalBarrel ) continue;
+      if ( Numbers::subDet( id ) != EcalBarrel ) continue;
 
       int ism = Numbers::iSM( id );
 

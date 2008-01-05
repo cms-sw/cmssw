@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/01/04 16:23:30 $
- * $Revision: 1.33 $
+ * $Date: 2008/01/04 19:05:04 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -359,8 +359,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      if ( ! ( dcch.id() >=  1 && dcch.id() <=  9 ) &&
-           ! ( dcch.id() >= 46 && dcch.id() <= 54 ) ) continue;
+      if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
 
       neec++;
 
@@ -560,7 +559,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
       EcalTriggerPrimitiveDigi data = (*tpdigiItr);
       EcalTrigTowerDetId idt = data.id();
 
-      if ( idt.subDet() != EcalEndcap ) continue;
+      if ( Numbers::subDet( idt ) != EcalEndcap ) continue;
 
       int ismt = Numbers::iSM( idt );
 

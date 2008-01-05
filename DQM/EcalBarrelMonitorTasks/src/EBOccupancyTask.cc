@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2007/12/28 17:00:46 $
- * $Revision: 1.29 $
+ * $Date: 2007/12/29 13:38:56 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -181,7 +181,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
 
-      if ( id.iEcalSubDetectorId() != EcalBarrel ) continue;
+      if ( Numbers::subDet( id ) != EcalBarrel ) continue;
 
       int   ism   = Numbers::iSM( id );
 
