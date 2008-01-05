@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/12/30 19:29:19 $
- * $Revision: 1.74 $
+ * $Date: 2008/01/02 18:28:30 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  *
 */
@@ -219,7 +219,7 @@ void EESummaryClient::setup(void) {
   mePedestalOnline_[1]->setAxisTitle("iy", 2);
 
   if ( mePedestalOnlineErr_ ) dbe_->removeElement( mePedestalOnlineErr_->getName() );
-  sprintf(histo, "EEIT pedestal quality errors summary G12");
+  sprintf(histo, "EEPOT pedestal quality errors summary G12");
   mePedestalOnlineErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     mePedestalOnlineErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
@@ -250,14 +250,14 @@ void EESummaryClient::setup(void) {
   meLaserL1PN_[1]->setAxisTitle("iy", 2);
 
   if ( meLaserL1Err_ ) dbe_->removeElement( meLaserL1Err_->getName() );
-  sprintf(histo, "EEIT laser quality errors summary L1");
+  sprintf(histo, "EELT laser quality errors summary L1");
   meLaserL1Err_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meLaserL1Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
   if ( meLaserL1PNErr_ ) dbe_->removeElement( meLaserL1PNErr_->getName() );
-  sprintf(histo, "EEIT PN laser quality errors summary L1");
+  sprintf(histo, "EELT PN laser quality errors summary L1");
   meLaserL1PNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
@@ -288,14 +288,14 @@ void EESummaryClient::setup(void) {
   meLedPN_[1]->setAxisTitle("iy", 2);
 
   if ( meLedErr_ ) dbe_->removeElement( meLedErr_->getName() );
-  sprintf(histo, "EEIT led quality errors summary");
+  sprintf(histo, "EELDT led quality errors summary");
   meLedErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meLedErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
   if ( meLedPNErr_ ) dbe_->removeElement( meLedPNErr_->getName() );
-  sprintf(histo, "EEIT PN led quality errors summary");
+  sprintf(histo, "EELDT PN led quality errors summary");
   meLedPNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meLedPNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
@@ -326,14 +326,14 @@ void EESummaryClient::setup(void) {
   mePedestalPN_[1]->setAxisTitle("iy", 2);
 
   if ( mePedestalErr_ ) dbe_->removeElement( mePedestalErr_->getName() );
-  sprintf(histo, "EEIT pedestal quality errors summary");
+  sprintf(histo, "EEPT pedestal quality errors summary");
   mePedestalErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     mePedestalErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
   if ( mePedestalPNErr_ ) dbe_->removeElement( mePedestalPNErr_->getName() );
-  sprintf(histo, "EEIT PN pedestal quality errors summary");
+  sprintf(histo, "EEPT PN pedestal quality errors summary");
   mePedestalPNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     mePedestalPNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
@@ -364,14 +364,14 @@ void EESummaryClient::setup(void) {
   meTestPulsePN_[1]->setAxisTitle("iy", 2);
 
   if ( meTestPulseErr_ ) dbe_->removeElement( meTestPulseErr_->getName() );
-  sprintf(histo, "EEIT test pulse quality errors summary");
+  sprintf(histo, "EETPT test pulse quality errors summary");
   meTestPulseErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meTestPulseErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
   if ( meTestPulsePNErr_ ) dbe_->removeElement( meTestPulsePNErr_->getName() );
-  sprintf(histo, "EEIT PN test pulse quality errors summary");
+  sprintf(histo, "EETPT PN test pulse quality errors summary");
   meTestPulsePNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meTestPulsePNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
