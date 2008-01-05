@@ -60,7 +60,9 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p1,edm::ParameterSe
   hohi_.reserve(2200);
   hfhi_.reserve(1800);
   doDigis_=false;
-  //  myHcalSimParameterMap_ = new HcalSimParameterMap(p2);
+
+  //  edm::ParameterSet hcalparam = p2.getParameter<edm::ParameterSet>("hcalSimParam"); 
+  //  myHcalSimParameterMap_ = new HcalSimParameterMap(hcalparam);
 
   // Computes the fraction of HCAL above the threshold
   Genfun::Erf myErf;
@@ -158,21 +160,14 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
       initialized_=true;
       return;
     }
-   // Get the gain and peds
-  std::cout << " Getting the HcalTPG coder " << std::endl;
-  edm::ESHandle<HcalTPGCoder> inputCoder;
-  es.get<HcalTPGRecord>().get(inputCoder);  
-  myCoder_ = &(*inputCoder);
-  std::cout << " Getting the HcalTPG coder -done " << std::endl;
 
 // Will be needed for the DB-based miscalibration
-//  std::cout << " Getting HcalDb service " << std::endl;
-//  edm::ESHandle<HcalDbService> conditions;
-//  es.get<HcalDbRecord>().get(conditions);
-//  const HcalDbService * theDbService=conditions.product();
-//  
-//  myHcalSimParameterMap_->setDbService(theDbService);
-
+  std::cout << " Getting HcalDb service " ;
+  edm::ESHandle<HcalDbService> conditions;
+  es.get<HcalDbRecord>().get(conditions);
+  const HcalDbService * theDbService=conditions.product();
+  //  myHcalSimParameterMap_->setDbService(theDbService);
+  std::cout << " - done " << std::endl;
   // Open the histogram for the fC to ADC conversion
   gROOT->cd();
   edm::FileInPath myDataFile("FastSimulation/CaloRecHitsProducer/data/adcvsfc.root");
@@ -223,11 +218,8 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
   //HB
   for(unsigned ic=0;ic<nhbcells_;++ic)
     {
-      float ped=(*inputCoder).getLUTPedestal(theDetIds_[hbhi_[ic]]);
-      float gain=(*inputCoder).getLUTGain(theDetIds_[hbhi_[ic]]);
-//      std::cout << theDetIds_[hbhi_[ic]] << " Gains " << gain << " " << theDbService->getGain(theDetIds_[hbhi_[ic]])->getValue(0) << std::endl;
-      peds_[hbhi_[ic]]=ped;
-//      std::cout << " Ped " << ped << " " << theDbService->getPedestal(theDetIds_[hbhi_[ic]])->getValue(0) << std::endl;
+      float gain = theDbService->getGain(theDetIds_[hbhi_[ic]])->getValue(0);
+      peds_[hbhi_[ic]]=theDbService->getPedestal(theDetIds_[hbhi_[ic]])->getValue(0);
       int ieta=theDetIds_[hbhi_[ic]].ieta();
       gain*=TPGFactor_[(ieta>0)?ieta+43:-ieta];
       gains_[hbhi_[ic]]=gain;
@@ -235,8 +227,7 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
   //HE
   for(unsigned ic=0;ic<nhecells_;++ic)
     {
-      float ped=(*inputCoder).getLUTPedestal(theDetIds_[hehi_[ic]]);
-      float gain=(*inputCoder).getLUTGain(theDetIds_[hehi_[ic]]);
+      float gain= theDbService->getGain(theDetIds_[hehi_[ic]])->getValue(0);
       int ieta=theDetIds_[hehi_[ic]].ieta();
 
       gain*=TPGFactor_[(ieta>0)?ieta+44:-ieta+1];
@@ -244,14 +235,14 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 //	gain*=2.;
 //      if(abs(ieta)>=27&&abs(ieta)<=29)
 //	gain*=5.;
-      peds_[hehi_[ic]]=ped;
+      peds_[hehi_[ic]]=theDbService->getPedestal(theDetIds_[hehi_[ic]])->getValue(0);
       gains_[hehi_[ic]]=gain;
     }
 //HO
   for(unsigned ic=0;ic<nhocells_;++ic)
     {
-      float ped=(*inputCoder).getLUTPedestal(theDetIds_[hohi_[ic]]);
-      float gain=(*inputCoder).getLUTGain(theDetIds_[hohi_[ic]]);
+      float ped=theDbService->getPedestal(theDetIds_[hohi_[ic]])->getValue(0);
+      float gain=theDbService->getGain(theDetIds_[hohi_[ic]])->getValue(0);
       int ieta=HcalDetId(hohi_[ic]).ieta();
       gain*=TPGFactor_[(ieta>0)?ieta+43:-ieta];
       peds_[hohi_[ic]]=ped;
@@ -260,8 +251,8 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
   //HF
   for(unsigned ic=0;ic<nhfcells_;++ic)
     {
-      float ped=(*inputCoder).getLUTPedestal(theDetIds_[hfhi_[ic]]);
-      float gain=(*inputCoder).getLUTGain(theDetIds_[hfhi_[ic]]);
+      float ped=theDbService->getPedestal(theDetIds_[hfhi_[ic]])->getValue(0);
+      float gain=theDbService->getGain(theDetIds_[hfhi_[ic]])->getValue(0);
       int ieta=theDetIds_[hfhi_[ic]].ieta();
       gain*=TPGFactor_[(ieta>0)?ieta+45:-ieta+2];
       peds_[hfhi_[ic]]=ped;
