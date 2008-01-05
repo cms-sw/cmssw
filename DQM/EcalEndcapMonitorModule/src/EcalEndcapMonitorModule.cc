@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/01/04 19:05:04 $
- * $Revision: 1.34 $
+ * $Date: 2008/01/05 09:35:27 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -220,19 +220,19 @@ void EcalEndcapMonitorModule::setup(void){
 
     meEEdigis_[0] = dbe_->book1D("EEMM digis number", "EEMM digis number", 100, 0., 13299.);
 
-    meEEdigis_[1] = dbe_->bookProfile("EEMM digis number profile", "EEMM digis number profile", 18, 1, 19., 850, 0., 8501., "s");
+    meEEdigis_[1] = dbe_->bookProfile("EEMM digis number profile", "EEMM digis number profile", 18, 1, 19., 850, 0., 851., "s");
     for (int i = 0; i < 18; i++) {
       meEEdigis_[1]->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     meEEhits_[0] = dbe_->book1D("EEMM hits number", "EEMM hits number", 100, 0., 13299.);
 
-    meEEhits_[1] = dbe_->bookProfile("EEMM hits number profile", "EEMM hits number profile", 18, 1, 19., 850, 0., 8501., "s");
+    meEEhits_[1] = dbe_->bookProfile("EEMM hits number profile", "EEMM hits number profile", 18, 1, 19., 850, 0., 851., "s");
     for (int i = 0; i < 18; i++) {
       meEEhits_[1]->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    meEEtpdigis_[0] = dbe_->book1D("EEMM TP digis number", "EEMM TP digis number", 100, 0., 597.);
+    meEEtpdigis_[0] = dbe_->book1D("EEMM TP digis number", "EEMM TP digis number", 100, 0., 631.);
 
     meEEtpdigis_[1] = dbe_->bookProfile("EEMM TP digis number profile", "EEMM TP digis number profile", 18, 1, 19., 34, 0., 35., "s");
     for (int i = 0; i < 18; i++) {
