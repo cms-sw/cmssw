@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.27 2007/12/03 00:40:50 wmtan Exp $
+$Id: OutputWorker.h,v 1.28 2008/01/04 17:08:49 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -43,9 +43,16 @@ namespace edm {
 
     bool wantAllEvents() const;
 
-    void openFile(FileBlock const& fb);
+    // These next functions take pointers rather than references
+    // as arguments to avoid a copy when used in generic algorithms.
 
-    void endInputFile(FileBlock const& fb);
+    void openFile(FileBlock const* fb);
+
+    void writeRun(RunPrincipal const* rp);
+
+    void writeLumi(LuminosityBlockPrincipal const* lbp);
+
+    void respondToCloseInputFile(FileBlock const* fb);
 
     bool limitReached() const;
 

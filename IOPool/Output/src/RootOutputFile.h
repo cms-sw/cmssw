@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.17 2007/12/07 23:23:11 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.18 2008/01/04 17:07:01 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -60,7 +60,7 @@ namespace edm {
 
     void finishEndFile();
     void openFile(FileBlock const& fb, bool fastCloneThisOne);
-    void endInputFile(FileBlock const& fb);
+    void respondToCloseInputFile(FileBlock const& fb);
 
     bool isFileFull() const {return newFileAtEndOfRun_;}
 

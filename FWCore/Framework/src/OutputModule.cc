@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.50 2007/12/07 23:23:05 wmtan Exp $
+$Id: OutputModule.cc,v 1.51 2008/01/04 17:08:49 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -333,6 +333,12 @@ namespace edm {
     endRun(rp);
   }
 
+  void OutputModule::doWriteRun(RunPrincipal const& rp)
+  {
+    FDEBUG(2) << "writeRun called\n";
+    writeRun(rp);
+  }
+
   void OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
 					    ModuleDescription const& md,
 					    CurrentProcessingContext const* c)
@@ -349,19 +355,25 @@ namespace edm {
     detail::CPCSentry sentry(current_context_, c);
     FDEBUG(2) << "endLuminosityBlock called\n";
     endLuminosityBlock(lbp);
+  }
+
+  void OutputModule::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp)
+  {
+    FDEBUG(2) << "writeLuminosityBlock called\n";
+    writeLuminosityBlock(lbp);
     if (remainingLumis_ > 0) {
       --remainingLumis_;
     }
   }
 
-  void OutputModule::doBeginInputFile(FileBlock const& fb)
+  void OutputModule::doOpenFile(FileBlock const& fb)
   {
     openFile(fb);
   }
 
-  void OutputModule::doEndInputFile(FileBlock const& fb)
+  void OutputModule::doRespondToCloseInputFile(FileBlock const& fb)
   {
-    endInputFile(fb);
+    respondToCloseInputFile(fb);
   }
 
   void OutputModule::maybeEndFile()

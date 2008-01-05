@@ -136,7 +136,7 @@ namespace edm {
       ~InputFileSentry() {
 	if (!success_ && ep_->fb_) {
 	  try {
-	    ep_->endInputFile(*ep_->fb_);  
+	    ep_->schedule_->respondToCloseInputFile(*ep_->fb_);  
 	    ep_->fb_.reset();
 	  }
           catch (cms::Exception& e) {
@@ -1100,7 +1100,7 @@ namespace edm {
         rc = epSuccess;
         if(repeatable) continue;
       }
-      endInputFile(*fb_);
+      schedule_->respondToCloseInputFile(*fb_);
       fb_.reset();
     }
 
@@ -1212,6 +1212,7 @@ namespace edm {
     IOVSyncValue ts(EventID(lbp->run(),EventID::maxEventNumber()), lbp->endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(*lbp, es, BranchActionEnd);
+    schedule_->writeLumi(*lbp);
 
     // This call to maybeEndFile should be uncommented when we want to
     // allow runs to be split across files.
@@ -1228,15 +1229,11 @@ namespace edm {
     IOVSyncValue ts(EventID(rp->run(), EventID::maxEventNumber()), rp->endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);      
     schedule_->runOneEvent(*rp, es, BranchActionEnd);
+    schedule_->writeRun(*rp);
     // Do we really need to call maybeEndFile() here? Are we not
     // assured to have called endLuminosityBlock() immediately before
     // calling endRun()?
     schedule_->maybeEndFile();
-  }
-
-  void 
-  EventProcessor::endInputFile(FileBlock const& fb) {
-    schedule_->endInputFile(fb);
   }
 
   EventProcessor::StatusCode
@@ -1807,7 +1804,8 @@ namespace edm {
   }
 
   void EventProcessor::respondToCloseInputFile() {
-    // IMPLEMENTATION: NOT DONE
+    // IMPLEMENTATION: OK
+    schedule_->respondToCloseInputFile(*fb_);
     std::cout << "\trespondToCloseInputFile\n";
   }
 
@@ -1859,7 +1857,7 @@ namespace edm {
   }
 
   void EventProcessor::smBeginRun(int run) {
-    // IMPLEMENTATION: OK
+    // IMPLEMENTATION: OK but must get right run from cache.
     IOVSyncValue ts(EventID(sm_rp_->run(),0), sm_rp_->beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(*sm_rp_, es, BranchActionBegin);
@@ -1867,7 +1865,7 @@ namespace edm {
   }
 
   void EventProcessor::smEndRun(int run) {
-    // IMPLEMENTATION: OK BUT
+    // IMPLEMENTATION: OK but must get right run from cache.
     // Output modules need rework
     input_->doEndRun(*sm_rp_);
     IOVSyncValue ts(EventID(sm_rp_->run(),EventID::maxEventNumber()), sm_rp_->endTime());
@@ -1877,7 +1875,7 @@ namespace edm {
   }
 
   void EventProcessor::beginLumi(int run, int lumi) {
-    // IMPLEMENTATION: OK
+    // IMPLEMENTATION: OK but must get right lumi from cache.
     IOVSyncValue ts(EventID(sm_lbp_->run(),0), sm_lbp_->beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(*sm_lbp_, es, BranchActionBegin);
@@ -1885,7 +1883,7 @@ namespace edm {
   }
 
   void EventProcessor::endLumi(int run, int lumi) {
-    // IMPLEMENTATION: OK BUT
+    // IMPLEMENTATION: OK but must get right lumi from cache.
     // Output modules need rework
     input_->doEndLumi(*sm_lbp_);
     IOVSyncValue ts(EventID(sm_lbp_->run(),EventID::maxEventNumber()), sm_lbp_->endTime());
@@ -1909,7 +1907,8 @@ namespace edm {
   }
 
   void EventProcessor::writeRun(int run) {
-    // IMPLEMENTATION: NOT DONE
+    // IMPLEMENTATION: OK - but must get correct run from cache.
+    schedule_->writeRun(*sm_rp_);
     std::cout << "\twriteRun " << run << "\n";
   }
 
@@ -1919,7 +1918,8 @@ namespace edm {
   }
 
   void EventProcessor::writeLumi(int run, int lumi) {
-    // IMPLEMENTATION: NOT DONE
+    // IMPLEMENTATION: OK - but must get correct lumi from cache.
+    schedule_->writeLumi(*sm_lbp_);
     std::cout << "\twriteLumi " << run << "/" << lumi << "\n";
   }
 

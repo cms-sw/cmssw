@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.37 2007/12/29 00:28:56 wmtan Exp $
+  $Id: Schedule.h,v 1.38 2008/01/04 17:08:07 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -137,6 +137,12 @@ namespace edm {
     void beginJob(EventSetup const&);
     void endJob();
 
+    // Write the luminosity block
+    void writeLumi(LuminosityBlockPrincipal const& lbp);
+
+    // Write the run
+    void writeRun(RunPrincipal const& rp);
+
     // Call maybeEndFile() on all OutputModules.
     void maybeEndFile();
 
@@ -149,8 +155,8 @@ namespace edm {
     // Call openOutputFiles() on all OutputModules
     void openOutputFiles(FileBlock & fb);
 
-    // Call endInputFile() on all OutputModules
-    void endInputFile(FileBlock const& fb);
+    // Call respondToCloseInputFile() on all OutputModules
+    void respondToCloseInputFile(FileBlock const& fb);
 
     std::pair<double,double> timeCpuReal() const {
       return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
@@ -367,42 +373,27 @@ namespace edm {
         if (results_inserter_.get()) results_inserter_->doWork(ep, es, bat, 0);
       }
       catch(cms::Exception& e) {
-        actions::ActionCodes code = act_table_->find(e.rootCause());
-        assert (code != actions::FailPath);
-        assert (code != actions::FailModule);
-        switch(code) {
-        case actions::IgnoreCompletely: {
-  	  LogWarning(e.category())
-  	    << "exception being ignored for current event:\n"
-  	    << e.what();
-  	  break;
-        }
-        case actions::SkipEvent: {
-          if (isEvent) {
+        actions::ActionCodes action = (isEvent ? act_table_->find(e.rootCause()) : actions::Rethrow);
+        assert (action != actions::IgnoreCompletely);
+        assert (action != actions::FailPath);
+        assert (action != actions::FailModule);
+	if (action == actions::SkipEvent) {
             LogWarning(e.category())
               << "an exception occurred and all paths for the event are being skipped: \n"
               << e.what();
-          } else {
-            LogWarning(e.category())
-              << "an exception occurred and all paths are being skipped: \n"
-              << e.what();
-          }
-  	  break;
-        }
-        default: {
+        } else {
  	  throw;
-        }
         }
       }
 
       if (endpathsAreActive_) runEndPaths(ep, es, bat);
     }
     catch(cms::Exception& ex) {
-      actions::ActionCodes code = act_table_->find(ex.rootCause());
-      assert (code != actions::SkipEvent);
-      assert (code != actions::FailPath);
-      assert (code != actions::FailModule);
-      switch(code) {
+      actions::ActionCodes action = act_table_->find(ex.rootCause());
+      assert (action != actions::SkipEvent);
+      assert (action != actions::FailPath);
+      assert (action != actions::FailModule);
+      switch(action) {
       case actions::IgnoreCompletely: {
   	LogWarning(ex.category())
   	  << "exception being ignored for current event:\n"

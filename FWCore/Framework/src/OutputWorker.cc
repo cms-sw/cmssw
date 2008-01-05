@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.30 2007/12/03 00:40:50 wmtan Exp $
+$Id: OutputWorker.cc,v 1.31 2008/01/04 17:08:49 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -35,13 +35,23 @@ namespace edm {
   }
 
   void
-  OutputWorker::openFile(FileBlock const& fb) {
-    mod_->doBeginInputFile(fb);
+  OutputWorker::openFile(FileBlock const* fb) {
+    mod_->doOpenFile(*fb);
   }
 
   void
-  OutputWorker::endInputFile(FileBlock const& fb) {
-    mod_->doEndInputFile(fb);
+  OutputWorker::writeRun(RunPrincipal const* rp) {
+    mod_->doWriteRun(*rp);
+  }
+
+  void
+  OutputWorker::writeLumi(LuminosityBlockPrincipal const* lbp) {
+    mod_->doWriteLuminosityBlock(*lbp);
+  }
+
+  void
+  OutputWorker::respondToCloseInputFile(FileBlock const* fb) {
+    mod_->doRespondToCloseInputFile(*fb);
   }
 
   bool 

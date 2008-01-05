@@ -1,7 +1,7 @@
 #ifndef IOPool_Streamer_StreamerOutputModule_h
 #define IOPool_Streamer_StreamerOutputModule_h
 
-// $Id: StreamerOutputModule.h,v 1.31 2007/09/20 20:46:53 wmtan Exp $
+// $Id: StreamerOutputModule.h,v 1.32 2008/01/02 20:40:57 wmtan Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -101,9 +101,10 @@ namespace edm
     virtual void write(EventPrincipal const& e);
     virtual void beginRun(RunPrincipal const&);
     virtual void endRun(RunPrincipal const&);
+    virtual void writeRun(RunPrincipal const&){}
     virtual void beginJob(EventSetup const&){}
     virtual void endJob();
-    virtual void endLuminosityBlock(LuminosityBlockPrincipal const&){}
+    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&){}
 
     std::auto_ptr<InitMsgBuilder> serializeRegistry();
 

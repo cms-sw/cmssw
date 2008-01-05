@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.50 2008/01/02 23:52:40 wdd Exp $
+$Id: EventProcessor.h,v 1.51 2008/01/04 17:10:36 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -357,7 +357,6 @@ namespace edm {
     void procOneEvent(EventPrincipal *pep);
     void endLuminosityBlock(LuminosityBlockPrincipal *lbp);
     void endRun(RunPrincipal *rp);
-    void endInputFile(FileBlock const& fb);
 
     StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);
 

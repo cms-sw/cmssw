@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug  4 20:45:42 EDT 2006
-// $Id: XMLOutputModule.h,v 1.1 2006/08/25 14:36:07 chrjones Exp $
+// $Id: XMLOutputModule.h,v 1.2 2006/11/07 18:06:54 wmtan Exp $
 //
 
 // system include files
@@ -44,8 +44,8 @@ namespace edm {
 
    private:
       virtual void write(EventPrincipal const& e);
-      virtual void endLuminosityBlock(LuminosityBlockPrincipal const&){}
-      virtual void endRun(RunPrincipal const&){}
+      virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&){}
+      virtual void writeRun(RunPrincipal const&){}
 
       XMLOutputModule(XMLOutputModule const&); // stop default
 

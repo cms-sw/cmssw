@@ -40,15 +40,10 @@ namespace edm {
     // there is no support as of yet for specific paths having
     // different exception behavior
     
-    actions::ActionCodes code = act_table_->find(e.rootCause());
-    assert (code != actions::FailModule);
-    switch(code) {
-      case actions::IgnoreCompletely: {
-	  LogWarning(e.category())
-	    << "Ignoring Exception in path " << name_
-	    << ", message:\n"  << e.what() << "\n";
-	  break;
-      }
+    // If not processing an event, always rethrow.
+    actions::ActionCodes action = (isEvent ? act_table_->find(e.rootCause()) : actions::Rethrow);
+    assert (action != actions::FailModule);
+    switch(action) {
       case actions::FailPath: {
 	  should_continue = false;
 	  LogWarning(e.category())

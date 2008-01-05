@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.35 2007/12/31 10:21:19 elmer Exp $
+// $Id: RootOutputFile.cc,v 1.36 2008/01/04 17:07:01 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -125,7 +125,7 @@ namespace edm {
     }
   }
 
-  void RootOutputFile::endInputFile(FileBlock const&) {
+  void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
     eventTree_.setEntries();
     lumiTree_.setEntries();
     runTree_.setEntries();

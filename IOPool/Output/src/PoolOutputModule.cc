@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.94 2007/12/07 23:23:11 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.95 2008/01/04 17:07:01 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -60,8 +60,8 @@ namespace edm {
     rootFile_->openFile(fb, fastCloneThisOne);
   }
 
-  void PoolOutputModule::endInputFile(FileBlock const& fb) {
-    rootFile_->endInputFile(fb);
+  void PoolOutputModule::respondToCloseInputFile(FileBlock const& fb) {
+    rootFile_->respondToCloseInputFile(fb);
   }
 
   void PoolOutputModule::beginJob(EventSetup const&) {
@@ -83,14 +83,14 @@ namespace edm {
       rootFile_->writeOne(e);
   }
 
-  void PoolOutputModule::endLuminosityBlock(LuminosityBlockPrincipal const& lb) {
+  void PoolOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
       if (hasNewlyDroppedBranch()[InLumi]) lb.addToProcessHistory();
       rootFile_->writeLuminosityBlock(lb);
       Service<JobReport> reportSvc;
       reportSvc->reportLumiSection(lb.id().run(), lb.id().luminosityBlock());
   }
 
-  void PoolOutputModule::endRun(RunPrincipal const& r) {
+  void PoolOutputModule::writeRun(RunPrincipal const& r) {
       if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
       if (rootFile_->writeRun(r)) {
 	// maybeEndFile should be called from the framework, not internally

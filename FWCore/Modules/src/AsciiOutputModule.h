@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.h,v 1.2 2005/10/12 02:34:02 wmtan Exp $
+$Id: AsciiOutputModule.h,v 1.3 2006/11/07 18:06:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -17,8 +17,8 @@ namespace edm {
 
   private:
     virtual void write(EventPrincipal const& e);
-    virtual void endLuminosityBlock(LuminosityBlockPrincipal const&){}
-    virtual void endRun(RunPrincipal const&){}
+    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&){}
+    virtual void writeRun(RunPrincipal const&){}
     int prescale_;
     int verbosity_;
     int counter_;

@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.63 2007/12/07 23:23:05 wmtan Exp $
+$Id: OutputModule.h,v 1.64 2008/01/04 17:08:07 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -43,16 +43,18 @@ namespace edm {
     void doEndJob();
     void writeEvent(EventPrincipal const& e, ModuleDescription const& d,
 		    CurrentProcessingContext const* c);
-    void doBeginRun(RunPrincipal const& e, ModuleDescription const& d,
+    void doBeginRun(RunPrincipal const& rp, ModuleDescription const& d,
 		    CurrentProcessingContext const* c);
-    void doEndRun(RunPrincipal const& e, ModuleDescription const& d,
+    void doEndRun(RunPrincipal const& rp, ModuleDescription const& d,
 		    CurrentProcessingContext const* c);
-    void doBeginLuminosityBlock(LuminosityBlockPrincipal const& e, ModuleDescription const& d,
+    void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& d,
 		    CurrentProcessingContext const* c);
-    void doEndLuminosityBlock(LuminosityBlockPrincipal const& e, ModuleDescription const& d,
+    void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& d,
 		    CurrentProcessingContext const* c);
-    void doBeginInputFile(FileBlock const& fb);
-    void doEndInputFile(FileBlock const& fb);
+    void doWriteRun(RunPrincipal const& rp);
+    void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp);
+    void doOpenFile(FileBlock const& fb);
+    void doRespondToCloseInputFile(FileBlock const& fb);
     /// Tell the OutputModule this is a convenient time to end the
     /// current file, in case it wants to do so.
     void maybeEndFile();
@@ -186,11 +188,13 @@ namespace edm {
     virtual void beginJob(EventSetup const&){}
     virtual void endJob(){}
     virtual void beginRun(RunPrincipal const& r){}
-    virtual void endRun(RunPrincipal const& r) = 0;
+    virtual void endRun(RunPrincipal const& r){}
+    virtual void writeRun(RunPrincipal const& r) = 0;
     virtual void beginLuminosityBlock(LuminosityBlockPrincipal const& lb){}
-    virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb) = 0;
+    virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb){}
+    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const& lb) = 0;
     virtual void openFile(FileBlock const& fb) {}
-    virtual void endInputFile(FileBlock const& fb) {}
+    virtual void respondToCloseInputFile(FileBlock const& fb) {}
 
     virtual bool isFileOpen() const { return true; }
     virtual bool isFileFull() const { return false; }

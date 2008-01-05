@@ -834,22 +834,23 @@ namespace edm {
   }
 
   void Schedule::openOutputFiles(FileBlock & fb) {
-    for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
-      it != itEnd; ++it) {
-	(*it)->openFile(fb); 
-      }
+    for_all(all_output_workers_, boost::bind(&OutputWorker::openFile, _1, &fb));
   }
 
-  void Schedule::endInputFile(FileBlock const& fb) {
-    for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
-      it != itEnd; ++it) {
-	(*it)->endInputFile(fb); 
-      }
+  void Schedule::writeRun(RunPrincipal const& rp) {
+    for_all(all_output_workers_, boost::bind(&OutputWorker::writeRun, _1, &rp));
+  }
+
+  void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp) {
+    for_all(all_output_workers_, boost::bind(&OutputWorker::writeLumi, _1, &lbp));
+  }
+
+  void Schedule::respondToCloseInputFile(FileBlock const& fb) {
+    for_all(all_output_workers_, boost::bind(&OutputWorker::respondToCloseInputFile, _1, &fb));
   }
 
   void Schedule::beginJob(EventSetup const& es) {
-    AllWorkers::iterator i(workersBegin()),e(workersEnd());
-    for(; i != e; ++i) { (*i)->beginJob(es); }
+    for_all(all_workers_, boost::bind(&OutputWorker::beginJob, _1, &es));
   }
 
   std::vector<ModuleDescription const*>
