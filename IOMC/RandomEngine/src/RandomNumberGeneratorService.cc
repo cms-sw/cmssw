@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.6 2007/03/06 19:38:38 wmtan Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.7 2007/12/20 20:29:01 marafino Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -45,18 +45,12 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   // one seed.  If both the vector seed and single seed commands appear in the configuration
   // file, then the vector form gets used and the other ignored.
 
-  try {
+  if(iPSet.exists("sourceSeedVector")) {
     seeds = iPSet.getUntrackedParameter<std::vector<uint32_t> >("sourceSeedVector");
-  }
   // If there is no vector look for a single seed
-  catch (const edm::Exception&) {
-    try {
+  } else if(iPSet.exists("sourceSeed")) {
       uint32_t seed = iPSet.getUntrackedParameter<uint32_t>("sourceSeed");
       seeds.push_back(seed);
-    }
-    // OK if you cannot find any
-    catch (const edm::Exception&) {
-    }
   }
 
   // If you find seed(s) for the source, save it
@@ -64,53 +58,45 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
     seedMap_[sourceLabel] = seeds;
   }
 
-  try {
+  if(iPSet.exists("moduleSeedVectors")) {
     const edm::ParameterSet& moduleSeedVectors = iPSet.getParameter<edm::ParameterSet>("moduleSeedVectors");
     
     std::vector<std::string> names = moduleSeedVectors.getParameterNames();
     for(std::vector<std::string>::const_iterator itName = names.begin(); itName != names.end(); ++itName) {
 
-      try {
+      if(moduleSeedVectors.exists(*itName)) {
         seeds = moduleSeedVectors.getUntrackedParameter<std::vector<uint32_t> >(*itName);
         if (seeds.size() > 0) {
           seedMap_[*itName] = seeds;
         }
       }
-      catch (const edm::Exception&) {
-        // If there is something wrong, skip it, if this random engine or seed is actually needed
-        // an exception will be thrown when the engine or seed is requested and not available
-      }
     }
+        // If there is something wrong, skip it. If this random engine or seed is actually needed
+        // an exception will be thrown when the engine or seed is requested and not available
   }
-  catch (const edm::Exception&) {
     // It is OK if this is missing.
-  }
 
-  try {
+  if(iPSet.exists("moduleSeeds")) {
     const edm::ParameterSet& moduleSeeds = iPSet.getParameter<edm::ParameterSet>("moduleSeeds");
     
     std::vector<std::string> names = moduleSeeds.getParameterNames();
     for(std::vector<std::string>::const_iterator itName = names.begin(); itName != names.end(); ++itName) {
 
-      // If we already have a seed vector for this label ignore this one
+    // If we already have a seed vector for this label ignore this one
       if (seedMap_.find(*itName) == seedMap_.end()) {
 
-        try {
+        if(moduleSeeds.exists(*itName)) {
           uint32_t seed = moduleSeeds.getUntrackedParameter<uint32_t>(*itName);
           seeds.clear();
           seeds.push_back(seed);
           seedMap_[*itName] = seeds;
         }
-        catch (const edm::Exception&) {
-          // If there is something wrong, skip it, if this random engine or seed is actually needed
-          // an exception will be thrown when the engine or seed is requested and not available
-        }
-      }  
-    }
+        // If there is something wrong, skip it, if this random engine or seed is actually needed
+        // an exception will be thrown when the engine or seed is requested and not available
+      }
+    }  
   }
-  catch (const edm::Exception&) {
     // It is OK if this is missing.
-  }
 
   // Loop over the engines where the seed(s) were specified and see
   // if the engine is also specified.  If not, default to HepJamesRandom.
@@ -121,18 +107,18 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
 
     // Initialize with default engine
     std::string engineName = "HepJamesRandom";
-    try {
-      if (seedIter->first == sourceLabel) {
-         engineName = iPSet.getUntrackedParameter<std::string>("sourceEngine");
+
+    if (seedIter->first == sourceLabel) {
+      if(iPSet.exists("sourceEngine")) {
+        engineName = iPSet.getUntrackedParameter<std::string>("sourceEngine");
       }
-      else {
-        const edm::ParameterSet& moduleEngines = iPSet.getParameter<edm::ParameterSet>("moduleEngines");
+    } else if(iPSet.exists("moduleEngines")) {
+      const edm::ParameterSet& moduleEngines = iPSet.getParameter<edm::ParameterSet>("moduleEngines");
+      if(moduleEngines.exists(seedIter->first)) {
         engineName = moduleEngines.getUntrackedParameter<std::string>(seedIter->first);
       }
     }
-    catch (const edm::Exception&) {
       // OK if none, use default
-    }
 
     std::string outputString = "the module with label \"";
     outputString += seedIter->first;
