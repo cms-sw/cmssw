@@ -1,4 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
+#include <math.h>
 
 using namespace std;
 
