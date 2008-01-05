@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/12/28 17:21:28 $
- * $Revision: 1.61 $
+ * $Date: 2008/01/02 18:03:19 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */
@@ -35,8 +35,6 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
-
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
 

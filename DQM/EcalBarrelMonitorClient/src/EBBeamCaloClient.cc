@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/12/28 17:21:28 $
- * $Revision: 1.66 $
+ * $Date: 2008/01/02 18:03:18 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -34,8 +34,6 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
-
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
 

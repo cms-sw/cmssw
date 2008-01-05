@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/12/16 21:58:21 $
- * $Revision: 1.29 $
+ * $Date: 2007/12/28 17:21:30 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -35,8 +35,6 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
-
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>
 
