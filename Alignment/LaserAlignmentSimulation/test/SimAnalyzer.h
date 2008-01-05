@@ -4,8 +4,8 @@
 /** \class SimAnalyzer
  *  Get some statistics and plots about the simulation of the Laser Alignment System
  *
- *  $Date: 2007/03/20 12:01:01 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/04 23:53:12 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
@@ -18,6 +18,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TObject.h"
+class TFile;
 
 #include <iostream>
 
