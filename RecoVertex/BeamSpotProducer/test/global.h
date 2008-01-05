@@ -1,6 +1,7 @@
 #ifndef global_h
 #define global_h
 #include <TROOT.h>
+#include <math.h>
 //
 // define some useful constants:
 //
