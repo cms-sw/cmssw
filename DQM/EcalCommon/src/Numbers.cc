@@ -1,18 +1,15 @@
-// $Id: Numbers.cc,v 1.43 2008/01/01 16:13:26 dellaric Exp $
+// $Id: Numbers.cc,v 1.44 2008/01/05 09:11:09 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.43 $
-  \date $Date: 2008/01/01 16:13:26 $
+  \version $Revision: 1.44 $
+  \date $Date: 2008/01/05 09:11:09 $
 */
 
 #include <sstream>
 #include <iomanip>
-
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
@@ -165,7 +162,7 @@ EcalSubdetector Numbers::subDet( const EcalElectronicsId& id ) {
 
 EcalSubdetector Numbers::subDet( const EcalPnDiodeDetId& id ) {
 
-  return( id.iEcalSubDetectorId() );
+  return( (EcalSubdetector) id.iEcalSubDetectorId() );
 
 }
 
@@ -173,14 +170,16 @@ EcalSubdetector Numbers::subDet( const EcalPnDiodeDetId& id ) {
 
 EcalSubdetector Numbers::subDet( const EcalDCCHeaderBlock& id ) throw( std::runtime_error ) {
 
+  int idcc = id.id();
+
   // EE-
-  if ( dcch.id() >=  1 && dcch.id() <=  9 ) return( EcalEndcap );
+  if ( idcc >=  1 && idcc <=  9 ) return( EcalEndcap );
 
   // EB-/EB+
-  if ( dcch.id() >= 10 && dcch.id() <= 45 ) return( EcalBarrel);
+  if ( idcc >= 10 && idcc <= 45 ) return( EcalBarrel);
 
   // EE+
-  if ( dcch.id() >= 46 && dcch.id() <= 54 ) return( EcalEndcap );
+  if ( idcc >= 46 && idcc <= 54 ) return( EcalEndcap );
 
   std::ostringstream s;
   s << "Wrong DCC id: dcc = " << idcc;

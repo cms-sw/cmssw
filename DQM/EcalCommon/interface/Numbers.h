@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.19 2008/01/01 15:49:04 dellaric Exp $
+// $Id: Numbers.h,v 1.20 2008/01/05 09:11:08 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.19 $
-  \date $Date: 2008/01/01 15:49:04 $
+  \version $Revision: 1.20 $
+  \date $Date: 2008/01/05 09:11:08 $
 */
 
 #ifndef Numbers_H
@@ -17,7 +17,9 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
-class DetId;
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
 class EBDetId;
 class EEDetId;
 
