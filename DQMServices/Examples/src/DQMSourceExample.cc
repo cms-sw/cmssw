@@ -2,8 +2,8 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2007/11/14 12:17:16 $
- * $Revision: 1.8 $
+ * $Date: 2007/11/26 16:09:19 $
+ * $Revision: 1.9 $
  * $Author: ameyer $
  *
  * Description: Simple example showing how to create a DQM Source creating and filling
@@ -14,8 +14,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
-#include <TRandom.h> // this is just the random number generator
+#include "TRandom.h" // this is just the random number generator
+#include <math.h>
 
 using namespace std;
 using namespace edm;
