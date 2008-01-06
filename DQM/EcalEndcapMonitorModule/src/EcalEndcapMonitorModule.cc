@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/01/05 09:35:27 $
- * $Revision: 1.35 $
+ * $Date: 2008/01/05 11:07:25 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -16,7 +16,6 @@
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -388,31 +387,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   } else {
 
     LogWarning("EcalEndcapMonitorModule") << EcalRawDataCollection_ << " not available";
-
-    Handle<EcalTBEventHeader> pEvtH;
-
-    if ( e.getByLabel(EcalTBEventHeader_, pEvtH) ) {
-
-      const EcalTBEventHeader* evtHeader = pEvtH.product();
-
-      if ( meEEDCC_ ) meEEDCC_->Fill(18+1+0.5);
-
-      if ( ! fixedRunNumber_ ) {
-        runNumber_ = evtHeader->runNumber();
-      }
-
-      evtNumber_ = evtHeader->eventNumber();
-
-      if ( ! fixedRunType_ ) {
-        runType_ = EcalDCCHeaderBlock::BEAMH4;
-        evtType_ = runType_;
-      }
-
-    } else {
-
-      LogWarning("EcalEndcapMonitorModule") << EcalTBEventHeader_ << " not available";
-
-    }
 
   }
 

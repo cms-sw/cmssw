@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/01/04 19:05:03 $
- * $Revision: 1.160 $
+ * $Date: 2008/01/05 09:34:41 $
+ * $Revision: 1.161 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -16,7 +16,6 @@
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -388,31 +387,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   } else {
 
     LogWarning("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " not available";
-
-    Handle<EcalTBEventHeader> pEvtH;
-
-    if ( e.getByLabel(EcalTBEventHeader_, pEvtH) ) {
-
-      const EcalTBEventHeader* evtHeader = pEvtH.product();
-
-      if ( meEBDCC_ ) meEBDCC_->Fill(18+1+0.5);
-
-      if ( ! fixedRunNumber_ ) {
-        runNumber_ = evtHeader->runNumber();
-      }
-
-      evtNumber_ = evtHeader->eventNumber();
-
-      if ( ! fixedRunType_ ) {
-        runType_ = EcalDCCHeaderBlock::BEAMH4;
-        evtType_ = runType_;
-      }
-
-    } else {
-
-      LogWarning("EcalBarrelMonitorModule") << EcalTBEventHeader_ << " not available";
-
-    }
 
   }
 
