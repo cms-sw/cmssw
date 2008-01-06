@@ -6,7 +6,11 @@
 
 #include "DataFormats/Common/interface/RefToBase.h"
 
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+
+//#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -19,7 +23,7 @@ HLTPixelIsolTrackFilter::HLTPixelIsolTrackFilter(const edm::ParameterSet& iConfi
   maxetatrack  = iConfig.getParameter<double> ("MaxEtaTrack");
 
   //register your products
-  produces<reco::HLTFilterObjectWithRefs>();
+  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPixelIsolTrackFilter::~HLTPixelIsolTrackFilter(){}
@@ -28,31 +32,27 @@ bool HLTPixelIsolTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
 {
 
   // The Filter object
-  std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
+  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
 
   // Ref to Candidate object to be recorded in filter object
-  edm::RefToBase<reco::Candidate> candref;
+  edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref;
 
   // get hold of filtered candidates
   edm::Handle<reco::IsolatedPixelTrackCandidateCollection> recotrackcands;
   iEvent.getByLabel(candTag_,recotrackcands);
 
-  reco::IsolatedPixelTrackCandidateCollection::const_iterator cands_it;
-  reco::IsolatedPixelTrackCandidateCollection::const_iterator cands_beg=recotrackcands->begin();
-  reco::IsolatedPixelTrackCandidateCollection::const_iterator cands_end=recotrackcands->end();
-
   //Filtering
 
   unsigned int n=0;
 
-  for (cands_it=cands_beg; cands_it<cands_end; cands_it++)
+  for (unsigned int i=0; i<recotrackcands->size(); i++)
     {
-      candref=edm::RefToBase<reco::Candidate>(reco::IsolatedPixelTrackCandidateRef(recotrackcands,distance(cands_beg,cands_it)));
+      candref = edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(recotrackcands, i);
 
-      if ((cands_it->maxPtPxl()<maxptnearby)&&
-	  (cands_it->pt()>minpttrack)&&fabs(cands_it->track()->eta())<maxetatrack)
+      if ((candref->maxPtPxl()<maxptnearby)&&
+	  (candref->pt()>minpttrack)&&fabs(candref->track()->eta())<maxetatrack)
 	{
-	  filterproduct->putParticle(candref);
+	  filterproduct->addObject(trigger::TriggerTrack, candref);
 	  n++;
 	}
     }
@@ -63,5 +63,6 @@ bool HLTPixelIsolTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.put(filterproduct);
 
   return accept;
+
 }
 	  
