@@ -21,6 +21,17 @@
 #include <TCanvas.h>
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include <utility>
+
+// Workaround to ease migration past ROOT TBuffer changes in ROOT 5.16
+#include "RVersion.h"
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
+#include "TBufferFile.h"
+typedef TBufferFile PerfRootBuffer;
+#else
+#include "TBuffer.h"
+typedef TBuffer PerfRootBuffer;
+#endif
+
 using namespace std;
 
 static const char * const kHelpOpt = "help";
@@ -90,7 +101,7 @@ size_type GetBasketSize( TBranch * b, bool verbose ) {
 }
 
 size_type GetTotalSize( TBranch * br, bool verbose ) {
-  TBuffer buf( TBuffer::kWrite, 10000 );
+  PerfRootBuffer buf( TBuffer::kWrite, 10000 );
   TBranch::Class()->WriteBuffer( buf, br );
   size_type size = GetBasketSize( br, verbose );
   if ( br->GetZipBytes() > 0 )
@@ -111,7 +122,7 @@ size_type GetTotalSize( TObjArray * branches, bool verbose ) {
 
 size_type GetTotalSize( TTree *t ) {
   size_t total = t->GetTotBytes();
-  TBuffer b(TBuffer::kWrite, 10000);
+  PerfRootBuffer b(TBuffer::kWrite, 10000);
   TTree::Class()->WriteBuffer(b, t);
   total += b.Length();
   return make_pair( total, t->GetZipBytes() );
