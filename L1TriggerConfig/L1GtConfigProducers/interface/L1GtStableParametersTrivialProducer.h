@@ -49,7 +49,6 @@ public:
     /// destructor
     ~L1GtStableParametersTrivialProducer();
 
-
     /// public methods
 
     /// L1 GT parameters
@@ -104,8 +103,10 @@ private:
     int m_numberPsbBoards;
 
     /// number of bits for eta of calorimeter objects
-    //  TODO define an interface record?
     unsigned int m_ifCaloEtaNumberBits;
+
+    /// number of bits for eta of muon objects
+    unsigned int m_ifMuEtaNumberBits;
 
 private:
 
@@ -114,7 +115,6 @@ private:
 
     /// one unit in the word is UnitLength bits
     int m_unitLength;
-
 
 };
 

@@ -64,8 +64,6 @@ private:
     std::string m_vmeXmlFile;
 
 
-    /// trigger menu: ?????
-
 };
 
 #endif

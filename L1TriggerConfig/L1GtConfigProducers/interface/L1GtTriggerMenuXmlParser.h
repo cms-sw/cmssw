@@ -95,6 +95,13 @@ public:
 
 public:
 
+    /// get / set the trigger menu name
+    inline const std::string gtTriggerMenuName() const {
+        return m_triggerMenuName;
+    }
+
+    void setGtTriggerMenuName(const std::string&);
+
     /// get / set the condition maps
     inline const std::vector<ConditionMap> gtConditionMap() const
     {
@@ -188,10 +195,10 @@ private:
 
     /// insertConditionIntoMap - safe insert of condition into condition map.
     /// if the condition name already exists, do not insert it and return false
-    bool insertConditionIntoMap(const L1GtCondition& cond, const int chipNr);
+    bool insertConditionIntoMap(L1GtCondition* cond, const int chipNr);
 
     /// insert an algorithm into algorithm map
-    bool insertAlgorithmIntoMap(const L1GtAlgorithm& alg);
+    bool insertAlgorithmIntoMap(L1GtAlgorithm* alg);
 
     /// get the type of the condition, as defined in enum, from the condition type
     /// as defined in the XML file
@@ -275,6 +282,9 @@ private:
 private:
 
     // the trigger menu
+
+    /// menu name 
+    std::string m_triggerMenuName;
 
     /// map containing the conditions (per condition chip)
     std::vector<ConditionMap> m_conditionMap;

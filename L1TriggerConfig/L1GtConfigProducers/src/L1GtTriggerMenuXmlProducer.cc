@@ -132,11 +132,10 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerM
     gtXmlParser.parseXmlFile(m_defXmlFile, m_vmeXmlFile);
 
     // transfer the condition map and algorithm map from parser to L1GtTriggerMenu
-    std::vector<ConditionMap> condMap = gtXmlParser.gtConditionMap();
-    AlgorithmMap algoMap = gtXmlParser.gtAlgorithmMap();
 
-    pL1GtTriggerMenu->setGtConditionMap(condMap);
-    pL1GtTriggerMenu->setGtAlgorithmMap(algoMap);
+    pL1GtTriggerMenu->setGtTriggerMenuName(gtXmlParser.gtTriggerMenuName());
+    pL1GtTriggerMenu->setGtConditionMap(gtXmlParser.gtConditionMap());
+    pL1GtTriggerMenu->setGtAlgorithmMap(gtXmlParser.gtAlgorithmMap());
 
     //LogDebug("L1GtConfigProducers")
     //<< "\n\nReturning L1 Trigger Menu!"

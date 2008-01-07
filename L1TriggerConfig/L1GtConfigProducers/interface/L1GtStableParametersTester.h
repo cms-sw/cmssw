@@ -29,7 +29,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 // forward declarations
 class L1GtStableParameters;
 
