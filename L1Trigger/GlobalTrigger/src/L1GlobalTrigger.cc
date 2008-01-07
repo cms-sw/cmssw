@@ -42,9 +42,6 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConfig.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -129,11 +126,6 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     << std::endl;
 
 
-    // set L1 GT configuration parameters
-    if(!m_gtSetup) {
-        m_gtSetup = new L1GlobalTriggerSetup(*this, parSet);
-    }
-
     // register products
     if (m_produceL1GtDaqRecord) {
         produces<L1GlobalTriggerReadoutRecord>();
@@ -164,10 +156,6 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
 // destructor
 L1GlobalTrigger::~L1GlobalTrigger()
 {
-
-    if(m_gtSetup)
-        delete m_gtSetup;
-    m_gtSetup = 0;
 
     delete m_gtPSB;
     delete m_gtGTL;
@@ -745,4 +733,3 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
 // static data members
 
-L1GlobalTriggerSetup* L1GlobalTrigger::m_gtSetup = 0;

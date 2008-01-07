@@ -36,8 +36,6 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConfig.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

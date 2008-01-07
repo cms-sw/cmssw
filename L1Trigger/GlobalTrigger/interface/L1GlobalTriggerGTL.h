@@ -33,8 +33,6 @@
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
@@ -42,8 +40,6 @@
 
 // forward declarations
 class L1GlobalTrigger;
-class L1GlobalTriggerConditions;
-class L1GlobalTriggerConfig;
 class L1GlobalTriggerPSB;
 
 // class declaration
@@ -77,9 +73,6 @@ public:
     /// run the GTL
     void run(edm::Event&, const edm::EventSetup&, const L1GlobalTriggerPSB*, 
         const bool, const int, std::auto_ptr<L1GlobalTriggerObjectMapRecord>&, const unsigned int);
-
-    /// fill object map record
-    const std::vector<L1GlobalTriggerObjectMap>* objectMap();
 
     /// clear GTL
     void reset();

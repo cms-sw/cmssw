@@ -38,7 +38,6 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 // forward classes
-class L1GlobalTriggerSetup;
 class L1GlobalTriggerPSB;
 class L1GlobalTriggerGTL;
 class L1GlobalTriggerFDL;
@@ -54,12 +53,6 @@ public:
     ~L1GlobalTrigger();
 
     virtual void produce(edm::Event&, const edm::EventSetup&);
-
-    // return pointer to setup
-    inline const L1GlobalTriggerSetup* gtSetup() const
-    {
-        return m_gtSetup;
-    }
 
     // return pointer to PSB
     inline const L1GlobalTriggerPSB* gtPSB() const
@@ -81,7 +74,6 @@ public:
 
 private:
 
-    static L1GlobalTriggerSetup* m_gtSetup;
 
     L1GlobalTriggerPSB* m_gtPSB;
     L1GlobalTriggerGTL* m_gtGTL;

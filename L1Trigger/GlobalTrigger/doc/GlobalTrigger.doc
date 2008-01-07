@@ -20,19 +20,11 @@ L1 Global Trigger emulator.
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- L1GlobalTriggerCaloTemplate
-- L1GlobalTriggerConditions
-- L1GlobalTriggerConfig
-- L1GlobalTriggerEsumsTemplate
 - L1GlobalTriggerFDL
 - L1GlobalTriggerFunctions
 - L1GlobalTriggerGTL
 - L1GlobalTrigger
-- L1GlobalTriggerJetCountsTemplate
-- L1GlobalTriggerLogicParser
-- L1GlobalTriggerMuonTemplate
 - L1GlobalTriggerPSB
-- L1GlobalTriggerSetup
 - 
 
 \subsection modules Modules
