@@ -1841,7 +1841,15 @@ namespace edm {
   }
 
   void EventProcessor::writeCache() {
-    // IMPLEMENTATION: NOT KNOWN
+    // IMPLEMENTATION: OK
+    while (!principalCache_.noMoreRuns()) {
+      schedule_->writeRun(principalCache_.lowestRun());
+      principalCache_.deleteLowestRun();      
+    }
+    while (!principalCache_.noMoreLumis()) {
+      schedule_->writeLumi(principalCache_.lowestLumi());
+      principalCache_.deleteLowestLumi();      
+    }
     std::cout << "\twriteCache\n";
   }
 
@@ -1857,81 +1865,90 @@ namespace edm {
   }
 
   void EventProcessor::smBeginRun(int run) {
-    // IMPLEMENTATION: OK but must get right run from cache.
-    IOVSyncValue ts(EventID(sm_rp_->run(),0), sm_rp_->beginTime());
+    // IMPLEMENTATION: OK
+    RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
+    IOVSyncValue ts(EventID(runPrincipal.run(),0),
+                    runPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->runOneEvent(*sm_rp_, es, BranchActionBegin);
+    schedule_->runOneEvent(runPrincipal, es, BranchActionBegin);
     std::cout << "\tbeginRun " << run << "\n";
   }
 
   void EventProcessor::smEndRun(int run) {
     // IMPLEMENTATION: OK but must get right run from cache.
     // Output modules need rework
-    input_->doEndRun(*sm_rp_);
-    IOVSyncValue ts(EventID(sm_rp_->run(),EventID::maxEventNumber()), sm_rp_->endTime());
+    RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
+    input_->doEndRun(runPrincipal);
+    IOVSyncValue ts(EventID(runPrincipal.run(),EventID::maxEventNumber()),
+                    runPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->runOneEvent(*sm_rp_, es, BranchActionEnd);
+    schedule_->runOneEvent(runPrincipal, es, BranchActionEnd);
     std::cout << "\tendRun " << run << "\n";
   }
 
   void EventProcessor::beginLumi(int run, int lumi) {
-    // IMPLEMENTATION: OK but must get right lumi from cache.
-    IOVSyncValue ts(EventID(sm_lbp_->run(),0), sm_lbp_->beginTime());
+    // IMPLEMENTATION: OK
+    LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
+    IOVSyncValue ts(EventID(lumiPrincipal.run(),0), lumiPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->runOneEvent(*sm_lbp_, es, BranchActionBegin);
+    schedule_->runOneEvent(lumiPrincipal, es, BranchActionBegin);
     std::cout << "\tbeginLumi " << run << "/" << lumi << "\n";
   }
 
   void EventProcessor::endLumi(int run, int lumi) {
     // IMPLEMENTATION: OK but must get right lumi from cache.
     // Output modules need rework
-    input_->doEndLumi(*sm_lbp_);
-    IOVSyncValue ts(EventID(sm_lbp_->run(),EventID::maxEventNumber()), sm_lbp_->endTime());
+    LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
+    input_->doEndLumi(lumiPrincipal);
+    IOVSyncValue ts(EventID(lumiPrincipal.run(),EventID::maxEventNumber()),
+                    lumiPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->runOneEvent(*sm_lbp_, es, BranchActionEnd);
+    schedule_->runOneEvent(lumiPrincipal, es, BranchActionEnd);
     std::cout << "\tendLumi " << run << "/" << lumi << "\n";
   }
 
   int EventProcessor::readAndCacheRun() {
     // IMPLEMENTATION: OK, but cacheing needs rework.
-    sm_rp_ = input_->readRun();
+    principalCache_.insert(input_->readRun());
     std::cout << "\treadAndCacheRun " << "\n";
-    return sm_rp_->run();
+    return principalCache_.runPrincipal().run();
   }
 
   int EventProcessor::readAndCacheLumi() {
     // IMPLEMENTATION: OK, but cacheing needs rework.
-    sm_lbp_ = input_->readLuminosityBlock(sm_rp_);
+    principalCache_.insert(input_->readLuminosityBlock(principalCache_.runPrincipalPtr()));
     std::cout << "\treadAndCacheLumi " << "\n";
-    return sm_lbp_->luminosityBlock();
+    return principalCache_.lumiPrincipal().luminosityBlock();
   }
 
   void EventProcessor::writeRun(int run) {
-    // IMPLEMENTATION: OK - but must get correct run from cache.
-    schedule_->writeRun(*sm_rp_);
+    // IMPLEMENTATION: OK
+    schedule_->writeRun(principalCache_.runPrincipal(run));
     std::cout << "\twriteRun " << run << "\n";
   }
 
   void EventProcessor::deleteRunFromCache(int run) {
-    // IMPLEMENTATION: NOT DONE
+    // IMPLEMENTATION: OK
+    principalCache_.deleteRun(run);
     std::cout << "\tdeleteRunFromCache " << run << "\n";
   }
 
   void EventProcessor::writeLumi(int run, int lumi) {
-    // IMPLEMENTATION: OK - but must get correct lumi from cache.
-    schedule_->writeLumi(*sm_lbp_);
+    // IMPLEMENTATION: OK
+    schedule_->writeLumi(principalCache_.lumiPrincipal(run, lumi));
     std::cout << "\twriteLumi " << run << "/" << lumi << "\n";
   }
 
   void EventProcessor::deleteLumiFromCache(int run, int lumi) {
-    // IMPLEMENTATION: NOT DONE
+    // IMPLEMENTATION: OK
+    principalCache_.deleteLumi(run, lumi);
     std::cout << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 
   void EventProcessor::readEvent() {
     // IMPLEMENTATION: OK
     CallPrePost holder(*actReg_);
-    sm_evp_ = input_->readEvent(sm_lbp_);
+    sm_evp_ = input_->readEvent(principalCache_.lumiPrincipalPtr());
 
     std::cout << "\treadEvent\n";
   }
