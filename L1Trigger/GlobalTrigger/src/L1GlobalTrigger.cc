@@ -112,9 +112,9 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
 
     LogTrace("L1GlobalTrigger")
     << "\nInput tag for muon collection from GMT:         "
-    << m_muGmtInputTag.label()
+    << m_muGmtInputTag
     << "\nInput tag for calorimeter collections from GCT: "
-    << m_caloGctInputTag.label()
+    << m_caloGctInputTag
     << "\nProduce the L1 GT DAQ readout record:           "
     << m_produceL1GtDaqRecord
     << "\nProduce the L1 GT EVM readout record:           "
@@ -658,14 +658,14 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         //LogDebug("L1GlobalTrigger")
         //<< "\n**** "
         //<< "\n  Persistent reference for L1MuGMTReadoutCollection with input tag: "
-        //<< m_muGmtInputTag.label()
+        //<< m_muGmtInputTag
         //<< "\n**** \n"
         //<< std::endl;
 
         // get L1MuGMTReadoutCollection reference and set it in GT record
 
         edm::Handle<L1MuGMTReadoutCollection> gmtRcHandle;
-        iEvent.getByLabel(m_muGmtInputTag.label(), gmtRcHandle);
+        iEvent.getByLabel(m_muGmtInputTag, gmtRcHandle);
 
         gtDaqReadoutRecord->setMuCollectionRefProd(gmtRcHandle);
 

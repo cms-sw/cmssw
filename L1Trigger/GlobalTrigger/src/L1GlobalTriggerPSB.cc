@@ -417,7 +417,7 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
     if ( edm::isDebugEnabled() ) {
         LogDebug("L1GlobalTriggerPSB")
         << "**** L1GlobalTriggerPSB received calorimeter data from input tag "
-        << caloGctInputTag.label()
+        << caloGctInputTag
         << std::endl;
 
         printGctObjectData();
