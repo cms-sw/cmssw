@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.12 2007/11/19 17:35:12 yilmaz Exp $
+ * $Id: HydjetSource.cc,v 1.13 2007/12/04 03:50:39 mironov Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -210,7 +210,7 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
    int ipar = 0;
    for(int isub=0;isub<nsub_;isub++){
      
-      int sub_up = (isub+1)*100000; // Upper limit in mother index, determining the range of Sub-Event
+      int sub_up = (isub+1)*10000; // Upper limit in mother index, determining the range of Sub-Event
       vector<HepMC::GenParticle*> particles;
 
       sub_vertices[isub] = new HepMC::GenVertex(HepMC::FourVector(0,0,0,0),isub);
