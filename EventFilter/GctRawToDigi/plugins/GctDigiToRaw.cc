@@ -140,8 +140,8 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                    tauJets.product(), jetCounts.product());
   
   // Pack GCT EM and energy sums digis; payload offset of 36 needed to get to the block header.
-  blockPacker_.writeGctEmBlock(pPayload + 36, isoEm.product(), nonIsoEm.product(),
-                               etTotal.product(), etHad.product(), etMiss.product());
+  blockPacker_.writeGctOutEmAndEnergyBlock(pPayload + 36, isoEm.product(), nonIsoEm.product(),
+                                           etTotal.product(), etHad.product(), etMiss.product());
   
   // Write CDF footer (exactly as told by Marco Zanetti)
   FEDTrailer fedTrailer(pFooter);

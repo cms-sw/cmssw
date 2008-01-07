@@ -83,8 +83,10 @@ void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
                                                  const L1GctEtHad* etHad,
                                                  const L1GctEtMiss* etMiss)
 {
+  unsigned nSamples = 1; // Note: can only currently do SINGLE TIME SAMPLE!
+  
   // write header
-  writeGctHeader(d, 0x68, 1);  // Note: can only currently do SINGLE TIME SAMPLE!
+  writeGctHeader(d, 0x68, nSamples);  
   
   d=d+4;  // move to the block payload.
 
@@ -114,11 +116,11 @@ void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
   // NOW DO ENERGY SUMS
   
   p16+=8;  // Move past EM cands
-  p16 = etTotal->raw();  // Et Total - 16 bits.
+  *p16 = etTotal->raw();  // Et Total - 16 bits.
   p16++;
-  p16 = etHad->raw();  // Et Hadronic - next 16 bits
+  *p16 = etHad->raw();  // Et Hadronic - next 16 bits
   p16++;
-  uint32_t * p32 = reinterpret_cast<uint32_t *>(p);  // For writing Missing Et (32-bit raw data)
-  p32 = etMiss->raw();  // Et Miss on final 32 bits of block payload.
+  uint32_t * p32 = reinterpret_cast<uint32_t *>(p16);  // For writing Missing Et (32-bit raw data)
+  *p32 = etMiss->raw();  // Et Miss on final 32 bits of block payload.
 }
 

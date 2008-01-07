@@ -330,5 +330,5 @@ void GctBlockUnpacker::blockToGctJetCandsAndCounts(const unsigned char * d, cons
   const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
 
   // nSamples below gives the offset to the second set of six jet counts in timesample 0.
-  *gctJetCounts_ = L1GctJetCounts(p[0], p[nSamples]);
+  *gctJetCounts_ = L1GctJetCounts(p32[0], p32[nSamples]);
 }
