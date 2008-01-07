@@ -2,6 +2,11 @@
 //Add includes for your classes here
 #include "Fireworks/Core/interface/FWDisplayEvent.h"
 #include "Fireworks/Core/interface/FWDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWDisplayProperties.h"
+#include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FW3DLegoViewManager.h"
 
 namespace {
    struct Fireworks_Core {

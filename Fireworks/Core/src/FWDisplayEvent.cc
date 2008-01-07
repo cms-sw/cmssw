@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.9 2007/12/17 00:33:30 dmytro Exp $
+// $Id: FWDisplayEvent.cc,v 1.10 2007/12/20 09:43:42 dmytro Exp $
 //
 
 // system include files
@@ -35,7 +35,8 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWDisplayEvent.h"
-#include "Fireworks/Core/interface/FWDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
+#include "Fireworks/Core/interface/FW3DLegoViewManager.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "THStack.h"
 #include "TCanvas.h"
@@ -57,10 +58,10 @@
 FWDisplayEvent::FWDisplayEvent() :
   m_continueProcessingEvents(false),
   m_waitForUserAction(true),
-  m_code(0),
-  m_geom(0),
-  m_rhoPhiProjMgr(0),
-  m_legoCanvas(0)
+  m_code(0)
+  //m_geom(0),
+  //m_rhoPhiProjMgr(0),
+  //m_legoCanvas(0)
 
 {
   const char* cmspath = gSystem->Getenv("CMSSW_BASE");
@@ -142,6 +143,12 @@ FWDisplayEvent::FWDisplayEvent() :
     browser->SetTabTitle("Event Control",0);
   }
 
+  boost::shared_ptr<FWViewManagerBase> rpzViewManager(
+		  new FWRhoPhiZViewManager());
+  m_viewManagers.push_back(rpzViewManager);
+  m_viewManagers.push_back( boost::shared_ptr<FWViewManagerBase>(
+			       new FW3DLegoViewManager()));
+  /*
   //setup projection
   TEveViewer* nv = gEve->SpawnNewViewer("Rho Phi");
   nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
@@ -151,7 +158,7 @@ FWDisplayEvent::FWDisplayEvent() :
   m_rhoPhiProjMgr = new TEveProjectionManager;
   gEve->AddToListTree(m_rhoPhiProjMgr,kTRUE);
   gEve->AddElement(m_rhoPhiProjMgr,ns);
-
+  */
   //handle geometry
   /*
   gGeoManager = gEve->GetGeometry("cmsGeom20.root");
@@ -181,15 +188,15 @@ FWDisplayEvent::FWDisplayEvent() :
   m_geom = gsre;
     */
   //kTRUE tells it to reset the camera so we see everything 
-  gEve->Redraw3D(kTRUE);  
+  //gEve->Redraw3D(kTRUE);  
 
-   m_legoCanvas = gEve->AddCanvasTab("legoCanvas");
+  //m_legoCanvas = gEve->AddCanvasTab("legoCanvas");
    // one way of connecting event processing function to a canvas
    // m_legoCanvas->AddExec("ex", "FWDisplayEvent::DynamicCoordinates()");
 
    // use Qt messaging mechanism
-   m_legoCanvas->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)","FWDisplayEvent", this,
-			 "exec3event(Int_t,Int_t,Int_t,TObject*)");
+   //m_legoCanvas->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)","FWDisplayEvent", this,
+  //			 "exec3event(Int_t,Int_t,Int_t,TObject*)");
 
    gSystem->ProcessEvents();
 }
@@ -218,9 +225,40 @@ FWDisplayEvent::~FWDisplayEvent()
 //
 // member functions
 //
-
-void FWDisplayEvent::registerProxyBuilder(std::string type, std::string proxyBuilderName)
+void FWDisplayEvent::registerEventItem(const FWEventItem&iItem)
 {
+  const FWEventItem* newItem = m_eiManager.add(iItem);
+  for(std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
+      itVM != m_viewManagers.end();
+      ++itVM) {
+    (*itVM)->newItem(newItem);
+  }
+}
+
+void FWDisplayEvent::registerProxyBuilder(const std::string& type, 
+					  const std::string& proxyBuilderName)
+{
+  for(std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
+      itVM != m_viewManagers.end();
+      ++itVM) {
+    std::cout <<"name comparing "<<type<<" "<<(*itVM)->builderNamePostfix()
+	      <<std::endl;
+    if(std::string::npos != proxyBuilderName.find( (*itVM)->builderNamePostfix())) {
+      std::cout <<"REGISTERING "<<type<<std::endl;
+      (*itVM)->registerProxyBuilder(type,proxyBuilderName);
+      break;
+    }
+  }
+
+
+   //Do we have the necessary EventItem?
+  /*
+   const FWEventItem* item = m_eiManager.find(type);
+   if(0 == item) {
+     //Need to give error message here!
+     return;
+   }
+   
    FWModelProxy proxy;
    proxy.type = type;
    proxy.builderName = proxyBuilderName;
@@ -252,8 +290,10 @@ void FWDisplayEvent::registerProxyBuilder(std::string type, std::string proxyBui
       return;
    }
    proxy.builder = boost::shared_ptr<FWDataProxyBuilder>(builder);
+   proxy.builder->setItem(item);
    
    m_modelProxies.push_back( proxy );
+  */
 }
 
 void
@@ -349,16 +389,24 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
     cout <<"Eve not initialized"<<endl;
   }
    
-	
+  m_eiManager.newEvent(&iEvent);
+
+  for(std::vector<boost::shared_ptr<FWViewManagerBase> >::const_iterator itVM = m_viewManagers.begin();
+      itVM != m_viewManagers.end();
+      ++itVM) {
+    (*itVM)->newEventAvailable();
+  }
+
+  /*
   {
     //while inside this scope, do not let
     // Eve do any redrawing
     TEveManager::TRedrawDisabler disableRedraw(gEve);
-    
+
      // build models
      for ( std::vector<FWModelProxy>::iterator proxy = m_modelProxies.begin();
 	   proxy != m_modelProxies.end(); ++proxy )
-       proxy->builder->build( &iEvent, &(proxy->product) );
+       proxy->builder->build(&(proxy->product) );
      
      // R-Phi projections
      
@@ -400,6 +448,7 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
      drawLego();
      //At the end of this scope, redrawing will be enabled
   }
+  */
   
   //check for input at least once
   gSystem->ProcessEvents();
@@ -412,6 +461,7 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
   return m_code;
 }
 
+/*
 void FWDisplayEvent::drawLego() const
 {
     // do not let Eve do any redrawing
@@ -449,12 +499,12 @@ void FWDisplayEvent::drawLego() const
 	  }
      }
 }
-
+*/
 
 //
 // static member functions
 //
-
+/*
 void FWDisplayEvent::DynamicCoordinates()
 {
    // Buttons.h
@@ -516,12 +566,14 @@ void FWDisplayEvent::exec3event(int event, int x, int y, TObject *selected)
 	   ", xbin=" << selectedXbin << ", ybin=" << selectedYbin << ", Et (total, em, had): " <<  
 	   selectedECAL+selectedHCAL << ", " << selectedECAL << ", " << selectedHCAL << std::endl;
       }
+*/
       /*
 	TObject* obj = gPad->GetPrimitive("overLego");
       if ( ! obj ) return;
       if ( TH2F* h = dynamic_cast<TH2F*>(obj) )	{
 	 h->SetBinContent(
       */
+			   /*
    }
    
 }
@@ -541,3 +593,4 @@ void FWDisplayEvent::pixel2wc(const Int_t pixelX, const Int_t pixelY,
    wcX = m[3] + m[0]*ndcX + m[1]*ndcY + m[2]/m[10]*part1;
    wcY = m[7] + m[4]*ndcX + m[5]*ndcY + m[6]/m[10]*part1;
 }
+*/

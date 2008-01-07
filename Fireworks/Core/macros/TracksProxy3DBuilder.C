@@ -14,32 +14,29 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.C,v 1.1 2007/12/09 22:49:23 chrjones Exp $
+// $Id: TracksProxy3DBuilder.C,v 1.2 2007/12/17 00:33:29 dmytro Exp $
 //
 
 // system include files
 #include "TEveManager.h"
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
-#include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/FWLite/interface/Handle.h"
 
-namespace fwlite {
-  class Event;
-}
 class FWDataProxyBuilder;
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // user include files
-#include "Fireworks/Core/interface/FWDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #endif
 
 // forward declarations
+class FWRPZDataProxyBuilder;
 
-class TracksProxy3DBuilder : public FWDataProxyBuilder
+class TracksProxy3DBuilder : public FWRPZDataProxyBuilder
 {
 
    public:
@@ -51,17 +48,12 @@ class TracksProxy3DBuilder : public FWDataProxyBuilder
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual void build(const fwlite::Event* iEvent,
-			 TObject** product)
+   private:
+      virtual void build(const FWEventItem* iItem,
+			 TEveElementList** product)
   {
     std::cout <<"build called"<<std::endl;
-    fwlite::Handle<reco::TrackCollection> tracks;
-    tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
-    
-    if(0 == tracks.ptr() ) {
-      std::cout <<"failed to get Tracks"<<std::endl;
-    }
-   
+
     //since we created it, we know the type (would like to do this better)
     TEveTrackList* tlist = dynamic_cast<TEveTrackList*>(*product);
     if ( !tlist && *product ) {
@@ -70,9 +62,9 @@ class TracksProxy3DBuilder : public FWDataProxyBuilder
     }
        
     if(0 == tlist) {
-      tlist =  new TEveTrackList("Tracks");
+      tlist =  new TEveTrackList(iItem->name().c_str());
       *product = tlist;
-      tlist->SetMainColor(Color_t(3));
+      tlist->SetMainColor(iItem->displayProperties().color());
       TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
       //units are kG
       rnrStyle->SetMagField( -4.0*10.);
@@ -84,6 +76,17 @@ class TracksProxy3DBuilder : public FWDataProxyBuilder
     } else {
       tlist->DestroyElements();
     }
+
+    const reco::TrackCollection* tracks=0;
+    iItem->get(tracks);
+    //fwlite::Handle<reco::TrackCollection> tracks;
+    //tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
+    
+    if(0 == tracks ) {
+      std::cout <<"failed to get Tracks"<<std::endl;
+      return;
+    }
+   
     
     TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
     
@@ -102,7 +105,7 @@ class TracksProxy3DBuilder : public FWDataProxyBuilder
       t.sign = it->charge();
       
       TEveTrack* trk = new TEveTrack(&t,rnrStyle);
-      trk->SetMainColor(tlist->GetMainColor());
+      trk->SetMainColor(iItem->displayProperties().color());
       gEve->AddElement(trk,tlist);
       //cout << it->px()<<" "
       //   <<it->py()<<" "
@@ -112,7 +115,7 @@ class TracksProxy3DBuilder : public FWDataProxyBuilder
     
   }
 
-   private:
+
       TracksProxy3DBuilder(const TracksProxy3DBuilder&); // stop default
 
       const TracksProxy3DBuilder& operator=(const TracksProxy3DBuilder&); // stop default

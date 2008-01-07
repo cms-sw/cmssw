@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.5 2007/12/17 00:33:29 dmytro Exp $
+// $Id: FWDisplayEvent.h,v 1.6 2007/12/20 09:43:43 dmytro Exp $
 //
 
 // system include files
@@ -25,21 +25,25 @@
 #include <boost/shared_ptr.hpp>
 #include "Rtypes.h"
 // user include files
+#include "Fireworks/Core/interface/FWEventItemsManager.h"
 
 // forward declarations
-class TEveTrackList;
+/*
 class TEveProjectionManager;
 class TEveElement;
 class TEveElementList;
-class TGPictureButton;
 class FWDataProxyBuilder;
 class TObject;
 class TCanvas;
+*/
+class TGPictureButton;
+class FWViewManagerBase;
 
 namespace fwlite {
   class Event;
 }
 
+/*
 struct FWModelProxy
 {
    std::string                             type;
@@ -48,7 +52,7 @@ struct FWModelProxy
    TObject*                                product; //owned by builder
    FWModelProxy():product(0){}
 };
-
+*/
 
 class FWDisplayEvent
 {
@@ -71,19 +75,25 @@ class FWDisplayEvent
       void waitForUserAction();
       void doNotWaitForUserAction();
       int draw(const fwlite::Event& );
-      void registerProxyBuilder(std::string, std::string);
+      void registerProxyBuilder(const std::string&, 
+				const std::string&);
       
+      void registerEventItem(const FWEventItem&);
+      /*
       void DynamicCoordinates();
       void exec3event(int event, int x, int y, TObject *selected);
       void pixel2wc(const Int_t PixelX, const Int_t PixelY, 
 		    Double_t& WCX, Double_t& WCY, const Double_t WCZ = 0);
+      */
    private:
       FWDisplayEvent(const FWDisplayEvent&); // stop default
 
       const FWDisplayEvent& operator=(const FWDisplayEvent&); // stop default
 
       // ---------- member data --------------------------------
-      mutable std::vector<FWModelProxy> m_modelProxies;
+      mutable FWEventItemsManager m_eiManager;
+      std::vector<boost::shared_ptr<FWViewManagerBase> > m_viewManagers;
+      //mutable std::vector<FWModelProxy> m_modelProxies;
 
       mutable bool m_continueProcessingEvents;
       mutable bool m_waitForUserAction;
@@ -94,8 +104,8 @@ class FWDisplayEvent
       // -2 - start over
       // -3 - stop event loop 
       
-      mutable TEveElement* m_geom;
-      TEveProjectionManager* m_rhoPhiProjMgr;
+      //mutable TEveElement* m_geom;
+      //TEveProjectionManager* m_rhoPhiProjMgr;
 
       TGPictureButton* m_homeButton;
       TGPictureButton* m_advanceButton;
@@ -103,8 +113,8 @@ class FWDisplayEvent
       TGPictureButton* m_stopButton;
    
       // stuff for lego plot view
-      mutable TCanvas* m_legoCanvas;
-      void drawLego() const;
+      //mutable TCanvas* m_legoCanvas;
+      //void drawLego() const;
 };
 
 

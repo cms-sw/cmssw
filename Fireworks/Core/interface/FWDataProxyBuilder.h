@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:40 PST 2007
-// $Id: FWDataProxyBuilder.h,v 1.1 2007/12/09 22:49:23 chrjones Exp $
+// $Id: FWDataProxyBuilder.h,v 1.2 2007/12/17 00:33:29 dmytro Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@ namespace fwlite {
 
 class TEveElementList;
 class TObject;
+class FWEventItem;
 
 class FWDataProxyBuilder
 {
@@ -43,15 +44,18 @@ class FWDataProxyBuilder
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      // virtual void build(const fwlite::Event* iEvent, TEveElementList** oList) = 0 ;
-      virtual void build(const fwlite::Event* iEvent, TObject** product) = 0 ;
+      void setItem(const FWEventItem* iItem);
+      void build(TObject** product);
 
    private:
+      virtual void build(const FWEventItem* iItem, TObject** product) = 0 ;
+
       FWDataProxyBuilder(const FWDataProxyBuilder&); // stop default
 
       const FWDataProxyBuilder& operator=(const FWDataProxyBuilder&); // stop default
 
       // ---------- member data --------------------------------
+      const FWEventItem* m_item;
 
 };
 

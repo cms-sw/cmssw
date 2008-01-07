@@ -1,20 +1,20 @@
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     FWDataProxyBuilder
+// Class  :     FWRPZDataProxyBuilder
 // 
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWDataProxyBuilder.cc,v 1.1 2007/12/09 22:49:23 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.1 2007/12/09 22:49:23 chrjones Exp $
 //
 
 // system include files
 
 // user include files
-#include "Fireworks/Core/interface/FWDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
 
 
 //
@@ -28,27 +28,27 @@
 //
 // constructors and destructor
 //
-FWDataProxyBuilder::FWDataProxyBuilder():
+FWRPZDataProxyBuilder::FWRPZDataProxyBuilder():
   m_item(0)
 {
 }
 
-// FWDataProxyBuilder::FWDataProxyBuilder(const FWDataProxyBuilder& rhs)
+// FWRPZDataProxyBuilder::FWRPZDataProxyBuilder(const FWRPZDataProxyBuilder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWDataProxyBuilder::~FWDataProxyBuilder()
+FWRPZDataProxyBuilder::~FWRPZDataProxyBuilder()
 {
 }
 
 //
 // assignment operators
 //
-// const FWDataProxyBuilder& FWDataProxyBuilder::operator=(const FWDataProxyBuilder& rhs)
+// const FWRPZDataProxyBuilder& FWRPZDataProxyBuilder::operator=(const FWRPZDataProxyBuilder& rhs)
 // {
 //   //An exception safe implementation is
-//   FWDataProxyBuilder temp(rhs);
+//   FWRPZDataProxyBuilder temp(rhs);
 //   swap(rhs);
 //
 //   return *this;
@@ -58,13 +58,13 @@ FWDataProxyBuilder::~FWDataProxyBuilder()
 // member functions
 //
 void
-FWDataProxyBuilder::setItem(const FWEventItem* iItem)
+FWRPZDataProxyBuilder::setItem(const FWEventItem* iItem)
 {
   m_item = iItem;
 }
 
 void
-FWDataProxyBuilder::build(TObject** iObject)
+FWRPZDataProxyBuilder::build(TEveElementList** iObject)
 {
   if(0!= m_item) {
     build(m_item, iObject);

@@ -5,16 +5,16 @@
 //  
 //  Original Author: D.Kovalskyi
 //
-#include "Fireworks/Core/interface/FWDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
-class MuonsProxy3DBuilder : public FWDataProxyBuilder
+class MuonsProxy3DBuilder : public FWRPZDataProxyBuilder
 {
  public:
    MuonsProxy3DBuilder();
    virtual ~MuonsProxy3DBuilder();
-   virtual void build(const fwlite::Event* iEvent, TObject** product);
  private:
+   virtual void build(const FWEventItem* iItem, TEveElementList** product);
    DetIdToMatrix detIdToMatrix_;
 };
 

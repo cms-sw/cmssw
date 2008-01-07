@@ -1,3 +1,4 @@
 <lcgdict>
-  <class name="CaloProxyLegoBuilder"/>
+  <class name="ECalCaloTowerProxy3DLegoBuilder"/>
+  <class name="HCalCaloTowerProxy3DLegoBuilder"/>
 </lcgdict>

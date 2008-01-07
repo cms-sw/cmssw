@@ -2,11 +2,10 @@
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "TEveManager.h"
-#include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "TEveStraightLineSet.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 
 MuonsProxy3DBuilder::MuonsProxy3DBuilder()
 {
@@ -20,18 +19,15 @@ MuonsProxy3DBuilder::~MuonsProxy3DBuilder()
 {
 }
 
-void MuonsProxy3DBuilder::build(const fwlite::Event* iEvent, TObject** product)
+void MuonsProxy3DBuilder::build(const FWEventItem* iItem, 
+				TEveElementList** product)
 {
-   TEveElementList* tList = dynamic_cast<TEveElementList*>(*product);
-   if ( !tList && *product ) {
-      std::cout << "incorrect type" << std::endl;
-      return;
-   }
+   TEveElementList* tList = *product;
 
    if(0 == tList) {
-      tList =  new TEveElementList("Muons","trackerMuons",true);
+      tList =  new TEveElementList(iItem->name().c_str(),"trackerMuons",true);
       *product = tList;
-      tList->SetMainColor(Color_t(kRed));
+      tList->SetMainColor(iItem->displayProperties().color());
       gEve->AddElement(tList);
    } else {
       tList->DestroyElements();
@@ -50,10 +46,12 @@ void MuonsProxy3DBuilder::build(const fwlite::Event* iEvent, TObject** product)
    outerPropagator->SetMaxR( 750 );
    outerPropagator->SetMaxZ( 1100 );
 
-   fwlite::Handle<reco::MuonCollection> muons;
-   muons.getByLabel(*iEvent,"trackerMuons");
+   const reco::MuonCollection* muons=0;
+   iItem->get(muons);
+   //fwlite::Handle<reco::MuonCollection> muons;
+   //muons.getByLabel(*iEvent,"trackerMuons");
    
-   if(0 == muons.ptr() ) {
+   if(0 == muons ) {
       std::cout <<"failed to get trackerMuons"<<std::endl;
       return;
    }
