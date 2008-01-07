@@ -22,31 +22,36 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
   // on request also in TcpFormat    
   // for famos version we have to write dummies except for the middle
 
-  unsigned int nrSam=Et.size();
-  if (famos_) nrSam=out.size();
-  for (unsigned int i=0; i<nrSam;++i) {
-    int myEt=0;
-    int myFgvb=0;
-    if (famos_ && i==binOfMax_-1) {
-      myEt=Et[0];
-      myFgvb=fgvb[0];
+  int myEt;
+  if (famos_) {
+    for (unsigned int i=0; i<out.size();++i) {
+      if (i==binOfMax_-1) {
+	myEt=Et[0]>>eTTotShift;
+	if (myEt>0x3ff) myEt=0x3ff ;
+	if (isInInnerRings) myEt = myEt /2 ;
+	int lut_out = (lut_)[myEt] ;
+	int ttFlag = (lut_out & 0x700) >> 8 ;
+	myEt = lut_out & 0xff ;
+	out[i]=EcalTriggerPrimitiveSample( myEt,fgvb[0],ttFlag); 
+      }
+      else out[i]=EcalTriggerPrimitiveSample( );
     }
-    else if (!famos_) {
-      myEt=Et[i];
-      myFgvb=fgvb[i];
-    }
-
-    myEt=myEt>>eTTotShift;
-    if (myEt>0x3ff) myEt=0x3ff ;
-    if (isInInnerRings) myEt = myEt /2 ;
+  }
+  else {
+    for (unsigned int i=0; i<Et.size();++i) {
+      int myFgvb=fgvb[i];
+      myEt=Et[i]>>eTTotShift;
+      if (myEt>0x3ff) myEt=0x3ff ;
+      if (isInInnerRings) myEt = myEt /2 ;
     
-    int lut_out = (lut_)[myEt] ;
-    int ttFlag = (lut_out & 0x700) >> 8 ;
-    if (tcpFormat_)  {
-      out2[i]=EcalTriggerPrimitiveSample( ((ttFlag&0x7)<<11) | ((myFgvb & 0x1)<<10) |  (myEt & 0x3ff));
+      int lut_out = (lut_)[myEt] ;
+      int ttFlag = (lut_out & 0x700) >> 8 ;
+      if (tcpFormat_)  {
+	out2[i]=EcalTriggerPrimitiveSample( ((ttFlag&0x7)<<11) | ((myFgvb & 0x1)<<10) |  (myEt & 0x3ff));
+      }
+      myEt = lut_out & 0xff ;
+      out[i]=EcalTriggerPrimitiveSample( myEt,myFgvb,ttFlag); 
     }
-    myEt = lut_out & 0xff ;
-    out[i]=EcalTriggerPrimitiveSample( myEt,myFgvb,ttFlag); 
   }
 }
 

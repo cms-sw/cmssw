@@ -23,6 +23,7 @@ class EcalFenixTcpFgvbEE  {
 
  private:
    uint32_t fgee_lut_;
+   std::vector<int> indexLut_;
 
  public:
    EcalFenixTcpFgvbEE();

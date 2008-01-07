@@ -28,10 +28,11 @@ int EcalFenixStripFormatEE::setInput(int input, int inputPeak, int fgvb ) {
   
 int EcalFenixStripFormatEE::process(){
   if(inputPeak_==0) return 0;
-  buffer_=input_>>shift_;
+  //  buffer_=input_>>shift_;
     
-  int output=buffer_;
-  //barrel saturates at 12 bits, endcap at 10!
+  //  int output=buffer_;
+  int output=input_>>shift_;
+//barrel saturates at 12 bits, endcap at 10!
   if(output>0X3FF) output=0X3FF; 
   output=output|(fgvb_<<10); //FIXME
 

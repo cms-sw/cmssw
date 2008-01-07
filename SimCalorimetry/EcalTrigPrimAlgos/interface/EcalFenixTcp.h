@@ -69,7 +69,7 @@ class EcalFenixTcp {
 
   void process_part1(std::vector<std::vector<int> > &tpframetow, int nStr,int bitMask);
 
-  void  process_part2_barrel(int nStr,
+  void  process_part2_barrel(std::vector<std::vector<int> > &, int nStr,
 			     const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
 			     const EcalTPGLutGroup*ecaltpgLutGroup,
 			     const EcalTPGLutIdMap *ecaltpgLut,
@@ -78,7 +78,7 @@ class EcalFenixTcp {
 			     std::vector< EcalTriggerPrimitiveSample> &tptow2,
 			     EcalTrigTowerDetId towid);
 			       
-  void  process_part2_endcap(int nStr,int bitMask,
+  void  process_part2_endcap(std::vector<std::vector<int> > &, int nStr,int bitMask,
 			     const EcalTPGLutGroup *ecaltpgLutGroup,
 			     const EcalTPGLutIdMap *ecaltpgLut,
 			     const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,

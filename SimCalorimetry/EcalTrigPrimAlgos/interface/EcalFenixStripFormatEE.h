@@ -20,7 +20,7 @@ class EcalTPGSlidingWindow;
   int input_;
   uint32_t shift_;
   int fgvb_;
-  int buffer_;
+  //  int buffer_;
 
   int setInput(int input, int inputPeak, int fgvb);
   int process();

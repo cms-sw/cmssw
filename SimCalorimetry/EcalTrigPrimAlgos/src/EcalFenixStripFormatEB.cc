@@ -19,10 +19,11 @@
   
   int EcalFenixStripFormatEB::process()
   {
-    buffer_=input_>>shift_;  //FIXME: buffer why?
+    //    buffer_=input_>>shift_;  //FIXME: buffer why?
 
     if(inputPeak_==0) return 0;
-    int output=buffer_;
+    //    int output=buffer_;
+    int output=input_>>shift_;
     if(output>0XFFF) output=0XFFF;   //ok: barrel saturates at 12 bits
     return output;    
   } 

@@ -74,7 +74,7 @@ void EcalFenixTcp::process(const edm::EventSetup& setup,
   int bitMask=12; //FIXME: to be verified
   process_part1(tpframetow,nStr,bitMask);
 
-  process_part2_barrel(nStr,ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainEB,tptow,tptow2,towid);
+  process_part2_barrel(tpframetow,nStr,ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainEB,tptow,tptow2,towid);
 }
  
 //-----------------------------------------------------------------------------------------  
@@ -102,29 +102,30 @@ void EcalFenixTcp::process(const edm::EventSetup& setup,
 
   int bitMask=10;
   process_part1(tpframetow,nStr,bitMask);
-  process_part2_endcap(nStr,bitMask,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainTowerEE,tptow,tptow2,isInInnerRing, towid);
+  process_part2_endcap(tpframetow,nStr,bitMask,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainTowerEE,tptow,tptow2,isInInnerRing, towid);
 }
 //----------------------------------------------------------------------------------------- 
 void EcalFenixTcp::process_part1(std::vector<std::vector<int> > &tpframetow, int nStr, int bitMask)
 {
- //call bypasslin
-    for (int istrip=0;istrip<nStr;istrip ++){
-      this->getBypasslin(istrip)->process(tpframetow[istrip],bypasslin_out_[istrip]);
-    }
-    //this is a test
-    if (debug_) {
-      std::cout<<"bypasslinout = "<<std::endl;
-      for (int istrip=0;istrip<nStr;istrip ++){
-	std::vector<int> stripin= bypasslin_out_[istrip];
-	for (unsigned int is=0;is<stripin.size();is++){
-	  std::cout<<stripin[is]<<" ";
-	}
-	std::cout<<std::endl;
-      }
-    }
+//  //call bypasslin
+//     for (int istrip=0;istrip<nStr;istrip ++){
+//       this->getBypasslin(istrip)->process(tpframetow[istrip],bypasslin_out_[istrip]);
+//     }
+//     //this is a test
+//     if (debug_) {
+//       std::cout<<"bypasslinout = "<<std::endl;
+//       for (int istrip=0;istrip<nStr;istrip ++){
+// 	std::vector<int> stripin= bypasslin_out_[istrip];
+// 	for (unsigned int is=0;is<stripin.size();is++){
+// 	  std::cout<<stripin[is]<<" ";
+// 	}
+// 	std::cout<<std::endl;
+//       }
+//     }
 
-    //call adder
-    this->getAdder()->process(bypasslin_out_, nStr, bitMask,adder_out_);
+//     //call adder
+//     this->getAdder()->process(bypasslin_out_, nStr, bitMask,adder_out_);
+     this->getAdder()->process(tpframetow, nStr, bitMask,adder_out_);
     //this is a test:
     if (debug_) {
       std::cout<< "output of adder is a vector of size: "<<adder_out_.size()<<std::endl; 
@@ -139,7 +140,7 @@ void EcalFenixTcp::process_part1(std::vector<std::vector<int> > &tpframetow, int
     
 }
 //-----------------------------------------------------------------------------------------
-void EcalFenixTcp::process_part2_barrel(int nStr,
+void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int> > & bypasslinout, int nStr,
                                         const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
                                         const EcalTPGLutGroup *ecaltpgLutGroup,
                                         const EcalTPGLutIdMap *ecaltpgLut,
@@ -149,7 +150,8 @@ void EcalFenixTcp::process_part2_barrel(int nStr,
 					EcalTrigTowerDetId towid)
 {
   //call maxof2
-  this->getMaxOf2()->process(bypasslin_out_,nStr,maxOf2_out_);
+  //  this->getMaxOf2()->process(bypasslin_out_,nStr,maxOf2_out_);
+  this->getMaxOf2()->process(bypasslinout,nStr,maxOf2_out_);
   // this is a test:
   if (debug_) {
     std::cout<< "output of maxof2 is a vector of size: "<<maxOf2_out_.size()<<std::endl; 
@@ -192,7 +194,7 @@ void EcalFenixTcp::process_part2_barrel(int nStr,
   return;
 }
 //-----------------------------------------------------------------------------------------
-void EcalFenixTcp::process_part2_endcap(int nStr, int bitMask,
+void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int> > & bypasslinout, int nStr, int bitMask,
                                         const EcalTPGLutGroup *ecaltpgLutGroup,
                                         const EcalTPGLutIdMap *ecaltpgLut,
                                         const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,
@@ -202,7 +204,8 @@ void EcalFenixTcp::process_part2_endcap(int nStr, int bitMask,
 {
   //call fgvb
   this->getFGVBEE()->setParameters(towid.rawId(),ecaltpgFineGrainTowerEE);
-  fgvbEE_->process(bypasslin_out_,nStr,bitMask,fgvb_out_);
+  //  fgvbEE_->process(bypasslin_out_,nStr,bitMask,fgvb_out_);
+  fgvbEE_->process(bypasslinout,nStr,bitMask,fgvb_out_);
 
   //call formatter
   int eTTotShift=0;

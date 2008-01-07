@@ -24,8 +24,6 @@
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStrip.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcp.h"
 
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
-
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
@@ -105,8 +103,6 @@ class EcalTrigPrimFunctionalAlgo
   bool barrelOnly_;
   bool debug_;  
   bool famos_;  
-
-  //    const EcalTPParameters *ecaltpp_;
 
   static const unsigned int nrSamples_; //nr samples to write, should not be changed since by convention the size means that it is coming from simulation
   static const unsigned int maxNrSamplesOut_; //to be placed in the intermediate samples

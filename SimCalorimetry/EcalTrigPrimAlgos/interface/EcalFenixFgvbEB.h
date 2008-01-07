@@ -22,9 +22,10 @@ class EcalFenixFgvbEB {
 
  private:
   uint32_t ETlow_,  EThigh_,  Ratlow_,  Rathigh_, lut_;
-    std::vector<int> adder_out_;
-    std::vector<int> maxOf2_out_;
-    std::vector<int> fgvb_out_;
+  //    std::vector<int> adder_out_;
+  //    std::vector<int> maxOf2_out_;
+  //    std::vector<int> fgvb_out_;
+    std::vector<int> add_out_8_;
 
 
  public:

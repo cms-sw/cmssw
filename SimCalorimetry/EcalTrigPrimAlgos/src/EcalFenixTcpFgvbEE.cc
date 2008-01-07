@@ -6,6 +6,7 @@
 //---------------------------------------------------------------
 EcalFenixTcpFgvbEE::EcalFenixTcpFgvbEE()
 {
+  indexLut_.resize(50); //FIXME: size
 }//---------------------------------------------------------------
 EcalFenixTcpFgvbEE::~EcalFenixTcpFgvbEE()
 {
@@ -13,22 +14,22 @@ EcalFenixTcpFgvbEE::~EcalFenixTcpFgvbEE()
 //---------------------------------------------------------------
 void EcalFenixTcpFgvbEE::process(std::vector<std::vector<int> > & bypasslin_out, int nStr,int bitMask,std::vector<int> & output)
 {
-  std::vector<int> indexLut(output.size());
+  //  std::vector<int> indexLut(output.size());
   
   for (unsigned int i=0;i<output.size();i++) {
     output[i]=0;
-    indexLut[i]=0;
+    indexLut_[i]=0;
   }
     
   for (unsigned int i=0;i<output.size();i++) {
     for (int istrip=0;istrip<nStr;istrip++) {
       int res = (bypasslin_out[istrip])[i];
       res = (res >>bitMask) & 1;
-      indexLut[i]= indexLut[i] | (res << istrip);
+      indexLut_[i]= indexLut_[i] | (res << istrip);
     }
-    indexLut[i]= indexLut[i] | (nStr << 5);
+    indexLut_[i]= indexLut_[i] | (nStr << 5);
      
-    int mask = 1<<indexLut[i];
+    int mask = 1<<indexLut_[i];
     output[i]= fgee_lut_ & mask;
     if (output[i]>0) output[i]=1;
   }
