@@ -115,6 +115,8 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(gctInputLabelStr, "", etHad);
   edm::Handle<L1GctEtMiss> etMiss;
   iEvent.getByLabel(gctInputLabelStr, "", etMiss);
+  edm::Handle<L1CaloEmCollection> rctEm;
+  iEvent.getByLabel(gctInputLabelStr, "", rctEm); 
   
   // create the raw data collection
   std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
@@ -123,7 +125,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   FEDRawData& fedRawData=rawColl->FEDData(fedId_);
  
   // set the size & make pointers to the header, beginning of payload, and footer.
-  const unsigned int rawSize = 88;  // MUST BE MULTIPLE OF 8! (slink packets are 64 bit, but using 8-bit data struct).
+  const unsigned int rawSize = 80;  // MUST BE MULTIPLE OF 8! (slink packets are 64 bit, but using 8-bit data struct).
   fedRawData.resize(rawSize);
   unsigned char * pHeader = fedRawData.data();  
   unsigned char * pPayload = pHeader + 8;
@@ -133,18 +135,14 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   FEDHeader fedHeader(pHeader);
   fedHeader.set(pHeader, 1, eventNumber, bx, fedId_);  // what should the bx_ID be?
  
-  // Pack GCT Jet Cand output digis
-  blockPacker_.writeGctJetCandsBlock(pPayload, cenJets.product(), forJets.product(), tauJets.product());
+  // Pack GCT jet output digis
+  blockPacker_.writeGctOutJetBlock(pPayload, cenJets.product(), forJets.product(),
+                                   tauJets.product(), jetCounts.product());
   
-  // Pack GCT Jet Count digi; payload offset of 28 needed to get to the jet counts block header.
-  blockPacker_.writeGctJetCountsBlock(pPayload + 28, jetCounts.product());
- 
-  // Pack GCT EM Cand output digis; payload offset of 40 needed to get to the EM cands block header.
-  blockPacker_.writeGctEmBlock(pPayload + 40, isoEm.product(), nonIsoEm.product());
+  // Pack GCT EM and energy sums digis; payload offset of 36 needed to get to the block header.
+  blockPacker_.writeGctEmBlock(pPayload + 36, isoEm.product(), nonIsoEm.product(),
+                               etTotal.product(), etHad.product(), etMiss.product());
   
-  // Pack GCT Energy Sum digis; payload offset of 60 needed to get to the Energy Sums block header.
-  blockPacker_.writeGctEnergySumsBlock(pPayload + 60, etTotal.product(), etHad.product(), etMiss.product());
- 
   // Write CDF footer (exactly as told by Marco Zanetti)
   FEDTrailer fedTrailer(pFooter);
   fedTrailer.set(pFooter, rawSize/8, evf::compute_crc(pHeader, rawSize), 0, 0);

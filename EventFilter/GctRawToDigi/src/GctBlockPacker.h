@@ -30,23 +30,17 @@ class GctBlockPacker
 
   void writeGctHeader(unsigned char * d, uint16_t id, uint16_t nSamples);
 
-  /// Writes the GCT Jet Cands block into an unsigned char array, starting at the position pointed to by d.
-  /*! \param d must be pointing at the position where the Jet Cands block header should be written! */
-  void writeGctJetCandsBlock(unsigned char * d, const L1GctJetCandCollection* cenJets,
-                             const L1GctJetCandCollection* forJets, const L1GctJetCandCollection* tauJets);
+  /// Writes GCT output jet cands and counts into an unsigned char array, starting at the position pointed to by d.
+  /*! \param d must be pointing at the position where the Jet Output block header should be written! */
+  void writeGctOutJetBlock(unsigned char * d, const L1GctJetCandCollection* cenJets,
+                           const L1GctJetCandCollection* forJets, const L1GctJetCandCollection* tauJets, 
+                           const L1GctJetCounts* jetCounts);
   
-  /// Writes the GCT Jet Counts block into an unsigned char array, starting at the position pointed to by d.
-  /*! \param d must be pointing at the position where the Jet Counts block header should be written! */  
-  void writeGctJetCountsBlock(unsigned char * d, const L1GctJetCounts* jetCounts);
-
-  /// Writes the GCT EM block into an unsigned char array, starting at the position pointed to by d.
-  /*! \param d must be pointing at the position where the EM block header should be written! */
-  void writeGctEmBlock(unsigned char * d, const L1GctEmCandCollection* iso, const L1GctEmCandCollection* nonIso);
-
-  /// Writes the GCT Energy Sums block into an unsigned char array, starting at the position pointed to by d.
-  /*! \param d must be pointing at the position where the Energy Sums block header should be written! */
-  void writeGctEnergySumsBlock(unsigned char * d, const L1GctEtTotal* etTotal,
-                               const L1GctEtHad* etHad, const L1GctEtMiss* etMiss);
+  /// Writes GCT output EM and energy sums block into an unsigned char array, starting at the position pointed to by d.
+  /*! \param d must be pointing at the position where the EM Output block header should be written! */
+  void writeGctOutEmAndEnergyBlock(unsigned char * d, const L1GctEmCandCollection* iso,
+                                   const L1GctEmCandCollection* nonIso, const L1GctEtTotal* etTotal,
+                                   const L1GctEtHad* etHad, const L1GctEtMiss* etMiss);
 
  private:
 
