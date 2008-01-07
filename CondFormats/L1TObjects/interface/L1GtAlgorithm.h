@@ -83,10 +83,22 @@ public:
         m_algoBitNumber = algoBitNumberValue;
     }
 
+    /// get / set algorithm bit number
+    inline const int algoChipNumber() const
+    {
+        return m_algoChipNumber;
+    }
+
+    inline void setAlgoChipNumber(const int algoChipNumberValue)
+    {
+        m_algoChipNumber = algoChipNumberValue;
+    }
+
+
 public:
 
     /// get the condition chip number the algorithm is located on
-    const int algoChipNr(const int numberConditionChips,
+    const int algoChipNumber(const int numberConditionChips,
                          const int pinsOnConditionChip,
                          const std::vector<int>& orderConditionChip) const;
 
@@ -110,6 +122,9 @@ private:
     /// the result for the algorithm is found at m_algoBitNumber position in
     /// the decision word vector<bool>
     int m_algoBitNumber;
+    
+    /// chip number (redundant with bit number) 
+    int m_algoChipNumber;
 
 };
 

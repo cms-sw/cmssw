@@ -33,6 +33,7 @@ L1GtAlgorithm::L1GtAlgorithm()
     // default values for private members not set
     // the other private members are C++ initialized
     m_algoBitNumber = -1;
+    m_algoChipNumber = -1;
 
 }
 
@@ -44,6 +45,7 @@ L1GtAlgorithm::L1GtAlgorithm(const std::string& algoNameValue)
     // default values for private members not set
     // the other private members are C++ initialized
     m_algoBitNumber = -1;
+    m_algoChipNumber = -1;
 
 }
 
@@ -56,6 +58,7 @@ L1GtAlgorithm::L1GtAlgorithm(const std::string& algoNameValue,
 
     // default values for private members not set
     m_algoBitNumber = -1;
+    m_algoChipNumber = -1;
 }
 
 //   name, logical expression and bit number
@@ -66,6 +69,9 @@ L1GtAlgorithm::L1GtAlgorithm(const std::string& algoNameValue,
     m_algoName = algoNameValue;
     m_algoLogicalExpression = algoLogicalExpressionValue;
     m_algoBitNumber = algoBitNumberValue;
+
+    m_algoChipNumber = -1;
+
 }
 
 // destructor
@@ -77,7 +83,7 @@ L1GtAlgorithm::~L1GtAlgorithm()
 // public methods
 
 // get the condition chip number the algorithm is located on
-const int L1GtAlgorithm::algoChipNr(const int numberConditionChips,
+const int L1GtAlgorithm::algoChipNumber(const int numberConditionChips,
                                     const int pinsOnConditionChip,
                                     const std::vector<int>& orderConditionChip) const
 {
@@ -98,7 +104,7 @@ const int L1GtAlgorithm::algoOutputPin(const int numberConditionChips,
                                        const std::vector<int>& orderConditionChip) const
 {
 
-    int iChip = algoChipNr(numberConditionChips, pinsOnConditionChip, orderConditionChip);
+    int iChip = algoChipNumber(numberConditionChips, pinsOnConditionChip, orderConditionChip);
 
     int outputPin = m_algoBitNumber - (orderConditionChip[iChip] -1)*pinsOnConditionChip + 1;
 
@@ -113,16 +119,23 @@ void L1GtAlgorithm::print(std::ostream& myCout) const
 
     myCout << std::endl;
 
-    myCout << "    Algorithm name:      " << m_algoName << std::endl;
+    myCout << "    Algorithm name:         " << m_algoName << std::endl;
 
-    myCout << "    Bit number:          " << m_algoBitNumber;
+    myCout << "    Bit number:             " << m_algoBitNumber;
     if (m_algoBitNumber < 0) {
         myCout << "   - not properly initialized! " << std::endl;
     } else {
         myCout << std::endl;
     }
 
-    myCout << "    Logical expresssion: " << m_algoLogicalExpression
+    myCout << "    Located on chip number: " << m_algoChipNumber;
+    if (m_algoChipNumber < 0) {
+        myCout << "   - not properly initialized! " << std::endl;
+    } else {
+        myCout << std::endl;
+    }
+
+    myCout << "    Logical expresssion:    " << m_algoLogicalExpression
     << std::endl;
 
 

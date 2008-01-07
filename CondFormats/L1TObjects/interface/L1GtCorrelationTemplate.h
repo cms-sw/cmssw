@@ -75,12 +75,12 @@ public:
 
     inline const std::vector<L1GtCondition>* objectCondition() const
     {
-        return &(this->m_objectCondition);
+        return &m_objectCondition;
     }
 
     inline const CorrelationParameter* correlationParameter() const
     {
-        return &(this->m_correlationParameter);
+        return &m_correlationParameter;
     }
 
 

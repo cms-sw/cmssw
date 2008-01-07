@@ -40,19 +40,19 @@ public:
     L1GtEnergySumTemplate();
 
     // constructor
-    L1GtEnergySumTemplate(const std::string& );
+    L1GtEnergySumTemplate(const std::string&);
 
     // constructor
-    L1GtEnergySumTemplate(const std::string&, const L1GtConditionType& );
+    L1GtEnergySumTemplate(const std::string&, const L1GtConditionType&);
 
     // copy constructor
-    L1GtEnergySumTemplate( const L1GtEnergySumTemplate& );
+    L1GtEnergySumTemplate(const L1GtEnergySumTemplate&);
 
     // destructor
     virtual ~L1GtEnergySumTemplate();
 
     // assign operator
-    L1GtEnergySumTemplate& operator= (const L1GtEnergySumTemplate&);
+    L1GtEnergySumTemplate& operator=(const L1GtEnergySumTemplate&);
 
 public:
 
@@ -65,21 +65,16 @@ public:
         // used only for ETM
         boost::uint64_t phiRange0Word; // ETM phi has 72 bins - two 64-bits words
         boost::uint64_t phiRange1Word;
-    }
-    ObjectParameter;
-
+    } ObjectParameter;
 
 public:
 
-    inline const std::vector<ObjectParameter>* objectParameter() const
-    {
-        return &(this->m_objectParameter);
+    inline const std::vector<ObjectParameter>* objectParameter() const {
+        return &m_objectParameter;
     }
-
 
     /// set functions
     void setConditionParameter(const std::vector<ObjectParameter>&);
-
 
     /// print the condition
     virtual void print(std::ostream& myCout) const;
@@ -87,8 +82,7 @@ public:
 private:
 
     /// copy function for copy constructor and operator=
-    void copy( const L1GtEnergySumTemplate& cp);
-
+    void copy(const L1GtEnergySumTemplate& cp);
 
 private:
 

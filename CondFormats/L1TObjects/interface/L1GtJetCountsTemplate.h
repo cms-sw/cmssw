@@ -71,7 +71,7 @@ public:
 
     inline const std::vector<ObjectParameter>* objectParameter() const
     {
-        return &(this->m_objectParameter);
+        return &m_objectParameter;
     }
 
 

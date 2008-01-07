@@ -47,8 +47,8 @@
   <class name="L1GtBoard"/>
   <class name="L1GtBoardMaps"/>
   <class name="std::vector<L1GtBoard>"/>
-  <class name="std::map<std::string, L1GtCondition>"/>
-  <class name="std::map<std::string, L1GtAlgorithm>"/>
+  <class name="std::map<std::string, L1GtCondition*>"/>
+  <class name="std::map<std::string, L1GtAlgorithm*>"/>
   <class name="L1GtTriggerMenu"/>
   
 </lcgdict>

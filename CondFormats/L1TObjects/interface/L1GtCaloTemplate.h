@@ -80,12 +80,12 @@ public:
 
     inline const std::vector<ObjectParameter>* objectParameter() const
     {
-        return &(this->m_objectParameter);
+        return &m_objectParameter;
     }
 
     inline const CorrelationParameter* correlationParameter() const
     {
-        return &(this->m_correlationParameter);
+        return &m_correlationParameter;
     }
 
 
