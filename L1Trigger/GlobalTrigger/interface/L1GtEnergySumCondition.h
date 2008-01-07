@@ -1,11 +1,11 @@
-#ifndef GlobalTrigger_L1GtCaloCondition_h
-#define GlobalTrigger_L1GtCaloCondition_h
+#ifndef GlobalTrigger_L1GtEnergySumCondition_h
+#define GlobalTrigger_L1GtEnergySumCondition_h
 
 /**
- * \class L1GtCaloCondition
+ * \class L1GtEnergySumCondition
  * 
  * 
- * Description: evaluation of a CondCalo condition.
+ * Description: evaluation of a CondEnergySum condition.
  * 
  * Implementation:
  *    <TODO: enter implementation details>
@@ -29,34 +29,32 @@
 
 // forward declarations
 class L1GtCondition;
-class L1GtCaloTemplate;
-
-class L1GctCand;
+class L1GtEnergySumTemplate;
 
 class L1GlobalTriggerPSB;
 
 // class declaration
-class L1GtCaloCondition : public L1GtConditionEvaluation
+class L1GtEnergySumCondition : public L1GtConditionEvaluation
 {
 
 public:
 
     /// constructors
     ///     default
-    L1GtCaloCondition();
+    L1GtEnergySumCondition();
 
     ///     from base template condition (from event setup usually)
-    L1GtCaloCondition(L1GtCondition*, const L1GlobalTriggerPSB*,
+    L1GtEnergySumCondition(L1GtCondition*, const L1GlobalTriggerPSB*,
         const edm::EventSetup& evSetup);
 
     // copy constructor
-    L1GtCaloCondition(const L1GtCaloCondition&);
+    L1GtEnergySumCondition(const L1GtEnergySumCondition&);
 
     // destructor
-    virtual ~L1GtCaloCondition();
+    virtual ~L1GtEnergySumCondition();
 
     // assign operator
-    L1GtCaloCondition& operator=(const L1GtCaloCondition&);
+    L1GtEnergySumCondition& operator=(const L1GtEnergySumCondition&);
 
 public:
 
@@ -69,18 +67,11 @@ public:
 public:
 
     ///   get / set the pointer to a L1GtCondition
-    inline const L1GtCaloTemplate* gtCaloTemplate() const {
-        return m_gtCaloTemplate;
+    inline const L1GtEnergySumTemplate* gtEnergySumTemplate() const {
+        return m_gtEnergySumTemplate;
     }
 
-    void setGtCaloTemplate(const L1GtCaloTemplate*);
-
-    ///   get / set the number of bits for eta of calorimeter objects
-    inline int gtIfCaloEtaNumberBits() const {
-        return m_ifCaloEtaNumberBits;
-    }
-
-    void setGtIfCaloEtaNumberBits(const int&);
+    void setGtEnergySumTemplate(const L1GtEnergySumTemplate*);
 
     ///   get / set the pointer to PSB
     inline const L1GlobalTriggerPSB* gtPSB() const {
@@ -92,25 +83,15 @@ public:
 private:
 
     /// copy function for copy constructor and operator=
-    void copy(const L1GtCaloCondition& cp);
-
-    /// load calo candidates
-    virtual L1GctCand* getCandidate(const int indexCand) const;
-
-    /// function to check a single object if it matches a condition
-    const bool
-        checkObjectParameter(const int iCondition, const L1GctCand& cand) const;
+    void copy(const L1GtEnergySumCondition& cp);
 
 private:
 
-    /// pointer to a L1GtCaloTemplate
-    const L1GtCaloTemplate* m_gtCaloTemplate;
+    /// pointer to a L1GtEnergySumTemplate
+    const L1GtEnergySumTemplate* m_gtEnergySumTemplate;
 
     /// pointer to PSB, to be able to get the trigger objects
     const L1GlobalTriggerPSB* m_gtPSB;
-
-    /// number of bits for eta of calorimeter objects
-    int m_ifCaloEtaNumberBits;
 
 };
 

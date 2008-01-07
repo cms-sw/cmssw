@@ -188,7 +188,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     evSetup.get< L1GtStableParametersRcd >().get( l1GtStablePar );
 
     // number of physics triggers
-    //unsigned int numberPhysTriggers = l1GtStablePar->gtNumberPhysTriggers();
+    unsigned int numberPhysTriggers = l1GtStablePar->gtNumberPhysTriggers();
 
     edm::ESHandle< L1GtParameters > l1GtPar;
     evSetup.get< L1GtParametersRcd >().get( l1GtPar );
@@ -612,21 +612,23 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         //<< "\nL1GlobalTrigger : running GTL for bx = " << iBxInEvent << "\n"
         //<< std::endl;
 
-        m_gtGTL->run(iBxInEvent);
+        m_gtGTL->run(iEvent, evSetup, m_gtPSB, 
+            m_produceL1GtObjectMapRecord, iBxInEvent, gtObjectMapRecord, 
+            numberPhysTriggers);
 
         //LogDebug("L1GlobalTrigger")
         //<< "\n AlgorithmOR\n" << m_gtGTL->getAlgorithmOR() << "\n"
         //<< std::endl;
 
-        // maps only for BX = 0
-        if (m_produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
-
-            const std::vector<L1GlobalTriggerObjectMap>* objMapVec = m_gtGTL->objectMap();
-
-            gtObjectMapRecord->setGtObjectMap(*objMapVec);
-            delete objMapVec;
-
-        }
+        ////maps only for BX = 0
+        //if (m_produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
+        //
+        //    const std::vector<L1GlobalTriggerObjectMap>* objMapVec = m_gtGTL->objectMap();
+        //
+        //    gtObjectMapRecord->setGtObjectMap(*objMapVec);
+        //    delete objMapVec;
+        //
+        //}
 
 
         // * run FDL

@@ -62,7 +62,7 @@ public:
 
 public:
 
-    typedef std::vector<L1GctCand*> CaloVector;
+    typedef std::vector<L1GctCand*> L1GctCandVector;
 
 public:
 
@@ -92,74 +92,74 @@ public:
     void printGctObjectData() const;
 
     /// pointer to NoIsoEG data list
-    inline const CaloVector* getListNoIsoEG() const
+    inline const L1GctCandVector* getCandL1NoIsoEG() const
     {
-        return m_listNoIsoEG;
+        return m_candL1NoIsoEG;
     }
 
     /// pointer to IsoEG data list
-    inline const CaloVector* getListIsoEG() const
+    inline const L1GctCandVector* getCandL1IsoEG() const
     {
-        return m_listIsoEG;
+        return m_candL1IsoEG;
     }
 
     /// pointer to CenJet data list
-    inline const CaloVector* getListCenJet() const
+    inline const L1GctCandVector* getCandL1CenJet() const
     {
-        return m_listCenJet;
+        return m_candL1CenJet;
     }
 
     /// pointer to ForJet data list
-    inline const CaloVector* getListForJet() const
+    inline const L1GctCandVector* getCandL1ForJet() const
     {
-        return m_listForJet;
+        return m_candL1ForJet;
     }
 
     /// pointer to TauJet data list
-    inline const CaloVector* getListTauJet() const
+    inline const L1GctCandVector* getCandL1TauJet() const
     {
-        return m_listTauJet;
+        return m_candL1TauJet;
     }
 
     /// pointer to ETM data list
-    inline L1GctEtMiss* getListETM() const
+    inline L1GctEtMiss* getCandL1ETM() const
     {
-        return m_listETM;
+        return m_candETM;
     }
 
     /// pointer to ETT data list
-    inline L1GctEtTotal* getListETT() const
+    inline L1GctEtTotal* getCandL1ETT() const
     {
-        return m_listETT;
+        return m_candETT;
     }
 
     /// pointer to HTT data list
-    inline L1GctEtHad* getListHTT() const
+    inline L1GctEtHad* getCandL1HTT() const
     {
-        return m_listHTT;
+        return m_candHTT;
     }
 
     /// pointer to JetCounts data list
-    inline L1GctJetCounts* getListJetCounts() const
+    inline L1GctJetCounts* getCandL1JetCounts() const
     {
-        return m_listJetCounts;
+        return m_candJetCounts;
     }
 
 private:
 
     const L1GlobalTrigger& m_GT;
 
-    CaloVector* m_listNoIsoEG;
-    CaloVector* m_listIsoEG;
-    CaloVector* m_listCenJet;
-    CaloVector* m_listForJet;
-    CaloVector* m_listTauJet;
+    L1GctCandVector* m_candL1NoIsoEG;
+    L1GctCandVector* m_candL1IsoEG;
+    L1GctCandVector* m_candL1CenJet;
+    L1GctCandVector* m_candL1ForJet;
+    L1GctCandVector* m_candL1TauJet;
 
-    L1GctEtMiss*  m_listETM;
-    L1GctEtTotal* m_listETT;
-    L1GctEtHad*   m_listHTT;
+    L1GctEtMiss*  m_candETM;
+    L1GctEtTotal* m_candETT;
+    L1GctEtHad*   m_candHTT;
 
-    L1GctJetCounts* m_listJetCounts;
+    L1GctJetCounts* m_candJetCounts;
 
 
 };

@@ -563,19 +563,19 @@ L1GctCand* L1GlobalTriggerCaloTemplate::getCandidate (int indexCand) const
 
     switch (p_particletype) {
         case EG:
-            return (*m_GT.gtPSB()->getListNoIsoEG())[indexCand];
+            return (*m_GT.gtPSB()->getCandL1NoIsoEG())[indexCand];
             break;
         case IEG:
-            return (*m_GT.gtPSB()->getListIsoEG())[indexCand];
+            return (*m_GT.gtPSB()->getCandL1IsoEG())[indexCand];
             break;
         case CJET:
-            return (*m_GT.gtPSB()->getListCenJet())[indexCand];
+            return (*m_GT.gtPSB()->getCandL1CenJet())[indexCand];
             break;
         case FJET:
-            return (*m_GT.gtPSB()->getListForJet())[indexCand];
+            return (*m_GT.gtPSB()->getCandL1ForJet())[indexCand];
             break;
         case TJET:
-            return (*m_GT.gtPSB()->getListTauJet())[indexCand];
+            return (*m_GT.gtPSB()->getCandL1TauJet())[indexCand];
             break;
         default:
             return 0;

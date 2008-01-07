@@ -1,11 +1,11 @@
-#ifndef GlobalTrigger_L1GtCaloCondition_h
-#define GlobalTrigger_L1GtCaloCondition_h
+#ifndef GlobalTrigger_L1GtJetCountsCondition_h
+#define GlobalTrigger_L1GtJetCountsCondition_h
 
 /**
- * \class L1GtCaloCondition
+ * \class L1GtJetCountsCondition
  * 
  * 
- * Description: evaluation of a CondCalo condition.
+ * Description: evaluation of a CondJetCounts condition.
  * 
  * Implementation:
  *    <TODO: enter implementation details>
@@ -29,34 +29,32 @@
 
 // forward declarations
 class L1GtCondition;
-class L1GtCaloTemplate;
-
-class L1GctCand;
+class L1GtJetCountsTemplate;
 
 class L1GlobalTriggerPSB;
 
 // class declaration
-class L1GtCaloCondition : public L1GtConditionEvaluation
+class L1GtJetCountsCondition : public L1GtConditionEvaluation
 {
 
 public:
 
     /// constructors
     ///     default
-    L1GtCaloCondition();
+    L1GtJetCountsCondition();
 
     ///     from base template condition (from event setup usually)
-    L1GtCaloCondition(L1GtCondition*, const L1GlobalTriggerPSB*,
+    L1GtJetCountsCondition(L1GtCondition*, const L1GlobalTriggerPSB*,
         const edm::EventSetup& evSetup);
 
     // copy constructor
-    L1GtCaloCondition(const L1GtCaloCondition&);
+    L1GtJetCountsCondition(const L1GtJetCountsCondition&);
 
     // destructor
-    virtual ~L1GtCaloCondition();
+    virtual ~L1GtJetCountsCondition();
 
     // assign operator
-    L1GtCaloCondition& operator=(const L1GtCaloCondition&);
+    L1GtJetCountsCondition& operator=(const L1GtJetCountsCondition&);
 
 public:
 
@@ -69,18 +67,11 @@ public:
 public:
 
     ///   get / set the pointer to a L1GtCondition
-    inline const L1GtCaloTemplate* gtCaloTemplate() const {
-        return m_gtCaloTemplate;
+    inline const L1GtJetCountsTemplate* gtJetCountsTemplate() const {
+        return m_gtJetCountsTemplate;
     }
 
-    void setGtCaloTemplate(const L1GtCaloTemplate*);
-
-    ///   get / set the number of bits for eta of calorimeter objects
-    inline int gtIfCaloEtaNumberBits() const {
-        return m_ifCaloEtaNumberBits;
-    }
-
-    void setGtIfCaloEtaNumberBits(const int&);
+    void setGtJetCountsTemplate(const L1GtJetCountsTemplate*);
 
     ///   get / set the pointer to PSB
     inline const L1GlobalTriggerPSB* gtPSB() const {
@@ -92,26 +83,19 @@ public:
 private:
 
     /// copy function for copy constructor and operator=
-    void copy(const L1GtCaloCondition& cp);
-
-    /// load calo candidates
-    virtual L1GctCand* getCandidate(const int indexCand) const;
-
-    /// function to check a single object if it matches a condition
-    const bool
-        checkObjectParameter(const int iCondition, const L1GctCand& cand) const;
+    void copy(const L1GtJetCountsCondition& cp);
 
 private:
 
-    /// pointer to a L1GtCaloTemplate
-    const L1GtCaloTemplate* m_gtCaloTemplate;
+    /// pointer to a L1GtJetCountsTemplate
+    const L1GtJetCountsTemplate* m_gtJetCountsTemplate;
 
     /// pointer to PSB, to be able to get the trigger objects
     const L1GlobalTriggerPSB* m_gtPSB;
 
-    /// number of bits for eta of calorimeter objects
-    int m_ifCaloEtaNumberBits;
-
+    /// maximum number of jet counts
+    unsigned int m_numberL1JetCounts;
+    
 };
 
 #endif

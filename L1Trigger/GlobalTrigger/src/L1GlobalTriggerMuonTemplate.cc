@@ -90,7 +90,7 @@ L1GlobalTriggerMuonTemplate&
 
 L1MuGMTCand* L1GlobalTriggerMuonTemplate::getCandidate( int indexCand ) const {
         
-    return (*m_GT.gtGTL()->getMuonCandidates())[indexCand];
+    return (*m_GT.gtGTL()->getCandL1Mu())[indexCand];
 
 }
 

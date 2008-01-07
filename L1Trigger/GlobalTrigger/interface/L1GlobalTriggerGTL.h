@@ -21,7 +21,6 @@
 // system include files
 #include <bitset>
 #include <vector>
-#include <set>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -45,6 +44,7 @@
 class L1GlobalTrigger;
 class L1GlobalTriggerConditions;
 class L1GlobalTriggerConfig;
+class L1GlobalTriggerPSB;
 
 // class declaration
 class L1GlobalTriggerGTL
@@ -52,7 +52,9 @@ class L1GlobalTriggerGTL
 
 public:
 
-    // constructor
+    // constructors
+    //L1GlobalTriggerGTL();
+
     L1GlobalTriggerGTL(const L1GlobalTrigger&);
 
     // destructor
@@ -62,17 +64,7 @@ public:
 
     typedef unsigned int MuonDataWord;
 
-    typedef std::vector<L1MuGMTCand*> GMTVector;
-
-    // TODO particleBlock: set of unsigned int instead of std::string?
-    typedef std::set<unsigned int> particleBlock;
-    //    typedef std::set<std::string> particleBlock;
-
-    typedef std::vector<particleBlock> algoVector;
-
-    typedef std::vector<L1GlobalTriggerConditions*> conditions;
-
-    typedef std::vector<conditions*> conditionContainer;
+    typedef std::vector<L1MuGMTCand*> L1GmtCandVector;
 
 public:
 
@@ -83,7 +75,8 @@ public:
         const bool receiveMu, const unsigned int nrL1Mu);
 
     /// run the GTL
-    void run(int iBxInEvent);
+    void run(edm::Event&, const edm::EventSetup&, const L1GlobalTriggerPSB*, 
+        const bool, const int, std::auto_ptr<L1GlobalTriggerObjectMapRecord>&, const unsigned int);
 
     /// fill object map record
     const std::vector<L1GlobalTriggerObjectMap>* objectMap();
@@ -106,92 +99,21 @@ public:
         return m_gtlAlgorithmOR;
     }
 
-    /// return muon decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_MUON() const
-    {
-        return glt_cond[0];
-    }
-
-    /// return electon/gamma decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_EG() const
-    {
-        return glt_cond[1];
-    }
-
-    /// return isolated electron/gamma decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_IEG() const
-    {
-        return glt_cond[2];
-    }
-
-    /// return central jet decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_CJET() const
-    {
-        return glt_cond[3];
-    }
-
-    /// return forward jet decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_FJET() const
-    {
-        return glt_cond[4];
-    }
-
-    /// return tau jet decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_TJET() const
-    {
-        return glt_cond[5];
-    }
-
-    /// return total transverse energy decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_ETT() const
-    {
-        return glt_cond[6];
-    }
-
-    /// return missing transverse energy decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_ETM() const
-    {
-        return glt_cond[7];
-    }
-
-    /// return hadron transverse energy decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_HTT() const
-    {
-        return glt_cond[8];
-    }
-
-    /// return jet counts decision
-    inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_JC() const
-    {
-        return glt_cond[9];
-    }
-
-    // TODO un-comment if I decide to keep the MenuItem enum
-    //    /// return decision
-    //    inline const bool getDecision(L1GlobalTriggerSetup::MenuItem item) const { return m_gtlDecisionWord.element(item); }
-
     /// return global muon trigger candidate
-    inline const GMTVector* getMuonCandidates() const
+    inline const L1GmtCandVector* getCandL1Mu() const
     {
-        return glt_muonCand;
+        return m_candL1Mu;
     }
 
 private:
 
     const L1GlobalTrigger& m_GT;
 
-    GMTVector* glt_muonCand;
+    L1GmtCandVector* m_candL1Mu;
 
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;
 
-    std::bitset<L1GlobalTriggerSetup::MaxItem> glt_cond[9];
-
-    std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> glt_generalAND;
-
-    algoVector glt_algos;
-
-    conditionContainer glt_particleConditions;
 
 };
 
