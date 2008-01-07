@@ -23,6 +23,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelDACSettings.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTBMSettings.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelLowVoltageMap.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDCard.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
@@ -241,6 +242,11 @@ namespace pos{
 	assert(dir=="detconfig");
 	data = (T*) new PixelDetectorConfig(fullpath+"detectconfig.dat");
 	return;
+      }else if (typeid(data)==typeid(PixelLowVoltageMap*)){
+	//std::cout << "Will return PixelLowVoltageMap" << std::endl;
+	assert(dir=="lowvoltage");
+	data = (T*) new PixelLowVoltageMap(fullpath+"lowvoltagemap.dat");
+	return;
       }else if (typeid(data)==typeid(PixelNameTranslation*)){
 	//std::cout << "Will return PixelDACSettings" << std::endl;
 	assert(dir=="nametranslation");
@@ -387,6 +393,11 @@ namespace pos{
 	//std::cout << "Will return PixelDACSettings" << std::endl;
 	assert(dir=="detconfig");
 	data = (T*) new PixelDetectorConfig(fullpath+"detectconfig.dat");
+	return;
+      }else if (typeid(data)==typeid(PixelLowVoltageMap*)){
+	//std::cout << "Will return PixelLowVoltageMap" << std::endl;
+	assert(dir=="lowvoltage");
+	data = (T*) new PixelLowVoltageMap(fullpath+"detectconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelNameTranslation*)){
 	//std::cout << "Will return PixelDACSettings" << std::endl;
