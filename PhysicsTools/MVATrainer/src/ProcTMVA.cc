@@ -11,6 +11,9 @@
 
 #include <xercesc/dom/DOM.hpp>
 
+// ROOT version magic to support TMVA interface changes in newer ROOT   
+#include <RVersion.h>
+
 #include <TDirectory.h>
 #include <TTree.h>
 #include <TFile.h>
@@ -91,8 +94,8 @@ class ProcTMVA : public TrainProcessor {
 	Double_t			weight;
 	std::vector<Double_t>		vars;
 	bool				needCleanup;
-	unsigned int			nSignal;
-	unsigned int			nBackground;
+	unsigned long			nSignal;
+	unsigned long			nBackground;
 };
 
 static ProcTMVA::Registry registry("ProcTMVA");
@@ -318,7 +321,12 @@ void ProcTMVA::runTMVATrainer()
 
 	factory->SetWeightExpression("__WEIGHT__");
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
+	factory->PrepareTrainingAndTestTree("", nSignal, nBackground, 1, 1,
+	                                    "SplitMode=Block:!V");
+#else
 	factory->PrepareTrainingAndTestTree("", -1);
+#endif
 
 	factory->BookMethod(methodType, methodName, methodDescription);
 
@@ -331,6 +339,11 @@ void ProcTMVA::trainEnd()
 {
 	switch(iteration) {
 	    case ITER_EXPORT:
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
+		// work around TMVA issue: fill 1 dummy sig and bkg test event
+		treeSig->Fill();
+		treeBkg->Fill();
+#endif
 		/* ROOT context-safe */ {
 			ROOTContextSentinel ctx;
 			file->cd();

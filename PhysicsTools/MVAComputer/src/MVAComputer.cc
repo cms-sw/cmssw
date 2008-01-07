@@ -7,7 +7,16 @@
 #include <vector>
 #include <set>
 
-#include <TBuffer.h>
+// ROOT version magic to support TMVA interface changes in newer ROOT   
+#include <RVersion.h>
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
+#	include <TBufferFile.h>
+#	define MVARootBuffer TBufferFile
+#else
+#	include <TBuffer.h>
+#	define MVARootBuffer TBuffer
+#endif
 #include <TClass.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -250,7 +259,7 @@ Calibration::MVAComputer *MVAComputer::readCalibration(std::istream &is)
 	ss << izs.rdbuf();
 	std::string buf = ss.str();
 
-	TBuffer buffer(TBuffer::kRead, buf.size(), const_cast<void*>(
+	MVARootBuffer buffer(TBuffer::kRead, buf.size(), const_cast<void*>(
 			static_cast<const void*>(buf.c_str())), kFALSE);
 	buffer.InitMap();
 
@@ -286,7 +295,7 @@ void MVAComputer::writeCalibration(std::ostream &os,
 			   "PhysicsTools::Calibration::MVAComputer missing"
 			<< std::endl;
 
-	TBuffer buffer(TBuffer::kWrite);
+	MVARootBuffer buffer(TBuffer::kWrite);
 	buffer.StreamObject(const_cast<void*>(static_cast<const void*>(calib)),
 	                    rootClass);
 
