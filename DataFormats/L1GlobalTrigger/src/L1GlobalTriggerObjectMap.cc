@@ -34,14 +34,46 @@
 
 
 // constructor(s)
-L1GlobalTriggerObjectMap::L1GlobalTriggerObjectMap()
-{}
+L1GlobalTriggerObjectMap::L1GlobalTriggerObjectMap() {
+
+    //empty
+
+}
 
 // destructor
-L1GlobalTriggerObjectMap::~L1GlobalTriggerObjectMap()
-{}
+L1GlobalTriggerObjectMap::~L1GlobalTriggerObjectMap() {
+
+    //empty
+
+}
 
 // methods
+
+// return all the combinations passing the requirements imposed in condition condNameVal
+const CombinationsInCond* L1GlobalTriggerObjectMap::getCombinationsInCond(
+    const std::string& condNameVal) const {
+
+    bool checkExpression = false;
+
+    L1GtLogicParser
+        logicParser(m_algoLogicalExpression, m_algoNumericalExpression, checkExpression);
+    int conditionIndexVal = logicParser.operandIndex(condNameVal);
+
+    return &(m_combinationVector.at(conditionIndexVal));
+}
+
+
+// return the result for the condition condNameVal
+const bool L1GlobalTriggerObjectMap::getConditionResult(const std::string& condNameVal) const {
+
+    bool checkExpression = false;
+
+    L1GtLogicParser
+        logicParser(m_algoLogicalExpression, m_algoNumericalExpression, checkExpression);
+    return logicParser.operandResult(condNameVal);
+
+}
+
 
 void L1GlobalTriggerObjectMap::reset()
 {
@@ -101,15 +133,15 @@ void L1GlobalTriggerObjectMap::print(std::ostream& myCout) const
         << std::endl;
 
 
-        myCout << "    Object types ";
-        myCout << "(";
-        ObjectTypeInCond objVec = m_objectTypeVector[iCond];
-        for (unsigned int iObj = 0; iObj < objVec.size(); iObj++) {
-            L1GtObject obj = objVec[iObj];
-            myCout << " " << obj;
-        }
-        myCout << " ); ";
-        myCout << std::endl;
+        //myCout << "    Object types ";
+        //myCout << "(";
+        //ObjectTypeInCond objVec = m_objectTypeVector[iCond];
+        //for (unsigned int iObj = 0; iObj < objVec.size(); iObj++) {
+        //    L1GtObject obj = objVec[iObj];
+        //    myCout << " " << obj;
+        //}
+        //myCout << " ); ";
+        //myCout << std::endl;
 
 
         myCout << "    List of combinations passing all requirements for this condition:"

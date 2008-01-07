@@ -43,33 +43,35 @@
 
 // constructor(s)
 
+//   default constructor
+L1GtLogicParser::L1GtLogicParser() {
+    
+    // empty, default C++ initialization for string and vector are enough 
+}
+
 //   from an object map
 L1GtLogicParser::L1GtLogicParser(const L1GlobalTriggerObjectMap& objMap)
 {
 
-    if ( !setLogicalExpression(objMap.algoLogicalExpression()) ) {
-
-        // error(s) in logical expression - printed in the relevant place
-        throw cms::Exception("FailModule")
-        << "\nError in parsing the logical expression = "
+    clearRpnVector();
+    if ( !buildRpnVector(objMap.algoLogicalExpression()) ) {
+        throw cms::Exception("FileModule")
+        << "\nError in building RPN vector for the logical expression = "
         << objMap.algoLogicalExpression()
         << std::endl;
-
     }
 
-    if ( !setNumericalExpression(objMap.algoNumericalExpression()) ) {
-        // error(s) in numerical expression - printed in the relevant place
-        throw cms::Exception("FileModule")
-        << "\nError in parsing the numerical expression = "
-        << objMap.algoNumericalExpression()
-        << std::endl;
-    }
+    m_logicalExpression = objMap.algoLogicalExpression();
+    m_numericalExpression = objMap.algoNumericalExpression();
+    
+    m_operandTokenVector.clear();
+    buildOperandTokenVector();
 
 }
 
-//   from a logical expression
+//   from a constant logical expression
 //   numerical expression will be empty
-L1GtLogicParser::L1GtLogicParser(const std::string logicalExpressionVal)
+L1GtLogicParser::L1GtLogicParser(const std::string& logicalExpressionVal)
 {
 
     // checks also for syntactic correctness of the logical expression
@@ -86,10 +88,8 @@ L1GtLogicParser::L1GtLogicParser(const std::string logicalExpressionVal)
 }
 
 //   from a logical and a numerical expression
-L1GtLogicParser::L1GtLogicParser(
-    const std::string logicalExpressionVal,
-    const std::string numericalExpressionVal)
-{
+L1GtLogicParser::L1GtLogicParser(const std::string logicalExpressionVal,
+    const std::string numericalExpressionVal) {
     // checks also for correctness
 
     if ( !setLogicalExpression(logicalExpressionVal) ) {
@@ -102,6 +102,7 @@ L1GtLogicParser::L1GtLogicParser(
     }
 
     if ( !setNumericalExpression(numericalExpressionVal) ) {
+
         // error(s) in numerical expression - printed in the relevant place
         throw cms::Exception("FileModule")
         << "\nError in parsing the numerical expression = " << numericalExpressionVal
@@ -110,25 +111,44 @@ L1GtLogicParser::L1GtLogicParser(
 
 }
 
-//   from a logical expression,a DecisionWord and a map (string, int)
+//   from a logical and a numerical expression
+//   no checks for correctness - use it only after the correctness was tested
+L1GtLogicParser::L1GtLogicParser(const std::string& logicalExpressionVal,
+    const std::string& numericalExpressionVal, const bool dummy) {
+
+    clearRpnVector();
+    if ( !buildRpnVector(logicalExpressionVal) ) {
+        throw cms::Exception("FileModule")
+        << "\nError in building RPN vector for the logical expression = "
+        << logicalExpressionVal
+        << std::endl;
+    }
+
+    m_logicalExpression = logicalExpressionVal;
+    m_numericalExpression = numericalExpressionVal;
+
+}
+
+//   from a logical expression, a DecisionWord and a map (string, int)
 //   should be used for logical expressions with algorithms
 //   the map convert the algorithm name to algorithm bit number, if needed
+//   no checks for correctness - use it only after the correctness was tested
 L1GtLogicParser::L1GtLogicParser(
     const std::string& algoLogicalExpressionVal,
     const DecisionWord& decisionWordVal,
     const std::map<std::string,int>& algoMap)
 {
 
-    // checks for correctness
-
-    if ( !setLogicalExpression(algoLogicalExpressionVal) ) {
-
-        // error(s) in logical expression - printed in the relevant place
-        throw cms::Exception("FailModule")
-        << "\nError in parsing the logical expression = " << algoLogicalExpressionVal
+    clearRpnVector();
+    if ( !buildRpnVector(algoLogicalExpressionVal)) {
+        throw cms::Exception("FileModule")
+        << "\nError in building RPN vector for the logical expression = "
+        << algoLogicalExpressionVal
         << std::endl;
-
     }
+
+    m_logicalExpression = algoLogicalExpressionVal;
+
 
     if ( !setNumericalExpression(decisionWordVal, algoMap) ) {
         // error(s) in numerical expression - printed in the relevant place
@@ -140,6 +160,7 @@ L1GtLogicParser::L1GtLogicParser(
 
 }
 
+
 // destructor
 L1GtLogicParser::~L1GtLogicParser()
 {
@@ -148,8 +169,36 @@ L1GtLogicParser::~L1GtLogicParser()
 
 // public methods
 
+// check a logical expression for correctness - add/remove spaces if needed
+bool L1GtLogicParser::checkLogicalExpression(std::string& logicalExpressionVal) {
+
+    // add spaces around brackets
+    std::string logicalExpressionBS;
+    addBracketSpaces(logicalExpressionVal, logicalExpressionBS);
+
+    // trim leading or trailing spaces
+    boost::trim(logicalExpressionBS);
+
+    clearRpnVector();
+
+    if ( !buildRpnVector(logicalExpressionBS) ) {
+        return false;
+    }
+
+    LogDebug("L1GtLogicParser") << "\nL1GtLogicParser::checkLogicalExpression - "
+        << "\nInitial logical expression = '" << logicalExpressionVal << "'"
+        << "\nFinal   logical expression = '" << logicalExpressionBS << "'\n" 
+        << std::endl;
+
+    logicalExpressionVal = logicalExpressionBS;
+
+
+    return true;
+
+}
+
 // return the position index of the operand in the logical expression
-int L1GtLogicParser::operandIndex(const std::string operandNameVal) const
+int L1GtLogicParser::operandIndex(const std::string& operandNameVal) const
 {
 
     int result = -1;
@@ -295,7 +344,7 @@ std::string L1GtLogicParser::operandName(const int iOperand) const
 
 // return the result for an operand from a logical expression
 // using a numerical expression
-bool L1GtLogicParser::operandResult(const std::string operandNameVal) const
+bool L1GtLogicParser::operandResult(const std::string& operandNameVal) const
 {
 
     bool result = false;
@@ -487,6 +536,64 @@ const bool L1GtLogicParser::expressionResult() const
 
 }
 
+// build from the RPN vector the operand token vector
+void L1GtLogicParser::buildOperandTokenVector()
+{
+
+    //LogTrace("L1GtLogicParser")
+    //<< "\nL1GtLogicParser::buildOperandTokenVector - "
+    //<< std::endl;
+
+    int opNumber = 0;
+    
+    for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+
+        //LogTrace("L1GtLogicParser")
+        //<< "\nit->operation = " << it->operation
+        //<< "\nit->operand =   '" << it->operand << "'\n"
+        //<< std::endl;
+
+        switch (it->operation) {
+
+            case OP_OPERAND: {
+                    OperandToken opToken;
+                    opToken.tokenName = it->operand;
+                    opToken.tokenNumber = opNumber;
+                    opToken.tokenResult = operandResult(it->operand);
+                    
+                    m_operandTokenVector.push_back(opToken);
+                        
+                }
+
+                break;
+            case OP_NOT: {
+                    // do nothing
+            }
+
+                break;
+            case OP_OR: {
+                    // do nothing
+                }
+
+                break;
+            case OP_AND: {
+                // do nothing
+                }
+
+                break;
+            default: {
+                    // should not arrive here
+                }
+
+                break;
+        }
+
+        opNumber++;
+    }
+
+}
+
+
 // convert the logical expression composed with names to
 // a logical expression composed with int numbers using
 // a (string, int)  map
@@ -588,29 +695,39 @@ void L1GtLogicParser::convertNameToIntLogicalExpression(
 
 }
 
-
-// return the list of operands for the logical expression
+// return the list of operand tokens for the logical expression
 // which are to be used as seeds
-const std::list<int> L1GtLogicParser::expressionSeedsOperandList() const
-{
+const std::vector<L1GtLogicParser::OperandToken> 
+    L1GtLogicParser::expressionSeedsOperandList() const {
 
     //LogDebug("L1GtLogicParser")
     //<< "\nL1GtLogicParser::expressionSeedsOperandList - "
     //<< "\nLogical expression = '" << m_logicalExpression << "'"
+    //<< "\nm_operandTokenVector.size() = " << m_operandTokenVector.size()
     //<< std::endl;
 
     // seed list
-    std::list<int> opList;
+    std::vector<OperandToken> opVector;
+    opVector.reserve(m_operandTokenVector.size());
 
     // temporary results
-    std::stack<int> tmpStack;
-    std::list<int> tmpList;
-    int b1, b2;
+    std::stack<OperandToken> tmpStack;
+    std::vector<OperandToken> tmpVector;
+    tmpVector.reserve(m_operandTokenVector.size());
+
+    OperandToken b1, b2;
 
     bool newOperandBlock = true;
     bool oneBlockOnly = true;
     bool operandOnly = true;
 
+    int iOperand = -1;
+    
+    OperandToken dummyToken;
+    dummyToken.tokenName = "dummy";
+    dummyToken.tokenNumber = -1;
+    dummyToken.tokenResult = false;
+   
     for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
         //LogTrace("L1GtLogicParser")
@@ -620,26 +737,26 @@ const std::list<int> L1GtLogicParser::expressionSeedsOperandList() const
 
         switch (it->operation) {
 
-                // RPN always start a block with an operand
+            // RPN always start a block with an operand
             case OP_OPERAND: {
 
                     // more blocks with operations
-                    // push operands from previous block, if any in the tmpList
+                    // push operands from previous block, if any in the tmpVector
                     if ( (!newOperandBlock) ) {
 
-                        for (std::list<int>::const_iterator itOp = tmpList.begin();
-                                itOp != tmpList.end(); ++itOp) {
+                        for (std::vector<OperandToken>::const_iterator itOp = tmpVector.begin();
+                                itOp != tmpVector.end(); ++itOp) {
 
-                            opList.push_back(*itOp);
+                            opVector.push_back(*itOp);
 
                             //LogTrace("L1GtLogicParser")
-                            //<< "  Push operand " << *itOp
+                            //<< "  Push operand " << (*itOp).tokenName
                             //<<" on the seed operand list"
                             //<< std::endl;
 
                         }
 
-                        tmpList.clear();
+                        tmpVector.clear();
 
                         newOperandBlock = true;
                         oneBlockOnly = false;
@@ -647,26 +764,14 @@ const std::list<int> L1GtLogicParser::expressionSeedsOperandList() const
                     }
 
 
-                    std::istringstream opStream(it->operand);
-                    int opInt;
-
-                    if( (opStream >> opInt).fail() ) {
-
-                        edm::LogError("L1GtLogicParser")
-                        << "\nLogical expression = '" << m_logicalExpression << "'"
-                        << "\n  Conversion to integer failed for " << it->operand
-                        << "\n  Returned empty list."
-                        << std::endl;
-
-                        opList.clear();
-                        return opList;
-                    }
+                    iOperand++;
 
                     //LogTrace("L1GtLogicParser")
-                    //<< "  Push operand " << opInt << " on the operand stack"
+                    //<< "  Push operand " << (m_operandTokenVector.at(iOperand)).tokenName 
+                    //<< " on the operand stack"
                     //<< std::endl;
 
-                    tmpStack.push(opInt);
+                    tmpStack.push(m_operandTokenVector.at(iOperand));
                 }
 
                 break;
@@ -678,13 +783,13 @@ const std::list<int> L1GtLogicParser::expressionSeedsOperandList() const
                     b1 = tmpStack.top();
                     tmpStack.pop();                          // pop the top
 
-                    tmpStack.push(-1);                       // and push dummy result
+                    tmpStack.push(dummyToken);               // and push dummy result
 
                     //LogTrace("L1GtLogicParser")
                     //<< "  Clear tmp operand list"
                     //<< std::endl;
 
-                    tmpList.clear();
+                    tmpVector.clear();
 
                 }
 
@@ -699,22 +804,22 @@ const std::list<int> L1GtLogicParser::expressionSeedsOperandList() const
                     b2 = tmpStack.top();
                     tmpStack.pop();
 
-                    tmpStack.push(-1);                     // and push dummy result
+                    tmpStack.push(dummyToken);                     // and push dummy result
 
-                    if ( b1 >= 0 ) {
-                        tmpList.push_back(b1);
+                    if ( b1.tokenNumber >= 0 ) {
+                        tmpVector.push_back(b1);
 
                         //LogTrace("L1GtLogicParser")
-                        //<< "  Push operand " << b1
+                        //<< "  Push operand " << b1.tokenName
                         //<<" on the tmp list"
                         //<< std::endl;
                     }
 
-                    if ( b2 >= 0 ) {
-                        tmpList.push_back(b2);
+                    if ( b2.tokenNumber >= 0 ) {
+                        tmpVector.push_back(b2);
 
                         //LogTrace("L1GtLogicParser")
-                        //<< "  Push operand " << b2
+                        //<< "  Push operand " << b2.tokenName
                         //<<" on the tmp list"
                         //<< std::endl;
                     }
@@ -732,23 +837,23 @@ const std::list<int> L1GtLogicParser::expressionSeedsOperandList() const
                     b2 = tmpStack.top();
                     tmpStack.pop();
 
-                    tmpStack.push(-1);                     // and push dummy result
+                    tmpStack.push(dummyToken);
 
 
-                    if ( b1 >= 0 ) {
-                        tmpList.push_back(b1);
+                    if ( b1.tokenNumber >= 0 ) {
+                        tmpVector.push_back(b1);
 
                         //LogTrace("L1GtLogicParser")
-                        //<< "  Push operand " << b1
+                        //<< "  Push operand " << b1.tokenName
                         //<<" on the tmp list"
                         //<< std::endl;
                     }
 
-                    if ( b2 >= 0 ) {
-                        tmpList.push_back(b2);
+                    if ( b2.tokenNumber >= 0 ) {
+                        tmpVector.push_back(b2);
 
                         //LogTrace("L1GtLogicParser")
-                        //<< "  Push operand " << b2
+                        //<< "  Push operand " << b2.tokenName
                         //<<" on the tmp list"
                         //<< std::endl;
                     }
@@ -773,17 +878,17 @@ const std::list<int> L1GtLogicParser::expressionSeedsOperandList() const
         // there can be only one operand, otherwise one needs an operation
         if (operandOnly) {
             b1 = tmpStack.top();
-            tmpList.push_back(b1);
+            tmpVector.push_back(b1);
         }
 
         //
-        for (std::list<int>::const_iterator itOp = tmpList.begin();
-                itOp != tmpList.end(); ++itOp) {
+        for (std::vector<OperandToken>::const_iterator itOp = tmpVector.begin();
+                itOp != tmpVector.end(); ++itOp) {
 
-            opList.push_back(*itOp);
+            opVector.push_back(*itOp);
 
             //LogTrace("L1GtLogicParser")
-            //<< "  One block or one operand only: push operand " << *itOp
+            //<< "  One block or one operand only: push operand " << (*itOp).tokenName
             //<<" on the seed operand list"
             //<< std::endl;
 
@@ -792,89 +897,9 @@ const std::list<int> L1GtLogicParser::expressionSeedsOperandList() const
     }
 
 
-    return opList;
+    return opVector;
 
 }
-
-// return the list of indices of the operands in the logical expression
-std::list<int> L1GtLogicParser::expressionSeedsOperandIndexList()
-{
-
-    //LogDebug("L1GtLogicParser")
-    //<< "\nL1GtLogicParser::expressionSeedsOperandIndexList - "
-    //<< "\nLogical expression = '" << m_logicalExpression << "'"
-    //<< std::endl;
-
-
-    // build the <operand name, operand index> map
-
-    std::map<std::string, int> operandNameToIndexMap;
-
-    OperationType actualOperation = OP_NULL;
-    OperationType lastOperation   = OP_NULL;
-
-    std::string tokenString;
-    TokenRPN rpnToken;           // token to be used by getOperation
-
-    // stringstream to separate all tokens
-    std::istringstream exprStringStream(m_logicalExpression);
-
-    // temporary index for usage in the loop
-    int tmpIndex = -1;
-
-    while (!exprStringStream.eof()) {
-
-        exprStringStream >> tokenString;
-
-        //LogTrace("L1GtLogicParser")
-        //<< "Token string = " << tokenString
-        //<< std::endl;
-
-        actualOperation = getOperation(tokenString, lastOperation, rpnToken);
-        if (actualOperation == OP_INVALID) {
-
-            // it should never be invalid
-            edm::LogError("L1GtLogicParser")
-            << "\nLogical expression = '" << m_logicalExpression << "'"
-            << "\n  Invalid operation/operand " << rpnToken.operand
-            << "\n  Returned empty list."
-            << std::endl;
-
-            std::list<int> opList;
-            opList.clear();
-            return opList;
-
-        }
-
-        if (actualOperation != OP_OPERAND) {
-
-            // do nothing
-
-        } else {
-
-            tmpIndex++;
-            operandNameToIndexMap[rpnToken.operand] = tmpIndex;
-
-            //LogDebug("L1GtLogicParser")
-            //<< "\nL1GtLogicParser::expressionSeedsOperandIndexList - "
-            //<< "\noperandNameToIndexMap: name = '" << rpnToken.operand << "'"
-            //<< " index = " << tmpIndex
-            //<< std::endl;
-
-        }
-        lastOperation = actualOperation;
-    }
-
-    // convert operand names to indices
-    convertNameToIntLogicalExpression(operandNameToIndexMap);
-    buildRpnVector(m_logicalExpression);
-
-    // return the list of operands for the logical expression
-    return expressionSeedsOperandList();
-
-
-}
-
 
 
 // private methods
@@ -998,9 +1023,9 @@ bool L1GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
         if (tokenString.find_first_not_of(whitespaces) == std::string::npos ||
                 tokenString.length() == 0) {
 
-            LogTrace("L1GtLogicParser")
-            << "  Break for token string = " << tokenString
-            << std::endl;
+            //LogTrace("L1GtLogicParser")
+            //<< "  Break for token string = " << tokenString
+            //<< std::endl;
 
             break;
         }
@@ -1286,9 +1311,9 @@ bool L1GtLogicParser::setNumericalExpression(const std::string& numericalExpress
 }
 
 
-// convert the logical expression composed with algorithm bits/names into a
+// convert the logical expression composed with algorithm names into a
 // numerical expression using values from DecisionWord.
-// the map convert from algorithm name to algorithm bit number, if needed
+// the map convert from algorithm name to algorithm bit number
 
 bool L1GtLogicParser::setNumericalExpression(const DecisionWord& decisionWordVal,
         const std::map<std::string, int>& algoMap)
@@ -1329,7 +1354,7 @@ bool L1GtLogicParser::setNumericalExpression(const DecisionWord& decisionWordVal
             << std::endl;
 
             m_numericalExpression.clear();
-
+            m_operandTokenVector.clear();
             return false;
 
         }
@@ -1340,8 +1365,69 @@ bool L1GtLogicParser::setNumericalExpression(const DecisionWord& decisionWordVal
 
         } else {
 
-            // replace the operand with its result
-            if (operandResultDecisionWord(rpnToken.operand, decisionWordVal, algoMap)) {
+            bool resultOperand = false;
+            int opBitNumber = -1;
+
+            // the logical expression contains L1 trigger names, get
+            // the corresponding bit number - expensive operation
+            std::map<std::string, int>::const_iterator itMap = algoMap.find(rpnToken.operand);
+
+            if (itMap != algoMap.end()) {
+                opBitNumber = itMap->second;
+            }
+            else {
+
+                // it should always find a bit number - throw exception?
+                edm::LogError("L1GtLogicParser")
+                << "\n  Bit number not found for operand " << rpnToken.operand
+                << "\n  No such entry in the L1 Trigger menu."
+                << "\n  Returned false by default."
+                << std::endl;
+
+                m_numericalExpression.clear();
+                m_operandTokenVector.clear();
+                return false;
+            }
+            
+            // acces bit - depend on DecisionWord format!
+            int iBit = 0;
+            bool foundBit = false;
+            
+            for (std::vector<bool>::const_iterator 
+                itBit = decisionWordVal.begin(); itBit != decisionWordVal.end(); itBit++) {
+
+                if (opBitNumber == iBit) {
+                    resultOperand = (*itBit);
+                    foundBit = true;
+                }
+
+                iBit++;
+
+            }
+
+            if ( !foundBit) {
+                // it should always find a bit number
+                edm::LogError("L1GtLogicParser") 
+                    << "\n  Bit number not found for operand "
+                    << rpnToken.operand << " converted to " << opBitNumber
+                    << "\n  No such entry in the L1 Trigger menu."
+                    << "\n  Returned false by default." << std::endl;
+
+                m_numericalExpression.clear();
+                m_operandTokenVector.clear();
+                return false;
+            }
+            
+            // fill vector of operand tokens
+            OperandToken opToken;
+            opToken.tokenName = rpnToken.operand;
+            opToken.tokenNumber = opBitNumber;
+            opToken.tokenResult = resultOperand;
+            
+            m_operandTokenVector.push_back(opToken);
+                
+            // numerical expresssion - replace the operand with its result
+            if (resultOperand) {
                 m_numericalExpression.append("1"); // true
             } else {
                 m_numericalExpression.append("0"); // false
@@ -1365,70 +1451,6 @@ bool L1GtLogicParser::setNumericalExpression(const DecisionWord& decisionWordVal
 
 }
 
-
-// return the result for an operand from a logical expression
-// from a decision word
-bool L1GtLogicParser::operandResultDecisionWord(
-    const std::string& operandIdentifier,
-    const DecisionWord& decisionWordVal,
-    const std::map<std::string, int>& algoMap)
-{
-    bool resultOperand = false;
-
-    // convert string to integer
-    std::istringstream opStream(operandIdentifier);
-    unsigned int opBitNumber;
-
-    bool flagName = (opStream >> opBitNumber).fail();
-
-    if ( flagName) {
-
-        // the logical expression contains L1 trigger names, get
-        // the corresponding bit number - expensive operation
-        std::map<std::string, int>::const_iterator itMap = algoMap.find(operandIdentifier);
-
-        if (itMap != algoMap.end()) {
-            opBitNumber = itMap->second;
-        } else {
-
-            // it should always find a bit number - throw exception?
-            edm::LogError("L1GtLogicParser")
-            << "\nBit number not found for operand" << operandIdentifier
-            << "\n  No such entry in the L1 Trigger menu."
-            << "\n  Returned false by default."
-            << std::endl;
-
-            return resultOperand;
-
-        }
-
-    }
-
-    // acces bit
-
-    const unsigned int numberTriggerBits = L1GlobalTriggerReadoutSetup::NumberPhysTriggers;
-
-    for (unsigned int iBit = 0; iBit < numberTriggerBits; ++iBit) {
-
-        if (opBitNumber == iBit) {
-            resultOperand = decisionWordVal[iBit];
-
-            return resultOperand;
-        }
-
-    }
-
-    // it should always find a bit number
-    edm::LogError("L1GtLogicParser")
-    << "\nBit number not found for operand" << operandIdentifier
-    << " converted to " << opBitNumber
-    << "\n  No such entry in the L1 Trigger menu."
-    << "\n  Returned false by default."
-    << std::endl;
-
-    return resultOperand;
-
-}
 
 // static members
 

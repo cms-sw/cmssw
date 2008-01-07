@@ -39,20 +39,30 @@ public:
 
     /// constructor(s)
 
+    ///   default constructor
+    L1GtLogicParser();
+
     ///   from an object map
     L1GtLogicParser(const L1GlobalTriggerObjectMap& );
 
-    ///   from a logical expression
+    ///   from a constant logical expression
     ///   numerical expression will be empty
-    L1GtLogicParser(const std::string logicalExpressionVal);
+    L1GtLogicParser(const std::string& logicalExpressionVal);
 
     ///   from a logical and a numerical expression
     L1GtLogicParser(const std::string logicalExpressionVal,
                     const std::string numericalExpressionVal);
 
-    ///   from a logical expression,a DecisionWord and a map (string, int)
+    ///   from a logical and a numerical expression
+    ///   no checks for correctness - use it only after the correctness was tested
+    L1GtLogicParser(const std::string& logicalExpressionVal,
+                    const std::string& numericalExpressionVal,
+                    const bool dummy);
+
+    ///   from a logical expression, a DecisionWord and a map (string, int)
     ///   should be used for logical expressions with algorithms
     ///   the map convert from algorithm name to algorithm bit number, if needed
+    ///   no checks for correctness - use it only after the correctness was tested
     L1GtLogicParser(const std::string&,
                     const DecisionWord&,
                     const std::map<std::string,int>&);
@@ -62,23 +72,40 @@ public:
 
 public:
 
+    struct OperandToken
+    {
+        std::string tokenName;
+        int tokenNumber;
+        bool tokenResult;
+    };
+
+public:
+
     /// return the logical expression
     inline std::string logicalExpression() const { return m_logicalExpression; }
+
+    /// check a logical expression for correctness - add/remove spaces if needed
+    bool checkLogicalExpression(std::string&);
 
     /// return the numerical expression
     inline std::string numericalExpression() const { return m_numericalExpression; }
 
 public:
 
+    /// return the vector of operand tokens - must be filled properly before retrieving it
+    inline std::vector<OperandToken> operandTokenVector() const { return m_operandTokenVector; }
+
+public:
+
     /// return the position index of the operand in the logical expression
-    int operandIndex(const std::string operandNameVal) const;
+    int operandIndex(const std::string& operandNameVal) const;
 
     /// return the name of the (iOperand)th operand in the logical expression
     std::string operandName(const int iOperand) const;
 
     /// return the result for an operand with name operandNameVal
     /// from the logical expression using a numerical expression
-    bool operandResult(const std::string operandNameVal) const;
+    bool operandResult(const std::string& operandNameVal) const;
 
     /// return the result for an operand with index iOperand
     /// in the logical expression using a numerical expression
@@ -87,22 +114,22 @@ public:
     /// return the result for the logical expression
     virtual const bool expressionResult() const;
 
+    /// build from the RPN vector the operand token vector
+    void buildOperandTokenVector();
+
     /// convert the logical expression composed with names to
     /// a logical expression composed with int numbers using
     /// a (string, int)  map
     void convertNameToIntLogicalExpression(
         const std::map<std::string, int>& nameToIntMap);
 
-
-    /// return the list of operands for the logical expression
+    /// return the list of operand tokens for the logical expression
     /// which are to be used as seeds
-    virtual const std::list<int> expressionSeedsOperandList() const;
+    virtual const std::vector<L1GtLogicParser::OperandToken> 
+        expressionSeedsOperandList() const;
 
-    /// return the list of indices of the operands in the logical expression
-    /// which are to be used as seeds
-    virtual std::list<int> expressionSeedsOperandIndexList();
 
-private:
+protected:
 
     enum OperationType {
         OP_NULL=1,
@@ -143,9 +170,12 @@ private:
     /// clear possible old rpn vector
     void clearRpnVector();
 
+    /// return the RPN vector
+    inline RpnVector rpnVector() const { return m_rpnVector; }
+
     static const struct OperationRule m_operationRules[];
 
-private:
+protected:
 
     /// add spaces before and after parantheses
     void addBracketSpaces(const std::string&, std::string&);
@@ -158,19 +188,18 @@ private:
     /// check also for correctness the input string
     bool setNumericalExpression(const std::string&);
 
-    /// convert the logical expression composed with algorithm bits into a
+    /// convert the logical expression composed with algorithm names into a
     /// numerical expression using values from DecisionWord.
-    /// the map convert from algorithm name to algorithm bit number, if needed
+    /// the map convert from algorithm name to algorithm bit number
     bool setNumericalExpression(const DecisionWord& decisionWordVal,
-                               const std::map<std::string, int>& algoMap);
+                                const std::map<std::string, int>& algoMap);
 
-    /// return the result for an operand from a logical expression
-    /// from a decision word
-    bool operandResultDecisionWord(const std::string& operandIdentifier,
-                                   const DecisionWord& decisionWordVal,
-                                   const std::map<std::string, int>& algoMap);
+protected:
 
-private:
+    /// vector of operand tokens - not always filled in constructor!
+    std::vector<OperandToken> m_operandTokenVector;
+    
+protected:
 
     /// logical expression to be parsed
     std::string m_logicalExpression;

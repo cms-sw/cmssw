@@ -123,6 +123,14 @@ public:
 
 public:
 
+    /// return all the combinations passing the requirements imposed in condition condNameVal
+    const CombinationsInCond* getCombinationsInCond(const std::string& condNameVal) const;
+
+    /// return the result for the condition condNameVal
+    const bool getConditionResult(const std::string& condNameVal) const;
+
+public:
+
     /// reset the object map 
     void reset();
     

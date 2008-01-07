@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -41,23 +41,26 @@ public:
 
 public:
 
+    /// return the object map for the algorithm algoNameVal
+    const L1GlobalTriggerObjectMap* getObjectMap(const std::string& algoNameVal) const;
+    
     /// return all the combinations passing the requirements imposed in condition condNameVal
     /// from algorithm with name algoNameVal
     const CombinationsInCond* getCombinationsInCond(
-        std::string algoNameVal, std::string condNameVal) const;
+        const std::string& algoNameVal, const std::string& condNameVal) const;
 
     /// return all the combinations passing the requirements imposed in condition condNameVal
     /// from algorithm with bit number algoBitNumberVal
     const CombinationsInCond* getCombinationsInCond(
-        int algoBitNumberVal, std::string condNameVal) const;
+        const int algoBitNumberVal, const std::string& condNameVal) const;
 
     /// return the result for the condition condNameVal
     /// from algorithm with name algoNameVal
-    const bool getConditionResult(std::string algoNameVal, std::string condNameVal) const;
+    const bool getConditionResult(const std::string& algoNameVal, const std::string& condNameVal) const;
 
     /// return the result for the condition condNameVal
     /// from algorithm with bit number algoBitNumberVal
-    const bool getConditionResult(int algoBitNumberVal, std::string condNameVal) const;
+    const bool getConditionResult(const int algoBitNumberVal, const std::string& condNameVal) const;
 
 public:
 
