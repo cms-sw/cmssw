@@ -9,10 +9,8 @@
  *
  * Implementation:
  *    This class is an HLTFilter (-> EDFilter). It implements: 
- *      - filtering on Level-1 bits, given via a logical expression 
- *        of algorithm names or bit numbers
+ *      - filtering on Level-1 bits, given via a logical expression of algorithm names
  *      - extraction of the seed objects from L1 GT object map record
- *    Initial implementation: compatible with HLTLevel1Seed (author: M. Gruenewald) 
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
@@ -23,6 +21,7 @@
 
 // system include files
 #include <string>
+#include <vector>
 #include <map>
 
 // user include files
@@ -31,6 +30,8 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 // forward declarations
@@ -52,12 +53,12 @@ public:
 
 private:
 
-    L1GtObject objectType(const int algoBit, const int indexCond, const int indexObj,
-                          const edm::EventSetup&);
+    L1GtObject objectType(const std::string& cndName, const int& indexObj,
+        const std::vector<ConditionMap>& conditionMap);
 
-    /// get map from algorithm names to algorithm bits 
-    void getAlgoMap(edm::Event&, const edm::EventSetup&); 
-    
+    /// get map of (algorithm names, algorithm bits)
+    std::map<std::string, int> mapAlgNameToBit(const AlgorithmMap&);
+
 private:
     /// logical expression for the required L1 algorithms;
     /// the algorithms can be given by name or by bit number
@@ -71,10 +72,6 @@ private:
 
     /// InputTag for L1 particle collections
     edm::InputTag m_l1CollectionsTag;
-    
-    // temporary, until L1 trigger menu implemented as EventSetup
-    std::map<std::string, int> m_algoNameToBit;
-    bool m_algoMap;
 
 };
 

@@ -7,6 +7,8 @@
 <use name=DataFormats/METReco>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/RecoCandidate>
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
@@ -18,6 +20,8 @@
   <use name=FWCore/ParameterSet>
   <use name=HLTrigger/HLTcore>
   <use name=PhysicsTools/Utilities>
+  <use name=CondFormats/L1TObjects>
+  <use name=CondFormats/DataRecord>
   <lib name=HLTriggerHLTfilters>
 </export>
 
