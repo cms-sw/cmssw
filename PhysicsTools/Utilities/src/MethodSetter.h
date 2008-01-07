@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: MethodSetter.h,v 1.1 2007/12/20 15:47:49 llista Exp $
  */
 #include "PhysicsTools/Utilities/src/MethodStack.h"
 #include "PhysicsTools/Utilities/src/TypeStack.h"
@@ -18,6 +18,7 @@ namespace reco {
     private:
       MethodStack & methStack_;
       TypeStack & typeStack_;
+      void push(const std::string&) const;
     };
   }
 }

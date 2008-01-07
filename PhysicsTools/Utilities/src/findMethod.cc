@@ -1,25 +1,44 @@
 #include "PhysicsTools/Utilities/src/findMethod.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Base.h"
-#include <iostream>
+#include "Reflex/TypeTemplate.h"
 using namespace ROOT::Reflex;
 using namespace std;
 
 namespace reco {
-  Member findMethod(const Type & type, const string & name) {
+  pair<Member, bool> findMethod(const Type & t, const string & name) {
+    Type type = t; 
     if (! type)  
       throw edm::Exception(edm::errors::Configuration)
 	<< "no dictionary for class " << type.Name() << '\n';
-    Member mem = type.FunctionMemberByName(name);
-    if(! mem) {
+    if(type.IsPointer()) type = type.ToType();
+    pair<Member, bool> mem = make_pair(type.FunctionMemberByName(name), false);
+    if(! mem.first) {
       for(Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++ b)
-	if(mem = findMethod(b->ToType(), name)) break;
+	if((mem = findMethod(b->ToType(), name)).first) break;
     }
-    if(!mem) {
+    if(!mem.first) {
+      // check for edm::Ref or edm::RefToBase or edm::Ptr
+      if(type.IsTemplateInstance()) {
+	TypeTemplate templ = type.TemplateFamily();
+	std::string name = templ.Name();
+	if(name.compare("Ref") == 0 ||
+	   name.compare("RefToBase") == 0 ||
+	   name.compare("Ptr") == 0) {
+	  mem = findMethod(type, "get");
+	  if(!mem.first) {
+	    throw edm::Exception(edm::errors::Configuration)
+	      << "no member \"get\" in reference of type " << type.Name() << "\n";        
+	  }
+	  mem.second = true;
+	}
+      }
+    }
+    if(!mem.first) {
       throw edm::Exception(edm::errors::Configuration)
-	<< "member " << name << " not found in class"  << type.Name() << "\n";        
+	<< "member " << name << " not found in class "  << type.Name() << "\n";        
     }
-    checkMethod(type, mem);
+    checkMethod(type, mem.first);
     return mem;
   }
 

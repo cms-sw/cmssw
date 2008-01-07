@@ -5,8 +5,10 @@
 #include <string>
 
 namespace reco {
-  ROOT::Reflex::Member findMethod(const ROOT::Reflex::Type & type,
-				  const std::string & name);
+  // second pair member is true if a reference is found 
+  // of type edm::Ref, edm::RefToBase or edm::Ptr
+  std::pair<ROOT::Reflex::Member, bool> findMethod(const ROOT::Reflex::Type & type,
+						   const std::string & name);
   void checkMethod(const ROOT::Reflex::Type & type, 
 		   const ROOT::Reflex::Member & mem);
 }

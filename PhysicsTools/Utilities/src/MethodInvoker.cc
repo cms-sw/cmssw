@@ -12,9 +12,22 @@ Object MethodInvoker::value(const Object & o) const {
       << "method \"" << method_.Name() 
       << "\" returned a null pointer ";   
   Type retType = ret.TypeOf();
+  bool stripped = false;
+  while(retType.IsTypedef()) { 
+    retType = retType.ToType(); stripped = true; 
+  }
   bool isRef = retType.IsReference(), isPtr = retType.IsPointer();
-  while(retType.IsTypedef()) retType = retType.ToType();
-  if(isRef||isPtr) ret = Object(retType, addr);
+  if(isPtr) {
+    if(!stripped) {
+      stripped = true;
+      retType = retType.ToType();
+      while(retType.IsTypedef()) {
+	retType = retType.ToType();
+      }
+    }
+  }
+  if(stripped)
+    ret = Object(retType, addr);
   if(!ret) 
      throw edm::Exception(edm::errors::Configuration)
       << "method \"" << method_.Name() 
