@@ -104,8 +104,8 @@ class GctBlockUnpacker
 
   // PRIVATE METHODS
   // convert functions for each type of block
-  /// unpack GCT EM Candidates
-  void blockToGctEmCand(const unsigned char * d, const GctBlockHeader& hdr);
+  /// unpack GCT EM Candidates and energy sums.
+  void blockToGctEmCandsAndEnergySums(const unsigned char * d, const GctBlockHeader& hdr);
 
   /// unpack GCT internal EM Candidates
   void blockToGctInternEmCand(const unsigned char * d, const GctBlockHeader& hdr);
@@ -119,15 +119,9 @@ class GctBlockUnpacker
   /// unpack Fibres and RCT EM Candidates
   void blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr);
   
-  /// Unpack GCT Jet Candidates.
-  void blockToGctJetCand(const unsigned char * d, const GctBlockHeader& hdr);
-  
-  /// Unpack GCT Jet Counts
-  void blockToGctJetCounts(const unsigned char * d, const GctBlockHeader& hdr);
-  
-  /// Unpack GCT Energy Sums (Et, Ht, and Missing Et)
-  void blockToGctEnergySums(const unsigned char * d, const GctBlockHeader& hdr);
-  
+  /// Unpack GCT Jet Candidates and jet counts.
+  void blockToGctJetCandsAndCounts(const unsigned char * d, const GctBlockHeader& hdr);
+
   /// Do nothing
   void blockDoNothing(const unsigned char * d, const GctBlockHeader& hdr) {}
 
