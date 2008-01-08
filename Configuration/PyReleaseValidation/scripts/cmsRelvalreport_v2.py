@@ -667,8 +667,9 @@ def principal(options):
         # istantiate a Profile object    
         if precedent_profile_name!='':
             logger('Reusing precedent profile: %s ...' %precedent_profile_name)
-            profile_name=precedent_profile_name
-
+            #profile_name=precedent_profile_name
+            logger('Copying the old profile to the new name %s ...' %profile_name)
+            execute('cp %s %s' %(precedent_profile_name, profile_name))
                 
         performance_profile=Profile(command,
                                     profiler,
