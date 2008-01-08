@@ -70,7 +70,7 @@ void ZdcTBAnalysis::analyze(const HcalTBTriggerData& trg){
 
 
 void ZdcTBAnalysis::analyze(const HcalTBTiming& times){
-  //times
+  //times 
   tdc.trigger =trigger_time = times.triggerTime();
   tdc.ttcL1 = ttc_L1a_time = times.ttcL1Atime();
   tdc.laserFlash = laser_flash = times.laserFlash();
@@ -79,30 +79,31 @@ void ZdcTBAnalysis::analyze(const HcalTBTiming& times){
   tdc.TOF2 = TOF2_time = times.TOF2Stime();
 
   // just take 5 first hits of multihit tdc (5 tick cycles)
+  int indx = 0;
   int indTop = 5;
-  for (int indx=0; indx<times.BeamCoincidenceCount(); indx++)
+  for (indx=0; indx<times.BeamCoincidenceCount(); indx++)
     if (indx < indTop)tdc.beamCoincidence[indx] =  beam_coincidence[indx] = times.BeamCoincidenceHits(indx);
-  for (int indx=0; indx<times.M1Count(); indx++)
+  for (indx=0; indx<times.M1Count(); indx++)
     if (indx < indTop)tdc.m1[indx] =  m1hits[indx] = times.M1Hits(indx);
-  for (int indx=0; indx<times.M2Count(); indx++)
+  for (indx=0; indx<times.M2Count(); indx++)
     if (indx < indTop) tdc.m2[indx] = m2hits[indx] = times.M2Hits(indx);
-  for (int indx=0; indx<times.M3Count(); indx++)
+  for (indx=0; indx<times.M3Count(); indx++)
     if (indx < indTop) tdc.m3[indx] = m3hits[indx] = times.M3Hits(indx);
-  for (int indx=0; indx<times.S1Count(); indx++)
-    if (indx < indTop) tdc.s1[indx] = s1hits[indx] = times.S1Hits(indx);
-  for (int indx=0; indx<times.S2Count(); indx++)
+  for (indx=0; indx<times.S1Count(); indx++)
+    if (indx < indTop)tdc.s1[indx] = s1hits[indx]= times.S1Hits(indx);
+  for (indx=0; indx<times.S2Count(); indx++)
     if (indx < indTop) tdc.s2[indx] = s2hits[indx] = times.S2Hits(indx);
-  for (int indx=0; indx<times.S3Count() ; indx++)
+  for (indx=0; indx<times.S3Count() ; indx++)
     if (indx < indTop) tdc.s3[indx] =  s3hits[indx] = times.S3Hits(indx);
-  for (int indx=0; indx<times.S4Count(); indx++)
+  for (indx=0; indx<times.S4Count(); indx++)
     if (indx < indTop) tdc.s4[indx] = s4hits[indx] = times.S4Hits(indx);
-  for (int indx=0; indx<times.BH1Count(); indx++)
+  for (indx=0; indx<times.BH1Count(); indx++)
     if (indx < indTop) tdc.bh1[indx] = bh1hits[indx] = times.BH1Hits(indx);
-  for (int indx=0; indx<times.BH2Count(); indx++)
+  for (indx=0; indx<times.BH2Count(); indx++)
     if (indx < indTop) tdc.bh2[indx] = bh2hits[indx] = times.BH2Hits(indx);
-  for (int indx=0; indx<times.BH3Count() ; indx++)
+  for (indx=0; indx<times.BH3Count() ; indx++)
     if (indx < indTop) tdc.bh3[indx] =  bh3hits[indx] = times.BH3Hits(indx);
-  for (int indx=0; indx<times.BH4Count(); indx++)
+  for (indx=0; indx<times.BH4Count(); indx++)
     if (indx < indTop) tdc.bh4[indx] =  bh4hits[indx] = times.BH4Hits(indx);
 }
 
@@ -156,17 +157,8 @@ void ZdcTBAnalysis::analyze(const HcalTBEventPosition& chpos){
   chpos.getChamberHits('H',wchx,wchy);
   
   // just take 5 first hits of chambers (5 tick cycles)
-  chpos.getChamberHits('B',wcbx,wcby);
-  chpos.getChamberHits('C',wccx,wccy);
-  chpos.getChamberHits('D',wcdx,wcdy);
-  chpos.getChamberHits('E',wcex,wcey);
-  chpos.getChamberHits('F',wcfx,wcfy);
-  chpos.getChamberHits('G',wcgx,wcgy);
-  chpos.getChamberHits('H',wchx,wchy);
-  
-  // just take 5 first hits of chambers (5 tick cycles)
-  int unsigned indTop = 5;
-  int unsigned indx = 0;
+  int indTop = 5;
+  int indx = 0;
   for (indx = 0; indx < wcax.size(); indx++)
     if (indx < indTop)chamb.WCAx[indx] = wcax[indx];
   for (indx = 0; indx < wcay.size(); indx++)
@@ -203,7 +195,7 @@ void ZdcTBAnalysis::analyze(const HcalTBEventPosition& chpos){
 
 void ZdcTBAnalysis::analyze(const ZDCRecHitCollection& zdcHits){
   // zdc hits
-std::cout<<"****************************************************"<<std::endl;
+  std::cout<<"****************************************************"<<std::endl;
   ZDCRecHitCollection::const_iterator i;
   for(i = zdcHits.begin(); i!=zdcHits.end(); i++){
     energy = i->energy();
@@ -215,6 +207,7 @@ std::cout<<"****************************************************"<<std::endl;
     std::cout<<"energy: "<<energy<<" detID: "<<detID
 	     <<" side: "<<iside<<" section: "<<isection
 	     <<" channel: "<<ichannel<< " depth: "<<idepth<<std::endl;
+    
     if(iside>0){      
       if(ichannel ==1 && isection ==1)zdcp.zdcEMMod1 = energy;
       if(ichannel ==2 && isection ==1)zdcp.zdcEMMod2 = energy;
@@ -242,7 +235,7 @@ std::cout<<"****************************************************"<<std::endl;
   }
 }
 
-void ZdcTBAnalysis::fill(){
+void ZdcTBAnalysis::fillTree(){
   ZdcAnalize->Fill();  
 }
 
