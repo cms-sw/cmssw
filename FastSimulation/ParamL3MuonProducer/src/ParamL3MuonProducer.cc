@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.10 2007/10/23 15:43:52 pjanot Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.11 2007/12/28 21:01:44 pjanot Exp $
 //
 //
 
@@ -168,18 +168,12 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       std::vector<unsigned> SimTrackIds( fullPattern_ ? trk->recHitsSize() : 0,
 					 static_cast<unsigned>(0));
 
-      // The rechit iterator
-      trackingRecHit_iterator it = trk->recHitsBegin();
-
       // Here is the case with fast tracking (no pattern recognition) 
       // All rechits come from the same sim track, so only the first hit is checked.
       int idmax = -1;
       if ( !fullPattern_ ) { 
-	// The first recHit
-	const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *> (it->get());
-	
-	// The simtrack id
-	idmax = rechit->simtrackId();
+	// Find the SimTrack Id
+	idmax = findId(*trk);
 
       // Now comes the case with full pattern recognition
       // The rechits may come from several simtracks, so take the simtrack which shares
@@ -187,6 +181,8 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       } else { 
 
 	// Fill it!
+	// The rechit iterator
+	trackingRecHit_iterator it = trk->recHitsBegin();
 	trackingRecHit_iterator rechitsEnd = trk->recHitsEnd();
 	// Loop on the rechits for this track
 	for ( unsigned ih=0; it!=rechitsEnd; ++it,++ih ) { 
@@ -612,6 +608,18 @@ void ParamL3MuonProducer::readParameters(const edm::ParameterSet& fastMuons,
     std::cout << " The FAST tracking option is turned ON" << std::endl;
 }
 
+int 
+ParamL3MuonProducer::findId(const reco::Track& aTrack) const {
+  int trackId = -1;
+  trackingRecHit_iterator aHit = aTrack.recHitsBegin();
+  trackingRecHit_iterator lastHit = aTrack.recHitsEnd();
+  for ( ; aHit!=lastHit; ++aHit ) {
+    if ( !aHit->get()->isValid() ) continue;
+    const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aHit->get());
+    trackId = rechit->simtrackId();
+  }
+  return trackId;
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ParamL3MuonProducer);

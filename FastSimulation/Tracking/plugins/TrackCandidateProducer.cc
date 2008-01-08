@@ -21,7 +21,6 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "FastSimulation/Tracking/interface/TrackerRecHit.h"
-#include "FastSimulation/Tracking/interface/FastTransientTrackingRecHit.h"
 
 #include "FastSimulation/Tracking/plugins/TrackCandidateProducer.h"
 
@@ -348,13 +347,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     unsigned nTrackerHits = theTrackerRecHits.size();
     recHits.reserve(nTrackerHits); // To save some time at push_back
     for ( unsigned ih=0; ih<nTrackerHits; ++ih ) {
-	TrackingRecHit* aTrackingRecHit = 
-	  FastTransientTrackingRecHit(theTrackerRecHits[ih].geomDet(),
-				      theTrackerRecHits[ih].hit()).hitPtr();
-	// This used to be (much slower) like that:	
-	// TrackingRecHit* aTrackingRecHit = 
-	//  GenericTransientTrackingRecHit::build(theTrackerRecHits[ih].geomDet(),
-        //                                        theTrackerRecHits[ih].hit())->hit()->clone();
+      TrackingRecHit* aTrackingRecHit = theTrackerRecHits[ih].hit()->clone();
       recHits.push_back(aTrackingRecHit);
 #ifdef FAMOS_DEBUG
       const DetId& detId = theTrackerRecHits[ih].hit()->geographicalId();      

@@ -4,8 +4,8 @@
 /** \class FastL3MuonTrajectoryBuilder
  *  class to build muon trajectory from STA L2 muons and tracker tracks
  *
- *  $Date: 2007/12/28 11:32:54 $
- *  $Revision: 1.0 $
+ *  $Date: 2007/12/28 21:00:27 $
+ *  $Revision: 1.1 $
  *
  *  \author Patrick Janot - CERN 
  */
@@ -15,7 +15,15 @@
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet; 
+  class Event; 
+  class EventSetup;
+}
+
+namespace reco { 
+  class Track;
+}
 
 class MuonServiceProxy;
 class Trajectory;
@@ -45,6 +53,9 @@ class FastL3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
 
     /// build a tracker Trajectory from a seed
     TC makeTrajsFromSeeds(const std::vector<TrajectorySeed>&) const;
+
+    /// Find the simTrack id of a reco track
+    int findId(const reco::Track& aTrack) const;
 
   private:
   

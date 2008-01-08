@@ -15,7 +15,7 @@
 //
 //  Author:  Andrea Perrotta
 // Created:  Wed May 02 12:37:24 CET 2007
-// $Id: ParamL3MuonProducer.h,v 1.5 2007/10/01 14:37:32 aperrott Exp $
+// $Id: ParamL3MuonProducer.h,v 1.6 2007/12/28 21:01:41 pjanot Exp $
 //
 
 
@@ -39,6 +39,7 @@ class RandomEngine;
 
 namespace reco { 
   class Muon;
+  class Track;
 }
 
 namespace edm { 
@@ -61,6 +62,10 @@ class ParamL3MuonProducer : public edm::EDProducer {
 
       explicit ParamL3MuonProducer(const edm::ParameterSet&);
       ~ParamL3MuonProducer();
+
+   private:
+
+      int findId(const reco::Track& aTrack) const;
 
    private:
 

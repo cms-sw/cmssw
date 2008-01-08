@@ -29,7 +29,6 @@
 
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
-#include "FastSimulation/Tracking/interface/FastTransientTrackingRecHit.h"
 //
 
 //for debug only 
@@ -461,13 +460,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       // 1) Create the vector of RecHits
       edm::OwnVector<TrackingRecHit> recHits;
       for ( unsigned ih=0; ih<theSeedHits.size(); ++ih ) {
-	TrackingRecHit* aTrackingRecHit = 
-	  FastTransientTrackingRecHit(theSeedHits[ih].geomDet(),
-				      theSeedHits[ih].hit()).hitPtr();
-	// This used to be liked that (much slower)
-	// TrackingRecHit* aTrackingRecHit = 
-	//  GenericTransientTrackingRecHit::build(theSeedHits[ih].geomDet(),
-	// 					  theSeedHits[ih].hit())->hit()->clone();
+	TrackingRecHit* aTrackingRecHit = theSeedHits[ih].hit()->clone();
 	recHits.push_back(aTrackingRecHit);
       }
 #ifdef FAMOS_DEBUG

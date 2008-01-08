@@ -10,8 +10,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/12/28 11:34:50 $
- *  $Revision: 1.0 $
+ *  $Date: 2007/12/28 21:00:28 $
+ *  $Revision: 1.1 $
  *
  *  Authors :
  *  Patrick Janot - CERN
@@ -212,8 +212,7 @@ FastL3MuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) cons
     for ( anAssociation = firstAssociation; anAssociation != lastAssociation; ++anAssociation ) { 
       edm::Ref<std::vector<Trajectory> > aTrajectoryRef = anAssociation->key;
       reco::TrackRef aTrackRef = anAssociation->val;
-      const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aTrackRef->recHitsBegin()->get());
-      unsigned recoTrackId = rechit->simtrackId();
+      int recoTrackId = findId(*aTrackRef);
       if ( recoTrackId == simTrack.trackId() ) {
 	tkCandColl.push_back(TrackCand(new Trajectory((*aTrajectoryRef)),reco::TrackRef()));
 	break;
@@ -240,6 +239,20 @@ FastL3MuonTrajectoryBuilder::makeTrajsFromSeeds(const std::vector<TrajectorySeed
   return result;
 
 }
+
+int 
+FastL3MuonTrajectoryBuilder::findId(const reco::Track& aTrack) const {
+  int trackId = -1;
+  trackingRecHit_iterator aHit = aTrack.recHitsBegin();
+  trackingRecHit_iterator lastHit = aTrack.recHitsEnd();
+  for ( ; aHit!=lastHit; ++aHit ) {
+    if ( !aHit->get()->isValid() ) continue;
+    const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aHit->get());
+    trackId = rechit->simtrackId();
+  }
+  return trackId;
+}
+
 
 
 

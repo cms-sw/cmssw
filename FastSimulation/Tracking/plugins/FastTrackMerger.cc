@@ -99,16 +99,18 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
     reco::TrackCollection::const_iterator aTrack = theTrackCollection->begin();
     reco::TrackCollection::const_iterator lastTrack = theTrackCollection->end();
     for ( ; aTrack!=lastTrack; ++aTrack ) {
-      const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aTrack->recHitsBegin()->get());
-      unsigned recoTrackId = rechit->simtrackId();
-      if ( removeTracks.find(recoTrackId) != removeTracks.end() ) continue;
-      removeTracks.insert(recoTrackId);      
+      // Get the simtrack Id
+      int recoTrackId = findId(*aTrack);
+      if ( recoTrackId < 0 ) continue;
+      // Remove the track if requested
+      if ( removeTracks.find((unsigned)recoTrackId) != removeTracks.end() ) continue;
+      removeTracks.insert((unsigned)recoTrackId);
     }      
   }
-
+  
   // Then the tracks to be added
   std::set<unsigned> alreadyAddedTracks;
-
+  
   // Loop on the track producers to be merged
   for ( unsigned aProducer=0; aProducer<trackProducers.size(); ++aProducer ) { 
     
@@ -138,18 +140,19 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
       bool index = 0;
       for ( ; aTrack!=lastTrack; ++aTrack,++index ) {
 
-	const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aTrack->recHitsBegin()->get());
-	unsigned recoTrackId = rechit->simtrackId();
-	
+	// Find the track id
+	int recoTrackId = findId(*aTrack);
+	if ( recoTrackId < 0 ) continue;
+      	
 	// Ignore tracks to be removed or tracks already copied
-	std::set<unsigned>::iterator iR = removeTracks.find(recoTrackId);
+	std::set<unsigned>::iterator iR = removeTracks.find((unsigned)recoTrackId);
 #ifdef FAMOS_DEBUG
 	if( iR != removeTracks.end() ) std::cout << recoTrackId << "(REMOVED) ";
 #endif
 	if( iR != removeTracks.end() ) continue;
 	
 	// Ignore tracks already copied
-	std::set<unsigned>::iterator iA = alreadyAddedTracks.find(recoTrackId);
+	std::set<unsigned>::iterator iA = alreadyAddedTracks.find((unsigned)recoTrackId);
 #ifdef FAMOS_DEBUG
 	if( iA != alreadyAddedTracks.end() ) std::cout << recoTrackId << "(ALREADY ADDED) ";
 #endif
@@ -184,7 +187,7 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
       unsigned nRecoHits = 0;
       for ( ; aTrack!=lastTrack; ++aTrack ) nRecoHits+= aTrack->recHitsSize();
       recoHits->reserve(nRecoHits); // This is to save some time at push_back.
-
+      
       e.getByLabel(trackProducers[aProducer],theTrajectoryCollection);
       e.getByLabel(trackProducers[aProducer],theAssoMap);
       
@@ -200,18 +203,19 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
       for ( ; anAssociation != lastAssociation; ++anAssociation ) { 
 	edm::Ref<std::vector<Trajectory> > aTrajectoryRef = anAssociation->key;
 	reco::TrackRef aTrackRef = anAssociation->val;
-	const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aTrackRef->recHitsBegin()->get());
-	unsigned recoTrackId = rechit->simtrackId();
-	
+	// Find the track id
+	int recoTrackId = findId(*aTrackRef);
+	if ( recoTrackId < 0 ) continue;
+      	
 	// Ignore tracks to be removed or tracks already copied
-	std::set<unsigned>::iterator iR = removeTracks.find(recoTrackId);
+	std::set<unsigned>::iterator iR = removeTracks.find((unsigned)recoTrackId);
 #ifdef FAMOS_DEBUG
 	if( iR != removeTracks.end() ) std::cout << recoTrackId << "(REMOVED) ";
 #endif
 	if( iR != removeTracks.end() ) continue;
 	
 	// Ignore tracks already copied
-	std::set<unsigned>::iterator iA = alreadyAddedTracks.find(recoTrackId);
+	std::set<unsigned>::iterator iA = alreadyAddedTracks.find((unsigned)recoTrackId);
 #ifdef FAMOS_DEBUG
 	if( iA != alreadyAddedTracks.end() ) std::cout << recoTrackId << "(ALREADY ADDED) ";
 #endif
@@ -223,8 +227,8 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	
 	// Ignore tracks with too small a pT
 	if ( aTrackRef->innerMomentum().Perp2() < pTMin2 ) continue;
-
-	// Ignore tracks with too small a pT
+	
+	// Ignore tracks with too few hits
 	if ( aTrackRef->recHitsSize() < minHits ) continue;
 	
 	// A copy of the track
@@ -246,7 +250,7 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
       std::cout << std::endl;
 #endif
     }
-  }
+}
     
     // Save the track candidates in the event
 #ifdef FAMOS_DEBUG
@@ -318,5 +322,17 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 
 }
 
+int 
+FastTrackMerger::findId(const reco::Track& aTrack) const {
+  int trackId = -1;
+  trackingRecHit_iterator aHit = aTrack.recHitsBegin();
+  trackingRecHit_iterator lastHit = aTrack.recHitsEnd();
+  for ( ; aHit!=lastHit; ++aHit ) {
+    if ( !aHit->get()->isValid() ) continue;
+    const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aHit->get());
+    trackId = rechit->simtrackId();
+  }
+  return trackId;
+}
 
 

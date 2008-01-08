@@ -12,6 +12,10 @@ namespace edm {
   class EventSetup;
 }
 
+namespace reco { 
+  class Track;
+}
+
 class FastTrackMerger : public edm::EDProducer
 {
  public:
@@ -24,6 +28,10 @@ class FastTrackMerger : public edm::EDProducer
   
   virtual void produce(edm::Event& e, const edm::EventSetup& es);
   
+ private:
+
+  int findId(const reco::Track& aTrack) const;
+
  private:
 
   std::vector<edm::InputTag> trackProducers;
