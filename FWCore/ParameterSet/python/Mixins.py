@@ -70,12 +70,14 @@ class _Parameterizable(object):
         usings = []
         for name in self.parameterNames_():
             param = self.__dict__[name]
+            # we don't want minuses in names
+            name2 = name.replace('-','_')
             options.indent()
             #_UsingNodes don't get assigned variables
             if name.startswith("using_"):
                 usings.append(options.indentation()+param.dumpPython(options))
             else:
-                others.append(options.indentation()+name+' = '+param.dumpPython(options))
+                others.append(options.indentation()+name2+' = '+param.dumpPython(options))
             options.unindent()
         # usings need to go first
         resultList = usings
