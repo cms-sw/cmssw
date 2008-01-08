@@ -30,6 +30,10 @@ class ZdcTBAnalyzer : public edm::EDAnalyzer {
 private:
   std::string outputFileName;
   std::string inputFileName;
+  bool beamDetectorsADCInfo;
+  bool beamDetectorsTDCInfo;
+  bool wireChambersInfo;
+  bool triggerInfo;
   ZdcTBAnalysis zdcTBAnalysis;
 };
 
@@ -37,6 +41,11 @@ ZdcTBAnalyzer::ZdcTBAnalyzer(const edm::ParameterSet& iConfig)
 {
   std::cout<<"**************** ZdcTBAnalizer Start**************************"<<std::endl;
   edm::ParameterSet para = iConfig.getParameter<edm::ParameterSet>("ZdcTBAnalyzer");
+  
+  beamDetectorsADCInfo = para.getParameter<bool>("beamDetectorsADCInfoFlag");
+  beamDetectorsTDCInfo = para.getParameter<bool>("beamDetectorsTDCInfoFlag");
+  wireChambersInfo = para.getParameter<bool>("wireChambersInfoFlag");
+  triggerInfo = para.getParameter<bool>("triggerInfoFlag");
   outputFileName =  para.getParameter<std::string>("ntupleOutputFileName");
   zdcTBAnalysis.setup(outputFileName);
 }
@@ -44,20 +53,32 @@ ZdcTBAnalyzer::ZdcTBAnalyzer(const edm::ParameterSet& iConfig)
 ZdcTBAnalyzer::~ZdcTBAnalyzer(){;}
 
 void ZdcTBAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&){
-   using namespace edm;
-   edm::Handle<ZDCRecHitCollection> zdcRecHits;
-   edm::Handle<HcalTBTriggerData> triggers;
-   edm::Handle<HcalTBTiming> times;
-   edm::Handle<HcalTBBeamCounters> bc;
-   edm::Handle<HcalTBEventPosition> chpos;
+  using namespace edm;
+  edm::Handle<ZDCRecHitCollection> zdcRecHits;
+  edm::Handle<HcalTBTriggerData> triggers;
+  edm::Handle<HcalTBTiming> times;
+  edm::Handle<HcalTBBeamCounters> bc;
+  edm::Handle<HcalTBEventPosition> chpos;
   
-   e.getByType(zdcRecHits);
-   e.getByType(triggers);
-   e.getByType(times);    ///e.getByLabel("tbunpacker2",times);
-   e.getByType(bc);
-   e.getByType(chpos);
-
-   zdcTBAnalysis.analyze(*zdcRecHits,*triggers,*times,*bc,*chpos);
+  e.getByType(zdcRecHits);
+  if(triggerInfo){
+    e.getByType(triggers);
+    zdcTBAnalysis.analyze(*triggers);
+  }
+  if(beamDetectorsTDCInfo){
+    e.getByType(times);  // e.getByLabel("tbunpacker2",times);
+    zdcTBAnalysis.analyze(*times);
+  }
+  if(beamDetectorsADCInfo){
+    e.getByType(bc);
+     zdcTBAnalysis.analyze(*times);
+  }
+  if(wireChambersInfo){
+    e.getByType(chpos);
+    zdcTBAnalysis.analyze(*chpos);
+  }     
+  zdcTBAnalysis.analyze(*zdcRecHits);
+  zdcTBAnalysis.fill();
 }
 
 void ZdcTBAnalyzer::endJob(){

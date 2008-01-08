@@ -100,7 +100,7 @@ typedef struct CHAMB{
 }CHAMB; 
 
 
-typedef struct ZDC{
+typedef struct ZDCN{
   double zdcHADMod1;
   double zdcHADMod2;
   double zdcHADMod3;
@@ -113,20 +113,36 @@ typedef struct ZDC{
   double zdcScint1;
   double zdcScint2;
   double zdcExtras[7];
-}ZDC;
+}ZDCN;
+
+typedef struct ZDCP{
+  double zdcHADMod1;
+  double zdcHADMod2;
+  double zdcHADMod3;
+  double zdcHADMod4;
+  double zdcEMMod1;
+  double zdcEMMod2;
+  double zdcEMMod3;
+  double zdcEMMod4;
+  double zdcEMMod5;
+  double zdcScint1;
+  double zdcScint2;
+  double zdcExtras[7];
+}ZDCP;
 
 class ZdcTBAnalysis {
 public:
   ZdcTBAnalysis(); 
   void setup(const std::string& histoFileName);
-  void analyze(const ZDCRecHitCollection& hf,
-	       const HcalTBTriggerData& trg,
-	       const HcalTBTiming& times,
-	       const HcalTBBeamCounters& bc,
-	       const HcalTBEventPosition& chpos);
-  void done(); 
- private:
+  void analyze(const ZDCRecHitCollection& hf);
+  void analyze(const HcalTBTriggerData& trg);
+  void analyze(const HcalTBBeamCounters& bc);
+  void analyze(const HcalTBTiming& times);
+  void analyze(const HcalTBEventPosition& chpos);
+  void fill();
+  void done();
 
+ private:
   int iside;
   int isection;
   int ichannel;
@@ -223,7 +239,8 @@ public:
   TDC tdc;
   ADC adc;
   CHAMB chamb;
-  ZDC zdc;
+  ZDCP zdcp;
+  ZDCN zdcn;
 
   TFile* outFile; 
   TTree* ZdcAnalize;
