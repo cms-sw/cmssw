@@ -1,0 +1,41 @@
+/* convertStdHep/defs.h.in.  Generated from configure.in by autoheader.  */
+
+#ifndef CONVERT_STDHEP_DEFS_H
+#define CONVERT_STDHEP_DEFS_H
+
+/* Name of package */
+#ifndef PACKAGE
+#undef PACKAGE
+#endif
+
+/* Define to the address where bug reports for this package should be sent. */
+#ifndef PACKAGE_BUGREPORT
+#undef PACKAGE_BUGREPORT
+#endif
+
+/* Define to the full name of this package. */
+#ifndef PACKAGE_NAME
+#undef PACKAGE_NAME
+#endif
+
+/* Define to the full name and version of this package. */
+#ifndef PACKAGE_STRING
+#undef PACKAGE_STRING
+#endif
+
+/* Define to the one symbol short name of this package. */
+#ifndef PACKAGE_TARNAME
+#undef PACKAGE_TARNAME
+#endif
+
+/* Define to the version of this package. */
+#ifndef PACKAGE_VERSION
+#undef PACKAGE_VERSION
+#endif
+
+/* Version number of package */
+#ifndef VERSION
+#undef VERSION
+#endif
+
+#endif  // CONVERT_STDHEP_DEFS_H
