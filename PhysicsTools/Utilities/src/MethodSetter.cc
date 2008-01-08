@@ -16,8 +16,9 @@ void MethodSetter::operator()(const char * begin, const char * end) const {
     if(intStack_.size()==0)
       throw edm::Exception(edm::errors::Configuration)
 	<< "expected method argument, but integer stack is empty\n";    
-    args.push_back(intStack_.back());
-    intStack_.pop_back();
+    for(vector<int>::const_iterator i = intStack_.begin(); i != intStack_.end(); ++i)
+      args.push_back(*i);
+    intStack_.clear();
   }
   string::size_type endOfExpr = name.find_last_of(' ');
   if(endOfExpr != string::npos)

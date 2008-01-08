@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -125,7 +125,8 @@ BOOST_SPIRIT_DEBUG_RULE(fun);
 	  number = 
 	    real_p [ number_s ];
 	  var = 
-	    ( alpha_p >> * alnum_p >> ch_p('(') >> int_p [ int_s ] >> ch_p(')') ) [ method_s ] |
+	    ( alpha_p >> * alnum_p >> 
+	      ch_p('(') >> int_p [ int_s ] >> * ( ch_p(',') >> int_p [ int_s ] ) >> ch_p(')') ) [ method_s ] |
 	    ( alpha_p >> * alnum_p ) [ method_s ];
 	  method = 
 	    ( var >> * ( ( ch_p('.') >> var ) ) ) [ var_s ];
