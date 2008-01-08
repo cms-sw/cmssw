@@ -1732,7 +1732,7 @@ namespace edm {
 
       while (itemType = input_->nextItemType()) {
 
-        std::cout << "itemType = " << itemType << "\n";
+        FDEBUG(1) << "itemType = " << itemType << "\n";
 
         {
           boost::mutex::scoped_lock sl(usr2_lock);
@@ -1764,7 +1764,7 @@ namespace edm {
           machine.process_event(statemachine::Event());
         }
         if (machine.terminated()) {
-	  std::cout << "The state machine reports it has been terminated\n";
+	  FDEBUG(1) << "The state machine reports it has been terminated\n";
           changeState(mInputExhausted);
           break;
         }
@@ -1778,66 +1778,66 @@ namespace edm {
 
   void EventProcessor::readFile() {
     // IMPLEMENTATION: OK
-    std::cout << " \treadFile\n";
+    FDEBUG(1) << " \treadFile\n";
     fb_ = input_->readFile();
   }
 
   void EventProcessor::closeInputFile() {
     // IMPLEMENTATION: NOT DONE
-    std::cout << "\tcloseInputFile\n";
+    FDEBUG(1) << "\tcloseInputFile\n";
   }
 
   void EventProcessor::openOutputFiles() {
     // IMPLEMENTATION: OK
     schedule_->openOutputFiles(*fb_);
-    std::cout << "\topenOutputFiles\n";
+    FDEBUG(1) << "\topenOutputFiles\n";
   }
 
   void EventProcessor::closeOutputFiles() {
     // IMPLEMENTATION: NOT DONE
-    std::cout << "\tcloseOutputFiles\n";
+    FDEBUG(1) << "\tcloseOutputFiles\n";
   }
 
   void EventProcessor::respondToOpenInputFile() {
     // IMPLEMENTATION: NOT DONE
-    std::cout << "\trespondToOpenInputFile\n";
+    FDEBUG(1) << "\trespondToOpenInputFile\n";
   }
 
   void EventProcessor::respondToCloseInputFile() {
     // IMPLEMENTATION: OK
     schedule_->respondToCloseInputFile(*fb_);
-    std::cout << "\trespondToCloseInputFile\n";
+    FDEBUG(1) << "\trespondToCloseInputFile\n";
   }
 
   void EventProcessor::respondToOpenOutputFiles() {
     // IMPLEMENTATION: NOT DONE
-    std::cout << "\trespondToOpenOutputFiles\n";
+    FDEBUG(1) << "\trespondToOpenOutputFiles\n";
   }
 
   void EventProcessor::respondToCloseOutputFiles() {
     // IMPLEMENTATION: NOT DONE
-    std::cout << "\trespondToCloseOutputFiles\n";
+    FDEBUG(1) << "\trespondToCloseOutputFiles\n";
   }
 
   void EventProcessor::startingNewLoop() {
     // IMPLEMENTATION: NOT KNOWN
-    std::cout << "\tstartingNewLoop\n";
+    FDEBUG(1) << "\tstartingNewLoop\n";
   }
 
   bool EventProcessor::endOfLoop() {
     // IMPLEMENTATION: NOT KNOWN
-    std::cout << "\tendOfLoop\n";
+    FDEBUG(1) << "\tendOfLoop\n";
     return true;
   }
 
   void EventProcessor::rewindInput() {
     // IMPLEMENTATION: NOT KNOWN
-    std::cout << "\trewind\n";
+    FDEBUG(1) << "\trewind\n";
   }
 
   void EventProcessor::prepareForNextLoop() {
     // IMPLEMENTATION: NOT KNOWN
-    std::cout << "\tprepareForNextLoop\n";
+    FDEBUG(1) << "\tprepareForNextLoop\n";
   }
 
   void EventProcessor::writeCache() {
@@ -1850,18 +1850,18 @@ namespace edm {
       schedule_->writeLumi(principalCache_.lowestLumi());
       principalCache_.deleteLowestLumi();      
     }
-    std::cout << "\twriteCache\n";
+    FDEBUG(1) << "\twriteCache\n";
   }
 
   bool EventProcessor::shouldWeCloseOutput() {
     // IMPLEMENTATION: NOT KNOWN
-    std::cout << "\tshouldWeCloseOutput\n";
+    FDEBUG(1) << "\tshouldWeCloseOutput\n";
     return true;
   }
 
   void EventProcessor::doErrorStuff() {
     // IMPLEMENTATION: NOT KNOWN
-    std::cout << "\tdoErrorStuff\n";
+    FDEBUG(1) << "\tdoErrorStuff\n";
   }
 
   void EventProcessor::smBeginRun(int run) {
@@ -1871,7 +1871,7 @@ namespace edm {
                     runPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(runPrincipal, es, BranchActionBegin);
-    std::cout << "\tbeginRun " << run << "\n";
+    FDEBUG(1) << "\tbeginRun " << run << "\n";
   }
 
   void EventProcessor::smEndRun(int run) {
@@ -1883,7 +1883,7 @@ namespace edm {
                     runPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(runPrincipal, es, BranchActionEnd);
-    std::cout << "\tendRun " << run << "\n";
+    FDEBUG(1) << "\tendRun " << run << "\n";
   }
 
   void EventProcessor::beginLumi(int run, int lumi) {
@@ -1892,7 +1892,7 @@ namespace edm {
     IOVSyncValue ts(EventID(lumiPrincipal.run(),0), lumiPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(lumiPrincipal, es, BranchActionBegin);
-    std::cout << "\tbeginLumi " << run << "/" << lumi << "\n";
+    FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
   }
 
   void EventProcessor::endLumi(int run, int lumi) {
@@ -1904,45 +1904,45 @@ namespace edm {
                     lumiPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(lumiPrincipal, es, BranchActionEnd);
-    std::cout << "\tendLumi " << run << "/" << lumi << "\n";
+    FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
   }
 
   int EventProcessor::readAndCacheRun() {
     // IMPLEMENTATION: OK, but cacheing needs rework.
     principalCache_.insert(input_->readRun());
-    std::cout << "\treadAndCacheRun " << "\n";
+    FDEBUG(1) << "\treadAndCacheRun " << "\n";
     return principalCache_.runPrincipal().run();
   }
 
   int EventProcessor::readAndCacheLumi() {
     // IMPLEMENTATION: OK, but cacheing needs rework.
     principalCache_.insert(input_->readLuminosityBlock(principalCache_.runPrincipalPtr()));
-    std::cout << "\treadAndCacheLumi " << "\n";
+    FDEBUG(1) << "\treadAndCacheLumi " << "\n";
     return principalCache_.lumiPrincipal().luminosityBlock();
   }
 
   void EventProcessor::writeRun(int run) {
     // IMPLEMENTATION: OK
     schedule_->writeRun(principalCache_.runPrincipal(run));
-    std::cout << "\twriteRun " << run << "\n";
+    FDEBUG(1) << "\twriteRun " << run << "\n";
   }
 
   void EventProcessor::deleteRunFromCache(int run) {
     // IMPLEMENTATION: OK
     principalCache_.deleteRun(run);
-    std::cout << "\tdeleteRunFromCache " << run << "\n";
+    FDEBUG(1) << "\tdeleteRunFromCache " << run << "\n";
   }
 
   void EventProcessor::writeLumi(int run, int lumi) {
     // IMPLEMENTATION: OK
     schedule_->writeLumi(principalCache_.lumiPrincipal(run, lumi));
-    std::cout << "\twriteLumi " << run << "/" << lumi << "\n";
+    FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
   }
 
   void EventProcessor::deleteLumiFromCache(int run, int lumi) {
     // IMPLEMENTATION: OK
     principalCache_.deleteLumi(run, lumi);
-    std::cout << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
+    FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 
   void EventProcessor::readEvent() {
@@ -1950,7 +1950,7 @@ namespace edm {
     CallPrePost holder(*actReg_);
     sm_evp_ = input_->readEvent(principalCache_.lumiPrincipalPtr());
 
-    std::cout << "\treadEvent\n";
+    FDEBUG(1) << "\treadEvent\n";
   }
 
   void EventProcessor::processEvent() {
@@ -1959,12 +1959,12 @@ namespace edm {
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(*sm_evp_, es, BranchActionEvent);
 
-    std::cout << "\tprocessEvent\n";
+    FDEBUG(1) << "\tprocessEvent\n";
   }
 
   bool EventProcessor::shouldWeStop() {
     // IMPLEMENTATION: OK
-    std::cout << "\tshouldWeStop\n";
+    FDEBUG(1) << "\tshouldWeStop\n";
     return schedule_->terminate();
   }
 }
