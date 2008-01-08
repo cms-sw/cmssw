@@ -13,9 +13,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2007/02/23 00:49:48 $
-// $Revision: 1.6 $
+// $Author: gutsche $
+// $Date: 2007/03/15 20:17:21 $
+// $Revision: 1.7 $
 //
 
 #include <vector>
@@ -32,6 +32,7 @@ class RoadMaker {
   
   enum GeometryStructure {
     FullDetector,
+    FullDetectorII,
     MTCC,
     TIF,
     TIFTOB,

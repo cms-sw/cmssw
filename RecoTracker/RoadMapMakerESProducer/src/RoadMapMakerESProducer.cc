@@ -9,8 +9,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/15 20:17:22 $
-// $Revision: 1.9 $
+// $Date: 2007/03/30 02:49:39 $
+// $Revision: 1.10 $
 //
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/RoadMapMakerESProducer.h"
@@ -45,6 +45,8 @@ RoadMapMakerESProducer::RoadMapMakerESProducer(const edm::ParameterSet& iConfig)
     geometryStructure_ = RoadMaker::TIFTOBTEC;
   } else if ( tmp_string == "FullDetector" ) {
     geometryStructure_ = RoadMaker::FullDetector;
+  } else if ( tmp_string == "FullDetectorII" ) {
+    geometryStructure_ = RoadMaker::FullDetectorII;
   } else {
     geometryStructure_ = RoadMaker::FullDetector;
   }
