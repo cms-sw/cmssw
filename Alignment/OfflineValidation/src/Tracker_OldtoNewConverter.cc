@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: MuonGeometryIntoNtuples.cc,v 1.2 2007/09/21 17:12:51 pivarski Exp $
+// $Id: Tracker_OldtoNewConverter.cc,v 1.1 2007/10/25 23:06:59 ntran Exp $
 //
 //
 
@@ -38,10 +38,10 @@
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignmentSorter.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
-#include "CondFormats/DataRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/DataRecord/interface/TrackerSurveyErrorRcd.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -57,8 +57,6 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignTools.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
-#include "CondFormats/DataRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/DataRecord/interface/TrackerSurveyErrorRcd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <fstream>
