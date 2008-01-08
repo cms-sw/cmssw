@@ -40,8 +40,7 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
   bool readResult = myMap_->makeMapFromVectors(oFl,oDl);
   
   if(!readResult){
-    edm::LogError("EcalRawToRecHit|Worker")<<"\n unable to read file : "
-					   <<conf.getParameter<std::string>("DCCMapFile");
+    edm::LogError("EcalRawToRecHit|Worker")<<"\n unable to configure EcalElectronicsMapper from vectors.";
   }
     
   unpacker_ = new DCCDataUnpacker(myMap_,
@@ -72,7 +71,8 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
   unpacker_->setInvalidMemGainsCollection(& productInvalidMemGains);
 
   /// EcalUncalibRecHitRecWeightsAlgo
-  uncalibMaker_ = new EcalUncalibRecHitRecWeightsAlgo<EBDataFrame>();
+  uncalibMaker_barrel_ = new EcalUncalibRecHitRecWeightsAlgo<EBDataFrame>();
+  uncalibMaker_endcap_ = new EcalUncalibRecHitRecWeightsAlgo<EEDataFrame>();
     
   /// EcalRecHitAbsAlgo
   rechitMaker_ = new EcalRecHitSimpleAlgo();
@@ -82,6 +82,13 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
 EcalUnpackerWorker::~EcalUnpackerWorker(){
   //free all the memory
   //wil matter if worker is re-created by eventsetup
+  /*
+  delete uncalibMaker_barrel;
+  delete uncalibMaker_endcap;
+  delete rechitMaker_;
+  delete myMap_;
+  delete unpacker_;
+  */
 }
 
 void EcalUnpackerWorker::setHandles(const EcalUnpackerWorkerRecord & iRecord){
@@ -97,7 +104,7 @@ void EcalUnpackerWorker::setHandles(const EcalUnpackerWorkerRecord & iRecord){
 
   iRecord.getRecord<EcalRegionCablingRecord>().get(cabling);
 
-  //just to be sure it is done each event
+  //the mapping is set as long as the mapping is valid.
   myMap_->setEcalElectronicsMapping(cabling->mapping());
 }
 
@@ -111,7 +118,6 @@ void EcalUnpackerWorker::update(const edm::Event & e)const{
 
   const bool reserveMem =false;
 
-  
   /// DCCDataUnpacker
   productDigisEB.reset(new EBDigiCollection);
   productDigisEE.reset(new EEDigiCollection);
@@ -139,13 +145,6 @@ void EcalUnpackerWorker::update(const edm::Event & e)const{
     productDigisEE->reserve(1700); 
   }
     
-  /// EcalUncalibRecHitRecWeightsAlgo
-    /*
-      peds->update();
-      gains->update();
-      grps->update();
-    */
-
  }
 
 
@@ -164,7 +163,7 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
     <<(*unpacker_->ebDigisCollection())->size()
     <<" "<<(*unpacker_->eeDigisCollection())->size()
     <<watcher.lap();
-  
+
   EcalDigiCollection::const_iterator beginDigiEB =  (*unpacker_->ebDigisCollection())->end();
   EcalDigiCollection::const_iterator beginDigiEE =  (*unpacker_->eeDigisCollection())->end();
   
@@ -195,7 +194,7 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
   }
 
   /*R*/ LogDebug("EcalRawToRecHit|Worker")
-    <<"size of digi collections before unpacking: "
+    <<"size of digi collections after unpacking: "
     <<(*unpacker_->ebDigisCollection())->size()
     <<" "<<(*unpacker_->eeDigisCollection())->size()
     <<watcher.lap();
@@ -215,7 +214,7 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
     work<EBDetId>(beginDigiEB, endDigiEB, uncalibRecHits, ecalrechits);
   }
   /*R*/ LogDebug("EcalRawToRecHit|Worker")<<uncalibRecHits->size()<<" uncalibrated rechit created so far\n"
-					    <<ecalrechits->size()<<" rechit created so far."
+					  <<ecalrechits->size()<<" rechit created so far."
 					  <<watcher.lap();
   
   // EE
@@ -223,99 +222,12 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
     work<EEDetId>(beginDigiEE, endDigiEE, uncalibRecHits, ecalrechits);
   } 
   /*R*/ LogDebug("EcalRawToRecHit|Worker")<<uncalibRecHits->size()<<" uncalibrated rechit created eventually\n"
-					    <<ecalrechits->size()<<" rechit created eventually"
+					  <<ecalrechits->size()<<" rechit created eventually"
 					  <<watcher.lap();
 
   return ecalrechits;
 }
 
-
-
-/*
-
-void EcalUnpackerWorker::workoutEB(EBDigiCollection::const_iterator & beginDigi, 
-EBDigiCollection::const_iterator & endDigi,
-std::auto_ptr< EBUncalibratedRecHitCollection > & EBuncalibRecHits,
-std::auto_ptr< EcalRecHitCollection > & EBrechits)const {
-EBDigiCollection::const_iterator itdg = beginDigi;
-//######### get the uncalibrated rechit #######  
-
-EcalTBWeights::EcalTBWeightMap const & wgtsMap = wgts->getMap();
-for(; itdg != endDigi; ++itdg) 
-{
-EBDetId detid(itdg->id());
-unsigned int hashedIndex = detid.hashedIndex();
-// ### pedestal first 
-const EcalPedestals::Item& aped =  peds->barrel(hashedIndex);
-double pedVec[3];
-pedVec[0]=aped.mean_x12;pedVec[1]=aped.mean_x6;pedVec[2]=aped.mean_x1;
-
-// ### then gains
-const EcalMGPAGainRatio& aGain = gains->barrel(hashedIndex);
-double gainRatios[3];
-gainRatios[0]=1.;gainRatios[1]=aGain.gain12Over6();gainRatios[2]=aGain.gain6Over1()*aGain.gain12Over6();
-
-// ### then groupId
-// lookup group ID for this channel
-const EcalXtalGroupId& gid = grps->barrel(hashedIndex);
-
-// use a fake TDC iD for now until it become available in raw data
-EcalTBWeights::EcalTDCId tdcid(1);
-
-// now lookup the correct weights in the map
-EcalTBWeights::EcalTBWeightMap::const_iterator wit;
-wit = wgtsMap.find( std::make_pair(gid,tdcid) );
-if( wit == wgtsMap.end() ) {
-edm::LogError("EcalRawToRecHit|Worker") << "No weights found for EcalGroupId: " << gid.id() 
-  << " and  EcalTDCId: " << tdcid
-			    
-			    << "\n  skipping digi with id: " << detid;
-continue;
-}
-								const EcalWeightSet& wset = wit->second; // this is the EcalWeightSet
-	
-const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
-const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
-const EcalWeightSet::EcalChi2WeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
-const EcalWeightSet::EcalChi2WeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
-
-const EcalWeightSet::EcalWeightMatrix* weights[2];
-weights[0]=&mat1;
-weights[1]=&mat2;
-
-const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
-chi2mat[0]=&mat3;
-chi2mat[1]=&mat4;
-
-EBuncalibRecHits->push_back( uncalibMaker_->makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat));
-}
-			    
-			    
-			    //######### get the rechit #########
-			    const EcalIntercalibConstants::EcalIntercalibConstantMap& icalMap=ical->getMap();  
-for(EBUncalibratedRecHitCollection::const_iterator it  = EBuncalibRecHits->begin();it != EBuncalibRecHits->end(); ++it) {
-
-EBDetId detid(it->id());
-
-// first intercalibration constants
-EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(detid);
-EcalIntercalibConstants::EcalIntercalibConstant icalconst = 1;
-if( icalit!=icalMap.end() ){
-icalconst = icalit->second;
-} else {
-edm::LogError("EcalRawToRecHit|Worker") << "No intercalib const found for xtal " 
-					   << detid
-					      << "! something wrong with EcalIntercalibConstants in your DB? ";
-}
-						 
-						 // get laser coefficient
-						 float lasercalib = laser->getLaserCorrection( detid, evt->time());
-
-// make the rechit and put in the output collection
-EBrechits->push_back(EcalRecHit( rechitMaker_->makeRecHit(*it, icalconst * lasercalib) ));
-}
-}
-*/
 										   
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 EVENTSETUP_DATA_REG(EcalUnpackerWorker);

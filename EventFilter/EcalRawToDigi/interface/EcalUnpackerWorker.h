@@ -75,7 +75,9 @@ class EcalUnpackerWorker {
 
   edm::ESHandle<EcalRegionCabling> cabling;  
 
-  EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> * uncalibMaker_;
+  EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> * uncalibMaker_barrel_;
+  EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> * uncalibMaker_endcap_;
+
   edm::ESHandle<EcalPedestals> peds;
   edm::ESHandle<EcalGainRatios>  gains;
   edm::ESHandle<EcalWeightXtalGroups>  grps;
@@ -93,7 +95,7 @@ class EcalUnpackerWorker {
   template <class DID> void work(EcalDigiCollection::const_iterator & beginDigi,
 				 EcalDigiCollection::const_iterator & endDigi,
 				 std::auto_ptr<EcalUncalibratedRecHitCollection> & uncalibRecHits,
-				 std::auto_ptr< EcalRecHitCollection > & EBrechits)const{
+				 std::auto_ptr< EcalRecHitCollection > & calibRechits)const{
     MyWatcher watcher("<Worker>");
     LogDebug("EcalRawToRecHit|Worker")<<"ready to work on digis."<<watcher.lap();
 
@@ -165,7 +167,10 @@ class EcalUnpackerWorker {
 
 	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"creating an unaclibrated rechit."
 						<<watcher.lap();
-	uncalibRecHits->push_back( uncalibMaker_->makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat));
+	if (detid.subdet()==EcalEndcap)
+	  uncalibRecHits->push_back( uncalibMaker_endcap_->makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat));
+	else
+	  uncalibRecHits->push_back( uncalibMaker_barrel_->makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat));
 	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"created."
 						<<watcher.lap();
       }
@@ -218,7 +223,7 @@ class EcalUnpackerWorker {
       // make the rechit and put in the output collection
       /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"creating a rechit."
 					      <<watcher.lap();
-      EBrechits->push_back(EcalRecHit( rechitMaker_->makeRecHit(*it, icalconst * lasercalib) ));
+      calibRechits->push_back(EcalRecHit( rechitMaker_->makeRecHit(*it, icalconst * lasercalib) ));
       /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"created."
 					      <<watcher.lap();
     }
