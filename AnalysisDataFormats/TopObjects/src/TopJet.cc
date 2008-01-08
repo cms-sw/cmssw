@@ -1,5 +1,5 @@
 //
-// $Id: TopJet.cc,v 1.14 2007/12/03 17:31:41 lowette Exp $
+// $Id: TopJet.cc,v 1.15 2008/01/08 16:07:36 jandrea Exp $
 //
 
 
@@ -180,6 +180,7 @@ TopJet TopJet::getWCorrJet() const {
 double TopJet::getBDiscriminator(std::string theLabel) const {
   double discriminator = -10.;
   if (theLabel == "default") theLabel = "trackCountingHighEffJetTags";
+  if (theLabel == "") theLabel = "trackCountingHighEffJetTags";
   for(unsigned int i=0; i!=pairDiscriVector_.size(); i++){
     if(pairDiscriVector_[i].first == theLabel){
       discriminator = pairDiscriVector_[i].second;
