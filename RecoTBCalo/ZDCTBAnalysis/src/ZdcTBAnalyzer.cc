@@ -71,14 +71,14 @@ void ZdcTBAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&){
   }
   if(beamDetectorsADCInfo){
     e.getByType(bc);
-     zdcTBAnalysis.analyze(*times);
+     zdcTBAnalysis.analyze(*bc);
   }
   if(wireChambersInfo){
     e.getByType(chpos);
     zdcTBAnalysis.analyze(*chpos);
   }     
   zdcTBAnalysis.analyze(*zdcRecHits);
-  zdcTBAnalysis.fill();
+  zdcTBAnalysis.fillTree();
 }
 
 void ZdcTBAnalyzer::endJob(){

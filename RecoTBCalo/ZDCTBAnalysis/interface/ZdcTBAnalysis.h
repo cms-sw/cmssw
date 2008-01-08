@@ -139,7 +139,7 @@ public:
   void analyze(const HcalTBBeamCounters& bc);
   void analyze(const HcalTBTiming& times);
   void analyze(const HcalTBEventPosition& chpos);
-  void fill();
+  void fillTree();
   void done();
 
  private:
