@@ -1357,7 +1357,7 @@ namespace edm {
     }
     try {
 	schedule_->endJob();
-	schedule_->doEndFile();
+	schedule_->closeOutputFiles();
     }
     catch(...) {
       try {
@@ -1719,7 +1719,7 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
 
     statemachine::Machine machine(this,
-                                  statemachine::DENSE,
+                                  statemachine::SPARSE,
                                   true,
                                   true);
 

@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.64 2008/01/04 17:08:07 wmtan Exp $
+$Id: OutputModule.h,v 1.65 2008/01/05 05:28:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -60,7 +60,7 @@ namespace edm {
     void maybeEndFile();
 
     /// Tell the OutputModule that is must end the current file.
-    void doEndFile();
+    void doCloseFile();
 
     /// Tell the OutputModule to open an output file, if one is not
     /// already open.
@@ -182,7 +182,7 @@ namespace edm {
 
     // Do the end-of-file tasks; this is only called internally, after
     // the appropriate tests have been done.
-    void reallyEndFile();
+    void reallyCloseFile();
 
     virtual void write(EventPrincipal const& e) = 0;
     virtual void beginJob(EventSetup const&){}
@@ -208,7 +208,7 @@ namespace edm {
     bool limitReached() const {return remainingEvents_ == 0 || remainingLumis_ == 0;}
 
     // The following member functions are part of the Template Method
-    // pattern, used for implementing doEndFile() and maybeEndFil().
+    // pattern, used for implementing doCloseFile() and maybeEndFile().
 
     virtual void startEndFile() {}
     virtual void writeFileFormatVersion() {}

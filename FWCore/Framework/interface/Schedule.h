@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.38 2008/01/04 17:08:07 wmtan Exp $
+  $Id: Schedule.h,v 1.39 2008/01/05 05:28:50 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -146,13 +146,13 @@ namespace edm {
     // Call maybeEndFile() on all OutputModules.
     void maybeEndFile();
 
-    // Call doEndFile() on all OutputModules.
-    void doEndFile();
+    // Call closeFile() on all OutputModules.
+    void closeOutputFiles();
 
     // Call openNewFileIfNeeded() on all OutputModules
     void openNewOutputFilesIfNeeded();
 
-    // Call openOutputFiles() on all OutputModules
+    // Call openFiles() on all OutputModules
     void openOutputFiles(FileBlock & fb);
 
     // Call respondToCloseInputFile() on all OutputModules

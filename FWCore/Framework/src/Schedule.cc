@@ -825,8 +825,8 @@ namespace edm {
     for_all(all_output_workers_, boost::bind(&OutputWorker::maybeEndFile, _1));
   }
 
-  void Schedule::doEndFile() {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::doEndFile, _1));
+  void Schedule::closeOutputFiles() {
+    for_all(all_output_workers_, boost::bind(&OutputWorker::closeFile, _1));
   }
 
   void Schedule::openNewOutputFilesIfNeeded() {
