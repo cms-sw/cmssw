@@ -23,25 +23,25 @@ void ZdcTBAnalysis::setup(const std::string& outFileName) {
   ZdcAnalize->Branch("Chamb",0,"WCAx[5]/D:WCAy[5]/D:WCBx[5]/D:WCBy[5]/D:"
 		     "WCCx[5]/D:WCCy[5]/D:WCDx[5]/D:WCDy[5]/D:WCEx[5]/D:WCEy[5]/D:"
 		     "WCFx[5]/D:WCFy[5]/D:WCGx[5]/D:WCGy[5]/D:WCHx[5]/D:WCHy[5]/D");
-  ZdcAnalize->Branch("ZDC",0,"zdcHADMod1/D:zdcHADMod2/D:zdcHADMod3/D:zdcHADMod4/D:"
-		     "zdcEMMod1/D:zdcEMMod2/D:zdcEMMod3/D:zdcEMMod4/D:zdcEMMod5/D:"
+  ZdcAnalize->Branch("ZDCP",0,"zdcHAD1/D:zdcHAD2/D:zdcHAD3/D:zdcHAD4/D:"
+		     "zdcEM1/D:zdcEM2/D:zdcEM3/D:zdcEM4/D:zdcEM5/D:"
 		     "zdcScint1/D:zdcScint2/D:"
 		     "zdcExtras[7]/D");
+   ZdcAnalize->Branch("ZDCN",0,"zdcHAD1/D:zdcHAD2/D:zdcHAD3/D:zdcHAD4/D:"
+		     "zdcEM1/D:zdcEM2/D:zdcEM3/D:zdcEM4/D:zdcEM5/D:"
+		     "zdcScint1/D:zdcScint2/D:"
+		     "zdcExtras[7]/D"); 
   ZdcAnalize->GetBranch("Trigger")->SetAddress(&trigger);
   ZdcAnalize->GetBranch("TDC")->SetAddress(&tdc);
   ZdcAnalize->GetBranch("ADC")->SetAddress(&adc);
   ZdcAnalize->GetBranch("Chamb")->SetAddress(&chamb);
-  ZdcAnalize->GetBranch("ZDC")->SetAddress(&zdc);
+  ZdcAnalize->GetBranch("ZDCP")->SetAddress(&zdcp);
+  ZdcAnalize->GetBranch("ZDCN")->SetAddress(&zdcn);
   ZdcAnalize->SetAutoSave();
 }
 
-void ZdcTBAnalysis::analyze(const ZDCRecHitCollection& zdcHits,
-			  const HcalTBTriggerData& trg,
-			  const HcalTBTiming& times,
-			  const HcalTBBeamCounters& bc,
-			  const HcalTBEventPosition& chpos){
 
-
+void ZdcTBAnalysis::analyze(const HcalTBTriggerData& trg){
   // trigger
   trigger.runNum = runNumber = trg.runNumber();
   trigger.eventNum = eventNumber = trg.eventNumber();
@@ -66,7 +66,10 @@ void ZdcTBAnalysis::analyze(const ZDCRecHitCollection& zdcHits,
   if(isLaserTrigger)trigger.laserTrigger = 1;
   if(isLedTrigger)trigger.ledTrigger = 1;
   if(isSpillTrigger)trigger.spillTrigger = 1;
- 
+}
+
+
+void ZdcTBAnalysis::analyze(const HcalTBTiming& times){
   //times
   tdc.trigger =trigger_time = times.triggerTime();
   tdc.ttcL1 = ttc_L1a_time = times.ttcL1Atime();
@@ -77,7 +80,6 @@ void ZdcTBAnalysis::analyze(const ZDCRecHitCollection& zdcHits,
 
   // just take 5 first hits of multihit tdc (5 tick cycles)
   int indTop = 5;
-
   for (int indx=0; indx<times.BeamCoincidenceCount(); indx++)
     if (indx < indTop)tdc.beamCoincidence[indx] =  beam_coincidence[indx] = times.BeamCoincidenceHits(indx);
   for (int indx=0; indx<times.M1Count(); indx++)
@@ -101,7 +103,10 @@ void ZdcTBAnalysis::analyze(const ZDCRecHitCollection& zdcHits,
   for (int indx=0; indx<times.BH3Count() ; indx++)
     if (indx < indTop) tdc.bh3[indx] =  bh3hits[indx] = times.BH3Hits(indx);
   for (int indx=0; indx<times.BH4Count(); indx++)
+    if (indx < indTop) tdc.bh4[indx] =  bh4hits[indx] = times.BH4Hits(indx);
+}
 
+void ZdcTBAnalysis::analyze(const HcalTBBeamCounters& bc){
   //beam counters
   adc.VM = VMadc = bc.VMadc();
   adc.V3 = V3adc = bc.V3adc();
@@ -137,7 +142,9 @@ void ZdcTBAnalysis::analyze(const ZDCRecHitCollection& zdcHits,
   adc.BH2 = BH2adc = bc.BH2adc();
   adc.BH3 = BH3adc = bc.BH3adc();
   adc.BH4 = BH4adc = bc.BH4adc();
+}
  
+void ZdcTBAnalysis::analyze(const HcalTBEventPosition& chpos){
   //chambers position
   chpos.getChamberHits('A',wcax,wcay);
   chpos.getChamberHits('B',wcbx,wcby);
@@ -149,40 +156,52 @@ void ZdcTBAnalysis::analyze(const ZDCRecHitCollection& zdcHits,
   chpos.getChamberHits('H',wchx,wchy);
   
   // just take 5 first hits of chambers (5 tick cycles)
-
-  for (int indx = 0; indx < wcax.size(); indx++)
+  chpos.getChamberHits('B',wcbx,wcby);
+  chpos.getChamberHits('C',wccx,wccy);
+  chpos.getChamberHits('D',wcdx,wcdy);
+  chpos.getChamberHits('E',wcex,wcey);
+  chpos.getChamberHits('F',wcfx,wcfy);
+  chpos.getChamberHits('G',wcgx,wcgy);
+  chpos.getChamberHits('H',wchx,wchy);
+  
+  // just take 5 first hits of chambers (5 tick cycles)
+  int unsigned indTop = 5;
+  int unsigned indx = 0;
+  for (indx = 0; indx < wcax.size(); indx++)
     if (indx < indTop)chamb.WCAx[indx] = wcax[indx];
-  for (int indx = 0; indx < wcay.size(); indx++)
+  for (indx = 0; indx < wcay.size(); indx++)
     if (indx < indTop)chamb.WCAy[indx]  = wcay[indx];
-  for (int indx = 0; indx < wcbx.size(); indx++)
-   if (indx < indTop)chamb.WCBx[indx] = wcbx[indx];
-  for (int indx = 0; indx < wcby.size(); indx++)
+  for (indx = 0; indx < wcbx.size(); indx++)
+    if (indx < indTop)chamb.WCBx[indx] = wcbx[indx];
+  for (indx = 0; indx < wcby.size(); indx++)
     if (indx < indTop)chamb.WCBy[indx] = wcby[indx];
-  for (int indx = 0; indx < wccx.size(); indx++)
+  for (indx = 0; indx < wccx.size(); indx++)
     if (indx < indTop)chamb.WCCx[indx] = wccx[indx];
-  for (int indx = 0; indx < wccy.size(); indx++)
-   if (indx < indTop)chamb.WCCy[indx] = wccy[indx];
-  for (int indx = 0; indx < wcdx.size(); indx++)
+  for (indx = 0; indx < wccy.size(); indx++)
+    if (indx < indTop)chamb.WCCy[indx] = wccy[indx];
+  for (indx = 0; indx < wcdx.size(); indx++)
     if (indx < indTop)chamb.WCDx[indx] = wcdx[indx];
-  for (int indx = 0; indx < wcdy.size(); indx++)
+  for (indx = 0; indx < wcdy.size(); indx++)
     if (indx < indTop)chamb.WCDy[indx] = wcdy[indx];
-  for (int indx = 0; indx < wcdx.size(); indx++)
+  for (indx = 0; indx < wcdx.size(); indx++)
     if (indx < indTop)chamb.WCEx[indx] = wcex[indx];
-  for (int indx = 0; indx < wcey.size(); indx++)
+  for (indx = 0; indx < wcey.size(); indx++)
     if (indx < indTop)chamb.WCEy[indx] = wcey[indx];
-  for (int indx = 0; indx < wcfx.size(); indx++)
+  for (indx = 0; indx < wcfx.size(); indx++)
     if (indx < indTop)chamb.WCFx[indx] = wcfx[indx];
-  for (int indx = 0; indx < wcfy.size(); indx++)
+  for (indx = 0; indx < wcfy.size(); indx++)
     if (indx < indTop)chamb.WCFy[indx] = wcfy[indx];
-  for (int indx = 0; indx < wcgx.size(); indx++)
+  for (indx = 0; indx < wcgx.size(); indx++)
     if (indx < indTop)chamb.WCGx[indx] = wcgx[indx];
-  for (int indx = 0; indx < wcgy.size(); indx++)
+  for (indx = 0; indx < wcgy.size(); indx++)
     if (indx < indTop)chamb.WCGy[indx] = wcgy[indx];
-  for (int indx = 0; indx < wchx.size(); indx++)
+  for (indx = 0; indx < wchx.size(); indx++)
     if (indx < indTop)chamb.WCHx[indx] = wchx[indx];
-  for (int indx = 0; indx < wchy.size(); indx++)
+  for (indx = 0; indx < wchy.size(); indx++)
     if (indx < indTop)chamb.WCHy[indx] = wchy[indx];
+}
 
+void ZdcTBAnalysis::analyze(const ZDCRecHitCollection& zdcHits){
   // zdc hits
 std::cout<<"****************************************************"<<std::endl;
   ZDCRecHitCollection::const_iterator i;
@@ -196,24 +215,35 @@ std::cout<<"****************************************************"<<std::endl;
     std::cout<<"energy: "<<energy<<" detID: "<<detID
 	     <<" side: "<<iside<<" section: "<<isection
 	     <<" channel: "<<ichannel<< " depth: "<<idepth<<std::endl;
-    if(runNumber<28033){}
-    if(runNumber>=28033 && runNumber<28133){}
-    if(runNumber>=28133){      
-      if(ichannel ==1 && isection ==1)zdc.zdcEMMod1 = energy;
-      if(ichannel ==2 && isection ==1)zdc.zdcEMMod2 = energy;
-      if(ichannel ==3 && isection ==1)zdc.zdcEMMod3 = energy;
-      if(ichannel ==4 && isection ==1)zdc.zdcEMMod4 = energy;
-      if(ichannel ==5 && isection ==1)zdc.zdcEMMod5 = energy;
-      if(ichannel ==1 && isection ==2)zdc.zdcHADMod1 = energy;
-      if(ichannel ==2 && isection ==2)zdc.zdcHADMod2 = energy;
-      if(ichannel ==3 && isection ==2)zdc.zdcHADMod3 = energy;
-      if(ichannel ==4 && isection ==2)zdc.zdcHADMod4 = energy;
-      if(ichannel ==1 && isection ==3 && iside == 1)zdc.zdcScint1 = energy;
-      if(ichannel ==1 && isection ==3 && iside == 2)zdc.zdcScint2 = energy;
+    if(iside>0){      
+      if(ichannel ==1 && isection ==1)zdcp.zdcEMMod1 = energy;
+      if(ichannel ==2 && isection ==1)zdcp.zdcEMMod2 = energy;
+      if(ichannel ==3 && isection ==1)zdcp.zdcEMMod3 = energy;
+      if(ichannel ==4 && isection ==1)zdcp.zdcEMMod4 = energy;
+      if(ichannel ==5 && isection ==1)zdcp.zdcEMMod5 = energy;
+      if(ichannel ==1 && isection ==2)zdcp.zdcHADMod1 = energy;
+      if(ichannel ==2 && isection ==2)zdcp.zdcHADMod2 = energy;
+      if(ichannel ==3 && isection ==2)zdcp.zdcHADMod3 = energy;
+      if(ichannel ==4 && isection ==2)zdcp.zdcHADMod4 = energy;
+      if(ichannel ==1 && isection ==3)zdcp.zdcScint1 = energy;
+    }
+    if(iside<0){      
+      if(ichannel ==1 && isection ==1)zdcn.zdcEMMod1 = energy;
+      if(ichannel ==2 && isection ==1)zdcn.zdcEMMod2 = energy;
+      if(ichannel ==3 && isection ==1)zdcn.zdcEMMod3 = energy;
+      if(ichannel ==4 && isection ==1)zdcn.zdcEMMod4 = energy;
+      if(ichannel ==5 && isection ==1)zdcn.zdcEMMod5 = energy;
+      if(ichannel ==1 && isection ==2)zdcn.zdcHADMod1 = energy;
+      if(ichannel ==2 && isection ==2)zdcn.zdcHADMod2 = energy;
+      if(ichannel ==3 && isection ==2)zdcn.zdcHADMod3 = energy;
+      if(ichannel ==4 && isection ==2)zdcn.zdcHADMod4 = energy;
+      if(ichannel ==1 && isection ==3)zdcn.zdcScint1 = energy;
     }
   }
+}
 
-  ZdcAnalize->Fill();
+void ZdcTBAnalysis::fill(){
+  ZdcAnalize->Fill();  
 }
 
 void ZdcTBAnalysis::done(){
