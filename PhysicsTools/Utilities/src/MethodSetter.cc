@@ -8,20 +8,37 @@ using namespace std;
 using namespace ROOT::Reflex;
 
 void MethodSetter::operator()(const char * begin, const char * end) const {
-  string methodName(begin, end);
-  string::size_type endOfExpr = methodName.find_last_of(' ');
+  string name(begin, end);
+  string::size_type parenthesis = name.find_first_of('(');
+  std::vector<int> args;
+  if(parenthesis != string::npos) {
+    name.erase(parenthesis, name.size());
+    if(intStack_.size()==0)
+      throw edm::Exception(edm::errors::Configuration)
+	<< "expected method argument, but integer stack is empty\n";    
+    args.push_back(intStack_.back());
+    intStack_.pop_back();
+  }
+  string::size_type endOfExpr = name.find_last_of(' ');
   if(endOfExpr != string::npos)
-    methodName.erase(endOfExpr, methodName.size());
-  push(methodName);
+    name.erase(endOfExpr, name.size());
+  push(name, args);
 }
 
-void MethodSetter::push(const string & methodName) const {
+void MethodSetter::push(const string & name, const vector<int> & args) const {
   Type type = typeStack_.back();
-  pair<Member, bool> mem = reco::findMethod(type, methodName);
-  methStack_.push_back(MethodInvoker(mem.first));
+  pair<Member, bool> mem = reco::findMethod(type, name, args.size());
+  if(!mem.first)
+    throw edm::Exception(edm::errors::Configuration)
+      << "method \"" << name << "\" not found for type \"" 
+      << type.Name() << "\"\n";
   Type retType = reco::returnType(mem.first);
   typeStack_.push_back(retType);
   // check for edm::Ref, edm::RefToBase, edm::Ptr
-  if(mem.second) push(methodName);
+  if(mem.second) {
+    methStack_.push_back(MethodInvoker(mem.first));
+    push(name, args);
+  } else
+    methStack_.push_back(MethodInvoker(mem.first, args));
 }
     

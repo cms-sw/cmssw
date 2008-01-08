@@ -6,16 +6,37 @@ using namespace ROOT::Reflex;
 using namespace std;
 
 namespace reco {
-  pair<Member, bool> findMethod(const Type & t, const string & name) {
+  bool checkMethod(const ROOT::Reflex::Member & mem, size_t args) {
+    if (mem.FunctionParameterSize(true) != args) return false;
+    if (mem.IsConstructor()) return false;
+    if (mem.IsDestructor()) return false;
+    if (mem.IsOperator()) return false;
+    if (! mem.IsPublic()) return false;
+    if (mem.IsStatic()) return false;
+    if ( ! mem.TypeOf().IsConst() ) return false;
+    if (mem.Name().substr(0, 2) == "__") return false;
+    return true;
+  }
+
+  pair<Member, bool> findMethod(const Type & t, const string & name, size_t args) {
     Type type = t; 
     if (! type)  
       throw edm::Exception(edm::errors::Configuration)
 	<< "no dictionary for class " << type.Name() << '\n';
     if(type.IsPointer()) type = type.ToType();
-    pair<Member, bool> mem = make_pair(type.FunctionMemberByName(name), false);
+    bool found = false;
+    Member member;
+    for(Member_Iterator m = type.FunctionMember_Begin(); m != type.FunctionMember_End(); ++m ) {
+      if(m->Name()==name && checkMethod(*m, args)) {
+	member = *m;
+	found = true;
+	break;
+      }
+    }
+    pair<Member, bool> mem = make_pair(member, false);
     if(! mem.first) {
       for(Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++ b)
-	if((mem = findMethod(b->ToType(), name)).first) break;
+	if((mem = findMethod(b->ToType(), name, args)).first) break;
     }
     if(!mem.first) {
       // check for edm::Ref or edm::RefToBase or edm::Ptr
@@ -25,7 +46,7 @@ namespace reco {
 	if(name.compare("Ref") == 0 ||
 	   name.compare("RefToBase") == 0 ||
 	   name.compare("Ptr") == 0) {
-	  mem = findMethod(type, "get");
+	  mem = findMethod(type, "get", args);
 	  if(!mem.first) {
 	    throw edm::Exception(edm::errors::Configuration)
 	      << "no member \"get\" in reference of type " << type.Name() << "\n";        
@@ -34,42 +55,12 @@ namespace reco {
 	}
       }
     }
+    /*
     if(!mem.first) {
       throw edm::Exception(edm::errors::Configuration)
 	<< "member " << name << " not found in class "  << type.Name() << "\n";        
     }
-    checkMethod(type, mem.first);
+    */
     return mem;
-  }
-
-  void checkMethod(const Type & type, const ROOT::Reflex::Member & mem) {
-    if (mem.FunctionParameterSize(true) != 0) 
-      throw edm::Exception(edm::errors::Configuration)
-	<< "member " << type.Name() << "::" << mem.Name() 
-	<< " requires " << mem.FunctionParameterSize(true) 
-	<< " arguments, instead of zero\n";
-    string name = mem.Name();
-    string fullName = type.Name() + "::" + name;
-    if (mem.IsConstructor())
-      throw edm::Exception(edm::errors::Configuration)
-	<< "member " << fullName << " is a constructor\n";    
-    if (mem.IsDestructor())
-      throw edm::Exception(edm::errors::Configuration)
-	<< "member " << fullName << " is the destructor\n";    
-    if (mem.IsOperator())
-       throw edm::Exception(edm::errors::Configuration)
-	<< "member " << fullName << " is an operator\n";       
-    if (! mem.IsPublic())
-      throw edm::Exception(edm::errors::Configuration)
-	<< "member " << fullName << " is not public\n";      
-    if (mem.IsStatic())
-      throw edm::Exception(edm::errors::Configuration)
-	<< "member " << fullName << " is static\n";      
-    if ( ! mem.TypeOf().IsConst() )
-      throw edm::Exception(edm::errors::Configuration)
-	<< "member " << fullName << " is a modifier\n";        
-    if (name.substr(0, 2) == "__")
-      throw edm::Exception(edm::errors::Configuration)
-	<< "member " << fullName << " is an internal Reflex implementation\n";       
   }
 }

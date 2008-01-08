@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.5 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -19,9 +19,11 @@
 #include "PhysicsTools/Utilities/src/ComparisonSetter.h"
 #include "PhysicsTools/Utilities/src/BinarySelectorSetter.h"
 #include "PhysicsTools/Utilities/src/TrinarySelectorSetter.h"
+#include "PhysicsTools/Utilities/src/IntSetter.h"
 #include "PhysicsTools/Utilities/src/CombinerStack.h"
 #include "PhysicsTools/Utilities/src/MethodStack.h"
 #include "PhysicsTools/Utilities/src/TypeStack.h"
+#include "PhysicsTools/Utilities/src/IntStack.h"
 #include "PhysicsTools/Utilities/src/CombinerSetter.h"
 #include "PhysicsTools/Utilities/src/FunctionSetter.h"
 #include "PhysicsTools/Utilities/src/CutSetter.h"
@@ -45,6 +47,7 @@ namespace reco {
       mutable FunctionStack funStack;
       mutable MethodStack methStack;
       mutable TypeStack typeStack;
+      mutable IntStack intStack;
       template<typename T>
       Grammar(SelectorPtr & sel, const T *) : 
 	sel_(& sel), expr_(& dummyExpr_) { 
@@ -86,8 +89,9 @@ BOOST_SPIRIT_DEBUG_RULE(cut);
 BOOST_SPIRIT_DEBUG_RULE(fun);
 #endif	  
 	  ExpressionNumberSetter number_s(self.exprStack);
+	  IntSetter int_s(self.intStack);
 	  ExpressionVarSetter var_s(self.exprStack, self.methStack, self.typeStack);
-	  MethodSetter method_s(self.methStack, self.typeStack);
+	  MethodSetter method_s(self.methStack, self.typeStack, self.intStack);
 	  ComparisonSetter<less_equal<double> > less_equal_s(self.cmpStack);
 	  ComparisonSetter<less<double> > less_s(self.cmpStack);
 	  ComparisonSetter<equal_to<double> > equal_to_s(self.cmpStack);
@@ -120,6 +124,7 @@ BOOST_SPIRIT_DEBUG_RULE(fun);
 	  number = 
 	    real_p [ number_s ];
 	  var = 
+	    ( alpha_p >> * alnum_p >> ch_p('(') >> int_p [ int_s ] >> ch_p(')') ) [ method_s ] |
 	    ( alpha_p >> * alnum_p ) [ method_s ];
 	  method = 
 	    ( var >> * ( ( ch_p('.') >> var ) ) ) [ var_s ];
