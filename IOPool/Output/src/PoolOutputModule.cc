@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.95 2008/01/04 17:07:01 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.96 2008/01/05 05:28:53 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -62,17 +62,6 @@ namespace edm {
 
   void PoolOutputModule::respondToCloseInputFile(FileBlock const& fb) {
     rootFile_->respondToCloseInputFile(fb);
-  }
-
-  void PoolOutputModule::beginJob(EventSetup const&) {
-  }
-
-  void PoolOutputModule::endJob() {
-    // doEndFile should be called from the framework, not internally...
-//     if (rootFile_.get() != 0) {
-//       rootFile_->endFile();
-//       rootFile_.reset();
-//     }
   }
 
   PoolOutputModule::~PoolOutputModule() {

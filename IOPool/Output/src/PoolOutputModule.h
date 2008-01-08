@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.39 2008/01/04 17:07:01 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.40 2008/01/05 05:28:53 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -37,8 +37,6 @@ namespace edm {
     bool const& fastCloning() const {return fastCloning_;}
 
   private:
-    virtual void beginJob(EventSetup const&);
-    virtual void endJob();
     virtual void openFile(FileBlock const& fb);
     virtual void respondToCloseInputFile(FileBlock const& fb);
     virtual void write(EventPrincipal const& e);
