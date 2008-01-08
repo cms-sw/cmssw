@@ -62,15 +62,20 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	DetId detid =iRecHit->id();
 	//split barrel and endcap
 	int EcalNum=detid.subdetId(); //1 stands for Barrel, 2 for endcaps
+	LogDebug("EcalRawToRecHit|Producer")<<"subdetId is: "<<EcalNum;
 	if (EcalNum==1) EBrechits->push_back(*iRecHit);
 	else if (EcalNum==2) EErechits->push_back(*iRecHit);
+	else {
+	  edm::LogError("EcalRawToRecHit|Producer")<<" a subdetid is not recognized. recHit on :"<< iRecHit->id().rawId() 
+						   <<" is lost.";
+	}//subdetid
       }//loop over things in region
       LogDebug("EcalRawToRecHit|Producer")<<"looping over refgetter region: "<<iR++<<" done"
 					  <<watcher.lap();
     }//loop over regions
 
     LogDebug("EcalRawToRecHit|Producer")<<EBrechits->size()<<" EB recHits to be put with instance: "<<EBrechitCollection_
-					<<"\n"<<EBrechits->size()<<" EE recHits to be put with instance: "<<EErechitCollection_
+					<<"\n"<<EErechits->size()<<" EE recHits to be put with instance: "<<EErechitCollection_
 					<< watcher.lap();
     iEvent.put(EBrechits, EBrechitCollection_);
     iEvent.put(EErechits, EErechitCollection_);
