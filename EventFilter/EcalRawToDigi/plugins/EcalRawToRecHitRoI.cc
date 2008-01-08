@@ -79,6 +79,7 @@ EcalRawToRecHitRoI::EcalRawToRecHitRoI(const edm::ParameterSet& pset) :
     std::vector<edm::ParameterSet> emPSet =  pset.getParameter<std::vector<edm::ParameterSet> >("CandJobPSet");
     for (std::vector<edm::ParameterSet>::iterator iepset = emPSet.begin(); iepset!=emPSet.end();++iepset){
       CandSource_.push_back(CandJobPSet(*iepset));
+      LogDebug(category)<<iepset->dump();
     }
   }
   
@@ -87,6 +88,7 @@ EcalRawToRecHitRoI::EcalRawToRecHitRoI(const edm::ParameterSet& pset) :
     Muon_ = true;
     edm::ParameterSet ps = pset.getParameter<edm::ParameterSet>("MuJobPSet");
     MuonSource_ = MuJobPSet(ps);
+    LogDebug(category)<<ps.dump();
   }
   
   if (type.find("egamma")!=std::string::npos){
@@ -95,6 +97,7 @@ EcalRawToRecHitRoI::EcalRawToRecHitRoI(const edm::ParameterSet& pset) :
     std::vector<edm::ParameterSet> emPSet =  pset.getParameter<std::vector<edm::ParameterSet> >("EmJobPSet");
     for (std::vector<edm::ParameterSet>::iterator iepset = emPSet.begin(); iepset!=emPSet.end();++iepset){
       EmSource_.push_back(EmJobPSet(*iepset));
+      LogDebug(category)<<iepset->dump();
     }
   }
   
@@ -104,6 +107,7 @@ EcalRawToRecHitRoI::EcalRawToRecHitRoI(const edm::ParameterSet& pset) :
     std::vector<edm::ParameterSet> jetPSet = pset.getParameter<std::vector<edm::ParameterSet> >("JetJobPSet");
     for (std::vector<edm::ParameterSet>::iterator ijpset = jetPSet.begin(); ijpset!=jetPSet.end();++ijpset){
       JetSource_.push_back(JetJobPSet(*ijpset));
+      LogDebug(category)<<ijpset->dump();
     }
   }
 
@@ -177,7 +181,7 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
  uint nf = feds.size();
  for (uint i=0; i <nf; feds[i++]+=first_fed) {}
  
- LogDebug(category)<< "Will unpack FED " <<dumpFEDs(feds)
+ LogDebug(category)<< "Will unpack FED\n" <<dumpFEDs(feds)
 		   <<watcher.lap();
  
  if (nf<1){edm::LogWarning(category)<<"no ECAL FED to unpack for Run " << e.id().run() << "  Event " << e.id().event() ;}
