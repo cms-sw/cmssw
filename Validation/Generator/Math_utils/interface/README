@@ -1,0 +1,8 @@
+Description of Math_utils/Math_utils directory 
+---------------------------------------------
+
+This area should contain only include-path files such as:
+    *.h
+    *.hh
+    *.inc
+    link_Math_utils.mk for PackageList
