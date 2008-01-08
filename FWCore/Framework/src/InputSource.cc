@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.36 2007/12/31 22:43:57 wmtan Exp $
+$Id: InputSource.cc,v 1.37 2008/01/04 17:10:51 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -122,6 +122,7 @@ namespace edm {
     }
   }
 
+  // Return a dummy file block.
   boost::shared_ptr<FileBlock>
   InputSource::readFile() {
     assert(doneReadAhead_);
@@ -129,6 +130,11 @@ namespace edm {
     assert(!limitReached());
     doneReadAhead_ = false;
     return readFile_();
+  }
+
+  void
+  InputSource::closeFile() {
+    return closeFile_();
   }
 
   // Return a dummy file block.

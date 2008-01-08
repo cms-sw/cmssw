@@ -136,7 +136,7 @@ namespace edm {
       ~InputFileSentry() {
 	if (!success_ && ep_->fb_) {
 	  try {
-	    ep_->schedule_->respondToCloseInputFile(*ep_->fb_);  
+	    ep_->respondToCloseInputFile();  
 	    ep_->fb_.reset();
 	  }
           catch (cms::Exception& e) {
@@ -1156,17 +1156,18 @@ namespace edm {
 
   boost::shared_ptr<FileBlock>
   EventProcessor::beginInputFile() {
-    boost::shared_ptr<FileBlock> fb;
     if (input_->nextItemType() == InputSource::IsStop) {
-      return fb;
+      fb_ = boost::shared_ptr<FileBlock>();
+      return fb_;
     }
     {
-      fb = input_->readFile();
+      closeInputFile();
+      readFile();
     }
-    if(fb) {
-      schedule_->openOutputFiles(*fb);
+    if(fb_) {
+      openOutputFiles();
     }
-    return fb;
+    return fb_;
   }
 
   std::auto_ptr<EventPrincipal>
@@ -1718,7 +1719,7 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
 
     statemachine::Machine machine(this,
-                                  statemachine::SPARSE,
+                                  statemachine::DENSE,
                                   true,
                                   true);
 
