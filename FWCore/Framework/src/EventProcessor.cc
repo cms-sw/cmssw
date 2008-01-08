@@ -942,7 +942,7 @@ namespace edm {
         --numberEventsToProcess;
       }
 
-      if(schedule_->terminate()) {
+      if(shouldWeStop()) {
 	changeState(mCountComplete);
       }
 
@@ -993,7 +993,7 @@ namespace edm {
       }
       endLuminosityBlock(lbp_.get());
       lbp_.reset();
-      if(state_ == sRunning && schedule_->terminate()) {
+      if(state_ == sRunning && shouldWeStop()) {
 	changeState(mCountComplete);
       }
     }
@@ -1100,7 +1100,7 @@ namespace edm {
         rc = epSuccess;
         if(repeatable) continue;
       }
-      schedule_->respondToCloseInputFile(*fb_);
+      respondToCloseInputFile();
       fb_.reset();
     }
 
