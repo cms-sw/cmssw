@@ -32,6 +32,7 @@
 <use name=Validation/RecoTrack>
 <use name=CondFormats/SiPixelObjects>
 <use name=CondFormats/DataRecord>
+<use name=CondTools/SiPixel>
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
 <use name=rootmath>

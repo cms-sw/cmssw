@@ -51,25 +51,54 @@ PxCPEdbUploader::endJob()
 {
   //--- Make the POOL-ORA thingy to store the vector of error structs (DbEntry)
   SiPixelCPEParmErrors* pErrors = new SiPixelCPEParmErrors();
-  pErrors->reserve();   // Default 300 elements.  Optimize?  &&&
+  pErrors->reserve();   // Default 1000 elements.  Optimize?  &&&
 
   //--- Open the file
   std::ifstream in;
   in.open(theFileName.c_str());
+
+	int part;
+	float version = 1.3;
 	
   SiPixelCPEParmErrors::DbEntry Entry;
-  in >> Entry.bias >> Entry.pix_height >> Entry.ave_qclu >> Entry.sigma >> Entry.sigma >> Entry.rms;
+  in >> part >> Entry.bias >> Entry.pix_height >> Entry.ave_Qclus >> Entry.sigma >> Entry.rms;
 
   while(!in.eof()) {
-    //--- [Petar] I don't understand why Entry.bias carries this info?
-    pErrors->push_back( (int)Entry.bias, Entry );
-    //
-    in >> Entry.bias  >> Entry.pix_height >> Entry.ave_qclu 
-       >> Entry.sigma >> Entry.sigma      >> Entry.rms;
+    pErrors->push_back( Entry );
+
+    in >> part            >> Entry.bias  >> Entry.pix_height
+			 >> Entry.ave_Qclus >> Entry.sigma >> Entry.rms;
   }
   //--- Finished parsing the file, we're done.
   in.close();
-  
+
+	//--- Specify the current binning sizes to use
+	SiPixelCPEParmErrors::DbEntryBinSize ErrorsBinSize;
+	//--- Part = 1 By
+	ErrorsBinSize.partBin_size  =   0;
+	ErrorsBinSize.sizeBin_size  =  40;
+	ErrorsBinSize.alphaBin_size =  10;
+	ErrorsBinSize.betaBin_size  =   1;
+	pErrors->push_back_bin(ErrorsBinSize);
+  //--- Part = 2 Bx
+	ErrorsBinSize.partBin_size  = 240;
+	ErrorsBinSize.alphaBin_size =   1;
+	ErrorsBinSize.betaBin_size  =  10;
+	pErrors->push_back_bin(ErrorsBinSize);
+	//--- Part = 3 Fy
+	ErrorsBinSize.partBin_size  = 360;
+	ErrorsBinSize.alphaBin_size =  10;
+	ErrorsBinSize.betaBin_size  =   1;
+	pErrors->push_back_bin(ErrorsBinSize);
+	//--- Part = 4 Fx
+	ErrorsBinSize.partBin_size  = 400;
+	ErrorsBinSize.alphaBin_size =   1;
+	ErrorsBinSize.betaBin_size  =  10;
+	pErrors->push_back_bin(ErrorsBinSize);
+
+	//--- Specify the Version
+	pErrors->set_version(version);
+
 
   //--- Create a new IOV
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
