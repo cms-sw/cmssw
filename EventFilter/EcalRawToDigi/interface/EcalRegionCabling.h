@@ -12,36 +12,12 @@
 
 class EcalRegionCabling {
  public:
-  EcalRegionCabling(edm::ParameterSet & conf): mapping_()
+  EcalRegionCabling(edm::ParameterSet & conf, const EcalElectronicsMapping * m): mapping_(m)
     {
-      /*
-	uint numbXtalTSamples_ = conf.getParameter<uint>("numbXtalTSamples");
-	uint numbTriggerTSamples_ = conf.getParameter<uint>("numbTriggerTSamples");
-	
-	if( numbXtalTSamples_ <6 || numbXtalTSamples_>64 || (numbXtalTSamples_-2)%4 ){
-	edm::LogError("EcalRawToRecHit|Worker")<<"Unsuported number of xtal time samples : "<<numbXtalTSamples_
-	<<"\n Valid Number of xtal time samples are : 6,10,14,18,...,62";     }
-	
-	if( numbTriggerTSamples_ !=1 && numbTriggerTSamples_ !=4 && numbTriggerTSamples_ !=8  ){
-	edm::LogError("EcalRawToRecHit|Worker")<<"Unsuported number of trigger time samples : "<<numbTriggerTSamples_
-	<<"\n Valid number of trigger time samples are :  1, 4 or 8";   }
-	
-	std::vector<int> oFl = conf.getParameter<std::vector<int> >("orderedFedList");
-	std::vector<int> oDl = conf.getParameter<std::vector<int> >("orderedDCCIdList");
-	
-	bool readResult = mapper_.makeMapFromVectors(oFl,oDl);
-      
-	if(!readResult){	edm::LogError("EcalRawToRecHit|Cabling")<<"\n unable to read file : "
-	<<conf.getParameter<std::string>("DCCMapFile");
-	}
-       
-       mapper_.setEcalElectronicsMapping(&mapping_);
-      */
     }
   
   ~EcalRegionCabling();
-  //  const EcalElectronicsMapper * mapper() const { return &mapper_;}
-  const EcalElectronicsMapping * mapping() const  { return &mapping_;} 
+  const EcalElectronicsMapping * mapping() const  { return mapping_;} 
 
   template <class T>  void updateEcalRefGetterWithElementIndex(edm::RefGetter<T> & refgetter,
 							       const edm::Handle< edm::LazyGetter<T> >& lazygetter,
@@ -78,8 +54,7 @@ class EcalRegionCabling {
     return elementIndex(FEDindex); }
 
  private:
-  //  EcalElectronicsMapper mapper_;
-  EcalElectronicsMapping mapping_;
+  const EcalElectronicsMapping * mapping_;
 };
 
 
