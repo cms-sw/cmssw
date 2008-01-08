@@ -30,12 +30,15 @@ boost::shared_ptr<PixelClusterParameterEstimator>
 PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){ 
 
   ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
+  iRecord.getRecord<IdealMagneticFieldRecord>().get( magfield );
 
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
 
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(pset_,magfield.product())  );
+  ESHandle<SiPixelCPEParmErrors> parmErrors;
+  iRecord.getRecord<SiPixelCPEParmErrorsRcd>().get( parmErrors );
+
+  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(pset_,magfield.product(),parmErrors.product())  );
   return cpe_;
 }
 

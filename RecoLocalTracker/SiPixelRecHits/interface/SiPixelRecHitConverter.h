@@ -57,6 +57,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 class MagneticField;
+class SiPixelCPEParmErrors;
 namespace cms
 {
   class SiPixelRecHitConverter : public edm::EDProducer
@@ -73,7 +74,7 @@ namespace cms
     //--- likely we can use one (and they will switch internally), or
     //--- make two of the same but configure them differently.  We need a more
     //--- realistic use case...
-    void setupCPE(const MagneticField* mag);
+    void setupCPE(const MagneticField* mag, const SiPixelCPEParmErrors* parmErrors);
 
     //--- The top-level event method.
     virtual void produce(edm::Event& e, const edm::EventSetup& c);

@@ -41,6 +41,9 @@
 // Magnetic Field
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+// Error Parametrization DB Record
+#include "CondFormats/DataRecord/interface/SiPixelCPEParmErrorsRcd.h"
+
 using namespace std;
 
 namespace cms
@@ -78,8 +81,11 @@ namespace cms
   {
     edm::ESHandle<MagneticField> magfield;
     c.get<IdealMagneticFieldRecord>().get(magfield);
-    setupCPE(magfield.product());
-  
+
+		edm::ESHandle<SiPixelCPEParmErrors> parmErrors;
+		c.get<SiPixelCPEParmErrorsRcd>().get(parmErrors);
+		
+    setupCPE(magfield.product(),parmErrors.product());
   }
 
   //---------------------------------------------------------------------------
@@ -118,7 +124,7 @@ namespace cms
   //---------------------------------------------------------------------------
   //!  Set up the specific algorithm we are going to use.  
   //---------------------------------------------------------------------------
-  void SiPixelRecHitConverter::setupCPE(const MagneticField* mag) 
+  void SiPixelRecHitConverter::setupCPE(const MagneticField* mag, const SiPixelCPEParmErrors* parmErrors) 
   {
     cpeName_ = conf_.getParameter<std::string>("CPE");
     
@@ -144,7 +150,7 @@ namespace cms
       } 
     else if ( cpeName_ == "Generic" ) 
       {
-	cpe_ = new PixelCPEGeneric(conf_,mag);
+	cpe_ = new PixelCPEGeneric(conf_,mag,parmErrors);
 	ready_ = true;
       } 
     else 
