@@ -12,7 +12,7 @@ void NuclearVertexBuilder::build( const reco::TrackRef& primTrack, const reco::T
 
        if( secTracks.size() != 0) {
          std::vector<reco::TransientTrack> transientTracks;
-         transientTracks.push_back( theTransientTrackBuilder->build(&(*primTrack)));
+         transientTracks.push_back( theTransientTrackBuilder->build(primTrack));
          // get the secondary track with the max number of hits
          for( reco::TrackRefVector::const_iterator tk = secTracks.begin(); tk != secTracks.end(); tk++) { 
                     transientTracks.push_back( theTransientTrackBuilder->build(*tk));
@@ -21,6 +21,7 @@ void NuclearVertexBuilder::build( const reco::TrackRef& primTrack, const reco::T
          try {
             TransientVertex tv = AVF.vertex(transientTracks); 
             the_vertex = reco::Vertex(tv);
+            LogDebug("NuclearInteractionMaker") << "Vertex build from AdaptiveVertexFitter with " << the_vertex.tracksSize() << " tracks";
          }
          catch(VertexException& exception){
             // AdaptivevertexFitter does not work 
@@ -47,19 +48,32 @@ void NuclearVertexBuilder::build( const reco::TrackRef& primTrack, const reco::T
                                                           crossing.y(),
                                                           crossing.z()),
                                       reco::Vertex::Error(), 0.,0.,0);
-
-            the_vertex.add(reco::TrackBaseRef( secTracks[indice] ));
+            // TODO : add a weight to the track - use Vertex::add( RefTrack, weight)
+            LogDebug("NuclearInteractionMaker") << exception.what() << " - Vertex build from crossing point" << "\n"
+                    << "Addition of a primary track and " << secTracks.size() << " secondary tracks to the vertex";
             the_vertex.add(reco::TrackBaseRef( primTrack ));
+            for( unsigned short i=0; i < secTracks.size(); i++) { 
+                 the_vertex.add(reco::TrackBaseRef( secTracks[i] ));
+            }
+        }
+        catch(cms::Exception& exception){
+           throw exception;
         }
      }
      else {
        // if no secondary tracks : vertex position = position of last rechit of the primary track 
+       LogDebug("NuclearInteractionMaker") << "Vertex build from the end point of the primary track";
        the_vertex = reco::Vertex(reco::Vertex::Point(primTrack->outerPosition().x(),
                                          primTrack->outerPosition().y(),
                                          primTrack->outerPosition().z()),
                                          reco::Vertex::Error(), 0.,0.,0);
        the_vertex.add(reco::TrackBaseRef( primTrack ));
+       for( unsigned short i=0; i < secTracks.size(); i++) { 
+                 the_vertex.add(reco::TrackBaseRef( secTracks[i] ));
+       }
      }
+
+
 }
           
 FreeTrajectoryState NuclearVertexBuilder::getTrajectory(const reco::TrackRef& track)
