@@ -21,6 +21,8 @@ namespace reco {
     struct exp_f { double operator()( double x ) const { return exp( x ); } };
     struct log_f { double operator()( double x ) const { return log( x ); } };
     struct log10_f { double operator()( double x ) const { return log10( x ); } };
+    struct max_f { double operator()( double x, double y ) const { return std::max( x, y ); } };
+    struct min_f { double operator()( double x, double y ) const { return std::min( x, y ); } };
     struct pow_f { double operator()( double x, double y ) const { return pow( x, y ); } };
     struct sin_f { double operator()( double x ) const { return sin( x ); } };
     struct sinh_f { double operator()( double x ) const { return sinh( x ); } };
@@ -39,23 +41,25 @@ void ExpressionFunctionSetter::operator()( const char *, const char * ) const {
 #endif
   ExpressionPtr funExp;
   switch( fun ) {
-  case( kAbs   ) : funExp.reset( new ExpressionUnaryOperator <abs_f  >( expStack_ ) ); break;
-  case( kAcos  ) : funExp.reset( new ExpressionUnaryOperator <acos_f >( expStack_ ) ); break;
-  case( kAsin  ) : funExp.reset( new ExpressionUnaryOperator <asin_f >( expStack_ ) ); break;
-  case( kAtan  ) : funExp.reset( new ExpressionUnaryOperator <atan_f >( expStack_ ) ); break;
-  case( kAtan2 ) : funExp.reset( new ExpressionBinaryOperator<atan2_f>( expStack_ ) ); break;
-  case( kChi2Prob):funExp.reset( new ExpressionBinaryOperator<chi2prob_f>( expStack_ ) ); break;
-  case( kCos   ) : funExp.reset( new ExpressionUnaryOperator <cos_f  >( expStack_ ) ); break;
-  case( kCosh  ) : funExp.reset( new ExpressionUnaryOperator <cosh_f >( expStack_ ) ); break;
-  case( kExp   ) : funExp.reset( new ExpressionUnaryOperator <exp_f  >( expStack_ ) ); break;
-  case( kLog   ) : funExp.reset( new ExpressionUnaryOperator <log_f  >( expStack_ ) ); break;
-  case( kLog10 ) : funExp.reset( new ExpressionUnaryOperator <log10_f>( expStack_ ) ); break;
-  case( kPow   ) : funExp.reset( new ExpressionBinaryOperator<pow_f  >( expStack_ ) ); break;
-  case( kSin   ) : funExp.reset( new ExpressionUnaryOperator <sin_f  >( expStack_ ) ); break;
-  case( kSinh  ) : funExp.reset( new ExpressionUnaryOperator <sinh_f >( expStack_ ) ); break;
-  case( kSqrt  ) : funExp.reset( new ExpressionUnaryOperator <sqrt_f >( expStack_ ) ); break;
-  case( kTan   ) : funExp.reset( new ExpressionUnaryOperator <tan_f  >( expStack_ ) ); break;
-  case( kTanh  ) : funExp.reset( new ExpressionUnaryOperator <tanh_f >( expStack_ ) ); break;
+  case( kAbs      ) : funExp.reset( new ExpressionUnaryOperator <abs_f  >   ( expStack_ ) ); break;
+  case( kAcos     ) : funExp.reset( new ExpressionUnaryOperator <acos_f >   ( expStack_ ) ); break;
+  case( kAsin     ) : funExp.reset( new ExpressionUnaryOperator <asin_f >   ( expStack_ ) ); break;
+  case( kAtan     ) : funExp.reset( new ExpressionUnaryOperator <atan_f >   ( expStack_ ) ); break;
+  case( kAtan2    ) : funExp.reset( new ExpressionBinaryOperator<atan2_f>   ( expStack_ ) ); break;
+  case( kChi2Prob ) : funExp.reset( new ExpressionBinaryOperator<chi2prob_f>( expStack_ ) ); break;
+  case( kCos      ) : funExp.reset( new ExpressionUnaryOperator <cos_f  >   ( expStack_ ) ); break;
+  case( kCosh     ) : funExp.reset( new ExpressionUnaryOperator <cosh_f >   ( expStack_ ) ); break;
+  case( kExp      ) : funExp.reset( new ExpressionUnaryOperator <exp_f  >   ( expStack_ ) ); break;
+  case( kLog      ) : funExp.reset( new ExpressionUnaryOperator <log_f  >   ( expStack_ ) ); break;
+  case( kLog10    ) : funExp.reset( new ExpressionUnaryOperator <log10_f>   ( expStack_ ) ); break;
+  case( kMax      ) : funExp.reset( new ExpressionBinaryOperator<max_f>     ( expStack_ ) ); break;
+  case( kMin      ) : funExp.reset( new ExpressionBinaryOperator<min_f>     ( expStack_ ) ); break;
+  case( kPow      ) : funExp.reset( new ExpressionBinaryOperator<pow_f  >   ( expStack_ ) ); break;
+  case( kSin      ) : funExp.reset( new ExpressionUnaryOperator <sin_f  >   ( expStack_ ) ); break;
+  case( kSinh     ) : funExp.reset( new ExpressionUnaryOperator <sinh_f >   ( expStack_ ) ); break;
+  case( kSqrt     ) : funExp.reset( new ExpressionUnaryOperator <sqrt_f >   ( expStack_ ) ); break;
+  case( kTan      ) : funExp.reset( new ExpressionUnaryOperator <tan_f  >   ( expStack_ ) ); break;
+  case( kTanh     ) : funExp.reset( new ExpressionUnaryOperator <tanh_f >   ( expStack_ ) ); break;
   };
   expStack_.push_back( funExp );
 }

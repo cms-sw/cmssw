@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -105,7 +105,8 @@ BOOST_SPIRIT_DEBUG_RULE(fun);
 	    chi2prob_s( kChi2Prob, self.funStack ), 
             cos_s( kCos, self.funStack ), 
 	    cosh_s( kCosh, self.funStack ), exp_s( kExp, self.funStack ), log_s( kLog, self.funStack ), 
-	    log10_s( kLog10, self.funStack ), pow_s( kPow, self.funStack ), sin_s( kSin, self.funStack ), 
+	    log10_s( kLog10, self.funStack ), max_s( kMax, self.funStack ), min_s( kMin, self.funStack ),
+	    pow_s( kPow, self.funStack ), sin_s( kSin, self.funStack ), 
 	    sinh_s( kSinh, self.funStack ), sqrt_s( kSqrt, self.funStack ), tan_s( kTan, self.funStack ), 
 	    tanh_s( kTanh, self.funStack );
 	  TrinarySelectorSetter trinary_s( self.selStack, self.cmpStack, self.exprStack );
@@ -135,7 +136,8 @@ BOOST_SPIRIT_DEBUG_RULE(fun);
 	    chseq_p( "sin" ) [ sin_s ] | chseq_p( "sinh" ) [ sinh_s ] | chseq_p( "sqrt" ) [ sqrt_s ] |
 	    chseq_p( "tan" ) [ tan_s ] | chseq_p( "tanh" ) [ tanh_s ];
 	  function2 = 
-	    chseq_p( "atan2" ) [ atan2_s ] | chseq_p( "chi2prob" ) [ chi2prob_s ] | chseq_p( "pow" ) [ pow_s ];
+	    chseq_p( "atan2" ) [ atan2_s ] | chseq_p( "chi2prob" ) [ chi2prob_s ] | chseq_p( "pow" ) [ pow_s ] |
+            chseq_p( "min" ) [ min_s ] | chseq_p( "max" ) [ max_s ];
 	  expression = 
 	    term >> * ( ( '+' >> term ) [ plus_s ] |
 			( '-' >> term ) [ minus_s ] );
