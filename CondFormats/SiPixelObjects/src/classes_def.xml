@@ -3,6 +3,7 @@
   <class name="SiPixelCPEParmErrors"/>
   <class name="SiPixelCPEParmErrors::DbEntry"/>
   <class name="std::vector<SiPixelCPEParmErrors::DbEntry>"/> 
+  <class name="std::vector<SiPixelCPEParmErrors::DbEntryBinSize>"/>
 
   <class name="SiPixelGainCalibration"/>
   <class name="SiPixelGainCalibration::DetRegistry"/>

@@ -7,70 +7,74 @@
 //--- This usage is not worth it, since in the debugger will be obvious
 //--- what this is! ;)
 #define NONSENSE -99999.9
+#define NONSENSE_I -99999
 
 class SiPixelCPEParmErrors {
  public:
-        //! A struct to hold information for a given (alpha,beta,size)
-        struct DbEntry {
+	//! A struct to hold information for a given (alpha,beta,size)
+	struct DbEntry {
 		float sigma;
 		float rms;
-		float bias;
-		float pix_height;
-		float ave_qclu;
+		float bias;       // For irradiated pixels
+		float pix_height; // For decapitation
+		float ave_Qclus;  // Average cluster charge, For 
 	  DbEntry() : sigma(NONSENSE), rms(NONSENSE), 
-		    bias(NONSENSE), pix_height(NONSENSE), 
-		    ave_qclu(NONSENSE) {}
+				 bias(NONSENSE), pix_height(NONSENSE), 
+				 ave_Qclus(NONSENSE) {}
 	  ~DbEntry() {}
 	};
 	typedef std::vector<DbEntry> DbVector;
 
-	SiPixelCPEParmErrors() : errorsBx_(), errorsBy_(), errorsFx_(), errorsFy_() {}
+	//! A struct to hold the binning information for (part, size, alpha, beta)
+	struct DbEntryBinSize {
+		int partBin_size;
+		int sizeBin_size;
+		int alphaBin_size;
+		int betaBin_size;
+		DbEntryBinSize() : partBin_size(NONSENSE_I), sizeBin_size(NONSENSE_I),
+				           alphaBin_size(NONSENSE_I), betaBin_size(NONSENSE_I) {}
+		~DbEntryBinSize() {}
+	};
+	typedef std::vector<DbEntryBinSize> DbBinSizeVector;
+
+	SiPixelCPEParmErrors() : errors_(), errorsBinSize_() {}
 	virtual ~SiPixelCPEParmErrors(){}
 
 	//!  Accessors for the vectors -- non-const version
-	inline DbVector & errorsBx() { return errorsBx_ ; }
-	inline DbVector & errorsBy() { return errorsBy_ ; }
-	inline DbVector & errorsFx() { return errorsFx_ ; }
-	inline DbVector & errorsFy() { return errorsFy_ ; }
+	inline DbVector & errors() { return errors_ ; }
+	inline DbBinSizeVector & errorsBin() { return errorsBinSize_ ; }
 
 	//!  Accessors for the vectors -- const version
-	inline const DbVector & errorsBx() const { return errorsBx_ ; }
-	inline const DbVector & errorsBy() const { return errorsBy_ ; }
-	inline const DbVector & errorsFx() const { return errorsFx_ ; }
-	inline const DbVector & errorsFy() const { return errorsFy_ ; }
+	inline const DbVector & errors() const { return errors_ ; }
+	inline const DbBinSizeVector & errorsBinSize() const { return errorsBinSize_ ; }
 
 	//!  Reserve some reasonable sizes for the vectors. 
 	inline void reserve() {
-	  errorsBx_.reserve(300);
-	  errorsBy_.reserve(300);
-	  errorsFx_.reserve(300);
-	  errorsFy_.reserve(300);
+	  errors_.reserve(1000);
+		errorsBinSize_.reserve(4);
 	}
 	//  &&& Should these sizes be computed on the fly from other 
 	//  &&& variables (which are currently not stored in this object,
 	//  &&& but maybe should be?)
 
-
-	//!  Store a new DbEntry, depending on the detector type.
-	inline void push_back( int det_type, DbEntry e) {
-	  switch (det_type) {
-	  case 1: errorsBx_.push_back(e); break;
-	  case 2: errorsBy_.push_back(e); break;
-	  case 3: errorsFx_.push_back(e); break;
-	  case 4: errorsFy_.push_back(e); break;
-	  default: // throw something?
-	    assert(det_type > 0 && det_type < 5 );
-	  }
+	inline void push_back( DbEntry e) {
+		errors_.push_back(e);
+	}
+	
+	inline void push_back_bin( DbEntryBinSize e) {
+		errorsBinSize_.push_back(e);
 	}
 
+	inline void set_version (float v) {
+		version = v;
+	}
 
 	// &&& Should we be able to read this from an iostream?  See PxCPEdbUploader...
 
  private:
-	DbVector errorsBx_ ;
-	DbVector errorsBy_ ;
-	DbVector errorsFx_ ;
-	DbVector errorsFy_ ;
+	DbVector errors_ ;
+	DbBinSizeVector errorsBinSize_;
+	float version;
 };
 
 #endif
