@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.75 2007/12/12 22:05:22 wmtan Exp $
+$Id: PoolSource.cc,v 1.76 2008/01/03 19:22:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -71,10 +71,7 @@ namespace edm {
 
   void
   PoolSource::endJob() {
-    if (rootFile_) {
-      rootFile_->close(true);
-      rootFile_.reset();
-    }
+    closeFile_();
     delete flatDistribution_;
     flatDistribution_ = 0;
   }
@@ -93,6 +90,15 @@ namespace edm {
       return boost::shared_ptr<FileBlock>(new FileBlock);
     }
     return rootFile_->createFileBlock();
+  }
+
+  void PoolSource::closeFile_() {
+    if (rootFile_) {
+    // Account for events skipped in the file.
+      eventsToSkip_ = rootFile_->eventsToSkip();
+      rootFile_->close(true);
+      rootFile_.reset();
+    }
   }
 
   void PoolSource::initFile(bool skipBadFiles) {
@@ -128,9 +134,6 @@ namespace edm {
   }
 
   bool PoolSource::nextFile() {
-    // Account for events skipped in the file.
-    if (rootFile_) eventsToSkip_ = rootFile_->eventsToSkip();
-
     if(fileIter_ != fileCatalogItems().end()) ++fileIter_;
     if(fileIter_ == fileCatalogItems().end()) {
       if (primary()) {

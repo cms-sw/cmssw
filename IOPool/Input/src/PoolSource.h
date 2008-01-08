@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.47 2007/12/11 00:29:39 wmtan Exp $
+$Id: PoolSource.h,v 1.48 2007/12/12 22:05:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -51,6 +51,7 @@ namespace edm {
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
     virtual boost::shared_ptr<RunPrincipal> readRun_();
     virtual boost::shared_ptr<FileBlock> readFile_();
+    virtual void closeFile_();
     virtual InputSource::ItemType getNextItemType();
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& id);
     virtual void skip(int offset);
