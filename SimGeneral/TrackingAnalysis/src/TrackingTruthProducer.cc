@@ -161,27 +161,41 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     int newdet = 0;
 
 // Using simTrack_hit map makes this very fast
+//now check the process ID 
+
+    bool checkProc = true;
+    unsigned short procType = 0;
+    int partType = 0;
+    
+    int hitcount = 0; 
     for (hitItr iHit  = simTrack_hit.lower_bound(trackId);
-                iHit != simTrack_hit.upper_bound(trackId); ++iHit) {
+	 iHit != simTrack_hit.upper_bound(trackId); ++iHit) {
       PSimHit hit = iHit->second;
-      float pratio = hit.pabs()/theMomentum.P();
-
-// Discard hits from delta rays if requested
-
-      if (!discardHitsFromDeltas_ || ( discardHitsFromDeltas_ && 0.5 < pratio && pratio < 2.0 ) ) {
+      hitcount++;
+      if(checkProc){
+	procType = hit.processType();
+	partType = hit.particleType();
+	checkProc = false; //check only the procType of the first hit 
+	//std::cout << "First Hit (proc, part) = " << procType << ", " << partType << std::endl;
+      }
+      //Check for delta and interaction products discards
+      //std::cout << hitcount << " Hit (proc, part) = " << hit.processType() << ", " << hit.particleType() << std::endl;
+      
+      if(procType == hit.processType() && partType == hit.particleType()){
+	//std::cout << "PASSED" << std::endl;
         tp.addPSimHit(hit);
-
+	
         unsigned int detid = hit.detUnitId();
         DetId detId = DetId(detid);
         oldlay = newlay;
         olddet = newdet;
         newlay = LayerFromDetid(detid);
         newdet = detId.subdetId();
-
-// Count hits using layers for glued detectors
-
-        if (oldlay != newlay || (oldlay==newlay && olddet!=newdet) ) {
-          totsimhit++;
+	
+	// Count hits using layers for glued detectors
+	
+	if (oldlay != newlay || (oldlay==newlay && olddet!=newdet) ) {
+	  totsimhit++;
         }
       }
     }
