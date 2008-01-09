@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.30 2007/11/01 22:03:55 smaruyam Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.25 2007/10/16 16:03:20 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -32,12 +32,9 @@ FastL1GlobalAlgo::FastL1GlobalAlgo(const edm::ParameterSet& iConfig)
   // Get L1 config
   m_L1Config.DoEMCorr = iConfig.getParameter<bool>("DoEMCorr");
   m_L1Config.DoJetCorr = iConfig.getParameter<bool>("DoJetCorr");
-  m_DoBitInfo = iConfig.getParameter<bool>("DoBitInfo");
-  m_GctIso = iConfig.getParameter<bool>("GctIso");
+ m_DoBitInfo = iConfig.getParameter<bool>("DoBitInfo");
 
   // get uncompressed hcal et
-  m_IsolationEt = iConfig.getParameter<double>("IsolationEt");
-
   m_L1Config.HcalLUT = iConfig.getParameter<edm::FileInPath>("HcalLUT");
 
   m_L1Config.EMSeedEnThreshold = iConfig.getParameter<double>("EMSeedEnThreshold");
@@ -100,9 +97,13 @@ FastL1GlobalAlgo::FastL1GlobalAlgo(const edm::ParameterSet& iConfig)
 
 FastL1GlobalAlgo::~FastL1GlobalAlgo()
 {
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
 }
 
+//
 // member functions
+//
 
 
 // ------------ Dump out CaloTower info  ------------
@@ -171,25 +172,18 @@ FastL1GlobalAlgo::findJets() {
 
     if (m_Regions.at(i).SumEt()>m_L1Config.JetSeedEtThreshold) {
       if (isMaxEtRgn_Window33(i)) {
-if (m_GctIso == false){ // tau veto bit iso
 	if (isTauJet(i) && (i%22)>3 && (i%22)<18 ) {
 	  addJet(i,true);    
 	} else {
+  if (m_DoBitInfo) m_Regions[i].BitInfo.setIsolationVeto ( true);
 	  addJet(i,false);    
 	}
-} // old iso
-if (m_GctIso == true) { // et iso
-        if (TauIsolation(i) && (i%22)>3 && (i%22)<18 ) {
-          addJet(i,true);
-        } else {
-          addJet(i,false);
-        }
-}// new iso
       }
 else {  if (m_DoBitInfo) m_Regions[i].BitInfo.setMaxEt ( true);}
     } else {
   if (m_DoBitInfo)      m_Regions[i].BitInfo.setSumEtBelowThres ( true);
     }
+    //}
   }
   
 }
@@ -232,10 +226,12 @@ FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
   double e = ex/sin(theta)/cos(phi);
   double ez = e*cos(theta);
 
+//sm
   if (m_DoBitInfo){
 m_Regions[iRgn].BitInfo.setEt ( et);
 m_Regions[iRgn].BitInfo.setEnergy ( e);
 }
+//ms
 
   reco::Particle::LorentzVector rp4(ex,ey,ez,e); 
   l1extra::L1JetParticle tjet(rp4);
@@ -251,7 +247,9 @@ m_Regions[iRgn].BitInfo.setEnergy ( e);
       // sort by et 
       std::sort(m_TauJets.begin(),m_TauJets.end(), myspace::greaterEt);
     } else {
+//sm
   if (m_DoBitInfo) m_Regions[iRgn].BitInfo.setHard ( true);
+//ms
       if (std::abs(eta)<3.0) {
 	m_CenJets.push_back(tjet);
 	std::sort(m_CenJets.begin(),m_CenJets.end(), myspace::greaterEt);
@@ -374,8 +372,8 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
       double HThres = 0.;
       double EBthres = m_L1Config.TowerEBThreshold;
       double HBthres = m_L1Config.TowerHBThreshold;
-      double EEthres = m_L1Config.TowerEEThreshold;
-      double HEthres = m_L1Config.TowerHEThreshold;
+      double EEthres = m_L1Config.TowerEBThreshold;
+      double HEthres = m_L1Config.TowerEEThreshold;
 
       //if(std::abs(candidate->eta())<1.479) {
       if(std::abs(candidate->eta())<2.322) {
@@ -449,7 +447,8 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
   //}
 
   reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,0.,std::sqrt(sum_ex*sum_ex + sum_ey*sum_ey));
-  m_MET = l1extra::L1EtMissParticle(rp4,sum_et,0.);  
+  //m_MET = l1extra::L1EtMissParticle(rp4,sum_et,0.);  
+  m_METs.push_back(l1extra::L1EtMissParticle(rp4,sum_et,0.));  
 }
 
 // ------------ Fill MET 2: loop over regions ------------
@@ -494,8 +493,9 @@ FastL1GlobalAlgo::FillMET() {
   //reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,-sum_ez,sum_e);
   reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,0.,std::sqrt(sum_ex*sum_ex + sum_ey*sum_ey));
   //edm::LogInfo("********** FastL1GlobalAlgo::FillMET()")<<rp4.mass()<<std::endl; 
-  m_MET = l1extra::L1EtMissParticle(rp4,sum_et,0.);  
-  
+  //m_MET = l1extra::L1EtMissParticle(rp4,sum_et,0.);  
+  m_METs.push_back(l1extra::L1EtMissParticle(rp4,sum_et,0.));  
+ 
 }
 
 void 
@@ -560,6 +560,15 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
     int hiphi = hTP->id().iphi();
     int hieta = hTP->id().ieta();
 
+    /*
+    if(abs(hieta) > 20 && hiphi%2 == 0) hiphi--;
+    std::pair<int, int> prim_tower_feed; // prim tower indeces iEta +/- 1~32, iPhi (+) 1~72
+    prim_tower_feed.first = hieta;
+    prim_tower_feed.second = hiphi;
+    std::pair<int, int> rct_index = m_RMap-> getRegionEtaPhiIndex(prim_tower_feed); // convert prim tower indeces into RCT indeces ieta 0~21, iphi 0~17
+    rgnid = rct_index.second*22 + rct_index.first; // converting fastL1 obsolete RCT numbering
+    */
+
     rgnid  = m_RMap->getRegionIndex(hieta,hiphi);
     twrid = m_RMap->getRegionTowerIndex(hieta,hiphi);
 
@@ -603,6 +612,17 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
       int rgnid = 999;
       int twrid = 999;
       
+      //if(abs(eieta) > 20 && eiphi%2 == 0) teiphi=eiphi-1;
+      
+    /*
+      if(abs(eieta) > 20 && eiphi%2 == 0) eiphi--;
+      std::pair<int, int> prim_tower_feed; // prim tower indeces iEta +/- 1~28, iPhi (+) 1~72
+      prim_tower_feed.first = eieta;
+      prim_tower_feed.second = eiphi;
+      std::pair<int, int> rct_index = m_RMap-> getRegionEtaPhiIndex(prim_tower_feed); // convert prim tower indeces into RCT indeces ieta 0~21, iphi 0~17
+      rgnid = rct_index.second*22 + rct_index.first; // converting fastL1 obsolete RCT numbering
+    */
+      
       rgnid  = m_RMap->getRegionIndex(eieta,eiphi);
       twrid = m_RMap->getRegionTowerIndex(eieta,eiphi);
       
@@ -617,7 +637,21 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
 	emFGV[rgnid][twrid] = (int)eTP->fineGrain();
 	emiEtaV[rgnid][twrid] = eieta;
 	emiPhiV[rgnid][twrid] = eiphi;
+	
+	//edm::ESHandle<CaloGeometry> cGeom; 
+	//s.get<IdealGeometryRecord>().get(cGeom);    
+      
+	//CaloTowerDetId  towerDetId = CaloTowerDetId( eieta, teiphi); 
+	//CaloTowerDetId  towerDetId2 = CaloTowerDetId( eieta, eiphi); 
+	//const GlobalPoint gP1 = cGeom->getPosition(towerDetId);
+	//const GlobalPoint gP12 = cGeom->getPosition(towerDetId2);
+	//double eta = gP1.eta();  
 
+	//if(abs(eieta) > 20) 
+	//std::cout<<eiphi<<" "<<gP1.phi()<<" "<<eieta<<" "<<gP1.eta()<<" "<<std::endl;
+
+	//double phi = gP1.phi();    
+	//emEtaV[rgnid][twrid] = eta;
       }
     } // else
   } // ecalTP
@@ -625,12 +659,20 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
   
   for (int i=0; i<396; i++) {
     for (int j=0; j<16; j++) {
+/* sm
+if  (emEtV[i][j] == 0 && hEtV[i][j] == 0){
+m_Regions[i].BitInfo.ecal.push_back(0);
+m_Regions[i].BitInfo.hcal.push_back(0);
+}
+*///ms
       if (emEtV[i][j]>0 || hEtV[i][j]>0) {
+	
 
 	std::pair<double, double> etaphi 
 	  = m_RMap->getRegionCenterEtaPhi(i);
 	double eta = etaphi.first;
 	double phi = etaphi.second;
+   
 
  	double emEt = ((double) emEtV[i][j]) * m_L1Config.EMLSB;
 	//double hadEt = ((double )hEtV[i][j]) * m_L1Config.JetLSB * cos(2.*atan(exp(-hiEtaV[i][j])));
@@ -645,6 +687,10 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
 	}
 
 	double et = emEt + hadEt;
+/*/ sm
+m_Regions[i].BitInfo.ecal[j] = emEt;
+m_Regions[i].BitInfo.hcal[j] = hadEt;
+//ms */
 	math::RhoEtaPhiVector lvec(et,eta,phi);
 	
 	CaloTowerDetId towerDetId;  
@@ -693,6 +739,9 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
 
     }
   }
+
+
+
 
   
 
@@ -804,10 +853,12 @@ FastL1GlobalAlgo::FillBitInfos() {
 bool 
 FastL1GlobalAlgo::isTauJet(int cRgn) {
 
-  if ((cRgn%22)<4 || (cRgn%22)>17) return false;
+  // Barrel and Endcap only
+  if ((cRgn%22)<4 || (cRgn%22)>17)  
+    return false;
 
-int shower_shape = 0;
-int et_isolation = 0;
+  if (m_Regions[cRgn].GetTauBit()) 
+    return false;
 
   int nwid = m_Regions[cRgn].GetNWId();
   int nid = m_Regions[cRgn].GetNorthId();
@@ -818,49 +869,60 @@ int et_isolation = 0;
   int sid = m_Regions[cRgn].GetSouthId();
   int seid = m_Regions[cRgn].GetSEId();
 
-  if (m_Regions[cRgn].GetTauBit()) shower_shape = 1; // check center
 
-if((cRgn%22)==4  || (cRgn%22)==17 ) {
-  // west border
+  //Use 3x2 window at eta borders!
+
+  // west border:
   if ((cRgn%22)==4) { 
+    //std::cout << "West border check: " << std::endl
+    //      << nwid << " " << nid << " "  << neid << " " << std::endl
+    //      << wid << " " << cRgn << " "  << eid << " " << std::endl
+    //      << swid << " " << sid << " "  << seid << " " << std::endl;    
+    //std::cout << "West border check: " << std::endl
+    //      << m_Regions[nwid].GetTauBit() << " " << m_Regions[nid].GetTauBit() << " "  << m_Regions[neid].GetTauBit() << " " << std::endl
+    //      << m_Regions[wid].GetTauBit() << " " << m_Regions[cRgn].GetTauBit() << " "  << m_Regions[eid].GetTauBit() << " " << std::endl
+    //      << m_Regions[swid].GetTauBit() << " " << m_Regions[sid].GetTauBit() << " "  << m_Regions[seid].GetTauBit() << " " << std::endl;    
+
     if (
 	m_Regions[nid].GetTauBit()  ||
 	m_Regions[neid].GetTauBit() ||
 	m_Regions[eid].GetTauBit()  ||
 	m_Regions[seid].GetTauBit() ||
-	m_Regions[sid].GetTauBit()
-	){
- if (m_DoBitInfo) m_Regions[cRgn].BitInfo.setIsolationVeto ( true); 
-et_isolation = 1;
-}
-else{ et_isolation = 2;}
-  } // west bd
-
+	m_Regions[sid].GetTauBit()  ||
+	m_Regions[cRgn].GetTauBit()
+	) 
+      return false;
+    else return true;
+  }
   // east border:
   if ((cRgn%22)==17) { 
+    //std::cout << "East border check2: " << std::endl
+    //      << nwid << " " << nid << " "  << neid << " " << std::endl
+    //      << wid << " " << cRgn << " "  << eid << " " << std::endl
+    //      << swid << " " << sid << " "  << seid << " " << std::endl;    
+    //std::cout << "East border check: " << std::endl
+    //      << m_Regions[nwid].GetTauBit() << " " << m_Regions[nid].GetTauBit() << " "  << m_Regions[neid].GetTauBit() << " " << std::endl
+    //      << m_Regions[wid].GetTauBit() << " " << m_Regions[cRgn].GetTauBit() << " "  << m_Regions[eid].GetTauBit() << " " << std::endl
+    //      << m_Regions[swid].GetTauBit() << " " << m_Regions[sid].GetTauBit() << " "  << m_Regions[seid].GetTauBit() << " " << std::endl;    
+
      if (
 	m_Regions[nid].GetTauBit()  ||
 	m_Regions[nwid].GetTauBit() ||
 	m_Regions[wid].GetTauBit()  ||
 	m_Regions[swid].GetTauBit() ||
-	m_Regions[sid].GetTauBit()
-	) {
- if (m_DoBitInfo) m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
-et_isolation = 1;
-}
-else{ et_isolation = 2;}
-  } // east bd
+	m_Regions[sid].GetTauBit()  ||
+	m_Regions[cRgn].GetTauBit()
+	) 
+      return false;
+    else return true;
+  }
 
-// Closing 2x3 method
-if (et_isolation == 1 || shower_shape == 1 ) return false; // done at boarder
-if (et_isolation == 2 && shower_shape == 0) return true; // done at boarder
-}
-
-if ( (cRgn%22)>4 && (cRgn%22)<17){ // non-boarder
   if (nwid==999 || neid==999 || nid==999 || swid==999 || seid==999 || sid==999 || wid==999 || 
       eid==999 ) { 
     return false;
   }
+
+/*
   if (
       m_Regions[nwid].GetTauBit() ||
       m_Regions[nid].GetTauBit()  ||
@@ -870,17 +932,25 @@ if ( (cRgn%22)>4 && (cRgn%22)<17){ // non-boarder
       m_Regions[swid].GetTauBit() ||
       m_Regions[seid].GetTauBit() ||
       m_Regions[sid].GetTauBit()
-      ) {
- if (m_DoBitInfo) m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
-    et_isolation = 1;
-}
-  else {et_isolation = 2;}
+      ) 
+    m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
+*/
 
-if (et_isolation == 1 || shower_shape == 1) return false;
-if (et_isolation == 2 && shower_shape == 0) return true; 
-}// non-boarder
+  if (
+      m_Regions[nwid].GetTauBit() ||
+      m_Regions[nid].GetTauBit()  ||
+      m_Regions[neid].GetTauBit() ||
+      m_Regions[wid].GetTauBit()  ||
+      m_Regions[eid].GetTauBit()  ||
+      m_Regions[swid].GetTauBit() ||
+      m_Regions[seid].GetTauBit() ||
+      m_Regions[sid].GetTauBit()  ||
+      m_Regions[cRgn].GetTauBit()
+      ) 
+    return false;
+  else return true;
 
-return true; // shouldn't reach here
+
 }
 
 // ------------ Check if tower is emcand ------------
@@ -1134,155 +1204,6 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle ph,const ed
 }
 
 
-// Et Check
-bool
-FastL1GlobalAlgo::TauIsolation(int cRgn) {
-
-  if ((cRgn%22)<4 || (cRgn%22)>17) return false;
-
-double iso_threshold =  m_IsolationEt; // arbitrarily set
-int shower_shape = 0;
-int et_isolation = 0;
-unsigned int iso_count = 0;
-
-  int nwid = m_Regions[cRgn].GetNWId();
-  int nid = m_Regions[cRgn].GetNorthId();
-  int neid = m_Regions[cRgn].GetNEId();
-  int wid = m_Regions[cRgn].GetWestId();
-  int eid = m_Regions[cRgn].GetEastId();
-  int swid = m_Regions[cRgn].GetSWId();
-  int sid = m_Regions[cRgn].GetSouthId();
-  int seid = m_Regions[cRgn].GetSEId();
-
-  if (m_Regions[cRgn].GetTauBit()) shower_shape = 1; // check center
-if((cRgn%22)==4  || (cRgn%22)==17 ) {
-  // west border
-  if ((cRgn%22)==4) {
-if( m_Regions[neid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[neid].GetTauBit()) iso_count++;
-}
-if( m_Regions[nid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[nid].GetTauBit()) iso_count++;
-}
-if( m_Regions[eid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[eid].GetTauBit()) iso_count++;
-}
-if( m_Regions[seid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[seid].GetTauBit()) iso_count++;
-}
-if( m_Regions[sid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[sid].GetTauBit()) iso_count++;
-}
-
-    if (iso_count >= 2 ){
- if (m_DoBitInfo){
- m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
-// m_Regions[cRgn].BitInfo.setIsolationCount ( iso_count);
-}
-et_isolation = 1;
-}
-else{ et_isolation = 2;}
-  } // west bd
-
-  // east border:
-  if ((cRgn%22)==17) {
-if( m_Regions[nwid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[nwid].GetTauBit()) iso_count++;
-}
-if( m_Regions[nid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[nid].GetTauBit()) iso_count++;
-}
-if( m_Regions[wid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[wid].GetTauBit()) iso_count++;
-}
-if( m_Regions[swid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[swid].GetTauBit()) iso_count++;
-}
-if( m_Regions[sid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[sid].GetTauBit()) iso_count++;
-}
-
-    if (iso_count >= 2 ){
- if (m_DoBitInfo){
- m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
-// m_Regions[cRgn].BitInfo.setIsolationCount ( iso_count);
-}
-et_isolation = 1;
-}
-else{ et_isolation = 2;}
-  } // east bd
-
-// Closing 2x3 method
-if (et_isolation == 1 || shower_shape == 1 ) return false; // done at boarder
-if (et_isolation == 2 && shower_shape == 0) return true; // done at boarder
-}
-
-if ( (cRgn%22)>4 && (cRgn%22)<17){ // non-boarder
-  if (nwid==999 || neid==999 || nid==999 || swid==999 || seid==999 || sid==999 || wid==999 ||
-      eid==999 ) {
-    return false;
-  }
-
-if( m_Regions[neid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[neid].GetTauBit()) iso_count++;
-}
-if( m_Regions[nid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[nid].GetTauBit()) iso_count++;
-}
-if( m_Regions[eid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[eid].GetTauBit()) iso_count++;
-}
-if( m_Regions[seid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[seid].GetTauBit()) iso_count++;
-}
-if( m_Regions[sid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[sid].GetTauBit()) iso_count++;
-}
-if( m_Regions[nwid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[nwid].GetTauBit()) iso_count++;
-}
-if( m_Regions[wid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[wid].GetTauBit()) iso_count++;
-}
-if( m_Regions[swid].SumEt() > iso_threshold){
- iso_count ++;
-if (m_Regions[swid].GetTauBit()) iso_count++;
-}
-
-    if (iso_count >= 2 ){
- if (m_DoBitInfo){
- m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
-// m_Regions[cRgn].BitInfo.setIsolationCount ( iso_count);
-}
-et_isolation = 1;
-}
-  else {et_isolation = 2;}
-
-if (et_isolation == 1 || shower_shape == 1) return false;
-if (et_isolation == 2 && shower_shape == 0) return true;
-}// non-boarder
-
-return true; // shouldn't reach here
-}//
-
-
 // is central region the highest Et Region?
 bool 
 FastL1GlobalAlgo::isMaxEtRgn_Window33(int crgn) {
@@ -1404,11 +1325,10 @@ FastL1GlobalAlgo::isMaxEtRgn_Window33(int crgn) {
   double soet = m_Regions[sid].SumEt();
   double seet = m_Regions[seid].SumEt();
 
-  if ( (crgn%22) <= 10)
-if(    cenet > nwet &&  cenet > noet &&
-       cenet >= neet &&  cenet >= eaet &&
+  if ( cenet > nwet &&  cenet > noet &&
+       cenet > neet &&  cenet >= eaet &&
        cenet > weet &&  cenet >= soet &&
-       cenet > swet &&  cenet >= seet ) 
+       cenet >= swet &&  cenet >= seet ) 
     {
 
       double cene = m_Regions.at(crgn).SumE();
@@ -1434,38 +1354,8 @@ if(    cenet > nwet &&  cenet > noet &&
       m_Regions.at(crgn).SetJetEt3x3(cenet);
       
       return true;
-    } //else { return false; }
+    } else { return false; }
 
-  if ( (crgn%22) > 10)
-if(    cenet >= nwet &&  cenet > noet &&
-       cenet > neet &&  cenet > eaet &&
-       cenet >= weet &&  cenet >= soet &&
-       cenet >= swet &&  cenet > seet )
-    { 
- 
-      double cene = m_Regions.at(crgn).SumE();
-      double nwe =  m_Regions[nwid].SumE();
-      double noe = m_Regions[nid].SumE();
-      double nee = m_Regions[neid].SumE();
-      double wee = m_Regions[wid].SumE();
-      double eae = m_Regions[eid].SumE();
-      double swe = m_Regions[swid].SumE();
-      double soe = m_Regions[sid].SumE();
-      double see = m_Regions[seid].SumE();
- 
-      double jE = cene + nwe + noe + nee + wee + eae + swe + soe + see;
-      double jEt = cenet + nwet + noet + neet + weet + eaet + swet + soet + seet;
- 
-      m_Regions.at(crgn).SetJetE(jE);
-      m_Regions.at(crgn).SetJetEt(jEt);
- 
-      m_Regions.at(crgn).SetJetE3x3(cene);
-      m_Regions.at(crgn).SetJetEt3x3(cenet);
-       
-      return true; 
-    } 
-
-return false;
 }
 
 
