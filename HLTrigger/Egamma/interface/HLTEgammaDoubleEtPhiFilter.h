@@ -12,7 +12,6 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 //
 // class decleration
@@ -24,11 +23,6 @@ class HLTEgammaDoubleEtPhiFilter : public HLTFilter {
   explicit HLTEgammaDoubleEtPhiFilter(const edm::ParameterSet&);
   ~HLTEgammaDoubleEtPhiFilter();
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-
-
-  
-
- 
 
  private:
   edm::InputTag candTag_; // input tag identifying product contains filtered candidates
