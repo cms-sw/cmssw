@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.10 2007/10/24 09:07:32 fwyzard Exp $
+// $Id: TrackIPProducer.cc,v 1.11 2007/10/24 09:15:14 arizzi Exp $
 //
 //
 
@@ -226,7 +226,8 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                if(n==first) use = second; else use = first;
                TrajectoryStateOnSurface trackState1 =  builder->build(selectedTracks[n]).impactPointState();
                TrajectoryStateOnSurface trackState2 =  builder->build(selectedTracks[use]).impactPointState();
-               std::pair<GlobalPoint,GlobalPoint> points = minDist.points(trackState1,trackState2);
+	       minDist.calculate(trackState1,trackState2);
+               std::pair<GlobalPoint,GlobalPoint> points = minDist.points();
                float distance = ( points.first - points.second ).mag();
                ipData[n].closestToFirstTrack=points.first;
                ipData[n].distanceToFirstTrack=distance;
