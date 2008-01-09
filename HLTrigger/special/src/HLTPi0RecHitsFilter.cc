@@ -93,7 +93,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //Select interesting EcalRecHits (barrel)
   EBRecHitCollection::const_iterator itb;
-  cout<< "   EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
+  //cout<< "   EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
   for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
 
     std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
@@ -222,7 +222,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    float theta_s = 2. * atan(exp(-clus_pos.eta()));
 	    float p0x_s = simple_energy * sin(theta_s) * cos(clus_pos.phi());
 	    float p0y_s = simple_energy * sin(theta_s) * sin(clus_pos.phi());
-	    float p0z_s = simple_energy * cos(theta_s);
+	    //	    float p0z_s = simple_energy * cos(theta_s);
 	    float et_s = sqrt( p0x_s*p0x_s + p0y_s*p0y_s);
 
 	    //cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<p0z_s<<endl;
@@ -280,7 +280,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		      float m_inv = sqrt ( (eClus[i] + eClus[j])*(eClus[i] + eClus[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
 		      if ( (m_inv<seleMinvMaxPi0_) && (m_inv>seleMinvMinPi0_) )
 			{
-			  cout <<"  Simple Clustering: pi0 Candidate (pt>2.5 GeV, m_inv<0.2) pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
+			  //cout <<"  Simple Clustering: pi0 Candidate (pt>2.5 GeV, m_inv<0.2) pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
 			  sClus_1[npi0_s]=i;
 			  sClus_2[npi0_s]=j;
 			  npi0_s++;
@@ -298,8 +298,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   timers.pop_and_push(timerName);
 
 
-      cout<<" "<<endl;
-      cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
+  //cout<<" "<<endl;
+  //   cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
 
       for(Int_t jj=0;jj<nClus;jj++)
 	{
@@ -382,14 +382,15 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
       //Put selected information in the event
-      if ( pi0EBRecHitCollection->size() > seleNRHMax_ )
+      int pi0_collsize = pi0EBRecHitCollection->size();
+      if ( pi0_collsize > seleNRHMax_ )
 	{
-	  cout<< "   Max RH limit exceeded: "<<pi0EBRecHitCollection->size()<<" Max RH: "<<seleNRHMax_<<endl;
+	  //cout<< "   Max RH limit exceeded: "<<pi0EBRecHitCollection->size()<<" Max RH: "<<seleNRHMax_<<endl;
 	  iEvent.put( pi0EBDummyRecHitCollection, pi0BarrelHits_);
-	  cout<< "   EB RecHits # in Collection: "<<0<<endl;
+	  //cout<< "   EB RecHits # in Collection: "<<0<<endl;
 	} else {
 
-	  cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
+	  //cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
 	  iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
 	  accept = true;
 	}
