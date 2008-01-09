@@ -76,20 +76,25 @@ void CaloHitResponse::add(const PCaloHit & hit)
     LogDebug("CaloHitResponse") << hit;
     CaloSamples signal(makeAnalogSignal(hit));
     LogDebug("CaloHitResponse") << signal;
-    // if there's already a frame for this in the map, superimpose it
-    DetId id(signal.id());
-    CaloSamples * oldSignal = findSignal(id);
-    if (oldSignal == 0) {
-      theAnalogSignalMap[id] = signal;
-    } else  {
-      // need a "+=" to CaloSamples
-      int sampleSize =  oldSignal->size();
-      assert(sampleSize == signal.size());
-      assert(signal.presamples() == oldSignal->presamples());
+    add(signal);
+  }
+}
 
-      for(int i = 0; i < sampleSize; ++i) {
-        (*oldSignal)[i] += signal[i];
-      }
+
+void CaloHitResponse::add(const CaloSamples & signal)
+{
+  DetId id(signal.id());
+  CaloSamples * oldSignal = findSignal(id);
+  if (oldSignal == 0) {
+    theAnalogSignalMap[id] = signal;
+  } else  {
+    // need a "+=" to CaloSamples
+    int sampleSize =  oldSignal->size();
+    assert(sampleSize == signal.size());
+    assert(signal.presamples() == oldSignal->presamples());
+
+    for(int i = 0; i < sampleSize; ++i) {
+      (*oldSignal)[i] += signal[i];
     }
   }
 }
