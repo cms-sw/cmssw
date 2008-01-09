@@ -26,6 +26,7 @@ public:
   CaloTDigitizer(CaloHitResponse * hitResponse, ElectronicsSim * electronicsSim, bool addNoise)
   :  theHitResponse(hitResponse),
      theNoiseHitGenerator(0),
+     theNoseSignalGenerator(0),
      theElectronicsSim(electronicsSim),
      theDetIds(0),
      addNoise_(addNoise)
@@ -44,6 +45,12 @@ public:
     theNoiseHitGenerator = generator;
   }
 
+  void setNoiseSignalGenerator(CaloVNoiseSignalGenerator * generator)
+  {
+    theNoiseSignalGenerator = generator;
+  }
+
+
   /// turns hits into digis
   void run(MixCollection<PCaloHit> & input, DigiCollection & output) {
     assert(theDetIds.size() != 0);
@@ -51,7 +58,7 @@ public:
     theHitResponse->run(input);
 
     if(theNoiseHitGenerator != 0) addNoiseHits();
-
+    if(theNoiseSignalGenerator != 0) addNoiseSignals();
     theElectronicsSim->newEvent();
 
     // reserve space for how many digis we expect
@@ -95,10 +102,22 @@ public:
     }
   }
 
+  void addNoiseSignals()
+  {
+    std::vector<CaloSamples> noiseSamples;
+    // noise signals need to be in units of photoelectrons.  Fractional is OK
+    theNoiseSignalGenerator->getNoiseSignals(noiseSignals);
+    for(std::vector<CaloSamples>::const_iterator sampleItr = noiseSamples.begin(),
+        sampleEnd = noiseSamples.end(); sampleItr != sampleEnd; ++sampleItr)
+    {
+      theHitResponse->add(*sampleItr);
+    }
+  }
 
 private:
   CaloHitResponse * theHitResponse;
   CaloVNoiseHitGenerator * theNoiseHitGenerator;
+  CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
   ElectronicsSim * theElectronicsSim;
   std::vector<DetId> theDetIds;
   bool addNoise_;
