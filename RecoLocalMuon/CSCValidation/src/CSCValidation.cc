@@ -1,7 +1,9 @@
 /*
  *  simple validation package for CSC DIGIs, RECHITs and SEGMENTs.
  *
- *  Michael Schmitt, Northwestern University.
+ *  Michael Schmitt
+ *  Andy Kubik
+ *  Northwestern University
  */
 #include "RecoLocalMuon/CSCValidation/interface/CSCValidation.h"
 
@@ -14,6 +16,7 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
 
   // Get the various input parameters
   rootFileName     = pset.getUntrackedParameter<string>("rootFileName");
+  isSimulation     = pset.getUntrackedParameter<bool>("isSimulation");
 
   // set counter to zero
   nEventsAnalyzed = 0;
@@ -98,6 +101,16 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   hRHGlobal2 = new TH2F("hRHGlobal2","recHit global X,Y station 2",400,-800.,800.,400,-800.,800.);
   hRHGlobal3 = new TH2F("hRHGlobal3","recHit global X,Y station 3",400,-800.,800.,400,-800.,800.);
   hRHGlobal4 = new TH2F("hRHGlobal4","recHit global X,Y station 4",400,-800.,800.,400,-800.,800.);
+  hRHResid11b = new TH1F("hRHResid11b","SimHitX - Reconstructed X (ME11b)",60,-1.0,1.0);
+  hRHResid12 = new TH1F("hRHResid12","SimHitX - Reconstructed X (ME11)",60,-1.0,1.0);
+  hRHResid13 = new TH1F("hRHResid13","SimHitX - Reconstructed X (ME11)",60,-1.0,1.0);
+  hRHResid11a = new TH1F("hRHResid11a","SimHitX - Reconstructed X (ME11a)",60,-1.0,1.0);
+  hRHResid21 = new TH1F("hRHResid21","SimHitX - Reconstructed X (ME21)",60,-1.0,1.0);
+  hRHResid22 = new TH1F("hRHResid22","SimHitX - Reconstructed X (ME22)",60,-1.0,1.0);
+  hRHResid31 = new TH1F("hRHResid31","SimHitX - Reconstructed X (ME31)",60,-1.0,1.0);
+  hRHResid32 = new TH1F("hRHResid32","SimHitX - Reconstructed X (ME32)",60,-1.0,1.0);
+  hRHResid41 = new TH1F("hRHResid41","SimHitX - Reconstructed X (ME41)",60,-1.0,1.0);
+  hRHResid42 = new TH1F("hRHResid42","SimHitX - Reconstructed X (ME42)",60,-1.0,1.0);
 
   // segments
   hSCodeBroad = new TH1F("hSCodeBroad","broad scope code for recHits",33,-16.5,16.5);
@@ -198,6 +211,18 @@ CSCValidation::~CSCValidation(){
   hRHGlobal2->Write();
   hRHGlobal3->Write();
   hRHGlobal4->Write();
+  if (isSimulation){
+    hRHResid11b->Write();
+    hRHResid12->Write();
+    hRHResid13->Write();
+    hRHResid11a->Write();
+    hRHResid21->Write();
+    hRHResid22->Write();
+    hRHResid31->Write();
+    hRHResid32->Write();
+    hRHResid41->Write();
+    hRHResid42->Write();
+  }
   rHTree->Write();
   theFile->cd();
 
@@ -402,6 +427,12 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   event.getByLabel("csc2DRecHits",recHits);  
   int nRecHits = recHits->size();
   if (printalot) printf("  The size is %i\n",nRecHits);
+
+  // Get the SimHits (if applicable)
+  if (printalot && isSimulation) printf("\tGet the simHits collection.\t");
+  Handle<PSimHitContainer> simHits;
+  if (isSimulation) event.getByLabel("g4SimHits", "MuonCSCHits", simHits);
+ 
  
   // ---------------------
   // Loop over rechits 
@@ -436,7 +467,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
     // Get pointer to the layer:
     const CSCLayer* csclayer = cscGeom->layer( idrec );
-	
+
     // Transform hit position from local chamber geometry to global CMS geom
     GlobalPoint rhitglobal= csclayer->toGlobal(rhitlocal);
     float grecx = rhitglobal.x();
@@ -444,6 +475,33 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     float grecz = rhitglobal.z();
 
     if (printalot) printf("\t\t\tx,y,z: %f, %f, %f\texx,eey,exy: %f, %f, %f\tglobal x,y,z: %f, %f, %f \n",xreco,yreco,zreco,xxerr,yyerr,xyerr,grecx,grecy,grecz);
+
+    float simHitXres = -99;
+    float simHitYres = -99;
+    float mindiffX   = 99;
+    float mindiffY   = 10;
+    // If MC, find closest muon simHit to check resolution:
+    if (isSimulation){
+      PSimHitContainer::const_iterator simIt;
+      for (simIt = simHits->begin(); simIt != simHits->end(); simIt++){
+        // Get DetID for this simHit:
+        CSCDetId sId = (CSCDetId)(*simIt).detUnitId();
+        // Check if the simHit detID matches that of current recHit
+        // and make sure it is a muon hit:
+        if (sId == idrec && abs((*simIt).particleType()) == 13){
+          // Get the position of this simHit in local coordinate system:
+          LocalPoint sHitlocal = (*simIt).localPosition();
+          // Now we need to make reasonably sure that this simHit is
+          // responsible for this recHit:
+          if ((sHitlocal.x() - xreco) < mindiffX && (sHitlocal.y() - yreco) < mindiffY){
+            simHitXres = (sHitlocal.x() - xreco);
+            simHitYres = (sHitlocal.y() - yreco);
+            mindiffX = (sHitlocal.x() - xreco);
+          }
+        }
+      }
+      if (printalot) printf("\t\t\tSimHit Residual: %f\t\n",simHitXres);
+    }
 
     // Fill the rechit position branch
     rHpos.localx  = xreco;
@@ -467,6 +525,10 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hRHX1->Fill(xreco);
       hRHY1->Fill(yreco);
       hRHGlobal1->Fill(grecx,grecy);
+      if (kRing == 1 && isSimulation) hRHResid11b->Fill(simHitXres);
+      if (kRing == 2 && isSimulation) hRHResid12->Fill(simHitXres);
+      if (kRing == 3 && isSimulation) hRHResid13->Fill(simHitXres);
+      if (kRing == 4 && isSimulation) hRHResid11a->Fill(simHitXres);
     }
     if (kStation == 2) {
       hRHCodeNarrow2->Fill(kCodeNarrow);
@@ -474,6 +536,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hRHX2->Fill(xreco);
       hRHY2->Fill(yreco);
       hRHGlobal2->Fill(grecx,grecy);
+      if (kRing == 1 && isSimulation) hRHResid21->Fill(simHitXres);
+      if (kRing == 2 && isSimulation) hRHResid22->Fill(simHitXres);
     }
     if (kStation == 3) {
       hRHCodeNarrow3->Fill(kCodeNarrow);
@@ -481,6 +545,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hRHX3->Fill(xreco);
       hRHY3->Fill(yreco);
       hRHGlobal3->Fill(grecx,grecy);
+      if (kRing == 1 && isSimulation) hRHResid31->Fill(simHitXres);
+      if (kRing == 2 && isSimulation) hRHResid32->Fill(simHitXres);
     }
     if (kStation == 4) {
       hRHCodeNarrow4->Fill(kCodeNarrow);
@@ -488,6 +554,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       hRHX4->Fill(xreco);
       hRHY4->Fill(yreco);
       hRHGlobal4->Fill(grecx,grecy);
+      if (kRing == 1 && isSimulation) hRHResid41->Fill(simHitXres);
+      if (kRing == 2 && isSimulation) hRHResid42->Fill(simHitXres);
     }
     
     // get the channels in this recHit

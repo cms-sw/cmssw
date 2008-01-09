@@ -166,6 +166,16 @@ private:
   TH2F *hRHGlobal2;
   TH2F *hRHGlobal3;
   TH2F *hRHGlobal4;
+  TH1F *hRHResid11b;
+  TH1F *hRHResid12;
+  TH1F *hRHResid13;
+  TH1F *hRHResid11a;
+  TH1F *hRHResid21;
+  TH1F *hRHResid22;
+  TH1F *hRHResid31;
+  TH1F *hRHResid32;
+  TH1F *hRHResid41;
+  TH1F *hRHResid42;
 
   TH1F *hSCodeBroad;
   TH1F *hSCodeNarrow1;
@@ -219,6 +229,8 @@ private:
   // input parameters for this module
   // Root file name
   std::string rootFileName;
+  // Flag for simulation
+  bool isSimulation;
 
 };
 #endif
