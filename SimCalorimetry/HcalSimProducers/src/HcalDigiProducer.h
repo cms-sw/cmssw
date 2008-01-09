@@ -70,6 +70,7 @@ private:
   ZDCHitFilter  theZDCHitFilter;
 
   HcalHitCorrection * theHitCorrection;
+  CaloVNoiseSignalGenerator * theHPDNoiseGenerator;
 
   HBHEDigitizer * theHBHEDigitizer;
   HODigitizer* theHODigitizer;
