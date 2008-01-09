@@ -35,10 +35,18 @@ namespace HCAL_HLX {
     try {
       // NOTE - must catch SQLException above this
       // in case DB is inaccessible
+      cout << "------------------------------------" << endl;
+      cout << "Creating OMDS connection" << endl;
+      cout << "User: " << user << endl;
+      cout << "Password: " << passwd << endl;
+      cout << "DB: " << db << endl;
+      cout << "DB owner: " << dbOwner << endl;
+      cout << "------------------------------------" << endl;
+
       _env = Environment::createEnvironment (Environment::DEFAULT);
       _conn = _env->createConnection (user, passwd, db);
       _dbOwner = dbOwner;
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -54,7 +62,7 @@ namespace HCAL_HLX {
 	Environment::terminateEnvironment (_env);
 	_env = 0;
       }
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -74,12 +82,9 @@ namespace HCAL_HLX {
       maxRun = (int)rset->getInt(1);
       _stmt->closeResultSet (rset);
       _conn->terminateStatement(_stmt);
-    } catch(SQLException & aExc) {
+    } catch(SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
-      //cout<<"Exception thrown for maxRunnumber "<<endl;
-      //   cout<<"Error number: "<<  ex.getErrorCode() << endl;
-      //  cout<<ex.getMessage() << endl; 
     }
     return maxRun;
   }
@@ -91,7 +96,7 @@ namespace HCAL_HLX {
     long retVal;
     try {
       retVal = getLumiSequence("LUMI_THSH_BMSK_SEQ");
-    } catch (OracleDBException & aExc) {
+    } catch (OracleDBException aExc) {
       RETHROW(aExc);
     }
     return retVal;
@@ -104,7 +109,7 @@ namespace HCAL_HLX {
     long retVal;
     try {
       retVal = getLumiSequence("TRG_DTIME_DEF_SEQ");
-    } catch (OracleDBException & aExc) {
+    } catch (OracleDBException aExc) {
       RETHROW(aExc);
     }
     return retVal;
@@ -117,7 +122,7 @@ namespace HCAL_HLX {
     long retVal;
     try {
       retVal = getLumiSequence("L1_HLT_TRG_SEQ");
-    } catch (OracleDBException & aExc) {
+    } catch (OracleDBException aExc) {
       RETHROW(aExc);
     }
     return retVal;
@@ -130,7 +135,7 @@ namespace HCAL_HLX {
     long retVal;
     try {
       retVal = getLumiSequence("TRG_DTIME_SEQ");
-    } catch (OracleDBException & aExc) {
+    } catch (OracleDBException aExc) {
       RETHROW(aExc);
     }
     return retVal;
@@ -149,7 +154,7 @@ namespace HCAL_HLX {
       seq_id = (long)rset->getInt(1);
       _stmt->closeResultSet (rset);
       _conn->terminateStatement(_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -160,7 +165,7 @@ namespace HCAL_HLX {
     long retVal;
     try {
       retVal = getLumiSequence("lumi_section_seq");
-    } catch (OracleDBException & aExc) {
+    } catch (OracleDBException aExc) {
       RETHROW(aExc);
     }
     return retVal;
@@ -187,7 +192,7 @@ namespace HCAL_HLX {
       }
       _stmt->closeResultSet (rset);
       _conn->terminateStatement(_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -213,7 +218,7 @@ namespace HCAL_HLX {
       }
       _stmt->closeResultSet (rset);
       _conn->terminateStatement(_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -239,7 +244,7 @@ namespace HCAL_HLX {
       }
       _stmt->closeResultSet (rset);
       _conn->terminateStatement(_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -346,7 +351,7 @@ namespace HCAL_HLX {
       // data insert for aLen rows
       _stmt->executeArrayUpdate(aLen);
       _conn->terminateStatement (_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -426,7 +431,7 @@ namespace HCAL_HLX {
 	// data insert for aLen rows
 	_stmt->executeArrayUpdate(aLen);
 	_conn->terminateStatement (_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -509,7 +514,7 @@ namespace HCAL_HLX {
 	// data insert for aLen rows
 	_stmt->executeArrayUpdate(aLen);
 	_conn->terminateStatement (_stmt);   
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }    
@@ -541,7 +546,7 @@ namespace HCAL_HLX {
         _stmt->setInt(6, thEt);
         _stmt->executeUpdate();
 	_conn->terminateStatement(_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -598,12 +603,11 @@ namespace HCAL_HLX {
       _stmt->setInt (19, mskPlus[17]);    _stmt->setInt (37, mskMinus[17]);
       _stmt->executeUpdate();   
       _conn->terminateStatement(_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
-  }
-  
+  } 
   
   /**
    * Function for  bulk bind inseration to all the OCC histogram tables 
@@ -697,7 +701,7 @@ namespace HCAL_HLX {
 			     (unsigned short *)aRingSetNumLen);
 	_stmt->executeArrayUpdate(aLen);
 	_conn->terminateStatement (_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -784,7 +788,7 @@ namespace HCAL_HLX {
 			   (unsigned short *)aLostLnbCtLen);      
       _stmt->executeArrayUpdate(aLen);
       _conn->terminateStatement (_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -830,7 +834,7 @@ namespace HCAL_HLX {
       _stmt->setString (11, comment);
       _stmt->executeUpdate ();
       _conn->terminateStatement (_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -859,7 +863,7 @@ namespace HCAL_HLX {
       _stmt->setInt (6, sectionData.lsNum);        
       _stmt->executeUpdate ();
       _conn->terminateStatement (_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -908,7 +912,7 @@ namespace HCAL_HLX {
       _stmt->setString (13, comment);      
       _stmt->executeUpdate ();
       _conn->terminateStatement (_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -1039,7 +1043,7 @@ namespace HCAL_HLX {
 			   (unsigned short *)aOccQLen);
       _stmt->executeArrayUpdate(bxData.aLen);
       _conn->terminateStatement (_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -1079,7 +1083,7 @@ namespace HCAL_HLX {
       _stmt->setInt(12, summary.instOccLumiQ);
       _stmt->executeUpdate();
       _conn->terminateStatement(_stmt);
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);      
     }
@@ -1117,7 +1121,7 @@ namespace HCAL_HLX {
 
       _stmt->closeResultSet (rset);
       _conn->terminateStatement(_stmt);      
-    } catch (SQLException & aExc) {
+    } catch (SQLException aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }

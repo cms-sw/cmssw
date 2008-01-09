@@ -8,11 +8,13 @@
  *  Updates made by John Jones to improve exception handling
  *  and reduce stack usage in function calls
  *  Creation Date: June 07
- *  $Id: DBWrite.hh,v 1.5 2007/08/21 22:02:19 yuyi Exp $
+ *  $Id: DBWriter.hh,v 1.2 2007/09/17 21:37:41 jaj99 Exp $
  ******************************************************************/
 
 #include <iostream>
-#include <occi.h>
+
+#include "occi.h"
+
 #include <map>
 #include <string.h>
 
@@ -20,9 +22,9 @@ class DBWriter {
 public:
   
   DBWriter(const std::string & user,
-	  const std::string & passwd,
-	  const std::string & db,
-	  const std::string & dbOwner);
+	   const std::string & passwd,
+	   const std::string & db,
+	   const std::string & dbOwner);
   ~DBWriter ();
   
   oracle::occi::Connection* getConnection() const { return _conn;}

@@ -3,12 +3,9 @@ Project=RecoLuminosity
 Package=LumiDB
 
 IncludeDirs = \
-	$(XDAQ_ROOT)/$(Project)/$(Package)/include \
-	$(XDAQ_ROOT)/$(Project)/HLXReadOut/CoreUtils/include \
-	$(ORACLE_HOME)/rdbms/demo \
-	$(ORACLE_HOME)/rdbms/public \
-	$(ORACLE_HOME)/plsql/public \
-	$(ORACLE_HOME)/network/public
+	$(BUILD_HOME)/$(Project)/$(Package)/include \
+	$(BUILD_HOME)/$(Project)/HLXReadOut/CoreUtils/include \
+	$(ORACLE_HOME)/include
 
 Sources = \
 	DBWriter.cc
@@ -18,8 +15,7 @@ include $(XDAQ_ROOT)/config/mfAutoconf.rules
 include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 
 LibraryDirs = \
-	$(ORACLE_HOME)/lib/ \
-	$(ORACLE_HOME)/rdbms/
+	$(ORACLE_HOME)/lib/
 
 # compiler flags
 UserCFlags =
