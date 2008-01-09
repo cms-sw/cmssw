@@ -179,7 +179,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	}
 
 	//Barrel
-	if(track.innermostMeasurementState().isValid() && MeasureBarrel==true && reg==0){
+	if(track.innermostMeasurementState().isValid() && MeasureBarrel==true && reg==0 && whe==0 && (sec==10 || sec==11)){
 	  std::vector< const RPCRoll*> rolhit = (ch->rolls());
 	  for(std::vector<const RPCRoll*>::const_iterator itRoll = rolhit.begin();itRoll != rolhit.end(); ++itRoll){
 	    RPCDetId rollId=(*itRoll)->id();
