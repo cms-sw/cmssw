@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2007/12/28 17:21:30 $
- * $Revision: 1.33 $
+ * $Date: 2008/01/05 09:38:57 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -416,6 +416,7 @@ void EECosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
         cMe->SetGridy();
         objp->GetXaxis()->SetLabelSize(0.02);
         objp->GetYaxis()->SetLabelSize(0.02);
+        objp->GetZaxis()->SetLabelSize(0.02);
         objp->Draw("colz");
         int x1 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+0.);
         int x2 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+50.);
