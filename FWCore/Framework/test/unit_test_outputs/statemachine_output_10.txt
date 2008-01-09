@@ -3,23 +3,23 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Event ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Lumi 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Run 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
@@ -27,23 +27,23 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Event ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Lumi 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Run 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
@@ -51,23 +51,23 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Event ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Lumi 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Run 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
@@ -75,23 +75,23 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Event ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Lumi 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Run 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
@@ -99,23 +99,23 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Event ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Lumi 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Run 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
@@ -123,23 +123,23 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Event ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Lumi 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Run 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
@@ -147,23 +147,23 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Event ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Lumi 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Run 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated
 
@@ -171,22 +171,22 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Event ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Lumi 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Run 1 ***
 	doErrorStuff
 	endOfLoop
-	rewind
 	prepareForNextLoop
+	rewind
     *** nextItemType: Stop 1 ***
 The state machine reports it has been terminated

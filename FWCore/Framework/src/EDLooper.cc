@@ -10,11 +10,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooper.cc,v 1.8 2007/06/29 03:43:21 wmtan Exp $
+// $Id: EDLooper.cc,v 1.9 2007/07/13 20:08:14 chrjones Exp $
 //
 // Revision history
 //
 // $Log: EDLooper.cc,v $
+// Revision 1.9  2007/07/13 20:08:14  chrjones
+// Have the code used by the looper properly handle run and luminosity blocks
+//
 // Revision 1.8  2007/06/29 03:43:21  wmtan
 // Remove unnecessary #includes
 //
@@ -56,6 +59,11 @@
 #include "FWCore/Framework/interface/EDLooperHelper.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventHelperDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
+
+#include "boost/bind.hpp"
 
 namespace edm {
 //
@@ -69,7 +77,10 @@ namespace edm {
 //
 // constructors and destructor
 //
-EDLooper::EDLooper() : name_("EDLooper"), passID_("pass"), processID_(passID_)
+EDLooper::EDLooper() : name_("EDLooper"),
+                       passID_("pass"),
+                       processID_(passID_),
+                       iCounter_(0)
 {
 }
 
@@ -100,6 +111,38 @@ EDLooper::~EDLooper()
 //
 // member functions
 //
+
+void
+EDLooper::doStartingNewLoop() {
+  startingNewLoop(iCounter_);
+}
+
+EDLooper::Status
+EDLooper::doDuringLoop(edm::EventPrincipal& eventPrincipal, const edm::EventSetup& es) {
+  edm::ModuleDescription modDesc;
+  modDesc.moduleName_="EDLooper";
+  modDesc.moduleLabel_="";
+  Event event(eventPrincipal, modDesc);
+  return duringLoop(event, es);
+}
+
+EDLooper::Status
+EDLooper::doEndOfLoop(const edm::EventSetup& es) {
+  return endOfLoop(es, iCounter_);
+}
+
+void
+EDLooper::prepareForNextLoop(eventsetup::EventSetupProvider* esp) {
+  ++iCounter_;
+  std::ostringstream pid;
+  pid << iCounter_;
+  passID_=processID_+"_"+pid.str();
+
+  const std::set<edm::eventsetup::EventSetupRecordKey>& keys = modifyingRecords();
+  for_all(keys,
+    boost::bind(&eventsetup::EventSetupProvider::resetRecordPlusDependentRecords,
+                esp, _1));
+}
 
 //called once per job just before the first processing 
 void 

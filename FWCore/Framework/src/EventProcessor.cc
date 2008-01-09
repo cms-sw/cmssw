@@ -596,7 +596,8 @@ namespace edm {
     fb_(),
     rp_(),
     lbp_(),
-    looper_()
+    looper_(),
+    shouldWeStop_(false)
   {
     boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
     processDesc->addServices(defaultServices, forcedServices);
@@ -633,7 +634,8 @@ namespace edm {
     fb_(),
     rp_(),
     lbp_(),
-    looper_()
+    looper_(),
+    shouldWeStop_(false)
   {
     boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
     processDesc->addServices(defaultServices, forcedServices);
@@ -670,7 +672,8 @@ namespace edm {
     fb_(),
     rp_(),
     lbp_(),
-    looper_()
+    looper_(),
+    shouldWeStop_(false)
   {
     init(processDesc, token, legacy);
   }
@@ -806,6 +809,7 @@ namespace edm {
       toerror.succeeded();
     }
     changeState(mFinished);
+    fb_.reset();
   }
   
   EventHelperDescription
@@ -1711,9 +1715,12 @@ namespace edm {
   edm::EventProcessor::StatusCode
   EventProcessor::runToCompletion() {
 
+    beginJob(); //make sure this was called
+
     StateSentry toerror(this);
     changeState(mRunCount);
     StatusCode returnCode = epSuccess;
+    shouldWeStop_ = false;
 
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -1823,23 +1830,34 @@ namespace edm {
   }
 
   void EventProcessor::startingNewLoop() {
-    // IMPLEMENTATION: NOT KNOWN
+    // IMPLEMENTATION: OK
+    if (looper_) {
+      looper_->doStartingNewLoop();
+    }
     FDEBUG(1) << "\tstartingNewLoop\n";
   }
 
   bool EventProcessor::endOfLoop() {
-    // IMPLEMENTATION: NOT KNOWN
+    // IMPLEMENTATION: OK
+    if (looper_) {
+      EDLooper::Status status = looper_->doEndOfLoop(esp_->eventSetup());
+      if (status != EDLooper::kContinue) return true;
+      else return false;
+    }
     FDEBUG(1) << "\tendOfLoop\n";
     return true;
   }
 
   void EventProcessor::rewindInput() {
-    // IMPLEMENTATION: NOT KNOWN
+    // IMPLEMENTATION: OK
+    input_->repeat();
+    input_->rewind();
     FDEBUG(1) << "\trewind\n";
   }
 
   void EventProcessor::prepareForNextLoop() {
-    // IMPLEMENTATION: NOT KNOWN
+    // IMPLEMENTATION: OK
+    looper_->prepareForNextLoop(esp_.get());
     FDEBUG(1) << "\tprepareForNextLoop\n";
   }
 
@@ -1961,6 +1979,11 @@ namespace edm {
     IOVSyncValue ts(sm_evp_->id(), sm_evp_->time());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(*sm_evp_, es, BranchActionEvent);
+ 
+    if (looper_) {
+      EDLooper::Status status = looper_->doDuringLoop(*sm_evp_, esp_->eventSetup());
+      if (status != EDLooper::kContinue) shouldWeStop_ = true;
+    }
 
     FDEBUG(1) << "\tprocessEvent\n";
   }
@@ -1968,6 +1991,7 @@ namespace edm {
   bool EventProcessor::shouldWeStop() {
     // IMPLEMENTATION: OK
     FDEBUG(1) << "\tshouldWeStop\n";
+    if (shouldWeStop_) return true;
     return schedule_->terminate();
   }
 }

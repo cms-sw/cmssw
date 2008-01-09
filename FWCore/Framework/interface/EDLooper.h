@@ -16,11 +16,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:42:17 EDT 2006
-// $Id: EDLooper.h,v 1.5 2007/06/14 17:52:15 wmtan Exp $
+// $Id: EDLooper.h,v 1.6 2007/06/25 23:22:11 wmtan Exp $
 //
 // Revision history
 //
 // $Log: EDLooper.h,v $
+// Revision 1.6  2007/06/25 23:22:11  wmtan
+// Remove unnecessary includes
+//
 // Revision 1.5  2007/06/14 17:52:15  wmtan
 // Remove unnecessary includes
 //
@@ -50,6 +53,7 @@
 namespace edm {
   namespace eventsetup {
     class EventSetupRecordKey;
+    class EventSetupProvider;
   }
 class EDLooper
 {
@@ -64,6 +68,11 @@ class EDLooper
       virtual ~EDLooper();
 
       // ---------- member functions ---------------------------
+      void doStartingNewLoop();
+      Status doDuringLoop(edm::EventPrincipal& eventPrincipal, const edm::EventSetup& es);
+      Status doEndOfLoop(const edm::EventSetup& es);
+      void prepareForNextLoop(eventsetup::EventSetupProvider* esp);
+
       virtual void beginOfJob(const edm::EventSetup&); 
       virtual void startingNewLoop(unsigned int ) = 0; 
       virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) = 0; 
@@ -99,6 +108,7 @@ class EDLooper
       // ---------- data members -------------------------------
       std::string name_;
       PassID passID_, processID_;
+      unsigned int iCounter_;
 
       // ---------- static data members ------------------------
 

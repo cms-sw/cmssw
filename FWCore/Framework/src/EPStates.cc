@@ -1,5 +1,5 @@
 
-// $Id: EPStates.cc,v 1.1 2007/12/10 22:54:19 wdd Exp $
+// $Id: EPStates.cc,v 1.2 2008/01/02 23:52:41 wdd Exp $
 
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
@@ -32,8 +32,8 @@ namespace statemachine {
   }
 
   void Machine::rewindAndPrepareForNextLoop(const Restart & restart) {
-    ep_->rewindInput();
     ep_->prepareForNextLoop();
+    ep_->rewindInput();
   }
 
   Starting::Starting(my_context ctx) : my_base(ctx) { }
