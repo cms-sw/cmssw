@@ -12,7 +12,8 @@
 
 #include "DQM/RPCMonitorDigi/interface/RPCEfficiencyFromTrack.h"
 
-
+#include "DataFormats/RPCDigi/interface/RPCDigi.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -102,14 +103,17 @@ RPCEfficiencyFromTrack::RPCEfficiencyFromTrack(const edm::ParameterSet& iConfig)
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   edm::Service<MonitorDaemon> daemon;
   daemon.operator->();
-
   _idList.clear(); 
-
+  Run=0;
+  effres = new ofstream("EfficiencyResults.dat");
 }
 
 
 RPCEfficiencyFromTrack::~RPCEfficiencyFromTrack()
 {
+  effres->close();
+  delete effres;
+
   fOutputFile->Write();
   fOutputFile->Close();
 }
@@ -117,6 +121,9 @@ RPCEfficiencyFromTrack::~RPCEfficiencyFromTrack()
 
 
 void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+
+ 
   char layerLabel[128];
   char meIdRPC [128];
   char meIdTrack [128];
@@ -130,6 +137,9 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
   edm::Handle<RPCRecHitCollection> rpcHits;
   iEvent.getByLabel(RPCDataLabel,rpcHits);
+
+  edm::Handle<RPCDigiCollection> rpcDigis;
+  iEvent.getByLabel("muonRPCDigis", rpcDigis);
 
   ESHandle<MagneticField> theMGField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMGField);
@@ -244,26 +254,40 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
     }
     
     //Efficiency
+
     for (std::vector<RPCDetId>::iterator iteraRoll = rollRec.begin();iteraRoll != rollRec.end(); iteraRoll++){
       const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
+      RPCDetId rollId = rollasociated->id();
+      float rsize=0.;
+      float stripl=0.;
+
+      if(rollId.region()==0){
+	const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
+	LocalPoint xmin = top_->localPosition(0.);
+	LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
+	rsize = fabs( xmax.x()-xmin.x() )*0.5;
+	stripl = top_->stripLength();
+      }      
+      if(rollId.region()!=0){
+	const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&(rollasociated->topology()));
+	LocalPoint xmin = top_->localPosition(0.);
+	LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
+	rsize = fabs( xmax.x()-xmin.x() )*0.5;
+	stripl = top_->stripLength();
+      }
+
       const BoundPlane& rpcPlane1 = rollasociated->surface();
-      const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
-      LocalPoint xmin = top_->localPosition(0.);
-      LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
-      float rsize = fabs( xmax.x()-xmin.x() )*0.5;
-      float stripl = top_->stripLength();
-      
       TrajectoryStateClosestToPoint tcp1=track.impactPointTSCP();
       const FreeTrajectoryState& fS1=tcp1.theState();
       const FreeTrajectoryState* fState1 = &fS1;       
 
       TrajectoryStateOnSurface tsosAtRoll = thePropagator->propagate(*fState1,rpcPlane1);
-      
+
       if(tsosAtRoll.isValid() 
 	 && fabs(tsosAtRoll.localPosition().z()) < 0.01 
 	 && fabs(tsosAtRoll.localPosition().x()) < rsize 
 	 && fabs(tsosAtRoll.localPosition().y()) < stripl*0.5 ){
-	RPCDetId rollId = rollasociated->id();
+
 	RPCGeomServ RPCname(rollId);
 	std::string nameRoll = RPCname.name();
 	
@@ -288,13 +312,14 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  meCollection[nameRoll] = bookDetUnitTrackEff(rollId);
 	}
 	std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
-	
+	Run=iEvent.id().run();
+	aTime=iEvent.time().value();
 	totalcounter[0]++;
 	buff=counter[0];
 	buff[rollId]++;
 	counter[0]=buff;
 	
-	int stripPredicted = (int)(rollasociated->strip(tsosAtRoll.localPosition()));
+	const float stripPredicted =rollasociated->strip(LocalPoint(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y(),0.));
 	double xextrap = tsosAtRoll.localPosition().x();
 	
 	sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
@@ -320,12 +345,13 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	std::vector<double> stripPr;
 	stripPr.clear();
 	
-	double res=0.;
-	
+	float res=0.;
+
+
 	for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
 	  LocalPoint rhitlocal = (*recIt).localPosition();
 	  double rhitpos = rhitlocal.x();  
-	  double stripDetected = (int)(rollasociated->strip(rhitlocal));
+	  int stripDetected = (int)(rollasociated->strip(rhitlocal));
 	  LocalError RecError = (*recIt).localPositionError();
 	  double sigmaRec = RecError.xx();
 	  res = (double)(xextrap - rhitpos);
@@ -348,6 +374,9 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    }
 	  }	  
 
+	  double xtsosErr = tsosAtRoll.localError().positionError().xx();
+	  double rpcPull = res/sqrt(RecErr[rpos]*RecErr[rpos]+xtsosErr*xtsosErr);
+
 	  sprintf(meIdRPC,"Residuals_%s",detUnitLabel);
 	  meMap[meIdRPC]->Fill(res);
 	  sprintf(meIdRPC,"Residuals_VS_RecPt_%s",detUnitLabel);
@@ -358,37 +387,44 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  hRecPt->Fill(tsosAtRoll.globalMomentum().perp());
 
 	  sprintf(meIdRPC,"LocalPull_%s",detUnitLabel);
-	  meMap[meIdRPC]->Fill(res/sqrt(RecErr[rpos]*RecErr[rpos]+
-					(tsosAtRoll.localError().positionError().xx())*(tsosAtRoll.localError().positionError().xx())));
-	  
+	  meMap[meIdRPC]->Fill(rpcPull);
+	}
+
+
+	int stripDetected=0;
+	RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());	
+	for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
+	  stripDetected=digiIt->strip();
+	  res = (float)(stripDetected) - stripPredicted;
 	  if(fabs(res)<maxRes){
 	    anycoincidence=true;
 	    std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<nameRoll<<std::endl;
+	    break;
 	  }
 	  else{
 	    anycoincidence=false;
 	    std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<nameRoll<<std::endl;
+	    continue;
 	  }
 	}
 	
+
 	if(anycoincidence==true){
 	  totalcounter[1]++;
 	  buff=counter[1];
 	  buff[rollId]++;
 	  counter[1]=buff;
 
-	  sprintf(meIdRPC,"2DRPCEfficiency_%s",detUnitLabel);
+	  sprintf(meIdRPC,"2DExtrapolation_%s",detUnitLabel);
 	  meMap[meIdRPC]->Fill(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y());
 
 	  sprintf(meIdRPC,"RealDetectedOccupancy_%s",detUnitLabel);
-	  meMap[meIdRPC]->Fill(stripD[rpos]);
+	  meMap[meIdRPC]->Fill(stripDetected);
 	  
 	  sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
-	  meMap[meIdRPC]->Fill(stripPr[rpos]);
+	  meMap[meIdRPC]->Fill(stripPredicted);
 	    
 	}else{
-
-
 	  totalcounter[2]++;
 	  buff=counter[2];
 	  buff[rollId]++;
@@ -411,9 +447,27 @@ void RPCEfficiencyFromTrack::endJob(){
   std::map<RPCDetId, int> obse = counter[1];
   std::map<RPCDetId, int> reje = counter[2];
   std::map<RPCDetId, int>::iterator irpc;
-  
+  int f=0;
   for (irpc=pred.begin(); irpc!=pred.end();irpc++){
     RPCDetId id=irpc->first;
+    RPCGeomServ RPCname(id);
+    std::string nameRoll = RPCname.name();
+    std::string wheel;
+    std::string rpc;
+    std::string partition;
+
+    if(id.region()==0){
+      int first = nameRoll.find("W");
+      int second = nameRoll.substr(first,nameRoll.npos).find("/");
+      wheel=nameRoll.substr(first,second);	
+      first = nameRoll.find("/");
+      second = nameRoll.substr(first,nameRoll.npos).rfind("/");
+      rpc=nameRoll.substr(first+1,second-1);
+      first = nameRoll.rfind("/");
+      partition=nameRoll.substr(first+1);
+      nameRoll=wheel+"_"+rpc+"_"+partition;
+    }
+
     int p=pred[id]; 
     int o=obse[id]; 
     int r=reje[id]; 
@@ -422,15 +476,15 @@ void RPCEfficiencyFromTrack::endJob(){
     if(p!=0){
       float ef = float(o)/float(p); 
       float er = sqrt(ef*(1.-ef)/float(p));
-      std::cout <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
-      histoMean->Fill(ef*100.);
-      if(ef<0.8){
-	std::cout<<"\t \t Warning!";
-      } 
+      if(ef>0.){
+	*effres << nameRoll <<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %"<<"\t Run= "<<Run<<"\t"<<ctime(&aTime)<<" ";
+	histoMean->Fill(ef*100.);
+      }
     }
     else{
-      std::cout<<"No predictions in this file predicted=0"<<std::endl;
+      *effres <<"No predictions in this file predicted=0"<<std::endl;
     }
+    f++;
   }
   if(totalcounter[0]!=0){
     float tote = float(totalcounter[1])/float(totalcounter[0]);
@@ -452,11 +506,18 @@ void RPCEfficiencyFromTrack::endJob(){
     char meIdTrack [128];
     char meIdRes [128];
     char effIdRPC [128];
+    char meIdImpact[128];
+    char meIdRPC_2D[128];
+    char effIdRPC_2D[128];
+
     sprintf(detUnitLabel ,"%s",(*meIt).c_str());
     sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
     sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
     sprintf(meIdRes,"Residuals_%s",detUnitLabel);
     sprintf(effIdRPC,"EfficienyFromTrackExtrapolation_%s",detUnitLabel);
+    sprintf(meIdRPC_2D,"2DExtrapolation_%s",detUnitLabel);
+    sprintf(meIdImpact,"PredictedImpactPoint_%s",detUnitLabel);
+    sprintf(effIdRPC_2D,"EfficienyFromTrack2DExtrapolation_%s",detUnitLabel);
     std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
 
     for(unsigned int i=1;i<=100;++i){
@@ -467,7 +528,8 @@ void RPCEfficiencyFromTrack::endJob(){
 	meMap[effIdRPC]->setBinError(i,erreff*100.);
       }
     }
-  }  
+  }
+  
   if(EffSaveRootFile) dbe->save(EffRootFileName);
 }
 
