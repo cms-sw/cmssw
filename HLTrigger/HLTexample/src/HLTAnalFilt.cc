@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/18 08:36:48 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/01/09 14:24:48 $
+ *  $Revision: 1.25 $
  *
  *  \author Martin Grunewald
  *
@@ -13,7 +13,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
