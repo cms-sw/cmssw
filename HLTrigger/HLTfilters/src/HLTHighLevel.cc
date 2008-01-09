@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/18 08:38:26 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/01/09 14:16:15 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -52,7 +52,6 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace edm;
-   using namespace reco;
 
    const string invalid("@@invalid@@");
 

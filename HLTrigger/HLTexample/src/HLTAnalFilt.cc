@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/09 11:30:43 $
- *  $Revision: 1.23 $
+ *  $Date: 2007/12/18 08:36:48 $
+ *  $Revision: 1.24 $
  *
  *  \author Martin Grunewald
  *
@@ -12,8 +12,6 @@
 #include "HLTrigger/HLTexample/interface/HLTAnalFilt.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/Common/interface/RefToBase.h"
 
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
@@ -61,50 +59,6 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // get hold of requested filter object
-   Handle<HLTFilterObjectWithRefs> ref;
-   iEvent.getByLabel(inputTag_,ref);
-   if (ref.isValid()) {
-     const unsigned int n(ref->size());
-     LogDebug("") << inputTag_.encode() + " Size = " << n;
-     for (unsigned int i=0; i!=n; i++) {
-       // some Xchecks
-       Particle particle(ref->getParticle(i));
-       const Candidate* candidate((ref->getParticleRef(i)).get());
-       LogTrace("") << i << " E: " 
-		    << particle.energy() << " " << candidate->energy() << " "  
-		    << typeid(*candidate).name() << " "
-		    << particle.eta() << " " << particle.phi() ;
-     }
-
-     //
-     // using HLTFilterObjectsWithRefs like a ConcreteCollection:
-     //
-     HLTFilterObjectWithRefs::const_iterator a(ref->begin());
-     HLTFilterObjectWithRefs::const_iterator o(ref->end());
-     HLTFilterObjectWithRefs::const_iterator i;
-     const HLTFilterObjectWithRefs& V(*ref);
-     LogTrace("") << "Size: " << V.size();
-     for (i=a; i!=o; i++) {
-       unsigned int I(i-a);
-       LogTrace("") << "Const_Iterator: " << I << " " << typeid(*i).name()
-		    << " " << i->energy();
-       LogTrace("") << "Handle->at(i):  " << I << " " << typeid(ref->at(I)).name()
-		    << " " << (ref->at(I)).energy();
-       LogTrace("") << "Vector[i]:      " << I << " " << typeid(V[I]).name()
-		    << " " << V[I].energy();
-       LogTrace("") << "Vector.at(i):   " << I << " " << typeid(V.at(I)).name()
-		    << " " << V.at(I).energy();
-       LogTrace("") << "                " << I << " " << typeid(&(*i)).name();
-       LogTrace("") << "                " << I << " " << typeid(  *i ).name();
-       LogTrace("") << "                " << I << " " << typeid(   i ).name();
-     }
-     //
-   } else {
-     LogDebug("") << "Old Filterobject " + inputTag_.encode() + " not found!";
-   }
-
-   {
-   // get hold of requested filter object
    Handle<TriggerFilterObjectWithRefs> ref;
    iEvent.getByLabel(inputTag_,ref);
    if (ref.isValid()) {
@@ -127,7 +81,6 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      //
    } else {
      LogDebug("") << "New Filterobject " + inputTag_.encode() + " not found!";
-   }
    }
 
    return;

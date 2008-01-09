@@ -3,8 +3,8 @@
  *  
  *  See header file for documentation.
  *
- *  $Date: 2007/12/18 13:41:43 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/09 13:59:06 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -25,7 +25,7 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& ps) :
   ps_(0),
   moduleLabel_(ps.getParameter<std::string>("@module_label"))
 {
-  if (b_) produces<reco::HLTFilterObjectBase>();
+  if (b_) produces<trigger::TriggerFilterObjectWithRefs>();
   if (n_==0) n_=1; // accept all!
   count_ = o_;     // event offset
 

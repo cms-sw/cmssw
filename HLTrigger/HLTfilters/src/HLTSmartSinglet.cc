@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 11:39:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/08 17:09:03 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -13,9 +13,6 @@
 #include "HLTrigger/HLTfilters/interface/HLTSmartSinglet.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
@@ -35,7 +32,6 @@ HLTSmartSinglet<T,Tid>::HLTSmartSinglet(const edm::ParameterSet& iConfig) :
    LogDebug("") << "Input/cut/ncut : " << inputTag_.encode() << " " << cut_<< " " << min_N_ ;
 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
    produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
@@ -66,12 +62,9 @@ HLTSmartSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<HLTFilterObjectWithRefs>
-     filterobjectOLD (new HLTFilterObjectWithRefs(path(),module()));
    auto_ptr<TriggerFilterObjectWithRefs>
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
    // Ref to Candidate object to be recorded in filter object
-   RefToBase<Candidate> refOLD;
    TRef ref;
 
 
@@ -85,8 +78,6 @@ HLTSmartSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
    for (; i!=objects->end(); i++) {
      if (select_(*i)) {
        n++;
-       refOLD=RefToBase<Candidate>(TRef(objects,distance(objects->begin(),i)));
-       filterobjectOLD->putParticle(refOLD);
        ref=TRef(objects,distance(objects->begin(),i));
        filterobject->addObject(Tid,ref);
      }

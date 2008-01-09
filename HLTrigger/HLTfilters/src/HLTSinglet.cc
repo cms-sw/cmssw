@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 11:39:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/08 17:09:03 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -13,9 +13,6 @@
 #include "HLTrigger/HLTfilters/interface/HLTSinglet.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
@@ -37,7 +34,6 @@ HLTSinglet<T,Tid>::HLTSinglet(const edm::ParameterSet& iConfig) :
 		<< min_Pt_ << " " << max_Eta_ << " " << min_N_ ;
 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
    produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
@@ -68,12 +64,9 @@ HLTSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<HLTFilterObjectWithRefs>
-     filterobjectOLD (new HLTFilterObjectWithRefs(path(),module()));
    auto_ptr<TriggerFilterObjectWithRefs>
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
    // Ref to Candidate object to be recorded in filter object
-   RefToBase<Candidate> refOLD;
    TRef ref;
 
 
@@ -88,8 +81,6 @@ HLTSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( (i->pt() >= min_Pt_) && 
 	  ( (max_Eta_ < 0.0) || (abs(i->eta()) <= max_Eta_) ) ) {
        n++;
-       refOLD=RefToBase<Candidate>(TRef(objects,distance(objects->begin(),i)));
-       filterobjectOLD->putParticle(refOLD);
        ref=TRef(objects,distance(objects->begin(),i));
        filterobject->addObject(Tid,ref);
      }
@@ -99,7 +90,6 @@ HLTSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    bool accept(n>=min_N_);
 
    // put filter object into the Event
-   iEvent.put(filterobjectOLD);
    iEvent.put(filterobject);
 
    return accept;
