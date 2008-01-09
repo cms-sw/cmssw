@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.13 2007/10/31 19:01:19 smaruyam Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.14 2007/11/01 22:02:03 smaruyam Exp $
 //
 
 // system include files
@@ -98,7 +98,7 @@ class FastL1GlobalAlgo {
 
  private:
       bool isMaxEtRgn_Window33(int rgnid);
-      int isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* p,const edm::Event& e);
+      int isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle p,const edm::Event& e);
       bool isTauJet(int rgnid);
 
       bool TauIsolation(int rgnid);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.29 2007/10/31 19:00:45 smaruyam Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.30 2007/11/01 22:03:55 smaruyam Exp $
 //
 
 // No BitInfos for release versions
@@ -271,6 +271,7 @@ FastL1GlobalAlgo::FillEgammasTP(edm::Event const& e) {
   m_Egammas.clear();
   m_isoEgammas.clear();
 
+  l1extra::L1EmParticle ph;
   for (int i=0; i<396; i++) { 
     CaloTowerCollection towers = m_Regions[i].GetCaloTowers();
 
@@ -278,8 +279,8 @@ FastL1GlobalAlgo::FillEgammasTP(edm::Event const& e) {
       if (cnd->emEt()<0.01 && cnd->hadEt()<0.01) continue;
       //if (cnd->emEt()<0.01) continue;
 
-      reco::Particle::LorentzVector rp4(0.,0.,0.,0.);
-      l1extra::L1EmParticle* ph = new l1extra::L1EmParticle(rp4);
+      //reco::Particle::LorentzVector rp4(0.,0.,0.,0.);
+      // l1extra::L1EmParticle* ph = new l1extra::L1EmParticle(rp4);
       CaloTowerDetId cid   = cnd->id();
       //std::cout<<"+++ "<<cid<<std::endl;
       
@@ -288,9 +289,9 @@ FastL1GlobalAlgo::FillEgammasTP(edm::Event const& e) {
       
       // 1 = non-iso EM, 2 = iso EM
       if (emTag==1) {
-	m_Egammas.push_back(*ph);
+	m_Egammas.push_back(ph);
       } else if (emTag==2) {
-	m_isoEgammas.push_back(*ph);
+	m_isoEgammas.push_back(ph);
       }
       
     }
@@ -315,19 +316,20 @@ FastL1GlobalAlgo::FillEgammas(edm::Event const& e) {
   //for (j=input.begin(); j!=input.end(); j++) {
   //  const CaloTowerCollection& c=*(*j);
     
+  l1extra::L1EmParticle ph;
   //for (CaloTowerCollection::const_iterator cnd=c.begin(); cnd!=c.end(); cnd++) {
     for (CaloTowerCollection::const_iterator cnd=input->begin(); cnd!=input->end(); cnd++) {
-      reco::Particle::LorentzVector rp4(0.,0.,0.,0.);
-      l1extra::L1EmParticle* ph = new l1extra::L1EmParticle(rp4);
+      //reco::Particle::LorentzVector rp4(0.,0.,0.,0.);
+      //l1extra::L1EmParticle* ph = new l1extra::L1EmParticle(rp4);
       CaloTowerDetId cid   = cnd->id();
 
       int emTag = isEMCand(cid,ph,e);
       
       // 1 = non-iso EM, 2 = iso EM
       if (emTag==1) {
-	m_Egammas.push_back(*ph);
+	m_Egammas.push_back(ph);
       } else if (emTag==2) {
-	m_isoEgammas.push_back(*ph);
+	m_isoEgammas.push_back(ph);
       }
 
     }
@@ -698,10 +700,29 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
 
 // ------------ Fill L1 Regions on Towers and RecHits------------
 void 
-FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iConfig) 
+FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& c) 
 {
   InitL1Regions();
-
+  
+  edm::Handle<CaloTowerCollection> input;
+  e.getByLabel(m_L1Config.TowerInput,input);
+  
+  edm::ESHandle<CaloTowerConstituentsMap> cttopo;
+  c.get<IdealGeometryRecord>().get(cttopo);
+  const CaloTowerConstituentsMap* theTowerConstituentsMap = cttopo.product();
+  
+  edm::ESHandle<CaloTopology> calotopo;
+  c.get<CaloTopologyRecord>().get(calotopo);
+  
+  edm::ESHandle<CaloGeometry> cGeom;
+  c.get<IdealGeometryRecord>().get(cGeom);
+  
+  edm::Handle<EcalRecHitCollection> ec1;
+  e.getByLabel(m_L1Config.EmInputs.at(1),ec1);
+  
+  edm::Handle<EcalRecHitCollection> ec0;
+  e.getByLabel(m_L1Config.EmInputs.at(0),ec0);
+  
   // ascii visualisation of mapping
   //m_RMap->display();
   
@@ -709,8 +730,8 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iCon
   // works for barrel/endcap region only right now!
   //std::vector< edm::Handle<CaloTowerCollection> > input;
   //e.getManyByType(input);
-  edm::Handle<CaloTowerCollection> input;
-  e.getByLabel(m_L1Config.TowerInput,input);
+  //edm::Handle<CaloTowerCollection> input;
+  //e.getByLabel(m_L1Config.TowerInput,input);
 
   //std::vector< edm::Handle<CaloTowerCollection> >::iterator j;
   //for (j=input.begin(); j!=input.end(); j++) {
@@ -753,7 +774,14 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iCon
   
   // Fill EM Crystals
   for (int i=0; i<396; i++) {
-    m_Regions[i].FillEMCrystals(e,iConfig,m_RMap);
+
+    //m_Regions[i].FillEMCrystals(e,iConfig,m_RMap);
+    m_Regions[i].FillEMCrystals(theTowerConstituentsMap,
+				&(*calotopo),
+				&(*cGeom),
+				&(*ec0), &(*ec1),
+				m_RMap);
+    
   }
 
   //checkMapping();
@@ -858,7 +886,7 @@ return true; // shouldn't reach here
 // ------------ Check if tower is emcand ------------
 // returns 1 = non-iso EM, 2 = iso EM, 0 = no EM
 int
-FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const edm::Event& iEvent) {
+FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle ph,const edm::Event& iEvent) {
 
   // center tower
   int crgn = m_RMap->getRegionIndex(cid);
@@ -1063,7 +1091,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //reco::Particle::Point rp3(0.,0.,0.);
   //reco::Particle::Charge q(0);
   //*ph = reco::Photon(q,rp4,rp3);
-  *ph = l1extra::L1EmParticle(rp4);
+  //*ph = l1extra::L1EmParticle(rp4);
+  ph = l1extra::L1EmParticle(rp4);
  
   //if (emet>0.) {
   //  std::cout << "em region et, eta, phi: "<< emet<<" "<< cenEta<<" "<< cenPhi<<" " << std::endl;
