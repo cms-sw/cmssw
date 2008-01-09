@@ -171,6 +171,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     
     //loop over the track collection
     for(uint i=0;i<Tk.size();i++){		
+
       int ipteta=getBin(Tk[i].eta(),Tk[i].pt());
       int ibin=ipteta*8;
       reco::TrackRef trackRef(tkRefCollection, i);
@@ -365,7 +366,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     
 
       if (GoodPreId){
-	
+
 	//NEW SEED with n hits
 	int nHitsinSeed= min(nHitsInSeed_,Tj[i].foundHits());
 	
@@ -373,7 +374,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	OwnVector<TrackingRecHit>  rhits;
 	
 	vector<TrajectoryMeasurement> tm=Tj[i].measurements();
-	
+
 	for (int ihit=tm.size()-1; ihit>=int(tm.size()-nHitsinSeed);ihit-- ){ 
 	  //for the first n measurement put the TM in the trajectory
 	  // and save the corresponding hit
@@ -382,20 +383,23 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    rhits.push_back((*tm[ihit].recHit()).hit()->clone());
 	  }
 	}
-	PTrajectoryStateOnDet* state = TrajectoryStateTransform().
-	  persistentState(seedTraj.lastMeasurement().updatedState(),
-			  (*seedTraj.lastMeasurement().recHit()).hit()->geographicalId().rawId());
-	
-	TrajectorySeed NewSeed(*state,rhits,alongMomentum);
-	
-	output_preid->push_back(NewSeed);
-	delete state;
+
+	if(!seedTraj.measurements().empty()){
+	  
+	  PTrajectoryStateOnDet* state = TrajectoryStateTransform().
+	    persistentState(seedTraj.lastMeasurement().updatedState(),
+			    (*seedTraj.lastMeasurement().recHit()).hit()->geographicalId().rawId());
+	  TrajectorySeed NewSeed(*state,rhits,alongMomentum);
+	  
+	  output_preid->push_back(NewSeed);
+	  delete state;
+	}
+	else   output_preid->push_back(Seed);
 	if(produceCkfPFT_){
 	  
 	  reco::PFRecTrack pftrack( trackRef->charge(), 
 				    reco::PFRecTrack::KF_ELCAND, 
 				    i, trackRef );
-	  
 	  bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
 	  if(valid)
 	    pOutputPFRecTrackCollection->push_back(pftrack);		
@@ -405,13 +409,13 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  output_nopre->push_back(Seed);
 	}
 	if(produceCkfPFT_){
-	  
+
 	  reco::PFRecTrack pftrack( trackRef->charge(), 
 				    reco::PFRecTrack::KF, 
 				    i, trackRef );
 
 	  bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
-	  
+
 	  if(valid)
 	    pOutputPFRecTrackCollection->push_back(pftrack);		
 	  
