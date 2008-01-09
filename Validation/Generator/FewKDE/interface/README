@@ -1,8 +1,0 @@
-Description of FewKDE/FewKDE directory 
----------------------------------------------
-
-This area should contain only include-path files such as:
-    *.h
-    *.hh
-    *.inc
-    link_FewKDE.mk for PackageList
