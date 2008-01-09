@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/01/05 11:49:26 $
- * $Revision: 1.76 $
+ * $Date: 2008/01/09 18:46:48 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  *
 */
@@ -76,8 +76,8 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   meIntegrity_[1]      = 0;
   meOccupancy_[0]      = 0;
   meOccupancy_[1]      = 0;
-  meStatusFlags_[0]      = 0;
-  meStatusFlags_[1]      = 0;
+  meStatusFlags_[0]    = 0;
+  meStatusFlags_[1]    = 0;
   mePedestalOnline_[0] = 0;
   mePedestalOnline_[1] = 0;
   meLaserL1_[0]        = 0;
@@ -111,7 +111,7 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   // summary errors
   meIntegrityErr_       = 0;
   meOccupancy1D_        = 0;
-  meStatusFlagsErr_       = 0;
+  meStatusFlagsErr_     = 0;
   mePedestalOnlineErr_  = 0;
   meLaserL1Err_         = 0;
   meLaserL1PNErr_       = 0;
@@ -689,7 +689,7 @@ void EESummaryClient::analyze(void){
   meOccupancy_[1]->setEntries( 0 );
   meOccupancy1D_->Reset();
   meStatusFlags_[0]->setEntries( 0 );
-  meStatusFlags_[0]->setEntries( 0 );
+  meStatusFlags_[1]->setEntries( 0 );
   meStatusFlagsErr_->Reset();
   mePedestalOnline_[0]->setEntries( 0 );
   mePedestalOnline_[1]->setEntries( 0 );

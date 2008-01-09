@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/12/30 19:32:04 $
- * $Revision: 1.101 $
+ * $Date: 2008/01/09 18:46:41 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  *
 */
@@ -70,7 +70,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   // summary maps
   meIntegrity_      = 0;
   meOccupancy_      = 0;
-  meStatusFlags_      = 0;
+  meStatusFlags_    = 0;
   mePedestalOnline_ = 0;
   meLaserL1_        = 0;
   meLaserL1PN_      = 0;
@@ -88,7 +88,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   // summary errors
   meIntegrityErr_       = 0;
   meOccupancy1D_        = 0;
-  meStatusFlagsErr_       = 0;
+  meStatusFlagsErr_     = 0;
   mePedestalOnlineErr_  = 0;
   meLaserL1Err_         = 0;
   meLaserL1PNErr_       = 0;
