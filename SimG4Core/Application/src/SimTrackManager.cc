@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.14 2007/08/13 14:34:40 fambrogl Exp $
+// $Id: SimTrackManager.cc,v 1.15 2007/12/04 14:41:13 fambrogl Exp $
 //
 
 // system include files
@@ -37,6 +37,14 @@ SimTrackManager::SimTrackManager(bool iCollapsePrimaryVertices) :
   m_trksForThisEvent(0),m_nVertices(0),
   m_collapsePrimaryVertices(iCollapsePrimaryVertices)
 {
+  idsave.reserve(1000);
+  niteration=1;
+  avgsizeidsave=0;
+  sizeidsave=0;
+  avgcalomapsize=0;
+  calomapsize=0;
+  avgvtxmapsize=0;
+  vtxmapsize=0;
 }
 
 
@@ -62,17 +70,29 @@ SimTrackManager::~SimTrackManager()
 //
 void SimTrackManager::reset()
 {
-    if (m_trksForThisEvent==0) m_trksForThisEvent = new TrackContainer();
-    else
+  if (m_trksForThisEvent==0) m_trksForThisEvent = new TrackContainer();
+  else
     {
-	for (unsigned int i = 0; i < m_trksForThisEvent->size(); i++) 
-	    delete (*m_trksForThisEvent)[i];
-	delete m_trksForThisEvent;
+      for (unsigned int i = 0; i < m_trksForThisEvent->size(); i++) 
+	delete (*m_trksForThisEvent)[i];
+      delete m_trksForThisEvent;
 	m_trksForThisEvent = new TrackContainer();
     }
-    cleanVertexMap();
-    cleanTkCaloStateInfoMap();
+  cleanVertexMap();
+  cleanTkCaloStateInfoMap();
+  avgsizeidsave+=idsave.size();
+  sizeidsave=idsave.size();
+  if(niteration>30){
+    if(sizeidsave>(avgsizeidsave/niteration)*1.5){
+      std::vector<int>().swap(idsave);
+      idsave.reserve(1000);
+    }else{
+      idsave.clear();
+    }
+  }else{
     idsave.clear();
+  }
+  niteration++;
 }
 
 void SimTrackManager::deleteTracks()
@@ -225,20 +245,36 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory * trkH, int iParentID,
 
 }
 
-void SimTrackManager::cleanVertexMap() { m_vertexMap.clear(); m_nVertices=0; }
+void SimTrackManager::cleanVertexMap() { 
+  avgvtxmapsize+=m_vertexMap.size();
+  vtxmapsize=m_vertexMap.size();
+  m_vertexMap.clear();
+  if(niteration>30){
+    if(vtxmapsize>(avgvtxmapsize/niteration)*1.1){
+      MotherParticleToVertexMap().swap(m_vertexMap);
+    }
+  }
+  m_nVertices=0; 
+}
 
-void SimTrackManager::cleanTkCaloStateInfoMap() { mapTkCaloStateInfo.clear(); }
+void SimTrackManager::cleanTkCaloStateInfoMap() { 
+  avgcalomapsize+=mapTkCaloStateInfo.size();
+  calomapsize=mapTkCaloStateInfo.size();
+  mapTkCaloStateInfo.clear();
+  if(niteration>30){
+    if(calomapsize>(avgcalomapsize/niteration)*1.1){
+      std::map<uint32_t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD > >().swap(mapTkCaloStateInfo);
+    }
+  }
+}
 
 int SimTrackManager::idSavedTrack (int i) const
 {
-
-    int id = 0;  
-    if (i > 0) {
-      std::map<int,int>::const_iterator it = idsave.find(i);
-      if (it != idsave.end()) {
-	if ((*it).second != i) return idSavedTrack((*it).second);
-	id = i;
-      }
-    }
-    return id;
+  int id = 0;  
+  if (i > 0) {
+    id = idsave[i];
+    if(id<0)
+      id=0;
+  }
+  return id;
 }
