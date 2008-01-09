@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/08/02 23:30:46 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/12/18 08:38:26 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -14,9 +14,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

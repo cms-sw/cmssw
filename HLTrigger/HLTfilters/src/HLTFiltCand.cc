@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/04 16:41:36 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/12/09 11:29:53 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -32,9 +32,6 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
-
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
@@ -71,7 +68,6 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
    ;
 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
    produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
@@ -97,12 +93,8 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<HLTFilterObjectWithRefs> 
-     filterobjectOLD (new HLTFilterObjectWithRefs(path(),module()));
    auto_ptr<TriggerFilterObjectWithRefs> 
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-   // Ref to Candidate objects to be recorded in filter object
-   RefToBase<Candidate> refOLD;
 
 
    // Specific filter code
@@ -140,8 +132,6 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (iphot=aphot; iphot!=ophot; iphot++) {
      if (iphot->pt() >= min_Pt_) {
        nphot++;
-       refOLD=RefToBase<Candidate>(RecoEcalCandidateRef(photons,distance(aphot,iphot)));
-       filterobjectOLD->putParticle(refOLD);
        RecoEcalCandidateRef ref(RecoEcalCandidateRef(photons,distance(aphot,iphot)));
        filterobject->addObject(TriggerPhoton,ref);
      }
@@ -155,8 +145,6 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (ielec=aelec; ielec!=oelec; ielec++) {
      if (ielec->pt() >= min_Pt_) {
        nelec++;
-       refOLD=RefToBase<Candidate>(ElectronRef(electrons,distance(aelec,ielec)));
-       filterobjectOLD->putParticle(refOLD);
        ElectronRef ref(ElectronRef(electrons,distance(aelec,ielec)));
        filterobject->addObject(-TriggerElectron,ref);
      }
@@ -170,8 +158,6 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (imuon=amuon; imuon!=omuon; imuon++) {
      if (imuon->pt() >= min_Pt_) {
        nmuon++;
-       refOLD=RefToBase<Candidate>(RecoChargedCandidateRef(muons,distance(amuon,imuon)));
-       filterobjectOLD->putParticle(refOLD);
        RecoChargedCandidateRef ref(RecoChargedCandidateRef(muons,distance(amuon,imuon)));
        filterobject->addObject(TriggerMuon,ref);
      }
@@ -185,8 +171,6 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (itaus=ataus; itaus!=otaus; itaus++) {
      if (itaus->pt() >= min_Pt_) {
        ntaus++;
-       refOLD=RefToBase<Candidate>(CaloJetRef(taus,distance(ataus,itaus)));
-       filterobjectOLD->putParticle(refOLD);
        CaloJetRef ref(CaloJetRef(taus,distance(ataus,itaus)));
        filterobject->addObject(-TriggerTau,ref);
      }
@@ -200,8 +184,6 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (ijets=ajets; ijets!=ojets; ijets++) {
      if (ijets->pt() >= min_Pt_) {
        njets++;
-       refOLD=RefToBase<Candidate>(CaloJetRef(jets,distance(ajets,ijets)));
-       filterobjectOLD->putParticle(refOLD);
        CaloJetRef ref(CaloJetRef(jets,distance(ajets,ijets)));
        filterobject->addObject(TriggerJet,ref);
      }
@@ -215,8 +197,6 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (imets=amets; imets!=omets; imets++) {
      if (imets->pt() >= min_Pt_) {
        nmets++;
-       refOLD=RefToBase<Candidate>(CaloMETRef(mets,distance(amets,imets)));
-       filterobjectOLD->putParticle(refOLD);
        CaloMETRef ref(CaloMETRef(mets,distance(amets,imets)));
        filterobject->addObject(TriggerMET,ref);
      }
@@ -230,8 +210,6 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (ihtts=ahtts; ihtts!=ohtts; ihtts++) {
      if (ihtts->pt() >= min_Pt_) {
        nhtts++;
-       refOLD=RefToBase<Candidate>(METRef(htts,distance(ahtts,ihtts)));
-       filterobjectOLD->putParticle(refOLD);
        METRef ref(METRef(htts,distance(ahtts,ihtts)));
        filterobject->addObject(TriggerHT,ref);
      }
@@ -245,8 +223,6 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (itrcks=atrcks; itrcks!=otrcks; itrcks++) {
      if (itrcks->pt() >= min_Pt_) {
        ntrck++;
-       refOLD=RefToBase<Candidate>(RecoChargedCandidateRef(trcks,distance(atrcks,itrcks)));
-       filterobjectOLD->putParticle(refOLD);
        RecoChargedCandidateRef ref(RecoChargedCandidateRef(trcks,distance(atrcks,itrcks)));
        filterobject->addObject(TriggerTrack,ref);
      }
@@ -260,8 +236,6 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (iecals=aecals; iecals!=oecals; iecals++) {
      if (iecals->pt() >= min_Pt_) {
        necal++;
-       refOLD=RefToBase<Candidate>(RecoEcalCandidateRef(ecals,distance(aecals,iecals)));
-       filterobjectOLD->putParticle(refOLD);
        RecoEcalCandidateRef ref(RecoEcalCandidateRef(ecals,distance(aecals,iecals)));
        filterobject->addObject(TriggerCluster,ref);
      }
@@ -275,7 +249,6 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		       (njets>0) && (nmets>0) && (nhtts>=0) && (ntrck>0) && (necal>0) );
 
    // All filters: put filter object into the Event
-   iEvent.put(filterobjectOLD);
    iEvent.put(filterobject);
 
    LogDebug("") << "Number of g/e/m/t/j/M/H/TR/SC objects accepted:"

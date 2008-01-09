@@ -2,18 +2,13 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/08/16 14:49:06 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/08/28 01:17:49 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
  */
 
-
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/GenMET.h"
 
 #include "HLTrigger/HLTfilters/interface/HLTBool.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

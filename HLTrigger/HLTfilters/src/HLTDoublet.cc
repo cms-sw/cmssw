@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/06/15 14:42:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/10 08:14:08 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -13,9 +13,6 @@
 #include "HLTrigger/HLTfilters/interface/HLTDoublet.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
@@ -58,7 +55,6 @@ HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) :
 		<< same_ << cutdphi_ << cutdeta_ << cutminv_;
 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
    produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
@@ -86,52 +82,9 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<HLTFilterObjectWithRefs>
-     filterobjectOLD (new HLTFilterObjectWithRefs(path(),module()));
    auto_ptr<TriggerFilterObjectWithRefs>
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
    bool accept(false);
-
-   // Ref to Candidate object to be recorded in filter object
-   RefToBase<Candidate> r1OLD,r2OLD;
-   // get hold of pre-filtered object collections
-   Handle<HLTFilterObjectWithRefs> coll1OLD,coll2OLD;
-   if (iEvent.getByLabel (inputTag1_,coll1OLD) && iEvent.getByLabel (inputTag2_,coll2OLD)) {
-     int n(0);
-     const unsigned int n1(coll1OLD->size());
-     const unsigned int n2(coll2OLD->size());
-     Particle p1,p2,p;
-     for (unsigned int i1=0; i1!=n1; i1++) {
-       p1=coll1OLD->getParticle(i1);
-       r1OLD=coll1OLD->getParticleRef(i1);
-       unsigned int I(0);
-       if (same_) {I=i1+1;}
-       for (unsigned int i2=I; i2!=n2; i2++) {
-	 p2=coll2OLD->getParticle(i2);
-	 r2OLD=coll2OLD->getParticleRef(i2);
-	 
-	 double Dphi(abs(p1.phi()-p2.phi()));
-	 if (Dphi>M_PI) Dphi=2.0*M_PI-Dphi;
-	 
-	 double Deta(abs(p1.eta()-p2.eta()));
-	 
-	 p.setP4(Particle::LorentzVector(p1.px()+p2.px(),p1.py()+p2.py(),p1.pz()+p2.pz(),p1.energy()+p2.energy()));
-	 double Minv(abs(p.mass()));
-	 
-	 if ( ( (!cutdphi_) || (min_Dphi_ <= Dphi) && (Dphi <= max_Dphi_) ) &&
-	      ( (!cutdeta_) || (min_Deta_ <= Deta) && (Deta <= max_Deta_) ) &&
-	      ( (!cutminv_) || (min_Minv_ <= Minv) && (Minv <= max_Minv_) ) ) {
-	   n++;
-	   filterobjectOLD->putParticle(r1OLD);
-	   filterobjectOLD->putParticle(r2OLD);
-	 }
-	 
-       }
-     }
-     // filter decision
-     accept = accept || (n>=min_N_);
-     iEvent.put(filterobjectOLD);
-   }
 
    // get hold of pre-filtered object collections
    T1Ref r1;

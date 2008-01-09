@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 11:39:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/08 17:09:03 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -13,9 +13,6 @@
 #include "HLTrigger/HLTfilters/interface/HLTGlobalSums.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
@@ -42,7 +39,6 @@ HLTGlobalSums<T,Tid>::HLTGlobalSums(const edm::ParameterSet& iConfig) :
      ;
 
    //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
    produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
@@ -73,12 +69,9 @@ HLTGlobalSums<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<HLTFilterObjectWithRefs>
-     filterobjectOLD (new HLTFilterObjectWithRefs(path(),module()));
    auto_ptr<TriggerFilterObjectWithRefs>
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
    // Ref to Candidate object to be recorded in filter object
-   RefToBase<Candidate> refOLD;
    TRef ref;
 
 
@@ -121,8 +114,6 @@ HLTGlobalSums<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( ( (min_<0.0) || (min_<=value) ) &&
 	  ( (max_<0.0) || (value<=max_) ) ) {
        n++;
-       refOLD=RefToBase<Candidate>(TRef(objects,distance(ibegin,iter)));
-       filterobjectOLD->putParticle(refOLD);
        ref=TRef(objects,distance(ibegin,iter));
        filterobject->addObject(Tid,ref);
      }
