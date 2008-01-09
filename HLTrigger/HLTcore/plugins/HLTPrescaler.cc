@@ -3,15 +3,15 @@
  *  
  *  See header file for documentation.
  *
- *  $Date: 2007/08/11 23:21:57 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/18 13:41:43 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTPrescaler.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -79,6 +79,7 @@ bool HLTPrescaler::filter(edm::Event & e, const edm::EventSetup & es)
   using namespace std;
   using namespace edm;
   using namespace reco;
+  using namespace trigger;
 
   // prescaler decision
   ++count_;
@@ -86,8 +87,8 @@ bool HLTPrescaler::filter(edm::Event & e, const edm::EventSetup & es)
 
   // construct and place filter object if requested
   if (b_) {
-    auto_ptr<HLTFilterObjectBase> 
-      filterproduct (new HLTFilterObjectBase(path(),module()));
+    auto_ptr<TriggerFilterObjectWithRefs> 
+      filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
     e.put(filterproduct);
   }
 
