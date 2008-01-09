@@ -471,7 +471,7 @@ c        write(*,*),ihard,' ',n,' ',nhj
 
 * fill array of final particles
 #ifndef  __HIROOT_FORTRAN_ONLY__
-         ievoff=(ihard-1)*10000   ! event offset
+         ievoff=(ihard-nshad-1)*10000   ! event offset
 #endif
         
         nu=nhj+n 
@@ -492,7 +492,7 @@ c        write(*,*),ihard,' ',n,' ',nhj
               khj(i,j)=k(ip,j)
            end do
            do j=3,5
-              kk=k(i,j) 
+              kk=k(ip,j) 
 #ifndef  __HIROOT_FORTRAN_ONLY__
              khj(i,j)=kk+ievoff
 #else
