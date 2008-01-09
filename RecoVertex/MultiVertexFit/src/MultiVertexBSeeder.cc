@@ -128,8 +128,8 @@ namespace {
     for ( vector< reco::TransientTrack >::const_iterator i=trks.begin(); 
           i!=trks.end() ; ++i )
     {
-      pair < GlobalPoint, GlobalPoint > pt = 
-        ttmd.points ( axis,*( i->impactPointState().freeState() ) );
+      bool status = ttmd.calculate( axis,*( i->impactPointState().freeState() ) );
+      pair < GlobalPoint, GlobalPoint > pt = ttmd.points();
       double d = ( pt.first - pt.second ).mag();
       double w = 1. / ( 0.002 + d ); // hard coded weights
       double s = ( pt.first - axis.position() ).mag();

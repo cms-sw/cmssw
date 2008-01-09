@@ -155,6 +155,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useAllTracks(
     vector< PointAndDistance > vgp;
     // vgp.reserve ( ( tracks.size() * ( tracks.size()-1 ) ) / 2 - 1 );
     TwoTrackMinimumDistance ttmd;
+    bool status;
     vector<reco::TransientTrack>::const_iterator end=tracks.end();
     vector<reco::TransientTrack>::const_iterator endm1=(end-1);
     for ( std::vector<reco::TransientTrack>::const_iterator x=tracks.begin();
@@ -163,12 +164,13 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useAllTracks(
         for ( std::vector<reco::TransientTrack>::const_iterator y=x+1;
                 y!=end; ++y )
         {
-                std::pair < GlobalPoint, GlobalPoint > pts = ttmd.points
-                                                        ( (*x).impactPointState(), (*y).impactPointState() );
-                std::pair < GlobalPoint , float > v ( ( pts.second + pts.first ) / 2. ,
-                                                 ( pts.second - pts.first ).mag() );
-                vgp.push_back( v );
-            ; // If sth goes wrong, we just dont add. Who cares?
+         status = ttmd.calculate( (*x).impactPointState(), (*y).impactPointState() );
+	 if (status) {
+	   std::pair < GlobalPoint, GlobalPoint > pts = ttmd.points();
+           std::pair < GlobalPoint , float > v ( ( pts.second + pts.first ) / 2. ,
+		 ( pts.second - pts.first ).mag() );
+           vgp.push_back( v );
+	 } // If sth goes wrong, we just dont add. Who cares?
         }
     }
     if (! vgp.size() )
@@ -290,11 +292,13 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
             else
             { // No DistanceMatrix available
                 TwoTrackMinimumDistance ttmd;
-                    pair < GlobalPoint, GlobalPoint > pts = ttmd.points
-                                                            ( rt1.impactPointState(), rt2.impactPointState() );
-                    PointAndDistance v ( ( pts.second + pts.first ) / 2. ,
-                                         ( pts.second - pts.first ).mag() );
-                    vgp.push_back( v );
+		bool status = ttmd.calculate( rt1.impactPointState(), rt2.impactPointState() );
+		if (status) {
+                  pair < GlobalPoint, GlobalPoint > pts = ttmd.points();
+                  PointAndDistance v ( ( pts.second + pts.first ) / 2. ,
+                                       ( pts.second - pts.first ).mag() );
+                  vgp.push_back( v );
+		}
             }
             if ( ( t_first + t_interval ) < lim )
             {
