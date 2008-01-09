@@ -28,7 +28,7 @@ the default configuration fragment for CMSSW Event Generation.
 the default configuration fragment for CMSSW Simulation. Requires setup of random seeds for all components
  in play (see below). Consists of the following:
 
-- <b> psim = { VtxSmeared & g4SimHits } </b>
+- <b> psim = { <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation#SimDefSeq">VtxSmeared</a> & <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation#SimDefSeq">g4SimHits</a> } </b>
  - Includes modeling of the IR spread (see details below) and full-scale Geant4-based simulation of particles passage 
    through CMS detector, in the presence of the magnetic field. CMS detector description and magnetic field record are 
    included in the configuration together with the simulation module (<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/SimG4Core/Configuration/data/SimG4Core.cff">SimG4Core/Configuration/data/SimG4Core.cff</a>)
@@ -36,7 +36,7 @@ the default configuration fragment for CMSSW Simulation. Requires setup of rando
  - Includes modeling of pileup (see details below), detector electronics responce for all detector subsystems, and
    association of generator particles and vertices with Geant4-simulated tracks and vertices.
    Specifically, modeling of detector electronics response is composed of 3 (sub)sequences:
- - <b> doAllDigi = { trDigi & calDigi & muonDigi } </b>
+ - <b> doAllDigi = { <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation#DigiDefSeq">trDigi</a> & <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation#DigiDefSeq">calDigi</a> & <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation#DigiDefSeq">muonDigi</a> } </b>
   - Includes digitization of Tracker Pixels and Tracker Strips (<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/SimTracker/Configuration/data/SimTracker.cff">SimTracker/Configuration/data/SimTracker.cff</a>), 
     of the ECAL Barrel and EndCap, HCAL HB, HE, HO (<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/SimCalorimetry/Configuration/data/SimCalorimetry.cff">SimCalorimetry/Configuration/data/SimCalorimetry.cff</a>), and
     of the Muon DT, CSC and RPC (<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/SimMuon/Configuration/data/SimMuon.cff">SimMuon/Configuration/data/SimMuon.cff</a>). All included configuration fragments
