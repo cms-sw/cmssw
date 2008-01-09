@@ -26,7 +26,7 @@ public:
   CaloTDigitizer(CaloHitResponse * hitResponse, ElectronicsSim * electronicsSim, bool addNoise)
   :  theHitResponse(hitResponse),
      theNoiseHitGenerator(0),
-     theNoseSignalGenerator(0),
+     theNoiseSignalGenerator(0),
      theElectronicsSim(electronicsSim),
      theDetIds(0),
      addNoise_(addNoise)
