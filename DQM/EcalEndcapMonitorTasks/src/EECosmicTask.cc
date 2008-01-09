@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2008/01/04 16:23:38 $
- * $Revision: 1.21 $
+ * $Date: 2008/01/05 09:35:49 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -44,7 +44,11 @@ EECosmicTask::EECosmicTask(const ParameterSet& ps){
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
+  EcalUncalibRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibRecHitCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
+
+  MinJitter_ = ps.getParameter<double>("MinJitter");
+  MaxJitter_ = ps.getParameter<double>("MaxJitter");
 
   for (int i = 0; i < 18; i++) {
     meCutMap_[i] = 0;
@@ -196,51 +200,92 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
     int neeh = hits->size();
     LogDebug("EECosmicTask") << "event " << ievt_ << " hits collection size " << neeh;
 
-    for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+    Handle<EcalUncalibratedRecHitCollection> uhits;
 
-      EcalRecHit hit = (*hitItr);
-      EEDetId id = hit.id();
+    if ( e.getByLabel(EcalUncalibRecHitCollection_, uhits) ) {
+    
+      for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+	
+	EcalRecHit hit = (*hitItr);
+	EEDetId id = hit.id();
+	
+	int ix = id.ix();
+	int iy = id.iy();
+	
+	int ism = Numbers::iSM( id );
+	
+	if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      int ix = id.ix();
-      int iy = id.iy();
+	float xix = ix - 0.5;
+	float xiy = iy - 0.5;
+	
+	int iz = 0;
 
-      int ism = Numbers::iSM( id );
+	if( ism >=  1 && ism <=  9 ) iz = -1;
+	if( ism >= 10 && ism <= 18 ) iz = +1;
 
-      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
+	map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+	if ( i == dccMap.end() ) continue;
+	
+	if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
+		 dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ||
+		 dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+		 dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+		 dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+		 dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
+	
+	LogDebug("EECosmicTask") << " det id = " << id;
+	LogDebug("EECosmicTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
+	
+	float xval = hit.energy();
+	if ( xval <= 0. ) xval = 0.0;
+	
+	LogDebug("EECosmicTask") << " hit energy " << xval;
+	
+	const float lowThreshold  = 0.06125;
+	const float highThreshold = 0.12500;
 
-      float xix = ix - 0.5;
-      float xiy = iy - 0.5;
+	// look for the seeds 
+	float e3x3 = 0.;
+	bool isSeed = true;
+	// evaluate 3x3 matrix around a seed
+        for(int icry=0; icry<9; ++icry) {
+          unsigned int row    = icry/3;
+          unsigned int column = icry%3;
+	  int icryX = id.ix()+column-1;
+	  int icryY = id.iy()+row-1;
+	  if (EEDetId::validDetId(icryX, icryY, iz) ) {
+	    EEDetId Xtals3x3=EEDetId(icryX, icryY, iz, EEDetId::XYMODE);
+	    float neighbourEnergy = hits->find(Xtals3x3)->energy();
+	    e3x3+=neighbourEnergy;
+	    if( neighbourEnergy > xval ) isSeed = false;
+	  }
+        }
+	
+	// find the jitter of the seed
+	float jitter = -1.;
+	if( isSeed ) {
+	  EcalUncalibratedRecHitCollection::const_iterator uhitItr = uhits->find( hitItr->detid() );
+	  jitter = uhitItr->jitter();
+	}
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
-
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
-
-      LogDebug("EECosmicTask") << " det id = " << id;
-      LogDebug("EECosmicTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
-      float xval = hit.energy();
-      if ( xval <= 0. ) xval = 0.0;
-
-      LogDebug("EECosmicTask") << " hit energy " << xval;
-
-      const float lowThreshold  = 0.06125;
-      const float highThreshold = 0.12500;
-
-      if ( xval >= lowThreshold ) {
-        if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xix, xiy, xval);
+	if ( xval >= lowThreshold ) {
+	  if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xix, xiy, xval);
+	}
+	
+	if ( isSeed && e3x3 >= highThreshold && jitter > MinJitter_ && jitter < MaxJitter_ ) {
+	  if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xix, xiy, e3x3);
+	}
+	
+	if ( isSeed && jitter > MinJitter_ && jitter < MaxJitter_ ) {
+	  if ( meSpectrumMap_[ism-1] ) meSpectrumMap_[ism-1]->Fill(xval);
+	}
+	
       }
 
-      if ( xval >= highThreshold ) {
-        if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xix, xiy, xval);
-      }
+    }  else {
 
-      if ( meSpectrumMap_[ism-1] ) meSpectrumMap_[ism-1]->Fill(xval);
+      LogWarning("EECosmicTask") << EcalUncalibRecHitCollection_ << " not available";
 
     }
 
