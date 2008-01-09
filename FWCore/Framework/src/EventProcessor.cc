@@ -1101,6 +1101,7 @@ namespace edm {
         if(repeatable) continue;
       }
       respondToCloseInputFile();
+      closeInputFile();
       fb_.reset();
     }
 
@@ -1161,7 +1162,6 @@ namespace edm {
       return fb_;
     }
     {
-      closeInputFile();
       readFile();
     }
     if(fb_) {
@@ -1784,7 +1784,8 @@ namespace edm {
   }
 
   void EventProcessor::closeInputFile() {
-    // IMPLEMENTATION: NOT DONE
+    // IMPLEMENTATION: OK
+    input_->closeFile();
     FDEBUG(1) << "\tcloseInputFile\n";
   }
 
@@ -1795,7 +1796,8 @@ namespace edm {
   }
 
   void EventProcessor::closeOutputFiles() {
-    // IMPLEMENTATION: NOT DONE
+    // IMPLEMENTATION: OK
+    schedule_->closeOutputFiles();
     FDEBUG(1) << "\tcloseOutputFiles\n";
   }
 
@@ -1855,9 +1857,9 @@ namespace edm {
   }
 
   bool EventProcessor::shouldWeCloseOutput() {
-    // IMPLEMENTATION: NOT KNOWN
+    // IMPLEMENTATION: NOT IMPLEMENTED
     FDEBUG(1) << "\tshouldWeCloseOutput\n";
-    return true;
+    return false;
   }
 
   void EventProcessor::doErrorStuff() {
@@ -1876,7 +1878,7 @@ namespace edm {
   }
 
   void EventProcessor::smEndRun(int run) {
-    // IMPLEMENTATION: OK but must get right run from cache.
+    // IMPLEMENTATION: OK
     // Output modules need rework
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     input_->doEndRun(runPrincipal);
@@ -1897,7 +1899,7 @@ namespace edm {
   }
 
   void EventProcessor::endLumi(int run, int lumi) {
-    // IMPLEMENTATION: OK but must get right lumi from cache.
+    // IMPLEMENTATION: OK
     // Output modules need rework
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
     input_->doEndLumi(lumiPrincipal);
@@ -1909,14 +1911,14 @@ namespace edm {
   }
 
   int EventProcessor::readAndCacheRun() {
-    // IMPLEMENTATION: OK, but cacheing needs rework.
+    // IMPLEMENTATION: OK
     principalCache_.insert(input_->readRun());
     FDEBUG(1) << "\treadAndCacheRun " << "\n";
     return principalCache_.runPrincipal().run();
   }
 
   int EventProcessor::readAndCacheLumi() {
-    // IMPLEMENTATION: OK, but cacheing needs rework.
+    // IMPLEMENTATION: OK
     principalCache_.insert(input_->readLuminosityBlock(principalCache_.runPrincipalPtr()));
     FDEBUG(1) << "\treadAndCacheLumi " << "\n";
     return principalCache_.lumiPrincipal().luminosityBlock();
