@@ -4,8 +4,8 @@
 /*
  * \file EECosmicTask.h
  *
- * $Date: 2007/11/13 13:20:52 $
- * $Revision: 1.6 $
+ * $Date: 2008/01/09 11:03:29 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -55,14 +55,17 @@ bool enableCleanup_;
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EcalUncalibRecHitCollection_; 
 edm::InputTag EcalRecHitCollection_;
-double MinJitter_;
-double MaxJitter_;
 
 MonitorElement* meCutMap_[18];
 
 MonitorElement* meSelMap_[18];
 
 MonitorElement* meSpectrumMap_[18];
+
+double lowThreshold_;
+double highThreshold_;
+double minJitter_;
+double maxJitter_;
 
 bool init_;
 

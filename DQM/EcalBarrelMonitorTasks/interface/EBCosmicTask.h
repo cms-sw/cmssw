@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicTask.h
  *
- * $Date: 2007/11/13 13:20:50 $
- * $Revision: 1.25 $
+ * $Date: 2008/01/09 11:02:13 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -56,14 +56,17 @@ bool enableCleanup_;
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EcalUncalibRecHitCollection_;
 edm::InputTag EcalRecHitCollection_;
-double MinJitter_;
-double MaxJitter_;
 
 MonitorElement* meCutMap_[36];
 
 MonitorElement* meSelMap_[36];
 
 MonitorElement* meSpectrumMap_[36];
+
+double lowThreshold_;
+double highThreshold_;
+double minJitter_;
+double maxJitter_;
 
 bool init_;
 
