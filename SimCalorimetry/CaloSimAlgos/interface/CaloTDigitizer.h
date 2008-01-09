@@ -8,6 +8,7 @@
 */
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseHitGenerator.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include <cassert>
@@ -104,13 +105,13 @@ public:
 
   void addNoiseSignals()
   {
-    std::vector<CaloSamples> noiseSamples;
+    std::vector<CaloSamples> noiseSignals;
     // noise signals need to be in units of photoelectrons.  Fractional is OK
     theNoiseSignalGenerator->getNoiseSignals(noiseSignals);
-    for(std::vector<CaloSamples>::const_iterator sampleItr = noiseSamples.begin(),
-        sampleEnd = noiseSamples.end(); sampleItr != sampleEnd; ++sampleItr)
+    for(std::vector<CaloSamples>::const_iterator signalItr = noiseSignals.begin(),
+        signalEnd = noiseSignals.end(); signalItr != signalEnd; ++signalItr)
     {
-      theHitResponse->add(*sampleItr);
+      theHitResponse->add(*signalItr);
     }
   }
 
