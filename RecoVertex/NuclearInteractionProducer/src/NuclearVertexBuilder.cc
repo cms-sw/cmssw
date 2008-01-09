@@ -41,7 +41,11 @@ void NuclearVertexBuilder::build( const reco::TrackRef& primTrack, const reco::T
             // Closest points
             ClosestApproachInRPhi *theApproach = new ClosestApproachInRPhi();
 	    bool status = theApproach->calculate(primTraj,secTraj);
-            GlobalPoint crossing = theApproach->crossingPoint();
+            GlobalPoint crossing;
+            if( status ) crossing = theApproach->crossingPoint();
+            else crossing = GlobalPoint(primTrack->outerPosition().x(),
+                                        primTrack->outerPosition().y(),
+                                        primTrack->outerPosition().z());
             delete theApproach;
 
             // Create vertex (creation point)
