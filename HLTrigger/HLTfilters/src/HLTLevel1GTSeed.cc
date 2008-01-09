@@ -97,7 +97,6 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) {
         << std::endl;
 
     // register the products
-    produces<reco::HLTFilterObjectWithRefs>();
     produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
