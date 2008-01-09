@@ -50,10 +50,10 @@ space on disk, time available for reconstruction.
 At the moment, the standard \b reconstruction sequence is composed of (please note that at least the distinction between 
 global/highlevel reconstruction does not really reflect functional aspects):
 
-- <b> localreco =  {trackerlocalreco, muonlocalreco, calolocalreco}</b>
+- <b> localreco =  {<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideTrackReco#DefSeq">trackerlocalreco</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonSystemReco#DefSeq">muonlocalreco</a>, calolocalreco}</b>
  - Local reconstruction simulation-compatible (no frontier, no oracle) for all the subdetectors. 
    It includes Tracker Strip, Tracker Pixels, Muon DT, Muon CSC, Muon RPC, ECAL Barrel and EndCap, HCAL HO, HE, HB.
-- <b> globalreco = {ckftracks, muonreco, ecalClusters, caloTowersRec, recoJets, recoGenJets, metreco}</b>
+- <b> globalreco = {<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideTrackReco#DefSeq">ckftracks</a>,  <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonReco#DefSeq">muonreco</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">ecalClusters</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">caloTowersRec</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">recoJets</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">recoGenJets</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">metreco</a>}</b>
  - Global reconstruction is the reconstruction within only one subdetector. The standard sequence include only 
    CKF Global Tracking, Muon Reconstruction (STA Muons and Mu+Tk Muons), ECAL Clusterization (Island+Hybrid), 
    Calorimetric Towers, Reconstructed Jets (MidPoint+KT) and Missing ET.
