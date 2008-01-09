@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/01/02 18:28:30 $
- * $Revision: 1.75 $
+ * $Date: 2008/01/05 11:49:26 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  *
 */
@@ -30,6 +30,7 @@
 #include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
+#include <DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EELedClient.h>
@@ -75,6 +76,8 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   meIntegrity_[1]      = 0;
   meOccupancy_[0]      = 0;
   meOccupancy_[1]      = 0;
+  meStatusFlags_[0]      = 0;
+  meStatusFlags_[1]      = 0;
   mePedestalOnline_[0] = 0;
   mePedestalOnline_[1] = 0;
   meLaserL1_[0]        = 0;
@@ -108,6 +111,7 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   // summary errors
   meIntegrityErr_       = 0;
   meOccupancy1D_        = 0;
+  meStatusFlagsErr_       = 0;
   mePedestalOnlineErr_  = 0;
   meLaserL1Err_         = 0;
   meLaserL1PNErr_       = 0;
@@ -204,6 +208,25 @@ void EESummaryClient::setup(void) {
   meOccupancy1D_ = dbe_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meOccupancy1D_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
+
+  if ( meStatusFlags_[0] ) dbe_->removeElement( meStatusFlags_[0]->getName() );
+  sprintf(histo, "EESFT EE - front-end status summary");
+  meStatusFlags_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meStatusFlags_[0]->setAxisTitle("ix", 1);
+  meStatusFlags_[0]->setAxisTitle("iy", 2);
+
+  if ( meStatusFlags_[1] ) dbe_->removeElement( meStatusFlags_[1]->getName() );
+  sprintf(histo, "EESFT EE + front-end status summary");
+  meStatusFlags_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meStatusFlags_[1]->setAxisTitle("ix", 1);
+  meStatusFlags_[1]->setAxisTitle("iy", 2);
+
+  if ( meStatusFlagsErr_ ) dbe_->removeElement( meStatusFlagsErr_->getName() );
+  sprintf(histo, "EESFT front-end status errors summary");
+  meStatusFlagsErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    meStatusFlagsErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
   if ( mePedestalOnline_[0] ) dbe_->removeElement( mePedestalOnline_[0]->getName() );
@@ -463,6 +486,15 @@ void EESummaryClient::cleanup(void) {
   if ( meOccupancy1D_ ) dbe_->removeElement( meOccupancy1D_->getName() );
   meOccupancy1D_ = 0;
 
+  if ( meStatusFlags_[0] ) dbe_->removeElement( meStatusFlags_[0]->getName() );
+  meStatusFlags_[0] = 0;
+
+  if ( meStatusFlags_[1] ) dbe_->removeElement( meStatusFlags_[1]->getName() );
+  meStatusFlags_[1] = 0;
+
+  if ( meStatusFlagsErr_ ) dbe_->removeElement( meStatusFlagsErr_->getName() );
+  meStatusFlagsErr_ = 0;
+
   if ( mePedestalOnline_[0] ) dbe_->removeElement( mePedestalOnline_[0]->getName() );
   mePedestalOnline_[0] = 0;
 
@@ -603,6 +635,8 @@ void EESummaryClient::analyze(void){
       meIntegrity_[1]->setBinContent( ix, iy, -1. );
       meOccupancy_[0]->setBinContent( ix, iy, 0. );
       meOccupancy_[1]->setBinContent( ix, iy, 0. );
+      meStatusFlags_[0]->setBinContent( ix, iy, -1. );
+      meStatusFlags_[1]->setBinContent( ix, iy, -1. );
       mePedestalOnline_[0]->setBinContent( ix, iy, -1. );
       mePedestalOnline_[1]->setBinContent( ix, iy, -1. );
 
@@ -654,6 +688,9 @@ void EESummaryClient::analyze(void){
   meOccupancy_[0]->setEntries( 0 );
   meOccupancy_[1]->setEntries( 0 );
   meOccupancy1D_->Reset();
+  meStatusFlags_[0]->setEntries( 0 );
+  meStatusFlags_[0]->setEntries( 0 );
+  meStatusFlagsErr_->Reset();
   mePedestalOnline_[0]->setEntries( 0 );
   mePedestalOnline_[1]->setEntries( 0 );
   mePedestalOnlineErr_->Reset();
@@ -698,6 +735,7 @@ void EESummaryClient::analyze(void){
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
     EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
+    EEStatusFlagsClient* eesfc = dynamic_cast<EEStatusFlagsClient*>(clients_[i]);
     EEPedestalOnlineClient* eepoc = dynamic_cast<EEPedestalOnlineClient*>(clients_[i]);
 
     EELaserClient* eelc = dynamic_cast<EELaserClient*>(clients_[i]);
@@ -977,6 +1015,31 @@ void EESummaryClient::analyze(void){
           int jx = ix + Numbers::ix0EE(ism);
           int jy = iy + Numbers::iy0EE(ism);
 
+          if ( eesfc ) {
+
+            me = eesfc->meh01_[ism-1];
+
+            if ( me ) {
+
+              float xval = -1;
+
+              if ( me->getBinContent( ix, iy ) == -1 ) xval = 2;
+              if ( me->getBinContent( ix, iy ) == 0 ) xval = 1;
+              if ( me->getBinContent( ix, iy ) > 0 ) xval = 0;
+
+              if ( me->getEntries() != 0 ) {
+              if ( ism >= 1 && ism <= 9 ) {
+                if ( Numbers::validEE(ism, 101 - jx, jy) ) meStatusFlags_[0]->setBinContent( jx, jy, xval );
+              } else {
+                if ( Numbers::validEE(ism, jx, jy) ) meStatusFlags_[1]->setBinContent( jx, jy, xval );
+              }
+              if ( xval == 0 ) meStatusFlagsErr_->Fill( ism );
+              }
+
+            }
+
+          }
+
           if ( eetttc ) {
 
             me = eetttc->me_h01_[ism-1];
@@ -1249,6 +1312,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGrid2.SetMaximum(+9.01);
 
   string imgNameMapI[2], imgNameMapO[2];
+  string imgNameMapDF[2];
   string imgNameMapPO[2];
   string imgNameMapLL1[2], imgNameMapLL1_PN[2];
   string imgNameMapLD[2], imgNameMapLD_PN[2];
@@ -1423,6 +1487,88 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->GetZaxis()->SetLabelSize(0.03);
     obj2f->Draw("colz");
     labelGrid2.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+  imgNameMapDF[0] = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meStatusFlags_[0] );
+
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapDF[0] = meName + ".png";
+    imgName = htmlDir + imgNameMapDF[0];
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->Draw("col");
+    labelGrid1.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+  imgNameMapDF[1] = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meStatusFlags_[1] );
+
+  if ( obj2f && obj2f->GetEntries() != 0 ) { 
+
+    meName = obj2f->GetName();
+  
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapDF[1] = meName + ".png";
+    imgName = htmlDir + imgNameMapDF[1];
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->Draw("col");
+    labelGrid1.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
@@ -2300,6 +2446,17 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<br>" << endl;
   }
 
+  if ( imgNameMapDF[0].size() != 0 || imgNameMapDF[1].size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+    if ( imgNameMapDF[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapDF[0] << "\" usemap=\"#StatusFlags_0\" border=0></td>" << endl;
+    if ( imgNameMapDF[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapDF[1] << "\" usemap=\"#StatusFlags_1\" border=0></td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
+
   if ( imgNameMapPO[0].size() != 0 || imgNameMapPO[1].size() != 0 ) {
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -2405,6 +2562,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   if ( imgNameMapI[0].size() != 0 || imgNameMapI[1].size() != 0 ) this->writeMap( htmlFile, "Integrity" );
   if ( imgNameMapO[0].size() != 0 || imgNameMapO[1].size() != 0 ) this->writeMap( htmlFile, "Occupancy" );
+  if ( imgNameMapDF[0].size() != 0 || imgNameMapDF[1].size() != 0 ) this->writeMap( htmlFile, "StatusFlags" );
   if ( imgNameMapPO[0].size() != 0 || imgNameMapPO[1].size() != 0 ) this->writeMap( htmlFile, "PedestalOnline" );
   if ( imgNameMapLL1[0].size() != 0 || imgNameMapLL1[1].size() != 0 ) this->writeMap( htmlFile, "LaserL1" );
   if ( imgNameMapLD[0].size() != 0 || imgNameMapLD[1].size() != 0 ) this->writeMap( htmlFile, "Led" );
@@ -2432,6 +2590,7 @@ void EESummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
   std::map<std::string, std::string> refhtml;
   refhtml["Integrity"] = "EEIntegrityClient.html";
   refhtml["Occupancy"] = "EEIntegrityClient.html";
+  refhtml["StatusFlags"] = "EEStatusFlagsClient.html";
   refhtml["PedestalOnline"] = "EEPedestalOnlineClient.html";
   refhtml["LaserL1"] = "EELaserClient.html";
   refhtml["Led"] = "EELedClient.html";

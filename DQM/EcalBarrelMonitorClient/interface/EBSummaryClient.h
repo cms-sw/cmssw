@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/12/18 13:58:03 $
- * $Revision: 1.24 $
+ * $Date: 2007/12/28 17:21:27 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -102,6 +102,8 @@ DaqMonitorBEInterface* dbe_;
 
 MonitorElement* meIntegrity_;
 MonitorElement* meIntegrityErr_;
+MonitorElement* meStatusFlags_;
+MonitorElement* meStatusFlagsErr_;
 MonitorElement* meOccupancy_;
 MonitorElement* meOccupancy1D_;
 MonitorElement* mePedestalOnline_;

@@ -15,6 +15,9 @@ DEFINE_ANOTHER_FWK_MODULE(EEClusterTask);
 #include <DQM/EcalEndcapMonitorTasks/interface/EECosmicTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EECosmicTask);
 
+#include <DQM/EcalEndcapMonitorTasks/interface/EEStatusFlagsTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EEStatusFlagsTask);
+
 #include <DQM/EcalEndcapMonitorTasks/interface/EEIntegrityTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EEIntegrityTask);
 

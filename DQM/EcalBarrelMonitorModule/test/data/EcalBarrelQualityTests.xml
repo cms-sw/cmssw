@@ -160,6 +160,22 @@
         <TestName activate="true">EB_Integrity_MemSize_Quality</TestName>
 </LINK>
 
+<QTEST name="EB_StatusFlags_Quality">
+        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">-1.0</PARAM>
+        <PARAM name="maxMean">0.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">0.0</PARAM>
+        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="minEntries">0</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT front-end status EB*">
+        <TestName activate="true">EB_StatusFlags_Quality</TestName>
+</LINK>
+
 <QTEST name="EB_PedestalOnline_G12_Quality">
         <TYPE>ContentsWithinExpectedProf2D</TYPE>
         <PARAM name="error">1.00</PARAM>
@@ -641,6 +657,10 @@
 </LINK>
 
 <LINK name="*EcalBarrel/EBSummaryClient/EBPOT pedestal quality summary G12">
+        <TestName activate="true">EB_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBSummaryClient/EBSFT front-end status summary">
         <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 

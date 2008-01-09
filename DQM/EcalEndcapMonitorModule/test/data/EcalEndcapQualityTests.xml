@@ -160,6 +160,22 @@
         <TestName activate="true">EE_Integrity_MemSize_Quality</TestName>
 </LINK>
 
+<QTEST name="EE_StatusFlags_Quality">
+        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">-1.0</PARAM>
+        <PARAM name="maxMean">0.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">0.0</PARAM>
+        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="minEntries">0</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EEStatusFlagsTask/FEStatus/EESFT front-end status EE*">
+        <TestName activate="true">EE_StatusFlags_Quality</TestName>
+</LINK>
+
 <QTEST name="EE_PedestalOnline_G12_Quality">
         <TYPE>ContentsWithinExpectedProf2D</TYPE>
         <PARAM name="error">1.00</PARAM>
@@ -733,6 +749,10 @@
 </LINK>
 
 <LINK name="*EcalEndcap/EESummaryClient/EEPOT EE * pedestal quality summary G12">
+        <TestName activate="true">EE_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EESummaryClient/EESFT EE * front-end status summary">
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 

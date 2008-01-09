@@ -15,6 +15,9 @@ DEFINE_ANOTHER_FWK_MODULE(EBClusterTask);
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBCosmicTask);
 
+#include <DQM/EcalBarrelMonitorTasks/interface/EBStatusFlagsTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EBStatusFlagsTask);
+
 #include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBIntegrityTask);
 
