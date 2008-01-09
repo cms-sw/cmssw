@@ -3,10 +3,6 @@
 #include "PhysicsTools/Utilities/src/ExpressionBinaryOperator.h"
 #include <cmath>
 #include <Math/DistFunc.h>
-#ifdef BOOST_SPIRIT_DEBUG 
-#include <string>
-#include <iostream>
-#endif
 
 namespace reco {
   namespace parser {
@@ -36,9 +32,6 @@ using namespace reco::parser;
 
 void ExpressionFunctionSetter::operator()( const char *, const char * ) const {
   Function fun = funStack_.back(); funStack_.pop_back();
-#ifdef BOOST_SPIRIT_DEBUG 
-  BOOST_SPIRIT_DEBUG_OUT << "pushing function expression: " << functionNames[ fun ] << std::endl;
-#endif
   ExpressionPtr funExp;
   switch( fun ) {
   case( kAbs      ) : funExp.reset( new ExpressionUnaryOperator <abs_f  >   ( expStack_ ) ); break;

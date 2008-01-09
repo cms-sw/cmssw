@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -72,22 +72,6 @@ namespace reco {
 	  using namespace boost::spirit;
 	  using namespace std;
 
-#ifdef BOOST_SPIRIT_DEBUG 
-BOOST_SPIRIT_DEBUG_RULE(number);
-BOOST_SPIRIT_DEBUG_RULE(var);
-BOOST_SPIRIT_DEBUG_RULE(term);
-BOOST_SPIRIT_DEBUG_RULE(power);
-BOOST_SPIRIT_DEBUG_RULE(factor);
-BOOST_SPIRIT_DEBUG_RULE(function1);
-BOOST_SPIRIT_DEBUG_RULE(function2);
-BOOST_SPIRIT_DEBUG_RULE(expression);
-BOOST_SPIRIT_DEBUG_RULE(comparison_op);
-BOOST_SPIRIT_DEBUG_RULE(binary_comp);
-BOOST_SPIRIT_DEBUG_RULE(trinary_comp);
-BOOST_SPIRIT_DEBUG_RULE(logical_combiner);
-BOOST_SPIRIT_DEBUG_RULE(cut);
-BOOST_SPIRIT_DEBUG_RULE(fun);
-#endif	  
 	  ExpressionNumberSetter number_s(self.exprStack);
 	  IntSetter int_s(self.intStack);
 	  ExpressionVarSetter var_s(self.exprStack, self.methStack, self.typeStack);
