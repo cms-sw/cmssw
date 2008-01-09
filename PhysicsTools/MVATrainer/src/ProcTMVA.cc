@@ -332,6 +332,10 @@ void ProcTMVA::runTMVATrainer()
 
 	factory->TrainAllMethods();
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
+	factory.release(); // ROOT seems to take care of destruction?!
+#endif
+
 	file->Close();
 }
 
