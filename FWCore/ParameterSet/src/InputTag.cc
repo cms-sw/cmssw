@@ -27,13 +27,12 @@ namespace edm {
     // string is delimited by colons
     std::vector<std::string> tokens = edm::pset::tokenize(s, ":");
     int nwords = tokens.size();
-    if(nwords == 0 || nwords > 3)
+    if(nwords > 3)
     {
       throw edm::Exception(errors::Configuration,"InputTag")
         << "Input tag " << s << " has " << nwords << " tokens";
     }
-    label_ = tokens[0];
-
+    if(nwords > 0) label_ = tokens[0];
     if(nwords > 1) instance_ = tokens[1];
     if(nwords > 2) process_=tokens[2];
   }
