@@ -2,9 +2,9 @@
   gROOT->Reset();
   gROOT->ProcessLine(".L myFunctions.C");
 
-  std::string newReleasePath = "~/public/Validation/gametime/CMSSW_1_6_0_pre6/src/RecoLocalMuon/CSCValidation/test/";
-  std::string refReleasePath = "~/public/Validation/gametime/CMSSW_1_5_2/src/RecoLocalMuon/CSCValidation/test/";
-  int datatype = 2;              // 1 = data, 2 = mc
+  std::string newReleasePath = "/uscms/home/akub19/work/validation/CMSSW_1_8_0_pre5/src/RecoLocalMuon/CSCValidation/test/";
+  std::string refReleasePath = "/uscms/home/akub19/work/validation/CMSSW_1_7_3/src/RecoLocalMuon/CSCValidation/test/";
+  int datatype = 1;              // 1 = data, 2 = mc
 
   TFile *f1;
   TFile *f2;
@@ -40,13 +40,21 @@
   Compare1DPlots2("recHits/hRHX2","recHits/hRHY2",f1,f2,"recHits, LocalX, Station 2","recHits, LocalY, Station 2","rH_local_pos_station2.gif");
   Compare1DPlots2("recHits/hRHX3","recHits/hRHY3",f1,f2,"recHits, LocalX, Station 3","recHits, LocalY, Station 3","rH_local_pos_station3.gif");
   Compare1DPlots2("recHits/hRHX4","recHits/hRHY4",f1,f2,"recHits, LocalX, Station 4","recHits, LocalY, Station 4","rH_local_pos_station4.gif");
+  if (datatype == 2){
+    Compare1DPlots2("recHits/hRHResid11a","recHits/hRHResid11b",f1,f2,"SimHit X - Reco X (ME11a)","SimHit X - Reco X (ME11b)","rH_resid_ME11.gif");
+    Compare1DPlots2("recHits/hRHResid12","recHits/hRHResid13",f1,f2,"SimHit X - Reco X (ME12)","SimHit X - Reco X (ME13)","rH_resid_ME12_ME13.gif"); 
+    Compare1DPlots2("recHits/hRHResid21","recHits/hRHResid22",f1,f2,"SimHit X - Reco X (ME21)","SimHit X - Reco X (ME22)","rH_resid_ME21_ME22.gif"); 
+    Compare1DPlots2("recHits/hRHResid31","recHits/hRHResid32",f1,f2,"SimHit X - Reco X (ME31)","SimHit X - Reco X (ME32)","rH_resid_ME31_ME32.gif"); 
+    Compare1DPlots2("recHits/hRHResid41","recHits/hRHResid42",f1,f2,"SimHit X - Reco X (ME41)","SimHit X - Reco X (ME42)","rH_resid_ME41_ME42.gif"); 
+  }
   Compare1DPlots2("recHits/hRHLayer1","recHits/hRHLayer2",f1,f2,"recHits in a Layer, Station 1","recHits in a Layer, Station 2","rH_per_layer_stations1and2.gif");
   Compare1DPlots2("recHits/hRHLayer3","recHits/hRHLayer4",f1,f2,"recHits in a Layer, Station 3","recHits in a Layer, Station 4","rH_per_layer_stations3and4.gif");
 
 
   //produce segment comparison plots
-  Compare1DPlots2("Segments/hSCodeNarrow1","Segments/hSCodeNarrow2",f1,f2,"hSCodeNarrow (Station 1)","hSCodeNarrow (Station 2)","seg_hRHCodeNarrow_1a2.gif");
-  Compare1DPlots2("Segments/hSCodeNarrow3","Segments/hSCodeNarrow4",f1,f2,"hSCodeNarrow (Station 3)","hSCodeNarrow (Station 4)","seg_hRHCodeNarrow_3a4.gif");
+  Compare1DPlots2("Segments/hSCodeNarrow1","Segments/hSCodeNarrow2",f1,f2,"hSCodeNarrow (Station 1)","hSCodeNarrow (Station 2)","seg_hSCodeNarrow_1a2.gif");
+  Compare1DPlots2("Segments/hSCodeNarrow3","Segments/hSCodeNarrow4",f1,f2,"hSCodeNarrow (Station 3)","hSCodeNarrow (Station 4)","seg_hSCodeNarrow_3a4.gif");
+  Compare1DPlots1("Segments/hSCodeBroad",f1,f2,"hSCodeBroad","seg_hSCodeBroad.gif");
   Compare1DPlots2("Segments/hSGlobalPhi","Segments/hSGlobalTheta",f1,f2,"Segment Global Phi (all stations)","Segment Global Theta (all stations)","seg_globthetaphi.gif");
   Compare1DPlots2("Segments/hSTheta1","Segments/hSTheta2",f1,f2,"Segment Local Theta (Station 1)","Segment Local Theta (Station 2)","seg_localtheta_1a2.gif");
   Compare1DPlots2("Segments/hSTheta3","Segments/hSTheta4",f1,f2,"Segment Local Theta (Station 3)","Segment Local Theta (Station 4)","seg_localtheta_3a4.gif");
