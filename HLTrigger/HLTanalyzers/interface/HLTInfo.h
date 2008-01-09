@@ -11,7 +11,6 @@
 #include "TChain.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
