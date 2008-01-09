@@ -6,33 +6,6 @@
   <class name="edm::Wrapper<reco::HLTResult<16, unsigned short> >" />
   <class name="edm::Wrapper<reco::HLTResult<24, unsigned short> >" />
 
-  <class name="edm::RefProd<reco::HLTPathObject>" />
-  <class name="std::vector<edm::RefProd<reco::HLTPathObject> >" />
-
-  <class name="edm::RefToBase<reco::HLTFilterObjectBase>" />
-  <class name="std::vector<edm::RefToBase<reco::HLTFilterObjectBase> >" />
-  <class name="edm::reftobase::BaseHolder<reco::HLTFilterObjectBase>" />
-
-  <class name="edm::RefProd<reco::HLTFilterObjectBase>" />
-  <class name="edm::RefProd<reco::HLTFilterObject    >" />
-  <class name="edm::RefProd<reco::HLTFilterObjectWithRefs>" />
-
-  <class name="edm::reftobase::Holder<reco::HLTFilterObjectBase, edm::RefProd<reco::HLTFilterObjectBase> >" />
-  <class name="edm::reftobase::Holder<reco::HLTFilterObjectBase, edm::RefProd<reco::HLTFilterObject    > >" />
-  <class name="edm::reftobase::Holder<reco::HLTFilterObjectBase, edm::RefProd<reco::HLTFilterObjectWithRefs> >" />
-
-  <class name="reco::HLTFilterObjectBase" />
-  <class name="reco::HLTFilterObject" />
-  <class name="reco::HLTFilterObjectWithRefs" />
-  <class name="reco::HLTPathObject" />
-  <class name="reco::HLTGlobalObject" />
-
-  <class name="edm::Wrapper<reco::HLTFilterObjectBase>" />
-  <class name="edm::Wrapper<reco::HLTFilterObject>" />
-  <class name="edm::Wrapper<reco::HLTFilterObjectWithRefs>" splitLevel="0"/>
-  <class name="edm::Wrapper<reco::HLTPathObject>" />
-  <class name="edm::Wrapper<reco::HLTGlobalObject>" />
-
   <class name="edm::ModuleTime"/>
   <class name="std::vector<edm::ModuleTime>"/>
   <class name="edm::EventTime"/>
