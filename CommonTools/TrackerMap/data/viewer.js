@@ -1,18 +1,10 @@
-// add event listening
-function aaManageEvent(eventObj, event, eventHandler) {
-   if (eventObj.addEventListener) {
-      eventObj.addEventListener(event, eventHandler,false);
-   } else if (eventObj.attachEvent) {
-      event = "on" + event;
-      eventObj.attachEvent(event, eventHandler);
-   }
-}
 
 // Tabs master
 function Tabs (active,inactive) {
    current=0;
    tab = new Array();
    panels = new Array();
+   zoomAmount = new Array();
    activeColor = active;
    inactiveColor = inactive;
 
@@ -20,8 +12,9 @@ function Tabs (active,inactive) {
    this.addTab = function (tabItem) {
                           var index = tab.length;
                           tab[index] = tabItem;
-                          aaManageEvent(tabItem,"click",function() {
-                                 tabs.showPanel(index);});
+			  zoomAmount[index]=1.05;
+                          tabItem.addEventListener("click",function() {
+                                 tabs.showPanel(index);},false);
                           };
 
    // add panel
@@ -36,7 +29,7 @@ function Tabs (active,inactive) {
                      tab[index].style.backgroundColor=activeColor;
                      panels[index].style.display='block';
                      current = index;
-		     if(current==0){makeDraggable('img1');makeCliccable('img1');tmapObject="img1";} else {makeDraggable('img2');makeCliccable('img2');tmapObject="img2";}
+		     if(current==0){makeDraggable('img1');tmapObject="img1";} else {makeDraggable('img2');tmapObject="img2";}
                      };
    }
 
@@ -55,15 +48,14 @@ function setUpTabs() {
        }
    }
    tabs.showPanel(0);
+   zoomFactor=.9;
    document.getElementById('img1').src=tmapname+".png";
    document.getElementById('img2').src=tmapname+"fed.png";
-   makeDraggable('img1');makeCliccable('img1');
-   //makeDraggable('img2');makeCliccable('img2');
+   makeDraggable('img1');
    tmapObject="img1";
    setFull('layer2');
    setFull('layer1');
 }
-
 
 // create a mouse point
 function mousePoint(x,y) {
@@ -168,86 +160,122 @@ function zoomIt(inOrOut) {
  if (inOrOut == "TIB") {
    imgObject = document.getElementById('img1');
     if(imgObject){
+       layer=33;
        imgObject.style.position = 'absolute';
-   imgObject.style.top      =  "-600px";
-  imgObject.style.left     =  "-800px";
+   imgObject.style.top      =  "-350px";
+  imgObject.style.left     =  "-400px";
+	 imageWidth=2000;
+	 imageHeight=1030;
+	 displayImage();
  return false;
 }																			 
 }																			 
  if (inOrOut == "TOB") {
    imgObject = document.getElementById('img1');
     if(imgObject){
+       layer=37;
        imgObject.style.position = 'absolute';
-   imgObject.style.top      =  "-600px";
-  imgObject.style.left     =  "-1600px";
+   imgObject.style.top      =  "-350px";
+  imgObject.style.left     =  "-1000px";
+	 imageWidth=2000;
+	 imageHeight=1030;
+	 displayImage();
  return false;
 }																			 
 }																			 
  if (inOrOut == "TID+z") {
    imgObject = document.getElementById('img1');
     if(imgObject){
+       layer=18;
        imgObject.style.position = 'absolute';
    imgObject.style.top      =  "-240px";
   imgObject.style.left     =  "-600px";
+	 imageWidth=3000;
+	 imageHeight=1600;
+	 displayImage();
  return false;
 }																			 
 }																			 
  if (inOrOut == "TEC+z") {
    imgObject = document.getElementById('img1');
     if(imgObject){
+       layer=21;
        imgObject.style.position = 'absolute';
-   imgObject.style.top      =  "-240px";
-  imgObject.style.left     =  "-1200px";
+   imgObject.style.top      =  "-120px";
+  imgObject.style.left     =  "-600px";
+	 imageWidth=1500;
+	 imageHeight=800;
+	 displayImage();
  return false;
 }																			 
 }																			 
  if (inOrOut == "TID-z") {
    imgObject = document.getElementById('img1');
     if(imgObject){
+       layer=9;
        imgObject.style.position = 'absolute';
-   imgObject.style.top      =  "-1020px";
+   imgObject.style.top      =  "-1120px";
   imgObject.style.left     =  "-600px";
+	 imageWidth=3000;
+	 imageHeight=1600;
+	 displayImage();
  return false;
 }																			 
 }																			 
  if (inOrOut == "TEC-z") {
    imgObject = document.getElementById('img1');
     if(imgObject){
+       layer=0;
        imgObject.style.position = 'absolute';
-   imgObject.style.top      =  "-1020px";
-  imgObject.style.left     =  "-1200px";
+   imgObject.style.top      =  "-510px";
+  imgObject.style.left     =  "-600px";
+	 imageWidth=1500;
+	 imageHeight=800;
+	 displayImage();
  return false;
 }																			 
 }																			 
  if (inOrOut == "PIXB") {
    imgObject = document.getElementById('img1');
     if(imgObject){
+       layer=30;
        imgObject.style.position = 'absolute';
    imgObject.style.top      =  "-600px";
   imgObject.style.left     =  "0px";
+	 imageWidth=3000;
+	 imageHeight=1600;
+	 displayImage();
  return false;
 }																			 
 }																			 
  if (inOrOut == "FPIX-z") {
    imgObject = document.getElementById('img1');
     if(imgObject){
+       layer=13;
        imgObject.style.position = 'absolute';
    imgObject.style.top      =  "-1020px";
   imgObject.style.left     =  "0px";
+	 imageWidth=3000;
+	 imageHeight=1600;
+	 displayImage();
  return false;
 }																			 
 }																			 
  if (inOrOut == "FPIX+z") {
    imgObject = document.getElementById('img1');
     if(imgObject){
+       layer=15;
        imgObject.style.position = 'absolute';
    imgObject.style.top      =  "-240px";
   imgObject.style.left     =  "0px";
+	 imageWidth=3000;
+	 imageHeight=1600;
+	 displayImage();
  return false;
 }																			 
 }																			 
 	if (inOrOut == "SVG") {if(tmapObject=='img1')setSingle('layer1',layer);else setSingle('layer2',crate);return false;}																 
-	if (inOrOut == "Home") {if(tmapObject=='img1')setFull('layer1');else setFull('layer2');return false;}																 
+	if (inOrOut == "Full") {if(tmapObject=='img1')setFull('layer1');else setFull('layer2');return false;}																 
 	if (inOrOut == "<") {
         if(tmapObject=='img1'){layer=layer-1;if(layer==0)layer=43;}
         else{crate=crate-1;if(crate==0)crate=ncrates;}
@@ -256,7 +284,39 @@ if(tmapObject=='img1')setSingle('layer1',layer);else setSingle('layer2',crate);r
         if(tmapObject=='img1'){layer=layer+1;if(layer==44)layer=1;}
         else{crate=crate+1;if(crate==ncrates)crate=1;}
 if(tmapObject=='img1')setSingle('layer1',layer);else setSingle('layer2',crate);return false;}																 
+	if (inOrOut == "Home") {
+	 zoomAmount[current]=1.05;
+	 imageWidth=1000;
+	 imageHeight=550;
+   document.getElementById(tmapObject).style.top      =  "-50px";
+  document.getElementById(tmapObject).style.left     =  "0px";
+	 displayImage();
+	  }
+	if (inOrOut == "+") {
+	 imageWidth=document.getElementById(tmapObject).getAttribute('width');
+	 imageHeight=document.getElementById(tmapObject).getAttribute('height');
+	 imageWidth=Math.floor(imageWidth*zoomAmount[current]);
+	 imageHeight=Math.floor(imageHeight*zoomAmount[current]);
+	 displayImage();
+	  }
+	if (inOrOut == "-") {
+	 imageWidth=document.getElementById(tmapObject).getAttribute('width');
+	 imageHeight=document.getElementById(tmapObject).getAttribute('height');
+	 imageWidth=Math.floor(imageWidth/zoomAmount[current]);
+	 imageHeight=Math.floor(imageHeight/zoomAmount[current]);
+	 displayImage();
+	}
 }																			 
+function displayImage(){
+	 var oldimage=document.getElementById(tmapObject);
+	 var newimage=oldimage.cloneNode(false);
+	 newimage.width=imageWidth;
+	 newimage.height=imageHeight;
+	 oldimage.parentNode.replaceChild(newimage,oldimage);
+	 makeDraggable(tmapObject);
+	 if(dragObject)dragObject=newimage;
+
+	 }
 function setSingle(elemento,layer1){
  if(elemento){
    frame = document.getElementById(elemento);
@@ -283,6 +343,7 @@ function setFull(elemento){
 	       frame.style.display='none';
 	       printObject.style.display='none';
                divObject.style.display='';
+               divObject.style.cursor='hand';
 	           }
 		   }
 		   }

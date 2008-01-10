@@ -42,3 +42,7 @@
       z-index:1;
 }
 
+img
+{
+	cursor:pointer;
+}

@@ -15,7 +15,7 @@ TrackerLayer.showData = function (evt) {
              var textfield=document.getElementById('currentElementText');
         textfield.firstChild.nodeValue=myTracker;
         opacity=0.2;
-        myPoly.setAttribute("style","fill-opacity: "+opacity) ;
+        myPoly.setAttribute("style","cursor:crosshair; fill-opacity: "+opacity) ;
       top.document.getElementById('currentElementText').setAttribute("value",myTracker);
      }
             if (evt.type == "click") {
@@ -31,7 +31,7 @@ myPoly.setAttribute("style","fill-opacity: "+opacity+"; stroke: black; stroke-wi
        if (evt.type == "mouseout") {
     var myPoly = evt.currentTarget;
         opacity=1;
-        myPoly.setAttribute("style","fill-opacity: "+opacity) ;
+        myPoly.setAttribute("style","cursor:default; fill-opacity: "+opacity) ;
 
      }
      }

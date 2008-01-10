@@ -1053,8 +1053,8 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
 *ofilename <<"  <head>"<<endl;
 *ofilename <<"    <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />"<<endl;
 *ofilename <<"    <title>TrackerMap Viewer</title>"<<endl;
-*ofilename <<"    <link rel=\"stylesheet\" type=\"text/css\" href=\""<<outputfilename<<"viewer.css\" />"<<endl;
-*ofilename <<"    <script type=\"text/javascript\" src=\""<<outputfilename<<"viewer.js\">"<<endl;
+*ofilename <<"    <link rel=\"stylesheet\" type=\"text/css\" href=\"viewer.css\" />"<<endl;
+*ofilename <<"    <script type=\"text/javascript\" src=\"viewer.js\">"<<endl;
 *ofilename <<"    </script>"<<endl;
 *ofilename <<"    <script type=\"text/javascript\">"<<endl;
 *ofilename <<"    //<![CDATA["<<endl;
@@ -1064,13 +1064,13 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
   ofname.str("");
   ifname="CommonTools/TrackerMap/data/viewer.css";
   ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
-  ofname << outputfilename << "viewer.css";
+  ofname <<  "viewer.css";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
   ifname="CommonTools/TrackerMap/data/viewer.js";
   ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
-  ofname << outputfilename << "viewer.js";
+  ofname << "viewer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
@@ -1132,7 +1132,7 @@ for (int layer=1; layer < 44; layer++){
                 }
 if(enableFedProcessing){
     outs1 << outputfilename<<"fed.png";
-save_as_fedtrackermap(true,0.,0.,outs1.str(),3000,1600);
+save_as_fedtrackermap(true,0.,0.,outs1.str(),6000,3200);
     outs2 << outputfilename<<".xml";
 save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
 //And a text file for each crate 
