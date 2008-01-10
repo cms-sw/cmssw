@@ -6,7 +6,7 @@
 // Class  :     MallocOpts
 // 
 // Original Author:  Jim Kowalkowski
-// $Id: MallocOpts.cc,v 1.3 2008/01/10 04:23:40 jbk Exp $
+// $Id: MallocOpts.cc,v 1.4 2008/01/10 14:14:28 jbk Exp $
 //
 // ------------------ resetting malloc options -----------------------
 
@@ -47,17 +47,20 @@ namespace edm
 // Still some problem on x86_64, so only i386 for now    
 #if defined(__x86_64__)
 
-      __asm__ __volatile__ ("pushq %%rbx;\
- pushq %%rdx;				 \
+      __asm__ __volatile__ ("pushq %%rdx;\
  pushq %%rcx;				 \
+ pushq %%rsi;				 \
+ pushq %%rbx;				 \
  cpuid;					 \
+ movq  %%rbx,%%rsi;			 \
+ popq  %%rbx;				 \
  movl  %%ecx,%0;			 \
  movl  %%edx,%1;			 \
- movl  %%ebx,%2;			 \
+ movl  %%esi,%2;			 \
  movl  %%eax,%3;			 \
+ popq  %%rsi;				 \
  popq  %%rcx;				 \
- popq  %%rdx;				 \
- popq  %%rbx;"
+ popq  %%rdx;"
                             : "=m"(ans[2]), "=m"(ans[1]), "=m"(ans[0]), "=m"(a)
                             : "a"(op)
 			    );
@@ -65,17 +68,20 @@ namespace edm
 #elif defined(__i386__)
 
 
-      __asm__ __volatile__ ("pushl %%ebx;\
- pushl %%edx;				 \
+      __asm__ __volatile__ ("pushl %%edx;\
  pushl %%ecx;				 \
+ pushl %%esi;				 \
+ pushl %%ebx;				 \
  cpuid;					 \
+ movl  %%ebx,%%esi;			 \
+ popl  %%ebx;				 \
  movl  %%ecx,%0;			 \
  movl  %%edx,%1;			 \
- movl  %%ebx,%2;			 \
+ movl  %%esi,%2;			 \
  movl  %%eax,%3;			 \
+ popl  %%esi;				 \
  popl  %%ecx;				 \
- popl  %%edx;				 \
- popl  %%ebx;"
+ popl  %%edx;"
                             : "=m"(ans[2]), "=m"(ans[1]), "=m"(ans[0]), "=m"(a)
                             : "a"(op)
 			    );
