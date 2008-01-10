@@ -8,6 +8,7 @@
 <use name=RecoPixelVertexing/PixelTriplets>
 <use name=CommonTools/Statistics>
 <use name=RecoTracker/TransientTrackingRecHit>
+<use name=RecoTracker/TkMSParametrization>
 
 <export>
  <lib name=RecoPixelVertexingPixelTrackFitting>
@@ -21,4 +22,5 @@
  <use name=TrackingTools/PatternTools>
  <use name=CommonTools/Statistics>
  <use name=RecoTracker/TransientTrackingRecHit>
+ <use name=RecoTracker/TkMSParametrization>
 </export>
