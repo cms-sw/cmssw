@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.25 $
+ * \version $Revision: 1.26 $
  */
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -71,7 +71,7 @@ namespace edm {
     typedef std::vector<value_type> transient_vector_type;
     typedef const value_type & const_reference;
     AssociationVector();
-    AssociationVector(const KeyRefProd & ref);
+    AssociationVector(const KeyRefProd & ref, const CKey * = 0);
     AssociationVector(const AssociationVector &);
     ~AssociationVector();
     
@@ -112,8 +112,10 @@ namespace edm {
     data_(), ref_(), transientVector_(), fixed_(false)  { }
   
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
-  inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::AssociationVector(const KeyRefProd & ref) : 
-    data_(ref->size()), ref_(ref), transientVector_(ref->size()), fixed_(true) { }
+  inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::AssociationVector(const KeyRefProd & ref,
+												      const CKey * coll) : 
+    data_(coll == 0 ? ref->size() : coll->size()), ref_(ref), 
+    transientVector_(coll == 0 ? ref->size() : coll->size()), fixed_(true) { }
   
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::
