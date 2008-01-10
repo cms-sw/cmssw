@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2007/08/16 23:44:31 $
-// $Revision: 1.43 $
+// $Date: 2007/10/15 22:15:44 $
+// $Revision: 1.46 $
 //
 
 #include <vector>
@@ -84,6 +84,8 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   MinChunkLength_ = conf_.getParameter<int>("MinimumChunkLength");
   nFoundMin_      = conf_.getParameter<int>("nFoundMin");
   
+  initialVertexErrorXY_  = conf_.getParameter<double>("InitialVertexErrorXY");
+
   measurementTrackerName_ = conf_.getParameter<std::string>("MeasurementTrackerName");
   
   debug_ = false;
@@ -1119,7 +1121,8 @@ FreeTrajectoryState RoadSearchTrackCandidateMakerAlgorithm::initialTrajectory(co
           const double dRmin = 0.1; // cm
           if (outer.perp() - inner.perp() < dRmin) return fts;
           //GlobalPoint vertexPos(0,0,0);
-          const double dr2 = 0.0015*0.0015;
+	  const double dr2 = initialVertexErrorXY_*initialVertexErrorXY_;
+          //const double dr2 = 0.0015*0.0015;
           //const double dr2 = 0.2*0.2;
           const double dz2 = 5.3*5.3;
 

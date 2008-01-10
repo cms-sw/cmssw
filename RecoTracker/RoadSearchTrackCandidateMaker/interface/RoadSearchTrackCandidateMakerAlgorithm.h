@@ -13,8 +13,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2007/08/16 23:44:30 $
-// $Revision: 1.14 $
+// $Date: 2007/10/15 22:15:43 $
+// $Revision: 1.15 $
 //
 
 #include <string>
@@ -112,7 +112,7 @@ class RoadSearchTrackCandidateMakerAlgorithm
   int MinChunkLength_;
   int nFoundMin_;
 
-
+  double initialVertexErrorXY_;
 
 
   std::string measurementTrackerName_;
