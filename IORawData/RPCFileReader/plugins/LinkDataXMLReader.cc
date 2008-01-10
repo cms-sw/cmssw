@@ -33,6 +33,8 @@ using namespace std;
 using namespace edm;
 using namespace rpcrawtodigi;
 
+//Corr MG 07/01/2008
+int local_bx;
 typedef uint64_t Word64;
 /*############################################################################
 #
@@ -212,11 +214,15 @@ void LinkDataXMLReader::startElement(const XMLCh* const uri,
 				     const XMLCh* const qname,
 				     const Attributes& attrs) {
   m_CurrElement = xMLCh2String(localname);
-  //std::cout<<"Start element: "<<m_CurrElement<<endl;
+//  std::cout<<"Start element: "<<m_CurrElement<<endl;
  
   int lbNum, partitionNum,  endOfData,  halfPartition,  partitionData;
   uint16_t rawData;
-
+//Corr MG 07/01/2008
+  if(m_CurrElement=="bxData") {
+    local_bx = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("num"))),1);
+//edm::LogInfo(" ")<<" local_bx "<<local_bx;
+  }
   if(m_CurrElement=="tc") triggerCrateNum = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("num"))),1);
   if(m_CurrElement=="tb") triggerBoardNum = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("num"))),1);
   if(m_CurrElement=="ol") opticalLinkNum = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("num"))),1);  
@@ -234,14 +240,17 @@ void LinkDataXMLReader::startElement(const XMLCh* const uri,
 
     // BX 
     int trigger_BX =  200;
-    int current_BX =  trigger_BX + 0;
+//Corr MG 07/01/2008
+    int current_BX =  trigger_BX + local_bx;
+//    edm::LogInfo(" ")<<" local_bx "<<local_bx<<" current_BX "<<current_BX;
+//    std::cout<<" local_bx "<<local_bx<<" current_BX "<<current_BX<<endl;
     BXRecord bxr(current_BX);
 
     // TB 
     int tbLinkInputNumber = opticalLinkNum;    
     int rmb = getDCCInputChannelNum(triggerCrateNum, triggerBoardNum).second;
-
-    cout<<"tc: "<<triggerCrateNum
+edm::LogInfo(" ")
+        <<"tc: "<<triggerCrateNum
 	<<" tb: "<<triggerBoardNum
 	<<" rmb: "<<rmb
         <<" fedID: "<<getDCCInputChannelNum(triggerCrateNum, triggerBoardNum).first
@@ -249,7 +258,7 @@ void LinkDataXMLReader::startElement(const XMLCh* const uri,
         <<" partNum: "<<partitionNum
         <<" eod: "<<endOfData
         <<" hp: "<<halfPartition
-	<<" raw data: "<<hex<<partitionData<<dec<<endl;
+	<<" raw data: "<<hex<<partitionData<<dec;
 
     TBRecord tbr( tbLinkInputNumber, rmb);   
 
@@ -297,8 +306,10 @@ void LinkDataXMLReader::startElement(const XMLCh* const uri,
 void  LinkDataXMLReader::endElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname) {
  
   string m_CurrElement = xMLCh2String(localname);
-
-  if(m_CurrElement=="bxData") endOfEvent_ = true; 
+//Corr MG 07/01/2008
+//  following line has to be changed
+//  if(m_CurrElement=="bxData") endOfEvent_ = true; 
+  if(m_CurrElement=="event") endOfEvent_ = true; 
   if(m_CurrElement=="rpctDataStream") endOfFile_ = true; 
 }
 
