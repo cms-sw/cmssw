@@ -19,33 +19,26 @@ cond::PoolConnectionProxy::PoolConnectionProxy(
 	  int connectionTimeOut,
 	  int idleConnectionCleanupPeriod):
   cond::IConnectionProxy(connectionServiceHandle,con,connectionTimeOut,idleConnectionCleanupPeriod),
+  m_datasvc(0),
   m_transaction( 0 ),
   m_transactionCounter( 0 ),
-  m_catalog( new pool::IFileCatalog ) 
+  m_catalog( new pool::IFileCatalog )
 {
   std::string catconnect("pfncatalog_memory://POOL_RDBMS?");
   catconnect.append(con);
   m_catalog->setWriteCatalog(catconnect);
   m_catalog->connect();
   m_catalog->start();
-
-  m_datasvc=pool::DataSvcFactory::instance(m_catalog);
-  pool::DatabaseConnectionPolicy policy;
-  policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
-  policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
-  policy.setReadMode(pool::DatabaseConnectionPolicy::READ);
-  m_datasvc->session().setDefaultConnectionPolicy(policy);
-
 }
 cond::PoolConnectionProxy::~PoolConnectionProxy(){
   //std::cout<<"PoolConnectionProxy::~PoolConnectionProxy"<<std::endl;
   m_catalog->commit();
   m_catalog->disconnect();
   //m_datasvc->session().disconnectAll();
-  delete m_transaction;
-  delete m_datasvc;
+  if(m_transaction) delete m_transaction;
+  //delete m_datasvc;
   delete m_catalog;
-  m_datasvc=0;
+  //m_datasvc=0;
 }
 cond::ITransaction&  
 cond::PoolConnectionProxy::transaction(){
@@ -60,6 +53,14 @@ cond::PoolConnectionProxy::poolDataSvc(){
 }
 void 
 cond::PoolConnectionProxy::connect(){
+  if(!m_datasvc){
+    m_datasvc=pool::DataSvcFactory::instance(m_catalog);
+    pool::DatabaseConnectionPolicy policy;
+    policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
+    policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
+    policy.setReadMode(pool::DatabaseConnectionPolicy::READ);
+    m_datasvc->session().setDefaultConnectionPolicy(policy);
+  }
   /*m_datasvc=pool::DataSvcFactory::instance(m_catalog);
   pool::DatabaseConnectionPolicy policy;
   policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
@@ -75,6 +76,8 @@ void
 cond::PoolConnectionProxy::disconnect(){
   m_datasvc->transaction().commit();
   m_datasvc->session().disconnectAll();
+  delete m_datasvc;
+  m_datasvc=0;
 }
 void 
 cond::PoolConnectionProxy::reactOnStartOfTransaction( const ITransaction* transactionSubject ){
