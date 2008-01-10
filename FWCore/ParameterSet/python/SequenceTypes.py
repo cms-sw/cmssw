@@ -115,7 +115,7 @@ class _SequenceOpAids(_Sequenceable):
     def dumpSequenceConfig(self):
         return '('+self.__left.dumpSequenceConfig()+','+self.__right.dumpSequenceConfig()+')'
     def dumpSequencePython(self):
-        return '('+self.__left.dumpSequencePython()+'*'+self.__right.dumpSequencePython()+')'
+        return self.__left.dumpSequencePython()+'*'+self.__right.dumpSequencePython()
     def _findDependencies(self,knownDeps,presentDeps):
         #do left first and then right since right depends on left
         self.__left._findDependencies(knownDeps,presentDeps)
@@ -163,7 +163,7 @@ class _SequenceOpFollows(_Sequenceable):
     def dumpSequenceConfig(self):
         return '('+self.__left.dumpSequenceConfig()+'&'+self.__right.dumpSequenceConfig()+')'
     def dumpSequencePython(self):
-        return '('+self.__left.dumpSequencePython()+'+'+self.__right.dumpSequencePython()+')'
+        return self.__left.dumpSequencePython()+'+'+self.__right.dumpSequencePython()
     def _findDependencies(self,knownDeps,presentDeps):
         oldDepsL = presentDeps.copy()
         oldDepsR = presentDeps.copy()
