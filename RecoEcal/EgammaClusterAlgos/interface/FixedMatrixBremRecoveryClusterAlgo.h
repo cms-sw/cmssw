@@ -7,6 +7,8 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/BremRecoveryPhiRoadAlgo.h"
+
 #include <vector>
 
 
@@ -28,6 +30,7 @@ class FixedMatrixBremRecoveryClusterAlgo
 			  double eb_sc_road_phisize = 0.80, // Search window in phi - Barrel
 			  double ec_sc_road_etasize = 0.14, // Search window in eta - Endcap
 			  double ec_sc_road_phisize = 0.40, // Search window in eta - Endcap
+			  bool dynamicPhiRoad = true,
 			  double theSeedTransverseEnergyThreshold = 0.40,
 			  VerbosityLevel the_verbosity = pERROR
 			  )
@@ -40,8 +43,17 @@ class FixedMatrixBremRecoveryClusterAlgo
       ec_rdphi_ = ec_sc_road_phisize / 2;
 
       seedTransverseEnergyThreshold = theSeedTransverseEnergyThreshold;
+      dynamicPhiRoad_ = dynamicPhiRoad;
+      if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo();
+
       verbosity = the_verbosity;
     }
+
+  // destructor
+  ~FixedMatrixBremRecoveryClusterAlgo() 
+  {
+     if (dynamicPhiRoad_) delete phiRoadAlgo_;
+  } 
 
   void setVerbosity(VerbosityLevel the_verbosity)
     {
@@ -72,7 +84,9 @@ class FixedMatrixBremRecoveryClusterAlgo
   double ec_rdphi_;
   
   double seedTransverseEnergyThreshold;
-  
+  bool dynamicPhiRoad_;  
+  BremRecoveryPhiRoadAlgo *phiRoadAlgo_;
+
   reco::SuperClusterCollection superclusters_v;
   
 };

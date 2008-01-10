@@ -1,4 +1,5 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/FixedMatrixBremRecoveryClusterAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/BremRecoveryPhiRoadAlgo.h"
 
 reco::SuperClusterCollection FixedMatrixBremRecoveryClusterAlgo::makeSuperClusters(reco::BasicClusterRefVector & clustersCollection)
 {
@@ -49,11 +50,12 @@ void FixedMatrixBremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClus
       if ((*currentSeed)->energy() * sin((*currentSeed)->position().theta()) < seedTransverseEnergyThreshold) break;
 
       // if yes, make it a seed for a new SuperCluster:
-      double energy_ = (*currentSeed)->energy();
+      double energy = (*currentSeed)->energy();
       math::XYZVector position_((*currentSeed)->position().X(), 
 				(*currentSeed)->position().Y(), 
 				(*currentSeed)->position().Z());
-      position_ *= energy_;
+      position_ *= energy;
+
 
       if (verbosity <= pINFO)
 	{
@@ -68,10 +70,17 @@ void FixedMatrixBremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClus
       reco::basicCluster_iterator currentCluster = currentSeed + 1;
       while (currentCluster != clusters_v.end())
 	{
+
+	  // if dynamic phi road is enabled then compute the phi road for a cluster
+ 	  // of energy of existing clusters + the candidate cluster.
+	  if (dynamicPhiRoad_) {
+             phiRoad = phiRoadAlgo_->endcapPhiRoad(energy + (*currentCluster)->energy());
+          }
+
 	  if (match(*currentSeed, *currentCluster, etaRoad, phiRoad))
 	    {
 	      constituentClusters.push_back(*currentCluster);
-	      energy_   += (*currentCluster)->energy();
+	      energy   += (*currentCluster)->energy();
 	      position_ += (*currentCluster)->energy() * math::XYZVector((*currentCluster)->position().X(), 
 									 (*currentCluster)->position().Y(), 
 									 (*currentCluster)->position().Z()); 
@@ -85,14 +94,14 @@ void FixedMatrixBremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClus
 	  else currentCluster++;
 	}
 
-      position_ /= energy_;
+      position_ /= energy;
 
       if (verbosity <= pINFO)
 	{
 	  std::cout << "Final SuperCluster R = " << position_.Rho() << std::endl;
 	}
 
-      reco::SuperCluster newSuperCluster(energy_, 
+      reco::SuperCluster newSuperCluster(energy, 
 					 math::XYZPoint(position_.X(), position_.Y(), position_.Z()), 
 					 (*currentSeed), 
 					 constituentClusters);
