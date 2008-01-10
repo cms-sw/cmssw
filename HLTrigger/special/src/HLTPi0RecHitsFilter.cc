@@ -51,7 +51,7 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
 HLTPi0RecHitsFilter::~HLTPi0RecHitsFilter()
 {
  
-  TimingReport::current()->dump(std::cout);
+  //  TimingReport::current()->dump(std::cout);
 
 }
 
@@ -64,10 +64,10 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace std;
 
   // Timer
-  const std::string category = "AlCaPi0RecHitsProducer";
-  TimerStack timers;
-  string timerName = category + "::Total";
-  timers.push(timerName);
+  //  const std::string category = "AlCaPi0RecHitsProducer";
+  //TimerStack timers;
+  //string timerName = category + "::Total";
+  //timers.push(timerName);
 
   bool accept=false;
 
@@ -103,8 +103,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (energy > clusSeedThr_) seeds.push_back(*itb);
   }
 
-  timerName = category + "::readEBRecHitsCollection";
-  timers.push(timerName);
+  //timerName = category + "::readEBRecHitsCollection";
+  //timers.push(timerName);
 
 
   // Initialize the Position Calc
@@ -237,8 +237,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
   }
   
-  timerName = category + "::makeSimpleClusters";
-  timers.pop_and_push(timerName);
+  //timerName = category + "::makeSimpleClusters";
+  //timers.pop_and_push(timerName);
 
 
   // Selection, based on Simple clustering
@@ -294,8 +294,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     }
 
-  timerName = category + "::makePi0Cand";
-  timers.pop_and_push(timerName);
+  //timerName = category + "::makePi0Cand";
+  //timers.pop_and_push(timerName);
 
 
   //cout<<" "<<endl;
@@ -371,14 +371,12 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		}
 	
 	    }
-	  //	    intbc++;
-	  
 	}
 
 
 
-      timerName = category + "::preparePi0RecHitsCollection";
-      timers.pop_and_push(timerName);
+      //timerName = category + "::preparePi0RecHitsCollection";
+      //timers.pop_and_push(timerName);
 
 
       //Put selected information in the event
@@ -395,10 +393,10 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  accept = true;
 	}
   
-      timerName = category + "::storePi0RecHitsCollection";
-      timers.pop_and_push(timerName);
+      //timerName = category + "::storePi0RecHitsCollection";
+      //timers.pop_and_push(timerName);
 
-      timers.clear_stack();
+      //timers.clear_stack();
       
       delete recHitsEB_map;
       delete topology_p;
