@@ -37,6 +37,7 @@ class TrackingTruthValid  : public edm::EDAnalyzer {
   MonitorElement* meTPMass;
   MonitorElement* meTPCharge; 
   MonitorElement* meTPId;
+  MonitorElement* meTPProc;
   MonitorElement* meTPAllHits;
   MonitorElement* meTPMatchedHits;
   MonitorElement* meTPPt;

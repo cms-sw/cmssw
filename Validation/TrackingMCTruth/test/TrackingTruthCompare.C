@@ -3,6 +3,8 @@ void TrackingTruthCompare()
   
   gROOT ->Reset();
   char*  sfilename = "trackingtruthhisto.root";
+  // char*  rfilename = "mergedtruthhisto.root";
+  //char*  rfilename = "/localscratch/azzi/Validation/CMSSW_1_8_0_pre5/src/Validation/TrackingMCTruth/test/trackingtruthhisto.root";
   char*  rfilename = "../data/trackingtruthhisto.root";
   
   delete gROOT->GetListOfFiles()->FindObject(rfilename);
@@ -43,7 +45,7 @@ void TrackingTruthCompare()
       
       TObjString * rversion = dynamic_cast< TObjString*> (ref_obj);
       sprintf(rver, "%s", rversion->GetName());
-      std::cout<<" Ref. version =" << rver<<std::endl;
+      std::cout<<" Ref. version (OLD)=" << rver<<std::endl;
       break;
     }
   }
@@ -58,7 +60,7 @@ void TrackingTruthCompare()
       
       TObjString * cversion = dynamic_cast< TObjString*> (new_obj);
       sprintf(cver, "%s", cversion->GetName());
-      std::cout<<" Cur version =" << cver<<std::endl;
+      std::cout<<" Cur version (FIX)=" << cver<<std::endl;
       break;
       
     }
@@ -79,12 +81,14 @@ void TrackingTruthCompare()
     TH1* meTPmass;
     TH1* meTPcharge;
     TH1* meTPid;
+    TH1* meTPproc;
     TH1* meTPhits;
     TH1* meTPmhits;
     
     TH1* newmeTPmass;
     TH1* newmeTPcharge;
     TH1* newmeTPid;
+    TH1* newmeTPproc;
     TH1* newmeTPhits;
     TH1* newmeTPmhits;
     
@@ -139,12 +143,30 @@ void TrackingTruthCompare()
     leg.AddEntry(newmeTPid,cver , "l");
     leg.Draw();
 
+
+    sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPProc");
+    rfile->GetObject( histo,meTPproc);
+    sfile->GetObject(histo,newmeTPproc);
+    meTPproc;
+    newmeTPproc;
+    TrackingParticleGV->cd(4);
+    meTPproc->SetLineColor(2);
+    newmeTPproc->SetLineColor(4);
+    newmeTPproc->SetLineStyle(2);
+    meTPproc->Draw();
+    newmeTPproc->Draw("sames");
+    myPV->PVCompute(meTPproc , newmeTPproc , te );
+    leg.Clear();
+    leg.AddEntry(meTPproc,rver , "l");
+    leg.AddEntry(newmeTPproc,cver , "l");
+    leg.Draw();
+
     sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPAllHits");
     rfile->GetObject( histo,meTPhits);
     sfile->GetObject(histo,newmeTPhits);
     meTPhits;
     newmeTPhits;
-    TrackingParticleGV->cd(4);
+    TrackingParticleGV->cd(5);
     meTPhits->SetLineColor(2);
     newmeTPhits->SetLineColor(4);
     newmeTPhits->SetLineStyle(2);
@@ -161,7 +183,7 @@ void TrackingTruthCompare()
     sfile->GetObject(histo,newmeTPmhits);
     meTPmhits;
     newmeTPmhits;
-    TrackingParticleGV->cd(5);
+    TrackingParticleGV->cd(6);
     meTPmhits->SetLineColor(2);
     newmeTPmhits->SetLineColor(4);
     newmeTPmhits->SetLineStyle(2);
@@ -173,8 +195,8 @@ void TrackingTruthCompare()
     leg.AddEntry(newmeTPmhits,cver , "l");
     leg.Draw();
     
-    TrackingParticleGV->Print("TPGeneralVariables.eps");
-    TrackingParticleGV->Print("TPGeneralVariables.gif");
+    TrackingParticleGV->Print("TPPlot1.eps");
+    TrackingParticleGV->Print("TPPlot1.gif");
  }
 
  if (1) {
@@ -335,8 +357,8 @@ void TrackingTruthCompare()
    leg.AddEntry(newmeTPlip,cver , "l");
    leg.Draw();
 
-   TrackingParticleTV->Print("TPGeneralVariable.eps");
-   TrackingParticleTV->Print("TPGeneralVariable.gif");
+   TrackingParticleTV->Print("TPPlot2.eps");
+   TrackingParticleTV->Print("TPPlot2.gif");
  }
 }
 

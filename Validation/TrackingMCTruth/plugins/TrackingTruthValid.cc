@@ -36,7 +36,7 @@ void TrackingTruthValid::beginJob(const edm::ParameterSet& conf) {}
 
 TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf) {
   
-  outputFile = conf.getUntrackedParameter<string>("outputFile","trackingtruthhisto.root");
+  outputFile = conf.getParameter<std::string>("outputFile");
   src_ =  conf.getParameter<edm::InputTag>( "src" );
   
   dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
@@ -47,8 +47,9 @@ TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf) {
   meTPMass = dbe_->book1D("TPMass","Tracking Particle Mass",100, -1,+5.);
   meTPCharge = dbe_->book1D("TPCharge","Tracking Particle Charge",10, -5, 5);
   meTPId = dbe_->book1D("TPId","Tracking Particle Id",500, -5000, 5000);
-  meTPAllHits = dbe_->book1D("TPAllHits", "Tracking Particle All Hits", 200, 0, 200);
-  meTPMatchedHits = dbe_->book1D("TPMatchedHits", "Tracking Particle Matched Hits", 100, 0, 100);
+  meTPProc = dbe_->book1D("TPProc","Tracking Particle Proc",20, 0, 20);
+  meTPAllHits = dbe_->book1D("TPAllHits", "Tracking Particle All Hits", 200, -0.5, 199.5);
+  meTPMatchedHits = dbe_->book1D("TPMatchedHits", "Tracking Particle Matched Hits", 100, -0.5, 99.5);
   meTPPt = dbe_->book1D("TPPt", "Tracking Particle Pt",100, 0, 100.);
   meTPEta = dbe_->book1D("TPEta", "Tracking Particle Eta",100, -7., 7.);
   meTPPhi = dbe_->book1D("TPPhi", "Tracking Particle Phi",100, -4., 4);
@@ -64,9 +65,12 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
 
   edm::Handle<TrackingParticleCollection>  TruthTrackContainer ;
   edm::Handle<TrackingVertexCollection>    TruthVertexContainer;
-  event.getByLabel(src_,TruthTrackContainer );
-  event.getByType(TruthVertexContainer);
 
+  event.getByLabel(src_,TruthTrackContainer );
+  event.getByLabel(src_,TruthVertexContainer);
+
+  std::cout << "Using Collection " << src_ << std::endl;
+  
   const TrackingParticleCollection *tPC   = TruthTrackContainer.product();
   const TrackingVertexCollection   *tVC   = TruthVertexContainer.product();
 
@@ -79,10 +83,12 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
   */
 
   cout << "Found " << tPC -> size() << " tracks and " << tVC -> size() << " vertices." <<endl;
+   
 
 // Loop over TrackingParticle's
 
   for (TrackingParticleCollection::const_iterator t = tPC -> begin(); t != tPC -> end(); ++t) {
+    //if(t -> trackPSimHit().size() ==0) cout << " Track with 0 SimHit " << endl;
 
 
     meTPMass->Fill(t->mass());
@@ -92,6 +98,8 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
     meTPEta->Fill(t->momentum().eta());
     meTPPhi->Fill(t->momentum().Phi());
     meTPAllHits->Fill(t->trackPSimHit().size());
+    //get the process of the first hit
+    if(t -> trackPSimHit().size() !=0) meTPProc->Fill( t -> trackPSimHit().front().processType());
     meTPMatchedHits->Fill(t->matchedHit());
     meTPVtxX->Fill(sqrt(t->vertex().x()));
     meTPVtxY->Fill(sqrt(t->vertex().y()));
@@ -99,7 +107,7 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
     meTPtip->Fill(sqrt(t->vertex().perp2()));
     meTPlip->Fill(sqrt(t->vertex().z()));
 
-    /*
+      /*
    // Compare momenta from sources
     cout << "T.P.   Track mass, Momentum, q , ID, & Event # "
           << t -> mass()  << " " 
