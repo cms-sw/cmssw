@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/01/10 11:17:45 $
- * $Revision: 1.28 $
+ * $Date: 2008/01/10 18:37:17 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -132,11 +132,11 @@ void EEClusterTask::setup(void){
     meBCEne_->setAxisTitle("energy (GeV)", 1);
 
     sprintf(histo, "EECLT BC number");
-    meBCNum_ = dbe_->book1D(histo, histo, 100, 0., 200.);
+    meBCNum_ = dbe_->book1D(histo, histo, 100, 0., 150.);
     meBCNum_->setAxisTitle("number of clusters", 1);
 
     sprintf(histo, "EECLT BC size");
-    meBCSiz_ = dbe_->book1D(histo, histo, 25, 0., 25.);
+    meBCSiz_ = dbe_->book1D(histo, histo, 100, 0., 150.);
     meBCSiz_->setAxisTitle("cluster size", 1);
 
     sprintf(histo, "EECLT BC energy map EE +");
@@ -264,11 +264,11 @@ void EEClusterTask::setup(void){
     meSCEne_->setAxisTitle("energy (GeV)", 1);
 
     sprintf(histo, "EECLT SC number");
-    meSCNum_ = dbe_->book1D(histo, histo, 100, 0., 200.);
+    meSCNum_ = dbe_->book1D(histo, histo, 50, 0., 50.);
     meSCNum_->setAxisTitle("number of clusters", 1);
 
     sprintf(histo, "EECLT SC size");
-    meSCSiz_ = dbe_->book1D(histo, histo, 25, 0., 25.);
+    meSCSiz_ = dbe_->book1D(histo, histo, 50, 0., 50.);
     meSCSiz_->setAxisTitle("cluster size", 1);
 
     sprintf(histo, "EECLT island s1s9");
