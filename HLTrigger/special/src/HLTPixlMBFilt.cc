@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/30 15:56:11 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/05 16:43:02 $
+ *  $Revision: 1.2 $
  *
  *  \author Mika Huhtinen
  *
@@ -20,8 +20,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -44,7 +43,7 @@ HLTPixlMBFilt::HLTPixlMBFilt(const edm::ParameterSet& iConfig) :
   LogDebug("") << "Requesting tracks from same vertex eta-phi separation by " << min_sep_;
 
    //register your products
-  produces<reco::HLTFilterObjectWithRefs>();
+  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPixlMBFilt::~HLTPixlMBFilt()
@@ -61,6 +60,7 @@ bool HLTPixlMBFilt::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
    using namespace edm;
    using namespace reco;
+   using namespace trigger;
 
    // All HLT filters must create and fill an HLT filter object,
    // recording any reconstructed physics objects satisfying (or not)
@@ -159,15 +159,12 @@ bool HLTPixlMBFilt::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // we now move them to the filterobject
 
    // The filter object
-   auto_ptr<HLTFilterObjectWithRefs> filterobject (new HLTFilterObjectWithRefs(path(),module()));
-   // Ref to Candidate objects to be recorded in filter object
-   RefToBase<Candidate> ref;
+   auto_ptr<TriggerFilterObjectWithRefs> filterobject (new TriggerFilterObjectWithRefs(path(),module()));
 
    if (accept) {
      for (unsigned int ipos=0; ipos < itstore.size(); ipos++) {
        int iaddr=itstore.at(ipos);
-       ref=RefToBase<Candidate>(RecoChargedCandidateRef(tracks,iaddr));
-       filterobject->putParticle(ref);
+       filterobject->addObject(TriggerTrack,RecoChargedCandidateRef(tracks,iaddr));
      }
    }
    // put filter object into the Event
