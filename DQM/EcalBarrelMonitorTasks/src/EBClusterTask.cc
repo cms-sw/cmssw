@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/12/29 13:38:56 $
- * $Revision: 1.39 $
+ * $Date: 2008/01/04 17:06:59 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -310,8 +310,8 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(BasicClusterCollection_, pBasicClusters) ) {
 
-    Int_t nbcc = pBasicClusters->size();
-    meBCNum_->Fill(float(nbcc));
+    int nbcc = pBasicClusters->size();
+    if ( nbcc > 0 ) meBCNum_->Fill(float(nbcc));
 
     BasicClusterCollection::const_iterator bclusterItr;
     for ( bclusterItr = pBasicClusters->begin(); bclusterItr != pBasicClusters->end(); ++bclusterItr ) {
@@ -354,7 +354,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(SuperClusterCollection_, pSuperClusters) ) {
 
     Int_t nscc = pSuperClusters->size();
-    meSCNum_->Fill(float(nscc));
+    if ( nscc > 0 ) meSCNum_->Fill(float(nscc));
 
     Handle<BasicClusterShapeAssociationCollection> pClusterShapeAssociation;
 
@@ -379,20 +379,19 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       mes9s25_->Fill(shape->e3x3()/shape->e5x5());
 
       // look for the two most energetic super clusters
-      if (nscc>1) {
-	if (sClusterItr->energy()>sc1_p.Energy()) {
+      if ( nscc >= 2 ) {
+	if ( sClusterItr->energy() > sc1_p.Energy() ) {
 	  sc2_p=sc1_p;
 	  sc1_p.SetPtEtaPhiE(sClusterItr->energy()*sin(sClusterItr->position().theta()),
 			     sClusterItr->eta(), sClusterItr->phi(), sClusterItr->energy());
-	}
-	else if (sClusterItr->energy()>sc2_p.Energy()) {
+	} else if ( sClusterItr->energy() > sc2_p.Energy() ) {
 	  sc2_p.SetPtEtaPhiE(sClusterItr->energy()*sin(sClusterItr->position().theta()),
 			     sClusterItr->eta(), sClusterItr->phi(), sClusterItr->energy());
 	}
       }
     }
     // Get the invariant mass of the two most energetic super clusters
-    if (nscc>1) {
+    if ( nscc >= 2 ) {
       TLorentzVector sum = sc1_p+sc2_p;
       meInvMass_->Fill(sum.M());
     }
@@ -402,4 +401,3 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   }
 
 }
-

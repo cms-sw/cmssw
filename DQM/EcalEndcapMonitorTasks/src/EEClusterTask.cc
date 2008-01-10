@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2007/12/29 13:38:55 $
- * $Revision: 1.26 $
+ * $Date: 2008/01/04 17:06:58 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -419,7 +419,8 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(BasicClusterCollection_, pIslandEndcapBasicClusters) ) {
 
-    meBCNum_->Fill(float(pIslandEndcapBasicClusters->size()));
+    int nbcc = pIslandEndcapBasicClusters->size();
+    if (nbcc>0) meBCNum_->Fill(float(nbcc));
 
     BasicClusterCollection::const_iterator bCluster;
     for ( bCluster = pIslandEndcapBasicClusters->begin(); bCluster != pIslandEndcapBasicClusters->end(); bCluster++ ) {
@@ -427,7 +428,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       meBCEne_->Fill(bCluster->energy());
       meBCSiz_->Fill(float(bCluster->getHitsByDetId().size()));
 
-      if(bCluster->eta()>0) {
+      if ( bCluster->eta() > 0 ) {
 	meBCEneFwdMap_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
 	meBCEneFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() );
 	meBCEneFwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() );
@@ -443,8 +444,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 	meBCSizFwdMap_->Fill(bCluster->x(), bCluster->y(), float(bCluster->getHitsByDetId().size()) );
 	meBCSizFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), float(bCluster->getHitsByDetId().size()) );
         meBCSizFwdMapProjPhi_->Fill( bCluster->phi(), float(bCluster->getHitsByDetId().size()) );
-      }
-      else {
+      } else {
 	meBCEneBwdMap_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
 	meBCEneBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() );
 	meBCEneBwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() );
@@ -474,8 +474,8 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(SuperClusterCollection_, pIslandEndcapSuperClusters) ) {
 
-    Int_t nscc = pIslandEndcapSuperClusters->size();
-    meSCNum_->Fill(float(nscc));
+    int nscc = pIslandEndcapSuperClusters->size();
+    if ( nscc > 0 ) meSCNum_->Fill(float(nscc));
 
     Handle<BasicClusterShapeAssociationCollection> pClusterShapeAssociation;
 
@@ -500,19 +500,18 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       mes9s25_->Fill(shape->e3x3()/shape->e5x5());
 
       // look for the two most energetic super clusters
-      if (sCluster->energy()>sc1_p.Energy()) {
+      if ( sCluster->energy() > sc1_p.Energy() ) {
 	sc2_p=sc1_p;
 	sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
 			   sCluster->eta(), sCluster->phi(), sCluster->energy());
-      }
-      else if (sCluster->energy()>sc2_p.Energy()) {
+      } else if ( sCluster->energy() > sc2_p.Energy() ) {
 	sc2_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
 			   sCluster->eta(), sCluster->phi(), sCluster->energy());
       }
 
     }
     // Get the invariant mass of the two most energetic super clusters
-    if (nscc>1) {
+    if ( nscc >= 2) {
       TLorentzVector sum = sc1_p+sc2_p;
       meInvMass_->Fill(sum.M());
     }
@@ -522,4 +521,3 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
   }
 
 }
-
