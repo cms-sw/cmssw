@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/01/04 17:06:58 $
- * $Revision: 1.27 $
+ * $Date: 2008/01/10 11:17:45 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -136,7 +136,7 @@ void EEClusterTask::setup(void){
     meBCNum_->setAxisTitle("number of clusters", 1);
 
     sprintf(histo, "EECLT BC size");
-    meBCSiz_ = dbe_->book1D(histo, histo, 10, 0., 10.);
+    meBCSiz_ = dbe_->book1D(histo, histo, 25, 0., 25.);
     meBCSiz_->setAxisTitle("cluster size", 1);
 
     sprintf(histo, "EECLT BC energy map EE +");
@@ -268,7 +268,7 @@ void EEClusterTask::setup(void){
     meSCNum_->setAxisTitle("number of clusters", 1);
 
     sprintf(histo, "EECLT SC size");
-    meSCSiz_ = dbe_->book1D(histo, histo, 10, 0., 10.);
+    meSCSiz_ = dbe_->book1D(histo, histo, 25, 0., 25.);
     meSCSiz_->setAxisTitle("cluster size", 1);
 
     sprintf(histo, "EECLT island s1s9");
