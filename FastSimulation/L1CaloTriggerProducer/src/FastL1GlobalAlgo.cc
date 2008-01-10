@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.32 2008/01/09 22:55:04 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.33 2008/01/10 00:25:30 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -354,6 +354,8 @@ FastL1GlobalAlgo::FillEgammas(edm::Event const& e) {
 // ------------ Fill MET 1: loop over towers ------------
 void
 FastL1GlobalAlgo::FillMET(edm::Event const& e) {
+  m_METs.clear();
+
   //std::vector< edm::Handle<CaloTowerCollection> > input;
   //e.getManyByType(input);
   edm::Handle<CaloTowerCollection> input;
@@ -468,6 +470,8 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
 // ------------ Fill MET 2: loop over regions ------------
 void
 FastL1GlobalAlgo::FillMET() {
+  m_METs.clear();
+
   //double sum_e = 0.0;
   double sum_et = 0.0;
   double sum_ex = 0.0;
