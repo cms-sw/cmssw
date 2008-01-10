@@ -377,7 +377,7 @@ class _UsingNode(cms._ParameterTypeBase):
         self.s = s
         self.loc = loc
         self.file = _fileStack[-1]
-    def dumpPython(self, options=PrintOptions()):
+    def dumpPython(self, options):
         if options.isCfg:
             return "process."+self.label
         else:
@@ -565,7 +565,7 @@ class _MakeFrom(object):
         values = self._tryUsingBlocks(values)
         d = dict(values)
         if label not in d:
-            raise pp.ParseFatalException(s,loc,"the file "+inc.fileName+" does not contain a "+label
+            raise pp.ParseFatalException(s,loc,"the file "+inc.filename+" does not contain a "+label
                                          +"\n from file "+_fileStack[-1])
         return d[label]
 
@@ -677,28 +677,35 @@ class _LeafNode(object):
         if self.__isNot:
             v= ~v
         return v
-    def cfgRepr(self):
-        return "process."+str(self)
+    def dumpPython(self, options):
+        result = ''
+        if self.__isNot:
+            result += '~'
+        if options.isCfg:
+            result += "process."
+        return result + self.__label
+
 class _AidsOp(object):
     def __init__(self,left,right):
         self.__left = left
         self.__right = right
     def __str__(self):
         return '('+str(self.__left)+','+str(self.__right)+')'
-    def cfgRepr(self):
-        return '('+self.__left.cfgRepr()+'*'+self.__right.cfgRepr()+')'
+    def dumpPython(self, options):
+        return self.__left.dumpPython(options)+'*'+self.__right.dumpPython(options)
     def make(self,process):
         left = self.__left.make(process)
         right = self.__right.make(process)
         return left*right
+
 class _FollowsOp(object):
     def __init__(self,left,right):
         self.__left = left
         self.__right = right
     def __str__(self):
         return '('+str(self.__left)+'&'+str(self.__right)+')'
-    def cfgRepr(self):
-        return '('+self.__left.cfgRepr()+'+'+self.__right.cfgRepr()+')'
+    def dumpPython(self, options):
+        return self.__left.dumpPython(options)+'+'+self.__right.dumpPython(options)
     def make(self,process):
         left = self.__left.make(process)
         right = self.__right.make(process)
@@ -752,17 +759,12 @@ class _ModuleSeries(object):
     def __str__(self):
         return str(self.topNode)
     def __repr__(self):
-        # extra parentheses never killed anyone
-        result = "cms."+self.factory().__name__+"("+str(self)+")"
-        # for whatever reason, str(self) sticks with old punctuation
-        return result.replace(',','*').replace('&','+')
+        options = PrintOptions()
+        # probably don't want "process." everywhere
+        options.isCfg = False
+        return self.dumpPython(options)
     def dumpPython(self, options):
-        if options.isCfg:
-            return self.cfgRepr()
-        else:
-            return repr(self)
-    def cfgRepr(self):
-        return "cms."+self.factory().__name__+"("+self.topNode.cfgRepr()+")"
+        return "cms."+self.factory().__name__+"("+self.topNode.dumpPython(options)+")"
 
 
 class _Sequence(_ModuleSeries):
@@ -848,9 +850,6 @@ class _ReplaceNode(object):
         self.setter = setter
         self.forErrorMessage =(s,loc,_fileStack[-1])
         self.multiplesAllowed = setter.multiplesAllowed
-    def setPrefix(self, prefix):
-        """Used to add the word 'process' to included nodes"""
-        self.setter.prefix = prefix
     def getValue(self):
         return self.setter.value
     value = property(fget = getValue,
@@ -877,9 +876,12 @@ class _ReplaceNode(object):
             return
         self._recurse(path[1:],getattr(obj,path[0]))
     def __repr__(self):
+        options = PrintOptions()
+        return self.dumpPython(options)
+    def dumpPython(self, options):
         # translate true/false to True/False
         s = self.getValue()
-        return '.'.join(self.path)+repr(self.setter)
+        return '.'.join(self.path)+self.setter.dumpPython(options)
 
 class _ReplaceSetter(object):
     """Used to 'set' an unknown type of value from a Replace node"""
@@ -887,7 +889,6 @@ class _ReplaceSetter(object):
         self.value = value
         #one one replace of this type is allowed per configuration
         self.multiplesAllowed = False
-        self.prefix = ""
     def setValue(self,obj,attr):
         theAt = getattr(obj,attr)
         #want to change the value, not the actual parameter
@@ -897,11 +898,11 @@ class _ReplaceSetter(object):
         v=theAt._valueFromString(self.value)
         v.setIsTracked(theAt.isTracked())
         setattr(obj,attr,v)
-    def __repr__(self):
+    def dumpPython(self, options):
        # FIXME not really a repr, because of the = sign
-       return " = "+self._pythonValue(self.value)
+       return " = "+self._pythonValue(self.value, options)
     @staticmethod
-    def _pythonValue(value):
+    def _pythonValue(value, options):
         #if it's a number, we don't want quotes
         result = str(value)
         nodots = result.replace('.','')
@@ -911,6 +912,8 @@ class _ReplaceSetter(object):
             result = 'True'
         elif result == 'false':
             result = 'False'
+        elif len(value) == 0:
+            result = repr(value)
         elif result[0] == '[':
             l = eval(result)
             first = True
@@ -919,7 +922,7 @@ class _ReplaceSetter(object):
             for x in l:
                 if not first:
                     result += ", "
-                element = _ReplaceSetter._pythonValue(x) 
+                element = _ReplaceSetter._pythonValue(x, options) 
                 if element.find('InputTag') != -1:
                    isVInputTag = True
                 result += element
@@ -932,7 +935,7 @@ class _ReplaceSetter(object):
             result = repr(cms.InputTag._valueFromString(result))
         else:
             # need the quotes
-            result = repr(result)
+            result = repr(value)
         return result
 
  
@@ -945,8 +948,8 @@ class _ParameterReplaceSetter(_ReplaceSetter):
         self.value.setIsTracked(theAt.isTracked())
         setattr(obj,attr,self.value)
     @staticmethod
-    def _pythonValue(value):
-        return repr(value)
+    def _pythonValue(value, options):
+        return value.dumpPython(options)
 
 class _VPSetReplaceSetter(_ParameterReplaceSetter):
     """Used to 'set' a VPSet replace node"""
@@ -965,8 +968,8 @@ class _SimpleListTypeExtendSetter(_ReplaceSetter):
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.extend(theAt._valueFromString(self.value))
-    def __repr__(self):
-        return ".extend("+self._pythonValue(self.value)+")"
+    def dumpPython(self, options):
+        return ".extend("+self._pythonValue(self.value, options)+")"
 
 
 class _SimpleListTypeAppendSetter(_ReplaceSetter):
@@ -977,8 +980,8 @@ class _SimpleListTypeAppendSetter(_ReplaceSetter):
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.append(theAt._valueFromString([self.value])[0])
-    def __repr__(self):
-        return ".append("+self._pythonValue(self.value)+")"
+    def dumpPython(self, options):
+        return ".append("+self._pythonValue(self.value, options)+")"
 
 
 
@@ -990,8 +993,8 @@ class _VPSetExtendSetter(_VPSetReplaceSetter):
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.extend(self.value)
-    def __repr__(self):
-        return ".extend("+self._pythonValue(self.value)+")"
+    def dumpPython(self, options):
+        return ".extend("+self._pythonValue(self.value, options)+")"
 
 
 
@@ -1003,8 +1006,8 @@ class _VPSetAppendSetter(_PSetReplaceSetter):
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.append(self.value)
-    def __repr__(self):
-        return ".append("+self._pythonValue(self.value)+")"
+    def dumpPython(self, options):
+        return ".append("+self._pythonValue(self.value, options)+")"
 
 
 
@@ -1036,15 +1039,17 @@ class _IncrementFromVariableSetter(_ReplaceSetter):
                 theAt.append(self.value.value())
         except Exception, e:
             raise RuntimeError("replacing with "+self.oldValue+" failed because\n"+str(e))
-    def __repr__(self):
+    def dumpPython(self, options):
         v = str(self.value)
+        if options.isCfg:
+            v = 'process.'+v
         # assume variables ending in s are plural
         if v[0] == '[':
            return ".extend("+v+")"
         elif v.endswith('s'):
-           return ".extend("+self.prefix+v+")"
+           return ".extend("+v+")"
         else:
-           return ".append("+self.prefix+v+")"
+           return ".append("+v+")"
 
         
 
@@ -1360,9 +1365,7 @@ def dumpPython(d, options):
             value.createFile(False)
             includes += value.dumpPython(options)+"\n"
         elif isinstance(value,_ReplaceNode):
-            if options.isCfg:
-                value.setPrefix("process.")
-            replaces += prefix+repr(value)+"\n"
+            replaces += prefix+value.dumpPython(options)+"\n"
         elif isinstance(value,_ModuleSeries):
             sequences += prefix+key+" = "+value.dumpPython(options)+"\n"
         elif isinstance(value,_Schedule):
@@ -2470,8 +2473,10 @@ process RECO = {
 #            print t[0][1]
             t=path.parseString('path p = {a,b}')
             self.assertEqual(str(t[0][1]),'(a,b)')            
-            self.checkRepr(t[0][1], 'cms.Path((a*b))')
-            self.assertEqual(t[0][1].cfgRepr(), 'cms.Path((process.a*process.b))')
+            self.checkRepr(t[0][1], 'cms.Path(a*b)')
+            options = PrintOptions()
+            options.isCfg = True
+            self.assertEqual(t[0][1].dumpPython(options), 'cms.Path(process.a*process.b)')
             pth = t[0][1].make(p)
             self.assertEqual(str(pth),'a*b')
             #print pth
@@ -2716,7 +2721,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'a.c')
-            self.checkRepr(t[0][1], "a.b.append(a.c)")
+            self.checkRepr(t[0][1], "a.b.append(process.a.c)")
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
             
@@ -2725,7 +2730,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'a.c')
-            self.checkRepr(t[0][1], "a.b.append(a.c)")
+            self.checkRepr(t[0][1], "a.b.append(process.a.c)")
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
 
