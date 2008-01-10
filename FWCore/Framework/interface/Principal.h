@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.9 2007/06/08 23:51:44 wmtan Exp $
+$Id: Principal.h,v 1.10 2007/06/22 23:26:32 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -105,6 +105,9 @@ namespace edm {
 
     void
     getAllProvenance(std::vector<Provenance const *> & provenances) const;
+
+    void
+    readImmediate() const;
 
     ProcessHistory const& processHistory() const;    
 

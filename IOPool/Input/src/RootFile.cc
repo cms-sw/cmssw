@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.105 2007/12/31 22:43:59 wmtan Exp $
+$Id: RootFile.cc,v 1.106 2008/01/03 19:22:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -570,6 +570,8 @@ namespace edm {
 			 runTree_.makeDelayedReader()));
     // Create a group in the run for each product
     runTree_.fillGroups(thisRun->groupGetter());
+    // Read in all the products now.
+    thisRun->readImmediate();
     ++fileIndexIter_;
     currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
     if (currentRun == startAtRun_ && fileIndexIter_->lumi_ < startAtLumi_) {
@@ -639,6 +641,8 @@ namespace edm {
 				     lumiTree_.makeDelayedReader()));
     // Create a group in the lumi for each product
     lumiTree_.fillGroups(thisLumi->groupGetter());
+    // Read in all the products now.
+    thisLumi->readImmediate();
     ++fileIndexIter_;
     currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
     if (currentRun == startAtRun_ && fileIndexIter_->lumi_ == startAtLumi_ && fileIndexIter_->event_ < startAtEvent_) {

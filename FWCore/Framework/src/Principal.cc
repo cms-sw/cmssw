@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.17 2007/10/15 15:17:59 paterno Exp $
+  $Id: Principal.cc,v 1.18 2007/11/07 08:04:54 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -410,6 +410,18 @@ namespace edm {
     provenances.clear();
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       if ((*i)->provenanceAvailable()) provenances.push_back(&(*i)->provenance());
+    }
+  }
+
+  void
+  Principal::readImmediate() const {
+    for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
+      if ((*i)->provenanceAvailable()) {
+	resolveProvenance(**i);
+        if (!(*i)->productUnavailable()) {
+	   resolveProduct(**i, false);
+	}
+      }
     }
   }
 

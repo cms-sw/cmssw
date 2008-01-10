@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.23 2007/08/29 21:43:29 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.24 2007/11/19 18:43:32 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -99,6 +99,7 @@ namespace edm {
     using Base::prodGetter;
     using Base::productRegistry;
     using Base::put;
+    using Base::readImmediate;
     using Base::size;
     using Base::store;
 
