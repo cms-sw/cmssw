@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.32 2008/01/05 05:28:52 wmtan Exp $
+$Id: OutputWorker.cc,v 1.33 2008/01/08 21:51:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -47,6 +47,11 @@ namespace edm {
   void
   OutputWorker::writeLumi(LuminosityBlockPrincipal const* lbp) {
     mod_->doWriteLuminosityBlock(*lbp);
+  }
+
+  void
+  OutputWorker::respondToOpenInputFile(FileBlock const* fb) {
+    mod_->doRespondToOpenInputFile(*fb);
   }
 
   void

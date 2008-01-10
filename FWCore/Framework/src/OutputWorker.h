@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.29 2008/01/05 05:28:52 wmtan Exp $
+$Id: OutputWorker.h,v 1.30 2008/01/08 21:51:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -51,6 +51,8 @@ namespace edm {
     void writeRun(RunPrincipal const* rp);
 
     void writeLumi(LuminosityBlockPrincipal const* lbp);
+
+    void respondToOpenInputFile(FileBlock const* fb);
 
     void respondToCloseInputFile(FileBlock const* fb);
 

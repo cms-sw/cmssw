@@ -1169,6 +1169,7 @@ namespace edm {
       readFile();
     }
     if(fb_) {
+      respondToOpenInputFile();
       openOutputFiles();
     }
     return fb_;
@@ -1726,7 +1727,7 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
 
     statemachine::Machine machine(this,
-                                  statemachine::SPARSE,
+                                  statemachine::DENSE,
                                   true,
                                   true);
 
@@ -1809,7 +1810,8 @@ namespace edm {
   }
 
   void EventProcessor::respondToOpenInputFile() {
-    // IMPLEMENTATION: NOT DONE
+    // IMPLEMENTATION: OK
+    schedule_->respondToOpenInputFile(*fb_);
     FDEBUG(1) << "\trespondToOpenInputFile\n";
   }
 

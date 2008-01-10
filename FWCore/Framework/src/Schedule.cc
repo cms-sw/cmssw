@@ -845,12 +845,16 @@ namespace edm {
     for_all(all_output_workers_, boost::bind(&OutputWorker::writeLumi, _1, &lbp));
   }
 
+  void Schedule::respondToOpenInputFile(FileBlock const& fb) {
+    for_all(all_output_workers_, boost::bind(&OutputWorker::respondToOpenInputFile, _1, &fb));
+  }
+
   void Schedule::respondToCloseInputFile(FileBlock const& fb) {
     for_all(all_output_workers_, boost::bind(&OutputWorker::respondToCloseInputFile, _1, &fb));
   }
 
   void Schedule::beginJob(EventSetup const& es) {
-    for_all(all_workers_, boost::bind(&OutputWorker::beginJob, _1, &es));
+    for_all(all_workers_, boost::bind(&Worker::beginJob, _1, &es));
   }
 
   std::vector<ModuleDescription const*>
