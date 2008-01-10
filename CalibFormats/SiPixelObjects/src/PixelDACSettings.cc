@@ -136,6 +136,11 @@ PixelDACSettings::PixelDACSettings(std::string filename):
 
 
 }
+// modified by MR on 10-01-2008 14:48:19
+PixelDACSettings::PixelDACSettings(PixelROCDACSettings &rocname):
+  PixelConfigBase("","","") {
+  dacsettings_.push_back(rocname) ;
+}
 
 PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tableMat): PixelConfigBase("","","")
 {
@@ -250,7 +255,7 @@ void PixelDACSettings::writeASCII(std::string dir) const {
   PixelModuleName module(dacsettings_[0].getROCName().rocname());
 
   std::string filename=dir+"/ROC_DAC_module_"+module.modulename()+".dat";
-   
+  std::cout << "[PixelDACSettings::writeASCII()] Writing to file " << filename << std::endl ; 
   std::ofstream out(filename.c_str());
   
   for(unsigned int i=0;i<dacsettings_.size();i++){
