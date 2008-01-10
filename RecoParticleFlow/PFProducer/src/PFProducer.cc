@@ -85,6 +85,11 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
+  debug_ = 
+    iConfig.getUntrackedParameter<bool>("debug",false);
+
+  pfAlgo_.setDebug( debug_ );
+
 }
 
 
