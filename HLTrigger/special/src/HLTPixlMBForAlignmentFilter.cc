@@ -2,7 +2,7 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/07/26 13:56:52 $
+ *  $Date: 2007/09/11 09:28:19 $
  *  $Revision: 1.1 $
  *
  *  \author Mika Huhtinen
@@ -20,8 +20,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -45,7 +44,7 @@ HLTPixlMBForAlignmentFilter::HLTPixlMBForAlignmentFilter(const edm::ParameterSet
   LogDebug("") << "Requesting tracks from same vertex eta-phi separation by " << min_sep_;
   LogDebug("") << "Requesting track to be isolated within cone of " << min_isol_;
    //register your products
-  produces<reco::HLTFilterObjectWithRefs>();
+  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPixlMBForAlignmentFilter::~HLTPixlMBForAlignmentFilter()
@@ -62,6 +61,7 @@ bool HLTPixlMBForAlignmentFilter::filter(edm::Event& iEvent, const edm::EventSet
    using namespace std;
    using namespace edm;
    using namespace reco;
+   using namespace trigger;
 
    // All HLT filters must create and fill an HLT filter object,
    // recording any reconstructed physics objects satisfying (or not)
@@ -176,17 +176,14 @@ bool HLTPixlMBForAlignmentFilter::filter(edm::Event& iEvent, const edm::EventSet
      // we now move them to the filterobject
 
      // The filter object
-     auto_ptr<HLTFilterObjectWithRefs> filterobject (new HLTFilterObjectWithRefs(path(),module()));
-     // Ref to Candidate objects to be recorded in filter object
-     RefToBase<Candidate> ref;
+     auto_ptr<TriggerFilterObjectWithRefs> filterobject (new TriggerFilterObjectWithRefs(path(),module()));
 
      if (accept) {
        for (unsigned int ipos=0; ipos < itsep.size(); ipos++) {
          int iaddr=itstore.at(itsep.at(ipos));
-         ref=RefToBase<Candidate>(RecoChargedCandidateRef(tracks,iaddr));
-         filterobject->putParticle(ref);
+         filterobject->addObject(TriggerTrack,RecoChargedCandidateRef(tracks,iaddr));
        }
-       std::cout << "Accept this event " << std::endl;
+       // std::cout << "Accept this event " << std::endl;
      }
      // put filter object into the Event
      iEvent.put(filterobject);
