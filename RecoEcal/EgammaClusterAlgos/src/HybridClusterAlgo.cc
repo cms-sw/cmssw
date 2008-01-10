@@ -3,7 +3,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include <iostream>
 #include <map>
 #include <vector>
@@ -523,7 +522,7 @@ double HybridClusterAlgo::et25(EcalBarrelNavigator &navigator,
    {
       for (int dy = -2; dy < 3; ++ dy)
       {
-          std::cout << "dx, dy " << dx << ", " << dy << std::endl;
+          //std::cout << "dx, dy " << dx << ", " << dy << std::endl;
           thisDet = navigator.offsetBy(dx, dy);
 	  if (thisDet != DetId(0))
           {

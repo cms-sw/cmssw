@@ -255,7 +255,7 @@ void FixedMatrixClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator,
    // as able to seed and where overlapping in the central
    // region with crystals that were previously able to seed
    // change their status so they are not able to seed
-   std::cout << std::endl;
+   //std::cout << std::endl;
    for (int dx = -2; dx < 3; ++dx)
    {
       for (int dy = -2; dy < 3; ++ dy)
@@ -267,7 +267,7 @@ void FixedMatrixClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator,
           navigator.home();
 
           // add the current crystal
-	  std::cout << "adding " << dx << ", " << dy << std::endl;
+	  //std::cout << "adding " << dx << ", " << dy << std::endl;
 	  addCrystal(thisDet);
 
 	  // now consider if we are in an edge (outer 16)
@@ -276,7 +276,7 @@ void FixedMatrixClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator,
           {    
              // this is an "edge" so should be allowed to seed
              // provided it is not already used
-             std::cout << "   setting can seed" << std::endl;
+             //std::cout << "   setting can seed" << std::endl;
              canSeed_s.insert(thisDet);
           }  // end if "edge"
           else 
@@ -286,7 +286,7 @@ void FixedMatrixClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator,
              setItr = canSeed_s.find(thisDet);
              if (setItr != canSeed_s.end())
              {
-                std::cout << "   unsetting can seed" << std::endl;
+                //std::cout << "   unsetting can seed" << std::endl;
                 canSeed_s.erase(setItr);
              }
           }  // end if "centre"
@@ -296,9 +296,9 @@ void FixedMatrixClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator,
 
    } // end loop on dx
 
-   std::cout << "*** " << std::endl;
-   std::cout << " current_v contains " << current_v.size() << std::endl;
-   std::cout << "*** " << std::endl;
+   //std::cout << "*** " << std::endl;
+   //std::cout << " current_v contains " << current_v.size() << std::endl;
+   //std::cout << "*** " << std::endl;
 }
 
 
@@ -310,7 +310,7 @@ void FixedMatrixClusterAlgo::addCrystal(const DetId &det)
    { 
       if ((used_s.find(thisIt->id()) == used_s.end())) 
       {
-	 std::cout << "   ... this is a good crystal and will be added" << std::endl;
+	 //std::cout << "   ... this is a good crystal and will be added" << std::endl;
          current_v.push_back(det);
          used_s.insert(det);
       }
