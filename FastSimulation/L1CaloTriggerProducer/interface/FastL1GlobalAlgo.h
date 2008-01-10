@@ -51,7 +51,6 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1Region.h"
-// No BitInfos for release versions
 #include "FastSimDataFormats/External/interface/FastL1BitInfo.h"
 
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
@@ -102,7 +101,6 @@ class FastL1GlobalAlgo {
       bool isMaxEtRgn_Window33(int rgnid);
       int isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle p,const edm::Event& e);
       bool isTauJet(int rgnid);
-
       bool TauIsolation(int rgnid);
 
       void findJets();
