@@ -216,14 +216,21 @@ int main (int argc, char **argv)
     if(removeMissingFiles) {
       for(CacheParser::LoadableToPlugins::iterator itFile = ltp.begin();
           itFile != ltp.end();
-          ++itFile) {
+          /*don't advance the iterator here because it may have become invalid */) {
         path loadableFile(directory);
         loadableFile /=(itFile->first);
         if(not exists(loadableFile)) {
           std::cout <<"removing file '"<<loadableFile.native_file_string()<<"'"<<std::endl;
-          ltp.erase(itFile);
+          CacheParser::LoadableToPlugins::iterator itToItemBeingRemoved = itFile;
+          //advance the iterator while it is still valid
+          ++itFile;
+          ltp.erase(itToItemBeingRemoved);
+        } else {
+          //since we are not advancing the iterator in the for loop, do it here
+          ++itFile;
         }
       }
+      //now get rid of the items 
     }
     //now write our new results
     std::ofstream cf(cacheFile.native_file_string().c_str());
