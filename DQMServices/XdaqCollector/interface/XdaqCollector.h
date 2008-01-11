@@ -18,10 +18,10 @@
 #include "cgicc/HTMLClasses.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
-#include "DQMServices/CoreROOT/interface/DaqMonitorROOTBackEnd.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/UI/interface/CollectorRoot.h"
+#include "DQMServices/Core/interface/MonitorElementRootT.h"
+#include "DQMServices/Core/interface/DaqMonitorROOTBackEnd.h"
+#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/CollectorRoot.h"
 
 #include "DQMServices/XdaqCollector/interface/StateMachine.h"
 #include <iostream>

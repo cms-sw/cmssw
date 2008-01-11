@@ -2,15 +2,15 @@
  *
  *  Implementation of QTestParameterNames 
  *
- *  $Date: 2007/11/07 14:48:01 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/11/07 15:22:03 $
+ *  $Revision: 1.5 $
  *  \author Ilaria Segoni
  */
  
 #include<iostream>
 
 #include "DQMServices/ClientConfig/interface/QTestParameterNames.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
+#include "DQMServices/Core/interface/QCriterionRoot.h"
 
 QTestParameterNames::QTestParameterNames(){
 	

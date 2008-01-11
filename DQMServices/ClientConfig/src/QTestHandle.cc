@@ -2,8 +2,8 @@
  *
  *  Implementation of  QTestHandle
  *
- *  $Date: 2007/11/07 14:48:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/12/17 18:32:13 $
+ *  $Revision: 1.6 $
  *  \author Ilaria Segoni
  */
 
@@ -13,7 +13,7 @@
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
 #include "DQMServices/ClientConfig/interface/QTestStatusChecker.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/MonitorUIRoot.h"
 
 QTestHandle::QTestHandle(){
 	qtParser     = new QTestConfigurationParser();

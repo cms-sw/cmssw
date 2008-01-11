@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2007/11/28 22:13:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/05 05:39:21 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -26,9 +26,9 @@
 
 //DQM services
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
+#include "DQMServices/Core/interface/MonitorElementRootT.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 // data format
