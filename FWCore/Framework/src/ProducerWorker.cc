@@ -1,7 +1,7 @@
 
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.25 2007/06/05 04:02:32 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.26 2007/06/29 03:43:21 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -73,6 +73,26 @@ namespace edm {
     producer_->doEndJob();
   }
   
+  void
+  ProducerWorker::implRespondToOpenInputFile(FileBlock const& fb) {
+    producer_->doRespondToOpenInputFile(fb);
+  }
+
+  void
+  ProducerWorker::implRespondToCloseInputFile(FileBlock const& fb) {
+    producer_->doRespondToCloseInputFile(fb);
+  }
+
+  void
+  ProducerWorker::implRespondToOpenOutputFiles(FileBlock const& fb) {
+    producer_->doRespondToOpenOutputFiles(fb);
+  }
+
+  void
+  ProducerWorker::implRespondToCloseOutputFiles(FileBlock const& fb) {
+    producer_->doRespondToCloseOutputFiles(fb);
+  }
+
   std::string ProducerWorker::workerType() const {
     return "EDProducer";
   }

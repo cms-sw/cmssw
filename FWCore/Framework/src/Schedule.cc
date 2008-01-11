@@ -26,6 +26,7 @@
 #include "FWCore/Framework/src/ProducerWorker.h"
 
 #include "boost/bind.hpp"
+#include "boost/ref.hpp"
 
 #include <algorithm>
 #include <cstdlib>
@@ -834,27 +835,35 @@ namespace edm {
   }
 
   void Schedule::openOutputFiles(FileBlock & fb) {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::openFile, _1, &fb));
+    for_all(all_output_workers_, boost::bind(&OutputWorker::openFile, _1, boost::cref(fb)));
   }
 
   void Schedule::writeRun(RunPrincipal const& rp) {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::writeRun, _1, &rp));
+    for_all(all_output_workers_, boost::bind(&OutputWorker::writeRun, _1, boost::cref(rp)));
   }
 
   void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp) {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::writeLumi, _1, &lbp));
+    for_all(all_output_workers_, boost::bind(&OutputWorker::writeLumi, _1, boost::cref(lbp)));
   }
 
   void Schedule::respondToOpenInputFile(FileBlock const& fb) {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::respondToOpenInputFile, _1, &fb));
+    for_all(all_workers_, boost::bind(&Worker::respondToOpenInputFile, _1, boost::cref(fb)));
   }
 
   void Schedule::respondToCloseInputFile(FileBlock const& fb) {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::respondToCloseInputFile, _1, &fb));
+    for_all(all_workers_, boost::bind(&Worker::respondToCloseInputFile, _1, boost::cref(fb)));
+  }
+
+  void Schedule::respondToOpenOutputFiles(FileBlock const& fb) {
+    for_all(all_workers_, boost::bind(&Worker::respondToOpenOutputFiles, _1, boost::cref(fb)));
+  }
+
+  void Schedule::respondToCloseOutputFiles(FileBlock const& fb) {
+    for_all(all_workers_, boost::bind(&Worker::respondToCloseOutputFiles, _1, boost::cref(fb)));
   }
 
   void Schedule::beginJob(EventSetup const& es) {
-    for_all(all_workers_, boost::bind(&Worker::beginJob, _1, &es));
+    for_all(all_workers_, boost::bind(&Worker::beginJob, _1, boost::cref(es)));
   }
 
   std::vector<ModuleDescription const*>

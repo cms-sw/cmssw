@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.66 2008/01/08 21:48:58 wmtan Exp $
+$Id: OutputModule.h,v 1.67 2008/01/10 17:35:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -56,6 +56,8 @@ namespace edm {
     void doOpenFile(FileBlock const& fb);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
+    void doRespondToOpenOutputFiles(FileBlock const& fb);
+    void doRespondToCloseOutputFiles(FileBlock const& fb);
     /// Tell the OutputModule this is a convenient time to end the
     /// current file, in case it wants to do so.
     void maybeEndFile();
@@ -197,6 +199,8 @@ namespace edm {
     virtual void openFile(FileBlock const& fb) {}
     virtual void respondToOpenInputFile(FileBlock const& fb) {}
     virtual void respondToCloseInputFile(FileBlock const& fb) {}
+    virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
+    virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
 
     virtual bool isFileOpen() const { return true; }
     virtual bool isFileFull() const { return false; }

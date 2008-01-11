@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.30 2007/11/12 23:57:57 wmtan Exp $
+$Id: Worker.h,v 1.31 2008/01/05 05:28:52 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -50,8 +50,13 @@ namespace edm {
     bool doWork(T&, EventSetup const& c,
 		BranchActionType const& bat,
 		CurrentProcessingContext const* cpc);
-    void beginJob(EventSetup const*) ;
+    void beginJob(EventSetup const&) ;
     void endJob();
+    void respondToOpenInputFile(FileBlock const& fb) {implRespondToOpenInputFile(fb);}
+    void respondToCloseInputFile(FileBlock const& fb) {implRespondToCloseInputFile(fb);}
+    void respondToOpenOutputFiles(FileBlock const& fb) {implRespondToOpenOutputFiles(fb);}
+    void respondToCloseOutputFiles(FileBlock const& fb) {implRespondToCloseOutputFiles(fb);}
+
     void reset() { state_ = Ready; }
     
     ModuleDescription const& description() const {return md_;}
@@ -121,6 +126,10 @@ namespace edm {
     virtual void implEndJob() = 0;
 
   private:
+    virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
+    virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
+    virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
+    virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
     RunStopwatch::StopwatchPointer stopwatch_;
 

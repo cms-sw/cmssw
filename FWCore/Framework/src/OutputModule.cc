@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.53 2008/01/08 21:51:43 wmtan Exp $
+$Id: OutputModule.cc,v 1.54 2008/01/10 17:39:03 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -276,8 +276,7 @@ namespace edm {
 
   void OutputModule::writeEvent(EventPrincipal const& ep,
 				ModuleDescription const& md,
-				CurrentProcessingContext const* c)
-  {
+				CurrentProcessingContext const* c) {
     detail::CPCSentry sentry(current_context_, c);
     PVSentry          products_sentry(selectors_, prodsValid_);
 
@@ -317,8 +316,7 @@ namespace edm {
 
   void OutputModule::doBeginRun(RunPrincipal const& rp,
 				ModuleDescription const& md,
-				CurrentProcessingContext const* c)
-  {
+				CurrentProcessingContext const* c) {
     detail::CPCSentry sentry(current_context_, c);
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp);
@@ -326,23 +324,20 @@ namespace edm {
 
   void OutputModule::doEndRun(RunPrincipal const& rp,
 			      ModuleDescription const& md,
-			      CurrentProcessingContext const* c)
-  {
+			      CurrentProcessingContext const* c) {
     detail::CPCSentry sentry(current_context_, c);
     FDEBUG(2) << "endRun called\n";
     endRun(rp);
   }
 
-  void OutputModule::doWriteRun(RunPrincipal const& rp)
-  {
+  void OutputModule::doWriteRun(RunPrincipal const& rp) {
     FDEBUG(2) << "writeRun called\n";
     writeRun(rp);
   }
 
   void OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
 					    ModuleDescription const& md,
-					    CurrentProcessingContext const* c)
-  {
+					    CurrentProcessingContext const* c) {
     detail::CPCSentry sentry(current_context_, c);
     FDEBUG(2) << "beginLuminosityBlock called\n";
     beginLuminosityBlock(lbp);
@@ -350,15 +345,13 @@ namespace edm {
 
   void OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
 					  ModuleDescription const& md,
-					  CurrentProcessingContext const* c)
-  {
+					  CurrentProcessingContext const* c) {
     detail::CPCSentry sentry(current_context_, c);
     FDEBUG(2) << "endLuminosityBlock called\n";
     endLuminosityBlock(lbp);
   }
 
-  void OutputModule::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp)
-  {
+  void OutputModule::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp) {
     FDEBUG(2) << "writeLuminosityBlock called\n";
     writeLuminosityBlock(lbp);
     if (remainingLumis_ > 0) {
@@ -366,38 +359,39 @@ namespace edm {
     }
   }
 
-  void OutputModule::doOpenFile(FileBlock const& fb)
-  {
+  void OutputModule::doOpenFile(FileBlock const& fb) {
     openFile(fb);
   }
 
-  void OutputModule::doRespondToOpenInputFile(FileBlock const& fb)
-  {
+  void OutputModule::doRespondToOpenInputFile(FileBlock const& fb) {
     respondToOpenInputFile(fb);
   }
 
-  void OutputModule::doRespondToCloseInputFile(FileBlock const& fb)
-  {
+  void OutputModule::doRespondToCloseInputFile(FileBlock const& fb) {
     respondToCloseInputFile(fb);
   }
 
-  void OutputModule::maybeEndFile()
-  {
+  void OutputModule::doRespondToOpenOutputFiles(FileBlock const& fb) {
+    respondToOpenOutputFiles(fb);
+  }
+
+  void OutputModule::doRespondToCloseOutputFiles(FileBlock const& fb) {
+    respondToCloseOutputFiles(fb);
+  }
+
+  void OutputModule::maybeEndFile() {
     if (isFileOpen() && isFileFull()) reallyCloseFile();
   }
 
-  void OutputModule::maybeOpenFile()
-  {
+  void OutputModule::maybeOpenFile() {
     if (!isFileOpen()) doOpenFile();
   }
   
-  void OutputModule::doCloseFile()
-  {
+  void OutputModule::doCloseFile() {
     if (isFileOpen()) reallyCloseFile();
   }
 
-  void OutputModule::reallyCloseFile()
-  {
+  void OutputModule::reallyCloseFile() {
     startEndFile();
     writeFileFormatVersion();
     writeFileIdentifier();
@@ -412,24 +406,20 @@ namespace edm {
   }
 
   CurrentProcessingContext const*
-  OutputModule::currentContext() const
-  {
+  OutputModule::currentContext() const {
     return current_context_;
   }
 
   ModuleDescription const&
-  OutputModule::description() const
-  {
+  OutputModule::description() const {
     return moduleDescription_;
   }
 
-  bool OutputModule::selected(BranchDescription const& desc) const
-  {
+  bool OutputModule::selected(BranchDescription const& desc) const {
     return groupSelector_.selected(desc);
   }
 
-  unsigned int OutputModule::nextID() const 
-  {
+  unsigned int OutputModule::nextID() const {
     return nextID_;
   }
   

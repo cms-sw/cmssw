@@ -8,7 +8,7 @@ processing in a processing path.
 Filters can also insert products into the event.
 These products should be informational products about the filter decision.
 
-$Id: EDFilter.h,v 1.14 2007/06/08 23:52:59 wmtan Exp $
+$Id: EDFilter.h,v 1.15 2007/09/18 18:06:46 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -38,6 +38,10 @@ namespace edm {
 		   CurrentProcessingContext const* cpc);
     bool doEndLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
+    void doRespondToOpenInputFile(FileBlock const& fb);
+    void doRespondToCloseInputFile(FileBlock const& fb);
+    void doRespondToOpenOutputFiles(FileBlock const& fb);
+    void doRespondToCloseOutputFiles(FileBlock const& fb);
 
     static void fillDescription(edm::ParameterSetDescription&);
 
@@ -54,6 +58,10 @@ namespace edm {
     virtual bool endRun(Run &, EventSetup const&){return true;}
     virtual bool beginLuminosityBlock(LuminosityBlock &, EventSetup const&){return true;}
     virtual bool endLuminosityBlock(LuminosityBlock &, EventSetup const&){return true;}
+    virtual void respondToOpenInputFile(FileBlock const& fb) {}
+    virtual void respondToCloseInputFile(FileBlock const& fb) {}
+    virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
+    virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

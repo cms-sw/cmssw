@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProducer.cc,v 1.13 2007/06/14 17:52:18 wmtan Exp $
+$Id: EDProducer.cc,v 1.14 2007/09/18 18:06:47 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -62,10 +62,28 @@ namespace edm {
     this->endLuminosityBlock(lb, c);
   }
 
+  void
+  EDProducer::doRespondToOpenInputFile(FileBlock const& fb) {
+    respondToOpenInputFile(fb);
+  }
+
+  void
+  EDProducer::doRespondToCloseInputFile(FileBlock const& fb) {
+    respondToCloseInputFile(fb);
+  }
+
+  void 
+  EDProducer::doRespondToOpenOutputFiles(FileBlock const& fb) {
+    respondToOpenOutputFiles(fb);
+  }
+
+  void
+  EDProducer::doRespondToCloseOutputFiles(FileBlock const& fb) {
+    respondToCloseOutputFiles(fb);
+  }
 
   CurrentProcessingContext const*
-  EDProducer::currentContext() const
-  {
+  EDProducer::currentContext() const {
     return current_context_;
   }
 

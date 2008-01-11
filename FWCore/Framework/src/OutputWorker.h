@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.30 2008/01/08 21:51:43 wmtan Exp $
+$Id: OutputWorker.h,v 1.31 2008/01/10 17:39:03 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -43,18 +43,11 @@ namespace edm {
 
     bool wantAllEvents() const;
 
-    // These next functions take pointers rather than references
-    // as arguments to avoid a copy when used in generic algorithms.
+    void openFile(FileBlock const& fb);
 
-    void openFile(FileBlock const* fb);
+    void writeRun(RunPrincipal const& rp);
 
-    void writeRun(RunPrincipal const* rp);
-
-    void writeLumi(LuminosityBlockPrincipal const* lbp);
-
-    void respondToOpenInputFile(FileBlock const* fb);
-
-    void respondToCloseInputFile(FileBlock const* fb);
+    void writeLumi(LuminosityBlockPrincipal const& lbp);
 
     bool limitReached() const;
 
@@ -73,6 +66,12 @@ namespace edm {
 
     virtual void implBeginJob(EventSetup const&) ;
     virtual void implEndJob() ;
+
+    virtual void implRespondToOpenInputFile(FileBlock const& fb);
+    virtual void implRespondToCloseInputFile(FileBlock const& fb);
+    virtual void implRespondToOpenOutputFiles(FileBlock const& fb);
+    virtual void implRespondToCloseOutputFiles(FileBlock const& fb);
+
     virtual std::string workerType() const;
     
     boost::shared_ptr<OutputModule> mod_;

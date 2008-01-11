@@ -6,7 +6,7 @@
 EDProducer: The base class of "modules" whose main purpose is to insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.18 2007/06/08 23:52:59 wmtan Exp $
+$Id: EDProducer.h,v 1.19 2007/09/18 18:06:46 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -36,6 +36,10 @@ namespace edm {
 		   CurrentProcessingContext const* cpc);
     void doEndLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
+    void doRespondToOpenInputFile(FileBlock const& fb);
+    void doRespondToCloseInputFile(FileBlock const& fb);
+    void doRespondToOpenOutputFiles(FileBlock const& fb);
+    void doRespondToCloseOutputFiles(FileBlock const& fb);
 
     static void fillDescription(edm::ParameterSetDescription&);
     
@@ -52,6 +56,10 @@ namespace edm {
     virtual void endRun(Run &, EventSetup const&){}
     virtual void beginLuminosityBlock(LuminosityBlock &, EventSetup const&){}
     virtual void endLuminosityBlock(LuminosityBlock &, EventSetup const&){}
+    virtual void respondToOpenInputFile(FileBlock const& fb) {}
+    virtual void respondToCloseInputFile(FileBlock const& fb) {}
+    virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
+    virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

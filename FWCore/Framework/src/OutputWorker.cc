@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.33 2008/01/08 21:51:43 wmtan Exp $
+$Id: OutputWorker.cc,v 1.34 2008/01/10 17:39:03 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -35,28 +35,38 @@ namespace edm {
   }
 
   void
-  OutputWorker::openFile(FileBlock const* fb) {
-    mod_->doOpenFile(*fb);
+  OutputWorker::openFile(FileBlock const& fb) {
+    mod_->doOpenFile(fb);
   }
 
   void
-  OutputWorker::writeRun(RunPrincipal const* rp) {
-    mod_->doWriteRun(*rp);
+  OutputWorker::writeRun(RunPrincipal const& rp) {
+    mod_->doWriteRun(rp);
   }
 
   void
-  OutputWorker::writeLumi(LuminosityBlockPrincipal const* lbp) {
-    mod_->doWriteLuminosityBlock(*lbp);
+  OutputWorker::writeLumi(LuminosityBlockPrincipal const& lbp) {
+    mod_->doWriteLuminosityBlock(lbp);
   }
 
   void
-  OutputWorker::respondToOpenInputFile(FileBlock const* fb) {
-    mod_->doRespondToOpenInputFile(*fb);
+  OutputWorker::implRespondToOpenInputFile(FileBlock const& fb) {
+    mod_->doRespondToOpenInputFile(fb);
   }
 
   void
-  OutputWorker::respondToCloseInputFile(FileBlock const* fb) {
-    mod_->doRespondToCloseInputFile(*fb);
+  OutputWorker::implRespondToCloseInputFile(FileBlock const& fb) {
+    mod_->doRespondToCloseInputFile(fb);
+  }
+
+  void
+  OutputWorker::implRespondToOpenOutputFiles(FileBlock const& fb) {
+    mod_->doRespondToOpenOutputFiles(fb);
+  }
+
+  void
+  OutputWorker::implRespondToCloseOutputFiles(FileBlock const& fb) {
+    mod_->doRespondToCloseOutputFiles(fb);
   }
 
   bool 

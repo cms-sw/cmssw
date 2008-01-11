@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.16 2007/06/29 03:43:21 wmtan Exp $
+$Id: FilterWorker.cc,v 1.17 2007/07/09 07:29:51 llista Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/FilterWorker.h"
@@ -67,6 +67,26 @@ namespace edm {
   void 
   FilterWorker::implEndJob() {
    filter_->doEndJob();
+  }
+
+  void
+  FilterWorker::implRespondToOpenInputFile(FileBlock const& fb) {
+    filter_->doRespondToOpenInputFile(fb);
+  }
+
+  void
+  FilterWorker::implRespondToCloseInputFile(FileBlock const& fb) {
+    filter_->doRespondToCloseInputFile(fb);
+  }
+
+  void
+  FilterWorker::implRespondToOpenOutputFiles(FileBlock const& fb) {
+    filter_->doRespondToOpenOutputFiles(fb);
+  }
+
+  void
+  FilterWorker::implRespondToCloseOutputFiles(FileBlock const& fb) {
+    filter_->doRespondToCloseOutputFiles(fb);
   }
 
   std::string FilterWorker::workerType() const {

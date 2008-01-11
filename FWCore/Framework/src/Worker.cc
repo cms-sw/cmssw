@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.25 2007/11/07 08:04:55 wmtan Exp $
+$Id: Worker.cc,v 1.26 2008/01/05 05:28:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Worker.h"
@@ -82,11 +82,11 @@ private:
     sigs_.postModuleEndJobSignal = &postEJ;
   }
 
-  void Worker::beginJob(EventSetup const* es) {
+  void Worker::beginJob(EventSetup const& es) {
     
     try {
         CallPrePostBeginJob cpp(sigs_,md_);
-	implBeginJob(*es);
+	implBeginJob(es);
     }
     catch(cms::Exception& e) {
 	// should event id be included?

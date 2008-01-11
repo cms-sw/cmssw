@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDAnalyzer.cc,v 1.8 2007/06/14 17:52:18 wmtan Exp $
+$Id: EDAnalyzer.cc,v 1.9 2007/09/18 18:06:47 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -59,9 +59,28 @@ namespace edm
     this->endLuminosityBlock(lb, c);
   }
 
+  void
+  EDAnalyzer::doRespondToOpenInputFile(FileBlock const& fb) {
+    respondToOpenInputFile(fb);
+  }
+
+  void
+  EDAnalyzer::doRespondToCloseInputFile(FileBlock const& fb) {
+    respondToCloseInputFile(fb);
+  }
+
+  void
+  EDAnalyzer::doRespondToOpenOutputFiles(FileBlock const& fb) {
+    respondToOpenOutputFiles(fb);
+  }
+
+  void
+  EDAnalyzer::doRespondToCloseOutputFiles(FileBlock const& fb) {
+    respondToCloseOutputFiles(fb);
+  }
+
   CurrentProcessingContext const*
-  EDAnalyzer::currentContext() const
-  {
+  EDAnalyzer::currentContext() const {
     return current_context_;
   }
 

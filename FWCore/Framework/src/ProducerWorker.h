@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: ProducerWorker.h,v 1.21 2007/06/08 23:52:59 wmtan Exp $
+$Id: ProducerWorker.h,v 1.22 2007/09/18 18:06:47 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -47,6 +47,11 @@ namespace edm {
 
     virtual void implBeginJob(EventSetup const&) ;
     virtual void implEndJob() ;
+    virtual void implRespondToOpenInputFile(FileBlock const& fb);
+    virtual void implRespondToCloseInputFile(FileBlock const& fb);
+    virtual void implRespondToOpenOutputFiles(FileBlock const& fb);
+    virtual void implRespondToCloseOutputFiles(FileBlock const& fb);
+
     virtual std::string workerType() const;
     
     boost::shared_ptr<EDProducer> producer_;

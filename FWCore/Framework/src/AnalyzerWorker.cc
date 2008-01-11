@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: AnalyzerWorker.cc,v 1.15 2007/06/05 04:02:32 wmtan Exp $
+$Id: AnalyzerWorker.cc,v 1.16 2007/06/29 03:43:21 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/AnalyzerWorker.h"
@@ -65,6 +65,22 @@ namespace edm {
     analyzer_->doEndJob();
   }
   
+  void AnalyzerWorker::implRespondToOpenInputFile(FileBlock const& fb) {
+    analyzer_->doRespondToOpenInputFile(fb);
+  }
+
+  void AnalyzerWorker::implRespondToCloseInputFile(FileBlock const& fb) {
+    analyzer_->doRespondToCloseInputFile(fb);
+  }
+
+  void AnalyzerWorker::implRespondToOpenOutputFiles(FileBlock const& fb) {
+    analyzer_->doRespondToOpenOutputFiles(fb);
+  }
+
+  void AnalyzerWorker::implRespondToCloseOutputFiles(FileBlock const& fb) {
+    analyzer_->doRespondToCloseOutputFiles(fb);
+  }
+
   std::string AnalyzerWorker::workerType() const {
     return "EDAnalyzer";
   }

@@ -1822,12 +1822,14 @@ namespace edm {
   }
 
   void EventProcessor::respondToOpenOutputFiles() {
-    // IMPLEMENTATION: NOT DONE
+    // IMPLEMENTATION: OK
+    schedule_->respondToOpenOutputFiles(*fb_);
     FDEBUG(1) << "\trespondToOpenOutputFiles\n";
   }
 
   void EventProcessor::respondToCloseOutputFiles() {
-    // IMPLEMENTATION: NOT DONE
+    // IMPLEMENTATION: OK
+    schedule_->respondToCloseOutputFiles(*fb_);
     FDEBUG(1) << "\trespondToCloseOutputFiles\n";
   }
 
@@ -1899,7 +1901,6 @@ namespace edm {
 
   void EventProcessor::smEndRun(int run) {
     // IMPLEMENTATION: OK
-    // Output modules need rework
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     input_->doEndRun(runPrincipal);
     IOVSyncValue ts(EventID(runPrincipal.run(),EventID::maxEventNumber()),
@@ -1920,7 +1921,6 @@ namespace edm {
 
   void EventProcessor::endLumi(int run, int lumi) {
     // IMPLEMENTATION: OK
-    // Output modules need rework
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
     input_->doEndLumi(lumiPrincipal);
     IOVSyncValue ts(EventID(lumiPrincipal.run(),EventID::maxEventNumber()),
