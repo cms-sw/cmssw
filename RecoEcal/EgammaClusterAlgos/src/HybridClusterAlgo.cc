@@ -175,23 +175,23 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
     std::vector <double> dominoEnergy;  //Here I will store the results of the domino sums
     std::vector <std::vector <EcalRecHit> > dominoCells; //These are the actual EcalRecHit for dominos.
 
+    //First, the domino about the seed:
+    std::vector <EcalRecHit> initialdomino;
+    double e_init = makeDomino(navigator, initialdomino);
+   
     //
     // If we have a dynamic phi road 
     // then compute et5x5 and set the nmumber
     // of phi steps
-
+    //std::cout << "... " << e_init << std::endl;
     double phiSteps;
-    if (dynamicPhiRoad_)
+    if (dynamicPhiRoad_ && e_init > 0)
     {
        double et5x5 = et25(navigator, hits, geometry);
        phiSteps = phiRoadAlgo_->barrelPhiRoad(et5x5);
        navigator.home();
     } else phiSteps = phiSteps_;
-    
-    //First, the domino about the seed:
-    std::vector <EcalRecHit> initialdomino;
-    double e_init = makeDomino(navigator, initialdomino);
-    
+ 
     //Positive phi steps.
     for (int i=0;i<phiSteps;++i){
       //remember, this always increments the current position of the navigator.
@@ -524,6 +524,8 @@ double HybridClusterAlgo::et25(EcalBarrelNavigator &navigator,
       {
           //std::cout << "dx, dy " << dx << ", " << dy << std::endl;
           thisDet = navigator.offsetBy(dx, dy);
+          navigator.home();
+
 	  if (thisDet != DetId(0))
           {
              hit = recHits_->find(thisDet);
@@ -537,6 +539,7 @@ double HybridClusterAlgo::et25(EcalBarrelNavigator &navigator,
    }
 
    // convert it to ET
+   //std::cout << "dets.size(), energySum: " << dets.size() << ", " << energySum << std::endl;
    Point pos = posCalculator_.Calculate_Location(dets, hits, geometry);
    double et = energySum/cosh(pos.eta());
    return et;
