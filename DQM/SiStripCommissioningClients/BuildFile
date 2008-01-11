@@ -3,7 +3,7 @@
 <use name=DQM/SiStripCommissioningSummary>
 <use name=DQM/SiStripCommon>
 <use name=DQMServices/Core>
-<use name=DQMServices/Components>
+<use name=DQMServices/XdaqCollector>
 <use name=DQMServices/ClientConfig>
 <use name=DQMServices/UI>
 <use name=DQMServices/WebComponents>
@@ -24,7 +24,7 @@
   <use name=DQM/SiStripCommissioningSummary>
   <use name=DQM/SiStripCommon>
   <use name=DQMServices/Core>
-  <use name=DQMServices/Components>
+  <use name=DQMServices/XdaqCollector>
   <use name=DQMServices/ClientConfig>
   <use name=DQMServices/UI>
   <use name=DQMServices/WebComponents>
