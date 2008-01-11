@@ -124,7 +124,6 @@ namespace hotcells
 	    
 	    if(h.enS > hcal.enS)
 	      {
-		cout <<"NEW HCAL enS = "<<h.enS<<endl;
 		hcal.enS = h.enS;
 		hcal.tS = h.tS;
 		hcal.etaS = h.etaS;
@@ -135,13 +134,16 @@ namespace hotcells
 
       } // if (hits.size()>0)
     return;
-  }
+  } // void threshcheck
 
 
 
   template<class Hits>
   void nadaCheck(const Hits& hits, HotCellHists& h, HotCellHists& hcal)
   {
+    h.numhotcells=0;
+    h.numnegcells=0;
+
     if (hits.size()>0)
     {
       
@@ -157,7 +159,7 @@ namespace hotcells
       float ECubeCut, ECellCut;
 
       // Store coordinates of candidate hot cells
-      int CellDepth=-1;
+       int CellDepth=-1;
       int CellEta=-1000;
       int CellPhi=-1000;
 
@@ -169,20 +171,20 @@ namespace hotcells
       for (_cell=hits.begin(); _cell!=hits.end(); _cell++)
 	{
 	  if (_cell->id().subdet()!=h.type) continue;
-
 	  if (vetosize>0 && vetoCell(_cell->id(),h.vetoCells)) continue;
-	  cellenergy=_cell->energy();
 	  
+	  cellenergy=_cell->energy();
+
 	  h.nadaEnergy->Fill(cellenergy);
 	  hcal.nadaEnergy->Fill(cellenergy);
-
-	  if (h.fVerbosity && cellenergy<0) cout <<"WARNING:  NEGATIVE CELL ENERGY FOUND IN "<<h.name.c_str()<<" NADA:  "<<cellenergy<<endl;
 	  
 	  // _cell points to the current hot cell candidate
 	  Ecube=0; // reset Ecube energy counter
 	  CellDepth=_cell->id().depth();
 	  CellEta=_cell->id().ieta();
 	  CellPhi=_cell->id().iphi();
+
+	  if (h.fVerbosity) cout <<"<HcalHotCellMonitor:nadaCheck> Cell Energy = "<<cellenergy<<" at position ("<<CellEta<<", "<<CellPhi<<")"<<endl;
 
 	  // --------------------------- 
 	  // Case 1:  E< -1 GeV or E>500 GeV:  Each counts as hot cell
@@ -192,7 +194,7 @@ namespace hotcells
 	      // Case 1a:  E< negative cutoff
 	      if (cellenergy<h.nadaNegCandCut) 
 		{ 
-		  if (h.fVerbosity) cout <<"<NEGATIVE "<<h.name.c_str()<<" CELL ENERGY>  Energy = "<<cellenergy<<" at position ("<<CellEta<<", "<<CellPhi<<")"<<endl;
+		  if (h.fVerbosity) cout <<"<HcalHotCellMonitor:nadaCheck> WARNING:  NEGATIVE "<<h.name.c_str()<<" CELL ENERGY>  Energy = "<<cellenergy<<" at position ("<<CellEta<<", "<<CellPhi<<")"<<endl;
 		  h.numnegcells++;
 		  hcal.numnegcells++;
 
@@ -211,7 +213,7 @@ namespace hotcells
 		  hcal.nadaNegOccMapDepth[CellDepth-1]->Fill(CellEta,CellPhi);
 		  hcal.nadaNegEnergyMapDepth[CellDepth-1]->Fill(CellEta,CellPhi,
 								-1*cellenergy);
-		}
+		} // cellenergy < negative cutoff
 
 	      // Case 1b:  E>maximum
 	      else
@@ -219,7 +221,7 @@ namespace hotcells
 		  h.numhotcells++;
 		  hcal.numhotcells++;
 		  h.nadaOccMap->Fill(CellEta,CellPhi);
-		  
+		  if (h.fVerbosity) cout <<"<HcalHotCellMonitor:nadaCheck> NADA ENERGY > MAX FOR ("<<CellEta<<","<<CellPhi<<"):  "<<cellenergy<<" GeV"<<endl;
 		  h.nadaEnergyMap->Fill(CellEta,CellPhi,cellenergy);
 		  hcal.nadaOccMap->Fill(CellEta,CellPhi);
 		  
@@ -228,10 +230,10 @@ namespace hotcells
 	      // Cells marked as hot; no need to complete remaining code
 	      continue;
 	      
-	    }
+	    } // cell < negative cutoff or > maximum
 
 	  // -------------------------------
-	  // Case 2:  Energy is < negative cutoff, but less than minimum threshold -- skip the cell
+	  // Case 2:  Energy is > negative cutoff, but less than minimum threshold -- skip the cell
 	  
 	  else if (cellenergy<=h.nadaEnergyCandCut0)
 	    continue;
@@ -257,21 +259,29 @@ namespace hotcells
 
 	  if (h.fVerbosity) cout <<"****** Candidate Cell Energy: "<<cellenergy<<endl;
 	  typename Hits::const_iterator _neighbor;
+	  
+	  int etaFactor;  // correct for eta regions where phi segmentation is > 5 degrees/cell
+
 	  for ( _neighbor = hits.begin();_neighbor!=hits.end();_neighbor++)
 	    // Form cube centered on _cell.  This needs to be looked at more carefully to deal with boundary conditions.  Should Ecube constraints change at the boundaries?
+	    // Also need to deal with regions where phi segmentation changes
 	    {
-	      
 	      if (vetosize>0 && vetoCell(_neighbor->id(),h.vetoCells)) continue; 
 	      if (_neighbor->id().subdet()!=h.type) continue;
 
+	      int NeighborEta=_neighbor->id().ieta();
+	      // etafactor works to expand box size in regions where detectors cover more than 5 degrees in phi
+	     
+	      etaFactor = 1+(abs(NeighborEta)>20)+2*(abs(NeighborEta)>39);
+
 	      if (abs(_neighbor->id().depth()-CellDepth)>h.nadaMaxDeltaDepth) continue;
 	      if (abs(_neighbor->id().ieta()-CellEta)>h.nadaMaxDeltaEta) continue;
-	      if ((abs(_neighbor->id().iphi()-CellPhi)%72)>h.nadaMaxDeltaPhi) continue;
-
-		  
-	      if (_neighbor->energy()>h.nadaEnergyCellCut)
+	      if ((abs(_neighbor->id().iphi()-CellPhi)%72)>h.nadaMaxDeltaPhi*etaFactor) continue;
+	      if (h.fVerbosity) cout <<"\t Neighbor energy = "<<_neighbor->energy()<< "  "<<_neighbor->id()<<endl;	  
+	      if (_neighbor->energy()>ECellCut)
 		{
-		  if (h.fVerbosity) cout <<"\t Neighbor energy = "<<_neighbor->energy()<<endl;
+		  if (h.fVerbosity) cout <<"\t     ABOVE ENERGY CUT!"<<endl;
+
 		  Ecube+=_neighbor->energy();
 		  if (h.fVerbosity) cout <<"\t\t Cube energy = "<<Ecube<<endl;
 		}
@@ -279,18 +289,22 @@ namespace hotcells
 	  
 	  //Remove energy due to _cell
 	  Ecube -=cellenergy;
-	  if (h.fVerbosity) cout <<"\t\t\t\t Final Cube energy = "<<Ecube<<endl;
+	  if (h.fVerbosity) 
+	    {
+	      cout <<"\t\t\t\t Final Cube energy = "<<Ecube<<endl;
+	      cout <<"\t\t\t\t ENERGY CUBE CUT = "<<ECubeCut<<endl;
+	    }
 
-	  if (h.fVerbosity && Ecube <=h.nadaEnergyCubeCut)
+	  if (h.fVerbosity && Ecube <=ECubeCut)
 	    {
 	      cout <<"NADA Hot Cell found!"<<endl;
 	      cout <<"\t NADA Ecube energy: "<<Ecube<<endl;
 	      cout <<"\t NADA Ecell energy: "<<cellenergy<<endl;
-	      cout <<"\t NADA Cell position: "<<CellEta<<", "<<CellPhi<<endl;
+	      cout <<"\t NADA Cell position: "<<_cell->id()<<endl;
 	    }
 	  
 	  // Identify hot cells by value of Ecube
-	  if (Ecube <= h.nadaEnergyCubeCut)
+	  if (Ecube <= ECubeCut)
 	    {   
 	      if (h.fVerbosity) cout <<"Found NADA hot cell in "<<h.name.c_str()<<":  Ecube energy = "<<Ecube<<endl;
 	      h.numhotcells++;
@@ -313,7 +327,7 @@ namespace hotcells
     } // if hits.size()>0
   return;
 
-  }
+  } //void nadaCheck
   
 } // namespace hotcells
 
@@ -438,6 +452,8 @@ void HcalHotCellMonitor::setupVals(HotCellHists& h,int type,HotCellHists& base, 
   h.numhotcells=0;
   h.numnegcells=0;
 
+
+  // Allow for each subdetector to set its own values, but default to base values if not specified
   char tag[256];
   sprintf(tag,"%sMaxEta",h.name.c_str());
   h.etaMax=ps.getUntrackedParameter<double>(tag, base.etaMax);
@@ -448,7 +464,7 @@ void HcalHotCellMonitor::setupVals(HotCellHists& h,int type,HotCellHists& base, 
   sprintf(tag,"%sMinPhi",h.name.c_str());
   h.phiMin = ps.getUntrackedParameter<double>(tag,base.phiMin);
   // Allow for comments to be restricted to a single subdetector
-  sprintf(tag,"%sfVerbosity",h.name.c_str());
+  sprintf(tag,"%sdebug",h.name.c_str());
   h.fVerbosity=ps.getUntrackedParameter<bool>(tag,fVerbosity);
   if (h.etaMax<h.etaMin && h.fVerbosity)
     cout <<"<HcalHotCellMonitor> WARNING IN setupVals for "<<h.name.c_str()<<"!  etaMax is less than etaMin!  Swapping max and min!"<<endl;
@@ -612,6 +628,12 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 
   if (fVerbosity) cout <<"HcalHotCellMonitor::processEvent   Starting process"<<endl;
 
+  // Reset overall hcalHists max cell energy to default values
+  hcalHists.enS=-1000., hcalHists.tS=0.;
+  hcalHists.etaS=0, hcalHists.phiS=0, hcalHists.depthS=0;
+  hcalHists.idS=0;
+  hcalHists.numhotcells=0, hcalHists.numnegcells=0;
+
   hotcells::threshCheck(hbHits, hbHists, hcalHists);
   hotcells::threshCheck(hbHits, heHists, hcalHists);
   hotcells::threshCheck(hoHits, hoHists, hcalHists);
@@ -623,7 +645,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
   hotcells::nadaCheck(hfHits, hfHists, hcalHists);
 
   // After checking over all subdetectors, fill hcalHist maximum histograms:
-  
+
   if (hcalHists.enS>-1000.)
     {
       hcalHists.maxCellEnergy->Fill(hcalHists.enS);
