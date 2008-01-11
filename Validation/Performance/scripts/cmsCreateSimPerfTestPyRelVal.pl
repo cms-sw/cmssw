@@ -5,8 +5,8 @@ $CMSSW_VERSION=$ENV{'CMSSW_VERSION'};
 
 
 #Default number of events for each set of tests:
-$TimeSizeNumOfEvts=10;
-$IgProfNumOfEvts=2;
+$TimeSizeNumOfEvts=50;
+$IgProfNumOfEvts=5;
 $ValgrindNumOfEvts=1;
 
 @Candle=(
