@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/01/10 18:47:23 $
- * $Revision: 1.30 $
+ * $Date: 2008/01/11 06:55:11 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -413,17 +413,17 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  // --- Endcap "Island" Basic Clusters ---
+  // --- Endcap Basic Clusters ---
 
-  Handle<BasicClusterCollection> pIslandEndcapBasicClusters;
+  Handle<BasicClusterCollection> pBasicClusters;
 
-  if ( e.getByLabel(BasicClusterCollection_, pIslandEndcapBasicClusters) ) {
+  if ( e.getByLabel(BasicClusterCollection_, pBasicClusters) ) {
 
-    int nbcc = pIslandEndcapBasicClusters->size();
+    int nbcc = pBasicClusters->size();
     if (nbcc>0) meBCNum_->Fill(float(nbcc));
 
     BasicClusterCollection::const_iterator bCluster;
-    for ( bCluster = pIslandEndcapBasicClusters->begin(); bCluster != pIslandEndcapBasicClusters->end(); bCluster++ ) {
+    for ( bCluster = pBasicClusters->begin(); bCluster != pBasicClusters->end(); bCluster++ ) {
 
       meBCEne_->Fill(bCluster->energy());
       meBCSiz_->Fill(float(bCluster->getHitsByDetId().size()));
@@ -468,13 +468,13 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EEClusterTask") << " BasicClusterCollection: " << BasicClusterCollection_ << " not in event.";
   }
 
-  // --- Endcap "Island" Super Clusters ----
+  // --- Endcap Super Clusters ----
 
-  Handle<SuperClusterCollection> pIslandEndcapSuperClusters;
+  Handle<SuperClusterCollection> pSuperClusters;
 
-  if ( e.getByLabel(SuperClusterCollection_, pIslandEndcapSuperClusters) ) {
+  if ( e.getByLabel(SuperClusterCollection_, pSuperClusters) ) {
 
-    int nscc = pIslandEndcapSuperClusters->size();
+    int nscc = pSuperClusters->size();
     if ( nscc > 0 ) meSCNum_->Fill(float(nscc));
 
     Handle<BasicClusterShapeAssociationCollection> pClusterShapeAssociation;
@@ -488,7 +488,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
     TLorentzVector sc2_p(0,0,0,0);
 
     SuperClusterCollection::const_iterator sCluster;
-    for ( sCluster = pIslandEndcapSuperClusters->begin(); sCluster != pIslandEndcapSuperClusters->end(); sCluster++ ) {
+    for ( sCluster = pSuperClusters->begin(); sCluster != pSuperClusters->end(); sCluster++ ) {
 
       // energy, size
       meSCEne_->Fill(sCluster->energy());
