@@ -4,8 +4,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
-#include <iostream>
-
 using namespace std;
 
 
@@ -16,7 +14,6 @@ CombinedTrajectoryFactory::CombinedTrajectoryFactory( const edm::ParameterSet & 
   vector<string>::iterator itFactoryName;
   for ( itFactoryName = factoryNames.begin(); itFactoryName != factoryNames.end(); ++itFactoryName )
   {
-cout << "add factory: " << *itFactoryName << endl;
     theFactories.push_back( TrajectoryFactoryPlugin::get()->create( *itFactoryName, config ) );
   }
 }
