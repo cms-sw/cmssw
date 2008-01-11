@@ -40,7 +40,7 @@ class EcalTrigPrimProducer : public edm::EDProducer
   virtual ~EcalTrigPrimProducer();
   
   void beginJob(edm::EventSetup const& setup);
-
+  void beginRun(const edm::Run & run, const edm::EventSetup & es);
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   
  private:
@@ -56,6 +56,10 @@ class EcalTrigPrimProducer : public edm::EDProducer
   int binOfMaximum_;
 
   const edm::ParameterSet ps_;
+
+  //method to get EventSetupRecords
+  unsigned long long getRecords(edm::EventSetup const& setup);
+  unsigned long long cacheID_;
 };
   
 #endif

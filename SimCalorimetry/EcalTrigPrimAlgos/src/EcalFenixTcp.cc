@@ -1,11 +1,6 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcp.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
 
-#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBGroupRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBIdMapRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGFineGrainTowerEERcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
@@ -23,8 +18,8 @@ EcalFenixTcp::EcalFenixTcp(const edm::EventSetup& setup,bool tcpFormat, bool deb
     adder_= new EcalFenixEtTot();
     maxOf2_=new EcalFenixMaxof2(maxNrSamples,nbMaxStrips_);
     formatter_= new EcalFenixTcpFormat(tcpFormat, debug_, famos, binOfMax);
-    fgvbEB_= new EcalFenixFgvbEB();
-    fgvbEE_= new EcalFenixTcpFgvbEE();
+    fgvbEB_= new EcalFenixFgvbEB(maxNrSamples);
+    fgvbEE_= new EcalFenixTcpFgvbEE(maxNrSamples);
 
     // permanent data structures
     bypasslin_out_.resize(nbMaxStrips_);
@@ -53,28 +48,11 @@ void EcalFenixTcp::process(const edm::EventSetup& setup,
 			   std::vector< EcalTriggerPrimitiveSample> & tptow2,
 			   bool isInInnerRing, EcalTrigTowerDetId towid) 
 {
-	      
-  // first get parameter records for towers
-  edm::ESHandle<EcalTPGFineGrainEBGroup> theEcalTPGFineGrainEBGroup_handle;
-  setup.get<EcalTPGFineGrainEBGroupRcd>().get(theEcalTPGFineGrainEBGroup_handle);
-  const EcalTPGFineGrainEBGroup * ecaltpgFgEBGroup = theEcalTPGFineGrainEBGroup_handle.product();
 
-  edm::ESHandle<EcalTPGLutGroup> theEcalTPGLutGroup_handle;
-  setup.get<EcalTPGLutGroupRcd>().get(theEcalTPGLutGroup_handle);
-  const EcalTPGLutGroup * ecaltpgLutGroup = theEcalTPGLutGroup_handle.product();
-
-  edm::ESHandle<EcalTPGLutIdMap> theEcalTPGLutIdMap_handle;
-  setup.get<EcalTPGLutIdMapRcd>().get(theEcalTPGLutIdMap_handle);
-  const EcalTPGLutIdMap * ecaltpgLut = theEcalTPGLutIdMap_handle.product();
-
-  edm::ESHandle<EcalTPGFineGrainEBIdMap> theEcalTPGFineGrainEBIdMap_handle;
-  setup.get<EcalTPGFineGrainEBIdMapRcd>().get(theEcalTPGFineGrainEBIdMap_handle);
-  const EcalTPGFineGrainEBIdMap * ecaltpgFineGrainEB = theEcalTPGFineGrainEBIdMap_handle.product();
-
-  int bitMask=12; //FIXME: to be verified
+  int bitMask=12; 
   process_part1(tpframetow,nStr,bitMask);
 
-  process_part2_barrel(tpframetow,nStr,ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainEB,tptow,tptow2,towid);
+  process_part2_barrel(tpframetow,nStr,ecaltpgFgEBGroup_,ecaltpgLutGroup_,ecaltpgLut_,ecaltpgFineGrainEB_,tptow,tptow2,towid);
 }
  
 //-----------------------------------------------------------------------------------------  
@@ -85,24 +63,9 @@ void EcalFenixTcp::process(const edm::EventSetup& setup,
 			   std::vector< EcalTriggerPrimitiveSample> & tptow2,
 			   bool isInInnerRing, EcalTrigTowerDetId towid) 
 {
-	      
-  // first get parameter records for towers
-
-  edm::ESHandle<EcalTPGLutGroup> theEcalTPGLutGroup_handle;
-  setup.get<EcalTPGLutGroupRcd>().get(theEcalTPGLutGroup_handle);
-  const EcalTPGLutGroup * ecaltpgLutGroup = theEcalTPGLutGroup_handle.product();
-
-  edm::ESHandle<EcalTPGLutIdMap> theEcalTPGLutIdMap_handle;
-  setup.get<EcalTPGLutIdMapRcd>().get(theEcalTPGLutIdMap_handle);
-  const EcalTPGLutIdMap * ecaltpgLut = theEcalTPGLutIdMap_handle.product();
-
-  edm::ESHandle<EcalTPGFineGrainTowerEE> theEcalTPGFineGrainTowerEE_handle;
-  setup.get<EcalTPGFineGrainTowerEERcd>().get(theEcalTPGFineGrainTowerEE_handle);
-  const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE = theEcalTPGFineGrainTowerEE_handle.product();
-
   int bitMask=10;
   process_part1(tpframetow,nStr,bitMask);
-  process_part2_endcap(tpframetow,nStr,bitMask,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainTowerEE,tptow,tptow2,isInInnerRing, towid);
+  process_part2_endcap(tpframetow,nStr,bitMask,ecaltpgLutGroup_,ecaltpgLut_,ecaltpgFineGrainTowerEE_,tptow,tptow2,isInInnerRing, towid);
 }
 //----------------------------------------------------------------------------------------- 
 void EcalFenixTcp::process_part1(std::vector<std::vector<int> > &tpframetow, int nStr, int bitMask)

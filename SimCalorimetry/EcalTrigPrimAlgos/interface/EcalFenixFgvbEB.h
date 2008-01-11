@@ -29,7 +29,7 @@ class EcalFenixFgvbEB {
 
 
  public:
-    EcalFenixFgvbEB() ;
+    EcalFenixFgvbEB(int maxNrSamples) ;
     virtual ~EcalFenixFgvbEB();
     void setParameters(uint32_t towid,const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB );
     

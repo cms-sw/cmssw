@@ -246,7 +246,7 @@ void EcalTrigPrimESProducer::parseTextFile()
     if (subdet == 1) filename="SimCalorimetry/EcalTrigPrimProducers/data/"+dbFilenameEE_ ;
     edm::FileInPath fileInPath(filename);
     infile[subdet].open(fileInPath.fullPath().c_str()) ;
-
+    edm::LogInfo("EcalTPG") <<"Using database file "<<filename;
     if (infile[subdet].is_open()) {
       while (!infile[subdet].eof()) {
 

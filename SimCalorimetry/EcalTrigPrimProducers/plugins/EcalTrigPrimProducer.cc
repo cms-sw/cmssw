@@ -27,6 +27,29 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainTowerEERcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainTowerEE.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLinearizationConstRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGSlidingWindowRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGWeightGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainStripEERcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainStripEE.h"
+
 #include "EcalTrigPrimProducer.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
 
@@ -43,6 +66,8 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   instanceNameEB_ = iConfig.getParameter<std::string>("InstanceEB");;
   instanceNameEE_ = iConfig.getParameter<std::string>("InstanceEE");;
   algo_=NULL;
+}
+void EcalTrigPrimProducer::beginRun(const edm::Run & run,edm::EventSetup const& setup) {
 }
 
 void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
@@ -71,10 +96,65 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
   }
 
   algo_ = new EcalTrigPrimFunctionalAlgo(setup,binOfMaximum_,tcpFormat_,barrelOnly_,debug_,famos);
-  algo_->updateESRecord(ps_.getParameter<double>("TTFLowEnergyEB"),
-                        ps_.getParameter<double>("TTFHighEnergyEB"),
-                        ps_.getParameter<double>("TTFLowEnergyEE"),
-                        ps_.getParameter<double>("TTFHighEnergyEE"));
+
+  // get a first version of the records
+  cacheID_=this->getRecords(setup);
+}
+
+unsigned long long  EcalTrigPrimProducer::getRecords(edm::EventSetup const& setup) {
+  // get Eventsetup records
+
+  // for EcalFenixStrip...
+  // get parameter records for xtals
+  edm::ESHandle<EcalTPGLinearizationConst> theEcalTPGLinearization_handle;
+  setup.get<EcalTPGLinearizationConstRcd>().get(theEcalTPGLinearization_handle);
+  const EcalTPGLinearizationConst * ecaltpLin = theEcalTPGLinearization_handle.product();
+  edm::ESHandle<EcalTPGPedestals> theEcalTPGPedestals_handle;
+  setup.get<EcalTPGPedestalsRcd>().get(theEcalTPGPedestals_handle);
+  const EcalTPGPedestals * ecaltpPed = theEcalTPGPedestals_handle.product();
+
+  //for strips
+  edm::ESHandle<EcalTPGSlidingWindow> theEcalTPGSlidingWindow_handle;
+  setup.get<EcalTPGSlidingWindowRcd>().get(theEcalTPGSlidingWindow_handle);
+  const EcalTPGSlidingWindow * ecaltpgSlidW = theEcalTPGSlidingWindow_handle.product();
+  edm::ESHandle<EcalTPGWeightIdMap> theEcalTPGWEightIdMap_handle;
+  setup.get<EcalTPGWeightIdMapRcd>().get(theEcalTPGWEightIdMap_handle);
+  const EcalTPGWeightIdMap * ecaltpgWeightMap = theEcalTPGWEightIdMap_handle.product();
+  edm::ESHandle<EcalTPGWeightGroup> theEcalTPGWEightGroup_handle;
+  setup.get<EcalTPGWeightGroupRcd>().get(theEcalTPGWEightGroup_handle);
+  const EcalTPGWeightGroup * ecaltpgWeightGroup = theEcalTPGWEightGroup_handle.product();
+  edm::ESHandle<EcalTPGFineGrainStripEE> theEcalTPGFineGrainStripEE_handle;
+  setup.get<EcalTPGFineGrainStripEERcd>().get(theEcalTPGFineGrainStripEE_handle);
+  const EcalTPGFineGrainStripEE * ecaltpgFgStripEE = theEcalTPGFineGrainStripEE_handle.product();     
+
+  algo_->setPointers(ecaltpLin,ecaltpPed,ecaltpgSlidW,ecaltpgWeightMap,ecaltpgWeightGroup,ecaltpgFgStripEE);
+
+  // .. and for EcalFenixTcp
+  // get parameter records for towers
+  edm::ESHandle<EcalTPGFineGrainEBGroup> theEcalTPGFineGrainEBGroup_handle;
+  setup.get<EcalTPGFineGrainEBGroupRcd>().get(theEcalTPGFineGrainEBGroup_handle);
+  const EcalTPGFineGrainEBGroup * ecaltpgFgEBGroup = theEcalTPGFineGrainEBGroup_handle.product();
+
+  edm::ESHandle<EcalTPGLutGroup> theEcalTPGLutGroup_handle;
+  setup.get<EcalTPGLutGroupRcd>().get(theEcalTPGLutGroup_handle);
+  const EcalTPGLutGroup * ecaltpgLutGroup = theEcalTPGLutGroup_handle.product();
+
+  edm::ESHandle<EcalTPGLutIdMap> theEcalTPGLutIdMap_handle;
+  setup.get<EcalTPGLutIdMapRcd>().get(theEcalTPGLutIdMap_handle);
+  const EcalTPGLutIdMap * ecaltpgLut = theEcalTPGLutIdMap_handle.product();
+
+  edm::ESHandle<EcalTPGFineGrainEBIdMap> theEcalTPGFineGrainEBIdMap_handle;
+  setup.get<EcalTPGFineGrainEBIdMapRcd>().get(theEcalTPGFineGrainEBIdMap_handle);
+  const EcalTPGFineGrainEBIdMap * ecaltpgFineGrainEB = theEcalTPGFineGrainEBIdMap_handle.product();
+
+    edm::ESHandle<EcalTPGFineGrainTowerEE> theEcalTPGFineGrainTowerEE_handle;
+    setup.get<EcalTPGFineGrainTowerEERcd>().get(theEcalTPGFineGrainTowerEE_handle);
+    const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE = theEcalTPGFineGrainTowerEE_handle.product();
+
+  algo_->setPointers2(ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut, ecaltpgFineGrainEB,ecaltpgFineGrainTowerEE);
+
+  // we will suppose that everything is to be updated if the EcalTPGLinearizationConstRcd has changed
+  return setup.get<EcalTPGLinearizationConstRcd>().cacheIdentifier();
 }
 
 EcalTrigPrimProducer::~EcalTrigPrimProducer()
@@ -91,6 +171,10 @@ EcalTrigPrimProducer::~EcalTrigPrimProducer()
 void
 EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
 {
+
+  // update constants if necessary
+  if (iSetup.get<EcalTPGLinearizationConstRcd>().cacheIdentifier()!=cacheID_) cacheID_=this->getRecords(iSetup);
+
 
   // get input collections
 

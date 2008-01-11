@@ -51,6 +51,21 @@ class EcalFenixTcp {
   std::vector<int> fgvb_out_;
    
  public:
+  // temporary, for timing tests
+  void setPointers(  const EcalTPGFineGrainEBGroup * ecaltpgFgEBGroup,
+		     const EcalTPGLutGroup * ecaltpgLutGroup,
+		     const EcalTPGLutIdMap * ecaltpgLut,
+		     const EcalTPGFineGrainEBIdMap * ecaltpgFineGrainEB,
+		     const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE)
+    {
+      ecaltpgFgEBGroup_=ecaltpgFgEBGroup;
+      ecaltpgLutGroup_=ecaltpgLutGroup;
+      ecaltpgLut_=ecaltpgLut;
+      ecaltpgFineGrainEB_=ecaltpgFineGrainEB;
+      ecaltpgFineGrainTowerEE_= ecaltpgFineGrainTowerEE;
+   }
+  // end temporary, for timing tests
+
   EcalFenixTcp(const edm::EventSetup & setup, bool tcpFormat, bool debug, bool famos, int binOfMax, int maxNrSamples,int nbMaxStrips);
   virtual ~EcalFenixTcp() ;
 
@@ -94,6 +109,11 @@ class EcalFenixTcp {
   EcalFenixFgvbEB *getFGVBEB() const {return fgvbEB_;}
   EcalFenixTcpFgvbEE *getFGVBEE() const {return fgvbEE_;}
 	        	      
+  const EcalTPGFineGrainEBGroup * ecaltpgFgEBGroup_;
+  const EcalTPGLutGroup * ecaltpgLutGroup_;
+  const EcalTPGLutIdMap * ecaltpgLut_;
+  const EcalTPGFineGrainEBIdMap * ecaltpgFineGrainEB_;
+  const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE_;
 };
 
 

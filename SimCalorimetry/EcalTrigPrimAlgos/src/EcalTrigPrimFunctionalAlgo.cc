@@ -93,11 +93,6 @@ EcalTrigPrimFunctionalAlgo::~EcalTrigPrimFunctionalAlgo()
     delete etcp_;
 }
 //----------------------------------------------------------------------
-void EcalTrigPrimFunctionalAlgo::updateESRecord(double ttfLowEB, double ttfHighEB, double ttfLowEE, double ttfHighEE)
-{
-  //FIXME!!!   const_cast <EcalTPParameters *> (ecaltpp_)->changeThresholds(ttfLowEB, ttfHighEB, ttfLowEE, ttfHighEE);
-}
-//----------------------------------------------------------------------
 void EcalTrigPrimFunctionalAlgo::run(const edm::EventSetup & setup, EBDigiCollection const * col,
 				     EcalTrigPrimDigiCollection & result,
 				     EcalTrigPrimDigiCollection & resultTcp)

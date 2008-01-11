@@ -4,9 +4,9 @@
 #include <iostream>
 
 //---------------------------------------------------------------
-EcalFenixTcpFgvbEE::EcalFenixTcpFgvbEE()
+EcalFenixTcpFgvbEE::EcalFenixTcpFgvbEE(int maxNrSamples)
 {
-  indexLut_.resize(50); //FIXME: size
+  indexLut_.resize(maxNrSamples); 
 }//---------------------------------------------------------------
 EcalFenixTcpFgvbEE::~EcalFenixTcpFgvbEE()
 {

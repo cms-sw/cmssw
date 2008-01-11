@@ -26,7 +26,7 @@ class EcalFenixTcpFgvbEE  {
    std::vector<int> indexLut_;
 
  public:
-   EcalFenixTcpFgvbEE();
+   EcalFenixTcpFgvbEE(int maxNrSamples);
    virtual ~EcalFenixTcpFgvbEE();
    void setParameters(uint32_t towid, const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE);
 

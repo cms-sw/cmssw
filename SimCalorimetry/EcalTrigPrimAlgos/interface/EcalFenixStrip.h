@@ -9,19 +9,6 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixEtStrip.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFgvbEE.h>
 
-#include "CondFormats/DataRecord/interface/EcalTPGLinearizationConstRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGSlidingWindowRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGWeightGroupRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGFineGrainStripEERcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainStripEE.h"
-
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 #include <DataFormats/EcalDigi/interface/EEDataFrame.h>
@@ -78,7 +65,29 @@ class EcalFenixStrip {
   std::vector<int> format_out_;
   std::vector<int> fgvb_out_;
 
+  const EcalTPGPedestals * ecaltpPed_;
+  const EcalTPGLinearizationConst *ecaltpLin_;
+  const EcalTPGWeightIdMap *ecaltpgWeightMap_;
+  const EcalTPGWeightGroup *ecaltpgWeightGroup_;
+  const EcalTPGSlidingWindow *ecaltpgSlidW_;
+  const EcalTPGFineGrainStripEE *ecaltpgFgStripEE_;
+
  public:
+
+  void setPointers(  const EcalTPGPedestals * ecaltpPed,
+		     const EcalTPGLinearizationConst *ecaltpLin,
+		     const EcalTPGWeightIdMap *ecaltpgWeightMap,
+		     const EcalTPGWeightGroup *ecaltpgWeightGroup,
+		     const EcalTPGSlidingWindow *ecaltpgSlidW,
+		     const EcalTPGFineGrainStripEE *ecaltpgFgStripEE)
+    {
+      ecaltpPed_=ecaltpPed;
+      ecaltpLin_=ecaltpLin;
+      ecaltpgWeightMap_=ecaltpgWeightMap;
+      ecaltpgWeightGroup_= ecaltpgWeightGroup;
+      ecaltpgSlidW_=ecaltpgSlidW;
+      ecaltpgFgStripEE_=ecaltpgFgStripEE;
+    }
 
   // main methods
   // process method is splitted in 2 parts:
@@ -106,26 +115,6 @@ class EcalFenixStrip {
   // ========================= implementations ==============================================================
   void process(const edm::EventSetup &setup, std::vector<EBDataFrame> &samples, int nrXtals,std::vector<int> &out){
 
-    // first get parameter records
-    //for xtals
-    edm::ESHandle<EcalTPGLinearizationConst> theEcalTPGLinearization_handle;
-    setup.get<EcalTPGLinearizationConstRcd>().get(theEcalTPGLinearization_handle);
-    const EcalTPGLinearizationConst * ecaltpLin = theEcalTPGLinearization_handle.product();
-    edm::ESHandle<EcalTPGPedestals> theEcalTPGPedestals_handle;
-    setup.get<EcalTPGPedestalsRcd>().get(theEcalTPGPedestals_handle);
-    const EcalTPGPedestals * ecaltpPed = theEcalTPGPedestals_handle.product();
-
-    //for strips
-    edm::ESHandle<EcalTPGSlidingWindow> theEcalTPGSlidingWindow_handle;
-    setup.get<EcalTPGSlidingWindowRcd>().get(theEcalTPGSlidingWindow_handle);
-    const EcalTPGSlidingWindow * ecaltpgSlidW = theEcalTPGSlidingWindow_handle.product();
-    edm::ESHandle<EcalTPGWeightIdMap> theEcalTPGWEightIdMap_handle;
-    setup.get<EcalTPGWeightIdMapRcd>().get(theEcalTPGWEightIdMap_handle);
-    const EcalTPGWeightIdMap * ecaltpgWeightMap = theEcalTPGWEightIdMap_handle.product();
-    edm::ESHandle<EcalTPGWeightGroup> theEcalTPGWEightGroup_handle;
-    setup.get<EcalTPGWeightGroupRcd>().get(theEcalTPGWEightGroup_handle);
-    const EcalTPGWeightGroup * ecaltpgWeightGroup = theEcalTPGWEightGroup_handle.product();
-
     // now call processing
     if (samples.size()==0) {
       std::cout<<" Warning: 0 size vector found in EcalFenixStripProcess!!!!!"<<std::endl;
@@ -134,35 +123,12 @@ class EcalFenixStrip {
     }
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(samples[0].id());
     uint32_t stripid=elId.rawId() & 0xfffffff8;   //from Pascal
-    process_part1(samples,nrXtals,stripid,ecaltpPed,ecaltpLin,ecaltpgWeightMap,ecaltpgWeightGroup);//templated part
-    process_part2_barrel(stripid,ecaltpgSlidW);//part different for barrel/endcap
+    process_part1(samples,nrXtals,stripid,ecaltpPed_,ecaltpLin_,ecaltpgWeightMap_,ecaltpgWeightGroup_);//templated part
+    process_part2_barrel(stripid,ecaltpgSlidW_);//part different for barrel/endcap
     out=format_out_;
   }
 
  void  process(const edm::EventSetup &setup, std::vector<EEDataFrame> &samples, int nrXtals, std::vector<int> & out){
-
-  // first get parameter records
-  //for xtals
-  edm::ESHandle<EcalTPGLinearizationConst> theEcalTPGLinearization_handle;
-  setup.get<EcalTPGLinearizationConstRcd>().get(theEcalTPGLinearization_handle);
-  const EcalTPGLinearizationConst * ecaltpLin = theEcalTPGLinearization_handle.product();
-  edm::ESHandle<EcalTPGPedestals> theEcalTPGPedestals_handle;
-  setup.get<EcalTPGPedestalsRcd>().get(theEcalTPGPedestals_handle);
-  const EcalTPGPedestals * ecaltpPed = theEcalTPGPedestals_handle.product();
-
-  //for strips
-  edm::ESHandle<EcalTPGSlidingWindow> theEcalTPGSlidingWindow_handle;
-  setup.get<EcalTPGSlidingWindowRcd>().get(theEcalTPGSlidingWindow_handle);
-  const EcalTPGSlidingWindow * ecaltpgSlidW = theEcalTPGSlidingWindow_handle.product();
-  edm::ESHandle<EcalTPGWeightIdMap> theEcalTPGWEightIdMap_handle;
-  setup.get<EcalTPGWeightIdMapRcd>().get(theEcalTPGWEightIdMap_handle);
-  const EcalTPGWeightIdMap * ecaltpgWeightMap = theEcalTPGWEightIdMap_handle.product();
-  edm::ESHandle<EcalTPGWeightGroup> theEcalTPGWEightGroup_handle;
-  setup.get<EcalTPGWeightGroupRcd>().get(theEcalTPGWEightGroup_handle);
-  const EcalTPGWeightGroup * ecaltpgWeightGroup = theEcalTPGWEightGroup_handle.product();
-  edm::ESHandle<EcalTPGFineGrainStripEE> theEcalTPGFineGrainStripEE_handle;
-  setup.get<EcalTPGFineGrainStripEERcd>().get(theEcalTPGFineGrainStripEE_handle);
-  const EcalTPGFineGrainStripEE * ecaltpgFgStripEE = theEcalTPGFineGrainStripEE_handle.product();
 
 // now call processing
    if (samples.size()==0) {
@@ -171,9 +137,9 @@ class EcalFenixStrip {
    }
    const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(samples[0].id());
    uint32_t stripid=elId.rawId() & 0xfffffff8;   //from Pascal
-   process_part1(samples,nrXtals,stripid,ecaltpPed,ecaltpLin,ecaltpgWeightMap,ecaltpgWeightGroup); //templated part
-   process_part2_endcap(stripid,ecaltpgSlidW,ecaltpgFgStripEE);
-   out=format_out_;
+   process_part1(samples,nrXtals,stripid,ecaltpPed_,ecaltpLin_,ecaltpgWeightMap_,ecaltpgWeightGroup_); //templated part
+   process_part2_endcap(stripid,ecaltpgSlidW_,ecaltpgFgStripEE_);
+   out=format_out_; //FIXME: timing
    return;
  }
 

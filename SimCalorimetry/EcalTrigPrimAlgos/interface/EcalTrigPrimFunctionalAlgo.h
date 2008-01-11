@@ -53,8 +53,6 @@ class EcalTrigPrimFunctionalAlgo
 
   virtual ~EcalTrigPrimFunctionalAlgo();
 
-  /** this actually calculates the trigger primitives (from Digis) */
-
   void run(const edm::EventSetup &, const EBDigiCollection *col, EcalTrigPrimDigiCollection & result, EcalTrigPrimDigiCollection & resultTcp);
   void run(const edm::EventSetup&,  const EEDigiCollection *col, EcalTrigPrimDigiCollection & result, EcalTrigPrimDigiCollection & resultTcp);
   void run_part1_EB(EBDigiCollection const * col);
@@ -64,7 +62,18 @@ class EcalTrigPrimFunctionalAlgo
 		   std::vector<std::vector<std::pair<int,std::vector<typename Coll::Digi> > > > &towerMap,
 		   EcalTrigPrimDigiCollection & result,
 		   EcalTrigPrimDigiCollection & resultTcp);
-  void updateESRecord(double ttfLowEB, double ttfHighEB, double ttfLowEE, double ttfHighEE);
+
+  void setPointers(const EcalTPGLinearizationConst *ecaltpLin,const EcalTPGPedestals *ecaltpPed,const EcalTPGSlidingWindow * ecaltpgSlidW,const EcalTPGWeightIdMap * ecaltpgWeightMap,const EcalTPGWeightGroup * ecaltpgWeightGroup,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE)  {
+    estrip_->setPointers(ecaltpPed,ecaltpLin,ecaltpgWeightMap,ecaltpgWeightGroup,ecaltpgSlidW,ecaltpgFgStripEE);
+
+  }
+  void setPointers2(  const EcalTPGFineGrainEBGroup * ecaltpgFgEBGroup,
+		      const EcalTPGLutGroup * ecaltpgLutGroup,
+		      const EcalTPGLutIdMap * ecaltpgLut,
+		      const EcalTPGFineGrainEBIdMap * ecaltpgFineGrainEB,
+		      const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE){
+    etcp_->setPointers(ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainEB,ecaltpgFineGrainTowerEE);
+  }
 
  private:
 
@@ -106,8 +115,8 @@ class EcalTrigPrimFunctionalAlgo
 
   static const unsigned int nrSamples_; //nr samples to write, should not be changed since by convention the size means that it is coming from simulation
   static const unsigned int maxNrSamplesOut_; //to be placed in the intermediate samples
-  static const unsigned int maxNrTowers_; //FIXME: calculate from EcalTPParameters?
-  static const unsigned int maxNrTPs_; //FIXME: calculate from EcalTPParameters?
+  static const unsigned int maxNrTowers_; //would be better to get from somewhere..
+  static const unsigned int maxNrTPs_; //would be better to get from somewhere..
 
   int nrTowers_;   // nr of towers found by fillmap method
 
@@ -137,18 +146,21 @@ void EcalTrigPrimFunctionalAlgo::run_part2(const edm::EventSetup &setup,Coll con
   int firstSample = binOfMaximum_-1 -nrSamples_/2;
   int lastSample = binOfMaximum_-1 +nrSamples_/2;
   int nrTP=0;
+  std::vector<typename Coll::Digi> dummy;
+  EcalTriggerPrimitiveDigi tptow[2];
+  EcalTriggerPrimitiveDigi tptowTcp[2];
 
-  for(int itow=0;itow<nrTowers_;itow++) 
+  for(int itow=0;itow<nrTowers_;++itow) 
     {
 
       int index=hitTowers_[itow].first;
-      const EcalTrigTowerDetId thisTower=hitTowers_[itow].second;
+      const EcalTrigTowerDetId &thisTower=hitTowers_[itow].second;
 
       // loop over all strips assigned to this trigger tower
       int nstr=0;
       for(unsigned int i = 0; i < towerMap[itow].size();++i)
 	{
-	  std::vector<Digi> df = (towerMap[index])[i].second;//vector of dataframes for this strip, size; nr of crystals/strip
+	  std::vector<Digi> &df = (towerMap[index])[i].second;//vector of dataframes for this strip, size; nr of crystals/strip
 
 	  if ((towerMap[index])[i].first > 0) {  
 	    estrip_->process(setup,df,(towerMap[index])[i].first,striptp_[nstr++]);
@@ -157,14 +169,11 @@ void EcalTrigPrimFunctionalAlgo::run_part2(const edm::EventSetup &setup,Coll con
 
       bool isInInnerRings=false;
       if (thisTower.subDet()==EcalEndcap && (thisTower.ietaAbs()==27 || thisTower.ietaAbs()==28 )) isInInnerRings=true;
-      std::vector<typename Coll::Digi> dummy;
       etcp_->process(setup,dummy,striptp_,nstr,towtp_,towtp2_,isInInnerRings,thisTower);
 
       // prepare TP-s
       // special treatment for 2 inner endcap rings
       int nrTowers;
-      EcalTriggerPrimitiveDigi tptow[2];
-      EcalTriggerPrimitiveDigi tptowTcp[2];
       if (isInInnerRings)
         {
           nrTowers=2;
@@ -190,13 +199,7 @@ void EcalTrigPrimFunctionalAlgo::run_part2(const edm::EventSetup &setup,Coll con
         }
         int isam=0;
         for (int i=firstSample;i<=lastSample;++i) {
-	  // if (nrTowers<=1)  
 	  tptow[nrt].setSample(isam++,EcalTriggerPrimitiveSample(towtp_[i]));
-	  // else {
-	    // int et=towtp_[i].compressedEt()/2;
-	    //    tptow[nrt].setSample(isam++,EcalTriggerPrimitiveSample(et,towtp_[i].fineGrain(),towtp_[i].ttFlag()));
-	  //    tptow[nrt].setSample(isam++,EcalTriggerPrimitiveSample(towtp_[i]));
-	  //  }
         }
  	nrTP++;
         LogDebug("EcalTPG") <<" For tower "<<itow<<" created TP nr "<<nrTP<<" with Et "<<tptow[nrt].compressedEt();

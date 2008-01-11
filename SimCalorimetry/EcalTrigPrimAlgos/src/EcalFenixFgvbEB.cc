@@ -3,9 +3,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-EcalFenixFgvbEB::EcalFenixFgvbEB()
+EcalFenixFgvbEB::EcalFenixFgvbEB(int maxNrSamples)
  {
-   add_out_8_.resize(20); //FIXME: size
+   add_out_8_.resize(maxNrSamples); 
 }
 
 EcalFenixFgvbEB::~EcalFenixFgvbEB(){
@@ -60,10 +60,12 @@ void  EcalFenixFgvbEB::setParameters(uint32_t towid,const EcalTPGFineGrainEBGrou
   const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgFgEBGroup -> getMap();
   EcalTPGGroups::EcalTPGGroupsMapItr it= groupmap.find(towid);
   if (it!=groupmap.end()) {
-    uint32_t fgid =(*it).second;
-    const EcalTPGFineGrainEBIdMap::EcalTPGFineGrainEBMap fgmap = ecaltpgFineGrainEB -> getMap();
-    EcalTPGFineGrainEBIdMap::EcalTPGFineGrainEBMapItr itfg = fgmap.find(fgid);
-    (*itfg).second.getValues( ETlow_,  EThigh_,  Ratlow_,  Rathigh_, lut_);
+//     uint32_t fgid =(*it).second;
+//     const EcalTPGFineGrainEBIdMap::EcalTPGFineGrainEBMap fgmap = ecaltpgFineGrainEB -> getMap();
+//     EcalTPGFineGrainEBIdMap::EcalTPGFineGrainEBMapItr itfg = fgmap.find(fgid);
+//     (*itfg).second.getValues( ETlow_,  EThigh_,  Ratlow_,  Rathigh_, lut_);
+     EcalTPGFineGrainEBIdMap::EcalTPGFineGrainEBMapItr itfg = (ecaltpgFineGrainEB -> getMap()).find((*it).second);
+     (*itfg).second.getValues( ETlow_,  EThigh_,  Ratlow_,  Rathigh_, lut_);
   }
   else edm::LogWarning("EcalTPG")<<" could not find EcalTPGGroupsMap entry for "<<towid;
  
