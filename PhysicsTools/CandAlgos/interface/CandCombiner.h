@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.15 $
  *
- * $Id: CandCombiner.h,v 1.6 2007/10/31 14:12:35 llista Exp $
+ * $Id: CandCombiner.h,v 1.15 2007/11/14 09:55:39 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -23,7 +23,6 @@
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
 #include "PhysicsTools/Utilities/interface/cutParser.h"
-#include "PhysicsTools/Utilities/interface/MethodMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <string>
