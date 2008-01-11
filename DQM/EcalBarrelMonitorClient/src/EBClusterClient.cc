@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/01/02 18:03:18 $
- * $Revision: 1.46 $
+ * $Date: 2008/01/05 09:38:56 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -226,83 +226,83 @@ void EBClusterClient::analyze(void){
 
   MonitorElement* me;
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC energy").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC energy").c_str());
   me = dbe_->get(histo);
   h01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC size").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC size").c_str());
   me = dbe_->get(histo);
   h01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC number").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC number").c_str());
   me = dbe_->get(histo);
   h01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[2] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC energy map").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC energy map").c_str());
   me = dbe_->get(histo);
   h02_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC ET map").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC ET map").c_str());
   me = dbe_->get(histo);
   h02_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC number map").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC number map").c_str());
   me = dbe_->get(histo);
   h03_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_ );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC size map").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC size map").c_str());
   me = dbe_->get(histo);
   h04_ = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_ );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC energy projection eta").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC energy projection eta").c_str());
   me = dbe_->get(histo);
   h02ProjEta_[0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC energy projection phi").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC energy projection phi").c_str());
   me = dbe_->get(histo);
   h02ProjPhi_[0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC ET projection eta").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC ET projection eta").c_str());
   me = dbe_->get(histo);
   h02ProjEta_[1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC ET projection phi").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC ET projection phi").c_str());
   me = dbe_->get(histo);
   h02ProjPhi_[1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC number projection eta").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC number projection eta").c_str());
   me = dbe_->get(histo);
   h03ProjEta_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjEta_ );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC number projection phi").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC number projection phi").c_str());
   me = dbe_->get(histo);
   h03ProjPhi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjPhi_ );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC size projection eta").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC size projection eta").c_str());
   me = dbe_->get(histo);
   h04ProjEta_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, h04ProjEta_ );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC size projection phi").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT BC size projection phi").c_str());
   me = dbe_->get(histo);
   h04ProjPhi_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, h04ProjPhi_ );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid SC energy").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT SC energy").c_str());
   me = dbe_->get(histo);
   i01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid SC size").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT SC size").c_str());
   me = dbe_->get(histo);
   i01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid SC number").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT SC number").c_str());
   me = dbe_->get(histo);
   i01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[2] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid s1s9").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT s1s9").c_str());
   me = dbe_->get(histo);
   s01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid s9s25").c_str());
+  sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT s9s25").c_str());
   me = dbe_->get(histo);
   s01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[1] );
 

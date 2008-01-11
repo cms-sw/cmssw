@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/12/28 17:21:30 $
- * $Revision: 1.30 $
+ * $Date: 2008/01/05 09:38:57 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -351,11 +351,11 @@ void EEClusterClient::analyze(void){
   me = dbe_->get(histo);
   i01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[2] );
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT island s1s9").c_str());
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT s1s9").c_str());
   me = dbe_->get(histo);
   s01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT island s9s25").c_str());
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT s9s25").c_str());
   me = dbe_->get(histo);
   s01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[1] );
 
