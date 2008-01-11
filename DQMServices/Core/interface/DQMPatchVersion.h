@@ -4,7 +4,7 @@
 #include <string>
 
 namespace dqm {
-  std::string DQMPatchVersion = "03" ;
+  std::string DQMPatchVersion = "0" ;
 }
 #endif
 
