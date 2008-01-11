@@ -1,6 +1,7 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.9 2007/06/29 10:12:43 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.10 2007/07/31 15:20:25 ratnik Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForDqm.h"
@@ -762,6 +763,29 @@ void SiStripFecKey::initGranularity() {
 
 // -----------------------------------------------------------------------------
 //
+void SiStripFecKey::terse( std::stringstream& ss ) {
+  ss << " [SiStripFecKey::terse]"
+     << " FecKey/isValid/crate/slot/ring/CCU/module/LLD/I2C: "
+     << std::hex 
+     << std::setfill('0') 
+     << "0x" << std::setw(8) << key() << " "
+     << std::setfill(' ') 
+     << std::dec
+     << std::boolalpha 
+     << std::setw(5) << isValid() << " "
+     << std::noboolalpha
+     << std::setw(5) << fecCrate() << " "
+     << std::setw(5) << fecSlot() << " "
+     << std::setw(5) << fecRing() << " "
+     << std::setw(5) << ccuAddr() << " "
+     << std::setw(5) << ccuChan() << " "
+     << std::setw(5) << lldChan() << " "
+     << std::setw(5) << i2cAddr()
+     << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+//
 std::ostream& operator<< ( std::ostream& os, const SiStripFecKey& input ) {
   return os << std::endl
 	    << " [SiStripFecKey::print]" << std::endl
@@ -785,3 +809,24 @@ std::ostream& operator<< ( std::ostream& os, const SiStripFecKey& input ) {
 	    << " isValid              : " << input.isValid();
 }
 
+// -----------------------------------------------------------------------------
+//
+ConsistentWithKey::ConsistentWithKey( const SiStripFecKey& key ) 
+  : mask_( key.fecCrate() ? sistrip::invalid_ : 0,
+	   key.fecSlot() ? sistrip::invalid_ : 0,
+	   key.fecRing() ? sistrip::invalid_ : 0,
+	   key.ccuAddr() ? sistrip::invalid_ : 0,
+	   key.ccuChan() ? sistrip::invalid_ : 0,
+	   key.lldChan() ? sistrip::invalid_ : 0,
+	   key.i2cAddr() ? sistrip::invalid_ : 0 ) {;}
+
+// -----------------------------------------------------------------------------
+//
+ConsistentWithKey::ConsistentWithKey() 
+  : mask_(SiStripNullKey()) {;}
+
+// -----------------------------------------------------------------------------
+//
+bool ConsistentWithKey::operator() ( const uint32_t& a, const uint32_t& b ) const {
+  return ( ( a & mask_.key() ) < ( b & mask_.key() ) );
+}

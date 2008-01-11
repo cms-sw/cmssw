@@ -1,17 +1,14 @@
-// Last commit: $Id: SiStripFecKey.h,v 1.10 2007/06/06 09:09:22 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.h,v 1.11 2007/07/31 15:20:24 ratnik Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripFecKey_H
 #define DataFormats_SiStripCommon_SiStripFecKey_H
 
 #include "DataFormats/SiStripCommon/interface/ConstantsForGranularity.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
+#include <sstream>
 #include <ostream>
 #include <string>
-
-class SiStripFecKey;
-
-/** Debug info for SiStripFedKey class. */
-std::ostream& operator<< ( std::ostream&, const SiStripFecKey& );
+#include <boost/cstdint.hpp>
 
 /**
    @class SiStripFecKey
@@ -147,6 +144,9 @@ class SiStripFecKey : public SiStripKey {
       sistrip::Granularity is "undefined", returns true.  */
   bool isInvalid( const sistrip::Granularity& ) const;
 
+  /** A terse summary of the key  */
+  void terse( std::stringstream& ss );
+  
  private:
 
   // ---------- Private methods ----------
@@ -208,5 +208,18 @@ const uint16_t& SiStripFecKey::ccuAddr() const { return ccuAddr_; }
 const uint16_t& SiStripFecKey::ccuChan() const { return ccuChan_; }
 const uint16_t& SiStripFecKey::lldChan() const { return lldChan_; }
 const uint16_t& SiStripFecKey::i2cAddr() const { return i2cAddr_; }
+
+std::ostream& operator<< ( std::ostream&, const SiStripFecKey& );
+
+inline bool operator< ( const SiStripFecKey& a, const SiStripFecKey& b ) { return ( a.key() < b.key() ); }
+
+class ConsistentWithKey {
+ public: 
+  explicit ConsistentWithKey( const SiStripFecKey& key );
+  bool operator() ( const uint32_t&, const uint32_t& ) const;
+ private:
+  explicit ConsistentWithKey();
+  SiStripFecKey mask_;
+};
 
 #endif // DataFormats_SiStripCommon_SiStripFecKey_H

@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripFecKey.cc,v 1.1 2007/04/24 12:19:59 bainbrid Exp $
+// Last commit: $Id: test_SiStripFecKey.cc,v 1.2 2007/07/31 15:20:25 ratnik Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFecKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -11,6 +11,10 @@
 #include <sstream>
 #include <string>
 #include <time.h>
+#include <vector>
+#include <algorithm>
+//#include <functional>
+#include <boost/cstdint.hpp>
 
 using namespace sistrip;
 
@@ -41,6 +45,8 @@ void test_SiStripFecKey::beginJob( const edm::EventSetup& setup ) {
   edm::LogInfo(mlDqmCommon_)
     << "[SiStripFecKey::" << __func__ << "]"
     << " Tests the generation of keys...";
+
+  std::vector<uint32_t> keys;
   
   // FEC crates
   for ( uint16_t icrate = 0; icrate <= sistrip::FEC_CRATE_MAX+1; icrate++ ) {
@@ -100,6 +106,8 @@ void test_SiStripFecKey::beginJob( const edm::EventSetup& setup ) {
 		SiStripFecKey tmp3 = SiStripFecKey( tmp1.path() );
 		SiStripFecKey tmp4 = SiStripFecKey( tmp1 );
 		SiStripFecKey tmp5; tmp5 = tmp1;
+
+		keys.push_back(tmp1.key());
 		
 		ss << ">>> original:" << std::endl << tmp1 << std::endl
 		   << ">>> from FEC key:" << std::endl << tmp2 << std::endl
@@ -121,6 +129,44 @@ void test_SiStripFecKey::beginJob( const edm::EventSetup& setup ) {
     }
   }
 
+  std::sort( keys.begin(), keys.end() );
+  typedef std::vector<uint32_t>::iterator iter;
+  SiStripFecKey value(static_cast<uint16_t>(4));
+  //SiStripFecKey mask(static_cast<uint16_t>(sistrip::invalid_));
+  //ConsistentWith::mask_ = mask.key(); 
+  std::pair<iter,iter> temp = 
+    std::equal_range( keys.begin(), 
+ 		      keys.end(),
+		      value.key(),
+ 		      ConsistentWithKey(value) );
+  edm::LogVerbatim(mlDqmCommon_)
+    << "[SiStripFecKey::" << __func__ << "]"
+    << " number of keys = " << keys.size()
+    << " number of matching = " << temp.second - temp.first;
+
+  if ( temp.first != temp.second ) {
+    std::stringstream ss;
+    ss << std::endl;
+    for ( iter ii = temp.first; ii != temp.second; ++ii ) {
+//       ss << "key&mask: 0x" 
+// 	 << std::hex 
+// 	 << std::setw(8)
+// 	 << std::setfill('0')
+// 	 << uint32_t(SiStripFecKey(*ii).key() & mask.key() ) << std::endl;
+      SiStripFecKey(*ii).terse(ss);
+    }
+    LogTrace(mlDqmCommon_)
+      << "[SiStripFecKey::" << __func__ << "] begin"
+      << ss.str()
+      << "[SiStripFecKey::" << __func__ << "] end";
+  }
+
+  if ( find( keys.begin(), keys.end(), value.key() ) != keys.end() ) {
+    edm::LogVerbatim(mlDqmCommon_)
+      << "[SiStripFecKey::" << __func__ << "]"
+      << " found!!! ";
+  }
+  
   edm::LogVerbatim(mlDqmCommon_)
     << "[SiStripFecKey::" << __func__ << "]"
     << " Processed " << cntr
