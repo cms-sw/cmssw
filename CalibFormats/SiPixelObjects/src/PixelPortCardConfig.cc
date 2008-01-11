@@ -205,9 +205,10 @@ void PixelPortCardConfig::fillNameToAddress()
 		nameToAddress_[PortCardSettingNames::k_Delay25_SCL] = PortCardSettingNames::k_fpix_Delay25_SCL_address;
 		nameToAddress_[PortCardSettingNames::k_Delay25_GCR] = PortCardSettingNames::k_fpix_Delay25_GCR_address;
 		
-		nameToAddress_[PortCardSettingNames::k_DOH_Ch0Bias_CLK] = PortCardSettingNames::k_fpix_DOH_Ch0Bias_CLK_address;
+		nameToAddress_[PortCardSettingNames::k_DOH_Ch0Bias_CLK]  = PortCardSettingNames::k_fpix_DOH_Ch0Bias_CLK_address;
+		nameToAddress_[PortCardSettingNames::k_DOH_Dummy]        = PortCardSettingNames::k_fpix_DOH_Dummy_address;
 		nameToAddress_[PortCardSettingNames::k_DOH_Ch1Bias_Data] = PortCardSettingNames::k_fpix_DOH_Ch1Bias_Data_address;
-		nameToAddress_[PortCardSettingNames::k_DOH_Gain_SEU] = PortCardSettingNames::k_fpix_DOH_Gain_SEU_address;
+		nameToAddress_[PortCardSettingNames::k_DOH_Gain_SEU]     = PortCardSettingNames::k_fpix_DOH_Gain_SEU_address;
 	}
 	else if ( type_ == "bpix" )
 	{
@@ -259,9 +260,10 @@ void PixelPortCardConfig::fillNameToAddress()
 		nameToAddress_[PortCardSettingNames::k_Delay25_SCL] = PortCardSettingNames::k_bpix_Delay25_SCL_address;
 		nameToAddress_[PortCardSettingNames::k_Delay25_GCR] = PortCardSettingNames::k_bpix_Delay25_GCR_address;
 		
-		nameToAddress_[PortCardSettingNames::k_DOH_Ch0Bias_CLK] = PortCardSettingNames::k_bpix_DOH_Ch0Bias_CLK_address;
+		nameToAddress_[PortCardSettingNames::k_DOH_Ch0Bias_CLK]  = PortCardSettingNames::k_bpix_DOH_Ch0Bias_CLK_address;
+		nameToAddress_[PortCardSettingNames::k_DOH_Dummy]        = PortCardSettingNames::k_bpix_DOH_Dummy_address;
 		nameToAddress_[PortCardSettingNames::k_DOH_Ch1Bias_Data] = PortCardSettingNames::k_bpix_DOH_Ch1Bias_Data_address;
-		nameToAddress_[PortCardSettingNames::k_DOH_Gain_SEU] = PortCardSettingNames::k_bpix_DOH_Gain_SEU_address;
+		nameToAddress_[PortCardSettingNames::k_DOH_Gain_SEU]     = PortCardSettingNames::k_bpix_DOH_Gain_SEU_address;
 	}
 	else assert(0);
 	

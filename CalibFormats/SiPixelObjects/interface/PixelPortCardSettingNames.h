@@ -172,22 +172,26 @@ namespace pos{
 
     // DOH
     const std::string k_DOH_Ch0Bias_CLK  = "DOH_Ch0Bias_CLK";
+    const std::string k_DOH_Dummy        = "DOH_Dummy";
     const std::string k_DOH_Ch1Bias_Data = "DOH_Ch1Bias_Data";
     const std::string k_DOH_Gain_SEU     = "DOH_Gain_SEU";
     
     const unsigned int k_DOH_Ch0Bias_CLK_offset  = 0x0;
+    const unsigned int k_DOH_Dummy_offset        = 0x1;
     const unsigned int k_DOH_Ch1Bias_Data_offset = 0x2;
     const unsigned int k_DOH_Gain_SEU_offset     = 0x3;
     
     // DOH fpix
     const unsigned int k_fpix_DOH_base = 0x70;
     const unsigned int k_fpix_DOH_Ch0Bias_CLK_address  = k_fpix_DOH_base + k_DOH_Ch0Bias_CLK_offset;
+    const unsigned int k_fpix_DOH_Dummy_address        = k_fpix_DOH_base + k_DOH_Dummy_offset;
     const unsigned int k_fpix_DOH_Ch1Bias_Data_address = k_fpix_DOH_base + k_DOH_Ch1Bias_Data_offset;
     const unsigned int k_fpix_DOH_Gain_SEU_address     = k_fpix_DOH_base + k_DOH_Gain_SEU_offset;
     
     // DOH bpix
     const unsigned int k_bpix_DOH_base = 0x70;
     const unsigned int k_bpix_DOH_Ch0Bias_CLK_address  = k_bpix_DOH_base + k_DOH_Ch0Bias_CLK_offset;
+    const unsigned int k_bpix_DOH_Dummy_address        = k_bpix_DOH_base + k_DOH_Dummy_offset;
     const unsigned int k_bpix_DOH_Ch1Bias_Data_address = k_bpix_DOH_base + k_DOH_Ch1Bias_Data_offset;
     const unsigned int k_bpix_DOH_Gain_SEU_address     = k_bpix_DOH_base + k_DOH_Gain_SEU_offset;
   }
