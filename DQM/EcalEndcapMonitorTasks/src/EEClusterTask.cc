@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/01/10 18:37:17 $
- * $Revision: 1.29 $
+ * $Date: 2008/01/10 18:47:23 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -271,11 +271,11 @@ void EEClusterTask::setup(void){
     meSCSiz_ = dbe_->book1D(histo, histo, 50, 0., 50.);
     meSCSiz_->setAxisTitle("cluster size", 1);
 
-    sprintf(histo, "EECLT island s1s9");
+    sprintf(histo, "EECLT s1s9");
     mes1s9_ = dbe_->book1D(histo, histo, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
 
-    sprintf(histo, "EECLT island s9s25");
+    sprintf(histo, "EECLT s9s25");
     mes9s25_ = dbe_->book1D(histo, histo, 75, 0., 1.5);
     mes9s25_->setAxisTitle("s9/s25", 1);
 

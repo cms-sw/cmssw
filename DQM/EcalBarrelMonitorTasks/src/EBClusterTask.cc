@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/01/10 18:37:18 $
- * $Revision: 1.42 $
+ * $Date: 2008/01/10 18:47:27 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -114,95 +114,95 @@ void EBClusterTask::setup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBClusterTask");
 
-    sprintf(histo, "EBCLT island BC energy");
+    sprintf(histo, "EBCLT BC energy");
     meBCEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
     meBCEne_->setAxisTitle("energy (GeV)", 1);
 
-    sprintf(histo, "EBCLT island BC number");
+    sprintf(histo, "EBCLT BC number");
     meBCNum_ = dbe_->book1D(histo, histo, 100, 0., 100.);
     meBCNum_->setAxisTitle("number of clusters", 1);
 
-    sprintf(histo, "EBCLT island BC size");
+    sprintf(histo, "EBCLT BC size");
     meBCSiz_ = dbe_->book1D(histo, histo, 100, 0., 100.);
     meBCSiz_->setAxisTitle("cluster size", 1);
 
-    sprintf(histo, "EBCLT island BC energy map");
+    sprintf(histo, "EBCLT BC energy map");
     meBCEneMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
     meBCEneMap_->setAxisTitle("phi", 1);
     meBCEneMap_->setAxisTitle("eta", 2);
 
-    sprintf(histo, "EBCLT island BC number map");
+    sprintf(histo, "EBCLT BC number map");
     meBCNumMap_ = dbe_->book2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479);
     meBCNumMap_->setAxisTitle("phi", 1);
     meBCNumMap_->setAxisTitle("eta", 2);
 
-    sprintf(histo, "EBCLT island BC ET map");
+    sprintf(histo, "EBCLT BC ET map");
     meBCETMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
     meBCETMap_->setAxisTitle("phi", 1);
     meBCETMap_->setAxisTitle("eta", 2);
 
-    sprintf(histo, "EBCLT island BC size map");
+    sprintf(histo, "EBCLT BC size map");
     meBCSizMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 100., "s");
     meBCSizMap_->setAxisTitle("phi", 1);
     meBCSizMap_->setAxisTitle("eta", 2);
 
-    sprintf(histo, "EBCLT island BC energy projection eta");
+    sprintf(histo, "EBCLT BC energy projection eta");
     meBCEneMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 500., "s");
     meBCEneMapProjEta_->setAxisTitle("eta", 1);
     meBCEneMapProjEta_->setAxisTitle("energy (GeV)", 2);
 
-    sprintf(histo, "EBCLT island BC energy projection phi");
+    sprintf(histo, "EBCLT BC energy projection phi");
     meBCEneMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 500., "s");
     meBCEneMapProjPhi_->setAxisTitle("phi", 1);
     meBCEneMapProjPhi_->setAxisTitle("energy (GeV)", 2);
 
-    sprintf(histo, "EBCLT island BC number projection eta");
+    sprintf(histo, "EBCLT BC number projection eta");
     meBCNumMapProjEta_ = dbe_->book1D(histo, histo, 34, -1.479, 1.479);
     meBCNumMapProjEta_->setAxisTitle("eta", 1);
     meBCNumMapProjEta_->setAxisTitle("number of clusters", 2);
 
-    sprintf(histo, "EBCLT island BC number projection phi");
+    sprintf(histo, "EBCLT BC number projection phi");
     meBCNumMapProjPhi_ = dbe_->book1D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9);
     meBCNumMapProjPhi_->setAxisTitle("phi", 1);
     meBCNumMapProjPhi_->setAxisTitle("number of clusters", 2);
 
-    sprintf(histo, "EBCLT island BC ET projection eta");
+    sprintf(histo, "EBCLT BC ET projection eta");
     meBCETMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 500., "s");
     meBCETMapProjEta_->setAxisTitle("eta", 1);
     meBCETMapProjEta_->setAxisTitle("transverse energy (GeV)", 2);
 
-    sprintf(histo, "EBCLT island BC ET projection phi");
+    sprintf(histo, "EBCLT BC ET projection phi");
     meBCETMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 500., "s");
     meBCETMapProjPhi_->setAxisTitle("phi", 1);
     meBCETMapProjPhi_->setAxisTitle("transverse energy (GeV)", 2);
 
-    sprintf(histo, "EBCLT island BC size projection eta");
+    sprintf(histo, "EBCLT BC size projection eta");
     meBCSizMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 100., "s");
     meBCSizMapProjEta_->setAxisTitle("eta", 1);
     meBCSizMapProjEta_->setAxisTitle("cluster size", 2);
 
-    sprintf(histo, "EBCLT island BC size projection phi");
+    sprintf(histo, "EBCLT BC size projection phi");
     meBCSizMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 100., "s");
     meBCSizMapProjPhi_->setAxisTitle("phi", 1);
     meBCSizMapProjPhi_->setAxisTitle("cluster size", 2);
 
-    sprintf(histo, "EBCLT hybrid SC energy");
+    sprintf(histo, "EBCLT SC energy");
     meSCEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
     meSCEne_->setAxisTitle("energy (GeV)", 1);
 
-    sprintf(histo, "EBCLT hybrid SC number");
+    sprintf(histo, "EBCLT SC number");
     meSCNum_ = dbe_->book1D(histo, histo, 50, 0., 50.);
     meSCNum_->setAxisTitle("number of clusters", 1);
 
-    sprintf(histo, "EBCLT hybrid SC size");
+    sprintf(histo, "EBCLT SC size");
     meSCSiz_ = dbe_->book1D(histo, histo, 50, 0., 50.);
     meSCSiz_->setAxisTitle("cluster size", 1);
 
-    sprintf(histo, "EBCLT hybrid s1s9");
+    sprintf(histo, "EBCLT s1s9");
     mes1s9_ = dbe_->book1D(histo, histo, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
 
-    sprintf(histo, "EBCLT hybrid s9s25");
+    sprintf(histo, "EBCLT s9s25");
     mes9s25_ = dbe_->book1D(histo, histo, 75, 0., 1.5);
     mes9s25_->setAxisTitle("s9/s25", 1);
 
@@ -304,7 +304,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  // --- Barrel "Hybrid" Basic Clusters ---
+  // --- Barrel Basic Clusters ---
 
   Handle<BasicClusterCollection> pBasicClusters;
 
@@ -347,7 +347,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   }
 
 
-  // --- Barrel "Hybrid" Super Clusters ---
+  // --- Barrel Super Clusters ---
 
   Handle<SuperClusterCollection> pSuperClusters;
 
