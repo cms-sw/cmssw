@@ -27,6 +27,8 @@ public:
   typedef math::XYZTLorentzVectorD LorentzVector;
   typedef std::vector<LorentzVector> LorentzVectorCollection;
   edm::InputTag genParticles;
+  double etaMax;
+  double ptMin;
   int m_PDG;
 
 };
