@@ -24,13 +24,14 @@ namespace pos{
     PixelROCStatus(const std::set<ROCstatus>& stat);
     virtual ~PixelROCStatus();
 
-    std::string statusName(ROCstatus stat);
+    std::string statusName(ROCstatus stat) const;
+    std::string statusName() const;
 
     void set(ROCstatus stat);
     void clear(ROCstatus stat);
     void set(ROCstatus stat, bool mode);
     void set(const std::string& statName);
-    bool get(ROCstatus stat);
+    bool get(ROCstatus stat) const ;
     
 
   private:
