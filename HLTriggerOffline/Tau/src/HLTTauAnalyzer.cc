@@ -1,5 +1,5 @@
 
-#include "RecoTauTag/HLTAnalyzers/interface/HLTTauAnalyzer.h"
+#include "HLTriggerOffline/Tau/interface/HLTTauAnalyzer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"

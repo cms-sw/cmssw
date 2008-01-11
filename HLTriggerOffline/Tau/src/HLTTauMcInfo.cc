@@ -1,4 +1,4 @@
-#include "RecoTauTag/HLTAnalyzers/interface/HLTTauMcInfo.h"
+#include "HLTriggerOffline/Tau/interface/HLTTauMcInfo.h"
 #include "TLorentzVector.h"
 
 using namespace edm;
@@ -10,7 +10,8 @@ HLTTauMcInfo::HLTTauMcInfo(const edm::ParameterSet& iConfig)
 {
   genParticles = iConfig.getParameter<InputTag>("GenParticles");
   m_PDG = iConfig.getParameter<int>("BosonPID");
-  
+  etaMax = iConfig.getParameter<double>("EtaMax");
+  ptMin = iConfig.getParameter<double>("PtMin");
   produces<LorentzVectorCollection>("Leptons");
   produces<LorentzVectorCollection>("Jets");
   produces<LorentzVectorCollection>("Neutrina");
@@ -72,7 +73,8 @@ void HLTTauMcInfo::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 		{
 		  TLorentzVector jetMom=tau-taunet;
 		  LorentzVector vec(jetMom.Px(),jetMom.Py(),jetMom.Pz(),jetMom.E());
-		  product_Jets->push_back(vec);
+		  if(jetMom.Perp() > ptMin && fabs(jetMom.Eta()) < etaMax)
+		    product_Jets->push_back(vec);
 		}
 	      
 	      }
