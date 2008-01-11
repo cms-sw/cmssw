@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id$
+// $Id: FWViewManagerBase.cc,v 1.1 2008/01/07 05:48:46 chrjones Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@
 // constructors and destructor
 //
 FWViewManagerBase::FWViewManagerBase(const char* iPostfix):
-  m_builderNamePostfix(iPostfix)
+  m_builderNamePostfixes(&iPostfix, &iPostfix+1)
 {
 }
 
@@ -95,10 +95,17 @@ FWViewManagerBase::createInstanceOf(const TClass* iBaseClass,
 //
 // const member functions
 //
-const std::string&
-FWViewManagerBase::builderNamePostfix() const
+bool
+FWViewManagerBase::useableBuilder(const std::string& iName) const
 {
-  return m_builderNamePostfix;
+  for( std::vector<std::string>::const_iterator itPostfix = m_builderNamePostfixes.begin();
+      itPostfix != m_builderNamePostfixes.end();
+      ++itPostfix) {
+    if(std::string::npos != iName.find( *itPostfix) ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 //

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.10 2007/12/20 09:43:42 dmytro Exp $
+// $Id: FWDisplayEvent.cc,v 1.11 2008/01/07 05:48:46 chrjones Exp $
 //
 
 // system include files
@@ -241,9 +241,7 @@ void FWDisplayEvent::registerProxyBuilder(const std::string& type,
   for(std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
       itVM != m_viewManagers.end();
       ++itVM) {
-    std::cout <<"name comparing "<<type<<" "<<(*itVM)->builderNamePostfix()
-	      <<std::endl;
-    if(std::string::npos != proxyBuilderName.find( (*itVM)->builderNamePostfix())) {
+    if((*itVM)->useableBuilder(proxyBuilderName)) {
       std::cout <<"REGISTERING "<<type<<std::endl;
       (*itVM)->registerProxyBuilder(type,proxyBuilderName);
       break;

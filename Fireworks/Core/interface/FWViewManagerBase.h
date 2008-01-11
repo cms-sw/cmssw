@@ -16,10 +16,12 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id$
+// $Id: FWViewManagerBase.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
 //
 
 // system include files
+#include <string>
+#include <vector>
 
 // user include files
 
@@ -45,7 +47,7 @@ class FWViewManagerBase
       virtual void registerProxyBuilder(const std::string&, 
 					const std::string&) = 0;
       
-      const std::string& builderNamePostfix() const;
+      bool useableBuilder(const std::string&) const;
 
    protected:
       FWViewManagerBase(const char* iBuilderNamePostfix);
@@ -62,7 +64,7 @@ class FWViewManagerBase
       const FWViewManagerBase& operator=(const FWViewManagerBase&); // stop default
 
       // ---------- member data --------------------------------
-      std::string m_builderNamePostfix;
+      std::vector<std::string> m_builderNamePostfixes;
 
 };
 
