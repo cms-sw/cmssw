@@ -47,15 +47,24 @@ public:
    * @param event the EDM event the collection must be retrieved from.
    */
   void read(const edm::Event& event){
+    //    try{
+      edm::Handle<T> hColl;
+      event.getByLabel(tag_, hColl);
 
-    edm::Handle<T> hColl;
-    event.getByLabel(tag_, hColl);
-    if(hColl.isValid()) { 
-      currentColl_ = &(*hColl); 
-    } else {
-      edm::LogWarning("ProductNoFound") << tag_ << " product was not found!";
-      currentColl_ = &emptyColl_;
-    }
+      //If we must be tolerant to product absence, then
+      //we must check validaty before calling Handle::operator*
+      //to prevent exception throw:
+      if(!failIfNotFound_     // product-not-found tolerant mode
+	 && !hColl.isValid()){// and the product was not found
+	if(!notFoundAlreadyWarned_){//warning logged only once
+	  edm::LogWarning("ProductNoFound") << tag_
+					    << " product was not found!";
+	  notFoundAlreadyWarned_ = true;
+	}
+	currentColl_ = &emptyColl_;
+      } else {
+	currentColl_ = &(*hColl);
+      }
   }
   
   /** Accessor to a member of the collection retrieved by read method().
