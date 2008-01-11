@@ -128,6 +128,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     int                 genPart = itP -> genpartIndex(); // The HepMC particle number
     int                 genVert = itP -> vertIndex();    // The SimVertex #
     int                   pdgId = itP -> type();
+    int                  status = -99;
     EncodedEventId trackEventId = itP -> eventId();
     EncodedTruthId      trackId = EncodedTruthId(trackEventId,simtrackId);
 
@@ -139,6 +140,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     if (genPart >= 0 && signalEvent) {
       gp = genEvent -> barcode_to_particle(genPart);  // Pointer to the generating particle.
       if (gp != 0) {
+        status = gp -> status();
         pdgId = gp -> pdg_id();
       }
     }
@@ -150,7 +152,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       simTrack_sourceV.insert(make_pair(trackId,vertexId));
     }
 
-    TrackingParticle tp(q, theMomentum, theVertex, time, pdgId, trackEventId);
+    TrackingParticle tp(q, theMomentum, theVertex, time, pdgId, status, trackEventId);
 
 // Counting the TP hits using the layers (as in ORCA).
 // Does seem to find less hits. maybe b/c layer is a number now, not a pointer

@@ -7,8 +7,8 @@ typedef edm::RefVector<TrackingVertexCollection>   TrackingVertexRefVector;
 typedef TrackingVertexRefVector::iterator          tv_iterator;
 
 TrackingParticle::TrackingParticle( char q, const LorentzVector & p4, const Point & vtx,
-                                    double t, const int pdgId, const EncodedEventId eventId) :
-  reco::Particle( q, p4, vtx ), t_( t ), pdgId_( pdgId ), eventId_( eventId ){
+                                    double t, const int pdgId, const int status, const EncodedEventId eventId) :
+  reco::Particle( q, p4, vtx,pdgId,status ), t_( t ), pdgId_( pdgId ), eventId_( eventId ){
 }
 
 TrackingParticle::~TrackingParticle() {

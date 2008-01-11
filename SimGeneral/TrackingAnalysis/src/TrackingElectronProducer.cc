@@ -103,7 +103,7 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
     LorentzVector hep4Pos = (*(*tk).parentVertex()).position();
     TrackingParticle::Point pos(hep4Pos.x(), hep4Pos.y(), hep4Pos.z());
     TrackingParticle tkp( (*tk).charge(), (*tk).p4(), pos, hep4Pos.t(),
-                          (*tk).pdgId(), (*tk).eventId() );
+                          (*tk).pdgId(), (*tk).status(), (*tk).eventId() );
 
     // add G4 tracks and hits of all segments
     int ngenp = 0;

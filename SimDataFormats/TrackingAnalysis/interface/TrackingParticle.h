@@ -44,7 +44,7 @@ class TrackingParticle : public reco::Particle {
   ~TrackingParticle();
   /// constructor from pointer to generator particle
   TrackingParticle( char q, const LorentzVector & p4, const Point & vtx,
-                    double t, const int pdgId,  const EncodedEventId eventId);
+                    double t, const int pdgId,  const int status, const EncodedEventId eventId);
 
   /// PDG id, signal source, crossing number
   int pdgId() const { return pdgId_; }
