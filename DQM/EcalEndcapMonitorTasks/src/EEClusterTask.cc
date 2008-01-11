@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/01/11 06:55:11 $
- * $Revision: 1.31 $
+ * $Date: 2008/01/11 07:19:35 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -479,8 +479,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
     Handle<BasicClusterShapeAssociationCollection> pClusterShapeAssociation;
 
-    if ( e.getByLabel(ClusterShapeAssociation_, pClusterShapeAssociation) ) {
-    } else {
+    if ( ! e.getByLabel(ClusterShapeAssociation_, pClusterShapeAssociation) ) {
       LogWarning("EEClusterTask") << "Can't get collection with label "   << ClusterShapeAssociation_.label();
     }
 
@@ -495,9 +494,11 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       meSCSiz_->Fill(float(sCluster->clustersSize()));
 
       // seed and shapes
-      const ClusterShapeRef& shape = pClusterShapeAssociation->find(sCluster->seed())->val;
-      mes1s9_->Fill(shape->eMax()/shape->e3x3());
-      mes9s25_->Fill(shape->e3x3()/shape->e5x5());
+      if ( pClusterShapeAssociation.isValid() ) {
+        const ClusterShapeRef& shape = pClusterShapeAssociation->find(sCluster->seed())->val;
+        mes1s9_->Fill(shape->eMax()/shape->e3x3());
+        mes9s25_->Fill(shape->e3x3()/shape->e5x5());
+      }
 
       // look for the two most energetic super clusters
       if ( sCluster->energy() > sc1_p.Energy() ) {
