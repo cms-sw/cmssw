@@ -112,27 +112,33 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
 const EBDigiCollection*
 EcalSelectiveReadoutProducer::getEBDigis(edm::Event& event) const
 {
-  edm::Handle< EBDigiCollection > hEBDigis;
+  edm::Handle<EBDigiCollection> hEBDigis;
   event.getByLabel(digiProducer_, ebdigiCollection_, hEBDigis);
+  //product() method is called before id() in order to get an exception
+  //if the handle is not available (check not done by id() method).
+  EBDigiCollection* result = hEBDigis.product();
   static bool firstCall= true;
   if(firstCall){
     checkWeights(event, hEBDigis.id());
     firstCall = false;
   }
-  return hEBDigis.product();
+  return result;
 }
 
 const EEDigiCollection*
 EcalSelectiveReadoutProducer::getEEDigis(edm::Event& event) const
 {
-  edm::Handle< EEDigiCollection > hEEDigis;
+  edm::Handle<EEDigiCollection> hEEDigis;
   event.getByLabel(digiProducer_, eedigiCollection_, hEEDigis);
+  //product() method is called before id() in order to get an exception
+  //if the handle is not available (check not done by id() method).
+  EEDigiCollection* result = hEEDigis.product();
   static bool firstCall = true;
   if(firstCall){
     checkWeights(event, hEEDigis.id());
     firstCall = false;
   }
-  return hEEDigis.product();
+  return result;
 }
 
 const EcalTrigPrimDigiCollection*
