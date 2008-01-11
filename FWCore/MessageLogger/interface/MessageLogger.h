@@ -14,7 +14,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.25 2007/08/16 22:15:59 fischler Exp $
+// $Id: MessageLogger.h,v 1.26 2007/12/14 19:35:38 fischler Exp $
 //
 // =================================================
 // Change log
@@ -255,7 +255,7 @@ public:
 
 private:
   std::auto_ptr<MessageSender> ap; 
-  LogAbsolute( LogProblem const& );				// Change log 9
+  LogAbsolute( LogAbsolute const& );				// Change log 9
 
 };  // LogAbsolute
 
