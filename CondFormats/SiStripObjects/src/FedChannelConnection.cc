@@ -34,8 +34,8 @@ FedChannelConnection::FedChannelConnection( const uint16_t& fec_crate,
   dcuId_(dcu_id), 
   detId_(det_id), 
   nApvPairs_(pairs), 
-//   fedCrate_(sistrip::invalid_),
-//   fedSlot_(sistrip::invalid_),
+  fedCrate_(sistrip::invalid_),
+  fedSlot_(sistrip::invalid_),
   fedId_(fed_id), 
   fedCh_(fed_ch), 
   length_(length),
@@ -58,8 +58,8 @@ FedChannelConnection::FedChannelConnection() :
   dcuId_(sistrip::invalid32_), 
   detId_(sistrip::invalid32_), 
   nApvPairs_(sistrip::invalid_), 
-//   fedCrate_(sistrip::invalid_),
-//   fedSlot_(sistrip::invalid_),
+  fedCrate_(sistrip::invalid_),
+  fedSlot_(sistrip::invalid_),
   fedId_(sistrip::invalid_), 
   fedCh_(sistrip::invalid_), 
   length_(sistrip::invalid_),
@@ -140,9 +140,9 @@ uint16_t FedChannelConnection::apvPairNumber() const {
 // 
 void FedChannelConnection::print( std::stringstream& ss ) const {
   ss << " [FedChannelConnection::" << __func__ << "]" << std::endl
-     << " FedId/FedCh : " // << " FedCrate/FedSlot/FedId/FedCh : "
-//      << fedCrate() << "/"
-//      << fedSlot() << "/"
+     << " FedCrate/FedSlot/FedId/FedCh : "
+     << fedCrate() << "/"
+     << fedSlot() << "/"
      << fedId() << "/"
      << fedCh() << std::endl
      << " Crate/FEC/Ring/CCU/Module    : "

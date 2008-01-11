@@ -171,8 +171,8 @@ class FedChannelConnection {
   uint16_t nApvPairs_;
 
   // FED
-  //uint16_t fedCrate_;
-  //uint16_t fedSlot_;
+  uint16_t fedCrate_;
+  uint16_t fedSlot_;
   uint16_t fedId_;
   uint16_t fedCh_;
   uint16_t length_;
@@ -209,8 +209,8 @@ uint16_t FedChannelConnection::nDetStrips() const { return 256*nApvPairs_; }
 const uint16_t& FedChannelConnection::nApvPairs() const { return nApvPairs_; }
 uint16_t FedChannelConnection::nApvs() const { return 2*nApvPairs(); }
 
-const uint16_t& FedChannelConnection::fedCrate() const { static uint16_t tmp1 = 0; return tmp1; } //return fedCrate_; }
-const uint16_t& FedChannelConnection::fedSlot() const { static uint16_t tmp2 = 0; return tmp2; } //return fedSlot_; }
+const uint16_t& FedChannelConnection::fedCrate() const { return fedCrate_; }
+const uint16_t& FedChannelConnection::fedSlot() const { return fedSlot_; }
 const uint16_t& FedChannelConnection::fedId() const { return fedId_; }
 const uint16_t& FedChannelConnection::fedCh() const { return fedCh_; }
 
@@ -218,8 +218,8 @@ const uint16_t& FedChannelConnection::fiberLength() const { return length_; }
 
 void FedChannelConnection::fedId( uint16_t& fed_id ) { fedId_ = fed_id; }
 void FedChannelConnection::fedCh( uint16_t& fed_ch ) { fedCh_ = fed_ch; }
-void FedChannelConnection::fedCrate( uint16_t& fed_crate ) {;} // fedCrate_ = fed_crate; }
-void FedChannelConnection::fedSlot( uint16_t& fed_slot ) {;} // fedSlot_ = fed_slot; }
+void FedChannelConnection::fedCrate( uint16_t& fed_crate ) { fedCrate_ = fed_crate; }
+void FedChannelConnection::fedSlot( uint16_t& fed_slot ) { fedSlot_ = fed_slot; }
 
 #endif // CondFormats_SiStripObjects_FedChannelConnection_H
 
