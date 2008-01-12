@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.34 2008/01/10 21:12:43 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.35 2008/01/12 00:13:40 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -301,7 +301,7 @@ FastL1GlobalAlgo::FillEgammasTP(edm::Event const& e) {
       
       int emTag = isEMCand(cid,ph,e);
       //std::cout<<"+++ "<<ph<<std::endl;
-      std::cout<<"+++ "<<emTag<<" | "<<ph->et()<<std::endl;
+      //std::cout<<"+++ "<<emTag<<" | "<<ph->et()<<std::endl;
       
       // 1 = non-iso EM, 2 = iso EM
       if (emTag==1) {
@@ -1215,9 +1215,9 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   *ph = l1extra::L1EmParticle(rp4);
   //ph = l1extra::L1EmParticle(rp4);
 
-  std::cout<<"EM eme     : "<<eme<<std::endl;
-  std::cout<<"EM rp4.et(): "<<rp4.Et()<<std::endl;
-  std::cout<<"EM ph->et() : "<<ph->et()<<std::endl;
+  //std::cout<<"EM eme     : "<<eme<<std::endl;
+  //std::cout<<"EM rp4.et(): "<<rp4.Et()<<std::endl;
+  //std::cout<<"EM ph->et() : "<<ph->et()<<std::endl;
  
   //if (emet>0.) {
   //  std::cout << "em region et, eta, phi: "<< emet<<" "<< cenEta<<" "<< cenPhi<<" " << std::endl;
