@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2007/12/05 05:39:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/01/11 15:47:43 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -62,6 +62,8 @@ class ROOTtoMEConverter : public edm::EDAnalyzer
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
+  typedef std::vector<uint32_t> TagList;
+
  private:
   
   std::string fName;
@@ -70,11 +72,15 @@ class ROOTtoMEConverter : public edm::EDAnalyzer
   int frequency;
 
   DaqMonitorBEInterface *dbe;
-  std::vector<MonitorElement*> me;
+  std::vector<MonitorElement*> me1, me2, me3, me4, me5, me6, me7, me8;
 
   // private statistics information
   unsigned int count;
 
+  std::vector<std::string> classtypes;
+
 }; // end class declaration
 
 #endif
+
+

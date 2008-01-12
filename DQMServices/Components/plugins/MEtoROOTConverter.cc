@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/12/05 05:39:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/05 06:29:46 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -49,16 +49,26 @@ MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
   //  if (verbosity >= 0 ) dbe->showDirStructure();
   //}
 
-  // clear out the vector holders
+  // clear out the vector holders and information flags
   items.clear();
   pkgvec.clear();
   pathvec.clear();
   mevec.clear();
+  metype.clear();
   packages.clear();
+  hasTH1F = false; nTH1F = 0;
+  hasTH2F = false; nTH2F = 0;
+  hasTH3F = false; nTH3F = 0;
+  hasTProfile = false; nTProfile = 0;
+  hasTProfile2D = false; nTProfile2D = 0;
+  hasFloat = false; nFloat = 0;
+  hasInt = false; nInt = 0;
+  hasString = false; nString = 0;
 
   // get contents out of DQM
+  std::string classname;
   dbe->getContents(items);
-  
+ 
   if (!items.empty()) {
     for (i = items.begin (), e = items.end (); i != e; ++i) {
 
@@ -71,7 +81,7 @@ MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
       // get list of directories
       StringList dir = StringOps::split(item[0],"/");
 
-      // keep track of leading directory
+      // keep track of leading directory (i.e. package)
       n = dir.begin();
       std::string package = *n;
       ++packages[package];
@@ -79,17 +89,140 @@ MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
       // get list of monitor elements
       StringList me = StringOps::split(item[1],",");
 
-      // keep track of package, path and me for each monitor element
+      // keep track of package, path, me name and type for each valid monitor 
+      // element
       for (n = me.begin(), m = me.end(); n != m; ++n) {
+
+	//get full path
+	std::string fullpath; 
+	fullpath.reserve(item[0].size() + me.size() + 2);
+	fullpath += item[0];
+	if (!item[0].empty()) fullpath += "/";
+	fullpath += *n;
+	//std::cout << "Full path is: " << fullpath << std::endl;
+    
+	//dbe->cd(item[0]);
+    
+	// verify valid monitor elements by type
+	bool validME = false;
+	//std::cout << "MEobject:" << std::endl;
+	if (MonitorElement *me = dbe->get(fullpath)) {
+
+	  // extract classname
+	  if (ROOTObj *ob = dynamic_cast<ROOTObj *>(me)) {
+	    if (TObject *tobj = ob->operator->()){
+	      validME = true;
+	      //std::cout << "   normal: " << tobj->GetName();
+	      classname = tobj->ClassName();
+	      if (classname == "TObjString") {
+		if (TObjString* histogram = 
+		    dynamic_cast<TObjString*>(ob->operator->())) {
+		  
+		  // get contents of TObjString
+		  TString contents = histogram->GetString();
+		  std::string scont = contents.Data();
+
+		  // verify I have the expected string format		
+		  assert(StringOps::contains(scont,'=') == 1);
+		  
+		  // get list of things seperated by =
+		  StringList sitem = StringOps::split(scont, "=");
+		  
+		  // get front item separated by >
+		  StringList sitem1 = StringOps::split(sitem[0], ">");
+		  
+		  if (sitem1[1] == "f") classname == "Float";
+		  if (sitem1[1] == "i") classname == "Int";
+		  if (sitem1[1] == "s") classname == "String";
+		}
+	      }
+	      metype.push_back(classname);
+	      //std::cout << " is of type " << classname << std::endl;
+	    } 
+	  } else if (FoldableMonitor *ob = 
+		     dynamic_cast<FoldableMonitor *>(me)) {
+	    if (TObject *tobj = ob->getTagObject()) {
+	      validME = true;
+	      //std::cout << "   foldable: " << tobj->GetName();
+	      classname = tobj->ClassName();
+	      if (classname == "TObjString") {
+		if (TObjString* histogram = 
+		    dynamic_cast<TObjString*>(ob->getTagObject())) {
+
+		  // get contents of TObjString
+		  TString contents = histogram->GetString();
+		  std::string scont = contents.Data();
+		  
+		  // verify I have the expected string format		
+		  assert(StringOps::contains(scont,'=') == 1);
+		  
+		  // get list of things seperated by =
+		  StringList sitem = StringOps::split(scont, "=");
+		  
+		  // get front item separated by >
+		  StringList sitem1 = StringOps::split(sitem[0], ">");
+		  
+		  if (sitem1[1] == "f") classname == "Float";
+		  if (sitem1[1] == "i") classname == "Int";
+		  if (sitem1[1] == "s") classname == "String";
+		}
+	      }
+	      metype.push_back(classname);
+	      //std::cout << " is of type " << classname << std::endl;
+	    }
+	  }
+	  if (!validME) {
+	    edm::LogError(MsgLoggerCat)
+	      << "ERROR: The DQM object '" << fullpath
+	      << "' is neither a ROOT object nor a recognised "
+	      << "simple object.\n";
+	   continue;
+	  }
+
+	  if (classname == "TH1F") {
+	    hasTH1F = true;
+	    ++nTH1F;
+	  }
+	  if (classname == "TH2F") {
+	    hasTH2F = true;
+	    ++nTH2F;
+	  }
+	  if (classname == "TH3F") {
+	    hasTH3F = true;
+	    ++nTH3F;
+	  }
+	  if (classname == "TProfile") {
+	    hasTProfile = true;
+	    ++nTProfile;
+	  }
+	  if (classname == "TProfile2D") {
+	    hasTProfile2D = true;
+	    ++nTProfile2D;
+	  }
+	  if (classname == "Float") {
+	    hasFloat = true;
+	    ++nFloat;
+	  }
+	  if (classname == "Int") {
+	    hasInt = true;
+	    ++nInt;
+	  }
+	  if (classname == "String") {
+	    hasString = true;
+	    ++nString;
+	  }
+	} // end loop through monitor elements
+	
+	fullpathvec.push_back(fullpath);
 	pkgvec.push_back(package);
 	pathvec.push_back(item[0]);
 	mevec.push_back(*n);
       }
-    }
-  }
+    } // end loop through me items
+  } // end check that items exist
 
   if (verbosity > 0) {
-    // list unique packeges
+    // list unique packages
     std::cout << "Packages accessing DQM:" << std::endl;
     for (pkgIter = packages.begin(); pkgIter != packages.end(); ++pkgIter) {
       std::cout << "  " << pkgIter->first << std::endl;
@@ -100,10 +233,35 @@ MEtoROOTConverter::MEtoROOTConverter(const edm::ParameterSet & iPSet) :
       std::cout << "   " << pkgvec[a] << " " << pathvec[a] << " " << mevec[a] 
 		<< std::endl;
     }
-  }
 
-  // create persistent object
-  produces<MEtoROOT, edm::InRun>(fName);
+    std::cout << "We have " << nTH1F << " TH1F objects" << std::endl;
+    std::cout << "We have " << nTH2F << " TH2F objects" << std::endl;
+    std::cout << "We have " << nTH3F << " TH3F objects" << std::endl;
+    std::cout << "We have " << nTProfile << " TProfile objects" << std::endl;
+    std::cout << "We have " << nTProfile2D << " TProfile2D objects" 
+	      << std::endl;
+    std::cout << "We have " << nFloat << " Float objects" << std::endl;
+    std::cout << "We have " << nInt << " Int objects" << std::endl;
+    std::cout << "We have " << nString << " String objects" << std::endl;
+  }
+      
+  // create persistent objects
+  if (hasTH1F)
+    produces<MEtoROOT<TH1F>, edm::InRun>(fName);
+  if (hasTH2F)
+    produces<MEtoROOT<TH2F>, edm::InRun>(fName);
+  if (hasTH3F)
+    produces<MEtoROOT<TH3F>, edm::InRun>(fName);
+  if (hasTProfile)
+    produces<MEtoROOT<TProfile>, edm::InRun>(fName);
+  if (hasTProfile2D)
+    produces<MEtoROOT<TProfile2D>, edm::InRun>(fName);
+  if (hasFloat)
+    produces<MEtoROOT<float>, edm::InRun>(fName);
+  if (hasInt)
+    produces<MEtoROOT<int>, edm::InRun>(fName);
+  if (hasString)
+    produces<MEtoROOT<std::string>, edm::InRun>(fName);
 
 } // end constructor
 
@@ -146,16 +304,39 @@ void MEtoROOTConverter::beginRun(edm::Run& iRun,
   }
   
   // clear out object holders
-  version.clear();
-  name.clear();
-  tags.clear();
-  object.clear();
-  refobj.clear();
-  qreports.clear();
-  flags.clear();
+  TH1FME.name.clear();
+  TH1FME.tags.clear();
+  TH1FME.object.clear();
+
+  TH2FME.name.clear();
+  TH2FME.tags.clear();
+  TH2FME.object.clear();
+
+  TH3FME.name.clear();
+  TH3FME.tags.clear();
+  TH3FME.object.clear();
+
+  TProfileME.name.clear();
+  TProfileME.tags.clear();
+  TProfileME.object.clear();
+
+  TProfile2DME.name.clear();
+  TProfile2DME.tags.clear();
+  TProfile2DME.object.clear();
+
+  FloatME.name.clear();
+  FloatME.tags.clear();
+  FloatME.object.clear();
+
+  IntME.name.clear();
+  IntME.tags.clear();
+  IntME.object.clear();
+
+  StringME.name.clear();
+  StringME.tags.clear();
+  StringME.object.clear();
 
   taglist.clear();
-  qreportsmap.clear();
 
   return;
 }
@@ -174,25 +355,10 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   for (unsigned int a = 0; a < pkgvec.size(); ++a) {
 
     taglist.clear();
-    qreportsmap.clear();
-    flag = 0;
 
-    //set full path
-    std::string fullpath;
-    fullpath.reserve(pathvec[a].size() + mevec[a].size() + 2);
-    fullpath += pathvec[a];
-    if (!pathvec[a].empty()) fullpath += "/";
-    fullpath += mevec[a];
+    // already extracted full path name in constructor
+    //std::cout << "name: " << fullpathvec[a] << std::endl;
 
-    //set name
-    //std::cout << std::endl;    
-    //std::cout << "name: " << fullpath << std::endl;
-    name.push_back(fullpath);
-
-    // set version
-    //std::cout << "version: " << s_version.ns() << std::endl;    
-    version.push_back(s_version.ns());
-    
     // get tags
     bool foundtags  = false;
     dqm::me_util::dirt_it idir = dbe->allTags.find(pathvec[a]);
@@ -209,106 +375,201 @@ void MEtoROOTConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     //for (unsigned int ii = 0; ii < taglist.size(); ++ii) {
     //  std::cout << "   " << taglist[ii] << std::endl;
     //}
-    tags.push_back(taglist);
 
     // get monitor elements
-    TString classname;
-    dbe->cd();
-    dbe->cd(pathvec[a]);
+    //dbe->cd();
+    //dbe->cd(pathvec[a]);
     bool validME = false;
    
     //std::cout << "MEobject:" << std::endl;
-    if (MonitorElement *me = dbe->get(fullpath)) {
-   
-      if (me->hasError()) flag |= FLAG_ERROR;
-      if (me->hasWarning()) flag |= FLAG_WARNING;
-      if (me->hasOtherReport()) flag |= FLAG_REPORT;
+    if (MonitorElement *me = dbe->get(fullpathvec[a])) {
       
       // Save the ROOT object.  This is either a genuine ROOT object,
       // or a scalar one that stores its value as TObjString.
       if (ROOTObj *ob = dynamic_cast<ROOTObj *>(me)) {
-	if (TObject *tobj = ob->operator->()){
+	//if (TObject *tobj = ob->operator->()){
+	if (TH1F* histogram = dynamic_cast<TH1F*>(ob->operator->())) {
 	  validME = true;
-	  //std::cout << "   normal: " << tobj->GetName() << std::endl;
-	  classname = tobj->ClassName();
-	  //std::cout << "      classname: " << classname << std::endl;
-	  if (classname == "TH1F") {
-	    TH1F *histogram = dynamic_cast<TH1F*>(tobj);
-	    TH1F shistogram(*histogram);
-	    object.push_back(shistogram);
-	  }	  
-	  if (dynamic_cast<TObjString *> (tobj)) {
-	    //std::cout << "  normal scalar: " << tobj->GetName() << std::endl;
-	    flag |= FLAG_SCALAR;
-	  }
+	  //std::cout << "   normal: " << histogram->GetName() << std::endl;
+	  //std::cout << "      classname: " << metype[a] << std::endl;
+	  TH1FME.object.push_back(*histogram);
+	  TH1FME.name.push_back(fullpathvec[a]);
+	  TH1FME.tags.push_back(taglist);
 	}
-      } else if (FoldableMonitor *ob = dynamic_cast<FoldableMonitor *>(me)) {
-	if (TObject *tobj = ob->getTagObject()) {
+	if (TH2F* histogram = dynamic_cast<TH2F*>(ob->operator->())) {
 	  validME = true;
-	  //std::cout << "   foldable: " << tobj->GetName() << std::endl;
-	  classname = tobj->ClassName();
-	  //std::cout << "      classname: " << classname << std::endl;
+	  //std::cout << "   normal: " << histogram->GetName() << std::endl;
+	  //std::cout << "      classname: " << metype[a] << std::endl;
+	  TH2FME.object.push_back(*histogram);
+	  TH2FME.name.push_back(fullpathvec[a]);
+	  TH2FME.tags.push_back(taglist);
+	}	
+	if (TH3F* histogram = dynamic_cast<TH3F*>(ob->operator->())) {
+	  validME = true;
+	  //std::cout << "   normal: " << histogram->GetName() << std::endl;
+	  //std::cout << "      classname: " << metype[a] << std::endl;
+	  TH3FME.object.push_back(*histogram);
+	  TH3FME.name.push_back(fullpathvec[a]);
+	  TH3FME.tags.push_back(taglist);
+	}  
+	if (TProfile* histogram = dynamic_cast<TProfile*>(ob->operator->())) {
+	  validME = true;
+	  //std::cout << "   normal: " << histogram->GetName() << std::endl;
+	  //std::cout << "      classname: " << metype[a] << std::endl;
+	  TProfileME.object.push_back(*histogram);
+	  TProfileME.name.push_back(fullpathvec[a]);
+	  TProfileME.tags.push_back(taglist);
+	}  	
+	if (TProfile2D* histogram = 
+	    dynamic_cast<TProfile2D*>(ob->operator->())) {
+	  validME = true;
+	  //std::cout << "   normal: " << histogram->GetName() << std::endl;
+	  //std::cout << "      classname: " << metype[a] << std::endl;
+	  TProfile2DME.object.push_back(*histogram);
+	  TProfile2DME.name.push_back(fullpathvec[a]);
+	  TProfile2DME.tags.push_back(taglist);
+	}  	
+	if (TObjString* histogram = 
+	    dynamic_cast<TObjString*>(ob->operator->())) {
+	  validME = true;
+	  //std::cout << "   normal: " << histogram->GetName() << std::endl;
+	  //std::cout << "      classname: " << metype[a] << std::endl;
+     
+	  // get contents of TObjString
+	  TString contents = histogram->GetString();
+	  std::string scont = contents.Data();
+	  
+	  // verify I have the expected string format		
+	  assert(StringOps::contains(scont,'=') == 1);
+	  
+	  // get list of things seperated by =
+	  StringList sitem = StringOps::split(scont, "=");
+	  
+	  // get front item separated by >
+	  StringList sitem1 = StringOps::split(sitem[0], ">");
+	  
+	  std::string classname;
+	  if (sitem1[1] == "f") classname == "Float";
+	  if (sitem1[1] == "i") classname == "Int";
+	  if (sitem1[1] == "s") classname == "String";
+	  
+	  // get back item separated by <
+	  StringList sitem2 = StringOps::split(sitem[1], "<");
 
-	  // Lassi says this is the only type this type of me can take....
-	  if (classname == "TObjString") {
-	    TObjString *hstring = dynamic_cast<TObjString*>(tobj);
-	    TObjString shstring(*hstring);
-	    TH1F dummyhist;
-	    object.push_back(dummyhist);
-	    //object.push_back(shstring); // this doesn't work right now
-	                                  // since only TH1F is implemented 
-	  };
-	  if (dynamic_cast<TObjString *> (tobj)) {
-	    //std::cout << "  foldable scalar: " << tobj->GetName() 
-	    //	      << std::endl;
-	    flag |= FLAG_SCALAR;
+	  if (classname == "Float") {
+	    FloatME.object.push_back(atof(sitem2[0].c_str()));
+	    FloatME.name.push_back(fullpathvec[a]);
+	    FloatME.tags.push_back(taglist);
 	  }
-	}
+	  if (classname == "Int") {
+	    IntME.object.push_back(atoi(sitem2[0].c_str()));
+	    IntME.name.push_back(fullpathvec[a]);
+	    IntME.tags.push_back(taglist);
+	  }
+	  if (classname == "String") {
+	    StringME.object.push_back(sitem2[0]);
+	    StringME.name.push_back(fullpathvec[a]);
+	    StringME.tags.push_back(taglist);
+	  }
+	}  
+      } else if (FoldableMonitor *ob = dynamic_cast<FoldableMonitor *>(me)) {
+	//if (TObject *tobj = ob->getTagObject()) {
+	if (TObjString* histogram = 
+	    dynamic_cast<TObjString*>(ob->getTagObject())) {
+	  validME = true;
+	  //std::cout << "   foldable: " << histogram->GetName() << std::endl;
+	  //std::cout << "      classname: " << metype[a] << std::endl;
+	
+	  // get contents of TObjString
+	  TString contents = histogram->GetString();
+	  std::string scont = contents.Data();
+	  
+	  // verify I have the expected string format		
+	  assert(StringOps::contains(scont,'=') == 1);
+	  
+	  // get list of things seperated by =
+	  StringList sitem = StringOps::split(scont, "=");
+	  
+	  // get front item separated by >
+	  StringList sitem1 = StringOps::split(sitem[0], ">");
+	  
+	  std::string classname;
+	  if (sitem1[1] == "f") classname == "Float";
+	  if (sitem1[1] == "i") classname == "Int";
+	  if (sitem1[1] == "s") classname == "String";
+	  
+	  // get back item separated by <
+	  StringList sitem2 = StringOps::split(sitem[1], "<");
+	  
+	  if (classname == "Float") {
+	    FloatME.object.push_back(atof(sitem2[0].c_str()));
+	    FloatME.name.push_back(fullpathvec[a]);
+	    FloatME.tags.push_back(taglist);
+	  }
+	  if (classname == "Int") {
+	    IntME.object.push_back(atoi(sitem2[0].c_str()));
+	    IntME.name.push_back(fullpathvec[a]);
+	    IntME.tags.push_back(taglist);
+	  }
+	  if (classname == "String") {
+	    StringME.object.push_back(sitem2[0]);
+	    StringME.name.push_back(fullpathvec[a]);
+	    StringME.tags.push_back(taglist);
+	  }
+	}  
       }
       if (!validME) {
 	edm::LogError(MsgLoggerCat)
-	  << "ERROR: The DQM object '" << fullpath
-	  << "' is neither a ROOT object nor a recognised simple object.\n";
+	  << "ERROR: The DQM object '" << fullpathvec[a]
+	  << "' is neither a ROOT object nor a recognised "
+	  << "simple object.\n";
 	return;
       }
-      
-      // get quality reports
-      //std::cout << "qreports:" << std::endl;
-      //MEtoROOT::QReports::iterator qmapIt;
-      //for (qmapIt = qreportsmap.begin(); qmapIt != qreportsmap.end(); 
-      //	   ++qmapIt) {
-      //	std::cout << "   " << qmapIt->first << ":" << std::endl;
-      //	std::cout << "      " << "code: " << (qmapIt->second).code
-      //		  << std::endl;
-      //	std::cout << "      " << "message: " 
-      //		  << (qmapIt->second).message << std::endl;	
-      //}
-      qreports.push_back(qreportsmap);
-
     } // end get monitor element
-
-    // get flags
-    //std::cout << "flag: " << flag << std::endl;
-    flags.push_back(flag);
-
-    // get refobj
-    if (classname == "TH1F") {
-      TH1F histref;
-      refobj.push_back(histref);
-      //std::cout << "refobj:" << std::endl;
-      //std::cout << "   " << histref.GetName() << std::endl;
-    }
-
   } // end loop through all monitor elements
 
-  // produce object to put in events
-  std::auto_ptr<MEtoROOT> pOut(new MEtoROOT);
-
-  // fill pOut with vector info
-  pOut->putMERootObject(version,name,tags,object,refobj,qreports,flags);
-
-  // put into run tree
-  iRun.put(pOut,fName);
+  // produce objects to put in events
+  if (hasTH1F) {
+    std::auto_ptr<MEtoROOT<TH1F> > pOut1(new MEtoROOT<TH1F>);
+    pOut1->putMERootObject(TH1FME.name,TH1FME.tags,TH1FME.object);
+    iRun.put(pOut1,fName);
+  }
+  if (hasTH2F) {
+    std::auto_ptr<MEtoROOT<TH2F> > pOut2(new MEtoROOT<TH2F>);
+    pOut2->putMERootObject(TH2FME.name,TH2FME.tags,TH2FME.object);
+    iRun.put(pOut2,fName);
+  }
+  if (hasTH3F) {
+    std::auto_ptr<MEtoROOT<TH3F> > pOut3(new MEtoROOT<TH3F>);
+    pOut3->putMERootObject(TH3FME.name,TH3FME.tags,TH3FME.object);
+    iRun.put(pOut3,fName);
+  }
+  if (hasTProfile) {
+    std::auto_ptr<MEtoROOT<TProfile> > pOut4(new MEtoROOT<TProfile>);
+    pOut4->putMERootObject(TProfileME.name,TProfileME.tags,TProfileME.object);
+    iRun.put(pOut4,fName);
+  }
+  if (hasTProfile2D) {
+    std::auto_ptr<MEtoROOT<TProfile2D> > pOut5(new MEtoROOT<TProfile2D>);
+    pOut5->putMERootObject(TProfile2DME.name,TProfile2DME.tags,
+			   TProfile2DME.object);
+    iRun.put(pOut5,fName);
+  }
+  if (hasFloat) {
+    std::auto_ptr<MEtoROOT<float> > pOut6(new MEtoROOT<float>);
+    pOut6->putMERootObject(FloatME.name,FloatME.tags,FloatME.object);
+    iRun.put(pOut6,fName);
+  }
+  if (hasInt) {
+    std::auto_ptr<MEtoROOT<int> > pOut7(new MEtoROOT<int>);
+    pOut7->putMERootObject(IntME.name,IntME.tags,IntME.object);
+    iRun.put(pOut7,fName);
+  }
+  if (hasString) {
+    std::auto_ptr<MEtoROOT<std::string> > pOut8(new MEtoROOT<std::string>);
+    pOut8->putMERootObject(StringME.name,StringME.tags,StringME.object);
+    iRun.put(pOut8,fName);
+  }
 
   return;
 }

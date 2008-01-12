@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2007/12/05 05:39:21 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/11 15:47:42 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -31,8 +31,6 @@
 #include "DQMServices/Core/interface/MonitorElementRootT.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-//#include "VisMonitoring/DQMServer/interface/Objects.h"
-
 // data format
 #include "DataFormats/Histograms/interface/MEtoROOTFormat.h"
 
@@ -47,13 +45,25 @@
 
 #include "TString.h"
 #include "TH1F.h"
+#include "TH2F.h"
+#include "TH3F.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
+#include "TObjString.h"
 
 #include "classlib/utils/StringList.h"
 #include "classlib/utils/StringOps.h"
-#include "classlib/utils/Time.h"
-#include "classlib/utils/TimeInfo.h"
 
 using namespace lat;
+
+template <class T>
+class mestorage {
+
+ public:
+  std::vector<std::string> name;
+  std::vector<std::vector<uint32_t> > tags;
+  std::vector<T> object;
+};
 
 class MEtoROOTConverter : public edm::EDProducer
 {
@@ -68,12 +78,7 @@ class MEtoROOTConverter : public edm::EDProducer
   virtual void beginRun(edm::Run&, const edm::EventSetup&);
   virtual void endRun(edm::Run&, const edm::EventSetup&);
 
-  typedef std::vector<uint64_t> Int64Vector;
-  typedef std::vector<std::string> StringVector;
-  typedef std::vector<MEtoROOT::TagList> TagListVector;
-  typedef std::vector<TH1F> TH1FVector;
-  typedef std::vector<MEtoROOT::QReports> QReportsVector;
-  typedef std::vector<uint32_t> Int32Vector;
+  typedef std::vector<uint32_t> TagList;
 
   typedef MonitorElementT<TNamed> ROOTObj;
 
@@ -94,35 +99,41 @@ class MEtoROOTConverter : public edm::EDProducer
   StringList pkgvec;  //package name
   StringList pathvec; //path (without me name)
   StringList mevec;   //monitor element name
+  StringList fullpathvec; //full path of monitor element
+  StringList metype; //monitor element type
+  bool hasTH1F;
+  bool hasTH2F;
+  bool hasTH3F;
+  bool hasTProfile;
+  bool hasTProfile2D;
+  bool hasFloat;
+  bool hasInt;
+  bool hasString;
+  int nTH1F;
+  int nTH2F;
+  int nTH3F;
+  int nTProfile;
+  int nTProfile2D;
+  int nFloat;
+  int nInt;
+  int nString;
+
 
   // persistent MERoot information
-  MEtoROOT::TagList taglist; // to be stored in tags
-  MEtoROOT::QReports qreportsmap; // to be stored in qreports
-  uint32_t flag; // to be stored in flags
+  TagList taglist; // to be stored in tags
 
-  Int64Vector version;
-  StringVector name;
-  TagListVector tags;
-  TH1FVector object;
-  TH1FVector refobj;
-  QReportsVector qreports;
-  Int32Vector flags;
+  mestorage<TH1F> TH1FME;
+  mestorage<TH2F> TH2FME;
+  mestorage<TH3F> TH3FME;
+  mestorage<TProfile> TProfileME;
+  mestorage<TProfile2D> TProfile2DME;
+  mestorage<float> FloatME;
+  mestorage<int> IntME;
+  mestorage<std::string> StringME;
 
   // private statistics information
   unsigned int count;
 
 }; // end class declaration
-
-static Time s_version;
-
-static const uint32_t FLAG_ERROR		= 0x1;
-static const uint32_t FLAG_WARNING		= 0x2;
-static const uint32_t FLAG_REPORT		= 0x4;
-static const uint32_t FLAG_SCALAR		= 0x8;
-static const uint32_t FLAG_TEXT			= 0x4000000;
-static const uint32_t FLAG_DEAD			= 0x8000000;
-
-//static const Regexp s_rxmeval("<(.*)>(i|f|s|qr)=(.*)</\\1>");
-//static const Regexp s_rxmeqr("^st\\.(\\d+)\\.(.*)$");
 
 #endif
