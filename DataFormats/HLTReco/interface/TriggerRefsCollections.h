@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/12/07 14:06:54 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/12/08 17:07:54 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -31,6 +31,7 @@
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
@@ -45,18 +46,19 @@
 namespace trigger
 {
 
-  typedef std::vector<reco::RecoEcalCandidateRef>    VRphoton;
-  typedef std::vector<reco::ElectronRef>             VRelectron;
-  typedef std::vector<reco::RecoChargedCandidateRef> VRmuon;
-  typedef std::vector<reco::CaloJetRef>              VRjet;
-  typedef std::vector<reco::CompositeCandidateRef>   VRcomposite;
-  typedef std::vector<reco::CaloMETRef>              VRmet;
-  typedef std::vector<reco::METRef>                  VRht;
+  typedef std::vector<reco::RecoEcalCandidateRef>           VRphoton;
+  typedef std::vector<reco::ElectronRef>                    VRelectron;
+  typedef std::vector<reco::RecoChargedCandidateRef>        VRmuon;
+  typedef std::vector<reco::CaloJetRef>                     VRjet;
+  typedef std::vector<reco::CompositeCandidateRef>          VRcomposite;
+  typedef std::vector<reco::CaloMETRef>                     VRmet;
+  typedef std::vector<reco::METRef>                         VRht;
+  typedef std::vector<reco::IsolatedPixelTrackCandidateRef> VRpixtrack;
 
-  typedef std::vector<l1extra::L1EmParticleRef>      VRl1em;
-  typedef std::vector<l1extra::L1MuonParticleRef>    VRl1muon;
-  typedef std::vector<l1extra::L1JetParticleRef>     VRl1jet;
-  typedef std::vector<l1extra::L1EtMissParticleRef>  VRl1etmiss;
+  typedef std::vector<l1extra::L1EmParticleRef>             VRl1em;
+  typedef std::vector<l1extra::L1MuonParticleRef>           VRl1muon;
+  typedef std::vector<l1extra::L1JetParticleRef>            VRl1jet;
+  typedef std::vector<l1extra::L1EtMissParticleRef>         VRl1etmiss;
 
   class TriggerRefsCollections {
 
@@ -77,6 +79,8 @@ namespace trigger
     VRmet       metRefs_;
     Vids        htIds_;
     VRht        htRefs_;
+    Vids        pixtrackIds_;
+    VRpixtrack  pixtrackRefs_;
 
     Vids        l1emIds_;
     VRl1em      l1emRefs_;
@@ -97,6 +101,7 @@ namespace trigger
       compositeIds_(), compositeRefs_(),
       metIds_(), metRefs_(),
       htIds_(), htRefs_(),
+      pixtrackIds_(), pixtrackRefs_(),
 
       l1emIds_(), l1emRefs_(),
       l1muonIds_(), l1muonRefs_(),
@@ -132,6 +137,10 @@ namespace trigger
     void addObject(int id, const reco::METRef& ref) {
       htIds_.push_back(id);
       htRefs_.push_back(ref);
+    }
+    void addObject(int id, const reco::IsolatedPixelTrackCandidateRef& ref) {
+      pixtrackIds_.push_back(id);
+      pixtrackRefs_.push_back(ref);
     }
 
     void addObject(int id, const l1extra::L1EmParticleRef& ref) {
@@ -209,6 +218,12 @@ namespace trigger
       htIds_.insert(htIds_.end(),ids.begin(),ids.end());
       htRefs_.insert(htRefs_.end(),refs.begin(),refs.end());
       return htIds_.size();
+    }
+    size_type addObjects (const Vids& ids, const VRpixtrack& refs) {
+      assert(ids.size()==refs.size());
+      pixtrackIds_.insert(pixtrackIds_.end(),ids.begin(),ids.end());
+      pixtrackRefs_.insert(pixtrackRefs_.end(),refs.begin(),refs.end());
+      return pixtrackIds_.size();
     }
 
     size_type addObjects (const Vids& ids, const VRl1em& refs) {
@@ -337,6 +352,19 @@ namespace trigger
       }
       return;
     }
+    void getObjects(int id, VRpixtrack& refs) const {
+      getObjects(id,refs,0,pixtrackIds_.size());
+    } 
+    void getObjects(int id, VRpixtrack& refs, size_type begin, size_type end) const {
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==pixtrackIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==pixtrackIds_[i]) {refs[j]=pixtrackRefs_[i]; ++j;}
+      }
+      return;
+    }
 
     void getObjects(int id, VRl1em& refs) const {
       getObjects(id,refs,0,l1emIds_.size());
@@ -419,6 +447,8 @@ namespace trigger
     const VRmet&       metRefs()       const {return metRefs_;}
     const Vids&        htIds()         const {return htIds_;}
     const VRht&        htRefs()        const {return htRefs_;}
+    const Vids&        pixtrackIds()   const {return pixtrackIds_;}
+    const VRpixtrack&  pixtrackRefs()  const {return pixtrackRefs_;}
 
     const Vids&        l1emIds()       const {return l1emIds_;}
     const VRl1em&      l1emRefs()      const {return l1emRefs_;}

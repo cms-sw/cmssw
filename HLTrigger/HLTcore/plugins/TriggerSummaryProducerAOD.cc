@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/21 09:13:40 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/12/24 17:50:27 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -30,6 +30,8 @@
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
@@ -42,6 +44,7 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 
 #include <algorithm>
+#include <typeinfo>
 
   bool cmpTagsLE(const edm::InputTag& a, const edm::InputTag& b) {
     return a.encode()<=b.encode();
@@ -86,15 +89,15 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   }
 
   LogDebug("") << "Using process name: '" << pn_ <<"'";
-  std::cout    << "Using process name: '" << pn_ <<"'" << std::endl;
+  //  std::cout    << "Using process name: '" << pn_ <<"'" << std::endl;
 
   sort (collectionTags_.begin(),collectionTags_.end(),cmpTagsLE);
   const trigger::size_type nc0(collectionTags_.size());
   LogTrace("") << "Number of collections requested " << nc0;
-  std::cout    << "Number of collections requested " << nc0 << std::endl;
+  //  std::cout    << "Number of collections requested " << nc0 << std::endl;
   for (trigger::size_type i=0; i!=nc0; ++i) {
     LogTrace("") << i << " " << collectionTags_[i].encode();
-    std::cout    << i << " " << collectionTags_[i].encode() << std::endl;
+    //    std::cout    << i << " " << collectionTags_[i].encode() << std::endl;
   }
   collectionTags_.resize(distance(collectionTags_.begin(),unique(collectionTags_.begin(),collectionTags_.end(),cmpTagsEQ)));
   const trigger::size_type nc1(collectionTags_.size());
@@ -108,10 +111,10 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   sort (filterTags_.begin(),filterTags_.end(),cmpTagsLE);
   const trigger::size_type nf0(filterTags_.size());
   LogTrace("") << "Number of filters requested " << nf0;
-  std::cout    << "Number of filters requested " << nf0 << std::endl;
+  //  std::cout    << "Number of filters requested " << nf0 << std::endl;
   for (trigger::size_type i=0; i!=nf0; ++i) {
     LogTrace("") << i << " " << filterTags_[i].encode();
-    std::cout    << i << " " << filterTags_[i].encode() << std::endl;
+    //    std::cout    << i << " " << filterTags_[i].encode() << std::endl;
   }
   filterTags_.resize(distance(filterTags_.begin(),unique(filterTags_.begin(),filterTags_.end(),cmpTagsEQ)));
   const trigger::size_type nf1(filterTags_.size());
@@ -147,13 +150,14 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    /// create trigger objects, fill triggerobjectcollection and offset map
    toc_.clear();
    offset_.clear();
-   fillTriggerObjects<   RecoEcalCandidateCollection>(iEvent);
-   fillTriggerObjects<            ElectronCollection>(iEvent);
-   fillTriggerObjects<RecoChargedCandidateCollection>(iEvent);
-   fillTriggerObjects<             CaloJetCollection>(iEvent);
-   fillTriggerObjects<  CompositeCandidateCollection>(iEvent);
-   fillTriggerObjects<             CaloMETCollection>(iEvent);
-   fillTriggerObjects<                 METCollection>(iEvent);
+   fillTriggerObjects<          RecoEcalCandidateCollection>(iEvent);
+   fillTriggerObjects<                   ElectronCollection>(iEvent);
+   fillTriggerObjects<       RecoChargedCandidateCollection>(iEvent);
+   fillTriggerObjects<                    CaloJetCollection>(iEvent);
+   fillTriggerObjects<         CompositeCandidateCollection>(iEvent);
+   fillTriggerObjects<                    CaloMETCollection>(iEvent);
+   fillTriggerObjects<                        METCollection>(iEvent);
+   fillTriggerObjects<IsolatedPixelTrackCandidateCollection>(iEvent);
 
    fillTriggerObjects<    L1EmParticleCollection>(iEvent);
    fillTriggerObjects<  L1MuonParticleCollection>(iEvent);
@@ -185,18 +189,19 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        const std::string& label(fobs_[ifob].provenance()->moduleLabel());
        ids_.clear();
        keys_.clear();
-       fillFilterObjects(label+" 0",fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());
-       fillFilterObjects(label+" 1",fobs_[ifob]->electronIds() ,fobs_[ifob]->electronRefs());
-       fillFilterObjects(label+" 2",fobs_[ifob]->muonIds()     ,fobs_[ifob]->muonRefs());
-       fillFilterObjects(label+" 3",fobs_[ifob]->jetIds()      ,fobs_[ifob]->jetRefs());
-       fillFilterObjects(label+" 4",fobs_[ifob]->compositeIds(),fobs_[ifob]->compositeRefs());
-       fillFilterObjects(label+" 5",fobs_[ifob]->metIds()      ,fobs_[ifob]->metRefs());
-       fillFilterObjects(label+" 6",fobs_[ifob]->htIds()       ,fobs_[ifob]->htRefs());
-       fillFilterObjects(label+" 7",fobs_[ifob]->l1emIds()     ,fobs_[ifob]->l1emRefs());
-       fillFilterObjects(label+" 8",fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
-       fillFilterObjects(label+" 9",fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
-       fillFilterObjects(label+" A",fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
-       product->addFilter(fobs_[ifob].provenance()->moduleLabel(),ids_,keys_);
+       fillFilterObjects(label,fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());
+       fillFilterObjects(label,fobs_[ifob]->electronIds() ,fobs_[ifob]->electronRefs());
+       fillFilterObjects(label,fobs_[ifob]->muonIds()     ,fobs_[ifob]->muonRefs());
+       fillFilterObjects(label,fobs_[ifob]->jetIds()      ,fobs_[ifob]->jetRefs());
+       fillFilterObjects(label,fobs_[ifob]->compositeIds(),fobs_[ifob]->compositeRefs());
+       fillFilterObjects(label,fobs_[ifob]->metIds()      ,fobs_[ifob]->metRefs());
+       fillFilterObjects(label,fobs_[ifob]->htIds()       ,fobs_[ifob]->htRefs());
+       fillFilterObjects(label,fobs_[ifob]->pixtrackIds() ,fobs_[ifob]->pixtrackRefs());
+       fillFilterObjects(label,fobs_[ifob]->l1emIds()     ,fobs_[ifob]->l1emRefs());
+       fillFilterObjects(label,fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
+       fillFilterObjects(label,fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
+       fillFilterObjects(label,fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
+       product->addFilter(label,ids_,keys_);
      }
    }
 
@@ -239,7 +244,7 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
 }
 
 template <typename C>
-void TriggerSummaryProducerAOD::fillFilterObjects(std::string label, const trigger::Vids& ids, const std::vector<edm::Ref<C> >& refs) {
+void TriggerSummaryProducerAOD::fillFilterObjects(const std::string& label, const trigger::Vids& ids, const std::vector<edm::Ref<C> >& refs) {
 
   /// this routine takes a vector of Ref<C>s and determines the
   /// corresponding vector of keys (i.e., indices) into the
@@ -254,11 +259,14 @@ void TriggerSummaryProducerAOD::fillFilterObjects(std::string label, const trigg
   const size_type n(ids.size());
   for (size_type i=0; i!=n; ++i) {
     const ProductID pid(refs[i].id());
-    //assert(offset_.find(pid)!=offset_.end()); // else unknown pid
     if (offset_.find(pid)==offset_.end()) {
       offset_[pid]=0;
-      cout << "#### Error in fillFilterObject: "+label+" - unknown pid!" << endl;
+      cout << "#### Error in fillFilterObject (unknown pid):"
+	   << " FilterLabel: " << label
+	   << " CollectionType: " << typeid(C).name()
+	   << endl;
     }
+    assert(offset_.find(pid)!=offset_.end()); // else unknown pid
     keys_.push_back(offset_[pid]+refs[i].key());
     ids_.push_back(ids[i]);
   }
