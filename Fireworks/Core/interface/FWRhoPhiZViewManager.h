@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id$
+// $Id: FWRhoPhiZViewManager.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
 //
 
 // system include files
@@ -33,14 +33,25 @@ class TEveElement;
 class TEveElementList;
 class TEveProjectionManager;
 class FWRPZDataProxyBuilder;
+class FWRPZ2DDataProxyBuilder;
 
-struct FWRPZModelProxy
+struct FWRPZ3DModelProxy
 {
    boost::shared_ptr<FWRPZDataProxyBuilder>   builder;
    TEveElementList*                           product; //owned by builder
-   FWRPZModelProxy():product(0){}
-   FWRPZModelProxy(boost::shared_ptr<FWRPZDataProxyBuilder> iBuilder):
+   FWRPZ3DModelProxy():product(0){}
+   FWRPZ3DModelProxy(boost::shared_ptr<FWRPZDataProxyBuilder> iBuilder):
     builder(iBuilder),product(0) {}
+};
+
+struct FWRPZ2DModelProxy
+{
+  boost::shared_ptr<FWRPZ2DDataProxyBuilder>   builder;
+  TEveElementList*                             rhoPhiProduct; //owned by builder
+  TEveElementList*                             rhoZProduct; //owned by builder
+  FWRPZ2DModelProxy():rhoPhiProduct(0), rhoZProduct(0){}
+  FWRPZ2DModelProxy(boost::shared_ptr<FWRPZ2DDataProxyBuilder> iBuilder):
+  builder(iBuilder),rhoPhiProduct(0), rhoZProduct(0) {}
 };
 
 
@@ -69,12 +80,14 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       const FWRhoPhiZViewManager& operator=(const FWRhoPhiZViewManager&); // stop default
 
       // ---------- member data --------------------------------
-      typedef  std::map<std::string,std::string> TypeToBuilder;
+      typedef  std::map<std::string,std::pair<std::string,bool> > TypeToBuilder;
       TypeToBuilder m_typeToBuilder;
-      std::vector<FWRPZModelProxy> m_modelProxies;
+      std::vector<FWRPZ3DModelProxy> m_3dmodelProxies;
+      std::vector<FWRPZ2DModelProxy> m_2dmodelProxies;
 
       TEveElement* m_geom;
       TEveProjectionManager* m_rhoPhiProjMgr;
+      TEveProjectionManager* m_rhoZProjMgr;
 
 };
 

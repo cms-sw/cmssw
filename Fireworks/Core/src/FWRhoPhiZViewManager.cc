@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id$
+// $Id: FWRhoPhiZViewManager.cc,v 1.1 2008/01/07 05:48:46 chrjones Exp $
 //
 
 // system include files
@@ -31,13 +31,20 @@
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+
+#include "vis_macros.h"
 
 //
 //
 // constants, enums and typedefs
 //
-
+static
+const char* const kBuilderPrefixes[] = {
+   "Proxy3DBuilder",
+   "ProxyRhoPhiZ2DBuilder"
+};
 //
 // static data member definitions
 //
@@ -46,20 +53,32 @@
 // constructors and destructor
 //
 FWRhoPhiZViewManager::FWRhoPhiZViewManager():
-  FWViewManagerBase("Proxy3DBuilder"),
+  FWViewManagerBase(kBuilderPrefixes,
+                    kBuilderPrefixes+sizeof(kBuilderPrefixes)/sizeof(const char*)),
   m_geom(0),
-  m_rhoPhiProjMgr(0)
+  m_rhoPhiProjMgr(0),
+  m_rhoZProjMgr(0)
 {
-  //setup projection
-  TEveViewer* nv = gEve->SpawnNewViewer("Rho Phi");
-  nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-  TEveScene* ns = gEve->SpawnNewScene("Rho Phi");
-  nv->AddScene(ns);
-
-  m_rhoPhiProjMgr = new TEveProjectionManager;
-  gEve->AddToListTree(m_rhoPhiProjMgr,kTRUE);
-  gEve->AddElement(m_rhoPhiProjMgr,ns);
-
+   //setup projection
+   TEveViewer* nv = gEve->SpawnNewViewer("Rho Phi");
+   nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   TEveScene* ns = gEve->SpawnNewScene("Rho Phi");
+   nv->AddScene(ns);
+   
+   m_rhoPhiProjMgr = new TEveProjectionManager;
+   gEve->AddToListTree(m_rhoPhiProjMgr,kTRUE);
+   gEve->AddElement(m_rhoPhiProjMgr,ns);
+   
+   nv = gEve->SpawnNewViewer("Rho Z");
+   nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   ns = gEve->SpawnNewScene("Rho Z");
+   nv->AddScene(ns);
+   
+   m_rhoZProjMgr = new TEveProjectionManager;
+   m_rhoZProjMgr->SetProjection(TEveProjection::PT_RhoZ);
+   gEve->AddToListTree(m_rhoZProjMgr,kTRUE);
+   gEve->AddElement(m_rhoZProjMgr,ns);
+   
 
   //kTRUE tells it to reset the camera so we see everything 
   gEve->Redraw3D(kTRUE);  
@@ -104,10 +123,18 @@ FWRhoPhiZViewManager::newEventAvailable()
      TEveManager::TRedrawDisabler disableRedraw(gEve);
 
      // build models
-     for ( std::vector<FWRPZModelProxy>::iterator proxy = m_modelProxies.begin();
-	   proxy != m_modelProxies.end(); ++proxy )
-       proxy->builder->build(&(proxy->product) );
-     
+     for ( std::vector<FWRPZ3DModelProxy>::iterator proxy = m_3dmodelProxies.begin();
+          proxy != m_3dmodelProxies.end(); ++proxy ) {
+        proxy->builder->build(&(proxy->product) );
+     }
+
+     for ( std::vector<FWRPZ2DModelProxy>::iterator proxy = m_2dmodelProxies.begin();
+          proxy != m_2dmodelProxies.end(); ++proxy ) {
+        proxy->builder->buildRhoPhi(&(proxy->rhoPhiProduct) );
+        proxy->builder->buildRhoZ(&(proxy->rhoZProduct) );
+        
+     }
+    
      // R-Phi projections
      
      // setup the projection
@@ -115,6 +142,7 @@ FWRhoPhiZViewManager::newEventAvailable()
      // NOTE: this should be encapsulated and made configurable 
      //       somewhere else.
      m_rhoPhiProjMgr->DestroyElements();
+     m_rhoZProjMgr->DestroyElements();
      
 	  
      // FIXME - standard way of loading geomtry failed
@@ -131,11 +159,22 @@ FWRhoPhiZViewManager::newEventAvailable()
 	m_geom = gsre;
      }
      // ---------- to here
-     
+
+     hide_tracker_endcap(m_geom);
      m_rhoPhiProjMgr->ImportElements(m_geom);
-     for ( std::vector<FWRPZModelProxy>::iterator proxy = m_modelProxies.begin();
-	   proxy != m_modelProxies.end(); ++proxy )  {
+
+     show_tracker_endcap(m_geom);
+     m_rhoZProjMgr->ImportElements(m_geom);
+
+     for ( std::vector<FWRPZ3DModelProxy>::iterator proxy = m_3dmodelProxies.begin();
+	   proxy != m_3dmodelProxies.end(); ++proxy )  {
        m_rhoPhiProjMgr->ImportElements(proxy->product);
+        m_rhoZProjMgr->ImportElements(proxy->product);
+     }  
+     for ( std::vector<FWRPZ2DModelProxy>::iterator proxy = m_2dmodelProxies.begin();
+          proxy != m_2dmodelProxies.end(); ++proxy )  {
+        m_rhoPhiProjMgr->ImportElements(proxy->rhoPhiProduct);
+        m_rhoZProjMgr->ImportElements(proxy->rhoZProduct);
      }  
   }
 }
@@ -145,16 +184,29 @@ FWRhoPhiZViewManager::newItem(const FWEventItem* iItem)
 {
   TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->name());
   if(itFind != m_typeToBuilder.end()) {
-    FWRPZDataProxyBuilder* builder = reinterpret_cast<
-      FWRPZDataProxyBuilder*>( 
-        createInstanceOf(TClass::GetClass(typeid(FWRPZDataProxyBuilder)),
-			 itFind->second.c_str())
-	);
-    if(0!=builder) {
-      boost::shared_ptr<FWRPZDataProxyBuilder> pB( builder );
-      builder->setItem(iItem);
-      m_modelProxies.push_back(FWRPZModelProxy(pB) );
-    }
+     if(itFind->second.second) {
+        FWRPZDataProxyBuilder* builder = reinterpret_cast<
+        FWRPZDataProxyBuilder*>( 
+                                createInstanceOf(TClass::GetClass(typeid(FWRPZDataProxyBuilder)),
+                                                 itFind->second.first.c_str())
+                                );
+        if(0!=builder) {
+           boost::shared_ptr<FWRPZDataProxyBuilder> pB( builder );
+           builder->setItem(iItem);
+           m_3dmodelProxies.push_back(FWRPZ3DModelProxy(pB) );
+        }
+     } else {
+        FWRPZ2DDataProxyBuilder* builder = reinterpret_cast<
+        FWRPZ2DDataProxyBuilder*>( 
+                                createInstanceOf(TClass::GetClass(typeid(FWRPZ2DDataProxyBuilder)),
+                                                 itFind->second.first.c_str())
+                                );
+        if(0!=builder) {
+           boost::shared_ptr<FWRPZ2DDataProxyBuilder> pB( builder );
+           builder->setItem(iItem);
+           m_2dmodelProxies.push_back(FWRPZ2DModelProxy(pB) );
+        }
+     }
   }
 }
 
@@ -162,7 +214,11 @@ void
 FWRhoPhiZViewManager::registerProxyBuilder(const std::string& iType,
 					   const std::string& iBuilder)
 {
-  m_typeToBuilder[iType]=iBuilder;
+   bool is2dType = false;
+   if(iType.find(kBuilderPrefixes[0])) {
+      is2dType = true;
+   }
+   m_typeToBuilder[iType]=make_pair(iBuilder,is2dType);
 }
 
 //
