@@ -15,6 +15,12 @@
 #include <map>
 #include <string>
 
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TH3F.h>
+#include <TProfile.h>
+#include <TProfile2D.h>
+
 class QCriterion;
 class MonitorElementRootFolder;
 class DQMTagHelper;
@@ -48,17 +54,26 @@ class DaqMonitorBEInterface: public StringUtil
   virtual MonitorElement * book1D(std::string name,
 				  std::string title,
 				  int nchX, float *xbinsize)=0;
+  /// clone 1D histogram
+  virtual MonitorElement * clone1D(std::string name,
+				   TH1F* source)=0;
   /// book 2D histogram
   virtual MonitorElement * book2D(std::string name, 
 				  std::string title, 
 				  int nchX, double lowX, double highX, 
 				  int nchY, double lowY, double highY)=0;
+  /// clone 2D histogram
+  virtual MonitorElement * clone2D(std::string name,
+				   TH2F* source)=0;
   /// book 3D histogram
   virtual MonitorElement * book3D(std::string name, 
 				  std::string title, 
 				  int nchX, double lowX, double highX, 
 				  int nchY, double lowY, double highY, 
 				  int nchZ, double lowZ, double highZ)=0;
+  /// clone 3D histogram
+  virtual MonitorElement * clone3D(std::string name,
+				   TH3F* source)=0;
   /// book profile; 
   /// option is one of: " ", "s" (default), "i", "G" (see TProfile::BuildOptions)
   /// (in a profile plot the number of channels in Y is disregarded)
@@ -67,6 +82,9 @@ class DaqMonitorBEInterface: public StringUtil
 				       int nchX, double lowX, double highX, 
 				       int nchY, double lowY,double highY,
 				       char * option = "s")=0;
+  /// clone profile histogram
+  virtual MonitorElement * cloneProfile(std::string name,
+					TProfile* source)=0;
   /// book 2-D profile;
   /// option is one of: " ", "s" (default), "i", "G" (see TProfile2D::BuildOptions)
   /// (in a 2-D profile plot the number of channels in Z is disregarded)
@@ -76,6 +94,9 @@ class DaqMonitorBEInterface: public StringUtil
 					 int nchY, double lowY,double highY,
 					 int nchZ, double lowZ,double highZ,
 					 char * option = "s") = 0;
+  /// clone 2-D profile histogram
+  virtual MonitorElement * cloneProfile2D(std::string name,
+					  TProfile2D* source)=0;
   /// book float
   virtual MonitorElement * bookFloat(std::string ) = 0;
   /// book int

@@ -1,7 +1,7 @@
 /*
- * $Date: 2008/01/01 21:17:34 $
- * $Revision: 1.32 $
- * $Author: elmer $
+ * $Date: 2008/01/11 15:47:45 $
+ * $Revision: 1.1 $
+ * $Author: lat $
 */
 
 #ifndef DaqMonitorROOTBackEnd_h
@@ -50,6 +50,10 @@ class DaqMonitorROOTBackEnd : public DaqMonitorBEInterface
   MonitorElement * book1D(std::string name, std::string title,
 			  int nchX, float *xbinsize)
   {return book1D(name, title, nchX, xbinsize, fCurrentFolder);}
+//book 1D histogram using existing histogram
+  MonitorElement * clone1D(std::string name, TH1F* source)
+  {return book1D(name,source,fCurrentFolder);}
+
 
   /// book 2D histogram
   MonitorElement * book2D(std::string name, std::string title,
@@ -57,6 +61,10 @@ class DaqMonitorROOTBackEnd : public DaqMonitorBEInterface
 			  double lowY, double highY)
   {return book2D(name, title, nchX, lowX, highX, nchY, lowY, highY, 
 		  fCurrentFolder);}
+//book 2D histogram using existing histogram
+  MonitorElement * clone2D(std::string name, TH2F* source)
+  {return book2D(name,source,fCurrentFolder);}
+
   /// book 3D histogram
   MonitorElement * book3D(std::string name, std::string title,
 			  int nchX, double lowX, double highX, int nchY, 
@@ -64,6 +72,11 @@ class DaqMonitorROOTBackEnd : public DaqMonitorBEInterface
 			  double lowZ, double highZ)
   {return book3D(name, title, nchX, lowX, highX, nchY, lowY, highY,
 		  nchZ, lowZ, highZ, fCurrentFolder);}
+//book 3D histogram using existing histogram
+  MonitorElement * clone3D(std::string name, TH3F* source)
+  {return book3D(name,source,fCurrentFolder);}
+
+
   /// book profile;
   /// option is one of: " ", "s" (default), "i", "G" (see TProfile::BuildOptions)
   /// (in a profile plot the number of channels in Y is disregarded)
@@ -73,6 +86,11 @@ class DaqMonitorROOTBackEnd : public DaqMonitorBEInterface
 			       double highY, char * option = "s")
   {return bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY,
 		      fCurrentFolder, option);}
+//book TProfile using existing profile
+  MonitorElement * cloneProfile(std::string name, TProfile* source)
+  {return bookProfile(name,source,fCurrentFolder);}
+
+
   /// book 2-D profile;
   /// option is one of: " ", "s" (default), "i", "G" (see TProfile2D::BuildOptions)
   /// (in a 2-D profile plot the number of channels in Z is disregarded)
@@ -85,6 +103,10 @@ class DaqMonitorROOTBackEnd : public DaqMonitorBEInterface
   {return bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, 
 			highY, nchZ, lowZ, highZ, fCurrentFolder,
 			option);}
+//book TProfile2D using existing profile
+  MonitorElement * cloneProfile2D(std::string name, TProfile2D* source)
+  {return bookProfile2D(name,source,fCurrentFolder);}
+
 
   /// book float
   MonitorElement * bookFloat(std::string s)
@@ -465,11 +487,11 @@ class DaqMonitorROOTBackEnd : public DaqMonitorBEInterface
 
   ///  book 1D histogram based on TH1F
   MonitorElement * book1D(std::string name, TH1F* source,
-                              MonitorElementRootFolder * dir);
+                           MonitorElementRootFolder * dir);
   /// same method with different name
-  MonitorElement * clone1D(std::string name, TH1F* source,
-                              MonitorElementRootFolder * dir)
-       {return book1D(name, source, dir);}
+  //MonitorElement * clone1D(std::string name, TH1F* source,
+  //                            MonitorElementRootFolder * dir)
+  //     {return book1D(name, source, dir);}
        
   /// book 1D histogram based on bin defs.
   MonitorElement * book1D(std::string name, std::string title, 
@@ -485,9 +507,9 @@ class DaqMonitorROOTBackEnd : public DaqMonitorBEInterface
   MonitorElement * book2D(std::string name, TH2F* source,
                               MonitorElementRootFolder * dir);
   /// same method with different name
-  MonitorElement * clone2D(std::string name, TH2F* source,
-                              MonitorElementRootFolder * dir)
-       {return book2D(name, source, dir);}
+  //MonitorElement * clone2D(std::string name, TH2F* source,
+  //                            MonitorElementRootFolder * dir)
+  //     {return book2D(name, source, dir);}
   /// book 2D histogram
   MonitorElement * book2D(std::string name, std::string title,
 			  int nchX, double lowX, double highX, int nchY, 
@@ -498,9 +520,9 @@ class DaqMonitorROOTBackEnd : public DaqMonitorBEInterface
   MonitorElement * book3D(std::string name, TH3F* source,
                               MonitorElementRootFolder * dir);
   /// same method with different name
-  MonitorElement * clone3D(std::string name, TH3F* source,
-                              MonitorElementRootFolder * dir)
-       {return book3D(name, source, dir);}
+  //MonitorElement * clone3D(std::string name, TH3F* source,
+  //                            MonitorElementRootFolder * dir)
+  //     {return book3D(name, source, dir);}
   /// book 3D histogram
   MonitorElement * book3D(std::string name, std::string title,
 			  int nchX, double lowX, double highX, int nchY, 
@@ -512,9 +534,9 @@ class DaqMonitorROOTBackEnd : public DaqMonitorBEInterface
   MonitorElement * bookProfile(std::string name, TProfile* source,
                               MonitorElementRootFolder * dir);
   /// same method with different name
-  MonitorElement * cloneProfile(std::string name, TProfile* source,
-                              MonitorElementRootFolder * dir)
-       {return bookProfile(name, source, dir);}
+  //MonitorElement * cloneProfile(std::string name, TProfile* source,
+  //                            MonitorElementRootFolder * dir)
+  //     {return bookProfile(name, source, dir);}
   /// book profile;
   /// option is one of: " ", "s" (default), "i", "G" (see TProfile::BuildOptions)
   /// (in a profile plot the number of channels in Y is disregarded)
@@ -526,11 +548,11 @@ class DaqMonitorROOTBackEnd : public DaqMonitorBEInterface
 
   /// book 2-D profile based on TProfile2D
   MonitorElement * bookProfile2D(std::string name, TProfile2D* source,
-                              MonitorElementRootFolder * dir);
+				 MonitorElementRootFolder * dir);
   /// same method with different name
-  MonitorElement * cloneProfile2D(std::string name, TProfile2D* source,
-                              MonitorElementRootFolder * dir)
-       {return bookProfile2D(name, source, dir);}
+  //MonitorElement * cloneProfile2D(std::string name, TProfile2D* source,
+  //                            MonitorElementRootFolder * dir)
+  //     {return bookProfile2D(name, source, dir);}
   /// option is one of: " ", "s" (default), "i", "G" (see TProfile2D::BuildOptions)
   /// (in a 2-D profile plot the number of channels in Z is disregarded)
   MonitorElement * bookProfile2D(std::string name, 
