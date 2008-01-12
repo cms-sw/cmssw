@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.33 2008/01/10 00:25:30 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.34 2008/01/10 21:12:43 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -283,7 +283,8 @@ FastL1GlobalAlgo::FillEgammasTP(edm::Event const& e) {
   m_Egammas.clear();
   m_isoEgammas.clear();
 
-  l1extra::L1EmParticle ph;
+  l1extra::L1EmParticle* ph = new l1extra::L1EmParticle();
+  //l1extra::L1EmParticle ph;
   for (int i=0; i<396; i++) { 
     CaloTowerCollection towers = m_Regions[i].GetCaloTowers();
 
@@ -291,25 +292,29 @@ FastL1GlobalAlgo::FillEgammasTP(edm::Event const& e) {
       if (cnd->emEt()<0.01 && cnd->hadEt()<0.01) continue;
       //if (cnd->emEt()<0.01) continue;
 
-      //reco::Particle::LorentzVector rp4(0.,0.,0.,0.);
+      reco::Particle::LorentzVector rp4(0.,0.,0.,0.);
       // l1extra::L1EmParticle* ph = new l1extra::L1EmParticle(rp4);
+      *ph = l1extra::L1EmParticle(rp4);
+
       CaloTowerDetId cid   = cnd->id();
       //std::cout<<"+++ "<<cid<<std::endl;
       
       int emTag = isEMCand(cid,ph,e);
       //std::cout<<"+++ "<<ph<<std::endl;
+      std::cout<<"+++ "<<emTag<<" | "<<ph->et()<<std::endl;
       
       // 1 = non-iso EM, 2 = iso EM
       if (emTag==1) {
-	m_Egammas.push_back(ph);
+	m_Egammas.push_back(*ph);
       } else if (emTag==2) {
-	m_isoEgammas.push_back(ph);
+	m_isoEgammas.push_back(*ph);
       }
       
     }
     std::sort(m_Egammas.begin(),m_Egammas.end(), myspace::greaterEt);
     std::sort(m_isoEgammas.begin(),m_isoEgammas.end(), myspace::greaterEt);
   }
+  delete ph;
 }
 
 
@@ -327,21 +332,24 @@ FastL1GlobalAlgo::FillEgammas(edm::Event const& e) {
   //std::vector< edm::Handle<CaloTowerCollection> >::iterator j;
   //for (j=input.begin(); j!=input.end(); j++) {
   //  const CaloTowerCollection& c=*(*j);
-    
-  l1extra::L1EmParticle ph;
+  
+  l1extra::L1EmParticle* ph = new l1extra::L1EmParticle();  
+  //l1extra::L1EmParticle ph;
   //for (CaloTowerCollection::const_iterator cnd=c.begin(); cnd!=c.end(); cnd++) {
   for (CaloTowerCollection::const_iterator cnd=input->begin(); cnd!=input->end(); cnd++) {
-    //reco::Particle::LorentzVector rp4(0.,0.,0.,0.);
+    reco::Particle::LorentzVector rp4(0.,0.,0.,0.);
     //l1extra::L1EmParticle* ph = new l1extra::L1EmParticle(rp4);
+    *ph = l1extra::L1EmParticle(rp4);
+
     CaloTowerDetId cid   = cnd->id();
 
     int emTag = isEMCand(cid,ph,e);
       
     // 1 = non-iso EM, 2 = iso EM
     if (emTag==1) {
-      m_Egammas.push_back(ph);
+      m_Egammas.push_back(*ph);
     } else if (emTag==2) {
-      m_isoEgammas.push_back(ph);
+      m_isoEgammas.push_back(*ph);
     }
 
   }
@@ -349,6 +357,8 @@ FastL1GlobalAlgo::FillEgammas(edm::Event const& e) {
 
   std::sort(m_Egammas.begin(),m_Egammas.end(), myspace::greaterEt);
   std::sort(m_isoEgammas.begin(),m_isoEgammas.end(), myspace::greaterEt);
+
+  delete ph;
 }
 
 // ------------ Fill MET 1: loop over towers ------------
@@ -598,10 +608,10 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
     */
 
     /*
-      if (hTP->SOI_compressedEt()>0) {
-      std::cout<<">>> "<<hTP->SOI_compressedEt()<<" "<<hTP->SOI_fineGrain()<<" "
-      <<rgnid<<" "<<twrid<<std::endl;
-      }
+    if (hTP->SOI_compressedEt()>0) {
+      std::cout<<"hcalTP >>> "<<hTP->SOI_compressedEt()<<" "<<hTP->SOI_fineGrain()<<" "
+	       <<rgnid<<" "<<twrid<<std::endl;
+    }
     */
     if(rgnid < 396 && twrid < 16){
       hEtV[rgnid][twrid] = (int)hTP->SOI_compressedEt();
@@ -641,14 +651,14 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
 	rgnid = rct_index.second*22 + rct_index.first; // converting fastL1 obsolete RCT numbering
       */
       
+      /*  
       rgnid  = m_RMap->getRegionIndex(eieta,eiphi);
       twrid = m_RMap->getRegionTowerIndex(eieta,eiphi);
       
-      /*  
-	  if (eTP->compressedEt()>0) {
-	  std::cout<<"*** "<<eTP->compressedEt()<<" "<<eTP->fineGrain()<<" "
-	  <<rgnid<<" "<<twrid<<std::endl;
-	  }
+      if (eTP->compressedEt()>0) {
+	std::cout<<"ecalTP *** "<<eTP->compressedEt()<<" "<<eTP->fineGrain()<<" "
+		 <<rgnid<<" "<<twrid<<std::endl;
+      }
       */
       if(rgnid < 396 && twrid < 16){
 	emEtV[rgnid][twrid] = (int)eTP->compressedEt();
@@ -997,7 +1007,7 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
 // ------------ Check if tower is emcand ------------
 // returns 1 = non-iso EM, 2 = iso EM, 0 = no EM
 int
-FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle ph,const edm::Event& iEvent) {
+FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const edm::Event& iEvent) {
 
   // center tower
   int crgn = m_RMap->getRegionIndex(cid);
@@ -1202,8 +1212,12 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle ph,const ed
   //reco::Particle::Point rp3(0.,0.,0.);
   //reco::Particle::Charge q(0);
   //*ph = reco::Photon(q,rp4,rp3);
-  //*ph = l1extra::L1EmParticle(rp4);
-  ph = l1extra::L1EmParticle(rp4);
+  *ph = l1extra::L1EmParticle(rp4);
+  //ph = l1extra::L1EmParticle(rp4);
+
+  std::cout<<"EM eme     : "<<eme<<std::endl;
+  std::cout<<"EM rp4.et(): "<<rp4.Et()<<std::endl;
+  std::cout<<"EM ph->et() : "<<ph->et()<<std::endl;
  
   //if (emet>0.) {
   //  std::cout << "em region et, eta, phi: "<< emet<<" "<< cenEta<<" "<< cenPhi<<" " << std::endl;
