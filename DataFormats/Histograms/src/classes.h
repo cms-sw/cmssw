@@ -44,8 +44,30 @@ namespace {
 
   namespace {
     std::vector<uint32_t> dummy1;
-    std::map<std::string,MEtoROOT::QValue> dummy2;
-    std::vector<MEtoROOT::MEROOTObject> dummy3;
-    edm::Wrapper<MEtoROOT> theValidData1;
+    std::vector<std::vector<uint32_t> > dummy2;
+    MEtoROOT<TH1F> dummy3;
+    MEtoROOT<TH2F> dummy4;
+    MEtoROOT<TH3F> dummy5;
+    MEtoROOT<TProfile> dummy6;
+    MEtoROOT<TProfile2D> dummy7;
+    MEtoROOT<float> dummy8;
+    MEtoROOT<int> dummy9;
+    MEtoROOT<std::string> dummy10;
+    std::vector<MEtoROOT<TH1F>::MEROOTObject> dummy11;
+    std::vector<MEtoROOT<TH2F>::MEROOTObject> dummy12;
+    std::vector<MEtoROOT<TH3F>::MEROOTObject> dummy13;
+    std::vector<MEtoROOT<TProfile>::MEROOTObject> dummy14;
+    std::vector<MEtoROOT<TProfile2D>::MEROOTObject> dummy15;
+    std::vector<MEtoROOT<float>::MEROOTObject> dummy16;
+    std::vector<MEtoROOT<int>::MEROOTObject> dummy17;
+    std::vector<MEtoROOT<std::string>::MEROOTObject> dummy18;
+    edm::Wrapper<MEtoROOT<TH1F> > theValidData1;
+    edm::Wrapper<MEtoROOT<TH2F> > theValidData2;
+    edm::Wrapper<MEtoROOT<TH3F> > theValidData3;
+    edm::Wrapper<MEtoROOT<TProfile> > theValidData4;
+    edm::Wrapper<MEtoROOT<TProfile2D> > theValidData5;
+    edm::Wrapper<MEtoROOT<float> > theValidData6;
+    edm::Wrapper<MEtoROOT<int> > theValidData7;
+    edm::Wrapper<MEtoROOT<std::string> > theValidData8;
   }
 }

@@ -6,19 +6,25 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2007/12/02 03:46:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/05 05:37:14 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include <TObject.h>
 #include <TH1F.h>
+#include <TH2F.h>
+#include <TH3F.h>
+#include <TProfile.h>
+#include <TProfile2D.h>
+#include <TObjString.h>
 
 #include <string>
 #include <vector>
 #include <memory>
 #include <map>
 
+template <class T>
 class MEtoROOT
 {
 
@@ -27,35 +33,20 @@ class MEtoROOT
   MEtoROOT() {}
   virtual ~MEtoROOT() {}
 
-  struct QValue
-  {
-    int		code;
-    std::string	message;
-  };
-
   typedef std::vector<uint32_t> TagList;
-  typedef std::map<std::string, struct QValue> QReports;
 
   struct MEROOTObject
   {
-    uint64_t	version;
     std::string	name;
     TagList 	tags;
-    TH1F	object;
-    TH1F	refobj;
-    QReports	qreports;
-    uint32_t	flags;
+    T	        object;
   };
 
   typedef std::vector<MEROOTObject> MERootObjectVector;
 
-  void putMERootObject(std::vector<uint64_t> version,
-		       std::vector<std::string> name,
+  void putMERootObject(std::vector<std::string> name,
 		       std::vector<TagList> tags,
-		       std::vector<TH1F> object,
-		       std::vector<TH1F> refobj,
-		       std::vector<QReports> qreports,
-		       std::vector<uint32_t> flags);
+		       std::vector<T> object);
 
   MERootObjectVector getMERootObject() const {return MERootObject;}
 

@@ -3,8 +3,8 @@
  *  See header file for description of class
  *  
  *
- *  $Date: 2007/12/02 03:46:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/05 05:37:14 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -12,26 +12,129 @@
 #include <iostream>
 #include <stdlib.h>
 
-void MEtoROOT::putMERootObject(std::vector<uint64_t> version,
-			       std::vector<std::string> name,
-			       std::vector<TagList> tags,
-			       std::vector<TH1F> object,
-			       std::vector<TH1F> refobj,
-			       std::vector<QReports> qreports,
-			       std::vector<uint32_t> flags)
+template <>
+void MEtoROOT<TH1F>::putMERootObject(std::vector<std::string> name,
+				     std::vector<TagList> tags,
+				     std::vector<TH1F> object)
 {
-
-  //std::cout << "Filling MERootObject" << std::endl;
 
   MERootObject.resize(name.size());
   for (unsigned int i = 0; i < name.size(); ++i) {
-    MERootObject[i].version = version[i];
     MERootObject[i].name = name[i];
     MERootObject[i].tags = tags[i];
     MERootObject[i].object = object[i];
-    MERootObject[i].refobj = refobj[i];
-    MERootObject[i].qreports = qreports[i];
-    MERootObject[i].flags = flags[i];
+  }
+
+  return;
+}
+
+template <>
+void MEtoROOT<TH2F>::putMERootObject(std::vector<std::string> name,
+				     std::vector<TagList> tags,
+				     std::vector<TH2F> object)
+{
+
+  MERootObject.resize(name.size());
+  for (unsigned int i = 0; i < name.size(); ++i) {
+    MERootObject[i].name = name[i];
+    MERootObject[i].tags = tags[i];
+    MERootObject[i].object = object[i];
+  }
+
+  return;
+}
+
+template <>
+void MEtoROOT<TH3F>::putMERootObject(std::vector<std::string> name,
+				     std::vector<TagList> tags,
+				     std::vector<TH3F> object)
+{
+
+  MERootObject.resize(name.size());
+  for (unsigned int i = 0; i < name.size(); ++i) {
+    MERootObject[i].name = name[i];
+    MERootObject[i].tags = tags[i];
+    MERootObject[i].object = object[i];
+  }
+
+  return;
+}
+
+template <>
+void MEtoROOT<TProfile>::putMERootObject(std::vector<std::string> name,
+					 std::vector<TagList> tags,
+					 std::vector<TProfile> object)
+{
+
+  MERootObject.resize(name.size());
+  for (unsigned int i = 0; i < name.size(); ++i) {
+    MERootObject[i].name = name[i];
+    MERootObject[i].tags = tags[i];
+    MERootObject[i].object = object[i];
+  }
+
+  return;
+}
+
+template <>
+void MEtoROOT<TProfile2D>::putMERootObject(std::vector<std::string> name,
+					   std::vector<TagList> tags,
+					   std::vector<TProfile2D> object)
+{
+
+  MERootObject.resize(name.size());
+  for (unsigned int i = 0; i < name.size(); ++i) {
+    MERootObject[i].name = name[i];
+    MERootObject[i].tags = tags[i];
+    MERootObject[i].object = object[i];
+  }
+
+  return;
+}
+
+template <>
+void MEtoROOT<float>::putMERootObject(std::vector<std::string> name,
+				      std::vector<TagList> tags,
+				      std::vector<float> object)
+{
+
+  MERootObject.resize(name.size());
+  for (unsigned int i = 0; i < name.size(); ++i) {
+    MERootObject[i].name = name[i];
+    MERootObject[i].tags = tags[i];
+    MERootObject[i].object = object[i];
+  }
+
+  return;
+}
+
+template <>
+void MEtoROOT<int>::putMERootObject(std::vector<std::string> name,
+				    std::vector<TagList> tags,
+				    std::vector<int> object)
+{
+
+  MERootObject.resize(name.size());
+  for (unsigned int i = 0; i < name.size(); ++i) {
+    MERootObject[i].name = name[i];
+    MERootObject[i].tags = tags[i];
+    MERootObject[i].object = object[i];
+  }
+
+  return;
+}
+
+template <>
+void MEtoROOT<std::string>::putMERootObject(std::vector<std::string> name,
+					    std::vector<TagList> tags,
+					    std::vector<std::string> object)
+{
+
+  MERootObject.resize(name.size());
+  for (unsigned int i = 0; i < name.size(); ++i) {
+    MERootObject[i].name = name[i];
+    MERootObject[i].tags = tags[i];
+    MERootObject[i].object = object[i];
   }
 
   return;
