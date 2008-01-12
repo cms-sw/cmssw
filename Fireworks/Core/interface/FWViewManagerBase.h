@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
+// $Id: FWViewManagerBase.h,v 1.2 2008/01/11 00:49:03 chrjones Exp $
 //
 
 // system include files
@@ -47,10 +47,16 @@ class FWViewManagerBase
       virtual void registerProxyBuilder(const std::string&, 
 					const std::string&) = 0;
       
-      bool useableBuilder(const std::string&) const;
+      /** returns 'true' if the name of the builder matches the naming
+       conventions for builders used by this View
+       */
+      bool useableBuilder(const std::string& iBuilderName) const;
 
    protected:
       FWViewManagerBase(const char* iBuilderNamePostfix);
+      template<typename TIter>
+        FWViewManagerBase(TIter iBegin,TIter iEnd):
+         m_builderNamePostfixes(iBegin,iEnd) {}
 
       /*handles dynamic loading of a library or macro containing the class
          named iNameOfClass which inherits from iBaseClass.  The returned
