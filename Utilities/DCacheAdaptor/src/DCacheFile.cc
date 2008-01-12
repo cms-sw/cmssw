@@ -158,7 +158,8 @@ DCacheFile::close (void)
   m_close = false;
   m_fd = EDM_IOFD_INVALID;
 
-  edm::LogInfo("DCacheFileInfo") << "Closed " << m_name;
+  // Caused hang.  Will be added back after problem is fixed.
+  // edm::LogInfo("DCacheFileInfo") << "Closed " << m_name;
 }
 
 void

@@ -214,7 +214,8 @@ RFIOFile::close (void)
   m_close = false;
   m_fd = EDM_IOFD_INVALID;
 
-  edm::LogInfo("RFIOFileInfo") << "Closed " << m_name;
+  // Caused hang.  Will be added back after problem is fix
+  // edm::LogInfo("RFIOFileInfo") << "Closed " << m_name;
 }
 
 void
