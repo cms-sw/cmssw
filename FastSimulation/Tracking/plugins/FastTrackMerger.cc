@@ -116,9 +116,11 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
     
     bool isTrackCollection = e.getByLabel(trackProducers[aProducer],theTrackCollection); 
     if ( ! isTrackCollection ) { 
+#ifdef FAMOS_DEBUG
       std::cout << "***FastTrackMerger*** Warning! The track collection " 
 		<< trackProducers[aProducer].encode() 
 		<< " does not exist." << std::endl;
+#endif
       continue;
     }
 
