@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/01/12 20:57:28 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/13 00:14:15 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -161,12 +161,16 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  // fill new monitor element
 	  Int_t nbins = merootobject[i].object.GetXaxis()->GetNbins();
 	  for (Int_t x = 1; x <= nbins; ++x) {
-	    Double_t error = merootobject[i].object.GetBinError(x);
+	    Double_t xbincenter = merootobject[i].object.GetBinCenter(x);
 	    Double_t value = merootobject[i].object.GetBinContent(x);
+	    //Double_t error = merootobject[i].object.GetBinError(x);
 
-	    me1[i]->setBinContent(x,value);
-	    me1[i]->setBinError(x,error);
+	    //me1[i]->setBinContent(x,value);
+	    //me1[i]->setBinError(x,error);
 	    
+	    for (Int_t val = 0; val < value; ++val) {
+	      me1[i]->Fill(xbincenter);
+	    }
 	  } // end fill
    
 	} // end define new monitor elements
@@ -225,14 +229,21 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
 	  Int_t nybins = merootobject[i].object.GetYaxis()->GetNbins();
 	  for (Int_t x = 1; x <= nxbins; ++x) {
+	    Double_t xbincenter = merootobject[i].object.
+	      GetXaxis()->GetBinCenter(x);
 	    for (Int_t y = 1; y <= nybins; ++y) {
+	      Double_t ybincenter = merootobject[i].object.
+		GetYaxis()->GetBinCenter(y);
 	      Double_t value = 
 		merootobject[i].object.GetBinContent(x,y);
-	      Double_t error = 
-		merootobject[i].object.GetBinError(x,y);
+	      //Double_t error = merootobject[i].object.GetBinError(x,y);
 
-		me2[i]->setBinContent(x,y,value);
-		me2[i]->setBinError(x,y,error);
+	      //me2[i]->setBinContent(x,y,value);
+	      //me2[i]->setBinError(x,y,error);
+	      
+	      for (Int_t val = 0; val < value; ++val) {
+		me2[i]->Fill(xbincenter,ybincenter);
+	      }
 	    } // end loop through y
 	  } // end loop through x
 
@@ -293,14 +304,22 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  Int_t nybins = merootobject[i].object.GetYaxis()->GetNbins();
 	  Int_t nzbins = merootobject[i].object.GetZaxis()->GetNbins();
 	  for (Int_t x = 1; x <= nxbins; ++x) {
+	    Double_t xbincenter = merootobject[i].object.
+	      GetXaxis()->GetBinCenter(x);
 	    for (Int_t y = 1; y <= nybins; ++y) {
+	      Double_t ybincenter = merootobject[i].object.
+		GetYaxis()->GetBinCenter(y);
 	      for (Int_t z = 1; z <= nzbins; ++z) {
+		Double_t zbincenter = merootobject[i].object.
+		  GetZaxis()->GetBinCenter(z);
 		Double_t value = merootobject[i].object.GetBinContent(x,y,z);
-		Double_t error = merootobject[i].object.GetBinError(x,y,z);
+		//Double_t error = merootobject[i].object.GetBinError(x,y,z);
 	      
-		  me3[i]->setBinContent(x,y,z,value);
-		  me3[i]->setBinError(x,y,z,error);		  
-
+		//me3[i]->setBinContent(x,y,z,value);
+		//me3[i]->setBinError(x,y,z,error);		  
+		for (Int_t val = 0; val < value; ++val) {
+		  me3[i]->Fill(xbincenter,ybincenter,zbincenter);
+		}
 	      } // end loop through z
 	    } // end loop through y
 	  } // end loop through x
@@ -356,14 +375,20 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  me4[i] = dbe->cloneProfile(merootobject[i].object.GetName(),
 				     &merootobject[i].object);
 
+	  // doesn't work properly as y information is lost
 	  // fill new monitor element
 	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
 	  for (Int_t x = 1; x <= nxbins; ++x) {
+	    Double_t xbincenter = merootobject[i].object.
+	      GetXaxis()->GetBinCenter(x);
 	    Double_t value = merootobject[i].object.GetBinContent(x);
-	    Double_t error = merootobject[i].object.GetBinError(x);
+	    //Double_t error = merootobject[i].object.GetBinError(x);
 	      
-	    me4[i]->setBinContent(x,value);
-	    me4[i]->setBinError(x,error);
+	    //me4[i]->setBinContent(x,value);
+	    //me4[i]->setBinError(x,error);
+	    for (Int_t val = 0; val < value; ++val) {
+	      me4[i]->Fill(xbincenter,1);
+	    }
 	  } // end loop through x
  
 	} // end define new monitor elements
@@ -417,18 +442,25 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  me5[i] = dbe->cloneProfile2D(merootobject[i].object.GetName(),
 				       &merootobject[i].object);
 
+	  // doesn't work as y and z information are lost
 	  // fill new monitor element
 	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
 	  Int_t nybins = merootobject[i].object.GetYaxis()->GetNbins();
 	  for (Int_t x = 1; x <= nxbins; ++x) {
+	    Double_t xbincenter = merootobject[i].object.
+	      GetXaxis()->GetBinCenter(x);
 	    for (Int_t y = 1; y <= nybins; ++y) {
+	      Double_t ybincenter = merootobject[i].object.
+		GetYaxis()->GetBinCenter(y);
 	      Double_t value = 
 		merootobject[i].object.GetBinContent(x,y);
-	      Double_t error = 
-		merootobject[i].object.GetBinError(x,y);
+	      //Double_t error = merootobject[i].object.GetBinError(x,y);
 	      
-	      me5[i]->setBinContent(x,y,value);
-	      me5[i]->setBinError(x,y,error);
+	      //me5[i]->setBinContent(x,y,value);
+	      //me5[i]->setBinError(x,y,error);
+	      for (Int_t val = 0; val < value; ++val) {
+		me5[i]->Fill(xbincenter,ybincenter,1);
+	      }	      
 	    } // end loop through y
 	  } // end loop through x
 
