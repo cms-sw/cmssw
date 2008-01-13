@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/12/05 05:39:21 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/12 20:57:28 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -154,27 +154,21 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	// define new monitor element
 	if (dbe) {
 	  dbe->setCurrentFolder(dir);
-	  
-	  me1[i] = dbe->book1D(merootobject[i].object.GetName(),
-			       merootobject[i].object.GetTitle(),
-			       merootobject[i].object.GetXaxis()->GetNbins(),
-			       merootobject[i].object.GetXaxis()->GetXmin(),
-			       merootobject[i].object.GetXaxis()->GetXmax());
-	  me1[i]->setAxisTitle(merootobject[i].object.GetXaxis()->
-			       GetTitle(),1);
-	  me1[i]->setAxisTitle(merootobject[i].object.GetYaxis()->
-			       GetTitle(),2);
+
+	  me1[i] = dbe->clone1D(merootobject[i].object.GetName(),
+				&merootobject[i].object);
 	  
 	  // fill new monitor element
 	  Int_t nbins = merootobject[i].object.GetXaxis()->GetNbins();
 	  for (Int_t x = 1; x <= nbins; ++x) {
 	    Double_t error = merootobject[i].object.GetBinError(x);
 	    Double_t value = merootobject[i].object.GetBinContent(x);
-	   
+
 	    me1[i]->setBinContent(x,value);
 	    me1[i]->setBinError(x,error);
 	    
 	  } // end fill
+   
 	} // end define new monitor elements
 
 	// attach taglist
@@ -223,19 +217,9 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	// define new monitor element
 	if (dbe) {
 	  dbe->setCurrentFolder(dir);
-	  
-	  me2[i] = dbe->book2D(merootobject[i].object.GetName(),
-			       merootobject[i].object.GetTitle(),
-			       merootobject[i].object.GetXaxis()->GetNbins(),
-			       merootobject[i].object.GetXaxis()->GetXmin(),
-			       merootobject[i].object.GetXaxis()->GetXmax(),
-			       merootobject[i].object.GetYaxis()->GetNbins(),
-			       merootobject[i].object.GetYaxis()->GetXmin(),
-			       merootobject[i].object.GetYaxis()->GetXmax());
-	  me2[i]->setAxisTitle(merootobject[i].object.GetXaxis()->
-			       GetTitle(),1);
-	  me2[i]->setAxisTitle(merootobject[i].object.GetYaxis()->
-			       GetTitle(),2);
+
+	  me2[i] = dbe->clone2D(merootobject[i].object.GetName(),
+				&merootobject[i].object);
 	  
 	  // fill new monitor element
 	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
@@ -251,6 +235,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 		me2[i]->setBinError(x,y,error);
 	    } // end loop through y
 	  } // end loop through x
+
 	} // end define new monitor elements
 
 	// attach taglist
@@ -300,24 +285,9 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	if (dbe) {
 	  dbe->setCurrentFolder(dir);
 	  
-	  me3[i] = dbe->book3D(merootobject[i].object.GetName(),
-			       merootobject[i].object.GetTitle(),
-			       merootobject[i].object.GetXaxis()->GetNbins(),
-			       merootobject[i].object.GetXaxis()->GetXmin(),
-			       merootobject[i].object.GetXaxis()->GetXmax(),
-			       merootobject[i].object.GetYaxis()->GetNbins(),
-			       merootobject[i].object.GetYaxis()->GetXmin(),
-			       merootobject[i].object.GetYaxis()->GetXmax(),
-			       merootobject[i].object.GetZaxis()->GetNbins(),
-			       merootobject[i].object.GetZaxis()->GetXmin(),
-			       merootobject[i].object.GetZaxis()->GetXmax());
-	  me3[i]->setAxisTitle(merootobject[i].object.GetXaxis()->
-			       GetTitle(),1);
-	  me3[i]->setAxisTitle(merootobject[i].object.GetYaxis()->
-			       GetTitle(),2);
-	  me3[i]->setAxisTitle(merootobject[i].object.GetZaxis()->
-			       GetTitle(),3);
-	  
+	  me3[i] = dbe->clone3D(merootobject[i].object.GetName(),
+				&merootobject[i].object);
+
 	  // fill new monitor element
 	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
 	  Int_t nybins = merootobject[i].object.GetYaxis()->GetNbins();
@@ -334,6 +304,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	      } // end loop through z
 	    } // end loop through y
 	  } // end loop through x
+   
 	} // end define new monitor elements
 
 	// attach taglist
@@ -350,8 +321,8 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
       iRun.getByType(metoroot);
       
       if (!metoroot.isValid()) {
-	edm::LogWarning(MsgLoggerCat)
-	  << "MEtoROOT<TProfile> doesn't exist in run";
+	//edm::LogWarning(MsgLoggerCat)
+	//  << "MEtoROOT<TProfile> doesn't exist in run";
 	continue;
       }
       
@@ -382,25 +353,9 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	if (dbe) {
 	  dbe->setCurrentFolder(dir);
 	  
-	  me4[i] = dbe->bookProfile(merootobject[i].object.GetName(),
-				    merootobject[i].object.GetTitle(),
-				    merootobject[i].object.GetXaxis()->
-				    GetNbins(),
-				    merootobject[i].object.GetXaxis()->
-				    GetXmin(),
-				    merootobject[i].object.GetXaxis()->
-				    GetXmax(),
-				    merootobject[i].object.GetYaxis()->
-				    GetNbins(),
-				    merootobject[i].object.GetYaxis()->
-				    GetXmin(),
-				    merootobject[i].object.GetYaxis()->
-				    GetXmax());
-	  me4[i]->setAxisTitle(merootobject[i].object.GetXaxis()->
-			       GetTitle(),1);
-	  me4[i]->setAxisTitle(merootobject[i].object.GetYaxis()->
-			       GetTitle(),2);
-	  
+	  me4[i] = dbe->cloneProfile(merootobject[i].object.GetName(),
+				     &merootobject[i].object);
+
 	  // fill new monitor element
 	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
 	  for (Int_t x = 1; x <= nxbins; ++x) {
@@ -410,6 +365,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	    me4[i]->setBinContent(x,value);
 	    me4[i]->setBinError(x,error);
 	  } // end loop through x
+ 
 	} // end define new monitor elements
 
 	// attach taglist
@@ -422,7 +378,69 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
     } // end TProfile creation
 
     if (classtypes[ii] == "TProfile2D") {
+      edm::Handle<MEtoROOT<TProfile2D> > metoroot;
+      iRun.getByType(metoroot);
+      
+      if (!metoroot.isValid()) {
+	//edm::LogWarning(MsgLoggerCat)
+	//  << "MEtoROOT<TProfile2D> doesn't exist in run";
+	continue;
+      }
+      
+      std::vector<MEtoROOT<TProfile2D>::MEROOTObject> merootobject = 
+	metoroot->getMERootObject(); 
+      
+      me5.resize(merootobject.size());
+      
+      for (unsigned int i = 0; i < merootobject.size(); ++i) {
+	
+	me5[i] = 0;
+	
+	// get full path of monitor element
+	std::string pathname = merootobject[i].name;
+	//std::cout << pathname << std::endl;
+	
+	std::string dir;
+	
+	// deconstruct path from fullpath
+	StringList fulldir = StringOps::split(pathname,"/");
+	for (unsigned j = 0; j < fulldir.size() - 1; ++j) {
+	  dir += fulldir[j];
+	  if (j != fulldir.size() - 2) dir += "/";
+	}
+	//std::cout << dir << std::endl;    
+	
+	// define new monitor element
+	if (dbe) {
+	  dbe->setCurrentFolder(dir);
+	  
+	  me5[i] = dbe->cloneProfile2D(merootobject[i].object.GetName(),
+				       &merootobject[i].object);
 
+	  // fill new monitor element
+	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
+	  Int_t nybins = merootobject[i].object.GetYaxis()->GetNbins();
+	  for (Int_t x = 1; x <= nxbins; ++x) {
+	    for (Int_t y = 1; y <= nybins; ++y) {
+	      Double_t value = 
+		merootobject[i].object.GetBinContent(x,y);
+	      Double_t error = 
+		merootobject[i].object.GetBinError(x,y);
+	      
+	      me5[i]->setBinContent(x,y,value);
+	      me5[i]->setBinError(x,y,error);
+	    } // end loop through y
+	  } // end loop through x
+
+	} // end define new monitor elements
+	
+	// attach taglist
+	TagList tags = merootobject[i].tags;
+	for (unsigned int j = 0; j < tags.size(); ++j) {
+	  dbe->tag(me5[i],tags[j]);
+	}
+
+      } // end loop thorugh merootobject
     } // end TProfile2D creation
 
     if (classtypes[ii] == "Float") {
