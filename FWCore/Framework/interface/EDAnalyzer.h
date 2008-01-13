@@ -10,6 +10,7 @@ namespace edm {
 
   class EDAnalyzer {
   public:
+    template <typename T> friend class WorkerT;
     friend class AnalyzerWorker;
     EDAnalyzer() : moduleDescription_(), current_context_(0) {}
     virtual ~EDAnalyzer();

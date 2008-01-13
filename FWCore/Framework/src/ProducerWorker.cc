@@ -1,7 +1,7 @@
 
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.26 2007/06/29 03:43:21 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.27 2008/01/11 20:30:08 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -16,10 +16,9 @@ namespace edm {
   ProducerWorker::ProducerWorker(std::auto_ptr<EDProducer> ed,
 				 ModuleDescription const& md,
 				 WorkerParams const& wp) :
-    Worker(md,wp),
-    producer_(ed)
+    WorkerT<EDProducer>(ed, md, wp)
   {
-    producer_->registerProducts(producer_, wp.reg_, md, true);
+    module().registerProducts(moduleSharedPtr(), wp.reg_, md, true);
   }
 
   ProducerWorker::~ProducerWorker() {
@@ -33,7 +32,7 @@ namespace edm {
     bool rc = false;
 
     Event e(ep,description());
-    producer_->doProduce(e, c, cpc);
+    module().doProduce(e, c, cpc);
     e.commit_();
     rc = true;
     return rc;
@@ -45,8 +44,8 @@ namespace edm {
 			     CurrentProcessingContext const* cpc) {
     bool rc = false;
     Run r(rp,description());
-    if (bat == BranchActionBegin) producer_->doBeginRun(r,c,cpc);
-    else producer_->doEndRun(r,c,cpc);
+    if (bat == BranchActionBegin) module().doBeginRun(r,c,cpc);
+    else module().doEndRun(r,c,cpc);
     r.commit_();
     rc = true;
     return rc;
@@ -58,39 +57,11 @@ namespace edm {
 			     CurrentProcessingContext const* cpc) {
     bool rc = false;
     LuminosityBlock lb(lbp,description());
-    if (bat == BranchActionBegin) producer_->doBeginLuminosityBlock(lb,c,cpc);
-    else producer_->doEndLuminosityBlock(lb,c,cpc);
+    if (bat == BranchActionBegin) module().doBeginLuminosityBlock(lb,c,cpc);
+    else module().doEndLuminosityBlock(lb,c,cpc);
     lb.commit_();
     rc = true;
     return rc;
-  }
-
-  void ProducerWorker::implBeginJob(EventSetup const& es) {
-    producer_->doBeginJob(es);
-  }
-
-  void ProducerWorker::implEndJob() {
-    producer_->doEndJob();
-  }
-  
-  void
-  ProducerWorker::implRespondToOpenInputFile(FileBlock const& fb) {
-    producer_->doRespondToOpenInputFile(fb);
-  }
-
-  void
-  ProducerWorker::implRespondToCloseInputFile(FileBlock const& fb) {
-    producer_->doRespondToCloseInputFile(fb);
-  }
-
-  void
-  ProducerWorker::implRespondToOpenOutputFiles(FileBlock const& fb) {
-    producer_->doRespondToOpenOutputFiles(fb);
-  }
-
-  void
-  ProducerWorker::implRespondToCloseOutputFiles(FileBlock const& fb) {
-    producer_->doRespondToCloseOutputFiles(fb);
   }
 
   std::string ProducerWorker::workerType() const {

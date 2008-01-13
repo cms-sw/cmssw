@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.67 2008/01/10 17:35:35 wmtan Exp $
+$Id: OutputModule.h,v 1.68 2008/01/11 20:29:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -33,6 +33,7 @@ namespace edm {
 
   class OutputModule {
   public:
+    template <typename T> friend class WorkerT;
     friend class OutputWorker;
     typedef OutputModule ModuleType;
 

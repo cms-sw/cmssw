@@ -6,7 +6,7 @@
 EDProducer: The base class of "modules" whose main purpose is to insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.19 2007/09/18 18:06:46 chrjones Exp $
+$Id: EDProducer.h,v 1.20 2008/01/11 20:29:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,6 +18,7 @@ $Id: EDProducer.h,v 1.19 2007/09/18 18:06:46 chrjones Exp $
 namespace edm {
   class EDProducer : public ProducerBase {
   public:
+    template <typename T> friend class WorkerT;
     friend class ProducerWorker;
     typedef EDProducer ModuleType;
 

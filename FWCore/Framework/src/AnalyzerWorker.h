@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: AnalyzerWorker.h,v 1.20 2007/06/08 23:52:59 wmtan Exp $
+$Id: AnalyzerWorker.h,v 1.21 2008/01/11 20:30:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,20 +17,16 @@ $Id: AnalyzerWorker.h,v 1.20 2007/06/08 23:52:59 wmtan Exp $
 
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
-  class AnalyzerWorker : public Worker {
+  class AnalyzerWorker : public WorkerT<EDAnalyzer> {
   public:
     AnalyzerWorker(std::auto_ptr<EDAnalyzer>,
 		   ModuleDescription const&,
 		   WorkerParams const&);
     virtual ~AnalyzerWorker();
-
-  template <class ModType>
-  static std::auto_ptr<EDAnalyzer> makeOne(ModuleDescription const& md,
-					   WorkerParams const& wp);
 
   private:
     virtual bool implDoWork(EventPrincipal& e, EventSetup const& c,
@@ -45,16 +41,7 @@ namespace edm {
 			    BranchActionType bat,
 			    CurrentProcessingContext const* cpc);
 
-    virtual void implBeginJob(EventSetup const&) ;
-    virtual void implEndJob() ;
-    virtual void implRespondToOpenInputFile(FileBlock const& fb);
-    virtual void implRespondToCloseInputFile(FileBlock const& fb);
-    virtual void implRespondToOpenOutputFiles(FileBlock const& fb);
-    virtual void implRespondToCloseOutputFiles(FileBlock const& fb);
-
     virtual std::string workerType() const;
-    
-    boost::shared_ptr<EDAnalyzer> analyzer_;
   };
 
   template <> 
@@ -62,14 +49,6 @@ namespace edm {
     typedef EDAnalyzer ModuleType;
     typedef AnalyzerWorker worker_type;
   };
-
-  template <class ModType>
-  std::auto_ptr<EDAnalyzer> AnalyzerWorker::makeOne(ModuleDescription const& md,
-						    WorkerParams const& wp) {
-    std::auto_ptr<ModType> analyzer = std::auto_ptr<ModType>(new ModType(*wp.pset_));
-    analyzer->setModuleDescription(md);
-    return std::auto_ptr<EDAnalyzer>(analyzer.release());
-  }
 }
 
 #endif

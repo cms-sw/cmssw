@@ -8,7 +8,7 @@ this object is to call the filter.
 According to our current definition, a single filter can only
 appear in one worker.
 
-$Id: FilterWorker.h,v 1.19 2007/06/08 23:52:59 wmtan Exp $
+$Id: FilterWorker.h,v 1.20 2008/01/11 20:30:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,21 +16,17 @@ $Id: FilterWorker.h,v 1.19 2007/06/08 23:52:59 wmtan Exp $
 
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
 
-  class FilterWorker : public Worker {
+  class FilterWorker : public WorkerT<EDFilter> {
   public:
     FilterWorker(std::auto_ptr<EDFilter>,
 		 ModuleDescription const&,
 		 WorkerParams const&);
     virtual ~FilterWorker();
-
-    template <class ModType>
-    static std::auto_ptr<EDFilter> makeOne(ModuleDescription const&,
-					   WorkerParams const&);
 
   private:
     virtual bool implDoWork(EventPrincipal& e, EventSetup const& c,
@@ -42,16 +38,8 @@ namespace edm {
     virtual bool implDoWork(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 			    BranchActionType bat,
 			    CurrentProcessingContext const* cpc);
-    virtual void implBeginJob(EventSetup const&) ;
-    virtual void implEndJob() ;
-    virtual void implRespondToOpenInputFile(FileBlock const& fb);
-    virtual void implRespondToCloseInputFile(FileBlock const& fb);
-    virtual void implRespondToOpenOutputFiles(FileBlock const& fb);
-    virtual void implRespondToCloseOutputFiles(FileBlock const& fb);
 
     virtual std::string workerType() const;
-
-    boost::shared_ptr<EDFilter> filter_;
   };
 
   template <> 
@@ -59,15 +47,6 @@ namespace edm {
     typedef EDFilter ModuleType;
     typedef FilterWorker worker_type;
   };
-
-  template <class ModType>
-  std::auto_ptr<EDFilter> FilterWorker::makeOne(ModuleDescription const& md,
-						WorkerParams const& wp) {
-    std::auto_ptr<ModType> filter = std::auto_ptr<ModType>(new ModType(*wp.pset_));
-    filter->setModuleDescription(md);
-    return std::auto_ptr<EDFilter>(filter.release());
-  }
-
 }
 
 #endif

@@ -8,7 +8,7 @@ processing in a processing path.
 Filters can also insert products into the event.
 These products should be informational products about the filter decision.
 
-$Id: EDFilter.h,v 1.15 2007/09/18 18:06:46 chrjones Exp $
+$Id: EDFilter.h,v 1.16 2008/01/11 20:29:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,6 +21,7 @@ namespace edm {
 
   class EDFilter : public ProducerBase {
   public:
+    template <typename T> friend class WorkerT;
     friend class FilterWorker;
     typedef EDFilter ModuleType;
     

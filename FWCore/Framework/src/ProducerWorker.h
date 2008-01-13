@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: ProducerWorker.h,v 1.22 2007/09/18 18:06:47 chrjones Exp $
+$Id: ProducerWorker.h,v 1.23 2008/01/11 20:30:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,12 +18,12 @@ $Id: ProducerWorker.h,v 1.22 2007/09/18 18:06:47 chrjones Exp $
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
 
-  class ProducerWorker : public Worker {
+  class ProducerWorker : public WorkerT<EDProducer> {
   public:
     ProducerWorker(std::auto_ptr<EDProducer>,
 		   ModuleDescription const&,
@@ -31,9 +31,6 @@ namespace edm {
 
     virtual ~ProducerWorker();
 
-    template <class ModType>
-    static std::auto_ptr<EDProducer> makeOne(ModuleDescription const& md,
-					     WorkerParams const& wp);
   private:
     virtual bool implDoWork(EventPrincipal& e, EventSetup const& c,
 			    BranchActionType,
@@ -45,16 +42,7 @@ namespace edm {
 			    BranchActionType bat,
 			    CurrentProcessingContext const* cpc);
 
-    virtual void implBeginJob(EventSetup const&) ;
-    virtual void implEndJob() ;
-    virtual void implRespondToOpenInputFile(FileBlock const& fb);
-    virtual void implRespondToCloseInputFile(FileBlock const& fb);
-    virtual void implRespondToOpenOutputFiles(FileBlock const& fb);
-    virtual void implRespondToCloseOutputFiles(FileBlock const& fb);
-
     virtual std::string workerType() const;
-    
-    boost::shared_ptr<EDProducer> producer_;
   };
 
   template <> 
@@ -62,17 +50,6 @@ namespace edm {
     typedef EDProducer ModuleType;
     typedef ProducerWorker worker_type;
   };
-
-  template <class ModType>
-  std::auto_ptr<EDProducer> ProducerWorker::makeOne(ModuleDescription const& md,
-						WorkerParams const& wp) {
-    ParameterSetDescription desc;
-    ModType::fillDescription(desc);
-    desc.validate(*wp.pset_);
-    std::auto_ptr<ModType> producer = std::auto_ptr<ModType>(new ModType(*wp.pset_));
-    producer->setModuleDescription(md);
-    return std::auto_ptr<EDProducer>(producer.release());
-  }
 
 }
 

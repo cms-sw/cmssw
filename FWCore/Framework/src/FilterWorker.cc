@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.17 2007/07/09 07:29:51 llista Exp $
+$Id: FilterWorker.cc,v 1.18 2008/01/11 20:30:08 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/FilterWorker.h"
@@ -15,10 +15,9 @@ namespace edm {
   FilterWorker::FilterWorker(std::auto_ptr<EDFilter> ed,
 			     ModuleDescription const& md,
 			     WorkerParams const& wp):
-   Worker(md, wp),
-   filter_(ed)
+   WorkerT<EDFilter>(ed, md, wp)
   {
-    filter_->registerProducts(filter_, wp.reg_, md, false);
+    module().registerProducts(moduleSharedPtr(), wp.reg_, md, false);
   }
 
   FilterWorker::~FilterWorker() {
@@ -30,7 +29,7 @@ namespace edm {
 			   CurrentProcessingContext const* cpc) {
     bool rc = false;
     Event e(ep,description());
-    rc = filter_->doFilter(e, c, cpc);
+    rc = module().doFilter(e, c, cpc);
     e.commit_();
     return rc;
   }
@@ -41,8 +40,8 @@ namespace edm {
 			   CurrentProcessingContext const* cpc) {
     bool rc = false;
     Run r(rp,description());
-    if (bat == BranchActionBegin) rc = filter_->doBeginRun(r,c,cpc);
-    else rc = filter_->doEndRun(r,c,cpc);
+    if (bat == BranchActionBegin) rc = module().doBeginRun(r,c,cpc);
+    else rc = module().doEndRun(r,c,cpc);
     r.commit_();
     return rc;
   }
@@ -53,40 +52,10 @@ namespace edm {
 			   CurrentProcessingContext const* cpc) {
     bool rc = false;
     LuminosityBlock lb(lbp,description());
-    if (bat == BranchActionBegin) rc = filter_->doBeginLuminosityBlock(lb,c,cpc);
-    else rc = filter_->doEndLuminosityBlock(lb,c,cpc);
+    if (bat == BranchActionBegin) rc = module().doBeginLuminosityBlock(lb,c,cpc);
+    else rc = module().doEndLuminosityBlock(lb,c,cpc);
     lb.commit_();
     return rc;
-  }
-
-  void 
-  FilterWorker::implBeginJob(EventSetup const& es) {
-    filter_->doBeginJob(es);
-  }
-
-  void 
-  FilterWorker::implEndJob() {
-   filter_->doEndJob();
-  }
-
-  void
-  FilterWorker::implRespondToOpenInputFile(FileBlock const& fb) {
-    filter_->doRespondToOpenInputFile(fb);
-  }
-
-  void
-  FilterWorker::implRespondToCloseInputFile(FileBlock const& fb) {
-    filter_->doRespondToCloseInputFile(fb);
-  }
-
-  void
-  FilterWorker::implRespondToOpenOutputFiles(FileBlock const& fb) {
-    filter_->doRespondToOpenOutputFiles(fb);
-  }
-
-  void
-  FilterWorker::implRespondToCloseOutputFiles(FileBlock const& fb) {
-    filter_->doRespondToCloseOutputFiles(fb);
   }
 
   std::string FilterWorker::workerType() const {
