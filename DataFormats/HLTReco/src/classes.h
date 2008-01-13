@@ -52,7 +52,7 @@ namespace {
     HLTPerformanceInfo::Path::const_iterator pw13;
 
     edm::Ref<reco::CompositeCandidateCollection> rccc;
-    edm::Ref<reco::IsolatedPixelTrackCandidate> riptc;
+    edm::Ref<reco::IsolatedPixelTrackCandidateCollection> riptc;
 
     trigger::TriggerObjectCollection toc;
     trigger::TriggerRefsCollections trc;
