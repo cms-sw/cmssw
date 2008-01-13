@@ -4,8 +4,8 @@
 /*
  * \file EEStatusFlagsTask.h
  *
- * $Date: 2007/11/13 13:20:50 $
- * $Revision: 1.25 $
+ * $Date: 2008/01/09 18:47:12 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 class MonitorElement;
 class DaqMonitorBEInterface;

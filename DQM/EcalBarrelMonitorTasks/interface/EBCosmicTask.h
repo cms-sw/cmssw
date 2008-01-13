@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicTask.h
  *
- * $Date: 2008/01/09 11:02:13 $
- * $Revision: 1.26 $
+ * $Date: 2008/01/09 12:17:30 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 class MonitorElement;
 class DaqMonitorBEInterface;
