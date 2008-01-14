@@ -11,6 +11,7 @@
 #include "FWCore/Services/src/EnableFloatingPointExceptions.h"
 #include "FWCore/Services/src/LockService.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/Services/interface/PrintLoadingPlugins.h"
 
 using edm::service::JobReportService;
 using edm::service::Tracer;
@@ -26,6 +27,8 @@ using edm::rootfix::LockService;
 
 DEFINE_FWK_SERVICE(Tracer);
 DEFINE_FWK_SERVICE(Timing);
+typedef edm::serviceregistry::NoArgsMaker<PrintLoadingPlugins> PrintLoadingPluginsMaker;
+DEFINE_FWK_SERVICE_MAKER(PrintLoadingPlugins, PrintLoadingPluginsMaker);
 typedef edm::serviceregistry::AllArgsMaker<edm::SiteLocalConfig,SiteLocalConfigService> SiteLocalConfigMaker;
 DEFINE_FWK_SERVICE_MAKER(SiteLocalConfigService,SiteLocalConfigMaker);
 #if defined(__linux__)
