@@ -20,6 +20,8 @@
 #include "TFile.h"
 #include "TH1F.h"
 
+#include "Varargs.h"
+
 using namespace std;
 using namespace edm;
 using namespace reco;
