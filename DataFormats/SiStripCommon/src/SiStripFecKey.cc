@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.10 2007/07/31 15:20:25 ratnik Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.11 2008/01/11 13:19:14 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
@@ -9,6 +9,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <iomanip>
 #include <sstream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -230,8 +231,9 @@ uint16_t SiStripFecKey::i2cAddr( const uint16_t& lld_chan,
 // -----------------------------------------------------------------------------
 // 
 uint16_t SiStripFecKey::lldChan( const uint16_t& i2c_addr ) {
-  if ( i2c_addr < sistrip::APV_I2C_MIN ||
-       i2c_addr > sistrip::APV_I2C_MAX ) {
+  if ( i2c_addr == 0 ) { return 0; }
+  else if ( i2c_addr < sistrip::APV_I2C_MIN ||
+	    i2c_addr > sistrip::APV_I2C_MAX ) {
     return sistrip::invalid_;
   }
   return ( ( i2c_addr - sistrip::APV_I2C_MIN ) / 2 + 1 );
@@ -411,14 +413,15 @@ void SiStripFecKey::initFromValue() {
   if ( i2cAddr_ >= sistrip::APV_I2C_MIN &&
        i2cAddr_ <= sistrip::APV_I2C_MAX ) { 
     i2cAddr_ = i2cAddr_;
-//     // Consistency check wrt LLD channel
-//     if ( lldChan(i2cAddr_) && lldChan_ &&
-// 	 lldChan(i2cAddr_) != lldChan_ ) {
-//       i2cAddr_ = sistrip::invalid_;
-//     }
   } else if ( i2cAddr_ == 0 ) { 
     i2cAddr_ = 0;
   } else { i2cAddr_ = sistrip::invalid_; }
+  
+  // Consistency check of I2C addresss wrt LLD channel
+  if ( lldChan(i2cAddr_) != lldChan_ && lldChan_ && i2cAddr_ ) {
+    i2cAddr_ = sistrip::invalid_;
+    key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
+  }
   
 }
 
@@ -497,14 +500,15 @@ void SiStripFecKey::initFromKey() {
     if ( i2cAddr_ >= sistrip::APV_I2C_MIN &&
 	 i2cAddr_ <= sistrip::APV_I2C_MAX ) {
       key( key() | ( hybridPos(i2cAddr_) << i2cAddrOffset_ ) ); 
-//       // Consistency check wrt LLD channel
-//       if ( lldChan(i2cAddr_) && lldChan_ &&
-// 	   lldChan(i2cAddr_) != lldChan_ ) {
-// 	i2cAddr_ |= (i2cAddrMask_<<i2cAddrOffset_) ); 
-//       }
     } else if ( i2cAddr_ == 0 ) { 
       key( key() | (i2cAddr_<<i2cAddrOffset_) );
     } else { 
+      key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
+    }
+    
+    // Consistency check of I2C addresss wrt LLD channel
+    if ( lldChan(i2cAddr_) != lldChan_ && lldChan_ && i2cAddr_ ) {
+      i2cAddr_ = sistrip::invalid_;
       key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
     }
     
@@ -530,11 +534,11 @@ void SiStripFecKey::initFromKey() {
     if ( i2cAddr_ == i2cAddrMask_ )   { i2cAddr_ = sistrip::invalid_; }
     else if ( i2cAddr_ )              { i2cAddr_ = i2cAddr(i2cAddr_); }
     
-//     // Consistency check wrt LLD channel
-//     if ( lldChan(i2cAddr_) && lldChan_ &&
-// 	 lldChan(i2cAddr_) != lldChan_ ) {
-//       i2cAddr_ = sistrip::invalid_;
-//     }
+    // Consistency check of I2C addresss wrt LLD channel
+    if ( lldChan(i2cAddr_) != lldChan_ && lldChan_ && i2cAddr_ ) {
+      i2cAddr_ = sistrip::invalid_;
+      key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
+    }
     
   }
   
@@ -764,31 +768,37 @@ void SiStripFecKey::initGranularity() {
 // -----------------------------------------------------------------------------
 //
 void SiStripFecKey::terse( std::stringstream& ss ) {
-  ss << " [SiStripFecKey::terse]"
-     << " FecKey/isValid/crate/slot/ring/CCU/module/LLD/I2C: "
-     << std::hex 
-     << std::setfill('0') 
-     << "0x" << std::setw(8) << key() << " "
-     << std::setfill(' ') 
+  ss << " FecKey=0x" 
+     << std::hex
+     << std::setfill('0') << std::setw(8) << key() << std::setfill(' ') 
      << std::dec
-     << std::boolalpha 
-     << std::setw(5) << isValid() << " "
-     << std::noboolalpha
-     << std::setw(5) << fecCrate() << " "
-     << std::setw(5) << fecSlot() << " "
-     << std::setw(5) << fecRing() << " "
-     << std::setw(5) << ccuAddr() << " "
-     << std::setw(5) << ccuChan() << " "
-     << std::setw(5) << lldChan() << " "
-     << std::setw(5) << i2cAddr()
-     << std::endl;
+     << ", " << ( isValid() ? "Valid" : "Invalid" )
+     << ", Crate=" << fecCrate()
+     << ", Slot=" << fecSlot()
+     << ", Ring=" << fecRing()
+     << ", CCU=" << ccuAddr()
+     << ", module=" << ccuChan()
+     << ", LLD=" << lldChan()
+     << ", I2C=" << i2cAddr();
+//   ss << " FecKey=0x"
+//      << std::hex 
+//      << std::setfill('0') << std::setw(8) << key() << std::setfill(' ') 
+//      << std::dec
+//      << ", IsValid="
+//      << std::boolalpha << std::setw(5) << isValid() << std::noboolalpha
+//      << ", Crate=" << std::setw(5) << fecCrate()
+//      << ", Slot=" << std::setw(5) << fecSlot()
+//      << ", Ring=" << std::setw(5) << fecRing()
+//      << ", CCU=" << std::setw(5) << ccuAddr()
+//      << ", module=" << std::setw(5) << ccuChan()
+//      << ", LLD=" << std::setw(5) << lldChan()
+//      << ", I2C=" << std::setw(5) << i2cAddr();
 }
 
 // -----------------------------------------------------------------------------
 //
 std::ostream& operator<< ( std::ostream& os, const SiStripFecKey& input ) {
-  return os << std::endl
-	    << " [SiStripFecKey::print]" << std::endl
+  return os << " [SiStripFecKey::print]" << std::endl
 	    << std::hex
 	    << " FEC key              : 0x" 
 	    << std::setfill('0') 
@@ -813,12 +823,12 @@ std::ostream& operator<< ( std::ostream& os, const SiStripFecKey& input ) {
 //
 ConsistentWithKey::ConsistentWithKey( const SiStripFecKey& key ) 
   : mask_( key.fecCrate() ? sistrip::invalid_ : 0,
-	   key.fecSlot() ? sistrip::invalid_ : 0,
-	   key.fecRing() ? sistrip::invalid_ : 0,
-	   key.ccuAddr() ? sistrip::invalid_ : 0,
-	   key.ccuChan() ? sistrip::invalid_ : 0,
-	   key.lldChan() ? sistrip::invalid_ : 0,
-	   key.i2cAddr() ? sistrip::invalid_ : 0 ) {;}
+ 	   key.fecSlot() ? sistrip::invalid_ : 0,
+ 	   key.fecRing() ? sistrip::invalid_ : 0,
+ 	   key.ccuAddr() ? sistrip::invalid_ : 0,
+ 	   key.ccuChan() ? sistrip::invalid_ : 0,
+ 	   key.lldChan() ? sistrip::invalid_ : 0,
+ 	   key.i2cAddr() ? sistrip::invalid_ : 0 ) {;}
 
 // -----------------------------------------------------------------------------
 //
