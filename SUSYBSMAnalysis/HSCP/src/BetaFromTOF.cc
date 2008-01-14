@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.9 2007/12/10 12:12:05 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.10 2008/01/06 11:28:36 ptraczyk Exp $
 //
 //
 
@@ -280,7 +280,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                   
                   thisHit.driftCell = hiti->geographicalId();
                   if (hiti->lrSide()==DTEnums::Left) thisHit.isLeft=true; else thisHit.isLeft=false;
-                  thisHit.isPhi = false;
+                  thisHit.isPhi = true;
                   thisHit.posInLayer = geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).x();
                   thisHit.distIP = dtcell->toGlobal(hiti->localPosition()).mag();
                   thisHit.station = station;
@@ -297,6 +297,8 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	          
 	          processSegment(si, dstnc, dsegm, dtraj, hitWeight, left);
 	          
+                  totalWeight+=si->specificRecHits().size()-2;
+
   	        }
   	      }
 	    
@@ -351,7 +353,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     invbeta=0;
     // calculate the value and error of 1/beta from the complete set of 1D hits
     if (debug)
-      cout << " Points for global fit: " << endl;
+      cout << " Points for global fit: " << totalWeight << endl;
 
     // inverse beta - weighted average of the contributions from individual hits
     for (int i=0;i<dstnc.size();i++) {
@@ -492,7 +494,7 @@ void BetaFromTOF::processSegment( const DTRecSegment2D* si, vector<double> &dstn
     left.push_back(hitSide);
     hitWeight.push_back(((double)hits1d.size()-2.)/(double)hits1d.size());
 
-    if (debug) cout << "             dist: " << dist << " pos: " << hitLocalPos
+    if (debug) cout << "             dist: " << dist << " pos: " << hitLocalPos 
                     << " Z: " << layerZ << " Segm: " << segmLocalPos
                     << " t0: " << t0_segm << " 1/beta: " << 1.+t0_segm/dist*30. <<
                       endl;
