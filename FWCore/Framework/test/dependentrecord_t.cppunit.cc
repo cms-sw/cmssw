@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/NoRecordException.h"
 
 #include <cppunit/extensions/HelperMacros.h>
+#include <string.h>
 
 
 using namespace edm::eventsetup;
@@ -280,10 +281,17 @@ void testdependentrecord::oneOfTwoRecordTest()
     
     depRecord.getRecord<DummyRecord>();
     CPPUNIT_ASSERT_THROW(depRecord.getRecord<Dummy2Record>(),edm::eventsetup::NoRecordException<Dummy2Record>);
-  }
-  
-}
 
+    try {
+      depRecord.getRecord<Dummy2Record>();
+    } catch(edm::eventsetup::NoRecordException<Dummy2Record>& e) {
+       //make sure that the record name appears in the error message.
+       CPPUNIT_ASSERT(0!=strstr(e.what(), "DepOn2Record"));
+       CPPUNIT_ASSERT(0!=strstr(e.what(), "Dummy2Record"));
+       //	std::cout<<e.what()<<std::endl;
+    }
+  }
+}
 void testdependentrecord::resetTest()
 {
   edm::eventsetup::EventSetupProvider provider;

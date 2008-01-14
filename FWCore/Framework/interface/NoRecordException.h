@@ -51,6 +51,17 @@ class NoRecordException : public cms::Exception
       << heterocontainer::HCTypeTagTemplate<T,EventSetupRecordKey>::className()
       << "\" record found in the EventSetup.\n Please add an ESSource or ESProducer that delivers such a record.\n";
   }
+
+
+  NoRecordException(const EventSetupRecordKey& iKey):cms::Exception("NoRecordFromDependentRecord")
+  {
+    (*this)
+      << "No \"" 
+      << heterocontainer::HCTypeTagTemplate<T,EventSetupRecordKey>::className()
+      << "\" record found in the dependent record \""<<iKey.type().name()
+      << "\".\n Please add an ESSource or ESProducer that delivers the \""
+      << heterocontainer::HCTypeTagTemplate<T,EventSetupRecordKey>::className()<<"\" record.";
+  }
       virtual ~NoRecordException() throw() {}
 
       // ---------- const member functions ---------------------
