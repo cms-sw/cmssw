@@ -89,9 +89,9 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
   using namespace edm;
   using namespace reco;
 
-  Handle<reco::TrackCollection> trackCollectionH;
+  Handle<edm::View<reco::Track> > trackCollectionH;
   event.getByLabel("ctfWithMaterialTracks",trackCollectionH);
-  const  reco::TrackCollection  tC = *(trackCollectionH.product());
+  const  edm::View<reco::Track>   tC = *(trackCollectionH.product());
 
   Handle<SimTrackContainer> simTrackCollection;
   event.getByLabel("g4SimHits", simTrackCollection);

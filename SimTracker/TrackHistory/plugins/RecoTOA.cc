@@ -157,7 +157,7 @@ RecoTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByType(TPCollection);
 
   // Track collection
-  edm::Handle<reco::TrackCollection> trackCollection;
+  edm::Handle<edm::View<reco::Track> > trackCollection;
   // Get reco::TrackCollection from the file.
   iEvent.getByLabel(trackCollection_,trackCollection);
 
@@ -184,7 +184,7 @@ RecoTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (std::size_t index = 0; index < trackCollection->size(); index++)
   {
     // Get a pointer to a track per each track in collection
-    reco::TrackRef track(trackCollection, index);
+    edm::RefToBase<reco::Track>  track(trackCollection, index);
 
     // If the track is not fake then get the orginal particles
     if (tracer.evaluate(track, association, associationByHits_))
