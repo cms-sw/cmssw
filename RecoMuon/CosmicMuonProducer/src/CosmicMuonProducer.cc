@@ -6,8 +6,8 @@
  *
  * Implementation:
  *
- * $Date: 2006/10/19 20:24:06 $
- * $Revision: 1.12 $
+ * $Date: 2006/10/24 09:41:06 $
+ * $Revision: 1.13 $
  * Original Author:  Chang Liu
  *        Created:  Tue Jun 13 02:46:17 CEST 2006
 **/
@@ -35,19 +35,21 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
+using namespace edm;
+
 //
 // constructors and destructor
 //
-CosmicMuonProducer::CosmicMuonProducer(const edm::ParameterSet& iConfig)
+CosmicMuonProducer::CosmicMuonProducer(const ParameterSet& iConfig)
 {
-  edm::ParameterSet tbpar = iConfig.getParameter<edm::ParameterSet>("TrajectoryBuilderParameters");
+  ParameterSet tbpar = iConfig.getParameter<ParameterSet>("TrajectoryBuilderParameters");
   theSeedCollectionLabel = iConfig.getUntrackedParameter<std::string>("MuonSeedCollectionLabel");
 
   // service parameters
-  edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
+  ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
   
   // TrackLoader parameters
-  edm::ParameterSet trackLoaderParameters = iConfig.getParameter<edm::ParameterSet>("TrackLoaderParameters");
+  ParameterSet trackLoaderParameters = iConfig.getParameter<ParameterSet>("TrackLoaderParameters");
   
   // the services
   theService = new MuonServiceProxy(serviceParameters);
@@ -72,15 +74,14 @@ CosmicMuonProducer::~CosmicMuonProducer()
 
 // ------------ method called to produce the data  ------------
 void
-CosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+CosmicMuonProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
-  edm::LogInfo("CosmicMuonProducer") << "Analyzing event number: " << iEvent.id();
+  LogInfo("CosmicMuonProducer") << "Analyzing event number: " << iEvent.id();
 
-  edm::Handle<TrajectorySeedCollection> seeds; 
+  Handle<View<TrajectorySeed> > seeds; 
   iEvent.getByLabel(theSeedCollectionLabel,seeds);
-
+  
   // Update the services
   theService->update(iSetup);
   theTrackFinder->reconstruct(seeds,iEvent);
-
 }
