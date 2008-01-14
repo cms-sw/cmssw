@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.h,v 1.11 2007/07/31 15:20:24 ratnik Exp $
+// Last commit: $Id: SiStripFecKey.h,v 1.12 2008/01/11 13:19:12 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripFecKey_H
 #define DataFormats_SiStripCommon_SiStripFecKey_H
@@ -183,19 +183,19 @@ class SiStripFecKey : public SiStripKey {
   static const uint16_t fecCrateOffset_ = 29;
   static const uint16_t fecSlotOffset_  = 24;
   static const uint16_t fecRingOffset_  = 20;
-  static const uint16_t ccuAddrOffset_  = 12;
-  static const uint16_t ccuChanOffset_  =  7;
-  static const uint16_t lldChanOffset_  =  4;
+  static const uint16_t ccuAddrOffset_  = 11;
+  static const uint16_t ccuChanOffset_  =  6;
+  static const uint16_t lldChanOffset_  =  3;
   static const uint16_t i2cAddrOffset_  =  0;
   
   // Definition of bit field masks for 32-bit key 
-  static const uint16_t fecCrateMask_ = 0x07; // (3 bits)
-  static const uint16_t fecSlotMask_  = 0x1F; // (5 bits)
-  static const uint16_t fecRingMask_  = 0x0F; // (4 bits)
-  static const uint16_t ccuAddrMask_  = 0xFF; // (8 bits)
-  static const uint16_t ccuChanMask_  = 0x1F; // (5 bits)
-  static const uint16_t lldChanMask_  = 0x07; // (3 bits)
-  static const uint16_t i2cAddrMask_  = 0x0F; // (4 bits)
+  static const uint16_t fecCrateMask_ =  0x07; // (3 bits)
+  static const uint16_t fecSlotMask_  =  0x1F; // (5 bits)
+  static const uint16_t fecRingMask_  =  0x0F; // (4 bits)
+  static const uint16_t ccuAddrMask_  = 0x1FF; // (9 bits)
+  static const uint16_t ccuChanMask_  =  0x1F; // (5 bits)
+  static const uint16_t lldChanMask_  =  0x07; // (3 bits)
+  static const uint16_t i2cAddrMask_  =  0x07; // (3 bits)
   
 };
 
