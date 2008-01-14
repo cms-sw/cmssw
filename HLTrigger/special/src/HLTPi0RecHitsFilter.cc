@@ -180,9 +180,20 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (curr_phi < 1) curr_phi += 360;
 	if (curr_phi > 360) curr_phi -= 360;
 	
-	try
+	//try
+	//  {
+	//    EBDetId det = EBDetId(curr_eta,curr_phi,EBDetId::ETAPHIMODE);
+
+        EBDetId det;
+
+	if (!EBDetId::validDetId(curr_eta,curr_phi) ) 
 	  {
-	    EBDetId det = EBDetId(curr_eta,curr_phi,EBDetId::ETAPHIMODE);
+	    continue;
+	  } else {
+	    det = EBDetId(curr_eta,curr_phi,EBDetId::ETAPHIMODE);
+	  }
+
+
 	    std::vector<EBDetId>::const_iterator usedIds;
 			  
 	    std::map<DetId, EcalRecHit>::iterator aHit;
@@ -209,10 +220,10 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  //cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : iSM, ic "<<sel_rh.ism()<<" "<<sel_rh.ic()<<endl;
 		  
 		}
-	  }
-	catch (...)
-	  {
-	  }
+	    //	  }
+	    //	catch (...)
+	    //  {
+	    // }
       }
     math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_v,hitCollection_p,geometry_p,geometryES_p);
     //cout<< "       Simple Clustering: Total energy for this simple cluster : "<<simple_energy<<endl; 
@@ -332,9 +343,20 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		      if (curr_phi < 1) curr_phi += 360;
 		      if (curr_phi > 360) curr_phi -= 360;
               
-		      try
+		      //try
+		      //	{
+		      //	  EBDetId det = EBDetId(curr_eta,curr_phi,EBDetId::ETAPHIMODE);
+
+		      EBDetId det;
+
+		      if (!EBDetId::validDetId(curr_eta,curr_phi) ) 
 			{
-			  EBDetId det = EBDetId(curr_eta,curr_phi,EBDetId::ETAPHIMODE);
+			  continue;
+			} else {
+			  det = EBDetId(curr_eta,curr_phi,EBDetId::ETAPHIMODE);
+			}
+
+
 			  std::vector<EBDetId>::const_iterator usedIds;
 			  
 			  bool HitAlreadyUsed=false;
@@ -362,10 +384,10 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				//cout << "       RecHit Ok 20x20 matrix outside cluster : iSM, ic "<<sel_rh.ism()<<" "<<sel_rh.ic()<<endl;
 				
 			      }
-			}
-		      catch (...)
-			{
-			}
+			  //			}
+			  //catch (...)
+			  //	{
+			  //	}
 		    }
 
 		}
