@@ -1018,3 +1018,16 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
   out.close();
 
 }
+
+bool PixelCalibConfiguration::noHits() const
+{
+	for ( std::vector<std::vector<unsigned int> >::const_iterator rows_itr = rows_.begin(); rows_itr != rows_.end(); rows_itr++ )
+	{
+		if (rows_itr->size() > 0) return false;
+	}
+	for ( std::vector<std::vector<unsigned int> >::const_iterator cols_itr = cols_.begin(); cols_itr != cols_.end(); cols_itr++ )
+	{
+		if (cols_itr->size() > 0) return false;
+	}
+	return true;
+}

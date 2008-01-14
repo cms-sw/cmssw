@@ -84,6 +84,8 @@ namespace pos{
     unsigned int nConfigurations() const { assert(rocAndModuleListsBuilt_); return nPixelPatterns()*nScanPoints()*nROC();}
     unsigned int nTriggersTotal() const {return nConfigurations()*nTriggersPerPattern();}
 
+    bool noHits() const; // returns true if no hits will be produced ("Rows:" and "Cols:" empty)
+
     unsigned int scanValue(unsigned int iscan, unsigned int state) const;
     unsigned int scanValue(std::string dac, unsigned int state) const{
       return scanValue(iScan(dac),state);
