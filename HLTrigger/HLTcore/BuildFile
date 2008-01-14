@@ -1,17 +1,15 @@
-<use name=DataFormats/Candidate>
 <use name=DataFormats/Common>
 <use name=DataFormats/HLTReco>
 <use name=FWCore/Framework>
-<use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/ServiceRegistry>
-<use name=FWCore/PluginManager>
 <use name=FWCore/PrescaleService>
+<use name=FWCore/ServiceRegistry>
 <export>
-  <use name=DataFormats/Candidate>
   <use name=DataFormats/Common>
   <use name=DataFormats/HLTReco>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
+  <use name=FWCore/PrescaleService>
+  <use name=FWCore/ServiceRegistry>
   <lib name=HLTriggerHLTcore>
 </export>
