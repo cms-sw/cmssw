@@ -1,18 +1,21 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.h,v 1.3 2006/11/07 18:06:54 wmtan Exp $
+$Id: AsciiOutputModule.h,v 1.4 2008/01/05 05:28:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
-
+#include <string>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#include "FWCore/MessageLogger/src/MessageLogger.cc"
+
 
 namespace edm {
   class ParameterSet;
   class AsciiOutputModule : public OutputModule {
   public:
     // We do not take ownership of passed stream.
-    explicit AsciiOutputModule(ParameterSet const& pset, std::ostream* os = &std::cout);
+    explicit AsciiOutputModule(ParameterSet const& pset);
     virtual ~AsciiOutputModule();
 
   private:
@@ -22,6 +25,5 @@ namespace edm {
     int prescale_;
     int verbosity_;
     int counter_;
-    std::ostream* pout_;
   };
 }

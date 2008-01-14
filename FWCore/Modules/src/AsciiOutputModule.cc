@@ -1,29 +1,33 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.10 2007/05/29 19:36:57 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.11 2007/06/29 16:36:04 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
 #include <iterator>
 #include <ostream>
-
+#include <string>
 #include "FWCore/Modules/src/AsciiOutputModule.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 
 namespace edm {
 
-  AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset, std::ostream* os) :
+  AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
     prescale_(pset.getUntrackedParameter("prescale", 1U)),
     verbosity_(pset.getUntrackedParameter("verbosity", 1U)),
-    counter_(0),
-    pout_(os) {
-    if (prescale_ == 0) prescale_ = 1;
-  }
+    counter_(0)
+    {
+       if (prescale_ == 0) prescale_ = 1;
+     }
+    
 
   AsciiOutputModule::~AsciiOutputModule() {
-    *pout_ << ">>> processed " << counter_ << " events" << std::endl;
+    edm::LogAbsolute("AsciiOut")<< ">>> processed " << counter_ << " events" << std::endl;
   }
 
   void
@@ -33,8 +37,8 @@ namespace edm {
     if ((++counter_ % prescale_) != 0 || verbosity_ <= 0) return;
 
     //  const Run & run = evt.getRun(); // this is still unused
-    *pout_ << ">>> processing event # " << e.id() <<" time " <<e.time().value()
-           << std::endl;
+    edm::LogAbsolute("AsciiOut")<< ">>> processing event # " << e.id() <<" time " <<e.time().value()
+				<< std::endl;
 
     if (verbosity_ <= 1) return;
 
@@ -43,11 +47,12 @@ namespace edm {
     // ... list of process-names
     for (ProcessHistory::const_iterator it = e.processHistory().begin(), itEnd = e.processHistory().end();
         it != itEnd; ++it) {
-      *pout_ << it->processName() << " ";
+      edm::LogAbsolute("AsciiOut")<< it->processName() << " ";
     }
 
     // ... collision id
-    *pout_ << '\n' << e.id() << '\n';
+    edm::LogAbsolute("AsciiOut")<< '\n' << e.id() << '\n';
+   
     
     // Loop over products, and write some output for each...
 
@@ -59,7 +64,7 @@ namespace edm {
 	 ++i) {
       BranchDescription const& desc = (*i)->product();
       if (selected(desc)) {
-        *pout_ << **i << '\n';
+	edm::LogAbsolute("AsciiOut")<< **i << '\n';
       }
     }
   }
