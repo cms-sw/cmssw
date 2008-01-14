@@ -1,7 +1,7 @@
 /** \file
- *  $Date: 2007/12/17 18:32:15 $
- *  $Revision: 1.53 $
- *  $Author: ameyer $
+ *  $Date: 2008/01/11 15:47:48 $
+ *  $Revision: 1.1 $
+ *  $Author: lat $
  */
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/MonitorElementBaseT.h"
@@ -157,6 +157,7 @@ DaqMonitorROOTBackEnd::~DaqMonitorROOTBackEnd()
   delete tagHelper;
 }
 
+// clone/copy received TH1F object from <source> to ME in <dir>
 MonitorElement * 
 DaqMonitorROOTBackEnd::book1D(std::string name, TH1F* source,
                               MonitorElementRootFolder * dir)
@@ -170,9 +171,9 @@ DaqMonitorROOTBackEnd::book1D(std::string name, TH1F* source,
   }
   
   TH1F *h1p = reinterpret_cast<TH1F*>(source->Clone());
-  // remove histogram from gDirectory so we can release memory with remove method
   h1p->SetName(name.c_str());
-  h1p->Reset();
+  // h1p->Reset();
+  // remove histogram from gDirectory so we can release memory with remove method
   h1p->SetDirectory(0);
   MonitorElement *me = new MonitorElementRootH1(h1p, name);
   addElement(me, dir->getPathname(), "TH1F");
@@ -236,7 +237,7 @@ DaqMonitorROOTBackEnd::book2D(std::string name, TH2F* source,
 
   TH2F *h2p = reinterpret_cast<TH2F*>(source->Clone());
   h2p->SetName(name.c_str());
-  h2p->Reset();
+  //h2p->Reset();
   // remove histogram from gDirectory so we can release memory with remove method
   h2p->SetDirectory(0);
   MonitorElement *me = new MonitorElementRootH2(h2p,name);
@@ -281,7 +282,7 @@ DaqMonitorROOTBackEnd::book3D(std::string name, TH3F* source,
 
   TH3F *h3p = reinterpret_cast<TH3F*>(source->Clone());
   h3p->SetName(name.c_str());
-  h3p->Reset();
+  //h3p->Reset();
   // remove histogram from gDirectory so we can release memory with remove method
   h3p->SetDirectory(0);
   MonitorElement *me = new MonitorElementRootH3(h3p,name);
@@ -329,7 +330,7 @@ DaqMonitorROOTBackEnd::bookProfile(std::string name, TProfile* source,
 
   TProfile *hp = reinterpret_cast<TProfile*>(source->Clone());
   hp->SetName(name.c_str());
-  hp->Reset();
+  //hp->Reset();
   // remove histogram from gDirectory so we can release memory with remove method
   hp->SetDirectory(0);
   MonitorElement *me = new MonitorElementRootProf(hp,name);
@@ -376,7 +377,7 @@ DaqMonitorROOTBackEnd::bookProfile2D(std::string name, TProfile2D* source,
 
   TProfile2D *hp2d = reinterpret_cast<TProfile2D*>(source->Clone());
   hp2d->SetName(name.c_str());
-  hp2d->Reset();
+  //hp2d->Reset();
   // remove histogram from gDirectory so we can release memory with remove method
   hp2d->SetDirectory(0);
   MonitorElement *me = new MonitorElementRootProf2D(hp2d,name);
