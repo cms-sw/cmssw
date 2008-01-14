@@ -143,7 +143,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
   for (it = seeds.begin(); it != seeds.end(); it++){
     std::vector <reco::BasicCluster> thisseedClusters;
     DetId itID = it->id();
-
+    
     // make sure the current seed has not been used/will not be used in the future:
     std::set<DetId>::iterator seed_in_rechits_it = useddetids.find(itID);
 
@@ -153,7 +153,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
     // output some info on the hit:
     if ( debugLevel_ == pDEBUG ){
       std::cout << "*****************************************************" << std::endl;
-      std::cout << "Seed of energy E = " << it->energy() 
+      std::cout << "Seed of energy E = " << it->energy() << " @ " << EBDetId(itID) 
 		<< std::endl;
       std::cout << "*****************************************************" << std::endl;
     }
@@ -178,7 +178,11 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
     //First, the domino about the seed:
     std::vector <EcalRecHit> initialdomino;
     double e_init = makeDomino(navigator, initialdomino);
-   
+    if ( debugLevel_ == pDEBUG )
+      {
+	std::cout << "Make initial domino" << std::endl;
+      }
+    
     //
     // If we have a dynamic phi road 
     // then compute et5x5 and set the nmumber
@@ -196,7 +200,12 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
     for (int i=0;i<phiSteps;++i){
       //remember, this always increments the current position of the navigator.
       DetId centerD = navigator.north();
-
+      if (centerD.null())
+	continue;
+      if ( debugLevel_ == pDEBUG )
+	{
+	  std::cout << "Step ++" << i << " @ " << EBDetId(centerD) << std::endl;
+	}
       EcalBarrelNavigator dominoNav(centerD, topo);
       
       //Go get the new domino.
@@ -217,6 +226,13 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
     for (int i=0;i<phiSteps;++i){
       //remember, this always decrements the current position of the navigator.
       DetId centerD = navigator.south();
+      if (centerD.null())
+	continue;
+
+      if ( debugLevel_ == pDEBUG )
+	{
+	  std::cout << "Step --" << i << " @ " << EBDetId(centerD) << std::endl;
+	}
       EcalBarrelNavigator dominoNav(centerD, topo);
       
       //Go get the new domino.
@@ -474,7 +490,10 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
   
   //Now check the energy.  If smaller than Ewing, then we're done.  If greater than Ewing, we have to
   //add two additional cells, the 'wings'
-  if (Etot < Ewing) return Etot;  //Done!  Not adding 'wings'.
+  if (Etot < Ewing) {
+    navigator.home(); //Needed even here!!
+    return Etot;  //Done!  Not adding 'wings'.
+  }
   
   //Add the extra 'wing' cells.  Remember, we haven't sent the navigator home,
   //we're still on the DownEta cell.
