@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForRunType.h,v 1.6 2007/09/06 21:38:13 delaer Exp $
+// Last commit: $Id: ConstantsForRunType.h,v 1.7 2007/11/29 17:08:03 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForRunType_H
 #define DataFormats_SiStripCommon_ConstantsForRunType_H
@@ -63,26 +63,26 @@ namespace sistrip {
    * "fast" connection run                  (21 = XTOFS_CONNECTION), 
    * pulse shape tuning using decon mode    (33 = CALIBRATION_DECO), 
    */
-  enum RunType { PHYSICS,//               = 1,
-		 PEDESTALS,//             = 2,
-		 CALIBRATION,//           = 3,
-		 OPTO_SCAN,//             = 4,
-		 APV_TIMING,//            = 5,
-		 APV_LATENCY,//           = 6,
-		 FINE_DELAY_PLL,
-		 FINE_DELAY_TTC,
-		 MULTI_MODE,
-                 FED_CABLING,//           = 13,
-		 FED_TIMING,//            = 12,
-		 VPSP_SCAN,//             = 14,
-		 DAQ_SCOPE_MODE,//        = 15,
-                 QUITE_FAST_CABLING,
-		 FINE_DELAY,//            = 17,
-		 PHYSICS_ZS,
-		 CALIBRATION_SCAN,//      = 19,
-		 CALIBRATION_SCAN_DECO,// = 20,
-		 FAST_CABLING,//          = 21,
-		 CALIBRATION_DECO,//      = 33,
+  enum RunType { PHYSICS               = 1,
+		 PEDESTALS             = 2,
+		 CALIBRATION           = 3,
+		 OPTO_SCAN             = 4,
+		 APV_TIMING            = 5,
+		 APV_LATENCY           = 6,
+		 FINE_DELAY_PLL        = 7,
+		 FINE_DELAY_TTC        = 8,
+		 MULTI_MODE            = 10,
+		 FED_TIMING            = 12,
+                 FED_CABLING           = 13,
+		 VPSP_SCAN             = 14,
+		 DAQ_SCOPE_MODE        = 15,
+                 QUITE_FAST_CABLING    = 16,
+		 FINE_DELAY            = 17,
+		 PHYSICS_ZS            = 18,
+		 CALIBRATION_SCAN      = 19,
+		 CALIBRATION_SCAN_DECO = 20,
+		 FAST_CABLING          = 21,
+		 CALIBRATION_DECO      = 33,
 		 UNKNOWN_RUN_TYPE   = sistrip::unknown_,
 		 UNDEFINED_RUN_TYPE = sistrip::invalid_
   };
