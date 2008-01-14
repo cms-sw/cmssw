@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/01/13 00:14:15 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/13 00:48:05 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -157,7 +157,8 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 
 	  me1[i] = dbe->clone1D(merootobject[i].object.GetName(),
 				&merootobject[i].object);
-	  
+
+	  /*
 	  // fill new monitor element
 	  Int_t nbins = merootobject[i].object.GetXaxis()->GetNbins();
 	  for (Int_t x = 1; x <= nbins; ++x) {
@@ -172,7 +173,8 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	      me1[i]->Fill(xbincenter);
 	    }
 	  } // end fill
-   
+	  */
+
 	} // end define new monitor elements
 
 	// attach taglist
@@ -225,6 +227,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  me2[i] = dbe->clone2D(merootobject[i].object.GetName(),
 				&merootobject[i].object);
 	  
+	  /*
 	  // fill new monitor element
 	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
 	  Int_t nybins = merootobject[i].object.GetYaxis()->GetNbins();
@@ -246,6 +249,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	      }
 	    } // end loop through y
 	  } // end loop through x
+	  */
 
 	} // end define new monitor elements
 
@@ -299,6 +303,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  me3[i] = dbe->clone3D(merootobject[i].object.GetName(),
 				&merootobject[i].object);
 
+	  /*
 	  // fill new monitor element
 	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
 	  Int_t nybins = merootobject[i].object.GetYaxis()->GetNbins();
@@ -323,7 +328,8 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	      } // end loop through z
 	    } // end loop through y
 	  } // end loop through x
-   
+	  */
+
 	} // end define new monitor elements
 
 	// attach taglist
@@ -375,6 +381,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  me4[i] = dbe->cloneProfile(merootobject[i].object.GetName(),
 				     &merootobject[i].object);
 
+	  /*
 	  // doesn't work properly as y information is lost
 	  // fill new monitor element
 	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
@@ -390,7 +397,8 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	      me4[i]->Fill(xbincenter,1);
 	    }
 	  } // end loop through x
- 
+	  */
+
 	} // end define new monitor elements
 
 	// attach taglist
@@ -442,6 +450,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	  me5[i] = dbe->cloneProfile2D(merootobject[i].object.GetName(),
 				       &merootobject[i].object);
 
+	  /*
 	  // doesn't work as y and z information are lost
 	  // fill new monitor element
 	  Int_t nxbins = merootobject[i].object.GetXaxis()->GetNbins();
@@ -463,6 +472,7 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
 	      }	      
 	    } // end loop through y
 	  } // end loop through x
+	  */
 
 	} // end define new monitor elements
 	
@@ -476,15 +486,160 @@ void ROOTtoMEConverter::endRun(const edm::Run& iRun,
     } // end TProfile2D creation
 
     if (classtypes[ii] == "Float") {
+      edm::Handle<MEtoROOT<float> > metoroot;
+      iRun.getByType(metoroot);
+      
+      if (!metoroot.isValid()) {
+	//edm::LogWarning(MsgLoggerCat)
+	//  << "MEtoROOT<float> doesn't exist in run";
+	continue;
+      }
+      
+      std::vector<MEtoROOT<float>::MEROOTObject> merootobject = 
+	metoroot->getMERootObject(); 
+      
+      me6.resize(merootobject.size());
+      
+      for (unsigned int i = 0; i < merootobject.size(); ++i) {
+	
+	me6[i] = 0;
+	
+	// get full path of monitor element
+	std::string pathname = merootobject[i].name;
+	//std::cout << pathname << std::endl;
+	
+	std::string dir;
+	std::string name;
 
+	// deconstruct path from fullpath
+	StringList fulldir = StringOps::split(pathname,"/");
+	name = *(fulldir.end() - 1);
+	for (unsigned j = 0; j < fulldir.size() - 1; ++j) {
+	  dir += fulldir[j];
+	  if (j != fulldir.size() - 2) dir += "/";
+	}
+	//std::cout << dir << std::endl;    
+	
+	// define new monitor element
+	if (dbe) {
+	  dbe->setCurrentFolder(dir);
+	  
+	  me6[i] = dbe->bookFloat(name);
+	  me6[i]->Fill(merootobject[i].object);
+
+	} // end define new monitor elements
+	
+	// attach taglist
+	TagList tags = merootobject[i].tags;
+	for (unsigned int j = 0; j < tags.size(); ++j) {
+	  dbe->tag(me6[i],tags[j]);
+	}
+	
+      } // end loop thorugh merootobject      
+      
     } // end Float creation
 
     if (classtypes[ii] == "Int") {
-
+      edm::Handle<MEtoROOT<int> > metoroot;
+      iRun.getByType(metoroot);
+      
+      if (!metoroot.isValid()) {
+	//edm::LogWarning(MsgLoggerCat)
+	//  << "MEtoROOT<int> doesn't exist in run";
+	continue;
+      }
+      
+      std::vector<MEtoROOT<int>::MEROOTObject> merootobject = 
+	metoroot->getMERootObject(); 
+      
+      me7.resize(merootobject.size());
+      
+      for (unsigned int i = 0; i < merootobject.size(); ++i) {
+	
+	me7[i] = 0;
+	
+	// get full path of monitor element
+	std::string pathname = merootobject[i].name;
+	//std::cout << pathname << std::endl;
+	
+	std::string dir;
+	std::string name;
+	
+	// deconstruct path from fullpath
+	StringList fulldir = StringOps::split(pathname,"/");
+	name = *(fulldir.end() - 1);
+	for (unsigned j = 0; j < fulldir.size() - 1; ++j) {
+	  dir += fulldir[j];
+	  if (j != fulldir.size() - 2) dir += "/";
+	}
+	//std::cout << dir << std::endl;    
+	
+	// define new monitor element
+	if (dbe) {
+	  dbe->setCurrentFolder(dir);
+	  
+	  me7[i] = dbe->bookInt(name);
+	  me7[i]->Fill(merootobject[i].object);
+	  
+	} // end define new monitor elements
+	
+	// attach taglist
+	TagList tags = merootobject[i].tags;
+	for (unsigned int j = 0; j < tags.size(); ++j) {
+	  dbe->tag(me7[i],tags[j]);
+	}
+      } // end loop thorugh merootobject      
     } // end Int creation
 
     if (classtypes[ii] == "String") {
+      edm::Handle<MEtoROOT<std::string> > metoroot;
+      iRun.getByType(metoroot);
+      
+      if (!metoroot.isValid()) {
+	//edm::LogWarning(MsgLoggerCat)
+	//  << "MEtoROOT<std::string> doesn't exist in run";
+	continue;
+      }
+      
+      std::vector<MEtoROOT<std::string>::MEROOTObject> merootobject = 
+	metoroot->getMERootObject(); 
+      
+      me8.resize(merootobject.size());
+      
+      for (unsigned int i = 0; i < merootobject.size(); ++i) {
+	
+	me8[i] = 0;
+	
+	// get full path of monitor element
+	std::string pathname = merootobject[i].name;
+	//std::cout << pathname << std::endl;
+	
+	std::string dir;
+	std::string name;
 
+	// deconstruct path from fullpath
+	StringList fulldir = StringOps::split(pathname,"/");
+	name = *(fulldir.end() - 1);
+	for (unsigned j = 0; j < fulldir.size() - 1; ++j) {
+	  dir += fulldir[j];
+	  if (j != fulldir.size() - 2) dir += "/";
+	}
+	//std::cout << dir << std::endl;    
+	
+	// define new monitor element
+	if (dbe) {
+	  dbe->setCurrentFolder(dir);
+	  
+	  me8[i] = dbe->bookString(name,merootobject[i].object);
+	  
+	} // end define new monitor elements
+	
+	// attach taglist
+	TagList tags = merootobject[i].tags;
+	for (unsigned int j = 0; j < tags.size(); ++j) {
+	  dbe->tag(me8[i],tags[j]);
+	}
+      } // end loop thorugh merootobject 
     } // end String creation
   }
 
