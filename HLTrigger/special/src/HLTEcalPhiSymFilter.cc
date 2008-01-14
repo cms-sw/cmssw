@@ -5,11 +5,12 @@
 
 HLTEcalPhiSymFilter::HLTEcalPhiSymFilter(const edm::ParameterSet& iConfig)
 {
-  ecalHitsProducer_ = iConfig.getParameter< std::string > ("ecalRecHitsProducer");
-  barrelHits_ = iConfig.getParameter< std::string > ("barrelHitCollection");
-  endcapHits_ = iConfig.getParameter< std::string > ("endcapHitCollection");
-  phiSymBarrelHits_ = iConfig.getParameter< std::string > ("phiSymBarrelHitCollection");
-  phiSymEndcapHits_ = iConfig.getParameter< std::string > ("phiSymEndcapHitCollection");
+  barrelHits_ = iConfig.getParameter< edm::InputTag > ("barrelHitCollection");
+  endcapHits_ = iConfig.getParameter< edm::InputTag > ("endcapHitCollection");
+  phiSymBarrelHits_ = 
+    iConfig.getParameter< std::string > ("phiSymBarrelHitCollection");
+  phiSymEndcapHits_ = 
+    iConfig.getParameter< std::string > ("phiSymEndcapHitCollection");
   eCut_barl_ = iConfig.getParameter< double > ("eCut_barrel");
   eCut_endc_ = iConfig.getParameter< double > ("eCut_endcap");
 
@@ -38,8 +39,8 @@ HLTEcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<EERecHitCollection> endcapRecHitsHandle;
 
   
-  iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
-  iEvent.getByLabel(ecalHitsProducer_,endcapHits_,endcapRecHitsHandle);
+  iEvent.getByLabel(barrelHits_,barrelRecHitsHandle);
+  iEvent.getByLabel(endcapHits_,endcapRecHitsHandle);
  
   //Create empty output collections
   std::auto_ptr< EBRecHitCollection > phiSymEBRecHitCollection( new EBRecHitCollection );

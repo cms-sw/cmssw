@@ -10,13 +10,12 @@
 
  Description: Producer for EcalRecHits to be used for phi-symmetry ECAL calibration . Discard events in which no suitable rechit is available
 
- Implementation:
-     <Notes on implementation>
 */
 //
 // Original Author:  David Futyan
-//         Created:  $Date: 2006/11/21 16:53:03 $
-// $Id: HLTEcalPhiSymFilter.h,v 1.2 2006/11/21 16:53:03 malgeri Exp $
+// HLT Port       :  Stefano Argiro
+//         Created:  $Date: 2008/01/07 14:55:06 $
+// $Id: HLTEcalPhiSymFilter.h,v 1.1 2008/01/07 14:55:06 argiro Exp $
 //
 //
 
@@ -47,9 +46,9 @@ class HLTEcalPhiSymFilter : public HLTFilter {
    private:
       // ----------member data ---------------------------
 
- std::string ecalHitsProducer_;
- std::string barrelHits_;
- std::string endcapHits_;
+ 
+ edm::InputTag barrelHits_;
+ edm::InputTag endcapHits_;
  std::string phiSymBarrelHits_;
  std::string phiSymEndcapHits_;
  double eCut_barl_;
