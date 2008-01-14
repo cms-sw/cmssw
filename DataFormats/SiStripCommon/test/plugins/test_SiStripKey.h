@@ -1,23 +1,23 @@
-// Last commit: $Id: test_SiStripKey.h,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
+// Last commit: $Id: testSiStripKey.h,v 1.2 2007/07/31 15:20:25 ratnik Exp $
 
-#ifndef DataFormats_SiStripCommon_test_SiStripKey_H
-#define DataFormats_SiStripCommon_test_SiStripKey_H
+#ifndef DataFormats_SiStripCommon_testSiStripKey_H
+#define DataFormats_SiStripCommon_testSiStripKey_H
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include <string>
 
 /**
-   @class test_SiStripKey 
+   @class testSiStripKey 
    @author R.Bainbridge
    @brief Simple class that tests SiStripKey.
 */
-class test_SiStripKey : public edm::EDAnalyzer {
+class testSiStripKey : public edm::EDAnalyzer {
 
  public:
   
-  test_SiStripKey( const edm::ParameterSet& );
-  ~test_SiStripKey();
+  testSiStripKey( const edm::ParameterSet& );
+  ~testSiStripKey();
   
   void beginJob( edm::EventSetup const& );
   void analyze( const edm::Event&, const edm::EventSetup& );
@@ -31,5 +31,5 @@ class test_SiStripKey : public edm::EDAnalyzer {
   
 };
 
-#endif // DataFormats_SiStripCommon_test_SiStripKey_H
+#endif // DataFormats_SiStripCommon_testSiStripKey_H
 

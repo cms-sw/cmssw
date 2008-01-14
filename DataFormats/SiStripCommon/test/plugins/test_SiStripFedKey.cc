@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripFedKey.cc,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
+// Last commit: $Id: testSiStripFedKey.cc,v 1.2 2007/07/31 15:20:25 ratnik Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFedKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -16,24 +16,24 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripFedKey::test_SiStripFedKey( const edm::ParameterSet& pset ) 
+testSiStripFedKey::testSiStripFedKey( const edm::ParameterSet& pset ) 
 {
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripFedKey::" << __func__ << "]"
+    << "[testSiStripFedKey::" << __func__ << "]"
     << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripFedKey::~test_SiStripFedKey() {
+testSiStripFedKey::~testSiStripFedKey() {
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripFedKey::" << __func__ << "]"
+    << "[testSiStripFedKey::" << __func__ << "]"
     << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripFedKey::beginJob( const edm::EventSetup& setup ) {
+void testSiStripFedKey::beginJob( const edm::EventSetup& setup ) {
   
   uint32_t cntr = 0;
   uint32_t start = time(NULL);
@@ -167,7 +167,7 @@ void test_SiStripFedKey::beginJob( const edm::EventSetup& setup ) {
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripFedKey::analyze( const edm::Event& event, 
+void testSiStripFedKey::analyze( const edm::Event& event, 
 				  const edm::EventSetup& setup ) {
   LogTrace(mlDqmCommon_) 
     << "[SiStripFedKey::" << __func__ << "]"

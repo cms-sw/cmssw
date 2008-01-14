@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripFecKey.cc,v 1.2 2007/07/31 15:20:25 ratnik Exp $
+// Last commit: $Id: testSiStripFecKey.cc,v 1.3 2008/01/11 13:19:17 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFecKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -20,24 +20,24 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripFecKey::test_SiStripFecKey( const edm::ParameterSet& pset ) 
+testSiStripFecKey::testSiStripFecKey( const edm::ParameterSet& pset ) 
 {
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripFecKey::" << __func__ << "]"
+    << "[testSiStripFecKey::" << __func__ << "]"
     << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripFecKey::~test_SiStripFecKey() {
+testSiStripFecKey::~testSiStripFecKey() {
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripFecKey::" << __func__ << "]"
+    << "[testSiStripFecKey::" << __func__ << "]"
     << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripFecKey::beginJob( const edm::EventSetup& setup ) {
+void testSiStripFecKey::beginJob( const edm::EventSetup& setup ) {
   
   uint32_t cntr = 0;
   uint32_t start = time(NULL);
@@ -73,7 +73,7 @@ void test_SiStripFecKey::beginJob( const edm::EventSetup& setup ) {
 	    // LLD channels
 	    for ( uint16_t illd = 0; illd <= sistrip::LLD_CHAN_MAX+1; illd++ ) {
 	      if ( illd > 1 && illd < sistrip::LLD_CHAN_MAX ) { continue; }
-
+	      
 	      // APV
 	      for ( uint16_t iapv = 0; iapv <= sistrip::APV_I2C_MAX+1; iapv++ ) {
 		if ( iapv > 1 && 
@@ -109,15 +109,26 @@ void test_SiStripFecKey::beginJob( const edm::EventSetup& setup ) {
 
 		keys.push_back(tmp1.key());
 		
-		ss << ">>> original:" << std::endl << tmp1 << std::endl
-		   << ">>> from FEC key:" << std::endl << tmp2 << std::endl
-		   << ">>> from directory:" << std::endl << tmp3 << std::endl
-		   << ">>> isValid:   " << tmp1.isValid()
+		ss << ">>> original       : "; tmp1.terse(ss); ss << std::endl;
+		ss << ">>> from FEC key   : "; tmp1.terse(ss); ss << std::endl;
+		ss << ">>> from directory : "; tmp1.terse(ss); ss << std::endl;
+		ss << ">>> directory      : " << tmp1.path() << std::endl;
+		ss << ">>> isValid        : " << tmp1.isValid()
 		   << " " << tmp1.isValid( tmp1.granularity() )
 		   << " " << tmp1.isValid( sistrip::APV ) << std::endl
-		   << ">>> isInvalid: " << tmp1.isInvalid()
+		   << ">>> isInvalid      : " << tmp1.isInvalid()
 		   << " " << tmp1.isInvalid( tmp1.granularity() )
 		   << " " << tmp1.isInvalid( sistrip::APV );
+
+// 		ss << ">>> original:" << std::endl << tmp1 << std::endl
+// 		   << ">>> from FEC key:" << std::endl << tmp2 << std::endl
+// 		   << ">>> from directory:" << std::endl << tmp3 << std::endl
+// 		   << ">>> isValid:   " << tmp1.isValid()
+// 		   << " " << tmp1.isValid( tmp1.granularity() )
+// 		   << " " << tmp1.isValid( sistrip::APV ) << std::endl
+// 		   << ">>> isInvalid: " << tmp1.isInvalid()
+// 		   << " " << tmp1.isInvalid( tmp1.granularity() )
+// 		   << " " << tmp1.isInvalid( sistrip::APV );
 
 		LogTrace(mlDqmCommon_) << ss.str();
 		
@@ -131,9 +142,10 @@ void test_SiStripFecKey::beginJob( const edm::EventSetup& setup ) {
 
   std::sort( keys.begin(), keys.end() );
   typedef std::vector<uint32_t>::iterator iter;
-  SiStripFecKey value(static_cast<uint16_t>(4));
-  //SiStripFecKey mask(static_cast<uint16_t>(sistrip::invalid_));
-  //ConsistentWith::mask_ = mask.key(); 
+  SiStripFecKey value( static_cast<uint16_t>(4),
+		       static_cast<uint16_t>(21),
+		       static_cast<uint16_t>(8),
+		       static_cast<uint16_t>(127) );
   std::pair<iter,iter> temp = 
     std::equal_range( keys.begin(), 
  		      keys.end(),
@@ -148,12 +160,7 @@ void test_SiStripFecKey::beginJob( const edm::EventSetup& setup ) {
     std::stringstream ss;
     ss << std::endl;
     for ( iter ii = temp.first; ii != temp.second; ++ii ) {
-//       ss << "key&mask: 0x" 
-// 	 << std::hex 
-// 	 << std::setw(8)
-// 	 << std::setfill('0')
-// 	 << uint32_t(SiStripFecKey(*ii).key() & mask.key() ) << std::endl;
-      SiStripFecKey(*ii).terse(ss);
+      SiStripFecKey(*ii).terse(ss); ss << std::endl;
     }
     LogTrace(mlDqmCommon_)
       << "[SiStripFecKey::" << __func__ << "] begin"
@@ -235,7 +242,7 @@ void test_SiStripFecKey::beginJob( const edm::EventSetup& setup ) {
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripFecKey::analyze( const edm::Event& event, 
+void testSiStripFecKey::analyze( const edm::Event& event, 
 				  const edm::EventSetup& setup ) {
   LogTrace(mlDqmCommon_) 
     << "[SiStripFecKey::" << __func__ << "]"

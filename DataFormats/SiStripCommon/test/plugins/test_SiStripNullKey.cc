@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripNullKey.cc,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
+// Last commit: $Id: testSiStripNullKey.cc,v 1.2 2007/07/31 15:20:25 ratnik Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripNullKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -15,24 +15,24 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripNullKey::test_SiStripNullKey( const edm::ParameterSet& pset ) 
+testSiStripNullKey::testSiStripNullKey( const edm::ParameterSet& pset ) 
 {
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripNullKey::" << __func__ << "]"
+    << "[testSiStripNullKey::" << __func__ << "]"
     << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripNullKey::~test_SiStripNullKey() {
+testSiStripNullKey::~testSiStripNullKey() {
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripNullKey::" << __func__ << "]"
+    << "[testSiStripNullKey::" << __func__ << "]"
     << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripNullKey::beginJob( const edm::EventSetup& setup ) {
+void testSiStripNullKey::beginJob( const edm::EventSetup& setup ) {
   
   // Tests for utility methods
 
@@ -73,7 +73,7 @@ void test_SiStripNullKey::beginJob( const edm::EventSetup& setup ) {
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripNullKey::analyze( const edm::Event& event, 
+void testSiStripNullKey::analyze( const edm::Event& event, 
 				  const edm::EventSetup& setup ) {
   LogTrace(mlDqmCommon_) 
     << "[SiStripNullKey::" << __func__ << "]"

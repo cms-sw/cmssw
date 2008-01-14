@@ -1,21 +1,21 @@
-// Last commit: $Id: test_SiStripNullKey.h,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
+// Last commit: $Id: testSiStripNullKey.h,v 1.2 2007/07/31 15:20:25 ratnik Exp $
 
-#ifndef DataFormats_SiStripCommon_test_SiStripNullKey_H
-#define DataFormats_SiStripCommon_test_SiStripNullKey_H
+#ifndef DataFormats_SiStripCommon_testSiStripNullKey_H
+#define DataFormats_SiStripCommon_testSiStripNullKey_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 /**
-   @class test_SiStripNullKey 
+   @class testSiStripNullKey 
    @author R.Bainbridge
    @brief Simple class that tests SiStripNullKey.
 */
-class test_SiStripNullKey : public edm::EDAnalyzer {
+class testSiStripNullKey : public edm::EDAnalyzer {
 
  public:
   
-  test_SiStripNullKey( const edm::ParameterSet& );
-  ~test_SiStripNullKey();
+  testSiStripNullKey( const edm::ParameterSet& );
+  ~testSiStripNullKey();
   
   void beginJob( edm::EventSetup const& );
   void analyze( const edm::Event&, const edm::EventSetup& );
@@ -23,5 +23,5 @@ class test_SiStripNullKey : public edm::EDAnalyzer {
   
 };
 
-#endif // DataFormats_SiStripCommon_test_SiStripNullKey_H
+#endif // DataFormats_SiStripCommon_testSiStripNullKey_H
 

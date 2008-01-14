@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripHistoTitle.cc,v 1.2 2007/06/19 12:16:53 bainbrid Exp $
+// Last commit: $Id: testSiStripHistoTitle.cc,v 1.3 2007/07/31 15:20:25 ratnik Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripHistoTitle.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -18,24 +18,24 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripHistoTitle::test_SiStripHistoTitle( const edm::ParameterSet& pset )
+testSiStripHistoTitle::testSiStripHistoTitle( const edm::ParameterSet& pset )
 {
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripHistoTitle::" << __func__ << "]"
+    << "[testSiStripHistoTitle::" << __func__ << "]"
     << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripHistoTitle::~test_SiStripHistoTitle() {
+testSiStripHistoTitle::~testSiStripHistoTitle() {
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripHistoTitle::" << __func__ << "]"
+    << "[testSiStripHistoTitle::" << __func__ << "]"
     << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripHistoTitle::beginJob( const edm::EventSetup& setup ) {
+void testSiStripHistoTitle::beginJob( const edm::EventSetup& setup ) {
 
   LogTrace(mlDqmCommon_) 
     << "[SiStripHistoTitle::" << __func__ << "]"
@@ -163,24 +163,24 @@ void test_SiStripHistoTitle::beginJob( const edm::EventSetup& setup ) {
 		  std::stringstream ss;
 
 		  ss << std::endl 
-		     << "[test_SiStripHistoTitle::" << __func__ << "]"
+		     << "[testSiStripHistoTitle::" << __func__ << "]"
 		     << " >>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl
 		     << std::endl;
 
-		  ss << "[test_SiStripHistoTitle::" << __func__ << "]"
+		  ss << "[testSiStripHistoTitle::" << __func__ << "]"
 		     << " HistoType/RunType/KeyType: " << *ihisto << "/" << *irun << "/" << *ikey
 		     << " HistoType: " << SiStripEnumsAndStrings::histoType(*ihisto)
 		     << " RunType: " << SiStripEnumsAndStrings::runType(*irun)
 		     << " KeyType: " << SiStripEnumsAndStrings::keyType(*ikey) << std::endl;
 
-		  ss << "[test_SiStripHistoTitle::" << __func__ << "]"
+		  ss << "[testSiStripHistoTitle::" << __func__ << "]"
 		     << " FedId/FeUnit/FeChan/APV: "
 		     << ifed << "/"
 		     << ife << "/"
 		     << ichan << "/"
 		     << iapv << std::endl;
 
-		  ss << "[test_SiStripHistoTitle::" << __func__ << "]"
+		  ss << "[testSiStripHistoTitle::" << __func__ << "]"
 		     << " Gran/Channel: " 
 		     << SiStripEnumsAndStrings::granularity( key.granularity() ) << "/"
 		     << key.channel()
@@ -212,7 +212,7 @@ void test_SiStripHistoTitle::beginJob( const edm::EventSetup& setup ) {
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripHistoTitle::analyze( const edm::Event& event, 
+void testSiStripHistoTitle::analyze( const edm::Event& event, 
 					     const edm::EventSetup& setup ) {
   LogTrace(mlDqmCommon_) 
     << "[SiStripHistoTitle::" << __func__ << "]"

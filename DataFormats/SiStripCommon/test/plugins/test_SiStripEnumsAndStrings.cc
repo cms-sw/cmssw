@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripEnumsAndStrings.cc,v 1.1 2007/04/24 12:19:59 bainbrid Exp $
+// Last commit: $Id: testSiStripEnumsAndStrings.cc,v 1.2 2007/07/31 15:20:25 ratnik Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripEnumsAndStrings.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -15,24 +15,24 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripEnumsAndStrings::test_SiStripEnumsAndStrings( const edm::ParameterSet& pset )
+testSiStripEnumsAndStrings::testSiStripEnumsAndStrings( const edm::ParameterSet& pset )
 {
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripEnumsAndStrings::" << __func__ << "]"
+    << "[testSiStripEnumsAndStrings::" << __func__ << "]"
     << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-test_SiStripEnumsAndStrings::~test_SiStripEnumsAndStrings() {
+testSiStripEnumsAndStrings::~testSiStripEnumsAndStrings() {
   LogTrace(mlDqmCommon_)
-    << "[test_SiStripEnumsAndStrings::" << __func__ << "]"
+    << "[testSiStripEnumsAndStrings::" << __func__ << "]"
     << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripEnumsAndStrings::beginJob( const edm::EventSetup& setup ) {
+void testSiStripEnumsAndStrings::beginJob( const edm::EventSetup& setup ) {
 
   // sistrip::View
   {
@@ -48,7 +48,7 @@ void test_SiStripEnumsAndStrings::beginJob( const edm::EventSetup& setup ) {
 	   ( out == sistrip::UNKNOWN_VIEW && first ) ) {
 	first = false;
 	std::stringstream ss;
-	ss << "[test_SiStripEnumsAndStrings::" << __func__ << "]" 
+	ss << "[testSiStripEnumsAndStrings::" << __func__ << "]" 
 	   << " cntr: " << std::setw(8) << cntr
 	   << "  in: " << std::setw(8) << in
 	   << "  out: " << std::setw(8) << out
@@ -73,7 +73,7 @@ void test_SiStripEnumsAndStrings::beginJob( const edm::EventSetup& setup ) {
 	   ( out == sistrip::UNKNOWN_RUN_TYPE && first ) ) {
 	first = false;
 	std::stringstream ss;
-	ss << "[test_SiStripEnumsAndStrings::" << __func__ << "]" 
+	ss << "[testSiStripEnumsAndStrings::" << __func__ << "]" 
 	   << " cntr: " << std::setw(8) << cntr
 	   << "  in: " << std::setw(8) << in
 	   << "  out: " << std::setw(8) << out
@@ -99,7 +99,7 @@ void test_SiStripEnumsAndStrings::beginJob( const edm::EventSetup& setup ) {
 	   ( out == sistrip::UNKNOWN_KEY && first ) ) {
 	first = false;
 	std::stringstream ss;
-	ss << "[test_SiStripEnumsAndStrings::" << __func__ << "]" 
+	ss << "[testSiStripEnumsAndStrings::" << __func__ << "]" 
 	   << " cntr: " << std::setw(8) << cntr
 	   << "  in: " << std::setw(8) << in
 	   << "  out: " << std::setw(8) << out
@@ -125,7 +125,7 @@ void test_SiStripEnumsAndStrings::beginJob( const edm::EventSetup& setup ) {
 	   ( out == sistrip::UNKNOWN_GRAN && first ) ) {
 	first = false;
 	std::stringstream ss;
-	ss << "[test_SiStripEnumsAndStrings::" << __func__ << "]" 
+	ss << "[testSiStripEnumsAndStrings::" << __func__ << "]" 
 	   << " cntr: " << std::setw(8) << cntr
 	   << "  in: " << std::setw(8) << in
 	   << "  out: " << std::setw(8) << out
@@ -151,7 +151,7 @@ void test_SiStripEnumsAndStrings::beginJob( const edm::EventSetup& setup ) {
 	   ( out == sistrip::UNKNOWN_APV_READOUT_MODE && first ) ) {
 	first = false;
 	std::stringstream ss;
-	ss << "[test_SiStripEnumsAndStrings::" << __func__ << "]" 
+	ss << "[testSiStripEnumsAndStrings::" << __func__ << "]" 
 	   << " cntr: " << std::setw(8) << cntr
 	   << "  in: " << std::setw(8) << in
 	   << "  out: " << std::setw(8) << out
@@ -177,7 +177,7 @@ void test_SiStripEnumsAndStrings::beginJob( const edm::EventSetup& setup ) {
 	   ( out == sistrip::UNKNOWN_FED_READOUT_MODE && first ) ) {
 	first = false;
 	std::stringstream ss;
-	ss << "[test_SiStripEnumsAndStrings::" << __func__ << "]" 
+	ss << "[testSiStripEnumsAndStrings::" << __func__ << "]" 
 	   << " cntr: " << std::setw(8) << cntr
 	   << "  in: " << std::setw(8) << in
 	   << "  out: " << std::setw(8) << out
@@ -202,7 +202,7 @@ void test_SiStripEnumsAndStrings::beginJob( const edm::EventSetup& setup ) {
 	   ( out == sistrip::UNKNOWN_MONITORABLE && first ) ) {
 	first = false;
 	std::stringstream ss;
-	ss << "[test_SiStripEnumsAndStrings::" << __func__ << "]" 
+	ss << "[testSiStripEnumsAndStrings::" << __func__ << "]" 
 	   << " cntr: " << std::setw(8) << cntr
 	   << "  in: " << std::setw(8) << in
 	   << "  out: " << std::setw(8) << out
@@ -226,7 +226,7 @@ void test_SiStripEnumsAndStrings::beginJob( const edm::EventSetup& setup ) {
 	   ( out == sistrip::UNKNOWN_PRESENTATION && first ) ) {
 	first = false;
 	std::stringstream ss;
-	ss << "[test_SiStripEnumsAndStrings::" << __func__ << "]" 
+	ss << "[testSiStripEnumsAndStrings::" << __func__ << "]" 
 	   << " cntr: " << std::setw(8) << cntr 
 	   << "  in: " << std::setw(8) << in
 	   << "  out: " << std::setw(8) << out
@@ -240,7 +240,7 @@ void test_SiStripEnumsAndStrings::beginJob( const edm::EventSetup& setup ) {
 
 // -----------------------------------------------------------------------------
 // 
-void test_SiStripEnumsAndStrings::analyze( const edm::Event& event, 
+void testSiStripEnumsAndStrings::analyze( const edm::Event& event, 
 					     const edm::EventSetup& setup ) {
   LogTrace(mlDqmCommon_) 
     << "[SiStripEnumsAndStrings::" << __func__ << "]"
