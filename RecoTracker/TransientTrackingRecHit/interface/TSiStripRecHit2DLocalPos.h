@@ -14,7 +14,7 @@ public:
   typedef edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, 
 		   edm::refhelper::FindForDetSetVector<SiStripCluster> > SiStripClusterRef;
   
-  typedef edm::SiStripRefGetter<SiStripCluster>::value_ref  SiStripRegionalClusterRef;
+  typedef edm::SiStripLazyGetter<SiStripCluster>::value_ref  SiStripRegionalClusterRef;
 
   virtual ~TSiStripRecHit2DLocalPos() {}
 
