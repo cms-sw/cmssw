@@ -16,7 +16,6 @@ void calo_filter(void) {
   TEveElement * node = get_root_object("cms:World_1");
   if (node) {
     init_filter(elements);
-    dump();
     apply_filter( node, do_hide, true );
   }
 }
