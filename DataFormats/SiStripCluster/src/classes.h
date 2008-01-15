@@ -28,8 +28,14 @@ namespace {
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 namespace {
   namespace {
-    edm::Wrapper< edm::SiStripLazyGetter<SiStripCluster> > dummy6;
-    edm::Wrapper< edm::SiStripRefGetter<SiStripCluster> > dummy7;
+
+    edm::Wrapper< edm::RegionIndex<SiStripCluster> > dummy7;
+    edm::Wrapper< std::vector< edm::RegionIndex<SiStripCluster> > > dummy8;
+    edm::Wrapper< edm::SiStripLazyGetter<SiStripCluster> > dummy9;
+    edm::Wrapper< edm::Ref<edm::SiStripLazyGetter<SiStripCluster>,edm::RegionIndex<SiStripCluster>,edm::FindRegion<SiStripCluster> > > dummy10;
+    edm::Wrapper< std::vector<edm::Ref<edm::SiStripLazyGetter<SiStripCluster>,edm::RegionIndex<SiStripCluster>,edm::FindRegion<SiStripCluster> > > > dummy12;
+    edm::Wrapper< edm::SiStripRefGetter<SiStripCluster> > dummy13;
+    edm::Wrapper< edm::Ref< edm::SiStripLazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> > > dummy14;
   }
 }
 
