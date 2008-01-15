@@ -2,8 +2,8 @@
  * Class: GlobalMuonMatchAnalyzer
  *
  *
- * $Date: $
- * $Revision: $
+ * $Date: 2007/10/20 15:54:07 $
+ * $Revision: 1.1 $
  *
  * Authors :
  * \author Adam Everett - Purdue University
@@ -75,6 +75,7 @@ void
 GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+   using namespace reco;
 
    Handle<TrackingParticleCollection> tpHandle;
    iEvent.getByLabel(tpName_,tpHandle);
@@ -84,17 +85,17 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
    iEvent.getByLabel(glbName_,muHandle);
    const reco::MuonTrackLinksCollection muColl = *(muHandle.product());
 
-   Handle<reco::TrackCollection> staHandle;
+   Handle<View<Track> > staHandle;
    iEvent.getByLabel(staName_,staHandle);
-   const reco::TrackCollection staColl = *(staHandle.product());
+   //   const reco::TrackCollection staColl = *(staHandle.product());
 
-   Handle<reco::TrackCollection> glbHandle;
+   Handle<View<Track> > glbHandle;
    iEvent.getByLabel(glbName_,glbHandle);
-   const reco::TrackCollection glbColl = *(glbHandle.product());
+   //   const reco::TrackCollection glbColl = *(glbHandle.product());
 
-   Handle<reco::TrackCollection> tkHandle;
+   Handle<View<Track> > tkHandle;
    iEvent.getByLabel(tkName_,tkHandle);
-   const reco::TrackCollection mtkColl = *(tkHandle.product());
+   //   const reco::TrackCollection mtkColl = *(tkHandle.product());
 
    reco::RecoToSimCollection tkrecoToSimCollection;
    reco::SimToRecoCollection tksimToRecoCollection;
@@ -115,8 +116,8 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
    for (TrackingParticleCollection::size_type i=0; i<tpColl.size(); ++i){
      TrackingParticleRef tp(tpHandle,i);
 
-     std::vector<std::pair<reco::TrackRef, double> > rvGlb;
-     reco::TrackRef rGlb;
+     std::vector<std::pair<RefToBase<Track>, double> > rvGlb;
+     RefToBase<Track> rGlb;
      if(glbsimToRecoCollection.find(tp) != glbsimToRecoCollection.end()){
        rvGlb = glbsimToRecoCollection[tp];
        if(rvGlb.size() != 0) {
@@ -124,8 +125,8 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
        }
      }
 
-     std::vector<std::pair<reco::TrackRef, double> > rvSta;
-     reco::TrackRef rSta;
+     std::vector<std::pair<RefToBase<Track>, double> > rvSta;
+     RefToBase<Track> rSta;
      if(stasimToRecoCollection.find(tp) != stasimToRecoCollection.end()){
        rvSta = stasimToRecoCollection[tp];
        if(rvSta.size() != 0) {
@@ -133,8 +134,8 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
        }
      }
 
-     std::vector<std::pair<reco::TrackRef, double> > rvTk;
-     reco::TrackRef rTk;
+     std::vector<std::pair<RefToBase<Track>, double> > rvTk;
+     RefToBase<Track> rTk;
      if(tksimToRecoCollection.find(tp) != tksimToRecoCollection.end()){
        rvTk = tksimToRecoCollection[tp];
        if(rvTk.size() != 0) {
@@ -148,19 +149,19 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
      }
 
      for ( reco::MuonTrackLinksCollection::const_iterator links = muHandle->begin(); links != muHandle->end(); ++links ) {
-       if( rGlb == links->globalTrack() ) {
-	 if( links->trackerTrack() == rTk && 
-	     links->standAloneTrack() == rSta ) {
+       if( rGlb == RefToBase<Track>(links->globalTrack() ) ) {
+	 if( RefToBase<Track>(links->trackerTrack() ) == rTk && 
+	     RefToBase<Track>(links->standAloneTrack() ) == rSta ) {
 	   //goodMatch
 	   h_goodMatchSim->Fill(rGlb->eta(),rGlb->pt());
 	 } 
-	 if ( links->trackerTrack() == rTk &&
-	      links->standAloneTrack() != rSta ) {
+	 if ( RefToBase<Track>(links->trackerTrack() ) == rTk &&
+	      RefToBase<Track>(links->standAloneTrack() ) != rSta ) {
 	   //tkOnlyMatch
 	   h_tkOnlySim->Fill(rGlb->eta(),rGlb->pt());
 	 } 
-	 if ( links->standAloneTrack() == rSta &&
-	      links->trackerTrack() != rTk ) {
+	 if ( RefToBase<Track>(links->standAloneTrack() ) == rSta &&
+	      RefToBase<Track>(links->trackerTrack() ) != rTk ) {
 	   //staOnlyMatch
 	   h_staOnlySim->Fill(rGlb->eta(),rGlb->pt());
 	 }
@@ -172,9 +173,9 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
    ////////
    
    for ( reco::MuonTrackLinksCollection::const_iterator links = muHandle->begin(); links != muHandle->end(); ++links ) {
-     reco::TrackRef glbRef = links->globalTrack();
-     reco::TrackRef staRef = links->standAloneTrack();
-     reco::TrackRef tkRef = links->trackerTrack();
+     RefToBase<Track> glbRef = RefToBase<Track>(links->globalTrack() );
+     RefToBase<Track> staRef = RefToBase<Track>(links->standAloneTrack() );
+     RefToBase<Track> tkRef  = RefToBase<Track>(links->trackerTrack() );
      
      std::vector<std::pair<TrackingParticleRef, double> > tp1;
      TrackingParticleRef tp1r;
