@@ -1,22 +1,8 @@
 #include "RecoTracker/FinalTrackSelectors/interface/AnalyticalTrackSelector.h"
 
 #include <Math/DistFunc.h>
-//#include <math.h>
 
 using reco::modules::AnalyticalTrackSelector;
-//using reco::modules::AnalyticalTrackSelector::Block;
-
-/*AnalyticalTrackSelector::Block::Block(const edm::ParameterSet & cfg) :
-    pt(p2p<double>(cfg,"pt")), 
-    vhits(p2p<uint32_t>(cfg,"validHits")),
-    lhits(p2p<uint32_t>(cfg,"lostHits")),
-    chi2n(p2p<double>(cfg,"chi2n")), 
-    d0(cfg.getParameter<double>("d0")),
-    dz(cfg.getParameter<double>("dz")),
-    d0Rel(cfg.getParameter<double>("d0Rel")),
-    dzRel(cfg.getParameter<double>("dzRel"))
-{
-}*/
 
 AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg ) :
     src_( cfg.getParameter<edm::InputTag>( "src" ) ),
@@ -32,55 +18,26 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
 	d0_par2_(cfg.getParameter< std::vector<double> >("d0_par2")),
 	dz_par2_(cfg.getParameter< std::vector<double> >("dz_par2"))
 {
-  /*    typedef std::vector<edm::ParameterSet> VPSet;
-    VPSet psets = cfg.getParameter<VPSet>("cutSets");
-    blocks_.reserve(psets.size());
-    for (VPSet::const_iterator it = psets.begin(), ed = psets.end(); it != ed; ++it) {
-        blocks_.push_back(AnalyticalTrackSelector::Block(*it));
-		}*/
-
-    labels_.push_back(std::string(""));
  
     std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
-    for (std::vector<std::string>::const_iterator li = labels_.begin(), le = labels_.end(); li != le; ++li) {
-        const char *l= li->c_str();
-        produces<reco::TrackCollection>(l).setBranchAlias( alias + "Tracks" + l);
-        if (copyExtras_) {
-            produces<reco::TrackExtraCollection>(l).setBranchAlias( alias + "TrackExtras" + l);
-            produces<TrackingRecHitCollection>(l).setBranchAlias( alias + "RecHits" + l);
-            if (copyTrajectories_) {
-                produces< std::vector<Trajectory> >(l).setBranchAlias( alias + "Trajectories" + l);
-                produces< TrajTrackAssociationCollection >(l).setBranchAlias( alias + "TrajectoryTrackAssociations" + l);
-            }
-        }
-    } 
-
-	size_t nblocks = 1;
-    selTracks_ = new std::auto_ptr<reco::TrackCollection>[nblocks];
-    selTrackExtras_ = new std::auto_ptr<reco::TrackExtraCollection>[nblocks]; 
-    selHits_ = new std::auto_ptr<TrackingRecHitCollection>[nblocks]; 
-    selTrajs_ = new std::auto_ptr< std::vector<Trajectory> >[nblocks]; 
-    selTTAss_ = new std::auto_ptr< TrajTrackAssociationCollection >[nblocks]; 
-    rTracks_ = std::vector<reco::TrackRefProd>(nblocks);
-    rHits_ = std::vector<TrackingRecHitRefProd>(nblocks);
-    rTrackExtras_ = std::vector<reco::TrackExtraRefProd>(nblocks);
-    rTrajectories_ = std::vector< edm::RefProd< std::vector<Trajectory> > >(nblocks);
-    for (size_t i = 0; i < nblocks; i++) {
-        selTracks_[i] = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection());
-        selTrackExtras_[i] = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
-        selHits_[i] = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
-        selTrajs_[i] = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
-        selTTAss_[i] = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
-    }
+	produces<reco::TrackCollection>().setBranchAlias( alias + "Tracks");
+	if (copyExtras_) {
+	  produces<reco::TrackExtraCollection>().setBranchAlias( alias + "TrackExtras");
+	  produces<TrackingRecHitCollection>().setBranchAlias( alias + "RecHits");
+	  if (copyTrajectories_) {
+		produces< std::vector<Trajectory> >().setBranchAlias( alias + "Trajectories");
+		produces< TrajTrackAssociationCollection >().setBranchAlias( alias + "TrajectoryTrackAssociations");
+	  }
+	}
+	selTracks_ = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection());
+	selTrackExtras_ = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
+	selHits_ = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
+	selTrajs_ = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
+	selTTAss_ = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
  
 }
 
 AnalyticalTrackSelector::~AnalyticalTrackSelector() {
-    delete [] selTracks_; 
-    delete [] selTrackExtras_;
-    delete [] selHits_;
-    delete [] selTrajs_;
-    delete [] selTTAss_;
 }
 
 void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es ) 
@@ -88,8 +45,6 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
     using namespace std; 
     using namespace edm;
     using namespace reco;
-
-	size_t nblocks = 1;
 
     Handle<TrackCollection> hSrcTrack;
     Handle< vector<Trajectory> > hTraj;
@@ -102,45 +57,42 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 
     evt.getByLabel( src_, hSrcTrack );
 
-    for (size_t i = 0; i < nblocks; i++) {
-        selTracks_[i] = auto_ptr<TrackCollection>(new TrackCollection());
-        rTracks_[i] = evt.getRefBeforePut<TrackCollection>(labels_[i]);      
-        if (copyExtras_) {
-            selTrackExtras_[i] = auto_ptr<TrackExtraCollection>(new TrackExtraCollection());
-            selHits_[i] = auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
-            rHits_[i] = evt.getRefBeforePut<TrackingRecHitCollection>(labels_[i]);
-            rTrackExtras_[i] = evt.getRefBeforePut<TrackExtraCollection>(labels_[i]);
-        }
-    }
-    
-    if (copyTrajectories_) whereItWent_.resize(hSrcTrack->size());
+	selTracks_ = auto_ptr<TrackCollection>(new TrackCollection());
+	rTracks_ = evt.getRefBeforePut<TrackCollection>();      
+	if (copyExtras_) {
+	  selTrackExtras_ = auto_ptr<TrackExtraCollection>(new TrackExtraCollection());
+	  selHits_ = auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
+	  rHits_ = evt.getRefBeforePut<TrackingRecHitCollection>();
+	  rTrackExtras_ = evt.getRefBeforePut<TrackExtraCollection>();
+	}
+
+    if (copyTrajectories_) trackRefs_.resize(hSrcTrack->size());
     size_t current = 0;
     for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
         const Track & trk = * it;
-        short where = select(trk, points); 
-        if (where == -1) {
-            if (copyTrajectories_) whereItWent_[current] = std::pair<short, reco::TrackRef>(-1, reco::TrackRef());
+        bool ok = select(trk, points); 
+        if (!ok) {
+            if (copyTrajectories_) trackRefs_[current] = reco::TrackRef();
             continue;
         }
-		where = 0;
-        selTracks_[where]->push_back( Track( trk ) ); // clone and store
+		selTracks_->push_back( Track( trk ) ); // clone and store
         if (!copyExtras_) continue;
 
         // TrackExtras
-        selTrackExtras_[where]->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
+        selTrackExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
                     trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
                     trk.outerStateCovariance(), trk.outerDetId(),
                     trk.innerStateCovariance(), trk.innerDetId(),
                     trk.seedDirection() ) );
-        selTracks_[where]->back().setExtra( TrackExtraRef( rTrackExtras_[where], selTrackExtras_[where]->size() - 1) );
-        TrackExtra & tx = selTrackExtras_[where]->back();
+        selTracks_->back().setExtra( TrackExtraRef( rTrackExtras_, selTrackExtras_->size() - 1) );
+        TrackExtra & tx = selTrackExtras_->back();
         // TrackingRecHits
         for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
-            selHits_[where]->push_back( (*hit)->clone() );
-            tx.add( TrackingRecHitRef( rHits_[where], selHits_[where]->size() - 1) );
+            selHits_->push_back( (*hit)->clone() );
+            tx.add( TrackingRecHitRef( rHits_, selHits_->size() - 1) );
         }
         if (copyTrajectories_) {
-            whereItWent_[current] = std::pair<short, reco::TrackRef>(-1, TrackRef(rTracks_[where], selTracks_[where]->size() - 1));
+            trackRefs_[current] = TrackRef(rTracks_, selTracks_->size() - 1);
         }
     }
     if ( copyTrajectories_ ) {
@@ -148,63 +100,63 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
         Handle< TrajTrackAssociationCollection > hTTAss;
         evt.getByLabel(src_, hTTAss);
         evt.getByLabel(src_, hTraj);
-        for (size_t i = 0; i < nblocks; i++) {
-            rTrajectories_[i] = evt.getRefBeforePut< vector<Trajectory> >(labels_[i]);
-            selTrajs_[i] = auto_ptr< vector<Trajectory> >(new vector<Trajectory>()); 
-            selTTAss_[i] = auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
-        }
+		selTrajs_ = auto_ptr< vector<Trajectory> >(new vector<Trajectory>()); 
+		rTrajectories_ = evt.getRefBeforePut< vector<Trajectory> >();
+		selTTAss_ = auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
         for (size_t i = 0, n = hTraj->size(); i < n; ++i) {
             Ref< vector<Trajectory> > trajRef(hTraj, i);
             TrajTrackAssociationCollection::const_iterator match = hTTAss->find(trajRef);
             if (match != hTTAss->end()) {
                 const Ref<TrackCollection> &trkRef = match->val; 
                 short oldKey = static_cast<short>(trkRef.key());
-                if (whereItWent_[oldKey].first != -1) {
-                    int where = whereItWent_[oldKey].first;
-                    selTrajs_[where]->push_back( Trajectory(*trajRef) );
-                    selTTAss_[where]->insert ( Ref< vector<Trajectory> >(rTrajectories_[where], selTrajs_[where]->size() - 1), whereItWent_[oldKey].second );
+                if (trackRefs_[oldKey].isNonnull()) {
+                    selTrajs_->push_back( Trajectory(*trajRef) );
+                    selTTAss_->insert ( Ref< vector<Trajectory> >(rTrajectories_, selTrajs_->size() - 1), trackRefs_[oldKey] );
                 }
             }
         }
     }
 
     static const std::string emptyString;
-    for (size_t i = 0; i < nblocks; i++) {
-        const std::string & lbl = emptyString;
-        evt.put(selTracks_[i], lbl);
-        if (copyExtras_ ) {
-            evt.put(selTrackExtras_[i], lbl); 
-            evt.put(selHits_[i], lbl);
-            if ( copyTrajectories_ ) {
-                evt.put(selTrajs_[i], lbl);
-                evt.put(selTTAss_[i], lbl);
-            }
-        }
-    }
+	evt.put(selTracks_);
+	if (copyExtras_ ) {
+	  evt.put(selTrackExtras_); 
+	  evt.put(selHits_);
+	}
+	if (copyExtras_ ) {
+	  if ( copyTrajectories_ ) {
+		evt.put(selTrajs_);
+		evt.put(selTTAss_);
+	  }
+	}
 }
 
 
-short AnalyticalTrackSelector::select(const reco::Track &tk, const std::vector<Point> &points) {
+bool AnalyticalTrackSelector::select(const reco::Track &tk, const std::vector<Point> &points) {
    using namespace std; 
-   //using std::abs;
    uint32_t nhits = tk.numberOfValidHits();
    double pt = tk.pt(),eta = tk.eta(), chi2n =  tk.normalizedChi2();
    double d0 = tk.d0(), d0E =  tk.d0Error(),dz = tk.dz(), dzE =  tk.dzError();
+   // nominal d0 resolution for the track pt
    double nomd0E = sqrt(0.003*0.003+(0.01/max(pt,1e-9))*(0.01/max(pt,1e-9)));
+   // nominal z0 resolution for the track pt and eta
    double nomdzE = nomd0E*(std::cosh(eta));
+   //cut on chiquare/ndof
    if (chi2n <= chi2n_par_*nhits) {
+	 //no vertex, wide cuts
 	 if (points.empty()) { 
-	   if ( abs(dz) < 15.9 && abs(d0) < 0.2 ) return 1;
+	   if ( abs(dz) < 15.9 && abs(d0) < 0.2 ) return true;
 	 }
+	 // compatibility with a vertex
 	 for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
 	   if (
 		   abs(d0) < pow(d0_par1_[0]*nhits,d0_par1_[1])*nomd0E && 
 		   abs(dz-(point->z())) < pow(dz_par1_[0]*nhits,dz_par1_[1])*nomdzE &&
 		   abs(d0) < pow(d0_par2_[0]*nhits,d0_par2_[1])*d0E && 
-		   abs(dz-(point->z())) < pow(dz_par2_[0]*nhits,dz_par2_[1])*dzE ) return 1;
+		   abs(dz-(point->z())) < pow(dz_par2_[0]*nhits,dz_par2_[1])*dzE ) return true;
 	 }
    }
-   return -1;
+   return false;
 }
 void AnalyticalTrackSelector::selectVertices(const reco::VertexCollection &vtxs, std::vector<Point> &points) {
     using namespace reco;
