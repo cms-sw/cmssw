@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.12 2008/01/11 00:49:03 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.13 2008/01/15 16:17:32 chrjones Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FW3DLegoViewManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
+#include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "DataFormats/FWLite/interface/Event.h"
 
 //
@@ -48,6 +49,7 @@
 //
 FWDisplayEvent::FWDisplayEvent() :
   m_eiManager(new FWEventItemsManager),
+  m_viewManager( new FWViewManagerManager),
   m_continueProcessingEvents(false),
   m_waitForUserAction(true),
   m_code(0)
@@ -123,9 +125,9 @@ FWDisplayEvent::FWDisplayEvent() :
 
   boost::shared_ptr<FWViewManagerBase> rpzViewManager(
 		  new FWRhoPhiZViewManager());
-  m_viewManagers.push_back(rpzViewManager);
-  m_viewManagers.push_back( boost::shared_ptr<FWViewManagerBase>(
-			       new FW3DLegoViewManager()));
+  m_viewManager->add(rpzViewManager);
+  m_viewManager->add( boost::shared_ptr<FWViewManagerBase>(
+                        new FW3DLegoViewManager()));
   gSystem->ProcessEvents();
 }
 
@@ -156,25 +158,13 @@ FWDisplayEvent::~FWDisplayEvent()
 void FWDisplayEvent::registerEventItem(const FWEventItem&iItem)
 {
   const FWEventItem* newItem = m_eiManager->add(iItem);
-  for(std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
-      itVM != m_viewManagers.end();
-      ++itVM) {
-    (*itVM)->newItem(newItem);
-  }
+  m_viewManager->registerEventItem(newItem);
 }
 
 void FWDisplayEvent::registerProxyBuilder(const std::string& type, 
 					  const std::string& proxyBuilderName)
 {
-  for(std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
-      itVM != m_viewManagers.end();
-      ++itVM) {
-    if((*itVM)->useableBuilder(proxyBuilderName)) {
-      std::cout <<"REGISTERING "<<type<<std::endl;
-      (*itVM)->registerProxyBuilder(type,proxyBuilderName);
-      break;
-    }
-  }
+  m_viewManager->registerProxyBuilder(type,proxyBuilderName);
 }
 
 void
@@ -271,12 +261,7 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
   }
    
   m_eiManager->newEvent(&iEvent);
-
-  for(std::vector<boost::shared_ptr<FWViewManagerBase> >::const_iterator itVM = m_viewManagers.begin();
-      itVM != m_viewManagers.end();
-      ++itVM) {
-    (*itVM)->newEventAvailable();
-  }
+  m_viewManager->newEventAvailable();
 
   //check for input at least once
   gSystem->ProcessEvents();

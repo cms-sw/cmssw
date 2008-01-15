@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.7 2008/01/07 05:48:45 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.8 2008/01/15 16:17:33 chrjones Exp $
 //
 
 // system include files
@@ -29,8 +29,8 @@
 
 // forward declarations
 class TGPictureButton;
-class FWViewManagerBase;
 class FWEventItemsManager;
+class FWViewManagerManager;
 class FWEventItem;
 
 namespace fwlite {
@@ -70,7 +70,7 @@ class FWDisplayEvent
 
       // ---------- member data --------------------------------
       std::auto_ptr<FWEventItemsManager> m_eiManager;
-      std::vector<boost::shared_ptr<FWViewManagerBase> > m_viewManagers;
+      std::auto_ptr<FWViewManagerManager> m_viewManager;
 
       mutable bool m_continueProcessingEvents;
       mutable bool m_waitForUserAction;
