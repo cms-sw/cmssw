@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.11 2008/01/11 13:19:14 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.12 2008/01/14 09:17:40 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
@@ -417,11 +417,11 @@ void SiStripFecKey::initFromValue() {
     i2cAddr_ = 0;
   } else { i2cAddr_ = sistrip::invalid_; }
   
-  // Consistency check of I2C addresss wrt LLD channel
-  if ( lldChan(i2cAddr_) != lldChan_ && lldChan_ && i2cAddr_ ) {
-    i2cAddr_ = sistrip::invalid_;
-    key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
-  }
+//   // Consistency check of I2C addresss wrt LLD channel
+//   if ( lldChan(i2cAddr_) != lldChan_ && lldChan_ && i2cAddr_ ) {
+//     i2cAddr_ = sistrip::invalid_;
+//     key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
+//   }
   
 }
 
@@ -506,11 +506,11 @@ void SiStripFecKey::initFromKey() {
       key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
     }
     
-    // Consistency check of I2C addresss wrt LLD channel
-    if ( lldChan(i2cAddr_) != lldChan_ && lldChan_ && i2cAddr_ ) {
-      i2cAddr_ = sistrip::invalid_;
-      key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
-    }
+//     // Consistency check of I2C addresss wrt LLD channel
+//     if ( lldChan(i2cAddr_) != lldChan_ && lldChan_ && i2cAddr_ ) {
+//       i2cAddr_ = sistrip::invalid_;
+//       key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
+//     }
     
   } else {
     
@@ -534,11 +534,11 @@ void SiStripFecKey::initFromKey() {
     if ( i2cAddr_ == i2cAddrMask_ )   { i2cAddr_ = sistrip::invalid_; }
     else if ( i2cAddr_ )              { i2cAddr_ = i2cAddr(i2cAddr_); }
     
-    // Consistency check of I2C addresss wrt LLD channel
-    if ( lldChan(i2cAddr_) != lldChan_ && lldChan_ && i2cAddr_ ) {
-      i2cAddr_ = sistrip::invalid_;
-      key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
-    }
+//     // Consistency check of I2C addresss wrt LLD channel
+//     if ( lldChan(i2cAddr_) != lldChan_ && lldChan_ && i2cAddr_ ) {
+//       i2cAddr_ = sistrip::invalid_;
+//       key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
+//     }
     
   }
   
