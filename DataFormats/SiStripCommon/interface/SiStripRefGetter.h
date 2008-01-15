@@ -16,54 +16,17 @@
 
 namespace edm {
 
-  //------------------------------------------------------------
-
-  template <class T> class SiStripRefGetter;
-
-  template<typename T>
-    class FindValue : public std::binary_function< const SiStripRefGetter<T>&, typename std::vector<T>::const_iterator, const T* > 
-    {
-      public :
-	typedef FindValue<T> self;
-	typename self::result_type operator()
-	(typename self::first_argument_type container, typename self::second_argument_type iter) const 
-	{
-	  return &(*iter);
-	}
-    };
-
-  //------------------------------------------------------------
-  
-  class RegionRecord
-    {
-    public: 
-      RegionRecord(uint32_t nregions) : regions_(nregions/32+1,0) {}
-      ~RegionRecord() {}
-      void record(uint32_t region) {regions_[region/32] = regions_[region/32]|(1<<region%32);}
-      bool recorded(uint32_t region) const {return (regions_[region/32]>>(region%32))&1;}
-    private:
-      RegionRecord();
-      std::vector<uint32_t> regions_;
-    };
-  
-  //------------------------------------------------------------
-
-  template <class T>
-  class SiStripRefGetter 
-  {
+  template<class T> class SiStripRefGetter {
 
     BOOST_CLASS_REQUIRE(T, boost, LessThanComparableConcept);
 
   public:
 
-    typedef std::vector< RegionIndex<T> > register_type;
-    typedef std::vector<T> record_type;
-    typedef typename record_type::const_iterator record_iterator;
-    typedef std::pair<typename record_type::const_iterator, typename record_type::const_iterator> record_pair;
-    typedef Ref< SiStripRefGetter<T>, T, FindValue<T> > value_ref;
     typedef Ref< SiStripLazyGetter<T>, RegionIndex<T>, FindRegion<T> > region_ref;
     typedef std::vector<region_ref> collection_type;
     typedef boost::indirect_iterator<typename collection_type::const_iterator> const_iterator;
+    typedef std::vector<T> record_type;
+    typedef std::pair<typename record_type::const_iterator, typename record_type::const_iterator> record_pair;
 
     /// Default constructor. Default maximum region number 50,000.
     SiStripRefGetter(uint32_t=50000);
@@ -92,10 +55,6 @@ namespace edm {
     /// Returns a reference to the last RegionIndex<T> added to the 
     /// collection, or throws an exception if empty.
     const RegionIndex<T>& back() const;
-    
-    /// Returns start end end iterators for values of a given det-id 
-    /// within the last RegionIndex<T> added to the collection.
-    record_pair back(uint32_t) const;
 
     /// Return an iterator to the first RegionIndex<T>.
     const_iterator begin() const;
@@ -109,22 +68,21 @@ namespace edm {
   private:
 
     collection_type sets_;
-    RegionRecord regions_;
+    std::vector<uint32_t> regions_;
   };
   
   template <class T>
     inline
-    SiStripRefGetter<T>::SiStripRefGetter(uint32_t maxindex) : sets_(), regions_(maxindex)
+    SiStripRefGetter<T>::SiStripRefGetter(uint32_t maxindex) : sets_(), regions_(maxindex/32+1,0)
     {}
 
   template <class T>
     inline
-    SiStripRefGetter<T>::SiStripRefGetter(const edm::Handle< SiStripLazyGetter<T> >& getter, const std::vector<uint32_t>& interest) : sets_(), regions_(getter->regions()) 
+    SiStripRefGetter<T>::SiStripRefGetter(const edm::Handle< SiStripLazyGetter<T> >& getter, const std::vector<uint32_t>& interest) : sets_(), regions_(getter->regions()/32+1,0) 
     {
       sets_.reserve(interest.size());
       for (uint32_t index=0;index<interest.size();index++) {
 	sets_.push_back(region_ref(getter,interest[index],false));
-	regions_.record(interest[index]);
       }
     }
   
@@ -142,16 +100,17 @@ namespace edm {
     SiStripRefGetter<T>::swap(SiStripRefGetter<T>& other) 
     {
       sets_.swap(other.sets_);
+      regions_.swap(other.regions_);
     }
-
-   template <class T>
-     inline
-     void 
-     SiStripRefGetter<T>::push_back(const edm::Handle< SiStripLazyGetter<T> >& getter, const uint32_t& index)
-     {
-       sets_.push_back(region_ref(getter, index, false));
-       regions_.record(index);
-     }
+  
+  template <class T>
+    inline
+    void 
+    SiStripRefGetter<T>::push_back(const edm::Handle< SiStripLazyGetter<T> >& getter, const uint32_t& index)
+    {
+      sets_.push_back(region_ref(getter, index, false));
+      regions_[index/32] = regions_[index/32]|(1<<index%32);
+    }
   
   template <class T>
     inline
@@ -160,7 +119,7 @@ namespace edm {
     {
       return sets_.empty();
     }
-  
+
   template <class T>
     inline
     uint32_t
@@ -187,14 +146,6 @@ namespace edm {
       if (empty()) sistripdetail::_throw_range(0);
       return (*this)[size()-1];
     } 
-
-  template <class T>
-    inline
-    typename SiStripRefGetter<T>::record_pair
-    SiStripRefGetter<T>::back(uint32_t detid) const 
-    {
-      return back().find(detid);
-    } 
   
   template <class T>
     inline
@@ -217,7 +168,7 @@ namespace edm {
     bool 
     SiStripRefGetter<T>::find(uint32_t index) const
     {
-      return regions_.recorded(index);
+      return (regions_[index/32]>>(index%32))&1;
     }
 
   template <class T>
@@ -227,16 +178,6 @@ namespace edm {
     {
       a.swap(b);
     }
-  
-  //------------------------------------------------------------
-  
-  //helper function to make it easier to create a edm::Ref
-  
-  template<class HandleT>
-    typename HandleT::element_type::value_ref
-    makeRefToSiStripRefGetter(const HandleT& iHandle, typename HandleT::element_type::record_iterator iter) {
-    return typename HandleT::element_type::value_ref(iHandle,iter);
-  }
   
   //------------------------------------------------------------
   
