@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForMonitorable.h,v 1.6 2007/07/13 14:07:53 bainbrid Exp $
+// Last commit: $Id: ConstantsForMonitorable.h,v 1.7 2007/09/06 21:38:13 delaer Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
@@ -63,7 +63,7 @@ namespace sistrip {
   static const std::string optoScanLinkNoise_   = "LinkNoise";
   static const std::string optoScanBaseLiftOff_ = "BaselineLiftOff";
   static const std::string optoScanLaserThresh_ = "LaserThreshold";
-  static const std::string optoScanTickHeight_  = "TickMarkHeight";
+  static const std::string optoScanTickHeight_  = "TickHeight";
 
   // vpsp scan
   static const std::string vpspScanBothApvs_    = "ApvVpspSettings";
