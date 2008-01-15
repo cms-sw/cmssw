@@ -63,8 +63,12 @@ class DeDxBeta {
       float massDtAssoTk()const {return tk.track->p()*sqrt(dt.second.invBeta*dt.second.invBeta-1);}
       float massTkAssoComb() const {return dt.first->combinedMuon()->p()*sqrt(tk.invBeta2-1);}
       float compatibility() const {return (sqrt(tk.invBeta2)-dt.second.invBeta)/(sqrt(tk.invBeta2/tk.nDeDxHits)*0.1+dt.second.invBeta*0.1);}
-
-  };
+      bool  hasMuonTrack() const {return dt.first->track().isNonnull(); }
+      const reco::Track & muonTrack() const {return *dt.first->track(); } 
+      const reco::Track & staTrack() const {return *dt.first->standAloneMuon(); } 
+      const reco::Track & combinedTrack() const {return *dt.first->combinedMuon(); } 
+      const reco::Track & trackerTrack() const {return *tk.track; } 
+ };
 
 typedef  std::vector<HSCParticle> HSCParticleCollection;
 typedef  edm::Ref<HSCParticleCollection> HSCParticleRef;
