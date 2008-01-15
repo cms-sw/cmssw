@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/12/28 17:21:30 $
- * $Revision: 1.48 $
+ * $Date: 2008/01/05 09:38:57 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -164,8 +164,8 @@ void EEIntegrityClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EEIT data integrity quality %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg01_[ism-1]->setAxisTitle("ix", 1);
-    meg01_[ism-1]->setAxisTitle("iy", 2);
+    meg01_[ism-1]->setAxisTitle("jx", 1);
+    meg01_[ism-1]->setAxisTitle("jy", 2);
 
     if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EEIT data integrity quality MEM %s", Numbers::sEE(ism).c_str());

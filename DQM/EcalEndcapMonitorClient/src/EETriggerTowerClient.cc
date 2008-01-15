@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/12/28 17:21:30 $
- * $Revision: 1.48 $
+ * $Date: 2008/01/05 09:38:57 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -171,29 +171,29 @@ void EETriggerTowerClient::setup(void) {
     if ( me_h01_[ism-1] ) dbe_->removeElement( me_h01_[ism-1]->getName() );
     sprintf(histo, "EETTT Et map Real Digis %s", Numbers::sEE(ism).c_str());
     me_h01_[ism-1] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50., 256, 0., 256., "s");
-    me_h01_[ism-1]->setAxisTitle("ix", 1);
-    me_h01_[ism-1]->setAxisTitle("iy", 2);
+    me_h01_[ism-1]->setAxisTitle("jx", 1);
+    me_h01_[ism-1]->setAxisTitle("jy", 2);
     if ( me_h02_[ism-1] ) dbe_->removeElement( me_h02_[ism-1]->getName() );
     sprintf(histo, "EETTT Et map Emulated Digis %s", Numbers::sEE(ism).c_str());
     me_h02_[ism-1] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50., 256, 0., 256., "s");
-    me_h02_[ism-1]->setAxisTitle("ix", 1);
-    me_h02_[ism-1]->setAxisTitle("iy", 2);
+    me_h02_[ism-1]->setAxisTitle("jx", 1);
+    me_h02_[ism-1]->setAxisTitle("jy", 2);
     for (int j=0; j<2; j++) {
       if ( me_i01_[ism-1][j] ) dbe_->removeElement( me_i01_[ism-1][j]->getName() );
       sprintf(histo, "EETTT FineGrainVeto Real Digis Flag %d %s", j, Numbers::sEE(ism).c_str());
       me_i01_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      me_i01_[ism-1][j]->setAxisTitle("ix", 1);
-      me_i01_[ism-1][j]->setAxisTitle("iy", 2);
+      me_i01_[ism-1][j]->setAxisTitle("jx", 1);
+      me_i01_[ism-1][j]->setAxisTitle("jy", 2);
       if ( me_i02_[ism-1][j] ) dbe_->removeElement( me_i02_[ism-1][j]->getName() );
       sprintf(histo, "EETTT FineGrainVeto Emulated Digis Flag %d %s", j, Numbers::sEE(ism).c_str());
       me_i02_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      me_i02_[ism-1][j]->setAxisTitle("ix", 1);
-      me_i02_[ism-1][j]->setAxisTitle("iy", 2);
+      me_i02_[ism-1][j]->setAxisTitle("jx", 1);
+      me_i02_[ism-1][j]->setAxisTitle("jy", 2);
       if ( me_n01_[ism-1][j] ) dbe_->removeElement( me_n01_[ism-1][j]->getName() );
       sprintf(histo, "EETTT EmulFineGrainVetoError Flag %d %s", j, Numbers::sEE(ism).c_str());
       me_n01_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      me_n01_[ism-1][j]->setAxisTitle("ix", 1);
-      me_n01_[ism-1][j]->setAxisTitle("iy", 2);
+      me_n01_[ism-1][j]->setAxisTitle("jx", 1);
+      me_n01_[ism-1][j]->setAxisTitle("jy", 2);
     }
     for (int j=0; j<6; j++) {
       string bits;
@@ -206,18 +206,18 @@ void EETriggerTowerClient::setup(void) {
       if ( me_j01_[ism-1][j] ) dbe_->removeElement( me_j01_[ism-1][j]->getName() );
       sprintf(histo, "EETTT Flags Real Digis %s %s", bits.c_str(), Numbers::sEE(ism).c_str());
       me_j01_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      me_j01_[ism-1][j]->setAxisTitle("ix", 1);
-      me_j01_[ism-1][j]->setAxisTitle("iy", 2);
+      me_j01_[ism-1][j]->setAxisTitle("jx", 1);
+      me_j01_[ism-1][j]->setAxisTitle("jy", 2);
       if ( me_j02_[ism-1][j] ) dbe_->removeElement( me_j02_[ism-1][j]->getName() );
       sprintf(histo, "EETTT Flags Emulated Digis %s %s", bits.c_str(), Numbers::sEE(ism).c_str());
       me_j02_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      me_j02_[ism-1][j]->setAxisTitle("ix", 1);
-      me_j02_[ism-1][j]->setAxisTitle("iy", 2);
+      me_j02_[ism-1][j]->setAxisTitle("jx", 1);
+      me_j02_[ism-1][j]->setAxisTitle("jy", 2);
       if ( me_m01_[ism-1][j] ) dbe_->removeElement( me_m01_[ism-1][j]->getName() );
       sprintf(histo, "EETTT EmulFlagError %s %s", bits.c_str(), Numbers::sEE(ism).c_str());
       me_m01_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      me_m01_[ism-1][j]->setAxisTitle("ix", 1);
-      me_m01_[ism-1][j]->setAxisTitle("iy", 2);
+      me_m01_[ism-1][j]->setAxisTitle("jx", 1);
+      me_m01_[ism-1][j]->setAxisTitle("jy", 2);
     }
 
   }

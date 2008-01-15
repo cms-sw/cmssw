@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/01/02 18:28:30 $
- * $Revision: 1.65 $
+ * $Date: 2008/01/05 09:38:57 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -291,23 +291,23 @@ void EELaserClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L1 %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg01_[ism-1]->setAxisTitle("ix", 1);
-    meg01_[ism-1]->setAxisTitle("iy", 2);
+    meg01_[ism-1]->setAxisTitle("jx", 1);
+    meg01_[ism-1]->setAxisTitle("jy", 2);
     if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L2 %s", Numbers::sEE(ism).c_str());
     meg02_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg02_[ism-1]->setAxisTitle("ix", 1);
-    meg02_[ism-1]->setAxisTitle("iy", 2);
+    meg02_[ism-1]->setAxisTitle("jx", 1);
+    meg02_[ism-1]->setAxisTitle("jy", 2);
     if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L3 %s", Numbers::sEE(ism).c_str());
     meg03_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg03_[ism-1]->setAxisTitle("ix", 1);
-    meg03_[ism-1]->setAxisTitle("iy", 2);
+    meg03_[ism-1]->setAxisTitle("jx", 1);
+    meg03_[ism-1]->setAxisTitle("jy", 2);
     if ( meg04_[ism-1] ) dbe_->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L4 %s", Numbers::sEE(ism).c_str());
     meg04_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg04_[ism-1]->setAxisTitle("ix", 1);
-    meg04_[ism-1]->setAxisTitle("iy", 2);
+    meg04_[ism-1]->setAxisTitle("jx", 1);
+    meg04_[ism-1]->setAxisTitle("jy", 2);
 
     if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L1 PNs G01 %s", Numbers::sEE(ism).c_str());

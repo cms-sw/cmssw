@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/01/05 09:35:49 $
- * $Revision: 1.23 $
+ * $Date: 2008/01/05 09:46:11 $
+ * $Revision: 1.24 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -155,8 +155,8 @@ void EETriggerTowerTask::setup( const char* nameext,
 				50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 				50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 				256, 0, 256.);
-    (*meEtMap)[i]->setAxisTitle("ix", 1);
-    (*meEtMap)[i]->setAxisTitle("iy", 2);
+    (*meEtMap)[i]->setAxisTitle("jx", 1);
+    (*meEtMap)[i]->setAxisTitle("jy", 2);
     dbe_->tag((*meEtMap)[i], i+1);
 
     string  fineGrainVetoNameSM = fineGrainVetoName;
@@ -167,8 +167,8 @@ void EETriggerTowerTask::setup( const char* nameext,
 			       50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 			       50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 			       2, 0., 2.);
-    (*meVeto)[i]->setAxisTitle("ix", 1);
-    (*meVeto)[i]->setAxisTitle("iy", 2);
+    (*meVeto)[i]->setAxisTitle("jx", 1);
+    (*meVeto)[i]->setAxisTitle("jy", 2);
     dbe_->tag((*meVeto)[i], i+1);
 
     string  flagsNameSM = flagsName;
@@ -178,8 +178,8 @@ void EETriggerTowerTask::setup( const char* nameext,
 				50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 				50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 				8, 0., 8.);
-    (*meFlags)[i]->setAxisTitle("ix", 1);
-    (*meFlags)[i]->setAxisTitle("iy", 2);
+    (*meFlags)[i]->setAxisTitle("jx", 1);
+    (*meFlags)[i]->setAxisTitle("jy", 2);
     dbe_->tag((*meFlags)[i], i+1);
 
 
@@ -192,8 +192,8 @@ void EETriggerTowerTask::setup( const char* nameext,
 				    emulErrorNameSM.c_str(),
 				    50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 				    50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50. );
-      meEmulError_[i]->setAxisTitle("ix", 1);
-      meEmulError_[i]->setAxisTitle("iy", 2);
+      meEmulError_[i]->setAxisTitle("jx", 1);
+      meEmulError_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meEmulError_[i], i+1);
 
       string  emulFineGrainVetoErrorNameSM = emulFineGrainVetoErrorName;
@@ -204,8 +204,8 @@ void EETriggerTowerTask::setup( const char* nameext,
 					  50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 					  50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 					  8, 0., 8.);
-      meVetoEmulError_[i]->setAxisTitle("ix", 1);
-      meVetoEmulError_[i]->setAxisTitle("iy", 2);
+      meVetoEmulError_[i]->setAxisTitle("jx", 1);
+      meVetoEmulError_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meVetoEmulError_[i], i+1);
 
       string  emulFlagErrorNameSM = emulFlagErrorName;
@@ -216,8 +216,8 @@ void EETriggerTowerTask::setup( const char* nameext,
 					  50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
 					  50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
 					  8, 0., 8.);
-      meFlagEmulError_[i]->setAxisTitle("ix", 1);
-      meFlagEmulError_[i]->setAxisTitle("iy", 2);
+      meFlagEmulError_[i]->setAxisTitle("jx", 1);
+      meFlagEmulError_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meFlagEmulError_[i], i+1);
 
     }

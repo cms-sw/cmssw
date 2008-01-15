@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/01/05 11:07:25 $
- * $Revision: 1.36 $
+ * $Date: 2008/01/06 11:42:56 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -243,8 +243,8 @@ void EcalEndcapMonitorModule::setup(void){
       for (int i = 0; i < 18; i++) {
         sprintf(histo, "EEMM event %s", Numbers::sEE(i+1).c_str());
         meEvent_[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
-        meEvent_[i]->setAxisTitle("ix", 1);
-        meEvent_[i]->setAxisTitle("iy", 2);
+        meEvent_[i]->setAxisTitle("jx", 1);
+        meEvent_[i]->setAxisTitle("jy", 2);
         dbe_->tag(meEvent_[i], i+1);
         if ( meEvent_[i] ) meEvent_[i]->setResetMe(true);
       }

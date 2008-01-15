@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2008/01/04 16:23:39 $
- * $Revision: 1.29 $
+ * $Date: 2008/01/05 09:35:49 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -99,8 +99,8 @@ void EETestPulseTask::setup(void){
       dbe_->tag(meShapeMapG01_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G01", Numbers::sEE(i+1).c_str());
       meAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-      meAmplMapG01_[i]->setAxisTitle("ix", 1);
-      meAmplMapG01_[i]->setAxisTitle("iy", 2);
+      meAmplMapG01_[i]->setAxisTitle("jx", 1);
+      meAmplMapG01_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meAmplMapG01_[i], i+1);
     }
 
@@ -114,8 +114,8 @@ void EETestPulseTask::setup(void){
       dbe_->tag(meShapeMapG06_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G06", Numbers::sEE(i+1).c_str());
       meAmplMapG06_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-      meAmplMapG06_[i]->setAxisTitle("ix", 1);
-      meAmplMapG06_[i]->setAxisTitle("iy", 2);
+      meAmplMapG06_[i]->setAxisTitle("jx", 1);
+      meAmplMapG06_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meAmplMapG06_[i], i+1);
     }
 
@@ -129,8 +129,8 @@ void EETestPulseTask::setup(void){
       dbe_->tag(meShapeMapG12_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G12", Numbers::sEE(i+1).c_str());
       meAmplMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-      meAmplMapG12_[i]->setAxisTitle("ix", 1);
-      meAmplMapG12_[i]->setAxisTitle("iy", 2);
+      meAmplMapG12_[i]->setAxisTitle("jx", 1);
+      meAmplMapG12_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meAmplMapG12_[i], i+1);
    }
 

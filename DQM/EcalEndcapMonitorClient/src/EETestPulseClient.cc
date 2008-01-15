@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/01/02 18:28:30 $
- * $Revision: 1.56 $
+ * $Date: 2008/01/05 09:38:57 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -184,18 +184,18 @@ void EETestPulseClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EETPT test pulse quality G01 %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg01_[ism-1]->setAxisTitle("ix", 1);
-    meg01_[ism-1]->setAxisTitle("iy", 2);
+    meg01_[ism-1]->setAxisTitle("jx", 1);
+    meg01_[ism-1]->setAxisTitle("jy", 2);
     if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EETPT test pulse quality G06 %s", Numbers::sEE(ism).c_str());
     meg02_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg02_[ism-1]->setAxisTitle("ix", 1);
-    meg02_[ism-1]->setAxisTitle("iy", 2);
+    meg02_[ism-1]->setAxisTitle("jx", 1);
+    meg02_[ism-1]->setAxisTitle("jy", 2);
     if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EETPT test pulse quality G12 %s", Numbers::sEE(ism).c_str());
     meg03_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg03_[ism-1]->setAxisTitle("ix", 1);
-    meg03_[ism-1]->setAxisTitle("iy", 2);
+    meg03_[ism-1]->setAxisTitle("jx", 1);
+    meg03_[ism-1]->setAxisTitle("jy", 2);
 
     if ( meg04_[ism-1] ) dbe_->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EETPT test pulse quality PNs G01 %s", Numbers::sEE(ism).c_str());

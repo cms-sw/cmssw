@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/01/02 18:28:30 $
- * $Revision: 1.47 $
+ * $Date: 2008/01/05 09:38:57 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -208,8 +208,8 @@ void EELedClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg01_[ism-1]->setAxisTitle("ix", 1);
-    meg01_[ism-1]->setAxisTitle("iy", 2);
+    meg01_[ism-1]->setAxisTitle("jx", 1);
+    meg01_[ism-1]->setAxisTitle("jy", 2);
 
     if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality G01 PNs %s", Numbers::sEE(ism).c_str());

@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/01/02 18:28:30 $
- * $Revision: 1.50 $
+ * $Date: 2008/01/05 09:38:57 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -151,8 +151,8 @@ void EETimingClient::setup(void) {
     if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing quality %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg01_[ism-1]->setAxisTitle("ix", 1);
-    meg01_[ism-1]->setAxisTitle("iy", 2);
+    meg01_[ism-1]->setAxisTitle("jx", 1);
+    meg01_[ism-1]->setAxisTitle("jy", 2);
 
     if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());

@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/01/09 18:46:48 $
- * $Revision: 1.77 $
+ * $Date: 2008/01/09 19:57:10 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  *
 */
@@ -175,14 +175,14 @@ void EESummaryClient::setup(void) {
   if ( meIntegrity_[0] ) dbe_->removeElement( meIntegrity_[0]->getName() );
   sprintf(histo, "EEIT EE - integrity quality summary");
   meIntegrity_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meIntegrity_[0]->setAxisTitle("ix", 1);
-  meIntegrity_[0]->setAxisTitle("iy", 2);
+  meIntegrity_[0]->setAxisTitle("jx", 1);
+  meIntegrity_[0]->setAxisTitle("jy", 2);
 
   if ( meIntegrity_[1] ) dbe_->removeElement( meIntegrity_[0]->getName() );
   sprintf(histo, "EEIT EE + integrity quality summary");
   meIntegrity_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meIntegrity_[1]->setAxisTitle("ix", 1);
-  meIntegrity_[1]->setAxisTitle("iy", 2);
+  meIntegrity_[1]->setAxisTitle("jx", 1);
+  meIntegrity_[1]->setAxisTitle("jy", 2);
 
   if ( meIntegrityErr_ ) dbe_->removeElement( meIntegrityErr_->getName() );
   sprintf(histo, "EEIT integrity quality errors summary");
@@ -194,14 +194,14 @@ void EESummaryClient::setup(void) {
   if ( meOccupancy_[0] ) dbe_->removeElement( meOccupancy_[0]->getName() );
   sprintf(histo, "EEOT EE - occupancy summary");
   meOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meOccupancy_[0]->setAxisTitle("ix", 1);
-  meOccupancy_[0]->setAxisTitle("iy", 2);
+  meOccupancy_[0]->setAxisTitle("jx", 1);
+  meOccupancy_[0]->setAxisTitle("jy", 2);
 
   if ( meOccupancy_[1] ) dbe_->removeElement( meOccupancy_[1]->getName() );
   sprintf(histo, "EEOT EE + occupancy summary");
   meOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meOccupancy_[1]->setAxisTitle("ix", 1);
-  meOccupancy_[1]->setAxisTitle("iy", 2);
+  meOccupancy_[1]->setAxisTitle("jx", 1);
+  meOccupancy_[1]->setAxisTitle("jy", 2);
 
   if ( meOccupancy1D_ ) dbe_->removeElement( meOccupancy1D_->getName() );
   sprintf(histo, "EEIT occupancy summary 1D");
@@ -213,14 +213,14 @@ void EESummaryClient::setup(void) {
   if ( meStatusFlags_[0] ) dbe_->removeElement( meStatusFlags_[0]->getName() );
   sprintf(histo, "EESFT EE - front-end status summary");
   meStatusFlags_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meStatusFlags_[0]->setAxisTitle("ix", 1);
-  meStatusFlags_[0]->setAxisTitle("iy", 2);
+  meStatusFlags_[0]->setAxisTitle("jx", 1);
+  meStatusFlags_[0]->setAxisTitle("jy", 2);
 
   if ( meStatusFlags_[1] ) dbe_->removeElement( meStatusFlags_[1]->getName() );
   sprintf(histo, "EESFT EE + front-end status summary");
   meStatusFlags_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meStatusFlags_[1]->setAxisTitle("ix", 1);
-  meStatusFlags_[1]->setAxisTitle("iy", 2);
+  meStatusFlags_[1]->setAxisTitle("jx", 1);
+  meStatusFlags_[1]->setAxisTitle("jy", 2);
 
   if ( meStatusFlagsErr_ ) dbe_->removeElement( meStatusFlagsErr_->getName() );
   sprintf(histo, "EESFT front-end status errors summary");
@@ -232,14 +232,14 @@ void EESummaryClient::setup(void) {
   if ( mePedestalOnline_[0] ) dbe_->removeElement( mePedestalOnline_[0]->getName() );
   sprintf(histo, "EEPOT EE - pedestal quality summary G12");
   mePedestalOnline_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestalOnline_[0]->setAxisTitle("ix", 1);
-  mePedestalOnline_[0]->setAxisTitle("iy", 2);
+  mePedestalOnline_[0]->setAxisTitle("jx", 1);
+  mePedestalOnline_[0]->setAxisTitle("jy", 2);
 
   if ( mePedestalOnline_[1] ) dbe_->removeElement( mePedestalOnline_[1]->getName() );
   sprintf(histo, "EEPOT EE + pedestal quality summary G12");
   mePedestalOnline_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestalOnline_[1]->setAxisTitle("ix", 1);
-  mePedestalOnline_[1]->setAxisTitle("iy", 2);
+  mePedestalOnline_[1]->setAxisTitle("jx", 1);
+  mePedestalOnline_[1]->setAxisTitle("jy", 2);
 
   if ( mePedestalOnlineErr_ ) dbe_->removeElement( mePedestalOnlineErr_->getName() );
   sprintf(histo, "EEPOT pedestal quality errors summary G12");
@@ -251,26 +251,26 @@ void EESummaryClient::setup(void) {
   if ( meLaserL1_[0] ) dbe_->removeElement( meLaserL1_[0]->getName() );
   sprintf(histo, "EELT EE - laser quality summary L1");
   meLaserL1_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meLaserL1_[0]->setAxisTitle("ix", 1);
-  meLaserL1_[0]->setAxisTitle("iy", 2);
+  meLaserL1_[0]->setAxisTitle("jx", 1);
+  meLaserL1_[0]->setAxisTitle("jy", 2);
 
   if ( meLaserL1PN_[0] ) dbe_->removeElement( meLaserL1PN_[0]->getName() );
   sprintf(histo, "EELT EE - PN laser quality summary L1");
   meLaserL1PN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meLaserL1PN_[0]->setAxisTitle("ix", 1);
-  meLaserL1PN_[0]->setAxisTitle("iy", 2);
+  meLaserL1PN_[0]->setAxisTitle("jx", 1);
+  meLaserL1PN_[0]->setAxisTitle("jy", 2);
 
   if ( meLaserL1_[1] ) dbe_->removeElement( meLaserL1_[1]->getName() );
   sprintf(histo, "EELT EE + laser quality summary L1");
   meLaserL1_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meLaserL1_[1]->setAxisTitle("ix", 1);
-  meLaserL1_[1]->setAxisTitle("iy", 2);
+  meLaserL1_[1]->setAxisTitle("jx", 1);
+  meLaserL1_[1]->setAxisTitle("jy", 2);
 
   if ( meLaserL1PN_[1] ) dbe_->removeElement( meLaserL1PN_[1]->getName() );
   sprintf(histo, "EELT EE + PN laser quality summary L1");
   meLaserL1PN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meLaserL1PN_[1]->setAxisTitle("ix", 1);
-  meLaserL1PN_[1]->setAxisTitle("iy", 2);
+  meLaserL1PN_[1]->setAxisTitle("jx", 1);
+  meLaserL1PN_[1]->setAxisTitle("jy", 2);
 
   if ( meLaserL1Err_ ) dbe_->removeElement( meLaserL1Err_->getName() );
   sprintf(histo, "EELT laser quality errors summary L1");
@@ -289,26 +289,26 @@ void EESummaryClient::setup(void) {
   if ( meLed_[0] ) dbe_->removeElement( meLed_[0]->getName() );
   sprintf(histo, "EELDT EE - led quality summary");
   meLed_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meLed_[0]->setAxisTitle("ix", 1);
-  meLed_[0]->setAxisTitle("iy", 2);
+  meLed_[0]->setAxisTitle("jx", 1);
+  meLed_[0]->setAxisTitle("jy", 2);
 
   if ( meLedPN_[0] ) dbe_->removeElement( meLedPN_[0]->getName() );
   sprintf(histo, "EELDT EE - PN led quality summary");
   meLedPN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meLedPN_[0]->setAxisTitle("ix", 1);
-  meLedPN_[0]->setAxisTitle("iy", 2);
+  meLedPN_[0]->setAxisTitle("jx", 1);
+  meLedPN_[0]->setAxisTitle("jy", 2);
 
   if ( meLed_[1] ) dbe_->removeElement( meLed_[1]->getName() );
   sprintf(histo, "EELDT EE + led quality summary");
   meLed_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meLed_[1]->setAxisTitle("ix", 1);
-  meLed_[1]->setAxisTitle("iy", 2);
+  meLed_[1]->setAxisTitle("jx", 1);
+  meLed_[1]->setAxisTitle("jy", 2);
 
   if ( meLedPN_[1] ) dbe_->removeElement( meLedPN_[1]->getName() );
   sprintf(histo, "EELDT EE + PN led quality summary");
   meLedPN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meLedPN_[1]->setAxisTitle("ix", 1);
-  meLedPN_[1]->setAxisTitle("iy", 2);
+  meLedPN_[1]->setAxisTitle("jx", 1);
+  meLedPN_[1]->setAxisTitle("jy", 2);
 
   if ( meLedErr_ ) dbe_->removeElement( meLedErr_->getName() );
   sprintf(histo, "EELDT led quality errors summary");
@@ -327,26 +327,26 @@ void EESummaryClient::setup(void) {
   if( mePedestal_[0] ) dbe_->removeElement( mePedestal_[0]->getName() );
   sprintf(histo, "EEPT EE - pedestal quality summary");
   mePedestal_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestal_[0]->setAxisTitle("ix", 1);
-  mePedestal_[0]->setAxisTitle("iy", 2);
+  mePedestal_[0]->setAxisTitle("jx", 1);
+  mePedestal_[0]->setAxisTitle("jy", 2);
 
   if( mePedestalPN_[0] ) dbe_->removeElement( mePedestalPN_[0]->getName() );
   sprintf(histo, "EEPT EE - PN pedestal quality summary");
   mePedestalPN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
-  mePedestalPN_[0]->setAxisTitle("ix", 1);
-  mePedestalPN_[0]->setAxisTitle("iy", 2);
+  mePedestalPN_[0]->setAxisTitle("jx", 1);
+  mePedestalPN_[0]->setAxisTitle("jy", 2);
 
   if( mePedestal_[1] ) dbe_->removeElement( mePedestal_[1]->getName() );
   sprintf(histo, "EEPT EE + pedestal quality summary");
   mePedestal_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestal_[1]->setAxisTitle("ix", 1);
-  mePedestal_[1]->setAxisTitle("iy", 2);
+  mePedestal_[1]->setAxisTitle("jx", 1);
+  mePedestal_[1]->setAxisTitle("jy", 2);
 
   if( mePedestalPN_[1] ) dbe_->removeElement( mePedestalPN_[1]->getName() );
   sprintf(histo, "EEPT EE + PN pedestal quality summary");
   mePedestalPN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
-  mePedestalPN_[1]->setAxisTitle("ix", 1);
-  mePedestalPN_[1]->setAxisTitle("iy", 2);
+  mePedestalPN_[1]->setAxisTitle("jx", 1);
+  mePedestalPN_[1]->setAxisTitle("jy", 2);
 
   if ( mePedestalErr_ ) dbe_->removeElement( mePedestalErr_->getName() );
   sprintf(histo, "EEPT pedestal quality errors summary");
@@ -365,26 +365,26 @@ void EESummaryClient::setup(void) {
   if( meTestPulse_[0] ) dbe_->removeElement( meTestPulse_[0]->getName() );
   sprintf(histo, "EETPT EE - test pulse quality summary");
   meTestPulse_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTestPulse_[0]->setAxisTitle("ix", 1);
-  meTestPulse_[0]->setAxisTitle("iy", 2);
+  meTestPulse_[0]->setAxisTitle("jx", 1);
+  meTestPulse_[0]->setAxisTitle("jy", 2);
 
   if( meTestPulsePN_[0] ) dbe_->removeElement( meTestPulsePN_[0]->getName() );
   sprintf(histo, "EETPT EE - PN test pulse quality summary");
   meTestPulsePN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meTestPulsePN_[0]->setAxisTitle("ix", 1);
-  meTestPulsePN_[0]->setAxisTitle("iy", 2);
+  meTestPulsePN_[0]->setAxisTitle("jx", 1);
+  meTestPulsePN_[0]->setAxisTitle("jy", 2);
 
   if( meTestPulse_[1] ) dbe_->removeElement( meTestPulse_[1]->getName() );
   sprintf(histo, "EETPT EE + test pulse quality summary");
   meTestPulse_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTestPulse_[1]->setAxisTitle("ix", 1);
-  meTestPulse_[1]->setAxisTitle("iy", 2);
+  meTestPulse_[1]->setAxisTitle("jx", 1);
+  meTestPulse_[1]->setAxisTitle("jy", 2);
 
   if( meTestPulsePN_[1] ) dbe_->removeElement( meTestPulsePN_[1]->getName() );
   sprintf(histo, "EETPT EE + PN test pulse quality summary");
   meTestPulsePN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meTestPulsePN_[1]->setAxisTitle("ix", 1);
-  meTestPulsePN_[1]->setAxisTitle("iy", 2);
+  meTestPulsePN_[1]->setAxisTitle("jx", 1);
+  meTestPulsePN_[1]->setAxisTitle("jy", 2);
 
   if ( meTestPulseErr_ ) dbe_->removeElement( meTestPulseErr_->getName() );
   sprintf(histo, "EETPT test pulse quality errors summary");
@@ -403,62 +403,62 @@ void EESummaryClient::setup(void) {
   if( meCosmic_[0] ) dbe_->removeElement( meCosmic_[0]->getName() );
   sprintf(histo, "EECT EE - quality summary");
   meCosmic_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meCosmic_[0]->setAxisTitle("ix", 1);
-  meCosmic_[0]->setAxisTitle("iy", 2);
+  meCosmic_[0]->setAxisTitle("jx", 1);
+  meCosmic_[0]->setAxisTitle("jy", 2);
 
   if( meCosmic_[1] ) dbe_->removeElement( meCosmic_[1]->getName() );
   sprintf(histo, "EECT EE + quality summary");
   meCosmic_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meCosmic_[1]->setAxisTitle("ix", 1);
-  meCosmic_[1]->setAxisTitle("iy", 2);
+  meCosmic_[1]->setAxisTitle("jx", 1);
+  meCosmic_[1]->setAxisTitle("jy", 2);
 
   if( meTiming_[0] ) dbe_->removeElement( meTiming_[0]->getName() );
   sprintf(histo, "EETMT EE - timing quality summary");
   meTiming_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTiming_[0]->setAxisTitle("ix", 1);
-  meTiming_[0]->setAxisTitle("iy", 2);
+  meTiming_[0]->setAxisTitle("jx", 1);
+  meTiming_[0]->setAxisTitle("jy", 2);
 
   if( meTiming_[1] ) dbe_->removeElement( meTiming_[1]->getName() );
   sprintf(histo, "EETMT EE + timing quality summary");
   meTiming_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTiming_[1]->setAxisTitle("ix", 1);
-  meTiming_[1]->setAxisTitle("iy", 2);
+  meTiming_[1]->setAxisTitle("jx", 1);
+  meTiming_[1]->setAxisTitle("jy", 2);
 
   if( meTriggerTowerEt_[0] ) dbe_->removeElement( meTriggerTowerEt_[0]->getName() );
   sprintf(histo, "EETTT EE - Et trigger tower summary");
   meTriggerTowerEt_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTriggerTowerEt_[0]->setAxisTitle("ix", 1);
-  meTriggerTowerEt_[0]->setAxisTitle("iy", 2);
+  meTriggerTowerEt_[0]->setAxisTitle("jx", 1);
+  meTriggerTowerEt_[0]->setAxisTitle("jy", 2);
 
   if( meTriggerTowerEt_[1] ) dbe_->removeElement( meTriggerTowerEt_[1]->getName() );
   sprintf(histo, "EETTT EE + Et trigger tower summary");
   meTriggerTowerEt_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTriggerTowerEt_[1]->setAxisTitle("ix", 1);
-  meTriggerTowerEt_[1]->setAxisTitle("iy", 2);
+  meTriggerTowerEt_[1]->setAxisTitle("jx", 1);
+  meTriggerTowerEt_[1]->setAxisTitle("jy", 2);
 
   if( meTriggerTowerEmulError_[0] ) dbe_->removeElement( meTriggerTowerEmulError_[0]->getName() );
   sprintf(histo, "EETTT EE - emulator error quality summary");
   meTriggerTowerEmulError_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTriggerTowerEmulError_[0]->setAxisTitle("ix", 1);
-  meTriggerTowerEmulError_[0]->setAxisTitle("iy", 2);
+  meTriggerTowerEmulError_[0]->setAxisTitle("jx", 1);
+  meTriggerTowerEmulError_[0]->setAxisTitle("jy", 2);
 
   if( meTriggerTowerEmulError_[1] ) dbe_->removeElement( meTriggerTowerEmulError_[1]->getName() );
   sprintf(histo, "EETTT EE + emulator error quality summary");
   meTriggerTowerEmulError_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTriggerTowerEmulError_[1]->setAxisTitle("ix", 1);
-  meTriggerTowerEmulError_[1]->setAxisTitle("iy", 2);
+  meTriggerTowerEmulError_[1]->setAxisTitle("jx", 1);
+  meTriggerTowerEmulError_[1]->setAxisTitle("jy", 2);
 
   if( meGlobalSummary_[0] ) dbe_->removeElement( meGlobalSummary_[0]->getName() );
   sprintf(histo, "EE global summary EE -");
   meGlobalSummary_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meGlobalSummary_[0]->setAxisTitle("ix", 1);
-  meGlobalSummary_[0]->setAxisTitle("iy", 2);
+  meGlobalSummary_[0]->setAxisTitle("jx", 1);
+  meGlobalSummary_[0]->setAxisTitle("jy", 2);
 
   if( meGlobalSummary_[1] ) dbe_->removeElement( meGlobalSummary_[1]->getName() );
   sprintf(histo, "EE global summary EE +");
   meGlobalSummary_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meGlobalSummary_[1]->setAxisTitle("ix", 1);
-  meGlobalSummary_[1]->setAxisTitle("iy", 2);
+  meGlobalSummary_[1]->setAxisTitle("jx", 1);
+  meGlobalSummary_[1]->setAxisTitle("jy", 2);
 
 }
 

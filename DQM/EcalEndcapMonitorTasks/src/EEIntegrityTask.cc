@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/12/29 13:38:55 $
- * $Revision: 1.23 $
+ * $Date: 2008/01/05 09:35:49 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
  */
@@ -106,8 +106,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT gain %s", Numbers::sEE(i+1).c_str());
       meIntegrityGain[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
-      meIntegrityGain[i]->setAxisTitle("ix", 1);
-      meIntegrityGain[i]->setAxisTitle("iy", 2);
+      meIntegrityGain[i]->setAxisTitle("jx", 1);
+      meIntegrityGain[i]->setAxisTitle("jy", 2);
       dbe_->tag(meIntegrityGain[i], i+1);
     }
 
@@ -116,8 +116,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT ChId %s", Numbers::sEE(i+1).c_str());
       meIntegrityChId[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
-      meIntegrityChId[i]->setAxisTitle("ix", 1);
-      meIntegrityChId[i]->setAxisTitle("iy", 2);
+      meIntegrityChId[i]->setAxisTitle("jx", 1);
+      meIntegrityChId[i]->setAxisTitle("jy", 2);
       dbe_->tag(meIntegrityChId[i], i+1);
     }
 
@@ -126,8 +126,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT gain switch %s", Numbers::sEE(i+1).c_str());
       meIntegrityGainSwitch[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
-      meIntegrityGainSwitch[i]->setAxisTitle("ix", 1);
-      meIntegrityGainSwitch[i]->setAxisTitle("iy", 2);
+      meIntegrityGainSwitch[i]->setAxisTitle("jx", 1);
+      meIntegrityGainSwitch[i]->setAxisTitle("jy", 2);
       dbe_->tag(meIntegrityGainSwitch[i], i+1);
     }
 
@@ -136,8 +136,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT gain switch stay %s", Numbers::sEE(i+1).c_str());
       meIntegrityGainSwitchStay[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
-      meIntegrityGainSwitchStay[i]->setAxisTitle("ix", 1);
-      meIntegrityGainSwitchStay[i]->setAxisTitle("iy", 2);
+      meIntegrityGainSwitchStay[i]->setAxisTitle("jx", 1);
+      meIntegrityGainSwitchStay[i]->setAxisTitle("jy", 2);
       dbe_->tag(meIntegrityGainSwitchStay[i], i+1);
     }
 
@@ -146,8 +146,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT TTId %s", Numbers::sEE(i+1).c_str());
       meIntegrityTTId[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
-      meIntegrityTTId[i]->setAxisTitle("ix", 1);
-      meIntegrityTTId[i]->setAxisTitle("iy", 2);
+      meIntegrityTTId[i]->setAxisTitle("jx", 1);
+      meIntegrityTTId[i]->setAxisTitle("jy", 2);
       dbe_->tag(meIntegrityTTId[i], i+1);
     }
 
@@ -156,8 +156,8 @@ void EEIntegrityTask::setup(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT TTBlockSize %s", Numbers::sEE(i+1).c_str());
       meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
-      meIntegrityTTBlockSize[i]->setAxisTitle("ix", 1);
-      meIntegrityTTBlockSize[i]->setAxisTitle("iy", 2);
+      meIntegrityTTBlockSize[i]->setAxisTitle("jx", 1);
+      meIntegrityTTBlockSize[i]->setAxisTitle("jy", 2);
       dbe_->tag(meIntegrityTTBlockSize[i], i+1);
     }
 

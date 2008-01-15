@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2007/12/04 08:24:08 $
- * $Revision: 1.80 $
+ * $Date: 2008/01/09 18:47:13 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -116,8 +116,8 @@ void EEStatusFlagsTask::setup(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EESFT front-end status %s", Numbers::sEE(i+1).c_str());
       meFEchErrors_[i][0] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
-      meFEchErrors_[i][0]->setAxisTitle("ix", 1);
-      meFEchErrors_[i][0]->setAxisTitle("iy", 2);
+      meFEchErrors_[i][0]->setAxisTitle("jx", 1);
+      meFEchErrors_[i][0]->setAxisTitle("jy", 2);
       dbe_->tag(meFEchErrors_[i][0], i+1);
 
       for ( int ix = 1; ix <= 50; ix++ ) {

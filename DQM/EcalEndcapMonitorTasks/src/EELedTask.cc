@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/01/04 16:23:38 $
- * $Revision: 1.23 $
+ * $Date: 2008/01/05 09:35:49 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -100,18 +100,18 @@ void EELedTask::setup(void){
       dbe_->tag(meShapeMapA_[i], i+1);
       sprintf(histo, "EELDT amplitude %s A", Numbers::sEE(i+1).c_str());
       meAmplMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-      meAmplMapA_[i]->setAxisTitle("ix", 1);
-      meAmplMapA_[i]->setAxisTitle("iy", 2);
+      meAmplMapA_[i]->setAxisTitle("jx", 1);
+      meAmplMapA_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meAmplMapA_[i], i+1);
       sprintf(histo, "EELDT timing %s A", Numbers::sEE(i+1).c_str());
       meTimeMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
-      meTimeMapA_[i]->setAxisTitle("ix", 1);
-      meTimeMapA_[i]->setAxisTitle("iy", 2);
+      meTimeMapA_[i]->setAxisTitle("jx", 1);
+      meTimeMapA_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meTimeMapA_[i], i+1);
       sprintf(histo, "EELDT amplitude over PN %s A", Numbers::sEE(i+1).c_str());
       meAmplPNMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-      meAmplPNMapA_[i]->setAxisTitle("ix", 1);
-      meAmplPNMapA_[i]->setAxisTitle("iy", 2);
+      meAmplPNMapA_[i]->setAxisTitle("jx", 1);
+      meAmplPNMapA_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meAmplPNMapA_[i], i+1);
 
       sprintf(histo, "EELDT shape %s B", Numbers::sEE(i+1).c_str());
@@ -122,18 +122,18 @@ void EELedTask::setup(void){
       dbe_->tag(meShapeMapB_[i], i+1);
       sprintf(histo, "EELDT amplitude %s B", Numbers::sEE(i+1).c_str());
       meAmplMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-      meAmplMapB_[i]->setAxisTitle("ix", 1);
-      meAmplMapB_[i]->setAxisTitle("iy", 2);
+      meAmplMapB_[i]->setAxisTitle("jx", 1);
+      meAmplMapB_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meAmplMapB_[i], i+1);
       sprintf(histo, "EELDT timing %s B", Numbers::sEE(i+1).c_str());
       meTimeMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
-      meTimeMapB_[i]->setAxisTitle("ix", 1);
-      meTimeMapB_[i]->setAxisTitle("iy", 2);
+      meTimeMapB_[i]->setAxisTitle("jx", 1);
+      meTimeMapB_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meTimeMapB_[i], i+1);
       sprintf(histo, "EELDT amplitude over PN %s B", Numbers::sEE(i+1).c_str());
       meAmplPNMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-      meAmplPNMapB_[i]->setAxisTitle("ix", 1);
-      meAmplPNMapB_[i]->setAxisTitle("iy", 2);
+      meAmplPNMapB_[i]->setAxisTitle("jx", 1);
+      meAmplPNMapB_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meAmplPNMapB_[i], i+1);
     }
 
