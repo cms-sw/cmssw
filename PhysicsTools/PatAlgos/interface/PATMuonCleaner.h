@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.1 2008/01/15 13:30:07 lowette Exp $
+// $Id: PATMuonCleaner.h,v 1.1 2008/01/15 18:51:46 gpetrucc Exp $
 //
 
 /**
@@ -11,8 +11,8 @@
    The PATMuonCleaner produces a list of clean muons with associated back-references to the original muon collection.
    At the moment it really does <b>no cleaning at all</b>, but this will be implemented later.
  
-  \author   Steven Lowette, Roger Wolf, 
-  \version  $Id: PATMuonCleaner.h,v 1.1 2008/01/15 13:30:07 lowette Exp $
+  \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf, 
+  \version  $Id: PATMuonCleaner.h,v 1.1 2008/01/15 18:51:46 gpetrucc Exp $
 */
 
 
@@ -21,14 +21,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+
 #include <string>
 
 namespace pat {
-
-
-  class ObjectResolutionCalc;
-  class LeptonLRCalc;
-
 
   class PATMuonCleaner : public edm::EDProducer {
 
@@ -42,7 +40,7 @@ namespace pat {
     private:
       // configurables
       edm::InputTag muonSrc_;
-
+      pat::helper::CleanerHelper<reco::Muon> helper_;
   };
 
 
