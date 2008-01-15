@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.31 2008/01/05 05:28:52 wmtan Exp $
+$Id: Worker.h,v 1.32 2008/01/11 20:30:09 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -146,13 +146,6 @@ namespace edm {
 
     Sigs sigs_;
   };
-
-  template <class WT>
-  struct WorkerType {
-    // typedef int module_type;
-    // typedef int worker_type;
-  };
-
 
   namespace {
     template <typename T>

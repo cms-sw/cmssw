@@ -11,9 +11,7 @@
 // implementation file (one every for each XXXWorker) and
 // then include all the relevent worker headers in the
 // implementation file only.
-#include "FWCore/Framework/src/ProducerWorker.h"
-#include "FWCore/Framework/src/FilterWorker.h"
-#include "FWCore/Framework/src/AnalyzerWorker.h"
+#include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/src/OutputWorker.h"
 
 

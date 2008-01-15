@@ -1,11 +1,14 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProducer.cc,v 1.14 2007/09/18 18:06:47 chrjones Exp $
+$Id: EDProducer.cc,v 1.15 2008/01/11 20:30:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/src/CPCSentry.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -17,11 +20,14 @@ namespace edm {
 
   EDProducer::~EDProducer() { }
 
-  void
-  EDProducer::doProduce(Event& e, EventSetup const& c,
+  bool
+  EDProducer::doEvent(EventPrincipal& ep, EventSetup const& c,
 			     CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
+    Event e(ep, moduleDescription_);
     this->produce(e, c);
+    e.commit_();
+    return true;
   }
 
   void 
@@ -34,32 +40,44 @@ namespace edm {
     this->endJob();
   }
 
-  void
-  EDProducer::doBeginRun(Run & r, EventSetup const& c,
+  bool
+  EDProducer::doBeginRun(RunPrincipal & rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
+    Run r(rp, moduleDescription_);
     this->beginRun(r, c);
+    r.commit_();
+    return true;
   }
 
-  void
-  EDProducer::doEndRun(Run & r, EventSetup const& c,
+  bool
+  EDProducer::doEndRun(RunPrincipal & rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
+    Run r(rp, moduleDescription_);
     this->endRun(r, c);
+    r.commit_();
+    return true;
   }
 
-  void
-  EDProducer::doBeginLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
+  bool
+  EDProducer::doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
+    LuminosityBlock lb(lbp, moduleDescription_);
     this->beginLuminosityBlock(lb, c);
+    lb.commit_();
+    return true;
   }
 
-  void
-  EDProducer::doEndLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
+  bool
+  EDProducer::doEndLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
+    LuminosityBlock lb(lbp, moduleDescription_);
     this->endLuminosityBlock(lb, c);
+    lb.commit_();
+    return true;
   }
 
   void

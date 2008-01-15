@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.54 2008/01/10 17:39:03 wmtan Exp $
+$Id: OutputModule.cc,v 1.55 2008/01/11 20:30:08 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -238,6 +238,7 @@ namespace edm {
   OutputModule::~OutputModule() { }
 
   void OutputModule::doBeginJob(EventSetup const& c) {
+    selectProducts();
     beginJob(c);
   }
 
@@ -274,10 +275,11 @@ namespace edm {
      };
    }
 
-  void OutputModule::writeEvent(EventPrincipal const& ep,
-				ModuleDescription const& md,
-				CurrentProcessingContext const* c) {
-    detail::CPCSentry sentry(current_context_, c);
+  bool
+  OutputModule::doEvent(EventPrincipal const& ep,
+			EventSetup const& c,
+			CurrentProcessingContext const* cpc) {
+    detail::CPCSentry sentry(current_context_, cpc);
     PVSentry          products_sentry(selectors_, prodsValid_);
 
     FDEBUG(2) << "writeEvent called\n";
@@ -287,15 +289,16 @@ namespace edm {
     if (!wantAllEvents_) {
       // use module description and const_cast unless interface to
       // event is changed to just take a const EventPrincipal
-      Event e(const_cast<EventPrincipal&>(ep), *c->moduleDescription());
+      Event e(const_cast<EventPrincipal &>(ep), moduleDescription_);
       if (!selectors_.wantEvent(e)) {
-	return;
+	return true;
       }
     }
     write(ep);
     if (remainingEvents_ > 0) {
       --remainingEvents_;
     }
+    return true;
   }
 
 //   bool OutputModule::wantEvent(Event const& ev)
@@ -314,41 +317,50 @@ namespace edm {
 //     return eventAccepted;
 //   }
 
-  void OutputModule::doBeginRun(RunPrincipal const& rp,
-				ModuleDescription const& md,
-				CurrentProcessingContext const* c) {
-    detail::CPCSentry sentry(current_context_, c);
+  bool
+  OutputModule::doBeginRun(RunPrincipal const& rp,
+				EventSetup const& c,
+				CurrentProcessingContext const* cpc) {
+    detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp);
+    return true;
   }
 
-  void OutputModule::doEndRun(RunPrincipal const& rp,
-			      ModuleDescription const& md,
-			      CurrentProcessingContext const* c) {
-    detail::CPCSentry sentry(current_context_, c);
+  bool
+  OutputModule::doEndRun(RunPrincipal const& rp,
+			      EventSetup const& c,
+			      CurrentProcessingContext const* cpc) {
+    detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "endRun called\n";
     endRun(rp);
+    return true;
   }
 
-  void OutputModule::doWriteRun(RunPrincipal const& rp) {
+  void
+  OutputModule::doWriteRun(RunPrincipal const& rp) {
     FDEBUG(2) << "writeRun called\n";
     writeRun(rp);
   }
 
-  void OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-					    ModuleDescription const& md,
-					    CurrentProcessingContext const* c) {
-    detail::CPCSentry sentry(current_context_, c);
+  bool
+  OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+					    EventSetup const& c,
+					    CurrentProcessingContext const* cpc) {
+    detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "beginLuminosityBlock called\n";
     beginLuminosityBlock(lbp);
+    return true;
   }
 
-  void OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-					  ModuleDescription const& md,
-					  CurrentProcessingContext const* c) {
-    detail::CPCSentry sentry(current_context_, c);
+  bool
+  OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+					  EventSetup const& c,
+					  CurrentProcessingContext const* cpc) {
+    detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "endLuminosityBlock called\n";
     endLuminosityBlock(lbp);
+    return true;
   }
 
   void OutputModule::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp) {

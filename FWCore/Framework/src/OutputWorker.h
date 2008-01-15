@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.32 2008/01/11 20:30:08 wmtan Exp $
+$Id: OutputWorker.h,v 1.33 2008/01/13 01:12:34 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -48,27 +48,6 @@ namespace edm {
     bool limitReached() const;
 
     void configure(OutputModuleDescription const& desc);
-
-  private:
-    virtual bool implDoWork(EventPrincipal& e, EventSetup const& c,
-			    BranchActionType,
-			    CurrentProcessingContext const* cpc);
-    virtual bool implDoWork(RunPrincipal& rp, EventSetup const& c,
-			    BranchActionType bat,
-			    CurrentProcessingContext const* cpc);
-    virtual bool implDoWork(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			    BranchActionType bat,
-			    CurrentProcessingContext const* cpc);
-
-    virtual void implBeginJob(EventSetup const& es);
-
-    virtual std::string workerType() const;
-  };
-
-  template <> 
-  struct WorkerType<OutputModule> {
-    typedef OutputModule ModuleType;
-    typedef OutputWorker worker_type;
   };
 
 }

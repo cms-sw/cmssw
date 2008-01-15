@@ -1,11 +1,14 @@
 /*----------------------------------------------------------------------
   
-$Id: EDFilter.cc,v 1.9 2007/09/18 18:06:47 chrjones Exp $
+$Id: EDFilter.cc,v 1.10 2008/01/11 20:30:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/src/CPCSentry.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -15,10 +18,14 @@ namespace edm
   { }
 
   bool
-  EDFilter::doFilter(Event& e, EventSetup const& c,
+  EDFilter::doEvent(EventPrincipal& ep, EventSetup const& c,
 		     CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    return this->filter(e, c);
+    bool rc = false;
+    Event e(ep, moduleDescription_);
+    rc = this->filter(e, c);
+    e.commit_();
+    return rc;
   }
 
   void 
@@ -31,31 +38,47 @@ namespace edm
   }
 
   bool
-  EDFilter::doBeginRun(Run & r, EventSetup const& c,
+  EDFilter::doBeginRun(RunPrincipal & rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    return this->beginRun(r, c);
+    bool rc = false;
+    Run r(rp, moduleDescription_);
+    rc = this->beginRun(r, c);
+    r.commit_();
+    return rc;
   }
 
   bool
-  EDFilter::doEndRun(Run & r, EventSetup const& c,
+  EDFilter::doEndRun(RunPrincipal & rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    return this->endRun(r, c);
+    bool rc = false;
+    Run r(rp, moduleDescription_);
+    rc = this->endRun(r, c);
+    r.commit_();
+    return rc;
   }
 
   bool
-  EDFilter::doBeginLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
+  EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    return this->beginLuminosityBlock(lb, c);
+    bool rc = false;
+    LuminosityBlock lb(lbp, moduleDescription_);
+    rc = this->beginLuminosityBlock(lb, c);
+    lb.commit_();
+    return rc;
   }
 
   bool
-  EDFilter::doEndLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
+  EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    return this->endLuminosityBlock(lb, c);
+    bool rc = false;
+    LuminosityBlock lb(lbp, moduleDescription_);
+    rc = this->endLuminosityBlock(lb, c);
+    lb.commit_();
+    return rc;
   }
 
   void

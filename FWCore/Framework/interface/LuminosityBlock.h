@@ -16,7 +16,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlock.h,v 1.13 2007/08/14 18:54:07 wmtan Exp $
+$Id: LuminosityBlock.h,v 1.14 2007/09/07 21:02:21 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -84,8 +84,8 @@ namespace edm {
     friend class InputSource;
     friend class DaqSource;
     friend class RawInputSource;
-    friend class FilterWorker;
-    friend class ProducerWorker;
+    friend class EDFilter;
+    friend class EDProducer;
 
     LuminosityBlockAuxiliary const& aux_;
     boost::shared_ptr<Run const> const run_;

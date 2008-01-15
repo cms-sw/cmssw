@@ -8,7 +8,7 @@ processing in a processing path.
 Filters can also insert products into the event.
 These products should be informational products about the filter decision.
 
-$Id: EDFilter.h,v 1.16 2008/01/11 20:29:59 wmtan Exp $
+$Id: EDFilter.h,v 1.17 2008/01/13 01:12:20 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -22,28 +22,11 @@ namespace edm {
   class EDFilter : public ProducerBase {
   public:
     template <typename T> friend class WorkerT;
-    friend class FilterWorker;
     typedef EDFilter ModuleType;
+    typedef WorkerT<EDFilter> WorkerType;
     
     EDFilter() : ProducerBase() , moduleDescription_(), current_context_(0) {}
     virtual ~EDFilter();
-    bool doFilter(Event& e, EventSetup const& c,
-		  CurrentProcessingContext const* cpc);
-    void doBeginJob(EventSetup const&);
-    void doEndJob();
-    bool doBeginRun(Run & r, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
-    bool doEndRun(Run & r, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
-    bool doBeginLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
-    bool doEndLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
-    void doRespondToOpenInputFile(FileBlock const& fb);
-    void doRespondToCloseInputFile(FileBlock const& fb);
-    void doRespondToOpenOutputFiles(FileBlock const& fb);
-    void doRespondToCloseOutputFiles(FileBlock const& fb);
-
     static void fillDescription(edm::ParameterSetDescription&);
 
   protected:
@@ -52,6 +35,28 @@ namespace edm {
     CurrentProcessingContext const* currentContext() const;
 
   private:    
+    bool doEvent(EventPrincipal& ep, EventSetup const& c,
+		  CurrentProcessingContext const* cpc);
+    void doBeginJob(EventSetup const&);
+    void doEndJob();
+    bool doBeginRun(RunPrincipal & rp, EventSetup const& c,
+		   CurrentProcessingContext const* cpc);
+    bool doEndRun(RunPrincipal & rp, EventSetup const& c,
+		   CurrentProcessingContext const* cpc);
+    bool doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+		   CurrentProcessingContext const* cpc);
+    bool doEndLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+		   CurrentProcessingContext const* cpc);
+    void doRespondToOpenInputFile(FileBlock const& fb);
+    void doRespondToCloseInputFile(FileBlock const& fb);
+    void doRespondToOpenOutputFiles(FileBlock const& fb);
+    void doRespondToCloseOutputFiles(FileBlock const& fb);
+    void registerAnyProducts(boost::shared_ptr<EDFilter>&module, ProductRegistry *reg) {
+      registerProducts(module, reg, moduleDescription_, false);
+    }
+
+    std::string workerType() const {return "WorkerT<EDFilter>";}
+
     virtual bool filter(Event&, EventSetup const&) = 0;
     virtual void beginJob(EventSetup const&){}
     virtual void endJob(){}

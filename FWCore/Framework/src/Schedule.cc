@@ -10,7 +10,8 @@
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
-#include "FWCore/Framework/src/ProducerWorker.h"
+#include "FWCore/Framework/src/OutputWorker.h"
+#include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -18,12 +19,6 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
-
-
-// needed for type tests
-#include "FWCore/Framework/src/OutputWorker.h"
-#include "FWCore/Framework/src/FilterWorker.h"
-#include "FWCore/Framework/src/ProducerWorker.h"
 
 #include "boost/bind.hpp"
 #include "boost/ref.hpp"
@@ -82,7 +77,7 @@ namespace edm {
 
       std::auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,trptr));
 
-      Schedule::WorkerPtr ptr(new ProducerWorker(producer,md,work_args));
+      Schedule::WorkerPtr ptr(new WorkerT<EDProducer>(producer, md, work_args));
       return ptr;
     }
 
@@ -192,7 +187,7 @@ namespace edm {
     if(!unusedLabels.empty()) {
       //Need to
       // 1) create worker
-      // 2) if they are ProducerWorkers, add them to our list
+      // 2) if it is a WorkerT<EDProducer>, add it to our list
       // 3) hand list to our delayed reader
       std::vector<std::string>  shouldBeUsedLabels;
 	
@@ -207,7 +202,7 @@ namespace edm {
 			      *prod_reg_, *act_table_,
 			      processName_, getReleaseVersion(), getPassID());
 	  Worker* newWorker(wreg.getWorker(params));
-	  if (dynamic_cast<ProducerWorker*>(newWorker)) {
+	  if (dynamic_cast<WorkerT<EDProducer>*>(newWorker)) {
 	    unscheduled_->addWorker(newWorker);
 	    //add to list so it gets reset each new event
             addToAllWorkers(newWorker);
@@ -441,14 +436,14 @@ namespace edm {
     for(PathWorkers::iterator wi(tmpworkers.begin()),
 	  we(tmpworkers.end()); wi != we; ++wi) {
       Worker* tworker = wi->getWorker();
-      if(dynamic_cast<FilterWorker*>(tworker) != 0) {
+      if(dynamic_cast<WorkerT<EDFilter>*>(tworker) != 0) {
 	throw edm::Exception(edm::errors::Configuration)
 	  << "\nFilter "
 	  << tworker->description().moduleLabel_
 	  << " appears in endpath " << name << ".\n"
 	  << "A filter is not allowed in an endpath.\n";
       }
-      if(dynamic_cast<ProducerWorker*>(tworker) != 0) {
+      if(dynamic_cast<WorkerT<EDProducer>*>(tworker) != 0) {
 	LogWarning("Producer on endpath")
           // throw edm::Exception(edm::errors::Configuration)
 	  << "\nProducer "

@@ -15,7 +15,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Run.h,v 1.9 2007/08/14 18:54:07 wmtan Exp $
+$Id: Run.h,v 1.10 2007/09/07 21:02:21 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -67,8 +67,8 @@ namespace edm {
     friend class DaqSource;
     friend class InputSource;
     friend class RawInputSource;
-    friend class FilterWorker;
-    friend class ProducerWorker;
+    friend class EDFilter;
+    friend class EDProducer;
 
     RunAuxiliary const& aux_;
   };

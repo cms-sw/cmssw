@@ -3,7 +3,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.25 2007/11/07 08:35:43 wmtan Exp $
+$Id: Event_t.cpp,v 1.26 2007/12/31 22:43:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -47,7 +47,7 @@ using namespace edm;
 // This is a gross hack, to allow us to test the event
 namespace edm
 {
-  class ProducerWorker
+  class EDProducer
   {
   public:
     static void commitEvent(Event& e) { e.commit_(); }
@@ -197,7 +197,7 @@ testEvent::addProduct(std::auto_ptr<T> product,
   Event temporaryEvent(*principal_, description->second);
   OrphanHandle<T> h = temporaryEvent.put(product, productLabel);
   ProductID id = h.id();
-  ProducerWorker::commitEvent(temporaryEvent);
+  EDProducer::commitEvent(temporaryEvent);
   return id;
 }
 
@@ -393,7 +393,7 @@ void testEvent::putAnIntProduct()
   std::auto_ptr<edmtest::IntProduct> three(new edmtest::IntProduct(3));
   currentEvent_->put(three, "int1");
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
-  ProducerWorker::commitEvent(*currentEvent_);
+  EDProducer::commitEvent(*currentEvent_);
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
 }
 
@@ -401,7 +401,7 @@ void testEvent::putAndGetAnIntProduct()
 {
   std::auto_ptr<edmtest::IntProduct> four(new edmtest::IntProduct(4));
   currentEvent_->put(four, "int1");
-  ProducerWorker::commitEvent(*currentEvent_);
+  EDProducer::commitEvent(*currentEvent_);
 
   ProcessNameSelector should_match("CURRENT");
   ProcessNameSelector should_not_match("NONESUCH");
@@ -433,7 +433,7 @@ void testEvent::getByProductID()
     CPPUNIT_ASSERT(id2 != ProductID());
     CPPUNIT_ASSERT(id2 != id1);
     
-    ProducerWorker::commitEvent(*currentEvent_);
+    EDProducer::commitEvent(*currentEvent_);
     CPPUNIT_ASSERT(currentEvent_->size() == 2);
   }
 
@@ -540,7 +540,7 @@ void testEvent::getBySelector()
 
   std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
   currentEvent_->put(twoHundred, "int1");
-  ProducerWorker::commitEvent(*currentEvent_);
+  EDProducer::commitEvent(*currentEvent_);
 
   CPPUNIT_ASSERT(currentEvent_->size() == 7);
 
@@ -623,7 +623,7 @@ void testEvent::getByLabel()
 
   std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
   currentEvent_->put(twoHundred, "int1");
-  ProducerWorker::commitEvent(*currentEvent_);
+  EDProducer::commitEvent(*currentEvent_);
 
   CPPUNIT_ASSERT(currentEvent_->size() == 7);
 
@@ -678,7 +678,7 @@ void testEvent::getByType()
 
   std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
   currentEvent_->put(twoHundred, "int1");
-  ProducerWorker::commitEvent(*currentEvent_);
+  EDProducer::commitEvent(*currentEvent_);
 
   CPPUNIT_ASSERT(currentEvent_->size() == 8);
 

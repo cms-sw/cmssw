@@ -5,7 +5,7 @@
   
 WorkerT: Code common to all workers.
 
-$Id: WorkerT.h,v 1.22 2007/09/18 18:06:47 chrjones Exp $
+$Id: WorkerT.h,v 1.1 2008/01/13 01:12:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -22,6 +22,8 @@ namespace edm {
   template <typename T>
   class WorkerT : public Worker {
   public:
+    typedef T ModuleType;
+    typedef WorkerT<T> WorkerType;
     WorkerT(std::auto_ptr<T>,
 		   ModuleDescription const&,
 		   WorkerParams const&);
@@ -30,25 +32,34 @@ namespace edm {
 
 
   template <typename ModType>
-  static std::auto_ptr<T> makeOne(ModuleDescription const& md,
-					   WorkerParams const& wp) {
-    std::auto_ptr<ModType> module = std::auto_ptr<ModType>(new ModType(*wp.pset_));
-    module->setModuleDescription(md);
+  static std::auto_ptr<T> makeModule(ModuleDescription const& md,
+					   ParameterSet const& pset) {
+    std::auto_ptr<ModType> module = std::auto_ptr<ModType>(new ModType(pset));
     return std::auto_ptr<T>(module.release());
   }
+
 
   protected:
     T & module() {return *module_;}
     T const& module() const {return *module_;}
-    boost::shared_ptr<T> moduleSharedPtr() const {return module_;}
 
   private:
+    virtual bool implDoWork(EventPrincipal& ep, EventSetup const& c,
+                            BranchActionType,
+                            CurrentProcessingContext const* cpc);
+    virtual bool implDoWork(RunPrincipal& rp, EventSetup const& c,
+                            BranchActionType bat,
+                            CurrentProcessingContext const* cpc);
+    virtual bool implDoWork(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+                            BranchActionType bat,
+                            CurrentProcessingContext const* cpc);
     virtual void implBeginJob(EventSetup const&) ;
     virtual void implEndJob() ;
     virtual void implRespondToOpenInputFile(FileBlock const& fb);
     virtual void implRespondToCloseInputFile(FileBlock const& fb);
     virtual void implRespondToOpenOutputFiles(FileBlock const& fb);
     virtual void implRespondToCloseOutputFiles(FileBlock const& fb);
+    virtual std::string workerType() const;
 
     boost::shared_ptr<T> module_;
   };
@@ -60,12 +71,49 @@ namespace edm {
 		 WorkerParams const& wp) :
     Worker(md, wp),
     module_(ed) {
+    module_->setModuleDescription(md);
+    module_->registerAnyProducts(module_, wp.reg_);
   }
 
   template <typename T>
   WorkerT<T>::~WorkerT() {
   }
 
+
+  template <typename T>
+  bool 
+  WorkerT<T>::implDoWork(EventPrincipal& ep, EventSetup const& c,
+			   BranchActionType bat,
+			   CurrentProcessingContext const* cpc) {
+    return module_->doEvent(ep, c, cpc);
+  }
+
+  template <typename T>
+  bool
+  WorkerT<T>::implDoWork(RunPrincipal& rp, EventSetup const& c,
+			   BranchActionType bat,
+			   CurrentProcessingContext const* cpc) {
+    return (bat == BranchActionBegin ?
+	module_->doBeginRun(rp, c, cpc) :
+	module_->doEndRun(rp, c, cpc));
+  }
+
+  template <typename T>
+  bool
+  WorkerT<T>::implDoWork(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+			   BranchActionType bat,
+			   CurrentProcessingContext const* cpc) {
+    return (bat == BranchActionBegin ?
+	module_->doBeginLuminosityBlock(lbp, c, cpc) :
+	module_->doEndLuminosityBlock(lbp, c, cpc));
+  }
+
+  template <typename T>
+  std::string
+  WorkerT<T>::workerType() const {
+    return module_->workerType();
+  }
+  
   template <typename T>
   void
   WorkerT<T>::implBeginJob(EventSetup const& es) {

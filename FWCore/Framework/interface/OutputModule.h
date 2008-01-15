@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.68 2008/01/11 20:29:59 wmtan Exp $
+$Id: OutputModule.h,v 1.69 2008/01/13 01:12:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -36,40 +36,10 @@ namespace edm {
     template <typename T> friend class WorkerT;
     friend class OutputWorker;
     typedef OutputModule ModuleType;
+    typedef OutputWorker WorkerType;
 
     explicit OutputModule(ParameterSet const& pset);
     virtual ~OutputModule();
-    void configure(OutputModuleDescription const& desc);
-    void doBeginJob(EventSetup const&);
-    void doEndJob();
-    void writeEvent(EventPrincipal const& e, ModuleDescription const& d,
-		    CurrentProcessingContext const* c);
-    void doBeginRun(RunPrincipal const& rp, ModuleDescription const& d,
-		    CurrentProcessingContext const* c);
-    void doEndRun(RunPrincipal const& rp, ModuleDescription const& d,
-		    CurrentProcessingContext const* c);
-    void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& d,
-		    CurrentProcessingContext const* c);
-    void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& d,
-		    CurrentProcessingContext const* c);
-    void doWriteRun(RunPrincipal const& rp);
-    void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp);
-    void doOpenFile(FileBlock const& fb);
-    void doRespondToOpenInputFile(FileBlock const& fb);
-    void doRespondToCloseInputFile(FileBlock const& fb);
-    void doRespondToOpenOutputFiles(FileBlock const& fb);
-    void doRespondToCloseOutputFiles(FileBlock const& fb);
-    /// Tell the OutputModule this is a convenient time to end the
-    /// current file, in case it wants to do so.
-    void maybeEndFile();
-
-    /// Tell the OutputModule that is must end the current file.
-    void doCloseFile();
-
-    /// Tell the OutputModule to open an output file, if one is not
-    /// already open.
-    void maybeOpenFile();
-
     /// Accessor for maximum number of events to be written.
     /// -1 is used for unlimited.
     int maxEvents() const {return maxEvents_;}
@@ -100,7 +70,6 @@ namespace edm {
     boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
     static void fillDescription(edm::ParameterSetDescription&);
-    bool wantAllEvents() const {return wantAllEvents_;}
 
   protected:
     //const Trig& getTriggerResults(Event const& ep) const;
@@ -118,6 +87,7 @@ namespace edm {
 
     ModuleDescription const& description() const;
 
+    bool wantAllEvents() const {return wantAllEvents_;}
   private:
 
     int maxEvents_;
@@ -183,10 +153,46 @@ namespace edm {
     //------------------------------------------------------------------
     // private member functions
     //------------------------------------------------------------------
+    void configure(OutputModuleDescription const& desc);
+    void doBeginJob(EventSetup const&);
+    void doEndJob();
+    bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+		    CurrentProcessingContext const* cpc);
+    bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+		    CurrentProcessingContext const* cpc);
+    bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
+		    CurrentProcessingContext const* cpc);
+    bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+		    CurrentProcessingContext const* cpc);
+    bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+		    CurrentProcessingContext const* cpc);
+    void doWriteRun(RunPrincipal const& rp);
+    void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp);
+    void doOpenFile(FileBlock const& fb);
+    void doRespondToOpenInputFile(FileBlock const& fb);
+    void doRespondToCloseInputFile(FileBlock const& fb);
+    void doRespondToOpenOutputFiles(FileBlock const& fb);
+    void doRespondToCloseOutputFiles(FileBlock const& fb);
+
+    std::string workerType() const {return "OutputWorker";}
+
+    /// Tell the OutputModule this is a convenient time to end the
+    /// current file, in case it wants to do so.
+    void maybeEndFile();
+
+    /// Tell the OutputModule that is must end the current file.
+    void doCloseFile();
+
+    /// Tell the OutputModule to open an output file, if one is not
+    /// already open.
+    void maybeOpenFile();
+
 
     // Do the end-of-file tasks; this is only called internally, after
     // the appropriate tests have been done.
     void reallyCloseFile();
+
+    void registerAnyProducts(boost::shared_ptr<OutputModule>const&, ProductRegistry const*) {}
 
     virtual void write(EventPrincipal const& e) = 0;
     virtual void beginJob(EventSetup const&){}

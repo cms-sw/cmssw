@@ -4,35 +4,20 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-// EDAnalyzer is the base class for all reconstruction "modules".
+// EDAnalyzer is the base class for all analyzer "modules".
 
 namespace edm {
 
   class EDAnalyzer {
   public:
     template <typename T> friend class WorkerT;
-    friend class AnalyzerWorker;
+    typedef EDAnalyzer ModuleType;
+    typedef WorkerT<EDAnalyzer> WorkerType;
+
     EDAnalyzer() : moduleDescription_(), current_context_(0) {}
     virtual ~EDAnalyzer();
-
-    typedef EDAnalyzer ModuleType;
     
-    void doAnalyze(Event const& e, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
-    void doBeginJob(EventSetup const&);
-    void doEndJob();
-    void doBeginRun(Run const& r, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
-    void doEndRun(Run const& r, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
-    void doBeginLuminosityBlock(LuminosityBlock const& lb, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
-    void doEndLuminosityBlock(LuminosityBlock const& lb, EventSetup const& c,
-		   CurrentProcessingContext const* cpc);
-    void doRespondToOpenInputFile(FileBlock const& fb);
-    void doRespondToCloseInputFile(FileBlock const& fb);
-    void doRespondToOpenOutputFiles(FileBlock const& fb);
-    void doRespondToCloseOutputFiles(FileBlock const& fb);
+    std::string workerType() const {return "WorkerT<EDAnalyzer>";}
 
     static void fillDescription(edm::ParameterSetDescription&);
 
@@ -42,6 +27,24 @@ namespace edm {
     CurrentProcessingContext const* currentContext() const;
 
   private:
+    bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+		   CurrentProcessingContext const* cpc);
+    void doBeginJob(EventSetup const&);
+    void doEndJob();
+    bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+		   CurrentProcessingContext const* cpc);
+    bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
+		   CurrentProcessingContext const* cpc);
+    bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+		   CurrentProcessingContext const* cpc);
+    bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+		   CurrentProcessingContext const* cpc);
+    void doRespondToOpenInputFile(FileBlock const& fb);
+    void doRespondToCloseInputFile(FileBlock const& fb);
+    void doRespondToOpenOutputFiles(FileBlock const& fb);
+    void doRespondToCloseOutputFiles(FileBlock const& fb);
+    void registerAnyProducts(boost::shared_ptr<EDAnalyzer>const&, ProductRegistry const*) {}
+
     virtual void analyze(Event const&, EventSetup const&) = 0;
     virtual void beginJob(EventSetup const&){}
     virtual void endJob(){}

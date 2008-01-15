@@ -81,7 +81,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.33 2007/10/11 15:31:49 chrjones Exp $
+$Id: DataViewImpl.h,v 1.34 2007/11/30 19:08:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -227,8 +227,8 @@ namespace edm {
     friend class DaqSource;
     friend class RawInputSource;
     friend class InputSource;
-    friend class FilterWorker;
-    friend class ProducerWorker;
+    friend class EDFilter;
+    friend class EDProducer;
 
     void commit_();
 
