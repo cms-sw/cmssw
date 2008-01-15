@@ -48,6 +48,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 	     mode_=="AOHBias"||
 	     mode_=="TBMUB"||
 	     mode_=="ROCUBEqualization"||
+	     mode_=="VsfAndVHldDel"||
 	     mode_=="Iana"||
 	     mode_=="FEDAddressLevelWithPixels"||
 	     mode_=="GainCalibration"||
