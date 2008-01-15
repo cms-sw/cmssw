@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.2 2007/12/27 16:53:15 mangano Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.1 2008/01/13 21:22:33 paoloa Exp $
  *
  */
 
@@ -47,7 +47,7 @@ namespace reco { namespace modules {
             /// process one event
             void produce( edm::Event& evt, const edm::EventSetup& es ) ;
             /// return class, or -1 if rejected
-            short select ( const reco::Track &tk, const std::vector<Point> &points);
+            bool select ( const reco::Track &tk, const std::vector<Point> &points);
             void selectVertices ( const reco::VertexCollection &vtxs, std::vector<Point> &points);
             /// source collection label
             edm::InputTag src_;
@@ -66,29 +66,20 @@ namespace reco { namespace modules {
 			std::vector<double> dz_par1_;
 			std::vector<double> d0_par2_;
 			std::vector<double> dz_par2_;
-            /// output labels
-            std::vector<std::string> labels_;
-            /// some storage
-            std::auto_ptr<reco::TrackCollection> *selTracks_;
-            std::auto_ptr<reco::TrackExtraCollection> *selTrackExtras_;
-            std::auto_ptr< TrackingRecHitCollection>  *selHits_;
-            std::auto_ptr< std::vector<Trajectory> > *selTrajs_;
-            std::auto_ptr< TrajTrackAssociationCollection >  *selTTAss_;
-            std::vector<reco::TrackRefProd> rTracks_;
-            std::vector<reco::TrackExtraRefProd> rTrackExtras_;
-            std::vector<TrackingRecHitRefProd> rHits_;
-            std::vector< edm::RefProd< std::vector<Trajectory> > > rTrajectories_;
-            std::vector< std::pair<short, reco::TrackRef> > whereItWent_;
+            /// storage
+            std::auto_ptr<reco::TrackCollection> selTracks_;
+            std::auto_ptr<reco::TrackExtraCollection> selTrackExtras_;
+            std::auto_ptr< TrackingRecHitCollection>  selHits_;
+            std::auto_ptr< std::vector<Trajectory> > selTrajs_;
+            std::auto_ptr< TrajTrackAssociationCollection >  selTTAss_;
+            reco::TrackRefProd rTracks_;
+            reco::TrackExtraRefProd rTrackExtras_;
+            TrackingRecHitRefProd rHits_;
+            edm::RefProd< std::vector<Trajectory> > rTrajectories_;
+            std::vector<reco::TrackRef> trackRefs_;
 
     };
 
 } }
 
-// template method to be implemented here?
-/*template<typename T> std::pair<T,T> reco::modules::AnalyticalTrackSelector::Block::p2p(const edm::ParameterSet & cfg, const std::string name) {
-    typedef typename std::vector<T> Ts;
-    Ts ret = cfg.getParameter<Ts>(name);
-    if (ret.size() != 2) throw cms::Exception("Invalid configuration") << "Parameter '" << name << "' must be given as {min,max}";
-    return std::pair<T,T>(ret[0],ret[1]);
-	}*/
 #endif
