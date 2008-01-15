@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.15 2007/11/21 13:18:06 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.16 2007/11/21 15:06:40 arizzi Exp $
 //
 //
 
@@ -99,6 +99,7 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       TH2F * h_dedxFitCtrl;
       TH1F * h_dedxMIP;
       TH1F * h_dedxFitMIP;
+      TH2F * h_dedxMassMuVsPtError;	
 // RECO TOF
       TH2F * h_tofBetap;
       TH2F * h_tofMassp;
@@ -110,6 +111,10 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       TH2F * h_massVsMass;
       TH2F * h_betaVsBeta;
       TH2F * h_massVsMassSel;
+      TH2F * h_massVsBeta;
+      TH2F * h_massVsPtError;
+      TH2F * h_massVsMassError;
+      	
 //Counters
       double selected;
       double selectedTOF;
@@ -414,26 +419,59 @@ for(int i=0; i < candidates.size();i++)
 {
   h_betaVsBeta->Fill(candidates[i].dt.second.invBeta,sqrt(candidates[i].tk.invBeta2),w);
 
+
  // cout << candidates[i].massDt() << " " << candidates[i].massTk() << " " << candidates[i].tk.track->momentum() << " " <<  candidates[i].dt.combinedTrack->momentum() << endl;
  if((candidates[i].dt.second.invBeta >1.1  )|| ( candidates[i].tk.invBeta2 > 1.3 && candidates[i].hasDt ) )
  {
   h_massVsMass->Fill(candidates[i].massDt(),candidates[i].massTk(),w);
  
- if(candidates[i].massDt() + candidates[i].massTk() >  280 && fabs(sqrt(1./candidates[i].tk.invBeta2Fit)- 1./candidates[i].dt.second.invBeta ) < 0.1 && candidates[i].massDt() > 100 
+ if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack() && candidates[i].massDt() + candidates[i].massTk() >  280 && fabs(sqrt(1./candidates[i].tk.invBeta2Fit)- 1./candidates[i].dt.second.invBeta ) < 0.1 && candidates[i].massDt() > 100 
     &&  candidates[i].massTk() > 100  && candidates[i].tk.invBeta2Fit > 1.4 &&  candidates[i].dt.second.invBeta  > 1.11 )
-     h_massVsMassSel->Fill(candidates[i].massDt(),candidates[i].massTk(),w);
+    {
+      h_massVsMassSel->Fill(candidates[i].massDt(),candidates[i].massTk(),w);
+    }
+if(candidates[i].hasTk && candidates[i].hasDt && candidates[i].hasMuonTrack() && fabs(sqrt(1./candidates[i].tk.invBeta2Fit)- 1./candidates[i].dt.second.invBeta )  < 0.1)
+ { 
+  double avgMass = (candidates[i].massDt()+candidates[i].massTk())/2.;
+  h_massVsBeta->Fill(avgMass,2./(sqrt(candidates[i].tk.invBeta2Fit)+candidates[i].dt.second.invBeta),w);
+  if(2./(sqrt(candidates[i].tk.invBeta2Fit)+candidates[i].dt.second.invBeta) < 0.85)
+  h_massVsPtError->Fill(avgMass,log10(candidates[i].tk.track->ptError()),w);
 
- 
+  double avgMassError;
 
-  if(candidates[i].massDt() + candidates[i].massTk() > 150 || (candidates[i].massTk() > 150 && candidates[i].tk.invBeta2Fit > 1.57 ) || candidates[i].massDt() > 150 )
-      cout << "CANDIDATE " <<  candidates[i].massDt() << " " << candidates[i].massTk() << " " << candidates[i].tk.track->momentum() << " " <<  candidates[i].dt.first->combinedMuon()->momentum();
+  double ptMassError=(candidates[i].tk.track->ptError()/candidates[i].tk.track->pt());
+  ptMassError*=ptMassError;  
+  double ptMassError2=(candidates[i].dt.first->track()->ptError()/candidates[i].dt.first->track()->pt());
+  ptMassError2*=ptMassError2;  
+//double dtMassError=(candidates[i].dt.second.invBetaErr/(2.*candidates[i].dt.second.invBeta-1)) ;
+  double ib2 = candidates[i].dt.second.invBeta*candidates[i].dt.second.invBeta;
+  double dtMassError=candidates[i].dt.second.invBetaErr*(ib2/sqrt(ib2-1)) ;
+  dtMassError*= dtMassError;
+
+  double dedxError = 0.2*sqrt(10./candidates[i].tk.nDeDxHits)*0.4/candidates[i].tk.invBeta2;    //TODO: FIXED IT!!!
+  double tkMassError = dedxError/(2.*candidates[i].tk.invBeta2-1); 
+  tkMassError*=tkMassError;
+
+  avgMassError=sqrt(ptMassError/4+ptMassError2/4.+dtMassError/4.+tkMassError/4.);
+  h_massVsMassError->Fill((candidates[i].massDt()+candidates[i].massTk())/2.,avgMassError,w);
+
+// }
+
+//  if(candidates[i].massDt() + candidates[i].massTk() > 150 || (candidates[i].massTk() > 150 && candidates[i].tk.invBeta2Fit > 1.57 ) || candidates[i].massDt() > 150 )
+      cout << "CANDIDATE " <<  candidates[i].massDt() << " " << candidates[i].massTk() << " " << candidates[i].tk.track->momentum() << " " <<  candidates[i].dt.first->combinedMuon()->momentum() << " " << candidates[i].dt.first->track()->pt() ;
       cout <<" dt beta: " << 1./candidates[i].dt.second.invBeta << " tk beta : "<< sqrt(1./candidates[i].tk.invBeta2) << " tk beta fit: "<< sqrt(1./candidates[i].tk.invBeta2Fit) <<
-      cout <<"chi &  # hits: " <<  candidates[i].tk.track->normalizedChi2() << " " << candidates[i].tk.track->numberOfValidHits() << endl;
+      cout <<"chi &  # hits: " <<  candidates[i].tk.track->normalizedChi2() << " " << candidates[i].tk.track->numberOfValidHits() ; 
+      cout << "errors: " << avgMassError << " sqrt( " <<ptMassError << "/4 + "<< ptMassError2 << "/4 + "<< dtMassError << "/4 + " << tkMassError << "/4) " << dedxError <<  endl;
+ }
  }
 
 
-if(candidates[i].tk.invBeta2 > 1.5 && candidates[i].hasDt && highptmu ) h_dedxMassMu->Fill(candidates[i].massTk(),w); 
+if(candidates[i].tk.invBeta2 > 1.5 && candidates[i].hasDt && highptmu ) 
+ {
+   h_dedxMassMu->Fill(candidates[i].massTk(),w); 
+   h_dedxMassMuVsPtError->Fill(candidates[i].massTk(),candidates[i].tk.track->ptError()/candidates[i].tk.track->pt(),w);
 
+ }
 }
 
 
@@ -489,6 +527,7 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   h_dedxMassProtonFit =  subDir.make<TH1F>( "massProton_FIT"  , "Proton Mass (dedx)", 100,  0., 2.);
 
   h_dedxMassMu =  subDir.make<TH1F>( "massMu"  , "Mass muons (dedx, 1 mu with pt>100 in the event)", 100,  0., 1500.);
+  h_dedxMassMuVsPtError =  subDir.make<TH2F>( "massMu_vs_PtError"  , "Mass muons vs pt error (dedx, 1 mu with pt>100 in the event)", 100,  0., 1500.,50,0,1);
 //------------ RECO TOF ----------------
   TFileDirectory subDirTof = fs->mkdir( "RecoTOF" );
   h_tofBetap =  subDirTof.make<TH2F>("tof_beta_p","1/#beta vs p",100,0,1500,100,minBeta,maxBeta );
@@ -511,6 +550,9 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   h_massVsMass =  subDirAn.make<TH2F>("tof_mass_vs_dedx_mass","Mass tof vs Mass dedx", 100,0,1200,100,0,1200);
   h_massVsMassSel =  subDirAn.make<TH2F>("tof_mass_vs_dedx_mass_sel","Mass tof vs Mass dedx Sel", 100,0,1200,100,0,1200);
   h_betaVsBeta =  subDirAn.make<TH2F>("tof_beta_vs_beta","INVBeta tof vs INVbeta dedx (Pt>30)", 100,0,3,100,0,3);
+  h_massVsBeta =  subDirAn.make<TH2F>("avgMass_vs_avgBeta","Mass(avg) vs Beta(avg)", 100,0,1200,50,0,1);
+  h_massVsPtError =  subDirAn.make<TH2F>("avgMass_vs_ptError","Mass(avg) vs log(ptError) (beta < 0.85)", 100,0,1200,25,0,10);
+  h_massVsMassError =  subDirAn.make<TH2F>("avgMass_vs_MassError","Mass(avg) vs log(masstError)", 100,0,1200,100,0,2);
 
 
 //------------ SIM ----------------
@@ -588,96 +630,5 @@ double HSCPAnalyzer::cutMin(TH1F * h, double ci)
  return h->GetBinCenter(0);
 }
 
-/*
-vector<HSCPAnalyzer::HSCParticle> HSCPAnalyzer::associate(vector<HSCPAnalyzer::TKInfo> & tks, vector<HSCPAnalyzer::DTInfo> & dts)
-{
- float minTkP=30;
- float maxTkBeta=0.9;
-
- float minDtP=30;
- 
- float minDR=0.1;
- float maxInvPtDiff=0.005; 
-
- float minTkInvBeta2=1./(maxTkBeta*maxTkBeta);   
- vector<HSCPAnalyzer::HSCParticle> result; 
- for(int i=0;i<tks.size();i++)
- {
-   if( tks[i].track.isNonnull() && tks[i].track->pt() > minTkP && tks[i].invBeta2 >= minTkInvBeta2 )
-    {
-       cout << "here " <<  tks[i].invBeta2 << endl;
-       float min=1000;  
-       int found = -1;
-       for(int j=0;j<dts.size();j++)
-        {
-         if(dts[j].combinedTrack.isNonnull())
-          {
-          float invDT=1./dts[j].combinedTrack->pt();
-          float invTK=1./tks[i].track->pt();
-          if(fabs(invDT-invTK) > maxInvPtDiff) continue;
-          float deltaR=ROOT::Math::VectorUtil::DeltaR(dts[j].combinedTrack->momentum(), tks[i].track->momentum());
-          if(deltaR > minDR || deltaR > min) continue;
-          min=deltaR;
-          found = j;
-          }
-       }
-     HSCParticle candidate; 
-     candidate.tk=tks[i];
-     candidate.hasDt=false;
-     if(found>=0 )
-       {
-     candidate.hasDt=true;
-        candidate.dt=dts[found];
-        dts.erase(dts.begin()+found);
-       }
-      else
-	{
-//          if( tks[i].invBeta2 >= 1.30)
-          cout << "Not found for " << tks[i].track->momentum() << " " << tks[i].track->eta() << endl;
-	}
-     result.push_back(candidate);
-     
-    }
- }
-
- for(int i=0;i<dts.size();i++)
- {
-     if(dts[i].combinedTrack.isNonnull() && dts[i].combinedTrack->pt() > minDtP  )
-    {
-       float min=1000;
-       int found = -1;
-       for(int j=0;j<tks.size();j++)
-        {
-         if( tks[j].track.isNonnull() )
-         {
-          float invDT=1./dts[i].combinedTrack->pt();
-          float invTK=1./tks[j].track->pt();
-          if(fabs(invDT-invTK) > maxInvPtDiff) continue;
-          float deltaR=ROOT::Math::VectorUtil::DeltaR(dts[i].combinedTrack->momentum(), tks[j].track->momentum());
-          if(deltaR > minDR || deltaR > min) continue;
-          min=deltaR;
-          found = j;
-          cout << "At least two muons associated to the same track ?" << endl;
-         }
-       }
-     HSCParticle candidate;
-     candidate.dt=dts[i];
-     candidate.hasTk=false;
-     if(found>=0 )
-       {
-        candidate.hasTk=true;
-        candidate.tk=tks[found];
-        tks.erase(tks.begin()+found);
-       }
-     result.push_back(candidate);
-    }
-
-
-
- }
- return result;
-
-} 
-*/
 //define this as a plug-in
 DEFINE_FWK_MODULE(HSCPAnalyzer);
