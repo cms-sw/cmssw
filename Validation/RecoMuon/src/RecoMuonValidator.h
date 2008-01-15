@@ -25,7 +25,7 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Validation/RecoMuon/interface/FitSlicesYTool.h"
+#include "Validation/Tools/interface/FitSlicesYTool.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <utility>
 
@@ -101,11 +101,11 @@ class HResolution
   
   void doFits() 
     {
-      ValidationMuon::FitSlicesYTool fsyt_pt(hEtaVsErrQPt_);
+      FitSlicesYTool fsyt_pt(hEtaVsErrQPt_);
       fsyt_pt.getFittedSigmaWithError(hPtResSigma_);
       fsyt_pt.getFittedMeanWithError(hPtResMean_);
  
-      ValidationMuon::FitSlicesYTool fsyt_pullpt(hEtaVsPullPt_);
+      FitSlicesYTool fsyt_pullpt(hEtaVsPullPt_);
       fsyt_pullpt.getFittedSigmaWithError(hPullPtSigma_);
       fsyt_pullpt.getFittedMeanWithError(hPullPtMean_);
     };
