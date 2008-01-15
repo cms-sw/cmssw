@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.57 2007/10/24 08:30:07 elmer Exp $
+ * \version $Id: TrackBase.h,v 1.58 2007/12/19 17:54:37 vlimant Exp $
  *
  */
 
@@ -83,7 +83,8 @@ namespace reco {
     /// constructor from fit parameters and error matrix
     TrackBase( double chi2, double ndof, const Point & referencePoint,
 	       const Vector & momentum, int charge, const CovarianceMatrix &);
-   
+    /// virtual destructor   
+    ~TrackBase();
     /// chi-squared of the fit
     double chi2() const { return chi2_; }
     /// number of degrees of freedom of the fit
