@@ -24,8 +24,8 @@ public:
 
   typedef edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, 
     edm::refhelper::FindForDetSetVector<SiStripCluster> > SiStripClusterRef;
-  
-  typedef edm::SiStripRefGetter<SiStripCluster>::value_ref  SiStripRegionalClusterRef;
+
+  typedef edm::SiStripLazyGetter<SiStripCluster>::value_ref  SiStripRegionalClusterRef;
 
   typedef edm::DetSetVector<SiStripCluster>::detset detset;
   typedef detset::const_iterator const_iterator;
@@ -47,7 +47,7 @@ public:
   }
 
   void update( std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end, 
-	       const edm::Handle<edm::SiStripRefGetter<SiStripCluster> > h,
+	       const edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > h,
 	       unsigned int id ) { 
     beginCluster = begin;
     endCluster   = end;
@@ -118,7 +118,7 @@ private:
 
   // --- regional unpacking
   bool isRegional;
-  edm::Handle<edm::SiStripRefGetter<SiStripCluster> > regionalHandle_;
+  edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > regionalHandle_;
   std::vector<SiStripCluster>::const_iterator beginCluster;
   std::vector<SiStripCluster>::const_iterator endCluster;
   // regional unpacking ---

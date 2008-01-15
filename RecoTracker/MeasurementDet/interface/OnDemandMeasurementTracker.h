@@ -52,7 +52,8 @@ public:
   const  SiStripRegionCabling * theStripRegionCabling;
   
   /// the handle is retrieved from the event to make reference to cluster in it
-  mutable edm::Handle< edm::SiStripRefGetter<SiStripCluster> > theGetterH;
+  mutable edm::Handle< edm::SiStripRefGetter<SiStripCluster> > theRefGetterH;
+  mutable edm::Handle< edm::SiStripLazyGetter<SiStripCluster> > theLazyGetterH;
 
   /// a class that holds flags, region_range (in RefGetter) for a given MeasurementDet
   class DetODStatus {

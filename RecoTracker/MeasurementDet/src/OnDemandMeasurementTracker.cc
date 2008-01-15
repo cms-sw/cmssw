@@ -196,7 +196,10 @@ void OnDemandMeasurementTracker::update( const edm::Event& event) const
 
   //get the ref getter back from the event
   std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
-  event.getByLabel(stripClusterProducer,theGetterH);
+  event.getByLabel(stripClusterProducer,theRefGetterH);
+
+  std::string stripLazyGetter = pset_.getParameter<std::string>("stripLazyGetterProducer");
+  event.getByLabel(stripLazyGetter,theLazyGetterH);
 }
 
 #include <sstream>
@@ -262,15 +265,15 @@ void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
     //this printout will trigger unpacking. no problem. it is done on the next regular line (find(id.rawId())
     LogDebug(category_)<<"between index: "<<indexes.first<<" and: "<<indexes.second
 		       <<"\nretrieved for module: "<<id.rawId()
-		       <<"\n"<<dumpRegion(indexes,*theGetterH);
+		       <<"\n"<<dumpRegion(indexes,*theRefGetterH);
     
     //look for iterator range in the regions defined for that module
     for (uint iRegion = indexes.first; iRegion != indexes.second; ++iRegion){
-      RefGetter::record_pair range = (*theGetterH)[iRegion].find(id.rawId());
+      RefGetter::record_pair range = (*theRefGetterH)[iRegion].find(id.rawId());
       if (range.first!=range.second){
 	//	found something not empty
 	//update the measurementDet
-	smdet->update(range.first, range.second, theGetterH, id);
+	smdet->update(range.first, range.second, theLazyGetterH, id);
 	LogDebug(category_)<<"Valid clusters for: "<<id.rawId()
 			   <<"\nnumber of regions defined here: "<< indexes.second-indexes.first
 			   <<"\n"<<dumpCluster(range.first,range.second);

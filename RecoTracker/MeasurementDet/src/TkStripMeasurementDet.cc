@@ -113,7 +113,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       while ( --leftCluster >=  beginCluster) {
 	//      TransientTrackingRecHit* recHit = buildRecHit( *leftCluster, 
 	//std::cout << "=====making ref in fastMeas left " << std::endl;
-	SiStripRegionalClusterRef clusterref = edm::makeRefToSiStripRefGetter(regionalHandle_,leftCluster);
+	SiStripRegionalClusterRef clusterref = edm::makeRefToSiStripLazyGetter(regionalHandle_,leftCluster-regionalHandle_->begin_record());
 	TransientTrackingRecHit::RecHitPointer recHit = buildRecHit(clusterref, 
 								    stateOnThisDet.localParameters());
 	std::pair<bool,double> diffEst = est->estimate(stateOnThisDet, *recHit);
@@ -127,7 +127,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     
     for ( ; rightCluster != endCluster; rightCluster++) {
       //std::cout << "=====making ref in fastMeas rigth " << std::endl;
-      SiStripRegionalClusterRef clusterref = edm::makeRefToSiStripRefGetter(regionalHandle_,rightCluster);
+      SiStripRegionalClusterRef clusterref = edm::makeRefToSiStripLazyGetter(regionalHandle_,rightCluster-regionalHandle_->begin_record());
       TransientTrackingRecHit::RecHitPointer recHit = buildRecHit( clusterref, 
 								   stateOnThisDet.localParameters());
       std::pair<bool,double> diffEst = est->estimate(stateOnThisDet, *recHit);
@@ -197,7 +197,7 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
     }
   }else{
     for (const_iterator ci = beginCluster ; ci != endCluster; ci++) {      
-      SiStripRegionalClusterRef clusterRef = edm::makeRefToSiStripRefGetter(regionalHandle_,ci);     
+      SiStripRegionalClusterRef clusterRef = edm::makeRefToSiStripLazyGetter(regionalHandle_,ci-regionalHandle_->begin_record());     
       result.push_back( buildRecHit( clusterRef, ts.localParameters()));
     }
   }
