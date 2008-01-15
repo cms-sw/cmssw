@@ -146,8 +146,15 @@ float muonid::getSegmentCompatibility(const reco::Muon& muon) {
 	       TMath::Sqrt(TMath::Power(muon.pullX(i,1),2.)+TMath::Power(muon.pullY(i,1),2.))> 1. ) {
 	      // reduce weight
 	      if(use_match_dist_penalty) {
-		station_weight[i-1] *= 1./TMath::Power(
-						       TMath::Sqrt(TMath::Power(muon.pullX(i,1),2.)+TMath::Power(muon.pullY(i,1),2.)),.25); 
+		// only use pull if 3 sigma is not smaller than 3 cm
+		if(TMath::Sqrt(TMath::Power(muon.dX(i,1),2.)+TMath::Power(muon.dY(i,1),2.)) < 3. && TMath::Sqrt(TMath::Power(muon.pullX(i,1),2.)+TMath::Power(muon.pullY(i,1),2.)) > 3. ) { 
+		  station_weight[i-1] *= 1./TMath::Power(
+							 TMath::Max((double)TMath::Sqrt(TMath::Power(muon.dX(i,1),2.)+TMath::Power(muon.dY(i,1),2.)),(double)1.),.25); 
+		}
+		else {
+		  station_weight[i-1] *= 1./TMath::Power(
+							 TMath::Sqrt(TMath::Power(muon.pullX(i,1),2.)+TMath::Power(muon.pullY(i,1),2.)),.25); 
+		}
 	      }
 	    }
 	  }
@@ -155,7 +162,13 @@ float muonid::getSegmentCompatibility(const reco::Muon& muon) {
 	    if( muon.pullX(i,1) > 1. ) { // has a match in X
 	      // reduce weight
 	      if(use_match_dist_penalty) {
-		station_weight[i-1] *= 1./TMath::Power(muon.pullX(i,1),.25);
+		// only use pull if 3 sigma is not smaller than 3 cm
+		if( muon.dX(i,1) < 3. && muon.pullX(i,1) > 3. ) { 
+		  station_weight[i-1] *= 1./TMath::Power(TMath::Max((double)muon.dX(i,1),(double)1.),.25);
+		}
+		else {
+		  station_weight[i-1] *= 1./TMath::Power(muon.pullX(i,1),.25);
+		}
 	      }
 	    }
 	  }
@@ -165,8 +178,15 @@ float muonid::getSegmentCompatibility(const reco::Muon& muon) {
 	     TMath::Sqrt(TMath::Power(muon.pullX(i-4,2),2.)+TMath::Power(muon.pullY(i-4,2),2.)) > 1. ) {
 	    // reduce weight
 	    if(use_match_dist_penalty) {
-	      station_weight[i-1] *= 1./TMath::Power(
-						     TMath::Sqrt(TMath::Power(muon.pullX(i-4,2),2.)+TMath::Power(muon.pullY(i-4,2),2.)),.25);
+	      // only use pull if 3 sigma is not smaller than 3 cm
+	      if(TMath::Sqrt(TMath::Power(muon.dX(i-4,2),2.)+TMath::Power(muon.dY(i-4,2),2.)) < 3. && TMath::Sqrt(TMath::Power(muon.pullX(i-4,2),2.)+TMath::Power(muon.pullY(i-4,2),2.)) > 3. ) { 
+		station_weight[i-1] *= 1./TMath::Power(
+						       TMath::Max((double)TMath::Sqrt(TMath::Power(muon.dX(i-4,2),2.)+TMath::Power(muon.dY(i-4,2),2.)),(double)1.),.25);
+	      }
+	      else {
+		station_weight[i-1] *= 1./TMath::Power(
+						       TMath::Sqrt(TMath::Power(muon.pullX(i-4,2),2.)+TMath::Power(muon.pullY(i-4,2),2.)),.25);
+	      }
 	    }
 	  }
 	}
