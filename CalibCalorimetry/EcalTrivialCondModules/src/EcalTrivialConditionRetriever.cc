@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.22 2007/10/13 15:22:10 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.23 2007/12/21 15:36:53 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -451,22 +451,28 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+      if (EBDetId::validDetId(ieta,iphi)) {
             EBDetId ebid(ieta,iphi);
             double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
             ical->setValue( ebid, laserAlphaMean_ + r*laserAlphaSigma_ );
+      }
     }
   }
 
    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
      for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
        // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+       if (EEDetId::validDetId(iX,iY,1)) {
              double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
              EEDetId eedetidpos(iX,iY,1);
              ical->setValue( eedetidpos, laserAlphaMean_ + r*laserAlphaSigma_ );
+       }
 
+       if (EEDetId::validDetId(iX,iY,-1)) {
              double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
              EEDetId eedetidneg(iX,iY,-1);
              ical->setValue( eedetidneg, laserAlphaMean_ + r1*laserAlphaSigma_ );
+       }
      }
    }
   
@@ -481,22 +487,28 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef( const EcalLaserAP
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+      if (EBDetId::validDetId(ieta,iphi)) {
  	  EBDetId ebid(ieta,iphi);
 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  ical->setValue( ebid, laserAPDPNRefMean_ + r*laserAPDPNRefSigma_ );
+      }
     }
   }
 
    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
      for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
        // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+       if (EEDetId::validDetId(iX,iY,1)) {
  	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  EEDetId eedetidpos(iX,iY,1);
 	  ical->setValue( eedetidpos, laserAPDPNRefMean_ + r*laserAPDPNRefSigma_ );
+       }
 
+       if (EEDetId::validDetId(iX,iY,-1)) {
  	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  EEDetId eedetidneg(iX,iY,-1);
  	  ical->setValue( eedetidneg, laserAPDPNRefMean_ + r1*laserAPDPNRefSigma_ );
+       }
      }
    }
   
@@ -512,6 +524,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+      if (EBDetId::validDetId(ieta,iphi)) {
   	  EBDetId ebid(ieta,iphi);
 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
 
@@ -519,12 +532,14 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
 	  pairAPDPN.p1 = laserAPDPNMean_ + r*laserAPDPNSigma_;
 	  pairAPDPN.p2 = laserAPDPNMean_ + r*laserAPDPNSigma_;
 	  ical->setValue( ebid, pairAPDPN );
+      }
      }
   }
 
    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
      for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
        // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+       if (EEDetId::validDetId(iX,iY,1)) {
  	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  EEDetId eedetidpos(iX,iY,1);
 
@@ -532,13 +547,17 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
  	  pairAPDPN.p1 = laserAPDPNMean_ + r*laserAPDPNSigma_;
  	  pairAPDPN.p2 = laserAPDPNMean_ + r*laserAPDPNSigma_;
  	  ical->setValue( eedetidpos, pairAPDPN );
+       }
 
+       if (EEDetId::validDetId(iX,iY,-1)) {
  	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
  	  EEDetId eedetidneg(iX,iY,-1);
 
+ 	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair pairAPDPN;
  	  pairAPDPN.p1 = laserAPDPNMean_ + r1*laserAPDPNSigma_;
  	  pairAPDPN.p2 = laserAPDPNMean_ + r1*laserAPDPNSigma_;
  	  ical->setValue( eedetidneg, pairAPDPN );
+       }
      }
    }
 
@@ -1258,13 +1277,22 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 
   // DB supermodule always set to 1 for the TestBeam FIXME
   int sm_db=1 ;
-
   // loop over channels 
   for (int i=0 ; i<1700 ; i++)
-    {    
-      EBDetId ebid (sm_db,i+1,EBDetId::SMCRYSTALMODE) ;
-      if (calib_status[i]) ical->setValue (ebid.rawId (), calib[i]) ;
-      else ical->setValue (ebid.rawId (), 1.) ;
+    {
+      //if (EBDetId::validDetId(iEta,iPhi)) {
+      // CANNOT be used -- validDetId only checks ETA PHI method
+      // doing a check by hand, here is the only place in CMSSW 
+      // outside TB code and EcalRawToDigi where needed
+      // => no need for changing the DetId interface
+      //
+      // checking only sm_db -- guess can change with the above FIXME
+      if (sm_db >= EBDetId::MIN_SM && sm_db <= EBDetId::MAX_SM) {
+        EBDetId ebid (sm_db,i+1,EBDetId::SMCRYSTALMODE) ;
+        if (calib_status[i]) ical->setValue (ebid.rawId (), calib[i]) ;
+        else ical->setValue (ebid.rawId (), 1.) ;
+      }
+      //}
     } // loop over channels 
 	
 //  edm::LogInfo ("EcalTrivialConditionRetriever") << "INTERCALIBRATION DONE" ; 
