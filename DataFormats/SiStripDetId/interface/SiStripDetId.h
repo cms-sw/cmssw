@@ -51,7 +51,10 @@ class SiStripDetId : public DetId {
  
   /** Returns strip length of strip tracker sensor, otherwise null. */
   inline virtual double stripLength() const;
-
+  
+  /** Returns true if the module is a double side = rphi + stereo */
+  //  inline virtual bool isDoubleSide() const;
+  
   // ---------- Constructors that set "reserved" field ----------
   
   /** Construct from a raw value and set "reserved" field. */
@@ -127,6 +130,9 @@ double SiStripDetId::stripLength() const {
   return 0.;
 }
 
+//bool SiStripDetId::isDoubleSide() const {
+//  return false;
+//}
 
 uint16_t SiStripDetId::reserved() const { 
   return static_cast<uint16_t>( (id_>>reservedStartBit_) & reservedMask_ );

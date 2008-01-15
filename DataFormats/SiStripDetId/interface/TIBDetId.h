@@ -60,8 +60,48 @@ class TIBDetId : public SiStripDetId {
   /// detector id
   unsigned int module() const 
     { return ((id_>>moduleStartBit_)& moduleMask_) ;}
-
- private:
+  
+  /** Returns true if the module is a double side = rphi + stereo */
+  bool isDoubleSide() const;
+  
+  /** Returns true if the module is in TIB+ (z>0 side) */
+  bool isZPlusSide() const
+  { return (!isZMinusSide());}
+  
+  /** Returns true if the module is in TIB- (z<0 side) */
+  bool isZMinusSide() const
+  { return (string()[0] == 1);}
+  
+  /** Returns the layer number */
+  unsigned int layerNumber() const
+  { return layer();}
+  
+  /** Returns the string number */
+  unsigned int stringNumber() const
+  { return string()[2];}
+  
+  /** Returns the module number */
+  unsigned int moduleNumber() const
+  { return module();}
+  
+  /** Returns true if the module is in internal part of the layer (smaller radius) */
+  bool isInternalString() const
+  { return (!isExternalString());}
+  
+  /** Returns true if the module is in external part of the layer (bigger radius) */
+  bool isExternalString() const
+  { return (string()[1] == 1);}
+  
+  /** Returns true if the module is rphi */
+  bool isRPhi()
+  { return (stereo() == 0 && !isDoubleSide());}
+  
+  /** Returns true if the module is stereo */
+  bool isStereo()
+  { return (stereo() != 0 && !isDoubleSide());}
+  
+  
+private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int layerStartBit_=           14;
   static const unsigned int str_fw_bwStartBit_=       12;

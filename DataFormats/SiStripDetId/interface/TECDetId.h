@@ -71,8 +71,51 @@ class TECDetId : public SiStripDetId {
   /// det id
   unsigned int module() const
     { return ((id_>>moduleStartBit_) & moduleMask_);}
-
- private:
+  
+  /** Returns true if the module is a double side = rphi + stereo */
+  bool isDoubleSide() const;
+  
+  /** Returns true if the module is in TEC+ (z>0 side) */
+  bool isZPlusSide() const
+  { return (!isZMinusSide());}
+  
+  /** Returns true if the module is in TEC- (z<0 side) */
+  bool isZMinusSide() const
+  { return (side()==0);}
+  
+  /** Returns the wheel number */
+  unsigned int wheelNumber() const
+  { return wheel();}
+  
+  /** Returns the petal number */
+  unsigned int petalNumber() const
+  { return petal()[1];}
+  
+  /** Returns the ring number */
+  unsigned int ringNumber() const
+  { return ring();}
+  
+  /** Returns the module number */
+  unsigned int moduleNumber() const
+  { return module();}
+  
+  /** Returns true if the petal is mounted on the wheel back (not facing impact point) */
+  bool isBackPetal() const
+  { return (petal()[0]==1);}
+  
+  /** Returns true if the petal is mounted on the wheel front (facing impact point) */
+  bool isFrontPetal() const
+  { return (!isBackPetal());}
+  
+  /** Returns true if the module is rphi */
+  bool isRPhi()
+  { return (stereo() == 0 && !isDoubleSide());}
+  
+  /** Returns true if the module is stereo */
+  bool isStereo()
+  { return (stereo() != 0 && !isDoubleSide());}
+  
+private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int sideStartBit_=           18;
   static const unsigned int wheelStartBit_=          14;  

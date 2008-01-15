@@ -56,7 +56,38 @@ class TOBDetId : public SiStripDetId {
   unsigned int module() const 
     { return ((id_>>moduleStartBit_)& moduleMask_) ;}
   
- private:
+  /** Returns true if the module is a double side = rphi + stereo */
+  bool isDoubleSide() const;
+  
+  /** Returns true if the module is in TOB+ (z>0 side) */
+  bool isZPlusSide() const
+  { return (!isZMinusSide());}
+  
+  /** Returns true if the module is in TOB- (z<0 side) */
+  bool isZMinusSide() const
+  { return (rod()[0] == 1);}
+  
+  /** Returns the layer number */
+  unsigned int layerNumber() const
+  { return layer();}
+  
+  /** Returns the rod number */
+  unsigned int rodNumber() const
+  { return rod()[1];}
+  
+  /** Returns the module number */
+  unsigned int moduleNumber() const
+  { return module();}
+  
+  /** Returns true if the module is rphi */
+  bool isRPhi()
+  { return (stereo() == 0 && !isDoubleSide());}
+  
+  /** Returns true if the module is stereo */
+  bool isStereo()
+  { return (stereo() != 0 && !isDoubleSide());}
+  
+private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int layerStartBit_=     14;
   static const unsigned int rod_fw_bwStartBit_= 12;

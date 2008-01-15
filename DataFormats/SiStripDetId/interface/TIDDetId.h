@@ -67,8 +67,46 @@ class TIDDetId : public SiStripDetId {
     num.push_back(((id_>>moduleStartBit_) & moduleMask_));
     return num ;}
   
+  /** Returns true if the module is a double side = rphi + stereo */
+  bool isDoubleSide() const;
   
- private:
+  /** Returns true if the module is in TID+ (z>0 side) */
+  bool isZPlusSide() const
+  { return (!isZMinusSide());}
+  
+  /** Returns true if the module is in TID- (z<0 side) */
+  bool isZMinusSide() const
+  { return (side()==0);}
+  
+  /** Returns true if the ring is mounted on the disk back (not facing impact point) */
+  bool isBackRing() const
+  { return (module()[0]==1);}
+  
+  /** Returns true if the ring is mounted on the disk front (facing impact point) */
+  bool isFrontRing() const
+  { return (!isBackRing());}
+  
+  /** Returns the disk number */
+  unsigned int diskNumber() const
+  { return wheel();}
+  
+  /** Returns the ring number */
+  unsigned int ringNumber() const
+  { return ring();}
+  
+  /** Returns the module number */
+  unsigned int moduleNumber() const
+  { return module()[1];}
+  
+  /** Returns true if the module is rphi */
+  bool isRPhi()
+  { return (stereo() == 0 && !isDoubleSide());}
+  
+  /** Returns true if the module is stereo */
+  bool isStereo()
+  { return (stereo() != 0 && !isDoubleSide());}
+  
+private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int sideStartBit_=          13;
   static const unsigned int wheelStartBit_=         11;
