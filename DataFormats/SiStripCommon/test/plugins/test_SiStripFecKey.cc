@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripFecKey.cc,v 1.3 2008/01/11 13:19:17 bainbrid Exp $
+// Last commit: $Id: test_SiStripFecKey.cc,v 1.4 2008/01/14 09:18:17 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFecKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -67,7 +67,7 @@ void testSiStripFecKey::beginJob( const edm::EventSetup& setup ) {
 	  // CCU channel
 	  for ( uint16_t ichan = 0; ichan <= sistrip::CCU_CHAN_MAX+1; ichan++ ) {
  	    if ( ichan > 1 && 
- 		 ichan != sistrip::CCU_CHAN_MIN+1 &&
+ 		 ichan != sistrip::CCU_CHAN_MIN &&
  		 ichan < sistrip::CCU_CHAN_MAX-1 ) { continue; }
 	    
 	    // LLD channels
@@ -77,7 +77,7 @@ void testSiStripFecKey::beginJob( const edm::EventSetup& setup ) {
 	      // APV
 	      for ( uint16_t iapv = 0; iapv <= sistrip::APV_I2C_MAX+1; iapv++ ) {
 		if ( iapv > 1 && 
-		     iapv != sistrip::APV_I2C_MIN+1 &&
+		     iapv != sistrip::APV_I2C_MIN &&
 		     iapv < sistrip::APV_I2C_MAX ) { continue; }
 		
 		// Some debug
