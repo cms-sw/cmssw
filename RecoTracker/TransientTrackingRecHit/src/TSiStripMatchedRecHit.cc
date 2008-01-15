@@ -6,7 +6,8 @@
 //#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 
-#define RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitProj
+#undef RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitProj
+#undef RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitLGL
 #ifdef RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitLGL 
 // Local lo Global lo Local
 inline LocalTrajectoryParameters gluedToStereo(const TrajectoryStateOnSurface &tsos, const GluedGeomDet *gdet) {    
