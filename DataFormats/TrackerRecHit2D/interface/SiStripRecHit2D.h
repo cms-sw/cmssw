@@ -14,19 +14,21 @@ public:
 
   ~SiStripRecHit2D() {} 
 
+  typedef edm::Ref< edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  > ClusterRef;
   SiStripRecHit2D( const LocalPoint&, const LocalError&,
 		   const DetId&, 
-		   edm::Ref< edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  > const&  cluster); 
+		   ClusterRef const&  cluster); 
 
+  typedef edm::Ref< edm::SiStripLazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >  ClusterRegionalRef;
   SiStripRecHit2D( const LocalPoint&, const LocalError&,
 		   const DetId&, 
-		   edm::SiStripRefGetter<SiStripCluster>::value_ref const& ); 
+		   ClusterRegionalRef const& cluster);
   
   virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
   
-  edm::SiStripRefGetter<SiStripCluster>::value_ref const&  cluster_regional()  const { return clusterRegional_;}
+  ClusterRegionalRef const&  cluster_regional()  const { return clusterRegional_;}
 
-  edm::Ref<edm::DetSetVector<SiStripCluster> ,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > const&  cluster()  const { return cluster_;}
+  ClusterRef const&  cluster()  const { return cluster_;}
   
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
   
@@ -36,11 +38,11 @@ public:
  private:
 
   // DetSetVector ref
-  edm::Ref<edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  >  cluster_;
+  ClusterRef cluster_;
 
 
   // SiStripRefGetter ref.
-  edm::SiStripRefGetter<SiStripCluster>::value_ref clusterRegional_;
+  ClusterRegionalRef clusterRegional_;
 
   /// cache for the matcher....
   mutable double sigmaPitch_;  // transient....
