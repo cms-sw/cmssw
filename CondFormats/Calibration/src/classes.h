@@ -6,6 +6,7 @@
 #include "CondFormats/Calibration/interface/CalibHistograms.h"
 #include<bitset>
 #include "CondFormats/Calibration/interface/BitArray.h"
+#include "CondFormats/Calibration/interface/boostTypeObj.h"
 /*#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"

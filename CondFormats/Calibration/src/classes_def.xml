@@ -38,4 +38,5 @@
  <class name="__gnu_cxx::__normal_iterator<float*,std::vector<float> >"/>
  <class name="std::bitset<7>"/>
  <class name="BitArray<9>"/>
+ <class name="boostTypeObj"/>
 </lcgdict>   
