@@ -10,7 +10,7 @@
 //              bool keepBlankFields = true)
 // 
 // Function that splits a string 's' at the occurrences of 'delimiter', and adds the pieces at the end of 'container'.
-// // If keepBlankFields is false (the default), consecutive delimiters are treated as a single field separator; otherwise, they produce empy fields.
+// // If keepBlankFields is false (the default), consecutive delimiters are treated as a single field separator; otherwise, they produce empty fields.
 // 
 // The function is templated on
 //   the character type E (used both for string and delimiter)
