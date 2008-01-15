@@ -11,5 +11,5 @@
 <export>
     <lib name=PhysicsToolsPatUtils>
     <use name=DataFormats/Candidate>
-    <use name=DataFormats/PATCandidates>
+    <use name=DataFormats/PatCandidates>
 </export>

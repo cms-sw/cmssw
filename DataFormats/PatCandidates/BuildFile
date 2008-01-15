@@ -19,5 +19,5 @@
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/HepMCCandidate>
   <use name=root>
-  <lib name=DataFormatsPATCandidates>
+  <lib name=DataFormatsPatCandidates>
 </export>
