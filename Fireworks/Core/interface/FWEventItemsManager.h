@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id$
+// $Id: FWEventItemsManager.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@ namespace fwlite {
   class Event;
 }
 class FWEventItem;
+class FWPhysicsObjectDesc;
 
 class FWEventItemsManager
 {
@@ -51,7 +52,7 @@ class FWEventItemsManager
           it was not added because an FWEventItem with the same name
           already exists
        */
-      const FWEventItem* add(const FWEventItem& iItem);
+      const FWEventItem* add(const FWPhysicsObjectDesc& iItem);
 
       void newEvent(const fwlite::Event* iEvent);
 

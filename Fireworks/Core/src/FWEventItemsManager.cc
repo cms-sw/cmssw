@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id$
+// $Id: FWEventItemsManager.cc,v 1.1 2008/01/07 05:48:46 chrjones Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ FWEventItemsManager::~FWEventItemsManager()
 // member functions
 //
 const FWEventItem* 
-FWEventItemsManager::add(const FWEventItem& iItem)
+FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
 {
   m_items.push_back(new FWEventItem(iItem) );
   newItem(m_items.back());

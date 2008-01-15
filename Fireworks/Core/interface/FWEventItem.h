@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id$
+// $Id: FWEventItem.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
+#include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 
 // forward declarations
 class TClass;
@@ -43,6 +44,8 @@ class FWEventItem
 		  const std::string& iModuleLabel = std::string(),
 		  const std::string& iProductInstanceLabel = std::string(),
 		  const std::string& iProcessName = std::string());
+   
+      FWEventItem(const FWPhysicsObjectDesc& iDesc);
       //virtual ~FWEventItem();
 
       // ---------- const member functions ---------------------

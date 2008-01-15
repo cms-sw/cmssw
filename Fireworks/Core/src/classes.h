@@ -3,6 +3,7 @@
 #include "Fireworks/Core/interface/FWDisplayEvent.h"
 #include "Fireworks/Core/interface/FWDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"

@@ -4,6 +4,7 @@
   <class name="FWRPZDataProxyBuilder"/>
   <class name="FW3DLegoDataProxyBuilder"/>
   <class name="FW3DLegoViewManager"/>
+  <class name="FWPhysicsObjectDesc"/>
   <class name="FWEventItem"/>
   <class name="FWDisplayProperties"/>
 </lcgdict>

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.13 2008/01/15 16:17:32 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.14 2008/01/15 19:48:33 chrjones Exp $
 //
 
 // system include files
@@ -155,7 +155,7 @@ FWDisplayEvent::~FWDisplayEvent()
 //
 // member functions
 //
-void FWDisplayEvent::registerEventItem(const FWEventItem&iItem)
+void FWDisplayEvent::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 {
   const FWEventItem* newItem = m_eiManager->add(iItem);
   m_viewManager->registerEventItem(newItem);

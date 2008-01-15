@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id$
+// $Id: FWEventItem.cc,v 1.1 2008/01/07 05:48:46 chrjones Exp $
 //
 
 // system include files
@@ -56,6 +56,26 @@ FWEventItem::FWEventItem(const std::string& iName,
   assert(m_wrapperType != ROOT::Reflex::Type());
 }
 
+FWEventItem::FWEventItem(const FWPhysicsObjectDesc& iDesc) :
+m_name(iDesc.name()),
+m_type(iDesc.type()),
+m_data(0),
+m_displayProperties(iDesc.displayProperties()),
+m_moduleLabel(iDesc.moduleLabel()),
+m_productInstanceLabel(iDesc.productInstanceLabel()),
+m_processName(iDesc.processName()),
+m_event(0)
+{
+   assert(m_type->GetTypeInfo());
+   ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
+   assert(dataType != ROOT::Reflex::Type() );
+   
+   std::string wrapperName = std::string("edm::Wrapper<")+dataType.Name(ROOT::Reflex::SCOPED)+" >";
+   std::cout <<wrapperName<<std::endl;
+   m_wrapperType = ROOT::Reflex::Type::ByName(wrapperName);
+   
+   assert(m_wrapperType != ROOT::Reflex::Type());
+}
 // FWEventItem::FWEventItem(const FWEventItem& rhs)
 // {
 //    // do actual copying here;

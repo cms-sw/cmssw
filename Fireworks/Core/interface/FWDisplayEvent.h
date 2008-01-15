@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.8 2008/01/15 16:17:33 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.9 2008/01/15 19:48:34 chrjones Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@ class TGPictureButton;
 class FWEventItemsManager;
 class FWViewManagerManager;
 class FWEventItem;
+class FWPhysicsObjectDesc;
 
 namespace fwlite {
   class Event;
@@ -62,7 +63,7 @@ class FWDisplayEvent
       void registerProxyBuilder(const std::string&, 
 				const std::string&);
       
-      void registerEventItem(const FWEventItem&);
+      void registerPhysicsObject(const FWPhysicsObjectDesc&);
    private:
       FWDisplayEvent(const FWDisplayEvent&); // stop default
 
