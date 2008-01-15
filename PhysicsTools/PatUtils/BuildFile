@@ -1,0 +1,6 @@
+<use name=DataFormats/Candidate>
+<use name=PhysicsTools/Utilities>
+<export>
+    <lib name=PhysicsToolsPatUtils>
+    <use name=DataFormats/Candidate>
+</export>
