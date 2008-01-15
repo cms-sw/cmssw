@@ -14,7 +14,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.42 2007/09/20 16:55:37 tomalini Exp $
+ * \version $Id: Track.h,v 1.43 2007/10/08 03:35:20 mangano Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -28,6 +28,7 @@ namespace reco {
   public:
     /// default constructor
     Track() { }
+    virtual ~Track() {};
     /// constructor from fit parameters and error matrix  
     Track( double chi2, double ndof, const Point & referencePoint,
 	   const Vector & momentum, int charge, const CovarianceMatrix &);
