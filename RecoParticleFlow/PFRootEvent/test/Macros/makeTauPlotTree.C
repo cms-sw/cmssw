@@ -1,11 +1,40 @@
-void makeTauPlotTree(const char* pattern, 
-		     const char* label, 
-		     int relative = 0) {
 
-  
+void makeTauPlot(TTree *tree, 
+		 const char* label,
+		 int relative = 0);
+
+void makeTauPlotChain(const char* pattern, 
+		      const char* label, 
+		      int relative = 0 ) {
+
   gSystem->Load("libChain");
   
   Chain chain("Eff", pattern);
+
+  makeTauPlot( &chain, label, relative );
+}
+
+
+void makeTauPlotTree(const char* filename, 
+		     const char* label, 
+		     int relative = 0 ) {
+
+  TChain chain("Eff");
+  chain.Add( filename );
+  
+
+  makeTauPlot( &chain, label, relative );
+}
+
+
+
+void makeTauPlot(TTree *tree, 
+		 const char* label,
+		 int relative) {
+
+  
+  
+
 
   int nentries = 999999;
   
@@ -54,15 +83,15 @@ void makeTauPlotTree(const char* pattern,
     = (TH1F*) h_deltaETvisible_MCPF->Clone(ehthname.c_str());
   h_deltaETvisible_MCEHT->SetLineColor(2);
   //jetsMC_.et<100
-  chain.Draw(pfvar.c_str(), 
+  tree->Draw(pfvar.c_str(), 
 	     "", "", nentries);
-  chain.Draw(ehtvar.c_str(), 
+  tree->Draw(ehtvar.c_str(), 
 	     "", "", nentries);
 
   cout<<pfvar<<endl;
   cout<<ehtvar<<endl;
-//   chain.Draw("(jetsPF_.et - jetsMC_.et)/jetsPF_.et>>h_deltaETvisible_MCPF");
-//   chain.Draw("(jetsEHT_.et - jetsMC_.et)/jetsEHT_.et>>h_deltaETvisible_MCEHT");
+//   tree->Draw("(jetsPF_.et - jetsMC_.et)/jetsPF_.et>>h_deltaETvisible_MCPF");
+//   tree->Draw("(jetsEHT_.et - jetsMC_.et)/jetsEHT_.et>>h_deltaETvisible_MCEHT");
   h_deltaETvisible_MCPF->Draw();
   h_deltaETvisible_MCEHT->Draw("same");
   
